@@ -22,4 +22,25 @@
 
 #pragma GLOBAL_ASM("asm/nonmatchings/libultra/string/strlen.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/string/strchr.s")
+/*
+ * First matched C function in the project.
+ *
+ * Reads as the textbook strchr: walk the string comparing against the search
+ * character truncated to `char`, stop at the terminator. The two details the
+ * codegen pins down are (a) `ch` is narrowed once, up front, rather than
+ * compared as an int each iteration, and (b) the terminator test happens
+ * inside the loop after the match test, not as a separate leading condition --
+ * which is why the compiled form enters the loop body with the first byte
+ * already loaded.
+ */
+char *strchr(const char *str, int ch) {
+    const char c = ch;
+
+    while (*str != c) {
+        if (*str == 0) {
+            return NULL;
+        }
+        str++;
+    }
+    return (char *)str;
+}
