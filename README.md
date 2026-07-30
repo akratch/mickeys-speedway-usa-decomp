@@ -1,5 +1,9 @@
 # Mickey's Speedway USA
 
+## Clean Room
+
+No ROMs, extracted assets, or proprietary toolchain binaries are committed to this repository. Bring your own legally dumped, SHA1-verified ROM. See [`docs/CLEANROOM.md`](docs/CLEANROOM.md) for the full policy.
+
 A repository exploring a decompilation of Mickey's Speedway USA.
 
 This is super minimal and likely won't become a full decomp project. It is just being used to explore the Diddy Kong Racing engine as it evolved on the N64.
