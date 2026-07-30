@@ -79,7 +79,8 @@ at a time.
 ```sh
 ./diff.sh <symbol>          # target vs. current disassembly; matched == no diffs
 ./diff.sh -mw <symbol>      # rebuild first, then re-diff on every file save
-bash mips_to_c.sh <symbol>  # m2c first draft into m2cfiles/
+./generate_ctx.sh           # optional: ctx.c, so m2c knows project types
+./mips_to_c.sh <symbol>     # m2c first draft into m2cfiles/<symbol>.c
 gmake verify                # the only claim that counts
 ```
 

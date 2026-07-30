@@ -21,6 +21,8 @@ tools/binutils/
 undefined_funcs_auto*.txt
 undefined_syms_auto*.txt
 ctx.c
+ctx_includes.c
+ctx.c.m2c
 *.i
 *.o
 
