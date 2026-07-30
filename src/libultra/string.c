@@ -18,9 +18,35 @@
 #include "PR/ultratypes.h"
 #include "string.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/string/memcpy.s")
+/*
+ * The naive byte-at-a-time copy, not the word-at-a-time one -- libultra's
+ * fast path for bulk copies is `bcopy`, which lives in hand-written assembly
+ * elsewhere in this same libultra block (ROM 0x72420).  The compiled form
+ * hoists the zero-length test out of the loop and writes through the return
+ * value with a -1 displacement, which is what a plain post-increment loop
+ * returning the original pointer gives you at -O2.
+ */
+void *memcpy(void *dst, const void *src, size_t size) {
+    char *d = (char *)dst;
+    const char *s = (const char *)src;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/string/strlen.s")
+    while (size > 0) {
+        *d = *s;
+        d++;
+        s++;
+        size--;
+    }
+    return (void *)dst;
+}
+
+size_t strlen(const char *str) {
+    const char *p = str;
+
+    while (*p != 0) {
+        p++;
+    }
+    return p - str;
+}
 
 /*
  * First matched C function in the project.
