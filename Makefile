@@ -35,7 +35,9 @@ OBJDUMP := $(CROSS)objdump
 STRIP   := $(CROSS)strip
 
 HOST_CC := cc
-PYTHON  := .venv/bin/python
+HOST_PYTHON := python3
+VENV    := .venv
+PYTHON  := $(VENV)/bin/python
 SHA1    := shasum -a 1
 
 # IDO 5.3, unused until the first C file lands (Phase 1) but kept configured.
@@ -95,7 +97,7 @@ default: all
 
 all: $(TARGET).z64
 
-setup:
+setup: $(PYTHON)
 	$(PYTHON) -m pip install -q -r requirements.txt
 	$(TOOLS_DIR)/setup_toolchain.sh
 	$(TOOLS_DIR)/verify_baseroms.sh
@@ -129,6 +131,11 @@ distclean: clean
 
 $(ALL_DIRS):
 	@mkdir -p $@
+
+# Bootstrap the venv on a fresh clone. Only runs when .venv/bin/python is
+# missing, so an existing environment is never rebuilt from under you.
+$(PYTHON):
+	$(HOST_PYTHON) -m venv $(VENV)
 
 $(CRC): $(TOOLS_DIR)/n64crc.c
 	$(HOST_CC) -O2 -w -o $@ $<
