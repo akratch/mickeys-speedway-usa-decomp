@@ -18,6 +18,15 @@ Code, symbol names, comments, or structure may NOT be derived from:
 Contributors who have studied leaked Rare source code should not
 contribute matched C implementations.
 
+**Narrow exception — binary file-format facts only:** the *public*
+Dinosaur Planet decompilation project (its documentation and tooling,
+built from a retail ROM — not the leaked build) may be consulted
+purely to understand the binary layout of Rare's DLL/overlay
+reloc-table format (field offsets, relocation types, table structure),
+since Mickey's overlay system uses the same mechanism. This exception
+never extends to symbol names, code, or comments — only structural/
+format facts about how the retail binary is laid out.
+
 ## Permitted knowledge sources
 - Analysis of retail ROMs you legally possess
 - Published matching-decomp repositories built from retail ROMs
