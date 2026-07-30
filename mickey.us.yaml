@@ -262,7 +262,12 @@ segments:
       - [0x743A0, asm]
       - [0x748B0, asm]
       - [0x748C0, asm]
-      - [0x74C20, asm]
+      # 0x74C20-0x74C60 is libultra's __osSpSetPc TU; splat's boundary finder
+      # already isolated it exactly, and its 0x40-byte .text is byte-identical
+      # to DKR's built spsetpc.c object. Converted to `c` and deliberately
+      # kept as pure `#pragma GLOBAL_ASM` -- see src/libultra/spsetpc.c for
+      # why. Do not decompile this one without scaffolding a replacement.
+      - [0x74C20, c, libultra/spsetpc]
       - [0x74C60, asm]
       - [0x74CF0, asm]
       - [0x74D20, asm]

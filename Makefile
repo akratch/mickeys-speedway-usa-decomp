@@ -252,9 +252,16 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/string.c.o: MIPSISET := -mips2 -32
 $(TARGET).elf: $(O_FILES) $(LD_SCRIPT) | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(LD) $(LDFLAGS) -o $@
 
+# symbol_addrs is a real input to the split, not just documentation: naming a
+# function there changes the labels in the generated .s and, for `c`
+# subsegments, the *filenames* under asm/nonmatchings/ that the source's
+# GLOBAL_ASM pragmas point at. Leaving it off this list meant adding a symbol
+# name did not re-split, and the build failed with a missing nonmatchings file.
+#
 # Order-only prereq on $(PYTHON) so the split never runs against a nonexistent
 # venv; `setup` is what actually installs splat into it.
-$(SPLAT_STAMP): $(BASENAME).$(VERSION).yaml requirements.txt | $(ALL_DIRS) $(PYTHON)
+$(SPLAT_STAMP): $(BASENAME).$(VERSION).yaml symbol_addrs.$(VERSION).txt \
+                requirements.txt | $(ALL_DIRS) $(PYTHON)
 	$(PYTHON) -m splat split $(BASENAME).$(VERSION).yaml
 	@touch $@
 

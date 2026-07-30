@@ -7,3 +7,7 @@ rngSeed = 0x8007A264;
 memcpy = 0x80071770; // type:func size:0x2C
 strlen = 0x8007179C; // type:func size:0x28
 strchr = 0x800717C4; // type:func size:0x40
+
+// libultra: the __osSpSetPc TU at ROM 0x74C20-0x74C60
+// (src/libultra/spsetpc.c). Same identification method as above.
+__osSpSetPc = 0x80074020; // type:func size:0x34
