@@ -1,273 +1,166 @@
-BASENAME  = mickey
+# Mickey's Speedway USA (US) — clean-room decompilation build
+#
+# Phase 0: the ROM is rebuilt entirely from splat's disassembly + extracted
+# binaries. No C is compiled yet; the IDO variables below are kept wired up so
+# that later phases only have to add source files, not re-derive the toolchain.
+#
+#   gmake            build/mickey.us.z64
+#   gmake verify     build + SHA1 compare against the baserom hash
+#   gmake setup      venv + toolchain + baserom check + splat extraction
+#   gmake clean      remove build/
+#   gmake distclean  also remove splat's generated output
+
+BASENAME := mickey
 VERSION  := us
 
-# Colors
-
-NO_COL  := \033[0m
-RED     := \033[0;31m
-RED2    := \033[1;31m
-GREEN   := \033[0;32m
-YELLOW  := \033[0;33m
-BLUE    := \033[0;34m
-PINK    := \033[0;35m
-CYAN    := \033[0;36m
-
+# ---------------------------------------------------------------------------
 # Directories
+# ---------------------------------------------------------------------------
 
-BIN_DIRS  = assets
+BUILD_DIR := build
+SRC_DIR   := src
+ASM_DIRS  := asm asm/data
+BIN_DIRS  := assets
+TOOLS_DIR := tools
 
-ifeq ($(VERSION),us)
-BUILD_DIR = build
-SRC_DIR   = src
-ASM_DIRS  = asm asm/data asm/libultra #For libultra handwritten files
-else
-BUILD_DIR = build_$(VERSION)
-SRC_DIR   = src_$(VERSION)
-ASM_DIRS  = asm_$(VERSION) asm_$(VERSION)/data asm_$(VERSION)/libultra #For libultra handwritten files
-endif
-
-LIBULTRA_SRC_DIRS = $(SRC_DIR)/libultra
-
-DEFINE_SRC_DIRS  = $(SRC_DIR) $(SRC_DIR)/core $(LIBULTRA_SRC_DIRS)
-SRC_DIRS = $(DEFINE_SRC_DIRS)
-
-TOOLS_DIR = tools
-
-# Files
-
-S_FILES         = $(foreach dir,$(ASM_DIRS),$(wildcard $(dir)/*.s))
-C_FILES         = $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
-BIN_FILES       = $(foreach dir,$(BIN_DIRS),$(wildcard $(dir)/*.bin))
-
-O_FILES := $(foreach file,$(S_FILES),$(BUILD_DIR)/$(file).o) \
-           $(foreach file,$(C_FILES),$(BUILD_DIR)/$(file).o) \
-           $(foreach file,$(BIN_FILES),$(BUILD_DIR)/$(file).o)
-
-
-find-command = $(shell which $(1) 2>/dev/null)
-
+# ---------------------------------------------------------------------------
 # Tools
+# ---------------------------------------------------------------------------
 
-ifeq ($(shell type mips-linux-gnu-ld >/dev/null 2>/dev/null; echo $$?), 0)
-  CROSS := mips-linux-gnu-
-else ifeq ($(shell type mips64-linux-gnu-ld >/dev/null 2>/dev/null; echo $$?), 0)
-  CROSS := mips64-linux-gnu-
-else
-  CROSS := mips64-elf-
-endif
+CROSS   := $(TOOLS_DIR)/binutils/mips64-elf-
+AS      := $(CROSS)as
+LD      := $(CROSS)ld
+OBJCOPY := $(CROSS)objcopy
+OBJDUMP := $(CROSS)objdump
+STRIP   := $(CROSS)strip
 
-AS       = $(CROSS)as
-CPP      = cpp
-LD       = $(CROSS)ld
-OBJCOPY  = $(CROSS)objcopy
-PYTHON   = python3
-GCC      = gcc
+HOST_CC := cc
+PYTHON  := .venv/bin/python
+SHA1    := shasum -a 1
 
-XGCC     = mips64-elf-gcc
+# IDO 5.3, unused until the first C file lands (Phase 1) but kept configured.
+CC      := $(TOOLS_DIR)/ido/cc
+OPT_FLAGS := -O2
+MIPSISET  := -mips1 -32
+DEFINES   := -D_LANGUAGE_C -D_FINALROM -DTARGET_N64 -DVERSION_$(VERSION)
+INCLUDE_CFLAGS := -I . -I include -I include/libc -I include/PR -I include/sys -I assets
+CFLAGS  := -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
+           $(DEFINES) $(INCLUDE_CFLAGS)
 
-GREP     = grep -rl
+CRC := $(TOOLS_DIR)/n64crc
 
-#Options
-CC       = $(TOOLS_DIR)/ido-static-recomp/build/5.3/out/cc
-SPLAT    = $(TOOLS_DIR)/splat/split.py
-CRC      = @tools/n64crc $(BUILD_DIR)/$(BASENAME).$(VERSION).z64
+# ---------------------------------------------------------------------------
+# Flags
+# ---------------------------------------------------------------------------
 
-OPT_FLAGS      = -O2
-LOOP_UNROLL    =
+# Verified working assembler invocation (Task 4).
+ASFLAGS := -march=vr4300 -32 -mabi=32 -G0 -I include
 
-MIPSISET       = -mips1 -32
+# splat's ld script names every input object explicitly, so nothing is passed
+# on the command line; --no-check-sections because segments deliberately share
+# VRAM ranges (overlays / assets all follow main's vram).
+LD_SCRIPT := $(BASENAME).$(VERSION).ld
+LDFLAGS   := -T $(LD_SCRIPT) \
+             -T undefined_funcs_auto.$(VERSION).txt \
+             -T undefined_syms_auto.$(VERSION).txt \
+             -T libultra_undefined_syms.$(VERSION).txt \
+             -Map $(BUILD_DIR)/$(BASENAME).$(VERSION).map --no-check-sections
 
-INCLUDE_CFLAGS = -I . -I include/libc  -I include/PR -I include/sys -I include -I assets -I $(SRC_DIR)/os 
+# rom_fill already carries the trailing 0xFF region, so --pad-to is a belt-and
+# -braces guarantee of the 32MiB image size rather than a real fill step.
+ROM_SIZE     := 0x2000000
+OBJCOPYFLAGS := -O binary --pad-to=$(ROM_SIZE) --gap-fill=0xFF
 
-ASFLAGS        = -EB -mtune=vr4300 -march=vr4300 -mabi=32 -I include
-OBJCOPYFLAGS   = -O binary
+# ---------------------------------------------------------------------------
+# Files
+# ---------------------------------------------------------------------------
 
-# Files requiring pre/post-processing
-GLOBAL_ASM_C_FILES := $(shell $(GREP) GLOBAL_ASM $(SRC_DIR) </dev/null 2>/dev/null)
-GLOBAL_ASM_O_FILES := $(foreach file,$(GLOBAL_ASM_C_FILES),$(BUILD_DIR)/$(file).o)
+S_FILES   := $(foreach dir,$(ASM_DIRS),$(wildcard $(dir)/*.s))
+BIN_FILES := $(foreach dir,$(BIN_DIRS),$(wildcard $(dir)/*.bin))
 
+O_FILES := $(foreach f,$(S_FILES),$(BUILD_DIR)/$(f).o) \
+           $(foreach f,$(BIN_FILES),$(BUILD_DIR)/$(f).o)
 
-DEFINES := -D_LANGUAGE_C -D_FINALROM -DWIN32 -DNDEBUG -DTARGET_N64 -D__sgi
+ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(ASM_DIRS) $(BIN_DIRS))
 
+TARGET   := $(BUILD_DIR)/$(BASENAME).$(VERSION)
+BASEROM  := baseroms/$(BASENAME).$(VERSION).z64
+EXPECTED_SHA1 := $(firstword $(shell cat $(BASENAME).$(VERSION).sha1))
 
-DEFINES += -DVERSION_$(VERSION)
-
-VERIFY = verify
-
-#Soon
-#ifeq ($(NON_MATCHING),1)
-#DEFINES += -DNON_MATCHING
-#VERIFY = no_verify
-#PROGRESS_NONMATCHING = --non-matching
-#endif
-
-CFLAGS := -Wab,-r4300_mul -non_shared -G 0 -Xcpluscomm -fullwarn -nostdinc -G 0
-CFLAGS += $(DEFINES)
-# ignore compiler warnings about anonymous structs
-CFLAGS += -woff 649,838
-CFLAGS += $(INCLUDE_CFLAGS)
-
-CHECK_WARNINGS := -Wall -Wextra -Wno-format-security -Wno-unknown-pragmas -Wunused-function -Wno-unused-parameter -Wno-unused-variable -Wno-missing-braces -Wno-int-conversion
-CC_CHECK := $(GCC) -fsyntax-only -fno-builtin -funsigned-char -std=gnu90 -m32 $(CHECK_WARNINGS) $(INCLUDE_CFLAGS) $(DEFINES)
-
-GCC_FLAGS := $(INCLUDE_CFLAGS) $(DEFINES)
-GCC_FLAGS += -G 0 -mno-shared -march=vr4300 -mfix4300 -mabi=32 -mhard-float
-GCC_FLAGS += -mdivide-breaks -fno-stack-protector -fno-common -fno-zero-initialized-in-bss -fno-PIC -mno-abicalls -fno-strict-aliasing -fno-inline-functions -ffreestanding -fwrapv
-GCC_FLAGS += -Wall -Wextra -Wno-missing-braces
-
-TARGET     = $(BUILD_DIR)/$(BASENAME).$(VERSION)
-LD_SCRIPT  = $(BASENAME).$(VERSION).ld
-
-LD_FLAGS   = -T $(LD_SCRIPT) -T undefined_funcs_auto.$(VERSION).txt  -T undefined_syms_auto.$(VERSION).txt -T libultra_undefined_syms.$(VERSION).txt
-LD_FLAGS  += -Map $(TARGET).map --no-check-sections
-
-ifeq ($(VERSION),us)
-LD_FLAGS_EXTRA  =
-LD_FLAGS_EXTRA += $(foreach sym,$(UNDEFINED_SYMS),-u $(sym))
-else
-LD_FLAGS_EXTRA  =
-LD_FLAGS_EXTRA += $(foreach sym,$(UNDEFINED_SYMS),-u $(sym))
-endif
-
-ASM_PROCESSOR_DIR := $(TOOLS_DIR)/asm-processor
-ASM_PROCESSOR      = $(PYTHON) $(ASM_PROCESSOR_DIR)/asm_processor.py
-
-### Optimisation Overrides
-# $(BUILD_DIR)/$(SRC_DIR)/os/%.c.o: OPT_FLAGS := -O1
-# $(BUILD_DIR)/$(SRC_DIR)/os/audio/%.c.o: OPT_FLAGS := -O2
-# $(BUILD_DIR)/$(SRC_DIR)/os/libc/%.c.o: OPT_FLAGS := -O3
-# $(BUILD_DIR)/$(SRC_DIR)/os/gu/%.c.o: OPT_FLAGS := -O3
-
-### Targets
+# ---------------------------------------------------------------------------
+# Targets
+# ---------------------------------------------------------------------------
 
 default: all
 
-all: $(VERIFY)
+all: $(TARGET).z64
 
-ldflags:
-	@printf "[$(PINK) LDFLAGS $(NO_COL)]: $(LD_FLAGS)\n[$(PINK) EXTRA $(NO_COL)]: $(LD_FLAGS_EXTRA)\n"
+setup:
+	$(PYTHON) -m pip install -q -r requirements.txt
+	$(TOOLS_DIR)/setup_toolchain.sh
+	$(TOOLS_DIR)/verify_baseroms.sh
+	$(PYTHON) -m splat split $(BASENAME).$(VERSION).yaml
 
-dirs:
-	$(foreach dir,$(SRC_DIRS) $(ASM_DIRS) $(BIN_DIRS),$(shell mkdir -p $(BUILD_DIR)/$(dir)))
-
-check: .baserom.$(VERSION).ok
+extract:
+	$(PYTHON) -m splat split $(BASENAME).$(VERSION).yaml
 
 verify: $(TARGET).z64
-	@sha1sum -c $(BASENAME).$(VERSION).sha1
-
-no_verify: $(TARGET).z64
-	@echo "Skipping SHA1SUM check!"
-
-splat: $(SPLAT)
-
-extract: splat tools
-	$(PYTHON) $(SPLAT) $(BASENAME).$(VERSION).yaml
-
-extractall: splat tools
-	$(PYTHON) $(SPLAT) $(BASENAME).us.yaml
-	$(PYTHON) $(SPLAT) $(BASENAME).pal.yaml
-	$(PYTHON) $(SPLAT) $(BASENAME).jpn.yaml
-
-dependencies: tools
-	@make -C tools
-	@$(PYTHON) -m pip install -r tools/splat/requirements.txt #Installing the splat dependencies
+	@got=$$($(SHA1) $(TARGET).z64 | cut -d' ' -f1); \
+	echo "expected $(EXPECTED_SHA1)"; \
+	echo "built    $$got"; \
+	if [ "$$got" = "$(EXPECTED_SHA1)" ]; then \
+		echo "OK  $(TARGET).z64 matches the baserom"; \
+	else \
+		echo "FAIL $(TARGET).z64 does not match the baserom"; \
+		exit 1; \
+	fi
 
 clean:
 	rm -rf $(BUILD_DIR)
-	
-cleanall:
-	rm -rf build
-	rm -rf build_pal
-	rm -rf build_jpn
-
 
 distclean: clean
-	rm -rf $(ASM_DIRS)
-	rm -rf assets
-	rm -f *auto.us.txt
-	rm -f *auto.pal.txt
-	rm -f *auto.jpn.txt
-	rm -f $(LD_SCRIPT)
+	rm -rf $(ASM_DIRS) $(BIN_DIRS)
+	rm -f $(LD_SCRIPT) undefined_funcs_auto.$(VERSION).txt undefined_syms_auto.$(VERSION).txt
+	rm -f $(CRC)
 
-distcleanall: clean
-	rm -rf $(ASM_DIRS)
-	rm -rf assets
-	rm -f *auto.$(VERSION).txt
-	rm -f $(LD_SCRIPT)
+# ---------------------------------------------------------------------------
+# Recipes
+# ---------------------------------------------------------------------------
 
-#When you just need to wipe old symbol names and re-extract
-cleanextract: distclean extract
+$(ALL_DIRS):
+	@mkdir -p $@
 
-#When you just need to wipe old symbol names and re-extract
-cleanextractall: distcleanall extractall
+$(CRC): $(TOOLS_DIR)/n64crc.c
+	$(HOST_CC) -O2 -w -o $@ $<
 
-#Put the build folder into expected for use with asm-differ. Only run this with a matching build.
-expected: verify
-	mkdir -p expected
-	rm -rf expected/$(BUILD_DIR)
-	cp -r $(BUILD_DIR)/ expected/
+$(BUILD_DIR)/%.s.o: %.s | $(ALL_DIRS)
+	$(AS) $(ASFLAGS) -o $@ $<
 
-### Recipes
+$(BUILD_DIR)/%.bin.o: %.bin | $(ALL_DIRS)
+	$(OBJCOPY) -I binary -O elf32-bigmips -B mips $< $@
 
-.baserom.$(VERSION).ok: baserom.$(VERSION).z64
-	@echo "$$(cat $(BASENAME).$(VERSION).sha1)  $<" | sha1sum --check
-	@touch $@
-
-$(TARGET).elf: dirs $(LD_SCRIPT) $(BUILD_DIR)/$(LIBULTRA) $(O_FILES) $(LANG_RNC_O_FILES) $(IMAGE_O_FILES)
-	@$(LD) $(LD_FLAGS) $(LD_FLAGS_EXTRA) -o $@
-	@printf "[$(PINK) Linker $(NO_COL)]  $<\n"
-
-ifndef PERMUTER
-$(GLOBAL_ASM_O_FILES): $(BUILD_DIR)/%.c.o: %.c  include/variables.h include/structs.h
-	@$(CC_CHECK) $<
-	@printf "[$(YELLOW) check $(NO_COL)] $<\n"
-	@$(ASM_PROCESSOR) $(OPT_FLAGS) $< > $(BUILD_DIR)/$<
-	@$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(LOOP_UNROLL) $(MIPSISET) -o $@ $(BUILD_DIR)/$<
-	@$(ASM_PROCESSOR) $(OPT_FLAGS) $< --post-process $@ \
-		--assembler "$(AS) $(ASFLAGS)" --asm-prelude $(ASM_PROCESSOR_DIR)/prelude.inc
-	@printf "[$(GREEN) ido5.3 $(NO_COL)]  $<\n"
-endif
-
-# non asm-processor recipe
-$(BUILD_DIR)/%.c.o: %.c
-#	@$(CC_CHECK) $<
-	@$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(LOOP_UNROLL) $(MIPSISET) -o $@ $<
-	@printf "[$(GREEN) ido5.3 $(NO_COL)]  $<\n"
-
-
-
-$(BUILD_DIR)/$(LIBULTRA): $(LIBULTRA)
-	@mkdir -p $$(dirname $@)
-
-$(BUILD_DIR)/%.s.o: %.s
-	@$(AS) $(ASFLAGS) -o $@ $<
-	@printf "[$(GREEN)  ASSEMBLER   $(NO_COL)]  $<\n"
-
-$(BUILD_DIR)/%.bin.o: %.bin
-	@$(LD) -r -b binary -o $@ $<
-	@printf "[$(PINK) Linker $(NO_COL)]  $<\n"
+$(TARGET).elf: $(O_FILES) $(LD_SCRIPT) | $(ALL_DIRS)
+	$(LD) $(LDFLAGS) -o $@
 
 $(TARGET).bin: $(TARGET).elf
-	@$(OBJCOPY) $(OBJCOPYFLAGS) $< $@
-	@printf "[$(CYAN) Objcopy $(NO_COL)]  $<\n"
+	$(OBJCOPY) $(OBJCOPYFLAGS) $< $@
 
-$(TARGET).z64: $(TARGET).bin
-	@printf "[$(BLUE) CopyRom $(NO_COL)]  $<\n"
-	@tools/CopyRom.py $< $@ #Mask
-	@printf "[$(GREEN) CRC $(NO_COL)]  $<\n"
-	@$(CRC)
+# n64crc is expected to be a no-op: every byte, CRC words included, came out of
+# the baserom via splat. If it rewrites the header the build is wrong upstream,
+# so say so loudly instead of silently "fixing" it.
+$(TARGET).z64: $(TARGET).bin $(CRC)
+	@cp $(TARGET).bin $@
+	@before=$$($(SHA1) $@ | cut -d' ' -f1); \
+	$(CRC) $@ >/dev/null; \
+	after=$$($(SHA1) $@ | cut -d' ' -f1); \
+	if [ "$$before" != "$$after" ]; then \
+		echo "WARNING: n64crc rewrote the CRC words ($$before -> $$after);"; \
+		echo "         the linked image did not reproduce the ROM's own checksums."; \
+	else \
+		echo "n64crc: checksums already correct (no-op)"; \
+	fi
+	@ls -l $@
 
-# fake targets for better error handling
-$(SPLAT):
-	$(info Repo cloned without submodules, attempting to fetch them now...)
-	@which git >/dev/null || echo "ERROR: git binary not found on PATH"
-	@which git >/dev/null
-	git submodule update --init --recursive
-
-baserom.$(VERSION).z64:
-	$(error Place the Mickey's Speedway USA $(VERSION) ROM, named '$@', in the root of this repo and try again.)
-
-### Settings
+.PHONY: default all setup extract verify clean distclean
 .SECONDARY:
-.PHONY: all clean default
 SHELL = /bin/bash -e -o pipefail
