@@ -89,33 +89,76 @@ TARGET   := $(BUILD_DIR)/$(BASENAME).$(VERSION)
 BASEROM  := baseroms/$(BASENAME).$(VERSION).z64
 EXPECTED_SHA1 := $(firstword $(shell cat $(BASENAME).$(VERSION).sha1))
 
+# splat.yaml is the single source of truth for what gets extracted/split from
+# the baserom (asm/, assets/, the generated .ld script...). This stamp makes
+# that split step a real Make dependency: anything that reads split output
+# (the .s/.bin -> .o pattern rules, the final link) order-depends on it, so
+# an edited yaml re-splits before those steps run instead of silently
+# building against stale disassembly. See the .o pattern rules and
+# $(TARGET).elf below for how the ordering is wired up.
+SPLAT_STAMP := $(BUILD_DIR)/.splat-stamp
+
 # ---------------------------------------------------------------------------
 # Targets
 # ---------------------------------------------------------------------------
 
 default: all
 
-all: $(TARGET).z64
+# Two-phase build, driven by a fresh recursive $(MAKE) per phase.
+#
+# Why: a single `make` invocation decides whether build/asm/FOO.s.o needs
+# rebuilding by stat()-ing its prerequisites once, in the order they're
+# listed on the rule -- `%.s` (normal) comes before `$(SPLAT_STAMP)`
+# (order-only), so that stat happens *before* the split recipe (which is
+# what actually rewrites %.s) has run, even though make correctly runs the
+# order-only prereq's recipe first. Net effect, verified empirically: within
+# one invocation, order-only alone does NOT retrigger .o rebuilds after a
+# same-invocation re-split -- `gmake` would silently link against
+# pre-re-split objects. (Minimal repro kept in the Task 2 fix notes.)
+#
+# The reliable fix is the classic two-pass recursive-make idiom: run the
+# split to completion as its own `make` invocation (phase 1), then start a
+# genuinely *new* `make` invocation for the real build (phase 2) -- its
+# dependency scan stats files from disk fresh, after phase 1's writes, so
+# object files correctly see their .s as newer and rebuild. The .o/.elf
+# pattern rules below still order-depend on $(SPLAT_STAMP) too, as a
+# best-effort guard for anyone invoking a build target directly instead of
+# via `all`/`verify`.
+all:
+	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
+	@$(MAKE) --no-print-directory $(TARGET).z64
 
 setup: $(PYTHON)
 	$(PYTHON) -m pip install -q -r requirements.txt
 	$(TOOLS_DIR)/setup_toolchain.sh
 	$(TOOLS_DIR)/verify_baseroms.sh
 	$(PYTHON) -m splat split $(BASENAME).$(VERSION).yaml
+	@mkdir -p $(BUILD_DIR)
+	@touch $(SPLAT_STAMP)
 
+# Unconditional re-split, e.g. after hand-editing yaml and wanting the result
+# immediately without going through the dependency graph. Keeps the stamp in
+# sync so a following `gmake` doesn't redundantly split again.
 extract:
 	$(PYTHON) -m splat split $(BASENAME).$(VERSION).yaml
+	@mkdir -p $(BUILD_DIR)
+	@touch $(SPLAT_STAMP)
 
-verify: $(TARGET).z64
+verify:
+	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
+	@$(MAKE) --no-print-directory $(TARGET).z64
 	@got=$$($(SHA1) $(TARGET).z64 | cut -d' ' -f1); \
 	echo "expected $(EXPECTED_SHA1)"; \
 	echo "built    $$got"; \
 	if [ "$$got" = "$(EXPECTED_SHA1)" ]; then \
-		echo "OK  $(TARGET).z64 matches the baserom"; \
+		echo "OK  $(TARGET).z64 matches the expected US ROM hash"; \
 	else \
-		echo "FAIL $(TARGET).z64 does not match the baserom"; \
+		echo "FAIL $(TARGET).z64 does not match the expected US ROM hash"; \
 		exit 1; \
 	fi
+
+cleanroom:
+	bash $(TOOLS_DIR)/cleanroom_check.sh
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -140,14 +183,27 @@ $(PYTHON):
 $(CRC): $(TOOLS_DIR)/n64crc.c
 	$(HOST_CC) -O2 -w -o $@ $<
 
-$(BUILD_DIR)/%.s.o: %.s | $(ALL_DIRS)
+# $(SPLAT_STAMP) is an order-only prereq here: it guarantees the split has
+# run at least once before this rule's recipe executes. It is *not* enough
+# on its own to retrigger a rebuild after a same-invocation re-split (see
+# the big comment on the `all` target above for why, and why the real
+# correctness mechanism is the two-phase recursive `make` in `all`/`verify`)
+# -- but it's a harmless, cheap safety net for anyone building a specific
+# .o/.elf target directly instead of going through `all`/`verify`.
+$(BUILD_DIR)/%.s.o: %.s | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(AS) $(ASFLAGS) -o $@ $<
 
-$(BUILD_DIR)/%.bin.o: %.bin | $(ALL_DIRS)
+$(BUILD_DIR)/%.bin.o: %.bin | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(OBJCOPY) -I binary -O elf32-bigmips -B mips $< $@
 
-$(TARGET).elf: $(O_FILES) $(LD_SCRIPT) | $(ALL_DIRS)
+$(TARGET).elf: $(O_FILES) $(LD_SCRIPT) | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(LD) $(LDFLAGS) -o $@
+
+# Order-only prereq on $(PYTHON) so the split never runs against a nonexistent
+# venv; `setup` is what actually installs splat into it.
+$(SPLAT_STAMP): $(BASENAME).$(VERSION).yaml requirements.txt | $(ALL_DIRS) $(PYTHON)
+	$(PYTHON) -m splat split $(BASENAME).$(VERSION).yaml
+	@touch $@
 
 $(TARGET).bin: $(TARGET).elf
 	$(OBJCOPY) $(OBJCOPYFLAGS) $< $@
@@ -161,13 +217,16 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	$(CRC) $@ >/dev/null; \
 	after=$$($(SHA1) $@ | cut -d' ' -f1); \
 	if [ "$$before" != "$$after" ]; then \
-		echo "WARNING: n64crc rewrote the CRC words ($$before -> $$after);"; \
-		echo "         the linked image did not reproduce the ROM's own checksums."; \
+		echo "ERROR: n64crc rewrote the CRC words ($$before -> $$after);"; \
+		echo "       the linked image did not reproduce the ROM's own checksums."; \
+		echo "       This means the build is wrong upstream -- failing loudly"; \
+		echo "       instead of silently shipping a 'fixed' ROM."; \
+		exit 1; \
 	else \
 		echo "n64crc: checksums already correct (no-op)"; \
 	fi
 	@ls -l $@
 
-.PHONY: default all setup extract verify clean distclean
+.PHONY: default all setup extract verify cleanroom clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
