@@ -28,3 +28,23 @@ ctx.c
 .venv/
 __pycache__/
 .DS_Store
+
+# Generated build artifacts (from upstream stub's ignore rules)
+*.map
+*/*.map
+*.ld
+*/*.ld
+*.slo
+*.lo
+*.obj
+*.gch
+*.pch
+*.so
+*.dylib
+*.dll
+*.lai
+*.la
+*.a
+*.lib
+tools/n64crc
+m2cfiles/
