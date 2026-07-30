@@ -29,6 +29,9 @@ ctx.c
 __pycache__/
 .DS_Store
 
+# Process artifacts (planning/review scratch, not build inputs)
+.superpowers/
+
 # Generated build artifacts (from upstream stub's ignore rules)
 *.map
 */*.map

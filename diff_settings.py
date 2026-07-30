@@ -1,5 +1,5 @@
 def apply(config, args):
-    config["baseimg"] = "baserom.us.z64"
+    config["baseimg"] = "baseroms/mickey.us.z64"
     config["myimg"] = "build/mickey.us.z64"
     config["mapfile"] = "build/mickey.us.map"
     config["source_directories"] = ["src"]

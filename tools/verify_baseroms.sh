@@ -18,4 +18,7 @@ for f in mickey.us.z64 mickey.pal.z64 mickey.jpn.z64; do
   if [ "$got" = "$(want "$f")" ]; then echo "OK  $f"; rc=0
   else echo "BAD $f (got $got)"; exit 2; fi
 done
+if [ "$rc" -ne 0 ]; then
+  echo "no baseroms found in baseroms/ -- supply your own dump, see README" >&2
+fi
 exit $rc
