@@ -1,26 +1,71 @@
-name: Mickey Usa (North America)
+name: Mickey's Speedway USA (North America)
 sha1: 507341c0a40ca3e9a7cee969b396ee53facfb548
+
+# ---------------------------------------------------------------------------
+# Measured USA ROM facts (derived from baseroms/mickey.us.z64 itself, by
+# disassembling the entrypoint at ROM 0x1000 / VRAM 0x80000400 and by
+# entropy + "mipsiness" scanning of the whole 32MB image):
+#
+#   BSS start (VRAM)          0x80085A40   (lui t0,0x8008 / addiu t0,t0,0x5a40)
+#   BSS size                  0x52D10      (lui t1,0x5    / ori   t1,t1,0x2d10)
+#   BSS end (VRAM)            0x800D8750
+#   Entry jump target (VRAM)  0x800211A0   (lui t2,0x8002 / addiu t2,t2,0x11a0)
+#   Initial stack pointer     0x800CEA20   (addiu sp,sp,-0x15E0 after lui 0x800D)
+#
+#   The boot segment is mapped 1:1: VRAM = ROM + 0x7FFFF400, so the ROM only
+#   supplies bytes up to BSS start:
+#     ROM(bss_start) = 0x80085A40 - 0x80000400 + 0x1000 = 0x86640
+#
+# Segment map (ROM offsets):
+#   0x001000 - 0x086640   static code + data (resident "main" module; includes
+#                         a libultra .text block at ~0x6FC50-0x75E20, where
+#                         16/18 probed functions are byte-identical to DKR's)
+#   0x086640 - 0x16B0000  data tables + bulk compressed assets (~22.8MB).
+#                         Entropy shows compression proper starting ~0x87000;
+#                         0x86640-0x87000 looks like a table of ROM offsets.
+#                         Left as one `bin` for now - Phase 3 splits it.
+#   0x16B0000 - 0x18F1FE0 overlay region (front / track / clone modules plus
+#                         their reloc tables; Rare/DKR-lineage runtime linker,
+#                         cf. "ERROR:MIPS_HI16 without matching MIPS_LO16").
+#                         Left as one `bin` for now - Phase 4 splits it.
+#   0x18F1FE0 - 0x2000000 trailing 0xFF fill (verified byte-by-byte).
+# ---------------------------------------------------------------------------
+
 options:
   basename: mickey.us
-  target_path: baserom.us.z64
+  target_path: baseroms/mickey.us.z64
   base_path: .
-  compiler: IDO
-  find_file_boundaries: True
-  header_encoding: ASCII
   platform: n64
-  undefined_funcs_auto_path: undefined_funcs_auto.us.txt
-  undefined_syms_auto_path: undefined_syms_auto.us.txt
-  symbol_addrs_path: symbol_addrs.us.txt
+  compiler: IDO
+  header_encoding: ASCII
+  find_file_boundaries: True
+
+  ld_script_path: mickey.us.ld
   asm_path: asm
   src_path: src
   build_path: build
-  #extensions_path: tools/splat_ext
-  #mips_abi_float_regs: o32
+  asset_path: assets
+
+  symbol_addrs_path: symbol_addrs.us.txt
+  undefined_funcs_auto_path: undefined_funcs_auto.us.txt
+  undefined_syms_auto_path: undefined_syms_auto.us.txt
+  symbol_name_format: $VRAM
+
+  asm_function_macro: glabel
+  asm_function_alt_macro: alabel
+  asm_jtbl_label_macro: jlabel
+  asm_data_macro: dlabel
+  asm_end_label: endlabel
+  asm_emit_size_directive: False
+
   section_order: [".text", ".data", ".rodata", ".bss"]
-  auto_all_sections: [".data", ".rodata", ".bss"]
-  symbol_name_format: $VRAM_$ROM
+  # splat 0.35 renamed `auto_all_sections` to `auto_link_sections`.
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  migrate_rodata_to_functions: True
+  #extensions_path: tools/splat_ext
   #libultra_symbols: True
   #hardware_regs: True
+
 segments:
   - name: header
     type: header
@@ -30,6 +75,7 @@ segments:
     type: bin
     start: 0x40
 
+  # Entrypoint: zeroes BSS, sets SP, jumps to 0x800211A0. See header comment.
   - name: entry
     type: code
     start: 0x1000
@@ -37,6 +83,10 @@ segments:
     subsegments:
       - [0x1000, hasm, entrypoint]
 
+  # Resident static segment. The subsegment split points below were
+  # auto-detected by splat's file-boundary heuristic and are kept as-is; they
+  # are plausible translation-unit boundaries and get real names as the
+  # decompilation progresses.
   - name: main
     type: code
     start: 0x1050
@@ -141,6 +191,8 @@ segments:
       - [0x6FA30, asm]
       - [0x6FB80, asm]
       - [0x6FB90, asm]
+      # ~0x6FC50 - 0x75E20: libultra .text block (sqrtf, _bzero, _bcopy,
+      # _bcmp, cache ops, TLB/SR helpers ... byte-identical to DKR's build).
       - [0x6FC60, asm]
       - [0x70280, asm]
       - [0x702F0, asm]
@@ -204,11 +256,34 @@ segments:
       - [0x75E20, asm]
       - [0x760C0, asm]
       - [0x76B80, asm]
-      - [0x76D10, bin] # - [0x76D10, hasm] - This seems to call a func func_840010E0 which breaks things.
+      # Not `hasm`: this disassembles into a call to func_840010E0, i.e. it is
+      # not plain resident text. Kept as raw bin until it is identified.
+      - [0x76D10, bin]
       - [0x76E60, data]
+      # splat's jumptable heuristic suggests `- [0x8192C, rodata]` here, while
+      # warning the real .rodata start may be well before that. Left undeclared
+      # for now (bytes are still covered by the .data subsegment above, so the
+      # link is byte-exact either way); pin it down in Phase 1.
+      # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }
 
-  - type: bin
+  # Data tables + bulk compressed assets. Phase 3 splits this properly.
+  - name: assets
+    type: bin
     start: 0x86640
     follows_vram: main
+
+  # Overlay modules (front / track / clone) + their reloc tables.
+  # Phase 4 splits this properly.
+  - name: overlays
+    type: bin
+    start: 0x16B0000
+    follows_vram: main
+
+  # Trailing 0xFF fill to the end of the 32MB image.
+  - name: rom_fill
+    type: bin
+    start: 0x18F1FE0
+    follows_vram: main
+
   - [0x2000000]
