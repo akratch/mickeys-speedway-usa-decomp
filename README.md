@@ -55,15 +55,34 @@ project's Releases page.
 
 ## Diffing/matching tools (Phase 1)
 
-Not needed to build or verify the ROM. These submodules back the
-function-matching workflow (`diff.sh`, `mips_to_c.sh`, `generate_ctx.sh`)
-once Phase 1 (decompiling functions to C) starts:
-
-- `tools/asm-processor`
-- `tools/asm-differ`
-- `tools/m2c`
-- `tools/ido-static-recomp`
+`tools/asm-processor` **is** needed to build, from the moment the first C
+file landed: it is what makes `#pragma GLOBAL_ASM(...)` work with IDO.
+`tools/asm-differ` (`diff.sh`) and `tools/m2c` (`mips_to_c.sh`,
+`generate_ctx.sh`) are the matching workflow and are not needed for
+`gmake verify`. `tools/ido-static-recomp` is deliberately left uninitialised
+— `tools/setup_toolchain.sh` installs a prebuilt IDO 5.3 instead.
 
 ```sh
-git submodule update --init --recursive
+git submodule update --init tools/asm-processor tools/asm-differ tools/m2c
 ```
+
+`gmake setup` runs that for you.
+
+## Writing C
+
+Add the translation unit to `mickey.*.yaml` as a `c` subsegment, re-split
+(`gmake` does it automatically), and fill in `src/`. Every function starts
+life as `#pragma GLOBAL_ASM("asm/nonmatchings/<dir>/<func>.s")` — that
+already builds byte-identically — and gets replaced by real C one function
+at a time.
+
+```sh
+./diff.sh <symbol>          # target vs. current disassembly; matched == no diffs
+./diff.sh -mw <symbol>      # rebuild first, then re-diff on every file save
+bash mips_to_c.sh <symbol>  # m2c first draft into m2cfiles/
+gmake verify                # the only claim that counts
+```
+
+C compiles with `-O2 -mips1 -32` by default. Anything else is a per-file
+override in the Makefile's "Per-file compiler flags" block and has to be
+justified in the source file's header comment.

@@ -1,2 +1,14 @@
+# Splitting the ROM (gmake setup / gmake extract).
 splat64[mips]==0.35.2
 spimdisasm==1.36.1
+
+# asm-differ (./diff.sh). cxxfilt is only needed for --source, but it is small
+# and diff.py refuses to start without the whole set anyway.
+colorama
+watchdog
+levenshtein
+cxxfilt
+
+# m2c (tools/m2c, driven by mips_to_c.sh). Pinned below 2.23: m2c imports
+# `pycparser.plyparser`, which 2.23 removed.
+pycparser<2.23

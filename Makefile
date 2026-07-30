@@ -158,6 +158,8 @@ all:
 
 setup: $(PYTHON)
 	$(PYTHON) -m pip install -q -r requirements.txt
+	git submodule update --init $(TOOLS_DIR)/asm-processor \
+		$(TOOLS_DIR)/asm-differ $(TOOLS_DIR)/m2c
 	$(TOOLS_DIR)/setup_toolchain.sh
 	$(TOOLS_DIR)/verify_baseroms.sh
 	$(PYTHON) -m splat split $(BASENAME).$(VERSION).yaml
