@@ -2,7 +2,9 @@
 
 ## Clean Room
 
-No ROMs, extracted assets, or proprietary toolchain binaries are committed to this repository. Bring your own legally dumped, SHA1-verified ROM. See [`docs/CLEANROOM.md`](docs/CLEANROOM.md) for the full policy.
+- No ROMs or extracted assets are committed to this repository.
+- Bring your own legally dumped, SHA1-verified ROM.
+- See [`docs/CLEANROOM.md`](docs/CLEANROOM.md) for the full policy.
 
 A repository exploring a decompilation of Mickey's Speedway USA.
 
