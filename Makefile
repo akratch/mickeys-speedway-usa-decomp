@@ -19,6 +19,10 @@ VERSION  := us
 
 BUILD_DIR := build
 SRC_DIR   := src
+# Every directory under src/ that holds .c files. Discovered rather than listed
+# so adding a new source subdirectory (src/libultra, src/main, ...) needs no
+# Makefile edit -- splat decides the layout via the yaml's subsegment names.
+SRC_DIRS  := $(shell find $(SRC_DIR) -type d 2>/dev/null)
 ASM_DIRS  := asm asm/data
 BIN_DIRS  := assets
 TOOLS_DIR := tools
@@ -40,14 +44,26 @@ VENV    := .venv
 PYTHON  := $(VENV)/bin/python
 SHA1    := shasum -a 1
 
-# IDO 5.3, unused until the first C file lands (Phase 1) but kept configured.
+# IDO 5.3. These are the project-default C flags; per-file overrides live in the
+# "Per-file compiler flags" block further down and must be justified in the
+# file's header comment (see docs/CLEANROOM.md's sibling rule in the plan).
 CC      := $(TOOLS_DIR)/ido/cc
 OPT_FLAGS := -O2
 MIPSISET  := -mips1 -32
-DEFINES   := -D_LANGUAGE_C -D_FINALROM -DTARGET_N64 -DVERSION_$(VERSION)
+DEFINES   := -D_LANGUAGE_C -D_FINALROM -DTARGET_N64 -DVERSION_$(VERSION) \
+             -D_MIPS_SZLONG=32
 INCLUDE_CFLAGS := -I . -I include -I include/libc -I include/PR -I include/sys -I assets
 CFLAGS  := -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
            $(DEFINES) $(INCLUDE_CFLAGS)
+
+# asm-processor (simonlindholm) is what makes `#pragma GLOBAL_ASM("...")` work
+# with IDO: it strips the pragmas out, compiles the remaining real C, assembles
+# the referenced .s files with $(AS), and splices the result back into the
+# object so hand-written asm and compiled C share one translation unit in the
+# right order. Invocation shape is
+#   build.py <compiler...> -- <assembler...> -- <compile args...> <input.c>
+# i.e. the compiler and assembler command lines are passed through verbatim.
+ASM_PROCESSOR := $(PYTHON) $(TOOLS_DIR)/asm-processor/build.py
 
 CRC := $(TOOLS_DIR)/n64crc
 
@@ -57,6 +73,11 @@ CRC := $(TOOLS_DIR)/n64crc
 
 # Verified working assembler invocation (Task 4).
 ASFLAGS := -march=vr4300 -32 -mabi=32 -G0 -I include
+
+# asm-processor's GLOBAL_ASM path needs a couple of macros that its own prelude
+# doesn't define; gas takes several input files, so the extra prelude is simply
+# handed to it ahead of asm-processor's temporary .s. See the file's comment.
+ASM_PROC_ASFLAGS := $(ASFLAGS) include/asm_processor_prelude.inc
 
 # splat's ld script names every input object explicitly, so nothing is passed
 # on the command line; --no-check-sections because segments deliberately share
@@ -79,11 +100,18 @@ OBJCOPYFLAGS := -O binary --pad-to=$(ROM_SIZE) --gap-fill=0xFF
 
 S_FILES   := $(foreach dir,$(ASM_DIRS),$(wildcard $(dir)/*.s))
 BIN_FILES := $(foreach dir,$(BIN_DIRS),$(wildcard $(dir)/*.bin))
+C_FILES   := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
+
+# Every header, as a blunt prerequisite for every object: there are only a
+# handful of them and IDO's dependency output is awkward to wire in, so
+# "recompile all C when any header changes" is the cheap correct answer.
+H_FILES   := $(shell find include -name '*.h' 2>/dev/null)
 
 O_FILES := $(foreach f,$(S_FILES),$(BUILD_DIR)/$(f).o) \
+           $(foreach f,$(C_FILES),$(BUILD_DIR)/$(f).o) \
            $(foreach f,$(BIN_FILES),$(BUILD_DIR)/$(f).o)
 
-ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(ASM_DIRS) $(BIN_DIRS))
+ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(ASM_DIRS) $(BIN_DIRS) $(SRC_DIRS))
 
 TARGET   := $(BUILD_DIR)/$(BASENAME).$(VERSION)
 BASEROM  := baseroms/$(BASENAME).$(VERSION).z64
@@ -195,6 +223,29 @@ $(BUILD_DIR)/%.s.o: %.s | $(ALL_DIRS) $(SPLAT_STAMP)
 
 $(BUILD_DIR)/%.bin.o: %.bin | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(OBJCOPY) -I binary -O elf32-bigmips -B mips $< $@
+
+# The C rule. Everything goes through asm-processor unconditionally -- a file
+# with no GLOBAL_ASM pragmas is passed through to IDO untouched, so there is no
+# reason to maintain two recipes. The .s files the pragmas name are regenerated
+# by splat into asm/nonmatchings/, hence the $(SPLAT_STAMP) order-only prereq
+# (same caveat as the .s rule above: `all`/`verify`'s two-phase make is what
+# actually guarantees freshness).
+$(BUILD_DIR)/%.c.o: %.c $(H_FILES) | $(ALL_DIRS) $(SPLAT_STAMP)
+	$(ASM_PROCESSOR) $(CC) -- $(AS) $(ASM_PROC_ASFLAGS) -- \
+		-c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
+
+# ---------------------------------------------------------------------------
+# Per-file compiler flags
+#
+# Deviations from the project defaults above. Each one must be forced by
+# evidence (the file does not match otherwise) and explained in the source
+# file's header comment, never guessed at.
+# ---------------------------------------------------------------------------
+
+# libultra's libc string TU needs branch-likely instructions (bnel/beql), which
+# IDO only emits at -mips2; -mips1 produces a 0x90-byte .text instead of the
+# ROM's 0xA0. Consistent with how the DKR decomp builds its libultra tree.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/string.c.o: MIPSISET := -mips2 -32
 
 $(TARGET).elf: $(O_FILES) $(LD_SCRIPT) | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(LD) $(LDFLAGS) -o $@

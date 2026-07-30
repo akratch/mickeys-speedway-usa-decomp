@@ -1,2 +1,9 @@
 mathRnd = 0x8002997C;
 rngSeed = 0x8007A264;
+
+// libultra libc: the string TU at ROM 0x72370-0x72410 (src/libultra/string.c).
+// Names are the standard C library spellings; identification is by exact
+// byte-identity of each function against DKR's built libultra string.c object.
+memcpy = 0x80071770; // type:func size:0x2C
+strlen = 0x8007179C; // type:func size:0x28
+strchr = 0x800717C4; // type:func size:0x40

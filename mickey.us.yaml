@@ -57,6 +57,13 @@ options:
   asm_data_macro: dlabel
   asm_end_label: endlabel
   asm_emit_size_directive: False
+  # splat's IDO preset otherwise prefixes every disassembled function with a
+  # `nonmatching <name>, <size>` marker macro. asm-processor parses the
+  # nonmatchings .s files itself and rejects anything before the first
+  # `glabel` ("Error: .text block without an initial glabel"), so the marker
+  # has to go for `#pragma GLOBAL_ASM` to work at all. Nothing depends on it:
+  # progress is measured from what is in src/, not from marker symbols.
+  asm_nonmatching_label_macro: ""
 
   section_order: [".text", ".data", ".rodata", ".bss"]
   # splat 0.35 renamed `auto_all_sections` to `auto_link_sections`.
@@ -215,6 +222,14 @@ segments:
       - [0x71CD0, asm]
       - [0x71E80, asm]
       - [0x720B0, asm]
+      # 0x72370-0x72410 is libultra's libc string TU (memcpy / strlen /
+      # strchr, 0xA0 bytes incl. the 12-byte tail pad).  splat's automatic
+      # boundary finder merged it into the preceding subsegment because it
+      # follows ll.c with no alignment gap; the split point is measured -- the
+      # .text of DKR's built libultra `string.c` object is byte-identical to
+      # ROM 0x72370..0x72410, and IDO 5.3 -O2 -mips2 reproduces it exactly.
+      # First C translation unit in the project (see src/libultra/string.c).
+      - [0x72370, c, libultra/string]
       - [0x72410, asm]
       - [0x72420, asm]
       - [0x72810, asm]
