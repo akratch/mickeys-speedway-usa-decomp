@@ -1,0 +1,10 @@
+name: cleanroom
+
+on: [push, pull_request]
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash tools/cleanroom_check.sh
