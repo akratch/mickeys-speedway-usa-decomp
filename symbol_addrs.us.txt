@@ -264,3 +264,7 @@ ldiv = 0x80076080; // type:func size:0x84
 // ---------------------------------------------------------------------------
 ResolveRelocAddress = 0x800317F0; // type:func size:0x188
 PatchInstruction = 0x80031978; // type:func size:0xB8
+runlinkIsModuleLoaded = 0x80032284; // type:func size:0x18
+runlinkCallResumeFunction = 0x8003229C; // type:func size:0x9C
+SetLinkSlot = 0x80033040; // type:func size:0x50
+ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98

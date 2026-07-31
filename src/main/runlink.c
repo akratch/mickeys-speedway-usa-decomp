@@ -24,6 +24,13 @@ extern RomTableEntry *D_800D2D98;  /* the overlay ROM table */
 extern OverlayHeader *D_800D2D90;  /* the overlay table */
 extern u32 D_800D2DC4;             /* placeholder returned for unresolved symbols */
 extern void func_800333A0(void);   /* the dangling-jump trap */
+extern u8 *D_800D2DAC;             /* base of the section being relocated (text) */
+extern u8 *D_800D2DB0;             /* base of the section type-3 records patch (data) */
+extern PendingOverlayLoad D_800D2DC8[PENDING_OVERLAY_LOADS];
+extern LinkSlot *D_800D2E48;       /* the link-slot table */
+extern s32 D_800D2D9C;             /* how many link slots are in use */
+extern void func_80032BF8(s32 overlayIndex);
+extern void func_80032338(s32 slot);
 
 /* Linker-ish section anchors, referenced only to form differences. */
 extern u8 D_80078D60[]; /* start of .data  */
@@ -38,7 +45,7 @@ extern void func_80000450(void); /* start of .text */
  * JFG calls this ResolveRelocAddress; same four arguments, same three-way
  * switch on the linkage operation, same 0xFFD/0xFFE/0xFFF section selectors.
  */
-void *ResolveRelocAddress(s32 ortIndex, s32 otIndex, RelocationEntry *relocEntry, u32 *patchLocation) {
+void *ResolveRelocAddress(s32 ortIndex, s32 otIndex, RelocationEntry *relocEntry, MipsInstruction *patchLocation) {
     s32 address;
     s32 addressBase;
     s32 addressOffset;
@@ -67,8 +74,8 @@ void *ResolveRelocAddress(s32 ortIndex, s32 otIndex, RelocationEntry *relocEntry
             }
             addressBase = D_800D2D90[overlayNumber].vramBase;
             if (addressBase == 0) {
-                if (relocEntry->u.b.mode == RELOC_MODE_STUB ||
-                    relocEntry->u.b.mode == RELOC_MODE_ADDEND) {
+                if (relocEntry->u.n.mode == RELOC_MODE_STUB ||
+                    relocEntry->u.n.mode == RELOC_MODE_ADDEND) {
                     return (void *) func_800333A0;
                 }
                 return &D_800D2DC4;
@@ -77,13 +84,13 @@ void *ResolveRelocAddress(s32 ortIndex, s32 otIndex, RelocationEntry *relocEntry
 
         case RELOC_OP_LOCAL:
             address = D_800D2D90[otIndex].vramBase + relocEntry->symbolIndex;
-            if (relocEntry->u.b.mode == RELOC_MODE_ADDEND) {
-                address += *patchLocation;
+            if (relocEntry->u.n.mode == RELOC_MODE_ADDEND) {
+                address += patchLocation->word;
             }
             return (void *) address;
 
         case RELOC_OP_JUMP:
-            return (void *) (((*patchLocation & 0x3FFFFFF) << 2) + D_800D2D90[otIndex].vramBase);
+            return (void *) (((patchLocation->word & 0x3FFFFFF) << 2) + D_800D2D90[otIndex].vramBase);
 
         default:
             return NULL;
@@ -126,11 +133,191 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
     osWritebackDCache(instr, sizeof(MipsInstruction));
     osInvalICache(instr, sizeof(MipsInstruction));
 }
+/*
+ * ProcessRelocationEntry -- PARKED, not matched. ROM 0x32630-0x32878.
+ *
+ * Applies one relocation record and returns how many records it consumed: a
+ * HI16 record needs its matching LO16 to know whether the low half will sign
+ * extend, so mode 5 reads the next record too and returns 2, everything else
+ * returns 1. The body below is complete and believed semantically right; what
+ * it does not reproduce is IDO's register allocation.
+ *
+ * NONMATCHING-notes:
+ *
+ *  - Residual after eight source variants: verdict=structure-mismatch,
+ *    words=126, regs=121, insns=147 against the ROM's 146, frame -0x40 on both
+ *    sides for the best variant. Measured with
+ *    `decomp-workbench diagnose-dumps` and one 8-variant `campaign`.
+ *
+ *  - The single mechanical cause, named by the workbench's web analysis:
+ *    web `a3->s1`, count 8. The ROM keeps `patchLocation` in a temp register
+ *    and caller-saves it around the ResolveRelocAddress call (`sw a3,0x3c(sp)`
+ *    at 0x32690, `lw a3,0x3c(sp)` at 0x326A4); every candidate instead
+ *    promotes it to the callee-saved s1. That costs one `sw s1` in the
+ *    prologue and one `lw s1` in the epilogue -- the entire instruction-count
+ *    delta -- and every downstream register name shifts with it. The ROM
+ *    promotes exactly one value to a callee-saved register, `relocEntry` in
+ *    s0, and stack-homes five locals: op at 0x24, nextPatchLocation at 0x30,
+ *    resolvedAddr at 0x34, mode at 0x38, patchLocation at 0x3c.
+ *
+ *  - Variants tried, all ranked by the campaign at
+ *    .decomp-workbench/campaigns/ProcessRelocationEntry-5073763cae48/:
+ *      baseline                                        words=126
+ *      no separate hi-immediate local                  words=128
+ *      patchLocation declared first among locals       words=128
+ *      patchLocation declared last among locals        words=127
+ *      mode/op unsigned rather than signed             words=126 (identical object)
+ *      &base[index] rather than base + index           words=126 (identical object)
+ *      field-guide lever 7, a code-free `if (g) {}`    words=144 (worse)
+ *    Five distinct object basins across eight variants. Declaration order
+ *    moves the pool but never demotes patchLocation out of s1, and the three
+ *    variants that produced a byte-identical object show the front end had
+ *    already canonicalized those spellings away.
+ *
+ *  - What was ruled out. The extra instruction is NOT a missing/extra
+ *    statement: opcode multisets agree everywhere except the s1 save/restore
+ *    pair, and the constant sites the workbench flags are all frame offsets
+ *    shifted by that same save. It is also not the flags nibble: the mode and
+ *    operation reads match the ROM instruction for instruction.
+ *
+ *  - Two leads for whoever picks this up. (1) The ROM emits `bnezl` at
+ *    0x326F4/0x3270C where every candidate emits `bnez`; branch-likely
+ *    selection here goes with the `lw t4,0xC(s0)` that the ROM duplicates into
+ *    both likely-delay slots, so the guard may be two nested `if`s rather than
+ *    one `&&`. (2) The workbench's `temp-fifo-phase` playbook (levers 14-16)
+ *    was not tried and is the documented lever for exactly this class; it
+ *    needs a variant that reorders value deaths *before* the divergence at
+ *    aligned row 18, which is the ResolveRelocAddress call itself.
+ *
+ * The C is kept, under NON_MATCHING, rather than deleted: it is the
+ * semantically-correct reading of the function and the next attempt should
+ * start from it, not from m2c again.
+ */
+#ifdef NON_MATCHING
+/*
+ * Apply one relocation record, and report how many records were consumed.
+ *
+ * A HI16 record needs its matching LO16 to know whether the low half will sign
+ * extend, so mode 5 reads the *next* record too and returns 2; everything else
+ * returns 1. The caller's loop advances by the return value.
+ *
+ * JFG's decomp has this function under the name ProcessRelocationEntry but
+ * ships it as non-matching, so the body below is written from Mickey's ROM
+ * rather than adapted: same name, independently derived code.
+ */
+s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
+    u32 resolvedAddr;
+    u32 combinedAddr;
+    u32 hiImmediate;
+    u32 loImmediate;
+    MipsInstruction *patchLocation;
+    MipsInstruction *nextPatchLocation;
+    s32 overlayNumber;
+    s32 mode;
+    s32 op;
+
+    op = relocEntry->u.info & 0xF;
+    mode = relocEntry->u.n.mode;
+
+    if (op == RELOC_OP_DATA) {
+        patchLocation = (MipsInstruction *) (D_800D2DB0 + (relocEntry->u.info >> 8));
+        relocEntry->u.b.flags &= 0xFFF0;
+    } else {
+        patchLocation = (MipsInstruction *) (D_800D2DAC + (relocEntry->u.info >> 8));
+    }
+
+    resolvedAddr = (u32) ResolveRelocAddress(relocEntry->symbolIndex, otIndex, relocEntry, patchLocation);
+
+    if (mode == PATCH_OP_HI16) {
+        overlayNumber = D_800D2D98[relocEntry->symbolIndex].overlayNumber;
+        if (overlayNumber >= 0xFFC) {
+            overlayNumber = 0;
+        }
+        if ((relocEntry->u.info & 0xF) == RELOC_OP_SYMBOL && D_800D2D90[overlayNumber].vramBase == 0) {
+            resolvedAddr = (u32) &D_800D2DC4;
+        }
+
+        nextPatchLocation = (MipsInstruction *) (D_800D2DAC + (relocEntry[1].u.info >> 8));
+        hiImmediate = patchLocation->i.immediate;
+        loImmediate = nextPatchLocation->i.immediate;
+        if (loImmediate & 0x8000) {
+            loImmediate |= 0xFFFF0000;
+        }
+        combinedAddr = (hiImmediate << 16) + loImmediate;
+        if (combinedAddr != (u32) &D_800D2DC4) {
+            resolvedAddr += combinedAddr;
+        }
+
+        PatchInstruction(patchLocation, resolvedAddr, PATCH_OP_HI16);
+        PatchInstruction(nextPatchLocation, resolvedAddr, PATCH_OP_LO16);
+        relocEntry->u.b.flags = (op & 0xF) | (relocEntry->u.b.flags & 0xFFF0);
+        return 2;
+    }
+
+    if (mode == PATCH_OP_LO16) {
+        overlayNumber = D_800D2D98[relocEntry->symbolIndex].overlayNumber;
+        if (overlayNumber >= 0xFFC) {
+            overlayNumber = 0;
+        }
+        if ((relocEntry->u.info & 0xF) == RELOC_OP_SYMBOL && D_800D2D90[overlayNumber].vramBase == 0) {
+            resolvedAddr = (u32) &D_800D2DC4;
+        }
+
+        PatchInstruction(patchLocation, resolvedAddr + patchLocation->i.immediate, PATCH_OP_LO16);
+        relocEntry->u.b.flags = (op & 0xF) | (relocEntry->u.b.flags & 0xFFF0);
+        return 1;
+    }
+
+    PatchInstruction(patchLocation, resolvedAddr, mode);
+    relocEntry->u.b.flags = (op & 0xF) | (relocEntry->u.b.flags & 0xFFF0);
+    return 1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80031A30.s")
+#endif
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80031C78.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_800320F0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032284.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_8003229C.s")
+/*
+ * Is this overlay resident? Returns its VRAM base, which is zero when it is
+ * not. Same one-line function, same name, as JFG's public decomp.
+ */
+s32 runlinkIsModuleLoaded(s32 module) {
+    return D_800D2D90[module].vramBase;
+}
+/*
+ * Make sure an overlay is resident and then call its resume entry point.
+ *
+ * If the overlay is not loaded but is queued in the pending-load list, load it
+ * first; if it still is not loaded afterwards, do nothing. JFG has the same
+ * function under this name, with the same three-part shape.
+ */
+void runlinkCallResumeFunction(s32 overlayIndex) {
+    OverlayHeader *overlay;
+    PendingOverlayLoad *pendingLoad;
+    s32 remaining;
+
+    overlay = &D_800D2D90[overlayIndex];
+    if (overlay->resumeFunction == -1) {
+        return;
+    }
+
+    pendingLoad = D_800D2DC8;
+    if (overlay->vramBase == 0) {
+        remaining = PENDING_OVERLAY_LOADS - 1;
+        do {
+            if (overlayIndex == pendingLoad->overlayIndex) {
+                func_80032BF8(overlayIndex);
+                break;
+            }
+            pendingLoad++;
+        } while (remaining--);
+    }
+
+    if (overlay->vramBase != 0) {
+        ((void (*)(void)) (overlay->vramBase + overlay->resumeFunction))();
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032338.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032618.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032820.s")
@@ -138,7 +325,49 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032B14.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032BF8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032FE0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80033040.s")
+/*
+ * Write both halves of one link slot.
+ *
+ * The reload of the table pointer between the two stores is the ROM's, not an
+ * accident: the first store goes through the pointer, so the compiler cannot
+ * prove it did not overwrite the pointer itself and reloads it.
+ *
+ * The two value parameters are u16, and that is measured rather than
+ * cosmetic. The ROM homes them into the caller's argument save area
+ * (`sw a1,0x4(sp)`, `sw a2,0x8(sp)` at ROM 0x33C50) with no frame of its own,
+ * which is what IDO does for a parameter narrower than int; with s32 or u32
+ * parameters both stores disappear and the function is two instructions
+ * short. Found by a six-variant decomp-workbench campaign over the parameter
+ * types -- u16 was instruction-words-identical, s16 left 14 register
+ * differences, u8 left a structural one.
+ */
+void SetLinkSlot(s32 slot, u16 tag, u16 useCount) {
+    D_800D2E48[slot].tag = tag;
+    D_800D2E48[slot].useCount = useCount;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80033090.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_8003314C.s")
+/*
+ * Sweep the link-slot table and release every slot that is tagged but no
+ * longer used, walking downwards from the last slot.
+ *
+ * The condition is `while (i--)` and not `while (i-- != 0)`: the ROM emits
+ * `move v0,s1` / `beqz s1` at 0x80033164, i.e. it uses the value of the
+ * expression directly, while the explicit comparison makes IDO materialise a
+ * boolean with `sltu v0,zero,s1` instead. One instruction, and it is the only
+ * difference between the two spellings.
+ */
+void ReleaseUnusedLinkSlots(void) {
+    LinkSlot *slot;
+    s32 i;
+
+    i = D_800D2D9C;
+    while (i--) {
+        slot = &D_800D2E48[i];
+        if (slot->tag != 0 && slot->useCount == 0) {
+            func_80032338(i);
+            slot->tag = 0;
+            slot->useCount = 0;
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_800331E4.s")

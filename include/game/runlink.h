@@ -68,9 +68,13 @@ typedef struct RelocationEntry {
         /* 0x04 */ u32 info;
         /* 0x04 */ struct {
             /* 0x04 */ u8 targetOffset[3]; /* big-endian 24-bit byte offset */
-            /* 0x07 */ u8 mode : 4;        /* RELOC_MODE_* */
-            /* 0x07 */ u8 op : 4;          /* RELOC_OP_*, same nibble the word test reads */
+            /* 0x07 */ u8 flags;           /* high nibble mode, low nibble operation */
         } b;
+        /* 0x04 */ struct {
+            /* 0x04 */ u8 pad[3];
+            /* 0x07 */ u8 mode : 4; /* RELOC_MODE_* */
+            /* 0x07 */ u8 op : 4;   /* RELOC_OP_*, the same nibble the word test reads */
+        } n;
     } u;
 } RelocationEntry; /* sizeof == 0x8 */
 
@@ -101,10 +105,48 @@ typedef union MipsInstruction {
 #define PATCH_OP_HI16 5 /* upper half, carrying LO16's sign extension */
 #define PATCH_OP_LO16 6 /* lower half */
 
+/*
+ * One entry of the pending-overlay-load list. Eight bytes; only the second
+ * word is read by anything decompiled so far.
+ *
+ * Field evidence -- runlinkCallResumeFunction walks the list at ROM
+ * 0x32EDC-0x3230C with `lw t9, 0x4(v1)` and `addiu v1, v1, 0x8`, comparing the
+ * loaded word against the overlay index. The list is exactly 16 entries long:
+ * the loop counter is initialised to 15 (`addiu a0, zero, 0xF`) and runs down
+ * to zero inclusive.
+ */
+typedef struct PendingOverlayLoad {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 overlayIndex;
+} PendingOverlayLoad; /* sizeof == 0x8 */
+
+#define PENDING_OVERLAY_LOADS 16
+
+/*
+ * One entry of the link-slot table -- a halfword split into a 10-bit and a
+ * 6-bit field.
+ *
+ * Field evidence -- SetLinkSlot writes the upper field with
+ * `sll t1, a1, 6` / `or` / `sh` over a halfword whose low 6 bits are preserved
+ * (ROM 0x33C60-0x33C70), and the lower field with a byte write that preserves
+ * the top two bits of the low byte (`andi t9, t8, 0xFFC0`, ROM 0x33C80). Two
+ * fields, 10 bits over 6, big-endian order.
+ *
+ * The *names* are the weakest thing in this header and are marked as such:
+ * all that is proven is that ReleaseUnusedLinkSlots treats "tag set, useCount
+ * zero" as reclaimable, which is what a reference count looks like. Rename
+ * once a third caller says otherwise.
+ */
+typedef struct LinkSlot {
+    /* 0x00 */ u16 tag : 10;
+    /* 0x00 */ u16 useCount : 6;
+} LinkSlot; /* sizeof == 0x2 */
+
 /* Linkage operations -- the low nibble of RelocationEntry::u.info. */
 #define RELOC_OP_SYMBOL 0 /* absolute reference to a symbol in some overlay */
 #define RELOC_OP_LOCAL  1 /* offset relative to this overlay's own base */
 #define RELOC_OP_JUMP   2 /* R_MIPS_26, patch a j/jal target in place */
+#define RELOC_OP_DATA   3 /* patch site is in the data section, not the text section */
 
 /* Reserved overlay numbers -- section selectors rather than real overlays. */
 #define RELOC_SECTION_DATA1 0xFFD
