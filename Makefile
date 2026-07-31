@@ -10,6 +10,8 @@
 #   gmake hooks      point git at .githooks (clean-room commit/push gates)
 #   gmake cleanroom  clean-room sweep (CLEANROOM_ARGS=--staged, --range A..B)
 #   gmake audit-decoders  assert no clean-room decoder is inventing words
+#   gmake scoreboard        regenerate README.md's progress block from the tree
+#   gmake check-scoreboard  fail if that block has gone stale
 #   gmake clean      remove build/
 #   gmake distclean  also remove splat's generated output
 
@@ -253,6 +255,29 @@ progress:
 	@$(MAKE) --no-print-directory $(TARGET).elf
 	$(PYTHON) $(TOOLS_DIR)/progress.py --version $(VERSION)
 
+# Rewrites README.md's scoreboard block, between its SCOREBOARD_BEGIN /
+# SCOREBOARD_END markers, from the same derivation `progress` prints. The
+# README is the most-read page in the repo and therefore the worst place for a
+# hand-maintained count: this project has already caught summary numbers that
+# had drifted from the tree they described, and the block this replaces was
+# itself stale by two functions and a hundred and ninety symbols. So it is
+# generated, and `check-scoreboard` below proves it stayed generated.
+scoreboard:
+	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
+	@$(MAKE) --no-print-directory $(TARGET).elf
+	$(PYTHON) $(TOOLS_DIR)/progress.py --version $(VERSION) --update-readme
+
+# Fails if README.md's scoreboard block is not what the tree generates right
+# now, printing the diff. Deliberately a separate target from `check-docs`:
+# that one re-derives arithmetic *stated in prose* and needs nothing built,
+# while this one needs a linked ELF, so folding them together would make
+# `check-docs` require a toolchain and a build to answer a question that has
+# nothing to do with one.
+check-scoreboard:
+	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
+	@$(MAKE) --no-print-directory $(TARGET).elf
+	$(PYTHON) $(TOOLS_DIR)/progress.py --version $(VERSION) --check-readme
+
 clean:
 	rm -rf $(BUILD_DIR)
 
@@ -422,6 +447,6 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract verify cleanroom audit-decoders check-docs progress clean distclean
+.PHONY: default all setup hooks extract verify cleanroom audit-decoders check-docs progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
