@@ -46,6 +46,8 @@ extern u32 osRomBase;
 
 u32 osVirtualToPhysical(void *vaddr);
 
+u32 osGetCount(void);
+
 /* libc's hand-written block routines, still `asm`.
    The SDK's assembly weak-aliases each entry point to an underscored name and
    its header spells the plain one; Mickey's disassembly carries only the

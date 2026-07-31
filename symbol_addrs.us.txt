@@ -903,6 +903,7 @@ __osMaxControllers = 0x800D8131;
 __osPfsInodeCacheBank = 0x80080434;
 __osPfsInodeCacheChannel = 0x80080430;
 __osPfsLastChannel = 0x80080420;
+__osPfsInodeCache = 0x800D7F60;
 
 // Static in the reference object, so it has no name to adopt there and none is
 // invented: the reference's `pfsreadwritefile.c` calls its one file-scope

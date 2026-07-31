@@ -506,7 +506,7 @@ image instead.
 | `src/main/` (game code) | `-O2 -mips2 -32` | **Measured.** `ResolveRelocAddress` at `-mips1` emits five load-delay `nop`s the ROM does not have |
 | `src/libultra/string.c` | `-O2 -mips2 -32` | **Measured.** Branch-likely instructions |
 | 10 libultra io/os TUs | `-O1 -mips2 -32` | **Measured**, one variant at a time. At `-O2` IDO folds away a stack frame the ROM has. Locals need `register` or `-O1` spills them |
-| 21 libultra PI/EPI/PFS TUs | `-O2 -g3 -mips2 -32` | **Measured**, one TU at a time. See below |
+| 23 libultra PI/EPI/PFS TUs | `-O2 -g3 -mips2 -32` | **Measured**, one TU at a time. See below |
 
 The `-mips2` finding for `src/main/` is scoped to that directory on purpose. It
 is believed to hold for all game code and has been measured on one TU; widen it
@@ -633,7 +633,7 @@ every future TU at once.
 - **What is still `asm` that need not be.** 173 subsegments are named; 171 of
   them have a measured whole-`.text` boundary (the exceptions are `main/matrix`
   and `main/runlink`, which are decompiled rather than matched-as-a-unit).
-  **46** are now `c`, 32 of them matched C and the other 14 carrying only
+  **46** are now `c`, 34 of them matched C and the other 12 carrying only
   `#pragma GLOBAL_ASM`. A scaffolded subsegment is worth having on its own:
   it proves the file boundary against the link before any C is written, and it
   turns every function in the unit into a separate work item. The remaining

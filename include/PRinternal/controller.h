@@ -147,7 +147,8 @@ extern OSPifRam __osPfsPifRam;
 extern u8 __osMaxControllers;
 extern s32 __osPfsLastChannel;
 extern u8 __osPfsInodeCacheBank;
-extern __OSInodeCache __osPfsInodeCache;
+extern __OSInode __osPfsInodeCache;
+extern s32 __osPfsInodeCacheChannel;
 
 u16 __osSumcalc(u8 *ptr, int length);
 s32 __osIdCheckSum(u16 *ptr, u16 *csum, u16 *icsum);
