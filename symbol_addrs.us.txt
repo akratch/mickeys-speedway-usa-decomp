@@ -867,6 +867,29 @@ __osEPiRawReadIo = 0x80074320; // type:func size:0x160
 //   same bytes in: banjo-kazooie,jfg,perfect_dark
 __osSetGlobalIntMask = 0x80074480; // type:func size:0x4C
 
+// The data those translation units address.
+//
+// The evidence is the same byte-identity, read one level out. Each name below
+// is carried by a %hi/%lo pair that is one of the MASKED words in the whole-
+// .text match above: the reference object's relocation records say that word
+// addresses symbol S, and the two objects agree on every unmasked word, so the
+// datum Mickey's instruction reaches is the datum JFG's object calls S. Sizes
+// corroborate where the split gives one -- the label at 0x8007D600 is 0x1C
+// bytes wide, which is exactly OSDevMgr, and 0x800D84E0 is 0x18, which is
+// exactly OSMesgQueue.
+//
+// osRomBase is not from a reference object: 0x80000308 is a fixed libultra
+// low-memory slot, and __osPiRawStartDma ORs it with the device address before
+// masking to a physical address.
+__osPiDevMgr = 0x8007D600;
+__osPiTable = 0x8007D61C;
+__osCurrentHandle = 0x8007D620;
+__OSGlobalIntMask = 0x8008045C;
+__osPiAccessQueueEnabled = 0x80080850;
+__osPiAccessQueue = 0x800D84E0;
+piAccessBuf = 0x800D84F8;
+osRomBase = 0x80000308;
+
 // ---------------------------------------------------------------------------
 // 2. THE EXCEPTION ISLAND
 //

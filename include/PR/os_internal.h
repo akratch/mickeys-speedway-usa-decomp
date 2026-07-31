@@ -19,15 +19,32 @@ typedef struct OSThread_s OSThread;
 
 OSThread *__osGetActiveQueue(void);
 
-/* Opaque for the same reason OSThread is: the two TUs that name it
-   (src/libultra/epiread.c, src/libultra/epiwrite.c) only pass the pointer
-   through to a raw-IO helper, so a field layout would be assertion. */
-typedef struct OSPiHandle_s OSPiHandle;
+struct OSPiHandle_s;
 
 void __osPiGetAccess(void);
 void __osPiRelAccess(void);
-s32 __osEPiRawReadIo(OSPiHandle *handle, u32 devAddr, u32 *data);
-s32 __osEPiRawWriteIo(OSPiHandle *handle, u32 devAddr, u32 data);
+s32 __osEPiRawReadIo(struct OSPiHandle_s *handle, u32 devAddr, u32 *data);
+s32 __osEPiRawWriteIo(struct OSPiHandle_s *handle, u32 devAddr, u32 data);
+
+/* Interrupt masking. `__osDisableInt` returns the previous mask, which every
+   caller in this corridor hands straight back to `__osRestoreInt`. */
+u32 __osDisableInt(void);
+void __osRestoreInt(u32 mask);
+
+/* The hardware-interrupt bits the global mask carries. Only the width is
+   established here: __osSetGlobalIntMask (ROM 0x75080) ORs its argument into
+   the word at 0x8008045C. */
+typedef u32 OSHWIntr;
+
+extern u32 __OSGlobalIntMask;
+
+void __osSetGlobalIntMask(OSHWIntr mask);
+
+/* Set by the boot code at 0x80000308; `__osPiRawStartDma` (ROM 0x72850) ORs it
+   with the device address before masking to a physical address. */
+extern u32 osRomBase;
+
+u32 osVirtualToPhysical(void *vaddr);
 
 s32 __osSpDeviceBusy(void);
 u32 __osSpGetStatus(void);

@@ -17,6 +17,7 @@
 #include "PR/ultratypes.h"
 
 #define PHYS_TO_K1(x) ((u32)(x) | 0xA0000000)
+#define K1_TO_PHYS(x) ((u32)(x) & 0x1FFFFFFF)
 
 #define IO_READ(addr)         (*(vu32 *)PHYS_TO_K1(addr))
 #define IO_WRITE(addr, data)  (*(vu32 *)PHYS_TO_K1(addr) = (u32)(data))
@@ -47,6 +48,25 @@
 #define AI_STATUS_REG  (AI_BASE_REG + 0x0C)
 
 #define AI_STATUS_FIFO_FULL  0x80000000
+
+/* Peripheral interface */
+#define PI_BASE_REG          0x04600000
+#define PI_DRAM_ADDR_REG     (PI_BASE_REG + 0x00)
+#define PI_CART_ADDR_REG     (PI_BASE_REG + 0x04)
+#define PI_RD_LEN_REG        (PI_BASE_REG + 0x08)
+#define PI_WR_LEN_REG        (PI_BASE_REG + 0x0C)
+#define PI_STATUS_REG        (PI_BASE_REG + 0x10)
+#define PI_BSD_DOM1_LAT_REG  (PI_BASE_REG + 0x14)
+#define PI_BSD_DOM1_PWD_REG  (PI_BASE_REG + 0x18)
+#define PI_BSD_DOM1_PGS_REG  (PI_BASE_REG + 0x1C)
+#define PI_BSD_DOM1_RLS_REG  (PI_BASE_REG + 0x20)
+#define PI_BSD_DOM2_LAT_REG  (PI_BASE_REG + 0x24)
+#define PI_BSD_DOM2_PWD_REG  (PI_BASE_REG + 0x28)
+#define PI_BSD_DOM2_PGS_REG  (PI_BASE_REG + 0x2C)
+#define PI_BSD_DOM2_RLS_REG  (PI_BASE_REG + 0x30)
+
+#define PI_STATUS_DMA_BUSY  0x01
+#define PI_STATUS_IO_BUSY   0x02
 
 /* Serial interface */
 #define SI_BASE_REG    0x04800000

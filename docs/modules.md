@@ -506,7 +506,7 @@ image instead.
 | `src/main/` (game code) | `-O2 -mips2 -32` | **Measured.** `ResolveRelocAddress` at `-mips1` emits five load-delay `nop`s the ROM does not have |
 | `src/libultra/string.c` | `-O2 -mips2 -32` | **Measured.** Branch-likely instructions |
 | 10 libultra io/os TUs | `-O1 -mips2 -32` | **Measured**, one variant at a time. At `-O2` IDO folds away a stack frame the ROM has. Locals need `register` or `-O1` spills them |
-| `src/libultra/epiread.c`, `epiwrite.c` | `-O2 -g3 -mips2 -32` | `-g3 -mips2` **measured**; `-O2` **not discriminated by these bytes**, taken from JFG's Makefile. See below |
+| 11 libultra PI/EPI TUs | `-O2 -g3 -mips2 -32` | **Measured**, one TU at a time. See below |
 
 The `-mips2` finding for `src/main/` is scoped to that directory on purpose. It
 is believed to hold for all game code and has been measured on one TU; widen it
@@ -531,13 +531,17 @@ invocation. That is an environment failure, not a fact about the code.
 
 Three consequences:
 
-- **`-O2` is not established.** `-O1 -g3 -mips2` and `-O2 -g3 -mips2` are
-  byte-identical on both files, so these bytes do not discriminate the
-  optimisation level at all. `-O2` is in the Makefile because JFG's published
-  Makefile builds its libultra `io/` TUs that way: borrowed, not measured. The
-  *structural* claim is what the measurement supports: `-g3` stops IDO hoisting
-  the third argument's spill into the first `jal`'s delay slot and reverses the
-  epilogue's `lw ra` / `lw v0` order, and the ROM agrees with `-g3` on both.
+- **`-O2` was not established by `epiread`/`epiwrite`, and is now.** On those
+  two files `-O1 -g3 -mips2` and `-O2 -g3 -mips2` are byte-identical, so their
+  bytes do not discriminate the optimisation level at all, and `-O2` was
+  borrowed from JFG's published Makefile. The nine TUs added to the group since
+  do discriminate it: `pidma` (ROM `0x6FB90`) is 48 instructions at
+  `-O2 -g3 -mips2` and matches word for word, against 68 at `-O1 -g3 -mips2`
+  and 78 at `-O0`. So `-O2 -g3 -mips2` is now measured on this group rather
+  than assumed for it. The *structural* claim epiread supported still holds:
+  `-g3` stops IDO hoisting the third argument's spill into the first `jal`'s
+  delay slot and reverses the epilogue's `lw ra` / `lw v0` order, and the ROM
+  agrees with `-g3` on both.
 - **The ten `-O1 -mips2` TUs above should be re-examined.** They were measured
   before `-g3` was known to be in play. They match byte-for-byte, so nothing is
   wrong; but "the flags that reproduce these bytes" and "the flags this file
@@ -629,12 +633,12 @@ every future TU at once.
 - **What is still `asm` that need not be.** 173 subsegments are named; 171 of
   them have a measured whole-`.text` boundary (the exceptions are `main/matrix`
   and `main/runlink`, which are decompiled rather than matched-as-a-unit).
-  Only **16** are `c`, and only 14 of those are matched C. The remaining 157
+  Only **26** are `c`, and only 22 of those are matched C. The remaining 147
   are `asm` because nobody has tried, not because anything is in the way, and
   the `-g3` finding in §6.1 widens the flag space worth trying.
-  `libultra/pigetcmdq`, `libultra/epilinkhandle` and
-  `libultra/setglobalintmask` are the obvious next three: three to six
-  instructions each, blocked only on naming one data symbol apiece.
+  `libultra/devmgr`, `libultra/initialize` and the `pfs*` family are the
+  obvious next ones: JFG's decomp has C for every one of them, and the
+  boundaries are already measured.
 - **The `0xF0` bytes at `0x505E0`–`0x506D0`**, between the end of
   `os/exceptasm.s` and the next subsegment. Unidentified.
 - **`0x6B860`–`0x6BDF0`** (`0x590`), between Perfect Dark's three Transfer Pak

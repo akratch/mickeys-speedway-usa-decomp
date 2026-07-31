@@ -425,7 +425,8 @@ $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 # Scoped to the two TUs actually measured. The other fourteen libultra TUs
 # matched in Task 3 are still `asm`; each is a candidate for the same treatment
 # and none should be moved into this list without its own measurement.
-LIBULTRA_O2_G3_TUS := epiread epiwrite
+LIBULTRA_O2_G3_TUS := epidma epilinkhandle epirawdma epirawread epirawwrite \
+                      epiread epiwrite piacs pidma pigetcmdq pirawdma
 $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -O2 -g3))
 $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \

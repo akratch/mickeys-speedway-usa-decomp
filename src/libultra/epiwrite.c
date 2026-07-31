@@ -20,6 +20,7 @@
  */
 
 #include "PR/os_internal.h"
+#include "PR/os_pi.h"
 
 s32 osEPiWriteIo(OSPiHandle *handle, u32 devAddr, u32 data) {
     s32 status;
