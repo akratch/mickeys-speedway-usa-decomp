@@ -42,8 +42,17 @@ rngSeed = 0x8007A264;
 // file boundary is measured too, and every function in that object is placed
 // by its offset within it -- that is the "TU" tier of evidence and is what
 // nearly all of these are. See docs/CLEANROOM.md: DKR is a permitted public
-// retail-derived decomp, and only its compiled bytes plus symbol/relocation
-// tables were read, never its source.
+// retail-derived decomp, and every name in this block came out of its compiled
+// bytes plus its symbol and relocation tables -- which is the property that
+// makes these rows evidence rather than transcription.
+//
+// That is a claim about the METHOD, not about what a human was permitted to
+// look at, and the original wording here ("never its source") said the latter.
+// It is now known to be false as written: DKR's source was grepped for string
+// literals during Task D. It produced no adopted name, here or anywhere, and
+// reading a permitted public decomp's source is allowed by docs/CLEANROOM.md
+// in the first place -- so nothing about these names is affected. The sentence
+// simply claimed more than the work supported. See docs/modules.md section 1.3.
 //
 // Three pairs of libultra objects compile to identical instructions and are
 // told apart only by which global they relocate against; those were resolved
@@ -307,8 +316,17 @@ ldiv = 0x80076080; // type:func size:0x84
 // reproducible fact. It does NOT establish that DKR's *name* describes what
 // Mickey uses it for -- `weather_clip_planes` and `audspat_jingle_off` are
 // DKR's names for DKR's game, carried here because renaming shared code would
-// hide the sharing. See docs/CLEANROOM.md: only DKR's compiled bytes and its
-// symbol and relocation tables were read, never its source.
+// hide the sharing.
+//
+// PROVENANCE. Every name in this block came out of DKR's compiled bytes plus
+// its symbol and relocation tables, which is what makes these rows evidence
+// rather than transcription. That is a claim about the METHOD. It is NOT the
+// claim that DKR's source went unread: it was grepped for string literals
+// during this task's investigation of the debug subsystems. That grep produced
+// no adopted name, and docs/CLEANROOM.md permits reading a public
+// retail-derived decomp's source anyway. An earlier version of this comment
+// said "never its source", which was false as written; the same sentence has
+// been corrected in the libultra block above and in docs/modules.md 1.3.
 // ---------------------------------------------------------------------------
 
 // The reset vector's target. ROM 0x1000, and the entrypoint segment already
@@ -387,14 +405,20 @@ gzip_inflate_codes = 0x8004E5E0; // type:func size:0x2F4   ROM 0x4f1e0  hasm/gzi
 // by one word and is the thinnest row in this block. Treat accordingly.
 audspat_jingle_off = 0x800025C4; // type:func size:0x28   ROM 0x031c4  audio_spatial.c.o  masked=3/10
 
-// get_stack_pointer.c -- the whole 0x10 .text matched, 0 masked, unique. Only
-// four words, so byte identity alone would be thin; what makes it safe is that
-// the two live ones are `jr ra` / `move v0,sp`, and a routine whose entire
-// body is "return the stack pointer" cannot plausibly be anything else. The
-// reference object's only function symbol is `stack_pointer`, and the ROM's
-// existing subsegment split at 0x47A60 with the next at 0x47A70 means the file
-// boundary agrees on both sides too.
-stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  get_stack_pointer.c.o  masked=0/4
+// get_stack_pointer.c. The row quotes the FUNCTION body, 2 words, 0 masked --
+// not the enclosing 0x10 .text section, whose other two words are zero padding
+// and would inflate the count without adding evidence. Those 8 bytes
+// (`jr ra` / `move v0,sp`, 03E00008 03A01025) occur exactly ONCE in the whole
+// 32MB image, at this address.
+//
+// Two words is far below this block's 6-word threshold, and the exception is
+// deliberate: a routine whose entire body is "return the stack pointer" cannot
+// plausibly be anything else, which is a kind of evidence a word count does not
+// measure. The reference object's only function symbol is `stack_pointer`, and
+// splat's existing subsegment splits at 0x47A60 and 0x47A70 mean the file
+// boundary agrees on both sides too. See docs/modules.md section 1.2, which
+// enumerates all four sub-threshold adoptions.
+stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  get_stack_pointer.c.o  masked=0/2
 
 // ---------------------------------------------------------------------------
 // libultra OUTSIDE THE CORRIDOR
@@ -512,8 +536,11 @@ ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98
 // place, runlinkGetAddressInfo, with a *symbol table index* (computed as
 // `(cursor - tableBase) >> 2` over the 4-byte ROM table, ROM 0x33ED0-0x33ED8),
 // and its result is stored into that function's optional fourth out-parameter
-// -- the symbol-name slot. Its whole body ignores the argument and returns a
-// pointer to the constant string "unknown" at 0x80082410. So Mickey's retail
+// -- the symbol-name slot. Its whole body is four instructions: it spills the
+// argument to the stack (`sw a0, 0x0(sp)` at 0x323E4) and never reads it back,
+// then returns a pointer to the constant string "unknown" at 0x80082410. So
+// the argument is accepted and discarded rather than literally unreferenced --
+// which is what an unused parameter looks like when the signature has to stay. So Mickey's retail
 // build ships the lookup stubbed to its failure value, with the ROM-side
 // symbol string table that JFG's version reads simply absent. The name is
 // adopted for the ROLE the call site proves, and the stub is the finding.
@@ -612,13 +639,39 @@ vsprintf = 0x800429D0; // type:func size:0x1310
 // diRcp.c -- the display-list disassembler. `diRcpPrintDL` is the only
 // function referencing the whole G_* opcode name table and "UNKNOWN COMMAND";
 // Mickey's own code confirms the role (it walks a byte stream at 0x80044DE4
-// switching on the command byte). The three formatters below are told apart by
-// which literals each one owns, since all three share a "%20s":
+// switching on the command byte).
+//
+// The THREE formatters that share a "%20s" are told apart by which literals
+// each one additionally owns:
 //   0x80045660 -- "%20s" ONLY, sprintf's it and returns 8, i.e. one Gfx word
 //                 pair. That is JFG's diRcpStrName(gfx, name) exactly.
 //   0x80045694 -- "%20s: gSetRenderMode(" plus every RM_* mode name.
 //   0x8004589C -- "%20s" plus G_ZBUFFER/G_SHADE/G_LIGHTING/G_CULL_*, i.e. the
 //                 geometry-mode bits.
+//
+// diRcpMoveWd (0x800455C4) is the fourth name here and shares no literal with
+// those three, so it carries its own evidence -- the block's rule is that a
+// row without stated evidence is a bug, and an earlier version of this comment
+// left this one bare. Mickey's disassembly, read at ROM 0x461C4-0x4625C:
+//
+//   * it calls a 5-argument unpacker at 0x80045400 -- the display-list command
+//     word plus FOUR out-pointers (sp+0x5C, sp+0x54, sp+0x58, and sp+0x50
+//     passed on the stack at 0x10(sp), ROM 0x461CC-0x461E0);
+//   * it reloads one unpacked field and range-checks it with
+//     `addiu t7, a2, -0x2` / `sltiu at, t7, 0xB` (ROM 0x461E8-0x461EC), i.e. a
+//     valid range of 2..12 inclusive;
+//   * it dispatches through jtbl_80083950 into SIX arms, every one of which is
+//     empty -- each immediately branches to the epilogue (ROM 0x4620C-0x46238);
+//   * the default arm sprintf()s "UNKNOWN INDEX %d" (D_80083340) into a stack
+//     buffer (ROM 0x4623C-0x46248);
+//   * and it returns 8 (`addiu v0, zero, 0x8`, ROM 0x46254), i.e. one Gfx.
+//
+// JFG's diRcpMoveWd is the same function statement for statement: a
+// five-argument unpacker call, a switch with exactly six cases -- 2, 4, 6, 8,
+// 10 and 12, which is precisely the even half of Mickey's 2..12 range and
+// therefore why a jump table with 11 entries has six distinct arms -- all six
+// EMPTY, a default that sprintf()s the same literal, and `return 8`. The empty
+// arms are not a Mickey peculiarity; they are in both.
 diRcpPrintDL = 0x80044DC0;      // type:func size:0x604
 diRcpMoveWd = 0x800455C4;       // type:func size:0x9C
 diRcpStrName = 0x80045660;      // type:func size:0x34

@@ -49,11 +49,26 @@ A byte-identical match is adopted as a name only when **all three** hold:
   in one reference build routinely compile to identical instructions; when they
   do, byte comparison cannot say which one this is, and the row is noise.
 
-Two documented exceptions, both stated at the point of use: a two-word function
-may be adopted when the *pair* of adjacent functions carries the evidence
-(`osScGetCmdQ`/`osScGetInterruptQ`), and a short function may be adopted when
-its body is semantically unambiguous on its own (`stack_pointer` — a function
-whose entire content is "return the stack pointer").
+**Five adopted symbols fall below the 6-word bar, resting on four distinct
+arguments.** Every one is disclosed at its point of use in
+`symbol_addrs.us.txt`, and each rests on something a word count does not
+measure. They are enumerated here so the exception list is a list rather than a
+gesture — an earlier version of this section claimed "two", which was a
+miscount, and the whole value of a threshold is that its exceptions can be
+named:
+
+| Symbol | Words | What carries it instead |
+|---|---|---|
+| `osScGetCmdQ` | 2 | The **pair**: two *different* immediates (`addiu v0,a0,0x78`, `addiu v0,a0,0x40`), 8 bytes apart, in the reference's order, each ROM-wide unique |
+| `osScGetInterruptQ` | 2 | as above |
+| `stack_pointer` | 2 real | Semantically unambiguous on its own: the whole body is `jr ra` / `move v0,sp` |
+| `__osExceptionPreamble` | 2 unmasked of 4 | Shape: `lui k0,0x8005` / `addiu k0,-4032` / `jr k0` jumps to the very next instruction |
+| `__osPopThread` | 4 unmasked | Island context — three other matches already establish that this is `exceptasm.s` |
+
+Five rows, four arguments: `osScGetCmdQ` and `osScGetInterruptQ` share one.
+**A future task that adds a fifth argument should be suspicious of itself** —
+exceptions are supposed to be rare enough to enumerate, and the moment they
+stop being, the threshold has stopped doing its job.
 
 Passing the threshold is not the same as the name being *right about Mickey*.
 Tier A establishes that the routine is the same routine; the reference build's
@@ -118,10 +133,14 @@ tidied cannot.
 - No name for a function whose C is parked non-matching (Task C's rule: it
   would put a second evidence tier into the symbol file). Such names live in
   the source file's comments only.
-- No name inherited from a reference build's *address placeholder*
-  (`func_80070058`, `func_800676F8`). Importing those would assert an address
-  that does not exist in this game. Three such matches are deliberately left
-  unnamed; they are listed where they occur.
+- No name inherited from a reference build's *address placeholder*. Importing
+  one would assert an address that does not exist in this game. **Two** such
+  cases arose, and they are different in kind:
+  `func_80070058` (DKR's `math_util.s`) matched at ROM `0x2A90C` and is left
+  unnamed with the reason recorded in `symbol_addrs.us.txt`;
+  `func_800676F8` (JFG's `diCpu.c`) is what the string evidence for Mickey's
+  `0x80045BBC` pointed at, so that address simply keeps its own `func_` name.
+  An earlier version of this line said "three", which was a miscount.
 
 ---
 
@@ -172,7 +191,7 @@ guessed at.
 | `0x21DA0` | `0x800211A0` | `mainproc`, `thread1_main` | A | `main.c` proper, at the boot target |
 | `0x27BB4`, `0x28BB8` | — | `"main/main.c"` asserts | — | **`main` code is resident** |
 | `0x29FD0` | `0x800293D0` | `"x = %5d"` … `"a = %3.1f"` | — | On-screen coordinate readout |
-| `0x2A250`–`0x2AE44` | `0x80029650` | 13 `math_util.s` routines | A | Matrix / vector / RNG library, mostly 0 masked words |
+| `0x2A250`–`0x2AE44` | `0x80029650` | 11 named `math_util.s` routines | A | Matrix / vector / RNG library. 13 routines matched: 11 named here, `rand_range` already carried as `mathRnd`, and `func_80070058` left unnamed as a placeholder |
 | `0x2B650`–`0x2BCD0` | `0x8002AA50` | `main/matrix` | — | The parked float TU (§6.2) |
 | `0x2C860` | `0x8002BC60` | `align16`/`align8`/`align4` | A | The allocator |
 | `0x2F400`–`0x323A0` | `0x8002E800` | `osScGetCmdQ`, `osScGetInterruptQ`, `osScGetTaskType` | A + C | **The game scheduler** |
@@ -191,7 +210,7 @@ guessed at.
 | `0x47A60`–`0x47A70` | `0x80046E60` | `main/get_stack_pointer` | A | Measured file boundary |
 | `0x4E378` | `0x8004D778` | `byteswap32` | A | |
 | `0x4EA60`–`0x4F4D4` | `0x8004DE60` | `main/gzip_asm` | A | **Measured file boundary**: DKR's whole 0xA74 inflate core, in one piece |
-| `0x4FC20`–`0x506D0` | `0x8004F020` | the exception island | A | §4.2 |
+| `0x4FC30`–`0x506D0` | `0x8004F030` | the exception island | A | §4.2. The slot at `0x4FC20` immediately before it is the **rejected** `io/leointerrupt` match, not part of the island |
 | `0x5C640`, `0x5DFFC`, `0x5E2E4`, `0x5E498` | `0x8005BA40` … | sound-system warnings, `gsSndpStop`, `gsSndpSetParam` | C | The sound player |
 | `0x6F420`–`0x76D10` | `0x8006E820` | the libultra corridor | A | §4.1 |
 | `0x76D10`–`0x76E60` | — | non-resident text | — | Indexes off `$at`, loads from address 0; relocated before it runs. Still `bin` |
@@ -235,10 +254,11 @@ to turn a faulting address into "Module %d at %08x".
 
 ### 4.1 The corridor — ROM `0x6F420`–`0x76D10`
 
-VRAM `0x8006E820`–`0x80076100`, `0x78F0` bytes. **80 named subsegments — 79 of them
-measured file boundaries — and 107 named functions**, all tier A against DKR's built libultra. Established in
-Task B; the yaml carries the boundary argument at both ends and
-`symbol_addrs.us.txt` carries the per-function names.
+VRAM `0x8006E820`–`0x80076100`, `0x78F0` bytes. **80 named subsegments — 79 of
+them measured file boundaries — and 107 named functions**, all tier A against
+DKR's built libultra. Established in Task B; the yaml carries the boundary
+argument at both ends and `symbol_addrs.us.txt` carries the per-function
+names.
 
 `0x1AE0` of it — 22.2%, in 10 runs — is libultra-shaped but *not*
 byte-identical to DKR's build, and is deliberately unnamed. A best-alignment
@@ -268,9 +288,10 @@ task did not change that.** What is known: it is `os/exceptasm.s`, it is
 `__osException`, `__osEnqueueThread`, `__osDispatchThread` and
 `__osEnqueueAndYield` match *nowhere*, even though `__osEnqueueThread` is 0x48
 bytes of relocation-free assembly that would match trivially if it were DKR's.
-Something in this island is not stock. It is where thread dispatch lives, it is
-adjacent to `io/leointerrupt`'s slot at `0x4FC20`, and it deserves a task of
-its own rather than a corner of a sweep.
+Something in this island is not stock. It is where thread dispatch lives, and
+it deserves a task of its own rather than a corner of a sweep. (The 0x10 bytes
+at `0x4FC20` immediately before it are the *rejected* `io/leointerrupt` match
+below — an unidentified `return 0`, not an established part of the island.)
 
 Four candidate matches below the corridor were **rejected**, and the reasons
 generalise: `io/leointerrupt` (`0x4FC20`), `alCSPGetState` (`0x61990`) and
@@ -310,9 +331,10 @@ mechanism, entirely from Mickey's own disassembly:
 `runlinkGetAddressInfo` (`0x800331E4`) is the inverse, and is what the debug
 monitor uses to print "Module %d at %08x". Its fourth parameter is an optional
 symbol-name out-pointer filled by **`GetSymbolName`** (`0x800317E0`) — which in
-this retail build is four instructions that ignore their argument and return
-the constant string `"unknown"`. The ROM-side symbol table the mechanism is
-built around is simply absent from the shipped image.
+this retail build is four instructions that spill their argument to the stack,
+never read it back, and return the constant string `"unknown"`. The ROM-side
+symbol table the mechanism is built around is simply absent from the shipped
+image.
 
 ### 5.2 The tables
 
@@ -368,6 +390,22 @@ image.** Either they are compressed like the assets, or they are constructed at
 load time. That is a negative result with a method behind it, and it is the
 right starting point for Phase 4 — which owns splitting `0x16B0000`–`0x18F1FE0`
 and can read the tables out of a decompressed module image instead.
+
+> **The conclusion rests on one unproven assumption, and it is load-bearing.**
+> The `j`/`jal` discriminator assumes that a call site into a not-yet-loaded
+> overlay holds a real jump instruction *in the ROM image as shipped*. That is
+> what §5.1 says the mechanism requires — `TrapDanglingJump` only ever runs
+> because a `jal` reached it, so the site must be a call before anything is
+> patched — but it is an inference from how the linker works, not something
+> this task observed in the resident bytes at a known call site. **If unloaded
+> call sites are stored as something else and rewritten into `jal`s at load
+> time, the discriminator is wrong, every run it rejected comes back into play,
+> and the negative result evaporates.**
+>
+> Cheapest way to settle it, and worth doing before trusting this section:
+> find one call site whose target is known to be an overlay function, look at
+> the ROM bytes there, and confirm they are a `jal` to `TrapDanglingJump`
+> (`0x800333A0`). One address decides it in both directions.
 
 ---
 
