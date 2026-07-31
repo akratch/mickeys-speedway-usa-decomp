@@ -40,9 +40,19 @@ The gates below exist so that cannot recur.
 All three run `tools/cleanroom_check.sh`, which looks for ROM/asset paths,
 tracked files under `.decomp-workbench/` other than a campaign manifest,
 non-text blobs, oversized files, MIPS instruction text, bare machine-word
-runs, hexdump-shaped lines, and long base64 blobs. Thresholds are measured
-against this repository's whole history on one side and the purged ledgers on
-the other; the numbers and their margins are in `tools/cleanroom_detectors.py`.
+runs, machine words written adjacently or spread across the 32-bit space in
+any encoding, hexdump-shaped lines, base64 blobs by longest run and by volume,
+and an aggregate word budget across each tree. Thresholds are measured against
+this repository's whole history on one side and the purged ledgers plus an
+evasion fixture set on the other; the numbers and their margins are in
+`tools/cleanroom_detectors.py`.
+
+The first two layers are client-side and the third is after the fact: hooks
+are per-clone configuration, `--no-verify` steps over them, and by the time CI
+speaks the objects are already published. They are depth against mistakes, not
+a barrier against a determined bypass. A server-side GitHub push ruleset or a
+required status check on a protected branch would be the first layer that
+cannot be skipped; this repository does not have one yet.
 
 Run it yourself before committing:
 
