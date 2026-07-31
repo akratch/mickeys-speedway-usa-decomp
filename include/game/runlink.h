@@ -34,10 +34,20 @@ typedef struct RomTableEntry {
 /*
  * One overlay's header.
  *
- * Field evidence -- only `vramBase` is proven by this file so far:
- * ResolveRelocAddress indexes the table with `sll t9, v1, 5` (stride 0x20)
- * and reads offset 0x00. The remaining names/offsets are JFG's and are left
- * commented until Mickey's own code is shown to touch them.
+ * Field evidence -- the stride is proven: ResolveRelocAddress indexes the
+ * table with `sll t9, v1, 5`, so sizeof is 0x20. Two fields are proven by
+ * Mickey's own code: `vramBase` at 0x00 (read by ResolveRelocAddress and by
+ * runlinkIsModuleLoaded) and `resumeFunction` at 0x1C (read twice by
+ * runlinkCallResumeFunction, at ROM 0x32EB4 and 0x32F18, and compared against
+ * -1). Both of those functions match Mickey's ROM byte for byte, so the two
+ * offsets are measured rather than assumed.
+ *
+ * The other six fields are JFG's names at JFG's offsets and NOTHING IN THIS
+ * PROJECT HAS TOUCHED THEM YET. They are present rather than commented out
+ * because the struct has to be 0x20 bytes for the indexing to compile
+ * correctly, but treat each one as unverified until a matched function reads
+ * it. (An earlier version of this comment claimed they were "left commented",
+ * which was simply wrong about its own code.)
  */
 typedef struct OverlayHeader {
     /* 0x00 */ s32 vramBase; /* 0 while the overlay is not resident */
@@ -72,7 +82,7 @@ typedef struct RelocationEntry {
         } b;
         /* 0x04 */ struct {
             /* 0x04 */ u8 pad[3];
-            /* 0x07 */ u8 mode : 4; /* RELOC_MODE_* */
+            /* 0x07 */ u8 mode : 4; /* RELOC_TYPE_* */
             /* 0x07 */ u8 op : 4;   /* RELOC_OP_*, the same nibble the word test reads */
         } n;
     } u;
@@ -96,14 +106,29 @@ typedef union MipsInstruction {
 } MipsInstruction; /* sizeof == 0x4 */
 
 /*
- * Patch operations -- PatchInstruction's third argument. Note these are NOT
- * the RELOC_OP_* values above: the caller derives them separately, and 2/4/5/6
- * here versus 0/1/2 there is not an off-by-one. Same numbering as JFG's.
+ * Relocation types -- the HIGH nibble of RelocationEntry::u.b.flags.
+ *
+ * One value space, used by two functions for two purposes: ResolveRelocAddress
+ * tests it to decide how an unresolved symbol should be substituted, and
+ * PatchInstruction switches on it to decide which bits of the instruction to
+ * rewrite. Both read the same nibble of the same record -- ProcessRelocationEntry
+ * loads it once into `mode` and passes that value straight to PatchInstruction
+ * -- so what used to be two macro families here (PATCH_OP_* and RELOC_MODE_*)
+ * was one family described twice, with two names for each of 2 and 4.
+ *
+ * The numbering is not arbitrary and not Rare's invention: 2, 4, 5 and 6 are
+ * the standard ELF MIPS relocation type numbers for R_MIPS_32, R_MIPS_26,
+ * R_MIPS_HI16 and R_MIPS_LO16. That is checkable against the published MIPS
+ * ELF ABI, and it explains the gap at 3 and the meanings exactly: the runtime
+ * linker consumes the same r_type values a static linker would.
+ *
+ * Do NOT confuse these with the RELOC_OP_* values further down. Those are the
+ * LOW nibble of the same byte and are a different, Rare-specific space.
  */
-#define PATCH_OP_WORD 2 /* store the resolved address as a whole word */
-#define PATCH_OP_JUMP 4 /* rewrite a j/jal target, preserving the opcode */
-#define PATCH_OP_HI16 5 /* upper half, carrying LO16's sign extension */
-#define PATCH_OP_LO16 6 /* lower half */
+#define RELOC_TYPE_32   2 /* R_MIPS_32:   store the resolved address as a whole word */
+#define RELOC_TYPE_26   4 /* R_MIPS_26:   rewrite a j/jal target, preserving the opcode */
+#define RELOC_TYPE_HI16 5 /* R_MIPS_HI16: upper half, carrying LO16's sign extension */
+#define RELOC_TYPE_LO16 6 /* R_MIPS_LO16: lower half */
 
 /*
  * One entry of the pending-overlay-load list. Eight bytes; only the second
@@ -153,8 +178,12 @@ typedef struct LinkSlot {
 #define RELOC_SECTION_DATA2 0xFFE
 #define RELOC_SECTION_BSS   0xFFF
 
-/* High nibble of RelocationEntry::u.b.flags. */
-#define RELOC_MODE_ADDEND 2 /* the word already in place is an addend */
-#define RELOC_MODE_STUB   4 /* unresolved -> route to the dangling-jump trap */
+/*
+ * (The high nibble's values live with the RELOC_TYPE_* block above -- they are
+ * one space. ResolveRelocAddress reads R_MIPS_32 there as "the word already in
+ * place is an addend" and R_MIPS_26 as "route an unresolved symbol to the
+ * dangling-jump trap", which is the same relocation kind seen from the
+ * resolver's side rather than the patcher's.)
+ */
 
 #endif /* _GAME_RUNLINK_H_ */

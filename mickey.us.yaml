@@ -356,9 +356,30 @@ segments:
       - [0x76D10, bin]
       - [0x76E60, data]
       # splat's jumptable heuristic suggests `- [0x8192C, rodata]` here, while
-      # warning the real .rodata start may be well before that. Left undeclared
-      # for now (bytes are still covered by the .data subsegment above, so the
-      # link is byte-exact either way); pin it down in Phase 1.
+      # warning the real .rodata start may be well before that. Still undeclared
+      # (bytes are covered by the .data subsegment above, so the link is
+      # byte-exact either way), but Task C measured the two things a future
+      # split needs, and they are recorded here so the next task inherits them
+      # in-tree rather than out of a report:
+      #
+      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 41 jump
+      #      tables in the static segment back to the functions that reference
+      #      them gives 35 functions whose ROM addresses and whose jump-table
+      #      addresses are both monotonically increasing -- ZERO INVERSIONS.
+      #      First pair (ROM 0x7D18 -> jtbl_80080D2C), last (ROM 0x72B00 ->
+      #      jtbl_80084970). So .rodata can be carved TU by TU in text order,
+      #      which is what makes a per-file split tractable at all.
+      #
+      #   2. LOWER BOUND ON THE BOUNDARY: 0x80080D24 (ROM 0x8191C). That is a
+      #      float constant loaded by the function at ROM 0x50B0, and it sits
+      #      one word below the first jump table. Nothing lower than it is
+      #      referenced as read-only data from code, so .rodata starts at or
+      #      before 0x8191C -- consistent with splat's 0x8192C guess and
+      #      tightening it by two words.
+      #
+      # Both numbers are reproducible from asm/*.s alone; see the Task C report
+      # for the method. Doing the split is NOT done: it needs the yaml, the
+      # linker script and every future C TU to agree at once.
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }
 

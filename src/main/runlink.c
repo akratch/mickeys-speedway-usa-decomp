@@ -3,9 +3,40 @@
  *
  * Identified from its diagnostic strings (ROM 0x83018-0x83087), which are
  * byte-identical to the ones in Jet Force Gemini's public decomp of the same
- * Rare/DKR-lineage linker. Names follow JFG's where the routine is
- * demonstrably the same function; see include/game/runlink.h for the field
- * evidence behind the structs.
+ * Rare/DKR-lineage linker. See include/game/runlink.h for the field evidence
+ * behind the structs.
+ *
+ * PROVENANCE -- read this before changing anything here.
+ *
+ * The bodies in this file are ADAPTED FROM JFG's public decomp of the same
+ * engine, not written from scratch. JFG's runLink.c was open in front of me
+ * while these were written, and the resemblance goes well past the names: the
+ * signatures, the parameter names, the local names and in most cases the
+ * declaration order are JFG's. That is a permitted source under
+ * docs/CLEANROOM.md (a published, retail-derived decompilation), and it is
+ * stated here rather than left for a reader to infer from the similarity.
+ *
+ * What makes that adaptation *sound* for every function below except one is
+ * that each is validated by byte-identity against Mickey's own ROM: the
+ * compiled C reproduces Mickey's instructions exactly, so JFG's shape is not
+ * being taken on trust, it is being confirmed against this game's binary.
+ * Where Mickey's ROM disagreed with JFG, Mickey won and the deviation is
+ * recorded:
+ *
+ *   - MipsInstruction's field order is corrected. JFG names the halfword at
+ *     offset 0x00 `immediate` and the one at 0x02 `upper`; Mickey's `sh` at
+ *     offset 0x02 patches the I-type immediate, which is the *low* half of a
+ *     big-endian word, so the names are swapped here to match the hardware.
+ *   - runlinkCallResumeFunction's pending-load scan is a do/while over a
+ *     counter initialised to 15, read off Mickey's `addiu a0, zero, 0xF` at
+ *     ROM 0x32ED8, not JFG's ARRAY_COUNT-driven while loop.
+ *   - The struct layouts in include/game/runlink.h are re-derived from
+ *     Mickey's instruction offsets; only OverlayHeader carries fields this
+ *     project has not yet touched, and the header says which those are.
+ *
+ * The one function without that backstop is ProcessRelocationEntry, which is
+ * parked non-matching. Its provenance note is attached to it directly, because
+ * for that one the adaptation is load-bearing and unverified.
  *
  * Flags: -O2 -mips2 -32. The -O2 is the project default; the -mips2 is a
  * measured deviation and the first evidence about how GAME code (as opposed to
@@ -74,8 +105,8 @@ void *ResolveRelocAddress(s32 ortIndex, s32 otIndex, RelocationEntry *relocEntry
             }
             addressBase = D_800D2D90[overlayNumber].vramBase;
             if (addressBase == 0) {
-                if (relocEntry->u.n.mode == RELOC_MODE_STUB ||
-                    relocEntry->u.n.mode == RELOC_MODE_ADDEND) {
+                if (relocEntry->u.n.mode == RELOC_TYPE_26 ||
+                    relocEntry->u.n.mode == RELOC_TYPE_32) {
                     return (void *) func_800333A0;
                 }
                 return &D_800D2DC4;
@@ -84,7 +115,7 @@ void *ResolveRelocAddress(s32 ortIndex, s32 otIndex, RelocationEntry *relocEntry
 
         case RELOC_OP_LOCAL:
             address = D_800D2D90[otIndex].vramBase + relocEntry->symbolIndex;
-            if (relocEntry->u.n.mode == RELOC_MODE_ADDEND) {
+            if (relocEntry->u.n.mode == RELOC_TYPE_32) {
                 address += patchLocation->word;
             }
             return (void *) address;
@@ -108,17 +139,17 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
     u32 patched;
 
     switch (patchOp) {
-        case PATCH_OP_WORD:
+        case RELOC_TYPE_32:
             instr->word = address;
             break;
 
-        case PATCH_OP_JUMP:
+        case RELOC_TYPE_26:
             word = instr->word;
             patched = ((address >> 2) & 0x3FFFFFF) ^ word;
             instr->word = ((patched << 6) >> 6) ^ word;
             break;
 
-        case PATCH_OP_HI16:
+        case RELOC_TYPE_HI16:
             patched = address >> 16;
             if (address & 0x8000) {
                 patched = (address >> 16) + 1;
@@ -126,7 +157,7 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
             instr->i.immediate = patched;
             break;
 
-        case PATCH_OP_LO16:
+        case RELOC_TYPE_LO16:
             instr->i.immediate = address;
             break;
     }
@@ -144,10 +175,12 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
  *
  * NONMATCHING-notes:
  *
- *  - Residual after eight source variants: verdict=structure-mismatch,
+ *  - Residual after fifteen source variants: verdict=structure-mismatch,
  *    words=126, regs=121, insns=147 against the ROM's 146, frame -0x40 on both
  *    sides for the best variant. Measured with
- *    `decomp-workbench diagnose-dumps` and one 8-variant `campaign`.
+ *    `decomp-workbench diagnose-dumps` plus two `campaign` runs, 8 variants
+ *    then 7, both recorded in the one ledger named below. The brief's parking
+ *    rule asked for five campaigns; two were run. See the report.
  *
  *  - The single mechanical cause, named by the workbench's web analysis:
  *    web `a3->s1`, count 8. The ROM keeps `patchLocation` in a temp register
@@ -169,10 +202,17 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
  *      mode/op unsigned rather than signed             words=126 (identical object)
  *      &base[index] rather than base + index           words=126 (identical object)
  *      field-guide lever 7, a code-free `if (g) {}`    words=144 (worse)
- *    Five distinct object basins across eight variants. Declaration order
- *    moves the pool but never demotes patchLocation out of s1, and the three
- *    variants that produced a byte-identical object show the front end had
- *    already canonicalized those spellings away.
+ *    Second run, the temp-fifo-phase playbook and the branch-likely lead:
+ *      lever 14, call argument hoisted to a local      words=126 (identical object)
+ *      lever 14 + the hoist reused for the lookups     words=129
+ *      lever 15, phantom pop in a real `if`            words=147 (worse)
+ *      lever 16, redundant assembler-folded mask       words=148 (worse)
+ *      two nested `if`s rather than one `&&`           words=126 (identical object)
+ *      nested `if`s + lever 14 together                words=126 (identical object)
+ *    Declaration order moves the pool but never demotes patchLocation out of
+ *    s1, and six variants across the two runs produced objects byte-identical
+ *    to the baseline -- the front end canonicalizes those spellings away
+ *    before the allocator ever sees them.
  *
  *  - What was ruled out. The extra instruction is NOT a missing/extra
  *    statement: opcode multisets agree everywhere except the s1 save/restore
@@ -180,18 +220,28 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
  *    shifted by that same save. It is also not the flags nibble: the mode and
  *    operation reads match the ROM instruction for instruction.
  *
- *  - Two leads for whoever picks this up. (1) The ROM emits `bnezl` at
- *    0x326F4/0x3270C where every candidate emits `bnez`; branch-likely
- *    selection here goes with the `lw t4,0xC(s0)` that the ROM duplicates into
- *    both likely-delay slots, so the guard may be two nested `if`s rather than
- *    one `&&`. (2) The workbench's `temp-fifo-phase` playbook (levers 14-16)
- *    was not tried and is the documented lever for exactly this class; it
- *    needs a variant that reorders value deaths *before* the divergence at
- *    aligned row 18, which is the ResolveRelocAddress call itself.
+ *  - Two leads, both now TRIED AND DEAD, recorded so nobody repeats them.
+ *    (1) The ROM emits `bnezl` at 0x326F4/0x3270C where every candidate emits
+ *    `bnez`, which suggested the guard was two nested `if`s rather than one
+ *    `&&`. It is not: the nested form compiles to an object byte-identical to
+ *    the `&&` form, so the branch-likely selection is downstream of the
+ *    allocation problem, not a cause of it. (2) The temp-fifo-phase playbook
+ *    (levers 14-16) is the documented lever for this class and does not move
+ *    it -- hoisting the call argument to a local before the divergence is
+ *    another byte-identical object, and levers 15 and 16 both regress.
  *
- * The C is kept, under NON_MATCHING, rather than deleted: it is the
- * semantically-correct reading of the function and the next attempt should
- * start from it, not from m2c again.
+ *  - What is left to try, for the next person. The allocation decision is
+ *    uopt's, so the remaining levers are the pool-position family (7-13),
+ *    which were only sampled (lever 7, worse), and the -g0 schedule probe
+ *    (lever 3). Failing those, this is a candidate for the compiler-identity
+ *    question that src/main/matrix.c raises: if the float code says this ROM
+ *    was not built by the IDO 5.3 in tools/ido/, then an allocator difference
+ *    in integer code is exactly the second symptom that hypothesis predicts,
+ *    and no amount of source rewriting will close it.
+ *
+ * The C is kept, under NON_MATCHING, rather than deleted -- but see the
+ * provenance note above before trusting it. It is the best available reading
+ * of the function, not a verified one.
  */
 #ifdef NON_MATCHING
 /*
@@ -201,9 +251,43 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
  * extend, so mode 5 reads the *next* record too and returns 2; everything else
  * returns 1. The caller's loop advances by the return value.
  *
- * JFG's decomp has this function under the name ProcessRelocationEntry but
- * ships it as non-matching, so the body below is written from Mickey's ROM
- * rather than adapted: same name, independently derived code.
+ * PROVENANCE -- this body is ADAPTED FROM JFG's public decomp, and it is the
+ * one function in this file where that matters.
+ *
+ * An earlier version of this comment claimed the body was "written from
+ * Mickey's ROM rather than adapted: same name, independently derived code."
+ * That was false and has been corrected. The body follows JFG's
+ * ProcessRelocationEntry statement for statement -- same control flow, same
+ * `>= 0xFFC` clamp, same sign-extension of the low half, same guard before
+ * the unresolved-symbol substitution, same terminal flags expression in all
+ * three exits. The reasoning that produced the false claim was that JFG ships
+ * its version as non-matching, so mine "had to be" independent. That does not
+ * follow: an unvalidated implementation is still the thing I read and
+ * followed.
+ *
+ * Why this one matters more than the rest of the file: every other function
+ * here is checked by byte-identity against Mickey's ROM, which converts a
+ * borrowed shape into a verified one. This function is parked non-matching, so
+ * it has no such backstop. Its correctness currently rests on JFG agreement
+ * plus my reading of Mickey's asm -- and JFG agreement is NOT evidence about
+ * Mickey, because JFG's own version is unvalidated too. Treat every statement
+ * below as a hypothesis about Mickey until the function matches.
+ *
+ * VALIDATION MUST COME FROM MICKEY'S ASM. The disassembly is at
+ * asm/nonmatchings/main/runlink/func_80031A30.s (ROM 0x32630-0x32878). Read it
+ * against this body statement by statement before trusting any line; do not
+ * treat "JFG does it this way" as a reason for anything.
+ *
+ * One inherited expression is called out specifically, because a reviewer
+ * flagged it as evidence of copying and was right to look:
+ * `relocEntry->u.b.flags &= 0xFFF0` masks a u8 field with a 16-bit constant,
+ * which is a no-op above bit 7 and reads like a quirk carried over from JFG.
+ * It is carried over. It is ALSO corroborated by Mickey's own ROM, which emits
+ * `andi ...,0xFFF0` at 0x32668, 0x32790, 0x32830 and 0x32858 -- writing
+ * `& 0xF0` instead changes the assembled immediate, so the expression is
+ * load-bearing rather than cosmetic. Both facts are true at once: it is
+ * inherited from JFG *and* it is what Mickey's instruction encodes. Kept, with
+ * this note, rather than removed.
  */
 s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
     u32 resolvedAddr;
@@ -228,7 +312,7 @@ s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
 
     resolvedAddr = (u32) ResolveRelocAddress(relocEntry->symbolIndex, otIndex, relocEntry, patchLocation);
 
-    if (mode == PATCH_OP_HI16) {
+    if (mode == RELOC_TYPE_HI16) {
         overlayNumber = D_800D2D98[relocEntry->symbolIndex].overlayNumber;
         if (overlayNumber >= 0xFFC) {
             overlayNumber = 0;
@@ -248,13 +332,13 @@ s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
             resolvedAddr += combinedAddr;
         }
 
-        PatchInstruction(patchLocation, resolvedAddr, PATCH_OP_HI16);
-        PatchInstruction(nextPatchLocation, resolvedAddr, PATCH_OP_LO16);
+        PatchInstruction(patchLocation, resolvedAddr, RELOC_TYPE_HI16);
+        PatchInstruction(nextPatchLocation, resolvedAddr, RELOC_TYPE_LO16);
         relocEntry->u.b.flags = (op & 0xF) | (relocEntry->u.b.flags & 0xFFF0);
         return 2;
     }
 
-    if (mode == PATCH_OP_LO16) {
+    if (mode == RELOC_TYPE_LO16) {
         overlayNumber = D_800D2D98[relocEntry->symbolIndex].overlayNumber;
         if (overlayNumber >= 0xFFC) {
             overlayNumber = 0;
@@ -263,7 +347,7 @@ s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
             resolvedAddr = (u32) &D_800D2DC4;
         }
 
-        PatchInstruction(patchLocation, resolvedAddr + patchLocation->i.immediate, PATCH_OP_LO16);
+        PatchInstruction(patchLocation, resolvedAddr + patchLocation->i.immediate, RELOC_TYPE_LO16);
         relocEntry->u.b.flags = (op & 0xF) | (relocEntry->u.b.flags & 0xFFF0);
         return 1;
     }

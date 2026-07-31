@@ -37,14 +37,48 @@
  * assembler notices too: assembling asm/18FF0.s prints "Warning: float
  * register should be even" once per occurrence.
  *
- * The most likely explanation is that Mickey's game code was built with IDO
- * 7.1 rather than 5.3, whose allocator does use the odd single-precision
- * registers. That is consistent with everything else measured in this task:
- * the integer-only functions in main/runlink.c match 5.3 byte for byte,
- * because for straight-line integer code the two versions agree, and not one
- * matched function so far touches the FPU. It is a hypothesis with one clean
- * test -- build either function below with IDO 7.1 -- and that test needs a
- * compiler this repository does not vendor.
+ * WHAT IS MEASURED, AND WHAT IS ONLY A HYPOTHESIS. Measured: this IDO 5.3
+ * never emits an odd single-precision FP register, and Mickey's ROM contains
+ * 1727 of them. Everything past that is inference, and there are at least
+ * three explanations still standing. None has been ruled out:
+ *
+ *   (a) A DIFFERENT IDO. Most likely 7.1, whose allocator does use the odd
+ *       single-precision registers. Fits the rest of the evidence: the
+ *       integer-only functions in main/runlink.c match 5.3 byte for byte,
+ *       and no function matched anywhere in this project touches the FPU.
+ *       Test: build either function below with a 7.1 this repo does not
+ *       vendor.
+ *
+ *   (b) HAND-WRITTEN ASSEMBLY. Odd-register use is exactly what a human
+ *       writing MIPS by hand produces, because the even-only constraint is a
+ *       compiler convention rather than a hardware one here. This is NOT
+ *       ruled out for these two functions and it is the cheapest thing to
+ *       check first, because it would make them un-decompilable by design
+ *       rather than blocked on a compiler. The per-file odd-operand density
+ *       is NOT uniform, which is what a single-compiler story would predict:
+ *
+ *         61.3%  796/1299  asm/59DB0.s   <- rule this one out first
+ *         50.0%   38/76    asm/4FC30.s
+ *         43.5%   37/85    asm/59BF0.s
+ *         40.1%  254/633   asm/2B650.s   <- THIS FILE
+ *         24.2%  266/1100  asm/18FF0.s
+ *         18.9%  252/1335  asm/2A250.s
+ *         12.1%   44/365   asm/3B480.s
+ *          2.9%    6/209   asm/33FA0.s
+ *          2.7%   34/1257  asm/16140.s
+ *
+ *       A spread from 61% to 2.7% across nine files looks more like a mix of
+ *       origins than like one allocator applied uniformly. Note where this
+ *       file sits: 40%. That is high enough that hand-written assembly is a
+ *       live explanation for the two functions below specifically, not just
+ *       for the ROM in general -- and if it is the right one, they are
+ *       un-decompilable by design and no compiler will fix them.
+ *
+ *   (c) A NON-IDO COMPILER for some or all of the game code.
+ *
+ * The three are not mutually exclusive -- (b) and (a) together would explain
+ * the density spread better than either alone. Do not write "IDO 7.1" into
+ * any other file as though it were settled.
  *
  * What IS believed correct is the C. Both bodies were derived from the ROM's
  * own multiply/add chains and reproduce the arithmetic exactly. The residual
@@ -95,7 +129,7 @@ void MatrixRotateVec3(MtxF m, f32 x, f32 y, f32 z, f32 *dstX, f32 *dstY, f32 *ds
     *dstY = x * m[0][1] + y * m[1][1] + z * m[2][1];
     *dstZ = x * m[0][2] + y * m[1][2] + z * m[2][2];
 }
-#endif
-
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AF6C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002B040.s")
+#endif
