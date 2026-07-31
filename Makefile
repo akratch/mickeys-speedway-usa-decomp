@@ -23,7 +23,15 @@ SRC_DIR   := src
 # so adding a new source subdirectory (src/libultra, src/main, ...) needs no
 # Makefile edit -- splat decides the layout via the yaml's subsegment names.
 SRC_DIRS  := $(shell find $(SRC_DIR) -type d 2>/dev/null)
-ASM_DIRS  := asm asm/data
+# Same idea as SRC_DIRS: naming a subsegment `libultra/foo` makes splat write
+# asm/libultra/foo.s, and a hardcoded list would silently drop it from the link
+# (no error -- just a wrong ROM). `asm` stays literal so `distclean` still has
+# something to remove on a tree that was never split.
+#
+# asm/nonmatchings is deliberately excluded: those files are assembled *into* C
+# objects by asm-processor via `#pragma GLOBAL_ASM`, so assembling them again
+# here would define every one of their symbols twice.
+ASM_DIRS  := asm $(shell find asm -mindepth 1 -type d -not -path 'asm/nonmatchings*' 2>/dev/null)
 BIN_DIRS  := assets
 TOOLS_DIR := tools
 

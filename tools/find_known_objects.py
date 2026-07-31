@@ -68,7 +68,12 @@ REL_RE = re.compile(r"^([0-9a-f]{8})\s+(\S+)\s+(\S+)")
 
 
 def object_functions(obj):
-    """Yield (name, text_bytes, per_word_masks) for each .text symbol.
+    """Yield (name, offset, text_bytes, per_word_masks) for each .text symbol.
+
+    `offset` is the symbol's own offset within `.text`, taken from the symbol
+    table -- not by searching for the bytes. Two symbols in one object can be
+    byte-identical (`__ll_rem` and `__ull_rem` in libultra's `ll.c` are), so a
+    byte search would silently collapse them onto one address.
 
     A synthetic ".text" entry for the whole section is yielded first when the
     section is non-empty: a whole-section match is the strongest result the
@@ -111,7 +116,7 @@ def object_functions(obj):
                 out[(off - base) // 4] &= mask
         return out
 
-    yield ".text", text, masks_for(0, len(text) & ~3)
+    yield ".text", 0, text, masks_for(0, len(text) & ~3)
 
     dump = subprocess.run([OBJDUMP, "-t", obj], capture_output=True,
                           text=True).stdout
@@ -123,7 +128,7 @@ def object_functions(obj):
         if name == ".text":
             continue  # the section symbol; already yielded synthetically above
         if size and addr + size <= len(text):
-            yield name, text[addr:addr + size], masks_for(addr, size)
+            yield name, addr, text[addr:addr + size], masks_for(addr, size)
 
 
 def masked_match(rom, blob, masks, lo, hi):
@@ -215,7 +220,7 @@ def main():
     rows = []
     for obj in objects:
         rel = os.path.relpath(obj, args.reference)
-        for name, blob, masks in object_functions(obj):
+        for name, _off, blob, masks in object_functions(obj):
             if len(blob) < args.min_size:
                 continue
             if args.sections and name != ".text":

@@ -18,8 +18,10 @@ sha1: 507341c0a40ca3e9a7cee969b396ee53facfb548
 #
 # Segment map (ROM offsets):
 #   0x001000 - 0x086640   static code + data (resident "main" module; includes
-#                         a libultra .text block at ~0x6FC50-0x75E20, where
-#                         16/18 probed functions are byte-identical to DKR's)
+#                         the libultra .text corridor at 0x6F420-0x76D10,
+#                         whose file boundaries and symbol names are measured
+#                         against DKR's built libultra -- see the `main`
+#                         segment's own comment further down)
 #   0x086640 - 0x16B0000  data tables + bulk compressed assets (~22.8MB).
 #                         Entropy shows compression proper starting ~0x87000;
 #                         0x86640-0x87000 looks like a table of ROM offsets.
@@ -197,91 +199,139 @@ segments:
       - [0x6DE10, asm]
       - [0x6DE90, asm]
       - [0x6EA30, asm]
-      - [0x6F420, asm]
-      - [0x6F560, asm]
-      - [0x6F6F0, asm]
-      - [0x6F9B0, asm]
-      - [0x6FA30, asm]
-      - [0x6FB80, asm]
+      # -----------------------------------------------------------------
+      # libultra corridor: ROM 0x6F420 - 0x76D10 (VRAM 0x8006E820 - 0x80076100).
+      #
+      # Named subsegments below are *measured* file boundaries, not guesses:
+      # each one's byte range is byte-identical -- under relocation masking --
+      # to the whole `.text` of the same-named object in the Diddy Kong Racing
+      # decomp's built libultra. Reproduce the whole map with
+      #   tools/find_known_objects.py <dkr>/build/libultra \\
+      #       --start 0x6F420 --end 0x76D10 --sections
+      # and see symbol_addrs.us.txt for the per-function names and the
+      # provenance convention.
+      #
+      # Boundaries. Below 0x6F420 nothing matches any libultra object, and the
+      # function ending at 0x6F3DC is game-shaped (saves s5/s6). Above 0x76D10
+      # the code stops being resident text at all -- it indexes off $at and
+      # loads from absolute address 0, i.e. it is relocated somewhere before it
+      # runs -- which is why that region stays `bin`. Recon's original estimate
+      # of 0x6FC50-0x75E20 was a floor rather than the extent: it was derived
+      # from hand-written assembly only, which cannot see the C files that
+      # surround it on both sides.
+      #
+      # Unnamed `asm` entries inside the range are libultra-shaped code that is
+      # *not* byte-identical to DKR's build -- a different point release, or
+      # different build flags. They are left unnamed on purpose; see the Task B
+      # report's drift list rather than assuming nobody looked.
+      # -----------------------------------------------------------------
+      - [0x6F420, asm, libultra/recvmesg]
+      - [0x6F560, asm, libultra/aisetfreq]
+      - [0x6F6C0, asm, libultra/createmesgqueue]
+      - [0x6F6F0, asm, libultra/startthread]
+      - [0x6F840, asm, libultra/stopthread]
+      - [0x6F900, asm, libultra/aisetnextbuf]
+      - [0x6F9B0, asm, libultra/virtualtophysical]
+      - [0x6FA30, asm, libultra/sendmesg]
+      - [0x6FB80, asm, libultra/aigetlen]
       - [0x6FB90, asm]
-      # ~0x6FC50 - 0x75E20: libultra .text block (sqrtf, _bzero, _bcopy,
-      # _bcmp, cache ops, TLB/SR helpers ... byte-identical to DKR's build).
-      - [0x6FC60, asm]
-      - [0x70280, asm]
-      - [0x702F0, asm]
-      - [0x706B0, asm]
-      - [0x70910, asm]
-      - [0x70990, asm]
-      - [0x70A10, asm]
-      - [0x70A40, asm]
-      - [0x70AD0, asm]
-      - [0x70AE0, asm]
+      - [0x6FC50, asm, libultra/sqrtf]
+      - [0x6FC60, asm, libultra/sinf]
+      - [0x6FE20, asm]
+      - [0x70100, asm, libultra/setthreadpri]
+      - [0x701E0, asm, libultra/bzero]
+      - [0x70280, asm, libultra/seteventmesg]
+      - [0x702F0, asm, libultra/controller]
+      - [0x706B0, asm, libultra/contreaddata]
+      - [0x70910, asm, libultra/writebackdcache]
+      - [0x70990, asm, libultra/invalicache]
+      - [0x70A10, asm, libultra/settime]
+      - [0x70A40, asm, libultra/gettime]
+      - [0x70AD0, asm, libultra/spsetstat]
+      - [0x70AE0, asm, libultra/dpsetstat]
       - [0x70AF0, asm]
       - [0x70C30, asm]
       - [0x70D70, asm]
-      - [0x71430, asm]
-      - [0x714E0, asm]
-      - [0x71510, asm]
-      - [0x71820, asm]
-      - [0x71890, asm]
-      - [0x71970, asm]
-      - [0x71CD0, asm]
-      - [0x71E80, asm]
-      - [0x720B0, asm]
-      # 0x72370-0x72410 is libultra's libc string TU (memcpy / strlen /
-      # strchr, 0xA0 bytes incl. the 12-byte tail pad).  splat's automatic
-      # boundary finder merged it into the preceding subsegment because it
-      # follows ll.c with no alignment gap; the split point is measured -- the
-      # .text of DKR's built libultra `string.c` object is byte-identical to
-      # ROM 0x72370..0x72410, and IDO 5.3 -O2 -mips2 reproduces it exactly.
-      # First C translation unit in the project (see src/libultra/string.c).
+      - [0x70E20, asm, libultra/pfsdeletefile]
+      - [0x71430, asm, libultra/invaldcache]
+      - [0x714E0, asm, libultra/writebackdcacheall]
+      - [0x71510, asm, libultra/vimgr]
+      - [0x71820, asm, libultra/visetmode]
+      - [0x71890, asm, libultra/viblack]
+      - [0x71900, asm, libultra/visetevent]
+      - [0x71970, asm, libultra/setintmask]
+      - [0x71A10, asm, libultra/sptask]
+      - [0x71CD0, asm, libultra/sptaskyielded]
+      - [0x71D50, asm, libultra/vigetcurrframebuf]
+      - [0x71D90, asm, libultra/vigetnextframebuf]
+      - [0x71DD0, asm, libultra/dpsetnextbuf]
+      - [0x71E80, asm, libultra/sptaskyield]
+      - [0x71EA0, asm, libultra/viswapbuf]
+      - [0x71EF0, asm, libultra/visetspecial]
+      - [0x720B0, asm, libultra/ll]
+      # First C translation unit in the project. The 0xA0-byte .text of DKR's
+      # built libultra `string.c` object is byte-identical to ROM
+      # 0x72370..0x72410, and IDO 5.3 -O2 -mips2 reproduces it exactly;
+      # splat's boundary finder had merged it into ll.c because it follows
+      # with no alignment gap.  See src/libultra/string.c.
       - [0x72370, c, libultra/string]
-      - [0x72410, asm]
-      - [0x72420, asm]
-      - [0x72810, asm]
+      - [0x72410, asm, libultra/getactivequeue]
+      - [0x72420, asm, libultra/bcopy]
+      - [0x72730, asm, libultra/piacs]
+      - [0x727F0, asm, libultra/getthreadpri]
+      - [0x72810, asm, libultra/interrupt]
       - [0x72850, asm]
       - [0x72920, asm]
+      - [0x72F10, asm, libultra/thread]
+      - [0x72F50, asm, libultra/destroythread]
       - [0x73050, asm]
       - [0x730A0, asm]
       - [0x730F0, asm]
       - [0x73140, asm]
-      - [0x731E0, asm]
-      - [0x73240, asm]
-      - [0x73320, asm]
-      - [0x73440, asm]
-      - [0x735B0, asm]
-      - [0x73740, asm]
-      - [0x73890, asm]
-      - [0x73980, asm]
-      - [0x73B00, asm]
-      - [0x73B20, asm]
+      - [0x731E0, asm, libultra/rmonprintf]
+      - [0x73240, asm, libultra/settimer]
+      - [0x73320, asm, libultra/bcmp]
+      - [0x73440, asm, libultra/siacs]
+      - [0x73500, asm, libultra/sirawdma]
+      - [0x735B0, asm, libultra/crc]
+      - [0x73730, asm, libultra/getcount]
+      - [0x73740, asm, libultra/vi]
+      - [0x73890, asm, libultra/ai]
+      - [0x738C0, asm, libultra/probetlb]
+      - [0x73980, asm, libultra/jammesg]
+      - [0x73AD0, asm]
+      - [0x73B00, asm, libultra/setsr]
+      - [0x73B10, asm, libultra/getsr]
+      - [0x73B20, asm, libultra/setfpccsr]
+      - [0x73B30, asm, libultra/sirawread]
+      - [0x73B80, asm, libultra/sirawwrite]
       - [0x73BD0, asm]
-      - [0x73C20, asm]
+      - [0x73C20, asm, libultra/maptlbrdb]
       - [0x73C80, asm]
-      - [0x73C90, asm]
+      - [0x73C90, asm, libultra/timerintr]
+      - [0x74090, asm]
       - [0x743A0, asm]
-      - [0x748B0, asm]
-      - [0x748C0, asm]
-      # 0x74C20-0x74C60 is libultra's __osSpSetPc TU; splat's boundary finder
-      # already isolated it exactly, and its 0x40-byte .text is byte-identical
-      # to DKR's built spsetpc.c object. Converted to `c` and deliberately
-      # kept as pure `#pragma GLOBAL_ASM` -- see src/libultra/spsetpc.c for
-      # why. Do not decompile this one without scaffolding a replacement.
+      - [0x74680, asm]
+      - [0x748B0, asm, libultra/vigetcurrcontext]
+      - [0x748C0, asm, libultra/viswapcontext]
+      # Deliberately kept as pure `#pragma GLOBAL_ASM` so the asm-processor
+      # half of the pipeline keeps its test coverage -- see the file for why.
+      # Do not decompile this one without scaffolding a replacement.
       - [0x74C20, c, libultra/spsetpc]
-      - [0x74C60, asm]
-      - [0x74CF0, asm]
-      - [0x74D20, asm]
-      - [0x74D30, asm]
-      - [0x74D60, asm]
+      - [0x74C60, asm, libultra/sprawdma]
+      - [0x74CF0, asm, libultra/sp]
+      - [0x74D20, asm, libultra/spgetstat]
+      - [0x74D30, asm, libultra/dp]
+      - [0x74D60, asm, libultra/resetglobalintmask]
       - [0x74DC0, asm]
       - [0x74F20, asm]
-      - [0x750D0, asm]
-      - [0x75120, asm]
-      - [0x75DE0, asm]
-      - [0x75E10, asm]
-      - [0x75E20, asm]
-      - [0x760C0, asm]
-      - [0x76B80, asm]
+      - [0x750D0, asm, libultra/yieldthread]
+      - [0x75120, asm, libultra/xprintf]
+      - [0x75DE0, asm, libultra/si]
+      - [0x75E10, asm, libultra/setcompare]
+      - [0x75E20, asm, libultra/xlitob]
+      - [0x760C0, asm, libultra/xldtob]
+      - [0x76B80, asm, libultra/ldiv]
       # Not `hasm`: this disassembles into a call to func_840010E0, i.e. it is
       # not plain resident text. Kept as raw bin until it is identified.
       - [0x76D10, bin]
