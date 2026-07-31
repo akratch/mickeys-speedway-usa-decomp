@@ -279,6 +279,19 @@ $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
 
+# GAME code (as opposed to libultra) is -mips2, not the project default -mips1.
+# Measured on the first game TU decompiled, main/runlink.c: the ROM's code does
+# `lw t7,0(a3)` immediately followed by `addu v1,v1,t7`, i.e. it uses the loaded
+# register in the very next instruction. That is only legal without a nop from
+# -mips2 onwards; at -mips1 IDO's assembler inserts a load-delay nop after every
+# such pair, and main/runlink.c came out 0x14 bytes long over five functions
+# before this line existed.
+#
+# Scoped to src/main/ rather than made the global default so the libultra
+# findings above stay untouched and so the claim stays exactly as wide as the
+# evidence. Widen it when the next game module is measured, not before.
+$(BUILD_DIR)/$(SRC_DIR)/main/%.c.o: MIPSISET := -mips2 -32
+
 $(TARGET).elf: $(O_FILES) $(LD_SCRIPT) | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(LD) $(LDFLAGS) -o $@
 

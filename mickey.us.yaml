@@ -127,7 +127,11 @@ segments:
       - [0x2BCD0, asm]
       - [0x2C8C0, asm]
       - [0x2F400, asm]
-      - [0x323E0, asm]
+      # The runtime overlay linker. Identified by the error strings it prints
+      # ("ERROR:MIPS_HI16 without matching MIPS_LO16", "WARNING: Unimplemented
+      # linkage operation %d") -- byte-identical to Jet Force Gemini's, whose
+      # public decomp names the same engine's file runLink.c.
+      - [0x323E0, c, main/runlink]
       - [0x33FA0, asm]
       - [0x37D50, asm]
       - [0x3B480, asm]

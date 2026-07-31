@@ -249,3 +249,17 @@ _Ldtob = 0x80075A30; // type:func size:0x54C
 // libultra/ldiv  ROM 0x76b80  (src/libc/ldiv.c.o)
 lldiv = 0x80075F80; // type:func size:0x100
 ldiv = 0x80076080; // type:func size:0x84
+
+// ---------------------------------------------------------------------------
+// main/runlink  ROM 0x323e0-0x33fa0 -- the runtime overlay linker.
+//
+// Evidence tier: *structural*, not byte-identity. Mickey's static segment
+// carries the linker's diagnostic strings at ROM 0x83018-0x83087 byte for
+// byte identically to Jet Force Gemini's public decomp of the same
+// Rare/DKR-lineage linker ("WARNING: Unimplemented linkage operation %d\n",
+// "ERROR:MIPS_HI16 without matching MIPS_LO16\n", "REALLOC: %08x (%d)\n").
+// Where a Mickey function has JFG's argument count, JFG's switch shape and
+// JFG's field offsets, JFG's name is adopted and the correspondence is stated
+// in src/main/runlink.c. Anything weaker keeps its func_ address name.
+// ---------------------------------------------------------------------------
+ResolveRelocAddress = 0x800317F0; // type:func size:0x188
