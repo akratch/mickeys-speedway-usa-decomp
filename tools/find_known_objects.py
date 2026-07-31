@@ -29,9 +29,18 @@ Example:
         --start 0x6F000 --end 0x77000 --min-size 0x10
 
 Output columns: ROM offset, VRAM, size, symbol name, reference object, the
-number of masked (relocated) words in the comparison, and how many places in
-the search window the match occurred. Trust `occ=1` with a low masked count;
-treat a short function with many masked words and several hits as noise.
+number of masked (relocated) words in the comparison, how many places in the
+search window the match occurred (`occ`), and -- with `--rom-occ` -- how many
+places in the *whole image* it occurred (`romocc`). Trust `romocc=1` with a low
+masked count; treat a short function with many masked words and several hits as
+noise.
+
+`romocc` is the column the adoption threshold in `docs/modules.md` section 1.2
+actually asks about: uniqueness across the whole 32MB image, not within the
+window that happened to be scanned. `occ` alone once carried a wrong claim into
+Task B. `romocc` is printed as `?` when the comparison has no run of two
+consecutive unmasked words to anchor a full-image search on -- that is a
+refusal to answer, not a `1`.
 """
 
 import argparse
@@ -131,14 +140,8 @@ def object_functions(obj):
             yield name, addr, text[addr:addr + size], masks_for(addr, size)
 
 
-def masked_match(rom, blob, masks, lo, hi):
-    """Every 4-byte-aligned offset in [lo, hi) where blob matches under masks."""
-    if not masks:
-        return []
-
-    # Prefer anchoring on the longest run of *unmasked* words and letting
-    # bytes.find do the work; fall back to a full aligned sweep when there is
-    # no run long enough to be worth searching for.
+def longest_fixed_run(masks):
+    """(start, length) of the longest run of fully-unmasked words in `masks`."""
     fixed = [i for i, m in enumerate(masks) if m == 0xFFFFFFFF]
     run_start = run_len = 0
     if fixed:
@@ -149,6 +152,18 @@ def masked_match(rom, blob, masks, lo, hi):
                     run_len, run_start = fixed[i - 1] - start + 1, start
                 if i < len(fixed):
                     start = fixed[i]
+    return run_start, run_len
+
+
+def masked_match(rom, blob, masks, lo, hi):
+    """Every 4-byte-aligned offset in [lo, hi) where blob matches under masks."""
+    if not masks:
+        return []
+
+    # Prefer anchoring on the longest run of *unmasked* words and letting
+    # bytes.find do the work; fall back to a full aligned sweep when there is
+    # no run long enough to be worth searching for.
+    run_start, run_len = longest_fixed_run(masks)
 
     if run_len >= 2:
         anchor = blob[run_start * 4:(run_start + run_len) * 4]
@@ -207,6 +222,12 @@ def main():
     ap.add_argument("--sections", action="store_true",
                     help="report whole-object .text matches only, i.e. "
                          "translation-unit boundaries")
+    ap.add_argument("--rom-occ", action="store_true",
+                    help="also count occurrences across the WHOLE image, not "
+                         "just the window -- this is the uniqueness test the "
+                         "adoption threshold asks for. Printed as `?` when the "
+                         "comparison has no 2-word unmasked anchor to search "
+                         "the image with")
     args = ap.parse_args()
 
     with open(args.rom, "rb") as fh:
@@ -229,16 +250,25 @@ def main():
             if not hits or len(hits) > args.max_occurrences:
                 continue
             masked = sum(1 for m in masks if m != 0xFFFFFFFF)
+            romocc = "-"
+            if args.rom_occ:
+                # Only anchored searches can afford the whole image; without an
+                # anchor the fallback is an 8M-offset Python sweep per symbol.
+                # Say `?` rather than guess -- a wrong `1` here is exactly the
+                # failure this column exists to prevent.
+                romocc = (str(len(masked_match(rom, blob, masks, 0, len(rom))))
+                          if longest_fixed_run(masks)[1] >= 2 else "?")
             for hit in hits:
-                rows.append((hit, len(blob), name, rel, masked, len(hits)))
+                rows.append((hit, len(blob), name, rel, masked, len(hits),
+                             romocc))
 
     rows.sort()
     print(f"{'ROM':>9} {'VRAM':>10} {'size':>7}  {'symbol':<28} "
-          f"{'reference object':<34} {'masked':>6} occ")
-    for offset, size, name, rel, masked, occ in rows:
+          f"{'reference object':<34} {'masked':>6} {'occ':>3} romocc")
+    for offset, size, name, rel, masked, occ, romocc in rows:
         vram = offset - args.vram_rom + args.vram
         print(f"{offset:#09x} {vram:#010x} {size:#7x}  {name:<28} "
-              f"{rel:<34} {masked:>6} {occ:>3}")
+              f"{rel:<34} {masked:>6} {occ:>3} {romocc:>6}")
     print(f"\n{len(rows)} match(es) in "
           f"{args.start:#x}..{args.end:#x} from {len(objects)} objects")
 
