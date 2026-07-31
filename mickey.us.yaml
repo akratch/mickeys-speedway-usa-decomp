@@ -134,8 +134,8 @@ segments:
       # .text of the Diddy Kong Racing decomp's built `src/set_rsp_segment.c.o`
       # is byte-identical to ROM 0x323A0-0x323E0 with zero masked words and no
       # second occurrence anywhere in the 32MB image. Its end lands exactly on
-      # the runtime linker's start below. This split point is new in Task D;
-      # everything above it in this segment is still splat's heuristic.
+      # the runtime linker's start below. Everything above it in this segment
+      # is still splat's heuristic.
       - [0x323A0, asm, main/rsp_segment]
       # The runtime overlay linker. Identified by the error strings it prints
       # ("ERROR:MIPS_HI16 without matching MIPS_LO16", "WARNING: Unimplemented
@@ -255,10 +255,10 @@ segments:
       # Named subsegments below are *measured* file boundaries, not guesses:
       # each one's byte range is byte-identical -- under relocation masking --
       # to the whole `.text` of the same-named object in a permitted public
-      # decomp's built libultra. 79 of them were measured against Diddy Kong
-      # Racing's build in Task B; the remaining 16 against Jet Force Gemini's
-      # in Phase 2 Task 3, which is also where `libultra/piacs` finally got a
-      # measured boundary rather than only a name. Reproduce the whole map with
+      # decomp's built libultra. 79 were measured against Diddy Kong Racing's
+      # build, the remaining 16 against Jet Force Gemini's -- which is also
+      # where `libultra/piacs` got a measured boundary rather than only a name.
+      # Reproduce the whole map with
       #   tools/find_known_objects.py <ref>/build/libultra \\
       #       --start 0x6F420 --end 0x76D10 --sections --rom-occ
       # and see symbol_addrs.us.txt for the per-function names and the
@@ -267,34 +267,30 @@ segments:
       # Boundaries. The corridor is where libultra is *contiguous*, not where
       # libultra exists at all -- read the two claims separately.
       #
-      #   Lower. THIS ARGUMENT WAS PARTLY WRONG AND IS CORRECTED HERE. It used
-      #   to read: "Nothing in 0x6E000-0x6F420 matches any reference object,
-      #   and the function ending at 0x6F3DC is game-shaped (saves s5/s6)."
-      #   The second half is an accurate observation about the bytes and the
-      #   inference drawn from it was not: that function is `corrupted`, the
-      #   last routine of libultra's own io/pfschecker.c, matched whole against
-      #   JFG's build at 0x6EA30. The first half was true only of DKR. libultra
-      #   is in fact contiguous from 0x6B3D0 through 0x76D10 apart from the
-      #   0x40-byte hole at 0x6F3E0 above.
-      #
-      #   What survives is the narrower claim this range was always really
-      #   about: 0x6F420 is where the corridor Task B mapped begins, and the
-      #   subsegments below it were named later and separately.
+      #   Lower. 0x6F420 is where the corridor begins, and nothing stronger
+      #   is claimed for it. libultra itself is contiguous from 0x6B3D0
+      #   through 0x76D10 apart from the 0x40-byte hole at 0x6F3E0 above; the
+      #   subsegments below 0x6F420 were named later and separately. An
+      #   earlier boundary argument here rested on "the function ending at
+      #   0x6F3DC is game-shaped (saves s5/s6)" -- an accurate observation
+      #   with the wrong inference drawn from it. That function is
+      #   `corrupted`, the last routine of libultra's own io/pfschecker.c,
+      #   matched whole against JFG's build at 0x6EA30.
       #
       #   Upper. Above 0x76D10 the code stops being resident text at all -- it
       #   indexes off $at and loads from absolute address 0, i.e. it is
       #   relocated somewhere before it runs -- which is why that region stays
       #   `bin`.
       #
-      # Recon's original estimate of 0x6FC50-0x75E20 was a floor rather than the
-      # extent: it was derived from hand-written assembly only, which cannot see
-      # the C files that surround it on both sides.
+      # An early estimate of 0x6FC50-0x75E20 was a floor rather than the
+      # extent: it was derived from hand-written assembly only, which cannot
+      # see the C files that surround it on both sides.
       #
       # Unnamed `asm` entries inside the range are libultra-shaped code that
       # matches NO object in ANY of the five reference builds, whole or
-      # per-function. Task B left 0x1AE0 of the corridor (22.2%, ten runs)
-      # unnamed on DKR evidence alone; eight of those ten runs are named above
-      # from JFG's build, and what remains is 0xB50 in two runs --
+      # per-function. The DKR-only sweep left 0x1AE0 of the corridor (22.2%,
+      # ten runs) unnamed; eight of those ten runs are named above from JFG's
+      # build, and what remains is 0xB50 in two runs --
       # 0x70AF0-0x70E20 and 0x74090-0x748B0. docs/modules.md section 4.1 keeps
       # the current list, and tools/check_derived_numbers.py recomputes the
       # figure from this file so the two cannot drift apart.
@@ -415,9 +411,8 @@ segments:
       # splat's jumptable heuristic suggests `- [0x8192C, rodata]` here, while
       # warning the real .rodata start may be well before that. Still undeclared
       # (bytes are covered by the .data subsegment above, so the link is
-      # byte-exact either way), but Task C measured the two things a future
-      # split needs, and they are recorded here so the next task inherits them
-      # in-tree rather than out of a report:
+      # byte-exact either way). The two things a future split needs are
+      # measured and recorded here:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 44 jump
       #      tables in the static segment back to the functions that reference
@@ -435,9 +430,9 @@ segments:
       #      0x81924 -- consistent with splat's 0x8192C guess and tightening
       #      it by those two words.
       #
-      # Both numbers are reproducible from asm/*.s alone; see the Task C report
-      # for the method. Doing the split is NOT done: it needs the yaml, the
-      # linker script and every future C TU to agree at once.
+      # Both numbers are reproducible from asm/*.s alone. The split itself is
+      # NOT done: it needs the yaml, the linker script and every future C TU to
+      # agree at once.
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }
 
