@@ -65,29 +65,55 @@ fail side.
 
 ### What the content layer reliably catches
 
-Measured, at 400 real ROM instruction words per fixture:
+Every line below was re-measured by running the detectors against a fixture
+built from this game's own ROM — 400 real instruction words, or 1600 bytes,
+per fixture. The numbers in brackets are `words / spread` as the detectors
+scored them, against per-file limits of 192 words **and** 32 distinct high
+bytes.
 
 - disassembly listings (`asm/*.s`, `objdump` output), upper or lower case
-- hexdumps: `xxd`, `xxd -p`, `hexdump -C`, `od`, 64-column hex lines
-- C arrays of ROM words or bytes, including `u`/`UL` type suffixes,
-  underscore separators and zero padding
-- machine words in prose, in hex ranges, as 16-bit halves, as dotted quads,
-  in octal, in decimal
-- escaped byte strings (`"\x27\xbd..."`)
-- base64, base64url, base32 and ascii85 blobs, including line-wrapped and
-  split across several files
-- JSON ledgers of any of the above, single-line or pretty-printed
-- the two workbench ledgers that caused the original incident
-- a leak spread thinly across many files, via the aggregate budget
+- hexdumps: `xxd` [485/58], `xxd -p` [1146/73], `hexdump -C`, `od`,
+  64-column hex lines
+- C arrays of ROM words or bytes, including `u`/`UL` type suffixes and
+  underscore separators [400/40], and **zero-padded** to 9 digits [836/44]
+- machine words in prose, in hex ranges, as **hex** 16-bit halves [385/58], as
+  dotted quads [400/40], in octal [1040/75], in decimal [985/97]
+- escaped byte strings (`"\x27\xbd..."`) [400/40]
+- base64 [404/43], base64url [390/118], base32 [426/58] and ascii85 [343/167],
+  **including line-wrapped at 20, 31, 64 and 76 columns** [403/42, 404/42,
+  692/43, 669/103] and split across several files
+- JSON ledgers of any of the above, single-line or pretty-printed [436/41]
+- the two workbench ledgers that caused the original incident [5593/201 and
+  263/47]
+- a leak spread across many files **when each file is word-dense**: 3 files of
+  134 words each score 436 against an aggregate budget of 96
 
 ### What it does not catch
 
-Known, measured holes — not speculation:
+Known, measured holes — not speculation. Each was reproduced against the
+current detectors.
 
-- **Sub-threshold trickles.** A single file carrying fewer than 96 machine
-  words — about 384 bytes of ROM — is below both the per-file rule (192 words)
-  and the aggregate budget (96). A measured fixture with 63 words passes
-  today. Repeated commits of such files would accumulate unnoticed.
+- **High-byte stripping.** Write each word as six hex digits with the top byte
+  dropped and the file scores **zero words, zero spread** — every rule here is
+  silent. This is called out separately from "an encoding we did not
+  implement" because it is not one: it is a one-character change to a form
+  listed above as caught, and the top byte of a MIPS text section is nearly
+  constant within an opcode class, so the transform is trivially invertible by
+  whoever wrote it. It defeats the *statistic*, not the decoder. `spread` is
+  the discriminator carrying the per-file rule, and any bijective transform
+  that collapses the high byte — masking it, storing it separately, shifting
+  the alignment — takes the rule with it.
+- **Prose dilution.** A single file carrying **188 `0x`-prefixed words, about
+  752 bytes of ROM**, one per padded sentence, passes everything: it sits under
+  the 192-word per-file limit, and the aggregate ignores it because the
+  aggregate's rate floor (12 words/KiB) is a *per-file* rate that padding
+  drives to 5.5. Eight such files carry roughly **6 KB** with the aggregate
+  budget still reading **0**. The earlier version of this section said the
+  ceiling was 96 words / 384 bytes; that was wrong by a factor of two, and it
+  also implied the aggregate budget covered thin multi-file spreads, which it
+  does only for dense files.
+- **Decimal 16-bit halves.** Hex halves are recombined into words; the same
+  split written in decimal is not, and a 400-word fixture scores 73.
 - **Digest-shaped strings.** Up to 64 standalone 32/40/64/128-character hex
   tokens per file are exempt where they appear inline beside other content,
   because this tree legitimately records hashes and a SHA-256 is
@@ -97,8 +123,16 @@ Known, measured holes — not speculation:
   implement, data hidden in whitespace or in the low bits of otherwise
   plausible numbers, or content split below every threshold on purpose.
 - **Anything under a name the workbench redactor does not recognise** (see
-  `ledger_redaction._sweep`, which covers keys beginning with `target`, not
-  string contents).
+  `ledger_redaction._sweep`: it covers target-naming keys in any case at any
+  depth in any container, but it does not read string *contents*, so target
+  code under an innocuous key name or as a bare list element survives).
+
+The pattern across all of these is worth stating plainly, because three rounds
+of review found it independently: **content detection here is calibrated for
+accidents, and the accident case is well covered. Against someone trying, the
+per-file rule dies to any transform that flattens `spread`, and the aggregate
+dies to padding.** Both are one-line changes. Do not read the list above as a
+perimeter.
 
 ### What is actually load-bearing
 
@@ -106,12 +140,33 @@ The guarantees that do not depend on out-guessing an encoding are structural:
 
 1. **The path whitelist under `.decomp-workbench/`** — only
    `campaigns/*/manifest.json` may ever be tracked, and that file is validated
-   against its schema (default-deny on keys), not sampled for suspicious
-   content. There is nowhere in it to put a ROM word.
+   against a **path-typed allow-list**: every leaf the workbench writes is
+   enumerated with its permitted JSON types and a checker for its value's
+   shape, and anything else — unknown key, unexpected type, float where a
+   float was not declared, out-of-range number, over-long string, over-long
+   array, unexpected nesting — is rejected. A legitimate schema change fails
+   the check until someone updates the table, and that is the intended cost.
+
+   **This used to say "there is nowhere in it to put a ROM word". That was
+   false and is retracted.** A review walked around the old check five ways,
+   one of them the real schema verbatim. The honest statement is a *bound*: a
+   sha256 is 32 arbitrary bytes and a manifest legitimately carries several, so
+   typing cannot make a hash field carry less than a hash. What the validator
+   does is count and cap them — at most 64 source records, so at most
+   `4 + 2×64 = 132` digest-typed leaves — and force every other leaf into a
+   shape with no room. **Residual capacity: about 4.2 KB, and only for someone
+   deliberately writing ROM bytes into fields that are supposed to be hashes.**
+   The two real manifests carry 34 and 16 digests. Everything outside those
+   leaves is also measured statistically, with the schema-validated digests
+   blanked first, so the file answers to both layers.
 2. **The `asm/`, `assets/`, `baseroms/`, `expected/` path rules**, and the
    binary and oversize rules, which do not care about encoding at all.
-3. **The tool-level fix** — the workbench no longer writes the ROM's
-   instruction text into a ledger, so the file that leaked cannot be recreated.
+3. **The tool-level fix** — the workbench ledger writer strips every
+   target-naming field, at any depth, in any container, replacing it with a
+   16-bit salted digest and a masked opcode. It does not read string contents,
+   so it is not a guarantee that no instruction text can reach a ledger; it is
+   a guarantee that the *schema no longer asks for it*, which is what made the
+   original incident automatic. Ledgers stay gitignored regardless.
 4. **Policy and review**: `CLAUDE.md`, `docs/CONTRIBUTING.md`, and a human
    reading the diff. The gates exist so a mistake is caught, not so review can
    be skipped.
@@ -120,6 +175,40 @@ The guarantees that do not depend on out-guessing an encoding are structural:
    and CI reports after publication rather than preventing it. A required
    status check on a protected branch is the only layer that cannot be stepped
    over, and it is the recommended next step.
+
+### False positives are a failure of this system too
+
+A gate that fires on legitimate work gets turned off, and `--no-verify` turns
+off *everything*. This policy positively encourages adapting function bodies
+from the published decomps named above, so source files are expected to carry
+hex constants, struct offsets and small instruction citations.
+
+Round 4 found `src/main/runlink.c` — this repository's own worked example of
+sanctioned adaptation — at 162 words / spread 28 against limits of 192 / 32,
+about thirty words from firing. The cause was a defect, not a threshold: 116 of
+those words were base64 **false decodes** of `#pragma GLOBAL_ASM("asm/.../
+func_80031A30.s")` paths, and decoded garbage is uniformly distributed, so it
+inflated `spread` fastest. Fixing the decoder took the file to 83 words /
+spread 6, and a further fix below took it to 47 words / spread 4.
+
+A second decoder defect turned up in the same measurement and is fixed too:
+`_`-stripping treated `D_80081898` and `func_10003920` — symbol names, which
+decomp source and documentation are made of — as digit-grouped literals, and
+the fabricated word (`0xd8008189`) landed on a high byte nothing else in the
+file used. A steady drip of noise into exactly the metric that protects every
+file here.
+
+The tightest margin over all 224 blobs in this repository's history is now
+**2.46×** (`docs/modules.md` and `symbol_addrs.us.txt`, spread 13 against a
+limit of 32). Both are protected by spread, not by count —
+`symbol_addrs.us.txt` already carries 448 words against a 192 limit, and 431 of
+them share the high byte `0x80`, which is the whole reason the rule is a pair.
+**Watch this number as the tree grows**: it is the one that says whether the
+gate is still a safety net or is about to become an obstacle. If a gate
+does fire on work you believe is legitimate, the answer is
+`CONTENT_EXEMPTIONS` in `tools/cleanroom_detectors.py` — one path, one
+detector, a written reason, and a diff someone reviews — **not** `--no-verify`.
+It is empty today.
 
 Treat the content detectors as defence in depth against mistakes. They are not
 an adversary-proof boundary and must not be described as one.
