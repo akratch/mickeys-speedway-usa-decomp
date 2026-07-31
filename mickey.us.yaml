@@ -246,30 +246,40 @@ segments:
       - [0x6DE10, asm, libultra/pfsselectbank]
       - [0x6DE90, asm, libultra/contpfs]
       - [0x6EA30, asm, libultra/pfschecker]
+      # 0x40 bytes between the end of io/pfschecker.c and the corridor.
+      # Matches nothing in any of the five reference builds. Unidentified.
+      - [0x6F3E0, asm]
       # -----------------------------------------------------------------
       # libultra corridor: ROM 0x6F420 - 0x76D10 (VRAM 0x8006E820 - 0x80076110).
       #
       # Named subsegments below are *measured* file boundaries, not guesses:
       # each one's byte range is byte-identical -- under relocation masking --
-      # to the whole `.text` of the same-named object in the Diddy Kong Racing
-      # decomp's built libultra. Reproduce the whole map with
-      #   tools/find_known_objects.py <dkr>/build/libultra \\
-      #       --start 0x6F420 --end 0x76D10 --sections
+      # to the whole `.text` of the same-named object in a permitted public
+      # decomp's built libultra. 79 of them were measured against Diddy Kong
+      # Racing's build in Task B; the remaining 16 against Jet Force Gemini's
+      # in Phase 2 Task 3, which is also where `libultra/piacs` finally got a
+      # measured boundary rather than only a name. Reproduce the whole map with
+      #   tools/find_known_objects.py <ref>/build/libultra \\
+      #       --start 0x6F420 --end 0x76D10 --sections --rom-occ
       # and see symbol_addrs.us.txt for the per-function names and the
-      # provenance convention.
+      # provenance convention, and docs/references.md for what <ref> can be.
       #
       # Boundaries. The corridor is where libultra is *contiguous*, not where
       # libultra exists at all -- read the two claims separately.
       #
-      #   Lower. Nothing in 0x6E000-0x6F420 matches any reference object, and
-      #   the function ending at 0x6F3DC is game-shaped (saves s5/s6). That is
-      #   the claim; it is deliberately narrow. Running the finder over the
-      #   whole static segment does return scattered libultra matches *below*
-      #   the corridor -- a second copy of os/interrupt.s at 0x2A25C/0x2A288
-      #   (0-masked, exact), io/leointerrupt.c's whole .text at 0x4FC20, and
-      #   the exception-handler island from 0x4FC30 (see the Task B report
-      #   section 2). Those are real and are future naming targets; they are
-      #   simply not part of this contiguous run.
+      #   Lower. THIS ARGUMENT WAS PARTLY WRONG AND IS CORRECTED HERE. It used
+      #   to read: "Nothing in 0x6E000-0x6F420 matches any reference object,
+      #   and the function ending at 0x6F3DC is game-shaped (saves s5/s6)."
+      #   The second half is an accurate observation about the bytes and the
+      #   inference drawn from it was not: that function is `corrupted`, the
+      #   last routine of libultra's own io/pfschecker.c, matched whole against
+      #   JFG's build at 0x6EA30. The first half was true only of DKR. libultra
+      #   is in fact contiguous from 0x6B3D0 through 0x76D10 apart from the
+      #   0x40-byte hole at 0x6F3E0 above.
+      #
+      #   What survives is the narrower claim this range was always really
+      #   about: 0x6F420 is where the corridor Task B mapped begins, and the
+      #   subsegments below it were named later and separately.
       #
       #   Upper. Above 0x76D10 the code stops being resident text at all -- it
       #   indexes off $at and loads from absolute address 0, i.e. it is
@@ -280,12 +290,15 @@ segments:
       # extent: it was derived from hand-written assembly only, which cannot see
       # the C files that surround it on both sides.
       #
-      # Unnamed `asm` entries inside the range are libultra-shaped code that is
-      # *not* byte-identical to DKR's build -- a different point release, or
-      # different build flags. They are left unnamed on purpose; see the Task B
-      # report's drift list rather than assuming nobody looked.
+      # Unnamed `asm` entries inside the range are libultra-shaped code that
+      # matches NO object in ANY of the five reference builds, whole or
+      # per-function. Task B left 0x1AE0 of the corridor (22.2%, ten runs)
+      # unnamed on DKR evidence alone; eight of those ten runs are named above
+      # from JFG's build, and what remains is 0xB50 in two runs --
+      # 0x70AF0-0x70E20 and 0x74090-0x748B0. docs/modules.md section 4.1 keeps
+      # the current list, and tools/check_derived_numbers.py recomputes the
+      # figure from this file so the two cannot drift apart.
       # -----------------------------------------------------------------
-      - [0x6F3E0, asm]
       - [0x6F420, asm, libultra/recvmesg]
       - [0x6F560, asm, libultra/aisetfreq]
       - [0x6F6C0, asm, libultra/createmesgqueue]

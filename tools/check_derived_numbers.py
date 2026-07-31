@@ -209,6 +209,97 @@ elif claims:
                    f"{len(found)} distinct jtbl_* symbols")
 
 
+# --- 5. the libultra corridor's own arithmetic ------------------------------
+# docs/modules.md 4.1 states four numbers that are all derivable from
+# mickey.us.yaml's subsegment list plus symbol_addrs.us.txt: how many named
+# subsegments the corridor has, how many named functions, how much of it is
+# still unnamed, and what fraction that is. Phase 2 Task 3 moved all four at
+# once, and Phase 1's standing corrective is that summary counts are DERIVED --
+# so they are derived here instead of being retyped.
+
+CORRIDOR_LO, CORRIDOR_HI = 0x6F420, 0x76D10
+CORRIDOR_VRAM_LO = CORRIDOR_LO + DELTA
+CORRIDOR_VRAM_HI = CORRIDOR_HI + DELTA
+
+SUBSEG = re.compile(r"^\s*- \[" + HEX + r", (\w+)(?:, (\S+))?\]\s*$")
+subsegs = []
+for line in read("mickey.us.yaml"):
+    m = SUBSEG.match(line)
+    if m:
+        subsegs.append((int(m.group(1), 16), m.group(3)))
+subsegs.sort()
+
+named = sum(1 for a, n in subsegs if CORRIDOR_LO <= a < CORRIDOR_HI and n)
+unnamed_bytes = 0
+for i, (a, n) in enumerate(subsegs):
+    if not (CORRIDOR_LO <= a < CORRIDOR_HI) or n:
+        continue
+    nxt = subsegs[i + 1][0] if i + 1 < len(subsegs) else CORRIDOR_HI
+    unnamed_bytes += min(nxt, CORRIDOR_HI) - a
+
+SYMROW = re.compile(r"^(\w+)\s*=\s*" + HEX + r";")
+corridor_funcs = 0
+for line in read("symbol_addrs.us.txt"):
+    m = SYMROW.match(line)
+    if m and CORRIDOR_VRAM_LO <= int(m.group(2), 16) < CORRIDOR_VRAM_HI:
+        corridor_funcs += 1
+
+# These claims wrap across lines in the prose, so they are matched against the
+# whole file rather than line by line; the line number is recovered from the
+# match offset. A claim that a regex silently fails to find is a check that
+# silently passes, so each one asserts it matched at least once.
+CORRIDOR_CLAIM = re.compile(
+    r"\*\*(\d+) named subsegments,[^*]*?and (\d+) named functions\*\*",
+    re.S)
+DRIFT_CLAIM = re.compile(
+    r"is `0x([0-9A-Fa-f]+)`[^\n]*?\*\*([\d.]+)% of the corridor\*\*")
+
+modules_text = "\n".join(read("docs/modules.md"))
+
+
+def lineno(off):
+    return modules_text.count("\n", 0, off) + 1
+
+
+hits = 0
+for m in CORRIDOR_CLAIM.finditer(modules_text):
+    hits += 1
+    checked += 2
+    i = lineno(m.start())
+    if int(m.group(1)) != named:
+        report("docs/modules.md", i,
+               f"claims {m.group(1)} named corridor subsegments; "
+               f"mickey.us.yaml has {named}")
+    if int(m.group(2)) != corridor_funcs:
+        report("docs/modules.md", i,
+               f"claims {m.group(2)} named corridor functions; "
+               f"symbol_addrs.us.txt has {corridor_funcs} in "
+               f"0x{CORRIDOR_VRAM_LO:08X}-0x{CORRIDOR_VRAM_HI:08X}")
+if not hits:
+    problems.append("docs/modules.md: the corridor's "
+                    "'N named subsegments ... and N named functions' claim is "
+                    "gone or reworded -- this check is now checking nothing")
+
+hits = 0
+for m in DRIFT_CLAIM.finditer(modules_text):
+    hits += 1
+    checked += 2
+    i = lineno(m.start())
+    if int(m.group(1), 16) != unnamed_bytes:
+        report("docs/modules.md", i,
+               f"claims 0x{int(m.group(1), 16):X} of unnamed corridor; "
+               f"mickey.us.yaml has 0x{unnamed_bytes:X}")
+    want = unnamed_bytes * 100.0 / (CORRIDOR_HI - CORRIDOR_LO)
+    if abs(float(m.group(2)) - want) > 0.05:
+        report("docs/modules.md", i,
+               f"claims {m.group(2)}% of the corridor unnamed; "
+               f"0x{unnamed_bytes:X}/0x{CORRIDOR_HI - CORRIDOR_LO:X} "
+               f"= {want:.1f}%")
+if not hits:
+    problems.append("docs/modules.md: the corridor's remaining-drift claim is "
+                    "gone or reworded -- this check is now checking nothing")
+
+
 # --- verdict ----------------------------------------------------------------
 if problems:
     print("check_derived_numbers: FAILED", file=sys.stderr)

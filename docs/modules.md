@@ -43,13 +43,18 @@ A byte-identical match is adopted as a name only when **all three** hold:
   the reference object's own relocation records say the linker patches; they
   prove nothing.
 - **unique across the whole 32MB image.** Not unique within the window that was
-  scanned — that distinction cost Task B a wrong claim, and `occ` in
-  `tools/find_known_objects.py` is still window-scoped.
+  scanned — that distinction cost Task B a wrong claim. `occ` in
+  `tools/find_known_objects.py` is window-scoped and always was; **`--rom-occ`,
+  added in Phase 2 Task 3, computes the figure this bullet actually asks for**,
+  and every name adopted in that task carries a measured `romocc`. Where a
+  comparison has no run of two consecutive unmasked words to anchor a
+  whole-image search on, the tool prints `romocc=?` and the row is not
+  adoptable on uniqueness grounds.
 - **exactly one candidate name** for those bytes. Several different functions
   in one reference build routinely compile to identical instructions; when they
   do, byte comparison cannot say which one this is, and the row is noise.
 
-**Five adopted symbols fall below the 6-word bar, resting on four distinct
+**Six adopted symbols fall below the 6-word bar, resting on four distinct
 arguments.** Every one is disclosed at its point of use in
 `symbol_addrs.us.txt`, and each rests on something a word count does not
 measure. They are enumerated here so the exception list is a list rather than a
@@ -62,13 +67,17 @@ named:
 | `osScGetCmdQ` | 2 | The **pair**: two *different* immediates (`addiu v0,a0,0x78`, `addiu v0,a0,0x40`), 8 bytes apart, in the reference's order, each ROM-wide unique |
 | `osScGetInterruptQ` | 2 | as above |
 | `stack_pointer` | 2 real | Semantically unambiguous on its own: the whole body is `jr ra` / `move v0,sp` |
+| `__osGetCause` | 2 real of 4 | Same argument as `stack_pointer`, and measured the same way: the body is `mfc0 v0, Cause` / `jr ra`, and **those two words occur exactly once in the 32MB image** — so unlike the rejected `leointerrupt`, whose body alone occurs 39 times, the padding is doing none of the work. Three reference builds name those bytes, all identically |
 | `__osExceptionPreamble` | 2 unmasked of 4 | Shape: `lui k0,0x8005` / `addiu k0,-4032` / `jr k0` jumps to the very next instruction |
 | `__osPopThread` | 4 unmasked | Island context — three other matches already establish that this is `exceptasm.s` |
 
-Five rows, four arguments: `osScGetCmdQ` and `osScGetInterruptQ` share one.
-**A future task that adds a fifth argument should be suspicious of itself** —
-exceptions are supposed to be rare enough to enumerate, and the moment they
-stop being, the threshold has stopped doing its job.
+Six rows, four arguments: `osScGetCmdQ` and `osScGetInterruptQ` share one, and
+`__osGetCause` (added in Phase 2 Task 3) reuses `stack_pointer`'s rather than
+introducing a new one. **A future task that adds a fifth argument should be
+suspicious of itself** — exceptions are supposed to be rare enough to
+enumerate, and the moment they stop being, the threshold has stopped doing its
+job. That the largest mining pass this project has run added one row and zero
+arguments is the evidence that the bar is still where it was.
 
 Passing the threshold is not the same as the name being *right about Mickey*.
 Tier A establishes that the routine is the same routine; the reference build's
@@ -84,7 +93,10 @@ collisions in `symbol_addrs.us.txt`.
 ### 1.3 When a public decomp's name is adopted, and how it is disclosed
 
 `docs/CLEANROOM.md` permits public retail-derived decompilations (DKR, JFG, PD,
-BK, Conker) as sources. This project reads two:
+BK, Conker) as sources. As of Phase 2 Task 3 this project reads **all five**,
+and `docs/references.md` records each one's repo URL, pinned commit, verified
+baserom checksum, build outcome and match yield. The two that supply most of
+the tree are:
 
 - **Diddy Kong Racing** — for tier A, its *built objects only*: compiled bytes
   plus symbol and relocation tables, never its source. That restriction is what
@@ -95,10 +107,24 @@ BK, Conker) as sources. This project reads two:
   name** — every DKR name in the tree came out of a built object. Stated
   explicitly because the earlier wording ("never its source", unqualified) said
   more than was true of the work.
-- **Jet Force Gemini** — its *published source text*: primarily to answer "what
-  did that project call the function that does this", and — in
-  `src/main/runlink.c` — for adapted function bodies as well, disclosed at the
-  point of use. Names, and in that one file code, both under disclosure.
+- **Jet Force Gemini** — two different uses, and they must not be conflated.
+  Its *published source text* was read to answer "what did that project call
+  the function that does this", and — in `src/main/runlink.c` — for adapted
+  function bodies, disclosed at the point of use. Separately, and this is what
+  Phase 2 Task 3 added, its *built objects* are now the largest single source
+  of tier-A names in the tree: 168 of the 171 translation units adopted in that
+  pass are JFG's, on the same built-objects-only basis as DKR's.
+- **Perfect Dark, Banjo-Kazooie and Conker** — built objects only, mined in
+  Phase 2 Task 3. PD contributed three names (the Transfer Pak driver, which no
+  other reference build contains). BK and Conker contributed **none**, and that
+  documented zero is in `docs/references.md` alongside what they did contribute:
+  independent corroboration of 75 and 73 of the adopted translation units. None
+  of the three had its source read for any purpose.
+
+Nothing in this tree was independently derived from Mickey's bytes and then
+found to agree with a reference project. **The names are borrowed.** What the
+byte comparison establishes is that the routine is the same routine; the name
+comes from the other project, and that is what tier A means here.
 
 Every borrowed body in this tree carries an explicit `PROVENANCE` disclosure at
 the point of use, and so does every block of borrowed names.
@@ -139,13 +165,19 @@ tidied cannot.
   would put a second evidence tier into the symbol file). Such names live in
   the source file's comments only.
 - No name inherited from a reference build's *address placeholder*. Importing
-  one would assert an address that does not exist in this game. **Two** such
-  cases arose, and they are different in kind:
+  one would assert an address that does not exist in this game. Two such cases
+  arose in Phase 1, and they are different in kind:
   `func_80070058` (DKR's `math_util.s`) matched at ROM `0x2A90C` and is left
   unnamed with the reason recorded in `symbol_addrs.us.txt`;
   `func_800676F8` (JFG's `diCpu.c`) is what the string evidence for Mickey's
   `0x80045BBC` pointed at, so that address simply keeps its own `func_` name.
   An earlier version of this line said "three", which was a miscount.
+  Phase 2 Task 3 raised the count sharply and mechanically: **37 placeholder
+  addresses fall inside the 171 translation units adopted in that pass** —
+  mostly inside JFG's large `n_audio` and `gsSnd` objects, which that project
+  has matched but not yet named — and none was imported. Those addresses keep
+  their own `func_` names. The rule is applied by the generator, not by
+  judgement, which is why the number can be this large without being a risk.
 
 ---
 
@@ -182,14 +214,22 @@ ROM `0x1000`–`0x86640`, VRAM `0x80000400`–`0x80085A40`, plus `0x52D10` of BS
 Always present; the boot code jumps straight into it at `0x800211A0`, and
 `mainproc` is byte-identical to DKR's at exactly that address.
 
-Named anchors, in address order. **Tier A** rows are byte-identical to DKR's
-built objects; **tier C** rows are string-correspondence with JFG; everything
-else is noted inline. Ranges without a named anchor are omitted rather than
-guessed at.
+Named anchors, in address order. **Tier A** rows are byte-identical to a
+reference build's objects — DKR's in Phase 1, and additionally JFG's, Perfect
+Dark's, Banjo-Kazooie's and Conker's after the Phase 2 Task 3 mining pass
+(`docs/references.md`); **tier C** rows are string-correspondence with JFG;
+everything else is noted inline. Ranges without a named anchor are omitted
+rather than guessed at.
+
+Phase 2 Task 3 more than doubled this table's coverage of the segment: 171
+translation units matched whole, 190 new function names, and the two largest
+regions that previously had no anchor at all — the sound system and the
+Controller Pak driver — resolved entirely.
 
 | ROM | VRAM | Anchor | Tier | What it establishes |
 |---|---|---|---|---|
 | `0x1000` | `0x80000400` | `entrypoint` | A | The reset vector's target |
+| `0x1AE60`–`0x1BE50` | `0x8001A260` | `main/lights2` | A | **Measured file boundary**: JFG's whole 0xFF0 `hasm/lights2.s`, 9 routines — the lighting pipeline, a starfield mover, a CPU line rasteriser, a rain draw. The first anchor anywhere in `0x16140`–`0x1C790` |
 | `0x31C4` | `0x800025C4` | `audspat_jingle_off` | A | Spatial audio, and the thinnest row adopted |
 | `0xC9B4`, `0xF520` | — | `"track/track.c"` asserts | — | **`track` code is partly resident** |
 | `0x21DA0` | `0x800211A0` | `mainproc`, `thread1_main` | A | `main.c` proper, at the boot target |
@@ -202,7 +242,7 @@ guessed at.
 | `0x316E8` | `0x80030AE8` | `"SP CRASHED"`, `"Version %s"` | — | The frame loop / RCP watchdog |
 | `0x323A0`–`0x323E0` | `0x800317A0` | `main/rsp_segment` | A | Measured file boundary (whole `.text`) |
 | `0x323E0`–`0x33FA0` | `0x800317E0` | `main/runlink` | A/B/C | **The runtime overlay linker** (§5) |
-| `0x33FA0` | `0x800333A0` | `TrapDanglingJump` | B | The overlay call trampoline |
+| `0x33FA0`–`0x34180` | `0x800333A0` | `main/trapDanglingJump` | A | The overlay call trampoline. **Measured file boundary**: JFG's whole 0x1E0 `hasm/ido/trapDanglingJump.s`. Named at tier B in Task C from Mickey's call graph alone; the bytes agree |
 | `0x342A8` | `0x800336A8` | `"Ntsc LowRes"` … | — | Video-mode table (15 entries) |
 | `0x39A1C` | `0x80038E1C` | `"front/front.c"` asserts | — | **`front` code is partly resident** |
 | `0x3B1A0` | `0x8003A5A0` | `"UNKNOWN TRACK"` | — | Track selection |
@@ -214,8 +254,12 @@ guessed at.
 | `0x47A60`–`0x47A70` | `0x80046E60` | `main/get_stack_pointer` | A | Measured file boundary |
 | `0x4E378` | `0x8004D778` | `byteswap32` | A | |
 | `0x4EA60`–`0x4F4D4` | `0x8004DE60` | `main/gzip_asm` | A | **Measured file boundary**: DKR's whole 0xA74 inflate core, in one piece |
-| `0x4FC30`–`0x506D0` | `0x8004F030` | the exception island | A | §4.2. The slot at `0x4FC20` immediately before it is the **rejected** `io/leointerrupt` match, not part of the island |
-| `0x5C640`, `0x5DFFC`, `0x5E2E4`, `0x5E498` | `0x8005BA40` … | sound-system warnings, `gsSndpStop`, `gsSndpSetParam` | C | The sound player |
+| `0x4FC30`–`0x505E0` | `0x8004F030` | `libultra/exceptasm` | A | **Measured file boundary**, 9 routines including `__osException` and `__osDispatchThread`. Was "the exception island, still unexplored"; §4.2. `0x4FC20` before it is the **rejected** `io/leointerrupt` match, and `0x505E0`–`0x506D0` after it is a separate unknown |
+| `0x50820`–`0x50C00` | `0x8004FC20` | `main/refractOutputAssembler` | A | Measured file boundary (JFG) |
+| `0x59B90`–`0x59BF0` | `0x80058F90` | `main/osBootRamTest` | A | Measured file boundary (JFG) — the IPL3 6105 RAM test |
+| `0x5C310`–`0x5E6B0` | `0x8005B710` | `main/gsSnd` | A | **The sound player**, 0x23A0 in one piece, 22 named functions. Task D reached it through two error strings at tier C; both of those names fall inside this TU at exactly the predicted addresses |
+| `0x5E6B0`–`0x6AF90` | `0x8005DAB0` | libultra's `n_audio` synthesis library | A | 44 consecutive measured file boundaries, 106 names, plus three JFG maths TUs interleaved (`math_atan`, `math_acosf`, `math_arc`); §4.2 |
+| `0x6B3D0`–`0x6F3E0` | `0x8006A7D0` | Transfer Pak, Rumble Pak, Controller Pak filesystem | A | 18 measured file boundaries, 34 names. The Transfer Pak three come from **Perfect Dark**, the only reference build that has them; §4.2 |
 | `0x6F420`–`0x76D10` | `0x8006E820` | the libultra corridor | A | §4.1 |
 | `0x76D10`–`0x76E60` | — | non-resident text | — | Indexes off `$at`, loads from address 0; relocated before it runs. Still `bin` |
 | `0x76E60`–`0x86640` | `0x80076260` | `.data` + `.rodata` | — | §6.3 |
@@ -258,63 +302,114 @@ to turn a faulting address into "Module %d at %08x".
 
 ### 4.1 The corridor — ROM `0x6F420`–`0x76D10`
 
-VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **80 named subsegments — 79 of
-them measured file boundaries — and 107 named functions**, all tier A against
-DKR's built libultra. Established in Task B; the yaml carries the boundary
-argument at both ends and `symbol_addrs.us.txt` carries the per-function
-names.
+VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **95 named subsegments, every
+one of them a measured whole-`.text` file boundary, and 123 named functions**,
+all tier A. The yaml carries the boundary argument at both ends and
+`symbol_addrs.us.txt` carries the per-function names.
 
-`0x1AE0` of it — 22.2%, in 10 runs — is libultra-shaped but *not*
-byte-identical to DKR's build, and is deliberately unnamed. A best-alignment
-fuzzy scan accepting up to 35% differing words returned zero candidates for
-those runs, so they are not lightly-drifted copies: Mickey's libultra is a
-different point release or was built with different flags. `__osPiGetAccess` is
-the sharp example — the same 17 instructions as DKR's, scheduled differently.
+**Why the numbers moved.** Task B established 80 subsegments and 107 functions
+against DKR's built libultra, and left `0x1AE0` — 22.2% of the corridor, in ten
+runs — deliberately unnamed: libultra-shaped code that is not byte-identical to
+DKR's build, with a best-alignment fuzzy scan at 35% tolerance returning zero
+candidates. The diagnosis was right and incomplete. Those runs are not drifted
+copies of DKR's libultra; they are a *different build*, and Phase 2 Task 3
+found which one. Run the finder over Jet Force Gemini's libultra instead and
+**eight of the ten runs fall**, in fifteen whole-`.text` matches.
+
+The remaining unnamed code is `0xB50` — **9.4% of the corridor**, in two
+contiguous runs:
+
+| ROM | Size | Note |
+|---|---|---|
+| `0x70AF0`–`0x70E20` | `0x330` | Between `dpsetstat` and `pfsdeletefile` |
+| `0x74090`–`0x748B0` | `0x820` | Between `timerintr` and `vigetcurrcontext` |
+
+Neither matches any object in any of the five reference builds, whole or
+per-function. That is a stronger negative than Task B's, because it is now
+five builds rather than one, and two of the five are byte-perfect.
+
+`__osPiGetAccess` was Task B's sharp example of the drift — "the same 17
+instructions as DKR's, scheduled differently". It is now named, from JFG's
+whole `io/piacs.c` TU, at `0x80071B80`. `libultra/piacs` was also the one
+corridor subsegment Task B named *without* a measured boundary (its "79 of
+80"); JFG measures it, which is why this section now says 95 of 95.
 
 ### 4.2 libultra outside the corridor
 
 **The corridor is where libultra is contiguous, not where libultra exists.**
-Scanning the whole 32MB image against the same 169 reference objects returns
-matches well below it. Named in Task D:
+That was true when Task D wrote it and it is now an understatement. Phase 2
+Task 3's whole-image sweep against four more reference builds found **68
+translation units of libultra below the corridor**, in three blocks.
 
-| ROM | VRAM | Symbol | Note |
-|---|---|---|---|
-| `0x30F10` | `0x80030310` | `osScGetCmdQ` | `sc/sched.c`, inside the scheduler |
-| `0x30F18` | `0x80030318` | `osScGetInterruptQ` | adjacent, same order as the reference |
-| `0x4FC30` | `0x8004F030` | `__osExceptionPreamble` | adopted on shape, not bytes alone |
-| `0x501C0` | `0x8004F5C0` | `send_mesg` | 39 unmasked words |
-| `0x50274` | `0x8004F674` | `handle_CpU` | 13 words, 0 masked |
-| `0x50408` | `0x8004F808` | `__osPopThread` | 4 words, named on island context |
+| ROM | VRAM | What | TUs | Names | From |
+|---|---|---|---|---|---|
+| `0x4FC30`–`0x505E0` | `0x8004F030` | `os/exceptasm.s` — the exception handler and thread dispatcher | 1 | 9 | JFG |
+| `0x5E6B0`–`0x6AF90` | `0x8005DAB0` | the `n_audio` synthesis library (with three JFG maths TUs interleaved) | 47 | 106 | JFG |
+| `0x6B3D0`–`0x6F3E0` | `0x8006A7D0` | Transfer Pak, Rumble Pak, Controller Pak filesystem | 18 | 34 | JFG + PD |
 
-**The exception island at ROM `0x4FC30`–`0x506D0` is still unexplored, and this
-task did not change that.** What is known: it is `os/exceptasm.s`, it is
-`0xAA0` bytes against DKR's `0x900` — i.e. **Mickey's is larger** — and
-`__osException`, `__osEnqueueThread`, `__osDispatchThread` and
-`__osEnqueueAndYield` match *nowhere*, even though `__osEnqueueThread` is 0x48
-bytes of relocation-free assembly that would match trivially if it were DKR's.
-Something in this island is not stock. It is where thread dispatch lives, and
-it deserves a task of its own rather than a corner of a sweep. (The 0x10 bytes
-at `0x4FC20` immediately before it are the *rejected* `io/leointerrupt` match
-below — an unidentified `return 0`, not an established part of the island.)
+Plus the two scheduler accessors Task D named at `0x30F10`/`0x30F18`
+(`osScGetCmdQ`, `osScGetInterruptQ`, `sc/sched.c`), which remain the only
+libultra named below the corridor that is *not* part of a measured TU.
 
-Five candidate matches below the corridor were **rejected**, on two distinct
-grounds.
+**The exception island is closed.** Task D wrote that the island "is still
+unexplored", that Mickey's was `0xAA0` against DKR's `0x900` so "Mickey's is
+larger", and that `__osException`, `__osEnqueueThread`, `__osDispatchThread`
+and `__osEnqueueAndYield` "match *nowhere* … something in this island is not
+stock". Every part of that is superseded: the whole `0x9B0` `.text` of JFG's
+built `os/exceptasm.s.o` matches ROM `0x4FC30` in one piece, 76 of 620 words
+masked, ROM-wide unique. The island is stock libultra from a build Task D had
+no copy of. The TU ends at `0x505E0`, not `0x506D0` — the `0xF0` bytes between
+are a separate, still-unidentified run, and the yaml now splits them off. The
+code stays `asm`: it is hand-written assembly and decompiling it is not what
+identifying it required.
 
-**Three were rejected for being uniquely matched but semantically vacuous**:
-`io/leointerrupt` (`0x4FC20`), `alCSPGetState` (`0x61990`) and `alCSeqGetTicks`
-(`0x620E0`) are one-line functions — `return 0`, `return x->field` — whose
-ROM-wide uniqueness is an accident of surrounding padding rather than evidence
-about identity. `leointerrupt` makes the point with a number: its whole
-`.text` section, body plus 8 bytes of zero padding, occurs **once** in the
-32MB image, while the two-instruction function body alone occurs **39 times**.
-The padding did all the work.
+**The corridor's lower boundary argument needs amending.** The yaml justified
+`0x6F420` partly on "the function ending at `0x6F3DC` is game-shaped (saves
+s5/s6)". That function is `corrupted`, the last routine of libultra's own
+`io/pfschecker.c`. The observation was accurate; the inference from it was not.
+libultra is now contiguous from `0x6B3D0` to `0x76D10` apart from `0x1120` of
+unnamed code, of which `0xB50` is the corridor drift above, `0x590` is between
+the Transfer Pak routines, and `0x40` is the hole at `0x6F3E0`–`0x6F420`.
 
-**Two were rejected as subsumed.** `__osDisableInt`/`__osRestoreInt` at
-`0x2A25C`/`0x2A288` are `romocc=2`, and those bytes are the *tail* of DKR's
-larger
-`interrupts_disable`/`interrupts_enable` in `math_util.s`, which is why they
-matched at an offset of `0xC`. Task B recorded them as "a second copy of
-os/interrupt.s"; that reading is superseded.
+### 4.3 What was rejected, and why
+
+Phase 1 rejected five candidates below the corridor. Two of those rejections
+are **reversed** by Phase 2 Task 3, three stand, and five new rejections are
+added. All ten are listed because a rejection is a result and because two of
+them turned out to be revisable — which is only visible if the reasons were
+written down.
+
+**Reversed** — the reason was right about the evidence then available and does
+not apply to the evidence now:
+
+| ROM | Was | Now |
+|---|---|---|
+| `0x61990` | `alCSPGetState`, rejected: a one-line accessor whose ROM-wide uniqueness is an accident of padding | `n_alCSPGetState`, adopted — the address falls inside a whole-`.text` match (`0x20`, 0 masked, `romocc=1`), so what places it is the translation unit, not the accessor's own bytes. The `n_` prefix is also new information: this is the n_audio variant |
+| `0x620E0` | `alCSeqGetTicks`, same objection | `n_alCSeqGetTicks`, adopted — inside `n_cseq.c`'s whole `0x9D0` TU |
+
+**Standing** — Phase 1's three, unchanged:
+
+- `io/leointerrupt` (`0x4FC20`): whole `.text` matched, ROM-wide unique, and
+  the entire body is `jr ra` / `move v0,zero`. The uniqueness is an accident of
+  8 bytes of padding, and that is measured rather than asserted: the section
+  occurs once in the image, the two-instruction body alone occurs **39 times**.
+  Banjo-Kazooie also matches here and offers only the placeholder
+  `func_8038AAB0`, so the second look changed nothing.
+- `__osDisableInt`/`__osRestoreInt` (`0x2A25C`/`0x2A288`): `romocc=2`, and the
+  bytes are the tail of the larger, ROM-wide-unique
+  `interrupts_disable`/`interrupts_enable` in DKR's `math_util.s`, which is why
+  they matched at an offset of `0xC`. Task B recorded them as "a second copy of
+  os/interrupt.s"; that reading is superseded.
+
+**New in Phase 2 Task 3:**
+
+| ROM | Candidate | Ground |
+|---|---|---|
+| `0x20008` | Conker `src/init_3920.c.o` | Places only `func_10003920`, a reference-build address placeholder (§1.5) |
+| `0x2C8AC` | PD `game/stubs/game_11eff0.o` | `stub0f11eff0`, an 8-byte stub. Semantically vacuous, same ground as `leointerrupt` |
+| `0x58E40` | ten objects across four titles | A `0x10` `return x->field`. **Ten candidate names**, `romocc=?`. Fails §1.2's one-candidate rule outright, and the `?` is the tool declining to answer rather than a `1` |
+| `0x63B40`, `0x68110`, `0x76C80` | Conker `n_synaddplayer`, PD `n_save`, Conker `ldiv` | **Subsumed.** Each is a fragment of a TU already matched whole at a lower address. §1.2's "a whole-`.text` match outranks a standalone function match" |
+| `0x2A2B0` | BK `src/mgu/mtxxfmf.o` → `guMtxXFMF` | A clean whole-object match (`0xA0`, 0 masked, `romocc=1`), and its **boundary is still not declared**. The surrounding evidence is stronger and says something different: `0x2A250`–`0x2AE44` is thirteen routines matched against DKR's *one* hand-written `math_util.s` object, in DKR's order. Mickey inlines the SDK's `guMtxXFMF` into a hand-written maths file, exactly as DKR does, so declaring a TU boundary here would assert a file that is not there. The identification is recorded in `symbol_addrs.us.txt` §6; the address keeps `mtxf_transform_point` |
 
 ---
 
@@ -432,10 +527,33 @@ and can read the tables out of a decompressed module image instead.
 | `src/main/` (game code) | `-O2 -mips2 -32` | **Measured.** `ResolveRelocAddress` at `-mips1` emits five load-delay `nop`s the ROM does not have. Task C |
 | `src/libultra/string.c` | `-O2 -mips2 -32` | **Measured.** Branch-likely instructions. Task A |
 | 10 libultra io/os TUs | `-O1 -mips2 -32` | **Measured**, one variant at a time. At `-O2` IDO folds away a stack frame the ROM has. Locals need `register` or `-O1` spills them. Task B |
+| `src/libultra/epiread.c`, `epiwrite.c` | `-O2 -g3 -mips2 -32` | **Measured**, Phase 2 Task 3. See below |
 
 The `-mips2` finding for `src/main/` is scoped to that directory on purpose. It
 is believed to hold for all game code and has been measured on one TU; widen it
 when the next module is measured, not before.
+
+**`-g3` is the interesting one**, and it says something about the ROM rather
+than about these two files. It is IDO's "optimise, but keep full debug
+information" level, and it changes code generation: with it the compiler does
+not hoist an argument spill into the first `jal`'s delay slot, and it emits
+`lw v0` before `lw ra` in the epilogue. Neither `-O1` nor `-O2` reproduces that
+at any ISA level — the closest, `-O1 -mips2`, is `0x40` bytes against the ROM's
+`0x48` and differs in four words. Two consequences worth carrying forward:
+
+- **The eight `-O1 -mips2` TUs above should be re-examined.** They were measured
+  before `-g3` was known to be in play, and `-O1` was chosen as the best of the
+  variants then tried. They do match byte-for-byte, so nothing is wrong; but
+  "the flags that reproduce these bytes" and "the flags this file was built
+  with" are different claims, and only the first has been established.
+- **Where `-g3` came from is disclosed, not deduced.** Jet Force Gemini's
+  published Makefile builds its libultra `io/` TUs at `-O2 -g3`. Reading a
+  permitted decompilation's build configuration is the same permission as
+  reading its source (§1.3); what makes this a fact about Mickey is that it was
+  then measured here, against Mickey's bytes.
+
+A practical side effect: `-g3` makes IDO write a `.u` sidecar into the working
+directory for every such compile. `.gitignore` covers it.
 
 `-Wab,-r4300_mul` remains open. Nothing matched so far multiplies. DKR passes it.
 
@@ -510,8 +628,23 @@ Stated so nobody reads silence as absence of anything to find.
   wrong twice over — the strings are not referenced from resident code at all,
   and `func_8001F09C` is a float routine that steps a value at `+0x50` toward a
   bound at `+0x54` and clamps it, with no connection to either.
-- **The exception island** (§4.2).
-- **22% of the libultra corridor** (§4.1).
+- **9.4% of the libultra corridor** (§4.1) — `0x70AF0`–`0x70E20` and
+  `0x74090`–`0x748B0`, `0xB50` between them, matching nothing in any of the
+  five reference builds. Was 22.2% before Phase 2 Task 3. *(The exception
+  island was on this list and is not any more: §4.2.)*
+- **What is still `asm` that need not be.** 171 translation units now have
+  measured boundaries and two of them are matched C. The other 169 are `asm`
+  because nobody has tried, not because anything is in the way — and the `-g3`
+  finding in §6.1 means the flag space to try is now wider than the one Task B
+  searched. `libultra/pigetcmdq`, `libultra/epilinkhandle` and
+  `libultra/setglobalintmask` are the obvious next three: three to six
+  instructions each, blocked only on naming one data symbol apiece.
+- **The `0xF0` bytes at `0x505E0`–`0x506D0`**, between the end of
+  `os/exceptasm.s` and the next subsegment. Newly isolated by measuring the
+  exception TU's real size; unidentified.
+- **`0x6B860`–`0x6BDF0`** (`0x590`), between Perfect Dark's three Transfer Pak
+  routines. Almost certainly more of the same driver; PD's build does not
+  contain whatever it is.
 - **The object system.** The `"setting up"` / `"freeing"` / `"processing"` /
   `"exploding"` phase names sit in a 5-entry pointer table at `0x8007A220`, whose first
   entry is `"null"`, immediately followed by four function pointers —
