@@ -46,6 +46,19 @@ extern u32 osRomBase;
 
 u32 osVirtualToPhysical(void *vaddr);
 
+/* libc's hand-written block routines, still `asm`.
+   The SDK's assembly weak-aliases each entry point to an underscored name and
+   its header spells the plain one; Mickey's disassembly carries only the
+   underscored label, so the plain spelling is a macro here rather than a
+   second symbol. Source bodies keep the SDK's spelling. */
+void _bcopy(const void *src, void *dst, int len);
+void _bzero(void *dst, int len);
+int _bcmp(const void *s1, const void *s2, int len);
+
+#define bcopy _bcopy
+#define bzero _bzero
+#define bcmp  _bcmp
+
 s32 __osSpDeviceBusy(void);
 u32 __osSpGetStatus(void);
 void __osSpSetStatus(u32 status);

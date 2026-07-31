@@ -890,6 +890,18 @@ __osPiAccessQueue = 0x800D84E0;
 piAccessBuf = 0x800D84F8;
 osRomBase = 0x80000308;
 
+// The same argument again, for the Controller Pak file system's data. Each of
+// these is reached by a masked %hi/%lo pair inside a whole-.text match, and
+// the use sites agree with the reference object's declarations: 0x800D7F20 is
+// the 0x40-byte PIF-RAM mirror the pak code DMAs through, 0x800D8130 and
+// 0x800D8131 are the adjacent bytes holding the last joybus command and the
+// controller count, and 0x80080434 is the byte __osPfsGetStatus stores 250
+// into to invalidate __osPfsRWInode's one-bank inode cache.
+__osPfsPifRam = 0x800D7F20;
+__osContLastCmd = 0x800D8130;
+__osMaxControllers = 0x800D8131;
+__osPfsInodeCacheBank = 0x80080434;
+
 // ---------------------------------------------------------------------------
 // 2. THE EXCEPTION ISLAND
 //
