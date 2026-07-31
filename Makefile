@@ -313,6 +313,33 @@ $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
 
+# -O2 -g3 -mips2: a THIRD libultra flag group, found in Phase 2 Task 3 and
+# measured the same way as the two above. `-g3` is the surprise. It is IDO's
+# "optimise, but keep full debug information" level, and on these translation
+# units it changes code generation: the ROM does NOT hoist the third argument's
+# spill into the first `jal`'s delay slot, and it emits `lw v0` before `lw ra`
+# in the epilogue. Neither -O1 nor -O2 without -g3 reproduces that at any ISA
+# level -- the closest, -O1 -mips2, is 0x40 bytes against the ROM's 0x48 and
+# differs in four words. With -g3 the .text is byte-identical.
+#
+# Where the flag came from, stated because it matters: it is not something this
+# project deduced from Mickey's bytes. Jet Force Gemini's published Makefile
+# builds its libultra io/ TUs at `-O2 -g3`, and JFG's built objects are what
+# these two files were matched against in the first place. That is a permitted
+# public decompilation (docs/CLEANROOM.md) and reading its build configuration
+# is the same permission as reading its source. It was then MEASURED here
+# against Mickey's ROM rather than adopted on JFG's authority, which is what
+# makes it a fact about this ROM and not a borrowing.
+#
+# Scoped to the two TUs actually measured. The other fourteen libultra TUs
+# matched in Task 3 are still `asm`; each is a candidate for the same treatment
+# and none should be moved into this list without its own measurement.
+LIBULTRA_O2_G3_TUS := epiread epiwrite
+$(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -O2 -g3))
+$(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
+
 # GAME code (as opposed to libultra) is -mips2, not the project default -mips1.
 # Measured on the first game TU decompiled, main/runlink.c: the ROM's code does
 # `lw t7,0(a3)` immediately followed by `addu v1,v1,t7`, i.e. it uses the loaded

@@ -25,6 +25,11 @@ ctx_includes.c
 ctx.c.m2c
 *.i
 *.o
+# IDO writes a `.u` ucode/debug sidecar into the CWD for every -g3 compile
+# (see the Makefile's LIBULTRA_O2_G3_TUS block). It is a build product of THIS
+# tree's own source, not of the ROM, but it lands in the repo root rather than
+# build/ and there is no flag to relocate it.
+*.u
 
 # Environment
 .venv/

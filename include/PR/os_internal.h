@@ -19,6 +19,16 @@ typedef struct OSThread_s OSThread;
 
 OSThread *__osGetActiveQueue(void);
 
+/* Opaque for the same reason OSThread is: the two TUs that name it
+   (src/libultra/epiread.c, src/libultra/epiwrite.c) only pass the pointer
+   through to a raw-IO helper, so a field layout would be assertion. */
+typedef struct OSPiHandle_s OSPiHandle;
+
+void __osPiGetAccess(void);
+void __osPiRelAccess(void);
+s32 __osEPiRawReadIo(OSPiHandle *handle, u32 devAddr, u32 *data);
+s32 __osEPiRawWriteIo(OSPiHandle *handle, u32 devAddr, u32 data);
+
 s32 __osSpDeviceBusy(void);
 u32 __osSpGetStatus(void);
 void __osSpSetStatus(u32 status);
