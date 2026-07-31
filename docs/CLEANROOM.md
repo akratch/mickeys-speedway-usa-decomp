@@ -76,16 +76,27 @@ bytes.
   64-column hex lines
 - C arrays of ROM words or bytes, including `u`/`UL` type suffixes and
   underscore separators [400/40], and **zero-padded** to 9 digits [836/44]
-- machine words in prose, in hex ranges, as **hex** 16-bit halves [385/58], as
-  dotted quads [400/40], in octal [1040/75], in decimal [985/97]
+- machine words in prose, in hex ranges, as dotted quads [400/40], in octal
+  [1040/75], in decimal [985/97]
+- **hex 16-bit halves, however they are labelled** — bare [385/58],
+  comma-separated [385/58], one per line [385/58], as JSON array pairs
+  `"w0": ["0x27bd", "0xffe8"]` [375/57], as split `_hi`/`_lo` keys [375/57],
+  as `\u27bd\uffe8` escapes [385/58], and as markdown table rows [385/58].
+  The gate is **volume, not adjacency**: a file must carry 64 halves pairs
+  before any are read as words (see below for the two rules that failed first,
+  and the residual)
 - escaped byte strings (`"\x27\xbd..."`) [400/40]
 - base64 [400/40], base64url [386/117], base32 [415/50] and ascii85 [342/167],
-  **line-wrapped at any width** — every column from 4 to 32 was measured and
-  every one is caught [400/40 at widths 4–31], as are 64 and 76 [688/40,
-  666/99] — and split across several files. An earlier version of this list
-  said "20, 31, 64 and 76 columns", which was true but unrepresentative: the
-  block-join carried a 16-character per-line floor, so widths of 4–15 were not
-  caught at all. The floor is now 4, measured to cost nothing.
+  **line-wrapped at any width** — every column from 4 to 40 was measured with a
+  faithful hard column wrap, for base64 *and* for ascii85, and every one is
+  caught [400/40] — and split across several files. Two earlier versions of
+  this claim were wrong. The first listed only "20, 31, 64 and 76 columns"
+  because the base64 block-join carried a 16-character per-line floor. The
+  second said "any width" while the *ascii85* floor was still 32, so ascii85
+  wrapped narrower than 32 columns was not caught at all. Both floors are now
+  4, measured to cost nothing: over every tracked file the tightest margin is
+  identical at every floor from 32 down to 4, and no file fires at any of
+  them.
 - runs whose length is **undecodable for their encoding** — base64 at 1 mod 4,
   base32 at 1/3/6 mod 8, ascii85 at 1 mod 5 [399/40, 413/50, 399/40]. These
   used to raise inside the decoder, get swallowed, and vanish unexamined; a
@@ -121,20 +132,35 @@ current detectors.
   also implied the aggregate budget covered thin multi-file spreads, which it
   does only for dense files.
 - **Decimal 16-bit halves.** Hex halves are recombined into words; the same
-  split written in decimal is not, and a 400-word fixture scores 22. Hex
-  halves are also only recombined when **adjacent** — separated by at most
-  three non-alphanumeric characters — so halves deliberately scattered far
-  apart are not paired either. Pairing at any distance was tried and is what
-  the previous round shipped; it fabricated words out of unrelated numbers and
-  cost more in false positives than it ever bought (see below).
+  split written in decimal is not, and a 400-word fixture scores **0**.
+- **Fewer than 64 hex halves pairs in a file.** Halves are gated on volume:
+  a file must contain at least 64 pairs — two 4-digit hex runs separated by at
+  most 24 characters — before any pair is read as a word. Below that, none
+  are. A file carrying 63 pairs (about 252 bytes of ROM in halves form) is
+  therefore not caught by this route.
+
+  Two narrower rules were tried first and both are worth recording, because
+  each looked correct and each was defeated. Pairing at **unbounded distance**
+  fused a value on line 18 with one on line 234 and produced 7 of the 13
+  phantom high bytes in `docs/modules.md`. Requiring a long **chain of
+  tightly-adjacent** halves killed those phantoms but was defeated by putting a
+  label between the pairs — keyed JSON, split `_hi`/`_lo` keys, `\u` escapes
+  and markdown rows all reset the chain at every label and scored **zero**,
+  which is a one-line change for anyone leaking. Volume is what actually
+  separates a dump from prose: measured at a 24-character gap, the most pairs
+  in any blob in this repository's entire history is **14**, while the weakest
+  of nine halves fixture families carries **375**.
 - **Digest-shaped strings.** The first 64 distinct 32/40/64/128-character hex
   tokens per file are exempt where they appear inline beside other content,
   because this tree legitimately records hashes and a SHA-256 is
   indistinguishable from ROM data by any content metric. Tokens past the 64th
   count normally, so the exemption is a slope rather than a cliff: measured, a
-  file of digest-shaped ROM passes at 64 and 65 tokens and is caught at 100.
-  **Deliberately abused that is roughly 3.2 KB of ROM per file**, up from the
-  2 KB claimed before. The widening is deliberate and is the price of removing
+  file of digest-shaped ROM passes at 64 and 65 tokens and is caught at 88.
+  **Deliberately abused that is about 2.7 KiB of ROM per file** — 87 digests
+  is the measured ceiling, and it varies a little with the byte values, since
+  what actually trips is the spread of the words they decode to. An earlier
+  figure of 3.2 KB here was an estimate, not a measurement. The widening
+  relative to the old 2 KB is deliberate and is the price of removing
   a discontinuity that made a documentation file recording a 65th hash score
   520 words — a false positive on legitimate growth, sitting directly under
   the tightest margin in the tree.
@@ -294,14 +320,33 @@ What `gmake audit-decoders` asserts:
 
 1. the per-stage word buckets reconstruct `normalize_words`' real output
    exactly (there is one implementation, not a mirrored copy);
-2. the decoder set is **closed** — a new decoder cannot ship without a measured
-   ceiling recorded in `tools/audit_decoders.py`;
+2. the decoder set is **closed in all three directions** — every declared stage
+   has a ceiling, every ceiling has a stage, and every bucket the normalizer
+   actually *produces* is declared. The third is not redundant: words in an
+   undeclared bucket are still returned by `normalize_words`, so without it a
+   phantom could ship while the audit reported success;
 3. the eight *synthetic* decoders contribute **zero** words. Nothing in this
    tree is encoded, so a nonzero count is a false decode by definition, not a
    budget to spend;
 4. the two decoders that read genuinely-written numbers (`hex-run`,
    `dec-token`) stay under a generous tripwire that catches a flood rather than
    budgeting normal growth.
+
+**What it does not cover, and this matters.** The audit looks in the
+false-*positive* direction only — a decoder that starts inventing words. It is
+blind to the opposite failure, a decoder that quietly *stops* producing words
+it should, because a decoder going silent looks exactly like a decoder
+behaving. Both defects found in one review round were of that kind: a base64
+run whose length was 1 mod 4 raised inside the decoder and was swallowed, and
+a per-line floor meant narrow-wrapped payloads were never joined. Neither moved
+a single number in the audit.
+
+**False-negative coverage comes from the fixture suite** — real ROM words in
+every encoding, wrapped at every width, asserted to still be caught — not from
+this tool. Verified by driving it: reverting either wrap floor, or removing the
+undecodable-length trim, leaves `gmake audit-decoders` green while the fixture
+suite immediately reports the missed widths. Run both. Neither replaces the
+other, and a clean audit is not evidence that anything still works.
 
 It runs over tracked files by default (about 0.2 s) and over every blob in
 history with `AUDIT_ARGS=--all` (about 4 s). It is deliberately **not** wired

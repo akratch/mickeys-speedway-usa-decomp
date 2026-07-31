@@ -406,22 +406,55 @@ PURE_B64_LINE = re.compile(r"^[A-Za-z0-9+/=_-]+$")
 # to carry that load.
 PURE_B64_LINE_MIN = 4
 #: How far apart two 16-bit halves may sit and still be read as one word.
-#: `27bd ffc0` is 1, `27bd, ffc0` is 2, a column wrap is 1 (the newline).
-HALF_PAIR_GAP = 3
-#: How long a chain of adjacent halves must be before ANY of it is paired.
+#: Wide enough to step over a JSON key or a table cell -- `"w0": ["0x27bd",
+#: "0xffe8"]` is 4 characters between the halves, `"w0_hi": "0x27bd",\n
+#: "w0_lo": "0xffe8"` is about 15, `\u27bd\uffe8` is 2.
+HALF_PAIR_GAP = 24
+#: How many halves PAIRS a file must contain before any of them are read as
+#: words.
 #:
-#: Adjacency alone is not enough.  A comment listing ROM offsets
-#: (`// 0x1B74, 0x27A0, 0x27C4, 0x545C, ...`) and a markdown table row
-#: (`| 1232 | 1105 |`) are both "adjacent" under any gap rule that also has to
-#: admit `27bd, ffc0`, and both were fabricating words -- `0x1b7427a0` from two
-#: unrelated offsets.  What separates them is length: a halves-encoded dump is
-#: hundreds of halves in a row, prose is a handful.
-#: Measured -- longest chain anywhere in this repository's history: **5**
-#: (a `symbol_addrs.us.txt` comment).  The three halves fixtures: **206**.
-#: 16 sits 3.2x above the pass side and 12.9x below the fail side.
-HALF_CHAIN_MIN = 16
-PURE_BASE_LINE = re.compile(r"^[!-u]+$")
-PURE_BASE_LINE_MIN = 32
+#: Two failed rules preceded this one, and both failures are instructive.
+#: Pairing at unbounded distance (round 4) fused a value on line 18 with one on
+#: line 234 and produced 7 of the 13 phantom high bytes in docs/modules.md.
+#: Requiring a long *chain* of tightly-adjacent halves (round 5) killed those
+#: phantoms but was defeated by putting a label between the pairs: keyed JSON
+#: (`"w0": ["0x27bd", "0xffe8"]`), split keys, `\u`-escapes and markdown rows
+#: all reset the chain at every label and scored zero -- a one-line change for
+#: anyone leaking, which is the definition of the wrong discriminator.
+#:
+#: What actually separates a dump from prose is neither distance nor
+#: consecutiveness but VOLUME.  A halves-encoded function is hundreds of pairs;
+#: a comment listing ROM offsets or a table with two numeric columns is a
+#: handful, however tidily adjacent.  So: pair greedily across a gap wide
+#: enough to step over a key, then require the whole file to carry
+#: HALF_PAIR_MIN pairs before emitting any of them.
+#:
+#: Measured at HALF_PAIR_GAP=24 -- most pairs in any blob in this repository's
+#: entire history: **14** (this file, which quotes halves examples in its own
+#: comments; the next worst real file is far below).  Weakest of the nine
+#: halves fixture families: **375**.  The floor sits 4.6x above the pass side
+#: and 5.9x below the fail side.
+#:
+#: This is a file-level gate, so it has a step at the threshold: a legitimate
+#: file that one day reached 64 pairs would start emitting ~64 words at once.
+#: That step is *monitored* rather than merely hoped about -- `halves-pair` has
+#: a ceiling of ZERO in tools/audit_decoders.py, so the first tracked file to
+#: emit a single pair fails `gmake audit-decoders` by name.
+HALF_PAIR_MIN = 64
+# `z` is ascii85's shorthand for a zero word, and MIPS text is full of zero
+# words, so a wrapped payload has `z` on many of its lines.  Omitting it here
+# broke the block join on exactly those lines -- the same defect the base64
+# class had with v-z in round 5, in the other alphabet.
+PURE_BASE_LINE = re.compile(r"^[!-uz]+$")
+# Measured exactly as the base64 floor was, with a faithful hard column wrap:
+# at 32 every ascii85 wrap from 4 to 31 columns was missed; at 16, widths 4-15;
+# at 8, widths 4-7; at 4, none.  The tightest margin over all tracked files is
+# identical (6.40x) at every one of those settings and no file fires at any of
+# them, so the floor was buying nothing and costing the whole narrow-wrap
+# range.  The alphabet-share and out-of-alphabet gates in _decode_base_n are
+# what stop a joined block of ordinary short lines decoding; the per-line floor
+# never carried that load.
+PURE_BASE_LINE_MIN = 4
 BASE_RUN = re.compile(r"[A-Za-z0-9+/=_-]{40,}")
 # ascii85 uses most of printable ASCII, so it needs its own class -- the base64
 # one does not contain its punctuation and the encoding sailed straight past.
@@ -719,83 +752,71 @@ def normalize_words_by_stage(text):
 
     # Blocks of consecutive pure-hex or pure-base-N lines are one datum split
     # across lines; join before extracting, so wrapping is not a hiding place.
-    index = 0
-    while index < len(lines):
-        stripped = lines[index].strip()
-        if PURE_HEX_LINE.match(stripped) and len(stripped) >= 16:
-            end = index
-            block = []
-            while end < len(lines):
-                candidate = lines[end].strip()
-                if not (PURE_HEX_LINE.match(candidate) and len(candidate) >= 16):
-                    break
-                block.append(candidate)
-                end += 1
-            _words_from_hex("".join(block), by["hexline-block"], [])
-            index = end
-            continue
-        matched = False
-        for pattern, floor in (
-            (PURE_B64_LINE, PURE_B64_LINE_MIN),
-            (PURE_BASE_LINE, PURE_BASE_LINE_MIN),
-        ):
-            if not (pattern.match(stripped) and len(stripped) >= floor):
+    #
+    # Each line class gets its OWN pass.  A single interleaved pass let
+    # whichever pattern matched first consume the lines, and since neither
+    # alphabet contains the other, a narrow-wrapped ascii85 payload was
+    # constantly fragmented by the occasional line that happened to be all
+    # base64 characters -- so wrapped ascii85 was caught at some widths and not
+    # others, with no pattern to it.  Independent passes remove the coupling.
+    stripped_lines = [line.strip() for line in lines]
+
+    def join_blocks(pattern, floor, emit):
+        index = 0
+        while index < len(stripped_lines):
+            candidate = stripped_lines[index]
+            if not (pattern.match(candidate) and len(candidate) >= floor):
+                index += 1
                 continue
             end = index
             block = []
-            while end < len(lines):
-                candidate = lines[end].strip()
-                if not (pattern.match(candidate) and len(candidate) >= floor):
+            while end < len(stripped_lines):
+                line = stripped_lines[end]
+                if not (pattern.match(line) and len(line) >= floor):
                     break
-                block.append(candidate)
+                block.append(line)
                 end += 1
             if len(block) > 1:
-                _decode_base_n("".join(block), by["base-block"])
+                emit("".join(block))
             index = end
-            matched = True
-            break
-        if not matched:
-            index += 1
 
-    # 16-bit halves, recombined -- but only where they are ADJACENT.
+    join_blocks(
+        PURE_HEX_LINE, 16, lambda joined: _words_from_hex(joined, by["hexline-block"], [])
+    )
+    join_blocks(
+        PURE_B64_LINE, PURE_B64_LINE_MIN, lambda joined: _decode_base_n(joined, by["base-block"])
+    )
+    join_blocks(
+        PURE_BASE_LINE, PURE_BASE_LINE_MIN, lambda joined: _decode_base_n(joined, by["base-block"])
+    )
+
+    # 16-bit halves, recombined -- gated on VOLUME, not on adjacency.
     #
-    # This used to collect every 4-digit hex run in the document into one list
-    # and pair them up in order, so a value on line 18 was fused with a value
-    # on line 234 into a 32-bit "machine word" that exists nowhere.  Being
-    # built from two unrelated numbers, its high byte is arbitrary, and
-    # `spread` is the metric protecting every file in this tree: 7 of the 13
-    # distinct high bytes in docs/modules.md came from exactly this, pairing
-    # table cells hundreds of lines apart.  Same class of defect as the base64
-    # false decodes -- the detector inventing data and then measuring it.
-    #
-    # A real halves-encoded dump writes its halves next to each other:
-    # `27bd ffc0`, `27bd,ffc0`, or one per line in a column.  So pair only
-    # across a gap of at most HALF_PAIR_GAP characters containing no
-    # alphanumerics.  A newline is one character, so column-wrapped dumps still
-    # pair; `\`0xC9B4\`, \`0xF520\`` in a markdown table is a four-character
-    # gap and no longer does.
+    # Pairing at unbounded distance fused a value on line 18 with one on line
+    # 234 and produced 7 of the 13 phantom high bytes in docs/modules.md.
+    # Requiring a long chain of tightly-adjacent halves fixed that but was
+    # defeated by labelling the pairs.  See HALF_PAIR_MIN for both failures and
+    # the measurements that replaced them.
     runs = []
     for match in HEX_RUN_ANY.finditer(text):
         pending = []
         if _words_from_hex(match.group(0), by["hex-run"], pending):
             runs.append((match.start(), match.end(), pending[0]))
 
-    def adjacent(left, right):
-        gap = text[runs[left][1] : runs[right][0]]
-        return len(gap) <= HALF_PAIR_GAP and not any(c.isalnum() for c in gap)
-
-    # Split into maximal chains of adjacent halves, then pair only inside
-    # chains long enough to be a dump rather than a list (see HALF_CHAIN_MIN).
-    start = 0
-    for index in range(len(runs) + 1):
-        if index < len(runs) and (index == start or adjacent(index - 1, index)):
-            continue
-        if index - start >= HALF_CHAIN_MIN:
-            for pair in range(start, index - 1, 2):
-                by["halves-pair"].append(
-                    (runs[pair][2] << 16) | runs[pair + 1][2]
-                )
-        start = index
+    # Pair greedily: walk the halves in order and take each with its successor
+    # when nothing but a short label separates them.  They are consecutive
+    # runs, so an intervening half breaks the pair by construction.
+    paired = []
+    index = 0
+    while index < len(runs) - 1:
+        if runs[index + 1][0] - runs[index][1] <= HALF_PAIR_GAP:
+            paired.append((runs[index][2] << 16) | runs[index + 1][2])
+            index += 2
+        else:
+            index += 1
+    # Volume, not adjacency, is what says "dump" (see HALF_PAIR_MIN).
+    if len(paired) >= HALF_PAIR_MIN:
+        by["halves-pair"].extend(paired)
 
     for match in DEC_TOKEN.finditer(text):
         value = int(match.group(1))

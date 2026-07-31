@@ -42,6 +42,27 @@ comment lists pairing.  Both were caught by re-running this audit and neither
 would have been caught by reasoning about the diff.  Run `gmake audit-decoders`
 after touching anything in `normalize_words_by_stage` or any decoder it calls.
 
+WHAT THIS DOES **NOT** COVER
+----------------------------
+This audit only looks in the false-POSITIVE direction: it catches a decoder
+that starts producing words out of text that was never encoded.  It says
+nothing about the opposite failure -- a decoder that *stops* producing words it
+should.  Both defects found in one review round were of that second kind: a
+base64 run whose length was 1 mod 4 raised inside the decoder and was silently
+swallowed, and a per-line floor of 32 meant narrow-wrapped ascii85 was never
+joined at all.  Neither would move a single number here, because a decoder
+going quiet looks exactly like a decoder behaving.
+
+False-negative coverage comes from the FIXTURE SUITE -- real ROM words in every
+encoding, wrapped at every width, checked to still be caught -- not from this
+tool.  Run both.  Neither replaces the other, and the ceilings below are not
+evidence that anything still works.
+
+One more gap worth naming: a phantom emitted into the `hex-run` bucket, which
+legitimately carries thousands of words, is under a tripwire rather than a zero
+and would need to be large to show up.  The eight zero-ceiling stages have no
+such slack.
+
 WHAT IT ASSERTS
 ---------------
 1. **Stage totals reconstruct the real output.**  The per-stage buckets must
@@ -49,9 +70,13 @@ WHAT IT ASSERTS
    self-check on the split, not a drift check -- there is deliberately only one
    implementation (see `normalize_words`'s docstring for why the two-copy
    version was worse).
-2. **The stage set is closed.**  Every stage in `DECODER_STAGES` needs a ledger
-   entry below, and every ledger entry needs a stage.  A new decoder cannot be
-   added without recording a measured ceiling for it.
+2. **The stage set is closed, in all three directions.**  Every stage in
+   `DECODER_STAGES` needs a ledger entry below; every ledger entry needs a
+   stage; and every bucket `normalize_words_by_stage` actually *produces* must
+   be one of them.  That last one is not redundant -- a decoder emitting into
+   an undeclared bucket still has its words returned by `normalize_words`, so
+   without it a phantom could ship while this tool reported success.  A new
+   decoder cannot be added without recording a measured ceiling for it.
 3. **Synthetic decoders contribute nothing.**  Eight of the ten produce zero
    words across this repository.  Zero is the ceiling, and it is not a budget
    to spend: a nonzero count means that decoder is reading text that was never
@@ -188,6 +213,25 @@ def audit(scope, verbose=False):
             continue
         scanned += 1
         by = normalize_words_by_stage(text)
+
+        # -- assertion 2b: the buckets PRODUCED match the declared set -------
+        # DECODER_STAGES <-> CEILINGS was checked above, but that is only two
+        # of the three sides. A decoder emitting into a bucket that is in
+        # neither list was invisible: its words still reach normalize_words
+        # (which flattens whatever it is handed), so the phantom shipped while
+        # the audit reported success.
+        produced = set(by)
+        if produced != set(DECODER_STAGES):
+            unknown = sorted(produced - set(DECODER_STAGES))
+            absent = sorted(set(DECODER_STAGES) - produced)
+            problems.append(
+                f"{label}: normalize_words_by_stage produced buckets "
+                f"{unknown or '[]'} that are not declared in DECODER_STAGES"
+                f"{f', and omitted {absent}' if absent else ''}. Words in an "
+                f"undeclared bucket are still returned by normalize_words, so "
+                f"they reach the detectors unaudited. Declare the stage and "
+                f"give it a measured ceiling."
+            )
 
         # -- assertion 1: the split reconstructs the real output -----------
         split = collections.Counter()
