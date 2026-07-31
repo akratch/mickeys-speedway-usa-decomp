@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Clean-room gate, commit level.  Scans the index -- exactly the bytes this
+# commit would record -- and refuses the commit on any finding.
+#
+# Active once `git config core.hooksPath .githooks` has been run; `gmake setup`
+# does that.  See CLAUDE.md.  Do not pass --no-verify.
+
+set -u
+
+root=$(git rev-parse --show-toplevel) || exit 1
+cd "$root" || exit 1
+
+if [ ! -x tools/cleanroom_check.sh ] && [ ! -f tools/cleanroom_check.sh ]; then
+	echo "pre-commit: tools/cleanroom_check.sh is missing; refusing to commit blind" >&2
+	exit 1
+fi
+
+if ! bash tools/cleanroom_check.sh --staged; then
+	cat >&2 <<'EOF'
+
+pre-commit: BLOCKED by the clean-room gate.
+
+Unstage the offending file (`git restore --staged <path>`) and keep it out of
+git.  If it is genuinely not ROM-derived, fix the file or record an allowlist
+entry with a reason in tools/cleanroom_detectors.py -- do not lower a
+threshold, and do not reach for --no-verify.
+EOF
+	exit 1
+fi

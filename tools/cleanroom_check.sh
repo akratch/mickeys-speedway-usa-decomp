@@ -1,80 +1,188 @@
 #!/usr/bin/env bash
-# Clean-room enforcement sweep (see docs/CLEANROOM.md): fails the build if
-# anything that looks like a ROM, extracted asset, or opaque binary blob has
-# ended up tracked in git. Meant to be cheap and paranoid, not exhaustive --
-# it is a safety net, not a substitute for reviewing diffs.
-set -u
-cd "$(dirname "$0")/.."
-
-fail=0
-
-# 1. Filename-pattern sweep: paths/extensions the clean-room policy says
-#    must never be committed (mirrors the .gitignore clean-room section --
-#    ROM images, and anything extracted/derived from one).
-pattern_hits=$(git ls-files | grep -iE '\.(z64|n64|v64|bin)$|(^|/)baseroms/|(^|/)asm/|(^|/)assets/|(^|/)expected/' || true)
-if [ -n "$pattern_hits" ]; then
-  echo "cleanroom: tracked files matching ROM/asset patterns:" >&2
-  echo "$pattern_hits" | sed 's/^/  /' >&2
-  fail=1
-fi
-
-# 2. Binary-blob sweep: every tracked file should be text. git ls-files -s
-#    also lists submodule gitlinks (mode 160000), which have no blob in this
-#    repo's working tree to inspect, so those are skipped. Empty files are
-#    allowed regardless of what `file` guesses for them.
-while IFS=$'\t' read -r meta path; do
-  mode=${meta%% *}
-  [ "$mode" = "160000" ] && continue
-  [ -f "$path" ] || continue
-  [ -s "$path" ] || continue
-  encoding=$(file -b --mime-encoding -- "$path")
-  if [ "$encoding" = "binary" ]; then
-    echo "cleanroom: tracked file '$path' looks binary (file: $encoding)" >&2
-    fail=1
-  fi
-done < <(git ls-files -s)
-
-# 3. Content sweep: a file can pass 1 and 2 -- plain text, innocuous name --
-#    and still be a dump of the ROM's instructions. That is how two workbench
-#    ledger.jsonl files landed in this history: JSON whose diff-site records
-#    quoted the target disassembly verbatim, enough to reconstruct 129 of one
-#    function's 146 instructions.
+# Clean-room enforcement sweep (see docs/CLEANROOM.md): fails if anything that
+# looks like a ROM, an extracted asset, an instruction dump, or an opaque blob
+# has ended up tracked in git.  Paranoid and cheap by design -- a safety net,
+# not a substitute for reading your own diff.
 #
-#    The tell is many distinctive MIPS mnemonics packed densely. Neither half
-#    alone discriminates: prose that discusses one `jal` in a small header is
-#    dense but tiny, and a large document may mention a handful of mnemonics
-#    without being a dump. So both must trip -- an absolute count AND a rate.
-#    Measured on this tree, the widest-margin tracked file carries 16 mnemonic
-#    tokens; the smaller of the two purged ledgers carried 88 at 1.3/KiB.
-MNEMONICS='addiu|lw|sw|jal|beq|lui|sltu'
-DENSITY_LIMIT_MILLI=1000   # tokens per KiB, x1000 to stay in integer math
-COUNT_LIMIT=40             # absolute tokens; below this, density is noise
+#   tools/cleanroom_check.sh                  scan the worktree (default)
+#   tools/cleanroom_check.sh --staged         scan the index, i.e. what a
+#                                             commit right now would contain
+#   tools/cleanroom_check.sh --range A..B     scan every tree in a commit range
+#
+# This script decides WHAT to look at and hands the work list to
+# tools/cleanroom_detectors.py, which decides WHETHER IT IS ROM CONTENT.  The
+# split exists so all three modes share one set of detectors and one set of
+# measured thresholds; adding a detector should never mean teaching three
+# code paths about it.
+#
+# --range scans the *whole tree* of every commit in the range, not just the
+# changed files, so a bad file that slipped in earlier is caught the next time
+# anything is pushed.  That is affordable because the detectors deduplicate by
+# blob SHA: an unchanged file is inspected once no matter how many commits it
+# appears in.  Full history of this repo (52 commits, 183 distinct blobs) scans
+# in well under a second.
 
-while IFS=$'\t' read -r meta path; do
-  mode=${meta%% *}
-  [ "$mode" = "160000" ] && continue
-  [ -f "$path" ] || continue
-  [ -s "$path" ] || continue
-  [ "$(file -b --mime-encoding -- "$path")" = "binary" ] && continue
+set -u
+cd "$(dirname "$0")/.." || exit 2
 
-  # tr splits on any non-identifier character, so grep -x matches whole tokens
-  # only: "jal" in prose counts, "jalr" and "swap" do not. Portable where GNU
-  # grep's \b is not.
-  count=$(tr -cs 'A-Za-z0-9_' '\n' < "$path" | grep -cxE "$MNEMONICS" || true)
-  [ "$count" -ge "$COUNT_LIMIT" ] || continue
+usage() {
+	cat <<'EOF'
+usage: tools/cleanroom_check.sh [--staged | --range <rev-range>]
 
-  bytes=$(wc -c < "$path" | tr -d '[:space:]')
-  density=$(( count * 1024 * 1000 / bytes ))
-  if [ "$density" -ge "$DENSITY_LIMIT_MILLI" ]; then
-    echo "cleanroom: tracked file '$path' reads as an instruction dump:" >&2
-    echo "  $count MIPS mnemonics in ${bytes}B = $((density / 1000)).$(printf '%03d' $((density % 1000))) per KiB" >&2
-    echo "  (flagged when count >= $COUNT_LIMIT and rate >= $((DENSITY_LIMIT_MILLI / 1000)).$(printf '%03d' $((DENSITY_LIMIT_MILLI % 1000))) per KiB)" >&2
-    fail=1
-  fi
-done < <(git ls-files -s)
+  (no arguments)      scan tracked files as they exist in the worktree
+  --staged            scan the staged index (what `git commit` would record)
+  --range <rev-range> scan every commit tree in the range, e.g. HEAD~5..HEAD
+                      or origin/master..HEAD.  Accepts anything git rev-list
+                      accepts, including --all.
 
-if [ "$fail" -ne 0 ]; then
-  echo "cleanroom check FAILED -- see above" >&2
-  exit 1
+Exits 0 when clean, 1 on a clean-room finding, 2 on a usage/plumbing error.
+EOF
+}
+
+mode=worktree
+range=
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+	--staged)
+		mode=staged
+		shift
+		;;
+	--range)
+		mode=range
+		range=${2-}
+		if [ -z "$range" ]; then
+			echo "cleanroom: --range needs a rev-range argument" >&2
+			exit 2
+		fi
+		shift 2
+		;;
+	--range=*)
+		mode=range
+		range=${1#--range=}
+		shift
+		;;
+	-h | --help)
+		usage
+		exit 0
+		;;
+	*)
+		echo "cleanroom: unknown argument '$1'" >&2
+		usage >&2
+		exit 2
+		;;
+	esac
+done
+
+# Emit work items for the detectors: kind, ident, label, path (tab separated,
+# path last so a path containing a tab survives the split).
+#
+#   kind=file  ident is a worktree path -- read the bytes off disk
+#   kind=blob  ident is a git blob SHA  -- read the bytes out of the object db
+#   kind=link  a submodule gitlink      -- path checks only, no bytes here
+emit_index() {
+	# `git ls-files -s` prints "<mode> <sha> <stage>\t<path>", NUL-terminated
+	# under -z so no path needs quoting or unquoting.
+	local want_kind=$1 label=$2 meta path filemode sha kind
+	while IFS= read -r -d '' entry; do
+		meta=${entry%%$'\t'*}
+		path=${entry#*$'\t'}
+		filemode=${meta%% *}
+		meta=${meta#* }
+		sha=${meta%% *}
+		if [ "$filemode" = "160000" ]; then
+			printf 'link\t%s\t%s\t%s\n' "$sha" "$label" "$path"
+			continue
+		fi
+		kind=$want_kind
+		# Worktree mode falls back to the index blob for a tracked file that
+		# is missing from disk (a deletion staged elsewhere, a sparse
+		# checkout), so the scan never silently skips it.
+		if [ "$kind" = file ] && [ ! -f "$path" ]; then
+			kind=blob
+		fi
+		if [ "$kind" = file ]; then
+			printf 'file\t%s\t%s\t%s\n' "$path" "$label" "$path"
+		else
+			printf 'blob\t%s\t%s\t%s\n' "$sha" "$label" "$path"
+		fi
+	done < <(git ls-files -sz)
+}
+
+emit_range() {
+	# `git ls-tree -r -z` prints "<mode> <type> <sha>\t<path>".
+	local commit short meta path filemode type sha
+	while IFS= read -r commit; do
+		[ -n "$commit" ] || continue
+		short=${commit:0:9}
+		while IFS= read -r -d '' entry; do
+			meta=${entry%%$'\t'*}
+			path=${entry#*$'\t'}
+			filemode=${meta%% *}
+			meta=${meta#* }
+			type=${meta%% *}
+			sha=${meta##* }
+			if [ "$filemode" = "160000" ] || [ "$type" = commit ]; then
+				printf 'link\t%s\tcommit %s\t%s\n' "$sha" "$short" "$path"
+			else
+				printf 'blob\t%s\tcommit %s\t%s\n' "$sha" "$short" "$path"
+			fi
+		done < <(git ls-tree -r -z "$commit")
+		# $range is deliberately unquoted: callers pass rev-list syntax, which
+		# may be several words ("--all", "A..B C..D").
+		# shellcheck disable=SC2086
+	done < <(git rev-list $range)
+}
+
+case "$mode" in
+worktree) worklist() { emit_index file worktree; } ;;
+staged) worklist() { emit_index blob staged; } ;;
+range) worklist() { emit_range; } ;;
+esac
+
+# The detectors are stdlib-only, so plain python3 is enough -- no venv, which
+# matters because the git hooks run before anyone has necessarily run `gmake
+# setup` in this shell.
+PY=${PYTHON:-python3}
+if ! command -v "$PY" >/dev/null 2>&1; then
+	echo "cleanroom: $PY not found; cannot run the clean-room detectors" >&2
+	exit 2
 fi
-echo "cleanroom check OK -- no tracked ROM/asset/binary files, no instruction dumps"
+
+count=0
+tmp=$(mktemp) || exit 2
+trap 'rm -f "$tmp"' EXIT
+worklist >"$tmp"
+count=$(wc -l <"$tmp" | tr -d '[:space:]')
+
+if [ "$count" = "0" ]; then
+	echo "cleanroom check OK -- nothing to scan ($mode)"
+	exit 0
+fi
+
+if ! "$PY" tools/cleanroom_detectors.py <"$tmp"; then
+	status=$?
+	if [ "$status" -gt 1 ]; then
+		exit "$status"
+	fi
+	cat >&2 <<'EOF'
+
+cleanroom check FAILED.
+
+Nothing ROM-derived may be tracked in this repository: no disassembly, no
+instruction text, no hexdumps, no extracted assets, no workbench ledgers.
+See docs/CLEANROOM.md.
+
+If a file above is a false positive, do not weaken the threshold to make it
+pass -- restructure the file, or add it to the allowlist in
+tools/cleanroom_detectors.py with a written reason.  Never bypass this with
+`git commit --no-verify` or `git push --no-verify`.
+EOF
+	exit 1
+fi
+
+case "$mode" in
+worktree) echo "cleanroom check OK -- $count tracked files clean (worktree)" ;;
+staged) echo "cleanroom check OK -- $count staged files clean (index)" ;;
+range) echo "cleanroom check OK -- $count tree entries clean ($range)" ;;
+esac

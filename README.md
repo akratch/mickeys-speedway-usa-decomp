@@ -8,7 +8,9 @@ here to explore the Diddy Kong Racing engine as it evolved for this game.
 
 - No ROMs or extracted assets are committed to this repository.
 - Bring your own legally dumped, SHA1-verified ROM.
-- See [`docs/CLEANROOM.md`](docs/CLEANROOM.md) for the full policy.
+- See [`docs/CLEANROOM.md`](docs/CLEANROOM.md) for the full policy, and
+  [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) for the commit/push gates
+  that enforce it (`gmake setup` activates them; they are not optional).
 
 ## Status
 

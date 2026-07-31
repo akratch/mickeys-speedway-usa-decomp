@@ -6,7 +6,9 @@
 #
 #   gmake            build/mickey.us.z64
 #   gmake verify     build + SHA1 compare against the baserom hash
-#   gmake setup      venv + toolchain + baserom check + splat extraction
+#   gmake setup      venv + toolchain + baserom check + splat extraction + git hooks
+#   gmake hooks      point git at .githooks (clean-room commit/push gates)
+#   gmake cleanroom  clean-room sweep (CLEANROOM_ARGS=--staged, --range A..B)
 #   gmake clean      remove build/
 #   gmake distclean  also remove splat's generated output
 
@@ -164,7 +166,7 @@ all:
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
 	@$(MAKE) --no-print-directory $(TARGET).z64
 
-setup: $(PYTHON)
+setup: $(PYTHON) hooks
 	$(PYTHON) -m pip install -q -r requirements.txt
 	git submodule update --init $(TOOLS_DIR)/asm-processor \
 		$(TOOLS_DIR)/asm-differ $(TOOLS_DIR)/m2c
@@ -195,8 +197,21 @@ verify:
 		exit 1; \
 	fi
 
+# Points git at the tracked hook directory. Separate from `setup` so it can be
+# re-run on its own, and so a clone that only wants the gates does not have to
+# build a toolchain to get them. core.hooksPath is per-clone config, not a
+# tracked file, so every fresh clone needs this once.
+hooks:
+	git config core.hooksPath .githooks
+	@echo "hooks active: .githooks/pre-commit, .githooks/pre-push"
+
+# Clean-room sweep. Extra arguments pass through, so the same target serves
+# every mode:
+#   gmake cleanroom                                  worktree
+#   gmake cleanroom CLEANROOM_ARGS=--staged          the index
+#   gmake cleanroom CLEANROOM_ARGS="--range A..B"    a commit range
 cleanroom:
-	bash $(TOOLS_DIR)/cleanroom_check.sh
+	bash $(TOOLS_DIR)/cleanroom_check.sh $(CLEANROOM_ARGS)
 
 # Re-derives the arithmetic the docs claim -- VRAM/ROM conversions, segment
 # size subtractions, the MiB column of the top-level map, the jump-table count
@@ -349,6 +364,6 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup extract verify cleanroom check-docs progress clean distclean
+.PHONY: default all setup hooks extract verify cleanroom check-docs progress clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail

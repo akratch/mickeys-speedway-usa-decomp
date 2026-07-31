@@ -7,4 +7,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: bash tools/cleanroom_check.sh
+        with:
+          # The range scan needs real history, not the default depth-1 cone.
+          fetch-depth: 0
+
+      # The tip is what a reviewer looks at; check it plainly first so a
+      # failure here is unambiguous.
+      - name: worktree sweep
+        run: bash tools/cleanroom_check.sh
+
+      # ...and then every commit being introduced. A file can be added and
+      # deleted again inside one push and still be in the pushed objects
+      # forever; only a range scan sees it. Falls back to the whole history
+      # when there is no usable base (new branch, first push, forced update),
+      # which the detectors' blob-SHA dedup makes cheap -- the full history of
+      # this repo scans in under a second.
+      - name: range sweep
+        env:
+          BEFORE: ${{ github.event.before }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -u
+          zero=0000000000000000000000000000000000000000
+          base=""
+          if [ -n "${BASE:-}" ]; then
+            base=$BASE
+          elif [ -n "${BEFORE:-}" ] && [ "$BEFORE" != "$zero" ]; then
+            base=$BEFORE
+          fi
+          if [ -n "$base" ] && git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "range: $base..$HEAD_SHA"
+            bash tools/cleanroom_check.sh --range "$base..$HEAD_SHA"
+          else
+            echo "no usable base ref; scanning all history"
+            bash tools/cleanroom_check.sh --range --all
+          fi
