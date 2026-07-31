@@ -293,12 +293,21 @@ it deserves a task of its own rather than a corner of a sweep. (The 0x10 bytes
 at `0x4FC20` immediately before it are the *rejected* `io/leointerrupt` match
 below — an unidentified `return 0`, not an established part of the island.)
 
-Four candidate matches below the corridor were **rejected**, and the reasons
-generalise: `io/leointerrupt` (`0x4FC20`), `alCSPGetState` (`0x61990`) and
-`alCSeqGetTicks` (`0x620E0`) are one-line functions — `return 0`, `return
-x->field` — whose ROM-wide uniqueness is an accident of surrounding padding
-rather than evidence about identity. `__osDisableInt`/`__osRestoreInt` at
-`0x2A25C`/`0x2A288` are subsumed: those bytes are the *tail* of DKR's larger
+Five candidate matches below the corridor were **rejected**, on two distinct
+grounds.
+
+**Three were rejected for being uniquely matched but semantically vacuous**:
+`io/leointerrupt` (`0x4FC20`), `alCSPGetState` (`0x61990`) and `alCSeqGetTicks`
+(`0x620E0`) are one-line functions — `return 0`, `return x->field` — whose
+ROM-wide uniqueness is an accident of surrounding padding rather than evidence
+about identity. `leointerrupt` makes the point with a number: its whole
+`.text` section, body plus 8 bytes of zero padding, occurs **once** in the
+32MB image, while the two-instruction function body alone occurs **39 times**.
+The padding did all the work.
+
+**Two were rejected as subsumed.** `__osDisableInt`/`__osRestoreInt` at
+`0x2A25C`/`0x2A288` are `romocc=2`, and those bytes are the *tail* of DKR's
+larger
 `interrupts_disable`/`interrupts_enable` in `math_util.s`, which is why they
 matched at an offset of `0xC`. Task B recorded them as "a second copy of
 os/interrupt.s"; that reading is superseded.
