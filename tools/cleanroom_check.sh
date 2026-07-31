@@ -34,8 +34,47 @@ while IFS=$'\t' read -r meta path; do
   fi
 done < <(git ls-files -s)
 
+# 3. Content sweep: a file can pass 1 and 2 -- plain text, innocuous name --
+#    and still be a dump of the ROM's instructions. That is how two workbench
+#    ledger.jsonl files landed in this history: JSON whose diff-site records
+#    quoted the target disassembly verbatim, enough to reconstruct 129 of one
+#    function's 146 instructions.
+#
+#    The tell is many distinctive MIPS mnemonics packed densely. Neither half
+#    alone discriminates: prose that discusses one `jal` in a small header is
+#    dense but tiny, and a large document may mention a handful of mnemonics
+#    without being a dump. So both must trip -- an absolute count AND a rate.
+#    Measured on this tree, the widest-margin tracked file carries 16 mnemonic
+#    tokens; the smaller of the two purged ledgers carried 88 at 1.3/KiB.
+MNEMONICS='addiu|lw|sw|jal|beq|lui|sltu'
+DENSITY_LIMIT_MILLI=1000   # tokens per KiB, x1000 to stay in integer math
+COUNT_LIMIT=40             # absolute tokens; below this, density is noise
+
+while IFS=$'\t' read -r meta path; do
+  mode=${meta%% *}
+  [ "$mode" = "160000" ] && continue
+  [ -f "$path" ] || continue
+  [ -s "$path" ] || continue
+  [ "$(file -b --mime-encoding -- "$path")" = "binary" ] && continue
+
+  # tr splits on any non-identifier character, so grep -x matches whole tokens
+  # only: "jal" in prose counts, "jalr" and "swap" do not. Portable where GNU
+  # grep's \b is not.
+  count=$(tr -cs 'A-Za-z0-9_' '\n' < "$path" | grep -cxE "$MNEMONICS" || true)
+  [ "$count" -ge "$COUNT_LIMIT" ] || continue
+
+  bytes=$(wc -c < "$path" | tr -d '[:space:]')
+  density=$(( count * 1024 * 1000 / bytes ))
+  if [ "$density" -ge "$DENSITY_LIMIT_MILLI" ]; then
+    echo "cleanroom: tracked file '$path' reads as an instruction dump:" >&2
+    echo "  $count MIPS mnemonics in ${bytes}B = $((density / 1000)).$(printf '%03d' $((density % 1000))) per KiB" >&2
+    echo "  (flagged when count >= $COUNT_LIMIT and rate >= $((DENSITY_LIMIT_MILLI / 1000)).$(printf '%03d' $((DENSITY_LIMIT_MILLI % 1000))) per KiB)" >&2
+    fail=1
+  fi
+done < <(git ls-files -s)
+
 if [ "$fail" -ne 0 ]; then
   echo "cleanroom check FAILED -- see above" >&2
   exit 1
 fi
-echo "cleanroom check OK -- no tracked ROM/asset/binary files found"
+echo "cleanroom check OK -- no tracked ROM/asset/binary files, no instruction dumps"
