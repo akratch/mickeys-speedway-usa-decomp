@@ -129,6 +129,13 @@ segments:
       - [0x2BCD0, asm]
       - [0x2C8C0, asm]
       - [0x2F400, asm]
+      # A MEASURED file boundary, not a heuristic one: the whole 0x40-byte
+      # .text of the Diddy Kong Racing decomp's built `src/set_rsp_segment.c.o`
+      # is byte-identical to ROM 0x323A0-0x323E0 with zero masked words and no
+      # second occurrence anywhere in the 32MB image. Its end lands exactly on
+      # the runtime linker's start below. This split point is new in Task D;
+      # everything above it in this segment is still splat's heuristic.
+      - [0x323A0, asm, main/rsp_segment]
       # The runtime overlay linker. Identified by the error strings it prints
       # ("ERROR:MIPS_HI16 without matching MIPS_LO16", "WARNING: Unimplemented
       # linkage operation %d") -- byte-identical to Jet Force Gemini's, whose
@@ -141,10 +148,19 @@ segments:
       - [0x43470, asm]
       - [0x45760, asm]
       - [0x465B0, asm]
-      - [0x47A60, asm]
+      # Measured boundary: the whole 0x10 .text of DKR's built
+      # `src/get_stack_pointer.c.o` matches here with zero masked words, and
+      # splat's own split points already agreed on both ends.
+      - [0x47A60, asm, main/get_stack_pointer]
       - [0x47A70, asm]
       - [0x4BC40, asm]
-      - [0x4EA60, asm]
+      # Measured boundary. The whole 0xA74-byte .text of DKR's built
+      # `src/hasm/gzip_asm.s.o` -- the hand-written inflate core the asset
+      # loader runs -- matched here in one piece, 98 of 669 words masked, no
+      # second occurrence in the 32MB image. Named subsegment, five named
+      # functions; the byte-identity claim covers 0x4EA60-0x4F4D4 and the
+      # remaining 0xC bytes to the next split are padding.
+      - [0x4EA60, asm, main/gzip_asm]
       - [0x4F4E0, asm]
       - [0x4FC30, asm]
       - [0x506D0, asm]

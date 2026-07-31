@@ -1,3 +1,24 @@
+// ---------------------------------------------------------------------------
+// NAMING CONVENTION: docs/modules.md, section "Naming convention", is the
+// normative statement of when a name may be adopted, from where, and what
+// evidence has to accompany it. Read it before adding a symbol to this file.
+//
+// The short version: every name here carries the evidence that produced it, in
+// a comment, at the point of use. Four tiers are in play and they are kept
+// visibly apart -- byte-identity against a reference build, call-graph
+// elimination, string-literal correspondence with a public decomp, and
+// structural inference. A name whose tier is not stated is a bug.
+// ---------------------------------------------------------------------------
+
+// Inherited from Phase 0 with no recorded provenance. `mathRnd` is now
+// corroborated: ROM 0x2A57C (VRAM 0x8002997C) is byte-identical -- 4 of 27
+// words masked, unique across the whole 32MB image -- to `rand_range` in the
+// Diddy Kong Racing decomp's built `src/hasm/ido/math_util.s.o`, i.e. the two
+// names denote the same routine. The inherited name is kept rather than
+// replaced (nothing about it is wrong and the churn would buy nothing), but a
+// reader chasing DKR should know it is DKR's `rand_range`. `rngSeed` is the
+// global it steps: 0x8007A264 holds the ASCII seed "QAVMQAVM", and the three
+// functions that touch it are 0x80029970, 0x8002997C and 0x800299E8.
 mathRnd = 0x8002997C;
 rngSeed = 0x8007A264;
 
@@ -251,6 +272,193 @@ lldiv = 0x80075F80; // type:func size:0x100
 ldiv = 0x80076080; // type:func size:0x84
 
 // ---------------------------------------------------------------------------
+// GAME CODE BYTE-IDENTICAL TO THE DIDDY KONG RACING BUILD
+//
+// Mickey's Speedway USA is not merely DKR-*lineage*: parts of DKR's own game
+// code are present in this ROM instruction for instruction. Every name in this
+// block was adopted because the bytes at that address are byte-identical --
+// under relocation masking, exactly as for the libultra corridor -- to the
+// same-named symbol in the DKR decompilation's *built* game objects
+// (`build/src/**/*.o`, not `build/libultra`). Reproduce with:
+//
+//   tools/find_known_objects.py <dkr>/build/src --start 0x1000 --end 0x86640
+//
+// and, for the ROM-wide occurrence count that each row below cites, the same
+// command with `--start 0x1000 --end 0x2000000 --max-occurrences 60`.
+//
+// Per-row evidence is `masked=M/W`: W instruction words compared, M of them
+// masked because the reference object's own relocation records say the linker
+// patches them. Everything else matched verbatim. Every row below is ALSO
+// unique across the whole 32MB image (`romocc=1`), which is the property Task
+// B's window-scoped `occ` column could not establish -- see the workbench log.
+//
+// ADOPTION THRESHOLD, applied mechanically: at least 6 unmasked words, plus
+// ROM-wide uniqueness, plus exactly one candidate name for those bytes. Rows
+// that failed it are listed in the Task D report rather than silently dropped;
+// the notable rejects are `debug_text_origin` (1 unmasked word of 9),
+// `input_assign_players` (4 of 9), `bgdraw_primcolour` (4 of 10),
+// `tex_enable_modes` (5 of 7) and everything at ROM 0x17F8, 0x1B74, 0x27A0,
+// 0x27C4, 0x545C, 0x8D18, 0x1BE90, 0x29B98, 0x2CB44, 0x2D39C and 0x35024,
+// where several *different* DKR functions compile to the same bytes and byte
+// comparison therefore cannot say which one this is.
+//
+// WHAT THIS TIER DOES AND DOES NOT ESTABLISH. It establishes that the routine
+// at this address is the same routine DKR compiled, and that is a hard,
+// reproducible fact. It does NOT establish that DKR's *name* describes what
+// Mickey uses it for -- `weather_clip_planes` and `audspat_jingle_off` are
+// DKR's names for DKR's game, carried here because renaming shared code would
+// hide the sharing. See docs/CLEANROOM.md: only DKR's compiled bytes and its
+// symbol and relocation tables were read, never its source.
+// ---------------------------------------------------------------------------
+
+// The reset vector's target. ROM 0x1000, and the entrypoint segment already
+// starts here; 12 of its 20 words are unmasked.
+entrypoint = 0x80000400; // type:func size:0x50   ROM 0x01000  hasm/entrypoint.s.o  masked=8/20
+
+// main.c -- and 0x800211A0 is exactly the address the entrypoint jumps to
+// (`lui t2,0x8002 / addiu t2,t2,0x11a0 / jr t2`), so position and bytes agree.
+mainproc = 0x800211A0; // type:func size:0x58   ROM 0x21da0  main.c.o  masked=11/22
+thread1_main = 0x800211F8; // type:func size:0x98   ROM 0x21df8  main.c.o  masked=14/38
+
+// math_util.s -- 12 hand-written routines, most with ZERO masked words. This
+// is the strongest evidence in the block. NOTE: `interrupts_disable` /
+// `interrupts_enable` are what Task B saw at ROM 0x2A25C/0x2A288 and recorded
+// as "a second copy of os/interrupt.s": libultra's __osDisableInt and
+// __osRestoreInt are byte-identical to the *tails* of these two larger
+// routines, which is why they matched at an offset of 0xC. The larger,
+// ROM-wide-unique match is the correct name; the libultra reading is not.
+// DKR's math_util.s.o .text is 0x1620 and Mickey's matched run is 0xBF4, so
+// the FILE boundary is NOT claimed -- these are function names only.
+// One matched function is deliberately left unnamed: ROM 0x2A90C (0xD8 bytes,
+// 6/54 masked, unique) matches DKR's `func_80070058`, which is an address
+// placeholder, not a name. Adopting it would import a lie about an address
+// that does not exist in this game.
+interrupts_disable = 0x80029650; // type:func size:0x2C   ROM 0x2a250  hasm/ido/math_util.s.o  masked=2/11
+interrupts_enable = 0x8002967C; // type:func size:0x28   ROM 0x2a27c  hasm/ido/math_util.s.o  masked=2/10
+mtxf_transform_point = 0x800296B0; // type:func size:0xA0   ROM 0x2a2b0  hasm/ido/math_util.s.o  masked=0/40
+mtxf_transform_dir = 0x80029750; // type:func size:0x7C   ROM 0x2a350  hasm/ido/math_util.s.o  masked=0/31
+mtxf_mul = 0x800297CC; // type:func size:0x108   ROM 0x2a3cc  hasm/ido/math_util.s.o  masked=0/66
+mtxf_to_mtx = 0x800298D4; // type:func size:0x9C   ROM 0x2a4d4  hasm/ido/math_util.s.o  masked=0/39
+vec3s_reflect = 0x80029A30; // type:func size:0x88   ROM 0x2a630  hasm/ido/math_util.s.o  masked=0/34
+mtxf_translate_y = 0x80029AE4; // type:func size:0x44   ROM 0x2a6e4  hasm/ido/math_util.s.o  masked=0/17
+mtxf_from_inverse_transform = 0x80029B28; // type:func size:0x1E4   ROM 0x2a728  hasm/ido/math_util.s.o  masked=6/121
+coss_s16 = 0x8002A1A0; // type:func size:0x60   ROM 0x2ada0  hasm/ido/math_util.s.o  masked=2/24
+coss_2 = 0x8002A200; // type:func size:0x44   ROM 0x2ae00  hasm/ido/math_util.s.o  masked=2/17
+
+// memory.c -- three 7-word allocator alignment helpers, 0 masked, adjacent.
+align16 = 0x8002BC60; // type:func size:0x1C   ROM 0x2c860  memory.c.o  masked=0/7
+align8 = 0x8002BC7C; // type:func size:0x1C   ROM 0x2c87c  memory.c.o  masked=0/7
+align4 = 0x8002BC98; // type:func size:0x1C   ROM 0x2c898  memory.c.o  masked=0/7
+
+// rcp_dkr.c
+bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40   ROM 0x2f794  rcp_dkr.c.o  masked=2/16
+
+// set_rsp_segment.c -- WHOLE .text matched (0x40 bytes, 0 masked, unique), so
+// this one is a measured FILE boundary and gets a named subsegment in the yaml.
+// It ends at exactly 0x323E0, where the runtime linker begins.
+rsp_segment = 0x800317A0; // type:func size:0x38   ROM 0x323a0  set_rsp_segment.c.o  masked=0/14
+
+// weather.c -- DKR's name for DKR's module. What is proven is that the code is
+// the same 21 words; what it clips for Mickey is not established here.
+weather_clip_planes = 0x8003A97C; // type:func size:0x54   ROM 0x3b57c  weather.c.o  masked=2/21
+
+// particles.c -- 0x3D5F0 is already a splat subsegment boundary.
+reset_particles = 0x8003C9F0; // type:func size:0x30   ROM 0x3d5f0  particles.c.o  masked=3/12
+
+// unused_string.c and printf.c -- the C-library-shaped helpers. `sprintf` is
+// what every debug printer in this ROM calls (see diRcpStrName below), which
+// is independent corroboration of the name.
+strcpy = 0x80042870; // type:func size:0x34   ROM 0x43470  unused_string.c.o  masked=0/13
+memset = 0x800428A4; // type:func size:0x34   ROM 0x434a4  unused_string.c.o  masked=0/13
+sprintf = 0x800429A4; // type:func size:0x2C   ROM 0x435a4  printf.c.o  masked=1/11
+
+// gzip.c, and gzip_asm.s -- the asset decompressor. The whole 0xA74 .text of
+// DKR's `hasm/gzip_asm.s.o` matched in ONE PIECE at ROM 0x4EA60 (98 of 669
+// words masked, unique), so this is a measured FILE boundary as well as five
+// function names, and the yaml names the subsegment.
+byteswap32 = 0x8004D778; // type:func size:0x30   ROM 0x4e378  gzip.c.o  masked=0/12
+gzip_inflate_block = 0x8004DE60; // type:func size:0x104   ROM 0x4ea60  hasm/gzip_asm.s.o  masked=19/65
+gzip_inflate_dynamic = 0x8004DF64; // type:func size:0x418   ROM 0x4eb64  hasm/gzip_asm.s.o  masked=32/262
+gzip_inflate_fixed = 0x8004E37C; // type:func size:0x158   ROM 0x4ef7c  hasm/gzip_asm.s.o  masked=11/86
+gzip_inflate_stored = 0x8004E4D4; // type:func size:0x10C   ROM 0x4f0d4  hasm/gzip_asm.s.o  masked=16/67
+gzip_inflate_codes = 0x8004E5E0; // type:func size:0x2F4   ROM 0x4f1e0  hasm/gzip_asm.s.o  masked=20/189
+
+// audio_spatial.c -- 7 unmasked words of 10; it clears the adoption threshold
+// by one word and is the thinnest row in this block. Treat accordingly.
+audspat_jingle_off = 0x800025C4; // type:func size:0x28   ROM 0x031c4  audio_spatial.c.o  masked=3/10
+
+// get_stack_pointer.c -- the whole 0x10 .text matched, 0 masked, unique. Only
+// four words, so byte identity alone would be thin; what makes it safe is that
+// the two live ones are `jr ra` / `move v0,sp`, and a routine whose entire
+// body is "return the stack pointer" cannot plausibly be anything else. The
+// reference object's only function symbol is `stack_pointer`, and the ROM's
+// existing subsegment split at 0x47A60 with the next at 0x47A70 means the file
+// boundary agrees on both sides too.
+stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  get_stack_pointer.c.o  masked=0/4
+
+// ---------------------------------------------------------------------------
+// libultra OUTSIDE THE CORRIDOR
+//
+// Task B established that ROM 0x6F420-0x76D10 is where libultra is
+// *contiguous*, not where it exists, and left the scattered matches below the
+// corridor as this task's naming targets. They are adopted here with fresh
+// evidence: same tool, same masking, and this time with the ROM-wide
+// occurrence count computed over the whole 32MB image rather than a window.
+//
+//   tools/find_known_objects.py <dkr>/build/libultra --start 0x1000 \
+//       --end 0x2000000 --min-size 8 --max-occurrences 60
+//
+// FOUR of Task B's candidates are deliberately NOT adopted, and the reasons
+// are worth more than the names would have been:
+//
+//   * `io/leointerrupt.c` at ROM 0x4FC20. Its whole .text matched, 0 masked,
+//     ROM-wide unique -- and its entire body is `jr ra` / `move v0,zero`.
+//     "return 0" is the least distinctive function that exists. Uniqueness
+//     here is an accident of the 8 zero bytes of padding that followed, not
+//     evidence about what this routine is. Rejected.
+//   * `alCSPGetState` (0x61990) and `alCSeqGetTicks` (0x620E0), both
+//     `jr ra` / `lw v0, <offset>(a0)`. Same objection: any one-line accessor
+//     reading that offset matches. Rejected.
+//   * `__osDisableInt`/`__osRestoreInt` at 0x2A25C/0x2A288 -- subsumed by the
+//     larger, ROM-wide-unique `interrupts_disable`/`interrupts_enable` above.
+//
+// Two more rejects are collisions, and they show the tier order working: at
+// 0x8006F8E8 `io/pfsisplug.c`'s `__osPfsGetInitData` matches standalone, and
+// at 0x80072890 `io/piacs.c`'s `__osPiGetAccess` does. Both addresses already
+// carry a name from Task B's stronger whole-TU tier (`__osContGetInitData`,
+// `__osSiGetAccess`). Whole-object evidence outranks standalone evidence, so
+// the existing names stand and these two are recorded as noise.
+// ---------------------------------------------------------------------------
+
+// sc/sched.c. Two words each, which on its own would be far too thin -- what
+// makes these adoptable is the pair: two DIFFERENT immediates (`addiu v0,a0,0x78`
+// and `addiu v0,a0,0x40`), 8 bytes apart, in the same order as the reference
+// object, each ROM-wide unique. A coincidence would have to reproduce both
+// offsets AND their adjacency. The rest of sched.c does not match, so no file
+// boundary is claimed. The scheduler this belongs to is at ROM 0x2F400-0x33FA0.
+osScGetCmdQ = 0x80030310; // type:func size:0x8   ROM 0x30f10  src/sc/sched.c.o  masked=0/2
+osScGetInterruptQ = 0x80030318; // type:func size:0x8   ROM 0x30f18  src/sc/sched.c.o  masked=0/2
+
+// os/exceptasm.s -- the exception-handler island at ROM 0x4FC30, which Task B
+// measured as LARGER than DKR's (0xAA0 against 0x900) and left alone. That
+// judgment stands: the file boundary is still not claimed and __osException,
+// __osEnqueueThread, __osDispatchThread and __osEnqueueAndYield still do not
+// match anywhere. These four individual routines do, ROM-wide uniquely, and
+// the island's identity is not in doubt, so they are named.
+//
+// __osExceptionPreamble is the thinnest (2 unmasked words of 4) and is adopted
+// on shape rather than on bytes alone: `lui k0,0x8005 / addiu k0,-4032 /
+// jr k0` jumps to 0x8004F040, which is the very next instruction -- the
+// signature of that routine, and not something a random pair of words does.
+__osExceptionPreamble = 0x8004F030; // type:func size:0x10   ROM 0x4fc30  src/os/exceptasm.s.o  masked=2/4
+send_mesg = 0x8004F5C0; // type:func size:0xB4   ROM 0x501c0  src/os/exceptasm.s.o  masked=6/45
+handle_CpU = 0x8004F674; // type:func size:0x34   ROM 0x50274  src/os/exceptasm.s.o  masked=0/13
+// Four words, 0 masked, ROM-wide unique, and inside an island whose identity
+// three other matches already establish. Named on the combination, not on the
+// four words alone.
+__osPopThread = 0x8004F808; // type:func size:0x10   ROM 0x50408  src/os/exceptasm.s.o  masked=0/4
+
+// ---------------------------------------------------------------------------
 // main/runlink  ROM 0x323e0-0x33fa0 -- the runtime overlay linker.
 //
 // Evidence tier: *structural*, not byte-identity. Mickey's static segment
@@ -269,6 +477,84 @@ runlinkCallResumeFunction = 0x8003229C; // type:func size:0x9C
 SetLinkSlot = 0x80033040; // type:func size:0x50
 ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98
 
+// --- extension: four more linker functions, from Mickey's own call graph ----
+//
+// These are NOT byte-identity. Each is read out of Mickey's disassembly and
+// then matched to a JFG function by role; the disassembly evidence is stated
+// per name and is what should be attacked if one of these is wrong.
+//
+// TrapDanglingJump (0x800333A0). Decisive on Mickey's code alone. It saves
+// a0-a3, f12-f15, v0 and v1 -- every argument register of an interrupted call
+// -- computes `addiu t5, ra, -8` (the address of the `jal` that reached it),
+// searches an 8-byte-stride table for that address, loads the missing overlay,
+// recomputes the real target and `jr t8`s to it with the arguments restored.
+// A trampoline that resolves its own caller is exactly the routine JFG
+// documents under this name, and nothing else in this ROM has that shape.
+//
+// runlinkDownloadCode (0x80031C78). The argument TrapDanglingJump passes it is
+// `romTableEntry >> 20`, i.e. an overlay number (ROM 0x34090-0x34098); it
+// returns zero/non-zero, and TrapDanglingJump falls through to a null return
+// when it is zero. It calls ProcessRelocationEntry in a loop and finishes with
+// osInvalICache. Loads an overlay and relocates it: JFG's signature is
+// `s32 runlinkDownloadCode(s32 overlayIndex)`.
+//
+// runlinkGetAddressInfo (0x800331E4). Four arguments: an address, two pointers
+// it zeroes on entry, and an OPTIONAL fourth it only writes when non-NULL
+// (`beqz t8` at 0x33E28). It walks the ROM table looking for the entry whose
+// span contains the address, then the overlay table, and writes back
+// (moduleId, offsetWithinModule), returning 1 on a hit and 0 otherwise. JFG's
+// prototype is `s32 runlinkGetAddressInfo(u32 address, s32 *moduleId,
+// s32 *moduleAddress, u32 **arg3)` and its diCpuReportWatchpoint calls it with
+// NULL for the fourth -- which is what Mickey's own watchpoint reporter at
+// 0x80046460 does too.
+//
+// GetSymbolName (0x800317E0). Four instructions. It is called from exactly one
+// place, runlinkGetAddressInfo, with a *symbol table index* (computed as
+// `(cursor - tableBase) >> 2` over the 4-byte ROM table, ROM 0x33ED0-0x33ED8),
+// and its result is stored into that function's optional fourth out-parameter
+// -- the symbol-name slot. Its whole body ignores the argument and returns a
+// pointer to the constant string "unknown" at 0x80082410. So Mickey's retail
+// build ships the lookup stubbed to its failure value, with the ROM-side
+// symbol string table that JFG's version reads simply absent. The name is
+// adopted for the ROLE the call site proves, and the stub is the finding.
+GetSymbolName = 0x800317E0;         // type:func size:0x10
+runlinkDownloadCode = 0x80031C78;   // type:func size:0x478
+runlinkGetAddressInfo = 0x800331E4; // type:func size:0x1BC
+TrapDanglingJump = 0x800333A0;      // type:func size:0x1E0
+
+// --- the linker's tables, named from the code that indexes them ------------
+//
+// All six live in .bss and all six are named from stride and use, in Mickey's
+// disassembly, with no reference to any other project:
+//
+//   overlayTable        indexed `sll <n>,5` then added to it -- 0x20 stride,
+//                       i.e. OverlayHeader[] (ROM 0x33E88-0x33E8C, 0x340C0).
+//   overlayRomTable     element index recovered as `(cursor - base) >> 2`, so
+//                       a 4-byte stride, i.e. RomTableEntry[] (ROM 0x33ED0).
+//   mainRelocTable      walked with `addiu <p>,<p>,8`, and its 0x04 word is
+//                       shifted right by 8 and added to 0x80000450 to give a
+//                       call-site address, so 8-byte stride (ROM 0x34048-
+//                       0x34060, 0x33560). See RelocTableEntry in
+//                       include/game/runlink.h.
+//   overlayCount        the loop bound for BOTH the 0x20-stride overlay table
+//                       (runlinkGetAddressInfo, ROM 0x33F04-0x33F24) and the
+//                       link-slot table (ReleaseUnusedLinkSlots). One count
+//                       serving both is itself the finding: there is exactly
+//                       one link slot per overlay.
+//   mainRelocTableCount the loop bound for the 8-byte-stride table.
+//   linkSlotTable       the halfword table SetLinkSlot writes and
+//                       ReleaseUnusedLinkSlots sweeps.
+//
+// The names for the three tables follow JFG's, which is the same engine's
+// vocabulary; the two counts and the slot table are Mickey-specific inventions
+// because JFG has no counterpart to point at.
+overlayTable = 0x800D2D90;
+mainRelocTable = 0x800D2D94;
+overlayRomTable = 0x800D2D98;
+overlayCount = 0x800D2D9C;
+mainRelocTableCount = 0x800D2DA0;
+linkSlotTable = 0x800D2E48;
+
 // ---------------------------------------------------------------------------
 // main/matrix  ROM 0x2b650-0x2bcd0 -- matrix and vector maths.
 //
@@ -277,3 +563,80 @@ ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98
 // and naming a symbol whose C is not in the ROM would put a second evidence
 // tier into this file, which is exactly what the libultra work avoided.
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// STRING-LITERAL CORRESPONDENCE WITH THE JET FORCE GEMINI PUBLIC DECOMP
+//
+// PROVENANCE DISCLOSURE. Every name in this block was read off the *published
+// source text* of the Jet Force Gemini decompilation (scratchpad clone of
+// github.com/Ryan-Myers/Jet-Force-Gemini), which docs/CLEANROOM.md permits as
+// a public retail-derived decomp. No JFG code is copied into this project by
+// adopting these names; what is imported is the label, and the label alone.
+//
+// The method, stated so it can be attacked. Mickey's static segment contains
+// 316 printable C strings. For each one I resolved -- from Mickey's own
+// disassembly, by tracking every `lui`/`%hi` register and pairing it with the
+// `%lo` or displacement that consumes it -- exactly which function builds its
+// address. That gives a Mickey function per string with no reference to any
+// other project. Separately, JFG's published sources were scanned for the same
+// literals and the enclosing function name recorded. Where a Mickey function's
+// whole *set* of literals lands inside one JFG function, JFG's name is
+// adopted. Reproduce the Mickey half with the scripts in the Task D report;
+// nothing in it depends on JFG.
+//
+// THIS IS WEAKER THAN BYTE-IDENTITY AND IS NOT MIXED WITH IT. A shared literal
+// proves shared lineage for the *string*, and co-location proves the two
+// functions do the same job with it. It does not prove the code is the same,
+// and none of these functions is byte-identical to anything. Every one of them
+// is additionally sanity-checked against its own disassembly, noted per row.
+// If a row's check is not stated, the row should not be trusted.
+// ---------------------------------------------------------------------------
+
+// Returns the printable name of a scheduler task type. Mickey's own code: a
+// 7-way jump table on `arg0 - 1` (`sltiu at, t6, 7` at 0x80030584), each arm
+// returning one string pointer, with a default of "(Unknown task type %d)".
+// The seven, in table order, are Audio, Game, DI, DI benchmark test, Clone,
+// Refract and Blur -- JFG's sched.c carries the same list, in the same order,
+// as commented-out text inside osScGetTaskType. The "Clone" entry is the same
+// module name the ROM's clone/clone.c path string names.
+osScGetTaskType = 0x80030580; // type:func size:0x88
+
+// diprint.c. `_itoa` is the only function that references BOTH digit alphabets
+// (0x80082A80 lowercase, 0x80082AA8 uppercase) -- an integer formatter picking
+// a case by conversion specifier. `vsprintf` is the 0x1310-byte formatter that
+// owns "(null)" and "(nil)" and is what `sprintf` (byte-identical to DKR's,
+// above) tail-calls at 0x800429A4.
+_itoa = 0x800428D8; // type:func size:0xC0
+vsprintf = 0x800429D0; // type:func size:0x1310
+
+// diRcp.c -- the display-list disassembler. `diRcpPrintDL` is the only
+// function referencing the whole G_* opcode name table and "UNKNOWN COMMAND";
+// Mickey's own code confirms the role (it walks a byte stream at 0x80044DE4
+// switching on the command byte). The three formatters below are told apart by
+// which literals each one owns, since all three share a "%20s":
+//   0x80045660 -- "%20s" ONLY, sprintf's it and returns 8, i.e. one Gfx word
+//                 pair. That is JFG's diRcpStrName(gfx, name) exactly.
+//   0x80045694 -- "%20s: gSetRenderMode(" plus every RM_* mode name.
+//   0x8004589C -- "%20s" plus G_ZBUFFER/G_SHADE/G_LIGHTING/G_CULL_*, i.e. the
+//                 geometry-mode bits.
+diRcpPrintDL = 0x80044DC0;      // type:func size:0x604
+diRcpMoveWd = 0x800455C4;       // type:func size:0x9C
+diRcpStrName = 0x80045660;      // type:func size:0x34
+diRcpOtherMode = 0x80045694;    // type:func size:0x208
+diRcpGeometryMode = 0x8004589C; // type:func size:0x114
+
+// diCpu.c. Owns "Watchpoint exception at %x\n" and, right after it, "Module %d
+// at %08x" -- and Mickey's function calls runlinkGetAddressInfo (below)
+// between the two, which is precisely what JFG's diCpuReportWatchpoint does.
+// Two independent signals agreeing (the literal pair AND the call), which is
+// why this one is adopted while its neighbours at 0x80045BBC, 0x80045D34 and
+// 0x80046548 are not: those match only JFG placeholder names or straddle what
+// JFG has as one function, so they keep their address names for now.
+diCpuReportWatchpoint = 0x80046460; // type:func size:0xA4
+
+// gsSnd.c. One distinctive literal each, and the literal states the contract:
+// 0x8005D6E4 owns "WARNING: Attempt to stop NULL sound aborted", 0x8005D898
+// owns "WARNING: Attempt to modify NULL sound aborted". Mickey's code agrees:
+// both begin with a null test on arg0 and print only on the failing path.
+gsSndpStop = 0x8005D6E4;     // type:func size:0x80
+gsSndpSetParam = 0x8005D898; // type:func size:0x7C

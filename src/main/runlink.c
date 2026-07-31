@@ -51,15 +51,15 @@
 #include "PR/os.h"
 #include "game/runlink.h"
 
-extern RomTableEntry *D_800D2D98;  /* the overlay ROM table */
-extern OverlayHeader *D_800D2D90;  /* the overlay table */
+extern RomTableEntry *overlayRomTable;  /* the overlay ROM table */
+extern OverlayHeader *overlayTable;  /* the overlay table */
 extern u32 D_800D2DC4;             /* placeholder returned for unresolved symbols */
-extern void func_800333A0(void);   /* the dangling-jump trap */
+extern void TrapDanglingJump(void); /* the dangling-jump trap, 0x800333A0 */
 extern u8 *D_800D2DAC;             /* base of the section being relocated (text) */
 extern u8 *D_800D2DB0;             /* base of the section type-3 records patch (data) */
 extern PendingOverlayLoad D_800D2DC8[PENDING_OVERLAY_LOADS];
-extern LinkSlot *D_800D2E48;       /* the link-slot table */
-extern s32 D_800D2D9C;             /* how many link slots are in use */
+extern LinkSlot *linkSlotTable;       /* the link-slot table */
+extern s32 overlayCount;           /* overlays, AND link slots: one each */
 extern void func_80032BF8(s32 overlayIndex);
 extern void func_80032338(s32 slot);
 
@@ -68,7 +68,7 @@ extern u8 D_80078D60[]; /* start of .data  */
 extern u8 D_80085A40[]; /* start of .bss   */
 extern void func_80000450(void); /* start of .text */
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_800317E0.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/GetSymbolName.s")
 
 /*
  * Turn one relocation record into the address it should resolve to.
@@ -83,7 +83,7 @@ void *ResolveRelocAddress(s32 ortIndex, s32 otIndex, RelocationEntry *relocEntry
     u32 overlayNumber;
     RomTableEntry *romTableEntry;
 
-    romTableEntry = &D_800D2D98[ortIndex];
+    romTableEntry = &overlayRomTable[ortIndex];
     overlayNumber = romTableEntry->overlayNumber;
     addressOffset = 0;
 
@@ -103,25 +103,25 @@ void *ResolveRelocAddress(s32 ortIndex, s32 otIndex, RelocationEntry *relocEntry
                     addressOffset = (s32) D_80085A40 - (s32) func_80000450;
                     break;
             }
-            addressBase = D_800D2D90[overlayNumber].vramBase;
+            addressBase = overlayTable[overlayNumber].vramBase;
             if (addressBase == 0) {
                 if (relocEntry->u.n.mode == RELOC_TYPE_26 ||
                     relocEntry->u.n.mode == RELOC_TYPE_32) {
-                    return (void *) func_800333A0;
+                    return (void *) TrapDanglingJump;
                 }
                 return &D_800D2DC4;
             }
             return (void *) (addressBase + romTableEntry->functionOffset + addressOffset);
 
         case RELOC_OP_LOCAL:
-            address = D_800D2D90[otIndex].vramBase + relocEntry->symbolIndex;
+            address = overlayTable[otIndex].vramBase + relocEntry->symbolIndex;
             if (relocEntry->u.n.mode == RELOC_TYPE_32) {
                 address += patchLocation->word;
             }
             return (void *) address;
 
         case RELOC_OP_JUMP:
-            return (void *) (((patchLocation->word & 0x3FFFFFF) << 2) + D_800D2D90[otIndex].vramBase);
+            return (void *) (((patchLocation->word & 0x3FFFFFF) << 2) + overlayTable[otIndex].vramBase);
 
         default:
             return NULL;
@@ -313,11 +313,11 @@ s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
     resolvedAddr = (u32) ResolveRelocAddress(relocEntry->symbolIndex, otIndex, relocEntry, patchLocation);
 
     if (mode == RELOC_TYPE_HI16) {
-        overlayNumber = D_800D2D98[relocEntry->symbolIndex].overlayNumber;
+        overlayNumber = overlayRomTable[relocEntry->symbolIndex].overlayNumber;
         if (overlayNumber >= 0xFFC) {
             overlayNumber = 0;
         }
-        if ((relocEntry->u.info & 0xF) == RELOC_OP_SYMBOL && D_800D2D90[overlayNumber].vramBase == 0) {
+        if ((relocEntry->u.info & 0xF) == RELOC_OP_SYMBOL && overlayTable[overlayNumber].vramBase == 0) {
             resolvedAddr = (u32) &D_800D2DC4;
         }
 
@@ -339,11 +339,11 @@ s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
     }
 
     if (mode == RELOC_TYPE_LO16) {
-        overlayNumber = D_800D2D98[relocEntry->symbolIndex].overlayNumber;
+        overlayNumber = overlayRomTable[relocEntry->symbolIndex].overlayNumber;
         if (overlayNumber >= 0xFFC) {
             overlayNumber = 0;
         }
-        if ((relocEntry->u.info & 0xF) == RELOC_OP_SYMBOL && D_800D2D90[overlayNumber].vramBase == 0) {
+        if ((relocEntry->u.info & 0xF) == RELOC_OP_SYMBOL && overlayTable[overlayNumber].vramBase == 0) {
             resolvedAddr = (u32) &D_800D2DC4;
         }
 
@@ -360,14 +360,14 @@ s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80031A30.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80031C78.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkDownloadCode.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_800320F0.s")
 /*
  * Is this overlay resident? Returns its VRAM base, which is zero when it is
  * not. Same one-line function, same name, as JFG's public decomp.
  */
 s32 runlinkIsModuleLoaded(s32 module) {
-    return D_800D2D90[module].vramBase;
+    return overlayTable[module].vramBase;
 }
 /*
  * Make sure an overlay is resident and then call its resume entry point.
@@ -381,7 +381,7 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
     PendingOverlayLoad *pendingLoad;
     s32 remaining;
 
-    overlay = &D_800D2D90[overlayIndex];
+    overlay = &overlayTable[overlayIndex];
     if (overlay->resumeFunction == -1) {
         return;
     }
@@ -426,8 +426,8 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
  * differences, u8 left a structural one.
  */
 void SetLinkSlot(s32 slot, u16 tag, u16 useCount) {
-    D_800D2E48[slot].tag = tag;
-    D_800D2E48[slot].useCount = useCount;
+    linkSlotTable[slot].tag = tag;
+    linkSlotTable[slot].useCount = useCount;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80033090.s")
 /*
@@ -439,14 +439,23 @@ void SetLinkSlot(s32 slot, u16 tag, u16 useCount) {
  * expression directly, while the explicit comparison makes IDO materialise a
  * boolean with `sltu v0,zero,s1` instead. One instruction, and it is the only
  * difference between the two spellings.
+ *
+ * The loop bound is `overlayCount`, and that name is not a guess about this
+ * function: runlinkGetAddressInfo (0x800331E4) uses the SAME global as the
+ * bound of a walk over the 0x20-stride overlay-header table, at ROM
+ * 0x33F04-0x33F24. One counter serving both tables is itself the finding --
+ * there is exactly one link slot per overlay, so the slot's `tag` is a
+ * per-overlay field rather than an index into some third table. That is also
+ * the best evidence available for what LinkSlot's two fields mean, and it is
+ * still not enough to promote them out of "inference"; see include/game/runlink.h.
  */
 void ReleaseUnusedLinkSlots(void) {
     LinkSlot *slot;
     s32 i;
 
-    i = D_800D2D9C;
+    i = overlayCount;
     while (i--) {
-        slot = &D_800D2E48[i];
+        slot = &linkSlotTable[i];
         if (slot->tag != 0 && slot->useCount == 0) {
             func_80032338(i);
             slot->tag = 0;
@@ -454,4 +463,4 @@ void ReleaseUnusedLinkSlots(void) {
         }
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_800331E4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkGetAddressInfo.s")
