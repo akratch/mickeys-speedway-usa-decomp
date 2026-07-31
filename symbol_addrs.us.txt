@@ -483,6 +483,15 @@ osScGetInterruptQ = 0x80030318; // type:func size:0x8   ROM 0x30f18  src/sc/sche
 // match anywhere. These four individual routines do, ROM-wide uniquely, and
 // the island's identity is not in doubt, so they are named.
 //
+// SUPERSEDED BY PHASE 2 TASK 3, in two places. The file boundary IS claimed
+// now -- the whole 0x9B0 .text of JFG's exceptasm.s.o matches this address in
+// one piece -- and the four routines above DO match, in JFG's build. The size
+// comparison was also wrong: the TU is 0x9B0, not 0xAA0. See section 2 of the
+// cross-title block at the end of this file. The paragraph is kept rather than
+// rewritten because "matches nowhere" was a claim about ONE reference build
+// that read as a claim about the ROM, and that is the mistake worth leaving
+// visible.
+//
 // __osExceptionPreamble is the thinnest (2 unmasked words of 4) and is adopted
 // on shape rather than on bytes alone: `lui k0,0x8005 / addiu k0,-4032 /
 // jr k0` jumps to 0x8004F040, which is the very next instruction -- the
@@ -571,6 +580,13 @@ ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier D (invented)
 GetSymbolName = 0x800317E0;         // type:func size:0x10
 runlinkDownloadCode = 0x80031C78;   // type:func size:0x478
 runlinkGetAddressInfo = 0x800331E4; // type:func size:0x1BC
+// TIER A as of Phase 2 Task 3, and no longer resting on the argument above.
+// The whole 0x1E0 .text of JFG's built `src/hasm/ido/trapDanglingJump.s.o` is
+// byte-identical to ROM 0x33FA0-0x34180, 15 of 120 words masked, ROM-wide
+// unique -- so this is a measured file boundary as well as a name, and
+// mickey.us.yaml carries it as `main/trapDanglingJump`. The call-graph
+// argument above turned out to be right; it is kept because a reader should be
+// able to see that the weaker tier predicted the stronger one.
 TrapDanglingJump = 0x800333A0;      // type:func size:0x1E0
 
 // --- the linker's tables, named from the code that indexes them ------------
@@ -720,6 +736,14 @@ diCpuReportWatchpoint = 0x80046460; // type:func size:0xA4
 // 0x8005D6E4 owns "WARNING: Attempt to stop NULL sound aborted", 0x8005D898
 // owns "WARNING: Attempt to modify NULL sound aborted". Mickey's code agrees:
 // both begin with a null test on arg0 and print only on the failing path.
+//
+// TIER A as of Phase 2 Task 3. The whole 0x23A0 .text of JFG's built
+// `src/gsSnd.c.o` matches ROM 0x5C310 in one piece, and inside it these two
+// functions sit at exactly these two addresses under exactly these two names.
+// The string argument was a prediction and the bytes confirmed it; both rows
+// stay here rather than moving to the tier-A block, so the prediction and its
+// confirmation stay in the same place. 14 further functions of the same TU are
+// named in section 5 of the cross-title block at the end of this file.
 gsSndpStop = 0x8005D6E4;     // type:func size:0x80
 gsSndpSetParam = 0x8005D898; // type:func size:0x7C
 
@@ -1134,3 +1158,114 @@ __osPfsRWInode = 0x8006DB48; // type:func size:0x2DC
 osPfsChecker = 0x8006DE30; // type:func size:0x53C
 corrupted_init = 0x8006E36C; // type:func size:0x2D8
 corrupted = 0x8006E644; // type:func size:0x19C
+
+// ---------------------------------------------------------------------------
+// 5. GAME CODE SHARED WITH JET FORCE GEMINI
+//
+// Not libultra: Rare engine code that Mickey and JFG both link. Five whole-TU
+// matches, all against JFG's build, all romocc=1.
+//
+// `main/gsSnd` (ROM 0x5C310, 0x23A0 in one piece) is the one worth reading
+// twice. Task D named `gsSndpStop` (0x8005D6E4) and `gsSndpSetParam`
+// (0x8005D898) here at TIER C -- string correspondence, an argument rather
+// than a measurement. Both addresses fall inside this TU at exactly those
+// offsets, with exactly those names, so the tier-C argument was right and is
+// now redundant. That is a check on the method as much as on the two names:
+// the weaker tier predicted the stronger one correctly. The tier-C rows stay
+// where they are with a note; they are not duplicated here.
+//
+// `main/trapDanglingJump` (ROM 0x33FA0, 0x1E0) does the same for the overlay
+// trampoline. Task C named `TrapDanglingJump` at TIER B, from Mickey's call
+// graph alone, and argued the case at length. The whole `.text` of JFG's
+// `hasm/ido/trapDanglingJump.s.o` is byte-identical to those 0x1E0 bytes. The
+// symbol row keeps its position in the linker block; its tier is upgraded
+// there, not restated here.
+//
+// `main/lights2` (ROM 0x1AE60, 0xFF0) is the first named anchor anywhere in
+// ROM 0x16140-0x1C790, a 0x6650 region that had none. Nine hand-written
+// assembly routines: the lighting pipeline, plus a starfield mover, a CPU line
+// rasteriser and a rain draw. In JFG's tree this is `asm/hasm/lights2.s`, i.e.
+// non-matching raw assembly there too -- what matched is the extracted bytes,
+// which is all this tier ever compares.
+// ---------------------------------------------------------------------------
+// main/lights2  ROM 0x1ae60  (jfg/game: asm/hasm/lights2.s.o)  whole .text 0xff0, masked=12, romocc=1
+lightSingleLight = 0x8001A260; // type:func size:0x1E4
+lightTwoLights = 0x8001A444; // type:func size:0x2D4
+lightMultiLight = 0x8001A718; // type:func size:0x2D8
+lightCreateLightTable = 0x8001A9F0; // type:func size:0x58
+lightMakeJointPositions = 0x8001AA48; // type:func size:0x174
+lightEnviroMap = 0x8001ABBC; // type:func size:0x194
+starfieldFastMove = 0x8001AD50; // type:func size:0x130
+cpuLine = 0x8001AE80; // type:func size:0x1D8
+rainFastDraw = 0x8001B058; // type:func size:0x1EC
+// main/refractOutputAssembler  ROM 0x50820  (jfg/game: src/refractOutputAssembler.c.o)  whole .text 0x3e0, masked=16, romocc=1
+refractOutputAssembler = 0x8004FC20; // type:func size:0x3E0
+// main/osBootRamTest  ROM 0x59b90  (jfg/game: src/osBootRamTest.c.o)  whole .text 0x60, masked=0, romocc=1
+osBootRamTest1_6105 = 0x80058F90; // type:func size:0x2C
+osBootRamTest2_6105 = 0x80058FBC; // type:func size:0x2C
+// main/gsSnd  ROM 0x5c310  (jfg/game: src/gsSnd.c.o)  whole .text 0x23a0, masked=282, romocc=1
+gsSndpNew = 0x8005B710; // type:func size:0x268
+getSoundStateCounts = 0x8005CF2C; // type:func size:0x104
+gsSndpSetPriority = 0x8005D3A4; // type:func size:0x28
+gsSndpGetState = 0x8005D3CC; // type:func size:0x30
+ad_sndp_play = 0x8005D3FC; // type:func size:0x2E8
+sndp_stop_with_flags = 0x8005D764; // type:func size:0xBC
+gsSndpStopAll = 0x8005D820; // type:func size:0x28
+gsSndpStopAllRetrigger = 0x8005D848; // type:func size:0x28
+gsSndpStopAllLooped = 0x8005D870; // type:func size:0x28
+gsSndpGetMasterVolume = 0x8005D914; // type:func size:0x2C
+gsSndpSetMasterVolume = 0x8005D940; // type:func size:0xE0
+gsSndpSetGlobalVolume = 0x8005DA20; // type:func size:0x28
+gsSndpGetGlobalVolume = 0x8005DA48; // type:func size:0x1C
+gsSndpLimitVoices = 0x8005DA64; // type:func size:0x48
+// main/math_arc  ROM 0x6af90  (jfg/game: src/math/math_arc.c.o)  whole .text 0x210, masked=8, romocc=1
+tableval = 0x8006A390; // type:func size:0x100
+acoss = 0x8006A490; // type:func size:0x78
+asins = 0x8006A508; // type:func size:0x8C
+
+// ---------------------------------------------------------------------------
+// 6. WHERE TWO REFERENCE BUILDS DISAGREE ABOUT THE SAME BYTES
+//
+// No new symbols in this section. It records what the cross-title pass found
+// at addresses that already carried a name: another project's name for the
+// same bytes. None of these is a correction -- the existing names all came out
+// of a byte-identical match too. They are recorded because a reader chasing
+// one of these routines through a different decomp needs to know what to grep
+// for, and because "the reference build's name may still describe that
+// project's use of it" (docs/modules.md 1.2) is easier to believe with a list.
+//
+// The existing name wins in every row. Renaming would churn the tree, break
+// greppability against the project the name came from, and settle a question
+// the bytes do not settle.
+//
+//   address     this tree               also called                 by
+//   ----------  ----------------------  --------------------------  ----------
+//   0x800296B0  mtxf_transform_point    guMtxXFMF                   Banjo-Kazooie
+//   0x800317A0  rsp_segment             segSetBase                  JFG
+//   0x80046E60  stack_pointer           diCpuTraceCurrentStack      JFG
+//   0x8004DE60  gzip_inflate_block      inflate_block               JFG
+//   0x8004DF64  gzip_inflate_dynamic    inflate_dynamic             JFG
+//   0x8004E37C  gzip_inflate_fixed      inflate_fixed               JFG
+//   0x8004E4D4  gzip_inflate_stored     inflate_stored              JFG
+//   0x8004E5E0  gzip_inflate_codes      inflate_codes               JFG
+//   0x800725F4  rmonPrintf              osSyncPrintf                JFG
+//
+// TWO OF THESE ARE MORE THAN A SPELLING DIFFERENCE.
+//
+// 0x800296B0. Banjo-Kazooie's `src/mgu/mtxxfmf.o` is a whole-object match here
+// -- 0xA0 bytes, 0 masked, romocc=1 -- which would ordinarily buy a declared
+// file boundary. It is NOT declared, and the reason is that the surrounding
+// evidence is stronger and says something different: ROM 0x2A250-0x2AE44 is a
+// contiguous run of thirteen routines matched against DKR's ONE hand-written
+// `math_util.s` object, in DKR's order. So Mickey has the SDK's `guMtxXFMF`
+// inlined into a hand-written maths file, exactly as DKR does, and asserting a
+// TU boundary at 0x2A2B0 would assert a file that is not there. What the BK
+// match adds is the identification, not the boundary.
+//
+// 0x800725F4 is a genuine ambiguity and the name is weaker than its neighbours
+// because of it. DKR's build calls this TU `libc/rmonPrintf.c`; JFG's calls it
+// `libc/syncprintf.c`. Those are two different files in the SDK, and their
+// compiled bytes here are identical, so the comparison cannot choose -- this is
+// exactly the "exactly one candidate name" clause of docs/modules.md 1.2,
+// failing. `rmonPrintf` is retained only because it was already here; a reader
+// should treat it as one of two possible names, not as measured.
