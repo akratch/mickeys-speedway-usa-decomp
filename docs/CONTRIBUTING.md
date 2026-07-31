@@ -62,6 +62,25 @@ gmake cleanroom CLEANROOM_ARGS=--staged           # the index
 gmake cleanroom CLEANROOM_ARGS="--range A..B"     # a commit range
 ```
 
+### What they catch, and what they don't
+
+Measured against 400-word real-ROM fixtures, the content rules catch asm
+listings, every hexdump format, C arrays (including `u`/`UL` suffixes and
+underscore separators), machine words in prose or hex ranges or 16-bit halves
+or octal or decimal, escaped byte strings, base64/base64url/base32/ascii85
+(wrapped, or split across files), JSON ledgers, and leaks spread thinly across
+a tree.
+
+They do **not** catch a sub-threshold trickle (one file under ~96 machine words
+— about 384 bytes of ROM — passes; there is a measured fixture at 63), up to 64
+digest-shaped hex strings per file, or deliberate steganography. Detecting
+arbitrarily-encoded data is undecidable, and these rules are calibrated for
+mistakes rather than adversaries. [`CLEANROOM.md`](CLEANROOM.md) lists the
+limits with their measurements, and names what is actually load-bearing: the
+path whitelist and manifest schema check, the ROM path and binary rules, the
+tool-level ledger redaction, this policy, and a server-side push ruleset that
+is not yet configured.
+
 **Do not use `--no-verify`**, and do not lower a threshold to get a file
 through. If a file is a real false positive, restructure it or add an
 allowlist entry in `tools/cleanroom_detectors.py` with a reason. If something
