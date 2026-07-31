@@ -26,10 +26,24 @@ sha1: 507341c0a40ca3e9a7cee969b396ee53facfb548
 #                         Entropy shows compression proper starting ~0x87000;
 #                         0x86640-0x87000 looks like a table of ROM offsets.
 #                         Left as one `bin` for now - Phase 3 splits it.
-#   0x16B0000 - 0x18F1FE0 overlay region (front / track / clone modules plus
-#                         their reloc tables; Rare/DKR-lineage runtime linker,
-#                         cf. "ERROR:MIPS_HI16 without matching MIPS_LO16").
-#                         Left as one `bin` for now - Phase 4 splits it.
+#   0x16B0000 - 0x1848B70 unclassified (1.63 MiB). Nothing points into it: the
+#                         resident segment builds exactly four address literals
+#                         anywhere in 0x1600000-0x18FFFFF, and they are the four
+#                         block bases below. Entropy 5.5-6.4 with a 0.35 MiB
+#                         flat run, i.e. neither the asset band's 7.95 nor
+#                         resident text's 5.88.
+#   0x1848B70 - 0x184C3E0 the three overlay tables, stored flat, uncompressed:
+#                         u32 count (375) + RelocTableEntry[375] at 0x1848B70,
+#                         RomTableEntry[2004] at 0x1849730,
+#                         OverlayHeader[107] at 0x184B680.
+#   0x184C3E0 - 0x18F1FE0 107 overlay module images, back to back, each
+#                         [.text][.data][relocTable1][relocTable2] (0.65 MiB).
+#
+#   func_800328CC (VRAM 0x800328CC, ROM 0x334CC) mallocs and DMA-copies the
+#   three table blocks into the BSS pointers mainRelocTable / overlayRomTable /
+#   overlayTable at boot, through func_8002E3E0 (osInvalDCache + osPiStartDma in
+#   0x400 chunks). No decompressor is in that call graph or in
+#   runlinkDownloadCode's, which is what loads a module image.
 #   0x18F1FE0 - 0x2000000 trailing 0xFF fill (verified byte-by-byte).
 # ---------------------------------------------------------------------------
 
@@ -442,11 +456,56 @@ segments:
     start: 0x86640
     follows_vram: main
 
-  # Overlay modules (front / track / clone) + their reloc tables.
-  # Phase 4 splits this properly.
-  - name: overlays
+  # 1.63 MiB between the asset band and the overlay tables. Named for its
+  # position, not its content: it is not proven to be assets (its entropy is
+  # well below the compressed band's) and it is not overlay data (no overlay
+  # header's romAddress and no resident address literal reaches it).
+  - name: unclassified
     type: bin
     start: 0x16B0000
+    follows_vram: main
+
+  # The overlay system's four ROM blocks, split at proven boundaries.
+  #
+  # func_800328CC (ROM 0x334CC) reads the first three and DMA-copies each into
+  # a BSS pointer: mainRelocTable = copy + 4 (past the count word),
+  # overlayRomTable = copy, overlayTable = copy + 0x20 (entry 0 is the
+  # synthesized `main` pseudo-overlay, so the ROM's first header is overlay 1).
+  # Sizes are exact, not estimated: 0x1F50/4 == 2004 RomTableEntry, 0xD60/0x20
+  # == 107 OverlayHeader, and 4 + 375*8 == 0xBBC fills the reloc block bar four
+  # bytes of pad.
+  #
+  # Each module image is [.text][.data][relocTable1][relocTable2], and
+  # next.romAddress - this.romAddress == textSize + dataSize + [0x14] + [0x16]
+  # for all 107 with zero mismatches, which is what proves OverlayHeader[0x10]
+  # contributes no ROM bytes (it is bssSize, not rodataSize).
+  #
+  # `gmake overlay-tables` decodes all four blocks and re-asserts that layout
+  # against the ROM; run it before trusting any boundary here.
+  #
+  # NOT DONE YET, in this order: the 107-way split of overlay_modules at the
+  # header table's own romAddress boundaries, then promotion to `type: code`
+  # with vram/bss_size/exclusive_ram_id. Every module ships vramBase == 0 and is
+  # fully relocated at load, so the VRAM is a free choice that has to be decided
+  # once and used by the yaml and any reloc-aware tooling alike.
+  - name: main_reloc_table
+    type: bin
+    start: 0x1848B70
+    follows_vram: main
+
+  - name: overlay_rom_table
+    type: bin
+    start: 0x1849730
+    follows_vram: main
+
+  - name: overlay_header_table
+    type: bin
+    start: 0x184B680
+    follows_vram: main
+
+  - name: overlay_modules
+    type: bin
+    start: 0x184C3E0
     follows_vram: main
 
   # Trailing 0xFF fill to the end of the 32MB image.

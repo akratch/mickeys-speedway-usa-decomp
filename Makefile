@@ -10,6 +10,7 @@
 #   gmake hooks      point git at .githooks (clean-room commit/push gates)
 #   gmake cleanroom  clean-room sweep (CLEANROOM_ARGS=--staged, --range A..B)
 #   gmake audit-decoders  assert no clean-room decoder is inventing words
+#   gmake overlay-tables  decode the four overlay ROM blocks and check the layout
 #   gmake reference-builds        rebuild the out-of-tree reference decomp farm
 #   gmake check-reference-builds  prove that farm is the one the names came from
 #   gmake scoreboard        regenerate README.md's progress block from the tree
@@ -237,6 +238,19 @@ cleanroom:
 # which is precisely how a gate gets bypassed with --no-verify.
 audit-decoders:
 	$(PYTHON) $(TOOLS_DIR)/audit_decoders.py $(AUDIT_ARGS)
+
+# Decodes the four overlay blocks the yaml splits (main relocation table, ROM
+# table, header table, module images) out of the baserom and re-asserts the
+# layout: the count word, 370 of 375 reloc entries landing on a real
+# `jal TrapDanglingJump`, the per-module byte-gap arithmetic across all 107
+# headers, the final module's end at 0x18F1FE0, and clone.c's strings falling
+# inside overlay 43's .data. Reads the ROM at run time and writes nothing, so
+# like `verify` it needs a baserom and cannot run in CI.
+#
+#   gmake overlay-tables                       human-readable module map
+#   gmake overlay-tables OVERLAY_ARGS=--json   machine-readable, same fields
+overlay-tables:
+	$(PYTHON) $(TOOLS_DIR)/overlay_tables.py $(OVERLAY_ARGS)
 
 # The other direction, and the one `audit-decoders` is structurally blind to: a
 # decoder that quietly STOPS producing words looks exactly like a decoder
@@ -486,6 +500,6 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract verify cleanroom audit-decoders check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract verify cleanroom audit-decoders overlay-tables check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
