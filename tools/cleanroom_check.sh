@@ -160,11 +160,18 @@ if [ "$count" = "0" ]; then
 	exit 0
 fi
 
-if ! "$PY" tools/cleanroom_detectors.py <"$tmp"; then
-	status=$?
-	if [ "$status" -gt 1 ]; then
-		exit "$status"
-	fi
+# Run it, then branch on the status. Not `if ! ...; then status=$?`, where $?
+# is the negation's result (always 0) rather than the detector's -- which would
+# silently turn a plumbing error into an ordinary clean-room finding.
+"$PY" tools/cleanroom_detectors.py <"$tmp"
+status=$?
+
+if [ "$status" -gt 1 ]; then
+	echo "cleanroom: detectors failed to run (exit $status)" >&2
+	exit "$status"
+fi
+
+if [ "$status" -ne 0 ]; then
 	cat >&2 <<'EOF'
 
 cleanroom check FAILED.
