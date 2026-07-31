@@ -901,6 +901,15 @@ __osPfsPifRam = 0x800D7F20;
 __osContLastCmd = 0x800D8130;
 __osMaxControllers = 0x800D8131;
 __osPfsInodeCacheBank = 0x80080434;
+__osPfsInodeCacheChannel = 0x80080430;
+__osPfsLastChannel = 0x80080420;
+
+// Static in the reference object, so it has no name to adopt there and none is
+// invented: the reference's `pfsreadwritefile.c` calls its one file-scope
+// helper from both page-walking loops, and Mickey's 0x8006C270 is that helper,
+// entered from the same two sites inside a whole-.text match. Named after the
+// reference's spelling of it.
+__osPfsGetNextPage = 0x8006C270; // type:func size:0xD8
 
 // ---------------------------------------------------------------------------
 // 2. THE EXCEPTION ISLAND

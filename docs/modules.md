@@ -506,7 +506,7 @@ image instead.
 | `src/main/` (game code) | `-O2 -mips2 -32` | **Measured.** `ResolveRelocAddress` at `-mips1` emits five load-delay `nop`s the ROM does not have |
 | `src/libultra/string.c` | `-O2 -mips2 -32` | **Measured.** Branch-likely instructions |
 | 10 libultra io/os TUs | `-O1 -mips2 -32` | **Measured**, one variant at a time. At `-O2` IDO folds away a stack frame the ROM has. Locals need `register` or `-O1` spills them |
-| 18 libultra PI/EPI/PFS TUs | `-O2 -g3 -mips2 -32` | **Measured**, one TU at a time. See below |
+| 21 libultra PI/EPI/PFS TUs | `-O2 -g3 -mips2 -32` | **Measured**, one TU at a time. See below |
 
 The `-mips2` finding for `src/main/` is scoped to that directory on purpose. It
 is believed to hold for all game code and has been measured on one TU; widen it
@@ -633,12 +633,21 @@ every future TU at once.
 - **What is still `asm` that need not be.** 173 subsegments are named; 171 of
   them have a measured whole-`.text` boundary (the exceptions are `main/matrix`
   and `main/runlink`, which are decompiled rather than matched-as-a-unit).
-  **46** are now `c`, 29 of them matched C and the other 17 carrying only
+  **46** are now `c`, 32 of them matched C and the other 14 carrying only
   `#pragma GLOBAL_ASM`. A scaffolded subsegment is worth having on its own:
   it proves the file boundary against the link before any C is written, and it
   turns every function in the unit into a separate work item. The remaining
   127 named subsegments are `asm` because nobody has tried, and the `-g3`
   finding in §6.1 widens the flag space worth trying.
+- **Two translation units are blocked on one instruction each.**
+  `libultra/setglobalintmask` and `libultra/contramread`/`contramwrite`
+  reproduce every word of the ROM but one scheduling decision: in each case the
+  ROM fills a delay slot with an instruction this IDO places just before the
+  branch instead. The instruction multisets agree. Two independent occurrences
+  is weak evidence that the scheduler in this recompiled IDO 5.3 is not exactly
+  the one that built Mickey's libultra; §6.2 records a separate, stronger
+  reason to think the toolchain is not fully pinned. Each file's header states
+  the discrepancy.
 - **The `0xF0` bytes at `0x505E0`–`0x506D0`**, between the end of
   `os/exceptasm.s` and the next subsegment. Unidentified.
 - **`0x6B860`–`0x6BDF0`** (`0x590`), between Perfect Dark's three Transfer Pak

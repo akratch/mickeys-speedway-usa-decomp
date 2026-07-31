@@ -187,6 +187,10 @@ s32 __osPfsGetStatus(OSMesgQueue *queue, int channel);
     }                                     \
     (void)0
 
+#define PFS_CHECK_ID()                        \
+    if (__osCheckId(pfs) == PFS_ERR_NEW_PACK) \
+    return PFS_ERR_NEW_PACK
+
 #define PFS_CHECK_STATUS()                    \
     if ((pfs->status & PFS_INITIALIZED) == 0) \
     return PFS_ERR_INVALID
