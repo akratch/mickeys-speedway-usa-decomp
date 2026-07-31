@@ -26,7 +26,7 @@ sha1: 507341c0a40ca3e9a7cee969b396ee53facfb548
 #                         Entropy shows compression proper starting ~0x87000;
 #                         0x86640-0x87000 looks like a table of ROM offsets.
 #                         Left as one `bin` for now - Phase 3 splits it.
-#   0x16B0000 - 0x1848B70 unclassified (1.63 MiB). Nothing points into it: the
+#   0x16B0000 - 0x1848B70 unclassified (1.60 MiB). Nothing points into it: the
 #                         resident segment builds exactly four address literals
 #                         anywhere in 0x1600000-0x18FFFFF, and they are the four
 #                         block bases below. Entropy 5.5-6.4 with a 0.35 MiB
@@ -510,7 +510,7 @@ segments:
     start: 0x86640
     follows_vram: main
 
-  # 1.63 MiB between the asset band and the overlay tables. Named for its
+  # 1.60 MiB between the asset band and the overlay tables. Named for its
   # position, not its content: it is not proven to be assets (its entropy is
   # well below the compressed band's) and it is not overlay data (no overlay
   # header's romAddress and no resident address literal reaches it).
