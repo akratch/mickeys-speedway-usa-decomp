@@ -878,12 +878,14 @@ __osCleanupThread = 0x8004F9D4; // type:func size:0x8
 // ---------------------------------------------------------------------------
 // 3. ROM 0x5E6B0-0x6ACF0 -- libultra's `n_audio` synthesis library, whole
 //
-// The largest single find of this pass: 44 consecutive libultra audio
+// The largest single find of this pass: 45 consecutive libultra audio
 // translation units, matched whole against JFG's build, covering ROM
-// 0x5E6B0-0x6AF90 with only three non-libultra TUs interleaved (JFG's
-// `math_atan`, `math_acosf` and `math_arc`, which are named here too because
+// 0x5E6B0-0x6AF90 with only two non-libultra TUs interleaved (JFG's
+// `math_atan` at 0x69240 and `math_acosf` at 0x6AC10, named here too because
 // they sit inside the same address range and separating them would make this
-// block's ROM span discontiguous for no gain).
+// block's ROM span discontiguous for no gain). A third maths TU, `math_arc`,
+// begins at 0x6AF90 immediately after and is in section 5 with the rest of
+// the game code.
 //
 // This is the "n_" ALIST audio library -- the second-generation N64 audio
 // synthesis driver, shipped in libultra alongside the older `al*` one. Task D

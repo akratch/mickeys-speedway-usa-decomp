@@ -258,7 +258,7 @@ Controller Pak driver — resolved entirely.
 | `0x50820`–`0x50C00` | `0x8004FC20` | `main/refractOutputAssembler` | A | Measured file boundary (JFG) |
 | `0x59B90`–`0x59BF0` | `0x80058F90` | `main/osBootRamTest` | A | Measured file boundary (JFG) — the IPL3 6105 RAM test |
 | `0x5C310`–`0x5E6B0` | `0x8005B710` | `main/gsSnd` | A | **The sound player**, 0x23A0 in one piece, 22 named functions. Task D reached it through two error strings at tier C; both of those names fall inside this TU at exactly the predicted addresses |
-| `0x5E6B0`–`0x6AF90` | `0x8005DAB0` | libultra's `n_audio` synthesis library | A | 44 consecutive measured file boundaries, 106 names, plus three JFG maths TUs interleaved (`math_atan`, `math_acosf`, `math_arc`); §4.2 |
+| `0x5E6B0`–`0x6AF90` | `0x8005DAB0` | libultra's `n_audio` synthesis library | A | 45 consecutive measured file boundaries, 106 names, plus two JFG maths TUs interleaved (`math_atan`, `math_acosf`); a third, `math_arc`, begins at `0x6AF90` immediately after. §4.2 |
 | `0x6B3D0`–`0x6F3E0` | `0x8006A7D0` | Transfer Pak, Rumble Pak, Controller Pak filesystem | A | 18 measured file boundaries, 34 names. The Transfer Pak three come from **Perfect Dark**, the only reference build that has them; §4.2 |
 | `0x6F420`–`0x76D10` | `0x8006E820` | the libultra corridor | A | §4.1 |
 | `0x76D10`–`0x76E60` | — | non-resident text | — | Indexes off `$at`, loads from address 0; relocated before it runs. Still `bin` |
@@ -344,7 +344,7 @@ translation units of libultra below the corridor**, in three blocks.
 | ROM | VRAM | What | TUs | Names | From |
 |---|---|---|---|---|---|
 | `0x4FC30`–`0x505E0` | `0x8004F030` | `os/exceptasm.s` — the exception handler and thread dispatcher | 1 | 9 | JFG |
-| `0x5E6B0`–`0x6AF90` | `0x8005DAB0` | the `n_audio` synthesis library (with three JFG maths TUs interleaved) | 47 | 106 | JFG |
+| `0x5E6B0`–`0x6AF90` | `0x8005DAB0` | the `n_audio` synthesis library (45 TUs) with two JFG maths TUs interleaved | 47 | 106 | JFG |
 | `0x6B3D0`–`0x6F3E0` | `0x8006A7D0` | Transfer Pak, Rumble Pak, Controller Pak filesystem | 18 | 34 | JFG + PD |
 
 Plus the two scheduler accessors Task D named at `0x30F10`/`0x30F18`
