@@ -418,8 +418,9 @@ audspat_jingle_off = 0x800025C4; // type:func size:0x28   ROM 0x031c4  audio_spa
 // measure. The reference object's only function symbol is `stack_pointer`, and
 // splat's existing subsegment splits at 0x47A60 and 0x47A70 mean the file
 // boundary agrees on both sides too. See docs/modules.md section 1.2, which
-// enumerates all FIVE sub-threshold adoptions -- five symbols resting on four
-// distinct arguments, since osScGetCmdQ and osScGetInterruptQ share one.
+// enumerates all SIX sub-threshold adoptions -- six symbols resting on four
+// distinct arguments, since osScGetCmdQ and osScGetInterruptQ share one, as do
+// stack_pointer and __osGetCause.
 stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  get_stack_pointer.c.o  masked=0/2
 
 // ---------------------------------------------------------------------------
