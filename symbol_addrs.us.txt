@@ -551,6 +551,18 @@ ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier D (invented)
 // NULL for the fourth -- which is what Mickey's own watchpoint reporter at
 // 0x80046460 does too.
 //
+// runlinkInit (0x800328CC). Tier D -- invented, from Mickey's disassembly
+// alone; JFG has no counterpart to point at. It is the only writer of any of
+// the six BSS symbols below: three malloc-and-DMA-copy sequences, one per ROM
+// block (0x1848B70, 0x1849730, 0x184B680, sizes taken as the difference of two
+// address literals), each storing the allocation into its pointer, then
+// mainRelocTableCount from the block's leading word, mainRelocTable advanced
+// past it, overlayCount as (headerBlockSize >> 5) + 1, the 16-entry pending
+// list filled with 0xFFB, linkSlotTable allocated and zeroed, overlayTable[0]
+// synthesized for the resident module, and every overlay's romAddress
+// relocated by 0x184C3E0. Called from func_80026E4C, immediately before the
+// first TrapDanglingJump. See docs/modules.md 5.3.
+//
 // GetSymbolName (0x800317E0). Four instructions. It is called from exactly one
 // place, runlinkGetAddressInfo, with a *symbol table index* (computed as
 // `(cursor - tableBase) >> 2` over the 4-byte ROM table, ROM 0x33ED0-0x33ED8),
@@ -564,6 +576,7 @@ ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier D (invented)
 // JFG's version reads simply absent. The name is adopted for the ROLE the call
 // site proves, and the stub is the finding.
 GetSymbolName = 0x800317E0;         // type:func size:0x10
+runlinkInit = 0x800328CC;           // type:func size:0x248  tier D (invented)
 runlinkDownloadCode = 0x80031C78;   // type:func size:0x478
 runlinkGetAddressInfo = 0x800331E4; // type:func size:0x1BC
 // TIER A, no longer resting on the call-graph argument above. The whole 0x1E0
@@ -604,6 +617,15 @@ TrapDanglingJump = 0x800333A0;      // type:func size:0x1E0
 // The names for the three tables follow JFG's, which is the same engine's
 // vocabulary; the two counts and the slot table are Mickey-specific inventions
 // because JFG has no counterpart to point at.
+//
+// Being in .bss says where the tables are read from, not where they come from.
+// runlinkInit copies all three out of flat, uncompressed ROM at boot:
+// mainRelocTable from 0x1848B74 (its block opens with the u32 count at
+// 0x1848B70, and the pointer is set past it), overlayRomTable from 0x1849730,
+// overlayTable from 0x184B680 into an allocation 0x20 bytes larger, because
+// entry 0 is the synthesized `main` pseudo-overlay and the ROM's first header
+// is overlay 1. linkSlotTable is allocated and zeroed, never copied.
+// docs/modules.md 5.3 has the layout; `gmake overlay-tables` decodes it.
 overlayTable = 0x800D2D90;
 mainRelocTable = 0x800D2D94;
 overlayRomTable = 0x800D2D98;

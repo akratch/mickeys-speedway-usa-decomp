@@ -11,21 +11,21 @@ from the original stub but have not been modernized or verified.
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-57_of_1467_(3.89%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/.text_bytes_matched-14308_of_481384_(2.97%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-381_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-57_of_1467_(3.89%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/.text_bytes_matched-14308_of_481384_(2.97%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-382_adopted-blue)](#progress)
 
 ```
 functions       57 / 1467     3.89%   matched to C, byte-identical
 .text bytes  14308 / 481384   2.97%   of the static resident segment
-named          357 / 1467    24.34%   functions carrying an adopted name
-symbols        381                    adopted in symbol_addrs.us.txt
+named          358 / 1467    24.40%   functions carrying an adopted name
+symbols        382                    adopted in symbol_addrs.us.txt
 ```
 
 | Area | Functions | Matched to C | Named, still asm | Unnamed | Identified |
 | :--- | ---: | ---: | ---: | ---: | :--- |
 | libultra corridor | 306 | 51 | 218 | 37 | `███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░` 87.9% |
-| game code, TU identified | 74 | 6 | 45 | 23 | `██▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░` 68.9% |
+| game code, TU identified | 74 | 6 | 46 | 22 | `██▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░` 70.3% |
 | game code, not yet split | 1087 | 0 | 37 | 1050 | `▓░░░░░░░░░░░░░░░░░░░` 3.4% |
-| **total** | 1467 | 57 | 300 | 1110 | `█▓▓▓▓░░░░░░░░░░░░░░░` 24.3% |
+| **total** | 1467 | 57 | 301 | 1109 | `█▓▓▓▓░░░░░░░░░░░░░░░` 24.4% |
 
 `█` matched to C · `▓` named but still assembly · `░` neither. Naming runs ahead of matching: a function is decompiled against an already-identified translation unit.
 
@@ -125,7 +125,7 @@ source file's header comment. Measured per-file flags are in
 | 0 | Split the US ROM with splat; rebuild it byte-identically from disassembly | done |
 | 1 | First matched C, libultra corridor, symbol/struct ontology | in progress |
 | 2 | Clean-room gates; mine the published Rare decomps for matching objects | in progress |
-| 3 | Overlay system: reloc-table format, `front`/`track`/`clone` segments | not started |
+| 3 | Overlay system: table format and ROM layout (settled), 107 overlay segments | in progress |
 | 4 | Assets: `1172`/`1173` decompress/recompress with matching output | not started |
 
 ## Clean room

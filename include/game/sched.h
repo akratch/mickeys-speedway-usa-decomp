@@ -30,8 +30,8 @@
  *
  * SC_TASK_CLONE is the interesting one for the module map: `clone` is also one
  * of the four module names the ROM's own __FILE__ strings carry, and the only
- * one whose path string lives in the overlay region rather than the resident
- * segment. See docs/modules.md.
+ * one whose path string lives in an overlay rather than the resident segment --
+ * in overlay 43's .data, one of 107. See docs/modules.md.
  */
 typedef enum ScTaskType {
     SC_TASK_AUDIO = 1,        /* "(Audio task)",           0x80082090 */

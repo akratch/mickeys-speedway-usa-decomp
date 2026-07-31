@@ -179,7 +179,9 @@ tidied cannot.
 | `0x001000`–`0x086640` | 0x85640 | **resident segment** (code + data + rodata) | §3 |
 | `0x086640`–`0x087000` | 0x9C0 | table of ROM offsets (unidentified) | entropy transition; still `bin` |
 | `0x087000`–`0x16B0000` | 22.16 MiB | compressed assets | entropy 7.1–8.0 across the band |
-| `0x16B0000`–`0x18F1FE0` | 2.26 MiB | **overlay modules + their reloc data** | §5 |
+| `0x16B0000`–`0x1848B70` | 1.60 MiB | unclassified | Nothing reaches it: the resident segment builds four address literals in `0x1600000`–`0x18FFFFF` and they are the four block bases below. Entropy 5.5–6.4 with a 0.35 MiB flat run |
+| `0x1848B70`–`0x184C3E0` | 0x3870 | **the three overlay tables**, flat and uncompressed | §5.3 |
+| `0x184C3E0`–`0x18F1FE0` | 0.65 MiB | **107 overlay module images** | §5.3 |
 | `0x18F1FE0`–`0x2000000` | 7.06 MiB | `0xFF` fill | verified byte by byte |
 
 The resident segment's end is derived, not guessed: the entrypoint zeroes BSS
@@ -259,7 +261,7 @@ module's code lives.
 | `main` | 6, at `0x80081B0C`–`0x80081B48` | resident: `0x80026FB4`, `0x80027FB8` | Fully resident |
 | `track` | 14, at `0x80081540`–`0x80081610` | resident: `0x8000BDB4`, `0x8000E920` | **Partly resident** |
 | `front` | 2, at `0x800826C0`, `0x800826D0` | resident: `0x80038E1C` | **Partly resident** |
-| `clone` | 2, at ROM `0x188B4D0`, `0x188B4E0` | not referenced from the resident segment at all | **Overlay-only** |
+| `clone` | 2, at ROM `0x188B4D0`, `0x188B4E0` | not referenced from the resident segment at all | **Overlay-only**: both strings sit in **overlay 43**'s `.data`, at offsets `0x1500`/`0x1510` from that module's base (§5.3) |
 
 `main` is the permanently resident module; `front` and `track` straddle the
 boundary, with resident stubs or shared helpers that carry their own assert
@@ -267,6 +269,11 @@ strings; `clone` exists only inside the overlay region. The scheduler's task
 taxonomy agrees independently: `SC_TASK_CLONE` is one of its seven task types
 (`include/game/sched.h`), so `clone` is a task, i.e. something scheduled rather
 than something always present.
+
+`main`, `front`, `track` and `clone` are **source-file names, not overlay
+boundaries**. The ROM's overlay segmentation is 107 modules (§5.3); `clone`'s
+two `__FILE__` copies land in one of them, and nothing says a source module maps
+to one overlay.
 
 ### 3.2 What the debug content says about this build
 
@@ -419,6 +426,11 @@ mechanism, entirely from Mickey's own disassembly:
 6. The trampoline recomputes `overlayTable[n].vramBase + offset`, restores the
    arguments and `jr`s to the real function. The caller never knows.
 
+Step 0 is `runlinkInit` (`0x800328CC`), which runs once at boot, out of
+`func_80026E4C`, immediately before the first `TrapDanglingJump`: it allocates
+and DMA-copies the three tables out of ROM and synthesizes `overlayTable[0]`
+for the resident module itself. §5.3.
+
 `runlinkGetAddressInfo` (`0x800331E4`) is the inverse, and is what the debug
 monitor uses to print "Module %d at %08x". Its fourth parameter is an optional
 symbol-name out-pointer filled by **`GetSymbolName`** (`0x800317E0`), which in
@@ -430,16 +442,19 @@ image.
 ### 5.2 The tables
 
 Named from stride and use in Mickey's disassembly (`symbol_addrs.us.txt`), all
-six in BSS:
+six in BSS, all six written by `runlinkInit` and by nothing else:
 
-| Symbol | VRAM | Element | Stride |
-|---|---|---|---|
-| `overlayTable` | `0x800D2D90` | `OverlayHeader` | `0x20` |
-| `mainRelocTable` | `0x800D2D94` | `RelocTableEntry` | `0x8` |
-| `overlayRomTable` | `0x800D2D98` | `RomTableEntry` | `0x4` |
-| `overlayCount` | `0x800D2D9C` | count | — |
-| `mainRelocTableCount` | `0x800D2DA0` | count | — |
-| `linkSlotTable` | `0x800D2E48` | `LinkSlot` | `0x2` |
+| Symbol | VRAM | Element | Stride | Filled from |
+|---|---|---|---|---|
+| `overlayTable` | `0x800D2D90` | `OverlayHeader` | `0x20` | ROM `0x184B680`, at `+0x20` |
+| `mainRelocTable` | `0x800D2D94` | `RelocTableEntry` | `0x8` | ROM `0x1848B74` |
+| `overlayRomTable` | `0x800D2D98` | `RomTableEntry` | `0x4` | ROM `0x1849730` |
+| `overlayCount` | `0x800D2D9C` | count = 108 | — | `(0xD60 >> 5) + 1` |
+| `mainRelocTableCount` | `0x800D2DA0` | count = 375 | — | the word at ROM `0x1848B70` |
+| `linkSlotTable` | `0x800D2E48` | `LinkSlot` | `0x2` | allocated and zeroed |
+
+`overlayCount` is 108 and there are 107 headers in ROM: entry 0 is synthesized
+for the resident module, so overlay *n* is ROM header *n - 1*.
 
 `overlayCount` bounds **both** the overlay table and the link-slot table, so
 there is exactly one link slot per overlay. That is the best available
@@ -451,48 +466,74 @@ puts the ROM-table index first and packs the call site as a 24-bit offset from
 `0x80000450` in the high bits of the second word. Derived from Mickey's ROM;
 only the type's name is borrowed.
 
-### 5.3 Where the tables are in ROM: not found
+### 5.3 Where the tables are in ROM
 
-Open, but narrowed: §5.2 gives the exact byte format to search for. Two
-searches were run over the whole 32MB image.
+Four blocks, stored flat and uncompressed, back to back:
 
-- **`OverlayHeader[]`**: three or more consecutive 0x20-byte records with
-  `vramBase == 0`, `romAddress` inside the overlay region and plausible
-  section sizes. **Zero candidates.**
-- **`RelocTableEntry[]`**: runs of 8-byte records whose decoded call site
-  `(word[1] >> 8) + 0x80000450` lands inside the resident segment. This
-  produces plenty of long runs, and they are all false positives. The
-  discriminator that kills them is cheap and worth reusing: *a real entry's
-  call site must contain an actual `j` or `jal` instruction.* Re-running with
-  that test gives **not one run of even 6 consecutive entries anywhere in the
-  ROM.**
+| ROM | Size | Contents |
+|---|---|---|
+| `0x1848B70` | `0x4` | `u32 mainRelocTableCount` = **375** |
+| `0x1848B74` | `0xBB8` | `RelocTableEntry[375]`, then four bytes of pad |
+| `0x1849730` | `0x1F50` | `RomTableEntry[2004]` |
+| `0x184B680` | `0xD60` | `OverlayHeader[107]` |
+| `0x184C3E0` | `0xA5C00` | **107 overlays**, each image `[.text][.data][relocTable1][relocTable2]` |
 
-The best-looking candidate, ROM `0x18AAD00`, is recorded as ruled out rather
-than as a lead: its first 40 entries are sorted and 4-byte aligned, which is
-exactly what a lookup table looks like, but over its full 2205-entry extent it
-has 142 inversions, its decoded "call sites" are only 4.4% `j`/`jal` (98 of 2205), and the bytes
-immediately after it are a function prologue. It is overlay code being read as
-a table.
+`runlinkInit` (`0x800328CC`) computes each block's size as the difference of two
+ROM address literals, allocates, and DMA-copies it through `func_8002E3E0`,
+which is `osInvalDCache` plus a loop of `osPiStartDma` and `osRecvMesg` in
+`0x400`-byte chunks. **The one thing that hid this layout is a single word**:
+the relocation block opens with its own entry count, and the initializer sets
+`mainRelocTable = copy + 4`, so decoding 8-byte entries from `0x1848B70` reads
+every entry one word out of phase and swaps its two fields.
 
-**Conclusion: the reloc tables are not stored uncompressed anywhere in the
-image.** Either they are compressed like the assets, or they are constructed at
-load time. That is the starting point for Phase 4, which owns splitting
-`0x16B0000`–`0x18F1FE0` and can read the tables out of a decompressed module
-image instead.
+Each of the four blocks is its own `bin` segment in `mickey.us.yaml`, and
+`gmake overlay-tables` (`tools/overlay_tables.py`) decodes them into a
+107-row module map, re-asserting the five checks below against the ROM on every
+run.
 
-> **One unproven assumption carries that conclusion.** The `j`/`jal`
-> discriminator assumes a call site into a not-yet-loaded overlay holds a real
-> jump instruction *in the ROM image as shipped*. That is what §5.1 says the
-> mechanism requires (`TrapDanglingJump` only ever runs because a `jal`
-> reached it), but it is an inference from how the linker works, not an
-> observation of the resident bytes at a known call site. **If unloaded call
-> sites are stored as something else and rewritten into `jal`s at load time,
-> the discriminator is wrong, every run it rejected comes back into play, and
-> the negative result evaporates.**
->
-> To settle it: find one call site whose target is known to be an overlay
-> function and confirm the ROM bytes there are a `jal` to `TrapDanglingJump`
-> (`0x800333A0`). One address decides it in both directions.
+**What makes the layout a measurement rather than a reading.**
+
+- For all 107 modules, with zero mismatches,
+  `next.romAddress - this.romAddress == textSize + dataSize + relocTableSize +
+  relocTableSize2`. The last module ends at `0x18F1FE0`, byte-exact with the
+  `rom_fill` boundary the ROM map already had. No rodata term fits that sum,
+  which is what makes `OverlayHeader[0x10]` `bssSize` (`include/game/runlink.h`).
+- 370 of the 375 relocation entries decode to a call site whose ROM word is
+  literally `0C00CCE8`, i.e. `jal TrapDanglingJump`. That is the same 370 as the
+  `jal TrapDanglingJump` sites in `asm/`, and it settles §5.1's mechanism from
+  the shipped bytes: an unloaded call site *is* a real `jal` in the ROM image.
+  The five that are not are two `HI16`/`LO16` `SYMBOL` pairs patching a
+  `lui`/`addiu` of `0x800D2DC4` and one `R_MIPS_32` patching a data word, which
+  is what their flags bytes say they are and what a `jal` test correctly
+  rejects.
+- `clone/clone.c`'s two `__FILE__` strings (§3.1, located from resident rodata
+  and independently of any of this) land at offsets `0x1500`/`0x1510` inside
+  **overlay 43's `.data`** under this arithmetic, with nothing fitted.
+- The maximum `romTableIndex` any relocation entry uses is 1473, inside
+  `RomTableEntry[2004]`; the maximum real overlay number in `overlayRomTable` is
+  107, and its reserved selectors `0xFFF` and `0xFFD` appear 136 and 97 times,
+  confirming `RomTableEntry`'s 12/20 bitfield split.
+- Every one of the 107 headers has `vramBase == 0` and a strictly monotonic
+  `romAddress`: the modules ship unrelocated and are placed at load time.
+
+**Nothing in this path decompresses.** `runlinkInit` and `runlinkDownloadCode`
+both copy through `osPiStartDma`, and neither call graph reaches `gzip_asm`
+(`0x4EA60`), the resident decompressor the asset loader uses. The block bytes
+decode as the documented structs directly.
+
+The per-module relocation tables are `RelocationEntry[]` as
+`include/game/runlink.h` documents, `relocTableSize`/`relocTableSize2` bytes
+each. Across all 107 modules, table 1 is 6943 records that are overwhelmingly
+`SYMBOL` (`symbolIndex` indexes `overlayRomTable`) and table 2 is 11599 records
+that are overwhelmingly `LOCAL` (`symbolIndex` is a byte offset from the
+module's own base). **That division of labour is inferred from the flag census,
+not proven**; `runlinkDownloadCode` is what would prove it.
+
+**Next, in this order.** Split `overlay_modules` 107 ways at the header table's
+own `romAddress` boundaries, then promote each module to `type: code` with
+`vram:`/`bss_size:`/`exclusive_ram_id:`. The second step needs a decision the
+first does not: `vramBase == 0` in ROM means the load address is a free choice,
+and the yaml and any reloc-aware tooling have to make the same one.
 
 ---
 
@@ -606,9 +647,14 @@ every future TU at once.
 
 ## 7. What this map does not cover
 
-- **The overlay region `0x16B0000`–`0x18F1FE0`** is one `bin`. Module
-  boundaries, per-module reloc tables and the three TOC tables are all
-  unlocated (§5.3). Phase 4.
+- **What is inside an overlay module.** The three tables, the 107 module
+  boundaries and each module's four sections are located and split (§5.3);
+  their contents are not. `overlay_modules` is one `bin`, no module is
+  `type: code`, and which source file (`front`, `track`, `clone`, or none of
+  them) each overlay holds is known for exactly one of the 107.
+- **`0x16B0000`–`0x1848B70`** (1.60 MiB, the `unclassified` segment). It is not
+  overlay data and its entropy is not the asset band's. Nothing in the resident
+  segment or the overlay tables points into it.
 - **The asset region `0x87000`–`0x16B0000`** is one `bin`. Entropy suggests at
   least two classes (a near-random band to ~`0xAC0000` and a more structured
   one beyond), but nothing is decoded. `gzip_inflate_*` at `0x4EA60` is the

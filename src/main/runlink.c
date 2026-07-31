@@ -405,7 +405,7 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032338.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032618.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032820.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_800328CC.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032B14.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032BF8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032FE0.s")

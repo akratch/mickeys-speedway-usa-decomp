@@ -601,6 +601,79 @@ else:
                    f"tools/reference-builds.lock records {want}")
 
 
+# --- 8. the overlay blocks' element counts ----------------------------------
+# mickey.us.yaml splits the overlay region at the four block bases, so 107, 2004
+# and 375 are not facts to be retyped: they are the block sizes divided by the
+# strides include/game/runlink.h proves (0x20, 4, and 8 after the leading u32
+# count word). Both files quote all three, and the 107 in particular is now
+# spread across the yaml, the module map and a header comment.
+#
+# The division is exact for the header and ROM tables. The relocation block ends
+# with four bytes of pad, so 375 is the floor, and the check is floor-equality
+# plus "the entries plus the count word do fit".
+
+OVERLAY_BLOCKS = ("main_reloc_table", "overlay_rom_table",
+                  "overlay_header_table", "overlay_modules")
+SEG_NAME = re.compile(r"^\s*- name: (\S+)\s*$")
+SEG_START = re.compile(r"^\s*start: " + HEX + r"\s*$")
+
+seg_starts = {}
+pending = None
+for line in read("mickey.us.yaml"):
+    m = SEG_NAME.match(line)
+    if m:
+        pending = m.group(1)
+        continue
+    m = SEG_START.match(line)
+    if m and pending:
+        seg_starts[pending] = int(m.group(1), 16)
+        pending = None
+
+if not all(b in seg_starts for b in OVERLAY_BLOCKS):
+    missing = [b for b in OVERLAY_BLOCKS if b not in seg_starts]
+    problems.append(
+        "mickey.us.yaml: overlay block segment(s) " + ", ".join(missing) +
+        " are gone or renamed -- check 8 cannot derive the overlay counts")
+else:
+    reloc_base = seg_starts["main_reloc_table"]
+    rom_base = seg_starts["overlay_rom_table"]
+    header_base = seg_starts["overlay_header_table"]
+    modules_base = seg_starts["overlay_modules"]
+
+    want = {
+        # regex over both files            derived value
+        r"OverlayHeader\[(\d+)\]": (modules_base - header_base) // 0x20,
+        r"(\d+) overlays\b": (modules_base - header_base) // 0x20,
+        r"RomTableEntry\[(\d+)\]": (header_base - rom_base) // 4,
+        r"RelocTableEntry\[(\d+)\]": (rom_base - reloc_base - 4) // 8,
+    }
+    for pattern, derived in want.items():
+        rx = re.compile(pattern)
+        hits = 0
+        for path in ("docs/modules.md", "mickey.us.yaml", "include/game/runlink.h"):
+            for i, line in enumerate(read(path), 1):
+                for m in rx.finditer(line):
+                    hits += 1
+                    checked += 1
+                    if int(m.group(1)) != derived:
+                        report(path, i,
+                               f"claims {m.group(1)} where the block bases in "
+                               f"mickey.us.yaml give {derived}")
+        if not hits:
+            problems.append(
+                f"no /{pattern}/ claim found in docs/modules.md, mickey.us.yaml "
+                "or include/game/runlink.h -- check 8 is now checking nothing")
+
+    # The relocation block's floor is only meaningful if the entries fit.
+    checked += 1
+    reloc_count = (rom_base - reloc_base - 4) // 8
+    if 4 + reloc_count * 8 > rom_base - reloc_base:
+        problems.append(
+            f"mickey.us.yaml: {reloc_count} RelocTableEntry plus the count word "
+            f"overrun the 0x{rom_base - reloc_base:X}-byte block at "
+            f"0x{reloc_base:X}")
+
+
 # --- verdict ----------------------------------------------------------------
 if problems:
     print("check_derived_numbers: FAILED", file=sys.stderr)

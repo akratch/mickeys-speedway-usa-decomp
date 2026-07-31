@@ -55,19 +55,36 @@ typedef struct RomTableEntry {
  * the two new ones come from disassembly that is read but not yet compiled,
  * which is a slightly weaker thing and is why they are called out separately.
  *
- * The remaining five fields are JFG's names at JFG's offsets and NOTHING IN
- * THIS PROJECT HAS TOUCHED THEM YET. They are present rather than commented
- * out because the struct has to be 0x20 bytes for the indexing to compile
- * correctly, but treat each one as unverified until a matched function reads
- * it. (An earlier version of this comment claimed they were "left commented",
- * which was simply wrong about its own code.)
+ * FOUR MORE ARE ESTABLISHED BY THE ROM TABLE ITSELF (docs/modules.md 5.3). The
+ * 107 headers at ROM 0x184B680 describe 107 module images laid back to back
+ * from 0x184C3E0, and for all 107, with zero mismatches,
+ *
+ *     next.romAddress - this.romAddress
+ *         == textSize + dataSize + relocTableSize + relocTableSize2
+ *
+ * so 0x04 is a romAddress (stored as an offset from 0x184C3E0, which the
+ * initializer at 0x800328CC adds in once at load), 0x0C is the size of a real
+ * ROM-backed section, 0x14/0x16 are the two relocation tables' sizes IN BYTES,
+ * and the field at 0x10 contributes no ROM bytes at all.
+ *
+ * That last one is why 0x10 is `bssSize` here rather than JFG's `rodataSize`:
+ * no rodata term fits the gap arithmetic, and the initializer's own synthesized
+ * entry 0 for the resident module writes 0x0C = 0x80085A40 - 0x80078D60
+ * (data and rodata together) and 0x10 = 0x800D8750 - 0x80085A40, which is
+ * exactly the resident segment's BSS. tools/overlay_tables.py re-asserts the
+ * gap arithmetic against the ROM on every run.
+ *
+ * initFunction (0x18) is the one field nothing in this project has read. It is
+ * present rather than commented out because the struct has to be 0x20 bytes for
+ * the indexing to compile correctly; treat it as unverified until a matched
+ * function reads it.
  */
 typedef struct OverlayHeader {
     /* 0x00 */ s32 vramBase; /* 0 while the overlay is not resident */
     /* 0x04 */ s32 romAddress;
     /* 0x08 */ s32 textSize;
-    /* 0x0C */ s32 dataSize;
-    /* 0x10 */ s32 rodataSize;
+    /* 0x0C */ s32 dataSize; /* data and rodata together */
+    /* 0x10 */ s32 bssSize;  /* no ROM bytes; JFG calls this one rodataSize */
     /* 0x14 */ s16 relocTableSize;
     /* 0x16 */ u16 relocTableSize2;
     /* 0x18 */ s32 initFunction;
@@ -106,15 +123,19 @@ typedef struct OverlayHeader {
  * JFG's.
  *
  * The low 8 bits of the second word are shifted away by the only code that
- * reads them, so nothing here establishes what they hold. They are named
- * `unused` for want of evidence, not because emptiness was demonstrated -- and
- * the table itself lives in the unmapped overlay region, so they cannot be
- * inspected until Phase 4 splits it.
+ * reads them, so no Mickey function establishes what they hold. The table's ROM
+ * source does: it is at 0x1848B74, all 375 entries decode, and that byte is the
+ * same flags byte as RelocationEntry::u.b.flags -- RELOC_TYPE_* in the high
+ * nibble, RELOC_OP_* in the low. 370 of the 375 carry 0x40
+ * (RELOC_TYPE_26 | RELOC_OP_SYMBOL) and their call sites hold a literal
+ * `jal TrapDanglingJump`; the other five are two HI16/LO16 SYMBOL pairs
+ * (0x50/0x60) patching a lui/addiu of 0x800D2DC4 and one R_MIPS_32 (0x23)
+ * patching a data word, none of which is a jal, which is what the flags say.
  */
 typedef struct RelocTableEntry {
     /* 0x00 */ u32 romTableIndex;      /* index into overlayRomTable[]        */
     /* 0x04 */ u32 callSiteOffset : 24; /* + 0x80000450 == the trapping `jal` */
-    /* 0x04 */ u32 unused : 8;          /* never read by any decompiled code  */
+    /* 0x04 */ u32 flags : 8;           /* RELOC_TYPE_* << 4 | RELOC_OP_*     */
 } RelocTableEntry; /* sizeof == 0x8 */
 
 /*
