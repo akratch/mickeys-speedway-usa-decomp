@@ -12,6 +12,13 @@
 
 #include "PR/ultratypes.h"
 
+/* Opaque for now: nothing matched so far dereferences a thread, so inventing
+   a field layout would be assertion rather than evidence. Give it real members
+   when a translation unit needs one. */
+typedef struct OSThread_s OSThread;
+
+OSThread *__osGetActiveQueue(void);
+
 s32 __osSpDeviceBusy(void);
 u32 __osSpGetStatus(void);
 void __osSpSetStatus(u32 status);

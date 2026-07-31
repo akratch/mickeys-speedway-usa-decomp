@@ -128,6 +128,11 @@ memcpy = 0x80071770; // type:func size:0x2C
 strlen = 0x8007179C; // type:func size:0x28
 strchr = 0x800717C4; // type:func size:0x40
 // libultra/getactivequeue  ROM 0x72410  (os/getactivequeue.c.o)
+// The data symbol below is not a corridor .text name: it is the global this
+// TU relocates against, declared here so the link can resolve it from the
+// compiled C. Its address is read straight out of the ROM's own %hi/%lo
+// pair; the name comes from the relocation record of the reference object.
+__osActiveQueue = 0x8008086C;
 // Identical code to vigetcurrcontext (0x748B0); that one reads *0x800808F0
 // (__osViCurr, per the note above) and sits immediately before the VI swap
 // context TU, so this remaining copy -- reading *0x8008086C -- is the

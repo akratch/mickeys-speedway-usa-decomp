@@ -31,6 +31,10 @@
 #define SP_STATUS_DMA_FULL   0x0008
 #define SP_STATUS_IO_FULL    0x0010
 
+/* Writes to SP_STATUS_REG use a different, set/clear-paired bit layout from
+   reads. Only the bits matched code writes are listed. */
+#define SP_SET_SIG0  0x0400   /* the yield-requested signal */
+
 /* Display processor command interface (RDP) */
 #define DPC_BASE_REG    0x04100000
 #define DPC_STATUS_REG  (DPC_BASE_REG + 0x0C)

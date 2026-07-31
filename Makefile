@@ -264,7 +264,8 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/string.c.o: MIPSISET := -mips2 -32
 # rather than the reason.) splat writes every libultra subsegment into one flat
 # src/libultra/, so this cannot be a directory-scoped pattern rule and each
 # file is named. Keep the list sorted.
-LIBULTRA_IO_TUS := ai aigetlen dp dpsetstat si sp spgetstat spsetstat
+LIBULTRA_IO_TUS := ai aigetlen dp dpsetstat getactivequeue si sp \
+                   spgetstat spsetstat sptaskyield
 $(foreach f,$(LIBULTRA_IO_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -O1))
 $(foreach f,$(LIBULTRA_IO_TUS),$(eval \

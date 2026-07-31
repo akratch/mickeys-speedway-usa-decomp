@@ -265,7 +265,7 @@ segments:
       - [0x71D50, asm, libultra/vigetcurrframebuf]
       - [0x71D90, asm, libultra/vigetnextframebuf]
       - [0x71DD0, asm, libultra/dpsetnextbuf]
-      - [0x71E80, asm, libultra/sptaskyield]
+      - [0x71E80, c, libultra/sptaskyield]
       - [0x71EA0, asm, libultra/viswapbuf]
       - [0x71EF0, asm, libultra/visetspecial]
       - [0x720B0, asm, libultra/ll]
@@ -275,7 +275,7 @@ segments:
       # splat's boundary finder had merged it into ll.c because it follows
       # with no alignment gap.  See src/libultra/string.c.
       - [0x72370, c, libultra/string]
-      - [0x72410, asm, libultra/getactivequeue]
+      - [0x72410, c, libultra/getactivequeue]
       - [0x72420, asm, libultra/bcopy]
       - [0x72730, asm, libultra/piacs]
       - [0x727F0, asm, libultra/getthreadpri]
