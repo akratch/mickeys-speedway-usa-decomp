@@ -309,9 +309,12 @@ any number written down is stale the moment the next one lands — this document
 said "238" for several rounds after the true figure had moved on, which is the
 recompute-don't-remember rule broken inside the document that states it.
 `gmake audit-decoders AUDIT_ARGS=--all` prints the count it actually scanned;
-that is the figure, and it is the only one that is ever current. (For scale, at
-the time of writing it prints 256, from 257 unique blobs — the difference is one
-empty file, which the audit skips.)
+that is the figure, and it is the only one that is ever current. Note it will
+read slightly *below* `git rev-list --all | … | sort -u | wc -l`, because the
+audit skips empty and non-text blobs — reconcile the two that way rather than
+assuming one of them is wrong. The first draft of this very paragraph quoted
+both numbers "for scale" and they were stale one commit later; that is how
+persistent this failure mode is.
 
 The tightest margin over **every** blob in this repository's history is now
 **6.40×** (`docs/modules.md`, 95 words / spread 5 against limits of 192 / 32 —
