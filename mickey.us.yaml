@@ -79,6 +79,14 @@ options:
   # macros expand to a global label; `glabel` is the one that also parses.
   # tools/setup_reference_builds.sh patches the same three-macro list into
   # Conker's copy of asm-processor for the same reason.
+  #
+  # The price, stated rather than hidden: `glabel` opens a `.ent` that only
+  # `endlabel` closes, so gas warns "missing .end" once per jump target, 627
+  # times in a clean build, on top of the 1471 odd-FP-register warnings section
+  # 6.2 of docs/modules.md already accounts for. The ROM is byte-identical
+  # either way and the final ELF carries no function-typed .L symbol.
+  # `dlabel` is not an alternative: splat would then define that macro twice in
+  # include/macro.inc and gas rejects the file outright.
   asm_jtbl_label_macro: glabel
   asm_data_macro: dlabel
   asm_end_label: endlabel

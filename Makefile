@@ -11,6 +11,7 @@
 #   gmake cleanroom  clean-room sweep (CLEANROOM_ARGS=--staged, --range A..B)
 #   gmake audit-decoders  assert no clean-room decoder is inventing words
 #   gmake overlay-tables  decode the four overlay ROM blocks and check the layout
+#   gmake prune-asm  delete asm/ files splat orphaned (also run by every split)
 #   gmake reference-builds        rebuild the out-of-tree reference decomp farm
 #   gmake check-reference-builds  prove that farm is the one the names came from
 #   gmake scoreboard        regenerate README.md's progress block from the tree
@@ -179,6 +180,7 @@ setup: $(PYTHON) hooks
 	$(TOOLS_DIR)/setup_toolchain.sh
 	$(TOOLS_DIR)/verify_baseroms.sh
 	$(PYTHON) -m splat split $(BASENAME).$(VERSION).yaml
+	@$(MAKE) --no-print-directory prune-asm
 	@mkdir -p $(BUILD_DIR)
 	@touch $(SPLAT_STAMP)
 
@@ -187,8 +189,19 @@ setup: $(PYTHON) hooks
 # sync so a following `gmake` doesn't redundantly split again.
 extract:
 	$(PYTHON) -m splat split $(BASENAME).$(VERSION).yaml
+	@$(MAKE) --no-print-directory prune-asm
 	@mkdir -p $(BUILD_DIR)
 	@touch $(SPLAT_STAMP)
+
+# splat writes asm/ and never prunes it, so converting a subsegment from `asm`
+# to `c`, or naming a function, leaves a file behind that nothing produces any
+# more. Neither breaks the build -- the linker script simply stops naming the
+# object -- but tools/progress.py counts a function as unmatched while any
+# glabel for it survives anywhere under asm/, so the matched count silently
+# under-reports until the file is deleted. It ran after every split rather than
+# being remembered.
+prune-asm:
+	@$(PYTHON) $(TOOLS_DIR)/prune_stale_asm.py $(BASENAME).$(VERSION).yaml
 
 verify:
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
@@ -421,11 +434,12 @@ $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 #   0x60. (-O3 could not be tested: this IDO recomp build dies in `uld` on any
 #   -O3 invocation, an environment failure rather than a fact about the code.)
 #
-#   NOT MEASURED: `-O2` rather than `-O1`. Those two are byte-identical on both
-#   of these translation units, so these bytes do not discriminate the
-#   optimisation level at all. -O2 is used because Jet Force Gemini's published
-#   Makefile builds its libultra io/ TUs that way -- it is BORROWED, not
-#   established, and a future TU in this group may well settle it the other way.
+#   ALSO MEASURED, on a later TU: `-O2` rather than `-O1`. epiread and epiwrite
+#   are byte-identical at both, so those two files never discriminated the
+#   optimisation level and -O2 was borrowed from Jet Force Gemini's published
+#   Makefile. `pidma` (ROM 0x6FB90) settles it from Mickey's own bytes: 48
+#   instructions at -O2 -g3 -mips2, matching word for word, against 68 at
+#   -O1 -g3 -mips2 and 78 at -O0.
 #
 # What -g3 changes, structurally, confirmed in disassembly: without it IDO
 # hoists the third argument's spill (`sw a2,0x28(sp)`) into the first jal's
@@ -436,9 +450,9 @@ $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 # permission as reading its source (docs/CLEANROOM.md). The part of this that
 # is a fact about MICKEY is the part that was measured here.
 #
-# Scoped to the two TUs actually measured. The other fourteen libultra TUs
-# matched in Task 3 are still `asm`; each is a candidate for the same treatment
-# and none should be moved into this list without its own measurement.
+# Every TU in the list below was measured before it was added, one at a time.
+# The list is not "libultra's io/ and pfs/ trees"; it is the set that has been
+# measured, and nothing joins it on a neighbour's evidence.
 LIBULTRA_O2_G3_TUS := contpfs epidma epilinkhandle epirawdma epirawread \
                       epirawwrite epiread epiwrite pfsallocatefile pfschecker \
                       pfsfilestate pfsfreeblocks pfsgetstatus pfsinit \
@@ -476,6 +490,7 @@ $(TARGET).elf: $(O_FILES) $(LD_SCRIPT) | $(ALL_DIRS) $(SPLAT_STAMP)
 $(SPLAT_STAMP): $(BASENAME).$(VERSION).yaml symbol_addrs.$(VERSION).txt \
                 requirements.txt | $(ALL_DIRS) $(PYTHON)
 	$(PYTHON) -m splat split $(BASENAME).$(VERSION).yaml
+	@$(MAKE) --no-print-directory prune-asm
 	@touch $@
 
 $(TARGET).bin: $(TARGET).elf
@@ -500,6 +515,6 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract verify cleanroom audit-decoders overlay-tables check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract prune-asm verify cleanroom audit-decoders overlay-tables check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
