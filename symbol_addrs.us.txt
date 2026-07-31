@@ -268,3 +268,12 @@ runlinkIsModuleLoaded = 0x80032284; // type:func size:0x18
 runlinkCallResumeFunction = 0x8003229C; // type:func size:0x9C
 SetLinkSlot = 0x80033040; // type:func size:0x50
 ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98
+
+// ---------------------------------------------------------------------------
+// main/matrix  ROM 0x2b650-0x2bcd0 -- matrix and vector maths.
+//
+// No names claimed yet. The two functions whose arithmetic is fully understood
+// (0x8002AF6C, 0x8002B040) are parked non-matching -- see src/main/matrix.c --
+// and naming a symbol whose C is not in the ROM would put a second evidence
+// tier into this file, which is exactly what the libultra work avoided.
+// ---------------------------------------------------------------------------

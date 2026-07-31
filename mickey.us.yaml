@@ -123,7 +123,9 @@ segments:
       - [0x25C20, asm]
       - [0x27760, asm]
       - [0x2A250, asm]
-      - [0x2B650, asm]
+      # Matrix and vector maths -- six float-only functions, no rodata of their
+      # own, which is why this is the first non-linker game TU to be decompiled.
+      - [0x2B650, c, main/matrix]
       - [0x2BCD0, asm]
       - [0x2C8C0, asm]
       - [0x2F400, asm]
