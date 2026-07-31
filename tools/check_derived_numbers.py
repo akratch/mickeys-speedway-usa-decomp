@@ -302,13 +302,37 @@ if not hits:
 
 # --- 6. the mining pass's own bookkeeping -----------------------------------
 # Phase 2 Task 3 added 87 blocks to symbol_addrs.us.txt, each headed by a line
-# naming the subsegment it adopted, the ROM offset, and the reference build it
+# naming the subsegment it adopted, the ROM offset, and the reference object it
 # was cited from. Three things about that are pure arithmetic and one is a pure
 # cross-reference, so all four are done here rather than in a reviewer's head.
-# The review that produced this section found a header citing an object that
-# does not contain the symbol under it, and a per-title table transcribed from a
-# run log outside the tree; these checks catch the first class exactly and make
-# the second class recomputable.
+#
+# WHAT 6a DOES AND DOES NOT CATCH -- stated precisely, because an earlier
+# version of this comment claimed more than the code delivers and a reviewer
+# drove the difference.
+#
+# The review that produced this section found two defects: a header citing an
+# object that does not contain the symbol beneath it, and a per-title table
+# transcribed from a run log outside the tree. The second is made recomputable
+# below. The FIRST IS NOT CHECKED HERE and cannot be:
+#
+#   * 6a compares the header's SUBSEGMENT NAME and ROM OFFSET against
+#     mickey.us.yaml. It catches a header that adopts a subsegment the yaml does
+#     not have at that offset, or has under a different name -- the two files
+#     drifting apart, which is the failure mode a future edit to either one is
+#     most likely to cause.
+#   * It does NOT look at the cited object at all. Reinstating the exact bad
+#     citation the review found (`epiread.c.o` for `osEPiWriteIo`, an object
+#     that does not contain that symbol) passes this script cleanly. Verified,
+#     not assumed.
+#
+# Checking a citation against its object would mean reading the reference
+# builds, and those live outside this repository by design -- see the opening
+# section of docs/references.md, which says the same thing about the farm as a
+# whole: the commits, checksums, outcomes and object counts on that page are
+# transcribed and cannot be re-derived from this tree. A citation is in the same
+# category. It is verifiable only by re-running the mining pass against the
+# farm, and the honest place to record that is here, next to the check that
+# does not do it.
 
 TU_HDR = re.compile(
     r"^// (\S+)  ROM (0x[0-9a-f]+)  \((\w+)/\w+: (\S+)\)  whole \.text ")
@@ -336,7 +360,9 @@ for i, line in enumerate(read("symbol_addrs.us.txt"), 1):
         block = None
 
 if tu_blocks:
-    # 6a. every header must name a real, identically-named yaml subsegment.
+    # 6a. every header must name a real, identically-named yaml subsegment at
+    # the offset it claims. Scope is the header-vs-yaml agreement only; the
+    # cited object is not read (see the note above).
     for subseg, rom, _title, _corr, _n, lineno_ in tu_blocks:
         checked += 1
         if subsegs and dict(subsegs).get(rom) != subseg:
