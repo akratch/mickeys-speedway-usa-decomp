@@ -24,7 +24,7 @@ a long history cheap: a file that never changed is one blob no matter how
 many commits it appears in.  Path work is deduplicated by `path`.
 
 Every threshold below is measured, not guessed.  The numbers quoted in the
-comments are the worst case over *all 224 blobs in this repository's
+comments are the worst case over *all 229 blobs in this repository's
 history* versus the two workbench ledgers that had to be purged from it --
 the incident this whole file exists to prevent from recurring.  Those
 ledgers are the calibration set for "must fail"; the history is the
@@ -134,25 +134,30 @@ WORD_ARRAY_LIMIT = 16  # tokens appearing inside such runs
 #    limit is what bought the headroom back, and it is the honest fix: the
 #    number was wrong, not the threshold.
 #
-#    A second false-decode source turned up in the same measurement and is
-#    fixed in _words_from_hex: `_`-stripping treated `D_80081898` and
-#    `func_10003920` -- symbol names, which decomp source and documentation
-#    are made of -- as digit-grouped literals.
+#    Two further defects of the same kind were found the same way -- by asking
+#    where a file's words came from, not by adjusting a limit:
+#      - `_`-stripping treated `D_80081898` and `func_10003920`, which are
+#        SYMBOL NAMES, as digit-grouped literals (see _words_from_hex);
+#      - 16-bit halves were paired at ANY distance, fusing a value on line 18
+#        with one on line 234 into a word that exists nowhere.  That alone
+#        accounted for 7 of the 13 distinct high bytes in docs/modules.md and
+#        9 of symbol_addrs.us.txt's 13 (see HALF_PAIR_GAP).
 #
-#    Measured after both fixes, over all 224 blobs in this repository's
+#    Measured after all of them, over all 229 blobs in this repository's
 #    history.  The protecting gate is named, because for every file in this
 #    tree it is `spread` -- addresses cluster, and volume alone was never the
 #    signal:
-#      docs/modules.md       106 words, spread 13 -- 2.46x under spread
-#      symbol_addrs.us.txt   448 words, spread 13 -- 2.46x under spread, and
+#      docs/modules.md        95 words, spread  5 -- 6.40x under spread
+#      symbol_addrs.us.txt   434 words, spread  4 -- 8.00x under spread, and
 #                            note it is already 2.3x OVER the count limit;
-#                            431 of those words share the high byte 0x80,
+#                            430 of those words share the high byte 0x80,
 #                            which is the whole reason the rule is a pair
-#      src/main/runlink.c     47 words, spread  4 -- 8.0x under spread
-#      the two manifests      17 and 12 words after their schema-validated
+#      src/main/runlink.c     43 words, spread  4 -- 8.00x under spread
+#      the two manifests       8 words each after their schema-validated
 #                            digests are accounted for
-#    Tightest margin anywhere in history: 2.46x.  Nothing in history fires.
-#    The fixture families (400 real ROM words each) land at 343-1146 words and
+#    Tightest margin anywhere in history: 6.40x, up from 2.46x before the
+#    halves fix and 1.19x before any of this.  Nothing in history fires.
+#    The fixture families (400 real ROM words each) land at 342-1146 words and
 #    spread 40-167.
 #
 #    Per-context thresholds were considered and NOT adopted.  They would have
@@ -196,7 +201,7 @@ DIGEST_EXEMPTION = 64
 #    opcode, so spread saturates near 20 for a small sample -- which is why the
 #    spread floor here is much lower than the per-file rule's, and why density
 #    has to carry the other half.
-#    Measured: every one of the 224 blobs in history contributes 0, and the
+#    Measured: every one of the 229 blobs in history contributes 0, and the
 #    whole worktree contributes 0.  The pass side is not close to the line; it
 #    is not on the board.
 #
@@ -258,7 +263,7 @@ BINARY_ALLOWLIST: "set[str]" = set()
 # Rules for using it: name the exact path and the exact detector, never a
 # pattern; write the reason as the value; and prefer fixing the detector, since
 # every entry here is a permanent hole.  Empty today, and that is the goal --
-# the tightest margin in this repository's whole history is 2.46x, so nothing
+# the tightest margin in this repository's whole history is 6.40x, so nothing
 # needs one.  If this set is not empty, the count belongs in the report.
 CONTENT_EXEMPTIONS: "dict[tuple[str, str], str]" = {}
 
@@ -358,7 +363,18 @@ PURE_HEX_LINE = re.compile(r"^[0-9a-fA-F]+$")
 # caught.  Separate classes, and a per-line floor low enough that a narrow wrap
 # has nowhere to sit.
 PURE_B64_LINE = re.compile(r"^[A-Za-z0-9+/=_-]+$")
-PURE_B64_LINE_MIN = 16
+# Measured: at 16 this joined nothing narrower, so wraps of 4-15 columns were
+# not caught at all while 16+ were -- a capability the docs described without
+# the qualifier.  Lowering it to 4 catches every wrap width from 4 to 32 and
+# costs nothing measurable: over all tracked files and all 228 blobs in
+# history the tightest margin is identical at either setting and nothing new
+# fires.  The alphabet-share gate in _decode_base_n is what keeps a joined
+# block of ordinary short lines from decoding, so the per-line floor never had
+# to carry that load.
+PURE_B64_LINE_MIN = 4
+#: How far apart two 16-bit halves may sit and still be read as one word.
+#: `27bd ffc0` is 1, `27bd, ffc0` is 2, a column wrap is 1 (the newline).
+HALF_PAIR_GAP = 3
 PURE_BASE_LINE = re.compile(r"^[!-u]+$")
 PURE_BASE_LINE_MIN = 32
 BASE_RUN = re.compile(r"[A-Za-z0-9+/=_-]{40,}")
@@ -481,23 +497,47 @@ def _words_from_hex(run, out, halves):
                 out.append(int(tail[i : i + 8], 16))
     elif len(run) == 4:
         halves.append(int(run, 16))
+        return True
+    return False
+
+
+# Remainders that carry no decodable data, per encoding group size.  A base64
+# run whose length is 1 mod 4 is undecodable -- one leftover character encodes
+# 6 bits, and no byte boundary lands there -- and the decoder used to raise,
+# get swallowed by `except Exception`, and fall through to the next encoding
+# until the run vanished unexamined.  A ROM blob truncated, mis-sliced, or
+# simply wrapped so the final fragment lands on that remainder therefore
+# scored zero, and nothing said so.  Trimming one trailing character makes
+# every bad remainder good (b64 1->0; b32 1->0, 3->2, 6->5; a85 1->0), which
+# recovers the whole payload bar at most one byte.  Prefer that to counting the
+# run as suspicious: the point is to MEASURE the content, and a run this shape
+# is overwhelmingly a truncated blob rather than a signal in itself.
+_BAD_REMAINDERS = {4: {1}, 8: {1, 3, 6}, 5: {1}}
+
+
+def _trim_to_decodable(body, group):
+    """Drop the trailing character that makes ``body`` undecodable, if any."""
+    if group and len(body) % group in _BAD_REMAINDERS.get(group, ()):
+        return body[:-1]
+    return body
 
 
 def _decode_base_n(run, out):
     if len(run) < 40:
         return
     upper, lower, digit = _shares(run)
-    body = run.rstrip("=")
-    for decoder, pad, ok in (
-        (base64.b64decode, 4, upper >= B64_MIN_UPPER and lower >= B64_MIN_LOWER and digit >= B64_MIN_DIGIT),
-        (base64.urlsafe_b64decode, 4, upper >= B64_MIN_UPPER and lower >= B64_MIN_LOWER and digit >= B64_MIN_DIGIT),
-        (base64.b32decode, 8, upper >= B32_MIN_UPPER and digit >= B32_MIN_DIGIT),
-        (base64.a85decode, 0, upper >= A85_MIN_UPPER and lower >= A85_MIN_LOWER and digit >= A85_MIN_DIGIT),
+    stripped = run.rstrip("=")
+    for decoder, pad, group, ok in (
+        (base64.b64decode, 4, 4, upper >= B64_MIN_UPPER and lower >= B64_MIN_LOWER and digit >= B64_MIN_DIGIT),
+        (base64.urlsafe_b64decode, 4, 4, upper >= B64_MIN_UPPER and lower >= B64_MIN_LOWER and digit >= B64_MIN_DIGIT),
+        (base64.b32decode, 8, 8, upper >= B32_MIN_UPPER and digit >= B32_MIN_DIGIT),
+        (base64.a85decode, 0, 5, upper >= A85_MIN_UPPER and lower >= A85_MIN_LOWER and digit >= A85_MIN_DIGIT),
     ):
         if not ok:
             continue
+        body = _trim_to_decodable(stripped, group)
         try:
-            raw = decoder(body + "=" * (-len(body) % pad) if pad else run)
+            raw = decoder(body + "=" * (-len(body) % pad) if pad else body)
         except Exception:
             continue
         if raw and len(raw) >= 16:
@@ -514,17 +554,33 @@ def normalize_words(text):
     base32 / ascii85 -- including blobs split across lines.
     """
     out = []
-    halves = []
 
-    digests = []
+    # Digest exemption, graduated rather than all-or-nothing.
+    #
+    # This used to be `if 0 < len(digests) <= DIGEST_EXEMPTION: exempt them
+    # all`, which is a cliff: a file recording 64 hashes was fully exempt and
+    # the same file recording 65 was fully exempt of nothing, every digest
+    # counting at once -- 65 SHA-256s is 520 uniformly-distributed words, an
+    # instant false positive on a documentation file whose only sin was
+    # growing.  The exemption is load-bearing (it is worth 5 distinct high
+    # bytes on docs/modules.md alone), so the discontinuity sat directly under
+    # the tightest margin in the tree.
+    #
+    # Now the first DIGEST_EXEMPTION distinct inline digests are exempt and any
+    # beyond that count.  Crossing the cap costs 8 words, not 520, and the
+    # capacity bound the cap exists to enforce is unchanged.
+    exempt = {}
     for line in text.split("\n"):
         stripped = line.strip()
         for match in DIGEST_TOKEN.finditer(line):
-            if match.group(0) != stripped:
-                digests.append(match.group(0))
-    if 0 < len(digests) <= DIGEST_EXEMPTION:
-        for digest in set(digests):
-            text = text.replace(digest, " " * len(digest))
+            token = match.group(0)
+            if token == stripped:
+                continue  # alone on its line, repeatedly, is a dump
+            if token not in exempt and len(exempt) >= DIGEST_EXEMPTION:
+                continue
+            exempt[token] = True
+    for digest in exempt:
+        text = text.replace(digest, " " * len(digest))
 
     lines = text.split("\n")
 
@@ -542,7 +598,7 @@ def normalize_words(text):
                     break
                 block.append(candidate)
                 end += 1
-            _words_from_hex("".join(block), out, halves)
+            _words_from_hex("".join(block), out, [])
             index = end
             continue
         matched = False
@@ -568,10 +624,37 @@ def normalize_words(text):
         if not matched:
             index += 1
 
+    # 16-bit halves, recombined -- but only where they are ADJACENT.
+    #
+    # This used to collect every 4-digit hex run in the document into one list
+    # and pair them up in order, so a value on line 18 was fused with a value
+    # on line 234 into a 32-bit "machine word" that exists nowhere.  Being
+    # built from two unrelated numbers, its high byte is arbitrary, and
+    # `spread` is the metric protecting every file in this tree: 7 of the 13
+    # distinct high bytes in docs/modules.md came from exactly this, pairing
+    # table cells hundreds of lines apart.  Same class of defect as the base64
+    # false decodes -- the detector inventing data and then measuring it.
+    #
+    # A real halves-encoded dump writes its halves next to each other:
+    # `27bd ffc0`, `27bd,ffc0`, or one per line in a column.  So pair only
+    # across a gap of at most HALF_PAIR_GAP characters containing no
+    # alphanumerics.  A newline is one character, so column-wrapped dumps still
+    # pair; `\`0xC9B4\`, \`0xF520\`` in a markdown table is a four-character
+    # gap and no longer does.
+    runs = []
     for match in HEX_RUN_ANY.finditer(text):
-        _words_from_hex(match.group(0), out, halves)
-    for i in range(0, len(halves) - 1, 2):
-        out.append((halves[i] << 16) | halves[i + 1])
+        pending = []
+        if _words_from_hex(match.group(0), out, pending):
+            runs.append((match.start(), match.end(), pending[0]))
+    index = 0
+    while index < len(runs) - 1:
+        (_, end, high), (start, _, low) = runs[index], runs[index + 1]
+        gap = text[end:start]
+        if len(gap) <= HALF_PAIR_GAP and not any(c.isalnum() for c in gap):
+            out.append((high << 16) | low)
+            index += 2
+        else:
+            index += 1
 
     for match in DEC_TOKEN.finditer(text):
         value = int(match.group(1))

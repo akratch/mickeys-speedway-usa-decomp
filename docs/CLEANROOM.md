@@ -79,9 +79,17 @@ bytes.
 - machine words in prose, in hex ranges, as **hex** 16-bit halves [385/58], as
   dotted quads [400/40], in octal [1040/75], in decimal [985/97]
 - escaped byte strings (`"\x27\xbd..."`) [400/40]
-- base64 [404/43], base64url [390/118], base32 [426/58] and ascii85 [343/167],
-  **including line-wrapped at 20, 31, 64 and 76 columns** [403/42, 404/42,
-  692/43, 669/103] and split across several files
+- base64 [400/40], base64url [386/117], base32 [415/50] and ascii85 [342/167],
+  **line-wrapped at any width** — every column from 4 to 32 was measured and
+  every one is caught [400/40 at widths 4–31], as are 64 and 76 [688/40,
+  666/99] — and split across several files. An earlier version of this list
+  said "20, 31, 64 and 76 columns", which was true but unrepresentative: the
+  block-join carried a 16-character per-line floor, so widths of 4–15 were not
+  caught at all. The floor is now 4, measured to cost nothing.
+- runs whose length is **undecodable for their encoding** — base64 at 1 mod 4,
+  base32 at 1/3/6 mod 8, ascii85 at 1 mod 5 [399/40, 413/50, 399/40]. These
+  used to raise inside the decoder, get swallowed, and vanish unexamined; a
+  base32 blob in that shape scored 26 words
 - JSON ledgers of any of the above, single-line or pretty-printed [436/41]
 - the two workbench ledgers that caused the original incident [5593/201 and
   263/47]
@@ -113,12 +121,23 @@ current detectors.
   also implied the aggregate budget covered thin multi-file spreads, which it
   does only for dense files.
 - **Decimal 16-bit halves.** Hex halves are recombined into words; the same
-  split written in decimal is not, and a 400-word fixture scores 73.
-- **Digest-shaped strings.** Up to 64 standalone 32/40/64/128-character hex
+  split written in decimal is not, and a 400-word fixture scores 22. Hex
+  halves are also only recombined when **adjacent** — separated by at most
+  three non-alphanumeric characters — so halves deliberately scattered far
+  apart are not paired either. Pairing at any distance was tried and is what
+  the previous round shipped; it fabricated words out of unrelated numbers and
+  cost more in false positives than it ever bought (see below).
+- **Digest-shaped strings.** The first 64 distinct 32/40/64/128-character hex
   tokens per file are exempt where they appear inline beside other content,
   because this tree legitimately records hashes and a SHA-256 is
-  indistinguishable from ROM data by any content metric. Deliberately abused
-  that is roughly 2 KB of ROM per file.
+  indistinguishable from ROM data by any content metric. Tokens past the 64th
+  count normally, so the exemption is a slope rather than a cliff: measured, a
+  file of digest-shaped ROM passes at 64 and 65 tokens and is caught at 100.
+  **Deliberately abused that is roughly 3.2 KB of ROM per file**, up from the
+  2 KB claimed before. The widening is deliberate and is the price of removing
+  a discontinuity that made a documentation file recording a 65th hash score
+  520 words — a false positive on legitimate growth, sitting directly under
+  the tightest margin in the tree.
 - **Deliberate steganography.** Any encoding the normalizer does not
   implement, data hidden in whitespace or in the low bits of otherwise
   plausible numbers, or content split below every threshold on purpose.
@@ -191,18 +210,29 @@ func_80031A30.s")` paths, and decoded garbage is uniformly distributed, so it
 inflated `spread` fastest. Fixing the decoder took the file to 83 words /
 spread 6, and a further fix below took it to 47 words / spread 4.
 
-A second decoder defect turned up in the same measurement and is fixed too:
-`_`-stripping treated `D_80081898` and `func_10003920` — symbol names, which
-decomp source and documentation are made of — as digit-grouped literals, and
-the fabricated word (`0xd8008189`) landed on a high byte nothing else in the
-file used. A steady drip of noise into exactly the metric that protects every
-file here.
+Two more defects of the same kind were found the same way — by asking where a
+file's words actually came from, rather than by adjusting a limit:
 
-The tightest margin over all 224 blobs in this repository's history is now
-**2.46×** (`docs/modules.md` and `symbol_addrs.us.txt`, spread 13 against a
-limit of 32). Both are protected by spread, not by count —
-`symbol_addrs.us.txt` already carries 448 words against a 192 limit, and 431 of
-them share the high byte `0x80`, which is the whole reason the rule is a pair.
+- `_`-stripping treated `D_80081898` and `func_10003920` — symbol names, which
+  decomp source and documentation are made of — as digit-grouped literals, and
+  the fabricated word (`0xd8008189`) landed on a high byte nothing else in the
+  file used.
+- **16-bit halves were paired at any distance.** Every 4-digit hex run in a
+  document went into one list and was paired in order, so a value on line 18
+  was fused with a value on line 234 into a 32-bit "word" that exists nowhere.
+  Being built from two unrelated numbers its high byte is arbitrary, and it was
+  responsible for **7 of the 13 distinct high bytes in `docs/modules.md`** and
+  for 9 of `symbol_addrs.us.txt`'s 13. Halves now pair only when adjacent.
+
+Each of these was a steady drip of noise into `spread` — the metric protecting
+every file here.
+
+The tightest margin over all 229 blobs in this repository's history is now
+**6.40×** (`docs/modules.md`, spread 5 against a limit of 32), up from 2.46×
+before the halves fix and 1.19× before the decoder work began.
+`symbol_addrs.us.txt` sits at 8.00×, and it is protected by spread rather than
+count — it already carries 434 words against a 192 limit, and 430 of them share
+the high byte `0x80`, which is the whole reason the rule is a pair.
 **Watch this number as the tree grows**: it is the one that says whether the
 gate is still a safety net or is about to become an obstacle. If a gate
 does fire on work you believe is legitimate, the answer is
