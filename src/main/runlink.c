@@ -17,6 +17,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os.h"
 #include "game/runlink.h"
 
 extern RomTableEntry *D_800D2D98;  /* the overlay ROM table */
@@ -88,7 +89,43 @@ void *ResolveRelocAddress(s32 ortIndex, s32 otIndex, RelocationEntry *relocEntry
             return NULL;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80031978.s")
+/*
+ * Write a resolved address into the instruction that referenced it, then make
+ * the change visible to the CPU's instruction fetch.
+ *
+ * JFG calls this PatchInstruction; same three arguments, same four patch
+ * operations with the same numbering, same pair of cache calls at the end.
+ */
+void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
+    u32 word;
+    u32 patched;
+
+    switch (patchOp) {
+        case PATCH_OP_WORD:
+            instr->word = address;
+            break;
+
+        case PATCH_OP_JUMP:
+            word = instr->word;
+            patched = ((address >> 2) & 0x3FFFFFF) ^ word;
+            instr->word = ((patched << 6) >> 6) ^ word;
+            break;
+
+        case PATCH_OP_HI16:
+            patched = address >> 16;
+            if (address & 0x8000) {
+                patched = (address >> 16) + 1;
+            }
+            instr->i.immediate = patched;
+            break;
+
+        case PATCH_OP_LO16:
+            instr->i.immediate = address;
+            break;
+    }
+    osWritebackDCache(instr, sizeof(MipsInstruction));
+    osInvalICache(instr, sizeof(MipsInstruction));
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80031A30.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80031C78.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_800320F0.s")

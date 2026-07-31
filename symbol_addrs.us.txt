@@ -263,3 +263,4 @@ ldiv = 0x80076080; // type:func size:0x84
 // in src/main/runlink.c. Anything weaker keeps its func_ address name.
 // ---------------------------------------------------------------------------
 ResolveRelocAddress = 0x800317F0; // type:func size:0x188
+PatchInstruction = 0x80031978; // type:func size:0xB8

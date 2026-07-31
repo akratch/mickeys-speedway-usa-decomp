@@ -74,6 +74,33 @@ typedef struct RelocationEntry {
     } u;
 } RelocationEntry; /* sizeof == 0x8 */
 
+/*
+ * One MIPS instruction word, as the linker patches it.
+ *
+ * Field evidence -- PatchInstruction writes the whole word with `sw` at
+ * offset 0 (ROM 0x325C0, 0x325E8) for the 32-bit and jump-target cases, and
+ * writes a halfword with `sh` at offset 2 (ROM 0x325B0, 0x32600, 0x32604) for
+ * the HI16/LO16 cases. Offset 2 is the low half of a big-endian word, i.e. an
+ * I-type instruction's immediate field, which is exactly what HI16/LO16 patch.
+ */
+typedef union MipsInstruction {
+    /* 0x00 */ u32 word;
+    /* 0x00 */ struct {
+        /* 0x00 */ u16 upper;     /* opcode and register fields */
+        /* 0x02 */ u16 immediate; /* the I-type immediate HI16/LO16 patch */
+    } i;
+} MipsInstruction; /* sizeof == 0x4 */
+
+/*
+ * Patch operations -- PatchInstruction's third argument. Note these are NOT
+ * the RELOC_OP_* values above: the caller derives them separately, and 2/4/5/6
+ * here versus 0/1/2 there is not an off-by-one. Same numbering as JFG's.
+ */
+#define PATCH_OP_WORD 2 /* store the resolved address as a whole word */
+#define PATCH_OP_JUMP 4 /* rewrite a j/jal target, preserving the opcode */
+#define PATCH_OP_HI16 5 /* upper half, carrying LO16's sign extension */
+#define PATCH_OP_LO16 6 /* lower half */
+
 /* Linkage operations -- the low nibble of RelocationEntry::u.info. */
 #define RELOC_OP_SYMBOL 0 /* absolute reference to a symbol in some overlay */
 #define RELOC_OP_LOCAL  1 /* offset relative to this overlay's own base */

@@ -50,20 +50,28 @@ if [ -z "${vram:-}" ]; then echo "$0: '$sym' not found in build/mickey.us.elf" >
 
 if [ "$mode" = rom ]; then
     rom=$(( vram - 0x7FFFF400 ))
+    # The candidate's size comes from the ELF, but the *target's* must not:
+    # if the candidate is the wrong length, using its size for both sides
+    # truncates or overruns the target and the comparison silently answers a
+    # different question. symbol_addrs.us.txt carries the ROM's real size, so
+    # prefer it and fall back to the ELF only for symbols that lack one.
+    tsize=$(sed -n "s/^$sym *= *0x[0-9A-Fa-f]* *;.*size:0x\([0-9A-Fa-f]*\).*/\1/p" \
+            symbol_addrs.us.txt | head -1)
+    if [ -n "$tsize" ]; then tsize=$(( 0x$tsize )); else tsize=$size; fi
     # `set --` here would eat the caller's extra workbench arguments, so the
     # two dumps are written by name rather than by looping over pairs.
     dump() {
         "$OBJDUMP" -D -b binary -m mips:4300 -EB \
             --adjust-vma=$(( vram - rom )) \
             --start-address=$(printf 0x%x $vram) \
-            --stop-address=$(printf 0x%x $(( vram + size ))) \
+            --stop-address=$(printf 0x%x $(( vram + $3 ))) \
             "$1" > "$2"
     }
     # --start/--stop-address are read in the *adjusted* space, so they are VRAM
     # addresses here, not ROM offsets. Passing ROM offsets silently produces an
     # empty dump, which the workbench then rejects for having no instructions.
-    dump baseroms/mickey.us.z64 "$OUT/$sym.target.objdump"
-    dump build/mickey.us.z64    "$OUT/$sym.candidate.objdump"
+    dump baseroms/mickey.us.z64 "$OUT/$sym.target.objdump"    $tsize
+    dump build/mickey.us.z64    "$OUT/$sym.candidate.objdump" $size
     exec "$WB" compare-dumps "$OUT/$sym.target.objdump" "$OUT/$sym.candidate.objdump" "$@"
 fi
 
