@@ -19,16 +19,43 @@ with point-of-use `PROVENANCE` disclosure — for adapted bodies. Nothing else i
 ## What can and cannot be re-checked from this repository
 
 **Read this before quoting any number below.** The repo URLs, pinned commits,
-baserom checksums, build outcomes and object counts on this page are
-**transcribed from an out-of-tree build farm** at `~/Desktop/dev/decomp-refs/`.
-Nothing in this tree can re-derive them. A reader who wants to verify that
-`493ced90…` really is JFG's US baserom, or that its build really was
-byte-perfect, has to rebuild the farm — and 190 of this tree's tier-A names
-rest on that farm having been what this page says it was.
+baserom checksums, build outcomes and object counts on this page describe an
+out-of-tree build farm at `~/Desktop/dev/decomp-refs/`. No byte of it is in
+this repository and none ever will be; `docs/CLEANROOM.md` requires that.
 
-That is the price of keeping reference material outside the repository, which
-`docs/CLEANROOM.md` requires, and it is stated plainly rather than left to be
-noticed. It is also why the yield columns are split below: the *adoption* and
+What is committed instead is the recipe and the checksums:
+
+- **`tools/reference-builds.lock`** pins, per title, the repo URL, the commit,
+  the baserom SHA1, the build outcome, the object count, and one aggregate
+  digest over the objects that were mined.
+- **`gmake reference-builds`** rebuilds the farm from those pins — clone at the
+  pinned commit, stage the baserom out of your own ROM archive and check it
+  against the locked SHA1 before using it, apply the macOS fixes each build
+  needs, build.
+- **`gmake check-reference-builds`** re-derives each title's digest from a farm
+  on this machine and compares it to the lock. A farm that matches is the farm
+  the 190 tier-A names were mined from. One that does not is a different farm,
+  and this page's yield columns do not describe it.
+
+The digest covers what the mining pass reads out of each object, not the object
+file, because the object files are *not* byte-reproducible — see *Rebuilding
+the farm* at the end of this page for the measurement and what follows from it.
+
+Neither target can run in CI, for the reason `verify` and `check-fixtures`
+cannot: they need retail ROMs, which this project does not ship and never will.
+They are run on a machine that has a farm, and they are the only thing that
+makes the pins above more than a transcription.
+
+Three things on this page are still not checkable that way, and are labelled
+where they appear: the **re-confirmation** column, which comes from the mining
+run's logs and from nothing else; **Perfect Dark's baserom**, which upstream
+publishes as an MD5 with no SHA1, so the check against upstream is an MD5 check
+(the lock carries both); and, for the two titles that did not build to a
+byte-perfect ROM, **whether the objects they did produce are all the objects a
+complete build would have produced** — the digest proves a rebuild agrees with
+this pass, not that this pass was complete.
+
+The same distinction runs through the yield columns below: the *adoption* and
 *corroboration* figures ARE recomputable from `symbol_addrs.us.txt` and
 `mickey.us.yaml`, and `tools/check_derived_numbers.py` recomputes them on every
 `gmake check-docs`. The *re-confirmation* figures are not, and are labelled.
@@ -217,7 +244,43 @@ tools/find_known_objects.py <ref-build-dir> --start 0x1000 --end 0x86640 \
 "libultra only" means building a filtered tree of symlinks outside the repo
 first — noted in `docs/workbench-improvement-log.md` as friction worth fixing.
 
-The exact commands that produced each farm build, and the per-title toolchain
-surgery each one needed on macOS, are not reproduced here: they are properties
-of those projects and this environment, not of Mickey, and they live with the
-farm.
+## Rebuilding the farm
+
+```sh
+gmake reference-builds                      # all four, from the locked pins
+gmake reference-builds REFS_ARGS=jfg        # one title
+gmake check-reference-builds                # compare a farm to the lock
+```
+
+`tools/setup_reference_builds.sh` carries the per-title toolchain surgery each
+of these builds needed on macOS, with the reason for each in a comment: Apple's
+standalone `cpp`, which fails on `-o` and fails *silently* when piped into the
+assembler; the Linux-only IDO binaries every one of these repos ships or builds,
+replaced by decompals' macOS build of the same release, checksummed on download
+because a truncated copy of that exact tarball once produced a `cc` that was the
+right size and died on every invocation; Perfect Dark's `armips` and its
+committed Linux `gzip`; Banjo-Kazooie's missing `mips-linux-gnu-gcc` and its
+extraction/compile race under `-j`; the three assembler macros newer splat emits
+and older `macro.inc` files do not define. The baseroms come from your own
+archive and are checked against the lock's SHA1 before use.
+
+**The objects are not byte-reproducible, and the digest is not over the whole
+object.** IDO writes an `.mdebug` section into every object it compiles carrying
+the absolute source path, the build host's name and a build timestamp, so the
+same commit built in a different directory produces different object *files*.
+Measured, not assumed: a fresh clone of Jet Force Gemini at `c82affff`, built by
+this script into a scratch directory, rebuilt the ROM byte-for-byte identical to
+the baserom and produced the same 772 objects — of which **279 differed
+byte-wise** from the farm's, while all 772 had an identical `.text` and an
+identical set of `.text` symbols.
+
+So the digest covers each object's **mining surface** instead: the bytes of
+`.text`, and the name, value and size of every symbol in it. That is exactly and
+only what `tools/find_known_objects.py` compares against Mickey's ROM. It is
+stable across rebuilds — the same JFG rebuild reproduced the locked digest
+exactly — and it still moves if the compiler, the flags or the sources move. A
+farm that matches the lock is a farm that mines to the same names.
+
+`tools/reference_build_digest.py` computes it, in stdlib Python off the ELF
+section headers, so it runs wherever a farm is and does not need a MIPS
+cross-toolchain to check one.

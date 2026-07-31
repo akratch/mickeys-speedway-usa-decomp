@@ -10,6 +10,8 @@
 #   gmake hooks      point git at .githooks (clean-room commit/push gates)
 #   gmake cleanroom  clean-room sweep (CLEANROOM_ARGS=--staged, --range A..B)
 #   gmake audit-decoders  assert no clean-room decoder is inventing words
+#   gmake reference-builds        rebuild the out-of-tree reference decomp farm
+#   gmake check-reference-builds  prove that farm is the one the names came from
 #   gmake scoreboard        regenerate README.md's progress block from the tree
 #   gmake check-scoreboard  fail if that block has gone stale
 #   gmake clean      remove build/
@@ -249,6 +251,26 @@ audit-decoders:
 check-fixtures:
 	$(PYTHON) $(TOOLS_DIR)/false_negative_fixtures.py $(FIXTURE_ARGS)
 
+# The reference decompilations 190 of this tree's tier-A names were mined from.
+# `reference-builds` rebuilds that farm from the commits and baserom checksums
+# tools/reference-builds.lock pins; `check-reference-builds` proves a farm on
+# this machine is the one those names came from, by re-deriving each title's
+# aggregate digest and comparing it. Neither can run in CI: the farm needs
+# retail ROMs, which this project does not ship and never will, so this is the
+# same honest split as `verify` and `check-fixtures`.
+#
+#   gmake reference-builds REFS_ARGS=jfg     one title
+#   gmake reference-builds REFS_ARGS="--root DIR --jobs 8"
+#
+# Reference material stays out of the tree (docs/CLEANROOM.md); what is
+# committed is the recipe, the pins and the digests. docs/references.md says
+# what each build yielded and what remains uncheckable.
+reference-builds:
+	bash $(TOOLS_DIR)/setup_reference_builds.sh $(REFS_ARGS)
+
+check-reference-builds:
+	bash $(TOOLS_DIR)/verify_reference_builds.sh $(REFS_ARGS)
+
 # Re-derives the arithmetic the docs claim -- VRAM/ROM conversions, segment
 # size subtractions, the MiB column of the top-level map, the jump-table count
 # -- and fails on a mismatch. A count audit found several of these stale at
@@ -460,6 +482,6 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract verify cleanroom audit-decoders check-fixtures check-docs progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract verify cleanroom audit-decoders check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail

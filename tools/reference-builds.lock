@@ -1,0 +1,79 @@
+# Reference build lock.
+#
+# The tier-A names in this tree were mined from the built objects of four other
+# Rare decompilations (docs/references.md).  None of that material is in this
+# repository and none of it ever will be; what is recorded here is the recipe
+# and the checksums, so a farm rebuilt from scratch can be proved to be the one
+# those names came from.
+#
+#   tools/setup_reference_builds.sh    build the farm from these pins
+#   tools/verify_reference_builds.sh   check a farm against these digests
+#
+# `digest` is one aggregate sha256 per title, taken over the sorted
+# "<path relative to the checkout> <sha256>" line for every *.o under
+# `object_roots`.  One digest per title, not per object: a file of six thousand
+# hashes would be both unreadable and indistinguishable from a data dump.
+#
+# The per-object hash covers the object's *mining surface* -- the bytes of
+# `.text` and the name, value and size of every symbol in it -- and not the
+# whole file.  It has to: IDO writes an `.mdebug` section carrying the absolute
+# source path, the build host's name and a build timestamp, so an honest
+# rebuild in a different directory produces different object files and a
+# byte-identical ROM.  The mining surface is exactly what
+# tools/find_known_objects.py reads, and it is reproducible -- measured, see
+# docs/references.md.  tools/reference_build_digest.py computes it.
+#
+# `outcome` is what the build actually achieved, not what was hoped for:
+#   full     ROM rebuilt byte-identical to the baserom
+#   nearfull ROM links and builds; some compressed asset bytes differ
+#   partial  every source file compiles; the final link does not complete
+# Mining compares whole `.text` sections and never links, so `partial` objects
+# are as usable as `full` ones -- see docs/references.md.
+
+[jfg]
+name         = Jet Force Gemini
+repo         = https://github.com/Ryan-Myers/Jet-Force-Gemini
+commit       = c82affffe8f11cb5b440cfa918f4582ad8573279
+baserom      = Jet Force Gemini (USA).z64
+baserom_sha1 = 493ced9008dbe932d6e91179b68e8630cf23a023
+outcome      = full
+objects      = 772
+object_roots = build
+digest       = 8c4036b7e2404e989e010ba899331a1dfe972b0d570e8c9535d7fde53788585d
+
+[perfect_dark]
+name         = Perfect Dark
+repo         = https://github.com/n64decomp/perfect_dark
+commit       = 169ed48bdcbfb3b568b028bd5bebb27680073514
+# Upstream publishes an MD5 for this ROM and no SHA1, so the MD5 is what
+# checks it against upstream; the SHA1 is measured here so a later run can
+# compare against this pass rather than re-deriving trust.
+baserom      = Perfect Dark (USA) (Rev 1).z64
+baserom_md5  = e03b088b6ac9e0080440efed07c1e40f
+baserom_sha1 = af8788ac4d1a57260eae9c53ffe851fcf2a3319b
+outcome      = nearfull
+objects      = 2546
+object_roots = build/ntsc-final
+digest       = 7314cac7eb7e75186963df28d7e3aecd7df95ebf837f5eb05381b1c246b3ca22
+
+[banjo-kazooie]
+name         = Banjo-Kazooie
+repo         = https://github.com/n64decomp/banjo-kazooie
+commit       = 6eaae281481c9e4b367dc161faabfc3c79fe8733
+baserom      = Banjo-Kazooie (USA).z64
+baserom_sha1 = 1fe1632098865f639e22c11b9a81ee8f29c75d7a
+outcome      = full
+objects      = 1232
+object_roots = build/us.v10 lib/ultralib/build
+digest       = da2fb7fe970a1627cc6059d1eff3f22a51b3142e585b619a6ac440da67f98e89
+
+[conker]
+name         = Conker's Bad Fur Day
+repo         = https://github.com/mkst/conker
+commit       = 3adf229175c037c771f251f169f9dd80ca306924
+baserom      = Conker's Bad Fur Day (USA).z64
+baserom_sha1 = 4cbadd3c4e0729dec46af64ad018050eada4f47a
+outcome      = partial
+objects      = 1446
+object_roots = conker/build
+digest       = 1a49d7ddc080789752d493f447ab300c7d12c55e77005b41f751a08ee4f61bc6

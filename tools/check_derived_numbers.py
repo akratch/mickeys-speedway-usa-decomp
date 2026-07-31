@@ -326,13 +326,13 @@ if not hits:
 #     not assumed.
 #
 # Checking a citation against its object would mean reading the reference
-# builds, and those live outside this repository by design -- see the opening
-# section of docs/references.md, which says the same thing about the farm as a
-# whole: the commits, checksums, outcomes and object counts on that page are
-# transcribed and cannot be re-derived from this tree. A citation is in the same
-# category. It is verifiable only by re-running the mining pass against the
-# farm, and the honest place to record that is here, next to the check that
-# does not do it.
+# builds, and those live outside this repository by design. The pins around
+# them are checkable: tools/reference-builds.lock records each title's commit,
+# baserom checksum and object digest, tools/verify_reference_builds.sh proves a
+# local farm is the one those names were mined from, and check 7 below proves
+# docs/references.md quotes the same pins. The citation itself is not. It is
+# verifiable only by re-running the mining pass against a farm, and the honest
+# place to record that is here, next to the check that does not do it.
 
 TU_HDR = re.compile(
     r"^// (\S+)  ROM (0x[0-9a-f]+)  \((\w+)/\w+: (\S+)\)  whole \.text ")
@@ -535,6 +535,70 @@ if tu_blocks:
 else:
     problems.append("symbol_addrs.us.txt: no mining-pass TU block headers found "
                     "-- section 6 of this script is checking nothing")
+
+
+# --- 7. docs/references.md against tools/reference-builds.lock ---------------
+#
+# The lock is the machine-readable copy of the same four pins docs/references.md
+# publishes in prose, and tools/verify_reference_builds.sh checks a farm against
+# the lock. That leaves exactly one gap: prose and lock disagreeing, which would
+# make a green farm check vouch for numbers the page does not actually quote.
+# Cheap to close, so it is closed here.
+
+LOCK_SECTION = re.compile(r"^\[(.+)\]$")
+LOCK_FIELD = re.compile(r"^(\w+)\s*=\s*(.*)$")
+
+lock = {}
+section = None
+for line in read("tools/reference-builds.lock"):
+    line = line.rstrip("\n")
+    if line.startswith("#"):
+        continue
+    m = LOCK_SECTION.match(line)
+    if m:
+        section = {}
+        lock[m.group(1)] = section
+        continue
+    m = LOCK_FIELD.match(line)
+    if m and section is not None:
+        section[m.group(1)] = m.group(2).strip()
+
+if len(lock) != 4:
+    problems.append(f"tools/reference-builds.lock: parsed {len(lock)} titles, "
+                    "expected 4 -- the lock was reshaped and check 7 stopped "
+                    "checking it")
+else:
+    refs_text = "".join(read("docs/references.md"))
+    for slug, entry in lock.items():
+        for key in ("commit", "baserom_sha1"):
+            checked += 1
+            value = entry.get(key, "")
+            if value and value not in refs_text:
+                problems.append(
+                    f"docs/references.md: does not quote {slug}'s {key} "
+                    f"{value} that tools/reference-builds.lock pins")
+    # The Objects column of the summary table, against the count the lock
+    # records for the same title. Same row shape check 6b reads. The name-to-
+    # section map is repeated rather than shared: check 6 only builds it when
+    # the symbol file has mining blocks, and this check must not go quiet with
+    # it.
+    ROWS = {"Jet Force Gemini": "jfg", "Perfect Dark": "perfect_dark",
+            "Banjo-Kazooie": "banjo-kazooie",
+            "Conker's Bad Fur Day": "conker"}
+    for i, line in enumerate(read("docs/references.md"), 1):
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if cells[0] not in ROWS or len(cells) < 5:
+            continue
+        want = lock.get(ROWS[cells[0]], {}).get("objects")
+        if not (cells[4].isdigit() and want):
+            continue
+        checked += 1
+        if cells[4] != want:
+            report("docs/references.md", i,
+                   f"{cells[0]} row claims {cells[4]} objects; "
+                   f"tools/reference-builds.lock records {want}")
 
 
 # --- verdict ----------------------------------------------------------------
