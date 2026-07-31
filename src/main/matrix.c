@@ -25,29 +25,33 @@
  *
  * The ROM's float code uses ODD single-precision FP registers -- $f5, $f7,
  * $f9, $f11 and $f17 all appear in the 53 instructions at 0x8002AF6C alone.
- * The IDO 5.3 in tools/ido/ never emits one. That is measured, not inferred:
- * a four-term dot-product test case compiled at every combination of
- * -mips1/-mips2/-mips3 with -O1/-O2/-O3 produced zero odd single-precision FP
- * registers in all nine builds. Every candidate below therefore comes out
- * using $f0/$f2/$f4/... and differs from the ROM in almost every FP register
- * name, with the instruction schedule following from that.
+ * At the project's flags the IDO 5.3 in tools/ido/ emits none: a four-term
+ * dot-product test case compiled at every combination of -mips1/-mips2/-mips3
+ * with -O1/-O2/-O3 produced zero odd single-precision FP registers in all nine
+ * builds. Every candidate below therefore comes out using $f0/$f2/$f4/... and
+ * differs from the ROM in almost every FP register name, with the instruction
+ * schedule following from that. (It CAN emit them, under
+ * -Wc,-mips3 -Wc,-fp32regs -- just not the ROM's ones. See below.)
  *
  * ROM-wide the evidence is 1727 odd FP register operands across 9 of the
  * static segment's asm files, out of 24984 FP operands in total. The GNU
  * assembler notices too: assembling asm/18FF0.s prints "Warning: float
  * register should be even" once per occurrence.
  *
- * WHAT IS MEASURED, AND WHAT IS ONLY A HYPOTHESIS. Measured: this IDO 5.3
- * never emits an odd single-precision FP register, and Mickey's ROM contains
- * 1727 of them. Everything past that is inference, and there are at least
- * three explanations still standing. None has been ruled out:
+ * WHAT IS SETTLED. No SGI IDO build can produce the ROM's allocation, and the
+ * search for one is closed -- see docs/modules.md section 6.2 for the
+ * mechanism. In short: this IDO's ugen does have SGI's -fp32regs, reachable as
+ * `-Wc,-mips3 -Wc,-fp32regs` (the -Wo, form earlier sweeps used hands the flag
+ * to uopt, which drops it), and with it MatrixMultiplyVec4 comes out at the
+ * ROM's exact 53 instructions with odd registers -- but allocated across all
+ * 32, including argument, return and unsaved callee-saved odd halves, where
+ * the ROM confines itself to $f4-$f11 and $f16-$f18. That is structural: in
+ * the matched decompilation of real IDO 7.1's ugen, -fp32regs is an
+ * unconditional loop freeing all 16 odd registers, while the reservation logic
+ * that protects live ones walks even register numbers only. Six IDO/MIPSpro
+ * versions, 4.1 through 7.4.4, all choose the same all-32 set.
  *
- *   (a) A DIFFERENT IDO. Most likely 7.1, whose allocator does use the odd
- *       single-precision registers. Fits the rest of the evidence: the
- *       integer-only functions in main/runlink.c match 5.3 byte for byte,
- *       and no function matched anywhere in this project touches the FPU.
- *       Test: build either function below with a 7.1 this repo does not
- *       vendor.
+ * So (a) is dead. Two explanations remain, and they are not exclusive:
  *
  *   (b) HAND-WRITTEN ASSEMBLY. Odd-register use is exactly what a human
  *       writing MIPS by hand produces, because the even-only constraint is a
@@ -74,19 +78,28 @@
  *       for the ROM in general -- and if it is the right one, they are
  *       un-decompilable by design and no compiler will fix them.
  *
- *   (c) A NON-IDO COMPILER for some or all of the game code.
+ *   (c) A NON-IDO COMPILER for some or all of the game code. No positive
+ *       evidence anywhere points at one; it is listed because nothing rules
+ *       it out, not because anything suggests it.
  *
- * The three are not mutually exclusive -- (b) and (a) together would explain
- * the density spread better than either alone. Do not write "IDO 7.1" into
- * any other file as though it were settled.
+ * DO NOT re-sweep compiler flags or IDO versions for this file. The mechanism
+ * above says in advance that every such sweep fails. What would reopen it is
+ * named in docs/modules.md section 6.2, and neither item is something to wait
+ * for.
  *
  * What IS believed correct is the C. Both bodies were derived from the ROM's
- * own multiply/add chains and reproduce the arithmetic exactly. The residual
- * measured with `decomp-workbench diagnose-dumps` is FP register names and
- * their consequences: MatrixMultiplyVec4 words=47 of which fp=46, after
- * hoisting the source components into locals to stop the dst-aliasing reloads
- * (words=63 before that). Do not rewrite these from scratch; re-test them the
- * day a 7.1 lands.
+ * own multiply/add chains and reproduce the arithmetic exactly, and
+ * MatrixMultiplyVec4 under -Wc,-mips3 -Wc,-fp32regs reproduces the ROM's
+ * instruction count and kinds exactly, differing only in register names. Do
+ * not rewrite them from scratch.
+ *
+ * func_8002B040 (MatrixRotateVec3) does not belong to this discussion at all:
+ * it uses no odd registers. Its blocker is ugen's expression scheduling, and
+ * with the stock toolchain at uopt -O3 -- reachable only through
+ * tools/ido-phases.py, since `cc -O3` dies in uld -- and the m[i][j]*x operand
+ * order it is 16 of 34 instructions from a match, with two systematic
+ * residuals: the final add.s operand order (the ROM writes the accumulator
+ * first) and the third mul.s's placement in rows 2 and 3.
  */
 #ifdef NON_MATCHING
 /*

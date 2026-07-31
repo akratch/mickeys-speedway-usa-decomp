@@ -628,21 +628,67 @@ only per-phase `-O` with teeth — on `string.c` at `-O2 -mips2`,
 `-Xphase,ugen,-O1/-O3` and `-Xphase,as1,-O1/-O3` are bit-identical to the
 baseline.
 
-### 6.2 The open question: odd floating-point registers
+### 6.2 Odd floating-point registers: settled — those files stay assembly
 
-**Mickey's floating-point game code was not built by the IDO 5.3 this project
-vendors.** The ROM uses odd single-precision FP registers; that compiler emits
-zero of them at any of nine ISA/optimisation combinations tested. ROM-wide there
-are 1727 odd FP register operands across 9 static-segment asm files, and GNU as
-warns once per occurrence.
+ROM-wide there are 1727 odd FP register operands across 9 static-segment asm
+files, and GNU as warns once per occurrence. **No SGI IDO build can produce
+them.** That is a mechanism, not an exhausted sweep, and the question is closed.
 
-Three explanations remain open and are **not** mutually exclusive: a different
-IDO release, hand-written assembly, or a non-IDO compiler. The per-file
-distribution is what makes this genuinely undecided: it runs from 61.3% of FP
-operands in `asm/59DB0.s` down to 2.7% in `asm/16140.s`, which looks more like
-mixed origins than one allocator applied uniformly. The parked matrix TU sits
-at 40.1%, so hand-written assembly is live for those two functions
-specifically, in which case no compiler settles them.
+`ugen` does implement SGI's `-fp32regs`, which frees the odd single-precision
+registers, and the `cc` driver can route it — `-Wc,` is the code generator,
+`-Wo,` is `uopt`, which prints "unrecognized option" and drops it, which is why
+earlier sweeps found nothing. `cc … -mips2 -32 -Wc,-mips3 -Wc,-fp32regs` is
+byte-identical to driving the phases by hand, and it does emit odd registers.
+It still cannot produce Mickey's:
+
+- **The mechanism.** In the function-matched decompilation of real IDO 7.1's
+  `ugen`, `-fp32regs` is one unconditional loop that adds all 16 odd registers
+  `$f1,$f3,…,$f31` to the free list, with no reference to which are argument,
+  return or callee-saved halves. The reservation logic that protects live
+  registers walks the register file by even steps only — it predates
+  `-fp32regs` and was never taught about odd halves. The two paths are
+  structurally disconnected, so `-fp32regs` can never confine itself to
+  caller-saved temps and can never save what it does clobber, in any
+  invocation. The `-ufsm`/`-ufsa` callee-save tracking is a separate feature
+  the `-fp32regs` free-list path does not consult.
+- **Every version agrees.** Six builds — IDO 4.1, 5.2, 5.3, 6.0, 7.1 and
+  MIPSpro 7.4.4 — choose the identical all-32 register set on the same test
+  function; 5.2, 5.3, 6.0 and 7.4.4 are byte-identical for it. 4.1 differs only
+  in schedule length, not in allocation policy. There is no version boundary to
+  find.
+- **What our build actually gets.** With `-Wc,-mips3 -Wc,-fp32regs`,
+  `MatrixMultiplyVec4` comes out at the ROM's exact 53 instructions, the exact
+  instruction kinds, and the odd-register phenomenon — but allocated across all
+  32 registers including `$f0/$f2` (return), `$f12/$f14` (argument) and the odd
+  halves of callee-saved `$f20`–`$f30`, written in a leaf function with no
+  save/restore. The ROM confines itself to `$f4`–`$f11` and `$f16`–`$f18`: the
+  caller-saved even temps plus their odd partners, and nothing else.
+
+**Consequence for this project: the nine files stay as assembly. Do not
+re-sweep compiler flags or IDO versions for them** — the mechanism above says
+in advance that every such sweep fails. Hand-written assembly is the standing
+explanation, consistent with the density spread (61.3% of FP operands in
+`asm/59DB0.s` down to 2.7% in `asm/16140.s`, the matrix TU at 40.1%) and with
+sibling decomps, where genuinely hand-written float assembly (JFG's
+`asm/hasm/math_matrix.s`, PD's `src/lib/mtxasm.s`) sits in the same odd-density
+range and is equally ABI-indifferent, while real IDO-compiled float code in
+those trees contains no single-precision odd-register arithmetic at all.
+
+Two things would reopen it, and only these two: a code generator whose
+odd-register free list is gated by the same reservation logic the even path
+already uses (no such build is known — it would have to be a hand patch), or a
+matched, non-assembly function in some other decomp that uses odd single
+registers, with a working build recipe attached.
+
+No TU is built with `-Wc,-mips3 -Wc,-fp32regs` and none is expected to be. If
+one ever is, it must be a per-file group and never a default: all seven
+already-matching TUs tested change bytes under it, and the damage is entirely
+`-mips3` reaching `ugen` (which `-fp32regs` requires) — on FP-free code
+`ugen -mips3` and `ugen -mips3 -fp32regs` are bit-identical, so `-fp32regs`
+itself is inert there, while `ugen -mips3` stops folding small negative
+immediates and grows `libultra/string.c`'s `.text` by 30%. `as1` also asserts
+outright on some `-fp32regs` ucode, so any member must be built and checked,
+never assumed to compile.
 
 It is not a blocker for the naming work: nothing named so far is float-heavy,
 and the tier-A matches that *are* in float-adjacent code (`mtxf_*` in
