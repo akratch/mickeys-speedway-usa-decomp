@@ -227,12 +227,22 @@ file's words actually came from, rather than by adjusting a limit:
 Each of these was a steady drip of noise into `spread` — the metric protecting
 every file here.
 
-The tightest margin over all 229 blobs in this repository's history is now
+A closing audit traced **every** normalized word in all 238 historical blobs
+back to the mechanism that produced it, and fixed the two that were still
+inventing data: a shell assignment (`OBJDUMP=tools/binutils/mips64-elf-objdump`)
+was being decoded first as base64 and then, once that was blocked, as ascii85;
+and adjacent-halves pairing was still fusing comment lists (`0x1B74, 0x27A0`)
+and markdown table cells (`| 1232 | 1105 |`). Every synthetic decoder now
+contributes **zero** words across the whole history — the only producers left
+are real hex addresses and three decimal tokens. The audit table is in the
+report; re-run it when a decoder changes.
+
+The tightest margin over all 238 blobs in this repository's history is now
 **6.40×** (`docs/modules.md`, spread 5 against a limit of 32), up from 2.46×
 before the halves fix and 1.19× before the decoder work began.
-`symbol_addrs.us.txt` sits at 8.00×, and it is protected by spread rather than
-count — it already carries 434 words against a 192 limit, and 430 of them share
-the high byte `0x80`, which is the whole reason the rule is a pair.
+`symbol_addrs.us.txt` sits at 16.0×, and it is protected by spread rather than
+count — it carries 436 words against a 192 limit, nearly all sharing the high
+byte `0x80`, which is the whole reason the rule is a pair.
 **Watch this number as the tree grows**: it is the one that says whether the
 gate is still a safety net or is about to become an obstacle. If a gate
 does fire on work you believe is legitimate, the answer is

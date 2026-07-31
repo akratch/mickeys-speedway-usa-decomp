@@ -24,7 +24,7 @@ a long history cheap: a file that never changed is one blob no matter how
 many commits it appears in.  Path work is deduplicated by `path`.
 
 Every threshold below is measured, not guessed.  The numbers quoted in the
-comments are the worst case over *all 229 blobs in this repository's
+comments are the worst case over *all 238 blobs in this repository's
 history* versus the two workbench ledgers that had to be purged from it --
 the incident this whole file exists to prevent from recurring.  Those
 ledgers are the calibration set for "must fail"; the history is the
@@ -143,20 +143,31 @@ WORD_ARRAY_LIMIT = 16  # tokens appearing inside such runs
 #        accounted for 7 of the 13 distinct high bytes in docs/modules.md and
 #        9 of symbol_addrs.us.txt's 13 (see HALF_PAIR_GAP).
 #
-#    Measured after all of them, over all 229 blobs in this repository's
+#    Measured after all of them, over all 238 blobs in this repository's
 #    history.  The protecting gate is named, because for every file in this
 #    tree it is `spread` -- addresses cluster, and volume alone was never the
 #    signal:
 #      docs/modules.md        95 words, spread  5 -- 6.40x under spread
-#      symbol_addrs.us.txt   434 words, spread  4 -- 8.00x under spread, and
+#      symbol_addrs.us.txt   436 words, spread  2 -- 16.0x under spread, and
 #                            note it is already 2.3x OVER the count limit;
-#                            430 of those words share the high byte 0x80,
-#                            which is the whole reason the rule is a pair
+#                            almost all of those words share the high byte
+#                            0x80, which is the whole reason the rule is a pair
 #      src/main/runlink.c     43 words, spread  4 -- 8.00x under spread
+#      this file              24 words, spread 11 -- 8.00x; at round 5 it was
+#                            spread 32, exactly ON the limit, saved only by
+#                            its count
 #      the two manifests       8 words each after their schema-validated
 #                            digests are accounted for
 #    Tightest margin anywhere in history: 6.40x, up from 2.46x before the
 #    halves fix and 1.19x before any of this.  Nothing in history fires.
+#
+#    A full attribution audit (every word in all 238 historical blobs traced to
+#    the mechanism that produced it) now shows EVERY synthetic decoder
+#    contributing zero: hexline-block, base-block, base-run, a85-run,
+#    halves-pair, oct-token, dotted-quad and escaped-bytes are all 0.  The only
+#    contributors left are hex-run (5279 words -- real addresses) and dec-token
+#    (3).  Anything else appearing there is a false decode; re-run the audit
+#    when a decoder changes.
 #    The fixture families (400 real ROM words each) land at 342-1146 words and
 #    spread 40-167.
 #
@@ -201,7 +212,7 @@ DIGEST_EXEMPTION = 64
 #    opcode, so spread saturates near 20 for a small sample -- which is why the
 #    spread floor here is much lower than the per-file rule's, and why density
 #    has to carry the other half.
-#    Measured: every one of the 229 blobs in history contributes 0, and the
+#    Measured: every one of the 238 blobs in history contributes 0, and the
 #    whole worktree contributes 0.  The pass side is not close to the line; it
 #    is not on the board.
 #
@@ -375,6 +386,18 @@ PURE_B64_LINE_MIN = 4
 #: How far apart two 16-bit halves may sit and still be read as one word.
 #: `27bd ffc0` is 1, `27bd, ffc0` is 2, a column wrap is 1 (the newline).
 HALF_PAIR_GAP = 3
+#: How long a chain of adjacent halves must be before ANY of it is paired.
+#:
+#: Adjacency alone is not enough.  A comment listing ROM offsets
+#: (`// 0x1B74, 0x27A0, 0x27C4, 0x545C, ...`) and a markdown table row
+#: (`| 1232 | 1105 |`) are both "adjacent" under any gap rule that also has to
+#: admit `27bd, ffc0`, and both were fabricating words -- `0x1b7427a0` from two
+#: unrelated offsets.  What separates them is length: a halves-encoded dump is
+#: hundreds of halves in a row, prose is a handful.
+#: Measured -- longest chain anywhere in this repository's history: **5**
+#: (a `symbol_addrs.us.txt` comment).  The three halves fixtures: **206**.
+#: 16 sits 3.2x above the pass side and 12.9x below the fail side.
+HALF_CHAIN_MIN = 16
 PURE_BASE_LINE = re.compile(r"^[!-u]+$")
 PURE_BASE_LINE_MIN = 32
 BASE_RUN = re.compile(r"[A-Za-z0-9+/=_-]{40,}")
@@ -421,6 +444,13 @@ B32_MIN_DIGIT = 0.04
 A85_MIN_UPPER = 0.10
 A85_MIN_LOWER = 0.10
 A85_MIN_DIGIT = 0.03
+#: Share of an ascii85 run that must lie outside the base64 alphabet.
+#: Expected for a real payload: 21/85 = 24.7%.  The floor is an order of
+#: magnitude below that.
+A85_MIN_OUTSIDE = 0.02
+_B64_ALPHABET = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=_-"
+)
 
 
 def _shares(run):
@@ -525,13 +555,56 @@ def _trim_to_decodable(body, group):
 def _decode_base_n(run, out):
     if len(run) < 40:
         return
-    upper, lower, digit = _shares(run)
     stripped = run.rstrip("=")
+    # Two shape rules that apply to base64 and base64url ONLY.  They must not
+    # be hoisted out of the per-decoder gate: ascii85 spends `=`, `+`, `/`, `-`
+    # and `_` as ordinary data symbols, and an earlier draft of this that
+    # checked them up front silently stopped catching ascii85 altogether.
+    #
+    #  - `=` is padding, and padding is only ever at the END of an encoder's
+    #    output, so a run with `=` in the middle was not produced by one.
+    #  - standard base64 spends its last two symbols on `+` and `/`; base64url
+    #    spends them on `-` and `_`.  No encoder emits both pairs, so a run
+    #    carrying one of each is neither alphabet.
+    #
+    # Together these are what `OBJDUMP=tools/binutils/mips64-elf-objdump` is --
+    # a shell assignment, 41 characters of the base64 alphabet, which squeaked
+    # past the character-share floors (17% upper from `OBJDUMP`, 5% digits from
+    # `mips64`) and decoded to 8 phantom words across 8 distinct high bytes.
+    # Two such lines in a row also joined into a block and decoded again.
+    b64_shape = "=" not in stripped and not (
+        any(c in stripped for c in "+/") and any(c in stripped for c in "-_")
+    )
+    # ascii85 needs its own shape rule for the same reason.  Its alphabet is 85
+    # symbols; 21 of them lie OUTSIDE the base64 alphabet, so over random input
+    # roughly a quarter of a real payload's characters are punctuation base64
+    # never emits.  A run made only of base64-alphabet characters is therefore
+    # not ascii85 -- and without this rule the shell assignment above was still
+    # decoded, just by the a85 branch instead of the b64 one after the b64
+    # rules rejected it.  (Found by re-running the attribution audit rather
+    # than by assuming the first fix had covered it.)
+    outside = sum(1 for c in run if c not in _B64_ALPHABET)
+    a85_shape = outside >= max(2, A85_MIN_OUTSIDE * len(run))
+    upper, lower, digit = _shares(run)
+    b64_chars = (
+        b64_shape
+        and upper >= B64_MIN_UPPER
+        and lower >= B64_MIN_LOWER
+        and digit >= B64_MIN_DIGIT
+    )
     for decoder, pad, group, ok in (
-        (base64.b64decode, 4, 4, upper >= B64_MIN_UPPER and lower >= B64_MIN_LOWER and digit >= B64_MIN_DIGIT),
-        (base64.urlsafe_b64decode, 4, 4, upper >= B64_MIN_UPPER and lower >= B64_MIN_LOWER and digit >= B64_MIN_DIGIT),
+        (base64.b64decode, 4, 4, b64_chars),
+        (base64.urlsafe_b64decode, 4, 4, b64_chars),
         (base64.b32decode, 8, 8, upper >= B32_MIN_UPPER and digit >= B32_MIN_DIGIT),
-        (base64.a85decode, 0, 5, upper >= A85_MIN_UPPER and lower >= A85_MIN_LOWER and digit >= A85_MIN_DIGIT),
+        (
+            base64.a85decode,
+            0,
+            5,
+            a85_shape
+            and upper >= A85_MIN_UPPER
+            and lower >= A85_MIN_LOWER
+            and digit >= A85_MIN_DIGIT,
+        ),
     ):
         if not ok:
             continue
@@ -646,15 +719,21 @@ def normalize_words(text):
         pending = []
         if _words_from_hex(match.group(0), out, pending):
             runs.append((match.start(), match.end(), pending[0]))
-    index = 0
-    while index < len(runs) - 1:
-        (_, end, high), (start, _, low) = runs[index], runs[index + 1]
-        gap = text[end:start]
-        if len(gap) <= HALF_PAIR_GAP and not any(c.isalnum() for c in gap):
-            out.append((high << 16) | low)
-            index += 2
-        else:
-            index += 1
+
+    def adjacent(left, right):
+        gap = text[runs[left][1] : runs[right][0]]
+        return len(gap) <= HALF_PAIR_GAP and not any(c.isalnum() for c in gap)
+
+    # Split into maximal chains of adjacent halves, then pair only inside
+    # chains long enough to be a dump rather than a list (see HALF_CHAIN_MIN).
+    start = 0
+    for index in range(len(runs) + 1):
+        if index < len(runs) and (index == start or adjacent(index - 1, index)):
+            continue
+        if index - start >= HALF_CHAIN_MIN:
+            for pair in range(start, index - 1, 2):
+                out.append((runs[pair][2] << 16) | runs[pair + 1][2])
+        start = index
 
     for match in DEC_TOKEN.finditer(text):
         value = int(match.group(1))
