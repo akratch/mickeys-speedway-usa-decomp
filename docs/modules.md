@@ -248,7 +248,8 @@ the segment, carrying 190 function names.
 | `0x6B3D0`–`0x6F3E0` | `0x8006A7D0` | Transfer Pak, Rumble Pak, Controller Pak filesystem | A | 18 measured file boundaries, 34 names. The Transfer Pak three come from **Perfect Dark**, the only reference build that has them; §4.2 |
 | `0x6F420`–`0x76D10` | `0x8006E820` | the libultra corridor | A | §4.1 |
 | `0x76D10`–`0x76E60` | — | non-resident text | — | Indexes off `$at`, loads from address 0; relocated before it runs. Still `bin` |
-| `0x76E60`–`0x86640` | `0x80076260` | `.data` + `.rodata` | — | §6.3 |
+| `0x76E60`–`0x81510` | `0x80076260` | `.data`, undifferentiated | — | §6.3 |
+| `0x81510`–`0x86640` | `0x80080910` | `.rodata`, one block, no TU owns it | — | §6.3 |
 
 ### 3.1 Which modules are resident
 
@@ -626,22 +627,51 @@ Relevant to any future resolution: `mtxf_transform_point`, `mtxf_mul`,
 `main/matrix` TU at `0x2B650` turns out to be hand-written too, that is the
 same story one file over.
 
-### 6.3 `.rodata` is still unsplit
+### 6.3 `.rodata`: one anonymous block, no TU owns any of it
 
-Every byte from ROM `0x76E60` to `0x86640` is one `data` subsegment, so no C TU
-can own rodata yet. This gates the object system, whose functions all carry
-jump tables. Two things a split needs are measured:
+ROM `0x76E60`–`0x81510` is `data` and `0x81510`–`0x86640` is `rodata`. The
+rodata subsegment is deliberately unnamed, so `migrate_rodata_to_functions` has
+no sibling to pair it with and nothing is attached to a translation unit yet.
 
+**`gmake verify` is not the gate for a rodata boundary.** Re-slicing never
+creates, drops or reorders a byte, so a wrong boundary rebuilds the ROM
+byte-identically and every gate stays green. Cutting four bytes into
+`jtbl_80080D2C` was tried deliberately: the build passes, and the half of the
+table on the far side of the cut comes out as a fresh `dlabel D_80080D30`
+holding a plain `.word 0x80007774` where the whole table holds
+`.word .L80007774`. Same bytes, silently stripped of their typing. What checks
+a boundary is reading the generated `.s` on both sides of it.
+
+Where the boundary comes from:
+
+- **`0x81510` is where read-only content demonstrably starts.** A 32-space pad
+  string, a 32-zero pad string and `"0123456789ABCDEF"` -- libultra `xprintf`'s
+  field-padding tables -- then the audio subsystem's `printf` format strings,
+  unbroken to `0x81920`. The symbol before it ends exactly at `0x81510`.
+- **It is an upper bound, not the boundary.** Everything below it in
+  `0x76E60`–`0x81510` is undifferentiated; some of it is certainly rodata too.
+- **`0x80080D24` (ROM `0x81924`)** is a weaker bound of a different kind: the
+  `FLT_MAX` constant loaded from ROM `0x50B0`, two words below the first jump
+  table, and the lowest address any resident instruction reads as read-only
+  data. The strings above it are read by nothing resident at all -- the same
+  pattern as the model/sprite strings in §7 -- so a reference-derived bound
+  cannot see them.
 - **rodata order follows text order exactly.** 35 functions, 44 jump tables,
   monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
-  by TU in text order.
-- **Lower bound on the boundary: `0x80080D24` (ROM `0x81924`)**, a float
-  constant (`7f7fffff`, i.e. `FLT_MAX`) loaded from ROM `0x50B0`, two words
-  below the first jump table `jtbl_80080D2C` (ROM `0x8192C`). splat's own
-  heuristic guessed `0x8192C`; this tightens it by those two words.
+  by TU in text order, which is what makes the per-TU split tractable.
 
-The split itself has not been done: it touches the yaml, the linker script and
-every future TU at once.
+Two toolchain facts the per-TU split runs into, both from asm-processor's line
+scanner, which knows `glabel`, `dlabel` and `endlabel` and treats every other
+macro call as an instruction:
+
+- Typing the tail as rodata labels every jump *target* in the text it lands in.
+  Those labels are emitted with `asm_jtbl_label_macro`, and inside a
+  `#pragma GLOBAL_ASM` file a `jlabel` line makes asm-processor miscount the
+  section. The yaml uses `glabel`, which is the same global label and parses.
+- Attaching rodata to a `c` subsegment migrates it into the function's own
+  `.s` as `.late_rodata`, where the `enddlabel` closing each data symbol is
+  rejected outright. `libultra/devmgr` (`jtbl_80084970`) is the first TU that
+  needs this and the reason phase 1 stops at one anonymous block.
 
 ---
 

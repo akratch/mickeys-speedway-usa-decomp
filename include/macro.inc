@@ -35,12 +35,6 @@
 .endm
 
 
-# A label referenced by a jumptable.
-.macro jlabel label, visibility=global
-    .\visibility \label
-    \label:
-.endm
-
 
 # A data symbol.
 .macro dlabel label, visibility=global

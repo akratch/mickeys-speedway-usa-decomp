@@ -69,7 +69,17 @@ options:
 
   asm_function_macro: glabel
   asm_function_alt_macro: alabel
-  asm_jtbl_label_macro: jlabel
+  # `glabel`, not splat's `jlabel`, and the reason is asm-processor, not taste.
+  # Declaring the .rodata tail gives every jump table typed entries, which makes
+  # splat label each jump TARGET in the .text it lands in. asm-processor's own
+  # line scanner knows exactly three label macros -- `glabel`, `dlabel`,
+  # `endlabel` -- and treats any other macro call in a .text block as an
+  # instruction, so a `jlabel` line inside a #pragma GLOBAL_ASM file makes it
+  # miscount the section: "incorrectly computed size for section .text". Both
+  # macros expand to a global label; `glabel` is the one that also parses.
+  # tools/setup_reference_builds.sh patches the same three-macro list into
+  # Conker's copy of asm-processor for the same reason.
+  asm_jtbl_label_macro: glabel
   asm_data_macro: dlabel
   asm_end_label: endlabel
   asm_emit_size_directive: False
@@ -422,10 +432,35 @@ segments:
       # not plain resident text. Kept as raw bin until it is identified.
       - [0x76D10, bin]
       - [0x76E60, data]
-      # splat's jumptable heuristic suggests `- [0x8192C, rodata]` here, while
-      # warning the real .rodata start may be well before that. Still undeclared
-      # (bytes are covered by the .data subsegment above, so the link is
-      # byte-exact either way). The two things a future split needs are
+      # .rodata, phase 1: the whole tail as one anonymous block. Deliberately
+      # unnamed, so migrate_rodata_to_functions has no sibling to pair it with
+      # and nothing is attached to a translation unit yet. Phase 2 attaches it
+      # TU by TU, in text order, and needs an eye on each boundary.
+      #
+      # `gmake verify` IS NOT THE GATE FOR THIS NUMBER. Re-slicing never
+      # creates, drops or reorders a byte, so a wrong boundary rebuilds the ROM
+      # byte-identically and passes. This was reproduced deliberately: cutting
+      # four bytes into jtbl_80080D2C leaves the build green while the jump
+      # table's second half comes out as a fresh `dlabel D_80080D30` holding a
+      # plain `.word 0x80007774` instead of a `.word .L80007774` -- the same
+      # bytes, silently stripped of their typing. What checks a boundary is
+      # reading the generated .s on both sides of it.
+      #
+      # WHY 0x81510. It is the first byte of an unbroken run of read-only
+      # content that continues to 0x81920: a 32-space pad string, a 32-zero
+      # pad string and "0123456789ABCDEF" (libultra xprintf's field-padding
+      # tables), then the audio subsystem's printf format strings. The symbol
+      # before it ends exactly here and holds a pointer to BSS.
+      #
+      # NOT 0x812C0. The one-character `.asciz "$"` at 0x812C0 and `.asciz "'"`
+      # at 0x81310 are single 0x24/0x27 bytes inside a run of fixed-size binary
+      # records; spimdisasm renders them as strings the same way it renders an
+      # arbitrary word as a `.float`, and neither is evidence of a section.
+      #
+      # 0x81510 is an upper bound on the boundary, not the boundary: bytes
+      # below it are undifferentiated. Closing that gap means extending the
+      # jump-table ordering argument below to every `lwc1`/`la` reference in
+      # the resident segment. Two things the later per-TU split needs are
       # measured and recorded here:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 44 jump
@@ -436,17 +471,28 @@ segments:
       #      jtbl_80084970). So .rodata can be carved TU by TU in text order,
       #      which is what makes a per-file split tractable at all.
       #
-      #   2. LOWER BOUND ON THE BOUNDARY: 0x80080D24 (ROM 0x81924). That is a
-      #      float constant (7f7fffff, i.e. FLT_MAX) loaded by the function at
-      #      ROM 0x50B0, and it sits TWO words below the first jump table
-      #      jtbl_80080D2C (ROM 0x8192C). Nothing lower than it is referenced
-      #      as read-only data from code, so .rodata starts at or before
-      #      0x81924 -- consistent with splat's 0x8192C guess and tightening
-      #      it by those two words.
+      #   2. THE REFERENCED-FROM-CODE BOUND: 0x80080D24 (ROM 0x81924). That is
+      #      a float constant (7f7fffff, i.e. FLT_MAX) loaded by the function
+      #      at ROM 0x50B0, and it sits TWO words below the first jump table
+      #      jtbl_80080D2C (ROM 0x8192C). It is the lowest address anything in
+      #      the resident segment reads as read-only data, which is a weaker
+      #      statement than 0x81510 above: the xprintf and audio strings there
+      #      are read by nothing in the resident segment at all, the same
+      #      pattern docs/modules.md section 7 records for the model/sprite
+      #      strings, and code that never runs on the resident side cannot
+      #      lower a bound derived from references.
       #
-      # Both numbers are reproducible from asm/*.s alone. The split itself is
-      # NOT done: it needs the yaml, the linker script and every future C TU to
-      # agree at once.
+      # Both numbers are reproducible from asm/*.s alone.
+      #
+      # WHAT PHASE 2 HITS FIRST. Attaching a `.rodata` subsegment to a `c`
+      # subsegment makes splat migrate that TU's rodata into the function's own
+      # asm/nonmatchings/*.s, as a `.late_rodata` section -- and asm-processor
+      # rejects the `enddlabel` line splat closes each data symbol with:
+      # "instruction or macro call in non-.text section? not supported". The
+      # first TU to need it is libultra/devmgr, which owns jtbl_80084970. Either
+      # asm_data_end_label goes empty for the whole tree or asm-processor learns
+      # the macro; decide that before attaching anything, not during.
+      - [0x81510, rodata]
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }
 
