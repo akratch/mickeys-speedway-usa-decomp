@@ -211,14 +211,27 @@ segments:
       # and see symbol_addrs.us.txt for the per-function names and the
       # provenance convention.
       #
-      # Boundaries. Below 0x6F420 nothing matches any libultra object, and the
-      # function ending at 0x6F3DC is game-shaped (saves s5/s6). Above 0x76D10
-      # the code stops being resident text at all -- it indexes off $at and
-      # loads from absolute address 0, i.e. it is relocated somewhere before it
-      # runs -- which is why that region stays `bin`. Recon's original estimate
-      # of 0x6FC50-0x75E20 was a floor rather than the extent: it was derived
-      # from hand-written assembly only, which cannot see the C files that
-      # surround it on both sides.
+      # Boundaries. The corridor is where libultra is *contiguous*, not where
+      # libultra exists at all -- read the two claims separately.
+      #
+      #   Lower. Nothing in 0x6E000-0x6F420 matches any reference object, and
+      #   the function ending at 0x6F3DC is game-shaped (saves s5/s6). That is
+      #   the claim; it is deliberately narrow. Running the finder over the
+      #   whole static segment does return scattered libultra matches *below*
+      #   the corridor -- a second copy of os/interrupt.s at 0x2A25C/0x2A288
+      #   (0-masked, exact), io/leointerrupt.c's whole .text at 0x4FC20, and
+      #   the exception-handler island from 0x4FC30 (see the Task B report
+      #   section 2). Those are real and are future naming targets; they are
+      #   simply not part of this contiguous run.
+      #
+      #   Upper. Above 0x76D10 the code stops being resident text at all -- it
+      #   indexes off $at and loads from absolute address 0, i.e. it is
+      #   relocated somewhere before it runs -- which is why that region stays
+      #   `bin`.
+      #
+      # Recon's original estimate of 0x6FC50-0x75E20 was a floor rather than the
+      # extent: it was derived from hand-written assembly only, which cannot see
+      # the C files that surround it on both sides.
       #
       # Unnamed `asm` entries inside the range are libultra-shaped code that is
       # *not* byte-identical to DKR's build -- a different point release, or

@@ -5,8 +5,13 @@
  * libultra `io/sp.c` object, so the file boundary is measured, not guessed --
  * see the provenance note in symbol_addrs.us.txt.
  *
- * Builds with the project default flags (-O2 -mips1 -32): no branch-likely
- * instructions here, so unlike src/libultra/string.c this needs no override.
+ * Flags: -O1 -mips2 -32, overriding the project default -O2 -mips1 -32 (see the
+ * Makefile's per-file block). Both halves are forced, and this is the file they
+ * were measured on: at -O2 IDO folds the `addiu sp,sp,-8 / addiu sp,sp,8` frame
+ * away entirely and the .text comes out the wrong size, and -mips2 is needed for
+ * the same branch-likely reason as src/libultra/string.c. The `register` on the
+ * local is load-bearing too -- without it -O1 spills the status word to the
+ * stack, which the ROM does not do (4 differing words, zero with it).
  */
 
 #include "PR/rcp.h"

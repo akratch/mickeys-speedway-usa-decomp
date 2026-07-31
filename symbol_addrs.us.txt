@@ -16,7 +16,8 @@ rngSeed = 0x8007A264;
 //       --start 0x6F420 --end 0x76D10 [--sections]
 //
 // The `//` comment above each group names the splat subsegment and the
-// reference object. Where a whole object's .text matched in one piece the
+// reference object, spelled exactly as the tool prints it so the two can be
+// grepped against each other. Where a whole object's .text matched in one piece the
 // file boundary is measured too, and every function in that object is placed
 // by its offset within it -- that is the "TU" tier of evidence and is what
 // nearly all of these are. See docs/CLEANROOM.md: DKR is a permitted public
@@ -27,92 +28,92 @@ rngSeed = 0x8007A264;
 // told apart only by which global they relocate against; those were resolved
 // from Mickey's own call graph, noted inline below.
 // ---------------------------------------------------------------------------
-// libultra/recvmesg  ROM 0x6f420  (os/recvmesg.c.o)
+// libultra/recvmesg  ROM 0x6f420  (src/os/recvmesg.c.o)
 osRecvMesg = 0x8006E820; // type:func size:0x138
-// libultra/aisetfreq  ROM 0x6f560  (io/aisetfreq.c.o)
+// libultra/aisetfreq  ROM 0x6f560  (src/io/aisetfreq.c.o)
 osAiSetFrequency = 0x8006E960; // type:func size:0x160
-// libultra/createmesgqueue  ROM 0x6f6c0  (os/createmesgqueue.c.o)
+// libultra/createmesgqueue  ROM 0x6f6c0  (src/os/createmesgqueue.c.o)
 osCreateMesgQueue = 0x8006EAC0; // type:func size:0x2C
-// libultra/startthread  ROM 0x6f6f0  (os/startthread.c.o)
+// libultra/startthread  ROM 0x6f6f0  (src/os/startthread.c.o)
 osStartThread = 0x8006EAF0; // type:func size:0x150
-// libultra/stopthread  ROM 0x6f840  (os/stopthread.c.o)
+// libultra/stopthread  ROM 0x6f840  (src/os/stopthread.c.o)
 osStopThread = 0x8006EC40; // type:func size:0xC0
-// libultra/aisetnextbuf  ROM 0x6f900  (io/aisetnextbuf.c.o)
+// libultra/aisetnextbuf  ROM 0x6f900  (src/io/aisetnextbuf.c.o)
 osAiSetNextBuffer = 0x8006ED00; // type:func size:0xA8
-// libultra/virtualtophysical  ROM 0x6f9b0  (os/virtualtophysical.c.o)
+// libultra/virtualtophysical  ROM 0x6f9b0  (src/os/virtualtophysical.c.o)
 osVirtualToPhysical = 0x8006EDB0; // type:func size:0x7C
-// libultra/sendmesg  ROM 0x6fa30  (os/sendmesg.c.o)
+// libultra/sendmesg  ROM 0x6fa30  (src/os/sendmesg.c.o)
 osSendMesg = 0x8006EE30; // type:func size:0x14C
-// libultra/aigetlen  ROM 0x6fb80  (io/aigetlen.c.o)
+// libultra/aigetlen  ROM 0x6fb80  (src/io/aigetlen.c.o)
 osAiGetLength = 0x8006EF80; // type:func size:0xC
-// libultra/sqrtf  ROM 0x6fc50  (gu/sqrtf.s.o)
+// libultra/sqrtf  ROM 0x6fc50  (src/gu/sqrtf.s.o)
 sqrtf = 0x8006F050; // type:func size:0x8
-// libultra/sinf  ROM 0x6fc60  (gu/sinf.c.o)
+// libultra/sinf  ROM 0x6fc60  (src/gu/sinf.c.o)
 __sinf = 0x8006F060; // type:func size:0x1C0
-// libultra/setthreadpri  ROM 0x70100  (os/setthreadpri.c.o)
+// libultra/setthreadpri  ROM 0x70100  (src/os/setthreadpri.c.o)
 osSetThreadPri = 0x8006F500; // type:func size:0xE0
-// libultra/bzero  ROM 0x701e0  (libc/bzero.s.o)
+// libultra/bzero  ROM 0x701e0  (src/libc/bzero.s.o)
 _bzero = 0x8006F5E0; // type:func size:0x9C
-// libultra/seteventmesg  ROM 0x70280  (os/seteventmesg.c.o)
+// libultra/seteventmesg  ROM 0x70280  (src/os/seteventmesg.c.o)
 osSetEventMesg = 0x8006F680; // type:func size:0x68
-// libultra/controller  ROM 0x702f0  (io/controller.c.o)
+// libultra/controller  ROM 0x702f0  (src/io/controller.c.o)
 osContInit = 0x8006F6F0; // type:func size:0x1F8
 __osContGetInitData = 0x8006F8E8; // type:func size:0xD0
 __osPackRequestData = 0x8006F9B8; // type:func size:0xF4
-// libultra/contreaddata  ROM 0x706b0  (io/contreaddata.c.o)
+// libultra/contreaddata  ROM 0x706b0  (src/io/contreaddata.c.o)
 osContStartReadData = 0x8006FAB0; // type:func size:0xC4
 osContGetReadData = 0x8006FB74; // type:func size:0xA8
-// libultra/writebackdcache  ROM 0x70910  (os/writebackdcache.s.o)
+// libultra/writebackdcache  ROM 0x70910  (src/os/writebackdcache.s.o)
 osWritebackDCache = 0x8006FD10; // type:func size:0x74
-// libultra/invalicache  ROM 0x70990  (os/invalicache.s.o)
+// libultra/invalicache  ROM 0x70990  (src/os/invalicache.s.o)
 osInvalICache = 0x8006FD90; // type:func size:0x74
-// libultra/settime  ROM 0x70a10  (os/settime.c.o)
+// libultra/settime  ROM 0x70a10  (src/os/settime.c.o)
 osSetTime = 0x8006FE10; // type:func size:0x24
-// libultra/gettime  ROM 0x70a40  (os/gettime.c.o)
+// libultra/gettime  ROM 0x70a40  (src/os/gettime.c.o)
 osGetTime = 0x8006FE40; // type:func size:0x84
-// libultra/spsetstat  ROM 0x70ad0  (io/spsetstat.c.o)
+// libultra/spsetstat  ROM 0x70ad0  (src/io/spsetstat.c.o)
 __osSpSetStatus = 0x8006FED0; // type:func size:0xC
-// libultra/dpsetstat  ROM 0x70ae0  (io/dpsetstat.c.o)
+// libultra/dpsetstat  ROM 0x70ae0  (src/io/dpsetstat.c.o)
 osDpSetStatus = 0x8006FEE0; // type:func size:0xC
-// libultra/pfsdeletefile  ROM 0x70e20  (io/pfsdeletefile.c.o)
+// libultra/pfsdeletefile  ROM 0x70e20  (src/io/pfsdeletefile.c.o)
 osPfsDeleteFile = 0x80070220; // type:func size:0x2E0
 __osPfsReleasePages = 0x80070500; // type:func size:0x238
 __osBlockSum = 0x80070738; // type:func size:0xF0
-// libultra/invaldcache  ROM 0x71430  (os/invaldcache.s.o)
+// libultra/invaldcache  ROM 0x71430  (src/os/invaldcache.s.o)
 osInvalDCache = 0x80070830; // type:func size:0xAC
-// libultra/writebackdcacheall  ROM 0x714e0  (os/writebackdcacheall.s.o)
+// libultra/writebackdcacheall  ROM 0x714e0  (src/os/writebackdcacheall.s.o)
 osWritebackDCacheAll = 0x800708E0; // type:func size:0x28
-// libultra/vimgr  ROM 0x71510  (io/vimgr.c.o)
+// libultra/vimgr  ROM 0x71510  (src/io/vimgr.c.o)
 osCreateViManager = 0x80070910; // type:func size:0x178
-// libultra/visetmode  ROM 0x71820  (io/visetmode.c.o)
+// libultra/visetmode  ROM 0x71820  (src/io/visetmode.c.o)
 osViSetMode = 0x80070C20; // type:func size:0x68
-// libultra/viblack  ROM 0x71890  (io/viblack.c.o)
+// libultra/viblack  ROM 0x71890  (src/io/viblack.c.o)
 osViBlack = 0x80070C90; // type:func size:0x70
-// libultra/visetevent  ROM 0x71900  (io/visetevent.c.o)
+// libultra/visetevent  ROM 0x71900  (src/io/visetevent.c.o)
 osViSetEvent = 0x80070D00; // type:func size:0x6C
-// libultra/setintmask  ROM 0x71970  (os/setintmask.s.o)
+// libultra/setintmask  ROM 0x71970  (src/os/setintmask.s.o)
 osSetIntMask = 0x80070D70; // type:func size:0xA0
-// libultra/sptask  ROM 0x71a10  (io/sptask.c.o)
+// libultra/sptask  ROM 0x71a10  (src/io/sptask.c.o)
 osSpTaskLoad = 0x80070F2C; // type:func size:0x160
 osSpTaskStartGo = 0x8007108C; // type:func size:0x40
-// libultra/sptaskyielded  ROM 0x71cd0  (io/sptaskyielded.c.o)
+// libultra/sptaskyielded  ROM 0x71cd0  (src/io/sptaskyielded.c.o)
 osSpTaskYielded = 0x800710D0; // type:func size:0x80
-// libultra/vigetcurrframebuf  ROM 0x71d50  (io/vigetcurrframebuf.c.o)
+// libultra/vigetcurrframebuf  ROM 0x71d50  (src/io/vigetcurrframebuf.c.o)
 // Identical code to vigetnextframebuf; told apart by the global each one
 // dereferences. osViSwapBuffer (0x800712A0) stores through *0x800808F4, so
 // that is __osViNext -- and this one reads *0x800808F0 instead.
 osViGetCurrentFramebuffer = 0x80071150; // type:func size:0x40
-// libultra/vigetnextframebuf  ROM 0x71d90  (io/vigetnextframebuf.c.o)
+// libultra/vigetnextframebuf  ROM 0x71d90  (src/io/vigetnextframebuf.c.o)
 osViGetNextFramebuffer = 0x80071190; // type:func size:0x40
-// libultra/dpsetnextbuf  ROM 0x71dd0  (io/dpsetnextbuf.c.o)
+// libultra/dpsetnextbuf  ROM 0x71dd0  (src/io/dpsetnextbuf.c.o)
 osDpSetNextBuffer = 0x800711D0; // type:func size:0xA8
-// libultra/sptaskyield  ROM 0x71e80  (io/sptaskyield.c.o)
+// libultra/sptaskyield  ROM 0x71e80  (src/io/sptaskyield.c.o)
 osSpTaskYield = 0x80071280; // type:func size:0x20
-// libultra/viswapbuf  ROM 0x71ea0  (io/viswapbuf.c.o)
+// libultra/viswapbuf  ROM 0x71ea0  (src/io/viswapbuf.c.o)
 osViSwapBuffer = 0x800712A0; // type:func size:0x50
-// libultra/visetspecial  ROM 0x71ef0  (io/visetspecial.c.o)
+// libultra/visetspecial  ROM 0x71ef0  (src/io/visetspecial.c.o)
 osViSetSpecialFeatures = 0x800712F0; // type:func size:0x1B8
-// libultra/ll  ROM 0x720b0  (libc/ll.c.o)
+// libultra/ll  ROM 0x720b0  (src/libc/ll.c.o)
 __ull_rshift = 0x800714B0; // type:func size:0x2C
 __ull_rem = 0x800714DC; // type:func size:0x3C
 __ull_div = 0x80071518; // type:func size:0x3C
@@ -123,11 +124,11 @@ __ll_mul = 0x80071618; // type:func size:0x30
 __ull_divremi = 0x80071648; // type:func size:0x60
 __ll_mod = 0x800716A8; // type:func size:0x9C
 __ll_rshift = 0x80071744; // type:func size:0x2C
-// libultra/string  ROM 0x72370  (libc/string.c.o)
+// libultra/string  ROM 0x72370  (src/libc/string.c.o)
 memcpy = 0x80071770; // type:func size:0x2C
 strlen = 0x8007179C; // type:func size:0x28
 strchr = 0x800717C4; // type:func size:0x40
-// libultra/getactivequeue  ROM 0x72410  (os/getactivequeue.c.o)
+// libultra/getactivequeue  ROM 0x72410  (src/os/getactivequeue.c.o)
 // The data symbol below is not a corridor .text name: it is the global this
 // TU relocates against, declared here so the link can resolve it from the
 // compiled C. Its address is read straight out of the ROM's own %hi/%lo
@@ -138,32 +139,43 @@ __osActiveQueue = 0x8008086C;
 // context TU, so this remaining copy -- reading *0x8008086C -- is the
 // thread-queue accessor.
 __osGetActiveQueue = 0x80071810; // type:func size:0xC
-// libultra/bcopy  ROM 0x72420  (libc/bcopy.s.o)
+// libultra/bcopy  ROM 0x72420  (src/libc/bcopy.s.o)
 _bcopy = 0x80071820; // type:func size:0x304
-// libultra/piacs  ROM 0x72730  (io/piacs.c.o)
+// libultra/piacs  ROM 0x72730  (src/io/piacs.c.o)
 // Only two of this TU's three functions are byte-identical. The middle one,
 // __osPiGetAccess at 0x80071B80, has the same 17 instructions as DKR's in a
 // different order (the prologue is scheduled after the global load rather
 // than before it), so it is left unnamed rather than asserted. See the Task B
 // report's drift list.
+//
+// Caveat on the two names below, because they are the weakest evidence in this
+// file. Unlike every other symbol here they are *not* pinned by a unique match:
+// piacs.c and siacs.c compile to identical instructions, so each of these two
+// byte patterns occurs ROM-wide at BOTH 0x72730/0x727C4 (here) and
+// 0x73440/0x734D4 (the siacs TU). What pins them to these addresses is the
+// call-graph elimination recorded at libultra/siacs below -- osContInit and
+// osContStartReadData both call into the 0x73440 copy, so that one is siacs and
+// this one is piacs. Byte identity establishes only *which libultra function
+// this is*, not which of the two copies. If the siacs argument is ever
+// overturned, these two names swap; nothing else in the file depends on it.
 __osPiCreateAccessQueue = 0x80071B30; // type:func size:0x50
 __osPiRelAccess = 0x80071BC4; // type:func size:0x2C
-// libultra/getthreadpri  ROM 0x727f0  (os/getthreadpri.c.o)
+// libultra/getthreadpri  ROM 0x727f0  (src/os/getthreadpri.c.o)
 osGetThreadPri = 0x80071BF0; // type:func size:0x18
-// libultra/interrupt  ROM 0x72810  (os/interrupt.s.o)
+// libultra/interrupt  ROM 0x72810  (src/os/interrupt.s.o)
 __osDisableInt = 0x80071C10; // type:func size:0x20
 __osRestoreInt = 0x80071C30; // type:func size:0x1C
-// libultra/thread  ROM 0x72f10  (os/thread.c.o)
+// libultra/thread  ROM 0x72f10  (src/os/thread.c.o)
 __osDequeueThread = 0x80072310; // type:func size:0x40
-// libultra/destroythread  ROM 0x72f50  (os/destroythread.c.o)
+// libultra/destroythread  ROM 0x72f50  (src/os/destroythread.c.o)
 osDestroyThread = 0x80072350; // type:func size:0xF8
-// libultra/rmonprintf  ROM 0x731e0  (libc/rmonPrintf.c.o)
+// libultra/rmonprintf  ROM 0x731e0  (src/libc/rmonPrintf.c.o)
 rmonPrintf = 0x800725F4; // type:func size:0x40
-// libultra/settimer  ROM 0x73240  (os/settimer.c.o)
+// libultra/settimer  ROM 0x73240  (src/os/settimer.c.o)
 osSetTimer = 0x80072640; // type:func size:0xD4
-// libultra/bcmp  ROM 0x73320  (libc/bcmp.s.o)
+// libultra/bcmp  ROM 0x73320  (src/libc/bcmp.s.o)
 _bcmp = 0x80072720; // type:func size:0x11C
-// libultra/siacs  ROM 0x73440  (io/siacs.c.o)
+// libultra/siacs  ROM 0x73440  (src/io/siacs.c.o)
 // piacs.c and siacs.c compile to identical instructions. osContInit calls
 // 0x80072840 (this TU's first function) at 0x8006F8B4, and osContStartReadData
 // calls 0x80072890 at 0x8006FABC -- both are SI paths, so this is siacs and
@@ -171,34 +183,34 @@ _bcmp = 0x80072720; // type:func size:0x11C
 __osSiCreateAccessQueue = 0x80072840; // type:func size:0x50
 __osSiGetAccess = 0x80072890; // type:func size:0x44
 __osSiRelAccess = 0x800728D4; // type:func size:0x2C
-// libultra/sirawdma  ROM 0x73500  (io/sirawdma.c.o)
+// libultra/sirawdma  ROM 0x73500  (src/io/sirawdma.c.o)
 __osSiRawStartDma = 0x80072900; // type:func size:0xAC
-// libultra/crc  ROM 0x735b0  (io/crc.c.o)
+// libultra/crc  ROM 0x735b0  (src/io/crc.c.o)
 __osContAddressCrc = 0x800729B0; // type:func size:0xB0
 __osContDataCrc = 0x80072A60; // type:func size:0xD0
-// libultra/getcount  ROM 0x73730  (os/getcount.s.o)
+// libultra/getcount  ROM 0x73730  (src/os/getcount.s.o)
 osGetCount = 0x80072B30; // type:func size:0xC
-// libultra/vi  ROM 0x73740  (io/vi.c.o)
+// libultra/vi  ROM 0x73740  (src/io/vi.c.o)
 __osViInit = 0x80072B40; // type:func size:0x14C
-// libultra/ai  ROM 0x73890  (io/ai.c.o)
+// libultra/ai  ROM 0x73890  (src/io/ai.c.o)
 __osAiDeviceBusy = 0x80072C90; // type:func size:0x30
-// libultra/probetlb  ROM 0x738c0  (os/probetlb.s.o)
+// libultra/probetlb  ROM 0x738c0  (src/os/probetlb.s.o)
 __osProbeTLB = 0x80072CC0; // type:func size:0xB8
-// libultra/jammesg  ROM 0x73980  (os/jammesg.c.o)
+// libultra/jammesg  ROM 0x73980  (src/os/jammesg.c.o)
 osJamMesg = 0x80072D80; // type:func size:0x150
-// libultra/setsr  ROM 0x73b00  (os/setsr.s.o)
+// libultra/setsr  ROM 0x73b00  (src/os/setsr.s.o)
 __osSetSR = 0x80072F00; // type:func size:0x10
-// libultra/getsr  ROM 0x73b10  (os/getsr.s.o)
+// libultra/getsr  ROM 0x73b10  (src/os/getsr.s.o)
 __osGetSR = 0x80072F10; // type:func size:0xC
-// libultra/setfpccsr  ROM 0x73b20  (os/setfpccsr.s.o)
+// libultra/setfpccsr  ROM 0x73b20  (src/os/setfpccsr.s.o)
 __osSetFpcCsr = 0x80072F20; // type:func size:0x10
-// libultra/sirawread  ROM 0x73b30  (io/sirawread.c.o)
+// libultra/sirawread  ROM 0x73b30  (src/io/sirawread.c.o)
 __osSiRawReadIo = 0x80072F30; // type:func size:0x50
-// libultra/sirawwrite  ROM 0x73b80  (io/sirawwrite.c.o)
+// libultra/sirawwrite  ROM 0x73b80  (src/io/sirawwrite.c.o)
 __osSiRawWriteIo = 0x80072F80; // type:func size:0x4C
-// libultra/maptlbrdb  ROM 0x73c20  (os/maptlbrdb.s.o)
+// libultra/maptlbrdb  ROM 0x73c20  (src/os/maptlbrdb.s.o)
 osMapTLBRdb = 0x80073020; // type:func size:0x58
-// libultra/timerintr  ROM 0x73c90  (os/timerintr.c.o)
+// libultra/timerintr  ROM 0x73c90  (src/os/timerintr.c.o)
 __osTimerServicesInit = 0x80073090; // type:func size:0x8C
 __osTimerInterrupt = 0x8007311C; // type:func size:0x178
 __osSetTimerIntr = 0x80073294; // type:func size:0x74
@@ -206,34 +218,34 @@ __osInsertTimer = 0x80073308; // type:func size:0x188
 // io/conteepwrite.c: only __osEepStatus is byte-identical, the rest of the
 // TU is not, so the file boundary is not claimed and no other name is taken.
 __osEepStatus = 0x80073A80; // type:func size:0x224
-// libultra/vigetcurrcontext  ROM 0x748b0  (io/vigetcurrcontext.c.o)
+// libultra/vigetcurrcontext  ROM 0x748b0  (src/io/vigetcurrcontext.c.o)
 __osViGetCurrentContext = 0x80073CB0; // type:func size:0xC
-// libultra/viswapcontext  ROM 0x748c0  (io/viswapcontext.c.o)
+// libultra/viswapcontext  ROM 0x748c0  (src/io/viswapcontext.c.o)
 __osViSwapContext = 0x80073CC0; // type:func size:0x35C
-// libultra/spsetpc  ROM 0x74c20  (io/spsetpc.c.o)
+// libultra/spsetpc  ROM 0x74c20  (src/io/spsetpc.c.o)
 __osSpSetPc = 0x80074020; // type:func size:0x34
-// libultra/sprawdma  ROM 0x74c60  (io/sprawdma.c.o)
+// libultra/sprawdma  ROM 0x74c60  (src/io/sprawdma.c.o)
 __osSpRawStartDma = 0x80074060; // type:func size:0x8C
-// libultra/sp  ROM 0x74cf0  (io/sp.c.o)
+// libultra/sp  ROM 0x74cf0  (src/io/sp.c.o)
 __osSpDeviceBusy = 0x800740F0; // type:func size:0x2C
-// libultra/spgetstat  ROM 0x74d20  (io/spgetstat.c.o)
+// libultra/spgetstat  ROM 0x74d20  (src/io/spgetstat.c.o)
 __osSpGetStatus = 0x80074120; // type:func size:0xC
-// libultra/dp  ROM 0x74d30  (io/dp.c.o)
+// libultra/dp  ROM 0x74d30  (src/io/dp.c.o)
 __osDpDeviceBusy = 0x80074130; // type:func size:0x2C
-// libultra/resetglobalintmask  ROM 0x74d60  (os/resetglobalintmask.c.o)
+// libultra/resetglobalintmask  ROM 0x74d60  (src/os/resetglobalintmask.c.o)
 __osResetGlobalIntMask = 0x80074160; // type:func size:0x58
-// libultra/yieldthread  ROM 0x750d0  (os/yieldthread.c.o)
+// libultra/yieldthread  ROM 0x750d0  (src/os/yieldthread.c.o)
 osYieldThread = 0x800744D0; // type:func size:0x4C
-// libultra/xprintf  ROM 0x75120  (libc/xprintf.c.o)
+// libultra/xprintf  ROM 0x75120  (src/libc/xprintf.c.o)
 _Printf = 0x80074B90; // type:func size:0x644
-// libultra/si  ROM 0x75de0  (io/si.c.o)
+// libultra/si  ROM 0x75de0  (src/io/si.c.o)
 __osSiDeviceBusy = 0x800751E0; // type:func size:0x2C
-// libultra/setcompare  ROM 0x75e10  (os/setcompare.s.o)
+// libultra/setcompare  ROM 0x75e10  (src/os/setcompare.s.o)
 __osSetCompare = 0x80075210; // type:func size:0xC
-// libultra/xlitob  ROM 0x75e20  (libc/xlitob.c.o)
+// libultra/xlitob  ROM 0x75e20  (src/libc/xlitob.c.o)
 _Litob = 0x80075220; // type:func size:0x298
-// libultra/xldtob  ROM 0x760c0  (libc/xldtob.c.o)
+// libultra/xldtob  ROM 0x760c0  (src/libc/xldtob.c.o)
 _Ldtob = 0x80075A30; // type:func size:0x54C
-// libultra/ldiv  ROM 0x76b80  (libc/ldiv.c.o)
+// libultra/ldiv  ROM 0x76b80  (src/libc/ldiv.c.o)
 lldiv = 0x80075F80; // type:func size:0x100
 ldiv = 0x80076080; // type:func size:0x84

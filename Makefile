@@ -257,18 +257,26 @@ $(BUILD_DIR)/%.c.o: %.c $(H_FILES) | $(ALL_DIRS) $(SPLAT_STAMP)
 # ROM's 0xA0. Consistent with how the DKR decomp builds its libultra tree.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/string.c.o: MIPSISET := -mips2 -32
 
-# libultra's io/ tree is built at -O1, not -O2. Measured, not assumed: at -O2
-# IDO folds these functions' stack frames away entirely and the .text comes out
-# the wrong size, while -O1 -mips2 reproduces every one of them byte for byte.
-# (DKR's Makefile sets the same per-directory flags, which is corroboration
-# rather than the reason.) splat writes every libultra subsegment into one flat
-# src/libultra/, so this cannot be a directory-scoped pattern rule and each
-# file is named. Keep the list sorted.
-LIBULTRA_IO_TUS := ai aigetlen dp dpsetstat getactivequeue si sp \
+# These libultra TUs are built at -O1 -mips2, not the project default -O2 -mips1.
+# Measured, not assumed: at -O2 IDO folds their stack frames away entirely and
+# the .text comes out the wrong size, while -O1 -mips2 reproduces every one of
+# them byte for byte.
+#
+# The list is NOT "libultra's io/ directory", despite most of it coming from
+# there: getactivequeue is os/getactivequeue.c and needs the same flags. DKR
+# happens to build its io/ tree at -O1 and its os/ tree at -O1 as well, so the
+# per-directory framing would have been a coincidence rather than a rule -- the
+# grouping here is simply "TUs measured to need -O1 -mips2", which is the only
+# thing the evidence actually supports. Add a file when you have measured it.
+#
+# splat writes every libultra subsegment into one flat src/libultra/, so this
+# cannot be a directory-scoped pattern rule and each file is named. Keep the
+# list sorted.
+LIBULTRA_O1_TUS := ai aigetlen dp dpsetstat getactivequeue si sp \
                    spgetstat spsetstat sptaskyield
-$(foreach f,$(LIBULTRA_IO_TUS),$(eval \
+$(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -O1))
-$(foreach f,$(LIBULTRA_IO_TUS),$(eval \
+$(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
 
 $(TARGET).elf: $(O_FILES) $(LD_SCRIPT) | $(ALL_DIRS) $(SPLAT_STAMP)
