@@ -257,6 +257,19 @@ $(BUILD_DIR)/%.c.o: %.c $(H_FILES) | $(ALL_DIRS) $(SPLAT_STAMP)
 # ROM's 0xA0. Consistent with how the DKR decomp builds its libultra tree.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/string.c.o: MIPSISET := -mips2 -32
 
+# libultra's io/ tree is built at -O1, not -O2. Measured, not assumed: at -O2
+# IDO folds these functions' stack frames away entirely and the .text comes out
+# the wrong size, while -O1 -mips2 reproduces every one of them byte for byte.
+# (DKR's Makefile sets the same per-directory flags, which is corroboration
+# rather than the reason.) splat writes every libultra subsegment into one flat
+# src/libultra/, so this cannot be a directory-scoped pattern rule and each
+# file is named. Keep the list sorted.
+LIBULTRA_IO_TUS := ai aigetlen dp dpsetstat si sp spgetstat spsetstat
+$(foreach f,$(LIBULTRA_IO_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -O1))
+$(foreach f,$(LIBULTRA_IO_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
+
 $(TARGET).elf: $(O_FILES) $(LD_SCRIPT) | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(LD) $(LDFLAGS) -o $@
 
