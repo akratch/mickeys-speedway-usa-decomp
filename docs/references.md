@@ -11,8 +11,8 @@ and what it yielded when mined.
 their build outputs are at `~/Desktop/dev/decomp-refs/` (and, for Diddy Kong
 Racing, `~/Desktop/dev/Diddy-Kong-Racing/`), outside the tree, and are never
 committed. `docs/CLEANROOM.md` is the governing document: these five named
-published retail-derived decompilations are permitted sources for names and —
-with point-of-use `PROVENANCE` disclosure — for adapted bodies. Nothing else is.
+published retail-derived decompilations are permitted sources for names and,
+with point-of-use `PROVENANCE` disclosure, for adapted bodies. Nothing else is.
 
 ---
 
@@ -28,7 +28,7 @@ What is committed instead is the recipe and the checksums:
 - **`tools/reference-builds.lock`** pins, per title, the repo URL, the commit,
   the baserom SHA1, the build outcome, the object count, and one aggregate
   digest over the objects that were mined.
-- **`gmake reference-builds`** rebuilds the farm from those pins — clone at the
+- **`gmake reference-builds`** rebuilds the farm from those pins: clone at the
   pinned commit, stage the baserom out of your own ROM archive and check it
   against the locked SHA1 before using it, apply the macOS fixes each build
   needs, build.
@@ -38,7 +38,7 @@ What is committed instead is the recipe and the checksums:
   and this page's yield columns do not describe it.
 
 The digest covers what the mining pass reads out of each object, not the object
-file, because the object files are *not* byte-reproducible — see *Rebuilding
+file, because the object files are *not* byte-reproducible; see *Rebuilding
 the farm* at the end of this page for the measurement and what follows from it.
 
 Neither target can run in CI, for the reason `verify` and `check-fixtures`
@@ -52,7 +52,7 @@ run's logs and from nothing else; **Perfect Dark's baserom**, which upstream
 publishes as an MD5 with no SHA1, so the check against upstream is an MD5 check
 (the lock carries both); and, for the two titles that did not build to a
 byte-perfect ROM, **whether the objects they did produce are all the objects a
-complete build would have produced** — the digest proves a rebuild agrees with
+complete build would have produced**. The digest proves a rebuild agrees with
 this pass, not that this pass was complete.
 
 The same distinction runs through the yield columns below: the *adoption* and
@@ -65,15 +65,15 @@ The same distinction runs through the yield columns below: the *adoption* and
 An earlier version of this page ran them together and produced a headline
 ("168 of 171 translation units adopted") that nothing in the repo supported.
 
-- **Adopted** — the whole-`.text` match produced a **new named subsegment** in
+- **Adopted**: the whole-`.text` match produced a **new named subsegment** in
   `mickey.us.yaml`, i.e. a measured file boundary this tree did not have. This
   is the yield. **Recomputable** from the `//` block headers in
   `symbol_addrs.us.txt`, each of which is cross-checked against the yaml.
-- **Re-confirmed** — the match landed on a subsegment **Phase 1 had already
+- **Re-confirmed**: the match landed on a subsegment **Phase 1 had already
   named** from DKR. It adopted nothing and adds no row anywhere; its value is
   that Phase 1's map survives contact with four independent builds. **Not
-  recomputable from this tree** — the figure comes from the run logs.
-- **Corroborated** — an *adopted* TU whose bytes were also matched by a second
+  recomputable from this tree**: the figure comes from the run logs.
+- **Corroborated**: an *adopted* TU whose bytes were also matched by a second
   title's object, recorded on that TU's `same bytes in:` line.
   **Recomputable.**
 
@@ -89,7 +89,7 @@ An earlier version of this page ran them together and produced a headline
 | **Totals for this pass** | | | | | **2668** | **87** | **190** | *(not recomputable)* | **26 TUs** |
 
 "Objects mined" counts objects with a non-empty `.text` after filtering out
-asset blobs — see *Empty `.text` objects* below for why that filter exists.
+asset blobs; see *Empty `.text` objects* below for why that filter exists.
 Adopted TUs and names are attributed to the build whose object the symbol file
 cites; a match present in several builds is credited once, so the columns sum
 to the totals rather than double-counting.
@@ -97,8 +97,8 @@ to the totals rather than double-counting.
 **26 of the 87 adopted translation units were matched by more than one title**,
 and the corroboration column counts, per title, how many of those 26 that title
 matched. Four projects arriving independently at the same name for the same
-bytes is the strongest thing a name in this tree can have behind it — but it is
-a different claim from adoption, which is why it has its own column.
+bytes is the strongest thing a name in this tree can have behind it, but it is
+a different claim from adoption and has its own column.
 
 ---
 
@@ -115,12 +115,12 @@ a different claim from adoption, which is why it has its own column.
   in the tree, and the 16 corridor translation units it does *not* whole-match
   are exactly the ones Jet Force Gemini does. See `docs/modules.md` §4.1.
 
-## Jet Force Gemini — the highest-value reference
+## Jet Force Gemini: the highest-value reference
 
 - Repo: https://github.com/Ryan-Myers/Jet-Force-Gemini
 - Pinned commit: `c82affffe8f11cb5b440cfa918f4582ad8573279`
 - Baserom: `Jet Force Gemini (USA).z64`, SHA1
-  `493ced9008dbe932d6e91179b68e8630cf23a023` — matches the repo's documented US
+  `493ced9008dbe932d6e91179b68e8630cf23a023`; matches the repo's documented US
   SHA1 exactly.
 - Build outcome: **full byte-perfect match**. `build/jfg.us.z64` SHA1 equals the
   baserom's; CRC1/CRC2 both good.
@@ -128,7 +128,7 @@ a different claim from adoption, which is why it has its own column.
   167 asset blobs). 391 mined after filtering.
 
 **Why it is worth more than the other three put together.** JFG and Mickey share
-an engine lineage, a four-module layout and the runtime linker — and, it turns
+an engine lineage, a four-module layout, the runtime linker and, it turns
 out, a libultra build. Of the 87 translation units this pass adopted, **84 are
 JFG's**, carrying 187 of the 190 names, and they include all sixteen of the corridor drift runs DKR could not explain,
 the entire `n_audio` synthesis library, the Controller Pak filesystem, the
@@ -146,7 +146,7 @@ keep the larger size; the symbol file never contains a `.NON_MATCHING` row.
 - Repo: https://github.com/n64decomp/perfect_dark
 - Pinned commit: `169ed48bdcbfb3b568b028bd5bebb27680073514`
 - Baserom: `Perfect Dark (USA) (Rev 1).z64`, MD5
-  `e03b088b6ac9e0080440efed07c1e40f` — matches the repo's documented
+  `e03b088b6ac9e0080440efed07c1e40f`; matches the repo's documented
   `ntsc-final` MD5. **The repo publishes an MD5 and no SHA1**, so the check is
   an MD5 check; the file's SHA1 is `af8788ac4d1a57260eae9c53ffe851fcf2a3319b`
   and is recorded here so a future run can compare against *this* pass rather
@@ -159,7 +159,7 @@ keep the larger size; the symbol file never contains a `.NON_MATCHING` row.
   mining depends on.
 - Objects: 2546 total (157 libultra, 100 engine lib, 232 game, 2044 assets,
   13 misc). 467 mined.
-- **Yield: 3 adopted translation units, 3 names** — `osGbpakCheckConnector`,
+- **Yield: 3 adopted translation units, 3 names**. `osGbpakCheckConnector`,
   `osGbpakGetStatus`, `__osGbpakSelectBank` at ROM 0x6B3D0-0x6C040. Small, and
   not replaceable: PD is the only one of the five references whose libultra
   contains the Transfer Pak driver at all. PD also **corroborates 25** of the
@@ -170,14 +170,14 @@ keep the larger size; the symbol file never contains a `.NON_MATCHING` row.
 - Repo: https://github.com/n64decomp/banjo-kazooie
 - Pinned commit: `6eaae281481c9e4b367dc161faabfc3c79fe8733`
 - Baserom: `Banjo-Kazooie (USA).z64`, SHA1
-  `1fe1632098865f639e22c11b9a81ee8f29c75d7a` — matches the repo's documented
+  `1fe1632098865f639e22c11b9a81ee8f29c75d7a`; matches the repo's documented
   `baserom.us.v10.z64` checksum exactly.
 - Build outcome: **full byte-perfect match**.
 - Objects: 1232 total (737 game/boot, 495 libultra via `lib/ultralib`).
   1105 mined.
 - **Yield: zero adopted names, and that is the result.** BK **corroborates 2**
   of the 87 adopted TUs and **re-confirms 73** subsegments Phase 1 had already
-  named — not nothing — but every whole-TU match it produced was either already
+  named (not nothing), but every whole-TU match it produced was either already
   named from DKR or JFG, or was rejected: `src/SM/code_46C0.c.o` at 0x4FC20 offers
   only the placeholder `func_8038AAB0` at an address already rejected in Phase
   1, and `src/mgu/mtxxfmf.o` at 0x2A2B0 is a clean match whose boundary is
@@ -189,7 +189,7 @@ keep the larger size; the symbol file never contains a `.NON_MATCHING` row.
 - Repo: https://github.com/mkst/conker
 - Pinned commit: `3adf229175c037c771f251f169f9dd80ca306924`
 - Baserom: `Conker's Bad Fur Day (USA).z64`, SHA1
-  `4cbadd3c4e0729dec46af64ad018050eada4f47a` — matches the repo's documented
+  `4cbadd3c4e0729dec46af64ad018050eada4f47a`; matches the repo's documented
   `conker.us.sha1` exactly.
 - Build outcome: **partial**. Every one of the 1446 source files compiles to an
   object with the authentic IDO 5.3, but the final link fails on `_asmpp_funcN`
@@ -212,7 +212,7 @@ keep the larger size; the symbol file never contains a `.NON_MATCHING` row.
 
 ---
 
-## Empty `.text` objects — a filter the mining pass must keep
+## Empty `.text` objects: a filter the mining pass must keep
 
 Three of the four farm builds contain objects that are valid ELF files with an
 **empty or absent `.text` section**: 14 in JFG, 29 in Perfect Dark, 110 in
@@ -242,7 +242,7 @@ tools/find_known_objects.py <ref-build-dir> --start 0x1000 --end 0x86640 \
 `<ref-build-dir>` must contain only compiled code objects. The tool globs
 `**/*.o` under one directory and has no exclude option, so restricting a run to
 "libultra only" means building a filtered tree of symlinks outside the repo
-first — noted in `docs/workbench-improvement-log.md` as friction worth fixing.
+first, noted in `docs/workbench-improvement-log.md` as friction worth fixing.
 
 ## Rebuilding the farm
 
@@ -270,15 +270,15 @@ the absolute source path, the build host's name and a build timestamp, so the
 same commit built in a different directory produces different object *files*.
 Measured, not assumed: a fresh clone of Jet Force Gemini at `c82affff`, built by
 this script into a scratch directory, rebuilt the ROM byte-for-byte identical to
-the baserom and produced the same 772 objects — of which **279 differed
+the baserom and produced the same 772 objects, of which **279 differed
 byte-wise** from the farm's, while all 772 had an identical `.text` and an
 identical set of `.text` symbols.
 
 So the digest covers each object's **mining surface** instead: the bytes of
 `.text`, and the name, value and size of every symbol in it. That is exactly and
 only what `tools/find_known_objects.py` compares against Mickey's ROM. It is
-stable across rebuilds — the same JFG rebuild reproduced the locked digest
-exactly — and it still moves if the compiler, the flags or the sources move. A
+stable across rebuilds (the same JFG rebuild reproduced the locked digest
+exactly) and it still moves if the compiler, the flags or the sources move. A
 farm that matches the lock is a farm that mines to the same names.
 
 `tools/reference_build_digest.py` computes it, in stdlib Python off the ELF

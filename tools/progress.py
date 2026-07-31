@@ -333,14 +333,14 @@ def render_markdown(st):
         noted = [f"`{os.path.basename(r)}` ({n})" for r, n in items if n]
         if noted:
             parts.append(
-                f"{len(items)} under `src/{d}/` — including "
+                f"{len(items)} under `src/{d}/`, including "
                 + " and ".join(noted)
             )
         else:
             parts.append(f"{len(items)} under `src/{d}/`")
     L.append(
-        f"**Matched so far** — {len(tus)} C translation units that build "
-        f"byte-identically: " + "; ".join(parts) + "."
+        f"**Matched so far**: {len(tus)} C translation units that build "
+        f"byte-identically. " + "; ".join(parts) + "."
     )
     L.append("")
     L.append(

@@ -19,7 +19,7 @@ Full build instructions are in [`README.md`](../README.md).
 Nothing ROM-derived is ever tracked in git: no disassembly, no instruction
 text, no hexdumps or byte arrays of ROM bytes, no extracted assets, no ROM
 images, no decompilation-workbench ledgers. [`CLEANROOM.md`](CLEANROOM.md) is
-the policy — what may be consulted, what may be adopted, and how adopted
+the policy: what may be consulted, what may be adopted, and how adopted
 material is disclosed. Read it before taking a name or a function body from
 another project.
 
@@ -31,7 +31,7 @@ a history rewrite. The gates below exist so that cannot recur.
 
 | Where | What it scans |
 |---|---|
-| `.githooks/pre-commit` | the index — exactly what the commit would record |
+| `.githooks/pre-commit` | the index, exactly what the commit would record |
 | `.githooks/pre-push` | every commit tree in the push, not just the tip |
 | `.github/workflows/cleanroom.yml` | the same, on every push and pull request |
 
@@ -96,7 +96,7 @@ tool-level ledger redaction, this policy, and `protect-master`.
 **Do not use `--no-verify`**, and do not lower a threshold to get a file
 through. If a file is a real false positive, restructure it or add an
 allowlist entry in `tools/cleanroom_detectors.py` with a reason. If something
-ROM-derived is already committed, it must be rewritten out of history — a
+ROM-derived is already committed, it must be rewritten out of history; a
 commit that deletes the file still ships its bytes to anyone who fetches.
 
 ## Evidence discipline
@@ -108,8 +108,8 @@ symbol, in both `docs/modules.md` and `symbol_addrs.us.txt`. Tier A has an
 adoption threshold (§1.2); an adoption below it is argued individually in that
 section's table.
 
-Derived numbers — matched function and byte counts, percentages, segment sizes
-— are recomputed from the lists they summarise, never copied forward.
+Derived numbers (matched function and byte counts, percentages, segment
+sizes) are recomputed from the lists they summarise, never copied forward.
 `gmake check-docs` re-derives the mechanically checkable ones and fails on
 drift.
 
@@ -124,9 +124,9 @@ run; nothing else is wired into a hook.
 | `gmake verify` | ROM rebuilds byte-identically (SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`) | yes | manual |
 | `gmake cleanroom` | no ROM-derived content in the worktree/index/range | no | pre-commit, pre-push, CI |
 | `gmake check-docs` | derived numbers in the docs (`docs/modules.md` etc.) match the tree | no† | manual |
-| `gmake check-scoreboard` | README's generated Progress block matches what the tree produces right now | yes | manual only — CI runs the `--check-partial` subset, which does not need a build (see [`scoreboard.yml`](../.github/workflows/scoreboard.yml) and the note below) |
+| `gmake check-scoreboard` | README's generated Progress block matches what the tree produces right now | yes | manual only; CI runs the `--check-partial` subset, which does not need a build (see [`scoreboard.yml`](../.github/workflows/scoreboard.yml) and the note below) |
 | `gmake audit-decoders` | the clean-room content detectors aren't inventing words that aren't there (run after touching `tools/cleanroom_detectors.py`, not instead of `cleanroom`) | no | manual |
-| `gmake check-fixtures` | the other direction — real ROM in every encoding at every wrap width is *still caught*, which `audit-decoders` is structurally blind to. Fixtures are synthesized from `baseroms/mickey.us.z64` at run time and never written to disk, so it can never run in CI. Run it with `audit-decoders`, not instead of it | no (needs a baserom) | manual |
+| `gmake check-fixtures` | the other direction: real ROM in every encoding at every wrap width is *still caught*, which `audit-decoders` is structurally blind to. Fixtures are synthesized from `baseroms/mickey.us.z64` at run time and never written to disk, so it can never run in CI. Run it with `audit-decoders`, not instead of it | no (needs a baserom) | manual |
 | `gmake check-reference-builds` | a local reference-decomp farm still hashes to the digests `tools/reference-builds.lock` pins, i.e. is the farm the 190 tier-A names were mined from. Needs the farm, which is out of tree by design, so it can never run in CI. `gmake reference-builds` rebuilds one from the pins; see [`references.md`](references.md) | no (needs the farm and its baseroms) | manual |
 | `gmake progress` | the same matched-function/byte/symbol counts as the scoreboard, without touching README.md | yes | manual |
 | `gmake scoreboard` | regenerates README's Progress block from the tree (run it, then commit, whenever matching progress changes) | yes | manual |
@@ -141,11 +141,11 @@ producing one needs `gmake extract` to split `asm/` out of a baserom, which
 [`CLEANROOM.md`](CLEANROOM.md) forbids committing. `--check-partial` (wired
 into [`scoreboard.yml`](../.github/workflows/scoreboard.yml)) is the strongest
 subset that runs without one: it recomputes the block's two non-ELF-derived
-figures — the adopted-symbol count from `symbol_addrs.us.txt` and the
-matched-TU list from `src/` — using the real generator, and separately checks
+figures (the adopted-symbol count from `symbol_addrs.us.txt` and the
+matched-TU list from `src/`) using the real generator, and separately checks
 the committed block's own arithmetic (each ratio's percentage against its own
 numerator/denominator, the per-area rows summing to the total row). It cannot
-catch drift in the ELF-derived figures — functions/bytes matched, the per-area
+catch drift in the ELF-derived figures: functions/bytes matched, the per-area
 breakdown. Only `gmake check-scoreboard`, run locally by whoever matched the
 function, catches that.
 
