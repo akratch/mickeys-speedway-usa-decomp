@@ -821,3 +821,316 @@ __osEPiRawReadIo = 0x80074320; // type:func size:0x160
 // libultra/setglobalintmask  ROM 0x75080  (jfg/libultra: libultra/src/os/setglobalintmask.c.o)  whole .text 0x50, masked=6, romocc=1
 //   same bytes in: banjo-kazooie,jfg,perfect_dark
 __osSetGlobalIntMask = 0x80074480; // type:func size:0x4C
+
+// ---------------------------------------------------------------------------
+// 2. THE EXCEPTION ISLAND -- and a Task D claim that is now superseded
+//
+// Task D named four routines here and wrote: "__osException, __osEnqueueThread,
+// __osDispatchThread and __osEnqueueAndYield match NOWHERE, even though
+// __osEnqueueThread is 0x48 bytes of relocation-free assembly that would match
+// trivially if it were DKR's. Something in this island is not stock."
+//
+// That reading was correct about DKR and wrong about the island. The whole
+// 0x9B0 `.text` of JFG's built `os/exceptasm.s.o` matches ROM 0x4FC30 in ONE
+// PIECE -- 76 of 620 words masked, ROM-wide unique -- so the island is stock
+// libultra after all, from a build Task D had no copy of. All four "match
+// nowhere" routines are below, placed by their offset inside that object.
+//
+// The size claim is also corrected. Task D put the island at 0xAA0 against
+// DKR's 0x900 and concluded Mickey's was larger. The measured TU is 0x9B0 and
+// ends at ROM 0x505E0; the 0xF0 bytes from there to 0x506D0 are a separate,
+// still-unidentified run, not part of exceptasm.s. The yaml now splits them.
+//
+// What this does NOT do is decompile the island -- it is hand-written assembly
+// and stays `asm`. It does retire it from docs/modules.md's "not covered" list.
+// ---------------------------------------------------------------------------
+// libultra/exceptasm  ROM 0x4fc30  (jfg/libultra: libultra/src/os/exceptasm.s.o)  whole .text 0x9b0, masked=76, romocc=1
+__osException = 0x8004F040; // type:func size:0x580
+__osEnqueueAndYield = 0x8004F6A8; // type:func size:0x118
+__osEnqueueThread = 0x8004F7C0; // type:func size:0x48
+__osDispatchThread = 0x8004F818; // type:func size:0x1BC
+__osCleanupThread = 0x8004F9D4; // type:func size:0x8
+
+// ---------------------------------------------------------------------------
+// 3. ROM 0x5E6B0-0x6ACF0 -- libultra's `n_audio` synthesis library, whole
+//
+// The largest single find of this pass: 44 consecutive libultra audio
+// translation units, matched whole against JFG's build, covering ROM
+// 0x5E6B0-0x6AF90 with only three non-libultra TUs interleaved (JFG's
+// `math_atan`, `math_acosf` and `math_arc`, which are named here too because
+// they sit inside the same address range and separating them would make this
+// block's ROM span discontiguous for no gain).
+//
+// This is the "n_" ALIST audio library -- the second-generation N64 audio
+// synthesis driver, shipped in libultra alongside the older `al*` one. Task D
+// reached this region only through string correspondence and named two
+// functions in it. The whole library is now placed.
+//
+// TWO TASK D REJECTIONS ARE REVERSED HERE, and the reversal is the point of
+// having written the reasons down:
+//
+//   * `alCSPGetState` at 0x61990 and `alCSeqGetTicks` at 0x620E0 were rejected
+//     as "semantically vacuous" -- one-line accessors (`jr ra` / `lw v0,
+//     off(a0)`) whose ROM-wide uniqueness was an accident of padding. That was
+//     the right call on the evidence then available, which was a STANDALONE
+//     function match against DKR. The evidence now is different in kind: both
+//     addresses fall inside whole-`.text` matches (0x20 and 0x9D0, romocc=1),
+//     so what places them is the translation unit, not the accessor's own
+//     bytes. The names are JFG's `n_`-prefixed spellings, which is also new
+//     information -- this is the n_audio variant, not the al* one DKR matched.
+//
+// Where three or four reference builds contain the same bytes the comment says
+// so; that is corroboration of the NAME, since those projects named the routine
+// independently of each other.
+// ---------------------------------------------------------------------------
+// libultra/n_cspsetvol  ROM 0x5e6b0  (jfg/libultra: src/libultra/n_cspsetvol.c.o)  whole .text 0x50, masked=1, romocc=1
+n_alCSPSetVol = 0x8005DAB0; // type:func size:0x4C
+// libultra/n_csplayer  ROM 0x5e700  (jfg/libultra: src/libultra/n_csplayer.c.o)  whole .text 0x3220, masked=154, romocc=1
+n_alCSPNew = 0x8005DB00; // type:func size:0x270
+__n_CSPPostNextSeqEvent = 0x80060C70; // type:func size:0x94
+n_alCSPVoiceLimit = 0x80060D04; // type:func size:0x10
+// libultra/n_cspsetchlvol  ROM 0x61920  (jfg/libultra: src/libultra/n_cspsetchlvol.c.o)  whole .text 0x70, masked=1, romocc=1
+n_alCSPSetChlVol = 0x80060D20; // type:func size:0x70
+// libultra/n_cspgetstate  ROM 0x61990  (jfg/libultra: src/libultra/n_cspgetstate.c.o)  whole .text 0x20, masked=0, romocc=1
+//   same bytes in: conker,jfg,perfect_dark
+n_alCSPGetState = 0x80060D90; // type:func size:0x8
+// libultra/n_cseq  ROM 0x619b0  (jfg/libultra: src/libultra/n_cseq.c.o)  whole .text 0x9d0, masked=15, romocc=1
+n_alCSeqNew = 0x80060DB0; // type:func size:0x180
+n_alCSeqNextEvent = 0x80060F30; // type:func size:0x17C
+n_alCSeqGetTicks = 0x800614E0; // type:func size:0x8
+// libultra/n_cspsetseq  ROM 0x62380  (jfg/libultra: src/libultra/n_cspsetseq.c.o)  whole .text 0x50, masked=1, romocc=1
+n_alCSPSetSeq = 0x80061780; // type:func size:0x50
+// libultra/n_cspplay  ROM 0x623d0  (jfg/libultra: src/libultra/n_cspplay.c.o)  whole .text 0x40, masked=1, romocc=1
+n_alCSPPlay = 0x800617D0; // type:func size:0x40
+// libultra/n_cspstop  ROM 0x62410  (jfg/libultra: src/libultra/n_cspstop.c.o)  whole .text 0x40, masked=1, romocc=1
+n_alCSPStop = 0x80061810; // type:func size:0x40
+// libultra/n_cspmessage  ROM 0x62450  (jfg/libultra: src/libultra/n_cspmessage.c.o)  whole .text 0xb0, masked=0, romocc=1
+n_alCSPSetMessageQ = 0x80061850; // type:func size:0xC
+n_alCSPSetMessage = 0x80061864; // type:func size:0x68
+n_alCSPSetChanMessage = 0x800618CC; // type:func size:0x2C
+// libultra/n_sl  ROM 0x62500  (jfg/libultra: src/libultra/n_sl.c.o)  whole .text 0xc0, masked=18, romocc=1
+//   same bytes in: conker,jfg,perfect_dark
+n_alInit = 0x80061900; // type:func size:0x6C
+n_alClose = 0x8006196C; // type:func size:0x54
+// libultra/slHeap  ROM 0x625c0  (jfg/libultra: src/libultra/slHeap.c.o)  whole .text 0xb0, masked=0, romocc=1
+//   same bytes in: conker,jfg,perfect_dark
+alHeapInit = 0x800619C0; // type:func size:0x1C
+alHeapDBAlloc = 0x800619E4; // type:func size:0x8C
+// libultra/sl  ROM 0x62670  (jfg/libultra: src/libultra/sl.c.o)  whole .text 0x80, masked=0, romocc=1
+//   same bytes in: jfg,perfect_dark
+alLink = 0x80061A70; // type:func size:0x2C
+alUnlink = 0x80061AA4; // type:func size:0x4C
+// libultra/n_synthesizer  ROM 0x626f0  (jfg/libultra: src/libultra/n_synthesizer.c.o)  whole .text 0xad0, masked=173, romocc=1
+n_alSynNew = 0x80061AF0; // type:func size:0x5E0
+n_alAudioFrame = 0x800620D0; // type:func size:0x224
+__n_allocParam = 0x800622F4; // type:func size:0xA0
+_n_freeParam = 0x80062394; // type:func size:0x38
+_n_collectPVoices = 0x800623D4; // type:func size:0x6C
+_n_freePVoice = 0x80062440; // type:func size:0x40
+_n_timeToSamples = 0x800624E4; // type:func size:0x3C
+// libultra/cents2ratio  ROM 0x631c0  (jfg/libultra: src/libultra/cents2ratio.c.o)  whole .text 0xa0, masked=4, romocc=1
+//   same bytes in: conker,jfg
+alCents2Ratio = 0x800625C0; // type:func size:0xA0
+// libultra/alsurround  ROM 0x63260  (jfg/libultra: src/libultra/alsurround.c.o)  whole .text 0x210, masked=39, romocc=1
+//   same bytes in: conker,jfg,perfect_dark
+alSurround_OutputType = 0x80062660; // type:func size:0xD4
+alSurround_ReverbSetup = 0x80062734; // type:func size:0x13C
+// libultra/n_event  ROM 0x63470  (jfg/libultra: src/libultra/n_event.c.o)  whole .text 0x660, masked=34, romocc=1
+n_alEvtqNew = 0x80062870; // type:func size:0xAC
+n_alEvtqNextEvent = 0x8006291C; // type:func size:0xB4
+n_alEvtqPostEvent = 0x800629D0; // type:func size:0x1DC
+n_alEvtqPostExternEvent = 0x80062BAC; // type:func size:0x244
+n_alEvtqFlushType = 0x80062DF0; // type:func size:0xE0
+// libultra/n_synaddplayer  ROM 0x63ad0  (jfg/libultra: src/libultra/n_synaddplayer.c.o)  whole .text 0x150, masked=24, romocc=1
+//   same bytes in: conker,jfg,perfect_dark
+n_alSynAddPlayer = 0x80062ED0; // type:func size:0x70
+n_alSynAddSndPlayer = 0x80062F40; // type:func size:0x70
+n_alSynAddSeqPlayer = 0x80062FB0; // type:func size:0x70
+// libultra/n_synallocvoice  ROM 0x63c20  (jfg/libultra: src/libultra/n_synallocvoice.c.o)  whole .text 0x310, masked=23, romocc=1
+n_alSynAllocVoice = 0x80063020; // type:func size:0x1D8
+_allocatePVoice = 0x800631F8; // type:func size:0x138
+// libultra/n_synsetvol  ROM 0x63f30  (jfg/libultra: src/libultra/n_synsetvol.c.o)  whole .text 0xd0, masked=5, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynSetVol = 0x80063330; // type:func size:0xD0
+// libultra/n_synstartvoiceparam  ROM 0x64000  (jfg/libultra: src/libultra/n_synstartvoiceparam.c.o)  whole .text 0x130, masked=5, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynStartVoiceParams = 0x80063400; // type:func size:0x130
+// libultra/n_synsetpan  ROM 0x64130  (jfg/libultra: src/libultra/n_synsetpan.c.o)  whole .text 0xb0, masked=4, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynSetPan = 0x80063530; // type:func size:0xB0
+// libultra/n_synsetpitch  ROM 0x641e0  (jfg/libultra: src/libultra/n_synsetpitch.c.o)  whole .text 0xb0, masked=4, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynSetPitch = 0x800635E0; // type:func size:0xB0
+// libultra/n_synsetfxmix  ROM 0x64290  (jfg/libultra: src/libultra/n_synsetfxmix.c.o)  whole .text 0xb0, masked=4, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynSetFXMix = 0x80063690; // type:func size:0xB0
+// libultra/n_synstopvoice  ROM 0x64340  (jfg/libultra: src/libultra/n_synstopvoice.c.o)  whole .text 0xa0, masked=4, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynStopVoice = 0x80063740; // type:func size:0xA0
+// libultra/n_synfreevoice  ROM 0x643e0  (jfg/libultra: src/libultra/n_synfreevoice.c.o)  whole .text 0xe0, masked=5, romocc=1
+n_alSynFreeVoice = 0x800637E0; // type:func size:0xE0
+// libultra/n_alcspchan  ROM 0x644c0  (jfg/libultra: src/libultra/n_alcspchan.c.o)  whole .text 0x240, masked=5, romocc=1
+n_alCSPAllChanOn = 0x800638C0; // type:func size:0x98
+n_alCSPChanOff = 0x80063958; // type:func size:0x48
+n_alCSPChanOn = 0x800639A0; // type:func size:0x68
+n_alCSPChanFade = 0x80063A08; // type:func size:0x50
+n_alCSPChanSurround = 0x80063A58; // type:func size:0x50
+n_alCSPChanFadeForce = 0x80063AA8; // type:func size:0x58
+// libultra/n_seqplayer  ROM 0x64700  (jfg/libultra: src/libultra/n_seqplayer.c.o)  whole .text 0x1160, masked=14, romocc=1
+__n_unmapVoice = 0x80063B00; // type:func size:0xC0
+__n_seqpReleaseVoice = 0x80063BC0; // type:func size:0x174
+__n_voiceNeedsNoteKill = 0x80063D34; // type:func size:0x120
+__n_mapVoice = 0x80063E54; // type:func size:0xC4
+__n_lookupVoice = 0x80063F18; // type:func size:0x90
+__n_lookupSoundQuick = 0x80063FA8; // type:func size:0x178
+__n_vsVol = 0x80064120; // type:func size:0x128
+__n_vsMix = 0x80064248; // type:func size:0x108
+__n_vsDelta = 0x80064350; // type:func size:0x44
+__n_vsPan = 0x80064394; // type:func size:0x8C
+__n_initFromBank = 0x80064420; // type:func size:0xE8
+__n_initChanState = 0x80064508; // type:func size:0x8C
+__n_resetPerfChanState = 0x80064594; // type:func size:0x248
+__n_setInstChanState = 0x800647E4; // type:func size:0x33C
+__n_seqpStopOsc = 0x80064B20; // type:func size:0x140
+// libultra/n_alsynsetlpffreq  ROM 0x65860  (jfg/libultra: src/libultra/n_alsynsetlpffreq.c.o)  whole .text 0xb0, masked=4, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynSetLpf_freq = 0x80064C60; // type:func size:0xB0
+// libultra/n_alsynsetlpfgain  ROM 0x65910  (jfg/libultra: src/libultra/n_alsynsetlpfgain.c.o)  whole .text 0xb0, masked=4, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynSetLpf_gain = 0x80064D10; // type:func size:0xB0
+// libultra/n_drvrNew  ROM 0x659c0  (jfg/libultra: src/libultra/n_drvrNew.c.o)  whole .text 0xd10, masked=34, romocc=1
+n_alFxInitlpfilter = 0x80064F24; // type:func size:0x150
+alSemitones2Ratio = 0x80065074; // type:func size:0x94
+n_alFxInitlpfilter_mono = 0x80065108; // type:func size:0x1EC
+n_alFxNew = 0x800652F4; // type:func size:0x5C4
+alN_PVoiceNew = 0x800658B8; // type:func size:0x218
+// libultra/n_syngetfxref  ROM 0x666d0  (jfg/libultra: src/libultra/n_syngetfxref.c.o)  whole .text 0xf0, masked=12, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynGetFXRef = 0x80065AD0; // type:func size:0x78
+n_alSynGetOutputLPRef = 0x80065B48; // type:func size:0x78
+// libultra/n_synsetfxparam  ROM 0x667c0  (jfg/libultra: src/libultra/n_synsetfxparam.c.o)  whole .text 0x100, masked=6, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynSetFXParam = 0x80065BC0; // type:func size:0x44
+n_alSynSetOutputLPParam = 0x80065C04; // type:func size:0xBC
+// libultra/n_alsynsetdistort  ROM 0x668c0  (jfg/libultra: src/libultra/n_alsynsetdistort.c.o)  whole .text 0xb0, masked=4, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynSetDistort = 0x80065CC0; // type:func size:0xB0
+// libultra/n_cseqnextdelta  ROM 0x66970  (jfg/libultra: src/libultra/n_cseqnextdelta.c.o)  whole .text 0xe0, masked=0, romocc=1
+//   same bytes in: conker,jfg,perfect_dark
+__alCSeqNextDelta = 0x80065D70; // type:func size:0xE0
+// libultra/n_syndelete  ROM 0x66a50  (jfg/libultra: src/libultra/n_syndelete.c.o)  whole .text 0x20, masked=2, romocc=1
+//   same bytes in: conker,jfg,perfect_dark
+n_alSynDelete = 0x80065E50; // type:func size:0x14
+// libultra/n_synallocfx  ROM 0x66a70  (jfg/libultra: src/libultra/n_synallocfx.c.o)  whole .text 0x90, masked=5, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynAllocFX = 0x80065E70; // type:func size:0x90
+// libultra/n_reverb  ROM 0x66b00  (jfg/libultra: src/libultra/n_reverb.c.o)  whole .text 0x16b0, masked=60, romocc=1
+n_alFxPull = 0x80065F00; // type:func size:0x840
+n_alFxParamHdl = 0x80066740; // type:func size:0x520
+_n_loadOutputBuffer = 0x80066C60; // type:func size:0x318
+_n_loadBuffer = 0x80066F78; // type:func size:0x1F8
+_n_saveBuffer = 0x80067170; // type:func size:0x1DC
+_n_filterBuffer = 0x8006734C; // type:func size:0x100
+_doModFunc = 0x8006744C; // type:func size:0xC4
+n_alSavePull = 0x80067510; // type:func size:0xA0
+// libultra/n_env  ROM 0x681b0  (jfg/libultra: src/libultra/n_env.c.o)  whole .text 0xff0, masked=59, romocc=1
+n_alEnvmixerPull = 0x800675B0; // type:func size:0x924
+n_alEnvmixerParam = 0x80067ED4; // type:func size:0x144
+// libultra/n_cspsendmidi  ROM 0x691a0  (jfg/libultra: src/libultra/n_cspsendmidi.c.o)  whole .text 0x80, masked=1, romocc=1
+n_alCSPSendMidi = 0x800685A0; // type:func size:0x80
+// libultra/n_synsetpriority  ROM 0x69220  (jfg/libultra: src/libultra/n_synsetpriority.c.o)  whole .text 0x20, masked=0, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alSynSetPriority = 0x80068620; // type:func size:0x14
+// main/math_atan  ROM 0x69240  (jfg/game: src/math/math_atan.c.o)  whole .text 0x200, masked=17, romocc=1
+atan2f = 0x80068640; // type:func size:0x1F4
+// libultra/n_auxbus  ROM 0x69440  (jfg/libultra: src/libultra/n_auxbus.c.o)  whole .text 0x4f0, masked=7, romocc=1
+//   same bytes in: jfg,perfect_dark
+n_alAuxBusPull = 0x80068840; // type:func size:0x4F0
+// libultra/n_mainbus  ROM 0x69930  (jfg/libultra: src/libultra/n_mainbus.c.o)  whole .text 0x370, masked=22, romocc=1
+n_alMainBusPull = 0x80068D30; // type:func size:0x370
+// libultra/n_load  ROM 0x69ca0  (jfg/libultra: src/libultra/n_load.c.o)  whole .text 0xb50, masked=4, romocc=1
+n_alAdpcmPull = 0x800690A0; // type:func size:0x6AC
+n_alLoadParam = 0x8006974C; // type:func size:0x2E8
+// libultra/n_alLPFilter  ROM 0x6a7f0  (jfg/libultra: src/libultra/n_alLPFilter.c.o)  whole .text 0x420, masked=13, romocc=1
+n_alLPFilterPull = 0x80069BF0; // type:func size:0x2F8
+n_alLPFilterParam = 0x80069EE8; // type:func size:0x128
+// main/math_acosf  ROM 0x6ac10  (jfg/game: src/math/math_acosf.c.o)  whole .text 0xe0, masked=7, romocc=1
+acosf = 0x8006A010; // type:func size:0xDC
+// libultra/n_resample  ROM 0x6acf0  (jfg/libultra: src/libultra/n_resample.c.o)  whole .text 0x2a0, masked=8, romocc=1
+n_alResamplePull = 0x8006A0F0; // type:func size:0x244
+n_alResampleParam = 0x8006A334; // type:func size:0x5C
+
+// ---------------------------------------------------------------------------
+// 4. ROM 0x6B3D0-0x6F3E0 -- controller pak, rumble pak, transfer pak
+//
+// 18 more libultra translation units immediately below the corridor: the
+// Controller Pak filesystem (`contpfs`, `pfs*`), the Rumble Pak driver
+// (`motor`), and three Transfer Pak routines that came from PERFECT DARK's
+// build rather than JFG's -- PD is the only one of the four references whose
+// libultra contains `gbpak*` at all, which is exactly the kind of thing having
+// four reference builds instead of one buys.
+//
+// This range was `asm` with no names at all. It also moves the corridor's
+// lower boundary argument: the yaml previously justified 0x6F420 as the start
+// of libultra partly on "the function ending at 0x6F3DC is game-shaped (saves
+// s5/s6)". That function is `corrupted`, the last routine of libultra's own
+// `io/pfschecker.c` -- so the observation was accurate and the inference from
+// it was not. libultra is now contiguous from 0x6B3D0 to 0x76D10 with one
+// 0x40-byte hole at 0x6F3E0-0x6F420. See docs/modules.md section 4.1.
+//
+// `__osPfsGetInitData` (0x8006BA9C) also settles a Task D loose end: that
+// symbol was recorded as a rejected standalone collision at 0x8006F8E8. Its
+// real home is here, inside the whole-TU match on `io/pfsisplug.c`.
+// ---------------------------------------------------------------------------
+// libultra/gbpakcheckconnector  ROM 0x6b3d0  (perfect_dark/libultra: lib/ultra/io/gbpakcheckconnector.o)  whole .text 0x490, masked=15, romocc=1
+osGbpakCheckConnector = 0x8006A7D0; // type:func size:0x488
+// libultra/gbpakgetstatus  ROM 0x6bdf0  (perfect_dark/libultra: lib/ultra/io/gbpakgetstatus.o)  whole .text 0x180, masked=4, romocc=1
+osGbpakGetStatus = 0x8006B1F0; // type:func size:0x17C
+// libultra/gbpakselectbank  ROM 0x6bf70  (perfect_dark/libultra: lib/ultra/io/gbpakselectbank.o)  whole .text 0xd0, masked=3, romocc=1
+__osGbpakSelectBank = 0x8006B370; // type:func size:0xD0
+// libultra/motor  ROM 0x6c040  (jfg/libultra: libultra/src/io/motor.c.o)  whole .text 0x410, masked=25, romocc=1
+osMotorStop = 0x8006B440; // type:func size:0x20
+osMotorStart = 0x8006B460; // type:func size:0x20
+__osMotorAccess = 0x8006B480; // type:func size:0x168
+osMotorInit = 0x8006B6F0; // type:func size:0x160
+// libultra/pfsisplug  ROM 0x6c450  (jfg/libultra: libultra/src/io/pfsisplug.c.o)  whole .text 0x300, masked=22, romocc=1
+osPfsIsPlug = 0x8006B850; // type:func size:0x18C
+__osPfsRequestData = 0x8006B9DC; // type:func size:0xC0
+__osPfsGetInitData = 0x8006BA9C; // type:func size:0xAC
+// libultra/pfsfreeblocks  ROM 0x6c750  (jfg/libultra: libultra/src/io/pfsfreeblocks.c.o)  whole .text 0x1a0, masked=2, romocc=1
+osPfsFreeBlocks = 0x8006BB50; // type:func size:0x198
+// libultra/pfsinit  ROM 0x6c8f0  (jfg/libultra: libultra/src/io/pfsinit.c.o)  whole .text 0xa0, masked=5, romocc=1
+osPfsInit = 0x8006BCF0; // type:func size:0xA0
+// libultra/pfsnumfiles  ROM 0x6c990  (jfg/libultra: libultra/src/io/pfsnumfiles.c.o)  whole .text 0x130, masked=4, romocc=1
+osPfsNumFiles = 0x8006BD90; // type:func size:0x128
+// libultra/pfsfilestate  ROM 0x6cac0  (jfg/libultra: libultra/src/io/pfsfilestate.c.o)  whole .text 0x1e0, masked=7, romocc=1
+osPfsFileState = 0x8006BEC0; // type:func size:0x1DC
+// libultra/pfssearchfile  ROM 0x6cca0  (jfg/libultra: libultra/src/io/pfssearchfile.c.o)  whole .text 0x1d0, masked=3, romocc=1
+osPfsFindFile = 0x8006C0A0; // type:func size:0x1C8
+// libultra/pfsreadwritefile  ROM 0x6ce70  (jfg/libultra: libultra/src/io/pfsreadwritefile.c.o)  whole .text 0x460, masked=12, romocc=1
+osPfsReadWriteFile = 0x8006C348; // type:func size:0x37C
+// libultra/pfsallocatefile  ROM 0x6d2d0  (jfg/libultra: libultra/src/io/pfsallocatefile.c.o)  whole .text 0x480, masked=11, romocc=1
+osPfsAllocateFile = 0x8006C6D0; // type:func size:0x334
+__osPfsDeclearPage = 0x8006CA04; // type:func size:0x140
+// libultra/contramwrite  ROM 0x6d750  (jfg/libultra: libultra/src/io/contramwrite.c.o)  whole .text 0x250, masked=16, romocc=1
+__osContRamWrite = 0x8006CB50; // type:func size:0x24C
+// libultra/contramread  ROM 0x6d9a0  (jfg/libultra: libultra/src/io/contramread.c.o)  whole .text 0x230, masked=16, romocc=1
+__osContRamRead = 0x8006CDA0; // type:func size:0x224
+// libultra/pfsgetstatus  ROM 0x6dbd0  (jfg/libultra: libultra/src/io/pfsgetstatus.c.o)  whole .text 0x240, masked=18, romocc=1
+__osPfsGetStatus = 0x8006CFD0; // type:func size:0xD0
+__osPfsRequestOneChannel = 0x8006D0A0; // type:func size:0xD0
+__osPfsGetOneChannelData = 0x8006D170; // type:func size:0x98
+// libultra/pfsselectbank  ROM 0x6de10  (jfg/libultra: libultra/src/io/pfsselectbank.c.o)  whole .text 0x80, masked=1, romocc=1
+__osPfsSelectBank = 0x8006D210; // type:func size:0x7C
+// libultra/contpfs  ROM 0x6de90  (jfg/libultra: libultra/src/io/contpfs.c.o)  whole .text 0xba0, masked=52, romocc=1
+__osSumcalc = 0x8006D290; // type:func size:0x78
+__osIdCheckSum = 0x8006D308; // type:func size:0x100
+__osRepairPackId = 0x8006D408; // type:func size:0x350
+__osCheckPackId = 0x8006D758; // type:func size:0x168
+__osGetId = 0x8006D8C0; // type:func size:0x1B0
+__osCheckId = 0x8006DA70; // type:func size:0xD8
+__osPfsRWInode = 0x8006DB48; // type:func size:0x2DC
+// libultra/pfschecker  ROM 0x6ea30  (jfg/libultra: libultra/src/io/pfschecker.c.o)  whole .text 0x9b0, masked=14, romocc=1
+osPfsChecker = 0x8006DE30; // type:func size:0x53C
+corrupted_init = 0x8006E36C; // type:func size:0x2D8
+corrupted = 0x8006E644; // type:func size:0x19C
