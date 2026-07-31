@@ -22,7 +22,7 @@ sha1: 507341c0a40ca3e9a7cee969b396ee53facfb548
 #                         whose file boundaries and symbol names are measured
 #                         against DKR's built libultra -- see the `main`
 #                         segment's own comment further down)
-#   0x086640 - 0x16B0000  data tables + bulk compressed assets (~22.8MB).
+#   0x086640 - 0x16B0000  data tables + bulk compressed assets (22.16 MiB).
 #                         Entropy shows compression proper starting ~0x87000;
 #                         0x86640-0x87000 looks like a table of ROM offsets.
 #                         Left as one `bin` for now - Phase 3 splits it.
@@ -222,7 +222,7 @@ segments:
       - [0x6DE90, asm]
       - [0x6EA30, asm]
       # -----------------------------------------------------------------
-      # libultra corridor: ROM 0x6F420 - 0x76D10 (VRAM 0x8006E820 - 0x80076100).
+      # libultra corridor: ROM 0x6F420 - 0x76D10 (VRAM 0x8006E820 - 0x80076110).
       #
       # Named subsegments below are *measured* file boundaries, not guesses:
       # each one's byte range is byte-identical -- under relocation masking --
@@ -378,7 +378,7 @@ segments:
       # split needs, and they are recorded here so the next task inherits them
       # in-tree rather than out of a report:
       #
-      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 41 jump
+      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 44 jump
       #      tables in the static segment back to the functions that reference
       #      them gives 35 functions whose ROM addresses and whose jump-table
       #      addresses are both monotonically increasing -- ZERO INVERSIONS.
@@ -386,12 +386,13 @@ segments:
       #      jtbl_80084970). So .rodata can be carved TU by TU in text order,
       #      which is what makes a per-file split tractable at all.
       #
-      #   2. LOWER BOUND ON THE BOUNDARY: 0x80080D24 (ROM 0x8191C). That is a
-      #      float constant loaded by the function at ROM 0x50B0, and it sits
-      #      one word below the first jump table. Nothing lower than it is
-      #      referenced as read-only data from code, so .rodata starts at or
-      #      before 0x8191C -- consistent with splat's 0x8192C guess and
-      #      tightening it by two words.
+      #   2. LOWER BOUND ON THE BOUNDARY: 0x80080D24 (ROM 0x81924). That is a
+      #      float constant (7f7fffff, i.e. FLT_MAX) loaded by the function at
+      #      ROM 0x50B0, and it sits TWO words below the first jump table
+      #      jtbl_80080D2C (ROM 0x8192C). Nothing lower than it is referenced
+      #      as read-only data from code, so .rodata starts at or before
+      #      0x81924 -- consistent with splat's 0x8192C guess and tightening
+      #      it by those two words.
       #
       # Both numbers are reproducible from asm/*.s alone; see the Task C report
       # for the method. Doing the split is NOT done: it needs the yaml, the

@@ -95,15 +95,20 @@ BK, Conker) as sources. This project reads two:
   name** — every DKR name in the tree came out of a built object. Stated
   explicitly because the earlier wording ("never its source", unqualified) said
   more than was true of the work.
-- **Jet Force Gemini** — its *published source text*, and only to answer "what
-  did that project call the function that does this". Names, not code.
+- **Jet Force Gemini** — its *published source text*: primarily to answer "what
+  did that project call the function that does this", and — in
+  `src/main/runlink.c` — for adapted function bodies as well, disclosed at the
+  point of use. Names, and in that one file code, both under disclosure.
 
-Every JFG-derived artifact carries an explicit `PROVENANCE` disclosure at the
-point of use. `src/main/runlink.c` opens with one, because the bodies in it are
-adapted from JFG's `runLink.c`; the tier-C block in `symbol_addrs.us.txt`
-carries another. The rule Task C's review established stands: **the provenance
-line goes in before the body, and byte-identity against Mickey's ROM is what
-makes the borrowing sound — not a reason to leave it unmentioned.**
+Every borrowed body in this tree carries an explicit `PROVENANCE` disclosure at
+the point of use, and so does every block of borrowed names.
+`src/main/runlink.c` opens with one, because the bodies in it are adapted from
+JFG's `runLink.c`; the tier-C block in `symbol_addrs.us.txt` carries another;
+each `src/libultra/*.c` carries a one-line note that its body is SDK libultra
+source as published in public decomp trees. The rule Task C's review
+established stands, and it is not scoped to JFG: **the provenance line goes in
+before the body, and byte-identity against Mickey's ROM is what makes the
+borrowing sound — not a reason to leave it unmentioned.**
 
 Where Mickey's ROM and a public decomp disagree, **Mickey wins and the
 divergence is written down**. Current divergences: `MipsInstruction`'s field
@@ -152,9 +157,9 @@ tidied cannot.
 | `0x000040`–`0x001000` | 0xFC0 | IPL3 boot | standard N64 layout |
 | `0x001000`–`0x086640` | 0x85640 | **resident segment** (code + data + rodata) | §3 |
 | `0x086640`–`0x087000` | 0x9C0 | table of ROM offsets (unidentified) | entropy transition; still `bin` |
-| `0x087000`–`0x16B0000` | ~22.8MB | compressed assets | entropy 7.1–8.0 across the band |
-| `0x16B0000`–`0x18F1FE0` | ~2.4MB | **overlay modules + their reloc data** | §5 |
-| `0x18F1FE0`–`0x2000000` | ~7.1MB | `0xFF` fill | verified byte by byte |
+| `0x087000`–`0x16B0000` | 22.16 MiB | compressed assets | entropy 7.1–8.0 across the band |
+| `0x16B0000`–`0x18F1FE0` | 2.26 MiB | **overlay modules + their reloc data** | §5 |
+| `0x18F1FE0`–`0x2000000` | 7.06 MiB | `0xFF` fill | verified byte by byte |
 
 The resident segment's end is derived, not guessed: the entrypoint zeroes BSS
 from VRAM `0x80085A40`, and `0x80085A40 - 0x80000400 + 0x1000 = 0x86640`, so
@@ -187,7 +192,6 @@ guessed at.
 | `0x1000` | `0x80000400` | `entrypoint` | A | The reset vector's target |
 | `0x31C4` | `0x800025C4` | `audspat_jingle_off` | A | Spatial audio, and the thinnest row adopted |
 | `0xC9B4`, `0xF520` | — | `"track/track.c"` asserts | — | **`track` code is partly resident** |
-| `0x1FC9C` | `0x8001F09C` | `"CREATE LOD MODEL"`, `"Cam do 2D sprite"` | — | Model / sprite setup |
 | `0x21DA0` | `0x800211A0` | `mainproc`, `thread1_main` | A | `main.c` proper, at the boot target |
 | `0x27BB4`, `0x28BB8` | — | `"main/main.c"` asserts | — | **`main` code is resident** |
 | `0x29FD0` | `0x800293D0` | `"x = %5d"` … `"a = %3.1f"` | — | On-screen coordinate readout |
@@ -254,7 +258,7 @@ to turn a faulting address into "Module %d at %08x".
 
 ### 4.1 The corridor — ROM `0x6F420`–`0x76D10`
 
-VRAM `0x8006E820`–`0x80076100`, `0x78F0` bytes. **80 named subsegments — 79 of
+VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **80 named subsegments — 79 of
 them measured file boundaries — and 107 named functions**, all tier A against
 DKR's built libultra. Established in Task B; the yaml carries the boundary
 argument at both ends and `symbol_addrs.us.txt` carries the per-function
@@ -390,7 +394,7 @@ Two searches were run over the whole 32MB image:
 The best-looking candidate, ROM `0x18AAD00`, is recorded as ruled out rather
 than as a lead: its first 40 entries are sorted and 4-byte aligned, which is
 exactly what a lookup table looks like, but over its full 2205-entry extent it
-has 142 inversions, its decoded "call sites" are only 6% `jal`, and the bytes
+has 142 inversions, its decoded "call sites" are only 4.4% `j`/`jal` (98 of 2205), and the bytes
 immediately after it are a function prologue. It is overlay code being read as
 a table.
 
@@ -469,12 +473,13 @@ Every byte from ROM `0x76E60` to `0x86640` is one `data` subsegment, so no C TU
 can own rodata yet. This gates the object system, whose functions all carry
 jump tables. Two things a split needs are measured:
 
-- **rodata order follows text order exactly.** 35 functions, 41 jump tables,
+- **rodata order follows text order exactly.** 35 functions, 44 jump tables,
   monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
   by TU in text order.
-- **Lower bound on the boundary: `0x80080D24` (ROM `0x8191C`)** — a float
-  constant loaded from ROM `0x50B0`, one word below the first jump table.
-  splat's own heuristic guessed `0x8192C`; these agree.
+- **Lower bound on the boundary: `0x80080D24` (ROM `0x81924`)** — a float
+  constant (`7f7fffff`, i.e. `FLT_MAX`) loaded from ROM `0x50B0`, two words
+  below the first jump table `jtbl_80080D2C` (ROM `0x8192C`). splat's own
+  heuristic guessed `0x8192C`; this tightens it by those two words.
 
 Doing the split is still not done. It touches the yaml, the linker script and
 every future TU at once.
@@ -493,6 +498,18 @@ Stated so nobody reads silence as absence of anything to find.
   one beyond — but nothing is decoded. `gzip_inflate_*` at `0x4EA60` is the
   decompressor that reads it, which is the obvious way in.
 - **`0x86640`–`0x87000`** looks like a table of ROM offsets and is unidentified.
+- **The model/sprite code**, on the same evidence as the build stamp (§2.1).
+  `"CREATE LOD MODEL :: null model pointer!"` (`0x80081904`) and `"Cam do 2D
+  sprite called with NULL pointer!"` (`0x800819F1`) are in the resident
+  segment's rodata, but **no resident instruction builds either address** — the
+  nearest references anywhere in `asm/` are `D_80081898` below and
+  `D_80081A1C` above, and the two strings sit in the gap between them. So the
+  asserts that print them are in an overlay, and the resident segment holds
+  only their text. An earlier version of this file listed `0x1FC9C` as a
+  "Model / sprite setup" anchor on the strength of these strings; that row was
+  wrong twice over — the strings are not referenced from resident code at all,
+  and `func_8001F09C` is a float routine that steps a value at `+0x50` toward a
+  bound at `+0x54` and clamps it, with no connection to either.
 - **The exception island** (§4.2).
 - **22% of the libultra corridor** (§4.1).
 - **The object system.** The `"setting up"` / `"freeing"` / `"processing"` /

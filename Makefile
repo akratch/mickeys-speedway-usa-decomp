@@ -198,6 +198,15 @@ verify:
 cleanroom:
 	bash $(TOOLS_DIR)/cleanroom_check.sh
 
+# Re-derives the arithmetic the docs claim -- VRAM/ROM conversions, segment
+# size subtractions, the MiB column of the top-level map, the jump-table count
+# -- and fails on a mismatch. A count audit found several of these stale at
+# once; they are all recomputable, so they are recomputed here rather than at
+# the next review. The jump-table count needs asm/, so it is skipped (not
+# failed) before `gmake extract`.
+check-docs:
+	$(PYTHON) $(TOOLS_DIR)/check_derived_numbers.py
+
 # Builds just far enough to have a linked ELF (no crc/z64 round-trip needed --
 # tools/progress.py only reads the ELF's symbol table plus the current asm/
 # and symbol_addrs.$(VERSION).txt state), then reports the derived progress
@@ -340,6 +349,6 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup extract verify cleanroom progress clean distclean
+.PHONY: default all setup extract verify cleanroom check-docs progress clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
