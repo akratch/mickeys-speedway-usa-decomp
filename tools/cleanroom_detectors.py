@@ -30,10 +30,32 @@ the incident this whole file exists to prevent from recurring.  Those
 ledgers are the calibration set for "must fail"; the history is the
 calibration set for "must pass".
 
-Re-measure when you change a threshold OR a decoder.  Two rounds of false
+Re-measure when you change a threshold OR a decoder.  Three rounds of false
 positives here came from decoders that turned ordinary text into "machine
 words", not from thresholds being too tight, and a decoder change moves every
 number in this file.
+
+    ============================================================
+    A DECODER CHANGE MUST BE RE-AUDITED, NEVER ARGUED.
+    Run `gmake audit-decoders` after touching normalize_words_by_stage
+    or anything it calls.  Do not reason about whether your change is
+    safe -- run it.
+    ============================================================
+
+That rule is not stylistic.  Five separate times a decoder here was found to be
+measuring data that was not in the file -- a `#pragma GLOBAL_ASM` path decoded
+as base64, symbol names `_`-joined into words, unrelated table cells fused as
+16-bit halves, this repository's own `OBJDUMP=...` build variable decoded as
+base64 and then as ascii85, ragged hex read from one end only.  Decoded garbage
+is uniformly distributed, so every one of them inflated `spread`, the metric
+that decides whether a file looks like ROM, and two took this tree's own files
+to within 1.2x of failing the gate on sanctioned work.
+
+And twice, a fix simply *re-routed* the phantom: blocking base64 on that shell
+variable handed it straight to the ascii85 branch, and requiring 16-bit halves
+to be adjacent still left comment lists and markdown rows pairing.  Neither was
+visible by reading the diff.  Both were caught by re-running the audit.
+tools/audit_decoders.py is that audit, and it fails the build.
 """
 
 import base64
@@ -618,6 +640,25 @@ def _decode_base_n(run, out):
             return
 
 
+#: Every mechanism that can emit a word, by name.  This is a CLOSED SET, and
+#: tools/audit_decoders.py enforces that: a stage appearing here without an
+#: entry in that tool's ledger fails the audit, and so does a stage in the
+#: ledger that disappears from here.  Adding a decoder therefore costs a
+#: measured ceiling, deliberately.
+DECODER_STAGES = (
+    "hexline-block",  # consecutive whole-line hex, joined
+    "base-block",     # consecutive whole-line base-N, joined
+    "hex-run",        # hex tokens anywhere -- THE signal, real ROM addresses
+    "halves-pair",    # 16-bit halves recombined, in long adjacent chains
+    "dec-token",      # 8-10 digit decimals inside the 32-bit range
+    "oct-token",      # 9-12 digit octals inside the 32-bit range
+    "dotted-quad",    # a.b.c.d with every part under 256
+    "escaped-bytes",  # runs of \xHH
+    "base-run",       # base-N runs inside a line
+    "a85-run",        # ascii85 runs, delimited or whole-line
+)
+
+
 def normalize_words(text):
     """Return candidate 32-bit machine words in any plausible encoding.
 
@@ -625,8 +666,27 @@ def normalize_words(text):
     punctuation, hex ranges, 16-bit halves, whole-line and wrapped hex, escaped
     byte strings, octal, decimal, dotted quads, and base64 / base64url /
     base32 / ascii85 -- including blobs split across lines.
+
+    This is the flattening of :func:`normalize_words_by_stage`.  There is one
+    implementation, not two: an earlier audit harness mirrored this function
+    and asserted the two agreed, which works until someone edits one of them.
     """
     out = []
+    for words in normalize_words_by_stage(text).values():
+        out.extend(words)
+    return out
+
+
+def normalize_words_by_stage(text):
+    """Return ``{stage: [words]}`` for every stage in :data:`DECODER_STAGES`.
+
+    Splitting the output by producer is what makes the decoder audit possible
+    (tools/audit_decoders.py).  Every stage but `hex-run` and `dec-token` is
+    required to contribute *nothing* to this repository's tracked files; when
+    one of them starts producing words it is decoding text that was never
+    encoded, which is how five separate false-decode defects were found.
+    """
+    by = {stage: [] for stage in DECODER_STAGES}
 
     # Digest exemption, graduated rather than all-or-nothing.
     #
@@ -671,7 +731,7 @@ def normalize_words(text):
                     break
                 block.append(candidate)
                 end += 1
-            _words_from_hex("".join(block), out, [])
+            _words_from_hex("".join(block), by["hexline-block"], [])
             index = end
             continue
         matched = False
@@ -690,7 +750,7 @@ def normalize_words(text):
                 block.append(candidate)
                 end += 1
             if len(block) > 1:
-                _decode_base_n("".join(block), out)
+                _decode_base_n("".join(block), by["base-block"])
             index = end
             matched = True
             break
@@ -717,7 +777,7 @@ def normalize_words(text):
     runs = []
     for match in HEX_RUN_ANY.finditer(text):
         pending = []
-        if _words_from_hex(match.group(0), out, pending):
+        if _words_from_hex(match.group(0), by["hex-run"], pending):
             runs.append((match.start(), match.end(), pending[0]))
 
     def adjacent(left, right):
@@ -732,30 +792,35 @@ def normalize_words(text):
             continue
         if index - start >= HALF_CHAIN_MIN:
             for pair in range(start, index - 1, 2):
-                out.append((runs[pair][2] << 16) | runs[pair + 1][2])
+                by["halves-pair"].append(
+                    (runs[pair][2] << 16) | runs[pair + 1][2]
+                )
         start = index
 
     for match in DEC_TOKEN.finditer(text):
         value = int(match.group(1))
         if (1 << 24) <= value < (1 << 32):
-            out.append(value)
+            by["dec-token"].append(value)
     for match in OCT_TOKEN.finditer(text):
         try:
             value = int(match.group(1), 8)
         except ValueError:
             continue
         if (1 << 24) <= value < (1 << 32):
-            out.append(value)
+            by["oct-token"].append(value)
     for match in DOTTED_QUAD.finditer(text):
         parts = [int(part) for part in match.groups()]
         if all(part < 256 for part in parts):
-            out.append((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3])
+            by["dotted-quad"].append(
+                (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]
+            )
     for match in ESCAPED_BYTES.finditer(text):
         _words_from_bytes(
-            bytes(int(h, 16) for h in ESCAPED_BYTE.findall(match.group(0))), out
+            bytes(int(h, 16) for h in ESCAPED_BYTE.findall(match.group(0))),
+            by["escaped-bytes"],
         )
     for match in BASE_RUN.finditer(text):
-        _decode_base_n(match.group(0), out)
+        _decode_base_n(match.group(0), by["base-run"])
     for line in text.split("\n"):
         stripped = line.strip()
         for match in A85_RUN.finditer(line):
@@ -775,9 +840,9 @@ def normalize_words(text):
             except Exception:
                 continue
             if raw and len(raw) >= 16:
-                _words_from_bytes(raw[:DECODE_BUDGET], out)
+                _words_from_bytes(raw[:DECODE_BUDGET], by["a85-run"])
 
-    return out
+    return by
 
 
 # --------------------------------------------------------------------------

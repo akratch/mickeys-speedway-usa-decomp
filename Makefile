@@ -9,6 +9,7 @@
 #   gmake setup      venv + toolchain + baserom check + splat extraction + git hooks
 #   gmake hooks      point git at .githooks (clean-room commit/push gates)
 #   gmake cleanroom  clean-room sweep (CLEANROOM_ARGS=--staged, --range A..B)
+#   gmake audit-decoders  assert no clean-room decoder is inventing words
 #   gmake clean      remove build/
 #   gmake distclean  also remove splat's generated output
 
@@ -213,6 +214,26 @@ hooks:
 cleanroom:
 	bash $(TOOLS_DIR)/cleanroom_check.sh $(CLEANROOM_ARGS)
 
+# Asserts that no clean-room decoder is inventing words -- that every stage
+# which exists to DECODE something contributes nothing to a tree whose content
+# is not encoded. Five false-decode defects were found by hand before this was
+# automated, two of them only by re-running the audit after a "fix" had
+# re-routed the phantom to a different decoder. Read the header of
+# tools/audit_decoders.py before changing a threshold it complains about.
+#
+#   gmake audit-decoders                       tracked files (~0.2s)
+#   gmake audit-decoders AUDIT_ARGS=--all      every blob in history (~4s)
+#   gmake audit-decoders AUDIT_ARGS=--verbose  print the per-stage totals
+#
+# Deliberately NOT folded into `cleanroom`. The hooks run `cleanroom` on every
+# commit and it must stay fast and must fail only for clean-room reasons; this
+# check answers a different question -- "is the detector still measuring
+# reality?" -- and it is aimed at whoever edits a decoder, not at whoever
+# writes a commit. Folding it in would make an unrelated red bar block commits,
+# which is precisely how a gate gets bypassed with --no-verify.
+audit-decoders:
+	$(PYTHON) $(TOOLS_DIR)/audit_decoders.py $(AUDIT_ARGS)
+
 # Re-derives the arithmetic the docs claim -- VRAM/ROM conversions, segment
 # size subtractions, the MiB column of the top-level map, the jump-table count
 # -- and fails on a mismatch. A count audit found several of these stale at
@@ -401,6 +422,6 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract verify cleanroom check-docs progress clean distclean
+.PHONY: default all setup hooks extract verify cleanroom audit-decoders check-docs progress clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail

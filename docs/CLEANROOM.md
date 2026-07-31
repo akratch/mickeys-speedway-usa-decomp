@@ -234,8 +234,8 @@ was being decoded first as base64 and then, once that was blocked, as ascii85;
 and adjacent-halves pairing was still fusing comment lists (`0x1B74, 0x27A0`)
 and markdown table cells (`| 1232 | 1105 |`). Every synthetic decoder now
 contributes **zero** words across the whole history — the only producers left
-are real hex addresses and three decimal tokens. The audit table is in the
-report; re-run it when a decoder changes.
+are real hex addresses and a couple of decimal tokens. That audit is no longer
+a one-off: it is `gmake audit-decoders`, and it fails.
 
 The tightest margin over all 238 blobs in this repository's history is now
 **6.40×** (`docs/modules.md`, spread 5 against a limit of 32), up from 2.46×
@@ -252,3 +252,50 @@ It is empty today.
 
 Treat the content detectors as defence in depth against mistakes. They are not
 an adversary-proof boundary and must not be described as one.
+
+### Maintaining the detectors
+
+> **A decoder change must be re-audited, never argued.**
+> Run `gmake audit-decoders` after touching `normalize_words_by_stage` or
+> anything it calls. Do not reason about whether the change is safe — run it.
+
+This is the most important operational rule in this document, and it is written
+here because it was learned the expensive way.
+
+`tools/cleanroom_detectors.py` decodes a file into candidate 32-bit words and
+then measures that stream. **Five separate times, what it measured was not in
+the file**: a `#pragma GLOBAL_ASM` path decoded as base64; symbol names like
+`D_80081898` `_`-joined into words; unrelated markdown table cells fused as
+16-bit halves; this repository's own `OBJDUMP=…` build variable decoded first
+as base64 and then as ascii85; and ragged hex runs read from one end only.
+Decoded garbage is uniformly distributed, so each one inflated `spread` — the
+metric that decides whether a file looks like ROM — and two of them brought
+this tree's own files to within 1.2× of failing the gate on work this very
+policy encourages.
+
+**Twice, a fix re-routed the phantom instead of removing it.** Blocking base64
+on that shell variable handed it straight to the ascii85 branch. Requiring
+16-bit halves to be adjacent still left comment lists pairing. Neither was
+visible by reading the diff; both were caught by re-running the audit. That is
+why the rule is "run it", not "check it".
+
+What `gmake audit-decoders` asserts:
+
+1. the per-stage word buckets reconstruct `normalize_words`' real output
+   exactly (there is one implementation, not a mirrored copy);
+2. the decoder set is **closed** — a new decoder cannot ship without a measured
+   ceiling recorded in `tools/audit_decoders.py`;
+3. the eight *synthetic* decoders contribute **zero** words. Nothing in this
+   tree is encoded, so a nonzero count is a false decode by definition, not a
+   budget to spend;
+4. the two decoders that read genuinely-written numbers (`hex-run`,
+   `dec-token`) stay under a generous tripwire that catches a flood rather than
+   budgeting normal growth.
+
+It runs over tracked files by default (about 0.2 s) and over every blob in
+history with `AUDIT_ARGS=--all` (about 4 s). It is deliberately **not** wired
+into `gmake cleanroom` or the git hooks: those run on every commit, must stay
+fast, and must fail only for clean-room reasons. This check answers a different
+question — *is the detector still measuring reality?* — and it is aimed at
+whoever edits a decoder. Making an unrelated red bar block commits is precisely
+how a gate ends up bypassed with `--no-verify`.
