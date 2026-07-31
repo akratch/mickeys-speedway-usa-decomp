@@ -198,6 +198,16 @@ verify:
 cleanroom:
 	bash $(TOOLS_DIR)/cleanroom_check.sh
 
+# Builds just far enough to have a linked ELF (no crc/z64 round-trip needed --
+# tools/progress.py only reads the ELF's symbol table plus the current asm/
+# and symbol_addrs.$(VERSION).txt state), then reports the derived progress
+# numbers. Same two-phase split-then-build shape as `all`/`verify`, for the
+# same reason (see the big comment on `all` above).
+progress:
+	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
+	@$(MAKE) --no-print-directory $(TARGET).elf
+	$(PYTHON) $(TOOLS_DIR)/progress.py --version $(VERSION)
+
 clean:
 	rm -rf $(BUILD_DIR)
 
@@ -330,6 +340,6 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup extract verify cleanroom clean distclean
+.PHONY: default all setup extract verify cleanroom progress clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail

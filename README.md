@@ -13,10 +13,27 @@ here to explore the Diddy Kong Racing engine as it evolved for this game.
 ## Status
 
 The US ROM rebuilds **byte-identically** from the disassembly (SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`). That's currently a 0%-matched,
-all-assembly build — Phase 1 (decompiling functions to C, one at a time) is
-starting next. PAL and JPN splat configs exist from the original stub but
-have not yet been modernized/verified the way US has.
+`507341c0a40ca3e9a7cee969b396ee53facfb548`). Phase 1 (decompiling functions
+to C, one at a time, still byte-identical at every commit) has matched its
+first slice: the libultra corridor's simplest entry points and the runtime
+overlay linker's core. As of this phase's exit, `gmake progress` reports:
+
+```
+functions: 19 matched / 1459 total (1.30%)
+bytes:     1408 matched / 481388 total (0.29% of static-segment .text)
+symbols:   175 named
+```
+
+("total" is the static resident segment only — the compressed-asset and
+overlay regions haven't been split yet. `tools/progress.py --verbose` shows
+how those numbers are derived, from the built ELF and the current `asm/`
+tree, so the metric can't silently drift from the source of truth.)
+
+See [`docs/modules.md`](docs/modules.md) for what's been mapped and why (the
+project's ontology — every claim there carries its evidence), and
+[`docs/CLEANROOM.md`](docs/CLEANROOM.md) for the clean-room policy. PAL and
+JPN splat configs exist from the original stub but have not yet been
+modernized/verified the way US has.
 
 ## Building (US ROM)
 
