@@ -306,10 +306,12 @@ ldiv = 0x80076080; // type:func size:0x84
 // that failed it are listed in the Task D report rather than silently dropped;
 // the notable rejects are `debug_text_origin` (1 unmasked word of 9),
 // `input_assign_players` (4 of 9), `bgdraw_primcolour` (4 of 10),
-// `tex_enable_modes` (5 of 7) and everything at ROM 0x17F8, 0x1B74, 0x27A0,
-// 0x27C4, 0x545C, 0x8D18, 0x1BE90, 0x29B98, 0x2CB44, 0x2D39C and 0x35024,
-// where several *different* DKR functions compile to the same bytes and byte
-// comparison therefore cannot say which one this is.
+// `tex_enable_modes` (5 of 7), and the THIRTEEN addresses where several
+// *different* DKR functions compile to the same bytes (or the same bytes recur
+// ROM-wide), so that byte comparison cannot say which one this is: ROM 0x17F8,
+// 0x1B74, 0x27A0, 0x27C4, 0x545C, 0x8D18, 0x1BE90, 0x29B98, 0x29BA8, 0x29C90,
+// 0x2CB44, 0x2D39C and 0x35024. (0x29BA8 and 0x29C90 were missing from an
+// earlier version of this list, which then said eleven.)
 //
 // WHAT THIS TIER DOES AND DOES NOT ESTABLISH. It establishes that the routine
 // at this address is the same routine DKR compiled, and that is a hard,
@@ -338,8 +340,10 @@ entrypoint = 0x80000400; // type:func size:0x50   ROM 0x01000  hasm/entrypoint.s
 mainproc = 0x800211A0; // type:func size:0x58   ROM 0x21da0  main.c.o  masked=11/22
 thread1_main = 0x800211F8; // type:func size:0x98   ROM 0x21df8  main.c.o  masked=14/38
 
-// math_util.s -- 12 hand-written routines, most with ZERO masked words. This
-// is the strongest evidence in the block. NOTE: `interrupts_disable` /
+// math_util.s -- 13 routines matched, 11 named in this block; most have ZERO
+// masked words, and this is the strongest evidence in the block. (Of the other
+// two, `rand_range` is already carried above as the inherited name `mathRnd`,
+// and `func_80070058` is a placeholder, left unnamed for the reason below.) NOTE: `interrupts_disable` /
 // `interrupts_enable` are what Task B saw at ROM 0x2A25C/0x2A288 and recorded
 // as "a second copy of os/interrupt.s": libultra's __osDisableInt and
 // __osRestoreInt are byte-identical to the *tails* of these two larger
@@ -417,7 +421,8 @@ audspat_jingle_off = 0x800025C4; // type:func size:0x28   ROM 0x031c4  audio_spa
 // measure. The reference object's only function symbol is `stack_pointer`, and
 // splat's existing subsegment splits at 0x47A60 and 0x47A70 mean the file
 // boundary agrees on both sides too. See docs/modules.md section 1.2, which
-// enumerates all four sub-threshold adoptions.
+// enumerates all FIVE sub-threshold adoptions -- five symbols resting on four
+// distinct arguments, since osScGetCmdQ and osScGetInterruptQ share one.
 stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  get_stack_pointer.c.o  masked=0/2
 
 // ---------------------------------------------------------------------------
@@ -432,19 +437,27 @@ stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  get_stack_point
 //   tools/find_known_objects.py <dkr>/build/libultra --start 0x1000 \
 //       --end 0x2000000 --min-size 8 --max-occurrences 60
 //
-// FOUR of Task B's candidates are deliberately NOT adopted, and the reasons
-// are worth more than the names would have been:
+// FIVE of Task B's candidates are deliberately NOT adopted, on TWO distinct
+// grounds, and the reasons are worth more than the names would have been.
+//
+// THREE were uniquely matched but semantically vacuous:
 //
 //   * `io/leointerrupt.c` at ROM 0x4FC20. Its whole .text matched, 0 masked,
 //     ROM-wide unique -- and its entire body is `jr ra` / `move v0,zero`.
-//     "return 0" is the least distinctive function that exists. Uniqueness
-//     here is an accident of the 8 zero bytes of padding that followed, not
-//     evidence about what this routine is. Rejected.
+//     "return 0" is the least distinctive function that exists. The uniqueness
+//     is an accident of the 8 zero bytes of padding that followed, and that is
+//     measured rather than asserted: the whole .text section occurs ONCE in
+//     the 32MB image, while the two-instruction body alone occurs 39 TIMES.
+//     Rejected.
 //   * `alCSPGetState` (0x61990) and `alCSeqGetTicks` (0x620E0), both
 //     `jr ra` / `lw v0, <offset>(a0)`. Same objection: any one-line accessor
 //     reading that offset matches. Rejected.
-//   * `__osDisableInt`/`__osRestoreInt` at 0x2A25C/0x2A288 -- subsumed by the
-//     larger, ROM-wide-unique `interrupts_disable`/`interrupts_enable` above.
+//
+// TWO were subsumed by a larger match, and were never ROM-wide unique anyway:
+//
+//   * `__osDisableInt`/`__osRestoreInt` at 0x2A25C/0x2A288 -- romocc=2, and
+//     those bytes are the tail of the larger, ROM-wide-unique
+//     `interrupts_disable`/`interrupts_enable` above.
 //
 // Two more rejects are collisions, and they show the tier order working: at
 // 0x8006F8E8 `io/pfsisplug.c`'s `__osPfsGetInitData` matches standalone, and
@@ -649,8 +662,9 @@ vsprintf = 0x800429D0; // type:func size:0x1310
 //   0x8004589C -- "%20s" plus G_ZBUFFER/G_SHADE/G_LIGHTING/G_CULL_*, i.e. the
 //                 geometry-mode bits.
 //
-// diRcpMoveWd (0x800455C4) is the fourth name here and shares no literal with
-// those three, so it carries its own evidence -- the block's rule is that a
+// diRcpMoveWd (0x800455C4) is the fifth and last name in this block -- the one
+// left over once diRcpPrintDL and the three formatters are accounted for -- and
+// it shares no literal with any of them, so it carries its own evidence -- the block's rule is that a
 // row without stated evidence is a bug, and an earlier version of this comment
 // left this one bare. Mickey's disassembly, read at ROM 0x461C4-0x4625C:
 //
