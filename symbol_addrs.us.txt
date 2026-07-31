@@ -722,3 +722,102 @@ diCpuReportWatchpoint = 0x80046460; // type:func size:0xA4
 // both begin with a null test on arg0 and print only on the failing path.
 gsSndpStop = 0x8005D6E4;     // type:func size:0x80
 gsSndpSetParam = 0x8005D898; // type:func size:0x7C
+
+// ===========================================================================
+// PHASE 2 TASK 3 -- THE CROSS-TITLE MINING PASS
+//
+// Everything from here to the end of this file is tier A (byte-identity), and
+// every row below came from the same measurement: the ROM's bytes at that
+// address are identical, under relocation masking, to a named symbol in a
+// permitted public decompilation's *built* objects. What is new in this pass
+// is the number of reference builds. Task B and Task D read one -- Diddy Kong
+// Racing. This pass reads four more, all built from their published sources
+// against their own documented baseroms (see docs/references.md for repo URLs,
+// pinned commits, baserom SHA1s and per-title yields):
+//
+//   Jet Force Gemini    full byte-perfect build   772 objects
+//   Perfect Dark        code links clean w/ IDO  2546 objects
+//   Banjo-Kazooie       full byte-perfect build  1232 objects
+//   Conker's Bad Fur Day compile-only (partial)  1446 objects
+//
+// Reproduce any row below with:
+//
+//   tools/find_known_objects.py <ref-build-dir> --start 0x1000 --end 0x86640 \
+//       --sections --rom-occ
+//
+// `--rom-occ` is new in this task and is what makes the uniqueness half of the
+// docs/modules.md section 1.2 threshold checkable rather than asserted: it
+// counts occurrences across the whole 32MB image instead of within the scanned
+// window. Task B recorded that gap as a known weakness; this closes it. Every
+// row below carries `romocc=1` unless its comment says otherwise.
+//
+// ALL of these are whole-`.text` matches -- the strongest result the tool
+// produces, because a whole-object match pins a translation-unit boundary and
+// not just a function, and every function in the object is then placed by its
+// own offset within it. The subsegment names in mickey.us.yaml are the same
+// measurement written down as file boundaries.
+//
+// TWO KINDS OF ROW ARE DELIBERATELY ABSENT.
+//
+//   * Reference-build address placeholders (`func_8008B3EC` and friends).
+//     Importing one would assert an address that does not exist in this game --
+//     docs/modules.md section 1.5. 37 such addresses fall inside the TUs
+//     adopted here and none was taken; they keep their own `func_` names.
+//   * Anything whose bytes admit more than one candidate name. See the
+//     rejection list in docs/modules.md section 4.3.
+//
+// Provenance, stated plainly: these are OTHER PROJECTS' NAMES for code Mickey
+// shares with them. Nothing here was independently derived. What the byte
+// comparison establishes is that the routine is the same routine; the name is
+// borrowed, and where two reference builds disagree about what to call the
+// same bytes that disagreement is recorded inline rather than resolved by
+// preference.
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// 1. THE LIBULTRA CORRIDOR'S DRIFT RUNS (ROM 0x6F420-0x76D10)
+//
+// Task B left 0x1AE0 of the corridor -- 22.2% of it, in 10 runs -- unnamed:
+// libultra-shaped code that is not byte-identical to DKR's build, with a fuzzy
+// scan at 35% tolerance returning nothing. The diagnosis was right and the
+// cause is now visible: Mickey's libultra build is much closer to JFG's than
+// to DKR's. EIGHT of those ten runs are named below, from JFG's build, in 15
+// newly-named translation units; the drift corridor drops from 0x1AE0 (22.2%)
+// to 0xB50 (9.4%), in the two runs that remain -- 0x70AF0-0x70E20 and
+// 0x74090-0x748B0. See docs/modules.md section 4.1 for what is left and why.
+// ---------------------------------------------------------------------------
+// libultra/pidma  ROM 0x6fb90  (jfg/libultra: libultra/src/io/pidma.c.o)  whole .text 0xc0, masked=6, romocc=1
+osPiStartDma = 0x8006EF90; // type:func size:0xC0
+// libultra/initialize  ROM 0x6fe20  (jfg/libultra: libultra/src/os/initialize.c.o)  whole .text 0x2e0, masked=38, romocc=1
+osInitialize = 0x8006F220; // type:func size:0x268
+// libultra/piacs  ROM 0x72730  (jfg/libultra: libultra/src/io/piacs.c.o)  whole .text 0xc0, masked=19, romocc=1
+__osPiGetAccess = 0x80071B80; // type:func size:0x44
+// libultra/pirawdma  ROM 0x72850  (jfg/libultra: libultra/src/io/pirawdma.c.o)  whole .text 0xd0, masked=3, romocc=1
+//   same bytes in: jfg,perfect_dark
+__osPiRawStartDma = 0x80071C50; // type:func size:0xC8
+// libultra/epirawdma  ROM 0x72920  (jfg/libultra: libultra/src/io/epirawdma.c.o)  whole .text 0x1e0, masked=3, romocc=1
+__osEPiRawStartDma = 0x80071D20; // type:func size:0x1E0
+// libultra/devmgr  ROM 0x72b00  (jfg/libultra: libultra/src/io/devmgr.c.o)  whole .text 0x410, masked=23, romocc=1
+__osDevMgrMain = 0x80071F00; // type:func size:0x410
+// libultra/epilinkhandle  ROM 0x73050  (jfg/libultra: libultra/src/io/epilinkhandle.c.o)  whole .text 0x50, masked=4, romocc=1
+osEPiLinkHandle = 0x80072450; // type:func size:0x48
+// libultra/epiwrite  ROM 0x730a0  (jfg/libultra: libultra/src/io/epiread.c.o)  whole .text 0x50, masked=3, romocc=2
+osEPiWriteIo = 0x800724A0; // type:func size:0x48
+// libultra/epiread  ROM 0x730f0  (jfg/libultra: libultra/src/io/epiread.c.o)  whole .text 0x50, masked=3, romocc=2
+osEPiReadIo = 0x800724F0; // type:func size:0x48
+// libultra/epidma  ROM 0x73140  (jfg/libultra: libultra/src/io/epidma.c.o)  whole .text 0xa0, masked=6, romocc=1
+osEPiStartDma = 0x80072540; // type:func size:0x9C
+// libultra/pigetcmdq  ROM 0x73ad0  (jfg/libultra: libultra/src/io/pigetcmdq.c.o)  whole .text 0x30, masked=2, romocc=1
+osPiGetCmdQueue = 0x80072ED0; // type:func size:0x28
+// libultra/unmaptlball  ROM 0x73bd0  (jfg/libultra: libultra/src/os/unmaptlball.s.o)  whole .text 0x50, masked=0, romocc=1
+osUnmapTLBAll = 0x80072FD0; // type:func size:0x44
+// libultra/getcause  ROM 0x73c80  (jfg/libultra: libultra/src/os/getcause.s.o)  whole .text 0x10, masked=0, romocc=1
+//   same bytes in: banjo-kazooie,jfg,perfect_dark
+__osGetCause = 0x80073080; // type:func size:0xC
+// libultra/epirawwrite  ROM 0x74dc0  (jfg/libultra: libultra/src/io/epirawwrite.c.o)  whole .text 0x160, masked=2, romocc=1
+__osEPiRawWriteIo = 0x800741C0; // type:func size:0x15C
+// libultra/epirawread  ROM 0x74f20  (jfg/libultra: libultra/src/io/epirawread.c.o)  whole .text 0x160, masked=2, romocc=1
+__osEPiRawReadIo = 0x80074320; // type:func size:0x160
+// libultra/setglobalintmask  ROM 0x75080  (jfg/libultra: libultra/src/os/setglobalintmask.c.o)  whole .text 0x50, masked=6, romocc=1
+//   same bytes in: banjo-kazooie,jfg,perfect_dark
+__osSetGlobalIntMask = 0x80074480; // type:func size:0x4C
