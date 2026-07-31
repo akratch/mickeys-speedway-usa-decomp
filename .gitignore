@@ -34,6 +34,13 @@ __pycache__/
 # Process artifacts (planning/review scratch, not build inputs)
 .superpowers/
 
+# Decompilation workbench state: candidate ledgers record the ROM's own
+# instruction text in their diff sites, so the tree is ignored wholesale.
+# Only the per-campaign manifest (paths + hashes, no ROM content) is tracked.
+.decomp-workbench/**
+!.decomp-workbench/**/
+!.decomp-workbench/campaigns/*/manifest.json
+
 # Generated build artifacts (from upstream stub's ignore rules)
 *.map
 */*.map
