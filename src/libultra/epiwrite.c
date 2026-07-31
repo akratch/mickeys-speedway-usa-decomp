@@ -9,8 +9,10 @@
  * these two apart; the middle call here goes to 0x800741C0, the whole-TU match
  * on `io/epirawwrite.c`, and that is what settles it.
  *
- * Flags: -O2 -g3 -mips2 -32, measured on this file -- same argument as
- * epiread.c, and measured separately rather than inherited from it.
+ * Flags: -O2 -g3 -mips2 -32, measured separately from epiread.c rather than
+ * inherited from it, and with the same split: `-g3 -mips2` measured, `-O2`
+ * borrowed from JFG's Makefile and not discriminated by these bytes. See
+ * src/libultra/epiread.c and the Makefile's per-file block.
  *
  * PROVENANCE: the body is N64 SDK libultra source as published in public
  * decomp trees (JFG's among them), a permitted source under docs/CLEANROOM.md;

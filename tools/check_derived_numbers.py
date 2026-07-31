@@ -300,6 +300,145 @@ if not hits:
                     "gone or reworded -- this check is now checking nothing")
 
 
+# --- 6. the mining pass's own bookkeeping -----------------------------------
+# Phase 2 Task 3 added 87 blocks to symbol_addrs.us.txt, each headed by a line
+# naming the subsegment it adopted, the ROM offset, and the reference build it
+# was cited from. Three things about that are pure arithmetic and one is a pure
+# cross-reference, so all four are done here rather than in a reviewer's head.
+# The review that produced this section found a header citing an object that
+# does not contain the symbol under it, and a per-title table transcribed from a
+# run log outside the tree; these checks catch the first class exactly and make
+# the second class recomputable.
+
+TU_HDR = re.compile(
+    r"^// (\S+)  ROM (0x[0-9a-f]+)  \((\w+)/\w+: (\S+)\)  whole \.text ")
+TU_CORR = re.compile(r"^//   same bytes in: (.*)$")
+TU_SYM = re.compile(r"^(\w+)\s*=\s*" + HEX + r";")
+
+tu_blocks = []          # (subseg, rom, title, corroborating titles, n_names)
+block = None
+for i, line in enumerate(read("symbol_addrs.us.txt"), 1):
+    m = TU_HDR.match(line)
+    if m:
+        block = [m.group(1), int(m.group(2), 16), m.group(3), [m.group(3)], 0, i]
+        tu_blocks.append(block)
+        continue
+    if block is None:
+        continue
+    m = TU_CORR.match(line)
+    if m:
+        block[3] = [t.strip() for t in m.group(1).split(",")]
+        continue
+    if TU_SYM.match(line):
+        block[4] += 1
+        continue
+    if line.startswith("//") and not line.startswith("//   "):
+        block = None
+
+if tu_blocks:
+    # 6a. every header must name a real, identically-named yaml subsegment.
+    for subseg, rom, _title, _corr, _n, lineno_ in tu_blocks:
+        checked += 1
+        if subsegs and dict(subsegs).get(rom) != subseg:
+            report("symbol_addrs.us.txt", lineno_,
+                   f"header adopts `{subseg}` at ROM 0x{rom:X}, but "
+                   f"mickey.us.yaml has "
+                   f"{dict(subsegs).get(rom) or 'no named subsegment'} there")
+
+    # 6b/6c/6d. the per-title figures docs/references.md publishes.
+    adopted, names, corrob = {}, {}, {}
+    for _s, _r, title, corr, n, _l in tu_blocks:
+        adopted[title] = adopted.get(title, 0) + 1
+        names[title] = names.get(title, 0) + n
+        for t in corr:
+            if t != title:
+                corrob[t] = corrob.get(t, 0) + 1
+    multi = sum(1 for b in tu_blocks if len(b[3]) > 1)
+
+    TITLES = {"Jet Force Gemini": "jfg", "Perfect Dark": "perfect_dark",
+              "Banjo-Kazooie": "banjo-kazooie",
+              "Conker's Bad Fur Day": "conker"}
+    # Summary rows look like:
+    #   | Jet Force Gemini | `c82affff` | ... | 391 | **84** | **187** | 84 | — |
+    refs = read("docs/references.md")
+    seen_rows = 0
+    for i, line in enumerate(refs, 1):
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        key = cells[0]
+        if key not in TITLES:
+            continue
+        slug = TITLES[key]
+        got = [c.replace("*", "") for c in cells[6:9]]
+        if len(got) < 2:
+            continue
+        seen_rows += 1
+        checked += 2
+        if got[0].isdigit() and int(got[0]) != adopted.get(slug, 0):
+            report("docs/references.md", i,
+                   f"{key} row claims {got[0]} adopted TUs; symbol_addrs.us.txt "
+                   f"has {adopted.get(slug, 0)}")
+        if got[1].isdigit() and int(got[1]) != names.get(slug, 0):
+            report("docs/references.md", i,
+                   f"{key} row claims {got[1]} names; symbol_addrs.us.txt has "
+                   f"{names.get(slug, 0)}")
+    if seen_rows != len(TITLES):
+        problems.append(
+            f"docs/references.md: found {seen_rows} of {len(TITLES)} per-title "
+            "summary rows -- the table was reshaped and this check stopped "
+            "checking it")
+
+    TOTALS = re.compile(
+        r"\*\*(\d+) of the (\d+) adopted translation units were matched by "
+        r"more than one title\*\*")
+    hits = 0
+    refs_text = "\n".join(refs)
+    for m in TOTALS.finditer(refs_text):
+        hits += 1
+        checked += 2
+        i = refs_text.count("\n", 0, m.start()) + 1
+        if int(m.group(1)) != multi:
+            report("docs/references.md", i,
+                   f"claims {m.group(1)} multiply-matched TUs; "
+                   f"symbol_addrs.us.txt has {multi}")
+        if int(m.group(2)) != len(tu_blocks):
+            report("docs/references.md", i,
+                   f"claims {m.group(2)} adopted TUs; symbol_addrs.us.txt has "
+                   f"{len(tu_blocks)}")
+    if not hits:
+        problems.append("docs/references.md: the 'N of the M adopted "
+                        "translation units' totals claim is gone or reworded -- "
+                        "this check is now checking nothing")
+
+    # The prose wraps, so whitespace runs must be allowed to contain newlines.
+    CORROB = re.compile(r"\*\*corroborates (\d+)\*\*\s+of\s+the\s+\d+\s+adopted")
+    corrob_seen = 0
+    for m in CORROB.finditer(refs_text):
+        corrob_seen += 1
+        i = refs_text.count("\n", 0, m.start()) + 1
+        # attribute to the nearest preceding "## <title>" heading
+        head = refs_text.rfind("\n## ", 0, m.start())
+        title = refs_text[head + 4:refs_text.index("\n", head + 4)].strip()
+        slug = TITLES.get(title)
+        if slug is None:
+            continue
+        checked += 1
+        if int(m.group(1)) != corrob.get(slug, 0):
+            report("docs/references.md", i,
+                   f"{title} claims {m.group(1)} corroborations; "
+                   f"symbol_addrs.us.txt has {corrob.get(slug, 0)}")
+    want_corrob = sum(1 for t in TITLES.values() if corrob.get(t))
+    if corrob_seen != want_corrob:
+        problems.append(
+            f"docs/references.md: found {corrob_seen} per-title 'corroborates "
+            f"N' claims, expected {want_corrob} (one per title that "
+            "corroborates anything) -- a claim was dropped or reworded")
+else:
+    problems.append("symbol_addrs.us.txt: no mining-pass TU block headers found "
+                    "-- section 6 of this script is checking nothing")
+
+
 # --- verdict ----------------------------------------------------------------
 if problems:
     print("check_derived_numbers: FAILED", file=sys.stderr)

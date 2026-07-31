@@ -313,23 +313,33 @@ $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
 
-# -O2 -g3 -mips2: a THIRD libultra flag group, found in Phase 2 Task 3 and
-# measured the same way as the two above. `-g3` is the surprise. It is IDO's
-# "optimise, but keep full debug information" level, and on these translation
-# units it changes code generation: the ROM does NOT hoist the third argument's
-# spill into the first `jal`'s delay slot, and it emits `lw v0` before `lw ra`
-# in the epilogue. Neither -O1 nor -O2 without -g3 reproduces that at any ISA
-# level -- the closest, -O1 -mips2, is 0x40 bytes against the ROM's 0x48 and
-# differs in four words. With -g3 the .text is byte-identical.
+# -g3 -mips2: a THIRD libultra flag group, found in Phase 2 Task 3.
 #
-# Where the flag came from, stated because it matters: it is not something this
-# project deduced from Mickey's bytes. Jet Force Gemini's published Makefile
-# builds its libultra io/ TUs at `-O2 -g3`, and JFG's built objects are what
-# these two files were matched against in the first place. That is a permitted
-# public decompilation (docs/CLEANROOM.md) and reading its build configuration
-# is the same permission as reading its source. It was then MEASURED here
-# against Mickey's ROM rather than adopted on JFG's authority, which is what
-# makes it a fact about this ROM and not a borrowing.
+# WHAT IS MEASURED AND WHAT IS NOT -- read the two apart, because they are not
+# the same strength of claim.
+#
+#   MEASURED: `-g3` and `-mips2` are both forced by Mickey's bytes. All twelve
+#   combinations of {-O0,-O1,-O2} x {with,without -g3} x {-mips1,-mips2} were
+#   compiled and compared against ROM 0x730A0 and 0x730F0. Exactly two produce
+#   the ROM's 0x48-byte function: `-O1 -g3 -mips2` and `-O2 -g3 -mips2`. Drop
+#   -g3 and the function is 0x44; drop -mips2 and it is 0x50 or 0x4C; -O0 gives
+#   0x60. (-O3 could not be tested: this IDO recomp build dies in `uld` on any
+#   -O3 invocation, an environment failure rather than a fact about the code.)
+#
+#   NOT MEASURED: `-O2` rather than `-O1`. Those two are byte-identical on both
+#   of these translation units, so these bytes do not discriminate the
+#   optimisation level at all. -O2 is used because Jet Force Gemini's published
+#   Makefile builds its libultra io/ TUs that way -- it is BORROWED, not
+#   established, and a future TU in this group may well settle it the other way.
+#
+# What -g3 changes, structurally, confirmed in disassembly: without it IDO
+# hoists the third argument's spill (`sw a2,0x28(sp)`) into the first jal's
+# delay slot and leaves that slot empty in the ROM's version, and it emits
+# `lw ra` before `lw v0` in the epilogue. The ROM does neither.
+#
+# Reading a permitted public decompilation's build configuration is the same
+# permission as reading its source (docs/CLEANROOM.md). The part of this that
+# is a fact about MICKEY is the part that was measured here.
 #
 # Scoped to the two TUs actually measured. The other fourteen libultra TUs
 # matched in Task 3 are still `asm`; each is a candidate for the same treatment

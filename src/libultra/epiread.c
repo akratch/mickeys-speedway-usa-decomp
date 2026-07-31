@@ -12,12 +12,17 @@
  * the whole-TU match on `io/epirawread.c`. See src/libultra/epiwrite.c for the
  * other half of the same argument.
  *
- * Flags: -O2 -g3 -mips2 -32, measured on this file (see the Makefile's per-file
- * block, which explains where the unusual -g3 came from and why it is stated
- * as measured rather than borrowed). Without -g3, IDO hoists the third
- * argument's spill into the first jal's delay slot and reorders the epilogue:
- * the closest non-g3 build, -O1 -mips2, is 0x40 bytes against the ROM's 0x48
- * and differs in four words.
+ * Flags: -O2 -g3 -mips2 -32. `-g3` and `-mips2` are MEASURED on this file;
+ * `-O2` is NOT -- -O1 -g3 -mips2 produces byte-identical output, so these
+ * bytes do not discriminate the optimisation level, and -O2 is taken from Jet
+ * Force Gemini's published Makefile. The Makefile's per-file block has the
+ * full twelve-combination table and keeps the two claims apart.
+ *
+ * What -g3 does here, structurally: without it IDO hoists the third argument's
+ * spill (`sw a2,0x28(sp)`) into the first jal's delay slot -- the ROM leaves
+ * that slot empty -- and emits `lw ra` before `lw v0` in the epilogue, which
+ * the ROM does in the other order. The non-g3 builds are 0x44 bytes against
+ * the ROM's 0x48.
  *
  * PROVENANCE: the body is N64 SDK libultra source as published in public
  * decomp trees (JFG's among them), a permitted source under docs/CLEANROOM.md;

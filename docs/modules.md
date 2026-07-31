@@ -112,8 +112,9 @@ the tree are:
   the function that does this", and — in `src/main/runlink.c` — for adapted
   function bodies, disclosed at the point of use. Separately, and this is what
   Phase 2 Task 3 added, its *built objects* are now the largest single source
-  of tier-A names in the tree: 168 of the 171 translation units adopted in that
-  pass are JFG's, on the same built-objects-only basis as DKR's.
+  of tier-A names in the tree: **84 of the 87 translation units that pass
+  adopted are JFG's, carrying 187 of its 190 names**, on the same
+  built-objects-only basis as DKR's.
 - **Perfect Dark, Banjo-Kazooie and Conker** — built objects only, mined in
   Phase 2 Task 3. PD contributed three names (the Transfer Pak driver, which no
   other reference build contains). BK and Conker contributed **none**, and that
@@ -173,7 +174,7 @@ tidied cannot.
   `0x80045BBC` pointed at, so that address simply keeps its own `func_` name.
   An earlier version of this line said "three", which was a miscount.
   Phase 2 Task 3 raised the count sharply and mechanically: **37 placeholder
-  addresses fall inside the 171 translation units adopted in that pass** —
+  addresses fall inside the translation units it matched** —
   mostly inside JFG's large `n_audio` and `gsSnd` objects, which that project
   has matched but not yet named — and none was imported. Those addresses keep
   their own `func_` names. The rule is applied by the generator, not by
@@ -327,6 +328,15 @@ contiguous runs:
 Neither matches any object in any of the five reference builds, whole or
 per-function. That is a stronger negative than Task B's, because it is now
 five builds rather than one, and two of the five are byte-perfect.
+
+**And that is the reason to stop mining this and start reading it.** "Unnamed
+code inside the corridor is libultra-shaped" was a fair working assumption when
+the corridor was 78% identified against a single build. At 90.6% against five,
+it is carrying more weight than it has earned: the plainest reading of `0xB50`
+that five libultra builds do not contain is that some of it **is not libultra**.
+Two more reference builds would be a sixth and seventh negative; a disassembly
+would be an answer. Whoever picks this up should disassemble `0x70AF0`–`0x70E20`
+and `0x74090`–`0x748B0` before running the finder over anything else.
 
 `__osPiGetAccess` was Task B's sharp example of the drift — "the same 17
 instructions as DKR's, scheduled differently". It is now named, from JFG's
@@ -527,7 +537,7 @@ and can read the tables out of a decompressed module image instead.
 | `src/main/` (game code) | `-O2 -mips2 -32` | **Measured.** `ResolveRelocAddress` at `-mips1` emits five load-delay `nop`s the ROM does not have. Task C |
 | `src/libultra/string.c` | `-O2 -mips2 -32` | **Measured.** Branch-likely instructions. Task A |
 | 10 libultra io/os TUs | `-O1 -mips2 -32` | **Measured**, one variant at a time. At `-O2` IDO folds away a stack frame the ROM has. Locals need `register` or `-O1` spills them. Task B |
-| `src/libultra/epiread.c`, `epiwrite.c` | `-O2 -g3 -mips2 -32` | **Measured**, Phase 2 Task 3. See below |
+| `src/libultra/epiread.c`, `epiwrite.c` | `-O2 -g3 -mips2 -32` | `-g3 -mips2` **measured**, Phase 2 Task 3; `-O2` **not discriminated by these bytes** — taken from JFG's Makefile. See below |
 
 The `-mips2` finding for `src/main/` is scoped to that directory on purpose. It
 is believed to hold for all game code and has been measured on one TU; widen it
@@ -535,22 +545,42 @@ when the next module is measured, not before.
 
 **`-g3` is the interesting one**, and it says something about the ROM rather
 than about these two files. It is IDO's "optimise, but keep full debug
-information" level, and it changes code generation: with it the compiler does
-not hoist an argument spill into the first `jal`'s delay slot, and it emits
-`lw v0` before `lw ra` in the epilogue. Neither `-O1` nor `-O2` reproduces that
-at any ISA level — the closest, `-O1 -mips2`, is `0x40` bytes against the ROM's
-`0x48` and differs in four words. Two consequences worth carrying forward:
+information" level, and it changes code generation. All twelve combinations of
+`{-O0,-O1,-O2}` × `{with, without -g3}` × `{-mips1,-mips2}` were compiled and
+compared against ROM `0x730A0`/`0x730F0`:
 
-- **The eight `-O1 -mips2` TUs above should be re-examined.** They were measured
+| Flags | Function size | vs the ROM's `0x48` |
+|---|---|---|
+| `-O0`, any of the four | `0x60` | no |
+| `-O1` / `-O2`, `-mips1` or `-mips2`, no `-g3` | `0x44` | no |
+| `-O1 -g3 -mips1` | `0x50` | no |
+| `-O2 -g3 -mips1` | `0x4C` | no |
+| **`-O1 -g3 -mips2`** | `0x48` | **byte-identical** |
+| **`-O2 -g3 -mips2`** | `0x48` | **byte-identical** |
+
+`-O3` could not be tested: this IDO recomp build dies in `uld` on any `-O3`
+invocation. That is an environment failure, not a fact about the code.
+
+Three consequences, and the first is the one a reader should carry away.
+
+- **`-O2` is not established.** `-O1 -g3 -mips2` and `-O2 -g3 -mips2` are
+  byte-identical on both files, so these bytes do not discriminate the
+  optimisation level at all. `-O2` is in the Makefile because JFG's published
+  Makefile builds its libultra `io/` TUs that way — borrowed, not measured. The
+  *structural* claim is what the measurement supports: `-g3` stops IDO hoisting
+  the third argument's spill into the first `jal`'s delay slot and reverses the
+  epilogue's `lw ra` / `lw v0` order, and the ROM agrees with `-g3` on both.
+- **The ten `-O1 -mips2` TUs above should be re-examined.** They were measured
   before `-g3` was known to be in play, and `-O1` was chosen as the best of the
   variants then tried. They do match byte-for-byte, so nothing is wrong; but
   "the flags that reproduce these bytes" and "the flags this file was built
-  with" are different claims, and only the first has been established.
-- **Where `-g3` came from is disclosed, not deduced.** Jet Force Gemini's
-  published Makefile builds its libultra `io/` TUs at `-O2 -g3`. Reading a
-  permitted decompilation's build configuration is the same permission as
-  reading its source (§1.3); what makes this a fact about Mickey is that it was
-  then measured here, against Mickey's bytes.
+  with" are different claims, and only the first has been established — which is
+  exactly what the `-O1`/`-O2` tie above demonstrates for the new group.
+- **Where `-g3` came from is disclosed, not deduced.** Reading a permitted
+  decompilation's build configuration is the same permission as reading its
+  source (§1.3); what makes `-g3 -mips2` a fact about Mickey is that it was then
+  measured here, against Mickey's bytes. `-O2` did not survive that test and is
+  labelled accordingly.
 
 A practical side effect: `-g3` makes IDO write a `.u` sidecar into the working
 directory for every such compile. `.gitignore` covers it.
@@ -630,13 +660,19 @@ Stated so nobody reads silence as absence of anything to find.
   bound at `+0x54` and clamps it, with no connection to either.
 - **9.4% of the libultra corridor** (§4.1) — `0x70AF0`–`0x70E20` and
   `0x74090`–`0x748B0`, `0xB50` between them, matching nothing in any of the
-  five reference builds. Was 22.2% before Phase 2 Task 3. *(The exception
-  island was on this list and is not any more: §4.2.)*
-- **What is still `asm` that need not be.** 171 translation units now have
-  measured boundaries and two of them are matched C. The other 169 are `asm`
-  because nobody has tried, not because anything is in the way — and the `-g3`
-  finding in §6.1 means the flag space to try is now wider than the one Task B
-  searched. `libultra/pigetcmdq`, `libultra/epilinkhandle` and
+  five reference builds. Was 22.2% before Phase 2 Task 3. **It may not be
+  libultra at all**: the label is inherited from Task B's map, when the
+  corridor was 78% identified against one build, and five builds' worth of
+  silence is now the more informative fact. Disassemble it rather than mine it
+  further — §4.1. *(The exception island was on this list and is not any more:
+  §4.2.)*
+- **What is still `asm` that need not be.** 173 subsegments are named; 171 of
+  them have a measured whole-`.text` boundary (the exceptions are `main/matrix`
+  and `main/runlink`, which are decompiled rather than matched-as-a-unit).
+  Only **16** are `c`, and only 14 of those are matched C. The remaining 157
+  are `asm` because nobody has tried, not because anything is in the way — and
+  the `-g3` finding in §6.1 means the flag space to try is now wider than the
+  one Task B searched. `libultra/pigetcmdq`, `libultra/epilinkhandle` and
   `libultra/setglobalintmask` are the obvious next three: three to six
   instructions each, blocked only on naming one data symbol apiece.
 - **The `0xF0` bytes at `0x505E0`–`0x506D0`**, between the end of

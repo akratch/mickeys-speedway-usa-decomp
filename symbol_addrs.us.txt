@@ -200,6 +200,14 @@ __osDequeueThread = 0x80072310; // type:func size:0x40
 // libultra/destroythread  ROM 0x72f50  (src/os/destroythread.c.o)
 osDestroyThread = 0x80072350; // type:func size:0xF8
 // libultra/rmonprintf  ROM 0x731e0  (src/libc/rmonPrintf.c.o)
+//
+// WEAKER THAN ITS NEIGHBOURS -- read section 6 at the end of this file before
+// relying on it. DKR's build calls this translation unit `libc/rmonPrintf.c`;
+// Jet Force Gemini's calls it `libc/syncprintf.c` and the function
+// `osSyncPrintf`. Those are two different files in the SDK and their compiled
+// bytes here are identical, so docs/modules.md 1.2's "exactly one candidate
+// name" clause fails. The name below is retained because it was already here,
+// not because the bytes chose it.
 rmonPrintf = 0x800725F4; // type:func size:0x40
 // libultra/settimer  ROM 0x73240  (src/os/settimer.c.o)
 osSetTimer = 0x80072640; // type:func size:0xD4
@@ -476,8 +484,10 @@ stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  get_stack_point
 osScGetCmdQ = 0x80030310; // type:func size:0x8   ROM 0x30f10  src/sc/sched.c.o  masked=0/2
 osScGetInterruptQ = 0x80030318; // type:func size:0x8   ROM 0x30f18  src/sc/sched.c.o  masked=0/2
 
-// os/exceptasm.s -- the exception-handler island at ROM 0x4FC30, which Task B
-// measured as LARGER than DKR's (0xAA0 against 0x900) and left alone. That
+// os/exceptasm.s -- the exception-handler island at ROM 0x4FC30, which Task D
+// measured as LARGER than DKR's (0xAA0 against 0x900) and left alone. (This
+// line said "Task B" until Phase 2 Task 3's review; the size comparison and the
+// "match nowhere" finding are both Task D's.) That
 // judgment stands: the file boundary is still not claimed and __osException,
 // __osEnqueueThread, __osDispatchThread and __osEnqueueAndYield still do not
 // match anywhere. These four individual routines do, ROM-wide uniquely, and
@@ -781,6 +791,38 @@ gsSndpSetParam = 0x8005D898; // type:func size:0x7C
 // own offset within it. The subsegment names in mickey.us.yaml are the same
 // measurement written down as file boundaries.
 //
+// WHAT IS ACTUALLY BELOW, COUNTED IN THE ONLY UNIT THIS TREE CAN CHECK.
+// Each `//` header line below is one ADOPTED translation unit: a whole-`.text`
+// match that produced a new named subsegment in mickey.us.yaml. There are 87
+// of them, carrying 190 names, cited as follows:
+//
+//     Jet Force Gemini   84 translation units, 187 names
+//     Perfect Dark        3 translation units,   3 names
+//     Banjo-Kazooie       0                      0
+//     Conker              0                      0
+//
+// 26 of the 87 were also matched by a second reference build; those carry a
+// `same bytes in:` line naming every title that matched, and that line is the
+// whole of the corroboration claim. Counted from those lines, the corroborating
+// titles are Perfect Dark 25, Conker 8, Banjo-Kazooie 2. Four projects arriving
+// separately at the same name for the same bytes is the strongest thing a name
+// here can have behind it, and it is a different claim from adoption.
+//
+// tools/check_derived_numbers.py recomputes all of the above from this file and
+// cross-checks every header against mickey.us.yaml, so the numbers cannot drift
+// from the rows and a header cannot name a subsegment that does not exist.
+//
+// A THIRD CATEGORY IS NOT REPRESENTED HERE AT ALL, and the distinction matters
+// because an earlier draft of this block blurred it. The mining runs also
+// re-matched a large number of translation units that Phase 1 had ALREADY named
+// from DKR -- 84 for JFG, 52 for Perfect Dark, 73 for Banjo-Kazooie, 65 for
+// Conker. Those are RE-CONFIRMATIONS. They adopted nothing, they add no row to
+// this file, and they are worth knowing about only as evidence that Phase 1's
+// map holds up against four independent builds. Those four figures come from
+// the run logs, which live outside this repository and cannot be recomputed
+// from it -- see docs/references.md, which says the same thing about the farm
+// as a whole.
+//
 // TWO KINDS OF ROW ARE DELIBERATELY ABSENT.
 //
 //   * Reference-build address placeholders (`func_8008B3EC` and friends).
@@ -825,7 +867,20 @@ __osEPiRawStartDma = 0x80071D20; // type:func size:0x1E0
 __osDevMgrMain = 0x80071F00; // type:func size:0x410
 // libultra/epilinkhandle  ROM 0x73050  (jfg/libultra: libultra/src/io/epilinkhandle.c.o)  whole .text 0x50, masked=4, romocc=1
 osEPiLinkHandle = 0x80072450; // type:func size:0x48
-// libultra/epiwrite  ROM 0x730a0  (jfg/libultra: libultra/src/io/epiread.c.o)  whole .text 0x50, masked=3, romocc=2
+// THE ONLY PAIR IN THIS FILE WHERE THE BYTES AND THE NAME COME FROM DIFFERENT
+// OBJECTS, and the header lines are written to say so rather than to look
+// tidy. `io/epiread.c` and `io/epiwrite.c` compile to identical instructions,
+// so BOTH objects match at BOTH addresses (romocc=2) and the comparison cannot
+// choose. Mickey's own jal targets can: 0x800724A0 calls 0x800741C0, the
+// whole-TU match on `io/epirawwrite.c`, and 0x800724F0 calls 0x80074320, the
+// whole-TU match on `io/epirawread.c`. So the BYTES at each address are
+// equally epiread.c.o's and epiwrite.c.o's, and the NAME is chosen by the call
+// graph -- each row cites the object whose name it took.
+//
+// An earlier version of these two lines cited `epiread.c.o` for both, which
+// named a symbol from an object that does not contain it. Corrected; see
+// src/libultra/epiread.c and src/libultra/epiwrite.c for the full argument.
+// libultra/epiwrite  ROM 0x730a0  (jfg/libultra: libultra/src/io/epiwrite.c.o)  whole .text 0x50, masked=3, romocc=2
 osEPiWriteIo = 0x800724A0; // type:func size:0x48
 // libultra/epiread  ROM 0x730f0  (jfg/libultra: libultra/src/io/epiread.c.o)  whole .text 0x50, masked=3, romocc=2
 osEPiReadIo = 0x800724F0; // type:func size:0x48

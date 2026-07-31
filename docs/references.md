@@ -16,28 +16,62 @@ with point-of-use `PROVENANCE` disclosure — for adapted bodies. Nothing else i
 
 ---
 
+## What can and cannot be re-checked from this repository
+
+**Read this before quoting any number below.** The repo URLs, pinned commits,
+baserom checksums, build outcomes and object counts on this page are
+**transcribed from an out-of-tree build farm** at `~/Desktop/dev/decomp-refs/`.
+Nothing in this tree can re-derive them. A reader who wants to verify that
+`493ced90…` really is JFG's US baserom, or that its build really was
+byte-perfect, has to rebuild the farm — and 190 of this tree's tier-A names
+rest on that farm having been what this page says it was.
+
+That is the price of keeping reference material outside the repository, which
+`docs/CLEANROOM.md` requires, and it is stated plainly rather than left to be
+noticed. It is also why the yield columns are split below: the *adoption* and
+*corroboration* figures ARE recomputable from `symbol_addrs.us.txt` and
+`mickey.us.yaml`, and `tools/check_derived_numbers.py` recomputes them on every
+`gmake check-docs`. The *re-confirmation* figures are not, and are labelled.
+
+## Three different things, counted separately
+
+An earlier version of this page ran them together and produced a headline
+("168 of 171 translation units adopted") that nothing in the repo supported.
+
+- **Adopted** — the whole-`.text` match produced a **new named subsegment** in
+  `mickey.us.yaml`, i.e. a measured file boundary this tree did not have. This
+  is the yield. **Recomputable** from the `//` block headers in
+  `symbol_addrs.us.txt`, each of which is cross-checked against the yaml.
+- **Re-confirmed** — the match landed on a subsegment **Phase 1 had already
+  named** from DKR. It adopted nothing and adds no row anywhere; its value is
+  that Phase 1's map survives contact with four independent builds. **Not
+  recomputable from this tree** — the figure comes from the run logs.
+- **Corroborated** — an *adopted* TU whose bytes were also matched by a second
+  title's object, recorded on that TU's `same bytes in:` line.
+  **Recomputable.**
+
 ## Summary
 
-| Title | Commit | Baserom SHA1 verified | Build outcome | Objects | Objects mined | Whole-TU matches | Names adopted |
-|---|---|---|---|---|---|---|---|
-| Diddy Kong Racing | (Phase 1) | yes | full match | — | 169 libultra + game | 84 in corridor | 107 corridor + 90 game-code candidates, 32 adopted |
-| Jet Force Gemini | `c82affff` | yes | **full match** | 772 | 391 | **168** | **187** |
-| Perfect Dark | `169ed48b` | MD5 (no SHA1 published) | near-full: code links clean with authentic IDO, asset-compression bytes differ | 2546 | 467 | 3 | 3 |
-| Banjo-Kazooie | `6eaae281` | yes | **full match** | 1232 | 1105 | 0 | 0 |
-| Conker's Bad Fur Day | `3adf2291` | yes | partial: every source file compiles, final link blocked | 1446 | 705 | 0 | 0 |
+| Title | Commit | Baserom SHA1 verified | Build outcome | Objects | Objects mined | Adopted TUs | Names adopted | Re-confirmed | Corroborations |
+|---|---|---|---|---|---|---|---|---|---|
+| Diddy Kong Racing | (Phase 1) | yes | full match | — | 169 libultra + game | (Phase 1: 80) | (Phase 1: 107 + 32 game) | — | — |
+| Jet Force Gemini | `c82affff` | yes | **full match** | 772 | 391 | **84** | **187** | 84 | — |
+| Perfect Dark | `169ed48b` | MD5 (no SHA1 published) | near-full: code links clean with authentic IDO, asset-compression bytes differ | 2546 | 467 | **3** | **3** | 52 | 25 |
+| Banjo-Kazooie | `6eaae281` | yes | **full match** | 1232 | 1105 | **0** | **0** | 73 | 2 |
+| Conker's Bad Fur Day | `3adf2291` | yes | partial: every source file compiles, final link blocked | 1446 | 705 | **0** | **0** | 65 | 8 |
+| **Totals for this pass** | | | | | **2668** | **87** | **190** | *(not recomputable)* | **26 TUs** |
 
 "Objects mined" counts objects with a non-empty `.text` after filtering out
 asset blobs — see *Empty `.text` objects* below for why that filter exists.
-"Whole-TU matches" and "Names adopted" are this pass's figures, attributed to
-the reference build actually cited on each row; a match present in several
-builds is credited to the one whose object the symbol file names, so the
-per-title numbers sum to the total rather than double-counting.
+Adopted TUs and names are attributed to the build whose object the symbol file
+cites; a match present in several builds is credited once, so the columns sum
+to the totals rather than double-counting.
 
-100 of the 171 adopted translation units were matched by more than one title.
-Those extra matches are recorded as corroboration in `symbol_addrs.us.txt`
-rather than as yield, and they are worth more than the column suggests: four
-projects arriving independently at the same name for the same bytes is the
-strongest thing a name in this tree can have behind it.
+**26 of the 87 adopted translation units were matched by more than one title**,
+and the corroboration column counts, per title, how many of those 26 that title
+matched. Four projects arriving independently at the same name for the same
+bytes is the strongest thing a name in this tree can have behind it — but it is
+a different claim from adoption, which is why it has its own column.
 
 ---
 
@@ -68,8 +102,8 @@ strongest thing a name in this tree can have behind it.
 
 **Why it is worth more than the other three put together.** JFG and Mickey share
 an engine lineage, a four-module layout and the runtime linker — and, it turns
-out, a libultra build. Of the 171 whole-TU matches this pass adopted, 168 are
-JFG's, including all sixteen of the corridor drift runs DKR could not explain,
+out, a libultra build. Of the 87 translation units this pass adopted, **84 are
+JFG's**, carrying 187 of the 190 names, and they include all sixteen of the corridor drift runs DKR could not explain,
 the entire `n_audio` synthesis library, the Controller Pak filesystem, the
 exception-handler island, and five pieces of shared engine code (`gsSnd`,
 `lights2`, `trapDanglingJump`, `refractOutputAssembler`, `osBootRamTest`, plus
@@ -98,11 +132,11 @@ keep the larger size; the symbol file never contains a `.NON_MATCHING` row.
   mining depends on.
 - Objects: 2546 total (157 libultra, 100 engine lib, 232 game, 2044 assets,
   13 misc). 467 mined.
-- **Yield: 3 translation units, 3 names** — `osGbpakCheckConnector`,
+- **Yield: 3 adopted translation units, 3 names** — `osGbpakCheckConnector`,
   `osGbpakGetStatus`, `__osGbpakSelectBank` at ROM 0x6B3D0-0x6C040. Small, and
   not replaceable: PD is the only one of the five references whose libultra
-  contains the Transfer Pak driver at all. PD's objects also independently
-  corroborate 77 of the translation units cited to JFG or already in the tree.
+  contains the Transfer Pak driver at all. PD also **corroborates 25** of the
+  87 adopted TUs and **re-confirms 52** subsegments Phase 1 had already named.
 
 ## Banjo-Kazooie
 
@@ -114,10 +148,10 @@ keep the larger size; the symbol file never contains a `.NON_MATCHING` row.
 - Build outcome: **full byte-perfect match**.
 - Objects: 1232 total (737 game/boot, 495 libultra via `lib/ultralib`).
   1105 mined.
-- **Yield: zero adopted names, and that is the result.** BK's objects
-  corroborate 75 of the translation units adopted here, which is not nothing —
-  but every whole-TU match it produced was either already named from DKR or
-  JFG, or was rejected: `src/SM/code_46C0.c.o` at 0x4FC20 offers
+- **Yield: zero adopted names, and that is the result.** BK **corroborates 2**
+  of the 87 adopted TUs and **re-confirms 73** subsegments Phase 1 had already
+  named — not nothing — but every whole-TU match it produced was either already
+  named from DKR or JFG, or was rejected: `src/SM/code_46C0.c.o` at 0x4FC20 offers
   only the placeholder `func_8038AAB0` at an address already rejected in Phase
   1, and `src/mgu/mtxxfmf.o` at 0x2A2B0 is a clean match whose boundary is
   deliberately not declared (see `docs/modules.md` §4.3). BK's `ultralib` is a
@@ -139,9 +173,12 @@ keep the larger size; the symbol file never contains a `.NON_MATCHING` row.
   link does not affect them, because a whole-`.text` comparison never links.
 - Objects: 1446 total (146 libultra, 208 game C, 1091 raw asm, 1 asset).
   705 mined.
-- **Yield: zero adopted names.** Conker's objects corroborate 73 of the
-  translation units adopted here, and it supplies two rejections: `src/init_3920.c.o` at 0x20008 places only a
-  placeholder, and `asm/libultra/libc/ldiv.s.o` at 0x76C80 is a partial
+- **Yield: zero adopted names.** Conker **corroborates 8** of the 87 adopted
+  TUs, **re-confirms 65** subsegments Phase 1 had already named, and supplies
+  **three** of the seven rejections (`docs/modules.md` §4.3):
+  `src/init_3920.c.o` at 0x20008 places only a placeholder;
+  `src/libultra/audio/n_synaddplayer.c.o` at 0x63B40 is subsumed by the whole
+  TU at 0x63AD0; and `asm/libultra/libc/ldiv.s.o` at 0x76C80 is a partial
   extraction subsumed by the whole `ldiv` TU already matched at 0x76B80. Its
   own audio objects carry placeholder file names (`init_17870.c`) where JFG
   carries real ones, which is why JFG is cited even where both match.
