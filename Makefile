@@ -236,6 +236,19 @@ cleanroom:
 audit-decoders:
 	$(PYTHON) $(TOOLS_DIR)/audit_decoders.py $(AUDIT_ARGS)
 
+# The other direction, and the one `audit-decoders` is structurally blind to: a
+# decoder that quietly STOPS producing words looks exactly like a decoder
+# behaving, so every number in the audit stays green while the gate becomes a
+# no-op. This synthesizes real-ROM fixtures in every encoding at every wrap
+# width from baseroms/mickey.us.z64 AT RUN TIME, asserts each is still caught,
+# and writes nothing to disk -- a committed fixture that proves the detectors
+# catch ROM data would itself be ROM data, and `cleanroom` would rightly reject
+# it. Needs the baserom, so like `verify` it cannot run in CI; run it after
+# touching tools/cleanroom_detectors.py, alongside `audit-decoders`, not
+# instead of it.
+check-fixtures:
+	$(PYTHON) $(TOOLS_DIR)/false_negative_fixtures.py $(FIXTURE_ARGS)
+
 # Re-derives the arithmetic the docs claim -- VRAM/ROM conversions, segment
 # size subtractions, the MiB column of the top-level map, the jump-table count
 # -- and fails on a mismatch. A count audit found several of these stale at
@@ -447,6 +460,6 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract verify cleanroom audit-decoders check-docs progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract verify cleanroom audit-decoders check-fixtures check-docs progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail

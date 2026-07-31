@@ -24,8 +24,9 @@ a long history cheap: a file that never changed is one blob no matter how
 many commits it appears in.  Path work is deduplicated by `path`.
 
 Every threshold below is measured, not guessed.  The numbers quoted in the
-comments are the worst case over *all 238 blobs in this repository's
-history* versus the two workbench ledgers that had to be purged from it --
+comments are the worst case over *every blob in this repository's
+history* (a count is deliberately not quoted -- it moves with every text
+commit; `gmake audit-decoders AUDIT_ARGS=--all` prints the current one) versus the two workbench ledgers that had to be purged from it --
 the incident this whole file exists to prevent from recurring.  Those
 ledgers are the calibration set for "must fail"; the history is the
 calibration set for "must pass".
@@ -165,7 +166,7 @@ WORD_ARRAY_LIMIT = 16  # tokens appearing inside such runs
 #        accounted for 7 of the 13 distinct high bytes in docs/modules.md and
 #        9 of symbol_addrs.us.txt's 13 (see HALF_PAIR_GAP).
 #
-#    Measured after all of them, over all 238 blobs in this repository's
+#    Measured after all of them, over every blob in this repository's
 #    history.  The protecting gate is named, because for every file in this
 #    tree it is `spread` -- addresses cluster, and volume alone was never the
 #    signal:
@@ -175,15 +176,18 @@ WORD_ARRAY_LIMIT = 16  # tokens appearing inside such runs
 #                            almost all of those words share the high byte
 #                            0x80, which is the whole reason the rule is a pair
 #      src/main/runlink.c     43 words, spread  4 -- 8.00x under spread
-#      this file              24 words, spread 11 -- 8.00x; at round 5 it was
-#                            spread 32, exactly ON the limit, saved only by
-#                            its count
+#      this file             no figure quoted: it is the one file whose own
+#                            metrics move every time this file is edited, and a
+#                            self-measurement in a comment is stale by
+#                            construction.  It is protected by COUNT, not
+#                            spread -- at round 5 its spread was 32, exactly ON
+#                            the limit, and only its count saved it.
 #      the two manifests       8 words each after their schema-validated
 #                            digests are accounted for
 #    Tightest margin anywhere in history: 6.40x, up from 2.46x before the
 #    halves fix and 1.19x before any of this.  Nothing in history fires.
 #
-#    A full attribution audit (every word in all 238 historical blobs traced to
+#    A full attribution audit (every word in every historical blob traced to
 #    the mechanism that produced it) now shows EVERY synthetic decoder
 #    contributing zero: hexline-block, base-block, base-run, a85-run,
 #    halves-pair, oct-token, dotted-quad and escaped-bytes are all 0.  The only
@@ -234,7 +238,7 @@ DIGEST_EXEMPTION = 64
 #    opcode, so spread saturates near 20 for a small sample -- which is why the
 #    spread floor here is much lower than the per-file rule's, and why density
 #    has to carry the other half.
-#    Measured: every one of the 238 blobs in history contributes 0, and the
+#    Measured: every blob in history contributes 0, and the
 #    whole worktree contributes 0.  The pass side is not close to the line; it
 #    is not on the board.
 #
@@ -399,7 +403,7 @@ PURE_B64_LINE = re.compile(r"^[A-Za-z0-9+/=_-]+$")
 # Measured: at 16 this joined nothing narrower, so wraps of 4-15 columns were
 # not caught at all while 16+ were -- a capability the docs described without
 # the qualifier.  Lowering it to 4 catches every wrap width from 4 to 32 and
-# costs nothing measurable: over all tracked files and all 228 blobs in
+# costs nothing measurable: over all tracked files and every blob in
 # history the tightest margin is identical at either setting and nothing new
 # fires.  The alphabet-share gate in _decode_base_n is what keeps a joined
 # block of ordinary short lines from decoding, so the per-line floor never had

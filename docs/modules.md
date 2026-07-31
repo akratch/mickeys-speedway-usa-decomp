@@ -119,8 +119,12 @@ the tree are:
   Phase 2 Task 3. PD contributed three names (the Transfer Pak driver, which no
   other reference build contains). BK and Conker contributed **none**, and that
   documented zero is in `docs/references.md` alongside what they did contribute:
-  independent corroboration of 75 and 73 of the adopted translation units. None
-  of the three had its source read for any purpose.
+  independent corroboration of **2** and **8** of the adopted translation units,
+  and re-confirmation of **73** and **65** subsegments Phase 1 had already
+  named. Those are two different measurements and they are not summed — see
+  `docs/references.md` §"Three different things, counted separately", and note
+  that only the corroboration figures are recomputable from this tree. None of
+  the three had its source read for any purpose.
 
 Nothing in this tree was independently derived from Mickey's bytes and then
 found to agree with a reference project. **The names are borrowed.** What the

@@ -83,12 +83,21 @@ or octal or decimal, escaped byte strings, base64/base64url/base32/ascii85
 (wrapped, or split across files), JSON ledgers, and leaks spread thinly across
 a tree.
 
-They do **not** catch a sub-threshold trickle (one file under ~96 machine words
-— about 384 bytes of ROM — passes; there is a measured fixture at 63), up to 64
-digest-shaped hex strings per file, or deliberate steganography. Detecting
+They do **not** catch a sub-threshold trickle — the per-file word limit is 192,
+so **one file carrying up to 191 machine words, about 764 bytes of ROM, passes
+everything** if it is padded enough to keep the aggregate's 12-words/KiB rate
+floor from counting it; eight such files carry about **6 KB** with the aggregate
+budget still reading zero. Nor do they catch digest-shaped hex strings up to the
+point where the exempted first 64 stop covering them — **measured at 87 digests,
+about 2.7 KiB per file**, and higher on other ROM regions (up to 141 / ~4.4 KiB),
+since what actually trips is the spread of the words they decode to. Nor
+deliberate steganography. Detecting
 arbitrarily-encoded data is undecidable, and these rules are calibrated for
 mistakes rather than adversaries. [`CLEANROOM.md`](CLEANROOM.md) lists the
-limits with their measurements, and names what is actually load-bearing: the
+limits with their measurements — including a separate volume floor on 16-bit
+halves, where a file of fewer than 64 hex halves pairs (63 pairs, about 252
+bytes) is not caught *by that route*, though the fixture is still caught by the
+layout rules — and names what is actually load-bearing: the
 path whitelist and manifest schema check, the ROM path and binary rules, the
 tool-level ledger redaction, this policy, and the `protect-master` ruleset
 described above (force-push/deletion only — it cannot restrict content, see
@@ -128,8 +137,11 @@ into a hook.
 | `gmake check-docs` | derived numbers in the docs (`docs/modules.md` etc.) match the tree | no† | manual |
 | `gmake check-scoreboard` | README's generated Progress block matches what the tree produces right now | yes | manual only — CI runs a **partial** subset, `--check-partial`, that does not need a build (see [`scoreboard.yml`](../.github/workflows/scoreboard.yml) and the note below) |
 | `gmake audit-decoders` | the clean-room content detectors aren't inventing words that aren't really there (run this after touching `tools/cleanroom_detectors.py`, not instead of `cleanroom`) | no | manual |
+| `gmake check-fixtures` | the other direction — real ROM in every encoding at every wrap width is *still caught*, which `audit-decoders` is structurally blind to. Fixtures are synthesized from `baseroms/mickey.us.z64` at run time and never written to disk; needs a baserom, so it can never run in CI. Run it with `audit-decoders`, not instead of it | no (needs a baserom) | manual |
 | `gmake progress` | prints the same matched-function/byte/symbol counts as the scoreboard, without touching README.md | yes | manual |
 | `gmake scoreboard` | regenerates README's Progress block from the tree (run this, then commit, whenever matching progress changes) | yes | manual |
+| `gmake clean` | removes `build/` only — safe, and all a rebuild normally needs | no | manual |
+| `gmake distclean` | `clean`, plus the *extracted* state: `asm/`, `assets/`, the linker script and the auto-generated `undefined_*.us.txt`. Recovering from it needs `gmake extract`, which needs a baserom | no | manual |
 
 † `check-docs`'s jump-table count needs `asm/` and is skipped, not failed,
 before `gmake extract` has run.

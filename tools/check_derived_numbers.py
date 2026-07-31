@@ -460,6 +460,78 @@ if tu_blocks:
             f"docs/references.md: found {corrob_seen} per-title 'corroborates "
             f"N' claims, expected {want_corrob} (one per title that "
             "corroborates anything) -- a claim was dropped or reworded")
+
+    # 6e. docs/modules.md restates 6d's figures in prose, and that restatement
+    #     is the one place in the tree where two documents publish the same
+    #     numbers.  It is also where they went wrong: the summary sentence once
+    #     read "corroboration of 75 and 73", which is corroboration PLUS
+    #     re-confirmation summed (2+73, 8+65) -- exactly the conflation that
+    #     docs/references.md's "Three different things, counted separately"
+    #     exists to prevent, and a 10x overstatement of the corroboration.
+    #
+    #     So both halves are checked, by different means, because they are
+    #     different KINDS of number:
+    #       * corroboration -- recomputable from symbol_addrs.us.txt, checked
+    #         against `corrob` exactly as 6d checks references.md;
+    #       * re-confirmation -- NOT recomputable from this tree (it comes from
+    #         the mining run logs), so it is checked for agreement with what
+    #         docs/references.md says, which is the authority for it.
+    #     A missing sentence is a failure, not a pass: this check must not be
+    #     silently disarmed by a reword.
+    RECONF = re.compile(r"\*\*re-confirms (\d+)\*\*\s+subsegments")
+    reconf = {}
+    for m in RECONF.finditer(refs_text):
+        head = refs_text.rfind("\n## ", 0, m.start())
+        title = refs_text[head + 4:refs_text.index("\n", head + 4)].strip()
+        slug = TITLES.get(title)
+        if slug is not None:
+            reconf[slug] = int(m.group(1))
+
+    MODULES_SUMMARY = re.compile(
+        r"BK and Conker contributed \*\*none\*\*.*?"
+        r"corroboration of \*\*(\d+)\*\* and \*\*(\d+)\*\*\s+of the adopted "
+        r"translation units,\s+and re-confirmation of \*\*(\d+)\*\* and "
+        r"\*\*(\d+)\*\*\s+subsegments",
+        re.DOTALL)
+    mods_text = "\n".join(read("docs/modules.md"))
+    hit = MODULES_SUMMARY.search(mods_text)
+    if hit is None:
+        problems.append(
+            "docs/modules.md: the §1.3 sentence restating Banjo-Kazooie's and "
+            "Conker's corroboration and re-confirmation figures is gone or "
+            "reworded -- check 6e is now checking nothing. It is the only "
+            "place two documents publish the same mining figures, and it is "
+            "where they were last found summed together; keep it in the form "
+            "'corroboration of **N** and **M** of the adopted translation "
+            "units, and re-confirmation of **P** and **Q** subsegments' or "
+            "update this check deliberately.")
+    else:
+        i = mods_text.count("\n", 0, hit.start()) + 1
+        want = [("corroboration", "banjo-kazooie", corrob.get("banjo-kazooie", 0),
+                 "symbol_addrs.us.txt"),
+                ("corroboration", "conker", corrob.get("conker", 0),
+                 "symbol_addrs.us.txt"),
+                ("re-confirmation", "banjo-kazooie", reconf.get("banjo-kazooie"),
+                 "docs/references.md"),
+                ("re-confirmation", "conker", reconf.get("conker"),
+                 "docs/references.md")]
+        for got, (kind, slug, expect, source) in zip(hit.groups(), want):
+            if expect is None:
+                problems.append(
+                    f"docs/references.md: no 're-confirms N subsegments' claim "
+                    f"found for {slug}, so docs/modules.md's {kind} figure has "
+                    "nothing to be checked against")
+                continue
+            checked += 1
+            if int(got) != expect:
+                report("docs/modules.md", i,
+                       f"§1.3 claims {kind} of {got} for {slug}; {source} has "
+                       f"{expect}"
+                       + (f" (note {got} == {expect} + "
+                          f"{int(got) - expect}: corroboration and "
+                          "re-confirmation summed is the known failure here)"
+                          if reconf.get(slug) is not None
+                          and int(got) == expect + reconf[slug] else ""))
 else:
     problems.append("symbol_addrs.us.txt: no mining-pass TU block headers found "
                     "-- section 6 of this script is checking nothing")

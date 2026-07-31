@@ -122,15 +122,19 @@ current detectors.
   the discriminator carrying the per-file rule, and any bijective transform
   that collapses the high byte — masking it, storing it separately, shifting
   the alignment — takes the rule with it.
-- **Prose dilution.** A single file carrying **188 `0x`-prefixed words, about
-  752 bytes of ROM**, one per padded sentence, passes everything: it sits under
-  the 192-word per-file limit, and the aggregate ignores it because the
-  aggregate's rate floor (12 words/KiB) is a *per-file* rate that padding
-  drives to 5.5. Eight such files carry roughly **6 KB** with the aggregate
-  budget still reading **0**. The earlier version of this section said the
-  ceiling was 96 words / 384 bytes; that was wrong by a factor of two, and it
-  also implied the aggregate budget covered thin multi-file spreads, which it
-  does only for dense files.
+- **Prose dilution.** A single file carrying **191 `0x`-prefixed words, about
+  764 bytes of ROM**, one per padded sentence, passes everything: the ceiling is
+  set by the rule, not by the fixture — `WORD_TABLE_COUNT_LIMIT` is 192, so 191
+  is the most a file can yield and still pass, and the aggregate ignores it
+  because the aggregate's rate floor (12 words/KiB) is a *per-file* rate that
+  padding drives arbitrarily low. Eight such files carry roughly **6 KB**
+  (8 × 764 = 6112 bytes) with the aggregate budget still reading **0** —
+  measured, not inferred. Two earlier versions of this section were wrong here
+  and both are worth recording: one said the ceiling was 96 words / 384 bytes,
+  which is `AGGREGATE_WORD_BUDGET`, a different rule, and half the real figure;
+  the next said 188 words / 752 bytes, which was one padded fixture's incidental
+  size rather than the ceiling. Quote the limit, not the fixture that happened
+  to be measured against it.
 - **Decimal 16-bit halves.** Hex halves are recombined into words; the same
   split written in decimal is not, and a 400-word fixture scores **0**.
 - **Fewer than 64 hex halves pairs in a file.** Halves are gated on volume:
@@ -157,8 +161,12 @@ current detectors.
   count normally, so the exemption is a slope rather than a cliff: measured, a
   file of digest-shaped ROM passes at 64 and 65 tokens and is caught at 88.
   **Deliberately abused that is about 2.7 KiB of ROM per file** — 87 digests
-  is the measured ceiling, and it varies a little with the byte values, since
-  what actually trips is the spread of the words they decode to. An earlier
+  is the ceiling measured on the standard fixture region (ROM 0x32630), and it
+  is **strongly** byte-value dependent, because what actually trips is the
+  spread of the words they decode to rather than their count: re-measured over
+  six ROM regions the ceiling ranges from 87 to 141 digests, 2.7 KiB to 4.4 KiB.
+  Quote it as a range or say "about 2.7 KiB on the measured region"; a single
+  figure here is a fixture property, not a property of the rule. An earlier
   figure of 3.2 KB here was an estimate, not a measurement. The widening
   relative to the old 2 KB is deliberate and is the price of removing
   a discontinuity that made a documentation file recording a 65th hash score
@@ -171,6 +179,27 @@ current detectors.
   `ledger_redaction._sweep`: it covers target-naming keys in any case at any
   depth in any container, but it does not read string *contents*, so target
   code under an innocuous key name or as a bare list element survives).
+- **Absolute filesystem paths in the workbench manifests**, which are a
+  publication problem rather than a clean-room one, and are *known and
+  deliberately not scrubbed*. Both tracked manifests under
+  `.decomp-workbench/campaigns/` record `/Users/<name>/…` in
+  `identity_inputs`, and the manifest schema check permits them: `_m_path`
+  requires a path, not a relative one. They leak a maintainer's home directory
+  layout into a repository intended for publication, and they are the reason
+  this bullet exists rather than a quiet fix — because the quiet fix would be
+  worse. `identity` is
+  `sha256(json.dumps(identity_inputs, sort_keys=True, separators=(",",":")))`
+  — verified, both manifests reproduce their recorded digest exactly — and the
+  campaign directory name embeds its first twelve hex characters
+  (`SetLinkSlot-ee19dab3a5b2`). Rewriting the paths to relative ones therefore
+  invalidates the digest and the directory name together, and re-deriving both
+  would produce a record of a campaign that was never run under those inputs.
+  A manifest exists to be reproducible; falsifying one to tidy a home directory
+  out of it trades a cosmetic leak for a fabricated record, which is the worse
+  trade in this repository specifically. **The fix at publication time is to
+  drop `.decomp-workbench/` from the published tree, or to re-run the two
+  campaigns from a neutral root and commit the manifests they genuinely
+  produce** — not to edit these.
 
 The pattern across all of these is worth stating plainly, because three rounds
 of review found it independently: **content detection here is calibrated for
@@ -264,7 +293,8 @@ file's words actually came from, rather than by adjusting a limit:
 Each of these was a steady drip of noise into `spread` — the metric protecting
 every file here.
 
-A closing audit traced **every** normalized word in all 238 historical blobs
+A closing audit traced **every** normalized word in **every blob in this
+repository's history**
 back to the mechanism that produced it, and fixed the two that were still
 inventing data: a shell assignment (`OBJDUMP=tools/binutils/mips64-elf-objdump`)
 was being decoded first as base64 and then, once that was blocked, as ascii85;
@@ -274,8 +304,18 @@ contributes **zero** words across the whole history — the only producers left
 are real hex addresses and a couple of decimal tokens. That audit is no longer
 a one-off: it is `gmake audit-decoders`, and it fails.
 
-The tightest margin over all 238 blobs in this repository's history is now
-**6.40×** (`docs/modules.md`, spread 5 against a limit of 32), up from 2.46×
+No blob count is quoted here on purpose. It changes with every text commit, so
+any number written down is stale the moment the next one lands — this document
+said "238" for several rounds after the true figure had moved on, which is the
+recompute-don't-remember rule broken inside the document that states it.
+`gmake audit-decoders AUDIT_ARGS=--all` prints the count it actually scanned;
+that is the figure, and it is the only one that is ever current. (For scale, at
+the time of writing it prints 256, from 257 unique blobs — the difference is one
+empty file, which the audit skips.)
+
+The tightest margin over **every** blob in this repository's history is now
+**6.40×** (`docs/modules.md`, 95 words / spread 5 against limits of 192 / 32 —
+so 6.40× under spread, which is the gate protecting it), up from 2.46×
 before the halves fix and 1.19× before the decoder work began.
 `symbol_addrs.us.txt` sits at 16.0×, and it is protected by spread rather than
 count — it carries 436 words against a 192 limit, nearly all sharing the high
@@ -341,12 +381,35 @@ run whose length was 1 mod 4 raised inside the decoder and was swallowed, and
 a per-line floor meant narrow-wrapped payloads were never joined. Neither moved
 a single number in the audit.
 
-**False-negative coverage comes from the fixture suite** — real ROM words in
-every encoding, wrapped at every width, asserted to still be caught — not from
-this tool. Verified by driving it: reverting either wrap floor, or removing the
-undecodable-length trim, leaves `gmake audit-decoders` green while the fixture
-suite immediately reports the missed widths. Run both. Neither replaces the
-other, and a clean audit is not evidence that anything still works.
+**False-negative coverage comes from `gmake check-fixtures`** — 64 fixture
+families of real ROM words in every encoding, wrapped at every width, each
+asserted to still be caught — not from this tool. For several rounds this
+paragraph named a "fixture suite" that existed only in a scratchpad and could
+not be run by anyone reading it; it is now
+[`tools/false_negative_fixtures.py`](../tools/false_negative_fixtures.py) and it
+is a make target.
+
+The fixtures are **generated at run time from `baseroms/mickey.us.z64` and
+never written to disk**, which is not an implementation convenience but the only
+available design: a fixture that proves the detectors catch ROM data *is* ROM
+data, so committing one would violate the policy this very file states, and
+`gmake cleanroom` would correctly reject it. The consequence is that this check,
+like `gmake verify`, cannot run in CI — there is no baserom there — and it fails
+rather than skips when the baserom is missing, because a green bar from a suite
+that tested nothing is worse than a red one.
+
+It asserts in both directions. Every fixture that carries ROM must be caught;
+and every family corresponding to a hole listed above under "What it does not
+catch" must still *pass*, so that if the detectors quietly get stronger this
+document stops being able to overstate the weakness.
+
+Verified by driving it: reverting either wrap floor from 4 to 32 leaves
+`gmake audit-decoders` green (256 texts, no decoder inventing words) while
+`gmake check-fixtures` reports 16 missed families including every base64 wrap
+from 4 to 31 columns; removing the undecodable-length trim likewise leaves the
+audit green while the fixtures report `b32_len_mod8_is_1` and `b64_wrap27`
+silently producing nothing. Run both. Neither replaces the other, and a clean
+audit is not evidence that anything still works.
 
 It runs over tracked files by default (about 0.2 s) and over every blob in
 history with `AUDIT_ARGS=--all` (about 4 s). It is deliberately **not** wired
