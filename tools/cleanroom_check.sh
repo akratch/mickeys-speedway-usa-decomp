@@ -51,10 +51,6 @@ while [ $# -gt 0 ]; do
 	--range)
 		mode=range
 		range=${2-}
-		if [ -z "$range" ]; then
-			echo "cleanroom: --range needs a rev-range argument" >&2
-			exit 2
-		fi
 		shift 2
 		;;
 	--range=*)
@@ -73,6 +69,12 @@ while [ $# -gt 0 ]; do
 		;;
 	esac
 done
+
+if [ "$mode" = range ] && [ -z "${range// /}" ]; then
+	echo "cleanroom: --range needs a non-empty rev-range argument" >&2
+	usage >&2
+	exit 2
+fi
 
 # Emit work items for the detectors: kind, ident, label, path (tab separated,
 # path last so a path containing a tab survives the split).
@@ -112,6 +114,21 @@ emit_index() {
 emit_range() {
 	# `git ls-tree -r -z` prints "<mode> <type> <sha>\t<path>".
 	local commit short meta path filemode type sha
+	# rev-list's exit status must be CHECKED, not discarded.  Reading it from a
+	# process substitution throws the status away, so an unresolvable ref used
+	# to produce an empty work list and a clean bill of health -- a fail-OPEN
+	# in the last enforcing layer, and one the push hook could reach because it
+	# builds ranges out of ref names.  Materialise the commit list first and let
+	# a rev-list failure abort the whole scan.
+	#
+	# $range is deliberately unquoted: callers pass rev-list syntax, which may
+	# be several words ("--all", "A..B C..D").
+	# shellcheck disable=SC2086
+	if ! git rev-list $range >"$commits" 2>"$commits.err"; then
+		cat "$commits.err" >&2
+		echo "cleanroom: 'git rev-list $range' failed; refusing to report clean" >&2
+		return 2
+	fi
 	while IFS= read -r commit; do
 		[ -n "$commit" ] || continue
 		short=${commit:0:9}
@@ -128,10 +145,7 @@ emit_range() {
 				printf 'blob\t%s\tcommit %s\t%s\n' "$sha" "$short" "$path"
 			fi
 		done < <(git ls-tree -r -z "$commit")
-		# $range is deliberately unquoted: callers pass rev-list syntax, which
-		# may be several words ("--all", "A..B C..D").
-		# shellcheck disable=SC2086
-	done < <(git rev-list $range)
+	done <"$commits"
 }
 
 case "$mode" in
@@ -149,13 +163,25 @@ if ! command -v "$PY" >/dev/null 2>&1; then
 	exit 2
 fi
 
-count=0
 tmp=$(mktemp) || exit 2
-trap 'rm -f "$tmp"' EXIT
+commits=$(mktemp) || exit 2
+trap 'rm -f "$tmp" "$commits" "$commits.err"' EXIT
+
+# Not `worklist | ...`: a pipeline would discard this status the same way the
+# process substitution used to.
 worklist >"$tmp"
+build_status=$?
+if [ "$build_status" -ne 0 ]; then
+	echo "cleanroom: could not build the work list; refusing to report clean" >&2
+	exit 2
+fi
+
 count=$(wc -l <"$tmp" | tr -d '[:space:]')
 
 if [ "$count" = "0" ]; then
+	# Only reachable now that the work list was built successfully.  An empty
+	# range (A..A, a no-op push) is legitimately nothing to scan; an empty work
+	# list caused by a BROKEN range exits 2 above instead of reporting clean.
 	echo "cleanroom check OK -- nothing to scan ($mode)"
 	exit 0
 fi

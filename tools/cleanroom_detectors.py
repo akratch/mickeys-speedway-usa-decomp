@@ -43,53 +43,129 @@ import sys
 # --------------------------------------------------------------------------
 
 # 1. Instruction text.  Distinctive MIPS mnemonics as whole tokens.
+#    Case-insensitive: an uppercase listing is still a listing, and matching
+#    both spellings costs exactly nothing here -- across every blob in this
+#    history the case-insensitive count equals the case-sensitive count.
 #    history max: 16 tokens (include/game/runlink.h) -- 2.5x under the limit.
 #    purged ledgers: 88 tokens @ 1.298/KiB and 4407 @ 4.558/KiB -- both over.
-MNEMONICS = re.compile(
-    r"^(?:addiu|lw|sw|jal|beq|lui|sltu)$"
-)
+MNEMONICS = re.compile(r"^(?:addiu|lw|sw|jal|beq|lui|sltu)$", re.IGNORECASE)
 MNEMONIC_COUNT_LIMIT = 40
 MNEMONIC_RATE_LIMIT = 1.000  # tokens per KiB
 
-# 2. Machine words.  Bare hex runs of 4/8/16 digits that are not 0x-prefixed
-#    and not part of an identifier, and that mix digits with a-f.  Source and
-#    docs write addresses as `0x80001234`; a dump of the ROM's words writes
-#    them bare.  That distinction is what makes this detector sharp.
+# 2. Machine words, bare.  Hex runs of 4/8/16 digits that are NOT 0x-prefixed
+#    and not part of an identifier, mixing digits with a-f.  Source and docs
+#    write addresses as `0x80001234`; a bare-hex dump writes them naked.
 #    history max: 3 tokens in any single blob -- 10x under the limit.
 #    purged ledgers: 126 @ 1.86/KiB and 2973 @ 3.07/KiB -- both well over.
+#
+#    Deliberately bare-only.  Widening it to 0x-prefixed forms was measured and
+#    rejected: symbol_addrs.us.txt carries 215 such tokens at 4.917/KiB and
+#    docs/modules.md 80 at 2.715/KiB, so any count-and-rate rule covering them
+#    either fires on this tree or is too loose to be worth having.  The
+#    0x-prefixed case is covered by rules 3 and 4 instead, which key on shape
+#    and on value distribution rather than on volume.
 BARE_HEX_WORD = re.compile(
     r"(?<![0-9A-Za-z_.$-])(?:[0-9a-fA-F]{4}|[0-9a-fA-F]{8}|[0-9a-fA-F]{16})(?![0-9A-Za-z_.$-])"
 )
 HEXWORD_COUNT_LIMIT = 32
 HEXWORD_RATE_LIMIT = 0.500  # tokens per KiB
 
-# 3. Hexdump layout.  `xxd`/`hexdump -C`/`od` output, and C byte arrays of ROM
-#    bytes, all share a shape: most of the tokens on the line are short hex.
-#    Detected per line, then required to be a real share of the file.
-#    history max: 0 such lines in any blob, ever.  Any threshold passes the
-#    tree; these are set low enough to catch a dump of a single function.
+# 3. Word arrays.  Machine words -- in ANY encoding, 0x-prefixed included --
+#    written adjacently, separated only by commas and whitespace.  That is the
+#    shape of a C array of ROM words, of `.word` directives, and of a column
+#    dump; nothing in a source tree writes four 32-bit constants in a row.
+#    Keying on adjacency rather than volume is what lets this cover the
+#    0x-prefixed forms rule 2 must leave alone.
+#    history max: 0 tokens in adjacency runs, in every blob ever.
+#    0x-prefixed ROM word array fixture: 400 -- 25x over the limit.
+WORD_RUN = re.compile(
+    r"(?:(?:0[xX][0-9a-fA-F]{8}|0[xX][0-9a-fA-F]{16}"
+    r"|(?<![0-9A-Za-z_.$-])[0-9a-fA-F]{8}|(?<![0-9A-Za-z_.$-])[0-9a-fA-F]{16})"
+    r"(?![0-9A-Za-z_.$-])(?:[ \t]*,[ \t]*|\s+)){3,}"
+    r"(?:0[xX][0-9a-fA-F]{8}|0[xX][0-9a-fA-F]{16}"
+    r"|(?<![0-9A-Za-z_.$-])[0-9a-fA-F]{8}|(?<![0-9A-Za-z_.$-])[0-9a-fA-F]{16})"
+    r"(?![0-9A-Za-z_.$-])"
+)
+WORD_RUN_TOKEN = re.compile(r"(?:0[xX])?[0-9a-fA-F]{8,16}")
+WORD_ARRAY_LIMIT = 16  # tokens appearing inside such runs
+
+# 4. Word tables.  The single-line JSON case, where adjacency never happens
+#    because every word is wrapped in its own key.  What still separates a dump
+#    of the ROM's instructions from this tree's hex is the *value distribution*:
+#    addresses cluster (everything here is 0x8xxxxxxx VRAM or 0x0xxxxxxx ROM
+#    offsets), while instruction words spread across the whole 32-bit space.
+#    So: count 32-bit-valued tokens in any encoding -- bare hex, 0x-prefixed or
+#    decimal -- and require BOTH a real population AND a wide spread of their
+#    high bytes.  Neither gate alone survives contact with this tree.
+#    history max: symbol_addrs.us.txt 217 values but only 2 distinct high bytes
+#    (8x under the spread limit); tools/n64crc.c 12 distinct high bytes but
+#    only 16 values (4x under the count limit).  Every blob in history fails at
+#    least one gate by 4x or more.
+#    purged ledgers: 157/18 and 3895/35.  0x-prefixed ledger fixture: 400/46.
+#    decimal-encoded fixture: 369/55.
+WORD_HEX = re.compile(
+    r"(?<![0-9A-Za-z_.$-])(?:0[xX])?([0-9a-fA-F]{8})(?![0-9A-Za-z_.$-])"
+)
+WORD_DEC = re.compile(r"(?<![0-9A-Za-z_.$-])([0-9]{8,10})(?![0-9A-Za-z_.$-])")
+WORD_TABLE_COUNT_LIMIT = 64
+WORD_TABLE_SPREAD_LIMIT = 16  # distinct high bytes among those values
+
+# 5. Hexdump layout.  `xxd`/`hexdump -C`/`od`, and C byte arrays of ROM bytes,
+#    share a shape: most tokens on the line are short hex.
+#    history max: 0 such lines in any blob, ever -- so these thresholds are set
+#    by what they must CATCH, not by what they must let through.  4 tokens per
+#    line covers narrow `od -w5`-style output; the 5% share stops a dump from
+#    hiding inside a large file of prose.
 HEX_TOKEN = re.compile(
     r"^(?:0[xX][0-9a-fA-F]{2}|0[xX][0-9a-fA-F]{4}"
     r"|[0-9a-fA-F]{2}|[0-9a-fA-F]{4}|[0-9a-fA-F]{8}|[0-9a-fA-F]{16})$"
 )
-HEXDUMP_TOKENS_PER_LINE = 6  # hex tokens needed before a line counts
+HEXDUMP_TOKENS_PER_LINE = 4  # hex tokens needed before a line counts
 HEXDUMP_LINE_LIMIT = 8  # such lines needed before the file counts
-HEXDUMP_LINE_SHARE = 0.10  # ...and they must be this share of nonblank lines
+HEXDUMP_LINE_SHARE = 0.05  # ...and they must be this share of nonblank lines
 
-# 4. Base64 blobs.  A long unbroken alnum+/ run that mixes case and digits is
-#    not prose, not code, and not a hash used in this tree.
-#    history max: 58 characters (a cache key in a workbench manifest).
-#    2.2x under the limit.
-BASE64_RUN = re.compile(r"[A-Za-z0-9+/]{64,}")
-BASE64_RUN_LIMIT = 128
+# 6. Base64 blobs.  Two rules, because base64 is routinely line-wrapped -- MIME
+#    at 76 columns, `openssl base64` at 64 -- and a rule keyed on the longest
+#    unbroken run sees a wrapped 4KB ROM blob as a series of harmless
+#    76-character strings.  So: the longest run AND the total volume.
+#    history max: 58-character longest run (a cache key in a workbench
+#    manifest), 2.2x under; 918 aggregate characters at 160.3/KiB in that same
+#    manifest, 2.2x and 2.5x under.
+#    wrapped-ROM fixture: 76-character runs, invisible to the run rule, but
+#    5386 characters at 996.3/KiB -- 2.6x and 2.5x over.
+BASE64_RUN = re.compile(r"[A-Za-z0-9+/]{32,}")
+BASE64_RUN_LIMIT = 128  # longest single run
+BASE64_TOTAL_LIMIT = 2048  # aggregate base64-shaped characters...
+BASE64_RATE_LIMIT = 400.0  # ...at this many per KiB
 
-# 5. Size.  Nothing legitimate in a decomp source tree is this big; extracted
+# 7. Size.  Nothing legitimate in a decomp source tree is this big; extracted
 #    data is.  history max: 44,779 B (symbol_addrs.us.txt) -- 5.9x under.
 SIZE_LIMIT = 256 * 1024
 # Paths permitted to exceed SIZE_LIMIT or to be non-text.  Empty by design:
 # add an entry only with a written reason, and expect to justify it at review.
 SIZE_ALLOWLIST: "set[str]" = set()
 BINARY_ALLOWLIST: "set[str]" = set()
+
+# 8. Aggregate budget.  Every rule above is per-file, so a leak spread thinly
+#    across many files passes all of them: 13 files carrying 31 bare machine
+#    words each is 403 ROM words with no single file breaking a rule.  This is
+#    the backstop -- the total across one scan unit (the worktree, the index,
+#    or one commit's tree).
+#    Per-tree rather than per-scan on purpose: a whole-history scan must not
+#    accumulate an ever-growing total and eventually fail on its own success.
+#    measured: current worktree 8, and no historical tree exceeds it -- 16x
+#    under the budget.
+AGGREGATE_BARE_WORD_BUDGET = 128
+
+# 9. Whitelisted workbench manifests get a far tighter budget than an ordinary
+#    file.  The path whitelist says campaigns/*/manifest.json may be tracked;
+#    that is a statement about paths and hashes, not a licence to carry ROM
+#    words under an approved filename.  A manifest that trips these is either a
+#    bug in the workbench or a ledger wearing a manifest's name.
+#    both tracked manifests measure 0 on all three.
+MANIFEST_MAX_BARE_WORDS = 4
+MANIFEST_MAX_WORD_VALUES = 4
+MANIFEST_MAX_MNEMONICS = 4
 
 # --------------------------------------------------------------------------
 # Path rules.
@@ -156,12 +232,36 @@ def check_path(path):
     return out
 
 
+def word_values(text):
+    """Return the 32-bit values written in this text, in any encoding.
+
+    Hex (bare or 0x-prefixed) and decimal alike, because the encoding is the
+    author's free choice and the value distribution is not.
+    """
+    values = []
+    for match in WORD_HEX.finditer(text):
+        values.append(int(match.group(1), 16))
+    for match in WORD_DEC.finditer(text):
+        value = int(match.group(1))
+        # Below 2^24 it is a plausible ordinary number -- a size, a line count,
+        # a byte offset.  At or above 2^32 it is not a machine word at all.
+        if (1 << 24) <= value < (1 << 32):
+            values.append(value)
+    return values
+
+
 def check_content(path, data):
-    """Content rules.  Returns [(detector, [detail lines]), ...]."""
+    """Content rules.
+
+    Returns ``([(detector, [detail lines]), ...], metrics)``.  The metrics feed
+    the aggregate budget in :func:`main`, which is the one rule that cannot be
+    decided by looking at a single file.
+    """
     out = []
+    metrics = {"bare_words": 0}
     size = len(data)
     if size == 0:
-        return out
+        return out, metrics
 
     if size > SIZE_LIMIT and path not in SIZE_ALLOWLIST:
         out.append(
@@ -185,8 +285,10 @@ def check_content(path, data):
 
     if text is None:
         if path not in BINARY_ALLOWLIST:
-            out.append(("binary-blob", ["not valid UTF-8 text; every tracked file must be text"]))
-        return out
+            out.append(
+                ("binary-blob", ["not valid UTF-8 text; every tracked file must be text"])
+            )
+        return out, metrics
 
     # -- instruction text ---------------------------------------------------
     count = 0
@@ -213,6 +315,7 @@ def check_content(path, data):
         for w in BARE_HEX_WORD.findall(text)
         if any(c.isdigit() for c in w) and any(c.lower() in "abcdef" for c in w)
     ]
+    metrics["bare_words"] = len(words)
     if len(words) >= HEXWORD_COUNT_LIMIT:
         rate = len(words) * 1024.0 / size
         if rate >= HEXWORD_RATE_LIMIT:
@@ -227,6 +330,44 @@ def check_content(path, data):
                     ],
                 )
             )
+
+    # -- word arrays (adjacency) --------------------------------------------
+    run_tokens = 0
+    first_run_line = 0
+    for match in WORD_RUN.finditer(text):
+        run_tokens += len(WORD_RUN_TOKEN.findall(match.group(0)))
+        if not first_run_line:
+            first_run_line = text.count("\n", 0, match.start()) + 1
+    if run_tokens >= WORD_ARRAY_LIMIT:
+        out.append(
+            (
+                "word-array",
+                [
+                    f"{run_tokens} machine words written adjacently"
+                    f" (limit: >={WORD_ARRAY_LIMIT})",
+                    "four 32-bit constants in a row, separated only by commas or"
+                    " whitespace, is an array of ROM words in any encoding",
+                    f"first at line {first_run_line}",
+                ],
+            )
+        )
+
+    # -- word tables (value distribution) -----------------------------------
+    values = word_values(text)
+    spread = len({(value >> 24) & 0xFF for value in values})
+    if len(values) >= WORD_TABLE_COUNT_LIMIT and spread >= WORD_TABLE_SPREAD_LIMIT:
+        out.append(
+            (
+                "word-table",
+                [
+                    f"{len(values)} 32-bit word values spread over {spread} distinct"
+                    f" high bytes (limit: >={WORD_TABLE_COUNT_LIMIT} values and"
+                    f" >={WORD_TABLE_SPREAD_LIMIT} high bytes)",
+                    "addresses cluster (0x8xxxxxxx, 0x0xxxxxxx); instruction words"
+                    " spread across the whole 32-bit space",
+                ],
+            )
+        )
 
     # -- hexdump layout -----------------------------------------------------
     nonblank = 0
@@ -257,15 +398,18 @@ def check_content(path, data):
     # -- base64 blobs -------------------------------------------------------
     worst = 0
     worst_line = 0
+    total_b64 = 0
     for lineno, line in enumerate(text.split("\n"), 1):
         for m in BASE64_RUN.finditer(line):
             run = m.group(0)
-            if (
-                len(run) > worst
-                and any(c.islower() for c in run)
+            if not (
+                any(c.islower() for c in run)
                 and any(c.isupper() for c in run)
                 and any(c.isdigit() for c in run)
             ):
+                continue
+            total_b64 += len(run)
+            if len(run) > worst:
                 worst = len(run)
                 worst_line = lineno
     if worst >= BASE64_RUN_LIMIT:
@@ -278,8 +422,42 @@ def check_content(path, data):
                 ],
             )
         )
+    b64_rate = total_b64 * 1024.0 / size
+    if total_b64 >= BASE64_TOTAL_LIMIT and b64_rate >= BASE64_RATE_LIMIT:
+        out.append(
+            (
+                "base64-volume",
+                [
+                    f"{total_b64} base64-shaped characters in {size}B ="
+                    f" {b64_rate:.1f} per KiB (limit: >={BASE64_TOTAL_LIMIT} and"
+                    f" >={BASE64_RATE_LIMIT:.0f}/KiB)",
+                    "line-wrapped base64 hides from a longest-run rule; total"
+                    " volume is what a wrapped blob cannot hide",
+                ],
+            )
+        )
 
-    return out
+    # -- whitelisted workbench manifests: a much tighter budget --------------
+    if WORKBENCH_ALLOWED.match(path):
+        for name, measured, limit in (
+            ("bare machine words", len(words), MANIFEST_MAX_BARE_WORDS),
+            ("32-bit word values", len(values), MANIFEST_MAX_WORD_VALUES),
+            ("MIPS mnemonics", count, MANIFEST_MAX_MNEMONICS),
+        ):
+            if measured > limit:
+                out.append(
+                    (
+                        "workbench-manifest-content",
+                        [
+                            f"{measured} {name} in a whitelisted manifest"
+                            f" (limit: {limit})",
+                            "the path whitelist covers paths and hashes, not ROM"
+                            " content wearing an approved filename",
+                        ],
+                    )
+                )
+
+    return out, metrics
 
 
 def _first_line(text, pred):
@@ -357,6 +535,7 @@ def main():
     blob_shas = [ident for (kind, ident) in seen_idents if kind == "blob"]
     blobs = read_blobs(blob_shas)
 
+    metrics_by_ident = {}
     for (kind, ident), (label, path) in seen_idents.items():
         if kind == "blob":
             data = blobs.get(ident)
@@ -368,8 +547,44 @@ def main():
                 data = None
         if data is None:
             continue
-        for detector, lines in check_content(path, data):
+        found, metrics = check_content(path, data)
+        metrics_by_ident[(kind, ident)] = metrics
+        for detector, lines in found:
             findings.add(detector, path, label, lines)
+
+    # Aggregate budget, per scan unit.  Every rule above is per-file, so a leak
+    # spread thinly across many files passes all of them.  Totals are summed
+    # per label -- one worktree, one index, or one commit's tree -- and NOT
+    # across the whole scan, so that scanning more history does not accumulate
+    # a total that eventually fails on its own.
+    totals = {}
+    counted = {}
+    for kind, ident, label, _path in entries:
+        if kind == "link":
+            continue
+        metrics = metrics_by_ident.get((kind, ident))
+        if metrics is None:
+            continue
+        # A blob appearing at two paths in one tree counts once.
+        seen = counted.setdefault(label, set())
+        if ident in seen:
+            continue
+        seen.add(ident)
+        totals[label] = totals.get(label, 0) + metrics["bare_words"]
+
+    for label, total in sorted(totals.items()):
+        if total >= AGGREGATE_BARE_WORD_BUDGET:
+            findings.add(
+                "aggregate-word-budget",
+                "(all files in this scan unit)",
+                label,
+                [
+                    f"{total} bare machine words in total"
+                    f" (budget: <{AGGREGATE_BARE_WORD_BUDGET})",
+                    "no single file has to break a per-file rule for a tree to"
+                    " carry a function's worth of ROM words between them",
+                ],
+            )
 
     return findings.report()
 

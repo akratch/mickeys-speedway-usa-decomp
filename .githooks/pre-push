@@ -42,25 +42,22 @@ while read -r local_ref local_sha remote_ref remote_sha; do
 		range="$remote_sha..$local_sha"
 		label="$remote_ref ($range)"
 	else
-		# New branch (or a remote tip this clone has never seen).  Scan
-		# everything reachable from the local tip that is not already on some
-		# ref of this remote -- that is exactly the set of commits the push
-		# would publish.  Blob-SHA dedup keeps this cheap even when the
-		# not-list is empty and it degenerates to the whole branch.
-		excludes=$(git for-each-ref --format='%(refname)' "refs/remotes/$remote_name" 2>/dev/null)
-		if [ -z "$excludes" ]; then
-			base=$(git merge-base "$local_sha" origin/master 2>/dev/null || true)
-			if [ -n "$base" ]; then
-				excludes="$base"
-			fi
-		fi
-		if [ -n "$excludes" ]; then
-			# shellcheck disable=SC2086
-			range="$local_sha --not $excludes"
-		else
-			range="$local_sha"
-		fi
-		label="$remote_ref (new branch)"
+		# New branch, or a remote tip this clone has never seen: scan the whole
+		# branch.
+		#
+		# An earlier version excluded everything reachable from the local
+		# remote-tracking refs, reasoning that the remote already has those
+		# commits.  That is only true while those refs are current, and the
+		# operation that strands them -- a history rewrite -- is precisely the
+		# operation this repository has already had to perform once.  A stale
+		# refs/remotes entry would exclude commits the push does in fact
+		# transmit, narrowing the scan at the moment it matters most.
+		#
+		# So: exclude nothing here.  A full-branch scan of this repository's
+		# entire history costs under a second, which is not worth trading any
+		# amount of correctness for.
+		range="$local_sha"
+		label="$remote_ref (new branch, full scan)"
 	fi
 
 	echo "pre-push: clean-room scan of $label"

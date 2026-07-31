@@ -10,7 +10,7 @@ set -u
 root=$(git rev-parse --show-toplevel) || exit 1
 cd "$root" || exit 1
 
-if [ ! -x tools/cleanroom_check.sh ] && [ ! -f tools/cleanroom_check.sh ]; then
+if [ ! -f tools/cleanroom_check.sh ]; then
 	echo "pre-commit: tools/cleanroom_check.sh is missing; refusing to commit blind" >&2
 	exit 1
 fi
