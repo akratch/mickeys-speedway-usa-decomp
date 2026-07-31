@@ -407,7 +407,8 @@ catch" must still *pass*, so that if the detectors quietly get stronger this
 document stops being able to overstate the weakness.
 
 Verified by driving it: reverting either wrap floor from 4 to 32 leaves
-`gmake audit-decoders` green (256 texts, no decoder inventing words) while
+`gmake audit-decoders` fully green — every blob in history, no decoder
+inventing words — while
 `gmake check-fixtures` reports 16 missed families including every base64 wrap
 from 4 to 31 columns; removing the undecodable-length trim likewise leaves the
 audit green while the fixtures report `b32_len_mod8_is_1` and `b64_wrap27`
