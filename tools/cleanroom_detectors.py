@@ -31,6 +31,8 @@ ledgers are the calibration set for "must fail"; the history is the
 calibration set for "must pass".
 """
 
+import base64
+import json
 import re
 import subprocess
 import sys
@@ -89,27 +91,73 @@ WORD_RUN = re.compile(
 WORD_RUN_TOKEN = re.compile(r"(?:0[xX])?[0-9a-fA-F]{8,16}")
 WORD_ARRAY_LIMIT = 16  # tokens appearing inside such runs
 
-# 4. Word tables.  The single-line JSON case, where adjacency never happens
-#    because every word is wrapped in its own key.  What still separates a dump
-#    of the ROM's instructions from this tree's hex is the *value distribution*:
-#    addresses cluster (everything here is 0x8xxxxxxx VRAM or 0x0xxxxxxx ROM
-#    offsets), while instruction words spread across the whole 32-bit space.
-#    So: count 32-bit-valued tokens in any encoding -- bare hex, 0x-prefixed or
-#    decimal -- and require BOTH a real population AND a wide spread of their
-#    high bytes.  Neither gate alone survives contact with this tree.
-#    history max: symbol_addrs.us.txt 217 values but only 2 distinct high bytes
-#    (8x under the spread limit); tools/n64crc.c 12 distinct high bytes but
-#    only 16 values (4x under the count limit).  Every blob in history fails at
-#    least one gate by 4x or more.
-#    purged ledgers: 157/18 and 3895/35.  0x-prefixed ledger fixture: 400/46.
-#    decimal-encoded fixture: 369/55.
-WORD_HEX = re.compile(
-    r"(?<![0-9A-Za-z_.$-])(?:0[xX])?([0-9a-fA-F]{8})(?![0-9A-Za-z_.$-])"
-)
-WORD_DEC = re.compile(r"(?<![0-9A-Za-z_.$-])([0-9]{8,10})(?![0-9A-Za-z_.$-])")
-WORD_TABLE_COUNT_LIMIT = 64
-WORD_TABLE_SPREAD_LIMIT = 16  # distinct high bytes among those values
+# 4. Word tables -- the normalized-stream rule.
+#
+#    Rules 1-3 all key on a token *shape*, with a strict boundary class.  A
+#    review demonstrated 28 fixtures carrying 400 real ROM words that scored
+#    literally zero against them, and most needed no evasion intent at all: a
+#    `u` suffix on a C literal, a sentence ending in a period, `xxd -p` output,
+#    a hex range written with a dash.  Shape-matching loses that game by
+#    construction -- every fix is one more regex, and the next encoding walks
+#    straight past it.
+#
+#    So: normalize first, measure second.  normalize_words() turns a file into
+#    a canonical stream of candidate 32-bit values from any plausible encoding,
+#    and the metrics run on that stream.  One normalizer retires whole families
+#    of evasion at once instead of one regex per fixture.
+#
+#    Two gates, because neither separates alone:
+#      count  -- how many machine words the file yields
+#      spread -- how many distinct high bytes those values take.  Addresses
+#                cluster (this tree is 0x8xxxxxxx VRAM and 0x0xxxxxxx ROM
+#                offsets); ROM instruction words do not.
+#
+#    Measured across all of history, excluding the whitelisted manifests, which
+#    get a structural rule instead (see check_manifest_schema -- a hash-dense
+#    file is not distinguishable from ROM data by content, and measuring harder
+#    would only produce a number that looks like a guarantee):
+#      symbol_addrs.us.txt          431 words, spread 14 -- 2.3x under spread
+#      src/main/runlink.c            68 words, spread 26 -- 2.8x under count
+#      tools/cleanroom_detectors.py 119 words, spread 17
+#    Every non-manifest blob in history fails at least one gate.
+#    The fixture families (400 real ROM words each) land at 392-5986 words and
+#    spread 40-117.
+WORD_TABLE_COUNT_LIMIT = 192
+WORD_TABLE_SPREAD_LIMIT = 32
 
+#    Digest-shaped strings are the awkward case: a SHA-256 normalizes to eight
+#    uniformly-distributed words, so a file that legitimately records hashes
+#    looks like a file carrying ROM.  This tree does record them (34 in the
+#    busiest manifest).  They are exempt -- but only where they sit inside a
+#    line beside other content, which is what a recorded hash looks like
+#    ("sha256": "..."").  A digest-shaped token alone on its line, repeatedly,
+#    is a dump and is not exempt.  The exemption is capped: past
+#    DIGEST_EXEMPTION tokens in one file, they all count.  This is a
+#    deliberate, bounded hole -- see the limits section in docs/CLEANROOM.md.
+DIGEST_TOKEN = re.compile(
+    r"(?<![0-9A-Za-z_.$-])"
+    r"(?:[0-9a-fA-F]{32}|[0-9a-fA-F]{40}|[0-9a-fA-F]{64}|[0-9a-fA-F]{128})"
+    r"(?![0-9A-Za-z_.$-])"
+)
+DIGEST_EXEMPTION = 64
+
+#    Aggregate.  Per-file rules are per-file, so a leak spread across files
+#    passes all of them: 7 files of 60 words is 400 ROM words with nothing
+#    firing.  Summing raw counts does not work either -- this tree's own total
+#    is 1191, mostly symbol_addrs.us.txt, so a budget above it is useless and a
+#    budget below it fires on a clean checkout.
+#
+#    A file therefore contributes only if it is BOTH uniform-looking and
+#    unusually word-dense for its size.  Real instruction words cluster by
+#    opcode, so spread saturates near 20 for a small sample -- which is why the
+#    spread floor here is much lower than the per-file rule's, and why density
+#    has to carry the other half.
+#    Measured: every blob in history contributes 0, the whole worktree
+#    contributes 0, the 7-file spread attack 432, the 8-part split base64 blob
+#    606.  The pass side is not close to the line; it is not on the board.
+AGGREGATE_SPREAD_FLOOR = 16
+AGGREGATE_RATE_FLOOR = 12.0  # words per KiB
+AGGREGATE_WORD_BUDGET = 96
 # 5. Hexdump layout.  `xxd`/`hexdump -C`/`od`, and C byte arrays of ROM bytes,
 #    share a shape: most tokens on the line are short hex.
 #    history max: 0 such lines in any blob, ever -- so these thresholds are set
@@ -146,24 +194,12 @@ SIZE_LIMIT = 256 * 1024
 SIZE_ALLOWLIST: "set[str]" = set()
 BINARY_ALLOWLIST: "set[str]" = set()
 
-# 8. Aggregate budget.  Every rule above is per-file, so a leak spread thinly
-#    across many files passes all of them: 13 files carrying 31 bare machine
-#    words each is 403 ROM words with no single file breaking a rule.  This is
-#    the backstop -- the total across one scan unit (the worktree, the index,
-#    or one commit's tree).
-#    Per-tree rather than per-scan on purpose: a whole-history scan must not
-#    accumulate an ever-growing total and eventually fail on its own success.
-#    measured: current worktree 8, and no historical tree exceeds it -- 16x
-#    under the budget.
-AGGREGATE_BARE_WORD_BUDGET = 128
+# 8. (The aggregate budget now lives with rule 4 -- it is measured on the
+#    normalized stream, not on bare-hex tokens.)
 
-# 9. Whitelisted workbench manifests get a far tighter budget than an ordinary
-#    file.  The path whitelist says campaigns/*/manifest.json may be tracked;
-#    that is a statement about paths and hashes, not a licence to carry ROM
-#    words under an approved filename.  A manifest that trips these is either a
-#    bug in the workbench or a ledger wearing a manifest's name.
-#    both tracked manifests measure 0 on all three.
-MANIFEST_MAX_BARE_WORDS = 4
+
+# 9. Whitelisted workbench manifests are checked structurally rather than
+#    statistically -- see check_manifest_schema().
 MANIFEST_MAX_WORD_VALUES = 4
 MANIFEST_MAX_MNEMONICS = 4
 
@@ -232,22 +268,275 @@ def check_path(path):
     return out
 
 
-def word_values(text):
-    """Return the 32-bit values written in this text, in any encoding.
+# Encodings the normalizer decodes.  Work is bounded: at most DECODE_BUDGET
+# bytes of decoded output per blob, so a pathological input cannot turn the
+# gate into a denial of service.
+HEX_RUN_ANY = re.compile(r"(?:0[xX])?[0-9a-fA-F][0-9a-fA-F_]*")
+DEC_TOKEN = re.compile(r"(?<![0-9A-Za-z_.$-])([0-9]{8,10})(?![0-9A-Za-z_.$-])")
+OCT_TOKEN = re.compile(r"(?<![0-9A-Za-z_.$-])0[oO]?([0-7]{9,12})(?![0-9A-Za-z_.$-])")
+ESCAPED_BYTES = re.compile(r"(?:\\x[0-9a-fA-F]{2}){4,}")
+ESCAPED_BYTE = re.compile(r"\\x([0-9a-fA-F]{2})")
+DOTTED_QUAD = re.compile(
+    r"(?<![0-9.])(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})(?![0-9.])"
+)
+PURE_HEX_LINE = re.compile(r"^[0-9a-fA-F]+$")
+PURE_BASE_LINE = re.compile(r"^[!-u]+$")
+BASE_RUN = re.compile(r"[A-Za-z0-9+/=_-]{40,}")
+# ascii85 uses most of printable ASCII, so it needs its own class -- the base64
+# one does not contain its punctuation and the encoding sailed straight past.
+# The class is necessarily broad, so it is only tried on a run that is either
+# <~ ~>-delimited or occupies a whole line: that is what an ascii85 payload
+# looks like, and it stops the rule matching long regex literals in source.
+# (It did, at first -- this file detected itself.)
+A85_RUN = re.compile(r"(?:<~)?[!-uz]{64,}(?:~>)?")
+DECODE_BUDGET = 4 << 20
 
-    Hex (bare or 0x-prefixed) and decimal alike, because the encoding is the
-    author's free choice and the value distribution is not.
+
+def _words_from_bytes(raw, out):
+    for i in range(0, len(raw) - 3, 4):
+        out.append(int.from_bytes(raw[i : i + 4], "big"))
+
+
+def _words_from_hex(run, out, halves):
+    """Words from one hex run.
+
+    Type suffixes, adjacent punctuation and underscore separators are all
+    irrelevant here, because nothing about a boundary character is required --
+    which is the whole point of normalizing instead of shape-matching.
     """
-    values = []
-    for match in WORD_HEX.finditer(text):
-        values.append(int(match.group(1), 16))
-    for match in WORD_DEC.finditer(text):
+    run = run.replace("_", "")
+    if run[:2] in ("0x", "0X"):
+        run = run[2:]
+    if not run or not any(c.isdigit() for c in run):
+        # All-letter runs are English words ("decade", "faced"), not data.
+        return
+    if len(run) >= 8:
+        for i in range(0, len(run) - 7, 8):
+            out.append(int(run[i : i + 8], 16))
+    elif len(run) == 4:
+        halves.append(int(run, 16))
+
+
+def _decode_base_n(run, out):
+    if len(run) < 40:
+        return
+    body = run.rstrip("=")
+    for decoder, pad in (
+        (base64.b64decode, 4),
+        (base64.urlsafe_b64decode, 4),
+        (base64.b32decode, 8),
+        (base64.a85decode, 0),
+    ):
+        try:
+            raw = decoder(body + "=" * (-len(body) % pad) if pad else run)
+        except Exception:
+            continue
+        if raw and len(raw) >= 16:
+            _words_from_bytes(raw[:DECODE_BUDGET], out)
+            return
+
+
+def normalize_words(text):
+    """Return candidate 32-bit machine words in any plausible encoding.
+
+    Handles C literals with type suffixes, underscore separators, prose
+    punctuation, hex ranges, 16-bit halves, whole-line and wrapped hex, escaped
+    byte strings, octal, decimal, dotted quads, and base64 / base64url /
+    base32 / ascii85 -- including blobs split across lines.
+    """
+    out = []
+    halves = []
+
+    digests = []
+    for line in text.split("\n"):
+        stripped = line.strip()
+        for match in DIGEST_TOKEN.finditer(line):
+            if match.group(0) != stripped:
+                digests.append(match.group(0))
+    if 0 < len(digests) <= DIGEST_EXEMPTION:
+        for digest in set(digests):
+            text = text.replace(digest, " " * len(digest))
+
+    lines = text.split("\n")
+
+    # Blocks of consecutive pure-hex or pure-base-N lines are one datum split
+    # across lines; join before extracting, so wrapping is not a hiding place.
+    index = 0
+    while index < len(lines):
+        stripped = lines[index].strip()
+        if PURE_HEX_LINE.match(stripped) and len(stripped) >= 16:
+            end = index
+            block = []
+            while end < len(lines):
+                candidate = lines[end].strip()
+                if not (PURE_HEX_LINE.match(candidate) and len(candidate) >= 16):
+                    break
+                block.append(candidate)
+                end += 1
+            _words_from_hex("".join(block), out, halves)
+            index = end
+            continue
+        if PURE_BASE_LINE.match(stripped) and len(stripped) >= 32:
+            end = index
+            block = []
+            while end < len(lines):
+                candidate = lines[end].strip()
+                if not (PURE_BASE_LINE.match(candidate) and len(candidate) >= 32):
+                    break
+                block.append(candidate)
+                end += 1
+            _decode_base_n("".join(block), out)
+            index = end
+            continue
+        index += 1
+
+    for match in HEX_RUN_ANY.finditer(text):
+        _words_from_hex(match.group(0), out, halves)
+    for i in range(0, len(halves) - 1, 2):
+        out.append((halves[i] << 16) | halves[i + 1])
+
+    for match in DEC_TOKEN.finditer(text):
         value = int(match.group(1))
-        # Below 2^24 it is a plausible ordinary number -- a size, a line count,
-        # a byte offset.  At or above 2^32 it is not a machine word at all.
         if (1 << 24) <= value < (1 << 32):
-            values.append(value)
-    return values
+            out.append(value)
+    for match in OCT_TOKEN.finditer(text):
+        try:
+            value = int(match.group(1), 8)
+        except ValueError:
+            continue
+        if (1 << 24) <= value < (1 << 32):
+            out.append(value)
+    for match in DOTTED_QUAD.finditer(text):
+        parts = [int(part) for part in match.groups()]
+        if all(part < 256 for part in parts):
+            out.append((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3])
+    for match in ESCAPED_BYTES.finditer(text):
+        _words_from_bytes(
+            bytes(int(h, 16) for h in ESCAPED_BYTE.findall(match.group(0))), out
+        )
+    for match in BASE_RUN.finditer(text):
+        _decode_base_n(match.group(0), out)
+    for line in text.split("\n"):
+        stripped = line.strip()
+        for match in A85_RUN.finditer(line):
+            run = match.group(0)
+            delimited = run.startswith("<~") and run.endswith("~>")
+            if not delimited and run != stripped:
+                continue
+            try:
+                raw = base64.a85decode(run.strip("<~>"))
+            except Exception:
+                continue
+            if raw and len(raw) >= 16:
+                _words_from_bytes(raw[:DECODE_BUDGET], out)
+
+    return out
+
+
+# The campaign manifest's schema, as the workbench actually writes it.  A
+# default-deny key list: an unknown key fails rather than being sampled for
+# suspicious content, because "unexpected content in a whitelisted file" is
+# exactly the shape the original incident took.  If the workbench legitimately
+# adds a field this is the one place to update, and failing closed until
+# someone does is the correct behaviour.
+MANIFEST_KEYS = frozenset(
+    {
+        "artifact_directory",
+        "cache_directory",
+        "cache_key",
+        "compile",
+        "compiler",
+        "created_at_unix",
+        "environment",
+        "exact",
+        "execution",
+        "experiment",
+        "identity",
+        "identity_inputs",
+        "interrupted",
+        "jobs",
+        "last_run",
+        "ledger",
+        "objdump",
+        "path",
+        "prepared",
+        "region",
+        "requested",
+        "resolved",
+        "results",
+        "schema",
+        "section",
+        "sha256",
+        "sources",
+        "state_directory",
+        "status",
+        "stop_on_exact",
+        "symbol",
+        "target",
+        "template",
+        "timeout_seconds",
+        "updated_at_unix",
+        "working_directory",
+    }
+)
+MANIFEST_DIGEST = re.compile(r"^[0-9a-fA-F]{32,128}$")
+MANIFEST_MAX_STRING = 512
+
+
+def check_manifest_schema(text):
+    """Validate a whitelisted campaign manifest structurally.
+
+    Content statistics cannot help here -- the real manifests normalize to 868
+    words at spread 206, because they are full of hashes, which is exactly what
+    ROM data looks like.  What is available instead is structure: the file is
+    machine-generated with a small fixed schema, so every key can be required
+    to be known and every value required to be a shape the schema actually
+    uses.  Then there is nowhere in the file to put a ROM word.
+    """
+    problems = []
+    try:
+        document = json.loads(text)
+    except ValueError as error:
+        return [[f"not parseable as JSON ({error}); a manifest is machine-written"]]
+    if not isinstance(document, dict):
+        return [["top level is not a JSON object"]]
+
+    def walk(node, where):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key not in MANIFEST_KEYS:
+                    problems.append(
+                        [
+                            f"unknown key {where}.{key}",
+                            "a manifest records paths, hashes and run state; an"
+                            " unrecognised key is either a schema change (update"
+                            " MANIFEST_KEYS) or content that does not belong",
+                        ]
+                    )
+                    continue
+                walk(value, f"{where}.{key}")
+        elif isinstance(node, list):
+            for i, value in enumerate(node):
+                walk(value, f"{where}[{i}]")
+        elif isinstance(node, str):
+            if len(node) > MANIFEST_MAX_STRING:
+                problems.append([f"{where}: string of {len(node)} characters"])
+            elif not (MANIFEST_DIGEST.match(node) or "/" in node):
+                leaked = normalize_words(node)
+                if leaked:
+                    problems.append(
+                        [
+                            f"{where}: string yields {len(leaked)} machine word(s)",
+                            "manifest strings are identifiers, paths and hashes",
+                        ]
+                    )
+        elif isinstance(node, bool) or node is None:
+            return
+        elif isinstance(node, int) and (1 << 24) <= node < (1 << 32):
+            problems.append([f"{where}: integer {node} is a 32-bit word value"])
+
+    walk(document, "")
+    return problems
 
 
 def check_content(path, data):
@@ -258,7 +547,7 @@ def check_content(path, data):
     decided by looking at a single file.
     """
     out = []
-    metrics = {"bare_words": 0}
+    metrics = {"words": 0, "spread": 0, "scored": 0}
     size = len(data)
     if size == 0:
         return out, metrics
@@ -315,7 +604,6 @@ def check_content(path, data):
         for w in BARE_HEX_WORD.findall(text)
         if any(c.isdigit() for c in w) and any(c.lower() in "abcdef" for c in w)
     ]
-    metrics["bare_words"] = len(words)
     if len(words) >= HEXWORD_COUNT_LIMIT:
         rate = len(words) * 1024.0 / size
         if rate >= HEXWORD_RATE_LIMIT:
@@ -353,9 +641,34 @@ def check_content(path, data):
         )
 
     # -- word tables (value distribution) -----------------------------------
-    values = word_values(text)
+    values = normalize_words(text)
     spread = len({(value >> 24) & 0xFF for value in values})
-    if len(values) >= WORD_TABLE_COUNT_LIMIT and spread >= WORD_TABLE_SPREAD_LIMIT:
+    metrics["words"] = len(values)
+    metrics["spread"] = spread
+    # A whitelisted manifest is hash-dense by design: it normalizes to hundreds
+    # of uniformly-distributed words and would trip every statistical rule
+    # here, forever, on a clean checkout.  It is covered by the structural
+    # check below instead, which is strictly stronger for a file whose schema
+    # is known.  Exempting it from the statistics is what lets those
+    # statistics keep a usable threshold for every other file.
+    is_manifest = bool(WORKBENCH_ALLOWED.match(path))
+    # A file feeds the aggregate only if its own values look uniform.  This
+    # tree's word volume is real but clustered (addresses); a leak's is not.
+    # Without the weighting the aggregate is useless -- the clean worktree's
+    # raw total is 1191.
+    word_rate = len(values) * 1024.0 / size
+    metrics["scored"] = (
+        len(values)
+        if not is_manifest
+        and spread >= AGGREGATE_SPREAD_FLOOR
+        and word_rate >= AGGREGATE_RATE_FLOOR
+        else 0
+    )
+    if (
+        not is_manifest
+        and len(values) >= WORD_TABLE_COUNT_LIMIT
+        and spread >= WORD_TABLE_SPREAD_LIMIT
+    ):
         out.append(
             (
                 "word-table",
@@ -437,25 +750,10 @@ def check_content(path, data):
             )
         )
 
-    # -- whitelisted workbench manifests: a much tighter budget --------------
+    # -- whitelisted workbench manifests: structure, not statistics ---------
     if WORKBENCH_ALLOWED.match(path):
-        for name, measured, limit in (
-            ("bare machine words", len(words), MANIFEST_MAX_BARE_WORDS),
-            ("32-bit word values", len(values), MANIFEST_MAX_WORD_VALUES),
-            ("MIPS mnemonics", count, MANIFEST_MAX_MNEMONICS),
-        ):
-            if measured > limit:
-                out.append(
-                    (
-                        "workbench-manifest-content",
-                        [
-                            f"{measured} {name} in a whitelisted manifest"
-                            f" (limit: {limit})",
-                            "the path whitelist covers paths and hashes, not ROM"
-                            " content wearing an approved filename",
-                        ],
-                    )
-                )
+        for problem in check_manifest_schema(text):
+            out.append(("workbench-manifest-schema", problem))
 
     return out, metrics
 
@@ -570,17 +868,19 @@ def main():
         if ident in seen:
             continue
         seen.add(ident)
-        totals[label] = totals.get(label, 0) + metrics["bare_words"]
+        totals[label] = totals.get(label, 0) + metrics["scored"]
 
     for label, total in sorted(totals.items()):
-        if total >= AGGREGATE_BARE_WORD_BUDGET:
+        if total >= AGGREGATE_WORD_BUDGET:
             findings.add(
                 "aggregate-word-budget",
                 "(all files in this scan unit)",
                 label,
                 [
-                    f"{total} bare machine words in total"
-                    f" (budget: <{AGGREGATE_BARE_WORD_BUDGET})",
+                    f"{total} machine words from files whose values look"
+                    f" uniform and word-dense (budget: <{AGGREGATE_WORD_BUDGET};"
+                    f" counted per file at spread >={AGGREGATE_SPREAD_FLOOR} and"
+                    f" >={AGGREGATE_RATE_FLOOR:.0f} words/KiB)",
                     "no single file has to break a per-file rule for a tree to"
                     " carry a function's worth of ROM words between them",
                 ],

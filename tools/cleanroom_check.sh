@@ -50,7 +50,14 @@ while [ $# -gt 0 ]; do
 		;;
 	--range)
 		mode=range
-		range=${2-}
+		if [ $# -lt 2 ]; then
+			# `shift 2` with one argument left is a no-op that leaves $# alone,
+			# which spun this loop forever.  Check before shifting, not after.
+			echo "cleanroom: --range needs a rev-range argument" >&2
+			usage >&2
+			exit 2
+		fi
+		range=$2
 		shift 2
 		;;
 	--range=*)
@@ -86,6 +93,17 @@ emit_index() {
 	# `git ls-files -s` prints "<mode> <sha> <stage>\t<path>", NUL-terminated
 	# under -z so no path needs quoting or unquoting.
 	local want_kind=$1 label=$2 meta path filemode sha kind
+	# Same rule as emit_range, and for the same reason: a process substitution
+	# discards the git command's exit status, so `git ls-files` failing (not a
+	# repository, a corrupt index) produced an empty work list and a clean bill
+	# of health.  That fail-open reached the pre-commit gate, which is the most
+	# frequently exercised gate there is.  Materialise first, check the status,
+	# and only then read.
+	if ! git ls-files -sz >"$listing" 2>"$listing.err"; then
+		cat "$listing.err" >&2
+		echo "cleanroom: 'git ls-files' failed; refusing to report clean" >&2
+		return 2
+	fi
 	while IFS= read -r -d '' entry; do
 		meta=${entry%%$'\t'*}
 		path=${entry#*$'\t'}
@@ -108,7 +126,7 @@ emit_index() {
 		else
 			printf 'blob\t%s\t%s\t%s\n' "$sha" "$label" "$path"
 		fi
-	done < <(git ls-files -sz)
+	done <"$listing"
 }
 
 emit_range() {
@@ -132,6 +150,13 @@ emit_range() {
 	while IFS= read -r commit; do
 		[ -n "$commit" ] || continue
 		short=${commit:0:9}
+		# ...and the same treatment for ls-tree, which is the third and last
+		# git command whose status this script depends on.
+		if ! git ls-tree -r -z "$commit" >"$listing" 2>"$listing.err"; then
+			cat "$listing.err" >&2
+			echo "cleanroom: 'git ls-tree $commit' failed; refusing to report clean" >&2
+			return 2
+		fi
 		while IFS= read -r -d '' entry; do
 			meta=${entry%%$'\t'*}
 			path=${entry#*$'\t'}
@@ -144,7 +169,7 @@ emit_range() {
 			else
 				printf 'blob\t%s\tcommit %s\t%s\n' "$sha" "$short" "$path"
 			fi
-		done < <(git ls-tree -r -z "$commit")
+		done <"$listing"
 	done <"$commits"
 }
 
@@ -165,7 +190,8 @@ fi
 
 tmp=$(mktemp) || exit 2
 commits=$(mktemp) || exit 2
-trap 'rm -f "$tmp" "$commits" "$commits.err"' EXIT
+listing=$(mktemp) || exit 2
+trap 'rm -f "$tmp" "$commits" "$commits.err" "$listing" "$listing.err"' EXIT
 
 # Not `worklist | ...`: a pipeline would discard this status the same way the
 # process substitution used to.
