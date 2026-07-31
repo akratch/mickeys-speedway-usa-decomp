@@ -71,9 +71,15 @@ collisions in `symbol_addrs.us.txt`.
 `docs/CLEANROOM.md` permits public retail-derived decompilations (DKR, JFG, PD,
 BK, Conker) as sources. This project reads two:
 
-- **Diddy Kong Racing** — its *built objects only*: compiled bytes plus symbol
-  and relocation tables. Never its source. That is what makes tier A evidence
-  rather than transcription.
+- **Diddy Kong Racing** — for tier A, its *built objects only*: compiled bytes
+  plus symbol and relocation tables, never its source. That restriction is what
+  makes tier A evidence rather than transcription, and it is a claim about the
+  method, not about what a human was allowed to look at. Both projects' sources
+  are permitted reading under `docs/CLEANROOM.md`; DKR's was in fact grepped for
+  string literals during Task D's investigation, and produced **no adopted
+  name** — every DKR name in the tree came out of a built object. Stated
+  explicitly because the earlier wording ("never its source", unqualified) said
+  more than was true of the work.
 - **Jet Force Gemini** — its *published source text*, and only to answer "what
   did that project call the function that does this". Names, not code.
 
