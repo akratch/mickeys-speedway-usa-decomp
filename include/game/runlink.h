@@ -35,16 +35,29 @@ typedef struct RomTableEntry {
  * One overlay's header.
  *
  * Field evidence -- the stride is proven: ResolveRelocAddress indexes the
- * table with `sll t9, v1, 5`, so sizeof is 0x20. Two fields are proven by
- * Mickey's own code: `vramBase` at 0x00 (read by ResolveRelocAddress and by
- * runlinkIsModuleLoaded) and `resumeFunction` at 0x1C (read twice by
- * runlinkCallResumeFunction, at ROM 0x32EB4 and 0x32F18, and compared against
- * -1). Both of those functions match Mickey's ROM byte for byte, so the two
- * offsets are measured rather than assumed.
+ * table with `sll t9, v1, 5`, so sizeof is 0x20. FOUR fields are now proven by
+ * Mickey's own code:
  *
- * The other six fields are JFG's names at JFG's offsets and NOTHING IN THIS
- * PROJECT HAS TOUCHED THEM YET. They are present rather than commented out
- * because the struct has to be 0x20 bytes for the indexing to compile
+ *   0x00 vramBase        read by ResolveRelocAddress and runlinkIsModuleLoaded
+ *   0x08 textSize        TrapDanglingJump, `lw v0, 0x8(t1)` at ROM 0x34004,
+ *                        added to vramBase to form the end of the overlay's
+ *                        resident range
+ *   0x14 relocTableSize  TrapDanglingJump, `lh t4, 0x14(t1)` at ROM 0x34008.
+ *                        The load is a SIGNED halfword, which is the only
+ *                        reason this is `s16` here and `u16` in JFG
+ *   0x1C resumeFunction  read twice by runlinkCallResumeFunction (ROM 0x32EB4,
+ *                        0x32F18) and compared against -1
+ *
+ * 0x08 and 0x14 are new in Task D and came from TrapDanglingJump (0x800333A0),
+ * which walks the whole table looking for the overlay that contains a given
+ * address. vramBase and resumeFunction come from functions that match Mickey's
+ * ROM byte for byte, so those two offsets are measured rather than assumed;
+ * the two new ones come from disassembly that is read but not yet compiled,
+ * which is a slightly weaker thing and is why they are called out separately.
+ *
+ * The remaining five fields are JFG's names at JFG's offsets and NOTHING IN
+ * THIS PROJECT HAS TOUCHED THEM YET. They are present rather than commented
+ * out because the struct has to be 0x20 bytes for the indexing to compile
  * correctly, but treat each one as unverified until a matched function reads
  * it. (An earlier version of this comment claimed they were "left commented",
  * which was simply wrong about its own code.)
@@ -55,11 +68,54 @@ typedef struct OverlayHeader {
     /* 0x08 */ s32 textSize;
     /* 0x0C */ s32 dataSize;
     /* 0x10 */ s32 rodataSize;
-    /* 0x14 */ u16 relocTableSize;
+    /* 0x14 */ s16 relocTableSize;
     /* 0x16 */ u16 relocTableSize2;
     /* 0x18 */ s32 initFunction;
     /* 0x1C */ s32 resumeFunction;
 } OverlayHeader; /* sizeof == 0x20 */
+
+/*
+ * One entry of the MAIN relocation table -- the table that says "this call
+ * site in the resident segment wants a function that lives in an overlay".
+ *
+ * Field evidence, all of it from TrapDanglingJump (0x800333A0), which is the
+ * only decompiled reader of this table and is where the whole mechanism is
+ * visible in one place. It computes `addiu t5, ra, -8` -- the address of the
+ * `jal` that trapped -- and then, per 8-byte entry (`addiu t3, t3, 0x8` at ROM
+ * 0x34160):
+ *
+ *   ROM 0x34048  lw   v0, 0x4(t3)     the word at +0x04
+ *   ROM 0x3404C  srl  v0, v0, 8       keep the TOP 24 bits
+ *   ROM 0x34050  addu v0, v0, t2      t2 == 0x80000450, the resident segment's
+ *                                     vram base (`lui t2,0x8000 / ori 0x0450`)
+ *   ROM 0x34054  bnel v0, t5, ...     compare against the trapping call site
+ *
+ * and, on a hit:
+ *
+ *   ROM 0x3405C  lw   t7, 0x0(t3)     the word at +0x00
+ *   ROM 0x34068  sll  t6, t7, 2       times 4 ...
+ *   ROM 0x34070  addu t6, t6, v0      ... into overlayRomTable, so it is an
+ *                                     index into RomTableEntry[]
+ *
+ * THIS IS NOT JFG'S LAYOUT, and the difference is worth stating rather than
+ * smoothing over. JFG's table entry is two plain words, `{u32 functionAddress;
+ * u32 overlayIndex;}`. Mickey's has the two words in the opposite order AND
+ * packs the address: it stores a 24-bit byte offset from 0x80000450 in the
+ * high bits of the second word rather than a whole 32-bit address. This struct
+ * is therefore derived entirely from Mickey's ROM; only the type's NAME is
+ * JFG's.
+ *
+ * The low 8 bits of the second word are shifted away by the only code that
+ * reads them, so nothing here establishes what they hold. They are named
+ * `unused` for want of evidence, not because emptiness was demonstrated -- and
+ * the table itself lives in the unmapped overlay region, so they cannot be
+ * inspected until Phase 4 splits it.
+ */
+typedef struct RelocTableEntry {
+    /* 0x00 */ u32 romTableIndex;      /* index into overlayRomTable[]        */
+    /* 0x04 */ u32 callSiteOffset : 24; /* + 0x80000450 == the trapping `jal` */
+    /* 0x04 */ u32 unused : 8;          /* never read by any decompiled code  */
+} RelocTableEntry; /* sizeof == 0x8 */
 
 /*
  * One relocation record.
