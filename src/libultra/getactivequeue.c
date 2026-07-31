@@ -12,6 +12,10 @@
  * symbol_addrs.us.txt as well as here.
  *
  * Flags: -O1 -mips2 -32 (see the Makefile's per-file block).
+ *
+ * PROVENANCE: the body is N64 SDK libultra source as published in public
+ * decomp trees (DKR's among them), a permitted source under docs/CLEANROOM.md;
+ * see docs/modules.md section 1.3.
  */
 
 #include "PR/os_internal.h"

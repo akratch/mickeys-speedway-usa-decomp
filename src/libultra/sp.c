@@ -12,6 +12,10 @@
  * the same branch-likely reason as src/libultra/string.c. The `register` on the
  * local is load-bearing too -- without it -O1 spills the status word to the
  * stack, which the ROM does not do (4 differing words, zero with it).
+ *
+ * PROVENANCE: the body is N64 SDK libultra source as published in public
+ * decomp trees (DKR's among them), a permitted source under docs/CLEANROOM.md;
+ * see docs/modules.md section 1.3.
  */
 
 #include "PR/rcp.h"

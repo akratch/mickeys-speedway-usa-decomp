@@ -23,7 +23,7 @@ mathRnd = 0x8002997C;
 rngSeed = 0x8007A264;
 
 // ---------------------------------------------------------------------------
-// libultra corridor: ROM 0x6F420-0x76D10 (VRAM 0x8006E820-0x80076100)
+// libultra corridor: ROM 0x6F420-0x76D10 (VRAM 0x8006E820-0x80076110)
 //
 // Provenance convention for this block: every name below was adopted because
 // the ROM bytes at that address are byte-identical, under relocation masking,
@@ -506,13 +506,24 @@ __osPopThread = 0x8004F808; // type:func size:0x10   ROM 0x50408  src/os/excepta
 // Where a Mickey function has JFG's argument count, JFG's switch shape and
 // JFG's field offsets, JFG's name is adopted and the correspondence is stated
 // in src/main/runlink.c. Anything weaker keeps its func_ address name.
+//
+// TWO ROWS BELOW ARE NOT TIER C AND ARE NOT JFG'S. SetLinkSlot and
+// ReleaseUnusedLinkSlots are tier D -- invented descriptive names, read off
+// Mickey's disassembly and nothing else, exactly as docs/modules.md's tier
+// table lists them. JFG has no counterpart to either (same reason
+// linkSlotTable below is a Mickey-specific invention), so there is no name to
+// adopt and none was. They are kept in this block because they belong to the
+// same function cluster, not because the header above applies to them; each
+// is marked inline so no reader has to infer its tier from its neighbours.
 // ---------------------------------------------------------------------------
-ResolveRelocAddress = 0x800317F0; // type:func size:0x188
-PatchInstruction = 0x80031978; // type:func size:0xB8
-runlinkIsModuleLoaded = 0x80032284; // type:func size:0x18
-runlinkCallResumeFunction = 0x8003229C; // type:func size:0x9C
-SetLinkSlot = 0x80033040; // type:func size:0x50
-ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98
+ResolveRelocAddress = 0x800317F0; // type:func size:0x188  tier C (JFG)
+PatchInstruction = 0x80031978; // type:func size:0xB8  tier C (JFG)
+runlinkIsModuleLoaded = 0x80032284; // type:func size:0x18  tier C (JFG)
+runlinkCallResumeFunction = 0x8003229C; // type:func size:0x9C  tier C (JFG)
+// tier D -- invented: writes overlayIndex's halfword entry in linkSlotTable.
+SetLinkSlot = 0x80033040; // type:func size:0x50  tier D (invented)
+// tier D -- invented: sweeps linkSlotTable over overlayCount, freeing unused.
+ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier D (invented)
 
 // --- extension: four more linker functions, from Mickey's own call graph ----
 //
@@ -564,8 +575,12 @@ TrapDanglingJump = 0x800333A0;      // type:func size:0x1E0
 
 // --- the linker's tables, named from the code that indexes them ------------
 //
-// All six live in .bss and all six are named from stride and use, in Mickey's
-// disassembly, with no reference to any other project:
+// All six live in .bss, and for all six the ROLE -- what the object is, what
+// its stride is, what indexes it -- is read out of Mickey's disassembly alone,
+// with no reference to any other project. That is a claim about the
+// derivation, not about the spelling: where JFG has a counterpart for the role
+// so established, its name is adopted for it. See the note under the list for
+// which three those are.
 //
 //   overlayTable        indexed `sll <n>,5` then added to it -- 0x20 stride,
 //                       i.e. OverlayHeader[] (ROM 0x33E88-0x33E8C, 0x340C0).

@@ -17,6 +17,10 @@
  *
  * If you decompile this, scaffold another all-GLOBAL_ASM TU in the same
  * commit. There are plenty of candidates left in the libultra corridor.
+ *
+ * PROVENANCE: no C body to disclose -- this TU is `#pragma GLOBAL_ASM` over
+ * the project's own disassembly of Mickey's ROM. The name is tier A against
+ * DKR's built object; see docs/modules.md section 1.3.
  */
 
 #pragma GLOBAL_ASM("asm/nonmatchings/libultra/spsetpc/__osSpSetPc.s")

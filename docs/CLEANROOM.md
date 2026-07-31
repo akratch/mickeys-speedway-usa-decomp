@@ -31,8 +31,18 @@ format facts about how the retail binary is laid out.
 - Analysis of retail ROMs you legally possess
 - Published matching-decomp repositories built from retail ROMs
   (Diddy Kong Racing, Jet Force Gemini, Perfect Dark, Banjo-Kazooie,
-  Conker's Bad Fur Day) and their symbol naming
-- Official Nintendo 64 SDK documentation and libultra headers as
+  Conker's Bad Fur Day): their symbol naming, their documentation, and
+  **their C source — including adapting a function body from one**,
+  where Mickey's ROM shows the same engine's code. Such repositories are
+  themselves clean-room work product built from retail ROMs, so this is
+  not a route back to any prohibited source above. Two conditions:
+  **(a)** the adapted body must be disclosed with a `PROVENANCE` note at
+  the point of use, naming the project and the file it came from, and
+  **(b)** Mickey's own ROM decides every disagreement — a borrowed body
+  is a starting point to be matched against this game's bytes, never an
+  authority over them. `src/main/runlink.c` is the worked example, and
+  `docs/modules.md` section 1.3 states how the disclosure is written.
+- Official Nintendo 64 SDK documentation, headers, and library source as
   distributed in existing public decomp projects
 - Emulator tracing/debugging of retail ROMs
 

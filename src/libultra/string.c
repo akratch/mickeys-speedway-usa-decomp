@@ -13,6 +13,10 @@
  * not match the ROM; with -mips2 it emits the `bnel`/`beql` forms the ROM
  * actually contains and reproduces all 0xA0 bytes exactly.  See the per-file
  * MIPSISET override in the Makefile.
+ *
+ * PROVENANCE: the body is N64 SDK libultra source as published in public
+ * decomp trees (DKR's among them), a permitted source under docs/CLEANROOM.md;
+ * see docs/modules.md section 1.3.
  */
 
 #include "PR/ultratypes.h"

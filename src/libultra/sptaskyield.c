@@ -9,7 +9,12 @@
  * below is an R_MIPS_26 that the linker resolves against __osSpSetStatus,
  * which src/libultra/spsetstat.c defines.
  *
- * Flags: -O1 -mips2 -32 (libultra's io/ tree; see the Makefile).
+ * Flags: -O1 -mips2 -32, measured on this file -- the Makefile's per-file
+ * block groups by measurement, not by libultra directory.
+ *
+ * PROVENANCE: the body is N64 SDK libultra source as published in public
+ * decomp trees (DKR's among them), a permitted source under docs/CLEANROOM.md;
+ * see docs/modules.md section 1.3.
  */
 
 #include "PR/rcp.h"
