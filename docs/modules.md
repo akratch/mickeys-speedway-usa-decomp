@@ -549,6 +549,7 @@ and the yaml and any reloc-aware tooling have to make the same one.
 | `src/libultra/string.c` | `-O2 -mips2 -32` | **Measured.** Branch-likely instructions |
 | 10 libultra io/os TUs | `-O1 -mips2 -32` | **Measured**, one variant at a time. At `-O2` IDO folds away a stack frame the ROM has. Locals need `register` or `-O1` spills them |
 | 23 libultra PI/EPI/PFS TUs | `-O2 -g3 -mips2 -32` | **Measured**, one TU at a time. See below |
+| 1 libultra TU (`setglobalintmask`) | `-O1 -mips2 -32`, `uopt` forced on at `-O1` | **Measured.** The only group the `cc` driver cannot express; see below |
 
 The `-mips2` finding for `src/main/` is scoped to that directory on purpose. It
 is believed to hold for all game code and has been measured on one TU; widen it
@@ -599,6 +600,33 @@ A practical side effect: `-g3` makes IDO write a `.u` sidecar into the working
 directory for every such compile. `.gitignore` covers it.
 
 `-Wab,-r4300_mul` remains open. Nothing matched so far multiplies. DKR passes it.
+
+**The fourth group: `uopt` at `-O1`, which the driver cannot produce.**
+`tools/ido/cc` runs `uopt` only at `-O2` and above — `cc -v` lists no `uopt`
+stage at `-O1` × `{-g0,-g1,-g2,-g3,none}` — so "optimised by `uopt`, at `-O1`"
+is unreachable through it, and `-Wo,-O1` does not fake it because
+`-W<pass>,-O<n>` is inserted *before* the driver's own `-O` and the last `-O`
+wins. `tools/ido/ido-phases.py` drives `cfe`/`uopt`/`ugen`/`as1` directly,
+taking each phase's command line from `cc -v` rather than reimplementing the
+driver, and accepts `-Xphase,<phase>,<option>` overrides (`-Xphase,uopt,+`
+forces the stage to exist). With no override it is byte-identical to `cc`,
+verified on `string.c`, `epidma.c`, `si.c`, `pfsreadwritefile.c` and on a
+`GLOBAL_ASM` TU under asm-processor.
+
+What it buys: `__osSetGlobalIntMask` (ROM `0x75080`) is byte-identical with
+`uopt` at `-O1` — 19 of 19 words, only the six the linker fills in differing.
+Through the driver the same source gives 20 instructions with the first `jal`'s
+delay slot empty, and none of twenty-two `{-O0,-O1,-O2}` × `{-g,-g1,-g2,-g3,
+none}` × `{-mips1,-mips2}` combinations closes it. `-g3` is irrelevant here;
+`-mips2` is required; `-O2` destroys the frame size.
+
+This is also the strongest evidence in the tree that the vendored IDO *is*
+Mickey's compiler for libultra: a whole ROM function, delay slots included,
+reproduced exactly once the driver stops hiding a phase. `uopt`'s `-O` is the
+only per-phase `-O` with teeth — on `string.c` at `-O2 -mips2`,
+`-Xphase,uopt,-O1` changes `.text` from `0xA0` to `0xE0` bytes while
+`-Xphase,ugen,-O1/-O3` and `-Xphase,as1,-O1/-O3` are bit-identical to the
+baseline.
 
 ### 6.2 The open question: odd floating-point registers
 
@@ -709,21 +737,22 @@ macro call as an instruction:
 - **What is still `asm` that need not be.** 173 subsegments are named; 171 of
   them have a measured whole-`.text` boundary (the exceptions are `main/matrix`
   and `main/runlink`, which are decompiled rather than matched-as-a-unit).
-  **46** are now `c`, 34 of them matched C and the other 12 carrying only
+  **46** are now `c`, 35 of them matched C and the other 11 carrying only
   `#pragma GLOBAL_ASM`. A scaffolded subsegment is worth having on its own:
   it proves the file boundary against the link before any C is written, and it
   turns every function in the unit into a separate work item. The remaining
   127 named subsegments are `asm` because nobody has tried, and the `-g3`
   finding in §6.1 widens the flag space worth trying.
-- **Two translation units are blocked on one instruction each.**
-  `libultra/setglobalintmask` and `libultra/contramread`/`contramwrite`
-  reproduce every word of the ROM but one scheduling decision: in each case the
-  ROM fills a delay slot with an instruction this IDO places just before the
-  branch instead. The instruction multisets agree. Two independent occurrences
-  is weak evidence that the scheduler in this recompiled IDO 5.3 is not exactly
-  the one that built Mickey's libultra; §6.2 records a separate, stronger
-  reason to think the toolchain is not fully pinned. Each file's header states
-  the discrepancy.
+- **`libultra/contramread` and `libultra/contramwrite` are blocked on one
+  scheduling decision each.** Both reproduce every word of the ROM but five,
+  inside one four-times-unrolled byte fill: the ROM puts `addiu s0, s0, 4` in
+  the loop branch's delay slot, this IDO bumps the pointer early and puts
+  `sb zero, -4(s0)` there. The instruction multisets agree. `setglobalintmask`
+  was in this list and is no longer: its empty delay slot was the `cc` driver
+  refusing to run `uopt` at all below `-O2`, and driving the phases directly
+  closes it (§6.1's fourth flag group). That removes the "the scheduler is not
+  the one that built Mickey" reading of the third case; what remains for these
+  two is a real disagreement, not a phase the driver skipped.
 - **The `0xF0` bytes at `0x505E0`–`0x506D0`**, between the end of
   `os/exceptasm.s` and the next subsegment. Unidentified.
 - **`0x6B860`–`0x6BDF0`** (`0x590`), between Perfect Dark's three Transfer Pak

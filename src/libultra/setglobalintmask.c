@@ -7,20 +7,31 @@
  * symbol_addrs.us.txt. Perfect Dark's and Banjo-Kazooie's builds carry the
  * same bytes.
  *
- * NOT MATCHED. The body is
+ * Flags: -O1 -mips2 -32, with `uopt` forced to run at -O1
+ * (-Xphase,uopt,+ -Xphase,uopt,-O1 through tools/ido/ido-phases.py).
  *
- *     register u32 saveMask = __osDisableInt();
- *     __OSGlobalIntMask |= mask;
- *     __osRestoreInt(saveMask);
+ * MEASURED, and the reason this file is the tree's only wrapper user: the ROM
+ * fills the first jal's delay slot with the callee-save `sw s0, 0x18($sp)`.
+ * `tools/ido/cc` runs `uopt` only at -O2 and above, so at -O1 the optimiser
+ * never ran, the slot stayed empty and the function came out 20 instructions
+ * instead of 19 -- none of the twenty-two {-O0,-O1,-O2} x {-g,-g1,-g2,-g3,
+ * none} x {-mips1,-mips2} driver combinations could close it, because none of
+ * them could put uopt and -O1 together. Driving the phases directly does: 19
+ * of 19 words agree and the only differences are the six the linker fills in
+ * (R_MIPS_26 on __osDisableInt/__osRestoreInt, two %hi/%lo pairs on
+ * __OSGlobalIntMask). -g3 is irrelevant here; -mips2 is required.
  *
- * and at -O1 -g3 -mips2 -32 this IDO reproduces the ROM's 19 instructions
- * except for one: the ROM fills the first `jal`'s delay slot with the
- * callee-save `sw s0, 0x18(sp)`, and this compiler emits that store before the
- * `jal` and leaves the slot empty, for 20 instructions. Every other word,
- * including the frame size, the s0 allocation and the two separate %hi/%lo
- * pairs on __OSGlobalIntMask, agrees. None of the twenty-two
- * {-O0,-O1,-O2} x {-g,-g1,-g2,-g3,none} x {-mips1,-mips2} combinations closes
- * that one slot. Left as assembly rather than committed one instruction wrong.
+ * PROVENANCE: the body is N64 SDK libultra source as published in public
+ * decomp trees (JFG's among them), a permitted source under docs/CLEANROOM.md;
+ * see docs/modules.md section 1.3.
  */
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/setglobalintmask/__osSetGlobalIntMask.s")
+#include "PR/ultratypes.h"
+#include "PR/os_internal.h"
+
+void __osSetGlobalIntMask(u32 mask) {
+    register u32 saveMask = __osDisableInt();
+
+    __OSGlobalIntMask |= mask;
+    __osRestoreInt(saveMask);
+}

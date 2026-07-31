@@ -11,21 +11,21 @@ from the original stub but have not been modernized or verified.
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-57_of_1467_(3.89%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/.text_bytes_matched-14308_of_481384_(2.97%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-382_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-58_of_1467_(3.95%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/.text_bytes_matched-14384_of_481380_(2.99%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-382_adopted-blue)](#progress)
 
 ```
-functions       57 / 1467     3.89%   matched to C, byte-identical
-.text bytes  14308 / 481384   2.97%   of the static resident segment
+functions       58 / 1467     3.95%   matched to C, byte-identical
+.text bytes  14384 / 481380   2.99%   of the static resident segment
 named          358 / 1467    24.40%   functions carrying an adopted name
 symbols        382                    adopted in symbol_addrs.us.txt
 ```
 
 | Area | Functions | Matched to C | Named, still asm | Unnamed | Identified |
 | :--- | ---: | ---: | ---: | ---: | :--- |
-| libultra corridor | 306 | 51 | 218 | 37 | `███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░` 87.9% |
+| libultra corridor | 306 | 52 | 217 | 37 | `███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░` 87.9% |
 | game code, TU identified | 74 | 6 | 46 | 22 | `██▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░` 70.3% |
 | game code, not yet split | 1087 | 0 | 37 | 1050 | `▓░░░░░░░░░░░░░░░░░░░` 3.4% |
-| **total** | 1467 | 57 | 301 | 1109 | `█▓▓▓▓░░░░░░░░░░░░░░░` 24.4% |
+| **total** | 1467 | 58 | 300 | 1109 | `█▓▓▓▓░░░░░░░░░░░░░░░` 24.4% |
 
 `█` matched to C · `▓` named but still assembly · `░` neither. Naming runs ahead of matching: a function is decompiled against an already-identified translation unit.
 

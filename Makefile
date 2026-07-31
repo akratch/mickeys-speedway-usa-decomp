@@ -463,6 +463,44 @@ $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
 $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
 
+# -Xphase,uopt,+ -Xphase,uopt,-O1: a FOURTH libultra flag group, and the only
+# one that does not go through the `cc` driver.
+#
+# WHY A WRAPPER AT ALL. `tools/ido/cc` runs `uopt` only at -O2 and above --
+# checked at -O1 x {-g0,-g1,-g2,-g3,none}, where `cc -v` never lists a uopt
+# stage. So the configuration "uopt ran, at -O1" cannot be produced by the
+# driver. It cannot be faked with -Wo,-O1 either: -W<pass>,-O<n> is inserted
+# BEFORE the driver's own -O and the last -O wins. (ISA options are appended
+# after, which is why -Wc,-mips3 below does work and -Wo,-O1 does not.)
+#
+# ido-phases.py drives cfe/uopt/ugen/as1 itself, taking each phase's command
+# line from `cc -v` rather than reimplementing the driver's flag translation,
+# so it cannot drift from it. With no -Xphase, option it is byte-identical to
+# `cc`: verified on string.c (-O2 -mips2), epidma.c (-O2 -g3 -mips2), si.c
+# (-O1 -mips2, where the driver skips uopt), pfsreadwritefile.c (-O2 -g3
+# -mips2), and on a GLOBAL_ASM TU under asm-processor.
+#
+# MEASURED, on setglobalintmask: __osSetGlobalIntMask is byte-identical to ROM
+# 0x75080 once uopt has run at -O1 -- 19 of 19 words, with only the six the
+# linker fills in differing. Without the uopt stage the same source gives 20
+# instructions with the first jal's delay slot empty, which is what the file's
+# header used to describe. -g3 is NOT needed (identical with and without);
+# -mips2 IS (-mips1 gives 9 of 19); -O2 destroys it (the frame drops to 0x40).
+#
+# HOST_PYTHON, not $(PYTHON): the wrapper is stdlib-only, and using the venv
+# would make every C object depend on `gmake setup`.
+IDO_PHASES := $(HOST_PYTHON) $(TOOLS_DIR)/ido-phases.py
+
+LIBULTRA_UOPT_O1_TUS := setglobalintmask
+$(foreach f,$(LIBULTRA_UOPT_O1_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: CC := $(IDO_PHASES)))
+$(foreach f,$(LIBULTRA_UOPT_O1_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -O1))
+$(foreach f,$(LIBULTRA_UOPT_O1_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
+$(foreach f,$(LIBULTRA_UOPT_O1_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: CFLAGS += -Xphase,uopt,+ -Xphase,uopt,-O1))
+
 # GAME code (as opposed to libultra) is -mips2, not the project default -mips1.
 # Measured on the first game TU decompiled, main/runlink.c: the ROM's code does
 # `lw t7,0(a3)` immediately followed by `addu v1,v1,t7`, i.e. it uses the loaded
