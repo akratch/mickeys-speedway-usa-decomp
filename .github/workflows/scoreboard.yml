@@ -1,0 +1,38 @@
+name: scoreboard
+
+on: [push, pull_request]
+
+# README.md's generated scoreboard block (see the SCOREBOARD_BEGIN/END
+# markers) is proved fresh by `gmake check-scoreboard` -- but that target
+# needs a linked ELF, and producing one needs `gmake extract` to split the
+# baserom, which clean-room policy forbids ever committing (see
+# docs/CLEANROOM.md). CI therefore can never have a baserom and can never
+# build the ELF `check-scoreboard` depends on.
+#
+# This job runs the strongest check that remains possible without one:
+# `tools/progress.py --check-partial` re-derives the block's two figures
+# that do NOT come from the ELF (the adopted-symbol count from
+# symbol_addrs.us.txt, and the matched-TU list from src/) using the same
+# generator `gmake scoreboard` does, and separately checks the committed
+# block's own arithmetic is internally consistent (each ratio's percentage
+# against its own numerator/denominator, the per-area rows summing to the
+# total row, the "functions" and "named" lines agreeing on the same total).
+#
+# What it does NOT verify: whether functions/bytes matched or the per-area
+# breakdown are still current against the built ELF -- i.e. whether someone
+# matched a function and forgot to re-run `gmake scoreboard`. That half of
+# the block is provably unverifiable here; only `gmake check-scoreboard`,
+# run locally with a baserom, catches it. See docs/CONTRIBUTING.md for the
+# full breakdown of what each check does and doesn't cover.
+jobs:
+  check-partial:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: scoreboard --check-partial (no ELF needed)
+        run: python3 tools/progress.py --version us --check-partial

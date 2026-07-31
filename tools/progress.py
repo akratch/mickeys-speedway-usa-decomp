@@ -375,7 +375,220 @@ def splice_readme(readme_text, block):
     return readme_text[: start + len(BEGIN)] + "\n" + block + "\n" + readme_text[end:]
 
 
+def check_partial(args):
+    """CI-safe subset of --check-readme.
+
+    `--check-readme` needs a linked ELF (get_elf_functions() below), and
+    building one needs a split from the baserom, which clean-room policy
+    forbids committing -- so CI has no baserom and cannot produce an ELF.
+    See docs/CONTRIBUTING.md's "scoreboard in CI" section for the full
+    reasoning. This is the strongest check that remains possible without one:
+
+    1. The two figures in the block that are NOT derived from the ELF --
+       the adopted-symbol count (symbol_addrs.*.txt) and the matched-TU list
+       (src/*.c) -- are recomputed from the tree and compared against the
+       committed README, using the real render_markdown() so the comparison
+       cannot drift from what `gmake scoreboard` actually generates. Every
+       ELF-derived field is passed in as a zero placeholder and this check
+       never reads it back.
+    2. The block's own internal arithmetic is re-derived from the numbers it
+       prints, independent of whether the tree agrees with them: each
+       ratio's percentage against its own numerator/denominator, the three
+       per-area rows summing to the total row, and the "functions" and
+       "named" lines agreeing on the same total function count.
+
+    What this explicitly does NOT verify: whether the functions-matched,
+    bytes-matched, or per-area breakdown are still correct against the built
+    ELF -- i.e. whether someone forgot to run `gmake scoreboard` after
+    matching a function. Only `gmake check-scoreboard`, run locally with a
+    baserom, catches that; there is no way to catch it in CI.
+    """
+    readme_path = os.path.join(ROOT_DIR, "README.md")
+    with open(readme_path, encoding="utf-8") as fh:
+        current = fh.read()
+
+    if BEGIN not in current or END not in current:
+        print(f"Error: README.md is missing the {BEGIN} / {END} markers", file=sys.stderr)
+        return 1
+
+    problems = []
+
+    # --- 1. Non-ELF-derived figures, checked by reusing the real generator -
+    symbol_addrs_path = os.path.join(ROOT_DIR, f"symbol_addrs.{args.version}.txt")
+    n_named = count_named_symbols(symbol_addrs_path)
+    tus = matched_tus(os.path.join(ROOT_DIR, "src"))
+
+    zero_areas = {
+        label: dict(funcs=0, bytes=0, matched=0, matched_bytes=0, named=0, unnamed=0)
+        for label, _ in AREAS
+    }
+    zero_areas["**total**"] = dict(
+        funcs=0, bytes=0, matched=0, matched_bytes=0, named=0, unnamed=0
+    )
+    placeholder_st = dict(
+        version=args.version,
+        n_matched=0,
+        n_total=0,
+        func_pct=0.0,
+        matched_bytes=0,
+        total_bytes=0,
+        byte_pct=0.0,
+        n_named=n_named,
+        n_named_funcs=0,
+        named_pct=0.0,
+        areas=zero_areas,
+        tus=tus,
+        func_msg="0 of 0 (0.00%)",
+        byte_msg="0 of 0 (0.00%)",
+        name_msg=f"{n_named} adopted",
+    )
+    rendered = render_markdown(placeholder_st)
+
+    def find_line(text, prefix):
+        for line in text.splitlines():
+            if line.startswith(prefix):
+                return line
+        return None
+
+    exp_symbols = find_line(rendered, "symbols")
+    cur_symbols = find_line(current, "symbols")
+    if exp_symbols is None:
+        problems.append("could not find a 'symbols' line in the generated block")
+    elif exp_symbols != cur_symbols:
+        problems.append(
+            "'symbols' line is stale against symbol_addrs."
+            f"{args.version}.txt:\n"
+            f"    committed: {cur_symbols!r}\n"
+            f"    tree says: {exp_symbols!r}"
+        )
+
+    exp_matched = find_line(rendered, "**Matched so far**")
+    cur_matched = find_line(current, "**Matched so far**")
+    if exp_matched is None:
+        problems.append("could not find a 'Matched so far' line in the generated block")
+    elif exp_matched != cur_matched:
+        problems.append(
+            "'Matched so far' line is stale against the src/ tree "
+            f"({len(tus)} .c files found):\n"
+            f"    committed: {cur_matched!r}\n"
+            f"    tree says: {exp_matched!r}"
+        )
+
+    symbols_badge_url = badge("symbols named", f"{n_named} adopted", "blue")
+    if symbols_badge_url not in current:
+        problems.append(
+            f"symbols badge is stale: expected the URL for '{n_named} adopted' "
+            "somewhere in README.md"
+        )
+
+    # --- 2. Internal arithmetic consistency of the committed block itself, -
+    # regardless of whether its inputs are current.
+    start = current.find(BEGIN) + len(BEGIN)
+    end = current.find(END)
+    block = current[start:end]
+
+    ratios = {}  # label -> (num, den, pct)
+
+    def check_ratio(label, pattern):
+        m = re.search(pattern, block, re.MULTILINE)
+        if not m:
+            problems.append(f"could not find the '{label}' line to check its arithmetic")
+            return
+        num, den, pct = int(m.group(1)), int(m.group(2)), float(m.group(3))
+        ratios[label] = (num, den, pct)
+        if den == 0:
+            return
+        expected_pct = num / den * 100
+        if abs(expected_pct - pct) > 0.01:
+            problems.append(
+                f"'{label}' line's percentage ({pct}%) does not match its own "
+                f"numbers ({num}/{den} = {expected_pct:.2f}%)"
+            )
+
+    check_ratio("functions", r"^functions\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
+    check_ratio(".text bytes", r"^\.text bytes\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
+    check_ratio("named", r"^named\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
+
+    if "functions" in ratios and "named" in ratios:
+        func_total = ratios["functions"][1]
+        named_total = ratios["named"][1]
+        if func_total != named_total:
+            problems.append(
+                "'functions' and 'named' lines disagree on the total function "
+                f"count ({func_total} vs {named_total})"
+            )
+
+    row_re = re.compile(
+        r"^\| (.+?) \| (\d+) \| (\d+) \| (\d+) \| (\d+) \| `[^`]*` (\d+\.\d+)% \|",
+        re.MULTILINE,
+    )
+    rows = row_re.findall(block)
+    if len(rows) != len(AREAS) + 1:
+        problems.append(
+            f"expected {len(AREAS) + 1} area-table rows ({len(AREAS)} areas + "
+            f"total), found {len(rows)}"
+        )
+    else:
+        for label, funcs, matched, named, unnamed, pct in rows:
+            funcs, matched, named, unnamed, pct = (
+                int(funcs), int(matched), int(named), int(unnamed), float(pct)
+            )
+            if funcs != matched + named + unnamed:
+                problems.append(
+                    f"area '{label}': funcs ({funcs}) != matched + named + "
+                    f"unnamed ({matched}+{named}+{unnamed}={matched + named + unnamed})"
+                )
+            if funcs:
+                expected_pct = (matched + named) / funcs * 100
+                if abs(expected_pct - pct) > 0.05:
+                    problems.append(
+                        f"area '{label}': identified% ({pct}%) does not "
+                        f"match its own numbers ({expected_pct:.1f}%)"
+                    )
+        total_row = rows[-1]
+        summed = [sum(int(r[i]) for r in rows[:-1]) for i in range(1, 5)]
+        total_vals = [int(v) for v in total_row[1:5]]
+        if summed != total_vals:
+            problems.append(
+                f"area rows do not sum to the '**total**' row: areas sum to "
+                f"{summed}, total row says {total_vals} "
+                "(funcs, matched, named, unnamed)"
+            )
+        if "functions" in ratios and total_vals[0] != ratios["functions"][1]:
+            problems.append(
+                "area table's total function count "
+                f"({total_vals[0]}) disagrees with the 'functions' line's "
+                f"total ({ratios['functions'][1]})"
+            )
+
+    print("scoreboard --check-partial: CI-safe subset (no linked ELF used)")
+    print(
+        "  checked: adopted-symbol count and badge, matched-TU list, "
+        "internal arithmetic\n"
+        "           (ratios' own percentages, area-table row sums, "
+        "cross-line total agreement)"
+    )
+    print(
+        "  NOT checked (needs a linked ELF, which CI cannot build without a "
+        "baserom):\n"
+        "           functions/bytes matched, per-area breakdown, whether "
+        "those figures\n"
+        "           are still current -- run `gmake check-scoreboard` "
+        "locally for that"
+    )
+    if problems:
+        print("\nscoreboard --check-partial: FAIL", file=sys.stderr)
+        for p in problems:
+            print(f"  - {p}", file=sys.stderr)
+        return 1
+    print("scoreboard --check-partial: OK")
+    return 0
+
+
 def main(args):
+    if args.check_partial:
+        return check_partial(args)
+
     build_dir = os.path.join(ROOT_DIR, "build")
     elf_path = os.path.join(build_dir, f"mickey.{args.version}.elf")
     asm_dir = os.path.join(ROOT_DIR, "asm")
@@ -568,6 +781,14 @@ if __name__ == "__main__":
         "--check-readme",
         action="store_true",
         help="exit nonzero if README.md's scoreboard block has gone stale",
+    )
+    parser.add_argument(
+        "--check-partial",
+        action="store_true",
+        help="CI-safe subset of --check-readme: verifies the block's "
+        "non-ELF-derived figures and its own internal arithmetic, without "
+        "requiring a linked ELF. See check_partial()'s docstring for "
+        "exactly what this does and does not catch.",
     )
     args = parser.parse_args()
 

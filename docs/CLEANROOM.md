@@ -189,11 +189,22 @@ The guarantees that do not depend on out-guessing an encoding are structural:
 4. **Policy and review**: `CLAUDE.md`, `docs/CONTRIBUTING.md`, and a human
    reading the diff. The gates exist so a mistake is caught, not so review can
    be skipped.
-5. **A server-side push ruleset** on the remote — *not yet configured*. Every
-   layer in this repository is client-side and skippable with `--no-verify`,
-   and CI reports after publication rather than preventing it. A required
-   status check on a protected branch is the only layer that cannot be stepped
-   over, and it is the recommended next step.
+5. **A server-side ruleset on the remote.** Every layer above is client-side
+   and skippable with `--no-verify`, and CI reports after publication rather
+   than preventing it. `protect-master` (GitHub ruleset id `20111399`, active
+   on `master`) closes part of that gap: it blocks force-push
+   (`non_fast_forward`) and branch deletion, which is genuinely
+   non-bypassable. It does not, and structurally cannot, restrict *content* —
+   GitHub rejected a push ruleset scoped to file path/extension/size with
+   "only org-owned repos can have push rules," which this personal fork is
+   not. A required status check on a protected branch remains the only layer
+   that could block bad content before it lands rather than after, and it is
+   still the recommended next step; it has not been configured, and adopting
+   it would mean routing changes through pull requests rather than pushing to
+   `master` directly. See `docs/CONTRIBUTING.md`'s "Checks" section for the
+   full detail, including the corollary that force-push being blocked means a
+   future history purge of `master` requires temporarily disabling
+   `protect-master` first.
 
 ### False positives are a failure of this system too
 
