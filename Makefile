@@ -781,15 +781,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: OPT_FLAGS := -O2 -W
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x424
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_head.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_head.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F0000BD4_184CFB4=overlay1InitMotionScale \
 		--redefine-sym func_overlay_001_F0000CA8_184D088=overlay1InterpolatePath \
 		--redefine-sym func_overlay_001_F0000DF4_184D1D4=overlay1ResolveMotionPoint \
 		--redefine-sym func_overlay_001_F0000F84_184D364=overlay1MeasureCurves \
 		--redefine-sym func_overlay_001_F00010C8_184D4A8=overlay1LoadBuildRecords \
 		--redefine-sym func_overlay_001_F0000614_184C9F4=overlay1ModeResolverReloc \
 		--redefine-sym func_overlay_001_F0001A54_184DE34=overlay1BuildObjectMappings $@ && \
+	$(OBJCOPY) --redefine-sym overlay1SquareRoot=func_overlay_001_F0000000_184C3E0 $@ && \
+	$(OBJCOPY) --redefine-sym overlay1AngleFromIndex=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11A4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_middle.c.o: POSTPROCESS = \
 	$(OBJCOPY) \

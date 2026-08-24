@@ -9,7 +9,6 @@ extern O1Point2 *D_20C;
 extern O1Point2 *D_210;
 extern f32 overlay1SquareRoot(f32 value);
 extern s32 overlay1AngleFromIndex(s16 value);
-#ifdef NON_MATCHING
 void overlay1InitMotionScale(void) {
     f32 dx;
     f32 dy;
@@ -26,10 +25,6 @@ void overlay1InitMotionScale(void) {
         (f32)overlay1AngleFromIndex(((O1MotionWorld *)D_1DA0)->angle) +
         ((O1MotionWorld *)D_1DA0)->scale;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_head/func_overlay_001_F0000BD4_184CFB4.s")
-#endif
 
 /* ---- overlay1InterpolatePath ---- */
 
