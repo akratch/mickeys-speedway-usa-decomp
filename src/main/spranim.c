@@ -33,5 +33,6 @@ void func_8001BAE4(SpranimBAE4Object *arg0, void *arg1) {
 }
 void func_8001BAF8(void *arg0, void *arg1) {
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001BB04.s")
+void func_8001BB04(void *arg0, void *arg1) {
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001BB10.s")
