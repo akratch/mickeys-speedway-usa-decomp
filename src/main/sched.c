@@ -17,7 +17,9 @@
 OSMesgQueue *osScGetCmdQ(OSSched *scheduler) {
     return &scheduler->cmdQ;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetInterruptQ.s")
+OSMesgQueue *osScGetInterruptQ(OSSched *scheduler) {
+    return &scheduler->interruptQ;
+}
 void osScGetAudioSPStats(f32 *first, f32 *second, f32 *third) {
     *first = 0.0f;
     *second = 0.0f;

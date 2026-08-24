@@ -399,8 +399,9 @@ Exact C reconstructions in this census currently include `rumbleRumbles`
 `0x2DA54`, 40 bytes), `rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40
 bytes), and the still-unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–
 `0x2F7E0`, 12 bytes), plus `osScGetAudioSPStats` (ROM `0x30F20`–
-`0x30F38`, 24 bytes) and `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
-compiled with the resident
+`0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
+and `osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), compiled with the
+resident
 `-O2 -mips2 -32` flags. The named setter bodies are adapted from JFG's
 `src/saves.c` and `src/rcpFast3d.c`; the anonymous setter is reconstructed
 from Mickey's own body. All configured object ranges and the final linked ROM

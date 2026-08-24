@@ -606,7 +606,7 @@ stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  get_stack_point
 // offsets AND their adjacency. The rest of sched.c does not match, so no file
 // boundary is claimed. The scheduler this belongs to is at ROM 0x2F400-0x33FA0.
 osScGetCmdQ = 0x80030310; // type:func size:0x8 ROM 0x30f10 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/sc/sched.c.o
-osScGetInterruptQ = 0x80030318; // type:func size:0x8   ROM 0x30f18  src/sc/sched.c.o  masked=0/2
+osScGetInterruptQ = 0x80030318; // type:func size:0x8 ROM 0x30f18 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/sc/sched.c.o
 
 // os/exceptasm.s -- the exception-handler island at ROM 0x4FC30. The file
 // boundary is claimed: the whole 0x9B0 .text of JFG's exceptasm.s.o matches
