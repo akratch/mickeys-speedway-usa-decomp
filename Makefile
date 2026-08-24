@@ -1054,60 +1054,22 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4InitializeObjectMotion.c.o: POSTPR
 	$(OBJCOPY) --redefine-sym \
 		func_8005AD64=overlay4RuntimeCallReloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
-# The typed object naturally recovers the full CFG, eleven calls, frame, and
-# operation stream. Select two complete GPR webs and the complete stack packet
-# base web, then discard only compiler section alignment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateObjectMotion.c.o: \
-	config/normalizations/overlay4UpdateObjectMotion.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateObjectMotion.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateObjectMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x398 0acbb9a638a75499a6e2f541da1ff95bf42e3a92f878bcc0761ad107f110dcf0 \
-		@config/normalizations/overlay4UpdateObjectMotion.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x088:func_8002997C:func_8005ABA8 \
-		0x13c:func_8002AA0C:func_8005ABA8 \
-		0x168:func_8002997C:func_8005ABA8 \
-		0x184:func_8002AA0C:func_8005ABA8 \
-		0x1a8:func_80029274:func_8005ABA8 \
-		0x20c:func_8002A8C0:func_8005ABA8 \
-		0x27c:func_80004590:func_8005ABA8 \
-		0x310:func_8000590C:func_8005ABA8 \
-		0x328:func_8002997C:func_8005ABA8 \
-		0x354:func_overlay_036_F00007B0:func_8005ABA8 && \
-	$(OBJCOPY) --redefine-sym \
-		func_8005ABA8=overlay4RuntimeCallReloc $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_004_F0000138_185A7B0=overlay4UpdateObjectMotion $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x398
-# The typed chain update naturally recovers its complete FP/CFG/call topology.
-# Select the sole complete entry-allocation web and preserve runtime call zero.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateGroupSpacing.c.o: \
-	config/normalizations/overlay4UpdateGroupSpacing.ops
+# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateGroupSpacing.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateGroupSpacing.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x140 424b5e1ec9c342f91c36ca9f3a96132c68ee5502ef46701ecbf7a3d61f8462a6 \
-		@config/normalizations/overlay4UpdateGroupSpacing.ops && \
-	$(OBJCOPY) --redefine-sym sqrtf=overlay4RuntimeCallReloc $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x140
-# The natural four-way unrolled source has exact operation/CFG topology.
-# Select its complete 37-word register-allocation web with field-only guards.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindCategory2Object.c.o: \
-	config/normalizations/overlay4FindCategory2Object.ops
+	$(OBJCOPY) --redefine-sym func_overlay_004_F00005D0_185AC48=overlay4UpdateGroupSpacing $@
+# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindCategory2Object.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1C0 ce564e6659518f49475cb959909161b686e125be7570c77be31c9655d35e6677 \
-		@config/normalizations/overlay4FindCategory2Object.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C0
-# The measured multiply-hazard mode supplies all fourteen target FP nops.
-# Select the one complete six-use start/end stack-home allocation web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindSearchPosition.c.o: \
-	config/normalizations/overlay4FindSearchPosition.ops
+	$(OBJCOPY) --redefine-sym func_overlay_004_F0000734_185ADAC=overlay4FindCategory2Object $@
+# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindSearchPosition.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindSearchPosition.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3B8 5dae864d45fdcc2a13114b94e3dbb5b7cedafa75f1c06d392610871691f04e76 \
-		@config/normalizations/overlay4FindSearchPosition.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_004_F00008F4_185AF6C=overlay4FindSearchPosition $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4AttachObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5C

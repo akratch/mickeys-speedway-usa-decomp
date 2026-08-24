@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 276552,
-  "nonmatching_overlay_c_bytes": 48,
+  "matched_overlay_c_bytes": 273912,
+  "nonmatching_overlay_c_bytes": 2688,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -2156,7 +2156,7 @@
      "type": "c",
      "source": "overlays/o004/overlay4UpdateObjectMotion",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x4D0",
@@ -2183,7 +2183,7 @@
      "type": "c",
      "source": "overlays/o004/overlay4UpdateGroupSpacing",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x710",
@@ -2201,7 +2201,7 @@
      "type": "c",
      "source": "overlays/o004/overlay4FindCategory2Object",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x8F4",
@@ -2210,7 +2210,7 @@
      "type": "c",
      "source": "overlays/o004/overlay4FindSearchPosition",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xCAC",

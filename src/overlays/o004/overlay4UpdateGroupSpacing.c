@@ -21,6 +21,7 @@ typedef struct Overlay4Group {
 extern Overlay4Group gOverlay4Groups[];
 extern f32 sqrtf(f32 value);
 
+#ifdef NON_MATCHING
 void overlay4UpdateGroupSpacing(Overlay4ChainObject *object) {
     Overlay4Group *group;
     Overlay4ChainObject **objects;
@@ -54,3 +55,6 @@ void overlay4UpdateGroupSpacing(Overlay4ChainObject *object) {
         object->z = previous->z + dz;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay4UpdateGroupSpacing/func_overlay_004_F00005D0_185AC48.s")
+#endif

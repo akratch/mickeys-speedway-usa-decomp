@@ -82,6 +82,7 @@ extern Overlay4Spawned *func_8000590C(Overlay4SpawnPacket *packet, s32 mode);
 extern void func_overlay_036_F00007B0(Overlay4Spawned *spawned, s16 angle,
                                       s16 outputAngle, f32 value);
 
+#ifdef NON_MATCHING
 void overlay4UpdateObjectMotion(Overlay4Object *object, s32 updateRate) {
     Overlay4MotionState *motion;
     Overlay4Config *config;
@@ -158,3 +159,6 @@ void overlay4UpdateObjectMotion(Overlay4Object *object, s32 updateRate) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay4UpdateObjectMotion/func_overlay_004_F0000138_185A7B0.s")
+#endif

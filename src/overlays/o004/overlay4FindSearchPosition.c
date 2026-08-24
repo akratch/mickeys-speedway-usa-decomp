@@ -21,6 +21,7 @@ extern f32 gOverlay4SearchMaxDistance;
 extern Overlay4Object **overlay4GetObjectRangeReloc(s32 *start, s32 *end);
 extern Overlay4Object *overlay4FindCategory2Object(Overlay4SearchKey *key);
 
+#ifdef NON_MATCHING
 void overlay4FindSearchPosition(f32 *outX, f32 *outZ,
                                 Overlay4SearchKey *key,
                                 Overlay4Object *anchor) {
@@ -75,3 +76,6 @@ void overlay4FindSearchPosition(f32 *outX, f32 *outZ,
     *outX = 0.0f;
     *outZ = 0.0f;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay4FindSearchPosition/func_overlay_004_F00008F4_185AF6C.s")
+#endif
