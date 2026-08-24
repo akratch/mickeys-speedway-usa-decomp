@@ -1813,7 +1813,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o009/overlay9IntegrateVelocity.c.o",
       "offset": 3300,
@@ -1821,14 +1821,11 @@
       "size": 648,
       "source": "src/overlays/o009/overlay9IntegrateVelocity.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py",
-        "externalize_elf_section.py",
         "trim_elf_section.py"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o009/overlay9ResolveHeight.c.o",
       "offset": 3948,
@@ -1836,15 +1833,11 @@
       "size": 312,
       "source": "src/overlays/o009/overlay9ResolveHeight.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py",
-        "rebind_elf_relocations.py",
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o009/overlay9UpdateAngle.c.o",
       "offset": 1344,
@@ -1852,15 +1845,11 @@
       "size": 516,
       "source": "src/overlays/o009/overlay9UpdateAngle.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py",
-        "rebind_elf_relocations.py",
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o009/overlay9UpdateInputState.c.o",
       "offset": 2492,
@@ -1868,14 +1857,11 @@
       "size": 808,
       "source": "src/overlays/o009/overlay9UpdateInputState.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py",
-        "externalize_elf_section.py",
         "trim_elf_section.py"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o009/overlay9UpdateMotion.c.o",
       "offset": 4276,
@@ -1883,29 +1869,11 @@
       "size": 1132,
       "source": "src/overlays/o009/overlay9UpdateMotion.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py",
-        "rebind_elf_relocations.py",
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
-      "class": "altered",
-      "matched_c": true,
-      "object": "build/src/overlays/o009/overlay9UpdateObjectState.c.o",
-      "offset": 0,
-      "overlay": 9,
-      "size": 1344,
-      "source": "src/overlays/o009/overlay9UpdateObjectState.c",
-      "tools": [
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py",
-        "overlay9UpdateObjectState.rebind.py"
-      ]
-    },
-    {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o009/overlay9UpdateOutput.c.o",
       "offset": 1860,
@@ -1913,11 +1881,7 @@
       "size": 632,
       "source": "src/overlays/o009/overlay9UpdateOutput.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py",
-        "rebind_elf_relocations.py",
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -2826,7 +2790,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o015/overlay15DrawRain.c.o",
       "offset": 2964,
@@ -2834,15 +2798,12 @@
       "size": 216,
       "source": "src/overlays/o015/overlay15DrawRain.c",
       "tools": [
-        "filter_elf_relocations.py",
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o015/overlay15DrawScreenStars.c.o",
       "offset": 1280,
@@ -2850,9 +2811,8 @@
       "size": 420,
       "source": "src/overlays/o015/overlay15DrawScreenStars.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -2880,7 +2840,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o015/overlay15InitStars.c.o",
       "offset": 1768,
@@ -2888,15 +2848,12 @@
       "size": 760,
       "source": "src/overlays/o015/overlay15InitStars.c",
       "tools": [
-        "overlay15InitStars.prepare.py",
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py",
-        "rebind_elf_relocations.py",
+        "trim_elf_section.py",
         "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o015/overlay15InitStarsAndPalette.c.o",
       "offset": 76,
@@ -2904,14 +2861,12 @@
       "size": 988,
       "source": "src/overlays/o015/overlay15InitStarsAndPalette.c",
       "tools": [
-        "filter_elf_relocations.py",
-        "normalize_elf_instructions.py",
-        "overlay15InitStarsAndPalette.finalize.py",
+        "trim_elf_section.py",
         "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o015/overlay15MoveStars.c.o",
       "offset": 1064,
@@ -2919,8 +2874,6 @@
       "size": 216,
       "source": "src/overlays/o015/overlay15MoveStars.c",
       "tools": [
-        "filter_elf_relocations.py",
-        "normalize_elf_instructions.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -2962,7 +2915,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o015/overlay15UpdateMovingStars.c.o",
       "offset": 2528,
@@ -2970,9 +2923,6 @@
       "size": 412,
       "source": "src/overlays/o015/overlay15UpdateMovingStars.c",
       "tools": [
-        "filter_elf_relocations.py",
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -3027,7 +2977,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o017/overlay17AdvanceChain.c.o",
       "offset": 1640,
@@ -3035,12 +2985,12 @@
       "size": 588,
       "source": "src/overlays/o017/overlay17AdvanceChain.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o017/overlay17CalculateEndpoints.c.o",
       "offset": 0,
@@ -3048,14 +2998,12 @@
       "size": 792,
       "source": "src/overlays/o017/overlay17CalculateEndpoints.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o017/overlay17CreateChain.c.o",
       "offset": 792,
@@ -3063,12 +3011,11 @@
       "size": 784,
       "source": "src/overlays/o017/overlay17CreateChain.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py"
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o017/overlay17DrawStrip.c.o",
       "offset": 2228,
@@ -3076,8 +3023,8 @@
       "size": 476,
       "source": "src/overlays/o017/overlay17DrawStrip.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -3105,7 +3052,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o018/overlay18InitializeBuffers.c.o",
       "offset": 1268,
@@ -3113,12 +3060,12 @@
       "size": 348,
       "source": "src/overlays/o018/overlay18InitializeBuffers.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o018/overlay18Load.c.o",
       "offset": 0,
@@ -3126,12 +3073,12 @@
       "size": 500,
       "source": "src/overlays/o018/overlay18Load.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o018/overlay18Reconfigure.c.o",
       "offset": 588,
@@ -3139,8 +3086,8 @@
       "size": 680,
       "source": "src/overlays/o018/overlay18Reconfigure.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -3478,7 +3425,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o023/overlay23RenderEffect.c.o",
       "offset": 1128,
@@ -3486,8 +3433,7 @@
       "size": 256,
       "source": "src/overlays/o023/overlay23RenderEffect.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "objcopy"
       ]
     },
     {
@@ -3592,7 +3538,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o026/overlay26DrawGroups.c.o",
       "offset": 4440,
@@ -3600,15 +3546,11 @@
       "size": 536,
       "source": "src/overlays/o026/overlay26DrawGroups.c",
       "tools": [
-        "overlay26DrawGroups.prepare.py",
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o026/overlay26HandleEffects.c.o",
       "offset": 3364,
@@ -3616,23 +3558,7 @@
       "size": 1076,
       "source": "src/overlays/o026/overlay26HandleEffects.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
-        "trim_elf_section.py",
-        "objcopy"
-      ]
-    },
-    {
-      "class": "altered",
-      "matched_c": true,
-      "object": "build/src/overlays/o026/overlay26InitializeObject.c.o",
-      "offset": 0,
-      "overlay": 26,
-      "size": 416,
-      "source": "src/overlays/o026/overlay26InitializeObject.c",
-      "tools": [
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -4644,7 +4570,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o040/overlay40AddEntry.c.o",
       "offset": 0,
@@ -4652,12 +4578,12 @@
       "size": 132,
       "source": "src/overlays/o040/overlay40AddEntry.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o040/overlay40BuildFrame.c.o",
       "offset": 416,
@@ -4665,8 +4591,8 @@
       "size": 324,
       "source": "src/overlays/o040/overlay40BuildFrame.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -4682,7 +4608,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o040/overlay40DrawTintRectangle.c.o",
       "offset": 1332,
@@ -4690,12 +4616,12 @@
       "size": 348,
       "source": "src/overlays/o040/overlay40DrawTintRectangle.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o040/overlay40FadeRecords.c.o",
       "offset": 1680,
@@ -4703,9 +4629,8 @@
       "size": 404,
       "source": "src/overlays/o040/overlay40FadeRecords.c",
       "tools": [
-        "overlay40FadeRecords.prepare.py",
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -4745,7 +4670,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o040/overlay40UpdateEntries.c.o",
       "offset": 232,
@@ -4753,8 +4678,8 @@
       "size": 184,
       "source": "src/overlays/o040/overlay40UpdateEntries.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -5695,7 +5620,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o054/overlay54Initialize.c.o",
       "offset": 0,
@@ -5703,12 +5628,7 @@
       "size": 972,
       "source": "src/overlays/o054/overlay54Initialize.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py",
-        "filter_elf_relocations.py",
-        "rebind_elf_relocations.py",
-        "overlay54Initialize.sort.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -5918,7 +5838,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o057/overlay57Draw32A0.c.o",
       "offset": 12960,
@@ -5926,12 +5846,11 @@
       "size": 832,
       "source": "src/overlays/o057/overlay57Draw32A0.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o057/overlay57EaseAndLatch.c.o",
       "offset": 10420,
@@ -5939,12 +5858,12 @@
       "size": 884,
       "source": "src/overlays/o057/overlay57EaseAndLatch.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o057/overlay57HandleModeInput.c.o",
       "offset": 16484,
@@ -5952,8 +5871,8 @@
       "size": 868,
       "source": "src/overlays/o057/overlay57HandleModeInput.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -5969,7 +5888,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o057/overlay57ReleaseAll.c.o",
       "offset": 6520,
@@ -5977,8 +5896,7 @@
       "size": 368,
       "source": "src/overlays/o057/overlay57ReleaseAll.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "objcopy"
       ]
     },
     {
@@ -5994,7 +5912,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o057/overlay57SmoothAndCheckDistance.c.o",
       "offset": 11304,
@@ -6002,8 +5920,7 @@
       "size": 800,
       "source": "src/overlays/o057/overlay57SmoothAndCheckDistance.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "objcopy"
       ]
     },
     {
@@ -6031,7 +5948,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o057/overlay57UpdateModeState.c.o",
       "offset": 14924,
@@ -6039,12 +5956,12 @@
       "size": 1416,
       "source": "src/overlays/o057/overlay57UpdateModeState.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o057/overlay57UpdateModeTrigger.c.o",
       "offset": 19480,
@@ -6052,8 +5969,6 @@
       "size": 376,
       "source": "src/overlays/o057/overlay57UpdateModeTrigger.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "add_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -6071,7 +5986,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o057/overlay57UpdateSelection.c.o",
       "offset": 13792,
@@ -6079,9 +5994,8 @@
       "size": 1132,
       "source": "src/overlays/o057/overlay57UpdateSelection.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -6097,7 +6011,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o058/overlay58DrawLargePointQuad.c.o",
       "offset": 20680,
@@ -6105,12 +6019,11 @@
       "size": 416,
       "source": "src/overlays/o058/overlay58DrawLargePointQuad.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o058/overlay58DrawPointQuad.c.o",
       "offset": 20264,
@@ -6118,12 +6031,11 @@
       "size": 416,
       "source": "src/overlays/o058/overlay58DrawPointQuad.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o058/overlay58DrawSegmentStrip.c.o",
       "offset": 19460,
@@ -6131,8 +6043,8 @@
       "size": 804,
       "source": "src/overlays/o058/overlay58DrawSegmentStrip.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -6148,7 +6060,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o058/overlay58FinalizePackedStatus.c.o",
       "offset": 21844,
@@ -6156,12 +6068,11 @@
       "size": 1216,
       "source": "src/overlays/o058/overlay58FinalizePackedStatus.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o058/overlay58RefreshRankSet.c.o",
       "offset": 21096,
@@ -6169,8 +6080,7 @@
       "size": 608,
       "source": "src/overlays/o058/overlay58RefreshRankSet.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "objcopy"
       ]
     },
     {
@@ -6736,19 +6646,6 @@
       ]
     },
     {
-      "class": "altered",
-      "matched_c": true,
-      "object": "build/src/overlays/o066/overlay66SmoothAndDraw.c.o",
-      "offset": 64,
-      "overlay": 66,
-      "size": 1184,
-      "source": "src/overlays/o066/overlay66SmoothAndDraw.c",
-      "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
-      ]
-    },
-    {
       "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o067/overlay67BuildVertices.c.o",
@@ -7153,7 +7050,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o073/overlay73Draw.c.o",
       "offset": 3440,
@@ -7161,23 +7058,6 @@
       "size": 312,
       "source": "src/overlays/o073/overlay73Draw.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
-        "trim_elf_section.py",
-        "objcopy"
-      ]
-    },
-    {
-      "class": "altered",
-      "matched_c": true,
-      "object": "build/src/overlays/o073/overlay73Initialize.c.o",
-      "offset": 0,
-      "overlay": 73,
-      "size": 400,
-      "source": "src/overlays/o073/overlay73Initialize.c",
-      "tools": [
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
         "trim_elf_section.py"
       ]
     },
@@ -7606,7 +7486,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o084/overlay84ActivateCurrent.c.o",
       "offset": 4192,
@@ -7614,12 +7494,12 @@
       "size": 404,
       "source": "src/overlays/o084/overlay84ActivateCurrent.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o084/overlay84AdvanceCurrent.c.o",
       "offset": 3536,
@@ -7628,7 +7508,7 @@
       "source": "src/overlays/o084/overlay84AdvanceCurrent.c",
       "tools": [
         "trim_elf_section.py",
-        "normalize_elf_instructions.py"
+        "objcopy"
       ]
     },
     {
@@ -7728,7 +7608,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o084/overlay84InitializeAndUpdate.c.o",
       "offset": 72,
@@ -7736,8 +7616,6 @@
       "size": 716,
       "source": "src/overlays/o084/overlay84InitializeAndUpdate.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -7767,7 +7645,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o084/overlay84LoadCurrent.c.o",
       "offset": 3228,
@@ -7775,7 +7653,7 @@
       "size": 288,
       "source": "src/overlays/o084/overlay84LoadCurrent.c",
       "tools": [
-        "normalize_elf_instructions.py"
+        "objcopy"
       ]
     },
     {
@@ -8443,7 +8321,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o097/overlay97InitScale.c.o",
       "offset": 1288,
@@ -8451,8 +8329,7 @@
       "size": 576,
       "source": "src/overlays/o097/overlay97InitScale.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "objcopy"
       ]
     },
     {
@@ -8678,7 +8555,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o100/overlay100DrawMotion.c.o",
       "offset": 1408,
@@ -8686,15 +8563,12 @@
       "size": 972,
       "source": "src/overlays/o100/overlay100DrawMotion.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
-        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o100/overlay100InitializeMotion.c.o",
       "offset": 0,
@@ -8702,9 +8576,6 @@
       "size": 532,
       "source": "src/overlays/o100/overlay100InitializeMotion.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "rebind_elf_relocations.py",
-        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -8734,7 +8605,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o100/overlay100UpdateMotion.c.o",
       "offset": 908,
@@ -8742,9 +8613,6 @@
       "size": 384,
       "source": "src/overlays/o100/overlay100UpdateMotion.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "filter_elf_relocations.py",
-        "trim_elf_section.py",
         "objcopy"
       ]
     },
@@ -9554,12 +9422,12 @@
   ],
   "schema_version": 1,
   "summary": {
-    "altered_bytes": 200348,
+    "altered_bytes": 166896,
     "by_class": {
-      "altered": 311,
-      "metadata": 423
+      "altered": 257,
+      "metadata": 473
     },
-    "matched_c_bytes_with_postprocess": 275496,
-    "objects_with_postprocess": 734
+    "matched_c_bytes_with_postprocess": 272152,
+    "objects_with_postprocess": 730
   }
 }
