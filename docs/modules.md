@@ -345,7 +345,7 @@ see the caveat below):
 | `src/font.c.o` | 2 | `0x4BC70`–`0x4C884` | Inside yaml's unnamed `0x4BC40`–`0x4EA60` block. No whole-`.text` match; no boundary claimed |
 | `src/audio_manager_4C50.c.o` | 2 | `0x45F0`–`0x4F3C` | Starts exactly at yaml's `0x45F0` boundary; ends inside the unnamed `0x4F40`–`0xC950` block. No whole-`.text` match; no boundary claimed |
 | `src/audio_manager_1050.c.o` | 3 | `0x12BC`–`0x22C8` | Inside yaml's unnamed `0x1050`–`0x45F0` block. Wide span for 3 hits -- other code plainly sits between them; no boundary claimed |
-| `src/charControl.c.o` | 2 | `0x1CED4`–`0x1FFAC` | Inside yaml's unnamed `0x1C790`–`0x20020` block. No boundary claimed |
+| `src/charControl.c.o` | 2 | `0x1CED4`–`0x1FFAC` | Inside yaml's former unnamed `0x1C790`–`0x20020` block. This scan alone claimed no boundary; §3.4 records the later TU split and its additional evidence |
 | `src/camera.c.o` | 2 | `0x23360`, `0x5B778` | 230KB apart -- evidently not one placed TU here; treat as two independent identifications, not a span |
 | `src/memory.c.o` | 2 | `0x2BCD0`–`0x2C3AC` | Starts exactly at yaml's `0x2BCD0` boundary (end of `main/matrix`); the already-named `align16`/`align8`/`align4` (tier A, `memory.c.o`) sit at `0x2C860`, past this span. Consistent with one TU, no boundary claimed |
 | `src/shadows_214A0.c.o` | 2 | `0x18FF0`–`0x19144` | Inside yaml's unnamed `0x18FF0`–`0x1AE60` block, starting exactly at its boundary. No boundary claimed |
@@ -359,6 +359,71 @@ whole-object match for any of the not-yet-named TUs above). Asserting a yaml
 measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
+
+### 3.4 `main/charControl`
+
+ROM `0x1C790`–`0x20020`, VRAM `0x8001BB90`–`0x8001F420`, is split as
+`src/main/charControl.c`. The endpoints retain splat's original aligned
+file-boundary candidates, but the assignment no longer rests on that heuristic
+alone. At the start, the first six functions follow JFG's `charControl.c`
+camera-control cluster by masked-skeleton similarity and call graph. Inside the
+block, `func_8001C2D4` and `controlSetPlayerSetup` are tier-A skeleton anchors
+from JFG's built `src/charControl.c.o`. At the tail, the latter is followed by
+the setup getter and clearer behavior in JFG's order. The next yaml block
+begins at `0x20020` with a separately tier-A function from JFG's `models.c.o`.
+Together these are **B/D TU-boundary evidence**, not a whole-`.text` tier-A
+match; the distinction is why §3.3's original two-hit row did not itself draw
+the split.
+
+**PROVENANCE:** JFG's public `src/charControl.c`, `src/charControl.h`, built
+object, public symbol map, and `asm/nonmatchings/charControl` filenames supplied
+the names in the comparison column below. Only the two tier-A rows were already
+adopted in `symbol_addrs.us.txt`. Tier-B/D names remain comparison leads while
+their functions use `GLOBAL_ASM`; §1.5 therefore keeps Mickey's `func_` names
+until matching C independently establishes a role strongly enough to adopt
+one. A dash means that neither the JFG order, masked similarity, nor the current
+call graph isolates one namesake.
+
+| Mickey VRAM | Size | JFG comparison lead | Evidence / current disposition |
+|---|---:|---|---|
+| `0x8001BB90` | `0x24` | `cameraGetBlend` | D: nearest JFG charControl skeleton; retain `func_` |
+| `0x8001BBB4` | `0x258` | `func_8002B378` | B: camera call graph and next-function edge; JFG placeholder, retain `func_` |
+| `0x8001BE0C` | `0x248` | `func_8002EDA0` | B: camera-pointer lookup then the preceding routine; JFG placeholder, retain `func_` |
+| `0x8001C054` | `0x34` | `cameraAddOverrideObject` | D: nearest JFG charControl skeleton; retain `func_` |
+| `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D: nearest JFG charControl skeleton; retain `func_` |
+| `0x8001C114` | `0x1B0` | `func_8002F0E8` | D: nearest JFG charControl skeleton; JFG placeholder, retain `func_` |
+| `0x8001C2C4` | `0x10` | — | Two return stubs under one measured label; retain `func_` |
+| `0x8001C2D4` | `0x4C` | `func_80031F60` | A: 19/19 unmasked words, already recorded; placeholder rule retains Mickey's `func_` |
+| `0x8001C320` | `0x1A0` | `controlPlayerReInit` | B: clear/init call graph mirrors JFG; retain `func_` until C matches |
+| `0x8001C4C0` | `0x64C` | `controlPlayerInit` | B: initialization calls and caller edge from the preceding routine; retain `func_` |
+| `0x8001CB0C` | `0x78` | — | No unique JFG comparison; retain `func_` |
+| `0x8001CB84` | `0x71C` | `controlPlayer` | D: large per-frame controller in JFG order; retain `func_` |
+| `0x8001D2A0` | `0x17C` | — | No unique JFG comparison; retain `func_` |
+| `0x8001D41C` | `0x21C` | — | No unique JFG comparison; retain `func_` |
+| `0x8001D638` | `0x58` | `controlFrozen` | B: calls the following restart routine as JFG does; retain `func_` |
+| `0x8001D690` | `0x194` | `controlRestartPlayer` | B: restart/reinitialize call graph and nearest charControl skeleton; retain `func_` |
+| `0x8001D824` | `0x5C` | `dAngle` | D: same wrapped-angle interpolation structure; retain `func_` until C matches |
+| `0x8001D880` | `0x90` | `controlMakeV` | D: same table-interpolation structure; retain `func_` |
+| `0x8001D910` | `0x50` | `controlFSUvels` | D: same rotation-vector call shape; retain `func_` |
+| `0x8001D960` | `0x370` | `controlUpdateJetFlames` | D: nearest JFG charControl skeleton and same subsystem order; retain `func_` |
+| `0x8001DCD0` | `0xA0` | — | No unique JFG comparison; retain `func_` |
+| `0x8001DD70` | `0x854` | `controlGroundHits` | D: collision/movement structure and JFG order; retain `func_` |
+| `0x8001E5C4` | `0x680` | `controlHangOK` / `controlGrabOK` | D: ledge/collision family, not uniquely separated; retain `func_` |
+| `0x8001EC44` | `0x3B8` | `controlSquashCheckPrior` | D: collision/math structure and JFG order; retain `func_` |
+| `0x8001EFFC` | `0xA0` | — | No unique JFG comparison; retain `func_` |
+| `0x8001F09C` | `0xB0` | `func_800370D8` | D: same target-smoothing structure; JFG placeholder, retain `func_` |
+| `0x8001F14C` | `0x110` | `controlCeiling` | D: collision-control position in the JFG sequence; retain `func_` |
+| `0x8001F25C` | `0x8` | `controlDisableJoypad` | B: writes the state the next routine tests; retain `func_` |
+| `0x8001F264` | `0xBC` | `controlReadJoypad` | B: calls all seven stick/button readers in JFG order; retain `func_` |
+| `0x8001F320` | `0x44` | `controlSetRumble` | B: sole call is the rumble dispatcher under player-state guards; retain `func_` |
+| `0x8001F364` | `0x8` | — | Empty routine; retain `func_` |
+| `0x8001F36C` | `0x40` | `controlSetPlayerSetup` | A: 6 unmasked of 16 words after 10 relocation masks, already adopted |
+| `0x8001F3AC` | `0x5C` | `controlGetPlayerSetup` | B: consumes and clears the exact state written by the tier-A setter; retain `func_` until C matches |
+| `0x8001F408` | `0xC` + `0xC` padding | `controlClearPlayerSetup` | B: clears that same setup state in JFG order; retain `func_` until C matches |
+
+No function in this TU uses an odd single-precision FP register, so §6.2 does
+not classify any of them as hand-written assembly. The `0xC` bytes after
+`func_8001F408` are alignment padding, not executable ownership.
 
 ---
 
