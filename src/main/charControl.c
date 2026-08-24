@@ -24,6 +24,9 @@
 #include "game/charControl.h"
 
 extern u8 D_80079BF8;
+extern ControlVector3 D_800799EC;
+extern ControlVector3 D_800799FC;
+extern u16 D_8007BF1C;
 extern f32 D_80081894;
 extern f32 D_80081898;
 extern s32 D_80079BCC;
@@ -36,6 +39,7 @@ extern s16 D_800CB474;
 extern s16 D_800CB476;
 
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
+void func_8001EFFC(ControlTransform *transform, ControlPlayer *player, f32 *output);
 f32 func_8002A8BC(s32 angle);
 f32 func_8002A8C0(s32 angle);
 s16 Arctanf(f32 x, f32 y);
@@ -96,7 +100,20 @@ void func_8001C2D4(u8 *start, u8 *end) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C320.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C4C0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB0C.s")
+void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
+    player->unk2BC = 1;
+    if (D_8007BF1C & 8) {
+        player->unk2B8 = &D_800799FC;
+    } else {
+        player->unk2B8 = &D_800799EC;
+    }
+    player->unk33C = 0;
+    player->unk340 = 0;
+    player->unk2C0[0] = player->unk2B8->x;
+    player->unk2C0[1] = player->unk2B8->y;
+    player->unk2C0[2] = player->unk2B8->z;
+    func_8001EFFC(transform, player, &player->unk2C0[12]);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D2A0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D41C.s")

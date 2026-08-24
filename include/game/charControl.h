@@ -35,9 +35,13 @@ typedef struct ControlPlayer {
     /* 0x191 */ s8 unk191;
     /* 0x192 */ u8 pad192[0x1A8 - 0x192];
     /* 0x1A8 */ u16 flags1A8;
-    /* 0x1AA */ u8 pad1AA[0x2BC - 0x1AA];
+    /* 0x1AA */ u8 pad1AA[0x2B8 - 0x1AA];
+    /* 0x2B8 */ ControlVector3 *unk2B8;
     /* 0x2BC */ s32 unk2BC;
-    /* 0x2C0 */ f32 unk2C0[(0x41C - 0x2C0) / sizeof(f32)];
+    /* 0x2C0 */ f32 unk2C0[(0x33C - 0x2C0) / sizeof(f32)];
+    /* 0x33C */ s32 unk33C;
+    /* 0x340 */ s32 unk340;
+    /* 0x344 */ u8 pad344[0x41C - 0x344];
     /* 0x41C */ s32 controlKeys;
     /* 0x420 */ s32 controlDkeys;
     /* 0x424 */ s32 controlReleasedKeys;

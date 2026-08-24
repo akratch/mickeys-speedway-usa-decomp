@@ -396,7 +396,7 @@ call graph isolates one namesake.
 | `0x8001C2D4` | `0x4C` | `func_80031F60` | A + matched C: 19/19 unmasked JFG words and independently reconstructed byte-clear C are exact; placeholder rule retains Mickey's `func_` |
 | `0x8001C320` | `0x1A0` | `controlPlayerReInit` | B: clear/init call graph mirrors JFG; retain `func_` until C matches |
 | `0x8001C4C0` | `0x64C` | `controlPlayerInit` | B: initialization calls and caller edge from the preceding routine; retain `func_` |
-| `0x8001CB0C` | `0x78` | — | No unique JFG comparison; retain `func_` |
+| `0x8001CB0C` | `0x78` | — | Matched C: exact one-point transform setup under O2/mips2; no unique JFG comparison, so retain `func_` |
 | `0x8001CB84` | `0x71C` | `controlPlayer` | D: large per-frame controller in JFG order; retain `func_` |
 | `0x8001D2A0` | `0x17C` | — | No unique JFG comparison; retain `func_` |
 | `0x8001D41C` | `0x21C` | — | No unique JFG comparison; retain `func_` |
