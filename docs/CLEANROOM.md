@@ -20,12 +20,15 @@ contribute matched C implementations.
 
 **Narrow exception, binary file-format facts only:** the *public*
 Dinosaur Planet decompilation project (its documentation and tooling,
-built from a retail ROM, not the leaked build) may be consulted
-purely to understand the binary layout of Rare's DLL/overlay
+built from the 2000-12-01 development-cartridge dump released by Forest
+of Illusion on 2021-02-20, not the leaked Rare source tree) may be
+consulted purely to understand the binary layout of Rare's DLL/overlay
 reloc-table format (field offsets, relocation types, table structure),
 since Mickey's overlay system uses the same mechanism. This exception
 never extends to symbol names, code, or comments, only structural/
-format facts about how the retail binary is laid out.
+format facts about how that dumped binary is laid out. See
+`docs/adr/0008-provenance.md` for the full discussion, including why
+dp64's own naming is not covered by this exception.
 
 ## Permitted knowledge sources
 - Analysis of retail ROMs you legally possess
