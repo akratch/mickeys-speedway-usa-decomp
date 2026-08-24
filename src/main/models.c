@@ -23,11 +23,28 @@ typedef struct ConvListEntry {
 } ConvListEntry;
 
 extern s32 D_800D7CF0;
+extern s32 D_800D7CF4;
+extern s32 D_800D7CF8;
+extern s32 D_800D7CFC;
+extern s32 D_800D7D00;
+extern s32 D_800D7D04;
 extern ConvListEntry D_800D78F0[];
 
+s32 func_8002B280(s32 size, s32 tag);
 void func_80058FF0(ConvListEntry *entries, s32 count);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A700.s")
+/* PROVENANCE: adapted from the modelsInit tail in JFG src/models.c. */
+void func_8005A700(void) {
+    s32 allocation;
+
+    allocation = func_8002B280(0xA0, 0x80);
+    D_800D7CFC = allocation;
+    D_800D7D00 = allocation + 0x80;
+    D_800D7CF8 = allocation + 0x90;
+    D_800D7CF4 = func_8002B280(0x800, 0x80);
+    D_800D7D04 = 0;
+    D_800D7CF0 = 0;
+}
 void func_8005A764(void) {
     D_800D7CF0 = 0;
 }
