@@ -39,9 +39,19 @@ typedef struct TrackCachedPoint {
     s32 z;
 } TrackCachedPoint;
 
+typedef struct TrackFloatRecord {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 unkC;
+} TrackFloatRecord;
+
 extern TrackRotation *D_800C9530;
 extern TrackCachedPoint D_800C9B40;
 extern Gfx *D_800C9520;
+extern s32 D_80079314;
+extern u32 D_800C9B50[16];
+extern s32 D_800792FC;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -66,14 +76,31 @@ void *func_8000D00C(void) {
     return D_800C9550;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D018.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D16C.s")
+void func_8000D16C(s32 arg0, s32 arg1, s32 arg2) {
+    if (D_80079314 < 16) {
+        D_800C9B50[D_80079314] =
+            (arg0 << 24) | ((arg1 & 0xFFF) << 12) | (arg2 & 0xFFF);
+        D_80079314++;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D1B8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D3B8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D570.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D62C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D728.s")
+void func_8000D728(TrackFloatRecord *arg0) {
+    if ((arg0 != NULL) && (arg0->unkC != 0.0f)) {
+        arg0->unkC = 0.0f;
+        D_800792FC--;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D768.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D7F8.s")
+void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
+    if (arg0 != NULL) {
+        arg0->x = arg1;
+        arg0->y = arg2;
+        arg0->z = arg3;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D820.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D978.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
