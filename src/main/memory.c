@@ -14,6 +14,7 @@
 #include "game/memory.h"
 
 extern u8 D_8007A274;
+extern s32 D_800D21AC;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/mmInit.s")
 
@@ -43,8 +44,10 @@ u8 mmExtended(void) {
 /* JFG correspondence: mmAllocAtAddr (tier B; fixed-address allocation). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B524.s")
 
-/* JFG correspondence: mmSetDelay (tier B; writes the deferred-free delay). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B6F4.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmSetDelay. */
+void mmSetDelay(s32 state) {
+    D_800D21AC = state;
+}
 
 /* JFG correspondence: mmFlushFreeStack (tier B; drains deferred frees). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B700.s")

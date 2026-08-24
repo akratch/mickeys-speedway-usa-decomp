@@ -388,7 +388,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator |
 | `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker |
 | `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments |
-| `0x2C2F4` | `func_8002B6F4` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree` |
+| `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton; four relocated words masked |
 | `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots` |
@@ -414,6 +414,8 @@ delta is the separate 12-byte TU alignment tail already excluded above.
 `mmExtended` is exact for `0xC` bytes with the canonical flags. Its two data
 relocations retain the target HI16/LO16 offsets and bind `D_8007A274`; the JFG
 body and `mmInit` flag role support the tier B name.
+`mmSetDelay` is exact for `0xC` bytes under the same flags. Its target-matching
+HI16/LO16 pair binds the deferred-free state at `D_800D21AC`.
 
 ---
 
