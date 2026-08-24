@@ -392,7 +392,7 @@ overlay callers/callees outside the range were observed.
 | ROM | Size | Mickey symbol | JFG correspondence | Evidence | Calls |
 |---|---:|---|---|---|---|
 | `0x4BC40` | `0x24` | `fontSetWindow0` | same | A, matched C | leaf; ext callers |
-| `0x4BC64` | `0x0C` | `func_8004B064` | `fontSetButtonMode` | D | leaf; overlay caller |
+| `0x4BC64` | `0x0C` | `func_8004B064` | `fontSetButtonMode` | D, matched C | leaf; overlay caller |
 | `0x4BC70` | `0x34` | `fontSetWindowNoise` | same | A, matched C | leaf |
 | `0x4BCA4` | `0x14` | `func_8004B0A4` | `fontUseFont` | B/D | leaf; text-setup callers |
 | `0x4BCB8` | `0x24` | `fontColour` | same | A, matched C | leaf; text-setup callers |

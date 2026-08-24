@@ -22,6 +22,7 @@ extern DialogueBoxBackground D_800D64E8[];
 extern s32 D_8007D538;
 extern s32 D_8007D53C;
 extern s32 D_8007D540;
+extern u8 D_800D664D;
 
 void fontSetWindow0(s32 width, s32 height) {
     D_800D64E8[0].x2 = width - 1;
@@ -30,7 +31,9 @@ void fontSetWindow0(s32 width, s32 height) {
     D_800D64E8[0].height = height;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B064.s")
+void func_8004B064(s32 mode) {
+    D_800D664D = mode;
+}
 
 void fontSetWindowNoise(u8 red, u8 green, u8 blue) {
     D_8007D538 = red;
