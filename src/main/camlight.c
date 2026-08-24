@@ -22,4 +22,5 @@ void camlightUpdate(void *arg0) {
 }
 void camlightVisibilityCheck(void) {
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightDraw.s")
+void camlightDraw(void *arg0, void *arg1, void *arg2) {
+}
