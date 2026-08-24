@@ -15017,19 +15017,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xB4",
-     "size": "0xB4",
-     "type": "c",
-     "source": "overlays/o072/overlay72Init",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xB4",
      "end_offset": "0x168",
-     "size": "0xB4",
+     "size": "0x168",
      "type": "c",
-     "source": "overlays/o072/overlay72Update",
+     "source": "overlays/o072/overlay_072",
      "matched": true,
      "nonmatching": false
     },

@@ -3696,10 +3696,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000870_18CA390.c.o: POS
 	$(OBJCOPY) --redefine-sym \
 		func_80032BF0=func_overlay_071_F0000000_18C9B20 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2D8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o072/overlay72Init.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o072/overlay72Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o072/overlay_072.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x168
 # The source naturally owns all operations and exact instruction order. Select
 # the complete private GPR/local-base web, bind the proved +4/+8 LOCAL addends
 # to the module's D_0 carrier, and enforce the exact owner boundary.
@@ -7247,8 +7245,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000278_18C9D98.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/overlay71UpdateCoordinates.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000870_18CA390.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o072/overlay72Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o072/overlay72Update.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o072/overlay_072.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o073/overlay73Initialize.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o073/overlay73Draw.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Init.c.o \
