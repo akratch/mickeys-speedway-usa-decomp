@@ -423,6 +423,11 @@ front-end passes a requested resolution mode, then reads the current video mode
 and tests whether the buffer configuration changed before calling the mode
 changer. The four-word setter and its HI16/LO16 relocation pair are exact.
 
+`viChangeBuffers` is the seven-word predicate used by that same caller. It
+compares the active and requested triple-buffer flags, and the caller invokes
+the mode changer exactly when it returns true. That pins the JFG name at tier B;
+both HI16/LO16 relocation pairs and the linked body are exact.
+
 ---
 
 ## 4. libultra

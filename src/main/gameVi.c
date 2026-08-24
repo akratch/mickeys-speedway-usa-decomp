@@ -22,6 +22,7 @@
 extern s32 *D_8007A690[3];
 extern u8 D_8007A1A0;
 extern s32 *D_800D2FA8;
+extern s8 D_800D2F95;
 extern s8 D_800D2F96;
 extern s8 D_800D2F98;
 extern s8 D_800D2F9A;
@@ -68,7 +69,11 @@ void viSetTrippleBuffer(s32 resolutionIndex) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FB8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FC4.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
+s32 viChangeBuffers(void) {
+    return D_800D2F95 != D_800D2F96;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FE0.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
 s32 viDisplayingScreen0(void) {
