@@ -28,12 +28,14 @@ extern s32 D_80078D8C;
 extern void *D_80078D60;
 extern void *D_80078D64;
 extern u8 D_80078D68;
+extern u8 D_80078D6C;
 extern u8 D_80078D88;
 extern u8 D_80078DB0;
 extern u8 D_800BF794;
 extern u8 D_800BF795;
 extern u8 *D_800BF7A4;
 extern void gsSndpSetParam(void *sound, s16 type, u32 value);
+extern u32 gsSndpGetGlobalVolume(void);
 extern void n_alCSPSetChlVol(void *player, u8 channel, u8 volume);
 extern void n_alCSPSetVol(void *player, s16 volume);
 extern void n_alCSPNew(void *player, void *config);
@@ -187,7 +189,12 @@ void amTuneSetGlobalVolume(u32 volume) {
 u8 amTuneGetVolume(void) {
     return D_80078D68;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E70.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+void amAmbientSetVolume(u8 volume) {
+    D_80078D6C = volume;
+    n_alCSPSetVol(D_80078D64,
+                  (s16)(gsSndpGetGlobalVolume() * D_80078D6C));
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000EBC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000F20.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000F74.s")
