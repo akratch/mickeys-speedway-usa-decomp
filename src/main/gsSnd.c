@@ -56,6 +56,7 @@ extern GsSoundStateLink *D_8007FF40;
 extern GsSoundStateLink *D_8007FF44;
 extern GsSoundStateLink *D_8007FF48;
 extern const char D_800843CC[];
+extern const char D_800843FC[];
 
 u32 osSetIntMask(u32 mask);
 void n_alEvtqPostEvent(void *eventQueue, void *event, s32 delta);
@@ -139,7 +140,19 @@ void gsSndpStopAllRetrigger(void) {
 void gsSndpStopAllLooped(void) {
     sndp_stop_with_flags(3);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetParam.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpSetParam). */
+void gsSndpSetParam(GsSoundStateLink *state, s16 type, u32 value) {
+    GsSndEvent event;
+
+    event.type = type;
+    event.state = state;
+    event.param = value;
+    if (state != NULL) {
+        n_alEvtqPostEvent(D_8007FF4C->eventQueue, &event, 0);
+    } else {
+        rmonPrintf(D_800843FC);
+    }
+}
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpGetMasterVolume). */
 u16 gsSndpGetMasterVolume(u8 groupID) {
     return D_800D7D78[groupID];
