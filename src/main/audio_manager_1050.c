@@ -169,7 +169,17 @@ void amTuneSetVolume(u8 volume) {
     n_alCSPSetVol(D_80078D60, scaledVolume);
     D_80078DB0 = 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E08.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+void amTuneSetGlobalVolume(u32 volume) {
+    s32 scaledVolume;
+
+    if (volume > 0x100) {
+        volume = 0x100;
+    }
+    D_80078D8C = volume;
+    scaledVolume = D_80078D8C * D_80078D68;
+    n_alCSPSetVol(D_80078D60, scaledVolume);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E64.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000EBC.s")
