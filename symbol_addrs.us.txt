@@ -1491,6 +1491,7 @@ func_800501AC = 0x800501AC; // type:func size:0x1C   ROM 0x50dac  tier-D JFG sig
 func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  masked=9/20 tier-A matched-C
 func_800502CC = 0x800502CC; // type:func size:0x7C   ROM 0x50ecc  tier-B JFG cleanup callees and position, matched C
 animseqStartPath = 0x80050688; // type:func size:0x7C   ROM 0x51288  tier-B JFG process-command call position, matched C
+animseqStopPath = 0x80050704; // type:func size:0x78   ROM 0x51304  tier-B JFG process-command call position, matched C
 func_8005077C = 0x8005077C; // type:func size:0x40   ROM 0x5137c  tier-D path-state helper, matched C
 animseqHoldPath = 0x800507BC; // type:func size:0x88   ROM 0x513bc  tier-B JFG process-command call position, matched C
 animseqLockPath = 0x80050844; // type:func size:0x38   ROM 0x51444  tier-B JFG paired process-command calls, matched C
