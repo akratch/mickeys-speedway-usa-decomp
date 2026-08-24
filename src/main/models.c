@@ -13,13 +13,33 @@
  * functions remain Mickey's generated assembly.
  */
 
+#include "PR/ultratypes.h"
+
+typedef f32 Matrix[4][4];
+
+typedef struct ConvListEntry {
+    Matrix *mtx;
+    s16 count;
+} ConvListEntry;
+
+extern s32 D_800D7CF0;
+extern ConvListEntry D_800D78F0[];
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A700.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A764.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A770.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A7A0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A948.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005AAC0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/camConvertMatrixList.s")
+/* PROVENANCE: adapted from JFG src/camera.c (camConvertMatrixList). */
+void camConvertMatrixList(Matrix *mtx, s32 count) {
+    s32 index = D_800D7CF0;
+    ConvListEntry *entry = &D_800D78F0[index];
+
+    entry->mtx = mtx;
+    D_800D7CF0 = index + 1;
+    entry->count = count;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005ABA8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005AD64.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005AF14.s")

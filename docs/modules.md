@@ -430,6 +430,10 @@ adapted JFG bodies compiled with the TU's measured bare `-g -mips2 -32` flag
 group. Their linked owned ranges are instruction-word-identical and the full
 ROM retains the expected hash.
 
+In `main/models`, `camConvertMatrixList` (`0x30` bytes) is an exact adapted
+JFG `camera.c` body under the resident `-O2 -mips2 -32` group. Its function
+bytes and relocation identities match in the linked ROM.
+
 ## 4. libultra
 
 ### 4.1 The corridor: ROM `0x6F420`–`0x76D10`
