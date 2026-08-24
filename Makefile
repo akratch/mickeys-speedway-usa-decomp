@@ -3510,16 +3510,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40FadeRecords.c.o: POSTPROCESS = \
 		0x194 589bdc87fe62280529ee5a646c33b324b68ad9bbbf435e5c413b55951377106d \
 		@config/normalizations/overlay40FadeRecords.ops && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Init.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Release.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Resume.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42DrawCapturedBuffer.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5B0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Present.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay_042.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x700
 # The source recovers the full offset-zero initializer. The guarded private
 # register/schedule web selects retail's a2 reservation; the LOCAL D_0 records
 # are loader-owned and the two adjacent O43 calls retain zero-addend symbols.
@@ -7249,11 +7241,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40Interpolate.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40DrawTintRectangle.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40FadeRecords.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Release.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Resume.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42DrawCapturedBuffer.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Present.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay_042.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43InitializeState.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FlushPending.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ReleaseResources.c.o \

@@ -521,11 +521,7 @@ TEXT_SUBSEGMENTS = {
         (0x824, "asm", "overlay_040_padding"),
     ],
     42: [
-        (0x000, "c", "overlay42Init"),
-        (0x058, "c", "overlay42Release"),
-        (0x0D4, "c", "overlay42Resume"),
-        (0x0F4, "c", "overlay42DrawCapturedBuffer"),
-        (0x6A4, "c", "overlay42Present"),
+        (0x000, "c", "overlay_042"),
     ],
     43: [
         (0x0000, "c", "overlay43InitializeState"),
