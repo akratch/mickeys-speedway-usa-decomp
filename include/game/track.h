@@ -37,5 +37,8 @@ typedef struct TrackFog {
 } TrackFog;
 
 extern TrackFog D_800C99C0[4];
+extern s32 D_800C9558;
+
+void trackSkySet(s32 skyDome);
 
 #endif

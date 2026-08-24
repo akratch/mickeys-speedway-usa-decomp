@@ -19,7 +19,10 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BDB4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C400.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C540.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C5E8.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function `trackSkySet`. */
+void trackSkySet(s32 skyDome) {
+    D_800C9558 = skyDome;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C5F4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000CC78.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000CED0.s")
