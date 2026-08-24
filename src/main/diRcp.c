@@ -25,7 +25,10 @@ s32 diRcpReserved0(Gfx *dList, char *name) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpReserved2.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpMoveMem.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpDisplayList.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpStrNameMacro.s")
+/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpStrNameMacro. */
+s32 diRcpStrNameMacro(Gfx *dList, char *name, char *macroName) {
+    return 8;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpPrimColor.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpColor.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpDmaOffsets.s")

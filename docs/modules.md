@@ -395,8 +395,9 @@ functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
 60-byte `func_8004650C` (`diCpuTraceTick`). Their natural return-zero and
 60-tick counter bodies are identical under the resident `-O2 -mips2 -32`
 rule; the getter has no relocations and the tick routine retains both exact
-HI16/LO16 data pairs. The 16-byte JFG `diRcpReserved0` return-eight leaf is
-also exact at the resident defaults, with no relocations.
+HI16/LO16 data pairs. Two JFG `diRcp` return-eight leaves are also exact at
+the resident defaults with no relocations: 16-byte `diRcpReserved0` and
+20-byte `diRcpStrNameMacro`.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
