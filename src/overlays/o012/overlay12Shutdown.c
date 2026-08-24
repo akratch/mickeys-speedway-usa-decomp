@@ -21,6 +21,7 @@ extern void overlay12ReleaseResource(void *resource);
 extern void overlay12ReleaseResourceAlt(void *resource);
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+#ifdef NON_MATCHING
 void func_overlay_012_F00000C4_186D344(void) {
     s32 i;
     Overlay12Entry *entry;
@@ -61,3 +62,6 @@ void func_overlay_012_F00000C4_186D344(void) {
     gOverlay12Count = 0;
     gOverlay12Selection = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o012/overlay12Shutdown/func_overlay_012_F00000C4_186D344.s")
+#endif

@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 273460,
-  "nonmatching_overlay_c_bytes": 3140,
+  "matched_overlay_c_bytes": 272720,
+  "nonmatching_overlay_c_bytes": 3880,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -3986,7 +3986,7 @@
      "type": "c",
      "source": "overlays/o012/overlay12Shutdown",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1B4",
@@ -3995,7 +3995,7 @@
      "type": "c",
      "source": "overlays/o012/overlay12SpawnEffect",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2E4",
@@ -4004,7 +4004,7 @@
      "type": "c",
      "source": "overlays/o012/overlay12SpawnParticle",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x3A8",
