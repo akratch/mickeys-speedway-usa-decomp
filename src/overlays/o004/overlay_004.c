@@ -195,14 +195,12 @@ s32 overlay4GroupCount(Overlay4GroupObject *object) {
     return gOverlay4Groups[state->group].count;
 }
 
-#ifdef NON_MATCHING
 Overlay4SearchObject *overlay4FindCategory2Object(Overlay4SearchKey *key) {
     s32 start;
     s32 end;
     Overlay4SearchObject **objects;
     Overlay4SearchObject *object;
     Overlay4SearchPayload *payload;
-    s32 wantedIdentifier;
     s32 i;
 
     objects = func_overlay_004_F0000000_185A678(&start, &end);
@@ -212,8 +210,7 @@ Overlay4SearchObject *overlay4FindCategory2Object(Overlay4SearchKey *key) {
         if (object->type == 0x30) {
             payload = object->data.payload;
             if (payload->category == 2) {
-                wantedIdentifier = key->identifier;
-                if (wantedIdentifier == payload->identifier) {
+                if (payload->identifier == key->identifier) {
                     return object;
                 }
             }
@@ -221,9 +218,6 @@ Overlay4SearchObject *overlay4FindCategory2Object(Overlay4SearchKey *key) {
     }
     return NULL;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay4FindCategory2Object/func_overlay_004_F0000734_185ADAC.s")
-#endif
 
 void overlay4FindSearchPosition(f32 *outX, f32 *outZ,
                                 Overlay4SearchKey *key,
