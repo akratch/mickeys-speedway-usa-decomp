@@ -1,0 +1,3 @@
+# Retail's runtime-local table is based at overlay +0x2DF0 and this load owns
+# the proved +0x510 element-table addend. The HI remains zero.
+fields:0x20:imm=0x0@0x510

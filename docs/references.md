@@ -8,9 +8,9 @@ whether that baserom's checksum was verified, what the build actually achieved,
 and what it yielded when mined.
 
 **None of this lives in this repository.** The checkouts, their baseroms and
-their build outputs are at `~/Desktop/dev/decomp-refs/` (and, for Diddy Kong
-Racing, `~/Desktop/dev/Diddy-Kong-Racing/`), outside the tree, and are never
-committed. `docs/CLEANROOM.md` is the governing document: these five named
+their build outputs are at `~/Desktop/dev/decomp-refs/`; DKR v80 is additionally
+cross-checked from `~/Desktop/dev/Diddy-Kong-Racing/`. They are outside the tree
+and are never committed. `docs/CLEANROOM.md` is the governing document: these five named
 published retail-derived decompilations are permitted sources for names and,
 with point-of-use `PROVENANCE` disclosure, for adapted bodies. Nothing else is.
 
@@ -81,12 +81,12 @@ An earlier version of this page ran them together and produced a headline
 
 | Title | Commit | Baserom SHA1 verified | Build outcome | Objects | Objects mined | Adopted TUs | Names adopted | Re-confirmed | Corroborations |
 |---|---|---|---|---|---|---|---|---|---|
-| Diddy Kong Racing | (Phase 1) | yes | full match | — | 169 libultra + game | (Phase 1: 80) | (Phase 1: 107 + 32 game) | — | — |
+| Diddy Kong Racing | `38d7f9ba` | yes | **full match** (US v77) | 243 | 223 | (Phase 1: 80) | (Phase 1: 107 + 32 game) | — | — |
 | Jet Force Gemini | `c82affff` | yes | **full match** | 772 | 391 | **84** | **187** | 84 | — |
 | Perfect Dark | `169ed48b` | MD5 (no SHA1 published) | near-full: code links clean with authentic IDO, asset-compression bytes differ | 2546 | 467 | **3** | **3** | 52 | 25 |
 | Banjo-Kazooie | `6eaae281` | yes | **full match** | 1232 | 1105 | **0** | **0** | 73 | 2 |
 | Conker's Bad Fur Day | `3adf2291` | yes | partial: every source file compiles, final link blocked | 1446 | 705 | **0** | **0** | 65 | 8 |
-| **Totals for this pass** | | | | | **2668** | **87** | **190** | *(not recomputable)* | **26 TUs** |
+| **Totals for this pass** | | | | | **2891** | **87** | **190** | *(not recomputable)* | **26 TUs** |
 
 "Objects mined" counts objects with a non-empty `.text` after filtering out
 asset blobs; see *Empty `.text` objects* below for why that filter exists.
@@ -104,16 +104,60 @@ a different claim from adoption and has its own column.
 
 ## Diddy Kong Racing
 
-- Repo: https://github.com/DavidSM64/Diddy-Kong-Racing
-- Checkout: `~/Desktop/dev/Diddy-Kong-Racing/`
-- Built and mined in Phase 1 (Tasks B and D); this file documents it for
-  completeness rather than re-deriving it.
-- Yield in Phase 1: the libultra corridor (107 function names, 80 subsegment
-  boundaries) and 90 game-code match candidates of which 32 were adopted.
-- **Yield when re-run in this pass: superseded, not extended.** DKR whole-matches
-  84 of the corridor's 95 named subsegments. Every name it supports is already
-  in the tree, and the 16 corridor translation units it does *not* whole-match
-  are exactly the ones Jet Force Gemini does. See `docs/modules.md` §4.1.
+- Repo: https://github.com/akratch/Diddy-Kong-Racing.git (the pinned tooling
+  branch of the published https://github.com/DavidSM64/Diddy-Kong-Racing
+  decompilation)
+- Pinned commit: `38d7f9ba39642e2b5311a76e0b83fb3fe2733262`
+- Canonical checkout: `~/Desktop/dev/decomp-refs/diddy-kong-racing/`
+- Version: US v77. Baserom SHA1
+  `0cb115d8716dbbc2922fda38e533b9fe63bb9670`, matching the project's published
+  v77 checksum.
+- Build outcome: **full byte-perfect match**. The 243-object mining surface has
+  digest `917ba733782e07382dd753b50b496c9f8647caec8695f7bca0359a19f0cd763b`.
+- The adjacent working checkout's US v80 object surface is a secondary
+  cross-check at the same commit: 243 objects, digest
+  `91e8524065ba66c094c1107fa7c9ef0d9a9dff4026799a665b59e78dcf3c9243`.
+
+Phase 1 used DKR before the farm was locked. Its yield was the libultra
+corridor (107 function names, 80 subsegment boundaries) and 90 game-code match
+candidates of which 32 were adopted. The pinned v77 rebuild now makes that
+closest-lineage donor reproducible like the other references.
+
+The overlay pass checks **both v77 and v80 before decompiling a module**. Each
+revision gives the same result: one strong hit, one ambiguous hit, 104 negative
+non-empty overlays, and the empty overlay 32. The strong hit is a unique,
+relocation-free 64-byte `alSeqFileNew` at offset zero in Mickey overlay 5. The
+overlay 46 hit is a short relocation-heavy shape that occurs three times in
+the ROM and carries several unrelated DKR names; it is recorded and rejected
+as identification. Negative results are useful here: they show that the games
+share systems and source organization more heavily than they share unchanged
+overlay object code.
+
+Epoch 3 also checked DKR at source level after that exact scan. Its
+`libultra/src/audio/bnkf.c` contains the same bank/instrument/sound/wavetable
+patch graph as Mickey overlay 5 and identifies the required `-O3 -mips2` flag
+family. DKR compiles the graph as one translation unit and inlines calls that
+remain in Mickey, so only `alSeqFileNew` is claimed as an exact donor object;
+the other five Mickey functions are separately bounded and independently
+matched C using DKR as a source/flag crosswalk. This distinction is why the
+object ledger stays sparse even when source similarity is highly productive.
+
+DKR still provides semantic navigation where bytes drift. Mickey overlay 61's
+`MSU-GHOST`, `LOAD GHOST`, `SAVE GHOST`, and Controller Pak UI strings point to
+DKR's `src/save_data.c`, `src/racer.c`, and `src/menu.c`. This is a crosswalk,
+not a match: names are adopted only after Mickey's own call/data flow proves
+them. The exhaustive per-overlay evidence is in
+`config/overlay-donors.us.json` and reproduced by
+`gmake overlay-donors-scan-check`.
+
+The Epoch 3 reproducibility pass ran that scan from the pinned farm rather than
+accepting the committed report. It reproduced all 107 rows for DKR v77, DKR
+v80, and JFG after the derived atlas fingerprint was refreshed.
+
+In the resident re-run, DKR whole-matches 84 of the corridor's 95 named
+subsegments. Every name it supports is already in the tree, and the 16 corridor
+translation units it does *not* whole-match are exactly the ones Jet Force
+Gemini does. See `docs/modules.md` §4.1.
 
 ## Jet Force Gemini: the highest-value reference
 
@@ -127,7 +171,7 @@ a different claim from adoption and has its own column.
 - Objects: 772 total (178 libultra, 214 game code, 213 raw non-matching asm,
   167 asset blobs). 391 mined after filtering.
 
-**Why it is worth more than the other three put together.** JFG and Mickey share
+**Why it was worth more than the other non-DKR donors put together.** JFG and Mickey share
 an engine lineage, a four-module layout, the runtime linker and, it turns
 out, a libultra build. Of the 87 translation units this pass adopted, **84 are
 JFG's**, carrying 187 of the 190 names, and they include all sixteen of the corridor drift runs DKR could not explain,
@@ -140,6 +184,14 @@ JFG's objects carry a quirk worth knowing: `GLOBAL_ASM`-wrapped functions emit
 a second symbol suffixed `.NON_MATCHING` at the same address, sometimes with a
 slightly different size. The mining scripts fold those onto the base name and
 keep the larger size; the symbol file never contains a `.NON_MATCHING` row.
+
+Across Mickey's overlays, JFG yields five strong locations and five ambiguous
+ones. Three strong results carry only generated placeholder names (overlays 5,
+14, and 16) and are not adopted. The useful named results are `refractOutput`
+at overlay 49 text offset `0x354` and the entire 48-byte overlay 107 matching
+JFG's `osRamTest4_6105` object. The latter is both a whole-section and named
+function match; those are two views of one byte range, not two independent
+pieces of evidence.
 
 ## Perfect Dark
 
@@ -214,7 +266,7 @@ keep the larger size; the symbol file never contains a `.NON_MATCHING` row.
 
 ## Empty `.text` objects: a filter the mining pass must keep
 
-Three of the four farm builds contain objects that are valid ELF files with an
+Several farm builds contain objects that are valid ELF files with an
 **empty or absent `.text` section**: 14 in JFG, 29 in Perfect Dark, 110 in
 Banjo-Kazooie, 1 in Conker. Most are legitimately data-only.
 Some are not: the farm build hit a macOS-specific bug in which Apple's
@@ -237,17 +289,21 @@ tools/find_known_objects.py <ref-build-dir> --start 0x1000 --end 0x86640 \
     --sections --rom-occ          # whole-TU matches: file boundaries
 tools/find_known_objects.py <ref-build-dir> --start 0x1000 --end 0x86640 \
     --rom-occ                     # per-function matches
+gmake overlay-donors-scan-check   # DKR v77/v80 + JFG against all overlays
 ```
 
 `<ref-build-dir>` must contain only compiled code objects. The tool globs
 `**/*.o` under one directory and has no exclude option, so restricting a run to
 "libultra only" means building a filtered tree of symlinks outside the repo
 first, noted in `docs/workbench-improvement-log.md` as friction worth fixing.
+The overlay scanner defaults to the farm paths documented above; alternate
+object roots can be supplied with `DKR_V77_OBJECTS`, `DKR_V80_OBJECTS`, and
+`JFG_OBJECTS`.
 
 ## Rebuilding the farm
 
 ```sh
-gmake reference-builds                      # all four, from the locked pins
+gmake reference-builds                      # all five, from the locked pins
 gmake reference-builds REFS_ARGS=jfg        # one title
 gmake check-reference-builds                # compare a farm to the lock
 ```

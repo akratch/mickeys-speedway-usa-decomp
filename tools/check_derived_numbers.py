@@ -16,6 +16,7 @@ Scope is deliberately narrow: only claims this script can derive from first
 principles. It says nothing about whether a name is justified.
 """
 
+import json
 import os
 import re
 import sys
@@ -539,7 +540,7 @@ else:
 
 # --- 7. docs/references.md against tools/reference-builds.lock ---------------
 #
-# The lock is the machine-readable copy of the same four pins docs/references.md
+# The lock is the machine-readable copy of the same pins docs/references.md
 # publishes in prose, and tools/verify_reference_builds.sh checks a farm against
 # the lock. That leaves exactly one gap: prose and lock disagreeing, which would
 # make a green farm check vouch for numbers the page does not actually quote.
@@ -563,9 +564,9 @@ for line in read("tools/reference-builds.lock"):
     if m and section is not None:
         section[m.group(1)] = m.group(2).strip()
 
-if len(lock) != 4:
+if len(lock) != 5:
     problems.append(f"tools/reference-builds.lock: parsed {len(lock)} titles, "
-                    "expected 4 -- the lock was reshaped and check 7 stopped "
+                    "expected 5 -- the lock was reshaped and check 7 stopped "
                     "checking it")
 else:
     refs_text = "".join(read("docs/references.md"))
@@ -582,7 +583,8 @@ else:
     # section map is repeated rather than shared: check 6 only builds it when
     # the symbol file has mining blocks, and this check must not go quiet with
     # it.
-    ROWS = {"Jet Force Gemini": "jfg", "Perfect Dark": "perfect_dark",
+    ROWS = {"Diddy Kong Racing": "diddy-kong-racing",
+            "Jet Force Gemini": "jfg", "Perfect Dark": "perfect_dark",
             "Banjo-Kazooie": "banjo-kazooie",
             "Conker's Bad Fur Day": "conker"}
     for i, line in enumerate(read("docs/references.md"), 1):
@@ -601,77 +603,88 @@ else:
                    f"tools/reference-builds.lock records {want}")
 
 
-# --- 8. the overlay blocks' element counts ----------------------------------
-# mickey.us.yaml splits the overlay region at the four block bases, so 107, 2004
-# and 375 are not facts to be retyped: they are the block sizes divided by the
-# strides include/game/runlink.h proves (0x20, 4, and 8 after the leading u32
-# count word). Both files quote all three, and the 107 in particular is now
-# spread across the yaml, the module map and a header comment.
-#
-# The division is exact for the header and ROM tables. The relocation block ends
-# with four bytes of pad, so 375 is the floor, and the check is floor-equality
-# plus "the entries plus the count word do fit".
+# --- 8. canonical overlay atlas and generated yaml projection ----------------
+# tools/overlay_atlas.py now owns the projection from the shipped tables into
+# 107 module records and 106 non-empty code segments. Check its structural
+# invariants here as well as its prose claims; `overlay-atlas --check` performs
+# the stronger byte-for-byte regeneration check.
 
-OVERLAY_BLOCKS = ("main_reloc_table", "overlay_rom_table",
-                  "overlay_header_table", "overlay_modules")
-SEG_NAME = re.compile(r"^\s*- name: (\S+)\s*$")
-SEG_START = re.compile(r"^\s*start: " + HEX + r"\s*$")
+with open(os.path.join(ROOT, "config", "overlays.us.json"), encoding="utf-8") as fh:
+    atlas = json.load(fh)
+modules = atlas.get("modules", [])
+totals = atlas.get("totals", {})
 
-seg_starts = {}
-pending = None
-for line in read("mickey.us.yaml"):
-    m = SEG_NAME.match(line)
-    if m:
-        pending = m.group(1)
-        continue
-    m = SEG_START.match(line)
-    if m and pending:
-        seg_starts[pending] = int(m.group(1), 16)
-        pending = None
-
-if not all(b in seg_starts for b in OVERLAY_BLOCKS):
-    missing = [b for b in OVERLAY_BLOCKS if b not in seg_starts]
-    problems.append(
-        "mickey.us.yaml: overlay block segment(s) " + ", ".join(missing) +
-        " are gone or renamed -- check 8 cannot derive the overlay counts")
-else:
-    reloc_base = seg_starts["main_reloc_table"]
-    rom_base = seg_starts["overlay_rom_table"]
-    header_base = seg_starts["overlay_header_table"]
-    modules_base = seg_starts["overlay_modules"]
-
-    want = {
-        # regex over both files            derived value
-        r"OverlayHeader\[(\d+)\]": (modules_base - header_base) // 0x20,
-        r"(\d+) overlays\b": (modules_base - header_base) // 0x20,
-        r"RomTableEntry\[(\d+)\]": (header_base - rom_base) // 4,
-        r"RelocTableEntry\[(\d+)\]": (rom_base - reloc_base - 4) // 8,
-    }
-    for pattern, derived in want.items():
-        rx = re.compile(pattern)
-        hits = 0
-        for path in ("docs/modules.md", "mickey.us.yaml", "include/game/runlink.h"):
-            for i, line in enumerate(read(path), 1):
-                for m in rx.finditer(line):
-                    hits += 1
-                    checked += 1
-                    if int(m.group(1)) != derived:
-                        report(path, i,
-                               f"claims {m.group(1)} where the block bases in "
-                               f"mickey.us.yaml give {derived}")
-        if not hits:
-            problems.append(
-                f"no /{pattern}/ claim found in docs/modules.md, mickey.us.yaml "
-                "or include/game/runlink.h -- check 8 is now checking nothing")
-
-    # The relocation block's floor is only meaningful if the entries fit.
+expected_totals = {
+    "modules": 107,
+    "nonempty_modules": 106,
+    "text_bytes": 469264,
+    "data_rodata_bytes": 61312,
+    "bss_bytes": 77680,
+    "module_relocations": 18542,
+    "cross_overlay_relocations": 608,
+    "cross_overlay_edges": 97,
+}
+for key, expected in expected_totals.items():
     checked += 1
-    reloc_count = (rom_base - reloc_base - 4) // 8
-    if 4 + reloc_count * 8 > rom_base - reloc_base:
+    if totals.get(key) != expected:
         problems.append(
-            f"mickey.us.yaml: {reloc_count} RelocTableEntry plus the count word "
-            f"overrun the 0x{rom_base - reloc_base:X}-byte block at "
-            f"0x{reloc_base:X}")
+            f"config/overlays.us.json: totals.{key} is {totals.get(key)!r}, "
+            f"expected {expected}")
+
+checked += 1
+if [m.get("overlay") for m in modules] != list(range(1, 108)):
+    problems.append("config/overlays.us.json: modules do not cover overlays 1..107")
+
+for module in modules:
+    sections = module.get("sections", {})
+    ranges = [sections.get(name, {}) for name in
+              ("text", "data_rodata", "reloc1", "reloc2")]
+    try:
+        starts = [int(row["start"], 0) for row in ranges]
+        ends = [int(row["end"], 0) for row in ranges]
+    except (KeyError, TypeError, ValueError):
+        problems.append(
+            f"config/overlays.us.json: overlay {module.get('overlay')} has an "
+            "invalid section range")
+        continue
+    checked += 1
+    if any(ends[i] != starts[i + 1] for i in range(3)):
+        problems.append(
+            f"config/overlays.us.json: overlay {module['overlay']} sections "
+            "are not contiguous")
+    if starts[0] != int(module["rom"]["start"], 0) or \
+            ends[-1] != int(module["rom"]["end"], 0):
+        problems.append(
+            f"config/overlays.us.json: overlay {module['overlay']} section "
+            "ranges do not span its ROM range")
+
+yaml_text = "\n".join(read("mickey.us.yaml"))
+generated_segments = re.findall(r"^\s*- name: overlay_(\d{3})$", yaml_text,
+                                re.MULTILINE)
+checked += 2
+if len(generated_segments) != totals.get("nonempty_modules"):
+    problems.append(
+        "mickey.us.yaml: generated overlay segment count differs from atlas")
+if "overlay_032 is a real zero-length header row" not in yaml_text:
+    problems.append("mickey.us.yaml: empty overlay 32 is not represented")
+
+claims = {
+    r"OverlayHeader\[(\d+)\]": totals.get("modules"),
+    r"RomTableEntry\[(\d+)\]": totals.get("rom_table_entries"),
+    r"RelocTableEntry\[(\d+)\]": totals.get("resident_relocations"),
+}
+for pattern, expected in claims.items():
+    hits = 0
+    rx = re.compile(pattern)
+    for path in ("docs/modules.md", "include/game/runlink.h"):
+        for i, line in enumerate(read(path), 1):
+            for match in rx.finditer(line):
+                hits += 1
+                checked += 1
+                if int(match.group(1)) != expected:
+                    report(path, i, f"claims {match.group(1)}; atlas has {expected}")
+    if not hits:
+        problems.append(f"no /{pattern}/ claim found; check 8 is checking nothing")
 
 
 # --- verdict ----------------------------------------------------------------

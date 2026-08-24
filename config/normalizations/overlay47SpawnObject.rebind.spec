@@ -1,0 +1,2 @@
+0x094:func_80005768:func_overlay_047_F0000000_1890E18
+0x0b0:func_8005AD64:func_overlay_047_F0000000_1890E18

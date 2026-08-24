@@ -1,0 +1,4 @@
+# IDO chose the adjacent 0x28 home for `state`; retail uses 0x2C.
+# Both operations name the complete store/reload lifetime and assert old/new fields.
+fields:0x10c:imm=40@44
+fields:0x120:imm=40@44

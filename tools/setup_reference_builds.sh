@@ -10,7 +10,7 @@
 #   tools/setup_reference_builds.sh jfg                one title
 #   tools/setup_reference_builds.sh --root DIR         build the farm elsewhere
 #   tools/setup_reference_builds.sh --rom-dir DIR      ROM archive elsewhere
-#   tools/setup_reference_builds.sh --jobs 8           parallelism
+#   tools/setup_reference_builds.sh --jobs 2           parallelism
 #
 # Idempotent: re-running fetches nothing it already has, applies no patch
 # twice, and re-uses whatever make still considers current.
@@ -44,13 +44,14 @@ repo=$(cd "$(dirname "$0")/.." && pwd) || exit 2
 lock=$repo/tools/reference-builds.lock
 root=${REFS_ROOT:-$HOME/Desktop/dev/decomp-refs}
 roms=${REFS_ROM_DIR:-$HOME/Documents/Minerva_Myrient/No-Intro/Nintendo - Nintendo 64 (BigEndian)}
-jobs=4
+jobs=2
 titles=
 
 # Jet Force Gemini's US dump is not in the No-Intro BigEndian set above, which
 # carries only the Europe and Kiosk builds.  Point this at any archive or raw
 # ROM holding the US one; the SHA1 in the lock is what decides.
 jfg_rom=${REFS_JFG_ROM:-$HOME/Desktop/dev/Diddy-Kong-Racing/Jet Force Gemini (USA).zip}
+dkr_rom=${REFS_DKR_ROM:-$roms/Diddy Kong Racing (USA) (En,Fr).zip}
 
 # The IDO compilers.  Each of these four repos ships or builds its own IDO
 # static recompilation and each of them assumes Linux; decompals publishes
@@ -69,7 +70,7 @@ usage: tools/setup_reference_builds.sh [options] [title ...]
   --root DIR      where the farm lives (default $REFS_ROOT, else
                   ~/Desktop/dev/decomp-refs)
   --rom-dir DIR   your own ROM archive (default $REFS_ROM_DIR)
-  --jobs N        make parallelism (default 4)
+  --jobs N        make parallelism (default 2)
   title ...       section names from tools/reference-builds.lock; default all
 
 Exits 0 when every requested title matches the lock, 1 when one does not, 2 on
@@ -336,6 +337,20 @@ build_jfg() {
 	(cd "$dir" && run "$MAKE" "-j$jobs") || die "jfg: build failed"
 }
 
+build_diddy_kong_racing() {
+	local dir=$root/diddy-kong-racing
+	checkout diddy-kong-racing
+	stage_rom diddy-kong-racing "$dkr_rom" baseroms/baserom.us.v77.z64
+	# The pinned checkout supports both v77 and v80. Mickey's matching target
+	# is v77, so the farm always builds that exact object surface explicitly.
+	(cd "$dir" && run "$MAKE" setup) ||
+		die "diddy-kong-racing: make setup failed"
+	(cd "$dir" && run "$MAKE" extract REGION=us VERSION=v77) ||
+		die "diddy-kong-racing: make extract failed"
+	(cd "$dir" && run "$MAKE" "-j$jobs" REGION=us VERSION=v77) ||
+		die "diddy-kong-racing: build failed"
+}
+
 build_perfect_dark() {
 	local dir=$root/perfect_dark gzip_bin capstone ido53 ido71
 	checkout perfect_dark
@@ -525,6 +540,7 @@ for title in $titles; do
 	step "$title ($(field "$title" name)) -- expected outcome: $(field "$title" outcome)"
 	case "$title" in
 	jfg) build_jfg ;;
+	diddy-kong-racing) build_diddy_kong_racing ;;
 	perfect_dark) build_perfect_dark ;;
 	banjo-kazooie) build_banjo_kazooie ;;
 	conker) build_conker ;;

@@ -1,0 +1,2 @@
+0x14:5:gOverlay41ColorRecords
+0x28:6:gOverlay41ColorRecords

@@ -1,0 +1,122 @@
+#include "PR/ultratypes.h"
+
+typedef struct Overlay84Meta {
+    u8 pad00[0x10];
+    u8 slot;
+} Overlay84Meta;
+
+typedef struct Overlay84Node {
+    s16 angle;
+    s16 tilt;
+    u8 pad04[8];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x24];
+    Overlay84Meta *meta;
+    u8 pad40[4];
+    s16 kind;
+} Overlay84Node;
+
+typedef struct Overlay84State {
+    u8 initialized;
+    s8 current;
+    s8 last;
+    u8 pad03;
+    u8 phase;
+    u8 timer;
+    u8 pad06;
+    s8 counter;
+    u8 pad08;
+    u8 mode;
+    u8 pad0A[6];
+    s16 tilt;
+    s16 targetTilt;
+    u8 pad14[2];
+    s16 angle;
+    u8 pad18[8];
+    u32 nodeAngle;
+    f32 height;
+    f32 targetHeight;
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad3C[8];
+    Overlay84Node *nodes[32];
+    u8 padC4;
+    u8 active;
+} Overlay84State;
+
+typedef struct Overlay84Object {
+    u8 pad00[0x0C];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x4C];
+    Overlay84State *state;
+} Overlay84Object;
+
+extern Overlay84Node **overlay84GetNodes(s32 *start, s32 *end);
+extern s32 overlay84Atan2(f32 x, f32 z);
+extern void overlay84RefreshCurrent(Overlay84Object *, Overlay84State *, s32);
+extern void overlay84UpdateCurrent(Overlay84Object *, Overlay84State *, s32);
+extern void overlay84UpdateResource(Overlay84Object *, Overlay84State *, s32);
+
+void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
+    Overlay84State *state;
+    Overlay84Node **nodes;
+    Overlay84Node *node;
+    s32 start;
+    s32 end;
+    s32 i;
+    s32 slot;
+    s16 tilt;
+
+    state = object->state;
+    if (state->initialized == 0) {
+        nodes = overlay84GetNodes(&start, &end);
+        for (i = start; i < end; i++) {
+            node = nodes[i];
+            if (node->kind == 0x33) {
+                slot = node->meta->slot;
+                if (state->last < slot) {
+                    state->last = slot;
+                }
+                state->nodes[slot] = node;
+            }
+        }
+
+        node = state->nodes[0];
+        if (node != 0) {
+            state->angle = overlay84Atan2(node->x - object->x,
+                                          node->z - object->z);
+            tilt = -node->tilt;
+            state->targetTilt = tilt;
+            state->tilt = tilt;
+            state->nodeAngle = node->angle;
+            state->phase = 0;
+            state->timer = 0;
+            state->scale = 1.0f;
+            state->height = state->targetHeight = node->y;
+            state->x = node->x;
+            state->y = node->y;
+            state->z = node->z;
+        }
+        state->initialized = 1;
+        state->mode = 0;
+    }
+
+    switch (state->mode) {
+    case 1:
+        overlay84RefreshCurrent(object, state, arg);
+        break;
+    case 2:
+        overlay84UpdateCurrent(object, state, arg);
+        break;
+    case 3:
+        overlay84UpdateResource(object, state, arg);
+        break;
+    }
+    state->active = 1;
+}

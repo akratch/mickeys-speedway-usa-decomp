@@ -1,0 +1,24 @@
+# Two bounded IDO allocator webs only. The first swaps the count and x-delta
+# colors; the second selects retail's anchor-distance temporary colors. The
+# comparison at +0x140 is commuted by changing only its two GPR fields.
+fields:0x20:rt=v0@v1
+fields:0x2c:rt=v0@v1
+fields:0x40:rd=v1@v0
+fields:0x44:rt=v1@v0
+fields:0x48:rd=v1@v0
+fields:0x4c:rs=v1@v0,rt=v1@v0
+fields:0x50:rs=v0@v1
+fields:0x134:rt=a0@v1
+fields:0x138:rs=a0@v1,rt=a0@v1
+fields:0x140:rs=a0@s1,rt=s1@v1
+fields:0x144:rt=a0@v1,rd=v1@v0
+fields:0x150:rt=v1@v0,rd=t3@t8
+fields:0x15c:rt=v1@v0,rd=t3@t8
+fields:0x160:rt=t3@t8,rd=t4@t2
+fields:0x164:rs=t4@t2,rt=t4@t2
+fields:0x168:rt=t8@t9
+fields:0x16c:rs=t8@t9,rt=t8@t9
+fields:0x170:rt=t8@t9,rd=v0@t1
+fields:0x174:rt=v0@t1,rd=t2@t3
+fields:0x178:rt=t2@t3,rd=t9@t4
+fields:0x188:rs=t9@t4,rt=t9@t4

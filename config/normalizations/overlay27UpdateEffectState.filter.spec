@@ -1,0 +1,10 @@
+0x030:5:gO27Active
+0x064:6:gO27Active
+0x090:5:gO27Scale0
+0x094:6:gO27Scale0
+0x0D8:5:gO27EaseInput
+0x0EC:6:gO27EaseInput
+0x0F8:5:gO27Scale8
+0x0FC:6:gO27Scale8
+0x3A4:5:gO27ScaleC
+0x3A8:6:gO27ScaleC

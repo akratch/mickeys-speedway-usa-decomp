@@ -1,0 +1,4 @@
+0x8:5:gOverlay41Slots
+0xc:6:gOverlay41Slots
+0x98:5:.rodata
+0xa0:6:.rodata

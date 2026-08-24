@@ -1,0 +1,11 @@
+# Complete private compiler-representation webs.
+# IDO reserves an otherwise unused 0x18-byte frame tail above the 13-word
+# chunk array; shrink the frame and move both array-base materializations.
+fields:0x0:imm=0xff58@0xff70
+fields:0x48:imm=0x74@0x5c
+fields:0xd0:imm=0x74@0x5c
+fields:0x214:imm=0xa8@0x90
+# Complete polygon-count allocation web: definition and both uses.
+fields:0x124:rd=a0@v1
+fields:0x174:rt=a0@v1
+fields:0x194:rs=a0@v1

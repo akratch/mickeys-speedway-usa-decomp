@@ -1,0 +1,10 @@
+fields:0x48:rt=10@16,rd=16@10
+fields:0x6c:rd=16@10
+fields:0x74:rd=16@10,sa=10@16
+fields:0x78:rt=10@16
+fields:0xb0:rt=16@10
+fields:0xb8:rd=16@10,sa=10@16
+fields:0xbc:rd=10@16
+fields:0xe4:sa=16@10
+fields:0xe8:rt=16@10,sa=10@16
+fields:0xec:rt=10@16

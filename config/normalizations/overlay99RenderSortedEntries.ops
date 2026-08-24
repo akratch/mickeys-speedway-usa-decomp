@@ -1,0 +1,26 @@
+# The four-element sorted-entry pointer array is one complete local object.
+fields:0x64:imm=144@128
+fields:0xf4:imm=144@128
+fields:0x114:imm=144@128
+fields:0x118:imm=148@132
+fields:0x130:imm=144@128
+fields:0x134:imm=148@132
+fields:0x2a8:imm=144@128
+
+# Complete first-call temporary spill ownership.
+fields:0x98:imm=92@96
+fields:0xa0:imm=96@100
+fields:0xa4:imm=96@100
+fields:0xa8:imm=92@96
+
+# The target's private constant table owns these addends in shipped assets.
+fields:0x21c:imm=0@4
+fields:0x264:imm=0@8
+
+# Preserve both command constants while matching their adjacent target order,
+# then normalize their complete definition/use register webs.
+reorder:0x298=0x29c,0x29c=0x298
+fields:0x298:rt=t8@t7
+fields:0x29c:rt=t7@t8
+fields:0x2d0:rt=t7@t8
+fields:0x2d8:rt=t8@t7

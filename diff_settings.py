@@ -3,8 +3,8 @@
 `./diff.sh <symbol>` disassembles <symbol> out of the baserom and out of the
 freshly built ROM and shows the two side by side; a matched function shows no
 differing lines. Useful flags: -m (rebuild first), -o (compare objects rather
-than the whole ROM), -w (re-diff on file change), -s (interleave C source),
--3 (three-way against expected/).
+than the whole ROM), -s (interleave C source), and -3 (three-way against
+expected/). Do not use -w watch mode on the occupied workstation.
 """
 
 
@@ -27,5 +27,8 @@ def apply(config, args):
 
     # -m rebuilds before diffing. `gmake` (not `make`): the build relies on GNU
     # make's two-phase recursive `all` target, and macOS ships make 3.81 as
-    # `make`. -j8 mirrors the documented build invocation.
-    config["make_command"] = ["gmake", "-j8", *config.get("makeflags", [])]
+    # `make`. Keep agent-triggered rebuilds low priority and capped at two jobs
+    # so an interactive workstation remains responsive.
+    config["make_command"] = [
+        "nice", "-n", "10", "gmake", *config.get("makeflags", []), "-j2"
+    ]

@@ -1,0 +1,4 @@
+0x50:5:gOverlay92MaximumDistance
+0x54:6:gOverlay92MaximumDistance
+0x1b0:5:gOverlay92Interpolation
+0x1b4:6:gOverlay92Interpolation

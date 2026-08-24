@@ -1,0 +1,10 @@
+0x2c:5:gOverlay14DataBase
+0x60:6:gOverlay14DataBase
+0xdc:5:gOverlay14Entries
+0xe0:6:gOverlay14Entries
+0x174:5:gOverlay14Entries
+0x178:6:gOverlay14Entries
+0x218:5:gOverlay14Entries
+0x21c:6:gOverlay14Entries
+0x284:5:gOverlay14Entries
+0x288:6:gOverlay14Entries

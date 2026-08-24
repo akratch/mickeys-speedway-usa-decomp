@@ -1,0 +1,5 @@
+0xa4:mathRnd:func_overlay_079_F0000000_18CCFA0
+0xc0:mathRnd:func_overlay_079_F0000000_18CCFA0
+0xd4:func_8002A8C0:func_overlay_079_F0000000_18CCFA0
+0xf0:func_8002A8BC:func_overlay_079_F0000000_18CCFA0
+0x118:func_8005AD64:func_overlay_079_F0000000_18CCFA0

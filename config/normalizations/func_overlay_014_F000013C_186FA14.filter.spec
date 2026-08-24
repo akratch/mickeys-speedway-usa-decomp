@@ -1,0 +1,10 @@
+0x28:5:gOverlay14Context10C
+0x2c:6:gOverlay14Context10C
+0x94:5:gOverlay14OffsetsF4
+0x9c:6:gOverlay14OffsetsF4
+0x194:5:gOverlay14Field110
+0x19c:6:gOverlay14Field110
+0x1a4:5:gOverlay14Field114
+0x1a8:6:gOverlay14Field114
+0x1bc:5:gOverlay14StateC4
+0x1c0:6:gOverlay14StateC4

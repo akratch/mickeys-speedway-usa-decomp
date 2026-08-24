@@ -136,8 +136,9 @@ def fixtures(raw):
         f"0x{w:08x}-0x{(w + 4) & 0xffffffff:08x}" for w in words))
 
     # -- 16-bit halves ----------------------------------------------------
-    # Volume, not adjacency, is the discriminator (see HALF_PAIR_MIN).  Every
-    # one of these defeated an earlier, narrower rule.
+    # Volume plus file density, not adjacency, is the discriminator (see
+    # HALF_PAIR_MIN and HALF_PAIR_MIN_PER_KIB).  Every one of these defeated an
+    # earlier, narrower rule.
     add("halves_spaced", " ".join(
         f"{w >> 16:04x} {w & 0xffff:04x}" for w in words))
     add("halves_comma", ",".join(

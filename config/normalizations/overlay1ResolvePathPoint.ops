@@ -1,0 +1,8 @@
+# Two complete independent-instruction scheduling permutations.
+reorder:0x90=0x94,0x94=0x90
+reorder:0x148=0x14c,0x14c=0x150,0x150=0x148
+# Three bounded allocation fields: saved record base and doubled-product web.
+fields:0x124:rs=v0@s4
+fields:0x150:rs=v0@s4
+fields:0x1c8:rd=v0@v1
+fields:0x1cc:rs=v0@v1

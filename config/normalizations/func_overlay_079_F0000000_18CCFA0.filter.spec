@@ -1,0 +1,2 @@
+0x18:5:gOverlay79InitScaleReloc
+0x1c:6:gOverlay79InitScaleReloc

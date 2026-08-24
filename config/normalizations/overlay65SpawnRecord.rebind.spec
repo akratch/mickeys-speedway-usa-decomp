@@ -1,0 +1,4 @@
+0x0cc:o65RandomRange:func_overlay_065_F0000000_18C4268
+0x0e8:o65RandomRange:func_overlay_065_F0000000_18C4268
+0x104:o65RandomRange:func_overlay_065_F0000000_18C4268
+0x11c:o65RandomRange:func_overlay_065_F0000000_18C4268

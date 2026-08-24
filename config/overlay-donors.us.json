@@ -1,0 +1,2086 @@
+{
+  "schema_version": 1,
+  "generated_by": "tools/overlay_donor_scan.py",
+  "atlas": {
+    "path": "config/overlays.us.json",
+    "sha256": "c22cc110ef177b2e9984209a8bad7aca4c02ec466ac6ea4a0c92e29d9f36f8fb",
+    "rom_sha1": "507341c0a40ca3e9a7cee969b396ee53facfb548",
+    "modules": 107
+  },
+  "scan_policy": {
+    "scope": "all non-empty overlay text ranges",
+    "minimum_symbol_size": 24,
+    "maximum_search_occurrences": 4,
+    "strong": "unique in selected ranges and unique in the full ROM",
+    "adoption": "A strong byte match proves shared code, but placeholder names are never promoted and named candidates still require provenance."
+  },
+  "donors": [
+    {
+      "id": "dkr-us-v77",
+      "project": "Diddy Kong Racing",
+      "repo": "https://github.com/akratch/Diddy-Kong-Racing.git",
+      "version": "us.v77",
+      "baserom_sha1": "0cb115d8716dbbc2922fda38e533b9fe63bb9670",
+      "role": "primary same-lineage donor; pinned 100% matching revision",
+      "commit": "38d7f9ba39642e2b5311a76e0b83fb3fe2733262",
+      "object_count": 243,
+      "mining_surface_digest": "917ba733782e07382dd753b50b496c9f8647caec8695f7bca0359a19f0cd763b",
+      "summary": {
+        "strong": 1,
+        "ambiguous": 1,
+        "none": 104,
+        "empty": 1
+      },
+      "overlay_results": [
+        {
+          "overlay": 1,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 2,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 3,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 4,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 5,
+          "status": "strong",
+          "candidates": [
+            {
+              "overlay": 5,
+              "text_offset": "0x0",
+              "rom": "0x185B428",
+              "size": 64,
+              "symbol": "alSeqFileNew",
+              "name_quality": "named",
+              "reference_object": "libultra/src/audio/bnkf.c.o",
+              "masked_words": 0,
+              "search_occurrences": 1,
+              "rom_occurrences": "1",
+              "classification": "strong"
+            }
+          ]
+        },
+        {
+          "overlay": 6,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 7,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 8,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 9,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 10,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 11,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 12,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 13,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 14,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 15,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 16,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 17,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 18,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 19,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 20,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 21,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 22,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 23,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 24,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 25,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 26,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 27,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 28,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 29,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 30,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 31,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 32,
+          "status": "empty",
+          "candidates": []
+        },
+        {
+          "overlay": 33,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 34,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 35,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 36,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 37,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 38,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 39,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 40,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 41,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 42,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 43,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 44,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 45,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 46,
+          "status": "ambiguous",
+          "candidates": [
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "audioStartThread",
+              "name_quality": "named",
+              "reference_object": "src/audiomgr.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "audioStopThread",
+              "name_quality": "named",
+              "reference_object": "src/audiomgr.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "bootscreen_free",
+              "name_quality": "named",
+              "reference_object": "src/menu.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "bgload_kill",
+              "name_quality": "named",
+              "reference_object": "src/thread30_bgload.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            }
+          ]
+        },
+        {
+          "overlay": 47,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 48,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 49,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 50,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 51,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 52,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 53,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 54,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 55,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 56,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 57,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 58,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 59,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 60,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 61,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 62,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 63,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 64,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 65,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 66,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 67,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 68,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 69,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 70,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 71,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 72,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 73,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 74,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 75,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 76,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 77,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 78,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 79,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 80,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 81,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 82,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 83,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 84,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 85,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 86,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 87,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 88,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 89,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 90,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 91,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 92,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 93,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 94,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 95,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 96,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 97,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 98,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 99,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 100,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 101,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 102,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 103,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 104,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 105,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 106,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 107,
+          "status": "none",
+          "candidates": []
+        }
+      ]
+    },
+    {
+      "id": "dkr-us-v80",
+      "project": "Diddy Kong Racing",
+      "repo": "https://github.com/akratch/Diddy-Kong-Racing.git",
+      "version": "us.v80",
+      "baserom_sha1": null,
+      "role": "secondary revision cross-check",
+      "commit": "38d7f9ba39642e2b5311a76e0b83fb3fe2733262",
+      "object_count": 243,
+      "mining_surface_digest": "91e8524065ba66c094c1107fa7c9ef0d9a9dff4026799a665b59e78dcf3c9243",
+      "summary": {
+        "strong": 1,
+        "ambiguous": 1,
+        "none": 104,
+        "empty": 1
+      },
+      "overlay_results": [
+        {
+          "overlay": 1,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 2,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 3,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 4,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 5,
+          "status": "strong",
+          "candidates": [
+            {
+              "overlay": 5,
+              "text_offset": "0x0",
+              "rom": "0x185B428",
+              "size": 64,
+              "symbol": "alSeqFileNew",
+              "name_quality": "named",
+              "reference_object": "libultra/src/audio/bnkf.c.o",
+              "masked_words": 0,
+              "search_occurrences": 1,
+              "rom_occurrences": "1",
+              "classification": "strong"
+            }
+          ]
+        },
+        {
+          "overlay": 6,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 7,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 8,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 9,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 10,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 11,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 12,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 13,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 14,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 15,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 16,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 17,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 18,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 19,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 20,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 21,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 22,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 23,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 24,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 25,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 26,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 27,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 28,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 29,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 30,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 31,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 32,
+          "status": "empty",
+          "candidates": []
+        },
+        {
+          "overlay": 33,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 34,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 35,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 36,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 37,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 38,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 39,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 40,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 41,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 42,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 43,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 44,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 45,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 46,
+          "status": "ambiguous",
+          "candidates": [
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "audioStartThread",
+              "name_quality": "named",
+              "reference_object": "src/audiomgr.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "audioStopThread",
+              "name_quality": "named",
+              "reference_object": "src/audiomgr.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "bootscreen_free",
+              "name_quality": "named",
+              "reference_object": "src/menu.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "bgload_kill",
+              "name_quality": "named",
+              "reference_object": "src/thread30_bgload.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            }
+          ]
+        },
+        {
+          "overlay": 47,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 48,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 49,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 50,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 51,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 52,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 53,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 54,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 55,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 56,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 57,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 58,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 59,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 60,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 61,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 62,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 63,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 64,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 65,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 66,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 67,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 68,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 69,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 70,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 71,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 72,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 73,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 74,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 75,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 76,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 77,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 78,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 79,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 80,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 81,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 82,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 83,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 84,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 85,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 86,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 87,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 88,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 89,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 90,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 91,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 92,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 93,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 94,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 95,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 96,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 97,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 98,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 99,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 100,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 101,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 102,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 103,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 104,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 105,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 106,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 107,
+          "status": "none",
+          "candidates": []
+        }
+      ]
+    },
+    {
+      "id": "jfg-us",
+      "project": "Jet Force Gemini",
+      "repo": "https://github.com/Ryan-Myers/Jet-Force-Gemini",
+      "version": "us",
+      "baserom_sha1": "493ced9008dbe932d6e91179b68e8630cf23a023",
+      "role": "same runtime-linker family and overlay-layout donor",
+      "commit": "c82affffe8f11cb5b440cfa918f4582ad8573279",
+      "object_count": 772,
+      "mining_surface_digest": "8c4036b7e2404e989e010ba899331a1dfe972b0d570e8c9535d7fde53788585d",
+      "summary": {
+        "strong": 5,
+        "ambiguous": 5,
+        "none": 96,
+        "empty": 1
+      },
+      "overlay_results": [
+        {
+          "overlay": 1,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 2,
+          "status": "ambiguous",
+          "candidates": [
+            {
+              "overlay": 2,
+              "text_offset": "0x121C",
+              "rom": "0x1858014",
+              "size": 32,
+              "symbol": "osMotorStart",
+              "name_quality": "named",
+              "reference_object": "libultra/src/io/motor.c.o",
+              "masked_words": 1,
+              "search_occurrences": 2,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 2,
+              "text_offset": "0x121C",
+              "rom": "0x1858014",
+              "size": 32,
+              "symbol": "CreateBSPFromRegion",
+              "name_quality": "named",
+              "reference_object": "src/overlays/o142/overlay_142.c.o",
+              "masked_words": 1,
+              "search_occurrences": 2,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            }
+          ]
+        },
+        {
+          "overlay": 3,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 4,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 5,
+          "status": "strong",
+          "candidates": [
+            {
+              "overlay": 5,
+              "text_offset": "0x2E4",
+              "rom": "0x185B70C",
+              "size": 56,
+              "symbol": "func_overlay_25_019002D0_1F43BA8",
+              "name_quality": "placeholder",
+              "reference_object": "src/overlays/o25/overlay_25.c.o",
+              "masked_words": 1,
+              "search_occurrences": 1,
+              "rom_occurrences": "1",
+              "classification": "strong"
+            }
+          ]
+        },
+        {
+          "overlay": 6,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 7,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 8,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 9,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 10,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 11,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 12,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 13,
+          "status": "ambiguous",
+          "candidates": [
+            {
+              "overlay": 13,
+              "text_offset": "0xB0C",
+              "rom": "0x186F624",
+              "size": 36,
+              "symbol": "_AutoExit00001",
+              "name_quality": "placeholder",
+              "reference_object": "src/overlays/o1/overlay_1.c.o",
+              "masked_words": 1,
+              "search_occurrences": 3,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            }
+          ]
+        },
+        {
+          "overlay": 14,
+          "status": "strong",
+          "candidates": [
+            {
+              "overlay": 14,
+              "text_offset": "0xB40",
+              "rom": "0x1870418",
+              "size": 28,
+              "symbol": "func_overlay_7_00700DF0_1EFBF18",
+              "name_quality": "placeholder",
+              "reference_object": "src/overlays/o7/overlay_7.c.o",
+              "masked_words": 0,
+              "search_occurrences": 1,
+              "rom_occurrences": "1",
+              "classification": "strong"
+            }
+          ]
+        },
+        {
+          "overlay": 15,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 16,
+          "status": "strong",
+          "candidates": [
+            {
+              "overlay": 16,
+              "text_offset": "0x0",
+              "rom": "0x1873498",
+              "size": 140,
+              "symbol": "func_overlay_27_01B00000_1F45710",
+              "name_quality": "placeholder",
+              "reference_object": "src/overlays/o27/overlay_27.c.o",
+              "masked_words": 0,
+              "search_occurrences": 1,
+              "rom_occurrences": "1",
+              "classification": "strong"
+            }
+          ]
+        },
+        {
+          "overlay": 17,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 18,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 19,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 20,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 21,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 22,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 23,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 24,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 25,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 26,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 27,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 28,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 29,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 30,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 31,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 32,
+          "status": "empty",
+          "candidates": []
+        },
+        {
+          "overlay": 33,
+          "status": "ambiguous",
+          "candidates": [
+            {
+              "overlay": 33,
+              "text_offset": "0x708",
+              "rom": "0x1880EF0",
+              "size": 36,
+              "symbol": "_AutoExit00001",
+              "name_quality": "placeholder",
+              "reference_object": "src/overlays/o1/overlay_1.c.o",
+              "masked_words": 1,
+              "search_occurrences": 3,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            }
+          ]
+        },
+        {
+          "overlay": 34,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 35,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 36,
+          "status": "ambiguous",
+          "candidates": [
+            {
+              "overlay": 36,
+              "text_offset": "0x1470",
+              "rom": "0x1884928",
+              "size": 32,
+              "symbol": "osMotorStop",
+              "name_quality": "named",
+              "reference_object": "libultra/src/io/motor.c.o",
+              "masked_words": 1,
+              "search_occurrences": 1,
+              "rom_occurrences": "2",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 36,
+              "text_offset": "0x1490",
+              "rom": "0x1884948",
+              "size": 32,
+              "symbol": "osMotorStart",
+              "name_quality": "named",
+              "reference_object": "libultra/src/io/motor.c.o",
+              "masked_words": 1,
+              "search_occurrences": 2,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 36,
+              "text_offset": "0x1490",
+              "rom": "0x1884948",
+              "size": 32,
+              "symbol": "CreateBSPFromRegion",
+              "name_quality": "named",
+              "reference_object": "src/overlays/o142/overlay_142.c.o",
+              "masked_words": 1,
+              "search_occurrences": 2,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            }
+          ]
+        },
+        {
+          "overlay": 37,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 38,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 39,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 40,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 41,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 42,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 43,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 44,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 45,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 46,
+          "status": "ambiguous",
+          "candidates": [
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "amGo",
+              "name_quality": "named",
+              "reference_object": "src/audiomgr.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "amStop",
+              "name_quality": "named",
+              "reference_object": "src/audiomgr.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "func_overlay_19_01300944_1F3A874",
+              "name_quality": "placeholder",
+              "reference_object": "src/overlays/o19/overlay_19.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            },
+            {
+              "overlay": 46,
+              "text_offset": "0x112C",
+              "rom": "0x188F524",
+              "size": 36,
+              "symbol": "frontMapCleanupWorldIcons",
+              "name_quality": "named",
+              "reference_object": "src/overlays/o9/overlay_9.c.o",
+              "masked_words": 3,
+              "search_occurrences": 1,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            }
+          ]
+        },
+        {
+          "overlay": 47,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 48,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 49,
+          "status": "strong",
+          "candidates": [
+            {
+              "overlay": 49,
+              "text_offset": "0x354",
+              "rom": "0x1896764",
+              "size": 44,
+              "symbol": "refractOutput",
+              "name_quality": "named",
+              "reference_object": "src/overlays/o2/overlay_2.c.o",
+              "masked_words": 1,
+              "search_occurrences": 1,
+              "rom_occurrences": "1",
+              "classification": "strong"
+            },
+            {
+              "overlay": 49,
+              "text_offset": "0x354",
+              "rom": "0x1896764",
+              "size": 36,
+              "symbol": "_AutoExit00001",
+              "name_quality": "placeholder",
+              "reference_object": "src/overlays/o1/overlay_1.c.o",
+              "masked_words": 1,
+              "search_occurrences": 3,
+              "rom_occurrences": "3",
+              "classification": "ambiguous"
+            }
+          ]
+        },
+        {
+          "overlay": 50,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 51,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 52,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 53,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 54,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 55,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 56,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 57,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 58,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 59,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 60,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 61,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 62,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 63,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 64,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 65,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 66,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 67,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 68,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 69,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 70,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 71,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 72,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 73,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 74,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 75,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 76,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 77,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 78,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 79,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 80,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 81,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 82,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 83,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 84,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 85,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 86,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 87,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 88,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 89,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 90,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 91,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 92,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 93,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 94,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 95,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 96,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 97,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 98,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 99,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 100,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 101,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 102,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 103,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 104,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 105,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 106,
+          "status": "none",
+          "candidates": []
+        },
+        {
+          "overlay": 107,
+          "status": "strong",
+          "candidates": [
+            {
+              "overlay": 107,
+              "text_offset": "0x0",
+              "rom": "0x18F1FB0",
+              "size": 48,
+              "symbol": ".text",
+              "name_quality": "whole_text",
+              "reference_object": "src/overlays/o156/overlay_156.c.o",
+              "masked_words": 2,
+              "search_occurrences": 1,
+              "rom_occurrences": "1",
+              "classification": "strong"
+            },
+            {
+              "overlay": 107,
+              "text_offset": "0x0",
+              "rom": "0x18F1FB0",
+              "size": 48,
+              "symbol": "osRamTest4_6105",
+              "name_quality": "named",
+              "reference_object": "src/overlays/o156/overlay_156.c.o",
+              "masked_words": 2,
+              "search_occurrences": 1,
+              "rom_occurrences": "1",
+              "classification": "strong"
+            },
+            {
+              "overlay": 107,
+              "text_offset": "0x0",
+              "rom": "0x18F1FB0",
+              "size": 40,
+              "symbol": "osRamTest4_6105",
+              "name_quality": "named",
+              "reference_object": "src/overlays/o156/overlay_156.c.o",
+              "masked_words": 2,
+              "search_occurrences": 1,
+              "rom_occurrences": "1",
+              "classification": "strong"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "semantic_findings": [
+    {
+      "overlay": 61,
+      "classification": "semantic",
+      "finding": "ghost save/load and Controller Pak UI",
+      "mickey_evidence": "overlay data contains MSU-GHOST, PAK PAGE, LOAD GHOST, SAVE GHOST, PAK ERROR, and PAK FULL",
+      "dkr_crosswalk": [
+        "src/save_data.c",
+        "src/racer.c",
+        "src/menu.c"
+      ],
+      "constraint": "workflow lead only; not an exact byte match"
+    }
+  ]
+}

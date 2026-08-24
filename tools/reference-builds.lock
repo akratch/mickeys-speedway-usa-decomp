@@ -1,6 +1,6 @@
 # Reference build lock.
 #
-# The tier-A names in this tree were mined from the built objects of four other
+# The tier-A names in this tree were mined from the built objects of other
 # Rare decompilations (docs/references.md).  None of that material is in this
 # repository and none of it ever will be; what is recorded here is the recipe
 # and the checksums, so a farm rebuilt from scratch can be proved to be the one
@@ -40,6 +40,18 @@ outcome      = full
 objects      = 772
 object_roots = build
 digest       = 8c4036b7e2404e989e010ba899331a1dfe972b0d570e8c9535d7fde53788585d
+
+[diddy-kong-racing]
+name         = Diddy Kong Racing
+repo         = https://github.com/akratch/Diddy-Kong-Racing.git
+commit       = 38d7f9ba39642e2b5311a76e0b83fb3fe2733262
+version      = us.v77
+baserom      = Diddy Kong Racing (USA) (En,Fr).z64
+baserom_sha1 = 0cb115d8716dbbc2922fda38e533b9fe63bb9670
+outcome      = full
+objects      = 243
+object_roots = build
+digest       = 917ba733782e07382dd753b50b496c9f8647caec8695f7bca0359a19f0cd763b
 
 [perfect_dark]
 name         = Perfect Dark

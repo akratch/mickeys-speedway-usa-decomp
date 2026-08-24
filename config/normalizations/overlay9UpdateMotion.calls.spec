@@ -1,0 +1,12 @@
+# The split target carries one raw call symbol; runtime identities remain in
+# Overlay 9's original loader relocation table.
+0x090:ext_o0_214c8:func_overlay_009_F0000000_1866678
+0x12c:ext_o0_2a5bc:func_overlay_009_F0000000_1866678
+0x174:ext_o0_2a5bc:func_overlay_009_F0000000_1866678
+0x1f8:ext_o0_2a470:func_overlay_009_F0000000_1866678
+0x20c:ext_o0_2a46c:func_overlay_009_F0000000_1866678
+0x21c:ext_o0_2a470:func_overlay_009_F0000000_1866678
+0x22c:ext_o0_2a46c:func_overlay_009_F0000000_1866678
+0x31c:ext_o0_2a470:func_overlay_009_F0000000_1866678
+0x32c:ext_o0_2a46c:func_overlay_009_F0000000_1866678
+0x424:ext_o0_2a5bc:func_overlay_009_F0000000_1866678

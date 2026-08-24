@@ -1,0 +1,37 @@
+# Restore the two independent initializations to the retail delay-slot schedule.
+reorder:0x28=0x30,0x30=0x28
+
+# The natural IDO object reserves eight unused top-of-frame bytes.
+fields:0x0:imm=0xff98@0xffa0
+fields:0x178:imm=0x68@0x60
+
+# Complete peer/peer-state private representation web.
+fields:0x38:rd=s0@s1
+fields:0x48:rt=s1@s0
+fields:0x50:rs=s1@s0
+fields:0x60:rs=s1@s0
+fields:0x74:rs=s1@s0
+fields:0x84:rs=s0@s1
+fields:0xa0:rs=s0@s1
+fields:0xb4:rs=s0@s1
+fields:0xb8:rt=s0@s1
+fields:0xd0:rs=s1@s0
+fields:0xe8:rd=s0@s1
+
+# Complete post-loop scratch-register representation web.
+fields:0xec:rt=t6@t7
+fields:0xf0:rs=t6@t7
+fields:0xf8:rt=t0@t1
+fields:0x110:rt=t7@t8
+fields:0x114:rs=t7@t8
+fields:0x124:rt=t8@t9
+fields:0x128:rt=t9@t0
+fields:0x12c:rt=t9@t0
+fields:0x134:rt=t8@t9
+fields:0x138:rt=t0@t1
+fields:0x13c:rt=t3@t4
+fields:0x140:rs=t0@t1,rt=t1@t2
+fields:0x144:rs=t1@t2,rt=t2@t3
+fields:0x148:rs=t2@t3
+fields:0x14c:rt=t1@t2
+fields:0x150:rt=t3@t4

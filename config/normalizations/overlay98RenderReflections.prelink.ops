@@ -1,0 +1,5 @@
+# Convert runtime-local addends carried by the semantic source into the exact
+# zero-addend static proxy form used by the split assembly object. The linker
+# aliases below supply the same final 0x88 and 0x80000000 values.
+set:0xac:imm:0x88:0
+set:0x400:imm:0x8000:0

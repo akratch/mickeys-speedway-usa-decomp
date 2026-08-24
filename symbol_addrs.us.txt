@@ -160,6 +160,41 @@ strchr = 0x800717C4; // type:func size:0x40
 // compiled C. Its address is read straight out of the ROM's own %hi/%lo
 // pair; the name comes from the relocation record of the reference object.
 __osActiveQueue = 0x8008086C;
+// C-owned SDK data now exposes the canonical names; these aliases retain the
+// anonymous spellings still used by resident assembly until those callers are
+// decompiled.  Addresses are the ROM's own relocation targets.
+D_80080860 = 0x80080860;
+D_80080868 = 0x80080868;
+D_80080870 = 0x80080870;
+D_80080874 = 0x80080874;
+D_80080880 = 0x80080880;
+D_80080890 = 0x80080890;
+D_800808F0 = 0x800808F0;
+D_800808F4 = 0x800808F4;
+D_800808F8 = 0x800808F8;
+D_800D8070 = 0x800D8070;
+D_800D8180 = 0x800D8180;
+D_800D8430 = 0x800D8430;
+D_800D8448 = 0x800D8448;
+D_800D8460 = 0x800D8460;
+D_800D8478 = 0x800D8478;
+D_800D8490 = 0x800D8490;
+D_800D84A0 = 0x800D84A0;
+D_800D86B0 = 0x800D86B0;
+D_800D86B8 = 0x800D86B8;
+D_800D86F0 = 0x800D86F0;
+D_800D86F4 = 0x800D86F4;
+D_800D86F8 = 0x800D86F8;
+D_800D86FC = 0x800D86FC;
+D_800D8700 = 0x800D8700;
+D_800D8710 = 0x800D8710;
+
+__libm_qnan_f = 0x80084990;
+osTvType = 0x80000300;
+osViModeNtscLan1 = 0x80080580;
+osViModeMpalLan1 = 0x80080670;
+osViModePalLan1 = 0x80080760;
+osCreateThread = 0x8004F9E0;
 // Identical code to vigetcurrcontext (0x748B0); that one reads *0x800808F0
 // (__osViCurr, per the note above) and sits immediately before the VI swap
 // context TU, so this remaining copy -- reading *0x8008086C -- is the

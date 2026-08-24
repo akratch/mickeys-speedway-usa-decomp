@@ -1,0 +1,17 @@
+# Complete first-path final-node result color.
+fields:0xc8:rt=v1@v0
+fields:0xd0:rs=v1@v0
+
+# Complete private flag-byte read/modify/write color web.
+fields:0x18c:rt=t1@t2
+fields:0x190:rs=t1@t2,rt=t2@t3
+fields:0x198:rt=t2@t3
+
+# Complete second-path emit/epilogue transient color web.
+fields:0x1a0:rt=t4@t5
+fields:0x1b0:rt=t3@t4
+fields:0x1b4:rt=t3@t4
+fields:0x1c0:rt=t4@t5
+fields:0x1c8:rs=t4@t5,rt=t5@t6
+fields:0x1cc:rs=t5@t6,rt=v1@v0
+fields:0x1d4:rs=v1@v0

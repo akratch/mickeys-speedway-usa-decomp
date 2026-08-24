@@ -1,0 +1,85 @@
+#include "PR/ultratypes.h"
+
+typedef struct Overlay86VecOutput {
+    u8 pad00[4];
+    f32 x;
+    f32 y;
+    f32 z;
+} Overlay86VecOutput;
+
+typedef struct Overlay86RingRecord {
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 angle;
+    u16 pad0E;
+    u16 flags;
+} Overlay86RingRecord;
+
+typedef struct Overlay86Node {
+    s16 angle;
+    u8 pad02[0x0A];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x2C];
+    s16 kind;
+    u8 pad46[0x3E];
+    s32 ownerIndex;
+} Overlay86Node;
+
+typedef struct Overlay86State {
+    s8 ownerIndex;
+    u8 pad001[0x37B];
+    s16 selectedIndex;
+    u8 pad37E[0x62];
+    Overlay86RingRecord *record;
+} Overlay86State;
+
+typedef struct Overlay86Object {
+    u8 pad00[0x64];
+    Overlay86State *state;
+} Overlay86Object;
+
+extern Overlay86RingRecord *overlay86FindPreviousUsableReloc(
+    s32 index, s32 *selectedIndex);
+extern s32 overlay86NextIndexReloc(s32 index);
+extern Overlay86Node **overlay86GetNodesReloc(s32 *start, s32 *end);
+
+s16 overlay86SelectPosition(Overlay86Object *object, Overlay86VecOutput *output) {
+    Overlay86State *state = object->state;
+    Overlay86RingRecord *record;
+    Overlay86Node **nodes;
+    Overlay86Node *node;
+    s32 start;
+    s32 end;
+    s32 selected;
+
+    record = overlay86FindPreviousUsableReloc(state->selectedIndex, &selected);
+    state->selectedIndex = overlay86NextIndexReloc(selected);
+    output->x = 0.0f;
+    output->y = 0.0f;
+    output->z = 0.0f;
+
+    if (record != 0) {
+        output->x = record->x;
+        output->y = record->y + 96.0f;
+        output->z = record->z;
+        state->record = record;
+        record->flags |= 8;
+        return record->angle + 0x4000;
+    }
+
+    nodes = overlay86GetNodesReloc(&start, &end);
+    while (start < end) {
+        node = nodes[start++];
+        if ((node->kind == 5) && (state->ownerIndex == node->ownerIndex)) {
+            output->x = node->x;
+            output->y = node->y + 96.0f;
+            output->z = node->z;
+            state->record = 0;
+            return node->angle;
+        }
+    }
+    return 0;
+}

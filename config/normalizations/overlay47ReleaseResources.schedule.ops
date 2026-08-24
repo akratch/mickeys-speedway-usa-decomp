@@ -1,0 +1,5 @@
+# The two counted-loop setup webs naturally allocate base=s0/end=s1.  Retail
+# schedules each end-address addiu before the independent base-address addiu.
+# These are true two-instruction permutations and carry their relocs with them.
+reorder:0x54=0x58,0x58=0x54
+reorder:0x8c=0x90,0x90=0x8c

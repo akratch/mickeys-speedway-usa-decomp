@@ -1,0 +1,12 @@
+/*
+ * Overlay 88 and overlay 69 ship the same renderer body.  Keep the public
+ * symbols overlay-local while sharing the reviewed implementation spelling.
+ */
+#define overlay69DrawSortedGeometry overlay88DrawSortedGeometry
+#define overlay69DrawFixedResourceReloc overlay88DrawFixedResourceReloc
+#define overlay69MetricReloc overlay88MetricReloc
+#define overlay69PrepareTransformReloc overlay88PrepareTransformReloc
+#define overlay69SubmitDynamicReloc overlay88SubmitDynamicReloc
+#define overlay69SubmitFixedReloc overlay88SubmitFixedReloc
+
+#include "src/overlays/o069/overlay69DrawSortedGeometry.c"

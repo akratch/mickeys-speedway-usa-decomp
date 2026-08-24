@@ -11,25 +11,28 @@ from the original stub but have not been modernized or verified.
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-58_of_1467_(3.95%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/.text_bytes_matched-14384_of_481380_(2.99%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-382_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-124_of_1468_(8.45%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-319640_of_950332_(33.63%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-413_adopted-blue)](#progress)
 
 ```
-functions       58 / 1467     3.95%   matched to C, byte-identical
-.text bytes  14384 / 481380   2.99%   of the static resident segment
-named          358 / 1467    24.40%   functions carrying an adopted name
-symbols        382                    adopted in symbol_addrs.us.txt
+functions      124 / 1468     8.45%   matched to C, byte-identical
+.text bytes  25936 / 481068   5.39%   matched C in the resident segment
+verified asm  17104 / 481068   3.56%   original hand-written assembly (83 functions)
+overlay C   276600 / 469264  58.94%   matched C keyed by overlay and offset
+whole resolved 319640 / 950332  33.63%   resident C + verified asm + overlay C
+named          362 / 1468    24.66%   functions carrying an adopted name
+symbols        413                    adopted in symbol_addrs.us.txt
 ```
 
 | Area | Functions | Matched to C | Named, still asm | Unnamed | Identified |
 | :--- | ---: | ---: | ---: | ---: | :--- |
-| libultra corridor | 306 | 52 | 217 | 37 | `███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░` 87.9% |
-| game code, TU identified | 74 | 6 | 46 | 22 | `██▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░` 70.3% |
-| game code, not yet split | 1087 | 0 | 37 | 1050 | `▓░░░░░░░░░░░░░░░░░░░` 3.4% |
-| **total** | 1467 | 58 | 300 | 1109 | `█▓▓▓▓░░░░░░░░░░░░░░░` 24.4% |
+| libultra corridor | 306 | 117 | 154 | 35 | `████████▓▓▓▓▓▓▓▓▓▓░░` 88.6% |
+| game code, TU identified | 114 | 7 | 58 | 49 | `█▓▓▓▓▓▓▓▓▓▓░░░░░░░░░` 57.0% |
+| game code, not yet split | 1048 | 0 | 26 | 1022 | `▓░░░░░░░░░░░░░░░░░░░` 2.5% |
+| **total** | 1468 | 124 | 238 | 1106 | `██▓▓▓░░░░░░░░░░░░░░░` 24.7% |
 
 `█` matched to C · `▓` named but still assembly · `░` neither. Naming runs ahead of matching: a function is decompiled against an already-identified translation unit.
 
-**Matched so far**: 46 C translation units that build byte-identically. 44 under `src/libultra/`; 2 under `src/main/`, including `matrix.c` (matrix/vector maths) and `runlink.c` (the runtime overlay linker core).
+**Source organization**: 828 fully-C translation units and 11 C scaffolds that still include assembly. 90 under `src/libultra/`; 2 under `src/main/`, including `matrix.c` (matrix/vector maths) and `runlink.c` (the runtime overlay linker core); 75 under `src/overlays/o001/`; 14 under `src/overlays/o002/`; 9 under `src/overlays/o003/`; 8 under `src/overlays/o004/`; 9 under `src/overlays/o005/`; 1 under `src/overlays/o006/`; 9 under `src/overlays/o007/`; 17 under `src/overlays/o008/`; 8 under `src/overlays/o009/`; 1 under `src/overlays/o010/`; 25 under `src/overlays/o011/`; 4 under `src/overlays/o012/`; 8 under `src/overlays/o013/`; 28 under `src/overlays/o014/`; 12 under `src/overlays/o015/`; 4 under `src/overlays/o016/`; 5 under `src/overlays/o017/`; 4 under `src/overlays/o018/`; 7 under `src/overlays/o019/`; 14 under `src/overlays/o020/`; 2 under `src/overlays/o021/`; 3 under `src/overlays/o022/`; 4 under `src/overlays/o023/`; 3 under `src/overlays/o024/`; 3 under `src/overlays/o025/`; 3 under `src/overlays/o026/`; 6 under `src/overlays/o027/`; 5 under `src/overlays/o028/`; 10 under `src/overlays/o029/`; 2 under `src/overlays/o030/`; 7 under `src/overlays/o031/`; 7 under `src/overlays/o033/`; 8 under `src/overlays/o034/`; 3 under `src/overlays/o035/`; 21 under `src/overlays/o036/`; 5 under `src/overlays/o037/`; 3 under `src/overlays/o038/`; 2 under `src/overlays/o039/`; 9 under `src/overlays/o040/`; 14 under `src/overlays/o041/`; 5 under `src/overlays/o042/`; 7 under `src/overlays/o043/`; 4 under `src/overlays/o044/`; 9 under `src/overlays/o045/`; 9 under `src/overlays/o046/`; 2 under `src/overlays/o047/`; 4 under `src/overlays/o048/`; 3 under `src/overlays/o049/`; 4 under `src/overlays/o050/`; 3 under `src/overlays/o051/`; 4 under `src/overlays/o052/`; 4 under `src/overlays/o053/`; 5 under `src/overlays/o054/`; 5 under `src/overlays/o055/`; 6 under `src/overlays/o056/`; 18 under `src/overlays/o057/`; 8 under `src/overlays/o058/`; 10 under `src/overlays/o059/`; 6 under `src/overlays/o060/`; 12 under `src/overlays/o061/`; 3 under `src/overlays/o062/`; 4 under `src/overlays/o063/`; 1 under `src/overlays/o064/`; 5 under `src/overlays/o065/`; 3 under `src/overlays/o066/`; 1 under `src/overlays/o067/`; 18 under `src/overlays/o068/`; 3 under `src/overlays/o069/`; 3 under `src/overlays/o070/`; 4 under `src/overlays/o071/`; 2 under `src/overlays/o072/`; 2 under `src/overlays/o073/`; 2 under `src/overlays/o074/`; 3 under `src/overlays/o075/`; 1 under `src/overlays/o076/`; 3 under `src/overlays/o077/`; 1 under `src/overlays/o078/`; 6 under `src/overlays/o079/`; 2 under `src/overlays/o080/`; 4 under `src/overlays/o081/`; 3 under `src/overlays/o082/`; 9 under `src/overlays/o083/`; 21 under `src/overlays/o084/`; 2 under `src/overlays/o085/`; 6 under `src/overlays/o086/`; 3 under `src/overlays/o087/`; 3 under `src/overlays/o088/`; 5 under `src/overlays/o089/`; 1 under `src/overlays/o090/`; 3 under `src/overlays/o091/`; 2 under `src/overlays/o092/`; 1 under `src/overlays/o093/`; 3 under `src/overlays/o094/`; 2 under `src/overlays/o095/`; 6 under `src/overlays/o096/`; 11 under `src/overlays/o097/`; 4 under `src/overlays/o098/`; 8 under `src/overlays/o099/`; 7 under `src/overlays/o100/`; 60 under `src/overlays/o101/`; 1 under `src/overlays/o102/`; 1 under `src/overlays/o103/`; 1 under `src/overlays/o104/`; 1 under `src/overlays/o105/`; 1 under `src/overlays/o106/`; 1 under `src/overlays/o107/`.
 
 Generated by `gmake scoreboard` from the built ELF, the splat config, the `asm/` tree and `symbol_addrs.us.txt`; `gmake check-scoreboard` fails if it has drifted. [`docs/modules.md`](docs/modules.md) records what each run of code was identified as and on what evidence; [`docs/references.md`](docs/references.md) records the reference builds it was measured against.
 <!-- SCOREBOARD_END -->
@@ -63,7 +66,7 @@ for all three regions are in `mickey.*.sha1` and `tools/verify_baseroms.sh`.
 
 ```sh
 gmake setup   # venv, deps, toolchain, baserom SHA1 check, splat, git hooks
-gmake -j8     # builds build/mickey.us.z64
+gmake -j2     # builds build/mickey.us.z64
 gmake verify  # byte-compares it against the baserom SHA1
 ```
 
@@ -77,6 +80,8 @@ gmake verify  # byte-compares it against the baserom SHA1
 | `gmake check-scoreboard` | the Progress block matches the tree |
 | `gmake audit-decoders` | the clean-room detectors aren't inventing words |
 | `gmake check-fixtures` | the detectors still catch real ROM in every encoding |
+| `gmake overlay-atlas` | the 107-module manifest and generated yaml segments have not drifted |
+| `gmake overlay-donors` | DKR v77/v80 and JFG have a complete recorded result for every overlay |
 | `gmake check-reference-builds` | the out-of-tree reference builds are the ones the names were mined from |
 | `gmake progress` | matched functions/bytes/symbols |
 
@@ -113,6 +118,13 @@ already builds byte-identically, and is replaced by C one function at a time.
 gmake verify                # byte-identical or it does not count
 ```
 
+For overlay work, begin with `config/overlays.us.json` rather than a synthetic
+VMA: an overlay function's canonical identity is `(overlay, section, offset)`.
+Before adopting a name or body, run `gmake overlay-donors-scan-check`; it checks
+the complete DKR v77/v80 and JFG object surfaces and catches a stale donor
+ledger. DKR is the first semantic cross-reference for game code, but a similar
+system is not an exact match and Mickey's own bytes and call graph decide.
+
 C compiles with `-O2 -mips1 -32` by default. Anything else is a per-file
 override in the Makefile's "Per-file compiler flags" block, justified in the
 source file's header comment. Measured per-file flags are in
@@ -120,13 +132,24 @@ source file's header comment. Measured per-file flags are in
 
 ## Roadmap
 
+The measurable epoch definitions and exit criteria live in
+[`docs/campaigns.md`](docs/campaigns.md).
+
 | Phase | Scope | State |
 |---|---|---|
 | 0 | Split the US ROM with splat; rebuild it byte-identically from disassembly | done |
 | 1 | First matched C, libultra corridor, symbol/struct ontology | in progress |
 | 2 | Clean-room gates; mine the published Rare decomps for matching objects | in progress |
-| 3 | Overlay system: table format and ROM layout (settled), 107 overlay segments | in progress |
-| 4 | Assets: `1172`/`1173` decompress/recompress with matching output | not started |
+| 3 | Overlay system: 107-module atlas, relocation graph, 106 buildable segments, DKR/JFG donor ledger | done |
+| 4 | Overlay frontier tranche A: exact-match seeds, four structural pilots, one dependency neighborhood | done |
+| 5 | Overlay semantic spine: 45/61/68 APIs, cohort closure, and hub API maps | done |
+| 6 | Exact-leaf recovery: close narrow compiler blockers and add 1 KiB matched overlay C | done |
+| 7 | Exact leaf and wrapper retirement across ten overlays (508 bytes) | done |
+| 8 | Overlay 84 accessor closure plus resource wrappers (436 bytes) | done |
+| 9 | Overlay 68 lifecycle/allocation semantic cluster (524 bytes) | done |
+| 10 | Double-digit breakthrough: reach 10.00% whole-program resolved and close four Epoch 5 cohort modules | done |
+| 11 | Fifteen-percent offensive: reach 15.00% whole-program resolved and close eight more overlays | active |
+| 12 | Assets: `1172`/`1173` decompress/recompress with matching output | not started |
 
 ## Clean room
 

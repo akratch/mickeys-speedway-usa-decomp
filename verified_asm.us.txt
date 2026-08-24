@@ -1,0 +1,34 @@
+# Translation units established as original hand-written assembly.
+#
+# One named splat subsegment per line. This is an evidence ledger, not a list
+# of everything currently emitted through asm/: compiler-generated functions
+# remain unresolved until matched to C. Every entry below has a byte-identical
+# whole-object match to a permitted reference build's tracked `.s` source; the
+# per-object evidence lives beside its boundary in mickey.us.yaml and
+# symbol_addrs.us.txt.
+
+main/math_util
+main/lights2
+main/trapDanglingJump
+main/gzip_asm
+
+libultra/exceptasm
+libultra/sqrtf
+libultra/bzero
+libultra/writebackdcache
+libultra/invalicache
+libultra/invaldcache
+libultra/writebackdcacheall
+libultra/setintmask
+libultra/bcopy
+libultra/interrupt
+libultra/bcmp
+libultra/getcount
+libultra/probetlb
+libultra/setsr
+libultra/getsr
+libultra/setfpccsr
+libultra/unmaptlball
+libultra/maptlbrdb
+libultra/getcause
+libultra/setcompare

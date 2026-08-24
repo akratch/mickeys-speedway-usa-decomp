@@ -1,0 +1,41 @@
+drop-li:0x50:a1:5:func_overlay_036_F0000A60_1883F18
+# Restore the shared first-call argument web after deleting its redundant
+# rematerialization.  This is a permutation of the natural functional words.
+reorder:0x3c=0x44,0x40=0x40,0x44=0x3c,0x48=0x4c,0x4c=0x48
+# Two compiler scheduling permutations around loop setup.
+reorder:0x150=0x158,0x154=0x154,0x158=0x150,0x15c=0x15c
+reorder:0x1dc=0x1e0,0x1e0=0x1dc
+
+# Complete unsigned-conversion and strength/blend COP1 allocation webs.
+fields:0x88:rd=10@16
+fields:0x90:rd=10@16,sa=16@18
+fields:0x94:sa=2@10
+fields:0xa0:rd=18@4
+fields:0xa8:rt=18@4,rd=16@18,sa=16@18
+fields:0xb0:rt=4@6,imm=0@0x30
+fields:0xbc:rt=4@6,rd=16@18,sa=6@8
+fields:0xc4:rt=6@8,rd=2@10
+fields:0xf4:rd=8@16
+fields:0x100:rd=8@16
+fields:0x104:rd=10@4
+fields:0x10c:rt=10@4
+fields:0x11c:rd=16@6
+fields:0x128:rd=6@8
+fields:0x130:rd=6@8,sa=8@16
+fields:0x134:rt=16@6,sa=4@10
+fields:0x13c:rd=8@16,sa=10@4
+fields:0x140:rt=10@4,rd=4@10
+
+# Complete private spill-home web.
+fields:0xd0:imm=0x30@0x20
+fields:0xd8:imm=0x30@0x20
+fields:0x1c4:imm=0x20@0x24
+fields:0x1d4:imm=0x20@0x24
+
+# Proved loader-local addends; their asserted relocations are filtered later.
+fields:0x5c:imm=0@0xa8
+fields:0x6c:imm=0@0x28
+fields:0x80:imm=0@0x2c
+fields:0x268:imm=0@0x150
+fields:0x278:imm=0@0x150
+fields:0x284:imm=0@0x14c

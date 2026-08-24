@@ -1,0 +1,9 @@
+# Four complete compiler-representation webs; fail loudly on every old field.
+fields:0x50:rs=t7@a2,rt=a2@t7
+fields:0x5c:imm=64@72
+fields:0x6c:imm=64@72
+fields:0xf8:rt=t7@at
+fields:0xfc:rs=t7@at
+fields:0x108:rd=t8@t7
+fields:0x110:rd=t9@t8,rs=t8@t7
+fields:0x11c:rt=t9@t8

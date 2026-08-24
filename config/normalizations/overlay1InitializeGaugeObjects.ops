@@ -1,0 +1,37 @@
+# Complete the private count home and retain the helper result for loop two.
+fields:0x2C:imm=0x48@0x58
+fields:0x30:rt=5@14,imm=0x48@0x58
+fields:0x34:op=35@0,rs=29@2,rt=14@0,rd=0@6,sa=1@0,fn=8@37
+fields:0x3C:rs=5@14
+
+# Preserve source operand order for the first cursor and complete loop-one webs.
+commute:0x4C
+fields:0x50:rt=24@3
+fields:0x58:rs=24@3
+fields:0x5C:rt=25@24
+fields:0x60:rs=25@24
+
+# Complete the saved count/list aliases used to seed loop two.
+fields:0x8C:rt=9@25,imm=0x48@0x58
+fields:0x90:rt=5@17
+fields:0x94:rs=8@6,rt=2@8
+fields:0x98:rs=9@25
+
+# Complete private record/flag/table arithmetic webs in loop two.
+fields:0xA0:rt=10@3
+fields:0xA8:rs=10@3
+fields:0xAC:rt=13@11
+fields:0xB0:rt=11@9
+fields:0xB4:rs=13@11
+fields:0xB8:rs=11@9,rt=12@10
+fields:0xBC:rt=12@10
+fields:0xC0:rd=14@12
+fields:0xC4:rt=14@12,rd=15@13
+fields:0xC8:rs=15@13,rt=24@14
+fields:0xCC:rs=24@14
+fields:0xDC:rt=8@24
+fields:0xE0:rd=25@15
+fields:0xE4:rs=8@24
+fields:0xE8:rd=9@25
+fields:0xEC:rt=9@25,rd=10@8
+fields:0xF0:rs=10@8,rt=25@15

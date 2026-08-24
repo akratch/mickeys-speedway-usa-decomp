@@ -21,6 +21,7 @@ void osDpSetStatus(u32 status);
  * instruction it just patched for both calls.
  */
 void osInvalICache(void *vaddr, s32 nbytes);
+void osInvalDCache(void *vaddr, s32 nbytes);
 void osWritebackDCache(void *vaddr, s32 nbytes);
 
 #endif /* _OS_H_ */

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Progress metric for the decompilation.
 
-Prints three derived numbers -- functions matched, static-segment .text
-bytes matched, and symbols named -- with the derivation shown alongside each
+Prints the resident function/C-match counts, whole-program resolved text bytes,
+and symbols named, with the derivation shown alongside each
 one. This is deliberate: Phase 1 found more than one summary count that had
 silently drifted from the tree it was supposed to describe (see
 docs/workbench-improvement-log.md), and a progress metric that hides its own
 method is exactly the kind of number that drifts. Nothing here is hardcoded;
-every count is read from build/, asm/ and symbol_addrs.*.txt as they stand.
+every count is read from build/, asm/, symbol_addrs.*.txt, and the canonical
+generated overlay atlas as they stand.
 
 Method, in one paragraph: the built ELF's symbol table is the ground truth
 for "what splat thinks is a function, and how big". A function counts as
@@ -25,6 +26,8 @@ the two failure modes this ruled out.
 import argparse
 import bisect
 import difflib
+import hashlib
+import json
 import os
 import re
 import subprocess
@@ -35,6 +38,7 @@ ROOT_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, ".."))
 
 LABEL_RE = re.compile(r"^\s*(?:glabel|alabel)\s+([A-Za-z_][A-Za-z0-9_]*)")
 SYMBOL_ADDR_RE = re.compile(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*0x[0-9A-Fa-f]+\s*;")
+PRAGMA_RE = re.compile(r"^\s*#pragma\s+GLOBAL_ASM\s*\(", re.MULTILINE)
 
 
 def find_objdump(tools_dir):
@@ -47,8 +51,14 @@ def find_objdump(tools_dir):
 def get_elf_functions(elf_path, objdump):
     """Returns (all_funcs, func_addrs, abs_placeholder_names).
 
-    all_funcs: {name: size} for every STT_FUNC symbol that has real code, i.e.
-    lives in an actual section with nonzero size.
+    all_funcs: {name: size} for every resident STT_FUNC symbol that has real
+    code, i.e. lives in an actual non-overlay section with nonzero size.
+
+    Overlay functions are deliberately excluded here. All overlays share a
+    synthetic link VMA and their text bytes already enter the whole-program
+    denominator through config/overlays.us.json. Counting their ELF symbols
+    here would both double-count those bytes and mistake generated overlay
+    labels for adopted resident names.
 
     func_addrs: {name: vram} for those same symbols. Used only to attribute a
     function to the splat subsegment it falls inside, for the per-area
@@ -103,6 +113,8 @@ def get_elf_functions(elf_path, objdump):
         if section == "*ABS*" and size == 0:
             abs_placeholders.add(name)
             continue
+        if section.startswith(".overlay_"):
+            continue
         all_funcs[name] = size
         try:
             func_addrs[name] = int(tokens[0], 16)
@@ -150,6 +162,53 @@ def count_named_symbols(symbol_addrs_path):
             if SYMBOL_ADDR_RE.match(line):
                 count += 1
     return count
+
+
+def get_verified_asm_subsegments(path):
+    """Named subsegments established as original hand-written assembly.
+
+    This is intentionally an explicit evidence ledger rather than an inference
+    from a file extension. Generated `asm/` contains both compiler output and
+    original assembly, and treating every `.s` file as resolved would make the
+    metric meaningless.
+    """
+    names = set()
+    if not os.path.isfile(path):
+        return names
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.split("#", 1)[0].strip()
+            if line:
+                names.add(line)
+    return names
+
+
+def get_overlay_text_bytes(rom_path, atlas_path=None):
+    """Read the overlay denominator and matched-C ownership from the atlas.
+
+    The atlas is itself regenerated from the shipped headers by
+    tools/overlay_atlas.py.  Its source SHA1 is checked here so progress cannot
+    silently combine a manifest from one ROM with an ELF from another.
+    """
+    if atlas_path is None:
+        atlas_path = os.path.join(ROOT_DIR, "config", "overlays.us.json")
+    with open(atlas_path, encoding="utf-8") as fh:
+        atlas = json.load(fh)
+    digest = hashlib.sha1()
+    with open(rom_path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            digest.update(chunk)
+    got = digest.hexdigest()
+    expected = atlas.get("source", {}).get("sha1")
+    if got != expected:
+        raise RuntimeError(
+            "overlay atlas source SHA1 is stale: ROM %s, atlas %s"
+            % (got, expected)
+        )
+    return (
+        int(atlas["totals"]["text_bytes"]),
+        int(atlas["totals"].get("matched_overlay_c_bytes", 0)),
+    )
 
 
 # Auto-generated splat names: a symbol matching one of these carries no
@@ -221,6 +280,12 @@ def area_of(addr, index):
     return AREAS[-1][0]
 
 
+def subsegment_of(addr, index):
+    """Named splat subsegment containing `addr`, or the empty string."""
+    i = bisect.bisect_right(index, (addr, "￿")) - 1
+    return index[i][1] if i >= 0 else ""
+
+
 def bar(matched, named, total, width=20):
     """A three-state text bar: matched to C, named but still asm, unnamed.
 
@@ -253,14 +318,17 @@ def badge(label, message, color):
     return f"https://img.shields.io/badge/{esc(label)}-{esc(message)}-{color}"
 
 
-def matched_tus(src_dir):
-    """[(path-under-src, note)] for every C translation unit in the tree."""
+def source_tus(src_dir):
+    """[(path-under-src, note, fully_c)] for every C TU in the tree."""
     out = []
     for root, _dirs, files in os.walk(src_dir):
         for f in sorted(files):
             if f.endswith(".c"):
-                rel = os.path.relpath(os.path.join(root, f), src_dir)
-                out.append((rel, TU_NOTES.get(rel, "")))
+                path = os.path.join(root, f)
+                rel = os.path.relpath(path, src_dir)
+                with open(path, encoding="utf-8", errors="replace") as fh:
+                    fully_c = PRAGMA_RE.search(fh.read()) is None
+                out.append((rel, TU_NOTES.get(rel, ""), fully_c))
     return sorted(out)
 
 
@@ -279,7 +347,7 @@ def render_markdown(st):
     L.append(
         f"[![functions]({badge('functions matched', st['func_msg'], 'blue')})]"
         f"(#progress) "
-        f"[![bytes]({badge('.text bytes matched', st['byte_msg'], 'blue')})]"
+        f"[![bytes]({badge('code bytes resolved', st['byte_msg'], 'blue')})]"
         f"(#progress) "
         f"[![names]({badge('symbols named', st['name_msg'], 'blue')})](#progress)"
     )
@@ -291,7 +359,20 @@ def render_markdown(st):
     )
     L.append(
         f".text bytes {st['matched_bytes']:>6} / {st['total_bytes']:<6}  "
-        f"{st['byte_pct']:5.2f}%   of the static resident segment"
+        f"{st['byte_pct']:5.2f}%   matched C in the resident segment"
+    )
+    L.append(
+        f"verified asm {st['verified_asm_bytes']:>6} / {st['total_bytes']:<6}  "
+        f"{st['verified_asm_pct']:5.2f}%   original hand-written assembly "
+        f"({st['n_verified_asm']} functions)"
+    )
+    L.append(
+        f"overlay C   {st['overlay_matched_bytes']:>6} / {st['overlay_text_bytes']:<6}  "
+        f"{st['overlay_byte_pct']:5.2f}%   matched C keyed by overlay and offset"
+    )
+    L.append(
+        f"whole resolved {st['resolved_bytes']:>6} / {st['whole_text_bytes']:<6}  "
+        f"{st['resolved_pct']:5.2f}%   resident C + verified asm + overlay C"
     )
     L.append(
         f"named       {st['n_named_funcs']:>6} / {st['n_total']:<6}  "
@@ -325,12 +406,12 @@ def render_markdown(st):
     L.append("")
     tus = st["tus"]
     by_dir = {}
-    for rel, note in tus:
-        by_dir.setdefault(os.path.dirname(rel) or ".", []).append((rel, note))
+    for rel, note, fully_c in tus:
+        by_dir.setdefault(os.path.dirname(rel) or ".", []).append((rel, note, fully_c))
     parts = []
     for d in sorted(by_dir):
         items = by_dir[d]
-        noted = [f"`{os.path.basename(r)}` ({n})" for r, n in items if n]
+        noted = [f"`{os.path.basename(r)}` ({n})" for r, n, _ in items if n]
         if noted:
             parts.append(
                 f"{len(items)} under `src/{d}/`, including "
@@ -338,9 +419,11 @@ def render_markdown(st):
             )
         else:
             parts.append(f"{len(items)} under `src/{d}/`")
+    n_fully_c = sum(fully_c for _, _, fully_c in tus)
     L.append(
-        f"**Matched so far**: {len(tus)} C translation units that build "
-        f"byte-identically. " + "; ".join(parts) + "."
+        f"**Source organization**: {n_fully_c} fully-C translation units and "
+        f"{len(tus) - n_fully_c} C scaffolds that still include assembly. "
+        + "; ".join(parts) + "."
     )
     L.append("")
     L.append(
@@ -413,7 +496,7 @@ def check_partial(args):
     # --- 1. Non-ELF-derived figures, checked by reusing the real generator -
     symbol_addrs_path = os.path.join(ROOT_DIR, f"symbol_addrs.{args.version}.txt")
     n_named = count_named_symbols(symbol_addrs_path)
-    tus = matched_tus(os.path.join(ROOT_DIR, "src"))
+    tus = source_tus(os.path.join(ROOT_DIR, "src"))
 
     zero_areas = {
         label: dict(funcs=0, bytes=0, matched=0, matched_bytes=0, named=0, unnamed=0)
@@ -430,6 +513,15 @@ def check_partial(args):
         matched_bytes=0,
         total_bytes=0,
         byte_pct=0.0,
+        verified_asm_bytes=0,
+        verified_asm_pct=0.0,
+        n_verified_asm=0,
+        overlay_matched_bytes=0,
+        overlay_text_bytes=0,
+        overlay_byte_pct=0.0,
+        resolved_bytes=0,
+        whole_text_bytes=0,
+        resolved_pct=0.0,
         n_named=n_named,
         n_named_funcs=0,
         named_pct=0.0,
@@ -459,13 +551,13 @@ def check_partial(args):
             f"    tree says: {exp_symbols!r}"
         )
 
-    exp_matched = find_line(rendered, "**Matched so far**")
-    cur_matched = find_line(current, "**Matched so far**")
+    exp_matched = find_line(rendered, "**Source organization**")
+    cur_matched = find_line(current, "**Source organization**")
     if exp_matched is None:
-        problems.append("could not find a 'Matched so far' line in the generated block")
+        problems.append("could not find a 'Source organization' line in the generated block")
     elif exp_matched != cur_matched:
         problems.append(
-            "'Matched so far' line is stale against the src/ tree "
+            "'Source organization' line is stale against the src/ tree "
             f"({len(tus)} .c files found):\n"
             f"    committed: {cur_matched!r}\n"
             f"    tree says: {exp_matched!r}"
@@ -504,6 +596,9 @@ def check_partial(args):
 
     check_ratio("functions", r"^functions\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
     check_ratio(".text bytes", r"^\.text bytes\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
+    check_ratio("verified asm", r"^verified asm\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
+    check_ratio("overlay C", r"^overlay C\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
+    check_ratio("whole resolved", r"^whole resolved\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
     check_ratio("named", r"^named\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
 
     if "functions" in ratios and "named" in ratios:
@@ -606,6 +701,27 @@ def main(args):
     total_bytes = sum(all_funcs.values())
     matched_bytes = sum(all_funcs[n] for n in matched_funcs)
 
+    yaml_path = os.path.join(ROOT_DIR, f"mickey.{args.version}.yaml")
+    index = subsegment_index(yaml_path)
+    verified_asm_path = os.path.join(ROOT_DIR, f"verified_asm.{args.version}.txt")
+    verified_asm_subsegments = get_verified_asm_subsegments(verified_asm_path)
+    verified_asm_funcs = {
+        name for name, addr in func_addrs.items()
+        if name not in matched_funcs
+        and subsegment_of(addr, index) in verified_asm_subsegments
+    }
+    verified_asm_bytes = sum(all_funcs[name] for name in verified_asm_funcs)
+    verified_asm_pct = verified_asm_bytes / total_bytes * 100 if total_bytes else 0.0
+    overlay_text_bytes, overlay_matched_bytes = get_overlay_text_bytes(
+        os.path.join(ROOT_DIR, "baseroms", f"mickey.{args.version}.z64")
+    )
+    overlay_byte_pct = (
+        overlay_matched_bytes / overlay_text_bytes * 100 if overlay_text_bytes else 0.0
+    )
+    whole_text_bytes = total_bytes + overlay_text_bytes
+    resolved_bytes = matched_bytes + verified_asm_bytes + overlay_matched_bytes
+    resolved_pct = resolved_bytes / whole_text_bytes * 100 if whole_text_bytes else 0.0
+
     n_total = len(total_funcs)
     n_matched = len(matched_funcs)
     func_pct = (n_matched / n_total * 100) if n_total else 0.0
@@ -616,7 +732,6 @@ def main(args):
     # Per-area breakdown. Each function is attributed to the splat subsegment
     # its address falls inside, and then to one of three tiers: matched to C,
     # carrying an adopted name but still assembled from .s, or neither.
-    index = subsegment_index(os.path.join(ROOT_DIR, f"mickey.{args.version}.yaml"))
     areas = {
         label: dict(funcs=0, bytes=0, matched=0, matched_bytes=0, named=0, unnamed=0)
         for label, _ in AREAS
@@ -649,13 +764,22 @@ def main(args):
             matched_bytes=matched_bytes,
             total_bytes=total_bytes,
             byte_pct=byte_pct,
+            verified_asm_bytes=verified_asm_bytes,
+            verified_asm_pct=verified_asm_pct,
+            n_verified_asm=len(verified_asm_funcs),
+            overlay_matched_bytes=overlay_matched_bytes,
+            overlay_text_bytes=overlay_text_bytes,
+            overlay_byte_pct=overlay_byte_pct,
+            resolved_bytes=resolved_bytes,
+            whole_text_bytes=whole_text_bytes,
+            resolved_pct=resolved_pct,
             n_named=n_named,
             n_named_funcs=n_named_funcs,
             named_pct=named_pct,
             areas=areas,
-            tus=matched_tus(os.path.join(ROOT_DIR, "src")),
+            tus=source_tus(os.path.join(ROOT_DIR, "src")),
             func_msg=f"{n_matched} of {n_total} ({func_pct:.2f}%)",
-            byte_msg=f"{matched_bytes} of {total_bytes} ({byte_pct:.2f}%)",
+            byte_msg=f"{resolved_bytes} of {whole_text_bytes} ({resolved_pct:.2f}%)",
             name_msg=f"{n_named} adopted",
         )
         block = render_markdown(st)
@@ -725,6 +849,14 @@ def main(args):
             f"#   symbols named = `Name = 0xADDR;` lines in "
             f"symbol_addrs.{args.version}.txt (comments/blank lines excluded)"
         )
+        print(
+            f"#   verified original assembly = functions in named subsegments "
+            f"listed by verified_asm.{args.version}.txt"
+        )
+        print(
+            f"#   overlay matched C = explicit `(overlay, offset)` ownership ranges "
+            f"in config/overlays.{args.version}.json"
+        )
         print()
 
     if matched_bytes > total_bytes:
@@ -737,6 +869,18 @@ def main(args):
         f"bytes:     {matched_bytes} matched / {total_bytes} total "
         f"({byte_pct:.2f}% of static-segment .text)"
     )
+    print(
+        f"asm:       {verified_asm_bytes} verified / {total_bytes} resident "
+        f"({verified_asm_pct:.2f}%; {len(verified_asm_funcs)} functions)"
+    )
+    print(
+        f"overlays:  {overlay_matched_bytes} matched / {overlay_text_bytes} text "
+        f"({overlay_byte_pct:.2f}%)"
+    )
+    print(
+        f"resolved:  {resolved_bytes} / {whole_text_bytes} whole-program text "
+        f"({resolved_pct:.2f}%; resident C + verified asm + overlay C)"
+    )
     print(f"symbols:   {n_named} named")
 
     if args.csv:
@@ -744,6 +888,9 @@ def main(args):
         print("metric,matched,total,pct")
         print(f"functions,{n_matched},{n_total},{func_pct:.4f}")
         print(f"bytes,{matched_bytes},{total_bytes},{byte_pct:.4f}")
+        print(f"verified_asm_bytes,{verified_asm_bytes},{total_bytes},{verified_asm_pct:.4f}")
+        print(f"overlay_c_bytes,{overlay_matched_bytes},{overlay_text_bytes},{overlay_byte_pct:.4f}")
+        print(f"whole_resolved_bytes,{resolved_bytes},{whole_text_bytes},{resolved_pct:.4f}")
         print(f"symbols_named,{n_named},,")
 
     return 0

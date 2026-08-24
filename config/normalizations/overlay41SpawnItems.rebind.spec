@@ -1,0 +1,2 @@
+0x198:overlay41ConvertPair:overlay41RandomRange
+0x1d0:overlay41Emit:overlay41RandomRange

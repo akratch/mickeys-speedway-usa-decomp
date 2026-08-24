@@ -69,6 +69,8 @@ ROM_TABLE_COUNT = 2004
 HEADER_COUNT = 107
 EXPECTED_RELOC_COUNT = 375
 
+RELOC_RECORD_SIZE = 8
+
 # jal 0x800333A0 (TrapDanglingJump), as a raw big-endian ROM word.
 TRAP_DANGLING_JUMP_WORD = 0x0C00CCE8
 
@@ -121,6 +123,26 @@ def read_reloc_table(d):
     return count, entries
 
 
+def read_rom_table(d):
+    """Decode the 2004 packed RomTableEntry values.
+
+    Each row names an exported address as ``overlay number + byte offset``.
+    Overlay zero is the resident module; 0xFFD..0xFFF are the runtime linker's
+    reserved section selectors.  Keep the table index in every row because it
+    is the identifier stored in SYMBOL relocation records.
+    """
+    entries = []
+    for i in range(ROM_TABLE_COUNT):
+        word = u32(d, ROM_TABLE_BASE + i * 4)
+        entries.append({
+            "index": i,
+            "entry_rom": ROM_TABLE_BASE + i * 4,
+            "overlay": word >> 20,
+            "offset": word & 0xFFFFF,
+        })
+    return entries
+
+
 def read_headers(d):
     """OverlayHeader[HEADER_COUNT] at HEADER_TABLE_BASE, raw ROM fields."""
     out = []
@@ -159,6 +181,75 @@ def build_modules(headers):
             "resume_function": h["resume_function"],
         })
     return mods
+
+
+def module_section_ranges(module):
+    """Canonical half-open ROM ranges for one shipped module image."""
+    text_start = module["rom_start"]
+    data_start = text_start + module["text_size"]
+    reloc1_start = data_start + module["data_size"]
+    reloc2_start = reloc1_start + module["reloc1_size"]
+    return {
+        "text": (text_start, data_start),
+        # The header has one size for initialized data.  It does not expose a
+        # data/rodata boundary, so naming this range `data_rodata` is an
+        # evidence constraint rather than a cosmetic preference.
+        "data_rodata": (data_start, reloc1_start),
+        "reloc1": (reloc1_start, reloc2_start),
+        "reloc2": (reloc2_start, module["rom_end"]),
+    }
+
+
+def read_module_relocations(d, module, rom_table=None):
+    """Decode both RelocationEntry arrays for one module.
+
+    ``reloc1_size`` and ``reloc2_size`` are byte counts.  A SYMBOL operation's
+    ``symbol_index`` addresses ``overlayRomTable``; LOCAL/JUMP/DATA operations
+    interpret it differently, so target fields are only attached to SYMBOL
+    rows.  This distinction prevents an offset from being reported as a table
+    index merely because both occupy the same word in the serialized union.
+    """
+    if rom_table is None:
+        rom_table = read_rom_table(d)
+    ranges = module_section_ranges(module)
+    records = []
+    for table_number, section_name in ((1, "reloc1"), (2, "reloc2")):
+        start, end = ranges[section_name]
+        if (end - start) % RELOC_RECORD_SIZE:
+            raise ValueError(
+                f"overlay {module['overlay']} {section_name} has non-record "
+                f"size {end - start:#x}"
+            )
+        for index, entry_rom in enumerate(range(start, end, RELOC_RECORD_SIZE)):
+            symbol_index = u32(d, entry_rom)
+            info = u32(d, entry_rom + 4)
+            flags = info & 0xFF
+            op = flags & 0xF
+            mode = flags >> 4
+            record = {
+                "table": table_number,
+                "index": index,
+                "entry_rom": entry_rom,
+                "symbol_index": symbol_index,
+                "target_offset": info >> 8,
+                "flags": flags,
+                "mode": mode,
+                "mode_name": RELOC_TYPE_NAMES.get(mode, f"type{mode}"),
+                "op": op,
+                "op_name": RELOC_OP_NAMES.get(op, f"op{op}"),
+            }
+            if op == 0:
+                if symbol_index >= len(rom_table):
+                    raise ValueError(
+                        f"overlay {module['overlay']} {section_name}[{index}] "
+                        f"uses ROM-table index {symbol_index}, past "
+                        f"{len(rom_table)} entries"
+                    )
+                target = rom_table[symbol_index]
+                record["target_overlay"] = target["overlay"]
+                record["target_symbol_offset"] = target["offset"]
+            records.append(record)
+    return records
 
 
 def verify(d, count, entries, mods):

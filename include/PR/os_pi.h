@@ -67,14 +67,18 @@ typedef struct {
 } OSDevMgr;
 
 /* Transfer direction. */
+#ifndef OS_READ
 #define OS_READ  0
 #define OS_WRITE 1
+#endif
 
 /* I/O message types. The two osEPiStartDma writes -- 0xF and 0x10 at ROM
    0x73168 and 0x73174 -- fix the base at 10. */
 #define OS_MESG_TYPE_BASE      10
 #define OS_MESG_TYPE_DMAREAD   (OS_MESG_TYPE_BASE + 1)
 #define OS_MESG_TYPE_DMAWRITE  (OS_MESG_TYPE_BASE + 2)
+#define OS_MESG_TYPE_VRETRACE  (OS_MESG_TYPE_BASE + 3)
+#define OS_MESG_TYPE_COUNTER   (OS_MESG_TYPE_BASE + 4)
 #define OS_MESG_TYPE_EDMAREAD  (OS_MESG_TYPE_BASE + 5)
 #define OS_MESG_TYPE_EDMAWRITE (OS_MESG_TYPE_BASE + 6)
 

@@ -1,0 +1,6 @@
+# Four assembler-retained overlay-local addends. The expected old fields are
+# zero and every site is covered by the full natural-prefix digest.
+fields:0x4:imm=0@0x220
+fields:0x68:imm=0@0x220
+fields:0xc0:imm=0@0xe4c
+fields:0x360:imm=0@0x218

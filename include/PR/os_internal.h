@@ -11,11 +11,40 @@
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os_version.h"
 
-/* Opaque for now: nothing matched so far dereferences a thread, so inventing
-   a field layout would be assertion rather than evidence. Give it real members
-   when a translation unit needs one. */
-typedef struct OSThread_s OSThread;
+typedef s32 OSPri;
+typedef s32 OSId;
+typedef u64 OSTime;
+
+/* Scheduler prefix used by the matched thread/message routines. The offsets
+ * are fixed by their loads and stores; the saved-register context follows but
+ * is deliberately omitted until a C translation unit accesses it. */
+typedef struct OSThread_s {
+    struct OSThread_s *next;
+    OSPri priority;
+    struct OSThread_s **queue;
+    struct OSThread_s *tlnext;
+    u16 state;
+    u16 flags;
+    OSId id;
+    s32 fp;
+    void *thprof;
+    u8 context[0x18C];
+} OSThread;
+
+#define OS_STATE_STOPPED  (1 << 0)
+#define OS_STATE_RUNNABLE (1 << 1)
+#define OS_STATE_RUNNING  (1 << 2)
+#define OS_STATE_WAITING  (1 << 3)
+
+#define OS_PRIORITY_MAX  255
+#define OS_PRIORITY_IDLE 0
+
+#ifndef OS_READ
+#define OS_READ  0
+#define OS_WRITE 1
+#endif
 
 OSThread *__osGetActiveQueue(void);
 
@@ -35,10 +64,23 @@ void __osRestoreInt(u32 mask);
    established here: __osSetGlobalIntMask (ROM 0x75080) ORs its argument into
    the word at 0x8008045C. */
 typedef u32 OSHWIntr;
+typedef u32 OSIntMask;
+
+#define OS_IM_RCP 0x00000401
 
 extern u32 __OSGlobalIntMask;
 
 void __osSetGlobalIntMask(OSHWIntr mask);
+void __osResetGlobalIntMask(OSHWIntr mask);
+
+void osStartThread(OSThread *thread);
+void osCreateThread(OSThread *thread, OSId id, void (*entry)(void *),
+                    void *arg, void *sp, OSPri priority);
+void osStopThread(OSThread *thread);
+void osDestroyThread(OSThread *thread);
+void osYieldThread(void);
+void osSetThreadPri(OSThread *thread, OSPri priority);
+OSPri osGetThreadPri(OSThread *thread);
 
 /* Set by the boot code at 0x80000308; `__osPiRawStartDma` (ROM 0x72850) ORs it
    with the device address before masking to a physical address. */
@@ -61,6 +103,10 @@ int _bcmp(const void *s1, const void *s2, int len);
 #define bzero _bzero
 #define bcmp  _bcmp
 
+void osWritebackDCache(void *addr, s32 size);
+s32 __osSpSetPc(u32 pc);
+s32 __osSpRawStartDma(s32 direction, u32 devAddr, void *dramAddr, u32 size);
+
 s32 __osSpDeviceBusy(void);
 u32 __osSpGetStatus(void);
 void __osSpSetStatus(u32 status);
@@ -68,5 +114,9 @@ void __osSpSetStatus(u32 status);
 s32 __osDpDeviceBusy(void);
 s32 __osSiDeviceBusy(void);
 s32 __osAiDeviceBusy(void);
+
+#define OS_VIM_STACKSIZE 256
+
+#include "PR/os_message.h"
 
 #endif /* _OS_INTERNAL_H_ */

@@ -113,6 +113,26 @@ sizes) are recomputed from the lists they summarise, never copied forward.
 `gmake check-docs` re-derives the mechanically checkable ones and fails on
 drift.
 
+### Overlay donor-first workflow
+
+Before naming or decompiling any overlay function:
+
+1. identify it as `(overlay, section, offset)` from
+   `config/overlays.us.json`; the shared synthetic VMA is not a unique runtime
+   address;
+2. run `gmake overlay-donors-scan-check`, which rechecks every overlay against
+   the pinned DKR v77, secondary DKR v80, and JFG object surfaces;
+3. consult DKR first for game-code structure and terminology because it is the
+   complete closest-lineage decomp, then use JFG where its overlay/runtime
+   layout is closer;
+4. cite the exact object/name when bytes match, or label the comparison
+   semantic when only systems, strings, or call shape correspond. A donor's
+   generated placeholder is never an adopted name.
+
+`gmake overlay-donors` is the farm-free integrity check for the committed
+107-row-per-donor ledger. The scan-check is the stronger maintainer check and
+requires the out-of-tree reference builds described in `references.md`.
+
 ## Checks
 
 **Before committing, at minimum:** `gmake verify && gmake cleanroom && gmake check-docs`.
@@ -129,6 +149,9 @@ run; nothing else is wired into a hook.
 | `gmake check-fixtures` | the other direction: real ROM in every encoding at every wrap width is *still caught*, which `audit-decoders` is structurally blind to. Fixtures are synthesized from `baseroms/mickey.us.z64` at run time and never written to disk, so it can never run in CI. Run it with `audit-decoders`, not instead of it | no (needs a baserom) | manual |
 | `gmake check-reference-builds` | a local reference-decomp farm still hashes to the digests `tools/reference-builds.lock` pins, i.e. is the farm the 190 tier-A names were mined from. Needs the farm, which is out of tree by design, so it can never run in CI. `gmake reference-builds` rebuilds one from the pins; see [`references.md`](references.md) | no (needs the farm and its baseroms) | manual |
 | `gmake overlay-tables` | decodes the four overlay ROM blocks and re-asserts the layout `docs/modules.md` §5.3 states: the reloc count word, 370 of 375 call sites holding a real `jal`, the 107-fold module gap arithmetic. Needs a baserom, so it can never run in CI | no (needs a baserom) | manual |
+| `gmake overlay-atlas` | regenerates the canonical 107-module manifest and 106 generated yaml code segments in memory and fails on drift | no (needs a baserom) | manual |
+| `gmake overlay-donors` | validates complete DKR v77/v80 and JFG results for all 107 overlays against pinned metadata; does not need the farm | no | `check-docs` |
+| `gmake overlay-donors-scan-check` | reruns those object comparisons and fails if the committed donor ledger differs | no (needs the reference farm and Mickey baserom) | manual before overlay adoption |
 | `gmake prune-asm` | deletes the `asm/` files splat orphaned: `asm/<tu>.s` for a subsegment that is now `c`, and any `asm/nonmatchings/` file no `#pragma GLOBAL_ASM` names. Run by every split, so it is rarely invoked by hand; without it `gmake progress` under-reports | no | every `extract`/split |
 | `gmake progress` | the same matched-function/byte/symbol counts as the scoreboard, without touching README.md | yes | manual |
 | `gmake scoreboard` | regenerates README's Progress block from the tree (run it, then commit, whenever matching progress changes) | yes | manual |

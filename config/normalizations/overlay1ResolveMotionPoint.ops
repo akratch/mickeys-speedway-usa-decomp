@@ -1,0 +1,43 @@
+# Schedule the mode-1 vertical component after its two independent stores.
+reorder:0xF0=0xF4,0xF4=0xF8,0xF8=0xFC,0xFC=0xF0
+
+# Complete private FP temporary webs.
+fields:0x2C:rd=12@16
+fields:0x34:rt=12@16
+fields:0x3C:rt=12@16
+fields:0x48:rt=12@16
+fields:0x88:sa=16@18
+fields:0x90:sa=18@4
+fields:0x9C:rd=16@18,rt=18@4
+fields:0xA0:rd=12@16
+fields:0xAC:rd=12@16
+fields:0xBC:rd=4@6
+fields:0xC4:rd=4@6
+fields:0xE0:rt=6@8
+fields:0xE8:sa=8@10
+fields:0xEC:rd=6@8,rt=8@10,sa=10@18
+fields:0xF0:rt=10@18
+fields:0xF4:rt=18@6,imm=0x0@0xB4
+fields:0xF8:rt=16@4
+fields:0xFC:sa=8@18
+fields:0x104:rd=16@4,rt=18@6,sa=4@8
+fields:0x108:rt=4@8
+fields:0x10C:rt=6@10
+fields:0x114:rd=6@10,rt=8@18,sa=10@4
+fields:0x11C:rt=10@4
+fields:0x12C:rd=16@6
+fields:0x130:rt=4@10
+fields:0x138:rt=16@6,sa=18@8
+fields:0x13C:rd=18@8,rt=4@10,sa=6@18
+fields:0x140:rt=6@18
+fields:0x144:rt=10@6,imm=0x0@0xB8
+fields:0x148:rt=8@4
+fields:0x150:rd=8@4,rt=10@6,sa=16@8
+fields:0x154:rt=16@8
+fields:0x164:rd=18@10
+fields:0x168:rt=6@4
+fields:0x170:rt=18@10,sa=4@18
+fields:0x174:rd=4@18,rt=6@4,sa=8@6
+fields:0x178:rt=8@6
+
+# Resolve local constant-table literals before asserted relocation filtering.

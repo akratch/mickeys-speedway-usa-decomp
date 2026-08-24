@@ -1,0 +1,2 @@
+# The two FP instructions are independent and have disjoint destinations.
+reorder:0x60=0x64,0x64=0x60

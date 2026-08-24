@@ -1,0 +1,29 @@
+#ifndef _XSTDIO_H_
+#define _XSTDIO_H_
+
+#include "PR/ultratypes.h"
+#include "stdlib.h"
+#include "stdarg.h"
+
+typedef struct {
+    union { long long ll; double ld; } v;
+    unsigned char *s;
+    int n0, nz0, n1, nz1, n2, nz2;
+    int prec, width;
+    size_t nchar;
+    unsigned int flags;
+    char qual;
+} _Pft;
+
+#define FLAGS_SPACE 1
+#define FLAGS_PLUS 2
+#define FLAGS_MINUS 4
+#define FLAGS_HASH 8
+#define FLAGS_ZERO 16
+typedef char *outfun(char *, const char *, size_t);
+
+int _Printf(outfun prout, char *arg, const char *fmt, va_list args);
+void _Litob(_Pft *args, char type);
+void _Ldtob(_Pft *args, char type);
+
+#endif

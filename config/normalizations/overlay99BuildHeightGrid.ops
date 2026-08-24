@@ -1,0 +1,20 @@
+# Complete final-grid width, height, current-grid, and table-index owner webs.
+fields:0x108:rt=t2@t8
+fields:0x10c:rt=t3@t9
+fields:0x110:rt=t8@t2
+fields:0x114:rs=t8@t2,rt=t8@t2
+fields:0x118:rs=t2@t8,rt=t3@t9
+fields:0x120:rt=t8@t2,rd=t9@t3
+fields:0x124:rt=t9@t3
+
+# Complete negative-alpha magnitude web: both definitions and the sole use.
+fields:0x154:rd=v0@t4
+fields:0x15c:rd=v0@t4
+fields:0x170:rt=v0@t4
+
+# Private relocation addends are owned by the shipped overlay relocation table.
+fields:0x58:imm=0@156
+fields:0x64:imm=0@160
+fields:0x70:imm=0@164
+fields:0x78:imm=0@168
+fields:0xbc:imm=0@144

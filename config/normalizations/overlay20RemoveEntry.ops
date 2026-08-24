@@ -1,0 +1,29 @@
+# Complete search-loop control-flow web: the natural source expresses the
+# relational back edge as an equality exit plus an unconditional branch.
+fields:0x38:op=20@0,rd=zero@at,fn=4@42
+fields:0x3c:op=0@5,rs=v1@at,rt=a0@zero,imm=0x82a@0xfffa
+drop-branch:0x40:0x28:overlay20RemoveEntry
+
+# Complete post-search count/base/offset/copy allocation web.
+fields:0x4c:rt=a0@t7
+fields:0x50:rt=a0@t7
+fields:0x58:rt=a0@t7
+fields:0x5c:rt=a2@t9
+fields:0x60:rs=a2@t9,rt=a2@t9
+fields:0x64:rd=t7@t8
+fields:0x68:rt=a0@t7,rd=t8@t0
+reorder:0x6c=0x70,0x70=0x6c
+fields:0x6c:rs=a2@t9,rt=t8@t0
+fields:0x70:rs=a2@t9,rt=t7@t8
+commute:0x6c
+commute:0x70
+fields:0x74:rt=t9@t1
+fields:0x84:rt=t9@t1
+
+# Complete active-bit mask temporary chain.
+fields:0xa0:rt=t0@t2
+fields:0xa4:rt=t1@t3
+fields:0xa8:rt=t1@t3,rd=t2@t4
+fields:0xac:rs=t2@t4,rd=t3@t5
+fields:0xb0:rs=t0@t2,rt=t3@t5,rd=t4@t6
+fields:0xb8:rt=t4@t6

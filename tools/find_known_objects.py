@@ -35,6 +35,10 @@ places in the *whole image* it occurred (`romocc`). Trust `romocc=1` with a low
 masked count; treat a short function with many masked words and several hits as
 noise.
 
+For overlays, use `--all-overlays` or `--overlay N`. The search is then
+restricted to the atlas's text ranges and reports `overlay:N:text+offset`; it
+never fabricates a VRAM by applying the resident segment's address delta.
+
 `romocc` is the column the adoption threshold in `docs/modules.md` section 1.2
 actually asks about: uniqueness across the whole 32MB image, not within the
 window that happened to be scanned. `occ` alone once carried a wrong claim into
@@ -45,6 +49,7 @@ refusal to answer, not a `1`.
 
 import argparse
 import glob
+import json
 import os
 import re
 import struct
@@ -199,6 +204,43 @@ def masked_match(rom, blob, masks, lo, hi):
     return hits
 
 
+def load_overlay_windows(path, selected):
+    """Return ``[(start, end, overlay)]`` from the canonical atlas."""
+    with open(path, encoding="utf-8") as fh:
+        atlas = json.load(fh)
+    modules = atlas.get("modules")
+    if not isinstance(modules, list):
+        sys.exit(f"invalid overlay atlas (no modules list): {path}")
+    wanted = set(selected) if selected else None
+    windows = []
+    seen = set()
+    for module in modules:
+        overlay = module.get("overlay")
+        if wanted is not None and overlay not in wanted:
+            continue
+        try:
+            text = module["sections"]["text"]
+            start, end = int(text["start"], 0), int(text["end"], 0)
+        except (KeyError, TypeError, ValueError) as exc:
+            sys.exit(f"invalid text range for overlay {overlay} in {path}: {exc}")
+        seen.add(overlay)
+        if end > start:
+            windows.append((start, end, overlay))
+    missing = (wanted or set()) - seen
+    if missing:
+        sys.exit(f"overlay(s) absent from atlas: {sorted(missing)}")
+    if not windows:
+        sys.exit("selected overlays have no text bytes")
+    return sorted(windows)
+
+
+def overlay_location(windows, hit, size):
+    for start, end, overlay in windows:
+        if start <= hit and hit + size <= end:
+            return overlay, hit - start
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser(
         description=__doc__.split("\n\n")[0],
@@ -206,6 +248,17 @@ def main():
     ap.add_argument("reference", help="directory of built reference objects")
     ap.add_argument("--rom", default=os.path.join(REPO, "baseroms",
                                                   "mickey.us.z64"))
+    overlay_group = ap.add_mutually_exclusive_group()
+    overlay_group.add_argument(
+        "--all-overlays", action="store_true",
+        help="search every overlay text range from config/overlays.us.json")
+    overlay_group.add_argument(
+        "--overlay", type=int, action="append", metavar="N",
+        help="search one overlay text range; repeat for several overlays")
+    ap.add_argument(
+        "--overlay-atlas",
+        default=os.path.join(REPO, "config", "overlays.us.json"),
+        help="canonical atlas used by overlay search")
     ap.add_argument("--start", type=lambda s: int(s, 0), default=0x1000,
                     help="ROM offset to start searching (default 0x1000)")
     ap.add_argument("--end", type=lambda s: int(s, 0), default=0x87000,
@@ -228,10 +281,21 @@ def main():
                          "adoption threshold asks for. Printed as `?` when the "
                          "comparison has no 2-word unmasked anchor to search "
                          "the image with")
+    ap.add_argument("--json", action="store_true",
+                    help="emit structured rows instead of the text table")
     args = ap.parse_args()
 
     with open(args.rom, "rb") as fh:
         rom = fh.read()
+
+    overlay_windows = None
+    if args.all_overlays or args.overlay:
+        overlay_windows = load_overlay_windows(
+            args.overlay_atlas, [] if args.all_overlays else args.overlay)
+        search_start = min(row[0] for row in overlay_windows)
+        search_end = max(row[1] for row in overlay_windows)
+    else:
+        search_start, search_end = args.start, args.end
 
     objects = sorted(glob.glob(os.path.join(args.reference, "**", "*.o"),
                                recursive=True))
@@ -246,7 +310,14 @@ def main():
                 continue
             if args.sections and name != ".text":
                 continue
-            hits = masked_match(rom, blob, masks, args.start, args.end)
+            hits = masked_match(rom, blob, masks, search_start, search_end)
+            locations = None
+            if overlay_windows is not None:
+                locations = {
+                    hit: overlay_location(overlay_windows, hit, len(blob))
+                    for hit in hits
+                }
+                hits = [hit for hit in hits if locations[hit] is not None]
             if not hits or len(hits) > args.max_occurrences:
                 continue
             masked = sum(1 for m in masks if m != 0xFFFFFFFF)
@@ -259,18 +330,59 @@ def main():
                 romocc = (str(len(masked_match(rom, blob, masks, 0, len(rom))))
                           if longest_fixed_run(masks)[1] >= 2 else "?")
             for hit in hits:
-                rows.append((hit, len(blob), name, rel, masked, len(hits),
-                             romocc))
+                row = {
+                    "rom": hit,
+                    "size": len(blob),
+                    "symbol": name,
+                    "reference_object": rel,
+                    "masked_words": masked,
+                    "search_occurrences": len(hits),
+                    "rom_occurrences": romocc,
+                }
+                if overlay_windows is not None:
+                    overlay, offset = locations[hit]
+                    row.update({
+                        "overlay": overlay,
+                        "section": "text",
+                        "section_offset": offset,
+                        "location": f"overlay:{overlay}:text+0x{offset:X}",
+                    })
+                else:
+                    row["vram"] = hit - args.vram_rom + args.vram
+                rows.append(row)
 
-    rows.sort()
-    print(f"{'ROM':>9} {'VRAM':>10} {'size':>7}  {'symbol':<28} "
-          f"{'reference object':<34} {'masked':>6} {'occ':>3} romocc")
-    for offset, size, name, rel, masked, occ, romocc in rows:
-        vram = offset - args.vram_rom + args.vram
-        print(f"{offset:#09x} {vram:#010x} {size:#7x}  {name:<28} "
-              f"{rel:<34} {masked:>6} {occ:>3} {romocc:>6}")
-    print(f"\n{len(rows)} match(es) in "
-          f"{args.start:#x}..{args.end:#x} from {len(objects)} objects")
+    rows.sort(key=lambda row: (row["rom"], row["reference_object"], row["symbol"]))
+    if args.json:
+        print(json.dumps({
+            "reference_root": os.path.abspath(args.reference),
+            "search": (
+                "overlay text ranges" if overlay_windows is not None
+                else f"ROM {search_start:#x}..{search_end:#x}"
+            ),
+            "objects": len(objects),
+            "matches": rows,
+        }, indent=2))
+        return
+
+    if overlay_windows is not None:
+        print(f"{'location':<30} {'ROM':>9} {'size':>7}  {'symbol':<28} "
+              f"{'reference object':<34} {'masked':>6} {'occ':>3} romocc")
+        for row in rows:
+            print(f"{row['location']:<30} {row['rom']:#09x} {row['size']:#7x}  "
+                  f"{row['symbol']:<28} {row['reference_object']:<34} "
+                  f"{row['masked_words']:>6} {row['search_occurrences']:>3} "
+                  f"{row['rom_occurrences']:>6}")
+        scope = f"{len(overlay_windows)} overlay text range(s)"
+    else:
+        print(f"{'ROM':>9} {'VRAM':>10} {'size':>7}  {'symbol':<28} "
+              f"{'reference object':<34} {'masked':>6} {'occ':>3} romocc")
+        for row in rows:
+            print(f"{row['rom']:#09x} {row['vram']:#010x} {row['size']:#7x}  "
+                  f"{row['symbol']:<28} {row['reference_object']:<34} "
+                  f"{row['masked_words']:>6} {row['search_occurrences']:>3} "
+                  f"{row['rom_occurrences']:>6}")
+        scope = f"{search_start:#x}..{search_end:#x}"
+    print(f"\n{len(rows)} match(es) in {scope} from {len(objects)} objects")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,13 @@
+# Complete the three private call-output homes.
+fields:0x1C:imm=0x30@0x34
+fields:0x20:imm=0x28@0x20
+fields:0x30:imm=0x28@0x20
+fields:0x40:imm=0x30@0x34
+fields:0x7C:imm=0x28@0x20
+
+# Equivalent conditional-store delay spelling: retail materializes the fixed
+# write base in an ordinary branch delay; IDO instead emits a likely branch and
+# a redundant copy of the record-size load already present at +0x78.
+fields:0x6C:op=20@4,imm=0x3@0x2
+fields:0x70:op=36@15,rs=3@0,rt=2@1,imm=0x2@0
+fields:0x74:rs=0@1

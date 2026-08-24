@@ -1,0 +1,51 @@
+# Private stack-home rebinding. These are all uses of start, end, manager, and
+# count in the one-function object.
+fields:0x10:imm=0x74@0x68
+fields:0x18:imm=0x70@0x64
+fields:0x1c:imm=0x74@0x68
+fields:0x20:imm=0x70@0x64
+fields:0xa8:imm=0x70@0x64
+fields:0xb4:imm=0x70@0x64
+fields:0x220:imm=0x54@0x44
+fields:0x224:imm=0x54@0x44
+fields:0x22c:imm=0x6c@0x58
+fields:0x288:imm=0x54@0x44
+fields:0x28c:imm=0x6c@0x58
+fields:0x290:imm=0x54@0x44
+fields:0x334:imm=0x6c@0x58
+fields:0x340:imm=0x6c@0x58
+
+# Complete short timer constant web.
+fields:0x210:rt=t9@t6
+fields:0x218:rt=t9@t6
+fields:0x394:rt=t9@t6
+
+# Keep the second object list in the dead argument's saved register rather
+# than a stack spill. The former saved-register maximum and caller-register
+# inactive-count webs are then rebound to the retail caller registers.
+fields:0x294:op=0x2b@0,rs=sp@v0,rt=v0@zero,rd=zero@s0,sa=1@0,fn=0x24@0x25
+fields:0x298:rd=s0@a1
+fields:0x29c:rd=a1@t0
+fields:0x2c4:rs=a1@t0,rt=a1@t0
+fields:0x2cc:rs=s0@a1
+fields:0x2dc:rd=s0@a1
+fields:0x2e0:rs=a1@t0,rt=a1@t0
+fields:0x314:rs=a1@t0
+fields:0x32c:rs=s0@a1
+fields:0x33c:rs=s0@a1
+
+# With maximum already resident in a1, the compiler's two argument copies are
+# redundant. Permute the two call delay slots and move the obsolete list reload
+# to compiler padding before the two asserted drop-copy passes.
+reorder:0x324=0x328,0x328=0x324
+fields:0x330:imm=0x4@0x5
+reorder:0x320=0x3ac,0x340=0x320,0x344=0x340,0x3ac=0x344
+
+# Complete late reverse-scan private register webs.
+fields:0x354:rd=t7@t9
+fields:0x358:rs=t9@s0,rt=t7@t9
+fields:0x368:rt=t8@t7
+fields:0x36c:rs=t8@t7
+fields:0x374:rt=t5@t8
+fields:0x378:rs=t5@t8,rt=t6@t5
+fields:0x37c:rt=t6@t5

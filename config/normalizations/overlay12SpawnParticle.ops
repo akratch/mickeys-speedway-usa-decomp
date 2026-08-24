@@ -1,0 +1,4 @@
+# Materialize the runtime-owned ready-state addend and map the final count
+# store to the surviving equivalent address base after topology preparation.
+fields:0x008:imm=0x0@0x60
+fields:0x0b0:rs=0x1@0x5

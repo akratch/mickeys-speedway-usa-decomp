@@ -1,0 +1,59 @@
+#include "PR/ultratypes.h"
+typedef struct G { u32 w0, w1; } G;
+typedef struct V { s16 x,y,z; u8 r,g,b,a; } V;
+typedef struct Pair { V first, second; } Pair;
+typedef struct Strip { s16 count; u8 buffer,pad03; void *material; u8 pad08[0x24]; Pair *buffers[2]; void *triangles; } Strip;
+extern void overlay17PrepareStripReloc(G **, void *, s32, s32);
+#define S(v,s,w) (((u32)(v)&((1U<<(w))-1U))<<(s))
+#define PRIM(p) { volatile G *m=(G *)(p); m->w1=0xFFFFFFFF; m->w0=0xFA000000; }
+#define VTX(p,a,n) { G *m=(G *)(p); m->w0=S(4,24,8)|S(((n)<<3)|((u32)(a)&6),16,8)|S(((n)<<3)+((n)<<1)+8,0,16); m->w1=(u32)(a); }
+#define STRIP(p,a,n,t) { G *m=(G *)(p); m->w0=S(5,24,8)|S((((n)-1)<<4)|(t),16,8)|S((n)<<4,0,16); m->w1=(u32)(a); }
+#define SYNC(p) { volatile G *m=(G *)(p); m->w1=0; m->w0=0xE7000000; }
+
+void overlay17DrawStrip(G **commands, Strip *strip) {
+    Pair *pair, *previous, *start;
+    s32 vertices, flush, textured;
+    u32 remaining, segment;
+    if (strip == 0) return;
+    segment=0x80000000U;
+    textured = strip->material ? 1 : 0;
+    textured |= (overlay17PrepareStripReloc(commands, strip->material, 0x1F, 0), 0);
+    textured = (s8)textured;
+    PRIM((*commands)++);
+    remaining=strip->count;
+    pair=strip->buffers[strip->buffer];
+    previous=0; start=0; vertices=0; flush=0;
+    if (remaining != 0) {
+        remaining--;
+        do {
+            vertices += 2;
+            if (remaining == 0) {
+                flush=1;
+                goto check_flush;
+            }
+            if (pair->first.a == 0) {
+                flush=1;
+                goto check_flush;
+            }
+            if (start == 0) {
+                if (previous != 0) { start=previous; vertices=4; }
+                else { start=pair; vertices=2; }
+            }
+            if (vertices >= 17) flush=1;
+check_flush:
+            if (flush) {
+                flush=0;
+                if (start != 0) {
+                    VTX((*commands)++, (void *)((u32)start+segment), vertices);
+                    STRIP((*commands)++, (void *)((u32)strip->triangles+segment), vertices-2,
+                          textured);
+                    start=0;
+                }
+                vertices=0;
+            }
+            previous=pair;
+            pair++;
+        } while (remaining--);
+    }
+    SYNC((*commands)++);
+}
