@@ -487,12 +487,7 @@ TEXT_SUBSEGMENTS = {
         (0x608, "c", "overlay34SortAndDraw"),
     ],
     27: [
-        (0x000, "c", "overlay27Init"),
-        (0x064, "c", "overlay27UpdateEffectState"),
-        (0x624, "c", "overlay27RenderEffect"),
-        (0xA1C, "c", "overlay27UpdateCoordinates"),
-        (0xB20, "c", "overlay27CanUse"),
-        (0xB68, "c", "overlay27Activate"),
+        (0x000, "c", "overlay_027"),
     ],
     37: [
         (0x000, "c", "overlay37Init"),

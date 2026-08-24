@@ -1,56 +1,19 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_027.h"
 
-typedef struct O27Object O27Object;
+/*
+ * Overlay 27, ADR 0006 consolidation: one translation unit in ROM order.
+ * Pinned DKR v77/v80 and JFG scans found no exact donor for this module.
+ */
 
-typedef struct O27State {
-    u8 primaryState;
-    u8 pulseState;
-    s16 timer;
-    u8 colorR;
-    u8 colorG;
-    u8 colorB;
-    u8 pulseR;
-    u8 pulseG;
-    u8 pulseB;
-    s16 intensity;
-    s16 fade;
-    s16 pulseTimer;
-    f32 scaleTarget;
-    f32 fadeFloat;
-    void *primaryHandle;
-    void *secondaryHandle;
-    O27Object *source;
-    u8 reserved24[0x184];
-    u16 flags1A8;
-} O27State;
-
-struct O27Object {
-    u8 reserved00[8];
-    f32 scale;
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 reserved18[0x16];
-    s16 positionTag;
-    u8 reserved30[0x34];
-    O27State *state;
-    void **resource;
-};
-
-extern s32 gO27Active;
-extern f32 gO27Scale0;
-extern f32 gO27EaseInput;
-extern f32 gO27Scale8;
-extern f32 gO27ScaleC;
-extern void func_80036544(void *, s32 *, s32, void *, s32);
-extern f32 func_8002A878(f32, s32);
-extern s32 func_800299E8(s32, s32);
-extern void func_800031E8(void *);
-extern void func_80002FE0(s32, f32, f32, f32, s32, void **);
-extern void func_8002BD58(s32, s32, f32);
-extern void func_800031C0(void *, f32, f32, f32);
-extern void func_8000309C(void *, u8);
-extern void func_80006EA0(O27Object *);
+void overlay27Init(O27Object *object, Overlay27InitData *init) {
+    O27State *state = object->state;
+    state->primaryState = 0; state->pulseState = 0; state->timer = 0;
+    state->colorR = 0xFF; state->colorG = 0xFF; state->colorB = 0xFF;
+    state->pulseR = 0x40; state->pulseG = 0x40; state->pulseB = 0x40;
+    state->intensity = 0; state->fade = 0; state->pulseTimer = 0;
+    state->primaryHandle = 0; state->secondaryHandle = 0;
+    state->scaleTarget = 96.0f; state->fadeFloat = 0.0f; state->source = init->target;
+}
 
 #ifdef NON_MATCHING
 void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
@@ -81,7 +44,7 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
 
     gO27Active = 1;
     initialPhase = 9;
-    func_80036544(*object->resource, &initialPhase, 10, &object->reserved30[-8],
+    func_80036544(*object->updateResource, &initialPhase, 10, &object->reserved30[-8],
                   updateRate);
 
     if (updateRate != 0) {
@@ -267,5 +230,203 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o027/overlay27UpdateEffectState/func_overlay_027_F0000064_187BA3C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o027/overlay_027/func_overlay_027_F0000064_187BA3C.s")
 #endif
+
+/* Mickey-local rendering reconstruction; donor scans are exact-negative. */
+#ifdef NON_MATCHING
+void func_overlay_027_F0000624_187BFFC(O27Command **commands, void *arg1,
+                                       s16 *arg2, O27Object *object) {
+    O27Work work;
+    O27Command *command;
+    O27State *state;
+    O27Child *child;
+    s16 *value;
+    void *displayList;
+    void *finishArg;
+    f32 oldScale;
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    s32 intensity;
+
+    value = overlay27GetValue();
+    state = object->state;
+    child = (O27Child *)state->source;
+    if (child != 0) {
+        scale = overlay27GetChildScale(child);
+    } else {
+        scale = 1.0f;
+    }
+
+    if (state->fade != 0) {
+        if (child != 0) {
+            work.transform.positionX = child->x;
+            work.transform.positionY = child->y;
+            work.transform.positionZ = child->z;
+        } else {
+            work.transform.positionX = object->x;
+            work.transform.positionY = object->y;
+            work.transform.positionZ = object->z;
+        }
+
+        work.transform.x = -*value;
+        work.transform.y = 0;
+        work.transform.z = 0;
+        work.transform.scale = scale;
+        intensity = 0x100;
+        work.transform.positionY += 24.0f * scale;
+
+        if (child != 0 && child->factor != 0) {
+            intensity = (s32)(*child->factor * 256.0f);
+        }
+
+        displayList = *object->renderResource->displayList;
+        overlay27Prepare(commands, arg1, &work.transform, 1.0f, 0.0f);
+        overlay27DrawPart(commands, displayList, 0x214, 0);
+
+        command = *commands;
+        *commands = command + 1;
+        command->w0 = 0xFA000000;
+        command->w1 = (((intensity * 0x60) >> 8) << 24) |
+                      ((((intensity * 0xE0) >> 8) & 0xFF) << 16) |
+                      ((((intensity * 0xFF) >> 8) & 0xFF) << 8) |
+                      (state->fade & 0xFF);
+
+        command = *commands;
+        *commands = command + 1;
+        command->w0 = 0xFB000000;
+        command->w1 = ((((intensity << 7) >> 8) & 0xFF) << 8) | 0xFF;
+
+        command = *commands;
+        *commands = command + 1;
+        command->w0 = (((((u32)D_80000000 & 6) | 0x40) & 0xFF) << 16) |
+                      0x04000058;
+        command->w1 = (u32)D_80000000;
+
+        command = *commands;
+        *commands = command + 1;
+        command->w0 = 0x059100A0;
+        command->w1 = (u32)D_80000050;
+
+        command = *commands;
+        *commands = command + 1;
+        command->w1 = 0;
+        command->w0 = 0xE7000000;
+
+        finishArg = 0;
+        if (state->pulseTimer != 0) {
+            overlay27SetMode(commands, 0, 5, 0);
+
+            command = *commands;
+            *commands = command + 1;
+            command->w0 = 0xFA000000;
+            command->w1 = (state->pulseTimer & 0xFF) | 0xFFFF0000;
+            finishArg = D_80000118;
+
+            command = *commands;
+            *commands = command + 1;
+            command->w0 = (((((u32)D_80000118 & 6) | 0x38) & 0xFF) << 16) |
+                          0x0400004E;
+            command->w1 = (u32)D_80000118;
+
+            command = *commands;
+            *commands = command + 1;
+            command->w0 = 0x05400050;
+            command->w1 = (u32)D_80000160;
+
+            command = *commands;
+            *commands = command + 1;
+            command->w1 = 0;
+            command->w0 = 0xE7000000;
+        }
+
+        command = *commands;
+        *commands = command + 1;
+        command->w1 = 0xFFFFFFFF;
+        command->w0 = 0xFA000000;
+
+        command = *commands;
+        *commands = command + 1;
+        command->w1 = 0xFFFFFF00;
+        command->w0 = 0xFB000000;
+
+        overlay27Finish(commands, finishArg);
+    }
+
+    oldScale = object->scale;
+    if (child != 0) {
+        object->y = child->y + (state->scaleTarget * scale);
+    }
+    object->scale *= scale;
+    object->alpha = state->intensity;
+    overlay27Finalize(commands, arg1, arg2, object);
+    object->scale = oldScale;
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o027/overlay_027/func_overlay_027_F0000624_187BFFC.s")
+#endif
+
+/* DKR v77/v80 and JFG contain no exact donor for this table transform. */
+#ifdef NON_MATCHING
+void overlay27UpdateCoordinates(s32 amount) {
+    Overlay27CoordinateRecord *record;
+    s32 xOffset;
+    s32 remaining;
+
+    xOffset = gOverlay27XOffset =
+        (gOverlay27XOffset + (-amount * 12)) & 0x3FF;
+    amount = gOverlay27YOffset =
+        (gOverlay27YOffset + (amount * 48)) & 0x3FF;
+
+    record = gOverlay27CoordinateRecords;
+    remaining = 9;
+    do {
+        record->firstX = gOverlay27XCoordinates[record->firstIndex] +
+                         xOffset;
+        record->firstY = gOverlay27YCoordinates[record->firstIndex] +
+                         amount;
+        record->secondX = gOverlay27XCoordinates[record->secondIndex] +
+                          xOffset;
+        record->secondY = gOverlay27YCoordinates[record->secondIndex] +
+                          amount;
+        record->thirdX = gOverlay27XCoordinates[record->thirdIndex] +
+                         xOffset;
+        record->thirdY = gOverlay27YCoordinates[record->thirdIndex] +
+                         amount;
+        record++;
+    } while (remaining--);
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o027/overlay_027/func_overlay_027_F0000A1C_187C3F4.s")
+#endif
+
+/* Fresh pinned DKR v77/v80 and JFG object scans found no exact donor. */
+s32 overlay27CanUse(Overlay27UseObject *object) {
+    if (object != NULL) {
+        if (object->resource->state != 4 || object->resource->value14 > 0.0f) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* DKR v77/v80 and JFG contain no exact donor for this state transition. */
+s32 overlay27Activate(O27Object *object) {
+    O27Object *savedObject;
+
+    if (object != 0 && object->blocked == 0) {
+        if (object->state->primaryState == 4) {
+            (savedObject = object)->state->primaryState = 3;
+            if (object->state == 0 && object->state == 0) {
+            }
+            return 1;
+        }
+        if (object->state->primaryState == 2) {
+            object->state->timer = 0;
+        }
+        return 1;
+    }
+    return 0;
+}
