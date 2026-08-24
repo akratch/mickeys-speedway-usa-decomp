@@ -81,6 +81,7 @@ extern void func_overlay_065_F0000C38_18C4EA0(O65Command **, s32 *, s32);
 #define O65_DELTA_Z D_297C
 #define O65_BUFFER_TABLE D_2980
 
+#ifdef NON_MATCHING
 void overlay65UpdateParticles(O65Command **arg0, s32 *arg1,
                                         s32 arg2) {
     O65Command *commands;
@@ -245,3 +246,6 @@ void overlay65UpdateParticles(O65Command **arg0, s32 *arg1,
     func_overlay_065_F0000C38_18C4EA0(arg0, arg1, arg2);
     O65_MODE = 1;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o065/overlay65UpdateParticles/func_overlay_065_F0000080_18C42E8.s")
+#endif

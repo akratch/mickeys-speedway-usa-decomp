@@ -28,6 +28,7 @@ extern s32 D_21C;
 extern Overlay65Camera *o65GetCamera(s32 index);
 extern s32 o65RandomRange(s32 low, s32 high);
 
+#ifdef NON_MATCHING
 void func_overlay_065_F0001A14_18C5C7C(f32 baseX, f32 baseY, f32 baseZ) {
     Overlay65Camera *camera;
     void *record;
@@ -72,3 +73,6 @@ void func_overlay_065_F0001A14_18C5C7C(f32 baseX, f32 baseY, f32 baseZ) {
         record = (u8 *)record + 0x80;
     } while (i < 50);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o065/overlay65SpawnRecord/func_overlay_065_F0001A14_18C5C7C.s")
+#endif

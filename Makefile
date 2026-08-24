@@ -4334,30 +4334,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65Initialize.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
 
-# This typed spawn-record initializer naturally reproduces the shipped CFG,
-# calls, memory effects, and FP associations. The target-local normalization
-# selects one independent initializer ordering and two complete private
-# register-carrier webs; its digest rejects any source or compiler drift.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: \
-	config/normalizations/overlay65SpawnRecord.ops \
-	config/normalizations/overlay65SpawnRecord.filter.spec \
-	config/normalizations/overlay65SpawnRecord.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+# NON_MATCHING/GLOBAL_ASM: the spawn record already uses its canonical auto
+# symbol and requires no postprocess metadata.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1A0 9b0c911accf406d31d99ff7c931a2562ec89312201d6244367c741d655420b00 \
-		@config/normalizations/overlay65SpawnRecord.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay65SpawnRecord.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		o65GetCamera=func_overlay_065_F0000000_18C4268 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay65SpawnRecord.rebind.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1A0
 
 # The typed source owns O64's complete procedural texture generator. IDO's
 # natural stream contains four redundant representations; the target-local
@@ -4575,46 +4554,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: POS
 		0x334:overlay70EmitEvent:func_overlay_070_F0000000_18C91C8 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4 \
 		00000000000000008fb90064
-# The typed particle/update body preserves every loop bound, call, relocation,
-# memory effect, and FP association. IDO emits the same 720 semantic carriers
-# in a compact private schedule; the fail-loud preparation and complete
-# relocation-anchored permutation select the shipped schedule without dropping
-# or synthesizing any semantic instruction.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65UpdateParticles.c.o: \
-	config/normalizations/overlay65UpdateParticles.prepare.py \
-	config/normalizations/overlay65UpdateParticles.ops \
-	config/normalizations/overlay65UpdateParticles.filter.spec \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+# NON_MATCHING/GLOBAL_ASM: restore the friendly update symbol; the aligned
+# extracted function requires no trailing-section trim.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65UpdateParticles.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay65UpdateParticles.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xB40 54a8f06a6028cc9f93e4c6ffdcf0001451d64409c20a95acdcd78be28a3538ed \
-		@config/normalizations/overlay65UpdateParticles.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay65UpdateParticles.filter.spec && \
-	$(OBJCOPY) --redefine-sym o65BeginDraw=func_overlay_065_F0000000_18C4268 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x0b4:o65GetCamera:func_overlay_065_F0000000_18C4268 \
-		0x0c0:o65PrepareCamera:func_overlay_065_F0000000_18C4268 \
-		0x0cc:o65LoadCursor:func_overlay_065_F0000000_18C4268 \
-		0x270:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x298:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x2ac:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x2bc:o65Sin:func_overlay_065_F0000000_18C4268 \
-		0x2c8:o65Cos:func_overlay_065_F0000000_18C4268 \
-		0x318:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x328:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x338:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x348:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x358:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x368:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x378:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x388:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x3b0:o65FindGround:func_overlay_065_F0000000_18C4268 \
-		0x5f4:o65RandomRange:func_overlay_065_F0000000_18C4268 \
-		0x648:o65Cos:func_overlay_065_F0000000_18C4268 \
-		0x680:o65Transform:func_overlay_065_F0000000_18C4268
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_065_F0000080_18C42E8=overlay65UpdateParticles $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65ResetSlots.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65ResetSlots.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
