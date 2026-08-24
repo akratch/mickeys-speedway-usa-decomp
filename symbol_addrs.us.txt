@@ -1192,6 +1192,9 @@ n_alSavePull = 0x80067510; // type:func size:0xA0
 // libultra/n_env  ROM 0x681b0  (jfg/libultra: src/libultra/n_env.c.o)  whole .text 0xff0, masked=59, romocc=1
 n_alEnvmixerPull = 0x800675B0; // type:func size:0x924
 n_alEnvmixerParam = 0x80067ED4; // type:func size:0x144
+_pullSubFrame = 0x80068018; // type:func size:0x2E4
+_getRate = 0x800682FC; // type:func size:0x210
+_getVol = 0x8006850C; // type:func size:0x90
 // libultra/n_cspsendmidi  ROM 0x691a0  (jfg/libultra: src/libultra/n_cspsendmidi.c.o)  whole .text 0x80, masked=1, romocc=1
 n_alCSPSendMidi = 0x800685A0; // type:func size:0x80
 // libultra/n_synsetpriority  ROM 0x69220  (jfg/libultra: src/libultra/n_synsetpriority.c.o)  whole .text 0x20, masked=0, romocc=1
@@ -1518,7 +1521,5 @@ func_800608C4 = 0x800608C4; // type:func size:0x250   ROM 0x614c4  src/libultra/
 func_80060B14 = 0x80060B14; // type:func size:0x114   ROM 0x61714  src/libultra/n_csplayer.c.o  masked=4/69
 // jfg:src/libultra/n_drvrNew.c.o
 func_80064DC0 = 0x80064DC0; // type:func size:0x164   ROM 0x659c0  src/libultra/n_drvrNew.c.o  masked=5/89
-// jfg:src/libultra/n_env.c.o
-func_8006850C = 0x8006850C; // type:func size:0x94   ROM 0x6910c  src/libultra/n_env.c.o  masked=0/37
 // jfg:src/libultra/n_load.c.o
 _decodeChunk = 0x80069A34; // type:func size:0x1B8   ROM 0x6a634  src/libultra/n_load.c.o  masked=0/110

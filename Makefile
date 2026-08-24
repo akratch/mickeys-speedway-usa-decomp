@@ -607,7 +607,7 @@ LIBULTRA_NAUDIO_BARE_TUS := n_cspsetvol n_cspgetstate n_cspmessage slHeap sl \
 	n_alsynsetdistort n_synallocfx n_alcspchan n_syngetfxref n_synsetvol \
 	n_synstartvoiceparam n_synaddplayer n_synallocvoice alsurround n_mainbus \
 	n_auxbus n_event n_synsetfxparam n_load n_alLPFilter n_drvrNew \
-	n_synthesizer
+	n_synthesizer n_env
 # n_alcspchan uses the Rare-added MIDI control-change codes (AL_MIDI_UNK_FC,
 # AL_MIDI_FADEEND_CTRL, AL_MIDI_FADESTART_CTRL), guarded by RAREDIFFS like the
 # other Rare-diffed libultra TUs above.
@@ -616,6 +616,9 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/n_alcspchan.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/n_drvrNew.c.o: CFLAGS += -DRAREDIFFS -Wab,-r4300_mul
 # The synthesizer uses the same per-bus layout and the n_audio microcode ABI.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/n_synthesizer.c.o: CFLAGS += -DRAREDIFFS -DN_MICRO
+# The envelope mixer emits n_audio microcode commands; its rate helper needs
+# the R4300 multiply scheduler's hazard spacing.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/n_env.c.o: CFLAGS += -DN_MICRO -Wab,-r4300_mul
 # The N64DD/mobile microcode branches in the SDK source do not describe the
 # n_audio ABI used by Mickey's decoder object.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/n_load.c.o: CFLAGS += -DN_MICRO

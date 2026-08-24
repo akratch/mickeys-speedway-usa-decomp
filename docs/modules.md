@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-38 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 36 more from it): every masked=0/1/2 TU (the
+39 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 37 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -497,8 +497,8 @@ that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 `-DRAREDIFFS` for Rare's added MIDI control-change codes), `n_syngetfxref`,
 `n_synsetvol`, `n_synstartvoiceparam`, `n_synaddplayer`,
 `n_synallocvoice`, `alsurround`, `n_mainbus`, `n_auxbus`, `n_event`,
-`n_synsetfxparam`, `n_load`, `n_alLPFilter`, `n_drvrNew`, and
-`n_synthesizer`.
+`n_synsetfxparam`, `n_load`, `n_alLPFilter`, `n_drvrNew`, `n_synthesizer`,
+and `n_env`.
 
 `alsurround` also owns a `0x10`-byte `.bss` section at Mickey VRAM
 `0x800D7DC0`: the two linked functions' HI16/LO16 references place its
@@ -538,6 +538,13 @@ parameter counters at ROM `0x80D70` and the `0x10`-byte floating-point constant
 island at ROM `0x85370`; both sections compare directly against retail. No
 post-compile insertion is involved.
 
+`n_env` is the SDK's n_audio microcode path (`-DN_MICRO`). Its five functions
+occupy `0xFEC` executable bytes with 59 relocations, followed by one compiler
+alignment word in the `0xFF0`-byte text section. The TU also owns the
+`0x100`-byte equal-power table at ROM `0x80DC0` and a `0x50`-byte switch table
+and constant island at ROM `0x853F0`; the initialized table compares directly
+against retail and the linked rodata is covered by the full-ROM proof.
+
 **Plateaus, each with a first mismatch:**
 
 - `n_resample` (masked=8): `n_alResamplePull`'s tail diverges
@@ -546,7 +553,7 @@ post-compile insertion is involved.
   attempt.
 
 Remaining unmatched, roughly by size: `n_csplayer` (masked=154, `0x3220`),
-`n_reverb` (masked=60, DSP-heavy, deferred per plan), `n_env` (masked=59), `n_cseq`
+`n_reverb` (masked=60, DSP-heavy, deferred per plan), `n_cseq`
 (masked=15), and `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
 deferred per plan) not yet attempted.
 
@@ -3915,7 +3922,7 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** 35 functions, 44 jump tables,
+- **rodata order follows text order exactly.** 35 functions, 43 jump tables,
   monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
   by TU in text order, which is what makes the per-TU split tractable.
 

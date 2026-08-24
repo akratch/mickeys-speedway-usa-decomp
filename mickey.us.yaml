@@ -250,7 +250,7 @@ segments:
       - [0x66A50, c, libultra/n_syndelete]
       - [0x66A70, c, libultra/n_synallocfx]
       - [0x66B00, asm, libultra/n_reverb]
-      - [0x681B0, asm, libultra/n_env]
+      - [0x681B0, c, libultra/n_env]
       - [0x691A0, c, libultra/n_cspsendmidi]
       - [0x69220, c, libultra/n_synsetpriority]
       - [0x69240, asm, main/math_atan]
@@ -457,7 +457,8 @@ segments:
       - [0x80D60, .data, libultra/n_sl]
       - [0x80D70, .data, libultra/n_synthesizer]
       - [0x80D80, .data, libultra/n_drvrNew]
-      - [0x80DC0, data]
+      - [0x80DC0, .data, libultra/n_env]
+      - [0x80EC0, data]
       # Named SDK-owned initialized-data tails.  Each boundary is fixed by the
       # matching reference object's section size and by the ROM relocation(s)
       # that address the first symbol; anonymous gaps remain explicitly raw.
@@ -501,7 +502,7 @@ segments:
       # the resident segment. Two things the later per-TU split needs are
       # measured and recorded here:
       #
-      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 44 jump
+      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 43 jump
       #      tables in the static segment back to the functions that reference
       #      them gives 35 functions whose ROM addresses and whose jump-table
       #      addresses are both monotonically increasing -- ZERO INVERSIONS.
@@ -533,6 +534,8 @@ segments:
       - [0x85390, .rodata, libultra/n_drvrNew]
       - [0x853B0, .rodata, libultra/n_synsetfxparam]
       - [0x853C0, rodata]
+      - [0x853F0, .rodata, libultra/n_env]
+      - [0x85440, rodata]
       - [0x85460, .rodata, libultra/n_auxbus]
       - [0x85470, .rodata, libultra/n_alLPFilter]
       - [0x85480, rodata]
