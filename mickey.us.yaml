@@ -153,8 +153,16 @@ segments:
       - [0x20020, asm]
       - [0x21DA0, asm]
       - [0x21EE0, asm]
-      - [0x25C20, asm]
-      - [0x27760, asm]
+      # JFG's joy.c/controller.c.o function run: OS controller setup/read,
+      # mapping accessors, stick clamping, and the CIC challenge helper.
+      - [0x25C20, c, main/joy]
+      # JFG level.c order from levelGetCounts through levelInitRegionFlags.
+      # Mickey omits levelGetWorldRegions and the donor's four trailing flag
+      # accessors, but the surrounding call graph preserves this TU boundary.
+      - [0x263F0, c, main/level]
+      # Six main/main.c assert-string references plus the ordered game-window,
+      # level-change, and main-state routines identify JFG's main.c lineage.
+      - [0x27760, c, main/main]
       # DKR's whole hand-written `math_util.s` object matches this run in its
       # original function order. It remains assembly by design; naming the
       # subsegment lets the progress ledger distinguish verified source asm

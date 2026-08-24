@@ -219,6 +219,9 @@ the segment, carrying 190 function names.
 | `0x31C4` | `0x800025C4` | `audspat_jingle_off` | A | Spatial audio, and the thinnest row adopted |
 | `0xC9B4`, `0xF520` | — | `"track/track.c"` asserts | — | **`track` code is partly resident** |
 | `0x21DA0` | `0x800211A0` | `mainproc`, `thread1_main` | A | `main.c` proper, at the boot target |
+| `0x25C20`-`0x263F0` | `0x80025020` | `main/joy` | B | Controller setup, polling, mapping, accessors and CIC helper; §3.4 |
+| `0x263F0`-`0x27760` | `0x800257F0` | `main/level` | B | Level lifecycle and metadata accessors; §3.4 |
+| `0x27760`-`0x2A250` | `0x80026B60` | `main/main` | B + C | Main state/frame control, identified by call graph and six file-string references; §3.4 |
 | `0x27BB4`, `0x28BB8` | — | `"main/main.c"` asserts | — | **`main` code is resident** |
 | `0x29FD0` | `0x800293D0` | `"x = %5d"` … `"a = %3.1f"` | — | On-screen coordinate readout |
 | `0x2A250`–`0x2AE44` | `0x80029650` | 11 named `math_util.s` routines | A | Matrix / vector / RNG library. 13 routines matched: 11 named here, `rand_range` already carried as `mathRnd`, and `func_80070058` left unnamed as a placeholder |
@@ -359,6 +362,46 @@ whole-object match for any of the not-yet-named TUs above). Asserting a yaml
 measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
+
+### 3.4 Resident controller, level and main TUs
+
+ROM `0x25C20`-`0x2A250` is 17,968 bytes (`0x4630`) containing 105
+functions. A per-function census recorded every boundary, direct caller and
+callee, string reference, and the top five masked n-gram neighbours from
+`tools/skeleton_scan.py`. No function in the range uses an odd-numbered
+single-precision floating-point register, so §6.2 does not force any of these
+functions to remain hand-written assembly.
+
+| Canonical TU | ROM / VRAM | Bytes | Functions | Evidence |
+|---|---|---:|---:|---|
+| `main/joy` | `0x25C20`-`0x263F0` / `0x80025020`-`0x800257F0` | 2,000 | 19 | **Tier B:** exact ordered correspondence to JFG's controller setup/read, map accessors, stick clamp and CIC helper; Mickey's callers agree |
+| `main/level` | `0x263F0`-`0x27760` / `0x800257F0`-`0x80026B60` | 4,976 | 21 | **Tier B:** exact ordered correspondence to JFG `level.c`; Mickey omits `levelGetWorldRegions` and four donor tail accessors |
+| `main/main` | `0x27760`-`0x2A250` / `0x80026B60`-`0x80029650` | 10,992 | 65 | **Tiers B + C:** ordered main-state call graph plus six references to `main/main.c`; the last routine references the `x/y/z/a` coordinate readout strings |
+
+The boundaries are all 16-byte aligned and are evidence-backed TU splits, but
+they are not tier-A whole-object matches: no complete JFG object was
+byte-identical. The strongest masked-skeleton anchors include
+`levelUpdateColourCycling` (0.622), `levelGetNextOfWorld` (0.615),
+`mainCPUeffects` (0.671), and the unnamed `func_80027EC0` (0.837). Three tiny
+controller routines compare byte-identically with JFG under relocation masks,
+but each has fewer than six unmasked words and therefore remains tier B under
+§1.2 rather than being promoted to tier A.
+
+The direct-call census supplies independent anchors. `joyResetMap` is called
+by `joyInit`; the stick accessors converge on `joyClamp`; `levelInit` owns the
+subsystem initialization/free fanout and `levelFreeAll` is reached from the
+main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
+`mainChangeLevel` and `mainPreNMI`. The two large routines at `0x80026FB4` and
+`0x80027FB8` build the six `main/main.c` string addresses. Placeholder-named
+JFG functions were not imported: unresolved routines retain Mickey's own
+`func_<VRAM>` symbol.
+
+**PROVENANCE.** TU identities and adopted function names are adapted from Jet
+Force Gemini's published `src/{joy,level,main}.c` and built
+`src/{controller,level,main}.c.o`, a permitted public retail-derived decomp
+under `docs/CLEANROOM.md`. The tier-B/C evidence above comes independently
+from Mickey's own function order, callers/callees and strings. Any C body
+adapted during matching carries the same disclosure at its point of use.
 
 ---
 
