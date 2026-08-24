@@ -16,6 +16,7 @@ extern s32 D_8007A170;
 extern s32 D_8007A154;
 extern s32 D_8007A14C;
 extern s32 D_8007A1B0;
+extern s32 D_8007A1BC;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -87,7 +88,9 @@ void mainSyncNextLevel(void) {
     D_8007A1B0 = 1;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainSetMode.s")
+s32 mainGetMode(void) {
+    return D_8007A1BC;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028D24.s")
 
