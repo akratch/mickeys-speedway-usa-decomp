@@ -34,10 +34,19 @@ typedef struct FxStatus {
     u8 pad1[0x1F];
 } FxStatus;
 
+typedef struct FxRecord {
+    u8 pad0[0x1A];
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 pad1D[3];
+} FxRecord;
+
 extern void func_800347A0(s32 linked);
 extern void mmFree(void *ptr);
 extern FxFlags D_800D5F5A[];
 extern FxStatus D_800D5F59[];
+extern FxRecord D_800D5F58[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046E70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046EC4.s")
@@ -86,7 +95,20 @@ s32 func_80049864(s32 index) {
     }
     return 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004989C.s")
+s32 func_8004989C(s32 index) {
+    FxRecord *record;
+    s32 color;
+
+    if (index < 0 || index >= 5) {
+        return 0;
+    }
+    record = &D_800D5F58[index];
+    color = ((record->red & 0xF8) << 8) |
+            ((record->green & 0xF8) << 3) |
+            ((record->blue & 0xF8) >> 2);
+    color |= color << 16;
+    return color;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800498FC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049A8C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049B14.s")

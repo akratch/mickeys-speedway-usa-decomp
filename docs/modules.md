@@ -416,7 +416,10 @@ records and tests a caller-supplied flag mask; its natural 32-byte-stride
 record access is exact at the resident defaults, including the data-symbol
 relocation pair. Its adjacent 56-byte `func_80049864` sibling tests a byte
 status field with the same bounds and stride and is exact under the same flags,
-also with the target's data-symbol relocation pair.
+also with the target's data-symbol relocation pair. The following 96-byte
+`func_8004989C` packs the record's RGB bytes into a duplicated 16-bit color;
+the typed record body, expression schedule, and data relocation are exact at
+the resident defaults.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
