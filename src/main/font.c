@@ -22,6 +22,7 @@ extern DialogueBoxBackground D_800D64E8[];
 extern s32 D_8007D538;
 extern s32 D_8007D53C;
 extern s32 D_8007D540;
+extern s32 D_8007D544[];
 extern u8 D_800D60E0;
 extern u8 D_800D664D;
 
@@ -177,7 +178,40 @@ void func_8004BFD8(s32 windowId) {
     D_800D64E8[windowId].flags &= 0x7FFF;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C000.s")
+void func_8004C000(char **outString, s32 number) {
+    u8 digit;
+    s32 i;
+    s32 hasDigit;
+    s32 quotient;
+    s32 *power;
+    char *output = *outString;
+
+    if (number < 0) {
+        *output = '-';
+        output++;
+        number = -number;
+    }
+
+    hasDigit = 0;
+    for (i = 0; D_8007D544[i] != 0; i++) {
+        digit = '0';
+        power = &D_8007D544[i];
+        if (number >= *power) {
+            quotient = number / *power;
+            number -= quotient * *power;
+            digit += quotient;
+            hasDigit = 1;
+        }
+        if (hasDigit) {
+            *output = digit;
+            output++;
+        }
+    }
+
+    *output++ = '0' + number;
+    *outString = output;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C0C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C140.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C200.s")
