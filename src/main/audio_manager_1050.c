@@ -19,6 +19,8 @@
 extern s32 D_80078D7C;
 extern s32 D_80078D80;
 extern void gsSndpSetParam(void *sound, s16 type, u32 value);
+extern void n_alCSPNew(void *player, void *config);
+extern void n_alCSPSetMessageQ(void *player, void *queue);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000450.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
@@ -78,7 +80,11 @@ void amSndSetPan(void *sound, u32 pan) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001614.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001620.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001668.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/forcelink.s")
+/* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
+void forcelink(void) {
+    n_alCSPNew(NULL, NULL);
+    n_alCSPSetMessageQ(NULL, NULL);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800016C8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800016EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001708.s")
