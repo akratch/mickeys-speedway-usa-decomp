@@ -35,6 +35,7 @@ extern void *overlay89CreateEffectReloc(f32 x, f32 y, f32 z, f32 scale,
  * per-file R4300 multiply scheduling flag is required for the shipped hazard
  * nop; the guarded normalization selects the retail local-allocation web.
  */
+#ifdef NON_MATCHING
 void overlay89UpdateEffect(const Overlay89Transform *transform,
                            Overlay89EffectState *effect) {
     f32 trigA0;
@@ -76,3 +77,6 @@ void overlay89UpdateEffect(const Overlay89Transform *transform,
             (effect->blue * effect->intensity) >> 8);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o089/overlay89UpdateEffect/func_overlay_089_F0000000_18D4230.s")
+#endif

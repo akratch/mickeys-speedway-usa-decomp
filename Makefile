@@ -3685,85 +3685,24 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88DrawSortedGeometry.c.o: POSTPROCE
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_088_F00001A4_18D3C2C=overlay88DrawSortedGeometry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x59C
-# The semantic source naturally reproduces the exact boundary, frame, opcode
-# inventory, CFG, FP topology, and runtime relocation sites. Select retail's
-# complete local-allocation web, fold the six statically aliased call sites to
-# the offset-zero proxy, and remove only the local-data relocations retained by
-# the shipped overlay runtime table.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateEffect.c.o: \
-	config/normalizations/overlay89UpdateEffect.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateEffect.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x138 1b44a19d916bbad634607e5fa7d2d2b6266b5607c1c4f0234669e29b5af0145a \
-		@config/normalizations/overlay89UpdateEffect.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x30:overlay89TrigBReloc:overlay89TrigAReloc \
-		0x48:overlay89TrigBReloc:overlay89TrigAReloc \
-		0xb8:overlay89MoveEffectReloc:overlay89TrigAReloc \
-		0x118:overlay89CreateEffectReloc:overlay89TrigAReloc && \
 	$(OBJCOPY) --redefine-sym \
-		overlay89TrigAReloc=func_overlay_089_F0000000_18D4230 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x54:5:gOverlay89EffectScale \
-		0x58:6:gOverlay89EffectScale && \
+		func_overlay_089_F0000000_18D4230=overlay89UpdateEffect $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89Evaluate.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
-# Natural source supplies the exact boundary, frame, CFG, calls, and five
-# relocation-bearing instructions. The complete guarded allocation/schedule
-# ledger selects retail's equivalent state-pointer spill and register web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89InitializeEffect.c.o: \
-	config/normalizations/overlay89InitializeEffect.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89InitializeEffect.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89InitializeEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x334 91a336e39261e09b3690e088760c6bdb0bf39854393b7d119442b9db64239a70 \
-		@config/normalizations/overlay89InitializeEffect.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x288:overlay89MaintainReloc:overlay89CreatePrimaryReloc && \
 	$(OBJCOPY) --redefine-sym \
-		overlay89Evaluate=func_overlay_089_F0000138_18D4368 \
-		--redefine-sym overlay89CreatePrimaryReloc=func_overlay_089_F0000000_18D4230 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x50:5:gOverlay89InitScale \
-		0x54:6:gOverlay89InitScale && \
+		func_overlay_089_F0000270_18D44A0=overlay89InitializeEffect $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x334
-# Natural source supplies the exact 136-instruction semantic body, calls, FP
-# inventory, constants, structure accesses, and fourteen-record runtime
-# relocation surface. The complete reviewed permutation/field ledger selects
-# retail's parameter-spill, frame, saved-register, and schedule web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateStateAndParticles.c.o: \
-	config/normalizations/overlay89UpdateStateAndParticles.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateStateAndParticles.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateStateAndParticles.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x220 d4ba88922a47913a7f6f139165be1d0b9351e60de4f60832af5366177082a6df \
-		@config/normalizations/overlay89UpdateStateAndParticles.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0xa8:overlay89SetColorReloc:overlay89SetPrimaryReloc \
-		0x12c:overlay89RandomReloc:overlay89SetPrimaryReloc \
-		0x144:overlay89RandomReloc:overlay89SetPrimaryReloc \
-		0x15c:overlay89RandomReloc:overlay89SetPrimaryReloc \
-		0x178:overlay89RandomReloc:overlay89SetPrimaryReloc \
-		0x190:overlay34SpawnReloc:overlay89SetPrimaryReloc \
-		0x1ac:overlay89RandomReloc:overlay89SetPrimaryReloc \
-		0x1e0:overlay89SetColorReloc:overlay89SetPrimaryReloc \
-		0x1f8:overlay89MaintainReloc:overlay89SetPrimaryReloc && \
 	$(OBJCOPY) --redefine-sym \
-		overlay89UpdateReloc=func_overlay_089_F00001A8_18D43D8 \
-		--redefine-sym overlay89SetPrimaryReloc=func_overlay_089_F0000000_18D4230 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x120:5:gOverlay89RandomScale \
-		0x124:6:gOverlay89RandomScale
+		func_overlay_089_F00005A4_18D47D4=overlay89UpdateStateAndParticles $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x68
 # Natural source owns the exact semantic topology, frame and arithmetic. Four

@@ -62,6 +62,7 @@ extern void overlay89MaintainReloc(Overlay89Object *object,
                                    Overlay89EffectState *state);
 
 /* DKR v77/v80 and JFG contain no exact donor for this state updater. */
+#ifdef NON_MATCHING
 void overlay89UpdateStateAndParticles(Overlay89Object *object,
                                       s32 updateRate) {
     Overlay89Particle particle;
@@ -142,3 +143,6 @@ void overlay89UpdateStateAndParticles(Overlay89Object *object,
     }
     object->clearWord = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o089/overlay89UpdateStateAndParticles/func_overlay_089_F00005A4_18D47D4.s")
+#endif

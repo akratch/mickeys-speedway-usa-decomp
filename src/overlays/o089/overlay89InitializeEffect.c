@@ -122,6 +122,7 @@ extern void overlay89MaintainReloc(Overlay89Object *object,
                                    Overlay89EffectState *state);
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
+#ifdef NON_MATCHING
 void overlay89InitializeEffect(Overlay89Object *object,
                                        Overlay89Init *init) {
     Overlay89CreateDescriptor descriptor;
@@ -216,3 +217,6 @@ void overlay89InitializeEffect(Overlay89Object *object,
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o089/overlay89InitializeEffect/func_overlay_089_F0000270_18D44A0.s")
+#endif
