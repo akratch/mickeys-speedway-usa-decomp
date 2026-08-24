@@ -342,6 +342,8 @@ see the caveat below):
 | `hasm/ido/math_util.s.o` | 15 | `0x2A9E4`–`0x2B644` | Inside the already-measured `main/math_util` boundary; corroborates it |
 | `src/menu.c.o` | 6 | `0x3A184`–`0x3B008` | Inside yaml's unnamed `0x37D50`–`0x3B480` block. No whole-`.text` match found, so no boundary is claimed |
 | `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside the now-split `main/gameVi` TU (§3.4). The four exact skeleton hits are landmarks; the boundary is separately established at tier B from the complete ordered function/call surface, not claimed as a whole-`.text` byte match |
+| `src/menu.c.o` | 6 | `0x3A184`–`0x3B008` | The automated pass found only interior anchors. A later function-order and call-graph census established the narrower `0x39350`–`0x3B1A0` ownership (§3.4); no whole-`.text` match is claimed |
+| `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside yaml's unnamed `0x34180`–`0x37D50` block. No whole-`.text` match; no boundary claimed |
 | `src/anim.c.o` | 3 | `0x50D7C`–`0x51D28` | Inside yaml's unnamed `0x50C00`–`0x58570` block. No whole-`.text` match; no boundary claimed |
 | `src/models.c.o` | 3 | `0x20020`–`0x21710` | Inside yaml's unnamed `0x20020`–`0x21DA0` block, starting exactly at its boundary. No whole-`.text` match; no boundary claimed |
 | `src/font.c.o` | 2 | `0x4BC70`–`0x4C884` | The original >=10-word scan found two anchors. The later complete census in §3.4 found four more exact short functions and split `main/font` provisionally; no whole-`.text` match is claimed |
@@ -634,6 +636,8 @@ against Mickey's ROM; every other row is explicitly an argument. No JFG body
 is present in the initial all-`GLOBAL_ASM` split.
 **Why most rows have no new `mickey.us.yaml` split.** §1's "measured file
 boundary" tier requires a whole-`.text` match; this pass only matched
+**Why the original scan added no `mickey.us.yaml` splits.** §1's "measured
+file boundary" tier requires a whole-`.text` match; this pass only matched
 individual functions (`tools/find_known_objects.py --sections` found no
 whole-object match for any of the not-yet-named TUs above). Asserting a yaml
 `asm`/`c` split from function-level hits alone would claim more than was
@@ -824,6 +828,105 @@ functions is classified as handwritten assembly under §6.2.
 | `camSetMode` | `0x22524` | 64 | Configured object, two relocation pairs, linked range and full ROM exact. |
 | `camGetNo` | `0x22564` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camSetNo` | `0x22594` | 12 | Configured object, relocation pair, linked range and full ROM exact; Mickey omits JFG's bounds guard. |
+level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
+`n_env`, `n_load`, `math_util`) needed no new split; they already have one.
+The later menu census below adds independent boundary evidence rather than
+retroactively treating the six hits as a whole-object match.
+
+### 3.4 Resident front-end menu: ROM `0x39350`–`0x3B1A0`
+
+This range is `main/menu`, corresponding to JFG's `src/menu.c`. The identity
+uses permitted JFG material and is disclosed here: names, declarations,
+function order, and starting bodies are compared against JFG's public
+decompilation; Mickey's ROM remains authoritative for every match.
+
+The six exact masked-skeleton anchors in §3.3 are **tier A** evidence for the
+TU identity, but not its boundaries. The boundaries are a separate **tier B/D**
+argument from the full function census. At ROM `0x39350`, the code begins a
+sequence structurally corresponding to JFG's `setLanguage`, `initFront`,
+`frontFreeMode`, `frontInitMode`, and `frontSetMode`; the same order continues
+through the six tier-A anchors and the settings accessor family. The last menu
+routine is the short setter at `0x3B190`, in JFG's
+`frontCharSelectSetQuitMode` position. The next function, at aligned ROM
+`0x3B1A0`, searches the table associated with the distinctive `"UNKNOWN
+TRACK"` string and begins a different subsystem. The preceding aligned
+function start at `0x39350` likewise follows texture/screen code whose JFG
+ordering is outside `menu.c`. Thus the split claims only `0x39350`–`0x3B1A0`,
+not the surrounding yaml block.
+
+The source began as 41 `GLOBAL_ASM` functions. Six already have tier-A names
+in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
+an exact body is promoted, so the unresolved symbols keep their `func_` names
+per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
+
+`frontSetWideAdjust` is the first exact C promotion: **0x2C bytes / 11 words**
+at ROM `0x3AFDC`, with the target's four relocation-bearing words resolving
+at their real linked addresses. Its body is adapted from JFG's public
+`src/menu.c` and carries the required point-of-use `PROVENANCE` note. A flag
+sweep confirmed that the default `-O2 -mips2 -32` spelling is exact; no
+per-file override or post-compile instruction edit is involved.
+
+`frontGetWideAdjust` adds **0xC bytes / 3 words** at ROM `0x3AFD0`. The name
+is explicitly **tier B**, not tier A: the body is too short for the standalone
+skeleton threshold, but its exact byte-return of the setter's stored state and
+its position immediately before `frontSetWideAdjust` establish the same role
+as JFG's ordered pair. The adapted body has a point-of-use `PROVENANCE` note,
+and the default flags are byte-exact in the flag lattice.
+
+The tier-A-named `frontGetScreenMode` adds **0x30 bytes / 12 words** at ROM
+`0x3AE98`. Mickey's draft established the two tests; JFG's published
+`Resbitfield` declaration supplied the original source shape needed to recover
+the compiler's temporary-register order. Mickey has two adjacent mode bits,
+confirmed by the paired writes in the following setter. The adapted type has a
+point-of-use `PROVENANCE` note, and the default flags, object words, and linked
+ROM range are exact without post-processing.
+
+The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
+ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
+derived from Mickey's own draft and control flow rather than borrowed. The
+four cases return fixed mode 1, level mode with bit 1 set, fixed mode 3, or the
+current level mode. The canonical flags, two call relocations, object words,
+and linked ROM range are exact without post-processing.
+
+The tier-B-named `frontStoreScreenMode` adds **0x14 bytes / 5 words** at ROM
+`0x3AF48`. Its copied-byte store, its position in the ordered screen-mode
+accessor family, and the matching JFG source body establish the role; the body
+therefore carries a point-of-use `PROVENANCE` note. The default flags and both
+global-data relocations are exact without post-processing.
+
+The adjacent tier-B `frontRecallScreenMode` adds **0xC bytes / 3 words** at
+ROM `0x3AF5C`. Its byte return reads the state written by
+`frontStoreScreenMode`, reproducing JFG's ordered accessor pair. The adapted
+body carries a point-of-use `PROVENANCE` note; the default flags and data
+relocations are exact without post-processing.
+
+The tier-B `frontGetSfxVolume` adds **0xC bytes / 3 words** at ROM `0x3B07C`.
+The halfword getter's ordered JFG position and its adjacent setter's call to
+`gsSndpSetGlobalVolume` identify the state as the SFX volume. The adapted JFG
+body has a point-of-use `PROVENANCE` note; default flags and the linked global
+relocation are exact without post-processing. A zero-byte weak alias retains
+the anonymous spelling still referenced by resident assembly.
+
+The paired tier-B `frontSetSfxVolume` adds **0x3C bytes / 15 words** at ROM
+`0x3B088`. JFG's body accounts for both bounds clamps, the halfword store, and
+the `gsSndpSetGlobalVolume` call, so the adapted body carries point-of-use
+`PROVENANCE`. The canonical flags, call and data relocations, object words, and
+linked ROM range are exact; a zero-byte weak alias preserves the anonymous
+name used by the remaining assembly caller.
+
+The tier-B `frontGetBgmVolume` adds **0xC bytes / 3 words** at ROM `0x3B0C4`.
+Its halfword getter follows the completed SFX pair at the exact JFG menu
+position, while the adjacent clamp-and-audio-call setter confirms the paired
+BGM state. The adapted body carries point-of-use `PROVENANCE`; its linked data
+relocation is exact, and a zero-byte weak alias preserves the anonymous name
+used by resident assembly.
+
+The paired tier-B `frontSetBgmVolume` adds **0x3C bytes / 15 words** at ROM
+`0x3B0D0`. The JFG body exactly accounts for Mickey's two bounds clamps,
+halfword store, and corresponding audio-volume call, and carries point-of-use
+`PROVENANCE`. Canonical flags, call and data relocations, object words, and the
+linked ROM range are exact; a zero-byte weak alias preserves its assembly
+caller's anonymous spelling.
 
 ---
 
