@@ -203,7 +203,64 @@ void trackSetFogOff(s32 fogIndex) {
     D_800C99C0[fogIndex].switchTimer = 0;
     D_800C99C0[fogIndex].fogChanger = NULL;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014614.s")
+/*
+ * PROVENANCE: JFG's corresponding track.c placeholder supplies strong
+ * skeleton and TU-position context. The body is reconstructed from Mickey's
+ * TrackFog accesses and control flow; no JFG placeholder name is imported.
+ */
+void func_80014614(s32 fogCount, s32 updateRate) {
+    TrackFog *fogData;
+    s32 fogIndex;
+    s8 state;
+
+    fogIndex = 0;
+    if (fogCount > 0) {
+        fogData = D_800C99C0;
+        do {
+            state = fogData->intendedFog.state;
+            fogIndex++;
+            if (state > 0) {
+                fogData->fog.near +=
+                    (updateRate * (state & 0x7F)) << 11;
+                if (fogData->targetNear < fogData->fog.near) {
+                    fogData->fog.near =
+                        (fogData->targetNear - fogData->fog.near) +
+                        fogData->targetNear;
+                    fogData->intendedFog.state = state | 0x80;
+                }
+            } else if (state < 0) {
+                fogData->fog.near -=
+                    (updateRate * (state & 0x7F)) << 11;
+                if (fogData->fog.near < fogData->initialNear) {
+                    fogData->fog.near =
+                        (fogData->initialNear - fogData->fog.near) +
+                        fogData->initialNear;
+                    fogData->intendedFog.state = state ^ 0x80;
+                }
+            } else {
+                if (fogData->switchTimer > 0) {
+                    if (updateRate < fogData->switchTimer) {
+                        fogData->fog.r += fogData->addFog.r * updateRate;
+                        fogData->fog.g += fogData->addFog.g * updateRate;
+                        fogData->fog.b += fogData->addFog.b * updateRate;
+                        fogData->fog.near += fogData->addFog.near * updateRate;
+                        fogData->fog.far += fogData->addFog.far * updateRate;
+                        fogData->switchTimer =
+                            *(volatile s32 *)&fogData->switchTimer - updateRate;
+                    } else {
+                        fogData->fog.r = fogData->intendedFog.r << 16;
+                        fogData->fog.g = fogData->intendedFog.g << 16;
+                        fogData->fog.b = fogData->intendedFog.b << 16;
+                        fogData->fog.near = fogData->intendedFog.near << 16;
+                        fogData->fog.far = fogData->intendedFog.far << 16;
+                        fogData->switchTimer = 0;
+                    }
+                }
+            }
+            fogData++;
+        } while (fogIndex != fogCount);
+    }
+}
 /*
  * PROVENANCE: JFG's corresponding track.c function supplies tier-D position
  * and structural context. The body is reconstructed from Mickey's display-
