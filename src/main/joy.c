@@ -45,4 +45,7 @@
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/arithmeticFunction.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyCharVal.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+s32 joyCharVal(void) {
+    return 1;
+}
