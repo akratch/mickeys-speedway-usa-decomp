@@ -38,7 +38,13 @@ extern u32 D_8007FF50;
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetParam.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpGetMasterVolume.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetMasterVolume.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetGlobalVolume.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpSetGlobalVolume). */
+void gsSndpSetGlobalVolume(u32 volume) {
+    if (volume > 0x100) {
+        volume = 0x100;
+    }
+    D_8007FF50 = volume;
+}
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpGetGlobalVolume). */
 u32 gsSndpGetGlobalVolume(void) {
     return D_8007FF50;
