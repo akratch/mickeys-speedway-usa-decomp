@@ -15,6 +15,12 @@ void overlay27Init(O27Object *object, Overlay27InitData *init) {
     state->scaleTarget = 96.0f; state->fadeFloat = 0.0f; state->source = init->target;
 }
 
+/*
+ * Plateau: -O2/-mips2 has exact size with 68 differing words; the first
+ * mismatch is +0x0 (0x68-byte frame versus retail's 0x60). The flag lattice,
+ * a ten-minute two-worker permutation batch, and local-lifetime reorderings
+ * leave frame allocation and floating-register order as the blockers.
+ */
 #ifdef NON_MATCHING
 void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
     O27State *state;
@@ -23,6 +29,7 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
         O27State *sourceState;
         s32 intensity;
     } tail;
+    s16 pulseTimer;
     s32 pulseStep;
     s32 initialPhase;
     s32 phase;
@@ -191,7 +198,7 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
         } else {
             state->pulseTimer -= pulseStep << 5;
         }
-        value = state->pulseTimer;
+        value = (pulseTimer = state->pulseTimer);
         if (value >= 0x100) {
             state->pulseTimer = 0xFF;
             state->pulseState = 2;
@@ -234,6 +241,12 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
 #endif
 
 /* Mickey-local rendering reconstruction; donor scans are exact-negative. */
+/*
+ * Plateau: -O2/-mips2 has exact size with 195 differing words and first
+ * mismatch +0x8. Retail assigns the object/child pair to s2/s1 while IDO
+ * assigns s1/s2 here; the flag lattice, bounded permuter, and local-order
+ * variants did not resolve that register allocation.
+ */
 #ifdef NON_MATCHING
 void func_overlay_027_F0000624_187BFFC(O27Command **commands, void *arg1,
                                        s16 *arg2, O27Object *object) {
@@ -369,14 +382,22 @@ void func_overlay_027_F0000624_187BFFC(O27Command **commands, void *arg1,
 #endif
 
 /* DKR v77/v80 and JFG contain no exact donor for this table transform. */
+/*
+ * Plateau: -O2/-mips2 has exact size with 55 differing words and first
+ * mismatch +0x0. The target and candidate have the same instruction/CFG
+ * shape, but IDO assigns a1/a2 and the loop temporaries in a different order;
+ * the flag lattice, bounded permuter, and expression/local variants plateau.
+ */
 #ifdef NON_MATCHING
 void overlay27UpdateCoordinates(s32 amount) {
     Overlay27CoordinateRecord *record;
     s32 xOffset;
     s32 remaining;
+    s32 xDelta;
 
+    xDelta = -amount * 12;
     xOffset = gOverlay27XOffset =
-        (gOverlay27XOffset + (-amount * 12)) & 0x3FF;
+        (gOverlay27XOffset + xDelta) & 0x3FF;
     amount = gOverlay27YOffset =
         (gOverlay27YOffset + (amount * 48)) & 0x3FF;
 
