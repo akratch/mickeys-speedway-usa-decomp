@@ -97,7 +97,13 @@ s8 joyGetAbsX(s32 player) {
     return D_800CF372[D_800CF3B0[player] * 6];
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyGetStickY.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+s8 joyGetStickY(s32 player) {
+    if (func_8003A550() != 0) {
+        return 0;
+    }
+    return joyClamp(D_800CF373[D_800CF3B0[player] * 6]);
+}
 
 /* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
 s8 joyGetAbsY(s32 player) {
