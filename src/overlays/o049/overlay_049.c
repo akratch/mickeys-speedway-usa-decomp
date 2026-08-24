@@ -64,7 +64,6 @@ finish:
 #endif
 
 /* No exact updater donor exists in DKR v77/v80 or JFG. */
-#ifdef NON_MATCHING
 void overlay49Update(s32 updateRate) {
     s32 index;
     u32 inputA;
@@ -76,7 +75,7 @@ void overlay49Update(s32 updateRate) {
     do {
         inputA |= func_800254FC(index);
         inputB |= func_8002554C(index);
-    } while (index-- != 0);
+    } while (index--);
     if (gOverlay49Result != NULL) {
         gOverlay49Result->mode = 3;
     }
@@ -105,9 +104,6 @@ void overlay49Update(s32 updateRate) {
     }
     overlay65UpdateReloc(D_800D0000, D_800D0004, updateRate);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o049/overlay49Update/func_overlay_049_F00001F4_1896604.s")
-#endif
 
 /*
  * PROVENANCE: JFG overlay 2 supplies this exact wrapper body and name.

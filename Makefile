@@ -1639,8 +1639,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96TestBit.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96DrawObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x10C
-# NON_MATCHING/GLOBAL_ASM: restore friendly symbols and retain only the
-# trailing-section trim metadata for these extracted functions.
+# Restore the remaining NON_MATCHING initializer's friendly symbol, rebind the
+# matched updater's runtime overlay proxies, and trim the merged trailing tail.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CollectUniqueY.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_098_F0000000_18D89C0=overlay98CollectUniqueY $@ && \
@@ -2678,10 +2678,26 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x60
 # NON_MATCHING/GLOBAL_ASM: restore friendly symbols and retain only the
 # trailing-section trim metadata for these extracted functions.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay_049.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay_049.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_049_F0000000_1896410=overlay49Initialize \
-		--redefine-sym func_overlay_049_F00001F4_1896604=overlay49Update $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_049_F0000000_1896410=overlay49Initialize $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x218:func_800254FC:overlay65UpdateReloc \
+		0x224:func_8002554C:overlay65UpdateReloc \
+		0x2c0:func_800016EC:overlay65UpdateReloc \
+		0x2c8:D_8007BF08:gOverlay49Timer \
+		0x2cc:D_8007BF08:gOverlay49Timer \
+		0x2d8:func_8003A754:overlay65UpdateReloc \
+		0x2e0:D_8007BF04:gOverlay49Timer \
+		0x2e4:D_8007BF04:gOverlay49Timer \
+		0x2f8:overlay48InitializeReloc:overlay65UpdateReloc \
+		0x314:func_80028374:overlay65UpdateReloc \
+		0x324:D_800D0000:gOverlay49Timer \
+		0x328:D_800D0004:gOverlay49Timer \
+		0x32c:D_800D0004:gOverlay49Timer \
+		0x330:D_800D0000:gOverlay49Timer && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x374
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.

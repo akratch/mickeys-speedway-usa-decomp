@@ -4784,6 +4784,7 @@
       "size": 884,
       "source": "src/overlays/o049/overlay_049.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
