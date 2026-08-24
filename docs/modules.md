@@ -390,7 +390,7 @@ call graph isolates one namesake.
 | `0x8001BBB4` | `0x258` | `func_8002B378` | B: camera call graph and next-function edge; JFG placeholder, retain `func_` |
 | `0x8001BE0C` | `0x248` | `func_8002EDA0` | B: camera-pointer lookup then the preceding routine; JFG placeholder, retain `func_` |
 | `0x8001C054` | `0x34` | `cameraAddOverrideObject` | D + matched C: exact 24-entry append under O2/mips2; JFG comparison remains structural, so retain `func_` |
-| `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D: nearest JFG charControl skeleton; retain `func_` |
+| `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D + matched C: exact 24-entry search-and-delete under O2/mips2; JFG comparison remains structural, so retain `func_` |
 | `0x8001C114` | `0x1B0` | `func_8002F0E8` | D: nearest JFG charControl skeleton; JFG placeholder, retain `func_` |
 | `0x8001C2C4` | `0x10` | — | Two return stubs under one measured label; retain `func_` |
 | `0x8001C2D4` | `0x4C` | `func_80031F60` | A + matched C: 19/19 unmasked JFG words and independently reconstructed byte-clear C are exact; placeholder rule retains Mickey's `func_` |

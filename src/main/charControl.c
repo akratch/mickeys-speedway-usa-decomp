@@ -54,7 +54,27 @@ void func_8001C054(s32 value) {
         D_80079BCC++;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C088.s")
+void func_8001C088(s32 value) {
+    s32 index;
+    s32 foundIndex;
+
+    index = 0;
+    foundIndex = -1;
+    if (D_80079BCC > 0) {
+        do {
+            if (D_800CB308[index] == value) {
+                foundIndex = index;
+            }
+            index++;
+        } while (index < D_80079BCC);
+    }
+    if (foundIndex != -1) {
+        for (index = foundIndex; index < D_80079BCC - 1; index++) {
+            D_800CB308[index] = D_800CB308[index + 1];
+        }
+        D_80079BCC--;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C114.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C2C4.s")
 void func_8001C2D4(u8 *start, u8 *end) {
