@@ -480,7 +480,7 @@ memset = 0x800428A4; // type:func size:0x34 ROM 0x434a4 evidence=A IDO C exact, 
 sprintfSetSpacingCodes = 0x80042998; // type:func size:0xC ROM 0x43598 evidence=A IDO C exact, jfg/sprintfSetSpacingCodes
 sprintf = 0x800429A4; // type:func size:0x2C ROM 0x435a4 evidence=A IDO C exact, dkr/printf.c
 diPrintfInit = 0x80043CE0; // type:func size:0x54 ROM 0x448e0 evidence=A IDO C exact, jfg/diPrintfInit
-diPrintf = 0x80043D34; // type:func size:0x9C ROM 0x44934 evidence=B call graph/order, jfg/diPrintf
+diPrintf = 0x80043D34; // type:func size:0x9C ROM 0x44934 evidence=A IDO C exact, jfg/diPrintf
 diPrintfAll = 0x80043DD0; // type:func size:0x240 ROM 0x449d0 evidence=B debug-text call graph/order, jfg/diPrintfAll
 diPrintfSetCol = 0x80044010; // type:func size:0x9C ROM 0x44c10 evidence=A IDO C exact, jfg/diPrintfSetCol
 diPrintfSetBG = 0x800440AC; // type:func size:0x9C ROM 0x44cac evidence=A IDO C exact, jfg/diPrintfSetBG

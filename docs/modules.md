@@ -401,7 +401,8 @@ alignment pad is excluded from match credit); `debug_text_bounds` (ROM
 `diPrintfSetXY` (ROM `0x44D48`, `0x8C` bytes, default resident flags, JFG body
 donor); `diPrintfSetCol` (ROM `0x44C10`, `0x9C` bytes, default resident flags,
 JFG body donor); `diPrintfSetBG` (ROM `0x44CAC`, `0x9C` bytes, default resident
-flags, JFG body donor).
+flags, JFG body donor); `diPrintf` (ROM `0x44934`, `0x9C` bytes, default
+resident flags, JFG body donor with its stubbed diagnostic call omitted).
 
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's

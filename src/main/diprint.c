@@ -71,7 +71,23 @@ void diPrintfInit(void) {
     D_800D4A58 = func_80034448(2);
     D_8007CE94 = D_800D4150;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintf.s")
+/* PROVENANCE: body adapted from JFG src/diprint.c:diPrintf. */
+s32 diPrintf(const char *format, ...) {
+    va_list args;
+    s32 written;
+
+    va_start(args, format);
+    if ((D_8007CE94 - D_800D4150) > 0x800) {
+        return -1;
+    }
+    sprintfSetSpacingCodes(1);
+    written = vsprintf(D_8007CE94, format, args);
+    sprintfSetSpacingCodes(0);
+    if (written > 0) {
+        D_8007CE94 = &D_8007CE94[written] + 1;
+    }
+    return 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfAll.s")
 /* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfSetCol. */
 void diPrintfSetCol(u8 red, u8 green, u8 blue, u8 alpha) {
