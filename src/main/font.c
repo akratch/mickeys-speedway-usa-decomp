@@ -55,7 +55,13 @@ void fontColour(s32 red, s32 green, s32 blue, s32 alpha, s32 opacity) {
     D_800D64E8[0].opacity = opacity;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0DC.s")
+void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha) {
+    D_800D64E8[0].textBGColourR = red;
+    D_800D64E8[0].textBGColourG = green;
+    D_800D64E8[0].textBGColourB = blue;
+    D_800D64E8[0].textBGColourA = alpha;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B13C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
