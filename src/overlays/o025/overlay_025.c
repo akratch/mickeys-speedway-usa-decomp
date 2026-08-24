@@ -2,6 +2,14 @@
 
 /* Pinned DKR v77/v80 and JFG scans found no exact initializer donor. */
 
+/*
+ * Plateau (2026-08-24): the closest flag-lattice result uses -O2 -mips3
+ * with -Wab,-r4300_mul and is exact-size, first differing at function
+ * offset 0x14.  Its bounded permuter score improved from 430 to 245 but
+ * remained non-exact.  The canonical -mips2 candidate is four bytes short;
+ * the remaining blocker is the register/stack-home scheduling web and its
+ * trailing alignment instruction.
+ */
 #ifdef NON_MATCHING
 void overlay25InitializeEffect(Overlay25Object *object,
                                const Overlay25Init *init) {
@@ -52,6 +60,13 @@ void overlay25InitializeEffect(Overlay25Object *object,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o025/overlay25InitializeEffect/func_overlay_025_F0000000_1879C88.s")
 #endif
 
+/*
+ * Plateau (2026-08-24): the exact-size C candidate scored 2335, improving
+ * to 1705 in the bounded permuter run; its first mismatch is at function
+ * offset 0x0.  The flag lattice produced no different leading candidate.
+ * The remaining blocker is the whole-function register, stack-home, and
+ * scheduling web; the lowest-score permutation did not preserve semantics.
+ */
 #ifdef NON_MATCHING
 void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
     Overlay25EffectState *state = &object->state->effect;
