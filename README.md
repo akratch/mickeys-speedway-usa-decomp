@@ -65,10 +65,14 @@ for all three regions are in `mickey.*.sha1` and `tools/verify_baseroms.sh`.
 ### Build
 
 ```sh
-gmake setup   # venv, deps, toolchain, baserom SHA1 check, splat, git hooks
-gmake -j2     # builds build/mickey.us.z64
-gmake verify  # byte-compares it against the baserom SHA1
+gmake setup                     # venv, deps, toolchain, baserom SHA1 check, splat, git hooks
+gmake -j$(sysctl -n hw.ncpu)    # builds build/mickey.us.z64 (macOS; use nproc's output on Linux)
+gmake verify                    # byte-compares it against the baserom SHA1
 ```
+
+Working alongside other agents or clones on the same machine: give each its
+own worktree with `tools/new_lane.sh <name>`, which checks out
+`lane/<name>` into a sibling directory so builds don't collide.
 
 ### Checks
 
