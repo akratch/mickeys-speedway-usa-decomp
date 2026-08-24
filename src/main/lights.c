@@ -81,7 +81,9 @@ struct FlareObject {
 
 extern LightingObject **func_8000572C(s32 *start, s32 *end);
 extern void func_8001953C(LightingObject *object, s32 objectLight);
+extern void func_80019DE8(void *state, s32 arg1, s32 arg2, s16 arg3, s16 arg4, s32 arg5);
 extern void *func_8001B260(void *object, FlareEntry *entry);
+extern u8 D_800CB298;
 
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 void freeLights(void) {
@@ -366,7 +368,10 @@ f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg
     return var_f2;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019AB8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019D98.s")
+/* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
+void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4) {
+    func_80019DE8(&D_800CB298, arg0, arg1, arg2, arg3, arg4);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019DE8.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c, with Mickey offsets. */
 void lightSetupLightSources(LightSourceObject *object) {
