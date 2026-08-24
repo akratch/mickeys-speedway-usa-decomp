@@ -4,7 +4,8 @@
  * PROVENANCE -- the TU identity and descriptive names are adapted from Jet
  * Force Gemini's public decompilation, src/sched.c. Mickey has the same
  * ordered 21-function scheduler call graph, including the three pre-existing
- * accessor/string anchors. The bodies below remain Mickey GLOBAL_ASM.
+ * accessor/string anchors. Adapted C bodies are identified in docs/modules.md;
+ * all remaining functions stay as Mickey GLOBAL_ASM.
  */
 
 #include "PR/ultratypes.h"
@@ -14,7 +15,11 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScRemoveClient.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetCmdQ.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetInterruptQ.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetAudioSPStats.s")
+void osScGetAudioSPStats(f32 *first, f32 *second, f32 *third) {
+    *first = 0.0f;
+    *second = 0.0f;
+    *third = 0.0f;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scMain.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_800304E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetTaskType.s")
