@@ -398,6 +398,7 @@ Exact C reconstructions in this census currently include `rumbleRumbles`
 `0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
 `piRomGetSectionPtr` (ROM `0x2EF5C`–`0x2EFA4`, 72 bytes),
+`piRomGetFileSize` (ROM `0x2EFA4`–`0x2EFE0`, 60 bytes),
 `rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes), and the still-
 unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–`0x2F7E0`, 12 bytes),
 plus `osScGetAudioSPStats` (ROM `0x30F20`–
@@ -405,7 +406,7 @@ plus `osScGetAudioSPStats` (ROM `0x30F20`–
 `osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
 no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes). All were compiled
 with the resident `-O2 -mips2 -32` flags. The named bodies are adapted from
-JFG's `src/saves.c`, `src/rcpFast3d.c`, and `src/sched.c`; the anonymous
+JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the anonymous
 setter and no-op are reconstructed from Mickey's own bodies. All configured
 object ranges and the final linked ROM are byte-exact.
 

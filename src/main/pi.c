@@ -34,5 +34,17 @@ u8 *piRomGetSectionPtr(u32 assetIndex, u32 assetOffset) {
     start = index[0] + assetOffset;
     return start + D_86760;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/pi/piRomGetFileSize.s")
+s32 piRomGetFileSize(u32 assetIndex) {
+    u32 *index;
+    s32 size;
+
+    if (assetIndex > D_800D2470->fileCount) {
+        return 0;
+    }
+
+    assetIndex++;
+    index = assetIndex + D_800D2470->offsets - 1;
+    size = index[1] - index[0];
+    return size;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/pi/romCopy.s")
