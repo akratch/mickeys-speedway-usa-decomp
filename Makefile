@@ -5386,73 +5386,21 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13CreateRecord.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xFC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13Release.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
-# Complete guarded loop/allocator representation for the O13 per-record
-# updater. The source retains all five runtime roles; the split object embeds
-# the gravity-local addend, so filter only that asserted pair and retain the
-# exact call plus active-count static relocation surface.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13ProcessRecord.c.o: \
-	config/normalizations/overlay13ProcessRecord.ops \
-	config/normalizations/overlay13ProcessRecord.filter.spec \
-	$(TOOLS_DIR)/filter_elf_relocations.py
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13ProcessRecord.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x284 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x284 a6e97f7b24f2e06e498b3141515c6a332922d16d4649e579f1796608fa1ce285 \
-		@config/normalizations/overlay13ProcessRecord.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay13ProcessRecord.filter.spec && \
-	$(OBJCOPY) \
-		--redefine-sym overlay13Prepare=func_overlay_013_F0000000_186EB18 \
-		--redefine-sym gOverlay13ActiveCount=D_2C $@
-# Exact-size semantic renderer with an opcode-identical complete carrier web.
-# Keep the six call and two local HILO pairs exposed by the split object;
-# remove only the eight asserted runtime-local records whose addends are
-# already embedded in the shipped instruction words.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13DrawRecord.c.o: \
-	config/normalizations/overlay13DrawRecord.ops \
-	config/normalizations/overlay13DrawRecord.filter.spec \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+	$(OBJCOPY) --redefine-sym func_overlay_013_F0000284_186ED9C=overlay13UpdateRecord $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x284
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13DrawRecord.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2F4 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2F4 76239653392277e946f5184a8ae604fdfd86ddf8d1afdbccef40cb9a4c228f5a \
-		@config/normalizations/overlay13DrawRecord.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay13DrawRecord.filter.spec && \
-	$(OBJCOPY) --redefine-sym o13GetRenderState=func_overlay_013_F0000000_186EB18 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x08c:o13SetColor:func_overlay_013_F0000000_186EB18 \
-		0x0c4:o13DrawRecord:func_overlay_013_F0000000_186EB18 \
-		0x0cc:o13FinishDraw:func_overlay_013_F0000000_186EB18 \
-		0x0e4:o13SetupRecord:func_overlay_013_F0000000_186EB18 \
-		0x284:o13DrawRecord:func_overlay_013_F0000000_186EB18 && \
-	$(OBJCOPY) --strip-symbol D_20 --strip-symbol D_28 --strip-symbol D_4 \
-		--strip-symbol o13SetColor --strip-symbol o13DrawRecord \
-		--strip-symbol o13FinishDraw --strip-symbol o13SetupRecord $@
-# Exact semantic active-record collector/sorter with a complete guarded
-# carrier web. Extend the natural function over its existing alignment nop,
-# restore the second pool-base HILO pair, and filter only the eight asserted
-# embedded local-addend records. The two call relocations remain exposed.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13DrawActive.c.o: \
-	config/normalizations/overlay13DrawActive.ops \
-	config/normalizations/overlay13DrawActive.filter.spec \
-	config/normalizations/overlay13DrawActive.extend.py \
-	$(TOOLS_DIR)/add_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
+	$(OBJCOPY) --redefine-sym func_overlay_013_F0000580_186F098=overlay13DrawRecord $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2F4
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13DrawActive.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x298 && \
-	$(HOST_PYTHON) config/normalizations/overlay13DrawActive.extend.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x298 ebf3ae79472203e7ad40559db961e8792b31bce86b13e5f5e54a48c46b997f90 \
-		@config/normalizations/overlay13DrawActive.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text \
-		0x298 ebf3ae79472203e7ad40559db961e8792b31bce86b13e5f5e54a48c46b997f90 \
-		0x244:5:D_0 0x248:6:D_0 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay13DrawActive.filter.spec && \
-	$(OBJCOPY) \
-		--redefine-sym o13GetView=func_overlay_013_F0000000_186EB18 $@
+	$(OBJCOPY) --redefine-sym func_overlay_013_F0000874_186F38C=overlay13DrawActive $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x298
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11EnableHandles.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11DisableHandles.c.o: POSTPROCESS = \
