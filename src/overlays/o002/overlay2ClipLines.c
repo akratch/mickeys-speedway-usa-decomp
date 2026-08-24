@@ -27,6 +27,7 @@ extern void overlay2IntersectBoundary(f32 x0, f32 y0, f32 x1, f32 y1,
                                       f32 *outX, f32 *outY);
 
 /* Pinned DKR v77/v80 and JFG scans found no matching clipping body. */
+#ifdef NON_MATCHING
 s32 overlay2ClipLines(Overlay2LineRange *input, Overlay2LineRange *output,
                       s32 wantedSide) {
     Overlay2Line *line;
@@ -84,3 +85,6 @@ s32 overlay2ClipLines(Overlay2LineRange *input, Overlay2LineRange *output,
     output->count = gOverlay2LineCount - output->start;
     return remaining + 1;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/overlay2ClipLines/func_overlay_002_F000049C_1857294.s")
+#endif

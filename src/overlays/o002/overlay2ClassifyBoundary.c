@@ -4,6 +4,7 @@ extern s32 gOverlay2BoundaryAxis;
 extern f32 gOverlay2BoundaryValue;
 
 /* Pinned DKR v77/v80 and JFG scans found no boundary classifier donor. */
+#ifdef NON_MATCHING
 s32 overlay2ClassifyBoundary(f32 x1, f32 y1, f32 x2, f32 y2, s32 *side1,
                              s32 *side2) {
     s32 first;
@@ -49,3 +50,6 @@ s32 overlay2ClassifyBoundary(f32 x1, f32 y1, f32 x2, f32 y2, s32 *side1,
     }
     return 1;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/overlay2ClassifyBoundary/func_overlay_002_F00002C4_18570BC.s")
+#endif

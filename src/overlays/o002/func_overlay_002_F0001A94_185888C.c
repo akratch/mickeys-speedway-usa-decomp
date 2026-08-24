@@ -64,6 +64,7 @@ extern u16 D_72;
 extern f32 gOverlay2QueryLimitReloc;
 extern f32 gOverlay2QueryResultReloc;
 
+#ifdef NON_MATCHING
 s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
                                       Overlay2Shape *shape, Overlay2Hit *hit,
                                       s32 previousIndex, u16 shapeIndex) {
@@ -153,3 +154,6 @@ s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
     }
     return 1;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/func_overlay_002_F0001A94_185888C/func_overlay_002_F0001A94_185888C.s")
+#endif

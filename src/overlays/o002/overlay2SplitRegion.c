@@ -17,6 +17,7 @@ extern void overlay2ChooseBoundary(Overlay2Region *region);
 extern s32 overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
                              s32 wantedSide);
 
+#ifdef NON_MATCHING
 void overlay2SplitRegion(Overlay2Region *previous, Overlay2Region *region) {
     Overlay2Region *current;
     Overlay2Region *parent;
@@ -45,3 +46,6 @@ void overlay2SplitRegion(Overlay2Region *previous, Overlay2Region *region) {
         current = current->side0;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/overlay2SplitRegion/func_overlay_002_F0000B70_1857968.s")
+#endif

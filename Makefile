@@ -5367,89 +5367,34 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2CopyColor.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2AppendLine.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x108
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ClassifyBoundary.c.o: \
-	config/normalizations/overlay2ClassifyBoundary.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py
+# NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration and
+# trailing-section trimming metadata for these extracted functions.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ClassifyBoundary.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x13c 2df25f34d8fb3c8f9c9120c0cc14fa170d63d896721be9184b3cc3986ffb8fb5 \
-		@config/normalizations/overlay2ClassifyBoundary.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_002_F00002C4_18570BC=overlay2ClassifyBoundary $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x13C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2IntersectBoundary.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ClipLines.c.o: \
-	config/normalizations/overlay2ClipLines.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ClipLines.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x244 05945c5c8e0d7cf4e5162c0cc09a29a384971983ea728dd8dff640324ffd3721 \
-		@config/normalizations/overlay2ClipLines.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_002_F000049C_1857294=overlay2ClipLines $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x244
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ChooseBoundary.c.o: \
-	config/normalizations/overlay2ChooseBoundary.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/add_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ChooseBoundary.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x490 a45b77d27880ee2229a1ee2cd5a9bf96b30c5044c74ab609f5b8571472fb6fdd \
-		@config/normalizations/overlay2ChooseBoundary.ops && \
-	$(OBJCOPY) --remove-section=.mdebug $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text \
-		0x490 a45b77d27880ee2229a1ee2cd5a9bf96b30c5044c74ab609f5b8571472fb6fdd \
-		0xf8:HI16:gOverlay2BoundaryValue \
-		0x110:LO16:gOverlay2BoundaryValue
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2SplitRegion.c.o: \
-	config/normalizations/overlay2SplitRegion.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_002_F00006E0_18574D8=overlay2ChooseBoundary $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2SplitRegion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x120 61e1236ca6089c167c1e1135ad43343e56086e8b5ea88b1384fc45d41a086fe8 \
-		@config/normalizations/overlay2SplitRegion.ops
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_002_F0000B70_1857968=overlay2SplitRegion $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2AdjacentIndices.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
-# The typed recursive query owns the exact 253-word CFG, call order, FP work,
-# and all 51 runtime roles. Fail-loud complete representation/schedule webs
-# select retail's equivalent boolean and GPR forms; the filter preserves the
-# assembler-authored 25-record static surface and its exact REL order.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2QueryNode.c.o: \
-	config/normalizations/overlay2QueryNode.ops \
-	config/normalizations/overlay2QueryNode.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/order_o2_query_node_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2QueryNode.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3F4 ef3ea4b8784e8d7945bd323a04b1bd2f50e9672716dc4506a58a60813582cc58 \
-		@config/normalizations/overlay2QueryNode.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay2QueryNode.filter.spec && \
-	$(OBJCOPY) \
-		--redefine-sym overlay2IntersectSegments=func_overlay_002_F0000000_1856DF8 \
-		--redefine-sym overlay2IntersectBoundary=func_overlay_002_F0000400_18571F8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/order_o2_query_node_relocations.py $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_002_F00016A0_1858498=overlay2QueryNode $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3F4
-# Natural IDO output owns the exact 217-word CFG, all seven calls, branch and
-# FPU schedules, and the complete 59-record runtime relocation surface. This
-# guarded ledger selects three complete private representation webs while the
-# object-local aliases preserve retail's zero SYMBOL carriers and LOCAL data
-# addends without changing global compiler policy.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o002/func_overlay_002_F0001A94_185888C.c.o: \
-	config/normalizations/func_overlay_002_F0001A94_185888C.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/func_overlay_002_F0001A94_185888C.c.o: \
 	CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/func_overlay_002_F0001A94_185888C.c.o: \
 	POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x364 c67d3450c49c538373561a073b7bf37777e00e1fae06537c74cb3c35bde99d5e \
-		@config/normalizations/func_overlay_002_F0001A94_185888C.ops && \
-	$(OBJCOPY) \
-		--redefine-sym overlay1GetEntry=overlay1GetEntryReloc \
-		--redefine-sym overlay2ContainsPoint=overlay2ContainsPointReloc \
-		--redefine-sym overlay2QueryNode=func_overlay_002_F00016A0_1858498 \
-		--redefine-sym overlay2AdjacentIndices=func_overlay_002_F0001658_1858450 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x364 \
 		000000000000000000000000
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60DrawBorder.c.o: POSTPROCESS = \

@@ -44,6 +44,7 @@ extern s32 overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
 
 #define CANDIDATE_COUNT gOverlay2BoundaryCandidateCount[0]
 
+#ifdef NON_MATCHING
 void overlay2ChooseBoundary(Overlay2Region *region) {
     Overlay2Line *candidateLine;
     Overlay2Line *line;
@@ -189,3 +190,6 @@ void overlay2ChooseBoundary(Overlay2Region *region) {
     gOverlay2SelectedBoundary =
         gOverlay2BoundaryCandidates[gOverlay2SelectedBoundary].lineIndex;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/overlay2ChooseBoundary/func_overlay_002_F00006E0_18574D8.s")
+#endif

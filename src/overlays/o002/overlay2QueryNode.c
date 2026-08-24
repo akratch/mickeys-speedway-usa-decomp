@@ -48,6 +48,7 @@ extern void overlay2IntersectBoundary(f32 x0, f32 y0, f32 x1, f32 y1,
                                       f32 *outX, f32 *outY);
 
 /* Mickey-local reconstruction; pinned DKR/JFG object scans found no donor. */
+#ifdef NON_MATCHING
 s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
                       Overlay2Node *node) {
     register s32 count;
@@ -137,3 +138,6 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
     }
     return overlay2QueryNode(D_58, D_5C, x1, y1, node->side1) != 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/overlay2QueryNode/func_overlay_002_F00016A0_1858498.s")
+#endif
