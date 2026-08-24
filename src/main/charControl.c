@@ -32,6 +32,13 @@ extern s16 D_800CB474;
 extern s16 D_800CB476;
 
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
+u32 func_800254FC(s32 playerIndex);
+u32 func_8002554C(s32 playerIndex);
+u32 func_80025594(s32 playerIndex);
+u32 func_800255DC(s32 playerIndex);
+u32 func_80025634(s32 playerIndex);
+u32 func_8002565C(s32 playerIndex);
+u32 func_800256B4(s32 playerIndex);
 void func_8002BD58(s32 playerIndex, s32 strength, f32 duration);
 
 f32 func_8001BB90(s32 cameraIndex) {
@@ -111,7 +118,26 @@ void controlFSUvels(s16 *rotation, ControlPlayer *player) {
 void controlDisableJoypad(ControlPlayer *player, s32 disabled) {
     player->joypadDisabled = disabled;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F264.s")
+/* PROVENANCE -- adapted from JFG's src/charControl.c controlReadJoypad. */
+void controlReadJoypad(ControlPlayer *player, s32 playerIndex) {
+    if ((playerIndex >= 0) && (playerIndex < 4) && (player->joypadDisabled == 0)) {
+        player->controlXjoy = func_800255DC(playerIndex);
+        player->controlAbsXjoy = func_80025634(playerIndex);
+        player->controlYjoy = func_8002565C(playerIndex);
+        player->controlAbsYjoy = func_800256B4(playerIndex);
+        player->controlKeys = func_800254FC(playerIndex);
+        player->controlDkeys = func_8002554C(playerIndex);
+        player->controlReleasedKeys = func_80025594(playerIndex);
+    } else {
+        player->controlXjoy = 0;
+        player->controlAbsXjoy = 0;
+        player->controlYjoy = 0;
+        player->controlAbsYjoy = 0;
+        player->controlKeys = 0;
+        player->controlDkeys = 0;
+        player->controlReleasedKeys = 0;
+    }
+}
 /*
  * PROVENANCE -- JFG's charControl symbols supplied the controlSetRumble
  * name/role. Mickey's smaller wrapper independently determines this body.
