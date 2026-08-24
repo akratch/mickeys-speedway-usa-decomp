@@ -16,7 +16,8 @@ void *camlightAdd(void *arg0, void *arg1) {
 }
 void camlightDelete(void *arg0) {
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightUpdateAll.s")
+void camlightUpdateAll(void) {
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightUpdate.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightVisibilityCheck.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightDraw.s")
