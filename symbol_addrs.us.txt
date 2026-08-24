@@ -1519,4 +1519,4 @@ func_80064DC0 = 0x80064DC0; // type:func size:0x164   ROM 0x659c0  src/libultra/
 // jfg:src/libultra/n_env.c.o
 func_8006850C = 0x8006850C; // type:func size:0x94   ROM 0x6910c  src/libultra/n_env.c.o  masked=0/37
 // jfg:src/libultra/n_load.c.o
-func_80069A34 = 0x80069A34; // type:func size:0x1BC   ROM 0x6a634  src/libultra/n_load.c.o  masked=0/111
+_decodeChunk = 0x80069A34; // type:func size:0x1B8   ROM 0x6a634  src/libultra/n_load.c.o  masked=0/110
