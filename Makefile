@@ -435,11 +435,24 @@ $(BUILD_DIR)/%.bin.o: %.bin | $(ALL_DIRS) $(SPLAT_STAMP)
 
 # The C rule. Everything goes through asm-processor unconditionally -- a file
 # with no GLOBAL_ASM pragmas is passed through to IDO untouched, so there is no
-# reason to maintain two recipes. The .s files the pragmas name are regenerated
-# by splat into asm/nonmatchings/, hence the $(SPLAT_STAMP) order-only prereq
-# (same caveat as the .s rule above: `all`/`verify`'s two-phase make is what
-# actually guarantees freshness).
-$(BUILD_DIR)/%.c.o: %.c $(H_FILES) $(TOOLS_DIR)/normalize_elf_instructions.py | $(ALL_DIRS) $(SPLAT_STAMP)
+# reason to maintain two recipes.
+#
+# $(SPLAT_STAMP) is a *normal* (not order-only) prerequisite here, unlike the
+# .s.o/.bin.o rules below: a #pragma GLOBAL_ASM in a .c file names a .s under
+# asm/nonmatchings/ that splat regenerates on every re-split, and that .s is
+# not itself listed as a prerequisite of this object (there is no per-TU
+# dependency file naming exactly which GLOBAL_ASM paths one .c references).
+# Without a real dependency on the stamp, a re-split that renames a symbol
+# (splat re-numbers auto names, or a friendly name changes) leaves an
+# already-built .c.o holding a stale reference and an incremental build can
+# link a mismatched object, or fail outright, while a clean build passes --
+# this happened for real (overlay1GetEntry's pilot conversion sits right next
+# to this comment; runlink.c.o hit exactly this when another lane's re-split
+# renamed func_8002B768). Depending on the stamp for real means *every*
+# .c.o rebuilds after any re-split, not just the ones that reference a moved
+# name -- coarser than necessary, but a full rebuild is ~17s and correctness
+# beats precision here.
+$(BUILD_DIR)/%.c.o: %.c $(H_FILES) $(TOOLS_DIR)/normalize_elf_instructions.py $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(ASM_PROCESSOR) $(CC) -- $(AS) $(ASM_PROC_ASFLAGS) -- \
 		-c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
 	$(POSTPROCESS)
