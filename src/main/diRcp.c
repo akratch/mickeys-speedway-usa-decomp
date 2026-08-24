@@ -29,7 +29,10 @@ s32 diRcpReserved0(Gfx *dList, char *name) {
 s32 diRcpStrNameMacro(Gfx *dList, char *name, char *macroName) {
     return 8;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpPrimColor.s")
+/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpPrimColor. */
+s32 diRcpPrimColor(Gfx *dList) {
+    return 8;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpColor.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpDmaOffsets.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpMoveWd.s")
