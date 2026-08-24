@@ -210,7 +210,9 @@ void func_8002917C(void) {
     D_8007A1CC |= 0x08000000;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029198.s")
+void func_80029198(void) {
+    D_8007A1CC |= 0x00800000;
+}
 
 void func_800291B4(void) {
     D_8007A1EC = 1;

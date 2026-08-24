@@ -396,7 +396,7 @@ main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
 JFG functions were not imported: unresolved routines retain Mickey's own
 `func_<VRAM>` symbol.
 
-**Matching progress.** Sixty-four functions / 2,536 bytes compile exactly
+**Matching progress.** Sixty-five functions / 2,564 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -409,7 +409,7 @@ linked ranges and the full ROM are exact.
   `levelGetBlurEffect`, `levelGetGfxIndex`, `levelGetColourCycling`,
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelGetNextOfWorld`, and `levelGetPrevOfWorld`.
-- `main/main` (34 / 712 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
+- `main/main` (35 / 740 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainSetAnimGroup`, `mainGetAnimGroup`,
   `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
   `mainSyncNextLevel`, `mainGetMode`, `mainSetMode`,
@@ -419,6 +419,7 @@ linked ranges and the full ROM are exact.
   `func_800290A0`,
   `func_80029090`, `func_800290EC`, `func_800290F8`, `func_80029104`,
   `func_80029120`, `func_80029144`, `func_80029160`, `func_8002917C`,
+  `func_80029198`,
   `func_800291B4`,
   `func_800291C4`,
   `func_800291D0`, `func_800291D8`, and `func_800291E4`.
