@@ -35,6 +35,14 @@ typedef struct LoadedAnimation {
     s16 id;
 } LoadedAnimation;
 
+typedef struct ModelMatrixNode {
+    s16 parent;
+    u8 pad2[2];
+    f32 x;
+    f32 y;
+    f32 z;
+} ModelMatrixNode;
+
 extern s32 D_800D7CF0;
 extern s32 D_800D7CF4;
 extern s32 D_800D7CF8;
@@ -47,6 +55,8 @@ s32 func_8002B280(s32 size, s32 tag);
 u8 *func_8002B314(s32 size, s32 tag, s32 offset);
 void func_8002E2E0(s32 assetId, void *dst, s32 offset, s32 size);
 void func_80058FF0(ConvListEntry *entries, s32 count);
+void func_8002A82C(void *mtx);
+void mtxf_mul(void *lhs, void *rhs, void *dest);
 
 /* PROVENANCE: adapted from the modelsInit tail in JFG src/models.c. */
 void func_8005A700(void) {
@@ -143,4 +153,31 @@ void camConvertMatrixList(Matrix *mtx, s32 count) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005ABA8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AD64.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AF14.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005B644.s")
+
+/* Mickey-derived parented matrix-list builder; JFG retains its peer as asm. */
+void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 count) {
+    Matrix temp;
+    Matrix *output;
+    Matrix *parent;
+    s32 i;
+
+    output = matrices;
+    i = 0;
+    if (count > 0) {
+        do {
+            func_8002A82C((u8 *)temp - 8);
+            *(f32 *)((u8 *)temp + 0x28) = node->x;
+            *(f32 *)((u8 *)temp + 0x2C) = node->y;
+            *(f32 *)((u8 *)temp + 0x30) = node->z;
+            if ((node->parent == -1) != FALSE) {
+                parent = root;
+            } else {
+                parent = &matrices[node->parent];
+            }
+            mtxf_mul((u8 *)temp - 8, parent, output);
+            i++;
+            output++;
+            node++;
+        } while (i != count);
+    }
+}

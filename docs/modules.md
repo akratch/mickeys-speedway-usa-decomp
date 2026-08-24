@@ -1166,6 +1166,12 @@ In `main/models`, `camConvertMatrixList`, initialization helper
 initialization helper from JFG `models.c`. Their function bytes and relocation
 identities match in the linked ROM.
 
+Mickey-derived parented matrix-list builder `func_8005B644` adds `0xCC`
+exact bytes under the TU's measured `-Wo,-loopunroll,0` override, bringing
+exact C in `main/models_5B300` to `0x19C` bytes. Its 51 instructions, `0x88`
+frame, calls and relocation identities match; JFG retains the corresponding
+model-matrix routine as assembly, so no donor body was adapted.
+
 The `func_8005A948` flag lattice additionally establishes
 `-Wo,-loopunroll,0` for `main/models`: without it IDO unrolls the cache scan
 to 166 instructions, while the disabled-unroll candidate has the target's 94

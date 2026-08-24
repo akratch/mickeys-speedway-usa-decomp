@@ -1684,6 +1684,8 @@ animseqInitGroup = 0x800510E8; // type:func size:0x40   ROM 0x51ce8  src/anim.c.
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C   ROM 0x58810  libultra/src/flash/flashreadid.c.o  masked=6/19
 // jfg:src/camera.c.o
 camConvertMatrixList = 0x8005AB78; // type:func size:0x30   ROM 0x5b778  src/camera.c.o  masked=4/12
+// Tier D: Mickey-derived parented matrix-list builder, exact linked C.
+func_8005B644 = 0x8005B644; // type:func size:0xCC  ROM 0x5c244
 // jfg:src/gsSnd.c.o
 func_8005B978 = 0x8005B978; // type:func size:0xC8   ROM 0x5c578  src/gsSnd.c.o  masked=3/50
 func_8005BA40 = 0x8005BA40; // type:func size:0x12FC   ROM 0x5c640  src/gsSnd.c.o  masked=108/1215
