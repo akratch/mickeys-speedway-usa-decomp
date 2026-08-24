@@ -16,6 +16,7 @@ extern u8 D_8007A2F0;
 extern OSMesgQueue *D_800D21C0;
 
 s32 osContStartReadData(OSMesgQueue *messageQueue);
+void rumbleStop(s32 controllerIndex, s32 arg1);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002BCC0.s")
 void rumbleRumbles(s32 value) {
@@ -24,7 +25,13 @@ void rumbleRumbles(s32 value) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleProcessing.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStart.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStop.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleKill.s")
+void rumbleKill(s32 arg0) {
+    s32 i = 4;
+
+    while (i--) {
+        rumbleStop(i, arg0);
+    }
+}
 void rumbleUpdate(void) {
     D_8007A2F0 = 1;
 }

@@ -1565,7 +1565,7 @@ mathDiffAngle = 0x8002AA0C; // type:func size:0x38   ROM 0x2b60c  src/hasm/ido/m
 mmInit = 0x8002B0D0; // type:func size:0x78   ROM 0x2bcd0  src/memory.c.o  masked=14/30
 mmFree = 0x8002B768; // type:func size:0x44   ROM 0x2c368  src/memory.c.o  masked=4/17
 // donor-jfg-src/saves.c.o
-rumbleKill = 0x8002BF00; // type:func size:0x44   ROM 0x2cb00  src/saves.c.o  masked=1/17
+rumbleKill = 0x8002BF00; // type:func size:0x44 ROM 0x2cb00 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/saves.c
 // donor-jfg-src/rcpFast3d.c.o
 rcpInit = 0x8002F560; // type:func size:0xB8   ROM 0x30160  src/rcpFast3d.c.o  masked=33/46
 // donor-jfg-src/gameVi.c.o

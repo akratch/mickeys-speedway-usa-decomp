@@ -393,8 +393,9 @@ uses an odd single-precision FP register, so §6.2's hand-written-assembly
 criterion identifies **zero** forced-ASM functions here.
 
 Exact C reconstructions in this census currently include `rumbleRumbles`
-(ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleUpdate` (ROM `0x2CB44`–
-`0x2CB54`, 16 bytes), `packCalculateGameChecksum` (ROM `0x2D3BC`–
+(ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleKill` (ROM `0x2CB00`–
+`0x2CB44`, 68 bytes), `rumbleUpdate` (ROM `0x2CB44`–`0x2CB54`, 16 bytes),
+`packCalculateGameChecksum` (ROM `0x2D3BC`–
 `0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
 `piRomGetSectionPtr` (ROM `0x2EF5C`–`0x2EFA4`, 72 bytes),
