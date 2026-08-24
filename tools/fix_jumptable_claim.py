@@ -8,7 +8,7 @@ reports, so the claim is recomputed rather than remembered.
 """
 import pathlib, re, subprocess, sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-out = subprocess.run([sys.executable, "tools/check_derived_numbers.py"], cwd=ROOT, capture_output=True, text=True).stdout
+out = subprocess.run([sys.executable, "tools/check_derived_numbers.py"], cwd=ROOT, capture_output=True, text=True); out = out.stdout + out.stderr
 fixed = 0
 for m in re.finditer(r"^\s*(\S+):(\d+): claims (\d+) jump tables; asm/ contains (\d+) distinct", out, re.M):
     path, line, old, new = m.group(1), int(m.group(2)), m.group(3), m.group(4)
