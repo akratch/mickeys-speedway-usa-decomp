@@ -1041,9 +1041,9 @@ Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
 files and JFG's `asm/nonmatchings/weather/` names, as permitted by
 `docs/CLEANROOM.md`. The matched `initWeather`, `weather_clip_planes`,
 `freeWeather`, `setupWeather`, `snow_init`, `changeWeather`, and `rainDensity`
-bodies, plus `rain_update`, `rain_lightning`, and `rain_sound`, are adapted from
-those disclosed sources and carry point-of-use notes; Mickey's own bytes remain
-authoritative.
+bodies, plus `rain_set`, `rain_update`, `rain_lightning`, and `rain_sound`, are
+adapted from those disclosed sources and carry point-of-use notes; Mickey's own
+bytes remain authoritative.
 
 The tier-B/D `initWeather` adds **0xFC bytes / 63 words** at ROM `0x3B480`.
 JFG's initialization and asset-table walk reproduce Mickey's instruction
@@ -1082,6 +1082,11 @@ JFG's transition and dispatch structure, including Mickey's unresolved
 rain-movement binding, compiles instruction-exact at canonical
 `-O2 -mips2 -32`, with all 27 relocations and the linked ROM range agreeing.
 
+The tier-B/D `rain_set` adds **0x104 bytes / 65 words** at ROM `0x3C468`.
+JFG's TV-rate-dependent transition setup compiles instruction-exact at
+canonical `-O2 -mips2 -32`, with all 18 relocations and the linked ROM range
+agreeing.
+
 The tier-B/D `rain_sound` adds **0xC0 bytes / 48 words** at ROM `0x3CF70`.
 JFG's camera-relative sound positioning compiles instruction-exact at canonical
 `-O2 -mips2 -32`, with all 13 relocations and the linked ROM range agreeing.
@@ -1106,7 +1111,7 @@ decomp-permuter checkout.
 | `0x3C0C0` | `0x238` | `snow_render` | B/D |
 | `0x3C2F8` | `0xEC` | `rain_init` | B/D |
 | `0x3C3E4` | `0x84` | `free_rain_memory` | B/D |
-| `0x3C468` | `0x104` | `rain_set` | B/D |
+| `0x3C468` | `0x104` | `rain_set` | B/D name; exact C, 65 words, 18 relocs |
 | `0x3C56C` | `0xD0` | `rainSetFog` | B/D |
 | `0x3C63C` | `0x78` | `rainDensity` | B/D name; exact C, 30 words, 4 relocs |
 | `0x3C6B4` | `0x144` | `rain_update` | B/D name; exact C, 81 words, 27 relocs |

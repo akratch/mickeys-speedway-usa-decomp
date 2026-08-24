@@ -153,6 +153,7 @@ extern s32 D_8007C704;
 extern s32 D_8007C708;
 extern s32 D_8007C70C;
 extern void *D_8007C720;
+extern s32 osTvType;
 
 extern s32 func_800299E8(s32 min, s32 max);
 extern s32 mathRnd(s32 min, s32 max);
@@ -497,7 +498,23 @@ void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **a
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/snow_render.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_init.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/free_rain_memory.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_set.s")
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::func_8005BDB8_5C9B8 (DKR's rain_set). Mickey's global
+ * bindings are authoritative here.
+ */
+void rain_set(s32 intensity, s32 opacity, f32 seconds) {
+    if (osTvType == 0) {
+        D_8007C704 = (s32) (50.0f * seconds);
+    } else {
+        D_8007C704 = (s32) (60.0f * seconds);
+    }
+
+    D_8007C6F4 = intensity;
+    D_8007C6F0 = (D_8007C6F4 - D_8007C6EC) / D_8007C704;
+    D_8007C700 = opacity;
+    D_8007C6FC = (D_8007C700 - D_8007C6F8) / D_8007C704;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rainSetFog.s")
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived

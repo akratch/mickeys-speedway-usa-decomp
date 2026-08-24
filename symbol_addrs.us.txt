@@ -469,7 +469,7 @@ doWeather = 0x8003B21C; // type:func size:0x2A4 tier B/D, ROM 0x3be1c  NON_MATCH
 snow_render = 0x8003B4C0; // type:func size:0x238 tier B/D, ROM 0x3c0c0
 rain_init = 0x8003B6F8; // type:func size:0xEC tier B/D, ROM 0x3c2f8
 free_rain_memory = 0x8003B7E4; // type:func size:0x84 tier B/D, ROM 0x3c3e4
-rain_set = 0x8003B868; // type:func size:0x104 tier B/D, ROM 0x3c468
+rain_set = 0x8003B868; // type:func size:0x104 tier B/D, ROM 0x3c468  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/65
 rainSetFog = 0x8003B96C; // type:func size:0xD0 tier B/D, ROM 0x3c56c
 rainDensity = 0x8003BA3C; // type:func size:0x78 tier B/D, ROM 0x3c63c  src/main/weather.c.o masked=0/30
 rain_update = 0x8003BAB4; // type:func size:0x144 tier B/D, ROM 0x3c6b4  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/81
