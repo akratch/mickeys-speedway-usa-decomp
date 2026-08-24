@@ -6,10 +6,12 @@
  * its built particles.c.o. Mickey's own function order, masked-skeleton
  * similarity, and call graph establish the correspondence. JFG address-based
  * placeholders are not imported; Mickey's existing placeholders remain.
- * No JFG body has been adapted while these entries remain GLOBAL_ASM.
+ * Adapted bodies carry a point-of-use PROVENANCE note.
  */
 
 #include "PR/ultratypes.h"
+
+extern f32 D_8007C8F8;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/reset_particles.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CA20.s")
@@ -28,7 +30,10 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EB08.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EC8C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partObjFreeTriggers.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partAdjustScaling.s")
+/* PROVENANCE: body adapted from JFG src/particles.c:partAdjustScaling. */
+void partAdjustScaling(f32 scale) {
+    D_8007C8F8 = scale;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EDD4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EDE0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateTriggers.s")

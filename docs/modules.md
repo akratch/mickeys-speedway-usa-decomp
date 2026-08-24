@@ -382,6 +382,9 @@ stated above. JFG address-placeholder names are not imported: Mickey's own
 `func_<VRAM>` names remain. Mickey's bytes and call graph decide every
 disagreement.
 
+Exact C matches banked in these TUs: `partAdjustScaling` (ROM `0x3F9C8`,
+`0xC` bytes, default resident flags, JFG body donor).
+
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's
 criterion.
