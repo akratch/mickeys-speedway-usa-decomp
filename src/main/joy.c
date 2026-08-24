@@ -10,6 +10,7 @@
  */
 
 extern u16 D_8007A0C8;
+extern u8 D_800CF3B0[];
 extern u8 D_800CF3B4[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyMessageQ.s")
@@ -32,7 +33,10 @@ void joyEnable(s32 player) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyCreateMap.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyGetController.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+u8 joyGetController(s32 player) {
+    return D_800CF3B0[player];
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyGetButtons.s")
 

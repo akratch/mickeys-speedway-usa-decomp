@@ -396,13 +396,13 @@ main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
 JFG functions were not imported: unresolved routines retain Mickey's own
 `func_<VRAM>` symbol.
 
-**Matching progress.** Five leaf functions currently compile exactly under
+**Matching progress.** Six leaf functions currently compile exactly under
 the resident `-O2 -mips2 -32` flags: Splat's empty `func_800291D0` body,
 JFG's one-expression `joyCharVal` body (8 bytes each), and the 12-byte
 `joySetSecurity` store. The 20-byte `joyDisable` and 24-byte `joyEnable`
-masked-index stores also match. Their HI16/LO16 pairs bind the original Mickey
-data symbols; owned bytes, relocation identity and the linked ROM are exact
-(72 bytes total).
+masked-index stores also match, as does the 16-byte `joyGetController`
+accessor. Their HI16/LO16 pairs bind the original Mickey data symbols; owned
+bytes, relocation identity and the linked ROM are exact (88 bytes total).
 
 **PROVENANCE.** TU identities and adopted function names are adapted from Jet
 Force Gemini's published `src/{joy,level,main}.c` and built
