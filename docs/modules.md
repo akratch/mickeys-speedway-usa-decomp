@@ -409,7 +409,7 @@ overlay callers/callees outside the range were observed.
 | `0x4C8C4` | `0x2A0` | `func_8004BCC4` | `fontWindowAddStringXY` | B/D | calls `0x4D1A4`, `0x4C68C`; ext callers |
 | `0x4CB64` | `0x4C` | `func_8004BF64` | `fontWindowFlushStrings` | B/D | leaf; ext callers |
 | `0x4CBB0` | `0x28` | `func_8004BFB0` | `fontWindowEnable` | B/D, matched C | leaf; ext callers |
-| `0x4CBD8` | `0x28` | `func_8004BFD8` | `fontWindowDisable` | B/D | leaf; ext callers |
+| `0x4CBD8` | `0x28` | `func_8004BFD8` | `fontWindowDisable` | B/D, matched C | leaf; ext callers |
 | `0x4CC00` | `0xC4` | `func_8004C000` | `fontStringAddNumber` | D | leaf; called by `0x4D1A4` |
 | `0x4CCC4` | `0x7C` | `func_8004C0C4` | `fontWindowsDraw` | B/D | calls `0x4CE00`; ext caller |
 | `0x4CD40` | `0xC0` | `func_8004C140` | JFG `func_80071564` | D | ext callee; called by `0x4CE00` |

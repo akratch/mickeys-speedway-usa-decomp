@@ -114,7 +114,10 @@ void func_8004BFB0(s32 windowId) {
     D_800D64E8[windowId].flags |= 0x8000;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BFD8.s")
+void func_8004BFD8(s32 windowId) {
+    D_800D64E8[windowId].flags &= 0x7FFF;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C000.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C0C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C140.s")
