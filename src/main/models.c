@@ -35,7 +35,8 @@ extern s32 *D_800CB4A4;
 
 void *func_8002B280(s32 size, s32 tag);
 s32 *func_8002E148(s32 assetId);
-void func_80020278(ObjectModel *model);
+void func_800347A0(void *texture);
+void func_8005AAC0(void *animation);
 void mmFree(void *ptr);
 
 /*
@@ -131,7 +132,60 @@ void modFreeModel(ModelInstance *modInst) {
         }
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020278.s")
+/*
+ * PROVENANCE -- body adapted from JFG's public func_8003C92C_3D52C model
+ * destructor. Mickey's smaller field set and offsets are reconstructed solely
+ * from this function's own loads and calls.
+ */
+void func_80020278(ObjectModel *model) {
+    s32 freed;
+    s32 index;
+
+    if (model->numberOfTextures > 0) {
+        freed = 0;
+        index = 0;
+        do {
+            if (model->textures[index].texture != NULL) {
+                func_800347A0(model->textures[index].texture);
+            }
+            freed++;
+            index++;
+        } while (freed < model->numberOfTextures);
+    }
+
+    if (model->unk58 != NULL) {
+        mmFree(model->unk58);
+    }
+    if (model->unk28 != NULL) {
+        mmFree(model->unk28);
+    }
+    if (model->unk68 != NULL) {
+        mmFree(model->unk68);
+    }
+    if (model->unk6C != NULL) {
+        mmFree(model->unk6C);
+    }
+
+    if (model->animationCount != 0 && model->animations != NULL) {
+        freed = 0;
+        index = 0;
+        do {
+            func_8005AAC0(model->animations[index]);
+            freed++;
+            index++;
+        } while (freed < model->animationCount);
+        mmFree(model->animations);
+    }
+
+    if (model->nestedAllocations != NULL) {
+        freed = model->nestedCount + 1;
+        while (freed--) {
+            mmFree(model->nestedAllocations[freed]);
+        }
+        mmFree(model->nestedAllocations);
+    }
+    mmFree(model);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_800203E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_800204B8.s")
 /*
