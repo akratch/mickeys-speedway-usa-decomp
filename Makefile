@@ -5805,35 +5805,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o053/overlay53Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o053/overlay53CopyOffsetEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD4
-# Typed source recovers O54's exact initializer ABI, two loops, 26-call order,
-# memory effects, frame, and complete opcode inventory plus one scheduler NOP.
-# This fail-loud target-local contract selects retail's equivalent schedule and
-# allocation web, deletes only that asserted NOP, and restores all 86 static
-# relocation identities and their original REL order.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o054/overlay54Initialize.c.o: \
-	config/normalizations/overlay54Initialize.ops \
-	config/normalizations/overlay54Initialize.filter.spec \
-	config/normalizations/overlay54Initialize.rebind.spec \
-	config/normalizations/overlay54Initialize.symbols \
-	config/normalizations/overlay54Initialize.sort.py \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o054/overlay54Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3CC 016c1293209a5133b692731b77bda48be2214a1172f20e2003ce6f62be2ba017 \
-		@config/normalizations/overlay54Initialize.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3CC \
-		00000000 && \
-	while IFS= read -r symbol; do \
-		test -z "$$symbol" || $(OBJCOPY) --add-symbol "$$symbol=0,global" $@; \
-	done < config/normalizations/overlay54Initialize.symbols && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay54Initialize.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay54Initialize.rebind.spec && \
-	$(HOST_PYTHON) config/normalizations/overlay54Initialize.sort.py $@
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3CC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o054/overlay54PatchIndices.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55PatchIndices.c.o: POSTPROCESS = \
