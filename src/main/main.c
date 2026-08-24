@@ -162,7 +162,8 @@ void *func_80028F54(void) {
 void func_80029084(s32 arg0, s32 arg1) {
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029090.s")
+void func_80029090(s32 arg0, s32 arg1, s32 arg2) {
+}
 
 s32 func_800290A0(void) {
     return D_8007A1A8;
