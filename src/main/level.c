@@ -52,7 +52,13 @@ s32 levelGetWorld(s32 arg0) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetRegionNo.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+s32 levelGetRegionNo(s32 arg0) {
+    if ((arg0 >= 0) && (arg0 < D_800CF3D4)) {
+        return D_800CF3DC[arg0].flags & 7;
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetScreenMode.s")
 
