@@ -43,6 +43,16 @@ typedef struct {
     u8 txsize;
     u8 rxsize;
     u8 cmd;
+    u16 button;
+    s8 stick_x;
+    s8 stick_y;
+} __OSContReadFormat;
+
+typedef struct {
+    u8 dummy;
+    u8 txsize;
+    u8 rxsize;
+    u8 cmd;
     u8 typeh;
     u8 typel;
     u8 status;
@@ -119,11 +129,13 @@ typedef struct {
 
 #define CONT_CMD_REQUEST_STATUS_TX 1
 #define CONT_CMD_RESET_TX          1
+#define CONT_CMD_READ_BUTTON_TX    1
 #define CONT_CMD_READ_PAK_TX       3
 #define CONT_CMD_WRITE_PAK_TX      35
 
 #define CONT_CMD_REQUEST_STATUS_RX 3
 #define CONT_CMD_RESET_RX          3
+#define CONT_CMD_READ_BUTTON_RX    4
 #define CONT_CMD_READ_PAK_RX       33
 #define CONT_CMD_WRITE_PAK_RX      1
 
