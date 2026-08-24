@@ -30,7 +30,17 @@ s32 diRcpReserved1(Gfx *dList) {
     func_800453C4(dList, &w0_24_31, &w0_16_23, &w0_0_15, &w1);
     return 8;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpMatrix.s")
+/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpMatrix. */
+s32 diRcpMatrix(Gfx *dList) {
+    s32 w0_24_31;
+    s32 w0_16_23;
+    s32 w0_0_15;
+    s32 w1;
+    s32 pad[8];
+
+    func_800453C4(dList, &w0_24_31, &w0_16_23, &w0_0_15, &w1);
+    return 8;
+}
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpReserved0. */
 s32 diRcpReserved0(Gfx *dList, char *name) {
     return 8;
