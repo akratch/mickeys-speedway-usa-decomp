@@ -1,51 +1,11 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_091.h"
 
-typedef struct Overlay91TimerState {
-    s32 mode;
-    s32 timer;
-} Overlay91TimerState;
-
-typedef struct Overlay91Object {
-    s16 value0;
-    u8 pad02[4];
-    s16 flags6;
-    u8 pad08[4];
-    f32 minValue;
-    f32 currentValue;
-    f32 maxValue;
-    u8 pad18[0x4C];
-    Overlay91TimerState *state;
-    void *graphOwner;
-} Overlay91Object;
-
-typedef struct Overlay91GraphHeader {
-    u8 pad00[0x2C];
-    u8 count;
-} Overlay91GraphHeader;
-
-typedef struct Overlay91GraphOwner {
-    Overlay91GraphHeader *header;
-    u8 pad04[0x48];
-    void *records;
-} Overlay91GraphOwner;
-
-typedef struct Overlay91GraphRoot {
-    Overlay91GraphOwner *owner;
-} Overlay91GraphRoot;
-
-typedef struct Overlay91GraphRecord {
-    s16 value;
-    u8 pad02[2];
-    u32 flags;
-} Overlay91GraphRecord;
+/* This TU retains the module's required -Wab,-r4300_mul compiler boundary. */
 
 /* One proxy intentionally models the normalized target split object's eleven
  * role calls.  Retail identities are recorded separately in the handoff. */
-extern f32 overlay91CallProxy();
-extern volatile s32 overlay91GlobalA;
-extern s32 overlay91GlobalB;
 
-void overlay91UpdateTimeline(Overlay91Object *object, s32 elapsed) {
+void overlay91UpdateTimeline(Overlay91TimelineObject *object, s32 elapsed) {
     Overlay91TimerState *state;
     s32 animation;
     s32 value;
@@ -206,5 +166,27 @@ void overlay91UpdateTimeline(Overlay91Object *object, s32 elapsed) {
                 } while (count--);
             }
         }
+    }
+}
+
+/* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+void overlay91Render(Overlay91Gfx **displayList, void *renderContext,
+                     u32 renderArg, Overlay91RenderObject *object) {
+    void *buffer;
+    u32 width;
+    u32 center;
+
+    if (overlay91CanRenderReloc() == 0) {
+        object->alpha = 0xFF;
+        overlay91GetDimensionsReloc(&buffer, &width);
+        center = width >> 1;
+        overlay91DrawBandReloc(displayList, buffer, width, 0, center - 20,
+                               buffer, center + 20);
+        overlay91BeginRenderReloc(displayList, renderContext);
+        overlay91EndRenderReloc(displayList);
+        object->flags &= ~0x0400;
+        overlay91RenderObjectReloc(displayList, renderContext, renderArg,
+                                   object);
+        object->flags |= 0x0400;
     }
 }

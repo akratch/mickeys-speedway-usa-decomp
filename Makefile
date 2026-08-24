@@ -6359,14 +6359,22 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o054/overlay54PatchIndices.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55PatchIndices.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay91Init.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay_091.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay91UpdateTimeline.c.o: POSTPROCESS = \
-	$(OBJCOPY) --remove-relocations=.text --remove-section=.rodata $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x470
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay91UpdateTimeline.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay91Render.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB8
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay_091_mul.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x04c:5:overlay91GlobalA 0x05c:6:overlay91GlobalA \
+		0x078:5:.rodata 0x080:6:.rodata \
+		0x134:4:overlay91CallProxy 0x1a4:4:overlay91CallProxy \
+		0x1ac:4:overlay91CallProxy 0x1d0:4:overlay91CallProxy \
+		0x228:4:overlay91CallProxy 0x270:4:overlay91CallProxy \
+		0x278:4:overlay91CallProxy 0x2f0:4:overlay91CallProxy \
+		0x2f8:4:overlay91CallProxy 0x300:5:overlay91GlobalB \
+		0x308:6:overlay91GlobalB 0x360:4:overlay91CallProxy \
+		0x3a4:4:overlay91CallProxy && \
+	$(OBJCOPY) --remove-section=.rodata $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x528
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay_091_mul.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11ReleaseHandles.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x54
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11InitializeSixA.c.o: POSTPROCESS = \
@@ -7546,9 +7554,8 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o054/overlay54PatchIndices.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55PatchIndices.c.o
 OVERLAY_TRIMMED_OBJECTS += \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay91Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay91UpdateTimeline.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay91Render.c.o
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay_091.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o091/overlay_091_mul.c.o
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11ReleaseHandles.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11InitializeSixA.c.o \
