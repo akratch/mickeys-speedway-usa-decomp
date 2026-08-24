@@ -423,6 +423,12 @@ accessor family, and the matching JFG source body establish the role; the body
 therefore carries a point-of-use `PROVENANCE` note. The default flags and both
 global-data relocations are exact without post-processing.
 
+The adjacent tier-B `frontRecallScreenMode` adds **0xC bytes / 3 words** at
+ROM `0x3AF5C`. Its byte return reads the state written by
+`frontStoreScreenMode`, reproducing JFG's ordered accessor pair. The adapted
+body carries a point-of-use `PROVENANCE` note; the default flags and data
+relocations are exact without post-processing.
+
 ---
 
 ## 4. libultra

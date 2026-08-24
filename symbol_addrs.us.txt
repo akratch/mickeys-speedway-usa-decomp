@@ -1477,6 +1477,9 @@ frontGetScreenMode = 0x8003A298; // type:func size:0x30   ROM 0x3ae98  src/menu.
 // Tier B (JFG): exact copied-byte store, adjacent ordered accessor family,
 // and correspondence with JFG's frontStoreScreenMode establish the role.
 frontStoreScreenMode = 0x8003A348; // type:func size:0x14  ROM 0x3af48
+// Tier B (JFG): exact byte-return body, shared stored-mode state, and adjacency
+// to frontStoreScreenMode establish the ordered accessor pair.
+frontRecallScreenMode = 0x8003A35C; // type:func size:0xC  ROM 0x3af5c
 frontGetLevelScreenMode = 0x8003A368; // type:func size:0x68   ROM 0x3af68  src/menu.c.o  masked=4/26
 // Tier B (JFG): exact accessor body, shared state, and position immediately
 // before the already tier-A-named frontSetWideAdjust establish the role.

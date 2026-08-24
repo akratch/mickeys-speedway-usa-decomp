@@ -67,7 +67,10 @@ s32 frontGetScreenMode(void) {
 void frontStoreScreenMode(void) {
     D_8007C08C = D_8007C090;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A35C.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontRecallScreenMode. */
+u8 frontRecallScreenMode(void) {
+    return D_8007C08C;
+}
 s32 frontGetLevelScreenMode(void) {
     /* Mickey-derived control flow; JFG's body remains GLOBAL_ASM. */
     if (D_8007C090 == 1) {
