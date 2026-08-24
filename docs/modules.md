@@ -443,36 +443,26 @@ would require out-of-scope overlay edits. The inherited `levelInitRegionFlags`
 name is suspect: Mickey's exact 56-byte body is a boolean query over the level
 type byte and `D_8007BF08`, not JFG's region-table initializer.
 
-`joyResetMap` remains assembly after a bounded plateau. The donor loop's first
-mismatch is at function offset `+0x0`: with external storage, IDO repeats the
-global-base load and emits 48 bytes instead of the target's 36. Declaring the
-array in this TU produces the exact instruction schedule, but incorrectly
-claims its BSS ownership and shifts the linked symbol by `0x10`; that candidate
-was rejected.
+**Bounded plateaus (all remain assembly):**
 
-`func_800290AC` also remains assembly after six type/layout/return spellings.
-The best candidate has the exact 64-byte size and an exact 11-word tail, but
-five entry words differ starting at `+0x0`: IDO sets up the frame before a
-`$t6` global address, while the target materializes that address in `$v0`
-before the frame. The flag lattice did not change this allocation schedule.
+- `joyResetMap`, first mismatch `+0x0`: external storage emits 48 rather than
+  36 bytes; TU-local storage is instruction-exact but wrongly claims 16 B of
+  BSS and shifts the real symbol.
+- `func_800290AC`, six spellings, first mismatch `+0x0`: exact 64-byte size and
+  11-word tail, but five entry words differ because IDO frames before loading
+  the global into `$t6`; the target loads it into `$v0` first.
+- `func_80028FCC`, ten spellings, first mismatch `+0x1c`: its 108-byte skeleton
+  identifies the tier-B `mainAnyoneHas` role (JFG: 108 B, similarity 0.357),
+  but Mickey passes zero as every middle argument. The exact-sized candidate
+  differs in ten words: raw-return branches versus target normalization into
+  `$t6`/`$t7`/`$t8` and a shared epilogue.
+- `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
+  and 113/117 words; only the masked resource index/table-base registers swap.
+- `func_80028EFC`, ten spellings, first mismatch `+0x1c`: exact 64-byte size
+  and 14/16 words; the correct loop predicate is allocated to `$t6`, while the
+  target uses `$at`.
 
-`func_80028FCC` remains assembly after a bounded ten-spelling plateau. Its
-108-byte control flow and masked instruction skeleton identify the tier-B
-`mainAnyoneHas` role (JFG is likewise 108 bytes; masked 4-gram similarity
-0.357), although Mickey passes zero for all three middle arguments. The best
-C candidate is also 108 bytes, with ten differing words beginning at `+0x1c`:
-IDO branches on the raw return and synthesizes one, while the target first
-normalizes each return into successive `$t6`/`$t7`/`$t8` temporaries and moves
-that temporary through a shared epilogue. The full flag lattice did not alter
-the allocation.
-
-`levelFreeAll` remains assembly after ten layout and expression spellings.
-The best candidate has the exact 468-byte size and 113 of 117 instruction
-words exact. Its first mismatch is `+0x13c`, confined to four words that load
-and combine a masked resource index with the resource-table base: the source
-model assigns the two temporaries in the opposite registers. All calls,
-branches, frame shape, relocations, and the remaining words align; the flag
-lattice did not change the allocation.
+The full flag lattice did not change any of these allocation plateaus.
 
 **PROVENANCE.** TU identities and adopted function names are adapted from Jet
 Force Gemini's published `src/{joy,level,main}.c` and built
