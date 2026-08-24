@@ -19,6 +19,7 @@
 #include "game/lights.h"
 
 extern void initColourCycle();
+extern f32 sqrtf(f32 value);
 extern void func_800188CC(UnkLight *light);
 extern void func_80018F08(UnkLight *light, s32 updateRate);
 extern u8 *func_8002679C(void);
@@ -171,7 +172,43 @@ void **lightGetLights(s32 *count) {
     *count = D_80079494;
     return D_80079498;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019358.s")
+/* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
+UnkLight *lightGetStrongestEffect(f32 x, f32 y, f32 z) {
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    f32 distanceSquare;
+    f32 effect;
+    f32 strongestEffect;
+    s32 index;
+    s32 offset;
+    UnkLight *light;
+    UnkLight *strongestLight;
+
+    strongestEffect = 0.0f;
+    strongestLight = NULL;
+    index = D_80079494;
+    if (index--) {
+        offset = index * 4; do {
+            light = *(UnkLight **)((u8 *) D_80079498 + offset);
+            if (light != NULL) {
+                dx = x - light->x;
+                dy = y - light->y;
+                dz = z - light->z;
+                distanceSquare = (dx * dx) + (dy * dy) + (dz * dz);
+                if (distanceSquare < light->radiusSquare) {
+                    effect = (1.0f - (sqrtf(distanceSquare) * light->radiusInverse)) * light->unk44;
+                    if (strongestEffect < effect) {
+                        strongestEffect = effect;
+                        strongestLight = light;
+                    }
+                }
+            }
+            offset -= 4;
+        } while (index--);
+    }
+    return strongestLight;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019494.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001953C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019934.s")

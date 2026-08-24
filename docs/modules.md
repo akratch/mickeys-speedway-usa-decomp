@@ -391,7 +391,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80018F08` | `0x334` | JFG placeholder `func_80021444` | placeholder prohibited; remains `func_80018F08` |
 | `0x8001923C` | `0x104` | `killLight` | tier-B comparison from free/update call graph and TU order |
 | `0x80019340` | `0x18` | `lightGetLights` | Tier A: JFG C and both global relocations are link exact |
-| `0x80019358` | `0x13C` | `lightGetStrongestEffect` | tier-B comparison: square-root distance calculation and TU order |
+| `0x80019358` | `0x13C` | `lightGetStrongestEffect` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80019494` | `0xA8` | `lightUpdateObjects` | tier-B comparison: calls the following object-light helper |
 | `0x8001953C` | `0x3F8` | JFG placeholder `func_80021B9C` | placeholder prohibited; remains `func_8001953C` |
 | `0x80019934` | `0xF0` | `lightDistanceCalc` | tier-B comparison: same distance-mode call surface |
