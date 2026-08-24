@@ -389,6 +389,10 @@ TU calls the matrix library, video helpers, `sqrtf`, and `Arctanf`. There are
 no odd single-precision FP registers anywhere in the block, so none of these
 functions is classified as handwritten assembly under §6.2.
 
+| Matched C function | ROM | Exact executable bytes | Proof |
+|---|---:|---:|---|
+| `camUseShake` | `0x22084` | 16 | Configured object, relocation pair, linked range and full ROM exact. |
+
 ---
 
 ## 4. libultra

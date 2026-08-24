@@ -19,10 +19,15 @@
 
 #include "PR/ultratypes.h"
 
+extern s32 D_800CEC84;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021438.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021444.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021484.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camUseShake. */
+void camUseShake(void) {
+    D_800CEC84 = 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021494.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800214A0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800214AC.s")

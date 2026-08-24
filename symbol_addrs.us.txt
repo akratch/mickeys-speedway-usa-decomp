@@ -1525,6 +1525,7 @@ func_80069A34 = 0x80069A34; // type:func size:0x1BC   ROM 0x6a634  src/libultra/
 // tier-A rows that clear docs/modules.md 1.2 remain in the donor block above.
 // ---------------------------------------------------------------------------
 camInit = 0x800212E0; // type:func size:0x158 ROM 0x21ee0 tier-B similar-jfg-camInit=0.3125
+camUseShake = 0x80021484; // type:func size:0x10 ROM 0x22084 tier-B JFG role/order and state effect
 camOverrideProjScales = 0x800214E4; // type:func size:0x20 ROM 0x220e4 tier-B exact skeleton, donor comparison has only 2 unmasked words
 camGetProjOrgMtx = 0x80024670; // type:func size:0x1C ROM 0x25270 tier-B exact skeleton, donor comparison has only 3 unmasked words
 camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B similar-jfg-camStopShakes=1.000
