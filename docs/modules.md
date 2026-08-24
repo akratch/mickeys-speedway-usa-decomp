@@ -382,7 +382,7 @@ placeholders are never imported.
 
 | Mickey VRAM | Size | JFG comparison | Evidence / status |
 |---|---:|---|---|
-| `0x80050000` | `0x24` | `func_800767A0` | D; source-order/bit-reader shape, placeholder retained |
+| `0x80050000` | `0x24` | `func_800767A0` | D naming; placeholder retained. Matched C: exact 36 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050024` | `0x80` | `func_800767C4` | D; nearest `anim.c` skeleton, placeholder retained |
 | `0x800500A4` | `0x98` | `func_80076840` | D; nearest `anim.c` skeleton, placeholder retained |
 | `0x8005013C` | `0x40` | `func_800768D4` | D; nearest `anim.c` skeleton, placeholder retained |

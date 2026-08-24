@@ -13,8 +13,18 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/anim.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050000.s")
+/*
+ * PROVENANCE: adapted from JFG's func_80076020_76C20. Mickey's globals and
+ * final compiler output are independently established from Mickey's ROM.
+ */
+void func_80050000(s32 *stream) {
+    D_800D6D54 = stream;
+    D_800D6D58 = (u8 *) *stream;
+    D_800D6D5C = 0x80;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050024.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800500A4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005013C.s")
