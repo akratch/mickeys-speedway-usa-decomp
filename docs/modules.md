@@ -399,7 +399,7 @@ placeholders are never imported.
 | `0x800507BC` | `0x88` | `animseqHoldPath` | B; process-command call position |
 | `0x80050844` | `0x38` | `animseqLockPath` | B; paired process-command calls |
 | `0x8005087C` | `0x38` | `animseqUnLockPath` | B; paired process-command calls |
-| `0x800508B4` | `0x20` | no unique candidate | D; short animation helper |
+| `0x800508B4` | `0x20` | no unique candidate | D; placeholder retained. Matched C: exact 32 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800508D4` | `0x200` | `func_800772C4` | B; bit-reader call sequence, placeholder retained |
 | `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function |
 | `0x80050BF4` | `0x15C` | `animseqInit` | D; 0.753 skeleton similarity |

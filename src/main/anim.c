@@ -127,7 +127,10 @@ void func_8005027C(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800507BC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050844.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005087C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800508B4.s")
+void *func_800508B4(u8 pathIndex) {
+    return D_800D6B00[pathIndex];
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800508D4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050AD4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050BF4.s")

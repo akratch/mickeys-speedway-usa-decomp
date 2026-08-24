@@ -12,6 +12,7 @@ extern void *D_8007D6A0;
 extern s8 D_8007D6C0[];
 extern s32 *D_8007D68C;
 extern s32 D_8007D6A4;
+extern void **D_800D6B00;
 
 void func_80050000(s32 *stream);
 s32 func_80050024(u32 bitCount);
@@ -24,5 +25,6 @@ void func_8005027C(void);
 void func_80050348(s32 pathIndex);
 void animseqInitGroup(void);
 void animseqPlay(void);
+void *func_800508B4(u8 pathIndex);
 
 #endif
