@@ -52,6 +52,7 @@ extern void overlay79TriggerReloc(void);
 extern s32 gOverlay79CounterReloc;
 extern u8 gOverlay79FlagsReloc[];
 
+#ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
     Overlay79Node *node;
     Overlay79SpawnDesc desc;
@@ -101,3 +102,7 @@ void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
         overlay79FinishReloc(object);
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o079/func_overlay_079_F0001290_18CE230/func_overlay_079_F0001290_18CE230.s")
+#endif

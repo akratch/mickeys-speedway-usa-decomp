@@ -2542,60 +2542,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79UpdateTimers.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79FindNearby.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79FindNearby.c.o: CFLAGS += -Wab,-r4300_mul
-# Natural output has the exact 77-instruction schedule, frame, stack/GPR web,
-# and seven-role runtime topology. A complete guarded COP1 color web restores
-# the private FP allocation; the loader-owned scale pair is filtered only from
-# the five-call static surface, whose resident SYMBOL calls use the raw overlay
-# base carrier exactly as the original split object does.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000000_18CCFA0.c.o: \
-	config/normalizations/func_overlay_079_F0000000_18CCFA0.ops \
-	config/normalizations/func_overlay_079_F0000000_18CCFA0.filter.spec \
-	config/normalizations/func_overlay_079_F0000000_18CCFA0.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+# The assembly fallback already carries the shipped synthetic symbol and
+# relocation surface; discard only compiler section alignment.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000000_18CCFA0.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x134 4b4bf65bde54182aafa7b48c3f707b290170da7e7f82839626927ddc4b8451ef \
-		@config/normalizations/func_overlay_079_F0000000_18CCFA0.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_079_F0000000_18CCFA0.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_079_F0000000_18CCFA0.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x134
-# Natural output has the exact 123-instruction schedule, frame, stack/GPR web,
-# CFG, opcodes, immediates, and runtime topology. Three complete private color
-# webs restore the compiler's register allocation. The loader-owned resident
-# flag pair is filtered from the original 13-record static split surface, then
-# calls and the overlay-local counter pair are rebound to their raw carriers.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0001290_18CE230.c.o: \
-	config/normalizations/func_overlay_079_F0001290_18CE230.ops \
-	config/normalizations/func_overlay_079_F0001290_18CE230.filter.spec \
-	config/normalizations/func_overlay_079_F0001290_18CE230.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+# The second assembly fallback likewise needs only boundary trimming.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0001290_18CE230.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym overlay79RandomReloc=func_overlay_079_F0000000_18CCFA0 \
-		--redefine-sym overlay79FindNearby=func_overlay_079_F0000EFC_18CDE9C \
-		--redefine-sym gOverlay79CounterReloc=D_14 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1EC 26d0ccb3172d36afd56cb89b480e627296a9ab1740d9e002d21b0410aad26516 \
-		@config/normalizations/func_overlay_079_F0001290_18CE230.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_079_F0001290_18CE230.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_079_F0001290_18CE230.rebind.spec && \
-	$(OBJCOPY) \
-		--strip-symbol overlay79SpawnReloc \
-		--strip-symbol overlay79EmitAtReloc \
-		--strip-symbol overlay79FinishReloc \
-		--strip-symbol overlay79EmitReloc \
-		--strip-symbol overlay79TriggerReloc \
-		--strip-symbol gOverlay79FlagsReloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1EC
 # The measured R4300 hazard mode naturally emits the shipped FP interlock and
 # exact 284-byte boundary. IDO still canonicalizes one finite multiply's

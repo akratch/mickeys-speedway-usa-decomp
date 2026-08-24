@@ -41,6 +41,7 @@ extern f32 func_8002A8BC(s32 angle);
 extern void func_8005AD64(Overlay79InitObject *object, s32 mode, s32 index,
                           f32 value);
 
+#ifdef NON_MATCHING
 void func_overlay_079_F0000000_18CCFA0(Overlay79InitObject *object,
                                         Overlay79InitConfig *config,
                                         void *unused) {
@@ -66,3 +67,7 @@ void func_overlay_079_F0000000_18CCFA0(Overlay79InitObject *object,
     state->value14 = state->position2C - (func_8002A8BC(random) * range);
     func_8005AD64(object, 0, -1, 0.0f);
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o079/func_overlay_079_F0000000_18CCFA0/func_overlay_079_F0000000_18CCFA0.s")
+#endif
