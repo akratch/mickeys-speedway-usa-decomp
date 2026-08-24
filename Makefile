@@ -3589,26 +3589,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96TestBit.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96DrawObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x10C
-# Natural source supplies the complete 81-instruction semantic owner. Assert
-# and select the target's equivalent three-base allocation/address schedule,
-# then restore the two independently proved BSS relocation aliases and pair.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CollectUniqueY.c.o: \
-	config/normalizations/overlay98CollectUniqueY.ops \
-	$(TOOLS_DIR)/add_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+# NON_MATCHING/GLOBAL_ASM: restore friendly symbols and retain only the
+# trailing-section trim metadata for these extracted functions.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CollectUniqueY.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x144 0a699852811a0f3be8f74fbfeabc0aa068412b2f8b3553cb2a987f905ed56a4c \
-		@config/normalizations/overlay98CollectUniqueY.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x94:overlay98UniqueCountReloc:overlay98UniqueYReloc \
-		0x98:overlay98UniqueCountReloc:overlay98UniqueYReloc && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text \
-		0x144 0a699852811a0f3be8f74fbfeabc0aa068412b2f8b3553cb2a987f905ed56a4c \
-		0xa4:HI16:overlay98UniqueYReloc \
-		0xac:LO16:overlay98UniqueYReloc && \
-	$(OBJCOPY) --redefine-sym overlay98UniqueCountReloc=D_80 \
-		--redefine-sym overlay98UniqueYReloc=D_308 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_098_F0000000_18D89C0=overlay98CollectUniqueY $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x144
 # These two exact edge owners surround O98's remaining assembly core. Their
 # private fail-loud normalizers assert the natural source/relocation hashes and
@@ -3622,50 +3607,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CollectAccepted.c.o: POSTPROCESS 
 		--redefine-sym gOverlay98AcceptedCount=D_84 \
 		--redefine-sym gOverlay98AcceptedEntries=D_88 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
-# The typed reflection renderer naturally owns the complete 389-instruction
-# CFG and all 36 runtime semantic relocation roles. A complete fail-loud
-# private representation selects retail's frame/schedule/register web, then
-# the split-object stage converts only two proved local addends, removes the
-# 20 runtime-local records absent from the static proxy, and rebinds the exact
-# 16 retained relocation sites to their shipped static identities.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98RenderReflections.c.o: \
-	config/normalizations/overlay98RenderReflections.prepare.py \
-	config/normalizations/overlay98RenderReflections.ops.json \
-	config/normalizations/overlay98RenderReflections.prelink.ops \
-	config/normalizations/overlay98RenderReflections.filter.spec \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98RenderReflections.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay98RenderReflections.prepare.py $@ $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x614 06675ef5b4e51fa9b8668746c4fd55ffa6495a95ff238599a71604746a0ab580 \
-		@config/normalizations/overlay98RenderReflections.prelink.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay98RenderReflections.filter.spec && \
-	$(OBJCOPY) \
-		--redefine-sym o98AcquireRenderContextReloc=func_overlay_098_F0000000_18D89C0 \
-		--redefine-sym gO98Globals=D_88 \
-		--redefine-sym gO98SpecialVertices=D_80000000 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x070:o98SetupRenderContextReloc:func_overlay_098_F0000000_18D89C0 \
-		0x1e4:o98BuildMatrixReloc:func_overlay_098_F0000000_18D89C0 \
-		0x1f4:o98CombineMatrixReloc:func_overlay_098_F0000000_18D89C0 \
-		0x200:o98LoadMatrixReloc:func_overlay_098_F0000000_18D89C0 \
-		0x2b4:o98BuildInverseMatrixReloc:func_overlay_098_F0000000_18D89C0 \
-		0x30c:o98BuildMatrixReloc:func_overlay_098_F0000000_18D89C0 \
-		0x31c:o98CombineMatrixReloc:func_overlay_098_F0000000_18D89C0 \
-		0x32c:o98CombineMatrixReloc:func_overlay_098_F0000000_18D89C0 \
-		0x338:o98LoadMatrixReloc:func_overlay_098_F0000000_18D89C0 \
-		0x4a0:o98RestoreStateReloc:func_overlay_098_F0000000_18D89C0 \
-		0x558:o98EmitObjectReloc:func_overlay_098_F0000000_18D89C0 && \
-	$(OBJCOPY) --strip-symbol gO98Toggle \
-		--strip-symbol o98SetupRenderContextReloc \
-		--strip-symbol o98BuildMatrixReloc \
-		--strip-symbol o98CombineMatrixReloc \
-		--strip-symbol o98LoadMatrixReloc \
-		--strip-symbol o98BuildInverseMatrixReloc \
-		--strip-symbol o98RestoreStateReloc \
-		--strip-symbol o98EmitObjectReloc $@
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_098_F0000234_18D8BF4=overlay98RenderReflections $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x614
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CheckObject.c.o: \
 	config/normalizations/overlay98CheckObject.prepare.py \
 	$(TOOLS_DIR)/rebind_elf_relocations.py

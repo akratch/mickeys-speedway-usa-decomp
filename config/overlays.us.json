@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 244992,
-  "nonmatching_overlay_c_bytes": 31608,
+  "matched_overlay_c_bytes": 243112,
+  "nonmatching_overlay_c_bytes": 33488,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -19100,7 +19100,7 @@
      "type": "c",
      "source": "overlays/o098/overlay98CollectUniqueY",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x144",
@@ -19118,7 +19118,7 @@
      "type": "c",
      "source": "overlays/o098/overlay98RenderReflections",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x848",

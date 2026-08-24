@@ -41,6 +41,7 @@ extern s32 overlay98UniqueCountReloc;
 extern s16 overlay98UniqueYReloc[15];
 
 /* Exact DKR v77/v80 and JFG scans are negative for this routine. */
+#ifdef NON_MATCHING
 void overlay98CollectUniqueY(Overlay98Group *group) {
     Overlay98Block *block;
     Overlay98Span *span;
@@ -96,3 +97,6 @@ void overlay98CollectUniqueY(Overlay98Group *group) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o098/overlay98CollectUniqueY/func_overlay_098_F0000000_18D89C0.s")
+#endif
