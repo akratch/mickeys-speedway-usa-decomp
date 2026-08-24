@@ -18,14 +18,71 @@
 #include "PR/ultratypes.h"
 #include "game/lights.h"
 
-extern void initColourCycle(s32 arg0, s32 arg1);
+extern void initColourCycle();
+extern void func_800188CC(UnkLight *light);
+extern void func_80018F08(UnkLight *light, s32 updateRate);
+extern u8 *func_8002679C(void);
+extern s32 D_80079490;
 extern s32 D_80079494;
 extern void **D_80079498;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018710.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001879C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_800188CC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001897C.s")
+/* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
+UnkLight *addRomdefLight(s32 arg0, RomdefLight *entry) {
+    UnkLight *light;
+    u8 *levelData;
+
+    light = NULL;
+    if (D_80079494 < D_80079490) {
+        light = D_80079498[D_80079494];
+        D_80079494++;
+        light->unk0 = (entry->modeAndType >> 4) & 0xF;
+        light->unk1 = entry->modeAndType & 0xF;
+        if ((entry->flags & 0xE0) == 0x40) {
+            light->unk0 = 3;
+        }
+        light->unk2 = 7;
+        light->unk3 = ~entry->enabledFlags & 0x61;
+        light->home = 0;
+        light->index = -1;
+        light->directionX = 0.0f;
+        light->directionY = 0.0f;
+        light->directionZ = 0.0f;
+        light->owner = NULL;
+        light->x = entry->x;
+        light->y = entry->y;
+        light->z = entry->z;
+        light->radius = entry->radius;
+        light->radius2 = light->radius;
+        light->radius3 = light->radius;
+        if (light->unk0 == 2) {
+            light->radius2 = entry->radius2;
+        }
+        light->radiusSquare = light->radius * light->radius;
+        light->radiusInverse = 1.0f / light->radius;
+        light->red = entry->red;
+        light->green = entry->green;
+        light->blue = entry->blue;
+        light->unk43 = entry->intensity;
+        light->unk44 = (u32) entry->intensity;
+        light->unk54 = 0;
+        if (entry->colourCycleIndex < 7) {
+            levelData = func_8002679C();
+            if (*(s16 *)(levelData + 0x94 + (entry->colourCycleIndex * 2)) != -1) {
+                initColourCycle(light->colourCycle, *(s16 *)(levelData + 0x94 + (entry->colourCycleIndex * 2)), entry);
+            }
+        }
+        light->value58 = entry->value58;
+        light->value5C = entry->value5C;
+        light->value5A = entry->value5A;
+        light->value5E = entry->value5E;
+        func_800188CC(light);
+        func_80018F08(light, 0);
+    }
+    return light;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018BB4.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 void turnLightOff(UnkLight *light) {
