@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-33 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 31 more from it): every masked=0/1/2 TU (the
+34 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 32 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -496,7 +496,8 @@ else in the library reads `n_syn`), the seven `ALParam`-update setters
 that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 `-DRAREDIFFS` for Rare's added MIDI control-change codes), `n_syngetfxref`,
 `n_synsetvol`, `n_synstartvoiceparam`, `n_synaddplayer`,
-`n_synallocvoice`, `alsurround`, `n_mainbus`, `n_auxbus`, and `n_event`.
+`n_synallocvoice`, `alsurround`, `n_mainbus`, `n_auxbus`, `n_event`, and
+`n_synsetfxparam`.
 
 `alsurround` also owns a `0x10`-byte `.bss` section at Mickey VRAM
 `0x800D7DC0`: the two linked functions' HI16/LO16 references place its
@@ -507,13 +508,12 @@ JFG addresses embedded in their imported identifiers.
 `0x800D7DD0`; ten linked HI16/LO16 references independently place its
 external-event clock at the section start.
 
+`n_synsetfxparam` additionally owns the `0x10`-byte `.rodata` island at
+ROM `0x853B0`; separating it from the formerly undifferentiated pool
+places `n_alSynSetOutputLPParam`'s `0.1f` literal at its linked address.
+
 **Plateaus, each with a first mismatch:**
 
-- `n_synsetfxparam` (masked=6): `n_alSynSetFXParam` alone matches;
-  its sibling `n_alSynSetOutputLPParam` in the same TU pulls a `0.1f`
-  float literal from the wrong offset in the still-undifferentiated
-  `.rodata` pool, off by `0x20` — a `.rodata`-ordering question beyond
-  this pass.
 - `n_resample` (masked=8): `n_alResamplePull`'s tail diverges
   structurally from the ROM (an extra `jal` the real function doesn't
   have); needs a closer read of the loop/branch shape before another
