@@ -779,6 +779,52 @@ Matched C in this TU:
 | `func_80014DE4` | `0x159E4` | 0xC8 | `-O2 -mips2 -32` | Mickey reconstruction; JFG supplies only tier-D transform-role context and no public name is adopted; 50/50 instruction words and relocation layout exact, linked ROM exact |
 | `func_80014EAC` | `0x15AAC` | 0x20 | `-O2 -mips2 -32` | JFG `func_8001C550` is a tier-A 8/8-word TU donor, unique in the ROM; JFG placeholder not imported; linked ROM exact |
 
+### 3.4 Resident camera: ROM `0x21EE0`–`0x25C20`
+
+This whole `0x3D40`-byte block is the resident camera TU: **69 functions,
+`0x3D3C` executable bytes and four bytes of terminal alignment**. Its ordered
+systems are camera/FOV state, user viewports, projection setup, sprite and
+model matrices, projection helpers, then screen shake. The split is
+`main/camera`; flags are the resident default `-O2 -mips2 -32`.
+
+**PROVENANCE.** The TU identity, source order and borrowed names below come
+from Jet Force Gemini's public retail-derived decomp, `src/camera.c`, permitted
+by `docs/CLEANROOM.md`. JFG is a starting point only; the tiers say which parts
+Mickey's own bytes establish.
+
+| Evidence | Result |
+|---|---|
+| **A — byte identity** | `camSetWaterLine` at ROM `0x225B0` has 6 unmasked words of 8 and `romocc=1`; `camGetPlayerProjMtx` at `0x23360` has 8 unmasked words of 13 and `romocc=1`. Both clear §1.2. |
+| **B — role/call graph** | `camInit` opens the block and ranks JFG `camInit` at 0.3125 masked 4-gram Jaccard versus 0.0851 for the runner-up. `camOverrideProjScales`, `camGetProjOrgMtx`, `camStopShakes`, and `camSetZoom` have the same state effects and ordered camera roles as JFG; their comments in `symbol_addrs.us.txt` retain why they are below tier A. |
+| **C — strings** | None. The resident strings `"Camera Error: Illegal mode!"` and `"Cam do 2D sprite called with NULL pointer!"` are not addressed by resident code (§7); this identification does not use them. |
+| **D — structure** | The existing endpoints are 16-byte aligned, the first function is the `camInit` nearest neighbour, and the last function ends four bytes before `0x25C20`. The 69-function call/data sequence follows one camera-state cluster throughout. |
+
+The call census finds 15 direct internal edges. Representative chains are
+the view setup calling the window-limit, projection and viewport routines;
+the reset path calling scissor and viewport setup; the sprite helpers sharing
+matrix conversion; and the shake updater calling the shake initializer.
+External callers span resident render, track, menu and update code, while the
+TU calls the matrix library, video helpers, `sqrtf`, and `Arctanf`. There are
+no odd single-precision FP registers anywhere in the block, so none of these
+functions is classified as handwritten assembly under §6.2.
+
+| Matched C function | ROM | Exact executable bytes | Proof |
+|---|---:|---:|---|
+| `camUseShake` | `0x22084` | 16 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camOverrideProjScales` | `0x220E4` | 32 | Configured object, six relocations, linked range and full ROM exact. |
+| `camSetWaterLine` | `0x225B0` | 32 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camGetProjOrgMtx` | `0x25270` | 28 | Configured object, two relocation pairs, linked range and full ROM exact. |
+| `camSetZoom` | `0x258C8` | 56 | Configured object, two relocation pairs, linked range and full ROM exact. |
+| `camGetPlayerProjMtx` | `0x23360` | 52 | Configured object, five relocations, linked range and full ROM exact. |
+| `camStopShakes` | `0x25754` | 76 | Configured object, three relocation pairs, linked range and full ROM exact. |
+| `camIgnoreShake` | `0x22094` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camGetFOV` | `0x220A0` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camGetWaterLine` | `0x225A0` | 16 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camGetMode` | `0x22518` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camSetMode` | `0x22524` | 64 | Configured object, two relocation pairs, linked range and full ROM exact. |
+| `camGetNo` | `0x22564` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camSetNo` | `0x22594` | 12 | Configured object, relocation pair, linked range and full ROM exact; Mickey omits JFG's bounds guard. |
+
 ---
 
 ## 4. libultra

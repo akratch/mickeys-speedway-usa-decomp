@@ -1516,7 +1516,8 @@ modelGetModelFlags = 0x80020570; // type:func size:0xC   ROM 0x21170  src/models
 func_80020AD4 = 0x80020AD4; // type:func size:0x3C   ROM 0x216d4  src/models.c.o  masked=6/15  C-match -O2 -mips2
 modResumeModelTextures = 0x80021010; // type:func size:0x8C   ROM 0x21C10  src/models.c.o  evidence-tier-B JFG name and suspended-texture traversal  C-match -O2 -mips2
 // jfg:src/camera.c.o
-camGetPlayerProjMtx = 0x80022760; // type:func size:0x34   ROM 0x23360  src/camera.c.o  masked=5/13
+camSetWaterLine = 0x800219B0; // type:func size:0x20 ROM 0x225b0 tier-A matched-C src/camera.c.o masked=2/8 romocc=1
+camGetPlayerProjMtx = 0x80022760; // type:func size:0x34 ROM 0x23360 tier-A matched-C src/camera.c.o masked=5/13 romocc=1
 // jfg:src/hasm/ido/math_util.s.o
 mathRSMtx = 0x80029DE4; // type:func size:0x90   ROM 0x2a9e4  src/hasm/ido/math_util.s.o  masked=2/36
 mathOneFloatRPY = 0x80029E74; // type:func size:0xB8   ROM 0x2aa74  src/hasm/ido/math_util.s.o  masked=6/46
@@ -1621,3 +1622,26 @@ func_80064DC0 = 0x80064DC0; // type:func size:0x164   ROM 0x659c0  src/libultra/
 func_8006850C = 0x8006850C; // type:func size:0x94   ROM 0x6910c  src/libultra/n_env.c.o  masked=0/37
 // jfg:src/libultra/n_load.c.o
 func_80069A34 = 0x80069A34; // type:func size:0x1BC   ROM 0x6a634  src/libultra/n_load.c.o  masked=0/111
+
+// ---------------------------------------------------------------------------
+// Resident camera TU: role/order identifications below the tier-A bar
+//
+// PROVENANCE DISCLOSURE. These names were read from Jet Force Gemini's public
+// retail-derived decomp, src/camera.c. Mickey's call graph, state accesses,
+// source-order correspondence and nearest-skeleton results establish the same
+// roles (tier B); they are not represented as byte-identity claims. The two
+// tier-A rows that clear docs/modules.md 1.2 remain in the donor block above.
+// ---------------------------------------------------------------------------
+camInit = 0x800212E0; // type:func size:0x158 ROM 0x21ee0 tier-B similar-jfg-camInit=0.3125
+camUseShake = 0x80021484; // type:func size:0x10 ROM 0x22084 tier-B JFG role/order and state effect
+camIgnoreShake = 0x80021494; // type:func size:0x0C ROM 0x22094 tier-B matched-C JFG role/order and inverse state effect
+camGetFOV = 0x800214A0; // type:func size:0x0C ROM 0x220a0 tier-B matched-C JFG role/order and FOV state read
+camOverrideProjScales = 0x800214E4; // type:func size:0x20 ROM 0x220e4 tier-B matched-C, donor comparison has only 2 unmasked words
+camGetMode = 0x80021918; // type:func size:0x0C ROM 0x22518 tier-B matched-C JFG role/order and mode-state read
+camSetMode = 0x80021924; // type:func size:0x40 ROM 0x22524 tier-B matched-C JFG role/order and mode-state update
+camGetNo = 0x80021964; // type:func size:0x0C ROM 0x22564 tier-B matched-C JFG role/order and active-camera read
+camSetNo = 0x80021994; // type:func size:0x0C ROM 0x22594 tier-B matched-C JFG role/order and Mickey raw active-camera update
+camGetWaterLine = 0x800219A0; // type:func size:0x10 ROM 0x225a0 tier-B matched-C JFG role/order and water-line state read
+camGetProjOrgMtx = 0x80024670; // type:func size:0x1C ROM 0x25270 tier-B matched-C, donor comparison has only 3 unmasked words
+camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B matched-C similar-jfg-camStopShakes=1.000
+camSetZoom = 0x80024CC8; // type:func size:0x38 ROM 0x258c8 tier-B matched-C similar-jfg-camSetZoom=1.000
