@@ -4,14 +4,18 @@
  * PROVENANCE -- the translation-unit identity and the descriptive names used
  * below are adapted from Jet Force Gemini's public decompilation, src/saves.c.
  * Mickey's function order, sizes and call graph establish the correspondence;
- * the GLOBAL_ASM bodies remain Mickey's own extracted code. No JFG C body is
- * compiled here yet.
+ * adapted C bodies are identified in docs/modules.md; all remaining functions
+ * stay as Mickey GLOBAL_ASM.
  */
 
 #include "PR/ultratypes.h"
 
+extern u8 D_8007A2F8;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002BCC0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleRumbles.s")
+void rumbleRumbles(s32 value) {
+    D_8007A2F8 = value;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleProcessing.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStart.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStop.s")

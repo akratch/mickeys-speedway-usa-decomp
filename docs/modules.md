@@ -392,13 +392,14 @@ context rather than naming evidence. No function in either original block
 uses an odd single-precision FP register, so §6.2's hand-written-assembly
 criterion identifies **zero** forced-ASM functions here.
 
-Exact C reconstructions in this census currently include
-`rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes) and the still-unnamed
-global setter `func_8002EBD4` (ROM `0x2F7D4`–`0x2F7E0`, 12 bytes), compiled
-with the resident `-O2 -mips2 -32` flags. The colour-setter body is adapted
-from JFG's `src/rcpFast3d.c`; the anonymous setter is reconstructed from
-Mickey's own body. Both configured object ranges and the final linked ROM are
-byte-exact.
+Exact C reconstructions in this census currently include `rumbleRumbles`
+(ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rcpSetScreenColour` (ROM `0x2F76C`–
+`0x2F794`, 40 bytes), and the still-unnamed global setter `func_8002EBD4`
+(ROM `0x2F7D4`–`0x2F7E0`, 12 bytes), compiled with the resident
+`-O2 -mips2 -32` flags. The named setter bodies are adapted from JFG's
+`src/saves.c` and `src/rcpFast3d.c`; the anonymous setter is reconstructed
+from Mickey's own body. All configured object ranges and the final linked ROM
+are byte-exact.
 
 ---
 
