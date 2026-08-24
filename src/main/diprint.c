@@ -6,13 +6,19 @@
  * public built unused_string.c.o/printf.c.o independently identify strcpy,
  * memset and sprintf byte-for-byte, and its public src/printf.c supplies the
  * debug_text_width name for the one routine absent from JFG. Mickey's bytes,
- * call graph and strings decide the mapping. No external body has been adapted
- * while these entries remain GLOBAL_ASM.
+ * call graph and strings decide the mapping. Adapted bodies carry a
+ * point-of-use PROVENANCE note.
  */
 
 #include "PR/ultratypes.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/strcpy.s")
+/* PROVENANCE: body adapted from DKR src/unused_string.c:strcpy. */
+char *strcpy(char *src, const char *dest) {
+    char *ret = src;
+
+    while ((*src++ = *dest++) != '\0') {}
+    return ret;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/memset.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/_itoa.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/sprintfSetSpacingCodes.s")

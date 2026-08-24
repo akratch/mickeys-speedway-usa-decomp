@@ -386,7 +386,8 @@ Exact C matches banked in these TUs: `partAdjustScaling` (ROM `0x3F9C8`,
 `0xC` bytes, default resident flags, JFG body donor) and `func_8003EDD4`
 (ROM `0x3F9D4`, `0xC` bytes, default resident flags, Mickey-only
 reconstruction) and `func_8003EDE0` (ROM `0x3F9E0`, `0xC` bytes, default
-resident flags, Mickey-only reconstruction).
+resident flags, Mickey-only reconstruction); `strcpy` (ROM `0x43470`, `0x34`
+bytes, default resident flags, DKR body donor).
 
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's
