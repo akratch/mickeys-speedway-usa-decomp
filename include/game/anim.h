@@ -40,6 +40,7 @@ void animseqInitGroup(void);
 void animseqPlay(void);
 AnimPath *func_800508B4(u8 pathIndex);
 void animseqLockPath(u8 pathIndex);
+void animseqUnLockPath(u8 pathIndex);
 void func_800534C0(s32 i);
 
 #endif

@@ -134,7 +134,15 @@ void animseqLockPath(u8 pathIndex) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005087C.s")
+void animseqUnLockPath(u8 pathIndex) {
+    AnimPath *path;
+
+    path = D_800D6B00[pathIndex];
+    if (path != NULL) {
+        path->flags &= ~8;
+    }
+}
+
 AnimPath *func_800508B4(u8 pathIndex) {
     return D_800D6B00[pathIndex];
 }
