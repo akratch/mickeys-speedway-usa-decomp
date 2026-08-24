@@ -1418,6 +1418,7 @@ amGetSfxCount = 0x80001258; // type:func size:0x18 ROM 0x1e58 tier B (JFG body/s
 amGetSfxSettings = 0x80001270; // type:func size:0x38 ROM 0x1e70 tier B (JFG body/global role)
 amSoundIsLooped = 0x800012A8; // type:func size:0x60 ROM 0x1ea8 tier B (JFG body/structure role)
 amTuneSetReverbOnOff = 0x800015F0; // type:func size:0x8 ROM 0x21f0 tier B (JFG body/order role)
+func_800015F8 = 0x800015F8; // type:func size:0x10 ROM 0x21f8 tier D (global flag setter, name unproved)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
