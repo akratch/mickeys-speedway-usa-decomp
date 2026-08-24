@@ -15,6 +15,13 @@ void overlay4InitializeObjectMotion(Overlay4InitObject *object,
     gOverlay4InitStatus = 2;
 }
 
+/*
+ * Plateau: -O2 -mips2 -32 -Wab,-r4300_mul leaves 15 instruction-word
+ * differences.  The first is +0x44 (the mode temporary is v0 instead of
+ * v1); the other blockers are a second temporary-color swap and the spawn
+ * packet at sp+0x40 instead of sp+0x4C.  The retail call relocations also all
+ * bind to the overlay's F0000000 runtime-relocation placeholder.
+ */
 #ifdef NON_MATCHING
 void overlay4UpdateObjectMotion(Overlay4MotionObject *object, s32 updateRate) {
     Overlay4MotionState *motion;
@@ -24,7 +31,7 @@ void overlay4UpdateObjectMotion(Overlay4MotionObject *object, s32 updateRate) {
     Overlay4SpawnState *spawnState;
     Overlay4SpawnPacket packet;
     s32 delta;
-    u8 timer;
+    s32 timer;
 
     motion = object->motion;
     config = object->config;
