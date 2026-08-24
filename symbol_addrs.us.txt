@@ -1402,6 +1402,10 @@ asins = 0x8006A508; // type:func size:0x8C
 // Tier D: occupies JFG `trackSkySet`'s position in the established TU order.
 trackSkySet = 0x8000C5E8; // type:func size:0xC ROM 0xd1e8
 
+// No name adopted: JFG's corresponding `trackGetSky` is only a tier-D TU
+// position argument. Mickey's address placeholder is retained for the exact C.
+func_8000D00C = 0x8000D00C; // type:func size:0xC ROM 0xdc0c
+
 // Tier B: all three external callers consume the returned object through
 // track-layout fields; this is the TU's accessor for its current track object.
 trackGetTrack = 0x80013EB4; // type:func size:0xC ROM 0x14ab4

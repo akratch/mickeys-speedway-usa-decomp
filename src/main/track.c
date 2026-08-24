@@ -26,7 +26,13 @@ void trackSkySet(s32 skyDome) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C5F4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000CC78.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000CED0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D00C.s")
+/*
+ * JFG's corresponding TU position is `trackGetSky`, but this three-word
+ * Mickey function is kept unnamed because it has no adoptable naming tier.
+ */
+void *func_8000D00C(void) {
+    return D_800C9550;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D018.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D16C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D1B8.s")
