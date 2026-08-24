@@ -433,7 +433,7 @@ func_8003CE10 = 0x8003CE10; // type:func size:0x44C ROM 0x3da10 evidence=B TU, d
 func_8003D25C = 0x8003D25C; // type:func size:0x2A0 ROM 0x3de5c evidence=B TU, donor placeholder jfg/func_8005E100
 func_8003D4FC = 0x8003D4FC; // type:func size:0x10B0 ROM 0x3e0fc evidence=B TU, donor placeholder jfg/func_8005E3DC
 partInitTrigger = 0x8003E5AC; // type:func size:0x78 ROM 0x3f1ac evidence=B call graph/order, jfg/partInitTrigger
-partInitTriggerSPPos = 0x8003E624; // type:func size:0x4C ROM 0x3f224 evidence=B call graph/order, jfg/partInitTriggerSPPos
+partInitTriggerSPPos = 0x8003E624; // type:func size:0x4C ROM 0x3f224 evidence=A IDO C exact, jfg/partInitTriggerSPPos
 partInitTriggerPos = 0x8003E670; // type:func size:0xC0 ROM 0x3f270 evidence=B call graph/order, jfg/partInitTriggerPos
 func_8003E730 = 0x8003E730; // type:func size:0x88 ROM 0x3f330 evidence=B TU, donor placeholder jfg/func_8005F918
 func_8003E7B8 = 0x8003E7B8; // type:func size:0x120 ROM 0x3f3b8 evidence=B TU, donor placeholder jfg/func_8005F99C

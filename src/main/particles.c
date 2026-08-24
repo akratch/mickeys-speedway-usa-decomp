@@ -15,8 +15,10 @@ extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
 extern void *D_8007C89C[2];
+extern s32 D_8007C8B0;
 
 void mmFree(void *ptr);
+void partInitTriggerPos(u8 *trigger, s32 type, s32 value, s32 x, s16 y, s16 z);
 void func_8003CA20(void);
 void func_8003CB3C(void);
 void func_8003CCE4(void);
@@ -41,7 +43,12 @@ void func_8003CCE4(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D25C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D4FC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partInitTrigger.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partInitTriggerSPPos.s")
+void partInitTriggerSPPos(u8 *trigger, s32 type, s32 value, s32 index) {
+    if (type < D_8007C8B0) {
+        partInitTriggerPos(trigger, type, value, 0, 0, 0);
+        trigger[0x23] = index;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partInitTriggerPos.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E730.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E7B8.s")
