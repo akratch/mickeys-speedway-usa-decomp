@@ -483,7 +483,7 @@ diPrintfInit = 0x80043CE0; // type:func size:0x54 ROM 0x448e0 evidence=A IDO C e
 diPrintf = 0x80043D34; // type:func size:0x9C ROM 0x44934 evidence=B call graph/order, jfg/diPrintf
 diPrintfAll = 0x80043DD0; // type:func size:0x240 ROM 0x449d0 evidence=B debug-text call graph/order, jfg/diPrintfAll
 diPrintfSetCol = 0x80044010; // type:func size:0x9C ROM 0x44c10 evidence=A IDO C exact, jfg/diPrintfSetCol
-diPrintfSetBG = 0x800440AC; // type:func size:0x9C ROM 0x44cac evidence=B adjacent command setters, jfg/diPrintfSetBG
+diPrintfSetBG = 0x800440AC; // type:func size:0x9C ROM 0x44cac evidence=A IDO C exact, jfg/diPrintfSetBG
 diPrintfSetXY = 0x80044148; // type:func size:0x8C ROM 0x44d48 evidence=A IDO C exact, jfg/diPrintfSetXY
 debug_text_width = 0x800441D4; // type:func size:0x108 ROM 0x44dd4 evidence=B formatting call graph, dkr/debug_text_width
 debug_text_parse = 0x800442DC; // type:func size:0x41C ROM 0x44edc evidence=B diPrintfAll call graph/order, jfg/debug_text_parse
