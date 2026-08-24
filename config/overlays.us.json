@@ -14056,7 +14056,7 @@
      "end_offset": "0x14C",
      "size": "0x14C",
      "type": "c",
-     "source": "overlays/o067/overlay67BuildVertices",
+     "source": "overlays/o067/overlay_067",
      "matched": true,
      "nonmatching": false
     },
