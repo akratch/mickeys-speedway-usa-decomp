@@ -56,6 +56,7 @@ typedef struct FontTextureHeader {
 
 extern DialogueTextElement D_800D60E8[32];
 extern DialogueBoxBackground D_800D64E8[];
+extern DialogueBoxBackground D_800D6510[];
 extern s32 D_8007D538;
 extern s32 D_8007D53C;
 extern s32 D_8007D540;
@@ -72,6 +73,7 @@ extern Gfx D_8007D508[];
 extern Gfx D_8007D490[];
 extern Gfx D_7D528[];
 extern u8 *D_800D6628[];
+extern char *D_800D6644;
 extern char *D_800D6648;
 extern u8 D_800D664C;
 extern s8 D_8007D570[];
@@ -86,6 +88,8 @@ void func_8004D39C(char *input, char *output);
 u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart,
                   s32 *outWidth);
 void func_8004C140(Gfx **displayList, s32 x1, s32 y1, s32 x2, s32 y2);
+void func_8004C200(Gfx **displayList, void *matrix, void *vertices,
+                   s32 windowId);
 void func_8002E2E0(s32 resourceId, void *destination, u32 offset, s32 size);
 
 void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
@@ -424,7 +428,47 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE -- source organization was cross-checked against JFG's
+ * permitted published fontStringWidth assembly and DKR's Japanese
+ * get_text_width body. Mickey's own m2c draft and data layout are authority.
+ */
+s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
+    u8 *spacing;
+    s32 width;
+    FontSpacingData *fontData;
+    u8 current;
+    u8 glyphWidth;
+
+    fontData = &D_800D60E4[font];
+    spacing = D_800D6628[font];
+    if (convertString != 0) {
+        func_8004D39C(text, D_800D6644);
+        text = D_800D6644;
+    }
+
+    current = *text;
+    width = 0;
+    if (current != 0) {
+        do {
+            text++;
+            glyphWidth = fontData->characterWidth;
+            if (current & 0x80) {
+                current = *text++;
+                if (current != 0 && current != 0xF) {
+                    glyphWidth = spacing[current];
+                }
+            }
+            current = *text;
+            width += glyphWidth;
+        } while (current != 0);
+    }
+    return width;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BA8C.s")
+#endif
 void func_8004BB44(s32 windowId, s32 x1, s32 y1, s32 x2, s32 y2) {
     if (windowId > 0 && windowId < 8) {
         DialogueBoxBackground *window = &D_800D64E8[windowId];
@@ -635,7 +679,25 @@ void func_8004C000(char **outString, s32 number) {
     *outString = output;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C0C4.s")
+/*
+ * PROVENANCE -- source organization was cross-checked against JFG's
+ * permitted published fontWindowsDraw assembly. Mickey's own flags, window
+ * alias, and callee interface determine this body.
+ */
+void func_8004C0C4(Gfx **displayList, void *matrix, void *vertices) {
+    DialogueBoxBackground *window;
+    s32 i;
+
+    window = D_800D6510;
+    i = 1;
+    do {
+        if (window->flags & 0x8000) {
+            func_8004C200(displayList, NULL, NULL, i);
+        }
+        i++;
+        window++;
+    } while (i != 8);
+}
 /*
  * PROVENANCE -- adapted from DKR's permitted published
  * render_fill_rectangle. Mickey's own call target and assembly determine
