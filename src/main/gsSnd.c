@@ -72,12 +72,23 @@ extern const char D_800843FC[];
 
 u32 osSetIntMask(u32 mask);
 void n_alEvtqPostEvent(void *eventQueue, void *event, s32 delta);
+void n_alSynFreeVoice(void *voice);
+void n_alSynStopVoice(void *voice);
 void rmonPrintf(const char *format, ...);
+void func_8005CE28(void *queue, GsSoundStateLink *state, u16 flags);
+void func_8005D260(GsSoundStateLink *state);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005B978.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005BA40.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CD3C.s")
+void func_8005CD3C(GsSoundStateLink *state) {
+    if (state->flags & 4) {
+        n_alSynStopVoice((u8 *)state + 0xC);
+        n_alSynFreeVoice((u8 *)state + 0xC);
+    }
+    func_8005D260(state);
+    func_8005CE28(D_8007FF4C->eventQueue, state, 0xFFFF);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CDAC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CE28.s")
 /* PROVENANCE: adapted from JFG src/gsSnd.c (getSoundStateCounts). */

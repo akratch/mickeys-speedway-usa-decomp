@@ -430,7 +430,9 @@ hand-written-assembly exclusion removes no candidate from these ranges.
 `gsSndpSetMasterVolume` (`0x524` bytes total), are adapted JFG bodies compiled
 with the TU's measured bare `-g -mips2 -32` flag group. Their linked owned
 ranges are instruction-word-identical and the full ROM retains the expected
-hash.
+hash. Mickey-derived `func_8005CD3C` adds another exact `0x70` bytes under the
+same flags, bringing exact C in `main/gsSnd` to `0x594` bytes; JFG retains that
+function as assembly, so its body is not a donor adaptation.
 
 In `main/models`, `camConvertMatrixList`, initialization helper
 `func_8005A700`, and the counter reset/flush pair `func_8005A764` and
