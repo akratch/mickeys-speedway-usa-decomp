@@ -239,7 +239,7 @@ segments:
       - [0x64340, c, libultra/n_synstopvoice]
       - [0x643E0, asm, libultra/n_synfreevoice]
       - [0x644C0, c, libultra/n_alcspchan]
-      - [0x64700, asm, libultra/n_seqplayer]
+      - [0x64700, c, libultra/n_seqplayer]
       - [0x65860, c, libultra/n_alsynsetlpffreq]
       - [0x65910, c, libultra/n_alsynsetlpfgain]
       - [0x659C0, asm, libultra/n_drvrNew]

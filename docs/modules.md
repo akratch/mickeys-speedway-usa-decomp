@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-28 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 26 more from it): every masked=0/1/2 TU (the
+29 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 27 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -502,7 +502,8 @@ also match exactly from the JFG source; its multiply sequences require
 source (`n_csq.c`) also supplies the exact `0x9D0`-byte `n_cseq` text with the
 bare flag group and no owned data or rodata. The JFG `n_reverb.c`/`n_save.c`
 pair supplies Mickey's combined `0x16B0`-byte reverb TU plus its `0x30` bytes
-of rodata; it requires `-DN_MICRO -Wab,-r4300_mul`.
+of rodata; it requires `-DN_MICRO -Wab,-r4300_mul`. The 15-function,
+`0x1160`-byte `n_seqplayer` TU matches the JFG source under the bare flag group.
 
 **Plateaus, each with a first mismatch:**
 
@@ -519,9 +520,8 @@ of rodata; it requires `-DN_MICRO -Wab,-r4300_mul`.
 Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
 `0xAD0`), `n_env` (masked=59), `alsurround`
 (masked=39), `n_event`/`n_drvrNew` (masked=34 each), `n_synaddplayer`
-(masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_seqplayer`
-(masked=14, the 15-function DSP-heavy TU,
-deferred per plan), `n_alLPFilter` (masked=13), `n_auxbus` (masked=7),
+(masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_alLPFilter`
+(masked=13), `n_auxbus` (masked=7),
 `n_load` (masked=4, DSP-heavy ADPCM decoder), and `n_synsetvol`/
 `n_synstartvoiceparam`/`n_synallocvoice` (masked=5) not yet attempted.
 
