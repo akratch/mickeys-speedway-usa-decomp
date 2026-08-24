@@ -32,6 +32,7 @@ extern void n_alCSPSetMessageQ(void *player, void *queue);
 extern void func_800005CC(f32 fade, s32 volume);
 extern s32 func_80000F20(void);
 extern void func_80001308(u8 value, void *player);
+extern void func_80001568(void *player);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000450.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
@@ -110,7 +111,15 @@ void amAmbientPlay(u8 value) {
         D_80078D88 = 1;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000CEC.s")
+/*
+ * PROVENANCE: body shape adapted from DKR src/audio.c music_stop; JFG
+ * src/audio_manager_1050.c supplies the official amTuneStop name.
+ */
+void amTuneStop(void) {
+    if (D_80078D78 == 0) {
+        func_80001568(D_80078D60);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D1C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D54.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D90.s")
