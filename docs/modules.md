@@ -405,6 +405,7 @@ Matched C in this TU:
 | `trackSetFog` | `0x15030` | 0xF8 | `-O2 -mips2 -32` | JFG `src/track.c` body with tier B callers and tier D TU order; 62/62 instruction words and relocation layout exact, linked ROM exact |
 | `trackGetFog` | `0x15128` | 0x78 | `-O2 -mips2 -32` | JFG direct-path body with tier B caller and tier D TU order; 30/30 instruction words and relocation layout exact, linked ROM exact |
 | `trackSetFogOff` | `0x151A0` | 0x74 | `-O2 -mips2 -32` | JFG `src/track.c`; 29/29 instruction words and relocation layout exact, linked ROM exact |
+| `func_80014DE4` | `0x159E4` | 0xC8 | `-O2 -mips2 -32` | Mickey reconstruction; JFG supplies only tier-D transform-role context and no public name is adopted; 50/50 instruction words and relocation layout exact, linked ROM exact |
 | `func_80014EAC` | `0x15AAC` | 0x20 | `-O2 -mips2 -32` | JFG `func_8001C550` is a tier-A 8/8-word TU donor, unique in the ROM; JFG placeholder not imported; linked ROM exact |
 
 ---

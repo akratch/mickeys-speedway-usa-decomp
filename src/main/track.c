@@ -14,6 +14,36 @@
  */
 
 #include "game/track.h"
+#include "game/math.h"
+
+typedef struct TrackRotation {
+    s16 x;
+    s16 y;
+    s16 z;
+} TrackRotation;
+
+typedef struct TrackLocalTransform {
+    s16 xRotation;
+    s16 yRotation;
+    s16 zRotation;
+    u8 pad06[6];
+    f32 x;
+    f32 y;
+    f32 z;
+} TrackLocalTransform;
+
+typedef struct TrackCachedPoint {
+    s32 x;
+    s32 y;
+    s32 z;
+} TrackCachedPoint;
+
+extern TrackRotation *D_800C9530;
+extern TrackCachedPoint D_800C9B40;
+
+void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
+void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
+                          f32 *outX, f32 *outY, f32 *outZ);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BD50.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BDB4.s")
@@ -175,7 +205,33 @@ void trackSetFogOff(s32 fogIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800147A4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800148E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014BAC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014DE4.s")
+/*
+ * PROVENANCE: JFG's corresponding track.c position identifies the transform
+ * role. This body and its local layout are reconstructed from Mickey's own
+ * function bytes and call signatures.
+ */
+void func_80014DE4(void) {
+    MtxF matrix;
+    TrackLocalTransform transform;
+    f32 x;
+    f32 y;
+    f32 z;
+
+    x = 0.0f;
+    y = 0.0f;
+    z = -65536.0f;
+    transform.zRotation = D_800C9530->z;
+    transform.yRotation = D_800C9530->y;
+    transform.xRotation = D_800C9530->x;
+    transform.x = 0.0f;
+    transform.y = 0.0f;
+    transform.z = 0.0f;
+    func_8002AB78(&transform, matrix);
+    mtxf_transform_point(matrix, x, y, z, &x, &y, &z);
+    D_800C9B40.x = (s32)x;
+    D_800C9B40.y = (s32)y;
+    D_800C9B40.z = (s32)z;
+}
 s32 func_80014EAC(u32 value) {
     s32 result;
 
