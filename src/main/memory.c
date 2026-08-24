@@ -71,6 +71,15 @@
 /* JFG correspondence: mempool_slot_assign (tier B; splits/assigns a slot). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002BB40.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/align16.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmAlign16. */
+u8 *align16(u8 *address) {
+    s32 remainder = (s32) address & 0xF;
+
+    if (remainder > 0) {
+        address = (u8 *) (((s32) address - remainder) + 16);
+    }
+    return address;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/align8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/align4.s")

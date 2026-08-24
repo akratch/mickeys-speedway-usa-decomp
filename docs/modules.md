@@ -403,6 +403,10 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 
+Matched C: `align16` is exact for all `0x1C` bytes and has no relocations.
+The canonical `-O2 -mips2 -32` flags reproduce the target; JFG's
+`mmAlign16` body is the adapted donor.
+
 ---
 
 ## 4. libultra

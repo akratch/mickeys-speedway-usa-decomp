@@ -400,7 +400,7 @@ coss_s16 = 0x8002A1A0; // type:func size:0x60   ROM 0x2ada0  hasm/ido/math_util.
 coss_2 = 0x8002A200; // type:func size:0x44   ROM 0x2ae00  hasm/ido/math_util.s.o  masked=2/17
 
 // memory.c -- three 7-word allocator alignment helpers, 0 masked, adjacent.
-align16 = 0x8002BC60; // type:func size:0x1C   ROM 0x2c860  memory.c.o  masked=0/7
+align16 = 0x8002BC60; // type:func size:0x1C   ROM 0x2c860  matched C main/memory -O2 -mips2 -32 donor memory.c.o masked=0/7
 align8 = 0x8002BC7C; // type:func size:0x1C   ROM 0x2c87c  memory.c.o  masked=0/7
 align4 = 0x8002BC98; // type:func size:0x1C   ROM 0x2c898  memory.c.o  masked=0/7
 
