@@ -3,9 +3,10 @@
  * (github.com/Ryan-Myers/Jet-Force-Gemini), a permitted source under
  * docs/CLEANROOM.md; see docs/modules.md section 4.2 (the n_audio
  * synthesis library) and docs/acceleration-survey.md section 13.3.
- * JFG folded this routine into n_cseq.c; Mickey's ROM keeps it as its
- * own translation unit (ROM 0x66970, 0xE0 bytes), so it stays split out
- * here to match the measured file boundary.
+ * JFG keeps this helper in n_cseq.c while its main compressed-sequence
+ * implementation lives in n_csq.c. Mickey's ROM likewise keeps this as its
+ * own translation unit (ROM 0x66970, 0xE0 bytes), so it stays split out here
+ * to match the measured file boundary.
  */
 
 #include "n_audio/libaudio.h"

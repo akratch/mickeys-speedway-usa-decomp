@@ -600,15 +600,25 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ll.c.o: POSTPROCESS = $(HOST_PYTHON) \
 # matched; see docs/acceleration-survey.md 13.3 for the ruling that adopted
 # JFG's n_audio bodies. Add a TU's object name to this list only once its
 # compiled bytes have been checked against the ROM.
-LIBULTRA_NAUDIO_BARE_TUS := n_cspsetvol n_cspgetstate n_cspmessage slHeap sl \
-	n_cseqnextdelta n_synsetpriority n_cspsetchlvol n_cspsetseq n_cspplay \
+LIBULTRA_NAUDIO_BARE_TUS := n_cspsetvol n_csplayer n_cspgetstate n_cspmessage slHeap sl \
+	n_cseq n_cseqnextdelta n_synsetpriority n_cspsetchlvol n_cspsetseq n_cspplay \
 	n_cspstop n_cspsendmidi n_sl n_syndelete n_synsetpan n_synsetpitch \
 	n_synsetfxmix n_synstopvoice n_alsynsetlpffreq n_alsynsetlpfgain \
-	n_alsynsetdistort n_synallocfx n_alcspchan n_syngetfxref
+	n_alsynsetdistort n_synsetfxparam n_synallocfx n_reverb n_seqplayer n_resample \
+	n_alcspchan n_syngetfxref
 # n_alcspchan uses the Rare-added MIDI control-change codes (AL_MIDI_UNK_FC,
 # AL_MIDI_FADEEND_CTRL, AL_MIDI_FADESTART_CTRL), guarded by RAREDIFFS like the
 # other Rare-diffed libultra TUs above.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/n_alcspchan.c.o: CFLAGS += -DRAREDIFFS
+# JFG applies Rare's extended MIDI controller definitions and the R4300
+# multiply-hazard pass globally; n_csplayer is the other Mickey TU whose
+# compiled text proves both are required.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/n_csplayer.c.o: CFLAGS += -DRAREDIFFS -Wab,-r4300_mul
+# The reverb sources select the naudio microcode command layout explicitly;
+# its final multiply also needs the R4300 hazard scheduling pass.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/n_reverb.c.o: CFLAGS += -DN_MICRO -Wab,-r4300_mul
+# The resampler uses the naudio microcode command encoding found in Mickey.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/n_resample.c.o: CFLAGS += -DN_MICRO
 $(foreach f,$(LIBULTRA_NAUDIO_BARE_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -g))
 $(foreach f,$(LIBULTRA_NAUDIO_BARE_TUS),$(eval \

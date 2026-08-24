@@ -606,8 +606,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-25 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 23 more from it): every masked=0/1/2 TU (the
+31 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 29 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -616,27 +616,26 @@ of the resident `.data` band in `mickey.us.yaml`, since almost everything
 else in the library reads `n_syn`), the seven `ALParam`-update setters
 that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 `-DRAREDIFFS` for Rare's added MIDI control-change codes), and
-`n_syngetfxref`.
-
-**Plateaus, each with a first mismatch:**
-
-- `n_synsetfxparam` (masked=6): `n_alSynSetFXParam` alone matches;
-  its sibling `n_alSynSetOutputLPParam` in the same TU pulls a `0.1f`
-  float literal from the wrong offset in the still-undifferentiated
-  `.rodata` pool, off by `0x20` — a `.rodata`-ordering question beyond
-  this pass.
-- `n_resample` (masked=8): `n_alResamplePull`'s tail diverges
-  structurally from the ROM (an extra `jal` the real function doesn't
-  have); needs a closer read of the loop/branch shape before another
-  attempt.
+`n_syngetfxref`. The `0x3220`-byte `n_csplayer` text and its owned
+`0x200`-byte `.data`, `0x300`-byte `.rodata`, and `0x40`-byte `.bss`
+also match exactly from the JFG source; its multiply sequences require
+`-Wab,-r4300_mul` in addition to `-DRAREDIFFS`. JFG's main compressed-sequence
+source (`n_csq.c`) also supplies the exact `0x9D0`-byte `n_cseq` text with the
+bare flag group and no owned data or rodata. The JFG `n_reverb.c`/`n_save.c`
+pair supplies Mickey's combined `0x16B0`-byte reverb TU plus its `0x30` bytes
+of rodata; it requires `-DN_MICRO -Wab,-r4300_mul`. The 15-function,
+`0x1160`-byte `n_seqplayer` TU matches the JFG source under the bare flag group.
+JFG's `N_MICRO` resampler path supplies the exact `0x2A0`-byte `n_resample`
+text and its `0x10` bytes of rodata under the same bare flag group.
+The same JFG flags reproduce all `0x100` text bytes and the six relocations of
+`n_synsetfxparam`; assigning its `0x10`-byte literal section to ROM `0x853B0`
+also resolves the recorded `0.1f` rodata-offset plateau.
 
 Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
-`0xAD0`), `n_csplayer` (masked=154, `0x3220`), `n_reverb` (masked=60,
-DSP-heavy, deferred per plan), `n_env` (masked=59), `alsurround`
+`0xAD0`), `n_env` (masked=59), `alsurround`
 (masked=39), `n_event`/`n_drvrNew` (masked=34 each), `n_synaddplayer`
-(masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_cseq`
-(masked=15), `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
-deferred per plan), `n_alLPFilter` (masked=13), `n_auxbus` (masked=7),
+(masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_alLPFilter`
+(masked=13), `n_auxbus` (masked=7),
 `n_load` (masked=4, DSP-heavy ADPCM decoder), and `n_synsetvol`/
 `n_synstartvoiceparam`/`n_synallocvoice` (masked=5) not yet attempted.
 
@@ -944,9 +943,11 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** 35 functions, 44 jump tables,
-  monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
-  by TU in text order, which is what makes the per-TU split tractable.
+- **rodata order follows text order exactly.** The 38 jump tables still emitted
+  in `asm/` are monotonic in both columns, with **zero inversions**. So
+  `.rodata` can be carved TU by TU in text order, which is what makes the
+  per-TU split tractable. Five more tables now belong to matched `n_csplayer`
+  C, and one belongs to matched `n_reverb` C.
 
 Two toolchain facts govern the per-TU split:
 

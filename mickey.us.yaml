@@ -222,10 +222,10 @@ segments:
       - [0x5B300, asm]
       - [0x5C310, asm, main/gsSnd]
       - [0x5E6B0, c, libultra/n_cspsetvol]
-      - [0x5E700, asm, libultra/n_csplayer]
+      - [0x5E700, c, libultra/n_csplayer]
       - [0x61920, c, libultra/n_cspsetchlvol]
       - [0x61990, c, libultra/n_cspgetstate]
-      - [0x619B0, asm, libultra/n_cseq]
+      - [0x619B0, c, libultra/n_cseq]
       - [0x62380, c, libultra/n_cspsetseq]
       - [0x623D0, c, libultra/n_cspplay]
       - [0x62410, c, libultra/n_cspstop]
@@ -247,17 +247,17 @@ segments:
       - [0x64340, c, libultra/n_synstopvoice]
       - [0x643E0, asm, libultra/n_synfreevoice]
       - [0x644C0, c, libultra/n_alcspchan]
-      - [0x64700, asm, libultra/n_seqplayer]
+      - [0x64700, c, libultra/n_seqplayer]
       - [0x65860, c, libultra/n_alsynsetlpffreq]
       - [0x65910, c, libultra/n_alsynsetlpfgain]
       - [0x659C0, asm, libultra/n_drvrNew]
       - [0x666D0, c, libultra/n_syngetfxref]
-      - [0x667C0, asm, libultra/n_synsetfxparam]
+      - [0x667C0, c, libultra/n_synsetfxparam]
       - [0x668C0, c, libultra/n_alsynsetdistort]
       - [0x66970, c, libultra/n_cseqnextdelta]
       - [0x66A50, c, libultra/n_syndelete]
       - [0x66A70, c, libultra/n_synallocfx]
-      - [0x66B00, asm, libultra/n_reverb]
+      - [0x66B00, c, libultra/n_reverb]
       - [0x681B0, asm, libultra/n_env]
       - [0x691A0, c, libultra/n_cspsendmidi]
       - [0x69220, c, libultra/n_synsetpriority]
@@ -267,7 +267,7 @@ segments:
       - [0x69CA0, asm, libultra/n_load]
       - [0x6A7F0, asm, libultra/n_alLPFilter]
       - [0x6AC10, asm, main/math_acosf]
-      - [0x6ACF0, asm, libultra/n_resample]
+      - [0x6ACF0, c, libultra/n_resample]
       - [0x6AF90, asm, main/math_arc]
       - [0x6B1A0, asm]
       - [0x6B3D0, asm, libultra/gbpakcheckconnector]
@@ -452,6 +452,10 @@ segments:
       # not plain resident text. Kept as raw bin until it is identified.
       - [0x76D10, bin]
       - [0x76E60, data]
+      # n_csplayer's 127-entry timing table followed by its zero flag. The
+      # 0x200-byte object section and first address are fixed by the compiled
+      # candidate and Mickey's own relocations.
+      - [0x80B60, .data, libultra/n_csplayer]
       # n_alGlobals/n_syn (libultra/n_sl, the n_audio driver-singleton
       # pointers): measured from a built candidate object diffed against the
       # ROM bytes (tools/wb_compare.sh --rom n_alInit --show-diff), which
@@ -507,10 +511,12 @@ segments:
       # the resident segment. Two things the later per-TU split needs are
       # measured and recorded here:
       #
-      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 44 jump
-      #      tables in the static segment back to the functions that reference
-      #      them gives 35 functions whose ROM addresses and whose jump-table
-      #      addresses are both monotonically increasing -- ZERO INVERSIONS.
+      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 38 jump
+      #      tables still emitted in asm/ back to the functions that reference
+      #      them gives ROM addresses and jump-table addresses that are both
+      #      monotonically increasing -- ZERO INVERSIONS. Five additional
+      #      tables now belong to matched n_csplayer C, and one belongs to
+      #      matched n_reverb C.
       #      First pair (ROM 0x7D18 -> jtbl_80080D2C), last (ROM 0x72B00 ->
       #      jtbl_80084970). So .rodata can be carved TU by TU in text order,
       #      which is what makes a per-file split tractable at all.
@@ -534,8 +540,16 @@ segments:
       # `enddlabel` as a zero-size label directive, preserving the symbol-size
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
+      # Five n_csplayer jump tables, in the same order and with the same
+      # 0x300-byte section size as the JFG donor object.
+      - [0x85070, .rodata, libultra/n_csplayer]
+      - [0x85370, rodata]
       - [0x85380, .rodata, libultra/cents2ratio]
       - [0x85390, rodata]
+      - [0x853B0, .rodata, libultra/n_synsetfxparam]
+      - [0x853C0, .rodata, libultra/n_reverb]
+      - [0x853F0, rodata]
+      - [0x85490, .rodata, libultra/n_resample]
       - [0x854A0, .rodata, libultra/sinf]
       - [0x854F0, rodata]
       - [0x855A0, rodata, libultra/xprintf]
@@ -543,6 +557,8 @@ segments:
       - [0x85700, rodata]
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }
+      - { type: .bss, vram: 0x800D7D80, name: libultra/n_csplayer }
+      - { type: bss, vram: 0x800D7DC0, name: bss_gap_D800D7DC0 }
       - { type: .bss, vram: 0x800D8070, name: libultra/seteventmesg }
       - { type: bss, vram: 0x800D80F0, name: bss_gap_D800D80F0 }
       - { type: .bss, vram: 0x800D8180, name: libultra/vimgr }
