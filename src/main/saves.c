@@ -33,7 +33,14 @@ void rumbleUpdate(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C788.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C790.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C79C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packCalculateGameChecksum.s")
+s32 packCalculateGameChecksum(u8 *buffer, s32 count) {
+    s32 checksum = 15;
+
+    while (count--) {
+        checksum += *buffer++;
+    }
+    return checksum;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C7EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C8B4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C94C.s")

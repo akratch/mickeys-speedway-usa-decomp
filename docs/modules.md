@@ -394,7 +394,8 @@ criterion identifies **zero** forced-ASM functions here.
 
 Exact C reconstructions in this census currently include `rumbleRumbles`
 (ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleUpdate` (ROM `0x2CB44`–
-`0x2CB54`, 16 bytes), `rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40
+`0x2CB54`, 16 bytes), `packCalculateGameChecksum` (ROM `0x2D3BC`–
+`0x2D3EC`, 48 bytes), `rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40
 bytes), and the still-unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–
 `0x2F7E0`, 12 bytes), compiled with the resident
 `-O2 -mips2 -32` flags. The named setter bodies are adapted from JFG's
