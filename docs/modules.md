@@ -770,6 +770,9 @@ Matched C in this TU:
 |---|---:|---:|---|---|
 | `trackSkySet` | `0xD1E8` | 0xC | `-O2 -mips2 -32` | JFG `src/track.c` body; tier B role and tier D TU position; 3/3 instruction words and relocation layout exact, linked ROM exact |
 | `func_8000D00C` | `0xDC0C` | 0xC | `-O2 -mips2 -32` | Mickey reconstruction; JFG's corresponding `trackGetSky` is only tier D and is deliberately not adopted; 3/3 instruction words and relocation layout exact, linked ROM exact |
+| `func_8000D16C` | `0xDD6C` | 0x4C | `-O2 -mips2 -32` | Mickey reconstruction; JFG's corresponding `trackAddTextureScroll` is tier D only and its public name is deliberately not adopted; 19/19 instruction words and both HI16/LO16 relocation pairs exact, linked ROM exact |
+| `func_8000D728` | `0xE328` | 0x40 | `-O2 -mips2 -32` | Mickey reconstruction; JFG's corresponding `trackLightDelete` is tier D only and its public name is deliberately not adopted; 16/16 instruction words and the D_800792FC HI16/LO16 pair exact, linked ROM exact |
+| `func_8000D7F8` | `0xE3F8` | 0x28 | `-O2 -mips2 -32` | Mickey reconstruction; JFG's corresponding `trackLightMove` is tier D only and its public name is deliberately not adopted; 10/10 instruction words, no relocation records, linked ROM exact |
 | `trackGetTrack` | `0x14AB4` | 0xC | `-O2 -mips2 -32` | Mickey reconstruction with JFG name (tier B callers); 3/3 instruction words and relocation layout exact, linked ROM exact |
 | `trackSetFog` | `0x15030` | 0xF8 | `-O2 -mips2 -32` | JFG `src/track.c` body with tier B callers and tier D TU order; 62/62 instruction words and relocation layout exact, linked ROM exact |
 | `trackGetFog` | `0x15128` | 0x78 | `-O2 -mips2 -32` | JFG direct-path body with tier B caller and tier D TU order; 30/30 instruction words and relocation layout exact, linked ROM exact |
@@ -1241,7 +1244,7 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 44 jump tables still emitted
+- **rodata order follows text order exactly.** The 38 jump tables still emitted
   in `asm/` are monotonic in both columns, with **zero inversions**. So
   `.rodata` can be carved TU by TU in text order, which is what makes the
   per-TU split tractable. Five more tables now belong to matched `n_csplayer`
