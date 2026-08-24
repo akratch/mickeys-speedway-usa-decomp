@@ -15,6 +15,11 @@
 
 s32 vsprintf(char *s, const char *format, va_list arg);
 
+extern u16 D_800D4A5C;
+extern u16 D_800D4A5E;
+extern s32 D_800D4A6C;
+extern s32 D_800D4A74;
+
 /* PROVENANCE: body adapted from DKR src/unused_string.c:strcpy. */
 char *strcpy(char *src, const char *dest) {
     char *ret = src;
@@ -56,5 +61,9 @@ s32 sprintf(char *s, const char *format, ...) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_background.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_character.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_bounds.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_origin.s")
+/* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_origin. */
+void debug_text_origin(void) {
+    D_800D4A5C = D_800D4A6C;
+    D_800D4A5E = D_800D4A74;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_newline.s")
