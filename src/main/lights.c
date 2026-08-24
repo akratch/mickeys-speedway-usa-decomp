@@ -233,7 +233,14 @@ void changeLightIntensity(UnkLight *light, u8 intensity) {
         light->unk2 |= 2;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E7C.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void lightUpdateLights(s32 updateRate) {
+    s32 i;
+
+    for (i = 0; i < D_80079494; i++) {
+        func_80018F08(D_80079498[i], updateRate);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018F08.s")
 /* PROVENANCE: adapted from DKR's public decomp, src/lights.c, and Mickey's own assembly. */
 void killLight(UnkLight *light) {

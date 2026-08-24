@@ -1450,6 +1450,7 @@ toggleLight = 0x80018DD4; // type:func size:0x10   ROM 0x199d4  src/lights.c.o  
 changeLightColour = 0x80018DE4; // type:func size:0x2C   ROM 0x199e4  src/lights.c.o  body adapted and compiler-exact
 changeLightColourCycle = 0x80018E10; // type:func size:0x20   ROM 0x19a10  src/lights.c.o  masked=1/8  romocc=1
 changeLightIntensity = 0x80018E30; // type:func size:0x4C   ROM 0x19a30  src/lights.c.o  body adapted and compiler-exact
+lightUpdateLights = 0x80018E7C; // type:func size:0x8C   ROM 0x19a7c  src/lights.c.o  JFG-adapted body compiler-exact
 lightGetLights = 0x80019340; // type:func size:0x18   ROM 0x19f40  src/lights.c.o  body adapted, linked relocations exact
 killLight = 0x8001923C; // type:func size:0x104   ROM 0x19e3c  src/lights.c.o  Mickey/DKR-adapted body compiler-exact
 lightGetStrongestEffect = 0x80019358; // type:func size:0x13C   ROM 0x19f58  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
