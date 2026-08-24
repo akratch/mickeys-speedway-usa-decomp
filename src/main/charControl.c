@@ -50,7 +50,7 @@ s32 mathRnd(s32 minimum, s32 maximum);
 ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_800031E8(void *handle);
 void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority, void **handle);
-void func_8001D690(s32 arg0, ControlPlayer *player);
+void func_8001D690(ControlActor *actor, ControlPlayer *player);
 void func_80006EA0(void *handle);
 s32 func_8000FAE0(f32 x, f32 y, f32 z);
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode);
@@ -59,6 +59,9 @@ void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2);
 void func_80021994(s8 playerIndex, s32 cameraIndex, u8 **cameraState);
 u8 *func_80024658(void);
 s32 func_800291F0(void);
+ControlActor **func_8000572C(s32 *start, s32 *end);
+s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 mode, ControlActor **hitActor);
+void func_800282C8(void);
 u32 func_800254FC(s32 playerIndex);
 u32 func_8002554C(s32 playerIndex);
 u32 func_80025594(s32 playerIndex);
@@ -289,15 +292,68 @@ void func_8001D2A0(ControlActor *actor, s32 arg1) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D2A0.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D41C.s")
-void controlFrozen(s32 arg0, ControlPlayer *player) {
+void controlFrozen(ControlActor *actor, ControlPlayer *player) {
     if (func_800291FC() == 1) {
         func_800291D8(10);
     }
     if (func_8002554C(player->playerIndex) & 0xF00F) {
-        func_8001D690(arg0, player);
+        func_8001D690(actor, player);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D690.s")
+/*
+ * PROVENANCE -- JFG's charControl symbols and assembly supplied the
+ * controlRestartPlayer name/role. This Mickey-specific respawn-point search
+ * and reinitialization body is independently reconstructed from Mickey's code.
+ */
+void func_8001D690(ControlActor *actor, ControlPlayer *player) {
+    s32 start;
+    s32 end;
+    ControlActor **objects;
+    ControlActor *current;
+    s32 maxIndex;
+    s32 playerCount;
+    f32 radius;
+    s32 mode;
+    s32 candidateIndex;
+    ControlActor *hitActor;
+    ControlActor *candidates[8];
+    s32 count;
+    s32 hit;
+
+    playerCount = func_800291FC();
+    if (playerCount >= 2) {
+        objects = func_8000572C(&start, &end);
+        count = 0;
+        radius = 32.0f;
+        mode = 0;
+        if (start < end) {
+            do {
+                current = objects[start++];
+                if (current->kind == 5) {
+                    hit = func_8005776C(current->x, current->y, current->z,
+                                       radius, mode, &hitActor);
+                    if ((hit == 0) || ((hit == 1) && (actor == hitActor))) {
+                        candidates[count++] = current;
+                    }
+                }
+            } while (start < end);
+        }
+        if (count == 0) {
+            current = actor;
+        } else if (count == 1) {
+            current = candidates[0];
+        } else {
+            maxIndex = count - 1;
+            candidateIndex = mathRnd(0, maxIndex);
+            current = candidates[candidateIndex];
+        }
+        controlPlayerReInit(actor, current->x, current->y, current->z,
+                            current->rotationX, current->rotationY,
+                            current->rotationZ);
+    } else {
+        func_800282C8();
+    }
+}
 /* PROVENANCE -- adapted from JFG's src/charControl.c dAngle. */
 s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
     s32 temp_t1;

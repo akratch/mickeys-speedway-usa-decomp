@@ -158,7 +158,9 @@ typedef struct ControlActor {
     /* 0x2E */ s16 positionTag;
     /* 0x30 */ u8 pad30[0x39 - 0x30];
     /* 0x39 */ u8 alpha;
-    /* 0x3A */ u8 pad3A[0x64 - 0x3A];
+    /* 0x3A */ u8 pad3A[0x44 - 0x3A];
+    /* 0x44 */ s16 kind;
+    /* 0x46 */ u8 pad46[0x64 - 0x46];
     /* 0x64 */ ControlPlayer *player;
     /* 0x68 */ u8 pad68[0x80 - 0x68];
     /* 0x80 */ s32 unk80;
@@ -169,8 +171,9 @@ void controlFSUvels(s16 *rotation, ControlPlayer *player);
 void controlDisableJoypad(ControlPlayer *player, s32 disabled);
 void controlReadJoypad(ControlPlayer *player, s32 playerIndex);
 void controlSetRumble(ControlPlayer *player, s32 strength, f32 duration);
-void controlFrozen(s32 arg0, ControlPlayer *player);
+void controlFrozen(ControlActor *actor, ControlPlayer *player);
 void func_8001D2A0(ControlActor *actor, s32 arg1);
+void func_8001D690(ControlActor *actor, ControlPlayer *player);
 void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z,
                          s16 arg4, s16 arg5, s16 arg6);
 void controlSetPlayerSetup(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
