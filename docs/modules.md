@@ -1259,9 +1259,13 @@ another exact `0x818` bytes under the same flags, bringing exact C in
 `main/gsSnd` to `0xD3C` bytes; JFG retains all six functions as assembly, so
 their bodies are not donor adaptations.
 
-`ad_sndp_play`, adapted from the corresponding permitted DKR/PD sound-player
-sequence logic and then proved against Mickey, adds `0x2E8` exact bytes. Its
-nested play/retrigger event lifetimes are required for IDO's target delay-slot
+`ad_sndp_play` sits inside this JFG-matched TU (its name, like every other
+symbol in the whole-`.text` block above, comes from JFG's built `gsSnd.c.o`,
+per the tier-A whole-TU byte match), but its *body* is not a JFG adaptation:
+JFG keeps this function as assembly with no C source. The C written for it is
+adapted from the corresponding permitted DKR/PD sound-player sequence logic
+and then proved against Mickey, adding `0x2E8` exact bytes. Its nested
+play/retrigger event lifetimes are required for IDO's target delay-slot
 schedule. Exact C in `main/gsSnd` therefore totals `0x1024` bytes.
 
 The adjacent pitch-event helper `func_8005CDAC` plateaus after ten coherent
@@ -1753,7 +1757,7 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 44 jump tables still emitted
+- **rodata order follows text order exactly.** The 37 jump tables still emitted
   in `asm/` are monotonic in both columns, with **zero inversions**. So
   `.rodata` can be carved TU by TU in text order, which is what makes the
   per-TU split tractable. Five more tables now belong to matched `n_csplayer`
