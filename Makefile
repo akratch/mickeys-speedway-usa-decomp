@@ -4462,46 +4462,22 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31BuildPalettes.c.o: POSTPROCESS = 
 		overlay31AllocateReloc=func_overlay_031_F0000000_187F520 $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o033/overlay33CallA.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
-# The SDK-shaped source naturally owns the exact opcode/relocation inventory.
-# A reviewed one-to-one instruction permutation plus decoded-field web selects
-# the shipped private schedule; loader-owned HILO rows are then removed and
-# all runtime call roles are folded through the overlay's stored-zero proxy.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o033/overlay33BuildDisplayList.c.o: \
-	config/normalizations/overlay33BuildDisplayList.ops \
-	config/normalizations/overlay33BuildDisplayList.filter \
-	config/normalizations/overlay33BuildDisplayList.rebind \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+# NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration and
+# trailing-section trimming metadata for these extracted functions.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o033/overlay33BuildDisplayList.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4D0 4403550f5ebac1faac2a1b2edaacba47fe06feffce7cdcfa1ae561697166aba0 \
-		@config/normalizations/overlay33BuildDisplayList.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay33BuildDisplayList.filter && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay33BuildDisplayList.rebind && \
 	$(OBJCOPY) --redefine-sym \
-		overlay33GetDimensionsReloc=func_overlay_033_F0000000_18807E8 $@ && \
-	$(OBJCOPY) --redefine-sym \
-		overlay33BuildDisplayList=func_overlay_033_F000019C_1880984 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4D0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o033/overlay33InitializeBuffers.c.o: \
-	config/normalizations/overlay33InitializeBuffers.ops
+		func_overlay_033_F000019C_1880984=overlay33BuildDisplayList $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o033/overlay33InitializeBuffers.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x144 322f51bac3cc17a6e96e3789a7fb157bd99fbad27d10f4e9564cc70276a732de \
-		@config/normalizations/overlay33InitializeBuffers.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_033_F0000000_18807E8=overlay33InitializeBuffers $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x144
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o033/overlay33ReleaseGlobal.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o033/overlay33CallB.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o033/overlay33PresentAndSwap.c.o: \
-	config/normalizations/overlay33PresentAndSwap.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o033/overlay33PresentAndSwap.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x9C 814466e0a7afaddec241e49f39018b65fd53db67cbe679f7a37dcde1d14f9f91 \
-		@config/normalizations/overlay33PresentAndSwap.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_033_F000066C_1880E54=overlay33PresentAndSwap $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36CallModes.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x40
