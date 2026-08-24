@@ -1552,8 +1552,8 @@ ROM `0x76E60`–`0x81590` is currently treated as `data` and
 `0x81590`–`0x86640` as `rodata`. Most remains anonymous. This epoch assigned
 only sections whose size and ordering are fixed by a matching reference object
 and whose first symbol is reached by Mickey's own relocation: initialized data
-for `aisetnextbuf`, `vimgr`, `thread`, `siacs`, `vi`, `timerintr`, and `xlitob`;
-rodata for `cents2ratio` and `sinf`; and BSS slices for `seteventmesg`, `vimgr`,
+for `aisetnextbuf`, `initialize`, `controller`, `vimgr`, `thread`, `siacs`, `vi`, `timerintr`, and `xlitob`;
+rodata for `cents2ratio`, `sinf`, and `devmgr`; and BSS slices for `seteventmesg`, `vimgr`,
 `sptask`, `siacs`, and `timerintr`. Anonymous gaps remain raw and explicit.
 
 **The BSS recipe: name a fixed address inside an anonymous gap without
@@ -1645,6 +1645,11 @@ Where the boundary comes from:
   `.rodata` can be carved TU by TU in text order, which is what makes the
   per-TU split tractable. Five more tables now belong to matched `n_csplayer`
   C, and one belongs to matched `n_reverb` C.
+- **rodata order follows text order exactly.** The pre-carve inventory covered
+  35 functions and forty-four tables. With `devmgr` now source-built, the 43
+  jump tables still emitted in `asm/` belong to 34 functions and remain
+  monotonic in both columns, with **zero inversions**. So `.rodata` can be
+  carved TU by TU in text order.
 
 Two toolchain facts govern the per-TU split:
 

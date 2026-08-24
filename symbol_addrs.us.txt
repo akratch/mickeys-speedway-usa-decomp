@@ -191,6 +191,10 @@ D_800D8710 = 0x800D8710;
 
 __libm_qnan_f = 0x80084990;
 osTvType = 0x80000300;
+// initialize.c's whole-object match identifies these low-memory SDK globals
+// through its masked relocation pairs (Tier A/B).
+osResetType = 0x8000030C;
+osAppNMIBuffer = 0x8000031C;
 osViModeNtscLan1 = 0x80080580;
 osViModeMpalLan1 = 0x80080670;
 osViModePalLan1 = 0x80080760;
@@ -1004,11 +1008,26 @@ __osSetGlobalIntMask = 0x80074480; // type:func size:0x4C
 __osPiDevMgr = 0x8007D600;
 __osPiTable = 0x8007D61C;
 __osCurrentHandle = 0x8007D620;
-__OSGlobalIntMask = 0x8008045C;
+// initialize.c's whole .text matches JFG with __osFinalrom as the relocation
+// identity at ROM 0x6FE34/0x6FE3C (Tier A/B). JFG places it in this TU's BSS,
+// but Mickey reaches a fixed address inside the anonymous whole-program data
+// region, so the TU declares it extern and does not claim storage.
+__osFinalrom = 0x8007A11C;
+// The same whole-object match identifies these PI-handle BSS objects through
+// the masked %hi/%lo pairs at ROM 0x70088..0x70094 (Tier A/B). Their containing
+// BSS gap remains unsplit, so fixed linker assignments preserve Mickey's
+// addresses independently of C-object link order.
+__Dom1SpeedParam = 0x800D6650;
+__Dom2SpeedParam = 0x800D66C8;
 __osPiAccessQueueEnabled = 0x80080850;
 __osPiAccessQueue = 0x800D84E0;
 piAccessBuf = 0x800D84F8;
 osRomBase = 0x80000308;
+
+// motor.c's whole-object match fixes its private 0x100-byte PIF buffer at the
+// address used by all four masked .bss relocation pairs (Tier A/B). It ends
+// exactly where the Controller Pak state below begins.
+__MotorDataBuf = 0x800D7E20;
 
 // The same argument again, for the Controller Pak file system's data. Each of
 // these is reached by a masked %hi/%lo pair inside a whole-.text match, and
@@ -1026,6 +1045,12 @@ __osPfsPifRam = 0x800D7F20;
 __osContPifRam = 0x800D80F0;
 __osContLastCmd = 0x800D8130;
 __osMaxControllers = 0x800D8131;
+// controller.c's whole-object match fixes the remainder of its reference BSS:
+// padding aligns the 0x20-byte timer to 0x800D8138, followed in object order
+// by the 0x18-byte queue and its 4-byte message slot (Tier A/B).
+__osEepromTimer = 0x800D8138;
+__osEepromTimerQ = 0x800D8158;
+__osEepromTimerMsg = 0x800D8170;
 __osPfsInodeCacheBank = 0x80080434;
 __osPfsInodeCacheChannel = 0x80080430;
 __osPfsLastChannel = 0x80080420;

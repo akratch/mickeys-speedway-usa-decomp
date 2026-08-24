@@ -82,6 +82,7 @@
 #define AI_CONTROL_DMA_ON   1
 #define AI_STATUS_FIFO_FULL  0x80000000
 #define AI_MIN_DAC_RATE     132
+#define AI_MAX_DAC_RATE     16384
 #define AI_MAX_BIT_RATE     16
 
 /* Video interface */
@@ -129,6 +130,11 @@
 
 #define PI_STATUS_DMA_BUSY  0x01
 #define PI_STATUS_IO_BUSY   0x02
+#define PI_STATUS_CLR_INTR  0x02
+#define PI_CLR_INTR         PI_STATUS_CLR_INTR
+
+#define DEVICE_TYPE_INIT 7
+#define DEVICE_TYPE_64DD 2
 
 /* Serial interface */
 #define SI_BASE_REG    0x04800000

@@ -28,6 +28,7 @@
 #include "PR/os_pfs.h"
 #include "PR/os_pi.h"
 #include "PR/rcp.h"
+#include "PRinternal/osint.h"
 
 #define CHNL_ERR(format) (((format).rxsize & CHNL_ERR_MASK) >> 4)
 #define CHNL_ERR_MASK    0xC0
@@ -36,6 +37,16 @@ typedef struct {
     u32 ramarray[15];
     u32 pifstatus;
 } OSPifRam;
+
+typedef struct {
+    u8 dummy;
+    u8 txsize;
+    u8 rxsize;
+    u8 cmd;
+    u16 button;
+    s8 stick_x;
+    s8 stick_y;
+} __OSContReadFormat;
 
 typedef struct {
     u8 dummy;
@@ -118,11 +129,13 @@ typedef struct {
 
 #define CONT_CMD_REQUEST_STATUS_TX 1
 #define CONT_CMD_RESET_TX          1
+#define CONT_CMD_READ_BUTTON_TX    1
 #define CONT_CMD_READ_PAK_TX       3
 #define CONT_CMD_WRITE_PAK_TX      35
 
 #define CONT_CMD_REQUEST_STATUS_RX 3
 #define CONT_CMD_RESET_RX          3
+#define CONT_CMD_READ_BUTTON_RX    4
 #define CONT_CMD_READ_PAK_RX       33
 #define CONT_CMD_WRITE_PAK_RX      1
 
@@ -147,6 +160,9 @@ extern u8 __osContLastCmd;
 extern OSPifRam __osContPifRam;
 extern OSPifRam __osPfsPifRam;
 extern u8 __osMaxControllers;
+extern OSTimer __osEepromTimer;
+extern OSMesgQueue __osEepromTimerQ;
+extern OSMesg __osEepromTimerMsg;
 extern s32 __osPfsLastChannel;
 extern u8 __osPfsInodeCacheBank;
 extern __OSInode __osPfsInodeCache;

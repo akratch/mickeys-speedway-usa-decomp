@@ -22,6 +22,13 @@ typedef struct {
     u8 errno;
 } OSContStatus;
 
+typedef struct {
+    u16 button;
+    s8 stick_x;
+    s8 stick_y;
+    u8 errno;
+} OSContPad;
+
 #define MAXCONTROLLERS 4
 
 /* Joybus channel error codes, as they sit in the top nibble of `rxsize`. */

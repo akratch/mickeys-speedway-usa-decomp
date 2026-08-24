@@ -67,11 +67,34 @@ typedef u32 OSHWIntr;
 typedef u32 OSIntMask;
 
 #define OS_IM_RCP 0x00000401
+#define OS_IM_PI  0x00100401
+#define OS_IM_ALL 0x003FFF01
+
+#define OS_CLOCK_RATE 62500000LL
+#define OS_APP_NMI_BUFSIZE 64
+
+#define OS_TV_PAL  0
+#define OS_TV_NTSC 1
+#define OS_TV_MPAL 2
 
 extern u32 __OSGlobalIntMask;
+extern u32 __osShutdown;
+extern OSTime osClockRate;
+
+extern s32 osResetType;
+extern s32 osTvType;
+extern s32 osAppNMIBuffer[];
 
 void __osSetGlobalIntMask(OSHWIntr mask);
 void __osResetGlobalIntMask(OSHWIntr mask);
+
+u32 __osGetSR(void);
+void __osSetSR(u32 value);
+u32 __osSetFpcCsr(u32 value);
+u32 __osGetCause(void);
+void osUnmapTLBAll(void);
+void osMapTLBRdb(void);
+void osInitialize(void);
 
 void osStartThread(OSThread *thread);
 void osCreateThread(OSThread *thread, OSId id, void (*entry)(void *),
@@ -104,6 +127,9 @@ int _bcmp(const void *s1, const void *s2, int len);
 #define bcmp  _bcmp
 
 void osWritebackDCache(void *addr, s32 size);
+void osInvalICache(void *addr, s32 size);
+s32 __osSiRawReadIo(u32 devAddr, u32 *data);
+s32 __osSiRawWriteIo(u32 devAddr, u32 data);
 s32 __osSpSetPc(u32 pc);
 s32 __osSpRawStartDma(s32 direction, u32 devAddr, void *dramAddr, u32 size);
 

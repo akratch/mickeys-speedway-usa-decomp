@@ -330,7 +330,7 @@ segments:
       - [0x6B860, asm]
       - [0x6BC20, asm]
       - [0x6BDF0, asm, libultra/gbpakgetstatus]
-      - [0x6BF70, asm, libultra/gbpakselectbank]
+      - [0x6BF70, c, libultra/gbpakselectbank]
       - [0x6C040, c, libultra/motor]
       - [0x6C450, c, libultra/pfsisplug]
       - [0x6C750, c, libultra/pfsfreeblocks]
@@ -528,7 +528,8 @@ segments:
       # matching reference object's section size and by the ROM relocation(s)
       # that address the first symbol; anonymous gaps remain explicitly raw.
       - [0x81040, .data, libultra/aisetnextbuf]
-      - [0x81050, data]
+      - [0x81050, .data, libultra/initialize]
+      - [0x81060, .data, libultra/controller]
       - [0x81070, .data, libultra/vimgr]
       - [0x81090, data]
       - [0x81460, .data, libultra/thread]
@@ -567,15 +568,13 @@ segments:
       # the resident segment. Two things the later per-TU split needs are
       # measured and recorded here:
       #
-      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 44 jump
-      #      tables still emitted in asm/ back to the functions that reference
-      #      them gives ROM addresses and jump-table addresses that are both
-      #      monotonically increasing -- ZERO INVERSIONS. Five additional
-      #      tables now belong to matched n_csplayer C, and one belongs to
-      #      matched n_reverb C.
-      #      First pair (ROM 0x7D18 -> jtbl_80080D2C), last (ROM 0x72B00 ->
-      #      jtbl_80084970). So .rodata can be carved TU by TU in text order,
-      #      which is what makes a per-file split tractable at all.
+      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
+      #      covered 35 functions and forty-four tables. After devmgr's table
+      #      moved into its exact C object, the 44 jump tables still emitted in
+      #      asm/ belong to 34 functions whose ROM and table addresses are both
+      #      monotonically increasing -- ZERO INVERSIONS. First pair (ROM
+      #      0x7D18 -> jtbl_80080D2C), last (ROM 0x75120 -> jtbl_800849C4).
+      #      So .rodata can be carved TU by TU in text order.
       #
       #   2. THE REFERENCED-FROM-CODE BOUND: 0x80080D24 (ROM 0x81924). That is
       #      a float constant (7f7fffff, i.e. FLT_MAX) loaded by the function
@@ -608,6 +607,8 @@ segments:
       - [0x85490, .rodata, libultra/n_resample]
       - [0x854A0, .rodata, libultra/sinf]
       - [0x854F0, rodata]
+      - [0x85570, .rodata, libultra/devmgr]
+      - [0x85590, rodata]
       - [0x855A0, rodata, libultra/xprintf]
       - [0x856A0, rodata, libultra/xldtob]
       - [0x85700, rodata]

@@ -22,6 +22,25 @@
 #include "PR/os_pi.h"
 #include "PR/rcp.h"
 
+#define LEO_BASE_REG 0x05000000
+#define LEO_STATUS   (LEO_BASE_REG + 0x508)
+#define LEO_BM_CTL   (LEO_BASE_REG + 0x510)
+
+#define LEO_STATUS_MECHANIC_INTERRUPT 0x02000000
+
+#define LEO_BM_CTL_RESET             0x10000000
+#define LEO_BM_CTL_CLR_MECHANIC_INTR 0x01000000
+
+#define LEO_CMD_TYPE_0 0
+#define LEO_CMD_TYPE_1 1
+
+#define LEO_ERROR_GOOD 0
+#define LEO_ERROR_4    4
+#define LEO_ERROR_29   29
+
+#define LEO_TRACK_MODE  2
+#define LEO_SECTOR_MODE 3
+
 extern OSDevMgr __osPiDevMgr;
 extern OSPiHandle *__osCurrentHandle[2];
 extern OSMesgQueue __osPiAccessQueue;

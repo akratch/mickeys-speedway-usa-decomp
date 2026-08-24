@@ -2,23 +2,17 @@
  * libultra: build and parse the PIF-RAM request block for the four
  * controller channels.
  *
- * ROM 0x6F8E8-0x6F9B8 (__osContGetInitData) and 0x6F9B8-0x6FAAC
- * (__osPackRequestData), VRAM 0x8006F8E8/0x8006F9B8. `osContInit` (ROM
- * 0x6F6F0) stays `#pragma GLOBAL_ASM`: it needs `osClockRate`, still
- * asm in `initialize.c`.
+ * The complete 0x3C0-byte text object and its 0x10-byte initialized-data
+ * section are byte-identical to Jet Force Gemini's built
+ * `libultra/src/io/controller.c.o` after relocation.
  *
  * Flags: -O1 -mips2 -32, the corridor default (docs/modules.md section 6.1).
  *
- * DEVIATION FROM THE REFERENCE: the SDK source defines __osContPifRam,
- * __osContLastCmd and __osMaxControllers in this translation unit. Here
- * they are `extern`: Mickey's .data and .bss are still one unsplit
- * subsegment (docs/modules.md section 6.3), so no C file can own an
- * object yet -- see the piacs.c precedent in this directory. The emitted
- * .text is the same either way: every reference is a %hi/%lo pair on a
- * symbol the linker resolves, and symbol_addrs.us.txt now gives
- * __osContPifRam its own fixed address (0x800D80F0, 0x40 bytes, landing
- * exactly on __osContLastCmd with no slack) alongside the pak-side
- * addresses that were already there.
+ * DEVIATION FROM THE REFERENCE: the SDK source defines its 0x90-byte BSS in
+ * this TU. Mickey's BSS remains an anonymous gap, so those objects are
+ * declared extern and fixed by symbol_addrs.us.txt instead; no C object
+ * claims their storage. The explicitly initialized __osContinitialized
+ * remains a real C definition because the matching .data slice is carved.
  *
  * PROVENANCE: the body is N64 SDK libultra source as published in public
  * decomp trees (JFG's among them), a permitted source under
@@ -28,8 +22,51 @@
 #include "PR/os_internal.h"
 #include "PRinternal/controller.h"
 #include "PRinternal/macros.h"
+#include "PRinternal/osint.h"
+#include "PRinternal/siint.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/controller/osContInit.s")
+#define HALF_MIL_CYCLES 500000U
+#define ONE_MIL_CYCLES  1000000U
+#define HALF_A_SECOND   (HALF_MIL_CYCLES * osClockRate / ONE_MIL_CYCLES)
+
+s32 __osContinitialized = FALSE;
+
+s32 osContInit(OSMesgQueue *mq, u8 *bitpattern, OSContStatus *data) {
+    OSMesg dummy;
+    s32 ret = 0;
+    OSTime t;
+    OSTimer mytimer;
+    OSMesgQueue timerMesgQueue;
+
+    if (__osContinitialized) {
+        return 0;
+    }
+
+    __osContinitialized = TRUE;
+
+    t = osGetTime();
+    if (HALF_A_SECOND > t) {
+        osCreateMesgQueue(&timerMesgQueue, &dummy, 1);
+        osSetTimer(&mytimer, HALF_A_SECOND - t, 0, &timerMesgQueue, &dummy);
+        osRecvMesg(&timerMesgQueue, &dummy, OS_MESG_BLOCK);
+    }
+
+    __osMaxControllers = MAXCONTROLLERS;
+    __osPackRequestData(CONT_CMD_REQUEST_STATUS);
+
+    ret = __osSiRawStartDma(OS_WRITE, __osContPifRam.ramarray);
+    osRecvMesg(mq, &dummy, OS_MESG_BLOCK);
+
+    ret = __osSiRawStartDma(OS_READ, __osContPifRam.ramarray);
+    osRecvMesg(mq, &dummy, OS_MESG_BLOCK);
+
+    __osContGetInitData(bitpattern, data);
+    __osContLastCmd = CONT_CMD_REQUEST_STATUS;
+    __osSiCreateAccessQueue();
+    osCreateMesgQueue(&__osEepromTimerQ, &__osEepromTimerMsg, 1);
+
+    return ret;
+}
 
 void __osContGetInitData(u8 *pattern, OSContStatus *data) {
     u8 *ptr;
