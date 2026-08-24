@@ -402,7 +402,7 @@ top-ranked skeleton and call role; the independent return stub at
 `0x80028E98` occupies JFG's following `mainStartGame` slot. Both names are
 tier B because the complete donor bodies are not byte-identical.
 
-**Matching progress.** Seventy-four functions / 3,400 bytes compile exactly
+**Matching progress.** Seventy-five functions / 3,408 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -416,10 +416,10 @@ linked ranges and the full ROM are exact.
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (40 / 1,080 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
+- `main/main` (41 / 1,088 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainSetAnimGroup`, `mainGetAnimGroup`,
   `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
-  `mainSyncNextLevel`, `mainGetMode`, `mainSetMode`,
+  `mainSyncNextLevel`, `mainGetMode`, `mainSetMode`, `mainStartGame`,
   `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`, `func_80028F54`,
   `func_80028F60`, `func_80028F98`,
   `func_80028FA8`,
