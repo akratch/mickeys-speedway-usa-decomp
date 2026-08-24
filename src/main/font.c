@@ -48,7 +48,20 @@ void fontSetWindowNoise(u8 red, u8 green, u8 blue) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BB44.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BBE0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BBFC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/fontWindowFontColour.s")
+
+void fontWindowFontColour(s32 windowId, s32 red, s32 green, s32 blue,
+                          s32 alpha, s32 opacity) {
+    if (windowId > 0 && windowId < 8) {
+        DialogueBoxBackground *window = &D_800D64E8[windowId];
+
+        window->textColourR = red;
+        window->textColourG = green;
+        window->textColourB = blue;
+        window->textColourA = alpha;
+        window->opacity = opacity;
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BC84.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BCC4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BF64.s")
