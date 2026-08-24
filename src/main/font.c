@@ -223,7 +223,28 @@ void func_8004C000(char **outString, s32 number) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C0C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C140.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C200.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C5A4.s")
+void func_8004C5A4(char *input, char *output, s32 number) {
+    char currentChar;
+
+    do {
+        currentChar = *input++;
+        if (currentChar & 0x80) {
+            char nextChar = *input++;
+
+            if (nextChar == 0xE) {
+                func_8004C000(&output, number);
+            } else {
+                *output++ = currentChar;
+                *output++ = nextChar;
+            }
+        } else if (currentChar == '~') {
+            func_8004C000(&output, number);
+        } else {
+            *output++ = currentChar;
+        }
+    } while (currentChar);
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C690.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C8D8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D32C.s")

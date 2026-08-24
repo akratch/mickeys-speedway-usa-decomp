@@ -414,7 +414,7 @@ overlay callers/callees outside the range were observed.
 | `0x4CCC4` | `0x7C` | `func_8004C0C4` | `fontWindowsDraw` | B/D | calls `0x4CE00`; ext caller |
 | `0x4CD40` | `0xC0` | `func_8004C140` | JFG `func_80071564` | D | ext callee; called by `0x4CE00` |
 | `0x4CE00` | `0x3A4` | `func_8004C200` | `fontWindowDraw` | B/D | calls `0x4CD40`, `0x4D1A4`, `0x4BDDC` |
-| `0x4D1A4` | `0xEC` | `func_8004C5A4` | JFG `func_80071A0C` | D | calls `0x4CC00`; in-range callers |
+| `0x4D1A4` | `0xEC` | `func_8004C5A4` | JFG `func_80071A0C` | D, matched C | calls `0x4CC00`; in-range callers |
 | `0x4D290` | `0x248` | `func_8004C690` | JFG `func_80071B08` | D | ext callee; called by `0x4BDDC` |
 | `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D | ext callee |
 | `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D | leaf; ext caller |
