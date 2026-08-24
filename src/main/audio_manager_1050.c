@@ -29,10 +29,12 @@ extern void *D_80078D60;
 extern void *D_80078D64;
 extern u8 D_80078D68;
 extern u8 D_80078D6C;
+extern u8 D_80078D74;
 extern u8 D_80078D88;
 extern u8 D_80078DB0;
 extern u8 D_800BF794;
 extern u8 D_800BF795;
+extern u32 *D_800BF798;
 extern u8 *D_800BF7A4;
 extern void gsSndpSetParam(void *sound, s16 type, u32 value);
 extern u32 gsSndpGetGlobalVolume(void);
@@ -195,7 +197,17 @@ void amAmbientSetVolume(u8 volume) {
     n_alCSPSetVol(D_80078D64,
                   (s16)(gsSndpGetGlobalVolume() * D_80078D6C));
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000EBC.s")
+/*
+ * PROVENANCE: body shape and official name adapted from JFG
+ * asm/nonmatchings/audio_manager_1050/amDittyPlay.s; Mickey's operands and
+ * boundaries remain authoritative.
+ */
+void amDittyPlay(u8 sequenceId) {
+    if (D_800BF798[sequenceId] <= 0x1000) {
+        D_80078D74 = 1;
+        func_80001308(D_800BF795 = sequenceId, D_80078D64);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000F20.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000F74.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000F94.s")
