@@ -105,7 +105,19 @@ s8 func_800501AC(u16 *entry) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800501C8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005027C.s")
+
+/* Exact JFG donor assembly corroborates this setup shape; C is Mickey-led. */
+void func_8005027C(void) {
+    s32 *base;
+    s32 header;
+
+    base = D_8007D68C;
+    header = *base;
+    D_8007D698 = (u8 *) base + (header & 0xFFFFFF);
+    D_8007D69C = D_8007D698;
+    D_8007D6A0 = func_800501C8(&D_8007D698);
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800502CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050348.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005055C.s")
