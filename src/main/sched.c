@@ -14,12 +14,15 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osCreateScheduler.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScAddClient.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScRemoveClient.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/sched.c:osScGetCmdQ. */
 OSMesgQueue *osScGetCmdQ(OSSched *scheduler) {
     return &scheduler->cmdQ;
 }
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/sched.c:osScGetInterruptQ. */
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler) {
     return &scheduler->interruptQ;
 }
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/sched.c:osScGetAudioSPStats. */
 void osScGetAudioSPStats(f32 *first, f32 *second, f32 *third) {
     *first = 0.0f;
     *second = 0.0f;

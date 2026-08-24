@@ -12,7 +12,9 @@
  * src/camera.c, as permitted by docs/CLEANROOM.md. Mickey's own bytes decide
  * every name and body: docs/modules.md records which names are tier A, which
  * are tier B role/order arguments, and which functions remain unresolved.
- * This initial split contains no adapted function bodies, only GLOBAL_ASM.
+ * The matched functions below carry adapted JFG bodies, each with its own
+ * PROVENANCE note at the point of use; everything else in this split is
+ * still GLOBAL_ASM.
  *
  * Flags: -O2 -mips2 -32, from the existing src/main/ compilation rule.
  */

@@ -272,6 +272,13 @@ void func_80014614(s32 fogCount, s32 updateRate) {
                         fogData->fog.b += fogData->addFog.b * updateRate;
                         fogData->fog.near += fogData->addFog.near * updateRate;
                         fogData->fog.far += fogData->addFog.far * updateRate;
+                        /* The volatile cast forces IDO to re-load switchTimer
+                         * from memory immediately before the subtraction,
+                         * instead of reusing the value it already has in a
+                         * register from the `switchTimer > 0` and
+                         * `updateRate < switchTimer` comparisons above. That
+                         * reload is what the target's instruction schedule
+                         * requires; without it the match breaks. */
                         fogData->switchTimer =
                             *(volatile s32 *)&fogData->switchTimer - updateRate;
                     } else {

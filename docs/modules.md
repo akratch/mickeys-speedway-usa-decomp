@@ -224,22 +224,22 @@ the segment, carrying 194 function names.
 | `0x2A250`–`0x2AE44` | `0x80029650` | 11 named `math_util.s` routines | A | Matrix / vector / RNG library. 13 routines matched: 11 named here, `rand_range` already carried as `mathRnd`, and `func_80070058` left unnamed as a placeholder |
 | `0x2B650`–`0x2BCD0` | `0x8002AA50` | `main/matrix` | — | The parked float TU (§6.2) |
 | `0x2C860` | `0x8002BC60` | `align16`/`align8`/`align4` | A | The allocator |
-| `0x2C8C0`–`0x2ECA0` | `0x8002BCC0` | `main/saves` | A/B/D | Rumble, EEPROM/save bitstreams, and Controller Pak files (§3.4) |
-| `0x2ECA0`–`0x2F0D0` | `0x8002E0A0` | `main/pi` | B | Asset lookup and cartridge DMA (§3.4) |
-| `0x2F0D0`–`0x2F400` | `0x8002E4D0` | `main/screen` | B | Compressed screen loading and drawing (§3.4) |
-| `0x2F400`–`0x30CD0` | `0x8002E800` | `main/rcpFast3d` | A/B | Fast3D/RCP task and clear helpers (§3.4) |
-| `0x30CD0`–`0x323A0` | `0x800300D0` | `main/sched` | A/B/C | The 21-function game scheduler (§3.4) |
+| `0x2C8C0`–`0x2ECA0` | `0x8002BCC0` | `main/saves` | A/B/D | Rumble, EEPROM/save bitstreams, and Controller Pak files (§3.15) |
+| `0x2ECA0`–`0x2F0D0` | `0x8002E0A0` | `main/pi` | B | Asset lookup and cartridge DMA (§3.15) |
+| `0x2F0D0`–`0x2F400` | `0x8002E4D0` | `main/screen` | B | Compressed screen loading and drawing (§3.15) |
+| `0x2F400`–`0x30CD0` | `0x8002E800` | `main/rcpFast3d` | A/B | Fast3D/RCP task and clear helpers (§3.15) |
+| `0x30CD0`–`0x323A0` | `0x800300D0` | `main/sched` | A/B/C | The 21-function game scheduler (§3.15) |
 | `0x316E8` | `0x80030AE8` | `"SP CRASHED"`, `"Version %s"` | — | The frame loop / RCP watchdog |
 | `0x323A0`–`0x323E0` | `0x800317A0` | `main/rsp_segment` | A | Measured file boundary (whole `.text`) |
 | `0x323E0`–`0x33FA0` | `0x800317E0` | `main/runlink` | A/B/C | **The runtime overlay linker** (§5) |
 | `0x33FA0`–`0x34180` | `0x800333A0` | `main/trapDanglingJump` | A | The overlay call trampoline. **Measured file boundary**: JFG's whole 0x1E0 `hasm/ido/trapDanglingJump.s`. Was named at tier B from Mickey's call graph alone; the bytes agree |
-| `0x34180`–`0x34E60` | `0x80033580` | `main/gameVi` | B + A landmarks | **Video and framebuffer management** (§3.4). The complete 23-function order and call/global surface establish the TU boundary; four functions inside are independently tier-A JFG skeleton hits |
+| `0x34180`–`0x34E60` | `0x80033580` | `main/gameVi` | B + A landmarks | **Video and framebuffer management** (§3.8). The complete 23-function order and call/global surface establish the TU boundary; four functions inside are independently tier-A JFG skeleton hits |
 | `0x342A8` | `0x800336A8` | `"Ntsc LowRes"` … | — | Video-mode table (15 entries) |
 | `0x39A1C` | `0x80038E1C` | `"front/front.c"` asserts | — | **`front` code is partly resident** |
 | `0x3B1A0` | `0x8003A5A0` | `"UNKNOWN TRACK"` | — | Track selection |
 | `0x3B57C` | `0x8003A97C` | `weather_clip_planes` | A | |
-| `0x3D5F0`–`0x43470` | `0x8003C9F0` | `main/particles` | A + B + D | 44-function resident particle TU; §3.4 |
-| `0x43470`–`0x45760` | `0x80042870` | `main/diprint` | A + B + C | 19-function formatting/debug-text TU; §3.4 |
+| `0x3D5F0`–`0x43470` | `0x8003C9F0` | `main/particles` | A + B + D | 44-function resident particle TU; §3.16 |
+| `0x43470`–`0x45760` | `0x80042870` | `main/diprint` | A + B + C | 19-function formatting/debug-text TU; §3.16 |
 | `0x459C0`–`0x467BC` | `0x80044DC0` | `diRcpPrintDL`, `diRcpMoveWd`, `diRcpStrName`, `diRcpOtherMode`, `diRcpGeometryMode` | C | **The display-list disassembler**, a full GBI pretty-printer left in the retail build |
 | `0x467BC`–`0x47A60` | `0x80045BBC` | `diCpuReportWatchpoint`, plus the memory/module debug pages and the register-dump crash reporter | C | **The debug monitor**, also left in |
 | `0x47A60`–`0x47A70` | `0x80046E60` | `main/get_stack_pointer` | A | Measured file boundary |
@@ -347,8 +347,8 @@ see the caveat below):
 | `libultra/n_load.c.o` | 1 | `0x6A634` | Inside the already-measured `libultra/n_load` boundary; corroborates it |
 | `hasm/ido/math_util.s.o` | 15 | `0x2A9E4`–`0x2B644` | Inside the already-measured `main/math_util` boundary; corroborates it |
 | `src/menu.c.o` | 6 | `0x3A184`–`0x3B008` | Inside yaml's unnamed `0x37D50`–`0x3B480` block. No whole-`.text` match found, so no boundary is claimed |
-| `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside the now-split `main/gameVi` TU (§3.4). The four exact skeleton hits are landmarks; the boundary is separately established at tier B from the complete ordered function/call surface, not claimed as a whole-`.text` byte match |
-| `src/menu.c.o` | 6 | `0x3A184`–`0x3B008` | The automated pass found only interior anchors. A later function-order and call-graph census established the narrower `0x39350`–`0x3B1A0` ownership (§3.4); no whole-`.text` match is claimed |
+| `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside the now-split `main/gameVi` TU (§3.8). The four exact skeleton hits are landmarks; the boundary is separately established at tier B from the complete ordered function/call surface, not claimed as a whole-`.text` byte match |
+| `src/menu.c.o` | 6 | `0x3A184`–`0x3B008` | The automated pass found only interior anchors. A later function-order and call-graph census established the narrower `0x39350`–`0x3B1A0` ownership (§3.11); no whole-`.text` match is claimed |
 | `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside yaml's unnamed `0x34180`–`0x37D50` block. No whole-`.text` match; no boundary claimed |
 | `src/anim.c.o` | 3 | `0x50D7C`–`0x51D28` | Inside yaml's unnamed `0x50C00`–`0x58570` block. No whole-`.text` match; no boundary claimed |
 | `src/models.c.o` | 3 | `0x20020`–`0x21710` | Inside yaml's unnamed `0x20020`–`0x21DA0` block, starting exactly at its boundary. No whole-`.text` match; no boundary claimed |
@@ -359,7 +359,7 @@ see the caveat below):
 | `src/camera.c.o` | 2 | `0x23360`, `0x5B778` | 230KB apart -- evidently not one placed TU here; treat as two independent identifications, not a span |
 | `src/memory.c.o` | 2 | `0x2BCD0`–`0x2C3AC` | Starts exactly at yaml's `0x2BCD0` boundary (end of `main/matrix`); the already-named `align16`/`align8`/`align4` (tier A, `memory.c.o`) sit at `0x2C860`, past this span. Consistent with one TU, no boundary claimed |
 | `src/shadows_214A0.c.o` | 2 | `0x18FF0`–`0x19144` | Inside yaml's unnamed `0x18FF0`–`0x1AE60` block, starting exactly at its boundary. No boundary claimed |
-| `src/saves.c.o`, `src/rcpFast3d.c.o` | 1 each | single points | These were the Tier A seeds expanded by the later call-graph census in §3.4 |
+| `src/saves.c.o`, `src/rcpFast3d.c.o` | 1 each | single points | These were the Tier A seeds expanded by the later call-graph census in §3.15 |
 | `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
 **Why this table originally added no `mickey.us.yaml` splits.** §1's
@@ -404,39 +404,39 @@ overlay callers/callees outside the range were observed.
 | `0x4BC40` | `0x24` | `fontSetWindow0` | same | A, matched C | leaf; ext callers |
 | `0x4BC64` | `0x0C` | `func_8004B064` | `fontSetButtonMode` | D, matched C | leaf; overlay caller |
 | `0x4BC70` | `0x34` | `fontSetWindowNoise` | same | A, matched C | leaf |
-| `0x4BCA4` | `0x14` | `func_8004B0A4` | `fontUseFont` | B/D, matched C | leaf; text-setup callers |
+| `0x4BCA4` | `0x14` | `func_8004B0A4` | `fontUseFont` | D, matched C | leaf; text-setup callers |
 | `0x4BCB8` | `0x24` | `fontColour` | same | A, matched C | leaf; text-setup callers |
-| `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | B/D, matched C | leaf; text-setup callers |
-| `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B/D, matched C | calls `0x4BD3C` |
-| `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B/D, matched C | calls `0x4BDDC` |
+| `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | D, matched C | leaf; text-setup callers |
+| `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B, matched C | calls `0x4BD3C` |
+| `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B, matched C | calls `0x4BDDC` |
 | `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
-| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D | calls `0x4DF9C`; ext callers |
+| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B | calls `0x4DF9C`; ext callers |
 | `0x4C744` | `0x9C` | `func_8004BB44` | `fontWindowSize` | D, matched C | leaf; ext callers |
-| `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | B/D, matched C | leaf; ext callers |
+| `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | D, matched C | leaf; ext callers |
 | `0x4C7FC` | `0x40` | `fontWindowColour` | same | A, matched C | leaf; ext callers |
 | `0x4C83C` | `0x48` | `fontWindowFontColour` | same | A, matched C | leaf; ext callers |
 | `0x4C884` | `0x40` | `fontWindowFontBackground` | same | A, matched C | leaf; ext callers |
-| `0x4C8C4` | `0x2A0` | `func_8004BCC4` | `fontWindowAddStringXY` | B/D, plateau | calls `0x4D1A4`, `0x4C68C`; ext callers |
-| `0x4CB64` | `0x4C` | `func_8004BF64` | `fontWindowFlushStrings` | B/D, matched C | leaf; ext callers |
-| `0x4CBB0` | `0x28` | `func_8004BFB0` | `fontWindowEnable` | B/D, matched C | leaf; ext callers |
-| `0x4CBD8` | `0x28` | `func_8004BFD8` | `fontWindowDisable` | B/D, matched C | leaf; ext callers |
+| `0x4C8C4` | `0x2A0` | `func_8004BCC4` | `fontWindowAddStringXY` | B, plateau | calls `0x4D1A4`, `0x4C68C`; ext callers |
+| `0x4CB64` | `0x4C` | `func_8004BF64` | `fontWindowFlushStrings` | D, matched C | leaf; ext callers |
+| `0x4CBB0` | `0x28` | `func_8004BFB0` | `fontWindowEnable` | D, matched C | leaf; ext callers |
+| `0x4CBD8` | `0x28` | `func_8004BFD8` | `fontWindowDisable` | D, matched C | leaf; ext callers |
 | `0x4CC00` | `0xC4` | `func_8004C000` | `fontStringAddNumber` | D, matched C | leaf; called by `0x4D1A4` |
-| `0x4CCC4` | `0x7C` | `func_8004C0C4` | `fontWindowsDraw` | B/D | calls `0x4CE00`; ext caller |
+| `0x4CCC4` | `0x7C` | `func_8004C0C4` | `fontWindowsDraw` | B | calls `0x4CE00`; ext caller |
 | `0x4CD40` | `0xC0` | `func_8004C140` | JFG `func_80071564` | D | ext callee; called by `0x4CE00` |
-| `0x4CE00` | `0x3A4` | `func_8004C200` | `fontWindowDraw` | B/D | calls `0x4CD40`, `0x4D1A4`, `0x4BDDC` |
+| `0x4CE00` | `0x3A4` | `func_8004C200` | `fontWindowDraw` | B | calls `0x4CD40`, `0x4D1A4`, `0x4BDDC` |
 | `0x4D1A4` | `0xEC` | `func_8004C5A4` | JFG `func_80071A0C` | D, matched C | calls `0x4CC00`; in-range callers |
 | `0x4D290` | `0x248` | `func_8004C690` | JFG `func_80071B08` | D | ext callee; called by `0x4BDDC` |
-| `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D | ext callee |
+| `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | D | ext callee |
 | `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D | leaf; ext caller |
-| `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, plateau | leaf; in-range callers |
+| `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | D, plateau | leaf; in-range callers |
 | `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D | leaf |
 | `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |
-| `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | B/D | SDK calls; ext callers |
-| `0x4E350` | `0x28` | `func_8004D750` | `rzipInit` | B/D | allocator call; ext caller |
+| `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | D | SDK calls; ext callers |
+| `0x4E350` | `0x28` | `func_8004D750` | `rzipInit` | D | allocator call; ext caller |
 | `0x4E378` | `0x30` | `byteswap32` | JFG `rzipUncompressSize` | A name collision | leaf; ext callers |
-| `0x4E3A8` | `0x38` | `func_8004D7A8` | `rzipUncompressSizeROM` | B/D | calls `byteswap32`, ext |
-| `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | B/D | calls `gzip_inflate_block`; ext callers |
-| `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B/D | calls `_bzero`; called by `main/gzip_asm` |
+| `0x4E3A8` | `0x38` | `func_8004D7A8` | `rzipUncompressSizeROM` | B | calls `byteswap32`, ext |
+| `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | B | calls `gzip_inflate_block`; ext callers |
+| `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B | calls `_bzero`; called by `main/gzip_asm` |
 
 `func_8004BCC4` compiles to the exact 168-instruction shape and exact masked
 words at the stock flags, but is not an object match: four relocation sites
@@ -470,7 +470,7 @@ state; consequently no tier-C names are available. ROM `0x4E1E0`–`0x4EA60`
 is deliberately outside `main/font`: it is the PI-manager/rzip prefix of the
 inflate subsystem, immediately followed by `main/gzip_asm` at `0x4EA60`.
 
-### 3.4 The resident shadows and lights TUs
+### 3.5 The resident shadows and lights TUs
 
 ROM `0x18FF0`–`0x1AE60` contains two source units followed by the already
 measured `main/lights2` hand-written assembly object. The boundary is ROM
@@ -527,7 +527,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison: calls the object-light setter twice |
 | `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison: paired flare helper and TU order |
 | `0x8001A23C` | `0x24` | `lightKillGlowingLight` | tier-B comparison: calls the paired delete helper and returns success |
-### 3.4 The resident allocator (`main/memory`)
+### 3.6 The resident allocator (`main/memory`)
 
 ROM `0x2BCD0`–`0x2C8C0`, VRAM `0x8002B0D0`–`0x8002BCC0`, `0xBF0` bytes.
 This boundary is measured from the linked pre-split ELF: `2BCD0.s.o` owns one
@@ -596,7 +596,7 @@ rule: it has been split as a **working decompilation TU**, not promoted to a
 tier-A original-file-boundary claim. The evidence and the distinction are
 recorded below.
 
-### 3.4 `main/models` working split
+### 3.7 `main/models` working split
 
 ROM `0x20020`-`0x21DA0`, VRAM `0x8001F420`-`0x800211A0`, 19 functions.
 The start is an existing 16-byte-aligned yaml boundary and the first function
@@ -650,12 +650,12 @@ individual functions (`tools/find_known_objects.py --sections` found no
 whole-object match for any of the not-yet-named TUs above). Asserting a yaml
 `asm`/`c` split from function-level hits alone would claim more than was
 measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
-level up. `gameVi` is the exception added later: §3.4 supplies independent
+level up. `gameVi` is the exception added later: §3.8 supplies independent
 tier-B boundary evidence from its complete ordered function and call surface.
 The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`, `n_env`,
 `n_load`, `math_util`) needed no new split; they already have one.
 
-### 3.4 `gameVi`: ROM `0x34180`–`0x34E60`
+### 3.8 `gameVi`: ROM `0x34180`–`0x34E60`
 
 This is the resident video-interface and framebuffer translation unit,
 `src/main/gameVi.c`. **PROVENANCE:** the TU and function names used as matching
@@ -779,7 +779,7 @@ HI16/LO16 pair. JFG calls the store-only helper `viNoClear`, but no
 same-address Mickey caller pins that public name and the body is below the
 tier-A threshold, so the address label remains canonical.
 
-### 3.4 `main/track`: ROM `0xC950`-`0x16140`
+### 3.9 `main/track`: ROM `0xC950`-`0x16140`
 
 This 0x97F0-byte, 66-function block is one resident translation unit. The
 identification is stronger than the isolated `trackSetFogOff` row in §3.3:
@@ -832,7 +832,7 @@ Matched C in this TU:
 | `func_80014DE4` | `0x159E4` | 0xC8 | `-O2 -mips2 -32` | Mickey reconstruction; JFG supplies only tier-D transform-role context and no public name is adopted; 50/50 instruction words and relocation layout exact, linked ROM exact |
 | `func_80014EAC` | `0x15AAC` | 0x20 | `-O2 -mips2 -32` | JFG `func_8001C550` is a tier-A 8/8-word TU donor, unique in the ROM; JFG placeholder not imported; linked ROM exact |
 
-### 3.4 Resident camera: ROM `0x21EE0`–`0x25C20`
+### 3.10 Resident camera: ROM `0x21EE0`–`0x25C20`
 
 This whole `0x3D40`-byte block is the resident camera TU: **69 functions,
 `0x3D3C` executable bytes and four bytes of terminal alignment**. Its ordered
@@ -861,28 +861,28 @@ TU calls the matrix library, video helpers, `sqrtf`, and `Arctanf`. There are
 no odd single-precision FP registers anywhere in the block, so none of these
 functions is classified as handwritten assembly under §6.2.
 
-| Matched C function | ROM | Exact executable bytes | Proof |
-|---|---:|---:|---|
-| `camUseShake` | `0x22084` | 16 | Configured object, relocation pair, linked range and full ROM exact. |
-| `camOverrideProjScales` | `0x220E4` | 32 | Configured object, six relocations, linked range and full ROM exact. |
-| `camSetWaterLine` | `0x225B0` | 32 | Configured object, relocation pair, linked range and full ROM exact. |
-| `camGetProjOrgMtx` | `0x25270` | 28 | Configured object, two relocation pairs, linked range and full ROM exact. |
-| `camSetZoom` | `0x258C8` | 56 | Configured object, two relocation pairs, linked range and full ROM exact. |
-| `camGetPlayerProjMtx` | `0x23360` | 52 | Configured object, five relocations, linked range and full ROM exact. |
-| `camStopShakes` | `0x25754` | 76 | Configured object, three relocation pairs, linked range and full ROM exact. |
-| `camIgnoreShake` | `0x22094` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
-| `camGetFOV` | `0x220A0` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
-| `camGetWaterLine` | `0x225A0` | 16 | Configured object, relocation pair, linked range and full ROM exact. |
-| `camGetMode` | `0x22518` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
-| `camSetMode` | `0x22524` | 64 | Configured object, two relocation pairs, linked range and full ROM exact. |
-| `camGetNo` | `0x22564` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
-| `camSetNo` | `0x22594` | 12 | Configured object, relocation pair, linked range and full ROM exact; Mickey omits JFG's bounds guard. |
+| Matched C function | ROM | Tier | Exact executable bytes | Proof |
+|---|---:|---|---:|---|
+| `camUseShake` | `0x22084` | B — role/order | 16 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camOverrideProjScales` | `0x220E4` | B — role/order (named above) | 32 | Configured object, six relocations, linked range and full ROM exact. |
+| `camSetWaterLine` | `0x225B0` | A — byte identity (named above) | 32 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camGetProjOrgMtx` | `0x25270` | B — role/order (named above) | 28 | Configured object, two relocation pairs, linked range and full ROM exact. |
+| `camSetZoom` | `0x258C8` | B — role/order (named above) | 56 | Configured object, two relocation pairs, linked range and full ROM exact. |
+| `camGetPlayerProjMtx` | `0x23360` | A — byte identity (named above) | 52 | Configured object, five relocations, linked range and full ROM exact. |
+| `camStopShakes` | `0x25754` | B — role/order (named above) | 76 | Configured object, three relocation pairs, linked range and full ROM exact. |
+| `camIgnoreShake` | `0x22094` | B — role/order | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camGetFOV` | `0x220A0` | B — role/order | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camGetWaterLine` | `0x225A0` | D — TU order only, no per-symbol callgraph argument recorded | 16 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camGetMode` | `0x22518` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camSetMode` | `0x22524` | D — TU order only, no per-symbol callgraph argument recorded | 64 | Configured object, two relocation pairs, linked range and full ROM exact. |
+| `camGetNo` | `0x22564` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camSetNo` | `0x22594` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact; Mickey omits JFG's bounds guard. |
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
 The later menu census below adds independent boundary evidence rather than
 retroactively treating the six hits as a whole-object match.
 
-### 3.4 Resident front-end menu: ROM `0x39350`–`0x3B1A0`
+### 3.11 Resident front-end menu: ROM `0x39350`–`0x3B1A0`
 
 This range is `main/menu`, corresponding to JFG's `src/menu.c`. The identity
 uses permitted JFG material and is disclosed here: names, declarations,
@@ -977,7 +977,7 @@ halfword store, and corresponding audio-volume call, and carries point-of-use
 linked ROM range are exact; a zero-byte weak alias preserves its assembly
 caller's anonymous spelling.
 
-### 3.4 Track assembly and shadows (`0x16140`–`0x18FF0`)
+### 3.12 Track assembly and shadows (`0x16140`–`0x18FF0`)
 
 This block contains two JFG-lineage translation units. The boundary claims are
 explicitly **not tier A whole-object matches**:
@@ -1000,15 +1000,15 @@ address-placeholder helper names are not imported.
 
 | ROM | Size | Symbol | Evidence / disposition |
 |---|---:|---|---|
-| `0x16140` | `0x49C` | `trackMakePolylist` | B/D; extractor-marked handwritten, stays `asm` |
-| `0x165DC` | `0x11C` | `getXZCompareMask` | B/D; extractor-marked handwritten, stays `asm` |
-| `0x166F8` | `0x98` | `getYCompareMask` | B/D; extractor-marked handwritten, stays `asm` |
-| `0x16790` | `0x300` | `trackLightAsm` | B/D; uses odd single-precision FP registers, stays `asm` |
-| `0x16A90` | `0x12C` | `shadowInitBuffers` | B/D |
-| `0x16BBC` | `0x78` | `shadowFreeBuffers` | B/D |
-| `0x16C34` | `0x18` | `shadowChangeBuffer` | B/D name; exact C, 6 words, 2 relocs |
-| `0x16C4C` | `0x4C` | `shadowGetBuffers` | B/D name; exact C, 19 words, 8 relocs |
-| `0x16C98` | `0x7F8` | `shadowGenerate` | B/D |
+| `0x16140` | `0x49C` | `trackMakePolylist` | B; extractor-marked handwritten, stays `asm` |
+| `0x165DC` | `0x11C` | `getXZCompareMask` | B; extractor-marked handwritten, stays `asm` |
+| `0x166F8` | `0x98` | `getYCompareMask` | B; extractor-marked handwritten, stays `asm` |
+| `0x16790` | `0x300` | `trackLightAsm` | B; uses odd single-precision FP registers, stays `asm` |
+| `0x16A90` | `0x12C` | `shadowInitBuffers` | B |
+| `0x16BBC` | `0x78` | `shadowFreeBuffers` | B |
+| `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
+| `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
+| `0x16C98` | `0x7F8` | `shadowGenerate` | B |
 | `0x17490` | `0x8B0` | `func_80016890` | unresolved |
 | `0x17D40` | `0x520` | `func_80017140` | unresolved |
 | `0x18260` | `0x56C` | `func_80017660` | unresolved |
@@ -1021,7 +1021,7 @@ extractor-marked handwritten track routines, only `trackLightAsm` uses odd FP
 registers; the other three contain non-compiler instruction shapes and remain
 assembly with it. No function in `main/shadows` uses an odd FP register.
 
-### 3.5 Camera lights and sprite animation (`0x1BE50`–`0x1C790`)
+### 3.13 Camera lights and sprite animation (`0x1BE50`–`0x1C790`)
 
 The eight entry points at `0x1BE50`–`0x1BEA0` are Mickey's disabled
 `main/camlight` implementation: each is a return-only or argument-spilling
@@ -1041,22 +1041,22 @@ body is copied by this split; Mickey's own bytes remain authoritative.
 
 | ROM | Size | Symbol | Evidence / disposition |
 |---|---:|---|---|
-| `0x1BE50` | `0x8` | `camlightInit` | B/D name; exact C, 2 words, 0 relocs |
-| `0x1BE58` | `0x8` | `camlightFlush` | B/D name; exact C, 2 words, 0 relocs |
-| `0x1BE60` | `0x10` | `camlightAdd` | B/D name; exact C, 4 words, 0 relocs |
-| `0x1BE70` | `0x8` | `camlightDelete` | B/D name; exact C, 2 words, 0 relocs |
-| `0x1BE78` | `0x8` | `camlightUpdateAll` | B/D name; exact C, 2 words, 0 relocs |
-| `0x1BE80` | `0x8` | `camlightUpdate` | B/D name; exact C, 2 words, 0 relocs |
-| `0x1BE88` | `0x8` | `camlightVisibilityCheck` | B/D name; exact C, 2 words, 0 relocs |
-| `0x1BE90` | `0x10` | `camlightDraw` | B/D name; exact C, 4 words, 0 relocs |
-| `0x1BEA0` | `0x74` | `spranimInit` | B/D |
-| `0x1BF14` | `0x4C` | `spranimControl` | B/D |
-| `0x1BF60` | `0x48` | `sprasjiInit` | B/D |
-| `0x1BFA8` | `0x78` | `spranimOnceControl` | B/D |
-| `0x1C020` | `0x304` | `effectboxControl` | B/D |
-| `0x1C324` | `0x74` | `texscrollControl` | B/D |
+| `0x1BE50` | `0x8` | `camlightInit` | D name; exact C, 2 words, 0 relocs |
+| `0x1BE58` | `0x8` | `camlightFlush` | D name; exact C, 2 words, 0 relocs |
+| `0x1BE60` | `0x10` | `camlightAdd` | D name; exact C, 4 words, 0 relocs |
+| `0x1BE70` | `0x8` | `camlightDelete` | D name; exact C, 2 words, 0 relocs |
+| `0x1BE78` | `0x8` | `camlightUpdateAll` | D name; exact C, 2 words, 0 relocs |
+| `0x1BE80` | `0x8` | `camlightUpdate` | D name; exact C, 2 words, 0 relocs |
+| `0x1BE88` | `0x8` | `camlightVisibilityCheck` | D name; exact C, 2 words, 0 relocs |
+| `0x1BE90` | `0x10` | `camlightDraw` | D name; exact C, 4 words, 0 relocs |
+| `0x1BEA0` | `0x74` | `spranimInit` | D |
+| `0x1BF14` | `0x4C` | `spranimControl` | D |
+| `0x1BF60` | `0x48` | `sprasjiInit` | D |
+| `0x1BFA8` | `0x78` | `spranimOnceControl` | D |
+| `0x1C020` | `0x304` | `effectboxControl` | D |
+| `0x1C324` | `0x74` | `texscrollControl` | B; identified additionally by masked skeleton and texture-scroll callees |
 | `0x1C398` | `0x2BC` | `func_8001B798` | unresolved |
-| `0x1C654` | `0x90` | `rangetriggerControl` | B/D |
+| `0x1C654` | `0x90` | `rangetriggerControl` | B; identified additionally by masked skeleton and volume-trigger callees |
 | `0x1C6E4` | `0x14` | `func_8001BAE4` | exact C, 5 words, 0 relocs; role unresolved |
 | `0x1C6F8` | `0xC` | `func_8001BAF8` | exact C, 3 words, 0 relocs; role unresolved |
 | `0x1C704` | `0xC` | `func_8001BB04` | exact C, 3 words, 0 relocs; role unresolved |
@@ -1066,7 +1066,7 @@ No function in this range uses an odd single-precision FP register, and there
 are no string references. All twenty functions are compiler-generated. ROM
 `0x1C788`-`0x1C790` is alignment padding and receives no function credit.
 
-### 3.6 Weather (`0x3B480`–`0x3D5F0`)
+### 3.14 Weather (`0x3B480`–`0x3D5F0`)
 
 This run is `main/weather`. The second function, `weather_clip_planes`, was
 already a unique tier-A DKR byte match. The preceding `initWeather` and the
@@ -1092,25 +1092,25 @@ Mickey's own bytes remain authoritative.
 
 | ROM | Size | Symbol | Evidence / disposition |
 |---|---:|---|---|
-| `0x3B480` | `0xFC` | `initWeather` | B/D |
+| `0x3B480` | `0xFC` | `initWeather` | D |
 | `0x3B57C` | `0x54` | `weather_clip_planes` | A donor; exact C, 21 words, 2 relocs |
-| `0x3B5D0` | `0x120` | `freeWeather` | B/D |
-| `0x3B6F0` | `0x420` | `setupWeather` | B/D |
-| `0x3BB10` | `0x120` | `snow_init` | B/D |
-| `0x3BC30` | `0x1EC` | `changeWeather` | B/D |
-| `0x3BE1C` | `0x2A4` | `doWeather` | B/D |
-| `0x3C0C0` | `0x238` | `snow_render` | B/D |
-| `0x3C2F8` | `0xEC` | `rain_init` | B/D |
-| `0x3C3E4` | `0x84` | `free_rain_memory` | B/D |
-| `0x3C468` | `0x104` | `rain_set` | B/D |
-| `0x3C56C` | `0xD0` | `rainSetFog` | B/D |
-| `0x3C63C` | `0x78` | `rainDensity` | B/D name; exact C, 30 words, 4 relocs |
-| `0x3C6B4` | `0x144` | `rain_update` | B/D |
-| `0x3C7F8` | `0x650` | `rain_render_splashes` | B/D |
-| `0x3CE48` | `0x128` | `rain_lightning` | B/D |
-| `0x3CF70` | `0xC0` | `rain_sound` | B/D |
-| `0x3D030` | `0x144` | `snow_update` | B/D; handwritten asm |
-| `0x3D174` | `0x1FC` | `snow_vertices` | B/D; odd-FP handwritten asm |
+| `0x3B5D0` | `0x120` | `freeWeather` | D |
+| `0x3B6F0` | `0x420` | `setupWeather` | D |
+| `0x3BB10` | `0x120` | `snow_init` | D |
+| `0x3BC30` | `0x1EC` | `changeWeather` | D |
+| `0x3BE1C` | `0x2A4` | `doWeather` | D |
+| `0x3C0C0` | `0x238` | `snow_render` | D |
+| `0x3C2F8` | `0xEC` | `rain_init` | D |
+| `0x3C3E4` | `0x84` | `free_rain_memory` | D |
+| `0x3C468` | `0x104` | `rain_set` | D |
+| `0x3C56C` | `0xD0` | `rainSetFog` | D |
+| `0x3C63C` | `0x78` | `rainDensity` | D name; exact C, 30 words, 4 relocs |
+| `0x3C6B4` | `0x144` | `rain_update` | D |
+| `0x3C7F8` | `0x650` | `rain_render_splashes` | D |
+| `0x3CE48` | `0x128` | `rain_lightning` | D |
+| `0x3CF70` | `0xC0` | `rain_sound` | D |
+| `0x3D030` | `0x144` | `snow_update` | D; handwritten asm |
+| `0x3D174` | `0x1FC` | `snow_vertices` | D; odd-FP handwritten asm |
 | `0x3D370` | `0x9C` | `func_8003C770` | unresolved |
 | `0x3D40C` | `0x1E4` | `func_8003C80C` | unresolved |
 
@@ -1121,7 +1121,7 @@ The independent boundary evidence used later for `saves`, `pi`, `screen`,
 `rcpFast3d` and `sched` is recorded separately below rather than retroactively
 attributed to this scan.
 
-### 3.4 Save, PI, screen, RCP and scheduler census
+### 3.15 Save, PI, screen, RCP and scheduler census
 
 ROM `0x2C8C0`–`0x323A0` contains **86 functions and 23,264 bytes** in five
 consecutive JFG-lineage translation units. This is a function-order and call-
@@ -1144,6 +1144,19 @@ anchors are the ones stated above, while the remaining results are near-match
 context rather than naming evidence. No function in either original block
 uses an odd single-precision FP register, so §6.2's hand-written-assembly
 criterion identifies **zero** forced-ASM functions here.
+
+The table above states each TU's evidence *categories*, not a per-function
+verdict; §1 requires the latter. Per §1's rule, only the functions named in
+the A/B/C cells above carry that individual argument (`rumbleKill`: tier A;
+`piInit` and the rest of `main/pi`'s seven-function order: tier B; both
+`main/screen` functions: tier B; `rcpInit` and the border-colour routine:
+tier A, the remaining `main/rcpFast3d` functions: tier B; the two queue
+accessors and `osScGetTaskType`/`__scHandleRetrace`: tier A/A/C respectively,
+the rest of `main/sched`'s scheduler call graph: tier B). Every other
+function in these five TUs, without an individual argument beyond TU
+membership and order, is tier D. `symbol_addrs.us.txt` carries the resulting
+per-symbol tier token for each of the 86 functions; this table is the
+TU-level summary, not a substitute for it.
 
 Exact C reconstructions in this census currently include `rumbleRumbles`
 (ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleKill` (ROM `0x2CB00`–
@@ -1168,7 +1181,7 @@ JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the anony
 setter and no-op are reconstructed from Mickey's own bodies. All configured
 object ranges and the final linked ROM are byte-exact.
 
-### 3.4 Particle and debug-print translation units
+### 3.16 Particle and debug-print translation units
 
 ROM `0x3D5F0`–`0x45760` is now split into two aligned resident C
 subsegments. The complete per-function census, including exact sizes and the
@@ -1189,6 +1202,16 @@ attributions are adapted from Jet Force Gemini's public `src/particles.c` and
 stated above. JFG address-placeholder names are not imported: Mickey's own
 `func_<VRAM>` names remain. Mickey's bytes and call graph decide every
 disagreement.
+
+The Evidence column above states categories per TU, not a per-function
+verdict. Per-symbol: `reset_particles`, `strcpy`, `memset`, and `sprintf` are
+tier A (named donor-object byte matches); the internal/external
+particle-caller and `diPrintf`/`diPrintfAll`/`diRcp*` call-graph functions
+named above are tier B; `_itoa` and `vsprintf` are tier C (string
+correspondence); every other function in `main/particles` and `main/diprint`,
+identified only by JFG/DKR order and masked-skeleton shape and not named
+individually above, is tier D. `symbol_addrs.us.txt` carries the resulting
+per-symbol tier token for each of the 63 functions in these two TUs.
 
 Exact C matches banked in these TUs: `partAdjustScaling` (ROM `0x3F9C8`,
 `0xC` bytes, default resident flags, JFG body donor) and `func_8003EDD4`
@@ -1240,7 +1263,7 @@ ownership.
 
 ---
 
-### 3.4 Vehicle sounds, models and gsSnd census
+### 3.17 Vehicle sounds, models and gsSnd census
 
 These three existing 16-byte-aligned splat boundaries were moved from raw
 `asm` subsegments to C translation units with one `GLOBAL_ASM` per function.
@@ -1264,19 +1287,19 @@ placeholder name or counting padding as function text.
 | ROM / VRAM | Size | Function | Evidence and call-graph role |
 |---|---:|---|---|
 | `0x58E50` / `0x80058250` | `0x58` | `func_80058250` | D: clears four positional engine-sound slots; called from resident audio setup |
-| `0x58EA8` / `0x800582A8` | `0x64` | `func_800582A8` | B/D: stops those four handles; called from the main state-transition path |
-| `0x58F0C` / `0x8005830C` | `0xBE8` | `func_8005830C` | B/D: walks active racers and maintains two positional sounds from speed and listener distance |
+| `0x58EA8` / `0x800582A8` | `0x64` | `func_800582A8` | B: stops those four handles; called from the main state-transition path |
+| `0x58F0C` / `0x8005830C` | `0xBE8` | `func_8005830C` | D: walks active racers and maintains two positional sounds from speed and listener distance; no per-symbol caller argument recorded |
 | `0x59AF4` / `0x80058EF4` | `0x9C` | `func_80058EF4` | D: local logarithm-series helper used to derive Doppler pitch |
 | `0x5B300` / `0x8005A700` | `0x64` | `func_8005A700` | D: allocates animation table/cache storage |
 | `0x5B364` / `0x8005A764` | `0x0C` | `func_8005A764` | D: resets the pending-animation counter |
-| `0x5B370` / `0x8005A770` | `0x30` | `func_8005A770` | B/D: flushes the pending animation table, then resets its count |
-| `0x5B3A0` / `0x8005A7A0` | `0x1A8` | `func_8005A7A0` | B/D: loads a model's animation-ID table and allocates its animation pointer array |
-| `0x5B548` / `0x8005A948` | `0x178` | `func_8005A948` | B/D: reference-counted single-animation loader; nearest non-exact JFG `models.c` skeleton |
-| `0x5B6C0` / `0x8005AAC0` | `0xB8` | `func_8005AAC0` | B/D: releases one reference-counted animation; nearest non-exact JFG `models.c` skeleton |
+| `0x5B370` / `0x8005A770` | `0x30` | `func_8005A770` | D: flushes the pending animation table, then resets its count; no per-symbol caller argument recorded |
+| `0x5B3A0` / `0x8005A7A0` | `0x1A8` | `func_8005A7A0` | D: loads a model's animation-ID table and allocates its animation pointer array; no per-symbol caller argument recorded |
+| `0x5B548` / `0x8005A948` | `0x178` | `func_8005A948` | D: reference-counted single-animation loader; nearest non-exact JFG `models.c` skeleton |
+| `0x5B6C0` / `0x8005AAC0` | `0xB8` | `func_8005AAC0` | D: releases one reference-counted animation; nearest non-exact JFG `models.c` skeleton |
 | `0x5B778` / `0x8005AB78` | `0x30` | `camConvertMatrixList` | A: exact JFG `camera.c` helper, used by the matrix builder below |
 | `0x5B7A8` / `0x8005ABA8` | `0x1BC` | `func_8005ABA8` | D: advances/clamps the current animation frame |
-| `0x5B964` / `0x8005AD64` | `0x1B0` | `func_8005AD64` | B/D: selects an animation and establishes its frame/blend state |
-| `0x5BB14` / `0x8005AF14` | `0x730` | `func_8005AF14` | B/D: builds model matrices and transformed attachment points, then queues matrix conversion |
+| `0x5B964` / `0x8005AD64` | `0x1B0` | `func_8005AD64` | D: selects an animation and establishes its frame/blend state; no per-symbol caller argument recorded |
+| `0x5BB14` / `0x8005AF14` | `0x730` | `func_8005AF14` | B: builds model matrices and transformed attachment points, then calls `camConvertMatrixList` to queue matrix conversion |
 | `0x5C244` / `0x8005B644` | `0xCC` | `func_8005B644` | D: constructs a parented matrix list for the builder |
 
 The `gsSnd` function boundaries are: `gsSndpNew` `0x268`,
@@ -1313,9 +1336,13 @@ another exact `0x818` bytes under the same flags, bringing exact C in
 `main/gsSnd` to `0xD3C` bytes; JFG retains all six functions as assembly, so
 their bodies are not donor adaptations.
 
-`ad_sndp_play`, adapted from the corresponding permitted DKR/PD sound-player
-sequence logic and then proved against Mickey, adds `0x2E8` exact bytes. Its
-nested play/retrigger event lifetimes are required for IDO's target delay-slot
+`ad_sndp_play` sits inside this JFG-matched TU (its name, like every other
+symbol in the whole-`.text` block above, comes from JFG's built `gsSnd.c.o`,
+per the tier-A whole-TU byte match), but its *body* is not a JFG adaptation:
+JFG keeps this function as assembly with no C source. The C written for it is
+adapted from the corresponding permitted DKR/PD sound-player sequence logic
+and then proved against Mickey, adding `0x2E8` exact bytes. Its nested
+play/retrigger event lifetimes are required for IDO's target delay-slot
 schedule. Exact C in `main/gsSnd` therefore totals `0x1024` bytes.
 
 The adjacent pitch-event helper `func_8005CDAC` plateaus after ten coherent
@@ -1871,7 +1898,7 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 44 jump tables still emitted
+- **rodata order follows text order exactly.** The 37 jump tables still emitted
   in `asm/` are monotonic in both columns, with **zero inversions**. So
   `.rodata` can be carved TU by TU in text order, which is what makes the
   per-TU split tractable. Five more tables now belong to matched `n_csplayer`

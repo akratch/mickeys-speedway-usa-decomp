@@ -31,6 +31,7 @@ extern RcpCommand D_8007A4B8[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpFast3d.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpWaitDP.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/rcpFast3d.c:rcpSetScreenColour. */
 void rcpSetScreenColour(u8 red, u8 green, u8 blue) {
     D_8007A3A0 = red;
     D_8007A3A4 = green;
@@ -44,9 +45,11 @@ void func_8002EBD4(u32 value) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearZBuffer.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearScreen.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpInitDp.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/rcpFast3d.c:rcpInitDpNoSize. */
 void rcpInitDpNoSize(RcpCommand **dlist) {
     RCP_DISPLAY_LIST((*dlist)++, D_8007A438);
 }
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/rcpFast3d.c:rcpInitSp. */
 void rcpInitSp(RcpCommand **dlist) {
     RCP_DISPLAY_LIST((*dlist)++, D_8007A4B8);
 }
