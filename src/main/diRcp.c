@@ -14,6 +14,8 @@ typedef void Gfx;
 
 extern void func_800453C4(Gfx *dList, s32 *w0_24_31, s32 *w0_16_23,
                           s32 *w0_0_15, s32 *w1);
+extern s32 sprintf(char *buffer, const char *format, ...);
+extern char D_80083388[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpPrintDL.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/func_800453C4.s")
@@ -107,6 +109,13 @@ s32 diRcpDmaOffsets(Gfx *dList, char *name) {
     return 8;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpMoveWd.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpStrName.s")
+/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpStrName. */
+s32 diRcpStrName(Gfx *dList, char *name) {
+    char buffer[0x50];
+    s32 pad[2];
+
+    sprintf(buffer, D_80083388, name);
+    return 8;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpOtherMode.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpGeometryMode.s")

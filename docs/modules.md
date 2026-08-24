@@ -402,9 +402,9 @@ the resident defaults with no relocations: 16-byte `diRcpReserved0`, 20-byte
 `diRcpVertex`, `diRcpReserved1`, `diRcpMatrix`, `diRcpReserved2`,
 `diRcpMoveMem`, and `diRcpDisplayList`, are exact at the same defaults,
 including their helper-call relocations and source-specific stack frames. The
-44-byte
-`func_80044B9C` (`diRcpTraceReset`) is exact too, including both data-symbol
-relocation pairs.
+52-byte `diRcpStrName` formatter is exact as well, including its format-string
+and `sprintf` relocations. The 44-byte `func_80044B9C` (`diRcpTraceReset`) is
+exact too, including both data-symbol relocation pairs.
 The 60-byte `diRcpTraceInit` is likewise exact, preserving both allocator
 calls and their call/data relocations. The 60-byte JFG-identified `wakeFree`
 is exact after resolving `func_800347A0` as a one-argument call; its two call
