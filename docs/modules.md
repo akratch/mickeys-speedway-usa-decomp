@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-26 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 24 more from it): every masked=0/1/2 TU (the
+27 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 25 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -495,7 +495,7 @@ of the resident `.data` band in `mickey.us.yaml`, since almost everything
 else in the library reads `n_syn`), the seven `ALParam`-update setters
 that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 `-DRAREDIFFS` for Rare's added MIDI control-change codes), `n_syngetfxref`,
-and `n_synsetvol`.
+`n_synsetvol`, and `n_synstartvoiceparam`.
 
 **Plateaus, each with a first mismatch:**
 
@@ -516,8 +516,8 @@ DSP-heavy, deferred per plan), `n_env` (masked=59), `alsurround`
 (masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_cseq`
 (masked=15), `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
 deferred per plan), `n_alLPFilter` (masked=13), `n_auxbus` (masked=7),
-`n_load` (masked=4, DSP-heavy ADPCM decoder), and
-`n_synstartvoiceparam`/`n_synallocvoice` (masked=5) not yet attempted.
+`n_load` (masked=4, DSP-heavy ADPCM decoder), and `n_synallocvoice`
+(masked=5) not yet attempted.
 
 ---
 

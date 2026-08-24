@@ -232,7 +232,7 @@ segments:
       - [0x63AD0, asm, libultra/n_synaddplayer]
       - [0x63C20, asm, libultra/n_synallocvoice]
       - [0x63F30, c, libultra/n_synsetvol]
-      - [0x64000, asm, libultra/n_synstartvoiceparam]
+      - [0x64000, c, libultra/n_synstartvoiceparam]
       - [0x64130, c, libultra/n_synsetpan]
       - [0x641E0, c, libultra/n_synsetpitch]
       - [0x64290, c, libultra/n_synsetfxmix]
