@@ -29,6 +29,7 @@ extern s32 D_8007D538;
 extern s32 D_8007D53C;
 extern s32 D_8007D540;
 extern s32 D_8007D544[];
+extern char D_8007D594[];
 extern u8 D_800D60E0;
 extern FontSpacingData *D_800D60E4;
 extern u8 D_800D664D;
@@ -226,7 +227,28 @@ void func_8004C000(char **outString, s32 number) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C690.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C8D8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D32C.s")
+#ifdef NON_MATCHING
+void func_8004D39C(char *input, char *output) {
+    char currentChar;
+    char *conversionTable = D_8007D594;
+
+    do {
+        currentChar = *input++;
+        if (currentChar & 0x80) {
+            *output++ = currentChar;
+            *output++ = *input++;
+        } else if (currentChar < 0x20) {
+            *output++ = currentChar;
+        } else {
+            *output++ = 0x80;
+            *output++ = conversionTable[currentChar - 0x20];
+        }
+    } while (currentChar);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D39C.s")
+#endif
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D40C.s")
 u8 func_8004D5C0(s32 font) {
     return D_800D60E4[font].height;

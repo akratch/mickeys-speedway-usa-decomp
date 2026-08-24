@@ -418,7 +418,7 @@ overlay callers/callees outside the range were observed.
 | `0x4D290` | `0x248` | `func_8004C690` | JFG `func_80071B08` | D | ext callee; called by `0x4BDDC` |
 | `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D | ext callee |
 | `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D | leaf; ext caller |
-| `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D | leaf; in-range callers |
+| `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, plateau | leaf; in-range callers |
 | `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D | leaf |
 | `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |
 | `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | B/D | SDK calls; ext callers |
@@ -427,6 +427,15 @@ overlay callers/callees outside the range were observed.
 | `0x4E3A8` | `0x38` | `func_8004D7A8` | `rzipUncompressSizeROM` | B/D | calls `byteswap32`, ext |
 | `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | B/D | calls `gzip_inflate_block`; ext callers |
 | `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B/D | calls `_bzero`; called by `main/gzip_asm` |
+
+`func_8004D39C` plateaued after the stock JFG body and six source-allocation
+variants. Its best candidate has the exact 28-instruction shape and 27 exact
+words; the first and only mismatch is at function offset `+0x60`, where the
+loop-back branch consumes the copied character rather than the original load.
+The 119-combination flag lattice found no exact result and kept the same
+one-word residue throughout the `-O2 -mips2` family, identifying an allocator
+coalescing choice rather than a flag mismatch. The candidate remains guarded
+by `NON_MATCHING`; the extracted assembly stays canonical.
 
 There are no direct string-literal references in this block. Its data
 relocations address font/window state, a font-cache jump table, and rzip
