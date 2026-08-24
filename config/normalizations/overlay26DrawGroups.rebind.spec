@@ -1,3 +1,0 @@
-0x144:o26DrawReloc:func_overlay_026_F0000000_187A3F8
-0x1a0:o26FlushReloc:func_overlay_026_F0000000_187A3F8
-0x1bc:o26FinishReloc:func_overlay_026_F0000000_187A3F8

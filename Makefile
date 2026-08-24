@@ -6243,58 +6243,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35Initialize.c.o: POSTPROCESS = \
 		@config/normalizations/overlay35Initialize.filter.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
 		@config/normalizations/overlay35Initialize.rebind.spec
-# The natural 104-word body owns the exact CFG, calls, memory and FP effects.
-# A complete object-identity/constant-one lifetime web selects the equivalent
-# retail compiler representation; the local D_B18 pair remains intact.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26InitializeObject.c.o: \
-	config/normalizations/overlay26InitializeObject.ops \
-	config/normalizations/overlay26InitializeObject.rebind.spec
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26InitializeObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1A0 8384955420456c11e8d747df14f1e57dae3f85716162cfed69ad3828d6b817ca \
-		@config/normalizations/overlay26InitializeObject.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay26InitializeObject.rebind.spec
 
-# The natural 269-word body owns the exact frame, CFG, FP and memory effects,
-# and all 23 calls. This complete private stack/GPR web selects retail's
-# equivalent allocation; all calls remain explicit loader-owned symbol roles.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26HandleEffects.c.o: \
-	config/normalizations/overlay26HandleEffects.ops \
-	config/normalizations/overlay26HandleEffects.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26HandleEffects.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26HandleEffects.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x434 5f717915b96969273aa05ff29748f02310f5fe098da30b87311ba6349a2b40fa \
-		@config/normalizations/overlay26HandleEffects.ops && \
-	$(OBJCOPY) --redefine-sym \
-		func_80006EA0=func_overlay_026_F0000000_187A3F8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay26HandleEffects.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x434
 
-# The typed 134-word draw loop owns the exact frame, CFG, calls, FP and memory
-# effects. A hash-guarded dead pointer increment is removed before this
-# complete effective-address/schedule/allocation web selects retail's form.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26DrawGroups.c.o: \
-	config/normalizations/overlay26DrawGroups.prepare.py \
-	config/normalizations/overlay26DrawGroups.ops \
-	config/normalizations/overlay26DrawGroups.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26DrawGroups.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay26DrawGroups.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x218 e73c06efd288dd232e3122a588a7be1b0f16871c71bdc2709873550748d2756a \
-		@config/normalizations/overlay26DrawGroups.ops && \
-	$(OBJCOPY) --redefine-sym \
-		o26PrepareNode=func_overlay_026_F0000000_187A3F8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay26DrawGroups.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x218
 
 # The typed plane projection has the shipped CFG, multiply hazards, calls,

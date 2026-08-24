@@ -63,6 +63,7 @@ extern void func_8003EDEC(O26ObjectD24 *object, s32 mode);
 extern void func_80002FE0(s32 id, f32 x, f32 y, f32 z,
                           s32 priority, s32 unused);
 
+#ifdef NON_MATCHING
 void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
     O26ObjectD24 *object;
     O26StateD24 *state;
@@ -180,3 +181,6 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
     object->entity->flags &= ~1;
     object->flags06 |= 0x400;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o026/overlay26HandleEffects/func_overlay_026_F0000D24_187B11C.s")
+#endif
