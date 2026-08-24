@@ -85,7 +85,31 @@ void func_8004B13C(void **displayList, s32 windowId, s32 xpos, s32 ypos,
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BA8C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BB44.s")
+void func_8004BB44(s32 windowId, s32 x1, s32 y1, s32 x2, s32 y2) {
+    if (windowId > 0 && windowId < 8) {
+        DialogueBoxBackground *window = &D_800D64E8[windowId];
+
+        window->xpos = 0;
+        window->ypos = 0;
+        if (x1 < x2) {
+            window->x1 = (s16) x1;
+            window->x2 = (s16) x2;
+        } else {
+            window->x2 = (s16) x1;
+            window->x1 = (s16) x2;
+        }
+        if (y1 < y2) {
+            window->y1 = (s16) y1;
+            window->y2 = (s16) y2;
+        } else {
+            window->y2 = (s16) y1;
+            window->y1 = (s16) y2;
+        }
+        window->width = (window->x2 - window->x1) + 1;
+        window->height = (window->y2 - window->y1) + 1;
+    }
+}
+
 void func_8004BBE0(s32 windowId, s32 font) {
     D_800D64E8[windowId].font = font;
 }
