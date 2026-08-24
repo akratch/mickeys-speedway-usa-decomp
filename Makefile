@@ -6249,43 +6249,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Update.c.o: POSTPROCESS = \
 		0x138:D_800D0004:gOverlay49Timer \
 		0x13c:D_800D0000:gOverlay49Timer && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x160
-# Natural source supplies the exact boundary, frame, stores, and calls. The
-# complete guarded ledger selects retail's equivalent initialization schedule,
-# private register web, and proved constant boolean; local fixed-address ELF
-# records absent from the shipped runtime table are then removed explicitly.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48InitializeState.c.o: \
-	config/normalizations/overlay48InitializeState.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48InitializeState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xe4 312385b63b2beaee48fb7cb069e6737ad4f7a622031d1e50220c157016092ce0 \
-		@config/normalizations/overlay48InitializeState.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x00:5:gOverlay48HeaderLifetime \
-		0x0c:6:gOverlay48HeaderLifetime \
-		0x10:5:gOverlay48HeaderActive \
-		0x14:6:gOverlay48HeaderActive \
-		0x20:5:gOverlay48HeaderSeed \
-		0x18:6:gOverlay48HeaderSeed \
-		0x04:5:gOverlay48HeaderHandle \
-		0x30:6:gOverlay48HeaderHandle \
-		0x94:5:gOverlay48Timer \
-		0x9c:6:gOverlay48Timer \
-		0xa0:5:gOverlay48ScriptIndex \
-		0xa4:6:gOverlay48ScriptIndex \
-		0xa8:5:gOverlay48Finished \
-		0xac:6:gOverlay48Finished \
-		0xb8:5:gOverlay48Script \
-		0xc0:6:gOverlay48Script && \
+	$(OBJCOPY) --redefine-sym func_overlay_048_F0000060_1895468=overlay48InitializeState $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE4
-# Natural codegen is exact except for one complete instruction schedule
-# permutation and its five mechanically induced branch displacements.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48UpdateState.c.o: \
-	config/normalizations/overlay48UpdateState.ops
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48UpdateState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2C8 b40572043e4e1dec19f3511702b715adc2dfa9a6fd24ef7e7e76663cdbd11051 \
-		@config/normalizations/overlay48UpdateState.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_048_F0000144_189554C=overlay48UpdateState $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x60
