@@ -74,6 +74,7 @@ extern s32 func_overlay_046_F0000874_188EC6C();
 }
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+#ifdef NON_MATCHING
 void func_overlay_046_F0000120_188E518(s32 amount) {
     s32 matched;
     s32 value;
@@ -210,3 +211,7 @@ compare_name:
         func_8004B0B8(255, 255, 255, 255, gOverlay46Value8);
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o046/overlay46UpdateSequence/func_overlay_046_F0000120_188E518.s")
+#endif

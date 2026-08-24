@@ -4503,25 +4503,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46Submit.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x120
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46ReleaseState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x88 5ca308ce799aec42b766643a87b2cc75d1018262d3472ed74f3129a890e2343a \
-		fields:0x20:rt=a0@v0 \
-		fields:0x24:rs=a0@v0,rt=a0@v0 \
-		fields:0x28:rs=a0@v0 \
-		fields:0x34:rs=zero@v0,rd=zero@a0,fn=0@37 \
-		fields:0x38:rt=a0@v0 \
-		fields:0x3c:rs=a0@v0,rt=a0@v0 \
-		fields:0x40:rs=a0@v0 \
-		fields:0x4c:rs=zero@v0,rd=zero@a0,fn=0@37 && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_046_F0000614_188EA0C=overlay46ReleaseState $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x88
 # The complete loop and all effects are natural. IDO schedules the independent
 # loop-counter constant before the resource-table low half; the shipped object
 # places those adjacent, unconditional initializations in the opposite order.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeParticles.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1d8 4146a371cd66f6cdb6dcfa32ce1d72d7d2766683a0b3ac3fe202104e58580881 \
-		fields:0x60:rs=zero@s4,rt=s3@s4,imm=18@0 \
-		fields:0x64:rs=s4@zero,rt=s4@s3,imm=0@18 && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_046_F000069C_188EA94=overlay46InitializeParticles $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1D8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeBuffers.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8

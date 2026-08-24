@@ -44,6 +44,7 @@ extern f32 overlay46RandomSignedReloc(s32 magnitude);
 extern s32 overlay46RandomBoolReloc(s32 minimum, s32 maximum);
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+#ifdef NON_MATCHING
 void overlay46InitializeParticles(void) {
     Overlay46Particle *particle;
     Overlay46ParticleConfig *config;
@@ -98,3 +99,7 @@ void overlay46InitializeParticles(void) {
     gOverlay46Value18 = 0;
     gOverlay46Timer5C = 0x3C;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o046/overlay46InitializeParticles/func_overlay_046_F000069C_188EA94.s")
+#endif
