@@ -407,7 +407,8 @@ resident flags, JFG body donor with its stubbed diagnostic call omitted);
 DKR glibc-derived body donor); `func_8003CCE4` (ROM `0x3D8E4`, `0x44` bytes,
 default resident flags, Mickey-only reconstruction); `partInitTriggerSPPos`
 (ROM `0x3F224`, `0x4C` bytes, default resident flags, JFG-named Mickey
-reconstruction).
+reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default
+resident flags, JFG-named Mickey reconstruction).
 
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's

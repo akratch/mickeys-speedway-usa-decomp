@@ -11,14 +11,50 @@
 
 #include "PR/ultratypes.h"
 
+typedef struct ParticleConfig {
+    s32 flags;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad10[4];
+    s16 value14;
+    s16 value16;
+    s16 value18;
+    u8 pad1A[8];
+    s16 value22;
+    s16 value24;
+    s16 value26;
+} ParticleConfig;
+
+typedef struct ParticleTrigger {
+    ParticleConfig *config;
+    s32 flags;
+    s16 unk08;
+    s16 value;
+    s16 unk0C;
+    s16 value0E;
+    s16 value10;
+    s16 value12;
+    s16 value14;
+    s16 value16;
+    s16 value18;
+    s16 x;
+    s16 y;
+    s16 z;
+    s16 unk20;
+    u8 alpha;
+    s8 index;
+} ParticleTrigger;
+
 extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
 extern void *D_8007C89C[2];
 extern s32 D_8007C8B0;
+extern ParticleConfig **D_8007C8B8;
 
 void mmFree(void *ptr);
-void partInitTriggerPos(u8 *trigger, s32 type, s32 value, s32 x, s16 y, s16 z);
+void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
 void func_8003CA20(void);
 void func_8003CB3C(void);
 void func_8003CCE4(void);
@@ -42,11 +78,18 @@ void func_8003CCE4(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CE10.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D25C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D4FC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partInitTrigger.s")
-void partInitTriggerSPPos(u8 *trigger, s32 type, s32 value, s32 index) {
+void partInitTrigger(ParticleTrigger *trigger, s32 type, s32 value) {
+    ParticleConfig *config;
+
+    if (type < D_8007C8B0) {
+        config = D_8007C8B8[type];
+        partInitTriggerPos(trigger, type, value, config->x, config->y, config->z);
+    }
+}
+void partInitTriggerSPPos(ParticleTrigger *trigger, s32 type, s32 value, s32 index) {
     if (type < D_8007C8B0) {
         partInitTriggerPos(trigger, type, value, 0, 0, 0);
-        trigger[0x23] = index;
+        trigger->index = index;
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partInitTriggerPos.s")
