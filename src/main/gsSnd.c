@@ -30,10 +30,15 @@ typedef struct GsSndPriorityState {
 
 typedef struct GsSndPlayer {
     u8 pad0[0x14];
-    u8 eventQueue[0x34];
+    u8 eventQueue[0x18];
+    s16 eventType;
+    u8 eventPad2[0xE];
+    u8 pad3C[0xC];
     s32 maxSystemSoundChannels;
-    u8 pad4C[0xC];
-    s32 curTime;
+    s32 eventDelta;
+    s32 nextDelta;
+    s32 currentTime;
+    s32 voiceLimit;
 } GsSndPlayer;
 
 typedef struct GsSndKeyMap {
@@ -118,6 +123,8 @@ u32 osSetIntMask(u32 mask);
 f32 alCents2Ratio(s32 cents);
 void alLink(void *element, void *after);
 void alUnlink(void *element);
+void func_8005BA40(void *event);
+s32 n_alEvtqNextEvent(void *eventQueue, void *event);
 void n_alEvtqPostEvent(void *eventQueue, void *event, s32 delta);
 void n_alSynFreeVoice(void *voice);
 void n_alSynStopVoice(void *voice);
@@ -126,7 +133,26 @@ void func_8005CE28(GsSndEventQueue *queue, GsSoundStateLink *state, u16 flags);
 void func_8005D260(GsSoundStateLink *state);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005B978.s")
+s32 func_8005B978(GsSndPlayer *playerArg) {
+    GsSndPlayer *player;
+    GsSndEvent event;
+
+    player = playerArg;
+    do {
+        switch (player->eventType) {
+            case 0x20:
+                event.type = 0x20;
+                n_alEvtqPostEvent(player->eventQueue, &event, player->eventDelta);
+                break;
+            default:
+                func_8005BA40(&player->eventType);
+                break;
+        }
+        player->nextDelta = n_alEvtqNextEvent(player->eventQueue, &player->eventType);
+    } while (player->nextDelta == 0);
+    player->currentTime += player->nextDelta;
+    return player->nextDelta;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005BA40.s")
 void func_8005CD3C(GsSoundStateLink *state) {
     if (state->flags & 4) {
@@ -410,8 +436,8 @@ u32 gsSndpGetGlobalVolume(void) {
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpLimitVoices). */
 void gsSndpLimitVoices(s32 limit) {
     if (D_8007FF4C->maxSystemSoundChannels >= limit) {
-        D_8007FF4C->curTime = limit;
+        D_8007FF4C->voiceLimit = limit;
     } else {
-        D_8007FF4C->curTime = D_8007FF4C->maxSystemSoundChannels;
+        D_8007FF4C->voiceLimit = D_8007FF4C->maxSystemSoundChannels;
     }
 }

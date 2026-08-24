@@ -430,11 +430,11 @@ hand-written-assembly exclusion removes no candidate from these ranges.
 `gsSndpSetMasterVolume` (`0x524` bytes total), are adapted JFG bodies compiled
 with the TU's measured bare `-g -mips2 -32` flag group. Their linked owned
 ranges are instruction-word-identical and the full ROM retains the expected
-hash. Mickey-derived `func_8005CD3C`, event-queue unlinker `func_8005CE28`,
-and sound-state allocator/releaser pair `func_8005D030`/`func_8005D260` add
-another exact `0x4E8` bytes under the same flags, bringing exact C in
-`main/gsSnd` to `0xA0C` bytes; JFG retains all four functions as assembly, so
-their bodies are not donor adaptations.
+hash. Mickey-derived player callback `func_8005B978`, `func_8005CD3C`,
+event-queue unlinker `func_8005CE28`, and sound-state allocator/releaser pair
+`func_8005D030`/`func_8005D260` add another exact `0x5B0` bytes under the same
+flags, bringing exact C in `main/gsSnd` to `0xAD4` bytes; JFG retains all five
+functions as assembly, so their bodies are not donor adaptations.
 
 The adjacent pitch-event helper `func_8005CDAC` plateaus after ten coherent
 source and flag variants. Its best permitted BK/PD-derived body under the
