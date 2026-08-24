@@ -21,16 +21,33 @@
 extern void initColourCycle();
 extern f32 sqrtf(f32 value);
 extern void func_8000D728(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 func_8000D62C(f32 x, f32 y, f32 z, f32 radius, f32 radius2, s32 red, s32 green, s32 blue);
 extern void func_800188CC(UnkLight *light);
 extern void func_80018F08(UnkLight *light, s32 updateRate);
 extern u8 *func_8002679C(void);
 extern s32 D_80079490;
 extern s32 D_80079494;
 extern void **D_80079498;
+extern f32 D_800817B0;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018710.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001879C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_800188CC.s")
+/* PROVENANCE: adapted from DKR's public decomp, src/lights.c, and Mickey's own assembly. */
+void func_800188CC(UnkLight *light) {
+    f32 radius;
+
+    if (!(light->unk3 & 0x40)) {
+        radius = light->radius;
+        light->unk6C = func_8000D62C(
+            light->x, light->y, light->z,
+            radius * 1.25f, radius * D_800817B0,
+            (light->red * light->unk43) >> 8,
+            (light->green * light->unk43) >> 8,
+            (light->blue * light->unk43) >> 8);
+    } else {
+        light->unk6C = 0;
+    }
+}
 /* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
 UnkLight *addRomdefLight(s32 arg0, RomdefLight *entry) {
     UnkLight *light;
