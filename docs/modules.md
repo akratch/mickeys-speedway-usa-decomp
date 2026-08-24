@@ -1039,9 +1039,9 @@ out of asm-processor while retaining C ownership around it.
 **PROVENANCE:** the TU and descriptive function names are borrowed from Jet
 Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
 files and JFG's `asm/nonmatchings/weather/` names, as permitted by
-`docs/CLEANROOM.md`. The matched `weather_clip_planes`, `setupWeather`, and
-`rainDensity` bodies are adapted from those disclosed sources and carry
-point-of-use notes; Mickey's own bytes remain authoritative.
+`docs/CLEANROOM.md`. The matched `weather_clip_planes`, `setupWeather`,
+`changeWeather`, and `rainDensity` bodies are adapted from those disclosed
+sources and carry point-of-use notes; Mickey's own bytes remain authoritative.
 
 The tier-B/D `setupWeather` adds **0x420 bytes / 264 words** at ROM `0x3B6F0`.
 JFG's declaration order and control spelling reproduce Mickey's 0x60-byte
@@ -1050,6 +1050,19 @@ and buffer-end sentinel settle the revision differences. The canonical
 `-O2 -mips2 -32` object is instruction-exact with all 41 relocations agreeing,
 and the linked ROM range is exact without post-processing.
 
+The tier-B/D `changeWeather` adds **0x1EC bytes / 123 words** at ROM
+`0x3BC30`. JFG supplies the state transition; Mickey's combined condition and
+assignment order compile instruction-exact at the canonical `-O2 -mips2 -32`
+flags, with all 5 relocations and the linked ROM range agreeing.
+
+`doWeather` plateaued after the JFG body, the 119-combination flag lattice,
+and seven source-order, typing, and allocation hypotheses. The best canonical
+candidate, preserved behind `NON_MATCHING`, differs in 54 of 169 positional
+words (115 exact), with the first mismatch at `+0xB4`; relocation identities
+agree, but update-block scheduling shifts the remaining register allocation.
+The bounded permuter was unavailable because this lane has no local
+decomp-permuter checkout.
+
 | ROM | Size | Symbol | Evidence / disposition |
 |---|---:|---|---|
 | `0x3B480` | `0xFC` | `initWeather` | B/D |
@@ -1057,8 +1070,8 @@ and the linked ROM range is exact without post-processing.
 | `0x3B5D0` | `0x120` | `freeWeather` | B/D |
 | `0x3B6F0` | `0x420` | `setupWeather` | B/D name; exact C, 264 words, 41 relocs |
 | `0x3BB10` | `0x120` | `snow_init` | B/D |
-| `0x3BC30` | `0x1EC` | `changeWeather` | B/D |
-| `0x3BE1C` | `0x2A4` | `doWeather` | B/D |
+| `0x3BC30` | `0x1EC` | `changeWeather` | B/D name; exact C, 123 words, 5 relocs |
+| `0x3BE1C` | `0x2A4` | `doWeather` | B/D; plateau, 54/169 words differ, first `+0xB4` |
 | `0x3C0C0` | `0x238` | `snow_render` | B/D |
 | `0x3C2F8` | `0xEC` | `rain_init` | B/D |
 | `0x3C3E4` | `0x84` | `free_rain_memory` | B/D |

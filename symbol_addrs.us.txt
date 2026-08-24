@@ -464,8 +464,8 @@ initWeather = 0x8003A880; // type:func size:0xFC tier B/D, ROM 0x3b480
 freeWeather = 0x8003A9D0; // type:func size:0x120 tier B/D, ROM 0x3b5d0
 setupWeather = 0x8003AAF0; // type:func size:0x420 tier B/D, ROM 0x3b6f0  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/264
 snow_init = 0x8003AF10; // type:func size:0x120 tier B/D, ROM 0x3bb10
-changeWeather = 0x8003B030; // type:func size:0x1EC tier B/D, ROM 0x3bc30
-doWeather = 0x8003B21C; // type:func size:0x2A4 tier B/D, ROM 0x3be1c
+changeWeather = 0x8003B030; // type:func size:0x1EC tier B/D, ROM 0x3bc30  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/123
+doWeather = 0x8003B21C; // type:func size:0x2A4 tier B/D, ROM 0x3be1c  NON_MATCHING plateau 54/169 words differ, first +0xB4
 snow_render = 0x8003B4C0; // type:func size:0x238 tier B/D, ROM 0x3c0c0
 rain_init = 0x8003B6F8; // type:func size:0xEC tier B/D, ROM 0x3c2f8
 free_rain_memory = 0x8003B7E4; // type:func size:0x84 tier B/D, ROM 0x3c3e4

@@ -13,9 +13,15 @@
 
 #include "PR/ultratypes.h"
 
+typedef struct Gfx Gfx;
+typedef struct Mtx Mtx;
+typedef struct Camera Camera;
+typedef struct Matrix Matrix;
+
 typedef struct WeatherClipPlanes {
     s16 near;
     s16 far;
+    s32 current;
 } WeatherClipPlanes;
 
 typedef struct WeatherData {
@@ -108,17 +114,36 @@ extern s16 *D_8007C3D0;
 extern WeatherVertex *D_8007C3D4[2];
 extern WeatherVertex *D_8007C3DC;
 extern s32 D_800D4070;
+extern s32 D_800D4074;
 extern WeatherData D_800D4078;
 extern s32 D_800D40C4;
 extern s8 D_800D40C8;
+extern Gfx *D_800D40CC;
+extern Mtx *D_800D40D0;
+extern WeatherVertex *D_800D40D4;
+extern WeatherTriangle *D_800D40D8;
+extern Camera *D_800D40DC;
+extern Matrix *D_800D40E0;
+extern WeatherVertex *D_8007C3C4;
+extern s32 D_8007C3C8;
+extern s32 D_8007C6E8;
 
 extern s32 func_800299E8(s32 min, s32 max);
 extern s32 mathRnd(s32 min, s32 max);
 extern void *func_8002B280(s32 size, s32 tag);
+extern Camera *func_8002462C(void);
+extern Matrix *func_80024698(void);
 
 void freeWeather(void);
 void snow_init(void);
 void rain_init(s32 count, s32 intensity, s32 opacity, s32 intensityBase);
+void rain_update(s32 updateRate);
+void rain_set(s32 intensity, s32 opacity, f32 seconds);
+void snow_update(WeatherData *weather, WeatherGfxData *gfx, s32 particleCount, WeatherParticle *particles,
+                 s32 updateRate);
+s32 snow_vertices(Camera *camera, WeatherGfxData *gfx, s32 particleCount, WeatherParticle *particles,
+                  Matrix *cameraMatrix, WeatherVertex *vertices);
+void snow_render(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/initWeather.s")
 /*
@@ -254,8 +279,94 @@ void setupWeather(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
     D_800D40C8 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/snow_init.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/changeWeather.s")
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::changeWeather. Mickey's condition and assignment ordering
+ * are authoritative here.
+ */
+void changeWeather(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+    if ((arg5 > 0) &&
+        ((arg0 != D_800D4078.velXTarget) || (arg1 != D_800D4078.velYTarget) ||
+         (arg2 != D_800D4078.velZTarget) || (arg3 != D_800D4078.intensity) ||
+         (arg4 != D_800D4078.opacity))) {
+        D_800D4078.velXStep = (s32) ((arg0 - D_800D4078.velX) / arg5);
+        D_800D4078.velXTarget = arg0;
+        D_800D4078.velYStep = (s32) ((arg1 - D_800D4078.velY) / arg5);
+        D_800D4078.velYTarget = arg1;
+        D_800D4078.velZStep = (s32) ((arg2 - D_800D4078.velZ) / arg5);
+        D_800D4078.velZTarget = arg2;
+        if (D_8007C6E8 == 0) {
+            D_800D4078.intensityTarget = arg3;
+            D_800D4078.intensityStep = (s32) ((arg3 - D_800D4078.intensity) / arg5);
+            D_800D4078.opacityStep = (s32) ((arg4 - D_800D4078.opacity) / arg5);
+            D_800D4078.opacityTarget = arg4;
+            D_800D4078.shiftTime = arg5;
+            return;
+        }
+        D_800D4078.intensity = arg3;
+        D_800D4078.opacity = arg4;
+        D_800D4078.shiftTime = 0;
+        rain_set(arg3 + 1, arg4 + 1, (f32) arg5 / 60.0f);
+    }
+}
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::doWeather. Mickey's split vertex/render calls and globals
+ * are authoritative here.
+ */
+void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **arg3, s32 updateRate) {
+    WeatherVertex *temp_t3;
+
+    D_800D40CC = *arg0;
+    D_800D40D0 = *arg1;
+    D_800D40D4 = *arg2;
+    D_800D40D8 = *arg3;
+    D_800D40DC = func_8002462C();
+    D_800D40E0 = func_80024698();
+    if (D_8007C6E8 != 0) {
+        rain_update(updateRate);
+    } else {
+        if (D_800D4078.shiftTime > 0) {
+            if (updateRate < D_800D4078.shiftTime) {
+                D_800D4078.intensity =
+                    (s32) (D_800D4078.intensity + (D_800D4078.intensityStep * updateRate));
+                D_800D4078.velX = (s32) (D_800D4078.velX + (D_800D4078.velXStep * updateRate));
+                D_800D4078.velY = (s32) (D_800D4078.velY + (D_800D4078.velYStep * updateRate));
+                D_800D4078.shiftTime = (s32) (D_800D4078.shiftTime - updateRate);
+                D_800D4078.velZ = (s32) (D_800D4078.velZ + (D_800D4078.velZStep * updateRate));
+                D_800D4078.opacity =
+                    (s32) (D_800D4078.opacity + (D_800D4078.opacityStep * updateRate));
+            } else {
+                D_800D4078.shiftTime = 0;
+                D_800D4078.intensity = D_800D4078.intensityTarget;
+                D_800D4078.velX = D_800D4078.velXTarget;
+                D_800D4078.velY = D_800D4078.velYTarget;
+                D_800D4078.velZ = D_800D4078.velZTarget;
+                D_800D4078.opacity = D_800D4078.opacityTarget;
+            }
+        }
+        D_800D4074 = (D_800D4070 * D_800D4078.intensity) >> 16;
+        D_800D40B8.current =
+            (D_800D40B8.near + ((D_800D40B8.far - D_800D40B8.near) * D_800D4078.opacity)) >> 16;
+        snow_update(&D_800D4078, &D_8007C398, D_800D4070, D_8007C394, updateRate);
+        if (D_800D4074 > 0 && D_800D40B8.current < D_800D40B8.near) {
+            temp_t3 = D_8007C3D4[D_800D40C8];
+            D_8007C3C4 = temp_t3;
+            D_8007C3C8 = snow_vertices(D_800D40DC, &D_8007C398, D_800D4074, D_8007C394,
+                                       D_800D40E0, temp_t3);
+            snow_render();
+            D_800D40C8 = 1 - D_800D40C8;
+        }
+    }
+    *arg0 = D_800D40CC;
+    *arg1 = D_800D40D0;
+    *arg2 = D_800D40D4;
+    *arg3 = D_800D40D8;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/doWeather.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/snow_render.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_init.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/free_rain_memory.s")
