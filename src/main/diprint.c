@@ -11,6 +11,9 @@
  */
 
 #include "PR/ultratypes.h"
+#include "libc/stdarg.h"
+
+s32 vsprintf(char *s, const char *format, va_list arg);
 
 /* PROVENANCE: body adapted from DKR src/unused_string.c:strcpy. */
 char *strcpy(char *src, const char *dest) {
@@ -30,7 +33,17 @@ void *memset(void *s, int c, size_t n) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/_itoa.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/sprintfSetSpacingCodes.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/sprintf.s")
+/* PROVENANCE: body adapted from DKR src/printf.c:sprintf. */
+s32 sprintf(char *s, const char *format, ...) {
+    va_list arg;
+    s32 done;
+
+    va_start(arg, format);
+    done = vsprintf(s, format, arg);
+    va_end(arg);
+
+    return done;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/vsprintf.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintf.s")
