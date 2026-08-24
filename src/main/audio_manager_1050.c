@@ -76,7 +76,7 @@ extern AudioSoundData *D_800BF7A0;
 extern s32 D_800BF7A8;
 extern s32 D_800BF7B0;
 extern u8 *D_800BF7A4;
-extern void gsSndpSetParam(void *sound, s16 type, u32 value);
+extern void gsSndpSetParam();
 extern u32 gsSndpGetGlobalVolume(void);
 extern void gsSndpStop(void *sound);
 extern void n_alCSPSetChlVol(void *player, u8 channel, u8 volume);
@@ -389,7 +389,11 @@ u8 func_80001620(u16 soundId) {
     }
     return D_800BF7A0[soundId].volume;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001668.s")
+void func_80001668(void *sound, u8 volume) {
+    if (sound != NULL) {
+        gsSndpSetParam(sound, 8, volume);
+    }
+}
 /* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
 void forcelink(void) {
     n_alCSPNew(NULL, NULL);
