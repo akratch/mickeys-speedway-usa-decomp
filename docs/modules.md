@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-30 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 28 more from it): every masked=0/1/2 TU (the
+31 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 29 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -506,14 +506,10 @@ of rodata; it requires `-DN_MICRO -Wab,-r4300_mul`. The 15-function,
 `0x1160`-byte `n_seqplayer` TU matches the JFG source under the bare flag group.
 JFG's `N_MICRO` resampler path supplies the exact `0x2A0`-byte `n_resample`
 text and its `0x10` bytes of rodata under the same bare flag group.
+The same JFG flags reproduce all `0x100` text bytes and the six relocations of
+`n_synsetfxparam`; assigning its `0x10`-byte literal section to ROM `0x853B0`
+also resolves the recorded `0.1f` rodata-offset plateau.
 
-**Plateaus, each with a first mismatch:**
-
-- `n_synsetfxparam` (masked=6): `n_alSynSetFXParam` alone matches;
-  its sibling `n_alSynSetOutputLPParam` in the same TU pulls a `0.1f`
-  float literal from the wrong offset in the still-undifferentiated
-  `.rodata` pool, off by `0x20` — a `.rodata`-ordering question beyond
-  this pass.
 Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
 `0xAD0`), `n_env` (masked=59), `alsurround`
 (masked=39), `n_event`/`n_drvrNew` (masked=34 each), `n_synaddplayer`
