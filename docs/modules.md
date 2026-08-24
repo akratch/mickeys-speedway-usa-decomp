@@ -398,6 +398,7 @@ functions is classified as handwritten assembly under §6.2.
 | `camSetZoom` | `0x258C8` | 56 | Configured object, two relocation pairs, linked range and full ROM exact. |
 | `camGetPlayerProjMtx` | `0x23360` | 52 | Configured object, five relocations, linked range and full ROM exact. |
 | `camStopShakes` | `0x25754` | 76 | Configured object, three relocation pairs, linked range and full ROM exact. |
+| `camIgnoreShake` | `0x22094` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 
 ---
 

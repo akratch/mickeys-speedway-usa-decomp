@@ -64,7 +64,10 @@ void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
 void camUseShake(void) {
     D_800CEC84 = 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021494.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camIgnoreShake. */
+void camIgnoreShake(void) {
+    D_800CEC84 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800214A0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800214AC.s")
 /*
