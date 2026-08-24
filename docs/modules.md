@@ -363,10 +363,9 @@ level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 ### 3.4 The resident shadows and lights TUs
 
 ROM `0x18FF0`–`0x1AE60` holds `main/shadows` and `main/lights`. JFG's exact
-`shadowMakeYs` ends where its `lights.c` call graph
-begins; Mickey has the same order and aligned boundary at ROM `0x19310` (VRAM
-`0x80018710`), tier B evidence. Shadows holds all 88 odd-FP operands and stays
-assembly under §6.2; the 28 lights functions have none and are eligible for C.
+`shadowMakeYs` ends at ROM `0x19310` (VRAM `0x80018710`), where its `lights.c`
+call graph begins; Mickey shares the order and alignment (tier B). Shadows has
+all 88 odd-FP operands and stays assembly under §6.2; lights has none.
 
 PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 `src/{shadows_214A0,lights}.c` and `src/lights.h`.
@@ -382,16 +381,16 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x800188CC` | `0xB0` | JFG placeholder `func_80020D94` | placeholder names are prohibited by §1.5; remains `func_800188CC` |
 | `0x8001897C` | `0x238` | `addRomdefLight` | tier-B comparison from TU order and light-update callees; C still `func_8001897C` |
 | `0x80018BB4` | `0x200` | `addObjectLight` | tier-B comparison from TU order and light-update callees; C still `func_80018BB4` |
-| `0x80018DB4` | `0x10` | `turnLightOff` | Tier A: JFG-adapted C is compiler- and linked-byte-exact |
-| `0x80018DC4` | `0x10` | `turnLightOn` | structural comparison only; C still `func_80018DC4` |
-| `0x80018DD4` | `0x10` | `toggleLight` | structural comparison only; C still `func_80018DD4` |
-| `0x80018DE4` | `0x2C` | `changeLightColour` | structural comparison only; C still `func_80018DE4` |
+| `0x80018DB4` | `0x10` | `turnLightOff` | Tier A: JFG-adapted C is compiler/link exact |
+| `0x80018DC4` | `0x10` | `turnLightOn` | Tier A: JFG-adapted C is compiler/link exact |
+| `0x80018DD4` | `0x10` | `toggleLight` | Tier A: JFG-adapted C is compiler/link exact |
+| `0x80018DE4` | `0x2C` | `changeLightColour` | Tier A: JFG-adapted C is compiler/link exact |
 | `0x80018E10` | `0x20` | `changeLightColourCycle` | Tier A: 7/8 unmasked words, ROM-unique; linked C is byte-exact and adopted |
-| `0x80018E30` | `0x4C` | `changeLightIntensity` | unique nearest skeleton (0.650) plus TU order; comparison only |
+| `0x80018E30` | `0x4C` | `changeLightIntensity` | Tier A: JFG-adapted C is compiler/link exact |
 | `0x80018E7C` | `0x8C` | `lightUpdateLights` | tier-B comparison: loop calls the following per-light updater |
 | `0x80018F08` | `0x334` | JFG placeholder `func_80021444` | placeholder prohibited; remains `func_80018F08` |
 | `0x8001923C` | `0x104` | `killLight` | tier-B comparison from free/update call graph and TU order |
-| `0x80019340` | `0x18` | `lightGetLights` | structural comparison only; C still `func_80019340` |
+| `0x80019340` | `0x18` | `lightGetLights` | Tier A: JFG C and both global relocations are link exact |
 | `0x80019358` | `0x13C` | `lightGetStrongestEffect` | tier-B comparison: square-root distance calculation and TU order |
 | `0x80019494` | `0xA8` | `lightUpdateObjects` | tier-B comparison: calls the following object-light helper |
 | `0x8001953C` | `0x3F8` | JFG placeholder `func_80021B9C` | placeholder prohibited; remains `func_8001953C` |

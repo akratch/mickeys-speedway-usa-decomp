@@ -19,6 +19,8 @@
 #include "game/lights.h"
 
 extern void initColourCycle(s32 arg0, s32 arg1);
+extern s32 D_80079494;
+extern void **D_80079498;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018710.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001879C.s")
@@ -29,18 +31,42 @@ extern void initColourCycle(s32 arg0, s32 arg1);
 void turnLightOff(UnkLight *light) {
     light->unk3 &= ~1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DC4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DD4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DE4.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void turnLightOn(UnkLight *light) {
+    light->unk3 |= 1;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void toggleLight(UnkLight *light) {
+    light->unk3 ^= 1;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void changeLightColour(UnkLight *light, u8 red, u8 green, u8 blue) {
+    light->red = red;
+    light->green = green;
+    light->blue = blue;
+    light->unk2 |= 2;
+    light->unk54 = 0;
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 void changeLightColourCycle(s32 arg0, s32 arg1) {
     initColourCycle(arg0 + 0x48, arg1);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E30.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void changeLightIntensity(UnkLight *light, u8 intensity) {
+    light->unk43 = intensity;
+    light->unk44 = intensity;
+    if (light->unk6C != 0) {
+        light->unk2 |= 2;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E7C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018F08.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001923C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019340.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void **lightGetLights(s32 *count) {
+    *count = D_80079494;
+    return D_80079498;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019358.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019494.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001953C.s")

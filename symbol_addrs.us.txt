@@ -1443,7 +1443,12 @@ shadowBoxPolyOverlap = 0x800183F0; // type:func size:0xC4   ROM 0x18ff0  src/sha
 shadowBoundingBox = 0x800184B4; // type:func size:0x90   ROM 0x190b4  src/shadows_214A0.c.o  masked=0/36
 // jfg:src/lights.c.o -- tier A, ROM-wide unique; body adapted in src/main/lights.c
 turnLightOff = 0x80018DB4; // type:func size:0x10   ROM 0x199b4  src/lights.c.o  body adapted and compiler-exact
+turnLightOn = 0x80018DC4; // type:func size:0x10   ROM 0x199c4  src/lights.c.o  body adapted and compiler-exact
+toggleLight = 0x80018DD4; // type:func size:0x10   ROM 0x199d4  src/lights.c.o  body adapted and compiler-exact
+changeLightColour = 0x80018DE4; // type:func size:0x2C   ROM 0x199e4  src/lights.c.o  body adapted and compiler-exact
 changeLightColourCycle = 0x80018E10; // type:func size:0x20   ROM 0x19a10  src/lights.c.o  masked=1/8  romocc=1
+changeLightIntensity = 0x80018E30; // type:func size:0x4C   ROM 0x19a30  src/lights.c.o  body adapted and compiler-exact
+lightGetLights = 0x80019340; // type:func size:0x18   ROM 0x19f40  src/lights.c.o  body adapted, linked relocations exact
 // jfg:src/charControl.c.o
 func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charControl.c.o  masked=0/19
 controlSetPlayerSetup = 0x8001F36C; // type:func size:0x40   ROM 0x1ff6c  src/charControl.c.o  masked=10/16
