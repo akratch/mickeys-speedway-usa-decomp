@@ -81,7 +81,19 @@ s32 func_800500A4(u32 bitCount) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005013C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005017C.s")
+
+/*
+ * Clear the current animation-sequence cursors. The exact JFG donor assembly
+ * corroborates the three-global shape; this C is reconstructed from Mickey.
+ */
+void func_8005017C(void) {
+    if (D_8007D698 != NULL) {
+        D_8007D698 = NULL;
+        D_8007D69C = NULL;
+        D_8007D6A0 = NULL;
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800501AC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800501C8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005027C.s")
