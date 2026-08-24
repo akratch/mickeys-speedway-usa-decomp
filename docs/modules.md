@@ -425,10 +425,10 @@ hand-written-assembly exclusion removes no candidate from these ranges.
 **Exact C promotions:** `getSoundStateCounts`, `gsSndpSetPriority`,
 `gsSndpGetState`, `gsSndpStopAll`, `gsSndpStopAllRetrigger`,
 `gsSndpStopAllLooped`, `gsSndpGetMasterVolume`, `gsSndpSetGlobalVolume`,
-`gsSndpGetGlobalVolume` and `gsSndpLimitVoices` (`0x28C` bytes total) are
-adapted JFG bodies compiled with the TU's measured bare `-g -mips2 -32` flag
-group. Their linked owned ranges are instruction-word-identical and the full
-ROM retains the expected hash.
+`gsSndpGetGlobalVolume`, `gsSndpLimitVoices` and `gsSndpStop` (`0x30C` bytes
+total) are adapted JFG bodies compiled with the TU's measured bare
+`-g -mips2 -32` flag group. Their linked owned ranges are
+instruction-word-identical and the full ROM retains the expected hash.
 
 In `main/models`, `camConvertMatrixList` (`0x30` bytes) is an exact adapted
 JFG `camera.c` body under the resident `-O2 -mips2 -32` group. Its function

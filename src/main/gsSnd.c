@@ -29,7 +29,8 @@ typedef struct GsSndPriorityState {
 } GsSndPriorityState;
 
 typedef struct GsSndPlayer {
-    u8 pad0[0x48];
+    u8 pad0[0x14];
+    u8 eventQueue[0x34];
     s32 maxSystemSoundChannels;
     u8 pad4C[0xC];
     s32 curTime;
@@ -38,14 +39,27 @@ typedef struct GsSndPlayer {
 typedef struct GsSoundStateLink {
     struct GsSoundStateLink *next;
     struct GsSoundStateLink *prev;
+    u8 pad8[0x3B];
+    u8 flags;
 } GsSoundStateLink;
+
+typedef struct GsSndEvent {
+    s16 type;
+    u16 pad2;
+    GsSoundStateLink *state;
+    s32 param;
+    u8 padC[4];
+} GsSndEvent;
 
 extern GsSndPlayer *D_8007FF4C;
 extern GsSoundStateLink *D_8007FF40;
 extern GsSoundStateLink *D_8007FF44;
 extern GsSoundStateLink *D_8007FF48;
+extern const char D_800843CC[];
 
 u32 osSetIntMask(u32 mask);
+void n_alEvtqPostEvent(void *eventQueue, void *event, s32 delta);
+void rmonPrintf(const char *format, ...);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005B978.s")
@@ -99,7 +113,19 @@ u8 gsSndpGetState(GsSndPriorityState *state) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/ad_sndp_play.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStop.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpStop). */
+void gsSndpStop(GsSoundStateLink *state) {
+    GsSndEvent event;
+
+    event.type = 0x400;
+    event.state = state;
+    if (state != NULL) {
+        event.state->flags &= ~0x10;
+        n_alEvtqPostEvent(D_8007FF4C->eventQueue, &event, 0);
+    } else {
+        rmonPrintf(D_800843CC);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/sndp_stop_with_flags.s")
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpStopAll). */
 void gsSndpStopAll(void) {
