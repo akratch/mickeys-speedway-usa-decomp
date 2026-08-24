@@ -45,7 +45,10 @@ s32 levelGetNumber(void) {
     return D_800CF3C4;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetType.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+u8 levelGetType(void) {
+    return D_800CF3C8[0x83];
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetCamera.s")
 
