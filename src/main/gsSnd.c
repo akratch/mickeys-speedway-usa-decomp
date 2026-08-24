@@ -62,7 +62,10 @@ void gsSndpStopAll(void) {
 void gsSndpStopAllRetrigger(void) {
     sndp_stop_with_flags(0x11);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStopAllLooped.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpStopAllLooped). */
+void gsSndpStopAllLooped(void) {
+    sndp_stop_with_flags(3);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetParam.s")
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpGetMasterVolume). */
 u16 gsSndpGetMasterVolume(u8 groupID) {
