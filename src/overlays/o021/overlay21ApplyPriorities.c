@@ -38,6 +38,7 @@ extern Overlay21Object *gOverlay21Objects[];
 
 Overlay21Position *overlay21GetReferenceReloc(void);
 
+#ifdef NON_MATCHING
 void overlay21ApplyPriorities(s32 planeId, s32 entryCount,
                               Overlay21PriorityEntry **entries) {
     Overlay21Position *reference;
@@ -102,3 +103,6 @@ void overlay21ApplyPriorities(s32 planeId, s32 entryCount,
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o021/overlay21ApplyPriorities/func_overlay_021_F000010C_1877D94.s")
+#endif

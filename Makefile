@@ -3083,22 +3083,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleByte16.c.o: POSTPROCESS 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o021/overlay21RegisterPlane.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x10C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o021/overlay21RegisterPlane.c.o: CFLAGS += -Wab,-r4300_mul
-# The natural source is exact except that IDO gives the three reloads of the
-# overlay-local object count to v1 instead of the shipped a0. Assert the full
-# bounded natural register web before restoring that interchangeable color.
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o021/overlay21ApplyPriorities.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1c8 12ac460cb47e48fb75a6388707fa9ee1dc13fc569c444a66d563f406fbf5a285 \
-		fields:0x24:rt=v1@a0 \
-		fields:0x28:rs=v1@a0,rt=v1@a0 \
-		fields:0x34:rs=v1@a0 \
-		fields:0x58:rt=v1@a0 \
-		fields:0x114:rt=v1@a0 \
-		fields:0x11c:rs=v1@a0,rt=v1@a0 \
-		fields:0x128:rt=v1@a0 \
-		fields:0x19c:rt=v1@a0 \
-		fields:0x1a0:rs=v1@a0,rt=v1@a0 \
-		fields:0x1a4:rt=v1@a0 && \
+	$(OBJCOPY) --redefine-sym func_overlay_021_F000010C_1877D94=overlay21ApplyPriorities $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o021/overlay21ApplyPriorities.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30Initialize.c.o: POSTPROCESS = \
