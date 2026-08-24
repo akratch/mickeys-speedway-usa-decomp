@@ -27,6 +27,7 @@ extern u8 D_8007C090;
 extern u16 D_800D312C;
 extern s32 func_80025CC8(void);
 extern s8 func_80033F5C(void);
+extern void gsSndpSetGlobalVolume(s32 volume);
 extern void viSetWideAdjust(s32 offset);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
@@ -109,7 +110,19 @@ void frontSetWideAdjust(s32 offset) {
 u16 frontGetSfxVolume(void) {
     return D_800D312C;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A488.s")
+/* Retain the anonymous spelling used by an unsplit resident assembly caller. */
+#pragma weak func_8003A488 = frontSetSfxVolume
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontSetSfxVolume. */
+void frontSetSfxVolume(s32 volume) {
+    if (volume < 0) {
+        volume = 0;
+    }
+    if (volume > 0x100) {
+        volume = 0x100;
+    }
+    D_800D312C = volume;
+    gsSndpSetGlobalVolume(volume);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A4C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A4D0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A50C.s")

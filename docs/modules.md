@@ -436,6 +436,13 @@ body has a point-of-use `PROVENANCE` note; default flags and the linked global
 relocation are exact without post-processing. A zero-byte weak alias retains
 the anonymous spelling still referenced by resident assembly.
 
+The paired tier-B `frontSetSfxVolume` adds **0x3C bytes / 15 words** at ROM
+`0x3B088`. JFG's body accounts for both bounds clamps, the halfword store, and
+the `gsSndpSetGlobalVolume` call, so the adapted body carries point-of-use
+`PROVENANCE`. The canonical flags, call and data relocations, object words, and
+linked ROM range are exact; a zero-byte weak alias preserves the anonymous
+name used by the remaining assembly caller.
+
 ---
 
 ## 4. libultra
