@@ -392,6 +392,11 @@ context rather than naming evidence. No function in either original block
 uses an odd single-precision FP register, so §6.2's hand-written-assembly
 criterion identifies **zero** forced-ASM functions here.
 
+Exact C reconstructions in this census currently include
+`rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes), compiled with the
+resident `-O2 -mips2 -32` flags. Its body is adapted from JFG's
+`src/rcpFast3d.c`; the configured object and final linked ROM are byte-exact.
+
 ---
 
 ## 4. libultra

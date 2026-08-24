@@ -9,9 +9,17 @@
 
 #include "PR/ultratypes.h"
 
+extern u8 D_8007A3A0;
+extern u8 D_8007A3A4;
+extern u8 D_8007A3A8;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpFast3d.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpWaitDP.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpSetScreenColour.s")
+void rcpSetScreenColour(u8 red, u8 green, u8 blue) {
+    D_8007A3A0 = red;
+    D_8007A3A4 = green;
+    D_8007A3A8 = blue;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/bgdraw_fillcolour.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBD4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")

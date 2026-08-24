@@ -473,7 +473,7 @@ screenDraw = 0x8002E5D4; // type:func size:0x228 ROM 0x2f1d4 evidence-tier-B don
 // pre-existing Tier A anchors elsewhere in this file.
 rcpFast3d = 0x8002E800; // type:func size:0x2A0 ROM 0x2f400 evidence-tier-B donor-jfg-src/rcpFast3d.c task-shape+order
 rcpWaitDP = 0x8002EAA0; // type:func size:0xCC ROM 0x2f6a0 evidence-tier-B donor-jfg-src/rcpFast3d.c queue-callgraph+order
-rcpSetScreenColour = 0x8002EB6C; // type:func size:0x28 ROM 0x2f76c evidence-tier-B donor-jfg-src/rcpFast3d.c store-shape+order
+rcpSetScreenColour = 0x8002EB6C; // type:func size:0x28 ROM 0x2f76c evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/rcpFast3d.c
 func_8002EBD4 = 0x8002EBD4; // type:func size:0xC ROM 0x2f7d4 evidence-tier-D boundary-extracted
 func_8002EBE0 = 0x8002EBE0; // type:func size:0x3FC ROM 0x2f7e0 evidence-tier-D boundary-extracted
 rcpClearZBuffer = 0x8002EFDC; // type:func size:0x1AC ROM 0x2fbdc evidence-tier-B donor-jfg-src/rcpFast3d.c skeleton+order
