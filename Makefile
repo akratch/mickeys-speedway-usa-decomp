@@ -605,7 +605,7 @@ LIBULTRA_NAUDIO_BARE_TUS := n_cspsetvol n_cspgetstate n_cspmessage slHeap sl \
 	n_cspstop n_cspsendmidi n_sl n_syndelete n_synsetpan n_synsetpitch \
 	n_synsetfxmix n_synstopvoice n_alsynsetlpffreq n_alsynsetlpfgain \
 	n_alsynsetdistort n_synallocfx n_alcspchan n_syngetfxref n_synsetvol \
-	n_synstartvoiceparam
+	n_synstartvoiceparam n_synaddplayer
 # n_alcspchan uses the Rare-added MIDI control-change codes (AL_MIDI_UNK_FC,
 # AL_MIDI_FADEEND_CTRL, AL_MIDI_FADESTART_CTRL), guarded by RAREDIFFS like the
 # other Rare-diffed libultra TUs above.

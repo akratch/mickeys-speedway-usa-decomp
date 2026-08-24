@@ -229,7 +229,7 @@ segments:
       - [0x631C0, c, libultra/cents2ratio]
       - [0x63260, asm, libultra/alsurround]
       - [0x63470, asm, libultra/n_event]
-      - [0x63AD0, asm, libultra/n_synaddplayer]
+      - [0x63AD0, c, libultra/n_synaddplayer]
       - [0x63C20, asm, libultra/n_synallocvoice]
       - [0x63F30, c, libultra/n_synsetvol]
       - [0x64000, c, libultra/n_synstartvoiceparam]
