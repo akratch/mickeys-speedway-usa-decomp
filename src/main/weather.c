@@ -112,10 +112,12 @@ extern WeatherGfxData D_8007C398;
 extern WeatherTriangle *D_8007C3CC;
 extern s16 *D_8007C3D0;
 extern WeatherVertex *D_8007C3D4[2];
-extern WeatherVertex *D_8007C3DC;
+extern s32 *D_8007C3DC;
+extern s8 D_8007C3E0;
 extern s32 D_800D4070;
 extern s32 D_800D4074;
 extern WeatherData D_800D4078;
+extern s32 D_800D40C0;
 extern s32 D_800D40C4;
 extern s8 D_800D40C8;
 extern Gfx *D_800D40CC;
@@ -133,6 +135,7 @@ extern s32 mathRnd(s32 min, s32 max);
 extern void *func_8002B280(s32 size, s32 tag);
 extern Camera *func_8002462C(void);
 extern Matrix *func_80024698(void);
+extern s32 *func_8002E148(s32 assetId);
 extern void mmFree(void *ptr);
 extern void func_800347A0(WeatherTexture *texture);
 
@@ -148,7 +151,35 @@ s32 snow_vertices(Camera *camera, WeatherGfxData *gfx, s32 particleCount, Weathe
                   Matrix *cameraMatrix, WeatherVertex *vertices);
 void snow_render(void);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/initWeather.s")
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::initWeather. Mickey's globals and asset ID are authoritative.
+ */
+void initWeather(void) {
+    s32 *temp_v0;
+
+    D_8007C398.positions = NULL;
+    D_8007C398.size = 0;
+    D_8007C394 = NULL;
+    D_800D4070 = 0;
+    D_800D40C0 = 6;
+    D_800D40C0 <<= 2;
+    D_800D40C4 = D_800D40C0 >> 1;
+    D_8007C3D4[0] = NULL;
+    D_8007C3D4[1] = NULL;
+    D_8007C3CC = NULL;
+    D_800D40B8.near = -1;
+    D_800D40B8.far = -0x200;
+    if (D_8007C3DC == NULL) {
+        temp_v0 = func_8002E148(0x1B);
+        D_8007C3E0 = 0;
+        D_8007C3DC = temp_v0;
+        while (D_8007C3DC[D_8007C3E0] != -1) {
+            D_8007C3E0++;
+        }
+    }
+    D_800D40C8 = 0;
+}
 /*
  * PROVENANCE -- body adapted from Diddy Kong Racing's public retail-derived
  * src/weather.c::weather_clip_planes.  Mickey's bytes and global layout are
@@ -288,7 +319,7 @@ void setupWeather(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
             var_a3->a = 0xFF;
         }
         j++;
-    } while (&D_8007C3D4[j] < &D_8007C3DC);
+    } while (&D_8007C3D4[j] < (WeatherVertex **) &D_8007C3DC);
     temp_s1_2 = (D_8007C398.source.texture->width << 5) - 1;
     temp_s2 = (D_8007C398.source.texture->height << 5) - 1;
     D_8007C3CC = func_8002B280(D_800D40C4 * sizeof(WeatherTriangle), 0x93);

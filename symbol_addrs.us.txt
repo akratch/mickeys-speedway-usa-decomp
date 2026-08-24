@@ -460,7 +460,7 @@ weather_clip_planes = 0x8003A97C; // type:func size:0x54 ROM 0x3b57c src/main/we
 // src/weather.c and DKR's public src/weather.c. Tier B is the weather call
 // graph and subsystem role; tier D is JFG/DKR order and masked-skeleton shape.
 // weather_clip_planes above remains the only tier-A function in this TU.
-initWeather = 0x8003A880; // type:func size:0xFC tier B/D, ROM 0x3b480
+initWeather = 0x8003A880; // type:func size:0xFC tier B/D, ROM 0x3b480  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/63
 freeWeather = 0x8003A9D0; // type:func size:0x120 tier B/D, ROM 0x3b5d0  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/72
 setupWeather = 0x8003AAF0; // type:func size:0x420 tier B/D, ROM 0x3b6f0  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/264
 snow_init = 0x8003AF10; // type:func size:0x120 tier B/D, ROM 0x3bb10
