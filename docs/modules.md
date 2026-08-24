@@ -406,6 +406,12 @@ provides the framebuffer-fill body but not a descriptive function name, so
 §1.5 keeps Mickey's address label. All 31 instruction words and its two
 global-address plus cache-flush-call relocations are exact.
 
+`viGetVideoMode` is adopted at tier B after its five-word accessor body became
+canonical C. Eleven same-address Mickey callers use the returned low mode bits
+to choose display dimensions or compare them with a requested mode before
+calling the mode-change routine; this is the exact role of JFG's same-position
+function. Its HI16/LO16 relocation pair and linked bytes are exact.
+
 ---
 
 ## 4. libultra

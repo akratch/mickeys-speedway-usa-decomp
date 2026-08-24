@@ -22,6 +22,7 @@
 extern s32 *D_8007A690[3];
 extern u8 D_8007A1A0;
 extern s32 *D_800D2FA8;
+extern s8 D_800D2F98;
 extern s8 D_800D2F9A;
 
 extern void func_80033B24(void);
@@ -38,7 +39,11 @@ extern void osWritebackDCacheAll(void);
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033D58.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033D74.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033DA0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033F48.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
+s32 viGetVideoMode(void) {
+    return D_800D2F98 & 3;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033F5C.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
 void viSetWideAdjust(s32 offset) {
