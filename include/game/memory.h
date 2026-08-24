@@ -45,6 +45,7 @@ typedef struct MemoryPool {
 void mmInit(void);
 u8 mmExtended(void);
 void mmSetDelay(s32 state);
+s32 mmGetDelay(void);
 void mmFree(void *data);
 u8 *align16(u8 *address);
 u8 *align8(u8 *address);

@@ -72,8 +72,10 @@ void mmSetDelay(s32 state) {
 /* JFG correspondence: mmGetSlotPtr (tier B; returns a pool's slot array). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002BB20.s")
 
-/* JFG correspondence: mmGetDelay (tier B; returns deferred-free delay). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002BB34.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmGetDelay. */
+s32 mmGetDelay(void) {
+    return D_800D21AC;
+}
 
 /* JFG correspondence: mempool_slot_assign (tier B; splits/assigns a slot). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002BB40.s")
