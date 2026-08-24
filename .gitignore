@@ -65,3 +65,21 @@ __pycache__/
 *.lib
 tools/n64crc
 m2cfiles/
+
+# Matching scratch (decomp-permuter dirs carry target.bin ROM extracts) and
+# root-level experiment residue from hand-rolled search loops. Never tracked.
+nonmatchings/
+.tmp-*
+/tmp/
+/-o
+/-o.unlinked
+/.unlinked
+/.compare.txt
+/.compile.log
+/attempt*
+/candidate*
+/variant*
+/preprocessed_*
+/debug_source.c
+/target.owner.relocs.txt
+/.tmp-atlas/
