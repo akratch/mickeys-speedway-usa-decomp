@@ -21,6 +21,9 @@
 
 extern s32 *D_8007A690[3];
 extern s32 *D_800D2FA8;
+extern s8 D_800D2F9A;
+
+extern void func_80033B24(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033580.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_800336A8.s")
@@ -35,7 +38,18 @@ extern s32 *D_800D2FA8;
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033DA0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033F48.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033F5C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/viSetWideAdjust.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
+void viSetWideAdjust(s32 offset) {
+    if (offset < -30) {
+        offset = -30;
+    }
+    if (offset > 30) {
+        offset = 30;
+    }
+    D_800D2F9A = offset;
+    func_80033B24();
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FA8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FB8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FC4.s")

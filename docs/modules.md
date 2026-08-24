@@ -397,6 +397,10 @@ all 11 instruction words and the four HI16/LO16 relocation records to Mickey's
 framebuffer globals are exact. Its linked range and the full ROM are
 byte-identical.
 
+`viSetWideAdjust` is canonical C as well. The adapted clamp/store/timing-call
+body emits all 16 instruction words and its HI16, LO16 and call relocations
+exactly under the resident flags.
+
 ---
 
 ## 4. libultra
