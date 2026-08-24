@@ -80,7 +80,13 @@ s32 func_800500A4(u32 bitCount) {
     return value;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005013C.s")
+void func_8005013C(void) {
+    if (D_800D6D5C != 0x80) {
+        D_800D6D58++;
+    }
+    *D_800D6D54 = (s32) D_800D6D58;
+}
+
 
 /*
  * Clear the current animation-sequence cursors. The exact JFG donor assembly

@@ -14,6 +14,7 @@ extern s8 D_8007D6C0[];
 void func_80050000(s32 *stream);
 s32 func_80050024(u32 bitCount);
 s32 func_800500A4(u32 bitCount);
+void func_8005013C(void);
 void func_8005017C(void);
 s8 func_800501AC(u16 *entry);
 

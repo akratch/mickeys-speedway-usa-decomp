@@ -385,7 +385,7 @@ placeholders are never imported.
 | `0x80050000` | `0x24` | `func_800767A0` | D naming; placeholder retained. Matched C: exact 36 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050024` | `0x80` | `func_800767C4` | D naming; placeholder retained. Matched C: exact 128 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800500A4` | `0x98` | `func_80076840` | D naming; placeholder retained. Matched C: exact 152 B and relocation surface at `-O2 -mips2 -32` |
-| `0x8005013C` | `0x40` | `func_800768D4` | D; nearest `anim.c` skeleton, placeholder retained |
+| `0x8005013C` | `0x40` | `func_800768D4` | D naming; placeholder retained. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005017C` | `0x30` | `func_80076918` | A; exact 48 B, masked `6/12`, placeholder retained. Matched C: exact 48 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800501AC` | `0x1C` | `func_80076948` | D naming; placeholder retained. Matched C: exact 28 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800501C8` | `0xB4` | `func_80076968` | D; 0.653 skeleton similarity, placeholder retained |
