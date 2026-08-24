@@ -19,7 +19,11 @@ extern u16 D_800D4A5C;
 extern u16 D_800D4A5E;
 extern s32 D_8007CE90;
 extern s32 D_800D4A6C;
+extern s32 D_800D4A70;
 extern s32 D_800D4A74;
+extern s32 D_800D4A78;
+extern u16 D_800D4A80;
+extern u16 D_800D4A82;
 
 /* PROVENANCE: body adapted from DKR src/unused_string.c:strcpy. */
 char *strcpy(char *src, const char *dest) {
@@ -64,7 +68,23 @@ s32 sprintf(char *s, const char *format, ...) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_parse.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_background.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_character.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_bounds.s")
+/* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_bounds. */
+void debug_text_bounds(void) {
+    if (D_800D4A80 <= 320) {
+        D_800D4A6C = 16;
+        D_800D4A70 = D_800D4A80 - 16;
+    } else {
+        D_800D4A6C = 32;
+        D_800D4A70 = D_800D4A80 - 32;
+    }
+    if (D_800D4A82 <= 240) {
+        D_800D4A74 = 16;
+        D_800D4A78 = D_800D4A82 - 16;
+    } else {
+        D_800D4A74 = 32;
+        D_800D4A78 = D_800D4A82 - 32;
+    }
+}
 /* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_origin. */
 void debug_text_origin(void) {
     D_800D4A5C = D_800D4A6C;
