@@ -21,6 +21,22 @@ typedef struct AudioSequencePlayer {
     s32 state;
 } AudioSequencePlayer;
 
+typedef struct AudioSoundData {
+    u16 soundBite;
+    u8 volume;
+    u8 minVolume;
+    u8 pitch;
+    u8 unk5;
+    u16 range;
+    u8 priority;
+    u8 unk9;
+} AudioSoundData;
+
+typedef struct AudioBankFile {
+    s32 revision;
+    void *bankArray[1];
+} AudioBankFile;
+
 extern s32 D_80078D7C;
 extern s32 D_80078D80;
 extern s32 D_80078D78;
@@ -35,6 +51,9 @@ extern u8 D_80078DB0;
 extern u8 D_800BF794;
 extern u8 D_800BF795;
 extern u32 *D_800BF798;
+extern AudioBankFile *D_800BF79C;
+extern AudioSoundData *D_800BF7A0;
+extern s32 D_800BF7A8;
 extern u8 *D_800BF7A4;
 extern void gsSndpSetParam(void *sound, s16 type, u32 value);
 extern u32 gsSndpGetGlobalVolume(void);
@@ -47,6 +66,9 @@ extern void func_800005CC(f32 fade, s32 volume);
 extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
 extern void func_80001568(void *player);
+extern u16 func_800016C8(s32 volume);
+extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
+                          f32 pitch, u8 arg5, void **handle);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000450.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
@@ -225,7 +247,33 @@ s32 amDittyPlaying(void) {
 void amSndStop(void *sound) {
     gsSndpStop(sound);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000F94.s")
+/*
+ * PROVENANCE: body shape adapted from DKR src/audio.c sound_play; JFG's
+ * src/audio.h and asm/nonmatchings/audio_manager_1050/amSndPlay.s supply the
+ * official name, SoundData layout, exact boundary, and direct-player call.
+ */
+void amSndPlay(u16 soundId, void **handle) {
+    f32 pitch;
+    s32 soundBite;
+
+    if (soundId > D_800BF7A8) {
+        if (handle != NULL) {
+            *handle = NULL;
+        }
+        return;
+    }
+    soundBite = D_800BF7A0[soundId].soundBite;
+    if (soundBite == 0) {
+        if (handle != NULL) {
+            *handle = NULL;
+        }
+        return;
+    }
+    pitch = (f32)D_800BF7A0[soundId].pitch / 100.0f;
+    ad_sndp_play(D_800BF79C->bankArray[0], soundBite,
+                 func_800016C8(D_800BF7A0[soundId].volume << 8), 0x40, pitch,
+                 0, handle);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001098.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001144.s")
 /* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
