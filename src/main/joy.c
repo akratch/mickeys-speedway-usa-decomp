@@ -12,6 +12,7 @@
 extern u16 D_8007A0C8;
 extern OSMesgQueue D_800CF340;
 extern s8 D_800CF372[];
+extern s8 D_800CF373[];
 extern u8 D_800CF3B0[];
 extern u8 D_800CF3B4[];
 
@@ -58,7 +59,10 @@ s8 joyGetAbsX(s32 player) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyGetStickY.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyGetAbsY.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+s8 joyGetAbsY(s32 player) {
+    return D_800CF373[D_800CF3B0[player] * 6];
+}
 
 /* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
 s8 joyClamp(s8 stickMag) {
