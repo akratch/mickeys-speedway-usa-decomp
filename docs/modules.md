@@ -418,6 +418,11 @@ value back, and stores it as the front-end's current setting. The getter's
 HI16/LO16 relocation pair and linked bytes are exact. The public declarations
 for the matched named surface now live in `include/game/gameVi.h`.
 
+`viSetTrippleBuffer` is adopted at tier B with JFG's original spelling. The
+front-end passes a requested resolution mode, then reads the current video mode
+and tests whether the buffer configuration changed before calling the mode
+changer. The four-word setter and its HI16/LO16 relocation pair are exact.
+
 ---
 
 ## 4. libultra
