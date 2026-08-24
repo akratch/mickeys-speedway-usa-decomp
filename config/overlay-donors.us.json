@@ -3,7 +3,7 @@
   "generated_by": "tools/overlay_donor_scan.py",
   "atlas": {
     "path": "config/overlays.us.json",
-    "sha256": "ccbc89043ad07cbd9a085d12748614a046c299b89e50262acfd8ccee0c22cb55",
+    "sha256": "c81f02313034cacb45112dc5227b8ce67b7e23d81d3c18fd9becc8baaa1e9eca",
     "rom_sha1": "507341c0a40ca3e9a7cee969b396ee53facfb548",
     "modules": 107
   },

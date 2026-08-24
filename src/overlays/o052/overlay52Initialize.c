@@ -79,6 +79,7 @@ extern s16 ext_resident_result;
 extern s32 ext_resident_word_190;
 
 /* Independently reconstructed from Mickey-local evidence; no DKR/JFG donor. */
+#ifdef NON_MATCHING
 void func_overlay_052_F0000000_189A670(void) {
     u8 *state;
     s32 i;
@@ -215,3 +216,6 @@ void func_overlay_052_F0000000_189A670(void) {
     D_4D2 = 0;
     D_4D0 = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o052/overlay52Initialize/func_overlay_052_F0000000_189A670.s")
+#endif
