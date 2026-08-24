@@ -17,6 +17,7 @@
 #include "PR/ultratypes.h"
 
 extern u32 D_8007FF50;
+extern u16 *D_800D7D78;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005B978.s")
@@ -36,7 +37,10 @@ extern u32 D_8007FF50;
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStopAllRetrigger.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStopAllLooped.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetParam.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpGetMasterVolume.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpGetMasterVolume). */
+u16 gsSndpGetMasterVolume(u8 groupID) {
+    return D_800D7D78[groupID];
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetMasterVolume.s")
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpSetGlobalVolume). */
 void gsSndpSetGlobalVolume(u32 volume) {
