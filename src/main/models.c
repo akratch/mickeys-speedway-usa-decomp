@@ -22,6 +22,9 @@
 #include "game/models.h"
 
 extern s32 D_80079C00;
+extern s8 D_800CB498[];
+extern s16 D_800CB49C[];
+extern s16 D_800CB4A2[];
 
 /*
  * PROVENANCE -- body adapted from JFG's public src/models.c
@@ -84,7 +87,21 @@ s32 modelGetModelFlags(void) {
     return D_80079C00;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8002057C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020AD4.s")
+/*
+ * PROVENANCE -- JFG's built models.c object supplies the exact corresponding
+ * skeleton at func_8003E100, but no public C body. This body is reconstructed
+ * from Mickey's own function.
+ */
+void func_80020AD4(void) {
+    s32 i;
+
+    i = 0;
+    do {
+        i++;
+        D_800CB498[i - 1] = -1;
+        D_800CB49C[i - 1] = 1000;
+    } while (D_800CB4A2 != &D_800CB49C[i]);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020B10.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020D8C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020E4C.s")
