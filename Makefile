@@ -2880,42 +2880,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x118
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Update.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23RenderEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x100 11925133075ef610a8d394c118dd65ee1a7e49c28534a66710005f27f4a9af92 \
-		fields:0x18:rt=t0@t1 \
-		fields:0x28:rt=t0@t1 \
-		fields:0x2c:rt=t0@t1 \
-		fields:0x40:rs=t0@t1 \
-		fields:0x50:rs=t0@t1 \
-		fields:0x54:rt=t3@t4 \
-		fields:0x58:rt=t5@t7 \
-		fields:0x60:rs=t0@t1 \
-		fields:0x74:rs=zero@sp,imm=14@64 \
-		fields:0x78:op=9@0,rs=sp@s1,rt=t8@zero,rd=zero@a0,sa=1@0,fn=0@37 \
-		fields:0x84:rs=s1@s0,rd=a0@a3 \
-		fields:0x88:op=0@57,rs=s0@sp,rt=zero@t2,rd=a3@zero,sa=0@1,fn=37@20 \
-		fields:0x8c:op=57@49,rs=sp@s0,rt=t2@s0,imm=84@20 \
-		fields:0x90:op=49@57,rs=s0@sp,imm=20@88 \
-		fields:0x94:op=57@35,rs=sp@t1,rt=s0@t2,imm=88@32 \
-		fields:0x98:op=35@43,rs=t0@sp,rt=t1@t2,imm=32@96 \
-		fields:0x9c:op=43@35,rs=sp@s1,rt=t1@v0,imm=96@0 \
-		fields:0xa0:op=35@9,rs=s1@zero,rt=v1@t2,imm=0@14 \
-		fields:0xa4:rs=v1@v0,rt=t2@t3 \
-		fields:0xa8:rt=t2@t3 \
-		fields:0xac:rs=v1@v0 \
-		fields:0xb0:rs=v1@v0,rt=t3@t4 \
-		fields:0xb4:rt=v1@v0 \
-		fields:0xb8:rs=v1@v0,rt=t4@t5 \
-		fields:0xbc:rt=t4@t5 \
-		fields:0xc0:rs=v1@v0,rt=t5@t7 \
-		fields:0xc4:rs=v1@v0 \
-		fields:0xc8:rt=t7@t8 \
-		fields:0xcc:rt=t9@t2 \
-		fields:0xd0:rt=t8@t9 \
-		fields:0xd4:rt=t7@t8 \
-		fields:0xd8:rt=t1@t3 \
-		fields:0xe8:rt=t1@t3 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x100
+	$(OBJCOPY) --redefine-sym func_overlay_023_F0000468_1879678=overlay23RenderEffect $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay24Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay24Update.c.o: POSTPROCESS = \

@@ -54,6 +54,7 @@ extern void overlay23SubmitRenderReloc(
     Overlay23RenderPacket *packet, s32 mode, s32 alpha);
 
 /* The live wrapper preserves the shipped packet's stack placement. */
+#ifdef NON_MATCHING
 void overlay23RenderEffect(Overlay23RenderObject *object, Gfx **displayList,
                            s32 renderArg0, s32 renderArg1) {
     Overlay23RenderState *state;
@@ -85,3 +86,6 @@ void overlay23RenderEffect(Overlay23RenderObject *object, Gfx **displayList,
                                object->renderResource, &packetStorage.packet,
                                14, object->alpha);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o023/overlay23RenderEffect/func_overlay_023_F0000468_1879678.s")
+#endif
