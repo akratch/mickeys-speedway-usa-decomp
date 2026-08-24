@@ -376,11 +376,17 @@ for 74 of them; it does not account for the whole surface.
 | `0x45F0`-`0x4F40` | 5 | JFG `src/audio_manager_4C50.c`; **tier A** identities at the first and last functions (`amVibratoInit`, `_depth2Cents`), JFG's five-function order, and four bytes of terminal alignment padding | `src/main/audio_manager_4C50.c` |
 | `0x4F40`-`0xC950` | 65 | JFG `src/objects.c` lineage, not audio-manager code: JFG places `objects` immediately after the oscillator TU and Mickey has the **tier A** `GetRomlistInfo` identity in this run. No whole-object match exists, so no `objects` boundary/name is promoted here | assembly |
 
+Matched C bodies in these new TUs:
+
+| Mickey routine | ROM / size | Name evidence | Match evidence |
+|---|---:|---|---|
+| `amTuneResetFade` | `0x1330` / `0xC` | **tier B**: exact JFG routine order and the adjacent tune-fade controller role | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
+
 PROVENANCE: the TU labels, function-order comparison, and candidate semantic
 roles in this census come from Jet Force Gemini's public decomp and built
 objects, permitted under `docs/CLEANROOM.md`. The C files currently contain
-only Mickey-derived `GLOBAL_ASM` ownership; any later adapted body must carry
-its own point-of-use disclosure and match Mickey's compiler output exactly.
+Mickey-derived `GLOBAL_ASM` ownership plus individually disclosed adapted
+bodies; each body must match Mickey's compiler output exactly.
 
 ---
 

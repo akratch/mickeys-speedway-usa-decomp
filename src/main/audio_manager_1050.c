@@ -3,8 +3,8 @@
  *
  * PROVENANCE: the translation-unit identity and candidate routine names were
  * compared with Jet Force Gemini's public decomp, src/audio_manager_1050.c,
- * which is a permitted source under docs/CLEANROOM.md. No C body is adapted
- * here yet. Mickey's own boundaries and symbols remain authoritative.
+ * which is a permitted source under docs/CLEANROOM.md. Adapted bodies carry
+ * their own point-of-use disclosure. Mickey's boundaries remain authoritative.
  *
  * The end is the 16-byte-aligned start of Mickey's audiomgr-shaped run:
  * func_80001740 has the allocator, message-queue, and audio-thread setup shape
@@ -16,12 +16,17 @@
 
 #include "PR/ultratypes.h"
 
+extern s32 D_80078D7C;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000450.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000594.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800005CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/amTuneSetFadeScaled.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000730.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+void amTuneResetFade(void) {
+    D_80078D7C = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000073C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000082C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000838.s")

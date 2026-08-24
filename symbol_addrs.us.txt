@@ -1384,6 +1384,17 @@ asins = 0x8006A508; // type:func size:0x8C
 // should treat it as one of two possible names, not as measured.
 
 // ---------------------------------------------------------------------------
+// Resident audio-manager tier-B names from exact role and sequence
+//
+// These short leaves are below the tier-A uniqueness threshold. Their names
+// instead come from their precise positions between the tier-A audio-manager
+// anchors above, the matching adjacent fade-controller roles, and the exact
+// JFG function order documented in docs/modules.md. Each line records its own
+// tier so it cannot be mistaken for a byte-identity name claim.
+// ---------------------------------------------------------------------------
+amTuneResetFade = 0x80000730; // type:func size:0xC ROM 0x1330 tier B (JFG role/order)
+
+// ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
 // the whole-object threshold
 //
