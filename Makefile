@@ -5795,16 +5795,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58ReleaseResources.c.o: POSTPROCESS
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o062/overlay62Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD4
-# IDO selects two different overlapping entry-color register webs while every
-# opcode, frame/stack slot, FP lane, call, branch, and delay slot is exact.
-# Assert every definition/use in both complete webs before selecting retail.
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o062/overlay62Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x498 30c832783e8a26045cfc34de24edb5128c87de4e615fbedcb655f6a21400e4e9 \
-		fields:0x44:rd=v1@at \
-		fields:0x50:rt=v1@at,rd=a3@v1 \
-		fields:0x54:rt=v1@at \
-		fields:0x64:rt=a3@v1 && \
+	$(OBJCOPY) --redefine-sym func_overlay_062_F00000D4_18C22F4=overlay62Update $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x498
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o062/overlay62ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x44

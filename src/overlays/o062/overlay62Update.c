@@ -75,6 +75,7 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
     packet_->word1 = (value_); \
 } while (0)
 
+#ifdef NON_MATCHING
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;
@@ -179,3 +180,6 @@ void overlay62Update(s32 updateRate) {
                             gOverlay62Values, 0x74, 0xCC,
                             0xFF, 0xFF, 0xFF, alpha);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o062/overlay62Update/func_overlay_062_F00000D4_18C22F4.s")
+#endif
