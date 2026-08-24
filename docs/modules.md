@@ -413,7 +413,7 @@ call graph isolates one namesake.
 | `0x8001EFFC` | `0xA0` | — | No unique JFG comparison; retain `func_` |
 | `0x8001F09C` | `0xB0` | `func_800370D8` | D: same target-smoothing structure; JFG placeholder, retain `func_` |
 | `0x8001F14C` | `0x110` | `controlCeiling` | D: collision-control position in the JFG sequence; retain `func_` |
-| `0x8001F25C` | `0x8` | `controlDisableJoypad` | B: writes the state the next routine tests; retain `func_` |
+| `0x8001F25C` | `0x8` | `controlDisableJoypad` | B + matched C: caller supplies player and boolean, next routine tests the stored state; JFG has the same role but a one-argument global implementation |
 | `0x8001F264` | `0xBC` | `controlReadJoypad` | B: calls all seven stick/button readers in JFG order; retain `func_` |
 | `0x8001F320` | `0x44` | `controlSetRumble` | B: sole call is the rumble dispatcher under player-state guards; retain `func_` |
 | `0x8001F364` | `0x8` | — | Matched C: empty routine, ADR 0001 byte-identity; retain `func_` |

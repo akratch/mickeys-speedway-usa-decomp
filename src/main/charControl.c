@@ -21,6 +21,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/charControl.h"
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BB90.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
@@ -49,7 +50,14 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001EFFC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F09C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F14C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F25C.s")
+/*
+ * PROVENANCE -- JFG's src/charControl.c supplied the controlDisableJoypad
+ * name/role. Mickey's two-argument field store independently determines this
+ * per-player body and differs from JFG's one-argument global implementation.
+ */
+void controlDisableJoypad(ControlPlayer *player, s32 disabled) {
+    player->joypadDisabled = disabled;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F264.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F320.s")
 void func_8001F364(void) {
