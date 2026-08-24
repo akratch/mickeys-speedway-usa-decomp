@@ -6308,28 +6308,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x1C",
-     "size": "0x1C",
-     "type": "c",
-     "source": "overlays/o024/overlay24Init",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1C",
-     "end_offset": "0x284",
-     "size": "0x268",
-     "type": "c",
-     "source": "overlays/o024/overlay24Update",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x284",
      "end_offset": "0x414",
-     "size": "0x190",
+     "size": "0x414",
      "type": "c",
-     "source": "overlays/o024/overlay24RenderState",
+     "source": "overlays/o024/overlay_024",
      "matched": true,
      "nonmatching": false
     },

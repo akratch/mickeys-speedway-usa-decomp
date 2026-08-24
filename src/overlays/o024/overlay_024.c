@@ -1,59 +1,22 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_024.h"
 
-typedef struct Overlay24TargetState {
-    s8 status;
-    u8 pad001[0x191];
-    u8 adjustment;
-    u8 pad193[0x15];
-    u16 flags;
-} Overlay24TargetState;
+#define O24_SHIFTL(value, shift, width) \
+    ((u32)(((u32)(value) & ((1U << (width)) - 1U)) << (shift)))
 
-typedef struct Overlay24Target {
-    u8 pad000[0xC];
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad018[0x16];
-    s16 copiedValue;
-    u8 pad030[0x34];
-    Overlay24TargetState *state;
-} Overlay24Target;
+/*
+ * Overlay 24, ADR 0006 consolidation: one translation unit in ROM order.
+ * Exact DKR v77/v80 and JFG scans are negative for the module's three
+ * functions.
+ */
 
-typedef struct Overlay24State {
-    u8 mode;
-    s8 remaining;
-    s16 phaseTicks;
-    f32 height;
-    f32 velocity;
-    s32 progress;
-    Overlay24Target *target;
-} Overlay24State;
-
-typedef struct Overlay24Object {
-    u8 pad000[0xC];
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad018[0x10];
-    f32 relationValue;
-    u8 pad02C[2];
-    s16 copiedValue;
-    u8 pad030[0x34];
+void overlay24Init(Overlay24Object *object, Overlay24InitData *init) {
     Overlay24State *state;
-    void **relationResource;
-} Overlay24Object;
 
-typedef struct Overlay24InputState {
-    u8 mode;
-} Overlay24InputState;
-
-extern s16 gOverlay24InputFlagsReloc;
-extern void overlay24QueueCleanupReloc(Overlay24Object *object);
-extern s32 overlay24UpdateRelationReloc(void *resource, s32 *eventId,
-                                        s32 limit, f32 *relationValue,
-                                        s32 updateRate);
-extern void overlay24EmitEventReloc(s32 eventId, void *handle);
-extern Overlay24InputState *overlay24GetInputStateReloc(void);
+    state = object->state;
+    state->mode = 0;
+    state->remaining = init->remaining;
+    state->target = init->target;
+}
 
 void overlay24Update(Overlay24Object *object, s32 updateRate) {
     Overlay24State *state;
@@ -159,5 +122,76 @@ void overlay24Update(Overlay24Object *object, s32 updateRate) {
         object->y = target->y;
         object->z = target->z;
         object->copiedValue = target->copiedValue;
+    }
+}
+
+void overlay24RenderState(Overlay24Command **commands, void *arg1, void *arg2,
+                          Overlay24RenderObject *object) {
+    s32 opacity;
+    s32 alpha;
+    Overlay24RenderState *state;
+    Overlay24Source *source;
+    Overlay24Command **renderCommands;
+
+    state = (opacity = 0xFF, object->state);
+    if (state->enabled == 0) {
+        return;
+    }
+
+    source = state->source;
+    renderCommands = commands;
+    if (source == NULL) {
+        return;
+    }
+
+    object->x = source->x;
+    object->y = source->y + state->yOffset;
+    object->z = source->z;
+
+    if (source->opacity != NULL) {
+        opacity = *source->opacity * 255.0f;
+    } else {
+        opacity = 0xFF;
+    }
+    if (gOverlay24FadeActiveReloc != 0) {
+        opacity = (opacity * gOverlay24FadeScaleReloc) >> 8;
+    }
+
+    alpha = (object->opacity * state->enabled) >> 8;
+
+    {
+        Overlay24Command *command = (*commands)++;
+        command->w1 = 0;
+        command->w0 = O24_SHIFTL(0xE7, 24, 8);
+    }
+
+    {
+        Overlay24Command *command = (*commands)++;
+        command->w1 = (command->w0 = O24_SHIFTL(0xFA, 24, 8),
+                       ((opacity & 0xFF) << 24) |
+                       ((opacity & 0xFF) << 16) |
+                       ((opacity & 0xFF) << 8) |
+                       (alpha & 0xFF));
+    }
+
+    {
+        Overlay24Command *command = (*commands)++;
+        command->w1 = (command->w0 = O24_SHIFTL(0xFB, 24, 8),
+                       O24_SHIFTL(0xFF, 24, 8) |
+                       O24_SHIFTL(0xFF, 16, 8) |
+                       O24_SHIFTL(0xFF, 8, 8) |
+                       O24_SHIFTL(0, 0, 8));
+    }
+
+    overlay24RenderHelperReloc(renderCommands, arg1, arg2, object,
+                               *object->resource, 0xC, 0xFF);
+
+    {
+        Overlay24Command *command = (*commands)++;
+        command->w1 = (command->w0 = O24_SHIFTL(0xFA, 24, 8),
+                       O24_SHIFTL(0xFF, 24, 8) |
+                       O24_SHIFTL(0xFF, 16, 8) |
+                       O24_SHIFTL(0xFF, 8, 8) |
+                       O24_SHIFTL(0xFF, 0, 8));
     }
 }

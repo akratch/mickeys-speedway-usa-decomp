@@ -467,9 +467,7 @@ TEXT_SUBSEGMENTS = {
         (0x568, "asm", "overlay_023_padding"),
     ],
     24: [
-        (0x000, "c", "overlay24Init"),
-        (0x01C, "c", "overlay24Update"),
-        (0x284, "c", "overlay24RenderState"),
+        (0x000, "c", "overlay_024"),
         (0x414, "asm", "overlay_024_padding"),
     ],
     25: [

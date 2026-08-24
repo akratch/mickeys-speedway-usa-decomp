@@ -3291,14 +3291,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23RenderEffect.c.o: POSTPROCESS = \
 		fields:0xd8:rt=t1@t3 \
 		fields:0xe8:rt=t1@t3 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x100
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay24Init.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay24Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x268 && \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay_024.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x414 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
 		3e99999a000000000000000000000000
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay24RenderState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x190
 # The typed initializer naturally owns 94 instructions plus one reusable IDO
 # alignment word, with exact frame, five calls, CFG, and opcode/FP inventories.
 # Adopt that proved nop and select the complete private schedule/register/home
@@ -7220,9 +7216,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Init.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Update.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23RenderEffect.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay24Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay24Update.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay24RenderState.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay_024.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25InitializeEffect.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25UpdateEffect.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25SetVectorFlags.c.o \
