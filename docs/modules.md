@@ -432,10 +432,11 @@ with the TU's measured bare `-g -mips2 -32` flag group. Their linked owned
 ranges are instruction-word-identical and the full ROM retains the expected
 hash.
 
-In `main/models`, `camConvertMatrixList` and the Mickey-derived counter reset
-`func_8005A764` (`0x3C` bytes total) are exact under the resident
-`-O2 -mips2 -32` group. The former is an adapted JFG `camera.c` body. Their
-function bytes and relocation identities match in the linked ROM.
+In `main/models`, `camConvertMatrixList` and the Mickey-derived counter
+reset/flush pair `func_8005A764` and `func_8005A770` (`0x6C` bytes total) are
+exact under the resident `-O2 -mips2 -32` group. The first is an adapted JFG
+`camera.c` body. Their function bytes and relocation identities match in the
+linked ROM.
 
 ## 4. libultra
 

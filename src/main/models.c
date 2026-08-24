@@ -25,11 +25,16 @@ typedef struct ConvListEntry {
 extern s32 D_800D7CF0;
 extern ConvListEntry D_800D78F0[];
 
+void func_80058FF0(ConvListEntry *entries, s32 count);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A700.s")
 void func_8005A764(void) {
     D_800D7CF0 = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A770.s")
+void func_8005A770(void) {
+    func_80058FF0(D_800D78F0, D_800D7CF0);
+    D_800D7CF0 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A7A0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A948.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005AAC0.s")
