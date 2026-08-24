@@ -259,7 +259,26 @@ void animseqInitGroup(void) {
     } while (pathIndex != 0x100);
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051128.s")
+/* JFG corroborates the reset-path loop; the remaining control flow is Mickey-led. */
+void animseqResetGroup(void) {
+    s32 pathIndex;
+
+    if (D_8007D68C != NULL) {
+        pathIndex = 0;
+        do {
+            func_8005055C(pathIndex & 0xFF);
+            pathIndex++;
+        } while (pathIndex != 0x100);
+        D_8007D69C = D_8007D698;
+        D_8007D6A8 = 0;
+        D_8007D6AC = 0.0f;
+        if (TrapDanglingJump(osRomBase) == 0) {
+            D_8007D69C = NULL;
+        }
+        func_80050D50();
+        func_800534C0();
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800511C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051364.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800517E0.s")
