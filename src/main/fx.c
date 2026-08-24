@@ -17,6 +17,11 @@ typedef struct Wake {
     s32 linked;
 } Wake;
 
+typedef struct FxCone {
+    s32 texture;
+    s32 alternateTexture;
+} FxCone;
+
 typedef struct WakeRipple {
     u8 pad0[0x70];
     s32 linked;
@@ -55,7 +60,20 @@ extern s32 D_800D5F50;
 extern s32 D_800D6038[];
 extern s32 D_800D6040;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046E70.s")
+void func_80046E70(FxCone *cone) {
+    s32 texture;
+    s32 alternateTexture;
+
+    texture = cone->texture;
+    if (texture != 0) {
+        func_800347A0(texture);
+    }
+    alternateTexture = cone->alternateTexture;
+    if (alternateTexture != 0) {
+        func_800347A0(alternateTexture);
+    }
+    mmFree(cone);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046EC4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004707C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")

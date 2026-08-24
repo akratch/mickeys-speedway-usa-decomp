@@ -411,6 +411,10 @@ is exact after resolving `func_800347A0` as a one-argument call; its two call
 relocations and the wake-linked field access match without normalization. The
 same ABI resolves the adjacent 72-byte `func_80048980` (`wakeFreeRipple`),
 which is exact with both its linked-release and nested-wake call relocations.
+The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
+handle locals reproduce the target's direct second argument register and
+branch-delay schedule, with both texture-free calls and the allocator call
+retaining their exact relocations under the resident defaults.
 The 60-byte Mickey-named `func_80049828` bounds-checks one of five effect
 records and tests a caller-supplied flag mask; its natural 32-byte-stride
 record access is exact at the resident defaults, including the data-symbol

@@ -820,7 +820,7 @@ func_80046E00 = 0x80046E00;                // type:func size:0x58 tier D (Mickey
 // trigonometry, draw and free calls agree function-for-function. Mickey begins
 // at fxFreeCone; unresolved JFG address placeholders and the later Mickey-
 // specific effects retain their local func_ names with Tier-D boundaries.
-func_80046E70 = 0x80046E70;           // type:func size:0x54 tier B (JFG fxFreeCone)
+func_80046E70 = 0x80046E70;           // type:func size:0x54 tier A (exact C, JFG fxFreeCone)
 func_80046EC4 = 0x80046EC4;           // type:func size:0x1B8 tier B (JFG fxAllocateCone)
 func_8004707C = 0x8004707C;           // type:func size:0x34 tier D (Mickey boundary)
 func_800470B0 = 0x800470B0;           // type:func size:0x254 tier D (JFG placeholder)
