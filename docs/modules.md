@@ -395,6 +395,12 @@ come from Jet Force Gemini's public decomp, `src/track.c` and its built
 references, and matching verdicts; JFG is a starting point, never authority
 over a disagreement.
 
+Matched C in this TU:
+
+| Function | ROM | Bytes | Flags | Donor and verdict |
+|---|---:|---:|---|---|
+| `trackSetFogOff` | `0x151A0` | 0x74 | `-O2 -mips2 -32` | JFG `src/track.c`; 29/29 instruction words and relocation layout exact, linked ROM exact |
+
 ---
 
 ## 4. libultra
