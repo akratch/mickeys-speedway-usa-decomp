@@ -3270,33 +3270,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o072/overlay72Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o072/overlay72Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB4
-# The source naturally owns all operations and exact instruction order. Select
-# the complete private GPR/local-base web, bind the proved +4/+8 LOCAL addends
-# to the module's D_0 carrier, and enforce the exact owner boundary.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o073/overlay73Initialize.c.o: \
-	config/normalizations/overlay73Initialize.ops
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o073/overlay73Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x190 180556a4efc4527dcec3b3b101b09adab1e0b51ea8abad7994e632d6b449ca01 \
-		@config/normalizations/overlay73Initialize.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x14c:D_4:D_0 0x160:D_4:D_0 \
-		0x164:D_8:D_0 0x170:D_8:D_0 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x190
-# The source recovers the complete renderer and its three calls. Apply the
-# audited private allocator/home/schedule web and trim the compiler's two
-# alignment NOPs so +EA8..+EB0 remains separately owned target padding.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o073/overlay73Draw.c.o: \
-	config/normalizations/overlay73Draw.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o073/overlay73Draw.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x138 84df0d134f6a8ec3653dca3618e6f784b286a59b9ad207510d10dedd0fdda26f \
-		@config/normalizations/overlay73Draw.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x090:func_80034554:func_8002409C \
-		0x120:func_800241BC:func_8002409C && \
-	$(OBJCOPY) --redefine-sym \
-		func_8002409C=func_overlay_073_F0000000_18CAAC0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB8

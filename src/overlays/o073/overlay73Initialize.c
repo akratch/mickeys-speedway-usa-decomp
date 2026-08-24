@@ -61,6 +61,7 @@ extern f32 D_4;
 extern f32 D_8;
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
+#ifdef NON_MATCHING
 void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object,
                                        Overlay73Header *header,
                                        s32 preserveState) {
@@ -111,3 +112,6 @@ void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object,
         object->output[1] = object->outputScale * D_8;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o073/overlay73Initialize/func_overlay_073_F0000000_18CAAC0.s")
+#endif
