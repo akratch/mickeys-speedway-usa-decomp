@@ -382,7 +382,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x800188CC` | `0xB0` | JFG placeholder `func_80020D94` | placeholder names are prohibited by §1.5; remains `func_800188CC` |
 | `0x8001897C` | `0x238` | `addRomdefLight` | tier-B comparison from TU order and light-update callees; C still `func_8001897C` |
 | `0x80018BB4` | `0x200` | `addObjectLight` | tier-B comparison from TU order and light-update callees; C still `func_80018BB4` |
-| `0x80018DB4` | `0x10` | `turnLightOff` | structural comparison only; C still `func_80018DB4` |
+| `0x80018DB4` | `0x10` | `turnLightOff` | Tier A: JFG-adapted C is compiler- and linked-byte-exact |
 | `0x80018DC4` | `0x10` | `turnLightOn` | structural comparison only; C still `func_80018DC4` |
 | `0x80018DD4` | `0x10` | `toggleLight` | structural comparison only; C still `func_80018DD4` |
 | `0x80018DE4` | `0x2C` | `changeLightColour` | structural comparison only; C still `func_80018DE4` |
