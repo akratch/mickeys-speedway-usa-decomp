@@ -120,7 +120,16 @@ void amTuneStop(void) {
         func_80001568(D_80078D60);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D1C.s")
+/*
+ * PROVENANCE: body shape adapted from DKR src/audio.c music_jingle_stop; JFG
+ * src/audio_manager_1050.c supplies the official amAmbientStop name.
+ */
+void amAmbientStop(void) {
+    if (func_80000F20() == 0) {
+        D_800BF795 = 0;
+        func_80001568(D_80078D64);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D54.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D90.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D9C.s")
