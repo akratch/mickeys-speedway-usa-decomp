@@ -1419,46 +1419,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31InitializeParticleAssets.c.o: POS
 # address pairs. Assert five complete private frame/register/order webs before
 # selecting the shipped allocation; any source or compiler drift fails loudly.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o010/overlay10Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2b0 318d46afd0ff85cc2f5f6c4e5efb4165524e2124f3f4a8f584942dbbac7e089a \
-		fields:0x0:imm=65432@65448 \
-		fields:0x20:imm=92@76 \
-		fields:0x28:imm=88@72 \
-		fields:0x2c:rt=v1@a1,imm=92@76 \
-		fields:0x30:rt=a0@a2,imm=88@72 \
-		fields:0x3c:rs=v0@a3,rt=v0@a3,imm=0@320 \
-		fields:0x40:rs=a3@v0,rt=a3@v0,imm=320@0 \
-		fields:0x48:rs=v1@a1,rt=a1@v1 \
-		fields:0x4c:rs=a0@a2,rt=a2@a0 \
-		fields:0x68:rt=a1@v1 \
-		fields:0x6c:rt=a2@a0 \
-		fields:0x70:rt=v1@a1 \
-		fields:0x74:rt=a0@a2 \
-		fields:0xcc:rs=v0@v1,rt=v0@v1,imm=0@1024 \
-		fields:0xd0:rs=v1@v0,rt=v1@v0,imm=1024@0 \
-		fields:0x138:rt=v1@a0 \
-		fields:0x13c:rs=v1@a0,rt=v1@a0 \
-		fields:0x144:rs=v1@a0 \
-		fields:0x14c:rd=a0@s0 \
-		fields:0x150:rd=s0@v1 \
-		fields:0x154:rs=v1@a0 \
-		fields:0x158:rt=s0@v1 \
-		fields:0x160:rs=v1@a0 \
-		fields:0x164:rt=s0@v1 \
-		fields:0x16c:rs=v1@a0 \
-		fields:0x170:rt=s0@v1 \
-		fields:0x174:rt=a0@s0 \
-		fields:0x178:rs=v1@a0 \
-		fields:0x17c:rs=a0@s0,rt=a0@s0 \
-		fields:0x180:rt=s0@v1 \
-		fields:0x184:rs=s0@v1,rt=s0@v1 \
-		fields:0x188:rs=s0@v1 \
-		fields:0x1f4:rs=s3@s5,rt=s3@s5,imm=0@16 \
-		fields:0x1f8:rs=s5@s3,rt=s5@s3,imm=16@0 \
-		fields:0x1fc:op=35@9,rs=s0@zero,rt=s1@s4,imm=0@256 \
-		fields:0x200:op=9@35,rs=zero@s0,rt=s4@s1,imm=256@0 \
-		fields:0x2ac:imm=104@88 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2B0
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_010_F0000000_1868450=overlay10Initialize $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay12Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay12Initialize.c.o: CFLAGS += -Wo,-loopunroll,0

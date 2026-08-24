@@ -76,6 +76,7 @@ extern void overlay10ReleaseReloc();
 extern void overlay10FinishReloc(void);
 
 /* Pinned DKR v77/v80 and JFG scans contain no exact donor for this initializer. */
+#ifdef NON_MATCHING
 void overlay10Initialize(void) {
     s32 widthValue;
     s32 heightValue;
@@ -184,3 +185,7 @@ void overlay10Initialize(void) {
     gOverlay10Flag2 = 0;
     overlay10FinishReloc();
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o010/overlay10Initialize/func_overlay_010_F0000000_1868450.s")
+#endif
