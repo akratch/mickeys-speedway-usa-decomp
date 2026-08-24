@@ -210,7 +210,7 @@ reference build's objects (DKR's, JFG's, Perfect Dark's, Banjo-Kazooie's or
 Conker's; see `docs/references.md`); **tier C** rows are string-correspondence
 with JFG; everything else is noted inline. Ranges without a named anchor are
 omitted rather than guessed at. 171 translation units are matched whole across
-the segment, carrying 192 function names.
+the segment, carrying 193 function names.
 
 | ROM | VRAM | Anchor | Tier | What it establishes |
 |---|---|---|---|---|
@@ -403,7 +403,7 @@ overlay callers/callees outside the range were observed.
 | `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D | calls `0x4DF9C`; ext callers |
 | `0x4C744` | `0x9C` | `func_8004BB44` | `fontWindowSize` | D | leaf; ext callers |
 | `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | B/D | leaf; ext callers |
-| `0x4C7FC` | `0x40` | `func_8004BBFC` | `fontWindowColour` | A | leaf; ext callers |
+| `0x4C7FC` | `0x40` | `fontWindowColour` | same | A, matched C | leaf; ext callers |
 | `0x4C83C` | `0x48` | `fontWindowFontColour` | same | A, matched C | leaf; ext callers |
 | `0x4C884` | `0x40` | `func_8004BC84` | `fontWindowFontBackground` | A | leaf; ext callers |
 | `0x4C8C4` | `0x2A0` | `func_8004BCC4` | `fontWindowAddStringXY` | B/D | calls `0x4D1A4`, `0x4C68C`; ext callers |
