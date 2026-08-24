@@ -165,7 +165,9 @@ s32 func_8002904C(s32 arg0, s32 arg1) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_8002905C.s")
+s32 func_8002905C(s32 arg0) {
+    return func_8002904C((s32) D_800D18E0, arg0);
+}
 
 void func_80029084(s32 arg0, s32 arg1) {
 }
