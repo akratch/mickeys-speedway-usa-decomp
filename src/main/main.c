@@ -14,6 +14,7 @@ extern s32 D_8007A164;
 extern s32 D_8007A160;
 extern s32 D_8007A170;
 extern s32 D_8007A154;
+extern s32 D_8007A14C;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -73,7 +74,10 @@ s32 mainGetNextCharacter(void) {
     return D_8007A154;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainGetNextLevel.s")
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+s32 mainGetNextLevel(void) {
+    return D_8007A14C;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028564.s")
 
