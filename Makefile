@@ -3705,24 +3705,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateStateAndParticles.c.o: POST
 		func_overlay_089_F00005A4_18D47D4=overlay89UpdateStateAndParticles $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x68
-# Natural source owns the exact semantic topology, frame and arithmetic. Four
-# bounded scheduler permutations and the complete reviewed private allocation
-# web select retail's equivalent schedule; local float pairs are materialized
-# while all three calls retain the raw stored overlay carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92FindNearestCourse.c.o: \
-	config/normalizations/overlay92FindNearestCourse.ops \
-	config/normalizations/overlay92FindNearestCourse.rebind.spec \
-	config/normalizations/overlay92FindNearestCourse.filter.spec
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92FindNearestCourse.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2A0 942ca05cebcedd2066b98a19667b50c23cf044c4a79d28e0a67e61e85e798d42 \
-		@config/normalizations/overlay92FindNearestCourse.ops && \
-	$(OBJCOPY) --redefine-sym \
-		overlay92GetObjectRange=func_overlay_092_F0000000_18D5F20 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay92FindNearestCourse.rebind.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay92FindNearestCourse.filter.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o093/overlay_093.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xEC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o093/overlay_093.c.o: CFLAGS += -Wab,-r4300_mul

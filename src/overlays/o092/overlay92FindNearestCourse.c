@@ -37,6 +37,7 @@ extern f32 gOverlay92Interpolation;
 extern O92Object **overlay92GetObjectRange(s32 *start, s32 *end);
 extern f32 sqrtf(f32 value);
 
+#ifdef NON_MATCHING
 s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
                                       f32 *outY, f32 *outZ, s32 *outValue) {
     O92Object **objects;
@@ -123,3 +124,6 @@ s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
     }
     return 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o092/overlay92FindNearestCourse/func_overlay_092_F0000068_18D5F88.s")
+#endif
