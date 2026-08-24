@@ -94,7 +94,10 @@ void func_8005017C(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800501AC.s")
+s8 func_800501AC(u16 *entry) {
+    return D_8007D6C0[(entry[1] >> 8) & 0xFF];
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800501C8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005027C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800502CC.s")

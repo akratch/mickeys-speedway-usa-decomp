@@ -1486,6 +1486,7 @@ func_80050000 = 0x80050000; // type:func size:0x24   ROM 0x50c00  tier-D JFG bit
 func_80050024 = 0x80050024; // type:func size:0x80   ROM 0x50c24  tier-D JFG unsigned-bit-reader structure, matched C
 func_800500A4 = 0x800500A4; // type:func size:0x98   ROM 0x50ca4  tier-D JFG signed-bit-reader structure, matched C
 func_8005017C = 0x8005017C; // type:func size:0x30   ROM 0x50d7c  src/anim.c.o  masked=6/12 tier-A matched-C
+func_800501AC = 0x800501AC; // type:func size:0x1C   ROM 0x50dac  tier-D JFG signed-table-lookup structure, matched C
 func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  masked=9/20
 animseqInitGroup = 0x800510E8; // type:func size:0x40   ROM 0x51ce8  src/anim.c.o  masked=1/16
 // jfg:libultra/src/flash/flashreadid.c.o
