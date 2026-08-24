@@ -16,6 +16,11 @@
 
 #include "PR/ultratypes.h"
 
+typedef struct AudioSequencePlayer {
+    u8 pad0[0x2C];
+    s32 state;
+} AudioSequencePlayer;
+
 extern s32 D_80078D7C;
 extern s32 D_80078D80;
 extern s32 D_80078D78;
@@ -130,7 +135,17 @@ void amAmbientStop(void) {
         func_80001568(D_80078D64);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D54.s")
+/*
+ * PROVENANCE: body shape adapted from DKR src/audio.c music_current_sequence;
+ * JFG src/audio_manager_1050.c supplies the official amTuneGetSeqNo name.
+ */
+u8 amTuneGetSeqNo(void) {
+    if (D_800BF794 != 0 &&
+        ((AudioSequencePlayer *)D_80078D60)->state == 1) {
+        return D_800BF794;
+    }
+    return 0;
+}
 /*
  * PROVENANCE: body shape adapted from DKR src/audio.c music_jingle_current;
  * JFG src/audio_manager_1050.c supplies the official amAmbientGetSeqNo name.
