@@ -255,7 +255,7 @@ segments:
       - [0x69220, c, libultra/n_synsetpriority]
       - [0x69240, asm, main/math_atan]
       - [0x69440, asm, libultra/n_auxbus]
-      - [0x69930, asm, libultra/n_mainbus]
+      - [0x69930, c, libultra/n_mainbus]
       - [0x69CA0, asm, libultra/n_load]
       - [0x6A7F0, asm, libultra/n_alLPFilter]
       - [0x6AC10, asm, main/math_acosf]
