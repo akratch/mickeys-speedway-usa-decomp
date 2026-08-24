@@ -396,73 +396,40 @@ main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
 JFG functions were not imported: unresolved routines retain Mickey's own
 `func_<VRAM>` symbol.
 
-**Matching progress.** Fifty-one functions currently compile exactly under
-the resident `-O2 -mips2 -32` flags: Splat's empty `func_800291D0` body,
-JFG's one-expression `joyCharVal` body (8 bytes each), and the 12-byte
-`joySetSecurity`, `mainSetAnimGroup`, and `mainChangeCameras` stores. The
-20-byte `joyDisable` and 24-byte `joyEnable` masked-index stores also match, as
-does the 16-byte `joyGetController` accessor and the 12-byte
-`mainGetAnimGroup`, `mainGetNextCharacter`, and `mainGetNextLevel` getters.
-Their HI16/LO16 pairs bind the original Mickey data symbols; owned bytes,
-relocation identity and the linked ROM are exact. The 16-byte
-`mainSyncNextLevel` immediate store and the 12-byte `mainGetMode` getter are
-exact as well. The immediately following 12-byte store is JFG's
-`mainSetMode`; both bind the same global (188 bytes total). `mainGetMode` is a
-tier-D structural name, correcting the earlier positional attribution of
-JFG's setter name.
+**Matching progress.** Fifty-one functions / 2,232 bytes compile exactly
+under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
+linked ranges and the full ROM are exact.
 
-Mickey's 12-byte `mainGameWindowChanging` getter and 52-byte
-`mainGameWindowSize` four-output accessor are also exact, bringing the total to
-252 bytes. The former's ABI returns the 32-bit state word directly, unlike the
-published JFG declaration's 16-bit return type; retaining JFG's signature
-changed the final load and was rejected.
+- `main/joy` (16 / 996 bytes): `joyMessageQ`, `joyDisable`, `joyEnable`,
+  `joyCreateMap`, `joyGetController`, `joyGetButtons`, `joyGetPressed`,
+  `joyGetReleased`, `joyGetStickX`, `joyGetAbsX`, `joyGetStickY`, `joyGetAbsY`,
+  `joyClamp`, `joySetSecurity`, `arithmeticFunction`, and `joyCharVal`.
+- `main/level` (14 / 828 bytes): `levelNGetType`, `levelGetTune`,
+  `levelGetWorld`, `levelGetRegionNo`, `levelGetScreenMode`,
+  `levelGetBlurEffect`, `levelGetGfxIndex`, `levelGetColourCycling`,
+  `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
+  `levelGetNextOfWorld`, and `levelGetPrevOfWorld`.
+- `main/main` (21 / 408 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
+  `mainGameWindowSize`, `mainSetAnimGroup`, `mainGetAnimGroup`,
+  `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
+  `mainSyncNextLevel`, `mainGetMode`, `mainSetMode`,
+  `mainGetNumberOfCameras`, `func_80028F54`, `func_800290A0`,
+  `func_800290EC`, `func_800290F8`, `func_800291B4`, `func_800291C4`,
+  `func_800291D0`, `func_800291D8`, and `func_800291E4`.
 
-The 44-byte bounds-checked `mainGetZBCheck` accessor also matches under the
-canonical flags, including its field-stride calculation and relocation to
-Mickey's field-base symbol. The 12-byte `levelGetNumber` global getter and
-12-byte `levelGetColourCycling` array accessor begin the exact `level` work;
-the 12-byte `levelGetLevel` pointer getter and 16-byte `levelGetType` field
-getter match too. The 36-byte null-checked `levelGetCamera` field getter is
-also exact. The six-byte level-summary layout then produces the exact 68-byte
-bounds-checked `levelNGetType` and `levelGetTune` accessors, joined by the
-signed-world `levelGetWorld` variant. Mickey's packed low-three-bit spelling
-also matches the 76-byte `levelGetRegionNo`; the adjacent two-bit extraction
-matches `levelGetScreenMode` at the same size. The exact total is now 740
-bytes. The 68-byte `levelGetBlurEffect` summary accessor is exact as well,
-and the 116-byte `levelGetGfxIndex` conditional override preserves its exact
-call relocation and packed high-bit extraction. The donor's 136-byte
-wraparound search also matches `levelGetNextOfWorld` exactly. The total is now
-1,060 bytes. Its 144-byte decrementing sibling `levelGetPrevOfWorld` is exact
-as well. JFG's 124-byte dead-zone/range implementation matches `joyClamp`
-unchanged, and the 12-byte `joyMessageQ` queue accessor is exact. The 40-byte
-`joyGetAbsX` and `joyGetAbsY` mapped-pad accessors bring the total to 1,420
-bytes. The 72-byte `joyGetPressed` accessor, including Mickey's early guard
-call, is exact, as is its 72-byte `joyGetReleased` sibling. The total is now
-1,564 bytes. The six-byte pad layout makes the guarded 80-byte `joyGetButtons`
-accessor exact too, bringing the total to 1,644 bytes.
-The guarded, clamped 88-byte `joyGetStickX` accessor is exact under the same
-canonical flags. Its 88-byte `joyGetStickY` sibling is exact too, bringing the
-total to 1,820 bytes. The 168-byte `joyCreateMap` two-pass active-controller
-permutation matches the JFG body unchanged. The 132-byte `arithmeticFunction`
-call sequence is exact too; its three unavailable CIC-overlay calls bind
-Mickey's existing `TrapDanglingJump` relocations. The total is 2,120 bytes.
-The 12-byte `mainGetNumberOfCameras` accessor is exact, and its tier-B name is
-also supported by the ordered JFG tail and `levelGetGfxIndex` caller. The
-total is now 2,132 bytes.
-The adjacent 12-byte `func_800291E4` 32-bit state getter is exact while
-retaining its Mickey placeholder name. Its adjacent 12-byte
-`func_800291D8` state store is exact under the same policy; the total is now
-2,156 bytes. The 12-byte `func_800291C4` address getter is exact too, bringing
-the total to 2,168 bytes. Its `saves` callers and JFG tail position are
-consistent with `mainGetGameArrayPtr`, but are not unique enough to promote
-the semantic name. The 16-byte `func_800291B4` constant-state setter is exact,
-raising the total to 2,184 bytes. The 12-byte `func_80028F54` pointer getter is
-exact too, for 2,196 bytes total. Its ordered JFG family and many typed game
-state consumers identify the `mainGetGame` role at tier B, but its placeholder
-symbol remains because renaming would require out-of-scope overlay edits. The
-12-byte `func_800290A0` scalar getter is exact too, as is the 12-byte
-`func_800290EC` getter. The opaque-pointer `func_800290F8` getter adds
-12 exact bytes, bringing the total to 2,232 bytes.
+The exact source preserves Mickey's six-byte level-summary and controller-pad
+layouts, packed flag extractions, bounded/wraparound searches, and guarded
+input calls. `arithmeticFunction` binds its three unavailable CIC-overlay
+calls to Mickey's existing `TrapDanglingJump` relocations.
+
+Two ABI/name exceptions remain explicit. Mickey's `mainGameWindowChanging`
+returns a 32-bit word, not JFG's declared `s16`; the JFG signature changed the
+load and was rejected. `mainGetMode` is a tier-D paired-getter name correcting
+an earlier positional setter attribution. `mainGetNumberOfCameras` is tier B
+from JFG tail order plus the `levelGetGfxIndex` caller. `func_800291C4` is
+consistent with `mainGetGameArrayPtr`, but not uniquely; `func_80028F54` has
+the tier-B `mainGetGame` role but retains its placeholder because renaming it
+would require out-of-scope overlay edits.
 
 `joyResetMap` remains assembly after a bounded plateau. The donor loop's first
 mismatch is at function offset `+0x0`: with external storage, IDO repeats the
