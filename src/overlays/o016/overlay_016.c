@@ -58,6 +58,14 @@ void overlay16ReleaseBuffer(void) {
 }
 
 /* DKR v77/v80 and JFG contain no exact donor for this gradient pass. */
+/*
+ * Plateau (2026-08-24): the best bounded permuter score was 4885 from a
+ * 6580 baseline, with the first mismatch at function offset 0x0.  The C
+ * candidate is four bytes larger and uses a smaller frame with one fewer
+ * saved register; the remaining blocker is a whole-function allocation and
+ * scheduling web plus two compiler-emitted unreachable ternary stores.  The
+ * compiler flag lattice found no exact configuration.
+ */
 #ifdef NON_MATCHING
 void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
                             s32 phaseStep) {
