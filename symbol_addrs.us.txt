@@ -1403,6 +1403,7 @@ amTuneStop = 0x80000CEC; // type:func size:0x30 ROM 0x18ec tier B (JFG/DKR call 
 amAmbientStop = 0x80000D1C; // type:func size:0x38 ROM 0x191c tier B (JFG/DKR call role)
 amTuneGetSeqNo = 0x80000D54; // type:func size:0x3C ROM 0x1954 tier B (JFG/DKR player-state role)
 amAmbientGetSeqNo = 0x80000D90; // type:func size:0xC ROM 0x1990 tier B (JFG/DKR return role)
+amTuneSetVolume = 0x80000D9C; // type:func size:0x6C ROM 0x199c tier B (JFG body/call role)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below

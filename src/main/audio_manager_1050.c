@@ -24,14 +24,18 @@ typedef struct AudioSequencePlayer {
 extern s32 D_80078D7C;
 extern s32 D_80078D80;
 extern s32 D_80078D78;
+extern s32 D_80078D8C;
 extern void *D_80078D60;
 extern void *D_80078D64;
+extern u8 D_80078D68;
 extern u8 D_80078D88;
+extern u8 D_80078DB0;
 extern u8 D_800BF794;
 extern u8 D_800BF795;
 extern u8 *D_800BF7A4;
 extern void gsSndpSetParam(void *sound, s16 type, u32 value);
 extern void n_alCSPSetChlVol(void *player, u8 channel, u8 volume);
+extern void n_alCSPSetVol(void *player, s16 volume);
 extern void n_alCSPNew(void *player, void *config);
 extern void n_alCSPSetMessageQ(void *player, void *queue);
 extern void func_800005CC(f32 fade, s32 volume);
@@ -153,7 +157,18 @@ u8 amTuneGetSeqNo(void) {
 u8 amAmbientGetSeqNo(void) {
     return D_800BF795;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D9C.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+void amTuneSetVolume(u8 volume) {
+    s32 scaledVolume;
+
+    if (volume > 0x7F) {
+        volume = 0x7F;
+    }
+    D_80078D68 = volume;
+    scaledVolume = D_80078D8C * D_80078D68;
+    n_alCSPSetVol(D_80078D60, scaledVolume);
+    D_80078DB0 = 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E08.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E64.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E70.s")
