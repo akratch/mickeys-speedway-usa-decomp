@@ -434,6 +434,14 @@ hash. Mickey-derived `func_8005CD3C` adds another exact `0x70` bytes under the
 same flags, bringing exact C in `main/gsSnd` to `0x594` bytes; JFG retains that
 function as assembly, so its body is not a donor adaptation.
 
+The adjacent pitch-event helper `func_8005CDAC` plateaus after ten coherent
+source and flag variants. Its best permitted BK/PD-derived body under the
+measured bare `-g -mips2 -32` group emits 30 instructions with a `0x28` frame,
+versus the target's 31 and `0x30`; the first mismatch is `+0x2C`. The target
+copies the pitch word through an integer stack address while this IDO/header
+combination scalarizes it as an FP copy. The best body remains under
+`NON_MATCHING`; target assembly is canonical and contributes no exact bytes.
+
 In `main/models`, `camConvertMatrixList`, initialization helper
 `func_8005A700`, and the counter reset/flush pair `func_8005A764` and
 `func_8005A770` (`0xD0` bytes total) are exact under the resident

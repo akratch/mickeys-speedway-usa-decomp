@@ -40,6 +40,9 @@ typedef struct GsSndKeyMap {
     u8 velocityMin;
     u8 velocityMax;
     u8 keyMin;
+    u8 keyMax;
+    u8 keyBase;
+    s8 detune;
 } GsSndKeyMap;
 
 typedef struct GsSound {
@@ -51,8 +54,11 @@ typedef struct GsSoundStateLink {
     struct GsSoundStateLink *next;
     struct GsSoundStateLink *prev;
     GsSound *sound;
-    u8 padC[0x37];
+    u8 padC[0x20];
+    f32 pitch;
+    u8 pad30[0x13];
     u8 flags;
+    u8 state;
 } GsSoundStateLink;
 
 typedef struct GsSndEvent {
@@ -63,6 +69,13 @@ typedef struct GsSndEvent {
     u8 padC[4];
 } GsSndEvent;
 
+typedef struct GsSndPitchEvent {
+    s16 type;
+    u16 pad2;
+    GsSoundStateLink *state;
+    f32 pitch;
+} GsSndPitchEvent;
+
 extern GsSndPlayer *D_8007FF4C;
 extern GsSoundStateLink *D_8007FF40;
 extern GsSoundStateLink *D_8007FF44;
@@ -71,6 +84,7 @@ extern const char D_800843CC[];
 extern const char D_800843FC[];
 
 u32 osSetIntMask(u32 mask);
+f32 alCents2Ratio(s32 cents);
 void n_alEvtqPostEvent(void *eventQueue, void *event, s32 delta);
 void n_alSynFreeVoice(void *voice);
 void n_alSynStopVoice(void *voice);
@@ -89,7 +103,33 @@ void func_8005CD3C(GsSoundStateLink *state) {
     func_8005D260(state);
     func_8005CE28(D_8007FF4C->eventQueue, state, 0xFFFF);
 }
+/*
+ * PROVENANCE: adapted from func_80243FE4 in Banjo-Kazooie's permitted
+ * src/core1/code_5650.c and cross-checked against Perfect Dark's
+ * sndp_apply_detune_pitch in src/lib/naudio/n_sndplayer.c.
+ *
+ * Plateau: bare -g -mips2 -32 is best across the flag lattice, but IDO emits
+ * 30 instructions and a 0x28-byte frame instead of the target's 31 and 0x30.
+ * The first mismatch is +0x2C. Ten event-union, declaration-order, typed-copy,
+ * pointer, volatility and flag variants either produce the same object or
+ * regress it. The surviving difference is the target's integer copy through
+ * a stack address versus this toolchain's scalarized FP copy, consistent with
+ * an original event-union/header-layout difference.
+ */
+#ifdef NON_MATCHING
+void func_8005CDAC(GsSoundStateLink *state) {
+    f32 pitch;
+    GsSndPitchEvent event;
+
+    pitch = alCents2Ratio(state->sound->keyMap->detune) * state->pitch;
+    event.type = 0x10;
+    event.state = state;
+    event.pitch = pitch;
+    n_alEvtqPostEvent(D_8007FF4C->eventQueue, &event, 0x8235);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CDAC.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CE28.s")
 /* PROVENANCE: adapted from JFG src/gsSnd.c (getSoundStateCounts). */
 u16 getSoundStateCounts(u16 *numFree, u16 *numAllocated) {
