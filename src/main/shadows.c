@@ -8,15 +8,21 @@
  * instruction shape.  This is not a whole-object tier-A match; Mickey's ROM
  * remains the authority for every body.
  *
- * No body has been adapted yet.  These pragmas preserve the original ROM
- * bytes while the compiler-generated functions are reconstructed one at a
- * time.  JFG's address-placeholder helper names are deliberately not
- * imported.
+ * The matched leaf bodies below were reconstructed from Mickey's own
+ * instructions and globals; no JFG body has been adapted.  The remaining
+ * pragmas preserve the original ROM bytes.  JFG's address-placeholder helper
+ * names are deliberately not imported.
  */
+
+#include "PR/ultratypes.h"
+
+extern s32 D_80079458;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowInitBuffers.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowFreeBuffers.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowChangeBuffer.s")
+void shadowChangeBuffer(void) {
+    D_80079458 ^= 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowGetBuffers.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowGenerate.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80016890.s")

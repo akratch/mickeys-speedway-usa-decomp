@@ -389,7 +389,7 @@ address-placeholder helper names are not imported.
 | `0x16790` | `0x300` | `trackLightAsm` | B/D; uses odd single-precision FP registers, stays `asm` |
 | `0x16A90` | `0x12C` | `shadowInitBuffers` | B/D |
 | `0x16BBC` | `0x78` | `shadowFreeBuffers` | B/D |
-| `0x16C34` | `0x18` | `shadowChangeBuffer` | B/D |
+| `0x16C34` | `0x18` | `shadowChangeBuffer` | B/D name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B/D |
 | `0x16C98` | `0x7F8` | `shadowGenerate` | B/D |
 | `0x17490` | `0x8B0` | `func_80016890` | unresolved |

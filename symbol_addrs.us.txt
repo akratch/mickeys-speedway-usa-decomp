@@ -411,7 +411,7 @@ getYCompareMask = 0x80015AF8; // type:func size:0x98 tier B, ROM 0x166f8
 trackLightAsm = 0x80015B90; // type:func size:0x300 tier B, ROM 0x16790
 shadowInitBuffers = 0x80015E90; // type:func size:0x12C tier B, ROM 0x16a90
 shadowFreeBuffers = 0x80015FBC; // type:func size:0x78 tier B, ROM 0x16bbc
-shadowChangeBuffer = 0x80016034; // type:func size:0x18 tier B, ROM 0x16c34
+shadowChangeBuffer = 0x80016034; // type:func size:0x18 tier B, ROM 0x16c34  src/main/shadows.c.o masked=0/6
 shadowGetBuffers = 0x8001604C; // type:func size:0x4C tier B, ROM 0x16c4c
 shadowGenerate = 0x80016098; // type:func size:0x7F8 tier B, ROM 0x16c98
 
