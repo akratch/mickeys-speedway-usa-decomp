@@ -144,7 +144,11 @@ segments:
       - [0x1050, asm]
       - [0x45F0, asm]
       - [0x4F40, asm]
-      - [0xC950, asm]
+      # `track/track.c`: the first and last routines align with JFG's track TU,
+      # 40 of 62 similarity-eligible functions place that TU in their top five,
+      # two large routines reference all 14 resident `track/track.c` assert
+      # strings, and trackSetFogOff is byte-identical to JFG's implementation.
+      - [0xC950, c, main/track]
       - [0x16140, asm]
       - [0x18FF0, asm]
       - [0x1AE60, asm, main/lights2]

@@ -360,6 +360,41 @@ measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
 
+### 3.4 `main/track`: ROM `0xC950`-`0x16140`
+
+This 0x97F0-byte, 66-function block is one resident translation unit. The
+identification is stronger than the isolated `trackSetFogOff` row in §3.3:
+
+- **Tier A:** `trackSetFogOff` at ROM `0x151A0` is byte-identical to JFG's
+  function, with 27 unmasked words, two masked words, and one ROM occurrence.
+- **Tier B:** callers use the block as one track-rendering, collision-query,
+  lighting, and fog API. Internal calls stay within those same clusters; the
+  block's first large routine orchestrates its later helpers.
+- **Tier C:** the routines at `0x8000BDB4` and `0x8000E920` reference all 14
+  resident copies of `"track/track.c"` at `0x80081540`-`0x80081610`.
+- **Tier D:** the complete function order follows JFG's built `src/track.c.o`:
+  update/draw/sky, texture scrolling, track lights, spatial queries, and fog,
+  ending with the corresponding display-list helper. Running
+  `tools/skeleton_scan.py similar --target <vram> --top 5` for every Mickey
+  function puts a JFG `track.c.o` member first for 39 of the 62 functions large
+  enough for the default ten-word index, and in the top five for 40. Exact
+  sizes drift, as expected for a different engine revision, but the order does
+  not.
+
+The 16-byte-aligned yaml boundaries agree with that sequence: ROM `0xC950`
+starts at the function corresponding to JFG's first track routine, and the
+last Mickey function ends at `0x16134`, leaving only 12 bytes of compiler
+alignment before the next subsegment. No routine in the block uses an odd
+single-precision FP register, so none is classified as hand-written assembly
+under §6.2.
+
+**PROVENANCE:** the TU name, comparison order, and reference function names
+come from Jet Force Gemini's public decomp, `src/track.c` and its built
+`src/track.c.o`, a permitted published retail-derived source under
+`docs/CLEANROOM.md`. Mickey's ROM supplies the boundaries, call graph, string
+references, and matching verdicts; JFG is a starting point, never authority
+over a disagreement.
+
 ---
 
 ## 4. libultra
