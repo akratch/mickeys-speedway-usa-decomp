@@ -437,7 +437,7 @@ rangetriggerControl = 0x8001BA54; // type:func size:0x90 tier B/D, ROM 0x1c654
 func_8001BAE4 = 0x8001BAE4; // type:func size:0x14 ROM 0x1c6e4 src/main/spranim.c.o masked=0/5
 func_8001BAF8 = 0x8001BAF8; // type:func size:0xC ROM 0x1c6f8 src/main/spranim.c.o masked=0/3
 func_8001BB04 = 0x8001BB04; // type:func size:0xC ROM 0x1c704 src/main/spranim.c.o masked=0/3
-func_8001BB10 = 0x8001BB10; // type:func size:0x80 ROM 0x1c710
+func_8001BB10 = 0x8001BB10; // type:func size:0x78 ROM 0x1c710
 
 // memory.c -- three 7-word allocator alignment helpers, 0 masked, adjacent.
 align16 = 0x8002BC60; // type:func size:0x1C   ROM 0x2c860  memory.c.o  masked=0/7

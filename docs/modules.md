@@ -443,10 +443,11 @@ body is copied by this split; Mickey's own bytes remain authoritative.
 | `0x1C6E4` | `0x14` | `func_8001BAE4` | exact C, 5 words, 0 relocs; role unresolved |
 | `0x1C6F8` | `0xC` | `func_8001BAF8` | exact C, 3 words, 0 relocs; role unresolved |
 | `0x1C704` | `0xC` | `func_8001BB04` | exact C, 3 words, 0 relocs; role unresolved |
-| `0x1C710` | `0x80` | `func_8001BB10` | unresolved |
+| `0x1C710` | `0x78` | `func_8001BB10` | plateau: 8/30 words differ; first `+0x3C`, load scheduling |
 
 No function in this range uses an odd single-precision FP register, and there
-are no string references. All twenty functions are compiler-generated.
+are no string references. All twenty functions are compiler-generated. ROM
+`0x1C788`-`0x1C790` is alignment padding and receives no function credit.
 
 ### 3.6 Weather (`0x3B480`–`0x3D5F0`)
 
