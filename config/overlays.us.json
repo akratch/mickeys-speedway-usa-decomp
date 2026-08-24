@@ -16194,37 +16194,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xCC",
-     "size": "0xCC",
-     "type": "c",
-     "source": "overlays/o081/overlay81Init",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xCC",
-     "end_offset": "0x220",
-     "size": "0x154",
-     "type": "c",
-     "source": "overlays/o081/overlay81Update",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x220",
-     "end_offset": "0x274",
-     "size": "0x54",
-     "type": "c",
-     "source": "overlays/o081/overlay_081_leafs",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x274",
      "end_offset": "0x34C",
-     "size": "0xD8",
+     "size": "0x34C",
      "type": "c",
-     "source": "overlays/o081/overlay81CheckNearby",
+     "source": "overlays/o081/overlay_081",
      "matched": true,
      "nonmatching": false
     },
