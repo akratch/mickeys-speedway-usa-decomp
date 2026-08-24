@@ -1,89 +1,14 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_005.h"
 
-/*
- * Overlay 5 +0x31c. The typed source recovers the complete audio bootstrap
- * CFG and call/data topology; the build rule selects the shipped register
- * allocation and schedule with guarded, relocation-aware normalization.
- */
+/* Overlay 5, ADR 0006 consolidation: the -O2 game-code portion. */
 
-typedef struct Overlay5Resource {
-    u32 span0Start;
-    u32 span0End;
-    u32 span1Start;
-    u32 span1End;
-    u32 end;
-} Overlay5Resource;
+void overlay5InitSequence(void *owner, s32 value) {
+    Overlay5SequenceHeader header;
 
-typedef struct Overlay5BankEntry {
-    u32 value;
-    u32 size;
-} Overlay5BankEntry;
-
-typedef struct Overlay5Bank {
-    u8 pad00[2];
-    s16 count;
-    u8 pad04[4];
-    Overlay5BankEntry entries[1];
-} Overlay5Bank;
-
-typedef struct Overlay5SoundConfig {
-    void *field00;
-    s32 field04;
-    s32 field08;
-    s32 field0C;
-    s32 field10;
-    void *field14;
-    s32 field18;
-    s8 field1C;
-} Overlay5SoundConfig;
-
-typedef struct Overlay5SequenceConfig {
-    void *field00;
-    s32 field04;
-    s32 field08;
-    void *field0C;
-    s16 field10;
-} Overlay5SequenceConfig;
-
-extern u8 gOverlay5HeapState[];
-extern u8 gOverlay5HeapMemory[];
-extern void *gOverlay5AudioOwner;
-extern void *gOverlay5Span0;
-extern void *gOverlay5Span1;
-extern void *gOverlay5Span2;
-extern u32 gOverlay5Span0Size;
-extern u32 gOverlay5Span1Size;
-extern u32 gOverlay5ScaleValue;
-extern Overlay5Bank *gOverlay5Bank;
-extern u32 *gOverlay5EntryValues;
-extern void *gOverlay5Player0;
-extern void *gOverlay5Player1;
-extern u8 gOverlay5SoundState[];
-extern u8 gOverlay5MessageQueue[];
-extern u8 gOverlay5MessageBuffer[];
-
-extern void alHeapInit(void *heap, void *base, s32 length);
-extern Overlay5Resource *func_8002E148(s32 resourceId);
-extern void *func_8002B280(s32 size, s32 tag);
-extern void func_8002E2E0(s32 resourceId, void *dst, const void *src,
-                          s32 length);
-extern void *func_8002E35C(s32 resourceId, const void *address);
-extern void alBnkfNew(void *bank, void *sampleTable);
-extern void alSeqFileNew(void *sequenceFile, void *data);
-extern void *alHeapDBAlloc(void *file, s32 line, void *heap, s32 count,
-                           s32 size);
-extern void func_80001740(Overlay5SoundConfig *config, s32 count,
-                          void *context);
-extern void *overlay5CreatePlayer(s32 voices, s32 events);
-extern void gsSndpNew(Overlay5SequenceConfig *config);
-extern void func_80001BA0(void);
-extern void func_80000450(void *value);
-extern void func_8002B768(Overlay5Resource *resource);
-extern void func_800039F0(void);
-extern void alSurround_OutputType(s32 outputType);
-extern void alSurround_ReverbSetup(s32 arg0, s32 outputType);
-extern void osCreateMesgQueue(void *queue, void *buffer, s32 count);
-extern void n_alCSPSetMessageQ(void *player, void *queue);
+    header.count = 14;
+    header.value = value;
+    overlay5SequenceInitReloc((u8 *)owner + 0x48, &header, 0);
+}
 
 #ifdef NON_MATCHING
 void overlay5InitializeAudio(void *context) {
@@ -195,3 +120,21 @@ void overlay5InitializeAudio(void *context) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o005/overlay5InitializeAudio/func_overlay_005_F000031C_185B744.s")
 #endif
+
+void *overlay5CreatePlayer(s32 arg0, s32 arg1) {
+    void *player;
+    Overlay5PlayerConfig config;
+
+    config.arg0 = arg0;
+    config.arg1 = arg1;
+    config.voiceCount = arg0;
+    config.channels = 0x10;
+    config.heap = gOverlay5AudioHeap;
+    config.initQueue = gOverlay5InitQueue;
+    config.eventQueue = gOverlay5EventQueue;
+    config.frameCallback = gOverlay5FrameCallback;
+    player = overlay5AllocPlayerReloc(0, 0, gOverlay5AudioHeap, 1, 0x90);
+    overlay5InitPlayerReloc(player, &config);
+    overlay5AttachBankReloc(player, gOverlay5AudioState->sequenceBank);
+    return player;
+}

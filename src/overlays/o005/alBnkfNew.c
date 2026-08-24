@@ -1,12 +1,9 @@
-#include "overlays/o005/audio_bank.h"
+#include "overlays/overlay_005.h"
 
 /*
- * Overlay 5 +0x040. Source crosswalk: DKR us.v77 libultra/src/audio/bnkf.c.
- * Kept as a separate TU because Mickey preserves the helper call while DKR's
- * whole-file -O3 build inlines the same helper graph.
+ * PROVENANCE: adapted from DKR us.v77,
+ * libultra/src/audio/bnkf.c::alBnkfNew.
  */
-void _bnkfPatchBank(ALBank *bank, s32 offset, s32 table);
-
 void alBnkfNew(ALBankFile *file, u8 *table) {
     s32 offset = (s32)file;
     s32 tableOffset = (s32)table;

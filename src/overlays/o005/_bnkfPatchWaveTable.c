@@ -1,6 +1,9 @@
-#include "overlays/o005/audio_bank.h"
+#include "overlays/overlay_005.h"
 
-/* Overlay 5 +0x278. Source crosswalk: DKR us.v77 libultra/src/audio/bnkf.c. */
+/*
+ * PROVENANCE: adapted from DKR us.v77,
+ * libultra/src/audio/bnkf.c::_bnkfPatchWaveTable.
+ */
 void _bnkfPatchWaveTable(ALWaveTable *wave, s32 offset, s32 table) {
     if (wave->flags != 0) {
         return;

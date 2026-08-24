@@ -221,9 +221,7 @@ TEXT_SUBSEGMENTS = {
         (0x188, "c", "_bnkfPatchInst"),
         (0x220, "c", "_bnkfPatchSound"),
         (0x278, "c", "_bnkfPatchWaveTable"),
-        (0x2E4, "c", "overlay5InitSequence"),
-        (0x31C, "c", "overlay5InitializeAudio"),
-        (0x6C0, "c", "overlay5CreatePlayer"),
+        (0x2E4, "c", "overlay_005"),
         (0x764, "asm", "overlay_005_padding"),
     ],
     6: [

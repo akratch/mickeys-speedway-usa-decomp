@@ -675,9 +675,9 @@ $(BUILD_DIR)/$(SRC_DIR)/main/%.c.o: MIPSISET := -mips2 -32
 # rule; MIPS I inserts load-delay nops in several of them.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/%.c.o: MIPSISET := -mips2 -32
 
-# Rare's audio-bank patcher is an -O3 object in DKR and Mickey. Keeping each
-# helper in its measured source boundary prevents the interprocedural inliner
-# from folding calls that remain present in Mickey's bytes.
+# Rare's audio-bank patcher is an -O3 object in DKR and Mickey. Mickey keeps
+# six source boundaries that preserve calls the whole-file DKR build inlines;
+# the grouped consolidation probe reversed their emitted order as well.
 OVERLAY5_O3_TUS := alSeqFileNew alBnkfNew _bnkfPatchBank _bnkfPatchInst \
                    _bnkfPatchSound _bnkfPatchWaveTable
 OVERLAY5_O3_OBJECTS := $(addprefix $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/, \
@@ -712,12 +712,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchSound.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchWaveTable.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x6C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5CreatePlayer.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitializeAudio.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay_005.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_005_F000031C_185B744=overlay5InitializeAudio $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x480
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1WrapOffset.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SignedOffset.c.o: POSTPROCESS = \
@@ -1116,8 +1114,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29DrawGroups.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x204
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay_051.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8AC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitSequence.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ConsumeTimer.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x34
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1TestDirection.c.o: POSTPROCESS = \
@@ -2850,8 +2846,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchInst.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchSound.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchWaveTable.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitializeAudio.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5CreatePlayer.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay_005.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0000000_186F8D8.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F000013C_186FA14.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14Reset.c.o \
@@ -2902,7 +2897,6 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30Initialize.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30TransposePixels.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay_051.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitSequence.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ConsumeTimer.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1TestDirection.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1BuildPointRecord.c.o \

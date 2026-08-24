@@ -1,9 +1,6 @@
-#include "overlays/o005/audio_bank.h"
+#include "overlays/overlay_005.h"
 
-/*
- * Overlay 5 +0x000. Exact DKR us.v77 donor: libultra/src/audio/bnkf.c.
- * Mickey and the donor both require IDO -O3 -mips2 for this 0x40-byte body.
- */
+/* PROVENANCE: adapted from DKR us.v77, libultra/src/audio/bnkf.c::alSeqFileNew. */
 void alSeqFileNew(ALSeqFile *file, u8 *base) {
     s32 offset = (s32)base;
     s32 i;
