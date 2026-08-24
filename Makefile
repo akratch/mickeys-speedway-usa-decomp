@@ -568,7 +568,9 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ll.c.o: POSTPROCESS = $(HOST_PYTHON) \
 # compiled bytes have been checked against the ROM.
 LIBULTRA_NAUDIO_BARE_TUS := n_cspsetvol n_cspgetstate n_cspmessage slHeap sl \
 	n_cseqnextdelta n_synsetpriority n_cspsetchlvol n_cspsetseq n_cspplay \
-	n_cspstop n_cspsendmidi
+	n_cspstop n_cspsendmidi n_sl n_syndelete n_synsetpan n_synsetpitch \
+	n_synsetfxmix n_synstopvoice n_alsynsetlpffreq n_alsynsetlpfgain \
+	n_alsynsetdistort
 $(foreach f,$(LIBULTRA_NAUDIO_BARE_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -g))
 $(foreach f,$(LIBULTRA_NAUDIO_BARE_TUS),$(eval \

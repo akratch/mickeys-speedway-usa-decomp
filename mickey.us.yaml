@@ -222,7 +222,7 @@ segments:
       - [0x623D0, c, libultra/n_cspplay]
       - [0x62410, c, libultra/n_cspstop]
       - [0x62450, c, libultra/n_cspmessage]
-      - [0x62500, asm, libultra/n_sl]
+      - [0x62500, c, libultra/n_sl]
       - [0x625C0, c, libultra/slHeap]
       - [0x62670, c, libultra/sl]
       - [0x626F0, asm, libultra/n_synthesizer]
@@ -233,21 +233,21 @@ segments:
       - [0x63C20, asm, libultra/n_synallocvoice]
       - [0x63F30, asm, libultra/n_synsetvol]
       - [0x64000, asm, libultra/n_synstartvoiceparam]
-      - [0x64130, asm, libultra/n_synsetpan]
-      - [0x641E0, asm, libultra/n_synsetpitch]
-      - [0x64290, asm, libultra/n_synsetfxmix]
-      - [0x64340, asm, libultra/n_synstopvoice]
+      - [0x64130, c, libultra/n_synsetpan]
+      - [0x641E0, c, libultra/n_synsetpitch]
+      - [0x64290, c, libultra/n_synsetfxmix]
+      - [0x64340, c, libultra/n_synstopvoice]
       - [0x643E0, asm, libultra/n_synfreevoice]
       - [0x644C0, asm, libultra/n_alcspchan]
       - [0x64700, asm, libultra/n_seqplayer]
-      - [0x65860, asm, libultra/n_alsynsetlpffreq]
-      - [0x65910, asm, libultra/n_alsynsetlpfgain]
+      - [0x65860, c, libultra/n_alsynsetlpffreq]
+      - [0x65910, c, libultra/n_alsynsetlpfgain]
       - [0x659C0, asm, libultra/n_drvrNew]
       - [0x666D0, asm, libultra/n_syngetfxref]
       - [0x667C0, asm, libultra/n_synsetfxparam]
-      - [0x668C0, asm, libultra/n_alsynsetdistort]
+      - [0x668C0, c, libultra/n_alsynsetdistort]
       - [0x66970, c, libultra/n_cseqnextdelta]
-      - [0x66A50, asm, libultra/n_syndelete]
+      - [0x66A50, c, libultra/n_syndelete]
       - [0x66A70, asm, libultra/n_synallocfx]
       - [0x66B00, asm, libultra/n_reverb]
       - [0x681B0, asm, libultra/n_env]
@@ -444,6 +444,18 @@ segments:
       # not plain resident text. Kept as raw bin until it is identified.
       - [0x76D10, bin]
       - [0x76E60, data]
+      # n_alGlobals/n_syn (libultra/n_sl, the n_audio driver-singleton
+      # pointers): measured from a built candidate object diffed against the
+      # ROM bytes (tools/wb_compare.sh --rom n_alInit --show-diff), which
+      # showed both addresses directly as load/store immediates -- lui/lw
+      # 0x80080160(t6) and 0x80080164(t8/t9), 4 bytes apart, matching the
+      # declaration order in JFG's n_sl.c. Explicit `= 0` initializers put
+      # them in .data rather than .bss. The TU's compiled .data section is
+      # 0x10 bytes (IDO pads .data to 16-byte alignment under -g), 8 bytes
+      # more than the two u32s themselves; both halves are zero in the ROM
+      # either way, so the boundary is set by the compiled object's own size.
+      - [0x80D60, .data, libultra/n_sl]
+      - [0x80D70, data]
       # Named SDK-owned initialized-data tails.  Each boundary is fixed by the
       # matching reference object's section size and by the ROM relocation(s)
       # that address the first symbol; anonymous gaps remain explicitly raw.

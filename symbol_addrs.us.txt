@@ -1027,6 +1027,11 @@ __osCleanupThread = 0x8004F9D4; // type:func size:0x8
 // ---------------------------------------------------------------------------
 // libultra/n_cspsetvol  ROM 0x5e6b0  (jfg/libultra: src/libultra/n_cspsetvol.c.o)  whole .text 0x50, masked=1, romocc=1
 n_alCSPSetVol = 0x8005DAB0; // type:func size:0x4C
+// libultra/n_sl (data)  ROM 0x80d60  n_alGlobals/n_syn, the n_audio driver
+// singletons -- measured from a built candidate diffed against the ROM
+// (tools/wb_compare.sh --rom n_alInit --show-diff); see mickey.us.yaml.
+n_alGlobals = 0x80080160; // type:u32 size:0x4
+n_syn = 0x80080164; // type:u32 size:0x4
 // libultra/n_csplayer  ROM 0x5e700  (jfg/libultra: src/libultra/n_csplayer.c.o)  whole .text 0x3220, masked=154, romocc=1
 n_alCSPNew = 0x8005DB00; // type:func size:0x270
 __n_CSPPostNextSeqEvent = 0x80060C70; // type:func size:0x94
