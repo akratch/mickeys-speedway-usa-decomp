@@ -3614,14 +3614,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97AssignState.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitDirection.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x130
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitDirection.c.o: CFLAGS += -Wab,-r4300_mul
-# IDO canonicalizes values=model+0x3E even though the shipped instruction
-# deliberately reuses the already-live bounds=model+0x3C base. Both compute
-# the same address; assert the exact compiler word before restoring that base.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitScale.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x240 72713fb9de2dd1e74cab0f174df2d35f22735a5209148498cfb2d3d295668797 \
-		fields:0xd0:rs=a1@a3,imm=62@2 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x240
+	$(OBJCOPY) --redefine-sym func_overlay_097_F0000508_18D83A0=overlay97InitScale $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitScale.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100RemoveEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0

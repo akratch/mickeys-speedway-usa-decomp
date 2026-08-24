@@ -77,6 +77,7 @@ typedef struct Overlay97ScaleEntry {
  * IDO spells values=bounds+2 as model+0x3E; the object rule fail-loud patches
  * only that equivalent base-selection word back to the shipped instruction.
  */
+#ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
     f32 radius;
     f32 maximum;
@@ -188,3 +189,6 @@ void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
     }
     object->radius = object->scale * absolute;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o097/overlay97InitScale/func_overlay_097_F0000508_18D83A0.s")
+#endif
