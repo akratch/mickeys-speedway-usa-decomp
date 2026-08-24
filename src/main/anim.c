@@ -123,7 +123,18 @@ void func_8005027C(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005055C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050688.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050704.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005077C.s")
+u32 func_8005077C(u8 pathIndex) {
+    AnimPath *path;
+    u32 result;
+
+    path = D_800D6B00[pathIndex];
+    result = 1;
+    if (path != NULL) {
+        return (path->flags & 1) == 0;
+    }
+    return result;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800507BC.s")
 void animseqLockPath(u8 pathIndex) {
     AnimPath *path;

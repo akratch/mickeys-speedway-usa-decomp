@@ -1489,6 +1489,7 @@ func_8005013C = 0x8005013C; // type:func size:0x40   ROM 0x50d3c  tier-D JFG str
 func_8005017C = 0x8005017C; // type:func size:0x30   ROM 0x50d7c  src/anim.c.o  masked=6/12 tier-A matched-C
 func_800501AC = 0x800501AC; // type:func size:0x1C   ROM 0x50dac  tier-D JFG signed-table-lookup structure, matched C
 func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  masked=9/20 tier-A matched-C
+func_8005077C = 0x8005077C; // type:func size:0x40   ROM 0x5137c  tier-D path-state helper, matched C
 animseqLockPath = 0x80050844; // type:func size:0x38   ROM 0x51444  tier-B JFG paired process-command calls, matched C
 animseqUnLockPath = 0x8005087C; // type:func size:0x38   ROM 0x5147c  tier-B JFG paired process-command calls, matched C
 func_800508B4 = 0x800508B4; // type:func size:0x20   ROM 0x514b4  tier-D path-table getter structure, matched C
