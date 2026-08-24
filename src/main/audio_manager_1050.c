@@ -377,7 +377,9 @@ void amTuneSetReverbOnOff(s32 enabled) {
 void func_800015F8(void) {
     D_80078D78 = 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001608.s")
+void func_80001608(void) {
+    D_80078D78 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001614.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001620.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001668.s")
