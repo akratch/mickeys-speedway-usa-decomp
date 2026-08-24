@@ -360,6 +360,28 @@ measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
 
+#### Audio-manager census and conservative source split
+
+The later source census resolves only part of yaml's former
+`0x1050`-`0xC950` assembly surface. It contains **152 functions**, counted
+from splat's generated labels: 82 in the old `0x1050` subsegment, 5 in
+`0x45F0`, and 65 in `0x4F40`. The requested JFG audio-manager family accounts
+for 74 of them; it does not account for the whole surface.
+
+| Mickey ROM range | Functions | Attribution and evidence | Canonical treatment |
+|---|---:|---|---|
+| `0x1050`-`0x2340` | 49 | JFG `src/audio_manager_1050.c`; **tier A** at `amTuneSetFadeScaled`, `amSndSetPan`, and `forcelink`, plus **tier B** order/call-shape correspondence across the surrounding audio API. The 16-byte end is the next routine before the allocator/message-queue/thread initializer corresponding to JFG's separate `audiomgr` TU | `src/main/audio_manager_1050.c` |
+| `0x2340`-`0x3100` | 13 | JFG `src/audiomgr.c`; **tier B** from allocator, queue, scheduler-message, DMA, and frame-state call shapes. This is not one of the three assigned TUs | assembly, with both boundaries recorded |
+| `0x3100`-`0x45F0` | 20 | JFG `src/audio_manager_36D0.c`; **tier B** from the audio-map allocator at the start, the twenty-function order, positional-sound field setters, and the terminal volume calculation. The already-adopted `audspat_jingle_off` inside is JFG's `amAmbientPause` counterpart, a cross-title naming divergence rather than a second adopted name | `src/main/audio_manager_36D0.c` |
+| `0x45F0`-`0x4F40` | 5 | JFG `src/audio_manager_4C50.c`; **tier A** identities at the first and last functions (`amVibratoInit`, `_depth2Cents`), JFG's five-function order, and four bytes of terminal alignment padding | `src/main/audio_manager_4C50.c` |
+| `0x4F40`-`0xC950` | 65 | JFG `src/objects.c` lineage, not audio-manager code: JFG places `objects` immediately after the oscillator TU and Mickey has the **tier A** `GetRomlistInfo` identity in this run. No whole-object match exists, so no `objects` boundary/name is promoted here | assembly |
+
+PROVENANCE: the TU labels, function-order comparison, and candidate semantic
+roles in this census come from Jet Force Gemini's public decomp and built
+objects, permitted under `docs/CLEANROOM.md`. The C files currently contain
+only Mickey-derived `GLOBAL_ASM` ownership; any later adapted body must carry
+its own point-of-use disclosure and match Mickey's compiler output exactly.
+
 ---
 
 ## 4. libultra
