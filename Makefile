@@ -3247,15 +3247,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o044/overlay44CreateAnimationState.c.o: POSTPRO
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x224
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o044/overlay44ReleaseHandles.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
-# The typed four-slot frame-cache updater recovers the complete operation,
-# CFG, loop, and relocation surfaces. Adopt one proved IDO padding nop and
-# select the shipped complete schedule/register/stack web fail-loud.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o044/overlay44UpdateFrameCache.c.o: \
-	config/normalizations/overlay44UpdateFrameCache.ops
+# NON_MATCHING/GLOBAL_ASM: restore the friendly symbol and retain the
+# trailing-section trim for the extracted function.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o044/overlay44UpdateFrameCache.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2EC ed3e74a94e2745246ca218268c11e61dadc1fe5312d9a676c18fab7aa0293753 \
-		@config/normalizations/overlay44UpdateFrameCache.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_044_F0000294_188BAF4=overlay44UpdateFrameCache $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2EC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o069/overlay69Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C

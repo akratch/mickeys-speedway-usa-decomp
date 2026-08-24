@@ -28,6 +28,7 @@ extern void overlay44UploadFrameReloc(s32 operation, void *handle,
                                       void *source, s32 size);
 
 /* Semantic clean-room draft for overlay 44 +0x294. */
+#ifdef NON_MATCHING
 void overlay44UpdateFrameCache(Overlay44AnimationState *state,
                                s32 updateRate) {
     volatile Overlay44FrameSource *source;
@@ -134,3 +135,6 @@ void overlay44UpdateFrameCache(Overlay44AnimationState *state,
     state->protectedSlot0 = frameSlot;
     state->protectedSlot1 = nextSlot;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o044/overlay44UpdateFrameCache/func_overlay_044_F0000294_188BAF4.s")
+#endif
