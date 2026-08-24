@@ -1452,6 +1452,7 @@ changeLightIntensity = 0x80018E30; // type:func size:0x4C   ROM 0x19a30  src/lig
 lightGetLights = 0x80019340; // type:func size:0x18   ROM 0x19f40  src/lights.c.o  body adapted, linked relocations exact
 killLight = 0x8001923C; // type:func size:0x104   ROM 0x19e3c  src/lights.c.o  Mickey/DKR-adapted body compiler-exact
 lightGetStrongestEffect = 0x80019358; // type:func size:0x13C   ROM 0x19f58  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
+lightUpdateObjects = 0x80019494; // type:func size:0xA8   ROM 0x1a094  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 addRomdefLight = 0x8001897C; // type:func size:0x238   ROM 0x1957c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 addObjectLight = 0x80018BB4; // type:func size:0x200   ROM 0x197b4  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 lightDirectionCalc = 0x80019A24; // type:func size:0x94   ROM 0x1a624  src/lights.c.o  body adapted and compiler-exact

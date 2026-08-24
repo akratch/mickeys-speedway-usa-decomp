@@ -392,7 +392,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x8001923C` | `0x104` | `killLight` | Tier A: Mickey/DKR-adapted C is compiler/link exact |
 | `0x80019340` | `0x18` | `lightGetLights` | Tier A: JFG C and both global relocations are link exact |
 | `0x80019358` | `0x13C` | `lightGetStrongestEffect` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
-| `0x80019494` | `0xA8` | `lightUpdateObjects` | tier-B comparison: calls the following object-light helper |
+| `0x80019494` | `0xA8` | `lightUpdateObjects` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x8001953C` | `0x3F8` | JFG placeholder `func_80021B9C` | placeholder prohibited; remains `func_8001953C` |
 | `0x80019934` | `0xF0` | `lightDistanceCalc` | tier-B comparison: same distance-mode call surface |
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | Tier A: JFG C is compiler/link exact |

@@ -30,6 +30,21 @@ extern s32 D_80079494;
 extern void **D_80079498;
 extern f32 D_800817B0;
 
+/* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
+typedef struct LightingObject {
+    u8 pad0[0x40];
+    u8 *segmentData;
+    u8 pad44[0xC];
+    s32 objectLight;
+    u8 pad54[0x3B];
+    u8 unk8F;
+    u8 pad90[3];
+    u8 segmentIndex;
+} LightingObject;
+
+extern LightingObject **func_8000572C(s32 *start, s32 *end);
+extern void func_8001953C(LightingObject *object, s32 objectLight);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018710.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001879C.s")
 /* PROVENANCE: adapted from DKR's public decomp, src/lights.c, and Mickey's own assembly. */
@@ -248,7 +263,28 @@ UnkLight *lightGetStrongestEffect(f32 x, f32 y, f32 z) {
     }
     return strongestLight;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019494.s")
+/* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
+void lightUpdateObjects(void) {
+    s32 objectLight;
+    LightingObject **objects;
+    LightingObject *object;
+    s32 start;
+    s32 end;
+
+    objects = func_8000572C(&start, &end);
+    if (start < end) {
+        do {
+            object = objects[start];
+            start++;
+            objectLight = object->objectLight;
+            if ((objectLight != 0) &&
+                (*(s8 *) (object->segmentData + object->segmentIndex + 0x1E) == 0) &&
+                (object->unk8F == 0)) {
+                func_8001953C(object, objectLight);
+            }
+        } while (start < end);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001953C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019934.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
