@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 79976,
-  "nonmatching_overlay_c_bytes": 200876,
+  "matched_overlay_c_bytes": 79848,
+  "nonmatching_overlay_c_bytes": 201004,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -6400,30 +6400,12 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x17C",
-     "size": "0x17C",
-     "type": "c",
-     "source": "overlays/o025/overlay25InitializeEffect",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x17C",
-     "end_offset": "0x588",
-     "size": "0x40C",
-     "type": "c",
-     "source": "overlays/o025/overlay25UpdateEffect",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x588",
      "end_offset": "0x608",
-     "size": "0x80",
+     "size": "0x608",
      "type": "c",
-     "source": "overlays/o025/overlay25SetVectorFlags",
+     "source": "overlays/o025/overlay_025",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x608",

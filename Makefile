@@ -1387,16 +1387,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay_024.c.o: POSTPROCESS = \
 		3e99999a000000000000000000000000
 # NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration and
 # trailing-section trimming metadata for these extracted functions.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25InitializeEffect.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_025_F0000000_1879C88=overlay25InitializeEffect $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x17C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25UpdateEffect.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_025_F000017C_1879E04=overlay25UpdateEffect $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x40C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25SetVectorFlags.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay_025.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_025_F0000000_1879C88=overlay25InitializeEffect \
+		--redefine-sym func_overlay_025_F000017C_1879E04=overlay25UpdateEffect $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x608
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27RenderEffect.c.o: \
@@ -3015,9 +3010,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Update.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23RenderEffect.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay_024.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25InitializeEffect.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25UpdateEffect.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25SetVectorFlags.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay_025.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27Init.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateEffectState.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay_056.c.o \

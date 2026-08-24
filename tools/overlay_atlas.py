@@ -468,9 +468,7 @@ TEXT_SUBSEGMENTS = {
         (0x414, "asm", "overlay_024_padding"),
     ],
     25: [
-        (0x000, "c", "overlay25InitializeEffect"),
-        (0x17C, "c", "overlay25UpdateEffect"),
-        (0x588, "c", "overlay25SetVectorFlags"),
+        (0x000, "c", "overlay_025"),
         (0x608, "asm", "overlay_025_padding"),
     ],
     34: [

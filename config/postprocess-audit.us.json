@@ -3235,36 +3235,11 @@
     {
       "class": "metadata",
       "matched_c": true,
-      "object": "build/src/overlays/o025/overlay25InitializeEffect.c.o",
+      "object": "build/src/overlays/o025/overlay_025.c.o",
       "offset": 0,
       "overlay": 25,
-      "size": 380,
-      "source": "src/overlays/o025/overlay25InitializeEffect.c",
-      "tools": [
-        "trim_elf_section.py",
-        "objcopy"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
-      "object": "build/src/overlays/o025/overlay25SetVectorFlags.c.o",
-      "offset": 1416,
-      "overlay": 25,
-      "size": 128,
-      "source": "src/overlays/o025/overlay25SetVectorFlags.c",
-      "tools": [
-        "trim_elf_section.py"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
-      "object": "build/src/overlays/o025/overlay25UpdateEffect.c.o",
-      "offset": 380,
-      "overlay": 25,
-      "size": 1036,
-      "source": "src/overlays/o025/overlay25UpdateEffect.c",
+      "size": 1544,
+      "source": "src/overlays/o025/overlay_025.c",
       "tools": [
         "trim_elf_section.py",
         "objcopy"
@@ -8434,9 +8409,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 684
+      "metadata": 682
     },
     "matched_c_bytes_with_postprocess": 263140,
-    "objects_with_postprocess": 684
+    "objects_with_postprocess": 682
   }
 }
