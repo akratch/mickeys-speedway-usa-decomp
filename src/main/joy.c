@@ -13,8 +13,10 @@ extern u16 D_8007A0C8;
 extern OSMesgQueue D_800CF340;
 extern s8 D_800CF372[];
 extern s8 D_800CF373[];
+extern u16 D_800CF3A0[];
 extern u8 D_800CF3B0[];
 extern u8 D_800CF3B4[];
+extern s32 func_8003A550(void);
 
 /* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
 OSMesgQueue *joyMessageQ(void) {
@@ -46,7 +48,13 @@ u8 joyGetController(s32 player) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyGetButtons.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyGetPressed.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+u16 joyGetPressed(s32 player) {
+    if (func_8003A550() != 0) {
+        return 0;
+    }
+    return D_800CF3A0[D_800CF3B0[player]];
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyGetReleased.s")
 
