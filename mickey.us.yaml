@@ -214,7 +214,7 @@ segments:
       - [0x5B300, asm]
       - [0x5C310, asm, main/gsSnd]
       - [0x5E6B0, c, libultra/n_cspsetvol]
-      - [0x5E700, asm, libultra/n_csplayer]
+      - [0x5E700, c, libultra/n_csplayer]
       - [0x61920, c, libultra/n_cspsetchlvol]
       - [0x61990, c, libultra/n_cspgetstate]
       - [0x619B0, asm, libultra/n_cseq]
@@ -444,6 +444,10 @@ segments:
       # not plain resident text. Kept as raw bin until it is identified.
       - [0x76D10, bin]
       - [0x76E60, data]
+      # n_csplayer's 127-entry timing table followed by its zero flag. The
+      # 0x200-byte object section and first address are fixed by the compiled
+      # candidate and Mickey's own relocations.
+      - [0x80B60, .data, libultra/n_csplayer]
       # n_alGlobals/n_syn (libultra/n_sl, the n_audio driver-singleton
       # pointers): measured from a built candidate object diffed against the
       # ROM bytes (tools/wb_compare.sh --rom n_alInit --show-diff), which
@@ -499,10 +503,11 @@ segments:
       # the resident segment. Two things the later per-TU split needs are
       # measured and recorded here:
       #
-      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 44 jump
-      #      tables in the static segment back to the functions that reference
-      #      them gives 35 functions whose ROM addresses and whose jump-table
-      #      addresses are both monotonically increasing -- ZERO INVERSIONS.
+      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 39 jump
+      #      tables still emitted in asm/ back to the functions that reference
+      #      them gives ROM addresses and jump-table addresses that are both
+      #      monotonically increasing -- ZERO INVERSIONS. Five additional
+      #      tables now belong to matched n_csplayer C.
       #      First pair (ROM 0x7D18 -> jtbl_80080D2C), last (ROM 0x72B00 ->
       #      jtbl_80084970). So .rodata can be carved TU by TU in text order,
       #      which is what makes a per-file split tractable at all.
@@ -526,6 +531,10 @@ segments:
       # `enddlabel` as a zero-size label directive, preserving the symbol-size
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
+      # Five n_csplayer jump tables, in the same order and with the same
+      # 0x300-byte section size as the JFG donor object.
+      - [0x85070, .rodata, libultra/n_csplayer]
+      - [0x85370, rodata]
       - [0x85380, .rodata, libultra/cents2ratio]
       - [0x85390, rodata]
       - [0x854A0, .rodata, libultra/sinf]
@@ -535,6 +544,8 @@ segments:
       - [0x85700, rodata]
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }
+      - { type: .bss, vram: 0x800D7D80, name: libultra/n_csplayer }
+      - { type: bss, vram: 0x800D7DC0, name: bss_gap_D800D7DC0 }
       - { type: .bss, vram: 0x800D8070, name: libultra/seteventmesg }
       - { type: bss, vram: 0x800D80F0, name: bss_gap_D800D80F0 }
       - { type: .bss, vram: 0x800D8180, name: libultra/vimgr }

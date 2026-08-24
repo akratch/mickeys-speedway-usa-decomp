@@ -1501,12 +1501,15 @@ func_8005CDAC = 0x8005CDAC; // type:func size:0x7C   ROM 0x5d9ac  src/gsSnd.c.o 
 func_8005CE28 = 0x8005CE28; // type:func size:0x104   ROM 0x5da28  src/gsSnd.c.o  masked=4/65
 func_8005D030 = 0x8005D030; // type:func size:0x230   ROM 0x5dc30  src/gsSnd.c.o  masked=22/140
 func_8005D260 = 0x8005D260; // type:func size:0x144   ROM 0x5de60  src/gsSnd.c.o  masked=23/81
-// jfg:src/libultra/n_csplayer.c.o
-func_8005DD70 = 0x8005DD70; // type:func size:0x87C   ROM 0x5e970  src/libultra/n_csplayer.c.o  masked=45/543
-func_8005E5EC = 0x8005E5EC; // type:func size:0x110   ROM 0x5f1ec  src/libultra/n_csplayer.c.o  masked=11/68
-func_8005E900 = 0x8005E900; // type:func size:0x1FC4   ROM 0x5f500  src/libultra/n_csplayer.c.o  masked=71/2033
-func_800608C4 = 0x800608C4; // type:func size:0x250   ROM 0x614c4  src/libultra/n_csplayer.c.o  masked=4/148
-func_80060B14 = 0x80060B14; // type:func size:0x114   ROM 0x61714  src/libultra/n_csplayer.c.o  masked=4/69
+// n_csplayer internal symbols recovered from the exact JFG donor
+__n_CSPVoiceHandler = 0x8005DD70; // type:func size:0x87C
+__n_CSPHandleNextSeqEvent = 0x8005E5EC; // type:func size:0x110
+n_alCSPApplyChlVol = 0x8005E6FC; // type:func size:0xAC
+func_8005E7A8 = 0x8005E7A8; // type:func size:0x158
+__n_CSPHandleMIDIMsg = 0x8005E900; // type:func size:0x1FC4
+__n_CSPHandleMetaMsg = 0x800608C4; // type:func size:0x250
+__n_CSPRepostEvent = 0x80060B14; // type:func size:0x114
+__n_setUsptFromTempo = 0x80060C28; // type:func size:0x48
 // jfg:src/libultra/n_drvrNew.c.o
 func_80064DC0 = 0x80064DC0; // type:func size:0x164   ROM 0x659c0  src/libultra/n_drvrNew.c.o  masked=5/89
 // jfg:src/libultra/n_env.c.o

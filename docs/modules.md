@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-25 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 23 more from it): every masked=0/1/2 TU (the
+26 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 24 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -495,7 +495,10 @@ of the resident `.data` band in `mickey.us.yaml`, since almost everything
 else in the library reads `n_syn`), the seven `ALParam`-update setters
 that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 `-DRAREDIFFS` for Rare's added MIDI control-change codes), and
-`n_syngetfxref`.
+`n_syngetfxref`. The `0x3220`-byte `n_csplayer` text and its owned
+`0x200`-byte `.data`, `0x300`-byte `.rodata`, and `0x40`-byte `.bss`
+also match exactly from the JFG source; its multiply sequences require
+`-Wab,-r4300_mul` in addition to `-DRAREDIFFS`.
 
 **Plateaus, each with a first mismatch:**
 
@@ -510,8 +513,8 @@ that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
   attempt.
 
 Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
-`0xAD0`), `n_csplayer` (masked=154, `0x3220`), `n_reverb` (masked=60,
-DSP-heavy, deferred per plan), `n_env` (masked=59), `alsurround`
+`0xAD0`), `n_reverb` (masked=60, DSP-heavy, deferred per plan), `n_env`
+(masked=59), `alsurround`
 (masked=39), `n_event`/`n_drvrNew` (masked=34 each), `n_synaddplayer`
 (masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_cseq`
 (masked=15), `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
@@ -3884,9 +3887,10 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** 35 functions, 44 jump tables,
-  monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
-  by TU in text order, which is what makes the per-TU split tractable.
+- **rodata order follows text order exactly.** The 39 jump tables still emitted
+  in `asm/` are monotonic in both columns, with **zero inversions**. So
+  `.rodata` can be carved TU by TU in text order, which is what makes the
+  per-TU split tractable. Five more tables now belong to matched `n_csplayer` C.
 
 Two toolchain facts govern the per-TU split:
 
