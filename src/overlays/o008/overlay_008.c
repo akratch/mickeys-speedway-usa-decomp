@@ -382,6 +382,9 @@ void func_overlay_008_F0002640_1860398(
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0002640_1860398.s")
 #endif
 
+/* Plateau after 10 serious attempts: exact 0x5A4 instruction count/opcodes,
+ * 56 instruction-word differences, first at +0x0. The candidate frame is
+ * 0x70 versus target 0x68; angle/contact stack-home order drives the FP pool. */
 #ifdef NON_MATCHING
 void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
                                        O8P291CState *state,
