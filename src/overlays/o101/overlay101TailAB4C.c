@@ -95,6 +95,7 @@ extern void o101TailAB4CFinalizerReloc(void *object);
 extern s32 overlay101ByteLength(u8 *text);
 
 /* Exact typed owner for Overlay 101 .text +0xAB4C..+0xB544. */
+#ifdef NON_MATCHING
 void func_overlay_101_F000AB4C_18E636C(void) {
     s32 orderIndex;
     s32 nodeIndex;
@@ -428,3 +429,6 @@ void func_overlay_101_F000AB4C_18E636C(void) {
 
     o101TailAB4CFinalizerReloc(&gO101TailAB4CFinalObject3F14);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailAB4C/func_overlay_101_F000AB4C_18E636C.s")
+#endif

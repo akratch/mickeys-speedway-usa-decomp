@@ -22,6 +22,7 @@ void overlay101BuilderCreateReloc(Overlay101Gfx **displayList, s32 count,
  * Overlay 101 text +0x2DC0..+0x2EFC.  Volatile color locals and an explicit
  * final-record pointer retain the exact private-frame compiler basin.
  */
+#ifdef NON_MATCHING
 void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
                            s32 width, s32 height, s32 intensity, s32 alpha,
                            s32 swapColors) {
@@ -75,3 +76,6 @@ void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
 
     overlay101BuilderCreateReloc(displayList, 5, rects, 0);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101BuildBorder/func_overlay_101_F0002DC0_18DE5E0.s")
+#endif

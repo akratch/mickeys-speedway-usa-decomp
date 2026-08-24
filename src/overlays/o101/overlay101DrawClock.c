@@ -81,6 +81,7 @@ f32 overlay101ClockTrigBReloc(s32 angle);
     }
 
 /* DKR v77/v80 and JFG have no exact donor for this clock renderer. */
+#ifdef NON_MATCHING
 void overlay101DrawClock(Overlay101Gfx **displayList, Overlay101Panel *panel,
                          Overlay101Vertex **vertexCursor, s32 originX,
                          s32 originY) {
@@ -173,3 +174,6 @@ void overlay101DrawClock(Overlay101Gfx **displayList, Overlay101Panel *panel,
 
     *vertexCursor = vertex;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101DrawClock/func_overlay_101_F000332C_18DEB4C.s")
+#endif

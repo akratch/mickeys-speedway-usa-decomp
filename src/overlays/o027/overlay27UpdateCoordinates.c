@@ -20,6 +20,7 @@ extern s32 gOverlay27XOffset;
 extern s32 gOverlay27YOffset;
 
 /* DKR v77/v80 and JFG contain no exact donor for this table transform. */
+#ifdef NON_MATCHING
 void overlay27UpdateCoordinates(s32 amount) {
     Overlay27CoordinateRecord *record;
     s32 xOffset;
@@ -48,3 +49,6 @@ void overlay27UpdateCoordinates(s32 amount) {
         record++;
     } while (remaining--);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o027/overlay27UpdateCoordinates/func_overlay_027_F0000A1C_187C3F4.s")
+#endif

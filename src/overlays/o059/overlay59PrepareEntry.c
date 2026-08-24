@@ -27,6 +27,7 @@ extern Overlay59DescriptorGroup gOverlay59DescriptorTables[];
 extern void overlay59ReleaseEntryReloc(Overlay59Entry *entry);
 extern u32 overlay59AcquireReloc(u32 value);
 
+#ifdef NON_MATCHING
 s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) {
     Overlay59Descriptor *descriptor;
     u32 handle;
@@ -66,3 +67,6 @@ s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) 
     }
     return result;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o059/overlay59PrepareEntry/func_overlay_059_F0000070_18B87C0.s")
+#endif

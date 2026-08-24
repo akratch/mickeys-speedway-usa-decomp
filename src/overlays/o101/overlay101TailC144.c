@@ -89,6 +89,7 @@ extern void o101TailC144FinalizerReloc(void *object);
 extern s32 overlay101ByteLength(u8 *text);
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative. */
+#ifdef NON_MATCHING
 void func_overlay_101_F000C144_18E7964(void) {
     s32 orderIndex;
     s32 nodeIndex;
@@ -265,3 +266,6 @@ void func_overlay_101_F000C144_18E7964(void) {
 
     o101TailC144FinalizerReloc(&gO101TailC144FinalObject4A90);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailC144/func_overlay_101_F000C144_18E7964.s")
+#endif

@@ -9,4 +9,8 @@
 #define overlay69SubmitDynamicReloc overlay88SubmitDynamicReloc
 #define overlay69SubmitFixedReloc overlay88SubmitFixedReloc
 
+#ifdef NON_MATCHING
 #include "src/overlays/o069/overlay69DrawSortedGeometry.c"
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o088/overlay88DrawSortedGeometry/func_overlay_088_F00001A4_18D3C2C.s")
+#endif

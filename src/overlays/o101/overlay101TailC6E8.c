@@ -101,6 +101,7 @@ extern void o101TailC6E8TailFinalReloc();
  * distinct opaque call identities even though the split object uses one raw
  * static carrier for all calls.
  */
+#ifdef NON_MATCHING
 void func_overlay_101_F000C6E8_18E7F08(void) {
     s32 count;
     s32 orderIndex;
@@ -261,3 +262,6 @@ common_tail:
     o101TailC6E8Tail27Reloc(0x27);
     o101TailC6E8TailFinalReloc();
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailC6E8/func_overlay_101_F000C6E8_18E7F08.s")
+#endif

@@ -68,6 +68,7 @@ extern void overlay29EmitReloc(s32 id, f32 x, f32 y, f32 z, s32 type, s32 arg);
         record->value = 0xFF; \
     } while (0)
 
+#ifdef NON_MATCHING
 void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
     Overlay29Object *object;
     Overlay29Record *record;
@@ -136,3 +137,6 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
     object->resource->flags &= ~1;
     object->flags06 |= 0x400;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/overlay29HandleEffects/func_overlay_029_F00010C4_187E374.s")
+#endif

@@ -36,6 +36,7 @@ extern void overlay59Release(Overlay59Entry *entry);
  * prologue permutation plus asserted local relocation addends selects the
  * retail schedule while the original overlay relocation assets stay retained.
  */
+#ifdef NON_MATCHING
 void overlay59Advance(s32 steps) {
     Overlay59Entry *entry;
     Overlay59Entry *current;
@@ -201,3 +202,6 @@ void overlay59Advance(s32 steps) {
         entry++;
     } while (entry != gOverlay59EntriesOneEnd);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o059/overlay59Advance/func_overlay_059_F000036C_18B8ABC.s")
+#endif

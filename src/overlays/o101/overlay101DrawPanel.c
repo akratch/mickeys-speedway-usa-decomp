@@ -55,6 +55,7 @@ void func_overlay_101_F0000000_18DB820();
 #define overlay101DrawDefaultAssetReloc func_overlay_101_F0000000_18DB820
 
 /* Pinned DKR v77/v80 and JFG scans classify overlay 101 as no donor. */
+#ifdef NON_MATCHING
 void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
     Overlay101PanelRect *out;
     s32 x;
@@ -191,3 +192,6 @@ void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
                                         255, 255, 255, panel->alpha);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101DrawPanel/func_overlay_101_F0002EFC_18DE71C.s")
+#endif

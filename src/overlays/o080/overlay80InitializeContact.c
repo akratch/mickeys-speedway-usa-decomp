@@ -48,6 +48,7 @@ extern void overlay80ResolveCandidateReloc(
     s16 key, s32 selectedValue, s16 *outputA, s16 *outputB);
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+#ifdef NON_MATCHING
 void overlay80InitializeContact(Overlay80Object *object,
                                 const Overlay80Init *init) {
     Overlay80State *state;
@@ -84,3 +85,6 @@ void overlay80InitializeContact(Overlay80Object *object,
         object->notice->state = 2;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o080/overlay80InitializeContact/func_overlay_080_F0000000_18CE8C8.s")
+#endif

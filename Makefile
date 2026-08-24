@@ -1852,51 +1852,14 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29UpdateRatio.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29UpdateRatio.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29Sample.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x128
-# Natural source owns the exact typed object initializer, calls, CFG, and
-# instruction multiset. The complete address-taken workspace schedule and
-# private initializer web select retail's equivalent frame/register layout.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29InitializeObject.c.o: \
-	config/normalizations/overlay29InitializeObject.ops \
-	config/normalizations/overlay29InitializeObject.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29InitializeObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x198 97927750b4425decf6e37234d1646fef82f534c9a9c3a0d42baad4e2bfef0a6f \
-		@config/normalizations/overlay29InitializeObject.ops && \
-	$(OBJCOPY) --redefine-sym \
-		func_80029A24=func_overlay_029_F0000000_187D2B0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay29InitializeObject.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x198
-# The typed four-record effect path emits the shipped instruction order, CFG,
-# calls, and memory effects. This complete target-local web selects retail's
-# equivalent register colors and private stack/record homes only.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29HandleEffects.c.o: \
-	config/normalizations/overlay29HandleEffects.ops \
-	config/normalizations/overlay29HandleEffects.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29HandleEffects.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29HandleEffects.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x404 db57afb6582b28b710ad7695c02935ee148dc25558fbfda2f997d713750b258d \
-		@config/normalizations/overlay29HandleEffects.ops && \
-	$(OBJCOPY) --redefine-sym \
-		overlay29ResetReloc=func_overlay_029_F0000000_187D2B0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay29HandleEffects.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x404
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29DrawGroups.c.o: \
-	config/normalizations/overlay29DrawGroups.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29DrawGroups.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x204 1c0437b30e748ac5ed69b7e03ec81f9f81030e0f45e979df35ebf43bfbfe3fa5 \
-		@config/normalizations/overlay29DrawGroups.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x18c:overlay29FlushReloc:func_overlay_029_F0000000_187D2B0 \
-		0x1a8:overlay29FinishReloc:func_overlay_029_F0000000_187D2B0 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_029_F00014C8_187E778=overlay29DrawGroups $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x204
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay51Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
@@ -2237,52 +2200,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000000_18CCFA0.c.o: POS
 # The second assembly fallback likewise needs only boundary trimming.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0001290_18CE230.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1EC
-# The measured R4300 hazard mode naturally emits the shipped FP interlock and
-# exact 284-byte boundary. IDO still canonicalizes one finite multiply's
-# operands oppositely; assert that sole natural word before restoring it.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o080/overlay80InitializeContact.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o080/overlay80InitializeContact.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x11c 52287c1e9828ffa46e84752fc5bbc8d42f5fcfd5010b4226d355710fe6bef05b \
-		fields:0x4c:rt=10@16,rd=16@10 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_080_F0000000_18CE8C8=overlay80InitializeContact $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11C
-# The measured R4300 mode also reproduces this routine's complete instruction
-# and relocation schedule. IDO's private frame allocator chooses a compact,
-# non-overlapping layout; assert every member of that one coherent storage web
-# before translating only its immediate fields to the shipped 0x80-byte frame.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o080/overlay80UpdateContact.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o080/overlay80UpdateContact.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2d0 c48713801769c01019ca1da257791d070876abd2ee0fa2d6cad6dde155055802 \
-		fields:0x0:imm=65416@65408 \
-		fields:0x8:imm=124@132 \
-		fields:0x20:imm=72@84 \
-		fields:0x28:imm=120@128 \
-		fields:0x34:imm=116@124 \
-		fields:0x38:imm=116@124 \
-		fields:0x40:imm=120@128 \
-		fields:0x44:imm=72@84 \
-		fields:0xe0:imm=116@124 \
-		fields:0xe4:imm=120@128 \
-		fields:0xec:imm=108@120 \
-		fields:0xf0:imm=56@48 \
-		fields:0x104:imm=116@124 \
-		fields:0x108:imm=108@120 \
-		fields:0x124:imm=120@128 \
-		fields:0x128:imm=56@48 \
-		fields:0x234:imm=56@48 \
-		fields:0x238:imm=120@128 \
-		fields:0x23c:imm=116@124 \
-		fields:0x248:imm=116@124 \
-		fields:0x24c:imm=120@128 \
-		fields:0x250:imm=56@48 \
-		fields:0x26c:imm=124@132 \
-		fields:0x288:imm=116@124 \
-		fields:0x28c:imm=120@128 \
-		fields:0x29c:imm=116@124 \
-		fields:0x2a4:imm=120@128 \
-		fields:0x2c4:imm=120@128 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2D0
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_080_F000011C_18CE9E4=overlay80UpdateContact $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84CopyPair.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
 # Natural codegen owns the exact CFG, opcode/register/relocation multiset, and
@@ -2486,264 +2412,28 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateColor.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x198
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildIntensityColors.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
-# The natural 79-word object has the exact frame, calls, stack layout, CFG,
-# and rectangle values.  This guarded permutation selects retail's equivalent
-# straight-line private-stack schedule and complete temporary register web.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildBorder.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x13C d4f8551e10c9aeb38f4491cfbf28473b85553f0e98fa66ff33ce98f6355af73c \
-		reorder:0x7c=0x80,0x80=0x7c,0x84=0x84,0x88=0x90,0x8c=0x94,0x90=0x88,0x94=0x8c,0x98=0x98,0x9c=0xac,0xa0=0xa0,0xa4=0x9c,0xa8=0xbc,0xac=0xa4,0xb0=0xa8,0xb4=0xb0,0xb8=0xb4,0xbc=0xb8,0xc0=0xc0,0xc4=0xc4,0xc8=0xc8,0xcc=0xcc,0xd0=0xd0,0xd4=0xd4,0xd8=0xd8,0xdc=0xdc,0xe0=0xe0,0xe4=0xe4,0xe8=0xe8,0xec=0xec,0xf0=0xf0,0xf4=0xf4,0xf8=0xf8,0xfc=0xfc,0x100=0x100,0x104=0x104,0x108=0x108,0x10c=0x10c,0x110=0x110,0x114=0x118,0x118=0x128,0x11c=0x11c,0x120=0x120,0x124=0x124,0x128=0x114 \
-		fields:0x44:rt=t1@a2 \
-		fields:0x4c:rt=t2@t1 \
-		fields:0x74:rt=t1@a2 \
-		fields:0x78:rt=t2@t1 \
-		fields:0x7c:rt=t4@t3 \
-		fields:0x84:rt=t3@t2 \
-		fields:0x88:rs=t2@a2,rt=t9@t3,rd=v1@a0 \
-		fields:0x8c:rt=t4@t9,rd=a1@a3 \
-		fields:0x90:rt=t5@t4 \
-		fields:0x94:rt=t6@t5 \
-		fields:0x98:rt=t7@t6 \
-		fields:0x9c:rt=t1@a2 \
-		fields:0xa0:rs=t1@a2,rt=a2@a1 \
-		fields:0xa4:rs=v1@a3,rt=a0@v1 \
-		fields:0xa8:rt=t1@a2 \
-		fields:0xac:rs=t2@t1,rt=a3@a2 \
-		fields:0xb0:rs=a1@a0 \
-		fields:0xb4:rt=t2@t1 \
-		fields:0xb8:rt=a2@a1 \
-		fields:0xbc:rt=a0@v1 \
-		fields:0xc0:rt=a0@v1 \
-		fields:0xc4:rt=a1@a0 \
-		fields:0xc8:rt=v1@a3 \
-		fields:0xd0:rt=a3@a2 \
-		fields:0xd4:rt=a1@a0 \
-		fields:0xd8:rt=a0@v1 \
-		fields:0xdc:rt=a2@a1 \
-		fields:0xe0:rt=t2@t1 \
-		fields:0xe4:rt=a1@a0 \
-		fields:0xe8:rt=a3@a2 \
-		fields:0xf0:rt=t3@t2 \
-		fields:0xf4:rt=t5@t4 \
-		fields:0xf8:rt=t6@t5 \
-		fields:0xfc:rt=t7@t6 \
-		fields:0x100:rt=a2@a1 \
-		fields:0x104:rt=a3@a2 \
-		fields:0x10c:rt=a0@v1 \
-		fields:0x110:rt=t8@t7 \
-		fields:0x11c:rt=t8@t7 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_101_F0002DC0_18DE5E0=overlay101BuildBorder $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x13C
-# Natural codegen owns the exact 268-word opcode/function census, frame, CFG,
-# calls, branch shape, semantic immediates, and relocation sites. This guarded
-# complete permutation selects retail's equivalent private construction and
-# register web; its only immediate changes are six proved stack-home aliases.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawPanel.c.o: \
-	config/normalizations/overlay101DrawPanel.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawPanel.c.o: CFLAGS += -woff 835
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawPanel.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x430 e1468b587569543eacaf50ccbf70ded9e88f16ba854aead53203ff52584d6cef \
-		@config/normalizations/overlay101DrawPanel.ops
-# The typed presentation owner naturally recovers the full semantic CFG,
-# calls, record writes, conversion diamonds, and frame. A whole-owner guarded
-# retained-address preparation, exact trim, and relocation-aware bijection
-# select retail's equivalent private schedule/register web. Two final bounded
-# filters and carrier-specific rebinds preserve all 40 static and 48 runtime
-# relocation roles.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailAB4C.c.o: \
-	config/normalizations/overlay101TailAB4C.prepare.py \
-	config/normalizations/overlay101TailAB4C.retained.filter.spec \
-	config/normalizations/overlay101TailAB4C.ops \
-	config/normalizations/overlay101TailAB4C.addends.ops \
-	config/normalizations/overlay101TailAB4C.filter.spec \
-	config/normalizations/overlay101TailAB4C.calls.spec \
-	$(TOOLS_DIR)/trim_elf_section.py \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_101_F0002EFC_18DE71C=overlay101DrawPanel $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailAB4C.c.o: CFLAGS += -woff 835
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailAB4C.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101TailAB4C.retained.filter.spec && \
-	$(HOST_PYTHON) config/normalizations/overlay101TailAB4C.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F8 \
-		0000000000000000 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x9F8 7ffdc0e790371ae00d38dee6061af7713aeffa092ee6bc6c7c27a7ba15d472e2 \
-		@config/normalizations/overlay101TailAB4C.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x9F8 9603f7a7d2335516a72296d87d51432d8e7f1a5d3eb9f15e723d1883b8c7c5eb \
-		@config/normalizations/overlay101TailAB4C.addends.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101TailAB4C.filter.spec && \
-	$(OBJCOPY) \
-		--redefine-sym gO101TailAB4CRoot=D_1C \
-		--redefine-sym gO101TailAB4COrderCount=D_1C4 \
-		--redefine-sym gO101TailAB4CAssetD90=D_D90 \
-		--redefine-sym gO101TailAB4COrderSlots=D_38 \
-		--redefine-sym gO101TailAB4CNode32Count=D_1CC \
-		--redefine-sym gO101TailAB4CNodes32=D_340 \
-		--redefine-sym gO101TailAB4CNode24Count=D_1D0 \
-		--redefine-sym gO101TailAB4CNodes24=D_540 \
-		--redefine-sym gO101TailAB4CFinalObject3F14=D_3F14 \
-		--redefine-sym o101TailAB4CCreator1Reloc=func_overlay_101_F0000000_18DB820 \
-		--redefine-sym overlay101ByteLength=func_overlay_101_F000CEA8_18E86C8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101TailAB4C.calls.spec
-# The typed builder naturally owns every data/call role and the full semantic
-# opcode inventory. Remove only IDO's asserted volatile-FPR home pair, then
-# select the complete equivalent private schedule/register web and restore the
-# three proved raw local addends. Every stage is guarded by a full-text digest.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailB544.c.o: \
-	config/normalizations/overlay101TailB544.prepare.py \
-	config/normalizations/overlay101TailB544.ops \
-	config/normalizations/overlay101TailB544.filter.spec \
-	config/normalizations/overlay101TailB544.addends.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailB544.c.o: CFLAGS += -woff 835
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailB544.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay101TailB544.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4F0 faf19203d1594c3045b22e6a924f58e2ff0abe1ca0b866fd44006ea437bf0793 \
-		@config/normalizations/overlay101TailB544.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101TailB544.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4F0 ab9be9ec9253c7454f7b0e0bae0864bfacb629b01d2e3cf8fc05ba802e9464fe \
-		@config/normalizations/overlay101TailB544.addends.ops
-# The typed presentation builder naturally owns all 45 runtime roles and the
-# complete semantic instruction census. A guarded whole-owner preparation
-# canonicalizes the two equivalent 1.0f webs, then a complete relocation-aware
-# bijection selects retail's private schedule/register web. Exact local
-# addends, split-object relocation filtering, carrier renames, and call/root
-# rebinding finish the configured 452-word owner.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailBA34.c.o: \
-	config/normalizations/overlay101TailBA34.prepare.py \
-	config/normalizations/overlay101TailBA34.ops \
-	config/normalizations/overlay101TailBA34.addends.ops \
-	config/normalizations/overlay101TailBA34.filter.spec \
-	config/normalizations/overlay101TailBA34.calls.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailBA34.c.o: CFLAGS += -woff 835
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailBA34.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay101TailBA34.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x710 7cfe98da170547834a5c11d936a7add83d950a9c32d0a9482c5ad1db34d9a76b \
-		@config/normalizations/overlay101TailBA34.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x710 7d800dd16ef8cd7deb12cbcc76e13bdb87bad265e62433a525a69a6491e0aa84 \
-		@config/normalizations/overlay101TailBA34.addends.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101TailBA34.filter.spec && \
-	$(OBJCOPY) \
-		--redefine-sym gO101TailBA34Root=D_1C \
-		--redefine-sym gO101TailBA34OrderSlots=D_38 \
-		--redefine-sym gO101TailBA34Inputs=D_54 \
-		--redefine-sym gO101TailBA34OrderCountCall0=D_1C4 \
-		--redefine-sym gO101TailBA34AssetDB8=D_DB8 \
-		--redefine-sym gO101TailBA34Node32Count=D_1CC \
-		--redefine-sym gO101TailBA34Nodes32=D_340 \
-		--redefine-sym gO101TailBA34Node24Count=D_1D0 \
-		--redefine-sym gO101TailBA34Nodes24=D_540 \
-		--redefine-sym gO101TailBA34FinalObject4630=D_4630 \
-		--redefine-sym o101TailBA34RootCreatorReloc=func_overlay_101_F0000000_18DB820 \
-		--redefine-sym overlay101ByteLength=func_overlay_101_F000CEA8_18E86C8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101TailBA34.calls.spec
-# The typed presentation builder naturally owns the complete CFG/opcode
-# inventory and all 39 runtime roles. A whole-owner guard rewrites two proved
-# constant representation webs; the complete relocation-aware bijection then
-# selects the shipped private schedule/register web before exact local addends,
-# split-object relocation filtering, carrier renames, and call rebinding.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC144.c.o: \
-	config/normalizations/overlay101TailC144.prepare.py \
-	config/normalizations/overlay101TailC144.ops \
-	config/normalizations/overlay101TailC144.addends.ops \
-	config/normalizations/overlay101TailC144.filter.spec \
-	config/normalizations/overlay101TailC144.calls.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC144.c.o: CFLAGS += -woff 835
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC144.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay101TailC144.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x5A4 f7cbc1ea07209488de35fa5d835360275731d8360ac653b88ff224bb42af14cc \
-		@config/normalizations/overlay101TailC144.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x5A4 079927f6382905edc140409c084f41df23cc98e76bb5adbdea9cab5e07a5c4cf \
-		@config/normalizations/overlay101TailC144.addends.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101TailC144.filter.spec && \
-	$(OBJCOPY) \
-		--redefine-sym gO101TailC144Root=D_1C \
-		--redefine-sym gO101TailC144OrderSlots=D_38 \
-		--redefine-sym gO101TailC144OrderCount=D_1C4 \
-		--redefine-sym gO101TailC144AssetDCC=D_DCC \
-		--redefine-sym gO101TailC144Node32Count=D_1CC \
-		--redefine-sym gO101TailC144Nodes32=D_340 \
-		--redefine-sym gO101TailC144Node24Count=D_1D0 \
-		--redefine-sym gO101TailC144Nodes24=D_540 \
-		--redefine-sym gO101TailC144FinalObject4A90=D_4A90 \
-		--redefine-sym o101TailC144CreatorReloc=func_overlay_101_F0000000_18DB820 \
-		--redefine-sym overlay101ByteLength=func_overlay_101_F000CEA8_18E86C8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101TailC144.calls.spec
-# The typed dispatcher naturally preserves the complete call/data graph and
-# opcode census. Remove its sole asserted scheduler NOP, select the complete
-# bijective private schedule/register web, restore nine shipped local addends,
-# and retain only the split object's exact static relocation surface.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC6E8.c.o: \
-	config/normalizations/overlay101TailC6E8.prepare.py \
-	config/normalizations/overlay101TailC6E8.ops \
-	config/normalizations/overlay101TailC6E8.addends.ops \
-	config/normalizations/overlay101TailC6E8.filter.spec \
-	config/normalizations/overlay101TailC6E8.calls.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5A4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC6E8.c.o: CFLAGS += -woff 835
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC6E8.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay101TailC6E8.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4F4 05428d5a536202cc290237ff6d6f6e4b61f3d48e1639d86d11f6dd234fb60a3e \
-		@config/normalizations/overlay101TailC6E8.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4F4 d4e289e6eb62ddb1f6994968b046b4e204b3a6e0d87b67894dc4db0a00b6c6b2 \
-		@config/normalizations/overlay101TailC6E8.addends.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101TailC6E8.filter.spec && \
-	$(OBJCOPY) --remove-section=.rodata \
-		--redefine-sym o101TailC6E8StateReloc=func_overlay_101_F0000000_18DB820 \
-		--redefine-sym gO101TailC6E8OrderCount=D_1C4 \
-		--redefine-sym gO101TailC6E8AssetDF0=D_DF0 \
-		--redefine-sym gO101TailC6E8Node32Count=D_1CC \
-		--redefine-sym gO101TailC6E8Nodes32=D_340 \
-		--redefine-sym gO101TailC6E8Nodes20=D_200 \
-		--redefine-sym gO101TailC6E8Node20Count=D_1C8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101TailC6E8.calls.spec
-# The natural clock renderer is exact in size, frame, CFG, calls, FP topology,
-# and effects. Restore retail's equivalent ordering of two independent loop
-# constants, three complete four-iteration count webs, and one commutative FP
-# expression. The digest covers the entire owned function before alignment is
-# trimmed, so any unreviewed compiler drift fails loudly.
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4F4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawClock.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3b8 888f343870fd7de8df68995b60de561d6f5eb19b0c97b73226a0c52266721b7f \
-		reorder:0x208=0x20c,0x20c=0x208 \
-		fields:0x250:imm=0x21@0x22 \
-		fields:0x254:rt=v0@v1 \
-		fields:0x294:imm=0x10@0x11 \
-		fields:0x298:rt=v0@v1 \
-		fields:0x2d4:op=9@0,rs=s6@zero,rt=v0@zero,imm=4@0 \
-		fields:0x2d8:op=0@9,rs=v0@zero,rt=zero@v1,imm=0x1825@4 \
-		fields:0x2dc:rs=v0@v1 \
-		fields:0x2e0:rs=v0@zero,imm=0xffff@3 \
-		fields:0x324:rt=20@10,rd=10@20 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_101_F000332C_18DEB4C=overlay101DrawClock $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildFrame.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA8
@@ -2790,15 +2480,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o021/overlay21ApplyPriorities.c.o: POSTPROCESS 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o021/overlay21ApplyPriorities.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2B4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30TransposePixels.c.o: \
-	config/normalizations/overlay30TransposePixels.schedule.ops \
-	config/normalizations/overlay30TransposePixels.fields.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30TransposePixels.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x184 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x184 fca58ffff54823e9bbf89f7b93181e5c9364376e5232b489db914b951c86c58f \
-		@config/normalizations/overlay30TransposePixels.schedule.ops \
-		@config/normalizations/overlay30TransposePixels.fields.ops
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_030_F00002B4_187F1AC=overlay30TransposePixels $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x184
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23SpawnAttachments.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x208
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Init.c.o: POSTPROCESS = \
@@ -2866,70 +2551,16 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25SetVectorFlags.c.o: POSTPROCESS =
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
-# Typed source naturally owns the exact 368-instruction state machine, 0x60
-# frame, opcode multiset, calls, memory/FP effects, and all 22 runtime roles.
-# A complete call/CFG-anchored opcode-preserving scheduler/allocator web selects
-# retail's equivalent private representation. Loader-owned HILO roles remain in
-# O27's tables while the 12 raw call carriers match the assembler split object.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateEffectState.c.o: \
-	config/normalizations/overlay27UpdateEffectState.ops \
-	config/normalizations/overlay27UpdateEffectState.filter.spec \
-	config/normalizations/overlay27UpdateEffectState.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateEffectState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x5C0 8badb00b627b9b67a46a1f9ff09333b39f4f864e70c0fea5886ca6162797d006 \
-		@config/normalizations/overlay27UpdateEffectState.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay27UpdateEffectState.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		gO27Active=func_overlay_027_F0000000_187B9D8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay27UpdateEffectState.rebind.spec
-# Typed source naturally owns the exact 254-instruction algorithm, 0x98 frame,
-# nested transform address, FP semantics, memory effects, call order, and all
-# 15 runtime roles. A pinned complete schedule/register/stack-home web plus two
-# reviewed equivalent branch spellings selects the shipped private compiler
-# representation; position-specific rebindings retain the assembler object's
-# static carriers without collapsing the semantic runtime-role proof.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27RenderEffect.c.o: \
-	config/normalizations/overlay27RenderEffect.ops \
-	config/normalizations/overlay27RenderEffect.calls.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
 	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27RenderEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3F8 19e0dc43889cccdeb83ce4499ca25da19eea30189594a6ff9985669fff5daf73 \
-		@config/normalizations/overlay27RenderEffect.ops && \
-	$(OBJCOPY) \
-		--redefine-sym overlay27GetValue=func_overlay_027_F0000000_187B9D8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay27RenderEffect.calls.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3F8 \
-		0000000000000000
-# The typed coordinate update naturally owns the exact 65-instruction opcode,
-# immediate, branch, memory, and ten-HILO inventory. Restore retail's equivalent
-# two scheduling permutations and complete private register web, then bind the
-# descriptive source globals back to their raw overlay offsets.
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3F8
+# NON_MATCHING/GLOBAL_ASM uses extracted retail instructions; keep only
+# the metadata-only entry-symbol rename needed by the friendly split.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateCoordinates.c.o: \
-	config/normalizations/overlay27UpdateCoordinates.schedule.ops \
-	config/normalizations/overlay27UpdateCoordinates.fields.ops
+	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateCoordinates.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x104 0e11e370b84731ee3107db1cf0c35c95b0b8cff3287800a354b2bc3356e7f842 \
-		@config/normalizations/overlay27UpdateCoordinates.schedule.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x104 bef149cca700139a6d22d8387e71e2194f1c5a6d17be5ae936606ec79e3660cb \
-		@config/normalizations/overlay27UpdateCoordinates.fields.ops && \
-	$(OBJCOPY) \
-		--redefine-sym gOverlay27XOffset=D_110 \
-		--redefine-sym gOverlay27YOffset=D_114 \
-		--redefine-sym gOverlay27CoordinateRecords=D_50 \
-		--redefine-sym gOverlay27YCoordinates=D_100 \
-		--redefine-sym gOverlay27XCoordinates=D_F0 $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_027_F0000A1C_187C3F4=overlay27UpdateCoordinates $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x104
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56SplitTime.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x54
@@ -3249,115 +2880,30 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88UpdateAnchor.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		overlay88PrepareNodeReloc=func_overlay_088_F0000000_18D3A88 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x158
-# The o69/o88 retail renderer bodies and independently compiled natural basins
-# are byte-identical.  Assert o88's own configured object and target digest;
-# its predecessor remains assembly-owned and there is no following padding.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88DrawSortedGeometry.c.o: \
-	$(SRC_DIR)/overlays/o069/overlay69DrawSortedGeometry.c
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88DrawSortedGeometry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x59c 3a5cfd50d01656368d68dca0dbb82437bb3bb11e8c14fa6856bf6b8c6ffa312c \
-		@config/normalizations/overlay69DrawSortedGeometry.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_088_F00001A4_18D3C2C=overlay88DrawSortedGeometry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x59C
-# The semantic source naturally reproduces the exact boundary, frame, opcode
-# inventory, CFG, FP topology, and runtime relocation sites. Select retail's
-# complete local-allocation web, fold the six statically aliased call sites to
-# the offset-zero proxy, and remove only the local-data relocations retained by
-# the shipped overlay runtime table.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateEffect.c.o: \
-	config/normalizations/overlay89UpdateEffect.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateEffect.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x138 1b44a19d916bbad634607e5fa7d2d2b6266b5607c1c4f0234669e29b5af0145a \
-		@config/normalizations/overlay89UpdateEffect.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x30:overlay89TrigBReloc:overlay89TrigAReloc \
-		0x48:overlay89TrigBReloc:overlay89TrigAReloc \
-		0xb8:overlay89MoveEffectReloc:overlay89TrigAReloc \
-		0x118:overlay89CreateEffectReloc:overlay89TrigAReloc && \
 	$(OBJCOPY) --redefine-sym \
-		overlay89TrigAReloc=func_overlay_089_F0000000_18D4230 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x54:5:gOverlay89EffectScale \
-		0x58:6:gOverlay89EffectScale && \
+		func_overlay_089_F0000000_18D4230=overlay89UpdateEffect $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89Evaluate.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
-# Natural source supplies the exact boundary, frame, CFG, calls, and five
-# relocation-bearing instructions. The complete guarded allocation/schedule
-# ledger selects retail's equivalent state-pointer spill and register web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89InitializeEffect.c.o: \
-	config/normalizations/overlay89InitializeEffect.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89InitializeEffect.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89InitializeEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x334 91a336e39261e09b3690e088760c6bdb0bf39854393b7d119442b9db64239a70 \
-		@config/normalizations/overlay89InitializeEffect.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x288:overlay89MaintainReloc:overlay89CreatePrimaryReloc && \
 	$(OBJCOPY) --redefine-sym \
-		overlay89Evaluate=func_overlay_089_F0000138_18D4368 \
-		--redefine-sym overlay89CreatePrimaryReloc=func_overlay_089_F0000000_18D4230 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x50:5:gOverlay89InitScale \
-		0x54:6:gOverlay89InitScale && \
+		func_overlay_089_F0000270_18D44A0=overlay89InitializeEffect $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x334
-# Natural source supplies the exact 136-instruction semantic body, calls, FP
-# inventory, constants, structure accesses, and fourteen-record runtime
-# relocation surface. The complete reviewed permutation/field ledger selects
-# retail's parameter-spill, frame, saved-register, and schedule web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateStateAndParticles.c.o: \
-	config/normalizations/overlay89UpdateStateAndParticles.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateStateAndParticles.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateStateAndParticles.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x220 d4ba88922a47913a7f6f139165be1d0b9351e60de4f60832af5366177082a6df \
-		@config/normalizations/overlay89UpdateStateAndParticles.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0xa8:overlay89SetColorReloc:overlay89SetPrimaryReloc \
-		0x12c:overlay89RandomReloc:overlay89SetPrimaryReloc \
-		0x144:overlay89RandomReloc:overlay89SetPrimaryReloc \
-		0x15c:overlay89RandomReloc:overlay89SetPrimaryReloc \
-		0x178:overlay89RandomReloc:overlay89SetPrimaryReloc \
-		0x190:overlay34SpawnReloc:overlay89SetPrimaryReloc \
-		0x1ac:overlay89RandomReloc:overlay89SetPrimaryReloc \
-		0x1e0:overlay89SetColorReloc:overlay89SetPrimaryReloc \
-		0x1f8:overlay89MaintainReloc:overlay89SetPrimaryReloc && \
 	$(OBJCOPY) --redefine-sym \
-		overlay89UpdateReloc=func_overlay_089_F00001A8_18D43D8 \
-		--redefine-sym overlay89SetPrimaryReloc=func_overlay_089_F0000000_18D4230 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x120:5:gOverlay89RandomScale \
-		0x124:6:gOverlay89RandomScale
+		func_overlay_089_F00005A4_18D47D4=overlay89UpdateStateAndParticles $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x68
-# Natural source owns the exact semantic topology, frame and arithmetic. Four
-# bounded scheduler permutations and the complete reviewed private allocation
-# web select retail's equivalent schedule; local float pairs are materialized
-# while all three calls retain the raw stored overlay carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92FindNearestCourse.c.o: \
-	config/normalizations/overlay92FindNearestCourse.ops \
-	config/normalizations/overlay92FindNearestCourse.rebind.spec \
-	config/normalizations/overlay92FindNearestCourse.filter.spec
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92FindNearestCourse.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2A0 942ca05cebcedd2066b98a19667b50c23cf044c4a79d28e0a67e61e85e798d42 \
-		@config/normalizations/overlay92FindNearestCourse.ops && \
-	$(OBJCOPY) --redefine-sym \
-		overlay92GetObjectRange=func_overlay_092_F0000000_18D5F20 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay92FindNearestCourse.rebind.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay92FindNearestCourse.filter.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o093/overlay_093.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xEC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o093/overlay_093.c.o: CFLAGS += -Wab,-r4300_mul
@@ -3993,177 +3539,31 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: OPT_FLAGS := -O2
 # relocation tail owns the 18 loader-local HILO records.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o064/overlay64GenerateTexture.c.o: CFLAGS += -woff 835
 
-# Exact-size O38 particle initializer. Select only the complete seven-word
-# private setup schedule, then bind the seven runtime calls to the raw overlay
-# carrier so the configured stored-VMA link preserves their zero addends.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F0000000_1885D10.c.o: \
-	config/normalizations/func_overlay_038_F0000000_1885D10.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F0000000_1885D10.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x154 f7fb50ae8c386afa225b90b83541e2c66f2aab90f3b7ef29b2a4484dfaa72ca7 \
-		@config/normalizations/func_overlay_038_F0000000_1885D10.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x070:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x098:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x0b8:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x0d4:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x0e4:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x0f4:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x110:o38MakeDirection:func_overlay_038_F0000000_1885D10 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x154
 
-# The typed particle update naturally recovers the exact 202-word owner,
-# 0x38 frame, opcode multiset, call site, arithmetic, CFG, and seven semantic
-# relocation carriers. A complete opcode-preserving scheduler/allocator web
-# selects retail's equivalent FP/GPR representation without changing branches,
-# stack homes, or opcodes. Loader-owned HILO roles stay in O38's ROM table;
-# the split object retains the exact raw local R26 carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o038/overlay38UpdateParticles.c.o: \
-	config/normalizations/overlay38UpdateParticles.ops \
-	config/normalizations/overlay38UpdateParticles.static_hilo.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/overlay38UpdateParticles.c.o: CFLAGS += \
 	-Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/overlay38UpdateParticles.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x328 56388ec5d839bbfad30651b8bf37773d0b011584b1ed909fd8f886cb6999bd93 \
-		@config/normalizations/overlay38UpdateParticles.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x328 \
-		0000000000000000 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay38UpdateParticles.static_hilo.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		o38ReleaseObject=func_overlay_038_F0000000_1885D10 $@
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x328
 
-# Typed source recovers the exact 219-word owner, 0xE8 frame, aggregate stack
-# layout, FP surface, CFG, memory effects, and 18 relocation sites. Complete
-# guarded schedule islands and a decoded GPR web select the shipped private
-# allocation without changing any opcode, immediate, jump, or semantic field.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: \
-	config/normalizations/func_overlay_038_F000047C_188618C.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: CFLAGS += \
 	-Wab,-r4300_mul -DO38_TRANSFORM_TAIL -DO38_TAIL_SIZE=8 \
 	-DO38_VOLATILE_TEST -DO38_POOL_CURSOR -DO38_FINISH_ONE \
 	-DO38_VOLATILE_FINAL
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x36C 4e094ba67dd729b9e6c2ad178c13e2bdaeefddce2ee16bdc10cdb6559e38d827 \
-		@config/normalizations/func_overlay_038_F000047C_188618C.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x0b4:o38DrawResource:o38ApplyTransform \
-		0x174:o38FinishDraw:o38ApplyTransform \
-		0x17c:o38GetCamera:o38ApplyTransform \
-		0x1f8:o38Atan2:o38ApplyTransform \
-		0x20c:sqrtf:o38ApplyTransform \
-		0x218:o38Atan2:o38ApplyTransform \
-		0x278:o38DrawResource:o38ApplyTransform \
-		0x310:o38FinishDraw:o38ApplyTransform && \
-	$(OBJCOPY) \
-		--redefine-sym o38ApplyTransform=func_overlay_038_F0000000_1885D10 \
-		--redefine-sym gO38ObjectVertices=D_80000000 \
-		--redefine-sym gO38ObjectTriangles=D_80000028 \
-		--redefine-sym gO38ParticleVertices=D_80000048 \
-		--redefine-sym gO38ParticleTriangles=D_80000070 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x36C
 
-# Overlay 70's three typed owners naturally recover the complete algorithms,
-# CFG, calls, and memory/FP effects. Materialize only the loader-owned stored
-# addends before filtering their duplicate HILO records; the configured split
-# retains the exact 17 raw-carrier R26 records seen in the assembler object.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000000_18C91C8.c.o: \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000000_18C91C8.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xD8 0a9975ee6c94195a5231d61a273e11b71532f27d94e32d30ae38f3655ffef600 \
-		fields:0x94:imm=0@0x20 fields:0xac:imm=0@0xc \
-		fields:0xbc:imm=0@0x10 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x078:5:gOverlay70FloatTableReloc \
-		0x094:6:gOverlay70FloatTableReloc \
-		0x098:5:gOverlay70VerticalStepReloc \
-		0x0ac:6:gOverlay70VerticalStepReloc \
-		0x09c:5:gOverlay70AngleReloc \
-		0x0bc:6:gOverlay70AngleReloc && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x028:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x038:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x04c:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x05c:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: \
-	config/normalizations/func_overlay_070_F00000D8_18C92A0.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2AC 9398d0f9f5fd8f55b960ffa3d83eaff432b0da3c5cd0666a75cd75f987c7ee2f \
-		@config/normalizations/func_overlay_070_F00000D8_18C92A0.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2AC 408582ce3b5555896620dfcfe993afb04e81bf40f9eca9d04bc41d5103378676 \
-		fields:0x1cc:imm=0@0x18 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x168:5:gOverlay70PairTableReloc \
-		0x16c:6:gOverlay70PairTableReloc \
-		0x194:5:gOverlay70HeightTableReloc \
-		0x1cc:6:gOverlay70HeightTableReloc && \
-	$(OBJCOPY) --redefine-sym \
-		overlay70Reset=func_overlay_070_F0000000_18C91C8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x0f0:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x100:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x124:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x134:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x14c:overlay70Sin:func_overlay_070_F0000000_18C91C8 \
-		0x15c:overlay70Cos:func_overlay_070_F0000000_18C91C8 \
-		0x28c:overlay70Apply:func_overlay_070_F0000000_18C91C8 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2AC
 
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: \
-	config/normalizations/func_overlay_070_F0000384_18C954C.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3AC 7f0771475e8eec322f934abc8edaf881700f504cdb318639b762be61c4ca55a6 \
-		@config/normalizations/func_overlay_070_F0000384_18C954C.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3A8 f75f51c83690e99ab67704727b62f2afee5b4d6b27dfd1cf37ace37954cf09aa \
-		drop-copy:0x32c:a1:a1:func_overlay_070_F0000384_18C954C && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3A4 79c5c882a02ecce3e55492e518b0dca0ec7827d3495663419145e4da6300094f \
-		drop-copy:0x338:a1:a1:func_overlay_070_F0000384_18C954C && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x264:5:gOverlay70SharedCounterReloc \
-		0x274:6:gOverlay70SharedCounterReloc \
-		0x278:5:gOverlay70SharedCounterReloc \
-		0x280:6:gOverlay70SharedCounterReloc \
-		0x2f0:5:gOverlay70SharedCounterReloc \
-		0x2f4:6:gOverlay70SharedCounterReloc \
-		0x340:5:gOverlay70SharedCounterReloc \
-		0x388:6:gOverlay70SharedCounterReloc && \
-	$(OBJCOPY) --redefine-sym \
-		overlay70GetRange=func_overlay_070_F0000000_18C91C8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x21c:overlay70GetRecords:func_overlay_070_F0000000_18C91C8 \
-		0x284:overlay70GetAll:func_overlay_070_F0000000_18C91C8 \
-		0x324:overlay70EmitEvent:func_overlay_070_F0000000_18C91C8 \
-		0x334:overlay70EmitEvent:func_overlay_070_F0000000_18C91C8 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4 \
-		00000000000000008fb90064
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4
 # NON_MATCHING/GLOBAL_ASM: restore the friendly update symbol; the aligned
 # extracted function requires no trailing-section trim.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65UpdateParticles.c.o: POSTPROCESS = \
@@ -4196,40 +3596,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleFrames.c.o: POSTPROCESS 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x140
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleGlobalPair.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
-# The natural event dispatcher emits retail's complete CFG, switch topology,
-# frame, register allocation, FP conversion, call order, and instruction
-# schedule. Four guarded immediates preserve already-linked local addends; the
-# narrow relocation filters and rebinding retain the authoritative overlay
-# runtime-relocation carriers instead of IDO's private jump table.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DispatchEvents.c.o: \
-	config/normalizations/overlay101DispatchEvents.ops \
-	config/normalizations/overlay101DispatchEvents.filter.spec \
-	config/normalizations/overlay101DispatchEvents.calls.spec \
-	tools/filter_elf_relocations.py tools/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DispatchEvents.c.o: CFLAGS += -woff 835
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DispatchEvents.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3B0 ff35c5287a31c725af0a3d102589584438017af1fd8521f71740edd01ba42e14 \
-		@config/normalizations/overlay101DispatchEvents.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101DispatchEvents.filter.spec && \
 	$(OBJCOPY) --redefine-sym \
-		overlay101SchedulePair=func_overlay_101_F0000000_18DB820 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay101DispatchEvents.calls.spec && \
-	$(OBJCOPY) --remove-section=.rodata $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B0
-# The shipped dispatcher uses an existing runtime-relocated jump table at
-# overlay data +0xE0C. IDO emits an identical private .rodata table; patch the
-# three proved raw addends, then discard compiler relocations/table bytes so
-# the original initialized-data and relocation assets remain authoritative.
+		func_overlay_101_F0001BD0_18DD3F0=overlay101DispatchEvents $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DispatchActive.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x17c 8eed8377c1aabac2fbdfff0a4a1c5398898fb595c0cc70b9d8e55c4efb9d6752 \
-		fields:0x4:imm=0@540 \
-		fields:0x28:imm=0@2120 \
-		fields:0x4c:imm=0@3596 && \
-	$(OBJCOPY) --remove-relocations=.text --remove-section=.rodata $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_101_F0001A38_18DD258=overlay101DispatchActive $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x17C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB4
@@ -4237,69 +3610,26 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawElement.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101GetBounds.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
-# Natural codegen has the exact boundary, frame, ABI, calls, CFG, FP topology,
-# and stack layout. This complete ledger selects two command schedules and
-# equivalent private temporary-register webs.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawTransformed.c.o: \
-	config/normalizations/overlay101DrawTransformed.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawTransformed.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x298 e6114aff1a4f4a44186b450d9e131e32c22a44f327c329692e644bb998576515 \
-		@config/normalizations/overlay101DrawTransformed.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_101_F00029A4_18DE1C4=overlay101DrawTransformed $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x298
-# The natural builder owns the complete four-call CFG and all presentation
-# effects, but redundantly rematerializes one live color constant. Delete that
-# asserted addiu, then select retail's equivalent private schedule/register web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationA.c.o: \
-	config/normalizations/overlay101BuildPresentationA.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationA.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x340 9e322bc8ea678df948b5a43818782e38bcf5e467b7b447009a73da514d0c5b75 \
-		@config/normalizations/overlay101BuildPresentationA.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x340
-# This sibling uses the same semantic pool graph with different asset, input,
-# root-field, and final-text addends. Rebind only those distinct source roles;
-# the raw ROM keeps all pool addends and the local byte-length call explicit.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationB.c.o: \
-	config/normalizations/overlay101BuildPresentationB.ops
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_101_F00099C4_18E51E4=overlay101BuildPresentationA $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationB.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x340 e3e1d372193b8528644c24bdf898c82dd4de190e3af6545d18b0aca93d07c821 \
-		@config/normalizations/overlay101BuildPresentationB.ops && \
-	$(OBJCOPY) \
-		--redefine-sym gOverlay101BuilderAssetA=gOverlay101BuilderAssetBReloc \
-		--redefine-sym gOverlay101BuilderText=gOverlay101BuilderTextBReloc \
-		--redefine-sym gOverlay101BuilderInput12C=gOverlay101BuilderInput12CBReloc \
-		--redefine-sym gOverlay101BuilderInput130=gOverlay101BuilderInput130BReloc $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x340
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationC.c.o: \
-	config/normalizations/overlay101BuildPresentationC.ops
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_101_F0009D04_18E5524=overlay101BuildPresentationB $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationC.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x340 971f9a1e8fb7b51d04cab8c4b6d0a142e40dc48c7b1002ec267240f34765316d \
-		@config/normalizations/overlay101BuildPresentationC.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x340
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationD.c.o: \
-	config/normalizations/overlay101BuildPresentationD.ops
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_101_F000A044_18E5864=overlay101BuildPresentationC $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationD.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x338 f124fe4d95cd03a7159cb63bfe7f79b4f6d74a69aa18aa167bb713897c00c277 \
-		@config/normalizations/overlay101BuildPresentationD.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_101_F000A384_18E5BA4=overlay101BuildPresentationD $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x338
-# IDO naturally owns the complete three-word ABI, six-call semantic graph,
-# and all relocation identities. The guarded preparation recovers three
-# retained address rematerializations from one unused argument home and the
-# object's two alignment words, then the bijective ledger selects the shipped
-# private frame/register/schedule web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailA6BC.c.o: \
-	config/normalizations/overlay101TailA6BC.prepare.py \
-	config/normalizations/overlay101TailA6BC.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailA6BC.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay101TailA6BC.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x490 b2fabc29043d5683740994ee79109613a336941b8cd3e08b8a15ac559e778f53 \
-		@config/normalizations/overlay101TailA6BC.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x490
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_101_F000A6BC_18E5EDC=overlay101TailA6BC $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16InitializeBuffer.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16BuildGradient.c.o: POSTPROCESS = \
@@ -5768,36 +5098,14 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26DrawGroups.c.o: POSTPROCESS = \
 		@config/normalizations/overlay26DrawGroups.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x218
 
-# The typed plane projection has the shipped CFG, multiply hazards, calls,
-# memory effects, and opcode stream. This complete target-local web selects
-# its equivalent frame homes, FPR colors, and commutative operand choices.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29ProjectPoint.c.o: \
-	config/normalizations/overlay29ProjectPoint.ops \
-	config/normalizations/overlay29ProjectPoint.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29ProjectPoint.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29ProjectPoint.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1E4 6b365b11ebcc3d4354b8065b93d857a9310062c0ccc8523febef5dac7eb1fd03 \
-		@config/normalizations/overlay29ProjectPoint.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay29ProjectPoint.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		overlay29SqrtReloc=func_overlay_029_F0000000_187D2B0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1E4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Release.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
-# The natural object has the exact boundary, frame, CFG, calls, and memory
-# effects. This complete decoded ledger selects one equivalent scalar/call-arg
-# web without changing any opcode-bearing behavior or relocation identity.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59PrepareEntry.c.o: \
-	config/normalizations/overlay59PrepareEntry.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59PrepareEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xF8 3129d930bac413590d165b04613ced461e3e62b9f38696c9f1474e5eb4f0c40a \
-		@config/normalizations/overlay59PrepareEntry.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_059_F0000070_18B87C0=overlay59PrepareEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59ResetEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x6C
@@ -5805,16 +5113,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
-# The natural 262-word state machine has exact CFG, calls, integer/FP webs,
-# and effects. Reorder its complete prologue schedule, assert retained-overlay
-# local addends, then discard the compiler's duplicate switch table/relocs.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: \
-	config/normalizations/overlay59Advance.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x418 7068b6b1cf81620f6aeec1b9b7b0695705ede22aad9f166e80d70b6baa83939b \
-		@config/normalizations/overlay59Advance.ops && \
-	$(OBJCOPY) --remove-relocations=.text --remove-section=.rodata $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59BuildList.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0

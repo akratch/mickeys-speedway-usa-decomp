@@ -91,6 +91,7 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s32 func_overlay_101_F000CEA8_18E86C8(void *);
 
+#ifdef NON_MATCHING
 void func_overlay_101_F000B544_18E6D64(void) {
     s32 orderIndex;
     s32 node32Index;
@@ -245,3 +246,6 @@ void func_overlay_101_F000B544_18E6D64(void) {
 
     func_overlay_101_F0000000_18DB820(&D_4358);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailB544/func_overlay_101_F000B544_18E6D64.s")
+#endif
