@@ -396,13 +396,21 @@ main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
 JFG functions were not imported: unresolved routines retain Mickey's own
 `func_<VRAM>` symbol.
 
-**Matching progress.** Six leaf functions currently compile exactly under
+**Matching progress.** Seven leaf functions currently compile exactly under
 the resident `-O2 -mips2 -32` flags: Splat's empty `func_800291D0` body,
 JFG's one-expression `joyCharVal` body (8 bytes each), and the 12-byte
-`joySetSecurity` store. The 20-byte `joyDisable` and 24-byte `joyEnable`
-masked-index stores also match, as does the 16-byte `joyGetController`
-accessor. Their HI16/LO16 pairs bind the original Mickey data symbols; owned
-bytes, relocation identity and the linked ROM are exact (88 bytes total).
+`joySetSecurity` and `mainSetAnimGroup` stores. The 20-byte `joyDisable` and
+24-byte `joyEnable` masked-index stores also match, as does the 16-byte
+`joyGetController` accessor. Their HI16/LO16 pairs bind the original Mickey
+data symbols; owned bytes, relocation identity and the linked ROM are exact
+(100 bytes total).
+
+`joyResetMap` remains assembly after a bounded plateau. The donor loop's first
+mismatch is at function offset `+0x0`: with external storage, IDO repeats the
+global-base load and emits 48 bytes instead of the target's 36. Declaring the
+array in this TU produces the exact instruction schedule, but incorrectly
+claims its BSS ownership and shifts the linked symbol by `0x10`; that candidate
+was rejected.
 
 **PROVENANCE.** TU identities and adopted function names are adapted from Jet
 Force Gemini's published `src/{joy,level,main}.c` and built

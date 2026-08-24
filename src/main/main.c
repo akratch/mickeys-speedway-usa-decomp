@@ -10,6 +10,8 @@
  * independently (tiers B and C). JFG address-placeholder names are not used.
  */
 
+extern s32 D_8007A164;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainThread.s")
@@ -48,7 +50,10 @@
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainChangeLevel.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainSetAnimGroup.s")
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+void mainSetAnimGroup(s32 arg0) {
+    D_8007A164 = arg0;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainGetAnimGroup.s")
 
