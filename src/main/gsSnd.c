@@ -56,7 +56,17 @@ typedef struct GsSoundStateLink {
     GsSound *sound;
     u8 padC[0x20];
     f32 pitch;
-    u8 pad30[0x13];
+    struct GsSoundStateLink **userHandle;
+    s16 volume;
+    u8 priority;
+    u8 pad37;
+    s32 retries;
+    u8 pan;
+    u8 fxMix;
+    u8 pad3E[2];
+    u8 unk40;
+    u8 unk41;
+    u8 unk42;
     u8 flags;
     u8 state;
 } GsSoundStateLink;
@@ -95,6 +105,7 @@ extern GsSndPlayer *D_8007FF4C;
 extern GsSoundStateLink *D_8007FF40;
 extern GsSoundStateLink *D_8007FF44;
 extern GsSoundStateLink *D_8007FF48;
+extern s16 D_8007FF54;
 extern const char D_800843CC[];
 extern const char D_800843FC[];
 
@@ -206,7 +217,35 @@ u16 getSoundStateCounts(u16 *numFree, u16 *numAllocated) {
     return allocatedRevCounter;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005D030.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005D260.s")
+void func_8005D260(GsSoundStateLink *state) {
+    if (D_8007FF40 == state) {
+        D_8007FF40 = state->next;
+    }
+    if (D_8007FF44 == state) {
+        D_8007FF44 = state->prev;
+    }
+    alUnlink(state);
+    if (D_8007FF48 != NULL) {
+        state->next = D_8007FF48;
+        state->prev = NULL;
+        D_8007FF48->prev = state;
+        D_8007FF48 = state;
+    } else {
+        state->prev = NULL;
+        state->next = state->prev;
+        D_8007FF48 = state;
+    }
+    if (state->flags & 4) {
+        D_8007FF54--;
+    }
+    state->state = 0;
+    if (state->userHandle != NULL) {
+        if (*state->userHandle == state) {
+            *state->userHandle = NULL;
+        }
+        state->userHandle = NULL;
+    }
+}
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpSetPriority). */
 void gsSndpSetPriority(GsSndPriorityState *state, u8 priority) {
     if (state != NULL) {
