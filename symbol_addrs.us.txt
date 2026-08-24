@@ -1032,6 +1032,8 @@ n_alCSPSetVol = 0x8005DAB0; // type:func size:0x4C
 // (tools/wb_compare.sh --rom n_alInit --show-diff); see mickey.us.yaml.
 n_alGlobals = 0x80080160; // type:u32 size:0x4
 n_syn = 0x80080164; // type:u32 size:0x4
+D_800D7DC4 = 0x800D7DC4; // type:u8 size:0x2
+D_800D7DC6 = 0x800D7DC6; // type:u8 size:0x2
 // libultra/n_csplayer  ROM 0x5e700  (jfg/libultra: src/libultra/n_csplayer.c.o)  whole .text 0x3220, masked=154, romocc=1
 n_alCSPNew = 0x8005DB00; // type:func size:0x270
 __n_CSPPostNextSeqEvent = 0x80060C70; // type:func size:0x94

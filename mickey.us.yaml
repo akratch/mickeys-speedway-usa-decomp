@@ -249,7 +249,7 @@ segments:
       - [0x66970, c, libultra/n_cseqnextdelta]
       - [0x66A50, c, libultra/n_syndelete]
       - [0x66A70, c, libultra/n_synallocfx]
-      - [0x66B00, asm, libultra/n_reverb]
+      - [0x66B00, c, libultra/n_reverb]
       - [0x681B0, asm, libultra/n_env]
       - [0x691A0, c, libultra/n_cspsendmidi]
       - [0x69220, c, libultra/n_synsetpriority]
@@ -503,11 +503,12 @@ segments:
       # the resident segment. Two things the later per-TU split needs are
       # measured and recorded here:
       #
-      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 39 jump
+      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 38 jump
       #      tables still emitted in asm/ back to the functions that reference
       #      them gives ROM addresses and jump-table addresses that are both
       #      monotonically increasing -- ZERO INVERSIONS. Five additional
-      #      tables now belong to matched n_csplayer C.
+      #      tables now belong to matched n_csplayer C, and one belongs to
+      #      matched n_reverb C.
       #      First pair (ROM 0x7D18 -> jtbl_80080D2C), last (ROM 0x72B00 ->
       #      jtbl_80084970). So .rodata can be carved TU by TU in text order,
       #      which is what makes a per-file split tractable at all.
@@ -537,6 +538,8 @@ segments:
       - [0x85370, rodata]
       - [0x85380, .rodata, libultra/cents2ratio]
       - [0x85390, rodata]
+      - [0x853C0, .rodata, libultra/n_reverb]
+      - [0x853F0, rodata]
       - [0x854A0, .rodata, libultra/sinf]
       - [0x854F0, rodata]
       - [0x855A0, rodata, libultra/xprintf]

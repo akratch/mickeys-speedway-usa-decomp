@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-27 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 25 more from it): every masked=0/1/2 TU (the
+28 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 26 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -500,7 +500,9 @@ that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 also match exactly from the JFG source; its multiply sequences require
 `-Wab,-r4300_mul` in addition to `-DRAREDIFFS`. JFG's main compressed-sequence
 source (`n_csq.c`) also supplies the exact `0x9D0`-byte `n_cseq` text with the
-bare flag group and no owned data or rodata.
+bare flag group and no owned data or rodata. The JFG `n_reverb.c`/`n_save.c`
+pair supplies Mickey's combined `0x16B0`-byte reverb TU plus its `0x30` bytes
+of rodata; it requires `-DN_MICRO -Wab,-r4300_mul`.
 
 **Plateaus, each with a first mismatch:**
 
@@ -515,8 +517,7 @@ bare flag group and no owned data or rodata.
   attempt.
 
 Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
-`0xAD0`), `n_reverb` (masked=60, DSP-heavy, deferred per plan), `n_env`
-(masked=59), `alsurround`
+`0xAD0`), `n_env` (masked=59), `alsurround`
 (masked=39), `n_event`/`n_drvrNew` (masked=34 each), `n_synaddplayer`
 (masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_seqplayer`
 (masked=14, the 15-function DSP-heavy TU,
@@ -3889,10 +3890,11 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 39 jump tables still emitted
+- **rodata order follows text order exactly.** The 38 jump tables still emitted
   in `asm/` are monotonic in both columns, with **zero inversions**. So
   `.rodata` can be carved TU by TU in text order, which is what makes the
-  per-TU split tractable. Five more tables now belong to matched `n_csplayer` C.
+  per-TU split tractable. Five more tables now belong to matched `n_csplayer`
+  C, and one belongs to matched `n_reverb` C.
 
 Two toolchain facts govern the per-TU split:
 

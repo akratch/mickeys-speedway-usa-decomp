@@ -408,8 +408,8 @@ typedef struct SpeakerMode_s {
 } SpeakerMode;
 
 extern SpeakerMode D_80105010_B1750;
-extern u8 D_80105014_B1754[2];
-extern u8 D_80105016_B1756[2];
+extern u8 D_800D7DC4[2];
+extern u8 D_800D7DC6[2];
 extern u8 D_80105018_B1758[4];
 
 #ifdef _LANGUAGE_C_PLUS_PLUS
