@@ -8,6 +8,7 @@ typedef struct Overlay30Groups {
     u8 pad[12];
 } Overlay30Groups;
 
+#ifdef NON_MATCHING
 void overlay30TransposePixels(u8 *data, s32 length) {
     volatile Overlay30Groups groups;
     u8 temp;
@@ -53,3 +54,6 @@ void overlay30TransposePixels(u8 *data, s32 length) {
         } while (i != count);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o030/overlay30TransposePixels/func_overlay_030_F00002B4_187F1AC.s")
+#endif

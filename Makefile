@@ -3183,15 +3183,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o021/overlay21ApplyPriorities.c.o: POSTPROCESS 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o021/overlay21ApplyPriorities.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2B4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30TransposePixels.c.o: \
-	config/normalizations/overlay30TransposePixels.schedule.ops \
-	config/normalizations/overlay30TransposePixels.fields.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30TransposePixels.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x184 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x184 fca58ffff54823e9bbf89f7b93181e5c9364376e5232b489db914b951c86c58f \
-		@config/normalizations/overlay30TransposePixels.schedule.ops \
-		@config/normalizations/overlay30TransposePixels.fields.ops
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_030_F00002B4_187F1AC=overlay30TransposePixels $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x184
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23SpawnAttachments.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x208
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Init.c.o: POSTPROCESS = \
