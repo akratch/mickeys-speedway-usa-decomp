@@ -131,7 +131,13 @@ void amAmbientStop(void) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D54.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D90.s")
+/*
+ * PROVENANCE: body shape adapted from DKR src/audio.c music_jingle_current;
+ * JFG src/audio_manager_1050.c supplies the official amAmbientGetSeqNo name.
+ */
+u8 amAmbientGetSeqNo(void) {
+    return D_800BF795;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D9C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E08.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E64.s")
