@@ -3633,23 +3633,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Init.c.o: CFLAGS += -Wab,-r4300_m
 # two non-overlapping temporary webs oppositely. Every replacement below is a
 # register-only or commutative-operand encoding; fail if compiler output moves.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x190 2ae806f5065442817457af295f249b42c9659f5952d52d20e38b2eb87511b58d \
-		fields:0xc:rt=v0@t3 \
-		fields:0x68:rt=v0@t3 \
-		fields:0x84:rt=t3@v0 \
-		fields:0x8c:rs=t3@v0 \
-		fields:0x90:rs=t3@v0 \
-		fields:0x124:rs=t0@t8,rt=t8@t0 \
-		fields:0x13c:rt=v0@v1 \
-		fields:0x140:rs=v0@v1,rt=v0@v1 \
-		fields:0x148:rt=v1@v0 \
-		fields:0x14c:rt=v0@v1 \
-		fields:0x150:rd=v0@v1 \
-		fields:0x154:rs=v0@v1,rt=v1@v0 \
-		fields:0x15c:rt=v1@v0 \
-		fields:0x168:rd=v1@v0 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x190
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_074_F00000B8_18CBD58=overlay74Update $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75MarkSlot.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x24
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75Init.c.o: POSTPROCESS = \

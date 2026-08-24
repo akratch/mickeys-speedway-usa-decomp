@@ -38,6 +38,7 @@ void overlay74SoundReloc(s32 soundId, s32 arg1);
 void overlay74RewardReloc(s32 count);
 
 /* DKR v77/v80 and JFG have no exact donor for this collision response. */
+#ifdef NON_MATCHING
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74QueryResult result;
     f32 delta;
@@ -81,3 +82,7 @@ void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
         }
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o074/overlay74Update/func_overlay_074_F00000B8_18CBD58.s")
+#endif
