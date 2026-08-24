@@ -10,10 +10,14 @@
  */
 
 extern u16 D_8007A0C8;
+extern OSMesgQueue D_800CF340;
 extern u8 D_800CF3B0[];
 extern u8 D_800CF3B4[];
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyMessageQ.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+OSMesgQueue *joyMessageQ(void) {
+    return &D_800CF340;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyInit.s")
 
