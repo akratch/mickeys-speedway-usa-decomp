@@ -744,45 +744,29 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ReleaseRecords.c.o: POSTPROCESS = 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xBC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7EntryPool.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_007_F0000000_185BE88=overlay7ReleaseEntry \
 		--redefine-sym func_overlay_007_F00000A8_185BF30=overlay7AcquireEntry $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x228
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7FillValues.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7AppendEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CreateEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchModes.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_007_F0000894_185C71C=overlay7DispatchModes $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7UpdateOwnerMode.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_007_F0000AA0_185C928=overlay7UpdateOwnerMode $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x22C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchSelection.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_007_F0000CCC_185CB54=overlay7DispatchSelection $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CommitSelection.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_007_F0000DBC_185CC44=overlay7CommitSelection $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x120
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324
 # This pool initializer is naturally instruction-exact. Its ten local-BSS
 # records are already owned by overlay 7's shipped runtime relocation table,
 # so retain their exact zero-base addends without static-link adjustment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7InitPool.c.o: \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o: \
 	$(TOOLS_DIR)/filter_elf_relocations.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7InitPool.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_007_F0000894_185C71C=overlay7DispatchModes \
+		--redefine-sym func_overlay_007_F0000AA0_185C928=overlay7UpdateOwnerMode \
+		--redefine-sym func_overlay_007_F0000CCC_185CB54=overlay7DispatchSelection \
+		--redefine-sym func_overlay_007_F0000DBC_185CC44=overlay7CommitSelection $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x004:5:.bss 0x00c:6:.bss \
-		0x000:5:.bss 0x008:6:.bss \
-		0x094:5:.bss 0x098:6:.bss \
-		0x09c:5:.bss 0x0a0:6:.bss \
-		0x0a4:5:.bss 0x0ac:6:.bss
+		0x678:5:.bss 0x680:6:.bss \
+		0x674:5:.bss 0x67c:6:.bss \
+		0x708:5:.bss 0x70c:6:.bss \
+		0x710:5:.bss 0x714:6:.bss \
+		0x718:5:.bss 0x720:6:.bss && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x724
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3UpdateTimedEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3SelectTarget.c.o: POSTPROCESS = \
@@ -2790,15 +2774,8 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindBestRecord.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ReleaseRecords.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7EntryPool.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7FillValues.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CreateEntry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7AppendEntry.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchModes.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7UpdateOwnerMode.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchSelection.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CommitSelection.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7InitPool.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3SelectTarget.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3RunCachedModeAction.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3FindClosestObject.c.o \

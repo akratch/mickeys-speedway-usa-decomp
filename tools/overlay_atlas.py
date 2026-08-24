@@ -229,16 +229,9 @@ TEXT_SUBSEGMENTS = {
         (0x01C, "asm", "overlay_006_padding"),
     ],
     7: [
-        (0x000, "c", "overlay7EntryPool"),
-        (0x228, "c", "overlay7CreateEntry"),
-        (0x298, "c", "overlay7AppendEntry"),
+        (0x000, "c", "overlay_007"),
         (0x324, "asm", "overlay_007_middle"),
-        (0x894, "c", "overlay7DispatchModes"),
-        (0xAA0, "c", "overlay7UpdateOwnerMode"),
-        (0xCCC, "c", "overlay7DispatchSelection"),
-        (0xDBC, "c", "overlay7CommitSelection"),
-        (0xEDC, "c", "overlay7FillValues"),
-        (0xF08, "c", "overlay7InitPool"),
+        (0x894, "c", "overlay_007_tail"),
         (0xFB8, "asm", "overlay_007_padding"),
     ],
     8: [

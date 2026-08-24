@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 80236,
-  "nonmatching_overlay_c_bytes": 200616,
+  "matched_overlay_c_bytes": 79764,
+  "nonmatching_overlay_c_bytes": 201088,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -2590,30 +2590,12 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x228",
-     "size": "0x228",
+     "end_offset": "0x324",
+     "size": "0x324",
      "type": "c",
-     "source": "overlays/o007/overlay7EntryPool",
+     "source": "overlays/o007/overlay_007",
      "matched": true,
      "nonmatching": true
-    },
-    {
-     "offset": "0x228",
-     "end_offset": "0x298",
-     "size": "0x70",
-     "type": "c",
-     "source": "overlays/o007/overlay7CreateEntry",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x298",
-     "end_offset": "0x324",
-     "size": "0x8C",
-     "type": "c",
-     "source": "overlays/o007/overlay7AppendEntry",
-     "matched": true,
-     "nonmatching": false
     },
     {
      "offset": "0x324",
@@ -2626,57 +2608,12 @@
     },
     {
      "offset": "0x894",
-     "end_offset": "0xAA0",
-     "size": "0x20C",
-     "type": "c",
-     "source": "overlays/o007/overlay7DispatchModes",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xAA0",
-     "end_offset": "0xCCC",
-     "size": "0x22C",
-     "type": "c",
-     "source": "overlays/o007/overlay7UpdateOwnerMode",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xCCC",
-     "end_offset": "0xDBC",
-     "size": "0xF0",
-     "type": "c",
-     "source": "overlays/o007/overlay7DispatchSelection",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xDBC",
-     "end_offset": "0xEDC",
-     "size": "0x120",
-     "type": "c",
-     "source": "overlays/o007/overlay7CommitSelection",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xEDC",
-     "end_offset": "0xF08",
-     "size": "0x2C",
-     "type": "c",
-     "source": "overlays/o007/overlay7FillValues",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xF08",
      "end_offset": "0xFB8",
-     "size": "0xB0",
+     "size": "0x724",
      "type": "c",
-     "source": "overlays/o007/overlay7InitPool",
+     "source": "overlays/o007/overlay_007_tail",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xFB8",

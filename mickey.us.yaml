@@ -881,16 +881,9 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x185BE88, c, overlay7EntryPool]
-      - [0x185C0B0, c, overlay7CreateEntry]
-      - [0x185C120, c, overlay7AppendEntry]
+      - [0x185BE88, c, overlay_007]
       - [0x185C1AC, asm, overlay_007_middle]
-      - [0x185C71C, c, overlay7DispatchModes]
-      - [0x185C928, c, overlay7UpdateOwnerMode]
-      - [0x185CB54, c, overlay7DispatchSelection]
-      - [0x185CC44, c, overlay7CommitSelection]
-      - [0x185CD64, c, overlay7FillValues]
-      - [0x185CD90, c, overlay7InitPool]
+      - [0x185C71C, c, overlay_007_tail]
       - [0x185CE40, asm, overlay_007_padding]
       - [0x185CE48, bin, overlay_007_data_rodata]
       - [0x185D798, bin, overlay_007_reloc1]
