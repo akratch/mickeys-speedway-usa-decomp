@@ -20,6 +20,7 @@ extern void func_80006A50(void *);
 extern s16 func_8000F690(f32, f32, f32);
 extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
+#ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     Vec3f position;
     Vec3f offset;
@@ -96,3 +97,6 @@ void func_overlay_022_F0000000_1878108(void *object, void *init) {
         D_0[D_30++] = object;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o022/overlay22InitializeObject/func_overlay_022_F0000000_1878108.s")
+#endif

@@ -22,6 +22,7 @@ extern volatile s32 D_30;
 extern void func_overlay_022_F0000000_1878108();
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+#ifdef NON_MATCHING
 void func_overlay_022_F0000D30_1878E38(Overlay22Object *object, s32 flags) {
     s32 i;
     s32 found;
@@ -70,3 +71,6 @@ void func_overlay_022_F0000D30_1878E38(Overlay22Object *object, s32 flags) {
     }
     func_overlay_022_F0000000_1878108(object);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o022/overlay22RemoveObject/func_overlay_022_F0000D30_1878E38.s")
+#endif
