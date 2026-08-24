@@ -25,6 +25,7 @@
 
 extern u8 D_80079BF8;
 extern f32 D_80079BD4[];
+extern CameraOverride D_800CB380[];
 extern s16 D_800CB470;
 extern s16 D_800CB472;
 extern s16 D_800CB474;
@@ -33,7 +34,9 @@ extern s16 D_800CB476;
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void func_8002BD58(s32 playerIndex, s32 strength, f32 duration);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BB90.s")
+f32 func_8001BB90(s32 cameraIndex) {
+    return D_800CB380[cameraIndex].blend;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BE0C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C054.s")

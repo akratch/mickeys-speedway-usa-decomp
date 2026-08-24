@@ -3,6 +3,12 @@
 
 #include "PR/ultratypes.h"
 
+/* Partial camera-override layout; Mickey proves a 0x2C-byte record stride. */
+typedef struct CameraOverride {
+    /* 0x00 */ f32 blend;
+    /* 0x04 */ u8 pad04[0x2C - 0x4];
+} CameraOverride;
+
 /* Partial player-control layout; fields are added only as Mickey proves them. */
 typedef struct ControlPlayer {
     /* 0x000 */ s8 playerIndex;
