@@ -12,6 +12,9 @@
 
 typedef void Gfx;
 
+extern void func_800453C4(Gfx *dList, s32 *w0_24_31, s32 *w0_16_23,
+                          s32 *w0_0_15, s32 *w1);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpPrintDL.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/func_800453C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/func_80045400.s")
@@ -22,7 +25,17 @@ typedef void Gfx;
 s32 diRcpReserved0(Gfx *dList, char *name) {
     return 8;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpReserved2.s")
+/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpReserved2. */
+s32 diRcpReserved2(Gfx *dList) {
+    s32 w0_24_31;
+    s32 w0_16_23;
+    s32 w0_0_15;
+    s32 w1;
+    s32 pad[2];
+
+    func_800453C4(dList, &w0_24_31, &w0_16_23, &w0_0_15, &w1);
+    return 8;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpMoveMem.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpDisplayList.s")
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpStrNameMacro. */
