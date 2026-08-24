@@ -401,7 +401,9 @@ the resident defaults with no relocations: 16-byte `diRcpReserved0`, 20-byte
 12-byte `diRcpDmaOffsets`. The 44-byte `func_80044B9C` (`diRcpTraceReset`)
 is exact at the same defaults, including both data-symbol relocation pairs.
 The 60-byte `diRcpTraceInit` is likewise exact, preserving both allocator
-calls and their call/data relocations.
+calls and their call/data relocations. The 60-byte JFG-identified `wakeFree`
+is exact after resolving `func_800347A0` as a one-argument call; its two call
+relocations and the wake-linked field access match without normalization.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet

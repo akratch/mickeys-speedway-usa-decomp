@@ -12,6 +12,14 @@
 
 #include "PR/ultratypes.h"
 
+typedef struct Wake {
+    u8 pad0[0x30];
+    s32 linked;
+} Wake;
+
+extern void func_800347A0(s32 linked);
+extern void mmFree(void *ptr);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046E70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046EC4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004707C.s")
@@ -23,7 +31,14 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048760.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeFree.s")
+void wakeFree(Wake *wake) {
+    s32 linked = wake->linked;
+
+    if (linked != 0) {
+        func_800347A0(linked);
+    }
+    mmFree(wake);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048980.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049000.s")
