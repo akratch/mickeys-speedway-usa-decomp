@@ -135,6 +135,10 @@ extern Matrix *D_800D40E0;
 extern WeatherVertex *D_8007C3C4;
 extern s32 D_8007C3C8;
 extern s32 D_8007C6E8;
+extern s32 D_8007C6EC;
+extern s32 D_8007C6F8;
+extern s32 D_8007C708;
+extern s32 D_8007C70C;
 
 extern s32 func_800299E8(s32 min, s32 max);
 extern s32 mathRnd(s32 min, s32 max);
@@ -145,6 +149,8 @@ extern s32 *func_8002E148(s32 assetId);
 extern s32 coss_s16(s16 angle);
 extern s32 func_8002A1A4(s16 angle);
 extern WeatherTexture *func_80034448(s32 textureId);
+extern s32 func_80049864(s32 mode);
+extern void func_800498FC(s32 mode, f32 arg1, f32 arg2, s32 red, s32 green, s32 blue, s32 alpha);
 extern void mmFree(void *ptr);
 extern void func_800347A0(WeatherTexture *texture);
 
@@ -489,5 +495,32 @@ f32 rainDensity(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_update.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_render_splashes.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_lightning.s")
+/*
+ * PROVENANCE -- body adapted from Diddy Kong Racing's and Jet Force Gemini's
+ * public retail-derived src/weather.c::rain_lightning. Mickey's thresholds,
+ * transition call, and timer arithmetic are authoritative here.
+ */
+void rain_lightning(s32 updateRate) {
+    s32 delay;
+
+    if (D_8007C70C > 0) {
+        D_8007C70C -= updateRate;
+        if (D_8007C70C <= 0) {
+            if (D_8007C6F8 > 0x8000) {
+                if (func_80049864(4) == 0) {
+                    func_800498FC(4, 0.0834f, 0.0334f, 0xFF, 0xFF, 0xFF, 0x40);
+                }
+            }
+            D_8007C70C = 0;
+        }
+    } else if (D_8007C6EC > 0xC000) {
+        if (D_8007C708 > 0) {
+            D_8007C708 -= updateRate;
+        } else {
+            delay = (s32) ((D_8007C6EC * 0x258) + 0xFE3E0000) >> 14;
+            D_8007C70C = delay + 0x3C;
+            D_8007C708 = mathRnd(0x4B0, 0x5DC) - delay;
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_sound.s")
