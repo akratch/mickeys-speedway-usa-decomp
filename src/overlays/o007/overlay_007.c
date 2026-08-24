@@ -2,6 +2,11 @@
 
 /* Overlay 7, ADR 0006 consolidation: C before the middle assembly island. */
 
+/*
+ * Plateau: exact size with one differing word at +0x3C. The target orders
+ * the equality branch operands as v0,a0; equivalent ==/!= and goto spellings
+ * all collapse to IDO's a0,v0 ordering under the complete O2 flag lattice.
+ */
 #ifdef NON_MATCHING
 void overlay7ReleaseEntry(Overlay7Entry *entry) {
     Overlay7Entry *previous;
@@ -36,6 +41,12 @@ void overlay7ReleaseEntry(Overlay7Entry *entry) {
     }
 }
 
+/*
+ * Plateau: exact size with 17 differing words, first at +0x84. IDO retains
+ * the reset head in v0 for the second-loop null check instead of using the
+ * target's s0 web; the remaining allocation-tail register/layout differences
+ * follow from that copy-propagation choice. The O2 flag lattice is unchanged.
+ */
 Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
     Overlay7Entry *head;
     Overlay7Entry *entry;
@@ -52,9 +63,9 @@ Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
             }
             entry = entry->next;
         } while (entry != 0);
-        entry = head;
     }
 
+    entry = head;
     ownerPriority = owner->priority;
     if (entry != 0) {
         do {
@@ -83,6 +94,8 @@ Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
         }
         entry->next = 0;
         gOverlay7ActiveTail = entry;
+    } else {
+        entry = 0;
     }
     return entry;
 }

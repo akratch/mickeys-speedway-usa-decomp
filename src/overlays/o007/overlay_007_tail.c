@@ -11,6 +11,12 @@ static Overlay7Entry *gOverlay7Selected;
 
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
+/*
+ * Plateau: exact size with two differing words, first at +0x44. A redundant
+ * low-ten-bit mask fixes the downstream temp-FIFO rotation, but IDO loads the
+ * flag value into t4 rather than the target's reused t3; the O2 flag lattice
+ * is otherwise identical.
+ */
 #ifdef NON_MATCHING
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
     Overlay7ModeState *firstState;
@@ -24,7 +30,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
                                         : gOverlay7PrimaryModes;
     record = &modes[firstState->index][secondState->index];
 
-    if ((s32)(gOverlay7DispatchFlagsReloc << 22) < 0) {
+    if ((s32)((gOverlay7DispatchFlagsReloc & 0x3FF) << 22) < 0) {
         secondState->timer = 100;
         secondState->height += 5.0f;
         switch (record->mode) {
@@ -67,14 +73,20 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000894_185C71C.s")
 #endif
 
+/*
+ * Plateau: exact size and opcode schedule, but 81 words still differ from
+ * +0x10. The remaining mismatch is a temp-FIFO/register-allocation phase;
+ * failed and base now have the target stack homes, and the O2 flag lattice
+ * does not change the result.
+ */
 #ifdef NON_MATCHING
 void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
     Overlay7CheckState *state;
-    Overlay7CheckEntry *base;
+    s32 failed;
     Overlay7CheckEntry *entries;
     s32 reference;
     s32 index;
-    s32 failed;
+    Overlay7CheckEntry *base;
     s32 i;
 
     state = owner->state;
@@ -87,13 +99,15 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
             if (D_8 == 2) {
                 entries = base + index * 4;
                 reference = entries[3].value;
-                for (i = 0; i < 3; i++) {
+                i = 0;
+                do {
                     if (state->limits404[i] < reference || reference == 0 ||
                         state->field400 < entries[i].value ||
                         entries[i].value == 0) {
                         failed = 1;
                     }
-                }
+                    i++;
+                } while (i != 3);
                 if (failed) {
                     overlay7RecordCheckReloc(5);
                 } else {
@@ -130,6 +144,11 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000AA0_185C928.s")
 #endif
 
+/*
+ * Plateau: exact size with two differing words, first at +0x4. The low-ten-
+ * bit mask fixes every downstream temp register, but IDO keeps the flag load
+ * in t7 instead of coalescing it with the target's t6 address register.
+ */
 #ifdef NON_MATCHING
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     Overlay7DispatchState *state;
@@ -137,7 +156,7 @@ void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     s8 mapped;
 
     state = owner->state;
-    if ((s32)(gOverlay7DispatchFlagsReloc << 22) < 0) {
+    if ((s32)((gOverlay7DispatchFlagsReloc & 0x3FF) << 22) < 0) {
         if (selection >= 14 && selection < 17) {
             override = &gOverlay7DispatchOverride[state->index];
             if (*override == 0) {
@@ -165,11 +184,16 @@ query:
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000CCC_185CB54.s")
 #endif
 
+/*
+ * Plateau: exact size with seven differing words, first at +0x64. The
+ * remaining differences are a two-temp rotation in the default table-index
+ * expression and the post-call u16 narrowing web; the O2 lattice is stable.
+ */
 #ifdef NON_MATCHING
 void overlay7CommitSelection(s32 selection) {
+    u16 value;
     Overlay7Pair *pair;
     s32 remaining;
-    u16 value;
 
     if (gOverlay7DispatchModeReloc & 1) {
         switch (selection) {
@@ -184,14 +208,14 @@ void overlay7CommitSelection(s32 selection) {
             break;
         default:
             value = *(u16 *)&gOverlay7DispatchData[
-                0x754 + selection * 6 + overlay7LookupReloc(0, 2) * 2];
+                0x754 + overlay7LookupReloc(0, 2) * 2 + selection * 6];
             break;
         }
         pair = (Overlay7Pair *)&gOverlay7DispatchData[0x8F4];
         remaining = 11;
         do {
-            if (value == pair->key) {
-                value = value + overlay7LookupReloc(0, pair->value);
+            if (pair->key == value) {
+                value += overlay7LookupReloc(0, pair->value);
                 break;
             }
             pair++;
