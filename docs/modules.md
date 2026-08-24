@@ -729,6 +729,56 @@ HI16/LO16 pair. JFG calls the store-only helper `viNoClear`, but no
 same-address Mickey caller pins that public name and the body is below the
 tier-A threshold, so the address label remains canonical.
 
+### 3.4 `main/track`: ROM `0xC950`-`0x16140`
+
+This 0x97F0-byte, 66-function block is one resident translation unit. The
+identification is stronger than the isolated `trackSetFogOff` row in §3.3:
+
+- **Tier A:** `trackSetFogOff` at ROM `0x151A0` is byte-identical to JFG's
+  function, with 27 unmasked words, two masked words, and one ROM occurrence.
+- **Tier B:** callers use the block as one track-rendering, collision-query,
+  lighting, and fog API. Internal calls stay within those same clusters; the
+  block's first large routine orchestrates its later helpers.
+- **Tier C:** the routines at `0x8000BDB4` and `0x8000E920` reference all 14
+  resident copies of `"track/track.c"` at `0x80081540`-`0x80081610`.
+- **Tier D:** the complete function order follows JFG's built `src/track.c.o`:
+  update/draw/sky, texture scrolling, track lights, spatial queries, and fog,
+  ending with the corresponding display-list helper. Running
+  `tools/skeleton_scan.py similar --target <vram> --top 5` for every Mickey
+  function puts a JFG `track.c.o` member first for 39 of the 62 functions large
+  enough for the default ten-word index, and in the top five for 40. Exact
+  sizes drift, as expected for a different engine revision, but the order does
+  not.
+
+The 16-byte-aligned yaml boundaries agree with that sequence: ROM `0xC950`
+starts at the function corresponding to JFG's first track routine, and the
+last Mickey function ends at `0x16134`, leaving only 12 bytes of compiler
+alignment before the next subsegment. No routine in the block uses an odd
+single-precision FP register, so none is classified as hand-written assembly
+under §6.2.
+
+**PROVENANCE:** the TU name, comparison order, and reference function names
+come from Jet Force Gemini's public decomp, `src/track.c` and its built
+`src/track.c.o`, a permitted published retail-derived source under
+`docs/CLEANROOM.md`. Mickey's ROM supplies the boundaries, call graph, string
+references, and matching verdicts; JFG is a starting point, never authority
+over a disagreement.
+
+Matched C in this TU:
+
+| Function | ROM | Bytes | Flags | Donor and verdict |
+|---|---:|---:|---|---|
+| `trackSkySet` | `0xD1E8` | 0xC | `-O2 -mips2 -32` | JFG `src/track.c` body; tier B role and tier D TU position; 3/3 instruction words and relocation layout exact, linked ROM exact |
+| `func_8000D00C` | `0xDC0C` | 0xC | `-O2 -mips2 -32` | Mickey reconstruction; JFG's corresponding `trackGetSky` is only tier D and is deliberately not adopted; 3/3 instruction words and relocation layout exact, linked ROM exact |
+| `trackGetTrack` | `0x14AB4` | 0xC | `-O2 -mips2 -32` | Mickey reconstruction with JFG name (tier B callers); 3/3 instruction words and relocation layout exact, linked ROM exact |
+| `trackSetFog` | `0x15030` | 0xF8 | `-O2 -mips2 -32` | JFG `src/track.c` body with tier B callers and tier D TU order; 62/62 instruction words and relocation layout exact, linked ROM exact |
+| `trackGetFog` | `0x15128` | 0x78 | `-O2 -mips2 -32` | JFG direct-path body with tier B caller and tier D TU order; 30/30 instruction words and relocation layout exact, linked ROM exact |
+| `trackSetFogOff` | `0x151A0` | 0x74 | `-O2 -mips2 -32` | JFG `src/track.c`; 29/29 instruction words and relocation layout exact, linked ROM exact |
+| `func_80014614` | `0x15214` | 0x190 | `-O2 -mips2 -32` | Mickey reconstruction of the fog-state updater; JFG same-position skeleton is the 0.733 top hit but its placeholder is not imported; 100/100 instruction words and relocation layout exact, linked ROM exact |
+| `func_800147A4` | `0x153A4` | 0x13C | `-O2 -mips2 -32` | Mickey reconstruction using the SDK fog-colour/position macros; JFG same-size top skeleton supplies structural context but its placeholder is not imported; 79/79 instruction words and relocation layout exact, linked ROM exact |
+| `func_80014DE4` | `0x159E4` | 0xC8 | `-O2 -mips2 -32` | Mickey reconstruction; JFG supplies only tier-D transform-role context and no public name is adopted; 50/50 instruction words and relocation layout exact, linked ROM exact |
+| `func_80014EAC` | `0x15AAC` | 0x20 | `-O2 -mips2 -32` | JFG `func_8001C550` is a tier-A 8/8-word TU donor, unique in the ROM; JFG placeholder not imported; linked ROM exact |
+
 ---
 
 ## 4. libultra

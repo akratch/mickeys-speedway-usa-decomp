@@ -1397,6 +1397,55 @@ asins = 0x8006A508; // type:func size:0x8C
 // should treat it as one of two possible names, not as measured.
 
 // ---------------------------------------------------------------------------
+// Resident track API names below the tier-A word-count threshold
+//
+// PROVENANCE DISCLOSURE. The public names below come from Jet Force Gemini's
+// `src/track.c`, a permitted published retail-derived source. Each Mickey body
+// is compiler- and ROM-exact, but is too short for the normal tier-A adoption
+// threshold. The row therefore states the independent tier-B/D argument that
+// identifies its role and position in the already-established `main/track` TU.
+// ---------------------------------------------------------------------------
+
+// Tier B: the sole setter of the flag tested by the track sky-render path.
+// Tier D: occupies JFG `trackSkySet`'s position in the established TU order.
+trackSkySet = 0x8000C5E8; // type:func size:0xC ROM 0xd1e8
+
+// No name adopted: JFG's corresponding `trackGetSky` is only a tier-D TU
+// position argument. Mickey's address placeholder is retained for the exact C.
+func_8000D00C = 0x8000D00C; // type:func size:0xC ROM 0xdc0c
+
+// Tier B: all three external callers consume the returned object through
+// track-layout fields; this is the TU's accessor for its current track object.
+trackGetTrack = 0x80013EB4; // type:func size:0xC ROM 0x14ab4
+
+// Tier B: external callers supply fog distance, colour, and state values.
+// Tier D: occupies JFG `trackSetFog`'s position before the independently
+// identified `trackGetFog` and tier-A `trackSetFogOff` pair.
+trackSetFog = 0x80014430; // type:func size:0xF8 ROM 0x15030
+
+// Tier B: its caller passes seven output pointers, then consumes them as fog
+// distance, colour, and state values. Tier D: this is JFG trackGetFog's exact
+// position between trackSetFog and the tier-A trackSetFogOff.
+trackGetFog = 0x80014528; // type:func size:0x78 ROM 0x15128
+
+// No public name adopted: updates the compact/current fog state for each
+// active fog slot; JFG's corresponding function remains a placeholder.
+func_80014614 = 0x80014614; // type:func size:0x190 ROM 0x15214
+
+// No public name adopted: this emits the current fog colour/range display-list
+// commands; JFG's corresponding function is still an address placeholder.
+func_800147A4 = 0x800147A4; // type:func size:0x13C ROM 0x153a4
+
+// No public name adopted: this Mickey-only helper builds a transform from the
+// current track rotation and caches one transformed point.
+func_80014DE4 = 0x80014DE4; // type:func size:0xC8 ROM 0x159e4
+
+// Tier A establishes TU membership only: all eight words are identical to
+// JFG `func_8001C550`, with zero masked words and one ROM occurrence. Section
+// 1.5 forbids importing JFG's address placeholder, so Mickey's own stands.
+func_80014EAC = 0x80014EAC; // type:func size:0x20 ROM 0x15aac
+
+// ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
 // the whole-object threshold
 //
