@@ -4710,97 +4710,16 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: CFL
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x36C
 
-# Overlay 70's three typed owners naturally recover the complete algorithms,
-# CFG, calls, and memory/FP effects. Materialize only the loader-owned stored
-# addends before filtering their duplicate HILO records; the configured split
-# retains the exact 17 raw-carrier R26 records seen in the assembler object.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000000_18C91C8.c.o: \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000000_18C91C8.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xD8 0a9975ee6c94195a5231d61a273e11b71532f27d94e32d30ae38f3655ffef600 \
-		fields:0x94:imm=0@0x20 fields:0xac:imm=0@0xc \
-		fields:0xbc:imm=0@0x10 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x078:5:gOverlay70FloatTableReloc \
-		0x094:6:gOverlay70FloatTableReloc \
-		0x098:5:gOverlay70VerticalStepReloc \
-		0x0ac:6:gOverlay70VerticalStepReloc \
-		0x09c:5:gOverlay70AngleReloc \
-		0x0bc:6:gOverlay70AngleReloc && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x028:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x038:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x04c:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x05c:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: \
-	config/normalizations/func_overlay_070_F00000D8_18C92A0.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2AC 9398d0f9f5fd8f55b960ffa3d83eaff432b0da3c5cd0666a75cd75f987c7ee2f \
-		@config/normalizations/func_overlay_070_F00000D8_18C92A0.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2AC 408582ce3b5555896620dfcfe993afb04e81bf40f9eca9d04bc41d5103378676 \
-		fields:0x1cc:imm=0@0x18 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x168:5:gOverlay70PairTableReloc \
-		0x16c:6:gOverlay70PairTableReloc \
-		0x194:5:gOverlay70HeightTableReloc \
-		0x1cc:6:gOverlay70HeightTableReloc && \
-	$(OBJCOPY) --redefine-sym \
-		overlay70Reset=func_overlay_070_F0000000_18C91C8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x0f0:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x100:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x124:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x134:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
-		0x14c:overlay70Sin:func_overlay_070_F0000000_18C91C8 \
-		0x15c:overlay70Cos:func_overlay_070_F0000000_18C91C8 \
-		0x28c:overlay70Apply:func_overlay_070_F0000000_18C91C8 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2AC
 
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: \
-	config/normalizations/func_overlay_070_F0000384_18C954C.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3AC 7f0771475e8eec322f934abc8edaf881700f504cdb318639b762be61c4ca55a6 \
-		@config/normalizations/func_overlay_070_F0000384_18C954C.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3A8 f75f51c83690e99ab67704727b62f2afee5b4d6b27dfd1cf37ace37954cf09aa \
-		drop-copy:0x32c:a1:a1:func_overlay_070_F0000384_18C954C && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3A4 79c5c882a02ecce3e55492e518b0dca0ec7827d3495663419145e4da6300094f \
-		drop-copy:0x338:a1:a1:func_overlay_070_F0000384_18C954C && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x264:5:gOverlay70SharedCounterReloc \
-		0x274:6:gOverlay70SharedCounterReloc \
-		0x278:5:gOverlay70SharedCounterReloc \
-		0x280:6:gOverlay70SharedCounterReloc \
-		0x2f0:5:gOverlay70SharedCounterReloc \
-		0x2f4:6:gOverlay70SharedCounterReloc \
-		0x340:5:gOverlay70SharedCounterReloc \
-		0x388:6:gOverlay70SharedCounterReloc && \
-	$(OBJCOPY) --redefine-sym \
-		overlay70GetRange=func_overlay_070_F0000000_18C91C8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x21c:overlay70GetRecords:func_overlay_070_F0000000_18C91C8 \
-		0x284:overlay70GetAll:func_overlay_070_F0000000_18C91C8 \
-		0x324:overlay70EmitEvent:func_overlay_070_F0000000_18C91C8 \
-		0x334:overlay70EmitEvent:func_overlay_070_F0000000_18C91C8 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4 \
-		00000000000000008fb90064
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4
 # The typed particle/update body preserves every loop bound, call, relocation,
 # memory effect, and FP association. IDO emits the same 720 semantic carriers
 # in a compact private schedule; the fail-loud preparation and complete

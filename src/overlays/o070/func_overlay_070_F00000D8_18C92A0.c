@@ -52,6 +52,7 @@ extern f32 overlay70Cos(s32 angle);
 extern void overlay70Apply(void *target, s32 *flags, s32 mode,
                            f32 *coordinates, s32 ticks);
 
+#ifdef NON_MATCHING
 void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
     O70State *state;
     O70Object *related;
@@ -121,3 +122,6 @@ void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
     overlay70Apply(*object->targetList, &state->flags, 2, &object->value28,
                    ticks);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o070/func_overlay_070_F00000D8_18C92A0/func_overlay_070_F00000D8_18C92A0.s")
+#endif

@@ -35,6 +35,7 @@ extern s8 gOverlay70VerticalStepReloc[];
 extern s16 gOverlay70AngleReloc[];
 extern s32 overlay70RandomRange(s32 lower, s32 upper);
 
+#ifdef NON_MATCHING
 void func_overlay_070_F0000000_18C91C8(O70Object *object, O70Input *input) {
     O70State *state;
     u8 type;
@@ -57,3 +58,6 @@ void func_overlay_070_F0000000_18C91C8(O70Object *object, O70Input *input) {
     state->verticalStep = gOverlay70VerticalStepReloc[type];
     object->angle = gOverlay70AngleReloc[type];
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o070/func_overlay_070_F0000000_18C91C8/func_overlay_070_F0000000_18C91C8.s")
+#endif

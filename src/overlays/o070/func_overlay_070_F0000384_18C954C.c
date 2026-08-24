@@ -66,6 +66,7 @@ extern O70Object **overlay70GetAll(s32 *count);
 extern void overlay70EmitEvent(s32 event, s32 metric);
 extern s32 gOverlay70SharedCounterReloc;
 
+#ifdef NON_MATCHING
 void func_overlay_070_F0000384_18C954C(O70Object *object) {
     s32 start;
     s32 end;
@@ -155,3 +156,6 @@ void func_overlay_070_F0000384_18C954C(O70Object *object) {
         manager->timer168 = 0x78;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o070/func_overlay_070_F0000384_18C954C/func_overlay_070_F0000384_18C954C.s")
+#endif
