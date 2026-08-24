@@ -53,6 +53,7 @@ extern f32 overlay25SinReloc(s32 angle);
 extern f32 overlay25CosReloc(s32 angle);
 extern s32 overlay25RandomReloc(s32 lower, s32 upper);
 
+#ifdef NON_MATCHING
 void overlay25InitializeEffect(Overlay25Object *object,
                                const Overlay25Init *init) {
     Overlay25State *state;
@@ -98,3 +99,6 @@ void overlay25InitializeEffect(Overlay25Object *object,
         object->vector->y = 0.0f;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o025/overlay25InitializeEffect/func_overlay_025_F0000000_1879C88.s")
+#endif

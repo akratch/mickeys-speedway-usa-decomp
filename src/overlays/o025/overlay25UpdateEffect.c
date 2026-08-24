@@ -77,6 +77,7 @@ extern void overlay25ApplyHitReloc(Overlay25Object *owner,
 extern Overlay25Status *overlay25GetStatusReloc(void);
 extern void overlay25NotifyHitReloc(Overlay25Object *object);
 
+#ifdef NON_MATCHING
 void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
     Overlay25EffectState *state = &object->state->effect;
     Overlay25Vector position;
@@ -205,3 +206,6 @@ void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
         object->vector->y = state->multiplier * object->transform->scaleY;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o025/overlay25UpdateEffect/func_overlay_025_F000017C_1879E04.s")
+#endif

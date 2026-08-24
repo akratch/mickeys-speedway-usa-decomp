@@ -3141,35 +3141,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay24Update.c.o: POSTPROCESS = \
 		3e99999a000000000000000000000000
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay24RenderState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x190
-# The typed initializer naturally owns 94 instructions plus one reusable IDO
-# alignment word, with exact frame, five calls, CFG, and opcode/FP inventories.
-# Adopt that proved nop and select the complete private schedule/register/home
-# web without changing an opcode, constant, call identity, or memory effect.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25InitializeEffect.c.o: \
-	config/normalizations/overlay25InitializeEffect.ops \
-	$(TOOLS_DIR)/extend_elf_function_to_text.py
+# NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration and
+# trailing-section trimming metadata for these extracted functions.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25InitializeEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x17C && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/extend_elf_function_to_text.py $@ \
-		overlay25InitializeEffect 0x178 0x17C \
-		7291fa6c89c8261645103d5b3d2a880b1212771fe84e454a21293e167123dfd3 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x17C ef8e14dd36a3e857a4551303f7f8828580252e767f5ac1d25c5140499d3495a8 \
-		@config/normalizations/overlay25InitializeEffect.ops
-# The reconstructed update owns +0x17C..+0x588. IDO naturally recovers the
-# exact operation inventory, call order, relocation surface, and six-word
-# literal pool; the guarded ledger selects the shipped schedule/register/home
-# web. The original overlay data at +0x630 remains authoritative, so prove and
-# externalize the compiler's identical private pool before linking.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25UpdateEffect.c.o: \
-	config/normalizations/overlay25UpdateEffect.ops \
-	$(TOOLS_DIR)/externalize_elf_section.py
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_025_F0000000_1879C88=overlay25InitializeEffect $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x17C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25UpdateEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x40C 20c0b987007f00daa1b622e49087021cc827ca9ba10f0dd0ce68bb4b9d5b1a22 \
-		@config/normalizations/overlay25UpdateEffect.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-		3f8d3dcb3f8d3dcb3ecccccd3ecccccd3dcccccd3ecccccd0000000000000000 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_025_F000017C_1879E04=overlay25UpdateEffect $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x40C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25SetVectorFlags.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
