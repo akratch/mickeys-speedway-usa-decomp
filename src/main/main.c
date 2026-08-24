@@ -29,10 +29,12 @@ extern u32 D_8007A1CC;
 extern s32 D_8007A1D4;
 extern s32 D_8007A1EC;
 extern u8 D_8007BEF4;
+extern u8 D_8007BEF8;
 extern s8 D_800CF53F[];
 extern void *D_800D18E0;
 extern void *D_800D18E4;
 extern u8 D_800D1928[];
+extern s32 levelNGetType(s32 level);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -238,7 +240,14 @@ s32 mainGetNumberOfCameras(void) {
     return D_8007BEF4;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_800291FC.s")
+s32 func_800291FC(void) {
+    s32 type = levelNGetType(D_8007A148);
+
+    if ((type == 1) || (type == 2)) {
+        return 0;
+    }
+    return D_8007BEF8;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029240.s")
 
