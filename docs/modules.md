@@ -419,7 +419,7 @@ call graph isolates one namesake.
 | `0x8001F364` | `0x8` | — | Matched C: empty routine, ADR 0001 byte-identity; retain `func_` |
 | `0x8001F36C` | `0x40` | `controlSetPlayerSetup` | A: 6 unmasked of 16 words after 10 relocation masks, already adopted |
 | `0x8001F3AC` | `0x5C` | `controlGetPlayerSetup` | B: consumes and clears the exact state written by the tier-A setter; retain `func_` until C matches |
-| `0x8001F408` | `0xC` + `0xC` padding | `controlClearPlayerSetup` | B: clears that same setup state in JFG order; retain `func_` until C matches |
+| `0x8001F408` | `0xC` + `0xC` padding | `controlClearPlayerSetup` | B + matched C: clears the setup-valid byte; adopted with point-of-use JFG provenance and ADR 0001 byte-identity |
 
 No function in this TU uses an odd single-precision FP register, so §6.2 does
 not classify any of them as hand-written assembly. The `0xC` bytes after

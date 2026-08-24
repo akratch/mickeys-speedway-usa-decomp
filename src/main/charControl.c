@@ -56,4 +56,10 @@ void func_8001F364(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/controlSetPlayerSetup.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F3AC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F408.s")
+
+extern u8 D_80079BF8[];
+
+/* PROVENANCE -- adapted from JFG's src/charControl.c controlClearPlayerSetup. */
+void controlClearPlayerSetup(void) {
+    D_80079BF8[0] = 0;
+}
