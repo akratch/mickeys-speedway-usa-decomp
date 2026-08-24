@@ -24,7 +24,9 @@
 #include "game/charControl.h"
 
 extern u8 D_80079BF8;
+extern s32 D_80079BCC;
 extern f32 D_80079BD4[];
+extern s32 D_800CB308[];
 extern CameraOverride D_800CB380[];
 extern s16 D_800CB470;
 extern s16 D_800CB472;
@@ -46,7 +48,12 @@ f32 func_8001BB90(s32 cameraIndex) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BE0C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C054.s")
+void func_8001C054(s32 value) {
+    if (D_80079BCC < 24) {
+        D_800CB308[D_80079BCC] = value;
+        D_80079BCC++;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C088.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C114.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C2C4.s")
