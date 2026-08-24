@@ -1491,6 +1491,9 @@ frontGetSfxVolume = 0x8003A47C; // type:func size:0xC  ROM 0x3b07c
 // Tier B (JFG): exact ordered setter body and gsSndpSetGlobalVolume call
 // identify the paired SFX-volume operation.
 frontSetSfxVolume = 0x8003A488; // type:func size:0x3C  ROM 0x3b088
+// Tier B (JFG): exact halfword getter, ordered position after the SFX pair,
+// and its adjacent clamping audio setter establish the BGM-volume role.
+frontGetBgmVolume = 0x8003A4C4; // type:func size:0xC  ROM 0x3b0c4
 // jfg:src/diCpu.c.o
 diCpuTraceInit = 0x800459B0; // type:func size:0x54   ROM 0x465b0  src/diCpu.c.o  masked=10/21
 // jfg:src/font.c.o

@@ -443,6 +443,13 @@ the `gsSndpSetGlobalVolume` call, so the adapted body carries point-of-use
 linked ROM range are exact; a zero-byte weak alias preserves the anonymous
 name used by the remaining assembly caller.
 
+The tier-B `frontGetBgmVolume` adds **0xC bytes / 3 words** at ROM `0x3B0C4`.
+Its halfword getter follows the completed SFX pair at the exact JFG menu
+position, while the adjacent clamp-and-audio-call setter confirms the paired
+BGM state. The adapted body carries point-of-use `PROVENANCE`; its linked data
+relocation is exact, and a zero-byte weak alias preserves the anonymous name
+used by resident assembly.
+
 ---
 
 ## 4. libultra

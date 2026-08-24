@@ -25,6 +25,7 @@ extern MenuScreenModeBits D_800D3128;
 extern u8 D_8007C08C;
 extern u8 D_8007C090;
 extern u16 D_800D312C;
+extern u16 D_800D312E;
 extern s32 func_80025CC8(void);
 extern s8 func_80033F5C(void);
 extern void gsSndpSetGlobalVolume(s32 volume);
@@ -123,7 +124,12 @@ void frontSetSfxVolume(s32 volume) {
     D_800D312C = volume;
     gsSndpSetGlobalVolume(volume);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A4C4.s")
+/* Retain the anonymous spelling used by an unsplit resident assembly caller. */
+#pragma weak func_8003A4C4 = frontGetBgmVolume
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetBgmVolume. */
+u16 frontGetBgmVolume(void) {
+    return D_800D312E;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A4D0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A50C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")
