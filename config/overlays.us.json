@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 80456,
-  "nonmatching_overlay_c_bytes": 200396,
+  "matched_overlay_c_bytes": 80440,
+  "nonmatching_overlay_c_bytes": 200412,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -3366,73 +3366,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x540",
-     "size": "0x540",
-     "type": "c",
-     "source": "overlays/o009/overlay9UpdateObjectState",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x540",
-     "end_offset": "0x744",
-     "size": "0x204",
-     "type": "c",
-     "source": "overlays/o009/overlay9UpdateAngle",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x744",
-     "end_offset": "0x9BC",
-     "size": "0x278",
-     "type": "c",
-     "source": "overlays/o009/overlay9UpdateOutput",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x9BC",
-     "end_offset": "0xCE4",
-     "size": "0x328",
-     "type": "c",
-     "source": "overlays/o009/overlay9UpdateInputState",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xCE4",
-     "end_offset": "0xF6C",
-     "size": "0x288",
-     "type": "c",
-     "source": "overlays/o009/overlay9IntegrateVelocity",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xF6C",
-     "end_offset": "0x10A4",
-     "size": "0x138",
-     "type": "c",
-     "source": "overlays/o009/overlay9ResolveHeight",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x10A4",
-     "end_offset": "0x10B4",
-     "size": "0x10",
-     "type": "c",
-     "source": "overlays/o009/overlay9Ignore",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x10B4",
      "end_offset": "0x1520",
-     "size": "0x46C",
+     "size": "0x1520",
      "type": "c",
-     "source": "overlays/o009/overlay9UpdateMotion",
+     "source": "overlays/o009/overlay_009",
      "matched": true,
      "nonmatching": true
     }

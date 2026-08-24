@@ -945,27 +945,9 @@ $(O8_4CF0_OBJ): CFLAGS += -Wab,-r4300_mul
 $(O8_4CF0_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_008_F0004CF0_1862A48=func_overlay_008_F0004CF0_1862A48 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x438
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateObjectState.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateAngle.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateAngle.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x204
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateOutput.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateOutput.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x278
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateInputState.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateInputState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x328
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9IntegrateVelocity.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9IntegrateVelocity.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x288
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9ResolveHeight.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9ResolveHeight.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9Ignore.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x10
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateMotion.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x46C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1520
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31InitializeParticleAssets.c.o: POSTPROCESS = \
@@ -2837,14 +2819,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8WriteCommand.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8SetValue.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateMotionOutput.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateObjectState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateAngle.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateOutput.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateInputState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9IntegrateVelocity.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9ResolveHeight.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9Ignore.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateMotion.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay12Initialize.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchBank.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchInst.c.o \

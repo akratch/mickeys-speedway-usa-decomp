@@ -267,14 +267,7 @@ TEXT_SUBSEGMENTS = {
         (0x5128, "asm", "overlay_008_padding"),
     ],
     9: [
-        (0x0000, "c", "overlay9UpdateObjectState"),
-        (0x0540, "c", "overlay9UpdateAngle"),
-        (0x0744, "c", "overlay9UpdateOutput"),
-        (0x09BC, "c", "overlay9UpdateInputState"),
-        (0x0CE4, "c", "overlay9IntegrateVelocity"),
-        (0x0F6C, "c", "overlay9ResolveHeight"),
-        (0x10A4, "c", "overlay9Ignore"),
-        (0x10B4, "c", "overlay9UpdateMotion"),
+        (0x0000, "c", "overlay_009"),
     ],
     10: [
         (0x000, "c", "overlay10Initialize"),
