@@ -27,5 +27,6 @@ void toggleLight(UnkLight *light);
 void changeLightColour(UnkLight *light, u8 red, u8 green, u8 blue);
 void changeLightColourCycle(s32 arg0, s32 arg1);
 void changeLightIntensity(UnkLight *light, u8 intensity);
+void **lightGetLights(s32 *count);
 
 #endif

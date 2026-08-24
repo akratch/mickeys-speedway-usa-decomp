@@ -403,7 +403,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80018E7C` | `0x8C` | `lightUpdateLights` | tier-B comparison: loop calls the following per-light updater |
 | `0x80018F08` | `0x334` | JFG placeholder `func_80021444` | placeholder prohibited; remains `func_80018F08` |
 | `0x8001923C` | `0x104` | `killLight` | tier-B comparison from free/update call graph and TU order |
-| `0x80019340` | `0x18` | `lightGetLights` | structural comparison only; C still `func_80019340` |
+| `0x80019340` | `0x18` | `lightGetLights` | Tier A: adapted JFG body and both global relocations are linked byte-identically |
 | `0x80019358` | `0x13C` | `lightGetStrongestEffect` | tier-B comparison: square-root distance calculation and TU order |
 | `0x80019494` | `0xA8` | `lightUpdateObjects` | tier-B comparison: calls the following object-light helper |
 | `0x8001953C` | `0x3F8` | JFG placeholder `func_80021B9C` | placeholder prohibited; remains `func_8001953C` |
