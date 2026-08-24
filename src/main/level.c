@@ -144,6 +144,21 @@ s32 levelGetNextOfWorld(s32 arg0, s8 arg1) {
     return next;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetPrevOfWorld.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+s32 levelGetPrevOfWorld(s32 arg0, s8 arg1) {
+    s32 prev;
+
+    prev = arg0 - 1;
+    if (prev < 0) {
+        prev = D_800CF3D4 - 1;
+    }
+    while ((prev != arg0) && (arg1 != D_800CF3DC[prev].world)) {
+        prev--;
+        if (prev < 0) {
+            prev = D_800CF3D4 - 1;
+        }
+    }
+    return prev;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelInitRegionFlags.s")
