@@ -34,6 +34,7 @@ extern s16 D_800CB474;
 extern s16 D_800CB476;
 
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
+void func_8001D690(s32 arg0, ControlPlayer *player);
 u32 func_800254FC(s32 playerIndex);
 u32 func_8002554C(s32 playerIndex);
 u32 func_80025594(s32 playerIndex);
@@ -41,6 +42,8 @@ u32 func_800255DC(s32 playerIndex);
 u32 func_80025634(s32 playerIndex);
 u32 func_8002565C(s32 playerIndex);
 u32 func_800256B4(s32 playerIndex);
+void func_800291D8(s32 arg0);
+s32 func_800291FC(void);
 void func_8002BD58(s32 playerIndex, s32 strength, f32 duration);
 
 f32 func_8001BB90(s32 cameraIndex) {
@@ -92,7 +95,14 @@ void func_8001C2D4(u8 *start, u8 *end) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D2A0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D41C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D638.s")
+void controlFrozen(s32 arg0, ControlPlayer *player) {
+    if (func_800291FC() == 1) {
+        func_800291D8(10);
+    }
+    if (func_8002554C(player->playerIndex) & 0xF00F) {
+        func_8001D690(arg0, player);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D690.s")
 /* PROVENANCE -- adapted from JFG's src/charControl.c dAngle. */
 s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {

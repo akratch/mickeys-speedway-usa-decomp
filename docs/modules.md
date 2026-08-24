@@ -400,7 +400,7 @@ call graph isolates one namesake.
 | `0x8001CB84` | `0x71C` | `controlPlayer` | D: large per-frame controller in JFG order; retain `func_` |
 | `0x8001D2A0` | `0x17C` | — | No unique JFG comparison; retain `func_` |
 | `0x8001D41C` | `0x21C` | — | No unique JFG comparison; retain `func_` |
-| `0x8001D638` | `0x58` | `controlFrozen` | B: calls the following restart routine as JFG does; retain `func_` |
+| `0x8001D638` | `0x58` | `controlFrozen` | B + matched C: exact pause/input gate under O2/mips2; calls the following restart routine as JFG does; name adopted |
 | `0x8001D690` | `0x194` | `controlRestartPlayer` | B: restart/reinitialize call graph and nearest charControl skeleton; retain `func_` |
 | `0x8001D824` | `0x5C` | `dAngle` | B + matched C: same wrapped-angle role/body as JFG, whose MIPS-I conversion sequence is longer; adapted Mickey C is ADR 0001 exact under O2/mips2 |
 | `0x8001D880` | `0x90` | `controlMakeV` | Plateau after flag sweep and 10 source/flag hypotheses: best `NON_MATCHING` candidate is exact-size with `-Wab,-r4300_mul`, 29 words differ from FP/register allocation at first mismatch `+0x4`; retain `func_` |
