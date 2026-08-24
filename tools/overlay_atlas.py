@@ -782,7 +782,7 @@ TEXT_SUBSEGMENTS = {
         (0x7C4, "asm", "overlay_089_padding"),
     ],
     90: [
-        (0x000, "c", "overlay90Initialize"),
+        (0x000, "c", "overlay_090"),
         (0x0FC, "asm", "overlay_090_padding"),
     ],
     92: [
