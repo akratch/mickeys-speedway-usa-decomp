@@ -1041,9 +1041,9 @@ Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
 files and JFG's `asm/nonmatchings/weather/` names, as permitted by
 `docs/CLEANROOM.md`. The matched `initWeather`, `weather_clip_planes`,
 `freeWeather`, `setupWeather`, `snow_init`, `changeWeather`, and `rainDensity`
-bodies, plus `rain_set`, `rain_update`, `rain_lightning`, and `rain_sound`, are
-adapted from those disclosed sources and carry point-of-use notes; Mickey's own
-bytes remain authoritative.
+bodies, plus `rain_set`, `rainSetFog`, `rain_update`, `rain_lightning`, and
+`rain_sound`, are adapted from those disclosed sources and carry point-of-use
+notes; Mickey's own bytes remain authoritative.
 
 The tier-B/D `initWeather` adds **0xFC bytes / 63 words** at ROM `0x3B480`.
 JFG's initialization and asset-table walk reproduce Mickey's instruction
@@ -1087,6 +1087,11 @@ JFG's TV-rate-dependent transition setup compiles instruction-exact at
 canonical `-O2 -mips2 -32`, with all 18 relocations and the linked ROM range
 agreeing.
 
+The tier-B/D `rainSetFog` adds **0xD0 bytes / 52 words** at ROM `0x3C56C`.
+JFG's level-flag guard and fog calculation compile instruction-exact at
+canonical `-O2 -mips2 -32`, with all 7 relocations and the linked ROM range
+agreeing.
+
 The tier-B/D `rain_sound` adds **0xC0 bytes / 48 words** at ROM `0x3CF70`.
 JFG's camera-relative sound positioning compiles instruction-exact at canonical
 `-O2 -mips2 -32`, with all 13 relocations and the linked ROM range agreeing.
@@ -1099,6 +1104,15 @@ agree, but update-block scheduling shifts the remaining register allocation.
 The bounded permuter was unavailable because this lane has no local
 decomp-permuter checkout.
 
+`rain_init` and `free_rain_memory` share a synthetic static
+`TrapDanglingJump` binding with `rain_update`, but require incompatible integer,
+void, and float call signatures inside the consolidated TU. Their JFG bodies
+otherwise reproduce all 59 and 33 instruction words and every relocation kind;
+the best candidates retain one relocation-identity mismatch each, at `+0xA0`
+and `+0x68` respectively. Direct calls, typed function-pointer casts, weak
+aliases, and three- versus four-parameter `rain_init` declarations were tested;
+the candidates remain preserved behind `NON_MATCHING`.
+
 | ROM | Size | Symbol | Evidence / disposition |
 |---|---:|---|---|
 | `0x3B480` | `0xFC` | `initWeather` | B/D name; exact C, 63 words, 25 relocs |
@@ -1109,10 +1123,10 @@ decomp-permuter checkout.
 | `0x3BC30` | `0x1EC` | `changeWeather` | B/D name; exact C, 123 words, 5 relocs |
 | `0x3BE1C` | `0x2A4` | `doWeather` | B/D; plateau, 54/169 words differ, first `+0xB4` |
 | `0x3C0C0` | `0x238` | `snow_render` | B/D |
-| `0x3C2F8` | `0xEC` | `rain_init` | B/D |
-| `0x3C3E4` | `0x84` | `free_rain_memory` | B/D |
+| `0x3C2F8` | `0xEC` | `rain_init` | B/D; plateau, 59 words exact, one reloc identity at `+0xA0` |
+| `0x3C3E4` | `0x84` | `free_rain_memory` | B/D; plateau, 33 words exact, one reloc identity at `+0x68` |
 | `0x3C468` | `0x104` | `rain_set` | B/D name; exact C, 65 words, 18 relocs |
-| `0x3C56C` | `0xD0` | `rainSetFog` | B/D |
+| `0x3C56C` | `0xD0` | `rainSetFog` | B/D name; exact C, 52 words, 7 relocs |
 | `0x3C63C` | `0x78` | `rainDensity` | B/D name; exact C, 30 words, 4 relocs |
 | `0x3C6B4` | `0x144` | `rain_update` | B/D name; exact C, 81 words, 27 relocs |
 | `0x3C7F8` | `0x650` | `rain_render_splashes` | B/D |

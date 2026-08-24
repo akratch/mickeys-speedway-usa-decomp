@@ -117,6 +117,11 @@ typedef struct WeatherTriangle {
     WeatherTexCoord uv2;
 } WeatherTriangle;
 
+typedef struct WeatherLevel {
+    u8 pad0[0xA4];
+    u8 flags;
+} WeatherLevel;
+
 extern WeatherClipPlanes D_800D40B8;
 extern s32 D_8007C6EC;
 extern s32 D_8007C6F8;
@@ -152,7 +157,12 @@ extern s32 D_8007C700;
 extern s32 D_8007C704;
 extern s32 D_8007C708;
 extern s32 D_8007C70C;
+extern s32 D_8007C710;
+extern void *D_8007C714;
+extern WeatherTexture *D_8007C718;
+extern s32 D_8007C71C;
 extern void *D_8007C720;
+extern void *D_800D40E4;
 extern s32 osTvType;
 
 extern s32 func_800299E8(s32 min, s32 max);
@@ -169,14 +179,18 @@ extern void func_800498FC(s32 mode, f32 arg1, f32 arg2, s32 red, s32 green, s32 
 extern f32 func_8002A8BC(s32 angle);
 extern f32 func_8002A8C0(s32 angle);
 extern void func_800031C0(void *sound, f32 x, f32 y, f32 z);
+extern void *func_800355A0(s32 assetId, s32 arg1);
 extern s32 camGetMode(void);
-extern void TrapDanglingJump(f32 x, f32 y, f32 z, s32 updateRate);
+extern void TrapDanglingJump(f32, f32, f32, s32);
+extern WeatherLevel *func_8002679C(void);
+extern void trackSetFog(s32 fogIndex, s16 near, s16 far, s16 targetNear,
+                        u8 red, u8 green, u8 blue, s8 state);
 extern void mmFree(void *ptr);
 extern void func_800347A0(WeatherTexture *texture);
 
 void freeWeather(void);
 void snow_init(void);
-void rain_init(s32 count, s32 intensity, s32 opacity, s32 intensityBase);
+void rain_init();
 void free_rain_memory(void);
 void rain_update(s32 updateRate);
 void rain_set(s32 intensity, s32 opacity, f32 seconds);
@@ -496,8 +510,74 @@ void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **a
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/doWeather.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/snow_render.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::func_8005BC44_5C844 (DKR's rain_init). Mickey's rain setup
+ * constants, asset IDs, and unresolved initializer binding are authoritative.
+ *
+ * Plateau: the three-parameter donor body is instruction-word exact, but its
+ * integer-signature alias leaves one relocation identity different at +0xA0.
+ * Calling TrapDanglingJump directly conflicts with rain_update's float ABI in
+ * this consolidated TU; a function-pointer cast adds three instructions.
+ */
+#pragma weak rainInitTrap = TrapDanglingJump
+extern void rainInitTrap(s32, s32, s32, s32, s32, s32, s32);
+void rain_init(s32 count, s32 intensity, s32 opacity) {
+    D_8007C6EC = intensity;
+    D_8007C6F0 = 0;
+    D_8007C6F4 = D_8007C6EC;
+    D_8007C6F8 = opacity;
+    D_8007C6FC = 0;
+    D_8007C700 = D_8007C6F8;
+    D_8007C704 = 0;
+    D_8007C708 = 0;
+    D_8007C70C = 0;
+    D_8007C710 = 0;
+    D_8007C71C = 0;
+
+    rainInitTrap(count, 700, 700, 700, 0x2080E002, 0xA0E0FF04, 550);
+    D_8007C714 = func_800355A0(0x26, 0);
+    D_8007C718 = func_80034448(0x6A);
+    D_8007C6E8 = 1;
+    D_800D40E4 = NULL;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_init.s")
+#endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::func_8005BD30_5C930 (DKR's free_rain_memory). Mickey's
+ * globals and unresolved rain-free binding are authoritative here.
+ *
+ * Plateau: all 33 instruction words and relocation kinds agree, but the
+ * integer-signature alias leaves the call at +0x68 bound to rainFreeTrap
+ * instead of the shared float-signature TrapDanglingJump symbol.
+ */
+#pragma weak rainFreeTrap = TrapDanglingJump
+extern void rainFreeTrap(void);
+extern void func_800359D4(void *sprite);
+extern void func_800031E8(void *sound);
+void free_rain_memory(void) {
+    if (D_8007C714 != NULL) {
+        func_800359D4(D_8007C714);
+        D_8007C714 = NULL;
+    }
+    if (D_8007C718 != NULL) {
+        func_800347A0(D_8007C718);
+        D_8007C718 = NULL;
+    }
+    if (D_8007C720 != NULL) {
+        func_800031E8(D_8007C720);
+        D_8007C720 = NULL;
+    }
+    rainFreeTrap();
+    D_8007C6E8 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/free_rain_memory.s")
+#endif
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
  * src/weather.c::func_8005BDB8_5C9B8 (DKR's rain_set). Mickey's global
@@ -515,7 +595,23 @@ void rain_set(s32 intensity, s32 opacity, f32 seconds) {
     D_8007C700 = opacity;
     D_8007C6FC = (D_8007C700 - D_8007C6F8) / D_8007C704;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rainSetFog.s")
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::rainSetFog. Mickey's level flag and fog call are
+ * authoritative here.
+ */
+void rainSetFog(void) {
+    s32 near;
+    s32 far;
+
+    if ((D_8007C6E8 != 0) && (camGetMode() == 0)) {
+        if (!(func_8002679C()->flags & 1)) {
+            near = ((D_8007C6EC * -38) >> 16) + 1018;
+            far = ((D_8007C6EC * -20) >> 16) + 1023;
+            trackSetFog(0, near, far, near, 28, 15, 36, 0);
+        }
+    }
+}
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
  * src/weather.c::rainDensity.  Mickey's bytes and globals are authoritative.
