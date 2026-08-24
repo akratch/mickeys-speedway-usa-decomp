@@ -210,7 +210,7 @@ reference build's objects (DKR's, JFG's, Perfect Dark's, Banjo-Kazooie's or
 Conker's; see `docs/references.md`); **tier C** rows are string-correspondence
 with JFG; everything else is noted inline. Ranges without a named anchor are
 omitted rather than guessed at. 171 translation units are matched whole across
-the segment, carrying 190 function names.
+the segment, carrying 194 function names.
 
 | ROM | VRAM | Anchor | Tier | What it establishes |
 |---|---|---|---|---|
@@ -238,6 +238,7 @@ the segment, carrying 190 function names.
 | `0x459C0`–`0x467BC` | `0x80044DC0` | `diRcpPrintDL`, `diRcpMoveWd`, `diRcpStrName`, `diRcpOtherMode`, `diRcpGeometryMode` | C | **The display-list disassembler**, a full GBI pretty-printer left in the retail build |
 | `0x467BC`–`0x47A60` | `0x80045BBC` | `diCpuReportWatchpoint`, plus the memory/module debug pages and the register-dump crash reporter | C | **The debug monitor**, also left in |
 | `0x47A60`–`0x47A70` | `0x80046E60` | `main/get_stack_pointer` | A | Measured file boundary |
+| `0x4BC40`–`0x4E1E0` | `0x8004B040` | `main/font` | A/D | JFG's `font.c`: six exact function anchors plus source-order and adjacent-function evidence establish the provisional C split; §3.4 |
 | `0x4E378` | `0x8004D778` | `byteswap32` | A | |
 | `0x4EA60`–`0x4F4D4` | `0x8004DE60` | `main/gzip_asm` | A | **Measured file boundary**: DKR's whole 0xA74 inflate core, in one piece |
 | `0x4FC30`–`0x505E0` | `0x8004F030` | `libultra/exceptasm` | A | **Measured file boundary**, 9 routines including `__osException` and `__osDispatchThread`; §4.2. `0x4FC20` before it is the **rejected** `io/leointerrupt` match, and `0x505E0`–`0x506D0` after it is a separate unknown |
@@ -342,7 +343,7 @@ see the caveat below):
 | `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside yaml's unnamed `0x34180`–`0x37D50` block. No whole-`.text` match; no boundary claimed |
 | `src/anim.c.o` | 3 | `0x50D7C`–`0x51D28` | Inside yaml's unnamed `0x50C00`–`0x58570` block. No whole-`.text` match; no boundary claimed |
 | `src/models.c.o` | 3 | `0x20020`–`0x21710` | Inside yaml's unnamed `0x20020`–`0x21DA0` block, starting exactly at its boundary. No whole-`.text` match; no boundary claimed |
-| `src/font.c.o` | 2 | `0x4BC70`–`0x4C884` | Inside yaml's unnamed `0x4BC40`–`0x4EA60` block. No whole-`.text` match; no boundary claimed |
+| `src/font.c.o` | 2 | `0x4BC70`–`0x4C884` | The original >=10-word scan found two anchors. The later complete census in §3.4 found four more exact short functions and split `main/font` provisionally; no whole-`.text` match is claimed |
 | `src/audio_manager_4C50.c.o` | 2 | `0x45F0`–`0x4F3C` | Starts exactly at yaml's `0x45F0` boundary; ends inside the unnamed `0x4F40`–`0xC950` block. No whole-`.text` match; no boundary claimed |
 | `src/audio_manager_1050.c.o` | 3 | `0x12BC`–`0x22C8` | Inside yaml's unnamed `0x1050`–`0x45F0` block. Wide span for 3 hits -- other code plainly sits between them; no boundary claimed |
 | `src/charControl.c.o` | 2 | `0x1CED4`–`0x1FFAC` | Inside yaml's unnamed `0x1C790`–`0x20020` block. No boundary claimed |
@@ -351,14 +352,113 @@ see the caveat below):
 | `src/shadows_214A0.c.o` | 2 | `0x18FF0`–`0x19144` | Inside yaml's unnamed `0x18FF0`–`0x1AE60` block, starting exactly at its boundary. No boundary claimed |
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
-**Why no new `mickey.us.yaml` split accompanies this table.** §1's "measured
-file boundary" tier requires a whole-`.text` match; this pass only matched
-individual functions (`tools/find_known_objects.py --sections` found no
-whole-object match for any of the not-yet-named TUs above). Asserting a yaml
-`asm`/`c` split from function-level hits alone would claim more than was
-measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
-level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
-`n_env`, `n_load`, `math_util`) needed no new split; they already have one.
+**Why this table originally added no `mickey.us.yaml` splits.** §1's
+"measured file boundary" tier requires a whole-`.text` match; this pass only
+matched individual functions (`tools/find_known_objects.py --sections` found
+no whole-object match for any of the not-yet-named TUs above). The later
+`main/font` split is explicitly provisional, not a tier-A measured-file claim:
+§3.4 records its additional endpoint and ordering evidence. The already
+measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`, `n_env`, `n_load`,
+`math_util`) needed no new split; they already have one.
+
+### 3.4 `main/font` census
+
+ROM `0x4BC40`–`0x4E1E0`, VRAM `0x8004B040`–`0x8004D5E0`, is split as
+`main/font`. The split is provisional (tier D at the file-boundary level), not
+a whole-object match. It begins with JFG's byte-identical `fontSetWindow0`,
+contains JFG `font.c` functions in source order, and ends after the
+`fontYSpacing`-shaped leaf; the next function is the independently identified
+`osCreatePiManager`. A supplemental all-size object scan found six exact JFG
+anchors in the range: `fontSetWindow0`, `fontSetWindowNoise`, `fontColour`,
+`fontWindowColour`, `fontWindowFontColour`, and
+`fontWindowFontBackground`. Each has one ROM occurrence; the four colour
+setters have at least 7 unmasked words and the two already adopted functions
+have at least 10. JFG's complete `font.c.o` does not match Mickey's complete
+range.
+
+PROVENANCE: the TU identity, candidate names, declarations, and struct-layout
+starting point come from Jet Force Gemini's public decompilation
+(`src/font.c`, `src/font.h`, and its built object), a permitted published
+retail-derived decomp under `docs/CLEANROOM.md`. Mickey's instructions,
+relocations, call graph, and ROM comparison remain authoritative. A
+PROVENANCE note is carried at the point of use in `src/main/font.c`.
+
+The table is the complete original `0x4BC40`–`0x4EA60` block census. "A" is
+an exact object/ROM skeleton identity; "B" is a call-graph role; "D" is only
+source order and structure. D-only JFG placeholders remain Mickey
+`func_<VRAM>` names. Calls list in-range callees; `ext` means only resident or
+overlay callers/callees outside the range were observed.
+
+| ROM | Size | Mickey symbol | JFG correspondence | Evidence | Calls |
+|---|---:|---|---|---|---|
+| `0x4BC40` | `0x24` | `fontSetWindow0` | same | A, matched C | leaf; ext callers |
+| `0x4BC64` | `0x0C` | `func_8004B064` | `fontSetButtonMode` | D, matched C | leaf; overlay caller |
+| `0x4BC70` | `0x34` | `fontSetWindowNoise` | same | A, matched C | leaf |
+| `0x4BCA4` | `0x14` | `func_8004B0A4` | `fontUseFont` | B/D, matched C | leaf; text-setup callers |
+| `0x4BCB8` | `0x24` | `fontColour` | same | A, matched C | leaf; text-setup callers |
+| `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | B/D, matched C | leaf; text-setup callers |
+| `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B/D, matched C | calls `0x4BD3C` |
+| `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B/D, matched C | calls `0x4BDDC` |
+| `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
+| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D | calls `0x4DF9C`; ext callers |
+| `0x4C744` | `0x9C` | `func_8004BB44` | `fontWindowSize` | D, matched C | leaf; ext callers |
+| `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | B/D, matched C | leaf; ext callers |
+| `0x4C7FC` | `0x40` | `fontWindowColour` | same | A, matched C | leaf; ext callers |
+| `0x4C83C` | `0x48` | `fontWindowFontColour` | same | A, matched C | leaf; ext callers |
+| `0x4C884` | `0x40` | `fontWindowFontBackground` | same | A, matched C | leaf; ext callers |
+| `0x4C8C4` | `0x2A0` | `func_8004BCC4` | `fontWindowAddStringXY` | B/D, plateau | calls `0x4D1A4`, `0x4C68C`; ext callers |
+| `0x4CB64` | `0x4C` | `func_8004BF64` | `fontWindowFlushStrings` | B/D, matched C | leaf; ext callers |
+| `0x4CBB0` | `0x28` | `func_8004BFB0` | `fontWindowEnable` | B/D, matched C | leaf; ext callers |
+| `0x4CBD8` | `0x28` | `func_8004BFD8` | `fontWindowDisable` | B/D, matched C | leaf; ext callers |
+| `0x4CC00` | `0xC4` | `func_8004C000` | `fontStringAddNumber` | D, matched C | leaf; called by `0x4D1A4` |
+| `0x4CCC4` | `0x7C` | `func_8004C0C4` | `fontWindowsDraw` | B/D | calls `0x4CE00`; ext caller |
+| `0x4CD40` | `0xC0` | `func_8004C140` | JFG `func_80071564` | D | ext callee; called by `0x4CE00` |
+| `0x4CE00` | `0x3A4` | `func_8004C200` | `fontWindowDraw` | B/D | calls `0x4CD40`, `0x4D1A4`, `0x4BDDC` |
+| `0x4D1A4` | `0xEC` | `func_8004C5A4` | JFG `func_80071A0C` | D, matched C | calls `0x4CC00`; in-range callers |
+| `0x4D290` | `0x248` | `func_8004C690` | JFG `func_80071B08` | D | ext callee; called by `0x4BDDC` |
+| `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D | ext callee |
+| `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D | leaf; ext caller |
+| `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, plateau | leaf; in-range callers |
+| `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D | leaf |
+| `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |
+| `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | B/D | SDK calls; ext callers |
+| `0x4E350` | `0x28` | `func_8004D750` | `rzipInit` | B/D | allocator call; ext caller |
+| `0x4E378` | `0x30` | `byteswap32` | JFG `rzipUncompressSize` | A name collision | leaf; ext callers |
+| `0x4E3A8` | `0x38` | `func_8004D7A8` | `rzipUncompressSizeROM` | B/D | calls `byteswap32`, ext |
+| `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | B/D | calls `gzip_inflate_block`; ext callers |
+| `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B/D | calls `_bzero`; called by `main/gzip_asm` |
+
+`func_8004BCC4` compiles to the exact 168-instruction shape and exact masked
+words at the stock flags, but is not an object match: four relocation sites
+(two HI16/LO16 pairs) retain different symbol identities. The first is at
+function offset `+0x34`, where the pool-end address is spelled as
+`D_800D60E8 + 0x400` instead of `D_800D64E8`; the second starts at `+0x98`,
+where window zero's width field is based on `D_800D64E8` instead of its
+`D_800D64F4` field alias. The 119-combination flag lattice kept the stock
+`-O2 -mips2` result best. An explicit-alias source variant fixed the names but
+changed the frame and added three instructions, so the readable JFG-derived
+candidate remains under `NON_MATCHING` and the extracted assembly is
+canonical.
+
+`func_8004D39C` plateaued after the stock JFG body and six source-allocation
+variants. Its best candidate has the exact 28-instruction shape and 27 exact
+words; the first and only mismatch is at function offset `+0x60`, where the
+loop-back branch consumes the copied character rather than the original load.
+The 119-combination flag lattice found no exact result and kept the same
+one-word residue throughout the `-O2 -mips2` family, identifying an allocator
+coalescing choice rather than a flag mismatch. The candidate remains guarded
+by `NON_MATCHING`; the extracted assembly stays canonical.
+
+The font subsegment's FP-register census contains only even-numbered single-
+precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
+so no function in this TU was excluded by the odd-register rule in section
+6.2.
+
+There are no direct string-literal references in this block. Its data
+relocations address font/window state, a font-cache jump table, and rzip
+state; consequently no tier-C names are available. ROM `0x4E1E0`–`0x4EA60`
+is deliberately outside `main/font`: it is the PI-manager/rzip prefix of the
+inflate subsystem, immediately followed by `main/gzip_asm` at `0x4EA60`.
 
 ### 3.4 The resident shadows and lights TUs
 
