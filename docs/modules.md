@@ -1039,16 +1039,23 @@ out of asm-processor while retaining C ownership around it.
 **PROVENANCE:** the TU and descriptive function names are borrowed from Jet
 Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
 files and JFG's `asm/nonmatchings/weather/` names, as permitted by
-`docs/CLEANROOM.md`. The matched `weather_clip_planes` and `rainDensity`
-bodies are adapted from those disclosed sources and carry point-of-use notes;
-Mickey's own bytes remain authoritative.
+`docs/CLEANROOM.md`. The matched `weather_clip_planes`, `setupWeather`, and
+`rainDensity` bodies are adapted from those disclosed sources and carry
+point-of-use notes; Mickey's own bytes remain authoritative.
+
+The tier-B/D `setupWeather` adds **0x420 bytes / 264 words** at ROM `0x3B6F0`.
+JFG's declaration order and control spelling reproduce Mickey's 0x60-byte
+frame, while Mickey's own rain-init arguments, random bounds, texture layout,
+and buffer-end sentinel settle the revision differences. The canonical
+`-O2 -mips2 -32` object is instruction-exact with all 41 relocations agreeing,
+and the linked ROM range is exact without post-processing.
 
 | ROM | Size | Symbol | Evidence / disposition |
 |---|---:|---|---|
 | `0x3B480` | `0xFC` | `initWeather` | B/D |
 | `0x3B57C` | `0x54` | `weather_clip_planes` | A donor; exact C, 21 words, 2 relocs |
 | `0x3B5D0` | `0x120` | `freeWeather` | B/D |
-| `0x3B6F0` | `0x420` | `setupWeather` | B/D |
+| `0x3B6F0` | `0x420` | `setupWeather` | B/D name; exact C, 264 words, 41 relocs |
 | `0x3BB10` | `0x120` | `snow_init` | B/D |
 | `0x3BC30` | `0x1EC` | `changeWeather` | B/D |
 | `0x3BE1C` | `0x2A4` | `doWeather` | B/D |
@@ -1640,7 +1647,7 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 44 jump tables still emitted
+- **rodata order follows text order exactly.** The 38 jump tables still emitted
   in `asm/` are monotonic in both columns, with **zero inversions**. So
   `.rodata` can be carved TU by TU in text order, which is what makes the
   per-TU split tractable. Five more tables now belong to matched `n_csplayer`
