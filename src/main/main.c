@@ -11,6 +11,7 @@
  */
 
 extern s32 D_8007A164;
+extern s32 D_8007A160;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -55,7 +56,10 @@ void mainSetAnimGroup(s32 arg0) {
     D_8007A164 = arg0;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainGetAnimGroup.s")
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+s32 mainGetAnimGroup(void) {
+    return D_8007A160;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainChangeCameras.s")
 
