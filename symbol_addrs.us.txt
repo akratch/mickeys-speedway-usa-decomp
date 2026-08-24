@@ -450,7 +450,7 @@ rsp_segment = 0x800317A0; // type:func size:0x38   ROM 0x323a0  set_rsp_segment.
 
 // weather.c -- DKR's name for DKR's module. What is proven is that the code is
 // the same 21 words; what it clips for Mickey is not established here.
-weather_clip_planes = 0x8003A97C; // type:func size:0x54   ROM 0x3b57c  weather.c.o  masked=2/21
+weather_clip_planes = 0x8003A97C; // type:func size:0x54 ROM 0x3b57c src/main/weather.c.o masked=0/21
 
 // main/weather -- PROVENANCE: descriptive names borrowed from JFG's public
 // src/weather.c and DKR's public src/weather.c. Tier B is the weather call

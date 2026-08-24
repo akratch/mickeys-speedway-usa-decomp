@@ -4,15 +4,37 @@
  * PROVENANCE -- the TU and descriptive function names are borrowed from Jet
  * Force Gemini's and Diddy Kong Racing's public retail-derived src/weather.c
  * files and JFG's nonmatching assembly names.  Evidence is tier B/D except
- * for the existing tier-A weather_clip_planes identity.  No reference body
- * is adapted by this scaffold; Mickey's ROM remains authoritative.
+ * for the existing tier-A weather_clip_planes identity.  Adapted bodies carry
+ * point-of-use provenance notes; Mickey's ROM remains authoritative.
  *
  * snow_update and snow_vertices are extractor-marked hand-written routines;
  * snow_vertices also uses odd single-precision FP registers.  Both stay asm.
  */
 
+#include "PR/ultratypes.h"
+
+typedef struct WeatherClipPlanes {
+    s16 near;
+    s16 far;
+} WeatherClipPlanes;
+
+extern WeatherClipPlanes D_800D40B8;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/initWeather.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/weather_clip_planes.s")
+/*
+ * PROVENANCE -- body adapted from Diddy Kong Racing's public retail-derived
+ * src/weather.c::weather_clip_planes.  Mickey's bytes and global layout are
+ * authoritative here.
+ */
+void weather_clip_planes(s16 near, s16 far) {
+    if (D_800D40B8.far < D_800D40B8.near) {
+        D_800D40B8.near = near;
+        D_800D40B8.far = far;
+    } else {
+        D_800D40B8.near = far;
+        D_800D40B8.far = near;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/freeWeather.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/setupWeather.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/snow_init.s")

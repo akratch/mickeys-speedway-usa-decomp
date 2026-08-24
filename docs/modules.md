@@ -468,13 +468,14 @@ out of asm-processor while retaining C ownership around it.
 **PROVENANCE:** the TU and descriptive function names are borrowed from Jet
 Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
 files and JFG's `asm/nonmatchings/weather/` names, as permitted by
-`docs/CLEANROOM.md`. No reference body is copied by this split; Mickey's own
-bytes remain authoritative.
+`docs/CLEANROOM.md`. The matched `weather_clip_planes` body is adapted from
+the disclosed DKR source and carries a point-of-use note; Mickey's own bytes
+remain authoritative.
 
 | ROM | Size | Symbol | Evidence / disposition |
 |---|---:|---|---|
 | `0x3B480` | `0xFC` | `initWeather` | B/D |
-| `0x3B57C` | `0x54` | `weather_clip_planes` | A |
+| `0x3B57C` | `0x54` | `weather_clip_planes` | A donor; exact C, 21 words, 2 relocs |
 | `0x3B5D0` | `0x120` | `freeWeather` | B/D |
 | `0x3B6F0` | `0x420` | `setupWeather` | B/D |
 | `0x3BB10` | `0x120` | `snow_init` | B/D |
