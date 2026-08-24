@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 259128,
-  "nonmatching_overlay_c_bytes": 17472,
+  "matched_overlay_c_bytes": 257596,
+  "nonmatching_overlay_c_bytes": 19004,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -9826,7 +9826,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43InitializeState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x194",
@@ -9835,7 +9835,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43FlushPending",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x280",
@@ -9862,7 +9862,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43ComputeMotion",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1184",
@@ -9871,7 +9871,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43AllocateResources",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1264",
@@ -9880,7 +9880,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43SubmitChildren",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1378",
@@ -9889,7 +9889,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43FilterImage",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1424",

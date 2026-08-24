@@ -3031,36 +3031,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42DrawCapturedBuffer.c.o: POSTPROCE
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5B0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Present.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5C
-# The source recovers the full offset-zero initializer. The guarded private
-# register/schedule web selects retail's a2 reservation; the LOCAL D_0 records
-# are loader-owned and the two adjacent O43 calls retain zero-addend symbols.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43InitializeState.c.o: \
-	config/normalizations/overlay43InitializeState.ops \
-	config/normalizations/overlay43InitializeState.filter.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43InitializeState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x194 745acc6bd0934b19a225a4092c744798a0c10ca982ce9b56eb04dbb58aaa950a \
-		@config/normalizations/overlay43InitializeState.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay43InitializeState.filter.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
-# Three LOCAL D_C8 accesses carry proved loader addends, while the runtime
-# relocation table owns the discarded LOCAL/external HILO rows. Fold the two
-# runtime resident calls through the offset-zero overlay carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FlushPending.c.o: \
-	config/normalizations/overlay43FlushPending.ops \
-	config/normalizations/overlay43FlushPending.filter.spec \
-	config/normalizations/overlay43FlushPending.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FlushPending.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xF0 0c61a242beec3c2e7cbc2e4b493aa7c6ecba24987d71aa72d3b0fe7e2cdc90f8 \
-		@config/normalizations/overlay43FlushPending.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay43FlushPending.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		func_8002E800=func_overlay_043_F0000000_1889FD0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay43FlushPending.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xEC
 # Six resident release roles are stored through one overlay carrier. The source
 # is otherwise instruction-natural; rebind the exceptional release site and
@@ -3073,59 +3046,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ReleaseResources.c.o: POSTPROCESS
 	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
 		@config/normalizations/overlay43ReleaseResources.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
-# The natural function owns the exact motion calculation, frame, and CFG.
-# Select the complete post-call FP schedule web, discard runtime-local D_24
-# HILO rows, and fold the two resident calls through one stored carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ComputeMotion.c.o: \
-	config/normalizations/overlay43ComputeMotion.ops \
-	config/normalizations/overlay43ComputeMotion.filter.spec \
-	config/normalizations/overlay43ComputeMotion.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ComputeMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xDC d9b2924ca4e62c12e8ab2a98837793da411b4684545155207893df3e87487a2d \
-		@config/normalizations/overlay43ComputeMotion.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay43ComputeMotion.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		func_80029FE4=func_overlay_043_F0000000_1889FD0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay43ComputeMotion.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
-# Retail reserves one extra ABI-aligned frame block. Assert that complete
-# frame/home web, then fold the allocation and release runtime roles through
-# the offset-zero overlay carrier without changing their live identities.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43AllocateResources.c.o: \
-	config/normalizations/overlay43AllocateResources.ops \
-	config/normalizations/overlay43AllocateResources.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43AllocateResources.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xE0 a803b95baeebe1d064796b269bfd606d4984e81f340586bec3f3b648a0528401 \
-		@config/normalizations/overlay43AllocateResources.ops && \
-	$(OBJCOPY) --redefine-sym \
-		func_8002B280=func_overlay_043_F0000000_1889FD0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay43AllocateResources.rebind.spec
-# IDO keeps the pre-gate owner in s2 while retail uses s1, whose later loop
-# role begins only after the owner's final use. Assert the complete natural
-# four-word owner web before restoring the shipped callee-saved selection.
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43SubmitChildren.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x114 4470296356841da3d6a4a061a2abc03308bf35e9a3843ceba51154000a6a7b61 \
-		fields:0x2c:rd=s2@s1 \
-		fields:0x58:rs=s2@s1 \
-		fields:0x68:rs=s2@s1 \
-		fields:0x78:rs=s2@s1 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_043_F0001264_188B234=overlay43SubmitChildren $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x114
-# The first two byte loads form the same sum either way; IDO's alternative
-# coloring changes four encodings. Assert the natural output before restoring
-# the shipped temporary registers.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FilterImage.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xac df46879804000cafbaa350f23c95efb44ecae6c3ce95923f8a1084853012490c \
-		fields:0xc:rt=t6@a3 \
-		fields:0x10:rt=t7@t6 \
-		fields:0x20:rs=t6@a3,rt=t7@t6,rd=v1@t7 \
-		fields:0x28:rs=t8@t7,rt=v1@t8 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_043_F0001378_188B348=overlay43FilterImage $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xAC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o044/overlay44CreateAnimationState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x224

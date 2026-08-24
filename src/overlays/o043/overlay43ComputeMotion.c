@@ -28,6 +28,7 @@ extern u8 D_0[];
 extern void func_80029FE4(Overlay43RotationInput *input, Vec3f *direction);
 extern void func_8002A82C(Overlay43MotionOutput *output);
 
+#ifdef NON_MATCHING
 void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
                                       s32 owner,
                                       Overlay43MotionOutput *output) {
@@ -61,3 +62,6 @@ void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
     output->unk28 = temp_f2;
     output->unk18 = -(sp1C / sp20);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/overlay43ComputeMotion/func_overlay_043_F00010A8_188B078.s")
+#endif

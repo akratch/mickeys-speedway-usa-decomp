@@ -1,7 +1,0 @@
-# Complete private frame/home web: natural v07 uses a 0x28-byte frame while
-# retail reserves the next ABI-aligned 0x30-byte frame. Only the prologue,
-# incoming input home/reload, and epilogue immediates participate.
-fields:0x000:imm=0xFFD8@0xFFD0
-fields:0x010:imm=0x28@0x30
-fields:0x04c:imm=0x28@0x30
-fields:0x0d4:imm=0x28@0x30

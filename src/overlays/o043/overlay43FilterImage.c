@@ -6,6 +6,7 @@ typedef struct Overlay43Image {
 } Overlay43Image;
 
 /* DKR v77/v80 and JFG contain no exact donor for this image filter. */
+#ifdef NON_MATCHING
 void overlay43FilterImage(Overlay43Image *image) {
     u8 *pixel;
     u32 *word;
@@ -34,3 +35,6 @@ void overlay43FilterImage(Overlay43Image *image) {
         word++;
     } while (row--);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/overlay43FilterImage/func_overlay_043_F0001378_188B348.s")
+#endif

@@ -76,6 +76,7 @@ extern s32 func_overlay_043_F0001184_188B154(
 extern void func_overlay_043_F0001264_188B234(
     Overlay43Input *input, Overlay43State *state, s32 flags, s32 mode);
 
+#ifdef NON_MATCHING
 s32 func_overlay_043_F0000000_1889FD0(Overlay43Input *input) {
     Overlay43Command *command;
     Overlay43State *state;
@@ -138,3 +139,6 @@ s32 func_overlay_043_F0000000_1889FD0(Overlay43Input *input) {
     state->byte12 = byte12;
     return 1;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/overlay43InitializeState/func_overlay_043_F0000000_1889FD0.s")
+#endif

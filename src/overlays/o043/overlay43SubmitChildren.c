@@ -49,6 +49,7 @@ extern void func_overlay_043_F0000000_1889FD0(
     s32 alpha,
     s32 enabled);
 
+#ifdef NON_MATCHING
 void overlay43SubmitChildren(Overlay43Owner *owner,
                              Overlay43RenderState *state,
                              s32 renderFlags,
@@ -105,3 +106,6 @@ void overlay43SubmitChildren(Overlay43Owner *owner,
         index++;
     } while (index < state->childCount);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/overlay43SubmitChildren/func_overlay_043_F0001264_188B234.s")
+#endif
