@@ -31,7 +31,14 @@ extern s32 D_8007A1EC;
 extern u8 D_8007BEF4;
 extern u8 D_8007BEF8;
 extern s8 D_800CF53F[];
-extern void *D_800D18E0;
+
+typedef struct MainGameEntry {
+    u8 pad0[4];
+    u8 character;
+    u8 pad5[35];
+} MainGameEntry;
+
+extern MainGameEntry *D_800D18E0;
 extern void *D_800D18E4;
 extern u8 D_800D1928[];
 extern s32 levelNGetType(s32 level);
@@ -249,7 +256,12 @@ s32 func_800291FC(void) {
     return D_8007BEF8;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029240.s")
+u8 func_80029240(s32 index) {
+    if ((index < 0) || (index >= 6)) {
+        index = 0;
+    }
+    return D_800D18E0[index].character;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029274.s")
 
