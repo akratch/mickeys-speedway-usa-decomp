@@ -961,6 +961,11 @@ __osPiAccessQueue = 0x800D84E0;
 piAccessBuf = 0x800D84F8;
 osRomBase = 0x80000308;
 
+// motor.c's whole-object match fixes its private 0x100-byte PIF buffer at the
+// address used by all four masked .bss relocation pairs (Tier A/B). It ends
+// exactly where the Controller Pak state below begins.
+__MotorDataBuf = 0x800D7E20;
+
 // The same argument again, for the Controller Pak file system's data. Each of
 // these is reached by a masked %hi/%lo pair inside a whole-.text match, and
 // the use sites agree with the reference object's declarations: 0x800D7F20 is

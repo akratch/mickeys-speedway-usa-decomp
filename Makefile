@@ -538,7 +538,7 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/destroythread.c.o: CFLAGS += -D__GNUC__
 # measured, and nothing joins it on a neighbour's evidence.
 LIBULTRA_O2_G3_TUS := contpfs devmgr epidma epilinkhandle epirawdma epirawread \
                       epirawwrite epiread epiwrite pfsallocatefile pfschecker \
-                      initialize pfsfilestate pfsfreeblocks pfsgetstatus pfsinit \
+                      initialize motor pfsfilestate pfsfreeblocks pfsgetstatus pfsinit \
                       pfsisplug pfsnumfiles pfsreadwritefile pfssearchfile \
                       pfsselectbank piacs pidma pigetcmdq pirawdma
 $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
@@ -550,6 +550,7 @@ $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
 # path plus Rare's external osViClock ownership.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/initialize.c.o: CFLAGS += -DBUILD_VERSION=7 -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/controller.c.o: CFLAGS += -DRAREDIFFS
+$(BUILD_DIR)/$(SRC_DIR)/libultra/motor.c.o: CFLAGS += -DBUILD_VERSION=7 -DJFGDIFFS
 
 # -Xphase,uopt,+ -Xphase,uopt,-O1: a FOURTH libultra flag group, and the only
 # one that does not go through the `cc` driver.
