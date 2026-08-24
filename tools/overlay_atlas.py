@@ -222,10 +222,7 @@ TEXT_SUBSEGMENTS = {
         (0xC6C, "asm", "overlay_015_padding"),
     ],
     16: [
-        (0x000, "c", "overlay16BuildGradient"),
-        (0x08C, "c", "overlay16InitializeBuffer"),
-        (0x1A8, "c", "overlay16ReleaseBuffer"),
-        (0x1E0, "c", "overlay16ApplyGradient"),
+        (0x000, "c", "overlay_016"),
         (0x424, "asm", "overlay_016_padding"),
     ],
     18: [
@@ -350,9 +347,7 @@ TEXT_SUBSEGMENTS = {
         (0x414, "asm", "overlay_024_padding"),
     ],
     25: [
-        (0x000, "c", "overlay25InitializeEffect"),
-        (0x17C, "c", "overlay25UpdateEffect"),
-        (0x588, "c", "overlay25SetVectorFlags"),
+        (0x000, "c", "overlay_025"),
         (0x608, "asm", "overlay_025_padding"),
     ],
     34: [
@@ -432,9 +427,7 @@ TEXT_SUBSEGMENTS = {
         (0x2DE8, "asm", "overlay_047_padding"),
     ],
     49: [
-        (0x000, "c", "overlay49Initialize"),
-        (0x1F4, "c", "overlay49Update"),
-        (0x354, "c", "refractOutput"),
+        (0x000, "c", "overlay_049"),
         (0x374, "asm", "overlay_049_padding"),
     ],
     56: [

@@ -1,31 +1,4 @@
-#include "PR/ultratypes.h"
-
-typedef struct Overlay49Status {
-    u8 pad00[2];
-    u8 player;
-    u8 pad03[0x23];
-    u16 value;
-} Overlay49Status;
-
-typedef struct Overlay49LookupResult {
-    u8 pad00[8];
-    void *value;
-} Overlay49LookupResult;
-
-extern s32 gOverlay49Timer;
-extern s32 gOverlay49Finished;
-extern s8 gOverlay49Modes[];
-extern s32 gOverlay49Masks[];
-extern s32 gOverlay49Shifts[];
-extern void *gOverlay49Result;
-extern s32 gOverlay49FastFinishEnabled;
-extern u8 D_8007BF04;
-extern u8 D_8007BF08;
-extern u16 D_800D3128[];
-extern Overlay49Status *func_80028F54(void);
-extern void overlay65Initialize(void);
-extern Overlay49LookupResult *func_800508B4(s32 id);
-extern void func_8002917C(s32 mode);
+#include "overlays/overlay_049.h"
 
 /* Donor scan: DKR v77/v80 and JFG contain no exact initializer donor. */
 #ifdef NON_MATCHING
@@ -89,3 +62,54 @@ finish:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o049/overlay49Initialize/func_overlay_049_F0000000_1896410.s")
 #endif
+
+/* No exact updater donor exists in DKR v77/v80 or JFG. */
+void overlay49Update(s32 updateRate) {
+    s32 index;
+    u32 inputA;
+    u32 inputB;
+
+    inputA = 0;
+    inputB = 0;
+    index = 3;
+    do {
+        inputA |= func_800254FC(index);
+        inputB |= func_8002554C(index);
+    } while (index--);
+    if (gOverlay49Result != NULL) {
+        gOverlay49Result->mode = 3;
+    }
+    if (gOverlay49Finished == 0) {
+        gOverlay49Timer -= updateRate;
+        if (gOverlay49Timer < 2520) {
+            if (gOverlay49InputEnabled != 0 && (inputB & 0x9000) != 0) {
+                gOverlay49Timer = 0;
+            }
+            if ((inputA & 0x820) == 0x820) {
+                gOverlay49Timer = 0;
+            }
+        }
+        if (gOverlay49Timer <= 0) {
+            func_800016EC(9);
+            if (D_8007BF08 == 0) {
+                func_8003A754();
+            }
+            if (D_8007BF04 != 0) {
+                overlay48InitializeReloc();
+            } else {
+                func_80028374(12, 0, 0, 12, 1, 0);
+            }
+            gOverlay49Finished = 1;
+        }
+    }
+    overlay65UpdateReloc(D_800D0000, D_800D0004, updateRate);
+}
+
+/*
+ * PROVENANCE: JFG overlay 2 supplies this exact wrapper body and name.
+ * Its three trailing alignment nops remain generated assembly and receive
+ * no C credit. Mickey's call relocation targets overlay 65 +0xBC0.
+ */
+void refractOutput(void) {
+    overlay49RefractOutputReloc();
+}

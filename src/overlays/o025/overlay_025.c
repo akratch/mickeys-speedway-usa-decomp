@@ -1,82 +1,72 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_025.h"
 
-typedef struct Overlay25Object Overlay25Object;
+/* Pinned DKR v77/v80 and JFG scans found no exact initializer donor. */
 
-typedef struct Overlay25Vector {
-    f32 x, y, z;
-} Overlay25Vector;
+/*
+ * Plateau (2026-08-24): the closest flag-lattice result uses -O2 -mips3
+ * with -Wab,-r4300_mul and is exact-size, first differing at function
+ * offset 0x14.  Its bounded permuter score improved from 430 to 245 but
+ * remained non-exact.  The canonical -mips2 candidate is four bytes short;
+ * the remaining blocker is the register/stack-home scheduling web and its
+ * trailing alignment instruction.
+ */
+#ifdef NON_MATCHING
+void overlay25InitializeEffect(Overlay25Object *object,
+                               const Overlay25Init *init) {
+    Overlay25InitState *state;
+    Overlay25Owner *owner;
+    s32 paletteIndex;
 
-typedef struct Overlay25Transform {
-    f32 value;
-    u8 pad04[0x50];
-    f32 scaleX;
-    f32 scaleY;
-} Overlay25Transform;
+    state = &object->state->init;
+    state->lifetime = 600;
+    state->duration = 60;
+    state->currentValue = 0.0f;
 
-typedef struct Overlay25EffectState {
-    s16 lifetime;
-    s8 duration;
-    s8 activeDuration;
-    f32 multiplier;
-    f32 velocityX;
-    f32 lift;
-    f32 velocityZ;
-    u32 flags;
-    u8 pad18[4];
-    Overlay25Object *owner;
-} Overlay25EffectState;
+    owner = init->owner;
+    state->owner = owner;
 
-typedef struct Overlay25EntityState {
-    u8 pad000[4];
-    f32 height;
-    u8 pad008[0x341];
-    u8 enabled;
-    u8 pad34A[0x6C];
-    s16 ownerHitCount;
-    s16 selfHitCount;
-} Overlay25EntityState;
+    if (init->useOwner != 0 && owner != NULL) {
+        Overlay25OwnerState *ownerState = owner->state;
+        s32 combinedAngle = ownerState->baseAngle + ownerState->relativeAngle;
 
-typedef union Overlay25State {
-    Overlay25EffectState effect;
-    Overlay25EntityState entity;
-} Overlay25State;
+        state->activeDuration = 60;
+        state->velocityX =
+            (overlay25SinReloc(combinedAngle) * ownerState->scale) +
+            (overlay25SinReloc(ownerState->baseAngle) * -32.0f);
+        state->lift = 16.0f;
+        state->velocityZ =
+            (overlay25CosReloc(combinedAngle) * ownerState->scale) +
+            (overlay25CosReloc(ownerState->baseAngle) * -32.0f);
+    } else {
+        state->activeDuration = 0;
+        object->flags |= 0x0800;
+    }
 
-struct Overlay25Object {
-    u8 pad00[6];
-    s16 flags;
-    f32 value;
-    f32 x;
-    f32 y;
-    s32 z;
-    u8 pad18[0x28];
-    Overlay25Transform *transform;
-    u8 pad44[8];
-    Overlay25Vector *vector;
-    u8 pad50[0x14];
-    Overlay25State *state;
-};
+    if (gOverlay25GlobalFlagsReloc & 0x10) {
+        paletteIndex = overlay25RandomReloc(0, 7) * 3;
+    } else {
+        paletteIndex = 9;
+    }
+    state->color[0] = gOverlay25ColorsReloc[paletteIndex + 0];
+    state->color[1] = gOverlay25ColorsReloc[paletteIndex + 1];
+    state->color[2] = gOverlay25ColorsReloc[paletteIndex + 2];
 
-typedef struct Overlay25Status { u8 type; } Overlay25Status;
+    if (object->vector != NULL) {
+        object->vector->x = 0.0f;
+        object->vector->y = 0.0f;
+    }
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o025/overlay25InitializeEffect/func_overlay_025_F0000000_1879C88.s")
+#endif
 
-extern void overlay25SetVectorFlagsReloc(void);
-extern void overlay25DestroyReloc(Overlay25Object *object);
-extern void overlay25MoveReloc(Overlay25Object *object, f32 x, f32 y, f32 z);
-extern void overlay25SweepReloc(s32 mode, Overlay25Vector *position,
-                                Overlay25Vector *movement, f32 *radius,
-                                s32 arg4, s32 arg5);
-extern s32 overlay25TraceReloc(Overlay25Vector *position,
-                               Overlay25Vector *movement, f32 radius,
-                               Overlay25Object *object,
-                               void (*callback)(void));
-extern s32 overlay25QueryObjectsReloc(f32 x, f32 y, s32 z, f32 radius,
-                                      s32 mode, Overlay25Object **objects);
-extern s32 overlay25CanHitReloc(Overlay25Object *object,
-                                Overlay25EntityState *state);
-extern void overlay25ApplyHitReloc(Overlay25Object *owner,
-                                   Overlay25Object *object);
-extern Overlay25Status *overlay25GetStatusReloc(void);
-extern void overlay25NotifyHitReloc(Overlay25Object *object);
-
+/*
+ * Plateau (2026-08-24): the exact-size C candidate scored 2335, improving
+ * to 1705 in the bounded permuter run; its first mismatch is at function
+ * offset 0x0.  The flag lattice produced no different leading candidate.
+ * The remaining blocker is the whole-function register, stack-home, and
+ * scheduling web; the lowest-score permutation did not preserve semantics.
+ */
 #ifdef NON_MATCHING
 void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
     Overlay25EffectState *state = &object->state->effect;
@@ -209,3 +199,20 @@ void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o025/overlay25UpdateEffect/func_overlay_025_F000017C_1879E04.s")
 #endif
+
+/* No corresponding DKR/JFG source or object match was found. */
+void overlay25SetVectorFlags(s32 unused0, Overlay25Vector *out, s32 unused2,
+                             s32 unused3, Overlay25Source *source,
+                             Overlay25VectorObject *object) {
+    Overlay25VectorState *state;
+
+    state = object->state;
+    out->x = source->vector.x;
+    out->y = source->vector.y;
+    out->z = source->vector.z;
+    if ((gOverlay25Threshold < source->value) || (source->flags & 0x10000000)) {
+        state->flags |= 2;
+        return;
+    }
+    state->flags |= 4;
+}

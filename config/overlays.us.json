@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 73652,
-  "nonmatching_overlay_c_bytes": 219724,
+  "matched_overlay_c_bytes": 73012,
+  "nonmatching_overlay_c_bytes": 220364,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -3862,37 +3862,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x8C",
-     "size": "0x8C",
-     "type": "c",
-     "source": "overlays/o016/overlay16BuildGradient",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x8C",
-     "end_offset": "0x1A8",
-     "size": "0x11C",
-     "type": "c",
-     "source": "overlays/o016/overlay16InitializeBuffer",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1A8",
-     "end_offset": "0x1E0",
-     "size": "0x38",
-     "type": "c",
-     "source": "overlays/o016/overlay16ReleaseBuffer",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1E0",
      "end_offset": "0x424",
-     "size": "0x244",
+     "size": "0x424",
      "type": "c",
-     "source": "overlays/o016/overlay16ApplyGradient",
+     "source": "overlays/o016/overlay_016",
      "matched": true,
      "nonmatching": true
     },
@@ -5338,30 +5311,12 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x17C",
-     "size": "0x17C",
-     "type": "c",
-     "source": "overlays/o025/overlay25InitializeEffect",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x17C",
-     "end_offset": "0x588",
-     "size": "0x40C",
-     "type": "c",
-     "source": "overlays/o025/overlay25UpdateEffect",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x588",
      "end_offset": "0x608",
-     "size": "0x80",
+     "size": "0x608",
      "type": "c",
-     "source": "overlays/o025/overlay25SetVectorFlags",
+     "source": "overlays/o025/overlay_025",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x608",
@@ -9701,30 +9656,12 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x1F4",
-     "size": "0x1F4",
-     "type": "c",
-     "source": "overlays/o049/overlay49Initialize",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x1F4",
-     "end_offset": "0x354",
-     "size": "0x160",
-     "type": "c",
-     "source": "overlays/o049/overlay49Update",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x354",
      "end_offset": "0x374",
-     "size": "0x20",
+     "size": "0x374",
      "type": "c",
-     "source": "overlays/o049/refractOutput",
+     "source": "overlays/o049/overlay_049",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x374",
