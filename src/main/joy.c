@@ -11,6 +11,17 @@
 
 extern u16 D_8007A0C8;
 extern OSMesgQueue D_800CF340;
+
+/* PROVENANCE: field roles adapted from JFG src/joy.c; Mickey layout is decisive. */
+typedef struct JoyPad {
+    u16 button;
+    s8 stick_x;
+    s8 stick_y;
+    u8 errno;
+    u8 unused;
+} JoyPad;
+
+extern JoyPad D_800CF370[];
 extern s8 D_800CF372[];
 extern s8 D_800CF373[];
 extern u16 D_800CF3A0[];
@@ -47,7 +58,13 @@ u8 joyGetController(s32 player) {
     return D_800CF3B0[player];
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyGetButtons.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+u16 joyGetButtons(s32 player) {
+    if (func_8003A550() != 0) {
+        return 0;
+    }
+    return D_800CF370[D_800CF3B0[player]].button;
+}
 
 /* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
 u16 joyGetPressed(s32 player) {

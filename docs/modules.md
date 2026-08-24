@@ -396,7 +396,7 @@ main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
 JFG functions were not imported: unresolved routines retain Mickey's own
 `func_<VRAM>` symbol.
 
-**Matching progress.** Thirty-seven functions currently compile exactly under
+**Matching progress.** Thirty-eight functions currently compile exactly under
 the resident `-O2 -mips2 -32` flags: Splat's empty `func_800291D0` body,
 JFG's one-expression `joyCharVal` body (8 bytes each), and the 12-byte
 `joySetSecurity`, `mainSetAnimGroup`, and `mainChangeCameras` stores. The
@@ -438,7 +438,8 @@ unchanged, and the 12-byte `joyMessageQ` queue accessor is exact. The 40-byte
 `joyGetAbsX` and `joyGetAbsY` mapped-pad accessors bring the total to 1,420
 bytes. The 72-byte `joyGetPressed` accessor, including Mickey's early guard
 call, is exact, as is its 72-byte `joyGetReleased` sibling. The total is now
-1,564 bytes.
+1,564 bytes. The six-byte pad layout makes the guarded 80-byte `joyGetButtons`
+accessor exact too, bringing the total to 1,644 bytes.
 
 `joyResetMap` remains assembly after a bounded plateau. The donor loop's first
 mismatch is at function offset `+0x0`: with external storage, IDO repeats the
