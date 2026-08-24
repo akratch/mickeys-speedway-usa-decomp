@@ -1490,6 +1490,7 @@ func_8005017C = 0x8005017C; // type:func size:0x30   ROM 0x50d7c  src/anim.c.o  
 func_800501AC = 0x800501AC; // type:func size:0x1C   ROM 0x50dac  tier-D JFG signed-table-lookup structure, matched C
 func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  masked=9/20 tier-A matched-C
 animseqInitGroup = 0x800510E8; // type:func size:0x40   ROM 0x51ce8  src/anim.c.o  masked=1/16 tier-A matched-C
+animseqPlay = 0x800534B0; // type:func size:0x10   ROM 0x540b0  tier-D JFG ordered Play store, matched C
 // jfg:libultra/src/flash/flashreadid.c.o
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C   ROM 0x58810  libultra/src/flash/flashreadid.c.o  masked=6/19
 // jfg:src/camera.c.o

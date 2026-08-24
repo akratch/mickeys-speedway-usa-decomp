@@ -414,7 +414,7 @@ placeholders are never imported.
 | `0x80051364` | `0x47C` | `animseqUpdate` | D; nearest ordered `anim.c` function |
 | `0x800517E0` | `0x1C40` | `animseqProcessCommandList` | B; command dispatcher calls the path family in JFG order |
 | `0x80053420` | `0x90` | `animseqCamera` | D; ordered tail and nearest same-family shape |
-| `0x800534B0` | `0x10` | `animseqPlay` | D; exact skeleton but too short/ambiguous (`romocc=?`) |
+| `0x800534B0` | `0x10` | `animseqPlay` | D adoption; ordered JFG tail and the `playing = 1` store. Matched C: exact 16 B and relocation surface at `-O2 -mips2 -32`; skeleton remains too short for tier A |
 | `0x800534C0` | `0x2C` | `animseqPause` | D; ordered `anim.c` tail only |
 | `0x800534EC` | `0x64` | no unique `hit.c` candidate | D; start of collision-shaped code |
 | `0x80053550` | `0x318` | `hitInitObjectHit` | B; same two matrix-builder calls |

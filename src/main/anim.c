@@ -152,7 +152,11 @@ void animseqInitGroup(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051364.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800517E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053420.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800534B0.s")
+/* JFG's ordered anim.c tail and this store establish the tier-D Play name. */
+void animseqPlay(void) {
+    D_8007D6A4 = 1;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800534C0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800534EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053550.s")
