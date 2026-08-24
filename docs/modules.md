@@ -396,7 +396,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays |
 | `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range |
 | `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records |
-| `0x2C720` | `func_8002BB20` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer |
+| `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
 | `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
 | `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder |
 | `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
@@ -418,6 +418,11 @@ body and `mmInit` flag role support the tier B name.
 HI16/LO16 pair binds the deferred-free state at `D_800D21AC`.
 `mmGetDelay` is the exact `0xC`-byte getter for that same state, with the
 target HI16/LO16 relocation pair and canonical flags.
+`mmGetSlotPtr` is exact for `0x14` bytes; its HI16/LO16 pair binds the pool
+slot-pointer anchor at `D_800D1C64`. The 0x10-byte stride and neighboring
+allocator accesses establish Mickey's 16-bit counts at `+0/+2`, slot pointer
+at `+4`, size at `+8`, and free-size field at `+0xC`; these differ from JFG's
+starting declaration and are reflected in `include/game/memory.h`.
 
 ---
 

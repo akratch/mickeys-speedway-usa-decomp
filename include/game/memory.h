@@ -36,16 +36,18 @@ typedef struct MemoryPoolSlot {
 } MemoryPoolSlot;
 
 typedef struct MemoryPool {
-    /* 0x00 */ s32 maxNumSlots;
-    /* 0x04 */ s32 curNumSlots;
-    /* 0x08 */ MemoryPoolSlot *slots;
-    /* 0x0C */ s32 size;
+    /* 0x00 */ s16 maxNumSlots;
+    /* 0x02 */ s16 curNumSlots;
+    /* 0x04 */ MemoryPoolSlot *slots;
+    /* 0x08 */ s32 size;
+    /* 0x0C */ s32 freeSize;
 } MemoryPool;
 
 void mmInit(void);
 u8 mmExtended(void);
 void mmSetDelay(s32 state);
 s32 mmGetDelay(void);
+MemoryPoolSlot *mmGetSlotPtr(MemoryPoolIndex poolIndex);
 void mmFree(void *data);
 u8 *align16(u8 *address);
 u8 *align8(u8 *address);

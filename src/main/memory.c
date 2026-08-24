@@ -14,6 +14,7 @@
 #include "game/memory.h"
 
 extern u8 D_8007A274;
+extern MemoryPoolSlot *D_800D1C64;
 extern s32 D_800D21AC;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/mmInit.s")
@@ -69,8 +70,10 @@ void mmSetDelay(s32 state) {
 /* JFG correspondence: mempool_slot_clear (tier B; frees/coalesces a slot). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B9D0.s")
 
-/* JFG correspondence: mmGetSlotPtr (tier B; returns a pool's slot array). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002BB20.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmGetSlotPtr. */
+MemoryPoolSlot *mmGetSlotPtr(MemoryPoolIndex poolIndex) {
+    return *(MemoryPoolSlot **) ((u8 *) &D_800D1C64 + (poolIndex * sizeof(MemoryPool)));
+}
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmGetDelay. */
 s32 mmGetDelay(void) {
