@@ -52,6 +52,7 @@ extern f32 D_80079FB0[];
 extern Mtx D_800CED60[];
 extern MtxF D_800CEC98;
 extern MtxF D_800CF1A0;
+extern f32 D_800CF2A0;
 extern Camera D_800CEA20[];
 extern CameraShake D_800CEC18[];
 
@@ -68,7 +69,10 @@ void camUseShake(void) {
 void camIgnoreShake(void) {
     D_800CEC84 = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800214A0.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetFOV. */
+f32 camGetFOV(void) {
+    return D_800CF2A0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800214AC.s")
 /*
  * PROVENANCE: adapted from JFG's public decomp,
