@@ -817,7 +817,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_001_F00064F8_18528D8=overlay1SolveAngleCandidates \
 		--redefine-sym func_overlay_001_F00067C0_1852BA0=overlay1UpdateRangeFlags \
 		--redefine-sym func_overlay_001_F0006A14_1852DF4=overlay1ConsumeNearbyPending \
-		--redefine-sym func_overlay_001_F0006B6C_1852F4C=overlay1SearchNearby \
 		--redefine-sym func_overlay_001_F0006D4C_185312C=overlay1UpdateAimedTransient \
 		--redefine-sym func_overlay_001_F0007130_1853510=overlay1UpdateTransient \
 		--redefine-sym func_overlay_001_F00072A4_1853684=overlay1AllocateRecord \
@@ -827,6 +826,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_001_F0007730_1853B10=overlay1BendPathPoint \
 		--redefine-sym func_overlay_001_F00078DC_1853CBC=overlay1AdvancePath \
 		--redefine-sym func_overlay_001_F0007B64_1853F44=overlay1FindBestRecord $@ && \
+	$(OBJCOPY) --redefine-sym func_8000572C=func_overlay_001_F0000000_184C3E0 $@ && \
+	$(OBJCOPY) --redefine-sym func_80005820=func_overlay_001_F0000000_184C3E0 $@ && \
+	$(OBJCOPY) --redefine-sym overlay4RemoveObject=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4664
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_create.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_create.c.o: POSTPROCESS = \

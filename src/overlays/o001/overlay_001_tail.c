@@ -2374,7 +2374,6 @@ extern Overlay1SearchObject **func_8000572C(s32 *first, s32 *limit);
 extern Overlay1SearchObject *func_80005820(u8 key);
 extern void overlay4RemoveObject(Overlay1SearchObject *object);
 
-#ifdef NON_MATCHING
 void overlay1SearchNearby(Overlay1SearchObject *object, void *unused) {
     Overlay1SearchState *range;
     s32 first;
@@ -2382,8 +2381,8 @@ void overlay1SearchNearby(Overlay1SearchObject *object, void *unused) {
     s32 index;
     Overlay1SearchObject **objects;
     Overlay1SearchObject *candidate;
-    Overlay1SearchObject *linked;
     Overlay1SearchState *state;
+    Overlay1SearchObject *linked;
     f32 delta;
     f32 threshold;
 
@@ -2423,10 +2422,6 @@ void overlay1SearchNearby(Overlay1SearchObject *object, void *unused) {
         } while (index != limit);
     }
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0006B6C_1852F4C.s")
-#endif
 
 /* ---- overlay1SelectMaskedMode ---- */
 
