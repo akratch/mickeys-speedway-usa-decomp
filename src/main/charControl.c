@@ -17,13 +17,15 @@
  * here. Any future body adapted from JFG must carry its own PROVENANCE note
  * before that body and must be proved against Mickey's bytes.
  *
- * Flags: -O2 -mips2 -32, from the measured src/main/ rule.
+ * Flags: -O2 -mips2 -32 -Wab,-r4300_mul, measured on func_8001F09C.
  */
 
 #include "PR/ultratypes.h"
 #include "game/charControl.h"
 
 extern u8 D_80079BF8;
+extern f32 D_80081894;
+extern f32 D_80081898;
 extern s32 D_80079BCC;
 extern f32 D_80079BD4[];
 extern s32 D_800CB308[];
@@ -153,7 +155,22 @@ void controlFSUvels(s16 *rotation, ControlPlayer *player) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001E5C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001EC44.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001EFFC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F09C.s")
+void func_8001F09C(ControlPlayer *player, s32 updateRate) {
+    f32 rate;
+
+    rate = (f32) updateRate;
+    if (player->unk50 < player->unk54) {
+        player->unk50 += ((player->unk54 - player->unk50) * 0.125f * rate) + D_80081894;
+        if (player->unk54 <= player->unk50) {
+            player->unk50 = player->unk54;
+        }
+    } else {
+        player->unk50 += ((player->unk54 - player->unk50) * 0.125f * rate) - D_80081898;
+        if (player->unk50 <= player->unk54) {
+            player->unk50 = player->unk54;
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F14C.s")
 /*
  * PROVENANCE -- JFG's src/charControl.c supplied the controlDisableJoypad

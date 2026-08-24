@@ -411,7 +411,7 @@ call graph isolates one namesake.
 | `0x8001E5C4` | `0x680` | `controlHangOK` / `controlGrabOK` | D: ledge/collision family, not uniquely separated; retain `func_` |
 | `0x8001EC44` | `0x3B8` | `controlSquashCheckPrior` | D: collision/math structure and JFG order; retain `func_` |
 | `0x8001EFFC` | `0xA0` | — | No unique JFG comparison; retain `func_` |
-| `0x8001F09C` | `0xB0` | `func_800370D8` | D: same target-smoothing structure; JFG placeholder, retain `func_` |
+| `0x8001F09C` | `0xB0` | `func_800370D8` | D + matched C: exact target-smoothing body under O2/mips2 with `-Wab,-r4300_mul`; JFG placeholder comparison remains structural, so retain `func_` |
 | `0x8001F14C` | `0x110` | `controlCeiling` | D: collision-control position in the JFG sequence; retain `func_` |
 | `0x8001F25C` | `0x8` | `controlDisableJoypad` | B + matched C: caller supplies player and boolean, next routine tests the stored state; JFG has the same role but a one-argument global implementation |
 | `0x8001F264` | `0xBC` | `controlReadJoypad` | B + matched C: calls all seven stick/button readers in JFG order; adapted per-player C is ADR 0001 exact under O2/mips2 |

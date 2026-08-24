@@ -14,7 +14,10 @@ typedef struct ControlPlayer {
     /* 0x000 */ s8 playerIndex;
     /* 0x001 */ u8 pad001[0x14 - 0x1];
     /* 0x014 */ f32 unk14[3];
-    /* 0x020 */ u8 pad020[0x191 - 0x20];
+    /* 0x020 */ u8 pad020[0x50 - 0x20];
+    /* 0x050 */ f32 unk50;
+    /* 0x054 */ f32 unk54;
+    /* 0x058 */ u8 pad058[0x191 - 0x58];
     /* 0x191 */ s8 unk191;
     /* 0x192 */ u8 pad192[0x1A8 - 0x192];
     /* 0x1A8 */ u16 flags1A8;
