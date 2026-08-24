@@ -1,58 +1,48 @@
-#ifndef PERMUTER
-#include "PR/ultratypes.h"
-#endif
+#include "overlays/overlay_077.h"
 
-typedef union Overlay77Coord {
-    f32 value;
-    s32 bits;
-} Overlay77Coord;
-
-typedef struct Overlay77State {
-    s16 kind;
-    s16 sequence;
-    f32 acceleration;
-    f32 scale;
-    f32 targetY;
-    f32 targetX;
-    f32 targetYCopy;
-    f32 targetZ;
-} Overlay77State;
-
-typedef struct Overlay77Object {
-    s16 angle;
-    u8 pad2[4];
-    s16 flags;
-    f32 scale;
-    Overlay77Coord x;
-    Overlay77Coord y;
-    Overlay77Coord z;
-    u8 pad18[4];
-    f32 velocityX;
-    f32 velocityY;
-    f32 velocityZ;
-    f32 field28;
-    u8 pad2C[0x38];
-    Overlay77State *state;
-    void **path;
-} Overlay77Object;
-
+/* Non-volatile here: overlay77Init/overlay77Update's original per-file
+ * declaration, and the one that reproduces their bytes. */
 extern s32 gOverlay77Handle;
-extern s32 gOverlay77Selection;
-extern void *gOverlay77CallbackArgument;
-extern f32 gOverlay77PositiveDivisor;
-extern f32 gOverlay77PositiveAcceleration;
-extern f32 gOverlay77NegativeDivisor;
-extern f32 gOverlay77NegativeAcceleration;
-extern f32 gOverlay77Gravity;
 
-void overlay77PathReloc(void *path, s32 *mode, s16 kind, f32 *field,
-                        s32 updateRate);
-void overlay77SpawnReloc(s32 objectId, s32 x, s32 y, s32 z, s32 mode,
-                         void *argument);
-void overlay77ContinueReloc(void *handle, s32 x, s32 y, s32 z);
-s32 overlay77MoveReloc(Overlay77Object *object, f32 x, f32 y, f32 z);
-void overlay77OrientReloc(Overlay77Object *object, f32 x, f32 y, f32 z);
-void overlay77StopReloc(void *handle);
+/*
+ * Overlay 77, ADR 0006 consolidation: overlay77Init.c and overlay77Update.c
+ * fold into this one translation unit (overlay77Init at +0x000,
+ * overlay77Update at +0x130). The state tail (overlay77EnsureSelection/
+ * overlay77RunCallback, +0x3B8) stays a second translation unit,
+ * overlay_077_tail.c: both functions here need -Wab,-r4300_mul's R4300
+ * multiply-hazard schedule to match, the tail does not, and IDO applies
+ * that flag per translation unit, so merging all four functions into one
+ * object measurably changes the tail's compiled bytes (a 16-byte .text
+ * growth) even though its C is untouched. Two TUs, not one, is the
+ * furthest this module can be folded without editing an instruction word.
+ */
+
+void overlay77Init(Overlay77Object *object, Overlay77Init *init, s32 preserveSequence) {
+    Overlay77State *state;
+    f32 radius;
+
+    radius = init->radius & 0xFF;
+    state = object->state;
+    if (radius < 10.0f) {
+        radius = 10.0f;
+    }
+    radius = radius / 64.0f;
+    object->scale = object->header->scale * radius;
+    object->field28 = (f32) init->fieldC;
+    state->kind = init->kind;
+    state->scale = 5.0f;
+    state->targetY = object->y.value + 100.0f;
+    state->targetX = object->x.value;
+    state->targetYCopy = object->y.value;
+    state->targetZ = object->z.value;
+    object->angle = init->angle;
+    object->velocityX = overlay77SinReloc(object->angle) * -20.0f;
+    object->velocityZ = overlay77CosReloc(object->angle) * -20.0f;
+    if (preserveSequence == 0) {
+        state->sequence = gOverlay77Sequence;
+        gOverlay77Sequence++;
+    }
+}
 
 /*
  * Overlay 77 +0x130. The pinned DKR v77/v80 and JFG object ledgers are exact

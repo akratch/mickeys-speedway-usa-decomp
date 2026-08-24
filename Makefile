@@ -3768,14 +3768,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75UpdateMovingObject.c.o: POSTPROCE
 		0x4C0 dd4a4fa928227da6a8df5e2b7a6af736a328a95a4c0d85cb493557fb09531768 \
 		@config/normalizations/overlay75UpdateMovingObject.ops && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B8
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077_tail.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x78
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay77Init.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x130
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay77Init.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay77Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x288
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay77Update.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay_081_leafs.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x54
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81Init.c.o: POSTPROCESS = \
@@ -7267,8 +7264,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75Init.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75UpdateMovingObject.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75MarkSlot.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay77Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay77Update.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077_tail.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81Init.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81Update.c.o \
