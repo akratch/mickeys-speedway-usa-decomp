@@ -127,7 +127,7 @@ void overlay5InitializeAudio(void *context) {
     n_alCSPSetMessageQ(gOverlay5Player0, gOverlay5MessageQueue);
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o005/overlay5InitializeAudio/func_overlay_005_F000031C_185B744.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o005/overlay_005/func_overlay_005_F000031C_185B744.s")
 #endif
 
 void *overlay5CreatePlayer(s32 arg0, s32 arg1) {
