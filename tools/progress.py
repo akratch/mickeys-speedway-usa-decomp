@@ -208,6 +208,7 @@ def get_overlay_text_bytes(rom_path, atlas_path=None):
     return (
         int(atlas["totals"]["text_bytes"]),
         int(atlas["totals"].get("matched_overlay_c_bytes", 0)),
+        int(atlas["totals"].get("nonmatching_overlay_c_bytes", 0)),
     )
 
 
@@ -385,6 +386,26 @@ def render_markdown(st):
     L.append("```")
     L.append("")
     L.append(
+        "DKR-style report (docs/acceleration-survey.md sec.13.1: NON_MATCHING "
+        "and NON_EQUIVALENT count as unmatched, exactly like extracted "
+        "assembly):"
+    )
+    L.append("")
+    L.append("```")
+    w = st["dkr_whole_bytes"]
+    for label, key in (
+        ("decompiled", "dkr_decompiled_bytes"),
+        ("handwritten asm", "dkr_handwritten_asm_bytes"),
+        ("GLOBAL_ASM remaining", "dkr_global_asm_bytes"),
+        ("NON_MATCHING", "dkr_non_matching_bytes"),
+        ("NON_EQUIVALENT", "dkr_non_equivalent_bytes"),
+    ):
+        value = st[key]
+        pct = value / w * 100 if w else 0.0
+        L.append(f"{label:<22} {value:>7} / {w:<7} ({pct:5.2f}%)")
+    L.append("```")
+    L.append("")
+    L.append(
         "| Area | Functions | Matched to C | Named, still asm | Unnamed | "
         "Identified |"
     )
@@ -530,6 +551,12 @@ def check_partial(args):
         func_msg="0 of 0 (0.00%)",
         byte_msg="0 of 0 (0.00%)",
         name_msg=f"{n_named} adopted",
+        dkr_decompiled_bytes=0,
+        dkr_handwritten_asm_bytes=0,
+        dkr_global_asm_bytes=0,
+        dkr_non_matching_bytes=0,
+        dkr_non_equivalent_bytes=0,
+        dkr_whole_bytes=0,
     )
     rendered = render_markdown(placeholder_st)
 
@@ -712,8 +739,10 @@ def main(args):
     }
     verified_asm_bytes = sum(all_funcs[name] for name in verified_asm_funcs)
     verified_asm_pct = verified_asm_bytes / total_bytes * 100 if total_bytes else 0.0
-    overlay_text_bytes, overlay_matched_bytes = get_overlay_text_bytes(
-        os.path.join(ROOT_DIR, "baseroms", f"mickey.{args.version}.z64")
+    overlay_text_bytes, overlay_matched_bytes, overlay_nonmatching_bytes = (
+        get_overlay_text_bytes(
+            os.path.join(ROOT_DIR, "baseroms", f"mickey.{args.version}.z64")
+        )
     )
     overlay_byte_pct = (
         overlay_matched_bytes / overlay_text_bytes * 100 if overlay_text_bytes else 0.0
@@ -721,6 +750,41 @@ def main(args):
     whole_text_bytes = total_bytes + overlay_text_bytes
     resolved_bytes = matched_bytes + verified_asm_bytes + overlay_matched_bytes
     resolved_pct = resolved_bytes / whole_text_bytes * 100 if whole_text_bytes else 0.0
+
+    # DKR's five-line report (docs/acceleration-survey.md sec.13.1):
+    # tools/python/score.py there rewrites any `#ifdef NON_MATCHING ... #else
+    # GLOBAL_ASM ... #endif` block back to a bare GLOBAL_ASM before counting,
+    # so a NON_MATCHING function counts as unmatched, same as extracted
+    # assembly it has not been given a C body for at all. `decompiled` below
+    # is therefore exactly resident matched_bytes (unaffected -- no resident
+    # object has been converted yet) plus the overlay atlas's
+    # matched_overlay_c_bytes, which tools/overlay_atlas.py already excludes
+    # any range whose owning .c carries "#ifdef NON_MATCHING" from (see its
+    # mechanically-derived `nonmatching` field). `global_asm_remaining` is
+    # whatever text neither matched nor is explicitly NON_MATCHING: resident
+    # asm still glabel'd under asm/, plus every overlay range that is either
+    # raw unreviewed "asm" ownership or GLOBAL_ASM'd without a NON_MATCHING
+    # C body. NON_EQUIVALENT has no functions yet (no NON_EQUIVALENT-guarded
+    # branch exists in the tree); the line is still reported so the report
+    # shape matches DKR's even before one is needed.
+    dkr_decompiled_bytes = matched_bytes + overlay_matched_bytes
+    dkr_handwritten_asm_bytes = verified_asm_bytes
+    dkr_non_matching_bytes = overlay_nonmatching_bytes  # resident: none yet
+    dkr_global_asm_bytes = (
+        (total_bytes - matched_bytes - verified_asm_bytes)
+        + (overlay_text_bytes - overlay_matched_bytes - overlay_nonmatching_bytes)
+    )
+    dkr_non_equivalent_bytes = 0
+    dkr_whole_bytes = whole_text_bytes
+    if dkr_whole_bytes and (
+        dkr_decompiled_bytes
+        + dkr_handwritten_asm_bytes
+        + dkr_non_matching_bytes
+        + dkr_global_asm_bytes
+        + dkr_non_equivalent_bytes
+        != dkr_whole_bytes
+    ):
+        raise RuntimeError("DKR-line bytes do not sum to the whole-program total")
 
     n_total = len(total_funcs)
     n_matched = len(matched_funcs)
@@ -781,6 +845,12 @@ def main(args):
             func_msg=f"{n_matched} of {n_total} ({func_pct:.2f}%)",
             byte_msg=f"{resolved_bytes} of {whole_text_bytes} ({resolved_pct:.2f}%)",
             name_msg=f"{n_named} adopted",
+            dkr_decompiled_bytes=dkr_decompiled_bytes,
+            dkr_handwritten_asm_bytes=dkr_handwritten_asm_bytes,
+            dkr_global_asm_bytes=dkr_global_asm_bytes,
+            dkr_non_matching_bytes=dkr_non_matching_bytes,
+            dkr_non_equivalent_bytes=dkr_non_equivalent_bytes,
+            dkr_whole_bytes=dkr_whole_bytes,
         )
         block = render_markdown(st)
         readme_path = os.path.join(ROOT_DIR, "README.md")
@@ -882,6 +952,18 @@ def main(args):
         f"({resolved_pct:.2f}%; resident C + verified asm + overlay C)"
     )
     print(f"symbols:   {n_named} named")
+
+    print()
+    print("DKR-style report (docs/acceleration-survey.md sec.13.1):")
+    for label, value in (
+        ("decompiled", dkr_decompiled_bytes),
+        ("handwritten asm", dkr_handwritten_asm_bytes),
+        ("GLOBAL_ASM remaining", dkr_global_asm_bytes),
+        ("NON_MATCHING", dkr_non_matching_bytes),
+        ("NON_EQUIVALENT", dkr_non_equivalent_bytes),
+    ):
+        pct = value / dkr_whole_bytes * 100 if dkr_whole_bytes else 0.0
+        print(f"  {label:<22} {value:>7} / {dkr_whole_bytes:<7} ({pct:5.2f}%)")
 
     if args.csv:
         print()
