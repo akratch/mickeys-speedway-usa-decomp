@@ -13,6 +13,13 @@
 extern s32 D_8007A164;
 extern s32 D_8007A160;
 extern s32 D_8007A170;
+extern s32 D_8007A174;
+extern s32 D_8007A178;
+extern s32 D_8007A17C;
+extern s32 D_8007A180;
+extern s32 D_8007A184;
+extern s32 D_8007A188;
+extern s32 D_8007A18C;
 extern s32 D_8007A154;
 extern s32 D_8007A14C;
 extern s32 D_8007A148;
@@ -139,7 +146,15 @@ void mainSetMode(s32 modeToSet) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028D30.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028DE4.s")
+void func_80028DE4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+    D_8007A174 = arg0;
+    D_8007A178 = arg1;
+    D_8007A17C = arg2;
+    D_8007A180 = arg3;
+    D_8007A184 = arg4;
+    D_8007A188 = arg5;
+    D_8007A18C = 1;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028E2C.s")
 
