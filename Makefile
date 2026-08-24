@@ -2417,31 +2417,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15UpdateMovingStars.c.o: POSTPROCES
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x19C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34SetValue10.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-# Natural source supplies the exact allocator calls, clear loops, complete
-# register/schedule web, and all eight runtime relocations. Select retail's
-# equivalent call-surviving size home and fold the true allocator identity to
-# the module's pre-loader relocation carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34InitStorage.c.o: \
-	config/normalizations/overlay34InitStorage.ops
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34InitStorage.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xC8 f331cbe038338fb6cd06d63eaa4951de78791d505d92f7bebc8ab0906b193869 \
-		@config/normalizations/overlay34InitStorage.ops && \
-	$(OBJCOPY) --redefine-sym func_8002B280=overlay34AllocateReloc $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_034_F0000000_18811A8=overlay34InitStorage $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34InterpolateColor.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
-# Natural source owns the exact boundary, CFG, effects, and both calls. Restore
-# retail's equivalent schedule/private register web and bind the two decoded
-# resident call identities to their pre-loader relocation carriers.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34CreateRecord.c.o: \
-	config/normalizations/overlay34CreateRecord.ops
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34CreateRecord.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1F4 20b039915264e68f35cb5da6acf54206f545ed329e36e856dfe21c9b8052621a \
-		@config/normalizations/overlay34CreateRecord.ops && \
-	$(OBJCOPY) --redefine-sym func_80034448=overlay34LoadTextureReloc \
-		--redefine-sym func_80029FE4=overlay34DirectionReloc $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_034_F00000D4_188127C=overlay34CreateRecord $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1F4
 include config/normalizations/overlay34Records.mk
 include config/normalizations/overlay1Epoch12.mk
@@ -4060,22 +4046,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1AdvancePath.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x288
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateCountdown.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
-# Natural source owns the exact boundary, frame, CFG, memory effects, and call
-# ABI. Restore retail's equivalent count/pointer schedule and complete private
-# coloring, remove the two target-proven literal local-pointer relocations, and
-# bind the independently decoded active-count and resident-loader identities.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34RemoveRecord.c.o: \
-	config/normalizations/overlay34RemoveRecord.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34RemoveRecord.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xB0 cc5ac0352574865711b8c7e33d86442fec4f461933063962e9ab9bc545ed9bfc \
-		@config/normalizations/overlay34RemoveRecord.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x10:5:gOverlay34Pointers 0x20:6:gOverlay34Pointers && \
-	$(OBJCOPY) --redefine-sym gOverlay34ActiveCount=D_C \
-		--redefine-sym func_80034448=overlay34LoadTextureReloc $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB0
+	$(OBJCOPY) --redefine-sym func_overlay_034_F00002C8_1881470=overlay34RemoveRecord $@
 # R4300 multiply hazards are target-proven. Natural source is otherwise exact;
 # select the complete private FP web, retain the runtime local-data pair, and
 # fold the two independently decoded resident calls to the pre-loader carrier.

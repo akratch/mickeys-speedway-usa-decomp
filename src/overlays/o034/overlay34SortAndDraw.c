@@ -36,6 +36,7 @@ extern void func_800084C4(s32 arg0, s32 arg1, void *resource,
                           f32 *secondPosition, f32 value, u32 color1,
                           u32 color2, s32 scale);
 
+#ifdef NON_MATCHING
 void overlay34SortAndDraw(s32 arg0, s32 arg1) {
     u32 color1;
     u32 color2;
@@ -110,3 +111,6 @@ void overlay34SortAndDraw(s32 arg0, s32 arg1) {
         } while (i < gOverlay34ActiveCount);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o034/overlay34SortAndDraw/func_overlay_034_F0000608_18817B0.s")
+#endif
