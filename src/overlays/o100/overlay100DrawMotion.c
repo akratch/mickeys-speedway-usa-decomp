@@ -49,6 +49,7 @@ extern u8 gOverlay100SegmentReloc[];
             ((((u32)(uly)) & 0x3FF) << 2);                               \
     }
 
+#ifdef NON_MATCHING
 void overlay100DrawMotion(O100Command **commandPtr, Overlay100Motion *motion) {
     O100Command *commands;
     O100View *view;
@@ -122,3 +123,6 @@ void overlay100DrawMotion(O100Command **commandPtr, Overlay100Motion *motion) {
     overlay100FinishCommandsReloc(commandPtr);
     O100_PRIM((*commandPtr)++, 0xFFFFFFFF);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o100/overlay100DrawMotion/func_overlay_100_F0000580_18DB2A8.s")
+#endif

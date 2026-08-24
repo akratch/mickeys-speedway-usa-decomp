@@ -5858,67 +5858,22 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36UpdatePeers.c.o: POSTPROCESS = \
 		0x17C cecde58454b830f4623d7726a9208f5cd2f8ae3d44ab2067933372c62570620e \
 		@config/normalizations/overlay36UpdatePeers.ops && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x17C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100InitializeMotion.c.o: \
-	config/normalizations/overlay100InitializeMotion.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100InitializeMotion.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100InitializeMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x214 611b65a2b376059ba7f41c4df6c8af825f4b62f1c6ea2021eea956289a85078f \
-		@config/normalizations/overlay100InitializeMotion.ops && \
-	$(OBJCOPY) --redefine-sym \
-		overlay100AllocReloc=func_overlay_100_F0000000_18DAD28 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x110:overlay100RandomReloc:func_overlay_100_F0000000_18DAD28 \
-		0x120:overlay100RandomReloc:func_overlay_100_F0000000_18DAD28 \
-		0x130:overlay100RandomReloc:func_overlay_100_F0000000_18DAD28 \
-		0x150:overlay100InitVelocityReloc:func_overlay_100_F0000000_18DAD28 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x004:5:gOverlay100CountReloc 0x008:6:gOverlay100CountReloc \
-		0x0ac:5:gOverlay100VelocityScaleReloc 0x108:6:gOverlay100VelocityScaleReloc \
-		0x1c0:5:gOverlay100CountReloc 0x1c4:6:gOverlay100CountReloc \
-		0x1cc:5:gOverlay100EntriesReloc 0x1d8:6:gOverlay100EntriesReloc && \
+	$(OBJCOPY) --redefine-sym func_overlay_100_F0000000_18DAD28=overlay100InitializeMotion $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x214
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100ApplyValue.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x74
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100UpdateMotion.c.o: \
-	config/normalizations/overlay100UpdateMotion.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100UpdateMotion.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100UpdateMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x180 f6aea2d767bea5e52a6c8c364127427f8262561ccd590077822c353c885b9b1d \
-		@config/normalizations/overlay100UpdateMotion.ops && \
-	$(OBJCOPY) --redefine-sym \
-		overlay100ReleaseMotionReloc=func_overlay_100_F0000000_18DAD28 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x0d4:5:gOverlay100GravityReloc 0x0d8:6:gOverlay100GravityReloc && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x180
+	$(OBJCOPY) --redefine-sym func_overlay_100_F000038C_18DB0B4=overlay100UpdateMotion $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100ApplyToValue.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x74
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100DrawMotion.c.o: \
-	config/normalizations/overlay100DrawMotion.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100DrawMotion.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100DrawMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3D0 75edd7555913e4cc9340f7469f14bf4f66a9be745398a272cc84308f30edda5d \
-		@config/normalizations/overlay100DrawMotion.ops && \
-	$(OBJCOPY) --redefine-sym \
-		overlay100GetViewReloc=func_overlay_100_F0000000_18DAD28 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x14c:overlay100PrepareAnglesReloc:func_overlay_100_F0000000_18DAD28 \
-		0x160:overlay100SinReloc:func_overlay_100_F0000000_18DAD28 \
-		0x174:overlay100CosReloc:func_overlay_100_F0000000_18DAD28 \
-		0x374:overlay100FinishCommandsReloc:func_overlay_100_F0000000_18DAD28 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x058:5:gOverlay100SegmentReloc 0x060:6:gOverlay100SegmentReloc && \
+	$(OBJCOPY) --redefine-sym func_overlay_100_F0000580_18DB2A8=overlay100DrawMotion $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3CC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o090/overlay90Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xFC
