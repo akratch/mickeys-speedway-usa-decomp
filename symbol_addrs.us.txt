@@ -415,6 +415,26 @@ shadowChangeBuffer = 0x80016034; // type:func size:0x18 tier B, ROM 0x16c34
 shadowGetBuffers = 0x8001604C; // type:func size:0x4C tier B, ROM 0x16c4c
 shadowGenerate = 0x80016098; // type:func size:0x7F8 tier B, ROM 0x16c98
 
+// main/camlight and the opening of main/spranim -- PROVENANCE: descriptive
+// names borrowed from JFG's public src/camlight.c and src/spranim.c.  Tier B
+// records Mickey's matching subsystem/call roles; tier D records order and
+// masked instruction shape.  None of these rows claims tier-A byte identity.
+camlightInit = 0x8001B250; // type:func size:0x8 tier B/D, ROM 0x1be50
+camlightFlush = 0x8001B258; // type:func size:0x8 tier B/D, ROM 0x1be58
+camlightAdd = 0x8001B260; // type:func size:0x10 tier B/D, ROM 0x1be60
+camlightDelete = 0x8001B270; // type:func size:0x8 tier B/D, ROM 0x1be70
+camlightUpdateAll = 0x8001B278; // type:func size:0x8 tier B/D, ROM 0x1be78
+camlightUpdate = 0x8001B280; // type:func size:0x8 tier B/D, ROM 0x1be80
+camlightVisibilityCheck = 0x8001B288; // type:func size:0x8 tier B/D, ROM 0x1be88
+camlightDraw = 0x8001B290; // type:func size:0x10 tier B/D, ROM 0x1be90
+spranimInit = 0x8001B2A0; // type:func size:0x74 tier B/D, ROM 0x1bea0
+spranimControl = 0x8001B314; // type:func size:0x4C tier B/D, ROM 0x1bf14
+sprasjiInit = 0x8001B360; // type:func size:0x48 tier B/D, ROM 0x1bf60
+spranimOnceControl = 0x8001B3A8; // type:func size:0x78 tier B/D, ROM 0x1bfa8
+effectboxControl = 0x8001B420; // type:func size:0x304 tier B/D, ROM 0x1c020
+texscrollControl = 0x8001B724; // type:func size:0x74 tier B/D, ROM 0x1c324
+rangetriggerControl = 0x8001BA54; // type:func size:0x90 tier B/D, ROM 0x1c654
+
 // memory.c -- three 7-word allocator alignment helpers, 0 masked, adjacent.
 align16 = 0x8002BC60; // type:func size:0x1C   ROM 0x2c860  memory.c.o  masked=0/7
 align8 = 0x8002BC7C; // type:func size:0x1C   ROM 0x2c87c  memory.c.o  masked=0/7

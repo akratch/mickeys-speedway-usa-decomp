@@ -404,6 +404,50 @@ extractor-marked handwritten track routines, only `trackLightAsm` uses odd FP
 registers; the other three contain non-compiler instruction shapes and remain
 assembly with it. No function in `main/shadows` uses an odd FP register.
 
+### 3.5 Camera lights and sprite animation (`0x1BE50`–`0x1C790`)
+
+The eight entry points at `0x1BE50`–`0x1BEA0` are Mickey's disabled
+`main/camlight` implementation: each is a return-only or argument-spilling
+stub, but their exact order and signatures follow JFG's `src/camlight.c`.
+That ordering, the object-system call sites, and the clean handoff to
+`spranimInit` make the boundary **tier B/D**, not a whole-object tier-A hit.
+`main/spranim` then occupies the remainder of this assigned block. Its first
+five functions follow JFG's `src/spranim.c` order; `texscrollControl` and
+`rangetriggerControl` are additionally identified by their masked skeletons
+and texture-scroll/volume-trigger callees. Helpers without that evidence keep
+their Mickey address names.
+
+**PROVENANCE:** the TU and descriptive function names are borrowed from Jet
+Force Gemini's public retail-derived `src/camlight.c`, `src/spranim.c`, and
+their `asm/nonmatchings/` names, as permitted by `docs/CLEANROOM.md`. No JFG
+body is copied by this split; Mickey's own bytes remain authoritative.
+
+| ROM | Size | Symbol | Evidence / disposition |
+|---|---:|---|---|
+| `0x1BE50` | `0x8` | `camlightInit` | B/D; compiler-generated no-op stub |
+| `0x1BE58` | `0x8` | `camlightFlush` | B/D; compiler-generated no-op stub |
+| `0x1BE60` | `0x10` | `camlightAdd` | B/D; compiler-generated stub returning null |
+| `0x1BE70` | `0x8` | `camlightDelete` | B/D; compiler-generated no-op stub |
+| `0x1BE78` | `0x8` | `camlightUpdateAll` | B/D; compiler-generated no-op stub |
+| `0x1BE80` | `0x8` | `camlightUpdate` | B/D; compiler-generated no-op stub |
+| `0x1BE88` | `0x8` | `camlightVisibilityCheck` | B/D; compiler-generated no-op stub |
+| `0x1BE90` | `0x10` | `camlightDraw` | B/D; compiler-generated no-op stub |
+| `0x1BEA0` | `0x74` | `spranimInit` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x1BF14` | `0x4C` | `spranimControl` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x1BF60` | `0x48` | `sprasjiInit` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x1BFA8` | `0x78` | `spranimOnceControl` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x1C020` | `0x304` | `effectboxControl` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x1C324` | `0x74` | `texscrollControl` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x1C398` | `0x2BC` | `func_8001B798` | compiler-generated; descriptive identity unresolved |
+| `0x1C654` | `0x90` | `rangetriggerControl` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x1C6E4` | `0x14` | `func_8001BAE4` | compiler-generated; descriptive identity unresolved |
+| `0x1C6F8` | `0xC` | `func_8001BAF8` | compiler-generated; descriptive identity unresolved |
+| `0x1C704` | `0xC` | `func_8001BB04` | compiler-generated; descriptive identity unresolved |
+| `0x1C710` | `0x80` | `func_8001BB10` | compiler-generated; descriptive identity unresolved |
+
+No function in this range uses an odd single-precision FP register, and there
+are no string references. All twenty functions are compiler-generated.
+
 ---
 
 ## 4. libultra
