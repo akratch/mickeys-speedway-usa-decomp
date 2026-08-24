@@ -9,9 +9,13 @@
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os_message.h"
 
 extern u8 D_8007A2F8;
 extern u8 D_8007A2F0;
+extern OSMesgQueue *D_800D21C0;
+
+s32 osContStartReadData(OSMesgQueue *messageQueue);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002BCC0.s")
 void rumbleRumbles(s32 value) {
@@ -60,7 +64,10 @@ s32 packCalculateGlobalFlagsChecksum(u8 *buffer) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CF0C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CF6C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packOpen.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packClose.s")
+s32 packClose(s32 controllerIndex) {
+    osContStartReadData(D_800D21C0);
+    return 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packIsPresent.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packDirectory.s")
