@@ -1,4 +1,7 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_001.h"
+
+/* ---- overlay1BuildPointRecord ---- */
+
 
 /*
  * Overlay 1 text +0x7B0..+0xBD4.

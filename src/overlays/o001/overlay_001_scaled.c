@@ -1,4 +1,7 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_001.h"
+
+/* ---- overlay1ScaledDistance ---- */
+
 
 /* Pinned DKR v77/v80 and JFG scans classify overlay 1 as no donor. */
 extern f32 gOverlay1DistanceScale;

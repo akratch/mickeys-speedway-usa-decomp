@@ -1,4 +1,7 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_001.h"
+
+/* ---- overlay1ResolvePathPoint ---- */
+
 
 typedef struct Overlay1PoolRecord {
     s16 x[32];
@@ -22,7 +25,6 @@ extern u8 D_8[0x200];
 extern Overlay1PoolRecord *D_218;
 extern s32 D_1D88;
 extern s32 D_1D84;
-extern Overlay1ErrorOwner *D_1DA0;
 extern void *D_1BA4;
 
 extern void overlay1ClearReloc(void *address, s32 size);
@@ -35,6 +37,10 @@ extern s32 overlay1SegmentReloc(f32 x0, f32 y0, f32 x1, f32 y1,
 extern void func_overlay_001_F0007730_1853B10(s16 *x, s16 *y,
                                                u8 selector, u8 mode);
 
+/* Plateau (2026-08-24): every -O2 -mips2 lattice member is exact-sized and
+ * only 8 of 152 words differ, first at +0x90.  Ten source forms leave the
+ * same D_218/D_1D88 store schedule, record-pointer reuse, and doubled-product
+ * register residual; direct BSS-struct and volatility spellings regress it. */
 #ifdef NON_MATCHING
 s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
                              s16 *outX, s16 *outY) {
@@ -100,5 +106,55 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
 }
 
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1ResolvePathPoint/func_overlay_001_F0007D6C_185414C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_end/func_overlay_001_F0007D6C_185414C.s")
 #endif
+
+/* ---- overlay1ModeChecks ---- */
+
+
+/* Generic scalar predicates only; pinned DKR objects provide no donor. */
+extern s32 gOverlay1Mode;
+
+s32 overlay1ModeIsOne(void) { return gOverlay1Mode == 1; }
+s32 overlay1ModeIsTwo(void) { return gOverlay1Mode == 2; }
+s32 overlay1ModeIsThree(void) { return gOverlay1Mode == 3; }
+
+/* ---- overlay1DistanceFromCurrent ---- */
+
+
+/* Pinned DKR v77/v80 and JFG scans classify overlay 1 as no donor. */
+extern void *gOverlay1DistanceObject;
+extern f32 overlay1DistanceReloc(void *first, void *second);
+
+f32 overlay1DistanceFromCurrent(void *other) {
+    void *current;
+
+    current = gOverlay1DistanceObject;
+    if (current != NULL) {
+        return overlay1DistanceReloc(current, other);
+    }
+    return 0.0f;
+}
+
+/* ---- overlay1DistanceFromSelected ---- */
+
+
+/* Pinned DKR v77/v80 and JFG scans classify overlay 1 as no donor. */
+extern void *gOverlay1DistanceObject;
+extern u8 gOverlay1SelectedIndex;
+extern void **overlay1GetSelectionReloc(s32 *count);
+extern f32 overlay1DistanceReloc(void *first, void *second);
+
+f32 overlay1DistanceFromSelected(void *object) {
+    s32 count;
+    void **objects;
+    volatile s32 reservation[2];
+
+    if (object == gOverlay1DistanceObject) {
+        objects = overlay1GetSelectionReloc(&count);
+        if (count >= 2) {
+            return overlay1DistanceReloc(object, objects[gOverlay1SelectedIndex]);
+        }
+    }
+    return 0.0f;
+}
