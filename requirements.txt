@@ -1,6 +1,9 @@
 # Splitting the ROM (gmake setup / gmake extract).
-splat64[mips]==0.35.2
-spimdisasm==1.36.1
+# See docs/splat-upgrade.md for the 0.35.2 -> 0.50.0 evaluation: extraction
+# and the build are byte-identical either way, so this bump is informational
+# until the shared .venv used by other running lanes is actually upgraded.
+splat64[mips]==0.50.0
+spimdisasm==1.42.4
 
 # asm-differ (./diff.sh). cxxfilt is only needed for --source, but it is small
 # and diff.py refuses to start without the whole set anyway.

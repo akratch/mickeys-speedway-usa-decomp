@@ -1382,3 +1382,129 @@ asins = 0x8006A508; // type:func size:0x8C
 // exactly the "exactly one candidate name" clause of docs/modules.md 1.2,
 // failing. `rmonPrintf` is retained only because it was already here; a reader
 // should treat it as one of two possible names, not as measured.
+
+// ---------------------------------------------------------------------------
+// Resident-segment skeleton donors: JFG/BK, per-function byte matches below
+// the whole-object threshold
+//
+// PROVENANCE DISCLOSURE. Every name and TU attribution in this block came from
+// a masked-instruction skeleton scan (registers, immediates and jump targets
+// masked, opcode/funct/fmt kept) of the resident segment's still-unnamed code
+// against every function >=10 words in Jet Force Gemini's and Banjo-Kazooie's
+// built objects, both permitted public retail-derived decomps per
+// docs/CLEANROOM.md. Every hit below was then independently re-verified with
+// tools/find_known_objects.py against the SAME reference build, which compares
+// the actual bytes under real relocation-record masking rather than a coarse
+// opcode-class mask -- so what is recorded here is a byte-identity result, not
+// merely a same-shape one. `masked=M/W` gives the relocated-word count out of
+// the whole word count; every row has romocc=1 (unique across the 32MB image)
+// unless noted, and every row cleared the >=6-unmasked-word bar in
+// docs/modules.md 1.2. See docs/modules.md, new subsection 'Resident TU map
+// from skeleton donors', for the TU-level picture these fall out of.
+//
+// Reproduce with (after copying the reference build path in):
+//   tools/find_known_objects.py <jfg>/build --start 0x1000 --end 0x6F420 \
+//       --min-size 0x10 --rom-occ --max-occurrences 200
+//
+// Two kinds of row:
+//  - a real JFG/BK function name: tier A, name adopted verbatim (1.3/1.4).
+//  - a JFG placeholder (func_8xxxxxxx): 1.5 forbids importing a reference
+//    build's own address placeholder as a name here. Mickey's own
+//    func_<VRAM> stands; the comment records the donor TU as tier-A evidence
+//    of translation-unit membership only, not of a name.
+// ---------------------------------------------------------------------------
+
+// jfg:src/audio_manager_1050.c.o
+amTuneSetFadeScaled = 0x800006BC; // type:func size:0x74   ROM 0x12bc  src/audio_manager_1050.c.o  masked=5/29
+amSndSetPan = 0x80001204; // type:func size:0x28   ROM 0x1e04  src/audio_manager_1050.c.o  masked=1/10
+forcelink = 0x80001698; // type:func size:0x30   ROM 0x2298  src/audio_manager_1050.c.o  masked=2/12
+// bk:us.v10/src/core1/code_1D00.c.o
+audioManager_DMAInitProc = 0x80002354; // type:func size:0x38   ROM 0x2f54  us.v10/src/core1/code_1D00.c.o  masked=6/14
+// jfg:src/audio_manager_4C50.c.o
+amVibratoInit = 0x800039F0; // type:func size:0x90   ROM 0x45f0  src/audio_manager_4C50.c.o  masked=22/36
+_depth2Cents = 0x800042E4; // type:func size:0x58   ROM 0x4ee4  src/audio_manager_4C50.c.o  masked=2/22
+// jfg:src/objects.c.o
+GetRomlistInfo = 0x8000BC88; // type:func size:0x28   ROM 0xc888  src/objects.c.o  masked=4/10
+// jfg:src/track.c.o
+trackSetFogOff = 0x800145A0; // type:func size:0x74   ROM 0x151a0  src/track.c.o  masked=2/29
+// jfg:src/shadows_214A0.c.o
+shadowBoxPolyOverlap = 0x800183F0; // type:func size:0xC4   ROM 0x18ff0  src/shadows_214A0.c.o  masked=0/49
+shadowBoundingBox = 0x800184B4; // type:func size:0x90   ROM 0x190b4  src/shadows_214A0.c.o  masked=0/36
+// jfg:src/charControl.c.o
+func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charControl.c.o  masked=0/19
+controlSetPlayerSetup = 0x8001F36C; // type:func size:0x40   ROM 0x1ff6c  src/charControl.c.o  masked=10/16
+// jfg:src/models.c.o
+func_8001F420 = 0x8001F420; // type:func size:0x3C   ROM 0x20020  src/models.c.o  masked=0/15
+func_8001FB64 = 0x8001FB64; // type:func size:0x68   ROM 0x20764  src/models.c.o  masked=0/26
+func_80020AD4 = 0x80020AD4; // type:func size:0x3C   ROM 0x216d4  src/models.c.o  masked=6/15
+// jfg:src/camera.c.o
+camGetPlayerProjMtx = 0x80022760; // type:func size:0x34   ROM 0x23360  src/camera.c.o  masked=5/13
+// jfg:src/hasm/ido/math_util.s.o
+mathRSMtx = 0x80029DE4; // type:func size:0x90   ROM 0x2a9e4  src/hasm/ido/math_util.s.o  masked=2/36
+mathOneFloatRPY = 0x80029E74; // type:func size:0xB8   ROM 0x2aa74  src/hasm/ido/math_util.s.o  masked=6/46
+mathOneFloatYPR = 0x80029F2C; // type:func size:0xB8   ROM 0x2ab2c  src/hasm/ido/math_util.s.o  masked=6/46
+mathOneFloatPY = 0x80029FE4; // type:func size:0x60   ROM 0x2abe4  src/hasm/ido/math_util.s.o  masked=4/24
+mathXZInTri = 0x8002A044; // type:func size:0xF0   ROM 0x2ac44  src/hasm/ido/math_util.s.o  masked=0/60
+mathTranslateMtx = 0x8002A134; // type:func size:0x3C   ROM 0x2ad34  src/hasm/ido/math_util.s.o  masked=0/15
+mathScaleMtx = 0x8002A170; // type:func size:0x30   ROM 0x2ad70  src/hasm/ido/math_util.s.o  masked=0/12
+pointListRPY = 0x8002A250; // type:func size:0xE8   ROM 0x2ae50  src/hasm/ido/math_util.s.o  masked=6/58
+splinePos = 0x8002A338; // type:func size:0xDC   ROM 0x2af38  src/hasm/ido/math_util.s.o  masked=20/55
+matrixScale = 0x8002A500; // type:func size:0x74   ROM 0x2b100  src/hasm/ido/math_util.s.o  masked=0/29
+matrixTranslate = 0x8002A574; // type:func size:0x90   ROM 0x2b174  src/hasm/ido/math_util.s.o  masked=0/36
+matrixYaw = 0x8002A774; // type:func size:0xB8   ROM 0x2b374  src/hasm/ido/math_util.s.o  masked=2/46
+Powerf = 0x8002A878; // type:func size:0x44   ROM 0x2b478  src/hasm/ido/math_util.s.o  masked=0/17
+Arctanf = 0x8002A910; // type:func size:0xFC   ROM 0x2b510  src/hasm/ido/math_util.s.o  masked=5/63
+mathDiffAngle = 0x8002AA0C; // type:func size:0x38   ROM 0x2b60c  src/hasm/ido/math_util.s.o  masked=0/14
+// jfg:src/memory.c.o
+mmInit = 0x8002B0D0; // type:func size:0x78   ROM 0x2bcd0  src/memory.c.o  masked=14/30
+mmFree = 0x8002B768; // type:func size:0x44   ROM 0x2c368  src/memory.c.o  masked=4/17
+// jfg:src/saves.c.o
+rumbleKill = 0x8002BF00; // type:func size:0x44   ROM 0x2cb00  src/saves.c.o  masked=1/17
+// jfg:src/rcpFast3d.c.o
+rcpInit = 0x8002F560; // type:func size:0xB8   ROM 0x30160  src/rcpFast3d.c.o  masked=33/46
+// jfg:src/gameVi.c.o
+viSetWideAdjust = 0x80033F68; // type:func size:0x40   ROM 0x34b68  src/gameVi.c.o  masked=3/16
+viDisplayingScreen0 = 0x80033FEC; // type:func size:0x2C   ROM 0x34bec  src/gameVi.c.o  masked=4/11
+func_80034018 = 0x80034018; // type:func size:0x7C   ROM 0x34c18  src/gameVi.c.o  masked=3/31
+fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12
+// jfg:src/textures.c.o
+initColourCycle = 0x80036A50; // type:func size:0x30   ROM 0x37650  src/textures.c.o  masked=2/12
+// jfg:src/menu.c.o
+frontDrawRectangle = 0x80039584; // type:func size:0x50   ROM 0x3a184  src/menu.c.o  masked=1/20
+func_8003968C = 0x8003968C; // type:func size:0x94   ROM 0x3a28c  src/menu.c.o  masked=24/37
+setupFrontEndObject = 0x80039DAC; // type:func size:0x88   ROM 0x3a9ac  src/menu.c.o  masked=4/34
+frontGetScreenMode = 0x8003A298; // type:func size:0x30   ROM 0x3ae98  src/menu.c.o  masked=2/12
+frontGetLevelScreenMode = 0x8003A368; // type:func size:0x68   ROM 0x3af68  src/menu.c.o  masked=4/26
+frontSetWideAdjust = 0x8003A3DC; // type:func size:0x2C   ROM 0x3afdc  src/menu.c.o  masked=4/11
+// jfg:src/diCpu.c.o
+diCpuTraceInit = 0x800459B0; // type:func size:0x54   ROM 0x465b0  src/diCpu.c.o  masked=10/21
+// jfg:src/font.c.o
+fontSetWindowNoise = 0x8004B070; // type:func size:0x34   ROM 0x4bc70  src/font.c.o  masked=6/13
+fontWindowFontColour = 0x8004BC3C; // type:func size:0x48   ROM 0x4c83c  src/font.c.o  masked=2/18
+// jfg:src/anim.c.o
+func_8005017C = 0x8005017C; // type:func size:0x30   ROM 0x50d7c  src/anim.c.o  masked=6/12
+func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  masked=9/20
+animseqInitGroup = 0x800510E8; // type:func size:0x40   ROM 0x51ce8  src/anim.c.o  masked=1/16
+// jfg:libultra/src/flash/flashreadid.c.o
+osFlashClearStatus = 0x80057C10; // type:func size:0x4C   ROM 0x58810  libultra/src/flash/flashreadid.c.o  masked=6/19
+// jfg:src/camera.c.o
+camConvertMatrixList = 0x8005AB78; // type:func size:0x30   ROM 0x5b778  src/camera.c.o  masked=4/12
+// jfg:src/gsSnd.c.o
+func_8005B978 = 0x8005B978; // type:func size:0xC8   ROM 0x5c578  src/gsSnd.c.o  masked=3/50
+func_8005BA40 = 0x8005BA40; // type:func size:0x12FC   ROM 0x5c640  src/gsSnd.c.o  masked=108/1215
+func_8005CDAC = 0x8005CDAC; // type:func size:0x7C   ROM 0x5d9ac  src/gsSnd.c.o  masked=4/31
+func_8005CE28 = 0x8005CE28; // type:func size:0x104   ROM 0x5da28  src/gsSnd.c.o  masked=4/65
+func_8005D030 = 0x8005D030; // type:func size:0x230   ROM 0x5dc30  src/gsSnd.c.o  masked=22/140
+func_8005D260 = 0x8005D260; // type:func size:0x144   ROM 0x5de60  src/gsSnd.c.o  masked=23/81
+// jfg:src/libultra/n_csplayer.c.o
+func_8005DD70 = 0x8005DD70; // type:func size:0x87C   ROM 0x5e970  src/libultra/n_csplayer.c.o  masked=45/543
+func_8005E5EC = 0x8005E5EC; // type:func size:0x110   ROM 0x5f1ec  src/libultra/n_csplayer.c.o  masked=11/68
+func_8005E900 = 0x8005E900; // type:func size:0x1FC4   ROM 0x5f500  src/libultra/n_csplayer.c.o  masked=71/2033
+func_800608C4 = 0x800608C4; // type:func size:0x250   ROM 0x614c4  src/libultra/n_csplayer.c.o  masked=4/148
+func_80060B14 = 0x80060B14; // type:func size:0x114   ROM 0x61714  src/libultra/n_csplayer.c.o  masked=4/69
+// jfg:src/libultra/n_drvrNew.c.o
+func_80064DC0 = 0x80064DC0; // type:func size:0x164   ROM 0x659c0  src/libultra/n_drvrNew.c.o  masked=5/89
+// jfg:src/libultra/n_env.c.o
+func_8006850C = 0x8006850C; // type:func size:0x94   ROM 0x6910c  src/libultra/n_env.c.o  masked=0/37
+// jfg:src/libultra/n_load.c.o
+func_80069A34 = 0x80069A34; // type:func size:0x1BC   ROM 0x6a634  src/libultra/n_load.c.o  masked=0/111

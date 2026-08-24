@@ -287,6 +287,79 @@ segment can be identified from strings alone. It also means the *linker* is
 observable from the outside: the crash reporter calls `runlinkGetAddressInfo`
 to turn a faulting address into "Module %d at %08x".
 
+### 3.3 Resident TU map from skeleton donors
+
+A masked-instruction-skeleton scan (registers, immediates and jump targets
+masked; opcode/funct/fmt kept, so same-source-same-compiler code matches
+regardless of register allocation) was run against every function of at
+least 10 words in Jet Force Gemini's and Banjo-Kazooie's built objects, over
+the still-unnamed code of ROM `0x1000`–`0x6F420`. It found 88 unambiguous
+hits (one candidate reference name apiece); two, both inside ROM
+`0x76D10`–`0x86990` (the `.data`/`.rodata` tail, not code), turned out to be
+JFG float-literal symbols placed inside `.text` and were discarded as
+meaningless there. Four more (`0x8001A2C4`, `0x8001A4BC`, `0x8001A774`,
+`0x8001A9A4`) land inside the already-measured `main/lights2` whole-file
+boundary (§3, table) and are not new. Eleven did not survive independent
+re-verification with `tools/find_known_objects.py` against the same
+reference build (real relocation-record masking, not the coarse opcode-class
+mask): no exact byte match exists at that address once actual register
+allocation is compared, so the coarse scan's hit there is a same-shape
+coincidence, not a same-source one. They are not adopted:
+`Sinf`, `fmvInit`, `camStopShakes`, `camSetZoom`, PD's `osCreatePiManager`,
+and six JFG `func_`-placeholder hits.
+
+The remaining 71 were independently re-verified byte-for-byte (masked words
+under real relocation records, `romocc` computed): 68 clear the tier-A bar in
+full (docs/modules.md 1.2) and are adopted, one at `0x8002D824` fails on
+uniqueness (Banjo-Kazooie's `unallocUnusedBlock`, `romocc=4`) and two more
+fall short of the 6-unmasked-word floor or leave `romocc` unresolved
+(`texLoadTextureAddr` at 5 words; `viFrameRateReset`, `romocc=?`) -- all three
+left unnamed, consistent with 1.2's "not adoptable on uniqueness grounds" for
+an unresolved `romocc`. Four further hits (`matrix_RPY_XYZ`,
+`matrix_XYZ_YPR_SCL`, `matrix_XYZ_YPR`, `matrixTransposeVectorMultiply`, all
+inside `main/matrix`) clear the bar but are **not** written into
+`symbol_addrs.us.txt`: their C is parked non-matching, and 1.5 forbids naming
+a symbol whose C is not in the ROM. They are recorded instead in §6.2.
+
+Of the 68 adopted, 46 carry a real JFG/BK function name (adopted verbatim,
+`symbol_addrs.us.txt`); 22 are JFG placeholder names (`func_8xxxxxxx`), which
+1.5 forbids importing, so Mickey's own `func_<VRAM>` stands and the comment
+records only the donor translation unit.
+
+**What this adds to the TU picture**, one row per donor TU, functions found
+in each and the ROM span of just those functions (not a boundary claim --
+see the caveat below):
+
+| Donor TU | Functions found | ROM span of finds | Status |
+|---|---|---|---|
+| `libultra/n_csplayer.c.o` | 5 | `0x5E970`–`0x61828` | Inside the already-measured `libultra/n_csplayer` boundary (§ table); corroborates it |
+| `gsSnd.c.o` | 6 | `0x5C578`–`0x5DFA4` | Inside the already-measured `main/gsSnd` boundary; corroborates it |
+| `libultra/n_drvrNew.c.o` | 1 | `0x659C0` | At the exact start of the already-measured `libultra/n_drvrNew` boundary; corroborates it |
+| `libultra/n_env.c.o` | 1 | `0x6910C` | Inside the already-measured `libultra/n_env` boundary; corroborates it |
+| `libultra/n_load.c.o` | 1 | `0x6A634` | Inside the already-measured `libultra/n_load` boundary; corroborates it |
+| `hasm/ido/math_util.s.o` | 15 | `0x2A9E4`–`0x2B644` | Inside the already-measured `main/math_util` boundary; corroborates it |
+| `src/menu.c.o` | 6 | `0x3A184`–`0x3B008` | Inside yaml's unnamed `0x37D50`–`0x3B480` block. No whole-`.text` match found, so no boundary is claimed |
+| `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside yaml's unnamed `0x34180`–`0x37D50` block. No whole-`.text` match; no boundary claimed |
+| `src/anim.c.o` | 3 | `0x50D7C`–`0x51D28` | Inside yaml's unnamed `0x50C00`–`0x58570` block. No whole-`.text` match; no boundary claimed |
+| `src/models.c.o` | 3 | `0x20020`–`0x21710` | Inside yaml's unnamed `0x20020`–`0x21DA0` block, starting exactly at its boundary. No whole-`.text` match; no boundary claimed |
+| `src/font.c.o` | 2 | `0x4BC70`–`0x4C884` | Inside yaml's unnamed `0x4BC40`–`0x4EA60` block. No whole-`.text` match; no boundary claimed |
+| `src/audio_manager_4C50.c.o` | 2 | `0x45F0`–`0x4F3C` | Starts exactly at yaml's `0x45F0` boundary; ends inside the unnamed `0x4F40`–`0xC950` block. No whole-`.text` match; no boundary claimed |
+| `src/audio_manager_1050.c.o` | 3 | `0x12BC`–`0x22C8` | Inside yaml's unnamed `0x1050`–`0x45F0` block. Wide span for 3 hits -- other code plainly sits between them; no boundary claimed |
+| `src/charControl.c.o` | 2 | `0x1CED4`–`0x1FFAC` | Inside yaml's unnamed `0x1C790`–`0x20020` block. No boundary claimed |
+| `src/camera.c.o` | 2 | `0x23360`, `0x5B778` | 230KB apart -- evidently not one placed TU here; treat as two independent identifications, not a span |
+| `src/memory.c.o` | 2 | `0x2BCD0`–`0x2C3AC` | Starts exactly at yaml's `0x2BCD0` boundary (end of `main/matrix`); the already-named `align16`/`align8`/`align4` (tier A, `memory.c.o`) sit at `0x2C860`, past this span. Consistent with one TU, no boundary claimed |
+| `src/shadows_214A0.c.o` | 2 | `0x18FF0`–`0x19144` | Inside yaml's unnamed `0x18FF0`–`0x1AE60` block, starting exactly at its boundary. No boundary claimed |
+| `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
+
+**Why no new `mickey.us.yaml` split accompanies this table.** §1's "measured
+file boundary" tier requires a whole-`.text` match; this pass only matched
+individual functions (`tools/find_known_objects.py --sections` found no
+whole-object match for any of the not-yet-named TUs above). Asserting a yaml
+`asm`/`c` split from function-level hits alone would claim more than was
+measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
+level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
+`n_env`, `n_load`, `math_util`) needed no new split; they already have one.
+
 ---
 
 ## 4. libultra
@@ -3710,6 +3783,28 @@ Relevant to any future resolution: `mtxf_transform_point`, `mtxf_mul`,
 `0x2A250` are byte-identical to DKR's `.s` sources. If Mickey's own
 `main/matrix` TU at `0x2B650` turns out to be hand-written too, that is the
 same story one file over.
+
+**Names are already sitting there, waiting on the C.** A masked-skeleton scan
+against Jet Force Gemini's built `asm/hasm/math_matrix.s.o`, independently
+re-verified byte-for-byte with `tools/find_known_objects.py` (real
+relocation-masking, not the coarse scan), identifies all four of
+`src/main/matrix.c`'s parked functions:
+
+| VRAM | ROM | JFG name | masked/words | romocc |
+|---|---|---|---|---|
+| `0x8002AB78` | `0x2B778` | `matrix_RPY_XYZ` | 6/67 | 1 |
+| `0x8002AC84` | `0x2B884` | `matrix_XYZ_YPR_SCL` | 6/99 | 1 |
+| `0x8002AE10` | `0x2BA10` | `matrix_XYZ_YPR` | 6/87 | 1 |
+| `0x8002AF6C` | `0x2BB6C` | `matrixTransposeVectorMultiply` | 0/53 | 1 |
+
+None of these are adopted into `symbol_addrs.us.txt`: section 1.5 forbids a
+name for a function whose C is parked non-matching, since that would put a
+second evidence tier into the symbol file. They are recorded here, in prose,
+against the day `main/matrix.c`'s odd-FP-register blocker (above) is resolved
+and the four bodies match — at which point these names, JFG's own for the
+identical bytes, are what tier A says to adopt, and `src/main/matrix.c`'s own
+comments (out of this lane's ownership) are where a `PROVENANCE` line for them
+belongs.
 
 ### 6.3 Data ownership: SDK tails carved without guessing the bulk boundary
 

@@ -27,8 +27,11 @@ def apply(config, args):
 
     # -m rebuilds before diffing. `gmake` (not `make`): the build relies on GNU
     # make's two-phase recursive `all` target, and macOS ships make 3.81 as
-    # `make`. Keep agent-triggered rebuilds low priority and capped at two jobs
-    # so an interactive workstation remains responsive.
+    # `make`. Use the machine: a full build is ~17 s at -j12 on the 14-core
+    # workstation and a TU compiles in ~0.1 s (ADR 0004). Override with
+    # MICKEY_JOBS.
+    import os
+    jobs = os.environ.get("MICKEY_JOBS") or str(max(1, (os.cpu_count() or 4) - 2))
     config["make_command"] = [
-        "nice", "-n", "10", "gmake", *config.get("makeflags", []), "-j2"
+        "gmake", *config.get("makeflags", []), f"-j{jobs}"
     ]
