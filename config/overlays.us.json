@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 271740,
-  "nonmatching_overlay_c_bytes": 4860,
+  "matched_overlay_c_bytes": 267732,
+  "nonmatching_overlay_c_bytes": 8868,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -5408,7 +5408,7 @@
      "type": "c",
      "source": "overlays/o019/overlay19BuildPlanes",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xA30",
@@ -5417,7 +5417,7 @@
      "type": "c",
      "source": "overlays/o019/overlay19BuildAdjacency",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xC1C",
@@ -5435,7 +5435,7 @@
      "type": "c",
      "source": "overlays/o019/overlay19ClassifyEdge",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF58",
@@ -5444,7 +5444,7 @@
      "type": "c",
      "source": "overlays/o019/overlay19BuildSpatialMasks",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x12E4",

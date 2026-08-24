@@ -25,6 +25,7 @@ typedef struct O19SpatialMaskFrame {
     u8 unused6C[0x14];
 } O19SpatialMaskFrame;
 
+#ifdef NON_MATCHING
 void overlay19BuildSpatialMasks(O19Context *context, O19Group *group, O19Output *output) {
     O19SpatialMaskFrame frame; s32 item, itemEnd, selector; s16 vertexBase; O19Span *span; O19Point *point; O19Vertex *vertices, *vertex; s16 x, y, z, xMax, xMin, yMax, yMin, zMax, zMin; s16 spanCount, lower, upper, step, binStart, binEnd, firstItem; u32 bit, mask; ;
     frame.index.spanIndex = 0; spanCount = group->spanCount; if ((spanCount > 0)) { ; frame.offset.spanOffset = 0; do { O19_LOAD_SPAN_FIELDS;
@@ -73,3 +74,6 @@ void overlay19BuildSpatialMasks(O19Context *context, O19Group *group, O19Output 
     spanCount = ((volatile O19Group *)group)->spanCount; }
     O19_ADVANCE_SPAN;
     } while ((frame.index.spanIndex < spanCount)); } }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o019/overlay19BuildSpatialMasks/func_overlay_019_F0000F58_18761B0.s")
+#endif

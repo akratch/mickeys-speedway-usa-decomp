@@ -17,6 +17,7 @@ extern void o19FreeReloc(void *value);
 extern f32 sqrtf(f32 value);
 
 /* Independent Mickey-only reconstruction, saved before consulting prior work. */
+#ifdef NON_MATCHING
 s32 overlay19BuildPlanes(
     O19Context *context, O19Group *group, O19Output *output) {
     register O19Group *g = group;
@@ -181,3 +182,6 @@ s32 overlay19BuildPlanes(
     o19FreeReloc(scratch);
     return planeCount;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o019/overlay19BuildPlanes/func_overlay_019_F00001E0_1875438.s")
+#endif

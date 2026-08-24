@@ -880,165 +880,24 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19Dispatch.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xAC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildOutput.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x134
-# The typed two-pass plane builder owns the exact 532-instruction CFG, frame,
-# memory/call topology, and FP behavior. Select its complete guarded private
-# schedule/allocation representation, preserve the four runtime call roles,
-# then trim only the compiler's independent section alignment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildPlanes.c.o: \
-	config/normalizations/overlay19BuildPlanes.ops
+# NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration and
+# trailing-section trimming metadata for these extracted functions.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildPlanes.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildPlanes.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x850 4ca7cde8eac58b704c340b7f803d43533f98b78cbafc2242f47f6a1f8920b2a6 \
-		@config/normalizations/overlay19BuildPlanes.ops && \
 	$(OBJCOPY) --redefine-sym \
-		o19AllocateReloc=func_overlay_019_F0000000_1875258 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x250:sqrtf:func_overlay_019_F0000000_1875258 \
-		0x5E4:sqrtf:func_overlay_019_F0000000_1875258 \
-		0x7FC:o19FreeReloc:func_overlay_019_F0000000_1875258 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x850
-# IDO reproduces A30's complete CFG, memory topology, call site, frame, and
-# size; only coherent interchangeable integer allocation webs differ. Assert
-# every natural word before selecting the shipped register assignment.
+		func_overlay_019_F00001E0_1875438=overlay19BuildPlanes $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildAdjacency.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1ec b034e0d88b0aabd4acb719a4955a98ba6317e7dc140dcea531edb9b5495e2a82 \
-		fields:0x7c:rt=t4@t2 \
-		fields:0x80:rd=t5@t3 \
-		fields:0x84:rt=t5@t3 \
-		fields:0x88:rt=t4@t2 \
-		fields:0x8c:rt=t6@t4 \
-		fields:0x90:rt=t8@t6 \
-		fields:0x98:rs=t6@t4 \
-		fields:0xa0:rt=t7@t5 \
-		fields:0xa8:rs=t7@t5,rt=t8@t6,rd=t9@t7 \
-		fields:0xac:rs=t9@t7 \
-		fields:0xb0:rt=v0@t8 \
-		fields:0xb4:rd=t1@t9 \
-		fields:0xb8:rs=v0@t8,rt=t1@t9 \
-		fields:0xd0:rt=t6@t7 \
-		fields:0xd8:rd=t0@t1 \
-		fields:0xe8:rs=t0@t1 \
-		fields:0xf4:rd=v1@t0 \
-		fields:0xf8:rd=v1@t0 \
-		fields:0x10c:rt=v1@t0,rd=t2@t3 \
-		fields:0x110:rs=t2@t3,rt=t3@t4 \
-		fields:0x114:rt=t0@t1 \
-		fields:0x118:rt=t1@t2 \
-		fields:0x11c:rs=t3@t4,rd=t4@v1 \
-		fields:0x120:rt=t4@v1 \
-		fields:0x130:rs=t1@t2 \
-		fields:0x13c:rd=t0@t1 \
-		fields:0x15c:rt=t1@t2 \
-		fields:0x160:rd=t2@t3 \
-		fields:0x164:rs=t1@t2,rt=t2@t3,rd=t3@t4 \
-		fields:0x168:rs=t3@t4,rd=t4@t6 \
-		fields:0x16c:rs=t4@t6 \
-		fields:0x17c:rt=t6@t7 \
-		fields:0x180:rt=t8@t5 \
-		fields:0x188:rs=t6@t7,rt=t7@t8 \
-		fields:0x18c:rt=t8@t5 \
-		fields:0x194:rt=t7@t8 \
-		fields:0x19c:rt=t1@t9 \
-		fields:0x1a0:rt=t5@t3 \
-		fields:0x1a4:rs=t1@t9 \
-		fields:0x1ac:rs=t5@t3,rt=t9@t4 \
-		fields:0x1b0:rt=t9@t4 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_019_F0000A30_1875C88=overlay19BuildAdjacency $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1EC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19FindAdjacent.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x15C
-# The edge classifier is naturally exact in size and all 120 opcodes. Four
-# independent load pairs and one complete six-use temporary web differ only in
-# schedule/register choice; assert the full natural residual before restoring
-# the shipped representation.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19ClassifyEdge.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1e0 4b047b0a8619b25039a9ad60af753b3d786c83015149335da9a7bb13c1e7dd18 \
-		fields:0x68:rs=t0@v0,rt=a1@a3 \
-		fields:0x6c:rs=v0@t0,rt=a3@a1 \
-		fields:0x84:rs=t0@v0,rt=a1@a3 \
-		fields:0x88:rs=v0@t0,rt=a3@a1 \
-		fields:0x138:rt=v1@t3 \
-		fields:0x140:rt=v1@t3 \
-		fields:0x148:rs=v1@t3 \
-		fields:0x154:rt=v1@t3 \
-		fields:0x15c:rt=v1@t3 \
-		fields:0x164:rs=v1@t3 \
-		fields:0x194:rs=a1@v0,rt=v1@a3 \
-		fields:0x198:rs=v0@a1,rt=a3@v1 \
-		fields:0x1b0:rs=a1@v0,rt=v1@a3 \
-		fields:0x1b4:rs=v0@a1,rt=a3@v1
-# IDO naturally reproduces F58's complete CFG, stack frame, memory effects,
-# loops, and exact size. The natural residual is exactly two complete register
-# webs plus four independent schedule pairs; assert every natural word before
-# restoring the shipped representation.
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_019_F0000D78_1875FD0=overlay19ClassifyEdge $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildSpatialMasks.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x38c 5d048949588b86d990482e96dd0604243512f7091f5ad2b207809166ab921040 \
-		fields:0x58:rd=v1@a0 \
-		fields:0x5c:rs=v1@a0,rt=a0@v1 \
-		fields:0x60:rs=v1@a0 \
-		fields:0x64:rs=v1@a0 \
-		fields:0x68:rs=v1@a0 \
-		fields:0x6c:rs=a0@v1 \
-		fields:0x74:rs=a0@v1 \
-		fields:0x80:rt=a0@v1 \
-		fields:0x88:rt=t2@t1 \
-		fields:0xb4:rt=t1@t2 \
-		fields:0xc0:rd=t0@a2 \
-		fields:0xc4:rd=a2@t0 \
-		fields:0xf4:rs=t2@t1 \
-		fields:0xfc:rt=t1@t2 \
-		fields:0x100:rd=t2@t1 \
-		fields:0x104:rt=t2@t1 \
-		fields:0x108:rd=t2@t1 \
-		fields:0x10c:rt=t1@t2 \
-		fields:0x118:rd=t1@t2 \
-		fields:0x11c:rt=t1@t2 \
-		fields:0x120:rd=t1@t2 \
-		fields:0x198:rd=v1@a0 \
-		fields:0x1b8:rt=v1@a0 \
-		fields:0x1c0:rs=zero@t9 \
-		fields:0x1c4:rs=t9@zero \
-		fields:0x1c8:rt=t1@t2 \
-		fields:0x1d4:rs=t2@t1,rt=v1@a0 \
-		fields:0x1dc:rs=a0@v1,rt=a0@v1 \
-		fields:0x1e4:rs=a0@v1,rt=a0@v1 \
-		fields:0x1e8:rt=a0@v1 \
-		fields:0x1f0:rt=t6@t7,rd=v0@v1 \
-		fields:0x1f4:rt=t7@t6,rd=a0@v0 \
-		fields:0x1f8:rs=v1@a0,rd=v1@a0 \
-		fields:0x1fc:rs=a0@v1 \
-		fields:0x200:rt=v1@a0 \
-		fields:0x208:rs=t6@zero,rt=zero@t8,rd=a1@a0,sa=0@16,fn=37@3 \
-		fields:0x210:rs=zero@t6,rt=t8@zero,rd=v1@a1,sa=16@0,fn=3@37 \
-		fields:0x21c:rd=a0@v1 \
-		fields:0x220:rd=v1@a0 \
-		fields:0x240:rt=v1@a0 \
-		fields:0x248:rd=v1@a0 \
-		fields:0x258:rt=v1@a0 \
-		fields:0x260:rs=a0@v1,rt=a0@v1 \
-		fields:0x268:rs=a0@v1,rt=a0@v1 \
-		fields:0x26c:rt=a0@v1 \
-		fields:0x274:rd=a0@v1 \
-		fields:0x27c:rs=v1@a0,rd=v1@a0 \
-		fields:0x280:rs=a0@v1 \
-		fields:0x284:rt=v1@a0 \
-		fields:0x28c:rd=v1@a0 \
-		fields:0x2a0:rd=a0@v1 \
-		fields:0x2a4:rd=v1@a0 \
-		fields:0x2c4:rt=v1@a0 \
-		fields:0x2cc:rd=v1@a0 \
-		fields:0x2dc:rt=v1@a0 \
-		fields:0x2e4:rs=a0@v1,rt=a0@v1 \
-		fields:0x2ec:rs=a0@v1,rt=a0@v1 \
-		fields:0x2f0:rt=a0@v1 \
-		fields:0x2f8:rd=a0@v1 \
-		fields:0x300:rs=v1@a0,rd=v1@a0 \
-		fields:0x304:rs=a0@v1 \
-		fields:0x308:rt=v1@a0 \
-		fields:0x310:rd=v1@a0 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_019_F0000F58_18761B0=overlay19BuildSpatialMasks $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38C
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4GroupCount.c.o: POSTPROCESS = \
