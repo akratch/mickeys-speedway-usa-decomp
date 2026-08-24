@@ -398,6 +398,7 @@ Exact C reconstructions in this census currently include `rumbleRumbles`
 `packCalculateGameChecksum` (ROM `0x2D3BC`–
 `0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
+`packDirectoryFree` (ROM `0x2E424`–`0x2E458`, 52 bytes),
 `piRomLoadSection` (ROM `0x2EEE0`–`0x2EF5C`, 124 bytes),
 `piRomGetSectionPtr` (ROM `0x2EF5C`–`0x2EFA4`, 72 bytes),
 `piRomGetFileSize` (ROM `0x2EFA4`–`0x2EFE0`, 60 bytes),

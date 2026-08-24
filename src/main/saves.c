@@ -13,8 +13,10 @@
 
 extern u8 D_8007A2F8;
 extern u8 D_8007A2F0;
+extern void *D_8007A280;
 extern OSMesgQueue *D_800D21C0;
 
+void mmFree(void *address);
 s32 osContStartReadData(OSMesgQueue *messageQueue);
 void rumbleStop(s32 controllerIndex, s32 arg1);
 
@@ -78,7 +80,12 @@ s32 packClose(s32 controllerIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packIsPresent.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packDirectory.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packDirectoryFree.s")
+void packDirectoryFree(void) {
+    if (D_8007A280 != NULL) {
+        mmFree(D_8007A280);
+    }
+    D_8007A280 = NULL;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packFreeSpace.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packDeleteFile.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packOpenFile.s")
