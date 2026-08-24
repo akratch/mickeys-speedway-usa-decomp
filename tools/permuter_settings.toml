@@ -1,4 +1,72 @@
+# decomp-permuter settings for this project. Read by tools/permuter/import.py
+# (a symlink to the decomp-permuter checkout; see tools/permute.sh).
+#
+# WHY compiler_command IS HARDCODED, NOT build_system = "make":
+#
+# import.py's default `make` mode runs `gmake --always-make --dry-run
+# --debug=j PERMUTER=1 <target>` and greps the debug trace for the line that
+# contains the source file, then splits the *compiler* out of that one line
+# via fixup_build_command()'s "asm_processor/build.py .. -- .. -- .." parse.
+# That works for a one-line recipe. This project's C rule
+# (Makefile, the `$(BUILD_DIR)/%.c.o: %.c ...` recipe) is:
+#
+#   $(ASM_PROCESSOR) $(CC) -- $(AS) $(ASM_PROC_ASFLAGS) -- \
+#       -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
+#
+# -- a shell line *continuation*. `make --debug=j` echoes it as two physical
+# lines (the backslash stays, and the tab-indented continuation is separate),
+# and only the second line contains the .c path. import.py's line grep never
+# sees the first line, so the parsed "compiler" comes out as bare `-c`, and
+# `import.py` fails with "-c: command not found". Verified by hand: run
+#
+#   gmake --always-make --dry-run --debug=j PERMUTER=1 build/src/libultra/<f>.c.o
+#
+# and the asm-processor/tools/ido/cc line and the "-c ..." flags line are
+# adjacent but distinct lines in the trace.
+#
+# The fix here is what the permuter's own docs suggest for exactly this case:
+# skip build-system detection and give import.py the compile command
+# directly. Candidates the permuter mutates never carry a #pragma
+# GLOBAL_ASM, so asm-processor's split-and-recombine step (which only matters
+# for GLOBAL_ASM pragmas) is a no-op for permuter purposes -- calling
+# tools/ido/cc directly, with the same flags asm-processor would have handed
+# it, is equivalent for a plain C candidate.
+#
+# THE FOUR FLAG GROUPS (Makefile's OPT_FLAGS / MIPSISET, per file/directory --
+# see the Makefile's "Per-file compiler flags" section for the full list of
+# per-TU exceptions, e.g. -g3, -Wab,-r4300_mul, the IDO_PHASES wrapper for
+# uopt-only overrides):
+#
+#   libultra (project default, most of src/libultra/):  -O2 -mips1 -32
+#   libultra -O1 -mips2 group (io/, some os/; see LIBULTRA_O1_MIPS2_TUS):
+#                                                         -O1 -mips2 -32
+#   libultra -O2 -g3 -mips2 group (LIBULTRA_O2_G3_TUS):  -O2 -g3 -mips2 -32
+#   src/main/ (resident game code) and src/overlays/**:  -O2 -mips2 -32
+#
+# compiler_command below is set to the first group (libultra project
+# default), since tools/permute.sh's proof-of-concept target
+# (__osContRamRead) lives there. Permuting a function from src/main or
+# src/overlays: edit MIPSISET below to "-mips2 -32" (or copy this file to
+# src/main/permuter_settings.toml / src/overlays/permuter_settings.toml --
+# import.py searches upward from the .c file's own directory first). A
+# libultra function from one of the O1/O2-g3 groups: swap OPT_FLAGS/MIPSISET
+# to match the Makefile rule for that specific file.
 compiler_type = "ido"
+compiler_command = """
+tools/ido/cc -c -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
+-D_LANGUAGE_C -D_FINALROM -DTARGET_N64 -DVERSION_us -D_MIPS_SZLONG=32 \
+-I . -I include -I include/libc -I include/PR -I assets -O2 -mips1 -32
+"""
+#
+# assembler_command deliberately omits Makefile's ASM_PROC_ASFLAGS addition
+# of include/asm_processor_prelude.inc: that prelude defines glabel/dlabel/
+# alabel/... as .macro, and so does decomp-permuter's own prelude.inc, which
+# import.py always prepends to target.s. Passing both to `as` in one
+# invocation is a duplicate-.macro-definition error ("Macro `endlabel' was
+# already defined"). asm_processor_prelude.inc is only needed for asm-
+# processor's own generated .s (which lacks a prelude of its own); it must
+# not be added here.
+assembler_command = "tools/binutils/mips64-elf-as -march=vr4300 -32 -mabi=32 -G0 -I include"
 
 [preserve_macros]
 "g[DS]P.*" = "void"
@@ -8,5 +76,9 @@ compiler_type = "ido"
 "OS_PHYSICAL_TO_K0" = "void *"
 "_SHIFTL" = "unsigned int"
 
+# Maps compiler_command's argv[0] to a decomp.me compiler ID, only consulted
+# by `import.py --decompme`. tools/ido-static-recomp was never built here
+# (see docs/acceleration-survey.md section 10); this project's actual IDO is
+# tools/ido/cc (gitignored, fetched by tools/setup_toolchain.sh).
 [decompme.compilers]
-"tools/ido-static-recomp/build/5.3/out/cc" = "ido5.3"
+"tools/ido/cc" = "ido5.3"

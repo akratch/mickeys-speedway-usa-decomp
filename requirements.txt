@@ -12,3 +12,20 @@ cxxfilt
 # m2c (tools/m2c, driven by mips_to_c.sh). Pinned below 2.23: m2c imports
 # `pycparser.plyparser`, which 2.23 removed.
 pycparser<2.23
+
+# decomp-permuter (tools/permuter -> a local checkout, see tools/permute.sh
+# and docs/tools.md; not pip-installable itself -- no pyproject build
+# backend, only [tool.*] config -- so it stays a checkout + sys.path import,
+# not a venv package). Pinned by commit, checked by tools/check_tools.sh:
+#   decompals/decomp-permuter @ 2eefdac0ea531cdf28a71ea9b992dfb4439eb1df (2026-07-27)
+# toml reads tools/permuter_settings.toml; pynacl is only for its
+# permuter@home networking mode (unused here, but import.py imports it
+# unconditionally at startup).
+toml==0.10.2
+pynacl==1.6.2
+
+# mapfile_parser (tools/objdiff_report.sh's underlying data comes from
+# objdiff-cli, not this; kept for map-file-driven tooling -- see
+# docs/tools.md -- and pinned since decomp.dev-style report generation is a
+# moving target upstream).
+mapfile_parser==2.13.2
