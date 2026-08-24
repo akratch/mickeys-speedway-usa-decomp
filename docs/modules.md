@@ -3857,7 +3857,7 @@ ROM `0x76E60`–`0x81590` is currently treated as `data` and
 only sections whose size and ordering are fixed by a matching reference object
 and whose first symbol is reached by Mickey's own relocation: initialized data
 for `aisetnextbuf`, `initialize`, `controller`, `vimgr`, `thread`, `siacs`, `vi`, `timerintr`, and `xlitob`;
-rodata for `cents2ratio` and `sinf`; and BSS slices for `seteventmesg`, `vimgr`,
+rodata for `cents2ratio`, `sinf`, and `devmgr`; and BSS slices for `seteventmesg`, `vimgr`,
 `sptask`, `siacs`, and `timerintr`. Anonymous gaps remain raw and explicit.
 
 **The BSS recipe: name a fixed address inside an anonymous gap without
@@ -3944,9 +3944,11 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** 35 functions, 44 jump tables,
-  monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
-  by TU in text order, which is what makes the per-TU split tractable.
+- **rodata order follows text order exactly.** The pre-carve inventory covered
+  35 functions and forty-four tables. With `devmgr` now source-built, the 43
+  jump tables still emitted in `asm/` belong to 34 functions and remain
+  monotonic in both columns, with **zero inversions**. So `.rodata` can be
+  carved TU by TU in text order.
 
 Two toolchain facts govern the per-TU split:
 

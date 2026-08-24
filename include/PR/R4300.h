@@ -13,6 +13,7 @@
 #define E_VEC   (K0BASE + 0x180)
 
 #define SR_CU1 0x20000000
+#define SR_IBIT4 0x00000800
 
 #define CAUSE_IP5 0x00001000
 

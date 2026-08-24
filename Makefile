@@ -536,7 +536,7 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/destroythread.c.o: CFLAGS += -D__GNUC__
 # Every TU in the list below was measured before it was added, one at a time.
 # The list is not "libultra's io/ and pfs/ trees"; it is the set that has been
 # measured, and nothing joins it on a neighbour's evidence.
-LIBULTRA_O2_G3_TUS := contpfs epidma epilinkhandle epirawdma epirawread \
+LIBULTRA_O2_G3_TUS := contpfs devmgr epidma epilinkhandle epirawdma epirawread \
                       epirawwrite epiread epiwrite pfsallocatefile pfschecker \
                       initialize pfsfilestate pfsfreeblocks pfsgetstatus pfsinit \
                       pfsisplug pfsnumfiles pfsreadwritefile pfssearchfile \

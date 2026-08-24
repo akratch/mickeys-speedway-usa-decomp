@@ -67,6 +67,7 @@ typedef u32 OSHWIntr;
 typedef u32 OSIntMask;
 
 #define OS_IM_RCP 0x00000401
+#define OS_IM_PI  0x00100401
 #define OS_IM_ALL 0x003FFF01
 
 #define OS_CLOCK_RATE 62500000LL

@@ -130,8 +130,11 @@
 
 #define PI_STATUS_DMA_BUSY  0x01
 #define PI_STATUS_IO_BUSY   0x02
+#define PI_STATUS_CLR_INTR  0x02
+#define PI_CLR_INTR         PI_STATUS_CLR_INTR
 
 #define DEVICE_TYPE_INIT 7
+#define DEVICE_TYPE_64DD 2
 
 /* Serial interface */
 #define SI_BASE_REG    0x04800000

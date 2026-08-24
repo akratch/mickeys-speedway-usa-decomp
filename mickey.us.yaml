@@ -500,13 +500,13 @@ segments:
       # the resident segment. Two things the later per-TU split needs are
       # measured and recorded here:
       #
-      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 44 jump
-      #      tables in the static segment back to the functions that reference
-      #      them gives 35 functions whose ROM addresses and whose jump-table
-      #      addresses are both monotonically increasing -- ZERO INVERSIONS.
-      #      First pair (ROM 0x7D18 -> jtbl_80080D2C), last (ROM 0x72B00 ->
-      #      jtbl_80084970). So .rodata can be carved TU by TU in text order,
-      #      which is what makes a per-file split tractable at all.
+      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
+      #      covered 35 functions and forty-four tables. After devmgr's table
+      #      moved into its exact C object, the 43 jump tables still emitted in
+      #      asm/ belong to 34 functions whose ROM and table addresses are both
+      #      monotonically increasing -- ZERO INVERSIONS. First pair (ROM
+      #      0x7D18 -> jtbl_80080D2C), last (ROM 0x75120 -> jtbl_800849C4).
+      #      So .rodata can be carved TU by TU in text order.
       #
       #   2. THE REFERENCED-FROM-CODE BOUND: 0x80080D24 (ROM 0x81924). That is
       #      a float constant (7f7fffff, i.e. FLT_MAX) loaded by the function
@@ -531,6 +531,8 @@ segments:
       - [0x85390, rodata]
       - [0x854A0, .rodata, libultra/sinf]
       - [0x854F0, rodata]
+      - [0x85570, .rodata, libultra/devmgr]
+      - [0x85590, rodata]
       - [0x855A0, rodata, libultra/xprintf]
       - [0x856A0, rodata, libultra/xldtob]
       - [0x85700, rodata]

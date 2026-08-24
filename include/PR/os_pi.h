@@ -26,9 +26,26 @@
 #include "PR/ultratypes.h"
 #include "PR/os_message.h"
 
-/* The 64DD transfer-info tail that the SDK declares after `speed` is left off
-   until a translation unit needs it: nothing matched so far takes the size of
-   a handle or steps past one. */
+typedef struct {
+    u32 errStatus;
+    void *dramAddr;
+    void *C2Addr;
+    u32 sectorSize;
+    u32 C1ErrNum;
+    u32 C1ErrSector[4];
+} __OSBlockInfo;
+
+typedef struct {
+    u32 cmdType;
+    u16 transferMode;
+    u16 blockNum;
+    s32 sectorNum;
+    u32 devAddr;
+    u32 bmCtlShadow;
+    u32 seqCtlShadow;
+    __OSBlockInfo block[2];
+} __OSTranxInfo;
+
 typedef struct OSPiHandle_s {
     struct OSPiHandle_s *next;
     u8 type;
@@ -39,6 +56,7 @@ typedef struct OSPiHandle_s {
     u8 domain;
     u32 baseAddress;
     u32 speed;
+    __OSTranxInfo transferInfo;
 } OSPiHandle;
 
 typedef struct {
@@ -75,6 +93,7 @@ typedef struct {
 /* I/O message types. The two osEPiStartDma writes -- 0xF and 0x10 at ROM
    0x73168 and 0x73174 -- fix the base at 10. */
 #define OS_MESG_TYPE_BASE      10
+#define OS_MESG_TYPE_LOOPBACK  (OS_MESG_TYPE_BASE + 0)
 #define OS_MESG_TYPE_DMAREAD   (OS_MESG_TYPE_BASE + 1)
 #define OS_MESG_TYPE_DMAWRITE  (OS_MESG_TYPE_BASE + 2)
 #define OS_MESG_TYPE_VRETRACE  (OS_MESG_TYPE_BASE + 3)
