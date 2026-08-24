@@ -18,7 +18,15 @@
 
 #include "game/font.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B040.s")
+extern DialogueBoxBackground D_800D64E8[];
+
+void fontSetWindow0(s32 width, s32 height) {
+    D_800D64E8[0].x2 = width - 1;
+    D_800D64E8[0].y2 = height - 1;
+    D_800D64E8[0].width = width;
+    D_800D64E8[0].height = height;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B064.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/fontSetWindowNoise.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0A4.s")

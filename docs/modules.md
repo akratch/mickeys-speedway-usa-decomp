@@ -210,7 +210,7 @@ reference build's objects (DKR's, JFG's, Perfect Dark's, Banjo-Kazooie's or
 Conker's; see `docs/references.md`); **tier C** rows are string-correspondence
 with JFG; everything else is noted inline. Ranges without a named anchor are
 omitted rather than guessed at. 171 translation units are matched whole across
-the segment, carrying 190 function names.
+the segment, carrying 191 function names.
 
 | ROM | VRAM | Anchor | Tier | What it establishes |
 |---|---|---|---|---|
@@ -391,7 +391,7 @@ overlay callers/callees outside the range were observed.
 
 | ROM | Size | Mickey symbol | JFG correspondence | Evidence | Calls |
 |---|---:|---|---|---|---|
-| `0x4BC40` | `0x24` | `func_8004B040` | `fontSetWindow0` | A | leaf; ext callers |
+| `0x4BC40` | `0x24` | `fontSetWindow0` | same | A, matched C | leaf; ext callers |
 | `0x4BC64` | `0x0C` | `func_8004B064` | `fontSetButtonMode` | D | leaf; overlay caller |
 | `0x4BC70` | `0x34` | `fontSetWindowNoise` | same | A | leaf |
 | `0x4BCA4` | `0x14` | `func_8004B0A4` | `fontUseFont` | B/D | leaf; text-setup callers |
