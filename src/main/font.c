@@ -25,6 +25,9 @@ extern s32 D_8007D540;
 extern u8 D_800D60E0;
 extern u8 D_800D664D;
 
+void func_8004B13C(void **displayList, s32 windowId, s32 xpos, s32 ypos,
+                   char *text, s32 alignmentFlags);
+
 void fontSetWindow0(s32 width, s32 height) {
     D_800D64E8[0].x2 = width - 1;
     D_800D64E8[0].y2 = height - 1;
@@ -62,7 +65,11 @@ void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha) {
     D_800D64E8[0].textBGColourA = alpha;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0F8.s")
+void func_8004B0F8(void **displayList, s32 xpos, s32 ypos, char *text,
+                   s32 alignmentFlags) {
+    func_8004B13C(displayList, 0, xpos, ypos, text, alignmentFlags);
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B13C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BA8C.s")
