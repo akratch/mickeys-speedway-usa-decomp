@@ -28,6 +28,8 @@ extern s32 D_8007A1BC;
 extern s32 D_8007A1AC;
 extern s32 D_8007A1C0;
 extern s32 D_8007A13C;
+extern s32 D_8007A140;
+extern s32 D_8007A144;
 extern s32 D_8007A12C;
 extern s32 D_8007A130;
 extern s32 D_8007A134;
@@ -65,6 +67,14 @@ extern void *D_800D18E4;
 extern u8 D_800D1928[];
 extern OSMesgQueue D_800D18F8;
 extern s32 D_800D1910;
+extern s32 D_800D18C0;
+extern s32 D_800D18C4;
+extern s32 D_800D18C8;
+extern s32 D_800D18CC;
+extern s32 D_800D18D0;
+extern s32 D_800D18D4;
+extern s32 D_800D18D8;
+extern s32 D_800D18DC;
 extern s32 levelNGetType(s32 level);
 extern void func_80028EFC(MainCharacterState *, s32, s32);
 extern void mainChangeLevel(s32, s32, s32, s32, s32, s32);
@@ -107,7 +117,25 @@ s8 mainGetZBCheck(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainCPUeffects.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainSetGameWindow.s")
+void mainSetGameWindow(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+                       s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+    D_800D18C0 = arg0;
+    D_800D18C4 = arg1;
+    D_800D18C8 = arg2;
+    D_800D18CC = arg3;
+    D_800D18D0 = arg4;
+    D_800D18D4 = arg5;
+    D_800D18D8 = arg6;
+    D_800D18DC = arg7;
+    if (arg8 < 0) {
+        D_8007A140 = -arg8;
+        D_8007A144 = 1;
+    } else {
+        D_8007A140 = arg8;
+        D_8007A144 = 0;
+    }
+    D_8007A13C = D_8007A140;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027D14.s")
 
