@@ -386,7 +386,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80018DC4` | `0x10` | `turnLightOn` | structural comparison only; C still `func_80018DC4` |
 | `0x80018DD4` | `0x10` | `toggleLight` | structural comparison only; C still `func_80018DD4` |
 | `0x80018DE4` | `0x2C` | `changeLightColour` | structural comparison only; C still `func_80018DE4` |
-| `0x80018E10` | `0x20` | `changeLightColourCycle` | Tier-A candidate: 7 unmasked of 8 words, ROM-wide unique; C still `func_80018E10` |
+| `0x80018E10` | `0x20` | `changeLightColourCycle` | Tier A: 7/8 unmasked words, ROM-unique; linked C is byte-exact and adopted |
 | `0x80018E30` | `0x4C` | `changeLightIntensity` | unique nearest skeleton (0.650) plus TU order; comparison only |
 | `0x80018E7C` | `0x8C` | `lightUpdateLights` | tier-B comparison: loop calls the following per-light updater |
 | `0x80018F08` | `0x334` | JFG placeholder `func_80021444` | placeholder prohibited; remains `func_80018F08` |

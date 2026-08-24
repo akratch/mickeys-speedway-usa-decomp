@@ -16,6 +16,9 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/lights.h"
+
+extern void initColourCycle(s32 arg0, s32 arg1);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018710.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001879C.s")
@@ -26,7 +29,10 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DC4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DD4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DE4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E10.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void changeLightColourCycle(s32 arg0, s32 arg1) {
+    initColourCycle(arg0 + 0x48, arg1);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E30.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E7C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018F08.s")
