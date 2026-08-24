@@ -64,6 +64,7 @@ extern u32 *D_800BF798;
 extern AudioBankFile *D_800BF79C;
 extern AudioSoundData *D_800BF7A0;
 extern s32 D_800BF7A8;
+extern s32 D_800BF7B0;
 extern u8 *D_800BF7A4;
 extern void gsSndpSetParam(void *sound, s16 type, u32 value);
 extern u32 gsSndpGetGlobalVolume(void);
@@ -335,7 +336,18 @@ void amSndSetPitchDirect(void *sound, u32 pitch) {
 u16 amGetSfxCount(void) {
     return D_800BF79C->bankArray[0]->instArray[0]->soundCount;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001270.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+void amGetSfxSettings(AudioSoundData **table, s32 *size, s32 *count) {
+    if (table != NULL) {
+        *table = D_800BF7A0;
+    }
+    if (size != NULL) {
+        *size = D_800BF7B0;
+    }
+    if (count != NULL) {
+        *count = D_800BF7A8;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800012A8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001308.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000137C.s")

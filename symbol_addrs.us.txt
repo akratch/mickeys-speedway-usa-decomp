@@ -1415,6 +1415,7 @@ amSndPlayDirect = 0x80001098; // type:func size:0xAC ROM 0x1c98 tier B (JFG para
 amSndSetVol = 0x80001144; // type:func size:0xC0 ROM 0x1d44 tier B (JFG/DKR volume role)
 amSndSetPitchDirect = 0x8000122C; // type:func size:0x2C ROM 0x1e2c tier B (JFG/DKR parameter role)
 amGetSfxCount = 0x80001258; // type:func size:0x18 ROM 0x1e58 tier B (JFG body/structure role)
+amGetSfxSettings = 0x80001270; // type:func size:0x38 ROM 0x1e70 tier B (JFG body/global role)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
