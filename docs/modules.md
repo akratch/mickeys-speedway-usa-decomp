@@ -439,6 +439,16 @@ In `main/models`, `camConvertMatrixList`, initialization helper
 initialization helper from JFG `models.c`. Their function bytes and relocation
 identities match in the linked ROM.
 
+The `func_8005A948` flag lattice additionally establishes
+`-Wo,-loopunroll,0` for `main/models`: without it IDO unrolls the cache scan
+to 166 instructions, while the disabled-unroll candidate has the target's 94
+instructions, frame, opcodes, CFG and relocation identities. That candidate
+plateaus at 31 differing words (28 register operands and three accesses to a
+spill at `0x34(sp)` rather than `0x30(sp)`), first diverging at function offset
+`+0x40` when the cache-index shift is allocated to `t7` instead of `t8`. Seven
+coherent source/flag attempts did not move that allocator split, so its best C
+is retained under `NON_MATCHING` and the target assembly remains canonical.
+
 In `main/vehicle_sounds`, the Mickey-derived handle cleanup loop
 `func_800582A8` (`0x64` bytes) is exact under `-O2 -mips2 -32`; its linked
 function bytes and call relocation match.
