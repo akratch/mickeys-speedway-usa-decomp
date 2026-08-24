@@ -59,6 +59,7 @@ extern void overlay57Call39F0Reloc(void *item, s32 x, s32 y, s32 z);
 extern void o57SelectionSetNodeValueReloc(s32 id, s32 argument, f32 value);
 
 /* Overlay 57 text +0x35E0..+0x3A4C. */
+#ifdef NON_MATCHING
 void overlay57UpdateSelection(s32 ignored) {
     s32 newPrimary;
     s32 newSecondary;
@@ -184,3 +185,6 @@ void overlay57UpdateSelection(s32 ignored) {
     gO57SelectionPending104Reloc = 0xFF;
     gOverlay57PublishedIndex3A28Reloc = entry;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57UpdateSelection/func_overlay_057_F00035E0_18A71D8.s")
+#endif

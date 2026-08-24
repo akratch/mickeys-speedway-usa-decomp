@@ -12,6 +12,7 @@ typedef struct Overlay40Entry {
 extern s32 gOverlay40Count;
 extern Overlay40Entry gOverlay40Entries[8];
 
+#ifdef NON_MATCHING
 void overlay40AddEntry(volatile s32 id, s32 red, s32 green, s32 blue) {
     Overlay40Entry *entry;
     s32 remaining;
@@ -36,3 +37,6 @@ void overlay40AddEntry(volatile s32 id, s32 red, s32 green, s32 blue) {
         } while (remaining--);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40AddEntry/func_overlay_040_F0000000_18868B0.s")
+#endif

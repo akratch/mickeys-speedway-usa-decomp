@@ -39,6 +39,7 @@ extern void overlay18ReleaseFailedReloc(void *buffer);
 extern void overlay18FinishReconfigureReloc(void *token);
 extern void overlay18InitializeBuffers(void);
 
+#ifdef NON_MATCHING
 void overlay18Reconfigure(s32 mode) {
     s32 index;
     const s32 *scale10;
@@ -122,3 +123,6 @@ void overlay18Reconfigure(s32 mode) {
     command->w1 = 0;
     command->w0 = 0xB8000000;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o018/overlay18Reconfigure/func_overlay_018_F000024C_1874804.s")
+#endif

@@ -29,6 +29,7 @@ extern void overlay57ReleaseResidentReloc(void *resource);
 extern void overlay57ReleaseDescriptorReloc(void *resource);
 extern void overlay57FinalizeReloc(void *object);
 
+#ifdef NON_MATCHING
 void overlay57ReleaseAll(void) {
     void **cursor;
     void **end;
@@ -85,3 +86,6 @@ void overlay57ReleaseAll(void) {
 
     overlay57FinalizeReloc(gOverlay57Object100);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57ReleaseAll/func_overlay_057_F0001978_18A5570.s")
+#endif

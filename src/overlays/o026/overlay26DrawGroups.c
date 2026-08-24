@@ -46,6 +46,7 @@ extern void o26FlushReloc(Gfx **);
 extern void o26FinishReloc(Gfx **);
 
 /* Exact at +0x1158; DKR v77/v80 and JFG have no exact overlay-26 donor. */
+#ifdef NON_MATCHING
 void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
                                        Overlay26Context *context) {
     Overlay26RenderState *render;
@@ -138,3 +139,6 @@ void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
         gfx->w0 = 0xFA000000;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o026/overlay26DrawGroups/func_overlay_026_F0001158_187B550.s")
+#endif

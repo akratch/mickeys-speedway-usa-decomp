@@ -59,6 +59,7 @@ extern Overlay17Template gOverlay17TemplateReloc[];
 extern void *func_overlay_017_F0000000_18739B8();
 
 /* Pinned DKR v77/v80 and JFG scans found no matching constructor body. */
+#ifdef NON_MATCHING
 Overlay17Chain *overlay17CreateChain(
     void *owner, s32 count, Overlay17Material *materialToken, s32 materialScale,
     f32 x, f32 y, f32 z, f32 radius,
@@ -161,3 +162,6 @@ Overlay17Chain *overlay17CreateChain(
 
     return chain;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o017/overlay17CreateChain/func_overlay_017_F0000318_1873CD0.s")
+#endif

@@ -61,6 +61,7 @@ extern void func_overlay_026_F0000D24_187B11C(O26Object *object, s32 mode);
 extern void func_80029FE4(O26Object *object, O26Vec3f *direction);
 extern s32 func_8000FAE0(f32 x, f32 y, f32 z);
 
+#ifdef NON_MATCHING
 void func_overlay_026_F0000000_187A3F8(O26Object *object, O26Config *config) {
     O26State *state;
     f32 radius;
@@ -104,3 +105,6 @@ void func_overlay_026_F0000000_187A3F8(O26Object *object, O26Config *config) {
                                         object->position.z);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o026/overlay26InitializeObject/func_overlay_026_F0000000_187A3F8.s")
+#endif

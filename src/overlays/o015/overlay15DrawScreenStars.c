@@ -10,6 +10,7 @@ extern const f32 gOverlay15StarFadeScale;
 extern void overlay15GetDimensionsReloc(s32 *width, s32 *height);
 extern void overlay15FinishDisplayListReloc(Overlay15Gfx **displayList);
 
+#ifdef NON_MATCHING
 void overlay15DrawScreenStars(Overlay15Gfx **displayList, f32 projectionScale) {
     Overlay15Gfx *command;
     Overlay15Star *star;
@@ -58,3 +59,6 @@ void overlay15DrawScreenStars(Overlay15Gfx **displayList, f32 projectionScale) {
     *displayList = command;
     overlay15FinishDisplayListReloc(displayList);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15DrawScreenStars/func_overlay_015_F0000500_1872898.s")
+#endif

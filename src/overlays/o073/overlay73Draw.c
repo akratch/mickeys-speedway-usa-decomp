@@ -26,6 +26,7 @@ extern void func_80034554(Overlay73Command **commands, void *resource,
 extern void func_800241BC(Overlay73Command **commands);
 
 /* DKR v77/v80 and JFG contain no exact donor for this renderer. */
+#ifdef NON_MATCHING
 void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
                                        s32 context,
                                        Overlay73DrawObject *object) {
@@ -75,3 +76,6 @@ void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
         func_800241BC(commands);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o073/overlay73Draw/func_overlay_073_F0000D70_18CB830.s")
+#endif

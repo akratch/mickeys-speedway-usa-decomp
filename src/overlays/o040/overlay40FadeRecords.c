@@ -43,6 +43,7 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
+#ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
     Overlay40FadeRecord *record;
@@ -106,3 +107,6 @@ void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
         } while (remaining-- != 0);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40FadeRecords/func_overlay_040_F0000690_1886F40.s")
+#endif

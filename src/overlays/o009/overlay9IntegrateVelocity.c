@@ -39,6 +39,7 @@ extern f32 ext_o0_2a46c(s32);
 extern void ext_o0_7cd8(O9Output *, f32, f32, f32);
 extern void ext_o0_1d920(O9Output *, O9Control *, f32);
 
+#ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9Output *out, O9Control *control,
                                        void *unused, f32 step) {
     f32 xVelocity;
@@ -94,3 +95,6 @@ void func_overlay_009_F0000CE4_186735C(O9Output *out, O9Control *control,
     out->dz = (out->z - control->originZ) * fraction;
     ext_o0_1d920(out, control, step);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9IntegrateVelocity/func_overlay_009_F0000CE4_186735C.s")
+#endif

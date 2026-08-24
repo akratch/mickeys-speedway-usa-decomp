@@ -7,6 +7,7 @@ extern void *overlay100AllocReloc(s32 size, s32 tag);
 extern s32 overlay100RandomReloc(s32 minimum, s32 maximum);
 extern void overlay100InitVelocityReloc(s16 *angles, Overlay100Vec3 *velocity);
 
+#ifdef NON_MATCHING
 Overlay100Motion *overlay100InitializeMotion(
     f32 x, f32 y, f32 z, s32 count, s32 colorB0, s32 colorB1, s32 colorB2,
     s32 colorA0, s32 colorA1, s32 colorA2, f32 durationSeconds) {
@@ -75,3 +76,6 @@ Overlay100Motion *overlay100InitializeMotion(
     }
     return motion;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o100/overlay100InitializeMotion/func_overlay_100_F0000000_18DAD28.s")
+#endif

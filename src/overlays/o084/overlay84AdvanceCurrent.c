@@ -40,6 +40,7 @@ extern Overlay84Object *gOverlay84ObjectWrite;
 extern s32 overlay84Atan2(f32 x, f32 z);
 
 /* No pinned donor hit occurs in this ownership unit. */
+#ifdef NON_MATCHING
 void overlay84AdvanceCurrent(s32 direction) {
     Overlay84Object *object;
     Overlay84State *state;
@@ -83,3 +84,6 @@ void overlay84AdvanceCurrent(s32 direction) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o084/overlay84AdvanceCurrent/func_overlay_084_F0000DD0_18D12B0.s")
+#endif

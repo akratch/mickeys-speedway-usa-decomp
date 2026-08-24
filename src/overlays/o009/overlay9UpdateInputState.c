@@ -25,6 +25,7 @@ typedef struct O9State {
 
 extern f32 D_4C;
 
+#ifdef NON_MATCHING
 void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9Control *control,
                                        O9State *state) {
     f32 target;
@@ -97,3 +98,6 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9Control *control,
         state->position = 200.0f;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateInputState/func_overlay_009_F00009BC_1867034.s")
+#endif

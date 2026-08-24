@@ -10,6 +10,7 @@ extern void overlay17PrepareStripReloc(G **, void *, s32, s32);
 #define STRIP(p,a,n,t) { G *m=(G *)(p); m->w0=S(5,24,8)|S((((n)-1)<<4)|(t),16,8)|S((n)<<4,0,16); m->w1=(u32)(a); }
 #define SYNC(p) { volatile G *m=(G *)(p); m->w1=0; m->w0=0xE7000000; }
 
+#ifdef NON_MATCHING
 void overlay17DrawStrip(G **commands, Strip *strip) {
     Pair *pair, *previous, *start;
     s32 vertices, flush, textured;
@@ -57,3 +58,6 @@ check_flush:
     }
     SYNC((*commands)++);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o017/overlay17DrawStrip/func_overlay_017_F00008B4_187426C.s")
+#endif

@@ -12,6 +12,7 @@ extern void o40TintCallReloc();
     (((u32)(value) & ((1U << (width)) - 1U)) << (shift))
 
 /* Overlay 40 text +0x534..+0x690. */
+#ifdef NON_MATCHING
 void overlay40DrawTintRectangle(Overlay40Command **displayList) {
     Overlay40Command *command;
     Overlay40Position position;
@@ -40,3 +41,6 @@ void overlay40DrawTintRectangle(Overlay40Command **displayList) {
         command->w0 = 0xFA000000;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40DrawTintRectangle/func_overlay_040_F0000534_1886DE4.s")
+#endif

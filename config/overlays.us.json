@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 143052,
-  "nonmatching_overlay_c_bytes": 133548,
+  "matched_overlay_c_bytes": 109600,
+  "nonmatching_overlay_c_bytes": 167000,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -3371,7 +3371,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9UpdateObjectState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x540",
@@ -3380,7 +3380,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9UpdateAngle",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x744",
@@ -3389,7 +3389,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9UpdateOutput",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x9BC",
@@ -3398,7 +3398,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9UpdateInputState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xCE4",
@@ -3407,7 +3407,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9IntegrateVelocity",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF6C",
@@ -3416,7 +3416,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9ResolveHeight",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x10A4",
@@ -3434,7 +3434,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9UpdateMotion",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     }
    ],
    "bss_size": "0x10",
@@ -4710,7 +4710,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15InitStarsAndPalette",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x428",
@@ -4719,7 +4719,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15MoveStars",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x500",
@@ -4728,7 +4728,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15DrawScreenStars",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x6A4",
@@ -4755,7 +4755,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15InitStars",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x9E0",
@@ -4764,7 +4764,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15UpdateMovingStars",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xB7C",
@@ -4791,7 +4791,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15DrawRain",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xC6C",
@@ -5095,7 +5095,7 @@
      "type": "c",
      "source": "overlays/o017/overlay17CalculateEndpoints",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x318",
@@ -5104,7 +5104,7 @@
      "type": "c",
      "source": "overlays/o017/overlay17CreateChain",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x628",
@@ -5122,7 +5122,7 @@
      "type": "c",
      "source": "overlays/o017/overlay17AdvanceChain",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x8B4",
@@ -5131,7 +5131,7 @@
      "type": "c",
      "source": "overlays/o017/overlay17DrawStrip",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     }
    ],
    "bss_size": "0x0",
@@ -5244,7 +5244,7 @@
      "type": "c",
      "source": "overlays/o018/overlay18Load",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1F4",
@@ -5262,7 +5262,7 @@
      "type": "c",
      "source": "overlays/o018/overlay18Reconfigure",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x4F4",
@@ -5271,7 +5271,7 @@
      "type": "c",
      "source": "overlays/o018/overlay18InitializeBuffers",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     }
    ],
    "bss_size": "0x0",
@@ -6180,7 +6180,7 @@
      "type": "c",
      "source": "overlays/o023/overlay23RenderEffect",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x568",
@@ -6590,7 +6590,7 @@
      "type": "c",
      "source": "overlays/o026/overlay26InitializeObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1A0",
@@ -6608,7 +6608,7 @@
      "type": "c",
      "source": "overlays/o026/overlay26HandleEffects",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1158",
@@ -6617,7 +6617,7 @@
      "type": "c",
      "source": "overlays/o026/overlay26DrawGroups",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     }
    ],
    "bss_size": "0x0",
@@ -9088,7 +9088,7 @@
      "type": "c",
      "source": "overlays/o040/overlay40AddEntry",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x84",
@@ -9106,7 +9106,7 @@
      "type": "c",
      "source": "overlays/o040/overlay40UpdateEntries",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1A0",
@@ -9115,7 +9115,7 @@
      "type": "c",
      "source": "overlays/o040/overlay40BuildFrame",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2E4",
@@ -9151,7 +9151,7 @@
      "type": "c",
      "source": "overlays/o040/overlay40DrawTintRectangle",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x690",
@@ -9160,7 +9160,7 @@
      "type": "c",
      "source": "overlays/o040/overlay40FadeRecords",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x824",
@@ -11631,7 +11631,7 @@
      "type": "c",
      "source": "overlays/o054/overlay54Initialize",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x3CC",
@@ -12212,7 +12212,7 @@
      "type": "c",
      "source": "overlays/o057/overlay57ReleaseAll",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1AE8",
@@ -12230,7 +12230,7 @@
      "type": "c",
      "source": "overlays/o057/overlay57EaseAndLatch",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2C28",
@@ -12239,7 +12239,7 @@
      "type": "c",
      "source": "overlays/o057/overlay57SmoothAndCheckDistance",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2F48",
@@ -12275,7 +12275,7 @@
      "type": "c",
      "source": "overlays/o057/overlay57Draw32A0",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x35E0",
@@ -12284,7 +12284,7 @@
      "type": "c",
      "source": "overlays/o057/overlay57UpdateSelection",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x3A4C",
@@ -12293,7 +12293,7 @@
      "type": "c",
      "source": "overlays/o057/overlay57UpdateModeState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x3FD4",
@@ -12311,7 +12311,7 @@
      "type": "c",
      "source": "overlays/o057/overlay57HandleModeInput",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x43C8",
@@ -12338,7 +12338,7 @@
      "type": "c",
      "source": "overlays/o057/overlay57UpdateModeTrigger",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x4D90",
@@ -12566,7 +12566,7 @@
      "type": "c",
      "source": "overlays/o058/overlay58DrawSegmentStrip",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x4F28",
@@ -12575,7 +12575,7 @@
      "type": "c",
      "source": "overlays/o058/overlay58DrawPointQuad",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x50C8",
@@ -12584,7 +12584,7 @@
      "type": "c",
      "source": "overlays/o058/overlay58DrawLargePointQuad",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x5268",
@@ -12593,7 +12593,7 @@
      "type": "c",
      "source": "overlays/o058/overlay58RefreshRankSet",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x54C8",
@@ -12611,7 +12611,7 @@
      "type": "c",
      "source": "overlays/o058/overlay58FinalizePackedStatus",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x5A14",
@@ -13932,7 +13932,7 @@
      "type": "c",
      "source": "overlays/o066/overlay66SmoothAndDraw",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x4E0",
@@ -15143,7 +15143,7 @@
      "type": "c",
      "source": "overlays/o073/overlay73Initialize",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x190",
@@ -15161,7 +15161,7 @@
      "type": "c",
      "source": "overlays/o073/overlay73Draw",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xEA8",
@@ -16652,7 +16652,7 @@
      "type": "c",
      "source": "overlays/o084/overlay84InitializeAndUpdate",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x314",
@@ -16706,7 +16706,7 @@
      "type": "c",
      "source": "overlays/o084/overlay84LoadCurrent",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xDBC",
@@ -16724,7 +16724,7 @@
      "type": "c",
      "source": "overlays/o084/overlay84AdvanceCurrent",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF18",
@@ -16769,7 +16769,7 @@
      "type": "c",
      "source": "overlays/o084/overlay84ActivateCurrent",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x11F4",
@@ -18710,7 +18710,7 @@
      "type": "c",
      "source": "overlays/o097/overlay97InitScale",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x748",
@@ -19272,7 +19272,7 @@
      "type": "c",
      "source": "overlays/o100/overlay100InitializeMotion",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x214",
@@ -19308,7 +19308,7 @@
      "type": "c",
      "source": "overlays/o100/overlay100UpdateMotion",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x50C",
@@ -19326,7 +19326,7 @@
      "type": "c",
      "source": "overlays/o100/overlay100DrawMotion",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x94C",

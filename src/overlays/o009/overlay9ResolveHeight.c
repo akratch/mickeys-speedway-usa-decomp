@@ -6,6 +6,7 @@ extern f32 D_54;
 extern s32 ext_o0_1353c(f32, f32, s32, O9Hit ***);
 extern void ext_o0_7cd8(O9Point *, f32, f32, f32);
 
+#ifdef NON_MATCHING
 void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
                                        s32 steps) {
     O9Hit **hits;
@@ -35,3 +36,6 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
     if (candidate < result) candidate = result;
     ext_o0_7cd8(point, 0.0f, candidate - current, 0.0f);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9ResolveHeight/func_overlay_009_F0000F6C_18675E4.s")
+#endif

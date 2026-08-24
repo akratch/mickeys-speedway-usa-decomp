@@ -113,6 +113,7 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
 #define overlay57Call3FA4Reloc o57ModeOpaqueVoidCallReloc
 #define overlay57Call3FB8Reloc o57ModeOpaqueVoidCallReloc
 
+#ifdef NON_MATCHING
 void overlay57UpdateModeState(s32 updateRate) {
     s32 eligible;
     volatile s32 savedEligible;
@@ -305,3 +306,6 @@ dispatch_done:
         overlay57Call3FB8Reloc();
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57UpdateModeState/func_overlay_057_F0003A4C_18A7644.s")
+#endif

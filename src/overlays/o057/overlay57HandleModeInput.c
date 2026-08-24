@@ -56,6 +56,7 @@ extern void o57ModeSubmitFinalReloc(void *object, void *state, f32 position,
                                    s32 index, s32 mode);
 
 /* Overlay 57 text +0x4064..+0x43C8. */
+#ifdef NON_MATCHING
 void overlay57HandleModeInput(s32 updateRate) {
     s8 enabled[4];
     u32 inputFlags;
@@ -134,3 +135,6 @@ void overlay57HandleModeInput(s32 updateRate) {
                             (f32) ((gOverlay57Delay >> 5) + 0x104), 184.0f,
                             1.0f, 1.0f, -2, 3);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57HandleModeInput/func_overlay_057_F0004064_18A7C5C.s")
+#endif

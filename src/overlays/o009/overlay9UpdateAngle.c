@@ -12,6 +12,7 @@ extern s16 *D_0;
 extern s32 ext_o0_2a5bc(s32, s32);
 extern f32 ext_o0_2a470(s32);
 
+#ifdef NON_MATCHING
 void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
                                        O9Motion *motion, s32 steps) {
     s32 delta;
@@ -54,3 +55,6 @@ void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
     *D_0++ = 0xA;
     *D_0++ = -delta;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateAngle/func_overlay_009_F0000540_1866BB8.s")
+#endif

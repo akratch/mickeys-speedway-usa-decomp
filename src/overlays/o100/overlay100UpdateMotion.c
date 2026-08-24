@@ -5,6 +5,7 @@
 extern void overlay100ReleaseMotionReloc(Overlay100Motion *motion);
 extern f32 gOverlay100GravityReloc[];
 
+#ifdef NON_MATCHING
 Overlay100Motion *overlay100UpdateMotion(Overlay100Motion *motion, s32 step) {
     s32 oldPhase, nextPhase, count;
     Overlay100Vec3 *velocity, *oldFrame, *newFrame;
@@ -46,3 +47,6 @@ Overlay100Motion *overlay100UpdateMotion(Overlay100Motion *motion, s32 step) {
     }
     return motion;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o100/overlay100UpdateMotion/func_overlay_100_F000038C_18DB0B4.s")
+#endif

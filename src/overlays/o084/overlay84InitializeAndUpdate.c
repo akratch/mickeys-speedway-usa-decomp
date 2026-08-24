@@ -63,6 +63,7 @@ extern void overlay84RefreshCurrent(Overlay84Object *, Overlay84State *, s32);
 extern void overlay84UpdateCurrent(Overlay84Object *, Overlay84State *, s32);
 extern void overlay84UpdateResource(Overlay84Object *, Overlay84State *, s32);
 
+#ifdef NON_MATCHING
 void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
     Overlay84State *state;
     Overlay84Node **nodes;
@@ -120,3 +121,6 @@ void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
     }
     state->active = 1;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o084/overlay84InitializeAndUpdate/func_overlay_084_F0000048_18D0528.s")
+#endif

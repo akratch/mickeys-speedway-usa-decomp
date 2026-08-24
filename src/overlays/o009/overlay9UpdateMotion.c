@@ -28,6 +28,7 @@ extern s32 ext_o0_2a5bc(s32, s32);
 extern f32 ext_o0_2a470(s32);
 extern f32 ext_o0_2a46c(s32);
 
+#ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9Result *out, O9Owner *owner,
                                        f32 stepsFloat) {
     O9State *state = owner->state;
@@ -124,3 +125,6 @@ void func_overlay_009_F00010B4_186772C(O9Result *out, O9Owner *owner,
         } while (i--);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateMotion/func_overlay_009_F00010B4_186772C.s")
+#endif

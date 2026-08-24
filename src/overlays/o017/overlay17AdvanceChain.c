@@ -21,6 +21,7 @@ extern void func_overlay_017_F0000000_18739B8(Overlay17Chain *chain,
                                                f32 *x1, f32 *y1, f32 *z1);
 
 /* Pinned DKR v77/v80 and JFG scans found no matching chain-update body. */
+#ifdef NON_MATCHING
 void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
     u8 *writeCursor;
     s32 savedAlpha;
@@ -90,3 +91,6 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
         writeCursor += 20;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o017/overlay17AdvanceChain/func_overlay_017_F0000668_1874020.s")
+#endif

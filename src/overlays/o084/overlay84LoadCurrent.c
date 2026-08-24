@@ -69,6 +69,7 @@ extern Overlay84Resource *overlay84GetResource(u8 resource);
 extern void overlay84PrepareResource(u8 resource);
 extern void overlay84ReleaseResource(u8 resource);
 
+#ifdef NON_MATCHING
 void overlay84LoadCurrent(s32 kind) {
     Overlay84Object *object;
     Overlay84State *state;
@@ -111,3 +112,6 @@ void overlay84LoadCurrent(s32 kind) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o084/overlay84LoadCurrent/func_overlay_084_F0000C9C_18D117C.s")
+#endif

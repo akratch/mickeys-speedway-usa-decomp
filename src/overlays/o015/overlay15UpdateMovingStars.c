@@ -42,6 +42,7 @@ extern void starfieldFastMove(s32 count, Overlay15MovingStarVec3f *stars,
                               f32 bound6, f32 bound7, f32 bound8);
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative. */
+#ifdef NON_MATCHING
 void overlay15UpdateMovingStars(f32 positionX, f32 positionY, f32 positionZ,
                                 s32 updateRate) {
     Overlay15MovingStarCamera *camera;
@@ -87,3 +88,6 @@ void overlay15UpdateMovingStars(f32 positionX, f32 positionY, f32 positionZ,
                           gOverlay15MovingBound8);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15UpdateMovingStars/func_overlay_015_F00009E0_1872D78.s")
+#endif

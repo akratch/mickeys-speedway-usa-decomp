@@ -1,2 +1,0 @@
-0x160:5:.rodata
-0x164:6:.rodata

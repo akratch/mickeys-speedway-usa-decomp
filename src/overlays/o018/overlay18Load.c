@@ -42,6 +42,7 @@ extern Overlay18Gfx *gOverlay18DisplaySource[];
 extern Overlay18Gfx *gOverlay18DisplayCursor;
 
 /* Pinned DKR v77/v80 and JFG searches found no exact donor. */
+#ifdef NON_MATCHING
 void overlay18Load(void) {
     Overlay18Gfx *display;
 
@@ -104,3 +105,6 @@ void overlay18Load(void) {
     overlay18Role19Reloc(0xD43E);
     overlay18Role20Reloc();
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o018/overlay18Load/func_overlay_018_F0000000_18745B8.s")
+#endif

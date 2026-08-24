@@ -69,6 +69,7 @@ extern void overlay54CopyOffsetRecords(void *src, void *dst, s32 mode, s32 index
 #define BSS_PTR(off) ((void *)(gOverlay54Bss + (off)))
 
 /* Independently reconstructed from Mickey-local evidence; no DKR/JFG donor. */
+#ifdef NON_MATCHING
 void func_overlay_054_F0000000_189ECA0(void) {
     volatile O54Locals locals;
     s16 *value;
@@ -198,3 +199,6 @@ void func_overlay_054_F0000000_189ECA0(void) {
     *(s16 *)(gOverlay54Bss + 0x66E) = 0;
     *(s16 *)(gOverlay54Bss + 0x66C) = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o054/overlay54Initialize/func_overlay_054_F0000000_189ECA0.s")
+#endif

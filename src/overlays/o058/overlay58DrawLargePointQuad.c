@@ -23,6 +23,7 @@ extern u8 gOverlay58LargePointPayload98Reloc[];
 extern void func_overlay_058_F0000000_18AF1E8(
     Overlay58LargePointGfx **displayList, void *resource, s32 mode, s32 arg3);
 
+#ifdef NON_MATCHING
 void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
     Overlay58LargePointVertex *vertices;
     Overlay58LargePointGfx *gfx;
@@ -95,3 +96,6 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
     gOverlay58LargePointVertexCursorReloc->z = (s16)zPlus;
     gOverlay58LargePointVertexCursorReloc++;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/overlay58DrawLargePointQuad/func_overlay_058_F00050C8_18B42B0.s")
+#endif

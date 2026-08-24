@@ -28,6 +28,7 @@ extern u32 *gOverlay15StarColors;
 extern void *overlay15Allocate(s32 size, s32 tag);
 extern s32 overlay15RandomRange(s32 minimum, s32 maximum);
 
+#ifdef NON_MATCHING
 void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
                         u32 startColor, u32 endColor, s32 colorDivisor) {
     Overlay15Star *stars;
@@ -104,3 +105,6 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
         } while (i < gOverlay15StarCount);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15InitStars/func_overlay_015_F00006E8_1872A80.s")
+#endif
