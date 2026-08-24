@@ -177,6 +177,10 @@ extern s32 gOverlay4InitStatus;
 extern Overlay4Group gOverlay4Groups[];
 extern f32 gOverlay4SearchMaxDistance;
 
+extern Overlay4SearchObject **func_overlay_004_F0000000_185A678(s32 *start,
+                                                                s32 *end);
+extern Overlay4SearchObject *func_overlay_004_F0000734_185ADAC(
+    Overlay4SearchKey *key);
 extern void overlay4RuntimeCallReloc(Overlay4InitObject *object, s32 arg1,
                                      s32 arg2, f32 arg3);
 extern void func_8005ABA8(Overlay4MotionObject *object, f32 scale,
@@ -190,7 +194,5 @@ extern Overlay4Spawned *func_8000590C(Overlay4SpawnPacket *packet, s32 mode);
 extern void func_overlay_036_F00007B0(Overlay4Spawned *spawned, s16 angle,
                                       s16 outputAngle, f32 value);
 extern f32 sqrtf(f32 value);
-extern Overlay4SearchObject **overlay4GetObjectRangeReloc(s32 *start,
-                                                          s32 *end);
 
 #endif

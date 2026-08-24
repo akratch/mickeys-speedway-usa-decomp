@@ -198,7 +198,7 @@ Overlay4SearchObject *overlay4FindCategory2Object(Overlay4SearchKey *key) {
     s32 wantedIdentifier;
     s32 i;
 
-    objects = overlay4GetObjectRangeReloc(&start, &end);
+    objects = func_overlay_004_F0000000_185A678(&start, &end);
     i = start;
     while (i < end) {
         object = objects[i++];
@@ -218,10 +218,12 @@ Overlay4SearchObject *overlay4FindCategory2Object(Overlay4SearchKey *key) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay4FindCategory2Object/func_overlay_004_F0000734_185ADAC.s")
 #endif
 
-#ifdef NON_MATCHING
 void overlay4FindSearchPosition(f32 *outX, f32 *outZ,
                                 Overlay4SearchKey *key,
                                 Overlay4SearchObject *anchor) {
+    s32 start;
+    s32 end;
+    s32 i;
     Overlay4SearchObject **objects;
     Overlay4SearchObject *object;
     Overlay4SearchObject *best;
@@ -230,11 +232,8 @@ void overlay4FindSearchPosition(f32 *outX, f32 *outZ,
     f32 dz;
     f32 distance;
     f32 bestDistance;
-    s32 start;
-    s32 end;
-    s32 i;
 
-    objects = overlay4GetObjectRangeReloc(&start, &end);
+    objects = func_overlay_004_F0000000_185A678(&start, &end);
     bestDistance = gOverlay4SearchMaxDistance;
     if (key->mode == 1) {
         best = NULL;
@@ -263,7 +262,7 @@ void overlay4FindSearchPosition(f32 *outX, f32 *outZ,
             return;
         }
     } else {
-        best = overlay4FindCategory2Object(key);
+        best = func_overlay_004_F0000734_185ADAC(key);
         if (best != NULL) {
             *outX = best->x;
             *outZ = best->z;
@@ -273,6 +272,3 @@ void overlay4FindSearchPosition(f32 *outX, f32 *outZ,
     *outX = 0.0f;
     *outZ = 0.0f;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay4FindSearchPosition/func_overlay_004_F00008F4_185AF6C.s")
-#endif

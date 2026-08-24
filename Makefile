@@ -843,8 +843,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_004_F0000138_185A7B0=overlay4UpdateObjectMotion \
 		--redefine-sym func_overlay_004_F00005D0_185AC48=overlay4UpdateGroupSpacing \
-		--redefine-sym func_overlay_004_F0000734_185ADAC=overlay4FindCategory2Object \
-		--redefine-sym func_overlay_004_F00008F4_185AF6C=overlay4FindSearchPosition $@ && \
+		--redefine-sym func_overlay_004_F0000734_185ADAC=overlay4FindCategory2Object $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xCAC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitMotion.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x74
