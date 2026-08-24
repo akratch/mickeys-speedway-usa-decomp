@@ -73,7 +73,21 @@ void diPrintfInit(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintf.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfAll.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfSetCol.s")
+/* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfSetCol. */
+void diPrintfSetCol(u8 red, u8 green, u8 blue, u8 alpha) {
+    *D_8007CE94 = 0x81;
+    D_8007CE94++;
+    *D_8007CE94 = red;
+    D_8007CE94++;
+    *D_8007CE94 = green;
+    D_8007CE94++;
+    *D_8007CE94 = blue;
+    D_8007CE94++;
+    *D_8007CE94 = alpha;
+    D_8007CE94++;
+    *D_8007CE94 = 0;
+    D_8007CE94++;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfSetBG.s")
 /* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfSetXY. */
 void diPrintfSetXY(u16 x, u16 y) {
