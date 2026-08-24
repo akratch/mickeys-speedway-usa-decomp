@@ -433,6 +433,12 @@ state-reset paths call it before frame pacing resumes, while the canonical body
 resets the skip-adjust flag, delta counter, delta interval and one-frame mode.
 All 11 instruction words and four HI16/LO16 relocation pairs are exact.
 
+`func_80033D58` is canonical C: all seven words and the two scale globals'
+HI16/LO16 relocation pairs are exact. JFG calls the equivalent body
+`viGetScaleXY`, but only three words are unmasked and no same-address Mickey
+caller pins the role, so the public name is recorded only in the source comment
+and not adopted.
+
 ---
 
 ## 4. libultra

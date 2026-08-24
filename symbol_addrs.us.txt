@@ -1462,6 +1462,9 @@ mmFree = 0x8002B768; // type:func size:0x44   ROM 0x2c368  src/memory.c.o  maske
 rumbleKill = 0x8002BF00; // type:func size:0x44   ROM 0x2cb00  src/saves.c.o  masked=1/17
 // jfg:src/rcpFast3d.c.o
 rcpInit = 0x8002F560; // type:func size:0xB8   ROM 0x30160  src/rcpFast3d.c.o  masked=33/46
+// Canonical C, but the JFG viGetScaleXY counterpart has only 3 unmasked words
+// and no same-address Mickey caller evidence, so its public name is not adopted.
+func_80033D58 = 0x80033D58; // type:func size:0x1C ROM 0x34958 canonical C, linked byte-identical
 // tier B (JFG): viChangeMode and two runtime state-reset paths call this before
 // resuming frame pacing, and its body resets all four video-delta controls.
 viFrameRateReset = 0x80033D74; // type:func size:0x2C ROM 0x34974 canonical C, linked byte-identical

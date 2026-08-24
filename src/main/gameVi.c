@@ -20,6 +20,8 @@
 #include "game/gameVi.h"
 
 extern s32 *D_8007A690[3];
+extern f32 D_8007A69C;
+extern f32 D_8007A6A0;
 extern u8 D_8007A1A0;
 extern s32 *D_800D2FA8;
 extern s8 D_800D2F95;
@@ -42,7 +44,17 @@ extern void osWritebackDCacheAll(void);
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033B24.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033CBC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033D04.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033D58.s")
+/*
+ * PROVENANCE: adapted from JFG's public decomp, src/gameVi.c, where this is
+ * viGetScaleXY. Mickey has no same-address caller evidence and the exact
+ * skeleton is below the tier-A uniqueness threshold, so the name is not
+ * adopted.
+ */
+void func_80033D58(f32 *hScale, f32 *vScale) {
+    *hScale = D_8007A69C;
+    *vScale = D_8007A6A0;
+}
+
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
 void viFrameRateReset(void) {
     D_800D2F9D = 1;
