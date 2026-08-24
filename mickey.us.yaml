@@ -145,7 +145,14 @@ segments:
       - [0x45F0, asm]
       - [0x4F40, asm]
       - [0xC950, asm]
-      - [0x16140, asm]
+      # JFG's four-function hand-written trackasm sequence, in the same order.
+      # Mickey's first three routines are shorter revisions, so this is a
+      # tier-B/D file-boundary attribution rather than a whole-object match.
+      - [0x16140, asm, main/trackasm]
+      # JFG shadows.c begins with shadowInitBuffers immediately after trackasm.
+      # The other end is independently fixed by the tier-A
+      # shadowBoxPolyOverlap at 0x18FF0, the start of shadows_214A0.c.
+      - [0x16A90, c, main/shadows]
       - [0x18FF0, asm]
       - [0x1AE60, asm, main/lights2]
       - [0x1BE50, asm]

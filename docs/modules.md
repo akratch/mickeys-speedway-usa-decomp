@@ -360,6 +360,50 @@ measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
 
+### 3.4 Track assembly and shadows (`0x16140`–`0x18FF0`)
+
+This block contains two JFG-lineage translation units. The boundary claims are
+explicitly **not tier A whole-object matches**:
+
+- `main/trackasm`, ROM `0x16140`–`0x16A90`: **tier B** from the track callers
+  and helper call graph, plus **tier D** from JFG's exact four-function order
+  (`trackMakePolylist`, `getXZCompareMask`, `getYCompareMask`,
+  `trackLightAsm`). JFG carries the same run in `asm/hasm/trackasm.s`.
+- `main/shadows`, ROM `0x16A90`–`0x18FF0`: **tier B** from allocation/free and
+  track-render call relationships, plus **tier D** from JFG `src/shadows.c`'s
+  order and the per-function masked-skeleton results. Its upper boundary is
+  independently corroborated at **tier A**: `shadowBoxPolyOverlap` begins at
+  `0x18FF0`, the first function of JFG's next TU, `shadows_214A0.c`.
+
+**PROVENANCE:** the TU names and descriptive function names are borrowed from
+Jet Force Gemini's public decomp (`asm/hasm/trackasm.s`, `src/shadows.c`, and
+their `asm/nonmatchings/` file names), a permitted retail-derived source under
+`docs/CLEANROOM.md`. Mickey's own bytes determine the bodies. JFG's
+address-placeholder helper names are not imported.
+
+| ROM | Size | Symbol | Evidence / disposition |
+|---|---:|---|---|
+| `0x16140` | `0x49C` | `trackMakePolylist` | B/D; extractor-marked handwritten, stays `asm` |
+| `0x165DC` | `0x11C` | `getXZCompareMask` | B/D; extractor-marked handwritten, stays `asm` |
+| `0x166F8` | `0x98` | `getYCompareMask` | B/D; extractor-marked handwritten, stays `asm` |
+| `0x16790` | `0x300` | `trackLightAsm` | B/D; uses odd single-precision FP registers, stays `asm` |
+| `0x16A90` | `0x12C` | `shadowInitBuffers` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x16BBC` | `0x78` | `shadowFreeBuffers` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x16C34` | `0x18` | `shadowChangeBuffer` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x16C4C` | `0x4C` | `shadowGetBuffers` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x16C98` | `0x7F8` | `shadowGenerate` | B/D; compiler-generated, `GLOBAL_ASM` pending C |
+| `0x17490` | `0x8B0` | `func_80016890` | JFG placeholder rejected; compiler-generated |
+| `0x17D40` | `0x520` | `func_80017140` | JFG placeholder rejected; compiler-generated |
+| `0x18260` | `0x56C` | `func_80017660` | JFG placeholder rejected; compiler-generated |
+| `0x187CC` | `0x4E8` | `func_80017BCC` | JFG placeholder rejected; compiler-generated |
+| `0x18CB4` | `0x33C` | `func_800180B4` | JFG placeholder rejected; compiler-generated |
+
+There are no string references in either TU. The only resident-tail anchors
+are `D_800817A0` and `D_800817A4`, both floating-point constants. Of the four
+extractor-marked handwritten track routines, only `trackLightAsm` uses odd FP
+registers; the other three contain non-compiler instruction shapes and remain
+assembly with it. No function in `main/shadows` uses an odd FP register.
+
 ---
 
 ## 4. libultra

@@ -399,6 +399,22 @@ mtxf_from_inverse_transform = 0x80029B28; // type:func size:0x1E4   ROM 0x2a728 
 coss_s16 = 0x8002A1A0; // type:func size:0x60   ROM 0x2ada0  hasm/ido/math_util.s.o  masked=2/24
 coss_2 = 0x8002A200; // type:func size:0x44   ROM 0x2ae00  hasm/ido/math_util.s.o  masked=2/17
 
+// main/trackasm and main/shadows -- PROVENANCE: names borrowed from JFG's
+// public decomp, asm/hasm/trackasm.s and src/shadows.c.  Tier B: Mickey has
+// the same callers/callees and subsystem roles.  Tier D corroboration: the
+// functions occur in JFG's order and lead every masked-skeleton query.
+// This is not tier A: only trackLightAsm has equal size, and none of these
+// functions has been claimed byte-identical under relocation masking.
+trackMakePolylist = 0x80015540; // type:func size:0x49C tier B, ROM 0x16140
+getXZCompareMask = 0x800159DC; // type:func size:0x11C tier B, ROM 0x165dc
+getYCompareMask = 0x80015AF8; // type:func size:0x98 tier B, ROM 0x166f8
+trackLightAsm = 0x80015B90; // type:func size:0x300 tier B, ROM 0x16790
+shadowInitBuffers = 0x80015E90; // type:func size:0x12C tier B, ROM 0x16a90
+shadowFreeBuffers = 0x80015FBC; // type:func size:0x78 tier B, ROM 0x16bbc
+shadowChangeBuffer = 0x80016034; // type:func size:0x18 tier B, ROM 0x16c34
+shadowGetBuffers = 0x8001604C; // type:func size:0x4C tier B, ROM 0x16c4c
+shadowGenerate = 0x80016098; // type:func size:0x7F8 tier B, ROM 0x16c98
+
 // memory.c -- three 7-word allocator alignment helpers, 0 masked, adjacent.
 align16 = 0x8002BC60; // type:func size:0x1C   ROM 0x2c860  memory.c.o  masked=0/7
 align8 = 0x8002BC7C; // type:func size:0x1C   ROM 0x2c87c  memory.c.o  masked=0/7
