@@ -47,6 +47,17 @@ typedef struct FxStatus {
     u8 pad1[0x1F];
 } FxStatus;
 
+typedef struct FxScreenEffect {
+    s32 type;
+    s16 value4;
+    s16 value6;
+    s16 value8;
+    s16 valueA;
+    s16 valueC;
+    s16 valueE;
+    s32 value10;
+} FxScreenEffect;
+
 typedef struct FxRecord {
     u8 state;
     u8 status;
@@ -67,6 +78,8 @@ extern FxRecord D_800D5F58[];
 extern s32 D_800D5F50;
 extern s32 D_800D6038[];
 extern s32 D_800D6040;
+extern s32 D_8007D478;
+extern FxScreenEffect D_800D6048[];
 
 void func_80046E70(FxCone *cone) {
     s32 texture;
@@ -197,7 +210,22 @@ void func_8004A0F0(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A4B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A51C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxSPDPRipple.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxQueueScreenEffect.s")
+void fxQueueScreenEffect(s32 type, s32 value4, s32 value6, s32 value8,
+                         s32 valueA, s32 valueC, s32 valueE, s32 value10) {
+    FxScreenEffect *effect;
+
+    if (D_8007D478 < 4) {
+        effect = &D_800D6048[D_8007D478++];
+        effect->type = type;
+        effect->value4 = value4;
+        effect->value6 = value6;
+        effect->value8 = value8;
+        effect->valueA = valueA;
+        effect->valueC = valueC;
+        effect->valueE = valueE;
+        effect->value10 = value10;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A9CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ACC4.s")

@@ -418,6 +418,10 @@ retaining their exact relocations under the resident defaults.
 The adjacent 52-byte `func_8004707C` is exact without relocations: its six
 full-width value parameters are stored into byte fields only after the null
 check, preserving the target's leaf schedule under the same default flags.
+The 108-byte JFG-identified `fxQueueScreenEffect` is also exact: expressing
+the four-entry queue selection as an array subscript with a post-incremented
+global count reproduces the target's 20-byte offset schedule and both data
+relocation pairs under the resident defaults.
 The 60-byte Mickey-named `func_80049828` bounds-checks one of five effect
 records and tests a caller-supplied flag mask; its natural 32-byte-stride
 record access is exact at the resident defaults, including the data-symbol
