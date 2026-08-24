@@ -930,6 +930,147 @@ halfword store, and corresponding audio-volume call, and carries point-of-use
 linked ROM range are exact; a zero-byte weak alias preserves its assembly
 caller's anonymous spelling.
 
+### 3.4 Track assembly and shadows (`0x16140`–`0x18FF0`)
+
+This block contains two JFG-lineage translation units. The boundary claims are
+explicitly **not tier A whole-object matches**:
+
+- `main/trackasm`, ROM `0x16140`–`0x16A90`: **tier B** from the track callers
+  and helper call graph, plus **tier D** from JFG's exact four-function order
+  (`trackMakePolylist`, `getXZCompareMask`, `getYCompareMask`,
+  `trackLightAsm`). JFG carries the same run in `asm/hasm/trackasm.s`.
+- `main/shadows`, ROM `0x16A90`–`0x18FF0`: **tier B** from allocation/free and
+  track-render call relationships, plus **tier D** from JFG `src/shadows.c`'s
+  order and the per-function masked-skeleton results. Its upper boundary is
+  independently corroborated at **tier A**: `shadowBoxPolyOverlap` begins at
+  `0x18FF0`, the first function of JFG's next TU, `shadows_214A0.c`.
+
+**PROVENANCE:** the TU names and descriptive function names are borrowed from
+Jet Force Gemini's public decomp (`asm/hasm/trackasm.s`, `src/shadows.c`, and
+their `asm/nonmatchings/` file names), a permitted retail-derived source under
+`docs/CLEANROOM.md`. Mickey's own bytes determine the bodies. JFG's
+address-placeholder helper names are not imported.
+
+| ROM | Size | Symbol | Evidence / disposition |
+|---|---:|---|---|
+| `0x16140` | `0x49C` | `trackMakePolylist` | B/D; extractor-marked handwritten, stays `asm` |
+| `0x165DC` | `0x11C` | `getXZCompareMask` | B/D; extractor-marked handwritten, stays `asm` |
+| `0x166F8` | `0x98` | `getYCompareMask` | B/D; extractor-marked handwritten, stays `asm` |
+| `0x16790` | `0x300` | `trackLightAsm` | B/D; uses odd single-precision FP registers, stays `asm` |
+| `0x16A90` | `0x12C` | `shadowInitBuffers` | B/D |
+| `0x16BBC` | `0x78` | `shadowFreeBuffers` | B/D |
+| `0x16C34` | `0x18` | `shadowChangeBuffer` | B/D name; exact C, 6 words, 2 relocs |
+| `0x16C4C` | `0x4C` | `shadowGetBuffers` | B/D name; exact C, 19 words, 8 relocs |
+| `0x16C98` | `0x7F8` | `shadowGenerate` | B/D |
+| `0x17490` | `0x8B0` | `func_80016890` | unresolved |
+| `0x17D40` | `0x520` | `func_80017140` | unresolved |
+| `0x18260` | `0x56C` | `func_80017660` | unresolved |
+| `0x187CC` | `0x4E8` | `func_80017BCC` | unresolved |
+| `0x18CB4` | `0x33C` | `func_800180B4` | unresolved |
+
+There are no string references in either TU. The only resident-tail anchors
+are `D_800817A0` and `D_800817A4`, both floating-point constants. Of the four
+extractor-marked handwritten track routines, only `trackLightAsm` uses odd FP
+registers; the other three contain non-compiler instruction shapes and remain
+assembly with it. No function in `main/shadows` uses an odd FP register.
+
+### 3.5 Camera lights and sprite animation (`0x1BE50`–`0x1C790`)
+
+The eight entry points at `0x1BE50`–`0x1BEA0` are Mickey's disabled
+`main/camlight` implementation: each is a return-only or argument-spilling
+stub, but their exact order and signatures follow JFG's `src/camlight.c`.
+That ordering, the object-system call sites, and the clean handoff to
+`spranimInit` make the boundary **tier B/D**, not a whole-object tier-A hit.
+`main/spranim` then occupies the remainder of this assigned block. Its first
+five functions follow JFG's `src/spranim.c` order; `texscrollControl` and
+`rangetriggerControl` are additionally identified by their masked skeletons
+and texture-scroll/volume-trigger callees. Helpers without that evidence keep
+their Mickey address names.
+
+**PROVENANCE:** the TU and descriptive function names are borrowed from Jet
+Force Gemini's public retail-derived `src/camlight.c`, `src/spranim.c`, and
+their `asm/nonmatchings/` names, as permitted by `docs/CLEANROOM.md`. No JFG
+body is copied by this split; Mickey's own bytes remain authoritative.
+
+| ROM | Size | Symbol | Evidence / disposition |
+|---|---:|---|---|
+| `0x1BE50` | `0x8` | `camlightInit` | B/D name; exact C, 2 words, 0 relocs |
+| `0x1BE58` | `0x8` | `camlightFlush` | B/D name; exact C, 2 words, 0 relocs |
+| `0x1BE60` | `0x10` | `camlightAdd` | B/D name; exact C, 4 words, 0 relocs |
+| `0x1BE70` | `0x8` | `camlightDelete` | B/D name; exact C, 2 words, 0 relocs |
+| `0x1BE78` | `0x8` | `camlightUpdateAll` | B/D name; exact C, 2 words, 0 relocs |
+| `0x1BE80` | `0x8` | `camlightUpdate` | B/D name; exact C, 2 words, 0 relocs |
+| `0x1BE88` | `0x8` | `camlightVisibilityCheck` | B/D name; exact C, 2 words, 0 relocs |
+| `0x1BE90` | `0x10` | `camlightDraw` | B/D name; exact C, 4 words, 0 relocs |
+| `0x1BEA0` | `0x74` | `spranimInit` | B/D |
+| `0x1BF14` | `0x4C` | `spranimControl` | B/D |
+| `0x1BF60` | `0x48` | `sprasjiInit` | B/D |
+| `0x1BFA8` | `0x78` | `spranimOnceControl` | B/D |
+| `0x1C020` | `0x304` | `effectboxControl` | B/D |
+| `0x1C324` | `0x74` | `texscrollControl` | B/D |
+| `0x1C398` | `0x2BC` | `func_8001B798` | unresolved |
+| `0x1C654` | `0x90` | `rangetriggerControl` | B/D |
+| `0x1C6E4` | `0x14` | `func_8001BAE4` | exact C, 5 words, 0 relocs; role unresolved |
+| `0x1C6F8` | `0xC` | `func_8001BAF8` | exact C, 3 words, 0 relocs; role unresolved |
+| `0x1C704` | `0xC` | `func_8001BB04` | exact C, 3 words, 0 relocs; role unresolved |
+| `0x1C710` | `0x78` | `func_8001BB10` | plateau: 8/30 words differ; first `+0x3C`, load scheduling |
+
+No function in this range uses an odd single-precision FP register, and there
+are no string references. All twenty functions are compiler-generated. ROM
+`0x1C788`-`0x1C790` is alignment padding and receives no function credit.
+
+### 3.6 Weather (`0x3B480`–`0x3D5F0`)
+
+This run is `main/weather`. The second function, `weather_clip_planes`, was
+already a unique tier-A DKR byte match. The preceding `initWeather` and the
+remaining snow/rain call graph agree with JFG and DKR at **tier B/D**; the
+masked-skeleton scan independently selected their weather counterparts for
+all public entry points and most helpers. The upper boundary is fixed
+independently at **tier A** by `reset_particles`, the first function of the
+following `particles.c` run at `0x3D5F0`. The lower boundary is structural,
+not a claimed whole-object match.
+
+The logical TU is represented by three physical splat fragments:
+`main/weather` (`0x3B480`–`0x3D030`), the hand-written
+`main/weather_snow_asm` island (`0x3D030`–`0x3D370`), and
+`main/weather_tail` (`0x3D370`–`0x3D5F0`). This keeps the hand-written pair
+out of asm-processor while retaining C ownership around it.
+
+**PROVENANCE:** the TU and descriptive function names are borrowed from Jet
+Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
+files and JFG's `asm/nonmatchings/weather/` names, as permitted by
+`docs/CLEANROOM.md`. The matched `weather_clip_planes` and `rainDensity`
+bodies are adapted from those disclosed sources and carry point-of-use notes;
+Mickey's own bytes remain authoritative.
+
+| ROM | Size | Symbol | Evidence / disposition |
+|---|---:|---|---|
+| `0x3B480` | `0xFC` | `initWeather` | B/D |
+| `0x3B57C` | `0x54` | `weather_clip_planes` | A donor; exact C, 21 words, 2 relocs |
+| `0x3B5D0` | `0x120` | `freeWeather` | B/D |
+| `0x3B6F0` | `0x420` | `setupWeather` | B/D |
+| `0x3BB10` | `0x120` | `snow_init` | B/D |
+| `0x3BC30` | `0x1EC` | `changeWeather` | B/D |
+| `0x3BE1C` | `0x2A4` | `doWeather` | B/D |
+| `0x3C0C0` | `0x238` | `snow_render` | B/D |
+| `0x3C2F8` | `0xEC` | `rain_init` | B/D |
+| `0x3C3E4` | `0x84` | `free_rain_memory` | B/D |
+| `0x3C468` | `0x104` | `rain_set` | B/D |
+| `0x3C56C` | `0xD0` | `rainSetFog` | B/D |
+| `0x3C63C` | `0x78` | `rainDensity` | B/D name; exact C, 30 words, 4 relocs |
+| `0x3C6B4` | `0x144` | `rain_update` | B/D |
+| `0x3C7F8` | `0x650` | `rain_render_splashes` | B/D |
+| `0x3CE48` | `0x128` | `rain_lightning` | B/D |
+| `0x3CF70` | `0xC0` | `rain_sound` | B/D |
+| `0x3D030` | `0x144` | `snow_update` | B/D; handwritten asm |
+| `0x3D174` | `0x1FC` | `snow_vertices` | B/D; odd-FP handwritten asm |
+| `0x3D370` | `0x9C` | `func_8003C770` | unresolved |
+| `0x3D40C` | `0x1E4` | `func_8003C80C` | unresolved |
+
+There are no string references. `snow_vertices` is the range's only function
+using odd single-precision FP registers; it and extractor-marked
+`snow_update` remain source assembly permanently rather than matching targets.
+
 ---
 
 ### 3.4 Vehicle sounds, models and gsSnd census

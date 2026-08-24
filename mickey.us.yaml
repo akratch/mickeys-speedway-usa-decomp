@@ -149,15 +149,28 @@ segments:
       # two large routines reference all 14 resident `track/track.c` assert
       # strings, and trackSetFogOff is byte-identical to JFG's implementation.
       - [0xC950, c, main/track]
-      - [0x16140, asm]
+      # JFG's four-function hand-written trackasm sequence, in the same order.
+      # Mickey's first three routines are shorter revisions, so this is a
+      # tier-B/D file-boundary attribution rather than a whole-object match.
+      - [0x16140, asm, main/trackasm]
+      # JFG shadows.c begins with shadowInitBuffers immediately after trackasm.
+      # The other end is independently fixed by the tier-A
+      # shadowBoxPolyOverlap at 0x18FF0, the start of shadows_214A0.c.
+      - [0x16A90, c, main/shadows]
       # JFG's shadows_214A0 -> lights boundary is reproduced here at the end
-      # of Mickey's shadowMakeYs. The four shadows functions use odd FP
+      # of Mickey's shadowMakeYs. The four shadows_214A0 functions use odd FP
       # registers and remain assembly (docs/modules.md sections 3.4 and 6.2);
       # the following lights TU has no odd-FP operands and is eligible for C.
-      - [0x18FF0, asm, main/shadows]
+      - [0x18FF0, asm, main/shadows_fp]
       - [0x19310, c, main/lights]
       - [0x1AE60, asm, main/lights2]
-      - [0x1BE50, asm]
+      # JFG's eight camlight entry points survive here as Mickey no-op stubs,
+      # in the same order.  spranimInit begins immediately after camlightDraw.
+      - [0x1BE50, c, main/camlight]
+      # Tier-B/D boundary attribution from the object-control dispatch graph,
+      # JFG spranim.c ordering, and the masked-skeleton matches documented in
+      # docs/modules.md section 3.5.
+      - [0x1BEA0, c, main/spranim]
       - [0x1C790, asm]
       # Working source split for the resident model system. Three functions
       # are tier-A skeleton matches to JFG's src/models.c.o, including the
@@ -216,7 +229,14 @@ segments:
       # 16-byte aligned. See docs/modules.md section 3.4.
       - [0x39350, c, main/menu]
       - [0x3B1A0, asm]
-      - [0x3B480, asm]
+      # JFG/DKR weather lineage: initWeather leads this run, the second
+      # routine weather_clip_planes is already tier A, and the tier-A
+      # particles reset at 0x3D5F0 independently fixes the upper boundary.
+      - [0x3B480, c, main/weather]
+      # Hand-written snow update/vertex pair. snow_vertices uses odd FP
+      # registers, and asm-processor cannot safely wrap either routine.
+      - [0x3D030, asm, main/weather_snow_asm]
+      - [0x3D370, c, main/weather_tail]
       - [0x3D5F0, asm]
       - [0x43470, asm]
       - [0x45760, asm]
