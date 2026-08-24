@@ -39,6 +39,7 @@ extern void func_overlay_011_F0001130_1869978(s32);
 extern void func_overlay_011_F0002A10_186B258(void);
 extern void func_overlay_011_F0002BF4_186B43C(void);
 
+#ifdef NON_MATCHING
 void overlay11UpdateFiveOptionMenu(s32 updateRate) {
     s8 direction;
     s32 index;
@@ -161,3 +162,6 @@ void overlay11UpdateFiveOptionMenu(s32 updateRate) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o011/overlay11UpdateFiveOptionMenu/func_overlay_011_F0001A7C_186A2C4.s")
+#endif

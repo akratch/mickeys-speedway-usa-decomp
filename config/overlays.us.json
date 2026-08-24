@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 268160,
-  "nonmatching_overlay_c_bytes": 8440,
+  "matched_overlay_c_bytes": 262416,
+  "nonmatching_overlay_c_bytes": 14184,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -3729,7 +3729,7 @@
      "type": "c",
      "source": "overlays/o011/overlay11UpdateMenu",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x184C",
@@ -3738,7 +3738,7 @@
      "type": "c",
      "source": "overlays/o011/overlay11UpdateTwoOptionMenu",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1A7C",
@@ -3747,7 +3747,7 @@
      "type": "c",
      "source": "overlays/o011/overlay11UpdateFiveOptionMenu",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1E4C",
@@ -3756,7 +3756,7 @@
      "type": "c",
      "source": "overlays/o011/func_overlay_011_F0001E4C_186A694",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x22E8",
@@ -3765,7 +3765,7 @@
      "type": "c",
      "source": "overlays/o011/func_overlay_011_F00022E8_186AB30",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2714",
@@ -3774,7 +3774,7 @@
      "type": "c",
      "source": "overlays/o011/overlay11UpdateModeSix",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2948",
@@ -3846,7 +3846,7 @@
      "type": "c",
      "source": "overlays/o011/overlay11ReleaseCurrentGroup",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2CB4",

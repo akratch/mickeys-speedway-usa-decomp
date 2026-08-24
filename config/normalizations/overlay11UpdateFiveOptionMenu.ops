@@ -1,4 +1,0 @@
-# Complete private loop-index spill home. Retail uses the otherwise-free 0x2C
-# home while the natural IDO basin uses 0x28; assert producer and consumer.
-fields:0x104:imm=0x28@0x2c
-fields:0x108:imm=0x28@0x2c

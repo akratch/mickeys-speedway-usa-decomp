@@ -56,6 +56,7 @@ extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 11 as none. */
+#ifdef NON_MATCHING
 void overlay11UpdateMenu(s32 updateRate) {
     s32 index;
     O11Status *status;
@@ -179,3 +180,6 @@ void overlay11UpdateMenu(s32 updateRate) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o011/overlay11UpdateMenu/func_overlay_011_F0001398_1869BE0.s")
+#endif

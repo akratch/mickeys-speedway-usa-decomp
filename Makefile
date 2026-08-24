@@ -5465,157 +5465,33 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateSelection.c.o: POSTPROCESS 
 		--redefine-sym func_8002554C=overlay11ReadInputReloc \
 		--redefine-sym func_overlay_045_F0001BF4_188E04C=overlay11SetValue $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C8
-# Natural source recovers all 301 opcodes, the complete CFG, and all 102
-# relocation sites. Select only the asserted private frame/spill schedule,
-# retain distinct loader identities through semantic zero carriers, and trim
-# the compiler's independent section-alignment tail.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateMenu.c.o: \
-	config/normalizations/overlay11UpdateMenu.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateMenu.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4B4 18c39fe96915d7681d054af2c46d57ee22e57a52ca27f482bea3f9cf218c6204 \
-		@config/normalizations/overlay11UpdateMenu.ops && \
-	$(OBJCOPY) \
-		--redefine-sym func_80000F94=overlay11PlaySoundReloc \
-		--redefine-sym func_8002554C=overlay11ReadInputReloc \
-		--redefine-sym func_80005820=overlay11GetObjectReloc \
-		--redefine-sym func_80028374=overlay11StartTransitionReloc \
-		--redefine-sym func_80028528=overlay11CommitTransitionReloc \
-		--redefine-sym func_8003A754=overlay11ModeActionReloc \
-		--redefine-sym func_800290AC=overlay11SetModeReloc \
-		--redefine-sym func_800291D8=overlay11SetTimerReloc \
-		--redefine-sym func_800006BC=overlay11StartEffectReloc \
-		--redefine-sym func_overlay_045_F0001BF4_188E04C=overlay11SetValue \
-		--redefine-sym func_overlay_066_F0000000=overlay11SelectOverlay66Reloc \
-		--redefine-sym func_overlay_011_F0002BF4_186B43C=overlay11ReleaseCurrentGroupRuntimeReloc $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_011_F0001398_1869BE0=overlay11UpdateMenu $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4B4
-# Natural source recovers all 140 instructions and 46 relocation sites. The
-# only private residual is the complete two-use loop-index spill home.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateTwoOptionMenu.c.o: \
-	config/normalizations/overlay11UpdateTwoOptionMenu.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateTwoOptionMenu.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x230 46895030579b29364c8b4dba93d432f619bb787dcc04f9f126d7e2a8cf4b361a \
-		@config/normalizations/overlay11UpdateTwoOptionMenu.ops && \
-	$(OBJCOPY) \
-		--redefine-sym func_80000F94=overlay11PlaySoundReloc \
-		--redefine-sym func_8002554C=overlay11ReadInputReloc \
-		--redefine-sym func_80028374=overlay11StartTransitionReloc \
-		--redefine-sym func_80028528=overlay11CommitTransitionReloc \
-		--redefine-sym func_800290AC=overlay11SetModeReloc \
-		--redefine-sym func_800291D8=overlay11SetTimerReloc \
-		--redefine-sym func_800006BC=overlay11StartEffectReloc \
-		--redefine-sym func_overlay_045_F0001BF4_188E04C=overlay11SetValue \
-		--redefine-sym func_overlay_066_F0000000=overlay11SelectOverlay66Reloc \
-		--redefine-sym func_overlay_011_F0002BF4_186B43C=overlay11ReleaseCurrentGroupRuntimeReloc $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x230
-# The natural 244-instruction dispatcher has the exact CFG, registers, calls,
-# and 78 text relocation sites. Select its complete two-use private spill home,
-# point the switch dispatch at the retained runtime-local table, and discard
-# only the compiler's duplicate five-entry table.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateFiveOptionMenu.c.o: \
-	config/normalizations/overlay11UpdateFiveOptionMenu.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+	$(OBJCOPY) --redefine-sym func_overlay_011_F000184C_186A094=overlay11UpdateTwoOptionMenu $@
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateFiveOptionMenu.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3D0 a828dc0ff707d26c81caf34c2732c7eab8cd0c26ba6b2cf40529419b90739189 \
-		@config/normalizations/overlay11UpdateFiveOptionMenu.ops && \
-	$(OBJCOPY) \
-		--redefine-sym func_80000F94=overlay11PlaySoundReloc \
-		--redefine-sym func_8002554C=overlay11ReadInputReloc \
-		--redefine-sym func_80005820=overlay11GetObjectReloc \
-		--redefine-sym func_8002675C=overlay11GetTransitionReloc \
-		--redefine-sym func_80028374=overlay11StartTransitionReloc \
-		--redefine-sym func_800290AC=overlay11SetModeReloc \
-		--redefine-sym func_800291D8=overlay11SetTimerReloc \
-		--redefine-sym func_800006BC=overlay11StartEffectReloc \
-		--redefine-sym func_overlay_045_F0001BF4_188E04C=overlay11SetValue \
-		--redefine-sym func_overlay_066_F0000000=overlay11SelectOverlay66Reloc \
-		--redefine-sym func_overlay_011_F0002BF4_186B43C=overlay11ReleaseCurrentGroupRuntimeReloc $@ && \
-	$(OBJCOPY) --add-symbol gOverlay11FiveOptionSwitchTableReloc=0x40,global $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x164:.rodata:gOverlay11FiveOptionSwitchTableReloc \
-		0x16c:.rodata:gOverlay11FiveOptionSwitchTableReloc && \
-	$(OBJCOPY) --remove-section=.rodata $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3D0
-# Exact typed five-way dispatcher. Select the complete 296-carrier schedule,
-# extend the owner over IDO's existing alignment carrier, retain the 41-record
-# split relocation surface, and discard only the duplicate compiler table
-# already present byte-for-byte in the overlay's extracted data/rodata asset.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F0001E4C_186A694.c.o: \
-	config/normalizations/func_overlay_011_F0001E4C_186A694.ops \
-	config/normalizations/func_overlay_011_F0001E4C_186A694.filter.spec \
-	config/normalizations/func_overlay_011_F0001E4C_186A694.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/resize_elf_function.py \
-	$(TOOLS_DIR)/trim_elf_section.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+	$(OBJCOPY) --redefine-sym func_overlay_011_F0001A7C_186A2C4=overlay11UpdateFiveOptionMenu $@
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F0001E4C_186A694.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4A0 e09d692e5da08232200d18b426bc670abea418a7111040d0b835bbf2fde523a7 \
-		@config/normalizations/func_overlay_011_F0001E4C_186A694.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/resize_elf_function.py $@ .text \
-		func_overlay_011_F0001E4C_186A694 0x498 0x49C \
-		b960ae1b20c9d886667aebccbce4261fd57dd2679856a9ddf8894d2935ff0bfa && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x49C && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_011_F0001E4C_186A694.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_011_F0001E4C_186A694.rebind.spec && \
-	$(OBJCOPY) --remove-section=.rodata $@
-# Adjacent exact typed dispatcher. Select its complete 268-carrier schedule,
-# retain the exact 39-record split text surface, and discard only the duplicate
-# compiler table already preserved in the original data/rodata asset.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F00022E8_186AB30.c.o: \
-	config/normalizations/func_overlay_011_F00022E8_186AB30.ops \
-	config/normalizations/func_overlay_011_F00022E8_186AB30.filter.spec \
-	config/normalizations/func_overlay_011_F00022E8_186AB30.rebind.spec \
-	config/normalizations/func_overlay_011_F00022E8_186AB30.link.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+	$(OBJCOPY) --redefine-sym func_overlay_011_F0001E4C_186A694=func_overlay_011_F0001E4C_186A694 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x49C
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F00022E8_186AB30.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x430 67d9fc03f2b950dc1064833de6e25ac479b471a0cfb2163286575249728c7be4 \
-		@config/normalizations/func_overlay_011_F00022E8_186AB30.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x42C && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_011_F00022E8_186AB30.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_011_F00022E8_186AB30.rebind.spec && \
-	$(OBJCOPY) --add-symbol overlay11EmbeddedLocalReloc=0,global $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_011_F00022E8_186AB30.link.rebind.spec && \
-	$(OBJCOPY) --remove-section=.rodata $@
-# Natural source is exact in length, frame, CFG, delay slots, calls, and all
-# 47 relocation sites. Select only the complete two-use private loop-index
-# spill home, then map the established runtime proxy identities.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateModeSix.c.o: \
-	config/normalizations/overlay11UpdateModeSix.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+	$(OBJCOPY) --redefine-sym func_overlay_011_F00022E8_186AB30=func_overlay_011_F00022E8_186AB30 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x42C
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateModeSix.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x234 74bf71b2575100930e5c76d3271264058e0d58d22a3471e158c106e6e14d71b5 \
-		@config/normalizations/overlay11UpdateModeSix.ops && \
-	$(OBJCOPY) \
-		--redefine-sym func_80000F94=overlay11PlaySoundReloc \
-		--redefine-sym func_8002554C=overlay11ReadInputReloc \
-		--redefine-sym func_80028374=overlay11StartTransitionReloc \
-		--redefine-sym func_800290AC=overlay11SetModeReloc \
-		--redefine-sym func_800291D8=overlay11SetTimerReloc \
-		--redefine-sym func_800006BC=overlay11StartEffectReloc \
-		--redefine-sym func_overlay_045_F0001BF4_188E04C=overlay11SetValue \
-		--redefine-sym func_overlay_066_F0000000=overlay11SelectOverlay66Reloc \
-		--redefine-sym func_overlay_011_F0002BF4_186B43C=overlay11ReleaseCurrentGroupRuntimeReloc $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_011_F0002714_186AF5C=overlay11UpdateModeSix $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x234
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11CreateHandles.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
@@ -5646,23 +5522,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11InitializeFour.c.o: POSTPROCESS =
 		--redefine-sym func_overlay_045_F000000C_188B438=overlay11CreateReloc \
 		--redefine-sym D_800D31BC=gOverlay11ResidentFlagsReloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
-# IDO emits a private switch table, while Mickey uses the runtime-relocated
-# table at overlay +0x7C. Resolve the proved raw addends, then discard the
-# duplicate table and compiler relocations; the overlay relocation assets
-# remain authoritative at runtime.
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11ReleaseCurrentGroup.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xc0 bf28e7e108072d4b6f9c332eb7b3242d207d5a28206ff315b015fa98877ee16a \
-		fields:0x4:imm=0@436 \
-		fields:0x38:imm=0@124 \
-		fields:0x44:target=0@2642 \
-		fields:0x54:target=0@2692 \
-		fields:0x64:target=0@2667 \
-		fields:0x88:target=0@2742 \
-		fields:0x98:target=0@2717 \
-		fields:0xa8:target=0@2767 && \
-	$(OBJCOPY) --remove-relocations=.text --remove-section=.rodata $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC0
+	$(OBJCOPY) --redefine-sym func_overlay_011_F0002BF4_186B43C=overlay11ReleaseCurrentGroup $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13ProcessActive.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x78
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83Submit.c.o: POSTPROCESS = \

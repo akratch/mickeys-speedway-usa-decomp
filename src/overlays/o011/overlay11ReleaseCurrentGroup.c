@@ -15,6 +15,7 @@ extern void overlay11ReleaseGroup6C(void);
 extern void overlay11ReleaseGroup3B(void);
 
 /* DKR v77/v80 contain no matching state-to-release dispatcher. */
+#ifdef NON_MATCHING
 void overlay11ReleaseCurrentGroup(void) {
     Overlay11State *state;
 
@@ -44,3 +45,6 @@ void overlay11ReleaseCurrentGroup(void) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o011/overlay11ReleaseCurrentGroup/func_overlay_011_F0002BF4_186B43C.s")
+#endif

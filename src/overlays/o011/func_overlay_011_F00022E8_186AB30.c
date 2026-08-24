@@ -52,6 +52,7 @@ extern void func_800006BC(f32 arg0, s32 arg1);
 extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
+#ifdef NON_MATCHING
 void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
     s32 index;
     s8 direction;
@@ -179,3 +180,6 @@ void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o011/func_overlay_011_F00022E8_186AB30/func_overlay_011_F00022E8_186AB30.s")
+#endif
