@@ -47,6 +47,7 @@ extern void o57Ease28B4AlternateCommandReloc(s32 command, s32 argument);
 extern void o57Ease28B4AlternateFinishReloc(s32 argument);
 
 /* Overlay 57 text +0x28B4..+0x2C28. */
+#ifdef NON_MATCHING
 void overlay57EaseAndLatch(s32 updateRate) {
     O57Ease28B4Primary *primary;
     O57Ease28B4Secondary *secondary;
@@ -113,3 +114,6 @@ void overlay57EaseAndLatch(s32 updateRate) {
         gO57Ease28B4Latch50C = 1;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57EaseAndLatch/func_overlay_057_F00028B4_18A64AC.s")
+#endif

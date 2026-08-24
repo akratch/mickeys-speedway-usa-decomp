@@ -30,6 +30,7 @@ extern void overlay57SetNodeValue(s32 id, s32 argument, f32 value);
 extern void overlay57AdvanceReloc(s32 updateRate);
 
 /* Pinned DKR v77/v80 and JFG scans found no exact Overlay 57 donor. */
+#ifdef NON_MATCHING
 void overlay57UpdateModeTrigger(s32 updateRate) {
     s32 trigger;
 
@@ -90,3 +91,6 @@ void overlay57UpdateModeTrigger(s32 updateRate) {
 
     overlay57AdvanceReloc(updateRate);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57UpdateModeTrigger/func_overlay_057_F0004C18_18A8810.s")
+#endif

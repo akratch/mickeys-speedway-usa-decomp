@@ -5586,15 +5586,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57BeginMode.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57StartMode.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x98
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57ReleaseAll.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x170 84ad281985fb26137e1aa0764014bf410461a0eb5b6379e39d4764259a93fd0e \
-		reorder:0x18=0x1c,0x1c=0x18 \
-		reorder:0x94=0x98,0x98=0x94 \
-		reorder:0xbc=0xc0,0xc0=0xbc \
-		reorder:0xe4=0xe8,0xe8=0xe4 \
-		reorder:0x10c=0x110,0x110=0x10c \
-		reorder:0x134=0x138,0x138=0x134 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x170
+	$(OBJCOPY) --redefine-sym func_overlay_057_F0001978_18A5570=overlay57ReleaseAll $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58EnsureResource.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
 # IDO emits the exact 201-instruction CFG, calls, memory and FP effects.  The
@@ -6254,103 +6246,24 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Interpolate.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59DrawFrame.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x130
-# The natural object has the exact 221-word frame, CFG, opcode schedule, calls,
-# and FP payload copy. The guarded file selects retail's equivalent private
-# integer allocation for the two easing loops; it contains decoded fields only.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57EaseAndLatch.c.o: \
-	config/normalizations/overlay57EaseAndLatch.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57EaseAndLatch.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x374 aa3c82d78e296bccaebbf7d56add3b8c0e213b422d2b0c66bffaea37100ae86d \
-		@config/normalizations/overlay57EaseAndLatch.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_057_F00028B4_18A64AC=overlay57EaseAndLatch $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x374
-# The natural object has the exact 200-word frame, CFG, opcode/control-flow
-# schedule, all calls and all FP lanes.  This guarded complete-field selection
-# chooses retail's equivalent integer allocation and paired x/y halfword fields
-# for the two private smoothing loops; the operation file contains decoded
-# fields only, never raw words.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57SmoothAndCheckDistance.c.o: \
-	config/normalizations/overlay57SmoothAndCheckDistance.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57SmoothAndCheckDistance.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x320 5c55f3c99fe92cb4944d95ef07ca93e8e726339cdb8aa321eac8e5e6427d03d2 \
-		@config/normalizations/overlay57SmoothAndCheckDistance.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x320
-# The natural object has all 208 words, calls, branches, FP lanes, stack homes,
-# and memory effects. Two complete independent schedules and guarded private
-# register/frame webs select retail's equivalent representation.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57Draw32A0.c.o: \
-	config/normalizations/overlay57Draw32A0.ops
+	$(OBJCOPY) --redefine-sym func_overlay_057_F0002C28_18A6820=overlay57SmoothAndCheckDistance $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57Draw32A0.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x340 8696256f3733ef4a7822b3df6e3f5a744c27c7f8467ced6286dbd4915cb8c3e0 \
-		@config/normalizations/overlay57Draw32A0.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x340
-# IDO emits the complete exact-size selection routine. The guarded decoded
-# transform owns its relocation-carrying schedules and complete private webs.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57UpdateSelection.c.o: \
-	config/normalizations/overlay57UpdateSelection.ops \
-	tools/rebind_elf_relocations.py
+	$(OBJCOPY) --redefine-sym func_overlay_057_F00032A0_18A6E98=overlay57Draw32A0 $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57UpdateSelection.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x46C 5300e008a4c83f974324e25d64970434ff30bfed3142148dc9148ee8348e41be \
-		@config/normalizations/overlay57UpdateSelection.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x148:gO57SelectionPrimary4E8Reloc:gOverlay57Flags37ECReloc \
-		0x14C:gO57SelectionPrimary4E8Reloc:gOverlay57Flags37ECReloc \
-		0x430:gO57SelectionCurrent100Reloc:gOverlay57Flags37ECReloc \
-		0x440:gO57SelectionCurrent100Reloc:gOverlay57Flags37ECReloc && \
+	$(OBJCOPY) --redefine-sym func_overlay_057_F00035E0_18A71D8=overlay57UpdateSelection $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x46C
-# Natural codegen owns the exact 354-word CFG, all 32 calls, all 45 address
-# pairs, and every immediate/schedule choice. This fail-loud ledger selects
-# only the shipped complete private GPR-allocation web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57UpdateModeState.c.o: \
-	config/normalizations/overlay57UpdateModeState.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57UpdateModeState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x588 8d9c7845b2927118ffc8bb78fbe1e8d15fe298a892abd275391625be346876d9 \
-		@config/normalizations/overlay57UpdateModeState.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_057_F0003A4C_18A7644=overlay57UpdateModeState $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x588
-# The natural object has the exact 217-word CFG, calls, delay slots, FP lanes,
-# and frame. A guarded three-word schedule and private caller-register web
-# select retail's equivalent representation.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57HandleModeInput.c.o: \
-	config/normalizations/overlay57HandleModeInput.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57HandleModeInput.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x364 230c1b927f0fe5b124bcfc07d2fc3764d86f0ff6fcd039c44afade0bb55f70c0 \
-		@config/normalizations/overlay57HandleModeInput.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_057_F0004064_18A7C5C=overlay57HandleModeInput $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x364
-# Natural source owns the exact-size CFG, all seven calls, delay slots, and
-# effects. The guarded complete setup schedule and private index/register web
-# select retail's equivalent representation. Three independently proved LOCAL
-# records restore the compiler-elided base carriers, including two explicit SW
-# addends; the relocation helper checks their opcodes, addends, and final hash.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57UpdateModeTrigger.c.o: \
-	config/normalizations/overlay57UpdateModeTrigger.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/add_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57UpdateModeTrigger.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x178 5a0c128145749be3068ebebd0810e767b1a4d03a0636fb8b658279c63db2ff66 \
-		@config/normalizations/overlay57UpdateModeTrigger.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text \
-		0x178 5a0c128145749be3068ebebd0810e767b1a4d03a0636fb8b658279c63db2ff66 \
-		0x5C:HI16:gOverlay57SetupValues \
-		0x74:LO16:gOverlay57SetupValues:0x16C \
-		0x7C:LO16:gOverlay57SetupValues:0x168 && \
-	$(OBJCOPY) \
-		--redefine-sym gOverlay57Countdown=gOverlay57TailCountdownReloc \
-		--redefine-sym gOverlay57ModeFlag=gOverlay57TailModeFlagReloc \
-		--redefine-sym gOverlay57SetupStatus=gOverlay57TailSetupStatusReloc \
-		--redefine-sym gOverlay57SetupValues=gOverlay57TailSetupValuesReloc \
-		--redefine-sym gOverlay57Timer=gOverlay57TailTimerReloc \
-		--redefine-sym gOverlay57Object=gOverlay57TailObjectReloc \
-		--redefine-sym gOverlay57ObjectStatus=gOverlay57TailObjectStatusReloc \
-		--redefine-sym gOverlay57ObjectId=gOverlay57TailObjectIdReloc \
-		--redefine-sym gOverlay57TriggerLatched=gOverlay57TailTriggerLatchedReloc \
-		--redefine-sym gOverlay57SetupDelay=gOverlay57TailSetupDelayReloc $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_057_F0004C18_18A8810=overlay57UpdateModeTrigger $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x178
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57CheckDistance.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x100

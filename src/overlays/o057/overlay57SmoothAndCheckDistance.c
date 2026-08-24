@@ -31,6 +31,7 @@ extern void o57Tail2C28StartReloc(s32 type, s32 arg1, s32 arg2, s32 mode,
 extern void o57Tail2C28FinishReloc(void);
 
 /* Overlay 57 text +0x2C28..+0x2F48. */
+#ifdef NON_MATCHING
 void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
     s32 i;
     s32 x;
@@ -88,3 +89,6 @@ void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
         o57Tail2C28FinishReloc();
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57SmoothAndCheckDistance/func_overlay_057_F0002C28_18A6820.s")
+#endif

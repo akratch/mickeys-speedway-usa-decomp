@@ -48,6 +48,7 @@ extern void o57Draw32A0RenderReloc(void *anchor,
                                    f32 yScale, s32 color, s32 command);
 
 /* Overlay 57 text +0x32A0..+0x35E0. */
+#ifdef NON_MATCHING
 void overlay57Draw32A0(s32 updateRate) {
     Overlay57Draw32A0Record *records;
     Overlay57Draw32A0Record *cursor;
@@ -149,3 +150,6 @@ void overlay57Draw32A0(s32 updateRate) {
         } while (i != rowCount[0]);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57Draw32A0/func_overlay_057_F00032A0_18A6E98.s")
+#endif
