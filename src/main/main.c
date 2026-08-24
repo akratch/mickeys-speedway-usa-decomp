@@ -37,6 +37,8 @@ extern s32 D_8007A1A8;
 extern u32 D_8007A1CC;
 extern s32 D_8007A1D4;
 extern s32 D_8007A1EC;
+extern s16 D_8007A250[];
+extern s32 D_8007A258;
 extern u8 D_8007BEF4;
 extern u8 D_8007BEF8;
 extern s8 D_800CF53F[];
@@ -64,6 +66,10 @@ extern u8 D_800D1928[];
 extern s32 levelNGetType(s32 level);
 extern void func_80028EFC(MainCharacterState *, s32, s32);
 extern void mainChangeLevel(s32, s32, s32, s32, s32, s32);
+extern void func_80005548(s32);
+extern void func_80028DE4(s32, s32, s32, s32, s32, s32);
+extern void func_8003A544(s32);
+extern void joyResetMap(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -159,7 +165,18 @@ void mainSetMode(s32 modeToSet) {
     D_8007A1BC = modeToSet;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028D30.s")
+/* PROVENANCE: function role adapted from JFG src/main.c order and body. */
+void mainTitlePageInit(s32 arg0) {
+    D_8007A1BC = 1;
+    D_8007A1C0 = 1;
+    func_8003A544(0);
+    mainChangeLevel(D_8007A250[D_8007A258], 0, 0, 3, 1, 0);
+    mainChangeCameras(1);
+    func_80028DE4(6, 6, 0, 2, 0, 0);
+    func_80005548(6);
+    joyResetMap();
+    D_8007A258 = (D_8007A258 + 1) & 3;
+}
 
 void func_80028DE4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     D_8007A174 = arg0;
