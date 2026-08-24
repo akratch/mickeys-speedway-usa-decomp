@@ -12,10 +12,29 @@
 extern s32 D_800CF3C4;
 extern u8 D_800CF420[];
 extern u8 *D_800CF3C8;
+extern s32 D_800CF3D4;
+
+/* PROVENANCE: field roles adapted from JFG src/level.c; Mickey layout is decisive. */
+typedef struct LevelSummary {
+    u8 type;
+    s8 world;
+    u8 objectFlag;
+    u8 flags;
+    u8 tune;
+    u8 blur;
+} LevelSummary;
+
+extern LevelSummary *D_800CF3DC;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetCounts.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelNGetType.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+s32 levelNGetType(s32 arg0) {
+    if ((arg0 >= 0) && (arg0 < D_800CF3D4)) {
+        return D_800CF3DC[arg0].type;
+    }
+    return -1;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetTune.s")
 
