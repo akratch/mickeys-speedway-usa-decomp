@@ -127,7 +127,25 @@ void gsSndpStop(GsSoundStateLink *state) {
         rmonPrintf(D_800843CC);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/sndp_stop_with_flags.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (sndp_stop_with_flags). */
+void sndp_stop_with_flags(u8 eventFlags) {
+    u32 mask;
+    GsSndEvent event;
+    GsSoundStateLink *state;
+
+    mask = osSetIntMask(1);
+    state = D_8007FF40;
+    while (state != NULL) {
+        event.type = 0x400;
+        event.state = state;
+        if ((state->flags & eventFlags) == eventFlags) {
+            event.state->flags &= ~0x10;
+            n_alEvtqPostEvent(D_8007FF4C->eventQueue, &event, 0);
+        }
+        state = state->next;
+    }
+    osSetIntMask(mask);
+}
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpStopAll). */
 void gsSndpStopAll(void) {
     sndp_stop_with_flags(1);
