@@ -51,6 +51,7 @@ extern u8 D_80079FA8[];
 extern f32 D_80079FB0[];
 extern Mtx D_800CED60[];
 extern MtxF D_800CEC98;
+extern s32 D_800CEC60;
 extern MtxF D_800CF1A0;
 extern f32 D_800CF2A0;
 extern Camera D_800CEA20[];
@@ -88,7 +89,10 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800217AC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800217B8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021838.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021918.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetMode. */
+s32 camGetMode(void) {
+    return D_800CEC60;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021924.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021964.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021970.s")
