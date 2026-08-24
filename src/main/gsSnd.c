@@ -39,7 +39,7 @@ typedef struct GsSndPlayer {
     s16 eventType;
     u8 eventPad2[0xE];
     void *driver;
-    s32 unk40;
+    struct GsSoundStateLink *currentState;
     struct GsSoundStateLink *statePool;
     s32 maxSystemSoundChannels;
     s32 eventDelta;
@@ -111,6 +111,14 @@ typedef struct GsSndPitchEvent {
     f32 pitch;
 } GsSndPitchEvent;
 
+typedef struct GsSndRetriggerEvent {
+    u16 type;
+    u16 pad2;
+    GsSoundStateLink *state;
+    s32 soundId;
+    void *bank;
+} GsSndRetriggerEvent;
+
 typedef struct GsSndEventItem {
     struct GsSndEventItem *next;
     struct GsSndEventItem *prev;
@@ -133,6 +141,7 @@ extern GsSoundStateLink *D_8007FF48;
 extern s16 D_8007FF54;
 extern const char D_800843CC[];
 extern const char D_800843FC[];
+extern const char D_800843A4[];
 
 u32 osSetIntMask(u32 mask);
 f32 alCents2Ratio(s32 cents);
@@ -159,7 +168,7 @@ void gsSndpNew(GsSndConfig *config) {
 
     D_8007FF4C->maxSystemSoundChannels = config->maxSystemSoundChannels;
     D_8007FF4C->voiceLimit = config->maxSystemSoundChannels;
-    D_8007FF4C->unk40 = 0;
+    D_8007FF4C->currentState = NULL;
     D_8007FF4C->eventDelta = 0x3E80;
     allocation = alHeapDBAlloc(NULL, 0, config->heap, 1,
                                config->maxSounds * sizeof(GsSoundStateLink));
@@ -299,7 +308,7 @@ u16 getSoundStateCounts(u16 *numFree, u16 *numAllocated) {
 
     return allocatedRevCounter;
 }
-GsSoundStateLink *func_8005D030(s32 unused, GsSound *sound) {
+GsSoundStateLink *func_8005D030(void *unused, GsSound *sound) {
     GsSoundStateLink *state;
     GsSndKeyMap *keyMap;
     s32 special;
@@ -390,7 +399,90 @@ u8 gsSndpGetState(GsSndPriorityState *state) {
         return 0;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/ad_sndp_play.s")
+/*
+ * PROVENANCE: adapted from DKR src/audiosfx.c (sndp_play_with_priority) and
+ * Perfect Dark src/lib/naudio/n_sndplayer.c (sndp_play_sound). Mickey's
+ * extended volume/pan/pitch/fx parameters and bank lookup were reconstructed
+ * from Mickey itself; the nested event lifetimes follow the permitted donors.
+ */
+GsSoundStateLink *ad_sndp_play(void *bank, s16 soundId, u16 volume, u8 pan,
+                               f32 pitch, u8 fxMix,
+                               GsSoundStateLink **handle) {
+    GsSoundStateLink *state;
+    GsSoundStateLink *lastState;
+    GsSndKeyMap *keyMap;
+    GsSound *sound;
+    s16 retriggerSoundId;
+    s32 retriggerDelta;
+    s32 soundDelta;
+    s32 sequenceDelta;
+    s32 adjustedPan;
+
+    lastState = NULL;
+    retriggerSoundId = 0;
+    sequenceDelta = 0;
+    if (soundId != 0) {
+        do {
+            sound = *(GsSound **)((u8 *)*(void **)((u8 *)bank + 0xC) +
+                                  soundId * 4 + 0xC);
+            state = func_8005D030(bank, sound);
+            if (state != NULL) {
+                GsSndEvent playEvent;
+
+                D_8007FF4C->currentState = state;
+                playEvent.type = 1;
+                playEvent.state = state;
+                adjustedPan = pan + state->unk41 - 0x40;
+                if (adjustedPan >= 0x80) {
+                    adjustedPan = 0x7F;
+                } else if (adjustedPan < 0) {
+                    adjustedPan = 0;
+                }
+                state->unk41 = adjustedPan;
+                state->volume = (u32)(volume * state->volume) >> 15;
+                state->pitch *= pitch;
+                state->unk42 = fxMix;
+                soundDelta = sound->keyMap->velocityMax * 33333;
+                if (state->flags & 0x10) {
+                    state->flags &= ~0x10;
+                    n_alEvtqPostEvent(D_8007FF4C->eventQueue, &playEvent,
+                                      sequenceDelta + 1);
+                    retriggerDelta = soundDelta + 1;
+                    retriggerSoundId = soundId;
+                } else {
+                    n_alEvtqPostEvent(D_8007FF4C->eventQueue, &playEvent,
+                                      soundDelta + 1);
+                }
+                lastState = state;
+            } else {
+                rmonPrintf(D_800843A4, soundId);
+            }
+            sequenceDelta += soundDelta;
+            keyMap = sound->keyMap;
+            soundId = keyMap->velocityMin + ((keyMap->keyMin & 0xC0) << 2);
+        } while (soundId != 0 && state != NULL);
+
+        if (lastState != NULL) {
+            lastState->flags |= 1;
+            lastState->userHandle = handle;
+            if (retriggerSoundId != 0) {
+                GsSndRetriggerEvent retriggerEvent;
+
+                lastState->flags |= 0x10;
+                retriggerEvent.type = 0x200;
+                retriggerEvent.state = lastState;
+                retriggerEvent.soundId = retriggerSoundId;
+                retriggerEvent.bank = bank;
+                n_alEvtqPostEvent(D_8007FF4C->eventQueue, &retriggerEvent,
+                                  retriggerDelta);
+            }
+        }
+    }
+    if (handle != NULL) {
+        *handle = lastState;
+    }
+    return lastState;
+}
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpStop). */
 void gsSndpStop(GsSoundStateLink *state) {
     GsSndEvent event;
