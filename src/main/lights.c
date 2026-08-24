@@ -29,7 +29,10 @@ extern void initColourCycle(s32 arg0, s32 arg1);
 void turnLightOff(UnkLight *light) {
     light->unk3 &= ~1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DC4.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void turnLightOn(UnkLight *light) {
+    light->unk3 |= 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DD4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DE4.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
