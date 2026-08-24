@@ -4,5 +4,6 @@
 #include "PR/ultratypes.h"
 
 void modelSetModelFlags(s32 flags);
+s32 modelGetModelFlags(void);
 
 #endif

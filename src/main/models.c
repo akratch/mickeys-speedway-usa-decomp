@@ -49,7 +49,13 @@ void func_8001F420(u16 *src, u16 *dest, s32 len) {
 void modelSetModelFlags(s32 flags) {
     D_80079C00 = flags;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020570.s")
+/*
+ * PROVENANCE -- name follows JFG's public models.c symbol at the same TU
+ * position. The body is reconstructed from Mickey's three instructions.
+ */
+s32 modelGetModelFlags(void) {
+    return D_80079C00;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8002057C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020AD4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020B10.s")
