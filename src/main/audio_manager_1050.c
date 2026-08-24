@@ -67,6 +67,7 @@ extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
 extern void func_80001568(void *player);
 extern u16 func_800016C8(s32 volume);
+extern s32 func_80001258(void);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
                           f32 pitch, u8 arg5, void **handle);
 
@@ -274,7 +275,22 @@ void amSndPlay(u16 soundId, void **handle) {
                  func_800016C8(D_800BF7A0[soundId].volume << 8), 0x40, pitch,
                  0, handle);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001098.s")
+/*
+ * PROVENANCE: official name, parameter role, and body shape adapted from JFG
+ * asm/nonmatchings/audio_manager_1050/amSndPlayDirect.s; Mickey's boundary,
+ * branch form, globals, and calls remain authoritative.
+ */
+void amSndPlayDirect(u16 soundBite, u8 volume, u8 pan, f32 pitch, u8 arg4,
+                     void **handle) {
+    if (soundBite <= 0 || func_80001258() < soundBite) {
+        if (handle != NULL) {
+            *handle = NULL;
+        }
+        return;
+    }
+    ad_sndp_play(D_800BF79C->bankArray[0], soundBite,
+                 func_800016C8(volume << 8), pan, pitch, arg4, handle);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001144.s")
 /* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
 void amSndSetPan(void *sound, u32 pan) {
