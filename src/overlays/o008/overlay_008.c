@@ -23,6 +23,9 @@ void *overlay8GetIndexed(Overlay8IndexedObject *object) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0000058_185DDB0.s")
 
+/* Plateau after 10 serious attempts: exact 0x5F4 size/frame/opcode shape,
+ * 88 instruction-word register differences, first at +0x1FC. The remaining
+ * mismatch is an FP temp-FIFO phase shift that later cascades into GPR temps. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
                                        s32 updateRate) {
