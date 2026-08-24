@@ -105,6 +105,7 @@ extern void overlay101BuilderCreateFinalReloc(void *text, s32 index,
 extern s32 overlay101ByteLength(u8 *text);
 
 /* Exact overlay 101 body at +0x99C4. */
+#ifdef NON_MATCHING
 void overlay101BuildPresentationA(void) {
     s32 orderIndex;
     s32 node32IndexA;
@@ -233,3 +234,6 @@ void overlay101BuildPresentationA(void) {
                                       dimColor,
                                       &gOverlay101BuilderNode24CountB);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101BuildPresentationA/func_overlay_101_F00099C4_18E51E4.s")
+#endif

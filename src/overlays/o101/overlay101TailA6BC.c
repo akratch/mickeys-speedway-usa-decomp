@@ -88,6 +88,7 @@ extern void o101TailFinalizerReloc(void *object);
 extern s32 overlay101ByteLength(u8 *text);
 
 /* Exact overlay 101 body at +0xA6BC. */
+#ifdef NON_MATCHING
 void overlay101TailA6BC(s32 base, register s32 positionalA1, s32 workIndex) {
     s32 orderIndex;
     s32 nodeIndex1;
@@ -246,3 +247,6 @@ void overlay101TailA6BC(s32 base, register s32 positionalA1, s32 workIndex) {
 
     o101TailFinalizerReloc(&gO101TailFinalObject3B78);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailA6BC/func_overlay_101_F000A6BC_18E5EDC.s")
+#endif

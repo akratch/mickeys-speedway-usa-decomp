@@ -56,6 +56,7 @@ void overlay101SubmitTransformReloc(Overlay101Gfx **displayList, void *matrix,
  * scoped decoded ledger selects two retail command schedules and complete
  * equivalent private temporary-register webs.
  */
+#ifdef NON_MATCHING
 void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
                                void *vertices, Overlay101DrawNode *node,
                                Overlay101TransformElement *element) {
@@ -119,3 +120,6 @@ void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
         (void)bottom;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101DrawTransformed/func_overlay_101_F00029A4_18DE1C4.s")
+#endif

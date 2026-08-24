@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 260252,
-  "nonmatching_overlay_c_bytes": 16348,
+  "matched_overlay_c_bytes": 243100,
+  "nonmatching_overlay_c_bytes": 33500,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -19926,7 +19926,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101DispatchActive",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1BB4",
@@ -19944,7 +19944,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101DispatchEvents",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1F80",
@@ -19989,7 +19989,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101DrawTransformed",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2C3C",
@@ -20016,7 +20016,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101BuildBorder",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2EFC",
@@ -20025,7 +20025,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101DrawPanel",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x332C",
@@ -20034,7 +20034,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101DrawClock",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x36E4",
@@ -20079,7 +20079,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101BuildPresentationA",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x9D04",
@@ -20088,7 +20088,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101BuildPresentationB",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xA044",
@@ -20097,7 +20097,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101BuildPresentationC",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xA384",
@@ -20106,7 +20106,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101BuildPresentationD",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xA6BC",
@@ -20115,7 +20115,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101TailA6BC",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xAB4C",
@@ -20124,7 +20124,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101TailAB4C",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xB544",
@@ -20133,7 +20133,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101TailB544",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xBA34",
@@ -20142,7 +20142,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101TailBA34",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xC144",
@@ -20151,7 +20151,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101TailC144",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xC6E8",
@@ -20160,7 +20160,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101TailC6E8",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xCBDC",
