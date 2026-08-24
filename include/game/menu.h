@@ -12,5 +12,6 @@ void frontSetWideAdjust(s32 offset);
 u16 frontGetSfxVolume(void);
 void frontSetSfxVolume(s32 volume);
 u16 frontGetBgmVolume(void);
+void frontSetBgmVolume(s32 volume);
 
 #endif

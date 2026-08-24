@@ -450,6 +450,13 @@ BGM state. The adapted body carries point-of-use `PROVENANCE`; its linked data
 relocation is exact, and a zero-byte weak alias preserves the anonymous name
 used by resident assembly.
 
+The paired tier-B `frontSetBgmVolume` adds **0x3C bytes / 15 words** at ROM
+`0x3B0D0`. The JFG body exactly accounts for Mickey's two bounds clamps,
+halfword store, and corresponding audio-volume call, and carries point-of-use
+`PROVENANCE`. Canonical flags, call and data relocations, object words, and the
+linked ROM range are exact; a zero-byte weak alias preserves its assembly
+caller's anonymous spelling.
+
 ---
 
 ## 4. libultra
