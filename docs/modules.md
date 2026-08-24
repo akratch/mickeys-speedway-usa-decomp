@@ -365,7 +365,7 @@ level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 
 ### 3.4 Resident controller, level and main TUs
 
-ROM `0x25C20`-`0x2A250` is 17,968 bytes (`0x4630`) containing 105
+ROM `0x25C20`-`0x2A250` is 17,968 bytes (`0x4630`) containing 106
 functions. A per-function census recorded every boundary, direct caller and
 callee, string reference, and the top five masked n-gram neighbours from
 `tools/skeleton_scan.py`. No function in the range uses an odd-numbered
@@ -376,7 +376,7 @@ functions to remain hand-written assembly.
 |---|---|---:|---:|---|
 | `main/joy` | `0x25C20`-`0x263F0` / `0x80025020`-`0x800257F0` | 2,000 | 19 | **Tier B:** exact ordered correspondence to JFG's controller setup/read, map accessors, stick clamp and CIC helper; Mickey's callers agree |
 | `main/level` | `0x263F0`-`0x27760` / `0x800257F0`-`0x80026B60` | 4,976 | 21 | **Tier B:** exact ordered correspondence to JFG `level.c`; Mickey omits `levelGetWorldRegions` and four donor tail accessors |
-| `main/main` | `0x27760`-`0x2A250` / `0x80026B60`-`0x80029650` | 10,992 | 65 | **Tiers B + C:** ordered main-state call graph plus six references to `main/main.c`; the last routine references the `x/y/z/a` coordinate readout strings |
+| `main/main` | `0x27760`-`0x2A250` / `0x80026B60`-`0x80029650` | 10,992 | 66 | **Tiers B + C:** ordered main-state call graph plus six references to `main/main.c`; the last routine references the `x/y/z/a` coordinate readout strings |
 
 The boundaries are all 16-byte aligned and are evidence-backed TU splits, but
 they are not tier-A whole-object matches: no complete JFG object was
@@ -395,6 +395,12 @@ main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
 `0x80027FB8` build the six `main/main.c` string addresses. Placeholder-named
 JFG functions were not imported: unresolved routines retain Mickey's own
 `func_<VRAM>` symbol.
+
+One initial combined symbol was corrected during reconstruction: the
+108-byte routine at `0x80028E2C` has JFG `mainFrontInit`'s exact size,
+top-ranked skeleton and call role; the independent return stub at
+`0x80028E98` occupies JFG's following `mainStartGame` slot. Both names are
+tier B because the complete donor bodies are not byte-identical.
 
 **Matching progress.** Seventy-four functions / 3,400 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,

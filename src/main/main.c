@@ -168,7 +168,9 @@ void func_80028DE4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     D_8007A18C = 1;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028E2C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainFrontInit.s")
+
+#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainStartGame.s")
 
 void func_80028EA0(MainGameState *state) {
     s32 i;
