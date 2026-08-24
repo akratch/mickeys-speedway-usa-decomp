@@ -20,6 +20,7 @@
 
 extern void initColourCycle();
 extern f32 sqrtf(f32 value);
+extern void func_8000D728(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_800188CC(UnkLight *light);
 extern void func_80018F08(UnkLight *light, s32 updateRate);
 extern u8 *func_8002679C(void);
@@ -166,7 +167,28 @@ void changeLightIntensity(UnkLight *light, u8 intensity) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E7C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018F08.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001923C.s")
+/* PROVENANCE: adapted from DKR's public decomp, src/lights.c, and Mickey's own assembly. */
+void killLight(UnkLight *light) {
+    s32 i;
+    UnkLight *entry;
+
+    entry = NULL;
+    for (i = 0; (i < D_80079494) && (entry == NULL); i++) {
+        if (light == D_80079498[i]) {
+            entry = D_80079498[i];
+        }
+    }
+    if (entry != NULL) {
+        if (light->unk6C != 0) {
+            func_8000D728(light->unk6C, i, D_80079494, (s32) entry);
+        }
+        D_80079494--;
+        for (i--; i < D_80079494; i++) {
+            D_80079498[i] = D_80079498[i + 1];
+        }
+        D_80079498[D_80079494] = entry;
+    }
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 void **lightGetLights(s32 *count) {
     *count = D_80079494;
