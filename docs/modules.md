@@ -436,7 +436,7 @@ placeholders are never imported.
 | `0x80057350` | `0x78` | no unique `hit.c` candidate | D; collision handler |
 | `0x800573C8` | `0x3A4` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x8005776C` | `0x1A4` | `hitPlayer` | B; same player-list/square-root call shape |
-| `0x80057910` | `0x60` | `fmvInit` | D; exact masked skeleton, not relocation-aware byte identity |
+| `0x80057910` | `0x5C` + `0x4` pad | `fmvInit` | A; exact masked JFG skeleton and C donor, adopted name. Matched C: exact 92 executable B and relocation surface at `-O2 -mips2 -32`; trailing 4 B is compiler alignment padding and earns no function credit |
 
 No function in this block directly references a distinctive string. Its
 references into `0x80083FA8`–`0x80084218` are floating-point constants, so no

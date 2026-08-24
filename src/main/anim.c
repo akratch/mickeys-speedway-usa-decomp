@@ -238,4 +238,24 @@ void func_800534C0(s32 i) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80057350.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800573C8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005776C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80057910.s")
+/*
+ * PROVENANCE: adapted from JFG's src/fmvInit.c. Mickey's ROM establishes the
+ * resource ID, globals, structure layout, and final compiler output here.
+ */
+void fmvInit(void) {
+    FmvPlayer *player;
+    s32 i;
+
+    D_800D76D0[0] = func_8002E148(0x41);
+    player = D_800D76D8;
+
+    i = 2;
+    while (i--) {
+        player->unk0 = -1;
+        player->unk14 = 0;
+        player->unk18 = 0;
+        player->unk1C = 0;
+        player->unk20 = 0;
+        player++;
+    }
+}

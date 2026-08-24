@@ -31,6 +31,18 @@ typedef struct AnimPauseSlot {
 
 extern AnimPauseSlot D_800D6D18[5];
 
+typedef struct FmvPlayer {
+    s8 unk0;
+    u8 pad1[0x10];
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    s32 unk20;
+} FmvPlayer;
+
+extern void *D_800D76D0[2];
+extern FmvPlayer D_800D76D8[2];
+
 void func_80050000(s32 *stream);
 s32 func_80050024(u32 bitCount);
 s32 func_800500A4(u32 bitCount);
@@ -52,5 +64,7 @@ void mmFree(void *ptr);
 void animseqFreeLevelData(void);
 void func_80050E9C(void);
 void func_800534C0(s32 i);
+void *func_8002E148(s32 resourceId);
+void fmvInit(void);
 
 #endif
