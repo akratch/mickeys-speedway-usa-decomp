@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-29 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 27 more from it): every masked=0/1/2 TU (the
+30 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 28 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -504,6 +504,8 @@ bare flag group and no owned data or rodata. The JFG `n_reverb.c`/`n_save.c`
 pair supplies Mickey's combined `0x16B0`-byte reverb TU plus its `0x30` bytes
 of rodata; it requires `-DN_MICRO -Wab,-r4300_mul`. The 15-function,
 `0x1160`-byte `n_seqplayer` TU matches the JFG source under the bare flag group.
+JFG's `N_MICRO` resampler path supplies the exact `0x2A0`-byte `n_resample`
+text and its `0x10` bytes of rodata under the same bare flag group.
 
 **Plateaus, each with a first mismatch:**
 
@@ -512,11 +514,6 @@ of rodata; it requires `-DN_MICRO -Wab,-r4300_mul`. The 15-function,
   float literal from the wrong offset in the still-undifferentiated
   `.rodata` pool, off by `0x20` — a `.rodata`-ordering question beyond
   this pass.
-- `n_resample` (masked=8): `n_alResamplePull`'s tail diverges
-  structurally from the ROM (an extra `jal` the real function doesn't
-  have); needs a closer read of the loop/branch shape before another
-  attempt.
-
 Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
 `0xAD0`), `n_env` (masked=59), `alsurround`
 (masked=39), `n_event`/`n_drvrNew` (masked=34 each), `n_synaddplayer`
