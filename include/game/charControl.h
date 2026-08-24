@@ -5,15 +5,21 @@
 
 /* Partial player-control layout; fields are added only as Mickey proves them. */
 typedef struct ControlPlayer {
-    /* 0x000 */ u8 pad000[0x14];
+    /* 0x000 */ s8 playerIndex;
+    /* 0x001 */ u8 pad001[0x14 - 0x1];
     /* 0x014 */ f32 unk14[3];
-    /* 0x020 */ u8 pad020[0x438 - 0x20];
+    /* 0x020 */ u8 pad020[0x191 - 0x20];
+    /* 0x191 */ s8 unk191;
+    /* 0x192 */ u8 pad192[0x1A8 - 0x192];
+    /* 0x1A8 */ u16 flags1A8;
+    /* 0x1AA */ u8 pad1AA[0x438 - 0x1AA];
     /* 0x438 */ s32 joypadDisabled;
 } ControlPlayer;
 
 s16 dAngle(s16 arg0, s16 arg1, f32 arg2);
 void controlFSUvels(s16 *rotation, ControlPlayer *player);
 void controlDisableJoypad(ControlPlayer *player, s32 disabled);
+void controlSetRumble(ControlPlayer *player, s32 strength, f32 duration);
 void controlSetPlayerSetup(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
 s32 controlGetPlayerSetup(s16 *arg0, s16 *arg1, s16 *arg2, s16 *arg3);
 void controlClearPlayerSetup(void);

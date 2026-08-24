@@ -1438,6 +1438,7 @@ dAngle = 0x8001D824; // type:func size:0x5C   ROM 0x1e424
 controlFSUvels = 0x8001D910; // type:func size:0x50   ROM 0x1e510
 // tier B + exact C -- JFG role/name; Mickey stores the disable flag per player.
 controlDisableJoypad = 0x8001F25C; // type:func size:0x8   ROM 0x1fe5c
+controlSetRumble = 0x8001F320; // type:func size:0x44   ROM 0x1ff20
 // exact-C (ADR 0001), no external name adopted: func_8001F364, ROM 0x1ff64, size 0x8
 controlSetPlayerSetup = 0x8001F36C; // type:func size:0x40   ROM 0x1ff6c  src/charControl.c.o  masked=10/16  exact C (ADR 0001)
 // tier B + exact C -- JFG name; consumes the tier-A setter's four values.

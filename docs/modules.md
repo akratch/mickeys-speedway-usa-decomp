@@ -415,7 +415,7 @@ call graph isolates one namesake.
 | `0x8001F14C` | `0x110` | `controlCeiling` | D: collision-control position in the JFG sequence; retain `func_` |
 | `0x8001F25C` | `0x8` | `controlDisableJoypad` | B + matched C: caller supplies player and boolean, next routine tests the stored state; JFG has the same role but a one-argument global implementation |
 | `0x8001F264` | `0xBC` | `controlReadJoypad` | B: calls all seven stick/button readers in JFG order; retain `func_` |
-| `0x8001F320` | `0x44` | `controlSetRumble` | B: sole call is the rumble dispatcher under player-state guards; retain `func_` |
+| `0x8001F320` | `0x44` | `controlSetRumble` | B + matched C: sole call is the rumble dispatcher under player-state guards; Mickey-derived wrapper is ADR 0001 exact under O2/mips2 |
 | `0x8001F364` | `0x8` | — | Matched C: empty routine, ADR 0001 byte-identity; retain `func_` |
 | `0x8001F36C` | `0x40` | `controlSetPlayerSetup` | A + matched C: 6 unmasked of 16 JFG words established the name; Mickey-derived four-halfword/valid-byte body is ADR 0001 exact |
 | `0x8001F3AC` | `0x5C` | `controlGetPlayerSetup` | B + matched C: consumes and clears the exact state written by the tier-A setter; adopted with point-of-use JFG provenance and ADR 0001 byte-identity |

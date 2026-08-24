@@ -31,6 +31,7 @@ extern s16 D_800CB474;
 extern s16 D_800CB476;
 
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
+void func_8002BD58(s32 playerIndex, s32 strength, f32 duration);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BB90.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
@@ -108,7 +109,15 @@ void controlDisableJoypad(ControlPlayer *player, s32 disabled) {
     player->joypadDisabled = disabled;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F264.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F320.s")
+/*
+ * PROVENANCE -- JFG's charControl symbols supplied the controlSetRumble
+ * name/role. Mickey's smaller wrapper independently determines this body.
+ */
+void controlSetRumble(ControlPlayer *player, s32 strength, f32 duration) {
+    if ((player->unk191 == 0) && !(player->flags1A8 & 1)) {
+        func_8002BD58(player->playerIndex, strength, duration);
+    }
+}
 void func_8001F364(void) {
 }
 void controlSetPlayerSetup(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
