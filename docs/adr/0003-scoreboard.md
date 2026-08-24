@@ -22,16 +22,16 @@ check, with dedicated CI jobs that compile-only under `NON_MATCHING=1` and
 Adopt DKR's five-line scoreboard as Mickey's scoreboard, byte-weighted
 (weighting each function by its size, as DKR does from the map file):
 
-1. **Decompiled** — matched, per ADR 0001: untouched `tools/ido/cc` output,
+1. **Decompiled**: matched, per ADR 0001: untouched `tools/ido/cc` output,
    linked at the real offset, byte-identical, with no instruction-altering
    post-process step in its object's build path.
-2. **Handwritten ASM** — `verified_asm.us.txt`, counted on its own line,
+2. **Handwritten ASM**: `verified_asm.us.txt`, counted on its own line,
    counted toward the total the way DKR counts `src/hasm/*.s`.
-3. **GLOBAL_ASM remaining** — extracted, unattempted or unresolved.
-4. **NON_MATCHING** — has a C body believed semantically correct, compiles,
+3. **GLOBAL_ASM remaining**: extracted, unattempted or unresolved.
+4. **NON_MATCHING**: has a C body believed semantically correct, compiles,
    does not byte-match; kept under `#ifdef NON_MATCHING` over a
    `#pragma GLOBAL_ASM` fallback per ADR 0002.
-5. **NON_EQUIVALENT** — compiles, but is understood not to even be
+5. **NON_EQUIVALENT**: compiles, but is understood not to even be
    semantically the same function; a stricter, more honest sibling of
    NON_MATCHING.
 
@@ -53,9 +53,9 @@ for (`gmake scoreboard`, `tools/progress.py --verbose`), consistent with the
   percentage or an equivalent bit-identity check per object, not just
   `TEXT_SUBSEGMENTS` membership, and (b) check that object's build recipe
   for any instruction-editing step before crediting a byte range to line 1.
-  This is implementation work outside this ADR's scope (not touched by this
-  lane; `tools/*.py` is out of bounds here) but is the concrete consequence
-  the next engineering pass on `progress.py`/`scoreboard` must satisfy.
+  This is implementation work outside this ADR's scope, but is the concrete
+  consequence the next engineering pass on `progress.py`/`scoreboard` must
+  satisfy.
 - `README.md`'s Progress block gains the five DKR-style rows in place of the
   current undifferentiated figure once that work lands; `gmake
   check-scoreboard` continues to fail on drift between the README block and

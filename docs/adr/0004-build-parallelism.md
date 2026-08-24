@@ -13,23 +13,26 @@ machine (M3 Max, 14 cores, 36 GiB): a small libultra translation unit
 compiles in 0.09 s, `src/main/matrix.c` in 0.11 s, and a no-op `gmake -n`
 alone takes 0.62 s. No contention measurement was ever recorded to justify
 the cap. The workbench's own campaign runner was already using `jobs: 6`,
-quietly ignoring the policy it was supposed to follow. §12 separately timed
-a full `-j12` build-and-verify cycle at 13 seconds on the same machine.
+quietly ignoring the policy it was supposed to follow. `lane/throughput`
+(merged into `campaign/unchain` as commit 4af26a3) measured contention
+directly on the same machine: a full clean build averaged 55.7 s under
+`gmake -j2` versus 17.2 s under `gmake -j12`, and per-translation-unit
+compiles ran 0.11 s (libultra) and 0.15 s (overlay).
 
-Separately, §7 found the entire August working tree — 23 modified tracked
+Separately, §7 found the entire August working tree, 23 modified tracked
 files, 704 untracked paths, `config/normalizations/` (491 files),
 `docs/campaigns.md` (5,091 lines at the time), 747 overlay C files, 46
-libultra TUs — existed only in an uncommitted working directory, with no
+libultra TUs, existed only in an uncommitted working directory, with no
 worktree isolation between agents. That is a correctness problem
 independent of the compile-job ceiling: two agents building in the same
 tree contend on the same `build/` output regardless of job count.
 
 ## Decision
 
-Drop the compiler-job ceiling. `gmake -j$(nproc)` (or the local equivalent)
+Drop the compiler-job ceiling. `gmake -j$(sysctl -n hw.ncpu)` (or the local equivalent)
 is the normal build invocation; there is no campaign-mandated cap on
 simultaneous compiler processes. `tools/with_compile_token.sh` is retired
-as a throughput throttle. It — or an equivalent lock — is kept for exactly
+as a throughput throttle. It, or an equivalent lock, is kept for exactly
 one purpose: serializing the two-phase `gmake verify` (build, then
 byte-compare), which is not safe to run concurrently against the same
 `build/` directory from two workers.
@@ -44,7 +47,7 @@ resources, not by an agent-count policy.
 
 - `AGENTS.md` no longer mentions a compiler-job ceiling or
   `tools/with_compile_token.sh` as a throttle; it says to build with
-  `gmake -j$(nproc)` (or the machine's real core count) inside your lane.
+  `gmake -j$(sysctl -n hw.ncpu)` (or the machine's real core count) inside your lane.
 - `tools/with_compile_token.sh` stays in the tree, scoped to guarding
   `gmake verify`'s two-phase sequence; nothing else needs it.
 - The "four collaboration slots" framing in the old `AGENTS.md` is retired

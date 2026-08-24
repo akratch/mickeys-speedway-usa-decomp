@@ -24,7 +24,7 @@ An 8-word n-gram kinship measure corroborates it: Mickey's resident game
 code shares 31.7% of its masked 8-grams with JFG (higher than DKR-vs-JFG's
 own 17.3%, i.e. Mickey's resident segment is closer to JFG than two
 same-engine-family reference projects are to each other), while the
-overlays sit at 7.9% — the level of an unrelated engine. The overlays are
+overlays sit at 7.9%, the level of an unrelated engine. The overlays are
 new code; the resident segment is substantially JFG's engine.
 
 86 of the resident segment's unambiguous donor hits, covering 27,960 bytes,
@@ -39,7 +39,7 @@ donor C in both PD and BK and has been sitting unblocked-in-principle since
 matched or near-matched donor function exists in the reference farm, not by
 raw byte count. Concretely, in order:
 
-1. The resident segment before overlays — 21.7% skeleton-donor coverage
+1. The resident segment before overlays: 21.7% skeleton-donor coverage
    there versus 0.3% in the overlays is a two-order-of-magnitude difference
    in expected cost per matched byte.
 2. `n_audio` first of all: unblocked by ADR 0008, 50 KB, matched donor C in
@@ -58,7 +58,7 @@ raw byte count. Concretely, in order:
 - The resident split gets drawn along JFG's own translation-unit boundaries
   where a donor names one (`gsSnd`, `n_csplayer`, `rcpFast3d`, `shadows`,
   `matrix`, `paths`), per ADR 0006's TU model.
-- This does not change matching *standards* (ADR 0001/0002) — a donor-backed
+- This does not change matching *standards* (ADR 0001/0002): a donor-backed
   candidate is still just a starting point to be matched against Mickey's
   own bytes, never an authority over them, per `docs/CLEANROOM.md`'s
   existing PROVENANCE rule.

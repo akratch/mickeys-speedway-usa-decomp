@@ -16,10 +16,10 @@ Full build instructions are in [`README.md`](../README.md).
 
 ## Decisions
 
-Policy questions that have already been settled — what counts as matched,
+Policy questions that have already been settled (what counts as matched,
 what post-compile object editing is permitted, build parallelism, work
 prioritisation, source layout, matching tools, provenance, model routing,
-and commit discipline — are recorded as ADRs in [`docs/adr/`](adr/README.md).
+and commit discipline) are recorded as ADRs in [`docs/adr/`](adr/README.md).
 Read the index before assuming a policy question is open; if you think an
 ADR's decision should change, write a new ADR rather than acting against it.
 
@@ -31,7 +31,7 @@ created with `tools/new_lane.sh <name>`. This creates
 toolchain, baserom, venv and vendored tool checkouts with the main
 checkout by symlink, with its own `build/` and `asm/` so lanes never
 contend for the same objects. Commit on your own lane branch, in small
-(function-sized) commits, as work lands — hooks stay on, never
+(function-sized) commits, as work lands; hooks stay on, never
 `--no-verify`. See [`docs/adr/0004-build-parallelism.md`](adr/0004-build-parallelism.md)
 and [`docs/adr/0010-commit-discipline.md`](adr/0010-commit-discipline.md).
 
@@ -160,9 +160,9 @@ requires the out-of-tree reference builds described in `references.md`.
 `cleanroom` also runs automatically at commit/push if `gmake hooks` has been
 run; nothing else is wired into a hook.
 
-The Progress block `gmake scoreboard`/`gmake check-scoreboard` maintain
-reports DKR's five lines — decompiled, handwritten ASM, GLOBAL_ASM
-remaining, NON_MATCHING, NON_EQUIVALENT — byte-weighted, with a range
+The Progress block that `gmake scoreboard`/`gmake check-scoreboard` maintain
+is being moved to DKR's five lines (decompiled, handwritten ASM, GLOBAL_ASM
+remaining, NON_MATCHING, NON_EQUIVALENT), byte-weighted, with a range
 counting as decompiled only if its object carries no instruction-altering
 post-compile step. See
 [`docs/adr/0001-matching-standard.md`](adr/0001-matching-standard.md) and

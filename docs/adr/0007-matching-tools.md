@@ -15,7 +15,7 @@ objects at the repo root. Meanwhile `decomp-permuter` was checked out on
 disk but not installed into `.venv` and referenced by nothing;
 `tools/permuter_settings.toml` pointed at a compiler path that doesn't
 exist. `tools/find_known_objects.py`, the one exact-match tool in use,
-masks relocated words and anchors on the longest fixed run — sound for the
+masks relocated words and anchors on the longest fixed run, sound for the
 libultra corridor (it found 190 names there) but structurally blind to any
 function whose constants, register coloring, or call targets shifted, which
 is every function in a differently-revised source tree; against the
@@ -41,7 +41,7 @@ verbatim.
 ## Decision
 
 - **decomp-permuter**, installed into `.venv` (not left as an unreferenced
-  checkout), run only as a **bounded batch job** — never inside an agent's
+  checkout), run only as a **bounded batch job**, never inside an agent's
   own reasoning loop. An agent may hand it one candidate and a time/attempt
   budget and read back a diff; it may not run it as a tool it iterates on
   turn-by-turn.
@@ -54,7 +54,7 @@ verbatim.
   didn't, which `find_known_objects.py` cannot do.
 - A **flag-lattice sweep** (compile one natural candidate under the full
   set of known flag groups, rank by objdiff score) runs before any hand
-  permutation is attempted on a function — permutation is for closing a
+  permutation is attempted on a function: permutation is for closing a
   near-miss the flag lattice couldn't, not a first move.
 - The hand-rolled `search_*.py` brute-forcers and the ELF-surgery tools
   ADR 0002 already retires are retired here too, as tools, not just as

@@ -1,8 +1,8 @@
 # Architecture Decision Records
 
 This directory records the decisions the project owner made on 2026-08-24,
-reviewing `docs/acceleration-survey.md` (particularly §13's survey of what
-the published N64 decomps — DKR, JFG, BK, PD, dp64 — actually do). These
+reviewing `docs/acceleration-survey.md`, particularly §13's survey of what
+the published N64 decomps (DKR, JFG, BK, PD, dp64) actually do. These
 files are the durable record of *what was decided and why*; they are not
 re-opened to relitigate a decision, only superseded by a new ADR when the
 decision changes.

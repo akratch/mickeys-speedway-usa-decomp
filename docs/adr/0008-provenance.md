@@ -17,7 +17,7 @@ provenance statement anywhere near them. JFG has 64 such files, BK 210 (via
 a submodule plus `include/n_audio/`), PD 74 under MIT, dp64 30. This is
 universal practice across every gold-standard project, and
 `docs/CLEANROOM.md` already permits "library source as distributed in
-existing public decomp projects" — this finding confirms the existing
+existing public decomp projects"; this finding confirms the existing
 policy rather than changing it.
 
 **Naming source.** None of the five projects documents a formal naming
@@ -26,22 +26,22 @@ comments; JFG tracks two full symbol dumps. None of the five carries a
 written leak policy, and the community norm in practice treats leaked
 *source code* as off-limits while a dumped *build* is treated as an
 ordinary ROM. dp64's own README describes its baserom neutrally: "Dinosaur
-Planet … as released by Forest of Illusion on Feb. 20, 2021" — not as a
+Planet … as released by Forest of Illusion on Feb. 20, 2021," not as a
 retail release.
 
 `docs/CLEANROOM.md`'s dp64 exception currently justifies itself by saying
 dp64 is "built from a retail ROM, not the leaked build." That premise is
 factually wrong: there is no retail Dinosaur Planet release. dp64 is built
 from the 2000-12-01 development-cartridge dump, the same dump Forest of
-Illusion released on 2021-02-20. The exception's *scope* — binary
+Illusion released on 2021-02-20. The exception's *scope*, binary
 file-format facts only (reloc-table layout, field offsets, table
-structure), never names, code, or comments — does not depend on that
+structure), never names, code, or comments, does not depend on that
 premise and is unaffected by correcting it.
 
 Separately, under the "same provenance as the existing projects" standing
 rule, a public decomp of a *publicly dumped* build reads, in every respect
-that matters to the decomp community, as a published retail-derived decomp
-— debug-build symbols from a dumped build are exactly how OoT, Majora's
+that matters to the decomp community, as a published retail-derived decomp:
+debug-build symbols from a dumped build are exactly how OoT, Majora's
 Mask, and Paper Mario were named elsewhere in the community. That would
 make dp64's 2,291 names, and the `sfadebug` (Star Fox Adventures debug
 build) symbol set, admissible on the same terms as DKR/JFG/BK/PD. But
@@ -63,7 +63,7 @@ writing, not something decided mid-campaign by an agent reading the survey.
 4. `docs/CLEANROOM.md`'s dp64 exception is corrected on its **factual
    premise only**: dp64 is built from the 2000-12-01 development-cartridge
    dump released by Forest of Illusion on 2021-02-20, not from a retail
-   ROM. The exception's **scope is unchanged** — binary file-format facts
+   ROM. The exception's **scope is unchanged**: binary file-format facts
    only, never names, code, or comments.
 5. **dp64 names and `sfadebug` symbols remain prohibited** until the
    project owner rewrites `docs/CLEANROOM.md` to say otherwise, in writing.
@@ -81,6 +81,6 @@ writing, not something decided mid-campaign by an agent reading the survey.
   is ADR 0005's top-priority resident target.
 - dp64 and `sfadebug` stay off-limits for names/code/comments pending a
   future, explicit CLEANROOM.md rewrite by the project owner; dp64's
-  format-only tooling (`elf2dll.py`, `dll_split.py`, `dllsyms2ld.py`,
-  `dllimports.py`, `dlldiff.py`) remains usable for structural facts, as it
-  already was.
+  tooling (`elf2dll.py`, `dll_split.py`, `dllsyms2ld.py`, `dllimports.py`,
+  `dlldiff.py`) may be consulted for the structural/format facts they
+  encode; their code is not adopted into this tree.

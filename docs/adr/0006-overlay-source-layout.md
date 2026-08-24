@@ -8,9 +8,10 @@ Date: 2026-08-24
 `docs/acceleration-survey.md` §9 measured the current overlay layout: 747
 files, one per function, each with its own private struct typedefs (e.g.
 `Overlay1OwnerState { u8 pad000[0x37C]; s16 recordIndex; u8 selector; }`),
-its own externs, and in 107 cases a second extern name for the same address
-(`D_1DA0Read`) or a `volatile` cast purely to force a reload — workarounds
-for the fact that no shared header exists to declare the real type once.
+its own externs; 107 use a `volatile` cast purely to force a reload, and
+some carry a second extern name for the same address (`D_1DA0Read`), both
+workarounds for the fact that no shared header exists to declare the real
+type once.
 447 files carry pad-structs, 59 use `register`. Only nine shared headers
 exist under `include/overlays/`. Because the atlas records text ownership
 only, the overlay's 61,312 initialised and 77,680 BSS bytes have no owning
@@ -33,7 +34,7 @@ them.
 
 Adopt JFG's layout: **one translation unit per overlay**,
 `src/overlays/oNNN/overlay_NNN.c`, over shared headers. Per-overlay TUs own
-their data, rodata, and BSS, not just text — the atlas's `(overlay,
+their data, rodata, and BSS, not just text: the atlas's `(overlay,
 section, offset)` identity becomes the ordinary splat subsegment list for
 that TU rather than a text-only record layered on top of per-function
 files.
@@ -45,7 +46,7 @@ overlays); `volatile` reload hacks and `D_xxxxRead`-style duplicate extern
 names are removed once the real type is declared once, correctly, in one
 place.
 
-Do this for each overlay once it has more than about 5 matched functions —
+Do this for each overlay once it has more than about 5 matched functions;
 below that the per-function scaffolding isn't yet costing anything. Overlay
 50, 52, 54, and 101 go first, per the n-gram measurement above. Build the
 consolidated overlay as a relocatable object through a JFG/dp64-style
@@ -60,13 +61,13 @@ consolidated overlay as a relocatable object through a JFG/dp64-style
   above the threshold has moved, that scaffolding has no remaining
   consumer and can be removed outright.
 - `config/overlays.us.json` and the splat yaml gain real data/rodata/BSS
-  subsegment ownership per overlay, closing the gap where 139,000+ bytes
+  subsegment ownership per overlay, closing the gap where 138,992 bytes
   currently have no owning object.
 - This is consolidation of existing matched/attempted work, not a
   re-matching effort: the underlying C bodies and their byte-identity
   status (ADR 0001) don't change, only which file and which shared
   declarations they live in.
 - Per-function-file layout is not banned outright for a brand-new overlay's
-  very first function — it's still the fastest way to bank a first match —
-  but it is expected to be temporary scaffolding retired at the ~5-function
-  mark, not the permanent shape.
+  very first function, since it's still the fastest way to bank a first
+  match, but it is expected to be temporary scaffolding retired at the
+  ~5-function mark, not the permanent shape.

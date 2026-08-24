@@ -20,10 +20,10 @@ post-processing step in the five reference decomps (DKR, JFG, BK, PD, dp64):
 **No gold-standard project edits an instruction word after compilation in
 order to reach a match.** Mickey's own `set_elf_flags.py` on `ll.c` is
 already the `patchmips3.py` case and needs no change. Everything else in the
-tree that edits object bytes — `normalize_elf_instructions.py`,
+tree that edits object bytes, `normalize_elf_instructions.py`,
 `normalize_o63_*.py`, `resize_elf_function.py`,
 `extend_elf_function_to_text.py`, and their `drop-*`/`reorder`/`fields`/
-commute operations — has no precedent in any reference project and produces
+commute operations, has no precedent in any reference project and produces
 the 274-function, 63.5%-of-overlay-bytes gap ADR 0001 describes.
 
 Relocation filtering/rebinding and section trimming are metadata-only and
@@ -50,14 +50,14 @@ none of them touch an instruction word:
   when ADR 0006's per-overlay-TU consolidation lands.
 
 **Not permitted, ever, to reach a match:** any change to an instruction
-word — field edits, insertion, deletion, reordering, or operand commuting.
+word: field edits, insertion, deletion, reordering, or operand commuting.
 Concretely: `normalize_elf_instructions.py`, `normalize_o63_*.py`,
 `resize_elf_function.py`, `extend_elf_function_to_text.py`, and any
 `drop-*`/`reorder`/`fields`/commute operation on compiled instructions.
 
 Every function currently matched only by one of the prohibited steps is
-converted to `#ifdef NON_MATCHING` C over `#pragma GLOBAL_ASM` — DKR's own
-form for a function whose C is written but not yet byte-identical — rather
+converted to `#ifdef NON_MATCHING` C over `#pragma GLOBAL_ASM`, DKR's own
+form for a function whose C is written but not yet byte-identical, rather
 than deleted or left mis-reported as matched.
 
 ## Consequences
