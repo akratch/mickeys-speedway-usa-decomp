@@ -4574,44 +4574,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: POSTPROCESS = \
 # decoded schedule/register selection. Restore all 20 shipped runtime carrier
 # records, then expose only the two configured R26 call records; the retained
 # relocation tail owns the 18 loader-local HILO records.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o064/overlay64GenerateTexture.c.o: \
-	config/normalizations/overlay64GenerateTexture.prepare.py \
-	config/normalizations/overlay64GenerateTexture.ops \
-	config/normalizations/overlay64GenerateTexture.filter.spec \
-	$(TOOLS_DIR)/set_elf_symbol_size.py \
-	$(TOOLS_DIR)/add_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o064/overlay64GenerateTexture.c.o: CFLAGS += -woff 835
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o064/overlay64GenerateTexture.c.o: POSTPROCESS = \
-	$(OBJCOPY) -O binary --only-section=.text $@ $@.natural.bin && \
-	$(HOST_PYTHON) config/normalizations/overlay64GenerateTexture.prepare.py \
-		$@.natural.bin $@.intermediate.bin && \
-	$(OBJCOPY) --update-section .text=$@.intermediate.bin $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/set_elf_symbol_size.py $@ \
-		func_overlay_064_F0000000_18C3B28 0x6A0 0x690 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x690 c938acb87cc923647cf57bf5b5d0d7bcb02b23dc68d95db529a73716a59f744f \
-		@config/normalizations/overlay64GenerateTexture.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text \
-		0x690 c938acb87cc923647cf57bf5b5d0d7bcb02b23dc68d95db529a73716a59f744f \
-		0x004:HI16:gO64BufferSelect 0x008:LO16:gO64BufferSelect \
-		0x02c:HI16:gO64BuffersA 0x034:LO16:gO64BuffersA \
-		0x048:HI16:gO64BuffersB 0x050:LO16:gO64BuffersB \
-		0x070:HI16:gO64Initialized 0x074:LO16:gO64Initialized:4 \
-		0x0d0:R26:o64RandomRange \
-		0x100:HI16:gO64Initialized 0x108:LO16:gO64Initialized:4 \
-		0x150:R26:o64RandomRange \
-		0x1a0:HI16:gO64BufferSelect 0x1a4:LO16:gO64BufferSelect \
-		0x1a8:HI16:gO64BufferSelect 0x1bc:LO16:gO64BufferSelect \
-		0x1c4:HI16:gO64BuffersA 0x1d0:LO16:gO64BuffersA \
-		0x1d8:HI16:gO64BuffersB 0x1e0:LO16:gO64BuffersB && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay64GenerateTexture.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0xd0:o64RandomRange:func_overlay_064_F0000000_18C3B28 \
-		0x150:o64RandomRange:func_overlay_064_F0000000_18C3B28 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x690
 
 # Exact-size O38 particle initializer. Select only the complete seven-word
 # private setup schedule, then bind the seven runtime calls to the raw overlay

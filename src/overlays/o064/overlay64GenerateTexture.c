@@ -16,6 +16,7 @@ extern u8 *gO64BuffersA[];
 extern u8 *gO64BuffersB[];
 extern s32 o64RandomRange(s32 minimum, s32 maximum);
 
+#ifdef NON_MATCHING
 void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
                                         u8 *unused)
 {
@@ -209,3 +210,7 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
         } while (y--);
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o064/overlay64GenerateTexture/func_overlay_064_F0000000_18C3B28.s")
+#endif
