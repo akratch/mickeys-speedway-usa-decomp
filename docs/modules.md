@@ -395,7 +395,7 @@ never imported as names, and uncertain rows retain Mickey's `func_` spelling.
 | `0x20E78` | `func_80020278`, `0x168` | JFG placeholder resource-free helper | B: texture free plus the same family of owned allocations |
 | `0x20FE0` | `func_800203E0`, `0xD8` | no adoptable name | D: model helper calls only |
 | `0x210B8` | `func_800204B8`, `0xAC` | no adoptable name | D: texture/allocation release structure only |
-| `0x21164` | `func_80020564`, `0xC` | `modelSetModelFlags` | B: paired global setter and observed callers |
+| `0x21164` | `modelSetModelFlags`, `0xC` | `modelSetModelFlags` | B: paired global setter and observed callers; linked C match |
 | `0x21170` | `func_80020570`, `0xC` | `modelGetModelFlags` | B: paired global getter |
 | `0x2117C` | `func_8002057C`, `0x558` | `makeModelGfx` | B: texture/display-list construction call graph and TU order |
 | `0x216D4` | `func_80020AD4`, `0x3C` | JFG placeholder in `models.c.o` | A: exact 15-word skeleton; placeholder retained |
