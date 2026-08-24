@@ -12,7 +12,12 @@ extern void *D_8007D6A0;
 extern s8 D_8007D6C0[];
 extern s32 *D_8007D68C;
 extern s32 D_8007D6A4;
-extern void **D_800D6B00;
+typedef struct AnimPath {
+    u8 pad0[0x16];
+    u8 flags;
+} AnimPath;
+
+extern AnimPath **D_800D6B00;
 
 typedef struct AnimPauseSlot {
     s16 unk0;
@@ -33,7 +38,8 @@ void func_8005027C(void);
 void func_80050348(s32 pathIndex);
 void animseqInitGroup(void);
 void animseqPlay(void);
-void *func_800508B4(u8 pathIndex);
+AnimPath *func_800508B4(u8 pathIndex);
+void animseqLockPath(u8 pathIndex);
 void func_800534C0(s32 i);
 
 #endif
