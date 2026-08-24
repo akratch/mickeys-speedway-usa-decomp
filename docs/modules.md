@@ -210,7 +210,7 @@ reference build's objects (DKR's, JFG's, Perfect Dark's, Banjo-Kazooie's or
 Conker's; see `docs/references.md`); **tier C** rows are string-correspondence
 with JFG; everything else is noted inline. Ranges without a named anchor are
 omitted rather than guessed at. 171 translation units are matched whole across
-the segment, carrying 191 function names.
+the segment, carrying 192 function names.
 
 | ROM | VRAM | Anchor | Tier | What it establishes |
 |---|---|---|---|---|
@@ -395,7 +395,7 @@ overlay callers/callees outside the range were observed.
 | `0x4BC64` | `0x0C` | `func_8004B064` | `fontSetButtonMode` | D | leaf; overlay caller |
 | `0x4BC70` | `0x34` | `fontSetWindowNoise` | same | A, matched C | leaf |
 | `0x4BCA4` | `0x14` | `func_8004B0A4` | `fontUseFont` | B/D | leaf; text-setup callers |
-| `0x4BCB8` | `0x24` | `func_8004B0B8` | `fontColour` | A | leaf; text-setup callers |
+| `0x4BCB8` | `0x24` | `fontColour` | same | A, matched C | leaf; text-setup callers |
 | `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | B/D | leaf; text-setup callers |
 | `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B/D | calls `0x4BD3C` |
 | `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B/D | calls `0x4BDDC` |

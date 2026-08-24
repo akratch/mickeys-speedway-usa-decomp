@@ -39,7 +39,15 @@ void fontSetWindowNoise(u8 red, u8 green, u8 blue) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0A4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0B8.s")
+
+void fontColour(s32 red, s32 green, s32 blue, s32 alpha, s32 opacity) {
+    D_800D64E8[0].textColourR = red;
+    D_800D64E8[0].textColourG = green;
+    D_800D64E8[0].textColourB = blue;
+    D_800D64E8[0].textColourA = alpha;
+    D_800D64E8[0].opacity = opacity;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0DC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B13C.s")

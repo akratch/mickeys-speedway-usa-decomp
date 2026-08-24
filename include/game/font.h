@@ -35,6 +35,7 @@ typedef struct DialogueBoxBackground {
 
 void fontSetWindowNoise(u8 red, u8 green, u8 blue);
 void fontSetWindow0(s32 width, s32 height);
+void fontColour(s32 red, s32 green, s32 blue, s32 alpha, s32 opacity);
 void fontWindowFontColour(s32 windowId, s32 red, s32 green, s32 blue,
                           s32 alpha, s32 opacity);
 
