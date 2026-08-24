@@ -4,12 +4,19 @@
  *
  * Tier A: the complete 0x23A0-byte text is byte-identical, under relocation
  * masking, to JFG's built src/gsSnd.c.o. The first split keeps every function
- * in generated assembly; matching bodies are promoted one at a time.
+ * in generated assembly; matching bodies are promoted one at a time. A flag
+ * lattice on gsSndpGetGlobalVolume found the TU's debug-shaped duplicate
+ * epilogues exact only under bare -g (with -mips2 -32), not the game default
+ * -O2, so the Makefile carries that measured per-file override.
  *
  * PROVENANCE: JFG's permitted src/gsSnd.c and src/gsSnd.h were read for the
  * function names, declarations and source candidates. Adapted bodies will be
  * identified at their point of use and remain subject to Mickey byte identity.
  */
+
+#include "PR/ultratypes.h"
+
+extern u32 D_8007FF50;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005B978.s")
@@ -32,5 +39,8 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpGetMasterVolume.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetMasterVolume.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetGlobalVolume.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpGetGlobalVolume.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpGetGlobalVolume). */
+u32 gsSndpGetGlobalVolume(void) {
+    return D_8007FF50;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpLimitVoices.s")

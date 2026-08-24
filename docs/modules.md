@@ -422,6 +422,11 @@ event/play-state diagnostics in `func_8005BA40`, allocation failure in
 of the 38 functions uses an odd single-precision FP register, so §6.2's
 hand-written-assembly exclusion removes no candidate from these ranges.
 
+**Exact C promotions:** `gsSndpGetGlobalVolume` (`0x1C` bytes) is an adapted
+JFG body compiled with the TU's measured bare `-g -mips2 -32` flag group. The
+linked owned range is instruction-word-identical and the full ROM retains the
+expected hash.
+
 ## 4. libultra
 
 ### 4.1 The corridor: ROM `0x6F420`–`0x76D10`
