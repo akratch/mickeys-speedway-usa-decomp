@@ -42,6 +42,21 @@ typedef struct LightingObject {
     u8 segmentIndex;
 } LightingObject;
 
+/* PROVENANCE: adapted from JFG's public decomp, include/structs.h, with Mickey offsets. */
+typedef struct LightSourceHeader {
+    u8 pad0[0x28];
+    s8 lightCount;
+    u8 pad29[0x23];
+    ObjectLightEntry *lights;
+} LightSourceHeader;
+
+struct LightSourceObject {
+    u8 pad0[0x40];
+    LightSourceHeader *header;
+    u8 pad44[0x2C];
+    UnkLight **lights;
+};
+
 extern LightingObject **func_8000572C(s32 *start, s32 *end);
 extern void func_8001953C(LightingObject *object, s32 objectLight);
 
@@ -306,7 +321,14 @@ f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019AB8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019D98.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019DE8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019EE4.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c, with Mickey offsets. */
+void lightSetupLightSources(LightSourceObject *object) {
+    s32 i;
+
+    for (i = 0; i < object->header->lightCount; i++) {
+        object->lights[i] = addObjectLight((s32) object, &object->header->lights[i]);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019F7C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A008.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A154.s")

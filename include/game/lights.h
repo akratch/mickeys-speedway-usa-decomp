@@ -83,6 +83,8 @@ typedef struct ObjectLightEntry {
     u8 value5A;
 } ObjectLightEntry;
 
+typedef struct LightSourceObject LightSourceObject;
+
 void turnLightOff(UnkLight *light);
 void turnLightOn(UnkLight *light);
 void toggleLight(UnkLight *light);
@@ -93,6 +95,7 @@ void killLight(UnkLight *light);
 void **lightGetLights(s32 *count);
 UnkLight *lightGetStrongestEffect(f32 x, f32 y, f32 z);
 void lightUpdateObjects(void);
+void lightSetupLightSources(LightSourceObject *object);
 UnkLight *addRomdefLight(s32 arg0, RomdefLight *entry);
 UnkLight *addObjectLight(s32 owner, ObjectLightEntry *entry);
 f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6);
