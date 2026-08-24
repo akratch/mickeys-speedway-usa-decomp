@@ -24,12 +24,15 @@
 #include "game/charControl.h"
 
 extern u8 D_80079BF8;
+extern u16 D_80079A0C[];
+extern u16 D_80079A20[][4];
 extern ControlVector3 D_800799EC;
 extern ControlVector3 D_800799FC;
 extern u16 D_8007BF1C;
 extern f32 D_80081894;
 extern f32 D_80081898;
 extern s32 D_80079BCC;
+extern s32 D_8007C1A0;
 extern f32 D_80079BD4[];
 extern CameraTrackedObject *D_800CB308[];
 extern CameraOverrideSlot D_800CB368[];
@@ -54,11 +57,12 @@ void func_8001D690(ControlActor *actor, ControlPlayer *player);
 void func_80006EA0(void *handle);
 s32 func_8000FAE0(f32 x, f32 y, f32 z);
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode);
-void TrapDanglingJump();
+s32 TrapDanglingJump();
 void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2);
 void func_80021994(s8 playerIndex, s32 cameraIndex, u8 **cameraState);
 u8 *func_80024658(void);
 s32 func_800291F0(void);
+s32 func_800299E8(s32 minimum, s32 maximum);
 ControlActor **func_8000572C(s32 *start, s32 *end);
 s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 mode, ControlActor **hitActor);
 void func_800282C8(void);
@@ -291,7 +295,62 @@ void func_8001D2A0(ControlActor *actor, s32 arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D2A0.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D41C.s")
+void func_8001D41C(ControlActor *actor, ControlPlayer *player, s32 updateRate) {
+    ControlPlayerActions *actions;
+    ControlPlayerAction action;
+    s32 effectIndex;
+
+    if (player->unk19C > 0) {
+        player->unk19C -= updateRate;
+        if (player->unk19C <= 0) {
+            player->unk19C = 0;
+            if ((D_8007C1A0 == 1) && !(player->flags1A8 & 1)) {
+                effectIndex = player->unk19A;
+                if ((effectIndex >= 2) && (effectIndex < 10)) {
+                    TrapDanglingJump(effectIndex + 30);
+                }
+            }
+        }
+    }
+
+    actions = player->actions;
+    if ((actions == 0) || (player->unk19C != 0) ||
+        (TrapDanglingJump(player->unkD4) != 0)) {
+        if (player->controlDkeys & 0x2000) {
+            if ((player->unk1 >= 0) && (player->unk1 < 10)) {
+                if (D_8007BF1C & 4) {
+                    if (player->unkA4 != 0) {
+                        func_800031E8(player->unkA4);
+                    }
+                    func_80002FE0(
+                        D_80079A20[player->unk1][func_800299E8(0, 3)],
+                        actor->x, actor->y, actor->z, 4, &player->unkA4);
+                    return;
+                }
+                if (player->unkA8 != 0) {
+                    func_800031E8(player->unkA8);
+                }
+                func_80002FE0(D_80079A0C[player->unk1], actor->x, actor->y,
+                              actor->z, 4, &player->unkA8);
+            }
+        }
+    } else if (player->controlDkeys & 0x2000) {
+        action = actions->positive;
+        if ((action != 0) && (player->controlYjoy >= 65)) {
+            action(actor);
+            return;
+        }
+        action = actions->negative;
+        if ((action != 0) && (player->controlYjoy < -64)) {
+            action(actor);
+            return;
+        }
+        action = actions->fallback;
+        if (action != 0) {
+            action(actor);
+        }
+    }
+}
 void controlFrozen(ControlActor *actor, ControlPlayer *player) {
     if (func_800291FC() == 1) {
         func_800291D8(10);

@@ -79,6 +79,15 @@ typedef struct ControlPlayerInitState {
     /* 0x11 */ s8 unk11;
 } ControlPlayerInitState;
 
+typedef void (*ControlPlayerAction)(void *actor);
+
+typedef struct ControlPlayerActions {
+    /* 0x00 */ u8 pad00[0x10];
+    /* 0x10 */ ControlPlayerAction positive;
+    /* 0x14 */ ControlPlayerAction fallback;
+    /* 0x18 */ ControlPlayerAction negative;
+} ControlPlayerActions;
+
 /* Partial player-control layout; fields are added only as Mickey proves them. */
 typedef struct ControlPlayer {
     /* 0x000 */ s8 playerIndex;
@@ -88,7 +97,10 @@ typedef struct ControlPlayer {
     /* 0x020 */ u8 pad020[0x50 - 0x20];
     /* 0x050 */ f32 unk50;
     /* 0x054 */ f32 unk54;
-    /* 0x058 */ u8 pad058[0xD0 - 0x58];
+    /* 0x058 */ u8 pad058[0xA4 - 0x58];
+    /* 0x0A4 */ void *unkA4;
+    /* 0x0A8 */ void *unkA8;
+    /* 0x0AC */ u8 pad0AC[0xD0 - 0xAC];
     /* 0x0D0 */ void *unkD0;
     /* 0x0D4 */ void *unkD4;
     /* 0x0D8 */ void *unkD8;
@@ -107,7 +119,12 @@ typedef struct ControlPlayer {
     /* 0x190 */ u8 unk190;
     /* 0x191 */ s8 unk191;
     /* 0x192 */ u8 unk192;
-    /* 0x193 */ u8 pad193[0x1A8 - 0x193];
+    /* 0x193 */ u8 pad193[0x19A - 0x193];
+    /* 0x19A */ u8 unk19A;
+    /* 0x19B */ u8 pad19B;
+    /* 0x19C */ s32 unk19C;
+    /* 0x1A0 */ ControlPlayerActions *actions;
+    /* 0x1A4 */ u8 pad1A4[0x1A8 - 0x1A4];
     /* 0x1A8 */ u16 flags1A8;
     /* 0x1AA */ u8 pad1AA[0x2B8 - 0x1AA];
     /* 0x2B8 */ ControlVector3 *unk2B8;
@@ -173,6 +190,7 @@ void controlReadJoypad(ControlPlayer *player, s32 playerIndex);
 void controlSetRumble(ControlPlayer *player, s32 strength, f32 duration);
 void controlFrozen(ControlActor *actor, ControlPlayer *player);
 void func_8001D2A0(ControlActor *actor, s32 arg1);
+void func_8001D41C(ControlActor *actor, ControlPlayer *player, s32 updateRate);
 void func_8001D690(ControlActor *actor, ControlPlayer *player);
 void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z,
                          s16 arg4, s16 arg5, s16 arg6);

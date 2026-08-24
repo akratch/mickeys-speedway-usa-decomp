@@ -399,7 +399,7 @@ call graph isolates one namesake.
 | `0x8001CB0C` | `0x78` | — | Matched C: exact one-point transform setup under O2/mips2; no unique JFG comparison, so retain `func_` |
 | `0x8001CB84` | `0x71C` | `controlPlayer` | D: large per-frame controller in JFG order; retain `func_` |
 | `0x8001D2A0` | `0x17C` | — | Plateau after the 119-combination flag sweep and 10 source/type/lifetime hypotheses: best `NON_MATCHING` candidate is 96 instructions versus 95, with first mismatch `+0xE0`; IDO reuses the `D_800CB300` address across `func_800291F0`, while the target stores through `at` and rematerializes the address in `a2`, leaving one extra address instruction and shifting the remaining schedule. No unique JFG comparison; retain `func_` |
-| `0x8001D41C` | `0x21C` | — | No unique JFG comparison; retain `func_` |
+| `0x8001D41C` | `0x21C` | — | Matched C: exact 135-instruction timer, effect-spawn, and action-callback body under O2/mips2 with `-Wab,-r4300_mul`; the mandatory 119-combination sweep found no alternate flag improvement and no unique JFG comparison, so retain `func_` |
 | `0x8001D638` | `0x58` | `controlFrozen` | B + matched C: exact pause/input gate under O2/mips2; calls the following restart routine as JFG does; name adopted |
 | `0x8001D690` | `0x194` | `controlRestartPlayer` | B + matched C: exact 101-instruction multiplayer respawn-point search and single-player restart fallback under O2/mips2 with `-Wab,-r4300_mul`; JFG has the same role and nearest charControl skeleton, but Mickey retains `func_` because IDO's allocation changes under the public name |
 | `0x8001D824` | `0x5C` | `dAngle` | B + matched C: same wrapped-angle role/body as JFG, whose MIPS-I conversion sequence is longer; adapted Mickey C is ADR 0001 exact under O2/mips2 |
