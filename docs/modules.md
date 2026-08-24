@@ -402,7 +402,7 @@ call graph isolates one namesake.
 | `0x8001D41C` | `0x21C` | — | No unique JFG comparison; retain `func_` |
 | `0x8001D638` | `0x58` | `controlFrozen` | B: calls the following restart routine as JFG does; retain `func_` |
 | `0x8001D690` | `0x194` | `controlRestartPlayer` | B: restart/reinitialize call graph and nearest charControl skeleton; retain `func_` |
-| `0x8001D824` | `0x5C` | `dAngle` | D: same wrapped-angle interpolation structure; retain `func_` until C matches |
+| `0x8001D824` | `0x5C` | `dAngle` | B + matched C: same wrapped-angle role/body as JFG, whose MIPS-I conversion sequence is longer; adapted Mickey C is ADR 0001 exact under O2/mips2 |
 | `0x8001D880` | `0x90` | `controlMakeV` | D: same table-interpolation structure; retain `func_` |
 | `0x8001D910` | `0x50` | `controlFSUvels` | D: same rotation-vector call shape; retain `func_` |
 | `0x8001D960` | `0x370` | `controlUpdateJetFlames` | D: nearest JFG charControl skeleton and same subsystem order; retain `func_` |

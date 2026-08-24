@@ -45,7 +45,18 @@ extern s16 D_800CB476;
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D41C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D638.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D690.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D824.s")
+/* PROVENANCE -- adapted from JFG's src/charControl.c dAngle. */
+s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
+    s32 temp_t1;
+    s32 var_v1;
+
+    var_v1 = (arg1 - arg0) & 0xFFFF;
+    temp_t1 = (arg0 - arg1) & 0xFFFF;
+    if (temp_t1 < var_v1) {
+        var_v1 = -temp_t1;
+    }
+    return (s16) (arg0 + (s32) ((f32) var_v1 * arg2));
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D880.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D910.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D960.s")
