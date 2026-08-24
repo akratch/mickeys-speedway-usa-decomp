@@ -8,6 +8,18 @@
  * instruction shape.  No JFG body is adapted by this scaffold.
  */
 
+#include "PR/ultratypes.h"
+
+typedef struct SpranimBAE4Target {
+    u8 pad0[0x132];
+    s16 state132;
+} SpranimBAE4Target;
+
+typedef struct SpranimBAE4Object {
+    u8 pad0[0x58];
+    SpranimBAE4Target *target58;
+} SpranimBAE4Object;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimControl.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/sprasjiInit.s")
@@ -16,7 +28,9 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/texscrollControl.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001B798.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/rangetriggerControl.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001BAE4.s")
+void func_8001BAE4(SpranimBAE4Object *arg0, void *arg1) {
+    arg0->target58->state132 = 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001BAF8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001BB04.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001BB10.s")
