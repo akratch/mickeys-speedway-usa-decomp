@@ -401,6 +401,11 @@ byte-identical.
 body emits all 16 instruction words and its HI16, LO16 and call relocations
 exactly under the resident flags.
 
+The placeholder-retaining `func_80034018` is canonical C. JFG's public decomp
+provides the framebuffer-fill body but not a descriptive function name, so
+§1.5 keeps Mickey's address label. All 31 instruction words and its two
+global-address plus cache-flush-call relocations are exact.
+
 ---
 
 ## 4. libultra

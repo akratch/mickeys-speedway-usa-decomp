@@ -20,10 +20,12 @@
 #include "PR/ultratypes.h"
 
 extern s32 *D_8007A690[3];
+extern u8 D_8007A1A0;
 extern s32 *D_800D2FA8;
 extern s8 D_800D2F9A;
 
 extern void func_80033B24(void);
+extern void osWritebackDCacheAll(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033580.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_800336A8.s")
@@ -62,7 +64,25 @@ s32 viDisplayingScreen0(void) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80034018.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
+void func_80034018(u8 *src, s32 length) {
+    s32 *dest;
+    s32 fourByteLength;
+
+    dest = (s32 *) src;
+    fourByteLength = length >> 2;
+    if (D_8007A1A0 != 0) {
+        while (fourByteLength--) {
+            *dest++ = 0;
+        }
+    } else {
+        while (fourByteLength--) {
+            *dest++ = -1;
+        }
+    }
+    osWritebackDCacheAll();
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80034094.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80034150.s")
 
