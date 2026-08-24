@@ -1,0 +1,43 @@
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public decompilation
+ * (github.com/Ryan-Myers/Jet-Force-Gemini), a permitted source under
+ * docs/CLEANROOM.md; see docs/modules.md section 4.2 (the n_audio
+ * synthesis library) and docs/acceleration-survey.md section 13.3.
+ * JFG notes this file was itself lifted from Perfect Dark's repo.
+ */
+
+#include "n_audio/libaudio.h"
+#include "n_libaudio.h"
+
+void n_alCSPAllChanOn(N_ALCSPlayer *seqp) {
+    s32 i;
+
+    seqp->chanMask = 0xffff;
+
+    for (i = 0; i < seqp->maxChannels; i++) {
+        seqp->chanState[i].fadevoltarget = 255;
+        seqp->chanState[i].fadevolcurrent = 255;
+    }
+}
+
+void n_alCSPChanOff(N_ALCSPlayer *seqp, s32 chan) {
+    n_alCSPSendMidi(seqp, 0, AL_MIDI_ControlChange | chan, AL_MIDI_FADEEND_CTRL, 0);
+}
+
+void n_alCSPChanOn(N_ALCSPlayer *seqp, s32 chan) {
+    seqp->chanMask |= 1 << chan;
+
+    n_alCSPSendMidi(seqp, 0, AL_MIDI_ControlChange | chan, AL_MIDI_FADEEND_CTRL, 255);
+}
+
+void n_alCSPChanFade(N_ALCSPlayer *seqp, s32 chan, u8 targetvol) {
+    n_alCSPSendMidi(seqp, 0, AL_MIDI_ControlChange | chan, AL_MIDI_FADESTART_CTRL, targetvol);
+}
+
+void n_alCSPChanSurround(N_ALCSPlayer *seqp, s32 chan, u8 arg2) {
+    n_alCSPSendMidi(seqp, 0, AL_MIDI_ControlChange | chan, AL_MIDI_FXMIX80_CTRL, arg2);
+}
+
+void n_alCSPChanFadeForce(N_ALCSPlayer *seqp, s32 chan, u8 vol) {
+    n_alCSPSendMidi(seqp, 0, AL_MIDI_ControlChange | chan, AL_MIDI_UNK_FC, vol);
+}

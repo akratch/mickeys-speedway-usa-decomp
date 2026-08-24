@@ -475,6 +475,50 @@ hold against the evidence now:
 | `0x63B40`, `0x68110`, `0x76C80` | Conker `n_synaddplayer`, PD `n_save`, Conker `ldiv` | **Subsumed.** Each is a fragment of a TU already matched whole at a lower address. §1.2's "a whole-`.text` match outranks a standalone function match" |
 | `0x2A2B0` | BK `src/mgu/mtxxfmf.o` → `guMtxXFMF` | A clean whole-object match (`0xA0`, 0 masked, `romocc=1`), and its **boundary is still not declared**. The surrounding evidence is stronger and says something different: `0x2A250`–`0x2AE44` is thirteen routines matched against DKR's *one* hand-written `math_util.s` object, in DKR's order. Mickey inlines the SDK's `guMtxXFMF` into a hand-written maths file, exactly as DKR does, so declaring a TU boundary here would assert a file that is not there. The identification is recorded in `symbol_addrs.us.txt` §6; the address keeps `mtxf_transform_point` |
 
+### 4.4 n_audio: matching progress
+
+Per docs/acceleration-survey.md §13.3's ruling, `n_audio` is unblocked:
+JFG's fully-matched naudio tree (`libultra/src/naudio/`, commit
+`c75c270`, "Finish matching libultra naudio files") supplies matched C
+bodies with `PROVENANCE` notes, using JFG's headers (imported under
+`include/n_audio/**` and `include/n_libaudio.h`) and the bare-`OPT_FLAGS`
+(`-g`, no `-O`) + `-mips2 -32` flag group already measured on
+`n_cspsetvol`.
+
+25 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 23 more from it): every masked=0/1/2 TU (the
+thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
+the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
+`0x80080164`, measured directly off a built candidate diffed against the
+ROM with `tools/wb_compare.sh --rom n_alInit --show-diff` and carved out
+of the resident `.data` band in `mickey.us.yaml`, since almost everything
+else in the library reads `n_syn`), the seven `ALParam`-update setters
+that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
+`-DRAREDIFFS` for Rare's added MIDI control-change codes), and
+`n_syngetfxref`.
+
+**Plateaus, each with a first mismatch:**
+
+- `n_synsetfxparam` (masked=6): `n_alSynSetFXParam` alone matches;
+  its sibling `n_alSynSetOutputLPParam` in the same TU pulls a `0.1f`
+  float literal from the wrong offset in the still-undifferentiated
+  `.rodata` pool, off by `0x20` — a `.rodata`-ordering question beyond
+  this pass.
+- `n_resample` (masked=8): `n_alResamplePull`'s tail diverges
+  structurally from the ROM (an extra `jal` the real function doesn't
+  have); needs a closer read of the loop/branch shape before another
+  attempt.
+
+Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
+`0xAD0`), `n_csplayer` (masked=154, `0x3220`), `n_reverb` (masked=60,
+DSP-heavy, deferred per plan), `n_env` (masked=59), `alsurround`
+(masked=39), `n_event`/`n_drvrNew` (masked=34 each), `n_synaddplayer`
+(masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_cseq`
+(masked=15), `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
+deferred per plan), `n_alLPFilter` (masked=13), `n_auxbus` (masked=7),
+`n_load` (masked=4, DSP-heavy ADPCM decoder), and `n_synsetvol`/
+`n_synstartvoiceparam`/`n_synallocvoice` (masked=5) not yet attempted.
+
 ---
 
 ## 5. The overlay system
