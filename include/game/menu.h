@@ -3,6 +3,7 @@
 
 #include "PR/ultratypes.h"
 
+s8 frontGetWideAdjust(void);
 void frontSetWideAdjust(s32 offset);
 
 #endif

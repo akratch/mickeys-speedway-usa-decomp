@@ -395,6 +395,13 @@ at their real linked addresses. Its body is adapted from JFG's public
 sweep confirmed that the default `-O2 -mips2 -32` spelling is exact; no
 per-file override or post-compile instruction edit is involved.
 
+`frontGetWideAdjust` adds **0xC bytes / 3 words** at ROM `0x3AFD0`. The name
+is explicitly **tier B**, not tier A: the body is too short for the standalone
+skeleton threshold, but its exact byte-return of the setter's stored state and
+its position immediately before `frontSetWideAdjust` establish the same role
+as JFG's ordered pair. The adapted body has a point-of-use `PROVENANCE` note,
+and the default flags are byte-exact in the flag lattice.
+
 ---
 
 ## 4. libultra

@@ -43,7 +43,10 @@ extern void viSetWideAdjust(s32 offset);
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A348.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A35C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/frontGetLevelScreenMode.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A3D0.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetWideAdjust. */
+s8 frontGetWideAdjust(void) {
+    return D_800D312B;
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontSetWideAdjust. */
 void frontSetWideAdjust(s32 offset) {
     viSetWideAdjust(offset);
