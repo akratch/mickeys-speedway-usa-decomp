@@ -422,8 +422,8 @@ event/play-state diagnostics in `func_8005BA40`, allocation failure in
 of the 38 functions uses an odd single-precision FP register, so §6.2's
 hand-written-assembly exclusion removes no candidate from these ranges.
 
-**Exact C promotions:** `gsSndpGetMasterVolume`,
-`gsSndpSetGlobalVolume` and `gsSndpGetGlobalVolume` (`0x70` bytes total) are
+**Exact C promotions:** `gsSndpSetPriority`, `gsSndpGetMasterVolume`,
+`gsSndpSetGlobalVolume` and `gsSndpGetGlobalVolume` (`0x98` bytes total) are
 adapted JFG bodies compiled with the TU's measured bare `-g -mips2 -32` flag
 group. Their linked owned ranges are instruction-word-identical and the full
 ROM retains the expected hash.

@@ -19,6 +19,11 @@
 extern u32 D_8007FF50;
 extern u16 *D_800D7D78;
 
+typedef struct GsSndPriorityState {
+    u8 pad0[0x40];
+    u8 priority;
+} GsSndPriorityState;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005B978.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005BA40.s")
@@ -28,7 +33,12 @@ extern u16 *D_800D7D78;
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/getSoundStateCounts.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005D030.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005D260.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetPriority.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpSetPriority). */
+void gsSndpSetPriority(GsSndPriorityState *state, u8 priority) {
+    if (state != NULL) {
+        state->priority = (s16)priority;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpGetState.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/ad_sndp_play.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStop.s")
