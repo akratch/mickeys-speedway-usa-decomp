@@ -25,7 +25,31 @@ void func_80050000(s32 *stream) {
     D_800D6D5C = 0x80;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050024.s")
+/*
+ * PROVENANCE: adapted from JFG's func_80076044_76C44. The bitstream globals
+ * are Mickey's, and the compiled result is checked against Mickey's ROM.
+ */
+s32 func_80050024(u32 bitCount) {
+    s32 value;
+
+    value = 0;
+    if (bitCount != 0) {
+        bitCount = 1 << (bitCount + 0x1F);
+        do {
+            if (D_800D6D5C == 0) {
+                D_800D6D58++;
+                D_800D6D5C = 0x80;
+            }
+            if (*D_800D6D58 & D_800D6D5C) {
+                value |= bitCount;
+            }
+            bitCount >>= 1;
+            D_800D6D5C >>= 1;
+        } while (bitCount != 0);
+    }
+    return value;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800500A4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005013C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005017C.s")
