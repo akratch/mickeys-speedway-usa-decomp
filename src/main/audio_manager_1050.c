@@ -310,7 +310,17 @@ void amSndSetPan(void *sound, u32 pan) {
         gsSndpSetParam(sound, 4, pan);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000122C.s")
+/*
+ * PROVENANCE: body and official name adapted from DKR src/audio.c
+ * sound_pitch_set and JFG src/audio_manager_1050.c.
+ */
+void amSndSetPitchDirect(void *sound, u32 pitch) {
+    u32 *pitchAddress = &pitch;
+
+    if (sound != NULL) {
+        gsSndpSetParam(sound, 16, *pitchAddress);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001258.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001270.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800012A8.s")
