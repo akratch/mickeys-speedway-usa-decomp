@@ -464,6 +464,14 @@ normalizes each return into successive `$t6`/`$t7`/`$t8` temporaries and moves
 that temporary through a shared epilogue. The full flag lattice did not alter
 the allocation.
 
+`levelFreeAll` remains assembly after ten layout and expression spellings.
+The best candidate has the exact 468-byte size and 113 of 117 instruction
+words exact. Its first mismatch is `+0x13c`, confined to four words that load
+and combine a masked resource index with the resource-table base: the source
+model assigns the two temporaries in the opposite registers. All calls,
+branches, frame shape, relocations, and the remaining words align; the flag
+lattice did not change the allocation.
+
 **PROVENANCE.** TU identities and adopted function names are adapted from Jet
 Force Gemini's published `src/{joy,level,main}.c` and built
 `src/{controller,level,main}.c.o`, a permitted public retail-derived decomp
