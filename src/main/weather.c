@@ -49,6 +49,12 @@ typedef struct WeatherTexture {
     s16 height;
 } WeatherTexture;
 
+typedef struct WeatherPosition {
+    s32 x;
+    s32 y;
+    s32 z;
+} WeatherPosition;
+
 typedef struct WeatherGfxData {
     void *positions;
     s32 size;
@@ -136,6 +142,9 @@ extern void *func_8002B280(s32 size, s32 tag);
 extern Camera *func_8002462C(void);
 extern Matrix *func_80024698(void);
 extern s32 *func_8002E148(s32 assetId);
+extern s32 coss_s16(s16 angle);
+extern s32 func_8002A1A4(s16 angle);
+extern WeatherTexture *func_80034448(s32 textureId);
 extern void mmFree(void *ptr);
 extern void func_800347A0(WeatherTexture *texture);
 
@@ -349,7 +358,26 @@ void setupWeather(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
     }
     D_800D40C8 = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/snow_init.s")
+/*
+ * PROVENANCE -- body adapted from Diddy Kong Racing's public retail-derived
+ * src/weather.c::snow_init. Mickey's scale constants and texture loader are
+ * authoritative here.
+ */
+void snow_init(void) {
+    s32 step;
+    s32 offset;
+    s32 i;
+
+    step = 0x10000 / D_8007C398.size;
+    offset = 0;
+    for (i = 0; i < D_8007C398.size; i++) {
+        ((WeatherPosition *) D_8007C398.positions)[i].x = coss_s16(offset & 0xFFFF) * 4;
+        ((WeatherPosition *) D_8007C398.positions)[i].y = 0xFFFE0000;
+        ((WeatherPosition *) D_8007C398.positions)[i].z = func_8002A1A4(offset & 0xFFFF);
+        offset += step;
+    }
+    D_8007C398.source.texture = func_80034448(*D_8007C3DC);
+}
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
  * src/weather.c::changeWeather. Mickey's condition and assignment ordering

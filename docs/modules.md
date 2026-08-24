@@ -1040,9 +1040,9 @@ out of asm-processor while retaining C ownership around it.
 Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
 files and JFG's `asm/nonmatchings/weather/` names, as permitted by
 `docs/CLEANROOM.md`. The matched `initWeather`, `weather_clip_planes`,
-`freeWeather`, `setupWeather`, `changeWeather`, and `rainDensity` bodies are adapted from
-those disclosed sources and carry point-of-use notes; Mickey's own bytes
-remain authoritative.
+`freeWeather`, `setupWeather`, `snow_init`, `changeWeather`, and `rainDensity`
+bodies are adapted from those disclosed sources and carry point-of-use notes;
+Mickey's own bytes remain authoritative.
 
 The tier-B/D `initWeather` adds **0xFC bytes / 63 words** at ROM `0x3B480`.
 JFG's initialization and asset-table walk reproduce Mickey's instruction
@@ -1066,6 +1066,11 @@ The tier-B/D `changeWeather` adds **0x1EC bytes / 123 words** at ROM
 assignment order compile instruction-exact at the canonical `-O2 -mips2 -32`
 flags, with all 5 relocations and the linked ROM range agreeing.
 
+The tier-B/D `snow_init` adds **0x120 bytes / 72 words** at ROM `0x3BB10`.
+DKR supplies the circular position loop; Mickey's scale constants and texture
+loader compile instruction-exact at canonical `-O2 -mips2 -32`, with all 8
+relocations and the linked ROM range agreeing.
+
 `doWeather` plateaued after the JFG body, the 119-combination flag lattice,
 and seven source-order, typing, and allocation hypotheses. The best canonical
 candidate, preserved behind `NON_MATCHING`, differs in 54 of 169 positional
@@ -1080,7 +1085,7 @@ decomp-permuter checkout.
 | `0x3B57C` | `0x54` | `weather_clip_planes` | A donor; exact C, 21 words, 2 relocs |
 | `0x3B5D0` | `0x120` | `freeWeather` | B/D name; exact C, 72 words, 34 relocs |
 | `0x3B6F0` | `0x420` | `setupWeather` | B/D name; exact C, 264 words, 41 relocs |
-| `0x3BB10` | `0x120` | `snow_init` | B/D |
+| `0x3BB10` | `0x120` | `snow_init` | B/D name; exact C, 72 words, 8 relocs |
 | `0x3BC30` | `0x1EC` | `changeWeather` | B/D name; exact C, 123 words, 5 relocs |
 | `0x3BE1C` | `0x2A4` | `doWeather` | B/D; plateau, 54/169 words differ, first `+0xB4` |
 | `0x3C0C0` | `0x238` | `snow_render` | B/D |
