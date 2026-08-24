@@ -827,14 +827,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x185A678, c, overlay4InitializeObjectMotion]
-      - [0x185A7B0, c, overlay4UpdateObjectMotion]
-      - [0x185AB48, c, overlay4AttachObject]
-      - [0x185ABA4, c, overlay4RemoveObject]
-      - [0x185AC48, c, overlay4UpdateGroupSpacing]
-      - [0x185AD88, c, overlay4GroupCount]
-      - [0x185ADAC, c, overlay4FindCategory2Object]
-      - [0x185AF6C, c, overlay4FindSearchPosition]
+      - [0x185A678, c, overlay_004]
       - [0x185B324, asm, overlay_004_padding]
       - [0x185B328, bin, overlay_004_data_rodata]
       - [0x185B348, bin, overlay_004_reloc1]
@@ -906,26 +899,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x185DD58, c, overlay8Ignore]
-      - [0x185DD60, c, overlay8GetIndexed]
-      - [0x185DDB0, asm, overlay_008_middle_a]
-      - [0x185E5EC, c, func_overlay_008_F0000894_185E5EC]
-      - [0x185EBE0, c, overlay8StartMotion]
-      - [0x185EC74, c, overlay8Activate]
-      - [0x185ED58, c, func_overlay_008_F0001000_185ED58]
-      - [0x185EFEC, asm, overlay_008_middle_b0a]
-      - [0x1860398, c, func_overlay_008_F0002640_1860398]
-      - [0x1860674, c, func_overlay_008_F000291C_1860674]
-      - [0x1860C18, c, overlay8UpdateChild]
-      - [0x1860D70, c, overlay8UpdateChannels]
-      - [0x1860FD0, c, overlay8ApplyColors]
-      - [0x18610C0, c, overlay8ScaleOutputs]
-      - [0x18611F8, asm, overlay_008_middle_b1]
-      - [0x18626FC, c, overlay8SetBuffer]
-      - [0x186270C, c, overlay8WriteCommand]
-      - [0x1862734, c, overlay8SetValue]
-      - [0x1862740, c, overlay8UpdateMotionOutput]
-      - [0x1862A48, c, func_overlay_008_F0004CF0_1862A48]
+      - [0x185DD58, c, overlay_008]
       - [0x1862E80, asm, overlay_008_padding]
       - [0x1862E88, bin, overlay_008_data_rodata]
       - [0x18653B8, bin, overlay_008_reloc1]

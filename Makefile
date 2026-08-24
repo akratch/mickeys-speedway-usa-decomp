@@ -926,111 +926,34 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildSpatialMasks.c.o: POSTPROCES
 		func_overlay_019_F0000F58_18761B0=overlay19BuildSpatialMasks $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38C
 
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4GroupCount.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x24
-# This initializer is naturally exact. Its data address pair is already owned
-# by the shipped runtime relocation table; retain its zero addends and trim
-# only compiler section alignment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4InitializeObjectMotion.c.o: \
-	$(TOOLS_DIR)/filter_elf_relocations.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4InitializeObjectMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x128:5:gOverlay4InitStatus 0x12c:6:gOverlay4InitStatus && \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym sqrtf=func_overlay_004_F0000000_185A678 \
+		--redefine-sym func_overlay_004_F0000138_185A7B0=overlay4UpdateObjectMotion $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xCAC
+O8_OBJ := $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay_008.c.o
+$(O8_OBJ): CFLAGS += -Wab,-r4300_mul
+$(O8_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
-		func_8005AD64=overlay4RuntimeCallReloc $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
-# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateObjectMotion.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateObjectMotion.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_004_F0000138_185A7B0=overlay4UpdateObjectMotion $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x398
-# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateGroupSpacing.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateGroupSpacing.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_004_F00005D0_185AC48=overlay4UpdateGroupSpacing $@
-# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindCategory2Object.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_004_F0000734_185ADAC=overlay4FindCategory2Object $@
-# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindSearchPosition.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindSearchPosition.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_004_F00008F4_185AF6C=overlay4FindSearchPosition $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4AttachObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4RemoveObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8Ignore.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8GetIndexed.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
-# NON_MATCHING fallback assembly supplies the retail body; retain its exact
-# text extent after restoring splat's internal symbol name.
-O8_0894_OBJ := \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/func_overlay_008_F0000894_185E5EC.c.o
-$(O8_0894_OBJ): POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_008_F0000894_185E5EC=func_overlay_008_F0000894_185E5EC $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5F4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8StartMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x94
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8Activate.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE4
-# NON_MATCHING fallback assembly supplies the retail body; retain its exact
-# text extent after restoring splat's internal symbol name.
-O8_1000_OBJ := \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/func_overlay_008_F0001000_185ED58.c.o
-$(O8_1000_OBJ): POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_008_F0001000_185ED58=func_overlay_008_F0001000_185ED58 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x294
-# NON_MATCHING fallback assembly supplies the retail body; retain its exact
-# text extent after restoring splat's internal symbol name.
-O8_2640_OBJ := \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/func_overlay_008_F0002640_1860398.c.o
-$(O8_2640_OBJ): CFLAGS += -Wab,-r4300_mul
-$(O8_2640_OBJ): POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_008_F0002640_1860398=func_overlay_008_F0002640_1860398 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2DC
-# NON_MATCHING fallback assembly supplies the retail body; retain its exact
-# text extent after restoring splat's internal symbol name.
-O8_291C_OBJ := \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/func_overlay_008_F000291C_1860674.c.o
-$(O8_291C_OBJ): CFLAGS += -Wab,-r4300_mul
-$(O8_291C_OBJ): POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_008_F000291C_1860674=func_overlay_008_F000291C_1860674 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5A4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateChild.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x158
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateChannels.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x260 && \
+		o8Call0894Reloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8StartMotionResourceReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8Approach291CReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8ApplyColorsReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8Call0894EmitReloc=func_overlay_008_F0002640_1860398 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8Surface291CReloc=func_overlay_008_F0004CF0_1862A48 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_008_F0003368_18610C0=overlay8ScaleOutputs $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5128 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
 		3dcccccdbdcccccdbf2b851f3f7333333d4ccccd000000000000000000000000 \
 		0x1BC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8ApplyColors.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
-# NON_MATCHING fallback assembly supplies the retail body; retain its exact
-# text extent after restoring the friendly source symbol.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8ScaleOutputs.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_008_F0003368_18610C0=overlay8ScaleOutputs $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8SetBuffer.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x10
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8WriteCommand.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x28
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8SetValue.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateMotionOutput.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateMotionOutput.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x308 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-		3d23d70a000000000000000000000000 0x28C
-# NON_MATCHING fallback assembly supplies the retail body; retain its exact
-# text extent after restoring splat's internal symbol name.
-O8_4CF0_OBJ := \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/func_overlay_008_F0004CF0_1862A48.c.o
-$(O8_4CF0_OBJ): CFLAGS += -Wab,-r4300_mul
-$(O8_4CF0_OBJ): POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_008_F0004CF0_1862A48=func_overlay_008_F0004CF0_1862A48 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x438
+
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1520 && \
@@ -2756,26 +2679,8 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19FindAdjacent.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19ClassifyEdge.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildSpatialMasks.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4GroupCount.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4InitializeObjectMotion.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindCategory2Object.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindSearchPosition.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateObjectMotion.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateGroupSpacing.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4AttachObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4RemoveObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8Ignore.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8GetIndexed.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8StartMotion.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8Activate.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateChild.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateChannels.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8ApplyColors.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8ScaleOutputs.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8SetBuffer.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8WriteCommand.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8SetValue.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateMotionOutput.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay_008.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay12Initialize.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchBank.c.o \
