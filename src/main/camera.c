@@ -93,7 +93,10 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021964.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021970.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021994.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800219A0.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetWaterLine. */
+u8 camGetWaterLine(s32 camNo) {
+    return D_80079FA8[camNo];
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetWaterLine. */
 void camSetWaterLine(s32 camNo, s32 waterLine) {
     if ((camNo >= 0) && (camNo < 4)) {

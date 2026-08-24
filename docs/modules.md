@@ -400,6 +400,7 @@ functions is classified as handwritten assembly under §6.2.
 | `camStopShakes` | `0x25754` | 76 | Configured object, three relocation pairs, linked range and full ROM exact. |
 | `camIgnoreShake` | `0x22094` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camGetFOV` | `0x220A0` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camGetWaterLine` | `0x225A0` | 16 | Configured object, relocation pair, linked range and full ROM exact. |
 
 ---
 
