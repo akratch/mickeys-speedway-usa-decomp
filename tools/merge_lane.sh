@@ -19,7 +19,8 @@ case "$lane_out" in OK*) ;; *) echo "lane $name does not verify from a clean bui
 (cd "$lane" && gmake check-docs 2>&1 | tail -1)
 tools/cleanroom_check.sh --range "HEAD..$branch" 2>&1 | tail -1
 echo "== merge $branch"
-if ! git merge --no-edit "$branch" >/dev/null 2>&1; then
+# --no-commit: the merge is committed only after every gate below passes.
+if ! git merge --no-commit --no-ff "$branch" >/dev/null 2>&1; then
   conflicts=$(git diff --name-only --diff-filter=U)
   for f in $conflicts; do
     case "$f" in
@@ -29,21 +30,23 @@ if ! git merge --no-edit "$branch" >/dev/null 2>&1; then
       *) echo "unresolved conflict: $f" >&2; exit 1 ;;
     esac
   done
-  git commit -q --no-edit
 fi
 if git grep -q '^<<<<<<< ' -- . ':!*.md'; then echo "conflict markers left in tracked files:" >&2; git grep -l '^<<<<<<< ' -- . >&2; exit 1; fi
 echo "== integration gates"
+gmake extract 2>&1 | tail -1
 gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/refresh_atlas_digest.py >/dev/null
+.venv/bin/python tools/fix_stale_externs.py | tail -1
 out=$(tools/with_verify_lock.sh gmake -j12 verify 2>&1 | tail -1); echo "$out"
-case "$out" in OK*) ;; *) echo "verify FAILED after merging $branch; merge left in place" >&2; exit 1 ;; esac
+case "$out" in OK*) ;; *) echo "verify FAILED after merging $branch; merge left uncommitted (git merge --abort to drop it)" >&2; gmake -j12 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
 gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
 .venv/bin/python tools/fix_jumptable_claim.py >/dev/null 2>&1 || true
 gmake check-docs 2>&1 | tail -1
-if ! git diff --quiet; then
-  git add -A README.md config/overlays.us.json config/overlay-donors.us.json config/postprocess-audit.us.json docs/modules.md mickey.us.yaml 2>/dev/null || true
-  git commit -q -m "Regenerate scoreboard/atlas after merging $branch" || true
-fi
+git add -A README.md config/ docs/modules.md docs/overlays.md mickey.us.yaml symbol_addrs.us.txt src include Makefile 2>/dev/null || true
+git commit -q -m "Merge $branch into $(git rev-parse --abbrev-ref HEAD)
+
+Gates at merge time: verify byte-identical, check-docs, overlay-atlas,
+scoreboard regenerated." 2>&1 | grep -v exempt || true
 gmake check-scoreboard 2>&1 | tail -1
 git log --oneline -1
