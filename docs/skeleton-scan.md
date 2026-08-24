@@ -174,5 +174,131 @@ bounded-Levenshtein opcode-sequence comparison, and offers `compare-raw
 workflow for cross-project search at scale.
 
 `tools/setup_coddog.sh` clones and builds it (`cargo build --release`) into
-`~/Desktop/dev/coddog`, outside this repo. See that script's own comments and
-the status note below for what was and wasn't runnable in the time budget.
+`~/Desktop/dev/coddog`, outside this repo. Only the `coddog-cli` crate is
+built; `coddog-api`/`coddog-db` need Postgres (via `sqlx`) and are not needed
+for any of the CLI-only comparisons below -- `SQLX_OFFLINE=true` plus the
+committed `.sqlx` query cache in coddog's own repo lets the workspace build
+without a live database, but building just `-p coddog-cli` sidesteps the
+question entirely.
+
+### Status: built and working via `compare-raw`; no Postgres involved
+
+Build: `cargo build --release -p coddog-cli`, 34 s cold, clean. `coddog
+compare-raw` and the other CLI subcommands (`match`, `cluster`, `submatch`,
+`compare2`, `compare-n`) need no database -- only the Postgres-backed
+`coddog-db` indexer (out of scope here, and not attempted) does.
+
+**`decomp.yaml`**: only JFG's reference checkout already ships one
+(`~/Desktop/dev/decomp-refs/jfg/decomp.yaml`), and even that one lists a
+`kiosk` version whose `.elf` was never built in this checkout, which makes
+`compare-raw` abort outright (it reads every listed version). DKR, Perfect
+Dark, Banjo-Kazooie and Conker have none. Per the task, none of the four
+reference repos were modified; instead minimal `decomp.yaml` files (and a
+trimmed single-version copy of JFG's) were written to a scratch directory,
+`~/Desktop/dev/coddog/mickey-ref-configs/{jfg,dkr,bk,pd,conker}/decomp.yaml`,
+pointing at each project's existing build output with absolute paths:
+
+| Project | Symbol source used | Notes |
+|---|---|---|
+| JFG | `build/jfg.us.elf` | trimmed to the `us` version only |
+| DKR | `build/dkr.us.v77.elf` | |
+| Banjo-Kazooie | `build/us.v10/banjo.us.v10.elf` | |
+| Conker | `conker/build/conker.us.map` + `baserom.us.z64` as `target` | no `.elf` was ever produced in this checkout, so map-based ingestion is used instead (`decomp_settings`' other supported symbol source) |
+| Perfect Dark | `build/ntsc-final/pd.map` + `pd.ntsc-final.z64` | **does not work** -- see below |
+
+**Perfect Dark is blocked.** Its build only produces a single-stage
+`build/ntsc-final/stage1.elf`, not a whole-ROM ELF, so the `elf` path was
+left unset and the map-based fallback (`paths.target` + `paths.map`) was
+tried instead. That panics inside coddog itself:
+`crates/core/src/ingest.rs:136`, `range end index 33554516 out of range for
+slice of length 33554432` while reading `pd.map` against the 32 MiB ROM --
+a symbol's claimed vROM range runs past the end of the target file coddog
+was given. This reads as a real bug in coddog's PD/`objdiff`-based map
+ingestion, not a Mickey-side or reference-side data problem (the file sizes
+and map are exactly what PD's own build produced), and fixing it is out of
+scope for this task. **PD was dropped from the `compare-raw` runs below**;
+everywhere else in this repo (`docs/acceleration-survey.md`'s counts,
+`tools/find_known_objects.py`, `skeleton_scan.py` itself) PD is indexed
+successfully from its per-object `.o` files instead, which don't hit this
+map-parsing path.
+
+### Findings: `compare-raw` against Mickey's ROM
+
+```sh
+python3 - <<'EOF'   # writes a scratch .bin outside the repo, never committed
+rom = open('baseroms/mickey.us.z64','rb').read()
+open('/tmp/resident.bin','wb').write(rom[0x1000:0x76D10])
+EOF
+~/Desktop/dev/coddog/target/release/coddog compare-raw /tmp/resident.bin \
+  ~/Desktop/dev/coddog/mickey-ref-configs/jfg/decomp.yaml \
+  ~/Desktop/dev/coddog/mickey-ref-configs/dkr/decomp.yaml \
+  ~/Desktop/dev/coddog/mickey-ref-configs/bk/decomp.yaml \
+  ~/Desktop/dev/coddog/mickey-ref-configs/conker/decomp.yaml
+```
+
+- **Resident text (ROM 0x1000-0x76D10, 482,576 B), vs JFG+DKR+BK+Conker**:
+  260 lines, `0xOFF - Project Version: name (decompiled)`, offsets relative
+  to the sliced file (add `0x1000` for ROM). Runtime well under a second.
+  Sample hits agree with independently-derived evidence already in the
+  tree: `0x2957C -> Diddy Kong Racing US v77: rand_range` is exactly the ROM
+  0x2A57C / DKR `rand_range` correspondence `symbol_addrs.us.txt` already
+  records (0x2957C + 0x1000 = 0x2A57C). The bulk of the hits are JFG names
+  already seen in `skeleton_scan.py scan --region resident`
+  (`shadowBoxPolyOverlap`, the `light*`/`matrix*`/`math*` family,
+  `frontDrawRectangle`, `diCpuTraceInit`, etc.), which is the expected
+  overlap between two tools measuring the same underlying fact.
+- **Overlay 101 (52,960 B) and overlay 49 (896 B), same four projects**:
+  **zero hits**, both. Matches `skeleton_scan.py kinship`'s finding that
+  overlay text carries almost no reference-project skeleton content (0.3%
+  region coverage, `docs/acceleration-survey.md` section 2.1) -- overlay 49
+  is the one place `skeleton_scan.py scan --region overlays` finds anything
+  at all in the whole atlas (a 44-byte, 6-way-ambiguous hit at `+0x354`),
+  and even that is invisible to `compare-raw`, for a structural reason (see
+  below).
+
+### `compare-raw` vs `skeleton_scan.py`: what each catches that the other doesn't
+
+- **Window size.** `compare-raw` hard-codes a 20-*instruction* (80-byte)
+  sliding window (`window_size` in `crates/cli/src/main.rs`'s `CompareRaw`
+  arm) and only reports a match when the *first* hash of that window lands
+  on a *first* hash already seen in a reference function, then verifies the
+  following instructions agree exactly. `skeleton_scan.py`'s `--min-words
+  10` (40-byte) floor is half that, and it matches whole functions, not
+  windows -- the overlay 49 hit above (44 bytes = 11 words) is exactly the
+  size class `compare-raw` cannot see with its default window, and no CLI
+  flag changes it (would need a coddog patch).
+- **Match unit.** `skeleton_scan.py scan` reports whole-function boundaries
+  greedily and non-overlapping, with an ambiguity count, and a
+  `--emit-symbols` line ready to paste. `compare-raw` reports one line per
+  window-start match, not de-duplicated to function boundaries, and no
+  ambiguity count -- multiple reference projects each print their own line
+  for the same Mickey offset instead of grouping into one hit with several
+  candidate names (visible above: DKR, JFG and BK all appear as separate
+  lines rather than one row with three donors).
+- **Similarity, not just identity.** `coddog`'s `match`/`cluster`/`compare2`
+  compute a graded score (edit distance over opcode sequences, plus an
+  "equivalent" hash that keeps some operands), which is closer to
+  `skeleton_scan.py similar`'s Jaccard ranking than to `scan`'s hard
+  in/out matching -- but those subcommands operate on one project's own
+  indexed symbol set (`match`/`cluster`) or two full projects
+  (`compare2`/`compare-n`), not a raw unnamed binary slice, so they were not
+  usable directly against Mickey's overlay ROM without first getting
+  Mickey's own build indexed as a `decomp.yaml` project (not attempted --
+  out of scope, since the goal here was reference-vs-Mickey matching, not
+  Mickey-vs-Mickey).
+- **What's stronger in coddog:** real instruction decoding via
+  `objdiff-core`/`rabbitizer` rather than `skeleton_scan.py`'s hand-rolled
+  MIPS field masking, so it is very unlikely to have a decode bug
+  `skeleton_scan.py` might; and its three-hash design (exact / equivalent /
+  opcode-only) gives a similarity gradient `scan`'s single masked-skeleton
+  key does not.
+
+Net: for this task's purpose -- finding donor names for unnamed resident
+functions -- the two tools agree everywhere they overlap, `skeleton_scan.py`
+catches more (smaller functions, function-granularity ambiguity), and
+`compare-raw` needed real setup work (the PD blocker, the missing
+`decomp.yaml`s) that `skeleton_scan.py` does not, because the latter reads
+reference `.o` files directly rather than going through `decomp_settings`.
+coddog's `match`/`cluster` (Mickey-vs-Mickey duplicate/near-duplicate
+finding within the overlay set) remains an unexplored, plausibly useful
+follow-up that would need Mickey indexed as its own `decomp.yaml` project.
