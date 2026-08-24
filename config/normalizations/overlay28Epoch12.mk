@@ -39,27 +39,6 @@ $(O28_UPDATE_WORK_OBJ): POSTPROCESS = \
 
 O28_RENDER_WORK_OBJ := \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o028/func_overlay_028_F00004D8_187CDA8.c.o
-
-$(O28_RENDER_WORK_OBJ): \
-	config/normalizations/overlay28Epoch12.mk \
-	config/normalizations/func_overlay_028_F00004D8_187CDA8.ops \
-	config/normalizations/func_overlay_028_F00004D8_187CDA8.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
-
-# Natural IDO owns the exact boundary, frame, CFG, opcodes, immediates, calls,
-# GPR web and display-list effects. Select one proved independent two-word
-# schedule and the complete equivalent private f8/f10 web, bind the nine
-# shipped relocation carriers, and discard only compiler section alignment.
+$(O28_RENDER_WORK_OBJ): $(TOOLS_DIR)/trim_elf_section.py
 $(O28_RENDER_WORK_OBJ): POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x314 1c5be0b4b7a47c7942d06928325caabadad6f7b8707c52060d8c61872968fce8 \
-		@config/normalizations/func_overlay_028_F00004D8_187CDA8.ops && \
-	$(OBJCOPY) \
-		--add-symbol func_overlay_028_F0000000_187C8D0=.text:-0x4d8,global \
-		--add-symbol D_80000028=0x80000028,global $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_028_F00004D8_187CDA8.rebind.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x314 \
-		000000000000000000000000
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x314
