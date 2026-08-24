@@ -15,6 +15,7 @@ extern u8 *D_800CF3C8;
 extern s32 *D_800CF3C0;
 extern s32 D_800CF3D4;
 extern u8 *D_8007A0D0;
+extern u8 D_8007BF08;
 
 /* PROVENANCE: field roles adapted from JFG src/level.c; Mickey layout is decisive. */
 typedef struct LevelSummary {
@@ -210,4 +211,9 @@ s32 levelGetPrevOfWorld(s32 arg0, s8 arg1) {
     return prev;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelInitRegionFlags.s")
+s32 levelInitRegionFlags(void) {
+    if (((s8) D_800CF3C8[0x83] == 0) && (D_8007BF08 != 0)) {
+        return 1;
+    }
+    return 0;
+}

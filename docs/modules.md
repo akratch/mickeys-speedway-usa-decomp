@@ -396,7 +396,7 @@ main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
 JFG functions were not imported: unresolved routines retain Mickey's own
 `func_<VRAM>` symbol.
 
-**Matching progress.** Seventy-one functions / 3,180 bytes compile exactly
+**Matching progress.** Seventy-two functions / 3,236 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -404,12 +404,12 @@ linked ranges and the full ROM are exact.
   `joyCreateMap`, `joyGetController`, `joyGetButtons`, `joyGetPressed`,
   `joyGetReleased`, `joyGetStickX`, `joyGetAbsX`, `joyGetStickY`, `joyGetAbsY`,
   `joyClamp`, `joySetSecurity`, `arithmeticFunction`, and `joyCharVal`.
-- `main/level` (17 / 1,268 bytes): `levelNGetType`, `levelGetTune`,
+- `main/level` (18 / 1,324 bytes): `levelNGetType`, `levelGetTune`,
   `levelGetWorld`, `levelGetRegionNo`, `levelGetScreenMode`,
   `levelGetBlurEffect`, `levelGetGfxIndex`, `levelGetColourCycling`,
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
-  `levelGetNextOfWorld`, and `levelGetPrevOfWorld`.
+  `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
 - `main/main` (38 / 916 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainSetAnimGroup`, `mainGetAnimGroup`,
   `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
@@ -439,7 +439,9 @@ an earlier positional setter attribution. `mainGetNumberOfCameras` is tier B
 from JFG tail order plus the `levelGetGfxIndex` caller. `func_800291C4` is
 consistent with `mainGetGameArrayPtr`, but not uniquely; `func_80028F54` has
 the tier-B `mainGetGame` role but retains its placeholder because renaming it
-would require out-of-scope overlay edits.
+would require out-of-scope overlay edits. The inherited `levelInitRegionFlags`
+name is suspect: Mickey's exact 56-byte body is a boolean query over the level
+type byte and `D_8007BF08`, not JFG's region-table initializer.
 
 `joyResetMap` remains assembly after a bounded plateau. The donor loop's first
 mismatch is at function offset `+0x0`: with external storage, IDO repeats the
