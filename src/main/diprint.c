@@ -70,4 +70,8 @@ void debug_text_origin(void) {
     D_800D4A5C = D_800D4A6C;
     D_800D4A5E = D_800D4A74;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_newline.s")
+/* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_newline. */
+void debug_text_newline(void) {
+    D_800D4A5C = D_800D4A6C;
+    D_800D4A5E += 11;
+}

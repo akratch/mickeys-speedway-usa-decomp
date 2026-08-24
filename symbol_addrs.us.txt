@@ -491,7 +491,7 @@ debug_text_background = 0x800446F8; // type:func size:0xA0 ROM 0x452f8 evidence=
 debug_text_character = 0x80044798; // type:func size:0x2E8 ROM 0x45398 evidence=B parse call graph/order, jfg/debug_text_character
 debug_text_bounds = 0x80044A80; // type:func size:0x90 ROM 0x45680 evidence=B diPrintfAll call graph/order, jfg/debug_text_bounds
 debug_text_origin = 0x80044B10; // type:func size:0x24 ROM 0x45710 evidence=A IDO C exact, jfg/debug_text_origin
-debug_text_newline = 0x80044B34; // type:func size:0x28 ROM 0x45734 evidence=B parse call graph/order, jfg/debug_text_newline
+debug_text_newline = 0x80044B34; // type:func size:0x28 ROM 0x45734 evidence=A IDO C exact, jfg/debug_text_newline
 
 // gzip.c, and gzip_asm.s -- the asset decompressor. The whole 0xA74 .text of
 // DKR's `hasm/gzip_asm.s.o` matched in ONE PIECE at ROM 0x4EA60 (98 of 669
