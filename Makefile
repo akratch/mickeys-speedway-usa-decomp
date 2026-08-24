@@ -3213,19 +3213,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75MarkSlot.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x214
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75Init.c.o: CFLAGS += -Wab,-r4300_mul
-# The semantic source naturally owns the exact 304-instruction boundary,
-# frame, CFG, 16 calls, and FP expression tree.  This guarded ledger selects
-# retail's equivalent private schedule/local-home web; its sole opcode change
-# replaces a redundant unescaped-stack initialization with the stable active
-# halfword reload already governing the same join.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75UpdateMovingObject.c.o: \
-	config/normalizations/overlay75UpdateMovingObject.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75UpdateMovingObject.c.o: CFLAGS += \
 	-Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75UpdateMovingObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4C0 dd4a4fa928227da6a8df5e2b7a6af736a328a95a4c0d85cb493557fb09531768 \
-		@config/normalizations/overlay75UpdateMovingObject.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_075_F0000214_18CC17C=overlay75UpdateMovingObject $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077_tail.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x78
