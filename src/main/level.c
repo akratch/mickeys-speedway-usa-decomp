@@ -127,7 +127,22 @@ u8 *levelGetLevel(void) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelFreeAll.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetNextOfWorld.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+s32 levelGetNextOfWorld(s32 arg0, s8 arg1) {
+    s32 next;
+
+    next = arg0 + 1;
+    if (next >= D_800CF3D4) {
+        next = 0;
+    }
+    while ((next != arg0) && (arg1 != D_800CF3DC[next].world)) {
+        next++;
+        if (next >= D_800CF3D4) {
+            next = 0;
+        }
+    }
+    return next;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetPrevOfWorld.s")
 
