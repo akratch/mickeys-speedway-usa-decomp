@@ -6647,15 +6647,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29ProjectPoint.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1E4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Release.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
-# The natural object has the exact boundary, frame, CFG, calls, and memory
-# effects. This complete decoded ledger selects one equivalent scalar/call-arg
-# web without changing any opcode-bearing behavior or relocation identity.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59PrepareEntry.c.o: \
-	config/normalizations/overlay59PrepareEntry.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59PrepareEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xF8 3129d930bac413590d165b04613ced461e3e62b9f38696c9f1474e5eb4f0c40a \
-		@config/normalizations/overlay59PrepareEntry.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_059_F0000070_18B87C0=overlay59PrepareEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59ResetEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x6C
@@ -6663,16 +6657,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
-# The natural 262-word state machine has exact CFG, calls, integer/FP webs,
-# and effects. Reorder its complete prologue schedule, assert retained-overlay
-# local addends, then discard the compiler's duplicate switch table/relocs.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: \
-	config/normalizations/overlay59Advance.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x418 7068b6b1cf81620f6aeec1b9b7b0695705ede22aad9f166e80d70b6baa83939b \
-		@config/normalizations/overlay59Advance.ops && \
-	$(OBJCOPY) --remove-relocations=.text --remove-section=.rodata $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59BuildList.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0
