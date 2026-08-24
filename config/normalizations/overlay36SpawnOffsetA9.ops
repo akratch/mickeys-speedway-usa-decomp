@@ -1,5 +1,0 @@
-# Complete private f4/f6 representation web for the two initial constants.
-fields:0x08:rd=4@6
-fields:0x1C:rd=6@4
-fields:0x30:rt=4@6
-fields:0x34:rt=6@4

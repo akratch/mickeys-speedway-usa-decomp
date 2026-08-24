@@ -42,6 +42,7 @@ extern void func_overlay_036_F0000914_1883DCC(Overlay36Object *object,
                                               s32 arg1, s32 state,
                                               s32 enabled);
 
+#ifdef NON_MATCHING
 void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
                                        volatile s32 arg2,
                                        volatile s32 arg3) {
@@ -131,3 +132,6 @@ void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
     }
     gOverlay36NodeB->flags6 |= 0x400;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36ChooseWeightedState/func_overlay_036_F0000A60_1883F18.s")
+#endif

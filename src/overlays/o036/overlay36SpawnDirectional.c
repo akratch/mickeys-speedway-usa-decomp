@@ -29,6 +29,7 @@ extern void overlay36ReleaseReloc(void *resource);
 extern void overlay36CreateResourceReloc(u16 kind, f32 x, f32 y, f32 z,
                                          s32 mode, void **resource);
 
+#ifdef NON_MATCHING
 void overlay36SpawnDirectional(Overlay36Object *object) {
     Overlay36State *state;
     Overlay36SpawnedObject *spawned;
@@ -69,3 +70,6 @@ void overlay36SpawnDirectional(Overlay36Object *object) {
         state->action = 0;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36SpawnDirectional/func_overlay_036_F0000F20_18843D8.s")
+#endif

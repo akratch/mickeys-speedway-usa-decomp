@@ -1,4 +1,0 @@
-0x48:overlay36ChooseReloc:func_overlay_036_F0000000_18834B8
-0x60:overlay36MeasureReloc:func_overlay_036_F0000000_18834B8
-0xcc:overlay36GetChoiceReloc:func_overlay_036_F0000000_18834B8
-0x1c0:overlay36ChooseReloc:func_overlay_036_F0000000_18834B8

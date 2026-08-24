@@ -1,7 +1,0 @@
-# Two fail-loud source-shape corrections in the countdown CFG. Retail keeps
-# the loaded countdown in v1, copies it to v0 in the successful comparison
-# delay slot, and uses a normal BNE. IDO instead emits a duplicate 0xFF
-# materialization in a BNEL delay slot. The replacement preserves the same
-# expiry/subtract control flow and exactly restores the missing value copy.
-fields:0x48:op=21@5,imm=6@5
-fields:0x4c:op=9@0,rs=zero@v1,rt=at@zero,rd=zero@v0,sa=3@0,fn=63@37

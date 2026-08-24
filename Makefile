@@ -5915,119 +5915,48 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36PrepareAndTick.c.o: POSTPROCESS =
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x84
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SelectState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x74
-# The typed weighted-state selector reaches the exact frame, CFG, constants,
-# calls, and runtime relocation topology under the measured R4300 multiply
-# scheduler. A guarded redundant-rematerialization deletion and complete
-# private scheduling/register web select the shipped representation; 28
-# asserted loader-local HILO records are removed from the five-call split.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36ChooseWeightedState.c.o: \
-	config/normalizations/overlay36ChooseWeightedState.ops \
-	config/normalizations/overlay36ChooseWeightedState.filter.spec \
-	config/normalizations/overlay36ChooseWeightedState.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36ChooseWeightedState.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36ChooseWeightedState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2A8 26ec72f1b7c01edb717392a5a01004f4a135b4284c5ff556490c45096548ce69 \
-		@config/normalizations/overlay36ChooseWeightedState.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay36ChooseWeightedState.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2A8 && \
-	$(OBJCOPY) --add-symbol \
-		func_overlay_036_F0000000_18834B8=0xF0000000,global $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay36ChooseWeightedState.rebind.spec
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36UpdateInteractiveEntity.c.o: \
-	config/normalizations/overlay36UpdateInteractiveEntity.source_shape.ops \
-	config/normalizations/overlay36UpdateInteractiveEntity.reorder.ops \
-	config/normalizations/overlay36UpdateInteractiveEntity.fields.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2A8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36UpdateInteractiveEntity.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4C4 b83f6f433c27002452e1a5c6669cce5534f72c02018252d638adf990a73d3758 \
-		@config/normalizations/overlay36UpdateInteractiveEntity.source_shape.ops \
-		@config/normalizations/overlay36UpdateInteractiveEntity.reorder.ops \
-		@config/normalizations/overlay36UpdateInteractiveEntity.fields.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_036_F00001D0_1883688=overlay36UpdateInteractiveEntity $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnTransient.c.o: \
-	config/normalizations/overlay36SpawnTransient.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnTransient.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x11C d6cf5d7eb1322b0c5d0c1c94d6f09df1fbff38575184e5f0112fbdf3502a2b43 \
-		@config/normalizations/overlay36SpawnTransient.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_036_F0000694_1883B4C=overlay36SpawnTransient $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36InitVectorState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x68
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36CheckNearbyHeight.c.o: \
-	config/normalizations/overlay36CheckNearbyHeight.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36CheckNearbyHeight.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x100 0802a132f7e5a32217137fd215b78bc1e390e44c6b27b419e01d014203bec3b9 \
-		'fields:0x6c:op=0x11@0x9,rs=0x4@0x0,rt=0x1@0x1,imm=0x8000@0x0' && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xFC 4dfaeeec4835e04d4018bafaea9a7e81d2c89601c3311bee1d6ea36705348ca8 \
-		'drop-li:0x6c:at:0:func_overlay_036_F0000818_1883CD0' && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xFC && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xFC c457a77ecb3120432d679b38d5b6716a01d75ffa0074997e2c643dcba54c418f \
-		@config/normalizations/overlay36CheckNearbyHeight.ops
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xFC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36FlushQueue.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x90
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36QueueAction.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x6C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnFinalEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xc0 d49198645981e674857758aad1bb210e0ffe090aa3dd12dcedae740a3053ea5a \
-		fields:0x8:imm=65480@65488 \
-		fields:0xb4:imm=56@48 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_036_F0001688_1884B40=overlay36SpawnFinalEffect $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnAtPosition.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnAndUpdate.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnLinked7F.c.o: \
-	config/normalizations/overlay36SpawnLinked7F.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnLinked7F.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x194 dc2c921f8d88f8b348b4664e00655f4c83e474a311fc4b352dc518fc5f1a980a \
-		@config/normalizations/overlay36SpawnLinked7F.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_036_F0000D8C_1884244=overlay36SpawnLinked7F $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnDirectional.c.o: \
-	config/normalizations/overlay36SpawnDirectional.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnDirectional.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x164 2fa63c297a6014cba90a5066d0c36ebb0a5878226354f84edc5938b90c502f7c \
-		@config/normalizations/overlay36SpawnDirectional.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_036_F0000F20_18843D8=overlay36SpawnDirectional $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x164
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnOffsetA9.c.o: \
-	config/normalizations/overlay36SpawnOffsetA9.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnOffsetA9.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x164 09ca017f94f75e81dc4c72dac149249d429790053d9ae965f04ec033ad0be7d2 \
-		@config/normalizations/overlay36SpawnOffsetA9.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_036_F0001214_18846CC=overlay36SpawnOffsetA9 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x164
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36UpdatePeers.c.o: \
-	config/normalizations/overlay36UpdatePeers.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36UpdatePeers.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x17C cecde58454b830f4623d7726a9208f5cd2f8ae3d44ab2067933372c62570620e \
-		@config/normalizations/overlay36UpdatePeers.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_036_F000150C_18849C4=overlay36UpdatePeers $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x17C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100InitializeMotion.c.o: \
 	config/normalizations/overlay100InitializeMotion.ops \
