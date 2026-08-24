@@ -18,6 +18,7 @@
 
 extern s32 D_80078D7C;
 extern s32 D_80078D80;
+extern s32 D_80078D78;
 extern void *D_80078D60;
 extern u8 D_800BF794;
 extern u8 *D_800BF7A4;
@@ -78,7 +79,21 @@ void amTuneSetChlVolume(u8 channel, u8 volume) {
         n_alCSPSetChlVol(D_80078D60, channel, volume);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000C38.s")
+/* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
+void amTuneResetChls(void) {
+    s32 channel;
+    u8 maskedChannel;
+
+    if (D_80078D78 == 0) {
+        channel = 0;
+        do {
+            maskedChannel = channel;
+            amTuneUnmuteChl(maskedChannel & 0xFF);
+            amTuneSetChlVolume(maskedChannel, 0x7F);
+            channel++;
+        } while (channel != 16);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000C9C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000CEC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D1C.s")
