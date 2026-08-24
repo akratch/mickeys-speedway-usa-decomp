@@ -20,6 +20,9 @@
 #include "PR/ultratypes.h"
 
 extern s32 D_800CEC84;
+extern s32 D_800CEC88;
+extern f32 D_800CEC8C;
+extern f32 D_800CEC90;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021438.s")
@@ -31,7 +34,15 @@ void camUseShake(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021494.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800214A0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800214AC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camOverrideProjScales.s")
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camOverrideProjScales.
+ */
+void camOverrideProjScales(f32 scaleX, f32 scaleY) {
+    D_800CEC8C = scaleX;
+    D_800CEC90 = scaleY;
+    D_800CEC88 = 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021504.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021718.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800217AC.s")
