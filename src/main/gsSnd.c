@@ -35,7 +35,17 @@ typedef struct GsSndPlayer {
     s32 curTime;
 } GsSndPlayer;
 
+typedef struct GsSoundStateLink {
+    struct GsSoundStateLink *next;
+    struct GsSoundStateLink *prev;
+} GsSoundStateLink;
+
 extern GsSndPlayer *D_8007FF4C;
+extern GsSoundStateLink *D_8007FF40;
+extern GsSoundStateLink *D_8007FF44;
+extern GsSoundStateLink *D_8007FF48;
+
+u32 osSetIntMask(u32 mask);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005B978.s")
@@ -43,7 +53,35 @@ extern GsSndPlayer *D_8007FF4C;
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CD3C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CDAC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CE28.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/getSoundStateCounts.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (getSoundStateCounts). */
+u16 getSoundStateCounts(u16 *numFree, u16 *numAllocated) {
+    u32 mask;
+    u16 allocatedCounter;
+    u16 freeCounter;
+    u16 allocatedRevCounter;
+    GsSoundStateLink *allocatedPtr;
+    GsSoundStateLink *freePtr;
+    GsSoundStateLink *allocatedRevPtr;
+
+    mask = osSetIntMask(1);
+    allocatedPtr = D_8007FF40;
+    freePtr = D_8007FF48;
+    allocatedRevPtr = D_8007FF44;
+
+    for (allocatedCounter = 0; allocatedPtr != NULL;
+         allocatedCounter++, allocatedPtr = allocatedPtr->next) {}
+    for (freeCounter = 0; freePtr != NULL;
+         freeCounter++, freePtr = freePtr->next) {}
+    for (allocatedRevCounter = 0; allocatedRevPtr != NULL;
+         allocatedRevCounter++, allocatedRevPtr = allocatedRevPtr->prev) {}
+
+    *numFree = freeCounter;
+    *numAllocated = allocatedCounter;
+
+    osSetIntMask(mask);
+
+    return allocatedRevCounter;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005D030.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005D260.s")
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpSetPriority). */
