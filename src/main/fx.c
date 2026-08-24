@@ -24,8 +24,14 @@ typedef struct WakeRipple {
     Wake *wake;
 } WakeRipple;
 
+typedef struct FxFlags {
+    u16 value;
+    u8 pad2[0x1E];
+} FxFlags;
+
 extern void func_800347A0(s32 linked);
 extern void mmFree(void *ptr);
+extern FxFlags D_800D5F5A[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046E70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046EC4.s")
@@ -62,7 +68,12 @@ void func_80048980(WakeRipple *ripple) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049518.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004978C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049828.s")
+s32 func_80049828(s32 index, s32 mask) {
+    if (index >= 0 && index < 5 && (D_800D5F5A[index].value & mask) != 0) {
+        return 1;
+    }
+    return 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049864.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004989C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800498FC.s")

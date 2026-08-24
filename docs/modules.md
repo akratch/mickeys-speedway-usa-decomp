@@ -411,6 +411,10 @@ is exact after resolving `func_800347A0` as a one-argument call; its two call
 relocations and the wake-linked field access match without normalization. The
 same ABI resolves the adjacent 72-byte `func_80048980` (`wakeFreeRipple`),
 which is exact with both its linked-release and nested-wake call relocations.
+The 60-byte Mickey-named `func_80049828` bounds-checks one of five effect
+records and tests a caller-supplied flag mask; its natural 32-byte-stride
+record access is exact at the resident defaults, including the data-symbol
+relocation pair.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
