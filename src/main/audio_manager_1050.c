@@ -37,7 +37,9 @@ void amAmbientResetFade(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000ABC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000B3C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000B48.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000BE8.s")
+/* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
+void amTuneMuteChl(s32 channel) {
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000BF0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000BF8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000C38.s")
