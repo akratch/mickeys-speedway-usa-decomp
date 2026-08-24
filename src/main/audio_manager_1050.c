@@ -380,7 +380,9 @@ void func_800015F8(void) {
 void func_80001608(void) {
     D_80078D78 = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001614.s")
+s32 func_80001614(void) {
+    return D_80078D78;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001620.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001668.s")
 /* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
