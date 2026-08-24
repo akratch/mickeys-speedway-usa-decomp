@@ -3533,13 +3533,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o069/overlay69UpdateAnchor.c.o: POSTPROCESS = \
 		overlay69RotateVectorReloc=func_overlay_069_F0000000_18C8A68 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x124
 # Overlay 69 and overlay 88 ship the same reviewed renderer bytes, but each
-# remains an independent object verdict. This rule asserts overlay 69's entire
-# bounded natural basin before restoring the shipped stack-frame and complete
-# allocator/scheduling webs; the adjacent alignment word remains separate.
+# remains an independent object verdict. Splat emits overlay 69's synthetic
+# symbol; restore its friendly name and discard only section alignment.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o069/overlay69DrawSortedGeometry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x59c 3a5cfd50d01656368d68dca0dbb82437bb3bb11e8c14fa6856bf6b8c6ffa312c \
-		@config/normalizations/overlay69DrawSortedGeometry.ops && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_069_F0000170_18C8BD8=overlay69DrawSortedGeometry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x59C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o067/overlay67BuildVertices.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14C

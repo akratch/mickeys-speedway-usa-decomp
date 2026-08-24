@@ -134,6 +134,14 @@ extern void SHARED_FIXED_SUBMIT_RELOC(SharedCommand **commands,
                                       void *reference, s32 mode, u8 key);
 
 /* DKR v77/v80 and JFG have no exact donor for this renderer. */
+#ifdef NON_MATCHING
+#define OVERLAY69_COMPILE_SHARED_BODY
+#endif
+#ifdef overlay69DrawSortedGeometry
+#define OVERLAY69_COMPILE_SHARED_BODY
+#endif
+
+#ifdef OVERLAY69_COMPILE_SHARED_BODY
 void SHARED_DRAW_FUNCTION(SharedCommand **commands, void *renderArg1,
                           void *renderArg2, SharedRenderObject *object) {
     register SharedDrawState *state;
@@ -281,3 +289,9 @@ void SHARED_DRAW_FUNCTION(SharedCommand **commands, void *renderArg1,
         SHARED_APPEND_TRAILING_STATE((*commandList)++);
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o069/overlay69DrawSortedGeometry/func_overlay_069_F0000170_18C8BD8.s")
+#endif
+
+#undef OVERLAY69_COMPILE_SHARED_BODY
