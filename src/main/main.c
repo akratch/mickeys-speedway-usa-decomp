@@ -18,6 +18,10 @@ extern s32 D_8007A14C;
 extern s32 D_8007A1B0;
 extern s32 D_8007A1BC;
 extern s32 D_8007A13C;
+extern s32 D_8007A12C;
+extern s32 D_8007A130;
+extern s32 D_8007A134;
+extern s32 D_8007A138;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -50,7 +54,13 @@ s32 mainGameWindowChanging(void) {
     return D_8007A13C;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainGameWindowSize.s")
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+void mainGameWindowSize(s32 *x1, s32 *y1, s32 *x2, s32 *y2) {
+    *x1 = D_8007A12C;
+    *y1 = D_8007A130;
+    *x2 = D_8007A134;
+    *y2 = D_8007A138;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027EC0.s")
 

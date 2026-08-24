@@ -396,7 +396,7 @@ main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
 JFG functions were not imported: unresolved routines retain Mickey's own
 `func_<VRAM>` symbol.
 
-**Matching progress.** Fifteen leaf functions currently compile exactly under
+**Matching progress.** Sixteen leaf functions currently compile exactly under
 the resident `-O2 -mips2 -32` flags: Splat's empty `func_800291D0` body,
 JFG's one-expression `joyCharVal` body (8 bytes each), and the 12-byte
 `joySetSecurity`, `mainSetAnimGroup`, and `mainChangeCameras` stores. The
@@ -411,8 +411,9 @@ exact as well. The immediately following 12-byte store is JFG's
 tier-D structural name, correcting the earlier positional attribution of
 JFG's setter name.
 
-Mickey's 12-byte `mainGameWindowChanging` getter is also exact, bringing the
-total to 200 bytes. Its ABI returns the 32-bit state word directly, unlike the
+Mickey's 12-byte `mainGameWindowChanging` getter and 52-byte
+`mainGameWindowSize` four-output accessor are also exact, bringing the total to
+252 bytes. The former's ABI returns the 32-bit state word directly, unlike the
 published JFG declaration's 16-bit return type; retaining JFG's signature
 changed the final load and was rejected.
 
