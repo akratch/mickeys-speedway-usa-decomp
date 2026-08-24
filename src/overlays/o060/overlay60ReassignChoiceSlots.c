@@ -15,6 +15,7 @@ extern Overlay60Choice gOverlay60ChoicesPass1End[];
 extern Overlay60Choice gOverlay60ChoicesPass2End[];
 
 /* The pinned DKR v77/v80 and JFG object scans have no donor for this owner. */
+#ifdef NON_MATCHING
 void overlay60ReassignChoiceSlots(void) {
     u8 available[20];
     u8 *availableCursor;
@@ -45,3 +46,6 @@ void overlay60ReassignChoiceSlots(void) {
         choice++;
     } while (choice != gOverlay60ChoicesPass2End);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o060/overlay60ReassignChoiceSlots/func_overlay_060_F0003488_18BD260.s")
+#endif

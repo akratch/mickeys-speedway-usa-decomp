@@ -75,6 +75,7 @@ extern Overlay60Object *overlay60FindReloc(u8 index);
 
 #define SOURCE(type, offset) (*(type *)(gOverlay60SourceReloc + (offset)))
 
+#ifdef NON_MATCHING
 void func_overlay_060_F0000000_18B9DD8(void) {
     Overlay60Object **objects;
     Overlay60SpawnDesc desc;
@@ -153,3 +154,6 @@ void func_overlay_060_F0000000_18B9DD8(void) {
     }
     gOverlay60Bss174 = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o060/overlay60Initialize/func_overlay_060_F0000000_18B9DD8.s")
+#endif

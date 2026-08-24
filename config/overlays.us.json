@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 257028,
-  "nonmatching_overlay_c_bytes": 19572,
+  "matched_overlay_c_bytes": 255108,
+  "nonmatching_overlay_c_bytes": 21492,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -13080,7 +13080,7 @@
      "type": "c",
      "source": "overlays/o060/overlay60Initialize",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x334",
@@ -13107,7 +13107,7 @@
      "type": "c",
      "source": "overlays/o060/func_overlay_060_F0002F54_18BCD2C",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x32CC",
@@ -13134,7 +13134,7 @@
      "type": "c",
      "source": "overlays/o060/overlay60ReassignChoiceSlots",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x355C",

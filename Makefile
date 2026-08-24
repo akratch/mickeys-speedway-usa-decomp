@@ -4837,44 +4837,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60DrawBorder.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x10C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60DrawLine.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB0
-# The natural 222-word gradient writer owns the exact CFG, FP lanes, stack
-# object home, calls, and twelve runtime relocation roles. Six complete
-# schedule permutations plus the complete asserted GPR web select retail's
-# equivalent allocation; call carriers retain loader-owned zero payloads.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o060/func_overlay_060_F0002F54_18BCD2C.c.o: \
-	config/normalizations/func_overlay_060_F0002F54_18BCD2C.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/func_overlay_060_F0002F54_18BCD2C.c.o: \
 	CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/func_overlay_060_F0002F54_18BCD2C.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x378 a18144a89d174564a22e637800757affc2aa407ca83dbfa2e98ce9d2cac3dca6 \
-		@config/normalizations/func_overlay_060_F0002F54_18BCD2C.ops && \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_082_F00004A4_18CF624=func_overlay_060_F0000000_18B9DD8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0xE0:func_80034554:func_overlay_060_F0000000_18B9DD8 \
-		0x1A4:func_80036600:func_overlay_060_F0000000_18B9DD8 \
-		0x1BC:func_80036660:func_overlay_060_F0000000_18B9DD8 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x378
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60ReassignChoiceSlots.c.o: \
-	config/normalizations/overlay60ReassignChoiceSlots.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60ReassignChoiceSlots.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xD4 2a3fabec79e38bf8428c6143b62568b39f6b18fab2dede2315ddef45df7ebf64 \
-		@config/normalizations/overlay60ReassignChoiceSlots.ops && \
-	$(OBJCOPY) \
-		--redefine-sym gOverlay60ChoicesPass1=overlay60ChoiceTableRuntimeReloc $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x24:gOverlay60ChoicesPass1End:overlay60ChoiceTableRuntimeReloc \
-		0x28:gOverlay60ChoicesPass1End:overlay60ChoiceTableRuntimeReloc \
-		0x60:gOverlay60ChoicesPass2:overlay60ChoiceTableRuntimeReloc \
-		0x64:gOverlay60ChoicesPass2End:overlay60ChoiceTableRuntimeReloc \
-		0x68:gOverlay60ChoicesPass2End:overlay60ChoiceTableRuntimeReloc \
-		0x6C:gOverlay60ChoicesPass2:overlay60ChoiceTableRuntimeReloc && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_060_F0003488_18BD260=overlay60ReassignChoiceSlots $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13Call.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
@@ -5344,35 +5313,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSegments.c.o: POSTPROCESS =
 		0xb8:5:gOverlay99Texture 0xc0:6:gOverlay99Texture \
 		0x1dc:5:gOverlay99SegmentCount 0x1e0:6:gOverlay99SegmentCount && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x238
-# Natural IDO owns the exact 205-word frame/CFG/FP/runtime-relocation surface.
-# Two guarded schedule bijections and the complete private/runtime-local field
-# web select retail's representation. Loader-owned proxy relocations are
-# removed only after their exact local addends have been embedded.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60Initialize.c.o: \
-	config/normalizations/overlay60Initialize.ops \
-	config/normalizations/overlay60Initialize.filter.spec \
-	config/normalizations/overlay60Initialize.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x334 55b6e4a4d9711c24ab2356241e27050da2843b434a0593c921ce24b384917d16 \
-		@config/normalizations/overlay60Initialize.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay60Initialize.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay60Initialize.rebind.spec && \
-	$(OBJCOPY) \
-		--redefine-sym gOverlay60Data28=D_28 \
-		--redefine-sym gOverlay60Data38=D_38 \
-		--redefine-sym gOverlay60ObjectC8=D_C8 \
-		--redefine-sym gOverlay60CoordsD8=D_D8 \
-		--redefine-sym gOverlay60Data58=D_58 \
-		--redefine-sym overlay60SpawnReloc=func_overlay_060_F0000000_18B9DD8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x334 \
-		000000000000000000000000
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x334
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60ReleaseResources.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57ApplyValue.c.o: POSTPROCESS = \

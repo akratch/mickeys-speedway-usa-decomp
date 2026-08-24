@@ -1,5 +1,0 @@
-0x16c:overlay60ConfigureReloc:overlay60SpawnReloc
-0x188:overlay60InitReloc:overlay60SpawnReloc
-0x1c4:overlay60ReadyReloc:overlay60SpawnReloc
-0x2e8:overlay60SelectReloc:overlay60SpawnReloc
-0x2f0:overlay60FindReloc:overlay60SpawnReloc

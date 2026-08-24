@@ -27,6 +27,7 @@ extern void func_80036660(Overlay60Color *color, s32 amount);
 #define OVERLAY60_SHIFTL(value, shift, width) \
     (((u32)(value) & ((1U << (width)) - 1U)) << (shift))
 
+#ifdef NON_MATCHING
 s32 func_overlay_060_F0002F54_18BCD2C(s32 left, s32 bottom, s32 width,
                                        s32 height, s32 progress, s32 alpha,
                                        s32 ticks) {
@@ -104,3 +105,6 @@ s32 func_overlay_060_F0002F54_18BCD2C(s32 left, s32 bottom, s32 width,
     }
     return progress;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o060/func_overlay_060_F0002F54_18BCD2C/func_overlay_060_F0002F54_18BCD2C.s")
+#endif
