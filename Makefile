@@ -30,7 +30,22 @@ VERSION  := us
 # Directories
 # ---------------------------------------------------------------------------
 
+# Compile-only escape hatch for the NON_MATCHING/GLOBAL_ASM functions (see
+# docs/acceleration-survey.md sec.13.2): `gmake NON_MATCHING=1` takes every
+# converted TU's real C body instead of its GLOBAL_ASM fallback, so the
+# functions queued for source restructuring keep compiling under IDO without
+# being claimed as matched. It never produces a byte-identical ROM -- `verify`
+# refuses to run under it, exactly DKR's guard.
+NON_MATCHING ?= 0
+
+# Separate build tree for NON_MATCHING=1: objects compiled with -DNON_MATCHING
+# are never byte-identical, so they must never sit next to (or be mistaken
+# for, via stale timestamps) the objects `verify` checks.
+ifeq ($(NON_MATCHING),0)
 BUILD_DIR := build
+else
+BUILD_DIR := build_non_matching
+endif
 SRC_DIR   := src
 # Every directory under src/ that holds .c files. Discovered rather than listed
 # so adding a new source subdirectory (src/libultra, src/main, ...) needs no
@@ -76,6 +91,9 @@ OPT_FLAGS := -O2
 MIPSISET  := -mips1 -32
 DEFINES   := -D_LANGUAGE_C -D_FINALROM -DTARGET_N64 -DVERSION_$(VERSION) \
              -D_MIPS_SZLONG=32
+ifneq ($(NON_MATCHING),0)
+DEFINES += -DNON_MATCHING
+endif
 INCLUDE_CFLAGS := -I . -I include -I include/libc -I include/PR -I assets
 CFLAGS  := -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
            $(DEFINES) $(INCLUDE_CFLAGS)
@@ -215,6 +233,9 @@ prune-asm:
 	@$(PYTHON) $(TOOLS_DIR)/prune_stale_asm.py $(BASENAME).$(VERSION).yaml
 
 verify:
+ifneq ($(NON_MATCHING),0)
+	$(error verify does not run under NON_MATCHING=1 -- it never produces a byte-identical ROM; unset NON_MATCHING and rebuild)
+endif
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
 	@$(MAKE) --no-print-directory $(TARGET).z64
 	@got=$$($(SHA1) $(TARGET).z64 | cut -d' ' -f1); \
