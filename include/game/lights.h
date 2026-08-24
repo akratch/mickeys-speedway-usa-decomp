@@ -13,6 +13,7 @@ typedef struct UnkLight {
 
 void turnLightOff(UnkLight *light);
 void turnLightOn(UnkLight *light);
+void toggleLight(UnkLight *light);
 void changeLightColourCycle(s32 arg0, s32 arg1);
 
 #endif

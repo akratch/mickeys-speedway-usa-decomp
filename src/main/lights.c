@@ -33,7 +33,10 @@ void turnLightOff(UnkLight *light) {
 void turnLightOn(UnkLight *light) {
     light->unk3 |= 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DD4.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void toggleLight(UnkLight *light) {
+    light->unk3 ^= 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DE4.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 void changeLightColourCycle(s32 arg0, s32 arg1) {

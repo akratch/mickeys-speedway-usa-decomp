@@ -396,7 +396,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80018BB4` | `0x200` | `addObjectLight` | tier-B comparison from TU order and light-update callees; C still `func_80018BB4` |
 | `0x80018DB4` | `0x10` | `turnLightOff` | Tier A: adapted JFG body is compiler-exact under canonical flags and linked byte-identically |
 | `0x80018DC4` | `0x10` | `turnLightOn` | Tier A: adapted JFG body is compiler-exact under canonical flags and linked byte-identically |
-| `0x80018DD4` | `0x10` | `toggleLight` | structural comparison only; C still `func_80018DD4` |
+| `0x80018DD4` | `0x10` | `toggleLight` | Tier A: adapted JFG body is compiler-exact under canonical flags and linked byte-identically |
 | `0x80018DE4` | `0x2C` | `changeLightColour` | structural comparison only; C still `func_80018DE4` |
 | `0x80018E10` | `0x20` | `changeLightColourCycle` | Tier A: 7 unmasked of 8 words, ROM-wide unique; adapted C is linked byte-identically and adopted |
 | `0x80018E30` | `0x4C` | `changeLightIntensity` | unique nearest skeleton (0.650) plus TU order; comparison only |

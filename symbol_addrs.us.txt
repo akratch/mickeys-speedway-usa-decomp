@@ -1433,6 +1433,7 @@ shadowBoundingBox = 0x800184B4; // type:func size:0x90   ROM 0x190b4  src/shadow
 // jfg:src/lights.c.o -- tier A, ROM-wide unique; body adapted in src/main/lights.c
 turnLightOff = 0x80018DB4; // type:func size:0x10   ROM 0x199b4  src/lights.c.o  body adapted and compiler-exact
 turnLightOn = 0x80018DC4; // type:func size:0x10   ROM 0x199c4  src/lights.c.o  body adapted and compiler-exact
+toggleLight = 0x80018DD4; // type:func size:0x10   ROM 0x199d4  src/lights.c.o  body adapted and compiler-exact
 changeLightColourCycle = 0x80018E10; // type:func size:0x20   ROM 0x19a10  src/lights.c.o  masked=1/8  romocc=1
 // jfg:src/charControl.c.o
 func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charControl.c.o  masked=0/19
