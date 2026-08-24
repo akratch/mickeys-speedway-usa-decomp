@@ -25,6 +25,7 @@ extern s32 D_8007A134;
 extern s32 D_8007A138;
 extern s32 D_8007A1A4;
 extern s32 D_8007A1A8;
+extern u32 D_8007A1CC;
 extern s32 D_8007A1D4;
 extern s32 D_8007A1EC;
 extern u8 D_8007BEF4;
@@ -189,7 +190,9 @@ void *func_800290F8(void) {
     return D_800D18E4;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029104.s")
+void func_80029104(void) {
+    D_8007A1CC |= 0x40000000;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029120.s")
 
