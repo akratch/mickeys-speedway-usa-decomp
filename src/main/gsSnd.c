@@ -15,7 +15,6 @@
  */
 
 #include "PR/ultratypes.h"
-#include "overlays/o005/audio_bank.h"
 #include "n_libaudio.h"
 
 #define GS_SNDP_PLAY_EVT 0x1
