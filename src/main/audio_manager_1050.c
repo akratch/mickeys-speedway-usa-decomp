@@ -32,9 +32,19 @@ typedef struct AudioSoundData {
     u8 unk9;
 } AudioSoundData;
 
+typedef struct AudioEnvelope {
+    s32 attackTime;
+    s32 decayTime;
+} AudioEnvelope;
+
+typedef struct AudioSound {
+    AudioEnvelope *envelope;
+} AudioSound;
+
 typedef struct AudioInstrument {
     u8 pad0[0xE];
     s16 soundCount;
+    AudioSound *soundArray[1];
 } AudioInstrument;
 
 typedef struct AudioBank {
@@ -348,7 +358,16 @@ void amGetSfxSettings(AudioSoundData **table, s32 *size, s32 *count) {
         *count = D_800BF7A8;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800012A8.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+u8 amSoundIsLooped(u16 soundId) {
+    if (soundId <= 0 ||
+        D_800BF79C->bankArray[0]->instArray[0]->soundCount < soundId) {
+        return 0;
+    }
+    return ((u32)(1 + D_800BF79C->bankArray[0]->instArray[0]
+                          ->soundArray[soundId - 1]
+                          ->envelope->decayTime) == 0);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001308.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000137C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001568.s")
