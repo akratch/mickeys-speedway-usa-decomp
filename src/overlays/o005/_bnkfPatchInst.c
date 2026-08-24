@@ -1,8 +1,9 @@
-#include "overlays/o005/audio_bank.h"
+#include "overlays/overlay_005.h"
 
-/* Overlay 5 +0x188. Source crosswalk: DKR us.v77 libultra/src/audio/bnkf.c. */
-void _bnkfPatchSound(ALSound *sound, s32 offset, s32 table);
-
+/*
+ * PROVENANCE: adapted from DKR us.v77,
+ * libultra/src/audio/bnkf.c::_bnkfPatchInst.
+ */
 void _bnkfPatchInst(ALInstrument *inst, s32 offset, s32 table) {
     s32 i;
 

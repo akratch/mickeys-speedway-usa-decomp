@@ -1,26 +1,12 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_007.h"
 
-typedef struct Overlay7Owner {
-    u8 pad00[0x64];
-    s8 *priority;
-} Overlay7Owner;
+/* Overlay 7, ADR 0006 consolidation: C before the middle assembly island. */
 
-typedef struct Overlay7Entry {
-    Overlay7Owner *owner;
-    s32 field04;
-    u16 value;
-    u8 type;
-    u8 active;
-    struct Overlay7Entry *nested;
-    struct Overlay7Entry *next;
-} Overlay7Entry;
-
-extern Overlay7Entry *gOverlay7ActiveHead;
-extern Overlay7Entry *gOverlay7FreeHead;
-extern Overlay7Entry *gOverlay7ActiveTail;
-extern Overlay7Entry *gOverlay7Selected;
-extern s32 gOverlay7PriorityThresholdReloc;
-
+/*
+ * Plateau: exact size with one differing word at +0x3C. The target orders
+ * the equality branch operands as v0,a0; equivalent ==/!= and goto spellings
+ * all collapse to IDO's a0,v0 ordering under the complete O2 flag lattice.
+ */
 #ifdef NON_MATCHING
 void overlay7ReleaseEntry(Overlay7Entry *entry) {
     Overlay7Entry *previous;
@@ -55,6 +41,12 @@ void overlay7ReleaseEntry(Overlay7Entry *entry) {
     }
 }
 
+/*
+ * Plateau: exact size with 17 differing words, first at +0x84. IDO retains
+ * the reset head in v0 for the second-loop null check instead of using the
+ * target's s0 web; the remaining allocation-tail register/layout differences
+ * follow from that copy-propagation choice. The O2 flag lattice is unchanged.
+ */
 Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
     Overlay7Entry *head;
     Overlay7Entry *entry;
@@ -71,9 +63,9 @@ Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
             }
             entry = entry->next;
         } while (entry != 0);
-        entry = head;
     }
 
+    entry = head;
     ownerPriority = owner->priority;
     if (entry != 0) {
         do {
@@ -102,10 +94,52 @@ Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
         }
         entry->next = 0;
         gOverlay7ActiveTail = entry;
+    } else {
+        entry = 0;
     }
     return entry;
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay7EntryPool/func_overlay_007_F0000000_185BE88.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay7EntryPool/func_overlay_007_F00000A8_185BF30.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007/func_overlay_007_F0000000_185BE88.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007/func_overlay_007_F00000A8_185BF30.s")
 #endif
+
+/* DKR v77/v80 and JFG exact-object scans are negative for this allocator. */
+void overlay7CreateEntry(void *owner, u16 value, u8 type) {
+    Overlay7Entry *entry;
+
+    entry = overlay7Acquire(owner, value, type);
+    if (entry == NULL) {
+        gOverlay7Current = NULL;
+    } else {
+        gOverlay7Current = entry;
+        entry->owner = owner;
+        entry->field04 = 0;
+        entry->value = value;
+        entry->type = type;
+        entry->nested = 0;
+        entry->active = 1;
+    }
+}
+
+/* Pinned DKR v77/v80 and JFG scans found no exact donor. */
+void overlay7AppendEntry(void *owner, u16 value, u8 type) {
+    Overlay7Entry *entry;
+    Overlay7Entry *current;
+
+    entry = overlay7Acquire(owner, value, type);
+    current = gOverlay7Current;
+    if (current == 0) {
+        overlay7CreateEntry(owner, value, type);
+    } else {
+        current->nested = entry;
+        if (entry != 0) {
+            entry->owner = owner;
+            entry->field04 = 0;
+            entry->value = value;
+            entry->type = type;
+            entry->nested = 0;
+            entry->active = 2;
+        }
+    }
+}

@@ -39,6 +39,7 @@ gmake extract 2>&1 | tail -1
 gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/refresh_atlas_digest.py >/dev/null
 .venv/bin/python tools/fix_stale_externs.py | tail -1
+gmake -j12 >/dev/null 2>&1 || true   # warm-up: the first parallel build after a re-split can race
 out=$(tools/with_verify_lock.sh gmake -j12 verify 2>&1 | tail -1); echo "$out"
 case "$out" in OK*) ;; *) echo "verify FAILED after merging $branch; merge left uncommitted (git merge --abort to drop it)" >&2; gmake -j12 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
 gmake scoreboard 2>&1 | tail -1

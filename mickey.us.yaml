@@ -857,9 +857,7 @@ segments:
       - [0x185B5B0, c, _bnkfPatchInst]
       - [0x185B648, c, _bnkfPatchSound]
       - [0x185B6A0, c, _bnkfPatchWaveTable]
-      - [0x185B70C, c, overlay5InitSequence]
-      - [0x185B744, c, overlay5InitializeAudio]
-      - [0x185BAE8, c, overlay5CreatePlayer]
+      - [0x185B70C, c, overlay_005]
       - [0x185BB8C, asm, overlay_005_padding]
       - [0x185BB98, bin, overlay_005_reloc1]
       - [0x185BE18, bin, overlay_005_reloc2]
@@ -889,16 +887,9 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x185BE88, c, overlay7EntryPool]
-      - [0x185C0B0, c, overlay7CreateEntry]
-      - [0x185C120, c, overlay7AppendEntry]
+      - [0x185BE88, c, overlay_007]
       - [0x185C1AC, asm, overlay_007_middle]
-      - [0x185C71C, c, overlay7DispatchModes]
-      - [0x185C928, c, overlay7UpdateOwnerMode]
-      - [0x185CB54, c, overlay7DispatchSelection]
-      - [0x185CC44, c, overlay7CommitSelection]
-      - [0x185CD64, c, overlay7FillValues]
-      - [0x185CD90, c, overlay7InitPool]
+      - [0x185C71C, c, overlay_007_tail]
       - [0x185CE40, asm, overlay_007_padding]
       - [0x185CE48, bin, overlay_007_data_rodata]
       - [0x185D798, bin, overlay_007_reloc1]
@@ -1023,10 +1014,8 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x186D280, c, overlay12Initialize]
-      - [0x186D344, c, overlay12Shutdown]
-      - [0x186D434, c, overlay12SpawnEffect]
-      - [0x186D564, c, overlay12SpawnParticle]
+      - [0x186D280, c, overlay_012]
+      - [0x186D434, c, overlay_012_tail]
       - [0x186D628, asm, overlay_012_tail1]
       - [0x186E520, bin, overlay_012_data_rodata]
       - [0x186E670, bin, overlay_012_reloc1]

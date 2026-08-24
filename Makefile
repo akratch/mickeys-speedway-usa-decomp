@@ -722,9 +722,9 @@ $(BUILD_DIR)/$(SRC_DIR)/main/audio_manager_4C50.c.o: CFLAGS += -Wab,-r4300_mul
 # rule; MIPS I inserts load-delay nops in several of them.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/%.c.o: MIPSISET := -mips2 -32
 
-# Rare's audio-bank patcher is an -O3 object in DKR and Mickey. Keeping each
-# helper in its measured source boundary prevents the interprocedural inliner
-# from folding calls that remain present in Mickey's bytes.
+# Rare's audio-bank patcher is an -O3 object in DKR and Mickey. Mickey keeps
+# six source boundaries that preserve calls the whole-file DKR build inlines;
+# the grouped consolidation probe reversed their emitted order as well.
 OVERLAY5_O3_TUS := alSeqFileNew alBnkfNew _bnkfPatchBank _bnkfPatchInst \
                    _bnkfPatchSound _bnkfPatchWaveTable
 OVERLAY5_O3_OBJECTS := $(addprefix $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/, \
@@ -759,9 +759,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchSound.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchWaveTable.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x6C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5CreatePlayer.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitializeAudio.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay_005.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_005_F000031C_185B744=overlay5InitializeAudio $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4
@@ -773,45 +771,29 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitializeAudio.c.o: POSTPROCESS =
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xBC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7EntryPool.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_007_F0000000_185BE88=overlay7ReleaseEntry \
 		--redefine-sym func_overlay_007_F00000A8_185BF30=overlay7AcquireEntry $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x228
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7FillValues.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7AppendEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CreateEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchModes.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_007_F0000894_185C71C=overlay7DispatchModes $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7UpdateOwnerMode.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_007_F0000AA0_185C928=overlay7UpdateOwnerMode $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x22C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchSelection.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_007_F0000CCC_185CB54=overlay7DispatchSelection $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CommitSelection.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_007_F0000DBC_185CC44=overlay7CommitSelection $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x120
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324
 # This pool initializer is naturally instruction-exact. Its ten local-BSS
 # records are already owned by overlay 7's shipped runtime relocation table,
 # so retain their exact zero-base addends without static-link adjustment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7InitPool.c.o: \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o: \
 	$(TOOLS_DIR)/filter_elf_relocations.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7InitPool.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_007_F0000894_185C71C=overlay7DispatchModes \
+		--redefine-sym func_overlay_007_F0000AA0_185C928=overlay7UpdateOwnerMode \
+		--redefine-sym func_overlay_007_F0000CCC_185CB54=overlay7DispatchSelection \
+		--redefine-sym func_overlay_007_F0000DBC_185CC44=overlay7CommitSelection $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x004:5:.bss 0x00c:6:.bss \
-		0x000:5:.bss 0x008:6:.bss \
-		0x094:5:.bss 0x098:6:.bss \
-		0x09c:5:.bss 0x0a0:6:.bss \
-		0x0a4:5:.bss 0x0ac:6:.bss
+		0x678:5:.bss 0x680:6:.bss \
+		0x674:5:.bss 0x67c:6:.bss \
+		0x708:5:.bss 0x70c:6:.bss \
+		0x710:5:.bss 0x714:6:.bss \
+		0x718:5:.bss 0x720:6:.bss && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x724
 # Overlay 1 has three C islands separated by owned assembly.  Mixed
 # -Wo,-loopunroll,4 / -Wab,-r4300_mul flag groups require five further
 # boundaries; one object cannot span either an asm range or a flag change.
@@ -1066,9 +1048,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31InitializeParticleAssets.c.o: POS
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o010/overlay10Initialize.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_010_F0000000_1868450=overlay10Initialize $@
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay12Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay12Initialize.c.o: CFLAGS += -Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012.c.o: CFLAGS += -Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1B4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012_tail.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1F4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14Reset.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ReturnOne.c.o: POSTPROCESS = \
@@ -1202,8 +1186,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29DrawGroups.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x204
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay_051.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8AC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitSequence.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ResetFlags.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC4.c.o: POSTPROCESS = \
@@ -1237,7 +1219,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34CreateRecord.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_034_F00000D4_188127C=overlay34CreateRecord $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1F4
 include config/normalizations/overlay34Records.mk
-include config/normalizations/overlay12Epoch12.mk
 include config/normalizations/overlay22Epoch12.mk
 include config/normalizations/overlay28Epoch12.mk
 include config/normalizations/overlay46Epoch12.mk
@@ -2760,15 +2741,8 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_end.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_scaled.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7EntryPool.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7FillValues.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CreateEntry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7AppendEntry.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchModes.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7UpdateOwnerMode.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchSelection.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CommitSelection.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7InitPool.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3SelectTarget.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3RunCachedModeAction.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3FindClosestObject.c.o \
@@ -2808,8 +2782,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchInst.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchSound.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchWaveTable.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitializeAudio.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5CreatePlayer.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay_005.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0000000_186F8D8.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F000013C_186FA14.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14Reset.c.o \
@@ -2859,7 +2832,6 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30Initialize.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30TransposePixels.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay_051.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitSequence.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ResetFlags.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC4.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC8.c.o \

@@ -155,9 +155,7 @@ TEXT_SUBSEGMENTS = {
         (0x188, "c", "_bnkfPatchInst"),
         (0x220, "c", "_bnkfPatchSound"),
         (0x278, "c", "_bnkfPatchWaveTable"),
-        (0x2E4, "c", "overlay5InitSequence"),
-        (0x31C, "c", "overlay5InitializeAudio"),
-        (0x6C0, "c", "overlay5CreatePlayer"),
+        (0x2E4, "c", "overlay_005"),
         (0x764, "asm", "overlay_005_padding"),
     ],
     6: [
@@ -165,16 +163,9 @@ TEXT_SUBSEGMENTS = {
         (0x01C, "asm", "overlay_006_padding"),
     ],
     7: [
-        (0x000, "c", "overlay7EntryPool"),
-        (0x228, "c", "overlay7CreateEntry"),
-        (0x298, "c", "overlay7AppendEntry"),
+        (0x000, "c", "overlay_007"),
         (0x324, "asm", "overlay_007_middle"),
-        (0x894, "c", "overlay7DispatchModes"),
-        (0xAA0, "c", "overlay7UpdateOwnerMode"),
-        (0xCCC, "c", "overlay7DispatchSelection"),
-        (0xDBC, "c", "overlay7CommitSelection"),
-        (0xEDC, "c", "overlay7FillValues"),
-        (0xF08, "c", "overlay7InitPool"),
+        (0x894, "c", "overlay_007_tail"),
         (0xFB8, "asm", "overlay_007_padding"),
     ],
     8: [
@@ -207,10 +198,8 @@ TEXT_SUBSEGMENTS = {
         (0x000, "c", "overlay10Initialize"),
     ],
     12: [
-        (0x000, "c", "overlay12Initialize"),
-        (0x0C4, "c", "overlay12Shutdown"),
-        (0x1B4, "c", "overlay12SpawnEffect"),
-        (0x2E4, "c", "overlay12SpawnParticle"),
+        (0x000, "c", "overlay_012"),
+        (0x1B4, "c", "overlay_012_tail"),
         (0x3A8, "asm", "overlay_012_tail1"),
     ],
     13: [
