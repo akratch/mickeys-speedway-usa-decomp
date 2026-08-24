@@ -18,6 +18,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/math.h"
 
 typedef union {
     s32 m[4][4];
@@ -33,6 +34,10 @@ extern f32 D_800CEC90;
 extern u8 D_80079FA8[];
 extern f32 D_80079FB0[];
 extern Mtx D_800CED60[];
+extern MtxF D_800CEC98;
+extern MtxF D_800CF1A0;
+
+void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021438.s")
@@ -82,7 +87,13 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800221E8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022604.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022610.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camGetPlayerProjMtx.s")
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camGetPlayerProjMtx.
+ */
+void camGetPlayerProjMtx(s32 player, MtxF dest) {
+    mtxf_mul(D_800CF1A0, D_800CEC98, dest);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022794.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A38.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A44.s")

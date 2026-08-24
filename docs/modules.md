@@ -396,6 +396,7 @@ functions is classified as handwritten assembly under §6.2.
 | `camSetWaterLine` | `0x225B0` | 32 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camGetProjOrgMtx` | `0x25270` | 28 | Configured object, two relocation pairs, linked range and full ROM exact. |
 | `camSetZoom` | `0x258C8` | 56 | Configured object, two relocation pairs, linked range and full ROM exact. |
+| `camGetPlayerProjMtx` | `0x23360` | 52 | Configured object, five relocations, linked range and full ROM exact. |
 
 ---
 
