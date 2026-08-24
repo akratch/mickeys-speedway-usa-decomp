@@ -30,6 +30,7 @@ if ! git merge --no-edit "$branch" >/dev/null 2>&1; then
   done
   git commit -q --no-edit
 fi
+if git grep -q '^<<<<<<< ' -- . ':!*.md'; then echo "conflict markers left in tracked files:" >&2; git grep -l '^<<<<<<< ' -- . >&2; exit 1; fi
 echo "== integration gates"
 gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/refresh_atlas_digest.py >/dev/null
