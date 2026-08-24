@@ -433,7 +433,7 @@ placeholders are never imported.
 | `0x80056DD8` | `0x394` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x8005716C` | `0x140` | `hitGetInelasticVelocity` | D; nearest named leaf shape |
 | `0x800572AC` | `0xA4` | no unique `hit.c` candidate | D; collision handler |
-| `0x80057350` | `0x78` | no unique `hit.c` candidate | D; collision handler |
+| `0x80057350` | `0x78` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800573C8` | `0x3A4` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x8005776C` | `0x1A4` | `hitPlayer` | B; same player-list/square-root call shape |
 | `0x80057910` | `0x5C` + `0x4` pad | `fmvInit` | A; exact masked JFG skeleton and C donor, adopted name. Matched C: exact 92 executable B and relocation surface at `-O2 -mips2 -32`; trailing 4 B is compiler alignment padding and earns no function credit |

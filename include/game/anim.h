@@ -57,6 +57,32 @@ typedef struct FmvPlayer {
     s32 unk20;
 } FmvPlayer;
 
+typedef struct AnimVec3f {
+    f32 x;
+    f32 y;
+    f32 z;
+} AnimVec3f;
+
+typedef struct HitCopySource {
+    u8 pad0[0x18];
+    AnimVec3f current;
+    AnimVec3f previous;
+} HitCopySource;
+
+typedef struct HitCopyTarget {
+    u8 pad0[0x1C];
+    AnimVec3f position;
+} HitCopyTarget;
+
+typedef struct HitCopyState {
+    u8 pad0[0xC];
+    AnimVec3f position;
+    u8 pad18[0x30];
+    HitCopySource *source;
+    u8 pad4C[0x18];
+    HitCopyTarget *target;
+} HitCopyState;
+
 extern void *D_800D76D0[2];
 extern FmvPlayer D_800D76D8[2];
 
@@ -92,5 +118,7 @@ void func_800534EC(s32 arg0);
 void animseqResetGroup(void);
 void *func_8002E148(s32 resourceId);
 void fmvInit(void);
+void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
+                   f32 unusedFloat);
 
 #endif
