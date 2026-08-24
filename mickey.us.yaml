@@ -216,7 +216,7 @@ segments:
       - [0x5E6B0, c, libultra/n_cspsetvol]
       - [0x5E700, asm, libultra/n_csplayer]
       - [0x61920, asm, libultra/n_cspsetchlvol]
-      - [0x61990, asm, libultra/n_cspgetstate]
+      - [0x61990, c, libultra/n_cspgetstate]
       - [0x619B0, asm, libultra/n_cseq]
       - [0x62380, asm, libultra/n_cspsetseq]
       - [0x623D0, asm, libultra/n_cspplay]

@@ -559,10 +559,19 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ll.c.o: MIPSISET := -mips3 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/ll.c.o: POSTPROCESS = $(HOST_PYTHON) \
 	$(TOOLS_DIR)/set_elf_flags.py $@ 0x10000000
 
-# The old audio-library object was built unoptimised with debug codegen.  The
-# ROM's 0x50-byte body is byte-identical to this exact flag pair.
-$(BUILD_DIR)/$(SRC_DIR)/libultra/n_cspsetvol.c.o: OPT_FLAGS := -g
-$(BUILD_DIR)/$(SRC_DIR)/libultra/n_cspsetvol.c.o: MIPSISET := -mips2 -32
+# --- n_audio flag group (lane/naudio) -------------------------------------
+# The n_audio synthesis library (ROM 0x5E6B0-0x6ACF0, docs/modules.md 4.2) was
+# built unoptimised with debug codegen: bare `OPT_FLAGS := -g` (no -O at all,
+# distinct from -O0), `-mips2 -32`. Verified byte-exact per TU as each is
+# matched; see docs/acceleration-survey.md 13.3 for the ruling that adopted
+# JFG's n_audio bodies. Add a TU's object name to this list only once its
+# compiled bytes have been checked against the ROM.
+LIBULTRA_NAUDIO_BARE_TUS := n_cspsetvol n_cspgetstate
+$(foreach f,$(LIBULTRA_NAUDIO_BARE_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -g))
+$(foreach f,$(LIBULTRA_NAUDIO_BARE_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
+# --- end n_audio flag group -------------------------------------------------
 
 # Remaining SDK C groups measured against the pinned JFG objects.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/cents2ratio.c.o: MIPSISET := -mips2 -32
