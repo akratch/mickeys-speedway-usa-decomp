@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 252844,
-  "nonmatching_overlay_c_bytes": 23756,
+  "matched_overlay_c_bytes": 251476,
+  "nonmatching_overlay_c_bytes": 25124,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -1978,7 +1978,7 @@
      "type": "c",
      "source": "overlays/o003/overlay3RunCachedModeAction",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x27C",
@@ -1987,7 +1987,7 @@
      "type": "c",
      "source": "overlays/o003/overlay3FindClosestObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x3B0",
@@ -1996,7 +1996,7 @@
      "type": "c",
      "source": "overlays/o003/overlay3SelectScoredObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x588",
@@ -2014,7 +2014,7 @@
      "type": "c",
      "source": "overlays/o003/overlay3TouchObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x760",

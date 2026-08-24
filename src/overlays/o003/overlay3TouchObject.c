@@ -9,6 +9,7 @@ extern void *gOverlay3Objects[];
 extern Overlay3TouchEntry gOverlay3TouchEntries[][32];
 
 /* DKR v77/v80 and JFG contain no exact donor for this fixed object registry. */
+#ifdef NON_MATCHING
 void overlay3TouchObject(s32 group, s32 remaining) {
     void *object = gOverlay3Objects[group];
     Overlay3TouchEntry *base;
@@ -39,3 +40,7 @@ void overlay3TouchObject(s32 group, s32 remaining) {
         entry--;
     } while (remaining--);
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o003/overlay3TouchObject/func_overlay_003_F00006D8_185A408.s")
+#endif

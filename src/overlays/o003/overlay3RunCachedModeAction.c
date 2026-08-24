@@ -12,6 +12,7 @@ extern void overlay36Mode4ActionReloc(Overlay3Object *object);
 extern void overlay36Mode6ActionReloc(Overlay3Object *object);
 extern void overlay36Mode7ActionReloc(Overlay3Object *object);
 extern u8 gOverlay3ModeChance[];
+#ifdef NON_MATCHING
 s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control) {
     s32 pad; s32 count; Overlay3Object **objects; Overlay3Object *target;
     s32 packedAngle; s32 angle; s32 valid; s32 encoded; s32 random;
@@ -50,3 +51,7 @@ s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control
     }
     return 0;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o003/overlay3RunCachedModeAction/func_overlay_003_F00000B8_1859DE8.s")
+#endif

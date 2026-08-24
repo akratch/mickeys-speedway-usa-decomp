@@ -8,6 +8,7 @@ extern Object **overlay3GetObjectRangeReloc(s32 *, s32 *);
 extern s32 overlay3ContainsValueReloc(Object *, Object *);
 extern f32 overlay3DistanceSquaredReloc(f32, f32, f32, f32, f32, f32);
 extern f32 gOverlay3SearchMaxDistance[];
+#ifdef NON_MATCHING
 Object *overlay3FindClosestObject(Object *anchor, void *unused) {
     s32 pad;
     s32 start; s32 end;
@@ -36,3 +37,7 @@ Object *overlay3FindClosestObject(Object *anchor, void *unused) {
     }
     return best;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o003/overlay3FindClosestObject/func_overlay_003_F000027C_1859FAC.s")
+#endif

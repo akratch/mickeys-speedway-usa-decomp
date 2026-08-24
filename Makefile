@@ -821,40 +821,28 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3SelectTarget.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x150
 # The typed body naturally reproduces the complete call/CFG/FP inventory.
 # Select its one relocation-aware carrier cycle and complete private owner webs.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3RunCachedModeAction.c.o: \
-	config/normalizations/overlay3RunCachedModeAction.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3RunCachedModeAction.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1C4 f7109164aeadaedc78ab0434fec6adef226d03d8407816203386b6b516931ffd \
-		@config/normalizations/overlay3RunCachedModeAction.ops && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_003_F00000B8_1859DE8=overlay3RunCachedModeAction $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C4
 # The natural source has the exact 77-word operation/CFG topology. Select the
 # one complete four-use temporary allocation web with field-only guards.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3FindClosestObject.c.o: \
-	config/normalizations/overlay3FindClosestObject.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3FindClosestObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x134 658b592060c9c7207af61b558ce3b23cf64599cc57d8d440774e0d491d09b24e \
-		@config/normalizations/overlay3FindClosestObject.ops && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_003_F000027C_1859FAC=overlay3FindClosestObject $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x134
 # The measured R4300 multiply-hazard flag supplies the target FP spacing nop.
 # Then select the complete carrier/schedule and two stack-owner webs.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3SelectScoredObject.c.o: \
-	config/normalizations/overlay3SelectScoredObject.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3SelectScoredObject.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3SelectScoredObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1D8 5b163c78f21a5a4959f67b415663a42c1288e189e676f64809982e65d4e30495 \
-		@config/normalizations/overlay3SelectScoredObject.ops && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_003_F00003B0_185A0E0=overlay3SelectScoredObject $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1D8
 # The natural source has the exact 34-word operation/CFG topology. Select the
 # complete caller-saved allocation web with register-field-only guards.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3TouchObject.c.o: \
-	config/normalizations/overlay3TouchObject.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3TouchObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x88 b53d77d751d4d2bbd441808759afa529f10e142c5309b2df5c88b627b2f65837 \
-		@config/normalizations/overlay3TouchObject.ops && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_003_F00006D8_185A408=overlay3TouchObject $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x88
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19Dispatch.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xAC
