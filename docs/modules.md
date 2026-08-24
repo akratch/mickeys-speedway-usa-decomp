@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-39 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 37 more from it): every masked=0/1/2 TU (the
+40 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 38 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -498,7 +498,7 @@ that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 `n_synsetvol`, `n_synstartvoiceparam`, `n_synaddplayer`,
 `n_synallocvoice`, `alsurround`, `n_mainbus`, `n_auxbus`, `n_event`,
 `n_synsetfxparam`, `n_load`, `n_alLPFilter`, `n_drvrNew`, `n_synthesizer`,
-and `n_env`.
+`n_env`, and `n_resample`.
 
 `alsurround` also owns a `0x10`-byte `.bss` section at Mickey VRAM
 `0x800D7DC0`: the two linked functions' HI16/LO16 references place its
@@ -545,12 +545,11 @@ alignment word in the `0xFF0`-byte text section. The TU also owns the
 and constant island at ROM `0x853F0`; the initialized table compares directly
 against retail and the linked rodata is covered by the full-ROM proof.
 
-**Plateaus, each with a first mismatch:**
-
-- `n_resample` (masked=8): `n_alResamplePull`'s tail diverges
-  structurally from the ROM (an extra `jal` the real function doesn't
-  have); needs a closer read of the loop/branch shape before another
-  attempt.
+`n_resample` uses the SDK n_audio microcode branch (`-DN_MICRO`); the earlier
+tail mismatch came from compiling the non-n_audio command path. Its two
+functions occupy the full `0x2A0`-byte text section with eight relocations,
+and its `0x10`-byte constant island at ROM `0x85490` compares directly against
+retail.
 
 Remaining unmatched, roughly by size: `n_csplayer` (masked=154, `0x3220`),
 `n_reverb` (masked=60, DSP-heavy, deferred per plan), `n_cseq`
