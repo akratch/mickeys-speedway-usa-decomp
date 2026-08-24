@@ -12,7 +12,13 @@
 
 #include "PR/ultratypes.h"
 
+extern s32 D_8007CFC8;
+extern s32 D_800D4A90[];
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcpTrace/diRcpTraceInit.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcpTrace/func_80044B9C.s")
+void func_80044B9C(void) {
+    D_8007CFC8 = 1 - D_8007CFC8;
+    D_800D4A90[D_8007CFC8] = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcpTrace/func_80044BC8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcpTrace/func_80044C94.s")

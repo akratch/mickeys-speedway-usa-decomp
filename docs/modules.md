@@ -398,7 +398,8 @@ rule; the getter has no relocations and the tick routine retains both exact
 HI16/LO16 data pairs. Five JFG `diRcp` return-eight leaves are also exact at
 the resident defaults with no relocations: 16-byte `diRcpReserved0`, 20-byte
 `diRcpStrNameMacro`, 12-byte `diRcpPrimColor`, 20-byte `diRcpColor`, and
-12-byte `diRcpDmaOffsets`.
+12-byte `diRcpDmaOffsets`. The 44-byte `func_80044B9C` (`diRcpTraceReset`)
+is exact at the same defaults, including both data-symbol relocation pairs.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
