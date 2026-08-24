@@ -33,7 +33,10 @@ s32 diRcpStrNameMacro(Gfx *dList, char *name, char *macroName) {
 s32 diRcpPrimColor(Gfx *dList) {
     return 8;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpColor.s")
+/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpColor. */
+s32 diRcpColor(Gfx *dList, char *name, char *macroName) {
+    return 8;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpDmaOffsets.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpMoveWd.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpStrName.s")
