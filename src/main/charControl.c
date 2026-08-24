@@ -50,6 +50,9 @@ ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_800031E8(void *handle);
 void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority, void **handle);
 void func_8001D690(s32 arg0, ControlPlayer *player);
+void func_80006EA0(void *handle);
+s32 func_8000FAE0(f32 x, f32 y, f32 z);
+void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode);
 u32 func_800254FC(s32 playerIndex);
 u32 func_8002554C(s32 playerIndex);
 u32 func_80025594(s32 playerIndex);
@@ -162,7 +165,68 @@ void func_8001C2D4(u8 *start, u8 *end) {
         } while (current != end);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C320.s")
+/*
+ * PROVENANCE -- JFG's charControl symbols and assembly supplied the
+ * controlPlayerReInit name/role. This Mickey-specific save, clear, initialize,
+ * and restore body is independently reconstructed from Mickey's code.
+ */
+void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z, s16 arg4, s16 arg5, s16 arg6) {
+    ControlPlayer *player;
+    s32 saved192;
+    s32 saved1A8;
+    s32 saved3BA;
+    s32 saved45C;
+    s32 saved45D;
+    ControlPlayerInitState stateStorage;
+    ControlPlayerInitState *state;
+
+    player = actor->player;
+    state = &stateStorage;
+    state->playerIndex = player->playerIndex;
+    state->unk11 = player->unk1;
+    state->arg4 = arg4;
+    state->arg5 = arg5;
+    state->arg6 = arg6;
+    saved192 = player->unk192;
+    saved1A8 = player->flags1A8;
+    saved3BA = player->unk3BA;
+    saved45C = player->unk45C;
+    saved45D = player->unk45D;
+    actor->x = x;
+    actor->y = y;
+    actor->flags &= ~0x400;
+    actor->z = z;
+    actor->velocityX = 0.0f;
+    actor->velocityY = 0.0f;
+    actor->velocityZ = 0.0f;
+    actor->positionTag = func_8000FAE0(actor->x, actor->y, actor->z);
+    actor->alpha = 0xFF;
+    actor->unk80 = 0;
+    if (player->unkD0 != 0) {
+        func_80006EA0(player->unkD0);
+    }
+    if (player->unkD4 != 0) {
+        func_80006EA0(player->unkD4);
+    }
+    if (player->unkD8 != 0) {
+        func_80006EA0(player->unkD8);
+    }
+    func_8001C2D4((u8 *) player, (u8 *) player + 0xA4);
+    func_8001C2D4((u8 *) player + 0xC8, (u8 *) player + 0x134);
+    func_8001C2D4((u8 *) player + 0x144, (u8 *) player + 0x19A);
+    func_8001C2D4((u8 *) player + 0x1A4, (u8 *) player + 0x34C);
+    func_8001C2D4((u8 *) player + 0x3E4, (u8 *) player + 0x400);
+    func_8001C4C0(actor, state, 0);
+    player->unk11C[0] = -2.0f;
+    player->unk11C[1] = -2.0f;
+    player->unk11C[2] = -2.0f;
+    player->unk11C[3] = -2.0f;
+    player->unk192 = saved192;
+    player->flags1A8 = saved1A8;
+    player->unk3BA = saved3BA;
+    player->unk45C = saved45C;
+    player->unk45D = saved45D;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C4C0.s")
 void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
     player->unk2BC = 1;

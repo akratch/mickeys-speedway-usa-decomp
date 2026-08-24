@@ -70,17 +70,34 @@ typedef struct ControlCeilingContext {
     /* 0xB0 */ void *handle;
 } ControlCeilingContext;
 
+typedef struct ControlPlayerInitState {
+    /* 0x00 */ u8 pad00[0x0A];
+    /* 0x0A */ s16 arg6;
+    /* 0x0C */ s16 arg5;
+    /* 0x0E */ s16 arg4;
+    /* 0x10 */ s8 playerIndex;
+    /* 0x11 */ s8 unk11;
+} ControlPlayerInitState;
+
 /* Partial player-control layout; fields are added only as Mickey proves them. */
 typedef struct ControlPlayer {
     /* 0x000 */ s8 playerIndex;
-    /* 0x001 */ u8 pad001[0x14 - 0x1];
+    /* 0x001 */ s8 unk1;
+    /* 0x002 */ u8 pad002[0x14 - 0x2];
     /* 0x014 */ f32 unk14[3];
     /* 0x020 */ u8 pad020[0x50 - 0x20];
     /* 0x050 */ f32 unk50;
     /* 0x054 */ f32 unk54;
-    /* 0x058 */ u8 pad058[0x191 - 0x58];
+    /* 0x058 */ u8 pad058[0xD0 - 0x58];
+    /* 0x0D0 */ void *unkD0;
+    /* 0x0D4 */ void *unkD4;
+    /* 0x0D8 */ void *unkD8;
+    /* 0x0DC */ u8 pad0DC[0x11C - 0xDC];
+    /* 0x11C */ f32 unk11C[4];
+    /* 0x12C */ u8 pad12C[0x191 - 0x12C];
     /* 0x191 */ s8 unk191;
-    /* 0x192 */ u8 pad192[0x1A8 - 0x192];
+    /* 0x192 */ u8 unk192;
+    /* 0x193 */ u8 pad193[0x1A8 - 0x193];
     /* 0x1A8 */ u16 flags1A8;
     /* 0x1AA */ u8 pad1AA[0x2B8 - 0x1AA];
     /* 0x2B8 */ ControlVector3 *unk2B8;
@@ -88,7 +105,9 @@ typedef struct ControlPlayer {
     /* 0x2C0 */ f32 unk2C0[(0x33C - 0x2C0) / sizeof(f32)];
     /* 0x33C */ s32 unk33C;
     /* 0x340 */ s32 unk340;
-    /* 0x344 */ u8 pad344[0x41C - 0x344];
+    /* 0x344 */ u8 pad344[0x3BA - 0x344];
+    /* 0x3BA */ s16 unk3BA;
+    /* 0x3BC */ u8 pad3BC[0x41C - 0x3BC];
     /* 0x41C */ s32 controlKeys;
     /* 0x420 */ s32 controlDkeys;
     /* 0x424 */ s32 controlReleasedKeys;
@@ -97,7 +116,31 @@ typedef struct ControlPlayer {
     /* 0x430 */ s32 controlAbsXjoy;
     /* 0x434 */ s32 controlAbsYjoy;
     /* 0x438 */ s32 joypadDisabled;
+    /* 0x43C */ u8 pad43C[0x45C - 0x43C];
+    /* 0x45C */ u8 unk45C;
+    /* 0x45D */ u8 unk45D;
 } ControlPlayer;
+
+typedef struct ControlActor {
+    /* 0x00 */ u8 pad00[0x06];
+    /* 0x06 */ s16 flags;
+    /* 0x08 */ u8 pad08[0x0C - 0x08];
+    /* 0x0C */ f32 x;
+    /* 0x10 */ f32 y;
+    /* 0x14 */ f32 z;
+    /* 0x18 */ u8 pad18[0x1C - 0x18];
+    /* 0x1C */ f32 velocityX;
+    /* 0x20 */ f32 velocityY;
+    /* 0x24 */ f32 velocityZ;
+    /* 0x28 */ u8 pad28[0x2E - 0x28];
+    /* 0x2E */ s16 positionTag;
+    /* 0x30 */ u8 pad30[0x39 - 0x30];
+    /* 0x39 */ u8 alpha;
+    /* 0x3A */ u8 pad3A[0x64 - 0x3A];
+    /* 0x64 */ ControlPlayer *player;
+    /* 0x68 */ u8 pad68[0x80 - 0x68];
+    /* 0x80 */ s32 unk80;
+} ControlActor;
 
 s16 dAngle(s16 arg0, s16 arg1, f32 arg2);
 void controlFSUvels(s16 *rotation, ControlPlayer *player);
@@ -105,6 +148,8 @@ void controlDisableJoypad(ControlPlayer *player, s32 disabled);
 void controlReadJoypad(ControlPlayer *player, s32 playerIndex);
 void controlSetRumble(ControlPlayer *player, s32 strength, f32 duration);
 void controlFrozen(s32 arg0, ControlPlayer *player);
+void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z,
+                         s16 arg4, s16 arg5, s16 arg6);
 void controlSetPlayerSetup(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
 s32 controlGetPlayerSetup(s16 *arg0, s16 *arg1, s16 *arg2, s16 *arg3);
 void controlClearPlayerSetup(void);
