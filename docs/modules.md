@@ -402,6 +402,14 @@ its position immediately before `frontSetWideAdjust` establish the same role
 as JFG's ordered pair. The adapted body has a point-of-use `PROVENANCE` note,
 and the default flags are byte-exact in the flag lattice.
 
+The tier-A-named `frontGetScreenMode` adds **0x30 bytes / 12 words** at ROM
+`0x3AE98`. Mickey's draft established the two tests; JFG's published
+`Resbitfield` declaration supplied the original source shape needed to recover
+the compiler's temporary-register order. Mickey has two adjacent mode bits,
+confirmed by the paired writes in the following setter. The adapted type has a
+point-of-use `PROVENANCE` note, and the default flags, object words, and linked
+ROM range are exact without post-processing.
+
 ---
 
 ## 4. libultra

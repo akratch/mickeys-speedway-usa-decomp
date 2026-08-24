@@ -12,7 +12,16 @@
 #include "PR/ultratypes.h"
 #include "game/menu.h"
 
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.h::Resbitfield. */
+typedef struct MenuScreenModeBits {
+    u32 unused : 1;
+    u32 modeBit0 : 1;
+    u32 modeBit1 : 1;
+    u32 rest : 29;
+} MenuScreenModeBits;
+
 extern s8 D_800D312B;
+extern MenuScreenModeBits D_800D3128;
 extern s8 func_80033F5C(void);
 extern void viSetWideAdjust(s32 offset);
 
@@ -38,7 +47,18 @@ extern void viSetWideAdjust(s32 offset);
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039E34.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A24C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A260.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/frontGetScreenMode.s")
+s32 frontGetScreenMode(void) {
+    s32 mode;
+
+    mode = 0;
+    if (D_800D3128.modeBit0) {
+        mode = 1;
+    }
+    if (D_800D3128.modeBit1) {
+        mode |= 2;
+    }
+    return mode;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A2C8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A348.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A35C.s")
