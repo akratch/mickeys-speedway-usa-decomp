@@ -60,7 +60,28 @@ s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
     }
     return (s16) (arg0 + (s32) ((f32) var_v1 * arg2));
 }
+/* PROVENANCE -- adapted from JFG's charControl controlMakeV implementation. */
+#ifdef NON_MATCHING
+f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {
+    f32 base;
+    f32 value;
+    s32 index;
+    f32 *entry;
+
+    arg1 *= 10.0f;
+    index = (s32) arg1;
+    entry = table + index;
+    base = entry[0];
+    value = ((entry[1] - base) * (arg1 - (f32) index)) + base;
+    arg0 *= 10.0f;
+    index = (s32) arg0;
+    entry = table + index;
+    base = entry[0];
+    return (value - (base + ((entry[1] - base) * (arg0 - (f32) index)))) / divisor;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D880.s")
+#endif
 /* PROVENANCE -- adapted from JFG's src/charControl.c controlFSUvels. */
 void controlFSUvels(s16 *rotation, ControlPlayer *player) {
     s16 sp18[3];
