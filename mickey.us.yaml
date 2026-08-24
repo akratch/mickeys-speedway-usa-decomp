@@ -168,7 +168,10 @@ segments:
       # Matrix and vector maths -- six float-only functions, no rodata of their
       # own, which is why this is the first non-linker game TU to be decompiled.
       - [0x2B650, c, main/matrix]
-      - [0x2BCD0, asm]
+      # The resident allocator. The linked baseline gives the old 2BCD0.s.o a
+      # 0xBF0-byte .text section ending exactly where 2C8C0.s.o begins. Its
+      # final function ends at 0x2C8B4; the remaining 0xC bytes are alignment.
+      - [0x2BCD0, c, main/memory]
       - [0x2C8C0, asm]
       - [0x2F400, asm]
       # A MEASURED file boundary, not a heuristic one: the whole 0x40-byte

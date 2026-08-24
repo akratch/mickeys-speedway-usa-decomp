@@ -400,9 +400,9 @@ coss_s16 = 0x8002A1A0; // type:func size:0x60   ROM 0x2ada0  hasm/ido/math_util.
 coss_2 = 0x8002A200; // type:func size:0x44   ROM 0x2ae00  hasm/ido/math_util.s.o  masked=2/17
 
 // memory.c -- three 7-word allocator alignment helpers, 0 masked, adjacent.
-align16 = 0x8002BC60; // type:func size:0x1C   ROM 0x2c860  memory.c.o  masked=0/7
-align8 = 0x8002BC7C; // type:func size:0x1C   ROM 0x2c87c  memory.c.o  masked=0/7
-align4 = 0x8002BC98; // type:func size:0x1C   ROM 0x2c898  memory.c.o  masked=0/7
+align16 = 0x8002BC60; // type:func size:0x1C   ROM 0x2c860  matched C main/memory -O2 -mips2 -32 donor memory.c.o masked=0/7
+align8 = 0x8002BC7C; // type:func size:0x1C   ROM 0x2c87c  matched C main/memory -O2 -mips2 -32 donor alignment family masked=0/7
+align4 = 0x8002BC98; // type:func size:0x1C   ROM 0x2c898  matched C main/memory -O2 -mips2 -32 donor memory.c.o masked=0/7
 
 // rcp_dkr.c
 bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40   ROM 0x2f794  rcp_dkr.c.o  masked=2/16
@@ -1476,7 +1476,11 @@ Arctanf = 0x8002A910; // type:func size:0xFC   ROM 0x2b510  src/hasm/ido/math_ut
 mathDiffAngle = 0x8002AA0C; // type:func size:0x38   ROM 0x2b60c  src/hasm/ido/math_util.s.o  masked=0/14
 // jfg:src/memory.c.o
 mmInit = 0x8002B0D0; // type:func size:0x78   ROM 0x2bcd0  src/memory.c.o  masked=14/30
+mmExtended = 0x8002B148; // type:func size:0xC   ROM 0x2bd48  tier B (JFG call graph) matched C main/memory -O2 -mips2 -32
+mmSetDelay = 0x8002B6F4; // type:func size:0xC   ROM 0x2c2f4  tier B (JFG call graph) matched C main/memory -O2 -mips2 -32
 mmFree = 0x8002B768; // type:func size:0x44   ROM 0x2c368  src/memory.c.o  masked=4/17
+mmGetSlotPtr = 0x8002BB20; // type:func size:0x14   ROM 0x2c720  tier B (JFG call graph) matched C main/memory -O2 -mips2 -32
+mmGetDelay = 0x8002BB34; // type:func size:0xC   ROM 0x2c734  tier B (JFG call graph) matched C main/memory -O2 -mips2 -32
 // jfg:src/saves.c.o
 rumbleKill = 0x8002BF00; // type:func size:0x44   ROM 0x2cb00  src/saves.c.o  masked=1/17
 // jfg:src/rcpFast3d.c.o

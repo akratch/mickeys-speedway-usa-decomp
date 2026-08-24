@@ -21,7 +21,8 @@ if ! git merge --no-edit "$branch" >/dev/null 2>&1; then
   conflicts=$(git diff --name-only --diff-filter=U)
   for f in $conflicts; do
     case "$f" in
-      README.md|config/overlays.us.json|config/overlay-donors.us.json) git checkout --theirs "$f" && git add "$f" ;;
+      README.md|config/overlays.us.json|config/overlay-donors.us.json|config/postprocess-audit.us.json) git checkout --theirs "$f" && git add "$f" ;;
+      docs/modules.md|docs/overlays.md) .venv/bin/python tools/resolve_modules_split.py || { echo "unresolved conflict: $f" >&2; exit 1; } ;;
       *) echo "unresolved conflict: $f" >&2; exit 1 ;;
     esac
   done
@@ -34,7 +35,7 @@ gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
 gmake check-docs 2>&1 | tail -1
 if ! git diff --quiet; then
-  git add -A README.md config/overlays.us.json config/overlay-donors.us.json 2>/dev/null || true
+  git add -A README.md config/overlays.us.json config/overlay-donors.us.json config/postprocess-audit.us.json 2>/dev/null || true
   git commit -q -m "Regenerate scoreboard/atlas after merging $branch" || true
 fi
 gmake check-scoreboard 2>&1 | tail -1

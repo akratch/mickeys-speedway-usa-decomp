@@ -3129,4 +3129,3 @@ rebind maps already-encoded local addends to their zero/base carriers. The
 linked owner, complete overlay, and full ROM compare byte-for-byte. The
 checkpoint becomes **98,792 / 45,775 campaign bytes (215.82%)**, **200,044 /
 469,264 Overlay C (42.63%)**, and **243,084 / 950,332 resolved text (25.58%)**.
-

@@ -417,6 +417,69 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison: calls the object-light setter twice |
 | `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison: paired flare helper and TU order |
 | `0x8001A23C` | `0x24` | `lightKillGlowingLight` | tier-B comparison: calls the paired delete helper and returns success |
+### 3.4 The resident allocator (`main/memory`)
+
+ROM `0x2BCD0`–`0x2C8C0`, VRAM `0x8002B0D0`–`0x8002BCC0`, `0xBF0` bytes.
+This boundary is measured from the linked pre-split ELF: `2BCD0.s.o` owns one
+`0xBF0`-byte text section, its last function ends at `0x2C8B4`, and its final
+12 bytes are alignment before `2C8C0.s.o` begins. This corrects the earlier
+provisional task range ending at `0x2C950`, which crosses into the next object.
+The TU has no floating-point instructions and no string references.
+
+**PROVENANCE:** the correspondence names below were read from Jet Force
+Gemini's published `src/memory.c`, `src/memory.h`, built `memory.c.o`, and
+public symbol map. The two exact skeleton hits are tier A; the remaining JFG
+correspondences are tier B call-graph arguments and stay beside their Mickey
+`func_` symbols until matched C justifies adoption under §1.5. JFG lacks
+Mickey's 8-byte alignment helper and has a trailing `mmSlotPrint` routine that
+Mickey lacks. No distinctive string is referenced, so there is no tier C row.
+
+| ROM | Mickey symbol | JFG correspondence | Tier and evidence |
+|---|---|---|---|
+| `0x2BCD0` | `mmInit` | `mmInit` | A: unique 30-word skeleton; 14 relocated words masked |
+| `0x2BD48` | `mmExtended` | `mmExtended` | B: returns the expansion-memory flag consumed by `mmInit`; matched C exact |
+| `0x2BD54` | `func_8002B154` | `mmAllocRegion` | B: allocates slot storage, then calls the pool initializer with it |
+| `0x2BDA0` | `func_8002B1A0` | `mempool_init` | B: shared callee of `mmInit` and the region allocator; initializes the 0x10-byte pool and 0x14-byte slot records |
+| `0x2BE80` | `func_8002B280` | `mmAlloc` | B: main-pool wrapper that derives a caller colour tag and calls the slot finder |
+| `0x2BF14` | `func_8002B314` | `mmAlloc2` | B: second wrapper with the same calls and result role |
+| `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator |
+| `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker |
+| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments |
+| `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
+| `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker |
+| `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton; four relocated words masked |
+| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots` |
+| `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot |
+| `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays |
+| `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range |
+| `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records |
+| `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
+| `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
+| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder |
+| `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
+| `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
+| `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
+
+Matched C: `align16` is exact for all `0x1C` bytes and has no relocations.
+The canonical `-O2 -mips2 -32` flags reproduce the target; JFG's
+`mmAlign16` body is the adapted donor.
+`align8` is likewise exact for `0x1C` relocation-free bytes with canonical
+flags; it is the Mickey-only member derived from the same alignment family.
+`align4` completes the family with seven exact instruction words and no
+relocations. Its compiled body is `0x1C` bytes; the flag sweep's only reported
+delta is the separate 12-byte TU alignment tail already excluded above.
+`mmExtended` is exact for `0xC` bytes with the canonical flags. Its two data
+relocations retain the target HI16/LO16 offsets and bind `D_8007A274`; the JFG
+body and `mmInit` flag role support the tier B name.
+`mmSetDelay` is exact for `0xC` bytes under the same flags. Its target-matching
+HI16/LO16 pair binds the deferred-free state at `D_800D21AC`.
+`mmGetDelay` is the exact `0xC`-byte getter for that same state, with the
+target HI16/LO16 relocation pair and canonical flags.
+`mmGetSlotPtr` is exact for `0x14` bytes; its HI16/LO16 pair binds the pool
+slot-pointer anchor at `D_800D1C64`. The 0x10-byte stride and neighboring
+allocator accesses establish Mickey's 16-bit counts at `+0/+2`, slot pointer
+at `+4`, size at `+8`, and free-size field at `+0xC`; these differ from JFG's
+starting declaration and are reflected in `include/game/memory.h`.
 
 ---
 
