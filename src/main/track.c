@@ -114,5 +114,14 @@ void trackSetFogOff(s32 fogIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800148E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014BAC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014DE4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014EAC.s")
+s32 func_80014EAC(u32 value) {
+    s32 result;
+
+    result = -1;
+    while (value != 0) {
+        result++;
+        value >>= 1;
+    }
+    return result;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014ECC.s")
