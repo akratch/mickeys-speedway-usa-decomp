@@ -35,8 +35,10 @@ extern s32 *D_800CB4A4;
 
 void *func_8002B280(s32 size, s32 tag);
 s32 *func_8002E148(s32 assetId);
+void *func_80034448(s16 textureId);
 void func_800347A0(void *texture);
 void func_8005AAC0(void *animation);
+u8 func_8002057C(void **out, ObjectModel *model, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 void mmFree(void *ptr);
 
 /*
@@ -141,9 +143,8 @@ void func_80020278(ObjectModel *model) {
     s32 freed;
     s32 index;
 
+    index = 0, freed = 0;
     if (model->numberOfTextures > 0) {
-        freed = 0;
-        index = 0;
         do {
             if (model->textures[index].texture != NULL) {
                 func_800347A0(model->textures[index].texture);
@@ -186,7 +187,30 @@ void func_80020278(ObjectModel *model) {
     }
     mmFree(model);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_800203E0.s")
+/* Mickey-only reconstruction; JFG supplied no adoptable helper name. */
+void func_800203E0(ObjectModel *model) {
+    s32 offset;
+    s32 loaded;
+
+    offset = 0;
+    loaded = 0;
+    if (model->numberOfTextures > 0) {
+        do {
+            if (((ModelTexture *)((u8 *)model->textures + offset))->texture == NULL) {
+                ((ModelTexture *)((u8 *)model->textures + offset))->texture =
+                    func_80034448(((ModelTexture *)((u8 *)model->textures + offset))->textureId);
+            }
+            loaded++;
+            offset += sizeof(ModelTexture);
+        } while (loaded < model->numberOfTextures);
+    }
+    if (model->unk68 == NULL) {
+        model->textureAnimationCount = func_8002057C(&model->unk68, model, 0, 0, 0, 0xFF, 0);
+    }
+    if (model->unk6C == NULL) {
+        func_8002057C(&model->unk6C, model, 4, 0, 0, 0xFF, 0);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_800204B8.s")
 /*
  * PROVENANCE -- name follows JFG's public models.c symbol at the same TU

@@ -393,7 +393,7 @@ never imported as names, and uncertain rows retain Mickey's `func_` spelling.
 | `0x20850` | `func_8001FC50`, `0x534` | JFG placeholder helper | D: function order and model-instance construction only |
 | `0x20D84` | `modFreeModel`, `0xF4` | `modFreeModel` | B: instance free followed by model-reference/resource release; linked C match |
 | `0x20E78` | `func_80020278`, `0x168` | JFG placeholder resource-free helper | B: texture free plus the same family of owned allocations; linked C match |
-| `0x20FE0` | `func_800203E0`, `0xD8` | no adoptable name | D: model helper calls only |
+| `0x20FE0` | `func_800203E0`, `0xD8` | no adoptable name | D: model helper calls only; linked C match, placeholder retained |
 | `0x210B8` | `func_800204B8`, `0xAC` | no adoptable name | D: texture/allocation release structure only |
 | `0x21164` | `modelSetModelFlags`, `0xC` | `modelSetModelFlags` | B: paired global setter and observed callers; linked C match |
 | `0x21170` | `modelGetModelFlags`, `0xC` | `modelGetModelFlags` | B: paired global getter; linked C match |

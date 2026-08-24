@@ -5,7 +5,8 @@
 
 typedef struct ModelTexture {
     /* 0x00 */ void *texture;
-    /* 0x04 */ u32 pad4;
+    /* 0x04 */ u16 pad4;
+    /* 0x06 */ s16 textureId;
 } ModelTexture;
 
 typedef struct ObjectModel {
@@ -15,7 +16,8 @@ typedef struct ObjectModel {
     /* 0x18 */ ModelTexture *textures;
     /* 0x1C */ u8 pad1C[0xC];
     /* 0x28 */ void *unk28;
-    /* 0x2C */ u8 pad2C[0x20];
+    /* 0x2C */ u8 textureAnimationCount;
+    /* 0x2D */ u8 pad2D[0x1F];
     /* 0x4C */ s16 references;
     /* 0x4E */ s8 animationCount;
     /* 0x4F */ u8 pad4F;
@@ -37,6 +39,7 @@ typedef struct ModelInstance {
 void modInitModels(void);
 void modFreeModel(ModelInstance *modInst);
 void func_80020278(ObjectModel *model);
+void func_800203E0(ObjectModel *model);
 void modelSetModelFlags(s32 flags);
 s32 modelGetModelFlags(void);
 

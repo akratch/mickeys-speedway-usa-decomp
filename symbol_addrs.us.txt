@@ -1439,6 +1439,7 @@ modInitModels = 0x8001F45C; // type:func size:0xC4   ROM 0x2005C  src/models.c.o
 func_8001FB64 = 0x8001FB64; // type:func size:0x68   ROM 0x20764  src/models.c.o  masked=0/26  C-match -O2 -mips2
 modFreeModel = 0x80020184; // type:func size:0xF4   ROM 0x20D84  src/models.c.o  evidence-tier-B JFG cache-release body and TU position  C-match -O2 -mips2
 func_80020278 = 0x80020278; // type:func size:0x168   ROM 0x20E78  src/models.c.o  evidence-tier-B JFG model-resource destructor  C-match -O2 -mips2
+func_800203E0 = 0x800203E0; // type:func size:0xD8   ROM 0x20FE0  src/models.c.o  evidence-tier-D model texture/resource initializer  C-match -O2 -mips2
 modelSetModelFlags = 0x80020564; // type:func size:0xC   ROM 0x21164  src/models.c.o  evidence-tier-B same JFG TU position and model-flag access  C-match -O2 -mips2
 modelGetModelFlags = 0x80020570; // type:func size:0xC   ROM 0x21170  src/models.c.o  evidence-tier-B paired JFG model-flag accessor  C-match -O2 -mips2
 func_80020AD4 = 0x80020AD4; // type:func size:0x3C   ROM 0x216d4  src/models.c.o  masked=6/15  C-match -O2 -mips2
