@@ -87,7 +87,6 @@ extern void func_800005CC(f32 fade, s32 volume);
 extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
 extern void func_80001568(void *player);
-extern u16 func_800016C8(s32 volume);
 extern u16 amGetSfxCount(void);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
                           f32 pitch, u8 arg5, void **handle);
@@ -293,7 +292,7 @@ void amSndPlay(u16 soundId, void **handle) {
     }
     pitch = (f32)D_800BF7A0[soundId].pitch / 100.0f;
     ad_sndp_play(D_800BF79C->bankArray[0], soundBite,
-                 func_800016C8(D_800BF7A0[soundId].volume << 8), 0x40, pitch,
+                 scalevol(D_800BF7A0[soundId].volume << 8), 0x40, pitch,
                  0, handle);
 }
 /*
@@ -310,7 +309,7 @@ void amSndPlayDirect(u16 soundBite, u8 volume, u8 pan, f32 pitch, u8 arg4,
         return;
     }
     ad_sndp_play(D_800BF79C->bankArray[0], soundBite,
-                 func_800016C8(volume << 8), pan, pitch, arg4, handle);
+                 scalevol(volume << 8), pan, pitch, arg4, handle);
 }
 /*
  * PROVENANCE: body shape adapted from DKR src/audio.c
@@ -322,7 +321,7 @@ void amSndSetVol(u16 soundId, void *sound, u8 volume) {
     scaledVolume =
         (s32)(D_800BF7A0[soundId].volume * (volume / 127.0f)) * 256;
     if (sound != NULL) {
-        gsSndpSetParam(sound, 8, func_800016C8(scaledVolume));
+        gsSndpSetParam(sound, 8, scalevol(scaledVolume));
     }
 }
 /* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
@@ -399,6 +398,11 @@ void forcelink(void) {
     n_alCSPNew(NULL, NULL);
     n_alCSPSetMessageQ(NULL, NULL);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800016C8.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+int scalevol(volume)
+int volume;
+{
+    return volume * 0.5f;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800016EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001708.s")
