@@ -14,10 +14,16 @@
 #include "libc/stdarg.h"
 
 s32 vsprintf(char *s, const char *format, va_list arg);
+void *func_80034448(s16 resourceId);
 
+extern char D_800D4150[];
+extern char *D_8007CE94;
 extern u16 D_800D4A5C;
 extern u16 D_800D4A5E;
 extern s32 D_8007CE90;
+extern void *D_800D4A50;
+extern void *D_800D4A54;
+extern void *D_800D4A58;
 extern s32 D_800D4A6C;
 extern s32 D_800D4A70;
 extern s32 D_800D4A74;
@@ -58,7 +64,13 @@ s32 sprintf(char *s, const char *format, ...) {
     return done;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/vsprintf.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfInit.s")
+/* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfInit. */
+void diPrintfInit(void) {
+    D_800D4A50 = func_80034448(0);
+    D_800D4A54 = func_80034448(1);
+    D_800D4A58 = func_80034448(2);
+    D_8007CE94 = D_800D4150;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintf.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfAll.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfSetCol.s")
