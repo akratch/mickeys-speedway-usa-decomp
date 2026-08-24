@@ -15,6 +15,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "overlays/o005/audio_bank.h"
 
 extern u32 D_8007FF50;
 extern u16 *D_800D7D78;
@@ -423,8 +424,7 @@ GsSoundStateLink *ad_sndp_play(void *bank, s16 soundId, u16 volume, u8 pan,
     sequenceDelta = 0;
     if (soundId != 0) {
         do {
-            sound = *(GsSound **)((u8 *)*(void **)((u8 *)bank + 0xC) +
-                                  soundId * 4 + 0xC);
+            sound = (GsSound *) ((ALBank *) bank)->instArray[0]->soundArray[soundId - 1];
             state = func_8005D030(bank, sound);
             if (state != NULL) {
                 GsSndEvent playEvent;
