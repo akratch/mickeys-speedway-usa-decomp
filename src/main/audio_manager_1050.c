@@ -38,6 +38,7 @@ extern u32 *D_800BF798;
 extern u8 *D_800BF7A4;
 extern void gsSndpSetParam(void *sound, s16 type, u32 value);
 extern u32 gsSndpGetGlobalVolume(void);
+extern void gsSndpStop(void *sound);
 extern void n_alCSPSetChlVol(void *player, u8 channel, u8 volume);
 extern void n_alCSPSetVol(void *player, s16 volume);
 extern void n_alCSPNew(void *player, void *config);
@@ -220,7 +221,10 @@ s32 amDittyPlaying(void) {
     D_80078D74 = 0;
     return 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000F74.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+void amSndStop(void *sound) {
+    gsSndpStop(sound);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000F94.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001098.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001144.s")
