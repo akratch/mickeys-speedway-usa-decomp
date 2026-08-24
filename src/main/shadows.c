@@ -17,13 +17,25 @@
 #include "PR/ultratypes.h"
 
 extern s32 D_80079458;
+extern void *D_80079410[4];
+extern void *D_80079420[4];
+extern void *D_80079430[4];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowInitBuffers.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowFreeBuffers.s")
 void shadowChangeBuffer(void) {
     D_80079458 ^= 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowGetBuffers.s")
+void shadowGetBuffers(s32 arg0, void **arg1, void **arg2, void **arg3) {
+    s32 index = D_80079458;
+
+    if (arg0 & 2) {
+        index += 2;
+    }
+    *arg1 = D_80079410[index];
+    *arg2 = D_80079420[index];
+    *arg3 = D_80079430[index];
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowGenerate.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80016890.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017140.s")
