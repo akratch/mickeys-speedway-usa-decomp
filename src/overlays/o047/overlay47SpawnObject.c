@@ -37,6 +37,7 @@ extern void func_80005768(Overlay47Spawned *spawned);
 extern void func_8005AD64(Overlay47Spawned *spawned, s32 mode, s32 index,
                           f32 value);
 
+#ifdef NON_MATCHING
 void func_overlay_047_F0002D10_1893B28(Overlay47Object *object) {
     Overlay47SpawnPacket packet;
 
@@ -56,3 +57,6 @@ void func_overlay_047_F0002D10_1893B28(Overlay47Object *object) {
         object->spawned->state = object->state;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o047/overlay47SpawnObject/func_overlay_047_F0002D10_1893B28.s")
+#endif

@@ -30,6 +30,7 @@ extern void func_overlay_045_F0000270_188C6C8(void *handle);
 extern void func_80006EA0(void *handle);
 extern void func_80039A40(void *arg);
 
+#ifdef NON_MATCHING
 void func_overlay_047_F00009D0_18917E8(void) {
     Overlay47Entry *entry;
     void **slot;
@@ -73,3 +74,6 @@ void func_overlay_047_F00009D0_18917E8(void) {
         D_status4 = D_status0 | 8;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o047/overlay47ReleaseResources/func_overlay_047_F00009D0_18917E8.s")
+#endif

@@ -3717,44 +3717,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45CreateDescriptor.c.o: POSTPROCESS
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x264
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ConfigureLayout.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x32C
-# Materialize the proved local D_510 addend, discard its runtime-only HILO
-# records, and fold three distinct resident calls through O47's stored
-# offset-zero carrier. Keep +2DE8..+2DF0 as separately owned padding.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o: \
-	config/normalizations/overlay47SpawnObject.ops \
-	config/normalizations/overlay47SpawnObject.filter.spec \
-	config/normalizations/overlay47SpawnObject.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xD8 d2d8771ce53b5eaf618c1cf3293372aca36c8628e162a9efb3b52257b73cfd58 \
-		@config/normalizations/overlay47SpawnObject.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay47SpawnObject.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		func_8000590C=func_overlay_047_F0000000_1890E18 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay47SpawnObject.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
-# Natural source owns the exact calls, control flow, loops and instruction
-# multiset. Two local scheduler swaps plus the complete reviewed status/data
-# allocation web select retail's equivalent private register schedule.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o: \
-	config/normalizations/overlay47ReleaseResources.schedule.ops \
-	config/normalizations/overlay47ReleaseResources.ops \
-	config/normalizations/overlay47ReleaseResources.filter.spec \
-	config/normalizations/overlay47ReleaseResources.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x160 0a4de66ec65334aa684083f8dea6451b2ae51a9e10f04f01cdba902e8dde8bf9 \
-		@config/normalizations/overlay47ReleaseResources.schedule.ops \
-		@config/normalizations/overlay47ReleaseResources.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay47ReleaseResources.filter.spec && \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_045_F0000270_188C6C8=func_overlay_047_F0000000_1890E18 \
-		--redefine-sym D_D0_entries=D_D0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay47ReleaseResources.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x160
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68PayloadLimit.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8

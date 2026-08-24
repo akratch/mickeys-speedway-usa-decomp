@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 257596,
-  "nonmatching_overlay_c_bytes": 19004,
+  "matched_overlay_c_bytes": 257028,
+  "nonmatching_overlay_c_bytes": 19572,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -10620,7 +10620,7 @@
      "type": "c",
      "source": "overlays/o047/overlay47ReleaseResources",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xB30",
@@ -10638,7 +10638,7 @@
      "type": "c",
      "source": "overlays/o047/overlay47SpawnObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2DE8",
