@@ -406,7 +406,8 @@ The final column records owned object words and relocation coverage.
 | `amGetSfxCount` | `0x1E58` / `0x18` | **tier B**: JFG supplies the complete body and official name; the bank/instrument traversal and sound-count field agree exactly | Exact 6 object words and data relocation identity |
 | `amGetSfxSettings` | `0x1E70` / `0x38` | **tier B**: JFG supplies the complete body and official name; the optional table/size/count outputs and their globals agree exactly | Exact 14 object words and all data relocation identities |
 | `amSoundIsLooped` | `0x1EA8` / `0x60` | **tier B**: JFG and DKR agree on the official role and body; the sound-count bound, sound-array traversal, and infinite-decay test agree exactly | Exact 24 object words and data relocation identity |
-| `amTuneSetReverbOnOff` | `0x21F0` / `0x8` | **tier B**: JFG supplies the official name and identical no-op body at the corresponding post-sequence-control position | Exact 2 object words and no relocations |
+| `stop_ALSeqp` | `0x2168` / `0x88` | **tier B**: JFG name/body and Mickey's two-player stop state machine agree | Exact 34 object words and all call/data relocations |
+| `amTuneSetReverbOnOff` | `0x21F0` / `0x8` | **tier B**: JFG supplies the name and no-op body | Exact 2 object words; no relocations |
 | `func_800015F8` | `0x21F8` / `0x10` | **tier D**: direct write of one to the resident audio flag; no external name is asserted | Exact 4 object words and data relocation identity |
 | `func_80001608` | `0x2208` / `0xC` | **tier B**: overlay 46 calls this routine at its sequence-transition exit, corroborating the direct resident audio-flag clear; no external name is asserted | Exact 3 object words and data relocation identity |
 | `func_80001614` | `0x2214` / `0xC` | **tier B**: a resident caller branches on this direct audio-flag read; no external name is asserted | Exact 3 object words and data relocation identity |

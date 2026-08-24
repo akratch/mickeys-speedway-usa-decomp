@@ -67,6 +67,9 @@ extern u8 D_80078D68;
 extern u8 D_80078D6C;
 extern u8 D_80078D74;
 extern u8 D_80078D88;
+extern u8 D_80078D84;
+extern u8 D_80078D94;
+extern u8 D_80078D98;
 extern u8 D_80078DB0;
 extern u8 D_80078DAC;
 extern u8 D_800BF794;
@@ -86,10 +89,11 @@ extern void n_alCSPSetChlVol(void *player, u8 channel, u8 volume);
 extern void n_alCSPSetVol(void *player, s16 volume);
 extern void n_alCSPNew(void *player, void *config);
 extern void n_alCSPSetMessageQ(void *player, void *queue);
+extern void n_alCSPStop(void *player);
 extern void func_800005CC(f32 fade, s32 volume);
 extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
-extern void func_80001568(void *player);
+extern void stop_ALSeqp(void *player);
 extern u16 amGetSfxCount(void);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
                           f32 pitch, u8 arg5, void **handle);
@@ -177,7 +181,7 @@ void amAmbientPlay(u8 value) {
  */
 void amTuneStop(void) {
     if (D_80078D78 == 0) {
-        func_80001568(D_80078D60);
+        stop_ALSeqp(D_80078D60);
     }
 }
 /*
@@ -187,7 +191,7 @@ void amTuneStop(void) {
 void amAmbientStop(void) {
     if (amDittyPlaying() == 0) {
         D_800BF795 = 0;
-        func_80001568(D_80078D64);
+        stop_ALSeqp(D_80078D64);
     }
 }
 /*
@@ -372,7 +376,20 @@ u8 amSoundIsLooped(u16 soundId) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001308.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000137C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001568.s")
+/* PROVENANCE: body and name adapted from JFG stop_ALSeqp assembly. */
+void stop_ALSeqp(void *player) {
+    if (player == D_80078D60 && D_80078D84 != 0) {
+        n_alCSPStop(player);
+        D_80078D84 = 0;
+        D_80078D94 = 0;
+        return;
+    }
+    if (player == D_80078D64 && D_80078D88 != 0) {
+        n_alCSPStop(player);
+        D_80078D88 = 0;
+        D_80078D98 = 0;
+    }
+}
 /* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
 void amTuneSetReverbOnOff(s32 enabled) {
 }
