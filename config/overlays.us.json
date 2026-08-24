@@ -17160,19 +17160,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xC0",
-     "size": "0xC0",
-     "type": "c",
-     "source": "overlays/o085/overlay85Configure",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xC0",
      "end_offset": "0x29C",
-     "size": "0x1DC",
+     "size": "0x29C",
      "type": "c",
-     "source": "overlays/o085/overlay85Update",
+     "source": "overlays/o085/overlay_085",
      "matched": true,
      "nonmatching": false
     },

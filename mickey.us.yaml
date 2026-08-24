@@ -2550,8 +2550,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x18D1B58, c, overlay85Configure]
-      - [0x18D1C18, c, overlay85Update]
+      - [0x18D1B58, c, overlay_085]
       - [0x18D1DF4, asm, overlay_085_padding]
       - [0x18D1DF8, bin, overlay_085_reloc1]
 

@@ -4338,11 +4338,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/func_overlay_061_F0001648_18C0A10.c.o: POS
 	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
 		0x170 a1e7329d5771c4fe22fc8bd73c95f651d0a790c9ab7a34d027e8ac4dc2b4998b \
 		@config/normalizations/func_overlay_061_F0001648_18C0A10.ops
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay85Configure.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay85Configure.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay85Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1DC
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x29C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitTimedState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1PointerWrap.c.o: POSTPROCESS = \
@@ -7352,8 +7350,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ResetCounters.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68PayloadLimit.c.o
 OVERLAY_TRIMMED_OBJECTS += \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay85Configure.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay85Update.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1PointerWrap.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetEntry.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetEntryIndex.c.o \
