@@ -157,7 +157,9 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028FCC.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029038.s")
+s32 func_80029038(s32 arg0, s32 arg1, s32 arg2) {
+    return 0;
+}
 
 s32 func_8002904C(s32 arg0, s32 arg1) {
     return 0;
