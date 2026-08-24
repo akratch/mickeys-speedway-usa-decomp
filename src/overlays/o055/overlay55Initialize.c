@@ -22,6 +22,7 @@ extern void overlay55CopyOffsetRecords(
 extern void overlay56InitializeReloc(void);
 extern s32 overlay55GetResultReloc(void);
 
+#ifdef NON_MATCHING
 void overlay55Initialize(void) {
     s32 index;
     u8 *sourceA;
@@ -55,3 +56,7 @@ void overlay55Initialize(void) {
     overlay56InitializeReloc();
     gOverlay55Result = (s16)overlay55GetResultReloc();
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o055/overlay55Initialize/func_overlay_055_F0000000_18A1B18.s")
+#endif

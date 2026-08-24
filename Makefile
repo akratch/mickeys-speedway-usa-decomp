@@ -6018,28 +6018,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18InitializeBuffers.c.o: POSTPROCES
 # Natural codegen has the exact startup CFG, frame, opcode census, and all 33
 # loader records. A two-word guarded schedule plus two proved local addends
 # selects retail; runtime-only pairs remain owned by the loader tables.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55Initialize.c.o: \
-	config/normalizations/overlay55Initialize.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x13C 4cb07c78079f15449f1b9f01a76c3544174f4cf8478b052353e65698c0ebbba3 \
-		@config/normalizations/overlay55Initialize.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x8:5:gOverlay55SetupBase \
-		0x30:6:gOverlay55SetupBase \
-		0x34:5:gOverlay55ExternalSetupTarget \
-		0x3C:6:gOverlay55ExternalSetupTarget \
-		0x58:5:gOverlay55StateWord \
-		0x5C:6:gOverlay55StateWord \
-		0x88:5:gOverlay55SourceBase \
-		0x9C:6:gOverlay55SourceBase \
-		0xF4:5:gOverlay55StateValue \
-		0xFC:6:gOverlay55StateValue \
-		0x10C:5:gOverlay55Result \
-		0x130:6:gOverlay55Result && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_055_F0000000_18A1B18=overlay55Initialize $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x13C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
