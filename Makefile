@@ -5713,35 +5713,14 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17DrawStrip.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1DC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
-# IDO emits the exact straight-line startup topology, 60-record relocation
-# contract, and display-list protocol. Select the shipped result-publication
-# schedule, private display web, and two equal zero materializations.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Load.c.o: \
-	config/normalizations/overlay18Load.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Load.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1F4 1a01a1043cb89075aee41c1996e67877a16534decf934cc1110c54963247cd88 \
-		@config/normalizations/overlay18Load.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_018_F0000000_18745B8=overlay18Load $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1F4
-# IDO emits the exact control-flow, call, memory, and integer-opcode topology,
-# plus one provably redundant copy. Restore the shipped schedule, private stack
-# homes, and complete interchangeable GPR webs with fail-loud semantic ops.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Reconfigure.c.o: \
-	config/normalizations/overlay18Reconfigure.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Reconfigure.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2A8 ca8ba5ac3f8cf00edf9f3e7813f455a8e050bca61ecfd33b37f312e42b9ec325 \
-		@config/normalizations/overlay18Reconfigure.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_018_F000024C_1874804=overlay18Reconfigure $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2A8
-# IDO emits the exact frame, straight-line CFG, opcodes, calls, and relocation
-# contract. Select the shipped global-load schedules, local addends, private
-# spill, and complete interchangeable temporary webs with fail-loud ops.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18InitializeBuffers.c.o: \
-	config/normalizations/overlay18InitializeBuffers.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18InitializeBuffers.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x15C 39053edd81f942317d4d015740accb86008ac870c7a55962b9f8577182014fea \
-		@config/normalizations/overlay18InitializeBuffers.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_018_F00004F4_1874AAC=overlay18InitializeBuffers $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x15C
 # Natural codegen has the exact startup CFG, frame, opcode census, and all 33
 # loader records. A two-word guarded schedule plus two proved local addends

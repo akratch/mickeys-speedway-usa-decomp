@@ -18,6 +18,7 @@ extern s32 gOverlay18SavedLayers;
 extern void *overlay18AllocateReloc(s32 size, s32 tag);
 
 /* Pinned DKR v77/v80 and JFG searches found no exact donor. */
+#ifdef NON_MATCHING
 void overlay18InitializeBuffers(void) {
     s32 size;
     u8 *buffer;
@@ -40,3 +41,6 @@ void overlay18InitializeBuffers(void) {
     gOverlay18SavedLayers = gOverlay18Layers;
     gOverlay18SavedDepth = gOverlay18Depth;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o018/overlay18InitializeBuffers/func_overlay_018_F00004F4_1874AAC.s")
+#endif
