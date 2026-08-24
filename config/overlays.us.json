@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 255108,
-  "nonmatching_overlay_c_bytes": 21492,
+  "matched_overlay_c_bytes": 253332,
+  "nonmatching_overlay_c_bytes": 23268,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -13295,7 +13295,7 @@
      "type": "c",
      "source": "overlays/o061/overlay61AddEntry",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x3C0",
@@ -13313,7 +13313,7 @@
      "type": "c",
      "source": "overlays/o061/overlay61DrawList",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x968",
@@ -13349,7 +13349,7 @@
      "type": "c",
      "source": "overlays/o061/func_overlay_061_F0001648_18C0A10",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x17B8",
@@ -13358,7 +13358,7 @@
      "type": "c",
      "source": "overlays/o061/overlay61WriteCharacter",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x18A0",
@@ -13367,7 +13367,7 @@
      "type": "c",
      "source": "overlays/o061/overlay61ReadCharacter",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x19B0",

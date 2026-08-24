@@ -7,6 +7,7 @@ extern s32 overlay61WriteRecordReloc(
 extern void overlay61FreeReloc(void *data);
 extern u8 gOverlay61RecordFormatReloc[];
 
+#ifdef NON_MATCHING
 s32 overlay61WriteCharacter(s32 *source, s32 destination, s32 arg2) {
     s32 size;
     s32 remainder;
@@ -43,3 +44,6 @@ s32 overlay61WriteCharacter(s32 *source, s32 destination, s32 arg2) {
     }
     return result;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o061/overlay61WriteCharacter/func_overlay_061_F00017B8_18C0B80.s")
+#endif

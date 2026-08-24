@@ -10,6 +10,7 @@ extern s32 overlay68RecordSizeReloc(s32);
 extern void overlay61FreeReloc(void *);
 extern void overlay61CloseReloc(s32);
 
+#ifdef NON_MATCHING
 s32 func_overlay_061_F0001648_18C0A10(s32 *output, s32 device, s32 *slot) {
     s32 copySize;
     s32 result;
@@ -56,3 +57,6 @@ s32 func_overlay_061_F0001648_18C0A10(s32 *output, s32 device, s32 *slot) {
     overlay61CloseReloc(device);
     return result;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o061/func_overlay_061_F0001648_18C0A10/func_overlay_061_F0001648_18C0A10.s")
+#endif

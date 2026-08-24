@@ -1,3 +1,0 @@
-# IDO cyclically schedules three independent list-item setup instructions.
-# Move both attached LO16 relocations with their owning instructions.
-reorder:0x94=0x98,0x98=0x9c,0x9c=0x94

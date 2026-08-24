@@ -3729,41 +3729,26 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61UpdateInput.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ResetCounters.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61AddEntry.c.o: \
-	config/normalizations/overlay61AddEntry.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61AddEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1E4 2fba44cde11a74e2cbfb671dc3baaf3a4565e018b70906f5dd8b300dd1b95217 \
-		@config/normalizations/overlay61AddEntry.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_061_F00001DC_18BF5A4=overlay61AddEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1E4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61DrawEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x404
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61DrawList.c.o: \
-	config/normalizations/overlay61DrawList.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61DrawList.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1A4 1b62f1584887e240cee20b739399859ab3c1fe8f90baddc10eae002f578c8de5 \
-		@config/normalizations/overlay61DrawList.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_061_F00007C4_18BFB8C=overlay61DrawList $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1A4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61WriteCharacter.c.o: \
-	config/normalizations/overlay61WriteCharacter.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61WriteCharacter.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE8 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xE8 66c95d34d485b9e5c8701f1fdc90791cd66813107868850ad25e464cc26f35d7 \
-		@config/normalizations/overlay61WriteCharacter.ops
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ReadCharacter.c.o: \
-	config/normalizations/overlay61ReadCharacter.ops
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_061_F00017B8_18C0B80=overlay61WriteCharacter $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ReadCharacter.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x110 e71a892273ffaaa4207316ccb9949613aae490b18c3771657d6bda735044d514 \
-		@config/normalizations/overlay61ReadCharacter.ops
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/func_overlay_061_F0001648_18C0A10.c.o: \
-	config/normalizations/func_overlay_061_F0001648_18C0A10.ops
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_061_F00018A0_18C0C68=overlay61ReadCharacter $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x110
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/func_overlay_061_F0001648_18C0A10.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x170 a1e7329d5771c4fe22fc8bd73c95f651d0a790c9ab7a34d027e8ac4dc2b4998b \
-		@config/normalizations/func_overlay_061_F0001648_18C0A10.ops
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x170
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay85Configure.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay85Configure.c.o: CFLAGS += -Wab,-r4300_mul

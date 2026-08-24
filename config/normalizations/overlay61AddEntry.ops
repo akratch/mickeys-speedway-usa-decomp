@@ -1,4 +1,0 @@
-# Exchange the independent entry-pointer calculation and counter store.
-reorder:0x44=0x4c,0x4c=0x44
-# Cyclically schedule the independent halfword store, next load, and byte store.
-reorder:0x19c=0x1a0,0x1a0=0x1a4,0x1a4=0x19c
