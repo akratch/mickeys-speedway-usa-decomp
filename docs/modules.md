@@ -396,14 +396,14 @@ main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
 JFG functions were not imported: unresolved routines retain Mickey's own
 `func_<VRAM>` symbol.
 
-**Matching progress.** Eight leaf functions currently compile exactly under
+**Matching progress.** Nine leaf functions currently compile exactly under
 the resident `-O2 -mips2 -32` flags: Splat's empty `func_800291D0` body,
 JFG's one-expression `joyCharVal` body (8 bytes each), and the 12-byte
-`joySetSecurity` and `mainSetAnimGroup` stores. The 20-byte `joyDisable` and
-24-byte `joyEnable` masked-index stores also match, as does the 16-byte
-`joyGetController` accessor and 12-byte `mainGetAnimGroup` getter. Their
-HI16/LO16 pairs bind the original Mickey data symbols; owned bytes, relocation
-identity and the linked ROM are exact (112 bytes total).
+`joySetSecurity`, `mainSetAnimGroup`, and `mainChangeCameras` stores. The
+20-byte `joyDisable` and 24-byte `joyEnable` masked-index stores also match, as
+does the 16-byte `joyGetController` accessor and 12-byte `mainGetAnimGroup`
+getter. Their HI16/LO16 pairs bind the original Mickey data symbols; owned
+bytes, relocation identity and the linked ROM are exact (124 bytes total).
 
 `joyResetMap` remains assembly after a bounded plateau. The donor loop's first
 mismatch is at function offset `+0x0`: with external storage, IDO repeats the
