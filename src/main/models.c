@@ -18,6 +18,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/math.h"
 #include "game/models.h"
 
 extern s32 D_80079C00;
@@ -35,7 +36,33 @@ void func_8001F420(u16 *src, u16 *dest, s32 len) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001F45C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001F520.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001FB64.s")
+/*
+ * PROVENANCE -- JFG's built models.c object supplies the exact corresponding
+ * skeleton at func_8003BE68, but no public C body. This body is reconstructed
+ * from Mickey's own function.
+ */
+void func_8001FB64(s32 count, MtxF *matrices) {
+    while (count > 0) {
+        count--;
+        (*matrices)[0][0] = 1.0f;
+        (*matrices)[0][1] = 0.0f;
+        (*matrices)[0][2] = 0.0f;
+        (*matrices)[0][3] = 0.0f;
+        (*matrices)[1][0] = 0.0f;
+        (*matrices)[1][1] = 1.0f;
+        (*matrices)[1][2] = 0.0f;
+        (*matrices)[1][3] = 0.0f;
+        (*matrices)[2][0] = 0.0f;
+        (*matrices)[2][1] = 0.0f;
+        (*matrices)[2][2] = 1.0f;
+        (*matrices)[2][3] = 0.0f;
+        (*matrices)[3][0] = 0.0f;
+        (*matrices)[3][1] = 0.0f;
+        (*matrices)[3][2] = 0.0f;
+        (*matrices)[3][3] = 1.0f;
+        matrices++;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001FBCC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001FC50.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020184.s")
