@@ -403,7 +403,9 @@ is exact at the same defaults, including both data-symbol relocation pairs.
 The 60-byte `diRcpTraceInit` is likewise exact, preserving both allocator
 calls and their call/data relocations. The 60-byte JFG-identified `wakeFree`
 is exact after resolving `func_800347A0` as a one-argument call; its two call
-relocations and the wake-linked field access match without normalization.
+relocations and the wake-linked field access match without normalization. The
+same ABI resolves the adjacent 72-byte `func_80048980` (`wakeFreeRipple`),
+which is exact with both its linked-release and nested-wake call relocations.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet

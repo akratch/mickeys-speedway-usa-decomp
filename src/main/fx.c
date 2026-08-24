@@ -17,6 +17,13 @@ typedef struct Wake {
     s32 linked;
 } Wake;
 
+typedef struct WakeRipple {
+    u8 pad0[0x70];
+    s32 linked;
+    u8 pad74[0x10];
+    Wake *wake;
+} WakeRipple;
+
 extern void func_800347A0(s32 linked);
 extern void mmFree(void *ptr);
 
@@ -39,7 +46,16 @@ void wakeFree(Wake *wake) {
     }
     mmFree(wake);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048980.s")
+void func_80048980(WakeRipple *ripple) {
+    s32 linked = ripple->linked;
+
+    if (linked != 0) {
+        func_800347A0(linked);
+    }
+    if (ripple->wake != 0) {
+        wakeFree(ripple->wake);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049000.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeDraw.s")
