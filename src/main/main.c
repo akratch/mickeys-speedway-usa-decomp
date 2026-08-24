@@ -27,6 +27,7 @@ extern s32 D_8007A1D4;
 extern s32 D_8007A1EC;
 extern u8 D_8007BEF4;
 extern s8 D_800CF53F[];
+extern void *D_800D18E0;
 extern u8 D_800D1928[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
@@ -135,7 +136,9 @@ void mainSetMode(s32 modeToSet) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028F3C.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028F54.s")
+void *func_80028F54(void) {
+    return D_800D18E0;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028F60.s")
 
