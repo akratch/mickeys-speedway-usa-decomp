@@ -5589,46 +5589,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57ReleaseAll.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_057_F0001978_18A5570=overlay57ReleaseAll $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58EnsureResource.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
-# IDO emits the exact 201-instruction CFG, calls, memory and FP effects.  The
-# guarded transform selects retail's equivalent private register webs and
-# instruction schedule; its body digest rejects compiler or source drift.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawSegmentStrip.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x324 6f7bdd1370a5fa6dfe783fdbb72b92e24de4bbbd01937eed56aa024056336639 \
-		@config/normalizations/overlay58DrawSegmentStrip.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_058_F0004C04_18B3DEC=overlay58DrawSegmentStrip $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324
-# These sibling point-quad renderers have the same straight-line schedule and
-# allocator shape. The guarded normalization records only five permutations
-# and the complete private GPR web; the distinct body digests own constants.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawPointQuad.c.o: \
-	config/normalizations/overlay58DrawPointQuad.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawPointQuad.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1A0 c7d842be0b07c50f045741be61abf1fef99b863e863b24862d7b525456db963e \
-		@config/normalizations/overlay58DrawPointQuad.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1A0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawLargePointQuad.c.o: \
-	config/normalizations/overlay58DrawPointQuad.ops
+	$(OBJCOPY) --redefine-sym func_overlay_058_F0004F28_18B4110=overlay58DrawPointQuad $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawLargePointQuad.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1A0 3fde2a7981b466b62a0325f93dbb381681074764acf34ade45ce1078446c0d79 \
-		@config/normalizations/overlay58DrawPointQuad.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1A0
-# IDO emits the exact CFG, frame, calls, memory effects, and delay slots.  The
-# guarded transform selects two complete interchangeable register webs; its
-# final body digest rejects compiler or source drift.
+	$(OBJCOPY) --redefine-sym func_overlay_058_F00050C8_18B42B0=overlay58DrawLargePointQuad $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58RefreshRankSet.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x260 f29edacad6763566df09648e4416a720ed1f09b34a14bbb45b047856c873aa48 \
-		@config/normalizations/overlay58RefreshRankSet.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x260
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58FinalizePackedStatus.c.o: \
-	config/normalizations/overlay58FinalizePackedStatus.ops
+	$(OBJCOPY) --redefine-sym func_overlay_058_F0005268_18B4450=overlay58RefreshRankSet $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58FinalizePackedStatus.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4C0 1c9aefdde67debfa8947030463e84c10625082bd5188137618e74cb8de39b27d \
-		@config/normalizations/overlay58FinalizePackedStatus.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C0
+	$(OBJCOPY) --redefine-sym func_overlay_058_F0005554_18B473C=overlay58FinalizePackedStatus $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17CalculateEndpoints.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_017_F0000000_18739B8=overlay17CalculateEndpoints $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x318

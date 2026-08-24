@@ -23,6 +23,7 @@ extern f32 overlay58SqrtReloc(f32 value);
 extern void overlay58PrepareStripReloc(Overlay58StripGfx **displayList,
                                        void *resource, s32 mode, s32 arg3);
 
+#ifdef NON_MATCHING
 void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
                                f32 z1, f32 limit) {
     f32 dx;
@@ -151,3 +152,6 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
         t += currentStep;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/overlay58DrawSegmentStrip/func_overlay_058_F0004C04_18B3DEC.s")
+#endif

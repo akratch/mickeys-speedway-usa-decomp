@@ -41,6 +41,7 @@ extern void overlay58Call59F4Reloc(void);
 extern void overlay58Call59FCReloc(s32 code);
 
 /* Exact semantic body for executable range +0x5554..+0x5A14. */
+#ifdef NON_MATCHING
 void overlay58FinalizePackedStatus(void) {
     Overlay58InputRecord *records;
     s32 desired;
@@ -260,3 +261,6 @@ void overlay58FinalizePackedStatus(void) {
     }
     overlay58Call59FCReloc(0x15);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/overlay58FinalizePackedStatus/func_overlay_058_F0005554_18B473C.s")
+#endif
