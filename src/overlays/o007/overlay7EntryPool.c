@@ -21,6 +21,7 @@ extern Overlay7Entry *gOverlay7ActiveTail;
 extern Overlay7Entry *gOverlay7Selected;
 extern s32 gOverlay7PriorityThresholdReloc;
 
+#ifdef NON_MATCHING
 void overlay7ReleaseEntry(Overlay7Entry *entry) {
     Overlay7Entry *previous;
     Overlay7Entry *current;
@@ -104,3 +105,7 @@ Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
     }
     return entry;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay7EntryPool/func_overlay_007_F0000000_185BE88.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay7EntryPool/func_overlay_007_F00000A8_185BF30.s")
+#endif

@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 275620,
-  "nonmatching_overlay_c_bytes": 980,
+  "matched_overlay_c_bytes": 273460,
+  "nonmatching_overlay_c_bytes": 3140,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -2613,7 +2613,7 @@
      "type": "c",
      "source": "overlays/o007/overlay7EntryPool",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x228",
@@ -2649,7 +2649,7 @@
      "type": "c",
      "source": "overlays/o007/overlay7DispatchModes",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xAA0",
@@ -2658,7 +2658,7 @@
      "type": "c",
      "source": "overlays/o007/overlay7UpdateOwnerMode",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xCCC",
@@ -2667,7 +2667,7 @@
      "type": "c",
      "source": "overlays/o007/overlay7DispatchSelection",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xDBC",
@@ -2676,7 +2676,7 @@
      "type": "c",
      "source": "overlays/o007/overlay7CommitSelection",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xEDC",

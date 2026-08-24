@@ -739,25 +739,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ReleaseRecords.c.o: POSTPROCESS = 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xBC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7EntryPool.c.o: \
-	config/normalizations/overlay7EntryPool.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7EntryPool.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x228 d6abdb59d4da45cdde13fe7b0c5af949f6d35705270c836ce227406fa827e2f1 \
-		@config/normalizations/overlay7EntryPool.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x1ac:gOverlay7ActiveTail:gOverlay7FreeHead \
-		0x1b0:gOverlay7ActiveTail:gOverlay7FreeHead \
-		0x1b8:gOverlay7FreeHead:gOverlay7ActiveTail \
-		0x1bc:gOverlay7FreeHead:gOverlay7ActiveTail && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x0ac:5:gOverlay7ActiveHead 0x0b0:6:gOverlay7ActiveHead \
-		0x134:5:gOverlay7PriorityThresholdReloc \
-		0x138:6:gOverlay7PriorityThresholdReloc \
-		0x1e8:5:gOverlay7ActiveHead 0x1ec:6:gOverlay7ActiveHead \
-		0x200:5:gOverlay7ActiveTail 0x1f4:6:gOverlay7ActiveTail && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_007_F0000000_185BE88=overlay7ReleaseEntry \
+		--redefine-sym func_overlay_007_F00000A8_185BF30=overlay7AcquireEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x228
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7FillValues.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C
@@ -765,39 +750,21 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7AppendEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CreateEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchModes.c.o: \
-	config/normalizations/overlay7DispatchModes.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchModes.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x20C 435a35e71a8bf9f44f5e23f27eb48150b77270f547f7878f58663264c0cba965 \
-		@config/normalizations/overlay7DispatchModes.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x09c:5:.rodata 0x0a4:6:.rodata && \
-	$(OBJCOPY) --remove-section=.rodata $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7UpdateOwnerMode.c.o: \
-	config/normalizations/overlay7UpdateOwnerMode.ops
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7UpdateOwnerMode.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x22C 3b59c6808cc676c820bba98bb452e58b6e877a5d4a6196406b9d3109b14601f0 \
-		@config/normalizations/overlay7UpdateOwnerMode.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x22C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchSelection.c.o: \
-	config/normalizations/overlay7DispatchSelection.ops
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchSelection.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xF0 0e69ee14c341330e203924dff3bb4ed4891331b9c2af33c38f32e97f40550320 \
-		@config/normalizations/overlay7DispatchSelection.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CommitSelection.c.o: \
-	config/normalizations/overlay7CommitSelection.ops
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CommitSelection.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x120 cd485cae05f6cfd07bb6e7ed43504d6f752eb58a44c109f52699ba808a85c6b9 \
-		@config/normalizations/overlay7CommitSelection.ops && \
 	$(OBJCOPY) --redefine-sym \
-		func_overlay_007_F0000CCC_185CB54=overlay7DispatchSelectionReloc $@ && \
+		func_overlay_007_F0000894_185C71C=overlay7DispatchModes $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7UpdateOwnerMode.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_007_F0000AA0_185C928=overlay7UpdateOwnerMode $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x22C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7DispatchSelection.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_007_F0000CCC_185CB54=overlay7DispatchSelection $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7CommitSelection.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_007_F0000DBC_185CC44=overlay7CommitSelection $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x120
 # This pool initializer is naturally instruction-exact. Its ten local-BSS
 # records are already owned by overlay 7's shipped runtime relocation table,
