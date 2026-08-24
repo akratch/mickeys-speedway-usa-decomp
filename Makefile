@@ -4011,20 +4011,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateCountdown.c.o: POSTPROCESS =
 # friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34RemoveRecord.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_034_F00002C8_1881470=overlay34RemoveRecord $@
-# R4300 multiply hazards are target-proven. Natural source is otherwise exact;
-# select the complete private FP web, retain the runtime local-data pair, and
-# fold the two independently decoded resident calls to the pre-loader carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87InitializeObject.c.o: \
-	config/normalizations/overlay87InitializeObject.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87InitializeObject.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87InitializeObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x128 94a0f9e03cfdbc4b59cdc47c58e10e5ffafa2ff27a77903d361825635a79149b \
-		@config/normalizations/overlay87InitializeObject.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x10C:func_8005AD64:mathRnd && \
-	$(OBJCOPY) --redefine-sym mathRnd=overlay87RuntimeCallReloc $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_087_F0000000_18D2F68=overlay87InitializeObject $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x128
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetMode.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
