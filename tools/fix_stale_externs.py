@@ -20,7 +20,10 @@ changed = 0
 for path in (list((ROOT / "src/main").rglob("*.c")) + list((ROOT / "src/libultra").rglob("*.c"))
              + list((ROOT / "include/game").rglob("*.h"))):
     text = path.read_text()
-    new = pat.sub(lambda m: names.get(m.group(1).upper(), m.group(0)), text)
+    # Never touch GLOBAL_ASM pragma paths: splat names the .s after the
+    # symbol file, and a C definition may already carry the adopted name.
+    new = "\n".join(l if "GLOBAL_ASM" in l else pat.sub(lambda m: names.get(m.group(1).upper(), m.group(0)), l)
+                    for l in text.split("\n"))
     if new != text:
         path.write_text(new); changed += 1
         for m in set(pat.findall(text)):
