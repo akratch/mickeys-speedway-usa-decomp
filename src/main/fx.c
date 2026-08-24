@@ -80,6 +80,9 @@ extern s32 D_800D6038[];
 extern s32 D_800D6040;
 extern s32 D_8007D478;
 extern FxScreenEffect D_800D6048[];
+extern void fxScreenEffect(s32 arg0, s32 type, s32 value4, s32 value6,
+                           s32 value8, s32 valueA, s32 valueC, s32 valueE,
+                           s32 value10);
 
 void func_80046E70(FxCone *cone) {
     s32 texture;
@@ -226,7 +229,23 @@ void fxQueueScreenEffect(s32 type, s32 value4, s32 value6, s32 value8,
         effect->value10 = value10;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A9CC.s")
+void func_8004A9CC(s32 arg0) {
+    FxScreenEffect *effect;
+    s32 index;
+
+    effect = D_800D6048;
+    index = 0;
+    if (D_8007D478 > 0) {
+        do {
+            fxScreenEffect(arg0, effect->type, effect->value4,
+                           effect->value6, effect->value8, effect->valueA,
+                           effect->valueC, effect->valueE, effect->value10);
+            index++;
+            effect++;
+        } while (index < D_8007D478);
+    }
+    D_8007D478 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ACC4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AD34.s")

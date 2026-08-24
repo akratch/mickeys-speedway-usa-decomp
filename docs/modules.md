@@ -422,6 +422,10 @@ The 108-byte JFG-identified `fxQueueScreenEffect` is also exact: expressing
 the four-entry queue selection as an array subscript with a post-incremented
 global count reproduces the target's 20-byte offset schedule and both data
 relocation pairs under the resident defaults.
+Its 172-byte dequeue sibling `func_8004A9CC` (`fxUnQueueScreenEffect`) is exact
+on the natural pointer/count loop, including the 64-byte frame, all nine
+arguments to `fxScreenEffect`, the call relocation, and both queue-global
+relocation pairs.
 The 60-byte Mickey-named `func_80049828` bounds-checks one of five effect
 records and tests a caller-supplied flag mask; its natural 32-byte-stride
 record access is exact at the resident defaults, including the data-symbol
