@@ -443,7 +443,7 @@ func_8003EC8C = 0x8003EC8C; // type:func size:0xBC ROM 0x3f88c evidence=B TU, do
 partObjFreeTriggers = 0x8003ED48; // type:func size:0x80 ROM 0x3f948 evidence=B call graph/order, jfg/partObjFreeTriggers
 partAdjustScaling = 0x8003EDC8; // type:func size:0xC ROM 0x3f9c8 evidence=A IDO C exact, jfg/partAdjustScaling
 func_8003EDD4 = 0x8003EDD4; // type:func size:0xC ROM 0x3f9d4 evidence=A IDO C exact, Mickey-only particle-state setter
-func_8003EDE0 = 0x8003EDE0; // type:func size:0xC ROM 0x3f9e0 evidence=D Mickey-only particle-state setter
+func_8003EDE0 = 0x8003EDE0; // type:func size:0xC ROM 0x3f9e0 evidence=A IDO C exact, Mickey-only particle-state setter
 partUpdateTriggers = 0x8003EDEC; // type:func size:0x194 ROM 0x3f9ec evidence=B call graph/order, jfg/partUpdateTriggers
 func_8003EF80 = 0x8003EF80; // type:func size:0x1D4 ROM 0x3fb80 evidence=B TU, donor placeholder jfg/func_8006020C
 func_8003F154 = 0x8003F154; // type:func size:0x4A4 ROM 0x3fd54 evidence=B TU, donor placeholder jfg/func_80060400

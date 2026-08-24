@@ -13,6 +13,7 @@
 
 extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
+extern f32 D_8007C8F4;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/reset_particles.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CA20.s")
@@ -38,7 +39,9 @@ void partAdjustScaling(f32 scale) {
 void func_8003EDD4(f32 value) {
     D_8007C8F0 = value;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EDE0.s")
+void func_8003EDE0(f32 value) {
+    D_8007C8F4 = value;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateTriggers.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EF80.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F154.s")
