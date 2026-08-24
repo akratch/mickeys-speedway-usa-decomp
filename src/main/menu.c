@@ -22,6 +22,7 @@ typedef struct MenuScreenModeBits {
 
 extern s8 D_800D312B;
 extern MenuScreenModeBits D_800D3128;
+extern u8 D_8007C08C;
 extern u8 D_8007C090;
 extern s32 func_80025CC8(void);
 extern s8 func_80033F5C(void);
@@ -62,7 +63,10 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A2C8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A348.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontStoreScreenMode. */
+void frontStoreScreenMode(void) {
+    D_8007C08C = D_8007C090;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A35C.s")
 s32 frontGetLevelScreenMode(void) {
     /* Mickey-derived control flow; JFG's body remains GLOBAL_ASM. */

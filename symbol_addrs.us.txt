@@ -1474,6 +1474,9 @@ frontDrawRectangle = 0x80039584; // type:func size:0x50   ROM 0x3a184  src/menu.
 func_8003968C = 0x8003968C; // type:func size:0x94   ROM 0x3a28c  src/menu.c.o  masked=24/37
 setupFrontEndObject = 0x80039DAC; // type:func size:0x88   ROM 0x3a9ac  src/menu.c.o  masked=4/34
 frontGetScreenMode = 0x8003A298; // type:func size:0x30   ROM 0x3ae98  src/menu.c.o  masked=2/12
+// Tier B (JFG): exact copied-byte store, adjacent ordered accessor family,
+// and correspondence with JFG's frontStoreScreenMode establish the role.
+frontStoreScreenMode = 0x8003A348; // type:func size:0x14  ROM 0x3af48
 frontGetLevelScreenMode = 0x8003A368; // type:func size:0x68   ROM 0x3af68  src/menu.c.o  masked=4/26
 // Tier B (JFG): exact accessor body, shared state, and position immediately
 // before the already tier-A-named frontSetWideAdjust establish the role.

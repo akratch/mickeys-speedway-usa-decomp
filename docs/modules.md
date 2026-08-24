@@ -417,6 +417,12 @@ four cases return fixed mode 1, level mode with bit 1 set, fixed mode 3, or the
 current level mode. The canonical flags, two call relocations, object words,
 and linked ROM range are exact without post-processing.
 
+The tier-B-named `frontStoreScreenMode` adds **0x14 bytes / 5 words** at ROM
+`0x3AF48`. Its copied-byte store, its position in the ordered screen-mode
+accessor family, and the matching JFG source body establish the role; the body
+therefore carries a point-of-use `PROVENANCE` note. The default flags and both
+global-data relocations are exact without post-processing.
+
 ---
 
 ## 4. libultra
