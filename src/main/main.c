@@ -92,7 +92,10 @@ s32 mainGetMode(void) {
     return D_8007A1BC;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028D24.s")
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+void mainSetMode(s32 modeToSet) {
+    D_8007A1BC = modeToSet;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028D30.s")
 
