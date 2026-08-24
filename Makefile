@@ -4801,30 +4801,19 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15ReleaseResource10.c.o: POSTPROCES
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63Release.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
-# Restore the compiler-folded chain-address materialization and its complete
-# private register web under immutable natural text/relocation guards.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63Initialize.c.o: \
-	$(TOOLS_DIR)/normalize_o63_initialize.py
+# NON_MATCHING/GLOBAL_ASM: restore friendly symbols and retain only the
+# trailing-section trim metadata for these extracted functions.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_o63_initialize.py $@ $@
-# The natural owner has the exact size, frame, CFG, call topology, and external
-# identities. Normalize the complete bounded private allocation/schedule web,
-# materialize the proved local particle base, then discard only compiler
-# section-alignment bytes beyond the executable boundary.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63UpdateEffects.c.o: \
-	$(TOOLS_DIR)/normalize_o63_update_effects.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_063_F0000000_18C2B88=overlay63Initialize $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1D4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63UpdateEffects.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_o63_update_effects.py $@ $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_063_F00001D4_18C2D5C=overlay63UpdateEffects $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x578
-# IDO folds one token-identity copy in this function. Restore that complete
-# private representation web under immutable text/relocation guards, then keep
-# the overlay's two target-owned padding words as a separate asm segment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63UpdateSequence.c.o: \
-	$(TOOLS_DIR)/normalize_o63_update_sequence.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63UpdateSequence.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_o63_update_sequence.py $@ $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_063_F000077C_18C3304=overlay63UpdateSequence $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1AC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68CreateEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8

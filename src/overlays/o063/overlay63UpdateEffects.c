@@ -74,6 +74,7 @@ extern s32 gO63Triggered;
 extern s32 gO63TriggerTimer;
 extern s32 gO63FadeTimer;
 
+#ifdef NON_MATCHING
 void overlay63UpdateEffects(s32 updateRate) {
     O63RenderPosition pos;
     O63Particle *particle;
@@ -204,3 +205,6 @@ void overlay63UpdateEffects(s32 updateRate) {
     }
     func_overlay_063_F000077C_18C3304(updateRate);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o063/overlay63UpdateEffects/func_overlay_063_F00001D4_18C2D5C.s")
+#endif
