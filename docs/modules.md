@@ -360,6 +360,35 @@ measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
 
+### 3.4 Resident camera: ROM `0x21EE0`–`0x25C20`
+
+This whole `0x3D40`-byte block is the resident camera TU: **69 functions,
+`0x3D3C` executable bytes and four bytes of terminal alignment**. Its ordered
+systems are camera/FOV state, user viewports, projection setup, sprite and
+model matrices, projection helpers, then screen shake. The split is
+`main/camera`; flags are the resident default `-O2 -mips2 -32`.
+
+**PROVENANCE.** The TU identity, source order and borrowed names below come
+from Jet Force Gemini's public retail-derived decomp, `src/camera.c`, permitted
+by `docs/CLEANROOM.md`. JFG is a starting point only; the tiers say which parts
+Mickey's own bytes establish.
+
+| Evidence | Result |
+|---|---|
+| **A — byte identity** | `camSetWaterLine` at ROM `0x225B0` has 6 unmasked words of 8 and `romocc=1`; `camGetPlayerProjMtx` at `0x23360` has 8 unmasked words of 13 and `romocc=1`. Both clear §1.2. |
+| **B — role/call graph** | `camInit` opens the block and ranks JFG `camInit` at 0.3125 masked 4-gram Jaccard versus 0.0851 for the runner-up. `camOverrideProjScales`, `camGetProjOrgMtx`, `camStopShakes`, and `camSetZoom` have the same state effects and ordered camera roles as JFG; their comments in `symbol_addrs.us.txt` retain why they are below tier A. |
+| **C — strings** | None. The resident strings `"Camera Error: Illegal mode!"` and `"Cam do 2D sprite called with NULL pointer!"` are not addressed by resident code (§7); this identification does not use them. |
+| **D — structure** | The existing endpoints are 16-byte aligned, the first function is the `camInit` nearest neighbour, and the last function ends four bytes before `0x25C20`. The 69-function call/data sequence follows one camera-state cluster throughout. |
+
+The call census finds 15 direct internal edges. Representative chains are
+the view setup calling the window-limit, projection and viewport routines;
+the reset path calling scissor and viewport setup; the sprite helpers sharing
+matrix conversion; and the shake updater calling the shake initializer.
+External callers span resident render, track, menu and update code, while the
+TU calls the matrix library, video helpers, `sqrtf`, and `Arctanf`. There are
+no odd single-precision FP registers anywhere in the block, so none of these
+functions is classified as handwritten assembly under §6.2.
+
 ---
 
 ## 4. libultra
