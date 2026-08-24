@@ -1393,6 +1393,7 @@ asins = 0x8006A508; // type:func size:0x8C
 // tier so it cannot be mistaken for a byte-identity name claim.
 // ---------------------------------------------------------------------------
 amTuneResetFade = 0x80000730; // type:func size:0xC ROM 0x1330 tier B (JFG role/order)
+amAmbientResetFade = 0x8000082C; // type:func size:0xC ROM 0x142c tier B (JFG role/order)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below

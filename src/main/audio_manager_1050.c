@@ -17,6 +17,7 @@
 #include "PR/ultratypes.h"
 
 extern s32 D_80078D7C;
+extern s32 D_80078D80;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000450.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
@@ -28,7 +29,10 @@ void amTuneResetFade(void) {
     D_80078D7C = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000073C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000082C.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+void amAmbientResetFade(void) {
+    D_80078D80 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000838.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000ABC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000B3C.s")

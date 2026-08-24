@@ -381,6 +381,7 @@ Matched C bodies in these new TUs:
 | Mickey routine | ROM / size | Name evidence | Match evidence |
 |---|---:|---|---|
 | `amTuneResetFade` | `0x1330` / `0xC` | **tier B**: exact JFG routine order and the adjacent tune-fade controller role | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
+| `amAmbientResetFade` | `0x142C` / `0xC` | **tier B**: exact JFG routine order and the adjacent ambient-fade controller role | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
 
 PROVENANCE: the TU labels, function-order comparison, and candidate semantic
 roles in this census come from Jet Force Gemini's public decomp and built
