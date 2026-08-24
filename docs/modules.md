@@ -402,6 +402,7 @@ functions is classified as handwritten assembly under §6.2.
 | `camGetFOV` | `0x220A0` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camGetWaterLine` | `0x225A0` | 16 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camGetMode` | `0x22518` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camSetMode` | `0x22524` | 64 | Configured object, two relocation pairs, linked range and full ROM exact. |
 
 ---
 
