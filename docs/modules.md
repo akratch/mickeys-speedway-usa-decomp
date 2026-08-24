@@ -445,6 +445,12 @@ array in this TU produces the exact instruction schedule, but incorrectly
 claims its BSS ownership and shifts the linked symbol by `0x10`; that candidate
 was rejected.
 
+`func_800290AC` also remains assembly after six type/layout/return spellings.
+The best candidate has the exact 64-byte size and an exact 11-word tail, but
+five entry words differ starting at `+0x0`: IDO sets up the frame before a
+`$t6` global address, while the target materializes that address in `$v0`
+before the frame. The flag lattice did not change this allocation schedule.
+
 **PROVENANCE.** TU identities and adopted function names are adapted from Jet
 Force Gemini's published `src/{joy,level,main}.c` and built
 `src/{controller,level,main}.c.o`, a permitted public retail-derived decomp
