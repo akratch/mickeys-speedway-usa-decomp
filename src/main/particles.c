@@ -15,7 +15,16 @@ extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/reset_particles.s")
+void func_8003CA20(void);
+void func_8003CB3C(void);
+void func_8003CCE4(void);
+
+/* PROVENANCE: body adapted from DKR src/particles.c:reset_particles. */
+void reset_particles(void) {
+    func_8003CB3C();
+    func_8003CCE4();
+    func_8003CA20();
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CA20.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CB3C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CCE4.s")
