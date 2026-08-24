@@ -47,7 +47,15 @@ s32 packCalculateGameChecksum(u8 *buffer, s32 count) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CB18.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CCE4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CD6C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packCalculateGlobalFlagsChecksum.s")
+s32 packCalculateGlobalFlagsChecksum(u8 *buffer) {
+    s32 bytesToChecksum = 22;
+    s32 checksum = 5;
+
+    while (bytesToChecksum--) {
+        checksum += *buffer++;
+    }
+    return checksum;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CE54.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CF0C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CF6C.s")
