@@ -3282,56 +3282,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o067/overlay67BuildVertices.c.o: POSTPROCESS = 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/overlay71UpdateCoordinates.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
-# The natural object owns 0x278 executable bytes and IDO adds two zero
-# alignment words. Assert the complete compiler output before trimming only
-# that outside-owner alignment; the two scale aliases are one runtime LOCAL
-# object with shipped addends zero and four.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000000_18C9B20.c.o: \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+# NON_MATCHING/GLOBAL_ASM: retain only trailing-section trims where these
+# extracted functions are not naturally aligned.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000000_18C9B20.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x280 e3a550e9d51770a0857a3243267f9097f00e971c8cf3bb60b2fd6b5c05caf42e \
-		fields:0x278:op=0@0 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x25c:func_overlay_071_F0000278_18C9D98:func_overlay_071_F0000000_18C9B20 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x278
-# Natural IDO output owns the exact 332-instruction CFG, frame, call/FP
-# topology, and relocation sites. Select the shipped complete private stack
-# home and two independent schedule permutations, then fold the sqrtf call
-# through O71's established stored-zero resident-call proxy.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000278_18C9D98.c.o: \
-	config/normalizations/func_overlay_071_F0000278_18C9D98.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000278_18C9D98.c.o: CFLAGS += \
 	-Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000278_18C9D98.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x530 f3cde4c0acc455d724f786b7f5b38f93770d7ada6f33168b7f7a91010115b2a2 \
-		@config/normalizations/func_overlay_071_F0000278_18C9D98.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x1b8:sqrtf:func_80032BF0 && \
-	$(OBJCOPY) --redefine-sym \
-		func_80032BF0=func_overlay_071_F0000000_18C9B20 $@
-# Natural IDO output owns the exact 182-instruction CFG, frame, calls,
-# branch-likely behavior, memory effects, and relocation sites. Select the
-# retail private spill/register/schedule web, then fold five resident-call
-# roles through the overlay's stored-zero relocation proxy.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000870_18CA390.c.o: \
-	config/normalizations/func_overlay_071_F0000870_18CA390.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000870_18CA390.c.o: CFLAGS += \
 	-Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000870_18CA390.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2D8 ade7ab0f6288f866c805c58967c5e325a65666e6c4ba176da36604e958b0c2ef \
-		@config/normalizations/func_overlay_071_F0000870_18CA390.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x054:func_8002409C:func_80032BF0 \
-		0x0b0:func_80034554:func_80032BF0 \
-		0x198:func_80034554:func_80032BF0 \
-		0x2bc:func_800241BC:func_80032BF0 && \
-	$(OBJCOPY) --redefine-sym \
-		func_80032BF0=func_overlay_071_F0000000_18C9B20 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2D8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o072/overlay72Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB4
