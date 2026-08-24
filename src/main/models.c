@@ -22,6 +22,8 @@
 #include "game/models.h"
 
 extern s32 D_80079C00;
+extern void *D_80079C04;
+extern s16 D_80079C08;
 extern s32 *D_800CB480;
 extern s32 *D_800CB484;
 extern s32 *D_800CB488;
@@ -37,6 +39,7 @@ void *func_8002B280(s32 size, s32 tag);
 s32 *func_8002E148(s32 assetId);
 void *func_80034448(s16 textureId);
 void func_800347A0(void *texture);
+void func_800348A0(s32 id, s32 value);
 void func_8005AAC0(void *animation);
 u8 func_8002057C(void **out, ObjectModel *model, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 void mmFree(void *ptr);
@@ -245,5 +248,28 @@ void func_80020AD4(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020B10.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020D8C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020E4C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80021010.s")
+/*
+ * PROVENANCE -- name and TU position follow JFG's public
+ * modResumeModelTextures symbol. JFG has no public C body; Mickey is the body
+ * and global-layout authority.
+ */
+void modResumeModelTextures(void) {
+    SuspendedModelTexture *saved = D_80079C04;
+
+    if (saved != NULL) {
+        SuspendedModelTexture *entry = saved;
+        s32 i = 0;
+        if (D_80079C08 > 0) {
+            do {
+                if (entry->value != 0) {
+                    func_800348A0(entry->id, entry->value);
+                }
+                i++;
+                entry++;
+            } while (i < D_80079C08);
+        }
+        mmFree(D_80079C04);
+        D_80079C08 = 0;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8002109C.s")

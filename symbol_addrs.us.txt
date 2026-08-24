@@ -1443,6 +1443,7 @@ func_800203E0 = 0x800203E0; // type:func size:0xD8   ROM 0x20FE0  src/models.c.o
 modelSetModelFlags = 0x80020564; // type:func size:0xC   ROM 0x21164  src/models.c.o  evidence-tier-B same JFG TU position and model-flag access  C-match -O2 -mips2
 modelGetModelFlags = 0x80020570; // type:func size:0xC   ROM 0x21170  src/models.c.o  evidence-tier-B paired JFG model-flag accessor  C-match -O2 -mips2
 func_80020AD4 = 0x80020AD4; // type:func size:0x3C   ROM 0x216d4  src/models.c.o  masked=6/15  C-match -O2 -mips2
+modResumeModelTextures = 0x80021010; // type:func size:0x8C   ROM 0x21C10  src/models.c.o  evidence-tier-B JFG name and suspended-texture traversal  C-match -O2 -mips2
 // jfg:src/camera.c.o
 camGetPlayerProjMtx = 0x80022760; // type:func size:0x34   ROM 0x23360  src/camera.c.o  masked=5/13
 // jfg:src/hasm/ido/math_util.s.o

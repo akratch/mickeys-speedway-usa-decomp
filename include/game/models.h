@@ -36,10 +36,16 @@ typedef struct ModelInstance {
     /* 0x00 */ ObjectModel *objModel;
 } ModelInstance;
 
+typedef struct SuspendedModelTexture {
+    /* 0x00 */ s32 id;
+    /* 0x04 */ s32 value;
+} SuspendedModelTexture;
+
 void modInitModels(void);
 void modFreeModel(ModelInstance *modInst);
 void func_80020278(ObjectModel *model);
 void func_800203E0(ObjectModel *model);
+void modResumeModelTextures(void);
 void modelSetModelFlags(s32 flags);
 s32 modelGetModelFlags(void);
 

@@ -402,7 +402,7 @@ never imported as names, and uncertain rows retain Mickey's `func_` spelling.
 | `0x21710` | `func_80020B10`, `0x27C` | JFG placeholder helper | D: adjacent table-builder structure only |
 | `0x2198C` | `func_80020D8C`, `0xC0` | `modSetTextureFrame` | B: model texture-frame traversal and matching TU position |
 | `0x21A4C` | `func_80020E4C`, `0x1C4` | `modSuspendModelTextures` | B: allocate/save/free texture ownership sequence |
-| `0x21C10` | `func_80021010`, `0x8C` | `modResumeModelTextures` | B: reload/free saved texture ownership sequence |
+| `0x21C10` | `modResumeModelTextures`, `0x8C` | `modResumeModelTextures` | B: reload/free saved texture ownership sequence; linked C match |
 | `0x21C9C` | `func_8002109C`, `0x104` | no adoptable name | D: model limb/matrix traversal; JFG candidates diverge |
 
 **PROVENANCE.** JFG's public `src/models.c`, its built `src/models.c.o`, its
