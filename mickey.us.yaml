@@ -579,7 +579,7 @@ segments:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
       #      covered 35 functions and forty-four tables. After devmgr's table
-      #      moved into its exact C object, the 37 jump tables still emitted in
+      #      moved into its exact C object, the 44 jump tables still emitted in
       #      asm/ belong to 34 functions whose ROM and table addresses are both
       #      monotonically increasing -- ZERO INVERSIONS. First pair (ROM
       #      0x7D18 -> jtbl_80080D2C), last (ROM 0x75120 -> jtbl_800849C4).
