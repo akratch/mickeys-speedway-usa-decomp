@@ -402,7 +402,7 @@ coss_2 = 0x8002A200; // type:func size:0x44   ROM 0x2ae00  hasm/ido/math_util.s.
 // memory.c -- three 7-word allocator alignment helpers, 0 masked, adjacent.
 align16 = 0x8002BC60; // type:func size:0x1C   ROM 0x2c860  matched C main/memory -O2 -mips2 -32 donor memory.c.o masked=0/7
 align8 = 0x8002BC7C; // type:func size:0x1C   ROM 0x2c87c  matched C main/memory -O2 -mips2 -32 donor alignment family masked=0/7
-align4 = 0x8002BC98; // type:func size:0x1C   ROM 0x2c898  memory.c.o  masked=0/7
+align4 = 0x8002BC98; // type:func size:0x1C   ROM 0x2c898  matched C main/memory -O2 -mips2 -32 donor memory.c.o masked=0/7
 
 // rcp_dkr.c
 bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40   ROM 0x2f794  rcp_dkr.c.o  masked=2/16

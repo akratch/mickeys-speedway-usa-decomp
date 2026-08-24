@@ -91,4 +91,12 @@ u8 *align8(u8 *address) {
     return address;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/align4.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmAlign4. */
+u8 *align4(u8 *address) {
+    s32 remainder = (s32) address & 3;
+
+    if (remainder > 0) {
+        address = (u8 *) (((s32) address - remainder) + 4);
+    }
+    return address;
+}

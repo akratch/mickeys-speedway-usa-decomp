@@ -408,6 +408,9 @@ The canonical `-O2 -mips2 -32` flags reproduce the target; JFG's
 `mmAlign16` body is the adapted donor.
 `align8` is likewise exact for `0x1C` relocation-free bytes with canonical
 flags; it is the Mickey-only member derived from the same alignment family.
+`align4` completes the family with seven exact instruction words and no
+relocations. Its compiled body is `0x1C` bytes; the flag sweep's only reported
+delta is the separate 12-byte TU alignment tail already excluded above.
 
 ---
 
