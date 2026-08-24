@@ -53,7 +53,22 @@ void joyEnable(s32 player) {
     D_800CF3B4[player & 3] = TRUE;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyCreateMap.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+void joyCreateMap(s8 *activePlayers) {
+    s32 i;
+    s32 temp = 0;
+
+    for (i = 0; i < 4; i++) {
+        if (activePlayers[i]) {
+            D_800CF3B0[temp++] = i;
+        }
+    }
+    for (i = 0; i < 4; i++) {
+        if (!activePlayers[i]) {
+            D_800CF3B0[temp++] = i;
+        }
+    }
+}
 
 /* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
 u8 joyGetController(s32 player) {
