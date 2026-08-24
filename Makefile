@@ -566,7 +566,8 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ll.c.o: POSTPROCESS = $(HOST_PYTHON) \
 # matched; see docs/acceleration-survey.md 13.3 for the ruling that adopted
 # JFG's n_audio bodies. Add a TU's object name to this list only once its
 # compiled bytes have been checked against the ROM.
-LIBULTRA_NAUDIO_BARE_TUS := n_cspsetvol n_cspgetstate
+LIBULTRA_NAUDIO_BARE_TUS := n_cspsetvol n_cspgetstate n_cspmessage slHeap sl \
+	n_cseqnextdelta n_synsetpriority
 $(foreach f,$(LIBULTRA_NAUDIO_BARE_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -g))
 $(foreach f,$(LIBULTRA_NAUDIO_BARE_TUS),$(eval \
