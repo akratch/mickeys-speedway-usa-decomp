@@ -554,7 +554,8 @@ retail.
 Remaining unmatched, roughly by size: `n_csplayer` (masked=154, `0x3220`),
 `n_reverb` (masked=60, DSP-heavy, deferred per plan), `n_cseq`
 (masked=15), and `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
-deferred per plan) not yet attempted.
+deferred per plan), plus the small `n_synfreevoice` (masked=5, `0xE0`), not
+yet attempted.
 
 ---
 
