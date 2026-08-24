@@ -52,6 +52,7 @@ extern s32 overlay80AdvanceContactReloc(Overlay80Object *object, f32 rate,
                                         f32 ticks);
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+#ifdef NON_MATCHING
 void overlay80UpdateContact(Overlay80Object *object, s32 ticks) {
     Overlay80State *state;
     Overlay80Object *contact;
@@ -122,3 +123,6 @@ void overlay80UpdateContact(Overlay80Object *object, s32 ticks) {
         object->notice->state = 1;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o080/overlay80UpdateContact/func_overlay_080_F000011C_18CE9E4.s")
+#endif

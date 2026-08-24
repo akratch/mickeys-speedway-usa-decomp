@@ -2630,52 +2630,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0001290_18CE230.c.o: POS
 		--strip-symbol overlay79TriggerReloc \
 		--strip-symbol gOverlay79FlagsReloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1EC
-# The measured R4300 hazard mode naturally emits the shipped FP interlock and
-# exact 284-byte boundary. IDO still canonicalizes one finite multiply's
-# operands oppositely; assert that sole natural word before restoring it.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o080/overlay80InitializeContact.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o080/overlay80InitializeContact.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x11c 52287c1e9828ffa46e84752fc5bbc8d42f5fcfd5010b4226d355710fe6bef05b \
-		fields:0x4c:rt=10@16,rd=16@10 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_080_F0000000_18CE8C8=overlay80InitializeContact $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11C
-# The measured R4300 mode also reproduces this routine's complete instruction
-# and relocation schedule. IDO's private frame allocator chooses a compact,
-# non-overlapping layout; assert every member of that one coherent storage web
-# before translating only its immediate fields to the shipped 0x80-byte frame.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o080/overlay80UpdateContact.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o080/overlay80UpdateContact.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2d0 c48713801769c01019ca1da257791d070876abd2ee0fa2d6cad6dde155055802 \
-		fields:0x0:imm=65416@65408 \
-		fields:0x8:imm=124@132 \
-		fields:0x20:imm=72@84 \
-		fields:0x28:imm=120@128 \
-		fields:0x34:imm=116@124 \
-		fields:0x38:imm=116@124 \
-		fields:0x40:imm=120@128 \
-		fields:0x44:imm=72@84 \
-		fields:0xe0:imm=116@124 \
-		fields:0xe4:imm=120@128 \
-		fields:0xec:imm=108@120 \
-		fields:0xf0:imm=56@48 \
-		fields:0x104:imm=116@124 \
-		fields:0x108:imm=108@120 \
-		fields:0x124:imm=120@128 \
-		fields:0x128:imm=56@48 \
-		fields:0x234:imm=56@48 \
-		fields:0x238:imm=120@128 \
-		fields:0x23c:imm=116@124 \
-		fields:0x248:imm=116@124 \
-		fields:0x24c:imm=120@128 \
-		fields:0x250:imm=56@48 \
-		fields:0x26c:imm=124@132 \
-		fields:0x288:imm=116@124 \
-		fields:0x28c:imm=120@128 \
-		fields:0x29c:imm=116@124 \
-		fields:0x2a4:imm=120@128 \
-		fields:0x2c4:imm=120@128 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2D0
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_080_F000011C_18CE9E4=overlay80UpdateContact $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84CopyPair.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
 # Natural codegen owns the exact CFG, opcode/register/relocation multiset, and
