@@ -11,38 +11,38 @@ from the original stub but have not been modernized or verified.
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-203_of_1460_(13.90%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-344072_of_950220_(36.21%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-492_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-365_of_1456_(25.07%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-184320_of_947920_(19.44%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-751_adopted-blue)](#progress)
 
 ```
-functions      203 / 1460    13.90%   matched to C, byte-identical
-.text bytes  50416 / 480956  10.48%   matched C in the resident segment
-verified asm  17104 / 480956   3.56%   original hand-written assembly (83 functions)
-overlay C   276552 / 469264  58.93%   matched C keyed by overlay and offset
-whole resolved 344072 / 950220  36.21%   resident C + verified asm + overlay C
-named          415 / 1460    28.42%   functions carrying an adopted name
-symbols        492                    adopted in symbol_addrs.us.txt
+functions      365 / 1456    25.07%   matched to C, byte-identical
+.text bytes  86760 / 478656  18.13%   matched C in the resident segment
+verified asm  17104 / 478656   3.57%   original hand-written assembly (83 functions)
+overlay C    80456 / 469264  17.15%   matched C keyed by overlay and offset
+whole resolved 184320 / 947920  19.44%   resident C + verified asm + overlay C
+named          601 / 1456    41.28%   functions carrying an adopted name
+symbols        751                    adopted in symbol_addrs.us.txt
 ```
 
 DKR-style report (docs/acceleration-survey.md sec.13.1: NON_MATCHING and NON_EQUIVALENT count as unmatched, exactly like extracted assembly):
 
 ```
-decompiled              326968 / 950220  (34.41%)
-handwritten asm          17104 / 950220  ( 1.80%)
-GLOBAL_ASM remaining    606100 / 950220  (63.79%)
-NON_MATCHING                48 / 950220  ( 0.01%)
-NON_EQUIVALENT               0 / 950220  ( 0.00%)
+decompiled              167216 / 947920  (17.64%)
+handwritten asm          17104 / 947920  ( 1.80%)
+GLOBAL_ASM remaining    563204 / 947920  (59.41%)
+NON_MATCHING            200396 / 947920  (21.14%)
+NON_EQUIVALENT               0 / 947920  ( 0.00%)
 ```
 
 | Area | Functions | Matched to C | Named, still asm | Unnamed | Identified |
 | :--- | ---: | ---: | ---: | ---: | :--- |
-| libultra corridor | 298 | 196 | 82 | 20 | `█████████████▓▓▓▓▓▓░` 93.3% |
-| game code, TU identified | 114 | 7 | 73 | 34 | `█▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░` 70.2% |
-| game code, not yet split | 1048 | 0 | 57 | 991 | `▓░░░░░░░░░░░░░░░░░░░` 5.4% |
-| **total** | 1460 | 203 | 212 | 1045 | `███▓▓▓░░░░░░░░░░░░░░` 28.4% |
+| libultra corridor | 289 | 245 | 41 | 3 | `█████████████████▓▓▓` 99.0% |
+| game code, TU identified | 640 | 120 | 171 | 349 | `████▓▓▓▓▓░░░░░░░░░░░` 45.5% |
+| game code, not yet split | 527 | 0 | 24 | 503 | `▓░░░░░░░░░░░░░░░░░░░` 4.6% |
+| **total** | 1456 | 365 | 236 | 855 | `█████▓▓▓░░░░░░░░░░░░` 41.3% |
 
 `█` matched to C · `▓` named but still assembly · `░` neither. Naming runs ahead of matching: a function is decompiled against an already-identified translation unit.
 
-**Source organization**: 865 fully-C translation units and 12 C scaffolds that still include assembly. 128 under `src/libultra/`; 2 under `src/main/`, including `matrix.c` (matrix/vector maths) and `runlink.c` (the runtime overlay linker core); 75 under `src/overlays/o001/`; 14 under `src/overlays/o002/`; 9 under `src/overlays/o003/`; 8 under `src/overlays/o004/`; 9 under `src/overlays/o005/`; 1 under `src/overlays/o006/`; 9 under `src/overlays/o007/`; 17 under `src/overlays/o008/`; 8 under `src/overlays/o009/`; 1 under `src/overlays/o010/`; 25 under `src/overlays/o011/`; 4 under `src/overlays/o012/`; 8 under `src/overlays/o013/`; 28 under `src/overlays/o014/`; 12 under `src/overlays/o015/`; 4 under `src/overlays/o016/`; 5 under `src/overlays/o017/`; 4 under `src/overlays/o018/`; 7 under `src/overlays/o019/`; 14 under `src/overlays/o020/`; 2 under `src/overlays/o021/`; 3 under `src/overlays/o022/`; 4 under `src/overlays/o023/`; 3 under `src/overlays/o024/`; 3 under `src/overlays/o025/`; 3 under `src/overlays/o026/`; 6 under `src/overlays/o027/`; 5 under `src/overlays/o028/`; 10 under `src/overlays/o029/`; 2 under `src/overlays/o030/`; 7 under `src/overlays/o031/`; 7 under `src/overlays/o033/`; 8 under `src/overlays/o034/`; 3 under `src/overlays/o035/`; 21 under `src/overlays/o036/`; 5 under `src/overlays/o037/`; 3 under `src/overlays/o038/`; 2 under `src/overlays/o039/`; 9 under `src/overlays/o040/`; 14 under `src/overlays/o041/`; 5 under `src/overlays/o042/`; 7 under `src/overlays/o043/`; 4 under `src/overlays/o044/`; 9 under `src/overlays/o045/`; 9 under `src/overlays/o046/`; 2 under `src/overlays/o047/`; 4 under `src/overlays/o048/`; 3 under `src/overlays/o049/`; 4 under `src/overlays/o050/`; 3 under `src/overlays/o051/`; 4 under `src/overlays/o052/`; 4 under `src/overlays/o053/`; 5 under `src/overlays/o054/`; 5 under `src/overlays/o055/`; 6 under `src/overlays/o056/`; 18 under `src/overlays/o057/`; 8 under `src/overlays/o058/`; 10 under `src/overlays/o059/`; 6 under `src/overlays/o060/`; 12 under `src/overlays/o061/`; 3 under `src/overlays/o062/`; 4 under `src/overlays/o063/`; 1 under `src/overlays/o064/`; 5 under `src/overlays/o065/`; 3 under `src/overlays/o066/`; 1 under `src/overlays/o067/`; 18 under `src/overlays/o068/`; 3 under `src/overlays/o069/`; 3 under `src/overlays/o070/`; 4 under `src/overlays/o071/`; 2 under `src/overlays/o072/`; 2 under `src/overlays/o073/`; 2 under `src/overlays/o074/`; 3 under `src/overlays/o075/`; 1 under `src/overlays/o076/`; 3 under `src/overlays/o077/`; 1 under `src/overlays/o078/`; 6 under `src/overlays/o079/`; 2 under `src/overlays/o080/`; 4 under `src/overlays/o081/`; 3 under `src/overlays/o082/`; 9 under `src/overlays/o083/`; 21 under `src/overlays/o084/`; 2 under `src/overlays/o085/`; 6 under `src/overlays/o086/`; 3 under `src/overlays/o087/`; 3 under `src/overlays/o088/`; 5 under `src/overlays/o089/`; 1 under `src/overlays/o090/`; 3 under `src/overlays/o091/`; 2 under `src/overlays/o092/`; 1 under `src/overlays/o093/`; 3 under `src/overlays/o094/`; 2 under `src/overlays/o095/`; 6 under `src/overlays/o096/`; 11 under `src/overlays/o097/`; 4 under `src/overlays/o098/`; 8 under `src/overlays/o099/`; 7 under `src/overlays/o100/`; 60 under `src/overlays/o101/`; 1 under `src/overlays/o102/`; 1 under `src/overlays/o103/`; 1 under `src/overlays/o104/`; 1 under `src/overlays/o105/`; 1 under `src/overlays/o106/`; 1 under `src/overlays/o107/`.
+**Source organization**: 533 fully-C translation units and 342 C scaffolds that still include assembly. 133 under `src/libultra/`; 25 under `src/main/`, including `matrix.c` (matrix/vector maths) and `runlink.c` (the runtime overlay linker core); 75 under `src/overlays/o001/`; 14 under `src/overlays/o002/`; 9 under `src/overlays/o003/`; 8 under `src/overlays/o004/`; 9 under `src/overlays/o005/`; 1 under `src/overlays/o006/`; 9 under `src/overlays/o007/`; 17 under `src/overlays/o008/`; 8 under `src/overlays/o009/`; 1 under `src/overlays/o010/`; 25 under `src/overlays/o011/`; 4 under `src/overlays/o012/`; 8 under `src/overlays/o013/`; 28 under `src/overlays/o014/`; 12 under `src/overlays/o015/`; 4 under `src/overlays/o016/`; 5 under `src/overlays/o017/`; 4 under `src/overlays/o018/`; 7 under `src/overlays/o019/`; 14 under `src/overlays/o020/`; 2 under `src/overlays/o021/`; 3 under `src/overlays/o022/`; 4 under `src/overlays/o023/`; 1 under `src/overlays/o024/`; 3 under `src/overlays/o025/`; 3 under `src/overlays/o026/`; 6 under `src/overlays/o027/`; 5 under `src/overlays/o028/`; 10 under `src/overlays/o029/`; 2 under `src/overlays/o030/`; 7 under `src/overlays/o031/`; 7 under `src/overlays/o033/`; 8 under `src/overlays/o034/`; 3 under `src/overlays/o035/`; 21 under `src/overlays/o036/`; 5 under `src/overlays/o037/`; 3 under `src/overlays/o038/`; 1 under `src/overlays/o039/`; 9 under `src/overlays/o040/`; 14 under `src/overlays/o041/`; 1 under `src/overlays/o042/`; 7 under `src/overlays/o043/`; 4 under `src/overlays/o044/`; 2 under `src/overlays/o045/`; 9 under `src/overlays/o046/`; 2 under `src/overlays/o047/`; 4 under `src/overlays/o048/`; 3 under `src/overlays/o049/`; 4 under `src/overlays/o050/`; 1 under `src/overlays/o051/`; 4 under `src/overlays/o052/`; 4 under `src/overlays/o053/`; 5 under `src/overlays/o054/`; 5 under `src/overlays/o055/`; 1 under `src/overlays/o056/`; 18 under `src/overlays/o057/`; 8 under `src/overlays/o058/`; 10 under `src/overlays/o059/`; 6 under `src/overlays/o060/`; 12 under `src/overlays/o061/`; 3 under `src/overlays/o062/`; 4 under `src/overlays/o063/`; 1 under `src/overlays/o064/`; 5 under `src/overlays/o065/`; 3 under `src/overlays/o066/`; 1 under `src/overlays/o067/`; 18 under `src/overlays/o068/`; 3 under `src/overlays/o069/`; 3 under `src/overlays/o070/`; 4 under `src/overlays/o071/`; 1 under `src/overlays/o072/`; 2 under `src/overlays/o073/`; 2 under `src/overlays/o074/`; 3 under `src/overlays/o075/`; 1 under `src/overlays/o076/`; 2 under `src/overlays/o077/`; 1 under `src/overlays/o078/`; 6 under `src/overlays/o079/`; 2 under `src/overlays/o080/`; 1 under `src/overlays/o081/`; 2 under `src/overlays/o082/`; 9 under `src/overlays/o083/`; 21 under `src/overlays/o084/`; 1 under `src/overlays/o085/`; 6 under `src/overlays/o086/`; 3 under `src/overlays/o087/`; 3 under `src/overlays/o088/`; 5 under `src/overlays/o089/`; 1 under `src/overlays/o090/`; 2 under `src/overlays/o091/`; 2 under `src/overlays/o092/`; 1 under `src/overlays/o093/`; 3 under `src/overlays/o094/`; 1 under `src/overlays/o095/`; 6 under `src/overlays/o096/`; 11 under `src/overlays/o097/`; 4 under `src/overlays/o098/`; 8 under `src/overlays/o099/`; 7 under `src/overlays/o100/`; 60 under `src/overlays/o101/`; 1 under `src/overlays/o102/`; 1 under `src/overlays/o103/`; 1 under `src/overlays/o104/`; 1 under `src/overlays/o105/`; 1 under `src/overlays/o106/`; 1 under `src/overlays/o107/`.
 
 Generated by `gmake scoreboard` from the built ELF, the splat config, the `asm/` tree and `symbol_addrs.us.txt`; `gmake check-scoreboard` fails if it has drifted. [`docs/modules.md`](docs/modules.md) records what each run of code was identified as and on what evidence; [`docs/references.md`](docs/references.md) records the reference builds it was measured against.
 <!-- SCOREBOARD_END -->

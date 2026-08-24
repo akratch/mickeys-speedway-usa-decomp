@@ -30,7 +30,7 @@
 // #include <math.h>
 #include <assert.h>
 
-extern SpeakerMode D_80105010_B1750;
+extern SpeakerMode D_800D7DC0;
 
 #ifdef AUD_PROFILE
 extern u32 cnt_index, env_num, env_cnt, env_max, env_min, lastCnt[];
@@ -175,14 +175,14 @@ Acmd *n_alEnvmixerPull(N_PVoice *filter, s32 sampleOffset, Acmd *p)
 	e->em_pan    = param->pan;
 	e->em_dryamt = (n_eqpower[param->fxMix & 0x7f] & 0xfffe) | (param->fxMix >> 7);
 
-    if (!D_80105010_B1750.surround) {
+    if (!D_800D7DC0.surround) {
       e->em_dryamt &= 0xfffe;
     }
 	e->em_wetamt = n_eqpower[N_EQPOWER_LENGTH - (param->fxMix & 0x7f) - 1] & 0xfffe;
 
-    if (D_80105010_B1750.headphone) {
+    if (D_800D7DC0.headphone) {
       e->em_pan = (e->em_pan >> 1) + 32;
-    } else if (D_80105010_B1750.mono) {
+    } else if (D_800D7DC0.mono) {
       e->em_pan = 64;
     }
 
@@ -247,9 +247,9 @@ Acmd *n_alEnvmixerPull(N_PVoice *filter, s32 sampleOffset, Acmd *p)
          * This should result in a change to the current
          * segment rate and target
          */
-        if (D_80105010_B1750.headphone) {
+        if (D_800D7DC0.headphone) {
           e->em_pan = ((s16)e->em_ctrlList->data.i >> 1) + 32;
-        } else if (D_80105010_B1750.mono) {
+        } else if (D_800D7DC0.mono) {
           e->em_pan = 64;
         } else {
           e->em_pan = (s16) e->em_ctrlList->data.i;
@@ -281,7 +281,7 @@ Acmd *n_alEnvmixerPull(N_PVoice *filter, s32 sampleOffset, Acmd *p)
 
       if (e->em_ctrlList->type == AL_FILTER_SET_FXAMT){
         if (((e->em_dryamt ^ e->em_wetamt) & 1) ^ ((e->em_ctrlList->data.i + 1) >> 7)) {
-          if (D_80105010_B1750.surround) {
+          if (D_800D7DC0.surround) {
             if (e->em_pan > 64) {
               e->em_dryamt ^= 1;
             } else {
