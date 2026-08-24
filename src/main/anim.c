@@ -96,15 +96,51 @@ void func_8005017C(void) {
     if (D_8007D698 != NULL) {
         D_8007D698 = NULL;
         D_8007D69C = NULL;
-        D_8007D6A0 = NULL;
+        D_8007D6A0 = 0;
     }
 }
 
-s8 func_800501AC(u16 *entry) {
+s32 func_800501AC(u16 *entry) {
     return D_8007D6C0[(entry[1] >> 8) & 0xFF];
 }
 
+/* JFG corroborates this scan's CFG; the C expression choices are Mickey-led. */
+#ifdef NON_MATCHING
+s32 func_800501C8() {
+    s32 step;
+    s32 done;
+    s32 entryCount;
+    s32 total;
+    u8 *cursor;
+
+    cursor = D_8007D698;
+    total = 0;
+    done = 0;
+    entryCount = 0;
+    if (cursor != NULL) {
+        do {
+            if (((((u16 *) cursor)[1] >> 8) & 0xFF) == 0x7F) {
+                done = 1;
+            }
+            step = func_800501AC((u16 *) cursor);
+            if (step != 0) {
+                total += step;
+                cursor += (step >> 1) * 2;
+                entryCount++;
+                if (entryCount >= 0x2001) {
+                    done = 1;
+                }
+            } else {
+                total = 0;
+                done = 1;
+            }
+        } while (done == 0);
+    }
+    return total;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800501C8.s")
+#endif
 
 /* Exact JFG donor assembly corroborates this setup shape; C is Mickey-led. */
 void func_8005027C(void) {

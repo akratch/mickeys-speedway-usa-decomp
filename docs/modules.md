@@ -388,7 +388,7 @@ placeholders are never imported.
 | `0x8005013C` | `0x40` | `func_800768D4` | D naming; placeholder retained. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005017C` | `0x30` | `func_80076918` | A; exact 48 B, masked `6/12`, placeholder retained. Matched C: exact 48 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800501AC` | `0x1C` | `func_80076948` | D naming; placeholder retained. Matched C: exact 28 B and relocation surface at `-O2 -mips2 -32` |
-| `0x800501C8` | `0xB4` | `func_80076968` | D; 0.653 skeleton similarity, placeholder retained |
+| `0x800501C8` | `0xB4` | `func_80076968` | D; 0.653 skeleton similarity, placeholder retained. Plateau after 10 variants: exact size, opcode schedule, and relocations; 7 register-only words remain from one `$s2`/`$s3` allocation swap, first mismatch `+0x5C` |
 | `0x8005027C` | `0x50` | `func_80076A20` | A; exact 80 B, masked `9/20`, placeholder retained. Matched C: exact 80 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800502CC` | `0x7C` | `func_80076A70` | B; same cleanup callees and position, placeholder retained. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050348` | `0x214` | `animseqInitPath` | B; exact `animseqInitGroup` calls this function |
