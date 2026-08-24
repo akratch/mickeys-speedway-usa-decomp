@@ -20,6 +20,14 @@ typedef struct Wake {
 typedef struct FxCone {
     s32 texture;
     s32 alternateTexture;
+    u8 pad8[0x24];
+    s8 value2C;
+    s8 value2D;
+    s8 value2E;
+    u8 pad2F;
+    s8 value30;
+    s8 value31;
+    s8 value32;
 } FxCone;
 
 typedef struct WakeRipple {
@@ -75,7 +83,17 @@ void func_80046E70(FxCone *cone) {
     mmFree(cone);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046EC4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004707C.s")
+void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
+                   s32 value30, s32 value31, s32 value32) {
+    if (cone != 0) {
+        cone->value2C = value2C;
+        cone->value2D = value2D;
+        cone->value2E = value2E;
+        cone->value30 = value30;
+        cone->value31 = value31;
+        cone->value32 = value32;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047304.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800475E8.s")

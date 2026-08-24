@@ -415,6 +415,9 @@ The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
 handle locals reproduce the target's direct second argument register and
 branch-delay schedule, with both texture-free calls and the allocator call
 retaining their exact relocations under the resident defaults.
+The adjacent 52-byte `func_8004707C` is exact without relocations: its six
+full-width value parameters are stored into byte fields only after the null
+check, preserving the target's leaf schedule under the same default flags.
 The 60-byte Mickey-named `func_80049828` bounds-checks one of five effect
 records and tests a caller-supplied flag mask; its natural 32-byte-stride
 record access is exact at the resident defaults, including the data-symbol

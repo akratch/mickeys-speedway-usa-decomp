@@ -822,7 +822,7 @@ func_80046E00 = 0x80046E00;                // type:func size:0x58 tier D (Mickey
 // specific effects retain their local func_ names with Tier-D boundaries.
 func_80046E70 = 0x80046E70;           // type:func size:0x54 tier A (exact C, JFG fxFreeCone)
 func_80046EC4 = 0x80046EC4;           // type:func size:0x1B8 tier B (JFG fxAllocateCone)
-func_8004707C = 0x8004707C;           // type:func size:0x34 tier D (Mickey boundary)
+func_8004707C = 0x8004707C;           // type:func size:0x34 tier A (exact C)
 func_800470B0 = 0x800470B0;           // type:func size:0x254 tier D (JFG placeholder)
 func_80047304 = 0x80047304;           // type:func size:0x2E4 tier D (JFG placeholder)
 func_800475E8 = 0x800475E8;           // type:func size:0x3EC tier B (JFG fxMakeConeTextureCoords)
