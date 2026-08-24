@@ -12,6 +12,7 @@
 #include "PR/ultratypes.h"
 
 extern f32 D_8007C8F8;
+extern f32 D_8007C8F0;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/reset_particles.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CA20.s")
@@ -34,7 +35,9 @@ extern f32 D_8007C8F8;
 void partAdjustScaling(f32 scale) {
     D_8007C8F8 = scale;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EDD4.s")
+void func_8003EDD4(f32 value) {
+    D_8007C8F0 = value;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EDE0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateTriggers.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EF80.s")
