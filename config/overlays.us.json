@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 264604,
-  "nonmatching_overlay_c_bytes": 11996,
+  "matched_overlay_c_bytes": 263148,
+  "nonmatching_overlay_c_bytes": 13452,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -8154,7 +8154,7 @@
      "type": "c",
      "source": "overlays/o035/overlay35Initialize",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1E0",
@@ -8172,7 +8172,7 @@
      "type": "c",
      "source": "overlays/o035/overlay35BuildGridMasks",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xB40",

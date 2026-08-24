@@ -27,6 +27,7 @@ typedef struct O35GridSource {
     s16 groupCount;
 } O35GridSource;
 
+#ifdef NON_MATCHING
 void func_overlay_035_F0000770_1882450(O35GridSource *source,
                                         O35GridBounds *bounds) {
     s32 groupIndex;
@@ -164,3 +165,6 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
         } while (groupIndex < source->groupCount);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o035/overlay35BuildGridMasks/func_overlay_035_F0000770_1882450.s")
+#endif

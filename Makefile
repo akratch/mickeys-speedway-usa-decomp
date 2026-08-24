@@ -6470,32 +6470,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay28ResetBuffer.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35SelectHeight.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x68
-# The natural 244-word grid-mask builder has the complete instruction multiset,
-# CFG, and memory effects. Seven complete schedule bijections plus the asserted
-# private-stack/register web select retail's equivalent frame representation;
-# the function has no static or runtime relocations.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35BuildGridMasks.c.o: \
-	config/normalizations/overlay35BuildGridMasks.ops
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35BuildGridMasks.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3D0 e085a79a131703629efa70bf02e51c022ad1aaf2aaa3442cda4aec5e5c31c028 \
-		@config/normalizations/overlay35BuildGridMasks.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3D0
-# The typed source has the exact 120-word topology. Two bijective scheduling
-# swaps and the complete private register web select retail's allocation;
-# loader-owned global HILO records remain represented in the runtime atlas.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35Initialize.c.o: \
-	config/normalizations/overlay35Initialize.ops \
-	config/normalizations/overlay35Initialize.filter.spec \
-	config/normalizations/overlay35Initialize.rebind.spec
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1E0 9736fdb41db206553f861dfa22eb6fba1745488075704ab8d102d6b99b98f91e \
-		@config/normalizations/overlay35Initialize.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay35Initialize.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay35Initialize.rebind.spec
 # The natural 104-word body owns the exact CFG, calls, memory and FP effects.
 # A complete object-identity/constant-one lifetime web selects the equivalent
 # retail compiler representation; the local D_B18 pair remains intact.

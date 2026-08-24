@@ -39,6 +39,7 @@ extern void *call_o0_0_33FF8(s16);
 extern void call_o98_0_0(void *);
 extern void func_overlay_035_F00001E0_1881EC0(s32);
 
+#ifdef NON_MATCHING
 void func_overlay_035_F0000000_1881CE0(s32 arg0, s32 arg1, s32 arg2,
                                         s32 arg3, s32 arg4, s32 arg5) {
     O35System *system;
@@ -92,3 +93,6 @@ void func_overlay_035_F0000000_1881CE0(s32 arg0, s32 arg1, s32 arg2,
         call_o98_0_0(D_o35_paramA);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o035/overlay35Initialize/func_overlay_035_F0000000_1881CE0.s")
+#endif
