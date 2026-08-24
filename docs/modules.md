@@ -581,6 +581,57 @@ allocator accesses establish Mickey's 16-bit counts at `+0/+2`, slot pointer
 at `+4`, size at `+8`, and free-size field at `+0xC`; these differ from JFG's
 starting declaration and are reflected in `include/game/memory.h`.
 
+The `models` block is now the deliberate exception to that earlier scheduling
+rule: it has been split as a **working decompilation TU**, not promoted to a
+tier-A original-file-boundary claim. The evidence and the distinction are
+recorded below.
+
+### 3.4 `main/models` working split
+
+ROM `0x20020`-`0x21DA0`, VRAM `0x8001F420`-`0x800211A0`, 19 functions.
+The start is an existing 16-byte-aligned yaml boundary and the first function
+is an exact, ROM-wide-unique JFG `src/models.c.o` skeleton match. Two later
+functions in the same block are exact matches to that object too. The
+intervening call graph stays within model allocation, texture ownership and
+matrix generation, and the next boundary is the independently tier-A
+`mainproc`/`thread1_main` anchor. That supports a practical source split, but
+not the stronger statement that every byte came from one original object.
+
+JFG names below are **correspondences, not adopted Mickey symbols** unless a
+later matched-C row says otherwise. Tier A means exact masked-skeleton
+identity; tier B means the external calls and role agree; tier D means only
+function order and local structure agree. There are no distinctive string
+references in this block, so it has no tier-C rows. Reference placeholders are
+never imported as names, and uncertain rows retain Mickey's `func_` spelling.
+
+| ROM | Mickey symbol / size | JFG correspondence | Tier and evidence |
+|---|---|---|---|
+| `0x20020` | `func_8001F420`, `0x3C` | JFG placeholder in `models.c.o` | A: exact 15-word skeleton and linked C match; placeholder retained |
+| `0x2005C` | `modInitModels`, `0xC4` | `modInitModels` | B: same allocation/table-initialisation calls and TU position; linked C match |
+| `0x20120` | `func_8001F520`, `0x644` | `modLoadModel` | B: same cache, decompression, texture and instance-helper call graph |
+| `0x20764` | `func_8001FB64`, `0x68` | JFG placeholder in `models.c.o` | A: exact 26-word skeleton and linked C match; placeholder retained |
+| `0x207CC` | `func_8001FBCC`, `0x84` | JFG placeholder helper | D: function order and allocation/copy structure; linked C match |
+| `0x20850` | `func_8001FC50`, `0x534` | JFG placeholder helper | D: function order and model-instance construction only |
+| `0x20D84` | `modFreeModel`, `0xF4` | `modFreeModel` | B: instance free followed by model-reference/resource release; linked C match |
+| `0x20E78` | `func_80020278`, `0x168` | JFG placeholder resource-free helper | B: texture free plus the same family of owned allocations; linked C match |
+| `0x20FE0` | `func_800203E0`, `0xD8` | no adoptable name | D: model helper calls only; linked C match, placeholder retained |
+| `0x210B8` | `func_800204B8`, `0xAC` | no adoptable name | D: texture/allocation release structure only |
+| `0x21164` | `modelSetModelFlags`, `0xC` | `modelSetModelFlags` | B: paired global setter and observed callers; linked C match |
+| `0x21170` | `modelGetModelFlags`, `0xC` | `modelGetModelFlags` | B: paired global getter; linked C match |
+| `0x2117C` | `func_8002057C`, `0x558` | `makeModelGfx` | B: texture/display-list construction call graph and TU order |
+| `0x216D4` | `func_80020AD4`, `0x3C` | JFG placeholder in `models.c.o` | A: exact 15-word skeleton and linked C match; placeholder retained |
+| `0x21710` | `func_80020B10`, `0x27C` | JFG placeholder helper | D: adjacent table-builder structure only |
+| `0x2198C` | `func_80020D8C`, `0xC0` | `modSetTextureFrame` | B: model texture-frame traversal and matching TU position |
+| `0x21A4C` | `func_80020E4C`, `0x1C4` | `modSuspendModelTextures` | B: allocate/save/free texture ownership sequence |
+| `0x21C10` | `modResumeModelTextures`, `0x8C` | `modResumeModelTextures` | B: reload/free saved texture ownership sequence; linked C match |
+| `0x21C9C` | `func_8002109C`, `0x104` | no adoptable name | D: model limb/matrix traversal; JFG candidates diverge |
+
+**PROVENANCE.** JFG's public `src/models.c`, its built `src/models.c.o`, its
+`asm/nonmatchings/models/` filenames, and its published symbol map supplied
+the correspondence vocabulary above. The three tier-A rows are measurements
+against Mickey's ROM; every other row is explicitly an argument. No JFG body
+is present in the initial all-`GLOBAL_ASM` split.
+
 ---
 
 ## 4. libultra

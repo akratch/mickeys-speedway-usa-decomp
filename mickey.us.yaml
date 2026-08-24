@@ -155,7 +155,13 @@ segments:
       - [0x1AE60, asm, main/lights2]
       - [0x1BE50, asm]
       - [0x1C790, asm]
-      - [0x20020, asm]
+      # Working source split for the resident model system. Three functions
+      # are tier-A skeleton matches to JFG's src/models.c.o, including the
+      # first function at this existing 16-byte-aligned boundary; the other
+      # functions share its model allocator/texture call graph. This is not a
+      # whole-object byte match, so docs/modules.md 3.4 keeps the distinction
+      # between the working split and a measured original-file boundary.
+      - [0x20020, c, main/models]
       - [0x21DA0, asm]
       - [0x21EE0, asm]
       - [0x25C20, asm]
