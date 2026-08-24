@@ -43,6 +43,8 @@ extern void *D_800792E8;
 
 void trackSkySet(s32 skyDome);
 void *trackGetTrack(void);
+void trackSetFog(s32 fogIndex, s16 near, s16 far, s16 targetNear,
+                 u8 red, u8 green, u8 blue, s8 state);
 void trackGetFog(s32 playerID, s16 *near, s16 *far, s16 *targetNear,
                  u8 *red, u8 *green, u8 *blue, s8 *state);
 

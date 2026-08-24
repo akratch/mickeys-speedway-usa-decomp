@@ -1410,6 +1410,11 @@ func_8000D00C = 0x8000D00C; // type:func size:0xC ROM 0xdc0c
 // track-layout fields; this is the TU's accessor for its current track object.
 trackGetTrack = 0x80013EB4; // type:func size:0xC ROM 0x14ab4
 
+// Tier B: external callers supply fog distance, colour, and state values.
+// Tier D: occupies JFG `trackSetFog`'s position before the independently
+// identified `trackGetFog` and tier-A `trackSetFogOff` pair.
+trackSetFog = 0x80014430; // type:func size:0xF8 ROM 0x15030
+
 // Tier B: its caller passes seven output pointers, then consumes them as fog
 // distance, colour, and state values. Tier D: this is JFG trackGetFog's exact
 // position between trackSetFog and the tier-A trackSetFogOff.

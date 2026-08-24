@@ -86,7 +86,52 @@ void *trackGetTrack(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80013EC0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800140CC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014430.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `trackSetFog`. Mickey's function boundary and fog-data accesses are
+ * authoritative where the revisions differ.
+ */
+void trackSetFog(s32 fogIndex, s16 near, s16 far, s16 targetNear,
+                 u8 red, u8 green, u8 blue, s8 state) {
+    s32 tempNear;
+    TrackFog *fogData;
+
+    fogData = &D_800C99C0[fogIndex];
+
+    if (far < near) {
+        tempNear = near;
+        near = far;
+        far = tempNear;
+    }
+
+    if (far > 1023) {
+        far = 1023;
+    }
+    if (near >= far - 5) {
+        near = far - 5;
+    }
+
+    fogData->addFog.near = 0;
+    fogData->addFog.far = 0;
+    fogData->addFog.r = 0;
+    fogData->addFog.g = 0;
+    fogData->addFog.b = 0;
+    fogData->fog.r = red << 16;
+    fogData->fog.g = green << 16;
+    fogData->fog.b = blue << 16;
+    fogData->fog.near = near << 16;
+    fogData->fog.far = far << 16;
+    fogData->initialNear = near << 16;
+    fogData->targetNear = targetNear << 16;
+    fogData->intendedFog.state = state;
+    fogData->intendedFog.r = red;
+    fogData->intendedFog.g = green;
+    fogData->intendedFog.near = near;
+    fogData->intendedFog.far = far;
+    fogData->switchTimer = 0;
+    fogData->fogChanger = NULL;
+    fogData->intendedFog.b = blue;
+}
 /*
  * PROVENANCE: adapted from the direct fog-data path in Jet Force Gemini's
  * public `src/track.c`, function `trackGetFog`. Mickey omits JFG's overlay
