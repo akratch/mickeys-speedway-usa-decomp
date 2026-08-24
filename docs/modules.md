@@ -383,6 +383,7 @@ Matched C bodies in these new TUs:
 | `amTuneResetFade` | `0x1330` / `0xC` | **tier B**: exact JFG routine order and the adjacent tune-fade controller role | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
 | `amAmbientResetFade` | `0x142C` / `0xC` | **tier B**: exact JFG routine order and the adjacent ambient-fade controller role | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
 | `amTuneMuteChl` | `0x17E8` / `0x8` | **tier B**: exact JFG routine order between the channel-mask setter and its paired unmute leaf | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
+| `amSndSetPan` | `0x1E04` / `0x28` | existing **tier A** JFG byte identity | IDO 5.3, `-O2 -mips2 -32`; exact object words and relocation identity |
 | `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |
 
 PROVENANCE: the TU labels, function-order comparison, and candidate semantic

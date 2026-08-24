@@ -18,6 +18,7 @@
 
 extern s32 D_80078D7C;
 extern s32 D_80078D80;
+extern void gsSndpSetParam(void *sound, s16 type, u32 value);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000450.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
@@ -58,7 +59,12 @@ void amTuneMuteChl(s32 channel) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000F94.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001098.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001144.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/amSndSetPan.s")
+/* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
+void amSndSetPan(void *sound, u32 pan) {
+    if (sound != NULL) {
+        gsSndpSetParam(sound, 4, pan);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000122C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001258.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001270.s")
