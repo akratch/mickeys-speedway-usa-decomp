@@ -427,7 +427,7 @@ weather_clip_planes = 0x8003A97C; // type:func size:0x54   ROM 0x3b57c  weather.
 reset_particles = 0x8003C9F0; // type:func size:0x30 ROM 0x3d5f0 evidence=A IDO C exact, dkr/reset_particles
 func_8003CA20 = 0x8003CA20; // type:func size:0x11C ROM 0x3d620 evidence=B TU, donor placeholder jfg/func_8005D930
 func_8003CB3C = 0x8003CB3C; // type:func size:0x1A8 ROM 0x3d73c evidence=B TU, donor placeholder jfg/func_8005DA70
-func_8003CCE4 = 0x8003CCE4; // type:func size:0x44 ROM 0x3d8e4 evidence=B TU, donor placeholder jfg/func_8005DC3C
+func_8003CCE4 = 0x8003CCE4; // type:func size:0x44 ROM 0x3d8e4 evidence=A IDO C exact, Mickey-only reconstruction
 func_8003CD28 = 0x8003CD28; // type:func size:0xE8 ROM 0x3d928 evidence=B TU, donor placeholder jfg/func_8005DC7C
 func_8003CE10 = 0x8003CE10; // type:func size:0x44C ROM 0x3da10 evidence=B TU, donor placeholder jfg/func_8005DD88
 func_8003D25C = 0x8003D25C; // type:func size:0x2A0 ROM 0x3de5c evidence=B TU, donor placeholder jfg/func_8005E100

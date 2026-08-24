@@ -14,7 +14,9 @@
 extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
+extern void *D_8007C89C[2];
 
+void mmFree(void *ptr);
 void func_8003CA20(void);
 void func_8003CB3C(void);
 void func_8003CCE4(void);
@@ -27,7 +29,13 @@ void reset_particles(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CA20.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CB3C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CCE4.s")
+void func_8003CCE4(void) {
+    if (D_8007C89C[0] != NULL) {
+        mmFree(D_8007C89C[0]);
+        D_8007C89C[0] = NULL;
+        D_8007C89C[1] = NULL;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CD28.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CE10.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D25C.s")

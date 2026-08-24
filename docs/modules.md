@@ -404,7 +404,8 @@ JFG body donor); `diPrintfSetBG` (ROM `0x44CAC`, `0x9C` bytes, default resident
 flags, JFG body donor); `diPrintf` (ROM `0x44934`, `0x9C` bytes, default
 resident flags, JFG body donor with its stubbed diagnostic call omitted);
 `_itoa` (ROM `0x434D8`, `0xC0` bytes, default resident flags, identical JFG and
-DKR glibc-derived body donor).
+DKR glibc-derived body donor); `func_8003CCE4` (ROM `0x3D8E4`, `0x44` bytes,
+default resident flags, Mickey-only reconstruction).
 
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's
