@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 253556,
-  "nonmatching_overlay_c_bytes": 23044,
+  "matched_overlay_c_bytes": 253272,
+  "nonmatching_overlay_c_bytes": 23328,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -11573,7 +11573,7 @@
      "type": "c",
      "source": "overlays/o053/overlay53Initialize",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x11C",

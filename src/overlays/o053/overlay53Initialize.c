@@ -26,6 +26,7 @@ extern void overlay53InitializeConfig(void *table, Overlay53Config *config,
                                      s32 index, s32 mode);
 
 /* Pinned DKR v77/v80 and JFG scans classify Overlay 53 as no donor. */
+#ifdef NON_MATCHING
 void overlay53Initialize(void) {
     Overlay53Config *configA;
     Overlay53Config *configB;
@@ -56,3 +57,6 @@ void overlay53Initialize(void) {
     gOverlay53Handles288[1] = -1;
     gOverlay53GlobalHandleReloc = overlay53AcquireHandleReloc();
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o053/overlay53Initialize/func_overlay_053_F0000000_189D9A8.s")
+#endif

@@ -1,5 +1,0 @@
-# Select the shipped order of two independent address finalizers, then restore
-# the complete local-data addends carried by the existing LO16 relocations.
-reorder:0x7c=0x80,0x80=0x7c
-fields:0x48:imm=0@640
-fields:0xd4:imm=0@656

@@ -5851,17 +5851,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o052/overlay52Cleanup.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x90
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o053/overlay53PatchIndices.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
-# Typed source supplies the exact frame, ten calls, fixed two-entry loop, and
-# complete runtime relocation surface. The guarded ledger selects one ordering
-# of independent address finalizers and restores two complete local addends.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o053/overlay53Initialize.c.o: \
-	config/normalizations/overlay53Initialize.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+# NON_MATCHING/GLOBAL_ASM: restore the friendly symbol and retain the
+# trailing-section trim for the extracted function.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o053/overlay53Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x11C cd11ededd4cde879a67cd92b8e409fa7e49eb78bb6df7a149d7c8797ef60feec \
-		@config/normalizations/overlay53Initialize.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_053_F0000000_189D9A8=overlay53Initialize $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o053/overlay53CopyOffsetEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD4
