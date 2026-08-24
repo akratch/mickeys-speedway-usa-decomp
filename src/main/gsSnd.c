@@ -58,7 +58,10 @@ u8 gsSndpGetState(GsSndPriorityState *state) {
 void gsSndpStopAll(void) {
     sndp_stop_with_flags(1);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStopAllRetrigger.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpStopAllRetrigger). */
+void gsSndpStopAllRetrigger(void) {
+    sndp_stop_with_flags(0x11);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStopAllLooped.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetParam.s")
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpGetMasterVolume). */
