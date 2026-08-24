@@ -31,7 +31,8 @@ extern f32 D_80081894;
 extern f32 D_80081898;
 extern s32 D_80079BCC;
 extern f32 D_80079BD4[];
-extern s32 D_800CB308[];
+extern CameraTrackedObject *D_800CB308[];
+extern CameraOverrideSlot D_800CB368[];
 extern CameraOverride D_800CB380[];
 extern s16 D_800CB470;
 extern s16 D_800CB472;
@@ -65,13 +66,13 @@ f32 func_8001BB90(s32 cameraIndex) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BE0C.s")
-void func_8001C054(s32 value) {
+void func_8001C054(CameraTrackedObject *value) {
     if (D_80079BCC < 24) {
         D_800CB308[D_80079BCC] = value;
         D_80079BCC++;
     }
 }
-void func_8001C088(s32 value) {
+void func_8001C088(CameraTrackedObject *value) {
     s32 index;
     s32 foundIndex;
 
@@ -92,7 +93,65 @@ void func_8001C088(s32 value) {
         D_80079BCC--;
     }
 }
+#ifdef NON_MATCHING
+void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
+    CameraOverrideSlot *slot;
+    CameraTrackedObject *object;
+    CameraTrackedObject **current;
+    CameraBounds *bounds;
+    f32 deltaX;
+    f32 deltaZ;
+    s32 index;
+
+    if (slotIndex >= 0 && slotIndex < 4) {
+        slot = &D_800CB368[slotIndex];
+        object = slot->object;
+        if (object != 0) {
+            bounds = slot->bounds;
+            if (bounds != 0) {
+                deltaX = object->x - x;
+                deltaZ = object->z - z;
+                if ((bounds->trackedRadius * bounds->trackedRadius) <
+                    ((deltaX * deltaX) + (deltaZ * deltaZ))) {
+                    slot->object = 0;
+                    goto clearExisting;
+                }
+                if ((bounds->flags & 0x8000) &&
+                    ((y < bounds->trackedUpper) || (bounds->trackedLower < y))) {
+                    slot->object = 0;
+clearExisting:
+                    object = 0;
+                }
+            }
+        }
+        if (object == 0) {
+            current = D_800CB308;
+            index = 0;
+            if (D_80079BCC > 0) {
+                do {
+                    object = *current;
+                    bounds = object->bounds;
+                    deltaX = object->x - x;
+                    deltaZ = object->z - z;
+                    if (((deltaX * deltaX) + (deltaZ * deltaZ)) <
+                        (bounds->radius * bounds->radius)) {
+                        slot->object = object;
+                        slot->bounds = bounds;
+                        if ((bounds->flags & 0x4000) &&
+                            ((y < bounds->upper) || (bounds->lower < y))) {
+                            slot->object = 0;
+                        }
+                    }
+                    index++;
+                    current++;
+                } while (index < D_80079BCC);
+            }
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C114.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C2C4.s")
 void func_8001C2D4(u8 *start, u8 *end) {
     u8 *current = start;

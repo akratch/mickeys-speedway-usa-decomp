@@ -9,6 +9,31 @@ typedef struct CameraOverride {
     /* 0x04 */ u8 pad04[0x2C - 0x4];
 } CameraOverride;
 
+typedef struct CameraBounds {
+    /* 0x00 */ f32 radius;
+    /* 0x04 */ f32 lower;
+    /* 0x08 */ f32 upper;
+    /* 0x0C */ f32 trackedRadius;
+    /* 0x10 */ f32 trackedLower;
+    /* 0x14 */ f32 trackedUpper;
+    /* 0x18 */ u32 flags;
+} CameraBounds;
+
+typedef struct CameraTrackedObject {
+    /* 0x00 */ u8 pad00[0x0C];
+    /* 0x0C */ f32 x;
+    /* 0x10 */ u8 pad10[0x14 - 0x10];
+    /* 0x14 */ f32 z;
+    /* 0x18 */ u8 pad18[0x64 - 0x18];
+    /* 0x64 */ CameraBounds *bounds;
+} CameraTrackedObject;
+
+typedef struct CameraOverrideSlot {
+    /* 0x00 */ CameraTrackedObject *object;
+    /* 0x04 */ CameraBounds *bounds;
+    /* 0x08 */ u8 pad08[0x2C - 0x08];
+} CameraOverrideSlot;
+
 /* Partial transform input; Mickey proves the translation vector at 0x0C. */
 typedef struct ControlTransform {
     /* 0x00 */ u8 pad00[0x0C];
