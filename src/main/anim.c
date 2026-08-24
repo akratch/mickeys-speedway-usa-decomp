@@ -147,7 +147,24 @@ u32 func_8005077C(u8 pathIndex) {
     return result;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800507BC.s")
+void animseqHoldPath(u8 pathIndex) {
+    AnimPath *path;
+
+    path = D_800D6B00[pathIndex];
+    if (path != NULL) {
+        if (!(path->flags & 8)) {
+            if (path->flags & 1) {
+                path->flags &= ~1;
+            } else if (path->unk8 != NULL) {
+                path->unk8->unk6 &= ~0x400;
+                if (path->unk8->unk58 != NULL) {
+                    path->unk8->unk58->unk132 = 1;
+                }
+            }
+            path->flags |= 4;
+        }
+    }
+}
 void animseqLockPath(u8 pathIndex) {
     AnimPath *path;
 
