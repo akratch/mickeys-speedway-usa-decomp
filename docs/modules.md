@@ -387,6 +387,12 @@ Matched C bodies in these new TUs:
 | `forcelink` | `0x2298` / `0x30` | existing **tier A** JFG byte identity | IDO 5.3, `-O2 -mips2 -32`; exact object words and both call relocations |
 | `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |
 
+Measured plateau:
+
+| Mickey routine | Best result | First mismatch | Remaining hypothesis |
+|---|---|---:|---|
+| `amTuneSetFadeScaled` | Exact 29-word instruction/opcode schedule, frame, and relocation surface; 7 register-only differences after the flag lattice and 10 source-shape attempts | function `+0x1C` | IDO 5.3 temporary-FIFO phase: the target and candidate assign the three initial address/index temporaries from different positions in the same ring. The candidate remains under `NON_MATCHING`; canonical output is still assembly-backed |
+
 PROVENANCE: the TU labels, function-order comparison, and candidate semantic
 roles in this census come from Jet Force Gemini's public decomp and built
 objects, permitted under `docs/CLEANROOM.md`. The C files currently contain
