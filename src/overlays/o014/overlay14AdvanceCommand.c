@@ -15,6 +15,7 @@ extern s32 overlay14InitializeMode(s32 mode);
 extern void overlay14ResetMode(void);
 extern void overlay14ApplyValues(s32 value, s32 extra);
 
+#ifdef NON_MATCHING
 void overlay14AdvanceCommand(s32 context) {
     s32 divisor;
     s32 limit;
@@ -57,3 +58,6 @@ void overlay14AdvanceCommand(s32 context) {
         overlay14ResetMode();
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14AdvanceCommand/func_overlay_014_F0000D68_1870640.s")
+#endif

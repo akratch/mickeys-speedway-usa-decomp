@@ -12,6 +12,7 @@ extern s32 gOverlay14Timer20;
 
 extern s32 overlay14ReadInput(s32 channel);
 
+#ifdef NON_MATCHING
 void overlay14PrepareInputState(s32 step) {
     s32 first;
     s32 second;
@@ -88,3 +89,6 @@ void overlay14PrepareInputState(s32 step) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14PrepareInputState/func_overlay_014_F0000B5C_1870434.s")
+#endif

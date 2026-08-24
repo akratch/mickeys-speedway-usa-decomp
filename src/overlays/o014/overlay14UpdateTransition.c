@@ -16,6 +16,7 @@ extern void overlay14DrawPrimaryReloc(s32 context);
 extern void overlay14DrawAlternateReloc(s32 context);
 
 /* Pinned DKR v77/v80 and JFG scans found no exact donor for this body. */
+#ifdef NON_MATCHING
 void overlay14UpdateTransition(s32 context, s32 step) {
     s32 raised;
     s32 lowered;
@@ -53,3 +54,6 @@ void overlay14UpdateTransition(s32 context, s32 step) {
     }
     overlay14SetActiveReloc(0);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14UpdateTransition/func_overlay_014_F0001184_1870A5C.s")
+#endif

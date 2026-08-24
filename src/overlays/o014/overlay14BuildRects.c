@@ -24,6 +24,7 @@ extern void overlay14SubmitRectsReloc(void *context, s32 count,
                                       Overlay14RenderRect *rects, s32 flags);
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+#ifdef NON_MATCHING
 void overlay14BuildRects(void *context, const Overlay14PackedRect *packed,
                          s32 baseX, s32 baseY, s32 alternateX,
                          s32 alternateY, s32 intensityScale) {
@@ -62,3 +63,6 @@ void overlay14BuildRects(void *context, const Overlay14PackedRect *packed,
 
     overlay14SubmitRectsReloc(context, count, rects, 0);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14BuildRects/func_overlay_014_F00012D8_1870BB0.s")
+#endif

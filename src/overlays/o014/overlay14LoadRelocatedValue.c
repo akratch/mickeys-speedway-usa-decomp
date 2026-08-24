@@ -4,6 +4,7 @@ extern u32 *gOverlay14OffsetsF4;
 extern void *overlay14AllocateReloc(s32 size, s32 tag);
 extern void overlay14LoadReloc(s32 source, void *destination, s32 start, s32 size);
 
+#ifdef NON_MATCHING
 void *overlay14LoadRelocatedValue(s32 index, s32 source) {
     u8 *buffer;
     u8 *cursor;
@@ -65,3 +66,6 @@ void *overlay14LoadRelocatedValue(s32 index, s32 source) {
     }
     return buffer;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14LoadRelocatedValue/func_overlay_014_F000087C_1870154.s")
+#endif

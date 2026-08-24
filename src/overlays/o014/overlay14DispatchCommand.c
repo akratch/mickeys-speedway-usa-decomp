@@ -24,6 +24,7 @@ extern void overlay14CallUpdate(s32 value);
 extern void overlay14ApplyActionReloc(s32 value, s32 mode);
 extern void overlay14UpdateReloc(void);
 
+#ifdef NON_MATCHING
 void overlay14DispatchCommand(void) {
     Overlay14CommandHeader *header;
     Overlay14Command *command;
@@ -72,3 +73,6 @@ void overlay14DispatchCommand(void) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14DispatchCommand/func_overlay_014_F0001040_1870918.s")
+#endif

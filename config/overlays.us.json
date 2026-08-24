@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 272720,
-  "nonmatching_overlay_c_bytes": 3880,
+  "matched_overlay_c_bytes": 265936,
+  "nonmatching_overlay_c_bytes": 10664,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -4317,7 +4317,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F0000000_186F8D8",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x13C",
@@ -4326,7 +4326,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F000013C_186FA14",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x31C",
@@ -4344,7 +4344,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14ApplyValues",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x498",
@@ -4353,7 +4353,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14ResetMode",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x578",
@@ -4362,7 +4362,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14MoveCommandCursor",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x6FC",
@@ -4371,7 +4371,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14CreateValue",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x87C",
@@ -4380,7 +4380,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14LoadRelocatedValue",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x9F4",
@@ -4389,7 +4389,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F00009F4_18702CC",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xACC",
@@ -4452,7 +4452,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14PrepareInputState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xD68",
@@ -4461,7 +4461,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14AdvanceCommand",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF64",
@@ -4470,7 +4470,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14StepCommand",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1028",
@@ -4488,7 +4488,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14DispatchCommand",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1164",
@@ -4506,7 +4506,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14UpdateTransition",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x12D8",
@@ -4515,7 +4515,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14BuildRects",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x13F4",
@@ -4524,7 +4524,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F00013F4_1870CCC",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1540",
@@ -4533,7 +4533,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F0001540_1870E18",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1830",
@@ -4542,7 +4542,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F0001830_1871108",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1B54",

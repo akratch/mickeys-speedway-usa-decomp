@@ -13,6 +13,7 @@ extern Overlay14Command gOverlay14Commands128[];
 extern void overlay14Dispatch(void);
 extern s32 overlay14Advance(s32);
 
+#ifdef NON_MATCHING
 void overlay14ResetMode(void) {
     Overlay14Command *command;
     do {
@@ -32,3 +33,6 @@ void overlay14ResetMode(void) {
         gOverlay14CurrentValueFC = command->value;
     } while (overlay14Advance(0) == 0);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14ResetMode/func_overlay_014_F0000498_186FD70.s")
+#endif

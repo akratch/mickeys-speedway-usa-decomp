@@ -14,6 +14,7 @@ extern s32 gOverlay14Current104, gOverlay14Next108, gOverlay14Context10C, gOverl
 extern void overlay14InitializeReloc(void);
 extern void overlay14FreeReloc(void *ptr);
 
+#ifdef NON_MATCHING
 void func_overlay_014_F0000000_186F8D8(void) {
     Slot *slot;
     Slot *end;
@@ -51,3 +52,6 @@ void func_overlay_014_F0000000_186F8D8(void) {
     gOverlay14AssetF0 = 0; gOverlay14OffsetsF4 = 0;
     gOverlay14ResultF8 = 0; gOverlay14ResultFC = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/func_overlay_014_F0000000_186F8D8/func_overlay_014_F0000000_186F8D8.s")
+#endif

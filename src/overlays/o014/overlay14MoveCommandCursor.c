@@ -22,6 +22,7 @@ typedef struct Overlay14SelectionList {
 extern Overlay14SelectionList *gOverlay14SelectionList;
 extern s32 overlay14IsSelectable(s16 value);
 
+#ifdef NON_MATCHING
 s32 overlay14MoveCommandCursor(s32 direction) {
     Overlay14SelectionList *list;
     Overlay14SelectionEntry *entry;
@@ -97,3 +98,6 @@ selection_done:
     }
     return eligible;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14MoveCommandCursor/func_overlay_014_F0000578_186FE50.s")
+#endif

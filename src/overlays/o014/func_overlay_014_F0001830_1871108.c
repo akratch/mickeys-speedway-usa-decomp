@@ -5,6 +5,7 @@ extern s32 overlay14Dispatch();
 
 #define CASE_PREINC 1
 
+#ifdef NON_MATCHING
 s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
     s32 result = 0;
     s32 done = 0;
@@ -95,3 +96,6 @@ s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
     } while (done == 0);
     return result;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/func_overlay_014_F0001830_1871108/func_overlay_014_F0001830_1871108.s")
+#endif
