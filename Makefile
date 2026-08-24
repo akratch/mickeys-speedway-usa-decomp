@@ -1306,28 +1306,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateMotion.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
 		@config/normalizations/overlay9UpdateMotion.calls.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x46C
-# Mickey extends the DKR particle-asset initializer with state resets and
-# palette construction. A hash-guarded equivalent index carrier consumes only
-# natural alignment words; the complete private allocation web then selects
-# retail. Runtime HILO roles stay in the loader and six raw call carriers stay
-# in the split object.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31InitializeParticleAssets.c.o: \
-	config/normalizations/overlay31InitializeParticleAssets.prepare.py \
-	config/normalizations/overlay31InitializeParticleAssets.ops \
-	config/normalizations/overlay31InitializeParticleAssets.filter.spec \
-	config/normalizations/overlay31InitializeParticleAssets.calls.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31InitializeParticleAssets.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay31InitializeParticleAssets.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x210 9d5a474fa6a92f962fcefbb4e932349b08e08b90e43988537c0ede59ef490539 \
-		@config/normalizations/overlay31InitializeParticleAssets.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay31InitializeParticleAssets.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay31InitializeParticleAssets.calls.spec && \
+	$(OBJCOPY) --redefine-sym func_overlay_031_F00002E8_187F808=func_overlay_031_F00002E8_187F808 $@ && \
 	$(OBJCOPY) --remove-section=.data --remove-section=.rel.data \
 		--remove-section=.gptab.data $@
 # IDO naturally reproduces the complete 688-byte schedule, all calls, and all
@@ -4392,90 +4374,22 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateGrid.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x35C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31CreateRecords.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB8
-# The typed initializer naturally owns the exact frame, semantic CFG, calls,
-# FP behavior, and all table writes. A whole-owner guard expands two complete
-# equivalent induction/sign-extension webs; after trimming the asserted growth
-# pad, a bijective schedule/register ledger selects retail's private codegen.
-# The remaining steps preserve the exact split-object relocation surface while
-# the original loader table remains authoritative for its ten runtime roles.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31BuildLookupTables.c.o: \
-	config/normalizations/overlay31BuildLookupTables.prepare.py \
-	config/normalizations/overlay31BuildLookupTables.ops \
-	config/normalizations/overlay31BuildLookupTables.filter.spec \
-	config/normalizations/overlay31BuildLookupTables.calls.spec \
-	$(TOOLS_DIR)/trim_elf_section.py \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31BuildLookupTables.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay31BuildLookupTables.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2E8 \
-		0000000000000000 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2E8 d88c1a31ad4fba9e9467ccb8a25ca3e0c5d81cdf8d218afabf3899bccee70b36 \
-		@config/normalizations/overlay31BuildLookupTables.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay31BuildLookupTables.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay31BuildLookupTables.calls.spec && \
-	$(OBJCOPY) \
-		--redefine-sym overlay31AllocateReloc=func_overlay_031_F0000000_187F520 \
-		--redefine-sym gOverlay31IndexRows=D_10 \
-		--redefine-sym gOverlay31FloatRows=D_8 $@
-# The clean-room analogue naturally owns all 245 semantic words, branches,
-# calls, delay slots, FP behavior, and runtime state effects. A guarded
-# frame/home-offset ledger selects retail's equivalent stack representation;
-# loader-local HILO carriers are then removed and the 16 runtime call roles
-# rebound to their exact raw overlay identities.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31InitializeBuffers.c.o: \
-	config/normalizations/overlay31InitializeBuffers.ops \
-	config/normalizations/overlay31InitializeBuffers.calls.spec \
-	config/normalizations/overlay31InitializeBuffers.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
+	$(OBJCOPY) --redefine-sym func_overlay_031_F0000000_187F520=func_overlay_031_F0000000_187F520 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2E8
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31InitializeBuffers.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3E0 cb378b217ed41fd48c13e895e82c7403a5f1e0902eac0ea32ea942e8525b60eb \
-		@config/normalizations/overlay31InitializeBuffers.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3D4 \
-		000000000000000000000000 && \
-	$(OBJCOPY) \
-		--redefine-sym overlay31ResetReloc=func_overlay_031_F0000000_187F520 \
-		--redefine-sym overlay31CreateConfig=func_overlay_031_F0000A84_187FFA4 \
-		--redefine-sym overlay31CreateRecords=func_overlay_031_F0000DC4_18802E4 \
-		--redefine-sym overlay31CreatePool=func_overlay_031_F0000E7C_188039C $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay31InitializeBuffers.calls.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay31InitializeBuffers.filter.spec
-# Natural output is opcode/CFG/frame/relocation exact. The guarded ledger
-# selects four complete private compiler-representation webs only.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31CreateConfig.c.o: \
-	config/normalizations/overlay31CreateConfig.ops
+	$(OBJCOPY) --redefine-sym func_overlay_031_F00006B0_187FBD0=overlay31InitializeBuffers $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3D4
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31CreateConfig.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x340 43fe93dec2619d929e2a047471d108014dc9916045bcbbcfab2ea9a323779782 \
-		@config/normalizations/overlay31CreateConfig.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x340
+	$(OBJCOPY) --redefine-sym func_overlay_031_F0000A84_187FFA4=overlay31CreateConfig $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31CreatePool.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xc8 65bb467311dab6250086aced8802fe747e840ccd33b24cbb9cbaed2947e4f79d \
-		fields:0x0:imm=65488@65480 \
-		fields:0x28:rd=a0@a1 \
-		fields:0x30:rd=a1@a2 \
-		fields:0x38:rs=a0@a1 \
-		fields:0x3c:rs=a0@a1 \
-		fields:0x40:rs=a0@a1 \
-		fields:0x44:rs=a0@a1 \
-		fields:0x48:rs=a0@a1 \
-		fields:0x4c:rs=a0@zero,rt=v0@v1,imm=12@3 \
-		fields:0x50:rs=zero@a1,rt=v1@v0,imm=3@12 \
-		fields:0x70:rs=a1@a2,rt=a1@a2 \
-		fields:0x74:rs=a1@a2 \
-		fields:0x78:rs=a0@a1,rt=a0@a1 \
-		fields:0xbc:imm=48@56 && \
+	$(OBJCOPY) --redefine-sym func_overlay_031_F0000E7C_188039C=overlay31CreatePool $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31BuildPalettes.c.o: \
 	config/normalizations/overlay31BuildPalettes.filter.spec \

@@ -18,6 +18,7 @@
     (record)->d1C = 0;        \
     (record)->d1E = 0x200
 
+#ifdef NON_MATCHING
 void func_overlay_031_F0000000_187F520(void) {
     Overlay31IndexRecord *first;
     Overlay31IndexRecord *second;
@@ -135,3 +136,6 @@ void func_overlay_031_F0000000_187F520(void) {
         } while (level2 != OVERLAY31_MAX_LEVEL);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o031/overlay31BuildLookupTables/func_overlay_031_F0000000_187F520.s")
+#endif

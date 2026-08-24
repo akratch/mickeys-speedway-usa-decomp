@@ -27,6 +27,7 @@ typedef struct Overlay31Config {
 
 extern void *func_overlay_031_F0000000_187F520(s32 size, s32 tag, s32 recordBytes);
 
+#ifdef NON_MATCHING
 Overlay31Config *overlay31CreateConfig(s32 arg0, void *source,
                                                    s32 arg2, s32 arg3,
                                                    s32 count) {
@@ -91,3 +92,6 @@ Overlay31Config *overlay31CreateConfig(s32 arg0, void *source,
     }
     return config;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o031/overlay31CreateConfig/func_overlay_031_F0000A84_187FFA4.s")
+#endif
