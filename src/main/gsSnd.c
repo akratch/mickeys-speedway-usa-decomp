@@ -28,18 +28,33 @@ typedef struct GsSndPriorityState {
     u8 state;
 } GsSndPriorityState;
 
+struct GsSoundStateLink;
+
 typedef struct GsSndPlayer {
-    u8 pad0[0x14];
+    void *next;
+    void *self;
+    s32 (*handler)(struct GsSndPlayer *player);
+    u8 padC[8];
     u8 eventQueue[0x18];
     s16 eventType;
     u8 eventPad2[0xE];
-    u8 pad3C[0xC];
+    void *driver;
+    s32 unk40;
+    struct GsSoundStateLink *statePool;
     s32 maxSystemSoundChannels;
     s32 eventDelta;
     s32 nextDelta;
     s32 currentTime;
     s32 voiceLimit;
 } GsSndPlayer;
+
+typedef struct GsSndConfig {
+    u32 maxSounds;
+    s32 eventCount;
+    s32 maxSystemSoundChannels;
+    void *heap;
+    u16 groupCount;
+} GsSndConfig;
 
 typedef struct GsSndKeyMap {
     u8 velocityMin;
@@ -123,8 +138,12 @@ u32 osSetIntMask(u32 mask);
 f32 alCents2Ratio(s32 cents);
 void alLink(void *element, void *after);
 void alUnlink(void *element);
+void *alHeapDBAlloc(u8 *file, s32 line, void *heap, s32 count, s32 size);
+s32 func_8005B978(GsSndPlayer *player);
 void func_8005BA40(void *event);
+void n_alEvtqNew(void *eventQueue, void *items, s32 itemCount);
 s32 n_alEvtqNextEvent(void *eventQueue, void *event);
+void n_alSynAddSndPlayer(void *player);
 void n_alEvtqPostEvent(void *eventQueue, void *event, s32 delta);
 void n_alSynFreeVoice(void *voice);
 void n_alSynStopVoice(void *voice);
@@ -132,7 +151,40 @@ void rmonPrintf(const char *format, ...);
 void func_8005CE28(GsSndEventQueue *queue, GsSoundStateLink *state, u16 flags);
 void func_8005D260(GsSoundStateLink *state);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
+void gsSndpNew(GsSndConfig *config) {
+    u32 i;
+    void *allocation;
+    GsSndEvent event;
+    GsSoundStateLink *statePool;
+
+    D_8007FF4C->maxSystemSoundChannels = config->maxSystemSoundChannels;
+    D_8007FF4C->voiceLimit = config->maxSystemSoundChannels;
+    D_8007FF4C->unk40 = 0;
+    D_8007FF4C->eventDelta = 0x3E80;
+    allocation = alHeapDBAlloc(NULL, 0, config->heap, 1,
+                               config->maxSounds * sizeof(GsSoundStateLink));
+    D_8007FF4C->statePool = allocation;
+    allocation = alHeapDBAlloc(NULL, 0, config->heap, 1,
+                               config->eventCount * sizeof(GsSndEventItem));
+    n_alEvtqNew(D_8007FF4C->eventQueue, allocation, config->eventCount);
+    D_8007FF48 = D_8007FF4C->statePool;
+    for (i = 1; i < config->maxSounds; i++) {
+        statePool = D_8007FF4C->statePool;
+        alLink(&statePool[i], &statePool[i - 1]);
+    }
+    D_800D7D78 = alHeapDBAlloc(NULL, 0, config->heap, 2, config->groupCount);
+    for (i = 0; i < config->groupCount; i++) {
+        D_800D7D78[i] = 0x7FFF;
+    }
+    D_8007FF4C->next = NULL;
+    D_8007FF4C->handler = func_8005B978;
+    D_8007FF4C->self = D_8007FF4C;
+    n_alSynAddSndPlayer(D_8007FF4C);
+    event.type = 0x20;
+    n_alEvtqPostEvent(D_8007FF4C->eventQueue, &event, D_8007FF4C->eventDelta);
+    D_8007FF4C->nextDelta =
+        n_alEvtqNextEvent(D_8007FF4C->eventQueue, &D_8007FF4C->eventType);
+}
 s32 func_8005B978(GsSndPlayer *playerArg) {
     GsSndPlayer *player;
     GsSndEvent event;
