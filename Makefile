@@ -3394,18 +3394,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateCoordinates.c.o: POSTPROCES
 		--redefine-sym gOverlay27YCoordinates=D_100 \
 		--redefine-sym gOverlay27XCoordinates=D_F0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x104
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56SplitTime.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x54
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56UnpackColor.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x40
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56AdjustCoordinates.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56SetMode.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56LoadResource.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56ReleaseResource.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay_056.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xAF4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o039/overlay_039.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x168
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o039/overlay_039.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
@@ -7218,12 +7208,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25SetVectorFlags.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27Init.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateEffectState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56SplitTime.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56UnpackColor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56AdjustCoordinates.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56SetMode.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56LoadResource.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56ReleaseResource.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay_056.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Init.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Update.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Render.c.o \

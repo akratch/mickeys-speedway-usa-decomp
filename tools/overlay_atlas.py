@@ -570,13 +570,7 @@ TEXT_SUBSEGMENTS = {
         (0x374, "asm", "overlay_049_padding"),
     ],
     56: [
-        (0x000, "c", "overlay56AdjustCoordinates"),
-        (0x0B8, "c", "overlay56SplitTime"),
-        (0x10C, "c", "overlay56SetMode"),
-        (0x118, "c", "overlay56LoadResource"),
-        (0x168, "c", "overlay56ReleaseResource"),
-        (0x1A0, "asm", "overlay_056_middle"),
-        (0xAB4, "c", "overlay56UnpackColor"),
+        (0x000, "c", "overlay_056"),
         (0xAF4, "asm", "overlay_056_padding"),
     ],
     63: [

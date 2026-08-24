@@ -22,7 +22,7 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 278480,
+  "matched_overlay_c_bytes": 280804,
   "nonmatching_overlay_c_bytes": 48,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
@@ -12034,64 +12034,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xB8",
-     "size": "0xB8",
-     "type": "c",
-     "source": "overlays/o056/overlay56AdjustCoordinates",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xB8",
-     "end_offset": "0x10C",
-     "size": "0x54",
-     "type": "c",
-     "source": "overlays/o056/overlay56SplitTime",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x10C",
-     "end_offset": "0x118",
-     "size": "0xC",
-     "type": "c",
-     "source": "overlays/o056/overlay56SetMode",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x118",
-     "end_offset": "0x168",
-     "size": "0x50",
-     "type": "c",
-     "source": "overlays/o056/overlay56LoadResource",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x168",
-     "end_offset": "0x1A0",
-     "size": "0x38",
-     "type": "c",
-     "source": "overlays/o056/overlay56ReleaseResource",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1A0",
-     "end_offset": "0xAB4",
-     "size": "0x914",
-     "type": "asm",
-     "source": "overlays/o056/overlay_056_middle",
-     "matched": false,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xAB4",
      "end_offset": "0xAF4",
-     "size": "0x40",
+     "size": "0xAF4",
      "type": "c",
-     "source": "overlays/o056/overlay56UnpackColor",
+     "source": "overlays/o056/overlay_056",
      "matched": true,
      "nonmatching": false
     },

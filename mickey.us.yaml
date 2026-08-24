@@ -1923,13 +1923,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x18A2D78, c, overlay56AdjustCoordinates]
-      - [0x18A2E30, c, overlay56SplitTime]
-      - [0x18A2E84, c, overlay56SetMode]
-      - [0x18A2E90, c, overlay56LoadResource]
-      - [0x18A2EE0, c, overlay56ReleaseResource]
-      - [0x18A2F18, asm, overlay_056_middle]
-      - [0x18A382C, c, overlay56UnpackColor]
+      - [0x18A2D78, c, overlay_056]
       - [0x18A386C, asm, overlay_056_padding]
       - [0x18A3878, bin, overlay_056_data_rodata]
       - [0x18A3908, bin, overlay_056_reloc1]
