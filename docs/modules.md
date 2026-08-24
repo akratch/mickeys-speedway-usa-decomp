@@ -404,6 +404,7 @@ functions is classified as handwritten assembly under §6.2.
 | `camGetMode` | `0x22518` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camSetMode` | `0x22524` | 64 | Configured object, two relocation pairs, linked range and full ROM exact. |
 | `camGetNo` | `0x22564` | 12 | Configured object, relocation pair, linked range and full ROM exact. |
+| `camSetNo` | `0x22594` | 12 | Configured object, relocation pair, linked range and full ROM exact; Mickey omits JFG's bounds guard. |
 
 ---
 

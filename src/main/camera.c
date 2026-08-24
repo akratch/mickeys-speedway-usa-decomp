@@ -110,7 +110,13 @@ s32 camGetNo(void) {
     return D_800CEC64;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021970.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021994.s")
+/*
+ * PROVENANCE: name and role from JFG's public decomp,
+ * src/camera.c:camSetNo; body reconstructed from Mickey-only evidence.
+ */
+void camSetNo(s32 camNo) {
+    D_800CEC64 = camNo;
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetWaterLine. */
 u8 camGetWaterLine(s32 camNo) {
     return D_80079FA8[camNo];

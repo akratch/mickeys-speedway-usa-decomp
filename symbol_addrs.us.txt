@@ -1532,6 +1532,7 @@ camOverrideProjScales = 0x800214E4; // type:func size:0x20 ROM 0x220e4 tier-B ma
 camGetMode = 0x80021918; // type:func size:0x0C ROM 0x22518 tier-B matched-C JFG role/order and mode-state read
 camSetMode = 0x80021924; // type:func size:0x40 ROM 0x22524 tier-B matched-C JFG role/order and mode-state update
 camGetNo = 0x80021964; // type:func size:0x0C ROM 0x22564 tier-B matched-C JFG role/order and active-camera read
+camSetNo = 0x80021994; // type:func size:0x0C ROM 0x22594 tier-B matched-C JFG role/order and Mickey raw active-camera update
 camGetWaterLine = 0x800219A0; // type:func size:0x10 ROM 0x225a0 tier-B matched-C JFG role/order and water-line state read
 camGetProjOrgMtx = 0x80024670; // type:func size:0x1C ROM 0x25270 tier-B matched-C, donor comparison has only 3 unmasked words
 camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B matched-C similar-jfg-camStopShakes=1.000
