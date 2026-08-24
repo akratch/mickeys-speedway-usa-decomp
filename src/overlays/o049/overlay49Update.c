@@ -23,6 +23,7 @@ extern void func_80028374(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
 extern void overlay65UpdateReloc(void *arg0, void *arg1, s32 updateRate);
 
 /* No exact updater donor exists in DKR v77/v80 or JFG. */
+#ifdef NON_MATCHING
 void overlay49Update(s32 updateRate) {
     s32 index;
     u32 inputA;
@@ -63,3 +64,6 @@ void overlay49Update(s32 updateRate) {
     }
     overlay65UpdateReloc(D_800D0000, D_800D0004, updateRate);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o049/overlay49Update/func_overlay_049_F00001F4_1896604.s")
+#endif

@@ -1,5 +1,0 @@
-# Complete post-decrement loop schedule. Local data/BSS addends are expressed
-# once through link proxy values rather than duplicated in relocation words.
-reorder:0x3c=0x44,0x44=0x3c
-fields:0x38:rs=zero@s0,rt=s0@zero,fn=0x2b@0x25
-fields:0x40:rs=v1@s0

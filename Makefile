@@ -6159,70 +6159,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3ContainsValue.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x60
-# Natural source owns the exact ABI, CFG, memory effects, calls, and relocation
-# topology. Remove one proved nop, then select the complete equivalent schedule,
-# private allocation web, and local addends through a fail-loud decoded ledger.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Initialize.c.o: \
-	config/normalizations/overlay49Initialize.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
+# NON_MATCHING/GLOBAL_ASM: restore friendly symbols and retain only the
+# trailing-section trim metadata for these extracted functions.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1f4 75dbf550918557a9ade8802c46458d379d324e23d1eca9b477ed9c902e564a96 \
-		@config/normalizations/overlay49Initialize.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x008:func_80028F54:overlay49Initialize \
-		0x018:D_8007BF08:gOverlay49Modes \
-		0x01c:D_8007BF08:gOverlay49Modes \
-		0x024:D_8007BF04:gOverlay49Modes \
-		0x03c:D_8007BF04:gOverlay49Modes \
-		0x02c:D_800D3128:gOverlay49Modes \
-		0x060:D_800D3128:gOverlay49Modes \
-		0x040:gOverlay49Masks:gOverlay49Modes \
-		0x054:gOverlay49Masks:gOverlay49Modes \
-		0x044:gOverlay49Shifts:gOverlay49Modes \
-		0x058:gOverlay49Shifts:gOverlay49Modes \
-		0x064:gOverlay49Result:gOverlay49Modes \
-		0x074:gOverlay49Result:gOverlay49Modes \
-		0x09c:func_800508B4:overlay49Initialize \
-		0x0a4:D_800D3128:gOverlay49Modes \
-		0x0a8:D_800D3128:gOverlay49Modes \
-		0x0c4:gOverlay49Result:gOverlay49Modes \
-		0x0c8:gOverlay49Result:gOverlay49Modes \
-		0x19c:func_8002917C:overlay49Initialize \
-		0x1c4:gOverlay49FastFinishEnabled:gOverlay49Modes \
-		0x1cc:gOverlay49FastFinishEnabled:gOverlay49Modes \
-		0x1d0:gOverlay49FastFinishEnabled:gOverlay49Modes \
-		0x1d4:gOverlay49FastFinishEnabled:gOverlay49Modes \
-		0x1dc:gOverlay49Timer:gOverlay49Modes \
-		0x1e0:gOverlay49Timer:gOverlay49Modes \
-		0x1e4:gOverlay49Finished:gOverlay49Modes \
-		0x1e8:gOverlay49Finished:gOverlay49Modes && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_049_F0000000_1896410=overlay49Initialize $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1F4
-# Natural source owns the exact boundary, ABI, CFG, calls, memory effects, and
-# relocation topology. Select the complete equivalent post-decrement loop web,
-# then bind runtime-relocated resident sites to stored-zero overlay proxies.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Update.c.o: \
-	config/normalizations/overlay49Update.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x160 f799a104ca8595ae0afea6ecc8b0c0e20fdd9c22296f3092df022bdbb70610bf \
-		@config/normalizations/overlay49Update.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x024:func_800254FC:overlay65UpdateReloc \
-		0x030:func_8002554C:overlay65UpdateReloc \
-		0x0cc:func_800016EC:overlay65UpdateReloc \
-		0x0d4:D_8007BF08:gOverlay49Timer \
-		0x0d8:D_8007BF08:gOverlay49Timer \
-		0x0e4:func_8003A754:overlay65UpdateReloc \
-		0x0ec:D_8007BF04:gOverlay49Timer \
-		0x0f0:D_8007BF04:gOverlay49Timer \
-		0x104:overlay48InitializeReloc:overlay65UpdateReloc \
-		0x120:func_80028374:overlay65UpdateReloc \
-		0x130:D_800D0000:gOverlay49Timer \
-		0x134:D_800D0004:gOverlay49Timer \
-		0x138:D_800D0004:gOverlay49Timer \
-		0x13c:D_800D0000:gOverlay49Timer && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_049_F00001F4_1896604=overlay49Update $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x160
 # Natural source supplies the exact boundary, frame, stores, and calls. The
 # complete guarded ledger selects retail's equivalent initialization schedule,
