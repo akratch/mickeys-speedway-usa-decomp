@@ -373,7 +373,7 @@ for 74 of them; it does not account for the whole surface.
 | `0x1050`-`0x2340` | 49 | JFG `src/audio_manager_1050.c`; **tier A** at `amTuneSetFadeScaled`, `amSndSetPan`, and `forcelink`, plus **tier B** order/call-shape correspondence across the surrounding audio API. The 16-byte end is the next routine before the allocator/message-queue/thread initializer corresponding to JFG's separate `audiomgr` TU | `src/main/audio_manager_1050.c` |
 | `0x2340`-`0x3100` | 13 | JFG `src/audiomgr.c`; **tier B** from allocator, queue, scheduler-message, DMA, and frame-state call shapes. This is not one of the three assigned TUs | assembly, with both boundaries recorded |
 | `0x3100`-`0x45F0` | 20 | JFG `src/audio_manager_36D0.c`; **tier B** from the audio-map allocator at the start, the twenty-function order, positional-sound field setters, and the terminal volume calculation. The already-adopted `audspat_jingle_off` inside is JFG's `amAmbientPause` counterpart, a cross-title naming divergence rather than a second adopted name | `src/main/audio_manager_36D0.c` |
-| `0x45F0`-`0x4F40` | 5 | JFG `src/audio_manager_4C50.c`; **tier A** identities at the first and last functions (`amVibratoInit`, `_depth2Cents`), JFG's five-function order, and four bytes of terminal alignment padding | `src/main/audio_manager_4C50.c` |
+| `0x45F0`-`0x4F40` | 5 | JFG `src/audio_manager_4C50.c`; **tier A** identities at the first and last functions (`amVibratoInit`, `_depth2Cents`), JFG's five-function order, and `0xC` bytes of terminal alignment after `_depth2Cents` | `src/main/audio_manager_4C50.c` |
 | `0x4F40`-`0xC950` | 65 | JFG `src/objects.c` lineage, not audio-manager code: JFG places `objects` immediately after the oscillator TU and Mickey has the **tier A** `GetRomlistInfo` identity in this run. No whole-object match exists, so no `objects` boundary/name is promoted here | assembly |
 
 Matched C bodies in these new TUs:
@@ -383,6 +383,7 @@ Matched C bodies in these new TUs:
 | `amTuneResetFade` | `0x1330` / `0xC` | **tier B**: exact JFG routine order and the adjacent tune-fade controller role | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
 | `amAmbientResetFade` | `0x142C` / `0xC` | **tier B**: exact JFG routine order and the adjacent ambient-fade controller role | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
 | `amTuneMuteChl` | `0x17E8` / `0x8` | **tier B**: exact JFG routine order between the channel-mask setter and its paired unmute leaf | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
+| `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |
 
 PROVENANCE: the TU labels, function-order comparison, and candidate semantic
 roles in this census come from Jet Force Gemini's public decomp and built
