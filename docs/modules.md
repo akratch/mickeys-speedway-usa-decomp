@@ -390,7 +390,7 @@ placeholders are never imported.
 | `0x800501AC` | `0x1C` | `func_80076948` | D naming; placeholder retained. Matched C: exact 28 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800501C8` | `0xB4` | `func_80076968` | D; 0.653 skeleton similarity, placeholder retained |
 | `0x8005027C` | `0x50` | `func_80076A20` | A; exact 80 B, masked `9/20`, placeholder retained. Matched C: exact 80 B and relocation surface at `-O2 -mips2 -32` |
-| `0x800502CC` | `0x7C` | `func_80076A70` | B; same cleanup callees and position, placeholder retained |
+| `0x800502CC` | `0x7C` | `func_80076A70` | B; same cleanup callees and position, placeholder retained. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050348` | `0x214` | `animseqInitPath` | B; exact `animseqInitGroup` calls this function |
 | `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape |
 | `0x80050688` | `0x7C` | `animseqStartPath` | B; process-command call position |

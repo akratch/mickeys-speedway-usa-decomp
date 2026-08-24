@@ -118,7 +118,19 @@ void func_8005027C(void) {
     D_8007D6A0 = func_800501C8(&D_8007D698);
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800502CC.s")
+void func_800502CC(u8 pathIndex) {
+    AnimPath *path;
+
+    path = D_800D6B00[pathIndex];
+    if (path != NULL) {
+        if (path->unk8 != NULL) {
+            func_80006EA0(path->unk8);
+        }
+        mmFree(path);
+    }
+    D_800D6B00[pathIndex] = NULL;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050348.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005055C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050688.s")
