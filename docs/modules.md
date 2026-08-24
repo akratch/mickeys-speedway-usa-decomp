@@ -393,7 +393,7 @@ call graph isolates one namesake.
 | `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D: nearest JFG charControl skeleton; retain `func_` |
 | `0x8001C114` | `0x1B0` | `func_8002F0E8` | D: nearest JFG charControl skeleton; JFG placeholder, retain `func_` |
 | `0x8001C2C4` | `0x10` | — | Two return stubs under one measured label; retain `func_` |
-| `0x8001C2D4` | `0x4C` | `func_80031F60` | A: 19/19 unmasked words, already recorded; placeholder rule retains Mickey's `func_` |
+| `0x8001C2D4` | `0x4C` | `func_80031F60` | A + matched C: 19/19 unmasked JFG words and independently reconstructed byte-clear C are exact; placeholder rule retains Mickey's `func_` |
 | `0x8001C320` | `0x1A0` | `controlPlayerReInit` | B: clear/init call graph mirrors JFG; retain `func_` until C matches |
 | `0x8001C4C0` | `0x64C` | `controlPlayerInit` | B: initialization calls and caller edge from the preceding routine; retain `func_` |
 | `0x8001CB0C` | `0x78` | — | No unique JFG comparison; retain `func_` |

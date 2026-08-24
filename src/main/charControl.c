@@ -50,7 +50,15 @@ f32 func_8001BB90(s32 cameraIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C088.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C114.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C2C4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C2D4.s")
+void func_8001C2D4(u8 *start, u8 *end) {
+    u8 *current = start;
+
+    if (start < end) {
+        do {
+            *current++ = 0;
+        } while (current != end);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C320.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C4C0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB0C.s")
