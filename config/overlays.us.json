@@ -8965,19 +8965,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xC8",
-     "size": "0xC8",
-     "type": "c",
-     "source": "overlays/o039/overlay39Write",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xC8",
      "end_offset": "0x168",
-     "size": "0xA0",
+     "size": "0x168",
      "type": "c",
-     "source": "overlays/o039/overlay_039_tail",
+     "source": "overlays/o039/overlay_039",
      "matched": true,
      "nonmatching": false
     },

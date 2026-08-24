@@ -1546,8 +1546,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x18866A0, c, overlay39Write]
-      - [0x1886768, c, overlay_039_tail]
+      - [0x18866A0, c, overlay_039]
       - [0x1886808, asm, overlay_039_padding]
       - [0x1886810, bin, overlay_039_reloc1]
 
