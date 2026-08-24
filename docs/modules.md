@@ -713,6 +713,44 @@ state-reset paths call it before frame pacing resumes, while the canonical body
 resets the skip-adjust flag, delta counter, delta interval and one-frame mode.
 All 11 instruction words and four HI16/LO16 relocation pairs are exact.
 
+`viInit` is adopted at tier B. Resident startup passes its scheduler at the
+same point where JFG initializes video, immediately before the PI/RCP sequence.
+The canonical body is exact at 74 words and all 52 relocation sites.
+
+`func_800339B4` has JFG's `viReset` role: the shutdown caller invokes it after
+stopping RSP/RDP work and before rumble teardown. Its best 50-word
+`NON_MATCHING` body is linked-byte-exact, but the fixed framebuffer literal
+omits the target object's three `D_80380000`/`D_80380004` relocation sites,
+first at function offset `0x1C`. Spelling the address as an extern restores the
+first symbol identity but adds an address-formation instruction and shifts the
+remaining schedule. Section 1.5 therefore keeps the address label and the
+original asm canonical.
+
+`viAllocateZBuffer` and `viFreeZBuffer` are adopted at tier B as the paired
+allocation lifecycle around mode changes. Their canonical bodies are exact at
+22/20 words and 7/9 relocation sites respectively.
+
+`viGetCurrentSize` is adopted at tier B: its callers pass two output pointers
+and consume the active display dimensions written through them. Its 18 words
+and four relocation sites are exact. `viConvertXY` is likewise pinned by
+callers that pass coordinate pairs and immediately consume the scaled values;
+all 21 words and four relocation sites are exact.
+
+`viSetTiming` is adopted at tier B. Both the mode changer and the tier-A
+wide-adjust setter call this same-position JFG role after changing video state.
+The adapted body is canonical C at all 102 words and all 28 relocation sites;
+its linked range and full-ROM hash are exact under `-O2 -mips2 -32`.
+
+`viFrameSync` is adopted at tier B. The resident game loop passes its
+buffer-swap message, stores the returned update rate, then bounds that rate
+before the next update; this pins JFG's same-position role. The adapted body is
+canonical C at all 106 words and all 26 relocation sites, with exact symbol
+identities, linked bytes and full-ROM hash under the resident flags.
+
+`fb_swap` is adopted at tier B. `viFrameSync` calls it for each non-skip frame,
+and the mode changer calls the same routine after rebuilding its buffers. The
+canonical body is exact at 56 words and all 18 relocation sites.
+
 `func_80033D58` is canonical C: all seven words and the two scale globals'
 HI16/LO16 relocation pairs are exact. JFG calls the equivalent body
 `viGetScaleXY`, but only three words are unmasked and no same-address Mickey
@@ -728,6 +766,23 @@ so it remains an address label.
 HI16/LO16 pair. JFG calls the store-only helper `viNoClear`, but no
 same-address Mickey caller pins that public name and the body is below the
 tier-A threshold, so the address label remains canonical.
+
+`func_800336A8` reached a bounded `NON_MATCHING` plateau from JFG's
+`viChangeMode` body. The best 195-word candidate has the exact target length
+but differs at 79 relocation-masked positions, first at function offset zero;
+its local requested-buffer value expands the non-save frame from 40 to 48
+bytes. Removing that home restores the target frame but adds one instruction
+and leaves 110 differing positions. The blocker is register allocation around
+the conditional third-framebuffer allocation. The flag lattice found no exact
+variant, and the configured permuter checkout is absent in this lane.
+
+`func_80034094` has an instruction- and relocation-exact 47-word
+`NON_MATCHING` switch body adapted from JFG's `viGetOsViMode`. It cannot be
+promoted within this TU's ownership because the separately extracted
+`jtbl_8008249C` still owns the 12 case-label references; replacing the asm body
+therefore leaves those labels undefined and also emits a duplicate 48-byte
+table. The canonical path remains the original asm pending coordinated rodata
+ownership.
 
 ---
 
@@ -1191,7 +1246,7 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 44 jump tables still emitted
+- **rodata order follows text order exactly.** The 38 jump tables still emitted
   in `asm/` are monotonic in both columns, with **zero inversions**. So
   `.rodata` can be carved TU by TU in text order, which is what makes the
   per-TU split tractable. Five more tables now belong to matched `n_csplayer`

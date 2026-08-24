@@ -531,7 +531,7 @@ segments:
       # the resident segment. Two things the later per-TU split needs are
       # measured and recorded here:
       #
-      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 44 jump
+      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 38 jump
       #      tables still emitted in asm/ back to the functions that reference
       #      them gives ROM addresses and jump-table addresses that are both
       #      monotonically increasing -- ZERO INVERSIONS. Five additional
