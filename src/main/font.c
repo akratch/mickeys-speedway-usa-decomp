@@ -19,6 +19,9 @@
 #include "game/font.h"
 
 extern DialogueBoxBackground D_800D64E8[];
+extern s32 D_8007D538;
+extern s32 D_8007D53C;
+extern s32 D_8007D540;
 
 void fontSetWindow0(s32 width, s32 height) {
     D_800D64E8[0].x2 = width - 1;
@@ -28,7 +31,13 @@ void fontSetWindow0(s32 width, s32 height) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B064.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/fontSetWindowNoise.s")
+
+void fontSetWindowNoise(u8 red, u8 green, u8 blue) {
+    D_8007D538 = red;
+    D_8007D53C = green;
+    D_8007D540 = blue;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0A4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0B8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B0DC.s")

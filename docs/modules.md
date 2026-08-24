@@ -393,7 +393,7 @@ overlay callers/callees outside the range were observed.
 |---|---:|---|---|---|---|
 | `0x4BC40` | `0x24` | `fontSetWindow0` | same | A, matched C | leaf; ext callers |
 | `0x4BC64` | `0x0C` | `func_8004B064` | `fontSetButtonMode` | D | leaf; overlay caller |
-| `0x4BC70` | `0x34` | `fontSetWindowNoise` | same | A | leaf |
+| `0x4BC70` | `0x34` | `fontSetWindowNoise` | same | A, matched C | leaf |
 | `0x4BCA4` | `0x14` | `func_8004B0A4` | `fontUseFont` | B/D | leaf; text-setup callers |
 | `0x4BCB8` | `0x24` | `func_8004B0B8` | `fontColour` | A | leaf; text-setup callers |
 | `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | B/D | leaf; text-setup callers |
