@@ -17,6 +17,8 @@ typedef struct UnkLight {
     f32 unk44;
     u8 pad48[0xC];
     s32 unk54;
+    u8 pad58[0x14];
+    s32 unk6C;
 } UnkLight;
 
 void turnLightOff(UnkLight *light);
@@ -24,5 +26,6 @@ void turnLightOn(UnkLight *light);
 void toggleLight(UnkLight *light);
 void changeLightColour(UnkLight *light, u8 red, u8 green, u8 blue);
 void changeLightColourCycle(s32 arg0, s32 arg1);
+void changeLightIntensity(UnkLight *light, u8 intensity);
 
 #endif

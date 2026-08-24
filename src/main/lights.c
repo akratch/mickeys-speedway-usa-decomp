@@ -49,7 +49,14 @@ void changeLightColour(UnkLight *light, u8 red, u8 green, u8 blue) {
 void changeLightColourCycle(s32 arg0, s32 arg1) {
     initColourCycle(arg0 + 0x48, arg1);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E30.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void changeLightIntensity(UnkLight *light, u8 intensity) {
+    light->unk43 = intensity;
+    light->unk44 = intensity;
+    if (light->unk6C != 0) {
+        light->unk2 |= 2;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E7C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018F08.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001923C.s")
