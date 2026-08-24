@@ -1408,6 +1408,7 @@ amTuneSetGlobalVolume = 0x80000E08; // type:func size:0x5C ROM 0x1a08 tier B (JF
 amTuneGetVolume = 0x80000E64; // type:func size:0xC ROM 0x1a64 tier B (JFG/DKR return role)
 amAmbientSetVolume = 0x80000E70; // type:func size:0x4C ROM 0x1a70 tier B (JFG body/call role)
 amDittyPlay = 0x80000EBC; // type:func size:0x64 ROM 0x1abc tier B (JFG exact role/boundary)
+amDittyPlaying = 0x80000F20; // type:func size:0x54 ROM 0x1b20 tier B (JFG/DKR player-state role)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
