@@ -71,7 +71,13 @@ void trackSkySet(s32 skyDome) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800133FC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001357C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001398C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80013EB4.s")
+/*
+ * PROVENANCE: JFG supplies the name `trackGetTrack`; this trivial body is
+ * reconstructed from Mickey.
+ */
+void *trackGetTrack(void) {
+    return D_800792E8;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80013EC0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800140CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014430.s")

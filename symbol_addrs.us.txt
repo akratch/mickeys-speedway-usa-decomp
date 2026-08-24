@@ -1402,6 +1402,10 @@ asins = 0x8006A508; // type:func size:0x8C
 // Tier D: occupies JFG `trackSkySet`'s position in the established TU order.
 trackSkySet = 0x8000C5E8; // type:func size:0xC ROM 0xd1e8
 
+// Tier B: all three external callers consume the returned object through
+// track-layout fields; this is the TU's accessor for its current track object.
+trackGetTrack = 0x80013EB4; // type:func size:0xC ROM 0x14ab4
+
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
 // the whole-object threshold
