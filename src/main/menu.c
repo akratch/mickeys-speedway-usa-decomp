@@ -27,7 +27,7 @@ extern u8 D_8007C090;
 extern u16 D_800D312C;
 extern u16 D_800D312E;
 extern void func_80000E08(s32 volume);
-extern s32 func_80025CC8(void);
+extern s32 levelGetRegionNo(void);
 extern s8 viGetWideAdjust(void);
 extern void gsSndpSetGlobalVolume(s32 volume);
 extern void viSetWideAdjust(s32 offset);
@@ -89,11 +89,11 @@ s32 frontGetLevelScreenMode(void) {
 
     return 3;
 mode_two:
-    return func_80025CC8() | 2;
+    return levelGetRegionNo() | 2;
 mode_one:
     return 1;
 current_mode:
-    return func_80025CC8();
+    return levelGetRegionNo();
 }
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetWideAdjust. */
 s8 frontGetWideAdjust(void) {

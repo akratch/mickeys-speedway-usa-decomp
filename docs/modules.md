@@ -219,6 +219,9 @@ the segment, carrying 194 function names.
 | `0x31C4` | `0x800025C4` | `audspat_jingle_off` | A | Spatial audio, and the thinnest row adopted |
 | `0xC9B4`, `0xF520` | — | `"track/track.c"` asserts | — | **`track` code is partly resident** |
 | `0x21DA0` | `0x800211A0` | `mainproc`, `thread1_main` | A | `main.c` proper, at the boot target |
+| `0x25C20`-`0x263F0` | `0x80025020` | `main/joy` | B | Controller setup, polling, mapping, accessors and CIC helper; §3.4 |
+| `0x263F0`-`0x27760` | `0x800257F0` | `main/level` | B | Level lifecycle and metadata accessors; §3.4 |
+| `0x27760`-`0x2A250` | `0x80026B60` | `main/main` | B + C | Main state/frame control, identified by call graph and six file-string references; §3.4 |
 | `0x27BB4`, `0x28BB8` | — | `"main/main.c"` asserts | — | **`main` code is resident** |
 | `0x29FD0` | `0x800293D0` | `"x = %5d"` … `"a = %3.1f"` | — | On-screen coordinate readout |
 | `0x2A250`–`0x2AE44` | `0x80029650` | 11 named `math_util.s` routines | A | Matrix / vector / RNG library. 13 routines matched: 11 named here, `rand_range` already carried as `mathRnd`, and `func_80070058` left unnamed as a placeholder |
@@ -1438,6 +1441,130 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison: calls the object-light setter twice |
 | `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison: paired flare helper and TU order |
 | `0x8001A23C` | `0x24` | `lightKillGlowingLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact; Mickey uses a no-argument delete wrapper |
+
+### 3.4 Resident controller, level and main TUs
+
+ROM `0x25C20`-`0x2A250` is 17,968 bytes (`0x4630`) containing 108
+functions. A per-function census recorded every boundary, direct caller and
+callee, string reference, and the top five masked n-gram neighbours from
+`tools/skeleton_scan.py`. No function in the range uses an odd-numbered
+single-precision floating-point register, so §6.2 does not force any of these
+functions to remain hand-written assembly.
+
+| Canonical TU | ROM / VRAM | Bytes | Functions | Evidence |
+|---|---|---:|---:|---|
+| `main/joy` | `0x25C20`-`0x263F0` / `0x80025020`-`0x800257F0` | 2,000 | 19 | **Tier B:** exact ordered correspondence to JFG's controller setup/read, map accessors, stick clamp and CIC helper; Mickey's callers agree |
+| `main/level` | `0x263F0`-`0x27760` / `0x800257F0`-`0x80026B60` | 4,976 | 21 | **Tier B:** exact ordered correspondence to JFG `level.c`; Mickey omits `levelGetWorldRegions` and four donor tail accessors |
+| `main/main` | `0x27760`-`0x2A250` / `0x80026B60`-`0x80029650` | 10,992 | 68 | **Tiers B + C:** ordered main-state call graph plus six references to `main/main.c`; the last routine references the `x/y/z/a` coordinate readout strings |
+
+The boundaries are all 16-byte aligned and are evidence-backed TU splits, but
+they are not tier-A whole-object matches: no complete JFG object was
+byte-identical. The strongest masked-skeleton anchors include
+`levelUpdateColourCycling` (0.622), `levelGetNextOfWorld` (0.615),
+`mainCPUeffects` (0.671), and the unnamed `func_80027EC0` (0.837). Three tiny
+controller routines compare byte-identically with JFG under relocation masks,
+but each has fewer than six unmasked words and therefore remains tier B under
+§1.2 rather than being promoted to tier A.
+
+The direct-call census supplies independent anchors. `joyResetMap` is called
+by `joyInit`; the stick accessors converge on `joyClamp`; `levelInit` owns the
+subsystem initialization/free fanout and `levelFreeAll` is reached from the
+main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
+`mainChangeLevel` and `mainPreNMI`. The two large routines at `0x80026FB4` and
+`0x80027FB8` build the six `main/main.c` string addresses. Placeholder-named
+JFG functions were not imported: unresolved routines retain Mickey's own
+`func_<VRAM>` symbol.
+
+One initial combined symbol was corrected during reconstruction: the
+108-byte routine at `0x80028E2C` has JFG `mainFrontInit`'s exact size,
+top-ranked skeleton and call role; the independent return stub at
+`0x80028E98` occupies JFG's following `mainStartGame` slot. Both names are
+tier B because the complete donor bodies are not byte-identical.
+
+The original 24-byte `func_80028F3C` range was likewise split at tier-D
+structural boundaries: it consists of three consecutive independent
+return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
+Their placeholder names remain because JFG role attribution is not unique.
+
+**Matching progress.** Eighty-two functions / 3,964 bytes compile exactly
+under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
+linked ranges and the full ROM are exact.
+
+- `main/joy` (16 / 996 bytes): `joyMessageQ`, `joyDisable`, `joyEnable`,
+  `joyCreateMap`, `joyGetController`, `joyGetButtons`, `joyGetPressed`,
+  `joyGetReleased`, `joyGetStickX`, `joyGetAbsX`, `joyGetStickY`, `joyGetAbsY`,
+  `joyClamp`, `joySetSecurity`, `arithmeticFunction`, and `joyCharVal`.
+- `main/level` (18 / 1,324 bytes): `levelNGetType`, `levelGetTune`,
+  `levelGetWorld`, `levelGetRegionNo`, `levelGetScreenMode`,
+  `levelGetBlurEffect`, `levelGetGfxIndex`, `levelGetColourCycling`,
+  `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
+  `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
+  `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
+- `main/main` (48 / 1,644 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
+  `mainGameWindowSize`, `mainSetGameWindow`, `mainSetAnimGroup`,
+  `mainGetAnimGroup`,
+  `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
+  `mainResetPressed`, `mainSyncNextLevel`, `mainGetMode`, `mainSetMode`,
+  `mainTitlePageInit`,
+  `mainFrontInit`, `mainStartGame`,
+  `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`, `func_80028F3C`,
+  `func_80028F44`, `func_80028F4C`, `func_80028F54`,
+  `func_80028F60`, `func_80028F98`,
+  `func_80028FA8`,
+  `func_80028FB8`,
+  `func_80029038`, `func_8002904C`, `func_8002905C`, `func_80029084`,
+  `func_800290A0`,
+  `func_80029090`, `func_800290EC`, `func_800290F8`, `func_80029104`,
+  `func_80029120`, `func_80029144`, `func_80029160`, `func_8002917C`,
+  `func_80029198`,
+  `func_800291B4`,
+  `func_800291C4`,
+  `func_800291D0`, `func_800291D8`, `func_800291E4`, `func_800291FC`, and
+  `func_80029240`.
+
+The exact source preserves Mickey's six-byte level-summary and controller-pad
+layouts, packed flag extractions, bounded/wraparound searches, and guarded
+input calls. `arithmeticFunction` binds its three unavailable CIC-overlay
+calls to Mickey's existing `TrapDanglingJump` relocations.
+
+Two ABI/name exceptions remain explicit. Mickey's `mainGameWindowChanging`
+returns a 32-bit word, not JFG's declared `s16`; the JFG signature changed the
+load and was rejected. `mainGetMode` is a tier-D paired-getter name correcting
+an earlier positional setter attribution. `mainGetNumberOfCameras` is tier B
+from JFG tail order plus the `levelGetGfxIndex` caller. `func_800291C4` is
+consistent with `mainGetGameArrayPtr`, but not uniquely; `func_80028F54` has
+the tier-B `mainGetGame` role but retains its placeholder because renaming it
+would require out-of-scope overlay edits. The inherited `levelInitRegionFlags`
+name is suspect: Mickey's exact 56-byte body is a boolean query over the level
+type byte and `D_8007BF08`, not JFG's region-table initializer.
+
+**Bounded plateaus (all remain assembly):**
+
+- `joyResetMap`, first mismatch `+0x0`: external storage emits 48 rather than
+  36 bytes; TU-local storage is instruction-exact but wrongly claims 16 B of
+  BSS and shifts the real symbol.
+- `func_800290AC`, six spellings, first mismatch `+0x0`: exact 64-byte size and
+  11-word tail, but five entry words differ because IDO frames before loading
+  the global into `$t6`; the target loads it into `$v0` first.
+- `func_80028FCC`, ten spellings, first mismatch `+0x1c`: its 108-byte skeleton
+  identifies the tier-B `mainAnyoneHas` role (JFG: 108 B, similarity 0.357),
+  but Mickey passes zero as every middle argument. The exact-sized candidate
+  differs in ten words: raw-return branches versus target normalization into
+  `$t6`/`$t7`/`$t8` and a shared epilogue.
+- `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
+  and 113/117 words; only the masked resource index/table-base registers swap.
+- `func_80028EFC`, ten spellings, first mismatch `+0x1c`: exact 64-byte size
+  and 14/16 words; the correct loop predicate is allocated to `$t6`, while the
+  target uses `$at`.
+
+The full flag lattice did not change any of these allocation plateaus.
+
+**PROVENANCE.** TU identities and adopted function names are adapted from Jet
+Force Gemini's published `src/{joy,level,main}.c` and built
+`src/{controller,level,main}.c.o`, a permitted public retail-derived decomp
+under `docs/CLEANROOM.md`. The tier-B/C evidence above comes independently
+from Mickey's own function order, callers/callees and strings. Any C body
+adapted during matching carries the same disclosure at its point of use.
 
 ---
 

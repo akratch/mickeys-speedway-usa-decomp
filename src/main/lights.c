@@ -25,7 +25,7 @@ extern void func_8000D728(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_8000D62C(f32 x, f32 y, f32 z, f32 radius, f32 radius2, s32 red, s32 green, s32 blue);
 extern void func_800188CC(UnkLight *light);
 extern void func_80018F08(UnkLight *light, s32 updateRate);
-extern u8 *func_8002679C(void);
+extern u8 *levelGetLevel(void);
 extern s32 D_80079490;
 extern s32 D_80079494;
 extern void **D_80079498;
@@ -161,7 +161,7 @@ UnkLight *addRomdefLight(s32 arg0, RomdefLight *entry) {
         light->unk44 = (u32) entry->intensity;
         light->unk54 = 0;
         if (entry->colourCycleIndex < 7) {
-            levelData = func_8002679C();
+            levelData = levelGetLevel();
             if (*(s16 *)(levelData + 0x94 + (entry->colourCycleIndex * 2)) != -1) {
                 initColourCycle(light->colourCycle, *(s16 *)(levelData + 0x94 + (entry->colourCycleIndex * 2)), entry);
             }
