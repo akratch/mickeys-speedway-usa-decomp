@@ -27,6 +27,7 @@ extern s32 gOverlay16Phase;
 extern s32 gOverlay16Mode;
 
 /* DKR v77/v80 and JFG contain no exact donor for this gradient pass. */
+#ifdef NON_MATCHING
 void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
                             s32 phaseStep) {
     Overlay16Batch *batch;
@@ -102,3 +103,6 @@ void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
         batch++;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o016/overlay16ApplyGradient/func_overlay_016_F00001E0_1873678.s")
+#endif

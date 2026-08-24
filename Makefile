@@ -5139,24 +5139,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16BuildGradient.c.o: POSTPROCESS = 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16ReleaseBuffer.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
-# The typed natural source is exact except for two CFG-proven unreachable
-# duplicate ternary stores and one closed whole-function allocation/schedule
-# web. Each deletion and the final equivalent representation are fail-loud and
-# digest-guarded; the following three-nop island remains separate padding.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16ApplyGradient.c.o: \
-	config/normalizations/overlay16ApplyGradientDrop1.ops \
-	config/normalizations/overlay16ApplyGradientDrop2.ops \
-	config/normalizations/overlay16ApplyGradient.ops
+# NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration and
+# trailing-section trimming metadata for the extracted function.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16ApplyGradient.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x248 cac4e5e080672e3f26e69ff7516c5d76a332c3168cbc8912126c5930cca3b045 \
-		@config/normalizations/overlay16ApplyGradientDrop1.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x244 6d34c26ac7aa59633b65cb90eec39abc025afbd9f827b4cbbe0dc5ec696b6fb4 \
-		@config/normalizations/overlay16ApplyGradientDrop2.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x244 e51a18791518c07f21b505a4105a51c8d4ef354bba38f2444af0ec2562aa78e6 \
-		@config/normalizations/overlay16ApplyGradient.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_016_F00001E0_1873678=overlay16ApplyGradient $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x244
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84InitState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
