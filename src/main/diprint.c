@@ -75,7 +75,26 @@ void diPrintfInit(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfAll.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfSetCol.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfSetBG.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfSetXY.s")
+/* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfSetXY. */
+void diPrintfSetXY(u16 x, u16 y) {
+    u16 tempX;
+    u16 tempY;
+
+    *D_8007CE94 = 0x82;
+    D_8007CE94++;
+    *D_8007CE94 = x & 0xFF;
+    D_8007CE94++;
+    tempX = x >> 8;
+    *D_8007CE94 = tempX;
+    D_8007CE94++;
+    *D_8007CE94 = y & 0xFF;
+    D_8007CE94++;
+    tempY = y >> 8;
+    *D_8007CE94 = tempY;
+    D_8007CE94++;
+    *D_8007CE94 = 0;
+    D_8007CE94++;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_width.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_parse.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_background.s")
