@@ -182,8 +182,8 @@ segments:
       - [0x34180, asm]
       - [0x37D50, asm]
       - [0x3B480, asm]
-      - [0x3D5F0, asm]
-      - [0x43470, asm]
+      - [0x3D5F0, c, main/particles]
+      - [0x43470, c, main/diprint]
       - [0x45760, asm]
       - [0x465B0, asm]
       # Measured boundary: the whole 0x10 .text of DKR's built

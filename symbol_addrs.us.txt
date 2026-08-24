@@ -416,15 +416,82 @@ rsp_segment = 0x800317A0; // type:func size:0x38   ROM 0x323a0  set_rsp_segment.
 // the same 21 words; what it clips for Mickey is not established here.
 weather_clip_planes = 0x8003A97C; // type:func size:0x54   ROM 0x3b57c  weather.c.o  masked=2/21
 
-// particles.c -- 0x3D5F0 is already a splat subsegment boundary.
-reset_particles = 0x8003C9F0; // type:func size:0x30   ROM 0x3d5f0  particles.c.o  masked=3/12
+// main/particles, ROM 0x3D5F0-0x43470.
+//
+// PROVENANCE: the TU attribution and non-placeholder part* names are adapted
+// from JFG's public src/particles.c and built particles.c.o. Tier B is Mickey's
+// call graph plus the end-to-end function ordering; tier D is the masked-shape
+// and adjacent-label evidence. JFG's address placeholders are deliberately not
+// imported as names. reset_particles remains DKR's tier-A name because its 12
+// words were independently byte-identified (3 relocation-masked).
+reset_particles = 0x8003C9F0; // type:func size:0x30 ROM 0x3d5f0 evidence=A DKR, evidence=B JFG partFreeLib
+func_8003CA20 = 0x8003CA20; // type:func size:0x11C ROM 0x3d620 evidence=B TU, donor placeholder jfg/func_8005D930
+func_8003CB3C = 0x8003CB3C; // type:func size:0x1A8 ROM 0x3d73c evidence=B TU, donor placeholder jfg/func_8005DA70
+func_8003CCE4 = 0x8003CCE4; // type:func size:0x44 ROM 0x3d8e4 evidence=B TU, donor placeholder jfg/func_8005DC3C
+func_8003CD28 = 0x8003CD28; // type:func size:0xE8 ROM 0x3d928 evidence=B TU, donor placeholder jfg/func_8005DC7C
+func_8003CE10 = 0x8003CE10; // type:func size:0x44C ROM 0x3da10 evidence=B TU, donor placeholder jfg/func_8005DD88
+func_8003D25C = 0x8003D25C; // type:func size:0x2A0 ROM 0x3de5c evidence=B TU, donor placeholder jfg/func_8005E100
+func_8003D4FC = 0x8003D4FC; // type:func size:0x10B0 ROM 0x3e0fc evidence=B TU, donor placeholder jfg/func_8005E3DC
+partInitTrigger = 0x8003E5AC; // type:func size:0x78 ROM 0x3f1ac evidence=B call graph/order, jfg/partInitTrigger
+partInitTriggerSPPos = 0x8003E624; // type:func size:0x4C ROM 0x3f224 evidence=B call graph/order, jfg/partInitTriggerSPPos
+partInitTriggerPos = 0x8003E670; // type:func size:0xC0 ROM 0x3f270 evidence=B call graph/order, jfg/partInitTriggerPos
+func_8003E730 = 0x8003E730; // type:func size:0x88 ROM 0x3f330 evidence=B TU, donor placeholder jfg/func_8005F918
+func_8003E7B8 = 0x8003E7B8; // type:func size:0x120 ROM 0x3f3b8 evidence=B TU, donor placeholder jfg/func_8005F99C
+func_8003E8D8 = 0x8003E8D8; // type:func size:0x230 ROM 0x3f4d8 evidence=B TU, donor placeholder jfg/func_8005FAE8
+func_8003EB08 = 0x8003EB08; // type:func size:0x184 ROM 0x3f708 evidence=B TU, donor placeholder jfg/func_8005FD34
+func_8003EC8C = 0x8003EC8C; // type:func size:0xBC ROM 0x3f88c evidence=B TU, donor placeholder jfg/func_8005FED8
+partObjFreeTriggers = 0x8003ED48; // type:func size:0x80 ROM 0x3f948 evidence=B call graph/order, jfg/partObjFreeTriggers
+partAdjustScaling = 0x8003EDC8; // type:func size:0xC ROM 0x3f9c8 evidence=B order/state use, jfg/partAdjustScaling
+func_8003EDD4 = 0x8003EDD4; // type:func size:0xC ROM 0x3f9d4 evidence=D Mickey-only particle-state setter
+func_8003EDE0 = 0x8003EDE0; // type:func size:0xC ROM 0x3f9e0 evidence=D Mickey-only particle-state setter
+partUpdateTriggers = 0x8003EDEC; // type:func size:0x194 ROM 0x3f9ec evidence=B call graph/order, jfg/partUpdateTriggers
+func_8003EF80 = 0x8003EF80; // type:func size:0x1D4 ROM 0x3fb80 evidence=B TU, donor placeholder jfg/func_8006020C
+func_8003F154 = 0x8003F154; // type:func size:0x4A4 ROM 0x3fd54 evidence=B TU, donor placeholder jfg/func_80060400
+func_8003F5F8 = 0x8003F5F8; // type:func size:0x450 ROM 0x401f8 evidence=B TU, donor placeholder jfg/func_800608EC
+partModelObjEmitModelPart = 0x8003FA48; // type:func size:0x150 ROM 0x40648 evidence=B call graph/order, jfg/partModelObjEmitModelPart
+func_8003FB98 = 0x8003FB98; // type:func size:0x9B4 ROM 0x40798 evidence=B TU, donor placeholder jfg/func_80060ED4
+func_8004054C = 0x8004054C; // type:func size:0x1F4 ROM 0x4114c evidence=B TU, donor placeholder jfg/func_80061948
+func_80040740 = 0x80040740; // type:func size:0x138 ROM 0x41340 evidence=B TU, donor placeholder jfg/func_80061B50
+func_80040878 = 0x80040878; // type:func size:0x310 ROM 0x41478 evidence=B TU, donor placeholder jfg/func_80061CAC
+func_80040B88 = 0x80040B88; // type:func size:0x4B8 ROM 0x41788 evidence=B TU, donor placeholder jfg/func_8006211C
+func_80041040 = 0x80041040; // type:func size:0x348 ROM 0x41c40 evidence=B TU, donor placeholder jfg/func_800626B4
+func_80041388 = 0x80041388; // type:func size:0x1A8 ROM 0x41f88 evidence=B TU, donor placeholder jfg/func_80062A4C
+func_80041530 = 0x80041530; // type:func size:0x720 ROM 0x42130 evidence=B TU, donor placeholder jfg/func_80062BFC
+func_80041C50 = 0x80041C50; // type:func size:0x94 ROM 0x42850 evidence=B TU, donor placeholder jfg/func_80063484
+func_80041CE4 = 0x80041CE4; // type:func size:0x264 ROM 0x428e4 evidence=B TU, donor placeholder jfg/func_80063514
+func_80041F48 = 0x80041F48; // type:func size:0xA4 ROM 0x42b48 evidence=B TU, donor placeholder jfg/func_800637E0
+func_80041FEC = 0x80041FEC; // type:func size:0xF4 ROM 0x42bec evidence=B TU, donor placeholder jfg/func_80063890
+func_800420E0 = 0x800420E0; // type:func size:0x114 ROM 0x42ce0 evidence=B TU, donor placeholder jfg/func_80063990
+func_800421F4 = 0x800421F4; // type:func size:0x148 ROM 0x42df4 evidence=B TU, donor placeholder jfg/func_80063AB4
+func_8004233C = 0x8004233C; // type:func size:0xB0 ROM 0x42f3c evidence=B TU, donor placeholder jfg/func_80063C14
+func_800423EC = 0x800423EC; // type:func size:0x108 ROM 0x42fec evidence=B TU, donor placeholder jfg/func_80063CC8
+partUpdateParticles = 0x800424F4; // type:func size:0x170 ROM 0x430f4 evidence=B call graph/order, jfg/partUpdateParticles
+partDraw = 0x80042664; // type:func size:0x160 ROM 0x43264 evidence=B resident callers/order, jfg/partDraw
+partNullifyCircularParticleParents = 0x800427C4; // type:func size:0xA8 ROM 0x433c4 evidence=B call graph/order, jfg/partNullifyCircularParticleParents
 
-// unused_string.c and printf.c -- the C-library-shaped helpers. `sprintf` is
-// what every debug printer in this ROM calls (see diRcpStrName below), which
-// is independent corroboration of the name.
-strcpy = 0x80042870; // type:func size:0x34   ROM 0x43470  unused_string.c.o  masked=0/13
-memset = 0x800428A4; // type:func size:0x34   ROM 0x434a4  unused_string.c.o  masked=0/13
-sprintf = 0x800429A4; // type:func size:0x2C   ROM 0x435a4  printf.c.o  masked=1/11
+// main/diprint, ROM 0x43470-0x45760. The aligned Mickey TU joins DKR's exact
+// unused_string helpers to the formatting/debug-text sequence shared by JFG's
+// diprint.c and DKR's printf.c; their internal reference boundaries are not
+// 16-byte aligned. PROVENANCE: real names below are adapted from those public
+// decomps. Tier A is byte identity, tier B is call graph/order, and tier C is
+// the digit alphabets plus the `(null)` and `(nil)` formatter strings.
+strcpy = 0x80042870; // type:func size:0x34 ROM 0x43470 evidence=A dkr/unused_string.c.o masked=0/13
+memset = 0x800428A4; // type:func size:0x34 ROM 0x434a4 evidence=A dkr/unused_string.c.o masked=0/13
+sprintfSetSpacingCodes = 0x80042998; // type:func size:0xC ROM 0x43598 evidence=B diPrintf/vsprintf call graph, jfg/sprintfSetSpacingCodes
+sprintf = 0x800429A4; // type:func size:0x2C ROM 0x435a4 evidence=A dkr/printf.c.o masked=1/11
+diPrintfInit = 0x80043CE0; // type:func size:0x54 ROM 0x448e0 evidence=B order/texture-load call, jfg/diPrintfInit
+diPrintf = 0x80043D34; // type:func size:0x9C ROM 0x44934 evidence=B call graph/order, jfg/diPrintf
+diPrintfAll = 0x80043DD0; // type:func size:0x240 ROM 0x449d0 evidence=B debug-text call graph/order, jfg/diPrintfAll
+diPrintfSetCol = 0x80044010; // type:func size:0x9C ROM 0x44c10 evidence=B adjacent command setters, jfg/diPrintfSetCol
+diPrintfSetBG = 0x800440AC; // type:func size:0x9C ROM 0x44cac evidence=B adjacent command setters, jfg/diPrintfSetBG
+diPrintfSetXY = 0x80044148; // type:func size:0x8C ROM 0x44d48 evidence=B adjacent command setters, jfg/diPrintfSetXY
+debug_text_width = 0x800441D4; // type:func size:0x108 ROM 0x44dd4 evidence=B formatting call graph, dkr/debug_text_width
+debug_text_parse = 0x800442DC; // type:func size:0x41C ROM 0x44edc evidence=B diPrintfAll call graph/order, jfg/debug_text_parse
+debug_text_background = 0x800446F8; // type:func size:0xA0 ROM 0x452f8 evidence=B parse/all call graph, jfg/debug_text_background
+debug_text_character = 0x80044798; // type:func size:0x2E8 ROM 0x45398 evidence=B parse call graph/order, jfg/debug_text_character
+debug_text_bounds = 0x80044A80; // type:func size:0x90 ROM 0x45680 evidence=B diPrintfAll call graph/order, jfg/debug_text_bounds
+debug_text_origin = 0x80044B10; // type:func size:0x24 ROM 0x45710 evidence=B diPrintfAll call graph/order, jfg/debug_text_origin
+debug_text_newline = 0x80044B34; // type:func size:0x28 ROM 0x45734 evidence=B parse call graph/order, jfg/debug_text_newline
 
 // gzip.c, and gzip_asm.s -- the asset decompressor. The whole 0xA74 .text of
 // DKR's `hasm/gzip_asm.s.o` matched in ONE PIECE at ROM 0x4EA60 (98 of 669
@@ -718,8 +785,8 @@ osScGetTaskType = 0x80030580; // type:func size:0x88
 // a case by conversion specifier. `vsprintf` is the 0x1310-byte formatter that
 // owns "(null)" and "(nil)" and is what `sprintf` (byte-identical to DKR's,
 // above) tail-calls at 0x800429A4.
-_itoa = 0x800428D8; // type:func size:0xC0
-vsprintf = 0x800429D0; // type:func size:0x1310
+_itoa = 0x800428D8; // type:func size:0xC0 ROM 0x434d8 evidence=C digit alphabets, jfg/dkr/_itoa
+vsprintf = 0x800429D0; // type:func size:0x1310 ROM 0x435d0 evidence=C `(null)`/`(nil)` and sprintf call graph, jfg/vsprintf
 
 // diRcp.c -- the display-list disassembler. `diRcpPrintDL` is the only
 // function referencing the whole G_* opcode name table and "UNKNOWN COMMAND";

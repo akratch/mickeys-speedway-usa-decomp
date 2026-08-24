@@ -233,8 +233,8 @@ the segment, carrying 190 function names.
 | `0x39A1C` | `0x80038E1C` | `"front/front.c"` asserts | — | **`front` code is partly resident** |
 | `0x3B1A0` | `0x8003A5A0` | `"UNKNOWN TRACK"` | — | Track selection |
 | `0x3B57C` | `0x8003A97C` | `weather_clip_planes` | A | |
-| `0x3D5F0` | `0x8003C9F0` | `reset_particles` | A | |
-| `0x43470` | `0x80042870` | `strcpy`, `memset`, `sprintf`, `_itoa`, `vsprintf` | A + C | The C-library / formatting layer |
+| `0x3D5F0`–`0x43470` | `0x8003C9F0` | `main/particles` | A + B + D | 44-function resident particle TU; §3.4 |
+| `0x43470`–`0x45760` | `0x80042870` | `main/diprint` | A + B + C | 19-function formatting/debug-text TU; §3.4 |
 | `0x459C0`–`0x467BC` | `0x80044DC0` | `diRcpPrintDL`, `diRcpMoveWd`, `diRcpStrName`, `diRcpOtherMode`, `diRcpGeometryMode` | C | **The display-list disassembler**, a full GBI pretty-printer left in the retail build |
 | `0x467BC`–`0x47A60` | `0x80045BBC` | `diCpuReportWatchpoint`, plus the memory/module debug pages and the register-dump crash reporter | C | **The debug monitor**, also left in |
 | `0x47A60`–`0x47A70` | `0x80046E60` | `main/get_stack_pointer` | A | Measured file boundary |
@@ -359,6 +359,32 @@ whole-object match for any of the not-yet-named TUs above). Asserting a yaml
 measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
+
+### 3.4 Particle and debug-print translation units
+
+ROM `0x3D5F0`–`0x45760` is now split into two aligned resident C
+subsegments. The complete per-function census, including exact sizes and the
+evidence tier on every adopted name, is in `symbol_addrs.us.txt`; the source
+files keep unresolved functions as `GLOBAL_ASM`, so the split itself claims no
+new matched bytes.
+
+| Mickey TU | ROM / VRAM | Functions | Evidence |
+|---|---|---:|---|
+| `main/particles` | `0x3D5F0`–`0x43470` / `0x8003C9F0` | 44 | **A:** DKR's built `particles.c.o` identifies `reset_particles` byte-for-byte. **B:** the internal call graph and external particle callers. **D:** the full function order and masked-skeleton sequence track JFG's 42-function `particles.c.o` from `partFreeLib` through `partNullifyCircularParticleParents`; Mickey inserts two extra 12-byte state setters before `partUpdateTriggers`, after which the sequences reconverge. |
+| `main/diprint` | `0x43470`–`0x45760` / `0x80042870` | 19 | **A:** DKR objects identify `strcpy`, `memset`, and `sprintf` exactly. **B:** `diPrintf` brackets `vsprintf` with `sprintfSetSpacingCodes`, `diPrintfAll` drives the parse/background/character/bounds/origin helpers, and later `diRcp*` routines call `sprintf`. **C:** `_itoa` owns both digit alphabets and `vsprintf` owns `(null)` and `(nil)`. The order matches JFG's `diprint.c.o`, with DKR's `debug_text_width` inserted between `diPrintfSetXY` and `debug_text_parse`. |
+
+**PROVENANCE.** The `part*`, `diPrintf*`, and `debug_text_*` names and both TU
+attributions are adapted from Jet Force Gemini's public `src/particles.c` and
+`src/diprint.c` plus their built objects. Diddy Kong Racing's public
+`src/printf.c` supplies `debug_text_width`, while its built
+`unused_string.c.o`, `printf.c.o`, and `particles.c.o` supply the tier-A rows
+stated above. JFG address-placeholder names are not imported: Mickey's own
+`func_<VRAM>` names remain. Mickey's bytes and call graph decide every
+disagreement.
+
+No function in either range uses an odd single-precision floating-point
+register. None is therefore classified as handwritten assembly by §6.2's
+criterion.
 
 ---
 
