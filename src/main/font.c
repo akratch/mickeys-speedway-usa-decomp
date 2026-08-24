@@ -80,7 +80,7 @@ extern s8 D_8007D570[];
 extern FontGlyphData *D_800D663C;
 
 void *func_8002B280(s32 size, s32 tag);
-void func_80033CBC(u32 *width, u32 *height);
+void viGetCurrentSize(u32 *width, u32 *height);
 void func_80022610(Gfx **displayList);
 void func_80034920(Gfx **displayList);
 FontGlyphData *func_8004C690(s32 character);
@@ -90,7 +90,7 @@ u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart,
 void func_8004C140(Gfx **displayList, s32 x1, s32 y1, s32 x2, s32 y2);
 void func_8004C200(Gfx **displayList, void *matrix, void *vertices,
                    s32 windowId);
-void func_8002E2E0(s32 resourceId, void *destination, u32 offset, s32 size);
+void piRomLoadSection(s32 resourceId, void *destination, u32 offset, s32 size);
 
 void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
                    char *text, s32 alignmentFlags);
@@ -707,7 +707,7 @@ void func_8004C140(Gfx **displayList, s32 x1, s32 y1, s32 x2, s32 y2) {
     u32 width;
     u32 height;
 
-    func_80033CBC(&width, &height);
+    viGetCurrentSize(&width, &height);
     if (x2 >= 0 && (u32) x1 < width && y2 >= 0 && (u32) y1 < height) {
         if (x1 < 0) {
             x1 = 0;
@@ -917,7 +917,7 @@ FontGlyphData *func_8004C690(s32 character) {
                 copyIndex++;
             } while (copyIndex < 4);
 
-            func_8002E2E0(0x39, header,
+            piRomLoadSection(0x39, header,
                           font->romOffset + (character * font->textureSize),
                           font->textureSize);
             result->textureOffset =
