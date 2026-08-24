@@ -726,7 +726,7 @@ vsprintf = 0x800429D0; // type:func size:0x1310
 // called by the scheduler, and the latter pair own the trace-buffer accesses
 // consumed by the display-list crash reporter. The whole run immediately
 // precedes diRcp.c in both games.
-diRcpTraceInit = 0x80044B60;    // type:func size:0x3C tier B (JFG call graph/order)
+diRcpTraceInit = 0x80044B60;    // type:func size:0x3C tier A (exact C, JFG diRcpTraceInit)
 func_80044B9C = 0x80044B9C;     // type:func size:0x2C tier A (exact C, JFG diRcpTraceReset)
 func_80044BC8 = 0x80044BC8;     // type:func size:0xCC tier B (JFG diRcpTrace)
 func_80044C94 = 0x80044C94;     // type:func size:0x12C tier B (JFG diRcpTraceGetInfo)

@@ -400,6 +400,8 @@ the resident defaults with no relocations: 16-byte `diRcpReserved0`, 20-byte
 `diRcpStrNameMacro`, 12-byte `diRcpPrimColor`, 20-byte `diRcpColor`, and
 12-byte `diRcpDmaOffsets`. The 44-byte `func_80044B9C` (`diRcpTraceReset`)
 is exact at the same defaults, including both data-symbol relocation pairs.
+The 60-byte `diRcpTraceInit` is likewise exact, preserving both allocator
+calls and their call/data relocations.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
