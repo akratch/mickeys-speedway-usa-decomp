@@ -27,6 +27,8 @@ extern u8 D_800D664D;
 
 void func_8004B13C(void **displayList, s32 windowId, s32 xpos, s32 ypos,
                    char *text, s32 alignmentFlags);
+void func_8004B1DC(void **displayList, DialogueBoxBackground *window,
+                   char *text, s32 alignmentFlags);
 
 void fontSetWindow0(s32 width, s32 height) {
     D_800D64E8[0].x2 = width - 1;
@@ -70,7 +72,17 @@ void func_8004B0F8(void **displayList, s32 xpos, s32 ypos, char *text,
     func_8004B13C(displayList, 0, xpos, ypos, text, alignmentFlags);
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B13C.s")
+void func_8004B13C(void **displayList, s32 windowId, s32 xpos, s32 ypos,
+                   char *text, s32 alignmentFlags) {
+    if (windowId >= 0 && windowId < 8) {
+        DialogueBoxBackground *window = &D_800D64E8[windowId];
+
+        window->xpos = xpos == -0x8000 ? window->width >> 1 : xpos;
+        window->ypos = ypos == -0x8000 ? window->height >> 1 : ypos;
+        func_8004B1DC(displayList, window, text, alignmentFlags);
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BA8C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BB44.s")

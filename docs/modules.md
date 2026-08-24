@@ -398,7 +398,7 @@ overlay callers/callees outside the range were observed.
 | `0x4BCB8` | `0x24` | `fontColour` | same | A, matched C | leaf; text-setup callers |
 | `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | B/D, matched C | leaf; text-setup callers |
 | `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B/D, matched C | calls `0x4BD3C` |
-| `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B/D | calls `0x4BDDC` |
+| `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B/D, matched C | calls `0x4BDDC` |
 | `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
 | `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D | calls `0x4DF9C`; ext callers |
 | `0x4C744` | `0x9C` | `func_8004BB44` | `fontWindowSize` | D | leaf; ext callers |
