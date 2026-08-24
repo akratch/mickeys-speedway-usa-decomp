@@ -36,7 +36,13 @@ s32 levelNGetType(s32 arg0) {
     return -1;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetTune.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+s32 levelGetTune(s32 arg0) {
+    if ((arg0 >= 0) && (arg0 < D_800CF3D4)) {
+        return D_800CF3DC[arg0].tune;
+    }
+    return -1;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetWorld.s")
 
