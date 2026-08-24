@@ -181,6 +181,13 @@ segments:
       - [0x33FA0, asm, main/trapDanglingJump]
       - [0x34180, asm]
       - [0x37D50, asm]
+      # JFG's menu.c / Mickey's resident front-end menu code. The start is
+      # setLanguage followed by initFront; the end is the function after
+      # frontCharSelectSetQuitMode, where the code switches to the unrelated
+      # "UNKNOWN TRACK" table. Both boundaries are function starts and are
+      # 16-byte aligned. See docs/modules.md section 3.4.
+      - [0x39350, c, main/menu]
+      - [0x3B1A0, asm]
       - [0x3B480, asm]
       - [0x3D5F0, asm]
       - [0x43470, asm]

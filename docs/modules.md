@@ -338,7 +338,7 @@ see the caveat below):
 | `libultra/n_env.c.o` | 1 | `0x6910C` | Inside the already-measured `libultra/n_env` boundary; corroborates it |
 | `libultra/n_load.c.o` | 1 | `0x6A634` | Inside the already-measured `libultra/n_load` boundary; corroborates it |
 | `hasm/ido/math_util.s.o` | 15 | `0x2A9E4`–`0x2B644` | Inside the already-measured `main/math_util` boundary; corroborates it |
-| `src/menu.c.o` | 6 | `0x3A184`–`0x3B008` | Inside yaml's unnamed `0x37D50`–`0x3B480` block. No whole-`.text` match found, so no boundary is claimed |
+| `src/menu.c.o` | 6 | `0x3A184`–`0x3B008` | The automated pass found only interior anchors. A later function-order and call-graph census established the narrower `0x39350`–`0x3B1A0` ownership (§3.4); no whole-`.text` match is claimed |
 | `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside yaml's unnamed `0x34180`–`0x37D50` block. No whole-`.text` match; no boundary claimed |
 | `src/anim.c.o` | 3 | `0x50D7C`–`0x51D28` | Inside yaml's unnamed `0x50C00`–`0x58570` block. No whole-`.text` match; no boundary claimed |
 | `src/models.c.o` | 3 | `0x20020`–`0x21710` | Inside yaml's unnamed `0x20020`–`0x21DA0` block, starting exactly at its boundary. No whole-`.text` match; no boundary claimed |
@@ -351,7 +351,7 @@ see the caveat below):
 | `src/shadows_214A0.c.o` | 2 | `0x18FF0`–`0x19144` | Inside yaml's unnamed `0x18FF0`–`0x1AE60` block, starting exactly at its boundary. No boundary claimed |
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
-**Why no new `mickey.us.yaml` split accompanies this table.** §1's "measured
+**Why the original scan added no `mickey.us.yaml` splits.** §1's "measured
 file boundary" tier requires a whole-`.text` match; this pass only matched
 individual functions (`tools/find_known_objects.py --sections` found no
 whole-object match for any of the not-yet-named TUs above). Asserting a yaml
@@ -359,6 +359,34 @@ whole-object match for any of the not-yet-named TUs above). Asserting a yaml
 measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
+The later menu census below adds independent boundary evidence rather than
+retroactively treating the six hits as a whole-object match.
+
+### 3.4 Resident front-end menu: ROM `0x39350`–`0x3B1A0`
+
+This range is `main/menu`, corresponding to JFG's `src/menu.c`. The identity
+uses permitted JFG material and is disclosed here: names, declarations,
+function order, and starting bodies are compared against JFG's public
+decompilation; Mickey's ROM remains authoritative for every match.
+
+The six exact masked-skeleton anchors in §3.3 are **tier A** evidence for the
+TU identity, but not its boundaries. The boundaries are a separate **tier B/D**
+argument from the full function census. At ROM `0x39350`, the code begins a
+sequence structurally corresponding to JFG's `setLanguage`, `initFront`,
+`frontFreeMode`, `frontInitMode`, and `frontSetMode`; the same order continues
+through the six tier-A anchors and the settings accessor family. The last menu
+routine is the short setter at `0x3B190`, in JFG's
+`frontCharSelectSetQuitMode` position. The next function, at aligned ROM
+`0x3B1A0`, searches the table associated with the distinctive `"UNKNOWN
+TRACK"` string and begins a different subsystem. The preceding aligned
+function start at `0x39350` likewise follows texture/screen code whose JFG
+ordering is outside `menu.c`. Thus the split claims only `0x39350`–`0x3B1A0`,
+not the surrounding yaml block.
+
+The source begins as 41 `GLOBAL_ASM` functions. Six already have tier-A names
+in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
+an exact body is promoted, so the unresolved symbols keep their `func_` names
+per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
 ---
 
