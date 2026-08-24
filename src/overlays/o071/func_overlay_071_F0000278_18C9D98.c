@@ -49,6 +49,7 @@ extern u8 gOverlay71GlobalFlagReloc;
 extern void func_80032BF0(void *resource, s32 mode, s32 flags);
 extern f32 sqrtf(f32 value);
 
+#ifdef NON_MATCHING
 void func_overlay_071_F0000278_18C9D98(O71Object *object) {
     O71Vec3 points[8];
     O71State *state;
@@ -139,3 +140,6 @@ void func_overlay_071_F0000278_18C9D98(O71Object *object) {
     }
     object->active = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o071/func_overlay_071_F0000278_18C9D98/func_overlay_071_F0000278_18C9D98.s")
+#endif

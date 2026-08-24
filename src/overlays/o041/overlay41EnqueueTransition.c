@@ -30,6 +30,7 @@ extern u8 gOverlay41QueueEntries[];
 
 #define entry cursor.pointer
 
+#ifdef NON_MATCHING
 void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
                                        s32 value6, s32 value8, s32 value9,
                                        s32 valueA) {
@@ -94,3 +95,6 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
         entry[10] = valueA;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41EnqueueTransition/func_overlay_041_F000195C_1888C94.s")
+#endif

@@ -45,6 +45,7 @@ extern s32 gO63State198;
 extern s32 gO63State19C;
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 63 as none. */
+#ifdef NON_MATCHING
 void overlay63Initialize(void) {
     O63ChainEntry *chain;
     O63Config *config;
@@ -93,3 +94,6 @@ void overlay63Initialize(void) {
     gO63ExternalWordReloc = 0;
     gO63ExternalByteReloc = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o063/overlay63Initialize/func_overlay_063_F0000000_18C2B88.s")
+#endif

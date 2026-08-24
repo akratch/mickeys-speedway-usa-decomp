@@ -28,6 +28,7 @@ extern Overlay49LookupResult *func_800508B4(s32 id);
 extern void func_8002917C(s32 mode);
 
 /* Donor scan: DKR v77/v80 and JFG contain no exact initializer donor. */
+#ifdef NON_MATCHING
 void overlay49Initialize(void) {
     s32 unused0;
     s32 unused1;
@@ -85,3 +86,6 @@ finish:
     gOverlay49Timer = 0xA50;
     gOverlay49Finished = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o049/overlay49Initialize/func_overlay_049_F0000000_1896410.s")
+#endif

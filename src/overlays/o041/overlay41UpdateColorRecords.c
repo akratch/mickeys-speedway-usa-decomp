@@ -24,6 +24,7 @@ extern u8 D_8000003A[];
 extern u8 D_8000003B[];
 extern void func_overlay_041_F0000000_1887338(void);
 
+#ifdef NON_MATCHING
 /* Preserve runtime-only relocation identities in a removable private island. */
 static void *const overlay41RuntimeSymbols[] = {
     D_80000038,
@@ -85,3 +86,6 @@ void func_overlay_041_F0000124_188745C(s32 amount) {
         record++;
     } while (i--);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41UpdateColorRecords/func_overlay_041_F0000124_188745C.s")
+#endif

@@ -1,6 +1,7 @@
 #include "overlays/overlay019.h"
 
 /* Classify an edge against a candidate edge, accepting either orientation. */
+#ifdef NON_MATCHING
 s32 overlay19ClassifyEdge(
     O19Vertex *vertices,
     s32 queryStartIndex,
@@ -120,3 +121,6 @@ check_reversed_coordinates:
 no_match:
     return 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o019/overlay19ClassifyEdge/func_overlay_019_F0000D78_1875FD0.s")
+#endif

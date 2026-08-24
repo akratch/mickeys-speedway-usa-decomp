@@ -15,6 +15,7 @@ extern s32 overlay33AllocateReloc(s32 size, s32 tag);
 extern s32 overlay33InitializeBufferReloc(s32 *context, s32 *status, s32 mode);
 extern void overlay33AllocationFailedReloc(void);
 
+#ifdef NON_MATCHING
 void overlay33InitializeBuffers(void) {
     s32 width;
     s32 height;
@@ -56,3 +57,6 @@ void overlay33InitializeBuffers(void) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o033/overlay33InitializeBuffers/func_overlay_033_F0000000_18807E8.s")
+#endif

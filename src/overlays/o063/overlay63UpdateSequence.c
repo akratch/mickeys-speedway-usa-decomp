@@ -18,6 +18,7 @@ extern u32 gO63ToggleReloc;
 extern u8 gO63GraphicReloc[];
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 63 as none. */
+#ifdef NON_MATCHING
 void overlay63UpdateSequence(s32 delta) {
     void *token;
 
@@ -52,3 +53,6 @@ void overlay63UpdateSequence(s32 delta) {
         o63DrawReloc(gO63GraphicReloc, 0xA1, 0x3D, gO63ActiveState, 0xC);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o063/overlay63UpdateSequence/func_overlay_063_F000077C_18C3304.s")
+#endif

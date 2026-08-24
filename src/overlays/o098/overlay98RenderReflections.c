@@ -67,6 +67,7 @@ extern s32 gO98Toggle;
 extern O98Globals gO98Globals;
 extern u8 gO98SpecialVertices[];
 
+#ifdef NON_MATCHING
 void overlay98RenderReflections(Gfx **dl, u8 **matrixHeap, s32 arg2) {
     O98Mtx matrixC;
     O98Mtx matrixB;
@@ -211,3 +212,6 @@ void overlay98RenderReflections(Gfx **dl, u8 **matrixHeap, s32 arg2) {
         gfx->w1 = (u32)&gO98Globals.contexts[gO98Toggle] + 0x80000000;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o098/overlay98RenderReflections/func_overlay_098_F0000234_18D8BF4.s")
+#endif

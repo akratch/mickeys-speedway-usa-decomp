@@ -3,9 +3,10 @@
 /*
  * Builds the three edge-neighbour entries for every point in each span.
  * The explicit frame object preserves the stack/lifetime shape of the shipped
- * IDO object; the build rule fail-loudly normalizes only coherent register
- * allocation webs after asserting the complete natural output.
+ * IDO object. The candidate remains available under NON_MATCHING while the
+ * canonical build uses the extracted function.
  */
+#ifdef NON_MATCHING
 void overlay19BuildAdjacency(
     O19Context *context,
     O19Group *group,
@@ -98,3 +99,6 @@ void overlay19BuildAdjacency(
         } while (frame.spanIndex < spanCount);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o019/overlay19BuildAdjacency/func_overlay_019_F0000A30_1875C88.s")
+#endif

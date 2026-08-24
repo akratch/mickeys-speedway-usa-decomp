@@ -1,4 +1,0 @@
-# Materialize the two loader-local data/rodata addends before filtering the
-# compiler's static LOCAL HILO carriers. Both old fields are asserted.
-fields:0x80:imm=0@0x58
-fields:0x12c:imm=0x14@0x6c

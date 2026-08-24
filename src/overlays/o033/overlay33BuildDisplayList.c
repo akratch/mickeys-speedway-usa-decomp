@@ -37,6 +37,7 @@ extern void overlay33SetRangeReloc(void *value, s32 range);
 extern void overlay33FinishReloc(s32 value);
 
 /* Mickey-local reconstruction using the reviewed SDK macro subset below. */
+#ifdef NON_MATCHING
 void overlay33BuildDisplayList(void) {
     Overlay33Locals locals;
     s32 range;
@@ -100,3 +101,6 @@ void overlay33BuildDisplayList(void) {
     gOverlay33DisplayLists[gOverlay33BufferIndex] = locals.cursor;
     overlay33FinishReloc(1);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o033/overlay33BuildDisplayList/func_overlay_033_F000019C_1880984.s")
+#endif
