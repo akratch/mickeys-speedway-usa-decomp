@@ -206,7 +206,9 @@ void func_80029160(void) {
     D_8007A1CC |= 0x10000000;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_8002917C.s")
+void func_8002917C(void) {
+    D_8007A1CC |= 0x08000000;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029198.s")
 
