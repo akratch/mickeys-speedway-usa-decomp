@@ -30,6 +30,7 @@ extern void func_overlay_009_F0000CE4_186735C(void *, void *, f32 *, f32);
 extern void func_overlay_009_F0000F6C_18675E4(void *, f32 *, s32);
 extern void func_overlay_009_F00010A4_186771C(void *, void *, f32);
 
+#ifdef NON_MATCHING
 void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     f32 vector[3];
     s16 angles[3];
@@ -171,3 +172,6 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     }
     ext_o0_3e99c(object, steps);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateObjectState/func_overlay_009_F0000000_1866678.s")
+#endif

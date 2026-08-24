@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 276552,
-  "nonmatching_overlay_c_bytes": 48,
+  "matched_overlay_c_bytes": 271160,
+  "nonmatching_overlay_c_bytes": 5440,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -3371,7 +3371,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9UpdateObjectState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x540",
@@ -3380,7 +3380,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9UpdateAngle",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x744",
@@ -3389,7 +3389,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9UpdateOutput",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x9BC",
@@ -3398,7 +3398,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9UpdateInputState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xCE4",
@@ -3407,7 +3407,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9IntegrateVelocity",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF6C",
@@ -3416,7 +3416,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9ResolveHeight",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x10A4",
@@ -3434,7 +3434,7 @@
      "type": "c",
      "source": "overlays/o009/overlay9UpdateMotion",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     }
    ],
    "bss_size": "0x10",

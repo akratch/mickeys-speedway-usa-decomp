@@ -1265,163 +1265,26 @@ $(O8_4CF0_OBJ): POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x438 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
 		@config/normalizations/func_overlay_008_F0004CF0_1862A48.filter.spec
-# Natural IDO owns the exact size/frame/CFG/call topology. A complete guarded
-# private schedule/register/scalar-address web selects retail's representation.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateObjectState.c.o: \
-	config/normalizations/overlay9UpdateObjectState.ops \
-	config/normalizations/overlay9UpdateObjectState.filter.spec \
-	config/normalizations/overlay9UpdateObjectState.rebind.py \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateObjectState.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateObjectState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x540 fe575274565167da66b29c063560060334cc1d8eed83fc077026449f32a4f1ca \
-		@config/normalizations/overlay9UpdateObjectState.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9UpdateObjectState.filter.spec && \
-	$(HOST_PYTHON) config/normalizations/overlay9UpdateObjectState.rebind.py $@
-# Natural IDO owns the exact 129-word frame/opcode/CFG/call/GPR topology. The
-# complete guarded FP-carrier web selects retail's equivalent private FP
-# allocation and three local addends; loader LOCAL roles remain authoritative.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateAngle.c.o: \
-	config/normalizations/overlay9UpdateAngle.ops \
-	config/normalizations/overlay9UpdateAngle.filter.spec \
-	config/normalizations/overlay9UpdateAngle.calls.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateAngle.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateAngle.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x204 ec43b6c99211636dfc52333543b14041af785b00ead777ee407a16f760213718 \
-		@config/normalizations/overlay9UpdateAngle.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9UpdateAngle.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		ext_o0_2a5bc=func_overlay_009_F0000000_1866678 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9UpdateAngle.calls.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x204 \
-		000000000000000000000000
-# Natural IDO owns the exact frame/opcode/CFG/call/FP topology. The complete
-# guarded web selects two loader-local addends and one private handle carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateOutput.c.o: \
-	config/normalizations/overlay9UpdateOutput.ops \
-	config/normalizations/overlay9UpdateOutput.filter.spec \
-	config/normalizations/overlay9UpdateOutput.calls.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x204
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateOutput.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateOutput.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x278 bb35c0cec7e14ae5de26d1c667efde61c629f365203ec2c8ba234ea2565425e5 \
-		@config/normalizations/overlay9UpdateOutput.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9UpdateOutput.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		ext_o0_2b90=func_overlay_009_F0000000_1866678 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9UpdateOutput.calls.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x278 \
-		0000000000000000
-# Natural IDO reproduces every instruction class, CFG edge, delay slot, GPR,
-# FP register, operand, and store. Twelve guarded compiler-pool LO addends bind
-# the retained O9 literal pool; the loader remains sole owner of all 24 LOCAL
-# HILO records.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateInputState.c.o: \
-	config/normalizations/overlay9UpdateInputState.ops \
-	config/normalizations/overlay9UpdateInputState.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/externalize_elf_section.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x278
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateInputState.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateInputState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x328 515c89bbe137c55c764b3adff3ced5d1c95becc06dccbfdd52ea1d09b5fd33fa \
-		@config/normalizations/overlay9UpdateInputState.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9UpdateInputState.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-		3ca3d70a3d99999a3ccccccd3d4ccccd3dcccccd43b680003f733333bc23d70a3c23d70abecccccdbdcccccd00000000 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x328 \
-		0000000000000000
-# Natural IDO owns the exact 162-word opcode, CFG, call, GPR, FPR, and memory
-# topology. A guarded complete private frame/home web plus one loader-local
-# literal addend selects retail's representation; runtime roles stay external.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9IntegrateVelocity.c.o: \
-	config/normalizations/overlay9IntegrateVelocity.ops \
-	config/normalizations/overlay9IntegrateVelocity.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/externalize_elf_section.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x328
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9IntegrateVelocity.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9IntegrateVelocity.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x288 f8b306d7537deaa2cd9d0b319d4a8612738246783cfa2cfd252a43530fd1345a \
-		@config/normalizations/overlay9IntegrateVelocity.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9IntegrateVelocity.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-		3f266666000000000000000000000000 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x288 \
-		0000000000000000
-# Natural IDO owns the exact frame, opcode/CFG/call/register/FP topology, and
-# all 78 executable words. Three asserted private stack/local addends select
-# retail's representation; the narrow filter removes only the two compiler
-# HILO records whose runtime LOCAL roles remain in the shipped loader table.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9ResolveHeight.c.o: \
-	config/normalizations/overlay9ResolveHeight.ops \
-	config/normalizations/overlay9ResolveHeight.filter.spec \
-	config/normalizations/overlay9ResolveHeight.calls.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x288
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9ResolveHeight.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9ResolveHeight.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x138 1df46f7e2f9bfed32779736821eff05a16a7978617a332a08ea1108c3c6aacc4 \
-		@config/normalizations/overlay9ResolveHeight.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9ResolveHeight.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		ext_o0_1353c=func_overlay_009_F0000000_1866678 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9ResolveHeight.calls.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138 \
-		0000000000000000
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9Ignore.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x10
-# The natural owner reproduces the exact 282-word opcode/CFG/call topology.
-# This complete decoded-field ledger selects retail's equivalent private
-# integer/FP allocation and four stack-home roles; the narrow filter removes
-# only 16 asserted compiler-local relocations whose addends are already encoded
-# in the split target. Runtime loader relocations remain in the original table.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateMotion.c.o: \
-	config/normalizations/overlay9UpdateMotion.ops \
-	config/normalizations/overlay9UpdateMotion.filter.spec \
-	config/normalizations/overlay9UpdateMotion.calls.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateMotion.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x468 0895fd970e232f2216173e09e04991e6b73aba5db5e4331d093b66a987c7b8f2 \
-		@config/normalizations/overlay9UpdateMotion.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9UpdateMotion.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		ext_o0_210b4=func_overlay_009_F0000000_1866678 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay9UpdateMotion.calls.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x46C
 # Mickey extends the DKR particle-asset initializer with state resets and
 # palette construction. A hash-guarded equivalent index carrier consumes only

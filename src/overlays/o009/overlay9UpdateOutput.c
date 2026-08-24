@@ -35,6 +35,7 @@ extern s32 ext_o0_2d70();
 extern s32 ext_o0_2c64();
 extern void func_overlay_009_F00009BC_1867034(O9Output *, O9Control *, O9State *);
 
+#ifdef NON_MATCHING
 void func_overlay_009_F0000744_1866DBC(O9Output *output, O9Control *control,
                                        O9State *state, s32 updateCount) {
     f32 level;
@@ -81,3 +82,6 @@ void func_overlay_009_F0000744_1866DBC(O9Output *output, O9Control *control,
         ext_o0_2c64(control->handle, (u8)(u32)amount);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateOutput/func_overlay_009_F0000744_1866DBC.s")
+#endif
