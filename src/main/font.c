@@ -20,12 +20,26 @@
 #include "n_audio/mbi.h"
 
 typedef struct FontSpacingData {
-    u8 unused0;
+    u8 width;
     u8 verticalExtent;
-    u8 unused2;
+    u8 characterWidth;
     u8 height;
-    u8 pad4[0x10];
+    u8 pad4[6];
+    u16 format;
+    Gfx *displayList;
+    u32 unused10;
 } FontSpacingData;
+
+typedef struct FontGlyphData {
+    u8 pad0[6];
+    u16 textureOffset;
+    u16 textureOffset2;
+    u8 left;
+    u8 top;
+    u8 right;
+    u8 bottom;
+    u8 advance;
+} FontGlyphData;
 
 typedef struct FontTextureHeader {
     u8 width;
@@ -50,12 +64,23 @@ extern u32 D_800D6638;
 extern Gfx D_8007D4C8[];
 extern Gfx D_8007D4E8[];
 extern Gfx D_8007D508[];
+extern Gfx D_8007D490[];
+extern Gfx D_7D528[];
+extern u8 *D_800D6628[];
+extern char *D_800D6648;
+extern u8 D_800D664C;
+extern s8 D_8007D570[];
 
 void *func_8002B280(s32 size, s32 tag);
+void func_80022610(Gfx **displayList);
+void func_80034920(Gfx **displayList);
+FontGlyphData *func_8004C690(u8 character);
+void func_8004D39C(char *input, char *output);
+void func_8004C140(Gfx **displayList, s32 x1, s32 y1, s32 x2, s32 y2);
 
-void func_8004B13C(void **displayList, s32 windowId, s32 xpos, s32 ypos,
+void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
                    char *text, s32 alignmentFlags);
-void func_8004B1DC(void **displayList, DialogueBoxBackground *window,
+void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
                    char *text, s32 alignmentFlags);
 s32 func_8004BA8C(char *text, s32 font, s32 convertString);
 void func_8004C5A4(char *input, char *output, s32 number);
@@ -97,12 +122,12 @@ void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha) {
     D_800D64E8[0].textBGColourA = alpha;
 }
 
-void func_8004B0F8(void **displayList, s32 xpos, s32 ypos, char *text,
+void func_8004B0F8(Gfx **displayList, s32 xpos, s32 ypos, char *text,
                    s32 alignmentFlags) {
     func_8004B13C(displayList, 0, xpos, ypos, text, alignmentFlags);
 }
 
-void func_8004B13C(void **displayList, s32 windowId, s32 xpos, s32 ypos,
+void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
                    char *text, s32 alignmentFlags) {
     if (windowId >= 0 && windowId < 8) {
         DialogueBoxBackground *window = &D_800D64E8[windowId];
@@ -113,7 +138,282 @@ void func_8004B13C(void **displayList, s32 windowId, s32 xpos, s32 ypos,
     }
 }
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE -- source-level organization was adapted from Diddy Kong
+ * Racing's permitted published render_text_string body. Mickey's own
+ * instructions, m2c draft, fields, control bytes, and display-list words
+ * determine this candidate.
+ */
+void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
+                   char *text, s32 alignmentFlags) {
+    s32 savedFont;
+    s32 x;
+    s32 y;
+    s32 width;
+    s32 activeColour;
+    s32 left;
+    s32 top;
+    s32 right;
+    s32 bottom;
+    s32 textureS;
+    s32 textureT;
+    s32 spacing;
+    u8 first;
+    u8 second;
+    char *current;
+    FontSpacingData *font;
+    FontGlyphData *glyph;
+    Gfx *dList;
+    Gfx *fontCommands;
+
+    if (text == NULL) {
+        return;
+    }
+
+    dList = *displayList;
+    func_8004D39C(text, D_800D6648);
+    savedFont = D_800D60E0;
+    D_800D60E0 = window->font;
+    font = &D_800D60E4[D_800D60E0];
+    current = D_800D6648;
+
+    gSPDisplayList((*displayList)++, D_8007D490);
+    if (window != D_800D64E8) {
+        s32 x1 = window->x1;
+        s32 y1 = window->y1;
+        s32 x2 = window->x2;
+        s32 y2 = window->y2;
+
+        if (D_800D64E8[0].x2 >= x1 && D_800D64E8[0].y2 >= y1 &&
+            x2 >= 0 && y2 >= 0) {
+            if (x1 < 0) {
+                x1 = 0;
+            }
+            if (y1 < 0) {
+                y1 = 0;
+            }
+            if (D_800D64E8[0].x2 < x2) {
+                x2 = D_800D64E8[0].x2;
+            }
+            if (D_800D64E8[0].y2 < y2) {
+                y2 = D_800D64E8[0].y2;
+            }
+            dList->words.w0 = 0xED000000 |
+                (((s32) ((f32) x1 * 4.0f) & 0xFFF) << 12) |
+                ((s32) ((f32) y1 * 4.0f) & 0xFFF);
+            dList->words.w1 =
+                (((s32) ((f32) x2 * 4.0f) & 0xFFF) << 12) |
+                ((s32) ((f32) y2 * 4.0f) & 0xFFF);
+            dList++;
+        } else {
+            return;
+        }
+    }
+
+    x = window->xpos;
+    y = window->ypos;
+    width = -1;
+    if (alignmentFlags & 5) {
+        width = func_8004BA8C(current, window->font, 0);
+        if (alignmentFlags & 1) {
+            x = (x - width) + 1;
+        } else {
+            x -= width >> 1;
+        }
+    }
+    if (alignmentFlags & 2) {
+        y = (y - font->verticalExtent) + 1;
+    }
+    if (alignmentFlags & 8) {
+        y -= font->verticalExtent >> 1;
+    }
+
+    if (window->textBGColourA != 0) {
+        dList->words.w0 = 0xFB000000;
+        dList->words.w1 = (window->textBGColourR << 24) |
+                          (window->textBGColourG << 16) |
+                          (window->textBGColourB << 8) |
+                          window->textBGColourA;
+        dList++;
+        if (width == -1) {
+            width = func_8004BA8C(current, window->font, 0);
+        }
+        dList->words.w0 = 0xFA000000;
+        dList->words.w1 = (D_8007D538 << 24) |
+                          ((D_8007D53C & 0xFF) << 16) |
+                          ((D_8007D540 & 0xFF) << 8);
+        dList++;
+        dList->words.w0 = 0x07020010;
+        dList->words.w1 = (u32) D_7D528;
+        dList++;
+        dList->words.w0 = 0xF6000000 |
+            (((window->x1 + x + width) & 0x3FF) << 14) |
+            (((font->verticalExtent + y + window->y1) & 0x3FF) * 4);
+        dList->words.w1 = (((window->x1 + x) & 0x3FF) << 14) |
+                          (((y + window->y1) & 0x3FF) * 4);
+        dList++;
+        dList->words.w0 = 0xE7000000;
+        dList->words.w1 = 0;
+        dList++;
+    }
+
+    dList->words.w0 = 0xFA000000;
+    dList->words.w1 = 0xFFFFFF00 | window->opacity;
+    dList++;
+    dList->words.w0 = 0xFB000000;
+    dList->words.w1 = (window->textColourR << 24) |
+                      (window->textColourG << 16) |
+                      (window->textColourB << 8) |
+                      window->textColourA;
+    dList++;
+
+    activeColour = 0;
+    first = *current;
+    while (first != 0 && window->y2 >= y) {
+        current++;
+        spacing = 0;
+        if (first & 0x80) {
+            second = *current++;
+            if (second == 0 || second == 0xF) {
+                spacing = font->characterWidth;
+            } else {
+                if (D_800D664D != 0) {
+                    if (second == 2) {
+                        dList->words.w0 = 0xE7000000;
+                        dList->words.w1 = 0;
+                        dList++;
+                        dList->words.w0 = 0xFB000000;
+                        dList->words.w1 = 0x0000FFFF;
+                        dList++;
+                        activeColour = 1;
+                    } else if (second == 0xE) {
+                        dList->words.w0 = 0xE7000000;
+                        dList->words.w1 = 0;
+                        dList++;
+                        dList->words.w0 = 0xFB000000;
+                        dList->words.w1 = 0x00FF00FF;
+                        dList++;
+                        activeColour = 1;
+                    } else if (second >= 0x41 && second < 0x45) {
+                        dList->words.w0 = 0xE7000000;
+                        dList->words.w1 = 0;
+                        dList++;
+                        dList->words.w0 = 0xFB000000;
+                        dList->words.w1 = 0xFFFF00FF;
+                        dList++;
+                        activeColour = 1;
+                    } else if (activeColour != 0) {
+                        dList->words.w0 = 0xE7000000;
+                        dList->words.w1 = 0;
+                        dList++;
+                        dList->words.w0 = 0xFB000000;
+                        dList->words.w1 = (window->textColourR << 24) |
+                                          (window->textColourG << 16) |
+                                          (window->textColourB << 8) |
+                                          window->textColourA;
+                        dList++;
+                        activeColour = 0;
+                    }
+                }
+
+                left = window->x1 + x;
+                top = window->y1 + y;
+                spacing = D_800D6628[D_800D60E0][second];
+                if (font->width + left > 0 && font->verticalExtent + top > 0 &&
+                    left < window->x2 && top < window->y2) {
+                    glyph = func_8004C690(second);
+                    if (glyph != NULL) {
+                        right = ((glyph->right - glyph->left) * 4) + left * 4;
+                        bottom = ((glyph->bottom - glyph->top) * 4) +
+                                 (glyph->top + top) * 4;
+                        left *= 4;
+                        top = (glyph->top + top) * 4;
+                        spacing = glyph->advance;
+                        textureS = glyph->left << 5;
+                        textureT = glyph->top << 5;
+                        if (left < 0 && right > 0) {
+                            textureS -= left * 8;
+                            left = 0;
+                        }
+                        if (top < 0 && bottom > 0) {
+                            textureT -= top * 8;
+                            top = 0;
+                        }
+
+                        fontCommands = font->displayList;
+                        dList->words.w0 = fontCommands->words.w0;
+                        dList->words.w1 = D_800D6638 + glyph->textureOffset;
+                        dList++;
+                        fontCommands++;
+                        if (font->format == 4) {
+                            dList->words.w0 = 0x07060030;
+                            dList->words.w1 = (u32) fontCommands + 0x80000000;
+                            dList++;
+                            dList->words.w0 = fontCommands[6].words.w0;
+                            dList->words.w1 = D_800D6638 + glyph->textureOffset2;
+                            dList++;
+                            fontCommands += 7;
+                        }
+                        dList->words.w0 = 0x07080040;
+                        dList->words.w1 = (u32) fontCommands + 0x80000000;
+                        dList++;
+                        dList->words.w0 = 0xE4000000 |
+                                          ((right & 0xFFF) << 12) |
+                                          (bottom & 0xFFF);
+                        dList->words.w1 = ((left & 0xFFF) << 12) |
+                                          (top & 0xFFF);
+                        dList++;
+                        dList->words.w0 = 0xB3000000;
+                        dList->words.w1 = (textureS << 16) |
+                                          (textureT & 0xFFFF);
+                        dList++;
+                        dList->words.w0 = 0xB2000000;
+                        dList->words.w1 = 0x04000400;
+                        dList++;
+                    }
+                }
+            }
+            if (D_800D664C != 0 && spacing != 0) {
+                spacing--;
+            }
+            x += spacing;
+        } else {
+            switch (first) {
+                default:
+                    x += font->characterWidth;
+                    break;
+                case '\n':
+                    x = window->textOffsetX;
+                    y += font->height;
+                    break;
+                case '\t':
+                    width = font->characterWidth * 4;
+                    x = (x + width) - ((x - window->textOffsetX) % width);
+                    break;
+                case '\v':
+                    y += font->height;
+                    break;
+                case '\r':
+                    x = window->textOffsetX;
+                    break;
+            }
+        }
+        first = *current;
+    }
+
+    window->xpos = x - window->textOffsetX;
+    window->ypos = y - window->textOffsetY;
+    D_800D60E0 = savedFont;
+    *displayList = dList;
+    func_80034920(displayList);
+    if (window != D_800D64E8) {
+        func_80022610(displayList);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BA8C.s")
 void func_8004BB44(s32 windowId, s32 x1, s32 y1, s32 x2, s32 y2) {
     if (windowId > 0 && windowId < 8) {
@@ -327,7 +627,85 @@ void func_8004C000(char **outString, s32 number) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C0C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C140.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C200.s")
+/*
+ * PROVENANCE -- adapted from Diddy Kong Racing's permitted published
+ * render_dialogue_box body. Mickey's own instructions and data layout
+ * determine the commands, dimensions, and omission of DKR's 3D setup.
+ */
+void func_8004C200(Gfx **displayList, void *matrix, void *vertices,
+                   s32 windowId) {
+    DialogueBoxBackground *window;
+    DialogueTextElement *element;
+    s32 i;
+    s32 x1;
+    s32 y1;
+    s32 x2;
+    s32 y2;
+    window = &D_800D64E8[windowId];
+    if (window->backgroundColourA != 0) {
+        gSPDisplayList((*displayList)++, D_8007D490);
+
+        gDPSetPrimColor((*displayList)++, 0, 0, D_8007D538,
+                        D_8007D53C, D_8007D540, 0);
+
+        gDma1p((*displayList)++, 7, D_7D528, 0x10, 2);
+
+        gDPSetEnvColor((*displayList)++, 0, 0, 0, 0);
+
+        if ((window->x2 - window->x1) < 10 ||
+            (window->y2 - window->y1) < 10) {
+            func_8004C140(displayList, window->x1 - 2, window->y1 - 2,
+                          window->x2 + 2, window->y2 + 2);
+        } else {
+            func_8004C140(displayList, window->x1 - 2, window->y1 + 2,
+                          window->x1 + 2, window->y2 - 2);
+            func_8004C140(displayList, window->x1 - 2, window->y1 - 2,
+                          window->x2 + 2, window->y1 + 2);
+            func_8004C140(displayList, window->x2 - 2, window->y1 + 2,
+                          window->x2 + 2, window->y2 - 2);
+            func_8004C140(displayList, window->x1 - 2, window->y2 - 2,
+                          window->x2 + 2, window->y2 + 2);
+        }
+
+        gDPPipeSync((*displayList)++);
+        gDPSetEnvColor((*displayList)++, window->backgroundColourR,
+                       window->backgroundColourG, window->backgroundColourB,
+                       window->backgroundColourA);
+
+        for (i = 0; D_8007D570[i] >= 0; i += 5) {
+            x1 = D_8007D570[i] + window->x1;
+            y1 = D_8007D570[i + 1] != 0
+                     ? D_8007D570[i + 2] + window->y2
+                     : D_8007D570[i + 2] + window->y1;
+            x2 = window->x2 - D_8007D570[i];
+            y2 = D_8007D570[i + 3] != 0
+                     ? D_8007D570[i + 4] + window->y2
+                     : D_8007D570[i + 4] + window->y1;
+            func_8004C140(displayList, x1, y1, x2, y2);
+        }
+
+        gDPPipeSync((*displayList)++);
+    }
+
+    element = (DialogueTextElement *) window->textBox;
+    while (element != NULL) {
+        window->xpos = element->posX + element->offsetX;
+        window->ypos = element->posY + element->offsetY;
+        window->textColourR = element->textColourR;
+        window->textColourG = element->textColourG;
+        window->textColourB = element->textColourB;
+        window->textColourA = element->textColourA;
+        window->textBGColourR = element->textBGColourR;
+        window->textBGColourG = element->textBGColourG;
+        window->textBGColourB = element->textBGColourB;
+        window->textBGColourA = element->textBGColourA;
+        window->opacity = element->opacity;
+        window->font = element->font;
+        func_8004C5A4(element->text, D_800D6640, element->number);
+        func_8004B1DC(displayList, window, D_800D6640, 0);
+        element = (DialogueTextElement *) element->nextBox;
+    }
+}
 void func_8004C5A4(char *input, char *output, s32 number) {
     char currentChar;
 
