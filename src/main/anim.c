@@ -160,7 +160,19 @@ void animseqPlay(void) {
     D_8007D6A4 = 1;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800534C0.s")
+void func_800534C0(s32 i) {
+    AnimPauseSlot *slot;
+
+    /* The incoming scratch value is replaced before its first use. */
+    slot = D_800D6D18;
+    i = 4;
+    do {
+        slot->unkB = 0;
+        slot->unk0 = 0;
+        slot++;
+    } while (i--);
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800534EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053550.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053868.s")

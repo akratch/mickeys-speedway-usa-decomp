@@ -1492,6 +1492,7 @@ func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  
 func_800508B4 = 0x800508B4; // type:func size:0x20   ROM 0x514b4  tier-D path-table getter structure, matched C
 animseqInitGroup = 0x800510E8; // type:func size:0x40   ROM 0x51ce8  src/anim.c.o  masked=1/16 tier-A matched-C
 animseqPlay = 0x800534B0; // type:func size:0x10   ROM 0x540b0  tier-D JFG ordered Play store, matched C
+func_800534C0 = 0x800534C0; // type:func size:0x2C   ROM 0x540c0  tier-D JFG ordered animseqPause candidate, matched C
 // jfg:libultra/src/flash/flashreadid.c.o
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C   ROM 0x58810  libultra/src/flash/flashreadid.c.o  masked=6/19
 // jfg:src/camera.c.o
