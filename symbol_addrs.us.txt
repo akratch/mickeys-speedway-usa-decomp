@@ -467,7 +467,7 @@ rain_init = 0x8003B6F8; // type:func size:0xEC tier B/D, ROM 0x3c2f8
 free_rain_memory = 0x8003B7E4; // type:func size:0x84 tier B/D, ROM 0x3c3e4
 rain_set = 0x8003B868; // type:func size:0x104 tier B/D, ROM 0x3c468
 rainSetFog = 0x8003B96C; // type:func size:0xD0 tier B/D, ROM 0x3c56c
-rainDensity = 0x8003BA3C; // type:func size:0x78 tier B/D, ROM 0x3c63c
+rainDensity = 0x8003BA3C; // type:func size:0x78 tier B/D, ROM 0x3c63c  src/main/weather.c.o masked=0/30
 rain_update = 0x8003BAB4; // type:func size:0x144 tier B/D, ROM 0x3c6b4
 rain_render_splashes = 0x8003BBF8; // type:func size:0x650 tier B/D, ROM 0x3c7f8
 rain_lightning = 0x8003C248; // type:func size:0x128 tier B/D, ROM 0x3ce48

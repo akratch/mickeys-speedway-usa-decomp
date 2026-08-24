@@ -468,9 +468,9 @@ out of asm-processor while retaining C ownership around it.
 **PROVENANCE:** the TU and descriptive function names are borrowed from Jet
 Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
 files and JFG's `asm/nonmatchings/weather/` names, as permitted by
-`docs/CLEANROOM.md`. The matched `weather_clip_planes` body is adapted from
-the disclosed DKR source and carries a point-of-use note; Mickey's own bytes
-remain authoritative.
+`docs/CLEANROOM.md`. The matched `weather_clip_planes` and `rainDensity`
+bodies are adapted from those disclosed sources and carry point-of-use notes;
+Mickey's own bytes remain authoritative.
 
 | ROM | Size | Symbol | Evidence / disposition |
 |---|---:|---|---|
@@ -486,7 +486,7 @@ remain authoritative.
 | `0x3C3E4` | `0x84` | `free_rain_memory` | B/D |
 | `0x3C468` | `0x104` | `rain_set` | B/D |
 | `0x3C56C` | `0xD0` | `rainSetFog` | B/D |
-| `0x3C63C` | `0x78` | `rainDensity` | B/D |
+| `0x3C63C` | `0x78` | `rainDensity` | B/D name; exact C, 30 words, 4 relocs |
 | `0x3C6B4` | `0x144` | `rain_update` | B/D |
 | `0x3C7F8` | `0x650` | `rain_render_splashes` | B/D |
 | `0x3CE48` | `0x128` | `rain_lightning` | B/D |

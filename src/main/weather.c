@@ -19,6 +19,8 @@ typedef struct WeatherClipPlanes {
 } WeatherClipPlanes;
 
 extern WeatherClipPlanes D_800D40B8;
+extern s32 D_8007C6EC;
+extern s32 D_8007C6F8;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/initWeather.s")
 /*
@@ -45,7 +47,22 @@ void weather_clip_planes(s16 near, s16 far) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/free_rain_memory.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_set.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rainSetFog.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rainDensity.s")
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::rainDensity.  Mickey's bytes and globals are authoritative.
+ */
+f32 rainDensity(void) {
+    f32 density;
+
+    density = (f32)(((D_8007C6F8 >> 2) * D_8007C6EC) >> 14) / 0x10000;
+    if (density < 0.0f) {
+        density = 0.0f;
+    }
+    if (density > 1.0f) {
+        density = 1.0f;
+    }
+    return density;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_update.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_render_splashes.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_lightning.s")
