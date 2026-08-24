@@ -10,6 +10,7 @@ extern O1GaugeTableEntry *overlay1GetGaugeTable(void);
 extern O1GaugeObject **overlay1GetGaugeObjects(s32 *count);
 extern s32 overlay1RandomRange(s32 minimum, s32 maximum);
 
+#ifdef NON_MATCHING
 void overlay1InitializeGaugeObjects(void) {
     O1GaugeTableEntry *table;
     O1GaugeObject **objects;
@@ -51,3 +52,7 @@ void overlay1InitializeGaugeObjects(void) {
         } while (loopValue != 0);
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1InitializeGaugeObjects/func_overlay_001_F0003578_184F958.s")
+#endif

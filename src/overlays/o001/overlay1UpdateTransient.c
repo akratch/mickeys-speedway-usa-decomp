@@ -52,6 +52,7 @@ extern void overlay1ReadSelection(Overlay1TransientOwner *owner, s32 index,
                                   f32 *x, f32 *y, f32 *z);
 extern void overlay1InitTimedState(Overlay1TransientOwner *owner, s32 timer);
 
+#ifdef NON_MATCHING
 void overlay1UpdateTransient(void) {
     Overlay1TransientObject *object;
     Overlay1TransientState *state;
@@ -91,3 +92,7 @@ void overlay1UpdateTransient(void) {
         *object->flags &= ~2;
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1UpdateTransient/func_overlay_001_F0007130_1853510.s")
+#endif

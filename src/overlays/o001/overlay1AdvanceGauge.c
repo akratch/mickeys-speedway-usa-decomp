@@ -5,6 +5,7 @@ typedef struct O1GaugeObject { u8 pad00[0x64]; O1GaugeState *state; } O1GaugeObj
 extern s32 D_0;
 extern O1GaugeObject **overlay1GetGaugeObjects(s32 *count);
 
+#ifdef NON_MATCHING
 void overlay1AdvanceGauge(s32 amount) {
     volatile s32 private;
     s32 count;
@@ -30,3 +31,7 @@ void overlay1AdvanceGauge(s32 amount) {
         } while (loopValue != 0);
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1AdvanceGauge/func_overlay_001_F0002AA4_184EE84.s")
+#endif

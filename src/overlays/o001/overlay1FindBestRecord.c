@@ -17,6 +17,7 @@ extern Overlay1BestRecord gOverlay1BestRecords[32];
 extern s32 gOverlay1SelectedType;
 
 /* DKR v77/v80 and JFG have no exact donor for this fixed record scan. */
+#ifdef NON_MATCHING
 Overlay1BestRecord *overlay1FindBestRecord(void) {
     Overlay1BestRecord *record;
     Overlay1BestRecord *result;
@@ -44,3 +45,7 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
     } while (remaining--);
     return result;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1FindBestRecord/func_overlay_001_F0007B64_1853F44.s")
+#endif

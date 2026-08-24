@@ -96,6 +96,7 @@ extern f32 func_8002A8C0(s32 angle);
 extern f32 sqrtf(f32 value);
 extern void overlay1InitTimedState(Overlay1TransientOwner *owner, s32 timer);
 
+#ifdef NON_MATCHING
 void overlay1UpdateAimedTransient(void) {
     Overlay1TransientWorld *world;
     Overlay1TransientWorld **worldRef;
@@ -203,3 +204,7 @@ void overlay1UpdateAimedTransient(void) {
         world->mode = 0xD;
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1UpdateAimedTransient/func_overlay_001_F0006D4C_185312C.s")
+#endif

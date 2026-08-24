@@ -131,6 +131,7 @@ typedef struct HitRecord {
     u32 flags;
 } HitRecord;
 
+#ifdef NON_MATCHING
 void func_overlay_001_F000438C_185076C(f32 *arg0, s32 arg1) {
     f32 *sp130;
     HitRecord spF0[8];
@@ -801,3 +802,7 @@ block_160:
         }
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1UpdateObjectPhysics/func_overlay_001_F000438C_185076C.s")
+#endif

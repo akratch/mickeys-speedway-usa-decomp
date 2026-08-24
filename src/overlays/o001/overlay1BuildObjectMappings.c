@@ -42,6 +42,7 @@ extern u8 gOverlay1RankLimit;
 extern u8 D_8[];
 extern Overlay1BuildState *D_1DA0;
 
+#ifdef NON_MATCHING
 void overlay1BuildObjectMappings(volatile s32 unused) {
     s32 count;
     Overlay1BuildObject **base;
@@ -111,3 +112,7 @@ s32 overlay1BuildScheduleCarrier(s32 first, s32 second) {
     first <<= 2;
     return first + second;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1BuildObjectMappings/func_overlay_001_F0001A54_184DE34.s")
+#endif

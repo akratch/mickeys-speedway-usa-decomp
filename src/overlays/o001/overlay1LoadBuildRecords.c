@@ -97,6 +97,7 @@ extern f32 func_overlay_001_F0000F84_184D364(
     f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3,
     s32 scale);
 
+#ifdef NON_MATCHING
 void overlay1LoadBuildRecords(void) {
     Overlay1PackedRecord *records;
     Overlay1PackedRecord *record;
@@ -401,3 +402,7 @@ void overlay1LoadBuildRecords(void) {
         }
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1LoadBuildRecords/func_overlay_001_F00010C8_184D4A8.s")
+#endif

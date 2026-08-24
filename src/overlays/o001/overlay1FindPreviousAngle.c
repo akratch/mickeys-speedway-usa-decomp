@@ -15,6 +15,7 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1PreviousAngleLimit;
 
 /* DKR v77/v80 and JFG contain no exact donor for this angle-selection scan. */
+#ifdef NON_MATCHING
 Overlay1PreviousAngleObject *overlay1FindPreviousAngle(f32 angle) {
     s32 count;
     Overlay1PreviousAngleObject **objects;
@@ -46,3 +47,7 @@ Overlay1PreviousAngleObject *overlay1FindPreviousAngle(f32 angle) {
     }
     return best;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1FindPreviousAngle/func_overlay_001_F000280C_184EBEC.s")
+#endif

@@ -17,6 +17,7 @@ extern s32 overlay1AngleDifferenceReloc(s16 first, s16 second);
 extern f32 overlay1TrigXReloc(s32 angle);
 extern f32 overlay1TrigYReloc(s32 angle);
 
+#ifdef NON_MATCHING
 void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
     Overlay1PathPoint *next, *previous, *current;
     Overlay1Path *path;
@@ -53,3 +54,7 @@ void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
     *x = (s16)((f32)*x - overlay1TrigXReloc(midpointAngle) * 50.0f);
     *y = (s16)((f32)*y - overlay1TrigYReloc(midpointAngle) * 50.0f);
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1BendPathPoint/func_overlay_001_F0007730_1853B10.s")
+#endif

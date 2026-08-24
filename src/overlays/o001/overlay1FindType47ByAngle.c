@@ -18,6 +18,7 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1ScanLimit;
 extern f32 gOverlay1PhaseScale;
 
+#ifdef NON_MATCHING
 Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     s32 start;
     s32 end;
@@ -53,3 +54,7 @@ Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     }
     return best;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1FindType47ByAngle/func_overlay_001_F00001AC_184C58C.s")
+#endif

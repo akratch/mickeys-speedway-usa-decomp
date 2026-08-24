@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 276552,
-  "nonmatching_overlay_c_bytes": 48,
+  "matched_overlay_c_bytes": 252844,
+  "nonmatching_overlay_c_bytes": 23756,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -655,7 +655,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1FindType47ByAngle",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2D4",
@@ -682,7 +682,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1FindType5ByKey",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x414",
@@ -691,7 +691,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1FindPreviousUsable",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x4B4",
@@ -700,7 +700,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1ActivateObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x758",
@@ -727,7 +727,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1InitMotionScale",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xCA8",
@@ -736,7 +736,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1InterpolatePath",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xDF4",
@@ -745,7 +745,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1ResolveMotionPoint",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF84",
@@ -754,7 +754,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1MeasureCurves",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x10C0",
@@ -772,7 +772,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1LoadBuildRecords",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x19B8",
@@ -790,7 +790,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1BuildObjectMappings",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1CA4",
@@ -826,7 +826,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1FindNextAngle",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x280C",
@@ -835,7 +835,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1FindPreviousAngle",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x28D4",
@@ -862,7 +862,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1AdvanceObjectGauges",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2AA4",
@@ -871,7 +871,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1AdvanceGauge",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2B4C",
@@ -889,7 +889,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1InitializeGaugeObjects",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x36A0",
@@ -898,7 +898,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1AssignRecordIndex",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x3750",
@@ -907,7 +907,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1ChoosePath",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x3E48",
@@ -952,7 +952,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1TransitionState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x438C",
@@ -961,7 +961,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1UpdateObjectPhysics",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x5BA4",
@@ -988,7 +988,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1StartTimerCallbacks",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x5CD4",
@@ -997,7 +997,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1FindDirectionalObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x5ECC",
@@ -1015,7 +1015,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1DispatchMode",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x61F0",
@@ -1024,7 +1024,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1HandleCachedMode",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x6270",
@@ -1033,7 +1033,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1ChooseModeObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x63CC",
@@ -1060,7 +1060,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1SolveAngleCandidates",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x6724",
@@ -1087,7 +1087,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1UpdateRangeFlags",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x69A0",
@@ -1105,7 +1105,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1ConsumeNearbyPending",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x6B28",
@@ -1123,7 +1123,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1SearchNearby",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x6CE8",
@@ -1141,7 +1141,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1UpdateAimedTransient",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7130",
@@ -1150,7 +1150,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1UpdateTransient",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x72A4",
@@ -1159,7 +1159,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1AllocateRecord",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7344",
@@ -1168,7 +1168,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1CloneRecord",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x73A0",
@@ -1177,7 +1177,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1UpdateValueCache",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7580",
@@ -1186,7 +1186,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1AppendPathPoint",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7730",
@@ -1195,7 +1195,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1BendPathPoint",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x78DC",
@@ -1204,7 +1204,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1AdvancePath",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7B64",
@@ -1213,7 +1213,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1FindBestRecord",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7BDC",
@@ -1231,7 +1231,7 @@
      "type": "c",
      "source": "overlays/o001/overlay1ResolvePathPoint",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7FCC",

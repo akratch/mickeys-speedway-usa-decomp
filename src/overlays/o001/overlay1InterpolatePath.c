@@ -12,6 +12,7 @@ extern O1ControlTable *D_1D6C;
 extern O1ControlTable *overlay1NextControlTable(O1ControlTable *table);
 extern f32 overlay1CubicInterpolate(f32 a, f32 b, f32 c, f32 d, f32 t);
 
+#ifdef NON_MATCHING
 void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     O1ControlTable *table3Base;
     O1ControlPoint *point0;
@@ -52,3 +53,7 @@ void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     *outZ = overlay1CubicInterpolate(point0->z, point1->z, point2->z,
                                      point3->z, fraction);
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1InterpolatePath/func_overlay_001_F0000CA8_184D088.s")
+#endif

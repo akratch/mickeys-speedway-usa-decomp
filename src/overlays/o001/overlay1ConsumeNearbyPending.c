@@ -25,6 +25,7 @@ typedef struct Overlay1NearbyObject {
 
 extern Overlay1NearbyObject **overlay1GetObjectListReloc(s32 *count);
 
+#ifdef NON_MATCHING
 void overlay1ConsumeNearbyPending(void *objectArg, void *listArg) {
     Overlay1NearbyState *state;
     f32 radiusSquared;
@@ -59,3 +60,7 @@ void overlay1ConsumeNearbyPending(void *objectArg, void *listArg) {
         }
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1ConsumeNearbyPending/func_overlay_001_F0006A14_1852DF4.s")
+#endif

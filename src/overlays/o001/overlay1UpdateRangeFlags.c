@@ -34,6 +34,7 @@ extern s32 overlay1GetAngleValueReloc(f32 dz, f32 dx);
 extern void overlay1ActivateObjectReloc(Overlay1RangeObject *object);
 extern void overlay1PlaySoundReloc(u8 soundId);
 
+#ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;
     register s32 clearMask;
@@ -96,3 +97,7 @@ void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
         } while (count--);
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1UpdateRangeFlags/func_overlay_001_F00067C0_1852BA0.s")
+#endif

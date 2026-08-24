@@ -9,6 +9,7 @@ extern s32 D_0;
 extern s32 overlay1GetGaugeObjectsRaw(s32 *count);
 extern s32 overlay1GetGaugeLimit(O1GaugeObject *object);
 
+#ifdef NON_MATCHING
 s32 overlay1AdvanceObjectGauges(O1GaugeOwner *owner, s32 amount) {
     O1GaugeObject **objects;
     O1GaugeObject *object;
@@ -43,3 +44,7 @@ s32 overlay1AdvanceObjectGauges(O1GaugeOwner *owner, s32 amount) {
     }
     return result;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1AdvanceObjectGauges/func_overlay_001_F000296C_184ED4C.s")
+#endif

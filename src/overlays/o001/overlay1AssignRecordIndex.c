@@ -6,6 +6,7 @@ extern s32 D_1D8CRead;
 extern void overlay1GetVariableRecords(O1VariableRecord **records, s32 *length,
                                        s32 enabled, O1RecordOwner *owner);
 
+#ifdef NON_MATCHING
 void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
     volatile s32 private;
     O1VariableRecord *records;
@@ -33,3 +34,7 @@ void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
         owner->index = (u16)D_1D8CRead;
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1AssignRecordIndex/func_overlay_001_F00036A0_184FA80.s")
+#endif

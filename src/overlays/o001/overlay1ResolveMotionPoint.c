@@ -8,6 +8,7 @@ extern void overlay1InterpolatePath(f32 *x, f32 *z, s32 path, f32 offset);
 extern f32 overlay1SinAngle(s16 angle);
 extern f32 overlay1CosAngle(s16 angle);
 extern f32 overlay1SquareRoot(f32 value);
+#ifdef NON_MATCHING
 void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
                                 f32 *outY, f32 *outZ) {
     f32 dx;
@@ -39,3 +40,7 @@ void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
         *outZ = owner->z + (overlay1CosAngle(owner->angle) * 150.0f);
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1ResolveMotionPoint/func_overlay_001_F0000DF4_184D1D4.s")
+#endif
