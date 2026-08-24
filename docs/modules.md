@@ -400,12 +400,12 @@ Exact C reconstructions in this census currently include `rumbleRumbles`
 bytes), and the still-unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–
 `0x2F7E0`, 12 bytes), plus `osScGetAudioSPStats` (ROM `0x30F20`–
 `0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
-and `osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), compiled with the
-resident
-`-O2 -mips2 -32` flags. The named setter bodies are adapted from JFG's
-`src/saves.c` and `src/rcpFast3d.c`; the anonymous setter is reconstructed
-from Mickey's own body. All configured object ranges and the final linked ROM
-are byte-exact.
+`osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
+no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes). All were compiled
+with the resident `-O2 -mips2 -32` flags. The named bodies are adapted from
+JFG's `src/saves.c`, `src/rcpFast3d.c`, and `src/sched.c`; the anonymous
+setter and no-op are reconstructed from Mickey's own bodies. All configured
+object ranges and the final linked ROM are byte-exact.
 
 ---
 

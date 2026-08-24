@@ -28,7 +28,8 @@ void osScGetAudioSPStats(f32 *first, f32 *second, f32 *third) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scMain.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_800304E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetTaskType.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030608.s")
+void func_80030608(s32 arg0) {
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030610.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030910.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRetrace.s")
