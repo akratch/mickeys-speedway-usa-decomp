@@ -22,6 +22,8 @@ typedef struct MenuScreenModeBits {
 
 extern s8 D_800D312B;
 extern MenuScreenModeBits D_800D3128;
+extern u8 D_8007C090;
+extern s32 func_80025CC8(void);
 extern s8 func_80033F5C(void);
 extern void viSetWideAdjust(s32 offset);
 
@@ -62,7 +64,26 @@ s32 frontGetScreenMode(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A2C8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A348.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A35C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/frontGetLevelScreenMode.s")
+s32 frontGetLevelScreenMode(void) {
+    /* Mickey-derived control flow; JFG's body remains GLOBAL_ASM. */
+    if (D_8007C090 == 1) {
+        goto mode_one;
+    }
+    if (D_8007C090 == 2) {
+        goto mode_two;
+    }
+    if (D_8007C090 != 3) {
+        goto current_mode;
+    }
+
+    return 3;
+mode_two:
+    return func_80025CC8() | 2;
+mode_one:
+    return 1;
+current_mode:
+    return func_80025CC8();
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetWideAdjust. */
 s8 frontGetWideAdjust(void) {
     return D_800D312B;

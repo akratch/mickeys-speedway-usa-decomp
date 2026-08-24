@@ -410,6 +410,13 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
+The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
+ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
+derived from Mickey's own draft and control flow rather than borrowed. The
+four cases return fixed mode 1, level mode with bit 1 set, fixed mode 3, or the
+current level mode. The canonical flags, two call relocations, object words,
+and linked ROM range are exact without post-processing.
+
 ---
 
 ## 4. libultra

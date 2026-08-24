@@ -4,6 +4,7 @@
 #include "PR/ultratypes.h"
 
 s32 frontGetScreenMode(void);
+s32 frontGetLevelScreenMode(void);
 s8 frontGetWideAdjust(void);
 void frontSetWideAdjust(s32 offset);
 
