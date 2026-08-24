@@ -1081,97 +1081,39 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8Ignore.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8GetIndexed.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
-# The natural IDO body owns all 381 opcodes, control flow, stack homes, and
-# memory effects. Select its exhaustive private register/addend carrier, then
-# retain exactly the retail R26 surface and bind its asserted call carriers.
+# NON_MATCHING fallback assembly supplies the retail body; retain its exact
+# text extent after restoring splat's internal symbol name.
 O8_0894_OBJ := \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/func_overlay_008_F0000894_185E5EC.c.o
-$(O8_0894_OBJ): \
-	config/normalizations/func_overlay_008_F0000894_185E5EC.ops \
-	config/normalizations/func_overlay_008_F0000894_185E5EC.filter.spec \
-	config/normalizations/func_overlay_008_F0000894_185E5EC.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(O8_0894_OBJ): POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x5F4 8f51967ca5b6470c5c2cb896dab3a5fc98b388e71057a5fdd2fb8220c0077a8f \
-		@config/normalizations/func_overlay_008_F0000894_185E5EC.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_008_F0000894_185E5EC.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_008_F0000894_185E5EC.rebind.spec && \
+	$(OBJCOPY) --redefine-sym func_overlay_008_F0000894_185E5EC=func_overlay_008_F0000894_185E5EC $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5F4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8StartMotion.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x94
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8Activate.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE4
-# The natural phase machine owns its arithmetic, FP behavior, two calls,
-# seven likely branches, memory effects and 161/165 opcode roles. Select one
-# complete private state/scheduler carrier, then bind the five loader-local
-# float-table addends and remove only the 18 runtime-owned relocation rows.
+# NON_MATCHING fallback assembly supplies the retail body; retain its exact
+# text extent after restoring splat's internal symbol name.
 O8_1000_OBJ := \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/func_overlay_008_F0001000_185ED58.c.o
-$(O8_1000_OBJ): \
-	config/normalizations/func_overlay_008_F0001000_185ED58.normalize.py \
-	config/normalizations/func_overlay_008_F0001000_185ED58.ops \
-	config/normalizations/func_overlay_008_F0001000_185ED58.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(O8_1000_OBJ): POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/func_overlay_008_F0001000_185ED58.normalize.py $@ $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x294 447d8e3db05fa052018717059ce0077be2ff0c27993ad9a15d215fc10966f44c \
-		@config/normalizations/func_overlay_008_F0001000_185ED58.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_008_F0001000_185ED58.filter.spec
-# Natural IDO with the measured R4300 multiply-hazard mode owns the exact
-# frame, size, CFG, calls, and opcode population. Select the complete bounded
-# private schedule/home/allocation carrier, then remove only the 14
-# loader-represented relocation rows.
+	$(OBJCOPY) --redefine-sym func_overlay_008_F0001000_185ED58=func_overlay_008_F0001000_185ED58 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x294
+# NON_MATCHING fallback assembly supplies the retail body; retain its exact
+# text extent after restoring splat's internal symbol name.
 O8_2640_OBJ := \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/func_overlay_008_F0002640_1860398.c.o
-$(O8_2640_OBJ): \
-	config/normalizations/func_overlay_008_F0002640_1860398.schedule.ops \
-	config/normalizations/func_overlay_008_F0002640_1860398.fields.ops \
-	config/normalizations/func_overlay_008_F0002640_1860398.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(O8_2640_OBJ): CFLAGS += -Wab,-r4300_mul
 $(O8_2640_OBJ): POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2DC fb18de90797ce78d2a21e50989ea4f4ea08a78b9f49152c0ed1d83c225fbefb9 \
-		@config/normalizations/func_overlay_008_F0002640_1860398.schedule.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2DC 51f108dbaa1859a5cee365cdd041f8f29722cd21910bc242d1381fdc0edbb103 \
-		@config/normalizations/func_overlay_008_F0002640_1860398.fields.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2DC && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_008_F0002640_1860398.filter.spec
-# The measured hazard mode naturally owns all 361 opcodes, calls, branches,
-# delay slots, and memory effects. Select the exhaustive private FP/home/addend
-# representation web, then retain and bind the exact shipped R26 table.
+	$(OBJCOPY) --redefine-sym func_overlay_008_F0002640_1860398=func_overlay_008_F0002640_1860398 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2DC
+# NON_MATCHING fallback assembly supplies the retail body; retain its exact
+# text extent after restoring splat's internal symbol name.
 O8_291C_OBJ := \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/func_overlay_008_F000291C_1860674.c.o
-$(O8_291C_OBJ): \
-	config/normalizations/func_overlay_008_F000291C_1860674.ops \
-	config/normalizations/func_overlay_008_F000291C_1860674.filter.spec \
-	config/normalizations/func_overlay_008_F000291C_1860674.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(O8_291C_OBJ): CFLAGS += -Wab,-r4300_mul
 $(O8_291C_OBJ): POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x5A4 d2a5b9095e2acf61b9384e36e065f0600e42f5ead304207a88a9b7acb89e85e8 \
-		@config/normalizations/func_overlay_008_F000291C_1860674.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_008_F000291C_1860674.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_008_F000291C_1860674.rebind.spec && \
+	$(OBJCOPY) --redefine-sym func_overlay_008_F000291C_1860674=func_overlay_008_F000291C_1860674 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5A4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateChild.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x158
@@ -1182,16 +1124,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateChannels.c.o: POSTPROCESS = 
 		0x1BC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8ApplyColors.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
-# IDO reverses two independent threshold FP webs while reproducing every
-# GPR, temporary, opcode, branch, and delay slot. Assert the complete natural
-# four-word f0/f2 web before restoring the shipped allocation.
+# NON_MATCHING fallback assembly supplies the retail body; retain its exact
+# text extent after restoring the friendly source symbol.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8ScaleOutputs.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x138 b862f7ff2adc508b8af1ba159e5d0908fa343bfff5af1457ad4fa428905031ca \
-		fields:0x34:rt=zero@v0 \
-		fields:0x3c:rt=v0@zero \
-		fields:0x80:rd=2@0 \
-		fields:0xb4:rt=0@2 && \
+	$(OBJCOPY) --redefine-sym func_overlay_008_F0003368_18610C0=overlay8ScaleOutputs $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8SetBuffer.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x10
@@ -1204,29 +1140,14 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateMotionOutput.c.o: POSTPROCES
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x308 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
 		3d23d70a000000000000000000000000 0x28C
-# Natural IDO owns the exact 270-word frame/opcode/CFG/call/GPR topology.
-# Select the complete private FP and normal-home web, externalize the asserted
-# retained O8 literal pool, and leave the following two zero words as padding.
+# NON_MATCHING fallback assembly supplies the retail body; retain its exact
+# text extent after restoring splat's internal symbol name.
 O8_4CF0_OBJ := \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o008/func_overlay_008_F0004CF0_1862A48.c.o
-$(O8_4CF0_OBJ): \
-	config/normalizations/func_overlay_008_F0004CF0_1862A48.ops \
-	config/normalizations/func_overlay_008_F0004CF0_1862A48.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/externalize_elf_section.py \
-	$(TOOLS_DIR)/trim_elf_section.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(O8_4CF0_OBJ): CFLAGS += -Wab,-r4300_mul
 $(O8_4CF0_OBJ): POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x438 c7b816c168f4d59e28f2fc77bb9616f09e50ef2baab80d0a241264194f425f28 \
-		@config/normalizations/func_overlay_008_F0004CF0_1862A48.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-		3f6666663f6666663ecccccd3e4ccccd3d4ccccd3cccccc03f79999a00000000 \
-		0x290 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x438 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_008_F0004CF0_1862A48.filter.spec
+	$(OBJCOPY) --redefine-sym func_overlay_008_F0004CF0_1862A48=func_overlay_008_F0004CF0_1862A48 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x438
 # Natural IDO owns the exact size/frame/CFG/call topology. A complete guarded
 # private schedule/register/scalar-address web selects retail's representation.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateObjectState.c.o: \

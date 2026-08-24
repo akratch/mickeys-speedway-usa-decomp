@@ -50,6 +50,7 @@ extern s32 O8P2640_call_27CC(s32 low, s32 high);
 extern s32 O8P2640_call_27DC(s32 low, s32 high);
 extern void O8P2640_call_28C0(O8P2640Record *record);
 
+#ifdef NON_MATCHING
 void func_overlay_008_F0002640_1860398(
     O8P2640Anchor *anchor, O8P2640Config *config, s32 orientation,
     s32 randomLow, s32 randomHigh, f32 distanceX, f32 unusedStackFloat,
@@ -132,3 +133,6 @@ void func_overlay_008_F0002640_1860398(
         record.phase14 = 1.0f;
     } while (emissionCount--);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/func_overlay_008_F0002640_1860398/func_overlay_008_F0002640_1860398.s")
+#endif

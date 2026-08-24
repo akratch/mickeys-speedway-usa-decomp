@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 273912,
-  "nonmatching_overlay_c_bytes": 2688,
+  "matched_overlay_c_bytes": 268160,
+  "nonmatching_overlay_c_bytes": 8440,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -2902,7 +2902,7 @@
      "type": "c",
      "source": "overlays/o008/func_overlay_008_F0000894_185E5EC",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xE88",
@@ -2929,7 +2929,7 @@
      "type": "c",
      "source": "overlays/o008/func_overlay_008_F0001000_185ED58",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1294",
@@ -2947,7 +2947,7 @@
      "type": "c",
      "source": "overlays/o008/func_overlay_008_F0002640_1860398",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x291C",
@@ -2956,7 +2956,7 @@
      "type": "c",
      "source": "overlays/o008/func_overlay_008_F000291C_1860674",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2EC0",
@@ -2992,7 +2992,7 @@
      "type": "c",
      "source": "overlays/o008/overlay8ScaleOutputs",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x34A0",
@@ -3046,7 +3046,7 @@
      "type": "c",
      "source": "overlays/o008/func_overlay_008_F0004CF0_1862A48",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x5128",
