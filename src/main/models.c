@@ -26,7 +26,9 @@ extern s32 D_800D7CF0;
 extern ConvListEntry D_800D78F0[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A700.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A764.s")
+void func_8005A764(void) {
+    D_800D7CF0 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A770.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A7A0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8005A948.s")
