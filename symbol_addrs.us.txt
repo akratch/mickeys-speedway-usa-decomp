@@ -1498,6 +1498,7 @@ animseqFreeLevelData = 0x80050DA8; // type:func size:0x48   ROM 0x519a8  tier-B 
 animseqInitGroup = 0x800510E8; // type:func size:0x40   ROM 0x51ce8  src/anim.c.o  masked=1/16 tier-A matched-C
 animseqPlay = 0x800534B0; // type:func size:0x10   ROM 0x540b0  tier-D JFG ordered Play store, matched C
 func_800534C0 = 0x800534C0; // type:func size:0x2C   ROM 0x540c0  tier-D JFG ordered animseqPause candidate, matched C
+func_800534EC = 0x800534EC; // type:func size:0x64   ROM 0x540ec  tier-D collision-shaped slot dispatcher, matched C
 fmvInit = 0x80057910; // type:func size:0x5C   ROM 0x58510  src/fmvInit.c.o exact masked tier-A, matched C
 // jfg:libultra/src/flash/flashreadid.c.o
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C   ROM 0x58810  libultra/src/flash/flashreadid.c.o  masked=6/19

@@ -64,6 +64,8 @@ void mmFree(void *ptr);
 void animseqFreeLevelData(void);
 void func_80050E9C(void);
 void func_800534C0(s32 i);
+void TrapDanglingJump(s32 arg0, AnimPauseSlot *slot);
+void func_800534EC(s32 arg0);
 void *func_8002E148(s32 resourceId);
 void fmvInit(void);
 

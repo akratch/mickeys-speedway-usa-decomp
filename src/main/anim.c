@@ -218,7 +218,20 @@ void func_800534C0(s32 i) {
     } while (i--);
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800534EC.s")
+void func_800534EC(s32 arg0) {
+    AnimPauseSlot *slot;
+    s32 i;
+
+    slot = D_800D6D18;
+    i = 4;
+    do {
+        if (slot->unkB > 0) {
+            TrapDanglingJump(arg0, slot);
+        }
+        slot++;
+    } while (i--);
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053550.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053868.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80054B3C.s")

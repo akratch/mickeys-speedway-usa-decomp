@@ -416,7 +416,7 @@ placeholders are never imported.
 | `0x80053420` | `0x90` | `animseqCamera` | D; ordered tail and nearest same-family shape |
 | `0x800534B0` | `0x10` | `animseqPlay` | D adoption; ordered JFG tail and the `playing = 1` store. Matched C: exact 16 B and relocation surface at `-O2 -mips2 -32`; skeleton remains too short for tier A |
 | `0x800534C0` | `0x2C` | `animseqPause` | D; ordered `anim.c` tail only, so the placeholder remains. Matched C: exact 44 B and relocation surface at `-O2 -mips2 -32`; the overwritten formal counter is required for IDO's target `$a0` allocation and has no static Mickey caller |
-| `0x800534EC` | `0x64` | no unique `hit.c` candidate | D; start of collision-shaped code |
+| `0x800534EC` | `0x64` | no unique `hit.c` candidate | D; placeholder retained at the start of collision-shaped code. Matched C: exact 100 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80053550` | `0x318` | `hitInitObjectHit` | B; same two matrix-builder calls |
 | `0x80053868` | `0x12D4` | `hitUpdate` | B; collision dispatcher over the following helpers |
 | `0x80054B3C` | `0x5C8` | no unique `hit.c` candidate | D; collision/vector shape |
