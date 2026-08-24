@@ -404,6 +404,7 @@ Exact C reconstructions in this census currently include `rumbleRumbles`
 `rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes), and the still-
 unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–`0x2F7E0`, 12 bytes),
 plus `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes) and
+`rcpInitSp` (ROM `0x3013C`–`0x30160`, 36 bytes), and
 `osScGetAudioSPStats` (ROM `0x30F20`–
 `0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
 `osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed

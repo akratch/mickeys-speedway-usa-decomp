@@ -27,6 +27,7 @@ extern u8 D_8007A3A4;
 extern u8 D_8007A3A8;
 extern u32 D_8007A3B0;
 extern RcpCommand D_8007A438[];
+extern RcpCommand D_8007A4B8[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpFast3d.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpWaitDP.s")
@@ -46,7 +47,9 @@ void func_8002EBD4(u32 value) {
 void rcpInitDpNoSize(RcpCommand **dlist) {
     RCP_DISPLAY_LIST((*dlist)++, D_8007A438);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpInitSp.s")
+void rcpInitSp(RcpCommand **dlist) {
+    RCP_DISPLAY_LIST((*dlist)++, D_8007A4B8);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002F618.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002FB34.s")
