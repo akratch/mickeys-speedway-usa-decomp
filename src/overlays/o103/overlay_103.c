@@ -4,7 +4,7 @@
  * Overlay 103, entire 0x70-byte text section. No exact DKR v77/v80 or JFG
  * donor exists. The function map is instead proved by its five relocation
  * records: two pairs load reserved-section symbol 0xFFD:0x14A4 and the sole
- * external call targets resident +0x2DF90 (romCopy).
+ * external call targets resident +0x2DF90 (func_8002E3E0).
  */
 s32 overlay103CheckSignature(void) {
     if (gOverlay103SignatureBlock != 0) {

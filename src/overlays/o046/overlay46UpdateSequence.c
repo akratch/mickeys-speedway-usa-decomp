@@ -58,7 +58,7 @@ extern void func_overlay_044_F0000580_188BDE0(void *state, void *target,
                                               f32 scale);
 extern void func_8004B0A4(s32 mode);
 extern void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha);
-extern void fontColour(s32 red, s32 green, s32 blue, s32 alpha,
+extern void func_8004B0B8(s32 red, s32 green, s32 blue, s32 alpha,
                           s32 intensity);
 extern s32 func_overlay_046_F000069C_188EA94(void);
 extern s32 func_overlay_046_F0000874_188EC6C();
@@ -208,7 +208,7 @@ compare_name:
                                           gOverlay46MotionTarget, 1.0f);
         func_8004B0A4(2);
         func_8004B0DC(0, 0, 0, 0);
-        fontColour(255, 255, 255, 255, gOverlay46Value8);
+        func_8004B0B8(255, 255, 255, 255, gOverlay46Value8);
     }
 }
 

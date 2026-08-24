@@ -51,14 +51,14 @@ typedef struct O26Config {
 } O26Config;
 
 extern u8 D_B18[];
-extern void mathOneFloatRPY(O26Object *object, O26Vec3f *vector);
-extern void trackMakePolylist(s32 count, O26Vec3f *position,
+extern void func_80029E74(O26Object *object, O26Vec3f *vector);
+extern void func_80015540(s32 count, O26Vec3f *position,
                           O26Vec3f *origin, f32 *radius,
                           s32 arg4, s32 arg5);
 extern s32 func_80010900(O26Vec3f *position, O26Vec3f *origin,
                          f32 radius, O26Object *object, void *callback);
 extern void func_overlay_026_F0000D24_187B11C(O26Object *object, s32 mode);
-extern void mathOneFloatPY(O26Object *object, O26Vec3f *direction);
+extern void func_80029FE4(O26Object *object, O26Vec3f *direction);
 extern s32 func_8000FAE0(f32 x, f32 y, f32 z);
 
 #ifdef NON_MATCHING
@@ -88,18 +88,18 @@ void func_overlay_026_F0000000_187A3F8(O26Object *object, O26Config *config) {
     motion.x = 0.0f;
     motion.y = 0.0f;
     motion.z = -38.0f;
-    mathOneFloatRPY(object, &motion);
+    func_80029E74(object, &motion);
     object->position.x += motion.x;
     object->position.y += motion.y;
     object->position.z += motion.z;
-    trackMakePolylist(1, &position, &object->position, &radius, 0, 0);
+    func_80015540(1, &position, &object->position, &radius, 0, 0);
 
     if ((func_80010900(&position, &object->position, radius, object, D_B18) != 0) &&
         ((state->flags28 & 4) != 0)) {
         func_overlay_026_F0000D24_187B11C(object, 5);
     } else {
         object->direction.z = -33.0f;
-        mathOneFloatPY(object, &object->direction);
+        func_80029FE4(object, &object->direction);
         object->result2E = func_8000FAE0(object->position.x,
                                         object->position.y,
                                         object->position.z);

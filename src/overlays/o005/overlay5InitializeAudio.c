@@ -63,11 +63,11 @@ extern u8 gOverlay5MessageQueue[];
 extern u8 gOverlay5MessageBuffer[];
 
 extern void alHeapInit(void *heap, void *base, s32 length);
-extern Overlay5Resource *piRomLoad(s32 resourceId);
+extern Overlay5Resource *func_8002E148(s32 resourceId);
 extern void *func_8002B280(s32 size, s32 tag);
-extern void piRomLoadSection(s32 resourceId, void *dst, const void *src,
+extern void func_8002E2E0(s32 resourceId, void *dst, const void *src,
                           s32 length);
-extern void *piRomGetSectionPtr(s32 resourceId, const void *address);
+extern void *func_8002E35C(s32 resourceId, const void *address);
 extern void alBnkfNew(void *bank, void *sampleTable);
 extern void alSeqFileNew(void *sequenceFile, void *data);
 extern void *alHeapDBAlloc(void *file, s32 line, void *heap, s32 count,
@@ -78,8 +78,8 @@ extern void *overlay5CreatePlayer(s32 voices, s32 events);
 extern void gsSndpNew(Overlay5SequenceConfig *config);
 extern void func_80001BA0(void);
 extern void func_80000450(void *value);
-extern void mmFree(Overlay5Resource *resource);
-extern void amVibratoInit(void);
+extern void func_8002B768(Overlay5Resource *resource);
+extern void func_800039F0(void);
 extern void alSurround_OutputType(s32 outputType);
 extern void alSurround_ReverbSetup(s32 arg0, s32 outputType);
 extern void osCreateMesgQueue(void *queue, void *buffer, s32 count);
@@ -98,34 +98,34 @@ void overlay5InitializeAudio(void *context) {
     gOverlay5AudioOwner = gOverlay5SoundState;
     alHeapInit(gOverlay5HeapState, gOverlay5HeapMemory, 0x30D40);
 
-    resource = piRomLoad(0x31);
+    resource = func_8002E148(0x31);
     gOverlay5Span0Size = resource->end - resource->span1End;
     gOverlay5Span0 = func_8002B280(gOverlay5Span0Size, 0x82);
-    piRomLoadSection(0x32, gOverlay5Span0,
+    func_8002E2E0(0x32, gOverlay5Span0,
                   (void *)resource->span1End, gOverlay5Span0Size);
     gOverlay5ScaleValue = gOverlay5Span0Size / 10U;
 
     gOverlay5Span1Size = resource->span1End - resource->span1Start;
     gOverlay5Span1 = func_8002B280(gOverlay5Span1Size, 0x82);
-    piRomLoadSection(0x32, gOverlay5Span1,
+    func_8002E2E0(0x32, gOverlay5Span1,
                   (void *)resource->span1Start, gOverlay5Span1Size);
     gOverlay5ScaleValue = gOverlay5Span1Size / 3U;
 
     gOverlay5Span2 = func_8002B280(resource->span0Start, 0x82);
-    piRomLoadSection(0x32, gOverlay5Span2, 0, resource->span0Start);
+    func_8002E2E0(0x32, gOverlay5Span2, 0, resource->span0Start);
     alBnkfNew(gOverlay5Span2,
-              piRomGetSectionPtr(0x32, (void *)resource->span0Start));
+              func_8002E35C(0x32, (void *)resource->span0Start));
 
     gOverlay5Bank = alHeapDBAlloc(0, 0, gOverlay5HeapState, 1, 4);
-    piRomLoadSection(0x32, gOverlay5Bank,
+    func_8002E2E0(0x32, gOverlay5Bank,
                   (void *)resource->span0End, 4);
 
     bankSize = (u32)gOverlay5Bank->count * sizeof(Overlay5BankEntry) + 4;
     gOverlay5Bank = func_8002B280(bankSize, 0x82);
-    piRomLoadSection(0x32, gOverlay5Bank,
+    func_8002E2E0(0x32, gOverlay5Bank,
                   (void *)resource->span0End, bankSize);
     alSeqFileNew(gOverlay5Bank,
-                 piRomGetSectionPtr(0x32, (void *)resource->span0End));
+                 func_8002E35C(0x32, (void *)resource->span0End));
 
     gOverlay5EntryValues = func_8002B280(
         (u32)gOverlay5Bank->count * sizeof(*gOverlay5EntryValues), 0x82);
@@ -185,8 +185,8 @@ void overlay5InitializeAudio(void *context) {
 
     func_80001BA0();
     func_80000450(0);
-    mmFree(resource);
-    amVibratoInit();
+    func_8002B768(resource);
+    func_800039F0();
     alSurround_OutputType(4);
     alSurround_ReverbSetup(0, 3);
     osCreateMesgQueue(gOverlay5MessageQueue, gOverlay5MessageBuffer, 1);

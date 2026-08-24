@@ -31,7 +31,7 @@ extern s32 func_8002675C(void);
 extern void func_80028374(s32, s32, s32, s32, s32, s32);
 extern void func_800290AC(s32);
 extern void func_800291D8(s32);
-extern void amTuneSetFadeScaled(f32, s32);
+extern void func_800006BC(f32, s32);
 extern void func_overlay_045_F0001BF4_188E04C(void *, s32);
 extern void func_overlay_066_F0000000(void *);
 extern void func_overlay_011_F0001058_18698A0(s32);
@@ -87,7 +87,7 @@ void overlay11UpdateFiveOptionMenu(s32 updateRate) {
             func_overlay_066_F0000000(0);
             func_800290AC(0);
             func_800291D8(0x1E);
-            amTuneSetFadeScaled(0.5f, 0x7F);
+            func_800006BC(0.5f, 0x7F);
             func_overlay_011_F0002BF4_186B43C();
             D_204 = 1;
             break;

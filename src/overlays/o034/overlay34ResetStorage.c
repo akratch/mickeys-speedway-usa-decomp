@@ -7,7 +7,7 @@ extern Overlay34Record **gOverlay34Pointers;
 extern s32 gOverlay34Count;
 extern s32 gOverlay34ActiveCount;
 extern void overlay34RemoveRecord(Overlay34Record *record);
-extern void mmFree(void *address);
+extern void func_8002B768(void *address);
 
 void overlay34ResetStorage(void) {
     if (gOverlay34Pointers != NULL) {
@@ -16,8 +16,8 @@ void overlay34ResetStorage(void) {
                 overlay34RemoveRecord(*gOverlay34Pointers);
             } while (gOverlay34ActiveCount != 0);
         }
-        mmFree(gOverlay34Records);
-        mmFree(gOverlay34Pointers);
+        func_8002B768(gOverlay34Records);
+        func_8002B768(gOverlay34Pointers);
     }
     gOverlay34Count = 0;
     gOverlay34ActiveCount = 0;

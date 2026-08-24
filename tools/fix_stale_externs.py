@@ -15,7 +15,10 @@ for line in (ROOT / "symbol_addrs.us.txt").read_text().splitlines():
         names[m.group(2).upper()] = m.group(1)
 pat = re.compile(r"\bfunc_([0-9A-Fa-f]{8})\b")
 changed = 0
-for path in list((ROOT / "src").rglob("*.c")) + list((ROOT / "include").rglob("*.h")):
+# Overlays are excluded: their extern names are lane-owned and their objects
+# link through the overlay relocation model, not the resident symbol table.
+for path in (list((ROOT / "src/main").rglob("*.c")) + list((ROOT / "src/libultra").rglob("*.c"))
+             + list((ROOT / "include/game").rglob("*.h"))):
     text = path.read_text()
     new = pat.sub(lambda m: names.get(m.group(1).upper(), m.group(0)), text)
     if new != text:

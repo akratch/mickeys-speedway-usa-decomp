@@ -73,8 +73,8 @@ typedef struct Overlay4SpawnPacket {
 } Overlay4SpawnPacket;
 
 extern void func_8005ABA8(Overlay4Object *object, f32 scale, f32 updateRate);
-extern s32 mathRnd(s32 minimum, s32 maximum);
-extern s32 mathDiffAngle(s16 current, s16 target);
+extern s32 func_8002997C(s32 minimum, s32 maximum);
+extern s32 func_8002AA0C(s16 current, s16 target);
 extern f32 func_80029274(s32 delta, f32 current, f32 amount);
 extern f32 func_8002A8C0(s16 angle);
 extern s32 func_80004590(s32 maximum);
@@ -103,19 +103,19 @@ void overlay4UpdateObjectMotion(Overlay4Object *object, s32 updateRate) {
         if (updateRate >= timer) {
             motion->trigger = 1;
             motion->timer =
-                (u8)((f32)mathRnd(config->timerMinimum,
+                (u8)((f32)func_8002997C(config->timerMinimum,
                                          config->timerMaximum) * 6.0f);
         } else {
             motion->timer = timer - updateRate;
         }
         break;
     case 1:
-        delta = (s16)mathDiffAngle(object->angle, motion->targetAngle);
+        delta = (s16)func_8002AA0C(object->angle, motion->targetAngle);
         if (delta <= config->threshold && delta >= -config->threshold) {
-            motion->targetAngle = mathRnd(-0x8000, 0x7FFF);
+            motion->targetAngle = func_8002997C(-0x8000, 0x7FFF);
             motion->trigger = 1;
         } else {
-            delta = mathDiffAngle(object->angle, motion->targetAngle);
+            delta = func_8002AA0C(object->angle, motion->targetAngle);
             motion->increment +=
                 func_80029274(delta, motion->increment,
                               (f32)config->threshold);
@@ -146,7 +146,7 @@ void overlay4UpdateObjectMotion(Overlay4Object *object, s32 updateRate) {
                 func_overlay_036_F00007B0(
                     spawned, object->angle,
                     (s16)(object->outputAngle + 0x1DDD),
-                    (f32)mathRnd(config->spawnMinimum,
+                    (f32)func_8002997C(config->spawnMinimum,
                                        config->spawnMaximum));
                 spawnState = spawned->state;
                 spawnState->angle = 0;

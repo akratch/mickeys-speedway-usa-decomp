@@ -47,7 +47,7 @@ extern f32 gO94Const24;
 
 extern u32 func_800254FC(s32 selector);
 extern s32 func_8002565C(s32 selector);
-extern f32 Powerf(f32 amount, s32 updateRate);
+extern f32 func_8002A878(f32 amount, s32 updateRate);
 extern void func_8005ABA8(Overlay94Object *object, f32 current, f32 rate);
 extern void func_8005AF14(Overlay94Entity *entity, s32 savedValue,
                           Overlay94Object *object);
@@ -55,7 +55,7 @@ extern void func_80019AB8(Overlay94Object *object, Overlay94Entity *entity,
                           void *resource, Overlay94Record *record);
 extern void func_8002B040(void *queryState, f32 x, f32 y, f32 z,
                           f32 *out0, f32 *out1, f32 *out2);
-extern s32 Arctanf(f32 z, f32 x);
+extern s32 func_8002A910(f32 z, f32 x);
 
 #ifdef NON_MATCHING
 void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
@@ -100,7 +100,7 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
             command[1] = (s16)state->accumulator;
             command += 2;
 
-            weight = Powerf(gO94Const0, updateRate);
+            weight = func_8002A878(gO94Const0, updateRate);
             state->current =
                 ((1.0f - weight) * (0.0f - state->current)) + state->current;
         } else if ((func_800254FC(state->selector) & 0x2000) != 0) {
@@ -111,16 +111,16 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
                 weight = 0.0f;
             }
             target = weight * gO94Const4;
-            weight = Powerf(gO94Const8, updateRate);
+            weight = func_8002A878(gO94Const8, updateRate);
             state->current =
                 ((1.0f - weight) * (target - state->current)) + state->current;
         } else {
-            weight = Powerf(gO94ConstC, updateRate);
+            weight = func_8002A878(gO94ConstC, updateRate);
             state->current =
                 ((1.0f - weight) * (0.0f - state->current)) + state->current;
         }
     } else {
-        weight = Powerf(gO94Const10, updateRate);
+        weight = func_8002A878(gO94Const10, updateRate);
         state->current =
             ((1.0f - weight) * (gO94Const14 - state->current)) + state->current;
     }
@@ -139,7 +139,7 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     func_8002B040(entity->records[entity->recordIndex]->queryState,
                   0.0f, 0.0f, -1.0f,
                   &out0, &out1, &out2);
-    angle = Arctanf(out2, out0);
+    angle = func_8002A910(out2, out0);
 
     if (state->active != 0 && state->velocity == 0) {
         s32 forward;

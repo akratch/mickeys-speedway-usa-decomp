@@ -55,10 +55,10 @@ typedef struct O26Angles2 {
 } O26Angles2;
 
 extern void func_80006EA0(O26ObjectD24 *object);
-extern s32 Arctanf(f32 first, f32 second);
+extern s32 func_8002A910(f32 first, f32 second);
 extern f32 sqrtf(f32 value);
-extern void mathOneFloatPY(O26Angles2 *angles, O26Vec3f *direction);
-extern s32 mathRnd(s32 minimum, s32 maximum);
+extern void func_80029FE4(O26Angles2 *angles, O26Vec3f *direction);
+extern s32 func_8002997C(s32 minimum, s32 maximum);
 extern void func_8003EDEC(O26ObjectD24 *object, s32 mode);
 extern void func_80002FE0(s32 id, f32 x, f32 y, f32 z,
                           s32 priority, s32 unused);
@@ -77,9 +77,9 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
     if (mode & 1) {
         func_80006EA0(object);
     } else if (mode & 2) {
-        azimuth = Arctanf(state->sourceDirection.x,
+        azimuth = func_8002A910(state->sourceDirection.x,
                                state->sourceDirection.z);
-        elevation = Arctanf(
+        elevation = func_8002A910(
             sqrtf((state->sourceDirection.z * state->sourceDirection.z) +
                   (state->sourceDirection.x * state->sourceDirection.x)),
             state->sourceDirection.y);
@@ -90,7 +90,7 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
         effect->direction.x = 0.0f;
         effect->direction.y = 0.0f;
         effect->direction.z = -7.0f;
-        mathOneFloatPY(&angles, &effect->direction);
+        func_80029FE4(&angles, &effect->direction);
 
         effect->position.x = object->position.x;
         effect->position.y = object->position.y;
@@ -99,9 +99,9 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
         effect->angleY = object->angleY;
         effect->angleZ = object->angleZ;
         effect->scale = object->scale;
-        effect->randomX = mathRnd(-0x500, 0x500);
-        effect->randomY = mathRnd(-0x500, 0x500);
-        effect->randomZ = mathRnd(-0x500, 0x500);
+        effect->randomX = func_8002997C(-0x500, 0x500);
+        effect->randomY = func_8002997C(-0x500, 0x500);
+        effect->randomZ = func_8002997C(-0x500, 0x500);
         effect->alpha = 0xFF;
 
         angles.y = elevation + 0x2000;
@@ -110,7 +110,7 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
         effect->direction.x = 0.0f;
         effect->direction.y = 0.0f;
         effect->direction.z = -7.0f;
-        mathOneFloatPY(&angles, &effect->direction);
+        func_80029FE4(&angles, &effect->direction);
 
         effect->position.x = object->position.x;
         effect->position.y = object->position.y;
@@ -119,9 +119,9 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
         effect->angleY = object->angleY;
         effect->angleZ = object->angleZ;
         effect->scale = object->scale;
-        effect->randomX = mathRnd(-0x500, 0x500);
-        effect->randomY = mathRnd(-0x500, 0x500);
-        effect->randomZ = mathRnd(-0x500, 0x500);
+        effect->randomX = func_8002997C(-0x500, 0x500);
+        effect->randomY = func_8002997C(-0x500, 0x500);
+        effect->randomZ = func_8002997C(-0x500, 0x500);
         effect->alpha = 0xFF;
 
         angles.x = azimuth - 0x2000;
@@ -130,7 +130,7 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
         effect->direction.x = 0.0f;
         effect->direction.y = 0.0f;
         effect->direction.z = -7.0f;
-        mathOneFloatPY(&angles, &effect->direction);
+        func_80029FE4(&angles, &effect->direction);
 
         effect->position.x = object->position.x;
         effect->position.y = object->position.y;
@@ -139,9 +139,9 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
         effect->angleY = object->angleY;
         effect->angleZ = object->angleZ;
         effect->scale = object->scale;
-        effect->randomX = mathRnd(-0x500, 0x500);
-        effect->randomY = mathRnd(-0x500, 0x500);
-        effect->randomZ = mathRnd(-0x500, 0x500);
+        effect->randomX = func_8002997C(-0x500, 0x500);
+        effect->randomY = func_8002997C(-0x500, 0x500);
+        effect->randomZ = func_8002997C(-0x500, 0x500);
         effect->alpha = 0xFF;
 
         angles.x = azimuth + 0x2000;
@@ -150,7 +150,7 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
         effect->direction.x = 0.0f;
         effect->direction.y = 0.0f;
         effect->direction.z = -7.0f;
-        mathOneFloatPY(&angles, &effect->direction);
+        func_80029FE4(&angles, &effect->direction);
 
         effect->position.x = object->position.x;
         effect->position.y = object->position.y;
@@ -159,9 +159,9 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
         effect->angleY = object->angleY;
         effect->angleZ = object->angleZ;
         effect->scale = object->scale;
-        effect->randomX = mathRnd(-0x500, 0x500);
-        effect->randomY = mathRnd(-0x500, 0x500);
-        effect->randomZ = mathRnd(-0x500, 0x500);
+        effect->randomX = func_8002997C(-0x500, 0x500);
+        effect->randomY = func_8002997C(-0x500, 0x500);
+        effect->randomZ = func_8002997C(-0x500, 0x500);
         effect->alpha = 0xFF;
         state->active30 = 1;
     }
