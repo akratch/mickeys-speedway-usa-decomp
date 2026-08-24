@@ -22,6 +22,8 @@ extern u16 *D_800D7D78;
 typedef struct GsSndPriorityState {
     u8 pad0[0x40];
     u8 priority;
+    u8 pad41[3];
+    u8 state;
 } GsSndPriorityState;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
@@ -39,7 +41,14 @@ void gsSndpSetPriority(GsSndPriorityState *state, u8 priority) {
         state->priority = (s16)priority;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpGetState.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpGetState). */
+u8 gsSndpGetState(GsSndPriorityState *state) {
+    if (state != NULL) {
+        return state->state;
+    } else {
+        return 0;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/ad_sndp_play.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStop.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/sndp_stop_with_flags.s")
