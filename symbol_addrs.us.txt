@@ -1479,6 +1479,9 @@ viSetWideAdjust = 0x80033F68; // type:func size:0x40   ROM 0x34b68  src/gameVi.c
 // tier B (JFG): the front-end passes a requested resolution mode here, then
 // compares current/requested video state before calling viChangeMode.
 viSetTrippleBuffer = 0x80033FA8; // type:func size:0x10 ROM 0x34ba8 canonical C, linked byte-identical
+// Canonical C, but JFG's viGetTrippleBuffer name has no same-address Mickey
+// caller evidence and the three-word body is below the tier-A threshold.
+func_80033FB8 = 0x80033FB8; // type:func size:0xC ROM 0x34bb8 canonical C, linked byte-identical
 // tier B (JFG): after setting a requested buffer mode, the front-end branches
 // to viChangeMode exactly when this current/requested comparison returns true.
 viChangeBuffers = 0x80033FC4; // type:func size:0x1C ROM 0x34bc4 canonical C, linked byte-identical

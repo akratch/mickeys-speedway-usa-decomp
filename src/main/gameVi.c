@@ -91,7 +91,15 @@ void viSetTrippleBuffer(s32 resolutionIndex) {
     D_800D2F96 = resolutionIndex & 1;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FB8.s")
+/*
+ * PROVENANCE: adapted from JFG's public decomp, src/gameVi.c, where this is
+ * viGetTrippleBuffer. No same-address Mickey caller pins that public name, so
+ * the canonical function retains its address label.
+ */
+s8 func_80033FB8(void) {
+    return D_800D2F95;
+}
+
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
 s32 viChangeBuffers(void) {
     return D_800D2F95 != D_800D2F96;

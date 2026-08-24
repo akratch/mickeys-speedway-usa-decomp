@@ -439,6 +439,11 @@ HI16/LO16 relocation pairs are exact. JFG calls the equivalent body
 caller pins the role, so the public name is recorded only in the source comment
 and not adopted.
 
+`func_80033FB8` is canonical C at three words with an exact HI16/LO16 pair.
+JFG calls the equivalent accessor `viGetTrippleBuffer`, but no same-address
+Mickey caller pins that public name and the body is below the tier-A threshold,
+so it remains an address label.
+
 ---
 
 ## 4. libultra
