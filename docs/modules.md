@@ -398,7 +398,7 @@ call graph isolates one namesake.
 | `0x8001C4C0` | `0x64C` | `controlPlayerInit` | B: initialization calls and caller edge from the preceding routine; retain `func_` |
 | `0x8001CB0C` | `0x78` | — | Matched C: exact one-point transform setup under O2/mips2; no unique JFG comparison, so retain `func_` |
 | `0x8001CB84` | `0x71C` | `controlPlayer` | D: large per-frame controller in JFG order; retain `func_` |
-| `0x8001D2A0` | `0x17C` | — | No unique JFG comparison; retain `func_` |
+| `0x8001D2A0` | `0x17C` | — | Plateau after the 119-combination flag sweep and 10 source/type/lifetime hypotheses: best `NON_MATCHING` candidate is 96 instructions versus 95, with first mismatch `+0xE0`; IDO reuses the `D_800CB300` address across `func_800291F0`, while the target stores through `at` and rematerializes the address in `a2`, leaving one extra address instruction and shifting the remaining schedule. No unique JFG comparison; retain `func_` |
 | `0x8001D41C` | `0x21C` | — | No unique JFG comparison; retain `func_` |
 | `0x8001D638` | `0x58` | `controlFrozen` | B + matched C: exact pause/input gate under O2/mips2; calls the following restart routine as JFG does; name adopted |
 | `0x8001D690` | `0x194` | `controlRestartPlayer` | B: restart/reinitialize call graph and nearest charControl skeleton; retain `func_` |

@@ -38,6 +38,7 @@ extern s16 D_800CB470;
 extern s16 D_800CB472;
 extern s16 D_800CB474;
 extern s16 D_800CB476;
+extern u8 *D_800CB300;
 
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void func_8001EFFC(ControlTransform *transform, ControlPlayer *player, f32 *output);
@@ -53,6 +54,11 @@ void func_8001D690(s32 arg0, ControlPlayer *player);
 void func_80006EA0(void *handle);
 s32 func_8000FAE0(f32 x, f32 y, f32 z);
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode);
+void TrapDanglingJump();
+void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2);
+void func_80021994(s8 playerIndex, s32 cameraIndex, u8 **cameraState);
+u8 *func_80024658(void);
+s32 func_800291F0(void);
 u32 func_800254FC(s32 playerIndex);
 u32 func_8002554C(s32 playerIndex);
 u32 func_80025594(s32 playerIndex);
@@ -243,7 +249,45 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
     func_8001EFFC(transform, player, &player->unk2C0[12]);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
+#ifdef NON_MATCHING
+void func_8001D2A0(ControlActor *actor, s32 arg1) {
+    ControlPlayer *player;
+    s32 cameraIndex;
+
+    player = actor->player;
+    player->unk43C = actor->rotationX;
+    player->unk43E = actor->rotationY;
+    player->unk440 = actor->rotationZ;
+    player->unk444 = actor->unk8;
+    player->unk448 = actor->x;
+    player->unk44C = actor->y;
+    player->unk450 = actor->z;
+    if (player->unk158 != 0) {
+        player->unk43C += player->unk160;
+        player->unk43E += player->unk164;
+        player->unk440 += player->unk162;
+        player->unk44C += player->unk154 + player->unk14C;
+    }
+    if (!(player->flags1A8 & 1)) {
+        TrapDanglingJump(actor, player, arg1);
+    }
+    if (player->unkD4 != 0) {
+        TrapDanglingJump(player->unkD4, arg1);
+    }
+    D_800CB300 = func_80024658();
+    cameraIndex = func_800291F0() - 1;
+    if (player->playerIndex < cameraIndex) {
+        cameraIndex = player->playerIndex;
+    }
+    D_800CB300 += cameraIndex * 0x54;
+    func_80021994(player->playerIndex, cameraIndex, &D_800CB300);
+    if ((player->unk190 != 0) || (player->unk3FA == 0)) {
+        func_8001BBB4(actor, player, (f32) arg1);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D2A0.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D41C.s")
 void controlFrozen(s32 arg0, ControlPlayer *player) {
     if (func_800291FC() == 1) {

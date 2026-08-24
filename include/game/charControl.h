@@ -94,7 +94,17 @@ typedef struct ControlPlayer {
     /* 0x0D8 */ void *unkD8;
     /* 0x0DC */ u8 pad0DC[0x11C - 0xDC];
     /* 0x11C */ f32 unk11C[4];
-    /* 0x12C */ u8 pad12C[0x191 - 0x12C];
+    /* 0x12C */ u8 pad12C[0x14C - 0x12C];
+    /* 0x14C */ f32 unk14C;
+    /* 0x150 */ u8 pad150[0x154 - 0x150];
+    /* 0x154 */ f32 unk154;
+    /* 0x158 */ s16 unk158;
+    /* 0x15A */ u8 pad15A[0x160 - 0x15A];
+    /* 0x160 */ s16 unk160;
+    /* 0x162 */ s16 unk162;
+    /* 0x164 */ s16 unk164;
+    /* 0x166 */ u8 pad166[0x190 - 0x166];
+    /* 0x190 */ u8 unk190;
     /* 0x191 */ s8 unk191;
     /* 0x192 */ u8 unk192;
     /* 0x193 */ u8 pad193[0x1A8 - 0x193];
@@ -107,7 +117,9 @@ typedef struct ControlPlayer {
     /* 0x340 */ s32 unk340;
     /* 0x344 */ u8 pad344[0x3BA - 0x344];
     /* 0x3BA */ s16 unk3BA;
-    /* 0x3BC */ u8 pad3BC[0x41C - 0x3BC];
+    /* 0x3BC */ u8 pad3BC[0x3FA - 0x3BC];
+    /* 0x3FA */ s16 unk3FA;
+    /* 0x3FC */ u8 pad3FC[0x41C - 0x3FC];
     /* 0x41C */ s32 controlKeys;
     /* 0x420 */ s32 controlDkeys;
     /* 0x424 */ s32 controlReleasedKeys;
@@ -116,15 +128,25 @@ typedef struct ControlPlayer {
     /* 0x430 */ s32 controlAbsXjoy;
     /* 0x434 */ s32 controlAbsYjoy;
     /* 0x438 */ s32 joypadDisabled;
-    /* 0x43C */ u8 pad43C[0x45C - 0x43C];
+    /* 0x43C */ s16 unk43C;
+    /* 0x43E */ s16 unk43E;
+    /* 0x440 */ s16 unk440;
+    /* 0x442 */ u8 pad442[0x444 - 0x442];
+    /* 0x444 */ f32 unk444;
+    /* 0x448 */ f32 unk448;
+    /* 0x44C */ f32 unk44C;
+    /* 0x450 */ f32 unk450;
+    /* 0x454 */ u8 pad454[0x45C - 0x454];
     /* 0x45C */ u8 unk45C;
     /* 0x45D */ u8 unk45D;
 } ControlPlayer;
 
 typedef struct ControlActor {
-    /* 0x00 */ u8 pad00[0x06];
+    /* 0x00 */ s16 rotationX;
+    /* 0x02 */ s16 rotationY;
+    /* 0x04 */ s16 rotationZ;
     /* 0x06 */ s16 flags;
-    /* 0x08 */ u8 pad08[0x0C - 0x08];
+    /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 x;
     /* 0x10 */ f32 y;
     /* 0x14 */ f32 z;
@@ -148,6 +170,7 @@ void controlDisableJoypad(ControlPlayer *player, s32 disabled);
 void controlReadJoypad(ControlPlayer *player, s32 playerIndex);
 void controlSetRumble(ControlPlayer *player, s32 strength, f32 duration);
 void controlFrozen(s32 arg0, ControlPlayer *player);
+void func_8001D2A0(ControlActor *actor, s32 arg1);
 void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z,
                          s16 arg4, s16 arg5, s16 arg6);
 void controlSetPlayerSetup(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
