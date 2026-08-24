@@ -4,6 +4,9 @@
 #undef NULL
 #define NULL 0
 
+/* Retail's runtime relocation table addresses this pool from offset 0x20. */
+static const u8 sOverlay9ConstantPoolBase[0x20] = { 0 };
+
 /*
  * Overlay 9, ADR 0006 consolidation. Functions remain in retail ROM order.
  * The module uses the R4300 multiply-hazard schedule; applying that flag to
@@ -253,7 +256,6 @@ void func_overlay_009_F0000744_1866DBC(O9OutputRecord *output, O9OutputControl *
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateOutput/func_overlay_009_F0000744_1866DBC.s")
 #endif
 
-#ifdef NON_MATCHING
 void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
                                        O9InputState *state) {
     f32 target;
@@ -326,9 +328,6 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
         state->position = 200.0f;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateInputState/func_overlay_009_F00009BC_1867034.s")
-#endif
 
 #ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,

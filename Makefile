@@ -947,7 +947,9 @@ $(O8_4CF0_OBJ): POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x438
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1520
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1520 && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		00000000000000000000000000000000000000000000000000000000000000003ca3d70a3d99999a3ccccccd3d4ccccd3dcccccd43b680003f733333bc23d70a3c23d70abecccccdbdcccccd00000000
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31InitializeParticleAssets.c.o: POSTPROCESS = \
