@@ -10,6 +10,7 @@
  */
 
 extern s32 D_800CF3C4;
+extern u8 D_800CF420[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetCounts.s")
 
@@ -33,7 +34,10 @@ extern s32 D_800CF3C4;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelUpdateColourCycling.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetColourCycling.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+u8 *levelGetColourCycling(void) {
+    return D_800CF420;
+}
 
 /* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
 s32 levelGetNumber(void) {
