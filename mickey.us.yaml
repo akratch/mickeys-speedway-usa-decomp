@@ -1687,16 +1687,9 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x188C458, c, overlay45ResetState]
-      - [0x188C464, c, overlay45CreateDescriptor]
-      - [0x188C6C8, c, overlay45ReleaseDescriptor]
-      - [0x188C76C, c, overlay45ConfigureLayout]
-      - [0x188CA98, c, overlay45ReadPair]
-      - [0x188CAD4, c, overlay45RandomizeOffsets]
+      - [0x188C458, c, overlay_045]
       - [0x188CBBC, asm, overlay_045_middle2]
-      - [0x188E038, c, overlay45SetMode]
-      - [0x188E04C, c, overlay45SetField22]
-      - [0x188E060, c, overlay45SetField20]
+      - [0x188E038, c, overlay_045_tail]
       - [0x188E074, asm, overlay_045_padding]
       - [0x188E078, bin, overlay_045_data_rodata]
       - [0x188E0F8, bin, overlay_045_reloc1]

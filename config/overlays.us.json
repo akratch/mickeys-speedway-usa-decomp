@@ -10107,55 +10107,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xC",
-     "size": "0xC",
-     "type": "c",
-     "source": "overlays/o045/overlay45ResetState",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xC",
-     "end_offset": "0x270",
-     "size": "0x264",
-     "type": "c",
-     "source": "overlays/o045/overlay45CreateDescriptor",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x270",
-     "end_offset": "0x314",
-     "size": "0xA4",
-     "type": "c",
-     "source": "overlays/o045/overlay45ReleaseDescriptor",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x314",
-     "end_offset": "0x640",
-     "size": "0x32C",
-     "type": "c",
-     "source": "overlays/o045/overlay45ConfigureLayout",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x640",
-     "end_offset": "0x67C",
-     "size": "0x3C",
-     "type": "c",
-     "source": "overlays/o045/overlay45ReadPair",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x67C",
      "end_offset": "0x764",
-     "size": "0xE8",
+     "size": "0x764",
      "type": "c",
-     "source": "overlays/o045/overlay45RandomizeOffsets",
+     "source": "overlays/o045/overlay_045",
      "matched": true,
      "nonmatching": false
     },
@@ -10170,28 +10125,10 @@
     },
     {
      "offset": "0x1BE0",
-     "end_offset": "0x1BF4",
-     "size": "0x14",
-     "type": "c",
-     "source": "overlays/o045/overlay45SetMode",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1BF4",
-     "end_offset": "0x1C08",
-     "size": "0x14",
-     "type": "c",
-     "source": "overlays/o045/overlay45SetField22",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1C08",
      "end_offset": "0x1C1C",
-     "size": "0x14",
+     "size": "0x3C",
      "type": "c",
-     "source": "overlays/o045/overlay45SetField20",
+     "source": "overlays/o045/overlay_045_tail",
      "matched": true,
      "nonmatching": false
     },

@@ -542,16 +542,9 @@ TEXT_SUBSEGMENTS = {
         (0xAF4, "asm", "overlay_044_padding"),
     ],
     45: [
-        (0x000, "c", "overlay45ResetState"),
-        (0x00C, "c", "overlay45CreateDescriptor"),
-        (0x270, "c", "overlay45ReleaseDescriptor"),
-        (0x314, "c", "overlay45ConfigureLayout"),
-        (0x640, "c", "overlay45ReadPair"),
-        (0x67C, "c", "overlay45RandomizeOffsets"),
+        (0x000, "c", "overlay_045"),
         (0x764, "asm", "overlay_045_middle2"),
-        (0x1BE0, "c", "overlay45SetMode"),
-        (0x1BF4, "c", "overlay45SetField22"),
-        (0x1C08, "c", "overlay45SetField20"),
+        (0x1BE0, "c", "overlay_045_tail"),
         (0x1C1C, "asm", "overlay_045_padding"),
     ],
     47: [

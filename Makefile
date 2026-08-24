@@ -4239,29 +4239,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87InitializeObject.c.o: POSTPROCESS
 		0x10C:func_8005AD64:mathRnd && \
 	$(OBJCOPY) --redefine-sym mathRnd=overlay87RuntimeCallReloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x128
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetMode.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ResetState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ReadPair.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C
 # All four random-range calls are instruction-natural and share retail's
 # offset-zero stored overlay carrier; retain distinct runtime identities in
 # the authoritative relocation ledger and trim only section alignment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45RandomizeOffsets.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
-		overlay45RandomRangeReloc=func_overlay_045_F0000000_188C458 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetField22.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetField20.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ReleaseDescriptor.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45CreateDescriptor.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x264
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ConfigureLayout.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x32C
+		overlay45RandomRangeStoredReloc=func_overlay_045_F0000000_188C458 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x764
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045_tail.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C
 # Materialize the proved local D_510 addend, discard its runtime-only HILO
 # records, and fold three distinct resident calls through O47's stored
 # offset-zero carrier. Keep +2DE8..+2DF0 as separately owned padding.
@@ -7328,15 +7314,8 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SearchNearby.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SelectMaskedMode.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateCountdown.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ResetState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ReadPair.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45CreateDescriptor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ReleaseDescriptor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ConfigureLayout.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45RandomizeOffsets.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetMode.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetField22.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetField20.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045_tail.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61UpdateInput.c.o \
