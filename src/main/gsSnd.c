@@ -45,8 +45,16 @@ typedef struct GsSndKeyMap {
     s8 detune;
 } GsSndKeyMap;
 
+typedef struct GsSndEnvelope {
+    s32 attackTime;
+    s32 decayTime;
+    s32 releaseTime;
+    u8 attackVolume;
+    u8 decayVolume;
+} GsSndEnvelope;
+
 typedef struct GsSound {
-    void *envelope;
+    GsSndEnvelope *envelope;
     GsSndKeyMap *keyMap;
 } GsSound;
 
@@ -54,16 +62,13 @@ typedef struct GsSoundStateLink {
     struct GsSoundStateLink *next;
     struct GsSoundStateLink *prev;
     GsSound *sound;
-    u8 padC[0x20];
+    u8 padC[0x1C];
+    f32 slideMult;
     f32 pitch;
     struct GsSoundStateLink **userHandle;
+    s32 unk34;
     s16 volume;
-    u8 priority;
-    u8 pad37;
-    s32 retries;
-    u8 pan;
-    u8 fxMix;
-    u8 pad3E[2];
+    u8 pad3A[6];
     u8 unk40;
     u8 unk41;
     u8 unk42;
@@ -216,7 +221,54 @@ u16 getSoundStateCounts(u16 *numFree, u16 *numAllocated) {
 
     return allocatedRevCounter;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005D030.s")
+GsSoundStateLink *func_8005D030(s32 unused, GsSound *sound) {
+    GsSoundStateLink *state;
+    GsSndKeyMap *keyMap;
+    s32 special;
+    u32 mask;
+
+    keyMap = sound->keyMap;
+    mask = osSetIntMask(1);
+    state = D_8007FF48;
+    if (state != NULL) {
+        D_8007FF48 = state->next;
+        alUnlink(state);
+        if (D_8007FF40 != NULL) {
+            state->next = D_8007FF40;
+            state->prev = NULL;
+            D_8007FF40->prev = state;
+            D_8007FF40 = state;
+        } else {
+            state->prev = NULL;
+            state->next = state->prev;
+            D_8007FF40 = state;
+            D_8007FF44 = state;
+        }
+        osSetIntMask(mask);
+        special = (sound->envelope->decayTime + 1) == 0;
+        state->sound = sound;
+        state->unk40 = special + 0x40;
+        state->state = 5;
+        state->pitch = 1.0f;
+        state->unk34 = 2;
+        state->flags = keyMap->keyMax & 0xF0;
+        state->userHandle = NULL;
+        if (state->flags & 0x20) {
+            state->slideMult = alCents2Ratio((keyMap->keyBase * 100) - 6000);
+        } else {
+            state->slideMult = alCents2Ratio((keyMap->keyBase * 100 + keyMap->detune) - 6000);
+        }
+        if (special != 0) {
+            state->flags |= 2;
+        }
+        state->unk42 = 0;
+        state->unk41 = 0x40;
+        state->volume = 0x7FFF;
+    } else {
+        osSetIntMask(mask);
+    }
+    return state;
+}
 void func_8005D260(GsSoundStateLink *state) {
     if (D_8007FF40 == state) {
         D_8007FF40 = state->next;
