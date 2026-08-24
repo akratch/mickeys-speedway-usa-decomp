@@ -46,6 +46,7 @@ do {                                                                    \
     blue1 = blue2;                                                      \
 } while (0)
 
+#ifdef NON_MATCHING
 void func_overlay_066_F0000040_18C64A8(Overlay66Gfx **commands) {
     u16 *pixels;
     s32 remaining;
@@ -108,3 +109,6 @@ void func_overlay_066_F0000040_18C64A8(Overlay66Gfx **commands) {
     overlay66DrawBuffer(commands, gOverlay66SharedFinal,
                         gOverlay66FinalSecondary);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o066/overlay66SmoothAndDraw/func_overlay_066_F0000040_18C64A8.s")
+#endif

@@ -2232,17 +2232,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o066/overlay66GetCurrent.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o066/overlay66Select.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x34
-# The natural body has the exact boundary, frame, opcode multiset, CFG, and
-# runtime-relocation topology. This complete fail-loud ledger selects the
-# retail instruction schedule, private register web, and three proved local
-# symbol addends before trimming the compiler's section alignment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o066/overlay66SmoothAndDraw.c.o: \
-	config/normalizations/overlay66SmoothAndDraw.ops
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o066/overlay66SmoothAndDraw.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x4A0 62e3d491baf2c7018584dc73ad22560dbb6e41c7ff6c05d84a7d17b6e69ba7c8 \
-		@config/normalizations/overlay66SmoothAndDraw.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4A0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61RecordSize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x18
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79SetLink.c.o: POSTPROCESS = \
