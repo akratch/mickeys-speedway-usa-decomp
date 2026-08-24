@@ -343,10 +343,7 @@ TEXT_SUBSEGMENTS = {
         (0xC6C, "asm", "overlay_015_padding"),
     ],
     16: [
-        (0x000, "c", "overlay16BuildGradient"),
-        (0x08C, "c", "overlay16InitializeBuffer"),
-        (0x1A8, "c", "overlay16ReleaseBuffer"),
-        (0x1E0, "c", "overlay16ApplyGradient"),
+        (0x000, "c", "overlay_016"),
         (0x424, "asm", "overlay_016_padding"),
     ],
     18: [

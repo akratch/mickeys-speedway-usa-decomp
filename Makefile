@@ -2117,18 +2117,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationD.c.o: POSTPROC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailA6BC.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_101_F000A6BC_18E5EDC=overlay101TailA6BC $@
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16InitializeBuffer.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16BuildGradient.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16ReleaseBuffer.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
 # NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration and
 # trailing-section trimming metadata for the extracted function.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16ApplyGradient.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay_016.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_016_F00001E0_1873678=overlay16ApplyGradient $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x244
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x424
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84InitState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84InitializeAndUpdate.c.o: POSTPROCESS = \
@@ -3009,10 +3003,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC144.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC6E8.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101GetBounds.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16BuildGradient.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16InitializeBuffer.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16ReleaseBuffer.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16ApplyGradient.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay_016.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101SchedulePair.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101SchedulePair12.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleByte17.c.o \

@@ -1139,10 +1139,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x1873498, c, overlay16BuildGradient]
-      - [0x1873524, c, overlay16InitializeBuffer]
-      - [0x1873640, c, overlay16ReleaseBuffer]
-      - [0x1873678, c, overlay16ApplyGradient]
+      - [0x1873498, c, overlay_016]
       - [0x18738BC, asm, overlay_016_padding]
       - [0x18738C8, bin, overlay_016_data_rodata]
       - [0x18738D8, bin, overlay_016_reloc1]
