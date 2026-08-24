@@ -1,25 +1,9 @@
-#ifndef PERMUTER
-#include "PR/ultratypes.h"
-#else
-typedef signed char s8;
-typedef unsigned char u8;
-typedef signed int s32;
-typedef unsigned int u32;
-typedef float f32;
-#endif
+#include "overlays/overlay_082.h"
 
-typedef struct Overlay82State {
-    s8 selection;
-    s8 changed;
-    u8 active;
-    u8 disabled;
-    s32 values[6];
-} Overlay82State;
-
-typedef struct Overlay82Object {
-    u8 pad0[0x64];
-    void *state;
-} Overlay82Object;
+/*
+ * Overlay 82 initializer. This remains a separate TU because its target-
+ * proven -Wo,-loopunroll,2 flag does not apply to the update/accessor tail.
+ */
 
 /* DKR v77/v80 and JFG contain no exact donor for this state initializer. */
 void overlay82Init(Overlay82Object *object, f32 updateRate) {

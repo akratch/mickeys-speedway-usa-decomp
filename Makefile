@@ -3785,13 +3785,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077_tail.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay_081.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x34C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay_081.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Accessors.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x34
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Init.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x40
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Init.c.o: CFLAGS += -Wo,-loopunroll,2
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x458
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082.c.o: CFLAGS += -Wo,-loopunroll,2
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082_tail.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C
 # Source naturally reproduces every instruction word and the seven retail
@@ -7251,9 +7249,8 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077_tail.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay_081.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Update.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Accessors.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082_tail.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88Init.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88UpdateAnchor.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88DrawSortedGeometry.c.o \

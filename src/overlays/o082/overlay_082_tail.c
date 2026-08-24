@@ -1,4 +1,6 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_082.h"
+
+/* Overlay 82 unflagged update/accessor tail, consolidated in ROM order. */
 
 
 
@@ -32,49 +34,6 @@
 
 
 
-
-typedef struct O82DisplayPair {
-    s16 label;
-    s16 value;
-} O82DisplayPair;
-
-typedef struct O82State {
-      s8 selection;
-      s8 changed;
-      u8 active;
-      u8 disabled;
-      s32 values[6];
-      O82DisplayPair display[6];
-      u16 flags;
-} O82State;
-
-typedef struct O82Resource O82Resource;
-
-typedef struct O82ResourceOwner {
-      O82Resource *resource;
-} O82ResourceOwner;
-
-typedef struct O82Object {
-      u8 pad00[0x28];
-      f32 progress;
-      u8 pad2C[0x38];
-      O82State *state;
-      O82ResourceOwner *resourceOwner;
-} O82Object;
-
-extern u32 overlay82InputButtonsReloc;
-extern s16 overlay82InputXReloc;
-extern s16 overlay82InputYReloc;
-
-
-extern const u8 gO82DataBase[];
-
-
-
-
-
-extern void overlay82PlayEventReloc(u16 eventId, void *nullableHandle);
-extern void overlay82SetChannelReloc(O82Resource *resource, s32 channel, s32 value);
 
 void overlay82Update(O82Object *object, f32 updateRate) {
     O82State *state;
@@ -211,4 +170,33 @@ void overlay82Update(O82Object *object, f32 updateRate) {
         currentValues++;
     }
     displayCursor->label = 0x2000;
+}
+
+/* DKR v77/v80 semantic-source search: negative (generic field access only). */
+s32 overlay82GetSelection(Overlay82Object *object) {
+    Overlay82State *state;
+
+    state = object->state;
+    return state->selection;
+}
+
+u32 overlay82IsActive(Overlay82Object *object) {
+    Overlay82State *state;
+
+    state = object->state;
+    return state->active;
+}
+
+void overlay82Disable(Overlay82Object *object) {
+    Overlay82State *state;
+
+    state = object->state;
+    state->disabled = 1;
+}
+
+void overlay82Enable(Overlay82Object *object) {
+    Overlay82State *state;
+
+    state = object->state;
+    state->disabled = 0;
 }

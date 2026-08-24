@@ -16328,25 +16328,16 @@
      "end_offset": "0x40",
      "size": "0x40",
      "type": "c",
-     "source": "overlays/o082/overlay82Init",
+     "source": "overlays/o082/overlay_082",
      "matched": true,
      "nonmatching": false
     },
     {
      "offset": "0x40",
-     "end_offset": "0x498",
-     "size": "0x458",
-     "type": "c",
-     "source": "overlays/o082/overlay82Update",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x498",
      "end_offset": "0x4CC",
-     "size": "0x34",
+     "size": "0x48C",
      "type": "c",
-     "source": "overlays/o082/overlay82Accessors",
+     "source": "overlays/o082/overlay_082_tail",
      "matched": true,
      "nonmatching": false
     },
