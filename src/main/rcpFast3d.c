@@ -10,10 +10,23 @@
 
 #include "PR/ultratypes.h"
 
+typedef struct RcpCommand {
+    u32 w0;
+    u32 w1;
+} RcpCommand;
+
+#define RCP_DISPLAY_LIST(command, list) \
+    { \
+        RcpCommand *cmd = (command); \
+        cmd->w0 = 0x06000000; \
+        cmd->w1 = (u32) (list); \
+    }
+
 extern u8 D_8007A3A0;
 extern u8 D_8007A3A4;
 extern u8 D_8007A3A8;
 extern u32 D_8007A3B0;
+extern RcpCommand D_8007A438[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpFast3d.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpWaitDP.s")
@@ -30,7 +43,9 @@ void func_8002EBD4(u32 value) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearZBuffer.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearScreen.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpInitDp.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpInitDpNoSize.s")
+void rcpInitDpNoSize(RcpCommand **dlist) {
+    RCP_DISPLAY_LIST((*dlist)++, D_8007A438);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpInitSp.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002F618.s")
