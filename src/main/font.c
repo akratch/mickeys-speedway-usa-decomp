@@ -24,14 +24,19 @@ typedef struct FontSpacingData {
     u8 verticalExtent;
     u8 characterWidth;
     u8 height;
-    u8 pad4[6];
+    u32 romOffset;
+    s16 textureSize;
     u16 format;
     Gfx *displayList;
     u32 unused10;
 } FontSpacingData;
 
 typedef struct FontGlyphData {
-    u8 pad0[6];
+    u8 font;
+    u8 character;
+    u16 allocationOffset;
+    u8 state;
+    u8 chainLength;
     u16 textureOffset;
     u16 textureOffset2;
     u8 left;
@@ -70,13 +75,18 @@ extern u8 *D_800D6628[];
 extern char *D_800D6648;
 extern u8 D_800D664C;
 extern s8 D_8007D570[];
+extern FontGlyphData *D_800D663C;
 
 void *func_8002B280(s32 size, s32 tag);
+void func_80033CBC(u32 *width, u32 *height);
 void func_80022610(Gfx **displayList);
 void func_80034920(Gfx **displayList);
-FontGlyphData *func_8004C690(u8 character);
+FontGlyphData *func_8004C690(s32 character);
 void func_8004D39C(char *input, char *output);
+u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart,
+                  s32 *outWidth);
 void func_8004C140(Gfx **displayList, s32 x1, s32 y1, s32 x2, s32 y2);
+void func_8002E2E0(s32 resourceId, void *destination, u32 offset, s32 size);
 
 void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
                    char *text, s32 alignmentFlags);
@@ -626,7 +636,26 @@ void func_8004C000(char **outString, s32 number) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C0C4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C140.s")
+/*
+ * PROVENANCE -- adapted from DKR's permitted published
+ * render_fill_rectangle. Mickey's own call target and assembly determine
+ * the framebuffer-size interface and final code shape.
+ */
+void func_8004C140(Gfx **displayList, s32 x1, s32 y1, s32 x2, s32 y2) {
+    u32 width;
+    u32 height;
+
+    func_80033CBC(&width, &height);
+    if (x2 >= 0 && (u32) x1 < width && y2 >= 0 && (u32) y1 < height) {
+        if (x1 < 0) {
+            x1 = 0;
+        }
+        if (y1 < 0) {
+            y1 = 0;
+        }
+        gDPFillRectangle((*displayList)++, x1, y1, x2, y2);
+    }
+}
 /*
  * PROVENANCE -- adapted from Diddy Kong Racing's permitted published
  * render_dialogue_box body. Mickey's own instructions and data layout
@@ -728,7 +757,129 @@ void func_8004C5A4(char *input, char *output, s32 number) {
     } while (currentChar);
 }
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE -- source organization was cross-checked against JFG's
+ * permitted published func_80071B08 cache allocator. Mickey's own m2c
+ * draft, constants, structure offsets, and loader call determine this body.
+ */
+FontGlyphData *func_8004C690(s32 character) {
+    s32 savedHeader[4];
+    FontSpacingData *font;
+    FontGlyphData *entries;
+    FontGlyphData *entry;
+    FontGlyphData *result;
+    s32 *header;
+    s32 *source;
+    s32 *destination;
+    s32 index;
+    s32 runLength;
+    s32 remaining;
+    u32 blockCount;
+    u32 copyIndex;
+    u8 nextLength;
+    s32 fontIndex;
+
+    character &= 0xFF;
+    fontIndex = D_800D60E0;
+    result = NULL;
+    index = 0;
+    font = &D_800D60E4[fontIndex];
+    entries = D_800D663C;
+    entry = entries;
+    do {
+        index++;
+        if (fontIndex == entry->font && character == entry->character) {
+            result = entry;
+        }
+        entry++;
+    } while (index < 0x100 && result == NULL);
+
+    entry = entries;
+    if (result != NULL) {
+        entry = result;
+        do {
+            nextLength = entry->chainLength;
+            entry->state = 2;
+            entry++;
+        } while (nextLength != 0);
+    } else {
+        index = 0;
+        runLength = 0;
+        blockCount = ((u32) font->textureSize + 0xEF) >> 8;
+        if (blockCount != 0) {
+            do {
+                index++;
+                if (entry->state == 0) {
+                    if (runLength == 0) {
+                        result = entry;
+                    }
+                    runLength++;
+                } else {
+                    runLength = 0;
+                }
+                entry++;
+            } while (index < 0x100 && runLength != blockCount);
+        }
+
+        entry = result;
+        if (runLength == blockCount) {
+            remaining = blockCount - 1;
+            if (remaining >= 0) {
+                do {
+                    nextLength = entry->chainLength;
+                    entry->chainLength = remaining;
+                    remaining--;
+                    entry->font = fontIndex;
+                    entry->character = character;
+                    entry->state = 2;
+                    entry++;
+                } while (remaining >= 0);
+            }
+            if (nextLength != 0) {
+                do {
+                    nextLength = entry->chainLength;
+                    entry->font = 0xFF;
+                    entry->chainLength = 0;
+                    entry++;
+                } while (nextLength != 0);
+            }
+
+            header = (s32 *)
+                ((D_800D6638 + result->allocationOffset) - 0x10);
+            source = header;
+            destination = savedHeader;
+            copyIndex = 0;
+            do {
+                *destination++ = *source++;
+                copyIndex++;
+            } while (copyIndex < 4);
+
+            func_8002E2E0(0x39, header,
+                          font->romOffset + (character * font->textureSize),
+                          font->textureSize);
+            result->textureOffset =
+                (result->allocationOffset + ((u16 *) header)[0]) - 0x10;
+            result->textureOffset2 =
+                (result->allocationOffset + ((u16 *) header)[1]) - 0x10;
+            result->left = ((u8 *) header)[4];
+            result->top = ((u8 *) header)[5];
+            result->right = ((u8 *) header)[6];
+            result->bottom = ((u8 *) header)[7];
+            result->advance = ((u8 *) header)[8];
+            header[0] = savedHeader[0];
+            header[1] = savedHeader[1];
+            header[2] = savedHeader[2];
+            header[3] = savedHeader[3];
+        } else {
+            result = NULL;
+        }
+    }
+    return result;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C690.s")
+#endif
 void func_8004C8D8(FontTextureHeader *texture, s32 unused) {
     Gfx *displayList;
     Gfx *state;
@@ -849,7 +1000,100 @@ void func_8004D39C(char *input, char *output) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D39C.s")
 #endif
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE -- source organization was cross-checked against JFG's
+ * permitted published fontGetLine assembly. Mickey's own m2c draft,
+ * constants, branch structure, and font-record layout determine this body.
+ */
+u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart,
+                  s32 *outWidth) {
+    s32 totalWidth;
+    s32 firstLine;
+    s32 overflow;
+    s32 end;
+    s32 delimiter;
+    s32 segmentWidth;
+    char *segmentStart;
+    s32 current;
+    u8 code;
+
+    totalWidth = 0;
+    firstLine = 1;
+    overflow = 0;
+    end = 0;
+
+    do {
+        delimiter = 0;
+        segmentWidth = 0;
+        segmentStart = text;
+        do {
+            current = *text;
+            if (0x80 == current && text[1] == 0xF) {
+                text += 2;
+                if (firstLine == 0) {
+                    segmentWidth += D_800D60E4[font].characterWidth;
+                }
+            } else if (current == 0) {
+                end = 1;
+            } else if (0x80 != current) {
+                text++;
+            } else {
+                delimiter = 1;
+            }
+        } while (delimiter == 0 && end == 0);
+
+        if (firstLine != 0) {
+            firstLine = 0;
+            if (end != 0) {
+                *outWidth = totalWidth;
+                return NULL;
+            }
+            *lineStart = text;
+        }
+
+        current = *text;
+        if (0x80 == current) {
+            code = text[1];
+            if (code != 0xF) {
+                for (;;) {
+                    current = text[2];
+                    text += 2;
+                    segmentWidth += D_800D6628[font][code];
+                    if (0x80 == current) {
+                        code = text[1];
+                        if (code != 0xF) {
+                            continue;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        totalWidth += segmentWidth;
+        if (maxWidth < totalWidth) {
+            overflow = 1;
+            totalWidth -= segmentWidth;
+            text = segmentStart;
+            current = *segmentStart;
+        }
+        if (current == 0) {
+            end = 1;
+        }
+    } while (overflow == 0 && end == 0);
+
+    if (outWidth != NULL) {
+        *outWidth = totalWidth;
+    }
+    if (text == *lineStart) {
+        return NULL;
+    }
+    return text;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D40C.s")
+#endif
 u8 func_8004D5C0(s32 font) {
     return D_800D60E4[font].height;
 }

@@ -413,14 +413,14 @@ overlay callers/callees outside the range were observed.
 | `0x4CBD8` | `0x28` | `func_8004BFD8` | `fontWindowDisable` | B/D, matched C | leaf; ext callers |
 | `0x4CC00` | `0xC4` | `func_8004C000` | `fontStringAddNumber` | D, matched C | leaf; called by `0x4D1A4` |
 | `0x4CCC4` | `0x7C` | `func_8004C0C4` | `fontWindowsDraw` | B/D | calls `0x4CE00`; ext caller |
-| `0x4CD40` | `0xC0` | `func_8004C140` | JFG `func_80071564` | D | ext callee; called by `0x4CE00` |
+| `0x4CD40` | `0xC0` | `func_8004C140` | DKR `render_fill_rectangle` | B/D, matched C | ext callee; called by `0x4CE00` |
 | `0x4CE00` | `0x3A4` | `func_8004C200` | `fontWindowDraw` | B/D, matched C | calls `0x4CD40`, `0x4D1A4`, `0x4BDDC` |
 | `0x4D1A4` | `0xEC` | `func_8004C5A4` | JFG `func_80071A0C` | D, matched C | calls `0x4CC00`; in-range callers |
-| `0x4D290` | `0x248` | `func_8004C690` | JFG `func_80071B08` | D | ext callee; called by `0x4BDDC` |
+| `0x4D290` | `0x248` | `func_8004C690` | JFG `func_80071B08` | D, plateau | ext callee; called by `0x4BDDC` |
 | `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D, matched C | ext callee |
 | `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D | leaf; ext caller |
 | `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, plateau | leaf; in-range callers |
-| `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D | leaf |
+| `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D, plateau | leaf |
 | `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |
 | `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | B/D | SDK calls; ext callers |
 | `0x4E350` | `0x28` | `func_8004D750` | `rzipInit` | B/D | allocator call; ext caller |
@@ -456,6 +456,23 @@ The 119-combination flag lattice found no exact result and kept the same
 one-word residue throughout the `-O2 -mips2` family, identifying an allocator
 coalescing choice rather than a flag mismatch. The candidate remains guarded
 by `NON_MATCHING`; the extracted assembly stays canonical.
+
+`func_8004C690` has a readable JFG-derived cache-allocation candidate under
+`NON_MATCHING`. Its best stock-flag build has the target's 112-byte frame and
+is one instruction longer (147 versus 146); the first mismatch is at function
+offset `+0x0`. The candidate keeps the character in saved register `$s0`,
+adding a save slot and broadly changing allocation. Struct-copy and explicit
+pointer-loop variants did not reproduce the target's four-word header-copy
+loop, so the remaining blocker is source shape and live ranges rather than
+semantics or constants.
+
+`func_8004D40C` has an exact-size, exact-frame, exact-relocation candidate
+under `NON_MATCHING`: 109 instructions with five differing words. The first
+mismatch is at function offset `+0x5C`, where the target preserves the loaded
+character with `move $t2,$a3` in a branch delay slot; IDO coalesces that copy
+out of the candidate and reverses four dependent comparison operands. The
+stock flag lattice found no exact result. The requested bounded permuter could
+not start because `tools/permuter` is absent from this lane.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
