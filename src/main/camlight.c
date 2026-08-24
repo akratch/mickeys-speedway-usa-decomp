@@ -11,7 +11,9 @@ void camlightInit(void) {
 }
 void camlightFlush(void) {
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightAdd.s")
+void *camlightAdd(void *arg0, void *arg1) {
+    return 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightDelete.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightUpdateAll.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightUpdate.s")

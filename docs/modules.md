@@ -426,7 +426,7 @@ body is copied by this split; Mickey's own bytes remain authoritative.
 |---|---:|---|---|
 | `0x1BE50` | `0x8` | `camlightInit` | B/D name; exact C, 2 words, 0 relocs |
 | `0x1BE58` | `0x8` | `camlightFlush` | B/D name; exact C, 2 words, 0 relocs |
-| `0x1BE60` | `0x10` | `camlightAdd` | B/D; null stub |
+| `0x1BE60` | `0x10` | `camlightAdd` | B/D name; exact C, 4 words, 0 relocs |
 | `0x1BE70` | `0x8` | `camlightDelete` | B/D; no-op stub |
 | `0x1BE78` | `0x8` | `camlightUpdateAll` | B/D; no-op stub |
 | `0x1BE80` | `0x8` | `camlightUpdate` | B/D; no-op stub |
