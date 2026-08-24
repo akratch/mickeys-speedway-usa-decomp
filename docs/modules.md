@@ -1191,6 +1191,15 @@ spill at `0x34(sp)` rather than `0x30(sp)`), first diverging at function offset
 coherent source/flag attempts did not move that allocator split, so its best C
 is retained under `NON_MATCHING` and the target assembly remains canonical.
 
+`func_8005A7A0` plateaus at 105 instructions against 106, with a `0x58`
+frame against `0x38` and 73 differing positional words from the prologue;
+pointer/array loop variants and all 119 flag combinations retain the excess
+live ranges. The closer `func_8005AAC0` release loop emits 47 instructions
+against 46, while `func_8005ABA8` emits 110 against 111 and first diverges at
+`+0x38` before an FP-allocation cascade. `func_8005AF14` remains a structural
+plateau because neither Mickey's current types nor JFG's assembly-only peer
+establish its model-node and attachment layouts.
+
 In `main/vehicle_sounds`, the Mickey-derived handle cleanup loop
 `func_800582A8` (`0x64` bytes) is exact under `-O2 -mips2 -32`; its linked
 function bytes and call relocation match.
