@@ -43,6 +43,11 @@ void func_8001EFFC(ControlTransform *transform, ControlPlayer *player, f32 *outp
 f32 func_8002A8BC(s32 angle);
 f32 func_8002A8C0(s32 angle);
 s16 Arctanf(f32 x, f32 y);
+void mathOneFloatRPY(ControlTransform *transform, f32 *output);
+s32 mathRnd(s32 minimum, s32 maximum);
+ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
+void func_800031E8(void *handle);
+void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority, void **handle);
 void func_8001D690(s32 arg0, ControlPlayer *player);
 u32 func_800254FC(s32 playerIndex);
 u32 func_8002554C(s32 playerIndex);
@@ -226,7 +231,37 @@ void func_8001F09C(ControlPlayer *player, s32 updateRate) {
         }
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F14C.s")
+void func_8001F14C(ControlTransform *transform, ControlCeilingContext *context) {
+    register ControlSpawned *spawned;
+    ControlSpawnPacket packet;
+    f32 offset[3];
+    f32 x;
+    f32 y;
+    f32 z;
+
+    offset[0] = 0.0f;
+    offset[1] = 0.0f;
+    offset[2] = 10.0f;
+    mathOneFloatRPY(transform, offset);
+    x = offset[0] + transform->x;
+    y = context->height;
+    z = offset[2] + transform->z;
+    packet.kind = 0x157;
+    packet.mode = 0xC;
+    packet.flags = 0;
+    packet.x = (s16) x;
+    packet.y = (s16) y;
+    packet.z = (s16) z;
+    packet.unkA = mathRnd(-0x7FFF, 0x7FFF);
+    spawned = func_8000590C(&packet, 1);
+    if (spawned != 0) {
+        spawned->unk3C = 0;
+    }
+    if (context->handle != 0) {
+        func_800031E8(context->handle);
+    }
+    func_80002FE0(0x329, x, y, z, 4, &context->handle);
+}
 /*
  * PROVENANCE -- JFG's src/charControl.c supplied the controlDisableJoypad
  * name/role. Mickey's two-argument field store independently determines this

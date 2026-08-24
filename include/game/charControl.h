@@ -23,6 +23,28 @@ typedef struct ControlVector3 {
     /* 0x08 */ f32 z;
 } ControlVector3;
 
+typedef struct ControlSpawnPacket {
+    /* 0x00 */ s16 kind;
+    /* 0x02 */ u8 mode;
+    /* 0x03 */ u8 flags;
+    /* 0x04 */ s16 x;
+    /* 0x06 */ s16 y;
+    /* 0x08 */ s16 z;
+    /* 0x0A */ s16 unkA;
+} ControlSpawnPacket;
+
+typedef struct ControlSpawned {
+    /* 0x00 */ u8 pad00[0x3C];
+    /* 0x3C */ s32 unk3C;
+} ControlSpawned;
+
+typedef struct ControlCeilingContext {
+    /* 0x00 */ u8 pad00[0x68];
+    /* 0x68 */ f32 height;
+    /* 0x6C */ u8 pad6C[0xB0 - 0x6C];
+    /* 0xB0 */ void *handle;
+} ControlCeilingContext;
+
 /* Partial player-control layout; fields are added only as Mickey proves them. */
 typedef struct ControlPlayer {
     /* 0x000 */ s8 playerIndex;
