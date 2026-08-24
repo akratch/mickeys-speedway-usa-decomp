@@ -19,7 +19,15 @@ char *strcpy(char *src, const char *dest) {
     while ((*src++ = *dest++) != '\0') {}
     return ret;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/memset.s")
+/* PROVENANCE: body adapted from DKR src/unused_string.c:memset. */
+void *memset(void *s, int c, size_t n) {
+    unsigned char *ret = s;
+
+    while (n-- > 0) {
+        *ret++ = c;
+    }
+    return s;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/_itoa.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/sprintfSetSpacingCodes.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/sprintf.s")
