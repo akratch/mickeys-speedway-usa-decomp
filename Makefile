@@ -553,6 +553,11 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/controller.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/contreaddata.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/motor.c.o: CFLAGS += -DBUILD_VERSION=7 -DJFGDIFFS
 
+# The Transfer Pak bank-fill loop remains rolled only with the explicit uopt
+# switch below. The default unroll pass grows this 0xD0 TU by 0x30 bytes.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakselectbank.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakselectbank.c.o: CFLAGS += -Wo,-loopunroll,0
+
 # -Xphase,uopt,+ -Xphase,uopt,-O1: a FOURTH libultra flag group, and the only
 # one that does not go through the `cc` driver.
 #
