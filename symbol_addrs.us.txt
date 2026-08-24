@@ -1421,6 +1421,7 @@ amTuneSetReverbOnOff = 0x800015F0; // type:func size:0x8 ROM 0x21f0 tier B (JFG 
 func_800015F8 = 0x800015F8; // type:func size:0x10 ROM 0x21f8 tier D (global flag setter, name unproved)
 func_80001608 = 0x80001608; // type:func size:0xC ROM 0x2208 tier B (overlay caller and global flag clear, name unproved)
 func_80001614 = 0x80001614; // type:func size:0xC ROM 0x2214 tier B (resident caller and global flag read, name unproved)
+func_80001620 = 0x80001620; // type:func size:0x48 ROM 0x2220 tier B (caller uses returned sound-table volume, name unproved)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below

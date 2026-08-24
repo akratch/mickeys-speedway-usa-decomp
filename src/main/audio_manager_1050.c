@@ -383,7 +383,12 @@ void func_80001608(void) {
 s32 func_80001614(void) {
     return D_80078D78;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001620.s")
+u8 func_80001620(u16 soundId) {
+    if (D_800BF7A8 < soundId) {
+        return 0;
+    }
+    return D_800BF7A0[soundId].volume;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001668.s")
 /* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
 void forcelink(void) {
