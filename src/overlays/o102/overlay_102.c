@@ -1,8 +1,6 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_102.h"
 
 /* Overlay 102: negative DKR/JFG exact scans; five relocs prove this map. */
-extern u32 *gOverlay102SignatureBlock;
-void overlay102DmaCopyReloc(s32 size, void *address, s32 alignment);
 
 s32 overlay102CheckSignature(void) {
     if (gOverlay102SignatureBlock != 0) {
