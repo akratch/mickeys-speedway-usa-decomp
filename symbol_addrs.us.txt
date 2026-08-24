@@ -1207,7 +1207,7 @@ n_alAdpcmPull = 0x800690A0; // type:func size:0x6AC
 n_alLoadParam = 0x8006974C; // type:func size:0x2E8
 // libultra/n_alLPFilter  ROM 0x6a7f0  (jfg/libultra: src/libultra/n_alLPFilter.c.o)  whole .text 0x420, masked=13, romocc=1
 n_alLPFilterPull = 0x80069BF0; // type:func size:0x2F8
-n_alLPFilterParam = 0x80069EE8; // type:func size:0x128
+n_alLPFilterParam = 0x80069EE8; // type:func size:0x124
 // main/math_acosf  ROM 0x6ac10  (jfg/game: src/math/math_acosf.c.o)  whole .text 0xe0, masked=7, romocc=1
 acosf = 0x8006A010; // type:func size:0xDC
 // libultra/n_resample  ROM 0x6acf0  (jfg/libultra: src/libultra/n_resample.c.o)  whole .text 0x2a0, masked=8, romocc=1
