@@ -3055,53 +3055,27 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37RecordMinimum.c.o: POSTPROCESS = 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37RecordActive.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40AddEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x84 6f729465079278e0246a47c16c2e976f8d8e43a7ee89b5d300f687c8429f9840 \
-		fields:0x20:rt=v1@a0 \
-		fields:0x2c:rs=v1@a0,rd=a0@v1 \
-		fields:0x74:rs=v1@a0 \
-		fields:0x78:rs=v1@a0,rt=v1@a0 && \
+	$(OBJCOPY) --redefine-sym func_overlay_040_F0000000_18868B0=overlay40AddEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x84
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40DrawEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x164
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40RemoveEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40UpdateEntries.c.o: \
-	config/normalizations/overlay40UpdateEntries.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40UpdateEntries.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xC0 ab399f8641247fec884ebe3e17c73682057bb72c5d97b9734e6578accbfabd85 \
-		@config/normalizations/overlay40UpdateEntries.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_040_F00000E8_1886998=overlay40UpdateEntries $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40BuildFrame.c.o: \
-	config/normalizations/overlay40BuildFrame.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40BuildFrame.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x144 41cc334b35d88d7dc63ee3e2d0417af667013bd681ef4e30fcc5237723c79797 \
-		@config/normalizations/overlay40BuildFrame.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_040_F00001A0_1886A50=overlay40BuildFrame $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x144
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40SetValues.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40Interpolate.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40DrawTintRectangle.c.o: \
-	config/normalizations/overlay40DrawTintRectangle.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40DrawTintRectangle.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x15C 96fbd4fed92061b2674a29f910508d591437813ddc81cf5b0408aad296f23a58 \
-		@config/normalizations/overlay40DrawTintRectangle.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_040_F0000534_1886DE4=overlay40DrawTintRectangle $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x15C
-# The natural source owns the full color-fade algorithm and relocation roles.
-# A guarded preparation reconstructs the retained saved-s0/countdown topology;
-# the complete bijective ledger then selects the shipped private schedule.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40FadeRecords.c.o: \
-	config/normalizations/overlay40FadeRecords.prepare.py \
-	config/normalizations/overlay40FadeRecords.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40FadeRecords.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay40FadeRecords.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x194 589bdc87fe62280529ee5a646c33b324b68ad9bbbf435e5c413b55951377106d \
-		@config/normalizations/overlay40FadeRecords.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_040_F0000690_1886F40=overlay40FadeRecords $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58

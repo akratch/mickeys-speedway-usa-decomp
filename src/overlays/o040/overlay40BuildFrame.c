@@ -13,6 +13,7 @@ extern void overlay40SubmitFrameReloc(void *displayList, s32 count,
                                       s32 flags);
 
 #line 22
+#ifdef NON_MATCHING
 void overlay40BuildFrame(void *displayList, s32 x, s32 y, s32 width,
                          s32 height, s32 red, s32 green, s32 blue, s32 alpha) {
 #line 26
@@ -95,3 +96,6 @@ void overlay40BuildFrame(void *displayList, s32 x, s32 y, s32 width,
 #line 149
     overlay40SubmitFrameReloc(displayList, 8, frame.records, 0);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40BuildFrame/func_overlay_040_F00001A0_1886A50.s")
+#endif
