@@ -101,6 +101,7 @@ void lightUpdateObjects(void);
 void lightSetupLightSources(LightSourceObject *object);
 void lightSetupFlareSources(FlareObject *object);
 void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4);
+s32 lightKillGlowingLight(void);
 UnkLight *addRomdefLight(s32 arg0, RomdefLight *entry);
 UnkLight *addObjectLight(s32 owner, ObjectLightEntry *entry);
 f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6);

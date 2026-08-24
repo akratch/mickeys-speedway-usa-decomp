@@ -83,6 +83,7 @@ extern LightingObject **func_8000572C(s32 *start, s32 *end);
 extern void func_8001953C(LightingObject *object, s32 objectLight);
 extern void func_80019DE8(void *state, s32 arg1, s32 arg2, s16 arg3, s16 arg4, s32 arg5);
 extern void *func_8001B260(void *object, FlareEntry *entry);
+extern void func_8001B270(void);
 extern u8 D_800CB298;
 
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
@@ -391,4 +392,8 @@ void lightSetupFlareSources(FlareObject *object) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A008.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A154.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A23C.s")
+/* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
+s32 lightKillGlowingLight(void) {
+    func_8001B270();
+    return 1;
+}
