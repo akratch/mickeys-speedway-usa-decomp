@@ -78,6 +78,7 @@ extern void *o50CreateC(void *value);
 extern void *o50CreateD(void *value, s32 x, s32 y, s32 count);
 extern void o50FinalizeReloc(void *value, void *arg);
 
+#ifdef NON_MATCHING
 void func_overlay_050_F0000000_1896970(void) {
     u8 *savedFlag;
     s32 *fill;
@@ -163,3 +164,6 @@ void func_overlay_050_F0000000_1896970(void) {
     D_CA = 0;
     D_C8 = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o050/overlay50Initialize/func_overlay_050_F0000000_1896970.s")
+#endif

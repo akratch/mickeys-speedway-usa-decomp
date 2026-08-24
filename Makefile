@@ -5813,38 +5813,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87ReleaseCurrent.c.o: POSTPROCESS =
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87HasNearby.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87HasNearby.c.o: CFLAGS += -Wab,-r4300_mul
-# Natural IDO owns the exact 185-word boundary and complete initialization
-# semantics. The guarded preparation restores the retail branch-likely web;
-# relocation-aware ledgers select the shipped private schedule and addends.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50Initialize.c.o: \
-	config/normalizations/overlay50Initialize.prepare.py \
-	config/normalizations/overlay50Initialize.shared.filter.spec \
-	config/normalizations/overlay50Initialize.ops \
-	config/normalizations/overlay50Initialize.addends.ops \
-	config/normalizations/overlay50Initialize.filter.spec \
-	config/normalizations/overlay50Initialize.calls.spec \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay50Initialize.shared.filter.spec && \
-	$(HOST_PYTHON) config/normalizations/overlay50Initialize.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2E4 2650cc1bb861ab7b536ed954284b44c77b1f92a8d869f80c17811c818f376a0c \
-		@config/normalizations/overlay50Initialize.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2E4 255dfa61cac617f8f98578be8e3a63a9824a388f91521b394f18564219f61bb4 \
-		@config/normalizations/overlay50Initialize.addends.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay50Initialize.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		overlay50PatchIndices=func_overlay_050_F00002E4_1896C54 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay50Initialize.calls.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2E4 \
-		000000000000000000000000
+	$(OBJCOPY) --redefine-sym func_overlay_050_F0000000_1896970=func_overlay_050_F0000000_1896970 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2E4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50PatchIndices.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50Cleanup.c.o: POSTPROCESS = \
