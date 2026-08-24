@@ -26,6 +26,7 @@ extern s32 gOverlay99Arg4;
 extern s32 gOverlay99Arg5;
 extern void overlay99ApplySegment(Overlay99Segment *segment, f32 scale);
 
+#ifdef NON_MATCHING
 void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
                               s32 heightMinusOne, s32 arg4, s32 arg5) {
     Overlay99GridPoint *point;
@@ -92,3 +93,6 @@ void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
         point++;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/overlay99BuildHeightGrid/func_overlay_099_F0000638_18D9BE8.s")
+#endif

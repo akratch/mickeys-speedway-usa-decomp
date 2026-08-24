@@ -5051,130 +5051,29 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99GetEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99ReleaseEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99InitializeEntries.c.o: \
-	config/normalizations/overlay99InitializeEntries.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99InitializeEntries.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1B8 e38eb2e72a078f6c86903ca83131436351fbcaef931e520568bf4e37006df684 \
-		@config/normalizations/overlay99InitializeEntries.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_099_F0000064_18D9614=overlay99InitializeEntries $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1B8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99ProjectVector.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x84
-# The typed source naturally recovers the complete equation, grid traversal,
-# strict FP predicates, and runtime identities. Select the asserted bijective
-# private compiler representation, then preserve the runtime table's ownership
-# of local data relocations and the assembly owner's exact static REL order.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99ApplySegment.c.o: \
-	config/normalizations/overlay99ApplySegment.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/order_o99_apply_segment_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99ApplySegment.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3A0 6a4c04cb13e226cbf4b5e263a6f623961971d7c95f8cb55be7603aebed7aad57 \
-		@config/normalizations/overlay99ApplySegment.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x398 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x68:5:gOverlay99CurrentGrid 0x6c:6:gOverlay99CurrentGrid \
-		0x74:5:gOverlay99Grids 0x80:6:gOverlay99Grids \
-		0xcc:5:.rodata 0xd8:6:.rodata \
-		0x8c:5:gOverlay99GridHeight 0x10c:6:gOverlay99GridHeight \
-		0x114:5:gOverlay99GridWidth 0x138:6:gOverlay99GridWidth \
-		0x310:5:gOverlay99GridWidth 0x314:6:gOverlay99GridWidth \
-		0x32c:5:gOverlay99GridHeight 0x330:6:gOverlay99GridHeight && \
-	$(OBJCOPY) --remove-section=.rodata $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x2d8:overlay99AngleWavePhaseReloc:overlay99AngleWave && \
-	$(OBJCOPY) \
-		--redefine-sym gOverlay99Arg5=D_A8 \
-		--redefine-sym gOverlay99HeightMinusOne=D_A0 \
-		--redefine-sym gOverlay99Arg4=D_A4 \
-		--redefine-sym gOverlay99WidthMinusOne=D_9C \
-		--redefine-sym overlay99ProjectVector=func_overlay_099_F000021C_18D97CC \
-		--redefine-sym overlay99AngleWave=func_overlay_099_F0000000_18D95B0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/order_o99_apply_segment_relocations.py $@
-# The source owns the exact CFG and every data effect. Normalize two complete
-# allocation webs, then remove only private-data relocation records already
-# owned by the overlay runtime table and bind the retained local identities.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99BuildHeightGrid.c.o: \
-	config/normalizations/overlay99BuildHeightGrid.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_099_F00002A0_18D9850=overlay99ApplySegment $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x398
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99BuildHeightGrid.c.o: CFLAGS += -Wo,-loopunroll,0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99BuildHeightGrid.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1C8 671c4fc3c3753b31adeecf41847cfe122d083dd4fa4cb45b4a2b55b706460729 \
-		@config/normalizations/overlay99BuildHeightGrid.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x0:5:gOverlay99CurrentGrid 0x4:6:gOverlay99CurrentGrid \
-		0x110:5:gOverlay99CurrentGrid 0x114:6:gOverlay99CurrentGrid \
-		0x8:5:gOverlay99Grids 0x18:6:gOverlay99Grids \
-		0x11c:5:gOverlay99Grids 0x128:6:gOverlay99Grids \
-		0x54:5:gOverlay99WidthMinusOne 0x58:6:gOverlay99WidthMinusOne \
-		0x60:5:gOverlay99HeightMinusOne 0x64:6:gOverlay99HeightMinusOne \
-		0x6c:5:gOverlay99Arg4 0x70:6:gOverlay99Arg4 \
-		0x74:5:gOverlay99Arg5 0x78:6:gOverlay99Arg5 \
-		0x84:5:gOverlay99Segments 0x90:6:gOverlay99Segments \
-		0xb8:5:gOverlay99SegmentCount 0xbc:6:gOverlay99SegmentCount && \
-	$(OBJCOPY) \
-		--redefine-sym gOverlay99GridWidth=D_94 \
-		--redefine-sym gOverlay99GridHeight=D_98 \
-		--redefine-sym overlay99ApplySegment=func_overlay_099_F00002A0_18D9850 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C8
-# The typed renderer naturally recovers the exact boundary, calls, CFG, FP
-# topology, and memory effects. Select two complete local ownership webs plus
-# one command-definition schedule, collapse the six runtime-relocated call
-# identities to their shipped carrier, and remove only the two private data
-# pairs already represented by the overlay relocation assets.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSortedEntries.c.o: \
-	config/normalizations/overlay99RenderSortedEntries.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSortedEntries.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3A4 2ce9c275ee2ae1f50473ef3b34a4b74c8490407446b66920e17ec0fc961392ec \
-		@config/normalizations/overlay99RenderSortedEntries.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x1e4:overlay99GetTransform:overlay99Measure \
-		0x220:overlay99UpdateState:overlay99Measure \
-		0x258:overlay99BuildMatrix:overlay99Measure \
-		0x32c:overlay99BuildRecord:overlay99Measure \
-		0x360:overlay99DrawEntry:overlay99Measure && \
 	$(OBJCOPY) --redefine-sym \
-		overlay99Measure=func_overlay_099_F0000000_18D95B0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x1f4:5:D_4 0x21c:6:D_4 \
-		0x260:5:D_8 0x264:6:D_8 && \
+		func_overlay_099_F0000638_18D9BE8=overlay99BuildHeightGrid $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C8
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSortedEntries.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_099_F0000800_18D9DB0=overlay99RenderSortedEntries $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4
-# This renderer naturally recovers the complete CFG, FP schedule, calls, and
-# memory effects. Select its two complete ownership webs, collapse the six
-# runtime helper roles to their shipped carrier, and remove only private-data
-# relocations already encoded by the overlay's runtime relocation assets.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSegments.c.o: \
-	config/normalizations/overlay99RenderSegments.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSegments.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSegments.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x238 e5f3c1534bd285bbf9985e72be5b28a7aac2b939d285cd6b66dad6e951327a38 \
-		@config/normalizations/overlay99RenderSegments.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0xe8:overlay99Setup:overlay99Begin \
-		0xf0:overlay99End:overlay99Begin \
-		0x11c:overlay99Angle:overlay99Begin \
-		0x158:overlay99Sqrt:overlay99Begin \
-		0x1b0:overlay99DrawObject:overlay99Begin && \
 	$(OBJCOPY) --redefine-sym \
-		overlay99Begin=func_overlay_099_F0000000_18D95B0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x04:5:gOverlay99SegmentCount 0x08:6:gOverlay99SegmentCount \
-		0x2c:5:gOverlay99Segments 0x60:6:gOverlay99Segments \
-		0xb8:5:gOverlay99Texture 0xc0:6:gOverlay99Texture \
-		0x1dc:5:gOverlay99SegmentCount 0x1e0:6:gOverlay99SegmentCount && \
+		func_overlay_099_F0000BA4_18DA154=overlay99RenderSegments $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x238
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x334

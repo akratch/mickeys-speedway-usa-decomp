@@ -77,6 +77,7 @@ extern void overlay99DrawEntry(Overlay99Gfx **displayList, void *arg1,
 extern f32 D_8;
 extern f32 D_4;
 
+#ifdef NON_MATCHING
 void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
                                   void *arg2, Overlay99RenderState *state,
                                   f32 intensityScale) {
@@ -172,3 +173,6 @@ void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
                            &record, 14, state->mode39);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/overlay99RenderSortedEntries/func_overlay_099_F0000800_18D9DB0.s")
+#endif
