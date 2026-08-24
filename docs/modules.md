@@ -1204,6 +1204,15 @@ In `main/vehicle_sounds`, the Mickey-derived handle cleanup loop
 `func_800582A8` (`0x64` bytes) is exact under `-O2 -mips2 -32`; its linked
 function bytes and call relocation match.
 
+The remaining vehicle functions plateau without exact credit.
+`func_80058250`'s best direct initializer emits 26 instructions against 22,
+first differing at `+0x8`; the array spelling undershoots the target's unusual
+address schedule. `func_80058EF4`'s best lattice result emits 36 instructions
+against 39 and differs in 13 words from `+0x4`, with the two FP webs exchanged.
+The 0xBE8-byte `func_8005830C` remains blocked on untyped racer, listener and
+sound-state layouts for which the permitted JFG audio-manager sources provide
+no corresponding body.
+
 ## 4. libultra
 
 ### 4.1 The corridor: ROM `0x6F420`–`0x76D10`
