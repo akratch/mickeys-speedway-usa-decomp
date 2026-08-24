@@ -548,9 +548,7 @@ TEXT_SUBSEGMENTS = {
         (0x2DE8, "asm", "overlay_047_padding"),
     ],
     49: [
-        (0x000, "c", "overlay49Initialize"),
-        (0x1F4, "c", "overlay49Update"),
-        (0x354, "c", "refractOutput"),
+        (0x000, "c", "overlay_049"),
         (0x374, "asm", "overlay_049_padding"),
     ],
     56: [

@@ -2678,14 +2678,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x60
 # NON_MATCHING/GLOBAL_ASM: restore friendly symbols and retain only the
 # trailing-section trim metadata for these extracted functions.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Initialize.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_049_F0000000_1896410=overlay49Initialize $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1F4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Update.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_049_F00001F4_1896604=overlay49Update $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x160
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay_049.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_049_F0000000_1896410=overlay49Initialize \
+		--redefine-sym func_overlay_049_F00001F4_1896604=overlay49Update $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x374
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48InitializeState.c.o: POSTPROCESS = \
@@ -3400,8 +3397,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48UpdateState.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48ReleaseAll.c.o
 OVERLAY_TRIMMED_OBJECTS += \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Initialize.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Update.c.o
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay_049.c.o
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay28ResetBuffer.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay28UpdateVertices.c.o
