@@ -83,3 +83,7 @@ nonmatchings/
 /debug_source.c
 /target.owner.relocs.txt
 /.tmp-atlas/
+
+# Codex lane runner state
+.codex-*
+.lane-extract.log
