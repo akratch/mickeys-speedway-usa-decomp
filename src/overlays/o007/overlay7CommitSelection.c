@@ -16,6 +16,7 @@ extern void func_overlay_007_F0000CCC_185CB54(void *selected);
 extern void overlay7CommitReloc(u16 value, void *argument);
 extern u16 gOverlay7CommitArgument;
 
+#ifdef NON_MATCHING
 void overlay7CommitSelection(s32 selection) {
     Overlay7Pair *pair;
     s32 remaining;
@@ -55,3 +56,6 @@ void overlay7CommitSelection(s32 selection) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay7CommitSelection/func_overlay_007_F0000DBC_185CC44.s")
+#endif

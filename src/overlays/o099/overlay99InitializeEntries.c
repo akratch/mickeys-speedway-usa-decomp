@@ -50,6 +50,7 @@ extern Overlay99Object *overlay99SpawnEntryReloc(
     Overlay99SpawnDescriptor *descriptor, s32 one);
 extern void overlay99CommitEntriesReloc(void);
 
+#ifdef NON_MATCHING
 void overlay99InitializeEntries(s32 count, Overlay99Entry *source,
                                        f32 x, f32 y) {
     u16 reservedStack[3];
@@ -103,3 +104,6 @@ void overlay99InitializeEntries(s32 count, Overlay99Entry *source,
         overlay99CommitEntriesReloc();
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/overlay99InitializeEntries/func_overlay_099_F0000064_18D9614.s")
+#endif

@@ -61,6 +61,7 @@ extern void overlay68SubmitEntryReloc(u32 **displayList, s32 arg1, s32 arg2,
                                       Overlay68DrawDescriptor *descriptor,
                                       s32 mode, s32 objectMode);
 
+#ifdef NON_MATCHING
 void overlay68DrawSortedEntries(u32 **displayList, s32 arg1, s32 arg2,
                                 Overlay68DrawObject *object) {
     Overlay68VectorOwner *owner;
@@ -145,3 +146,6 @@ void overlay68DrawSortedEntries(u32 **displayList, s32 arg1, s32 arg2,
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68DrawSortedEntries/func_overlay_068_F0000EFC_18C805C.s")
+#endif

@@ -12,6 +12,7 @@ extern u8 gOverlay20MarkerEnd;
 extern u32 gOverlay20ActiveBits;
 
 /* DKR v77/v80 and JFG have no exact donor; only generic list compaction. */
+#ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;
     s32 i;
@@ -61,3 +62,6 @@ searchLoop:
         owner -= 0x24;
     } while (i--);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20RemoveEntry/func_overlay_020_F0001018_18775F0.s")
+#endif

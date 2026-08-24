@@ -18,6 +18,7 @@ extern s32 overlay61ReadReloc(s32 arg0, void *handle, void *data, s32 size);
 extern void overlay61FreeReloc(void *data);
 extern void overlay61CloseReloc(s32 arg0);
 
+#ifdef NON_MATCHING
 s32 overlay61ReadCharacter(
     s32 arg0, s32 arg1, s32 *out0, s32 *out1, s32 *out2) {
     void *handle;
@@ -54,3 +55,6 @@ s32 overlay61ReadCharacter(
     overlay61CloseReloc(arg0);
     return result;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o061/overlay61ReadCharacter/func_overlay_061_F00018A0_18C0C68.s")
+#endif

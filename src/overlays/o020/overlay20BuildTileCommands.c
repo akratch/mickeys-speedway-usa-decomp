@@ -50,6 +50,7 @@ extern void overlay20TileSetupReloc(Overlay20Command **commands,
         _g->w1 = (u32)(address);                                            \
     }
 
+#ifdef NON_MATCHING
 void overlay20BuildTileCommands(Overlay20Command **commands,
                                 Overlay20TileSource *source, s32 arg2) {
     s32 chunks[13];
@@ -110,3 +111,6 @@ void overlay20BuildTileCommands(Overlay20Command **commands,
         textureOffset += 10;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20BuildTileCommands/func_overlay_020_F00007C4_1876D9C.s")
+#endif

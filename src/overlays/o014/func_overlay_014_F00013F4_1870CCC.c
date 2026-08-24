@@ -16,6 +16,7 @@ extern void overlay14BuildPanel(s32 context, void *base, s32 width, s32 height,
 extern s32 overlay14CreateHandle(s32 context, s32 valueF8, s32 valueDC);
 extern void overlay14DrawPrimitive();
 
+#ifdef NON_MATCHING
 void func_overlay_014_F00013F4_1870CCC(s32 context) {
     s32 mode;
 
@@ -36,3 +37,6 @@ void func_overlay_014_F00013F4_1870CCC(s32 context) {
         overlay14DrawPrimitive(context, 0xC4, 0x6C, &gOverlay14Args30, 0xC);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/func_overlay_014_F00013F4_1870CCC/func_overlay_014_F00013F4_1870CCC.s")
+#endif

@@ -42,6 +42,7 @@ extern void func_overlay_099_F0000800_18D9DB0(
     Overlay99Gfx **displayList, void *arg1, s32 arg2,
     Overlay99RenderObject *object, f32 scale);
 
+#ifdef NON_MATCHING
 void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
                              f32 scale) {
     struct {
@@ -103,3 +104,6 @@ void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
         } while (i < gOverlay99SegmentCount);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/overlay99RenderSegments/func_overlay_099_F0000BA4_18DA154.s")
+#endif

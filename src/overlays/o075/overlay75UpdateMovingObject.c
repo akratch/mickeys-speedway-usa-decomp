@@ -102,6 +102,7 @@ typedef struct Overlay75UpdateLocals {
     f32 delta;
 } Overlay75UpdateLocals;
 
+#ifdef NON_MATCHING
 void overlay75UpdateMovingObject(Overlay75Object *object,
                                        s32 updateRate) {
     register Overlay75Model *model;
@@ -240,3 +241,6 @@ cache_position:
     state->cachedY34 = position->y;
     state->cachedZ38 = position->z;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o075/overlay75UpdateMovingObject/func_overlay_075_F0000214_18CC17C.s")
+#endif

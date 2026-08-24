@@ -22,6 +22,7 @@ extern Overlay14QueuedCommand gOverlay14QueuedCommands128[];
 extern s32 overlay14CreateValue(s32 value, s32 mode);
 extern s32 overlay14MoveCommandCursor(s32 step);
 
+#ifdef NON_MATCHING
 s32 overlay14ApplyValues(s32 value, s32 mode) {
     s32 result;
     s32 index;
@@ -66,3 +67,6 @@ s32 overlay14ApplyValues(s32 value, s32 mode) {
     }
     return result;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14ApplyValues/func_overlay_014_F0000328_186FC00.s")
+#endif

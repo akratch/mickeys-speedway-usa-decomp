@@ -20,6 +20,7 @@ extern void func_8002E800(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void osRecvMesg(void *queue, s32 *message, s32 flags);
 extern void func_overlay_043_F0001378_188B348(void *entry);
 
+#ifdef NON_MATCHING
 void func_overlay_043_F0000194_188A164(void) {
     Overlay43PendingEntry *entry;
     Overlay43PendingEntry *previous;
@@ -46,3 +47,6 @@ void func_overlay_043_F0000194_188A164(void) {
     func_overlay_043_F0001378_188B348(entry);
     D_C8 = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/overlay43FlushPending/func_overlay_043_F0000194_188A164.s")
+#endif

@@ -32,6 +32,7 @@ extern Overlay36WorldState *gOverlay36WorldStateReloc;
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 are negative and JFG's
  * Overlay 36 hits occur only at the unrelated +0x1470/+0x1490 wrappers. */
+#ifdef NON_MATCHING
 void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
                                        s32 remaining) {
     Overlay36Nearby *results[13];
@@ -71,3 +72,6 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36CheckNearbyHeight/func_overlay_036_F0000818_1883CD0.s")
+#endif

@@ -14,6 +14,7 @@ extern void overlay61DrawScrollReloc(s32, s32, s32, void *, s32);
 extern void func_overlay_061_F00003C0_18BF788(
     s32 context, s32 y, void *item, s32 selected);
 
+#ifdef NON_MATCHING
 void overlay61DrawList(s32 context) {
     s32 index;
     s32 y;
@@ -53,3 +54,6 @@ void overlay61DrawList(s32 context) {
             context, 0xA0, 0xD8, gOverlay61DownLabelReloc, 4);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o061/overlay61DrawList/func_overlay_061_F00007C4_18BFB8C.s")
+#endif

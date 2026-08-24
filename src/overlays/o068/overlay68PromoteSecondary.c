@@ -32,6 +32,7 @@ extern void overlay68FinishEntryPromoteReloc(void);
  * opcodes, calls, data identities, copy loop, and effects. A complete decoded
  * ledger selects retail's private frame, owner precolor, and likely exit.
  */
+#ifdef NON_MATCHING
 void overlay68PromoteSecondary(void) {
     Overlay68Entry *primary;
     Overlay68Entry *secondary;
@@ -79,3 +80,6 @@ void overlay68PromoteSecondary(void) {
         secondary->timer = 0;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68PromoteSecondary/func_overlay_068_F000051C_18C767C.s")
+#endif

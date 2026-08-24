@@ -37,6 +37,7 @@ extern u8 gOverlay36AlternateEffects;
 extern Overlay36SpawnedObject *overlay36SpawnEffectReloc(
     Overlay36SpawnRequest *request, s32 count, Overlay36EffectSource *source);
 
+#ifdef NON_MATCHING
 void overlay36SpawnFinalEffect(Overlay36EffectSource *source) {
     Overlay36SpawnedObject *spawned;
     register Overlay36EffectState *state;
@@ -67,3 +68,6 @@ void overlay36SpawnFinalEffect(Overlay36EffectSource *source) {
         state->activeAction = NULL;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36SpawnFinalEffect/func_overlay_036_F0001688_1884B40.s")
+#endif

@@ -3,6 +3,7 @@
 extern s32 gO96EntryCountReloc;
 extern s32 gO96EntriesReloc[16];
 
+#ifdef NON_MATCHING
 void overlay96Unregister(s32 value) {
     s32 count;
     s32 index;
@@ -31,3 +32,6 @@ void overlay96Unregister(s32 value) {
         } while (index-- != 0);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o096/overlay96Unregister/func_overlay_096_F0000070_18D76A8.s")
+#endif

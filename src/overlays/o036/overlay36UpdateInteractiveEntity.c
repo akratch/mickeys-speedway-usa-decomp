@@ -98,6 +98,7 @@ extern void overlay36ReleaseEntityReloc(Overlay36Entity *entity);
 extern void overlay36AnimateReloc(void *resource, s32 *mode, s32 count,
                                   void *angles, s32 elapsed);
 
+#ifdef NON_MATCHING
 void overlay36UpdateInteractiveEntity(Overlay36Entity *entity,
                                        s32 elapsed) {
     Overlay36State *state;
@@ -247,3 +248,6 @@ void overlay36UpdateInteractiveEntity(Overlay36Entity *entity,
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36UpdateInteractiveEntity/func_overlay_036_F00001D0_1883688.s")
+#endif

@@ -7,6 +7,7 @@ typedef struct Overlay12Effect {
 extern s32 gOverlay12Ready, gOverlay12EffectCount;
 extern Overlay12Effect gOverlay12Effects[64];
 extern void overlay12Initialize(void); extern s32 overlay12Lookup(s32,s32);
+#ifdef NON_MATCHING
 void func_overlay_012_F00001B4_186D434(f32 x,f32 y,f32 z,f32 x2,f32 y2,f32 z2,s32 scale,s32 type,f32 value) {
  s32 i; Overlay12Effect *effect;
  if(gOverlay12Ready==0) overlay12Initialize();
@@ -25,3 +26,6 @@ void func_overlay_012_F00001B4_186D434(f32 x,f32 y,f32 z,f32 x2,f32 y2,f32 z2,s3
   }
  }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o012/overlay12SpawnEffect/func_overlay_012_F00001B4_186D434.s")
+#endif

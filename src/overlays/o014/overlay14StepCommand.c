@@ -15,6 +15,7 @@ extern void overlay14ResetMode(void);
 extern void overlay14DispatchCommand(void);
 extern void overlay14MoveCommandCursor(s32 step);
 
+#ifdef NON_MATCHING
 void overlay14StepCommand(s32 context) {
     Overlay14CommandHeader *command;
 
@@ -37,3 +38,6 @@ void overlay14StepCommand(s32 context) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14StepCommand/func_overlay_014_F0000F64_187083C.s")
+#endif

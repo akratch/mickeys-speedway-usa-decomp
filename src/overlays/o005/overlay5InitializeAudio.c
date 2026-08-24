@@ -85,6 +85,7 @@ extern void alSurround_ReverbSetup(s32 arg0, s32 outputType);
 extern void osCreateMesgQueue(void *queue, void *buffer, s32 count);
 extern void n_alCSPSetMessageQ(void *player, void *queue);
 
+#ifdef NON_MATCHING
 void overlay5InitializeAudio(void *context) {
     Overlay5Resource *resource;
     Overlay5SoundConfig soundConfig;
@@ -191,3 +192,6 @@ void overlay5InitializeAudio(void *context) {
     osCreateMesgQueue(gOverlay5MessageQueue, gOverlay5MessageBuffer, 1);
     n_alCSPSetMessageQ(gOverlay5Player0, gOverlay5MessageQueue);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o005/overlay5InitializeAudio/func_overlay_005_F000031C_185B744.s")
+#endif

@@ -16,6 +16,7 @@ extern s32 overlay14SelectKind(void);
 extern void *overlay14LoadRelocatedValue(s32 key, s32 kind);
 extern void *overlay14LoadAsset(s32 key, s32 kind);
 
+#ifdef NON_MATCHING
 void *overlay14CreateValue(s32 key, s32 alternate) {
     Overlay14ValueSlot *slot;
     void *value;
@@ -82,3 +83,6 @@ scan_loop:
     }
     return value;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14CreateValue/func_overlay_014_F00006FC_186FFD4.s")
+#endif

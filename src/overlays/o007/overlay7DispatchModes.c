@@ -32,6 +32,7 @@ extern void overlay7CreateEntry(Overlay7ModeOwner *, u16, u8);
 extern void overlay7AppendEntry(Overlay7ModeOwner *, u16, u8);
 extern s32 overlay7LookupReloc(s32, s32);
 
+#ifdef NON_MATCHING
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
     Overlay7ModeState *firstState;
     Overlay7ModeState *secondState;
@@ -83,3 +84,6 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay7DispatchModes/func_overlay_007_F0000894_185C71C.s")
+#endif

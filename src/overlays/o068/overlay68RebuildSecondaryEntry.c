@@ -44,6 +44,7 @@ extern void overlay68BindEntryReloc(s32 kind, Overlay68EntryHeader *entry,
 extern void overlay68FreeProbeReloc(void *probe);
 extern void overlay68ReleaseReloc(void *resource);
 
+#ifdef NON_MATCHING
 void overlay68RebuildSecondaryEntry(s32 kind) {
     const Overlay68KindPair *mapping;
     volatile const s8 *loopMapping;
@@ -120,3 +121,6 @@ void overlay68RebuildSecondaryEntry(s32 kind) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68RebuildSecondaryEntry/func_overlay_068_F0001250_18C83B0.s")
+#endif

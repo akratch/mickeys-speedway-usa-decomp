@@ -16,6 +16,7 @@ typedef struct Overlay43Resources {
 extern void *func_8002B280(s32 size, s32 tag);
 extern void func_8002B768(void *pointer);
 
+#ifdef NON_MATCHING
 s32 func_overlay_043_F0001184_188B154(Overlay43Input *input,
                                       Overlay43Resources *resources) {
     s32 secondaryCount;
@@ -51,3 +52,6 @@ s32 func_overlay_043_F0001184_188B154(Overlay43Input *input,
 
     return 1;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/overlay43AllocateResources/func_overlay_043_F0001184_188B154.s")
+#endif

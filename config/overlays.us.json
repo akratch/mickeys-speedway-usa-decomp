@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 176256,
-  "nonmatching_overlay_c_bytes": 100344,
+  "matched_overlay_c_bytes": 143052,
+  "nonmatching_overlay_c_bytes": 133548,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -2410,7 +2410,7 @@
      "type": "c",
      "source": "overlays/o005/overlay5InitializeAudio",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x6C0",
@@ -2613,7 +2613,7 @@
      "type": "c",
      "source": "overlays/o007/overlay7EntryPool",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x228",
@@ -2649,7 +2649,7 @@
      "type": "c",
      "source": "overlays/o007/overlay7DispatchModes",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xAA0",
@@ -2658,7 +2658,7 @@
      "type": "c",
      "source": "overlays/o007/overlay7UpdateOwnerMode",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xCCC",
@@ -2667,7 +2667,7 @@
      "type": "c",
      "source": "overlays/o007/overlay7DispatchSelection",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xDBC",
@@ -2676,7 +2676,7 @@
      "type": "c",
      "source": "overlays/o007/overlay7CommitSelection",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xEDC",
@@ -3986,7 +3986,7 @@
      "type": "c",
      "source": "overlays/o012/overlay12Shutdown",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1B4",
@@ -3995,7 +3995,7 @@
      "type": "c",
      "source": "overlays/o012/overlay12SpawnEffect",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2E4",
@@ -4004,7 +4004,7 @@
      "type": "c",
      "source": "overlays/o012/overlay12SpawnParticle",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x3A8",
@@ -4317,7 +4317,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F0000000_186F8D8",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x13C",
@@ -4326,7 +4326,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F000013C_186FA14",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x31C",
@@ -4344,7 +4344,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14ApplyValues",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x498",
@@ -4353,7 +4353,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14ResetMode",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x578",
@@ -4362,7 +4362,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14MoveCommandCursor",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x6FC",
@@ -4371,7 +4371,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14CreateValue",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x87C",
@@ -4380,7 +4380,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14LoadRelocatedValue",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x9F4",
@@ -4389,7 +4389,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F00009F4_18702CC",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xACC",
@@ -4452,7 +4452,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14PrepareInputState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xD68",
@@ -4461,7 +4461,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14AdvanceCommand",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF64",
@@ -4470,7 +4470,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14StepCommand",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1028",
@@ -4488,7 +4488,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14DispatchCommand",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1164",
@@ -4506,7 +4506,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14UpdateTransition",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x12D8",
@@ -4515,7 +4515,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14BuildRects",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x13F4",
@@ -4524,7 +4524,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F00013F4_1870CCC",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1540",
@@ -4533,7 +4533,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F0001540_1870E18",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1830",
@@ -4542,7 +4542,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F0001830_1871108",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1B54",
@@ -5557,7 +5557,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20ConfigureResource",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x204",
@@ -5566,7 +5566,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20UpdateObjectResource",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x38C",
@@ -5584,7 +5584,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20BuildTileCommands",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x9DC",
@@ -5602,7 +5602,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20UpdateGrid",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xDC4",
@@ -5629,7 +5629,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20ConfigureEntry",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF78",
@@ -5647,7 +5647,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20RemoveEntry",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x10EC",
@@ -8323,7 +8323,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36UpdateInteractiveEntity",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x694",
@@ -8332,7 +8332,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnTransient",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7B0",
@@ -8350,7 +8350,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36CheckNearbyHeight",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x914",
@@ -8386,7 +8386,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36ChooseWeightedState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xD08",
@@ -8404,7 +8404,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnLinked7F",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF20",
@@ -8413,7 +8413,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnDirectional",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1084",
@@ -8431,7 +8431,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnOffsetA9",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1378",
@@ -8467,7 +8467,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36UpdatePeers",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1688",
@@ -8476,7 +8476,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnFinalEffect",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1748",
@@ -9781,7 +9781,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43InitializeState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x194",
@@ -9790,7 +9790,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43FlushPending",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x280",
@@ -9817,7 +9817,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43ComputeMotion",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1184",
@@ -9826,7 +9826,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43AllocateResources",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1264",
@@ -9835,7 +9835,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43SubmitChildren",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1378",
@@ -9844,7 +9844,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43FilterImage",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1424",
@@ -10512,7 +10512,7 @@
      "type": "c",
      "source": "overlays/o047/overlay47ReleaseResources",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xB30",
@@ -10530,7 +10530,7 @@
      "type": "c",
      "source": "overlays/o047/overlay47SpawnObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2DE8",
@@ -12972,7 +12972,7 @@
      "type": "c",
      "source": "overlays/o060/overlay60Initialize",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x334",
@@ -12999,7 +12999,7 @@
      "type": "c",
      "source": "overlays/o060/func_overlay_060_F0002F54_18BCD2C",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x32CC",
@@ -13026,7 +13026,7 @@
      "type": "c",
      "source": "overlays/o060/overlay60ReassignChoiceSlots",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x355C",
@@ -13187,7 +13187,7 @@
      "type": "c",
      "source": "overlays/o061/overlay61AddEntry",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x3C0",
@@ -13205,7 +13205,7 @@
      "type": "c",
      "source": "overlays/o061/overlay61DrawList",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x968",
@@ -13241,7 +13241,7 @@
      "type": "c",
      "source": "overlays/o061/func_overlay_061_F0001648_18C0A10",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x17B8",
@@ -13250,7 +13250,7 @@
      "type": "c",
      "source": "overlays/o061/overlay61WriteCharacter",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x18A0",
@@ -13259,7 +13259,7 @@
      "type": "c",
      "source": "overlays/o061/overlay61ReadCharacter",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x19B0",
@@ -14239,7 +14239,7 @@
      "type": "c",
      "source": "overlays/o068/overlay68PromoteSecondary",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x650",
@@ -14248,7 +14248,7 @@
      "type": "c",
      "source": "overlays/o068/overlay68Interpolate",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x8E0",
@@ -14266,7 +14266,7 @@
      "type": "c",
      "source": "overlays/o068/overlay68UpdateAnimation",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xEFC",
@@ -14275,7 +14275,7 @@
      "type": "c",
      "source": "overlays/o068/overlay68DrawSortedEntries",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1250",
@@ -14284,7 +14284,7 @@
      "type": "c",
      "source": "overlays/o068/overlay68RebuildSecondaryEntry",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1438",
@@ -14302,7 +14302,7 @@
      "type": "c",
      "source": "overlays/o068/overlay68CheckKind",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x15AC",
@@ -15406,7 +15406,7 @@
      "type": "c",
      "source": "overlays/o075/overlay75UpdateMovingObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x6D4",
@@ -18456,7 +18456,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96Register",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x70",
@@ -18465,7 +18465,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96Unregister",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF8",
@@ -18474,7 +18474,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96BuildVolume",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x4BC",
@@ -18483,7 +18483,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96FindVolume",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x57C",
@@ -19088,7 +19088,7 @@
      "type": "c",
      "source": "overlays/o099/overlay99InitializeEntries",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x21C",
@@ -19106,7 +19106,7 @@
      "type": "c",
      "source": "overlays/o099/overlay99ApplySegment",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x638",
@@ -19115,7 +19115,7 @@
      "type": "c",
      "source": "overlays/o099/overlay99BuildHeightGrid",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x800",
@@ -19124,7 +19124,7 @@
      "type": "c",
      "source": "overlays/o099/overlay99RenderSortedEntries",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xBA4",
@@ -19133,7 +19133,7 @@
      "type": "c",
      "source": "overlays/o099/overlay99RenderSegments",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xDDC",

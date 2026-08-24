@@ -30,6 +30,7 @@ extern s32 overlay7GetCheckIndexReloc(void *current);
 extern void overlay7RecordCheckReloc(s32 value);
 extern void overlay7SetOwnerModeReloc(Overlay7CheckOwner *owner, s32 mode);
 
+#ifdef NON_MATCHING
 void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
     Overlay7CheckState *state;
     Overlay7CheckEntry *base;
@@ -88,3 +89,6 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay7UpdateOwnerMode/func_overlay_007_F0000AA0_185C928.s")
+#endif

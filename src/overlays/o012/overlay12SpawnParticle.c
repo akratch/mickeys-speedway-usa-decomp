@@ -18,6 +18,7 @@ extern Overlay12Particle gOverlay12Particles[5];
 extern void overlay12Initialize(void);
 
 /* Pinned DKR v77/v80 and JFG object scans found no donor. */
+#ifdef NON_MATCHING
 void func_overlay_012_F00002E4_186D564(f32 x, f32 y, f32 z, s32 type,
                                        s32 variant) {
     s32 i;
@@ -47,3 +48,6 @@ void func_overlay_012_F00002E4_186D564(f32 x, f32 y, f32 z, s32 type,
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o012/overlay12SpawnParticle/func_overlay_012_F00002E4_186D564.s")
+#endif

@@ -14,6 +14,7 @@ extern s32 gOverlay14DefaultA4;
 extern s32 gOverlay14DefaultB4;
 extern void *overlay14AssetCall();
 
+#ifdef NON_MATCHING
 Overlay14Asset *func_overlay_014_F00009F4_18702CC(s32 index, s32 context) {
     s32 start;
     s32 size;
@@ -46,3 +47,6 @@ Overlay14Asset *func_overlay_014_F00009F4_18702CC(s32 index, s32 context) {
     }
     return asset;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/func_overlay_014_F00009F4_18702CC/func_overlay_014_F00009F4_18702CC.s")
+#endif

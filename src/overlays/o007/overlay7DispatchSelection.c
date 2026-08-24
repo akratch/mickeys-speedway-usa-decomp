@@ -22,6 +22,7 @@ extern void overlay7CreateEntry(Overlay7DispatchOwner *owner, u16 value,
 extern s32 overlay7QueryReloc(void);
 extern void overlay7ApplyReloc(s32 arg0, s8 index, s8 value, u8 field);
 
+#ifdef NON_MATCHING
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     Overlay7DispatchState *state;
     u16 *override;
@@ -52,3 +53,6 @@ query:
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay7DispatchSelection/func_overlay_007_F0000CCC_185CB54.s")
+#endif

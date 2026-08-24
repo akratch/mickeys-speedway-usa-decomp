@@ -16,6 +16,7 @@ extern void overlay14BuildPanel(s32, void *, s32, s32, s32, s32, s32);
 extern s32 overlay14Dispatch();
 extern s32 overlay14ValidateEntry(s16);
 
+#ifdef NON_MATCHING
 void func_overlay_014_F0001540_1870E18(s32 context) {
     s32 index, entryOffset, opacity;
     void *drawArg;
@@ -64,3 +65,6 @@ loop_entry:
     if ((index < gOverlay14Entries->count) || (cursor != 0))
         overlay14Dispatch(context, 0xC4, 0x6C, &gOverlay14Args34, 0xC);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/func_overlay_014_F0001540_1870E18/func_overlay_014_F0001540_1870E18.s")
+#endif
