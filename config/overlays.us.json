@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 80196,
-  "nonmatching_overlay_c_bytes": 200656,
+  "matched_overlay_c_bytes": 78956,
+  "nonmatching_overlay_c_bytes": 201896,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -6917,46 +6917,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x70",
-     "size": "0x70",
-     "type": "c",
-     "source": "overlays/o028/overlay28ResetBuffer",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x70",
-     "end_offset": "0x1B8",
-     "size": "0x148",
-     "type": "c",
-     "source": "overlays/o028/overlay28UpdateVertices",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1B8",
-     "end_offset": "0x318",
-     "size": "0x160",
-     "type": "c",
-     "source": "overlays/o028/overlay28InitializeWork",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x318",
-     "end_offset": "0x4D8",
-     "size": "0x1C0",
-     "type": "c",
-     "source": "overlays/o028/overlay28UpdateWork",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x4D8",
      "end_offset": "0x7EC",
-     "size": "0x314",
+     "size": "0x7EC",
      "type": "c",
-     "source": "overlays/o028/func_overlay_028_F00004D8_187CDA8",
+     "source": "overlays/o028/overlay_028",
      "matched": true,
      "nonmatching": true
     },

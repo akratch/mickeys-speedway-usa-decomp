@@ -1180,7 +1180,6 @@ include config/normalizations/overlay34Records.mk
 include config/normalizations/overlay1Epoch12.mk
 include config/normalizations/overlay12Epoch12.mk
 include config/normalizations/overlay22Epoch12.mk
-include config/normalizations/overlay28Epoch12.mk
 include config/normalizations/overlay46Epoch12.mk
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41Ignore.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
@@ -2695,8 +2694,20 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48UpdateState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x60
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay28ResetBuffer.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
+O28_MERGED_OBJ := \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay_028.c.o
+$(O28_MERGED_OBJ): \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py \
+	$(TOOLS_DIR)/trim_elf_section.py
+# The loader owns the reset callback HILO and the update-vertices call carrier.
+# Preserve those asserted relocation identities after the functions become local.
+$(O28_MERGED_OBJ): POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x1D8:5:overlay28ResetBuffer 0x1F4:6:overlay28ResetBuffer && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x41C:overlay28UpdateVertices:ext_o0_29e00 && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7EC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35SelectHeight.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x68
 
@@ -3402,8 +3413,7 @@ OVERLAY_TRIMMED_OBJECTS += \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Initialize.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay49Update.c.o
 OVERLAY_TRIMMED_OBJECTS += \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay28ResetBuffer.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay28UpdateVertices.c.o
+	$(O28_MERGED_OBJ)
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35SelectHeight.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35BuildGridMasks.c.o
