@@ -17,6 +17,12 @@ typedef struct ControlTransform {
     /* 0x14 */ f32 z;
 } ControlTransform;
 
+typedef struct ControlVector3 {
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+} ControlVector3;
+
 /* Partial player-control layout; fields are added only as Mickey proves them. */
 typedef struct ControlPlayer {
     /* 0x000 */ s8 playerIndex;

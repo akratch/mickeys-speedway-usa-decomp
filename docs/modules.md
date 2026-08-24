@@ -406,7 +406,7 @@ call graph isolates one namesake.
 | `0x8001D880` | `0x90` | `controlMakeV` | Plateau after flag sweep and 10 source/flag hypotheses: best `NON_MATCHING` candidate is exact-size with `-Wab,-r4300_mul`, 29 words differ from FP/register allocation at first mismatch `+0x4`; retain `func_` |
 | `0x8001D910` | `0x50` | `controlFSUvels` | B + matched C: JFG rotation-vector role/body with Mickey's output at player `+0x14`; adapted C is ADR 0001 exact under O2/mips2 |
 | `0x8001D960` | `0x370` | `controlUpdateJetFlames` | D: nearest JFG charControl skeleton and same subsystem order; retain `func_` |
-| `0x8001DCD0` | `0xA0` | — | No unique JFG comparison; retain `func_` |
+| `0x8001DCD0` | `0xA0` | — | Plateau after flag sweep and 10 source shapes: best `NON_MATCHING` candidate has the exact 40-opcode/register/frame schedule under O2/mips2 with `-Wab,-r4300_mul`, but 2 stack-offset words differ from first mismatch `+0x70`; an extra FP temporary home moves the transformed-value spill from `sp+0x1C` to `sp+0x24`; retain `func_` |
 | `0x8001DD70` | `0x854` | `controlGroundHits` | D: collision/movement structure and JFG order; retain `func_` |
 | `0x8001E5C4` | `0x680` | `controlHangOK` / `controlGrabOK` | D: ledge/collision family, not uniquely separated; retain `func_` |
 | `0x8001EC44` | `0x3B8` | `controlSquashCheckPrior` | D: collision/math structure and JFG order; retain `func_` |
