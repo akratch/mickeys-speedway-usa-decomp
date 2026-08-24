@@ -2297,8 +2297,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29DrawGroups.c.o: POSTPROCESS = \
 		0x18c:overlay29FlushReloc:func_overlay_029_F0000000_187D2B0 \
 		0x1a8:overlay29FinishReloc:func_overlay_029_F0000000_187D2B0 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x204
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay51Initialize.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay_051.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8AC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitSequence.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ConsumeTimer.c.o: POSTPROCESS = \
@@ -6284,8 +6284,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50Cleanup.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x84
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50SubmitTimeGlyphs.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x214
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay51PatchIndices.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
 # Mickey-local typed source owns O52's exact initializer frame, calls, loops,
 # memory effects, and all runtime roles. Four complete schedule bijections plus
 # the asserted private allocation/address representations select retail's
@@ -6398,8 +6396,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57SetNodeValue.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58SetNodeValue.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x54
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay51ReleaseState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x54
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o054/overlay54CopyOffsetRecords.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE8
@@ -7094,7 +7090,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29DrawGroups.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30Initialize.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30TransposePixels.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay51Initialize.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay_051.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitSequence.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ConsumeTimer.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1TestDirection.c.o \
@@ -7557,7 +7553,6 @@ OVERLAY_TRIMMED_OBJECTS += \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50PatchIndices.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50Cleanup.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50SubmitTimeGlyphs.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay51PatchIndices.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o052/overlay52Initialize.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o052/overlay52PatchIndices.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o052/overlay52CopyOffsetEntries.c.o \
@@ -7581,8 +7576,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11InitializeThreeB.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57SetNodeValue.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58SetNodeValue.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay51ReleaseState.c.o
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitState.c.o
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o054/overlay54CopyOffsetRecords.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o054/overlay54GetOffsets.c.o \

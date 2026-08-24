@@ -1820,10 +1820,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x1899900, c, overlay51Initialize]
-      - [0x1899980, c, overlay51PatchIndices]
-      - [0x18999D0, asm, overlay_051_middle]
-      - [0x189A158, c, overlay51ReleaseState]
+      - [0x1899900, c, overlay_051]
       - [0x189A1AC, asm, overlay_051_padding]
       - [0x189A1B0, bin, overlay_051_data_rodata]
       - [0x189A2B0, bin, overlay_051_reloc1]

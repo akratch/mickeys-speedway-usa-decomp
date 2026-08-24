@@ -887,10 +887,7 @@ TEXT_SUBSEGMENTS = {
         (0x1E68, "asm", "overlay_050_padding"),
     ],
     51: [
-        (0x000, "c", "overlay51Initialize"),
-        (0x080, "c", "overlay51PatchIndices"),
-        (0x0D0, "asm", "overlay_051_middle"),
-        (0x858, "c", "overlay51ReleaseState"),
+        (0x000, "c", "overlay_051"),
         (0x8AC, "asm", "overlay_051_padding"),
     ],
     52: [
