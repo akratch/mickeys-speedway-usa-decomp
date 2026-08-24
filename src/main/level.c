@@ -25,7 +25,7 @@ typedef struct LevelSummary {
 } LevelSummary;
 
 extern LevelSummary *D_800CF3DC;
-extern u32 func_800291F0(void);
+extern s32 mainGetNumberOfCameras(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetCounts.s")
 
@@ -81,7 +81,7 @@ s32 levelGetBlurEffect(s32 arg0) {
 u32 levelGetGfxIndex(s32 arg0) {
     u32 result;
 
-    result = func_800291F0() - 1;
+    result = mainGetNumberOfCameras() - 1;
     if ((arg0 >= 0) && (arg0 < D_800CF3D4) && (result == 0) &&
         (((u32) D_800CF3DC[arg0].flags >> 5) != 0)) {
         result = 4;
