@@ -68,7 +68,13 @@ s32 levelGetScreenMode(s32 arg0) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetBlurEffect.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+s32 levelGetBlurEffect(s32 arg0) {
+    if ((arg0 >= 0) && (arg0 < D_800CF3D4)) {
+        return D_800CF3DC[arg0].blur;
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetGfxIndex.s")
 
