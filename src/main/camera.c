@@ -19,11 +19,18 @@
 
 #include "PR/ultratypes.h"
 
+typedef union {
+    s32 m[4][4];
+    s64 force_structure_alignment;
+} Mtx;
+
+extern u8 D_80079F94;
 extern s32 D_800CEC84;
 extern s32 D_800CEC88;
 extern f32 D_800CEC8C;
 extern f32 D_800CEC90;
 extern u8 D_80079FA8[];
+extern Mtx D_800CED60[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021438.s")
@@ -96,7 +103,10 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002462C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024658.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024664.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camGetProjOrgMtx.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetProjOrgMtx. */
+Mtx *camGetProjOrgMtx(void) {
+    return &D_800CED60[D_80079F94];
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002468C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024698.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800246A4.s")
