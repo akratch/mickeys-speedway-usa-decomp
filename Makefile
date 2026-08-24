@@ -670,6 +670,12 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ldiv.c.o: CFLAGS += -Xphase,cfe,-O3 \
 # evidence. Widen it when the next game module is measured, not before.
 $(BUILD_DIR)/$(SRC_DIR)/main/%.c.o: MIPSISET := -mips2 -32
 
+# The gsSnd flag lattice reproduces its debug-shaped epilogues only with bare -g.
+$(BUILD_DIR)/$(SRC_DIR)/main/gsSnd.c.o: OPT_FLAGS := -g
+
+# The models cache loops retain their scalar source shape only with unrolling disabled.
+$(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
+
 # Overlay game code is likewise MIPS II. Every adopted tranche-A object was
 # compared instruction-for-instruction at this ISA level before joining this
 # rule; MIPS I inserts load-delay nops in several of them.

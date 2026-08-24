@@ -28,7 +28,7 @@ extern u16 D_800D312C;
 extern u16 D_800D312E;
 extern void func_80000E08(s32 volume);
 extern s32 func_80025CC8(void);
-extern s8 func_80033F5C(void);
+extern s8 viGetWideAdjust(void);
 extern void gsSndpSetGlobalVolume(s32 volume);
 extern void viSetWideAdjust(s32 offset);
 
@@ -102,7 +102,7 @@ s8 frontGetWideAdjust(void) {
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontSetWideAdjust. */
 void frontSetWideAdjust(s32 offset) {
     viSetWideAdjust(offset);
-    D_800D312B = func_80033F5C();
+    D_800D312B = viGetWideAdjust();
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A408.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A41C.s")
