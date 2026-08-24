@@ -154,7 +154,23 @@ void controlFSUvels(s16 *rotation, ControlPlayer *player) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001DD70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001E5C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001EC44.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001EFFC.s")
+void func_8001EFFC(ControlTransform *transform, ControlPlayer *player, f32 *output) {
+    f32 *current;
+    s32 index;
+
+    pointListRPY(player->unk2BC, (s16 *) transform, player->unk2C0, output);
+    current = output;
+    index = 0;
+    if (player->unk2BC > 0) {
+        do {
+            current[0] += transform->x;
+            current[1] += transform->y;
+            current[2] += transform->z;
+            current += 3;
+            index++;
+        } while (index < player->unk2BC);
+    }
+}
 void func_8001F09C(ControlPlayer *player, s32 updateRate) {
     f32 rate;
 

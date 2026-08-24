@@ -9,6 +9,14 @@ typedef struct CameraOverride {
     /* 0x04 */ u8 pad04[0x2C - 0x4];
 } CameraOverride;
 
+/* Partial transform input; Mickey proves the translation vector at 0x0C. */
+typedef struct ControlTransform {
+    /* 0x00 */ u8 pad00[0x0C];
+    /* 0x0C */ f32 x;
+    /* 0x10 */ f32 y;
+    /* 0x14 */ f32 z;
+} ControlTransform;
+
 /* Partial player-control layout; fields are added only as Mickey proves them. */
 typedef struct ControlPlayer {
     /* 0x000 */ s8 playerIndex;
@@ -21,7 +29,9 @@ typedef struct ControlPlayer {
     /* 0x191 */ s8 unk191;
     /* 0x192 */ u8 pad192[0x1A8 - 0x192];
     /* 0x1A8 */ u16 flags1A8;
-    /* 0x1AA */ u8 pad1AA[0x41C - 0x1AA];
+    /* 0x1AA */ u8 pad1AA[0x2BC - 0x1AA];
+    /* 0x2BC */ s32 unk2BC;
+    /* 0x2C0 */ f32 unk2C0[(0x41C - 0x2C0) / sizeof(f32)];
     /* 0x41C */ s32 controlKeys;
     /* 0x420 */ s32 controlDkeys;
     /* 0x424 */ s32 controlReleasedKeys;
