@@ -9,6 +9,8 @@
  * graph independently establishes the correspondence (tier B).
  */
 
+extern u16 D_8007A0C8;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyMessageQ.s")
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyInit.s")
@@ -41,7 +43,10 @@
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyClamp.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joySetSecurity.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+void joySetSecurity(void) {
+    D_8007A0C8 = 0;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/arithmeticFunction.s")
 
