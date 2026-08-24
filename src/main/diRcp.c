@@ -10,13 +10,18 @@
 
 #include "PR/ultratypes.h"
 
+typedef void Gfx;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpPrintDL.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/func_800453C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/func_80045400.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpVertex.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpReserved1.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpMatrix.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpReserved0.s")
+/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpReserved0. */
+s32 diRcpReserved0(Gfx *dList, char *name) {
+    return 8;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpReserved2.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpMoveMem.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpDisplayList.s")
