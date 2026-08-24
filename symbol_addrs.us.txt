@@ -1391,6 +1391,7 @@ n_alSynSetFXMix = 0x80063690; // type:func size:0xB0
 //   same bytes in: jfg,perfect_dark
 n_alSynStopVoice = 0x80063740; // type:func size:0xA0
 // libultra/n_synfreevoice  ROM 0x643e0  (jfg/libultra: src/libultra/n_synfreevoice.c.o)  whole .text 0xe0, masked=5, romocc=1
+//   compiler-exact C: 0xd4 executable bytes plus 0xc bytes of TU alignment
 n_alSynFreeVoice = 0x800637E0; // type:func size:0xE0
 // libultra/n_alcspchan  ROM 0x644c0  (jfg/libultra: src/libultra/n_alcspchan.c.o)  whole .text 0x240, masked=5, romocc=1
 n_alCSPAllChanOn = 0x800638C0; // type:func size:0x98
