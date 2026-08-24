@@ -3151,16 +3151,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40FadeRecords.c.o: POSTPROCESS = \
 		0x194 589bdc87fe62280529ee5a646c33b324b68ad9bbbf435e5c413b55951377106d \
 		@config/normalizations/overlay40FadeRecords.ops && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Init.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Release.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Resume.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42DrawCapturedBuffer.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5B0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Present.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay_042.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x700
 # The source recovers the full offset-zero initializer. The guarded private
 # register/schedule web selects retail's a2 reservation; the LOCAL D_0 records
 # are loader-owned and the two adjacent O43 calls retain zero-addend symbols.
@@ -3386,23 +3378,14 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077_tail.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x78
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay_081_leafs.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x54
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81Init.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xCC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x154
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81Update.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81CheckNearby.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81CheckNearby.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Accessors.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x34
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Init.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay_081.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x34C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay_081.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x40
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Init.c.o: CFLAGS += -Wo,-loopunroll,2
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x458
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082.c.o: CFLAGS += -Wo,-loopunroll,2
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082_tail.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C
 # Source naturally reproduces every instruction word and the seven retail
@@ -3788,29 +3771,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87InitializeObject.c.o: POSTPROCESS
 		0x10C:func_8005AD64:mathRnd && \
 	$(OBJCOPY) --redefine-sym mathRnd=overlay87RuntimeCallReloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x128
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetMode.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ResetState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ReadPair.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C
 # All four random-range calls are instruction-natural and share retail's
 # offset-zero stored overlay carrier; retain distinct runtime identities in
 # the authoritative relocation ledger and trim only section alignment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45RandomizeOffsets.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
-		overlay45RandomRangeReloc=func_overlay_045_F0000000_188C458 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetField22.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetField20.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ReleaseDescriptor.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45CreateDescriptor.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x264
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ConfigureLayout.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x32C
+		overlay45RandomRangeStoredReloc=func_overlay_045_F0000000_188C458 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x764
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045_tail.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C
 # Materialize the proved local D_510 addend, discard its runtime-only HILO
 # records, and fold three distinct resident calls through O47's stored
 # offset-zero carrier. Keep +2DE8..+2DF0 as separately owned padding.
@@ -6527,11 +6496,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40Interpolate.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40DrawTintRectangle.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40FadeRecords.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Release.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Resume.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42DrawCapturedBuffer.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay42Present.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay_042.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43InitializeState.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FlushPending.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ReleaseResources.c.o \
@@ -6561,13 +6526,9 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75MarkSlot.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077_tail.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81Update.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay81CheckNearby.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay_081_leafs.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Update.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay82Accessors.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay_081.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082_tail.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88Init.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88UpdateAnchor.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88DrawSortedGeometry.c.o \
@@ -6618,15 +6579,8 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SearchNearby.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SelectMaskedMode.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateCountdown.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ResetState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ReadPair.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45CreateDescriptor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ReleaseDescriptor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45ConfigureLayout.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45RandomizeOffsets.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetMode.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetField22.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay45SetField20.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045_tail.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61UpdateInput.c.o \

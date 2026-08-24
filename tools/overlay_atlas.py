@@ -521,11 +521,7 @@ TEXT_SUBSEGMENTS = {
         (0x824, "asm", "overlay_040_padding"),
     ],
     42: [
-        (0x000, "c", "overlay42Init"),
-        (0x058, "c", "overlay42Release"),
-        (0x0D4, "c", "overlay42Resume"),
-        (0x0F4, "c", "overlay42DrawCapturedBuffer"),
-        (0x6A4, "c", "overlay42Present"),
+        (0x000, "c", "overlay_042"),
     ],
     43: [
         (0x0000, "c", "overlay43InitializeState"),
@@ -546,16 +542,9 @@ TEXT_SUBSEGMENTS = {
         (0xAF4, "asm", "overlay_044_padding"),
     ],
     45: [
-        (0x000, "c", "overlay45ResetState"),
-        (0x00C, "c", "overlay45CreateDescriptor"),
-        (0x270, "c", "overlay45ReleaseDescriptor"),
-        (0x314, "c", "overlay45ConfigureLayout"),
-        (0x640, "c", "overlay45ReadPair"),
-        (0x67C, "c", "overlay45RandomizeOffsets"),
+        (0x000, "c", "overlay_045"),
         (0x764, "asm", "overlay_045_middle2"),
-        (0x1BE0, "c", "overlay45SetMode"),
-        (0x1BF4, "c", "overlay45SetField22"),
-        (0x1C08, "c", "overlay45SetField20"),
+        (0x1BE0, "c", "overlay_045_tail"),
         (0x1C1C, "asm", "overlay_045_padding"),
     ],
     47: [
@@ -716,16 +705,12 @@ TEXT_SUBSEGMENTS = {
         (0x3EC, "asm", "overlay_080_padding"),
     ],
     81: [
-        (0x000, "c", "overlay81Init"),
-        (0x0CC, "c", "overlay81Update"),
-        (0x220, "c", "overlay_081_leafs"),
-        (0x274, "c", "overlay81CheckNearby"),
+        (0x000, "c", "overlay_081"),
         (0x34C, "asm", "overlay_081_padding"),
     ],
     82: [
-        (0x000, "c", "overlay82Init"),
-        (0x040, "c", "overlay82Update"),
-        (0x498, "c", "overlay82Accessors"),
+        (0x000, "c", "overlay_082"),
+        (0x040, "c", "overlay_082_tail"),
         (0x4CC, "asm", "overlay_082_padding"),
     ],
     83: [

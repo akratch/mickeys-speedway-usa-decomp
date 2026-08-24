@@ -1,11 +1,10 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_042.h"
 
-typedef struct Gfx {
-    struct {
-        u32 w0;
-        u32 w1;
-    } words;
-} Gfx;
+/*
+ * Overlay 42, ADR 0006 consolidation: one translation unit for the whole
+ * module, in ROM order. DKR references cited below are semantic relatives;
+ * the pinned DKR v77/v80 and JFG scans contain no exact donor.
+ */
 
 #define SHIFTL(v, s, w) ((u32)(((u32)(v) & ((0x01 << (w)) - 1)) << (s)))
 #define MIN2(a, b) (((a) < (b)) ? (a) : (b))
@@ -91,31 +90,46 @@ typedef struct Gfx {
                          SHIFTL((1 << 10), 0, 16)); \
 }
 
-extern s32 overlay42ReadinessReloc();
-extern s32 overlay42GetSizeReloc();
-extern s32 overlay42RspSegmentReloc();
-extern s32 overlay42SetupDisplayAReloc();
-extern s32 overlay42SetupDisplayBReloc();
 #define ready_call overlay42ReadinessReloc
 #define size_call overlay42GetSizeReloc
 #define segment_call overlay42RspSegmentReloc
 #define setup_a_call overlay42SetupDisplayAReloc
 #define setup_b_call overlay42SetupDisplayBReloc
 
-extern Gfx *gOverlay42Buffers[2];
-extern u8 gO42BufferIndexBaseReloc[];
-extern Gfx *gO42PublishedStartReloc;
-extern void *gO42Segment1BaseReloc;
-extern u8 gO42PublishedSourceBaseReloc[];
-extern void *gO42Segment2BaseReloc;
-extern u16 *gO42TextureSourceReloc;
-extern u8 gO42ImageStateReloc[];
-extern u8 gO42PublishedEndBaseReloc[];
-
 #define gOverlay42BufferIndex (*(s32 *)(gO42BufferIndexBaseReloc + 8))
 #define gO42PublishedSourceReloc (*(void **)(gO42PublishedSourceBaseReloc + 8))
 #define gO42ImageAlphaReloc (gO42ImageStateReloc[12])
 #define gO42PublishedEndReloc (*(Gfx **)(gO42PublishedEndBaseReloc + 4))
+
+/* DKR thread3_main has the semantic double-display-list lifecycle, not this exact allocator sequence. */
+void overlay42Init(void) {
+    overlay42PrepareReloc();
+    gOverlay42Buffer0 = overlay42AllocReloc(0x2000, 0x87);
+    gOverlay42Buffer1 = overlay42AllocReloc(0x2000, 0x87);
+    gOverlay42Buffer2 = 0;
+    gOverlay42Ready = 1;
+}
+
+/* DKR thread3_main has the semantic double-display-list teardown, not an exact donor. */
+void overlay42Release(void) {
+    if (gOverlay42Buffers[0] != 0) {
+        overlay42FreeReloc(gOverlay42Buffers[0]);
+    }
+    if (gOverlay42Buffers[1] != 0) {
+        overlay42FreeReloc(gOverlay42Buffers[1]);
+    }
+    gOverlay42Buffers[0] = 0;
+    gOverlay42Buffers[1] = 0;
+    gOverlay42State0 = 0;
+    gOverlay42State1 = 0;
+    gOverlay42Ready = 0;
+    gOverlay42Active = 0;
+}
+
+/* Both local DKR v77/v80 trees are negative for this wrapper. */
+void overlay42Resume(void) {
+    overlay42ResumeReloc();
+}
 
 void overlay42DrawCapturedBuffer(s32 callbackArgument) {
     s32 row;
@@ -174,4 +188,16 @@ void overlay42DrawCapturedBuffer(s32 callbackArgument) {
     FULL_SYNC(displayList++);
     END_DL(displayList++);
     gO42PublishedEndReloc = displayList;
+}
+
+#undef gOverlay42BufferIndex
+
+/* DKR video.c::fb_swap is a semantic index-toggle relative, not an exact donor. */
+void overlay42Present(void) {
+    if (gOverlay42Buffer0 != 0) {
+        overlay42PresentReloc(
+            gOverlay42Buffer0, gOverlay42Buffer1, 5, gOverlay42Buffer2);
+        gOverlay42Active = 1;
+        gOverlay42BufferIndex ^= 1;
+    }
 }
