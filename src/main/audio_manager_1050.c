@@ -371,7 +371,9 @@ u8 amSoundIsLooped(u16 soundId) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001308.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000137C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001568.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800015F0.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+void amTuneSetReverbOnOff(s32 enabled) {
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800015F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001608.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001614.s")
