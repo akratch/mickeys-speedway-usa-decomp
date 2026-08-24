@@ -242,7 +242,7 @@ segments:
       - [0x64700, asm, libultra/n_seqplayer]
       - [0x65860, c, libultra/n_alsynsetlpffreq]
       - [0x65910, c, libultra/n_alsynsetlpfgain]
-      - [0x659C0, asm, libultra/n_drvrNew]
+      - [0x659C0, c, libultra/n_drvrNew]
       - [0x666D0, c, libultra/n_syngetfxref]
       - [0x667C0, c, libultra/n_synsetfxparam]
       - [0x668C0, c, libultra/n_alsynsetdistort]
@@ -456,6 +456,8 @@ segments:
       # either way, so the boundary is set by the compiled object's own size.
       - [0x80D60, .data, libultra/n_sl]
       - [0x80D70, data]
+      - [0x80D80, .data, libultra/n_drvrNew]
+      - [0x80DC0, data]
       # Named SDK-owned initialized-data tails.  Each boundary is fixed by the
       # matching reference object's section size and by the ROM relocation(s)
       # that address the first symbol; anonymous gaps remain explicitly raw.
@@ -527,7 +529,7 @@ segments:
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
       - [0x85380, .rodata, libultra/cents2ratio]
-      - [0x85390, rodata]
+      - [0x85390, .rodata, libultra/n_drvrNew]
       - [0x853B0, .rodata, libultra/n_synsetfxparam]
       - [0x853C0, rodata]
       - [0x85460, .rodata, libultra/n_auxbus]

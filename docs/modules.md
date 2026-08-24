@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-36 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 34 more from it): every masked=0/1/2 TU (the
+37 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 35 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -497,7 +497,7 @@ that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 `-DRAREDIFFS` for Rare's added MIDI control-change codes), `n_syngetfxref`,
 `n_synsetvol`, `n_synstartvoiceparam`, `n_synaddplayer`,
 `n_synallocvoice`, `alsurround`, `n_mainbus`, `n_auxbus`, `n_event`,
-`n_synsetfxparam`, `n_load`, and `n_alLPFilter`.
+`n_synsetfxparam`, `n_load`, `n_alLPFilter`, and `n_drvrNew`.
 
 `alsurround` also owns a `0x10`-byte `.bss` section at Mickey VRAM
 `0x800D7DC0`: the two linked functions' HI16/LO16 references place its
@@ -522,6 +522,13 @@ that exact relocation identity.
 Its two functions contribute `0x41C` executable bytes and 13 relocations; the
 translation unit ends with one separate four-byte alignment word.
 
+`n_drvrNew` uses Rare's per-bus configuration layout (`-DRAREDIFFS`) and
+the R4300 multiply scheduler. Its six functions contribute `0xD0C`
+executable bytes and 34 relocations, followed by one alignment word. The TU
+also owns `0x40` bytes of initialized effect parameters at ROM `0x80D80` and
+the `0x20`-byte constant island at ROM `0x85390`; both sections compare
+directly against their retail ranges.
+
 **Plateaus, each with a first mismatch:**
 
 - `n_resample` (masked=8): `n_alResamplePull`'s tail diverges
@@ -531,8 +538,7 @@ translation unit ends with one separate four-byte alignment word.
 
 Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
 `0xAD0`), `n_csplayer` (masked=154, `0x3220`), `n_reverb` (masked=60,
-DSP-heavy, deferred per plan), `n_env` (masked=59),
-`n_drvrNew` (masked=34), `n_cseq`
+DSP-heavy, deferred per plan), `n_env` (masked=59), `n_cseq`
 (masked=15), and `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
 deferred per plan) not yet attempted.
 

@@ -1157,7 +1157,7 @@ n_alFxInitlpfilter = 0x80064F24; // type:func size:0x150
 alSemitones2Ratio = 0x80065074; // type:func size:0x94
 n_alFxInitlpfilter_mono = 0x80065108; // type:func size:0x1EC
 n_alFxNew = 0x800652F4; // type:func size:0x5C4
-alN_PVoiceNew = 0x800658B8; // type:func size:0x218
+alN_PVoiceNew = 0x800658B8; // type:func size:0x214
 // libultra/n_syngetfxref  ROM 0x666d0  (jfg/libultra: src/libultra/n_syngetfxref.c.o)  whole .text 0xf0, masked=12, romocc=1
 //   same bytes in: jfg,perfect_dark
 n_alSynGetFXRef = 0x80065AD0; // type:func size:0x78
