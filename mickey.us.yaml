@@ -184,13 +184,22 @@ segments:
       - [0x3B480, asm]
       - [0x3D5F0, asm]
       - [0x43470, asm]
-      - [0x45760, asm]
-      - [0x465B0, asm]
+      # JFG's resident debug trio, identified from the same source order,
+      # call graph and diagnostic strings. diRcpTrace owns four trace-buffer
+      # routines before diRcpPrintDL; diRcp owns the GBI pretty-printer and its
+      # helpers; diCpu begins with the tier-A diCpuTraceInit match and runs to
+      # the measured get_stack_pointer boundary.
+      - [0x45760, c, main/diRcpTrace]
+      - [0x459C0, c, main/diRcp]
+      - [0x465B0, c, main/diCpu]
       # Measured boundary: the whole 0x10 .text of DKR's built
       # `src/get_stack_pointer.c.o` matches here with zero masked words, and
       # splat's own split points already agreed on both ends.
       - [0x47A60, asm, main/get_stack_pointer]
-      - [0x47A70, asm]
+      # JFG fx.c lineage: Mickey starts at fxFreeCone (the earlier JFG level-
+      # effect routines are absent), carries the cone/wake/effect call graph,
+      # and ends where the following font.c block begins.
+      - [0x47A70, c, main/fx]
       - [0x4BC40, asm]
       # Measured boundary. The whole 0xA74-byte .text of DKR's built
       # `src/hasm/gzip_asm.s.o` -- the hand-written inflate core the asset

@@ -1,0 +1,53 @@
+/*
+ * Resident visual effects -- ROM 0x47A70-0x4BC40 (VRAM 0x80046E70).
+ *
+ * PROVENANCE: the translation-unit identity and the descriptive cone/wake
+ * names are adapted from Jet Force Gemini's public decompilation, src/fx.c.
+ * Mickey begins at JFG's fxFreeCone portion of that TU; the matching sequence
+ * of texture, allocator, trigonometry and draw calls establishes the named
+ * routines below. Externally referenced functions and unresolved JFG
+ * placeholders retain Mickey address names. The bodies remain Mickey's
+ * extracted assembly.
+ */
+
+#include "PR/ultratypes.h"
+
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046E70.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046EC4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004707C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047304.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800475E8.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800479D4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047CD8.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048760.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeFree.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048980.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049000.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeDraw.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049518.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxInit.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004978C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049828.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049864.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004989C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800498FC.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049A8C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049B14.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049E4C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A0F0.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A380.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A4B0.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A51C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxSPDPRipple.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxQueueScreenEffect.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A9CC.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ACC4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AD34.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AF68.s")

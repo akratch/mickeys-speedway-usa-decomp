@@ -349,7 +349,7 @@ see the caveat below):
 | `src/camera.c.o` | 2 | `0x23360`, `0x5B778` | 230KB apart -- evidently not one placed TU here; treat as two independent identifications, not a span |
 | `src/memory.c.o` | 2 | `0x2BCD0`–`0x2C3AC` | Starts exactly at yaml's `0x2BCD0` boundary (end of `main/matrix`); the already-named `align16`/`align8`/`align4` (tier A, `memory.c.o`) sit at `0x2C860`, past this span. Consistent with one TU, no boundary claimed |
 | `src/shadows_214A0.c.o` | 2 | `0x18FF0`–`0x19144` | Inside yaml's unnamed `0x18FF0`–`0x1AE60` block, starting exactly at its boundary. No boundary claimed |
-| `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
+| `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications at the time of this scan; §3.4 subsequently measures the complete `diCpu` span |
 
 **Why no new `mickey.us.yaml` split accompanies this table.** §1's "measured
 file boundary" tier requires a whole-`.text` match; this pass only matched
@@ -359,6 +359,43 @@ whole-object match for any of the not-yet-named TUs above). Asserting a yaml
 measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
+
+### 3.4 The resident debug and effects run
+
+The four assigned ROM runs in `0x45760`–`0x4BC40` total 25,808 bytes. Including
+the already-measured 16-byte `main/get_stack_pointer` island, their continuous
+span is 25,824 bytes in five source units. The four new C splits below own 75
+functions; none uses an odd single-precision register,
+so the hand-written-assembly test in §6.2 excludes none of them. The `fx` range
+has 16,840 executable bytes and eight bytes of compiler alignment padding.
+
+| ROM | Source unit | Functions | Tier | Evidence |
+|---|---|---:|---|---|
+| `0x45760`–`0x459C0` | `main/diRcpTrace` | 4 | B | JFG's `src/diRcpTrace.c` has the same four-function order and near-identical sizes. Mickey's scheduler/track callers and the trace-buffer consumer establish the roles. |
+| `0x459C0`–`0x465B0` | `main/diRcp` | 18 | B/C | The complete GBI opcode/mode string set identifies the disassembler (C); `diRcpPrintDL` calls the same ordered helper family as JFG's `src/diRcp.c` (B). |
+| `0x465B0`–`0x47A60` | `main/diCpu` | 14 | A/B/C | `diCpuTraceInit` is a 21-word Tier-A skeleton/object hit, the exception/watchpoint strings identify the monitor (C), and the OS-thread/debug call graph follows JFG's `src/diCpu.c` (B). The end is pinned by the measured `get_stack_pointer` TU at `0x47A60`. |
+| `0x47A70`–`0x4BC40` | `main/fx` | 39 | B/D | Mickey begins where JFG's `src/fx.c` reaches `fxFreeCone`: the cone and wake routines have the same allocator, texture, trigonometry and draw call graph in the same order (B). The later unresolved effects retain Mickey `func_` names (D). The next block contains JFG `font.c` hits, independently fixing the far end. |
+
+The strongest `fx` call-graph pairs are structural rather than merely
+positional: `fxAllocateCone` calls the allocator, texture loader and the same
+three cone builders; `wakeSetupRipple` calls the alignment helper, texture
+loader and `wakeAllocate`; `wakeUpdateRipple` calls `Arctanf` and
+`wakeUpdate`; and `wakeDrawRipple` calls the texture setup/draw pair and
+`wakeDraw`. The earlier JFG level-effect functions are absent, which is why
+Mickey's TU begins at `fxFreeCone` instead of JFG's first `fx.c` symbol.
+
+Pre-existing assembly callers still spell 18 of these targets as
+`func_<VRAM>`. Those exported labels are retained in `symbol_addrs.us.txt`,
+with the JFG identity and tier on the same row, until each function or its
+caller becomes C-owned; this avoids pretending that a source-level rename is
+already available to the stale generated caller assembly.
+
+**PROVENANCE.** The TU identities and descriptive names in this subsection,
+`symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
+Force Gemini's public decompilation (`src/diRcpTrace.c`, `src/diRcp.c`,
+`src/diCpu.c`, and `src/fx.c`). JFG is a permitted published decomp under
+`docs/CLEANROOM.md`; Mickey's own bytes, strings and linked call graph decide
+every mapping. JFG address placeholders are not imported.
 
 ---
 
