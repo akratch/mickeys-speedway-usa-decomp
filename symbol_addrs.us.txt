@@ -1547,6 +1547,7 @@ func_8004C140 = 0x8004C140; // type:func size:0xC0 ROM 0x4cd40 evidence-tier-B/D
 func_8004C200 = 0x8004C200; // type:func size:0x3A4 ROM 0x4ce00 evidence-tier-B/D DKR render_dialogue_box organization and Mickey display-list/text flow C-match -O2 -mips2
 func_8004C8D8 = 0x8004C8D8; // type:func size:0xA54 ROM 0x4d4d8 evidence-tier-B/D JFG fontCreateDisplayList structure and Mickey texture-command flow C-match -O2 -mips2
 func_8004D32C = 0x8004D32C; // type:func size:0x70 ROM 0x4df2c evidence-tier-D Mickey boundary and ext-caller flow C-match -O2 -mips2
+func_8004D39C = 0x8004D39C; // type:func size:0x70 ROM 0x4df9c evidence-tier-B/D JFG fontConvertString organization and Mickey character-table flow C-match -O2 -mips2
 // jfg:src/anim.c.o
 func_8005017C = 0x8005017C; // type:func size:0x30   ROM 0x50d7c  src/anim.c.o  masked=6/12
 func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  masked=9/20

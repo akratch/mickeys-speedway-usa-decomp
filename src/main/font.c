@@ -1052,7 +1052,11 @@ void func_8004D32C(void) {
         i++;
     } while (i != 0x100);
 }
-#ifdef NON_MATCHING
+/*
+ * PROVENANCE -- source organization was adapted from JFG's permitted
+ * published fontConvertString body. Mickey's own character table and
+ * instruction flow determine this implementation.
+ */
 void func_8004D39C(char *input, char *output) {
     char currentChar;
     char *conversionTable = D_8007D594;
@@ -1070,9 +1074,6 @@ void func_8004D39C(char *input, char *output) {
         }
     } while (currentChar);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D39C.s")
-#endif
 
 #ifdef NON_MATCHING
 /*

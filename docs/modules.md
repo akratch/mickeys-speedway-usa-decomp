@@ -419,7 +419,7 @@ overlay callers/callees outside the range were observed.
 | `0x4D290` | `0x248` | `func_8004C690` | JFG `func_80071B08` | D, plateau | ext callee; called by `0x4BDDC` |
 | `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D, matched C | ext callee |
 | `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D, matched C | leaf; ext caller |
-| `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, plateau | leaf; in-range callers |
+| `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, matched C | leaf; in-range callers |
 | `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D, plateau | leaf |
 | `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |
 | `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | B/D | SDK calls; ext callers |
@@ -447,15 +447,6 @@ matches through function offset `+0x2C`, but is 28 instructions short with
 broad control-flow divergence after the initial null check. The flag lattice
 kept `-O2 -mips2` best; the unresolved issue is source organization and live
 ranges across the scissor and glyph loops, not a compiler-flag mismatch.
-
-`func_8004D39C` plateaued after the stock JFG body and six source-allocation
-variants. Its best candidate has the exact 28-instruction shape and 27 exact
-words; the first and only mismatch is at function offset `+0x60`, where the
-loop-back branch consumes the copied character rather than the original load.
-The 119-combination flag lattice found no exact result and kept the same
-one-word residue throughout the `-O2 -mips2` family, identifying an allocator
-coalescing choice rather than a flag mismatch. The candidate remains guarded
-by `NON_MATCHING`; the extracted assembly stays canonical.
 
 `func_8004C690` has a readable JFG-derived cache-allocation candidate under
 `NON_MATCHING`. Its best stock-flag build has the target's 112-byte frame and
