@@ -45,10 +45,22 @@ typedef struct MainGameEntry {
     u8 pad5[35];
 } MainGameEntry;
 
+typedef struct MainCharacterState {
+    u8 bytes[40];
+} MainCharacterState;
+
+typedef struct MainGameState {
+    u8 flag0;
+    u8 flag1;
+    u8 pad2[2];
+    MainCharacterState characters[6];
+} MainGameState;
+
 extern MainGameEntry *D_800D18E0;
 extern void *D_800D18E4;
 extern u8 D_800D1928[];
 extern s32 levelNGetType(s32 level);
+extern void func_80028EFC(MainCharacterState *, s32, s32);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -158,7 +170,15 @@ void func_80028DE4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028E2C.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028EA0.s")
+void func_80028EA0(MainGameState *state) {
+    s32 i;
+
+    state->flag0 = 0;
+    state->flag1 = 0;
+    for (i = 0; i < 6; i++) {
+        func_80028EFC(&state->characters[i], i, i);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028EFC.s")
 
