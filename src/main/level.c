@@ -11,6 +11,7 @@
 
 extern s32 D_800CF3C4;
 extern u8 D_800CF420[];
+extern u8 *D_800CF3C8;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetCounts.s")
 
@@ -48,7 +49,10 @@ s32 levelGetNumber(void) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetCamera.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetLevel.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+u8 *levelGetLevel(void) {
+    return D_800CF3C8;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetName.s")
 
