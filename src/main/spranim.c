@@ -20,6 +20,25 @@ typedef struct SpranimBAE4Object {
     SpranimBAE4Target *target58;
 } SpranimBAE4Object;
 
+typedef struct SpranimBB10Header {
+    u8 pad0[0x22];
+    s8 count22;
+} SpranimBB10Header;
+
+typedef struct SpranimBB10Object {
+    u8 pad0[0x3A];
+    s8 index3A;
+    u8 pad3B[5];
+    SpranimBB10Header *header40;
+    u8 pad44[0x24];
+    void **entries68;
+    u8 pad6C[0x1C];
+    u32 flags88;
+} SpranimBB10Object;
+
+extern u8 D_8007BF2C;
+extern void func_80020D8C(void *arg0, s32 arg1, s32 arg2, void *arg3);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimControl.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/sprasjiInit.s")
@@ -35,4 +54,14 @@ void func_8001BAF8(void *arg0, void *arg1) {
 }
 void func_8001BB04(void *arg0, void *arg1) {
 }
+#ifdef NON_MATCHING
+void func_8001BB10(SpranimBB10Object *arg0, void *arg1) {
+    arg0->index3A = D_8007BF2C;
+    if ((arg0->index3A < 0) || (arg0->index3A >= arg0->header40->count22)) {
+        arg0->index3A = 0;
+    }
+    func_80020D8C(arg0->entries68[arg0->index3A], 0, (arg0->flags88 & 3) << 8, arg0);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001BB10.s")
+#endif
