@@ -19,6 +19,8 @@
 extern u32 D_8007FF50;
 extern u16 *D_800D7D78;
 
+void sndp_stop_with_flags(u8 flags);
+
 typedef struct GsSndPriorityState {
     u8 pad0[0x40];
     u8 priority;
@@ -52,7 +54,10 @@ u8 gsSndpGetState(GsSndPriorityState *state) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/ad_sndp_play.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStop.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/sndp_stop_with_flags.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStopAll.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpStopAll). */
+void gsSndpStopAll(void) {
+    sndp_stop_with_flags(1);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStopAllRetrigger.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpStopAllLooped.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetParam.s")
