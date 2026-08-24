@@ -64,12 +64,40 @@ typedef struct ParticleObject {
     ParticleTriggerSlot *triggers;
 } ParticleObject;
 
+typedef struct CircularParticle {
+    u8 pad00[0x2C];
+    s16 type;
+    u8 kind;
+    u8 pad2F;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad3C[0x0C];
+    void *parent;
+    u8 pad4C[0x2C];
+} CircularParticle;
+
+typedef struct CircularParticlePool {
+    u8 pad00[0x14];
+    CircularParticle *particles;
+    s32 count;
+} CircularParticlePool;
+
+typedef struct ParticlePosition {
+    u8 pad00[0x0C];
+    f32 x;
+    f32 y;
+    f32 z;
+} ParticlePosition;
+
 extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
 extern void *D_8007C89C[2];
 extern s32 D_8007C8B0;
 extern ParticleConfig **D_8007C8B8;
+extern CircularParticlePool *D_800D4120[];
+extern CircularParticlePool *D_800D4134[];
 
 void mmFree(void *ptr);
 void func_8003EC8C(ParticleObject *object, s32 index);
@@ -174,4 +202,35 @@ void func_8003EDE0(f32 value) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800423EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateParticles.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partDraw.s")
+#ifdef NON_MATCHING
+/* Size-exact plateau: 27 words differ from +0x0; IDO assigns both nested-loop
+ * carrier pairs oppositely, and declaration-order variants are identical. */
+void partNullifyCircularParticleParents(ParticlePosition *position) {
+    CircularParticle *particle;
+    CircularParticlePool *pool;
+    s32 i;
+    CircularParticlePool **poolPtr;
+
+    poolPtr = D_800D4120;
+    do {
+        pool = *poolPtr;
+        poolPtr++;
+        i = 0;
+        particle = pool->particles;
+        if (pool->count > 0) {
+            do {
+                i++;
+                if (particle->type != 0x80 && particle->kind == 3) {
+                    particle->x += position->x;
+                    particle->y += position->y;
+                    particle->parent = NULL;
+                    particle->z += position->z;
+                }
+                particle++;
+            } while (i < pool->count);
+        }
+    } while (poolPtr != D_800D4134);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partNullifyCircularParticleParents.s")
+#endif
