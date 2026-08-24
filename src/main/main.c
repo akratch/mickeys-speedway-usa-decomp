@@ -22,6 +22,7 @@ extern s32 D_8007A12C;
 extern s32 D_8007A130;
 extern s32 D_8007A134;
 extern s32 D_8007A138;
+extern s32 D_8007A1D4;
 extern u8 D_8007BEF4;
 extern s8 D_800CF53F[];
 
@@ -182,7 +183,9 @@ void func_800291D0(void) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_800291D8.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_800291E4.s")
+s32 func_800291E4(void) {
+    return D_8007A1D4;
+}
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 s32 mainGetNumberOfCameras(void) {
