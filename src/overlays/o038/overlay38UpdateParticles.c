@@ -47,6 +47,7 @@ extern void o38ReleaseObject(O38Object *object);
     (particle).dy += (velocity); \
 } while (0)
 
+#ifdef NON_MATCHING
 void func_overlay_038_F0000154_1885E64(O38Object *object, s32 ticks)
 {
     O38Pool *pool = object->pool;
@@ -85,3 +86,6 @@ void func_overlay_038_F0000154_1885E64(O38Object *object, s32 ticks)
         P(cursor, 2).z = z2;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o038/overlay38UpdateParticles/func_overlay_038_F0000154_1885E64.s")
+#endif

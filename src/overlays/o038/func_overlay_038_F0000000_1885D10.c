@@ -42,6 +42,7 @@ typedef struct O38DirectionInput {
 extern s32 o38RandomRange(s32 minimum, s32 maximum);
 extern void o38MakeDirection(s16 *source, s16 *destination);
 
+#ifdef NON_MATCHING
 void func_overlay_038_F0000000_1885D10(O38Object *object,
                                        O38Descriptor *descriptor)
 {
@@ -70,3 +71,6 @@ void func_overlay_038_F0000000_1885D10(O38Object *object,
         direction += sizeof(O38Particle) / sizeof(s16);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o038/func_overlay_038_F0000000_1885D10/func_overlay_038_F0000000_1885D10.s")
+#endif

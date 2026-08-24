@@ -4695,84 +4695,19 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o064/overlay64GenerateTexture.c.o: POSTPROCESS 
 		0x150:o64RandomRange:func_overlay_064_F0000000_18C3B28 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x690
 
-# Exact-size O38 particle initializer. Select only the complete seven-word
-# private setup schedule, then bind the seven runtime calls to the raw overlay
-# carrier so the configured stored-VMA link preserves their zero addends.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F0000000_1885D10.c.o: \
-	config/normalizations/func_overlay_038_F0000000_1885D10.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F0000000_1885D10.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x154 f7fb50ae8c386afa225b90b83541e2c66f2aab90f3b7ef29b2a4484dfaa72ca7 \
-		@config/normalizations/func_overlay_038_F0000000_1885D10.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x070:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x098:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x0b8:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x0d4:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x0e4:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x0f4:o38RandomRange:func_overlay_038_F0000000_1885D10 \
-		0x110:o38MakeDirection:func_overlay_038_F0000000_1885D10 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x154
 
-# The typed particle update naturally recovers the exact 202-word owner,
-# 0x38 frame, opcode multiset, call site, arithmetic, CFG, and seven semantic
-# relocation carriers. A complete opcode-preserving scheduler/allocator web
-# selects retail's equivalent FP/GPR representation without changing branches,
-# stack homes, or opcodes. Loader-owned HILO roles stay in O38's ROM table;
-# the split object retains the exact raw local R26 carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o038/overlay38UpdateParticles.c.o: \
-	config/normalizations/overlay38UpdateParticles.ops \
-	config/normalizations/overlay38UpdateParticles.static_hilo.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/overlay38UpdateParticles.c.o: CFLAGS += \
 	-Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/overlay38UpdateParticles.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x328 56388ec5d839bbfad30651b8bf37773d0b011584b1ed909fd8f886cb6999bd93 \
-		@config/normalizations/overlay38UpdateParticles.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x328 \
-		0000000000000000 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay38UpdateParticles.static_hilo.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		o38ReleaseObject=func_overlay_038_F0000000_1885D10 $@
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x328
 
-# Typed source recovers the exact 219-word owner, 0xE8 frame, aggregate stack
-# layout, FP surface, CFG, memory effects, and 18 relocation sites. Complete
-# guarded schedule islands and a decoded GPR web select the shipped private
-# allocation without changing any opcode, immediate, jump, or semantic field.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: \
-	config/normalizations/func_overlay_038_F000047C_188618C.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: CFLAGS += \
 	-Wab,-r4300_mul -DO38_TRANSFORM_TAIL -DO38_TAIL_SIZE=8 \
 	-DO38_VOLATILE_TEST -DO38_POOL_CURSOR -DO38_FINISH_ONE \
 	-DO38_VOLATILE_FINAL
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x36C 4e094ba67dd729b9e6c2ad178c13e2bdaeefddce2ee16bdc10cdb6559e38d827 \
-		@config/normalizations/func_overlay_038_F000047C_188618C.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x0b4:o38DrawResource:o38ApplyTransform \
-		0x174:o38FinishDraw:o38ApplyTransform \
-		0x17c:o38GetCamera:o38ApplyTransform \
-		0x1f8:o38Atan2:o38ApplyTransform \
-		0x20c:sqrtf:o38ApplyTransform \
-		0x218:o38Atan2:o38ApplyTransform \
-		0x278:o38DrawResource:o38ApplyTransform \
-		0x310:o38FinishDraw:o38ApplyTransform && \
-	$(OBJCOPY) \
-		--redefine-sym o38ApplyTransform=func_overlay_038_F0000000_1885D10 \
-		--redefine-sym gO38ObjectVertices=D_80000000 \
-		--redefine-sym gO38ObjectTriangles=D_80000028 \
-		--redefine-sym gO38ParticleVertices=D_80000048 \
-		--redefine-sym gO38ParticleTriangles=D_80000070 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x36C
 
 # Overlay 70's three typed owners naturally recover the complete algorithms,

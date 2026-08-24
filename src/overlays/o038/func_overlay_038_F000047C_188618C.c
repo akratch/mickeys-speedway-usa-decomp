@@ -90,6 +90,7 @@ extern f32 sqrtf(f32 value);
     ((volatile s32 *)command)[0] = -100663296; \
 } while (0)
 
+#ifdef NON_MATCHING
 void func_overlay_038_F000047C_188618C(O38Command **commands, void *context,
                                        O38Object *object)
 {
@@ -184,3 +185,6 @@ void func_overlay_038_F000047C_188618C(O38Command **commands, void *context,
 #undef pool
 #undef transform
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o038/func_overlay_038_F000047C_188618C/func_overlay_038_F000047C_188618C.s")
+#endif
