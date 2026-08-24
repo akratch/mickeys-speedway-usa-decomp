@@ -180,7 +180,13 @@ void amTuneSetGlobalVolume(u32 volume) {
     scaledVolume = D_80078D8C * D_80078D68;
     n_alCSPSetVol(D_80078D60, scaledVolume);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E64.s")
+/*
+ * PROVENANCE: body shape adapted from DKR src/audio.c music_volume; JFG
+ * src/audio_manager_1050.c supplies the official amTuneGetVolume name.
+ */
+u8 amTuneGetVolume(void) {
+    return D_80078D68;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000E70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000EBC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000F20.s")
