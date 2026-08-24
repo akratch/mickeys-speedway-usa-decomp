@@ -19,6 +19,9 @@
 
 #include "PR/ultratypes.h"
 
+extern s32 *D_8007A690[3];
+extern s32 *D_800D2FA8;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033580.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_800336A8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_800339B4.s")
@@ -37,7 +40,14 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FB8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FC4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FE0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/viDisplayingScreen0.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
+s32 viDisplayingScreen0(void) {
+    if (D_8007A690[0] == D_800D2FA8) {
+        return 1;
+    }
+    return 0;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80034018.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80034094.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80034150.s")

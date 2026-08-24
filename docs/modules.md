@@ -392,6 +392,11 @@ PROVENANCE note. IDO 5.3 under the resident `-O2 -mips2 -32` flags emits all
 12 instruction words exactly, with no relocations; the linked range and full
 ROM are byte-identical.
 
+`viDisplayingScreen0` is also canonical C under the same flags and provenance:
+all 11 instruction words and the four HI16/LO16 relocation records to Mickey's
+framebuffer globals are exact. Its linked range and the full ROM are
+byte-identical.
+
 ---
 
 ## 4. libultra
