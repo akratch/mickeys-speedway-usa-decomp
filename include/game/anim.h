@@ -70,8 +70,12 @@ typedef struct HitCopySource {
 } HitCopySource;
 
 typedef struct HitCopyTarget {
-    u8 pad0[0x1C];
-    AnimVec3f position;
+    u8 pad0[0x14];
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+    f32 unk24;
 } HitCopyTarget;
 
 typedef struct HitCopyState {
@@ -118,6 +122,8 @@ void func_800534EC(s32 arg0);
 void animseqResetGroup(void);
 void *func_8002E148(s32 resourceId);
 void fmvInit(void);
+void func_800572AC(HitCopyState *state, void *unused, AnimVec3f *position,
+                   f32 unusedFloat);
 void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
                    f32 unusedFloat);
 

@@ -366,7 +366,32 @@ void func_800534EC(s32 arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800563B4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005716C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800572AC.s")
+void func_800572AC(HitCopyState *state, void *unused, AnimVec3f *position,
+                   f32 unusedFloat) {
+    f32 currentX;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    HitCopySource *source;
+    HitCopyTarget *target;
+
+    source = state->source;
+    currentX = source->current.x;
+    target = state->target;
+    deltaX = state->position.x - source->previous.x;
+    deltaY = state->position.y - source->previous.y;
+    deltaZ = state->position.z - source->previous.z;
+    source->previous.x = currentX;
+    source->previous.y = source->current.y;
+    source->previous.z = source->current.z;
+    state->position.x = currentX + deltaX;
+    state->position.y = source->previous.y + deltaY;
+    state->position.z = source->previous.z + deltaZ;
+    target->unk14 = position->x;
+    target->unk18 = position->y;
+    target->unk1C = position->z;
+    TrapDanglingJump(state, 0x16);
+}
 void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
                    f32 unusedFloat) {
     HitCopySource *source;
@@ -380,9 +405,9 @@ void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
     source->previous.x = source->current.x;
     source->previous.y = source->current.y;
     source->previous.z = source->current.z;
-    target->position.x = position->x;
-    target->position.y = position->y;
-    target->position.z = position->z;
+    target->unk1C = position->x;
+    target->unk20 = position->y;
+    target->unk24 = position->z;
     TrapDanglingJump(state, 0xE);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800573C8.s")

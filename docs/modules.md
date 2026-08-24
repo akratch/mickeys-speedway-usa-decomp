@@ -432,7 +432,7 @@ placeholders are never imported.
 | `0x800563B4` | `0xA24` | `hitVectorCheck` | B; vector/cylinder/sphere-style callee pattern |
 | `0x80056DD8` | `0x394` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x8005716C` | `0x140` | `hitGetInelasticVelocity` | D; nearest named leaf shape |
-| `0x800572AC` | `0xA4` | no unique `hit.c` candidate | D; collision handler |
+| `0x800572AC` | `0xA4` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 164 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80057350` | `0x78` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800573C8` | `0x3A4` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x8005776C` | `0x1A4` | `hitPlayer` | B; same player-list/square-root call shape |
