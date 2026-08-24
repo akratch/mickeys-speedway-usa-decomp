@@ -217,7 +217,8 @@ void func_80028EA0(MainGameState *state) {
 void func_80028F3C(void) {
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028F44.s")
+void func_80028F44(void) {
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028F4C.s")
 
