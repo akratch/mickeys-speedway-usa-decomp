@@ -955,6 +955,12 @@ osRomBase = 0x80000308;
 // controller count, and 0x80080434 is the byte __osPfsGetStatus stores 250
 // into to invalidate __osPfsRWInode's one-bank inode cache.
 __osPfsPifRam = 0x800D7F20;
+// __osContPifRam is the same OSPifRam layout (0x40 bytes) as __osPfsPifRam
+// above, reached the same way -- __osContGetInitData and __osPackRequestData
+// (ROM 0x6F8E8/0x6F9B8) both take its address via a masked %hi/%lo pair, and
+// 0x800D80F0 + 0x40 lands exactly on __osContLastCmd below, closing the gap
+// with no slack left over.
+__osContPifRam = 0x800D80F0;
 __osContLastCmd = 0x800D8130;
 __osMaxControllers = 0x800D8131;
 __osPfsInodeCacheBank = 0x80080434;

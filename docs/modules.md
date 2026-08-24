@@ -3860,6 +3860,66 @@ for `aisetnextbuf`, `vimgr`, `thread`, `siacs`, `vi`, `timerintr`, and `xlitob`;
 rodata for `cents2ratio` and `sinf`; and BSS slices for `seteventmesg`, `vimgr`,
 `sptask`, `siacs`, and `timerintr`. Anonymous gaps remain raw and explicit.
 
+**The BSS recipe: name a fixed address inside an anonymous gap without
+carving the gap.** `.data`/`.bss` are still one unsplit whole-program
+subsegment (the anonymous `bss_gap_*` entries in `mickey.us.yaml`), so
+giving a TU's global its own `.bss` in that TU is not available yet -- that
+route makes the linker place the object by link order, which is not the ROM's
+order, and shifts every fixed BSS symbol after it (measured on
+`lane/libultra-rest`, `docs/CLEANROOM.md`'s deleted-history incident aside,
+the actual failure there was two unmatched Transfer Pak functions'
+register-save order and callee addresses drifting by 0x30, the signature of a
+BSS symbol moving under a live reference). The working recipe, already in use
+for `__osPfsPifRam`/`__osContLastCmd`/`__osMaxControllers` and the PI-access
+queue (`__osPiAccessQueue`, `piAccessBuf`) since Phase 2:
+
+1. Give the object a plain, untyped `NAME = 0xVRAM;` line in
+   `symbol_addrs.us.txt`, inside the existing gap comment block, with a
+   comment deriving the address from a masked %hi/%lo pair in an
+   already-boundary-matched whole-`.text` function (Tier A/B evidence) --
+   never guessed from struct layout alone. A typed `size:` annotation is
+   rejected by splat for anything but its fixed vocabulary
+   (`func`/`u8`/`u32`/... or a custom type starting with a capital letter);
+   for a struct like `OSPifRam` the plain untyped form is what the existing
+   entries already use, so follow that, not `type:object`.
+2. Declare it `extern` in the shared header (`PRinternal/controller.h`
+   already does, for every object in this gap) and never `#define` it as a
+   real global in any `.c` file. The C body reads exactly like the SDK
+   source; only the storage-class keyword differs, and that line carries a
+   `DEVIATION FROM THE REFERENCE` comment saying so (see `piacs.c`,
+   `controller.c`). Because nothing defines it, no object file's `.bss`
+   claims space for it, so its final address depends on nothing but the
+   linker-script assignment splat emits from `symbol_addrs.us.txt` --
+   link order is irrelevant. This was verified directly: adding
+   `__osContPifRam = 0x800D80F0;` alone (no source change) rebuilds the ROM
+   byte-identically, and adding the two functions that reference it on top
+   does too once they are.
+3. The anonymous `bss` gap subsegment in `mickey.us.yaml` is untouched --
+   BSS has no ROM bytes backing it, so the yaml's gap boundaries only affect
+   generated disassembly labels, never the linked address of a
+   `symbol_addrs`-fixed name. No yaml edit is needed to add a name inside an
+   existing gap.
+4. **Function order inside the `.c` file must match ROM order, not
+   convenience.** A `#pragma GLOBAL_ASM` TU with multiple functions links
+   its object's contents in file order; reordering `osContInit`'s
+   `#pragma GLOBAL_ASM` after two newly-decompiled functions in the same
+   file (tried and reverted while landing `__osContGetInitData`/
+   `__osPackRequestData`) makes the linker place all three at addresses
+   that no longer match `symbol_addrs.us.txt`, producing a corridor-wide
+   byte mismatch that looks exactly like a BSS-layout bug (every relocation
+   into the reordered range moves) but is a `.text` file-order bug instead.
+   Keep declaration order == ROM address order in every partially-scaffolded
+   TU.
+
+Worked example: `__osContPifRam` (`OSPifRam`, 0x40 bytes) sits at
+`0x800D80F0` inside `bss_gap_D800D80F0` (`0x800D80F0`-`0x800D8180`), reached
+by `__osContGetInitData`/`__osPackRequestData`'s masked %hi/%lo pairs
+(ROM `0x6F8E8`/`0x6F9B8`). `0x800D80F0 + 0x40 == 0x800D8130`, the already-fixed
+address of `__osContLastCmd`, with no slack -- corroborating the size from a
+second, independent direction. The remaining `0x800D8132`-`0x800D8180` stays
+an anonymous, unnamed part of the same gap; nothing currently reaches it by
+relocation, so nothing is claimed there.
+
 **`gmake verify` is not the gate for a rodata boundary.** Re-slicing never
 creates, drops or reorders a byte, so a wrong boundary rebuilds the ROM
 byte-identically and every gate stays green. Cutting four bytes into
