@@ -419,7 +419,7 @@ shadowGenerate = 0x80016098; // type:func size:0x7F8 tier B, ROM 0x16c98
 // names borrowed from JFG's public src/camlight.c and src/spranim.c.  Tier B
 // records Mickey's matching subsystem/call roles; tier D records order and
 // masked instruction shape.  None of these rows claims tier-A byte identity.
-camlightInit = 0x8001B250; // type:func size:0x8 tier B/D, ROM 0x1be50
+camlightInit = 0x8001B250; // type:func size:0x8 tier B/D, ROM 0x1be50  src/main/camlight.c.o masked=0/2
 camlightFlush = 0x8001B258; // type:func size:0x8 tier B/D, ROM 0x1be58
 camlightAdd = 0x8001B260; // type:func size:0x10 tier B/D, ROM 0x1be60
 camlightDelete = 0x8001B270; // type:func size:0x8 tier B/D, ROM 0x1be70

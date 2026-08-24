@@ -424,7 +424,7 @@ body is copied by this split; Mickey's own bytes remain authoritative.
 
 | ROM | Size | Symbol | Evidence / disposition |
 |---|---:|---|---|
-| `0x1BE50` | `0x8` | `camlightInit` | B/D; no-op stub |
+| `0x1BE50` | `0x8` | `camlightInit` | B/D name; exact C, 2 words, 0 relocs |
 | `0x1BE58` | `0x8` | `camlightFlush` | B/D; no-op stub |
 | `0x1BE60` | `0x10` | `camlightAdd` | B/D; null stub |
 | `0x1BE70` | `0x8` | `camlightDelete` | B/D; no-op stub |

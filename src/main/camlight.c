@@ -7,7 +7,8 @@
  * body is adapted here.  Evidence is tier B/D, not tier-A byte identity.
  */
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightInit.s")
+void camlightInit(void) {
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightFlush.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightAdd.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightDelete.s")
