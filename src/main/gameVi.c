@@ -41,4 +41,10 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80034018.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80034094.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80034150.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/fb_memcpy.s")
+
+/* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
+void fb_memcpy(u8 *src, u8 *dest, s32 len) {
+    while (len--) {
+        *dest++ = *src++;
+    }
+}

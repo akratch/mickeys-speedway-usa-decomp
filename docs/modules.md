@@ -387,6 +387,11 @@ placeholder-retaining `func_80034018`, and `fb_memcpy`. Unmatched functions
 retain their Mickey `func_` labels as §1.5 requires; a JFG counterpart is not
 promoted merely because it occupies the same position in the sequence.
 
+`fb_memcpy` is now canonical C, adapted from JFG with a point-of-use
+PROVENANCE note. IDO 5.3 under the resident `-O2 -mips2 -32` flags emits all
+12 instruction words exactly, with no relocations; the linked range and full
+ROM are byte-identical.
+
 ---
 
 ## 4. libultra
