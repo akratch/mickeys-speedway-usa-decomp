@@ -5358,49 +5358,26 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83BuildLine.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1AC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83DrawLines.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF4
-# The natural source recovers the exact boundary and effect topology. Apply
-# the complete relocation-aware schedule/allocation web, then trim only IDO's
-# standalone section alignment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83Update.c.o: \
-	config/normalizations/overlay83Update.ops
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x274 a49c5debb35204e89f8dad2a03cd83cbc136e118a4a348451b9fe7da63bc1e13 \
-		@config/normalizations/overlay83Update.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_083_F00002A0_18CFA60=overlay83Update $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x274
-# The typed batch builder naturally recovers the exact boundary, calls, CFG,
-# FP work, and memory effects. Select the complete reviewed schedule/frame/
-# allocation web, then remove only the two local-data records already owned
-# by the shipped runtime relocation table.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83BuildBatch.c.o: \
-	config/normalizations/overlay83BuildBatch.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83BuildBatch.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2A0 e7fd906c95b9f31cb6634b5461cb2d766f366c8e9d580644c50d15a122ae2ad4 \
-		@config/normalizations/overlay83BuildBatch.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x7c:5:gOverlay83ScaleReloc 0xa0:6:gOverlay83ScaleReloc && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2A0
-# IDO assigns the shared all-white word to v1; the shipped object assigns the
-# same constant to a2. Assert and restore the three register-only words.
+	$(OBJCOPY) --redefine-sym func_overlay_083_F000053C_18CFCFC=overlay83BuildBatch $@
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83SubmitAll.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x148 3537e34bc0e0604031acb3f85b46d54b15f8899f79f4ae4bd1d6076ed419c808 \
-		fields:0xdc:rt=v1@a2 \
-		fields:0x104:rt=v1@a2 \
-		fields:0x118:rt=v1@a2 && \
+	$(OBJCOPY) --redefine-sym func_overlay_083_F0000A18_18D01D8=overlay83SubmitAll $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x148
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83DrawEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x74
-# The inline command builder has the exact four-command CFG and relocation
-# topology. Select its complete relocation-aware private schedule/register web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83DrawStrip.c.o: \
-	config/normalizations/overlay83DrawStrip.ops
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83DrawStrip.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x134 e12017ffc3810cd8977f1393ff9efe328401b0e1f2906d08235b9594b6febc7d \
-		@config/normalizations/overlay83DrawStrip.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_083_F0000850_18D0010=overlay83DrawStrip $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x134
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83Dispatch.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x94

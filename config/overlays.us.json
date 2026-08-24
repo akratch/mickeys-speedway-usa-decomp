@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 250376,
-  "nonmatching_overlay_c_bytes": 26224,
+  "matched_overlay_c_bytes": 248440,
+  "nonmatching_overlay_c_bytes": 28160,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -16639,7 +16639,7 @@
      "type": "c",
      "source": "overlays/o083/overlay83Update",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x514",
@@ -16657,7 +16657,7 @@
      "type": "c",
      "source": "overlays/o083/overlay83BuildBatch",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7DC",
@@ -16675,7 +16675,7 @@
      "type": "c",
      "source": "overlays/o083/overlay83DrawStrip",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x984",
@@ -16693,7 +16693,7 @@
      "type": "c",
      "source": "overlays/o083/overlay83SubmitAll",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     }
    ],
    "bss_size": "0x0",

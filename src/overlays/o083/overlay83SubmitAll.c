@@ -36,6 +36,7 @@ extern void overlay83DispatchLocalReloc(Overlay83Command **displayList,
                                         void *resource);
 
 /* DKR v77/v80 and JFG contain no exact donor for this two-pass renderer. */
+#ifdef NON_MATCHING
 void overlay83SubmitAll(Overlay83Command **displayList, void *arg1, void *arg2,
                         Overlay83Context *context) {
     s32 count;
@@ -84,3 +85,6 @@ void overlay83SubmitAll(Overlay83Command **displayList, void *arg1, void *arg2,
         command->w0 = 0xFB000000;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o083/overlay83SubmitAll/func_overlay_083_F0000A18_18D01D8.s")
+#endif

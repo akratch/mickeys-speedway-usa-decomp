@@ -66,6 +66,7 @@ extern void overlay83TransformObjectReloc(s32 mode, Overlay83Object *object,
 extern void overlay83UpdateLinkedReloc(Overlay83LinkedObject *object,
                                        s32 opacity);
 
+#ifdef NON_MATCHING
 void overlay83Update(Overlay83Parent *parent,
                      Overlay83Object *object,
                      s32 updateRate) {
@@ -137,3 +138,6 @@ void overlay83Update(Overlay83Parent *parent,
         overlay83UpdateLinkedReloc(linkedObject, object->opacity);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o083/overlay83Update/func_overlay_083_F00002A0_18CFA60.s")
+#endif
