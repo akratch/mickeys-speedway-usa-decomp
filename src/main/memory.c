@@ -81,5 +81,14 @@ u8 *align16(u8 *address) {
     return address;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/align8.s")
+/* PROVENANCE: derived from JFG src/memory.c's mmAlign16/mmAlign4 family. */
+u8 *align8(u8 *address) {
+    s32 remainder = (s32) address & 7;
+
+    if (remainder > 0) {
+        address = (u8 *) (((s32) address - remainder) + 8);
+    }
+    return address;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/align4.s")

@@ -406,6 +406,8 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 Matched C: `align16` is exact for all `0x1C` bytes and has no relocations.
 The canonical `-O2 -mips2 -32` flags reproduce the target; JFG's
 `mmAlign16` body is the adapted donor.
+`align8` is likewise exact for `0x1C` relocation-free bytes with canonical
+flags; it is the Mickey-only member derived from the same alignment family.
 
 ---
 
