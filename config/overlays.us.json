@@ -22,7 +22,7 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 76204,
+  "matched_overlay_c_bytes": 80456,
   "nonmatching_overlay_c_bytes": 200396,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
@@ -6308,28 +6308,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x1C",
-     "size": "0x1C",
-     "type": "c",
-     "source": "overlays/o024/overlay24Init",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1C",
-     "end_offset": "0x284",
-     "size": "0x268",
-     "type": "c",
-     "source": "overlays/o024/overlay24Update",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x284",
      "end_offset": "0x414",
-     "size": "0x190",
+     "size": "0x414",
      "type": "c",
-     "source": "overlays/o024/overlay24RenderState",
+     "source": "overlays/o024/overlay_024",
      "matched": true,
      "nonmatching": false
     },
@@ -11129,37 +11111,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x80",
-     "size": "0x80",
-     "type": "c",
-     "source": "overlays/o051/overlay51Initialize",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x80",
-     "end_offset": "0xD0",
-     "size": "0x50",
-     "type": "c",
-     "source": "overlays/o051/overlay51PatchIndices",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xD0",
-     "end_offset": "0x858",
-     "size": "0x788",
-     "type": "asm",
-     "source": "overlays/o051/overlay_051_middle",
-     "matched": false,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x858",
      "end_offset": "0x8AC",
-     "size": "0x54",
+     "size": "0x8AC",
      "type": "c",
-     "source": "overlays/o051/overlay51ReleaseState",
+     "source": "overlays/o051/overlay_051",
      "matched": true,
      "nonmatching": false
     },
@@ -11980,64 +11935,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xB8",
-     "size": "0xB8",
-     "type": "c",
-     "source": "overlays/o056/overlay56AdjustCoordinates",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xB8",
-     "end_offset": "0x10C",
-     "size": "0x54",
-     "type": "c",
-     "source": "overlays/o056/overlay56SplitTime",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x10C",
-     "end_offset": "0x118",
-     "size": "0xC",
-     "type": "c",
-     "source": "overlays/o056/overlay56SetMode",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x118",
-     "end_offset": "0x168",
-     "size": "0x50",
-     "type": "c",
-     "source": "overlays/o056/overlay56LoadResource",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x168",
-     "end_offset": "0x1A0",
-     "size": "0x38",
-     "type": "c",
-     "source": "overlays/o056/overlay56ReleaseResource",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1A0",
-     "end_offset": "0xAB4",
-     "size": "0x914",
-     "type": "asm",
-     "source": "overlays/o056/overlay_056_middle",
-     "matched": false,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xAB4",
      "end_offset": "0xAF4",
-     "size": "0x40",
+     "size": "0xAF4",
      "type": "c",
-     "source": "overlays/o056/overlay56UnpackColor",
+     "source": "overlays/o056/overlay_056",
      "matched": true,
      "nonmatching": false
     },
@@ -14056,7 +13957,7 @@
      "end_offset": "0x14C",
      "size": "0x14C",
      "type": "c",
-     "source": "overlays/o067/overlay67BuildVertices",
+     "source": "overlays/o067/overlay_067",
      "matched": true,
      "nonmatching": false
     },
@@ -15017,19 +14918,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xB4",
-     "size": "0xB4",
-     "type": "c",
-     "source": "overlays/o072/overlay72Init",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xB4",
      "end_offset": "0x168",
-     "size": "0xB4",
+     "size": "0x168",
      "type": "c",
-     "source": "overlays/o072/overlay72Update",
+     "source": "overlays/o072/overlay_072",
      "matched": true,
      "nonmatching": false
     },
@@ -17727,7 +17619,7 @@
      "end_offset": "0xFC",
      "size": "0xFC",
      "type": "c",
-     "source": "overlays/o090/overlay90Initialize",
+     "source": "overlays/o090/overlay_090",
      "matched": true,
      "nonmatching": false
     },
@@ -17842,25 +17734,16 @@
      "end_offset": "0x4C",
      "size": "0x4C",
      "type": "c",
-     "source": "overlays/o091/overlay91Init",
+     "source": "overlays/o091/overlay_091",
      "matched": true,
      "nonmatching": false
     },
     {
      "offset": "0x4C",
-     "end_offset": "0x4BC",
-     "size": "0x470",
-     "type": "c",
-     "source": "overlays/o091/overlay91UpdateTimeline",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x4BC",
      "end_offset": "0x574",
-     "size": "0xB8",
+     "size": "0x528",
      "type": "c",
-     "source": "overlays/o091/overlay91Render",
+     "source": "overlays/o091/overlay_091_mul",
      "matched": true,
      "nonmatching": false
     },
@@ -20835,7 +20718,7 @@
      "end_offset": "0x28",
      "size": "0x28",
      "type": "c",
-     "source": "overlays/o107/osRamTest4_6105",
+     "source": "overlays/o107/overlay_107",
      "matched": true,
      "nonmatching": false
     },

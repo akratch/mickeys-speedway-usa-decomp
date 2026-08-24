@@ -1,9 +1,6 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_104.h"
 
 /* Overlay 104: negative DKR/JFG scans; both relocs name libultra PI locks. */
-void overlay104PiGetAccessReloc(void);
-void overlay104PiRelAccessReloc(void);
-
 s32 overlay104CheckWord(u32 base) {
     struct {
         u32 unused;

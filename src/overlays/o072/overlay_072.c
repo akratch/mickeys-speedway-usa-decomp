@@ -1,37 +1,25 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_072.h"
+
+/* Overlay 72 +0x000. Fresh DKR v77/v80 and JFG scans are negative. */
+void overlay72Init(Overlay72InitObject *object, Overlay72Config *config) {
+    Overlay72State *state = object->state;
+    Overlay72Component *component;
+
+    object->flags |= 0x800;
+    state->scale = config->scale * 1.125f;
+    state->y = object->y + config->yOffset;
+    state->z = object->y + config->zOffset;
+    object->angle = config->angle << 8;
+    component = object->component;
+    if (component != 0) {
+        component->scale = state->scale * gOverlay72ComponentScale;
+        component = object->component;
+        component->pairedScale = component->scale;
+    }
+}
 
 /* Overlay 72 +0x0B4. Fresh DKR v77/v80 and JFG scans are negative. */
-typedef struct {
-    u8 pad0[0x10];
-    f32 height;
-} Overlay72Candidate;
-
-typedef struct {
-    s32 queryType;
-    f32 minimum;
-    f32 maximum;
-} Overlay72Bounds;
-
-typedef struct {
-    u8 pad0[0x0C];
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad18[0x4C];
-    Overlay72Bounds *bounds;
-} Overlay72Object;
-
-s32 overlay72QueryReloc(
-    f32 x,
-    f32 y,
-    f32 z,
-    s32 queryType,
-    s32 includeInactive,
-    Overlay72Candidate **results
-);
-void overlay72ApplyReloc(Overlay72Candidate *candidate, s32 value);
-
-void overlay72Update(Overlay72Object *object, f32 unused) {
+void overlay72Update(Overlay72QueryObject *object, f32 unused) {
     Overlay72Bounds *bounds = object->bounds;
     Overlay72Candidate *results[6];
     s32 count;

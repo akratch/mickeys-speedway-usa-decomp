@@ -467,9 +467,7 @@ TEXT_SUBSEGMENTS = {
         (0x568, "asm", "overlay_023_padding"),
     ],
     24: [
-        (0x000, "c", "overlay24Init"),
-        (0x01C, "c", "overlay24Update"),
-        (0x284, "c", "overlay24RenderState"),
+        (0x000, "c", "overlay_024"),
         (0x414, "asm", "overlay_024_padding"),
     ],
     25: [
@@ -561,13 +559,7 @@ TEXT_SUBSEGMENTS = {
         (0x374, "asm", "overlay_049_padding"),
     ],
     56: [
-        (0x000, "c", "overlay56AdjustCoordinates"),
-        (0x0B8, "c", "overlay56SplitTime"),
-        (0x10C, "c", "overlay56SetMode"),
-        (0x118, "c", "overlay56LoadResource"),
-        (0x168, "c", "overlay56ReleaseResource"),
-        (0x1A0, "asm", "overlay_056_middle"),
-        (0xAB4, "c", "overlay56UnpackColor"),
+        (0x000, "c", "overlay_056"),
         (0xAF4, "asm", "overlay_056_padding"),
     ],
     63: [
@@ -612,7 +604,7 @@ TEXT_SUBSEGMENTS = {
         (0x4E0, "asm", "overlay_066_tail"),
     ],
     67: [
-        (0x000, "c", "overlay67BuildVertices"),
+        (0x000, "c", "overlay_067"),
         (0x14C, "asm", "overlay_067_padding"),
     ],
     68: [
@@ -656,8 +648,7 @@ TEXT_SUBSEGMENTS = {
         (0xB48, "asm", "overlay_071_tail"),
     ],
     72: [
-        (0x000, "c", "overlay72Init"),
-        (0x0B4, "c", "overlay72Update"),
+        (0x000, "c", "overlay_072"),
         (0x168, "asm", "overlay_072_padding"),
     ],
     73: [
@@ -776,7 +767,7 @@ TEXT_SUBSEGMENTS = {
         (0x7C4, "asm", "overlay_089_padding"),
     ],
     90: [
-        (0x000, "c", "overlay90Initialize"),
+        (0x000, "c", "overlay_090"),
         (0x0FC, "asm", "overlay_090_padding"),
     ],
     92: [
@@ -874,10 +865,7 @@ TEXT_SUBSEGMENTS = {
         (0x1E68, "asm", "overlay_050_padding"),
     ],
     51: [
-        (0x000, "c", "overlay51Initialize"),
-        (0x080, "c", "overlay51PatchIndices"),
-        (0x0D0, "asm", "overlay_051_middle"),
-        (0x858, "c", "overlay51ReleaseState"),
+        (0x000, "c", "overlay_051"),
         (0x8AC, "asm", "overlay_051_padding"),
     ],
     52: [
@@ -957,9 +945,8 @@ TEXT_SUBSEGMENTS = {
         (0x964, "asm", "overlay_087_padding"),
     ],
     91: [
-        (0x000, "c", "overlay91Init"),
-        (0x04C, "c", "overlay91UpdateTimeline"),
-        (0x4BC, "c", "overlay91Render"),
+        (0x000, "c", "overlay_091"),
+        (0x04C, "c", "overlay_091_mul"),
         (0x574, "asm", "overlay_091_padding"),
     ],
     11: [
@@ -1154,7 +1141,7 @@ TEXT_SUBSEGMENTS = {
         (0x008, "asm", "overlay_106_padding"),
     ],
     107: [
-        (0x000, "c", "osRamTest4_6105"),
+        (0x000, "c", "overlay_107"),
         (0x028, "asm", "overlay_107_padding"),
     ],
 }

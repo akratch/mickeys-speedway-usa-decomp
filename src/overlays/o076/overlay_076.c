@@ -1,4 +1,4 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_076.h"
 
 /*
  * Overlay 76 function map: +0x000, +0x038, +0x0D0; text ends at +0x120.
@@ -6,25 +6,6 @@
  * relocations prove the resident calls (sound dispatch and mathRnd); twelve
  * LOCAL records prove one 16-byte data range and the 0x20-byte status BSS.
  */
-typedef struct {
-    s32 index;
-} Overlay76Record;
-
-typedef struct {
-    u8 pad0[0x0C];
-    s32 x;
-    s32 y;
-    s32 z;
-    u8 pad18[0x4C];
-    Overlay76Record *record;
-} Overlay76Object;
-
-extern s32 gOverlay76NextIndex;
-extern s32 gOverlay76Status[8];
-
-void overlay76SoundReloc(u16 soundId, s32 x, s32 y, s32 z, s32 arg4, s32 arg5);
-s32 overlay76RandomReloc(s32 min, s32 max);
-
 void overlay76Register(Overlay76Object *object, volatile f32 unused) {
     s32 *next = &gOverlay76NextIndex;
     Overlay76Record *record = object->record;

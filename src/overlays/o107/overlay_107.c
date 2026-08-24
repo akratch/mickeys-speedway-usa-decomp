@@ -1,4 +1,4 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_107.h"
 
 /*
  * Overlay 107, entire 0x30-byte text section. JFG's overlay 156 provides the
