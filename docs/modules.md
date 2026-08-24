@@ -385,7 +385,7 @@ never imported as names, and uncertain rows retain Mickey's `func_` spelling.
 
 | ROM | Mickey symbol / size | JFG correspondence | Tier and evidence |
 |---|---|---|---|
-| `0x20020` | `func_8001F420`, `0x3C` | JFG placeholder in `models.c.o` | A: exact 15-word skeleton; placeholder retained |
+| `0x20020` | `func_8001F420`, `0x3C` | JFG placeholder in `models.c.o` | A: exact 15-word skeleton and linked C match; placeholder retained |
 | `0x2005C` | `func_8001F45C`, `0xC4` | `modInitModels` | B: same allocation/table-initialisation calls and TU position |
 | `0x20120` | `func_8001F520`, `0x644` | `modLoadModel` | B: same cache, decompression, texture and instance-helper call graph |
 | `0x20764` | `func_8001FB64`, `0x68` | JFG placeholder in `models.c.o` | A: exact 26-word skeleton; placeholder retained |

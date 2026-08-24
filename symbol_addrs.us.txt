@@ -1434,7 +1434,7 @@ shadowBoundingBox = 0x800184B4; // type:func size:0x90   ROM 0x190b4  src/shadow
 func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charControl.c.o  masked=0/19
 controlSetPlayerSetup = 0x8001F36C; // type:func size:0x40   ROM 0x1ff6c  src/charControl.c.o  masked=10/16
 // jfg:src/models.c.o
-func_8001F420 = 0x8001F420; // type:func size:0x3C   ROM 0x20020  src/models.c.o  masked=0/15
+func_8001F420 = 0x8001F420; // type:func size:0x3C   ROM 0x20020  src/models.c.o  masked=0/15  C-match -O2 -mips2
 func_8001FB64 = 0x8001FB64; // type:func size:0x68   ROM 0x20764  src/models.c.o  masked=0/26
 func_80020AD4 = 0x80020AD4; // type:func size:0x3C   ROM 0x216d4  src/models.c.o  masked=6/15
 // jfg:src/camera.c.o

@@ -19,7 +19,17 @@
 
 #include "PR/ultratypes.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001F420.s")
+/*
+ * PROVENANCE -- body adapted from JFG's public src/models.c
+ * func_8003B870_3C470. The JFG built object carries this exact 15-word
+ * skeleton at func_8003B640; Mickey's linked bytes are the authority here.
+ */
+void func_8001F420(u16 *src, u16 *dest, s32 len) {
+    len = (len + 1) >> 1;
+    while (len--) {
+        *dest++ = *src++;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001F45C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001F520.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001FB64.s")
