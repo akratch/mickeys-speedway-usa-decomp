@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-26 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 24 more from it): every masked=0/1/2 TU (the
+27 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 25 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -498,7 +498,9 @@ that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 `n_syngetfxref`. The `0x3220`-byte `n_csplayer` text and its owned
 `0x200`-byte `.data`, `0x300`-byte `.rodata`, and `0x40`-byte `.bss`
 also match exactly from the JFG source; its multiply sequences require
-`-Wab,-r4300_mul` in addition to `-DRAREDIFFS`.
+`-Wab,-r4300_mul` in addition to `-DRAREDIFFS`. JFG's main compressed-sequence
+source (`n_csq.c`) also supplies the exact `0x9D0`-byte `n_cseq` text with the
+bare flag group and no owned data or rodata.
 
 **Plateaus, each with a first mismatch:**
 
@@ -516,8 +518,8 @@ Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
 `0xAD0`), `n_reverb` (masked=60, DSP-heavy, deferred per plan), `n_env`
 (masked=59), `alsurround`
 (masked=39), `n_event`/`n_drvrNew` (masked=34 each), `n_synaddplayer`
-(masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_cseq`
-(masked=15), `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
+(masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_seqplayer`
+(masked=14, the 15-function DSP-heavy TU,
 deferred per plan), `n_alLPFilter` (masked=13), `n_auxbus` (masked=7),
 `n_load` (masked=4, DSP-heavy ADPCM decoder), and `n_synsetvol`/
 `n_synstartvoiceparam`/`n_synallocvoice` (masked=5) not yet attempted.
