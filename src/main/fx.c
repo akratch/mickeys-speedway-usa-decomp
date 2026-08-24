@@ -131,7 +131,24 @@ s32 func_8004989C(s32 index) {
     return color;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800498FC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049A8C.s")
+void func_80049A8C(s32 index) {
+    s32 count = 0;
+    FxRecord *record;
+
+    if (index == -1) {
+        count = 5;
+        record = D_800D5F58;
+    } else if (index >= 0 && index < 5) {
+        count = 1;
+        record = &D_800D5F58[index];
+    }
+    while (count--) {
+        record->state = 0;
+        record->flags &= ~5;
+        record->status = 0;
+        record++;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049B14.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049E4C.s")
 void func_8004A0F0(void) {

@@ -425,6 +425,9 @@ are exact under the same defaults.
 The 76-byte JFG-identified `fxInit` is exact as well: its post-decrement loop
 clears all five 32-byte records, resets the global state, and preserves the
 callee plus two data relocation pairs without normalization.
+The 136-byte Mickey-named `func_80049A8C` resets either one record or all five,
+clearing state/status and two flag bits. Its selection branches, stack home,
+countdown loop, and data relocation pair are exact at the resident defaults.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
