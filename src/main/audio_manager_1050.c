@@ -32,9 +32,19 @@ typedef struct AudioSoundData {
     u8 unk9;
 } AudioSoundData;
 
+typedef struct AudioInstrument {
+    u8 pad0[0xE];
+    s16 soundCount;
+} AudioInstrument;
+
+typedef struct AudioBank {
+    u8 pad0[0xC];
+    AudioInstrument *instArray[1];
+} AudioBank;
+
 typedef struct AudioBankFile {
     s32 revision;
-    void *bankArray[1];
+    AudioBank *bankArray[1];
 } AudioBankFile;
 
 extern s32 D_80078D7C;
@@ -67,7 +77,7 @@ extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
 extern void func_80001568(void *player);
 extern u16 func_800016C8(s32 volume);
-extern s32 func_80001258(void);
+extern u16 amGetSfxCount(void);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
                           f32 pitch, u8 arg5, void **handle);
 
@@ -282,7 +292,7 @@ void amSndPlay(u16 soundId, void **handle) {
  */
 void amSndPlayDirect(u16 soundBite, u8 volume, u8 pan, f32 pitch, u8 arg4,
                      void **handle) {
-    if (soundBite <= 0 || func_80001258() < soundBite) {
+    if (soundBite <= 0 || amGetSfxCount() < soundBite) {
         if (handle != NULL) {
             *handle = NULL;
         }
@@ -321,7 +331,10 @@ void amSndSetPitchDirect(void *sound, u32 pitch) {
         gsSndpSetParam(sound, 16, *pitchAddress);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001258.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+u16 amGetSfxCount(void) {
+    return D_800BF79C->bankArray[0]->instArray[0]->soundCount;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001270.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800012A8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001308.s")
