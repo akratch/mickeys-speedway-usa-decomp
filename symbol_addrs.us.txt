@@ -977,6 +977,12 @@ __osPfsPifRam = 0x800D7F20;
 __osContPifRam = 0x800D80F0;
 __osContLastCmd = 0x800D8130;
 __osMaxControllers = 0x800D8131;
+// controller.c's whole-object match fixes the remainder of its reference BSS:
+// padding aligns the 0x20-byte timer to 0x800D8138, followed in object order
+// by the 0x18-byte queue and its 4-byte message slot (Tier A/B).
+__osEepromTimer = 0x800D8138;
+__osEepromTimerQ = 0x800D8158;
+__osEepromTimerMsg = 0x800D8170;
 __osPfsInodeCacheBank = 0x80080434;
 __osPfsInodeCacheChannel = 0x80080430;
 __osPfsLastChannel = 0x80080420;

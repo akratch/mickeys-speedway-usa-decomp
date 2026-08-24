@@ -28,6 +28,7 @@
 #include "PR/os_pfs.h"
 #include "PR/os_pi.h"
 #include "PR/rcp.h"
+#include "PRinternal/osint.h"
 
 #define CHNL_ERR(format) (((format).rxsize & CHNL_ERR_MASK) >> 4)
 #define CHNL_ERR_MASK    0xC0
@@ -147,6 +148,9 @@ extern u8 __osContLastCmd;
 extern OSPifRam __osContPifRam;
 extern OSPifRam __osPfsPifRam;
 extern u8 __osMaxControllers;
+extern OSTimer __osEepromTimer;
+extern OSMesgQueue __osEepromTimerQ;
+extern OSMesg __osEepromTimerMsg;
 extern s32 __osPfsLastChannel;
 extern u8 __osPfsInodeCacheBank;
 extern __OSInode __osPfsInodeCache;

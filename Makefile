@@ -549,6 +549,7 @@ $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
 # JFG's whole initialize object matches Mickey's and selects the 2.0J source
 # path plus Rare's external osViClock ownership.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/initialize.c.o: CFLAGS += -DBUILD_VERSION=7 -DRAREDIFFS
+$(BUILD_DIR)/$(SRC_DIR)/libultra/controller.c.o: CFLAGS += -DRAREDIFFS
 
 # -Xphase,uopt,+ -Xphase,uopt,-O1: a FOURTH libultra flag group, and the only
 # one that does not go through the `cc` driver.

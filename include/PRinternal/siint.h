@@ -14,6 +14,7 @@
 
 void __osSiGetAccess(void);
 void __osSiRelAccess(void);
+void __osSiCreateAccessQueue(void);
 s32 __osSiRawStartDma(s32 direction, void *dramAddr);
 
 #endif /* _SIINT_H_ */
