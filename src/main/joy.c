@@ -29,6 +29,7 @@ extern u16 D_800CF3A8[];
 extern u8 D_800CF3B0[];
 extern u8 D_800CF3B4[];
 extern s32 func_8003A550(void);
+extern void TrapDanglingJump();
 
 s8 joyClamp(s8 stickMag);
 
@@ -149,7 +150,16 @@ void joySetSecurity(void) {
     D_8007A0C8 = 0;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/arithmeticFunction.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+void arithmeticFunction(u8 *challenge, u8 *response) {
+    osRecvMesg(&D_800CF340, NULL, OS_MESG_BLOCK);
+    TrapDanglingJump(challenge, &D_800CF340);
+    osRecvMesg(&D_800CF340, NULL, OS_MESG_BLOCK);
+    TrapDanglingJump(&D_800CF340);
+    osRecvMesg(&D_800CF340, NULL, OS_MESG_BLOCK);
+    osContStartReadData(&D_800CF340);
+    TrapDanglingJump(response);
+}
 
 /* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
 s32 joyCharVal(void) {
