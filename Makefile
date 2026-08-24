@@ -687,33 +687,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchWaveTable.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x6C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5CreatePlayer.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
-# This typed bootstrap naturally recovers every call, branch, memory access,
-# and the exact 0x3a4-byte topology. Guardedly select the shipped register and
-# schedule web while retaining all 42 runtime-relocated data halves; distinct
-# call proxies preserve the runtime relocation-table zero payloads.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitializeAudio.c.o: \
-	config/normalizations/overlay5InitializeAudio.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitializeAudio.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3A4 50ebbba59344c59f548cadd88bb390694e965d7dff44edbb07013cb87b84c9d9 \
-		@config/normalizations/overlay5InitializeAudio.ops && \
-	$(OBJCOPY) \
-		--redefine-sym alHeapInit=overlay5HeapInitReloc \
-		--redefine-sym func_8002E148=overlay5GetResourceReloc \
-		--redefine-sym func_8002B280=overlay5AllocateResourceReloc \
-		--redefine-sym func_8002E2E0=overlay5CopyResourceReloc \
-		--redefine-sym func_8002E35C=overlay5ResolveResourceReloc \
-		--redefine-sym alHeapDBAlloc=overlay5HeapAllocateReloc \
-		--redefine-sym func_80001740=overlay5InitializeSoundReloc \
-		--redefine-sym gsSndpNew=overlay5InitializeSequencePlayerReloc \
-		--redefine-sym func_80001BA0=overlay5StartAudioReloc \
-		--redefine-sym func_80000450=overlay5ConfigureAudioReloc \
-		--redefine-sym func_8002B768=overlay5ReleaseResourceReloc \
-		--redefine-sym func_800039F0=overlay5FinalizeAudioReloc \
-		--redefine-sym alSurround_OutputType=overlay5SetOutputTypeReloc \
-		--redefine-sym alSurround_ReverbSetup=overlay5SetupReverbReloc \
-		--redefine-sym osCreateMesgQueue=overlay5CreateMessageQueueReloc \
-		--redefine-sym n_alCSPSetMessageQ=overlay5SetPlayerMessageQueueReloc $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_005_F000031C_185B744=overlay5InitializeAudio $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1WrapOffset.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
