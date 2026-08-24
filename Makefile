@@ -3681,15 +3681,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88UpdateAnchor.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		overlay88PrepareNodeReloc=func_overlay_088_F0000000_18D3A88 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x158
-# The o69/o88 retail renderer bodies and independently compiled natural basins
-# are byte-identical.  Assert o88's own configured object and target digest;
-# its predecessor remains assembly-owned and there is no following padding.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88DrawSortedGeometry.c.o: \
-	$(SRC_DIR)/overlays/o069/overlay69DrawSortedGeometry.c
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88DrawSortedGeometry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x59c 3a5cfd50d01656368d68dca0dbb82437bb3bb11e8c14fa6856bf6b8c6ffa312c \
-		@config/normalizations/overlay69DrawSortedGeometry.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_088_F00001A4_18D3C2C=overlay88DrawSortedGeometry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x59C
 # The semantic source naturally reproduces the exact boundary, frame, opcode
 # inventory, CFG, FP topology, and runtime relocation sites. Select retail's
