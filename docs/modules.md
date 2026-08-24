@@ -390,6 +390,10 @@ with the JFG identity and tier on the same row, until each function or its
 caller becomes C-owned; this avoids pretending that a source-level rename is
 already available to the stale generated caller assembly.
 
+Exact C closures in these splits begin with the 8-byte `func_80046504`
+(`diCpuTraceGetFault` in JFG). The natural `return 0` body is identical under
+the resident `-O2 -mips2 -32` rule, with no relocations.
+
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
 Force Gemini's public decompilation (`src/diRcpTrace.c`, `src/diRcp.c`,

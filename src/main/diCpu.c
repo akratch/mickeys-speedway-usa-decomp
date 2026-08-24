@@ -17,7 +17,11 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045CAC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045D34.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuReportWatchpoint.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046504.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuTraceGetFault. */
+s32 func_80046504(void) {
+    return 0;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_8004650C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/render_epc_lock_up_display.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046AA8.s")
