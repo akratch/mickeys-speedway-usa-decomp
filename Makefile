@@ -3923,10 +3923,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92FindNearestCourse.c.o: POSTPROCES
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o093/overlay_093.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xEC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o093/overlay_093.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o095/overlay95NoOp.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o095/overlay95Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1CC
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o095/overlay_095.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1D8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitRadius.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x40
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitResource.c.o: POSTPROCESS = \
@@ -7292,8 +7290,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92Init.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92FindNearestCourse.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o093/overlay_093.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o095/overlay95NoOp.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o095/overlay95Update.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o095/overlay_095.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitRadius.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitResource.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitBounds.c.o \
