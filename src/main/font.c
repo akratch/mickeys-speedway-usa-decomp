@@ -19,11 +19,14 @@
 #include "game/font.h"
 
 typedef struct FontSpacingData {
-    u8 pad0[3];
+    u8 unused0;
+    u8 verticalExtent;
+    u8 unused2;
     u8 height;
     u8 pad4[0x10];
 } FontSpacingData;
 
+extern DialogueTextElement D_800D60E8[32];
 extern DialogueBoxBackground D_800D64E8[];
 extern s32 D_8007D538;
 extern s32 D_8007D53C;
@@ -32,12 +35,15 @@ extern s32 D_8007D544[];
 extern char D_8007D594[];
 extern u8 D_800D60E0;
 extern FontSpacingData *D_800D60E4;
+extern char *D_800D6640;
 extern u8 D_800D664D;
 
 void func_8004B13C(void **displayList, s32 windowId, s32 xpos, s32 ypos,
                    char *text, s32 alignmentFlags);
 void func_8004B1DC(void **displayList, DialogueBoxBackground *window,
                    char *text, s32 alignmentFlags);
+s32 func_8004BA8C(char *text, s32 font, s32 convertString);
+void func_8004C5A4(char *input, char *output, s32 number);
 
 void fontSetWindow0(s32 width, s32 height) {
     D_800D64E8[0].x2 = width - 1;
@@ -160,7 +166,91 @@ void fontWindowFontBackground(s32 windowId, s32 red, s32 green, s32 blue,
     }
 }
 
+#ifdef NON_MATCHING
+void *func_8004BCC4(s32 windowId, s32 posX, s32 posY, char *text, s32 number,
+                    s32 flags) {
+    s32 i;
+    s32 width;
+    DialogueTextElement *result;
+    s32 pad;
+    DialogueBox *textBox;
+    DialogueBox **textBoxPtr;
+    FontSpacingData *fontData;
+
+    if (text == NULL) {
+        return NULL;
+    }
+
+    for (i = 0, result = NULL; i < 32 && result == NULL; i++) {
+        if (D_800D60E8[i].number == 0xFF) {
+            result = &D_800D60E8[i];
+        }
+    }
+
+    if (result != NULL) {
+        if (posX == -0x8000) {
+            posX = D_800D64E8[windowId].width >> 1;
+        }
+        if (posY == -0x8000) {
+            posY = D_800D64E8[windowId].height >> 1;
+        }
+        if (D_800D64E8[windowId].font != 0xFF) {
+            fontData = &D_800D60E4[D_800D64E8[windowId].font];
+            if (flags & 5) {
+                func_8004C5A4(text, D_800D6640, number);
+                width = func_8004BA8C(D_800D6640,
+                                      D_800D64E8[windowId].font, 1);
+                if (flags & 1) {
+                    posX = (posX - width) + 1;
+                } else {
+                    posX -= width >> 1;
+                }
+            }
+            if (flags & 2) {
+                posY = (posY - fontData->verticalExtent) + 1;
+            }
+            if (flags & 8) {
+                posY -= fontData->verticalExtent >> 1;
+            }
+        }
+        if (D_800D64E8[windowId].textBox == NULL) {
+            D_800D64E8[windowId].textBox = (DialogueBox *) result;
+            result->nextBox = NULL;
+        } else {
+            textBoxPtr = &D_800D64E8[windowId].textBox;
+            textBox = *textBoxPtr;
+            while (textBox != NULL && number < textBox->textNum) {
+                textBoxPtr = &textBox->nextBox;
+                textBox = textBox->nextBox;
+            }
+            *textBoxPtr = (DialogueBox *) result;
+            result->nextBox = textBox;
+        }
+        result->number = number;
+        result->text = text;
+        result->posX = posX;
+        result->posY = posY;
+        result->offsetX = 0;
+        result->offsetY = 0;
+        result->textColourR = D_800D64E8[windowId].textColourR;
+        result->textColourG = D_800D64E8[windowId].textColourG;
+        result->textColourB = D_800D64E8[windowId].textColourB;
+        result->textColourA = D_800D64E8[windowId].textColourA;
+        result->textBGColourR = D_800D64E8[windowId].textBGColourR;
+        result->textBGColourG = D_800D64E8[windowId].textBGColourG;
+        result->textBGColourB = D_800D64E8[windowId].textBGColourB;
+        result->textBGColourA = D_800D64E8[windowId].textBGColourA;
+        result->opacity = D_800D64E8[windowId].opacity;
+        result->font = D_800D64E8[windowId].font;
+        result->flags = D_800D64E8[windowId].flags;
+    }
+
+    return result;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BCC4.s")
+#endif
+
 void func_8004BF64(s32 windowId) {
     DialogueBoxBackground *window;
     DialogueBox *textBox;

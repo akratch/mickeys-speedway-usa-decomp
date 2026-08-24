@@ -10,6 +10,29 @@ typedef struct DialogueBox {
     /* 0x1C */ struct DialogueBox *nextBox;
 } DialogueBox;
 
+typedef struct DialogueTextElement {
+    /* 0x00 */ u8 unused;
+    /* 0x01 */ u8 number;
+    /* 0x02 */ u8 pad2[2];
+    /* 0x04 */ char *text;
+    /* 0x08 */ s16 posX;
+    /* 0x0A */ s16 posY;
+    /* 0x0C */ s16 offsetX;
+    /* 0x0E */ s16 offsetY;
+    /* 0x10 */ u8 textColourR;
+    /* 0x11 */ u8 textColourG;
+    /* 0x12 */ u8 textColourB;
+    /* 0x13 */ u8 textColourA;
+    /* 0x14 */ u8 textBGColourR;
+    /* 0x15 */ u8 textBGColourG;
+    /* 0x16 */ u8 textBGColourB;
+    /* 0x17 */ u8 textBGColourA;
+    /* 0x18 */ u8 opacity;
+    /* 0x19 */ u8 font;
+    /* 0x1A */ u16 flags;
+    /* 0x1C */ DialogueBox *nextBox;
+} DialogueTextElement;
+
 /* Resident dialogue-window state; field offsets are confirmed by Mickey. */
 typedef struct DialogueBoxBackground {
     /* 0x00 */ s16 xpos;

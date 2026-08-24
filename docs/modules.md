@@ -406,7 +406,7 @@ overlay callers/callees outside the range were observed.
 | `0x4C7FC` | `0x40` | `fontWindowColour` | same | A, matched C | leaf; ext callers |
 | `0x4C83C` | `0x48` | `fontWindowFontColour` | same | A, matched C | leaf; ext callers |
 | `0x4C884` | `0x40` | `fontWindowFontBackground` | same | A, matched C | leaf; ext callers |
-| `0x4C8C4` | `0x2A0` | `func_8004BCC4` | `fontWindowAddStringXY` | B/D | calls `0x4D1A4`, `0x4C68C`; ext callers |
+| `0x4C8C4` | `0x2A0` | `func_8004BCC4` | `fontWindowAddStringXY` | B/D, plateau | calls `0x4D1A4`, `0x4C68C`; ext callers |
 | `0x4CB64` | `0x4C` | `func_8004BF64` | `fontWindowFlushStrings` | B/D, matched C | leaf; ext callers |
 | `0x4CBB0` | `0x28` | `func_8004BFB0` | `fontWindowEnable` | B/D, matched C | leaf; ext callers |
 | `0x4CBD8` | `0x28` | `func_8004BFD8` | `fontWindowDisable` | B/D, matched C | leaf; ext callers |
@@ -428,6 +428,18 @@ overlay callers/callees outside the range were observed.
 | `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | B/D | calls `gzip_inflate_block`; ext callers |
 | `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B/D | calls `_bzero`; called by `main/gzip_asm` |
 
+`func_8004BCC4` compiles to the exact 168-instruction shape and exact masked
+words at the stock flags, but is not an object match: four relocation sites
+(two HI16/LO16 pairs) retain different symbol identities. The first is at
+function offset `+0x34`, where the pool-end address is spelled as
+`D_800D60E8 + 0x400` instead of `D_800D64E8`; the second starts at `+0x98`,
+where window zero's width field is based on `D_800D64E8` instead of its
+`D_800D64F4` field alias. The 119-combination flag lattice kept the stock
+`-O2 -mips2` result best. An explicit-alias source variant fixed the names but
+changed the frame and added three instructions, so the readable JFG-derived
+candidate remains under `NON_MATCHING` and the extracted assembly is
+canonical.
+
 `func_8004D39C` plateaued after the stock JFG body and six source-allocation
 variants. Its best candidate has the exact 28-instruction shape and 27 exact
 words; the first and only mismatch is at function offset `+0x60`, where the
@@ -436,6 +448,11 @@ The 119-combination flag lattice found no exact result and kept the same
 one-word residue throughout the `-O2 -mips2` family, identifying an allocator
 coalescing choice rather than a flag mismatch. The candidate remains guarded
 by `NON_MATCHING`; the extracted assembly stays canonical.
+
+The font subsegment's FP-register census contains only even-numbered single-
+precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
+so no function in this TU was excluded by the odd-register rule in section
+6.2.
 
 There are no direct string-literal references in this block. Its data
 relocations address font/window state, a font-cache jump table, and rzip
