@@ -1309,12 +1309,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x187B9D8, c, overlay27Init]
-      - [0x187BA3C, c, overlay27UpdateEffectState]
-      - [0x187BFFC, c, overlay27RenderEffect]
-      - [0x187C3F4, c, overlay27UpdateCoordinates]
-      - [0x187C4F8, c, overlay27CanUse]
-      - [0x187C540, c, overlay27Activate]
+      - [0x187B9D8, c, overlay_027]
       - [0x187C598, bin, overlay_027_data_rodata]
       - [0x187C758, bin, overlay_027_reloc1]
       - [0x187C800, bin, overlay_027_reloc2]
@@ -1330,11 +1325,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x187C8D0, c, overlay28ResetBuffer]
-      - [0x187C940, c, overlay28UpdateVertices]
-      - [0x187CA88, c, overlay28InitializeWork]
-      - [0x187CBE8, c, overlay28UpdateWork]
-      - [0x187CDA8, c, func_overlay_028_F00004D8_187CDA8]
+      - [0x187C8D0, c, overlay_028]
       - [0x187D0BC, asm, overlay_028_padding]
       - [0x187D0C0, bin, overlay_028_data_rodata]
       - [0x187D1F0, bin, overlay_028_reloc1]

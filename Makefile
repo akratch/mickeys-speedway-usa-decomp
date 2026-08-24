@@ -1043,10 +1043,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36CallGlobal.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36InitObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27CanUse.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27Activate.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay_027.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym func_overlay_027_F0000A1C_187C3F4=overlay27UpdateCoordinates $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xBC0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41InterpolateAngle.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
 # NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration where needed
@@ -1143,7 +1142,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34CreateRecord.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1F4
 include config/normalizations/overlay34Records.mk
 include config/normalizations/overlay22Epoch12.mk
-include config/normalizations/overlay28Epoch12.mk
 include config/normalizations/overlay46Epoch12.mk
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41Ignore.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
@@ -1349,24 +1347,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay_024.c.o: POSTPROCESS = \
 		3e99999a000000000000000000000000
 # NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration and
 # trailing-section trimming metadata for these extracted functions.
+
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay_025.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_025_F0000000_1879C88=overlay25InitializeEffect \
 		--redefine-sym func_overlay_025_F000017C_1879E04=overlay25UpdateEffect $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x608
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27Init.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27RenderEffect.c.o: \
-	$(TOOLS_DIR)/trim_elf_section.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27RenderEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3F8
-# NON_MATCHING/GLOBAL_ASM uses extracted retail instructions; keep only
-# the metadata-only entry-symbol rename needed by the friendly split.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateCoordinates.c.o: \
-	$(TOOLS_DIR)/trim_elf_section.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateCoordinates.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_027_F0000A1C_187C3F4=overlay27UpdateCoordinates $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x104
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay_056.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xAF4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o039/overlay_039.c.o: POSTPROCESS = \
@@ -2580,8 +2566,20 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48UpdateState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o048/overlay48ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x60
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay28ResetBuffer.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
+O28_MERGED_OBJ := \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay_028.c.o
+$(O28_MERGED_OBJ): \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py \
+	$(TOOLS_DIR)/trim_elf_section.py
+# The loader owns the reset callback HILO and the update-vertices call carrier.
+# Preserve those asserted relocation identities after the functions become local.
+$(O28_MERGED_OBJ): POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x1D8:5:overlay28ResetBuffer 0x1F4:6:overlay28ResetBuffer && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x41C:overlay28UpdateVertices:ext_o0_29e00 && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7EC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35SelectHeight.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x68
 
@@ -2684,253 +2682,6 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay_008.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay12Initialize.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchBank.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchInst.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchSound.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchWaveTable.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay_005.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0000000_186F8D8.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F000013C_186FA14.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14Reset.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ReturnOne.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ReturnOneCallbacks.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ReleaseOwner.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14FinalizeActiveHandle.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14DispatchCommand.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14CallUpdate.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14PrepareInputState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14AdvanceCommand.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14StepCommand.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ApplyValues.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14MoveCommandCursor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14CreateValue.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14LoadRelocatedValue.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ResetMode.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F00009F4_18702CC.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14BuildRects.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F00013F4_1870CCC.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0001540_1870E18.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0001830_1871108.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36CallGlobal.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36InitObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27CanUse.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27Activate.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41AdvanceStepRecords.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41UpdateColorRecords.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41SampleCurve.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41InterpolateAngle.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41UpdateCurveObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41IsUnitScale.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41UpdateProgress.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41ProcessEntry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41AddSlot.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41SpawnItems.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41EnqueueTransition.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41TickTransitions.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41DrawItem.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o053/overlay53ReleaseResources.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o054/overlay54ReleaseResources.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29BuildChain.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29UpdateRatio.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29Sample.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29InitializeObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29DrawGroups.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30Initialize.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30TransposePixels.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay_051.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ResetFlags.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC4.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC8.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ReleaseCurrent.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay_015.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34SetValue10.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34InitStorage.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34InterpolateColor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34CreateRecord.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34ResetStorage.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34UpdateRecords.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41Ignore.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o066/overlay66GetCurrent.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o066/overlay66Select.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o066/overlay66SmoothAndDraw.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61RecordSize.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79SetLink.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79InitState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79UpdateTimers.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79FindNearby.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000000_18CCFA0.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0001290_18CE230.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84CopyPair.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84AdvanceCurrent.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84LoadCurrent.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84SetBit.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84GetValues.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84ActivateCurrent.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84ClearActive.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84ClearMode.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84SetAngle.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84Mark.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84SelectCurrent.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86ProcessCurrent.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86ScaledVectorPosition.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86BuildTransform.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86SelectPosition.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o094/overlay94UpdateController.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o094/overlay94SetValue.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101AllocateEntry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101Reset.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101FindEntry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateEntry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateEntry12.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ActivateSlot.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101AdvanceSlot.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateByte17.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateByte16.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateEntry8.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateEntry8B.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateEntry8C.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateFloat12.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateDelta16.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateByte18.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateGlobalPair.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateColor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildIntensityColors.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildBorder.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawClock.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildFrame.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101SetScissor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101Cleanup.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdatePresentation.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawChain.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateChains.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawSlots.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101PromoteSlot.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleLinkedPair.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleLinkedPair2.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleLinkedFloat.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleLinkedByte.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleLinkedPair3.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleLinkedScaled.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleLinkedColor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101UpdateFrames.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleFrames.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleGlobalPair.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DispatchEvents.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DispatchActive.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101Initialize.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawElement.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawTransformed.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationA.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationB.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationC.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101BuildPresentationD.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailA6BC.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailAB4C.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailB544.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailBA34.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC144.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC6E8.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101GetBounds.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay_016.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101SchedulePair.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101SchedulePair12.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleByte17.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101ScheduleByte16.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o021/overlay21RegisterPlane.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o021/overlay21ApplyPriorities.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23SpawnAttachments.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Update.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23RenderEffect.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay_024.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay_025.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateEffectState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay_056.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Update.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Render.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37RecordMinimum.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37RecordActive.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o039/overlay_039.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40AddEntry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40RemoveEntry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40UpdateEntries.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40BuildFrame.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40DrawEntries.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40SetValues.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40Interpolate.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40DrawTintRectangle.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o040/overlay40FadeRecords.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay_042.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43InitializeState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FlushPending.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ReleaseResources.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ComputeMotion.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43AllocateResources.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43SubmitChildren.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FilterImage.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o044/overlay44CreateAnimationState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o044/overlay44ReleaseHandles.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o044/overlay44UpdateFrameCache.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o069/overlay69Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o069/overlay69UpdateAnchor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o069/overlay69DrawSortedGeometry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o067/overlay_067.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000000_18C9B20.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000278_18C9D98.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/overlay71UpdateCoordinates.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000870_18CA390.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o072/overlay_072.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o073/overlay73Initialize.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o073/overlay73Draw.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Update.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75UpdateMovingObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o075/overlay75MarkSlot.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o077/overlay_077_tail.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o081/overlay_081.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o082/overlay_082_tail.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88UpdateAnchor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88DrawSortedGeometry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateEffect.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89Evaluate.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89Update.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89InitializeEffect.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateStateAndParticles.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92Init.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o092/overlay92FindNearestCourse.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o093/overlay_093.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o095/overlay_095.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitRadius.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitResource.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitBounds.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96Register.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96Unregister.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96BuildVolume.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96FindVolume.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96TestBit.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96DrawObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CollectUniqueY.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CollectAccepted.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98RenderReflections.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CheckObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97CopyAngles.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitTransform.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitSelection.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitPlane.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97CreateDescriptor.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97AssignState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitDirection.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitScale.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100RemoveEntry.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100InitializeMotion.c.o \
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34RemoveRecord.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34CreateRecord.c.o \
@@ -3196,8 +2947,7 @@ OVERLAY_TRIMMED_OBJECTS += \
 OVERLAY_TRIMMED_OBJECTS += \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay_049.c.o
 OVERLAY_TRIMMED_OBJECTS += \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay28ResetBuffer.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o028/overlay28UpdateVertices.c.o
+	$(O28_MERGED_OBJ)
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35SelectHeight.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35BuildGridMasks.c.o

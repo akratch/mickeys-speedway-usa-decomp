@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 73012,
-  "nonmatching_overlay_c_bytes": 220364,
+  "matched_overlay_c_bytes": 71512,
+  "nonmatching_overlay_c_bytes": 221864,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -5631,57 +5631,12 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x64",
-     "size": "0x64",
-     "type": "c",
-     "source": "overlays/o027/overlay27Init",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x64",
-     "end_offset": "0x624",
-     "size": "0x5C0",
-     "type": "c",
-     "source": "overlays/o027/overlay27UpdateEffectState",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x624",
-     "end_offset": "0xA1C",
-     "size": "0x3F8",
-     "type": "c",
-     "source": "overlays/o027/overlay27RenderEffect",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xA1C",
-     "end_offset": "0xB20",
-     "size": "0x104",
-     "type": "c",
-     "source": "overlays/o027/overlay27UpdateCoordinates",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xB20",
-     "end_offset": "0xB68",
-     "size": "0x48",
-     "type": "c",
-     "source": "overlays/o027/overlay27CanUse",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xB68",
      "end_offset": "0xBC0",
-     "size": "0x58",
+     "size": "0xBC0",
      "type": "c",
-     "source": "overlays/o027/overlay27Activate",
+     "source": "overlays/o027/overlay_027",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     }
    ],
    "bss_size": "0x0",
@@ -5828,46 +5783,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x70",
-     "size": "0x70",
-     "type": "c",
-     "source": "overlays/o028/overlay28ResetBuffer",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x70",
-     "end_offset": "0x1B8",
-     "size": "0x148",
-     "type": "c",
-     "source": "overlays/o028/overlay28UpdateVertices",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1B8",
-     "end_offset": "0x318",
-     "size": "0x160",
-     "type": "c",
-     "source": "overlays/o028/overlay28InitializeWork",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x318",
-     "end_offset": "0x4D8",
-     "size": "0x1C0",
-     "type": "c",
-     "source": "overlays/o028/overlay28UpdateWork",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x4D8",
      "end_offset": "0x7EC",
-     "size": "0x314",
+     "size": "0x7EC",
      "type": "c",
-     "source": "overlays/o028/func_overlay_028_F00004D8_187CDA8",
+     "source": "overlays/o028/overlay_028",
      "matched": true,
      "nonmatching": true
     },

@@ -361,12 +361,7 @@ TEXT_SUBSEGMENTS = {
         (0x608, "c", "overlay34SortAndDraw"),
     ],
     27: [
-        (0x000, "c", "overlay27Init"),
-        (0x064, "c", "overlay27UpdateEffectState"),
-        (0x624, "c", "overlay27RenderEffect"),
-        (0xA1C, "c", "overlay27UpdateCoordinates"),
-        (0xB20, "c", "overlay27CanUse"),
-        (0xB68, "c", "overlay27Activate"),
+        (0x000, "c", "overlay_027"),
     ],
     37: [
         (0x000, "c", "overlay37Init"),
@@ -876,11 +871,7 @@ TEXT_SUBSEGMENTS = {
         (0x438, "asm", "overlay_030_padding"),
     ],
     28: [
-        (0x000, "c", "overlay28ResetBuffer"),
-        (0x070, "c", "overlay28UpdateVertices"),
-        (0x1B8, "c", "overlay28InitializeWork"),
-        (0x318, "c", "overlay28UpdateWork"),
-        (0x4D8, "c", "func_overlay_028_F00004D8_187CDA8"),
+        (0x000, "c", "overlay_028"),
         (0x7EC, "asm", "overlay_028_padding"),
     ],
     35: [
