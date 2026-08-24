@@ -61,8 +61,27 @@ struct LightSourceObject {
     UnkLight **lights;
 };
 
+typedef struct FlareEntry {
+    u8 data[0x20];
+} FlareEntry;
+
+typedef struct FlareHeader {
+    u8 pad0[0x29];
+    u8 flareCount;
+    u8 pad2A[0x26];
+    FlareEntry *flares;
+} FlareHeader;
+
+struct FlareObject {
+    u8 pad0[0x40];
+    FlareHeader *header;
+    u8 pad44[0x30];
+    void **flares;
+};
+
 extern LightingObject **func_8000572C(s32 *start, s32 *end);
 extern void func_8001953C(LightingObject *object, s32 objectLight);
+extern void *func_8001B260(void *object, FlareEntry *entry);
 
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 void freeLights(void) {
@@ -357,7 +376,14 @@ void lightSetupLightSources(LightSourceObject *object) {
         object->lights[i] = addObjectLight((s32) object, &object->header->lights[i]);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019F7C.s")
+/* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
+void lightSetupFlareSources(FlareObject *object) {
+    s32 i;
+
+    for (i = 0; i < object->header->flareCount; i++) {
+        object->flares[i] = func_8001B260(object, &object->header->flares[i]);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A008.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A154.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A23C.s")
