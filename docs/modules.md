@@ -408,7 +408,7 @@ placeholders are never imported.
 | `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function |
 | `0x80050E9C` | `0x168` | `animseqFreeGroup` | B; same member-cleanup call graph |
 | `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family |
-| `0x800510E8` | `0x40` | `animseqInitGroup` | A; exact 64 B, masked `1/16`, adopted name |
+| `0x800510E8` | `0x40` | `animseqInitGroup` | A; exact 64 B, masked `1/16`, adopted name. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80051128` | `0x9C` | `animseqResetGroup` | B; calls reset-path family |
 | `0x800511C4` | `0x1A0` | `func_80077BE8` | D; 0.321 skeleton similarity, placeholder retained |
 | `0x80051364` | `0x47C` | `animseqUpdate` | D; nearest ordered `anim.c` function |

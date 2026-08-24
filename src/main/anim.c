@@ -136,7 +136,17 @@ void func_8005027C(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050DF0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050E9C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051004.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/animseqInitGroup.s")
+/* Exact JFG donor assembly corroborates the loop; C is Mickey-led. */
+void animseqInitGroup(void) {
+    s32 pathIndex;
+
+    pathIndex = 0;
+    do {
+        func_80050348(pathIndex & 0xFF);
+        pathIndex++;
+    } while (pathIndex != 0x100);
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051128.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800511C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051364.s")

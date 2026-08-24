@@ -20,5 +20,7 @@ void func_8005017C(void);
 s8 func_800501AC(u16 *entry);
 void *func_800501C8(void **cursor);
 void func_8005027C(void);
+void func_80050348(s32 pathIndex);
+void animseqInitGroup(void);
 
 #endif
