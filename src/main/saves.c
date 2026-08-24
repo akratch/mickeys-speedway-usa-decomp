@@ -11,6 +11,7 @@
 #include "PR/ultratypes.h"
 
 extern u8 D_8007A2F8;
+extern u8 D_8007A2F0;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002BCC0.s")
 void rumbleRumbles(s32 value) {
@@ -20,7 +21,9 @@ void rumbleRumbles(s32 value) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStart.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStop.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleKill.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleUpdate.s")
+void rumbleUpdate(void) {
+    D_8007A2F0 = 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002BF54.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleTick.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C5F4.s")
