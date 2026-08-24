@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 268148,
-  "nonmatching_overlay_c_bytes": 8452,
+  "matched_overlay_c_bytes": 265508,
+  "nonmatching_overlay_c_bytes": 11092,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -5095,7 +5095,7 @@
      "type": "c",
      "source": "overlays/o017/overlay17CalculateEndpoints",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x318",
@@ -5104,7 +5104,7 @@
      "type": "c",
      "source": "overlays/o017/overlay17CreateChain",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x628",
@@ -5122,7 +5122,7 @@
      "type": "c",
      "source": "overlays/o017/overlay17AdvanceChain",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x8B4",
@@ -5131,7 +5131,7 @@
      "type": "c",
      "source": "overlays/o017/overlay17DrawStrip",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     }
    ],
    "bss_size": "0x0",

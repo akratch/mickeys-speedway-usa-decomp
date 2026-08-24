@@ -5698,110 +5698,18 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58FinalizePackedStatus.c.o: POSTPRO
 		0x4C0 1c9aefdde67debfa8947030463e84c10625082bd5188137618e74cb8de39b27d \
 		@config/normalizations/overlay58FinalizePackedStatus.ops && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17CalculateEndpoints.c.o: \
-	config/normalizations/overlay17CalculateEndpoints.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17CalculateEndpoints.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x318 dd9d1eee3f8e2d2cef8ad3543c188f0ca2e6115dce5a01f6f023b2cf107509aa \
-		@config/normalizations/overlay17CalculateEndpoints.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x108:overlay17SqrtReloc:overlay17TransformReloc && \
-	$(OBJCOPY) --redefine-sym \
-		overlay17TransformReloc=func_overlay_017_F0000000_18739B8 $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_017_F0000000_18739B8=overlay17CalculateEndpoints $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x318
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17CreateChain.c.o: \
-	config/normalizations/overlay17CreateChain.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17CreateChain.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x310 46372736806a2433adde61c1a5ba86787af17f3014c58b1df88aab7c6838e118 \
-		@config/normalizations/overlay17CreateChain.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0xbc:5:gOverlay17TemplateReloc \
-		0xc8:6:gOverlay17TemplateReloc
+	$(OBJCOPY) --redefine-sym func_overlay_017_F0000318_1873CD0=overlay17CreateChain $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17ReleaseChain.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x40
-# The typed chain update is naturally exact from +0x104 onward.  This guarded
-# ledger selects the complete private pre-call copy/schedule/register web while
-# preserving the exact frame, call, relocation, CFG, and memory effects.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17AdvanceChain.c.o: \
-	config/normalizations/overlay17AdvanceChain.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17AdvanceChain.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x24C 9fd1ba4bc365994bede02dbd38aafbca1d3af31bf6fbb73efec1c76ee92e5bf5 \
-		@config/normalizations/overlay17AdvanceChain.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_017_F0000668_1874020=overlay17AdvanceChain $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x24C
-# Natural IDO output has the exact 119-instruction CFG, calls, memory effects,
-# and delay slots.  The guarded transform selects retail's equivalent register
-# web and redundant-move schedule; the digest rejects any compiler drift.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17DrawStrip.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1DC 281eb4cb4086e40a6b5e868f8e17a7ec6cabe46c7449ccff83e3cc5b2389f69a \
-		reorder:0x48=0x4c,0x4c=0x48,0x50=0x64,0x54=0x58,0x58=0x60,0x5c=0x50,0x60=0x68,0x64=0x6c,0x68=0x74,0x6c=0x70,0x70=0x78,0x74=0x54,0x78=0x7c,0x7c=0x80,0x80=0x84,0x84=0x88,0x88=0x8c,0x8c=0x94,0x90=0x5c,0x94=0x90 \
-		fields:0x0:imm=65472@65480 \
-		fields:0x48:rt=a0@v0 \
-		fields:0x50:rt=t6@t7 \
-		fields:0x54:rs=a0@v0,rt=t8@t6 \
-		fields:0x58:rt=t8@t6 \
-		fields:0x5c:rt=t9@t8 \
-		fields:0x60:rs=a0@v0,rt=t9@t8 \
-		fields:0x64:rs=a0@v0,rt=t6@t7 \
-		fields:0x6c:rt=t7@t9 \
-		fields:0x70:rd=v1@a0 \
-		fields:0x74:rs=zero@t3,rt=t5@zero,rd=t6@v1,sa=24@0,fn=0@37 \
-		fields:0x78:rt=t7@t9,rd=t8@t6 \
-		fields:0x7c:rt=t8@t6,rd=t9@t7 \
-		fields:0x80:rs=t9@t7 \
-		fields:0x90:rs=zero@v0,rt=t6@zero,rd=t5@a1,sa=24@0,fn=3@37 \
-		fields:0x94:imm=70@69 \
-		fields:0xb8:rt=t6@t8 \
-		fields:0xbc:rs=t6@t8 \
-		fields:0xd4:rs=v1@a0 \
-		fields:0xdc:rs=v1@a0 \
-		fields:0x100:rs=t1@t3 \
-		fields:0x110:rd=a2@a1 \
-		fields:0x114:rs=a2@a1,rt=t8@t6 \
-		fields:0x11c:rt=t8@t6,rd=t9@t7 \
-		fields:0x120:rt=t7@t9 \
-		fields:0x124:rt=t7@t9 \
-		fields:0x128:rs=t9@t7,rt=t6@t8 \
-		fields:0x12c:rt=t6@t8,rd=t7@t9 \
-		fields:0x130:rd=t9@t7 \
-		fields:0x134:rt=t9@t7,rd=t6@t8 \
-		fields:0x138:rs=t7@t9,rd=t8@t6 \
-		fields:0x13c:rs=t6@t8,rt=t7@t9 \
-		fields:0x140:rs=t7@t9,rt=t9@t7 \
-		fields:0x144:rs=t8@t6,rt=t9@t7,rd=t6@t8 \
-		fields:0x148:rt=t6@t8 \
-		fields:0x14c:rt=a2@a1 \
-		fields:0x154:rt=t8@t6 \
-		fields:0x158:rt=t8@t6,rd=t9@t7 \
-		fields:0x15c:rt=t7@t9 \
-		fields:0x160:rt=t7@t9 \
-		fields:0x164:rs=t9@t7,rd=t6@t8 \
-		fields:0x168:rs=t6@t8,rt=t7@t9 \
-		fields:0x16c:rt=t7@t9,rd=t8@t6 \
-		fields:0x170:rt=t6@t8 \
-		fields:0x174:rt=t6@t8,rd=t7@t9 \
-		fields:0x178:rs=t8@t6,rd=t9@t7 \
-		fields:0x17c:rs=t7@t9,rt=t8@t6 \
-		fields:0x180:rs=t9@t7,rt=t8@t6,rd=t6@t8 \
-		fields:0x184:rt=t6@t8 \
-		fields:0x188:rt=t7@t9 \
-		fields:0x190:rs=t7@t9,rd=t9@t7 \
-		fields:0x194:rt=t9@t7 \
-		fields:0x19c:rs=t3@t1,rd=v0@a0 \
-		fields:0x1ac:rt=v1@v0 \
-		fields:0x1b0:rt=t6@t8 \
-		fields:0x1b4:rs=v1@v0,rt=t8@t6 \
-		fields:0x1b8:rt=t8@t6 \
-		fields:0x1bc:rs=v1@v0 \
-		fields:0x1c0:rs=v1@v0,rt=t6@t8 \
-		fields:0x1d8:imm=64@56 && \
+	$(OBJCOPY) --redefine-sym func_overlay_017_F00008B4_187426C=overlay17DrawStrip $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1DC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58

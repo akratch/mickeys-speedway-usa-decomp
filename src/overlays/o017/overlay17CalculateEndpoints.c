@@ -31,6 +31,7 @@ extern void overlay17TransformReloc(
     s32 mode, Overlay17Transform *transform, f32 *source, f32 *destination);
 extern f32 overlay17SqrtReloc(f32 value);
 
+#ifdef NON_MATCHING
 void overlay17CalculateEndpoints(
     Overlay17ChainHead *chain, f32 *outX0, f32 *outY0, f32 *outZ0,
     f32 *outX1, f32 *outY1, f32 *outZ1) {
@@ -110,3 +111,6 @@ void overlay17CalculateEndpoints(
     *outY1 = points[4];
     *outZ1 = points[5];
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o017/overlay17CalculateEndpoints/func_overlay_017_F0000000_18739B8.s")
+#endif
