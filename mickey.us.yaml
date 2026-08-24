@@ -146,7 +146,12 @@ segments:
       - [0x4F40, asm]
       - [0xC950, asm]
       - [0x16140, asm]
-      - [0x18FF0, asm]
+      # JFG's shadows_214A0 -> lights boundary is reproduced here at the end
+      # of Mickey's shadowMakeYs. The four shadows functions use odd FP
+      # registers and remain assembly (docs/modules.md sections 3.4 and 6.2);
+      # the following lights TU has no odd-FP operands and is eligible for C.
+      - [0x18FF0, asm, main/shadows]
+      - [0x19310, c, main/lights]
       - [0x1AE60, asm, main/lights2]
       - [0x1BE50, asm]
       - [0x1C790, asm]
