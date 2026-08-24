@@ -17,7 +17,7 @@
  * Flags: -O2 -mips2 -32, the resident game-code group.
  */
 
-#include "PR/ultratypes.h"
+#include "game/gameVi.h"
 
 extern s32 *D_8007A690[3];
 extern u8 D_8007A1A0;
@@ -44,7 +44,11 @@ s32 viGetVideoMode(void) {
     return D_800D2F98 & 3;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033F5C.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
+s8 viGetWideAdjust(void) {
+    return D_800D2F9A;
+}
+
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
 void viSetWideAdjust(s32 offset) {
     if (offset < -30) {

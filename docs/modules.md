@@ -412,6 +412,12 @@ to choose display dimensions or compare them with a requested mode before
 calling the mode-change routine; this is the exact role of JFG's same-position
 function. Its HI16/LO16 relocation pair and linked bytes are exact.
 
+`viGetWideAdjust` is adopted at tier B with its three-word canonical accessor:
+`frontSetWideAdjust` calls the already tier-A setter, immediately reads this
+value back, and stores it as the front-end's current setting. The getter's
+HI16/LO16 relocation pair and linked bytes are exact. The public declarations
+for the matched named surface now live in `include/game/gameVi.h`.
+
 ---
 
 ## 4. libultra

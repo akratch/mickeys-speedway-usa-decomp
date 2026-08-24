@@ -1465,6 +1465,9 @@ rcpInit = 0x8002F560; // type:func size:0xB8   ROM 0x30160  src/rcpFast3d.c.o  m
 // tier B (JFG): same-address callers use the low mode bits to select display
 // dimensions and to decide whether viChangeMode must run.
 viGetVideoMode = 0x80033F48; // type:func size:0x14 ROM 0x34b48 canonical C, linked byte-identical
+// tier B (JFG): frontSetWideAdjust calls the setter, reads this value back,
+// and stores it as the front-end's current wide-adjust setting.
+viGetWideAdjust = 0x80033F5C; // type:func size:0xC ROM 0x34b5c canonical C, linked byte-identical
 // jfg:src/gameVi.c.o
 viSetWideAdjust = 0x80033F68; // type:func size:0x40   ROM 0x34b68  src/gameVi.c.o  masked=3/16
 viDisplayingScreen0 = 0x80033FEC; // type:func size:0x2C   ROM 0x34bec  src/gameVi.c.o  masked=4/11, canonical C is linked byte-identical
