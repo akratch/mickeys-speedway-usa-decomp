@@ -404,7 +404,7 @@ placeholders are never imported.
 | `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function |
 | `0x80050BF4` | `0x15C` | `animseqInit` | D; 0.753 skeleton similarity |
 | `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained. Matched C: exact 88 B and relocation surface at `-O2 -mips2 -32` |
-| `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group |
+| `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group, adopted name. Matched C: exact 72 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function |
 | `0x80050E9C` | `0x168` | `animseqFreeGroup` | B; same member-cleanup call graph |
 | `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family |

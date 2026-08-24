@@ -12,6 +12,8 @@ extern void *D_8007D6A0;
 extern s8 D_8007D6C0[];
 extern s32 *D_8007D68C;
 extern s32 D_8007D6A4;
+extern void *D_8007D680;
+extern s32 D_8007D688;
 typedef struct AnimPath {
     u8 pad0[0x16];
     u8 flags;
@@ -46,6 +48,9 @@ void animseqUnLockPath(u8 pathIndex);
 u32 func_8005077C(u8 pathIndex);
 void func_80000F74(void *ptr);
 void func_80050D50(void);
+void mmFree(void *ptr);
+void animseqFreeLevelData(void);
+void func_80050E9C(void);
 void func_800534C0(s32 i);
 
 #endif

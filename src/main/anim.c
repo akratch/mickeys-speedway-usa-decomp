@@ -172,7 +172,15 @@ void func_80050D50(void) {
     } while (entry != end);
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050DA8.s")
+void animseqFreeLevelData(void) {
+    if (D_8007D680 != NULL) {
+        mmFree(D_8007D680);
+        D_8007D680 = NULL;
+        D_8007D688 = -1;
+        func_80050E9C();
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050DF0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050E9C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051004.s")
