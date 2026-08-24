@@ -2346,46 +2346,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o080/overlay80UpdateContact.c.o: POSTPROCESS = 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2D0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84CopyPair.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
-# Natural codegen owns the exact CFG, opcode/register/relocation multiset, and
-# FP behavior. A complete guarded frame/spill update and twelve-word
-# post-call permutation selects the shipped private representation.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84AdvanceCurrent.c.o: \
-	config/normalizations/overlay84AdvanceCurrent.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84AdvanceCurrent.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x148 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x148 b8992c05cacd382e56d243defadb07bed2fedb81452769f09b928d38e3ca7060 \
-		@config/normalizations/overlay84AdvanceCurrent.ops
-# The natural object has the exact frame, CFG, opcode/call/FP schedule, and all
-# memory effects. This complete decoded ledger selects retail's equivalent
-# private allocator webs and one unused state-pointer spill slot.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84LoadCurrent.c.o: \
-	config/normalizations/overlay84LoadCurrent.ops
+	$(OBJCOPY) --redefine-sym func_overlay_084_F0000DD0_18D12B0=overlay84AdvanceCurrent $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x148
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84LoadCurrent.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x120 b7de8811d38658d16be513ab475b25409988a0f32c2e2220a34637bfc8e100f7 \
-		@config/normalizations/overlay84LoadCurrent.ops
+	$(OBJCOPY) --redefine-sym func_overlay_084_F0000C9C_18D117C=overlay84LoadCurrent $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84SetBit.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84GetValues.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C
-# IDO naturally reproduces all registers, FP lanes, control flow, and calls.
-# Assert the complete private-frame/selected-value representation before
-# restoring the shipped word-sized home and 0x30-byte frame.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84ActivateCurrent.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x194 87ac5da55e8b23ea2a9f42a737c478716c2b762b1f792a3423dc6b255198ed24 \
-		fields:0x8:imm=65472@65488 \
-		fields:0x18:op=12@0,rt=a2@zero,rd=zero@a2,sa=3@0,fn=63@37 \
-		fields:0x80:imm=52@40 \
-		fields:0x88:op=40@43,imm=39@48 \
-		fields:0x8c:imm=52@40 \
-		fields:0x94:op=36@35,imm=39@48 \
-		fields:0x15c:imm=44@32 \
-		fields:0x168:imm=44@32 \
-		fields:0x188:imm=64@48 && \
+	$(OBJCOPY) --redefine-sym func_overlay_084_F0001060_18D1540=overlay84ActivateCurrent $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84ClearActive.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
@@ -4704,26 +4675,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o016/overlay16ApplyGradient.c.o: POSTPROCESS = 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x244
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84InitState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
-# The natural owner recovers the exact loop, initialization, switch CFG, five
-# calls, and FP behavior. Select the complete private frame/allocation web and
-# a closed five-instruction schedule, then bind the five calls to their shipped
-# resident or overlay-local identities.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84InitializeAndUpdate.c.o: \
-	config/normalizations/overlay84InitializeAndUpdate.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84InitializeAndUpdate.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x2CC c72042be3d18284708ca2b10269ea50b71eb9bcfa6e4414f48bb8943bb6ad1a2 \
-		@config/normalizations/overlay84InitializeAndUpdate.ops && \
-	$(OBJCOPY) \
-		--redefine-sym overlay84GetNodes=func_overlay_084_F0000000_18D04E0 \
-		--redefine-sym overlay84RefreshCurrent=func_overlay_084_F0000B7C_18D105C \
-		--redefine-sym overlay84UpdateCurrent=func_overlay_084_F0000314_18D07F4 \
-		--redefine-sym overlay84UpdateResource=func_overlay_084_F0000A54_18D0F34 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x1D0:overlay84Atan2:func_overlay_084_F0000000_18D04E0 && \
+	$(OBJCOPY) --redefine-sym func_overlay_084_F0000048_18D0528=overlay84InitializeAndUpdate $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2CC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84GetActive.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x28
