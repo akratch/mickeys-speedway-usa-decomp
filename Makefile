@@ -4610,112 +4610,33 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68FinishEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x34
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68StartTimer.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
-# Natural codegen has exact size, opcodes, calls, copy loop, and data roles.
-# This complete ledger selects retail's private frame, owner precolor, spill
-# web, and equivalent branch-likely null exit.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68PromoteSecondary.c.o: \
-	config/normalizations/overlay68PromoteSecondary.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68PromoteSecondary.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x134 fafb9f7f98cc195d6c8f8cb3c7a41c25d21e71052fdf6bcf0af9ba0efb2a4a66 \
-		@config/normalizations/overlay68PromoteSecondary.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_068_F000051C_18C767C=overlay68PromoteSecondary $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x134
-# IDO emits the complete interpolation body followed by three alignment NOPs.
-# Prove and adopt that full owner, then apply its complete schedule/FP web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68Interpolate.c.o: \
-	config/normalizations/overlay68Interpolate.ops \
-	$(TOOLS_DIR)/extend_elf_function_to_text.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68Interpolate.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/extend_elf_function_to_text.py $@ \
-		overlay68Interpolate 0x284 0x290 \
-		b47465737613f5ed72e307b277b8fa93f9537c5c53b16b80e50c0ae30a8d5671 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x290 1f78119c6e5c9e039c4b62a5b9ce725dca2c76de4d836a3dbfd71d8843bfe7fa \
-		@config/normalizations/overlay68Interpolate.ops
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_068_F0000650_18C77B0=overlay68Interpolate $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x290
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68InitializeObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
-# Natural source owns the exact frame, boundary, CFG, calls, and runtime
-# relocation sites. The complete decoded-field ledger selects retail's
-# equivalent private allocation; the call-symbol fold and four-record filter
-# are asserted metadata transforms for relocation ownership already preserved
-# by the shipped overlay tables.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68UpdateAnimation.c.o: \
-	config/normalizations/overlay68UpdateAnimation.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68UpdateAnimation.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x590 47bef232fa52b1c315950abfbce6cbb2d4bffa828e393fec9409965c59d015e4 \
-		@config/normalizations/overlay68UpdateAnimation.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x480:overlay68Angle2Reloc:overlay68Angle3Reloc \
-		0x494:overlay68AngleDifferenceReloc:overlay68Angle3Reloc \
-		0x550:overlay68SetDirectionReloc:overlay68Angle3Reloc \
-		0x578:overlay68AdvanceObjectReloc:overlay68Angle3Reloc && \
 	$(OBJCOPY) --redefine-sym \
-		overlay68Angle3Reloc=func_overlay_068_F0000000_18C7160 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x4:5:gOverlay68GlobalFlagReloc \
-		0x8:6:gOverlay68GlobalFlagReloc \
-		0x4b0:5:gOverlay68GlobalFlagReloc \
-		0x4b4:6:gOverlay68GlobalFlagReloc && \
+		func_overlay_068_F000096C_18C7ACC=overlay68UpdateAnimation $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x590
-# Natural source supplies the exact boundary, CFG, memory effects, call count,
-# runtime relocation sites, and stack-array layout. The reviewed schedule
-# permutations preserve the peeled adjacent swap and move the prepare call with
-# its relocation; the decoded-field ledger selects retail's equivalent private
-# register and stack homes.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68DrawSortedEntries.c.o: \
-	config/normalizations/overlay68DrawSortedEntries.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68DrawSortedEntries.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x354 c18d9d92f517f3e0773420470978c3b973bb4ace3c52da97470e0394dd24a717 \
-		@config/normalizations/overlay68DrawSortedEntries.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x248:overlay68PrepareDrawReloc:overlay68MeasureVectorReloc \
-		0x310:overlay68SubmitEntryReloc:overlay68MeasureVectorReloc && \
 	$(OBJCOPY) --redefine-sym \
-		overlay68MeasureVectorReloc=func_overlay_068_F0000000_18C7160 $@ && \
+		func_overlay_068_F0000EFC_18C805C=overlay68DrawSortedEntries $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x354
-# Natural codegen is exact in boundary, frame, opcode schedule, calls, and
-# relocation positions. This complete ledger selects the retail private stack
-# and register homes, then the trimmer removes compiler section alignment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68RebuildSecondaryEntry.c.o: \
-	config/normalizations/overlay68RebuildSecondaryEntry.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68RebuildSecondaryEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1E8 b5559458459d8bb9b7d681a504b4a08f376f284327ba73e0e5e2b2c40f6c9cdd \
-		@config/normalizations/overlay68RebuildSecondaryEntry.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_068_F0001250_18C83B0=overlay68RebuildSecondaryEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1E8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68ReleaseTertiary.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x34
-# The natural object is exact in size, frame, CFG, calls, and relocation
-# positions. These asserted words select the shipped private stack homes, one
-# equal table-loop comparison order, one complete cursor/fallback schedule,
-# and the complete dependent temp/result webs; observable values and effects
-# are unchanged.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68CheckKind.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x140 8440b1fb0117a7ff680a82b6844372516cefa33e00b32555666201bdde86324b \
-		fields:0x14:imm=32@52 \
-		fields:0x50:rs=v1@a1,rt=a1@v1 \
-		fields:0x68:imm=48@68 \
-		fields:0x6c:imm=48@68 \
-		fields:0x90:imm=60@44 \
-		fields:0x9c:imm=56@36 \
-		fields:0xa8:imm=56@36 \
-		fields:0xbc:imm=60@44 \
-		fields:0xc0:op=9@0,rt=t7@zero,rd=zero@t4,sa=0@1,fn=1@0 \
-		fields:0xcc:op=0@9,rs=a1@zero,rt=zero@t8,rd=v1@zero,fn=37@1 \
-		fields:0xd0:op=21@5,imm=3@2 \
-		fields:0xd4:op=35@0,rt=t3@t4,rd=zero@v1,fn=16@33 \
-		fields:0x100:rd=t4@t5 \
-		fields:0x104:rt=t4@t5,rd=t5@t6 \
-		fields:0x108:rs=t5@t6,rt=t6@t7 \
-		fields:0x10c:rs=t6@t7 \
-		fields:0x120:rt=t7@t8,imm=32@52 \
-		fields:0x130:imm=32@52 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_068_F000146C_18C85CC=overlay68CheckKind $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x140
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2Enable.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20

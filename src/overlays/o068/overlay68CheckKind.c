@@ -30,6 +30,7 @@ extern Overlay68ResidentEntry *overlay68GetResidentEntriesReloc(void);
 extern s32 overlay68MapResidentIndexReloc(s32 kind);
 extern void overlay68FreeProbeReloc(void *probe);
 
+#ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {
     const Overlay68KindPair *mapping;
     volatile const s8 *loopMapping;
@@ -95,3 +96,6 @@ s32 overlay68CheckKind(s32 kind) {
 
     return result;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68CheckKind/func_overlay_068_F000146C_18C85CC.s")
+#endif

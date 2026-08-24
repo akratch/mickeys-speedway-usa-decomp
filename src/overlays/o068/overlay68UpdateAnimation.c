@@ -70,6 +70,7 @@ extern void overlay68AdvanceObjectReloc(Overlay68Object *object, f32 scale,
 extern s32 gOverlay68GlobalFlagReloc;
 #define OVERLAY68_GLOBAL_FLAG gOverlay68GlobalFlagReloc
 
+#ifdef NON_MATCHING
 void overlay68UpdateAnimation(Overlay68Object *object, s32 updateRate) {
     s32 atStart;
     f32 tangentX;
@@ -210,3 +211,6 @@ void overlay68UpdateAnimation(Overlay68Object *object, s32 updateRate) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68UpdateAnimation/func_overlay_068_F000096C_18C7ACC.s")
+#endif

@@ -1,5 +1,6 @@
 #include "PR/ultratypes.h"
 
+#ifdef NON_MATCHING
 f32 overlay68Interpolate(
     f32 weight,
     s32 previous,
@@ -80,3 +81,6 @@ f32 overlay68Interpolate(
         (-0.5f * fFollowing))) * weight) +
         (first + (0.5f * fNext))) * weight) + fCurrent;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68Interpolate/func_overlay_068_F0000650_18C77B0.s")
+#endif
