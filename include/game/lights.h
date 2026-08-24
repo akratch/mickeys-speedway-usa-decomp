@@ -28,5 +28,6 @@ void changeLightColour(UnkLight *light, u8 red, u8 green, u8 blue);
 void changeLightColourCycle(s32 arg0, s32 arg1);
 void changeLightIntensity(UnkLight *light, u8 intensity);
 void **lightGetLights(s32 *count);
+f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6);
 
 #endif

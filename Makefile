@@ -659,6 +659,8 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ldiv.c.o: CFLAGS += -Xphase,cfe,-O3 \
 # findings above stay untouched and so the claim stays exactly as wide as the
 # evidence. Widen it when the next game module is measured, not before.
 $(BUILD_DIR)/$(SRC_DIR)/main/%.c.o: MIPSISET := -mips2 -32
+# Both measured FP helpers in this TU require the R4300 multiply schedule.
+$(BUILD_DIR)/$(SRC_DIR)/main/lights.c.o: CFLAGS += -Wab,-r4300_mul
 
 # Overlay game code is likewise MIPS II. Every adopted tranche-A object was
 # compared instruction-for-instruction at this ISA level before joining this

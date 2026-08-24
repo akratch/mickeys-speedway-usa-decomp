@@ -12,7 +12,7 @@
  * docs/CLEANROOM.md. Mickey's own bytes decide every body and name adoption;
  * the unresolved functions below therefore retain their Mickey func_ names.
  *
- * Flags: -O2 -mips2 -32 (the resident game-code flag group).
+ * Flags: -O2 -mips2 -32 -Wab,-r4300_mul (measured on the FP helpers).
  */
 
 #include "PR/ultratypes.h"
@@ -71,7 +71,22 @@ void **lightGetLights(s32 *count) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019494.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001953C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019934.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019A24.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6) {
+    f32 temp_f0;
+    f32 var_f2;
+
+    if (arg6 > 0.0f) {
+        temp_f0 = 1.0f / arg6;
+        var_f2 = (arg3 * temp_f0 * arg0) + (arg4 * temp_f0 * arg1) + (arg5 * temp_f0 * arg2);
+        if (var_f2 < 0.0f) {
+            var_f2 = 0.0f;
+        }
+    } else {
+        var_f2 = 1.0f;
+    }
+    return var_f2;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019AB8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019D98.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019DE8.s")
