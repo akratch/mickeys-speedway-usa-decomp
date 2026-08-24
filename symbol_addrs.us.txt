@@ -1528,5 +1528,5 @@ camInit = 0x800212E0; // type:func size:0x158 ROM 0x21ee0 tier-B similar-jfg-cam
 camUseShake = 0x80021484; // type:func size:0x10 ROM 0x22084 tier-B JFG role/order and state effect
 camOverrideProjScales = 0x800214E4; // type:func size:0x20 ROM 0x220e4 tier-B matched-C, donor comparison has only 2 unmasked words
 camGetProjOrgMtx = 0x80024670; // type:func size:0x1C ROM 0x25270 tier-B matched-C, donor comparison has only 3 unmasked words
-camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B similar-jfg-camStopShakes=1.000
+camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B matched-C similar-jfg-camStopShakes=1.000
 camSetZoom = 0x80024CC8; // type:func size:0x38 ROM 0x258c8 tier-B matched-C similar-jfg-camSetZoom=1.000

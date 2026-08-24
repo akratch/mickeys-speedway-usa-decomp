@@ -25,6 +25,22 @@ typedef union {
     s64 force_structure_alignment;
 } Mtx;
 
+typedef struct {
+    u8 pad0[0x30];
+    f32 shakeX;
+    f32 shakeY;
+    f32 shakeZ;
+    u8 pad3C[0x18];
+} Camera;
+
+typedef struct {
+    s16 attackEnd;
+    s16 sustainEnd;
+    s16 totalEnd;
+    s16 timer;
+    s32 magnitude;
+} CameraShake;
+
 extern u8 D_80079F94;
 extern u8 D_80079FA0[];
 extern s32 D_800CEC84;
@@ -36,6 +52,8 @@ extern f32 D_80079FB0[];
 extern Mtx D_800CED60[];
 extern MtxF D_800CEC98;
 extern MtxF D_800CF1A0;
+extern Camera D_800CEA20[];
+extern CameraShake D_800CEC18[];
 
 void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
 
@@ -128,7 +146,24 @@ Mtx *camGetProjOrgMtx(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024938.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024978.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024AC4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camStopShakes.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStopShakes. */
+void camStopShakes(void) {
+    s32 i;
+    Camera *cam;
+    CameraShake *shake;
+
+    D_800CEC84 = 0;
+    cam = D_800CEA20;
+    shake = D_800CEC18;
+
+    /* IDO: line-join preserves the target store/increment schedule. */
+    for (i = 6; i--; cam++, shake++) { \
+        cam->shakeX = 0.0f; \
+        cam->shakeY = 0.0f; \
+        cam->shakeZ = 0.0f; \
+        shake->magnitude = 0; \
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024BA0.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetZoom. */
 void camSetZoom(s32 camNo, f32 zoom) {
