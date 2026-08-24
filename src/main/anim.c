@@ -15,6 +15,37 @@
 #include "PR/ultratypes.h"
 #include "game/anim.h"
 
+extern s32 D_8007D690;
+extern void *D_8007D694;
+extern s32 D_8007D6B0;
+extern s32 D_8007D684;
+extern u8 D_800D6B08[];
+extern u32 *D_800D6B04;
+extern u8 D_800D6BF8[];
+extern u8 D_800D6C38[];
+extern s16 D_800D6C3E;
+extern s16 D_800D6C44;
+extern s32 D_800D6C48;
+extern s16 D_800D6C4C;
+extern s16 D_800D6C52;
+extern s16 D_800D6C54;
+
+typedef struct AnimLightReset {
+    s32 unk0;
+    u8 pad4[0xC];
+    s32 unk10;
+    u8 pad14[0xC];
+    s32 unk20;
+    u8 pad24[0xC];
+    s32 unk30;
+    u8 pad34[0xC];
+} AnimLightReset;
+
+extern AnimLightReset D_800D6C58[];
+
+void *func_8002B280();
+void func_8002E2E0();
+
 /*
  * PROVENANCE: adapted from JFG's func_80076020_76C20. Mickey's globals and
  * final compiler output are independently established from Mickey's ROM.
@@ -303,7 +334,76 @@ void func_80050DF0(s32 levelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050DF0.s")
 #endif
+/*
+ * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
+ * boundaries, calls, scheduling, and final compiler output remain authoritative.
+ */
+#ifdef NON_MATCHING
+void func_80050E9C(void) {
+    s32 emptyIndex;
+    u8 *entry;
+    AnimLightReset *light;
+    s32 pathIndex;
+
+    if (D_8007D68C != NULL) {
+        if (D_8007D694 != NULL) {
+            mmFree(D_8007D68C);
+            D_8007D694 = NULL;
+        }
+        emptyIndex = -1;
+        D_8007D68C = NULL;
+        D_8007D690 = emptyIndex;
+        func_8005017C();
+
+        pathIndex = 0;
+        do {
+            func_800502CC((u8) pathIndex);
+            pathIndex++;
+        } while ((pathIndex < 0x100) != 0);
+
+        entry = D_800D6B08;
+        do {
+            *(s32 *) entry = 0;
+            entry += 4;
+        } while (entry < (u8 *) D_800D6B18);
+
+        entry = (u8 *) D_800D6B58;
+        do {
+            entry[0] = 0xFF;
+            *(s32 *) (entry + 4) = 0;
+            *(s32 *) (entry + 0xC) = 0;
+            entry += 0x14;
+        } while (entry < D_800D6BF8);
+
+        entry = D_800D6BF8;
+        do {
+            entry[0] = emptyIndex;
+            entry += 8;
+        } while (entry < D_800D6C38);
+
+        D_8007D6B0 = 0;
+        light = D_800D6C58;
+        do {
+            light->unk0 = 0;
+            light->unk10 = 0;
+            light->unk20 = 0;
+            light->unk30 = 0;
+            light++;
+        } while (light != (AnimLightReset *) D_800D6D18);
+
+        D_800D6C3E = 0;
+        D_800D6C44 = 0;
+        D_800D6C48 = 0;
+        D_800D6C52 = 0xFF;
+        D_800D6C54 = D_800D6C52;
+        D_800D6C4C = 0;
+        func_80050D50();
+        func_800534C0();
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050E9C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051004.s")
 /* Exact JFG donor assembly corroborates the loop; C is Mickey-led. */
 void animseqInitGroup(void) {

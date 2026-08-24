@@ -643,6 +643,11 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ldiv.c.o: CFLAGS += -Xphase,cfe,-O3 \
 # evidence. Widen it when the next game module is measured, not before.
 $(BUILD_DIR)/$(SRC_DIR)/main/%.c.o: MIPSISET := -mips2 -32
 
+# The resident animation TU's reset loops use IDO's non-unrolled form. The
+# canonical setting otherwise expands the 0x40-byte light-record reset by four;
+# the flag lattice selects this setting before any source permutation.
+$(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
+
 # Overlay game code is likewise MIPS II. Every adopted tranche-A object was
 # compared instruction-for-instruction at this ISA level before joining this
 # rule; MIPS I inserts load-delay nops in several of them.

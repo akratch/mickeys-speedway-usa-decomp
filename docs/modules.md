@@ -406,7 +406,7 @@ placeholders are never imported.
 | `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained. Matched C: exact 88 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group, adopted name. Matched C: exact 72 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function, placeholder retained. Plateau after 10 variants: exact size, opcode schedule, and relocations; 7 operand/register words remain from a three-temporary FIFO rotation and the source stack home at candidate `+0x18` versus target `+0x1C`, first mismatch `+0x28` |
-| `0x80050E9C` | `0x168` | `animseqFreeGroup` | B; same member-cleanup call graph |
+| `0x80050E9C` | `0x168` | `animseqFreeGroup` | B; same member-cleanup call graph. Plateau after 10 variants: best candidate has the exact `0x20` frame and first 25 instructions, then differs at `+0x64` on the `slti` destination and is one instruction short because IDO reuses the preceding `D_800D6BF8` address where the target rematerializes it; `-Wo,-loopunroll,0` is required to avoid a 25-instruction unroll expansion |
 | `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family |
 | `0x800510E8` | `0x40` | `animseqInitGroup` | A; exact 64 B, masked `1/16`, adopted name. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80051128` | `0x9C` | `animseqResetGroup` | B; calls reset-path family, adopted name. Matched C: exact 156 B and relocation surface at `-O2 -mips2 -32` |
