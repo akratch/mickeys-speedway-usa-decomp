@@ -227,7 +227,7 @@ segments:
       - [0x62670, c, libultra/sl]
       - [0x626F0, asm, libultra/n_synthesizer]
       - [0x631C0, c, libultra/cents2ratio]
-      - [0x63260, asm, libultra/alsurround]
+      - [0x63260, c, libultra/alsurround]
       - [0x63470, asm, libultra/n_event]
       - [0x63AD0, c, libultra/n_synaddplayer]
       - [0x63C20, c, libultra/n_synallocvoice]
@@ -535,6 +535,10 @@ segments:
       - [0x85700, rodata]
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }
+      # Mickey's alSurround loads/stores place the four donor-named globals at
+      # 0x800D7DC0-0x800D7DCB; IDO pads the owning .bss section to 0x10 bytes.
+      - { type: .bss, vram: 0x800D7DC0, name: libultra/alsurround }
+      - { type: bss, vram: 0x800D7DD0, name: bss_gap_D800D7DD0 }
       - { type: .bss, vram: 0x800D8070, name: libultra/seteventmesg }
       - { type: bss, vram: 0x800D80F0, name: bss_gap_D800D80F0 }
       - { type: .bss, vram: 0x800D8180, name: libultra/vimgr }

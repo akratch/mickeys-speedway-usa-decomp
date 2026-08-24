@@ -1082,6 +1082,12 @@ alCents2Ratio = 0x800625C0; // type:func size:0xA0
 //   same bytes in: conker,jfg,perfect_dark
 alSurround_OutputType = 0x80062660; // type:func size:0xD4
 alSurround_ReverbSetup = 0x80062734; // type:func size:0x13C
+// BSS ownership: direct HI16/LO16 references in Mickey's linked alSurround
+// functions place the donor-named globals at 0x800D7DC0 in declaration order.
+D_80105010_B1750 = 0x800D7DC0; // type:u32 size:0x4
+D_80105014_B1754 = 0x800D7DC4; // type:u8 size:0x2
+D_80105016_B1756 = 0x800D7DC6; // type:u8 size:0x2
+D_80105018_B1758 = 0x800D7DC8; // type:u8 size:0x4
 // libultra/n_event  ROM 0x63470  (jfg/libultra: src/libultra/n_event.c.o)  whole .text 0x660, masked=34, romocc=1
 n_alEvtqNew = 0x80062870; // type:func size:0xAC
 n_alEvtqNextEvent = 0x8006291C; // type:func size:0xB4
