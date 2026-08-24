@@ -384,6 +384,7 @@ Matched C bodies in these new TUs:
 | `amAmbientResetFade` | `0x142C` / `0xC` | **tier B**: exact JFG routine order and the adjacent ambient-fade controller role | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
 | `amTuneMuteChl` | `0x17E8` / `0x8` | **tier B**: exact JFG routine order between the channel-mask setter and its paired unmute leaf | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
 | `amTuneUnmuteChl` | `0x17F0` / `0x8` | **tier B**: exact JFG routine order immediately after its paired mute leaf | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
+| `amTuneSetChlVolume` | `0x17F8` / `0x40` | **tier B**: JFG routine order and exact channel-bound/call role; its 1.000 skeleton is ambiguous with DKR's pan/volume/fade wrappers and is not tier A | IDO 5.3, `-O2 -mips2 -32`; exact 16 object words and both data/call relocation identities |
 | `amSndSetPan` | `0x1E04` / `0x28` | existing **tier A** JFG byte identity | IDO 5.3, `-O2 -mips2 -32`; exact object words and relocation identity |
 | `forcelink` | `0x2298` / `0x30` | existing **tier A** JFG byte identity | IDO 5.3, `-O2 -mips2 -32`; exact object words and both call relocations |
 | `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |

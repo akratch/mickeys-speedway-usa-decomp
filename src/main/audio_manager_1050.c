@@ -18,9 +18,11 @@
 
 extern s32 D_80078D7C;
 extern s32 D_80078D80;
+extern void *D_80078D60;
 extern u8 D_800BF794;
 extern u8 *D_800BF7A4;
 extern void gsSndpSetParam(void *sound, s16 type, u32 value);
+extern void n_alCSPSetChlVol(void *player, u8 channel, u8 volume);
 extern void n_alCSPNew(void *player, void *config);
 extern void n_alCSPSetMessageQ(void *player, void *queue);
 extern void func_800005CC(f32 fade, s32 volume);
@@ -70,7 +72,12 @@ void amTuneMuteChl(s32 channel) {
 /* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
 void amTuneUnmuteChl(s32 channel) {
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000BF8.s")
+/* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
+void amTuneSetChlVolume(u8 channel, u8 volume) {
+    if (channel < 16) {
+        n_alCSPSetChlVol(D_80078D60, channel, volume);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000C38.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000C9C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000CEC.s")

@@ -1396,6 +1396,7 @@ amTuneResetFade = 0x80000730; // type:func size:0xC ROM 0x1330 tier B (JFG role/
 amAmbientResetFade = 0x8000082C; // type:func size:0xC ROM 0x142c tier B (JFG role/order)
 amTuneMuteChl = 0x80000BE8; // type:func size:0x8 ROM 0x17e8 tier B (JFG role/order)
 amTuneUnmuteChl = 0x80000BF0; // type:func size:0x8 ROM 0x17f0 tier B (JFG role/order)
+amTuneSetChlVolume = 0x80000BF8; // type:func size:0x40 ROM 0x17f8 tier B (JFG role/order, ambiguous skeleton)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
