@@ -25,11 +25,13 @@ typedef union {
 } Mtx;
 
 extern u8 D_80079F94;
+extern u8 D_80079FA0[];
 extern s32 D_800CEC84;
 extern s32 D_800CEC88;
 extern f32 D_800CEC8C;
 extern f32 D_800CEC90;
 extern u8 D_80079FA8[];
+extern f32 D_80079FB0[];
 extern Mtx D_800CED60[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
@@ -117,6 +119,12 @@ Mtx *camGetProjOrgMtx(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024AC4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camStopShakes.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024BA0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camSetZoom.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetZoom. */
+void camSetZoom(s32 camNo, f32 zoom) {
+    if ((camNo >= 0) && (camNo < 6)) {
+        D_80079FA0[camNo] = 1;
+        D_80079FB0[camNo] = zoom;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024D00.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024ED8.s")

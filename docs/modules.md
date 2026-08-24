@@ -395,6 +395,7 @@ functions is classified as handwritten assembly under §6.2.
 | `camOverrideProjScales` | `0x220E4` | 32 | Configured object, six relocations, linked range and full ROM exact. |
 | `camSetWaterLine` | `0x225B0` | 32 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camGetProjOrgMtx` | `0x25270` | 28 | Configured object, two relocation pairs, linked range and full ROM exact. |
+| `camSetZoom` | `0x258C8` | 56 | Configured object, two relocation pairs, linked range and full ROM exact. |
 
 ---
 
