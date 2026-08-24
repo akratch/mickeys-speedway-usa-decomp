@@ -17,6 +17,7 @@
  */
 
 #include "game/font.h"
+#include "n_audio/mbi.h"
 
 typedef struct FontSpacingData {
     u8 unused0;
@@ -25,6 +26,14 @@ typedef struct FontSpacingData {
     u8 height;
     u8 pad4[0x10];
 } FontSpacingData;
+
+typedef struct FontTextureHeader {
+    u8 width;
+    u8 height;
+    u8 pad2[8];
+    u16 format;
+    Gfx *displayList[2];
+} FontTextureHeader;
 
 extern DialogueTextElement D_800D60E8[32];
 extern DialogueBoxBackground D_800D64E8[];
@@ -37,6 +46,12 @@ extern u8 D_800D60E0;
 extern FontSpacingData *D_800D60E4;
 extern char *D_800D6640;
 extern u8 D_800D664D;
+extern u32 D_800D6638;
+extern Gfx D_8007D4C8[];
+extern Gfx D_8007D4E8[];
+extern Gfx D_8007D508[];
+
+void *func_8002B280(s32 size, s32 tag);
 
 void func_8004B13C(void **displayList, s32 windowId, s32 xpos, s32 ypos,
                    char *text, s32 alignmentFlags);
@@ -336,7 +351,103 @@ void func_8004C5A4(char *input, char *output, s32 number) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C690.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004C8D8.s")
+void func_8004C8D8(FontTextureHeader *texture, s32 unused) {
+    Gfx *displayList;
+    Gfx *state;
+    s32 i;
+
+    texture->displayList[0] = func_8002B280(0x100, 0x86);
+    texture->displayList[1] = texture->displayList[0] + 16;
+
+    for (i = 0; i < 2; i++) {
+        displayList = texture->displayList[i];
+        if (displayList != NULL) {
+            state = D_8007D4C8;
+            switch (texture->format) {
+                case 4:
+                    gDPLoadTextureBlockS(displayList++, D_800D6638,
+                                         G_IM_FMT_RGBA, G_IM_SIZ_16b,
+                                         texture->width, texture->height, 0,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         8, 8, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadMultiBlock_4bS(displayList++, D_800D6638, 0x100,
+                                         1, G_IM_FMT_I, texture->width,
+                                         texture->height, 0,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         8, 8, G_TX_NOLOD, G_TX_NOLOD);
+                    state = D_8007D4E8;
+                    break;
+                case 2:
+                    gDPLoadTextureBlockS(displayList++, D_800D6638,
+                                         G_IM_FMT_RGBA, G_IM_SIZ_32b,
+                                         texture->width, texture->height, 0,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         8, 8, G_TX_NOLOD, G_TX_NOLOD);
+                    break;
+                case 3:
+                    gDPLoadTextureBlockS(displayList++, D_800D6638,
+                                         G_IM_FMT_RGBA, G_IM_SIZ_16b,
+                                         texture->width, texture->height, 0,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         8, 8, G_TX_NOLOD, G_TX_NOLOD);
+                    break;
+                case 1:
+                    gDPLoadTextureBlockS(displayList++, D_800D6638,
+                                         G_IM_FMT_IA, G_IM_SIZ_8b,
+                                         texture->width, texture->height, 0,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         8, 8, G_TX_NOLOD, G_TX_NOLOD);
+                    break;
+                case 0:
+                    gDPLoadTextureBlock_4bS(displayList++, D_800D6638,
+                                            G_IM_FMT_IA, texture->width,
+                                            texture->height, 0,
+                                            G_TX_NOMIRROR | G_TX_WRAP,
+                                            G_TX_NOMIRROR | G_TX_WRAP,
+                                            8, 8, G_TX_NOLOD, G_TX_NOLOD);
+                    break;
+                case 5:
+                    gDPLoadTextureBlock_4bS(displayList++, D_800D6638,
+                                            G_IM_FMT_I, texture->width,
+                                            texture->height, 0,
+                                            G_TX_NOMIRROR | G_TX_WRAP,
+                                            G_TX_NOMIRROR | G_TX_WRAP,
+                                            8, 8, G_TX_NOLOD, G_TX_NOLOD);
+                    break;
+                case 6:
+                    gDPLoadTextureBlockS(displayList++, D_800D6638,
+                                         G_IM_FMT_I, G_IM_SIZ_8b,
+                                         texture->width, texture->height, 0,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         G_TX_NOMIRROR | G_TX_WRAP,
+                                         8, 8, G_TX_NOLOD, G_TX_NOLOD);
+                    break;
+                case 7:
+                    gDPLoadTextureBlock_4bS(displayList++, D_800D6638,
+                                            G_IM_FMT_I, texture->width,
+                                            texture->height, 0,
+                                            G_TX_NOMIRROR | G_TX_WRAP,
+                                            G_TX_NOMIRROR | G_TX_WRAP,
+                                            8, 8, G_TX_NOLOD, G_TX_NOLOD);
+                    state = D_8007D508;
+                    break;
+            }
+            if (i == 1) {
+                state += 2;
+            }
+            displayList->words.w0 = state[0].words.w0;
+            displayList->words.w1 = state[0].words.w1;
+            displayList++;
+            displayList->words.w0 = state[1].words.w0;
+            displayList->words.w1 = state[1].words.w1;
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D32C.s")
 #ifdef NON_MATCHING
 void func_8004D39C(char *input, char *output) {

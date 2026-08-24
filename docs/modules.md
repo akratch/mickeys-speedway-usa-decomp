@@ -417,7 +417,7 @@ overlay callers/callees outside the range were observed.
 | `0x4CE00` | `0x3A4` | `func_8004C200` | `fontWindowDraw` | B/D | calls `0x4CD40`, `0x4D1A4`, `0x4BDDC` |
 | `0x4D1A4` | `0xEC` | `func_8004C5A4` | JFG `func_80071A0C` | D, matched C | calls `0x4CC00`; in-range callers |
 | `0x4D290` | `0x248` | `func_8004C690` | JFG `func_80071B08` | D | ext callee; called by `0x4BDDC` |
-| `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D | ext callee |
+| `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D, matched C | ext callee |
 | `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D | leaf; ext caller |
 | `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, plateau | leaf; in-range callers |
 | `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D | leaf |
@@ -1191,11 +1191,11 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 44 jump tables still emitted
+- **rodata order follows text order exactly.** The 37 jump tables still emitted
   in `asm/` are monotonic in both columns, with **zero inversions**. So
   `.rodata` can be carved TU by TU in text order, which is what makes the
-  per-TU split tractable. Five more tables now belong to matched `n_csplayer`
-  C, and one belongs to matched `n_reverb` C.
+  per-TU split tractable. Thirteen more tables now belong to matched C,
+  including five in `n_csplayer`, one in `n_reverb`, and one in `main/font`.
 
 Two toolchain facts govern the per-TU split:
 

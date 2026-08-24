@@ -139,6 +139,10 @@ segments:
     start: 0x1050
     vram: 0x80000450
     follows_vram: entry
+    # func_8004C8D8's compiler-owned jump table begins at the measured
+    # eight-byte boundary 0x80083DF8; forcing 16-byte input-section alignment
+    # moves it and every following resident address by eight bytes.
+    subalign: 0x8
     bss_size: 0x52D10
     subsegments:
       - [0x1050, asm]
@@ -531,12 +535,12 @@ segments:
       # the resident segment. Two things the later per-TU split needs are
       # measured and recorded here:
       #
-      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 44 jump
+      #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. Mapping all 37 jump
       #      tables still emitted in asm/ back to the functions that reference
       #      them gives ROM addresses and jump-table addresses that are both
-      #      monotonically increasing -- ZERO INVERSIONS. Five additional
-      #      tables now belong to matched n_csplayer C, and one belongs to
-      #      matched n_reverb C.
+      #      monotonically increasing -- ZERO INVERSIONS. Thirteen additional
+      #      tables now belong to matched C, including five in n_csplayer,
+      #      one in n_reverb, and one in main/font.
       #      First pair (ROM 0x7D18 -> jtbl_80080D2C), last (ROM 0x72B00 ->
       #      jtbl_80084970). So .rodata can be carved TU by TU in text order,
       #      which is what makes a per-file split tractable at all.
@@ -560,6 +564,10 @@ segments:
       # `enddlabel` as a zero-size label directive, preserving the symbol-size
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
+      # func_8004C8D8's eight-entry texture-format switch table. The following
+      # two zero words are output-section alignment, not owned object bytes.
+      - [0x849F8, .rodata, main/font]
+      - [0x84A18, rodata]
       # Five n_csplayer jump tables, in the same order and with the same
       # 0x300-byte section size as the JFG donor object.
       - [0x85070, .rodata, libultra/n_csplayer]
