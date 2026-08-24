@@ -36,10 +36,22 @@ typedef struct GsSndPlayer {
     s32 curTime;
 } GsSndPlayer;
 
+typedef struct GsSndKeyMap {
+    u8 velocityMin;
+    u8 velocityMax;
+    u8 keyMin;
+} GsSndKeyMap;
+
+typedef struct GsSound {
+    void *envelope;
+    GsSndKeyMap *keyMap;
+} GsSound;
+
 typedef struct GsSoundStateLink {
     struct GsSoundStateLink *next;
     struct GsSoundStateLink *prev;
-    u8 pad8[0x3B];
+    GsSound *sound;
+    u8 padC[0x37];
     u8 flags;
 } GsSoundStateLink;
 
@@ -175,7 +187,28 @@ void gsSndpSetParam(GsSoundStateLink *state, s16 type, u32 value) {
 u16 gsSndpGetMasterVolume(u8 groupID) {
     return D_800D7D78[groupID];
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpSetMasterVolume.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpSetMasterVolume). */
+void gsSndpSetMasterVolume(u8 groupID, u16 volume) {
+    u32 mask;
+    GsSoundStateLink *state;
+    s32 i;
+    GsSndEvent event;
+
+    mask = osSetIntMask(1);
+    state = D_8007FF40;
+    D_800D7D78[groupID] = volume;
+
+    for (i = 0; state != NULL;) {
+        if ((state->sound->keyMap->keyMin & 0x3F) == groupID) {
+            event.type = 0x800;
+            event.state = state;
+            n_alEvtqPostEvent(D_8007FF4C->eventQueue, &event, 0);
+        }
+        i++, state = state->next;
+    }
+
+    osSetIntMask(mask);
+}
 /* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpSetGlobalVolume). */
 void gsSndpSetGlobalVolume(u32 volume) {
     if (volume > 0x100) {
