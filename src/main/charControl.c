@@ -24,10 +24,13 @@
 #include "game/charControl.h"
 
 extern u8 D_80079BF8;
+extern f32 D_80079BD4[];
 extern s16 D_800CB470;
 extern s16 D_800CB472;
 extern s16 D_800CB474;
 extern s16 D_800CB476;
+
+void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BB90.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
@@ -58,7 +61,15 @@ s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
     return (s16) (arg0 + (s32) ((f32) var_v1 * arg2));
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D880.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D910.s")
+/* PROVENANCE -- adapted from JFG's src/charControl.c controlFSUvels. */
+void controlFSUvels(s16 *rotation, ControlPlayer *player) {
+    s16 sp18[3];
+
+    sp18[0] = rotation[0];
+    sp18[1] = rotation[1];
+    sp18[2] = 0;
+    pointListRPY(3, sp18, D_80079BD4, player->unk14);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D960.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001DCD0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001DD70.s")
