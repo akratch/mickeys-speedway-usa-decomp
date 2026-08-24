@@ -453,6 +453,16 @@ five entry words differ starting at `+0x0`: IDO sets up the frame before a
 `$t6` global address, while the target materializes that address in `$v0`
 before the frame. The flag lattice did not change this allocation schedule.
 
+`func_80028FCC` remains assembly after a bounded ten-spelling plateau. Its
+108-byte control flow and masked instruction skeleton identify the tier-B
+`mainAnyoneHas` role (JFG is likewise 108 bytes; masked 4-gram similarity
+0.357), although Mickey passes zero for all three middle arguments. The best
+C candidate is also 108 bytes, with ten differing words beginning at `+0x1c`:
+IDO branches on the raw return and synthesizes one, while the target first
+normalizes each return into successive `$t6`/`$t7`/`$t8` temporaries and moves
+that temporary through a shared epilogue. The full flag lattice did not alter
+the allocation.
+
 **PROVENANCE.** TU identities and adopted function names are adapted from Jet
 Force Gemini's published `src/{joy,level,main}.c` and built
 `src/{controller,level,main}.c.o`, a permitted public retail-derived decomp
