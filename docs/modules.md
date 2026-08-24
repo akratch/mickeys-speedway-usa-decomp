@@ -1418,6 +1418,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 
 31 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
 adopted before this pass; 29 more from it): every masked=0/1/2 TU (the
+40 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 38 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -1448,6 +1450,68 @@ Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
 (masked=13), `n_auxbus` (masked=7),
 `n_load` (masked=4, DSP-heavy ADPCM decoder), and `n_synsetvol`/
 `n_synstartvoiceparam`/`n_synallocvoice` (masked=5) not yet attempted.
+`-DRAREDIFFS` for Rare's added MIDI control-change codes), `n_syngetfxref`,
+`n_synsetvol`, `n_synstartvoiceparam`, `n_synaddplayer`,
+`n_synallocvoice`, `alsurround`, `n_mainbus`, `n_auxbus`, `n_event`,
+`n_synsetfxparam`, `n_load`, `n_alLPFilter`, `n_drvrNew`, `n_synthesizer`,
+`n_env`, and `n_resample`.
+
+`alsurround` also owns a `0x10`-byte `.bss` section at Mickey VRAM
+`0x800D7DC0`: the two linked functions' HI16/LO16 references place its
+four donor-named globals there in declaration order, independently of the
+JFG addresses embedded in their imported identifiers.
+
+`n_event` owns the following `0x10`-byte `.bss` section at VRAM
+`0x800D7DD0`; ten linked HI16/LO16 references independently place its
+external-event clock at the section start.
+
+`n_synsetfxparam` additionally owns the `0x10`-byte `.rodata` island at
+ROM `0x853B0`; separating it from the formerly undifferentiated pool
+places `n_alSynSetOutputLPParam`'s `0.1f` literal at its linked address.
+
+`n_load` is the SDK's n_audio microcode branch (`-DN_MICRO`) and contributes
+three exact functions, `0xB4C` executable bytes, four relocations, and the
+translation unit's final four-byte alignment word. The internal decoder is
+named `_decodeChunk` from the permitted donor source; its three callers retain
+that exact relocation identity.
+
+`n_alLPFilter` owns the `0x10`-byte `.rodata` island at ROM `0x85470`.
+Its two functions contribute `0x41C` executable bytes and 13 relocations; the
+translation unit ends with one separate four-byte alignment word.
+
+`n_drvrNew` uses Rare's per-bus configuration layout (`-DRAREDIFFS`) and
+the R4300 multiply scheduler. Its six functions contribute `0xD0C`
+executable bytes and 34 relocations, followed by one alignment word. The TU
+also owns `0x40` bytes of initialized effect parameters at ROM `0x80D80` and
+the `0x20`-byte constant island at ROM `0x85390`; both sections compare
+directly against their retail ranges.
+
+`n_synthesizer` uses Rare's per-bus effect layout and the n_audio microcode
+ABI (`-DRAREDIFFS -DN_MICRO`). Its nine functions contribute `0xAC8`
+executable bytes and 173 relocations, followed by IDO's eight-byte return-stub
+alignment at `0x800623CC`. The TU also owns `0x10` bytes of initialized
+parameter counters at ROM `0x80D70` and the `0x10`-byte floating-point constant
+island at ROM `0x85370`; both sections compare directly against retail. No
+post-compile insertion is involved.
+
+`n_env` is the SDK's n_audio microcode path (`-DN_MICRO`). Its five functions
+occupy `0xFEC` executable bytes with 59 relocations, followed by one compiler
+alignment word in the `0xFF0`-byte text section. The TU also owns the
+`0x100`-byte equal-power table at ROM `0x80DC0` and a `0x50`-byte switch table
+and constant island at ROM `0x853F0`; the initialized table compares directly
+against retail and the linked rodata is covered by the full-ROM proof.
+
+`n_resample` uses the SDK n_audio microcode branch (`-DN_MICRO`); the earlier
+tail mismatch came from compiling the non-n_audio command path. Its two
+functions occupy the full `0x2A0`-byte text section with eight relocations,
+and its `0x10`-byte constant island at ROM `0x85490` compares directly against
+retail.
+
+Remaining unmatched, roughly by size: `n_csplayer` (masked=154, `0x3220`),
+`n_reverb` (masked=60, DSP-heavy, deferred per plan), `n_cseq`
+(masked=15), and `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
+deferred per plan), plus the small `n_synfreevoice` (masked=5, `0xE0`), not
+yet attempted.
 
 ---
 
@@ -1763,6 +1827,9 @@ Where the boundary comes from:
   jump tables still emitted in `asm/` belong to 34 functions and remain
   monotonic in both columns, with **zero inversions**. So `.rodata` can be
   carved TU by TU in text order.
+- **rodata order follows text order exactly.** 35 functions, 44 jump tables,
+  monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
+  by TU in text order, which is what makes the per-TU split tractable.
 
 Two toolchain facts govern the per-TU split:
 

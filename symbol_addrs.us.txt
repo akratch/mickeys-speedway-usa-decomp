@@ -1338,7 +1338,9 @@ __n_allocParam = 0x800622F4; // type:func size:0xA0
 _n_freeParam = 0x80062394; // type:func size:0x38
 _n_collectPVoices = 0x800623D4; // type:func size:0x6C
 _n_freePVoice = 0x80062440; // type:func size:0x40
+_n_timeToSamplesNoRound = 0x80062480; // type:func size:0x64
 _n_timeToSamples = 0x800624E4; // type:func size:0x3C
+__n_nextSampleTime = 0x80062520; // type:func size:0xA0
 // libultra/cents2ratio  ROM 0x631c0  (jfg/libultra: src/libultra/cents2ratio.c.o)  whole .text 0xa0, masked=4, romocc=1
 //   same bytes in: conker,jfg
 alCents2Ratio = 0x800625C0; // type:func size:0xA0
@@ -1346,6 +1348,13 @@ alCents2Ratio = 0x800625C0; // type:func size:0xA0
 //   same bytes in: conker,jfg,perfect_dark
 alSurround_OutputType = 0x80062660; // type:func size:0xD4
 alSurround_ReverbSetup = 0x80062734; // type:func size:0x13C
+// BSS ownership: direct HI16/LO16 references in Mickey's linked alSurround
+// functions place the donor-named globals at 0x800D7DC0 in declaration order.
+D_80105010_B1750 = 0x800D7DC0; // type:u32 size:0x4
+D_80105014_B1754 = 0x800D7DC4; // type:u8 size:0x2
+D_80105016_B1756 = 0x800D7DC6; // type:u8 size:0x2
+D_80105018_B1758 = 0x800D7DC8; // type:u8 size:0x4
+D_800D7DD0 = 0x800D7DD0; // type:s32 size:0x4
 // libultra/n_event  ROM 0x63470  (jfg/libultra: src/libultra/n_event.c.o)  whole .text 0x660, masked=34, romocc=1
 n_alEvtqNew = 0x80062870; // type:func size:0xAC
 n_alEvtqNextEvent = 0x8006291C; // type:func size:0xB4
@@ -1414,7 +1423,7 @@ n_alFxInitlpfilter = 0x80064F24; // type:func size:0x150
 alSemitones2Ratio = 0x80065074; // type:func size:0x94
 n_alFxInitlpfilter_mono = 0x80065108; // type:func size:0x1EC
 n_alFxNew = 0x800652F4; // type:func size:0x5C4
-alN_PVoiceNew = 0x800658B8; // type:func size:0x218
+alN_PVoiceNew = 0x800658B8; // type:func size:0x214
 // libultra/n_syngetfxref  ROM 0x666d0  (jfg/libultra: src/libultra/n_syngetfxref.c.o)  whole .text 0xf0, masked=12, romocc=1
 //   same bytes in: jfg,perfect_dark
 n_alSynGetFXRef = 0x80065AD0; // type:func size:0x78
@@ -1447,6 +1456,9 @@ n_alSavePull = 0x80067510; // type:func size:0xA0
 // libultra/n_env  ROM 0x681b0  (jfg/libultra: src/libultra/n_env.c.o)  whole .text 0xff0, masked=59, romocc=1
 n_alEnvmixerPull = 0x800675B0; // type:func size:0x924
 n_alEnvmixerParam = 0x80067ED4; // type:func size:0x144
+_pullSubFrame = 0x80068018; // type:func size:0x2E4
+_getRate = 0x800682FC; // type:func size:0x210
+_getVol = 0x8006850C; // type:func size:0x90
 // libultra/n_cspsendmidi  ROM 0x691a0  (jfg/libultra: src/libultra/n_cspsendmidi.c.o)  whole .text 0x80, masked=1, romocc=1
 n_alCSPSendMidi = 0x800685A0; // type:func size:0x80
 // libultra/n_synsetpriority  ROM 0x69220  (jfg/libultra: src/libultra/n_synsetpriority.c.o)  whole .text 0x20, masked=0, romocc=1
@@ -1464,7 +1476,7 @@ n_alAdpcmPull = 0x800690A0; // type:func size:0x6AC
 n_alLoadParam = 0x8006974C; // type:func size:0x2E8
 // libultra/n_alLPFilter  ROM 0x6a7f0  (jfg/libultra: src/libultra/n_alLPFilter.c.o)  whole .text 0x420, masked=13, romocc=1
 n_alLPFilterPull = 0x80069BF0; // type:func size:0x2F8
-n_alLPFilterParam = 0x80069EE8; // type:func size:0x128
+n_alLPFilterParam = 0x80069EE8; // type:func size:0x124
 // main/math_acosf  ROM 0x6ac10  (jfg/game: src/math/math_acosf.c.o)  whole .text 0xe0, masked=7, romocc=1
 acosf = 0x8006A010; // type:func size:0xDC
 // libultra/n_resample  ROM 0x6acf0  (jfg/libultra: src/libultra/n_resample.c.o)  whole .text 0x2a0, masked=8, romocc=1
@@ -1910,10 +1922,8 @@ __n_CSPRepostEvent = 0x80060B14; // type:func size:0x114
 __n_setUsptFromTempo = 0x80060C28; // type:func size:0x48
 // jfg:src/libultra/n_drvrNew.c.o
 func_80064DC0 = 0x80064DC0; // type:func size:0x164   ROM 0x659c0  src/libultra/n_drvrNew.c.o  masked=5/89
-// donor-jfg-src/libultra/n_env.c.o
-func_8006850C = 0x8006850C; // type:func size:0x94   ROM 0x6910c  src/libultra/n_env.c.o  masked=0/37
-// donor-jfg-src/libultra/n_load.c.o
-func_80069A34 = 0x80069A34; // type:func size:0x1BC   ROM 0x6a634  src/libultra/n_load.c.o  masked=0/111
+// jfg:src/libultra/n_load.c.o
+_decodeChunk = 0x80069A34; // type:func size:0x1B8   ROM 0x6a634  src/libultra/n_load.c.o  masked=0/110
 
 // ---------------------------------------------------------------------------
 // Resident camera TU: role/order identifications below the tier-A bar

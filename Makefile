@@ -617,7 +617,9 @@ LIBULTRA_NAUDIO_BARE_TUS := n_cspsetvol n_csplayer n_cspgetstate n_cspmessage sl
 	n_cspstop n_cspsendmidi n_sl n_syndelete n_synsetpan n_synsetpitch \
 	n_synsetfxmix n_synstopvoice n_alsynsetlpffreq n_alsynsetlpfgain \
 	n_alsynsetdistort n_synsetfxparam n_synallocfx n_reverb n_seqplayer n_resample \
-	n_alcspchan n_syngetfxref
+	n_alcspchan n_syngetfxref n_synsetvol n_synstartvoiceparam n_synaddplayer \
+	n_synallocvoice alsurround n_mainbus n_auxbus n_event n_load n_alLPFilter \
+	n_drvrNew n_synthesizer n_env
 # n_alcspchan uses the Rare-added MIDI control-change codes (AL_MIDI_UNK_FC,
 # AL_MIDI_FADEEND_CTRL, AL_MIDI_FADESTART_CTRL), guarded by RAREDIFFS like the
 # other Rare-diffed libultra TUs above.
@@ -629,8 +631,18 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/n_csplayer.c.o: CFLAGS += -DRAREDIFFS -Wab,-r43
 # The reverb sources select the naudio microcode command layout explicitly;
 # its final multiply also needs the R4300 hazard scheduling pass.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/n_reverb.c.o: CFLAGS += -DN_MICRO -Wab,-r4300_mul
+# The driver configuration stores Rare's per-bus effect arrays.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/n_drvrNew.c.o: CFLAGS += -DRAREDIFFS -Wab,-r4300_mul
+# The synthesizer uses the same per-bus layout and the n_audio microcode ABI.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/n_synthesizer.c.o: CFLAGS += -DRAREDIFFS -DN_MICRO
+# The envelope mixer emits n_audio microcode commands; its rate helper needs
+# the R4300 multiply scheduler's hazard spacing.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/n_env.c.o: CFLAGS += -DN_MICRO -Wab,-r4300_mul
 # The resampler uses the naudio microcode command encoding found in Mickey.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/n_resample.c.o: CFLAGS += -DN_MICRO
+# The N64DD/mobile microcode branches in the SDK source do not describe the
+# n_audio ABI used by Mickey's decoder object.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/n_load.c.o: CFLAGS += -DN_MICRO
 $(foreach f,$(LIBULTRA_NAUDIO_BARE_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -g))
 $(foreach f,$(LIBULTRA_NAUDIO_BARE_TUS),$(eval \

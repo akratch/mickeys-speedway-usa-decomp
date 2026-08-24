@@ -1,9 +1,14 @@
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public decompilation
  * (github.com/Ryan-Myers/Jet-Force-Gemini), a permitted source under
+<<<<<<< HEAD
  * docs/CLEANROOM.md; see docs/modules.md section 4.4 and
  * docs/acceleration-survey.md section 13.3.
  * JFG source: libultra/src/naudio/n_synsetfxparam.c at c75c270.
+=======
+ * docs/CLEANROOM.md; see docs/modules.md section 4.2 and
+ * docs/acceleration-survey.md section 13.3.
+>>>>>>> lane/cx-naudio-a
  */
 
 #include "n_audio/n_synthInternals.h"
