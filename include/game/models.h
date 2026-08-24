@@ -3,6 +3,7 @@
 
 #include "PR/ultratypes.h"
 
+void modInitModels(void);
 void modelSetModelFlags(s32 flags);
 s32 modelGetModelFlags(void);
 

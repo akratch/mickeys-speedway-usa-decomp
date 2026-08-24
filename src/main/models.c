@@ -22,9 +22,19 @@
 #include "game/models.h"
 
 extern s32 D_80079C00;
+extern s32 *D_800CB480;
+extern s32 *D_800CB484;
+extern s32 *D_800CB488;
+extern s32 D_800CB48C;
+extern s32 D_800CB490;
+extern s32 D_800CB494;
 extern s8 D_800CB498[];
 extern s16 D_800CB49C[];
 extern s16 D_800CB4A2[];
+extern s32 *D_800CB4A4;
+
+void *func_8002B280(s32 size, s32 tag);
+s32 *func_8002E148(s32 assetId);
 
 /*
  * PROVENANCE -- body adapted from JFG's public src/models.c
@@ -37,7 +47,24 @@ void func_8001F420(u16 *src, u16 *dest, s32 len) {
         *dest++ = *src++;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001F45C.s")
+/*
+ * PROVENANCE -- body adapted from the initial portion of JFG's public
+ * modInitModels. Mickey ends after counting the model table and does not have
+ * JFG's later allocations; Mickey's globals, calls, and bytes are authoritative.
+ */
+void modInitModels(void) {
+    D_800CB484 = func_8002B280(0x2A8, 0x8A);
+    D_800CB488 = func_8002B280(0x190, 0x8A);
+    D_800CB48C = 0;
+    D_800CB494 = 0;
+    D_800CB4A4 = func_8002B280(0x2000, 0x8A);
+    D_800CB480 = func_8002E148(0x26);
+    D_800CB490 = 0;
+    while (D_800CB480[D_800CB490] != -1) {
+        D_800CB490++;
+    }
+    D_800CB490--;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001F520.s")
 /*
  * PROVENANCE -- JFG's built models.c object supplies the exact corresponding
