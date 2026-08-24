@@ -9,7 +9,8 @@
 
 void camlightInit(void) {
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightFlush.s")
+void camlightFlush(void) {
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightAdd.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightDelete.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camlight/camlightUpdateAll.s")
