@@ -1484,6 +1484,7 @@ fontSetWindowNoise = 0x8004B070; // type:func size:0x34   ROM 0x4bc70  src/font.
 fontColour = 0x8004B0B8; // type:func size:0x24   ROM 0x4bcb8  src/font.c.o  masked=2/9
 fontWindowColour = 0x8004BBFC; // type:func size:0x40   ROM 0x4c7fc  src/font.c.o  masked=2/16
 fontWindowFontColour = 0x8004BC3C; // type:func size:0x48   ROM 0x4c83c  src/font.c.o  masked=2/18
+fontWindowFontBackground = 0x8004BC84; // type:func size:0x40   ROM 0x4c884  src/font.c.o  masked=2/16
 // jfg:src/anim.c.o
 func_8005017C = 0x8005017C; // type:func size:0x30   ROM 0x50d7c  src/anim.c.o  masked=6/12
 func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  masked=9/20

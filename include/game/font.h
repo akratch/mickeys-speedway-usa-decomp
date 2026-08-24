@@ -39,5 +39,7 @@ void fontColour(s32 red, s32 green, s32 blue, s32 alpha, s32 opacity);
 void fontWindowColour(s32 windowId, s32 red, s32 green, s32 blue, s32 alpha);
 void fontWindowFontColour(s32 windowId, s32 red, s32 green, s32 blue,
                           s32 alpha, s32 opacity);
+void fontWindowFontBackground(s32 windowId, s32 red, s32 green, s32 blue,
+                              s32 alpha);
 
 #endif

@@ -81,7 +81,18 @@ void fontWindowFontColour(s32 windowId, s32 red, s32 green, s32 blue,
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BC84.s")
+void fontWindowFontBackground(s32 windowId, s32 red, s32 green, s32 blue,
+                              s32 alpha) {
+    if (windowId > 0 && windowId < 8) {
+        DialogueBoxBackground *window = &D_800D64E8[windowId];
+
+        window->textBGColourR = red;
+        window->textBGColourG = green;
+        window->textBGColourB = blue;
+        window->textBGColourA = alpha;
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BCC4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BF64.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BFB0.s")
