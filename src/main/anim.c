@@ -281,7 +281,28 @@ void animseqFreeLevelData(void) {
     }
 }
 
+#ifdef NON_MATCHING
+void func_80050DF0(s32 levelId) {
+    u32 *entry;
+    s32 source;
+
+    if (levelId != -1 && levelId != D_8007D688) {
+        animseqFreeLevelData();
+        entry = &D_800D6B04[levelId];
+        source = entry[0];
+        D_8007D684 = entry[1] - source;
+        if (D_8007D684 > 0) {
+            D_8007D680 = func_8002B280(D_8007D684, 0x81, source);
+            if (D_8007D680 != NULL) {
+                func_8002E2E0(0x3E, D_8007D680, source, D_8007D684);
+                D_8007D688 = levelId;
+            }
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050DF0.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050E9C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051004.s")
 /* Exact JFG donor assembly corroborates the loop; C is Mickey-led. */
