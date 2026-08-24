@@ -20,6 +20,7 @@
 
 extern void initColourCycle();
 extern f32 sqrtf(f32 value);
+extern void mmFree(void *ptr);
 extern void func_8000D728(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_8000D62C(f32 x, f32 y, f32 z, f32 radius, f32 radius2, s32 red, s32 green, s32 blue);
 extern void func_800188CC(UnkLight *light);
@@ -28,7 +29,10 @@ extern u8 *func_8002679C(void);
 extern s32 D_80079490;
 extern s32 D_80079494;
 extern void **D_80079498;
+extern void *D_8007949C;
+extern void *D_800794A0;
 extern f32 D_800817B0;
+extern void *D_800CB290;
 
 /* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
 typedef struct LightingObject {
@@ -60,7 +64,24 @@ struct LightSourceObject {
 extern LightingObject **func_8000572C(s32 *start, s32 *end);
 extern void func_8001953C(LightingObject *object, s32 objectLight);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018710.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
+void freeLights(void) {
+    if (D_80079498 != 0) {
+        mmFree(D_80079498);
+        D_80079498 = 0;
+        D_8007949C = 0;
+    }
+    if (D_800CB290 != 0) {
+        mmFree(D_800CB290);
+        D_800CB290 = 0;
+    }
+    if (D_800794A0 != 0) {
+        mmFree(D_800794A0);
+        D_800794A0 = 0;
+    }
+    D_80079494 = 0;
+    D_80079490 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001879C.s")
 /* PROVENANCE: adapted from DKR's public decomp, src/lights.c, and Mickey's own assembly. */
 void func_800188CC(UnkLight *light) {

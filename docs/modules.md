@@ -376,7 +376,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x800184B4` | `0x90` | `shadowBoundingBox` | Tier A: 36/36 unmasked words, ROM-wide unique; already adopted |
 | `0x80018544` | `0x110` | `shadowYHeight` | comparison only: unique nearest 4-gram skeleton, 0.919; remains `func_80018544` |
 | `0x80018654` | `0xBC` | `shadowMakeYs` | Tier-A candidate: 47/47 unmasked words, ROM-wide unique; assembly pending a function-sized naming commit |
-| `0x80018710` | `0x8C` | `freeLights` | tier-B comparison: three frees and the JFG TU position; C still `func_80018710` |
+| `0x80018710` | `0x8C` | `freeLights` | Tier A: JFG-adapted C is compiler/link exact |
 | `0x8001879C` | `0x130` | `setupLights` | tier-B comparison: calls the preceding free, three allocators and `lightCreateLightTable`; C still `func_8001879C` |
 | `0x800188CC` | `0xB0` | JFG placeholder `func_80020D94` | Tier A: Mickey/DKR-adapted C is compiler/link exact; placeholder remains prohibited by §1.5 |
 | `0x8001897C` | `0x238` | `addRomdefLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |

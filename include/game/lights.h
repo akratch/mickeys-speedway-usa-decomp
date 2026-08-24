@@ -85,6 +85,7 @@ typedef struct ObjectLightEntry {
 
 typedef struct LightSourceObject LightSourceObject;
 
+void freeLights(void);
 void turnLightOff(UnkLight *light);
 void turnLightOn(UnkLight *light);
 void toggleLight(UnkLight *light);
