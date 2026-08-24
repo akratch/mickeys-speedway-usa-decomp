@@ -419,7 +419,9 @@ status field with the same bounds and stride and is exact under the same flags,
 also with the target's data-symbol relocation pair. The following 96-byte
 `func_8004989C` packs the record's RGB bytes into a duplicated 16-bit color;
 the typed record body, expression schedule, and data relocation are exact at
-the resident defaults.
+the resident defaults. The 28-byte `func_8004A0F0` clears two adjacent effect
+queue words and their index; its three stores and both data relocation pairs
+are exact under the same defaults.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet

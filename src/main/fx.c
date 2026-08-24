@@ -47,6 +47,8 @@ extern void mmFree(void *ptr);
 extern FxFlags D_800D5F5A[];
 extern FxStatus D_800D5F59[];
 extern FxRecord D_800D5F58[];
+extern s32 D_800D6038[];
+extern s32 D_800D6040;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046E70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046EC4.s")
@@ -113,7 +115,11 @@ s32 func_8004989C(s32 index) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049A8C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049B14.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049E4C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A0F0.s")
+void func_8004A0F0(void) {
+    D_800D6038[0] = 0;
+    D_800D6038[1] = 0;
+    D_800D6040 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A380.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A4B0.s")
