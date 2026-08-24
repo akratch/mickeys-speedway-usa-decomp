@@ -11,6 +11,7 @@ typedef struct ControlPlayer {
 
 void controlDisableJoypad(ControlPlayer *player, s32 disabled);
 void controlSetPlayerSetup(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
+s32 controlGetPlayerSetup(s16 *arg0, s16 *arg1, s16 *arg2, s16 *arg3);
 void controlClearPlayerSetup(void);
 
 #endif

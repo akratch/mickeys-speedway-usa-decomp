@@ -75,7 +75,21 @@ void controlSetPlayerSetup(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
     D_800CB476 = arg3;
     D_80079BF8 = 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F3AC.s")
+/*
+ * PROVENANCE -- JFG's charControl symbols supplied the controlGetPlayerSetup
+ * name/role. This body is reconstructed from Mickey's setup-state accesses.
+ */
+s32 controlGetPlayerSetup(s16 *arg0, s16 *arg1, s16 *arg2, s16 *arg3) {
+    if (D_80079BF8 != 0) {
+        *arg0 = D_800CB470;
+        *arg1 = D_800CB472;
+        *arg2 = D_800CB474;
+        *arg3 = D_800CB476;
+        D_80079BF8 = 0;
+        return 1;
+    }
+    return 0;
+}
 
 /* PROVENANCE -- adapted from JFG's src/charControl.c controlClearPlayerSetup. */
 void controlClearPlayerSetup(void) {

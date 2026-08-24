@@ -418,7 +418,7 @@ call graph isolates one namesake.
 | `0x8001F320` | `0x44` | `controlSetRumble` | B: sole call is the rumble dispatcher under player-state guards; retain `func_` |
 | `0x8001F364` | `0x8` | — | Matched C: empty routine, ADR 0001 byte-identity; retain `func_` |
 | `0x8001F36C` | `0x40` | `controlSetPlayerSetup` | A + matched C: 6 unmasked of 16 JFG words established the name; Mickey-derived four-halfword/valid-byte body is ADR 0001 exact |
-| `0x8001F3AC` | `0x5C` | `controlGetPlayerSetup` | B: consumes and clears the exact state written by the tier-A setter; retain `func_` until C matches |
+| `0x8001F3AC` | `0x5C` | `controlGetPlayerSetup` | B + matched C: consumes and clears the exact state written by the tier-A setter; adopted with point-of-use JFG provenance and ADR 0001 byte-identity |
 | `0x8001F408` | `0xC` + `0xC` padding | `controlClearPlayerSetup` | B + matched C: clears the setup-valid byte; adopted with point-of-use JFG provenance and ADR 0001 byte-identity |
 
 No function in this TU uses an odd single-precision FP register, so §6.2 does

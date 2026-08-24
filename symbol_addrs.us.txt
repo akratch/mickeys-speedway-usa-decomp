@@ -1436,6 +1436,8 @@ func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charContro
 controlDisableJoypad = 0x8001F25C; // type:func size:0x8   ROM 0x1fe5c
 // exact-C (ADR 0001), no external name adopted: func_8001F364, ROM 0x1ff64, size 0x8
 controlSetPlayerSetup = 0x8001F36C; // type:func size:0x40   ROM 0x1ff6c  src/charControl.c.o  masked=10/16  exact C (ADR 0001)
+// tier B + exact C -- JFG name; consumes the tier-A setter's four values.
+controlGetPlayerSetup = 0x8001F3AC; // type:func size:0x5C   ROM 0x1ffac
 // tier B + exact C -- JFG name, setup-valid byte cleared; see docs/modules.md 3.4.
 controlClearPlayerSetup = 0x8001F408; // type:func size:0xC   ROM 0x20008
 // jfg:src/models.c.o
