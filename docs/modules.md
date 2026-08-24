@@ -418,7 +418,7 @@ overlay callers/callees outside the range were observed.
 | `0x4D1A4` | `0xEC` | `func_8004C5A4` | JFG `func_80071A0C` | D, matched C | calls `0x4CC00`; in-range callers |
 | `0x4D290` | `0x248` | `func_8004C690` | JFG `func_80071B08` | D, plateau | ext callee; called by `0x4BDDC` |
 | `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D, matched C | ext callee |
-| `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D | leaf; ext caller |
+| `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D, matched C | leaf; ext caller |
 | `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, plateau | leaf; in-range callers |
 | `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D, plateau | leaf |
 | `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |

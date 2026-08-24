@@ -1039,7 +1039,19 @@ void func_8004C8D8(FontTextureHeader *texture, s32 unused) {
         }
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D32C.s")
+void func_8004D32C(void) {
+    u8 *entry;
+    s32 i;
+
+    entry = (i = 0, (u8 *) D_800D663C);
+    do {
+        if (entry[4] != 0) {
+            entry[4]--;
+        }
+        entry += sizeof(FontGlyphData);
+        i++;
+    } while (i != 0x100);
+}
 #ifdef NON_MATCHING
 void func_8004D39C(char *input, char *output) {
     char currentChar;
