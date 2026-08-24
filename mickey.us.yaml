@@ -175,7 +175,7 @@ segments:
       # JFG spranim.c ordering, and the masked-skeleton matches documented in
       # docs/modules.md section 3.5.
       - [0x1BEA0, c, main/spranim]
-      - [0x1C790, asm]
+      - [0x1C790, c, main/charControl]
       # Working source split for the resident model system. Three functions
       # are tier-A skeleton matches to JFG's src/models.c.o, including the
       # first function at this existing 16-byte-aligned boundary; the other

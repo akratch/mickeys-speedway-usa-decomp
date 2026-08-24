@@ -707,6 +707,11 @@ $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 # the flag lattice selects this setting before any source permutation.
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 
+# The charControl target carries the R4300 multiply scheduling nops around its
+# single-precision smoothing helpers; the flag lattice isolates this assembler
+# mode without changing the resident TU's O2/MIPS-II compiler output.
+$(BUILD_DIR)/$(SRC_DIR)/main/charControl.c.o: CFLAGS += -Wab,-r4300_mul
+
 # Overlay game code is likewise MIPS II. Every adopted tranche-A object was
 # compared instruction-for-instruction at this ISA level before joining this
 # rule; MIPS I inserts load-delay nops in several of them.

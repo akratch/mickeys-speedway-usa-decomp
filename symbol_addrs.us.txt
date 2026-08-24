@@ -2008,8 +2008,38 @@ lightSetupLightSources = 0x80019EE4; // type:func size:0x98   ROM 0x1aae4  src/l
 lightSetupFlareSources = 0x80019F7C; // type:func size:0x8C   ROM 0x1ab7c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 lightKillGlowingLight = 0x8001A23C; // type:func size:0x24   ROM 0x1ae3c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 // jfg:src/charControl.c.o
-func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charControl.c.o  masked=0/19
-controlSetPlayerSetup = 0x8001F36C; // type:func size:0x40   ROM 0x1ff6c  src/charControl.c.o  masked=10/16
+// exact-C (ADR 0001), no external name adopted: func_8001BB90, ROM 0x1c790, size 0x24
+// exact-C (ADR 0001), tier-D name not adopted: func_8001C054, ROM 0x1cc54, size 0x34
+// exact-C (ADR 0001), tier-D name not adopted: func_8001C088, ROM 0x1cc88, size 0x8c
+// NON_MATCHING plateau: func_8001C114, ROM 0x1cd14, size 0x1b0; FP allocation blocks exact C
+func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charControl.c.o  masked=0/19  exact C (ADR 0001)
+// tier B + exact C -- JFG name/role; independently reconstructed from Mickey.
+controlPlayerReInit = 0x8001C320; // type:func size:0x1A0   ROM 0x1cf20
+// exact-C (ADR 0001), no external name adopted: func_8001CB0C, ROM 0x1d70c, size 0x78
+// NON_MATCHING plateau: func_8001D2A0, ROM 0x1dea0, size 0x17c; global-address CSE blocks exact C
+// exact C -- no unique JFG comparison; neutral name retained.
+func_8001D41C = 0x8001D41C; // type:func size:0x21C   ROM 0x1e01c
+// tier B + exact C -- JFG name/role; independently reconstructed from Mickey.
+controlFrozen = 0x8001D638; // type:func size:0x58   ROM 0x1e238
+// tier B + exact C -- JFG namesake controlRestartPlayer; compiler-sensitive neutral name retained.
+func_8001D690 = 0x8001D690; // type:func size:0x194   ROM 0x1e290
+// tier B + exact C -- JFG name/body; Mickey's MIPS-II conversion is shorter.
+dAngle = 0x8001D824; // type:func size:0x5C   ROM 0x1e424
+// tier B + exact C -- JFG name/body; Mickey's output field is player+0x14.
+controlFSUvels = 0x8001D910; // type:func size:0x50   ROM 0x1e510
+// exact-C (ADR 0001), no external name adopted: func_8001EFFC, ROM 0x1fbfc, size 0xa0
+// exact-C (ADR 0001), tier-D JFG placeholder not adopted: func_8001F09C, ROM 0x1fc9c, size 0xb0
+// exact-C (ADR 0001), tier-D name not adopted: func_8001F14C, ROM 0x1fd4c, size 0x110
+// tier B + exact C -- JFG role/name; Mickey stores the disable flag per player.
+controlDisableJoypad = 0x8001F25C; // type:func size:0x8   ROM 0x1fe5c
+controlReadJoypad = 0x8001F264; // type:func size:0xBC   ROM 0x1fe64
+controlSetRumble = 0x8001F320; // type:func size:0x44   ROM 0x1ff20
+// exact-C (ADR 0001), no external name adopted: func_8001F364, ROM 0x1ff64, size 0x8
+controlSetPlayerSetup = 0x8001F36C; // type:func size:0x40   ROM 0x1ff6c  src/charControl.c.o  masked=10/16  exact C (ADR 0001)
+// tier B + exact C -- JFG name; consumes the tier-A setter's four values.
+controlGetPlayerSetup = 0x8001F3AC; // type:func size:0x5C   ROM 0x1ffac
+// tier B + exact C -- JFG name, setup-valid byte cleared; see docs/modules.md 3.4.
+controlClearPlayerSetup = 0x8001F408; // type:func size:0xC   ROM 0x20008
 // jfg:src/models.c.o
 func_8001F420 = 0x8001F420; // type:func size:0x3C   ROM 0x20020  src/models.c.o  masked=0/15  C-match -O2 -mips2
 func_8001FBCC = 0x8001FBCC; // type:func size:0x84   ROM 0x207CC  src/models.c.o  tier-D JFG allocation/copy structure only  C-match -O2 -mips2

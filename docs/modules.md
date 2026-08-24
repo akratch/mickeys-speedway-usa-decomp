@@ -358,7 +358,7 @@ see the caveat below):
 | `src/font.c.o` | 2 | `0x4BC70`–`0x4C884` | The original >=10-word scan found two anchors. The later complete census in §3.4 found four more exact short functions and split `main/font` provisionally; no whole-`.text` match is claimed |
 | `src/audio_manager_4C50.c.o` | 2 | `0x45F0`–`0x4F3C` | Starts exactly at yaml's `0x45F0` boundary; ends inside the unnamed `0x4F40`–`0xC950` block. No whole-`.text` match; no boundary claimed |
 | `src/audio_manager_1050.c.o` | 3 | `0x12BC`–`0x22C8` | Inside yaml's unnamed `0x1050`–`0x45F0` block. Wide span for 3 hits -- other code plainly sits between them; no boundary claimed |
-| `src/charControl.c.o` | 2 | `0x1CED4`–`0x1FFAC` | Inside yaml's unnamed `0x1C790`–`0x20020` block. No boundary claimed |
+| `src/charControl.c.o` | 2 | `0x1CED4`–`0x1FFAC` | Inside yaml's former unnamed `0x1C790`–`0x20020` block. This scan alone claimed no boundary; §3.4 records the later TU split and its additional evidence |
 | `src/camera.c.o` | 2 | `0x23360`, `0x5B778` | 230KB apart -- evidently not one placed TU here; treat as two independent identifications, not a span |
 | `src/memory.c.o` | 2 | `0x2BCD0`–`0x2C3AC` | Starts exactly at yaml's `0x2BCD0` boundary (end of `main/matrix`); the already-named `align16`/`align8`/`align4` (tier A, `memory.c.o`) sit at `0x2C860`, past this span. Consistent with one TU, no boundary claimed |
 | `src/shadows_214A0.c.o` | 2 | `0x18FF0`–`0x19144` | Inside yaml's unnamed `0x18FF0`–`0x1AE60` block, starting exactly at its boundary. No boundary claimed |
@@ -1664,6 +1664,71 @@ Force Gemini's public decompilation (`src/diRcpTrace.c`, `src/diRcp.c`,
 `src/diCpu.c`, and `src/fx.c`). JFG is a permitted published decomp under
 `docs/CLEANROOM.md`; Mickey's own bytes, strings and linked call graph decide
 every mapping. JFG address placeholders are not imported.
+
+### 3.4 `main/charControl`
+
+ROM `0x1C790`–`0x20020`, VRAM `0x8001BB90`–`0x8001F420`, is split as
+`src/main/charControl.c`. The endpoints retain splat's original aligned
+file-boundary candidates, but the assignment no longer rests on that heuristic
+alone. At the start, the first six functions follow JFG's `charControl.c`
+camera-control cluster by masked-skeleton similarity and call graph. Inside the
+block, `func_8001C2D4` and `controlSetPlayerSetup` are tier-A skeleton anchors
+from JFG's built `src/charControl.c.o`. At the tail, the latter is followed by
+the setup getter and clearer behavior in JFG's order. The next yaml block
+begins at `0x20020` with a separately tier-A function from JFG's `models.c.o`.
+Together these are **B/D TU-boundary evidence**, not a whole-`.text` tier-A
+match; the distinction is why §3.3's original two-hit row did not itself draw
+the split.
+
+**PROVENANCE:** JFG's public `src/charControl.c`, `src/charControl.h`, built
+object, public symbol map, and `asm/nonmatchings/charControl` filenames supplied
+the names in the comparison column below. Only the two tier-A rows were already
+adopted in `symbol_addrs.us.txt`. Tier-B/D names remain comparison leads while
+their functions use `GLOBAL_ASM`; §1.5 therefore keeps Mickey's `func_` names
+until matching C independently establishes a role strongly enough to adopt
+one. A dash means that neither the JFG order, masked similarity, nor the current
+call graph isolates one namesake.
+
+| Mickey VRAM | Size | JFG comparison lead | Evidence / current disposition |
+|---|---:|---|---|
+| `0x8001BB90` | `0x24` | `cameraGetBlend` | D + matched C: exact 0x2C-stride float getter under O2/mips2; JFG comparison remains structural, so retain `func_` |
+| `0x8001BBB4` | `0x258` | `func_8002B378` | B: camera call graph and next-function edge; JFG placeholder, retain `func_` |
+| `0x8001BE0C` | `0x248` | `func_8002EDA0` | B: camera-pointer lookup then the preceding routine; JFG placeholder, retain `func_` |
+| `0x8001C054` | `0x34` | `cameraAddOverrideObject` | D + matched C: exact 24-entry append under O2/mips2; JFG comparison remains structural, so retain `func_` |
+| `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D + matched C: exact 24-entry search-and-delete under O2/mips2; JFG comparison remains structural, so retain `func_` |
+| `0x8001C114` | `0x1B0` | `func_8002F0E8` | Plateau after the 119-combination flag sweep and 10 source/lifetime hypotheses: best `NON_MATCHING` candidate preserves the target CFG in 106 instructions versus 108, with first mismatch `+0x4`; the target maps `x/y/z` to `f12/f22/f20` and saves `f22`/`f20`, while IDO maps the candidate to `f20/f14/f12` and saves only `f20`. JFG has the same target allocation but only a placeholder body; retain `func_` |
+| `0x8001C2C4` | `0x10` | — | Two return stubs under one measured label; retain `func_` |
+| `0x8001C2D4` | `0x4C` | `func_80031F60` | A + matched C: 19/19 unmasked JFG words and independently reconstructed byte-clear C are exact; placeholder rule retains Mickey's `func_` |
+| `0x8001C320` | `0x1A0` | `controlPlayerReInit` | B + matched C: exact 104-instruction save/clear/reinitialize/restore wrapper under O2/mips2 with `-Wab,-r4300_mul`; its role and call graph mirror JFG, so the name is adopted |
+| `0x8001C4C0` | `0x64C` | `controlPlayerInit` | B: initialization calls and caller edge from the preceding routine; retain `func_` |
+| `0x8001CB0C` | `0x78` | — | Matched C: exact one-point transform setup under O2/mips2; no unique JFG comparison, so retain `func_` |
+| `0x8001CB84` | `0x71C` | `controlPlayer` | D: large per-frame controller in JFG order; retain `func_` |
+| `0x8001D2A0` | `0x17C` | — | Plateau after the 119-combination flag sweep and 10 source/type/lifetime hypotheses: best `NON_MATCHING` candidate is 96 instructions versus 95, with first mismatch `+0xE0`; IDO reuses the `D_800CB300` address across `func_800291F0`, while the target stores through `at` and rematerializes the address in `a2`, leaving one extra address instruction and shifting the remaining schedule. No unique JFG comparison; retain `func_` |
+| `0x8001D41C` | `0x21C` | — | Matched C: exact 135-instruction timer, effect-spawn, and action-callback body under O2/mips2 with `-Wab,-r4300_mul`; the mandatory 119-combination sweep found no alternate flag improvement and no unique JFG comparison, so retain `func_` |
+| `0x8001D638` | `0x58` | `controlFrozen` | B + matched C: exact pause/input gate under O2/mips2; calls the following restart routine as JFG does; name adopted |
+| `0x8001D690` | `0x194` | `controlRestartPlayer` | B + matched C: exact 101-instruction multiplayer respawn-point search and single-player restart fallback under O2/mips2 with `-Wab,-r4300_mul`; JFG has the same role and nearest charControl skeleton, but Mickey retains `func_` because IDO's allocation changes under the public name |
+| `0x8001D824` | `0x5C` | `dAngle` | B + matched C: same wrapped-angle role/body as JFG, whose MIPS-I conversion sequence is longer; adapted Mickey C is ADR 0001 exact under O2/mips2 |
+| `0x8001D880` | `0x90` | `controlMakeV` | Plateau after flag sweep and 10 source/flag hypotheses: best `NON_MATCHING` candidate is exact-size with `-Wab,-r4300_mul`, 29 words differ from FP/register allocation at first mismatch `+0x4`; retain `func_` |
+| `0x8001D910` | `0x50` | `controlFSUvels` | B + matched C: JFG rotation-vector role/body with Mickey's output at player `+0x14`; adapted C is ADR 0001 exact under O2/mips2 |
+| `0x8001D960` | `0x370` | `controlUpdateJetFlames` | D: nearest JFG charControl skeleton and same subsystem order; retain `func_` |
+| `0x8001DCD0` | `0xA0` | — | Plateau after flag sweep and 10 source shapes: best `NON_MATCHING` candidate has the exact 40-opcode/register/frame schedule under O2/mips2 with `-Wab,-r4300_mul`, but 2 stack-offset words differ from first mismatch `+0x70`; an extra FP temporary home moves the transformed-value spill from `sp+0x1C` to `sp+0x24`; retain `func_` |
+| `0x8001DD70` | `0x854` | `controlGroundHits` | D: collision/movement structure and JFG order; retain `func_` |
+| `0x8001E5C4` | `0x680` | `controlHangOK` / `controlGrabOK` | D: ledge/collision family, not uniquely separated; retain `func_` |
+| `0x8001EC44` | `0x3B8` | `controlSquashCheckPrior` | D: collision/math structure and JFG order; retain `func_` |
+| `0x8001EFFC` | `0xA0` | — | Matched C: exact point-list transform and translation loop under O2/mips2; no unique JFG comparison, so retain `func_` |
+| `0x8001F09C` | `0xB0` | `func_800370D8` | D + matched C: exact target-smoothing body under O2/mips2 with `-Wab,-r4300_mul`; JFG placeholder comparison remains structural, so retain `func_` |
+| `0x8001F14C` | `0x110` | `controlCeiling` | D + matched C: exact offset/spawn/effect body under O2/mips2; JFG comparison remains positional, so retain `func_` |
+| `0x8001F25C` | `0x8` | `controlDisableJoypad` | B + matched C: caller supplies player and boolean, next routine tests the stored state; JFG has the same role but a one-argument global implementation |
+| `0x8001F264` | `0xBC` | `controlReadJoypad` | B + matched C: calls all seven stick/button readers in JFG order; adapted per-player C is ADR 0001 exact under O2/mips2 |
+| `0x8001F320` | `0x44` | `controlSetRumble` | B + matched C: sole call is the rumble dispatcher under player-state guards; Mickey-derived wrapper is ADR 0001 exact under O2/mips2 |
+| `0x8001F364` | `0x8` | — | Matched C: empty routine, ADR 0001 byte-identity; retain `func_` |
+| `0x8001F36C` | `0x40` | `controlSetPlayerSetup` | A + matched C: 6 unmasked of 16 JFG words established the name; Mickey-derived four-halfword/valid-byte body is ADR 0001 exact |
+| `0x8001F3AC` | `0x5C` | `controlGetPlayerSetup` | B + matched C: consumes and clears the exact state written by the tier-A setter; adopted with point-of-use JFG provenance and ADR 0001 byte-identity |
+| `0x8001F408` | `0xC` + `0xC` padding | `controlClearPlayerSetup` | B + matched C: clears the setup-valid byte; adopted with point-of-use JFG provenance and ADR 0001 byte-identity |
+
+No function in this TU uses an odd single-precision FP register, so §6.2 does
+not classify any of them as hand-written assembly. The `0xC` bytes after
+`func_8001F408` are alignment padding, not executable ownership.
 
 ---
 
