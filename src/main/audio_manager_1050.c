@@ -68,6 +68,7 @@ extern u8 D_80078D6C;
 extern u8 D_80078D74;
 extern u8 D_80078D88;
 extern u8 D_80078DB0;
+extern u8 D_80078DAC;
 extern u8 D_800BF794;
 extern u8 D_800BF795;
 extern u32 *D_800BF798;
@@ -75,6 +76,7 @@ extern AudioBankFile *D_800BF79C;
 extern AudioSoundData *D_800BF7A0;
 extern s32 D_800BF7A8;
 extern s32 D_800BF7B0;
+extern u8 D_800BFA08;
 extern u8 *D_800BF7A4;
 extern void gsSndpSetParam();
 extern u32 gsSndpGetGlobalVolume(void);
@@ -404,5 +406,8 @@ int volume;
 {
     return volume * 0.5f;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800016EC.s")
+void func_800016EC(u8 mode) {
+    D_80078DAC = mode;
+    D_800BFA08 = 0xFF;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001708.s")

@@ -413,6 +413,7 @@ The final column records owned object words and relocation coverage.
 | `func_80001620` | `0x2220` / `0x48` | **tier B**: a resident caller consumes the range-checked sound-table volume; no external name is asserted | Exact 18 object words and both data relocations |
 | `func_80001668` | `0x2268` / `0x30` | **tier D**: guarded sound-volume parameter wrapper; no external name is asserted | Exact 12 object words and call relocation |
 | `scalevol` | `0x22C8` / `0x24` | **tier B**: JFG supplies the complete body and official name | Exact 9 object words; no relocations |
+| `func_800016EC` | `0x22EC` / `0x1C` | **tier B**: overlay 49 supplies mode-call context; no external name is asserted | Exact 7 object words and two data relocations |
 | `amSndSetPan` | `0x1E04` / `0x28` | existing **tier A** JFG byte identity | Exact object words and relocation identity |
 | `forcelink` | `0x2298` / `0x30` | existing **tier A** JFG byte identity | Exact object words and both call relocations |
 | `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |
