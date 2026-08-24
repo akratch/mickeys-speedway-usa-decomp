@@ -20,13 +20,18 @@ extern s32 D_80078D7C;
 extern s32 D_80078D80;
 extern s32 D_80078D78;
 extern void *D_80078D60;
+extern void *D_80078D64;
+extern u8 D_80078D88;
 extern u8 D_800BF794;
+extern u8 D_800BF795;
 extern u8 *D_800BF7A4;
 extern void gsSndpSetParam(void *sound, s16 type, u32 value);
 extern void n_alCSPSetChlVol(void *player, u8 channel, u8 volume);
 extern void n_alCSPNew(void *player, void *config);
 extern void n_alCSPSetMessageQ(void *player, void *queue);
 extern void func_800005CC(f32 fade, s32 volume);
+extern s32 func_80000F20(void);
+extern void func_80001308(u8 value, void *player);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000450.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
@@ -94,7 +99,17 @@ void amTuneResetChls(void) {
         } while (channel != 16);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000C9C.s")
+/*
+ * PROVENANCE: body shape adapted from DKR src/audio.c
+ * music_jingle_play_safe; JFG src/audio_manager_1050.c supplies the official
+ * amAmbientPlay name. Mickey's globals and call target remain authoritative.
+ */
+void amAmbientPlay(u8 value) {
+    if (func_80000F20() == 0) {
+        func_80001308(D_800BF795 = value, D_80078D64);
+        D_80078D88 = 1;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000CEC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D1C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000D54.s")

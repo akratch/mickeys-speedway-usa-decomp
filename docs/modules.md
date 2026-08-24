@@ -386,6 +386,7 @@ Matched C bodies in these new TUs:
 | `amTuneUnmuteChl` | `0x17F0` / `0x8` | **tier B**: exact JFG routine order immediately after its paired mute leaf | IDO 5.3, `-O2 -mips2 -32`; exact object words and linked ROM bytes |
 | `amTuneSetChlVolume` | `0x17F8` / `0x40` | **tier B**: JFG routine order and exact channel-bound/call role; its 1.000 skeleton is ambiguous with DKR's pan/volume/fade wrappers and is not tier A | IDO 5.3, `-O2 -mips2 -32`; exact 16 object words and both data/call relocation identities |
 | `amTuneResetChls` | `0x1838` / `0x64` | **tier B**: exact JFG routine order and the paired unmute/full-volume loop role | IDO 5.3, `-O2 -mips2 -32`; exact 25 object words and all global/call relocation identities |
+| `amAmbientPlay` | `0x189C` / `0x50` | **tier B**: JFG and DKR agree on the official role; the current-sequence assignment, ambient player, playing guard, and sequence-start call match exactly | IDO 5.3, `-O2 -mips2 -32`; exact 20 object words and all global/call relocation identities |
 | `amSndSetPan` | `0x1E04` / `0x28` | existing **tier A** JFG byte identity | IDO 5.3, `-O2 -mips2 -32`; exact object words and relocation identity |
 | `forcelink` | `0x2298` / `0x30` | existing **tier A** JFG byte identity | IDO 5.3, `-O2 -mips2 -32`; exact object words and both call relocations |
 | `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |
