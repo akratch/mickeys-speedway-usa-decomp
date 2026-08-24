@@ -87,6 +87,7 @@ extern f32 sqrtf(f32);
 extern s32 func_8002A910(f32, f32);
 extern f32 func_8002A878(f32, s32);
 
+#ifdef NON_MATCHING
 void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
                                         s32 updateRate, s32 argument) {
     s16 targetX;
@@ -312,3 +313,6 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
         func_8003EDEC(object, updateRate);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41UpdateCurveObject/func_overlay_041_F0000854_1887B8C.s")
+#endif

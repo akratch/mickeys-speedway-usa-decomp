@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 263148,
-  "nonmatching_overlay_c_bytes": 13452,
+  "matched_overlay_c_bytes": 256420,
+  "nonmatching_overlay_c_bytes": 20180,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -9340,7 +9340,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41AdvanceStepRecords",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x124",
@@ -9349,7 +9349,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41UpdateColorRecords",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x2AC",
@@ -9358,7 +9358,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41SampleCurve",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7FC",
@@ -9376,7 +9376,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41UpdateCurveObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x124C",
@@ -9394,7 +9394,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41UpdateProgress",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1464",
@@ -9403,7 +9403,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41ProcessEntry",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1650",
@@ -9412,7 +9412,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41AddSlot",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x172C",
@@ -9430,7 +9430,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41SpawnItems",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x195C",
@@ -9439,7 +9439,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41EnqueueTransition",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1B00",

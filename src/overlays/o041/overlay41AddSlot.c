@@ -16,6 +16,7 @@ typedef struct Overlay41Slot {
 
 extern Overlay41Slot gOverlay41Slots[];
 
+#ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,
                                        f32 amount, s32 alternateColors) {
@@ -56,3 +57,6 @@ void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
         slot++;
     } while (remaining--);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41AddSlot/func_overlay_041_F0001650_1888988.s")
+#endif

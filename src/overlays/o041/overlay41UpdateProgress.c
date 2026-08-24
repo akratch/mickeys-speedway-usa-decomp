@@ -35,6 +35,7 @@ typedef struct Overlay41Input {
 extern Overlay41State *gOverlay41CurrentState;
 extern void overlay41ApplyAmount(Overlay41State *state, f32 amount, f32 step);
 
+#ifdef NON_MATCHING
 void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
                                         Overlay41State *state, s32 step) {
     Overlay41Descriptor *descriptor;
@@ -82,3 +83,6 @@ void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
         gOverlay41CurrentState = state;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41UpdateProgress/func_overlay_041_F0001298_18885D0.s")
+#endif

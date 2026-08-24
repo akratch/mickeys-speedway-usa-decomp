@@ -19,6 +19,7 @@ typedef struct Overlay41CurveNode {
  * (cubic_spline_interpolation), and Jet Force Gemini,
  * src/hasm/ido/math_util.s (splinePos); declaration and constant-family
  * source-shape analogues only. Mickey's ROM decides every detail. */
+#ifdef NON_MATCHING
 void func_overlay_041_F00002AC_18875E4(Overlay41CurveNode *node, f32 t,
                                         f32 *valueOut, f32 *tangentOut,
                                         s32 component) {
@@ -129,3 +130,6 @@ void func_overlay_041_F00002AC_18875E4(Overlay41CurveNode *node, f32 t,
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41SampleCurve/func_overlay_041_F00002AC_18875E4.s")
+#endif
