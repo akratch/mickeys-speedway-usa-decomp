@@ -22,6 +22,7 @@ extern s32 D_8007A12C;
 extern s32 D_8007A130;
 extern s32 D_8007A134;
 extern s32 D_8007A138;
+extern s8 D_800CF53F[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -41,7 +42,13 @@ extern s32 D_8007A138;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainUpdateZBCheck.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainGetZBCheck.s")
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+s8 mainGetZBCheck(s32 arg0) {
+    if ((arg0 < 0) || (arg0 >= 8)) {
+        return 1;
+    }
+    return D_800CF53F[arg0 * 8];
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainCPUeffects.s")
 
