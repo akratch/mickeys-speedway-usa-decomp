@@ -429,6 +429,13 @@ ROM `0x3AF5C`. Its byte return reads the state written by
 body carries a point-of-use `PROVENANCE` note; the default flags and data
 relocations are exact without post-processing.
 
+The tier-B `frontGetSfxVolume` adds **0xC bytes / 3 words** at ROM `0x3B07C`.
+The halfword getter's ordered JFG position and its adjacent setter's call to
+`gsSndpSetGlobalVolume` identify the state as the SFX volume. The adapted JFG
+body has a point-of-use `PROVENANCE` note; default flags and the linked global
+relocation are exact without post-processing. A zero-byte weak alias retains
+the anonymous spelling still referenced by resident assembly.
+
 ---
 
 ## 4. libultra

@@ -9,5 +9,6 @@ u8 frontRecallScreenMode(void);
 s32 frontGetLevelScreenMode(void);
 s8 frontGetWideAdjust(void);
 void frontSetWideAdjust(s32 offset);
+u16 frontGetSfxVolume(void);
 
 #endif

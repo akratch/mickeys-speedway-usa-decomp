@@ -1485,6 +1485,9 @@ frontGetLevelScreenMode = 0x8003A368; // type:func size:0x68   ROM 0x3af68  src/
 // before the already tier-A-named frontSetWideAdjust establish the role.
 frontGetWideAdjust = 0x8003A3D0; // type:func size:0xC  ROM 0x3afd0
 frontSetWideAdjust = 0x8003A3DC; // type:func size:0x2C   ROM 0x3afdc  src/menu.c.o  masked=4/11
+// Tier B (JFG): exact halfword getter, ordered menu position, and the adjacent
+// setter's gsSndpSetGlobalVolume call establish the SFX-volume role.
+frontGetSfxVolume = 0x8003A47C; // type:func size:0xC  ROM 0x3b07c
 // jfg:src/diCpu.c.o
 diCpuTraceInit = 0x800459B0; // type:func size:0x54   ROM 0x465b0  src/diCpu.c.o  masked=10/21
 // jfg:src/font.c.o

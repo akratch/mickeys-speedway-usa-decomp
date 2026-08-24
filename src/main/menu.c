@@ -24,6 +24,7 @@ extern s8 D_800D312B;
 extern MenuScreenModeBits D_800D3128;
 extern u8 D_8007C08C;
 extern u8 D_8007C090;
+extern u16 D_800D312C;
 extern s32 func_80025CC8(void);
 extern s8 func_80033F5C(void);
 extern void viSetWideAdjust(s32 offset);
@@ -102,7 +103,12 @@ void frontSetWideAdjust(s32 offset) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A408.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A41C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A47C.s")
+/* Retain the anonymous spelling used by an unsplit resident assembly caller. */
+#pragma weak func_8003A47C = frontGetSfxVolume
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetSfxVolume. */
+u16 frontGetSfxVolume(void) {
+    return D_800D312C;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A488.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A4C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A4D0.s")
