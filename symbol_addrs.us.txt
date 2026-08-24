@@ -452,6 +452,29 @@ rsp_segment = 0x800317A0; // type:func size:0x38   ROM 0x323a0  set_rsp_segment.
 // the same 21 words; what it clips for Mickey is not established here.
 weather_clip_planes = 0x8003A97C; // type:func size:0x54   ROM 0x3b57c  weather.c.o  masked=2/21
 
+// main/weather -- PROVENANCE: descriptive names borrowed from JFG's public
+// src/weather.c and DKR's public src/weather.c. Tier B is the weather call
+// graph and subsystem role; tier D is JFG/DKR order and masked-skeleton shape.
+// weather_clip_planes above remains the only tier-A function in this TU.
+initWeather = 0x8003A880; // type:func size:0xFC tier B/D, ROM 0x3b480
+freeWeather = 0x8003A9D0; // type:func size:0x120 tier B/D, ROM 0x3b5d0
+setupWeather = 0x8003AAF0; // type:func size:0x420 tier B/D, ROM 0x3b6f0
+snow_init = 0x8003AF10; // type:func size:0x120 tier B/D, ROM 0x3bb10
+changeWeather = 0x8003B030; // type:func size:0x1EC tier B/D, ROM 0x3bc30
+doWeather = 0x8003B21C; // type:func size:0x2A4 tier B/D, ROM 0x3be1c
+snow_render = 0x8003B4C0; // type:func size:0x238 tier B/D, ROM 0x3c0c0
+rain_init = 0x8003B6F8; // type:func size:0xEC tier B/D, ROM 0x3c2f8
+free_rain_memory = 0x8003B7E4; // type:func size:0x84 tier B/D, ROM 0x3c3e4
+rain_set = 0x8003B868; // type:func size:0x104 tier B/D, ROM 0x3c468
+rainSetFog = 0x8003B96C; // type:func size:0xD0 tier B/D, ROM 0x3c56c
+rainDensity = 0x8003BA3C; // type:func size:0x78 tier B/D, ROM 0x3c63c
+rain_update = 0x8003BAB4; // type:func size:0x144 tier B/D, ROM 0x3c6b4
+rain_render_splashes = 0x8003BBF8; // type:func size:0x650 tier B/D, ROM 0x3c7f8
+rain_lightning = 0x8003C248; // type:func size:0x128 tier B/D, ROM 0x3ce48
+rain_sound = 0x8003C370; // type:func size:0xC0 tier B/D, ROM 0x3cf70
+snow_update = 0x8003C430; // type:func size:0x144 tier B/D, ROM 0x3d030
+snow_vertices = 0x8003C574; // type:func size:0x1FC tier B/D, ROM 0x3d174
+
 // particles.c -- 0x3D5F0 is already a splat subsegment boundary.
 reset_particles = 0x8003C9F0; // type:func size:0x30   ROM 0x3d5f0  particles.c.o  masked=3/12
 

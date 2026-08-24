@@ -194,7 +194,14 @@ segments:
       - [0x33FA0, asm, main/trapDanglingJump]
       - [0x34180, asm]
       - [0x37D50, asm]
-      - [0x3B480, asm]
+      # JFG/DKR weather lineage: initWeather leads this run, the second
+      # routine weather_clip_planes is already tier A, and the tier-A
+      # particles reset at 0x3D5F0 independently fixes the upper boundary.
+      - [0x3B480, c, main/weather]
+      # Hand-written snow update/vertex pair. snow_vertices uses odd FP
+      # registers, and asm-processor cannot safely wrap either routine.
+      - [0x3D030, asm, main/weather_snow_asm]
+      - [0x3D370, c, main/weather_tail]
       - [0x3D5F0, asm]
       - [0x43470, asm]
       - [0x45760, asm]
