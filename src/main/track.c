@@ -15,6 +15,7 @@
 
 #include "game/track.h"
 #include "game/math.h"
+#include "n_audio/mbi.h"
 
 typedef struct TrackRotation {
     s16 x;
@@ -40,6 +41,7 @@ typedef struct TrackCachedPoint {
 
 extern TrackRotation *D_800C9530;
 extern TrackCachedPoint D_800C9B40;
+extern Gfx *D_800C9520;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -202,7 +204,25 @@ void trackSetFogOff(s32 fogIndex) {
     D_800C99C0[fogIndex].fogChanger = NULL;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014614.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800147A4.s")
+/*
+ * PROVENANCE: JFG's corresponding track.c function supplies tier-D position
+ * and structural context. The body is reconstructed from Mickey's display-
+ * list writes and its call to trackGetFog; JFG's placeholder is not imported.
+ */
+void func_800147A4(s32 playerID) {
+    s16 near;
+    s16 far;
+    s16 targetNear;
+    u8 red;
+    u8 green;
+    u8 blue;
+    s8 state;
+
+    trackGetFog(playerID, &near, &far, &targetNear, &red, &green, &blue,
+                &state);
+    gDPSetFogColor(D_800C9520++, red, green, blue, 0xFF);
+    gSPFogPosition(D_800C9520++, near, far);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800148E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014BAC.s")
 /*

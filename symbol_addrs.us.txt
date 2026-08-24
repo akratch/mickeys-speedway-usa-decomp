@@ -1420,6 +1420,10 @@ trackSetFog = 0x80014430; // type:func size:0xF8 ROM 0x15030
 // position between trackSetFog and the tier-A trackSetFogOff.
 trackGetFog = 0x80014528; // type:func size:0x78 ROM 0x15128
 
+// No public name adopted: this emits the current fog colour/range display-list
+// commands; JFG's corresponding function is still an address placeholder.
+func_800147A4 = 0x800147A4; // type:func size:0x13C ROM 0x153a4
+
 // No public name adopted: this Mickey-only helper builds a transform from the
 // current track rotation and caches one transformed point.
 func_80014DE4 = 0x80014DE4; // type:func size:0xC8 ROM 0x159e4
