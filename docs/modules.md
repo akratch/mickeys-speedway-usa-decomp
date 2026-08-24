@@ -242,7 +242,9 @@ the segment, carrying 190 function names.
 | `0x4EA60`–`0x4F4D4` | `0x8004DE60` | `main/gzip_asm` | A | **Measured file boundary**: DKR's whole 0xA74 inflate core, in one piece |
 | `0x4FC30`–`0x505E0` | `0x8004F030` | `libultra/exceptasm` | A | **Measured file boundary**, 9 routines including `__osException` and `__osDispatchThread`; §4.2. `0x4FC20` before it is the **rejected** `io/leointerrupt` match, and `0x505E0`–`0x506D0` after it is a separate unknown |
 | `0x50820`–`0x50C00` | `0x8004FC20` | `main/refractOutputAssembler` | A | Measured file boundary (JFG) |
+| `0x58E50`–`0x59B90` | `0x80058250` | `main/vehicle_sounds` | B + D | Four-function positional racer-sound block. Calls the resident XYZ sound API to maintain engine handles and derives pitch/volume from racer speed and listener distance. No exact JFG skeleton hit; the name is descriptive and the existing splat boundary is not claimed as measured |
 | `0x59B90`–`0x59BF0` | `0x80058F90` | `main/osBootRamTest` | A | Measured file boundary (JFG): the IPL3 6105 RAM test |
+| `0x5B300`–`0x5C310` | `0x8005A700` | `main/models` | B + D; one A island | Animation-table loading, reference-counted animation storage, frame selection and model-matrix construction establish the descriptive TU name. `camConvertMatrixList` at ROM `0x5B778` alone is byte-identical to JFG `camera.c`; no whole-object identity is claimed |
 | `0x5C310`–`0x5E6B0` | `0x8005B710` | `main/gsSnd` | A | **The sound player**, 0x23A0 in one piece, 22 named functions. Two of those names were predicted at tier C from error strings and fall inside this TU at exactly the predicted addresses |
 | `0x5E6B0`–`0x6AF90` | `0x8005DAB0` | libultra's `n_audio` synthesis library | A | 45 consecutive measured file boundaries, 106 names, plus two JFG maths TUs interleaved (`math_atan`, `math_acosf`); a third, `math_arc`, begins at `0x6AF90` immediately after. §4.2 |
 | `0x6B3D0`–`0x6F3E0` | `0x8006A7D0` | Transfer Pak, Rumble Pak, Controller Pak filesystem | A | 18 measured file boundaries, 34 names. The Transfer Pak three come from **Perfect Dark**, the only reference build that has them; §4.2 |
@@ -361,6 +363,64 @@ level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
 
 ---
+
+### 3.4 Vehicle sounds, models and gsSnd census
+
+These three existing 16-byte-aligned splat boundaries were moved from raw
+`asm` subsegments to C translation units with one `GLOBAL_ASM` per function.
+That changes ownership, not bytes. **PROVENANCE:** JFG's permitted
+`src/audio_manager_36D0.c`, `audio.h`, `src/models.c`, `models.h`,
+`src/camera.c`, `src/gsSnd.c` and `src/gsSnd.h` were read while identifying the
+APIs and candidate names. The initial split adapts no body from them.
+
+Every function was checked with `skeleton_scan.py similar --top 5`. ROM
+`0x58E50`–`0x59B90` produced no exact JFG match. The only exact function in
+ROM `0x5B300`–`0x5C310` is `camConvertMatrixList` (12 words, 4 relocation-
+masked, ROM-wide unique); the loader/free pair's nearest JFG shapes are in
+`models.c` but are non-exact, so their Mickey address names remain. The entire
+`gsSnd` object is already a Tier-A match; its per-function scan re-confirmed
+every function of at least 10 words except the ambiguous placeholder at
+`0x8005CD3C` and the final `gsSndpLimitVoices`, whose standalone bound omits
+the object's four padding bytes. `gsSndpGetGlobalVolume` is below the scanner
+floor. The whole-object match carries all three without importing a
+placeholder name or counting padding as function text.
+
+| ROM / VRAM | Size | Function | Evidence and call-graph role |
+|---|---:|---|---|
+| `0x58E50` / `0x80058250` | `0x58` | `func_80058250` | D: clears four positional engine-sound slots; called from resident audio setup |
+| `0x58EA8` / `0x800582A8` | `0x64` | `func_800582A8` | B/D: stops those four handles; called from the main state-transition path |
+| `0x58F0C` / `0x8005830C` | `0xBE8` | `func_8005830C` | B/D: walks active racers and maintains two positional sounds from speed and listener distance |
+| `0x59AF4` / `0x80058EF4` | `0x9C` | `func_80058EF4` | D: local logarithm-series helper used to derive Doppler pitch |
+| `0x5B300` / `0x8005A700` | `0x64` | `func_8005A700` | D: allocates animation table/cache storage |
+| `0x5B364` / `0x8005A764` | `0x0C` | `func_8005A764` | D: resets the pending-animation counter |
+| `0x5B370` / `0x8005A770` | `0x30` | `func_8005A770` | B/D: flushes the pending animation table, then resets its count |
+| `0x5B3A0` / `0x8005A7A0` | `0x1A8` | `func_8005A7A0` | B/D: loads a model's animation-ID table and allocates its animation pointer array |
+| `0x5B548` / `0x8005A948` | `0x178` | `func_8005A948` | B/D: reference-counted single-animation loader; nearest non-exact JFG `models.c` skeleton |
+| `0x5B6C0` / `0x8005AAC0` | `0xB8` | `func_8005AAC0` | B/D: releases one reference-counted animation; nearest non-exact JFG `models.c` skeleton |
+| `0x5B778` / `0x8005AB78` | `0x30` | `camConvertMatrixList` | A: exact JFG `camera.c` helper, used by the matrix builder below |
+| `0x5B7A8` / `0x8005ABA8` | `0x1BC` | `func_8005ABA8` | D: advances/clamps the current animation frame |
+| `0x5B964` / `0x8005AD64` | `0x1B0` | `func_8005AD64` | B/D: selects an animation and establishes its frame/blend state |
+| `0x5BB14` / `0x8005AF14` | `0x730` | `func_8005AF14` | B/D: builds model matrices and transformed attachment points, then queues matrix conversion |
+| `0x5C244` / `0x8005B644` | `0xCC` | `func_8005B644` | D: constructs a parented matrix list for the builder |
+
+The `gsSnd` function boundaries are: `gsSndpNew` `0x268`,
+`func_8005B978` `0xC8`, `func_8005BA40` `0x12FC`, `func_8005CD3C` `0x70`,
+`func_8005CDAC` `0x7C`, `func_8005CE28` `0x104`,
+`getSoundStateCounts` `0x104`, `func_8005D030` `0x230`,
+`func_8005D260` `0x144`, `gsSndpSetPriority` `0x28`, `gsSndpGetState`
+`0x30`, `ad_sndp_play` `0x2E8`, `gsSndpStop` `0x80`,
+`sndp_stop_with_flags` `0xBC`, the three `gsSndpStopAll*` wrappers `0x28`
+each, `gsSndpSetParam` `0x7C`, `gsSndpGetMasterVolume` `0x2C`,
+`gsSndpSetMasterVolume` `0xE0`, `gsSndpSetGlobalVolume` `0x28`,
+`gsSndpGetGlobalVolume` `0x1C`, and `gsSndpLimitVoices` `0x48` followed by
+four bytes of TU padding. All are inside the measured Tier-A `gsSnd.c` object.
+
+The direct strings are confined to `gsSnd`: state-count diagnostics and bad
+event/play-state diagnostics in `func_8005BA40`, allocation failure in
+`ad_sndp_play`, and the existing null-handle warnings in `gsSndpStop` and
+`gsSndpSetParam`. The other two ranges have no direct string reference. None
+of the 38 functions uses an odd single-precision FP register, so §6.2's
+hand-written-assembly exclusion removes no candidate from these ranges.
 
 ## 4. libultra
 
