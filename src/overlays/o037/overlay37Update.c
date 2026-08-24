@@ -35,6 +35,7 @@ extern f32 overlay37SinReloc(s32 angle);
 extern void overlay37UpdateObjectReloc(Overlay37Object *object);
 
 /* Pinned DKR v77/v80 and JFG scans contain no exact source donor. */
+#ifdef NON_MATCHING
 void overlay37Update(Overlay37Object *object, s32 ticks) {
     Overlay37State *state;
     volatile s32 savedTicks;
@@ -67,3 +68,7 @@ void overlay37Update(Overlay37Object *object, s32 ticks) {
         }
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o037/overlay37Update/func_overlay_037_F0000088_18856A8.s")
+#endif

@@ -3332,47 +3332,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o039/overlay39Write.c.o: OPT_FLAGS := -O2 -Wo,-
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x88
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Update.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x114 a2e8758f60d85c2c2ea927f5ead44995d71d903daaf0a97a5b997417fe4c12c8 \
-		fields:0x8:op=0@43,rs=a0@sp,rt=zero@a1,rd=a2@zero,fn=37@44 \
-		fields:0xc:op=43@35,rs=sp@a0,rt=a1@v0,imm=32@100 \
-		fields:0x10:op=35@0,rs=a2@a0,rt=v0@zero,rd=zero@a2,sa=1@0,fn=36@37 \
-		fields:0x20:rt=v1@a1 \
-		fields:0x2c:rs=v1@a1 \
-		fields:0x38:rs=a2@a0 \
-		fields:0x3c:rs=v1@a1 \
-		fields:0x44:rs=a2@a0 \
-		fields:0x48:rs=v1@a1 \
-		fields:0x50:rs=a2@a0 \
-		fields:0x58:rs=a2@a0 \
-		fields:0x5c:imm=32@44 \
-		fields:0xac:rt=v1@a1,imm=24@28 \
-		fields:0xd4:rt=v1@a1,imm=24@28 \
-		fields:0xd8:rt=16@0,rd=0@16 \
-		fields:0xec:rs=v1@a1 && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_037_F0000088_18856A8=overlay37Update $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x114
 # The typed reconstruction naturally owns 852 bytes plus one proved zero
 # alignment word. Extend that word into the symbol, select the complete guarded
 # frame/register/FP/schedule bijection, and bind resident calls to the overlay's
 # stored-zero runtime proxy without collapsing the relocation sites.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Render.c.o: \
-	config/normalizations/overlay37Render.ops \
-	$(TOOLS_DIR)/extend_elf_function_to_text.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Render.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x358 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/extend_elf_function_to_text.py $@ \
-		overlay37RenderEffect 0x354 0x358 \
-		dbe9cb3411865c02c06efcae1dedd18f0b5a6c96ac37781ca9d292cfc1ac9412 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x358 812e309eb30b88554676a6b7a11b8cd823a7426d7666506654bef7db8b6119e5 \
-		@config/normalizations/overlay37Render.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x01c:func_80021964:overlay37CallProxy \
-		0x174:func_8002A250:overlay37CallProxy \
-		0x248:func_800244EC:overlay37CallProxy \
-		0x264:func_800349A4:overlay37CallProxy \
-		0x33c:func_8002460C:overlay37CallProxy
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_037_F000019C_18857BC=overlay37RenderEffect $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x358
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37RecordMinimum.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37RecordActive.c.o: POSTPROCESS = \
