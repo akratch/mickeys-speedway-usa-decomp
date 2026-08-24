@@ -62,7 +62,7 @@ typedef struct GsSoundStateLink {
 } GsSoundStateLink;
 
 typedef struct GsSndEvent {
-    s16 type;
+    u16 type;
     u16 pad2;
     GsSoundStateLink *state;
     s32 param;
@@ -76,6 +76,21 @@ typedef struct GsSndPitchEvent {
     f32 pitch;
 } GsSndPitchEvent;
 
+typedef struct GsSndEventItem {
+    struct GsSndEventItem *next;
+    struct GsSndEventItem *prev;
+    s32 delta;
+    GsSndEvent event;
+} GsSndEventItem;
+
+typedef struct GsSndEventQueue {
+    GsSndEventItem *next;
+    GsSndEventItem *prev;
+    GsSndEventItem *allocHead;
+    u8 padC[4];
+    s16 allocCount;
+} GsSndEventQueue;
+
 extern GsSndPlayer *D_8007FF4C;
 extern GsSoundStateLink *D_8007FF40;
 extern GsSoundStateLink *D_8007FF44;
@@ -85,11 +100,13 @@ extern const char D_800843FC[];
 
 u32 osSetIntMask(u32 mask);
 f32 alCents2Ratio(s32 cents);
+void alLink(void *element, void *after);
+void alUnlink(void *element);
 void n_alEvtqPostEvent(void *eventQueue, void *event, s32 delta);
 void n_alSynFreeVoice(void *voice);
 void n_alSynStopVoice(void *voice);
 void rmonPrintf(const char *format, ...);
-void func_8005CE28(void *queue, GsSoundStateLink *state, u16 flags);
+void func_8005CE28(GsSndEventQueue *queue, GsSoundStateLink *state, u16 flags);
 void func_8005D260(GsSoundStateLink *state);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
@@ -101,7 +118,7 @@ void func_8005CD3C(GsSoundStateLink *state) {
         n_alSynFreeVoice((u8 *)state + 0xC);
     }
     func_8005D260(state);
-    func_8005CE28(D_8007FF4C->eventQueue, state, 0xFFFF);
+    func_8005CE28((GsSndEventQueue *)D_8007FF4C->eventQueue, state, 0xFFFF);
 }
 /*
  * PROVENANCE: adapted from func_80243FE4 in Banjo-Kazooie's permitted
@@ -130,7 +147,35 @@ void func_8005CDAC(GsSoundStateLink *state) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CDAC.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CE28.s")
+void func_8005CE28(GsSndEventQueue *queue, GsSoundStateLink *state, u16 typeMask) {
+    GsSndEventItem *item;
+    GsSndEventItem *next;
+    GsSndEventItem *thisItem;
+    GsSndEventItem *nextItem;
+    GsSndEvent *event;
+    u32 mask;
+
+    mask = osSetIntMask(1);
+    item = queue->allocHead;
+    if (item != NULL) {
+        do {
+            next = item->next;
+            thisItem = item;
+            nextItem = next;
+            event = &thisItem->event;
+            if (event->state == state && (event->type & typeMask)) {
+                if (nextItem != NULL) {
+                    nextItem->delta += thisItem->delta;
+                }
+                alUnlink(item);
+                queue->allocCount--;
+                alLink(item, queue);
+            }
+            item = next;
+        } while (item != NULL);
+    }
+    osSetIntMask(mask);
+}
 /* PROVENANCE: adapted from JFG src/gsSnd.c (getSoundStateCounts). */
 u16 getSoundStateCounts(u16 *numFree, u16 *numAllocated) {
     u32 mask;
