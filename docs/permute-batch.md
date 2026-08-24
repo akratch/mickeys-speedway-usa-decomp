@@ -176,27 +176,50 @@ if -- and only if -- the whole line was that one now-redundant rename.
 
 ## Cost and match rate (measured)
 
-Measured against the one function queued at the time this tool was built,
-`overlay1GetEntry` (o001, 0x30 bytes / 12 instructions):
+**Pilot, this lane's own queue item**, `overlay1GetEntry` (o001, 0x30 bytes
+/ 12 instructions), 12-minute cap, `-j 6`, `--apply`:
 
-| | |
-|---|---|
-| base score | 330 |
-| best score reached, 12-minute cap, `-j 6` | 190 (a 42% score reduction; still nonzero) |
-| zero-diff found | no |
-| promoted (verified match) | no -- stayed queued, `#ifdef NON_MATCHING` unchanged |
-| wall-clock for the whole run (import + permute, capped; no promote/build phase since no zero-diff was found) | 721s (~12 min -- ran to the wall-clock cap, `--stop-on-zero` never triggered) |
+| function | base | best | zero-diff | promoted | wall-clock |
+|---|---|---|---|---|---|
+| `overlay1GetEntry` | 330 | 190 (-42%) | no | no | 721s (ran to the cap) |
 
-One data point is not a match-rate estimate. `overlay1GetEntry` was
-originally reached only through `normalize_elf_instructions.py` (three
-register-field edits, disqualified by `docs/adr/0002`), so a genuine
-compiler-only match existing at all was not guaranteed going in -- a
-useful floor case, not a representative one. The ~310-function queue this
-tool is built for will produce the real rate; rerun this section's numbers
-(`tools/permute_batch.py --limit 20 --jobs 4 --minutes 15 --apply` is a
-reasonable first real batch) once a meaningful slice has gone through and
-replace this table rather than layering a second one on top of it, per
-`CLAUDE.md`'s "derived numbers are recomputed, never remembered."
+**Cross-lane sample**, three functions from `lane/cx-nm-2`'s overlay 2
+conversion (not yet merged into this lane's own queue -- checked out onto a
+throwaway branch reset to that lane's `HEAD`, tested, then discarded; no
+commit of theirs was kept), 8-minute cap, `-j 4`, report-only (`--apply`
+omitted deliberately -- these functions are not this lane's to promote):
+
+| function | base | best | zero-diff | promoted | wall-clock |
+|---|---|---|---|---|---|
+| `func_overlay_002_F0001A94_185888C` | 570 | 530 (-7%) | no | no | 482s (ran to the cap) |
+| `overlay2ClassifyBoundary` | 2540 | 1320 (-48%) | no | no | 482s (ran to the cap) |
+| `overlay2ChooseBoundary` | 3295 | 1995 (-39%) | no | no | 482s (ran to the cap) |
+
+This also proved the queue-discovery and naming-quirk handling against a
+tree with several other lanes' conversions merged in at once:
+`--list` against the `cx-nm-2` checkout correctly surfaced 19 queued
+functions across 7 overlay/`main` sources without duplicates, including
+`func_overlay_002_F0001A94_185888C` -- a function whose `#ifdef
+NON_MATCHING` branch is itself still named with splat's auto name (no
+friendly name assigned yet), the other shape the naming-quirk rename needs
+to handle correctly (a no-op rename, rather than skipping the rename step).
+
+**Combined: 4 functions run, 0 zero-score (0%), 0 promoted (0%), 0
+errored.** Every run reduced the score (7-48%) but none reached zero within
+its cap. Four data points is not a reliable match-rate estimate for a
+~310-function queue, but it is enough to report honestly: at these caps
+(8-12 min, 4-6 permuter threads), the permuter is closing part of the gap
+on functions of this size (roughly a hundred bytes to half a kilobyte) but
+not resolving them outright, on this small a sample. `overlay1GetEntry`
+specifically was originally reached only through
+`normalize_elf_instructions.py` (three register-field edits, disqualified
+by `docs/adr/0002`), so a genuine compiler-only match existing for it at
+all was not guaranteed going in. Re-run this section's numbers once a
+meaningful slice of the real queue has gone through
+(`tools/permute_batch.py --limit 20 --jobs 4 --minutes 15 --apply` against
+this lane's own merged queue is a reasonable next batch) and replace this
+table rather than layering a second one on top of it, per `CLAUDE.md`'s
+"derived numbers are recomputed, never remembered.""
 
 ## Recommended default cap
 
