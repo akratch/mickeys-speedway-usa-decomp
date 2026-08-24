@@ -271,10 +271,8 @@ TEXT_SUBSEGMENTS = {
         (0x000, "c", "overlay10Initialize"),
     ],
     12: [
-        (0x000, "c", "overlay12Initialize"),
-        (0x0C4, "c", "overlay12Shutdown"),
-        (0x1B4, "c", "overlay12SpawnEffect"),
-        (0x2E4, "c", "overlay12SpawnParticle"),
+        (0x000, "c", "overlay_012"),
+        (0x1B4, "c", "overlay_012_tail"),
         (0x3A8, "asm", "overlay_012_tail1"),
     ],
     13: [

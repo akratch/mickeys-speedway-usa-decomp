@@ -1015,10 +1015,8 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x186D280, c, overlay12Initialize]
-      - [0x186D344, c, overlay12Shutdown]
-      - [0x186D434, c, overlay12SpawnEffect]
-      - [0x186D564, c, overlay12SpawnParticle]
+      - [0x186D280, c, overlay_012]
+      - [0x186D434, c, overlay_012_tail]
       - [0x186D628, asm, overlay_012_tail1]
       - [0x186E520, bin, overlay_012_data_rodata]
       - [0x186E670, bin, overlay_012_reloc1]
