@@ -3013,7 +3013,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x18F1FB0, c, osRamTest4_6105]
+      - [0x18F1FB0, c, overlay_107]
       - [0x18F1FD8, asm, overlay_107_padding]
 
   # END GENERATED OVERLAY SEGMENTS -- tools/overlay_atlas.py

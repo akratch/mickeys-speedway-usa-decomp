@@ -1156,7 +1156,7 @@ TEXT_SUBSEGMENTS = {
         (0x008, "asm", "overlay_106_padding"),
     ],
     107: [
-        (0x000, "c", "osRamTest4_6105"),
+        (0x000, "c", "overlay_107"),
         (0x028, "asm", "overlay_107_padding"),
     ],
 }

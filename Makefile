@@ -692,7 +692,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o103/overlay_103.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x6C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o106/overlay_106.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o107/osRamTest4_6105.c.o: POSTPROCESS = \
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o107/overlay_107.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x28
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchBank.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB8
@@ -6970,7 +6970,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o102/overlay_102.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o103/overlay_103.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o106/overlay_106.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o107/osRamTest4_6105.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o107/overlay_107.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1WrapOffset.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SignedOffset.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindNextAngle.c.o \
