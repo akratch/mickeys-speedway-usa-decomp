@@ -377,6 +377,10 @@ extern void *overlay1Chain40Reloc(void *source);
 extern f32 overlay1InterpolateReloc(f32 first, f32 second, s32 third,
                                    s32 fourth, f32 weight);
 
+/* Plateau (2026-08-24): all 119 flag combinations are exact-sized but tie
+ * at 49 of 88 differing words with the first mismatch at +0x0.  The whole
+ * entry ABI/register assignment differs, so this requires a typed owner/global
+ * representation change rather than local statement reordering. */
 #ifdef NON_MATCHING
 s32 overlay1ActivateObject(Overlay1Owner *owner) {
     Overlay1OwnerState *state;

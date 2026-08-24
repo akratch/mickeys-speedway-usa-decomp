@@ -37,6 +37,10 @@ extern s32 overlay1SegmentReloc(f32 x0, f32 y0, f32 x1, f32 y1,
 extern void func_overlay_001_F0007730_1853B10(s16 *x, s16 *y,
                                                u8 selector, u8 mode);
 
+/* Plateau (2026-08-24): every -O2 -mips2 lattice member is exact-sized and
+ * only 8 of 152 words differ, first at +0x90.  Ten source forms leave the
+ * same D_218/D_1D88 store schedule, record-pointer reuse, and doubled-product
+ * register residual; direct BSS-struct and volatility spellings regress it. */
 #ifdef NON_MATCHING
 s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
                              s16 *outX, s16 *outY) {

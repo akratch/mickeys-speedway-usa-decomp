@@ -176,6 +176,10 @@ extern O1ChoiceObject *overlay1FindChoice(f32 progress,
                                          s32 minimum, s32 *scores);
 extern f32 overlay1MeasureChoice(f32 first, f32 second);
 
+/* Plateau (2026-08-24): -O2 -mips2 -Wab,-r4300_mul was best across the
+ * flag lattice, but remains 0x4 bytes long with 360 of 446 words differing
+ * and a first mismatch at +0xC.  The gap spans the full state-machine
+ * register schedule rather than one local expression-order choice. */
 #ifdef NON_MATCHING
 void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
     O1ChoiceState *otherState;
@@ -500,6 +504,10 @@ extern void ext_o0_5a914(Transform *, s32, s32, s32);
 extern Spawned *local_414(s16, Spawned **);
 extern s16 local_c0(Spawned *);
 
+/* Plateau (2026-08-24): the full flag lattice ties at -O2 -mips2; the
+ * candidate is 0xC bytes short, differs in 164 of 237 words, and first
+ * diverges at +0x20.  Its nested phase-state CFG is structurally incomplete,
+ * so statement permutation cannot supply the missing blocks. */
 #ifdef NON_MATCHING
 void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateRate) {
     Spawned *sp3C;
@@ -770,6 +778,11 @@ typedef struct HitRecord {
     u32 flags;
 } HitRecord;
 
+/* Plateau (2026-08-24): the complete flag lattice favored
+ * -O2 -mips2 -Wo,-loopunroll,0, but the candidate was 0x38 bytes short,
+ * differed in 1462 of 1542 words, and first diverged at +0x0.  This m2c
+ * draft needs a typed ABI/frame rewrite; local expression permutation is
+ * not a credible route to the retail register and control-flow shape. */
 #ifdef NON_MATCHING
 void func_overlay_001_F000438C_185076C(f32 *arg0, s32 arg1) {
     f32 *sp130;
@@ -1686,6 +1699,11 @@ extern void overlay1ModeAction8(void *object);
 extern void overlay1ModeAction9(void *object);
 extern f32 overlay1WrapOffset(f32 first, f32 second);
 
+/* Plateau (2026-08-24): every -O2 -mips2 flag variant is retail-sized and
+ * reaches the same first mismatch at +0x6C; 28 of 199 words remain, almost
+ * entirely allocator choices across switch cases.  Nine declaration-order,
+ * register-storage, and world-symbol spelling attempts did not improve the
+ * best schedule; the unavailable local permuter is the next useful search. */
 #ifdef NON_MATCHING
 s32 overlay1DispatchMode(void) {
     Overlay1ModeState *world;
@@ -1969,6 +1987,10 @@ void overlay1ReadSelection(Overlay1Object *object, s32 index, f32 *outX,
 extern f32 overlay1SqrtReloc(f32 value);
 extern s32 overlay1AngleReloc(f32 y, f32 x);
 
+/* Plateau (2026-08-24): -O2 -mips2 -Wab,-r4300_mul is best, but remains
+ * 0x8 bytes short with 69 of 139 words differing and first mismatch +0xA8.
+ * The quadratic-candidate tail has missing expression/branch structure, not
+ * an isolated multiply-codegen issue. */
 #ifdef NON_MATCHING
 s16 overlay1SolveAngleCandidates(
     f32 x0, f32 y0, f32 x1, f32 y1,
@@ -2534,6 +2556,11 @@ extern f32 func_8002A8BC(s32 angle);
 extern f32 func_8002A8C0(s32 angle);
 extern f32 sqrtf(f32 value);
 
+/* Plateau (2026-08-24): -O2 -g3 -mips2 -Wab,-r4300_mul reaches the
+ * retail size, but 56 of 249 words differ from +0x0.  The remaining shape
+ * has an 8-byte larger non-save frame and 17 alignment gaps; world-pointer
+ * volatility, explicit register storage, and saved-state lifetime variants
+ * did not improve it.  It needs a frame/early-load representation change. */
 #ifdef NON_MATCHING
 void overlay1UpdateAimedTransient(void) {
     Overlay1TransientWorld *world;
@@ -3026,6 +3053,10 @@ extern s16 overlay1AnchorY;
 extern s32 gOverlay1PoolExhausted;
 
 /* DKR v77/v80 and JFG have no exact donor for this bounded path advance. */
+/* Plateau (2026-08-24): all -O2 -mips2 flag variants are exact-sized, but
+ * 84 of 162 words differ and the first mismatch is +0x10.  The residual
+ * crosses the allocator loop, endpoint update, and callback path, beyond a
+ * bounded temporary-order search. */
 #ifdef NON_MATCHING
 s32 overlay1AdvancePath(Overlay1PathState *state) {
     s16 currentX;

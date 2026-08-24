@@ -286,6 +286,10 @@ extern f32 func_overlay_001_F0000F84_184D364(
     f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3,
     s32 scale);
 
+/* Plateau (2026-08-24): all 119 flag combinations preserve the same best
+ * -O2 -mips2 shape.  It is 0x5C bytes short, differs in 470 of 572 words,
+ * and first diverges at +0x34.  The missing scheduling/frame structure is
+ * broader than a bounded temporary-order permutation. */
 #ifdef NON_MATCHING
 void overlay1LoadBuildRecords(void) {
     Overlay1PackedRecord *records;
@@ -685,6 +689,11 @@ extern s32 gOverlay1BuildGate;
 extern u8 gOverlay1RankBase;
 extern u8 gOverlay1RankLimit;
 extern u8 D_8[];
+
+/* Plateau (2026-08-24): the complete flag lattice ties at -O2 -mips2; the
+ * candidate is 0x10 bytes short, differs in 114 of 148 words, and diverges
+ * at +0x0.  The object/rank mapping loops need a structural rewrite before
+ * register-order work can be meaningful. */
 #ifdef NON_MATCHING
 void overlay1BuildObjectMappings(volatile s32 unused) {
     s32 count;
