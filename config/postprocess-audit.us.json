@@ -415,7 +415,7 @@
       ]
     },
     {
-      "class": "altered",
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o001/overlay1GetEntry.c.o",
       "offset": 80,
@@ -423,8 +423,7 @@
       "size": 48,
       "source": "src/overlays/o001/overlay1GetEntry.c",
       "tools": [
-        "normalize_elf_instructions.py",
-        "trim_elf_section.py"
+        "objcopy"
       ]
     },
     {
@@ -9555,10 +9554,10 @@
   ],
   "schema_version": 1,
   "summary": {
-    "altered_bytes": 200396,
+    "altered_bytes": 200348,
     "by_class": {
-      "altered": 312,
-      "metadata": 422
+      "altered": 311,
+      "metadata": 423
     },
     "matched_c_bytes_with_postprocess": 275496,
     "objects_with_postprocess": 734

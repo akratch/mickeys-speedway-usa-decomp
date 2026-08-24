@@ -4318,13 +4318,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitTimedState.c.o: POSTPROCESS = 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1PointerWrap.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
+# NON_MATCHING/GLOBAL_ASM per docs/acceleration-survey.md sec.13.2: this
+# object's instructions used to be reached by rewriting three fields after
+# compilation (normalize_elf_instructions.py), which no gold-standard N64
+# decomp does. The .c now GLOBAL_ASMs the extracted retail bytes instead;
+# only the symbol rename below (metadata, not instructions) survives.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x30 2dca94981d4738c330e8f48e463617ccee976b044d78f6d49717df991819a4bb \
-		fields:0x10:imm=3@5 \
-		fields:0x28:rs=zero@ra,fn=0@8 \
-		fields:0x2c:rs=zero@v1,rd=zero@v0,fn=0@37 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
+	$(OBJCOPY) --redefine-sym func_overlay_001_F0000050_184C430=overlay1GetEntry $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetEntryIndex.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindType5ByKey.c.o: POSTPROCESS = \
