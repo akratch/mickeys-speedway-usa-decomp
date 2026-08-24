@@ -14,7 +14,9 @@ root=$(git rev-parse --show-toplevel)
 lane=$(dirname "$root")/mickey-lane-$name
 branch=lane/$name
 echo "== lane gates ($lane)"
-(cd "$lane" && gmake clean >/dev/null && gmake -j12 verify 2>&1 | tail -1 && gmake check-docs 2>&1 | tail -1)
+lane_out=$(cd "$lane" && gmake clean >/dev/null && gmake -j12 verify 2>&1 | tail -1); echo "$lane_out"
+case "$lane_out" in OK*) ;; *) echo "lane $name does not verify from a clean build; not merging" >&2; exit 1 ;; esac
+(cd "$lane" && gmake check-docs 2>&1 | tail -1)
 tools/cleanroom_check.sh --range "HEAD..$branch" 2>&1 | tail -1
 echo "== merge $branch"
 if ! git merge --no-edit "$branch" >/dev/null 2>&1; then
@@ -29,9 +31,10 @@ if ! git merge --no-edit "$branch" >/dev/null 2>&1; then
   git commit -q --no-edit
 fi
 echo "== integration gates"
-tools/with_verify_lock.sh gmake -j12 verify 2>&1 | tail -1
 gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/refresh_atlas_digest.py >/dev/null
+out=$(tools/with_verify_lock.sh gmake -j12 verify 2>&1 | tail -1); echo "$out"
+case "$out" in OK*) ;; *) echo "verify FAILED after merging $branch; merge left in place" >&2; exit 1 ;; esac
 gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
 gmake check-docs 2>&1 | tail -1
