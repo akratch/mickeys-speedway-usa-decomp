@@ -105,7 +105,10 @@ s32 camSetMode(s32 mode) {
     }
     return mode + 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021964.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetNo. */
+s32 camGetNo(void) {
+    return D_800CEC64;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021970.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021994.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetWaterLine. */
