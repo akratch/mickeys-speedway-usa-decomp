@@ -16,6 +16,7 @@ extern void func_overlay_029_F00010C4_187E374(void *, s32);
 extern void func_overlay_029_F00001C4_187D474(void *);
 extern void func_overlay_029_F000023C_187D4EC(void *, void *);
 
+#ifdef NON_MATCHING
 void func_overlay_029_F000042C_187D6DC(void *object, void *init) {
     Vec3f position;
     Vec3f offset;
@@ -61,3 +62,6 @@ void func_overlay_029_F000042C_187D6DC(void *object, void *init) {
     func_overlay_029_F00001C4_187D474(object);
     func_overlay_029_F000023C_187D4EC(object, contact);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/overlay29InitializeObject/func_overlay_029_F000042C_187D6DC.s")
+#endif

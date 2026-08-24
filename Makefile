@@ -2234,51 +2234,14 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29UpdateRatio.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29UpdateRatio.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29Sample.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x128
-# Natural source owns the exact typed object initializer, calls, CFG, and
-# instruction multiset. The complete address-taken workspace schedule and
-# private initializer web select retail's equivalent frame/register layout.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29InitializeObject.c.o: \
-	config/normalizations/overlay29InitializeObject.ops \
-	config/normalizations/overlay29InitializeObject.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29InitializeObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x198 97927750b4425decf6e37234d1646fef82f534c9a9c3a0d42baad4e2bfef0a6f \
-		@config/normalizations/overlay29InitializeObject.ops && \
-	$(OBJCOPY) --redefine-sym \
-		func_80029A24=func_overlay_029_F0000000_187D2B0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay29InitializeObject.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x198
-# The typed four-record effect path emits the shipped instruction order, CFG,
-# calls, and memory effects. This complete target-local web selects retail's
-# equivalent register colors and private stack/record homes only.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29HandleEffects.c.o: \
-	config/normalizations/overlay29HandleEffects.ops \
-	config/normalizations/overlay29HandleEffects.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29HandleEffects.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29HandleEffects.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x404 db57afb6582b28b710ad7695c02935ee148dc25558fbfda2f997d713750b258d \
-		@config/normalizations/overlay29HandleEffects.ops && \
-	$(OBJCOPY) --redefine-sym \
-		overlay29ResetReloc=func_overlay_029_F0000000_187D2B0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay29HandleEffects.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x404
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29DrawGroups.c.o: \
-	config/normalizations/overlay29DrawGroups.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29DrawGroups.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x204 1c0437b30e748ac5ed69b7e03ec81f9f81030e0f45e979df35ebf43bfbfe3fa5 \
-		@config/normalizations/overlay29DrawGroups.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x18c:overlay29FlushReloc:func_overlay_029_F0000000_187D2B0 \
-		0x1a8:overlay29FinishReloc:func_overlay_029_F0000000_187D2B0 && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_029_F00014C8_187E778=overlay29DrawGroups $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x204
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay51Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
@@ -6749,24 +6712,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26DrawGroups.c.o: POSTPROCESS = \
 		@config/normalizations/overlay26DrawGroups.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x218
 
-# The typed plane projection has the shipped CFG, multiply hazards, calls,
-# memory effects, and opcode stream. This complete target-local web selects
-# its equivalent frame homes, FPR colors, and commutative operand choices.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29ProjectPoint.c.o: \
-	config/normalizations/overlay29ProjectPoint.ops \
-	config/normalizations/overlay29ProjectPoint.filter.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29ProjectPoint.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29ProjectPoint.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x1E4 6b365b11ebcc3d4354b8065b93d857a9310062c0ccc8523febef5dac7eb1fd03 \
-		@config/normalizations/overlay29ProjectPoint.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay29ProjectPoint.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		overlay29SqrtReloc=func_overlay_029_F0000000_187D2B0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1E4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Release.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70

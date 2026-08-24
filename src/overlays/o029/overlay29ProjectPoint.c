@@ -29,6 +29,7 @@ typedef struct Overlay29Owner {
 extern f32 gOverlay29MinimumYReloc;
 extern f32 overlay29SqrtReloc(f32 value);
 
+#ifdef NON_MATCHING
 void func_overlay_029_F0000EE0_187E190(
     s32 unused, Vec3f *output, Vec3f *axis, f32 height,
     Overlay29Transform *transform, Overlay29Owner *owner) {
@@ -86,3 +87,6 @@ void func_overlay_029_F0000EE0_187E190(
         state->flags |= 4;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/overlay29ProjectPoint/func_overlay_029_F0000EE0_187E190.s")
+#endif

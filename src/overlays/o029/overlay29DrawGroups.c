@@ -44,6 +44,7 @@ extern void func_overlay_029_F0000000_187D2B0(
 extern void overlay29FlushReloc(Gfx **);
 extern void overlay29FinishReloc(Gfx **);
 
+#ifdef NON_MATCHING
 /* Exact at +0x14C8; DKR v77/v80 and JFG have no exact overlay-29 donor. */
 void overlay29DrawGroups(Gfx **dl, s32 drawContext,
                          Overlay29Context *context) {
@@ -135,3 +136,6 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
         gfx->w0 = 0xFA000000;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/overlay29DrawGroups/func_overlay_029_F00014C8_187E778.s")
+#endif
