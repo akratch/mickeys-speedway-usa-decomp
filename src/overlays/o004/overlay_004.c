@@ -149,9 +149,9 @@ void overlay4RemoveObject(Overlay4RemoveObject *object) {
     }
 }
 
-#ifdef NON_MATCHING
 void overlay4UpdateGroupSpacing(Overlay4ChainObject *object) {
     Overlay4Group *group;
+    Overlay4GroupState *state;
     Overlay4ChainObject **objects;
     Overlay4ChainObject *previous;
     s32 count;
@@ -161,7 +161,8 @@ void overlay4UpdateGroupSpacing(Overlay4ChainObject *object) {
     f32 distance;
     f32 scale;
 
-    group = &gOverlay4Groups[object->state->group];
+    state = object->state;
+    group = &gOverlay4Groups[state->group];
     count = group->count;
     objects = (Overlay4ChainObject **)group->objects;
     while (count--) {
@@ -183,9 +184,6 @@ void overlay4UpdateGroupSpacing(Overlay4ChainObject *object) {
         object->z = previous->z + dz;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay4UpdateGroupSpacing/func_overlay_004_F00005D0_185AC48.s")
-#endif
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
 s32 overlay4GroupCount(Overlay4GroupObject *object) {
