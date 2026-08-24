@@ -63,6 +63,8 @@ typedef struct MainGameState {
 extern MainGameEntry *D_800D18E0;
 extern void *D_800D18E4;
 extern u8 D_800D1928[];
+extern OSMesgQueue D_800D18F8;
+extern s32 D_800D1910;
 extern s32 levelNGetType(s32 level);
 extern void func_80028EFC(MainCharacterState *, s32, s32);
 extern void mainChangeLevel(s32, s32, s32, s32, s32, s32);
@@ -75,7 +77,13 @@ extern void joyResetMap(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainThread.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainResetPressed.s")
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+s32 mainResetPressed(void) {
+    if (D_800D1910 == 0) {
+        D_800D1910 = (osRecvMesg(&D_800D18F8, NULL, OS_MESG_NOBLOCK) + 1) != 0;
+    }
+    return D_800D1910;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainPreNMI.s")
 
