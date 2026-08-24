@@ -429,7 +429,7 @@ body is copied by this split; Mickey's own bytes remain authoritative.
 | `0x1BE60` | `0x10` | `camlightAdd` | B/D name; exact C, 4 words, 0 relocs |
 | `0x1BE70` | `0x8` | `camlightDelete` | B/D name; exact C, 2 words, 0 relocs |
 | `0x1BE78` | `0x8` | `camlightUpdateAll` | B/D name; exact C, 2 words, 0 relocs |
-| `0x1BE80` | `0x8` | `camlightUpdate` | B/D; no-op stub |
+| `0x1BE80` | `0x8` | `camlightUpdate` | B/D name; exact C, 2 words, 0 relocs |
 | `0x1BE88` | `0x8` | `camlightVisibilityCheck` | B/D; no-op stub |
 | `0x1BE90` | `0x10` | `camlightDraw` | B/D; no-op stub |
 | `0x1BEA0` | `0x74` | `spranimInit` | B/D |
