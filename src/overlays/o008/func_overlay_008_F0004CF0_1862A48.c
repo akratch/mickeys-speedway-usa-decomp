@@ -76,6 +76,7 @@ extern const f32 O8P4CF0_data_2A4;
 extern const f32 O8P4CF0_data_2A8;
 extern f32 O8P4CF0_data_4FD4;
 
+#ifdef NON_MATCHING
 void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
                                        O8P4CF0State *state,
                                        s32 updateRate) {
@@ -204,3 +205,6 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/func_overlay_008_F0004CF0_1862A48/func_overlay_008_F0004CF0_1862A48.s")
+#endif

@@ -32,6 +32,7 @@ typedef struct Overlay22Owner {
 extern f32 D_10;
 extern f32 func_overlay_022_F0000000_1878108(f32);
 
+#ifdef NON_MATCHING
 void func_overlay_022_F0000A7C_1878B84(
     void *unused, Vec3f *out, Vec3f *direction, f32 distance,
     Overlay22Plane *plane, Overlay22Owner *owner) {
@@ -116,3 +117,6 @@ void func_overlay_022_F0000A7C_1878B84(
         result->flags01 |= 4;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o022/overlay22ResolvePlane/func_overlay_022_F0000A7C_1878B84.s")
+#endif

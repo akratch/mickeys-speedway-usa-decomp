@@ -83,6 +83,7 @@ extern s32 O8P291C_call_037C(O8P291CMotion *motion, O8P291CState *state,
                              f32 update);
 extern s32 O8P291C_call_039C(O8P291CMotion *motion, f32 x, f32 y, f32 z);
 
+#ifdef NON_MATCHING
 void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
                                        O8P291CState *state,
                                        f32 update) {
@@ -201,3 +202,6 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
             (1.0f - func_overlay_008_F0000000_185DD58(O8P291C_data_1AC, savedRate));
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/func_overlay_008_F000291C_1860674/func_overlay_008_F000291C_1860674.s")
+#endif

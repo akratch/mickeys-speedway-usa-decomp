@@ -33,6 +33,7 @@ extern void overlay48FinishTransition(f32 value, s32 mode);
  * fail-loud schedule ledger moves one side-effect-free argument load to the
  * retail slot and updates the five induced branch displacements.
  */
+#ifdef NON_MATCHING
 void overlay48UpdateState(s32 updateRate) {
     Overlay48Entry *entry;
     s32 index;
@@ -122,3 +123,6 @@ void overlay48UpdateState(s32 updateRate) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o048/overlay48UpdateState/func_overlay_048_F0000144_189554C.s")
+#endif

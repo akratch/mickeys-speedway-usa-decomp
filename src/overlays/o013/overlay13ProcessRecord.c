@@ -11,6 +11,7 @@ extern f32 gOverlay13Gravity;
 extern s32 gOverlay13ActiveCount;
 extern void overlay13Prepare(s32, s32, s32, Overlay13Record *);
 
+#ifdef NON_MATCHING
 void *overlay13UpdateRecord(Overlay13Record *record, s32 ticks) {
     f32 radius;
     f32 gravity;
@@ -95,3 +96,6 @@ loop_fade:
     }
     return result;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o013/overlay13ProcessRecord/func_overlay_013_F0000284_186ED9C.s")
+#endif

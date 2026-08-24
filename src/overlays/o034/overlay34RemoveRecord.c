@@ -12,6 +12,7 @@ extern Overlay34Record **gOverlay34Pointers;
 extern s32 gOverlay34ActiveCount;
 extern void *func_80034448();
 
+#ifdef NON_MATCHING
 void overlay34RemoveRecord(Overlay34Record *record) {
     Overlay34Record **slot;
     s32 remaining;
@@ -49,3 +50,6 @@ void overlay34RemoveRecord(Overlay34Record *record) {
         } while (remaining--);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o034/overlay34RemoveRecord/func_overlay_034_F00002C8_1881470.s")
+#endif

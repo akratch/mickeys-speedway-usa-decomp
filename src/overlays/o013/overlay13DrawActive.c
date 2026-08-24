@@ -23,6 +23,7 @@ extern O13Record D_0[];
 extern O13View *o13GetView(void);
 extern void func_overlay_013_F0000580_186F098(O13Record *, s32, s32, s32);
 
+#ifdef NON_MATCHING
 void overlay13DrawActive(s32 arg0, s32 arg1, s32 arg2) {
     f32 distances[35];
     s32 indices[32];
@@ -88,3 +89,6 @@ void overlay13DrawActive(s32 arg0, s32 arg1, s32 arg2) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o013/overlay13DrawActive/func_overlay_013_F0000874_186F38C.s")
+#endif

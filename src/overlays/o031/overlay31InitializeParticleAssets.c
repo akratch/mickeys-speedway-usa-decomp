@@ -25,6 +25,7 @@ static void *const overlay31RuntimeCarrier =
 
 /* PROVENANCE: Diddy Kong Racing, src/particles.c (init_particle_assets);
  * semantic source-shape analogue only. Mickey's ROM decides every detail. */
+#ifdef NON_MATCHING
 void func_overlay_031_F00002E8_187F808(void) {
     s32 i;
 
@@ -67,3 +68,6 @@ void func_overlay_031_F00002E8_187F808(void) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o031/overlay31InitializeParticleAssets/func_overlay_031_F00002E8_187F808.s")
+#endif

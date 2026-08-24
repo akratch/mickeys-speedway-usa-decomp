@@ -32,6 +32,7 @@ extern void o13DrawRecord(O13Command **, s32, s32, O13Record *, void *, s32, s32
 extern void o13FinishDraw(void);
 extern void o13SetupRecord(O13Command **, void *, s32, s32);
 
+#ifdef NON_MATCHING
 void overlay13DrawRecord(
     O13Record *record, O13Command **commands, s32 arg2, s32 arg3) {
     O13RenderState *render;
@@ -98,3 +99,6 @@ void overlay13DrawRecord(
         cmd->w1 = 0xFFFFFFFF;
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o013/overlay13DrawRecord/func_overlay_013_F0000580_186F098.s")
+#endif

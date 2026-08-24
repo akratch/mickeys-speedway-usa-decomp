@@ -103,6 +103,7 @@ extern void ext_o0_3e99c(O8Owner *, s32);
 extern void ext_o17_668(void *, void *);
 extern void ext_o0_2d70(void *, s32, s32, s32);
 
+#ifdef NON_MATCHING
 void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
                                        s32 updateRate) {
     void *savedResource;
@@ -228,3 +229,6 @@ void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
         ext_o0_2d70(state->resourceC4, owner->valueC, owner->value10,
                     owner->value14);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/func_overlay_008_F0000894_185E5EC/func_overlay_008_F0000894_185E5EC.s")
+#endif

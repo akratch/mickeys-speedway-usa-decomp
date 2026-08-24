@@ -43,6 +43,7 @@ typedef struct Overlay8ScaleState {
 extern const f32 gOverlay8ScaleLowerReloc;
 extern const f32 gOverlay8ScaleUpperReloc;
 
+#ifdef NON_MATCHING
 void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
                           Overlay8ScaleContext *context,
                           Overlay8ScaleOutput *output) {
@@ -91,3 +92,6 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
         } while (i < context->count);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay8ScaleOutputs/func_overlay_008_F0003368_18610C0.s")
+#endif

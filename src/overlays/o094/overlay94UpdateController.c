@@ -57,6 +57,7 @@ extern void func_8002B040(void *queryState, f32 x, f32 y, f32 z,
                           f32 *out0, f32 *out1, f32 *out2);
 extern s32 func_8002A910(f32 z, f32 x);
 
+#ifdef NON_MATCHING
 void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     Overlay94State *state;
     Overlay94Entity *entity;
@@ -171,3 +172,6 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
 
     state->angle = angle;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o094/overlay94UpdateController/func_overlay_094_F0000110_18D6CB0.s")
+#endif

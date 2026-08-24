@@ -13,6 +13,7 @@ extern void *overlay31CreateSlotTable(s32 kind, s32 flags, s32 width,
 extern void *gOverlay31SlotTable;
 
 /* DKR v77/v80 and JFG contain no exact donor for this pool allocator. */
+#ifdef NON_MATCHING
 Overlay31PoolRecord *overlay31CreatePool(s32 count) {
     Overlay31PoolRecord *records;
     Overlay31PoolRecord *record;
@@ -44,3 +45,6 @@ Overlay31PoolRecord *overlay31CreatePool(s32 count) {
     gOverlay31SlotTable = overlay31CreateSlotTable(0, 0, 0, 0, count * 15);
     return records;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o031/overlay31CreatePool/func_overlay_031_F0000E7C_188039C.s")
+#endif

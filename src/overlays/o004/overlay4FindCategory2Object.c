@@ -15,6 +15,7 @@ typedef struct Overlay4Object {
 
 extern Overlay4Object **overlay4GetObjectRangeReloc(s32 *start, s32 *end);
 
+#ifdef NON_MATCHING
 Overlay4Object *overlay4FindCategory2Object(s8 *identifier) {
     s32 start;
     s32 end;
@@ -40,3 +41,6 @@ Overlay4Object *overlay4FindCategory2Object(s8 *identifier) {
     }
     return NULL;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay4FindCategory2Object/func_overlay_004_F0000734_185ADAC.s")
+#endif

@@ -10,6 +10,7 @@ extern s32 gOverlay34Count;
 extern void *func_8002B280(s32 size, s32 tag);
 
 /* Pinned DKR v77/v80 and JFG scans found no exact donor. */
+#ifdef NON_MATCHING
 void overlay34InitStorage(s32 count) {
     s32 *word;
     s32 countdown;
@@ -39,3 +40,6 @@ void overlay34InitStorage(s32 count) {
     }
     gOverlay34Count = count;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o034/overlay34InitStorage/func_overlay_034_F0000000_18811A8.s")
+#endif

@@ -76,6 +76,7 @@ extern Overlay34Resource *func_80034448(s16 resourceId);
 extern void func_80029FE4(Overlay34Input *input, f32 direction[3]);
 
 /* Pinned DKR v77/v80 and JFG searches found no exact donor. */
+#ifdef NON_MATCHING
 Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
     Overlay34Record *record;
     Overlay34Record *current;
@@ -149,3 +150,6 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
     }
     return candidate;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o034/overlay34CreateRecord/func_overlay_034_F00000D4_188127C.s")
+#endif

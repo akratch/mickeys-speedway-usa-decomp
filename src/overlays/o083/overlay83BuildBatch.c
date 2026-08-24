@@ -93,6 +93,7 @@ extern void *overlay83CreateLinkedReloc();
 extern f32 gOverlay83ScaleReloc;
 
 /* Mickey-local reconstruction; pinned DKR/JFG scans found no exact donor. */
+#ifdef NON_MATCHING
 void overlay83BuildBatch(O83Parent *parent, O83Source *source) {
     O83Batch *batch;
     O83OutputRecord *output;
@@ -179,3 +180,6 @@ void overlay83BuildBatch(O83Parent *parent, O83Source *source) {
     }
     parent->clear3C = 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o083/overlay83BuildBatch/func_overlay_083_F000053C_18CFCFC.s")
+#endif

@@ -40,6 +40,7 @@ extern s32 gOverlay31EffectCount;
 
 /* PROVENANCE: Diddy Kong Racing, src/particles.c
  * (init_particle_buffers); semantic source-shape analogue only. */
+#ifdef NON_MATCHING
 void overlay31InitializeBuffers(s32 maxTriangle, s32 maxRectangle,
                                 s32 maxSprite, s32 maxLine, s32 maxPoint,
                                 s32 maxExtra, s32 maxEffects) {
@@ -128,3 +129,6 @@ void overlay31InitializeBuffers(s32 maxTriangle, s32 maxRectangle,
     }
     gOverlay31EffectCount = maxEffects;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o031/overlay31InitializeBuffers/func_overlay_031_F00006B0_187FBD0.s")
+#endif

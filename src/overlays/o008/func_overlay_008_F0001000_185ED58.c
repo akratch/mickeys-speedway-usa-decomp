@@ -25,6 +25,7 @@ extern const f32 gO8Phase3ScaleReloc;
 extern f32 o8RolloverSampleReloc(void);
 extern void o8Phase1EmitReloc(O8PhaseState *state, s32 kind, f32 scale);
 
+#ifdef NON_MATCHING
 f32 func_overlay_008_F0001000_185ED58(void *unused, O8PhaseState *state, f32 input) {
     s32 nextCountdown;
 
@@ -103,3 +104,6 @@ f32 func_overlay_008_F0001000_185ED58(void *unused, O8PhaseState *state, f32 inp
     }
     return input;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/func_overlay_008_F0001000_185ED58/func_overlay_008_F0001000_185ED58.s")
+#endif

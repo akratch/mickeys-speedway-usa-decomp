@@ -41,6 +41,7 @@ extern u8 gOverlay83VertexBase[];
     cmd->w1 = (u32)(triangles); \
 }
 
+#ifdef NON_MATCHING
 void overlay83DrawStrip(Overlay83Command **displayList, Overlay83Strip *strip) {
     Overlay83Command **savedDisplayList;
     u8 count;
@@ -60,3 +61,6 @@ void overlay83DrawStrip(Overlay83Command **displayList, Overlay83Strip *strip) {
         POLYGON((*savedDisplayList)++, gOverlay83VertexBase, doubledCount, 1);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o083/overlay83DrawStrip/func_overlay_083_F0000850_18D0010.s")
+#endif

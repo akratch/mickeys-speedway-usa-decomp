@@ -24,6 +24,7 @@ extern void overlay48SetupMode(s32 mode);
 extern void overlay48FinishSetup(void);
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
+#ifdef NON_MATCHING
 void overlay48InitializeState(void) {
     volatile s16 *initial;
     s32 index;
@@ -58,3 +59,6 @@ void overlay48InitializeState(void) {
     overlay48SetupMode(0x16);
     overlay48FinishSetup();
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o048/overlay48InitializeState/func_overlay_048_F0000060_1895468.s")
+#endif
