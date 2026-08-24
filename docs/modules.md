@@ -398,10 +398,10 @@ rule; the getter has no relocations and the tick routine retains both exact
 HI16/LO16 data pairs. Five JFG `diRcp` return-eight leaves are also exact at
 the resident defaults with no relocations: 16-byte `diRcpReserved0`, 20-byte
 `diRcpStrNameMacro`, 12-byte `diRcpPrimColor`, 20-byte `diRcpColor`, and
-12-byte `diRcpDmaOffsets`. The 52-byte JFG `diRcpReserved2` unpack-and-return
-body is exact at the same defaults, including its helper-call relocation. The
-44-byte `func_80044B9C` (`diRcpTraceReset`) is exact too, including both
-data-symbol relocation pairs.
+12-byte `diRcpDmaOffsets`. Two 52-byte JFG unpack-and-return bodies,
+`diRcpReserved2` and `diRcpMoveMem`, are exact at the same defaults, including
+their helper-call relocations. The 44-byte `func_80044B9C`
+(`diRcpTraceReset`) is exact too, including both data-symbol relocation pairs.
 The 60-byte `diRcpTraceInit` is likewise exact, preserving both allocator
 calls and their call/data relocations. The 60-byte JFG-identified `wakeFree`
 is exact after resolving `func_800347A0` as a one-argument call; its two call
