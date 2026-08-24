@@ -191,7 +191,16 @@ segments:
       # splat's own split points already agreed on both ends.
       - [0x47A60, asm, main/get_stack_pointer]
       - [0x47A70, asm]
-      - [0x4BC40, asm]
+      # Evidence-backed source boundary for the resident font module. JFG's
+      # font.c starts with fontSetWindow0, whose 0x24 bytes match here (2 of 9
+      # words relocated, ROM-wide unique), and its final routine is
+      # fontYSpacing, corresponding to Mickey's 0x4E1C0 leaf. The next
+      # function at 0x4E1E0 is the separate 0x170-byte osCreatePiManager
+      # routine. The font object as a whole is not byte-identical, so this is
+      # an ordered-function and two-sided-boundary claim, not a whole-.text
+      # claim.
+      - [0x4BC40, c, main/font]
+      - [0x4E1E0, asm]
       # Measured boundary. The whole 0xA74-byte .text of DKR's built
       # `src/hasm/gzip_asm.s.o` -- the hand-written inflate core the asset
       # loader runs -- matched here in one piece, 98 of 669 words masked, no
