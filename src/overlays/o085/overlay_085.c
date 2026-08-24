@@ -1,47 +1,33 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_085.h"
 
-/* DKR v77/v80 and JFG have no exact donor for this effect update. */
+/*
+ * Overlay 85, ADR 0006 consolidation: one translation unit for the whole
+ * module (overlay85Configure at +0x000, overlay85Update at +0x0C0).
+ */
 
-typedef struct Overlay85Trigger {
-    u8 pad00[0x63];
-    u8 enabled;
+void overlay85Configure(Overlay85State *state, Overlay85Config *config) {
     f32 scale;
-} Overlay85Trigger;
-
-typedef struct Overlay85State {
-    u8 pad00[4];
-    u8 active;
-} Overlay85State;
-
-typedef struct Overlay85Timer {
-    s16 timer;
-    s16 value;
-} Overlay85Timer;
-
-typedef struct Overlay85Object {
-    u8 pad00[2];
-    s16 value2;
-    s16 value4;
-    u8 pad06[2];
-    f32 effectValue;
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad18[0x2E];
-    s16 type;
-    Overlay85Trigger *trigger;
-    u8 pad4C[4];
-    Overlay85State *state;
-    u8 pad54[0x2C];
-    s32 mode;
-    Overlay85Timer timer;
-} Overlay85Object;
-
-extern void overlay85SpawnReloc(s32 kind, f32 x, f32 y, f32 z, s32 flags,
-                                 s32 arg5);
-extern void overlay85EffectAReloc(f32 value);
-extern void overlay85EffectBReloc(f32 value);
-extern void overlay85ApplyReloc(Overlay85Object *object, s32 step);
+    scale = ((s32)config->scale) & 0xFF;
+    if (scale < 10.0f) {
+        scale = 10.0f;
+    }
+    scale *= 0.015625f;
+    state->scale = state->resource->scale * scale;
+    if (state->outputScale != NULL) {
+        state->outputScale[0] = state->resource->outputScaleX * scale;
+        state->outputScale[1] = state->resource->outputScaleY * scale;
+    }
+    state->frame = config->frame;
+    state->angle = (((s32)config->angle) & 0xFF) << 10;
+    if (state->frame >= state->resource->frameCount) {
+        state->frame = 0;
+    }
+    *(s32 *)&state->timer = 0;
+    state->unk88 = 0;
+    if (state->output != NULL) {
+        state->output->state = 2;
+    }
+}
 
 void overlay85Update(Overlay85Object *object, s32 step) {
     volatile s32 reservation;
@@ -59,7 +45,7 @@ void overlay85Update(Overlay85Object *object, s32 step) {
         }
         timer = &object->timer;
         currentTimer = *(volatile s16 *)countdown;
-        if (currentTimer == 0 && trigger->enabled != 0) {
+        if (currentTimer == 0 && trigger->active != 0) {
             if (object->type == 2) {
                 overlay85SpawnReloc(0x208, object->x, object->y, object->z, 4,
                                     0);
@@ -67,7 +53,7 @@ void overlay85Update(Overlay85Object *object, s32 step) {
                 overlay85SpawnReloc(0x1F, object->x, object->y, object->z, 4,
                                     0);
             }
-            timer->value = trigger->scale * 182.0f;
+            timer->value = trigger->strength * 182.0f;
             timer->timer = 10;
             type = object->type;
             if (type == 2) {

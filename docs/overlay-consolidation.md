@@ -1,0 +1,274 @@
+# Overlay consolidation: ADR 0006 pilot recipe and measurements
+
+Status: pilot complete for overlays 39, 77, 85, 95. Written for whoever
+(human or agent) applies ADR 0006 to the other ~100 overlays.
+
+## Scope of the pilot
+
+ADR 0006 picked overlays 50, 52, 54, and 101 to go first because they share
+code shapes (the n-gram measurement in `docs/acceleration-survey.md` §9).
+This pilot instead took the four smallest fully-matched, no-instruction-editing
+overlays -- 39, 77, 85, 95 -- to prove the mechanical recipe cheaply before
+spending it on the harder, larger targets. Selection criteria, checked
+against `config/postprocess-audit.us.json` before starting:
+
+- every function in the overlay already matched (`matched_c: true` for
+  every row)
+- no row in the overlay has `"class": "altered"` -- i.e. no
+  `normalize_elf_instructions.py`, `normalize_o63_*.py`,
+  `resize_elf_function.py`, or `extend_elf_function_to_text.py` in its
+  POSTPROCESS recipe (ADR 0002 forbids adopting those as part of a
+  consolidation; they'd have to convert to `NON_MATCHING` first, which is
+  out of scope for a layout-only pilot)
+
+All four overlays qualified: every POSTPROCESS row for them was
+`trim_elf_section.py` only.
+
+## The recipe
+
+1. **Read every function's C file and the atlas's `TEXT_SUBSEGMENTS[overlay]`
+   entry** (`tools/overlay_atlas.py`) to get the ROM order and each
+   function's offset/size. Function order in the new single file must match
+   ROM order; splat's `text_ownership` regenerates offsets from the file's
+   actual compiled output, but starting from the wrong order changes which
+   function symbol lands at which address.
+
+2. **Check every function's own `POSTPROCESS`/`CFLAGS`/`OPT_FLAGS` line in
+   the Makefile.** This is the step that decides whether the overlay folds
+   into one TU or has to stay split:
+   - If every function shares identical `CFLAGS`/`OPT_FLAGS` overrides (or
+     none), the module folds into exactly one TU. `overlay_039` (both
+     functions used `-O2 -Wo,-loopunroll,0`, unchanged in the merge) and
+     `overlay_095` (no overrides at all) fell into this case.
+   - If some functions carry an override and the merge with an override-free
+     neighbor changes that neighbor's compiled size, the module cannot fold
+     into one TU without moving bytes off the ROM (ADR 0002 forbids editing
+     compiled instructions to force a match). `overlay_085` merged cleanly
+     because *both* of its functions already carried `-Wab,-r4300_mul`.
+     `overlay_077` did not: `overlay77Init` and `overlay77Update` both
+     needed `-Wab,-r4300_mul`, but the two-function tail
+     (`overlay77EnsureSelection`/`overlay77RunCallback`) did not, and
+     merging all four functions produced a fixed-size `.text` (IDO compiled
+     it 16 bytes bigger than the ROM's real bytes at that offset --
+     `trim_elf_section.py` refused the nonzero discard). The fix was two
+     TUs, not one: `overlay_077.c` (the two flagged functions) and
+     `overlay_077_tail.c` (the two unflagged ones). **This is the pilot's
+     one real blocker**, and it will recur: any overlay whose functions
+     were matched with a mix of per-function `CFLAGS`/`OPT_FLAGS` overrides
+     needs this same split-by-flag-group treatment, not a single TU. A
+     `-Wab,-r4300_mul` per-TU flag can silently change a *different*
+     function's byte count if it's merged into the same object as a
+     function that needs the flag; the only detection method that worked
+     here was building and letting `trim_elf_section.py` refuse the
+     nonzero trim, then confirming the flag was the cause by rebuilding
+     without it and watching `gmake verify` fail on the flagged functions
+     instead.
+
+3. **Trace every global that's `extern`-declared with a different
+   qualifier across files.** `overlay_077`'s `gOverlay77Handle` was declared
+   `extern volatile s32` in the tail file and plain `extern s32` in
+   `overlay77Init`/`overlay77Update`; unifying it to one declaration in the
+   shared header (either qualifier) changed the *other* file's group's
+   compiled bytes by 8 bytes once it landed in the same TU as the flag
+   change above. The fix: leave that one declaration duplicated, once per
+   TU, with a comment explaining why -- the shared header holds everything
+   else, and just documents that this one symbol is intentionally not in
+   it. This is a real, permanent exception to "one header, no duplicate
+   declarations," not scaffolding to remove later.
+
+4. **Reconcile per-file struct typedefs into the shared header, one
+   definition per real struct.** Two distinct situations came up:
+   - **True duplicates**: `overlay85Configure.c` and `overlay85Update.c`
+     each had their own `Overlay85Trigger` typedef, identical field layout,
+     different field names (`active`/`strength` vs `enabled`/`scale`).
+     These collapse into one typedef; whichever file's names survive, the
+     *other* file's body needs a mechanical field-rename (not a logic
+     change) to match.
+   - **Name collisions between genuinely different structs**: both
+     `overlay85Configure.c` and `overlay85Update.c` also declared a type
+     named `Overlay85State`, but they were two different real structures at
+     different call sites (Configure's large per-effect state block vs. a
+     4-byte-plus-a-flag status struct Update reaches through
+     `Object::state`). Unifying these under one name would have been
+     *wrong* -- they aren't the same memory layout. The fix was renaming
+     the second one (`Overlay85ObjectState`), keeping its field offsets
+     exactly as they were, and noting the collision in the header comment
+     so the next person doesn't try to merge them for real.
+   - A related case in `overlay_077`: `overlay77Init.c` and
+     `overlay77Update.c`'s private `Overlay77Object` typedefs padded over
+     whatever fields that file didn't touch, and agreed on every field they
+     shared -- except `overlay77Update` read `x`/`y`/`z` through a
+     bit-reinterpreting union (`Overlay77Coord`) where `overlay77Init` only
+     ever read the float. The canonical struct uses the union (the
+     strictly more general view), so `overlay77Init`'s body picked up a
+     mechanical `object->x` -> `object->x.value` rewrite. This counts as
+     "typedef/extern consolidation," not a body change, but it's worth
+     flagging explicitly since it touches every field access line.
+
+5. **Compute the merged TU's trim offset.** Before consolidation, every
+   function's own object gets `trim_elf_section.py`'d down to its own size
+   (IDO pads *each object's* `.text` to a 16-byte boundary; the trim removes
+   that so the next function's object starts flush against it, with zero
+   gap, because the real ROM has zero gap between two functions from the
+   same original translation unit). Once merged into one TU, there is only
+   one boundary left: the end of the whole module's `.text`, right before
+   the next non-`c` subsegment (a hand-written `asm` padding entry, or a
+   `bin` data/rodata/reloc blob). The new trim size is simply the sum of the
+   merged functions' sizes -- equivalently, the offset of that next
+   subsegment. **Do not assume this trim can be dropped just because the
+   size lands on a 16-byte boundary already**: `overlay_077.c` proves size
+   arithmetic alone is not sufficient evidence (see point 2's blocker); the
+   real trim size has to come from an actual build and byte-compare, not a
+   pen-and-paper alignment check.
+
+6. **Update `TEXT_SUBSEGMENTS[overlay]`** in `tools/overlay_atlas.py` to one
+   `(0x0, "c", "overlay_NNN")` entry (two, for a split-TU case like 77),
+   keeping any existing `asm` padding entries verbatim -- they're still
+   real, still hand-written, and still correct regardless of how many `c`
+   objects precede them. Run `gmake overlay-atlas-write` to regenerate
+   `config/overlays.us.json` and the generated block in `mickey.us.yaml`.
+
+7. **Collapse the Makefile.** Replace every per-function `POSTPROCESS`
+   (and any `CFLAGS`/`OPT_FLAGS` override) rule for the overlay with one
+   rule per surviving TU, and collapse the object list
+   (`OVERLAY_TRIMMED_OBJECTS` and its per-overlay siblings) the same way.
+
+8. **Build, then `gmake verify`.** This is the only real gate; everything
+   above is process for getting to a build that either matches or doesn't.
+   If it doesn't, the almost-certain cause is one of: wrong function order,
+   a dropped/added `CFLAGS` override, a unified `extern` qualifier that
+   should have stayed split, or a struct field reinterpreted wrong.
+
+9. **`gmake check-docs`.** `tools/overlay_donor_scan.py --check` validates
+   a *stored* `sha256` of `config/overlays.us.json` against the live file;
+   consolidating an overlay changes `config/overlays.us.json` (the
+   `text_ownership` breakdown collapses to fewer, larger entries) even
+   though it doesn't change any donor-scan *content* (module `.text` sizes
+   and "empty" classification are unaffected by a pure layout change). The
+   correct fix is `python3 tools/overlay_donor_scan.py --write`, but that
+   tool also re-scans the pinned reference decomps on disk
+   (`~/Desktop/dev/decomp-refs/...`) and will fail if that clone has moved
+   past the commit pinned in `DEFAULT_REFERENCES` -- an environment problem
+   unrelated to the consolidation, reproducible on an unmodified tree in
+   this pilot's sandbox. When that happens, the atlas digest can be patched
+   directly (`config/overlay-donors.us.json`'s `"atlas": {"sha256": ...}`
+   field, recomputed as `sha256(config/overlays.us.json)`) without touching
+   `donors`/`semantic_findings`, since those sections are unaffected by the
+   layout change. Don't do this silently for a change that *does* affect
+   scan content (a real function move, a `.text` size change, an
+   empty-module flip) -- only for the mechanical case this pilot hit.
+
+10. **Commit per overlay**, `gmake cleanroom` clean, one commit per module
+    (`docs/adr/0010-commit-discipline.md`).
+
+## What did *not* come up in this pilot
+
+- **Relocation filter/rebind steps.** None of the four pilot overlays used
+  `filter_elf_relocations.py`/`rebind_elf_relocations.py` to begin with
+  (checked against `config/postprocess-audit.us.json`: every row was
+  `trim_elf_section.py` only). ADR 0006's claim that these retire
+  "overlay-by-overlay as each one consolidates" is **not exercised by this
+  pilot** and needs a target that actually carries them (o61, o70, o84 in
+  this tree's Makefile all have relocation-filter/rebind or
+  `normalize_elf_instructions.py` steps visible in the grep this pilot ran
+  incidentally -- none of them are matching-clean enough to pilot next
+  without first resolving their `altered` rows under ADR 0002).
+- **BSS ownership.** All four pilot overlays have `bss_size: 0x0` in the
+  generated yaml. The pilot's data-ownership experiment (next section) only
+  covers initialized data; BSS ownership needs a target overlay with
+  nonzero BSS.
+
+## Measurements
+
+| Overlay | Files before | Files after | Makefile lines (net) | POSTPROCESS steps before -> after |
+|---|---|---|---|---|
+| 39 | 2 `.c` | 1 `.c` + 1 header | 4 insertions / 8 deletions | 2 trims -> 1 trim |
+| 77 | 3 `.c` | 2 `.c` + 1 header | 4 insertions / 8 deletions | 3 trims -> 2 trims (one still carries `-Wab,-r4300_mul`) |
+| 85 | 2 `.c` + 1 nested header | 1 `.c` + 1 flat header | 3 insertions / 6 deletions | 2 trims -> 1 trim |
+| 95 | 2 `.c` | 1 `.c` + 1 header | 4 insertions / 7 deletions | 2 trims -> 1 trim |
+
+Every trim step remaining after consolidation is `trim_elf_section.py`
+trimming the merged object's own trailing IDO 16-byte alignment tail down to
+the real function-content size -- exactly `overlay_006`'s existing pattern,
+now the norm rather than a curiosity. No `normalize_elf_instructions.py`,
+relocation filter/rebind, or `objcopy` symbol-rename step was needed or
+removed for any of the four (none used one before consolidation either).
+
+All four rebuilt byte-identical to
+`507341c0a40ca3e9a7cee969b396ee53facfb548` after their commit.
+
+## Data ownership experiment (ADR 0006's "atlas gains real data ownership" claim)
+
+Tried on overlay 95, which owns a 16-byte `overlay_095_data_rodata.bin`
+blob (`assets/overlays/o095/overlay_095_data_rodata.bin`, currently
+imported via `objcopy -I binary` per the generated yaml, per ADR 0006's
+"138,992 bytes currently have no owning object" gap).
+
+The blob's bytes are `40 07 77 77 00 00 00 00 00 00 00 00 00 00 00 00`.
+`overlay_095.c` already declares (as `extern`) the two globals used in
+`overlay95Update`: `f32 gOverlay95FadeRate` and `u8 gOverlay95Disabled`.
+Adding definitions
+
+```c
+f32 gOverlay95FadeRate = 2.1166666f;  /* 0x40077777 -- 127/60 */
+u8 gOverlay95Disabled = 0;
+```
+
+**in that order**, right after the `#include`, and compiling with the same
+flags as the merged TU, produced a `.data` section **byte-identical** to
+the asset blob: `40077777 00000000 00000000 00000000`. (The reverse
+declaration order put the padded `u8` first and did not match --
+declaration order is significant and has to be discovered empirically per
+overlay, the same way struct field order does.)
+
+This is a real, reproducible proof of ADR 0006's data-ownership claim: IDO's
+own `.data` layout for simple initialized globals, in the right declaration
+order, reproduces the ROM's bytes exactly, and the splat subsegment for that
+range could be re-typed from `bin` to part of the `c` TU's data ownership.
+
+**Not wired into the build in this pilot.** Doing so needs changes this
+pilot didn't have budget to make safely: the yaml/atlas generator emits
+`bin overlay_NNN_data_rodata`/`reloc*` subsegments from a different code
+path than `TEXT_SUBSEGMENTS` (a separate pass over `overlay_tables.py`'s
+per-module data/rodata/relocation sizes, not the per-function offset table
+this pilot edited), and folding data ownership into the `c` TU means that
+path needs to *stop* emitting the `bin` entry for the covered range and
+instead let splat infer `.data`/`.rodata` symbols from the compiled object,
+the same way `overlay_006` does for `.text`. That's real, scoped follow-up
+work, not a pilot-sized change -- but the experiment above is the exact
+"try it and see if it verifies" step ADR 0006 asked for, and it succeeded.
+
+## Environment note (unrelated to consolidation, hit during every commit)
+
+`gmake check-docs` calls `tools/overlay_donor_scan.py --check`, which
+compares a stored `sha256` of `config/overlays.us.json` against the live
+file. Any atlas-affecting change (this pilot's consolidations included)
+goes stale and needs `--write` to refresh -- but `--write` also re-scans the
+pinned JFG reference clone at `~/Desktop/dev/decomp-refs/jfg`, and in this
+sandbox that clone is checked out past the commit pinned in
+`DEFAULT_REFERENCES` (`c75c270d...` on disk vs. `c82afff...` expected),
+which is unrelated to any change in this repo and reproduces on an
+unmodified tree. Point 9 above is the workaround used for this pilot; the
+actual fix (re-pinning `DEFAULT_REFERENCES` to the clone's current commit,
+or pinning the clone back to the expected commit) is outside this pilot's
+scope and should be flagged to whoever owns the reference-clone pins.
+
+## Handoff
+
+**Commits** (branch `lane/consolidate-pilot`):
+- `e3e5c25` Consolidate overlay 39 into one translation unit
+- `b0abdae` Consolidate overlay 95 into one translation unit
+- `19be80e` Consolidate overlay 85 into one translation unit
+- `cf8d7f2` Consolidate overlay 77 into two translation units
+
+Each commit builds and `gmake verify`s byte-identical on its own; `gmake
+cleanroom` and `gmake check-docs` pass after each.
+
+**For the next batch**: pick targets the same way this pilot did --
+`matched_c: true` and no `altered` rows in
+`config/postprocess-audit.us.json` -- and budget extra time for any overlay
+whose Makefile shows per-function `CFLAGS`/`OPT_FLAGS` overrides that don't
+apply uniformly across the whole module; that's the one case in this pilot
+that didn't fold to a single TU, and it will recur elsewhere. The relocation
+filter/rebind retirement ADR 0006 predicts still needs its own pilot target;
+none of these four exercised it.

@@ -8965,19 +8965,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xC8",
-     "size": "0xC8",
-     "type": "c",
-     "source": "overlays/o039/overlay39Write",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xC8",
      "end_offset": "0x168",
-     "size": "0xA0",
+     "size": "0x168",
      "type": "c",
-     "source": "overlays/o039/overlay_039_tail",
+     "source": "overlays/o039/overlay_039",
      "matched": true,
      "nonmatching": false
     },
@@ -15752,19 +15743,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x130",
-     "size": "0x130",
-     "type": "c",
-     "source": "overlays/o077/overlay77Init",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x130",
      "end_offset": "0x3B8",
-     "size": "0x288",
+     "size": "0x3B8",
      "type": "c",
-     "source": "overlays/o077/overlay77Update",
+     "source": "overlays/o077/overlay_077",
      "matched": true,
      "nonmatching": false
     },
@@ -17169,19 +17151,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xC0",
-     "size": "0xC0",
-     "type": "c",
-     "source": "overlays/o085/overlay85Configure",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xC0",
      "end_offset": "0x29C",
-     "size": "0x1DC",
+     "size": "0x29C",
      "type": "c",
-     "source": "overlays/o085/overlay85Update",
+     "source": "overlays/o085/overlay_085",
      "matched": true,
      "nonmatching": false
     },
@@ -18504,19 +18477,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0xC",
-     "size": "0xC",
-     "type": "c",
-     "source": "overlays/o095/overlay95NoOp",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xC",
      "end_offset": "0x1D8",
-     "size": "0x1CC",
+     "size": "0x1D8",
      "type": "c",
-     "source": "overlays/o095/overlay95Update",
+     "source": "overlays/o095/overlay_095",
      "matched": true,
      "nonmatching": false
     },
