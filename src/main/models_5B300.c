@@ -16,6 +16,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/pi.h"
 
 typedef f32 Matrix[4][4];
 
@@ -45,7 +46,6 @@ extern ConvListEntry D_800D78F0[];
 
 s32 func_8002B280(s32 size, s32 tag);
 u8 *func_8002B314(s32 size, s32 tag, s32 offset);
-void piRomLoadSection(s32 assetId, void *dst, s32 offset, s32 size);
 void func_80058FF0(ConvListEntry *entries, s32 count);
 
 /* PROVENANCE: adapted from the modelsInit tail in JFG src/models.c. */

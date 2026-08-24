@@ -21,12 +21,14 @@ s32 osContStartReadData(OSMesgQueue *messageQueue);
 void rumbleStop(s32 controllerIndex, s32 arg1);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002BCC0.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:rumbleRumbles. */
 void rumbleRumbles(s32 value) {
     D_8007A2F8 = value;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleProcessing.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStart.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStop.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:rumbleKill. */
 void rumbleKill(s32 arg0) {
     s32 i = 4;
 
@@ -34,6 +36,7 @@ void rumbleKill(s32 arg0) {
         rumbleStop(i, arg0);
     }
 }
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:rumbleUpdate. */
 void rumbleUpdate(void) {
     D_8007A2F0 = 1;
 }
@@ -46,6 +49,7 @@ void rumbleUpdate(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C788.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C790.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C79C.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packCalculateGameChecksum. */
 s32 packCalculateGameChecksum(u8 *buffer, s32 count) {
     s32 checksum = 15;
 
@@ -60,6 +64,7 @@ s32 packCalculateGameChecksum(u8 *buffer, s32 count) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CB18.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CCE4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CD6C.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packCalculateGlobalFlagsChecksum. */
 s32 packCalculateGlobalFlagsChecksum(u8 *buffer) {
     s32 bytesToChecksum = 22;
     s32 checksum = 5;
@@ -73,6 +78,7 @@ s32 packCalculateGlobalFlagsChecksum(u8 *buffer) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CF0C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CF6C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packOpen.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packClose. */
 s32 packClose(s32 controllerIndex) {
     osContStartReadData(D_800D21C0);
     return 0;
@@ -80,6 +86,7 @@ s32 packClose(s32 controllerIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packIsPresent.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packDirectory.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packDirectoryFree. */
 void packDirectoryFree(void) {
     if (D_8007A280 != NULL) {
         mmFree(D_8007A280);
