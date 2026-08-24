@@ -79,6 +79,7 @@ extern s32 D_800BF7B0;
 extern u8 D_800BFA08;
 extern u8 *D_800BF7A4;
 extern void gsSndpSetParam();
+extern void gsSndpSetMasterVolume(u8 group, u16 volume);
 extern u32 gsSndpGetGlobalVolume(void);
 extern void gsSndpStop(void *sound);
 extern void n_alCSPSetChlVol(void *player, u8 channel, u8 volume);
@@ -410,4 +411,8 @@ void func_800016EC(u8 mode) {
     D_80078DAC = mode;
     D_800BFA08 = 0xFF;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001708.s")
+void func_80001708(void) {
+    D_80078DAC = 0;
+    gsSndpSetMasterVolume(0, 0x7FFF);
+    gsSndpSetMasterVolume(1, 0x7FFF);
+}

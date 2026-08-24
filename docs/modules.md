@@ -369,10 +369,10 @@ JFG audio-manager family covers 74; the remainder has separate lineage.
 | Mickey ROM range | Functions | Attribution and evidence | Canonical treatment |
 |---|---:|---|---|
 | `0x1050`-`0x2340` | 49 | JFG `audio_manager_1050.c`: **tier A** at `amTuneSetFadeScaled`, `amSndSetPan`, `forcelink`; **tier B** API order/calls. The aligned end precedes JFG's separate `audiomgr` initializer | `src/main/audio_manager_1050.c` |
-| `0x2340`-`0x3100` | 13 | JFG `src/audiomgr.c`; **tier B** from allocator, queue, scheduler-message, DMA, and frame-state call shapes. This is not one of the three assigned TUs | assembly, with both boundaries recorded |
+| `0x2340`-`0x3100` | 13 | JFG `audiomgr.c`; **tier B** allocator/queue/scheduler/DMA/frame-state calls; outside the assigned TUs | assembly; boundaries recorded |
 | `0x3100`-`0x45F0` | 20 | JFG `audio_manager_36D0.c`; **tier B** start allocator, 20-function order, positional setters, and terminal volume calculation. `audspat_jingle_off`/JFG `amAmbientPause` is a title-specific naming divergence | `src/main/audio_manager_36D0.c` |
-| `0x45F0`-`0x4F40` | 5 | JFG `src/audio_manager_4C50.c`; **tier A** identities at the first and last functions (`amVibratoInit`, `_depth2Cents`), JFG's five-function order, and `0xC` bytes of terminal alignment after `_depth2Cents` | `src/main/audio_manager_4C50.c` |
-| `0x4F40`-`0xC950` | 65 | JFG `src/objects.c` lineage, not audio-manager code: JFG places `objects` immediately after the oscillator TU and Mickey has the **tier A** `GetRomlistInfo` identity in this run. No whole-object match exists, so no `objects` boundary/name is promoted here | assembly |
+| `0x45F0`-`0x4F40` | 5 | JFG `audio_manager_4C50.c`; **tier A** endpoints (`amVibratoInit`, `_depth2Cents`), five-function order, and `0xC` terminal alignment | `src/main/audio_manager_4C50.c` |
+| `0x4F40`-`0xC950` | 65 | JFG `objects.c` lineage follows the oscillator TU; **tier A** `GetRomlistInfo`, but no whole-object match or promoted boundary | assembly |
 
 Matched C bodies in these new TUs:
 
@@ -414,6 +414,7 @@ The final column records owned object words and relocation coverage.
 | `func_80001668` | `0x2268` / `0x30` | **tier D**: guarded sound-volume parameter wrapper; no external name is asserted | Exact 12 object words and call relocation |
 | `scalevol` | `0x22C8` / `0x24` | **tier B**: JFG supplies the complete body and official name | Exact 9 object words; no relocations |
 | `func_800016EC` | `0x22EC` / `0x1C` | **tier B**: overlay 49 supplies mode-call context; no external name is asserted | Exact 7 object words and two data relocations |
+| `func_80001708` | `0x2308` / `0x38` | **tier B**: a resident caller pins the master-volume reset role; no external name is asserted | Exact 14 object words, two calls, and data relocation |
 | `amSndSetPan` | `0x1E04` / `0x28` | existing **tier A** JFG byte identity | Exact object words and relocation identity |
 | `forcelink` | `0x2298` / `0x30` | existing **tier A** JFG byte identity | Exact object words and both call relocations |
 | `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |

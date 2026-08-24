@@ -1425,6 +1425,7 @@ func_80001620 = 0x80001620; // type:func size:0x48 ROM 0x2220 tier B (caller use
 func_80001668 = 0x80001668; // type:func size:0x30 ROM 0x2268 tier D (sound-volume parameter wrapper, name unproved)
 scalevol = 0x800016C8; // type:func size:0x24 ROM 0x22c8 tier B (JFG body/order role)
 func_800016EC = 0x800016EC; // type:func size:0x1C ROM 0x22ec tier B (overlay caller and mode writes, name unproved)
+func_80001708 = 0x80001708; // type:func size:0x38 ROM 0x2308 tier B (resident caller and master-volume reset, name unproved)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
