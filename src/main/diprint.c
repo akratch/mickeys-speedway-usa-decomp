@@ -13,12 +13,18 @@
 #include "PR/ultratypes.h"
 #include "libc/stdarg.h"
 
+typedef struct DebugFontCoords {
+    u8 u;
+    u8 v;
+} DebugFontCoords;
+
 s32 vsprintf(char *s, const char *format, va_list arg);
 void *func_80034448(s16 resourceId);
 
 extern char D_800D4150[];
 extern const char D_80082A80[];
 extern const char D_80082AA8[];
+extern DebugFontCoords D_8007CE98[3][32];
 extern char *D_8007CE94;
 extern u16 D_800D4A5C;
 extern u16 D_800D4A5E;
@@ -152,7 +158,59 @@ void diPrintfSetXY(u16 x, u16 y) {
     *D_8007CE94 = 0;
     D_8007CE94++;
 }
+/* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
+#ifdef NON_MATCHING
+/* Size-exact plateau: 10 words differ, first at +0x20; local-buffer stack
+ * placement and the resulting register allocation remain unresolved. */
+s32 debug_text_width(const char *format, ...) {
+    s32 stringLength;
+    s32 fontTexture;
+    s32 charIndex;
+    char s[255];
+    u8 *ch;
+    u8 value;
+    DebugFontCoords *coords;
+    va_list args;
+
+    va_start(args, format);
+    sprintfSetSpacingCodes(1);
+    vsprintf(s, format, args);
+    sprintfSetSpacingCodes(0);
+    value = s[0];
+    stringLength = 0;
+    ch = (u8 *)&s[1];
+    if (value != '\0') {
+        do {
+            if (value != '\n') {
+                if (value == ' ') {
+                    stringLength += 6;
+                } else if (value >= 0x21 && value < 0x80) {
+                    fontTexture = 0;
+                    if (value < 0x40) {
+                        charIndex = (value - 0x21) & 0xFF;
+                    } else {
+                        fontTexture = 2;
+                        if (value < 0x60) {
+                            fontTexture = 1;
+                            charIndex = (value - 0x40) & 0xFF;
+                        } else {
+                            charIndex = (value - 0x60) & 0xFF;
+                        }
+                    }
+                    coords = &D_8007CE98[fontTexture][charIndex];
+                    stringLength = ((stringLength + coords->v) - coords->u) + 1;
+                }
+            }
+            value = *ch;
+            ch++;
+        } while (value != '\0');
+    }
+    va_end(args);
+    return stringLength;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_width.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_parse.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_background.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_character.s")
