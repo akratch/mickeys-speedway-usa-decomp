@@ -23,6 +23,7 @@ extern s32 D_800CEC84;
 extern s32 D_800CEC88;
 extern f32 D_800CEC8C;
 extern f32 D_800CEC90;
+extern u8 D_80079FA8[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021438.s")
@@ -54,7 +55,12 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021970.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021994.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800219A0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camSetWaterLine.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetWaterLine. */
+void camSetWaterLine(s32 camNo, s32 waterLine) {
+    if ((camNo >= 0) && (camNo < 4)) {
+        D_80079FA8[camNo] = waterLine;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800219D0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021B70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021BE4.s")

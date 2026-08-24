@@ -393,6 +393,7 @@ functions is classified as handwritten assembly under §6.2.
 |---|---:|---:|---|
 | `camUseShake` | `0x22084` | 16 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camOverrideProjScales` | `0x220E4` | 32 | Configured object, six relocations, linked range and full ROM exact. |
+| `camSetWaterLine` | `0x225B0` | 32 | Configured object, relocation pair, linked range and full ROM exact. |
 
 ---
 
