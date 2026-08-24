@@ -1,0 +1,38 @@
+/*
+ * Resident positional-audio manager -- ROM 0x3100-0x45F0
+ * (VRAM 0x80002500).
+ *
+ * PROVENANCE: the translation-unit identity and candidate routine names were
+ * compared with Jet Force Gemini's public decomp, src/audio_manager_36D0.c,
+ * which is a permitted source under docs/CLEANROOM.md. No C body is adapted
+ * here yet. Mickey's own boundaries and symbols remain authoritative.
+ *
+ * func_80002500 has JFG amInitAudioMap's initialization role and starts at a
+ * 16-byte boundary. The following twenty functions preserve JFG's TU order;
+ * the last ends exactly where the byte-identified amVibratoInit begins.
+ *
+ * Flags: -O2 -mips2 -32, from the measured src/main/ flag group.
+ */
+
+#include "PR/ultratypes.h"
+
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002500.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/audspat_jingle_off.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025EC.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025F8.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002768.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002E88.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002FE0.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_8000309C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800030B4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800030CC.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800031C0.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800031E8.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003250.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_8000329C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800033B0.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003480.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800035F8.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003760.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800037C4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800038EC.s")

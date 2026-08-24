@@ -26,7 +26,7 @@ extern u8 D_8007C08C;
 extern u8 D_8007C090;
 extern u16 D_800D312C;
 extern u16 D_800D312E;
-extern void func_80000E08(s32 volume);
+extern void amTuneSetGlobalVolume(s32 volume);
 extern s32 levelGetRegionNo(void);
 extern s8 viGetWideAdjust(void);
 extern void gsSndpSetGlobalVolume(s32 volume);
@@ -142,7 +142,7 @@ void frontSetBgmVolume(s32 volume) {
         volume = 0x100;
     }
     D_800D312E = volume;
-    func_80000E08(volume);
+    amTuneSetGlobalVolume(volume);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A50C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")

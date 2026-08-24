@@ -1939,6 +1939,50 @@ func_80029240 = 0x80029240; // type:func size:0x34 ROM 0x29E40 tier B (JFG src/m
 func_80029274 = 0x80029274; // type:func size:0x15C ROM 0x29E74 tier B (JFG src/main.c.o TU order, placeholder retained)
 func_800293D0 = 0x800293D0; // type:func size:0x27C ROM 0x29FD0 tier B (JFG src/main.c.o TU order, placeholder retained)
 
+// Resident audio-manager tier-B names from exact role and sequence
+//
+// These short leaves are below the tier-A uniqueness threshold. Their names
+// instead come from their precise positions between the tier-A audio-manager
+// anchors above, the matching adjacent fade-controller roles, and the exact
+// JFG function order documented in docs/modules.md. Each line records its own
+// tier so it cannot be mistaken for a byte-identity name claim.
+// ---------------------------------------------------------------------------
+amTuneResetFade = 0x80000730; // type:func size:0xC ROM 0x1330 tier B (JFG role/order)
+amAmbientResetFade = 0x8000082C; // type:func size:0xC ROM 0x142c tier B (JFG role/order)
+amTuneMuteChl = 0x80000BE8; // type:func size:0x8 ROM 0x17e8 tier B (JFG role/order)
+amTuneUnmuteChl = 0x80000BF0; // type:func size:0x8 ROM 0x17f0 tier B (JFG role/order)
+amTuneSetChlVolume = 0x80000BF8; // type:func size:0x40 ROM 0x17f8 tier B (JFG role/order, ambiguous skeleton)
+amTuneResetChls = 0x80000C38; // type:func size:0x64 ROM 0x1838 tier B (JFG role/order)
+amAmbientPlay = 0x80000C9C; // type:func size:0x50 ROM 0x189c tier B (JFG/DKR call role)
+amTuneStop = 0x80000CEC; // type:func size:0x30 ROM 0x18ec tier B (JFG/DKR call role)
+amAmbientStop = 0x80000D1C; // type:func size:0x38 ROM 0x191c tier B (JFG/DKR call role)
+amTuneGetSeqNo = 0x80000D54; // type:func size:0x3C ROM 0x1954 tier B (JFG/DKR player-state role)
+amAmbientGetSeqNo = 0x80000D90; // type:func size:0xC ROM 0x1990 tier B (JFG/DKR return role)
+amTuneSetVolume = 0x80000D9C; // type:func size:0x6C ROM 0x199c tier B (JFG body/call role)
+amTuneSetGlobalVolume = 0x80000E08; // type:func size:0x5C ROM 0x1a08 tier B (JFG body/call role)
+amTuneGetVolume = 0x80000E64; // type:func size:0xC ROM 0x1a64 tier B (JFG/DKR return role)
+amAmbientSetVolume = 0x80000E70; // type:func size:0x4C ROM 0x1a70 tier B (JFG body/call role)
+amDittyPlay = 0x80000EBC; // type:func size:0x64 ROM 0x1abc tier B (JFG exact role/boundary)
+amDittyPlaying = 0x80000F20; // type:func size:0x54 ROM 0x1b20 tier B (JFG/DKR player-state role)
+amSndStop = 0x80000F74; // type:func size:0x20 ROM 0x1b74 tier B (JFG body/call role)
+amSndPlay = 0x80000F94; // type:func size:0x104 ROM 0x1b94 tier B (JFG boundary, DKR body/call role)
+amSndPlayDirect = 0x80001098; // type:func size:0xAC ROM 0x1c98 tier B (JFG parameter/call role)
+amSndSetVol = 0x80001144; // type:func size:0xC0 ROM 0x1d44 tier B (JFG/DKR volume role)
+amSndSetPitchDirect = 0x8000122C; // type:func size:0x2C ROM 0x1e2c tier B (JFG/DKR parameter role)
+amGetSfxCount = 0x80001258; // type:func size:0x18 ROM 0x1e58 tier B (JFG body/structure role)
+amGetSfxSettings = 0x80001270; // type:func size:0x38 ROM 0x1e70 tier B (JFG body/global role)
+amSoundIsLooped = 0x800012A8; // type:func size:0x60 ROM 0x1ea8 tier B (JFG body/structure role)
+stop_ALSeqp = 0x80001568; // type:func size:0x88 ROM 0x2168 tier B (JFG role and two-player stop state machine)
+amTuneSetReverbOnOff = 0x800015F0; // type:func size:0x8 ROM 0x21f0 tier B (JFG body/order role)
+func_800015F8 = 0x800015F8; // type:func size:0x10 ROM 0x21f8 tier D (global flag setter, name unproved)
+func_80001608 = 0x80001608; // type:func size:0xC ROM 0x2208 tier B (overlay caller and global flag clear, name unproved)
+func_80001614 = 0x80001614; // type:func size:0xC ROM 0x2214 tier B (resident caller and global flag read, name unproved)
+func_80001620 = 0x80001620; // type:func size:0x48 ROM 0x2220 tier B (caller uses returned sound-table volume, name unproved)
+func_80001668 = 0x80001668; // type:func size:0x30 ROM 0x2268 tier D (sound-volume parameter wrapper, name unproved)
+scalevol = 0x800016C8; // type:func size:0x24 ROM 0x22c8 tier B (JFG body/order role)
+func_800016EC = 0x800016EC; // type:func size:0x1C ROM 0x22ec tier B (overlay caller and mode writes, name unproved)
+func_80001708 = 0x80001708; // type:func size:0x38 ROM 0x2308 tier B (resident caller and master-volume reset, name unproved)
+
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
 // the whole-object threshold
@@ -1978,8 +2022,8 @@ forcelink = 0x80001698; // type:func size:0x30   ROM 0x2298  src/audio_manager_1
 audioManager_DMAInitProc = 0x80002354; // type:func size:0x38   ROM 0x2f54  us.v10/src/core1/code_1D00.c.o  masked=6/14
 // donor-jfg-src/audio_manager_4C50.c.o
 amVibratoInit = 0x800039F0; // type:func size:0x90   ROM 0x45f0  src/audio_manager_4C50.c.o  masked=22/36
-_depth2Cents = 0x800042E4; // type:func size:0x58   ROM 0x4ee4  src/audio_manager_4C50.c.o  masked=2/22
-// donor-jfg-src/objects.c.o
+_depth2Cents = 0x800042E4; // type:func size:0x50 ROM 0x4ee4 src/audio_manager_4C50.c.o masked=2/20, followed by 0xC target padding
+// jfg:src/objects.c.o
 GetRomlistInfo = 0x8000BC88; // type:func size:0x28   ROM 0xc888  src/objects.c.o  masked=4/10
 // donor-jfg-src/track.c.o
 trackSetFogOff = 0x800145A0; // type:func size:0x74   ROM 0x151a0  src/track.c.o  masked=2/29

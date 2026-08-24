@@ -35,11 +35,11 @@ typedef struct LevelHeaderColour {
 extern LevelSummary *D_800CF3DC;
 extern s32 mainGetNumberOfCameras(void);
 extern void func_80000510(u8);
-extern void func_80000730(void);
+extern void amTuneResetFade(void);
 extern void func_80000B48(u16);
-extern void func_80000C38(void);
-extern void func_80000CEC(void);
-extern u8 func_80000D54(void);
+extern void amTuneResetChls(void);
+extern void amTuneStop(void);
+extern u8 amTuneGetSeqNo(void);
 extern void func_80036AB0(void *, s32);
 extern s32 *piRomLoad(s32);
 extern void piRomLoadSection(s32, void *, s32, s32);
@@ -112,14 +112,14 @@ u32 levelGetGfxIndex(s32 arg0) {
 /* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
 void levelTunePlay(void) {
     if (D_800CF3C8[0x8E] != 0) {
-        if (D_800CF3C8[0x8E] != func_80000D54()) {
-            func_80000C38();
+        if (D_800CF3C8[0x8E] != amTuneGetSeqNo()) {
+            amTuneResetChls();
             func_80000510(D_800CF3C8[0x8E]);
-            func_80000730();
+            amTuneResetFade();
             func_80000B48(*(u16 *) &D_800CF3C8[0x90]);
         }
     } else {
-        func_80000CEC();
+        amTuneStop();
     }
 }
 

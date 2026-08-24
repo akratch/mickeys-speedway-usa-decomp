@@ -111,7 +111,7 @@ void animseqLockPath(u8 pathIndex);
 void animseqUnLockPath(u8 pathIndex);
 u32 func_8005077C(u8 pathIndex);
 void animseqHoldPath(u8 pathIndex);
-void func_80000F74(void *ptr);
+void amSndStop(void *ptr);
 void func_80050D50(void);
 void mmFree(void *ptr);
 void animseqFreeLevelData(void);

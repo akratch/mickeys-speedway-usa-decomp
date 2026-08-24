@@ -712,6 +712,11 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 # mode without changing the resident TU's O2/MIPS-II compiler output.
 $(BUILD_DIR)/$(SRC_DIR)/main/charControl.c.o: CFLAGS += -Wab,-r4300_mul
 
+# The oscillator TU uses the VR4300 multiply scheduling mode. The exact BK
+# depth2Cents body reaches Mickey's instruction schedule only with this flag;
+# the flag lattice leaves canonical -O2/-mips2 otherwise unchanged.
+$(BUILD_DIR)/$(SRC_DIR)/main/audio_manager_4C50.c.o: CFLAGS += -Wab,-r4300_mul
+
 # Overlay game code is likewise MIPS II. Every adopted tranche-A object was
 # compared instruction-for-instruction at this ISA level before joining this
 # rule; MIPS I inserts load-delay nops in several of them.

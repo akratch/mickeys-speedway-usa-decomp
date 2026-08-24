@@ -1730,6 +1730,76 @@ No function in this TU uses an odd single-precision FP register, so §6.2 does
 not classify any of them as hand-written assembly. The `0xC` bytes after
 `func_8001F408` are alignment padding, not executable ownership.
 
+#### Audio-manager census and conservative source split
+
+Census of yaml's former `0x1050`-`0xC950` assembly surface found **152
+functions**: 82 in `0x1050`, 5 in `0x45F0`, and 65 in `0x4F40`. The assigned
+JFG audio-manager family covers 74; the remainder has separate lineage.
+
+| Mickey ROM range | Functions | Attribution and evidence | Canonical treatment |
+|---|---:|---|---|
+| `0x1050`-`0x2340` | 49 | JFG `audio_manager_1050.c`: **tier A** at `amTuneSetFadeScaled`, `amSndSetPan`, `forcelink`; **tier B** API order/calls. The aligned end precedes JFG's separate `audiomgr` initializer | `src/main/audio_manager_1050.c` |
+| `0x2340`-`0x3100` | 13 | JFG `audiomgr.c`; **tier B** allocator/queue/scheduler/DMA/frame-state calls; outside the assigned TUs | assembly; boundaries recorded |
+| `0x3100`-`0x45F0` | 20 | JFG `audio_manager_36D0.c`; **tier B** start allocator, 20-function order, positional setters, and terminal volume calculation. `audspat_jingle_off`/JFG `amAmbientPause` is a title-specific naming divergence | `src/main/audio_manager_36D0.c` |
+| `0x45F0`-`0x4F40` | 5 | JFG `audio_manager_4C50.c`; **tier A** endpoints (`amVibratoInit`, `_depth2Cents`), five-function order, and `0xC` terminal alignment | `src/main/audio_manager_4C50.c` |
+| `0x4F40`-`0xC950` | 65 | JFG `objects.c` lineage follows the oscillator TU; **tier A** `GetRomlistInfo`, but no whole-object match or promoted boundary | assembly |
+
+Matched C bodies in these new TUs:
+
+All rows use IDO 5.3 `-O2 -mips2 -32` and are linked-ROM exact unless noted.
+The final column records owned object words and relocation coverage.
+
+| Mickey routine | ROM / size | Name evidence | Match evidence |
+|---|---:|---|---|
+| `amTuneResetFade` | `0x1330` / `0xC` | **tier B**: exact JFG routine order and the adjacent tune-fade controller role | Exact object words and linked ROM bytes |
+| `amAmbientResetFade` | `0x142C` / `0xC` | **tier B**: exact JFG routine order and the adjacent ambient-fade controller role | Exact object words and linked ROM bytes |
+| `amTuneMuteChl` | `0x17E8` / `0x8` | **tier B**: exact JFG routine order between the channel-mask setter and its paired unmute leaf | Exact object words and linked ROM bytes |
+| `amTuneUnmuteChl` | `0x17F0` / `0x8` | **tier B**: exact JFG routine order immediately after its paired mute leaf | Exact object words and linked ROM bytes |
+| `amTuneSetChlVolume` | `0x17F8` / `0x40` | **tier B**: JFG routine order and exact channel-bound/call role; its 1.000 skeleton is ambiguous with DKR's pan/volume/fade wrappers and is not tier A | Exact 16 object words and both data/call relocation identities |
+| `amTuneResetChls` | `0x1838` / `0x64` | **tier B**: exact JFG routine order and the paired unmute/full-volume loop role | Exact 25 object words and all global/call relocation identities |
+| `amAmbientPlay` | `0x189C` / `0x50` | **tier B**: JFG and DKR agree on the official role; the current-sequence assignment, ambient player, playing guard, and sequence-start call match exactly | Exact 20 object words and all global/call relocation identities |
+| `amTuneStop` | `0x18EC` / `0x30` | **tier B**: JFG and DKR agree on the official role; the tune-change block and tune-player stop call pin the identity | Exact 12 object words and both global/call relocation identities |
+| `amAmbientStop` | `0x191C` / `0x38` | **tier B**: JFG and DKR agree on the official role; the playing guard, ambient-ID reset, and ambient-player stop call pin the identity | Exact 14 object words and all global/call relocation identities |
+| `amTuneGetSeqNo` | `0x1954` / `0x3C` | **tier B**: JFG and DKR agree on the official role; the current-tune guard and tune-player `AL_PLAYING` state check pin the identity | Exact 15 object words and all data relocation identities |
+| `amAmbientGetSeqNo` | `0x1990` / `0x0C` | **tier B**: JFG and DKR agree on the official return role; Mickey returns the same current-ambient global used by the play/stop pair | Exact 3 object words and data relocation identity |
+| `amTuneSetVolume` | `0x199C` / `0x6C` | **tier B**: JFG supplies the full body and official name; the clamp, saved base volume, scaled tune-player call, and update flag agree exactly | Exact 27 object words and all data/call relocation identities |
+| `amTuneSetGlobalVolume` | `0x1A08` / `0x5C` | **tier B**: JFG supplies the full body and official name; the global-volume clamp, saved scale, and recalculated tune-player call agree exactly | Exact 23 object words and all data/call relocation identities |
+| `amTuneGetVolume` | `0x1A64` / `0x0C` | **tier B**: JFG and DKR agree on the official return role; Mickey returns the base-volume global written by `amTuneSetVolume` | Exact 3 object words and data relocation identity |
+| `amAmbientSetVolume` | `0x1A70` / `0x4C` | **tier B**: JFG supplies the full body and official name; the saved relative volume and sound-global-scaled ambient-player call agree exactly | Exact 19 object words and all data/call relocation identities |
+| `amDittyPlay` | `0x1ABC` / `0x64` | **tier B**: JFG has the same exact boundary and sequence-table guard/current-ID/player-start role; `skeleton_scan.py` ranks it first at 0.571, not tier-A identity | Exact 25 object words and all data/call relocation identities |
+| `amDittyPlaying` | `0x1B20` / `0x54` | **tier B**: JFG has the same exact boundary and DKR supplies the official role; current-ID, enabled, and ambient-player-state guards agree exactly | Exact 21 object words and all data relocation identities |
+| `amSndStop` | `0x1B74` / `0x20` | **tier B**: JFG supplies the complete one-call body and official name; the target is below the skeleton oracle's 10-word confidence floor | Exact 8 object words and call relocation identity |
+| `amSndPlay` | `0x1B94` / `0x104` | **tier B**: JFG has the same exact boundary and direct-player call shape; DKR supplies the official role and `SoundData` interpretation | Exact 65 object words and all data/call relocation identities |
+| `amSndPlayDirect` | `0x1C98` / `0xAC` | **tier B**: JFG supplies the official name, parameter roles, range check, scaler, and direct-player call shape; Mickey's branch-likely form is four bytes shorter | Exact 43 object words and all data/call relocation identities |
+| `amSndSetVol` | `0x1D44` / `0xC0` | **tier B**: JFG and DKR agree on the official role; base-volume lookup, relative scaling, resident scaler, and volume-parameter call agree exactly | Exact 48 object words and all data/call relocation identities |
+| `amSndSetPitchDirect` | `0x1E2C` / `0x2C` | **tier B**: JFG and DKR agree on the official name and parameter role; the handle guard and pitch-parameter call agree exactly | Exact 11 object words and call relocation identity |
+| `amGetSfxCount` | `0x1E58` / `0x18` | **tier B**: JFG supplies the complete body and official name; the bank/instrument traversal and sound-count field agree exactly | Exact 6 object words and data relocation identity |
+| `amGetSfxSettings` | `0x1E70` / `0x38` | **tier B**: JFG supplies the complete body and official name; the optional table/size/count outputs and their globals agree exactly | Exact 14 object words and all data relocation identities |
+| `amSoundIsLooped` | `0x1EA8` / `0x60` | **tier B**: JFG and DKR agree on the official role and body; the sound-count bound, sound-array traversal, and infinite-decay test agree exactly | Exact 24 object words and data relocation identity |
+| `stop_ALSeqp` | `0x2168` / `0x88` | **tier B**: JFG name/body and Mickey's two-player stop state machine agree | Exact 34 object words and all call/data relocations |
+| `amTuneSetReverbOnOff` | `0x21F0` / `0x8` | **tier B**: JFG supplies the name and no-op body | Exact 2 object words; no relocations |
+| `func_800015F8` | `0x21F8` / `0x10` | **tier D**: direct write of one to the resident audio flag; no external name is asserted | Exact 4 object words and data relocation identity |
+| `func_80001608` | `0x2208` / `0xC` | **tier B**: overlay 46 calls this routine at its sequence-transition exit, corroborating the direct resident audio-flag clear; no external name is asserted | Exact 3 object words and data relocation identity |
+| `func_80001614` | `0x2214` / `0xC` | **tier B**: a resident caller branches on this direct audio-flag read; no external name is asserted | Exact 3 object words and data relocation identity |
+| `func_80001620` | `0x2220` / `0x48` | **tier B**: a resident caller consumes the range-checked sound-table volume; no external name is asserted | Exact 18 object words and both data relocations |
+| `func_80001668` | `0x2268` / `0x30` | **tier D**: guarded sound-volume parameter wrapper; no external name is asserted | Exact 12 object words and call relocation |
+| `scalevol` | `0x22C8` / `0x24` | **tier B**: JFG supplies the complete body and official name | Exact 9 object words; no relocations |
+| `func_800016EC` | `0x22EC` / `0x1C` | **tier B**: overlay 49 supplies mode-call context; no external name is asserted | Exact 7 object words and two data relocations |
+| `func_80001708` | `0x2308` / `0x38` | **tier B**: a resident caller pins the master-volume reset role; no external name is asserted | Exact 14 object words, two calls, and data relocation |
+| `amSndSetPan` | `0x1E04` / `0x28` | existing **tier A** JFG byte identity | Exact object words and relocation identity |
+| `forcelink` | `0x2298` / `0x30` | existing **tier A** JFG byte identity | Exact object words and both call relocations |
+| `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |
+
+Measured plateau:
+
+| Mickey routine | Best result | First mismatch | Remaining hypothesis |
+|---|---|---:|---|
+| `amTuneSetFadeScaled` | Exact 29-word instruction/opcode schedule, frame, and relocation surface; 7 register-only differences after the flag lattice and 10 source-shape attempts | function `+0x1C` | IDO 5.3 temporary-FIFO phase: the target and candidate assign the three initial address/index temporaries from different positions in the same ring. The candidate remains under `NON_MATCHING`; canonical output is still assembly-backed |
+
+PROVENANCE: TU labels, order, and semantic roles derive from JFG's permitted
+public decomp/objects. C retains Mickey-owned stubs and point-disclosed adapted
+bodies; every promotion remains byte-exact to Mickey.
+
 ---
 
 ### 3.17 Vehicle sounds, models and gsSnd census

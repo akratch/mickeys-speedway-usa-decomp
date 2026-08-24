@@ -296,7 +296,7 @@ void func_80050D50(void) {
     void **entry = D_800D6B18, **end = D_800D6B58;
     do {
         if (*entry != NULL) {
-            func_80000F74(*entry);
+            amSndStop(*entry);
             *entry = NULL;
         }
         entry++;
