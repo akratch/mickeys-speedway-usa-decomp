@@ -17,10 +17,25 @@ typedef struct AssetLookupTable {
 extern AssetLookupTable *D_800D2470;
 extern u8 D_86760[];
 
+void romCopy(u32 romOffset, u32 ramAddress, s32 numBytes);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/pi/piInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/pi/piRomLoad.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/pi/piRomLoadCompressed.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/pi/piRomLoadSection.s")
+s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size) {
+    u32 *index;
+    s32 start;
+
+    if (size == 0 || D_800D2470->fileCount < assetIndex) {
+        return 0;
+    }
+
+    assetIndex++;
+    index = assetIndex + D_800D2470->offsets - 1;
+    start = index[0] + assetOffset;
+    romCopy((u32) (start + D_86760), address, size);
+    return size;
+}
 u8 *piRomGetSectionPtr(u32 assetIndex, u32 assetOffset) {
     u32 *index;
     u32 start;
