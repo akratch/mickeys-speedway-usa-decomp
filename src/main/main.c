@@ -25,6 +25,8 @@ extern s32 D_8007A14C;
 extern s32 D_8007A148;
 extern s32 D_8007A1B0;
 extern s32 D_8007A1BC;
+extern s32 D_8007A1AC;
+extern s32 D_8007A1C0;
 extern s32 D_8007A13C;
 extern s32 D_8007A12C;
 extern s32 D_8007A130;
@@ -61,6 +63,7 @@ extern void *D_800D18E4;
 extern u8 D_800D1928[];
 extern s32 levelNGetType(s32 level);
 extern void func_80028EFC(MainCharacterState *, s32, s32);
+extern void mainChangeLevel(s32, s32, s32, s32, s32, s32);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -168,7 +171,15 @@ void func_80028DE4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     D_8007A18C = 1;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainFrontInit.s")
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+void mainFrontInit(s32 arg0, s32 arg1, s32 arg2) {
+    D_8007A1BC = 1;
+    D_8007A1C0 = 1;
+    if (D_8007A1AC == 0) {
+        D_8007A1AC = 1;
+    }
+    mainChangeLevel(arg1, D_8007A154, 0, arg0, 1, 0);
+}
 
 /* PROVENANCE: stripped function role follows JFG src/main.c order. */
 void mainStartGame(void) {
