@@ -1495,11 +1495,35 @@ mmGetDelay = 0x8002BB34; // type:func size:0xC   ROM 0x2c734  tier B (JFG call g
 rumbleKill = 0x8002BF00; // type:func size:0x44   ROM 0x2cb00  src/saves.c.o  masked=1/17
 // jfg:src/rcpFast3d.c.o
 rcpInit = 0x8002F560; // type:func size:0xB8   ROM 0x30160  src/rcpFast3d.c.o  masked=33/46
+// Canonical C, but the JFG viGetScaleXY counterpart has only 3 unmasked words
+// and no same-address Mickey caller evidence, so its public name is not adopted.
+func_80033D58 = 0x80033D58; // type:func size:0x1C ROM 0x34958 canonical C, linked byte-identical
+// tier B (JFG): viChangeMode and two runtime state-reset paths call this before
+// resuming frame pacing, and its body resets all four video-delta controls.
+viFrameRateReset = 0x80033D74; // type:func size:0x2C ROM 0x34974 canonical C, linked byte-identical
+// tier B (JFG): same-address callers use the low mode bits to select display
+// dimensions and to decide whether viChangeMode must run.
+viGetVideoMode = 0x80033F48; // type:func size:0x14 ROM 0x34b48 canonical C, linked byte-identical
+// tier B (JFG): frontSetWideAdjust calls the setter, reads this value back,
+// and stores it as the front-end's current wide-adjust setting.
+viGetWideAdjust = 0x80033F5C; // type:func size:0xC ROM 0x34b5c canonical C, linked byte-identical
 // jfg:src/gameVi.c.o
 viSetWideAdjust = 0x80033F68; // type:func size:0x40   ROM 0x34b68  src/gameVi.c.o  masked=3/16
-viDisplayingScreen0 = 0x80033FEC; // type:func size:0x2C   ROM 0x34bec  src/gameVi.c.o  masked=4/11
+// tier B (JFG): the front-end passes a requested resolution mode here, then
+// compares current/requested video state before calling viChangeMode.
+viSetTrippleBuffer = 0x80033FA8; // type:func size:0x10 ROM 0x34ba8 canonical C, linked byte-identical
+// Canonical C, but JFG's viGetTrippleBuffer name has no same-address Mickey
+// caller evidence and the three-word body is below the tier-A threshold.
+func_80033FB8 = 0x80033FB8; // type:func size:0xC ROM 0x34bb8 canonical C, linked byte-identical
+// tier B (JFG): after setting a requested buffer mode, the front-end branches
+// to viChangeMode exactly when this current/requested comparison returns true.
+viChangeBuffers = 0x80033FC4; // type:func size:0x1C ROM 0x34bc4 canonical C, linked byte-identical
+// Canonical C, but JFG's viNoClear name has no same-address Mickey caller
+// evidence and the three-word body is below the tier-A threshold.
+func_80033FE0 = 0x80033FE0; // type:func size:0xC ROM 0x34be0 canonical C, linked byte-identical
+viDisplayingScreen0 = 0x80033FEC; // type:func size:0x2C   ROM 0x34bec  src/gameVi.c.o  masked=4/11, canonical C is linked byte-identical
 func_80034018 = 0x80034018; // type:func size:0x7C   ROM 0x34c18  src/gameVi.c.o  masked=3/31
-fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12
+fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12, canonical C is linked byte-identical
 // jfg:src/textures.c.o
 initColourCycle = 0x80036A50; // type:func size:0x30   ROM 0x37650  src/textures.c.o  masked=2/12
 // jfg:src/menu.c.o

@@ -193,7 +193,12 @@ segments:
       # public decomp names the same engine's file runLink.c.
       - [0x323E0, c, main/runlink]
       - [0x33FA0, asm, main/trapDanglingJump]
-      - [0x34180, asm]
+      # JFG gameVi.c. The boundary is established by the complete ordered
+      # sequence of 23 functions: viInit through fb_memcpy, between the
+      # measured trapDanglingJump TU and the texInitTextures-shaped function
+      # that starts JFG's following textures.c TU at 0x34E60.
+      - [0x34180, c, main/gameVi]
+      - [0x34E60, asm]
       - [0x37D50, asm]
       - [0x3B480, asm]
       - [0x3D5F0, asm]
