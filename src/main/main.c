@@ -153,7 +153,12 @@ void *func_80028F54(void) {
     return D_800D18E0;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028F60.s")
+u8 *func_80028F60(s32 index, s32 arg1) {
+    if ((index < 0) || (index >= 6)) {
+        index = 0;
+    }
+    return (u8 *) D_800D18E0 + (index * 40) + 4;
+}
 
 void func_80028F98(s32 arg0, s32 arg1, s32 arg2) {
 }
