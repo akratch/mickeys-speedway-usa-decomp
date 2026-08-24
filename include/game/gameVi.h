@@ -3,6 +3,7 @@
 
 #include "PR/ultratypes.h"
 
+void viFrameRateReset(void);
 s32 viGetVideoMode(void);
 s8 viGetWideAdjust(void);
 void viSetWideAdjust(s32 offset);

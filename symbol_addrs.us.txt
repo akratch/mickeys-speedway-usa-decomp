@@ -1462,6 +1462,9 @@ mmFree = 0x8002B768; // type:func size:0x44   ROM 0x2c368  src/memory.c.o  maske
 rumbleKill = 0x8002BF00; // type:func size:0x44   ROM 0x2cb00  src/saves.c.o  masked=1/17
 // jfg:src/rcpFast3d.c.o
 rcpInit = 0x8002F560; // type:func size:0xB8   ROM 0x30160  src/rcpFast3d.c.o  masked=33/46
+// tier B (JFG): viChangeMode and two runtime state-reset paths call this before
+// resuming frame pacing, and its body resets all four video-delta controls.
+viFrameRateReset = 0x80033D74; // type:func size:0x2C ROM 0x34974 canonical C, linked byte-identical
 // tier B (JFG): same-address callers use the low mode bits to select display
 // dimensions and to decide whether viChangeMode must run.
 viGetVideoMode = 0x80033F48; // type:func size:0x14 ROM 0x34b48 canonical C, linked byte-identical

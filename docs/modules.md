@@ -428,6 +428,11 @@ compares the active and requested triple-buffer flags, and the caller invokes
 the mode changer exactly when it returns true. That pins the JFG name at tier B;
 both HI16/LO16 relocation pairs and the linked body are exact.
 
+`viFrameRateReset` is adopted at tier B. The mode changer and two runtime
+state-reset paths call it before frame pacing resumes, while the canonical body
+resets the skip-adjust flag, delta counter, delta interval and one-frame mode.
+All 11 instruction words and four HI16/LO16 relocation pairs are exact.
+
 ---
 
 ## 4. libultra
