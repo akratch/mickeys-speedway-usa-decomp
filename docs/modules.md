@@ -380,7 +380,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | ROM | Mickey symbol | JFG correspondence | Tier and evidence |
 |---|---|---|---|
 | `0x2BCD0` | `mmInit` | `mmInit` | A: unique 30-word skeleton; 14 relocated words masked |
-| `0x2BD48` | `func_8002B148` | `mmExtended` | B: returns the expansion-memory flag consumed by `mmInit` |
+| `0x2BD48` | `mmExtended` | `mmExtended` | B: returns the expansion-memory flag consumed by `mmInit`; matched C exact |
 | `0x2BD54` | `func_8002B154` | `mmAllocRegion` | B: allocates slot storage, then calls the pool initializer with it |
 | `0x2BDA0` | `func_8002B1A0` | `mempool_init` | B: shared callee of `mmInit` and the region allocator; initializes the 0x10-byte pool and 0x14-byte slot records |
 | `0x2BE80` | `func_8002B280` | `mmAlloc` | B: main-pool wrapper that derives a caller colour tag and calls the slot finder |
@@ -411,6 +411,9 @@ flags; it is the Mickey-only member derived from the same alignment family.
 `align4` completes the family with seven exact instruction words and no
 relocations. Its compiled body is `0x1C` bytes; the flag sweep's only reported
 delta is the separate 12-byte TU alignment tail already excluded above.
+`mmExtended` is exact for `0xC` bytes with the canonical flags. Its two data
+relocations retain the target HI16/LO16 offsets and bind `D_8007A274`; the JFG
+body and `mmInit` flag role support the tier B name.
 
 ---
 

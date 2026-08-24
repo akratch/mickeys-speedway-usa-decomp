@@ -13,10 +13,14 @@
 
 #include "game/memory.h"
 
+extern u8 D_8007A274;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/mmInit.s")
 
-/* JFG correspondence: mmExtended (tier B; reads the flag consumed by mmInit). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B148.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmExtended. */
+u8 mmExtended(void) {
+    return D_8007A274;
+}
 
 /* JFG correspondence: mmAllocRegion (tier B; allocation then pool creation). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B154.s")
