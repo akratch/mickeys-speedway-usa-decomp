@@ -1,4 +1,7 @@
-#include "PR/ultratypes.h"
+#include "overlays/overlay_001.h"
+
+/* ---- overlay1CreateRecord ---- */
+
 
 typedef struct Overlay1PoolRecord {
     s16 x[32];

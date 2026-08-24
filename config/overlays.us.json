@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 80456,
-  "nonmatching_overlay_c_bytes": 200396,
+  "matched_overlay_c_bytes": 77828,
+  "nonmatching_overlay_c_bytes": 203024,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -587,228 +587,30 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x50",
-     "size": "0x50",
-     "type": "c",
-     "source": "overlays/o001/overlay1PointerWrap",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x50",
-     "end_offset": "0x80",
-     "size": "0x30",
-     "type": "c",
-     "source": "overlays/o001/overlay1GetEntry",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x80",
-     "end_offset": "0xA0",
-     "size": "0x20",
-     "type": "c",
-     "source": "overlays/o001/overlay1GetEntryIndex",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xA0",
-     "end_offset": "0xC0",
-     "size": "0x20",
-     "type": "c",
-     "source": "overlays/o001/overlay1PreviousIndex",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xC0",
-     "end_offset": "0xE4",
-     "size": "0x24",
-     "type": "c",
-     "source": "overlays/o001/overlay1NextIndex",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0xE4",
-     "end_offset": "0x154",
-     "size": "0x70",
-     "type": "c",
-     "source": "overlays/o001/overlay1WrapOffset",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x154",
-     "end_offset": "0x1AC",
-     "size": "0x58",
-     "type": "c",
-     "source": "overlays/o001/overlay1SignedOffset",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1AC",
-     "end_offset": "0x2D4",
-     "size": "0x128",
-     "type": "c",
-     "source": "overlays/o001/overlay1FindType47ByAngle",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x2D4",
-     "end_offset": "0x330",
-     "size": "0x5C",
-     "type": "c",
-     "source": "overlays/o001/overlay1GetLinkedActive",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x330",
-     "end_offset": "0x378",
-     "size": "0x48",
-     "type": "c",
-     "source": "overlays/o001/overlay1GetRecord",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x378",
-     "end_offset": "0x414",
-     "size": "0x9C",
-     "type": "c",
-     "source": "overlays/o001/overlay1FindType5ByKey",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x414",
-     "end_offset": "0x4B4",
-     "size": "0xA0",
-     "type": "c",
-     "source": "overlays/o001/overlay1FindPreviousUsable",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x4B4",
-     "end_offset": "0x758",
-     "size": "0x2A4",
-     "type": "c",
-     "source": "overlays/o001/overlay1ActivateObject",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x758",
      "end_offset": "0x7B0",
-     "size": "0x58",
+     "size": "0x7B0",
      "type": "c",
-     "source": "overlays/o001/overlay1TestDirection",
+     "source": "overlays/o001/overlay_001",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x7B0",
      "end_offset": "0xBD4",
      "size": "0x424",
      "type": "c",
-     "source": "overlays/o001/overlay1BuildPointRecord",
+     "source": "overlays/o001/overlay_001_build",
      "matched": true,
      "nonmatching": false
     },
     {
      "offset": "0xBD4",
-     "end_offset": "0xCA8",
-     "size": "0xD4",
-     "type": "c",
-     "source": "overlays/o001/overlay1InitMotionScale",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xCA8",
-     "end_offset": "0xDF4",
-     "size": "0x14C",
-     "type": "c",
-     "source": "overlays/o001/overlay1InterpolatePath",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xDF4",
-     "end_offset": "0xF84",
-     "size": "0x190",
-     "type": "c",
-     "source": "overlays/o001/overlay1ResolveMotionPoint",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0xF84",
-     "end_offset": "0x10C0",
-     "size": "0x13C",
-     "type": "c",
-     "source": "overlays/o001/overlay1MeasureCurves",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x10C0",
-     "end_offset": "0x10C8",
-     "size": "0x8",
-     "type": "c",
-     "source": "overlays/o001/overlay1Noop",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x10C8",
-     "end_offset": "0x19B8",
-     "size": "0x8F0",
-     "type": "c",
-     "source": "overlays/o001/overlay1LoadBuildRecords",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x19B8",
-     "end_offset": "0x1A54",
-     "size": "0x9C",
-     "type": "c",
-     "source": "overlays/o001/overlay1InitializeModeState",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1A54",
-     "end_offset": "0x1CA4",
-     "size": "0x250",
-     "type": "c",
-     "source": "overlays/o001/overlay1BuildObjectMappings",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x1CA4",
-     "end_offset": "0x1D58",
-     "size": "0xB4",
-     "type": "c",
-     "source": "overlays/o001/overlay1ReleaseRecords",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x1D58",
      "end_offset": "0x1D78",
-     "size": "0x20",
+     "size": "0x11A4",
      "type": "c",
-     "source": "overlays/o001/overlay1CallReset",
+     "source": "overlays/o001/overlay_001_head",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1D78",
@@ -821,55 +623,10 @@
     },
     {
      "offset": "0x2744",
-     "end_offset": "0x280C",
-     "size": "0xC8",
-     "type": "c",
-     "source": "overlays/o001/overlay1FindNextAngle",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x280C",
-     "end_offset": "0x28D4",
-     "size": "0xC8",
-     "type": "c",
-     "source": "overlays/o001/overlay1FindPreviousAngle",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x28D4",
-     "end_offset": "0x293C",
-     "size": "0x68",
-     "type": "c",
-     "source": "overlays/o001/overlay1RefreshMode",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x293C",
-     "end_offset": "0x296C",
-     "size": "0x30",
-     "type": "c",
-     "source": "overlays/o001/overlay1CallGlobal",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x296C",
-     "end_offset": "0x2AA4",
-     "size": "0x138",
-     "type": "c",
-     "source": "overlays/o001/overlay1AdvanceObjectGauges",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x2AA4",
      "end_offset": "0x2B4C",
-     "size": "0xA8",
+     "size": "0x408",
      "type": "c",
-     "source": "overlays/o001/overlay1AdvanceGauge",
+     "source": "overlays/o001/overlay_001_middle",
      "matched": true,
      "nonmatching": true
     },
@@ -884,334 +641,10 @@
     },
     {
      "offset": "0x3578",
-     "end_offset": "0x36A0",
-     "size": "0x128",
-     "type": "c",
-     "source": "overlays/o001/overlay1InitializeGaugeObjects",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x36A0",
-     "end_offset": "0x3750",
-     "size": "0xB0",
-     "type": "c",
-     "source": "overlays/o001/overlay1AssignRecordIndex",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x3750",
-     "end_offset": "0x3E48",
-     "size": "0x6F8",
-     "type": "c",
-     "source": "overlays/o001/overlay1ChoosePath",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x3E48",
-     "end_offset": "0x3E74",
-     "size": "0x2C",
-     "type": "c",
-     "source": "overlays/o001/overlay1SubmitGlobals",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x3E74",
-     "end_offset": "0x3EB8",
-     "size": "0x44",
-     "type": "c",
-     "source": "overlays/o001/overlay1SubmitAll",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x3EB8",
-     "end_offset": "0x3F38",
-     "size": "0x80",
-     "type": "c",
-     "source": "overlays/o001/overlay1AngleBetweenSamples",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x3F38",
-     "end_offset": "0x3FD8",
-     "size": "0xA0",
-     "type": "c",
-     "source": "overlays/o001/overlay1RelativeAngles",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x3FD8",
-     "end_offset": "0x438C",
-     "size": "0x3B4",
-     "type": "c",
-     "source": "overlays/o001/overlay1TransitionState",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x438C",
-     "end_offset": "0x5BA4",
-     "size": "0x1818",
-     "type": "c",
-     "source": "overlays/o001/overlay1UpdateObjectPhysics",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x5BA4",
-     "end_offset": "0x5BC0",
-     "size": "0x1C",
-     "type": "c",
-     "source": "overlays/o001/overlay1InitTimedState",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x5BC0",
-     "end_offset": "0x5BF4",
-     "size": "0x34",
-     "type": "c",
-     "source": "overlays/o001/overlay1ConsumeTimer",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x5BF4",
-     "end_offset": "0x5CD4",
-     "size": "0xE0",
-     "type": "c",
-     "source": "overlays/o001/overlay1StartTimerCallbacks",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x5CD4",
-     "end_offset": "0x5ECC",
-     "size": "0x1F8",
-     "type": "c",
-     "source": "overlays/o001/overlay1FindDirectionalObject",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x5ECC",
-     "end_offset": "0x5ED4",
-     "size": "0x8",
-     "type": "c",
-     "source": "overlays/o001/overlay1ReturnZero",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x5ED4",
-     "end_offset": "0x61F0",
-     "size": "0x31C",
-     "type": "c",
-     "source": "overlays/o001/overlay1DispatchMode",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x61F0",
-     "end_offset": "0x6270",
-     "size": "0x80",
-     "type": "c",
-     "source": "overlays/o001/overlay1HandleCachedMode",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x6270",
-     "end_offset": "0x63CC",
-     "size": "0x15C",
-     "type": "c",
-     "source": "overlays/o001/overlay1ChooseModeObject",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x63CC",
-     "end_offset": "0x6424",
-     "size": "0x58",
-     "type": "c",
-     "source": "overlays/o001/overlay1UpdateCountdown",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x6424",
-     "end_offset": "0x64F8",
-     "size": "0xD4",
-     "type": "c",
-     "source": "overlays/o001/overlay1ReadSelection",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x64F8",
-     "end_offset": "0x6724",
-     "size": "0x22C",
-     "type": "c",
-     "source": "overlays/o001/overlay1SolveAngleCandidates",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x6724",
-     "end_offset": "0x6788",
-     "size": "0x64",
-     "type": "c",
-     "source": "overlays/o001/overlay1UpdateModeSound",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x6788",
-     "end_offset": "0x67C0",
-     "size": "0x38",
-     "type": "c",
-     "source": "overlays/o001/overlay1CopyBytes",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x67C0",
-     "end_offset": "0x69A0",
-     "size": "0x1E0",
-     "type": "c",
-     "source": "overlays/o001/overlay1UpdateRangeFlags",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x69A0",
-     "end_offset": "0x6A14",
-     "size": "0x74",
-     "type": "c",
-     "source": "overlays/o001/overlay1InitMotion",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x6A14",
-     "end_offset": "0x6B28",
-     "size": "0x114",
-     "type": "c",
-     "source": "overlays/o001/overlay1ConsumeNearbyPending",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x6B28",
-     "end_offset": "0x6B6C",
-     "size": "0x44",
-     "type": "c",
-     "source": "overlays/o001/overlay1InitRange",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x6B6C",
-     "end_offset": "0x6CE8",
-     "size": "0x17C",
-     "type": "c",
-     "source": "overlays/o001/overlay1SearchNearby",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x6CE8",
-     "end_offset": "0x6D4C",
-     "size": "0x64",
-     "type": "c",
-     "source": "overlays/o001/overlay1SelectMaskedMode",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x6D4C",
-     "end_offset": "0x7130",
-     "size": "0x3E4",
-     "type": "c",
-     "source": "overlays/o001/overlay1UpdateAimedTransient",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x7130",
-     "end_offset": "0x72A4",
-     "size": "0x174",
-     "type": "c",
-     "source": "overlays/o001/overlay1UpdateTransient",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x72A4",
-     "end_offset": "0x7344",
-     "size": "0xA0",
-     "type": "c",
-     "source": "overlays/o001/overlay1AllocateRecord",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x7344",
-     "end_offset": "0x73A0",
-     "size": "0x5C",
-     "type": "c",
-     "source": "overlays/o001/overlay1CloneRecord",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x73A0",
-     "end_offset": "0x7580",
-     "size": "0x1E0",
-     "type": "c",
-     "source": "overlays/o001/overlay1UpdateValueCache",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x7580",
-     "end_offset": "0x7730",
-     "size": "0x1B0",
-     "type": "c",
-     "source": "overlays/o001/overlay1AppendPathPoint",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x7730",
-     "end_offset": "0x78DC",
-     "size": "0x1AC",
-     "type": "c",
-     "source": "overlays/o001/overlay1BendPathPoint",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x78DC",
-     "end_offset": "0x7B64",
-     "size": "0x288",
-     "type": "c",
-     "source": "overlays/o001/overlay1AdvancePath",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x7B64",
      "end_offset": "0x7BDC",
-     "size": "0x78",
+     "size": "0x4664",
      "type": "c",
-     "source": "overlays/o001/overlay1FindBestRecord",
+     "source": "overlays/o001/overlay_001_tail",
      "matched": true,
      "nonmatching": true
     },
@@ -1220,52 +653,25 @@
      "end_offset": "0x7D6C",
      "size": "0x190",
      "type": "c",
-     "source": "overlays/o001/overlay1CreateRecord",
+     "source": "overlays/o001/overlay_001_create",
      "matched": true,
      "nonmatching": false
     },
     {
      "offset": "0x7D6C",
-     "end_offset": "0x7FCC",
-     "size": "0x260",
+     "end_offset": "0x80BC",
+     "size": "0x350",
      "type": "c",
-     "source": "overlays/o001/overlay1ResolvePathPoint",
+     "source": "overlays/o001/overlay_001_end",
      "matched": true,
      "nonmatching": true
-    },
-    {
-     "offset": "0x7FCC",
-     "end_offset": "0x8008",
-     "size": "0x3C",
-     "type": "c",
-     "source": "overlays/o001/overlay1ModeChecks",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x8008",
-     "end_offset": "0x8048",
-     "size": "0x40",
-     "type": "c",
-     "source": "overlays/o001/overlay1DistanceFromCurrent",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x8048",
-     "end_offset": "0x80BC",
-     "size": "0x74",
-     "type": "c",
-     "source": "overlays/o001/overlay1DistanceFromSelected",
-     "matched": true,
-     "nonmatching": false
     },
     {
      "offset": "0x80BC",
      "end_offset": "0x8114",
      "size": "0x58",
      "type": "c",
-     "source": "overlays/o001/overlay1ScaledDistance",
+     "source": "overlays/o001/overlay_001_scaled",
      "matched": true,
      "nonmatching": false
     },

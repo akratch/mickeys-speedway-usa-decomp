@@ -718,31 +718,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitializeAudio.c.o: POSTPROCESS =
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_005_F000031C_185B744=overlay5InitializeAudio $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1WrapOffset.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SignedOffset.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
 # Two independent operations straddle the same source-line scheduling points
 # in the shipped object. Assert IDO's natural order before restoring them.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindNextAngle.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F0002744_184EB24=overlay1FindNextAngle $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindPreviousAngle.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F000280C_184EBEC=overlay1FindPreviousAngle $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1RefreshMode.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x68
 # The source produces the shipped control flow and every memory operation, but
 # IDO assigns two interchangeable integer webs to a1/a3 in the opposite order.
 # Assert that bounded natural output before restoring the original coloring.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindBestRecord.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F0007B64_1853F44=overlay1FindBestRecord $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x78
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ReleaseRecords.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xBC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o: CFLAGS += -Wab,-r4300_mul
@@ -785,6 +765,77 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7InitPool.c.o: POSTPROCESS = \
 		0x094:5:.bss 0x098:6:.bss \
 		0x09c:5:.bss 0x0a0:6:.bss \
 		0x0a4:5:.bss 0x0ac:6:.bss
+# Overlay 1 has three C islands separated by owned assembly.  Mixed
+# -Wo,-loopunroll,4 / -Wab,-r4300_mul flag groups require five further
+# boundaries; one object cannot span either an asm range or a flag change.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_001_F0000050_184C430=overlay1GetEntry \
+		--redefine-sym func_overlay_001_F00001AC_184C58C=overlay1FindType47ByAngle \
+		--redefine-sym func_overlay_001_F0000378_184C758=overlay1FindType5ByKey \
+		--redefine-sym func_overlay_001_F0000414_184C7F4=overlay1FindPreviousUsable \
+		--redefine-sym func_overlay_001_F00004B4_184C894=overlay1ActivateObject \
+		--redefine-sym func_overlay_001_F0000614_184C9F4=overlay1FindClosestSample $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7B0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x424
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_head.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_001_F0000BD4_184CFB4=overlay1InitMotionScale \
+		--redefine-sym func_overlay_001_F0000CA8_184D088=overlay1InterpolatePath \
+		--redefine-sym func_overlay_001_F0000DF4_184D1D4=overlay1ResolveMotionPoint \
+		--redefine-sym func_overlay_001_F0000F84_184D364=overlay1MeasureCurves \
+		--redefine-sym func_overlay_001_F00010C8_184D4A8=overlay1LoadBuildRecords \
+		--redefine-sym func_overlay_001_F0000614_184C9F4=overlay1ModeResolverReloc \
+		--redefine-sym func_overlay_001_F0001A54_184DE34=overlay1BuildObjectMappings $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11A4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_middle.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_001_F0002744_184EB24=overlay1FindNextAngle \
+		--redefine-sym func_overlay_001_F000280C_184EBEC=overlay1FindPreviousAngle \
+		--redefine-sym func_overlay_001_F000296C_184ED4C=overlay1AdvanceObjectGauges \
+		--redefine-sym func_overlay_001_F0002AA4_184EE84=overlay1AdvanceGauge $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x408
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_001_F0003578_184F958=overlay1InitializeGaugeObjects \
+		--redefine-sym func_overlay_001_F00036A0_184FA80=overlay1AssignRecordIndex \
+		--redefine-sym func_overlay_001_F0003750_184FB30=overlay1ChoosePath \
+		--redefine-sym func_overlay_001_F0003FD8_18503B8=overlay1TransitionState \
+		--redefine-sym func_overlay_001_F000438C_185076C=overlay1UpdateObjectPhysics \
+		--redefine-sym func_overlay_001_F0005BF4_1851FD4=overlay1StartTimerCallbacks \
+		--redefine-sym func_overlay_001_F0005CD4_18520B4=overlay1FindDirectionalObject \
+		--redefine-sym func_overlay_001_F0005ED4_18522B4=overlay1DispatchMode \
+		--redefine-sym func_overlay_001_F00061F0_18525D0=overlay1HandleCachedMode \
+		--redefine-sym func_overlay_001_F0006270_1852650=overlay1ChooseModeObject \
+		--redefine-sym func_overlay_001_F00064F8_18528D8=overlay1SolveAngleCandidates \
+		--redefine-sym func_overlay_001_F00067C0_1852BA0=overlay1UpdateRangeFlags \
+		--redefine-sym func_overlay_001_F0006A14_1852DF4=overlay1ConsumeNearbyPending \
+		--redefine-sym func_overlay_001_F0006B6C_1852F4C=overlay1SearchNearby \
+		--redefine-sym func_overlay_001_F0006D4C_185312C=overlay1UpdateAimedTransient \
+		--redefine-sym func_overlay_001_F0007130_1853510=overlay1UpdateTransient \
+		--redefine-sym func_overlay_001_F00072A4_1853684=overlay1AllocateRecord \
+		--redefine-sym func_overlay_001_F0007344_1853724=overlay1CloneRecord \
+		--redefine-sym func_overlay_001_F00073A0_1853780=overlay1UpdateValueCache \
+		--redefine-sym func_overlay_001_F0007580_1853960=overlay1AppendPathPoint \
+		--redefine-sym func_overlay_001_F0007730_1853B10=overlay1BendPathPoint \
+		--redefine-sym func_overlay_001_F00078DC_1853CBC=overlay1AdvancePath \
+		--redefine-sym func_overlay_001_F0007B64_1853F44=overlay1FindBestRecord $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4664
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_create.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_create.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym sqrtf=overlay1SqrtReloc $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x190
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_end.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_001_F0007D6C_185414C=overlay1ResolvePathPoint $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x350
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_scaled.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_scaled.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
+
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3UpdateTimedEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3SelectTarget.c.o: POSTPROCESS = \
@@ -872,8 +923,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4AttachObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4RemoveObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x74
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8Ignore.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8GetIndexed.c.o: POSTPROCESS = \
@@ -1044,8 +1093,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14DispatchCommand.c.o: POSTPROCESS 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14BuildRects.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_014_F00012D8_1870BB0=overlay14BuildRects $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CallGlobal.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36CallGlobal.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36InitObject.c.o: POSTPROCESS = \
@@ -1118,14 +1165,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay_051.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8AC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitSequence.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ConsumeTimer.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x34
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1TestDirection.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1BuildPointRecord.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1BuildPointRecord.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1BuildPointRecord.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x424
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ResetFlags.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC4.c.o: POSTPROCESS = \
@@ -1178,7 +1217,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34CreateRecord.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_034_F00000D4_188127C=overlay34CreateRecord $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1F4
 include config/normalizations/overlay34Records.mk
-include config/normalizations/overlay1Epoch12.mk
 include config/normalizations/overlay12Epoch12.mk
 include config/normalizations/overlay22Epoch12.mk
 include config/normalizations/overlay28Epoch12.mk
@@ -1700,65 +1738,30 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitScale.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitScale.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100RemoveEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitRange.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x44
 # IDO emits the three independent loop initializers in the opposite legal
 # order. Assert that exact output before restoring the shipped schedule.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CloneRecord.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F0007344_1853724=overlay1CloneRecord $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SelectMaskedMode.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
 # The source is exact except for one complete stack-home lifetime. Preserve the
 # independently decoded three-call runtime identities while using the common
 # pre-loader relocation carrier required by the configured overlay link.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SearchNearby.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F0006B6C_1852F4C=overlay1SearchNearby $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x17C
 # Natural source supplies the exact pool traversal and relocation-bearing
 # local addends. Select retail's equivalent private suffix register web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1AllocateRecord.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F00072A4_1853684=overlay1AllocateRecord $@
 # Preserve the complete initializer instruction/relocation permutation and
 # bounded temporary web, then fold its three runtime calls to the pre-loader
 # carrier while retaining their shipped table identities.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateTransient.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F0007130_1853510=overlay1UpdateTransient $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x174
 # The natural source supplies the exact cache traversal, integer/FP conversion
 # paths, and local relocation pair. Select retail's equivalent two-register web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateValueCache.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F00073A0_1853780=overlay1UpdateValueCache $@
 # The natural body owns the exact boundary, frame, CFG, FP schedule, calls,
 # delay slots, memory effects, and all eight runtime relocations. Select only
 # the two interchangeable private GPR-color webs and fold the resident sqrtf
 # call onto its shipped pre-loader relocation carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1AppendPathPoint.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F0007580_1853960=overlay1AppendPathPoint $@
 # R4300 multiply hazards are target-proven for this exact TU. Natural source
 # supplies the complete instruction stream and all ten runtime relocations;
 # fold only the independently decoded resident sqrtf call to its shipped
 # pre-loader carrier.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CreateRecord.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CreateRecord.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym sqrtf=overlay1SqrtReloc $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x190
 # Natural source owns the exact 162-op schedule, frame, CFG, memory effects,
 # stack layout, and all 22 relocation sites. Select only the complete private
 # temporary-color web, then fold the two independently decoded external routes
 # onto their shipped pre-loader carriers.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1AdvancePath.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F00078DC_1853CBC=overlay1AdvancePath $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x288
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateCountdown.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34RemoveRecord.c.o: POSTPROCESS = \
@@ -1813,63 +1816,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/func_overlay_061_F0001648_18C0A10.c.o: POS
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x29C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitTimedState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1PointerWrap.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
 # NON_MATCHING/GLOBAL_ASM per docs/acceleration-survey.md sec.13.2: this
 # object's instructions used to be reached by rewriting three fields after
 # compilation (normalize_elf_instructions.py), which no gold-standard N64
 # decomp does. The .c now GLOBAL_ASMs the extracted retail bytes instead;
 # only the symbol rename below (metadata, not instructions) survives.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetEntry.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_001_F0000050_184C430=overlay1GetEntry $@
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetEntryIndex.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindType5ByKey.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F0000378_184C758=overlay1FindType5ByKey $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindPreviousUsable.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_001_F0000414_184C7F4=overlay1FindPreviousUsable $@
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1PreviousIndex.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1NextIndex.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x24
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1Noop.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CallReset.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ReturnZero.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SubmitGlobals.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SubmitAll.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x44
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1RelativeAngles.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1AngleBetweenSamples.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ScaledDistance.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1DistanceFromCurrent.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x40
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ScaledDistance.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1DistanceFromSelected.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x74
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetLinkedActive.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetRecord.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CopyBytes.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ModeChecks.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateModeSound.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ReadSelection.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagCC.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15ReleaseResource.c.o: POSTPROCESS = \
@@ -2784,13 +2735,14 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o103/overlay_103.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o106/overlay_106.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o107/overlay_107.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1WrapOffset.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SignedOffset.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindNextAngle.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindPreviousAngle.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1RefreshMode.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindBestRecord.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ReleaseRecords.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_head.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_middle.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_create.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_end.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_scaled.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7EntryPool.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay7FillValues.c.o \
@@ -2822,7 +2774,6 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateGroupSpacing.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4AttachObject.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4RemoveObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitMotion.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8Ignore.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8GetIndexed.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8StartMotion.c.o \
@@ -2872,7 +2823,6 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F00013F4_1870CCC.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0001540_1870E18.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0001830_1871108.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CallGlobal.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36CallGlobal.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36InitObject.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27CanUse.c.o \
@@ -2901,9 +2851,6 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o030/overlay30TransposePixels.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay_051.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay5InitSequence.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ConsumeTimer.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1TestDirection.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1BuildPointRecord.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ResetFlags.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC4.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC8.c.o \
@@ -3110,21 +3057,10 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitScale.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100RemoveEntry.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100InitializeMotion.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitRange.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CloneRecord.c.o
 OVERLAY_TRIMMED_OBJECTS += \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateValueCache.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1AppendPathPoint.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CreateRecord.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1AdvancePath.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34RemoveRecord.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34CreateRecord.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateTransient.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87InitializeObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1AllocateRecord.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SearchNearby.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SelectMaskedMode.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateCountdown.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045_tail.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o \
@@ -3142,34 +3078,6 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68PayloadLimit.c.o
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1PointerWrap.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetEntry.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetEntryIndex.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindType5ByKey.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindPreviousUsable.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1PreviousIndex.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1NextIndex.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1Noop.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CallReset.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ReturnZero.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ChoosePath.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1LoadBuildRecords.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SubmitGlobals.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1SubmitAll.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1RelativeAngles.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1TransitionState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateObjectPhysics.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1AngleBetweenSamples.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1DistanceFromCurrent.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ScaledDistance.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1DistanceFromSelected.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetLinkedActive.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetRecord.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitTimedState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1CopyBytes.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ModeChecks.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1UpdateModeSound.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1ReadSelection.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagCC.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15ReleaseResource.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseTree.c.o \
