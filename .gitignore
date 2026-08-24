@@ -17,6 +17,20 @@ build_*/
 tools/ido/
 tools/binutils/
 
+# objdiff-cli binary (tools/setup_objdiff.sh); objdiff.json is generated too
+# but committed (paths/names only, no ROM content -- the project's objdiff
+# config). tools/objdiff_exclude.txt is also generated (a grep over the
+# Makefile) but NOT committed: ~700 lines of nothing but object-file
+# basenames reads as high-entropy text to the cleanroom base64-volume
+# heuristic, a real false positive on this file shape -- see docs/tools.md
+# and docs/CLEANROOM.md. tools/objdiff_report.sh regenerates it every run.
+tools/objdiff/
+/tools/objdiff_exclude.txt
+
+# Local symlink to a decomp-permuter checkout (path is this machine's, e.g.
+# ~/Desktop/dev/decomp-permuter -- see tools/permute.sh and docs/tools.md).
+tools/permuter
+
 # Generated
 undefined_funcs_auto*.txt
 undefined_syms_auto*.txt
