@@ -17,6 +17,8 @@ s32 vsprintf(char *s, const char *format, va_list arg);
 void *func_80034448(s16 resourceId);
 
 extern char D_800D4150[];
+extern const char D_80082A80[];
+extern const char D_80082AA8[];
 extern char *D_8007CE94;
 extern u16 D_800D4A5C;
 extern u16 D_800D4A5E;
@@ -47,7 +49,18 @@ void *memset(void *s, int c, size_t n) {
     }
     return s;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/_itoa.s")
+/* PROVENANCE: body adapted from JFG src/diprint.c:_itoa. */
+char *_itoa(unsigned long long n, char *buflim, unsigned int base, int upperCase) {
+    const char *alphabet = upperCase ? D_80082AA8 : D_80082A80;
+    register char *bp = buflim;
+
+    while (n > 0) {
+        *(--bp) = alphabet[n % base];
+        n /= base;
+    }
+
+    return bp;
+}
 /* PROVENANCE: body adapted from JFG src/diprint.c:sprintfSetSpacingCodes. */
 void sprintfSetSpacingCodes(s32 setting) {
     D_8007CE90 = setting;

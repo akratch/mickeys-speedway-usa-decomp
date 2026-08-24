@@ -785,7 +785,7 @@ osScGetTaskType = 0x80030580; // type:func size:0x88
 // a case by conversion specifier. `vsprintf` is the 0x1310-byte formatter that
 // owns "(null)" and "(nil)" and is what `sprintf` (byte-identical to DKR's,
 // above) tail-calls at 0x800429A4.
-_itoa = 0x800428D8; // type:func size:0xC0 ROM 0x434d8 evidence=C digit alphabets, jfg/dkr/_itoa
+_itoa = 0x800428D8; // type:func size:0xC0 ROM 0x434d8 evidence=A IDO C exact, jfg/dkr/_itoa
 vsprintf = 0x800429D0; // type:func size:0x1310 ROM 0x435d0 evidence=C `(null)`/`(nil)` and sprintf call graph, jfg/vsprintf
 
 // diRcp.c -- the display-list disassembler. `diRcpPrintDL` is the only
