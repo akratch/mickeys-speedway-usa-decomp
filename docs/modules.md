@@ -422,6 +422,9 @@ the typed record body, expression schedule, and data relocation are exact at
 the resident defaults. The 28-byte `func_8004A0F0` clears two adjacent effect
 queue words and their index; its three stores and both data relocation pairs
 are exact under the same defaults.
+The 76-byte JFG-identified `fxInit` is exact as well: its post-decrement loop
+clears all five 32-byte records, resets the global state, and preserves the
+callee plus two data relocation pairs without normalization.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet

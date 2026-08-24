@@ -35,7 +35,10 @@ typedef struct FxStatus {
 } FxStatus;
 
 typedef struct FxRecord {
-    u8 pad0[0x1A];
+    u8 state;
+    u8 status;
+    u16 flags;
+    u8 pad4[0x16];
     u8 red;
     u8 green;
     u8 blue;
@@ -43,10 +46,12 @@ typedef struct FxRecord {
 } FxRecord;
 
 extern void func_800347A0(s32 linked);
+extern void func_8004ACC4(s32 index);
 extern void mmFree(void *ptr);
 extern FxFlags D_800D5F5A[];
 extern FxStatus D_800D5F59[];
 extern FxRecord D_800D5F58[];
+extern s32 D_800D5F50;
 extern s32 D_800D6038[];
 extern s32 D_800D6040;
 
@@ -83,7 +88,21 @@ void func_80048980(WakeRipple *ripple) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049000.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeDraw.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049518.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxInit.s")
+void fxInit(void) {
+    FxRecord *record;
+    s32 i;
+
+    record = D_800D5F58;
+    i = 5;
+    while (i--) {
+        record->state = 0;
+        record->flags = 0;
+        record->status = 0;
+        record++;
+    }
+    D_800D5F50 = 0;
+    func_8004ACC4(i);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004978C.s")
 s32 func_80049828(s32 index, s32 mask) {
     if (index >= 0 && index < 5 && (D_800D5F5A[index].value & mask) != 0) {
