@@ -62,6 +62,27 @@ typedef struct RomdefLight {
     u8 enabledFlags;
 } RomdefLight;
 
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c comparison. */
+typedef struct ObjectLightEntry {
+    u8 mode;
+    u8 type;
+    u8 flags;
+    s8 index;
+    u16 home;
+    s16 x;
+    s16 y;
+    s16 z;
+    u16 radius;
+    u16 radius2;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 intensity;
+    s16 colourCycleIndex;
+    u8 value58;
+    u8 value5A;
+} ObjectLightEntry;
+
 void turnLightOff(UnkLight *light);
 void turnLightOn(UnkLight *light);
 void toggleLight(UnkLight *light);
@@ -70,6 +91,7 @@ void changeLightColourCycle(s32 arg0, s32 arg1);
 void changeLightIntensity(UnkLight *light, u8 intensity);
 void **lightGetLights(s32 *count);
 UnkLight *addRomdefLight(s32 arg0, RomdefLight *entry);
+UnkLight *addObjectLight(s32 owner, ObjectLightEntry *entry);
 f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6);
 
 #endif

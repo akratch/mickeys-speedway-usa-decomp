@@ -380,7 +380,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x8001879C` | `0x130` | `setupLights` | tier-B comparison: calls the preceding free, three allocators and `lightCreateLightTable`; C still `func_8001879C` |
 | `0x800188CC` | `0xB0` | JFG placeholder `func_80020D94` | placeholder names are prohibited by §1.5; remains `func_800188CC` |
 | `0x8001897C` | `0x238` | `addRomdefLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
-| `0x80018BB4` | `0x200` | `addObjectLight` | tier-B comparison from TU order and light-update callees; C still `func_80018BB4` |
+| `0x80018BB4` | `0x200` | `addObjectLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80018DB4` | `0x10` | `turnLightOff` | Tier A: JFG-adapted C is compiler/link exact |
 | `0x80018DC4` | `0x10` | `turnLightOn` | Tier A: JFG-adapted C is compiler/link exact |
 | `0x80018DD4` | `0x10` | `toggleLight` | Tier A: JFG-adapted C is compiler/link exact |

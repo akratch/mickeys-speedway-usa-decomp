@@ -83,7 +83,54 @@ UnkLight *addRomdefLight(s32 arg0, RomdefLight *entry) {
     }
     return light;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018BB4.s")
+/* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
+UnkLight *addObjectLight(s32 owner, ObjectLightEntry *entry) {
+    UnkLight *light;
+
+    light = NULL;
+    if (D_80079494 < D_80079490) {
+        light = D_80079498[D_80079494];
+        D_80079494++;
+        light->unk0 = entry->mode;
+        light->unk1 = entry->type;
+        light->unk2 = 7;
+        light->unk3 = entry->flags;
+        light->home = entry->home;
+        light->index = entry->index;
+        light->directionX = entry->x;
+        light->directionY = entry->y;
+        light->directionZ = entry->z;
+        light->owner = (void *) owner;
+        light->x = light->directionX;
+        light->y = light->directionY;
+        light->z = light->directionZ;
+        light->radius = (u32) entry->radius;
+        light->radius2 = light->radius;
+        light->radius3 = light->radius;
+        if (light->unk0 == 2) {
+            light->radius2 = (u32) entry->radius2;
+        }
+        light->radiusSquare = light->radius * light->radius;
+        light->radiusInverse = 1.0f / light->radius;
+        light->red = entry->red;
+        light->green = entry->green;
+        light->blue = entry->blue;
+        light->unk43 = entry->intensity;
+        light->unk44 = (u32) entry->intensity;
+        if (entry->colourCycleIndex != -1) {
+            initColourCycle(light->colourCycle, entry->colourCycleIndex, entry);
+        } else {
+            light->unk54 = 0;
+        }
+        light->value58 = entry->value58 << 8;
+        light->value5C = 0;
+        light->value5A = entry->value5A << 8;
+        light->value5E = 0;
+        func_800188CC(light);
+        func_80018F08(light, 0);
+    }
+    return light;
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 void turnLightOff(UnkLight *light) {
     light->unk3 &= ~1;
