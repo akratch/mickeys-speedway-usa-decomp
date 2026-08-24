@@ -133,10 +133,13 @@ extern s32 mathRnd(s32 min, s32 max);
 extern void *func_8002B280(s32 size, s32 tag);
 extern Camera *func_8002462C(void);
 extern Matrix *func_80024698(void);
+extern void mmFree(void *ptr);
+extern void func_800347A0(WeatherTexture *texture);
 
 void freeWeather(void);
 void snow_init(void);
 void rain_init(s32 count, s32 intensity, s32 opacity, s32 intensityBase);
+void free_rain_memory(void);
 void rain_update(s32 updateRate);
 void rain_set(s32 intensity, s32 opacity, f32 seconds);
 void snow_update(WeatherData *weather, WeatherGfxData *gfx, s32 particleCount, WeatherParticle *particles,
@@ -160,7 +163,44 @@ void weather_clip_planes(s16 near, s16 far) {
         D_800D40B8.far = near;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/freeWeather.s")
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::freeWeather. Mickey's globals and release order are
+ * authoritative here.
+ */
+void freeWeather(void) {
+    if (D_8007C3CC != NULL) {
+        mmFree(D_8007C3CC);
+        D_8007C3CC = NULL;
+    }
+    if (D_8007C3D4[0] != NULL) {
+        mmFree(D_8007C3D4[0]);
+        D_8007C3D4[0] = NULL;
+    }
+    if (D_8007C3D4[1] != NULL) {
+        mmFree(D_8007C3D4[1]);
+        D_8007C3D4[1] = NULL;
+    }
+    if (D_8007C394 != NULL) {
+        mmFree(D_8007C394);
+        D_8007C394 = NULL;
+    }
+    if (D_8007C398.positions != NULL) {
+        mmFree(D_8007C398.positions);
+        D_8007C398.positions = NULL;
+    }
+    if (D_8007C398.source.texture != NULL) {
+        func_800347A0(D_8007C398.source.texture);
+        D_8007C398.source.texture = NULL;
+    }
+    if (D_8007C3D0 != NULL) {
+        mmFree(D_8007C3D0);
+        D_8007C3D0 = NULL;
+    }
+    if (D_8007C6E8 != 0) {
+        free_rain_memory();
+    }
+}
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
  * src/weather.c::setupWeather.  Mickey's bytes, extra rain-init argument,

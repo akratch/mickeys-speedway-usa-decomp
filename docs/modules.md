@@ -1039,9 +1039,15 @@ out of asm-processor while retaining C ownership around it.
 **PROVENANCE:** the TU and descriptive function names are borrowed from Jet
 Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
 files and JFG's `asm/nonmatchings/weather/` names, as permitted by
-`docs/CLEANROOM.md`. The matched `weather_clip_planes`, `setupWeather`,
-`changeWeather`, and `rainDensity` bodies are adapted from those disclosed
-sources and carry point-of-use notes; Mickey's own bytes remain authoritative.
+`docs/CLEANROOM.md`. The matched `weather_clip_planes`, `freeWeather`,
+`setupWeather`, `changeWeather`, and `rainDensity` bodies are adapted from
+those disclosed sources and carry point-of-use notes; Mickey's own bytes
+remain authoritative.
+
+The tier-B/D `freeWeather` adds **0x120 bytes / 72 words** at ROM `0x3B5D0`.
+JFG's release sequence maps directly onto Mickey's global layout; the
+canonical `-O2 -mips2 -32` object is instruction-exact with all 34 relocations
+and the linked ROM range agreeing.
 
 The tier-B/D `setupWeather` adds **0x420 bytes / 264 words** at ROM `0x3B6F0`.
 JFG's declaration order and control spelling reproduce Mickey's 0x60-byte
@@ -1067,7 +1073,7 @@ decomp-permuter checkout.
 |---|---:|---|---|
 | `0x3B480` | `0xFC` | `initWeather` | B/D |
 | `0x3B57C` | `0x54` | `weather_clip_planes` | A donor; exact C, 21 words, 2 relocs |
-| `0x3B5D0` | `0x120` | `freeWeather` | B/D |
+| `0x3B5D0` | `0x120` | `freeWeather` | B/D name; exact C, 72 words, 34 relocs |
 | `0x3B6F0` | `0x420` | `setupWeather` | B/D name; exact C, 264 words, 41 relocs |
 | `0x3BB10` | `0x120` | `snow_init` | B/D |
 | `0x3BC30` | `0x1EC` | `changeWeather` | B/D name; exact C, 123 words, 5 relocs |
