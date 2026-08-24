@@ -161,7 +161,17 @@ AnimPath *func_800508B4(u8 pathIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800508D4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050AD4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050BF4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050D50.s")
+void func_80050D50(void) {
+    void **entry = D_800D6B18, **end = D_800D6B58;
+    do {
+        if (*entry != NULL) {
+            func_80000F74(*entry);
+            *entry = NULL;
+        }
+        entry++;
+    } while (entry != end);
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050DA8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050DF0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050E9C.s")
