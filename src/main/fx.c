@@ -69,7 +69,10 @@ typedef struct FxRecord {
     u8 pad1D[3];
 } FxRecord;
 
+typedef void (*FxTextureCallback)(s32 index, s32 value, s32 arg2);
+
 extern void func_800347A0(s32 linked);
+extern void func_800320F0(s32 callback);
 extern void func_8004ACC4(s32 index);
 extern void mmFree(void *ptr);
 extern FxFlags D_800D5F5A[];
@@ -78,6 +81,9 @@ extern FxRecord D_800D5F58[];
 extern s32 D_800D5F50;
 extern s32 D_800D6038[];
 extern s32 D_800D6040;
+extern s32 D_8007D47C[];
+extern s32 D_800D6098[];
+extern s32 D_800D60A8;
 extern s32 D_8007D478;
 extern FxScreenEffect D_800D6048[];
 extern void fxScreenEffect(s32 arg0, s32 type, s32 value4, s32 value6,
@@ -248,6 +254,21 @@ void func_8004A9CC(s32 arg0) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ACC4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AD34.s")
+s32 func_8004AD34(void) {
+    FxTextureCallback callback;
+    s32 index;
+
+    index = 4;
+    while (index--) {
+        if ((1 << index) & D_800D60A8) {
+            func_800320F0((s32)D_8007D47C + (index << 2));
+            callback = (FxTextureCallback)D_8007D47C[index];
+            if (callback != 0) {
+                callback(index, D_800D6098[index], 0);
+            }
+        }
+    }
+    D_800D60A8 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AF68.s")

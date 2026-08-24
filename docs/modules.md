@@ -443,6 +443,11 @@ callee plus two data relocation pairs without normalization.
 The 136-byte Mickey-named `func_80049A8C` resets either one record or all five,
 clearing state/status and two flag bits. Its selection branches, stack home,
 countdown loop, and data relocation pair are exact at the resident defaults.
+The 180-byte `func_8004AD34` (`fxGenerateTextures` in JFG) is exact too. Its
+four-entry descending callback loop, flag test, callback-table refresh, and
+indirect call retain all target instruction words and relocation identities at
+the resident defaults; spelling the constant-count loop as `while (index--)`
+reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
