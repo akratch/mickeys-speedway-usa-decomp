@@ -37,9 +37,10 @@ out=$(tools/with_verify_lock.sh gmake -j12 verify 2>&1 | tail -1); echo "$out"
 case "$out" in OK*) ;; *) echo "verify FAILED after merging $branch; merge left in place" >&2; exit 1 ;; esac
 gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
+.venv/bin/python tools/fix_jumptable_claim.py >/dev/null 2>&1 || true
 gmake check-docs 2>&1 | tail -1
 if ! git diff --quiet; then
-  git add -A README.md config/overlays.us.json config/overlay-donors.us.json config/postprocess-audit.us.json 2>/dev/null || true
+  git add -A README.md config/overlays.us.json config/overlay-donors.us.json config/postprocess-audit.us.json docs/modules.md mickey.us.yaml 2>/dev/null || true
   git commit -q -m "Regenerate scoreboard/atlas after merging $branch" || true
 fi
 gmake check-scoreboard 2>&1 | tail -1
