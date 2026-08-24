@@ -1945,9 +1945,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31BuildPalettes.c.o: POSTPROCESS = 
 	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
 		@config/normalizations/overlay31BuildPalettes.filter.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay31BuildPalettes.calls.spec && \
-	$(OBJCOPY) --redefine-sym \
-		overlay31AllocateReloc=func_overlay_031_F0000000_187F520 $@
+		@config/normalizations/overlay31BuildPalettes.calls.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o033/overlay33CallA.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
 # NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration and
