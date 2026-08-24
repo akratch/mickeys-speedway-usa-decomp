@@ -35,6 +35,8 @@ extern s32 *D_800CB4A4;
 
 void *func_8002B280(s32 size, s32 tag);
 s32 *func_8002E148(s32 assetId);
+void func_80020278(ObjectModel *model);
+void mmFree(void *ptr);
 
 /*
  * PROVENANCE -- body adapted from JFG's public src/models.c
@@ -95,7 +97,40 @@ void func_8001FB64(s32 count, MtxF *matrices) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001FBCC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001FC50.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020184.s")
+/*
+ * PROVENANCE -- body adapted from JFG's public modFreeModel. Mickey omits
+ * JFG's per-instance animation allocations; its model reference and cache
+ * release path has the same structure and is reconstructed against Mickey.
+ */
+void modFreeModel(ModelInstance *modInst) {
+    ObjectModel *model;
+    s32 i;
+    s32 modelIndex;
+
+    if (modInst != NULL) {
+        model = modInst->objModel;
+        mmFree(modInst);
+        model->references--;
+        if (model->references <= 0) {
+            i = 0;
+            modelIndex = -1;
+            while (i < D_800CB48C) {
+                if (model == (ObjectModel *)D_800CB484[(i << 1) + 1]) {
+                    modelIndex = i;
+                }
+                i++;
+            }
+
+            if (modelIndex != -1) {
+                func_80020278(model);
+                D_800CB488[D_800CB494] = modelIndex;
+                D_800CB494++;
+                D_800CB484[modelIndex << 1] = -1;
+                D_800CB484[(modelIndex << 1) + 1] = -1;
+            }
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020278.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_800203E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_800204B8.s")
