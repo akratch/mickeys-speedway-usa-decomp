@@ -23,6 +23,12 @@
 #include "PR/ultratypes.h"
 #include "game/charControl.h"
 
+extern u8 D_80079BF8;
+extern s16 D_800CB470;
+extern s16 D_800CB472;
+extern s16 D_800CB474;
+extern s16 D_800CB476;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BB90.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BE0C.s")
@@ -62,12 +68,16 @@ void controlDisableJoypad(ControlPlayer *player, s32 disabled) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F320.s")
 void func_8001F364(void) {
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/controlSetPlayerSetup.s")
+void controlSetPlayerSetup(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+    D_800CB470 = arg0;
+    D_800CB472 = arg1;
+    D_800CB474 = arg2;
+    D_800CB476 = arg3;
+    D_80079BF8 = 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F3AC.s")
-
-extern u8 D_80079BF8[];
 
 /* PROVENANCE -- adapted from JFG's src/charControl.c controlClearPlayerSetup. */
 void controlClearPlayerSetup(void) {
-    D_80079BF8[0] = 0;
+    D_80079BF8 = 0;
 }
