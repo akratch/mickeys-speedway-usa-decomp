@@ -21,8 +21,13 @@ git -C "$root" worktree add -q -b "lane/$name" "$dest" "$base"
 for p in baseroms tools/ido tools/binutils .venv; do
   [ -e "$root/$p" ] && ln -s "$root/$p" "$dest/$p"
 done
-for p in tools/asm-processor tools/asm-differ tools/m2c tools/ido-static-recomp; do
-  rm -rf "$dest/$p"; ln -s "$root/$p" "$dest/$p"
+# Submodules: clone from this repository's own module store (no network),
+# so the lane's git status stays clean. A symlink here makes git complain
+# that it "expected submodule path not to be a symbolic link".
+for p in tools/asm-processor tools/asm-differ tools/m2c; do
+  git -C "$dest" -c protocol.file.allow=always -c "submodule.$p.url=$root/.git/modules/$p" \
+    submodule update --init --quiet "$p" 2>/dev/null \
+    || { rm -rf "$dest/$p"; ln -s "$root/$p" "$dest/$p"; }
 done
 if [ "$extract" = 1 ]; then
   (cd "$dest" && gmake extract >"$dest/.lane-extract.log" 2>&1) || {
