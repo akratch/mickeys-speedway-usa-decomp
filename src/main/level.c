@@ -9,6 +9,8 @@
  * graph independently establishes the correspondence (tier B).
  */
 
+extern s32 D_800CF3C4;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetCounts.s")
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelNGetType.s")
@@ -33,7 +35,10 @@
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetColourCycling.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetNumber.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+s32 levelGetNumber(void) {
+    return D_800CF3C4;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetType.s")
 
