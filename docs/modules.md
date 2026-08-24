@@ -340,7 +340,7 @@ see the caveat below):
 | `hasm/ido/math_util.s.o` | 15 | `0x2A9E4`–`0x2B644` | Inside the already-measured `main/math_util` boundary; corroborates it |
 | `src/menu.c.o` | 6 | `0x3A184`–`0x3B008` | Inside yaml's unnamed `0x37D50`–`0x3B480` block. No whole-`.text` match found, so no boundary is claimed |
 | `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside yaml's unnamed `0x34180`–`0x37D50` block. No whole-`.text` match; no boundary claimed |
-| `src/anim.c.o` | 3 | `0x50D7C`–`0x51D28` | Inside yaml's unnamed `0x50C00`–`0x58570` block. No whole-`.text` match; no boundary claimed |
+| `src/anim.c.o` | 3 | `0x50D7C`–`0x51D28` | Inside yaml's `main/anim` source-owning block at `0x50C00`–`0x58570`. No whole-`.text` match; the individual hits do not establish an internal boundary |
 | `src/models.c.o` | 3 | `0x20020`–`0x21710` | Inside yaml's unnamed `0x20020`–`0x21DA0` block, starting exactly at its boundary. No whole-`.text` match; no boundary claimed |
 | `src/font.c.o` | 2 | `0x4BC70`–`0x4C884` | Inside yaml's unnamed `0x4BC40`–`0x4EA60` block. No whole-`.text` match; no boundary claimed |
 | `src/audio_manager_4C50.c.o` | 2 | `0x45F0`–`0x4F3C` | Starts exactly at yaml's `0x45F0` boundary; ends inside the unnamed `0x4F40`–`0xC950` block. No whole-`.text` match; no boundary claimed |
@@ -351,14 +351,98 @@ see the caveat below):
 | `src/shadows_214A0.c.o` | 2 | `0x18FF0`–`0x19144` | Inside yaml's unnamed `0x18FF0`–`0x1AE60` block, starting exactly at its boundary. No boundary claimed |
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
-**Why no new `mickey.us.yaml` split accompanies this table.** §1's "measured
-file boundary" tier requires a whole-`.text` match; this pass only matched
-individual functions (`tools/find_known_objects.py --sections` found no
-whole-object match for any of the not-yet-named TUs above). Asserting a yaml
-`asm`/`c` split from function-level hits alone would claim more than was
-measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
-level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
-`n_env`, `n_load`, `math_util`) needed no new split; they already have one.
+**Why the rows do not establish new internal boundaries.** §1's "measured file
+boundary" tier requires a whole-`.text` match; this pass only matched individual
+functions (`tools/find_known_objects.py --sections` found no whole-object match
+for any of the not-yet-named TUs above). The later `main/anim` split (§3.4)
+therefore preserves the pre-existing, 16-byte-aligned `0x50C00`–`0x58570`
+block in one piece. It is source ownership, not a claim that the whole range is
+JFG's `anim.c`. The already-measured TUs above (`n_csplayer`, `gsSnd`,
+`n_drvrNew`, `n_env`, `n_load`, `math_util`) needed no new split; they already
+have one.
+
+### 3.4 The `main/anim` source-owning block
+
+ROM `0x50C00`–`0x58570`, VRAM `0x80050000`–`0x80057970`, is now one C
+subsegment with 55 function starts. This is deliberately a source-ownership
+boundary, not a donor-TU identity claim. The first 34 functions follow JFG's
+`anim.c` family; the following code has JFG `hit.c` shapes; the final function
+has the exact masked skeleton of JFG's `fmvInit`. There is no proved,
+16-byte-aligned internal object boundary, so the old yaml block remains intact.
+
+PROVENANCE: the comparison names below come from Jet Force Gemini's public
+decompilation (`src/anim.c`, `src/hit.c`, `src/fmv.c`, their built objects, and
+their public declarations), permitted by `docs/CLEANROOM.md`. They are
+comparison labels, not silently adopted Mickey symbols. Tier A rows were
+rechecked with relocation-aware byte comparison and `romocc=1`; tier B rows
+are pinned by the within-block call graph; tier D rows are structural
+similarity or source-order evidence only. Section 1.5 keeps the Mickey
+`func_<VRAM>` name for every still-assembly function, and JFG address
+placeholders are never imported.
+
+| Mickey VRAM | Size | JFG comparison | Evidence / status |
+|---|---:|---|---|
+| `0x80050000` | `0x24` | `func_800767A0` | D; source-order/bit-reader shape, placeholder retained |
+| `0x80050024` | `0x80` | `func_800767C4` | D; nearest `anim.c` skeleton, placeholder retained |
+| `0x800500A4` | `0x98` | `func_80076840` | D; nearest `anim.c` skeleton, placeholder retained |
+| `0x8005013C` | `0x40` | `func_800768D4` | D; nearest `anim.c` skeleton, placeholder retained |
+| `0x8005017C` | `0x30` | `func_80076918` | A; exact 48 B, masked `6/12`, placeholder retained |
+| `0x800501AC` | `0x1C` | `func_80076948` | D; nearest `anim.c` skeleton, placeholder retained |
+| `0x800501C8` | `0xB4` | `func_80076968` | D; 0.653 skeleton similarity, placeholder retained |
+| `0x8005027C` | `0x50` | `func_80076A20` | A; exact 80 B, masked `9/20`, placeholder retained |
+| `0x800502CC` | `0x7C` | `func_80076A70` | B; same cleanup callees and position, placeholder retained |
+| `0x80050348` | `0x214` | `animseqInitPath` | B; exact `animseqInitGroup` calls this function |
+| `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape |
+| `0x80050688` | `0x7C` | `animseqStartPath` | B; process-command call position |
+| `0x80050704` | `0x78` | `animseqStopPath` | B; process-command call position |
+| `0x8005077C` | `0x40` | no unique candidate | D; short path-state helper |
+| `0x800507BC` | `0x88` | `animseqHoldPath` | B; process-command call position |
+| `0x80050844` | `0x38` | `animseqLockPath` | B; paired process-command calls |
+| `0x8005087C` | `0x38` | `animseqUnLockPath` | B; paired process-command calls |
+| `0x800508B4` | `0x20` | no unique candidate | D; short animation helper |
+| `0x800508D4` | `0x200` | `func_800772C4` | B; bit-reader call sequence, placeholder retained |
+| `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function |
+| `0x80050BF4` | `0x15C` | `animseqInit` | D; 0.753 skeleton similarity |
+| `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained |
+| `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group |
+| `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function |
+| `0x80050E9C` | `0x168` | `animseqFreeGroup` | B; same member-cleanup call graph |
+| `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family |
+| `0x800510E8` | `0x40` | `animseqInitGroup` | A; exact 64 B, masked `1/16`, adopted name |
+| `0x80051128` | `0x9C` | `animseqResetGroup` | B; calls reset-path family |
+| `0x800511C4` | `0x1A0` | `func_80077BE8` | D; 0.321 skeleton similarity, placeholder retained |
+| `0x80051364` | `0x47C` | `animseqUpdate` | D; nearest ordered `anim.c` function |
+| `0x800517E0` | `0x1C40` | `animseqProcessCommandList` | B; command dispatcher calls the path family in JFG order |
+| `0x80053420` | `0x90` | `animseqCamera` | D; ordered tail and nearest same-family shape |
+| `0x800534B0` | `0x10` | `animseqPlay` | D; exact skeleton but too short/ambiguous (`romocc=?`) |
+| `0x800534C0` | `0x2C` | `animseqPause` | D; ordered `anim.c` tail only |
+| `0x800534EC` | `0x64` | no unique `hit.c` candidate | D; start of collision-shaped code |
+| `0x80053550` | `0x318` | `hitInitObjectHit` | B; same two matrix-builder calls |
+| `0x80053868` | `0x12D4` | `hitUpdate` | B; collision dispatcher over the following helpers |
+| `0x80054B3C` | `0x5C8` | no unique `hit.c` candidate | D; collision/vector shape |
+| `0x80055104` | `0x6F4` | no unique `hit.c` candidate | D; collision/vector shape |
+| `0x800557F8` | `0x178` | no unique `hit.c` candidate | D; collision handler family |
+| `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; collision handler family |
+| `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | D; collision handler family |
+| `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family |
+| `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family |
+| `0x80055F64` | `0x16C` | no unique `hit.c` candidate | D; collision handler family |
+| `0x800560D0` | `0x1A4` | no unique `hit.c` candidate | D; collision handler family |
+| `0x80056274` | `0x140` | no unique `hit.c` candidate | D; collision handler family |
+| `0x800563B4` | `0xA24` | `hitVectorCheck` | B; vector/cylinder/sphere-style callee pattern |
+| `0x80056DD8` | `0x394` | no unique `hit.c` candidate | D; collision/vector shape |
+| `0x8005716C` | `0x140` | `hitGetInelasticVelocity` | D; nearest named leaf shape |
+| `0x800572AC` | `0xA4` | no unique `hit.c` candidate | D; collision handler |
+| `0x80057350` | `0x78` | no unique `hit.c` candidate | D; collision handler |
+| `0x800573C8` | `0x3A4` | no unique `hit.c` candidate | D; collision/vector shape |
+| `0x8005776C` | `0x1A4` | `hitPlayer` | B; same player-list/square-root call shape |
+| `0x80057910` | `0x60` | `fmvInit` | D; exact masked skeleton, not relocation-aware byte identity |
+
+No function in this block directly references a distinctive string. Its
+references into `0x80083FA8`–`0x80084218` are floating-point constants, so no
+tier-C name is available. A scan of every function found no odd
+single-precision FP register operand; §6.2 therefore parks none of this block
+as hand-written assembly on that criterion.
 
 ---
 

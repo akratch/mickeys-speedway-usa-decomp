@@ -204,7 +204,12 @@ segments:
       - [0x505E0, asm]
       - [0x506D0, asm]
       - [0x50820, asm, main/refractOutputAssembler]
-      - [0x50C00, asm]
+      # Resident animation/collision sequence. Individual-function skeleton
+      # evidence ties the leading functions to JFG anim.c, the later functions
+      # to JFG hit.c, and the final function to JFG fmv.c; no 16-byte-aligned
+      # internal object boundary is proven, so the existing whole block is one
+      # source subsegment until stronger section evidence appears.
+      - [0x50C00, c, main/anim]
       - [0x58570, asm]
       - [0x58C10, asm]
       - [0x58E50, asm]
