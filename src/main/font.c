@@ -18,12 +18,19 @@
 
 #include "game/font.h"
 
+typedef struct FontSpacingData {
+    u8 pad0[3];
+    u8 height;
+    u8 pad4[0x10];
+} FontSpacingData;
+
 extern DialogueBoxBackground D_800D64E8[];
 extern s32 D_8007D538;
 extern s32 D_8007D53C;
 extern s32 D_8007D540;
 extern s32 D_8007D544[];
 extern u8 D_800D60E0;
+extern FontSpacingData *D_800D60E4;
 extern u8 D_800D664D;
 
 void func_8004B13C(void **displayList, s32 windowId, s32 xpos, s32 ypos,
@@ -221,4 +228,6 @@ void func_8004C000(char **outString, s32 number) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D32C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D39C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D40C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D5C0.s")
+u8 func_8004D5C0(s32 font) {
+    return D_800D60E4[font].height;
+}
