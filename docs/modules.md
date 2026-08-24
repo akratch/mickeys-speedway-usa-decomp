@@ -229,6 +229,7 @@ the segment, carrying 190 function names.
 | `0x323A0`–`0x323E0` | `0x800317A0` | `main/rsp_segment` | A | Measured file boundary (whole `.text`) |
 | `0x323E0`–`0x33FA0` | `0x800317E0` | `main/runlink` | A/B/C | **The runtime overlay linker** (§5) |
 | `0x33FA0`–`0x34180` | `0x800333A0` | `main/trapDanglingJump` | A | The overlay call trampoline. **Measured file boundary**: JFG's whole 0x1E0 `hasm/ido/trapDanglingJump.s`. Was named at tier B from Mickey's call graph alone; the bytes agree |
+| `0x34180`–`0x34E60` | `0x80033580` | `main/gameVi` | B + A landmarks | **Video and framebuffer management** (§3.4). The complete 23-function order and call/global surface establish the TU boundary; four functions inside are independently tier-A JFG skeleton hits |
 | `0x342A8` | `0x800336A8` | `"Ntsc LowRes"` … | — | Video-mode table (15 entries) |
 | `0x39A1C` | `0x80038E1C` | `"front/front.c"` asserts | — | **`front` code is partly resident** |
 | `0x3B1A0` | `0x8003A5A0` | `"UNKNOWN TRACK"` | — | Track selection |
@@ -339,7 +340,7 @@ see the caveat below):
 | `libultra/n_load.c.o` | 1 | `0x6A634` | Inside the already-measured `libultra/n_load` boundary; corroborates it |
 | `hasm/ido/math_util.s.o` | 15 | `0x2A9E4`–`0x2B644` | Inside the already-measured `main/math_util` boundary; corroborates it |
 | `src/menu.c.o` | 6 | `0x3A184`–`0x3B008` | Inside yaml's unnamed `0x37D50`–`0x3B480` block. No whole-`.text` match found, so no boundary is claimed |
-| `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside yaml's unnamed `0x34180`–`0x37D50` block. No whole-`.text` match; no boundary claimed |
+| `src/gameVi.c.o` | 4 | `0x34B68`–`0x34E60` | Inside the now-split `main/gameVi` TU (§3.4). The four exact skeleton hits are landmarks; the boundary is separately established at tier B from the complete ordered function/call surface, not claimed as a whole-`.text` byte match |
 | `src/anim.c.o` | 3 | `0x50D7C`–`0x51D28` | Inside yaml's unnamed `0x50C00`–`0x58570` block. No whole-`.text` match; no boundary claimed |
 | `src/models.c.o` | 3 | `0x20020`–`0x21710` | Inside yaml's unnamed `0x20020`–`0x21DA0` block, starting exactly at its boundary. No whole-`.text` match; no boundary claimed |
 | `src/font.c.o` | 2 | `0x4BC70`–`0x4C884` | Inside yaml's unnamed `0x4BC40`–`0x4EA60` block. No whole-`.text` match; no boundary claimed |
@@ -351,14 +352,40 @@ see the caveat below):
 | `src/shadows_214A0.c.o` | 2 | `0x18FF0`–`0x19144` | Inside yaml's unnamed `0x18FF0`–`0x1AE60` block, starting exactly at its boundary. No boundary claimed |
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
-**Why no new `mickey.us.yaml` split accompanies this table.** §1's "measured
-file boundary" tier requires a whole-`.text` match; this pass only matched
+**Why most rows have no new `mickey.us.yaml` split.** §1's "measured file
+boundary" tier requires a whole-`.text` match; this pass only matched
 individual functions (`tools/find_known_objects.py --sections` found no
 whole-object match for any of the not-yet-named TUs above). Asserting a yaml
 `asm`/`c` split from function-level hits alone would claim more than was
 measured, exactly the mistake 1.2's uniqueness clause exists to prevent one
-level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
-`n_env`, `n_load`, `math_util`) needed no new split; they already have one.
+level up. `gameVi` is the exception added later: §3.4 supplies independent
+tier-B boundary evidence from its complete ordered function and call surface.
+The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`, `n_env`,
+`n_load`, `math_util`) needed no new split; they already have one.
+
+### 3.4 `gameVi`: ROM `0x34180`–`0x34E60`
+
+This is the resident video-interface and framebuffer translation unit,
+`src/main/gameVi.c`. **PROVENANCE:** the TU and function names used as matching
+candidates come from Jet Force Gemini's public decompilation,
+`src/gameVi.c`/`src/gameVi.h`; Mickey's ROM decides every boundary, body and
+verdict.
+
+The boundary is tier B rather than a whole-object tier-A claim. Mickey has the
+same complete ordered sequence of 23 functions as JFG, from the video
+initialiser through the byte-copy leaf. Their call and global-access roles
+agree: the first routine creates the video message queue and scheduler client,
+the mode routine owns buffer allocation and timing, and the last routine is
+`fb_memcpy`. The preceding range is the independently measured
+`trapDanglingJump` TU, while ROM `0x34E60` starts the `texInitTextures`-shaped
+function and the following `textures.c` sequence. Both ends are 16-byte
+aligned.
+
+Four landmarks inside the TU are independently tier A in
+`symbol_addrs.us.txt`: `viSetWideAdjust`, `viDisplayingScreen0`, the
+placeholder-retaining `func_80034018`, and `fb_memcpy`. Unmatched functions
+retain their Mickey `func_` labels as §1.5 requires; a JFG counterpart is not
+promoted merely because it occupies the same position in the sequence.
 
 ---
 
