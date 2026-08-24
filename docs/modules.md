@@ -390,9 +390,12 @@ with the JFG identity and tier on the same row, until each function or its
 caller becomes C-owned; this avoids pretending that a source-level rename is
 already available to the stale generated caller assembly.
 
-Exact C closures in these splits begin with the 8-byte `func_80046504`
-(`diCpuTraceGetFault` in JFG). The natural `return 0` body is identical under
-the resident `-O2 -mips2 -32` rule, with no relocations.
+Exact C closures in these splits begin with 68 bytes across two `diCpu`
+functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
+60-byte `func_8004650C` (`diCpuTraceTick`). Their natural return-zero and
+60-tick counter bodies are identical under the resident `-O2 -mips2 -32`
+rule; the getter has no relocations and the tick routine retains both exact
+HI16/LO16 data pairs.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet

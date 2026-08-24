@@ -10,6 +10,9 @@
 
 #include "PR/ultratypes.h"
 
+extern s32 D_8007CFD8;
+extern s32 D_8007CFDC;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuTraceInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuThread.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/stop_all_threads_except_main.s")
@@ -22,7 +25,15 @@ s32 func_80046504(void) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_8004650C.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuTraceTick. */
+void func_8004650C(s32 ticks) {
+    D_8007CFDC += ticks;
+    if (D_8007CFDC > 60) {
+        D_8007CFDC = 0;
+        D_8007CFD8++;
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/render_epc_lock_up_display.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046AA8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046BCC.s")
