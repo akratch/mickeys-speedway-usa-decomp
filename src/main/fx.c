@@ -29,9 +29,15 @@ typedef struct FxFlags {
     u8 pad2[0x1E];
 } FxFlags;
 
+typedef struct FxStatus {
+    u8 value;
+    u8 pad1[0x1F];
+} FxStatus;
+
 extern void func_800347A0(s32 linked);
 extern void mmFree(void *ptr);
 extern FxFlags D_800D5F5A[];
+extern FxStatus D_800D5F59[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046E70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046EC4.s")
@@ -74,7 +80,12 @@ s32 func_80049828(s32 index, s32 mask) {
     }
     return 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049864.s")
+s32 func_80049864(s32 index) {
+    if (index >= 0 && index < 5 && D_800D5F59[index].value != 0) {
+        return 1;
+    }
+    return 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004989C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800498FC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049A8C.s")
