@@ -25,7 +25,10 @@ void joyDisable(s32 player) {
     D_800CF3B4[player & 3] = FALSE;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyEnable.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+void joyEnable(s32 player) {
+    D_800CF3B4[player & 3] = TRUE;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyCreateMap.s")
 
