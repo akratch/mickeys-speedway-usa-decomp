@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 244528,
-  "nonmatching_overlay_c_bytes": 32072,
+  "matched_overlay_c_bytes": 243156,
+  "nonmatching_overlay_c_bytes": 33444,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -18380,7 +18380,7 @@
      "type": "c",
      "source": "overlays/o094/overlay94InitializeController",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x110",
@@ -18389,7 +18389,7 @@
      "type": "c",
      "source": "overlays/o094/overlay94UpdateController",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x55C",

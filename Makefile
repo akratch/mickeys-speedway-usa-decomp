@@ -2641,57 +2641,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86SelectPosition.c.o: POSTPROCESS =
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86BuildTransform.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_086_F0000158_18D1F90=overlay86BuildTransform $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x18C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o094/overlay94UpdateController.c.o: \
-	config/normalizations/overlay94UpdateController.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
-# The semantic object naturally owns the exact 275-word CFG, twelve calls,
-# twelve private address pairs, FP behavior, and frame. This complete fail-loud
-# decoded-field ledger selects only the retail private allocation/schedule web.
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o094/overlay94UpdateController.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x44C fc43722fe449701bbdc9961e9fdcf43537f4f48fd0f9e2c105f7a7a32f1b4e11 \
-		@config/normalizations/overlay94UpdateController.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x108:func_8002A878:func_800254FC \
-		0x14c:func_8002565C:func_800254FC \
-		0x1c0:func_8002A878:func_800254FC \
-		0x1f4:func_8002A878:func_800254FC \
-		0x224:func_8002A878:func_800254FC \
-		0x28c:func_8005ABA8:func_800254FC \
-		0x29c:func_8005AF14:func_800254FC \
-		0x2bc:func_80019AB8:func_800254FC \
-		0x304:func_8002B040:func_800254FC \
-		0x310:func_8002A910:func_800254FC && \
-	$(OBJCOPY) --redefine-sym \
-		func_800254FC=func_overlay_094_F0000000_18D6BA0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x18:5:gO94Value 0x1c:6:gO94Value \
-		0x54:5:gO94Value 0x58:6:gO94Value \
-		0xf8:5:gO94Const0 0x10c:6:gO94Const0 \
-		0x16c:5:gO94Const4 0x1ac:6:gO94Const4 \
-		0x1b0:5:gO94Const8 0x1b4:6:gO94Const8 \
-		0x148:5:gO94ConstC 0x1f0:6:gO94ConstC \
-		0x6c:5:gO94Const10 0x228:6:gO94Const10 \
-		0x234:5:gO94Const14 0x238:6:gO94Const14 \
-		0x35c:5:gO94Const18 0x364:6:gO94Const18 \
-		0x368:5:gO94Const1C 0x380:6:gO94Const1C \
-		0x398:5:gO94Const20 0x3b0:6:gO94Const20 \
-		0x3e8:5:gO94Const24 0x400:6:gO94Const24 && \
+	$(OBJCOPY) --redefine-sym func_overlay_094_F0000110_18D6CB0=overlay94UpdateController $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x44C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o094/overlay94SetValue.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-# IDO leaves an unused eight-byte tail out of this frame and uses an `or` for
-# the same zero argument. Assert that exact natural basin before restoring the
-# shipped frame/spill offsets and equivalent zero materialization.
+# NON_MATCHING fallback assembly supplies the retail body; restore the
+# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o094/overlay94InitializeController.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x54 848fb34e909dea1f93b35119efdd24005799b1673a94e41d740cc87be1375b53 \
-		fields:0x0:imm=65456@65448 \
-		fields:0x5c:op=0@9,rt=zero@a2,rd=a2@zero,fn=37@0 \
-		fields:0x68:imm=68@76 \
-		fields:0x78:imm=68@76 \
-		fields:0x10c:imm=80@88
+	$(OBJCOPY) --redefine-sym func_overlay_094_F0000000_18D6BA0=overlay94InitializeController $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101AllocateEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x54
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101Reset.c.o: POSTPROCESS = \

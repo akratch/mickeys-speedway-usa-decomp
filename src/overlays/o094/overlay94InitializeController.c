@@ -55,6 +55,7 @@ extern void overlay94QueryReloc(void *queryState, f32 arg1, f32 arg2, f32 arg3,
 extern s32 overlay94AngleReloc(f32 value0, f32 value1);
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+#ifdef NON_MATCHING
 void overlay94InitializeController(Overlay94Object *object,
                                    const Overlay94Init *init) {
     Overlay94State *state = object->state;
@@ -85,3 +86,6 @@ void overlay94InitializeController(Overlay94Object *object,
                         0.0f, 0.0f, -1.0f, &out0, &out1, &out2);
     state->angle = overlay94AngleReloc(out2, out0);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o094/overlay94InitializeController/func_overlay_094_F0000000_18D6BA0.s")
+#endif
