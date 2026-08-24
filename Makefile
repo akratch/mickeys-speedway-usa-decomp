@@ -838,40 +838,14 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildSpatialMasks.c.o: POSTPROCES
 		func_overlay_019_F0000F58_18761B0=overlay19BuildSpatialMasks $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38C
 
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4GroupCount.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x24
-# This initializer is naturally exact. Its data address pair is already owned
-# by the shipped runtime relocation table; retain its zero addends and trim
-# only compiler section alignment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4InitializeObjectMotion.c.o: \
-	$(TOOLS_DIR)/filter_elf_relocations.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4InitializeObjectMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x128:5:gOverlay4InitStatus 0x12c:6:gOverlay4InitStatus && \
-	$(OBJCOPY) --redefine-sym \
-		func_8005AD64=overlay4RuntimeCallReloc $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
-# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateObjectMotion.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateObjectMotion.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_004_F0000138_185A7B0=overlay4UpdateObjectMotion $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x398
-# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateGroupSpacing.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateGroupSpacing.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_004_F00005D0_185AC48=overlay4UpdateGroupSpacing $@
-# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindCategory2Object.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_004_F0000734_185ADAC=overlay4FindCategory2Object $@
-# NON_MATCHING/GLOBAL_ASM: keep only the metadata-only self-symbol rename.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindSearchPosition.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindSearchPosition.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_004_F00008F4_185AF6C=overlay4FindSearchPosition $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4AttachObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4RemoveObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_004_F0000138_185A7B0=overlay4UpdateObjectMotion \
+		--redefine-sym func_overlay_004_F00005D0_185AC48=overlay4UpdateGroupSpacing \
+		--redefine-sym func_overlay_004_F0000734_185ADAC=overlay4FindCategory2Object \
+		--redefine-sym func_overlay_004_F00008F4_185AF6C=overlay4FindSearchPosition $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xCAC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitMotion.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x74
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8Ignore.c.o: POSTPROCESS = \
@@ -2816,14 +2790,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19FindAdjacent.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19ClassifyEdge.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19BuildSpatialMasks.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4GroupCount.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4InitializeObjectMotion.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindCategory2Object.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4FindSearchPosition.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateObjectMotion.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4UpdateGroupSpacing.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4AttachObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay4RemoveObject.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitMotion.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8Ignore.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8GetIndexed.c.o \

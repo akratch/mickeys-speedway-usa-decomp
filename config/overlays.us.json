@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 80456,
-  "nonmatching_overlay_c_bytes": 200396,
+  "matched_overlay_c_bytes": 79852,
+  "nonmatching_overlay_c_bytes": 201000,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -2142,73 +2142,10 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x138",
-     "size": "0x138",
-     "type": "c",
-     "source": "overlays/o004/overlay4InitializeObjectMotion",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x138",
-     "end_offset": "0x4D0",
-     "size": "0x398",
-     "type": "c",
-     "source": "overlays/o004/overlay4UpdateObjectMotion",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x4D0",
-     "end_offset": "0x52C",
-     "size": "0x5C",
-     "type": "c",
-     "source": "overlays/o004/overlay4AttachObject",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x52C",
-     "end_offset": "0x5D0",
-     "size": "0xA4",
-     "type": "c",
-     "source": "overlays/o004/overlay4RemoveObject",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x5D0",
-     "end_offset": "0x710",
-     "size": "0x140",
-     "type": "c",
-     "source": "overlays/o004/overlay4UpdateGroupSpacing",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x710",
-     "end_offset": "0x734",
-     "size": "0x24",
-     "type": "c",
-     "source": "overlays/o004/overlay4GroupCount",
-     "matched": true,
-     "nonmatching": false
-    },
-    {
-     "offset": "0x734",
-     "end_offset": "0x8F4",
-     "size": "0x1C0",
-     "type": "c",
-     "source": "overlays/o004/overlay4FindCategory2Object",
-     "matched": true,
-     "nonmatching": true
-    },
-    {
-     "offset": "0x8F4",
      "end_offset": "0xCAC",
-     "size": "0x3B8",
+     "size": "0xCAC",
      "type": "c",
-     "source": "overlays/o004/overlay4FindSearchPosition",
+     "source": "overlays/o004/overlay_004",
      "matched": true,
      "nonmatching": true
     },

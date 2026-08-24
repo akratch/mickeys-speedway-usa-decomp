@@ -821,14 +821,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x185A678, c, overlay4InitializeObjectMotion]
-      - [0x185A7B0, c, overlay4UpdateObjectMotion]
-      - [0x185AB48, c, overlay4AttachObject]
-      - [0x185ABA4, c, overlay4RemoveObject]
-      - [0x185AC48, c, overlay4UpdateGroupSpacing]
-      - [0x185AD88, c, overlay4GroupCount]
-      - [0x185ADAC, c, overlay4FindCategory2Object]
-      - [0x185AF6C, c, overlay4FindSearchPosition]
+      - [0x185A678, c, overlay_004]
       - [0x185B324, asm, overlay_004_padding]
       - [0x185B328, bin, overlay_004_data_rodata]
       - [0x185B348, bin, overlay_004_reloc1]

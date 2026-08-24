@@ -106,14 +106,7 @@ TEXT_SUBSEGMENTS = {
         (0x7C4, "asm", "overlay_003_padding"),
     ],
     4: [
-        (0x000, "c", "overlay4InitializeObjectMotion"),
-        (0x138, "c", "overlay4UpdateObjectMotion"),
-        (0x4D0, "c", "overlay4AttachObject"),
-        (0x52C, "c", "overlay4RemoveObject"),
-        (0x5D0, "c", "overlay4UpdateGroupSpacing"),
-        (0x710, "c", "overlay4GroupCount"),
-        (0x734, "c", "overlay4FindCategory2Object"),
-        (0x8F4, "c", "overlay4FindSearchPosition"),
+        (0x000, "c", "overlay_004"),
         (0xCAC, "asm", "overlay_004_padding"),
     ],
     1: [
