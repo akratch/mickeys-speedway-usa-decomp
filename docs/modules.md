@@ -1041,8 +1041,9 @@ Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
 files and JFG's `asm/nonmatchings/weather/` names, as permitted by
 `docs/CLEANROOM.md`. The matched `initWeather`, `weather_clip_planes`,
 `freeWeather`, `setupWeather`, `snow_init`, `changeWeather`, and `rainDensity`
-bodies, plus `rain_lightning` and `rain_sound`, are adapted from those disclosed
-sources and carry point-of-use notes; Mickey's own bytes remain authoritative.
+bodies, plus `rain_update`, `rain_lightning`, and `rain_sound`, are adapted from
+those disclosed sources and carry point-of-use notes; Mickey's own bytes remain
+authoritative.
 
 The tier-B/D `initWeather` adds **0xFC bytes / 63 words** at ROM `0x3B480`.
 JFG's initialization and asset-table walk reproduce Mickey's instruction
@@ -1076,6 +1077,11 @@ The tier-B/D `rain_lightning` adds **0x128 bytes / 74 words** at ROM
 thresholds compile instruction-exact at canonical `-O2 -mips2 -32`, with all
 17 relocations and the linked ROM range agreeing.
 
+The tier-B/D `rain_update` adds **0x144 bytes / 81 words** at ROM `0x3C6B4`.
+JFG's transition and dispatch structure, including Mickey's unresolved
+rain-movement binding, compiles instruction-exact at canonical
+`-O2 -mips2 -32`, with all 27 relocations and the linked ROM range agreeing.
+
 The tier-B/D `rain_sound` adds **0xC0 bytes / 48 words** at ROM `0x3CF70`.
 JFG's camera-relative sound positioning compiles instruction-exact at canonical
 `-O2 -mips2 -32`, with all 13 relocations and the linked ROM range agreeing.
@@ -1103,7 +1109,7 @@ decomp-permuter checkout.
 | `0x3C468` | `0x104` | `rain_set` | B/D |
 | `0x3C56C` | `0xD0` | `rainSetFog` | B/D |
 | `0x3C63C` | `0x78` | `rainDensity` | B/D name; exact C, 30 words, 4 relocs |
-| `0x3C6B4` | `0x144` | `rain_update` | B/D |
+| `0x3C6B4` | `0x144` | `rain_update` | B/D name; exact C, 81 words, 27 relocs |
 | `0x3C7F8` | `0x650` | `rain_render_splashes` | B/D |
 | `0x3CE48` | `0x128` | `rain_lightning` | B/D name; exact C, 74 words, 17 relocs |
 | `0x3CF70` | `0xC0` | `rain_sound` | B/D name; exact C, 48 words, 13 relocs |

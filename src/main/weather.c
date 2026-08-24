@@ -144,7 +144,12 @@ extern WeatherVertex *D_8007C3C4;
 extern s32 D_8007C3C8;
 extern s32 D_8007C6E8;
 extern s32 D_8007C6EC;
+extern s32 D_8007C6F0;
+extern s32 D_8007C6F4;
 extern s32 D_8007C6F8;
+extern s32 D_8007C6FC;
+extern s32 D_8007C700;
+extern s32 D_8007C704;
 extern s32 D_8007C708;
 extern s32 D_8007C70C;
 extern void *D_8007C720;
@@ -163,6 +168,8 @@ extern void func_800498FC(s32 mode, f32 arg1, f32 arg2, s32 red, s32 green, s32 
 extern f32 func_8002A8BC(s32 angle);
 extern f32 func_8002A8C0(s32 angle);
 extern void func_800031C0(void *sound, f32 x, f32 y, f32 z);
+extern s32 camGetMode(void);
+extern void TrapDanglingJump(f32 x, f32 y, f32 z, s32 updateRate);
 extern void mmFree(void *ptr);
 extern void func_800347A0(WeatherTexture *texture);
 
@@ -172,6 +179,9 @@ void rain_init(s32 count, s32 intensity, s32 opacity, s32 intensityBase);
 void free_rain_memory(void);
 void rain_update(s32 updateRate);
 void rain_set(s32 intensity, s32 opacity, f32 seconds);
+void rain_render_splashes(s32 updateRate);
+void rain_lightning(s32 updateRate);
+void rain_sound(s32 updateRate);
 void snow_update(WeatherData *weather, WeatherGfxData *gfx, s32 particleCount, WeatherParticle *particles,
                  s32 updateRate);
 s32 snow_vertices(Camera *camera, WeatherGfxData *gfx, s32 particleCount, WeatherParticle *particles,
@@ -505,7 +515,35 @@ f32 rainDensity(void) {
     }
     return density;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_update.s")
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::func_8005C040_5CC40 (DKR's rain_update). Mickey's globals
+ * and unresolved rain-movement call are authoritative here.
+ */
+void rain_update(s32 updateRate) {
+    if ((camGetMode() != 0) || (D_8007C6E8 == 0)) {
+        return;
+    }
+
+    if (D_8007C704 > 0) {
+        if (updateRate < D_8007C704) {
+            D_8007C704 -= updateRate;
+            D_8007C6EC += D_8007C6F0 * updateRate;
+            D_8007C6F8 += D_8007C6FC * updateRate;
+        } else {
+            D_8007C704 = 0;
+            D_8007C6EC = D_8007C6F4;
+            D_8007C6F8 = D_8007C700;
+        }
+    }
+
+    TrapDanglingJump((f32) D_800D4078.velX / 65536.0f,
+                     ((f32) D_800D4078.velY / 65536.0f) - 5.0f,
+                     (f32) D_800D4078.velZ / 65536.0f, updateRate);
+    rain_sound(updateRate);
+    rain_render_splashes(updateRate);
+    rain_lightning(updateRate);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_render_splashes.s")
 /*
  * PROVENANCE -- body adapted from Diddy Kong Racing's and Jet Force Gemini's
