@@ -1104,18 +1104,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x1872398, c, overlay15GetResource4]
-      - [0x18723A4, c, overlay15ReleaseResource]
-      - [0x18723E4, c, overlay15InitStarsAndPalette]
-      - [0x18727C0, c, overlay15MoveStars]
-      - [0x1872898, c, overlay15DrawScreenStars]
-      - [0x1872A3C, c, overlay15GetResource10]
-      - [0x1872A48, c, overlay15ReleaseResource10]
-      - [0x1872A80, c, overlay15InitStars]
-      - [0x1872D78, c, overlay15UpdateMovingStars]
-      - [0x1872F14, c, overlay15SetValueC]
-      - [0x1872F20, c, overlay15ClearValue7C]
-      - [0x1872F2C, c, overlay15DrawRain]
+      - [0x1872398, c, overlay_015]
       - [0x1873004, asm, overlay_015_padding]
       - [0x1873008, bin, overlay_015_data_rodata]
       - [0x1873058, bin, overlay_015_reloc1]
