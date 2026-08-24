@@ -24,6 +24,11 @@ typedef struct LevelSummary {
     u8 blur;
 } LevelSummary;
 
+typedef struct LevelHeaderColour {
+    u8 pad0[0x94];
+    s16 weatherType[7];
+} LevelHeaderColour;
+
 extern LevelSummary *D_800CF3DC;
 extern s32 mainGetNumberOfCameras(void);
 extern void func_80000510(u8);
@@ -32,6 +37,7 @@ extern void func_80000B48(u16);
 extern void func_80000C38(void);
 extern void func_80000CEC(void);
 extern u8 func_80000D54(void);
+extern void func_80036AB0(void *, s32);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetCounts.s")
 
@@ -111,7 +117,16 @@ void levelTunePlay(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelUpdateColourCycling.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+void levelUpdateColourCycling(s32 arg0) {
+    s32 i;
+
+    for (i = 0; i < 7; i++) {
+        if (((LevelHeaderColour *) D_800CF3C8)->weatherType[i] != -1) {
+            func_80036AB0(&D_800CF420[i * 16], arg0);
+        }
+    }
+}
 
 /* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
 u8 *levelGetColourCycling(void) {
