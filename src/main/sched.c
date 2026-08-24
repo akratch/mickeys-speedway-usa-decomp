@@ -9,11 +9,14 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/sched_internal.h"
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osCreateScheduler.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScAddClient.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScRemoveClient.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetCmdQ.s")
+OSMesgQueue *osScGetCmdQ(OSSched *scheduler) {
+    return &scheduler->cmdQ;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetInterruptQ.s")
 void osScGetAudioSPStats(f32 *first, f32 *second, f32 *third) {
     *first = 0.0f;
