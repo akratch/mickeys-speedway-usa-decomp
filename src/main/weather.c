@@ -18,6 +18,14 @@ typedef struct Mtx Mtx;
 typedef struct Camera Camera;
 typedef struct Matrix Matrix;
 
+struct Camera {
+    s16 rotationX;
+    u8 pad2[10];
+    f32 x;
+    f32 y;
+    f32 z;
+};
+
 typedef struct WeatherClipPlanes {
     s16 near;
     s16 far;
@@ -139,6 +147,7 @@ extern s32 D_8007C6EC;
 extern s32 D_8007C6F8;
 extern s32 D_8007C708;
 extern s32 D_8007C70C;
+extern void *D_8007C720;
 
 extern s32 func_800299E8(s32 min, s32 max);
 extern s32 mathRnd(s32 min, s32 max);
@@ -151,6 +160,9 @@ extern s32 func_8002A1A4(s16 angle);
 extern WeatherTexture *func_80034448(s32 textureId);
 extern s32 func_80049864(s32 mode);
 extern void func_800498FC(s32 mode, f32 arg1, f32 arg2, s32 red, s32 green, s32 blue, s32 alpha);
+extern f32 func_8002A8BC(s32 angle);
+extern f32 func_8002A8C0(s32 angle);
+extern void func_800031C0(void *sound, f32 x, f32 y, f32 z);
 extern void mmFree(void *ptr);
 extern void func_800347A0(WeatherTexture *texture);
 
@@ -523,4 +535,25 @@ void rain_lightning(s32 updateRate) {
         }
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_sound.s")
+/*
+ * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
+ * src/weather.c::rain_sound. Mickey's sound-handle behavior is authoritative.
+ */
+void rain_sound(s32 updateRate) {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 length;
+    f32 cosOffset;
+    f32 sinOffset;
+
+    length = 1152.0f - (f32) (D_8007C6EC >> 6);
+    cosOffset = func_8002A8C0(-0x8000 - D_800D40DC->rotationX);
+    sinOffset = func_8002A8BC(-0x8000 - D_800D40DC->rotationX);
+    x = D_800D40DC->x - (length * cosOffset);
+    y = D_800D40DC->y;
+    z = D_800D40DC->z - (length * sinOffset);
+    if (D_8007C720 != NULL) {
+        func_800031C0(D_8007C720, x, y, z);
+    }
+}

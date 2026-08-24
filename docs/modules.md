@@ -1041,8 +1041,8 @@ Force Gemini's and Diddy Kong Racing's public retail-derived `src/weather.c`
 files and JFG's `asm/nonmatchings/weather/` names, as permitted by
 `docs/CLEANROOM.md`. The matched `initWeather`, `weather_clip_planes`,
 `freeWeather`, `setupWeather`, `snow_init`, `changeWeather`, and `rainDensity`
-bodies, plus `rain_lightning`, are adapted from those disclosed sources and
-carry point-of-use notes; Mickey's own bytes remain authoritative.
+bodies, plus `rain_lightning` and `rain_sound`, are adapted from those disclosed
+sources and carry point-of-use notes; Mickey's own bytes remain authoritative.
 
 The tier-B/D `initWeather` adds **0xFC bytes / 63 words** at ROM `0x3B480`.
 JFG's initialization and asset-table walk reproduce Mickey's instruction
@@ -1076,6 +1076,10 @@ The tier-B/D `rain_lightning` adds **0x128 bytes / 74 words** at ROM
 thresholds compile instruction-exact at canonical `-O2 -mips2 -32`, with all
 17 relocations and the linked ROM range agreeing.
 
+The tier-B/D `rain_sound` adds **0xC0 bytes / 48 words** at ROM `0x3CF70`.
+JFG's camera-relative sound positioning compiles instruction-exact at canonical
+`-O2 -mips2 -32`, with all 13 relocations and the linked ROM range agreeing.
+
 `doWeather` plateaued after the JFG body, the 119-combination flag lattice,
 and seven source-order, typing, and allocation hypotheses. The best canonical
 candidate, preserved behind `NON_MATCHING`, differs in 54 of 169 positional
@@ -1102,7 +1106,7 @@ decomp-permuter checkout.
 | `0x3C6B4` | `0x144` | `rain_update` | B/D |
 | `0x3C7F8` | `0x650` | `rain_render_splashes` | B/D |
 | `0x3CE48` | `0x128` | `rain_lightning` | B/D name; exact C, 74 words, 17 relocs |
-| `0x3CF70` | `0xC0` | `rain_sound` | B/D |
+| `0x3CF70` | `0xC0` | `rain_sound` | B/D name; exact C, 48 words, 13 relocs |
 | `0x3D030` | `0x144` | `snow_update` | B/D; handwritten asm |
 | `0x3D174` | `0x1FC` | `snow_vertices` | B/D; odd-FP handwritten asm |
 | `0x3D370` | `0x9C` | `func_8003C770` | unresolved |
