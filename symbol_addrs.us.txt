@@ -1926,6 +1926,12 @@ fontColour = 0x8004B0B8; // type:func size:0x24   ROM 0x4bcb8  src/font.c.o  mas
 fontWindowColour = 0x8004BBFC; // type:func size:0x40   ROM 0x4c7fc  src/font.c.o  masked=2/16
 fontWindowFontColour = 0x8004BC3C; // type:func size:0x48   ROM 0x4c83c  src/font.c.o  masked=2/18
 fontWindowFontBackground = 0x8004BC84; // type:func size:0x40   ROM 0x4c884  src/font.c.o  masked=2/16
+func_8004C0C4 = 0x8004C0C4; // type:func size:0x7C ROM 0x4ccc4 evidence-tier-B/D JFG fontWindowsDraw organization and Mickey window-flag flow C-match -O2 -mips2
+func_8004C140 = 0x8004C140; // type:func size:0xC0 ROM 0x4cd40 evidence-tier-B/D DKR render_fill_rectangle body and Mickey framebuffer-size call C-match -O2 -mips2
+func_8004C200 = 0x8004C200; // type:func size:0x3A4 ROM 0x4ce00 evidence-tier-B/D DKR render_dialogue_box organization and Mickey display-list/text flow C-match -O2 -mips2
+func_8004C8D8 = 0x8004C8D8; // type:func size:0xA54 ROM 0x4d4d8 evidence-tier-B/D JFG fontCreateDisplayList structure and Mickey texture-command flow C-match -O2 -mips2
+func_8004D32C = 0x8004D32C; // type:func size:0x70 ROM 0x4df2c evidence-tier-D Mickey boundary and ext-caller flow C-match -O2 -mips2
+func_8004D39C = 0x8004D39C; // type:func size:0x70 ROM 0x4df9c evidence-tier-B/D JFG fontConvertString organization and Mickey character-table flow C-match -O2 -mips2
 // jfg:src/anim.c.o
 func_80050000 = 0x80050000; // type:func size:0x24   ROM 0x50c00  tier-D JFG bitstream-initializer structure, matched C
 func_80050024 = 0x80050024; // type:func size:0x80   ROM 0x50c24  tier-D JFG unsigned-bit-reader structure, matched C

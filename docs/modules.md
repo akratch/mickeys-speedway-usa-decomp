@@ -411,6 +411,11 @@ overlay callers/callees outside the range were observed.
 | `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B, matched C | calls `0x4BDDC` |
 | `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
 | `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B | calls `0x4DF9C`; ext callers |
+| `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | B/D, matched C | leaf; text-setup callers |
+| `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B/D, matched C | calls `0x4BD3C` |
+| `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B/D, matched C | calls `0x4BDDC` |
+| `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D, plateau | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
+| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D, plateau | calls `0x4DF9C`; ext callers |
 | `0x4C744` | `0x9C` | `func_8004BB44` | `fontWindowSize` | D, matched C | leaf; ext callers |
 | `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | D, matched C | leaf; ext callers |
 | `0x4C7FC` | `0x40` | `fontWindowColour` | same | A, matched C | leaf; ext callers |
@@ -430,6 +435,15 @@ overlay callers/callees outside the range were observed.
 | `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D | leaf; ext caller |
 | `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | D, plateau | leaf; in-range callers |
 | `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D | leaf |
+| `0x4CCC4` | `0x7C` | `func_8004C0C4` | `fontWindowsDraw` | B/D, matched C | calls `0x4CE00`; ext caller |
+| `0x4CD40` | `0xC0` | `func_8004C140` | DKR `render_fill_rectangle` | B/D, matched C | ext callee; called by `0x4CE00` |
+| `0x4CE00` | `0x3A4` | `func_8004C200` | `fontWindowDraw` | B/D, matched C | calls `0x4CD40`, `0x4D1A4`, `0x4BDDC` |
+| `0x4D1A4` | `0xEC` | `func_8004C5A4` | JFG `func_80071A0C` | D, matched C | calls `0x4CC00`; in-range callers |
+| `0x4D290` | `0x248` | `func_8004C690` | JFG `func_80071B08` | D, plateau | ext callee; called by `0x4BDDC` |
+| `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D, matched C | ext callee |
+| `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D, matched C | leaf; ext caller |
+| `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, matched C | leaf; in-range callers |
+| `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D, plateau | leaf |
 | `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |
 | `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | D | SDK calls; ext callers |
 | `0x4E350` | `0x28` | `func_8004D750` | `rzipInit` | D | allocator call; ext caller |
@@ -450,14 +464,39 @@ changed the frame and added three instructions, so the readable JFG-derived
 candidate remains under `NON_MATCHING` and the extracted assembly is
 canonical.
 
-`func_8004D39C` plateaued after the stock JFG body and six source-allocation
-variants. Its best candidate has the exact 28-instruction shape and 27 exact
-words; the first and only mismatch is at function offset `+0x60`, where the
-loop-back branch consumes the copied character rather than the original load.
-The 119-combination flag lattice found no exact result and kept the same
-one-word residue throughout the `-O2 -mips2` family, identifying an allocator
-coalescing choice rather than a flag mismatch. The candidate remains guarded
-by `NON_MATCHING`; the extracted assembly stays canonical.
+`func_8004B1DC` has a readable DKR-JP-derived candidate under
+`NON_MATCHING`. Its best stock-flag build has the target's 128-byte frame and
+matches through function offset `+0x2C`, but is 28 instructions short with
+broad control-flow divergence after the initial null check. The flag lattice
+kept `-O2 -mips2` best; the unresolved issue is source organization and live
+ranges across the scissor and glyph loops, not a compiler-flag mismatch.
+
+`func_8004C690` has a readable JFG-derived cache-allocation candidate under
+`NON_MATCHING`. Its best stock-flag build has the target's 112-byte frame and
+is one instruction longer (147 versus 146); the first mismatch is at function
+offset `+0x0`. The candidate keeps the character in saved register `$s0`,
+adding a save slot and broadly changing allocation. Struct-copy and explicit
+pointer-loop variants did not reproduce the target's four-word header-copy
+loop, so the remaining blocker is source shape and live ranges rather than
+semantics or constants.
+
+`func_8004D40C` has an exact-size, exact-frame, exact-relocation candidate
+under `NON_MATCHING`: 109 instructions with five differing words. The first
+mismatch is at function offset `+0x5C`, where the target preserves the loaded
+character with `move $t2,$a3` in a branch delay slot; IDO coalesces that copy
+out of the candidate and reverses four dependent comparison operands. The
+stock flag lattice found no exact result. The requested bounded permuter could
+not start because `tools/permuter` is absent from this lane.
+
+`func_8004BA8C` has an exact-size JFG/DKR-derived width candidate under
+`NON_MATCHING`. The best declaration ordering compiles to 46 instructions
+with the first six exact; its first mismatch is the frame allocation at
+function offset `+0x18` (40 bytes versus the target's 48). The font pointer
+spill is at the exact `sp+0x18` slot, but the spacing pointer lands at
+`sp+0x24` instead of `sp+0x20`, causing IDO to restore the stack before the
+loop and cascading into 28 positional word differences. The stock flag
+lattice remained best; ten source-shape and local-order attempts did not
+recover the retail spill layout.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
@@ -2009,7 +2048,7 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 44 jump tables still emitted
+- **rodata order follows text order exactly.** The 37 jump tables still emitted
   in `asm/` are monotonic in both columns, with **zero inversions**. So
   `.rodata` can be carved TU by TU in text order, which is what makes the
   per-TU split tractable. Five more tables now belong to matched `n_csplayer`
@@ -2022,6 +2061,8 @@ Where the boundary comes from:
 - **rodata order follows text order exactly.** 35 functions, 44 jump tables,
   monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
   by TU in text order, which is what makes the per-TU split tractable.
+  per-TU split tractable. Thirteen more tables now belong to matched C,
+  including five in `n_csplayer`, one in `n_reverb`, and one in `main/font`.
 
 Two toolchain facts govern the per-TU split:
 

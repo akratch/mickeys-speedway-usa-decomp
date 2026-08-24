@@ -139,6 +139,10 @@ segments:
     start: 0x1050
     vram: 0x80000450
     follows_vram: entry
+    # func_8004C8D8's compiler-owned jump table begins at the measured
+    # eight-byte boundary 0x80083DF8; forcing 16-byte input-section alignment
+    # moves it and every following resident address by eight bytes.
+    subalign: 0x8
     bss_size: 0x52D10
     subsegments:
       - [0x1050, asm]
@@ -609,6 +613,10 @@ segments:
       # `enddlabel` as a zero-size label directive, preserving the symbol-size
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
+      # func_8004C8D8's eight-entry texture-format switch table. The following
+      # two zero words are output-section alignment, not owned object bytes.
+      - [0x849F8, .rodata, main/font]
+      - [0x84A18, rodata]
       # Five n_csplayer jump tables, in the same order and with the same
       # 0x300-byte section size as the JFG donor object.
       - [0x85070, .rodata, libultra/n_csplayer]
