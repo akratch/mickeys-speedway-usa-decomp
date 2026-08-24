@@ -21,6 +21,7 @@ extern f32 D_160;
 extern Overlay1ValueRow D_1BA8[];
 extern s8 *D_1DA0;
 
+#ifdef NON_MATCHING
 Overlay1Object *overlay1FindDirectionalObject(Overlay1Object *object,
                                               void *unused1, void *unused2,
                                               f32 threshold, f32 maxValue) {
@@ -66,3 +67,7 @@ active:
     }
     return best;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1FindDirectionalObject/func_overlay_001_F0005CD4_18520B4.s")
+#endif

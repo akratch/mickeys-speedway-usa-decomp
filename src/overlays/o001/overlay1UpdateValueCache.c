@@ -8,6 +8,7 @@ typedef struct Overlay1ValueEntry {
 
 extern Overlay1ValueEntry gOverlay1ValueCache[64];
 
+#ifdef NON_MATCHING
 s32 overlay1UpdateValueCache(s16 keyA, s16 keyB, f32 value) {
     register s32 searchKeyA = keyA;
     register s32 searchKeyB = keyB;
@@ -42,3 +43,7 @@ s32 overlay1UpdateValueCache(s16 keyA, s16 keyB, f32 value) {
 
     return 0;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1UpdateValueCache/func_overlay_001_F00073A0_1853780.s")
+#endif

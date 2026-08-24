@@ -40,6 +40,7 @@ extern void *overlay1Chain40Reloc(void *source);
 extern f32 overlay1InterpolateReloc(f32 first, f32 second, s32 third,
                                    s32 fourth, f32 weight);
 
+#ifdef NON_MATCHING
 s32 overlay1ActivateObject(Overlay1Owner *owner) {
     Overlay1OwnerState *state;
     Overlay1Sample *record;
@@ -126,3 +127,8 @@ s32 overlay1FindClosestSample(f32 x, f32 y, Overlay1Sample *source,
     } while (index--);
     return bestIndex;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1ActivateObject/func_overlay_001_F00004B4_184C894.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1ActivateObject/func_overlay_001_F0000614_184C9F4.s")
+#endif

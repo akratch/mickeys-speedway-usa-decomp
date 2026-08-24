@@ -76,6 +76,7 @@ extern void func_800349A4(Overlay37Command **commands, void *resource,
                           s32 mode, s32 flags);
 extern void func_8002460C(Overlay37Command **commands, const void *displayData);
 
+#ifdef NON_MATCHING
 void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
                            Overlay37Object *object) {
     Overlay37Camera *camera;
@@ -171,3 +172,7 @@ void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
 
     func_8002460C(commands, gOverlay37DisplayData);
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o037/overlay37Render/func_overlay_037_F000019C_18857BC.s")
+#endif

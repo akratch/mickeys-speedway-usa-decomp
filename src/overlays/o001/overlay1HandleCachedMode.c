@@ -6,6 +6,7 @@ extern s32 D_83E4;
 extern s32 overlay27CanUse(void *);
 extern s32 overlay3RunCachedModeAction(void *, W *);
 extern s32 overlay1DispatchMode(void);
+#ifdef NON_MATCHING
 s32 overlay1HandleCachedMode(void) {
     W *world = D_1DA0[0];
     s32 result = 0;
@@ -18,3 +19,7 @@ clear:
     D_1DA0[0]->state = 0;
     return result;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1HandleCachedMode/func_overlay_001_F00061F0_18525D0.s")
+#endif

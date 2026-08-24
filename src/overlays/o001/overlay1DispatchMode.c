@@ -43,6 +43,7 @@ extern void overlay1ModeAction8(void *object);
 extern void overlay1ModeAction9(void *object);
 extern f32 overlay1WrapOffset(f32 first, f32 second);
 
+#ifdef NON_MATCHING
 s32 overlay1DispatchMode(void) {
     Overlay1ModeState *world;
     Overlay1ModeObject *object;
@@ -121,3 +122,7 @@ s32 overlay1DispatchMode(void) {
     }
     return 0;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1DispatchMode/func_overlay_001_F0005ED4_18522B4.s")
+#endif

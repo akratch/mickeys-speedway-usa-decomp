@@ -63,6 +63,7 @@ extern void ext_o0_5a914(Transform *, s32, s32, s32);
 extern Spawned *local_414(s16, Spawned **);
 extern s16 local_c0(Spawned *);
 
+#ifdef NON_MATCHING
 void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateRate) {
     Spawned *sp3C;
     s32 value;
@@ -195,3 +196,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
         }
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1TransitionState/func_overlay_001_F0003FD8_18503B8.s")
+#endif

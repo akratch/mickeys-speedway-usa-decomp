@@ -1,5 +1,0 @@
-# One complete temporary web: the loaded start index and all three uses.
-fields:0x40:rt=v1@a0
-fields:0x50:rs=v1@a0
-fields:0x5c:rs=v1@a0
-fields:0x60:rt=v1@a0

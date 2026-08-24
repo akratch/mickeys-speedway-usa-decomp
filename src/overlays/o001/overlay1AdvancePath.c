@@ -44,6 +44,7 @@ extern void *gOverlay1SubmitArg5;
 extern s32 gOverlay1PoolExhausted;
 
 /* DKR v77/v80 and JFG have no exact donor for this bounded path advance. */
+#ifdef NON_MATCHING
 s32 overlay1AdvancePath(Overlay1PathState *state) {
     s16 currentX;
     s16 currentY;
@@ -106,3 +107,7 @@ s32 overlay1AdvancePath(Overlay1PathState *state) {
     }
     return 1;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1AdvancePath/func_overlay_001_F00078DC_1853CBC.s")
+#endif

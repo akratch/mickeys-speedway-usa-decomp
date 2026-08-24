@@ -75,6 +75,7 @@ extern O1ChoiceObject *overlay1FindChoice(f32 progress,
                                          s32 minimum, s32 *scores);
 extern f32 overlay1MeasureChoice(f32 first, f32 second);
 
+#ifdef NON_MATCHING
 void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
     O1ChoiceState *otherState;
     O1ChoiceState *chosenState;
@@ -236,3 +237,7 @@ void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
         D_1DA0->transition = 0xFF;
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1ChoosePath/func_overlay_001_F0003750_184FB30.s")
+#endif

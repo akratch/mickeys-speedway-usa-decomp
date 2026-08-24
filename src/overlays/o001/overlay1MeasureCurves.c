@@ -1,6 +1,7 @@
 #include "PR/ultratypes.h"
 extern f32 overlay1EvaluateCurve(f32, f32, s32, s32, f32);
 extern f32 overlay1SquareRoot(f32);
+#ifdef NON_MATCHING
 f32 overlay1MeasureCurves(volatile f32 startX, volatile f32 startY,
                           volatile f32 endX, volatile f32 endY,
                           volatile s32 controlX1, volatile s32 controlY1,
@@ -32,3 +33,7 @@ f32 overlay1MeasureCurves(volatile f32 startX, volatile f32 startY,
     }
     return total;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1MeasureCurves/func_overlay_001_F0000F84_184D364.s")
+#endif

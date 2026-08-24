@@ -12,6 +12,7 @@ extern Overlay1PoolRecord gOverlay1PoolEnd[];
 extern s32 gOverlay1PoolGroup;
 extern s32 gOverlay1PoolExhausted;
 
+#ifdef NON_MATCHING
 Overlay1PoolRecord *overlay1AllocateRecord(void) {
     Overlay1PoolRecord *cursor;
     Overlay1PoolRecord *result;
@@ -35,3 +36,7 @@ Overlay1PoolRecord *overlay1AllocateRecord(void) {
                                 (gOverlay1PoolGroup << 2);
     return result;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1AllocateRecord/func_overlay_001_F00072A4_1853684.s")
+#endif

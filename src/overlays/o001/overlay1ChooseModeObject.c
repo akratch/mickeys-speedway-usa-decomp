@@ -22,6 +22,7 @@ extern O1SelectObject *D_1D9C;
 extern O1SelectWorld *D_1DA0;
 extern O1SelectRow D_1BA8[];
 
+#ifdef NON_MATCHING
 s32 overlay1ChooseModeObject(void) {
     O1SelectObject **objects;
     O1SelectObject *object;
@@ -58,3 +59,7 @@ s32 overlay1ChooseModeObject(void) {
     }
     return 0;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1ChooseModeObject/func_overlay_001_F0006270_1852650.s")
+#endif

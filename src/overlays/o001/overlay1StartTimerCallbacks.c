@@ -27,6 +27,7 @@ extern f32 gOverlay1CallbackStepFloat;
 extern Overlay1CallbackEntry gOverlay1CallbackDescriptor[];
 extern Overlay1CallbackEntry gOverlay1ModeCallbacks[];
 
+#ifdef NON_MATCHING
 void overlay1StartTimerCallbacks(Overlay1CallbackObject *object, s32 amount) {
     Overlay1CallbackEntry *entry;
     Overlay1Callback callback;
@@ -55,3 +56,7 @@ void overlay1StartTimerCallbacks(Overlay1CallbackObject *object, s32 amount) {
         }
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1StartTimerCallbacks/func_overlay_001_F0005BF4_1851FD4.s")
+#endif

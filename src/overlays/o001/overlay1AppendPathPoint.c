@@ -17,6 +17,7 @@ extern s32 overlay1UpdateValueCache(s16 x, s16 y, f32 value);
 extern s16 overlay1AnchorX;
 extern s16 overlay1AnchorY;
 
+#ifdef NON_MATCHING
 void overlay1AppendPathPoint(Overlay1PathState *state, s16 x, s16 y,
                              u8 primary, u8 secondary) {
     register s32 pointX = x;
@@ -52,3 +53,7 @@ void overlay1AppendPathPoint(Overlay1PathState *state, s16 x, s16 y,
             (anchorDx * anchorDx) + (anchorDy * anchorDy);
     }
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1AppendPathPoint/func_overlay_001_F0007580_1853960.s")
+#endif

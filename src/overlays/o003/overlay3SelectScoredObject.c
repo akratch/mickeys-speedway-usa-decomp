@@ -6,6 +6,7 @@ extern Overlay3Object **overlay3GetSearchObjectsReloc(s32 *count);
 extern s32 overlay3ContainsValueReloc(Overlay3Object *anchor, Overlay3Object *object);
 extern s32 overlay3RandomRangeReloc(s32 low, s32 high);
 extern f32 overlay3SqrtReloc(f32 value);
+#ifdef NON_MATCHING
 Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Search *search, s32 elapsed) {
     s32 count; Overlay3Object *result; s32 bestIndex; Overlay3Object **objects;
     Overlay3Object **cursor; Overlay3Object *object; Overlay3State *state;
@@ -48,3 +49,7 @@ Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Searc
     }
     return result;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o003/overlay3SelectScoredObject/func_overlay_003_F00003B0_185A0E0.s")
+#endif

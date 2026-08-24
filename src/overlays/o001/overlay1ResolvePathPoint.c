@@ -35,6 +35,7 @@ extern s32 overlay1SegmentReloc(f32 x0, f32 y0, f32 x1, f32 y1,
 extern void func_overlay_001_F0007730_1853B10(s16 *x, s16 *y,
                                                u8 selector, u8 mode);
 
+#ifdef NON_MATCHING
 s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
                              s16 *outX, s16 *outY) {
     register u32 groupAddress;
@@ -97,3 +98,7 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
     *outY = point[31];
     return record->count;
 }
+
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay1ResolvePathPoint/func_overlay_001_F0007D6C_185414C.s")
+#endif
