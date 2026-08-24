@@ -28,6 +28,7 @@ extern void starfieldFastMove(s32 count, Overlay15Vec3f *stars,
 /*
  * Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative.
  */
+#ifdef NON_MATCHING
 void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
                         s32 rate) {
     f32 scale;
@@ -49,3 +50,6 @@ void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
                           gOverlay15StarBound8);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15MoveStars/func_overlay_015_F0000428_18727C0.s")
+#endif

@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 271160,
-  "nonmatching_overlay_c_bytes": 5440,
+  "matched_overlay_c_bytes": 268148,
+  "nonmatching_overlay_c_bytes": 8452,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -4710,7 +4710,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15InitStarsAndPalette",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x428",
@@ -4719,7 +4719,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15MoveStars",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x500",
@@ -4728,7 +4728,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15DrawScreenStars",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x6A4",
@@ -4755,7 +4755,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15InitStars",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x9E0",
@@ -4764,7 +4764,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15UpdateMovingStars",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xB7C",
@@ -4791,7 +4791,7 @@
      "type": "c",
      "source": "overlays/o015/overlay15DrawRain",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xC6C",

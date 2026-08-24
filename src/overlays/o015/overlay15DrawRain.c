@@ -25,6 +25,7 @@ extern void rainFastDraw(void *framebuffer, s32 width, s32 height, s32 count,
                          f32 projectionScale);
 
 /* Mickey-local reconstruction; the pinned DKR v77/v80 and JFG scans are negative. */
+#ifdef NON_MATCHING
 void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
                        f32 projectionScale, f32 intensity) {
     Overlay15CameraState *camera;
@@ -42,3 +43,6 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15DrawRain/func_overlay_015_F0000B94_1872F2C.s")
+#endif

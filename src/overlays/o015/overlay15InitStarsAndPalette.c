@@ -28,6 +28,7 @@ extern Overlay15InitBounds gOverlay15InitBounds;
 extern void *overlay15Allocate(s32 size, s32 tag);
 extern s32 overlay15RandomRange(s32 minimum, s32 maximum);
 
+#ifdef NON_MATCHING
 void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
                                   s32 zRange, u32 startColor, u32 endColor,
                                   s32 colorDivisor) {
@@ -122,3 +123,6 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
         paletteIndex3 += 4;
     } while (paletteIndex0 != 0x100);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15InitStarsAndPalette/func_overlay_015_F000004C_18723E4.s")
+#endif
