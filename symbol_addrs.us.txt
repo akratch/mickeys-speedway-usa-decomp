@@ -191,6 +191,10 @@ D_800D8710 = 0x800D8710;
 
 __libm_qnan_f = 0x80084990;
 osTvType = 0x80000300;
+// initialize.c's whole-object match identifies these low-memory SDK globals
+// through its masked relocation pairs (Tier A/B).
+osResetType = 0x8000030C;
+osAppNMIBuffer = 0x8000031C;
 osViModeNtscLan1 = 0x80080580;
 osViModeMpalLan1 = 0x80080670;
 osViModePalLan1 = 0x80080760;
@@ -941,7 +945,17 @@ __osSetGlobalIntMask = 0x80074480; // type:func size:0x4C
 __osPiDevMgr = 0x8007D600;
 __osPiTable = 0x8007D61C;
 __osCurrentHandle = 0x8007D620;
-__OSGlobalIntMask = 0x8008045C;
+// initialize.c's whole .text matches JFG with __osFinalrom as the relocation
+// identity at ROM 0x6FE34/0x6FE3C (Tier A/B). JFG places it in this TU's BSS,
+// but Mickey reaches a fixed address inside the anonymous whole-program data
+// region, so the TU declares it extern and does not claim storage.
+__osFinalrom = 0x8007A11C;
+// The same whole-object match identifies these PI-handle BSS objects through
+// the masked %hi/%lo pairs at ROM 0x70088..0x70094 (Tier A/B). Their containing
+// BSS gap remains unsplit, so fixed linker assignments preserve Mickey's
+// addresses independently of C-object link order.
+__Dom1SpeedParam = 0x800D6650;
+__Dom2SpeedParam = 0x800D66C8;
 __osPiAccessQueueEnabled = 0x80080850;
 __osPiAccessQueue = 0x800D84E0;
 piAccessBuf = 0x800D84F8;

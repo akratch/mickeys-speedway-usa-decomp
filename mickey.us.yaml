@@ -460,7 +460,8 @@ segments:
       # matching reference object's section size and by the ROM relocation(s)
       # that address the first symbol; anonymous gaps remain explicitly raw.
       - [0x81040, .data, libultra/aisetnextbuf]
-      - [0x81050, data]
+      - [0x81050, .data, libultra/initialize]
+      - [0x81060, data]
       - [0x81070, .data, libultra/vimgr]
       - [0x81090, data]
       - [0x81460, .data, libultra/thread]

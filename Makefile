@@ -538,13 +538,17 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/destroythread.c.o: CFLAGS += -D__GNUC__
 # measured, and nothing joins it on a neighbour's evidence.
 LIBULTRA_O2_G3_TUS := contpfs epidma epilinkhandle epirawdma epirawread \
                       epirawwrite epiread epiwrite pfsallocatefile pfschecker \
-                      pfsfilestate pfsfreeblocks pfsgetstatus pfsinit \
+                      initialize pfsfilestate pfsfreeblocks pfsgetstatus pfsinit \
                       pfsisplug pfsnumfiles pfsreadwritefile pfssearchfile \
                       pfsselectbank piacs pidma pigetcmdq pirawdma
 $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -O2 -g3))
 $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
+
+# JFG's whole initialize object matches Mickey's and selects the 2.0J source
+# path plus Rare's external osViClock ownership.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/initialize.c.o: CFLAGS += -DBUILD_VERSION=7 -DRAREDIFFS
 
 # -Xphase,uopt,+ -Xphase,uopt,-O1: a FOURTH libultra flag group, and the only
 # one that does not go through the `cc` driver.
