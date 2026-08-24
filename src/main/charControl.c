@@ -52,7 +52,8 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F25C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F264.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F320.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F364.s")
+void func_8001F364(void) {
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/controlSetPlayerSetup.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F3AC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001F408.s")
