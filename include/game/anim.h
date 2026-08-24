@@ -68,6 +68,7 @@ void func_8005027C(void);
 void func_800502CC(u8 pathIndex);
 void func_80006EA0(void *ptr);
 void func_80050348(s32 pathIndex);
+void animseqStartPath(u8 pathIndex);
 void animseqInitGroup(void);
 void animseqPlay(void);
 AnimPath *func_800508B4(u8 pathIndex);

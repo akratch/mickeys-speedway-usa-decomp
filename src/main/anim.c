@@ -133,7 +133,25 @@ void func_800502CC(u8 pathIndex) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050348.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005055C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050688.s")
+void animseqStartPath(u8 pathIndex) {
+    AnimPath *path;
+    AnimPathObject *object;
+
+    path = D_800D6B00[pathIndex];
+    if (path != NULL) {
+        if (!(path->flags & 8) && !(path->flags & 1)) {
+            object = path->unk8;
+            path->flags |= 1;
+            path->flags &= ~4;
+            if (object != NULL) {
+                object->unk6 &= ~0x400;
+                if (path->unk8->unk58 != NULL) {
+                    path->unk8->unk58->unk132 = 1;
+                }
+            }
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050704.s")
 u32 func_8005077C(u8 pathIndex) {
     AnimPath *path;
