@@ -13,6 +13,12 @@ static const u8 sOverlay9ConstantPoolBase[0x20] = { 0 };
  * the intervening empty overlay9Ignore function does not change its bytes.
  */
 
+/*
+ * Plateau: the best build is 36 bytes over retail and differs in 247/336
+ * words from entry +0x0. The flag lattice does not move the full private
+ * frame/register/schedule web, and the bounded permuter cannot run because
+ * tools/permuter/import.py is absent.
+ */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     f32 vector[3];
@@ -158,6 +164,12 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateObjectState/func_overlay_009_F0000000_1866678.s")
 #endif
+/*
+ * Plateau: the best build differs in 8/129 words, first at +0x4C; the body,
+ * size, and CFG agree, but retail swaps the callee-saved FPR web used for the
+ * two limits and two thresholds. Declaration reordering did not move the web,
+ * and the bounded permuter is unavailable.
+ */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
                                        O9Motion *motion, s32 steps) {
@@ -205,6 +217,12 @@ void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateAngle/func_overlay_009_F0000540_1866BB8.s")
 #endif
 
+/*
+ * Plateau: the R4300-multiply build differs in 5/158 words, first at +0x140;
+ * every mismatch is the handle test's v1 allocation versus retail v0.
+ * Direct, truth-value, scoped-local, live-local, and register-local forms all
+ * retained that web or worsened it; the bounded permuter is unavailable.
+ */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000744_1866DBC(O9OutputRecord *output, O9OutputControl *control,
                                        O9OutputState *state, s32 updateCount) {
@@ -329,17 +347,25 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
     }
 }
 
+/*
+ * Plateau: the best R4300-multiply build differs in 4/162 masked words, first
+ * at +0xC8; all four are the angle spill at +0x32 instead of retail +0x2A.
+ * The frame, fraction, and x/y/z work slots are exact after reserving one
+ * float, but further declaration placements regress them. The local 0.65f
+ * pool addend is also +0x4C rather than retail +0x50.
+ */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,
                                        void *unused, f32 step) {
     f32 xVelocity;
     f32 yVelocity;
     f32 zVelocity;
+    volatile f32 unusedExtra;
     f32 xExtra;
     f32 yExtra;
     f32 zExtra;
-    f32 fraction;
     s16 angle = control->angle;
+    f32 fraction;
 
     if (control->active != 0) {
         f32 distance = (control->velocity * step) +
@@ -389,6 +415,12 @@ void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateContro
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9IntegrateVelocity/func_overlay_009_F0000CE4_186735C.s")
 #endif
 
+/*
+ * Plateau: the best -O2/-mips2 build differs in 2/78 words, first at +0x28;
+ * both differences place the hit-list slot at +0x44 instead of retail +0x30.
+ * Array and explicit-workspace source forms perturb the frame, and the local
+ * permuter is unavailable because tools/permuter/import.py is absent.
+ */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
                                        s32 steps) {
@@ -426,6 +458,12 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
+/*
+ * Plateau: the R4300-multiply build is 4 bytes short and differs in 80/283
+ * words, first at +0x88. Plain -O2 regresses to 209 words; the remaining gap
+ * is a coupled frame/register web across the smoothing loops, and the bounded
+ * permuter is unavailable.
+ */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {
