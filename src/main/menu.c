@@ -107,13 +107,13 @@ void frontSetWideAdjust(s32 offset) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A408.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A41C.s")
 /* Retain the anonymous spelling used by an unsplit resident assembly caller. */
-#pragma weak func_8003A47C = frontGetSfxVolume
+#pragma weak frontGetSfxVolume = frontGetSfxVolume
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetSfxVolume. */
 u16 frontGetSfxVolume(void) {
     return D_800D312C;
 }
 /* Retain the anonymous spelling used by an unsplit resident assembly caller. */
-#pragma weak func_8003A488 = frontSetSfxVolume
+#pragma weak frontSetSfxVolume = frontSetSfxVolume
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontSetSfxVolume. */
 void frontSetSfxVolume(s32 volume) {
     if (volume < 0) {
@@ -126,13 +126,13 @@ void frontSetSfxVolume(s32 volume) {
     gsSndpSetGlobalVolume(volume);
 }
 /* Retain the anonymous spelling used by an unsplit resident assembly caller. */
-#pragma weak func_8003A4C4 = frontGetBgmVolume
+#pragma weak frontGetBgmVolume = frontGetBgmVolume
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetBgmVolume. */
 u16 frontGetBgmVolume(void) {
     return D_800D312E;
 }
 /* Retain the anonymous spelling used by an unsplit resident assembly caller. */
-#pragma weak func_8003A4D0 = frontSetBgmVolume
+#pragma weak frontSetBgmVolume = frontSetBgmVolume
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontSetBgmVolume. */
 void frontSetBgmVolume(s32 volume) {
     if (volume < 0) {
