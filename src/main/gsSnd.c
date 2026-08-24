@@ -28,6 +28,15 @@ typedef struct GsSndPriorityState {
     u8 state;
 } GsSndPriorityState;
 
+typedef struct GsSndPlayer {
+    u8 pad0[0x48];
+    s32 maxSystemSoundChannels;
+    u8 pad4C[0xC];
+    s32 curTime;
+} GsSndPlayer;
+
+extern GsSndPlayer *D_8007FF4C;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpNew.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005B978.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005BA40.s")
@@ -83,4 +92,11 @@ void gsSndpSetGlobalVolume(u32 volume) {
 u32 gsSndpGetGlobalVolume(void) {
     return D_8007FF50;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/gsSndpLimitVoices.s")
+/* PROVENANCE: adapted from JFG src/gsSnd.c (gsSndpLimitVoices). */
+void gsSndpLimitVoices(s32 limit) {
+    if (D_8007FF4C->maxSystemSoundChannels >= limit) {
+        D_8007FF4C->curTime = limit;
+    } else {
+        D_8007FF4C->curTime = D_8007FF4C->maxSystemSoundChannels;
+    }
+}
