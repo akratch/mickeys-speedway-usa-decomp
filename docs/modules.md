@@ -224,7 +224,11 @@ the segment, carrying 194 function names.
 | `0x2A250`–`0x2AE44` | `0x80029650` | 11 named `math_util.s` routines | A | Matrix / vector / RNG library. 13 routines matched: 11 named here, `rand_range` already carried as `mathRnd`, and `func_80070058` left unnamed as a placeholder |
 | `0x2B650`–`0x2BCD0` | `0x8002AA50` | `main/matrix` | — | The parked float TU (§6.2) |
 | `0x2C860` | `0x8002BC60` | `align16`/`align8`/`align4` | A | The allocator |
-| `0x2F400`–`0x323A0` | `0x8002E800` | `osScGetCmdQ`, `osScGetInterruptQ`, `osScGetTaskType` | A + C | **The game scheduler** |
+| `0x2C8C0`–`0x2ECA0` | `0x8002BCC0` | `main/saves` | A/B/D | Rumble, EEPROM/save bitstreams, and Controller Pak files (§3.4) |
+| `0x2ECA0`–`0x2F0D0` | `0x8002E0A0` | `main/pi` | B | Asset lookup and cartridge DMA (§3.4) |
+| `0x2F0D0`–`0x2F400` | `0x8002E4D0` | `main/screen` | B | Compressed screen loading and drawing (§3.4) |
+| `0x2F400`–`0x30CD0` | `0x8002E800` | `main/rcpFast3d` | A/B | Fast3D/RCP task and clear helpers (§3.4) |
+| `0x30CD0`–`0x323A0` | `0x800300D0` | `main/sched` | A/B/C | The 21-function game scheduler (§3.4) |
 | `0x316E8` | `0x80030AE8` | `"SP CRASHED"`, `"Version %s"` | — | The frame loop / RCP watchdog |
 | `0x323A0`–`0x323E0` | `0x800317A0` | `main/rsp_segment` | A | Measured file boundary (whole `.text`) |
 | `0x323E0`–`0x33FA0` | `0x800317E0` | `main/runlink` | A/B/C | **The runtime overlay linker** (§5) |
@@ -355,7 +359,8 @@ see the caveat below):
 | `src/camera.c.o` | 2 | `0x23360`, `0x5B778` | 230KB apart -- evidently not one placed TU here; treat as two independent identifications, not a span |
 | `src/memory.c.o` | 2 | `0x2BCD0`–`0x2C3AC` | Starts exactly at yaml's `0x2BCD0` boundary (end of `main/matrix`); the already-named `align16`/`align8`/`align4` (tier A, `memory.c.o`) sit at `0x2C860`, past this span. Consistent with one TU, no boundary claimed |
 | `src/shadows_214A0.c.o` | 2 | `0x18FF0`–`0x19144` | Inside yaml's unnamed `0x18FF0`–`0x1AE60` block, starting exactly at its boundary. No boundary claimed |
-| `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
+| `src/saves.c.o`, `src/rcpFast3d.c.o` | 1 each | single points | These were the Tier A seeds expanded by the later call-graph census in §3.4 |
+| `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
 **Why this table originally added no `mickey.us.yaml` splits.** §1's
 "measured file boundary" tier requires a whole-`.text` match; this pass only
@@ -639,6 +644,7 @@ is present in the initial all-`GLOBAL_ASM` split.
 **Why most rows have no new `mickey.us.yaml` split.** §1's "measured file
 boundary" tier requires a whole-`.text` match; this pass only matched
 **Why the original scan added no `mickey.us.yaml` splits.** §1's "measured
+**Why the original skeleton table did not itself produce a split.** §1's "measured
 file boundary" tier requires a whole-`.text` match; this pass only matched
 individual functions (`tools/find_known_objects.py --sections` found no
 whole-object match for any of the not-yet-named TUs above). Asserting a yaml
@@ -1070,6 +1076,56 @@ Mickey's own bytes remain authoritative.
 There are no string references. `snow_vertices` is the range's only function
 using odd single-precision FP registers; it and extractor-marked
 `snow_update` remain source assembly permanently rather than matching targets.
+The independent boundary evidence used later for `saves`, `pi`, `screen`,
+`rcpFast3d` and `sched` is recorded separately below rather than retroactively
+attributed to this scan.
+
+### 3.4 Save, PI, screen, RCP and scheduler census
+
+ROM `0x2C8C0`–`0x323A0` contains **86 functions and 23,264 bytes** in five
+consecutive JFG-lineage translation units. This is a function-order and call-
+graph census, not a claim that any whole JFG object is byte-identical. The
+source files carry the required `PROVENANCE` disclosure; Mickey's own bytes
+remain authoritative for every body.
+
+| ROM range | Size | Functions | TU | Evidence |
+|---|---:|---:|---|---|
+| `0x2C8C0`–`0x2ECA0` | 9,184 | 42 | `main/saves` | **A:** `rumbleKill` is byte-identical to JFG. **B:** ordered rumble calls, save checksums, and the contiguous Controller Pak API (`osPfs*`). **D:** uncertain Mickey-only helpers retain `func_<VRAM>` names. |
+| `0x2ECA0`–`0x2F0D0` | 1,072 | 7 | `main/pi` | **B:** the exact JFG function order `piInit`, four asset lookups/loaders, two accessors, `romCopy`; the last routine owns the `osPiStartDma` loop. |
+| `0x2F0D0`–`0x2F400` | 816 | 2 | `main/screen` | **B:** load/decompress followed by draw/VI calls, matching JFG's two-function `screen.c` order. |
+| `0x2F400`–`0x30CD0` | 6,352 | 14 | `main/rcpFast3d` | **A:** `rcpInit` and the existing border-colour routine are byte-identity anchors; masked skeletons also reproduce JFG's `rcpFast3d`/screen-colour shapes. **B:** queue/RCP calls and the ordered init helpers. |
+| `0x30CD0`–`0x323A0` | 5,840 | 21 | `main/sched` | **A:** the two queue accessors. **B:** the complete JFG scheduler call graph from `osCreateScheduler` through `__scSchedule`. **C:** `osScGetTaskType`'s seven task-name strings and `__scHandleRetrace`'s `"SP CRASHED"`/`"Version %s"`. |
+
+The function boundaries are the extracted labels cross-checked against the
+linked ELF's symbol sizes. All 86 functions were queried with
+`tools/skeleton_scan.py similar --target <vram> --top 5`; the useful exact
+anchors are the ones stated above, while the remaining results are near-match
+context rather than naming evidence. No function in either original block
+uses an odd single-precision FP register, so §6.2's hand-written-assembly
+criterion identifies **zero** forced-ASM functions here.
+
+Exact C reconstructions in this census currently include `rumbleRumbles`
+(ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleKill` (ROM `0x2CB00`–
+`0x2CB44`, 68 bytes), `rumbleUpdate` (ROM `0x2CB44`–`0x2CB54`, 16 bytes),
+`packCalculateGameChecksum` (ROM `0x2D3BC`–
+`0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
+`0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
+`packDirectoryFree` (ROM `0x2E424`–`0x2E458`, 52 bytes),
+`piRomLoadSection` (ROM `0x2EEE0`–`0x2EF5C`, 124 bytes),
+`piRomGetSectionPtr` (ROM `0x2EF5C`–`0x2EFA4`, 72 bytes),
+`piRomGetFileSize` (ROM `0x2EFA4`–`0x2EFE0`, 60 bytes),
+`rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes), and the still-
+unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–`0x2F7E0`, 12 bytes),
+plus `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes) and
+`rcpInitSp` (ROM `0x3013C`–`0x30160`, 36 bytes), and
+`osScGetAudioSPStats` (ROM `0x30F20`–
+`0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
+`osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
+no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes). All were compiled
+with the resident `-O2 -mips2 -32` flags. The named bodies are adapted from
+JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the anonymous
+setter and no-op are reconstructed from Mickey's own bodies. All configured
+object ranges and the final linked ROM are byte-exact.
 
 ---
 

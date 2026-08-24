@@ -200,8 +200,14 @@ segments:
       # 0xBF0-byte .text section ending exactly where 2C8C0.s.o begins. Its
       # final function ends at 0x2C8B4; the remaining 0xC bytes are alignment.
       - [0x2BCD0, c, main/memory]
-      - [0x2C8C0, asm]
-      - [0x2F400, asm]
+      # Five consecutive resident game TUs identified from JFG's published
+      # source order, corroborated by Mickey's call graph and function-size
+      # sequence. See docs/modules.md section 3.4.
+      - [0x2C8C0, c, main/saves]
+      - [0x2ECA0, c, main/pi]
+      - [0x2F0D0, c, main/screen]
+      - [0x2F400, c, main/rcpFast3d]
+      - [0x30CD0, c, main/sched]
       # A MEASURED file boundary, not a heuristic one: the whole 0x40-byte
       # .text of the Diddy Kong Racing decomp's built `src/set_rsp_segment.c.o`
       # is byte-identical to ROM 0x323A0-0x323E0 with zero masked words and no

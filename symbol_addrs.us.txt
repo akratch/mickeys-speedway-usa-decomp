@@ -448,6 +448,107 @@ align16 = 0x8002BC60; // type:func size:0x1C   ROM 0x2c860  matched C main/memor
 align8 = 0x8002BC7C; // type:func size:0x1C   ROM 0x2c87c  matched C main/memory -O2 -mips2 -32 donor alignment family masked=0/7
 align4 = 0x8002BC98; // type:func size:0x1C   ROM 0x2c898  matched C main/memory -O2 -mips2 -32 donor memory.c.o masked=0/7
 
+// PROVENANCE -- the Tier B names in the next five blocks come from Jet Force
+// Gemini's public decompilation of the same engine. Its src/saves.c, src/pi.c,
+// src/screen.c, src/rcpFast3d.c and src/sched.c were read. Mickey's own linked
+// call graph and ordered function-size sequences establish the roles and TU
+// boundaries. Lines retaining Mickey func_<VRAM> placeholders make only a
+// Tier D boundary/size claim from Mickey's extracted labels; they do not
+// import JFG's address placeholders.
+
+// saves.c -- ROM 0x2C8C0-0x2ECA0. The pre-existing Tier A rumbleKill anchor is
+// also in this TU and remains in the cross-title block below.
+func_8002BCC0 = 0x8002BCC0; // type:func size:0x3C ROM 0x2c8c0 evidence-tier-D boundary-extracted
+rumbleRumbles = 0x8002BCFC; // type:func size:0xC ROM 0x2c8fc evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/saves.c
+rumbleProcessing = 0x8002BD08; // type:func size:0x50 ROM 0x2c908 evidence-tier-B donor-jfg-src/saves.c callgraph+order
+rumbleStart = 0x8002BD58; // type:func size:0x11C ROM 0x2c958 evidence-tier-B donor-jfg-src/saves.c callgraph+order
+rumbleStop = 0x8002BE74; // type:func size:0x8C ROM 0x2ca74 evidence-tier-B donor-jfg-src/saves.c callgraph+order
+rumbleUpdate = 0x8002BF44; // type:func size:0x10 ROM 0x2cb44 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/saves.c
+func_8002BF54 = 0x8002BF54; // type:func size:0x144 ROM 0x2cb54 evidence-tier-D boundary-extracted
+rumbleTick = 0x8002C098; // type:func size:0x55C ROM 0x2cc98 evidence-tier-B donor-jfg-src/saves.c motor-callgraph
+func_8002C5F4 = 0x8002C5F4; // type:func size:0x18 ROM 0x2d1f4 evidence-tier-D boundary-extracted
+func_8002C60C = 0x8002C60C; // type:func size:0x90 ROM 0x2d20c evidence-tier-D boundary-extracted
+func_8002C69C = 0x8002C69C; // type:func size:0x70 ROM 0x2d29c evidence-tier-D boundary-extracted
+func_8002C70C = 0x8002C70C; // type:func size:0x7C ROM 0x2d30c evidence-tier-D boundary-extracted
+func_8002C788 = 0x8002C788; // type:func size:0x8 ROM 0x2d388 evidence-tier-D boundary-extracted
+func_8002C790 = 0x8002C790; // type:func size:0xC ROM 0x2d390 evidence-tier-D boundary-extracted
+func_8002C79C = 0x8002C79C; // type:func size:0x20 ROM 0x2d39c evidence-tier-D boundary-extracted
+packCalculateGameChecksum = 0x8002C7BC; // type:func size:0x30 ROM 0x2d3bc evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/saves.c
+func_8002C7EC = 0x8002C7EC; // type:func size:0xC8 ROM 0x2d3ec evidence-tier-D boundary-extracted
+func_8002C8B4 = 0x8002C8B4; // type:func size:0x98 ROM 0x2d4b4 evidence-tier-D boundary-extracted
+func_8002C94C = 0x8002C94C; // type:func size:0x1CC ROM 0x2d54c evidence-tier-D boundary-extracted
+func_8002CB18 = 0x8002CB18; // type:func size:0x1CC ROM 0x2d718 evidence-tier-D boundary-extracted
+func_8002CCE4 = 0x8002CCE4; // type:func size:0x88 ROM 0x2d8e4 evidence-tier-D boundary-extracted
+func_8002CD6C = 0x8002CD6C; // type:func size:0xC0 ROM 0x2d96c evidence-tier-D boundary-extracted
+packCalculateGlobalFlagsChecksum = 0x8002CE2C; // type:func size:0x28 ROM 0x2da2c evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/saves.c
+func_8002CE54 = 0x8002CE54; // type:func size:0xB8 ROM 0x2da54 evidence-tier-D boundary-extracted
+func_8002CF0C = 0x8002CF0C; // type:func size:0x60 ROM 0x2db0c evidence-tier-D boundary-extracted
+func_8002CF6C = 0x8002CF6C; // type:func size:0x160 ROM 0x2db6c evidence-tier-D boundary-extracted
+packOpen = 0x8002D0CC; // type:func size:0x208 ROM 0x2dccc evidence-tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packClose = 0x8002D2D4; // type:func size:0x2C ROM 0x2ded4 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/saves.c
+packInit = 0x8002D300; // type:func size:0x1CC ROM 0x2df00 evidence-tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packIsPresent = 0x8002D4CC; // type:func size:0x5C ROM 0x2e0cc evidence-tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packDirectory = 0x8002D528; // type:func size:0x2FC ROM 0x2e128 evidence-tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packDirectoryFree = 0x8002D824; // type:func size:0x34 ROM 0x2e424 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/saves.c
+packFreeSpace = 0x8002D858; // type:func size:0x114 ROM 0x2e458 evidence-tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packDeleteFile = 0x8002D96C; // type:func size:0xB4 ROM 0x2e56c evidence-tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packOpenFile = 0x8002DA20; // type:func size:0x12C ROM 0x2e620 evidence-tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packReadFile = 0x8002DB4C; // type:func size:0xC4 ROM 0x2e74c evidence-tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packWriteFile = 0x8002DC10; // type:func size:0x240 ROM 0x2e810 evidence-tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packFileSize = 0x8002DE50; // type:func size:0x64 ROM 0x2ea50 evidence-tier-B donor-jfg-src/saves.c pfs-callgraph+order
+font_codes_to_string = 0x8002DEB4; // type:func size:0xB0 ROM 0x2eab4 evidence-tier-B donor-jfg-src/saves.c role+order
+string_to_font_codes = 0x8002DF64; // type:func size:0xBC ROM 0x2eb64 evidence-tier-B donor-jfg-src/saves.c role+order
+func_8002E020 = 0x8002E020; // type:func size:0x80 ROM 0x2ec20 evidence-tier-D boundary-extracted
+
+// pi.c -- ROM 0x2ECA0-0x2F0D0.
+piInit = 0x8002E0A0; // type:func size:0xA8 ROM 0x2eca0 evidence-tier-B donor-jfg-src/pi.c dma-callgraph+order
+piRomLoad = 0x8002E148; // type:func size:0x9C ROM 0x2ed48 evidence-tier-B donor-jfg-src/pi.c dma-callgraph+order
+piRomLoadCompressed = 0x8002E1E4; // type:func size:0xFC ROM 0x2ede4 evidence-tier-B donor-jfg-src/pi.c dma-callgraph+order
+piRomLoadSection = 0x8002E2E0; // type:func size:0x7C ROM 0x2eee0 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/pi.c
+piRomGetSectionPtr = 0x8002E35C; // type:func size:0x48 ROM 0x2ef5c evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/pi.c
+piRomGetFileSize = 0x8002E3A4; // type:func size:0x3C ROM 0x2efa4 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/pi.c
+romCopy = 0x8002E3E0; // type:func size:0xF0 ROM 0x2efe0 evidence-tier-B donor-jfg-src/pi.c pi-dma-callgraph
+
+// screen.c -- ROM 0x2F0D0-0x2F400.
+screenLoad = 0x8002E4D0; // type:func size:0x104 ROM 0x2f0d0 evidence-tier-B donor-jfg-src/screen.c load-callgraph+order
+screenDraw = 0x8002E5D4; // type:func size:0x228 ROM 0x2f1d4 evidence-tier-B donor-jfg-src/screen.c draw-callgraph+order
+
+// rcpFast3d.c -- ROM 0x2F400-0x30CD0. bgdraw_fillcolour and rcpInit are
+// pre-existing Tier A anchors elsewhere in this file.
+rcpFast3d = 0x8002E800; // type:func size:0x2A0 ROM 0x2f400 evidence-tier-B donor-jfg-src/rcpFast3d.c task-shape+order
+rcpWaitDP = 0x8002EAA0; // type:func size:0xCC ROM 0x2f6a0 evidence-tier-B donor-jfg-src/rcpFast3d.c queue-callgraph+order
+rcpSetScreenColour = 0x8002EB6C; // type:func size:0x28 ROM 0x2f76c evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/rcpFast3d.c
+func_8002EBD4 = 0x8002EBD4; // type:func size:0xC ROM 0x2f7d4 evidence-tier-A C-object+linked-ROM-exact name-unresolved
+func_8002EBE0 = 0x8002EBE0; // type:func size:0x3FC ROM 0x2f7e0 evidence-tier-D boundary-extracted
+rcpClearZBuffer = 0x8002EFDC; // type:func size:0x1AC ROM 0x2fbdc evidence-tier-B donor-jfg-src/rcpFast3d.c skeleton+order
+rcpClearScreen = 0x8002F188; // type:func size:0x2E0 ROM 0x2fd88 evidence-tier-B donor-jfg-src/rcpFast3d.c skeleton+callgraph
+rcpInitDp = 0x8002F468; // type:func size:0xB0 ROM 0x30068 evidence-tier-B donor-jfg-src/rcpFast3d.c init-callgraph+order
+rcpInitDpNoSize = 0x8002F518; // type:func size:0x24 ROM 0x30118 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/rcpFast3d.c
+rcpInitSp = 0x8002F53C; // type:func size:0x24 ROM 0x3013c evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/rcpFast3d.c
+func_8002F618 = 0x8002F618; // type:func size:0x51C ROM 0x30218 evidence-tier-D boundary-extracted
+func_8002FB34 = 0x8002FB34; // type:func size:0x59C ROM 0x30734 evidence-tier-D boundary-extracted
+
+// sched.c -- ROM 0x30CD0-0x323A0. The two queue accessors are pre-existing
+// Tier A exceptions and osScGetTaskType is the pre-existing Tier C anchor.
+osCreateScheduler = 0x800300D0; // type:func size:0x15C ROM 0x30cd0 evidence-tier-B donor-jfg-src/sched.c sdk-callgraph+order
+osScAddClient = 0x8003022C; // type:func size:0x5C ROM 0x30e2c evidence-tier-B donor-jfg-src/sched.c callgraph+order
+osScRemoveClient = 0x80030288; // type:func size:0x88 ROM 0x30e88 evidence-tier-B donor-jfg-src/sched.c callgraph+order
+osScGetAudioSPStats = 0x80030320; // type:func size:0x18 ROM 0x30f20 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/sched.c
+__scMain = 0x80030338; // type:func size:0x1A8 ROM 0x30f38 evidence-tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+func_800304E0 = 0x800304E0; // type:func size:0xA0 ROM 0x310e0 evidence-tier-D boundary-extracted
+func_80030608 = 0x80030608; // type:func size:0x8 ROM 0x31208 evidence-tier-A C-object+linked-ROM-exact name-unresolved
+func_80030610 = 0x80030610; // type:func size:0x300 ROM 0x31210 evidence-tier-D boundary-extracted
+func_80030910 = 0x80030910; // type:func size:0x1D8 ROM 0x31510 evidence-tier-D boundary-extracted
+__scHandleRetrace = 0x80030AE8; // type:func size:0x664 ROM 0x316e8 evidence-tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scHandleRSP = 0x8003114C; // type:func size:0x128 ROM 0x31d4c evidence-tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scHandleRDP = 0x80031274; // type:func size:0x88 ROM 0x31e74 evidence-tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scTaskReady = 0x800312FC; // type:func size:0x50 ROM 0x31efc evidence-tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scTaskComplete = 0x8003134C; // type:func size:0x100 ROM 0x31f4c evidence-tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scAppendList = 0x8003144C; // type:func size:0x60 ROM 0x3204c evidence-tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scExec = 0x800314AC; // type:func size:0xC0 ROM 0x320ac evidence-tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scYield = 0x8003156C; // type:func size:0x4C ROM 0x3216c evidence-tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scSchedule = 0x800315B8; // type:func size:0x1E8 ROM 0x321b8 evidence-tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+
 // rcp_dkr.c
 bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40   ROM 0x2f794  rcp_dkr.c.o  masked=2/16
 
@@ -571,8 +672,8 @@ stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  get_stack_point
 // object, each ROM-wide unique. A coincidence would have to reproduce both
 // offsets AND their adjacency. The rest of sched.c does not match, so no file
 // boundary is claimed. The scheduler this belongs to is at ROM 0x2F400-0x33FA0.
-osScGetCmdQ = 0x80030310; // type:func size:0x8   ROM 0x30f10  src/sc/sched.c.o  masked=0/2
-osScGetInterruptQ = 0x80030318; // type:func size:0x8   ROM 0x30f18  src/sc/sched.c.o  masked=0/2
+osScGetCmdQ = 0x80030310; // type:func size:0x8 ROM 0x30f10 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/sc/sched.c.o
+osScGetInterruptQ = 0x80030318; // type:func size:0x8 ROM 0x30f18 evidence-tier-A C-object+linked-ROM-exact donor-jfg-src/sc/sched.c.o
 
 // os/exceptasm.s -- the exception-handler island at ROM 0x4FC30. The file
 // boundary is claimed: the whole 0x9B0 .text of JFG's exceptasm.s.o matches
@@ -1564,20 +1665,20 @@ func_80014EAC = 0x80014EAC; // type:func size:0x20 ROM 0x15aac
 //    of translation-unit membership only, not of a name.
 // ---------------------------------------------------------------------------
 
-// jfg:src/audio_manager_1050.c.o
+// donor-jfg-src/audio_manager_1050.c.o
 amTuneSetFadeScaled = 0x800006BC; // type:func size:0x74   ROM 0x12bc  src/audio_manager_1050.c.o  masked=5/29
 amSndSetPan = 0x80001204; // type:func size:0x28   ROM 0x1e04  src/audio_manager_1050.c.o  masked=1/10
 forcelink = 0x80001698; // type:func size:0x30   ROM 0x2298  src/audio_manager_1050.c.o  masked=2/12
 // bk:us.v10/src/core1/code_1D00.c.o
 audioManager_DMAInitProc = 0x80002354; // type:func size:0x38   ROM 0x2f54  us.v10/src/core1/code_1D00.c.o  masked=6/14
-// jfg:src/audio_manager_4C50.c.o
+// donor-jfg-src/audio_manager_4C50.c.o
 amVibratoInit = 0x800039F0; // type:func size:0x90   ROM 0x45f0  src/audio_manager_4C50.c.o  masked=22/36
 _depth2Cents = 0x800042E4; // type:func size:0x58   ROM 0x4ee4  src/audio_manager_4C50.c.o  masked=2/22
-// jfg:src/objects.c.o
+// donor-jfg-src/objects.c.o
 GetRomlistInfo = 0x8000BC88; // type:func size:0x28   ROM 0xc888  src/objects.c.o  masked=4/10
-// jfg:src/track.c.o
+// donor-jfg-src/track.c.o
 trackSetFogOff = 0x800145A0; // type:func size:0x74   ROM 0x151a0  src/track.c.o  masked=2/29
-// jfg:src/shadows_214A0.c.o
+// donor-jfg-src/shadows_214A0.c.o
 shadowBoxPolyOverlap = 0x800183F0; // type:func size:0xC4   ROM 0x18ff0  src/shadows_214A0.c.o  masked=0/49
 shadowBoundingBox = 0x800184B4; // type:func size:0x90   ROM 0x190b4  src/shadows_214A0.c.o  masked=0/36
 // jfg:src/lights.c.o -- tier A, ROM-wide unique; body adapted in src/main/lights.c
@@ -1622,7 +1723,7 @@ matrixYaw = 0x8002A774; // type:func size:0xB8   ROM 0x2b374  src/hasm/ido/math_
 Powerf = 0x8002A878; // type:func size:0x44   ROM 0x2b478  src/hasm/ido/math_util.s.o  masked=0/17
 Arctanf = 0x8002A910; // type:func size:0xFC   ROM 0x2b510  src/hasm/ido/math_util.s.o  masked=5/63
 mathDiffAngle = 0x8002AA0C; // type:func size:0x38   ROM 0x2b60c  src/hasm/ido/math_util.s.o  masked=0/14
-// jfg:src/memory.c.o
+// donor-jfg-src/memory.c.o
 mmInit = 0x8002B0D0; // type:func size:0x78   ROM 0x2bcd0  src/memory.c.o  masked=14/30
 mmExtended = 0x8002B148; // type:func size:0xC   ROM 0x2bd48  tier B (JFG call graph) matched C main/memory -O2 -mips2 -32
 mmSetDelay = 0x8002B6F4; // type:func size:0xC   ROM 0x2c2f4  tier B (JFG call graph) matched C main/memory -O2 -mips2 -32
@@ -1664,7 +1765,7 @@ func_80034018 = 0x80034018; // type:func size:0x7C   ROM 0x34c18  src/gameVi.c.o
 fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12, canonical C is linked byte-identical
 // jfg:src/textures.c.o
 initColourCycle = 0x80036A50; // type:func size:0x30   ROM 0x37650  src/textures.c.o  masked=2/12
-// jfg:src/menu.c.o
+// donor-jfg-src/menu.c.o
 frontDrawRectangle = 0x80039584; // type:func size:0x50   ROM 0x3a184  src/menu.c.o  masked=1/20
 func_8003968C = 0x8003968C; // type:func size:0x94   ROM 0x3a28c  src/menu.c.o  masked=24/37
 setupFrontEndObject = 0x80039DAC; // type:func size:0x88   ROM 0x3a9ac  src/menu.c.o  masked=4/34
@@ -1707,9 +1808,9 @@ func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  
 animseqInitGroup = 0x800510E8; // type:func size:0x40   ROM 0x51ce8  src/anim.c.o  masked=1/16
 // jfg:libultra/src/flash/flashreadid.c.o
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C   ROM 0x58810  libultra/src/flash/flashreadid.c.o  masked=6/19
-// jfg:src/camera.c.o
+// donor-jfg-src/camera.c.o
 camConvertMatrixList = 0x8005AB78; // type:func size:0x30   ROM 0x5b778  src/camera.c.o  masked=4/12
-// jfg:src/gsSnd.c.o
+// donor-jfg-src/gsSnd.c.o
 func_8005B978 = 0x8005B978; // type:func size:0xC8   ROM 0x5c578  src/gsSnd.c.o  masked=3/50
 func_8005BA40 = 0x8005BA40; // type:func size:0x12FC   ROM 0x5c640  src/gsSnd.c.o  masked=108/1215
 func_8005CDAC = 0x8005CDAC; // type:func size:0x7C   ROM 0x5d9ac  src/gsSnd.c.o  masked=4/31
@@ -1727,9 +1828,9 @@ __n_CSPRepostEvent = 0x80060B14; // type:func size:0x114
 __n_setUsptFromTempo = 0x80060C28; // type:func size:0x48
 // jfg:src/libultra/n_drvrNew.c.o
 func_80064DC0 = 0x80064DC0; // type:func size:0x164   ROM 0x659c0  src/libultra/n_drvrNew.c.o  masked=5/89
-// jfg:src/libultra/n_env.c.o
+// donor-jfg-src/libultra/n_env.c.o
 func_8006850C = 0x8006850C; // type:func size:0x94   ROM 0x6910c  src/libultra/n_env.c.o  masked=0/37
-// jfg:src/libultra/n_load.c.o
+// donor-jfg-src/libultra/n_load.c.o
 func_80069A34 = 0x80069A34; // type:func size:0x1BC   ROM 0x6a634  src/libultra/n_load.c.o  masked=0/111
 
 // ---------------------------------------------------------------------------
