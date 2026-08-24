@@ -30,7 +30,22 @@ VERSION  := us
 # Directories
 # ---------------------------------------------------------------------------
 
+# Compile-only escape hatch for the NON_MATCHING/GLOBAL_ASM functions (see
+# docs/acceleration-survey.md sec.13.2): `gmake NON_MATCHING=1` takes every
+# converted TU's real C body instead of its GLOBAL_ASM fallback, so the
+# functions queued for source restructuring keep compiling under IDO without
+# being claimed as matched. It never produces a byte-identical ROM -- `verify`
+# refuses to run under it, exactly DKR's guard.
+NON_MATCHING ?= 0
+
+# Separate build tree for NON_MATCHING=1: objects compiled with -DNON_MATCHING
+# are never byte-identical, so they must never sit next to (or be mistaken
+# for, via stale timestamps) the objects `verify` checks.
+ifeq ($(NON_MATCHING),0)
 BUILD_DIR := build
+else
+BUILD_DIR := build_non_matching
+endif
 SRC_DIR   := src
 # Every directory under src/ that holds .c files. Discovered rather than listed
 # so adding a new source subdirectory (src/libultra, src/main, ...) needs no
@@ -76,6 +91,9 @@ OPT_FLAGS := -O2
 MIPSISET  := -mips1 -32
 DEFINES   := -D_LANGUAGE_C -D_FINALROM -DTARGET_N64 -DVERSION_$(VERSION) \
              -D_MIPS_SZLONG=32
+ifneq ($(NON_MATCHING),0)
+DEFINES += -DNON_MATCHING
+endif
 INCLUDE_CFLAGS := -I . -I include -I include/libc -I include/PR -I assets
 CFLAGS  := -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
            $(DEFINES) $(INCLUDE_CFLAGS)
@@ -215,6 +233,9 @@ prune-asm:
 	@$(PYTHON) $(TOOLS_DIR)/prune_stale_asm.py $(BASENAME).$(VERSION).yaml
 
 verify:
+ifneq ($(NON_MATCHING),0)
+	$(error verify does not run under NON_MATCHING=1 -- it never produces a byte-identical ROM; unset NON_MATCHING and rebuild)
+endif
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
 	@$(MAKE) --no-print-directory $(TARGET).z64
 	@got=$$($(SHA1) $(TARGET).z64 | cut -d' ' -f1); \
@@ -4318,13 +4339,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1InitTimedState.c.o: POSTPROCESS = 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1PointerWrap.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
+# NON_MATCHING/GLOBAL_ASM per docs/acceleration-survey.md sec.13.2: this
+# object's instructions used to be reached by rewriting three fields after
+# compilation (normalize_elf_instructions.py), which no gold-standard N64
+# decomp does. The .c now GLOBAL_ASMs the extracted retail bytes instead;
+# only the symbol rename below (metadata, not instructions) survives.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x30 2dca94981d4738c330e8f48e463617ccee976b044d78f6d49717df991819a4bb \
-		fields:0x10:imm=3@5 \
-		fields:0x28:rs=zero@ra,fn=0@8 \
-		fields:0x2c:rs=zero@v1,rd=zero@v0,fn=0@37 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
+	$(OBJCOPY) --redefine-sym func_overlay_001_F0000050_184C430=overlay1GetEntry $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1GetEntryIndex.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay1FindType5ByKey.c.o: POSTPROCESS = \

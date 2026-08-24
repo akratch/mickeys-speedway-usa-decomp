@@ -33,6 +33,7 @@ import collections
 import hashlib
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -41,6 +42,21 @@ import overlay_tables
 
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_ROM = REPO / "baseroms" / "mickey.us.z64"
+NON_MATCHING_RE = re.compile(r"^\s*#\s*ifdef\s+NON_MATCHING\b", re.MULTILINE)
+
+
+def is_nonmatching_source(overlay, source_name):
+    """Whether overlays/oNNN/<source_name>.c wraps its definition in
+    `#ifdef NON_MATCHING` -- the DKR/docs/acceleration-survey.md sec.13.2
+    convention this project adopted for objects whose compiled instructions
+    used to be edited after the fact. Mechanically derived from the C source
+    every run, never hand-maintained, so it cannot drift from the tree.
+    """
+    path = REPO / "src" / "overlays" / f"o{overlay:03d}" / f"{source_name}.c"
+    if not path.is_file():
+        return False
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        return bool(NON_MATCHING_RE.search(fh.read()))
 DEFAULT_MANIFEST = REPO / "config" / "overlays.us.json"
 DEFAULT_YAML = REPO / "mickey.us.yaml"
 
@@ -1309,6 +1325,7 @@ def build_atlas(rom):
             end = text_parts[i + 1][0] if i + 1 < len(text_parts) else text_size
             if kind not in ("asm", "c") or offset >= end or end > text_size:
                 raise ValueError(f"invalid overlay {overlay} text ownership range")
+            nonmatching = kind == "c" and is_nonmatching_source(overlay, source_name)
             ownership.append(
                 {
                     "offset": hx(offset),
@@ -1316,7 +1333,14 @@ def build_atlas(rom):
                     "size": hx(end - offset),
                     "type": kind,
                     "source": f"overlays/o{overlay:03d}/{source_name}",
+                    # "matched" is C ownership of the range, not DKR-style
+                    # matching: a NON_MATCHING C file still owns its range
+                    # (it is not raw "asm" ownership) but is not counted as
+                    # matched by tools/progress.py's scoreboard, which reads
+                    # "nonmatching" below. See docs/acceleration-survey.md
+                    # sec.13.
                     "matched": kind == "c",
+                    "nonmatching": nonmatching,
                 }
             )
         row = {
@@ -1419,7 +1443,13 @@ def build_atlas(rom):
                 int(part["size"], 16)
                 for row in module_rows
                 for part in row["text_ownership"]
-                if part["matched"]
+                if part["matched"] and not part["nonmatching"]
+            ),
+            "nonmatching_overlay_c_bytes": sum(
+                int(part["size"], 16)
+                for row in module_rows
+                for part in row["text_ownership"]
+                if part["matched"] and part["nonmatching"]
             ),
             "data_rodata_bytes": sum(m["data_size"] for m in modules),
             "bss_bytes": sum(m["bss_size"] for m in modules),
