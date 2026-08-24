@@ -153,6 +153,7 @@ typedef struct Overlay5SequenceConfig {
     s32 field08;
     void *field0C;
     s16 field10;
+    u8 pad12[8];
 } Overlay5SequenceConfig;
 
 extern u8 gOverlay5AudioHeap[];

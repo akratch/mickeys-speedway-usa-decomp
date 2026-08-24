@@ -10,14 +10,20 @@ void overlay5InitSequence(void *owner, s32 value) {
     overlay5SequenceInitReloc((u8 *)owner + 0x48, &header, 0);
 }
 
+/*
+ * Plateau (2026-08-24): -O2 -mips2, exact 0x3A4-byte size, -0x98 frame,
+ * and opcode schedule; 22 words still differ, first at +0x9C. The remaining
+ * residual is the gOverlay5Span1Size v0/v1 allocation plus the two local
+ * config stack homes. The bounded permuter is unavailable in this lane
+ * because tools/permuter/import.py is absent.
+ */
 #ifdef NON_MATCHING
 void overlay5InitializeAudio(void *context) {
     Overlay5Resource *resource;
     Overlay5SoundConfig soundConfig;
-    Overlay5SequenceConfig sequenceConfig;
     u32 bankSize;
+    Overlay5SequenceConfig sequenceConfig;
     u32 maxValue;
-    s32 index;
 
     maxValue = 0;
     gOverlay5AudioOwner = gOverlay5SoundState;
@@ -56,25 +62,28 @@ void overlay5InitializeAudio(void *context) {
         (u32)gOverlay5Bank->count * sizeof(*gOverlay5EntryValues), 0x82);
     {
         Overlay5Bank *bank = gOverlay5Bank;
-        u32 *destination = gOverlay5EntryValues;
-        u32 destinationOffset = 0;
-        u32 sourceOffset = 0;
+        u32 *destination;
+        u32 destinationOffset;
+        u32 sourceOffset;
+        s32 index;
 
         index = 0;
         if (bank->count > 0) {
+            destination = gOverlay5EntryValues;
+            destinationOffset = 0;
+            sourceOffset = 0;
             do {
-                u32 *valueAddress;
                 u32 value;
 
                 *destination = *(u32 *)((u8 *)bank + sourceOffset + 8);
-                valueAddress = (u32 *)((u8 *)gOverlay5EntryValues +
-                                       destinationOffset);
-                value = *valueAddress;
+                destination = (u32 *)((u8 *)gOverlay5EntryValues +
+                                      destinationOffset);
+                value = *destination;
                 if ((value & 1) != 0) {
-                    *valueAddress = value + 1;
-                    valueAddress = (u32 *)((u8 *)gOverlay5EntryValues +
-                                           destinationOffset);
-                    value = *valueAddress;
+                    *destination = value + 1;
+                    destination = (u32 *)((u8 *)gOverlay5EntryValues +
+                                          destinationOffset);
+                    value = *destination;
                 }
                 if (maxValue < value) {
                     maxValue = value;
@@ -82,7 +91,7 @@ void overlay5InitializeAudio(void *context) {
                 bank = gOverlay5Bank;
                 index++;
                 destinationOffset += 4;
-                destination = valueAddress + 1;
+                destination++;
                 sourceOffset += 8;
             } while (index < bank->count);
         }
