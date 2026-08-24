@@ -16,6 +16,23 @@
 
 #include "PR/ultratypes.h"
 #include "overlays/o005/audio_bank.h"
+#include "n_libaudio.h"
+
+#define GS_SNDP_PLAY_EVT 0x1
+#define GS_SNDP_RELEASE_EVT 0x2
+#define GS_SNDP_PAN_EVT 0x4
+#define GS_SNDP_VOL_EVT 0x8
+#define GS_SNDP_PITCH_EVT 0x10
+#define GS_SNDP_DECAY_EVT 0x40
+#define GS_SNDP_END_EVT 0x80
+#define GS_SNDP_FX_EVT 0x100
+#define GS_SNDP_RETRIGGER_EVT 0x200
+#define GS_SNDP_STOP_EVT 0x400
+#define GS_SNDP_GROUP_VOL_EVT 0x800
+#define GS_SNDP_RELEASE_NEXT_EVT 0x1000
+
+#define GS_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define GS_MAX(a, b) ((a) > (b) ? (a) : (b))
 
 extern u32 D_8007FF50;
 extern u16 *D_800D7D78;
@@ -53,7 +70,7 @@ typedef struct GsSndConfig {
     u32 maxSounds;
     s32 eventCount;
     s32 maxSystemSoundChannels;
-    void *heap;
+    ALHeap *heap;
     u16 groupCount;
 } GsSndConfig;
 
@@ -77,22 +94,27 @@ typedef struct GsSndEnvelope {
 typedef struct GsSound {
     GsSndEnvelope *envelope;
     GsSndKeyMap *keyMap;
+    ALWaveTable *wavetable;
+    u8 samplePan;
+    u8 sampleVolume;
+    u8 flags;
 } GsSound;
 
 typedef struct GsSoundStateLink {
     struct GsSoundStateLink *next;
     struct GsSoundStateLink *prev;
     GsSound *sound;
-    u8 padC[0x1C];
+    N_ALVoice voice;
     f32 slideMult;
     f32 pitch;
     struct GsSoundStateLink **userHandle;
-    s32 unk34;
+    s32 retries;
     s16 volume;
-    u8 pad3A[6];
-    u8 unk40;
-    u8 unk41;
-    u8 unk42;
+    s16 envelopeVolume;
+    s32 endTime;
+    u8 priority;
+    u8 pan;
+    u8 fxMix;
     u8 flags;
     u8 state;
 } GsSoundStateLink;
@@ -140,25 +162,25 @@ extern GsSoundStateLink *D_8007FF40;
 extern GsSoundStateLink *D_8007FF44;
 extern GsSoundStateLink *D_8007FF48;
 extern s16 D_8007FF54;
+extern const char D_80084320[];
+extern const char D_80084370[];
+extern const char D_8008438C[];
 extern const char D_800843CC[];
 extern const char D_800843FC[];
 extern const char D_800843A4[];
 
 u32 osSetIntMask(u32 mask);
 f32 alCents2Ratio(s32 cents);
-void alLink(void *element, void *after);
-void alUnlink(void *element);
-void *alHeapDBAlloc(u8 *file, s32 line, void *heap, s32 count, s32 size);
 s32 func_8005B978(GsSndPlayer *player);
-void func_8005BA40(void *event);
-void n_alEvtqNew(void *eventQueue, void *items, s32 itemCount);
-s32 n_alEvtqNextEvent(void *eventQueue, void *event);
-void n_alSynAddSndPlayer(void *player);
-void n_alEvtqPostEvent(void *eventQueue, void *event, s32 delta);
-void n_alSynFreeVoice(void *voice);
-void n_alSynStopVoice(void *voice);
+void func_8005BA40(GsSndEvent *event);
 void rmonPrintf(const char *format, ...);
+void func_8005CD3C(GsSoundStateLink *state);
+void func_8005CDAC(GsSoundStateLink *state);
 void func_8005CE28(GsSndEventQueue *queue, GsSoundStateLink *state, u16 flags);
+u16 getSoundStateCounts(u16 *numFree, u16 *numAllocated);
+GsSoundStateLink *ad_sndp_play(void *bank, s16 soundId, u16 volume, u8 pan,
+                               f32 pitch, u8 fxMix,
+                               GsSoundStateLink **handle);
 void func_8005D260(GsSoundStateLink *state);
 
 void gsSndpNew(GsSndConfig *config) {
@@ -215,7 +237,346 @@ s32 func_8005B978(GsSndPlayer *playerArg) {
     player->currentTime += player->nextDelta;
     return player->nextDelta;
 }
+/*
+ * PROVENANCE: adapted from Perfect Dark's permitted
+ * src/lib/naudio/n_sndplayer.c (_n_handleEvent), with Mickey's event fields,
+ * state layout, volume scaling, retrigger call and diagnostics reconstructed
+ * from Mickey itself.
+ *
+ * Plateau: bare -g produces all 1,215 target instructions exactly, including
+ * frame and register allocation, after restoring the inner switch's explicit
+ * default and the signed group-volume loads. The remaining promotion blocker
+ * is section ownership, not C code: the compiler emits the 16-entry switch
+ * table in this TU's .rodata, while the current split still owns the same
+ * table inside the shared 0x81590 rodata segment. That duplicate makes the
+ * canonical link fail. Moving the measured 0x150-byte gsSnd rodata range into
+ * this TU's YAML row is outside this lane's assigned files; until that handoff
+ * lands, the target assembly remains canonical under ADR 0001.
+ */
+#ifdef NON_MATCHING
+void func_8005BA40(GsSndEvent *event) {
+    ALVoiceConfig config;
+    GsSound *sound;
+    GsSndKeyMap *keyMap;
+    u8 pan;
+    GsSndEvent stateEvent;
+    GsSndEvent nextStateEvent;
+    s32 delta;
+    s32 fxMix;
+    u32 volume;
+    s32 tempPan;
+    s32 limitReached;
+    s32 isSingleStateEvent;
+    s32 done = TRUE;
+    s32 hasVoice = FALSE;
+    GsSoundStateLink *state = NULL;
+    GsSoundStateLink *nextState = NULL;
+    u16 numFree;
+    u16 numAllocated;
+    GsSoundStateLink *iterState;
+    GsSndEvent interruptEvent;
+    GsSoundStateLink *newSound;
+
+    do {
+        if (nextState != NULL) {
+            nextStateEvent.state = state;
+            nextStateEvent.type = event->type;
+            nextStateEvent.param = event->param;
+            event = &nextStateEvent;
+        }
+
+        state = event->state;
+        sound = state->sound;
+
+        if (sound == NULL) {
+            getSoundStateCounts(&numFree, &numAllocated);
+            rmonPrintf(D_80084320, D_8007FF54, numFree, numAllocated,
+                       event->type, event->param);
+            return;
+        }
+
+        keyMap = sound->keyMap;
+        nextState = state->next;
+
+        switch (event->type) {
+            case GS_SNDP_PLAY_EVT:
+                if (state->state != 5 && state->state != 4) {
+                    return;
+                }
+
+                if (state->state == 1) {
+                    rmonPrintf(D_80084370);
+                }
+
+                config.fxBus = 0;
+                config.priority = state->priority;
+                config.unityPitch = 0;
+                limitReached = D_8007FF54 >= D_8007FF4C->voiceLimit;
+
+                if (!limitReached || (state->flags & 0x10)) {
+                    hasVoice = n_alSynAllocVoice(&state->voice, &config);
+                }
+
+                if (!hasVoice) {
+                    if ((state->flags & 0x12) || state->retries > 0) {
+                        state->state = 4;
+                        state->retries--;
+                        n_alEvtqPostEvent((ALEventQueue *)D_8007FF4C->eventQueue,
+                                          (N_ALEvent *)event, 33333);
+                    } else if (limitReached) {
+                        iterState = D_8007FF44;
+
+                        do {
+                            if (iterState->priority <= state->priority &&
+                                !(iterState->flags & 0x12) &&
+                                (iterState->flags & 4) &&
+                                iterState->state != 3) {
+                                limitReached = FALSE;
+                                interruptEvent.type = GS_SNDP_END_EVT;
+                                interruptEvent.state = iterState;
+                                iterState->state = 3;
+                                n_alEvtqPostEvent(
+                                    (ALEventQueue *)D_8007FF4C->eventQueue,
+                                    (N_ALEvent *)&interruptEvent, 1000);
+                                n_alSynSetVol(&iterState->voice, 0, 1000);
+                            }
+
+                            iterState = iterState->prev;
+                        } while (limitReached && iterState != NULL);
+
+                        if (!limitReached) {
+                            state->retries = 2;
+                            n_alEvtqPostEvent(
+                                (ALEventQueue *)D_8007FF4C->eventQueue,
+                                (N_ALEvent *)event, 1001);
+                        } else {
+                            func_8005CD3C(state);
+                        }
+                    } else {
+                        func_8005CD3C(state);
+                    }
+                    return;
+                }
+
+                state->flags |= 4;
+                state->envelopeVolume = sound->envelope->attackVolume;
+                delta = sound->envelope->attackTime / state->pitch /
+                        state->slideMult;
+                state->endTime = D_8007FF4C->currentTime + delta;
+                volume = GS_MAX(
+                    0, ((s16 *)D_800D7D78)[keyMap->keyMin & 0x3F] *
+                               (state->envelopeVolume * state->volume *
+                                sound->sampleVolume / 16129) /
+                               32767 -
+                           1);
+                volume = (u32)(volume * D_8007FF50) >> 8;
+                tempPan = state->pan + sound->samplePan - 0x40;
+                pan = GS_MIN(GS_MAX(tempPan, 0), 0x7F);
+                fxMix = (state->fxMix & 0x7F) +
+                        ((keyMap->keyMax & 0xF) * 8);
+                fxMix = GS_MIN(0x7F, GS_MAX(0, fxMix));
+                fxMix |= state->fxMix & 0x80;
+
+                n_alSynStartVoiceParams(
+                    &state->voice, sound->wavetable,
+                    state->pitch * state->slideMult, volume, pan, fxMix, 0,
+                    0.0f, 0, delta);
+                state->state = 1;
+                D_8007FF54++;
+
+                if (!(state->flags & 2)) {
+                    if (delta == 0) {
+                        state->envelopeVolume =
+                            sound->envelope->decayVolume;
+                        volume = GS_MAX(
+                            0, ((s16 *)D_800D7D78)[keyMap->keyMin & 0x3F] *
+                                       (state->envelopeVolume * state->volume *
+                                        sound->sampleVolume / 16129) /
+                                       32767 -
+                                   1);
+                        volume = (u32)(volume * D_8007FF50) >> 8;
+                        delta = sound->envelope->decayTime /
+                                state->slideMult / state->pitch;
+                        state->endTime = D_8007FF4C->currentTime + delta;
+                        n_alSynSetVol(&state->voice, volume, delta);
+                        stateEvent.type = GS_SNDP_RELEASE_EVT;
+                        stateEvent.state = state;
+                        n_alEvtqPostEvent(
+                            (ALEventQueue *)D_8007FF4C->eventQueue,
+                            (N_ALEvent *)&stateEvent, delta);
+                        if (state->flags & 0x20) {
+                            func_8005CDAC(state);
+                        }
+                    } else {
+                        stateEvent.type = GS_SNDP_DECAY_EVT;
+                        stateEvent.state = state;
+                        delta = sound->envelope->attackTime / state->pitch /
+                                state->slideMult;
+                        n_alEvtqPostEvent(
+                            (ALEventQueue *)D_8007FF4C->eventQueue,
+                            (N_ALEvent *)&stateEvent, delta);
+                    }
+                }
+                break;
+
+            case GS_SNDP_RELEASE_EVT:
+            case GS_SNDP_STOP_EVT:
+            case GS_SNDP_RELEASE_NEXT_EVT:
+                if (event->type != GS_SNDP_RELEASE_NEXT_EVT ||
+                    (state->flags & 2)) {
+                    switch (state->state) {
+                        case 1:
+                            func_8005CE28(
+                                (GsSndEventQueue *)D_8007FF4C->eventQueue,
+                                state, GS_SNDP_DECAY_EVT);
+                            delta = sound->envelope->releaseTime /
+                                    state->slideMult / state->pitch;
+                            n_alSynSetVol(&state->voice, 0, delta);
+                            if (delta != 0) {
+                                stateEvent.type = GS_SNDP_END_EVT;
+                                stateEvent.state = state;
+                                n_alEvtqPostEvent(
+                                    (ALEventQueue *)D_8007FF4C->eventQueue,
+                                    (N_ALEvent *)&stateEvent, delta);
+                                state->state = 2;
+                            } else {
+                                func_8005CD3C(state);
+                            }
+                            break;
+                        case 4:
+                        case 5:
+                            func_8005CD3C(state);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (event->type == GS_SNDP_RELEASE_EVT) {
+                        event->type = GS_SNDP_RELEASE_NEXT_EVT;
+                    }
+                }
+                break;
+
+            case GS_SNDP_PAN_EVT:
+                state->pan = event->param;
+                if (state->state == 1) {
+                    tempPan = state->pan + sound->samplePan - 0x40;
+                    pan = GS_MIN(GS_MAX(tempPan, 0), 0x7F);
+                    n_alSynSetPan(&state->voice, pan);
+                }
+                break;
+
+            case GS_SNDP_PITCH_EVT:
+                state->pitch = ((GsSndPitchEvent *)event)->pitch;
+                if (state->state == 1) {
+                    n_alSynSetPitch(&state->voice,
+                                    state->pitch * state->slideMult);
+                    if (state->flags & 0x20) {
+                        func_8005CDAC(state);
+                    }
+                }
+                break;
+
+            case GS_SNDP_FX_EVT:
+                state->fxMix = event->param;
+                if (state->state == 1) {
+                    fxMix = (state->fxMix & 0x7F) +
+                            ((keyMap->keyMax & 0xF) * 8);
+                    fxMix = GS_MIN(0x7F, GS_MAX(0, fxMix));
+                    fxMix |= state->fxMix & 0x80;
+                    n_alSynSetFXMix(&state->voice, fxMix);
+                }
+                break;
+
+            case GS_SNDP_VOL_EVT:
+                state->volume = event->param;
+                if (state->state == 1) {
+                    volume = GS_MAX(
+                        0, ((s16 *)D_800D7D78)[keyMap->keyMin & 0x3F] *
+                                   (state->envelopeVolume * state->volume *
+                                    sound->sampleVolume / 16129) /
+                                   32767 -
+                               1);
+                    volume = (u32)(volume * D_8007FF50) >> 8;
+                    n_alSynSetVol(
+                        &state->voice, volume,
+                        GS_MAX(1000,
+                               state->endTime - D_8007FF4C->currentTime));
+                }
+                break;
+
+            case GS_SNDP_GROUP_VOL_EVT:
+                if (state->state == 1) {
+                    delta = sound->envelope->releaseTime /
+                            state->slideMult / state->pitch;
+                    volume = GS_MAX(
+                        0, ((s16 *)D_800D7D78)[keyMap->keyMin & 0x3F] *
+                                   (state->envelopeVolume * state->volume *
+                                    sound->sampleVolume / 16129) /
+                                   32767 -
+                               1);
+                    volume = (u32)(volume * D_8007FF50) >> 8;
+                    n_alSynSetVol(&state->voice, volume, delta);
+                }
+                break;
+
+            case GS_SNDP_DECAY_EVT:
+                if (!(state->flags & 2)) {
+                    state->envelopeVolume = sound->envelope->decayVolume;
+                    volume = GS_MAX(
+                        0, ((s16 *)D_800D7D78)[keyMap->keyMin & 0x3F] *
+                                   (state->envelopeVolume * state->volume *
+                                    sound->sampleVolume / 16129) /
+                                   32767 -
+                               1);
+                    volume = (u32)(volume * D_8007FF50) >> 8;
+                    delta = sound->envelope->decayTime /
+                            state->slideMult / state->pitch;
+                    state->endTime = D_8007FF4C->currentTime + delta;
+                    n_alSynSetVol(&state->voice, volume, delta);
+                    stateEvent.type = GS_SNDP_RELEASE_EVT;
+                    stateEvent.state = state;
+                    n_alEvtqPostEvent(
+                        (ALEventQueue *)D_8007FF4C->eventQueue,
+                        (N_ALEvent *)&stateEvent, delta);
+                    if (state->flags & 0x20) {
+                        func_8005CDAC(state);
+                    }
+                }
+                break;
+
+            case GS_SNDP_END_EVT:
+                func_8005CD3C(state);
+                break;
+
+            case GS_SNDP_RETRIGGER_EVT:
+                if (state->flags & 0x10) {
+                    newSound = ad_sndp_play(
+                        ((GsSndRetriggerEvent *)event)->bank,
+                        ((GsSndRetriggerEvent *)event)->soundId,
+                        state->volume, state->pan, state->pitch, state->fxMix,
+                        state->userHandle);
+                }
+                break;
+
+            default:
+                rmonPrintf(D_8008438C);
+                break;
+        }
+
+        isSingleStateEvent = event->type &
+                             (GS_SNDP_PLAY_EVT | GS_SNDP_PITCH_EVT |
+                              GS_SNDP_DECAY_EVT | GS_SNDP_END_EVT |
+                              GS_SNDP_RETRIGGER_EVT);
+
+        if ((state = nextState) != NULL && !isSingleStateEvent) {
+            done = state->flags & 1;
+        }
+    } while (!done && state != NULL && !isSingleStateEvent);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005BA40.s")
+#endif
 void func_8005CD3C(GsSoundStateLink *state) {
     if (state->flags & 4) {
         n_alSynStopVoice((u8 *)state + 0xC);
@@ -335,10 +696,10 @@ GsSoundStateLink *func_8005D030(void *unused, GsSound *sound) {
         osSetIntMask(mask);
         special = (sound->envelope->decayTime + 1) == 0;
         state->sound = sound;
-        state->unk40 = special + 0x40;
+        state->priority = special + 0x40;
         state->state = 5;
         state->pitch = 1.0f;
-        state->unk34 = 2;
+        state->retries = 2;
         state->flags = keyMap->keyMax & 0xF0;
         state->userHandle = NULL;
         if (state->flags & 0x20) {
@@ -349,8 +710,8 @@ GsSoundStateLink *func_8005D030(void *unused, GsSound *sound) {
         if (special != 0) {
             state->flags |= 2;
         }
-        state->unk42 = 0;
-        state->unk41 = 0x40;
+        state->fxMix = 0;
+        state->pan = 0x40;
         state->volume = 0x7FFF;
     } else {
         osSetIntMask(mask);
@@ -432,16 +793,16 @@ GsSoundStateLink *ad_sndp_play(void *bank, s16 soundId, u16 volume, u8 pan,
                 D_8007FF4C->currentState = state;
                 playEvent.type = 1;
                 playEvent.state = state;
-                adjustedPan = pan + state->unk41 - 0x40;
+                adjustedPan = pan + state->pan - 0x40;
                 if (adjustedPan >= 0x80) {
                     adjustedPan = 0x7F;
                 } else if (adjustedPan < 0) {
                     adjustedPan = 0;
                 }
-                state->unk41 = adjustedPan;
+                state->pan = adjustedPan;
                 state->volume = (u32)(volume * state->volume) >> 15;
                 state->pitch *= pitch;
-                state->unk42 = fxMix;
+                state->fxMix = fxMix;
                 soundDelta = sound->keyMap->velocityMax * 33333;
                 if (state->flags & 0x10) {
                     state->flags &= ~0x10;

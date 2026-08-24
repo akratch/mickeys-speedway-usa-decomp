@@ -36,6 +36,21 @@ typedef struct LoadedAnimation {
     s16 id;
 } LoadedAnimation;
 
+typedef struct ModelMatrixNode {
+    s16 parent;
+    u8 pad2[2];
+    f32 x;
+    f32 y;
+    f32 z;
+} ModelMatrixNode;
+
+typedef struct ModelAnimationTable {
+    u8 pad0[0x4E];
+    s8 animationCount;
+    u8 pad4F;
+    u8 **animations;
+} ModelAnimationTable;
+
 extern s32 D_800D7CF0;
 extern s32 D_800D7CF4;
 extern s32 D_800D7CF8;
@@ -45,8 +60,13 @@ extern s32 D_800D7D04;
 extern ConvListEntry D_800D78F0[];
 
 s32 func_8002B280(s32 size, s32 tag);
-u8 *func_8002B314(s32 size, s32 tag, s32 offset);
+u8 *func_8002B314(s32 size, s32 tag);
 void func_80058FF0(ConvListEntry *entries, s32 count);
+void func_8002A82C(void *mtx);
+void mtxf_mul(void *lhs, void *rhs, void *dest);
+void mmFree(void *ptr);
+u8 *func_8005A948(s16 animationId);
+void func_8005AAC0(u8 *animation);
 
 /* PROVENANCE: adapted from the modelsInit tail in JFG src/models.c. */
 void func_8005A700(void) {
@@ -67,7 +87,77 @@ void func_8005A770(void) {
     func_80058FF0(D_800D78F0, D_800D7CF0);
     D_800D7CF0 = 0;
 }
+/*
+ * Plateau: the direct Mickey reconstruction emits 105 instructions against
+ * the target's 106 and uses a 0x58 frame instead of 0x38. Its first mismatch
+ * is the prologue at +0x0; 73 positional words differ after IDO keeps the
+ * bounds and loop-offset lifetimes separate instead of reusing the target's
+ * s0-s2 allocation. Pointer-offset and array-index loops, two allocator-call
+ * spellings, scoped arithmetic, and all 119 flag-lattice combinations retain
+ * that structural split, so the best C remains available without entering
+ * the ROM. JFG retains modLoadModel as asm, so no donor body was adapted.
+ */
+#ifdef NON_MATCHING
+s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
+    s32 alignment;
+    s32 firstAnimation;
+    s32 lastAnimation;
+    s32 loadSize;
+    s32 loaded;
+    s32 inputOffset;
+    s32 outputOffset;
+    u16 *bounds;
+
+    piRomLoadSection(0x28, (void *)D_800D7D00, (modelId & ~3) * 2, 0x10);
+    bounds = (u16 *)D_800D7D00 + (modelId & 3);
+    firstAnimation = bounds[0] >> 1;
+    lastAnimation = bounds[1] >> 1;
+    model->animationCount = lastAnimation - firstAnimation;
+    if (firstAnimation == lastAnimation) {
+        return TRUE;
+    }
+
+    alignment = firstAnimation & 3;
+    loadSize = model->animationCount & ~3;
+    loadSize = (loadSize + 4) * 2;
+    if (alignment != 0) {
+        loadSize += 8;
+    }
+    piRomLoadSection(0x29, (void *)D_800D7CFC, (firstAnimation & ~3) * 2, loadSize);
+    model->animations = (u8 **)func_8002B314(model->animationCount * 4, 0x80);
+    if (model->animations == NULL) {
+        return FALSE;
+    }
+
+    loaded = 0;
+    inputOffset = alignment * 2;
+    outputOffset = 0;
+    do {
+        *(u8 **)((u8 *)model->animations + outputOffset) =
+            func_8005A948(*(s16 *)(D_800D7CFC + inputOffset));
+        if (*(u8 **)((u8 *)model->animations + outputOffset) == NULL) {
+            outputOffset = 0;
+            if (loaded > 0) {
+                inputOffset = 0;
+                do {
+                    func_8005AAC0(*(u8 **)((u8 *)model->animations + inputOffset));
+                    outputOffset++;
+                    inputOffset += 4;
+                } while (outputOffset != loaded);
+            }
+            mmFree(model->animations);
+            model->animations = NULL;
+            return FALSE;
+        }
+        loaded++;
+        inputOffset += 2;
+        outputOffset += 4;
+    } while (loaded < model->animationCount);
+    return TRUE;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
+#endif
 /*
  * Plateau: with -Wo,-loopunroll,0 this reconstruction has the target's exact
  * 94 instructions, frame, opcode sequence, CFG and relocations. Its best
@@ -115,7 +205,7 @@ u8 *func_8005A948(s16 animationId) {
     piRomLoadSection(0x2A, (u8 *)D_800D7CF8, (animationId & ~1) * 4, 0x10);
     offset = *(s32 *)(D_800D7CF8 + ((animationId & 1) * 4));
     size = *(s32 *)(D_800D7CF8 + ((animationId & 1) * 4) + 4) - offset;
-    animation = (LoadedAnimation *)func_8002B314(size, 0x80, offset);
+    animation = (LoadedAnimation *)func_8002B314(size, 0x80);
     if (animation == NULL) {
         return NULL;
     }
@@ -130,6 +220,13 @@ u8 *func_8005A948(s16 animationId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A948.s")
 #endif
+
+/*
+ * Plateau: two release-loop spellings emit 47 and 43 instructions against
+ * the target's 46. The closer pointer-induction form diverges immediately in
+ * register allocation and loop scheduling; the flag lattice does not repair
+ * the structural residual.
+ */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AAC0.s")
 /* PROVENANCE: adapted from JFG src/camera.c (camConvertMatrixList). */
 void camConvertMatrixList(Matrix *mtx, s32 count) {
@@ -140,7 +237,49 @@ void camConvertMatrixList(Matrix *mtx, s32 count) {
     D_800D7CF0 = index + 1;
     entry->count = count;
 }
+
+/*
+ * Plateau: the animation-frame update's closest reconstruction emits 110
+ * instructions against 111 and follows the broad target CFG, but diverges at
+ * +0x38 before cascading through the FP allocator. The 119-combination flag
+ * lattice found no exact result; its closest alternate still differs in 59
+ * words and would also perturb this TU's already-exact functions.
+ */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005ABA8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AD64.s")
+
+/*
+ * Plateau: this 0x730-byte matrix/attachment builder remains blocked on
+ * unknown model-node and attachment layouts. The permitted JFG peer is also
+ * assembly, and the Mickey m2c draft cannot establish the field semantics
+ * needed for a clean-room C reconstruction.
+ */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AF14.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005B644.s")
+
+/* Mickey-derived parented matrix-list builder; JFG retains its peer as asm. */
+void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 count) {
+    Matrix temp;
+    Matrix *output;
+    Matrix *parent;
+    s32 i;
+
+    output = matrices;
+    i = 0;
+    if (count > 0) {
+        do {
+            func_8002A82C((u8 *)temp - 8);
+            *(f32 *)((u8 *)temp + 0x28) = node->x;
+            *(f32 *)((u8 *)temp + 0x2C) = node->y;
+            *(f32 *)((u8 *)temp + 0x30) = node->z;
+            if ((node->parent == -1) != FALSE) {
+                parent = root;
+            } else {
+                parent = &matrices[node->parent];
+            }
+            mtxf_mul((u8 *)temp - 8, parent, output);
+            i++;
+            output++;
+            node++;
+        } while (i != count);
+    }
+}

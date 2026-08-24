@@ -1439,6 +1439,15 @@ and then proved against Mickey, adding `0x2E8` exact bytes. Its nested
 play/retrigger event lifetimes are required for IDO's target delay-slot
 schedule. Exact C in `main/gsSnd` therefore totals `0x1024` bytes.
 
+The permitted-PD-derived event dispatcher `func_8005BA40` reaches all 1,215
+target instruction words under the measured bare `-g -mips2 -32` group, with
+the target frame and register allocation, but is not promoted or credited.
+Its switch and diagnostics emit a `0x150`-byte rodata section that is still
+owned by the shared `0x81590` yaml slice; compiling both copies prevents an
+exact canonical link. Promotion therefore requires a measured rodata-boundary
+handoff in `mickey.us.yaml`, outside this lane's assigned files. The exact-text
+candidate remains under `NON_MATCHING` and target assembly stays canonical.
+
 The adjacent pitch-event helper `func_8005CDAC` plateaus after ten coherent
 source and flag variants. Its best permitted BK/PD-derived body under the
 measured bare `-g -mips2 -32` group emits 30 instructions with a `0x28` frame,
@@ -1454,6 +1463,12 @@ In `main/models`, `camConvertMatrixList`, initialization helper
 initialization helper from JFG `models.c`. Their function bytes and relocation
 identities match in the linked ROM.
 
+Mickey-derived parented matrix-list builder `func_8005B644` adds `0xCC`
+exact bytes under the TU's measured `-Wo,-loopunroll,0` override, bringing
+exact C in `main/models_5B300` to `0x19C` bytes. Its 51 instructions, `0x88`
+frame, calls and relocation identities match; JFG retains the corresponding
+model-matrix routine as assembly, so no donor body was adapted.
+
 The `func_8005A948` flag lattice additionally establishes
 `-Wo,-loopunroll,0` for `main/models`: without it IDO unrolls the cache scan
 to 166 instructions, while the disabled-unroll candidate has the target's 94
@@ -1464,9 +1479,27 @@ spill at `0x34(sp)` rather than `0x30(sp)`), first diverging at function offset
 coherent source/flag attempts did not move that allocator split, so its best C
 is retained under `NON_MATCHING` and the target assembly remains canonical.
 
+`func_8005A7A0` plateaus at 105 instructions against 106, with a `0x58`
+frame against `0x38` and 73 differing positional words from the prologue;
+pointer/array loop variants and all 119 flag combinations retain the excess
+live ranges. The closer `func_8005AAC0` release loop emits 47 instructions
+against 46, while `func_8005ABA8` emits 110 against 111 and first diverges at
+`+0x38` before an FP-allocation cascade. `func_8005AF14` remains a structural
+plateau because neither Mickey's current types nor JFG's assembly-only peer
+establish its model-node and attachment layouts.
+
 In `main/vehicle_sounds`, the Mickey-derived handle cleanup loop
 `func_800582A8` (`0x64` bytes) is exact under `-O2 -mips2 -32`; its linked
 function bytes and call relocation match.
+
+The remaining vehicle functions plateau without exact credit.
+`func_80058250`'s best direct initializer emits 26 instructions against 22,
+first differing at `+0x8`; the array spelling undershoots the target's unusual
+address schedule. `func_80058EF4`'s best lattice result emits 36 instructions
+against 39 and differs in 13 words from `+0x4`, with the two FP webs exchanged.
+The 0xBE8-byte `func_8005830C` remains blocked on untyped racer, listener and
+sound-state layouts for which the permitted JFG audio-manager sources provide
+no corresponding body.
 
 ## 4. libultra
 
