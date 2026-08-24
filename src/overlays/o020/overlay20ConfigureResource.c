@@ -21,6 +21,7 @@ typedef struct Overlay20Resource {
 
 extern void *func_overlay_020_F0000000_18765D8();
 
+#ifdef NON_MATCHING
 Overlay20Resource *overlay20ConfigureResource(
     Overlay20Resource *resource, s32 x, s32 y, s32 width, s32 height,
     s32 stepX, s32 columns, s32 rows, void *owner, s32 value0E,
@@ -63,3 +64,6 @@ Overlay20Resource *overlay20ConfigureResource(
     }
     return resource;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20ConfigureResource/func_overlay_020_F00000A8_1876680.s")
+#endif

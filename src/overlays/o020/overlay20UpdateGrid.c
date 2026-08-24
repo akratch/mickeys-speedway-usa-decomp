@@ -57,6 +57,7 @@ extern f32 func_8002A8C0(s32 angle);
 #define O20_REGISTER
 #endif
 
+#ifdef NON_MATCHING
 void overlay20UpdateGrid(Overlay20Grid *grid) {
     Overlay20Entry *overlaps[OVERLAY20_OVERLAP_CAPACITY];
     Overlay20Entry **overlapBase;
@@ -237,3 +238,6 @@ void overlay20UpdateGrid(Overlay20Grid *grid) {
     }
 #endif
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20UpdateGrid/func_overlay_020_F0000A68_1877040.s")
+#endif

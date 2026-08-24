@@ -3968,51 +3968,26 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseHandle.c.o: POSTPROCESS = 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseTree.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureResource.c.o: \
-	config/normalizations/overlay20ConfigureResource.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureResource.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x15C a1f6c87daeef1c5ae09c92c11aa98cde8b5be8e597a5ce6f7e674f26fc0f0725 \
-		@config/normalizations/overlay20ConfigureResource.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x15C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateObjectResource.c.o: \
-	config/normalizations/overlay20UpdateObjectResource.ops \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateObjectResource.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x188 a627ff31fd721ca0b53ad4f40af40eb92c7a1f3b57a73ed41658736b3deb840b \
-		@config/normalizations/overlay20UpdateObjectResource.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x30:overlay20LookupReloc:overlay20GetContextReloc \
-		0x134:overlay20ConfigureResourceReloc:overlay20GetContextReloc \
-		0x168:overlay20SqrtReloc:overlay20GetContextReloc && \
 	$(OBJCOPY) --redefine-sym \
-		overlay20GetContextReloc=func_overlay_020_F0000000_18765D8 $@ && \
+		func_overlay_020_F00000A8_1876680=overlay20ConfigureResource $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x15C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateObjectResource.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_020_F0000204_18767DC=overlay20UpdateObjectResource $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x188
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20BuildTileCommands.c.o: \
-	config/normalizations/overlay20BuildTileCommands.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20BuildTileCommands.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x218 9262eca64c4c5593bf9cf7ce808c01ef25e8f85c2f4fa528ea5ab5f5ab223865 \
-		@config/normalizations/overlay20BuildTileCommands.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_020_F00007C4_1876D9C=overlay20BuildTileCommands $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x218
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20RemoveEntry.c.o: \
-	config/normalizations/overlay20RemoveEntry.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20RemoveEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xD4 8710b61d5300efc59a2b9587c24fc6a9678dca7facfd3879dbf1f7ea478d1d4c \
-		@config/normalizations/overlay20RemoveEntry.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_020_F0001018_18775F0=overlay20RemoveEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureEntry.c.o: \
-	config/normalizations/overlay20ConfigureEntry.ops \
-	$(TOOLS_DIR)/resize_elf_function.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureEntry.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x150 52e6985c989687badb9e133d31d7d396a78cbb1f08f61019b502d907b28cef34 \
-		@config/normalizations/overlay20ConfigureEntry.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/resize_elf_function.py $@ .text \
-		overlay20ConfigureEntry 0x14C 0x150 \
-		52e6985c989687badb9e133d31d7d396a78cbb1f08f61019b502d907b28cef34
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_020_F0000E28_1877400=overlay20ConfigureEntry $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x150
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20MarkNested.c.o: POSTPROCESS = \
@@ -4023,26 +3998,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20CreateEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20DrawResource.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
-# The typed source owns the exact boundary, CFG, FP behavior, calls, and
-# overlap-array semantics. The guarded ledger selects retail's equivalent
-# frame/allocation/schedule web; the relocation fold and local-data filter
-# preserve the runtime relocation surface proven by Overlay 20's retail table.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateGrid.c.o: \
-	config/normalizations/overlay20UpdateGrid.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateGrid.c.o: CFLAGS += \
 	-Wab,-r4300_mul -DEXPLICIT_BOUNDS -DSCAN_TOP_LOAD
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateGrid.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x35C 6f03934f0a2bdd75e0fb6dd0817476de322ac6d1b4b056d851bbbf68e692ef0f \
-		@config/normalizations/overlay20UpdateGrid.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x248:func_8002A8C0:func_overlay_020_F0000000_18765D8 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x3c:5:gOverlay20EntryCount 0x4c:6:gOverlay20EntryCount \
-		0x70:5:gOverlay20Entries 0x74:6:gOverlay20Entries && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_020_F0000A68_1877040=overlay20UpdateGrid $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x35C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31CreateRecords.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB8

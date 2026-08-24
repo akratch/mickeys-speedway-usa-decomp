@@ -22,6 +22,7 @@ extern Overlay20Entry *gOverlay20Entries[];
 extern f32 gOverlay20LifetimeScale;
 
 /* DKR v77/v80 and JFG have no exact donor for this entry allocator. */
+#ifdef NON_MATCHING
 Overlay20Entry *overlay20ConfigureEntry(Overlay20Entry *entry, f32 x, f32 y,
                                         f32 radius, s32 id, f32 lifetime,
                                         f32 scale, f32 ratio) {
@@ -65,3 +66,6 @@ Overlay20Entry *overlay20ConfigureEntry(Overlay20Entry *entry, f32 x, f32 y,
     }
     return entry;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20ConfigureEntry/func_overlay_020_F0000E28_1877400.s")
+#endif

@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 265936,
-  "nonmatching_overlay_c_bytes": 10664,
+  "matched_overlay_c_bytes": 263252,
+  "nonmatching_overlay_c_bytes": 13348,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -5557,7 +5557,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20ConfigureResource",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x204",
@@ -5566,7 +5566,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20UpdateObjectResource",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x38C",
@@ -5584,7 +5584,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20BuildTileCommands",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x9DC",
@@ -5602,7 +5602,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20UpdateGrid",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xDC4",
@@ -5629,7 +5629,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20ConfigureEntry",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF78",
@@ -5647,7 +5647,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20RemoveEntry",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x10EC",

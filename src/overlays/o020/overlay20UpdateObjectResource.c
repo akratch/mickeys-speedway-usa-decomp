@@ -51,6 +51,7 @@ extern Overlay20LookupResult *overlay20LookupReloc(s16 index);
 extern void *overlay20ConfigureResourceReloc();
 extern f32 overlay20SqrtReloc(f32 value);
 
+#ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
                                    Overlay20Config *config) {
     Overlay20Context *context;
@@ -96,3 +97,6 @@ void overlay20UpdateObjectResource(Overlay20Object *object,
     object->radius = overlay20SqrtReloc((f32)((width * width) +
                                                (height * height)));
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20UpdateObjectResource/func_overlay_020_F0000204_18767DC.s")
+#endif
