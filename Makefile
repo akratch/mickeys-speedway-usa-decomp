@@ -798,6 +798,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_middle.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_001_F000296C_184ED4C=overlay1AdvanceObjectGauges \
 		--redefine-sym func_overlay_001_F0002AA4_184EE84=overlay1AdvanceGauge $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x408
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_001_F0003578_184F958=overlay1InitializeGaugeObjects \
@@ -806,7 +807,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_001_F0003FD8_18503B8=overlay1TransitionState \
 		--redefine-sym func_overlay_001_F000438C_185076C=overlay1UpdateObjectPhysics \
 		--redefine-sym func_overlay_001_F0005BF4_1851FD4=overlay1StartTimerCallbacks \
-		--redefine-sym func_overlay_001_F0005CD4_18520B4=overlay1FindDirectionalObject \
+		--redefine-sym overlay1GetObjectList=overlay1GetObjectListReloc \
+		--redefine-sym sqrtf=overlay1SqrtReloc \
+		--redefine-sym overlay1TrigX=overlay1TrigXReloc \
+		--redefine-sym overlay1TrigY=overlay1TrigYReloc \
 		--redefine-sym func_overlay_001_F0005ED4_18522B4=overlay1DispatchMode \
 		--redefine-sym func_overlay_001_F00061F0_18525D0=overlay1HandleCachedMode \
 		--redefine-sym func_overlay_001_F0006270_1852650=overlay1ChooseModeObject \

@@ -1594,16 +1594,17 @@ extern f32 sqrtf(f32 value);
 extern f32 overlay1TrigX(s32 angle);
 extern f32 overlay1TrigY(s32 angle);
 extern f32 D_160;
+extern Overlay1ValueRow D_1BA8[];
 
-#ifdef NON_MATCHING
 Overlay1DirectionalObject *overlay1FindDirectionalObject(
     Overlay1DirectionalObject *object, void *unused1, void *unused2,
     f32 threshold, f32 maxValue) {
+    s32 count;
     Overlay1DirectionalObject **objects;
     Overlay1DirectionalObject *other;
     Overlay1DirectionalObject *best;
     Overlay1ObjectState *otherState;
-    s32 count;
+    Overlay1ValueEntry *entry;
     s32 remaining;
     f32 dx, dz, distance, directionX, directionY, dot, value, bestValue;
 
@@ -1631,7 +1632,8 @@ active:
             directionY = -overlay1TrigY(object->angle);
             dot = (directionX * dx) + (directionY * dz);
             if (DOT_CONDITION) {
-                value = D_1BA8[*D_1DA0].entries[otherState->tableIndex].value;
+                entry = &D_1BA8[*(s8 *)D_1DA0].entries[otherState->tableIndex];
+                value = entry->value;
                 if ((value <= maxValue) && (value < bestValue)) {
                     bestValue = value;
                     best = other;
@@ -1641,10 +1643,6 @@ active:
     }
     return best;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0005CD4_18520B4.s")
-#endif
 
 /* ---- overlay1ReturnZero ---- */
 
