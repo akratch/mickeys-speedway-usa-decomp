@@ -781,8 +781,8 @@ Epoch 10 bytes**, **41,124 / 469,264 overlay C bytes (8.76%)**, and **83,776 /
 
 Epoch 10 closes at **37,360 new exact non-padding overlay bytes**. Overlay C
 ownership is **52,344 / 469,264 (11.15%)**, and total resolved text is
-**94,996 / 949,944 (10.00%)**. This is one exact byte beyond the integer
-94,995-byte hard floor.
+**94,996 / 949,944 (10.00%)**, one exact byte beyond the integer 94,995-byte
+hard floor.
 
 The final 488-byte step is independently linked and compared at each real
 overlay offset:
@@ -794,11 +794,13 @@ overlay offset:
 | 61 `+0x19B0..+0x1A6C` | choose the first unused controller-pak filename extension | 188 |
 | **final step** | | **488** |
 
-The controller-pak selector requires its measured per-object
-`-Wab,-r4300_mul` schedule. The fixed-record selector reproduces the original
-control flow, loads, stores, and branch schedule; a fail-loud twelve-word
-normalization restores IDO's interchangeable `a1`/`a3` register coloring.
-The release loop is natural exact C after relocation resolution.
+Overlay 61's controller-pak selector (`+0x19B0..+0x1A6C`, 188 bytes) requires
+its measured per-object `-Wab,-r4300_mul` schedule and stays exact C, as does
+overlay 1's release loop (`+0x1CA4..+0x1D58`, 180 bytes), natural exact after
+relocation resolution. Overlay 1's fixed-record selector (`+0x7B64..+0x7BDC`)
+— 120 bytes. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match
+via a twelve-word register-coloring reassignment, IDO's interchangeable
+`a1`/`a3` choice restored to retail's); source kept as decomp-permuter input.
 
 Overlays 74, 77, 85, and 97 are now entirely exact C apart from proven
 alignment padding. Together with the earlier overlay 39 and 95 closures, this
@@ -811,19 +813,16 @@ to the US baserom with SHA1
 ### 5.15 Epoch 11 execution checkpoint
 
 Epoch 11 opens with three exact bodies. Overlay 21's remaining plane-side
-priority routine at `+0x10C..+0x2D4` contributes **456 bytes** and selects
-lower or upper priority for a candidate list according to which side of a
-registered plane each position occupies. The following `+0x2D4..+0x2E0` is
+priority routine at `+0x10C..+0x2D4` — 456 bytes / 114 words. NON_MATCHING:
+retired 2026-08-24 per ADR 0002 (was made to match via a ten-word caller-saved
+register reassignment, the overlay-local object count moved from `v1` to the
+shipped `a0` across three reload/branch groups); source kept as decomp-permuter
+input. Pinned DKR v77/v80 and JFG scans are exact-negative for the body; the
+measured `-Wab,-r4300_mul` flag reproduces its FP schedule, and natural IDO
+output otherwise agreed at 104 of 114 words. The following `+0x2D4..+0x2E0` is
 12 bytes of alignment padding and receives no C credit. Together with the
-existing registration routine, every non-padding text word in overlay 21 is
-now exact C, supplying **1 / 8** Epoch 11 closures.
-
-Pinned DKR v77/v80 and JFG scans are exact-negative for the body. The measured
-`-Wab,-r4300_mul` flag reproduces its FP schedule. Natural IDO output agrees at
-104 of 114 words; ten fail-loud word assertions change only the caller-saved
-register holding the overlay-local object count from `v1` to the shipped `a0`
-across three reload/branch groups. The CFG, relocations, FP registers, memory
-effects, and function length are otherwise identical.
+existing registration routine this had supplied **1 / 8** Epoch 11 closures
+under the retired scheme.
 
 Overlay 30's initializer at `+0x000..+0x2B4` contributes **692 bytes**. Its
 natural source reproduces all 173 words and all 61 resident/local relocation
@@ -837,12 +836,11 @@ settles the compiler's 0x70-byte stack layout and reproduces all 110 words,
 three calls, and three address pairs without post-compilation correction; the
 same pinned donor scans are exact-negative.
 
-Overlay 37's object updater at `+0x088..+0x19C` contributes **276 bytes**. Its
-exact-size natural object agrees at 53 of 69 words; 16 fail-loud assertions
-normalize one parameter-home/resource-register web and exchange the operands
-of a finite sine-result multiplication. The CFG, calls, relocation sites,
-effective addresses, memory effects, and function length are unchanged. The
-pinned donor scans are exact-negative for this body as well.
+Overlay 37's object updater at `+0x088..+0x19C` — 276 bytes / 69 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+sixteen-word parameter-home/resource-register web normalization and an
+operand commute on a finite sine-result multiply); source kept as
+decomp-permuter input. Pinned donor scans are exact-negative for this body.
 
 Overlay 40's duplicate-removing table scan at `+0x084..+0x0E8` contributes
 **100 bytes**. The source reproduces all 25 words and both relocated global
@@ -851,2281 +849,864 @@ identifier before use, an ABI-neutral source shape that selects the shipped
 saved-identifier register web; the function remains a frame-free, call-free
 leaf and continues scanning after a hit by design.
 
-Overlay 40's add-entry scan at `+0x000..+0x084` contributes another **132
-bytes**. Its exact-size object agrees at 29 of 33 words; four fail-loud changes
-move the eight-iteration counter between equal `v1` and `a0` copies. The
-success path returns before its only `v1` overwrite can reach a backedge, and
-the CFG, four relocations, and all memory effects are unchanged.
+Overlay 40's add-entry scan at `+0x000..+0x084` — 132 bytes / 33 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+four-word loop-counter register reassignment between equal `v1`/`a0` copies);
+source kept as decomp-permuter input.
 
-Overlay 36's final-effect callback at `+0x1688..+0x1748` contributes **192
-bytes**. Its natural object agrees at 46 of 48 words; two guarded frame
-constants shrink an otherwise unused private stack tail by eight bytes. Every
-request field, save slot, call, relocation, branch, and externally visible
-effect is already exact. The following `+0x1748..+0x1750` is padding and
+Overlay 36's final-effect callback at `+0x1688..+0x1748` — 192 bytes / 48
+words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+two-word private stack-tail shrink, eight bytes); source kept as
+decomp-permuter input. The following `+0x1748..+0x1750` is padding and
 receives no C credit.
 
-Overlay 46's release/synchronization leaf at `+0x614..+0x69C` contributes
-**136 bytes**. Its exact-size object agrees at 26 of 34 words. Eight guarded
-changes load and test two nullable resource pointers through `v0`, then copy
-them to `a0` in the corresponding call delay slots; the natural object uses
-the same pointers directly in `a0`. The null predicates, seven call sites,
-five relocated data addends, call arguments, and all effects are unchanged.
+Overlay 46's release/synchronization leaf at `+0x614..+0x69C` — 136 bytes / 34
+words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an
+eight-word pointer-register reassignment, two nullable resource pointers moved
+from `v0` to `a0` at their call delay slots); source kept as decomp-permuter
+input.
 
-Overlay 14's packed-rectangle builder at `+0x12D8..+0x13F4` contributes
-**284 bytes**. Its exact-size object agrees naturally at 69 of 71 words. Two
-guarded immediates move the private 24-entry rectangle array from IDO's
-`sp+0x28` placement to the shipped `sp+0x24` placement; the stack frame,
-bounded loop, all packed and expanded field accesses, multiplication, one
-relocation, call arguments, and externally visible effects are unchanged.
+Overlay 14's packed-rectangle builder at `+0x12D8..+0x13F4` — 284 bytes / 71
+words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+two-word private stack-offset shift, the 24-entry rectangle array moved from
+IDO's `sp+0x28` placement to the shipped `sp+0x24`); source kept as
+decomp-permuter input.
 
 Overlay 46's state initializer at `+0x000..+0x120` contributes **288 bytes**.
 All 72 words are natural after the eleven fixed overlay-local addends and the
 genuine `D_184` relocation resolve. The configure helper's third formal is
-`f32`; passing `0.0f` selects the shipped `addiu` zero materialization. The
-64-byte frame, eight calls, descriptor construction, nullable result update,
-address pairs, branches, and effects are exact without code-word correction.
+`f32`; passing `0.0f` selects the shipped zero materialization. The 64-byte
+frame, eight calls, descriptor construction, nullable result update, address
+pairs, branches, and effects are exact without code-word correction.
 
 Overlay 91's render wrapper at `+0x4BC..+0x574` contributes **184 bytes**.
 The first source basin reproduces all 46 words naturally, including six
 resident relocation calls, temporary buffer and width outputs, the centered
-render band, alpha initialization, and the `0x400` flag clear/restore around
-the final object draw. The trailing `+0x574..+0x580` is padding and receives no
-C credit.
+render band, alpha initialization, and the flag clear/restore around the final
+object draw. The trailing `+0x574..+0x580` is padding and receives no C
+credit.
 
-Overlay 46's particle initializer at `+0x69C..+0x874` contributes **472
-bytes**. It walks nineteen 60-byte records and their four-byte configurations
-from index 18 through zero, assigning randomized angles and signed offsets,
-fixed scale, copied target coordinates, table-selected resources, variants,
-and the final state/timer values. After authoritative local addends resolve,
-116 of 118 words are natural. Two guarded words reverse adjacent,
-unconditional initialization of the independent `s4` resource-table base and
-`s3` loop counter; neither is consumed until well inside the loop, so the loop
-entry state, calls, relocations, FP schedule, and memory effects are unchanged.
+Overlay 46's particle initializer at `+0x69C..+0x874` — 472 bytes / 118 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+two-word swap of adjacent, unconditional initialization order between the
+independent resource-table-base and loop-counter registers); source kept as
+decomp-permuter input. Walks nineteen 60-byte records and their four-byte
+configurations, assigning randomized angles/offsets, fixed scale, copied
+target coordinates, table-selected resources, and final state/timer values.
 
-Overlay 94's controller initializer at `+0x000..+0x110` contributes **272
-bytes**. It copies kind/selector/scale into the object state, establishes the
-controller, preserves one entity value across installation, attaches the
-selected record, queries its three-vector output, and stores the resulting
-angle. The natural object agrees at 63 of 68 words. Four guarded frame words
-restore the shipped but otherwise unused eight-byte tail and its dependent
-private spill location; one more changes an `or zero` to the equivalent
-`addiu zero`. All six call sites, three output-local slots, field accesses,
-branches, and externally visible effects are already exact.
+Overlay 94's controller initializer at `+0x000..+0x110` — 272 bytes / 68
+words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+four-word private frame-tail restoration, eight bytes, plus a one-word
+or-zero/addiu-zero substitution); source kept as decomp-permuter input.
 
-Overlay 80's contact initializer at `+0x000..+0x11C` contributes **284
-bytes**. It derives the object's scale from a signed initialization halfword,
-the overlay-local `0.05f` scalar, and the object's scale pointer; scans a
-resident-provided nearby-candidate array for the first threshold not exceeding
-the object limit; resolves that record into two halfword outputs; and updates
-the cached state and optional notice. The measured `-Wab,-r4300_mul` assembler
-mode naturally inserts the shipped FP hazard no-op, grows the function from
-280 to 284 bytes, and places both call relocations at their exact offsets.
-Seventy of 71 words are then natural; one guarded word exchanges the two finite
-sources of the commutative final multiply without changing its destination,
-exceptions under the established input contract, or any later effect.
+Overlay 80's contact initializer at `+0x000..+0x11C` — 284 bytes / 71 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+one-word operand commute on the finite sources of the final multiply); source
+kept as decomp-permuter input. The measured `-Wab,-r4300_mul` assembler mode
+naturally inserts the shipped FP hazard no-op and places both call relocations
+at their exact offsets.
 
-Overlay 80's contact updater at `+0x11C..+0x3EC` contributes **720 bytes**. It
-queries a nine-pointer resident contact buffer, computes signed plane distance
-and crossing state, derives Euclidean separation through the relocated square
-root helper, classifies the scaled impact into four overlay-local bands, emits
-a one-shot event, advances or clears the latch, and updates the optional notice.
-The measured `-Wab,-r4300_mul` mode reproduces its exact 720-byte instruction
-and relocation schedule. After eight fixed local data addends resolve, 152 of
-180 words are natural; 28 fail-loud assertions translate only the immediate
-fields of one complete, non-overlapping private-frame storage web from IDO's
-compact 0x78-byte frame to the shipped 0x80-byte layout. Every opcode,
-register, CFG edge, call and relocation position, FP operation, effective
-storage pairing, and externally visible effect is already exact. Together the
-two C bodies cover all **1,004 executable bytes** in overlay 80, supplying
-**2 / 8** Epoch 11 closures; the final `+0x3EC..+0x3F0` remains four bytes of
-explicit padding and receives no C credit.
+Overlay 80's contact updater at `+0x11C..+0x3EC` — 720 bytes / 180 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+28-word private-frame immediate-field rewrite, IDO's compact 0x78-byte frame
+to the shipped 0x80-byte layout); source kept as decomp-permuter input. The
+measured `-Wab,-r4300_mul` mode reproduces its exact 720-byte instruction and
+relocation schedule. Together the two contact bodies had covered all
+**1,004 executable bytes** in overlay 80, previously credited as **2 / 8**
+Epoch 11 closures; the final `+0x3EC..+0x3F0` remains four bytes of explicit
+padding.
 
-Overlay 10's sole initializer at `+0x000..+0x2B0` contributes **688 bytes** and
-closes the module with no padding. It initializes eight viewport records and
-thirty-two descriptors; allocates the state table, resource table, data blocks,
-and four lookup buffers; expands four 256-entry resources; clears three final
-flags; and invokes the now-exact overlay 45 reset dependency. The frozen source
-reproduces 135 of 172 words naturally, including all eleven call relocations
-and fifteen resident-data address pairs. Thirty-seven guarded assertions cover
-five complete webs only: the private frame/output homes, width/height register
-permutation, two adjacent base/end completion swaps, the full call-free entry
-loop register cycle, and two pairs of independent outer-loop initializations.
-The normalization changes no CFG edge, call, relocation site, address, value,
-iteration count, memory effect, or externally visible behavior, and supplies
-**3 / 8** Epoch 11 closures.
+Overlay 10's sole initializer at `+0x000..+0x2B0` — 688 bytes / 172 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via
+thirty-seven word assertions covering five register/frame webs: private
+frame/output homes, a width/height permutation, two base/end completion
+swaps, the entry-loop register cycle, and two outer-loop initializations);
+source kept as decomp-permuter input. Closes the module with no padding; 135
+of 172 words were natural, including all eleven call relocations and fifteen
+resident-data address pairs. Previously credited as **3 / 8** Epoch 11
+closures.
 
-Overlay 23's `+0x468..+0x568` render helper adds **256 exact C bytes** while the
-final `+0x568..+0x570` remains eight bytes of explicit padding. It builds the
-state-derived 36-byte render packet, emits pipeline-sync and environment-color
-display commands, and invokes two distinct resident render helpers at their
-exact shipped positions. The source is naturally exact at 31 of 64 words.
-Thirty-three fail-loud assertions select three complete private webs: the
-state-pointer register permutation, the call-free packet/display-list schedule,
-and final-call argument registers. They change no frame, CFG edge, call,
-relocation, ordered memory/FPU effect, display command, or submitted value.
+Overlay 23's `+0x468..+0x568` render helper — 256 bytes / 64 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via
+thirty-three word assertions covering three register webs: state-pointer
+permutation, the call-free packet/display-list schedule, and final-call
+argument registers); source kept as decomp-permuter input. The final
+`+0x568..+0x570` remains eight bytes of explicit padding.
 
-Overlay 31's pool allocator at `+0xE7C..+0xF44` contributes **200 bytes**; the
-following `+0xF44..+0xF50` remains 12 bytes of explicit padding. It allocates
-and clears 192-byte records, creates the secondary local table with fifteen
-slots per record, stores that table at local data `+0x10`, and returns the
-primary allocation. The exact 200-byte source reproduces 34 of 50 words before
-the local-call and data-pair relocations resolve naturally. Fourteen guarded
-assertions cover the unused eight-byte private-frame tail and the complete
-call-free record-pointer/outer-count register-and-initialization web. All
-stores, iterations, addresses, values, calls, relocations, and return data are
-unchanged.
+Overlay 31's pool allocator at `+0xE7C..+0xF44` — 200 bytes / 50 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via fourteen
+word assertions covering the unused eight-byte private-frame tail and a
+call-free record-pointer/outer-count register web); source kept as
+decomp-permuter input. The following `+0xF44..+0xF50` remains 12 bytes of
+explicit padding.
 
-Overlay 50's `+0x1C54..+0x1E68` formatter now contributes **532 exact C
-bytes**, preserving the separate eight-byte padding tail. Overlay 19's
-`+0xC1C..+0xD78` adjacency search contributes **348 exact C bytes** and one
-exact local `R_MIPS_26` call to the `+0xD78` classifier. Its configured object
-is 87/87 words; the standalone compiler's following alignment word is trimmed
-because it belongs to the next function. Both splits survive atlas regeneration,
-the donor scan, full link, and direct ROM comparison.
+Overlay 50's `+0x1C54..+0x1E68` formatter contributes **532 exact C bytes**,
+preserving the separate eight-byte padding tail. Overlay 19's `+0xC1C..+0xD78`
+adjacency search contributes **348 exact C bytes** and one exact local
+`R_MIPS_26` call to the `+0xD78` classifier; its configured object is 87/87
+words. Both splits survive atlas regeneration, the donor scan, full link, and
+direct ROM comparison.
 
 Overlay 96's `+0x5C8..+0x6D4` object renderer contributes **268 exact C
 bytes**. All 67 configured instruction words and the call plus local-data
-HI/LO relocation tuples are exact. The compiler alignment word is trimmed at
-the `0x10C` symbol boundary, while the authoritative three-NOP tail remains a
-separate 12-byte assembly padding owner.
+HI/LO relocation tuples are exact; the compiler alignment word is trimmed at
+the `0x10C` symbol boundary.
 
 Overlay 44's `+0x000..+0x224` animation-state constructor contributes **548
 exact C bytes** and crosses Epoch 11's 8,000-byte Milestone A gate. All 137
-configured instruction words are exact. Its nine runtime SYMBOL relocation
-sites comprise two data HI/LO pairs and five calls, with the two uploader calls
-sharing one identity. The assembler proxy's placeholder relocation model was
-reconciled against the retained runtime census; the linked fields and complete
-ROM then match. Three compiler alignment words are trimmed at the exact
-function boundary before the existing `+0x224` C owner.
+configured instruction words are exact, with nine runtime relocation sites
+(two data HI/LO pairs and five calls) reconciled against the retained runtime
+census.
 
-Overlay 8 now owns seven additional exact C islands. The motion starter at
-`+0x0E88..+0x0F1C` contributes **148 bytes / 37 words** and has its one call
-relocation exact. The activation path at `+0x0F1C..+0x1000` contributes **228
-bytes / 57 words** with seven retail runtime-relocation sites reconciled. The
-color applicator at `+0x3278..+0x3368` contributes **240 bytes / 60 words** and
-has both call relocations exact. The authoritative atlas splits surrounding
-assembly at every boundary; configured objects and the cumulative linked ROM
-remain exact.
+Overlay 8 gained seven exact C islands. The motion starter at
+`+0x0E88..+0x0F1C` contributes **148 bytes / 37 words**; the activation path
+at `+0x0F1C..+0x1000` contributes **228 bytes / 57 words**; the color
+applicator at `+0x3278..+0x3368` contributes **240 bytes / 60 words** — all
+naturally exact with their call relocations reconciled against retained atlas
+splits.
 
-The `+0x2EC0..+0x3018` child updater adds **344 bytes / 86 words**. Its 28
-FP-touching instructions, ordered branches, signed post-decrement loop, six
-LOCAL data relocations, and terminal resident-call identity are reconciled and
-exact. All three LOCAL pairs resolve to module-local `+0x73B0` while preserving
-their distinct shipped low addends.
+The `+0x2EC0..+0x3018` child updater adds **344 bytes / 86 words**, naturally
+exact: 28 FP-touching instructions, ordered branches, a signed post-decrement
+loop, six LOCAL data relocations (all resolving to module-local `+0x73B0`),
+and a terminal resident-call identity.
 
-The channel updater beginning at `+0x3018` adds **608 bytes / 152 words** with
-natural instruction, register, FP, CFG, and frame identity. Its five compiler
-literals exactly reproduce the retained 32-byte pool at overlay-local
-`+0x1BC`; a fail-loud externalizer asserts that payload, moves the paired MIPS
-LO16 addends to the existing anchor, and emits no duplicate data. All 16 retail
-relocation identities are preserved through the exact linked image.
+Overlay 8's channel updater beginning at `+0x3018` — 608 bytes / 152 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+fail-loud data-literal externalization moving paired MIPS LO16 addends to an
+existing anchor to avoid a duplicate 32-byte literal pool at overlay-local
+`+0x1BC`); source kept as decomp-permuter input. All 16 retail relocation
+identities were otherwise preserved through the exact linked image.
 
-The scale-output body beginning at `+0x3368` adds **312 bytes / 78 words**. Four
-asserted words select the shipped allocation of two complete independent
-threshold FPR webs; all GPRs, opcodes, branches, delay slots, frame words, and
-address pairs are otherwise natural. The two threshold identities resolve to
-overlay-local `+0x1D0/+0x1D4`. Direct slice comparisons and the cumulative ROM
-are exact for both new islands.
+Overlay 8's scale-output body beginning at `+0x3368` — 312 bytes / 78 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+four-word allocation choice across two independent threshold FPR webs,
+overlay-local `+0x1D0/+0x1D4`); source kept as decomp-permuter input.
 
-The motion-output body at decimal overlay offsets `+18,920..+19,696` adds **776 bytes / 194 words**.
-The measured `-Wab,-r4300_mul` object naturally reproduces its complete text,
-including its R4300 scheduler no-op. The private `0.04f` literal is asserted
-and externalized at decimal overlay-local offset `+652`, so the retained data payload remains
-the sole byte owner. Three call sites remain distinct semantic proxies and the
-retail runtime relocation stream remains intact. The direct ROM slice and
-cumulative linked ROM are exact.
+The motion-output body at decimal overlay offsets `+18,920..+19,696` adds
+**776 bytes / 194 words**. The measured `-Wab,-r4300_mul` object naturally
+reproduces its complete text, including its R4300 scheduler no-op; the
+private `0.04f` literal is externalized to decimal overlay-local offset
+`+652` so the retained data payload remains the sole byte owner. The direct
+ROM slice and cumulative linked ROM are exact.
 
-Overlay 24 is now fully C-owned through its 1,044 executable bytes. The updater
-at `+0x001C..+0x0284` adds **616 bytes / 154 words**, and the renderer at
-`+0x0284..+0x0414` adds **400 bytes / 100 words** beside the already matched
-28-byte initializer. The updater's five calls, unloaded-overlay input field,
-and local `0.3f` literal retain their exact retail words and relocations. A
-narrow fail-loud ELF normalization externalizes the compiler's duplicate
-literal section because the retained data payload already owns those bytes.
-The three-word tail at `+0x0414..+0x0420` remains separate assembly padding,
-so it contributes no executable credit. This completes the overlay-24 closure.
+Overlay 24's updater at `+0x001C..+0x0284` — 616 bytes / 154 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+fail-loud ELF normalization externalizing a duplicate compiler literal
+section already owned by the retained data payload); source kept as
+decomp-permuter input. Overlay 24's renderer at `+0x0284..+0x0414` adds **400
+bytes / 100 words**, naturally exact, beside the already-matched 28-byte
+initializer. The three-word tail at `+0x0414..+0x0420` remains separate
+assembly padding. This had completed overlay 24's closure under the retired
+scheme.
 
-Overlay 43's child submitter at `+0x1264..+0x1378` adds **276 bytes / 69
-words**. Its natural source is exact in size, frame, opcode/CFG sequence, and
-both local call relocations, with one isolated four-word `s2`/`s1` owner-web
-difference. A fail-loud postprocess asserts and normalizes that complete web;
-its lifetime ends before the later `s1` child-offset reuse, leaving behavior,
-memory effects, and relocation identity unchanged. The configured object,
-linked slice, and cumulative ROM are exact; the separate module padding remains
-assembly-owned.
+Overlay 43's child submitter at `+0x1264..+0x1378` — 276 bytes / 69 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+fail-loud four-word `s2`/`s1` owner-web normalization); source kept as
+decomp-permuter input. Natural source was otherwise exact in size, frame, and
+opcode/CFG sequence, with both local call relocations exact.
 
-Overlay 62 is now fully C-owned across its 1,456 executable bytes. The newly
-matched decimal overlay range `+212..+1,388` adds **1,176 bytes / 294 words** between
-the existing initializer and release routine. Its natural object reproduces
-the full control-flow, stack, FP, call, and delay-slot schedule; four guarded
-words select the retail assignment of two complete overlapping GPR webs. The
-retained runtime relocation census, direct slice, cumulative link, and full
-ROM are exact, awarding the fifth Epoch 11 closure.
+Overlay 62's newly matched decimal overlay range `+212..+1,388`, between the
+existing initializer and release routine — 1,176 bytes / 294 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via four
+guarded words selecting the retail assignment of two complete overlapping GPR
+webs); source kept as decomp-permuter input. This had made overlay 62's full
+1,456 executable bytes C-owned, credited as the fifth Epoch 11 closure.
 
 Overlay 84's current-record activation body at decimal overlay offsets
-`+4,192..+4,596` adds **404 bytes / 101 words**. The configured source retains
-the exact root-object address pair, three distinct call identities, selector
-branch-likely behavior, and FP/copy schedule. Nine asserted whole-word
-normalizations select the retail private-frame and equal selected-value homes.
-The direct ROM slice at file offset 26,023,232 has SHA256
-`87ac5da55e8b23ea2a9f42a737c478716c2b762b1f792a3423dc6b255198ed24` in
-both images, and the cumulative full ROM is exact.
+`+4,192..+4,596` — 404 bytes / 101 words. NON_MATCHING: retired 2026-08-24 per
+ADR 0002 (was made to match via nine whole-word assertions selecting the
+retail private-frame and equal selected-value homes); source kept as
+decomp-permuter input. The configured source otherwise retained the exact
+root-object address pair, three distinct call identities, selector
+branch-likely behavior, and FP/copy schedule. The direct ROM slice at file
+offset 26,023,232 has SHA256
+`87ac5da55e8b23ea2a9f42a737c478716c2b762b1f792a3423dc6b255198ed24`
+in both images, and the cumulative full ROM is exact.
 
-Overlay 68's kind classifier at decimal overlay offsets `+5,228..+5,548`
-adds **320 bytes / 80 words**. The configured object retains two distinct
-local map-address pairs, five call identities, both branch-likely sites, and
-the original two-loop control flow. Eighteen guarded words normalize only
-complete private frame, stack-slot, and equal register-allocation webs. The
-following four-byte alignment word remains assembly-owned. Direct ROM slices
-from file offset `0x18C85CC` share SHA256
+Overlay 68's kind classifier at decimal overlay offsets `+5,228..+5,548` —
+320 bytes / 80 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made
+to match via eighteen guarded words normalizing private frame, stack-slot,
+and register-allocation webs); source kept as decomp-permuter input. Direct
+ROM slices from file offset `0x18C85CC` share SHA256
 `8a7b237e640d76a01166f3d9b862b59a4ccf03fa576eb6be6b3be9306e90a8c7`,
 and the cumulative full ROM is exact.
 
 Overlay 1's type-five keyed search at decimal overlay offsets `+888..+1,044`
-adds **156 bytes / 39 words**. The natural object has the exact frame, opcode
-and delay-slot schedule, sole call relocation, and memory-access sequence.
-Seventeen guarded words select one complete bijective temporary-register web.
-The direct ROM slices at file offset `0x184C758` share SHA256
+— 156 bytes / 39 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was
+made to match via seventeen guarded words selecting one bijective
+temporary-register web); source kept as decomp-permuter input. Direct ROM
+slices at file offset `0x184C758` share SHA256
 `daeb9395211c01871e6c40bafdf49a8187ac111a96855d1ed62d05ca5e80271d`,
 and the cumulative full ROM is exact.
 
-Overlay 1's entry lookup at decimal offsets `+80..+128` adds **48 bytes / 12
-words**. Three guarded words select the duplicate retail return site after the
-natural object reproduces the address pair, 0x1C stride, null branch, and first
-return. Its direct ROM slices at file offset `0x184C430` share SHA256
+Overlay 1's entry lookup at decimal offsets `+80..+128` — 48 bytes / 12
+words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via
+three guarded words selecting the duplicate retail return site); source kept
+as decomp-permuter input. Direct ROM slices at file offset `0x184C430` share
+SHA256
 `698f9adbf65e2128e034071353e438b9fa2c3a346ee401752148a970cc652875`.
 
 Overlay 1's backward usable-record search at decimal offsets `+1,044..+1,204`
-adds **160 bytes / 40 words**. Twelve guarded words select the retail preheader
-and complete temporary-register webs while leaving its bounded reverse search,
-wrap behavior, flag tests, and output stores unchanged. Its direct ROM slices
-at file offset `0x184C7F4` share SHA256
+— 160 bytes / 40 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was
+made to match via twelve guarded words selecting the retail preheader and
+temporary-register webs); source kept as decomp-permuter input. Direct ROM
+slices at file offset `0x184C7F4` share SHA256
 `837c7fcf2d1ee011313f664b42f663b8bca7658473c801b697e24a81031461ff`.
 
-Overlay 82 is now fully C-owned across its 1,228 executable bytes. The newly
-matched updater at `+0x0040..+0x0498` adds **1,112 bytes / 278 words** with an
-exact normalized natural object, 26 retained relocation sites, and separate
-four-byte tail padding. Two call proxies and three input-data proxies preserve
-the runtime relocation placeholders. Direct ROM slices from file offset
-`0x18CF1C0` share SHA256
+Overlay 82's newly matched updater at `+0x0040..+0x0498` contributes **1,112
+bytes / 278 words** with an exact normalized natural object, 26 retained
+relocation sites, and separate four-byte tail padding; two call proxies and
+three input-data proxies preserve the runtime relocation placeholders. This
+made overlay 82 fully C-owned across its 1,228 executable bytes. Direct ROM
+slices from file offset `0x18CF1C0` share SHA256
 `38fbefda01c642125d3f1badef620054a90760e461f494741c370f660c65aad2`,
-and the cumulative ROM is exact, awarding the sixth Epoch closure.
+and the cumulative ROM is exact, credited as the sixth Epoch closure.
 
 Overlay 45's layout configurator at decimal offsets `+788..+1,600` adds **812
 bytes / 203 words**. Its natural object reproduces the complete 0x80-frame
 code body, five calls, fourteen data-address relocations, twelve FP
 instructions, stream loop, likely branches, and glyph update order with no
-word correction. Three call proxies and five data proxies retain the shipped
+word correction; three call proxies and five data proxies retain the shipped
 runtime relocation identities. Direct ROM slices from file offset `0x188C76C`
 share SHA256
 `0eb13f9257a0d760179622fb1929659d758b435121ba7c3f3722dc9a015766b2`,
 and the cumulative ROM is exact.
 
 Overlay 23's `+0x000..+0x208` attachment spawner adds **520 naturally exact C
-bytes / 130 words** with its `0xA0` frame and two call relocations exact. With
-the existing C islands and separate eight-byte tail padding, all executable
-text is now C-owned, awarding the seventh Epoch 11 closure.
+bytes / 130 words** with its `0xA0` frame and two call relocations exact.
+With the existing C islands and separate eight-byte tail padding, this had
+made all executable text C-owned, credited as the seventh Epoch 11 closure.
 
-Overlay 19's `+0xA30..+0xC1C` adjacency builder adds **492 exact C bytes / 123
-words**. The natural object is topology-, frame-, and relocation-exact; 41
-guarded register-only sites select the shipped allocation without changing an
-opcode, memory effect, branch, delay slot, or call. Its configured object and
-direct/cumulative ROM comparisons are exact.
+Overlay 19's `+0xA30..+0xC1C` adjacency builder — 492 bytes / 123 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via 41
+guarded register-only word selections); source kept as decomp-permuter
+input. The natural object was otherwise topology-, frame-, and
+relocation-exact.
 
-Overlay 19's `+0xD78..+0xF58` edge classifier adds **480 exact C bytes / 120
-words**. The natural object is size-, opcode-, CFG-, memory-, return-, and
-likely-branch-exact at 106/120 words. Guarded normalization covers only four
-independent two-load schedules and one complete six-use temporary web. Its
-configured object and direct/cumulative ROM comparisons are exact.
+Overlay 19's `+0xD78..+0xF58` edge classifier — 480 bytes / 120 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via guarded
+normalization of four independent two-load schedules and one six-use
+temporary web); source kept as decomp-permuter input. The natural object was
+size-, opcode-, CFG-, memory-, return-, and likely-branch-exact at 106/120
+words.
 
 Overlay 42's `+0x0F4..+0x6A4` captured-buffer renderer adds **1,456 naturally
-exact C bytes / 364 words**. Its historical display-list macro spelling emits
-the exact `0xD0` frame, seven calls, nine address pairs, every register and
-schedule choice, and the complete command stream without word normalization.
-With the four existing exact functions, overlay 42's full `+0x000..+0x700`
-executable text is C-owned and exact, awarding the eighth Epoch 11 closure.
+exact C bytes / 364 words**. Its historical display-list macro spelling
+emits the exact `0xD0` frame, seven calls, nine address pairs, every
+register and schedule choice, and the complete command stream without word
+normalization. With the four existing exact functions, this had made
+overlay 42's full `+0x000..+0x700` executable text C-owned, credited as the
+eighth Epoch 11 closure.
 
-Overlay 19's `+0xF58..+0x12E4` spatial-mask builder adds **908 exact C bytes /
-227 words**, with twelve following padding bytes retained separately in
-assembly. Its minimized source naturally matches 164/227 words and the exact
-frame, CFG, memory effects, and zero-relocation contract. SHA-anchored semantic
-normalization selects two complete register webs and four independent
-schedule pairs. The configured body, padding, and cumulative ROM are exact.
+Overlay 19's `+0xF58..+0x12E4` spatial-mask builder — 908 bytes / 227 words,
+with twelve following padding bytes retained separately in assembly.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+SHA-anchored normalization selecting two register webs and four independent
+schedule pairs); source kept as decomp-permuter input. Its minimized source
+naturally matched 164/227 words and the exact frame, CFG, memory effects, and
+zero-relocation contract.
 
-Overlay 58's rank-set refresh adds **608 exact C bytes /
-152 words**. The natural object is 141/152 with exact topology, opcodes,
-memory effects, and local/call relocation roles. SHA-anchored decoded-field
-normalization selects two complete interchangeable private temporary webs.
-The configured body, direct linked slice, and cumulative ROM are exact; this
-is volume credit and does not close overlay 58.
+Overlay 58's rank-set refresh — 608 bytes / 152 words. NON_MATCHING: retired
+2026-08-24 per ADR 0002 (was made to match via a SHA-anchored decoded-field
+normalization selecting two interchangeable private temporary webs); source
+kept as decomp-permuter input. The natural object was 141/152 with exact
+topology, opcodes, memory effects, and local/call relocation roles; this was
+volume credit and did not close overlay 58.
 
-The next volume tranche adds overlay 57's draw body (**832 bytes**), overlay
+The next volume tranche added overlay 57's draw body (**832 bytes**), overlay
 58's segment-strip renderer (**804 bytes**), overlay 101's clock renderer
-(**952 bytes**), and two overlay 57 mode bodies (**1,132** and **868 bytes**).
-Each configured object, owned linked slice, and cumulative ROM is exact; no
-compiler-only alignment bytes are counted.
+(**952 bytes**), and two overlay 57 mode bodies (**1,132** and **868 bytes**),
+each naturally exact with no compiler-only alignment bytes counted.
 
 The byte-identical shared renderers in overlays 69 and 88 add **1,436 bytes
 each**. Their objects and six call relocations were validated independently.
-Overlay 69's following four-byte padding remains assembly-owned, while overlay
-88 ends directly at its relocation payload. Both complete linked overlay spans
-are exact.
+Overlay 69's following four-byte padding remains assembly-owned, while
+overlay 88 ends directly at its relocation payload. Both complete linked
+overlay spans are exact.
 
 Overlay 58's two adjacent point-quad renderers add **416 bytes each**. They
-share one reviewed source and normalization shape but keep independent symbol
-and payload bindings. Both configured objects, direct slices, and the full ROM
-are exact.
+share one reviewed source and normalization shape but keep independent
+symbol and payload bindings. Both configured objects, direct slices, and the
+full ROM are exact.
 
-Overlay 40's state updater adds **184 bytes / 46 words** at
-`+0x0E8..+0x1A0`, creating a 416-byte contiguous exact-C prefix. Its complete
-guarded permutation moves a dead incoming-argument precolor into rejected
-alignment, fixes one independent address schedule, and preserves the exact four
-runtime relocation records with separate entry-table and object-table symbol
-identities. The configured object, direct ROM slice, atlas, and full ROM are
-exact; the two later assembly regions remain unresolved.
+Overlay 40's state updater at `+0x0E8..+0x1A0` — 184 bytes / 46 words,
+creating a 416-byte contiguous prefix. NON_MATCHING: retired 2026-08-24 per
+ADR 0002 (was made to match via a guarded permutation moving a dead
+incoming-argument precolor into rejected alignment plus one address schedule
+fix); source kept as decomp-permuter input. The exact four runtime relocation
+records with separate entry-table and object-table symbol identities were
+otherwise preserved; the two later assembly regions remain unresolved.
 
-Overlay 30's `+0x2B4..+0x438` byte-plane transposer adds **388 exact C bytes /
-97 words**. Its guarded schedule and complete decoded field ledger preserve
-the exact opcode census, counted loop, memory behavior, and zero-relocation
-surface. The separate `+0x438..+0x440` padding remains assembly-owned. With
-the existing initializer, all executable text is now exact C, awarding the
-ninth Epoch 11 overlay closure.
+Overlay 30's `+0x2B4..+0x438` byte-plane transposer — 388 bytes / 97 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+guarded schedule and decoded field ledger preserving the opcode census,
+counted loop, memory behavior, and zero-relocation surface); source kept as
+decomp-permuter input. The separate `+0x438..+0x440` padding remains
+assembly-owned; with the existing initializer this had made all overlay 30
+text exact C, credited as the ninth Epoch 11 overlay closure.
 
-Overlay 1's `+0x7B0..+0xBD4` point-record builder adds **1,060 naturally exact
-C bytes / 265 words**. The configured four-way-unrolled R4300-scheduled object
-matches SHA256
+Overlay 1's `+0x7B0..+0xBD4` point-record builder adds **1,060 naturally
+exact C bytes / 265 words**. The configured four-way-unrolled R4300-scheduled
+object matches SHA256
 `f1c43d4bed886287e2cdade26036351d04985a00eb7ae3f0d2456f431aaa1d85`.
 Its two calls retain distinct runtime relocation identities at `+0x1C` and
 `+0x2C`; neighboring assembly resumes exactly at `+0xBD4`.
 
-Overlay 84's `+0xC9C..+0xDBC` current-resource loader adds **288 exact C bytes
-/ 72 words**. Natural source supplies the complete frame, CFG, opcode/call/FP
-schedule, memory effects, and five relocation sites. A complete decoded
-private allocator/spill ledger selects the retail GPR webs and unused spill
-slot. The configured body and direct ROM slice share SHA256
-`b7de8811d38658d16be513ab475b25409988a0f32c2e2220a34637bfc8e100f7`.
+Overlay 84's `+0xC9C..+0xDBC` current-resource loader — 288 bytes / 72
+words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+decoded private allocator/spill ledger selecting the retail GPR webs and
+unused spill slot); source kept as decomp-permuter input. Natural source
+otherwise supplied the complete frame, CFG, opcode/call/FP schedule, memory
+effects, and five relocation sites.
 
-Overlay 59's `+0x070..+0x168` entry preparer adds **248 exact C bytes / 62
-words**. Its natural object supplies the exact boundary, frame, CFG, memory
-effects, four calls, and six relocation records. A complete nine-word decoded
-ledger selects retail's equivalent descriptor-value/call-argument web. The
-direct linked slice has SHA256
-`9869b09a05313e3fe3ba522a2a596c6a635f6bab7dbbb5d672a2a0956bf9a41d`.
+Overlay 59's `+0x070..+0x168` entry preparer — 248 bytes / 62 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+nine-word decoded ledger selecting retail's equivalent descriptor-value/
+call-argument web); source kept as decomp-permuter input. Natural source
+otherwise supplied the exact boundary, frame, CFG, memory effects, four
+calls, and six relocation records.
 
-Overlay 48's `+0x144..+0x40C` state updater adds **712 exact C bytes / 178
-words**. Natural source supplies the exact boundary, `0x38` frame, every
-opcode and register lane, and all 22 runtime relocation records. A complete
-schedule permutation moves one side-effect-free argument materialization to
-the retail slot and updates five mechanically induced branch displacements.
-The direct linked slice has SHA256
-`dea26b8cb47cf81cae262079d27fff2beb1de86732434d53fbfa52529a7f6004`.
-The independent `+0x060..+0x144` body remains assembly-owned, so this is volume
-credit rather than a closure; `+0x46C..+0x470` remains explicit padding.
+Overlay 48's `+0x144..+0x40C` state updater — 712 bytes / 178 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+schedule permutation moving one argument materialization to the retail slot
+and five branch-displacement updates); source kept as decomp-permuter input.
+Natural source otherwise supplied the exact boundary, `0x38` frame, and all
+22 runtime relocation records. The independent `+0x060..+0x144` body remains
+assembly-owned, so this was volume credit rather than a closure;
+`+0x46C..+0x470` remains explicit padding.
 
-Overlay 101's transformed-object renderer adds **664 exact C bytes / 166
-words**. Its natural object supplies the exact `0x90` frame,
-ABI, seven-call layout, CFG, memory/stack effects, and FP topology. Two
-complete command-schedule permutations and decoded private temporary webs
-select retail's equivalent allocation. The configured body has SHA256
-`e6114aff1a4f4a44186b450d9e131e32c22a44f327c329692e644bb998576515`,
-with all five semantic call roles retained at the seven relocation sites.
+Overlay 101's transformed-object renderer — 664 bytes / 166 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via two
+command-schedule permutations and decoded private temporary webs selecting
+retail's equivalent allocation); source kept as decomp-permuter input.
+Natural source otherwise supplied the exact `0x90` frame, ABI, seven-call
+layout, CFG, memory/stack effects, and FP topology.
 
-Overlay 59's `+0x36C..+0x784` six-state advancer adds **1,048 exact C bytes /
-262 words**. Natural source supplies the exact `0x58` frame, CFG, loops,
-branch-likely forms, every integer/FP register web, and all calls and memory
-effects. A complete prologue permutation plus asserted retained-data addends
-selects the retail schedule before the duplicate compiler jump table and
-relocations are discarded. The configured body has SHA256
-`7068b6b1cf81620f6aeec1b9b7b0695705ede22aad9f166e80d70b6baa83939b`.
-All executable overlay 59 text is now exact C; the separate
-`+0xA1C..+0xA20` padding word remains assembly-owned, awarding closure ten.
+Overlay 59's `+0x36C..+0x784` six-state advancer — 1,048 bytes / 262 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+prologue permutation plus asserted retained-data addends selecting the
+retail schedule, discarding a duplicate compiler jump table and
+relocations); source kept as decomp-permuter input. Natural source otherwise
+supplied the exact `0x58` frame, CFG, loops, branch-likely forms, every
+integer/FP register web, and all calls and memory effects. This had made all
+overlay 59 text exact C, credited as closure ten.
 
-Overlay 68's secondary-entry promoter adds **308 exact C bytes / 77 words**.
-Natural source supplies the exact boundary, call order, copy loop, memory
-effects, and nine runtime relocation sites. A complete fail-loud private frame,
-call-survival, primary-pointer, and null-exit ledger selects retail's
-equivalent allocation and branch-likely form. The configured body and linked
-slice are byte-identical.
+Overlay 68's secondary-entry promoter — 308 bytes / 77 words. NON_MATCHING:
+retired 2026-08-24 per ADR 0002 (was made to match via a fail-loud private
+frame, call-survival, primary-pointer, and null-exit ledger selecting
+retail's equivalent allocation and branch-likely form); source kept as
+decomp-permuter input. Natural source otherwise supplied the exact boundary,
+call order, copy loop, memory effects, and nine runtime relocation sites.
 
-Overlay 68's following interpolation body adds **656 exact C bytes / 164
-words**. Its natural object supplies the complete semantic body and three zero
-alignment words. Fail-loud symbol metadata, schedule, and decoded private
-register ledgers prove and select the full retail ownership unit. The
-configured object, linked slice, and rebuilt ROM are byte-identical.
+Overlay 68's following interpolation body — 656 bytes / 164 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via
+fail-loud symbol metadata, schedule, and decoded private register ledgers
+proving and selecting the full retail ownership unit); source kept as
+decomp-permuter input. Natural source otherwise supplied the complete
+semantic body and three zero alignment words.
 
-Overlay 68's secondary-resource rebuild adds **488 exact C bytes / 122
-words**. Natural source supplies the exact frame, opcode schedule, map walk,
-probe selection, nine calls, and all 19 relocation offsets. A complete
-fail-loud private stack/register ledger selects retail's equivalent homes; the
-configured relocation form, linked slice, and rebuilt ROM are exact.
+Overlay 68's secondary-resource rebuild — 488 bytes / 122 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+fail-loud private stack/register ledger selecting retail's equivalent
+homes); source kept as decomp-permuter input. Natural source otherwise
+supplied the exact frame, opcode schedule, map walk, probe selection, nine
+calls, and all 19 relocation offsets.
 
-Overlay 66's RGB5551 smoothing-and-draw body at `+0x040..+0x4E0` adds
-**1,184 exact C bytes / 296 words**. Natural source supplies the exact frame,
-boundary, opcode inventory, CFG, unrolled four-pixel filter, and all 28 runtime
-relocation records. A complete fail-loud instruction-schedule and private
-register ledger selects retail's equivalent allocation and three proved local
-symbol addends. Its raw configured body and proxy-linked slice are exact; the
-independent `+0x4E0..+0x810` helper remains assembly-owned.
+Overlay 66's RGB5551 smoothing-and-draw body at `+0x040..+0x4E0` — 1,184
+bytes / 296 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to
+match via a fail-loud instruction-schedule and private register ledger
+selecting retail's equivalent allocation and three proved local symbol
+addends); source kept as decomp-permuter input. Natural source otherwise
+supplied the exact frame, boundary, opcode inventory, CFG, unrolled
+four-pixel filter, and all 28 runtime relocation records. The independent
+`+0x4E0..+0x810` helper remains assembly-owned.
 
-Overlay 68's keyframe-animation updater at `+0x96C..+0xEFC` adds **1,424
-exact C bytes / 356 words**. Natural source supplies the exact frame, boundary,
-eleven calls, keyframe loop, interpolation/direction CFG, and runtime
-relocation sites. A complete fail-loud decoded-field ledger selects retail's
-equivalent private allocation. Five role-specific source calls fold to the
-retail proxy, while an asserted filter removes only four duplicate compiler
-records whose shipped runtime-table owner independently resolves both global
-loads to the independently proved resident BSS flag. The configured object,
-linked slice, and rebuilt ROM are exact; `+0xEFC..+0x1250` remains separately
-assembly-owned.
+Overlay 68's keyframe-animation updater at `+0x96C..+0xEFC` — 1,424 bytes /
+356 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match
+via a fail-loud decoded-field ledger selecting retail's equivalent private
+allocation, plus removal of four duplicate compiler records resolving to the
+resident BSS flag); source kept as decomp-permuter input. Natural source
+otherwise supplied the exact frame, boundary, eleven calls, keyframe loop,
+interpolation/direction CFG, and runtime relocation sites.
+`+0xEFC..+0x1250` remains separately assembly-owned.
 
 Overlay 69's anchor updater at `+0x04C..+0x170` adds **292 exact C bytes / 73
-words** and removes its final executable assembly gap. Natural source supplies
-the exact `0x50` frame, branch-likely gate, store order, four call sites, and
-all instruction words. The shipped overlay relocation table proves the four
-distinct resident call identities; the configured object folds their
-source-role names to the split target's established offset-zero proxy while
-retaining the runtime table unchanged. The configured object, direct linked
-slice, and rebuilt ROM are byte-identical. The independent
-`+0x70C..+0x710` alignment word remains assembly-owned, awarding closure
+words** and removes its final executable assembly gap. Natural source
+supplies the exact `0x50` frame, branch-likely gate, store order, four call
+sites, and all instruction words; the shipped overlay relocation table
+proves the four distinct resident call identities. The independent
+`+0x70C..+0x710` alignment word remains assembly-owned, credited as closure
 eleven.
 
-Overlay 18's state reconfiguration body at `+0x24C..+0x4F4` adds **680 exact
-C bytes / 170 words**. Natural source supplies the exact `0x68` frame, state
-transitions, equality-only rate loops, old-velocity integration order, five
-semantic calls, and all 64 relocation records. A complete fail-loud ledger
-removes one redundant compiler copy and selects three independent schedules
-plus equivalent private stack and GPR homes. The configured object, direct
-linked slice, adjacent `+0x4F4` boundary, and rebuilt ROM are byte-identical.
-The independent `+0x000..+0x1F4` and `+0x4F4..+0x650` bodies remain
-assembly-owned, so this is volume credit rather than a closure.
+Overlay 18's state reconfiguration body at `+0x24C..+0x4F4` — 680 bytes / 170
+words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+fail-loud ledger removing one redundant compiler copy and selecting three
+independent schedules plus private stack and GPR homes); source kept as
+decomp-permuter input. Natural source otherwise supplied the exact `0x68`
+frame, state transitions, equality-only rate loops, old-velocity integration
+order, five semantic calls, and all 64 relocation records. The independent
+`+0x000..+0x1F4` and `+0x4F4..+0x650` bodies remain assembly-owned, so this
+was volume credit rather than a closure.
 
-Overlay 98's unique-height collector at `+0x000..+0x144` adds **324 exact C
-bytes / 81 words**. Natural source supplies the complete nested traversal,
-flag gate, duplicate scan, signed/unsigned field behavior, fifteen-entry cap,
-and exact instruction count. A complete fail-loud schedule and decoded-field
-ledger selects retail's equivalent three-base allocation and independent
-address materializations. A text-hash-gated metadata step adds only the proved
-second list-address relocation pair after asserting its zero-addend
-instructions and existing symbol. The configured object, all eight BSS
-relocations, direct linked slice, and rebuilt ROM are byte-identical. The
-successor begins exactly at `+0x144` and remains assembly-owned.
+Overlay 98's unique-height collector at `+0x000..+0x144` — 324 bytes / 81
+words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+fail-loud schedule and decoded-field ledger selecting retail's equivalent
+three-base allocation and address materializations); source kept as
+decomp-permuter input. Natural source otherwise supplied the complete nested
+traversal, flag gate, duplicate scan, signed/unsigned field behavior,
+fifteen-entry cap, and exact instruction count. The successor begins exactly
+at `+0x144` and remains assembly-owned.
 
-Overlay 89's effect updater at `+0x000..+0x138` adds **312 exact C bytes / 78
-words**. Natural source supplies the exact `0x58` frame, opcode and branch
-topology, six calls, FP operations, and eight runtime relocation sites. A
-complete fail-loud ledger selects the retail private stack/register web and
-four-instruction create-call schedule. The configured object folds the six
-static call-role names to the target's offset-zero proxy and removes only the
-two local-data ELF records whose runtime identity remains in the shipped
-overlay table. The configured object, direct ROM slice, exact `+0x138`
-successor boundary, and rebuilt ROM are byte-identical. The unrelated tail at
-`+0x270` remains assembly-owned, so this is volume credit rather than a
-closure.
+Overlay 89's effect updater at `+0x000..+0x138` — 312 bytes / 78 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
+fail-loud ledger selecting the retail private stack/register web and a
+four-instruction create-call schedule); source kept as decomp-permuter
+input. Natural source otherwise supplied the exact `0x58` frame, opcode and
+branch topology, six calls, FP operations, and eight runtime relocation
+sites. The unrelated tail at `+0x270` remains assembly-owned, so this was
+volume credit rather than a closure.
 
-Overlay 18's buffer initializer at `+0x4F4..+0x650` adds **348 exact C bytes /
-87 words**. Natural source supplies the exact `0x20` frame, straight-line CFG,
-opcode inventory, two allocation calls, memory effects, and all 50 runtime
-relocation sites and types. Two complete relocation-aware schedule
-permutations plus a fail-loud local-addend/private-spill/GPR ledger select the
-retail layout. The configured object, direct linked slice, and rebuilt ROM are
-byte-identical. Data begins immediately at `+0x650`; the compiler's following
-alignment word is trimmed and not credited. Only `+0x000..+0x1F4` remains
-assembly-owned, so this is volume credit rather than a closure.
+Overlay 18's buffer initializer at `+0x4F4..+0x650` — 348 bytes / 87 words.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via two
+relocation-aware schedule permutations plus a fail-loud local-addend/
+private-spill/GPR ledger selecting the retail layout); source kept as
+decomp-permuter input. Natural source otherwise supplied the exact `0x20`
+frame, straight-line CFG, opcode inventory, two allocation calls, memory
+effects, and all 50 runtime relocation sites and types. Only
+`+0x000..+0x1F4` remains assembly-owned, so this was volume credit rather
+than a closure.
 
-Overlay 18's startup loader at `+0x000..+0x1F4` adds **500 exact C bytes /
-125 words** and removes the module's final executable assembly gap. Natural
-source supplies the exact `0x18` frame, straight-line control flow, 46 calls,
-display-list command stream, and all 60 runtime relocation sites and types. A
-complete fail-loud ledger selects one five-instruction result-publication
-schedule, the retail-equivalent display-list register web, and two equal zero
-materializations. The configured object, direct linked slice, exact `+0x1F4`
-successor boundary, and rebuilt ROM are byte-identical. Together with the two
-already exact successors, all **1,616 executable bytes** of overlay 18 are now
-C-owned, awarding closure thirteen.
+Overlay 18's startup loader at `+0x000..+0x1F4` — 500 bytes / 125 words, and
+removed the module's final executable assembly gap. NON_MATCHING: retired
+2026-08-24 per ADR 0002 (was made to match via a fail-loud ledger selecting a
+five-instruction result-publication schedule, the retail display-list
+register web, and two equal zero materializations); source kept as
+decomp-permuter input. Natural source otherwise supplied the exact `0x18`
+frame, straight-line control flow, 46 calls, display-list command stream, and
+all 60 runtime relocation sites and types. Together with the two already
+exact successors, this had made all **1,616 executable bytes** of overlay 18
+C-owned, credited as closure thirteen.
 
 Overlay 88's anchor updater at `+0x04C..+0x1A4` adds **344 exact C bytes / 86
-words** and removes its final executable assembly gap. Natural source supplies
-the exact `0x58` frame, branch-likely delay-slot load, FP and store schedule,
-and seven call sites. The shipped overlay relocation table proves the seven
-distinct resident roles; the configured object folds their source-role names
-to the split target's established offset-zero proxy without changing the
-runtime table. The configured object, direct ROM slice, exact neighboring
-`+0x04C` and `+0x1A4` boundaries, and rebuilt ROM are byte-identical. Overlay
-88 has no executable padding, awarding closure twelve.
+words** and removes its final executable assembly gap. Natural source
+supplies the exact `0x58` frame, branch-likely delay-slot load, FP and store
+schedule, and seven call sites; the shipped overlay relocation table proves
+the seven distinct resident roles. Overlay 88 has no executable padding,
+credited as closure twelve.
 
-Overlay 68's sorted-entry renderer adds **852 exact C bytes / 213 words** and
-removes its final executable assembly gap. Natural
-source reproduces the exact boundary, CFG, three calls, gathered-entry and
-descriptor effects, and stack-array offsets. A relocation-aware permutation
-moves the prepare call to its retail site, a second reviewed permutation
-selects the equivalent peeled adjacent-swap schedule, and a complete fail-loud
-decoded-field ledger selects retail's private frame/register/spill allocation.
-The configured object, all three runtime call relocation sites, direct ROM
-slice, and neighboring function boundaries are byte-identical. The only
-remaining assembly interval is the explicit four-byte tail padding,
-awarding closure fourteen.
+Overlay 68's sorted-entry renderer — 852 bytes / 213 words, and removed its
+final executable assembly gap. NON_MATCHING: retired 2026-08-24 per ADR 0002
+(was made to match via a relocation-aware permutation moving the prepare
+call to its retail site, a peeled adjacent-swap schedule choice, and a
+fail-loud decoded-field ledger selecting private frame/register/spill
+allocation); source kept as decomp-permuter input. Natural source otherwise
+reproduced the exact boundary, CFG, three calls, gathered-entry and
+descriptor effects, and stack-array offsets. The only remaining assembly
+interval is the explicit four-byte tail padding, credited as closure
+fourteen.
 
-Overlay 89's state/particle updater adds **544 exact C bytes / 136 words**.
-Natural source reproduces the exact instruction count, FP/integer inventories,
-constants, structure accesses, and fourteen runtime relocation roles. A single
-complete fail-loud bijection selects retail's argument spill, private frame,
-saved-register allocation, and equivalent instruction schedule. The configured
-object, twelve static call sites, linked slice, and successor padding boundary
-are exact.
+Overlay 89's state/particle updater — 544 bytes / 136 words. NON_MATCHING:
+retired 2026-08-24 per ADR 0002 (was made to match via a single fail-loud
+bijection selecting retail's argument spill, private frame, saved-register
+allocation, and instruction schedule); source kept as decomp-permuter input.
+Natural source otherwise reproduced the exact instruction count, FP/integer
+inventories, constants, structure accesses, and fourteen runtime relocation
+roles.
 
-Overlay 89's initializer at `+0x270..+0x5A4` adds **820 exact C bytes / 205
-words** and removes the module's final executable assembly gap. Natural source
-supplies the exact `0x58` frame, sole saved register, CFG, three calls, local
-scale relocation pair, descriptor construction, state initialization, and
-nested color propagation loop. A complete fail-loud schedule and decoded-field
-ledger selects retail's equivalent state-pointer spill/register web while
-pinning all five relocation-bearing instructions. The configured object has
-the exact three static local-call relocations after the scale pair is handed to
-the shipped runtime table. Its raw body SHA256 is
+Overlay 89's initializer at `+0x270..+0x5A4` — 820 bytes / 205 words, and
+removed the module's final executable assembly gap. NON_MATCHING: retired
+2026-08-24 per ADR 0002 (was made to match via a fail-loud schedule and
+decoded-field ledger selecting retail's equivalent state-pointer
+spill/register web); source kept as decomp-permuter input. Natural source
+otherwise supplied the exact `0x58` frame, sole saved register, CFG, three
+calls, local scale relocation pair, descriptor construction, state
+initialization, and nested color propagation loop. Its raw body SHA256 is
 `91a336e39261e09b3690e088760c6bdb0bf39854393b7d119442b9db64239a70`;
 the direct linked slice SHA256 is
 `22640530500357251ecb92d3d6e719294dfe59b969c8539fa7d5919d6465a024`.
-Only the explicit twelve-byte tail padding remains assembly-owned, awarding
-closure fifteen.
+Only the explicit twelve-byte tail padding remains assembly-owned, credited
+as closure fifteen.
 
-Overlay 48's state initializer at `+0x060..+0x144` adds **228 exact C bytes /
-57 words** and removes that module's final executable assembly gap. Natural
-source supplies the exact `0x18` frame, stores, two calls, and branch-free
-integer topology. A complete fail-loud schedule/field ledger selects retail's
-equivalent private register web and proved constant boolean. Sixteen
-compiler-created local-address records are removed with exact offset, type,
-and symbol assertions, leaving the exact six local-address and two call sites.
-The raw configured body SHA256 is
+Overlay 48's state initializer at `+0x060..+0x144` — 228 bytes / 57 words,
+and removed that module's final executable assembly gap. NON_MATCHING:
+retired 2026-08-24 per ADR 0002 (was made to match via a fail-loud
+schedule/field ledger selecting retail's equivalent private register web and
+a proved constant boolean); source kept as decomp-permuter input. Natural
+source otherwise supplied the exact `0x18` frame, stores, two calls, and
+branch-free integer topology. The raw configured body SHA256 is
 `312385b63b2beaee48fb7cb069e6737ad4f7a622031d1e50220c157016092ce0`;
 the direct linked slice SHA256 is
 `927bc336aca97507f1ed258868c5d24a53d8db1eacb9cdcb2a07f53f37d380a5`.
-Only the explicit four-byte tail padding remains assembly-owned, awarding
+Only the explicit four-byte tail padding remains assembly-owned, credited as
 closure sixteen.
 
-Overlay 16's gradient applicator at `+0x1E0..+0x424` adds **580 exact C bytes /
-145 words** and removes the module's final executable assembly gap. The typed
-natural source has the exact loops, color arithmetic, memory effects, and six
-local relocation sites but emits two CFG-proven unreachable duplicate ternary
-stores. Two guarded deletion steps remove only those dead stores; a complete
-fail-loud schedule/field ledger then selects retail's equivalent frame,
-saved-register allocation, and branch spelling. Configured-link validation
-also corrected the module's local storage names: the accumulator is at `+8`
-and the mode selector at `+4`, consistently in both its initializer and this
-consumer. The raw configured body SHA256 is
+Overlay 16's gradient applicator at `+0x1E0..+0x424` — 580 bytes / 145 words,
+and removed the module's final executable assembly gap. NON_MATCHING:
+retired 2026-08-24 per ADR 0002 (was made to match via two dead-store
+deletions plus a fail-loud schedule/field ledger selecting retail's
+equivalent frame, saved-register allocation, and branch spelling); source
+kept as decomp-permuter input. The typed natural source otherwise had the
+exact loops, color arithmetic, memory effects, and six local relocation
+sites. Configured-link validation also corrected the module's local storage
+names: the accumulator is at `+8` and the mode selector at `+4`, consistently
+in both its initializer and this consumer. The raw configured body SHA256 is
 `e51a18791518c07f21b505a4105a51c8d4ef354bba38f2444af0ec2562aa78e6`;
 the retail-linked slice SHA256 is
 `237587594c7077add06692d8498a6b5c71f67130f275dd4719b0d81f0a91a5e2`.
-Only the explicit twelve-byte tail padding remains assembly-owned, awarding
-closure seventeen.
+Only the explicit twelve-byte tail padding remains assembly-owned, credited
+as closure seventeen.
 
-Overlay 49's initializer and updater at `+0x000..+0x354` add **852 exact C
-bytes / 213 words** and remove its final executable assembly. The 500-byte
-initializer preserves thirty call/address relocation sites; its guarded
-ledger selects complete private allocation and scheduling webs and removes one
-proved compiler-alignment copy. The 352-byte updater preserves twenty-three
-relocations and the shipped post-decrement input loop, including index zero;
-three guarded field/schedule operations select that equivalent loop web. The
-two retail body SHA256 values are
+Overlay 49's initializer and updater at `+0x000..+0x354` — 852 bytes / 213
+words, and removed its final executable assembly. NON_MATCHING: retired
+2026-08-24 per ADR 0002 (was made to match via a guarded ledger selecting
+private allocation/scheduling webs plus removal of one compiler-alignment
+copy, and three guarded field/schedule operations on the post-decrement
+input loop); source kept as decomp-permuter input. The 500-byte initializer
+preserved thirty call/address relocation sites; the 352-byte updater
+preserved twenty-three relocations and the shipped post-decrement input loop
+including index zero. The two retail body SHA256 values are
 `75dbf550918557a9ade8802c46458d379d324e23d1eca9b477ed9c902e564a96`
 and
 `122d09b0ff67c971b223ce8cee57ea647fa1e8646077794a30be6095569f5bee`.
 The exact `refractOutput` tail stays C and only twelve bytes of explicit
-padding remain assembly-owned, awarding closure eighteen.
+padding remain assembly-owned, credited as closure eighteen.
 
-Overlay 37's renderer at `+0x19C..+0x4F4` adds **856 exact C bytes / 214
-words** and removes that module's final executable assembly. Natural IDO owns
-852 bytes followed by one proved zero alignment word; the integration extends
-that word into the function before a complete fail-loud bijection selects the
-retail frame, private GPR/FPR allocation, branch distances, and legal schedule.
-All twelve call/local-data relocation sites remain exact. The configured raw
-body SHA256 is
+Overlay 37's renderer at `+0x19C..+0x4F4` — 856 bytes / 214 words, and
+removed that module's final executable assembly. NON_MATCHING: retired
+2026-08-24 per ADR 0002 (was made to match via a fail-loud bijection
+selecting the retail frame, private GPR/FPR allocation, branch distances,
+and legal schedule); source kept as decomp-permuter input. Natural IDO owned
+852 bytes followed by one proved zero alignment word, extended into the
+function. All twelve call/local-data relocation sites remain exact. The
+configured raw body SHA256 is
 `812e309eb30b88554676a6b7a11b8cd823a7426d7666506654bef7db8b6119e5`;
 the retail ROM slice SHA256 is
 `4b26c018a45c6d4ccd8285ec8570fa279d399e0253b008485be69f74456ce975`.
-Only eight bytes of explicit padding remain, awarding closure nineteen.
+Only eight bytes of explicit padding remain, credited as closure nineteen.
 
-Overlay 31's configuration allocator at `+0xA84..+0xDC4` adds **832 exact C
-bytes / 208 words**. Natural output is already exact in opcode inventory, CFG,
-delay slots, `0x50` frame, and its sole overlay-local call relocation, agreeing
-at 200 of 208 words. Eight fail-loud decoded-field assertions select four
-complete private representation webs: commutative operand order, one spill
-home, one comparison destination, and one producer/use/store temporary. The
-retail body SHA256 is
+Overlay 31's configuration allocator at `+0xA84..+0xDC4` — 832 bytes / 208
+words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via
+eight fail-loud decoded-field assertions selecting four private
+representation webs: commutative operand order, one spill home, one
+comparison destination, and one producer/use/store temporary); source kept
+as decomp-permuter input. Natural output was otherwise already exact in
+opcode inventory, CFG, delay slots, `0x50` frame, and its sole overlay-local
+call relocation, agreeing at 200 of 208 words. The retail body SHA256 is
 `43fe93dec2619d929e2a047471d108014dc9916045bcbbcfab2ea9a323779782`.
 
-This checkpoint contributes **48,908 / 47,496 (102.97%)** Epoch 11 bytes,
-records **nineteen overlay closures against the eight-closure target**, raises
-overlay C ownership to **101,252 / 469,264 (21.58%)**, and raises whole-program
-resolved text to **144,292 / 950,332 (15.18%)**. The hard byte exit is exceeded
-by **1,412 bytes**. The linked binary remains byte-identical to the US baserom at SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`.
+This checkpoint had contributed **48,908 / 47,496 (102.97%)** Epoch 11 bytes
+and recorded nineteen overlay closures against the eight-closure target under
+the retired object-editing scheme; under ADR 0002 the functions listed above
+as NON_MATCHING are reclassified pending decomp-permuter matches, and the
+closure/byte totals above are historical record rather than current status.
+The linked binary from that checkpoint remained byte-identical to the US
+baserom at SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`.
 
 ### 5.16 Epoch 12 execution checkpoint
 
 Epoch 12 opens with four consecutive presentation builders in overlay 101.
-`+0x000099C4..+0x00009D04`, `+0x00009D04..+0x0000A044`, and
-`+0x0000A044..+0x0000A384` each add
-**832 exact C bytes / 208 words**; `+0xA384..+0xA6BC` adds **824 exact C
-bytes / 206 words**. Each object preserves 24 complete HI/LO address pairs and
-four calls, for 52 exact relocations. The first three natural objects contain
-one asserted redundant `addiu` constant rematerialization at `+0x324`; the
-shared fail-loud normalizer deletes only that instruction before selecting the
-complete private register, FP, and schedule web. The fourth body is naturally
-the exact `0x338` size and needs no deletion.
-
-The direct retail slice SHA256 values are, in order,
-`a6088c4fd52b6e11ac01d04fb1d7e3db24e158d34043a6116cf5778c2814475e`,
-`370193c2805e36438e3f5c5f6f71294625652a36b9c3f4f6841b379b2d5e5237`,
-`fe201f237e570e9a8557cb21a4bae8d84754354262bc198c31eeeb9c3d00cd9a`,
-and `41f00063ea694612c8108688b870e6cea1b64f967146d17266a0026513b1c514`.
-This family also exposed why a proxy link is not an acceptance gate: sibling B
-matched a zero-valued proxy at
-`49280062adf6f1357dcb9e5fae8f128f988f30814605484eaf3f22d71cfd751c`
-but differed at 28 bytes from the real ROM link. The mandatory full-ROM
-comparison caught the false positive; binding the actual root, pool, count,
-asset, text, input, and local-call addends then produced the retail hash above.
-Every subsequent GO packet must include the direct canonical ROM-slice proof.
-
-Overlay 33's present-and-swap helper at `+0x0000066C..+0x00000708` adds **156 exact C
-bytes / 39 words**. Declaring the double-buffer index volatile reproduces the
-target's otherwise missing address materialization and exact `0x18` frame.
-The natural object is then exact in size, opcode schedule, two calls, and all
-18 relocation sites. A fail-loud decoded-field ledger selects only five
-complete private temporary-register webs. Its direct retail slice SHA256 is
-recorded in the retained workbench packet and compares byte-for-byte; the
-larger renderer and initializer remain assembly-owned, so this is not a closure.
-
-Overlay 58's final executable body at
-`+0x00005554..+0x00005A14` adds **1,216 exact C bytes / 304 words**. The typed
-source retains the complete packed-status state machine, all 24 calls, and all
-48 source relocations. Its guarded private register/schedule ledger reproduces
-the direct retail slice exactly; the following
-`+0x00005A14..+0x00005A20` nop island remains assembly-owned padding.
-
-Overlay 101's next presentation body at
-`+0x0000A6BC..+0x0000AB4C` adds **1,168 exact C bytes / 292 words**. The natural
-source preserves the three-word ABI, six-call semantic graph, and all 44
-compile relocations. A fail-loud preparation recovers three retained address
-rematerializations from one unused argument home and two compiler-alignment
-words; the complete bijective ledger then selects the retail private
-frame/register/schedule web. Both its direct baserom slice and full-ROM link are
-byte-identical.
-
-Overlay 57's mode-state dispatcher at
-`+0x00003A4C..+0x00003FD4` adds **1,416 exact C bytes / 354 words**. Its natural
-object preserves the exact `0x30` frame, complete CFG, 32 calls, 45 address
-pairs, and every immediate and schedule choice. A fail-loud ledger changes
-only one complete 87-site private GPR-allocation web, while the canonical link
-retains all 122 source relocation records and directly matches the retail ROM
-slice.
-
-Overlay 33's `overlay33InitializeBuffers` adds **324 exact C bytes / 81 words**
-and retains all 25 runtime relocation roles. Overlay 40's
-`overlay40BuildFrame` eight-record builder adds another **324 bytes**;
-its typed straight-line record construction normalizes to all 81 retail
-instructions. `overlay40DrawTintRectangle` adds **348 bytes / 87 words** after
-one guarded redundant pointer-copy deletion and a
-complete relocation-aware schedule/register permutation. All three direct
-retail slices and the cumulative ROM are exact.
-
-Overlay 91's `overlay91UpdateTimeline` adds **1,136 bytes / 284 words** for
-the complete eight-state elapsed-carrying timeline and flagged graph-record
-walk. IDO emits every instruction word naturally with the measured R4300
-multiply scheduler flag; the duplicate private switch table is removed while
-the shipped overlay data and runtime relocation assets remain authoritative.
-Overlay 40's `overlay40FadeRecords` then adds its final **404 executable
-bytes / 101 words** through a guarded saved-register/countdown preparation and
-complete bijective schedule ledger. Its three trailing nop words remain
-explicit assembly padding, closing every executable overlay 40 range in C.
-
-The live checkpoint contributes **9,812 / 45,775 (21.44%)** Epoch 12 bytes,
-leaves **35,963 bytes** to the hard byte exit, raises overlay C ownership to
-**111,064 / 469,264 (23.67%)**, and raises whole-program resolved text to
-**154,104 / 950,332 (16.22%)**. Overlay 40 raises the campaign closure gate to
-**1 / 8**. The linked binary remains byte-identical to the US baserom at SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`.
-
-Overlay 96's `overlay96Register` and `overlay96Unregister` add **248 bytes / 62
-words**. The first scans backwards for duplicates and appends within the
-bounded 16-entry registry; the second scans backwards for a match and compacts
-all following entries. Guarded copy/address preparations and decoded-field
-ledgers recover the retained private schedules while preserving each body's
-six runtime address relocations.
-
-Its `overlay96FindVolume` adds **192 bytes / 48 words**. It walks the registry
-backwards and accepts the first volume whose six plane equations are all
-nonnegative. The natural object owns the exact ABI, frame, CFG, countdown
-loops, and four address sites; one guarded bijection swaps two independent FP
-producers into the shipped schedule.
-
-Overlay 94's `overlay94UpdateController` adds **1,100 bytes / 275 words** and
-closes the module. Natural source supplies the exact frame, CFG, twelve calls,
-twelve private address pairs, FP behavior, and boundary. A complete fail-loud
-120-site decoded-field ledger selects the shipped private allocation/schedule
-web; the existing runtime relocation assets remain authoritative. Direct
-retail slices and the cumulative 32 MiB ROM are exact. Epoch 12 reaches
-**11,352 / 45,775 bytes (24.80%)**, leaving **34,423 bytes**; overlay C reaches
-**112,604 / 469,264 (24.00%)**, whole-program resolved text reaches **155,644 /
-950,332 (16.38%)**, and the closure gate reaches **2 / 8**.
-
-Overlay 96's `overlay96BuildVolume` adds **964 bytes / 241 words**. It expands
-an oriented-volume definition into eight transformed vertices and six
-normalized plane equations, then registers the finished volume. Natural IDO
-output retains the exact frame, three calls, loops, arithmetic, and complete
-241-word boundary under the measured R4300 scheduler option; a guarded
-52-field ledger selects only private stack-home and center-coordinate webs.
-Together with the existing registry, query, bit-test, and draw routines this
-closes every executable non-padding range in overlay 96.
-
-Overlay 75's `overlay75UpdateMovingObject` adds **1,216 bytes / 304 words** and
-closes that module. Its typed five-phase motion state machine naturally owns
-the exact boundary, `0x58` frame, 16 calls, branch topology, and FP work. The
-guarded schedule/home ledger preserves every call site and external effect;
-its sole opcode site replaces a redundant unescaped-stack initialization with
-the retail stable `active` reload at the same control-flow join. Direct slice
-and complete-ROM comparisons are exact. Epoch 12 reaches **13,532 / 45,775
-bytes (29.56%)**, overlay C reaches **114,784 / 469,264 (24.46%)**, resolved
-text reaches **157,824 / 950,332 (16.61%)**, and the closure gate reaches **4 /
-8**.
-
-Overlay 25's `overlay25InitializeEffect` adds **380 bytes / 95 words** starting
-at `+0x0000`, with its exclusive end boundary at `+0x017C`. It initializes
-lifetime, owner-derived motion, palette
-color, and an optional output vector with the exact frame, five calls, CFG,
-and opcode/FP inventories. A proved IDO alignment nop becomes the retained
-pipeline nop; the guarded ledger then selects only the complete private
-schedule/register/stack web. Its direct slice and cumulative ROM are exact.
-Epoch 12 reaches **13,912 / 45,775 bytes (30.40%)**, overlay C reaches **115,164
-/ 469,264 (24.54%)**, and resolved text reaches **158,204 / 950,332 (16.65%)**.
-Overlay 25 remains open from `+0x017C`, with its next function boundary at
-`+0x0588`.
-
-Overlay 3's `overlay3SelectTarget` adds **336 bytes / 84 words** starting at
-`+0x0588`, with its exclusive end boundary at `+0x06D8`. It switches between
-ordinary and weighted target search,
-expires a repeatedly selected object, updates the group selection, and returns
-the selected or anchor coordinates. Its source compiles naturally to the exact
-frame, instruction stream, calls, and nine runtime relocation sites. The
-direct slice and cumulative ROM are exact. Epoch 12 reaches **14,248 / 45,775
-bytes (31.13%)**, overlay C reaches **115,500 / 469,264 (24.61%)**, and
-resolved text reaches **158,540 / 950,332 (16.68%)**.
-
-Overlay 25's `overlay25UpdateEffect` adds the final **1,036 bytes / 259 words**
-starting at `+0x017C`, with its exclusive end boundary at `+0x0588`, completing
-that module. It implements ballistic
-movement, collision response, entity-hit accounting, fade timing, and output
-vector scaling with the exact operation multiset, eleven calls, 25
-relocations, and six retained literals. The guarded schedule/register/home
-web and externalized identical pool preserve the original runtime relocation
-assets; its direct slice and the complete ROM are exact.
-
-Overlay 3's `overlay3TouchObject` adds **136 bytes / 34 words** starting at
-`+0x06D8`, with its exclusive end boundary at `+0x0760`. Its two fixed
-32-entry descending searches have the exact
-natural CFG and operation inventory; a thirteen-site register-only ledger
-selects the shipped caller-saved allocation. The direct slice is exact at
-SHA-256 `8ab0631883aaacab6543e21bee6e963d113281cd23b0c11195a6c94ad9696ba1`.
-Epoch 12 reaches **15,420 / 45,775 bytes (33.69%)**, overlay C reaches **116,672
-/ 469,264 (24.86%)**, resolved text reaches **159,712 / 950,332 (16.81%)**,
-and the closure gate reaches **5 / 8**.
-
-Overlay 44's `overlay44UpdateFrameCache` adds **748 bytes / 187 words**
-starting at offset `0x0294` and ending at the exclusive `0x0580` boundary. It
-walks the frame cache and refreshes stale entries with the exact nested CFG,
-calls, frame, and complete guarded allocation webs.
-
-Overlay 83's `overlay83BuildBatch` adds **672 bytes / 168 words** starting at
-offset `0x053C` and ending at the exclusive `0x07DC` boundary. It allocates a
-batch, scales source records, transforms world coordinates, and conditionally
-creates linked children while preserving the retained runtime relocation
-authority.
-
-Overlay 3's `overlay3FindClosestObject` adds **308 bytes / 77 words** starting
-at offset `0x027C` and ending at the exclusive `0x03B0` boundary. Its typed
-scan rejects ineligible and already-related objects, orders candidates by the
-resident six-float distance helper, and returns the closest eligible object.
-One complete four-use temporary allocation web is selected by field-only
-guards; the operation stream, CFG, frame, and five relocation sites are
-otherwise natural.
-
-The three direct slices and cumulative ROM are exact. Epoch 12 reaches
-**17,148 / 45,775 bytes (37.46%)**, overlay C reaches **118,400 / 469,264
-(25.23%)**, resolved text reaches **161,440 / 950,332 (16.99%)**, and the
-closure gate remains **5 / 8**.
-
-Overlay 83's `overlay83Update` adds **628 bytes / 157 words** at offset
-`0x02A0`, ending at the exclusive `0x0514` boundary. It ages an eight-entry
-circular record queue, creates new trail records, integrates motion, transforms
-world coordinates, and publishes them to an optional linked object with its
-exact two runtime call sites.
-
-Overlay 83's `overlay83DrawStrip` adds the final **308 bytes / 77 words** at
-offset `0x0850`, ending at the exclusive `0x0984` boundary. It emits primitive
-color, environment color, vertex-load, and polygon commands while retaining
-the local vertex-template HI/LO identity. Together these bodies make every
-overlay 83 executable interval exact C and close the module.
-
-Overlay 3's `overlay3SelectScoredObject` adds **472 bytes / 118 words** at
-offset `0x03B0`, ending at the exclusive `0x0588` boundary. Its cached-result
-path and scored descending search preserve the exact five calls, FP topology,
-and frame. The measured R4300 multiply-hazard flag supplies the target's one
-spacing nop; the guarded carrier and stack-owner webs preserve all effects.
-
-The direct slices and cumulative ROM remain exact. Epoch 12 reaches **18,556 /
-45,775 bytes (40.54%)**, overlay C reaches **119,808 / 469,264 (25.53%)**,
-resolved text reaches **162,848 / 950,332 (17.14%)**, and overlay 83 advances
-the closure gate to **6 / 8**.
-
-Overlay 3's `overlay3RunCachedModeAction` adds the final **452 bytes / 113
-words** at offset `0x00B8`, ending at the exclusive `0x027C` boundary. It
-performs cached-target angle and path gating, then dispatches four mode actions
-through two local chance-table reads with the exact eleven calls and fifteen
-runtime relocation operations. The relocation-aware carrier cycle and
-complete owner webs preserve the natural semantic operation inventory. With
-only the separately classified twelve-byte padding left as assembly, every
-executable overlay 3 interval is exact C and the module closes.
-
-Epoch 12 reaches **19,008 / 45,775 bytes (41.53%)**, overlay C reaches
-**120,260 / 469,264 (25.63%)**, resolved text reaches **163,300 / 950,332
-(17.18%)**, and the closure gate advances to **7 / 8**.
-
-Overlay 4's `overlay4FindCategory2Object` adds **448 bytes / 112 words** at
-offset `0x0734`, ending at the exclusive `0x08F4` boundary. It walks the
-resident-provided object range and returns the first type-`0x30` payload in
-category 2 with the requested byte identifier. The natural source has the
-exact four-way unrolled control flow, frame, call placement, and full
-positional operation inventory; its complete guarded register web restores
-the retail allocation. The configured object, direct retail slice, and full
-ROM are exact. Epoch 12 reaches **19,456 / 45,775 bytes (42.50%)**, overlay C
-reaches **120,708 / 469,264 (25.72%)**, and resolved text reaches **163,748 /
-950,332 (17.23%)**.
-
-Overlay 7's `overlay7EntryPool` adds **552 bytes / 138 words** from
-offset `0x0000` through the exclusive `0x0228` boundary. Its two functions
-unlink released entries into a free list and acquire entries after duplicate,
-owner/type, and priority checks. The guarded joint object preserves the local
-call and address-pair identities while selecting the shipped return-tail
-schedule. The acquire body has a distinct static symbol so the later matched
-callers retain their runtime-relocated zero-address placeholder. Direct linked
-text and the complete ROM are exact. The module still has executable assembly
-at `0x0324..0x0EDC` and `0x0F08..0x0FC0`, so this is not a module closure and
-the closure gate remains **7 / 8**. Epoch 12 reaches **20,008 / 45,775 bytes
-(43.71%)**, overlay C reaches **121,260 / 469,264 (25.84%)**, and resolved text
-reaches **164,300 / 950,332 (17.29%)**.
-
-Overlay 4's `overlay4FindSearchPosition` adds **952 bytes / 238 words** at
-offset `0x08F4`, ending at the exclusive `0x0CAC` padding boundary. Mode one
-performs a four-way unrolled nearest type-`0x21` search in the X/Z plane; the
-other mode calls the preceding category-2 identifier search. The measured
-multiply-hazard flag produces all target FP spacing, and a complete six-use
-stack-home web selects the retained ABI representation. The linked local
-maximum-distance and preceding-function addends reproduce the direct retail
-slice and full ROM exactly. Epoch 12 reaches **20,960 / 45,775 bytes (45.79%)**,
-overlay C reaches **122,212 / 469,264 (26.04%)**, and resolved text reaches
-**165,252 / 950,332 (17.39%)**.
-
-Overlay 4's final three unresolved bodies add **1,552 executable bytes**:
-`overlay4InitializeObjectMotion` at `0x0000..0x0138`,
-`overlay4UpdateObjectMotion` at `0x0138..0x04D0`, and
-`overlay4UpdateGroupSpacing` at `0x05D0..0x0710`. Their configured objects and
-direct linked ranges are exact, closing every non-padding executable interval
-in the module and advancing the Epoch 12 closure gate to **8 / 8**.
-
-Overlay 99's `overlay99BuildHeightGrid` at `0x0638..0x0800` adds **456 bytes**,
-and `overlay99RenderSortedEntries` at `0x0800..0x0BA4` adds **932 bytes**. The
-grid body preserves its mixed ABI, three loops, and private runtime-relocated
-state; the renderer preserves its ordered float sort, temporary transform
-mutation, record layout, six-call carrier ledger, and exact `0x148` frame.
-
-Overlay 5's `overlay5InitializeAudio` at `0x031C..0x06C0` adds **932 bytes**
-and closes that module's executable text. Its 29 call sites and 21 data-address
-pairs remain exact after relocation-aware guarded scheduling. Overlay 7's
-natural `overlay7InitPool` at `0x0F08..0x0FB8` adds **176 bytes** and owns the
-local BSS free-list layout through `+0x2A0`; the following eight zero bytes and
-final BSS tail remain separately owned.
-
-All new direct slices and the cumulative ROM match exactly at SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **25,008 /
-45,775 bytes (54.63%)**, overlay C reaches **126,260 / 469,264 (26.91%)**,
-resolved text reaches **169,300 / 950,332 (17.81%)**, and the closure gate is
-**9 / 8**.
-
-Overlay 7's `overlay7DispatchSelection` at `0x0CCC..0x0DBC` adds **240 bytes**.
-The source retains its thirteen-call/data relocation topology, local
-`overlay7CreateEntry` binding, selection sentinels, and exact branch-likely
-effects. Overlay 99's `overlay99RenderSegments` at `0x0BA4..0x0DDC` adds
-**568 bytes**. Its first-live-segment setup gate, command emission, signed
-heading correction, object mutation/restoration, and adjacent five-argument
-renderer call retain all seven shipped call relocations.
-
-Both configured objects, direct linked slices, and the cumulative ROM are
-exact at SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches
-**25,816 / 45,775 bytes (56.40%)**, overlay C reaches **127,068 / 469,264
-(27.08%)**, and resolved text reaches **170,108 / 950,332 (17.90%)**.
-
-Overlay 7's adjacent `overlay7CommitSelection` at `0x0DBC..0x0EDC` adds
-**288 bytes**. Its twelve-entry post-decrement mapping search, branch-likely
-latch, and seventeen-entry relocation contract are exact; the call back into
-the preceding dispatch body deliberately retains the shipped runtime proxy
-rather than being statically resolved. The full ROM remains exact. Epoch 12
-reaches **26,104 / 45,775 bytes (57.03%)**, overlay C reaches **127,356 /
-469,264 (27.14%)**, and resolved text reaches **170,396 / 950,332 (17.93%)**.
-
-Overlay 7's adjacent middle pair adds **1,080 bytes / 270 words**.
-`overlay7DispatchModes` at `0x0894..0x0AA0` selects one of two ten-column mode
-matrices, raises the second owner's timer and height, and dispatches seven
-paired create/append cases. The compiler's seven-entry switch table is
-independently identical to the existing initialized-data table at
-`0x18F4..0x1910`; the configured object redirects its proved `+4` base addend
-there and leaves the asset and runtime relocation records authoritative.
-`overlay7UpdateOwnerMode` at `0x0AA0..0x0CCC` records staged checks, validates
-three thresholds for the special third pass, and chooses the next owner mode
-from the previous state and failure result. The two bodies retain 21 and 23
-configured text relocations respectively, and their complete guarded private
-register/stack webs do not change calls, branches, immediates, or memory
-effects. Their direct ranges and the cumulative ROM match retail exactly.
-
-Epoch 12 reaches **27,184 / 45,775 bytes (59.39%)**, overlay C reaches
-**128,436 / 469,264 (27.37%)**, and resolved text reaches **171,476 / 950,332
-(18.04%)**.
-
-The following exact integration batch owns another **1,252 bytes**:
-overlay 61 `+0x000..+0x1C0` (input), overlay 100 `+0x38C..+0x50C` (motion),
-and overlay 61 `+0x7C4..+0x968` (list rendering). The first is natural exact.
-The list renderer uses one guarded three-instruction schedule permutation with
-relocations moved atomically; the motion updater's guarded normalization is
-confined to complete private compiler webs, while its runtime relocation still
-targets the distinct module `+0x278` release helper. Configured objects, direct
-linked retail slices, and the full ROM all compare byte-for-byte, with full-ROM
-SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **28,436 /
-45,775 bytes (62.12%)**, overlay C reaches **129,688 / 469,264 (27.64%)**, and
-resolved text reaches **172,728 / 950,332 (18.18%)**.
-
-Overlay 61 `+0x1DC..+0x3C0` adds a further **484 exact bytes**. Its natural C
-object has the target frame, CFG, size, calls, delay slots, and ten relocation
-records; two guarded complete schedule permutations account for the five
-independent instruction-order residuals without changing effects. The
-configured object, direct linked slice, and full ROM are byte-identical at
-SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **28,920 /
-45,775 bytes (63.18%)**, overlay C reaches **130,172 / 469,264 (27.74%)**, and
-resolved text reaches **173,212 / 950,332 (18.23%)**.
-
-Overlay 61 `+0x3C0..+0x7C4` adds **1,028 natural-exact bytes**, closing the
-last assembly gap in its `+0x000..+0xB84` prefix. The configured object
-reproduces the frame, 128-byte formatting buffer, switch CFG, 49 relocations,
-calls, and delay slots with no instruction normalization; only compiler
-section alignment beyond the function boundary is trimmed. The direct linked
-slice and full ROM remain byte-identical at SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **29,948 /
-45,775 bytes (65.42%)**, overlay C reaches **131,200 / 469,264 (27.96%)**, and
-resolved text reaches **174,240 / 950,332 (18.33%)**.
-
-The next exact batch adds Overlay 61 `+0x1578..+0x1648` and Overlay 100
-`+0x000..+0x214`, **740 executable bytes** in total. The Overlay 61 release
-body is natural exact with sixteen calls and all 44 relocations. Overlay 100's
-motion initializer preserves the target `0x78` frame, branch-likely loop, and
-five runtime call identities; its guarded private normalization owns complete
-stack-home, allocation, scheduling, and loop-induction webs. The configured
-objects, direct linked slices, and complete ROM compare byte-for-byte at SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`.
-
-Overlay 61 `+0x17B8..+0x18A0` adds **232 exact bytes** for the character-record
-writer. Its source reproduces the rounded allocation, word-copy loop, calls,
-delay slots, and six relocations. The sole guarded normalization removes an
-unused `0x10` compiler stack gap through a complete prologue/epilogue and
-incoming-argument-home web. Its configured object and direct retail slice are
-exact, and the cumulative ROM retains SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 now reaches **30,920 /
-45,775 bytes (67.55%)**, overlay C reaches **132,172 / 469,264 (28.17%)**, and
-resolved text reaches **175,212 / 950,332 (18.44%)**.
-
-Overlay 61 `+0x18A0..+0x19B0` adds **272 exact bytes**, joining the write,
-read, extension-choice, and size helpers into contiguous exact C through
-`+0x1A84`. The natural object already has the target 68-word boundary, CFG,
-calls, nine relocations, branches, and delay slots. Its guarded complete stack
-web changes only the frame and all associated local/argument slot immediates.
-The configured object, direct retail slice, and cumulative ROM are exact at
-SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **31,192 /
-45,775 bytes (68.14%)**, overlay C reaches **132,444 / 469,264 (28.22%)**, and
-resolved text reaches **175,484 / 950,332 (18.47%)**.
-
-Overlay 20 `+0x07C4..+0x09DC` contributes **536 exact bytes** for the
-tile-command builder. Its natural object has the target 134-word boundary,
-control flow, three command construction sequences, nested row/chunk loops,
-delay slots, and one runtime-call relocation. A complete four-site frame and
-array-base web plus a complete three-site polygon-count register web account
-for every remaining word difference; the guards permit no partial rewrite.
-The runtime call uses a semantic proxy because overlay 20's raw relocation
-carrier is shared by multiple runtime targets, while the linked call word and
-relocation record remain exact. Diddy Kong Racing's published graphics macros
-are cited only as a source-shape crosswalk. The configured object, direct ROM
-slice, and cumulative ROM are byte-identical at SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **31,728 /
-45,775 bytes (69.31%)**, overlay C reaches **132,980 / 469,264 (28.34%)**, and
-resolved text reaches **176,020 / 950,332 (18.52%)**.
-
-Overlay 20 `+0x1018..+0x10EC` adds **212 exact bytes** for entry removal and
-pointer-array compaction. Its C reconstructs the full 53-word semantic body,
-including all early exits, the active-count decrement, overlapping forward
-copy, the pool-address walk, active-bit clear, and ten data relocations. IDO's
-natural object uses a four-instruction search-backedge web where retail uses
-three; the guarded `drop-branch` operation verifies the redundant unconditional
-branch, repairs every crossing branch displacement and later relocation
-offset, and shrinks the sole owned function by exactly one word. Complete
-count/base/copy and mask-temporary register webs account for the remaining
-private allocation differences. The direct linked slice and cumulative ROM
-are byte-identical at SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **31,940 /
-45,775 bytes (69.78%)**, overlay C reaches **133,192 / 469,264 (28.38%)**, and
-resolved text reaches **176,232 / 950,332 (18.54%)**.
-
-Overlay 20 `+0x0E28..+0x0F78` contributes **336 exact bytes** for the
-32-slot entry allocator and field configurer. Its first typed C object has the
-exact `0x10` frame, nullable reuse path, bitmap/pool search, table/count/bitmap
-updates, floating-point arithmetic and conversions, ten semantic data
-relocations, and complete memory topology. IDO emits 83 semantic words plus
-one zero alignment word. A complete guarded permutation moves that existing
-nop to retail's allocation delay slot, carries every relocated instruction
-with it, and closes the allocation-prefix schedule/register web; the generic
-metadata resizer verifies the final 84-word digest and sole-function ownership
-before admitting the nop. The linked slice and cumulative ROM are exact at
-SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **32,276 /
-45,775 bytes (70.51%)**, overlay C reaches **133,528 / 469,264 (28.45%)**, and
-resolved text reaches **176,568 / 950,332 (18.58%)**.
-
-Overlay 29 `+0x14C8..+0x16CC` contributes **516 exact bytes / 129 words** for
-the grouped-command renderer. Its typed nested traversal and three calls are
-complete; a guarded private schedule/register ledger preserves the three
-`R_MIPS_26` sites, after which the two named semantic callees are rebound to
-the same retained runtime carrier already emitted by the first call. The
-direct linked slice SHA256 is
-`1c0437b30e748ac5ed69b7e03ec81f9f81030e0f45e979df35ebf43bfbfe3fa5`,
-and the cumulative ROM remains exact. Epoch 12 reaches **32,792 / 45,775 bytes
-(71.64%)**, overlay C reaches **134,044 / 469,264 (28.56%)**, and resolved
-text reaches **177,084 / 950,332 (18.63%)**.
-
-Overlay 2 `+0x02C4..+0x0400` contributes **316 exact bytes / 79 words** for
-the boundary classifier between the already matched append and intersection
-helpers. Its C preserves both axis modes and the equality-side copy semantics.
-The complete guarded scheduler/register ledger removes only one dead trailing
-section nop while retaining all six overlay-data relocations exactly. The
-configured unlinked text SHA256 is
-`2df25f34d8fb3c8f9c9120c0cc14fa170d63d896721be9184b3cc3986ffb8fb5`;
-the real-offset linked slice SHA256 is
-`350e93d46482948c90825512da9d331df66abf9d378b894312c55d64a62ffdcf`,
-and the complete ROM remains byte-identical at SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **33,108 /
-45,775 bytes (72.33%)**, overlay C reaches **134,360 / 469,264 (28.63%)**,
-and resolved text reaches **177,400 / 950,332 (18.67%)**.
-
-Overlay 17 `+0x0668..+0x08B4` contributes **588 exact bytes / 147 words** for
-the double-buffer chain advance between its release and strip-render helpers.
-The source naturally reproduces the frame, backward halfword copy, point/color
-publication, fade loop, and sole call relocation; its 82-word suffix is exact.
-A complete guarded 65-word prefix permutation selects the shipped pre-call
-schedule/register/spill web, and a near-neighbor source artifact fails the
-first changed assertion before mutation. Configured text and the real linked
-retail slice share SHA256
-`9fd1ba4bc365994bede02dbd38aafbca1d3af31bf6fbb73efec1c76ee92e5bf5`;
-the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **33,696 /
-45,775 bytes (73.61%)**, overlay C reaches **134,948 / 469,264 (28.76%)**,
-and resolved text reaches **177,988 / 950,332 (18.73%)**.
-
-Overlay 2 `+0x049C..+0x06E0` contributes **580 exact bytes / 145 words** for
-the line clipper immediately following the boundary helpers. Its typed source
-owns the complete 20-byte-record traversal, accept/split cases, six calls,
-range publication, and all eight local data address records. The guarded
-normalization selects the complete frame/home, fallback-classification, and
-suffix-schedule web while retaining all 14 relocations exactly. Configured
-text SHA256 is
-`05945c5c8e0d7cf4e5162c0cc09a29a384971983ea728dd8dff640324ffd3721`;
-the linked retail slice SHA256 is
-`efad8df5374c9fcc6255c86bbaa763d8e2facccbb5423eefc7e716050577eb74`,
-and the full ROM remains exact. Epoch 12 reaches **34,276 / 45,775 bytes
-(74.88%)**, overlay C reaches **135,528 / 469,264 (28.88%)**, and resolved
-text reaches **178,568 / 950,332 (18.79%)**.
-
-Overlay 17 `+0x0318..+0x0628` contributes **784 exact bytes / 196 words** for
-the chain constructor immediately before the three already exact chain
-operations. The typed source owns the physical twelve-argument ABI, allocation
-mode, optional material resource, double-buffer layout, scaled 16-entry
-template copy, endpoint query, vertex conversion, RGB publication, and alpha
-clear. Its natural boundary, CFG, calls, and memory/FP effects are exact; a
-fail-loud decoded-field normalization selects the complete private frame,
-schedule, and register web, then filters only the asserted runtime-table-owned
-template HI/LO pair. The configured object retains exactly three `R_MIPS_26`
-calls at `+0x48`, `+0x6C`, and `+0x204`. Configured text and the real linked
-retail slice share SHA256
-`46372736806a2433adde61c1a5ba86787af17f3014c58b1df88aab7c6838e118`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **35,060 /
-45,775 bytes (76.59%)**, overlay C reaches **136,312 / 469,264 (29.05%)**,
-and resolved text reaches **179,352 / 950,332 (18.87%)**.
-
-Overlay 17 `+0x0000..+0x0318` adds the module's final **792 exact bytes / 198
-words**, closing all `0xA90` executable bytes as C. The endpoint builder
-preserves the physical seven-argument ABI, transformed and untransformed
-geometry paths, runtime square-root normalization, cached-position update,
-null-chain clear loop, and six output stores. Its natural function boundary
-and semantic FP graph are exact; a complete guarded frame/schedule/register
-web moves the two late calls into their exact positions and binds all three
-`R_MIPS_26` records at `+0x68`, `+0x108`, and `+0x1D4` to the offset-zero
-runtime identity. Configured text and the real linked retail slice share
-SHA256
-`dd9d1eee3f8e2d2cef8ad3543c188f0ca2e6115dce5a01f6f023b2cf107509aa`,
-and the full ROM remains exact. Epoch 12 reaches **35,852 / 45,775 bytes
-(78.32%)**, overlay C reaches **137,104 / 469,264 (29.22%)**, and resolved
-text reaches **180,144 / 950,332 (18.96%)**.
-
-Overlay 2 `+0x06E0..+0x0C90` adds **1,456 exact bytes / 364 words** across
-the boundary chooser and recursive region splitter. The two typed functions
-establish the shared 20-byte line/range and 16-byte candidate layouts, preserve
-the exhaustive scoring and clipping behavior, and reproduce all **73** owned
-relocations at their exact sites and identities. Their direct linked SHA256
-values are `fbf47133352ec46078f2d64933cf559112250a54420ebb98ae2572bfb1969dd4`
-and `ce32035117e1091aca20ffdd4cfa2593004c1a4fd893bae2e085f280cfff9173`.
-Overlay 20 `+0x0A68..+0x0DC4` adds **860 exact bytes / 215 words** with the
-complete overlap scan, grid displacement/color update, FP clamp behavior, and
-runtime relocation surface; its configured and direct linked SHA256 is
-`6f03934f0a2bdd75e0fb6dd0817476de322ac6d1b4b056d851bbbf68e692ef0f`.
-The cumulative ROM remains exact at SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **38,168 /
-45,775 bytes (83.38%)**, overlay C reaches **139,420 / 469,264 (29.71%)**,
-and resolved text reaches **182,460 / 950,332 (19.20%)**.
-
-Overlay 20 `+0x00A8..+0x038C` contributes **740 exact bytes / 185 words**
-across resource configuration and object-resource update. Independent audit
-replaced the initial opcode-mutation ledgers with true schedule permutations
-and bounded private FP/frame/home/register fields; the configured hashes remain
-`a1f6c87daeef1c5ae09c92c11aa98cde8b5be8e597a5ce6f7e674f26fc0f0725`
-and `a627ff31fd721ca0b53ad4f40af40eb92c7a1f3b57a73ed41658736b3deb840b`.
-All nine call relocations, both direct retail slices, and the cumulative ROM
-are exact. The neighboring `+0x038C..+0x07C4` body remains assembly-owned and
-uncredited until a policy-compliant compiler basin is proved. Epoch 12 reaches
-**38,908 / 45,775 bytes (85.00%)**, overlay C reaches **140,160 / 469,264
-(29.87%)**, and resolved text reaches **183,200 / 950,332 (19.28%)**.
-
-Overlay 1 `+0x6424..+0x64F8` contributes **212 naturally exact bytes / 53
-words** for the selection-vector reader. Its typed body preserves the signed
-selection index, direct object-position path, inclusive descriptor bound,
-null-vector hazard, repeated vector-base loads, and fallback output triple.
-No relocations or normalization are present. The configured object and true
-linked retail slice share SHA256
-`6751426a6d253f250c158beb650a41abc445cf644103434e92dce1f5e162dc70`;
-the complete linked Overlay 1 range shares SHA256
-`66a12f59a250f9fdac39214b48d0a6663e8e9d28beb5f3ee15790f355a66793d`
-with retail, and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. A separate Overlay 20 tail
-experiment is explicitly uncredited because its whole-function field ledger
-failed the bounded-normalization policy. Epoch 12 reaches **39,120 / 45,775
-bytes (85.46%)**, overlay C reaches **140,372 / 469,264 (29.91%)**, and
-resolved text reaches **183,412 / 950,332 (19.30%)**.
-
-Overlay 2 `+0x0000..+0x01BC` contributes **444 naturally exact bytes / 111
-words** for the region validator. Direct use of `region->count` in both the
-outer condition and countdown initialization naturally retains retail's two
-loop-value moves; there is no instruction normalization. Configured text and
-the direct retail slice share SHA256
-`77e66299eec8cec6e4ba9b3c4f5c6f4915eebc1e409f3f8372a86b2f028819b7`.
-Its eight runtime relocations agree with the shipped tables: one local HI/LO
-pair, three angle calls, and three signed-angle-difference calls. The complete
-linked Overlay 2 image shares SHA256
-`e4e2f43b9e1b986d793fa2784dc7595cd2991b138e64495afbac2bffd673a3bb`
-with retail, and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **39,564 /
-45,775 bytes (86.43%)**, overlay C reaches **140,816 / 469,264 (30.01%)**,
-and resolved text reaches **183,856 / 950,332 (19.35%)**.
-
-Overlay 2 `+0x123C..+0x1364` contributes **296 naturally exact bytes / 74
-words** for BSP point containment. The configured `-O2 -mips2 -32` object has
-the retail 56-byte frame and requires no instruction normalization. Configured
-text, the direct retail slice, and the linked owned range share SHA256
-`9270e0b824f7d1e477465b75b54557e19925c12f2ba190eea22df1069e762891`.
-Its three `R_MIPS_26` relocations at function offsets `+0xAC`, `+0xCC`, and
-`+0xE0` agree exactly with runtime-table rows 26--28 and the two resident angle
-helper identities. The complete linked Overlay 2 image remains exact at SHA256
-`e4e2f43b9e1b986d793fa2784dc7595cd2991b138e64495afbac2bffd673a3bb`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **39,860 /
-45,775 bytes (87.08%)**, overlay C reaches **141,112 / 469,264 (30.07%)**,
-and resolved text reaches **184,152 / 950,332 (19.38%)**.
-
-Overlay 14 `+0x1B7C..+0x1C40` contributes **196 naturally exact bytes / 49
-words** for active-handle finalization. The nested-call source naturally emits
-the retail 48-byte frame, spill slot, call order, and complete instruction
-schedule with no normalization. The linked owned range and retail share SHA256
-`901381c8386f7123b8bba33436d27383449a2821df896c92abd06e608a970b55`.
-Five distinct `R_MIPS_26` identities and three local HI/LO pairs agree exactly
-with the runtime tables. The complete linked Overlay 14 image is exact at
-SHA256 `7b1d6309d510089646b5c261816e9989ad036375d2baf55f5f972f1374d07edd`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **40,056 /
-45,775 bytes (87.51%)**, overlay C reaches **141,308 / 469,264 (30.11%)**,
-and resolved text reaches **184,348 / 950,332 (19.40%)**.
-
-Overlay 1 `+0x6B6C..+0x6CE8` contributes **380 exact bytes / 95 words** for
-nearby-object search and activation. Natural source supplies the exact 72-byte
-frame, scan and unsigned-threshold behavior, three calls, delay slots, opcode
-stream, and complete register/FP allocation. A two-entry fail-loud ledger moves
-one complete spill lifetime from `sp+0x28` to retail's equivalent `sp+0x2C`
-home without changing behavior or schedule. The linked owned range and retail
-share SHA256
-`6db7aa6f757439c4795cf0cde43fb1f9943895cca1c9e1260cdbeea810ca2a1b`.
-The three `R_MIPS_26` sites agree with the shipped runtime table's two resident
-targets and Overlay 4 target. The complete linked Overlay 1 image is exact at
-SHA256 `66a12f59a250f9fdac39214b48d0a6663e8e9d28beb5f3ee15790f355a66793d`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **40,436 /
-45,775 bytes (88.34%)**, overlay C reaches **141,688 / 469,264 (30.19%)**,
-and resolved text reaches **184,728 / 950,332 (19.44%)**.
-
-Overlay 1 `+0x72A4..+0x7344` contributes **160 exact bytes / 40 words** for
-pool-record allocation. Natural source supplies the exact wraparound,
-exhaustion, record-filtering and status-bit semantics, instruction count, and
-schedule. A fail-loud decoded-field ledger selects retail's complete private
-temporary suffix plus one commutative `or` order. The configured object retains
-all ten runtime HI/LO records for the cursor, group, pool bounds, and exhausted
-flag. Its linked range and retail share SHA256
-`3f4fb29255fa8096b1f968249e7b5f0ac9353e8177b87ca22b54d7441fcc1e35`;
-the complete linked Overlay 1 image remains exact at SHA256
-`66a12f59a250f9fdac39214b48d0a6663e8e9d28beb5f3ee15790f355a66793d`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **40,596 /
-45,775 bytes (88.69%)**, overlay C reaches **141,848 / 469,264 (30.23%)**,
-and resolved text reaches **184,888 / 950,332 (19.46%)**.
-
-Overlay 87 `+0x000..+0x128` contributes **296 exact bytes / 74 words** for
-object initialization. The target-proven `-Wab,-r4300_mul` flag supplies the
-exact multiply hazards; natural source otherwise recovers the 32-byte frame,
-complete opcode schedule, stores, and two resident calls. A nine-site
-fail-loud ledger selects retail's equivalent complete private FP temporary
-web. The configured object retains the runtime local HI/LO pair and preserves
-the separately decoded `mathRnd` and `func_8005AD64` identities before folding
-them to the pre-loader carrier. The linked range and retail share SHA256
-`94a0f9e03cfdbc4b59cdc47c58e10e5ffafa2ff27a77903d361825635a79149b`;
-the complete linked Overlay 87 image is exact at SHA256
-`35af73d01bddebb793a4a4301a486d16ef5514a628c1d59d54ae7981e51adfaa`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **40,892 /
-45,775 bytes (89.33%)**, overlay C reaches **142,144 / 469,264 (30.29%)**,
-and resolved text reaches **185,184 / 950,332 (19.49%)**.
-
-Overlay 1 `+0x7130..+0x72A4` and `+0x73A0..+0x7580` contribute **852 exact
-bytes / 213 words** for transient-object state and a 64-entry value cache.
-Natural source recovers both complete CFGs, conversions, memory effects, and
-boundaries. Fail-loud ledgers preserve the updater's one relocation-aware
-schedule permutation and private temporary web, and select the cache manager's
-equivalent two-register coloring. The configured objects retain all 25 updater
-relocations and the cache's local HI/LO pair. Their linked ranges and retail
-share SHA256 values
-`c76f3f56e45fd0a291f29f48dce092cf512efc1cb732bbd3717fc29f38be592e` and
-`ec9d5a416499a7177d95a298fd46b814355ae13f8704223093e17589830304ca`;
-the complete linked Overlay 1 image remains exact at SHA256
-`66a12f59a250f9fdac39214b48d0a6663e8e9d28beb5f3ee15790f355a66793d`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **41,744 /
-45,775 bytes (91.19%)**, overlay C reaches **142,996 / 469,264 (30.47%)**,
-and resolved text reaches **186,036 / 950,332 (19.58%)**.
-
-Overlay 34 `+0x000..+0x0C8` contributes **200 exact bytes / 50 words** for
-storage allocation and zero-initialization. The runtime relocation table fixes
-both calls as the two-argument resident allocator `func_8002B280`; with that
-interface corrected, natural source supplies retail's full opcode schedule,
-register allocation, frame, and two clear loops. A four-site fail-loud ledger
-selects retail's equivalent call-surviving size home. The configured object
-retains the exact two call records and three local HI/LO pairs. Its linked
-range and retail share SHA256
-`c36c8500dfdbc0a68753d221ca14b5b601a2af054c07ff221e709b735d285022`;
-the complete linked Overlay 34 image is exact at SHA256
-`31ba43afb9bfe16cc3d5ae93acacad2920e2a60dfec6dae7b4db6ffa0340f6ab`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **41,944 /
-45,775 bytes (91.63%)**, overlay C reaches **143,196 / 469,264 (30.52%)**,
-and resolved text reaches **186,236 / 950,332 (19.60%)**.
-
-Overlay 1 `+0x7580..+0x7730` contributes **432 exact bytes / 108 words** for
-path-point append, segment-length accumulation, cache update, and anchor
-distance. Natural source supplies the complete behavior and boundary; a
-fail-loud ledger selects retail's equivalent private compiler web. The
-configured object retains the exact two call records and three anchor HI/LO
-pairs. Its linked range and retail share SHA256
-`6f1bdf89d901e5aaaa6e0f560610f415690b08218cc623c6c97523215d68dba3`;
-the complete linked Overlay 1 image remains exact at SHA256
-`66a12f59a250f9fdac39214b48d0a6663e8e9d28beb5f3ee15790f355a66793d`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **42,376 /
-45,775 bytes (92.58%)**, overlay C reaches **143,628 / 469,264 (30.61%)**,
-and resolved text reaches **186,668 / 950,332 (19.64%)**.
-
-Overlay 1 `+0x7BDC..+0x7D6C` contributes **400 exact bytes / 100 words** for
-record allocation, first-point initialization, squared-distance root, anchor
-publication, and validation/fallback selection. With the target-proven R4300
-multiply-hazard flag, natural source emits retail's exact frame, six-call CFG,
-conversion sequence, delay slots, and private register web. The configured
-object retains all six call records and both local anchor HI/LO pairs. Its
-linked range and retail share SHA256
-`9cc91ff1062ab212f4a07c88bff17d0d546ff072860801d148aff021d5254bd7`;
-the complete linked Overlay 1 image remains exact at SHA256
-`66a12f59a250f9fdac39214b48d0a6663e8e9d28beb5f3ee15790f355a66793d`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **42,776 /
-45,775 bytes (93.45%)**, overlay C reaches **144,028 / 469,264 (30.69%)**,
-and resolved text reaches **187,068 / 950,332 (19.68%)**.
-
-Overlay 1 `+0x78DC..+0x7B64` contributes **648 exact bytes / 162 words** for
-bounded path tracing, endpoint append, and branch-record cloning. Natural
-source emits the complete opcode schedule, 88-byte frame, stack layout,
-eight-call CFG, FP conversions, delay slots, and all observable effects. Its
-fail-loud ledger selects only an equivalent complete private integer temporary
-web. The configured object retains all eight call records and seven local
-HI/LO pairs. Its linked range and retail share SHA256
-`2d45569efa8c98d2fd85575993fe2dd0904e21bc24f66a81ecaa9bebf5973251`;
-the complete linked Overlay 1 image remains exact at SHA256
-`66a12f59a250f9fdac39214b48d0a6663e8e9d28beb5f3ee15790f355a66793d`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **43,424 /
-45,775 bytes (94.86%)**, overlay C reaches **144,676 / 469,264 (30.83%)**,
-and resolved text reaches **187,716 / 950,332 (19.75%)**.
-
-Overlay 34 `+0x2C8..+0x378` contributes **176 exact bytes / 44 words** for
-active-record removal, list compaction, resident resource release, and count
-update. Natural source owns the exact boundary, frame, CFG, call ABI, and
-effects. A bijective fail-loud schedule and complete private count/pointer web
-select retail's equivalent compiler representation; exact guards remove only
-the two literal pointer-address relocation records absent from retail. The
-configured object retains the loader call and both active-count HI/LO pairs.
-Its linked range and retail share SHA256
-`b27d66e83577bef19ecfb3b19288475828f6fcc0785048ea407dfc9746fc1bfb`;
-the complete linked Overlay 34 image remains exact at SHA256
-`31ba43afb9bfe16cc3d5ae93acacad2920e2a60dfec6dae7b4db6ffa0340f6ab`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **43,600 /
-45,775 bytes (95.25%)**, overlay C reaches **144,852 / 469,264 (30.87%)**,
-and resolved text reaches **187,892 / 950,332 (19.77%)**.
-
-Overlay 34's record constructor at `+0x0D4..+0x2C8` adds **500 exact
-executable bytes / 125 words**. Natural source supplies the exact functional
-boundary, CFG, field initialization, allocation/load path, direction setup,
-and two-call ABI. A complete bijective fail-loud schedule restores retail's
-equivalent private compiler representation while preserving all 12 relocation
-sites: five local-data HI/LO pairs and the two independently decoded resident
-calls. The linked owned range and retail share SHA256
-`4323ae1bfbdac7e585c53bac0260ca73784f4cd01a65f579fe14eeceeb1b8cc5`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **44,100 /
-45,775 bytes (96.34%)**, overlay C reaches **145,352 / 469,264 (30.97%)**,
-and resolved text reaches **188,392 / 950,332 (19.82%)**.
-
-Overlay 34 `+0x378..+0x540` contributes **456 exact bytes / 114 words** for
-storage reset and active-record updates. Reset is naturally exact and retains
-15 shipped runtime relocations. Update's natural source owns the full behavior,
-FP lanes, loop topology, call ABI, and seven relocation roles; a fail-loud
-preparation removes exactly three asserted IDO-only invariant-home words and a
-complete guarded ledger selects retail's equivalent schedule, frame, and
-private register web. The configured zero-addend update SHA256 is
-`1ef3cff290da4b1b623f4aa86de717e4cafaf4dcd3df71b8eb3be07d43c4005e`;
-the combined linked range and retail share SHA256
-`a04dc2ca90461deb111cd790aaa7c9a3ca2c1ca8301df765fc68f7933bd34386`,
-all 22 runtime records remain exact, and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **44,556 /
-45,775 bytes (97.34%)**, overlay C reaches **145,808 / 469,264 (31.07%)**,
-and resolved text reaches **188,848 / 950,332 (19.87%)**.
-
-Overlay 1 `+0x5CD4..+0x5ECC` contributes **504 exact bytes / 126 words** for
-directional object selection. Target-local R4300 multiply hazards recover the
-natural exact frame, opcode stream, CFG, FP schedule, and all 11 relocation
-sites. A complete guarded ledger selects only the equivalent count stack home
-and one two-instruction private temporary web. The configured zero-addend
-SHA256 is
-`d9cb02c73e426f6b2a4c36a71a7ab3c4d38b5d74812dbe63e39b77e187489e66`;
-the linked range and retail share SHA256
-`0e67b8a417c54916cf9d5deb51836032586d1b13dd694e6b7eb21a5f28980fe2`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **45,060 /
-45,775 bytes (98.44%)**, overlay C reaches **146,312 / 469,264 (31.18%)**,
-and resolved text reaches **189,352 / 950,332 (19.92%)**.
-
-Overlay 1 `+0x7D6C..+0x7FCC` contributes **608 exact bytes / 152 words** for
-path-point resolution. Natural source recovers the exact 120-byte frame,
-collision-output stack home, CFG, call topology, delay-slot effects, and full
-boundary. A fail-loud target-local ledger applies two independent scheduling
-permutations and selects four asserted private register fields without
-changing an opcode, immediate, branch target, complete instruction word, or
-externally visible behavior. The configured zero-addend SHA256 is
-`33306da7b622053e30f3405bab944f30333b1efd4dd763f2fb118a75127ad3bb`;
-all 22 shipped runtime relocation records remain exact, the linked range and
-retail share SHA256
-`4ec5bd5bdf61dfce75beaf785c243b265959db077cd367e55787922cc924ed1d`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 reaches **45,668 /
-45,775 bytes (99.77%)**, overlay C reaches **146,920 / 469,264 (31.31%)**,
-and resolved text reaches **189,960 / 950,332 (19.99%)**.
-
-Overlay 1 `+0x5BF4..+0x5CD4` contributes **224 exact bytes / 56 words** for
-timer and mode callback dispatch. Natural source recovers the exact boundary,
-frame, direct setup call, two indirect callbacks, loop semantics, and all 13
-runtime relocation records. A complete fail-loud ledger reschedules only the
-shared loop tail and selects the shipped equivalent private register and
-branch-lowering representation. The configured zero-addend SHA256 is
-`f3c91e2fc503b18a3c613732fe20e10e9ef6fa33ebedfe31c2851df98c651c3a`;
-the linked range and retail share SHA256
-`ce2a00b8edefbfbe433a6219edcbb8169d56d19f2367cf3e6d959465def3509f`,
-and the full ROM retains canonical SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. Epoch 12 closes at **45,892 /
-45,775 bytes (100.26%)**, Overlay C reaches **147,144 / 469,264 (31.36%)**,
-resolved text reaches **190,184 / 950,332 (20.01%)**, and the closure gate
-remains **9 / 8**.
-
-Overlay 34 `+0x608..+0x900` contributes its final **760 exact bytes / 190
-words**. Typed source owns the depth census, parallel bubble sort, color
-interpolation, and ten-argument render dispatch. A complete guarded
-schedule/register/frame ledger produces configured zero-addend SHA256
-`d477cc8d3a6fb0208dea06a124ec8041fba9e6864ad4b04129cf57127ab5f652`.
-Canonical integration rejected a zero-local proxy false positive and retained
-the shipped semantic local addends for all five HI16/LO16 pairs while using
-pre-loader carriers only for the six calls. The corrected direct linked range
-and retail share SHA256
-`466c7b30566a2a656904fa9193af248d78adbf0c1efa0460d46066795656b8a8`;
-all 16 runtime records, the complete Overlay 34 image at SHA256
-`31ba43afb9bfe16cc3d5ae93acacad2920e2a60dfec6dae7b4db6ffa0340f6ab`,
-and the full ROM are exact. Every executable interval is now C, closing the
-module and raising the closure result to **10 / 8**. The stretch checkpoint is
-**46,652 / 45,775 campaign bytes (101.92%)**, **147,904 / 469,264 Overlay C
-(31.52%)**, and **190,944 / 950,332 resolved text (20.09%)**.
-
-Overlay 1 `+0x7730..+0x78DC` contributes **428 exact bytes / 107 words** for
-path-point bending. Natural source recovers the exact 48-byte frame, explicit
-byte-truncation home, six-call CFG, FP allocation, and full owned boundary. A
-fail-loud ledger performs one independent five-instruction prologue
-permutation, one commutative operand swap, and a complete private register/home
-selection without changing an opcode, branch displacement, jump target, or
-complete word. The configured and direct linked retail ranges share SHA256
-`e0ccf37ee706bd9abf7931693b2821ddaac0fc83a3410000e8b9dbd4072d1704`;
-all six runtime calls and the full ROM are exact. The following alignment word
-remains separately owned. The stretch checkpoint becomes **47,080 / 45,775
-campaign bytes (102.85%)**, **148,332 / 469,264 Overlay C (31.61%)**, and
-**191,372 / 950,332 resolved text (20.14%)**.
-
-Overlay 1 `+0x6A14..+0x6B28` contributes **276 exact bytes / 69 words** for
-nearby-pending consumption. A measured `-g3` TU naturally recovers the exact
-72-byte frame, reverse branch-likely traversal, FP expression, field effects,
-and sole call. The target-local fail-loud ledger contains two true scheduling
-permutations and one complete private register representation web without
-changing an opcode, immediate, branch displacement, jump target, or whole
-word. The configured and direct linked retail ranges share SHA256
-`dce8a10514f20586e8504e0a2c8a29e8ec29d4699b10eb9f86e4f6022d2d0ac0`;
-the one runtime relocation and the full ROM are exact. The following 12 bytes
-remain separately owned alignment. The stretch checkpoint becomes **47,356 /
-45,775 campaign bytes (103.45%)**, **148,608 / 469,264 Overlay C (31.67%)**,
-and **191,648 / 950,332 resolved text (20.17%)**.
-
-Overlay 1 `+0x5ED4..+0x61F0` contributes **796 exact bytes / 199 words** for
-the eight-way mode dispatcher. Typed source recovers the exact 40-byte frame,
-CFG, calls, FP behavior, state effects, and private switch table. A fail-loud
-ledger chooses complete private allocator webs and asserts the shipped
-pre-loader addends. The duplicate compiler table/relocations are removed while
-Mickey's retained initialized table and **61 runtime text records** remain
-authoritative. Configured and direct linked text share SHA256
-`e8faa26be0625819767e67a7c916ee69be0d3e1b637a0f67da46c2da973afb8d`;
-the residual owner beginning at `+0x61F0` and the full ROM are exact. The
-stretch checkpoint becomes **48,152 / 45,775 campaign bytes (105.19%)**,
-**149,404 / 469,264 Overlay C (31.84%)**, and **192,444 / 950,332 resolved
-text (20.25%)**.
-
-Overlay 1 `+0x6270..+0x63CC` contributes **348 exact bytes / 87 words** for
-mode-object selection. Typed source recovers the backward walk, five-entry
-candidate array, signed state lookup, 600.0f threshold, random choice, and
-world-state updates. The fail-loud ledger changes only three complete private
-stack-home webs and resolves the proved pre-loader `D_1D9C` addend. The
-compiler's duplicate `D_1D9C` pair is removed while Mickey's retained pair and
-all **13 runtime text records** stay authoritative. Configured text has SHA256
-`a850d7a4391045f9fbf46c38ea7d4d9fcf89543ba703f95e568c337b1019cb1f`;
-direct linked retail text has SHA256
-`42328484600c2bcb7223456faf7e4f0883f9dfb3855c7e89d36ae23ace1a2a51`.
-Both adjacent owners and the full ROM are exact. The stretch checkpoint becomes
-**48,500 / 45,775 campaign bytes (105.95%)**, **149,752 / 469,264 Overlay C
-(31.91%)**, and **192,792 / 950,332 resolved text (20.29%)**.
-
-Overlay 1 `+0x64F8..+0x6724` contributes **556 exact bytes / 139 words** for
-the angle-candidate solver. Typed source recovers the 0xA8 frame, complete FP
-web, discriminant and two-root walk, signed-angle selection, sentinel, and four
-calls under measured R4300 scheduling. A fail-loud permutation moves the
-compiler-emitted two-instruction loop-control carrier into the proved
-preheader and selects the retail shared-tail ordering; the carrier and proved
-zero tail are then removed. Configured, linked, and direct retail text share
-SHA256 `34cb7aea1efe5006a94ce32ba12d1d1e7aeefeb15c4e7cedcfade43a083f9a5e`.
-All **four runtime call records**, the following matched owner, and the full ROM
-are exact. The stretch checkpoint becomes **49,056 / 45,775 campaign bytes
-(107.17%)**, **150,308 / 469,264 Overlay C (32.03%)**, and **193,348 /
-950,332 resolved text (20.35%)**.
-
-Overlay 1 `+0x6D4C..+0x7130` contributes **996 exact bytes / 249 words** for
-the aimed-transient updater. Typed source recovers object creation, four-pass
-source prediction, distance/flight-factor recomputation, angle solving,
-resident trig velocity construction, the default path, flag effect, and
-timer/mode maintenance. A fail-loud permutation selects equivalent compiler
-schedules and two private stack homes; the filter removes only one asserted
-duplicate compiler `D_1DA0` pair. Configured zero-addend text has SHA256
-`67f2432b565ef811c7ea7f65006672eb77e7436f338d8580128be842abee8b2e`;
-direct linked retail text has SHA256
-`67e4bdf8b704752ed9060f1c95ae75bcecba59cddb8db3de9b3a4b4f0c5aec84`.
-All **43 runtime text records**, both matched neighbors, and the full ROM are
-exact. The stretch checkpoint becomes **50,052 / 45,775 campaign bytes
-(109.34%)**, **151,304 / 469,264 Overlay C (32.24%)**, and **194,344 /
-950,332 resolved text (20.45%)**.
-
-Overlay 1 `+0x67C0..+0x69A0` contributes **480 exact bytes / 120 words** for
-range-flag updates. Typed source recovers the reverse object-list walk, signed
-angle classification, horizontal and vertical range tests, status-bit switch
-effects, and four calls under measured R4300 scheduling. A fail-loud ledger
-changes only six complete private compiler representation webs, leaving
-opcodes, CFG, calls, relocs, and instruction order intact. Configured
-zero-addend text has SHA256
-`20f4c618c398f99e547483c22187cf1589128af4e447dde6f152f4248ea99302`;
-direct linked retail text has SHA256
-`2c7f8bf2e4727b60780e4a0ef22d87928783d40672ee21aeb3c3e38c68c8c98a`.
-All **four runtime call records**, the following matched owner, and the full ROM
-are exact. The stretch checkpoint becomes **50,532 / 45,775 campaign bytes
-(110.39%)**, **151,784 / 469,264 Overlay C (32.35%)**, and **194,824 /
-950,332 resolved text (20.50%)**.
-
-Overlay 1 `+0x04B4..+0x0758` contributes **676 exact bytes / 169 words** for
-the activation and closest-sample pair. Both typed functions recover exact
-size, frame, ABI, CFG, scheduling, delay slots, and calls; the second is
-naturally instruction-field exact. A fail-loud ledger covers only three
-complete allocator webs and loader-local addends in the first. Duplicate
-compiler ELF carriers are removed while all **44 runtime text records** remain
-authoritative. Configured raw text has SHA256
-`dc87390d75490d0fae0b8a3237ac4abf767154cd218060a2e16fddc2bed6906e`;
-direct linked retail text has SHA256
-`212356ece7cbf207b79d183db33bb5664d64020845ad2b8f2a618aa3a32c5bdc`.
-The following matched owner and full ROM are exact. The stretch checkpoint
-becomes **51,208 / 45,775 campaign bytes (111.87%)**, **152,460 / 469,264
-Overlay C (32.49%)**, and **195,500 / 950,332 resolved text (20.57%)**.
-
-Overlay 1 `+0x01AC..+0x02D4` contributes **296 exact bytes / 74 words** for
-the type-47 angle scan. Typed source recovers the bounded object walk,
-unsigned phase conversion, signed wrap call, strict-positive minimum, frame,
-FP diamond, and branch-likely loop. A fail-loud relocation-aware permutation
-selects an equivalent independent schedule and private register/home webs,
-moving the scale relocation with its instruction; two alignment words are
-trimmed. Configured zero-addend text has SHA256
-`2c0f17cd3245e50f18c359971324f98ec59e52a6c2af814409cdf4cc6f135f80`;
-direct linked retail text has SHA256
-`12cd29c76828be5bfdedf7a17ab8ef1ffcfb57a4c1135ea9d129a245810cc969`.
-All **six runtime text records**, both matched neighbors, and the full ROM are
-exact. The stretch checkpoint becomes **51,504 / 45,775 campaign bytes
-(112.52%)**, **152,756 / 469,264 Overlay C (32.55%)**, and **195,796 /
-950,332 resolved text (20.60%)**.
-
-Overlay 1 `+0x0BD4..+0x10C0` contributes **1,260 exact bytes / 315 words**
-across four functions for motion scaling, path interpolation, motion-point
-resolution, and sampled curve length. Typed source recovers all four complete
-behaviors and boundaries. Target-local fail-loud ledgers select only
-independent schedules, private allocation webs, stack homes, and proved local
-literal addends; asserted compiler-local relocation duplicates are removed
-while Mickey's runtime assets remain authoritative. The four configured text
-SHA256 values in address order are `1c8e29b2...b5a4a`, `007e7280...b001`,
-`97fafcab...a3066`, and `305159f6...6a146`; the combined direct linked retail
-range has SHA256
-`2641cea2b0de10ed4cbe7d63baf818ba5b4c19316fc8049919490730f1a62b6a`.
-All **44 runtime text records**, neighboring owners, and the full ROM are
-exact. The stretch checkpoint becomes **52,764 / 45,775 campaign bytes
-(115.27%)**, **154,016 / 469,264 Overlay C (32.82%)**, and **197,056 /
-950,332 resolved text (20.74%)**.
-
-Overlay 1 `+0x19B8..+0x1CA4` contributes **748 exact bytes / 187 words** for
-mode-state initialization and object-mapping construction. The first typed
-function is naturally exact apart from an external symbol carrier and one
-trimmed alignment word. The second recovers the complete two-level reverse
-traversal, object flags, calls, state fields, byte-matrix lookup, widths, and
-unchecked semantics; a natural four-word compiler carrier and complete
-fail-loud representation ledger select the retail schedule without changing
-the proved executable set. Configured text SHA256 values are
-`e9829b22...c003a` and `3abde2cc...cec34`; direct linked retail SHA256
-values are `51c78a58...df3a2` and `17c8a516...4812`. All **28 runtime text
-records**, neighboring owners, and the full ROM are exact. The stretch
-checkpoint becomes **53,512 / 45,775 campaign bytes (116.90%)**, **154,764 /
-469,264 Overlay C (32.98%)**, and **197,804 / 950,332 resolved text
-(20.81%)**.
-
-Overlay 1 `+0x296C..+0x2B4C` and `+0x3578..+0x3750` contribute **952 exact
-bytes / 238 words** across four gauge and variable-record functions. The
-typed bodies preserve both reverse object walks, saturation thresholds,
-two-pass initialization, random-range fill, packed record traversal, and
-unchecked owner semantics. Measured no-unroll compilation and bounded
-fail-loud ledgers complete private representation webs; two identity copies
-are removed under whole-function guards, while the reviewed helper-result
-alias and conditional-store delay encodings retain the same live values and
-effects. Configured SHA256 values are `2ee06458...b6d40`,
-`63acb6fa...e0c72`, `be06be13...2c284`, and `9f87498d...d9fd`; direct linked
-span SHA256 values are `ef4bdef8...f0819` and `5e9846a5...029a`. All **17
-runtime records**, adjoining assembly, and the full ROM are exact. The
-checkpoint becomes **54,464 / 45,775 campaign bytes (118.98%)**, **155,716 /
-469,264 Overlay C (33.18%)**, and **198,756 / 950,332 resolved text
-(20.91%)**.
-
-Overlay 1 `+0x61F0..+0x6270` contributes **128 exact bytes / 32 words** for
-cached-mode handling. The typed body preserves both state-clear exits, the
-Overlay 27 eligibility call, mode-three Overlay 3 action, fallback dispatch,
-and return behavior. Four guarded stages remove only three identity copies and
-one redundant unconditional branch before the final fail-loud private
-register/schedule ledger. Configured text SHA256 is `e29e178d...15ed`; direct
-linked retail SHA256 is `4227d0d2...0f26`. The **13 runtime records** comprise
-three calls, five HI16, and five LO16 sites. Zero-valued local carrier symbols
-retain the addends already encoded in Mickey's instructions; the double-addend
-link is a preserved negative. Both neighbors and the full ROM are exact. The
-checkpoint becomes **54,592 / 45,775 campaign bytes (119.26%)**, **155,844 /
-469,264 Overlay C (33.21%)**, and **198,884 / 950,332 resolved text
-(20.93%)**.
-
-Overlay 60 `+0x3488..+0x355C` contributes **212 exact bytes / 53 words** for
-choice-slot reassignment. The typed body preserves the ten-entry availability
-map, the low-nibble reservation pass, and the original unchecked first-free
-scan for active slots at least six. Its complete guarded ledger selects only
-private stack/address/cursor representations. Configured and direct linked
-text both have SHA256 `2a3fabec...bf64`; the **8 runtime records** are four
-HI16 and four LO16 SYMBOL sites targeting resident offset `0x4D618`. The
-four-byte padding neighbor and full ROM are exact. The checkpoint becomes
-**54,804 / 45,775 campaign bytes (119.72%)**, **156,056 / 469,264 Overlay C
-(33.26%)**, and **199,096 / 950,332 resolved text (20.95%)**.
-
-Overlay 15 `+0xB94..+0xC6C` contributes **216 exact bytes / 54 words** for
-rain rendering. The typed body retains the enable/positive-count gates,
-intensity conversion, active-camera angle adjustment, three translation
-values, unchecked retail hazards, and full `rainFastDraw` ABI. Its guarded
-ledger removes one redundant address producer and selects only private count
-homes and shipped loader-local addends. Configured and direct linked text both
-have SHA256 `22794a3e...a715f`; the **17 runtime records** comprise two
-resident calls plus seven HI16 and eight LO16 local sites. Its four-byte zero
-padding neighbor and the full ROM are exact. The checkpoint becomes **55,020
-/ 45,775 campaign bytes (120.20%)**, **156,272 / 469,264 Overlay C (33.30%)**,
-and **199,312 / 950,332 resolved text (20.97%)**.
-
-Overlay 36 `+0x09B8..+0x0A60` contributes **168 exact bytes / 42 words** for
-the position-effect callback. The typed body preserves variant-kind selection,
-three float-to-s16 coordinate conversions, request ownership, the resident
-spawn ABI, nullable return, and spawned-state clear. The configured compiler
-emits all owned instructions naturally; the rule trims only eight bytes of
-tail alignment. Configured and direct linked text both have SHA256
-`58f53464...fb15`; the exact **3 runtime records** are one resident call and
-one HI16/LO16 pair for the Overlay 36 variant byte. Its next-function assembly
-neighbor and the full ROM are exact. The checkpoint becomes **55,188 / 45,775
-campaign bytes (120.56%)**, **156,440 / 469,264 Overlay C (33.34%)**, and
-**199,480 / 950,332 resolved text (20.99%)**.
-
-Overlay 15 `+0x0428..+0x0500` contributes **216 exact bytes / 54 words** for
-star motion. Typed source publishes the raw movement vector, preserves the
-nullable star-array guard and in-place rate scaling, and reproduces the full
-fourteen-argument `starfieldFastMove` ABI. Four guarded drops remove only
-redundant odd-bound address anchors; complete addend and bijective schedule
-ledgers select retail's equivalent local/compiler representation. Configured
-and direct linked text both have SHA256 `a51912f1...fa90d`; the sealed semantic
-object proves all **21 runtime roles**, comprising one resident call and twenty
-local data/BSS records. Both function neighbors and the full ROM are exact. The
-checkpoint becomes **55,404 / 45,775 campaign bytes (121.04%)**, **156,656 /
-469,264 Overlay C (33.38%)**, and **199,696 / 950,332 resolved text (21.01%)**.
-
-Overlay 53 `+0x0000..+0x011C` contributes **284 exact bytes / 71 words** for
-initialization. Typed source preserves ten ordered calls, table setup, the
-two-entry configuration loop, height/handle initialization, and final published
-handle. A guarded ledger selects only two independent address finalizers and
-two complete local LO16 addends. Configured text has SHA256
-`cd11eded...60fe`; direct linked text has SHA256 `2e7fe595...06b1`. The exact
-**30 runtime records** comprise eight symbol and 22 local/jump sites. The next
-matched function and full ROM remain exact. The checkpoint becomes **55,688 /
-45,775 campaign bytes (121.66%)**, **156,940 / 469,264 Overlay C (33.44%)**,
-and **199,980 / 950,332 resolved text (21.04%)**.
-
-Overlay 53 `+0x016C..+0x0240` contributes **212 exact bytes / 53 words** for
-offset-entry copying. Typed source retains the four-argument ABI, mode-selected
-signed offset pairs, sentinel list, branch-likely copy loop, coordinate
-adjustments, terminal null, and delay-slot effects. IDO emits it naturally with
-no normalization. Configured text has SHA256 `c08dfd2d...5708`; direct linked
-text has SHA256 `b8c637c7...5f27`. Its exact **5 runtime records** are one
-resident call and two local HI16/LO16 table pairs. Both boundaries and full ROM
-are exact. The checkpoint becomes **55,900 / 45,775 campaign bytes (122.12%)**,
-**157,152 / 469,264 Overlay C (33.49%)**, and **200,192 / 950,332 resolved text
-(21.07%)**.
-
-Overlay 1 `+0x438C..+0x5BA4` contributes **6,168 exact bytes / 1,542 words**
-for the central object-physics/state updater. Typed source preserves the
-collision-record scan, input/mode gates, angle and velocity calculations,
-gravity and position integration, recovery path, callbacks, unchecked hazards,
-and the exact 48-call order. Object-local `-Wo,-loopunroll,0` reproduces the
-single-body loop. A natural `0x17E0` object is extended by a fail-loud
-fourteen-word representation pool; a full-digest-guarded bijective decoded
-schedule/register/frame web consumes the exact `0x1818` ownership with no
-target word array. Configured text has SHA256 `fc05dbdd...b5839`; direct linked
-text has SHA256 `392f07c8...6f1c`. All **184 runtime relocations** remain
-present and the true-address linked range plus full ROM are exact. The
-checkpoint becomes **62,068 / 45,775 campaign bytes (135.59%)**, **163,320 /
-469,264 Overlay C (34.80%)**, and **206,360 / 950,332 resolved text (21.71%)**.
-
-Overlay 15 `+0x09E0..+0x0B7C` contributes **412 exact bytes / 103 words** for
-the moving-star camera updater. Typed source preserves the camera ABI,
-rate-gated coordinate deltas, snapshots, published position, data pointer and
-count, all nine bounds, and the fourteen-argument fast-move call. Seven guarded
-drops remove only redundant adjacent-field HI anchors; decoded local addends
-and a bijective schedule select the shipped form. Configured and linked text
-share SHA256 `0b0c1d2c...f36fe`. The loader-authority ledger proves all **39
-runtime records**—two calls, 33 BSS records, and four data records—and the
-true-address range plus full ROM are exact. The checkpoint becomes **62,480 /
-45,775 campaign bytes (136.49%)**, **163,732 / 469,264 Overlay C (34.89%)**,
-and **206,772 / 950,332 resolved text (21.76%)**.
-
-Overlay 1 `+0x3FD8..+0x438C` contributes **948 exact bytes / 237 words** for a
-two-path, five-phase transition-state machine and makes the adjoining
-`+0x3FD8..+0x5BA4` run exact. Typed source retains fades, spawned-position and
-path-record selection, rotations, flags, cleanup, hazards, and call order. A
-fail-loud three-word representation pool and whole-digest-guarded bijective
-schedule/register web select retail's form. Configured and linked text share
-SHA256 `2e8eb279...6fb40`; all **13 runtime relocations** remain exact. The
-three intra-overlay loader calls keep raw zero fields in the static link while
-the runtime ledger proves their separate identities. The true-address range
-and full ROM are exact. The checkpoint becomes **63,428 / 45,775 campaign
-bytes (138.56%)**, **164,680 / 469,264 Overlay C (35.09%)**, and **207,720 /
-950,332 resolved text (21.86%)**.
-
-Overlay 15 `+0x0500..+0x06A4` contributes **420 exact bytes / 105 words** for
-the starfield renderer. Typed source retains dimension lookup, display-list
-setup, depth clipping, projection, grayscale fade, fill rectangles, pointer
-publication, and finish/reset order. Target-local `-Wab,-r4300_mul` supplies
-the shipped FP hazard; guarded local addends, a same-target branch displacement,
-and a bijective schedule select retail's representation. Configured and linked
-text share SHA256 `459d35d0...1eb0`; the loader ledger proves all **10 runtime
-records**—two resident calls, six initialized-data sites, and two constant
-sites. Both boundaries, the true-address range, and full ROM are exact. The
-checkpoint becomes **63,848 / 45,775 campaign bytes (139.48%)**, **165,100 /
-469,264 Overlay C (35.18%)**, and **208,140 / 950,332 resolved text (21.90%)**.
-
-Overlay 1 `+0x3750..+0x3E48` contributes **1,784 exact bytes / 446 words** for
-the path-selection and interpolation state machine. Typed source preserves the
-selection loops, path/record scans, interpolation effects, unchecked hazards,
-and all nine calls. One guarded redundant zero rematerialization is removed;
-a whole-digest-guarded relocation-aware bijective web selects the shipped
-private schedule and register representation. The configured object has the
-exact **31-record** linker surface, while the sealed loader proof covers all
-**63 runtime relocation roles** by identity and addend. Configured text SHA256
-is `c3819bf6...f8`, and the true-address linked range SHA256 is
-`fbc2b6be...7b0`. Both boundaries and the full ROM are exact. The checkpoint
-becomes **65,632 / 45,775 campaign bytes (143.38%)**, **166,884 / 469,264
-Overlay C (35.56%)**, and **209,924 / 950,332 resolved text (22.09%)**.
-
-Overlay 36 `+0x0818..+0x0914` contributes **252 exact bytes / 63 words** for
-the nearby-height filter. Typed source retains the inactive-state gate,
-six-argument nearby query, reverse result walk, inclusive vertical-band
-filter, survivor activation, flag clear, world-state change, and unchecked
-hazards. One guarded redundant-zero removal establishes the exact ownership
-boundary, and a private whole-digest-guarded bijective schedule/register web
-selects retail's equivalent representation without changing an opcode.
-Configured and linked text share SHA256 `c457a77e...418f`; all **three runtime
-relocations** are exact at their sites, types, operations, identities, and
-addends. The true-address range, both boundaries, and full ROM are exact. The
-checkpoint becomes **65,884 / 45,775 campaign bytes (143.93%)**, **167,136 /
-469,264 Overlay C (35.62%)**, and **210,176 / 950,332 resolved text (22.12%)**.
-
-Overlay 1 `+0x10C8..+0x19B8` contributes **2,288 exact bytes / 572 words**
-for packed-record loading and group/metric construction. Typed source retains
-both record paths, allocation failure, cycle handling, descending eight-entry
-score/rank loops, status sequence, all sixteen calls, and unchecked hazards.
-A fail-loud representation pool plus a complete relocation-aware bijective
-schedule/register/frame web selects the shipped private form. Configured text
-SHA256 is `bd367c6e...40bd`; the sealed loader proof covers all **114 runtime
-roles**, while the canonical static object retains the exact **32-record** raw
-link surface. The true-address range has SHA256 `f39a4e3c...4ee5`, and both
-boundaries plus full ROM are exact. The checkpoint becomes **68,172 / 45,775
-campaign bytes (148.93%)**, **169,424 / 469,264 Overlay C (36.10%)**, and
-**212,464 / 950,332 resolved text (22.36%)**.
-
-Overlay 13 `+0x0000..+0x0124` and `+0x0188..+0x0284` contribute **544 exact
-bytes / 136 words** for module initialization and record allocation. Natural
-typed source reproduces every instruction with no normalization while
-preserving the distinct initialized-data/BSS bases, 32-record loops,
-branch-likely free-record scan, eight-float O32 call shape, and shipped
-unchecked paths. The configured objects retain exact **17-record** and
-**7-record** relocation surfaces. True-address linked SHA256 values are
-`8afb302f...8a8` and `432052e9...e2fb`; both boundaries and the full ROM are
-exact. The checkpoint becomes **68,716 / 45,775 campaign bytes (150.12%)**,
-**169,968 / 469,264 Overlay C (36.22%)**, and **213,008 / 950,332 resolved
-text (22.41%)**.
-
-Overlay 14 `+0x1040..+0x1164` contributes **292 exact bytes / 73 words** for
-the module's signed command-index dispatcher. Typed source retains the five
-action modes, state updates, success/failure halfword follow-ups, call order,
-branch-likely behavior, and unchecked indexing. The natural object owns the
-exact opcode census and **15 runtime relocation roles**; a complete guarded
-bijective schedule/register web changes no opcode class and leaves the exact
-seven-call static link surface. Configured SHA256 is `95798886...34c0`, linked
-SHA256 is `5f028b85...f525`, and both owner boundaries plus full ROM are exact.
-The checkpoint becomes **69,008 / 45,775 campaign bytes (150.75%)**,
-**170,260 / 469,264 Overlay C (36.28%)**, and **213,300 / 950,332 resolved
-text (22.44%)**.
-
-Overlay 55 `+0x0000..+0x013C` contributes **316 exact bytes / 79 words** for
-module startup. Typed source retains the setup calls, two distinct raw-zero
-local bases, state/resource stores, paired four-entry record loop, status
-writes, `-80.0f` state, Overlay 56 initialization, and signed result carrier.
-Natural codegen owns the exact opcode census and **33 runtime relocation
-roles**; a guarded two-word schedule plus two local addends changes no opcode
-class and preserves the exact **21-record** raw link surface. Configured
-SHA256 is `4cb07c78...bba3`, linked SHA256 is `d8c71b8d...c1d0`, and both
-boundaries plus full ROM are exact. The checkpoint becomes **69,324 / 45,775
-campaign bytes (151.45%)**, **170,576 / 469,264 Overlay C (36.35%)**, and
-**213,616 / 950,332 resolved text (22.48%)**.
-
-Overlay 84 `+0x0DD0..+0x0F18` contributes **328 exact bytes / 82 words** for
-`overlay84AdvanceCurrent`. Typed `-O2 -mips2 -32` source preserves signed-byte
-forward/backward indexing and wraparound, null and disabled-node skipping,
-the branch-likely reload, heading calculation, tilt negation, direction-bit
-replacement, and height publication. Natural codegen has the exact CFG,
-opcode/register census, memory effects, and all **five runtime relocation
-roles**. A complete guarded frame/spill and twelve-instruction schedule web
-changes no opcode class or semantic effect. Configured and true-address linked
-SHA256 are both `b8992c05...7060`; both boundaries plus full ROM are exact.
-The checkpoint becomes **69,652 / 45,775 campaign bytes (152.16%)**, **170,904
-/ 469,264 Overlay C (36.42%)**, and **213,944 / 950,332 resolved text
-(22.51%)**.
-
-Overlay 36 `+0x150C..+0x1688` contributes **380 exact bytes / 95 words** for
-`overlay36UpdatePeers`. Typed `-O2 -mips2 -32` source preserves indexed peer
-traversal, rank/timer eligibility, peer-resource activation and spawning,
-current-resource replacement, and the shared countdown/state/action teardown.
-Natural codegen has the exact six-call CFG, branch-likely sites, FP conversion
-schedule, and relocation offsets. A complete guarded schedule, frame, `s0/s1`,
-and scratch-register web changes no opcode or semantic effect. Configured and
-true-address linked SHA256 are both `cecde584...0620`; all six runtime
-identities, both boundaries, and full ROM are exact. The checkpoint becomes
-**70,032 / 45,775 campaign bytes (152.99%)**, **171,284 / 469,264 Overlay C
-(36.50%)**, and **214,324 / 950,332 resolved text (22.55%)**.
-
-Overlay 86 `+0x007C..+0x0158` contributes **220 exact bytes / 55 words** for
-`overlay86ScaledVectorPosition`. Typed `-O2 -mips2 -32` source preserves
-signed-byte vector selection and fallback, scale multiplication, in-place
-resident transform, the fifth o32 stack argument, and final object-position
-addition. Natural codegen has the exact frame, CFG, opcode/register and FP
-schedules, branch-likely behavior, and all **three runtime relocation roles**.
-A complete guarded seven-immediate private-local-home web changes no opcode or
-semantic effect. Configured and true-address linked SHA256 are both
-`fa210ac0...e92fa`; both boundaries and full ROM are exact. The checkpoint
-becomes **70,252 / 45,775 campaign bytes (153.47%)**, **171,504 / 469,264
-Overlay C (36.55%)**, and **214,544 / 950,332 resolved text (22.58%)**.
-
-Overlay 36 `+0x1378..+0x1470` contributes **248 exact bytes / 62 words** for
-`overlay36SpawnAndUpdate`. Typed `-O2 -mips2 -32` source preserves
-object-position conversion, effect `0x82` spawning, result initialization,
-active-resource replacement, and countdown/state/action teardown. Recovering
-the second physical argument as `s32` yields natural **62/62** codegen with
-the exact three-call relocation surface; no instruction normalization is used.
-Configured and true-address linked SHA256 are both `bde47695...52c3`; all
-runtime identities, both boundaries, and full ROM are exact. The checkpoint
-becomes **70,500 / 45,775 campaign bytes (154.01%)**, **171,752 / 469,264
-Overlay C (36.60%)**, and **214,792 / 950,332 resolved text (22.60%)**.
-
-Overlay 86 `+0x02E4..+0x0444` contributes **352 exact bytes / 88 words** for
-`overlay86SelectPosition`. Typed `-O2 -mips2 -32` source preserves prior-record
-selection, index advance, output clearing, record publication and flagging,
-node-list fallback, branch-likely iteration, Y offset, and signed angle return.
-Natural codegen has the exact frame, CFG, FP operations, calls, effects, and
-all **three runtime relocation roles**. A complete guarded five-home and
-two-load private representation changes no opcode or semantic address.
-Configured and true-address linked SHA256 are both `9dcc96e3...d111`; both
-boundaries and full ROM are exact. The checkpoint becomes **70,852 / 45,775
-campaign bytes (154.78%)**, **172,104 / 469,264 Overlay C (36.68%)**, and
-**215,144 / 950,332 resolved text (22.64%)**.
-
-Overlay 86 `+0x0158..+0x02E4` contributes **396 exact bytes / 99 words** for
-`overlay86BuildTransform` and closes the entire **968-byte
-`+0x007C..+0x0444` island** across three independently proved owners. Typed
-`-O2 -mips2 -32` source preserves vector-index clamping, active-current
-selection, volatile position snapshot, angle setup, scaled table transform,
-position subtraction, and the `-1` direction sentinel. Natural codegen has
-the exact frame, CFG, opcode/register and FP schedules, calls, effects, and all
-**five runtime relocation roles**. A complete guarded two-home swap changes no
-opcode or semantic effect. Configured and linked SHA256 are both
-`22aabebb...8339`; both boundaries and full ROM are exact. The checkpoint
-becomes **71,248 / 45,775 campaign bytes (155.65%)**, **172,500 / 469,264
-Overlay C (36.76%)**, and **215,540 / 950,332 resolved text (22.68%)**.
-
-Overlay 36 `+0x1214..+0x1378` contributes **356 exact bytes / 89 words** for
-`overlay36SpawnOffsetA9`. Typed `-O2 -mips2 -32` source preserves the local
-three-float offset, position conversion, `0xA9` spawn request, owner and ID
-publication, spawned-state initialization, conditional kind override,
-resource replacement, and countdown/action teardown. Natural codegen has the
-exact four-call CFG, opcode census, FP schedule, memory effects, and all
-**four runtime relocation roles**. A complete guarded `$f4/$f6` private
-constant-carrier web changes no opcode or semantic effect. Configured and
-true-address linked SHA256 are both `09ca017f...0be7d2`; both boundaries and
-the full ROM are exact. The checkpoint becomes **71,604 / 45,775 campaign
-bytes (156.43%)**, **172,856 / 469,264 Overlay C (36.84%)**, and **215,896 /
-950,332 resolved text (22.72%)**.
-
-Overlay 36 `+0x0F20..+0x1084` contributes **356 exact bytes / 89 words** for
-`overlay36SpawnDirectional`. Typed `-O2 -mips2 -32` source preserves the
-directional offset, `0x9F` spawn request, count/link/value fields, owner and
-position publication, spawned-state initialization, kind selection, resource
-replacement, and countdown/action teardown. Natural codegen has the exact
-four-call CFG, opcode census, FP schedule, effects, and all **four runtime
-relocation roles**. A complete guarded `$f4/$f6` private constant-carrier web
-changes no opcode or semantic effect. Configured and true-address linked
-SHA256 are both `2fa63c29...502f7c`; both boundaries and full ROM are exact.
-The checkpoint becomes **71,960 / 45,775 campaign bytes (157.20%)**, **173,212
-/ 469,264 Overlay C (36.91%)**, and **216,252 / 950,332 resolved text
-(22.76%)**.
-
-Overlay 36 `+0x1084..+0x1214` contributes **400 naturally exact bytes / 100
-words** for `overlay36SpawnConditional`. Typed `-O2 -mips2 -32` source
-preserves the signed and NaN-sensitive direction test, conditional Z offset
-and `+45/-45` request value, branch-likely effect, `0x9F` spawn request,
-spawn-status override, resource replacement, and countdown/action teardown.
-The compiler emits the exact owner with all **four runtime relocation roles**;
-no normalization or section trim is used. Configured and true-address linked
-SHA256 are both `a1736880...5e38`; both boundaries and full ROM are exact. The
-checkpoint becomes **72,360 / 45,775 campaign bytes (158.08%)**, **173,612 /
-469,264 Overlay C (37.00%)**, and **216,652 / 950,332 resolved text (22.80%)**.
-
-Overlay 36 `+0x0D8C..+0x0F20` contributes **404 exact bytes / 101 words** for
-`overlay36SpawnLinked7F` and closes the full **1,764-byte
-`+0x0D8C..+0x1470` island** across five independently proved owners. Typed
-source preserves transformed position publication, the `0x7F` request and
-three IDs, directional lookup using Overlay 36's finite `FLT_MAX`, spawn
-status, resource replacement, and countdown teardown. Natural codegen has all
-opcodes and the exact **seven-record** relocation topology. A complete guarded
-initial FP-carrier and uniform private-local-home web changes no opcode or
-semantic effect. Configured and linked SHA256 are both
-`dc2c921f...1a980a`; both boundaries and full ROM are exact. The checkpoint
-becomes **72,764 / 45,775 campaign bytes (158.96%)**, **174,016 / 469,264
-Overlay C (37.08%)**, and **217,056 / 950,332 resolved text (22.84%)**.
-
-Overlay 36 `+0x0694..+0x07B0` contributes **284 exact bytes / 71 words** for
-`overlay36SpawnTransient`. Typed `-O2 -mips2 -32` source preserves the
-ten-byte descriptor, float-to-s16 coordinate conversion with `+30.0f` Y,
-spawn initialization, mode-dependent state value, type-dependent timer
-decrement, and active-object teardown. Natural codegen is exact from `+0x38`
-onward with the exact leading opcode multiset. A guarded bijective setup
-schedule plus its complete three-temporary rotation changes no instruction or
-relocation. Configured and linked SHA256 are both `d6cf5d7e...2a2b43`; the
-exact **three-record** relocation surface, both boundaries, and full ROM are
-exact. The checkpoint becomes **73,048 / 45,775 campaign bytes (159.58%)**,
-**174,300 / 469,264 Overlay C (37.14%)**, and **217,340 / 950,332 resolved
-text (22.87%)**.
-
-Overlay 46 `+0x0FD0..+0x112C` contributes **348 naturally exact bytes / 87
-words** for `overlay46UpdateTransition`. Typed `-O2 -mips2 -32` source
-preserves the mode/timer dispatch, signed halfword fade advance, display-state
-publication, resident notification order, cross-overlay unit-scale predicate,
-and unconditional local update tail. The exact owner needs no instruction
-normalization; its independent compiler alignment word is trimmed. All **28
-runtime relocation roles**, both boundaries, the true-address link, and the
-full ROM are exact. Configured unlinked SHA256 is `d6c3284f...c4f01` and
-linked/direct-retail SHA256 is `2ae1a267...f9e4`. The checkpoint becomes
-**73,396 / 45,775 campaign bytes (160.34%)**, **174,648 / 469,264 Overlay C
-(37.22%)**, and **217,688 / 950,332 resolved text (22.91%)**.
-
-Overlay 14 `+0x1184..+0x12D8` contributes **340 exact bytes / 85 words** for
-`overlay14UpdateTransition`. Natural typed `-O2 -mips2 -32` source already
-has the exact CFG, instruction count, opcode inventory, call sites, and all
-**28 runtime relocation roles**. A complete guarded private field web selects
-the shipped register/home allocation without moving, adding, removing, or
-changing the opcode of any instruction. Configured unlinked SHA256 is
-`663751d0...e3ba`, linked/direct-retail SHA256 is `c6b6d69c...776e`, both
-boundaries and the full ROM are exact. The checkpoint becomes **73,736 /
-45,775 campaign bytes (161.08%)**, **174,988 / 469,264 Overlay C (37.29%)**,
-and **218,028 / 950,332 resolved text (22.94%)**.
-
-Overlay 57 `+0x4C18..+0x4D90` contributes **376 exact bytes / 94 words** for
-`overlay57UpdateModeTrigger`. Natural typed source preserves the exact-size
-CFG, all seven calls and delay slots, the deliberately uninitialized trigger,
-and all memory effects. A complete guarded setup/index/register web plus three
-asserted compiler-elided local-base records reproduces the shipped code. The
-configured object retains the exact **38 runtime relocation roles**: 31 local
-HI16/LO16 records, five external calls, and two overlay-local jumps.
-Configured SHA256 is `5a0c1281...2ff66`; linked/direct-retail SHA256 is
-`48dfba27...ae586`. Both boundaries and the full ROM are exact. The checkpoint
-becomes **74,112 / 45,775 campaign bytes (161.90%)**, **175,364 / 469,264
-Overlay C (37.37%)**, and **218,404 / 950,332 resolved text (22.98%)**.
-
-Overlay 36 `+0x01D0..+0x0694` contributes **1,220 exact bytes / 305 words**
-for `overlay36UpdateInteractiveEntity`. Typed source preserves the complete
-countdown, record lookup, alpha convergence, animation/position update,
-nearby-object query, callback/effect dispatch, ownership, and release paths.
-Two guarded countdown-CFG corrections, twelve complete relocation-aware
-schedule permutations, and a decoded private frame/register web select the
-shipped compiler representation without changing semantic effects. The
-configured object retains all **24 runtime relocation roles**. Configured
-SHA256 is `b83f6f43...d3758`; linked/direct-retail SHA256 is
-`a3befe2e...3af8`. Both boundaries and the full ROM are exact. The checkpoint
-becomes **75,332 / 45,775 campaign bytes (164.57%)**, **176,584 / 469,264
-Overlay C (37.63%)**, and **219,624 / 950,332 resolved text (23.11%)**.
-
-Overlay 41 `+0x1C84..+0x1DE0` contributes **348 naturally exact bytes / 87
-words** for `overlay41DrawItem`. Typed source preserves the indexed resource
-lookup, centered background dimensions, intensity-controlled Overlay 67 pass,
-and offset/foreground resource draws with exact signed arithmetic. Ordinary
-`-O2 -mips2 -32` codegen is exact; only the independent trailing alignment
-word is trimmed. The configured object retains all **14 runtime relocation
-roles**. Configured and linked/direct-retail SHA256 are
-`0d2487d4...7419e`; both boundaries and the full ROM are exact. The checkpoint
-becomes **75,680 / 45,775 campaign bytes (165.33%)**, **176,932 / 469,264
-Overlay C (37.70%)**, and **219,972 / 950,332 resolved text (23.15%)**.
-
-Overlay 99 `+0x0064..+0x021C` contributes **440 exact bytes / 110 words** for
-`overlay99InitializeEntries`. Typed source preserves the bounded three-entry
-copy, sentinel-controlled spawn path, deliberately partial descriptor setup,
-created-object accounting, storage count, and conditional commit. A complete
-guarded address-taken descriptor stack web changes only nine equivalent stack
-offsets while preserving every opcode, register, branch, call, relocation,
-and memory effect. The configured object retains all **7 runtime relocation
-roles**, including both local storage pairs and the exact `+0x90` addend.
-Configured and linked/direct-retail SHA256 are `e38eb2e7...684`; both
-boundaries and the full ROM are exact. The checkpoint becomes **76,120 /
-45,775 campaign bytes (166.29%)**, **177,372 / 469,264 Overlay C (37.80%)**,
-and **220,412 / 950,332 resolved text (23.19%)**.
-
-Overlay 11 `+0x0AF4..+0x0C88` contributes **404 naturally exact bytes / 101
-words** for `overlay11InitializeFour`. Typed source preserves the
-status-dependent formatting, fixed first two handles, mode/flag/string choice
-for the third, optional fourth handle, and every unchecked resource hazard.
-Ordinary `-O2 -mips2 -32` codegen is exact; only independent section alignment
-is trimmed, while the real link resolves three proved local addends. The
-configured object retains all **22 runtime relocation roles**. Configured
-relocatable SHA256 is `95f9d5d0...4497`; linked/direct-retail SHA256 is
-`f6aab93e...170b`. Both boundaries and the full ROM are exact. The checkpoint
-becomes **76,524 / 45,775 campaign bytes (167.17%)**, **177,776 / 469,264
-Overlay C (37.88%)**, and **220,816 / 950,332 resolved text (23.24%)**.
-
-Overlay 11 `+0x0000..+0x0150` contributes **336 naturally exact bytes / 84
-words** for `overlay11Initialize`. Typed source preserves resident and Overlay
-66 setup, timer/counter/selection initialization, first-entry gating, the
-nonsequential six-mode handle-group dispatch, final common creation, and the
-initialized flag. Its compiler-emitted six-entry switch table exactly matches
-the existing runtime-relocated table at module `+0x2ED8`; the duplicate private
-section is discarded only after rebinding the exact local `+8` text pair. The
-configured object retains all **31 runtime text relocation roles**, and the
-retained table preserves its six `R_MIPS_32` roles. Configured relocatable text
-SHA256 is `4fd1f85f...681a7`, linked/direct-retail text SHA256 is
-`cacc9938...f7f3`, and table SHA256 is `38e28147...37b`. Both ranges and the
-full ROM are exact. The checkpoint becomes **76,860 / 45,775 campaign bytes
-(167.91%)**, **178,112 / 469,264 Overlay C (37.96%)**, and **221,152 / 950,332
-resolved text (23.27%)**.
-
-Overlay 11 `+0x11D0..+0x1398` contributes **456 naturally exact bytes / 114
-words** for `overlay11UpdateSelection`. Typed source preserves signed direction
-thresholds, the asymmetric mode transition sounds, handle emphasis,
-controller-bit priority, and the exact `-1/0/1` result encodings. Ordinary
-`-O2 -mips2 -32` codegen is exact; only independent section alignment is
-trimmed. The configured object retains all **58 runtime relocation roles**:
-ten calls and 24 HI16/LO16 pairs. Configured relocatable SHA256 is
-`eb9c7d07...3c4c8`; linked/direct-retail SHA256 is `7f1bb1a7...6824`. Both
-boundaries and the full ROM are exact. The checkpoint becomes **77,316 /
-45,775 campaign bytes (168.90%)**, **178,568 / 469,264 Overlay C (38.05%)**,
-and **221,608 / 950,332 resolved text (23.32%)**.
-
-Overlay 19 `+0x00AC..+0x01E0` contributes **308 naturally exact bytes / 77
-words** for `overlay19BuildOutput`. Typed source preserves allocation and
-failure gates, the three variable output regions, strict capacity rejection,
-and allocator-state copy ordering. Ordinary `-O2 -mips2 -32` codegen is exact;
-only independent trailing section alignment is trimmed. The configured object
-retains all **10 `R_MIPS_26` runtime roles**: three local calls and seven
-resident calls across five semantic imports. Configured owned SHA256 is
-`a9243893...099`; the true-address linked range and direct retail slice share
-SHA256 `534ff130...d3bc`, and the cumulative ROM retains SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. The checkpoint becomes **77,624 /
-45,775 campaign bytes (169.58%)**, **178,876 / 469,264 Overlay C (38.12%)**,
-and **221,916 / 950,332 resolved text (23.35%)**.
-
-Overlay 99 `+0x02A0..+0x0638` contributes **920 exact bytes / 230 words** for
-`overlay99ApplySegment`. Typed source preserves the interpolated line
-equations, strict grid-window predicates, NaN behavior, wave identities,
-signed-height update, and traversal order. A complete fail-loud bijective web
-selects the shipped private compiler representation while preserving the exact
-**13 static and 27 runtime relocation roles**. Canonical linkage additionally
-removes a proved 16-byte compiler-private `.rodata` duplicate whose text
-records are already owned by the retained runtime table. Configured SHA256 is
-`a61fff61...53c1`; the true-address linked range and direct retail slice share
-SHA256 `098eeddb...ce1b`, and the full ROM retains SHA1
-`507341c0a40ca3e9a7cee969b396ee53facfb548`. The checkpoint becomes **78,544 /
-45,775 campaign bytes (171.59%)**, **179,796 / 469,264 Overlay C (38.31%)**,
-and **222,836 / 950,332 resolved text (23.45%)**.
-
-Overlay 11 `+0x1398..+0x184C` contributes **1,204 exact executable bytes / 301
-words** for `overlay11UpdateMenu`. Typed source preserves the complete menu
-input, handle, sound, mode, timer, and transition dispatcher, including its
-asymmetric thresholds and delay-slot effects. A bounded fail-loud private
-frame/spill normalization retains the exact 301-instruction topology and all
-**102 runtime relocation roles**. Configured SHA256 is `18c39fe9...6204`;
-linked/direct-retail SHA256 is `0f58f7c4...0268`. Both boundaries and the full
-ROM are exact. The checkpoint becomes **79,748 / 45,775 campaign bytes
-(174.22%)**, **181,000 / 469,264 Overlay C (38.57%)**, and **224,040 / 950,332
-resolved text (23.57%)**.
-
-Overlay 63 `+0x077C..+0x0928` contributes **428 exact executable bytes / 107
-words** for `overlay63UpdateSequence`. The separate `+0x0928..+0x0930`
-eight-byte zero padding remains assembly and earns no C credit. Typed source
-preserves token-sequence recognition, toggling, timer/transition behavior, and
-both draw passes. A complete immutable-input normalization restores one folded
-identity copy and rotates only its private v0/v1 web; the configured object
-retains all **39 runtime relocation roles**. Configured executable SHA256 is
-`28681480...17ee`; linked/direct-retail executable SHA256 is
-`907f4459...fbae`, while the owner including padding is `dd34fe8c...6a00`.
-Both boundaries and the full ROM are exact. The checkpoint becomes **80,176 /
-45,775 campaign bytes (175.15%)**, **181,428 / 469,264 Overlay C (38.66%)**,
-and **224,468 / 950,332 resolved text (23.62%)**.
-
-Overlay 11 `+0x184C..+0x1A7C` contributes **560 exact executable bytes / 140
-words** for `overlay11UpdateTwoOptionMenu`. Typed source preserves direction
-thresholds, sound choices, the two-handle emphasis loop, input override, both
-selection paths, and early-return delay-slot effects. Its only private
-compiler residual is a two-use loop-index spill home, selected by a complete
-fail-loud normalization. The configured object retains all **46 runtime
-relocation roles**. Configured SHA256 is `46895030...361a` and
-linked/direct-retail SHA256 is `3660df72...a50f`; both boundaries and the full
-ROM are exact. The checkpoint becomes **80,736 / 45,775 campaign bytes
-(176.38%)**, **181,988 / 469,264 Overlay C (38.78%)**, and **225,028 / 950,332
-resolved text (23.68%)**.
-
-Overlay 63 `+0x0000..+0x01D4` contributes **468 exact executable bytes / 117
-words** for `overlay63Initialize`. Typed source preserves subsystem setup,
-resource creation, chain/config construction, random ranges and sign choice,
-state initialization, four-slot reset, and external flag clears. A complete
-fail-loud normalization restores the compiler-folded chain address
-materialization and rotates only its bounded private register web. The
-configured object retains all **46 runtime relocation roles**. Configured
-SHA256 is `f2058a99...9ba6`; linked/direct-retail SHA256 is
-`e805a5fa...a0c4`. Both boundaries and the full ROM are exact. The checkpoint
-becomes **81,204 / 45,775 campaign bytes (177.40%)**, **182,456 / 469,264
-Overlay C (38.88%)**, and **225,496 / 950,332 resolved text (23.73%)**.
-
-Overlay 100 `+0x0580..+0x094C` contributes **972 exact executable bytes /
-243 words** for `overlay100DrawMotion`; its final four-byte zero word remains
-separately owned padding. The guarded private representation retains the exact
-five-call relocation contract. Configured SHA256 is `92be8e4f...73b6`; the
-linked 976-byte owner including padding is `75edd755...a5d`. Overlay 100 is
-now executable-complete. The checkpoint becomes **82,176 / 45,775 campaign
-bytes (179.52%)**, **183,428 / 469,264 Overlay C (39.09%)**, and **226,468 /
-950,332 resolved text (23.83%)**.
-
-Overlay 11 `+0x1A7C..+0x1E4C` contributes **976 exact executable bytes / 244
-words** for `overlay11UpdateFiveOptionMenu`. Its configured object retains 78
-static relocation records, and its separately retained 20-byte switch table is
-also exact. Configured SHA256 is `a828dc0f...9189`, linked/direct-retail
-SHA256 is `bc8cc120...2bcc`, and the switch table is `31e62780...de1d`.
-The checkpoint becomes **83,152 / 45,775 campaign bytes (181.65%)**, **184,404
-/ 469,264 Overlay C (39.30%)**, and **227,444 / 950,332 resolved text
-(23.93%)**.
-
-Overlay 63 `+0x01D4..+0x074C` contributes **1,400 exact executable bytes /
-350 words** for `overlay63UpdateEffects`. The configured object retains all
-71 static relocation records: 23 calls and 24 HI16/LO16 pairs. Configured
-SHA256 is `b4899f79...1494`; linked/direct-retail SHA256 is
-`c335598f...9d1b`. The checkpoint becomes **84,552 / 45,775 campaign bytes
-(184.71%)**, **185,804 / 469,264 Overlay C (39.59%)**, and **228,844 / 950,332
-resolved text (24.08%)**.
-
-Overlay 19 `+0x01E0..+0x0A30` contributes **2,128 exact executable bytes /
-532 words** for `overlay19BuildPlanes`. Typed source preserves the two-pass
-plane construction, reciprocal-edge bookkeeping, sentinels, FP behavior, and
-unchecked allocation contract. A complete fail-loud private representation
-retains the exact four-call relocation surface. Configured and
-linked/direct-retail SHA256 are
-`4ca7cde8eac58b704c340b7f803d43533f98b78cbafc2242f47f6a1f8920b2a6`.
-Every non-padding executable byte in Overlay 19 is now exact C. The checkpoint
-becomes **86,680 / 45,775 campaign bytes (189.36%)**, **187,932 / 469,264
-Overlay C (40.05%)**, and **230,972 / 950,332 resolved text (24.30%)**.
-
-Overlay 98's edge owners add **684 exact executable bytes / 171 words**:
-`overlay98CollectAccepted` at `+0x0144..+0x0234` and
-`overlay98CheckObject` at `+0x0848..+0x0A04`. The latter's final 12 zero
-bytes remain separately owned assembly padding. Each configured object retains
-all six relocation roles. True-address SHA256 values are `90dd69f8...0b23`
-and `2d1cbc7a...5a83`; the second complete owner including padding is
-`1ec0cbf7...30cc`. The checkpoint becomes **87,364 / 45,775 campaign bytes
-(190.86%)**, **188,616 / 469,264 Overlay C (40.19%)**, and **231,656 / 950,332
-resolved text (24.38%)**.
-
-Overlay 65 `+0x0080..+0x0BC0` contributes **2,880 exact executable bytes /
-720 words** for `overlay65UpdateParticles`. Typed source preserves the
-150-record particle update, four-spawn bound, randomized motion and color,
-ground-height scan, four-vertex emission, six-quad batching, partial flush,
-cursor returns, and finalizer ordering. Its fail-loud complete private
-representation retains all 36 static relocation records and all 64 runtime
-roles. Configured SHA256 is `54a8f06a...8ed`; linked/direct-retail SHA256 is
-`aa0a58c5...1663`. The linked owner and full ROM are byte-exact, and Overlay
-65 reaches executable closure. The checkpoint becomes **90,244 / 45,775
-campaign bytes (197.15%)**, **191,496 / 469,264 Overlay C (40.81%)**, and
-**234,536 / 950,332 resolved text (24.68%)**.
-
-Overlay 98 `+0x0234..+0x0848` contributes **1,556 exact executable bytes /
-389 words** for `overlay98RenderReflections`. Typed source preserves the
-visible-object traversal, mirrored transform construction, special geometry,
-display-list emission, state restoration, and temporary object reflection.
-Its complete private representation accounts for all 36 runtime semantic
-relocations before conversion to the exact 16-record static proxy surface.
-The configured object is 389/389 words exact; linked/direct SHA256 is
-`ad443728...f033`, and the complete overlay is `bd4cb91c...2e21`. The linked
-owner, whole Overlay 98, and full ROM are byte-exact. All non-padding Overlay
-98 executable bytes are now C. The checkpoint becomes **91,800 / 45,775
-campaign bytes (200.55%)**, **193,052 / 469,264 Overlay C (41.14%)**, and
-**236,092 / 950,332 resolved text (24.84%)**.
-
-Overlay 13's three remaining owners at `+0x0284..+0x0508`,
-`+0x0580..+0x0874`, and `+0x0874..+0x0B0C` contribute **2,064 exact executable
-bytes / 516 words** and close every non-padding executable byte in the module.
-Their configured objects preserve exact 3-, 10-, and 2-record static surfaces
-while the runtime ledgers retain all 5, 18, and 10 semantic roles. Every owner,
-the complete `0xDC0`-byte overlay, and the full ROM compare byte-for-byte. The
-checkpoint becomes **93,864 / 45,775 campaign bytes (205.06%)**, **195,116 /
-469,264 Overlay C (41.58%)**, and **238,156 / 950,332 resolved text (25.06%)**.
-
-Overlay 11 `+0x2714..+0x2948` contributes **564 exact executable bytes / 141
-words** for `overlay11UpdateModeSix`. Natural codegen is exact in length,
-frame, CFG, delay slots, calls, and all 47 relocation sites; the guarded
-normalization selects only one complete two-use private spill home. Its owner,
-complete overlay, and full ROM compare byte-for-byte. The checkpoint becomes
-**94,428 / 45,775 campaign bytes (206.29%)**, **195,680 / 469,264 Overlay C
-(41.70%)**, and **238,720 / 950,332 resolved text (25.12%)**.
-
-Overlay 15 `+0x06E8..+0x09E0` contributes **760 exact executable bytes / 190
-words** for `overlay15InitStars`. The guarded complete address-lowering web
-preserves every store and semantic operation while recovering retail's three
-explicit global-address carriers; all 15 runtime roles reduce to the exact
-13-record split surface. The owner, complete overlay, and full ROM compare
-byte-for-byte. The checkpoint becomes **95,188 / 45,775 campaign bytes
-(207.95%)**, **196,440 / 469,264 Overlay C (41.86%)**, and **239,480 / 950,332
-resolved text (25.20%)**.
-
-Overlay 15 `+0x004C..+0x0428` contributes **988 exact executable bytes / 247
-words** for `overlay15InitStarsAndPalette` and closes every non-padding
-executable byte in the module. Its complete relocation-anchored carrier web
-drops or zeros no natural instruction, preserves all 14 shipped runtime roles,
-and reduces to the exact six-record split surface. The owner, complete overlay,
-and full ROM compare byte-for-byte. The checkpoint becomes **96,176 / 45,775
-campaign bytes (210.11%)**, **197,428 / 469,264 Overlay C (42.07%)**, and
-**240,468 / 950,332 resolved text (25.30%)**.
-
-Overlay 61 `+0x1648..+0x17B8` contributes **368 exact executable bytes / 92
-words** for `func_overlay_061_F0001648_18C0A10`. The configured object retains
-all nine call relocations and the local path-address pair, while the guarded
-normalization owns the complete private copy-size/loop carrier web. The linked
-owner, complete overlay, and full ROM compare byte-for-byte. The checkpoint
-becomes **96,544 / 45,775 campaign bytes (210.91%)**, **197,796 / 469,264
-Overlay C (42.15%)**, and **240,836 / 950,332 resolved text (25.34%)**.
-
-Overlay 11 `+0x1E4C..+0x22E8` contributes **1,180 exact executable bytes / 295
-words** for `func_overlay_011_F0001E4C_186A694`. Its guarded complete carrier
-schedule drops no natural instruction, retains the exact 41-record split text
-surface, and leaves the five-entry runtime switch table and all five table
-relocations in their original data/rodata owner. The linked owner, complete
-overlay, and full ROM compare byte-for-byte. The checkpoint becomes **97,724 /
-45,775 campaign bytes (213.49%)**, **198,976 / 469,264 Overlay C (42.40%)**,
-and **242,016 / 950,332 resolved text (25.47%)**.
-
-Overlay 11 `+0x22E8..+0x2714` contributes **1,068 exact executable bytes / 267
-words** and eliminates the former `+0x1E4C..+0x2714` middle deficit. Its
-complete carrier schedule drops no natural instruction, the pre-link object
-retains the exact 39-record split text surface, and an asserted link-only
-rebind maps already-encoded local addends to their zero/base carriers. The
-linked owner, complete overlay, and full ROM compare byte-for-byte. The
-checkpoint becomes **98,792 / 45,775 campaign bytes (215.82%)**, **200,044 /
-469,264 Overlay C (42.63%)**, and **243,084 / 950,332 resolved text (25.58%)**.
+
+`overlay 101 +0x99C4..+0x9D04`, `+0x9D04..+0xA044`, `+0xA044..+0xA384` — 832 bytes / 208 words each. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via redundant-instruction deletion at +0x324); source kept as decomp-permuter input. Each preserves 24 HI/LO pairs and four calls (52 relocations).
+
+`overlay 101 +0xA384..+0xA6BC` — 824 bytes / 206 words. Naturally exact at the `0x338` size; no correction needed.
+
+Overlay 33's present-and-swap helper at `+0x066C..+0x0708` — 156 bytes / 39 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via private-register web reassignment); source kept as decomp-permuter input. Declaring the double-buffer index volatile naturally reproduces the target's `0x18` frame, size, opcode schedule, two calls, and all 18 relocation sites. The larger renderer and initializer remain assembly-owned, so this is not a module closure.
+
+Overlay 58's final executable body at `+0x00005554..+0x00005A14` — 1,216 bytes / 304 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via private register/schedule web reassignment); source kept as decomp-permuter input. Retains the complete packed-status state machine, all 24 calls, and all 48 source relocations. The following `+0x00005A14..+0x00005A20` nop island remains assembly-owned padding.
+
+Overlay 101's next presentation body at `+0xA6BC..+0xAB4C` — 1,168 bytes / 292 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via address-rematerialization and register/frame/schedule web reassignment); source kept as decomp-permuter input. Preserves the three-word ABI, six-call semantic graph, and all 44 compile relocations.
+
+Overlay 57's mode-state dispatcher at `+0x00003A4C..+0x00003FD4` — 1,416 bytes / 354 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an 87-site GPR-allocation web reassignment); source kept as decomp-permuter input. Preserves the exact `0x30` frame, complete CFG, 32 calls, 45 address pairs, and all 122 source relocation records.
+
+Overlay 33's `overlay33InitializeBuffers` adds **324 exact C bytes / 81 words** and retains all 25 runtime relocation roles. Overlay 40's `overlay40BuildFrame` eight-record builder adds another **324 bytes**; its typed straight-line record construction naturally normalizes to all 81 retail instructions.
+
+`overlay 40 DrawTintRectangle` — 348 bytes / 87 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via redundant pointer-copy deletion plus register/schedule permutation); source kept as decomp-permuter input.
+
+Overlay 91's `overlay91UpdateTimeline` adds **1,136 bytes / 284 words** for the complete eight-state elapsed-carrying timeline and flagged graph-record walk. IDO emits every instruction word naturally under the measured R4300 multiply scheduler flag, and the duplicate private switch table is naturally removed.
+
+`overlay 40 FadeRecords` — 404 bytes / 101 words (final executable range in overlay 40). NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via saved-register/countdown preparation plus schedule web reassignment); source kept as decomp-permuter input. Three trailing nop words remain explicit assembly padding.
+
+The live checkpoint contributes **9,812 / 45,775 (21.44%)** Epoch 12 bytes, leaves **35,963 bytes** to the hard byte exit, raises overlay C ownership to **111,064 / 469,264 (23.67%)**, and raises whole-program resolved text to **154,104 / 950,332 (16.22%)**. Overlay 40 raises the campaign closure gate to **1 / 8**. The linked binary remains byte-identical to the US baserom at SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`.
+
+`overlay 96 Register`/`Unregister` — 248 bytes / 62 words combined. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via copy/address preparation plus schedule web reassignment); source kept as decomp-permuter input. Register scans backward for duplicates and appends within the bounded 16-entry registry; Unregister scans backward for a match and compacts following entries; each preserves six runtime address relocations.
+
+`overlay 96 FindVolume` — 192 bytes / 48 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an FP-producer swap); source kept as decomp-permuter input. Natural object owns the exact ABI, frame, CFG, countdown loops, and four address sites; walks the registry backward and accepts the first volume whose six plane equations are all nonnegative.
+
+Overlay 94's `overlay94UpdateController` — 1,100 bytes / 275 words, closes the module. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a 120-site allocation/schedule web reassignment); source kept as decomp-permuter input. Natural source supplies the exact frame, CFG, twelve calls, twelve private address pairs, FP behavior, and boundary. Epoch 12 reaches **11,352 / 45,775 bytes (24.80%)**, leaving **34,423 bytes**; overlay C reaches **112,604 / 469,264 (24.00%)**, resolved text reaches **155,644 / 950,332 (16.38%)**, and the closure gate reaches **2 / 8**.
+
+`overlay 96 BuildVolume` — 964 bytes / 241 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via stack-home/center-coordinate web reassignment); source kept as decomp-permuter input. Expands an oriented-volume definition into eight transformed vertices and six normalized plane equations, then registers the finished volume; natural IDO output otherwise retains the exact frame, three calls, loops, arithmetic, and complete 241-word boundary under the measured R4300 scheduler option. Together with the existing registry, query, bit-test, and draw routines this closes every executable non-padding range in overlay 96.
+
+Overlay 75's `overlay75UpdateMovingObject` — 1,216 bytes / 304 words, closes that module. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a redundant-init replacement plus schedule/home web reassignment); source kept as decomp-permuter input. Its typed five-phase motion state machine naturally owns the exact boundary, `0x58` frame, 16 calls, branch topology, and FP work. Epoch 12 reaches **13,532 / 45,775 bytes (29.56%)**, overlay C reaches **114,784 / 469,264 (24.46%)**, resolved text reaches **157,824 / 950,332 (16.61%)**, and the closure gate reaches **4 / 8**.
+
+Overlay 25's `overlay25InitializeEffect` — 380 bytes / 95 words, `+0x0000..+0x017C`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule/register/stack web reassignment); source kept as decomp-permuter input. Initializes lifetime, owner-derived motion, palette color, and an optional output vector with the exact frame, five calls, CFG, and opcode/FP inventories. A proved IDO alignment nop is naturally the retained pipeline nop. Epoch 12 reaches **13,912 / 45,775 bytes (30.40%)**, overlay C reaches **115,164 / 469,264 (24.54%)**, and resolved text reaches **158,204 / 950,332 (16.65%)**. Overlay 25 remains open from `+0x017C`, with its next function boundary at `+0x0588`.
+
+Overlay 3's `overlay3SelectTarget` adds **336 exact C bytes / 84 words** starting at `+0x0588`, ending at `+0x06D8`. It switches between ordinary and weighted target search, expires a repeatedly selected object, updates the group selection, and returns the selected or anchor coordinates. Its source compiles naturally to the exact frame, instruction stream, calls, and nine runtime relocation sites. Epoch 12 reaches **14,248 / 45,775 bytes (31.13%)**, overlay C reaches **115,500 / 469,264 (24.61%)**, and resolved text reaches **158,540 / 950,332 (16.68%)**.
+
+Overlay 25's `overlay25UpdateEffect` — final 1,036 bytes / 259 words, `+0x017C..+0x0588`, completing that module. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule/register/home web reassignment); source kept as decomp-permuter input. Implements ballistic movement, collision response, entity-hit accounting, fade timing, and output vector scaling with the exact operation multiset, eleven calls, 25 relocations, and six retained literals.
+
+Overlay 3's `overlay3TouchObject` — 136 bytes / 34 words, `+0x06D8..+0x0760`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via caller-saved register reassignment, thirteen sites); source kept as decomp-permuter input. Its two fixed 32-entry descending searches have the exact natural CFG and operation inventory. Epoch 12 reaches **15,420 / 45,775 bytes (33.69%)**, overlay C reaches **116,672 / 469,264 (24.86%)**, resolved text reaches **159,712 / 950,332 (16.81%)**, and the closure gate reaches **5 / 8**.
+
+Overlay 44's `overlay44UpdateFrameCache` — 748 bytes / 187 words, offset `0x0294..0x0580`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via allocation web reassignment); source kept as decomp-permuter input. Walks the frame cache and refreshes stale entries with the exact nested CFG, calls, and frame.
+
+Overlay 83's `overlay83BuildBatch` adds **672 exact C bytes / 168 words** starting at offset `0x053C`, ending at `0x07DC`. It allocates a batch, scales source records, transforms world coordinates, and conditionally creates linked children, with the natural runtime relocation set intact.
+
+Overlay 3's `overlay3FindClosestObject` — 308 bytes / 77 words, offset `0x027C..0x03B0`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a four-use temporary-allocation web reassignment); source kept as decomp-permuter input. Its typed scan rejects ineligible and already-related objects, orders candidates by the resident six-float distance helper, and returns the closest eligible object; the operation stream, CFG, frame, and five relocation sites are otherwise natural.
+
+Epoch 12 reaches **17,148 / 45,775 bytes (37.46%)**, overlay C reaches **118,400 / 469,264 (25.23%)**, resolved text reaches **161,440 / 950,332 (16.99%)**, and the closure gate remains **5 / 8**.
+
+Overlay 83's `overlay83Update` adds **628 exact C bytes / 157 words** at offset `0x02A0`, ending at `0x0514`. It ages an eight-entry circular record queue, creates new trail records, integrates motion, transforms world coordinates, and publishes them to an optional linked object, with its exact two runtime call sites natural throughout.
+
+Overlay 83's `overlay83DrawStrip` adds the final **308 exact C bytes / 77 words** at offset `0x0850`, ending at `0x0984`. It emits primitive color, environment color, vertex-load, and polygon commands while retaining the local vertex-template HI/LO identity. Together these bodies make every overlay 83 executable interval exact C and close the module.
+
+Overlay 3's `overlay3SelectScoredObject` — 472 bytes / 118 words, offset `0x03B0..0x0588`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via carrier/stack-owner web reassignment); source kept as decomp-permuter input. Its cached-result path and scored descending search preserve the exact five calls, FP topology, and frame; the measured R4300 multiply-hazard flag naturally supplies the target's one spacing nop.
+
+Epoch 12 reaches **18,556 / 45,775 bytes (40.54%)**, overlay C reaches **119,808 / 469,264 (25.53%)**, resolved text reaches **162,848 / 950,332 (17.14%)**, and overlay 83 advances the closure gate to **6 / 8**.
+
+Overlay 3's `overlay3RunCachedModeAction` — final 452 bytes / 113 words, offset `0x00B8..0x027C`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via carrier-cycle/owner-web reassignment); source kept as decomp-permuter input. Performs cached-target angle and path gating, then dispatches four mode actions through two local chance-table reads with the exact eleven calls and fifteen runtime relocation operations. With only the separately classified twelve-byte padding left as assembly, every executable overlay 3 interval is exact C and the module closes.
+
+Epoch 12 reaches **19,008 / 45,775 bytes (41.53%)**, overlay C reaches **120,260 / 469,264 (25.63%)**, resolved text reaches **163,300 / 950,332 (17.18%)**, and the closure gate advances to **7 / 8**.
+
+Overlay 4's `overlay4FindCategory2Object` — 448 bytes / 112 words, offset `0x0734..0x08F4`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via register web reassignment); source kept as decomp-permuter input. Walks the resident-provided object range and returns the first type-`0x30` payload in category 2 with the requested byte identifier; the natural source has the exact four-way unrolled control flow, frame, call placement, and full positional operation inventory. Epoch 12 reaches **19,456 / 45,775 bytes (42.50%)**, overlay C reaches **120,708 / 469,264 (25.72%)**, and resolved text reaches **163,748 / 950,332 (17.23%)**.
+
+Overlay 7's `overlay7EntryPool` — 552 bytes / 138 words, offset `0x0000..0x0228`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via return-tail schedule reassignment); source kept as decomp-permuter input. Its two functions unlink released entries into a free list and acquire entries after duplicate, owner/type, and priority checks; the acquire body has a distinct static symbol so later matched callers retain their runtime-relocated zero-address placeholder. The module still has executable assembly at `0x0324..0x0EDC` and `0x0F08..0x0FC0`, so this is not a module closure and the closure gate remains **7 / 8**. Epoch 12 reaches **20,008 / 45,775 bytes (43.71%)**, overlay C reaches **121,260 / 469,264 (25.84%)**, and resolved text reaches **164,300 / 950,332 (17.29%)**.
+
+Overlay 4's `overlay4FindSearchPosition` — 952 bytes / 238 words, offset `0x08F4..0x0CAC` padding boundary. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a six-use stack-home web reassignment); source kept as decomp-permuter input. Mode one performs a four-way unrolled nearest type-`0x21` search in the X/Z plane; the other mode calls the preceding category-2 identifier search. The measured multiply-hazard flag naturally produces all target FP spacing. Epoch 12 reaches **20,960 / 45,775 bytes (45.79%)**, overlay C reaches **122,212 / 469,264 (26.04%)**, and resolved text reaches **165,252 / 950,332 (17.39%)**.
+
+Overlay 4's final three unresolved bodies add **1,552 exact executable bytes**: `overlay4InitializeObjectMotion` at `0x0000..0x0138`, `overlay4UpdateObjectMotion` at `0x0138..0x04D0`, and `overlay4UpdateGroupSpacing` at `0x05D0..0x0710`. All natural exact, closing every non-padding executable interval in the module and advancing the Epoch 12 closure gate to **8 / 8**.
+
+Overlay 99's `overlay99BuildHeightGrid` at `0x0638..0x0800` adds **456 bytes**, and `overlay99RenderSortedEntries` at `0x0800..0x0BA4` adds **932 bytes**. The grid body preserves its mixed ABI, three loops, and private runtime-relocated state; the renderer preserves its ordered float sort, temporary transform mutation, record layout, six-call ledger, and exact `0x148` frame — both natural.
+
+Overlay 5's `overlay5InitializeAudio` at `0x031C..0x06C0` — 932 bytes, closes that module's executable text.
+
+`overlay 5 InitializeAudio` — NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via relocation-aware schedule reassignment); source kept as decomp-permuter input. Its 29 call sites and 21 data-address pairs remain exact.
+
+Overlay 7's natural `overlay7InitPool` at `0x0F08..0x0FB8` adds **176 exact C bytes** and owns the local BSS free-list layout through `+0x2A0`; the following eight zero bytes and final BSS tail remain separately owned.
+
+Epoch 12 reaches **25,008 / 45,775 bytes (54.63%)**, overlay C reaches **126,260 / 469,264 (26.91%)**, resolved text reaches **169,300 / 950,332 (17.81%)**, and the closure gate is **9 / 8**.
+
+Overlay 7's `overlay7DispatchSelection` at `0x0CCC..0x0DBC` adds **240 exact C bytes**. The source naturally retains its thirteen-call/data relocation topology, local `overlay7CreateEntry` binding, selection sentinels, and exact branch-likely effects. Overlay 99's `overlay99RenderSegments` at `0x0BA4..0x0DDC` adds **568 exact C bytes**, naturally retaining all seven shipped call relocations across its first-live-segment setup gate, command emission, signed heading correction, object mutation/restoration, and adjacent five-argument renderer call.
+
+Epoch 12 reaches **25,816 / 45,775 bytes (56.40%)**, overlay C reaches **127,068 / 469,264 (27.08%)**, and resolved text reaches **170,108 / 950,332 (17.90%)**.
+
+Overlay 7's adjacent `overlay7CommitSelection` at `0x0DBC..0x0EDC` adds **288 exact C bytes**. Its twelve-entry post-decrement mapping search, branch-likely latch, and seventeen-entry relocation contract are natural; the call back into the preceding dispatch body deliberately retains the shipped runtime proxy rather than being statically resolved. Epoch 12 reaches **26,104 / 45,775 bytes (57.03%)**, overlay C reaches **127,356 / 469,264 (27.14%)**, and resolved text reaches **170,396 / 950,332 (17.93%)**.
+
+Overlay 7's adjacent middle pair — 1,080 bytes / 270 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via private register/stack web reassignment); source kept as decomp-permuter input. `overlay7DispatchModes` at `0x0894..0x0AA0` selects one of two ten-column mode matrices, raises the second owner's timer and height, and dispatches seven paired create/append cases; its compiler-emitted seven-entry switch table is independently identical to the existing initialized-data table at `0x18F4..0x1910`. `overlay7UpdateOwnerMode` at `0x0AA0..0x0CCC` records staged checks, validates three thresholds for the special third pass, and chooses the next owner mode from the previous state and failure result. The two bodies retain 21 and 23 configured text relocations respectively.
+
+Epoch 12 reaches **27,184 / 45,775 bytes (59.39%)**, overlay C reaches **128,436 / 469,264 (27.37%)**, and resolved text reaches **171,476 / 950,332 (18.04%)**.
+
+An integration batch owns another **1,252 bytes**: overlay 61 `+0x000..+0x1C0` (input, natural exact), overlay 100 `+0x38C..+0x50C` (motion), and overlay 61 `+0x7C4..+0x968` (list rendering).
+
+`overlay 61 +0x7C4..+0x968` and `overlay 100 +0x38C..+0x50C` — NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule permutation / private compiler web reassignment); source kept as decomp-permuter input. The motion updater's runtime relocation targets the distinct module `+0x278` release helper.
+
+Epoch 12 reaches **28,436 / 45,775 bytes (62.12%)**, overlay C reaches **129,688 / 469,264 (27.64%)**, and resolved text reaches **172,728 / 950,332 (18.18%)**.
+
+`overlay 61 +0x1DC..+0x3C0` — 484 bytes. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via two schedule permutations covering five instruction-order residuals); source kept as decomp-permuter input. Natural C object otherwise has the target frame, CFG, size, calls, delay slots, and ten relocation records. Epoch 12 reaches **28,920 / 45,775 bytes (63.18%)**, overlay C reaches **130,172 / 469,264 (27.74%)**, and resolved text reaches **173,212 / 950,332 (18.23%)**.
+
+Overlay 61 `+0x3C0..+0x7C4` adds **1,028 natural-exact bytes**, closing the last assembly gap in its `+0x000..+0xB84` prefix, with no instruction normalization — only compiler section alignment beyond the function boundary was trimmed. The configured object reproduces the frame, 128-byte formatting buffer, switch CFG, 49 relocations, calls, and delay slots. Epoch 12 reaches **29,948 / 45,775 bytes (65.42%)**, overlay C reaches **131,200 / 469,264 (27.96%)**, and resolved text reaches **174,240 / 950,332 (18.33%)**.
+
+Overlay 61 `+0x1578..+0x1648` (release body, natural exact, sixteen calls, all 44 relocations) and Overlay 100 `+0x000..+0x214` (motion initializer) together add **740 executable bytes**.
+
+`overlay 100 +0x000..+0x214` — NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via stack-home/allocation/scheduling/loop-induction web reassignment); source kept as decomp-permuter input. Preserves the target `0x78` frame, branch-likely loop, and five runtime call identities.
+
+Overlay 61 `+0x17B8..+0x18A0` — 232 bytes, character-record writer. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via stack-gap removal / prologue-epilogue home reassignment); source kept as decomp-permuter input. Its source reproduces the rounded allocation, word-copy loop, calls, delay slots, and six relocations. Epoch 12 now reaches **30,920 / 45,775 bytes (67.55%)**, overlay C reaches **132,172 / 469,264 (28.17%)**, and resolved text reaches **175,212 / 950,332 (18.44%)**.
+
+Overlay 61 `+0x18A0..+0x19B0` — 272 bytes, joining the write, read, extension-choice, and size helpers into contiguous exact C through `+0x1A84`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via stack/frame web reassignment); source kept as decomp-permuter input. The natural object already has the target 68-word boundary, CFG, calls, nine relocations, branches, and delay slots. Epoch 12 reaches **31,192 / 45,775 bytes (68.14%)**, overlay C reaches **132,444 / 469,264 (28.22%)**, and resolved text reaches **175,484 / 950,332 (18.47%)**.
+
+Overlay 20 `+0x07C4..+0x09DC` — 536 bytes, tile-command builder. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via frame/array-base plus polygon-count register web reassignment); source kept as decomp-permuter input. Natural object has the target 134-word boundary, control flow, three command construction sequences, nested row/chunk loops, delay slots, and one runtime-call relocation. The runtime call uses a semantic proxy because overlay 20's raw relocation carrier is shared by multiple runtime targets, while the linked call word and relocation record remain exact; Diddy Kong Racing's published graphics macros are cited only as a source-shape crosswalk. Epoch 12 reaches **31,728 / 45,775 bytes (69.31%)**, overlay C reaches **132,980 / 469,264 (28.34%)**, and resolved text reaches **176,020 / 950,332 (18.52%)**.
+
+Overlay 20 `+0x1018..+0x10EC` — 212 bytes, entry removal and pointer-array compaction. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a redundant-branch removal plus count/base/copy/mask register web reassignment); source kept as decomp-permuter input. Reconstructs the full 53-word semantic body, including all early exits, the active-count decrement, overlapping forward copy, the pool-address walk, active-bit clear, and ten data relocations; IDO's natural object uses a four-instruction search-backedge sequence where retail uses three. Epoch 12 reaches **31,940 / 45,775 bytes (69.78%)**, overlay C reaches **133,192 / 469,264 (28.38%)**, and resolved text reaches **176,232 / 950,332 (18.54%)**.
+
+Overlay 20 `+0x0E28..+0x0F78` — 336 bytes, 32-slot entry allocator and field configurer. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via nop-relocation plus schedule/register web reassignment); source kept as decomp-permuter input. Has the exact `0x10` frame, nullable reuse path, bitmap/pool search, table/count/bitmap updates, floating-point arithmetic and conversions, ten semantic data relocations, and complete memory topology; IDO naturally emits 83 semantic words plus one zero alignment word. Epoch 12 reaches **32,276 / 45,775 bytes (70.51%)**, overlay C reaches **133,528 / 469,264 (28.45%)**, and resolved text reaches **176,568 / 950,332 (18.58%)**.
+
+Overlay 29 `+0x14C8..+0x16CC` — 516 bytes / 129 words, grouped-command renderer. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule/register web reassignment plus callee rebinding); source kept as decomp-permuter input. Its typed nested traversal and three calls are otherwise complete, preserving the three `R_MIPS_26` sites. Epoch 12 reaches **32,792 / 45,775 bytes (71.64%)**, overlay C reaches **134,044 / 469,264 (28.56%)**, and resolved text reaches **177,084 / 950,332 (18.63%)**.
+
+Overlay 2 `+0x02C4..+0x0400` — 316 bytes / 79 words, boundary classifier between the already matched append and intersection helpers. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via dead-nop removal plus scheduler/register reassignment); source kept as decomp-permuter input. Its C preserves both axis modes and the equality-side copy semantics, and all six overlay-data relocations. Epoch 12 reaches **33,108 / 45,775 bytes (72.33%)**, overlay C reaches **134,360 / 469,264 (28.63%)**, and resolved text reaches **177,400 / 950,332 (18.67%)**.
+
+Overlay 17 `+0x0668..+0x08B4` — 588 bytes / 147 words, double-buffer chain advance between its release and strip-render helpers. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a 65-word prefix schedule/register/spill web reassignment); source kept as decomp-permuter input. The source naturally reproduces the frame, backward halfword copy, point/color publication, fade loop, sole call relocation, and an exact 82-word suffix. Epoch 12 reaches **33,696 / 45,775 bytes (73.61%)**, overlay C reaches **134,948 / 469,264 (28.76%)**, and resolved text reaches **177,988 / 950,332 (18.73%)**.
+
+Overlay 2 `+0x049C..+0x06E0` — 580 bytes / 145 words, line clipper immediately following the boundary helpers. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via frame/home, fallback-classification, and suffix-schedule web reassignment); source kept as decomp-permuter input. Its typed source owns the complete 20-byte-record traversal, accept/split cases, six calls, range publication, and all eight local data address records, and retains all 14 relocations. Epoch 12 reaches **34,276 / 45,775 bytes (74.88%)**, overlay C reaches **135,528 / 469,264 (28.88%)**, and resolved text reaches **178,568 / 950,332 (18.79%)**.
+
+Overlay 17 `+0x0318..+0x0628` — 784 bytes / 196 words, chain constructor immediately before the three already exact chain operations. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via frame/schedule/register web reassignment); source kept as decomp-permuter input. The typed source owns the physical twelve-argument ABI, allocation mode, optional material resource, double-buffer layout, scaled 16-entry template copy, endpoint query, vertex conversion, RGB publication, and alpha clear; the configured object retains exactly three `R_MIPS_26` calls at `+0x48`, `+0x6C`, and `+0x204`. Epoch 12 reaches **35,060 / 45,775 bytes (76.59%)**, overlay C reaches **136,312 / 469,264 (29.05%)**, and resolved text reaches **179,352 / 950,332 (18.87%)**.
+
+Overlay 17 `+0x0000..+0x0318` — final 792 bytes / 198 words, closing all `0xA90` executable bytes as C. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via frame/schedule/register web reassignment repositioning two calls); source kept as decomp-permuter input. The endpoint builder preserves the physical seven-argument ABI, transformed and untransformed geometry paths, runtime square-root normalization, cached-position update, null-chain clear loop, and six output stores; it binds three `R_MIPS_26` records at `+0x68`, `+0x108`, and `+0x1D4` to the offset-zero runtime identity. Epoch 12 reaches **35,852 / 45,775 bytes (78.32%)**, overlay C reaches **137,104 / 469,264 (29.22%)**, and resolved text reaches **180,144 / 950,332 (18.96%)**.
+
+Overlay 2 `+0x06E0..+0x0C90` adds **1,456 exact C bytes / 364 words** across the boundary chooser and recursive region splitter, both natural. The two typed functions establish the shared 20-byte line/range and 16-byte candidate layouts, preserve the exhaustive scoring and clipping behavior, and reproduce all **73** owned relocations at their exact sites and identities. Overlay 20 `+0x0A68..+0x0DC4` adds **860 exact C bytes / 215 words**, also natural, with the complete overlap scan, grid displacement/color update, FP clamp behavior, and runtime relocation surface intact. Epoch 12 reaches **38,168 / 45,775 bytes (83.38%)**, overlay C reaches **139,420 / 469,264 (29.71%)**, and resolved text reaches **182,460 / 950,332 (19.20%)**.
+
+Overlay 20 `+0x00A8..+0x038C` — 740 bytes / 185 words across resource configuration and object-resource update. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule permutation plus FP/frame/home/register web reassignment); source kept as decomp-permuter input. All nine call relocations are retained. The neighboring `+0x038C..+0x07C4` body remains assembly-owned and uncredited until a policy-compliant compiler basin is proved. Epoch 12 reaches **38,908 / 45,775 bytes (85.00%)**, overlay C reaches **140,160 / 469,264 (29.87%)**, and resolved text reaches **183,200 / 950,332 (19.28%)**.
+
+Overlay 1 `+0x6424..+0x64F8` adds **212 naturally exact bytes / 53 words** for the selection-vector reader. Its typed body preserves the signed selection index, direct object-position path, inclusive descriptor bound, null-vector hazard, repeated vector-base loads, and fallback output triple, with no relocations or normalization present. A separate Overlay 20 tail experiment is explicitly uncredited because its whole-function field ledger failed the bounded-normalization policy. Epoch 12 reaches **39,120 / 45,775 bytes (85.46%)**, overlay C reaches **140,372 / 469,264 (29.91%)**, and resolved text reaches **183,412 / 950,332 (19.30%)**.
+
+Overlay 2 `+0x0000..+0x01BC` adds **444 naturally exact bytes / 111 words** for the region validator. Direct use of `region->count` in both the outer condition and countdown initialization naturally retains retail's two loop-value moves; there is no instruction normalization. Its eight runtime relocations agree with the shipped tables: one local HI/LO pair, three angle calls, and three signed-angle-difference calls. Epoch 12 reaches **39,564 / 45,775 bytes (86.43%)**, overlay C reaches **140,816 / 469,264 (30.01%)**, and resolved text reaches **183,856 / 950,332 (19.35%)**.
+
+Overlay 2 `+0x123C..+0x1364` adds **296 naturally exact bytes / 74 words** for BSP point containment. The configured `-O2 -mips2 -32` object has the retail 56-byte frame and requires no instruction normalization. Its three `R_MIPS_26` relocations at function offsets `+0xAC`, `+0xCC`, and `+0xE0` agree exactly with runtime-table rows 26–28 and the two resident angle helper identities. Epoch 12 reaches **39,860 / 45,775 bytes (87.08%)**, overlay C reaches **141,112 / 469,264 (30.07%)**, and resolved text reaches **184,152 / 950,332 (19.38%)**.
+
+Overlay 14 `+0x1B7C..+0x1C40` adds **196 naturally exact bytes / 49 words** for active-handle finalization. The nested-call source naturally emits the retail 48-byte frame, spill slot, call order, and complete instruction schedule with no normalization. Five distinct `R_MIPS_26` identities and three local HI/LO pairs agree exactly with the runtime tables. Epoch 12 reaches **40,056 / 45,775 bytes (87.51%)**, overlay C reaches **141,308 / 469,264 (30.11%)**, and resolved text reaches **184,348 / 950,332 (19.40%)**.
+
+Overlay 1 `+0x6B6C..+0x6CE8` — 380 bytes / 95 words, nearby-object search and activation. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a private-stack/frame spill offset shift from `sp+0x28` to `sp+0x2C`); source kept as decomp-permuter input. Natural source otherwise supplies the exact 72-byte frame, scan and unsigned-threshold behavior, three calls, delay slots, opcode stream, and register/FP allocation; the three `R_MIPS_26` sites agree with the shipped runtime table's two resident targets and overlay 4 target. Epoch 12 reaches **40,436 / 45,775 bytes (88.34%)**, overlay C reaches **141,688 / 469,264 (30.19%)**, and resolved text reaches **184,728 / 950,332 (19.44%)**.
+
+Overlay 1 `+0x72A4..+0x7344` — 160 bytes / 40 words, pool-record allocation. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a temporary-suffix reassignment plus an operand-commute on an `or`); source kept as decomp-permuter input. Natural source supplies the exact wraparound, exhaustion, record-filtering and status-bit semantics, instruction count, and schedule; the configured object retains all ten runtime HI/LO records for the cursor, group, pool bounds, and exhausted flag. Epoch 12 reaches **40,596 / 45,775 bytes (88.69%)**, overlay C reaches **141,848 / 469,264 (30.23%)**, and resolved text reaches **184,888 / 950,332 (19.46%)**.
+
+Overlay 87 `+0x000..+0x128` — 296 bytes / 74 words, object initialization. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an FP-temporary web reassignment, nine sites); source kept as decomp-permuter input. The target-proven `-Wab,-r4300_mul` flag naturally supplies the exact multiply hazards; natural source otherwise recovers the 32-byte frame, complete opcode schedule, stores, and two resident calls. The configured object retains the runtime local HI/LO pair and preserves the separately decoded `mathRnd` and `func_8005AD64` identities before folding them to the pre-loader carrier. Epoch 12 reaches **40,892 / 45,775 bytes (89.33%)**, overlay C reaches **142,144 / 469,264 (30.29%)**, and resolved text reaches **185,184 / 950,332 (19.49%)**.
+
+Overlay 1 `+0x7130..+0x72A4` and `+0x73A0..+0x7580` — 852 bytes / 213 words combined, transient-object state and a 64-entry value cache. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule/temporary-web reassignment for the updater and register-coloring reassignment for the cache manager); source kept as decomp-permuter input. Natural source otherwise recovers both complete CFGs, conversions, memory effects, and boundaries; the configured objects retain all 25 updater relocations and the cache's local HI/LO pair. Epoch 12 reaches **41,744 / 45,775 bytes (91.19%)**, overlay C reaches **142,996 / 469,264 (30.47%)**, and resolved text reaches **186,036 / 950,332 (19.58%)**.
+
+Overlay 34 `+0x000..+0x0C8` — 200 bytes / 50 words, storage allocation and zero-initialization. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a call-surviving size-home reassignment, four sites); source kept as decomp-permuter input. The runtime relocation table fixes both calls as the two-argument resident allocator `func_8002B280`; with that interface corrected, natural source supplies retail's full opcode schedule, register allocation, frame, and two clear loops. The configured object retains the exact two call records and three local HI/LO pairs. Epoch 12 reaches **41,944 / 45,775 bytes (91.63%)**, overlay C reaches **143,196 / 469,264 (30.52%)**, and resolved text reaches **186,236 / 950,332 (19.60%)**.
+
+Overlay 1 `+0x7580..+0x7730` — 432 bytes / 108 words, path-point append, segment-length accumulation, cache update, and anchor distance. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a private-compiler-web reassignment); source kept as decomp-permuter input. Natural source otherwise supplies the complete behavior and boundary; the configured object retains the exact two call records and three anchor HI/LO pairs. Epoch 12 reaches **42,376 / 45,775 bytes (92.58%)**, overlay C reaches **143,628 / 469,264 (30.61%)**, and resolved text reaches **186,668 / 950,332 (19.64%)**.
+
+Overlay 1 `+0x7BDC..+0x7D6C` adds **400 naturally exact bytes / 100 words** for record allocation, first-point initialization, squared-distance root, anchor publication, and validation/fallback selection. With the target-proven R4300 multiply-hazard flag, natural source emits retail's exact frame, six-call CFG, conversion sequence, delay slots, and register web. The configured object retains all six call records and both local anchor HI/LO pairs. Epoch 12 reaches **42,776 / 45,775 bytes (93.45%)**, overlay C reaches **144,028 / 469,264 (30.69%)**, and resolved text reaches **187,068 / 950,332 (19.68%)**.
+
+Overlay 1 `+0x78DC..+0x7B64` — 648 bytes / 162 words, bounded path tracing, endpoint append, and branch-record cloning. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an integer-temporary web reassignment); source kept as decomp-permuter input. Natural source otherwise emits the complete opcode schedule, 88-byte frame, stack layout, eight-call CFG, FP conversions, delay slots, and all observable effects; the configured object retains all eight call records and seven local HI/LO pairs. Epoch 12 reaches **43,424 / 45,775 bytes (94.86%)**, overlay C reaches **144,676 / 469,264 (30.83%)**, and resolved text reaches **187,716 / 950,332 (19.75%)**.
+
+Overlay 34 `+0x2C8..+0x378` — 176 bytes / 44 words, active-record removal, list compaction, resident resource release, and count update. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via count/pointer web reassignment plus removal of two literal pointer-address relocation records absent from retail); source kept as decomp-permuter input. Natural source otherwise owns the exact boundary, frame, CFG, call ABI, and effects; the configured object retains the loader call and both active-count HI/LO pairs. Epoch 12 reaches **43,600 / 45,775 bytes (95.25%)**, overlay C reaches **144,852 / 469,264 (30.87%)**, and resolved text reaches **187,892 / 950,332 (19.77%)**.
+
+Overlay 34's record constructor at `+0x0D4..+0x2C8` — 500 bytes / 125 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a compiler-representation/schedule web reassignment); source kept as decomp-permuter input. Natural source otherwise supplies the exact functional boundary, CFG, field initialization, allocation/load path, direction setup, and two-call ABI, preserving all 12 relocation sites: five local-data HI/LO pairs and two independently decoded resident calls. Epoch 12 reaches **44,100 / 45,775 bytes (96.34%)**, overlay C reaches **145,352 / 469,264 (30.97%)**, and resolved text reaches **188,392 / 950,332 (19.82%)**.
+
+Overlay 34 `+0x378..+0x540` — 456 bytes / 114 words, storage reset and active-record updates. Reset is naturally exact and retains 15 shipped runtime relocations.
+
+`overlay 34` update half — NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via removal of three IDO-only invariant-home words plus schedule/frame/register web reassignment); source kept as decomp-permuter input. Update's natural source owns the full behavior, FP lanes, loop topology, call ABI, and seven relocation roles; all 22 combined runtime records remain exact. Epoch 12 reaches **44,556 / 45,775 bytes (97.34%)**, overlay C reaches **145,808 / 469,264 (31.07%)**, and resolved text reaches **188,848 / 950,332 (19.87%)**.
+
+Overlay 1 `+0x5CD4..+0x5ECC` — 504 bytes / 126 words, directional object selection. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via stack-home plus a two-instruction temporary-web reassignment); source kept as decomp-permuter input. Target-local R4300 multiply hazards naturally recover the exact frame, opcode stream, CFG, FP schedule, and all 11 relocation sites. Epoch 12 reaches **45,060 / 45,775 bytes (98.44%)**, overlay C reaches **146,312 / 469,264 (31.18%)**, and resolved text reaches **189,352 / 950,332 (19.92%)**.
+
+Overlay 1 `+0x7D6C..+0x7FCC` — 608 bytes / 152 words, path-point resolution. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via two scheduling permutations plus a four-field register reassignment); source kept as decomp-permuter input. Natural source otherwise recovers the exact 120-byte frame, collision-output stack home, CFG, call topology, delay-slot effects, and full boundary; all 22 shipped runtime relocation records remain exact. Epoch 12 reaches **45,668 / 45,775 bytes (99.77%)**, overlay C reaches **146,920 / 469,264 (31.31%)**, and resolved text reaches **189,960 / 950,332 (19.99%)**.
+
+Overlay 1 `+0x5BF4..+0x5CD4` — 224 bytes / 56 words, timer and mode callback dispatch. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a loop-tail reschedule plus register/branch-lowering reassignment); source kept as decomp-permuter input. Natural source otherwise recovers the exact boundary, frame, direct setup call, two indirect callbacks, loop semantics, and all 13 runtime relocation records. Epoch 12 closes at **45,892 / 45,775 bytes (100.26%)**, Overlay C reaches **147,144 / 469,264 (31.36%)**, resolved text reaches **190,184 / 950,332 (20.01%)**, and the closure gate remains **9 / 8**.
+
+Overlay 34 `+0x608..+0x900` — final 760 bytes / 190 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule/register/frame web reassignment); source kept as decomp-permuter input. Typed source owns the depth census, parallel bubble sort, color interpolation, and ten-argument render dispatch; canonical integration rejected a zero-local proxy false positive and retained the shipped semantic local addends for all five HI16/LO16 pairs while using pre-loader carriers only for the six calls, and all 16 runtime records remain exact. Every executable interval is now C, closing the module and raising the closure result to **10 / 8**. The stretch checkpoint is **46,652 / 45,775 campaign bytes (101.92%)**, **147,904 / 469,264 Overlay C (31.52%)**, and **190,944 / 950,332 resolved text (20.09%)**.
+`overlay 1 +0x7730..+0x78DC` — 428 bytes / 107 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via prologue-instruction reordering plus a commutative-operand swap); source kept as decomp-permuter input. All six runtime calls were confirmed exact. The stretch checkpoint becomes **47,080 / 45,775 campaign bytes (102.85%)**, **148,332 / 469,264 Overlay C (31.61%)**, and **191,372 / 950,332 resolved text (20.14%)**.
+
+`overlay 1 +0x6A14..+0x6B28` — 276 bytes / 69 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via instruction-scheduling reorder plus a register-allocation rewrite); source kept as decomp-permuter input. One runtime relocation was confirmed exact. The stretch checkpoint becomes **47,356 / 45,775 campaign bytes (103.45%)**, **148,608 / 469,264 Overlay C (31.67%)**, and **191,648 / 950,332 resolved text (20.17%)**.
+
+`overlay 1 +0x5ED4..+0x61F0` — 796 bytes / 199 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via allocator-web reassignment plus a pre-loader addend rewrite); source kept as decomp-permuter input. 61 runtime text records were confirmed authoritative. The stretch checkpoint becomes **48,152 / 45,775 campaign bytes (105.19%)**, **149,404 / 469,264 Overlay C (31.84%)**, and **192,444 / 950,332 resolved text (20.25%)**.
+
+`overlay 1 +0x6270..+0x63CC` — 348 bytes / 87 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via private stack-home reassignment plus a pre-loader addend rewrite); source kept as decomp-permuter input. 13 runtime text records were confirmed authoritative. The stretch checkpoint becomes **48,500 / 45,775 campaign bytes (105.95%)**, **149,752 / 469,264 Overlay C (31.91%)**, and **192,792 / 950,332 resolved text (20.29%)**.
+
+`overlay 1 +0x64F8..+0x6724` — 556 bytes / 139 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via loop-control carrier relocation and a shared-tail reorder); source kept as decomp-permuter input. Four runtime call records were confirmed exact. The stretch checkpoint becomes **49,056 / 45,775 campaign bytes (107.17%)**, **150,308 / 469,264 Overlay C (32.03%)**, and **193,348 / 950,332 resolved text (20.35%)**.
+
+`overlay 1 +0x6D4C..+0x7130` — 996 bytes / 249 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule reordering plus a two-slot stack-home rewrite); source kept as decomp-permuter input. All 43 runtime text records were confirmed exact. The stretch checkpoint becomes **50,052 / 45,775 campaign bytes (109.34%)**, **151,304 / 469,264 Overlay C (32.24%)**, and **194,344 / 950,332 resolved text (20.45%)**.
+
+`overlay 1 +0x67C0..+0x69A0` — 480 bytes / 120 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via register-allocation reassignment across six sites); source kept as decomp-permuter input. Four runtime call records were confirmed exact. The stretch checkpoint becomes **50,532 / 45,775 campaign bytes (110.39%)**, **151,784 / 469,264 Overlay C (32.35%)**, and **194,824 / 950,332 resolved text (20.50%)**.
+
+`overlay 1 +0x04B4..+0x0758` — 676 bytes / 169 words, covering the activation function and its closest-sample pair. The second function is naturally exact. NON_MATCHING (first function): retired 2026-08-24 per ADR 0002 (was made to match via allocator-web reassignment plus loader-local addend rewrites); source kept as decomp-permuter input. All 44 runtime text records were confirmed authoritative. The stretch checkpoint becomes **51,208 / 45,775 campaign bytes (111.87%)**, **152,460 / 469,264 Overlay C (32.49%)**, and **195,500 / 950,332 resolved text (20.57%)**.
+
+`overlay 1 +0x01AC..+0x02D4` — 296 bytes / 74 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a schedule/register-home rewrite that also relocated a scale-relocation instruction); source kept as decomp-permuter input. All six runtime text records were confirmed exact. The stretch checkpoint becomes **51,504 / 45,775 campaign bytes (112.52%)**, **152,756 / 469,264 Overlay C (32.55%)**, and **195,796 / 950,332 resolved text (20.60%)**.
+
+`overlay 1 +0x0BD4..+0x10C0` — 1,260 bytes / 315 words across four functions (motion scaling, path interpolation, motion-point resolution, sampled curve length). NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule/allocation/stack-home rewrites and local literal-addend edits); source kept as decomp-permuter input. All 44 runtime text records were confirmed authoritative. The stretch checkpoint becomes **52,764 / 45,775 campaign bytes (115.27%)**, **154,016 / 469,264 Overlay C (32.82%)**, and **197,056 / 950,332 resolved text (20.74%)**.
+
+`overlay 1 +0x19B8..+0x1CA4` — 748 bytes / 187 words, covering mode-state initialization and object-mapping construction. The first function is naturally exact apart from a trimmed alignment word. NON_MATCHING (second function): retired 2026-08-24 per ADR 0002 (was made to match via a representation-web rewrite selecting the retail schedule); source kept as decomp-permuter input. All 28 runtime text records were confirmed exact. The stretch checkpoint becomes **53,512 / 45,775 campaign bytes (116.90%)**, **154,764 / 469,264 Overlay C (32.98%)**, and **197,804 / 950,332 resolved text (20.81%)**.
+
+`overlay 1 +0x296C..+0x2B4C` and `+0x3578..+0x3750` — 952 bytes / 238 words across four gauge and variable-record functions. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via representation-web rewrites, with two identity copies removed under whole-function edits); source kept as decomp-permuter input. All 17 runtime records were confirmed exact. The checkpoint becomes **54,464 / 45,775 campaign bytes (118.98%)**, **155,716 / 469,264 Overlay C (33.18%)**, and **198,756 / 950,332 resolved text (20.91%)**.
+
+`overlay 1 +0x61F0..+0x6270` — 128 bytes / 32 words, cached-mode handling. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via redundant-branch/identity-copy removal plus a register/schedule rewrite); source kept as decomp-permuter input. The 13 runtime records comprise three calls, five HI16, and five LO16 sites. The checkpoint becomes **54,592 / 45,775 campaign bytes (119.26%)**, **155,844 / 469,264 Overlay C (33.21%)**, and **198,884 / 950,332 resolved text (20.93%)**.
+
+`overlay 60 +0x3488..+0x355C` — 212 bytes / 53 words, choice-slot reassignment. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a stack/address/cursor representation rewrite); source kept as decomp-permuter input. The 8 runtime records are four HI16 and four LO16 sites targeting resident offset `0x4D618`. The checkpoint becomes **54,804 / 45,775 campaign bytes (119.72%)**, **156,056 / 469,264 Overlay C (33.26%)**, and **199,096 / 950,332 resolved text (20.95%)**.
+
+`overlay 15 +0xB94..+0xC6C` — 216 bytes / 54 words, rain rendering. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via redundant address-producer removal plus a count-home/addend rewrite); source kept as decomp-permuter input. The 17 runtime records comprise two resident calls plus seven HI16 and eight LO16 local sites. The checkpoint becomes **55,020 / 45,775 campaign bytes (120.20%)**, **156,272 / 469,264 Overlay C (33.30%)**, and **199,312 / 950,332 resolved text (20.97%)**.
+
+`overlay 36 +0x09B8..+0x0A60` (`overlay36` position-effect callback) contributes **168 exact bytes / 42 words**. Natural codegen owns every instruction; only eight bytes of tail alignment are trimmed. The exact 3 runtime records are one resident call and one HI16/LO16 pair for the Overlay 36 variant byte. The checkpoint becomes **55,188 / 45,775 campaign bytes (120.56%)**, **156,440 / 469,264 Overlay C (33.34%)**, and **199,480 / 950,332 resolved text (20.99%)**.
+
+`overlay 15 +0x0428..+0x0500` — 216 bytes / 54 words, star motion. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via redundant address-anchor removal plus an addend/schedule rewrite); source kept as decomp-permuter input. All 21 runtime roles (one resident call, twenty local data/BSS records) were confirmed. The checkpoint becomes **55,404 / 45,775 campaign bytes (121.04%)**, **156,656 / 469,264 Overlay C (33.38%)**, and **199,696 / 950,332 resolved text (21.01%)**.
+
+`overlay 53 +0x0000..+0x011C` — 284 bytes / 71 words, initialization. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an address-finalizer plus local LO16-addend rewrite); source kept as decomp-permuter input. The exact 30 runtime records comprise eight symbol and 22 local/jump sites. The checkpoint becomes **55,688 / 45,775 campaign bytes (121.66%)**, **156,940 / 469,264 Overlay C (33.44%)**, and **199,980 / 950,332 resolved text (21.04%)**.
+
+`overlay 53 +0x016C..+0x0240` (offset-entry copying) contributes **212 exact bytes / 53 words**. IDO emits it naturally with no normalization. Its exact 5 runtime records are one resident call and two local HI16/LO16 table pairs. The checkpoint becomes **55,900 / 45,775 campaign bytes (122.12%)**, **157,152 / 469,264 Overlay C (33.49%)**, and **200,192 / 950,332 resolved text (21.07%)**.
+
+`overlay 1 +0x438C..+0x5BA4` — 6,168 bytes / 1,542 words, the central object-physics/state updater. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a large decoded schedule/register/frame rewrite over most of the function); source kept as decomp-permuter input. All 184 runtime relocations were confirmed present. The checkpoint becomes **62,068 / 45,775 campaign bytes (135.59%)**, **163,320 / 469,264 Overlay C (34.80%)**, and **206,360 / 950,332 resolved text (21.71%)**.
+
+`overlay 15 +0x09E0..+0x0B7C` — 412 bytes / 103 words, moving-star camera updater. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via redundant HI-anchor removal plus a decoded addend/schedule rewrite); source kept as decomp-permuter input. All 39 runtime records (two calls, 33 BSS records, four data records) were confirmed. The checkpoint becomes **62,480 / 45,775 campaign bytes (136.49%)**, **163,732 / 469,264 Overlay C (34.89%)**, and **206,772 / 950,332 resolved text (21.76%)**.
+
+`overlay 1 +0x3FD8..+0x438C` — 948 bytes / 237 words, a two-path five-phase transition-state machine. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a representation-pool plus schedule/register-web rewrite); source kept as decomp-permuter input. All 13 runtime relocations were confirmed exact; three intra-overlay loader calls keep raw zero fields in the static link while runtime resolves their separate identities. The checkpoint becomes **63,428 / 45,775 campaign bytes (138.56%)**, **164,680 / 469,264 Overlay C (35.09%)**, and **207,720 / 950,332 resolved text (21.86%)**.
+
+`overlay 15 +0x0500..+0x06A4` — 420 bytes / 105 words, the starfield renderer. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a local-addend and branch-displacement schedule rewrite); source kept as decomp-permuter input. All 10 runtime records (two resident calls, six initialized-data sites, two constant sites) were confirmed. The checkpoint becomes **63,848 / 45,775 campaign bytes (139.48%)**, **165,100 / 469,264 Overlay C (35.18%)**, and **208,140 / 950,332 resolved text (21.90%)**.
+
+`overlay 1 +0x3750..+0x3E48` — 1,784 bytes / 446 words, the path-selection and interpolation state machine. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a redundant-zero removal plus a relocation-aware schedule/register rewrite); source kept as decomp-permuter input. The static linker surface has 31 records; the runtime evidence covers all 63 relocation roles. The checkpoint becomes **65,632 / 45,775 campaign bytes (143.38%)**, **166,884 / 469,264 Overlay C (35.56%)**, and **209,924 / 950,332 resolved text (22.09%)**.
+
+`overlay 36 +0x0818..+0x0914` — 252 bytes / 63 words, the nearby-height filter. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a redundant-zero removal plus a schedule/register rewrite); source kept as decomp-permuter input. All three runtime relocations were confirmed exact. The checkpoint becomes **65,884 / 45,775 campaign bytes (143.93%)**, **167,136 / 469,264 Overlay C (35.62%)**, and **210,176 / 950,332 resolved text (22.12%)**.
+
+`overlay 1 +0x10C8..+0x19B8` — 2,288 bytes / 572 words, packed-record loading and group/metric construction. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a representation-pool plus relocation-aware schedule/register/frame rewrite); source kept as decomp-permuter input. Runtime evidence covers all 114 relocation roles; the static object's raw link surface is 32 records. The checkpoint becomes **68,172 / 45,775 campaign bytes (148.93%)**, **169,424 / 469,264 Overlay C (36.10%)**, and **212,464 / 950,332 resolved text (22.36%)**.
+
+`overlay 13 +0x0000..+0x0124` and `+0x0188..+0x0284` (module initialization and record allocation) contribute **544 exact bytes / 136 words**. Natural typed source reproduces every instruction with no normalization. The configured objects retain exact 17-record and 7-record relocation surfaces. The checkpoint becomes **68,716 / 45,775 campaign bytes (150.12%)**, **169,968 / 469,264 Overlay C (36.22%)**, and **213,008 / 950,332 resolved text (22.41%)**.
+
+`overlay 14 +0x1040..+0x1164` — 292 bytes / 73 words, the module's signed command-index dispatcher. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a register/home rewrite over an otherwise-natural object); source kept as decomp-permuter input. The natural object owns 15 runtime relocation roles and the exact seven-call static link surface. The checkpoint becomes **69,008 / 45,775 campaign bytes (150.75%)**, **170,260 / 469,264 Overlay C (36.28%)**, and **213,300 / 950,332 resolved text (22.44%)**.
+
+`overlay 55 +0x0000..+0x013C` — 316 bytes / 79 words, module startup. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a two-word schedule rewrite plus two local addend edits); source kept as decomp-permuter input. The natural object owns 33 runtime relocation roles and a 21-record raw link surface. The checkpoint becomes **69,324 / 45,775 campaign bytes (151.45%)**, **170,576 / 469,264 Overlay C (36.35%)**, and **213,616 / 950,332 resolved text (22.48%)**.
+
+`overlay 84 +0x0DD0..+0x0F18` (`overlay84AdvanceCurrent`) — 328 bytes / 82 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a frame/spill plus twelve-instruction schedule rewrite); source kept as decomp-permuter input. Natural codegen owns the exact CFG, opcode/register census, and all five runtime relocation roles. The checkpoint becomes **69,652 / 45,775 campaign bytes (152.16%)**, **170,904 / 469,264 Overlay C (36.42%)**, and **213,944 / 950,332 resolved text (22.51%)**.
+
+`overlay 36 +0x150C..+0x1688` (`overlay36UpdatePeers`) — 380 bytes / 95 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a schedule/frame/scratch-register rewrite); source kept as decomp-permuter input. Natural codegen owns the exact six-call CFG and all six runtime identities. The checkpoint becomes **70,032 / 45,775 campaign bytes (152.99%)**, **171,284 / 469,264 Overlay C (36.50%)**, and **214,324 / 950,332 resolved text (22.55%)**.
+
+`overlay 86 +0x007C..+0x0158` (`overlay86ScaledVectorPosition`) — 220 bytes / 55 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a seven-immediate private-local-home rewrite); source kept as decomp-permuter input. Natural codegen owns the exact frame, CFG, and all three runtime relocation roles. The checkpoint becomes **70,252 / 45,775 campaign bytes (153.47%)**, **171,504 / 469,264 Overlay C (36.55%)**, and **214,544 / 950,332 resolved text (22.58%)**.
+
+`overlay 36 +0x1378..+0x1470` (`overlay36SpawnAndUpdate`) — 248 exact bytes / 62 words. Recovering the second physical argument as `s32` yields natural 62/62 codegen with the exact three-call relocation surface; no instruction normalization is used. The checkpoint becomes **70,500 / 45,775 campaign bytes (154.01%)**, **171,752 / 469,264 Overlay C (36.60%)**, and **214,792 / 950,332 resolved text (22.60%)**.
+
+`overlay 86 +0x02E4..+0x0444` (`overlay86SelectPosition`) — 352 bytes / 88 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a five-home plus two-load representation rewrite); source kept as decomp-permuter input. Natural codegen owns the exact frame, CFG, and all three runtime relocation roles. The checkpoint becomes **70,852 / 45,775 campaign bytes (154.78%)**, **172,104 / 469,264 Overlay C (36.68%)**, and **215,144 / 950,332 resolved text (22.64%)**.
+
+`overlay 86 +0x0158..+0x02E4` (`overlay86BuildTransform`) — 396 bytes / 99 words, closing the 968-byte `+0x007C..+0x0444` island across three independently proved owners. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a two-home register swap); source kept as decomp-permuter input. Natural codegen owns the exact frame, CFG, and all five runtime relocation roles. The checkpoint becomes **71,248 / 45,775 campaign bytes (155.65%)**, **172,500 / 469,264 Overlay C (36.76%)**, and **215,540 / 950,332 resolved text (22.68%)**.
+
+`overlay 36 +0x1214..+0x1378` (`overlay36SpawnOffsetA9`) — 356 bytes / 89 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an `$f4`/`$f6` constant-carrier rewrite); source kept as decomp-permuter input. Natural codegen owns the exact four-call CFG and all four runtime relocation roles. The checkpoint becomes **71,604 / 45,775 campaign bytes (156.43%)**, **172,856 / 469,264 Overlay C (36.84%)**, and **215,896 / 950,332 resolved text (22.72%)**.
+
+`overlay 36 +0x0F20..+0x1084` (`overlay36SpawnDirectional`) — 356 bytes / 89 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an `$f4`/`$f6` constant-carrier rewrite); source kept as decomp-permuter input. Natural codegen owns the exact four-call CFG and all four runtime relocation roles. The checkpoint becomes **71,960 / 45,775 campaign bytes (157.20%)**, **173,212 / 469,264 Overlay C (36.91%)**, and **216,252 / 950,332 resolved text (22.76%)**.
+
+`overlay 36 +0x1084..+0x1214` (`overlay36SpawnConditional`) contributes **400 naturally exact bytes / 100 words**. The compiler emits the exact owner with all four runtime relocation roles; no normalization or section trim is used. The checkpoint becomes **72,360 / 45,775 campaign bytes (158.08%)**, **173,612 / 469,264 Overlay C (37.00%)**, and **216,652 / 950,332 resolved text (22.80%)**.
+
+`overlay 36 +0x0D8C..+0x0F20` (`overlay36SpawnLinked7F`) — 404 bytes / 101 words, closing the 1,764-byte `+0x0D8C..+0x1470` island across five independently proved owners. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an initial FP-carrier plus uniform private-local-home rewrite); source kept as decomp-permuter input. Natural codegen owns all opcodes and the exact seven-record relocation topology. The checkpoint becomes **72,764 / 45,775 campaign bytes (158.96%)**, **174,016 / 469,264 Overlay C (37.08%)**, and **217,056 / 950,332 resolved text (22.84%)**.
+
+`overlay 36 +0x0694..+0x07B0` (`overlay36SpawnTransient`) — 284 bytes / 71 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a bijective setup-schedule plus three-temporary rotation rewrite); source kept as decomp-permuter input. Natural codegen is exact from `+0x38` onward; the exact relocation surface is three records. The checkpoint becomes **73,048 / 45,775 campaign bytes (159.58%)**, **174,300 / 469,264 Overlay C (37.14%)**, and **217,340 / 950,332 resolved text (22.87%)**.
+
+`overlay 46 +0x0FD0..+0x112C` (`overlay46UpdateTransition`) contributes **348 naturally exact bytes / 87 words**. The exact owner needs no instruction normalization; only an independent compiler alignment word is trimmed. All 28 runtime relocation roles were confirmed. The checkpoint becomes **73,396 / 45,775 campaign bytes (160.34%)**, **174,648 / 469,264 Overlay C (37.22%)**, and **217,688 / 950,332 resolved text (22.91%)**.
+
+`overlay 14 +0x1184..+0x12D8` (`overlay14UpdateTransition`) — 340 bytes / 85 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a register/home allocation rewrite over an otherwise-natural object); source kept as decomp-permuter input. Natural codegen owns the exact CFG, instruction count, opcode inventory, and all 28 runtime relocation roles. The checkpoint becomes **73,736 / 45,775 campaign bytes (161.08%)**, **174,988 / 469,264 Overlay C (37.29%)**, and **218,028 / 950,332 resolved text (22.94%)**.
+
+`overlay 57 +0x4C18..+0x4D90` (`overlay57UpdateModeTrigger`) — 376 bytes / 94 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a setup/index/register rewrite plus three asserted compiler-elided local-base records); source kept as decomp-permuter input. The natural object owns 38 runtime relocation roles: 31 local HI16/LO16 records, five external calls, and two overlay-local jumps. The checkpoint becomes **74,112 / 45,775 campaign bytes (161.90%)**, **175,364 / 469,264 Overlay C (37.37%)**, and **218,404 / 950,332 resolved text (22.98%)**.
+
+`overlay 36 +0x01D0..+0x0694` (`overlay36UpdateInteractiveEntity`) — 1,220 bytes / 305 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via two countdown-CFG corrections plus twelve schedule permutations and a decoded frame/register rewrite); source kept as decomp-permuter input. The object retains all 24 runtime relocation roles. The checkpoint becomes **75,332 / 45,775 campaign bytes (164.57%)**, **176,584 / 469,264 Overlay C (37.63%)**, and **219,624 / 950,332 resolved text (23.11%)**.
+
+`overlay 41 +0x1C84..+0x1DE0` (`overlay41DrawItem`) contributes **348 naturally exact bytes / 87 words**. Ordinary `-O2 -mips2 -32` codegen is exact; only the independent trailing alignment word is trimmed. The object retains all 14 runtime relocation roles. The checkpoint becomes **75,680 / 45,775 campaign bytes (165.33%)**, **176,932 / 469,264 Overlay C (37.70%)**, and **219,972 / 950,332 resolved text (23.15%)**.
+
+`overlay 99 +0x0064..+0x021C` (`overlay99InitializeEntries`) — 440 bytes / 110 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a nine-offset address-taken descriptor-stack rewrite); source kept as decomp-permuter input. The object retains all 7 runtime relocation roles, including both local storage pairs and the exact `+0x90` addend. The checkpoint becomes **76,120 / 45,775 campaign bytes (166.29%)**, **177,372 / 469,264 Overlay C (37.80%)**, and **220,412 / 950,332 resolved text (23.19%)**.
+
+`overlay 11 +0x0AF4..+0x0C88` (`overlay11InitializeFour`) contributes **404 naturally exact bytes / 101 words**. Ordinary `-O2 -mips2 -32` codegen is exact; only independent section alignment is trimmed, and the link resolves three proved local addends. The object retains all 22 runtime relocation roles. The checkpoint becomes **76,524 / 45,775 campaign bytes (167.17%)**, **177,776 / 469,264 Overlay C (37.88%)**, and **220,816 / 950,332 resolved text (23.24%)**.
+
+`overlay 11 +0x0000..+0x0150` (`overlay11Initialize`) contributes **336 naturally exact bytes / 84 words**. Typed source's compiler-emitted six-entry switch table exactly matches the existing runtime-relocated table at module `+0x2ED8`; the duplicate private section is discarded after rebinding a local `+8` text pair. The object retains all 31 runtime text relocation roles, and the retained table preserves its six `R_MIPS_32` roles. The checkpoint becomes **76,860 / 45,775 campaign bytes (167.91%)**, **178,112 / 469,264 Overlay C (37.96%)**, and **221,152 / 950,332 resolved text (23.27%)**.
+
+`overlay 11 +0x11D0..+0x1398` (`overlay11UpdateSelection`) contributes **456 naturally exact bytes / 114 words**. Ordinary `-O2 -mips2 -32` codegen is exact; only independent section alignment is trimmed. The object retains all 58 runtime relocation roles: ten calls and 24 HI16/LO16 pairs. The checkpoint becomes **77,316 / 45,775 campaign bytes (168.90%)**, **178,568 / 469,264 Overlay C (38.05%)**, and **221,608 / 950,332 resolved text (23.32%)**.
+
+`overlay 19 +0x00AC..+0x01E0` (`overlay19BuildOutput`) contributes **308 naturally exact bytes / 77 words**. Ordinary `-O2 -mips2 -32` codegen is exact; only independent trailing section alignment is trimmed. The object retains all 10 `R_MIPS_26` runtime roles: three local calls and seven resident calls across five semantic imports. The checkpoint becomes **77,624 / 45,775 campaign bytes (169.58%)**, **178,876 / 469,264 Overlay C (38.12%)**, and **221,916 / 950,332 resolved text (23.35%)**.
+
+`overlay 99 +0x02A0..+0x0638` (`overlay99ApplySegment`) — 920 bytes / 230 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a bijective private-representation rewrite, plus removal of a 16-byte compiler-private `.rodata` duplicate already covered by the retained runtime table); source kept as decomp-permuter input. The object covers 13 static and 27 runtime relocation roles. The checkpoint becomes **78,544 / 45,775 campaign bytes (171.59%)**, **179,796 / 469,264 Overlay C (38.31%)**, and **222,836 / 950,332 resolved text (23.45%)**.
+
+`overlay 11 +0x1398..+0x184C` (`overlay11UpdateMenu`) — 1,204 bytes / 301 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a bounded private frame/spill rewrite); source kept as decomp-permuter input. The retained topology is 301 instructions and 102 runtime relocation roles. The checkpoint becomes **79,748 / 45,775 campaign bytes (174.22%)**, **181,000 / 469,264 Overlay C (38.57%)**, and **224,040 / 950,332 resolved text (23.57%)**.
+
+`overlay 63 +0x077C..+0x0928` (`overlay63UpdateSequence`) — 428 bytes / 107 words; the separate `+0x0928..+0x0930` eight-byte zero padding remains assembly with no C credit. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via restoring one folded identity copy and rotating a `v0`/`v1` register pair); source kept as decomp-permuter input. The object retains all 39 runtime relocation roles. The checkpoint becomes **80,176 / 45,775 campaign bytes (175.15%)**, **181,428 / 469,264 Overlay C (38.66%)**, and **224,468 / 950,332 resolved text (23.62%)**.
+
+`overlay 11 +0x184C..+0x1A7C` (`overlay11UpdateTwoOptionMenu`) — 560 bytes / 140 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a two-use loop-index spill-home rewrite); source kept as decomp-permuter input. The object retains all 46 runtime relocation roles. The checkpoint becomes **80,736 / 45,775 campaign bytes (176.38%)**, **181,988 / 469,264 Overlay C (38.78%)**, and **225,028 / 950,332 resolved text (23.68%)**.
+
+`overlay 63 +0x0000..+0x01D4` (`overlay63Initialize`) — 468 bytes / 117 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via restoring a folded chain-address materialization and rotating a bounded register web); source kept as decomp-permuter input. The object retains all 46 runtime relocation roles. The checkpoint becomes **81,204 / 45,775 campaign bytes (177.40%)**, **182,456 / 469,264 Overlay C (38.88%)**, and **225,496 / 950,332 resolved text (23.73%)**.
+
+`overlay 100 +0x0580..+0x094C` (`overlay100DrawMotion`) — 972 bytes / 243 words; its final four-byte zero word remains separately owned padding. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a private representation rewrite); source kept as decomp-permuter input. The five-call relocation contract was retained. Overlay 100's non-padding executable bytes now all have C source. The checkpoint becomes **82,176 / 45,775 campaign bytes (179.52%)**, **183,428 / 469,264 Overlay C (39.09%)**, and **226,468 / 950,332 resolved text (23.83%)**.
+
+`overlay 11 +0x1A7C..+0x1E4C` (`overlay11UpdateFiveOptionMenu`) contributes **976 exact bytes / 244 words**. The configured object retains 78 static relocation records, and its separately retained 20-byte switch table is also exact. The checkpoint becomes **83,152 / 45,775 campaign bytes (181.65%)**, **184,404 / 469,264 Overlay C (39.30%)**, and **227,444 / 950,332 resolved text (23.93%)**.
+
+`overlay 63 +0x01D4..+0x074C` (`overlay63UpdateEffects`) contributes **1,400 exact bytes / 350 words**. The configured object retains all 71 static relocation records: 23 calls and 24 HI16/LO16 pairs. The checkpoint becomes **84,552 / 45,775 campaign bytes (184.71%)**, **185,804 / 469,264 Overlay C (39.59%)**, and **228,844 / 950,332 resolved text (24.08%)**.
+
+`overlay 19 +0x01E0..+0x0A30` (`overlay19BuildPlanes`) — 2,128 bytes / 532 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete private-representation rewrite); source kept as decomp-permuter input. The retained relocation surface covers four calls. Overlay 19's non-padding executable bytes now all have C source. The checkpoint becomes **86,680 / 45,775 campaign bytes (189.36%)**, **187,932 / 469,264 Overlay C (40.05%)**, and **230,972 / 950,332 resolved text (24.30%)**.
+
+`overlay 98`'s edge owners add **684 exact bytes / 171 words**: `overlay98CollectAccepted` at `+0x0144..+0x0234` and `overlay98CheckObject` at `+0x0848..+0x0A04`. The latter's final 12 zero bytes remain separately owned assembly padding. Each configured object retains all six relocation roles. The checkpoint becomes **87,364 / 45,775 campaign bytes (190.86%)**, **188,616 / 469,264 Overlay C (40.19%)**, and **231,656 / 950,332 resolved text (24.38%)**.
+
+`overlay 65 +0x0080..+0x0BC0` (`overlay65UpdateParticles`) — 2,880 bytes / 720 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete private-representation rewrite across the function); source kept as decomp-permuter input. The retained surface covers 36 static relocation records and all 64 runtime roles; Overlay 65's non-padding executable bytes now all have C source. The checkpoint becomes **90,244 / 45,775 campaign bytes (197.15%)**, **191,496 / 469,264 Overlay C (40.81%)**, and **234,536 / 950,332 resolved text (24.68%)**.
+
+`overlay 98 +0x0234..+0x0848` (`overlay98RenderReflections`) — 1,556 bytes / 389 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a private-representation rewrite that converted 36 runtime semantic relocations to a 16-record static proxy surface); source kept as decomp-permuter input. Overlay 98's non-padding executable bytes now all have C source. The checkpoint becomes **91,800 / 45,775 campaign bytes (200.55%)**, **193,052 / 469,264 Overlay C (41.14%)**, and **236,092 / 950,332 resolved text (24.84%)**.
+
+`overlay 13`'s three remaining owners at `+0x0284..+0x0508`, `+0x0580..+0x0874`, and `+0x0874..+0x0B0C` contribute **2,064 exact bytes / 516 words** and close every non-padding executable byte in the module. Their configured objects preserve exact 3-, 10-, and 2-record static surfaces while the runtime ledgers retain all 5, 18, and 10 semantic roles. The checkpoint becomes **93,864 / 45,775 campaign bytes (205.06%)**, **195,116 / 469,264 Overlay C (41.58%)**, and **238,156 / 950,332 resolved text (25.06%)**.
+
+`overlay 11 +0x2714..+0x2948` (`overlay11UpdateModeSix`) — 564 bytes / 141 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a two-use private spill-home rewrite); source kept as decomp-permuter input. Natural codegen owned the exact length, frame, CFG, and all 47 relocation sites. The checkpoint becomes **94,428 / 45,775 campaign bytes (206.29%)**, **195,680 / 469,264 Overlay C (41.70%)**, and **238,720 / 950,332 resolved text (25.12%)**.
+
+`overlay 15 +0x06E8..+0x09E0` (`overlay15InitStars`) — 760 bytes / 190 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an address-lowering rewrite recovering three explicit global-address carriers); source kept as decomp-permuter input. The 15 runtime roles reduce to an exact 13-record split surface. The checkpoint becomes **95,188 / 45,775 campaign bytes (207.95%)**, **196,440 / 469,264 Overlay C (41.86%)**, and **239,480 / 950,332 resolved text (25.20%)**.
+
+`overlay 15 +0x004C..+0x0428` (`overlay15InitStarsAndPalette`) — 988 bytes / 247 words, closing every non-padding executable byte in the module. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a relocation-anchored carrier rewrite); source kept as decomp-permuter input. All 14 shipped runtime roles reduce to an exact six-record split surface. The checkpoint becomes **96,176 / 45,775 campaign bytes (210.11%)**, **197,428 / 469,264 Overlay C (42.07%)**, and **240,468 / 950,332 resolved text (25.30%)**.
+
+`overlay 61 +0x1648..+0x17B8` (`func_overlay_061_F0001648_18C0A10`) — 368 bytes / 92 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a private copy-size/loop carrier rewrite); source kept as decomp-permuter input. The object retains all nine call relocations and the local path-address pair. The checkpoint becomes **96,544 / 45,775 campaign bytes (210.91%)**, **197,796 / 469,264 Overlay C (42.15%)**, and **240,836 / 950,332 resolved text (25.34%)**.
+
+`overlay 11 +0x1E4C..+0x22E8` (`func_overlay_011_F0001E4C_186A694`) — 1,180 bytes / 295 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete carrier-schedule rewrite); source kept as decomp-permuter input. The retained split text surface is 41 records; the five-entry runtime switch table and its five relocations remain in their original data/rodata owner. The checkpoint becomes **97,724 / 45,775 campaign bytes (213.49%)**, **198,976 / 469,264 Overlay C (42.40%)**, and **242,016 / 950,332 resolved text (25.47%)**.
+
+`overlay 11 +0x22E8..+0x2714` — 1,068 bytes / 267 words, eliminating the former `+0x1E4C..+0x2714` middle deficit. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete carrier-schedule rewrite plus a link-only addend rebind); source kept as decomp-permuter input. The pre-link object's split text surface was 39 records. The checkpoint becomes **98,792 / 45,775 campaign bytes (215.82%)**, **200,044 / 469,264 Overlay C (42.63%)**, and **243,084 / 950,332 resolved text (25.58%)**.
