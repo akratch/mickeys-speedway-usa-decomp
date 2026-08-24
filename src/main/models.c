@@ -36,6 +36,7 @@ extern s16 D_800CB4A2[];
 extern s32 *D_800CB4A4;
 
 void *func_8002B280(s32 size, s32 tag);
+void *func_8002B314(s32 size, s32 tag);
 s32 *func_8002E148(s32 assetId);
 void *func_80034448(s16 textureId);
 void func_800347A0(void *texture);
@@ -101,7 +102,40 @@ void func_8001FB64(s32 count, MtxF *matrices) {
         matrices++;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001FBCC.s")
+typedef struct ModelCopySource {
+    u8 pad0[0x12];
+    s16 count;
+    u8 pad14[8];
+    u16 *data;
+} ModelCopySource;
+
+typedef struct ModelCopyAllocation {
+    ModelCopySource *source;
+    u16 *data;
+    s16 unk8;
+    s16 unkA;
+} ModelCopyAllocation;
+
+/*
+ * PROVENANCE -- body adapted from JFG's public src/models.c
+ * func_8003C12C_3CD2C. Mickey's header size, field widths, allocator, tag,
+ * and linked bytes are authoritative.
+ */
+void *func_8001FBCC(ModelCopySource *source) {
+    u16 *data;
+    ModelCopyAllocation *allocation;
+
+    allocation = func_8002B314(source->count * 0xA + 0xC, 0x8A);
+    if (allocation != NULL) {
+        data = (u16 *)((u8 *)allocation + 0xC);
+        allocation->source = source;
+        allocation->data = data;
+        allocation->unk8 = 2;
+        allocation->unkA = 0;
+        func_8001F420(source->data, data, source->count * 0xA);
+    }
+    return allocation;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001FC50.s")
 /*
  * PROVENANCE -- body adapted from JFG's public modFreeModel. Mickey omits
