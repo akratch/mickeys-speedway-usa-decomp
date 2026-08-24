@@ -1416,10 +1416,9 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-31 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 29 more from it): every masked=0/1/2 TU (the
-40 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 38 more from it): every masked=0/1/2 TU (the
+All 45 `n_audio` TUs are matched (`n_cspsetvol` and `cents2ratio` were
+adopted before this pass; the other 43 use disclosed JFG bodies). This includes
+every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -1428,7 +1427,11 @@ of the resident `.data` band in `mickey.us.yaml`, since almost everything
 else in the library reads `n_syn`), the seven `ALParam`-update setters
 that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 `-DRAREDIFFS` for Rare's added MIDI control-change codes), and
-`n_syngetfxref`. The `0x3220`-byte `n_csplayer` text and its owned
+`n_syngetfxref`. The final TU, `n_synfreevoice`, contributes `0xD4` executable
+bytes plus `0xC` bytes of compiler section alignment. Its five relocations
+retain the exact count, types, offsets, and symbol identities, and the full
+`0xE0`-byte `.text` section is byte-identical to the whole-object JFG donor.
+The `0x3220`-byte `n_csplayer` text and its owned
 `0x200`-byte `.data`, `0x300`-byte `.rodata`, and `0x40`-byte `.bss`
 also match exactly from the JFG source; its multiply sequences require
 `-Wab,-r4300_mul` in addition to `-DRAREDIFFS`. JFG's main compressed-sequence
@@ -1442,19 +1445,6 @@ text and its `0x10` bytes of rodata under the same bare flag group.
 The same JFG flags reproduce all `0x100` text bytes and the six relocations of
 `n_synsetfxparam`; assigning its `0x10`-byte literal section to ROM `0x853B0`
 also resolves the recorded `0.1f` rodata-offset plateau.
-
-Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
-`0xAD0`), `n_env` (masked=59), `alsurround`
-(masked=39), `n_event`/`n_drvrNew` (masked=34 each), `n_synaddplayer`
-(masked=24), `n_mainbus`/`n_synallocvoice` (masked=22/23), `n_alLPFilter`
-(masked=13), `n_auxbus` (masked=7),
-`n_load` (masked=4, DSP-heavy ADPCM decoder), and `n_synsetvol`/
-`n_synstartvoiceparam`/`n_synallocvoice` (masked=5) not yet attempted.
-`-DRAREDIFFS` for Rare's added MIDI control-change codes), `n_syngetfxref`,
-`n_synsetvol`, `n_synstartvoiceparam`, `n_synaddplayer`,
-`n_synallocvoice`, `alsurround`, `n_mainbus`, `n_auxbus`, `n_event`,
-`n_synsetfxparam`, `n_load`, `n_alLPFilter`, `n_drvrNew`, `n_synthesizer`,
-`n_env`, and `n_resample`.
 
 `alsurround` also owns a `0x10`-byte `.bss` section at Mickey VRAM
 `0x800D7DC0`: the two linked functions' HI16/LO16 references place its
@@ -1506,12 +1496,6 @@ tail mismatch came from compiling the non-n_audio command path. Its two
 functions occupy the full `0x2A0`-byte text section with eight relocations,
 and its `0x10`-byte constant island at ROM `0x85490` compares directly against
 retail.
-
-Remaining unmatched, roughly by size: `n_csplayer` (masked=154, `0x3220`),
-`n_reverb` (masked=60, DSP-heavy, deferred per plan), `n_cseq`
-(masked=15), and `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
-deferred per plan), plus the small `n_synfreevoice` (masked=5, `0xE0`), not
-yet attempted.
 
 ---
 
@@ -1817,7 +1801,7 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 44 jump tables still emitted
+- **rodata order follows text order exactly.** The 36 jump tables still emitted
   in `asm/` are monotonic in both columns, with **zero inversions**. So
   `.rodata` can be carved TU by TU in text order, which is what makes the
   per-TU split tractable. Five more tables now belong to matched `n_csplayer`
@@ -1827,7 +1811,7 @@ Where the boundary comes from:
   jump tables still emitted in `asm/` belong to 34 functions and remain
   monotonic in both columns, with **zero inversions**. So `.rodata` can be
   carved TU by TU in text order.
-- **rodata order follows text order exactly.** 35 functions, 44 jump tables,
+- **rodata order follows text order exactly.** 35 functions, 36 jump tables,
   monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
   by TU in text order, which is what makes the per-TU split tractable.
 
