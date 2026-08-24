@@ -43,11 +43,11 @@ extern f32 gO27EaseInput;
 extern f32 gO27Scale8;
 extern f32 gO27ScaleC;
 extern void func_80036544(void *, s32 *, s32, void *, s32);
-extern f32 func_8002A878(f32, s32);
+extern f32 Powerf(f32, s32);
 extern s32 func_800299E8(s32, s32);
 extern void func_800031E8(void *);
 extern void func_80002FE0(s32, f32, f32, f32, s32, void **);
-extern void func_8002BD58(s32, s32, f32);
+extern void rumbleStart(s32, s32, f32);
 extern void func_800031C0(void *, f32, f32, f32);
 extern void func_8000309C(void *, u8);
 extern void func_80006EA0(O27Object *);
@@ -90,7 +90,7 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
             switch (state->primaryState) {
                 case 0:
                     state->timer += updateRate;
-                    fraction = 1.0f - func_8002A878(gO27EaseInput, updateRate);
+                    fraction = 1.0f - Powerf(gO27EaseInput, updateRate);
                     scaleFactor = gO27Scale8;
                     state->scaleTarget +=
                         (32.0f - state->scaleTarget) * fraction;
@@ -218,7 +218,7 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
             func_80002FE0(0x1BB, object->x, object->y, object->z, 4,
                           &state->secondaryHandle);
             if (!(tail.sourceState->flags1A8 & 1)) {
-                func_8002BD58(*(s8 *)&tail.sourceState->primaryState,
+                rumbleStart(*(s8 *)&tail.sourceState->primaryState,
                               0x32, 0.4f);
             }
         }

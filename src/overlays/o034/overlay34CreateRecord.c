@@ -73,7 +73,7 @@ extern Overlay34Record **gOverlay34Pointers;
 extern s32 gOverlay34ActiveCount;
 extern s32 gOverlay34Count;
 extern Overlay34Resource *func_80034448(s16 resourceId);
-extern void func_80029FE4(Overlay34Input *input, f32 direction[3]);
+extern void mathOneFloatPY(Overlay34Input *input, f32 direction[3]);
 
 /* Pinned DKR v77/v80 and JFG searches found no exact donor. */
 #ifdef NON_MATCHING
@@ -140,7 +140,7 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
                 candidate->y2 = input->y;
                 candidate->z2 = input->z;
                 candidate->depth = -input->depth;
-                func_80029FE4(input, candidate->direction);
+                mathOneFloatPY(input, candidate->direction);
                 candidate->active = 1;
                 candidate->value = input->value;
                 gOverlay34Pointers[gOverlay34ActiveCount] = candidate;

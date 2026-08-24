@@ -37,7 +37,7 @@ extern s32 *D_800CB4A4;
 
 void *func_8002B280(s32 size, s32 tag);
 void *func_8002B314(s32 size, s32 tag);
-s32 *func_8002E148(s32 assetId);
+s32 *piRomLoad(s32 assetId);
 void *func_80034448(s16 textureId);
 void func_800347A0(void *texture);
 void func_800348A0(s32 id, s32 value);
@@ -67,7 +67,7 @@ void modInitModels(void) {
     D_800CB48C = 0;
     D_800CB494 = 0;
     D_800CB4A4 = func_8002B280(0x2000, 0x8A);
-    D_800CB480 = func_8002E148(0x26);
+    D_800CB480 = piRomLoad(0x26);
     D_800CB490 = 0;
     while (D_800CB480[D_800CB490] != -1) {
         D_800CB490++;

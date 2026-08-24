@@ -66,8 +66,8 @@ extern u8 gOverlay37DisplayData[];
 extern u8 gOverlay37DisplayData78[];
 
 extern Overlay37Camera *overlay37CallProxy(void);
-extern s32 func_80021964(void);
-extern void func_8002A250(s32 mode, void *source, Overlay37State *state,
+extern s32 camGetNo(void);
+extern void pointListRPY(s32 mode, void *source, Overlay37State *state,
                           Overlay37Position *position);
 extern void func_800244EC(Overlay37Command **commands, void *renderContext,
                           Overlay37Transform *transform, f32 scale,
@@ -95,7 +95,7 @@ void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
     f32 deltaZ;
 
     camera = overlay37CallProxy();
-    frame = func_80021964();
+    frame = camGetNo();
     state = object->state;
     if (state->target == NULL) {
         return;
@@ -124,7 +124,7 @@ void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
         blue = blend * 13.0f;
     }
 
-    func_8002A250(1, resource->effectSource, state, &transform.position);
+    pointListRPY(1, resource->effectSource, state, &transform.position);
     transform.position.x += resource->x448;
     transform.position.y += resource->y44C;
     transform.position.z += resource->z450;

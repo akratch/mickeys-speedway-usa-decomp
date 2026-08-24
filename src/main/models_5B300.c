@@ -45,7 +45,7 @@ extern ConvListEntry D_800D78F0[];
 
 s32 func_8002B280(s32 size, s32 tag);
 u8 *func_8002B314(s32 size, s32 tag, s32 offset);
-void func_8002E2E0(s32 assetId, void *dst, s32 offset, s32 size);
+void piRomLoadSection(s32 assetId, void *dst, s32 offset, s32 size);
 void func_80058FF0(ConvListEntry *entries, s32 count);
 
 /* PROVENANCE: adapted from the modelsInit tail in JFG src/models.c. */
@@ -112,7 +112,7 @@ u8 *func_8005A948(s16 animationId) {
         D_800D7D04++;
     }
 
-    func_8002E2E0(0x2A, (u8 *)D_800D7CF8, (animationId & ~1) * 4, 0x10);
+    piRomLoadSection(0x2A, (u8 *)D_800D7CF8, (animationId & ~1) * 4, 0x10);
     offset = *(s32 *)(D_800D7CF8 + ((animationId & 1) * 4));
     size = *(s32 *)(D_800D7CF8 + ((animationId & 1) * 4) + 4) - offset;
     animation = (LoadedAnimation *)func_8002B314(size, 0x80, offset);
@@ -120,7 +120,7 @@ u8 *func_8005A948(s16 animationId) {
         return NULL;
     }
 
-    func_8002E2E0(0x2B, animation, offset, size);
+    piRomLoadSection(0x2B, animation, offset, size);
     animation->references = 1;
     animation->id = animationId;
     ((AnimationCacheEntry *)D_800D7CF4)[emptyIndex].id = animationId;

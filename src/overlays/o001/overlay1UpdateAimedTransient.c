@@ -90,7 +90,7 @@ extern void overlay1ReadSelection(Overlay1TransientOwner *owner, s32 index,
                                   f32 *x, f32 *y, f32 *z);
 extern s16 func_overlay_001_F00064F8_18528D8(
     f32, f32, f32, f32, f32, f32, f32, f32, s32);
-extern s32 func_8002A910(f32 y, f32 x);
+extern s32 Arctanf(f32 y, f32 x);
 extern f32 func_8002A8BC(s32 angle);
 extern f32 func_8002A8C0(s32 angle);
 extern f32 sqrtf(f32 value);
@@ -169,7 +169,7 @@ void overlay1UpdateAimedTransient(void) {
                 factor = distance / (30.0f * D_4);
             } while (iteration--);
 
-            sourceAngle = func_8002A910(deltaX, deltaZ);
+            sourceAngle = Arctanf(deltaX, deltaZ);
             objectAngle = func_overlay_001_F00064F8_18528D8(
                 object->x, object->y, object->z,
                 predictedX, predictedY, predictedZ,

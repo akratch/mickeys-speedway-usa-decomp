@@ -25,7 +25,7 @@ typedef struct Vec3f {
 
 extern u8 D_0[];
 #define D_24 (*(f32 *)(D_0 + 0x24))
-extern void func_80029FE4(Overlay43RotationInput *input, Vec3f *direction);
+extern void mathOneFloatPY(Overlay43RotationInput *input, Vec3f *direction);
 extern void func_8002A82C(Overlay43MotionOutput *output);
 
 #ifdef NON_MATCHING
@@ -48,7 +48,7 @@ void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
     direction.x = 0.0f;
     direction.y = 0.0f;
     direction.z = -1.0f;
-    func_80029FE4(input, &direction);
+    mathOneFloatPY(input, &direction);
     sp24 = direction.x;
     sp1C = direction.z;
     sp20 = direction.y;

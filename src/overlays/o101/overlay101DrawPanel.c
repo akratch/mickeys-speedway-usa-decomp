@@ -44,7 +44,7 @@ extern u8 D_1F4[];
 void func_overlay_101_F0000000_18DB820();
 
 #define overlay101SetScissor func_overlay_101_F0000000_18DB820
-#define func_80039584 func_overlay_101_F0000000_18DB820
+#define frontDrawRectangle func_overlay_101_F0000000_18DB820
 #define overlay101BuildIntensityColors func_overlay_101_F0000000_18DB820
 #define overlay101BuilderCreateReloc func_overlay_101_F0000000_18DB820
 #define overlay101BuildBorder func_overlay_101_F0000000_18DB820
@@ -67,7 +67,7 @@ void overlay101DrawPanel(Overlay101Gfx **displayList, Overlay101Panel *panel) {
     overlay101SetScissor(displayList, 0, 0, 1000, 1000);
 
     if ((panel->mode == 1) || (panel->mode == 3)) {
-        func_80039584(
+        frontDrawRectangle(
             displayList,
             panel->currentX +
                 (((panel->x - panel->currentX) * panel->phase) >> 6),

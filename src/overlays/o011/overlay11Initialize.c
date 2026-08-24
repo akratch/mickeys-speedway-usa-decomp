@@ -15,7 +15,7 @@ extern void func_800005CC(f32 value, s32 arg1);
 extern void overlay66Select(s32 selection);
 extern Overlay11Status *func_80028F54(void);
 extern void func_8004B0A4(s32 mode);
-extern void func_8004B0B8(s32 red, s32 green, s32 blue, s32 alpha,
+extern void fontColour(s32 red, s32 green, s32 blue, s32 alpha,
                           s32 intensity);
 extern void func_overlay_011_F0000AF4_186933C(void);
 extern void func_overlay_011_F0000C88_18694D0(void);
@@ -39,7 +39,7 @@ void overlay11Initialize(s32 argument) {
     status = func_80028F54();
     if (gOverlay11Initialized == 0) {
         func_8004B0A4(3);
-        func_8004B0B8(255, 255, 255, 0, 255);
+        fontColour(255, 255, 255, 0, 255);
         switch (status->mode) {
         case 0:
             func_overlay_011_F0000AF4_186933C();

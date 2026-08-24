@@ -14,7 +14,7 @@ typedef struct Overlay43Resources {
 } Overlay43Resources;
 
 extern void *func_8002B280(s32 size, s32 tag);
-extern void func_8002B768(void *pointer);
+extern void mmFree(void *pointer);
 
 #ifdef NON_MATCHING
 s32 func_overlay_043_F0001184_188B154(Overlay43Input *input,
@@ -39,14 +39,14 @@ s32 func_overlay_043_F0001184_188B154(Overlay43Input *input,
 
     resources->secondary = func_8002B280(primaryCount * 8, 0x87);
     if (resources->secondary == NULL) {
-        func_8002B768(resources->primary);
+        mmFree(resources->primary);
         return 0;
     }
 
     resources->tertiary = func_8002B280(secondaryCount << 6, 0x87);
     if (resources->tertiary == NULL) {
-        func_8002B768(resources->primary);
-        func_8002B768(resources->secondary);
+        mmFree(resources->primary);
+        mmFree(resources->secondary);
         return 0;
     }
 
