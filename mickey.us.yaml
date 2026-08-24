@@ -225,7 +225,7 @@ segments:
       - [0x62500, c, libultra/n_sl]
       - [0x625C0, c, libultra/slHeap]
       - [0x62670, c, libultra/sl]
-      - [0x626F0, asm, libultra/n_synthesizer]
+      - [0x626F0, c, libultra/n_synthesizer]
       - [0x631C0, c, libultra/cents2ratio]
       - [0x63260, c, libultra/alsurround]
       - [0x63470, c, libultra/n_event]
@@ -455,7 +455,7 @@ segments:
       # more than the two u32s themselves; both halves are zero in the ROM
       # either way, so the boundary is set by the compiled object's own size.
       - [0x80D60, .data, libultra/n_sl]
-      - [0x80D70, data]
+      - [0x80D70, .data, libultra/n_synthesizer]
       - [0x80D80, .data, libultra/n_drvrNew]
       - [0x80DC0, data]
       # Named SDK-owned initialized-data tails.  Each boundary is fixed by the
@@ -528,6 +528,7 @@ segments:
       # `enddlabel` as a zero-size label directive, preserving the symbol-size
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
+      - [0x85370, .rodata, libultra/n_synthesizer]
       - [0x85380, .rodata, libultra/cents2ratio]
       - [0x85390, .rodata, libultra/n_drvrNew]
       - [0x853B0, .rodata, libultra/n_synsetfxparam]

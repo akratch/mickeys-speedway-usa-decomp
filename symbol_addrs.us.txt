@@ -1074,7 +1074,9 @@ __n_allocParam = 0x800622F4; // type:func size:0xA0
 _n_freeParam = 0x80062394; // type:func size:0x38
 _n_collectPVoices = 0x800623D4; // type:func size:0x6C
 _n_freePVoice = 0x80062440; // type:func size:0x40
+_n_timeToSamplesNoRound = 0x80062480; // type:func size:0x64
 _n_timeToSamples = 0x800624E4; // type:func size:0x3C
+__n_nextSampleTime = 0x80062520; // type:func size:0xA0
 // libultra/cents2ratio  ROM 0x631c0  (jfg/libultra: src/libultra/cents2ratio.c.o)  whole .text 0xa0, masked=4, romocc=1
 //   same bytes in: conker,jfg
 alCents2Ratio = 0x800625C0; // type:func size:0xA0

@@ -82,7 +82,7 @@ An earlier version of this page ran them together and produced a headline
 | Title | Commit | Baserom SHA1 verified | Build outcome | Objects | Objects mined | Adopted TUs | Names adopted | Re-confirmed | Corroborations |
 |---|---|---|---|---|---|---|---|---|---|
 | Diddy Kong Racing | `38d7f9ba` | yes | **full match** (US v77) | 243 | 223 | (Phase 1: 80) | (Phase 1: 107 + 32 game) | — | — |
-| Jet Force Gemini | `c82affff` | yes | **full match** | 772 | 391 | **84** | **187** | 84 | — |
+| Jet Force Gemini | `c82affff` | yes | **full match** | 772 | 391 | **84** | **189** | 84 | — |
 | Perfect Dark | `169ed48b` | MD5 (no SHA1 published) | near-full: code links clean with authentic IDO, asset-compression bytes differ | 2546 | 467 | **3** | **3** | 52 | 25 |
 | Banjo-Kazooie | `6eaae281` | yes | **full match** | 1232 | 1105 | **0** | **0** | 73 | 2 |
 | Conker's Bad Fur Day | `3adf2291` | yes | partial: every source file compiles, final link blocked | 1446 | 705 | **0** | **0** | 65 | 8 |
