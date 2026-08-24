@@ -82,6 +82,7 @@ extern void overlay27Finish(O27Command **commands, void *arg1);
 extern void overlay27Finalize(O27Command **commands, void *arg1, s16 *arg2,
                               O27Object *object);
 
+#ifdef NON_MATCHING
 void func_overlay_027_F0000624_187BFFC(O27Command **commands, void *arg1,
                                        s16 *arg2, O27Object *object) {
     O27Work work;
@@ -211,3 +212,6 @@ void func_overlay_027_F0000624_187BFFC(O27Command **commands, void *arg1,
     overlay27Finalize(commands, arg1, arg2, object);
     object->scale = oldScale;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o027/overlay27RenderEffect/func_overlay_027_F0000624_187BFFC.s")
+#endif

@@ -3316,70 +3316,16 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay25SetVectorFlags.c.o: POSTPROCESS =
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x64
-# Typed source naturally owns the exact 368-instruction state machine, 0x60
-# frame, opcode multiset, calls, memory/FP effects, and all 22 runtime roles.
-# A complete call/CFG-anchored opcode-preserving scheduler/allocator web selects
-# retail's equivalent private representation. Loader-owned HILO roles remain in
-# O27's tables while the 12 raw call carriers match the assembler split object.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateEffectState.c.o: \
-	config/normalizations/overlay27UpdateEffectState.ops \
-	config/normalizations/overlay27UpdateEffectState.filter.spec \
-	config/normalizations/overlay27UpdateEffectState.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateEffectState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x5C0 8badb00b627b9b67a46a1f9ff09333b39f4f864e70c0fea5886ca6162797d006 \
-		@config/normalizations/overlay27UpdateEffectState.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/overlay27UpdateEffectState.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		gO27Active=func_overlay_027_F0000000_187B9D8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay27UpdateEffectState.rebind.spec
-# Typed source naturally owns the exact 254-instruction algorithm, 0x98 frame,
-# nested transform address, FP semantics, memory effects, call order, and all
-# 15 runtime roles. A pinned complete schedule/register/stack-home web plus two
-# reviewed equivalent branch spellings selects the shipped private compiler
-# representation; position-specific rebindings retain the assembler object's
-# static carriers without collapsing the semantic runtime-role proof.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27RenderEffect.c.o: \
-	config/normalizations/overlay27RenderEffect.ops \
-	config/normalizations/overlay27RenderEffect.calls.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
 	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27RenderEffect.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3F8 19e0dc43889cccdeb83ce4499ca25da19eea30189594a6ff9985669fff5daf73 \
-		@config/normalizations/overlay27RenderEffect.ops && \
-	$(OBJCOPY) \
-		--redefine-sym overlay27GetValue=func_overlay_027_F0000000_187B9D8 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay27RenderEffect.calls.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3F8 \
-		0000000000000000
-# The typed coordinate update naturally owns the exact 65-instruction opcode,
-# immediate, branch, memory, and ten-HILO inventory. Restore retail's equivalent
-# two scheduling permutations and complete private register web, then bind the
-# descriptive source globals back to their raw overlay offsets.
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3F8
+# NON_MATCHING/GLOBAL_ASM uses extracted retail instructions; keep only
+# the metadata-only entry-symbol rename needed by the friendly split.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateCoordinates.c.o: \
-	config/normalizations/overlay27UpdateCoordinates.schedule.ops \
-	config/normalizations/overlay27UpdateCoordinates.fields.ops
+	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay27UpdateCoordinates.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x104 0e11e370b84731ee3107db1cf0c35c95b0b8cff3287800a354b2bc3356e7f842 \
-		@config/normalizations/overlay27UpdateCoordinates.schedule.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x104 bef149cca700139a6d22d8387e71e2194f1c5a6d17be5ae936606ec79e3660cb \
-		@config/normalizations/overlay27UpdateCoordinates.fields.ops && \
-	$(OBJCOPY) \
-		--redefine-sym gOverlay27XOffset=D_110 \
-		--redefine-sym gOverlay27YOffset=D_114 \
-		--redefine-sym gOverlay27CoordinateRecords=D_50 \
-		--redefine-sym gOverlay27YCoordinates=D_100 \
-		--redefine-sym gOverlay27XCoordinates=D_F0 $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_027_F0000A1C_187C3F4=overlay27UpdateCoordinates $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x104
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay56SplitTime.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x54

@@ -52,6 +52,7 @@ extern void func_800031C0(void *, f32, f32, f32);
 extern void func_8000309C(void *, u8);
 extern void func_80006EA0(O27Object *);
 
+#ifdef NON_MATCHING
 void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
     O27State *state;
     O27Object *source;
@@ -265,3 +266,6 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
         func_8000309C(state->secondaryHandle, tail.intensity);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o027/overlay27UpdateEffectState/func_overlay_027_F0000064_187BA3C.s")
+#endif

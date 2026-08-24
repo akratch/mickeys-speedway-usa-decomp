@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 276552,
-  "nonmatching_overlay_c_bytes": 48,
+  "matched_overlay_c_bytes": 273804,
+  "nonmatching_overlay_c_bytes": 2796,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -6797,7 +6797,7 @@
      "type": "c",
      "source": "overlays/o027/overlay27UpdateEffectState",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x624",
@@ -6806,7 +6806,7 @@
      "type": "c",
      "source": "overlays/o027/overlay27RenderEffect",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xA1C",
@@ -6815,7 +6815,7 @@
      "type": "c",
      "source": "overlays/o027/overlay27UpdateCoordinates",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xB20",
