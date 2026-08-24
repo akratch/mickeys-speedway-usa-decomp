@@ -46,6 +46,24 @@ typedef struct ParticleTrigger {
     s8 index;
 } ParticleTrigger;
 
+typedef struct ParticleTriggerSlot {
+    u8 pad00[4];
+    s32 flags;
+    u8 pad08[0x1C];
+} ParticleTriggerSlot;
+
+typedef struct ParticleObjectHeader {
+    u8 pad00[0x25];
+    s8 triggerCount;
+} ParticleObjectHeader;
+
+typedef struct ParticleObject {
+    u8 pad00[0x40];
+    ParticleObjectHeader *header;
+    u8 pad44[0x28];
+    ParticleTriggerSlot *triggers;
+} ParticleObject;
+
 extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
@@ -54,6 +72,7 @@ extern s32 D_8007C8B0;
 extern ParticleConfig **D_8007C8B8;
 
 void mmFree(void *ptr);
+void func_8003EC8C(ParticleObject *object, s32 index);
 void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
 void func_8003CA20(void);
 void func_8003CB3C(void);
@@ -98,7 +117,30 @@ void partInitTriggerSPPos(ParticleTrigger *trigger, s32 type, s32 value, s32 ind
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E8D8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EB08.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EC8C.s")
+#ifdef NON_MATCHING
+/* One-word plateau at +0x5C: the final bne's two operands are reversed. */
+void partObjFreeTriggers(ParticleObject *object) {
+    s32 i;
+    s32 offset;
+    s8 count;
+
+    offset = 0;
+    count = object->header->triggerCount;
+    i = 0;
+    if (count > 0) {
+        do {
+            if (((ParticleTriggerSlot *)((u8 *)object->triggers + offset))->flags & 0x8000) {
+                func_8003EC8C(object, i);
+            }
+            i++;
+            offset += sizeof(ParticleTriggerSlot);
+            if (offset) {}
+        } while (i != count);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partObjFreeTriggers.s")
+#endif
 /* PROVENANCE: body adapted from JFG src/particles.c:partAdjustScaling. */
 void partAdjustScaling(f32 scale) {
     D_8007C8F8 = scale;
