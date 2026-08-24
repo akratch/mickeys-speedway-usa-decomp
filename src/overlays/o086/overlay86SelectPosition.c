@@ -46,6 +46,7 @@ extern Overlay86RingRecord *overlay86FindPreviousUsableReloc(
 extern s32 overlay86NextIndexReloc(s32 index);
 extern Overlay86Node **overlay86GetNodesReloc(s32 *start, s32 *end);
 
+#ifdef NON_MATCHING
 s16 overlay86SelectPosition(Overlay86Object *object, Overlay86VecOutput *output) {
     Overlay86State *state = object->state;
     Overlay86RingRecord *record;
@@ -83,3 +84,6 @@ s16 overlay86SelectPosition(Overlay86Object *object, Overlay86VecOutput *output)
     }
     return 0;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o086/overlay86SelectPosition/func_overlay_086_F00002E4_18D211C.s")
+#endif

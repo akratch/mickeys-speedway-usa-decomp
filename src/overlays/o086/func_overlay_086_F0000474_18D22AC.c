@@ -35,6 +35,7 @@ M2C_UNK ext_o0_5a914(void *, M2C_UNK, s32, f32);   /* extern */
 s16 ext_o0_f690(f32, f32, f32);                    /* extern */
 M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
 
+#ifdef NON_MATCHING
 void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
     s32 spA0;
     f32 sp9C;
@@ -302,3 +303,6 @@ loop_52:
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o086/func_overlay_086_F0000474_18D22AC/func_overlay_086_F0000474_18D22AC.s")
+#endif

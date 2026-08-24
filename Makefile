@@ -2626,59 +2626,20 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84SelectCurrent.c.o: POSTPROCESS = 
 # censused.
 O86_0474_OBJ := \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o086/func_overlay_086_F0000474_18D22AC.c.o
-$(O86_0474_OBJ): \
-	config/normalizations/func_overlay_086_F0000474_18D22AC.ops \
-	config/normalizations/func_overlay_086_F0000474_18D22AC.filter.spec \
-	config/normalizations/func_overlay_086_F0000474_18D22AC.rodata.filter.spec \
-	config/normalizations/func_overlay_086_F0000474_18D22AC.rebind.spec \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/filter_elf_relocations.py \
-	$(TOOLS_DIR)/externalize_elf_section.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(O86_0474_OBJ): POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xA58 f83fb494746bab470bd1a69cc6b3d86f68c72af9b4fa5a142733ef839220ed72 \
-		@config/normalizations/func_overlay_086_F0000474_18D22AC.ops && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_086_F0000474_18D22AC.filter.spec && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-		3dcccccd3d4ccccd000002380000035000000518000005180000068000000000 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .rodata \
-		@config/normalizations/func_overlay_086_F0000474_18D22AC.rodata.filter.spec && \
-	$(OBJCOPY) --redefine-sym \
-		ext_o0_53d0=func_overlay_086_F0000000_18D1E38 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/func_overlay_086_F0000474_18D22AC.rebind.spec && \
+	$(OBJCOPY) --redefine-sym func_overlay_086_F0000474_18D22AC=func_overlay_086_F0000474_18D22AC $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA58
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86ProcessCurrent.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86ScaledVectorPosition.c.o: \
-	config/normalizations/overlay86ScaledVectorPosition.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86ScaledVectorPosition.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xDC fa210ac085d64c5986bb98bd4a22030d1a5f5953672e4fcbe440ab8b0e2e92fa \
-		@config/normalizations/overlay86ScaledVectorPosition.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_086_F000007C_18D1EB4=overlay86ScaledVectorPosition $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86SelectPosition.c.o: \
-	config/normalizations/overlay86SelectPosition.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86SelectPosition.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x160 9dcc96e336d27ae20f88c0becf4b687fc10dfc667a5de04af7633faabd7ed111 \
-		@config/normalizations/overlay86SelectPosition.ops
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86BuildTransform.c.o: \
-	config/normalizations/overlay86BuildTransform.ops \
-	$(TOOLS_DIR)/normalize_elf_instructions.py \
-	$(TOOLS_DIR)/trim_elf_section.py
+	$(OBJCOPY) --redefine-sym func_overlay_086_F00002E4_18D211C=overlay86SelectPosition $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86BuildTransform.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x18C 22aabebb4b6ab40a8c6e4c72bf86c6cf4883c909732a1c3d9af50a50e6c08339 \
-		@config/normalizations/overlay86BuildTransform.ops && \
+	$(OBJCOPY) --redefine-sym func_overlay_086_F0000158_18D1F90=overlay86BuildTransform $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x18C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o094/overlay94UpdateController.c.o: \
 	config/normalizations/overlay94UpdateController.ops \
