@@ -3,6 +3,13 @@
 
 #include "PR/ultratypes.h"
 
+typedef struct DialogueBox {
+    /* 0x00 */ u8 unused;
+    /* 0x01 */ u8 textNum;
+    /* 0x02 */ u8 payload[0x1A];
+    /* 0x1C */ struct DialogueBox *nextBox;
+} DialogueBox;
+
 /* Resident dialogue-window state; field offsets are confirmed by Mickey. */
 typedef struct DialogueBoxBackground {
     /* 0x00 */ s16 xpos;
@@ -30,7 +37,7 @@ typedef struct DialogueBoxBackground {
     /* 0x1E */ u16 flags;
     /* 0x20 */ s16 textOffsetX;
     /* 0x22 */ s16 textOffsetY;
-    /* 0x24 */ void *textBox;
+    /* 0x24 */ DialogueBox *textBox;
 } DialogueBoxBackground;
 
 void fontSetWindowNoise(u8 red, u8 green, u8 blue);
