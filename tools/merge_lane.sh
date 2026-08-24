@@ -31,6 +31,7 @@ fi
 echo "== integration gates"
 tools/with_verify_lock.sh gmake -j12 verify 2>&1 | tail -1
 gmake overlay-atlas-write >/dev/null 2>&1 || true
+.venv/bin/python tools/refresh_atlas_digest.py >/dev/null
 gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
 gmake check-docs 2>&1 | tail -1
