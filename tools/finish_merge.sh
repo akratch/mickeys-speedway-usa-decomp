@@ -10,6 +10,8 @@
 set -euo pipefail
 if git grep -q '^<<<<<<< ' -- . ':!*.md'; then echo "conflict markers remain:" >&2; git grep -l '^<<<<<<< ' -- . >&2; exit 1; fi
 if git diff --name-only --diff-filter=U | grep -q .; then echo "unmerged paths remain:" >&2; git diff --name-only --diff-filter=U >&2; exit 1; fi
+gmake overlay-atlas-write >/dev/null 2>&1 || true
+.venv/bin/python tools/refresh_atlas_digest.py >/dev/null
 gmake extract 2>&1 | tail -1
 gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/refresh_atlas_digest.py >/dev/null

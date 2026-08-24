@@ -1049,27 +1049,11 @@ $(O8_4CF0_OBJ): CFLAGS += -Wab,-r4300_mul
 $(O8_4CF0_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_008_F0004CF0_1862A48=func_overlay_008_F0004CF0_1862A48 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x438
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateObjectState.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateAngle.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateAngle.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x204
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateOutput.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateOutput.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x278
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateInputState.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateInputState.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x328
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9IntegrateVelocity.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9IntegrateVelocity.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x288
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9ResolveHeight.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9ResolveHeight.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9Ignore.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x10
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateMotion.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateMotion.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x46C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1520 && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		00000000000000000000000000000000000000000000000000000000000000003ca3d70a3d99999a3ccccccd3d4ccccd3dcccccd43b680003f733333bc23d70a3c23d70abecccccdbdcccccd00000000
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31InitializeParticleAssets.c.o: POSTPROCESS = \
@@ -1228,35 +1212,16 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC8.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ReleaseCurrent.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15GetResource4.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15GetResource10.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15SetValueC.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15ClearValue7C.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15DrawRain.c.o: CFLAGS += -Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15DrawRain.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_015_F0000B94_1872F2C=overlay15DrawRain $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15InitStarsAndPalette.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_015_F000004C_18723E4=overlay15InitStarsAndPalette $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3DC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15MoveStars.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_015_F0000428_18727C0=overlay15MoveStars $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15DrawScreenStars.c.o: CFLAGS += \
-	-Wab,-r4300_mul
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15DrawScreenStars.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_015_F0000500_1872898=overlay15DrawScreenStars $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1A4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15InitStars.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_015_F00006E8_1872A80=overlay15InitStars $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2F8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15UpdateMovingStars.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_015_F00009E0_1872D78=overlay15UpdateMovingStars $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x19C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay_015.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay_015.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_015_F000004C_18723E4=overlay15InitStarsAndPalette \
+		--redefine-sym func_overlay_015_F0000428_18727C0=overlay15MoveStars \
+		--redefine-sym func_overlay_015_F0000500_1872898=overlay15DrawScreenStars \
+		--redefine-sym func_overlay_015_F00006E8_1872A80=overlay15InitStars \
+		--redefine-sym func_overlay_015_F00009E0_1872D78=overlay15UpdateMovingStars \
+		--redefine-sym func_overlay_015_F0000B94_1872F2C=overlay15DrawRain $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC6C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34SetValue10.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
 # NON_MATCHING fallback assembly supplies the retail body; restore the
@@ -1878,8 +1843,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o: CFLAGS += -Wab,-r4300_mul
 # only the symbol rename below (metadata, not instructions) survives.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagCC.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15ReleaseResource.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x40
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseHandle.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseTree.c.o: POSTPROCESS = \
@@ -2154,8 +2117,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84UpdateResource.c.o: POSTPROCESS =
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84RefreshCurrent.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF8
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15ReleaseResource10.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63Release.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
 # NON_MATCHING/GLOBAL_ASM: restore friendly symbols and retain only the
@@ -2841,14 +2802,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8WriteCommand.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8SetValue.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay8UpdateMotionOutput.c.o \
-	$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateObjectState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateAngle.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateOutput.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateInputState.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9IntegrateVelocity.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9ResolveHeight.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9Ignore.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay9UpdateMotion.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay12Initialize.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchBank.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchInst.c.o \
@@ -2910,16 +2864,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC4.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagC8.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ReleaseCurrent.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15GetResource4.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15InitStarsAndPalette.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15MoveStars.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15DrawScreenStars.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15InitStars.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15UpdateMovingStars.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15GetResource10.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15SetValueC.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15ClearValue7C.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15DrawRain.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay_015.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34SetValue10.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34InitStorage.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34InterpolateColor.c.o \
@@ -3134,7 +3079,6 @@ OVERLAY_TRIMMED_OBJECTS += \
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14GetFlagCC.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15ReleaseResource.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseTree.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseHandle.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureResource.c.o \
@@ -3189,7 +3133,6 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84UpdateResource.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84RefreshCurrent.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84SelectCurrent.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o015/overlay15ReleaseResource10.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63Initialize.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63UpdateEffects.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63Release.c.o \
