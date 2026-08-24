@@ -485,7 +485,7 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/string.c.o: MIPSISET := -mips2 -32
 # splat writes every libultra subsegment into one flat src/libultra/, so this
 # cannot be a directory-scoped pattern rule and each file is named. Keep the
 # list sorted.
-LIBULTRA_O1_TUS := ai aigetlen aisetfreq aisetnextbuf crc createmesgqueue destroythread \
+LIBULTRA_O1_TUS := ai aigetlen aisetfreq aisetnextbuf controller crc createmesgqueue destroythread \
                    dp dpsetnextbuf dpsetstat getactivequeue getthreadpri \
                    gettime jammesg recvmesg resetglobalintmask sendmesg \
                    seteventmesg setthreadpri settimer settime si siacs \
