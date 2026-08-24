@@ -257,13 +257,22 @@ segments:
       - [0x3D370, c, main/weather_tail]
       - [0x3D5F0, c, main/particles]
       - [0x43470, c, main/diprint]
-      - [0x45760, asm]
-      - [0x465B0, asm]
+      # JFG's resident debug trio, identified from the same source order,
+      # call graph and diagnostic strings. diRcpTrace owns four trace-buffer
+      # routines before diRcpPrintDL; diRcp owns the GBI pretty-printer and its
+      # helpers; diCpu begins with the tier-A diCpuTraceInit match and runs to
+      # the measured get_stack_pointer boundary.
+      - [0x45760, c, main/diRcpTrace]
+      - [0x459C0, c, main/diRcp]
+      - [0x465B0, c, main/diCpu]
       # Measured boundary: the whole 0x10 .text of DKR's built
       # `src/get_stack_pointer.c.o` matches here with zero masked words, and
       # splat's own split points already agreed on both ends.
       - [0x47A60, asm, main/get_stack_pointer]
-      - [0x47A70, asm]
+      # JFG fx.c lineage: Mickey starts at fxFreeCone (the earlier JFG level-
+      # effect routines are absent), carries the cone/wake/effect call graph,
+      # and ends where the following font.c block begins.
+      - [0x47A70, c, main/fx]
       # Evidence-backed source boundary for the resident font module. JFG's
       # font.c starts with fontSetWindow0, whose 0x24 bytes match here (2 of 9
       # words relocated, ROM-wide unique), and its final routine is

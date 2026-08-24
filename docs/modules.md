@@ -687,6 +687,9 @@ is present in the initial all-`GLOBAL_ASM` split.
 boundary" tier requires a whole-`.text` match; this pass only matched
 **Why the original scan added no `mickey.us.yaml` splits.** §1's "measured
 **Why the original skeleton table did not itself produce a split.** §1's "measured
+| `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications at the time of this scan; §3.4 subsequently measures the complete `diCpu` span |
+
+**Why no new `mickey.us.yaml` split accompanies this table.** §1's "measured
 file boundary" tier requires a whole-`.text` match; this pass only matched
 individual functions (`tools/find_known_objects.py --sections` found no
 whole-object match for any of the not-yet-named TUs above). Asserting a yaml
@@ -1565,6 +1568,102 @@ Force Gemini's published `src/{joy,level,main}.c` and built
 under `docs/CLEANROOM.md`. The tier-B/C evidence above comes independently
 from Mickey's own function order, callers/callees and strings. Any C body
 adapted during matching carries the same disclosure at its point of use.
+
+### 3.4 The resident debug and effects run
+
+The four assigned ROM runs in `0x45760`–`0x4BC40` total 25,808 bytes. Including
+the already-measured 16-byte `main/get_stack_pointer` island, their continuous
+span is 25,824 bytes in five source units. The four new C splits below own 75
+functions; none uses an odd single-precision register,
+so the hand-written-assembly test in §6.2 excludes none of them. The `fx` range
+has 16,840 executable bytes and eight bytes of compiler alignment padding.
+
+| ROM | Source unit | Functions | Tier | Evidence |
+|---|---|---:|---|---|
+| `0x45760`–`0x459C0` | `main/diRcpTrace` | 4 | B | JFG's `src/diRcpTrace.c` has the same four-function order and near-identical sizes. Mickey's scheduler/track callers and the trace-buffer consumer establish the roles. |
+| `0x459C0`–`0x465B0` | `main/diRcp` | 18 | B/C | The complete GBI opcode/mode string set identifies the disassembler (C); `diRcpPrintDL` calls the same ordered helper family as JFG's `src/diRcp.c` (B). |
+| `0x465B0`–`0x47A60` | `main/diCpu` | 14 | A/B/C | `diCpuTraceInit` is a 21-word Tier-A skeleton/object hit, the exception/watchpoint strings identify the monitor (C), and the OS-thread/debug call graph follows JFG's `src/diCpu.c` (B). The end is pinned by the measured `get_stack_pointer` TU at `0x47A60`. |
+| `0x47A70`–`0x4BC40` | `main/fx` | 39 | B/D | Mickey begins where JFG's `src/fx.c` reaches `fxFreeCone`: the cone and wake routines have the same allocator, texture, trigonometry and draw call graph in the same order (B). The later unresolved effects retain Mickey `func_` names (D). The next block contains JFG `font.c` hits, independently fixing the far end. |
+
+The strongest `fx` call-graph pairs are structural rather than merely
+positional: `fxAllocateCone` calls the allocator, texture loader and the same
+three cone builders; `wakeSetupRipple` calls the alignment helper, texture
+loader and `wakeAllocate`; `wakeUpdateRipple` calls `Arctanf` and
+`wakeUpdate`; and `wakeDrawRipple` calls the texture setup/draw pair and
+`wakeDraw`. The earlier JFG level-effect functions are absent, which is why
+Mickey's TU begins at `fxFreeCone` instead of JFG's first `fx.c` symbol.
+
+Pre-existing assembly callers still spell 18 of these targets as
+`func_<VRAM>`. Those exported labels are retained in `symbol_addrs.us.txt`,
+with the JFG identity and tier on the same row, until each function or its
+caller becomes C-owned; this avoids pretending that a source-level rename is
+already available to the stale generated caller assembly.
+
+Exact C closures in these splits begin with 68 bytes across two `diCpu`
+functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
+60-byte `func_8004650C` (`diCpuTraceTick`). Their natural return-zero and
+60-tick counter bodies are identical under the resident `-O2 -mips2 -32`
+rule; the getter has no relocations and the tick routine retains both exact
+HI16/LO16 data pairs. Five JFG `diRcp` return-eight leaves are also exact at
+the resident defaults with no relocations: 16-byte `diRcpReserved0`, 20-byte
+`diRcpStrNameMacro`, 12-byte `diRcpPrimColor`, 20-byte `diRcpColor`, and
+12-byte `diRcpDmaOffsets`. Six 52-byte JFG unpack-and-return bodies,
+`diRcpVertex`, `diRcpReserved1`, `diRcpMatrix`, `diRcpReserved2`,
+`diRcpMoveMem`, and `diRcpDisplayList`, are exact at the same defaults,
+including their helper-call relocations and source-specific stack frames. The
+52-byte `diRcpStrName` formatter is exact as well, including its format-string
+and `sprintf` relocations. The 44-byte `func_80044B9C` (`diRcpTraceReset`) is
+exact too, including both data-symbol relocation pairs.
+The 60-byte `diRcpTraceInit` is likewise exact, preserving both allocator
+calls and their call/data relocations. The 60-byte JFG-identified `wakeFree`
+is exact after resolving `func_800347A0` as a one-argument call; its two call
+relocations and the wake-linked field access match without normalization. The
+same ABI resolves the adjacent 72-byte `func_80048980` (`wakeFreeRipple`),
+which is exact with both its linked-release and nested-wake call relocations.
+The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
+handle locals reproduce the target's direct second argument register and
+branch-delay schedule, with both texture-free calls and the allocator call
+retaining their exact relocations under the resident defaults.
+The adjacent 52-byte `func_8004707C` is exact without relocations: its six
+full-width value parameters are stored into byte fields only after the null
+check, preserving the target's leaf schedule under the same default flags.
+The 108-byte JFG-identified `fxQueueScreenEffect` is also exact: expressing
+the four-entry queue selection as an array subscript with a post-incremented
+global count reproduces the target's 20-byte offset schedule and both data
+relocation pairs under the resident defaults.
+Its 172-byte dequeue sibling `func_8004A9CC` (`fxUnQueueScreenEffect`) is exact
+on the natural pointer/count loop, including the 64-byte frame, all nine
+arguments to `fxScreenEffect`, the call relocation, and both queue-global
+relocation pairs.
+The 60-byte Mickey-named `func_80049828` bounds-checks one of five effect
+records and tests a caller-supplied flag mask; its natural 32-byte-stride
+record access is exact at the resident defaults, including the data-symbol
+relocation pair. Its adjacent 56-byte `func_80049864` sibling tests a byte
+status field with the same bounds and stride and is exact under the same flags,
+also with the target's data-symbol relocation pair. The following 96-byte
+`func_8004989C` packs the record's RGB bytes into a duplicated 16-bit color;
+the typed record body, expression schedule, and data relocation are exact at
+the resident defaults. The 28-byte `func_8004A0F0` clears two adjacent effect
+queue words and their index; its three stores and both data relocation pairs
+are exact under the same defaults.
+The 76-byte JFG-identified `fxInit` is exact as well: its post-decrement loop
+clears all five 32-byte records, resets the global state, and preserves the
+callee plus two data relocation pairs without normalization.
+The 136-byte Mickey-named `func_80049A8C` resets either one record or all five,
+clearing state/status and two flag bits. Its selection branches, stack home,
+countdown loop, and data relocation pair are exact at the resident defaults.
+The 180-byte `func_8004AD34` (`fxGenerateTextures` in JFG) is exact too. Its
+four-entry descending callback loop, flag test, callback-table refresh, and
+indirect call retain all target instruction words and relocation identities at
+the resident defaults; spelling the constant-count loop as `while (index--)`
+reproduces IDO's rotated `3`-through-`0` schedule without normalization.
+
+**PROVENANCE.** The TU identities and descriptive names in this subsection,
+`symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
+Force Gemini's public decompilation (`src/diRcpTrace.c`, `src/diRcp.c`,
+`src/diCpu.c`, and `src/fx.c`). JFG is a permitted published decomp under
+`docs/CLEANROOM.md`; Mickey's own bytes, strings and linked call graph decide
+every mapping. JFG address placeholders are not imported.
 
 ---
 
