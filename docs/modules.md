@@ -383,10 +383,17 @@ function start at `0x39350` likewise follows texture/screen code whose JFG
 ordering is outside `menu.c`. Thus the split claims only `0x39350`–`0x3B1A0`,
 not the surrounding yaml block.
 
-The source begins as 41 `GLOBAL_ASM` functions. Six already have tier-A names
+The source began as 41 `GLOBAL_ASM` functions. Six already have tier-A names
 in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
+
+`frontSetWideAdjust` is the first exact C promotion: **0x2C bytes / 11 words**
+at ROM `0x3AFDC`, with the target's four relocation-bearing words resolving
+at their real linked addresses. Its body is adapted from JFG's public
+`src/menu.c` and carries the required point-of-use `PROVENANCE` note. A flag
+sweep confirmed that the default `-O2 -mips2 -32` spelling is exact; no
+per-file override or post-compile instruction edit is involved.
 
 ---
 

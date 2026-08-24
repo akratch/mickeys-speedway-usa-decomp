@@ -10,6 +10,11 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/menu.h"
+
+extern s8 D_800D312B;
+extern s8 func_80033F5C(void);
+extern void viSetWideAdjust(s32 offset);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038878.s")
@@ -39,7 +44,11 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A35C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/frontGetLevelScreenMode.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A3D0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/frontSetWideAdjust.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontSetWideAdjust. */
+void frontSetWideAdjust(s32 offset) {
+    viSetWideAdjust(offset);
+    D_800D312B = func_80033F5C();
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A408.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A41C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A47C.s")
