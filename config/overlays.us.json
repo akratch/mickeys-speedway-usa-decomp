@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 248068,
-  "nonmatching_overlay_c_bytes": 28532,
+  "matched_overlay_c_bytes": 246664,
+  "nonmatching_overlay_c_bytes": 29936,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -18627,7 +18627,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96Register",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x70",
@@ -18636,7 +18636,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96Unregister",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xF8",
@@ -18645,7 +18645,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96BuildVolume",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x4BC",
@@ -18654,7 +18654,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96FindVolume",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x57C",

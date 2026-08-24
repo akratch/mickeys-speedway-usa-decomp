@@ -3384,58 +3384,23 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitResource.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x184
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitBounds.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1FC
-# The source naturally owns the exact duplicate-guarded registry algorithm.
-# Guard three equivalent copy producers and remove one compiler-only duplicate
-# address pair before selecting the retained counter-loop register schedule.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96Register.c.o: \
-	config/normalizations/overlay96Register.prepare.py \
-	config/normalizations/overlay96Register.ops \
-	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96Register.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay96Register.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
-		0x24:5:gO96EntriesReloc 0x28:6:gO96EntriesReloc && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x70 90f04fdcb9ccdcdbdc73219931c64e24a325ab0135de7e1610854eed0386025f \
-		@config/normalizations/overlay96Register.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_096_F0000000_18D7638=overlay96Register $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
-# The adjacent removal helper naturally owns the reverse scan and compaction
-# effects. Its guarded preparation adds the retained second array-base pair
-# and two counter producers before a complete decoded schedule bijection.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96Unregister.c.o: \
-	config/normalizations/overlay96Unregister.prepare.py \
-	config/normalizations/overlay96Unregister.ops \
-	$(TOOLS_DIR)/add_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96Unregister.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay96Unregister.prepare.py $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text \
-		0x88 2d7baa93466128d0875d5de3ce7a2743496e26ec9f422662bec7c98f054aba1d \
-		0x30:HI16:gO96EntriesReloc 0x68:LO16:gO96EntriesReloc && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x88 550bc696bbdf789b252efe93409c4c67d0760e90cc13dab05a77070d8fb11b5a \
-		@config/normalizations/overlay96Unregister.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_096_F0000070_18D76A8=overlay96Unregister $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x88
-# The semantic source naturally owns all 241 instructions, the 0x138 frame,
-# three calls, both loops, and the complete FP expression tree.  The R4300
-# scheduler flag supplies the retail multiply latencies.  Select only two
-# bounded local-home translations and one four-site center-coordinate web.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96BuildVolume.c.o: \
-	config/normalizations/overlay96BuildVolume.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96BuildVolume.c.o: CFLAGS += \
 	-Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96BuildVolume.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0x3C4 8a2da0efd540fe9f38097ba8790c2c600f9c50aeb10f6cd61e79d8dd2a4e63b3 \
-		@config/normalizations/overlay96BuildVolume.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_096_F00000F8_18D7730=overlay96BuildVolume $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C4
-# Natural source owns the exact 48-word ABI, frame, countdown loops, plane
-# test, and four runtime address sites. Swap only two independent FP producers.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96FindVolume.c.o: \
-	config/normalizations/overlay96FindVolume.ops
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96FindVolume.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/normalize_elf_instructions.py $@ .text \
-		0xC0 ce175c624f28dd4507b1a4dc3fe330fda3a4be5b0964e5906d268af4ebb80758 \
-		@config/normalizations/overlay96FindVolume.ops && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_096_F00004BC_18D7AF4=overlay96FindVolume $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96TestBit.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C

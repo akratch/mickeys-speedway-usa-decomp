@@ -63,6 +63,7 @@ extern void overlay96TransformPointsReloc(s32 count, s16 *angles, Vec3f *source,
 extern f32 overlay96SqrtReloc(f32 value);
 extern void overlay96Register(Overlay96Volume *volume);
 
+#ifdef NON_MATCHING
 void overlay96BuildVolume(Overlay96Object *object,
                           Overlay96Definition *definition) {
     f32 extentZ;
@@ -182,3 +183,6 @@ void overlay96BuildVolume(Overlay96Object *object,
     } while (count--);
     overlay96Register(volume);
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o096/overlay96BuildVolume/func_overlay_096_F00000F8_18D7730.s")
+#endif
