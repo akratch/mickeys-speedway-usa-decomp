@@ -12,7 +12,9 @@
 extern s32 D_800CF3C4;
 extern u8 D_800CF420[];
 extern u8 *D_800CF3C8;
+extern s32 *D_800CF3C0;
 extern s32 D_800CF3D4;
+extern u8 *D_8007A0D0;
 
 /* PROVENANCE: field roles adapted from JFG src/level.c; Mickey layout is decisive. */
 typedef struct LevelSummary {
@@ -38,6 +40,9 @@ extern void func_80000C38(void);
 extern void func_80000CEC(void);
 extern u8 func_80000D54(void);
 extern void func_80036AB0(void *, s32);
+extern s32 *func_8002E148(s32);
+extern void func_8002E2E0(s32, void *, s32, s32);
+extern void mmFree(void *);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetCounts.s")
 
@@ -156,7 +161,18 @@ u8 *levelGetLevel(void) {
     return D_800CF3C8;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetName.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+u8 *levelGetName(s32 arg0) {
+    *D_8007A0D0 = 0;
+    if (arg0 < D_800CF3D4) {
+        D_800CF3C0 = func_8002E148(0x1E);
+        if (D_800CF3C0 != NULL) {
+            func_8002E2E0(0x1F, D_8007A0D0, D_800CF3C0[arg0], 0x20);
+            mmFree(D_800CF3C0);
+        }
+    }
+    return D_8007A0D0;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelFreeAll.s")
 

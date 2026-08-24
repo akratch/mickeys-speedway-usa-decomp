@@ -396,7 +396,7 @@ main-state loop; `mainThread` reaches `mainInitGame`, `joyRead`,
 JFG functions were not imported: unresolved routines retain Mickey's own
 `func_<VRAM>` symbol.
 
-**Matching progress.** Seventy functions / 3,036 bytes compile exactly
+**Matching progress.** Seventy-one functions / 3,180 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -404,11 +404,11 @@ linked ranges and the full ROM are exact.
   `joyCreateMap`, `joyGetController`, `joyGetButtons`, `joyGetPressed`,
   `joyGetReleased`, `joyGetStickX`, `joyGetAbsX`, `joyGetStickY`, `joyGetAbsY`,
   `joyClamp`, `joySetSecurity`, `arithmeticFunction`, and `joyCharVal`.
-- `main/level` (16 / 1,124 bytes): `levelNGetType`, `levelGetTune`,
+- `main/level` (17 / 1,268 bytes): `levelNGetType`, `levelGetTune`,
   `levelGetWorld`, `levelGetRegionNo`, `levelGetScreenMode`,
   `levelGetBlurEffect`, `levelGetGfxIndex`, `levelGetColourCycling`,
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
-  `levelTunePlay`, `levelUpdateColourCycling`,
+  `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, and `levelGetPrevOfWorld`.
 - `main/main` (38 / 916 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainSetAnimGroup`, `mainGetAnimGroup`,
