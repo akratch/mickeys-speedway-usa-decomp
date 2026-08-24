@@ -402,7 +402,7 @@ overlay callers/callees outside the range were observed.
 | `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
 | `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D | calls `0x4DF9C`; ext callers |
 | `0x4C744` | `0x9C` | `func_8004BB44` | `fontWindowSize` | D | leaf; ext callers |
-| `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | B/D | leaf; ext callers |
+| `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | B/D, matched C | leaf; ext callers |
 | `0x4C7FC` | `0x40` | `fontWindowColour` | same | A, matched C | leaf; ext callers |
 | `0x4C83C` | `0x48` | `fontWindowFontColour` | same | A, matched C | leaf; ext callers |
 | `0x4C884` | `0x40` | `fontWindowFontBackground` | same | A, matched C | leaf; ext callers |

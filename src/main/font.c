@@ -67,7 +67,9 @@ void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BA8C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BB44.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BBE0.s")
+void func_8004BBE0(s32 windowId, s32 font) {
+    D_800D64E8[windowId].font = font;
+}
 
 void fontWindowColour(s32 windowId, s32 red, s32 green, s32 blue, s32 alpha) {
     if (windowId > 0 && windowId < 8) {
