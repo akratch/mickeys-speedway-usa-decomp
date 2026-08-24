@@ -1,0 +1,47 @@
+/*
+ * Resident lights -- ROM 0x19310-0x1AE60 (VRAM 0x80018710).
+ *
+ * The boundary and function comparison map are documented in
+ * docs/modules.md section 3.4. The preceding four-function shadows TU uses
+ * odd single-precision FP registers and remains assembly by section 6.2;
+ * none of the functions in this TU uses an odd FP register.
+ *
+ * PROVENANCE -- comparison names, declarations and future starting bodies
+ * for this TU come from Jet Force Gemini's public decomp, src/lights.c and
+ * src/lights.h. They are permitted published-decomp material under
+ * docs/CLEANROOM.md. Mickey's own bytes decide every body and name adoption;
+ * the unresolved functions below therefore retain their Mickey func_ names.
+ *
+ * Flags: -O2 -mips2 -32 (the resident game-code flag group).
+ */
+
+#include "PR/ultratypes.h"
+
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018710.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001879C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_800188CC.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001897C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018BB4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DB4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DC4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DD4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018DE4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E10.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E30.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018E7C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018F08.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001923C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019340.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019358.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019494.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001953C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019934.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019A24.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019AB8.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019D98.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019DE8.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019EE4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019F7C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A008.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A154.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A23C.s")
