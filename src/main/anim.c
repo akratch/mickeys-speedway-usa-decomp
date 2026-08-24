@@ -50,7 +50,36 @@ s32 func_80050024(u32 bitCount) {
     return value;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800500A4.s")
+/*
+ * PROVENANCE: adapted from JFG's func_800760C0_76CC0. Mickey's ROM fixes the
+ * signed-extension expression and all generated instruction choices.
+ */
+s32 func_800500A4(u32 bitCount) {
+    u32 signMask;
+    s32 value;
+
+    value = 0;
+    if (bitCount != 0) {
+        signMask = 0xFFFFFFFF << (bitCount - 1);
+        bitCount = 1 << (bitCount - 1);
+        do {
+            if (D_800D6D5C == 0) {
+                D_800D6D58++;
+                D_800D6D5C = 0x80;
+            }
+            if (*D_800D6D58 & D_800D6D5C) {
+                value |= bitCount;
+            }
+            bitCount >>= 1;
+            D_800D6D5C >>= 1;
+        } while (bitCount != 0);
+        if (value & signMask) {
+            value |= signMask;
+        }
+    }
+    return value;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005013C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005017C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800501AC.s")
