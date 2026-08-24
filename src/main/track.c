@@ -87,7 +87,24 @@ void *trackGetTrack(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80013EC0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800140CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014430.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014528.s")
+/*
+ * PROVENANCE: adapted from the direct fog-data path in Jet Force Gemini's
+ * public `src/track.c`, function `trackGetFog`. Mickey omits JFG's overlay
+ * special cases; Mickey's function boundary and accesses are authoritative.
+ */
+void trackGetFog(s32 playerID, s16 *near, s16 *far, s16 *targetNear,
+                 u8 *red, u8 *green, u8 *blue, s8 *state) {
+    TrackFog *fogData;
+
+    fogData = &D_800C99C0[playerID];
+    *near = fogData->fog.near >> 16;
+    *far = fogData->fog.far >> 16;
+    *targetNear = fogData->targetNear >> 16;
+    *red = fogData->fog.r >> 16;
+    *green = fogData->fog.g >> 16;
+    *blue = fogData->fog.b >> 16;
+    *state = fogData->intendedFog.state & 0x7F;
+}
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
  * `trackSetFogOff`. Mickey's tier-A match to JFG's built function and the

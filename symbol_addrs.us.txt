@@ -1410,6 +1410,11 @@ func_8000D00C = 0x8000D00C; // type:func size:0xC ROM 0xdc0c
 // track-layout fields; this is the TU's accessor for its current track object.
 trackGetTrack = 0x80013EB4; // type:func size:0xC ROM 0x14ab4
 
+// Tier B: its caller passes seven output pointers, then consumes them as fog
+// distance, colour, and state values. Tier D: this is JFG trackGetFog's exact
+// position between trackSetFog and the tier-A trackSetFogOff.
+trackGetFog = 0x80014528; // type:func size:0x78 ROM 0x15128
+
 // Tier A establishes TU membership only: all eight words are identical to
 // JFG `func_8001C550`, with zero masked words and one ROM occurrence. Section
 // 1.5 forbids importing JFG's address placeholder, so Mickey's own stands.
