@@ -161,12 +161,116 @@ requires the out-of-tree reference builds described in `references.md`.
 run; nothing else is wired into a hook.
 
 The Progress block that `gmake scoreboard`/`gmake check-scoreboard` maintain
-is being moved to DKR's five lines (decompiled, handwritten ASM, GLOBAL_ASM
+now carries DKR's five lines (decompiled, handwritten ASM, GLOBAL_ASM
 remaining, NON_MATCHING, NON_EQUIVALENT), byte-weighted, with a range
 counting as decompiled only if its object carries no instruction-altering
 post-compile step. See
 [`docs/adr/0001-matching-standard.md`](adr/0001-matching-standard.md) and
-[`docs/adr/0003-scoreboard.md`](adr/0003-scoreboard.md).
+[`docs/adr/0003-scoreboard.md`](adr/0003-scoreboard.md). `README.md`'s
+generated block is the current numbers; recompute rather than quoting them
+here.
+
+### `gmake NON_MATCHING=1`: the compile-only escape hatch
+
+Every function ADR 0001/0002 demoted from "matched" to `NON_MATCHING` keeps
+its C body under `#ifdef NON_MATCHING`, with the original
+`#pragma GLOBAL_ASM` preserved under `#else` (ADR 0002's Consequences). That
+guard is normally off, so the ordinary build still links the `GLOBAL_ASM`
+fallback and stays byte-identical. `gmake NON_MATCHING=1` flips it: every
+converted TU compiles its real C body instead, into a **separate build tree**
+(`build_non_matching/`, never `build/`) so those objects can never be
+mistaken for, or sit next to, the ones `gmake verify` checks. It is a
+compile-only smoke test — proof the C is not obviously wrong, not a matching
+claim. `gmake verify` refuses to run under `NON_MATCHING=1` (`the error is
+literal: "verify does not run under NON_MATCHING=1"`), exactly DKR's own
+guard for the same escape hatch. Unset it and rebuild before running
+`verify`.
+
+### Auditing post-compile steps: `tools/postprocess_audit.py`
+
+`tools/postprocess_audit.py` is what makes ADR 0002 enforceable rather than
+aspirational. It does not parse the Makefile by hand; it asks `gmake -p -q`
+to expand every rule and reads the target-specific `POSTPROCESS = ...`
+assignments straight out of that expansion, then classifies each one:
+
+- **`altered`** — touches instruction words (`normalize_elf_instructions.py`,
+  `normalize_o63_*.py`, `resize_elf_function.py`,
+  `extend_elf_function_to_text.py`, `patch_elf_words.py`). Forbidden by ADR
+  0002; any object in this class cannot count as decompiled on the
+  scoreboard.
+- **`metadata`** — everything ADR 0002 permits: ELF header/ABI bits, symbol
+  renames, section trimming, relocation filter/rebind. Safe to credit.
+
+Run it three ways:
+
+```sh
+tools/postprocess_audit.py            # table to stdout
+tools/postprocess_audit.py --write    # refresh config/postprocess-audit.us.json
+tools/postprocess_audit.py --check    # fail if that JSON is stale
+```
+
+`config/postprocess-audit.us.json` is the committed result: one row per
+object carrying a `POSTPROCESS` override, its class, tool list, and
+(where known) its `(overlay, offset, size)` ownership joined from
+`config/overlays.us.json`. As of this pass its `summary.by_class` reads
+`{"metadata": 687}` — zero `altered` objects — which is the mechanical proof
+that the ADR 0002 conversion reached every object in the tree, not just the
+functions this lane's prose describes.
+
+### Lane helpers: `new_lane.sh`, `merge_lane.sh`, `codex_lane.sh`
+
+- **`tools/new_lane.sh <name> [--no-extract] [base-branch]`** creates
+  `../mickey-lane-<name>` on branch `lane/<name>` from `base-branch`
+  (default `campaign/unchain`), symlinking the untracked toolchain, baserom,
+  venv and vendored tool checkouts in rather than copying them, and (unless
+  `--no-extract`) runs the splat extract so the lane can build immediately.
+  Each lane gets its own `build/`/`asm/`.
+- **`tools/merge_lane.sh <name>`** integrates one lane back into the current
+  branch: it rebuilds the lane from clean and requires `verify`/`check-docs`
+  to pass there first, runs the clean-room range scan over the lane's
+  commits, merges `lane/<name>`, and resolves the two files that always
+  conflict by *regenerating* them instead of taking either side — the README
+  scoreboard block and the overlay atlas — then re-runs
+  `verify`/`check-docs`/`overlay-atlas`/`check-scoreboard` on the merged
+  result. It exits non-zero and leaves the merge in progress if anything else
+  conflicts or a gate fails, rather than guessing a resolution.
+- **`tools/codex_lane.sh <name> <prompt-file> [--no-extract]`** creates a lane
+  with `new_lane.sh` and launches a detached, non-interactive `codex exec`
+  worker inside it; the worker commits on `lane/<name>` like any other
+  worker. Progress, final message and exit status land in
+  `<lane>/.codex-run.log`, `<lane>/.codex-last.md`, `<lane>/.codex-status`
+  (all gitignored).
+
+### Integration housekeeping: `fix_stale_externs.py`, `refresh_atlas_digest.py`
+
+- **`tools/fix_stale_externs.py`** rewrites `func_<VRAM>` references in
+  `src/main`, `src/libultra`, and `include/game` whose address has since
+  been given an adopted name in `symbol_addrs.us.txt`. Lanes name functions
+  independently; without this, a merge can leave one lane's `extern ...
+  func_8002E148(...)` stale against another lane's adopted name for the same
+  address, and the link fails after integration. Overlays are excluded —
+  their extern names are lane-owned and link through the overlay relocation
+  model, not the resident symbol table.
+- **`tools/refresh_atlas_digest.py`** refreshes just the `sha256` field
+  `config/overlay-donors.us.json` stores over `config/overlays.us.json`,
+  for a layout-only atlas regeneration (ownership rows, nonmatching flags)
+  that doesn't actually change any donor result. The full `--write` donor
+  rescan needs the out-of-tree reference farm and fails if a reference
+  checkout has moved past its pin; this script is the documented workaround
+  when only the digest went stale.
+
+### `docs/modules.md` / `docs/overlays.md` split
+
+On 2026-08-24, section 5 of `docs/modules.md` (the overlay system) moved
+into its own file, `docs/overlays.md`, keeping the same `5.x` numbering so
+existing cross-references still resolve. `docs/modules.md` keeps a stub
+pointer at section 5. A lane branched before the split, editing the old
+whole file, conflicts with that move on merge; **`tools/resolve_modules_split.py`**
+performs the merge the split intended — it three-way merges the non-section-5
+half and the section-5 half independently (via `git merge-file`) against
+their respective destination files, and exits 1 if either half still has
+conflict markers. Run it inside an in-progress merge, in place of resolving
+`docs/modules.md`/`docs/overlays.md` conflicts by hand.
 
 | Command | Checks | Needs a build? | Enforced by |
 |---|---|---|---|
