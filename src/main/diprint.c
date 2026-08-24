@@ -17,6 +17,7 @@ s32 vsprintf(char *s, const char *format, va_list arg);
 
 extern u16 D_800D4A5C;
 extern u16 D_800D4A5E;
+extern s32 D_8007CE90;
 extern s32 D_800D4A6C;
 extern s32 D_800D4A74;
 
@@ -37,7 +38,10 @@ void *memset(void *s, int c, size_t n) {
     return s;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/_itoa.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/sprintfSetSpacingCodes.s")
+/* PROVENANCE: body adapted from JFG src/diprint.c:sprintfSetSpacingCodes. */
+void sprintfSetSpacingCodes(s32 setting) {
+    D_8007CE90 = setting;
+}
 /* PROVENANCE: body adapted from DKR src/printf.c:sprintf. */
 s32 sprintf(char *s, const char *format, ...) {
     va_list arg;

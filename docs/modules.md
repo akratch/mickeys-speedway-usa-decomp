@@ -392,7 +392,8 @@ bytes, default resident flags, DKR body donor) and `memset` (ROM `0x434A4`,
 `0x3D5F0`, `0x30` bytes, default resident flags, DKR body donor); `sprintf`
 (ROM `0x435A4`, `0x2C` bytes, default resident flags, DKR body donor);
 `debug_text_origin` (ROM `0x45710`, `0x24` bytes, default resident flags, JFG
-body donor).
+body donor); `sprintfSetSpacingCodes` (ROM `0x43598`, `0xC` bytes, default
+resident flags, JFG body donor).
 
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's
