@@ -52,7 +52,24 @@ u8 joyGetController(s32 player) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyGetAbsY.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyClamp.s")
+/* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
+s8 joyClamp(s8 stickMag) {
+    if ((stickMag < 5) && (stickMag > -5)) {
+        return 0;
+    }
+    if (stickMag > 0) {
+        stickMag -= 5;
+        if (stickMag > 65) {
+            stickMag = 65;
+        }
+    } else {
+        stickMag += 5;
+        if (stickMag < -65) {
+            stickMag = -65;
+        }
+    }
+    return stickMag;
+}
 
 /* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
 void joySetSecurity(void) {
