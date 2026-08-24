@@ -228,7 +228,7 @@ segments:
       - [0x626F0, asm, libultra/n_synthesizer]
       - [0x631C0, c, libultra/cents2ratio]
       - [0x63260, c, libultra/alsurround]
-      - [0x63470, asm, libultra/n_event]
+      - [0x63470, c, libultra/n_event]
       - [0x63AD0, c, libultra/n_synaddplayer]
       - [0x63C20, c, libultra/n_synallocvoice]
       - [0x63F30, c, libultra/n_synsetvol]
@@ -540,7 +540,10 @@ segments:
       # Mickey's alSurround loads/stores place the four donor-named globals at
       # 0x800D7DC0-0x800D7DCB; IDO pads the owning .bss section to 0x10 bytes.
       - { type: .bss, vram: 0x800D7DC0, name: libultra/alsurround }
-      - { type: bss, vram: 0x800D7DD0, name: bss_gap_D800D7DD0 }
+      # n_event's external-event clock is linked at 0x800D7DD0; its owning
+      # section is padded to 0x10 bytes by IDO.
+      - { type: .bss, vram: 0x800D7DD0, name: libultra/n_event }
+      - { type: bss, vram: 0x800D7DE0, name: bss_gap_D800D7DE0 }
       - { type: .bss, vram: 0x800D8070, name: libultra/seteventmesg }
       - { type: bss, vram: 0x800D80F0, name: bss_gap_D800D80F0 }
       - { type: .bss, vram: 0x800D8180, name: libultra/vimgr }
