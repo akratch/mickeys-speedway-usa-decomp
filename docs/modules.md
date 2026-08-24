@@ -485,8 +485,8 @@ bodies with `PROVENANCE` notes, using JFG's headers (imported under
 (`-g`, no `-O`) + `-mips2 -32` flag group already measured on
 `n_cspsetvol`.
 
-31 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
-adopted before this pass; 29 more from it): every masked=0/1/2 TU (the
+32 of the 45 `n_audio` TUs are matched (`n_cspsetvol`, `cents2ratio`
+adopted before this pass; 30 more from it): every masked=0/1/2 TU (the
 thin `N_ALEvent` posters and one-line accessors), `n_sl` (which places
 the driver singletons `n_alGlobals`/`n_syn` — VRAM `0x80080160`/
 `0x80080164`, measured directly off a built candidate diffed against the
@@ -496,7 +496,7 @@ else in the library reads `n_syn`), the seven `ALParam`-update setters
 that funnel through it, `n_synallocfx`, `n_alcspchan` (needs
 `-DRAREDIFFS` for Rare's added MIDI control-change codes), `n_syngetfxref`,
 `n_synsetvol`, `n_synstartvoiceparam`, `n_synaddplayer`,
-`n_synallocvoice`, `alsurround`, and `n_mainbus`.
+`n_synallocvoice`, `alsurround`, `n_mainbus`, and `n_auxbus`.
 
 `alsurround` also owns a `0x10`-byte `.bss` section at Mickey VRAM
 `0x800D7DC0`: the two linked functions' HI16/LO16 references place its
@@ -520,8 +520,8 @@ Remaining unmatched, roughly by size: `n_synthesizer` (masked=173,
 DSP-heavy, deferred per plan), `n_env` (masked=59),
 `n_event`/`n_drvrNew` (masked=34 each), `n_cseq`
 (masked=15), `n_seqplayer` (masked=14, the 15-function DSP-heavy TU,
-deferred per plan), `n_alLPFilter` (masked=13), `n_auxbus` (masked=7),
-and `n_load` (masked=4, DSP-heavy ADPCM decoder) not yet attempted.
+deferred per plan), `n_alLPFilter` (masked=13), and `n_load` (masked=4,
+DSP-heavy ADPCM decoder) not yet attempted.
 
 ---
 
