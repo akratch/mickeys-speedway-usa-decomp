@@ -439,6 +439,10 @@ In `main/models`, `camConvertMatrixList`, initialization helper
 initialization helper from JFG `models.c`. Their function bytes and relocation
 identities match in the linked ROM.
 
+In `main/vehicle_sounds`, the Mickey-derived handle cleanup loop
+`func_800582A8` (`0x64` bytes) is exact under `-O2 -mips2 -32`; its linked
+function bytes and call relocation match.
+
 ## 4. libultra
 
 ### 4.1 The corridor: ROM `0x6F420`–`0x76D10`

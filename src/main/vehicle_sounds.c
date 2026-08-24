@@ -14,7 +14,33 @@
  * all four functions remain Mickey's generated assembly.
  */
 
+#include "PR/ultratypes.h"
+
+typedef struct VehicleSoundSlot {
+    s32 handle;
+    s32 pad4;
+    f32 value;
+    s32 secondaryHandle;
+} VehicleSoundSlot;
+
+extern VehicleSoundSlot D_800D78B0[4];
+extern s32 D_800D78F0;
+
+void func_800031E8(s32 soundHandle);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/vehicle_sounds/func_80058250.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/vehicle_sounds/func_800582A8.s")
+
+void func_800582A8(void) {
+    VehicleSoundSlot *slot = D_800D78B0, *end = (VehicleSoundSlot *)&D_800D78F0;
+    do {
+        if (slot->handle != 0) {
+            func_800031E8(slot->handle);
+        }
+        if (slot->secondaryHandle != 0) {
+            slot->secondaryHandle = 0;
+        }
+        slot++;
+    } while (slot != end);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/vehicle_sounds/func_8005830C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/vehicle_sounds/func_80058EF4.s")
