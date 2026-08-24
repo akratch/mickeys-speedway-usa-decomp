@@ -444,6 +444,11 @@ JFG calls the equivalent accessor `viGetTrippleBuffer`, but no same-address
 Mickey caller pins that public name and the body is below the tier-A threshold,
 so it remains an address label.
 
+`func_80033FE0` is likewise canonical C at three words with an exact
+HI16/LO16 pair. JFG calls the store-only helper `viNoClear`, but no
+same-address Mickey caller pins that public name and the body is below the
+tier-A threshold, so the address label remains canonical.
+
 ---
 
 ## 4. libultra

@@ -1485,6 +1485,9 @@ func_80033FB8 = 0x80033FB8; // type:func size:0xC ROM 0x34bb8 canonical C, linke
 // tier B (JFG): after setting a requested buffer mode, the front-end branches
 // to viChangeMode exactly when this current/requested comparison returns true.
 viChangeBuffers = 0x80033FC4; // type:func size:0x1C ROM 0x34bc4 canonical C, linked byte-identical
+// Canonical C, but JFG's viNoClear name has no same-address Mickey caller
+// evidence and the three-word body is below the tier-A threshold.
+func_80033FE0 = 0x80033FE0; // type:func size:0xC ROM 0x34be0 canonical C, linked byte-identical
 viDisplayingScreen0 = 0x80033FEC; // type:func size:0x2C   ROM 0x34bec  src/gameVi.c.o  masked=4/11, canonical C is linked byte-identical
 func_80034018 = 0x80034018; // type:func size:0x7C   ROM 0x34c18  src/gameVi.c.o  masked=3/31
 fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12, canonical C is linked byte-identical

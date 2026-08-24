@@ -26,6 +26,7 @@ extern u8 D_8007A1A0;
 extern s32 *D_800D2FA8;
 extern s8 D_800D2F95;
 extern s8 D_800D2F96;
+extern s8 D_800D2F97;
 extern s8 D_800D2F98;
 extern s8 D_800D2F9A;
 extern u8 D_800D2F9B;
@@ -105,7 +106,15 @@ s32 viChangeBuffers(void) {
     return D_800D2F95 != D_800D2F96;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_80033FE0.s")
+/*
+ * PROVENANCE: adapted from JFG's public decomp, src/gameVi.c, where this is
+ * viNoClear. No same-address Mickey caller pins that public name, so the
+ * canonical function retains its address label.
+ */
+void func_80033FE0(void) {
+    D_800D2F97 = 0;
+}
+
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c. */
 s32 viDisplayingScreen0(void) {
     if (D_8007A690[0] == D_800D2FA8) {
