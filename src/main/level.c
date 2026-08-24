@@ -26,6 +26,12 @@ typedef struct LevelSummary {
 
 extern LevelSummary *D_800CF3DC;
 extern s32 mainGetNumberOfCameras(void);
+extern void func_80000510(u8);
+extern void func_80000730(void);
+extern void func_80000B48(u16);
+extern void func_80000C38(void);
+extern void func_80000CEC(void);
+extern u8 func_80000D54(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelGetCounts.s")
 
@@ -91,7 +97,19 @@ u32 levelGetGfxIndex(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelInit.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelTunePlay.s")
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+void levelTunePlay(void) {
+    if (D_800CF3C8[0x8E] != 0) {
+        if (D_800CF3C8[0x8E] != func_80000D54()) {
+            func_80000C38();
+            func_80000510(D_800CF3C8[0x8E]);
+            func_80000730();
+            func_80000B48(*(u16 *) &D_800CF3C8[0x90]);
+        }
+    } else {
+        func_80000CEC();
+    }
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelUpdateColourCycling.s")
 
