@@ -1009,6 +1009,18 @@ TEXT_SUBSEGMENTS = {
     ],
 }
 
+# A consolidated C object can contain both untouched, byte-exact C functions
+# and GLOBAL_ASM fallbacks. `is_nonmatching_source()` intentionally remains a
+# conservative object-level signal, while these reviewed ranges retain the
+# finer pre-consolidation evidence needed by the byte-weighted scoreboard.
+# Each range was an independently compiled, metadata-only object before its
+# overlay was consolidated and remains byte-identical in the linked ROM.
+MIXED_TU_EXACT_C_RANGES = {
+    12: [
+        (0x000, 0x0C4, "overlay12Initialize"),
+    ],
+}
+
 
 def hx(value):
     """Stable hexadecimal rendering for reviewable address/size fields."""
@@ -1026,6 +1038,45 @@ def counter_dict(counter, names=None):
 
 def range_row(start, end):
     return {"start": hx(start), "end": hx(end), "size": hx(end - start)}
+
+
+def mixed_tu_exact_c_rows(overlay, ownership):
+    """Reviewed exact-C subranges inside a source-level NON_MATCHING row.
+
+    The broad ownership row remains the real splat/build subsegment. These
+    rows affect matching status only; they never emit a second copy of the C
+    object into the YAML or linker layout.
+    """
+    rows = []
+    previous_end = -1
+    for start, end, label in MIXED_TU_EXACT_C_RANGES.get(overlay, []):
+        if start < previous_end or start >= end:
+            raise ValueError(f"invalid overlay {overlay} mixed-TU exact range")
+        containers = [
+            part
+            for part in ownership
+            if part["type"] == "c"
+            and part["nonmatching"]
+            and int(part["offset"], 16) <= start
+            and end <= int(part["end_offset"], 16)
+        ]
+        if len(containers) != 1:
+            raise ValueError(
+                f"overlay {overlay} exact range {hx(start)}..{hx(end)} "
+                "is not inside exactly one mixed C ownership row"
+            )
+        rows.append(
+            {
+                "offset": hx(start),
+                "end_offset": hx(end),
+                "size": hx(end - start),
+                "label": label,
+                "source": containers[0]["source"],
+                "evidence": "pre-consolidation metadata-only object; linked bytes exact",
+            }
+        )
+        previous_end = end
+    return rows
 
 
 def priority_score(module, main_inbound, cross_inbound, export_count, record_count):
@@ -1174,6 +1225,7 @@ def build_atlas(rom):
                     "nonmatching": nonmatching,
                 }
             )
+        mixed_exact_c = mixed_tu_exact_c_rows(overlay, ownership)
         row = {
             "overlay": overlay,
             "identity": f"overlay:{overlay}",
@@ -1223,6 +1275,8 @@ def build_atlas(rom):
                 "exact_donor_match": EXACT_DONOR_OVERLAYS.get(overlay),
             },
         }
+        if mixed_exact_c:
+            row["mixed_tu_exact_c_ranges"] = mixed_exact_c
         module_rows.append(row)
 
     ranked = sorted(
@@ -1275,12 +1329,22 @@ def build_atlas(rom):
                 for row in module_rows
                 for part in row["text_ownership"]
                 if part["matched"] and not part["nonmatching"]
+            )
+            + sum(
+                int(part["size"], 16)
+                for row in module_rows
+                for part in row.get("mixed_tu_exact_c_ranges", [])
             ),
             "nonmatching_overlay_c_bytes": sum(
                 int(part["size"], 16)
                 for row in module_rows
                 for part in row["text_ownership"]
                 if part["matched"] and part["nonmatching"]
+            )
+            - sum(
+                int(part["size"], 16)
+                for row in module_rows
+                for part in row.get("mixed_tu_exact_c_ranges", [])
             ),
             "data_rodata_bytes": sum(m["data_size"] for m in modules),
             "bss_bytes": sum(m["bss_size"] for m in modules),
