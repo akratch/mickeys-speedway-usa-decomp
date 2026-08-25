@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Smoke-tests that every tool this project depends on actually starts, and
-# prints its version. Doesn't build anything or touch the ROM; safe to run
-# any time. See docs/tools.md for what each one is for.
+# prints its version. Doesn't build anything or modify the ROM; when a build
+# and baserom are already present it also reads one range for the wb_compare
+# integration smoke check. See docs/tools.md for what each one is for.
 #
 #   ./tools/check_tools.sh
 set -u
@@ -51,6 +52,16 @@ if [ -x tools/binutils/mips64-elf-objdump ]; then
     check "mips64-elf-objdump" tools/binutils/mips64-elf-objdump --version
 else
     echo "mips64-elf-objdump     SKIP (gitignored, fetched by tools/setup_toolchain.sh)"
+fi
+
+if [ -x .venv/bin/decomp-workbench ] \
+    && [ -f baseroms/mickey.us.z64 ] \
+    && [ -f build/mickey.us.elf ] \
+    && [ -f build/mickey.us.z64 ]; then
+    check "wb_compare --rom" tools/wb_compare.sh --rom \
+        overlay14UpdateTransition --fail-on-mismatch
+else
+    echo "wb_compare --rom       SKIP (needs workbench, baserom, and an existing build)"
 fi
 
 exit $fail

@@ -190,6 +190,14 @@ objdiff-cli (skipped if not fetched), and the gitignored IDO/binutils
 binaries (skipped if `gmake setup` hasn't run). Exits nonzero if anything
 that *is* present fails to start.
 
+When the workbench, baserom, and an existing build are present, the smoke test
+also runs `tools/wb_compare.sh --rom` on a matched overlay function; the
+wrapper maps resident and overlay symbols to ROM offsets from their ELF
+section VMA/LMA pairs and writes its retained dumps only under ignored
+`build/wb/`. The default candidate is `build/`; set `WB_ROM_BUILD_DIR` to an
+alternate build directory to compare a linked `NON_MATCHING=1` diagnostic ROM
+without replacing the verified build tree.
+
 ## Map: the rest of the toolbox
 
 The tools above (decomp-permuter, objdiff, mapfile_parser, check_tools.sh)
