@@ -33,10 +33,13 @@ extern u16 D_800CF3A0[];
 extern u16 D_800CF3A8[];
 typedef u8 JoyControllerMap[4];
 
-extern JoyControllerMap D_800CF3B0;
-extern u8 D_800CF3B4[];
-extern u8 D_800CF3B8[];
-extern s32 D_800CF3BC;
+JoyControllerMap D_800CF3B0;
+u8 D_800CF3B4[1];
+u8 D_800CF3B5;
+u8 D_800CF3B6;
+u8 D_800CF3B7;
+u8 D_800CF3B8[4];
+s32 D_800CF3BC;
 extern s32 func_8003A550(void);
 extern void TrapDanglingJump();
 extern s32 osContInit(OSMesgQueue *, u8 *, OSContStatus *);
@@ -219,21 +222,16 @@ s32 joyRead(s32 saveDataFlags, s32 updateRate) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyRead.s")
 #endif
 
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive.
- * Plateau: fixed stores improve to 10/9 words, first +0x0; the external map
- * needs an extra base materialization that the original TU-local BSS did not.
  */
 void joyResetMap(void) {
-    D_800CF3B0[0] = 0;
-    D_800CF3B0[1] = 1;
-    D_800CF3B0[2] = 2;
-    D_800CF3B0[3] = 3;
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        D_800CF3B0[i] = i;
+    }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyResetMap.s")
-#endif
 
 /* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
 void joyDisable(s32 player) {

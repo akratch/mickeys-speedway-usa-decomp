@@ -2257,11 +2257,11 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Ninety-five functions / 8,808 bytes compile exactly
+**Matching progress.** Ninety-six functions / 8,844 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
-- `main/joy` (16 / 996 bytes): `joyMessageQ`, `joyDisable`, `joyEnable`,
+- `main/joy` (17 / 1,032 bytes): `joyMessageQ`, `joyResetMap`, `joyDisable`, `joyEnable`,
   `joyCreateMap`, `joyGetController`, `joyGetButtons`, `joyGetPressed`,
   `joyGetReleased`, `joyGetStickX`, `joyGetAbsX`, `joyGetStickY`, `joyGetAbsY`,
   `joyClamp`, `joySetSecurity`, `arithmeticFunction`, and `joyCharVal`.
@@ -2392,9 +2392,6 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   allocation divergence (`$a2` rather than `$a3`). The permuter improved its
   MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
   canonical MIPS II recompilation added two instructions, so it was rejected.
-- `joyResetMap`: fixed external-map stores improve to 10/9 words, first `+0x0`.
-  IDO materializes one extra map base; original TU-local BSS uses `$at`
-  directly, while defining it here would invalidly claim 16 B of BSS.
 - `func_80028FCC`: exact 108-byte/27-word body, ten words differ, first `+0x1c`.
   Fresh m2c-local, OR-chain and common-epilogue spellings all canonicalize to
   25 words, so the prior raw-return candidate remains best.

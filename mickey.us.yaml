@@ -659,6 +659,10 @@ segments:
       - [0x85700, rodata]
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }
+      # The joy controller-state globals own this contiguous BSS block; the
+      # reset loop only recovers the target address materialization here.
+      - { type: .bss, vram: 0x800CF3B0, name: main/joy }
+      - { type: bss, vram: 0x800CF3C0, name: bss_gap_D800CF3C0 }
       - { type: .bss, vram: 0x800D7D80, name: libultra/n_csplayer }
       # Mickey's alSurround loads/stores place the four donor-named globals at
       # 0x800D7DC0-0x800D7DCB; IDO pads the owning .bss section to 0x10 bytes.
