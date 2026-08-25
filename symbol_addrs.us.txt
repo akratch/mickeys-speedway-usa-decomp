@@ -2033,6 +2033,7 @@ func_800030CC = 0x800030CC; // type:func size:0xF4 ROM 0x3ccc tier-B (JFG amSndP
 func_800031C0 = 0x800031C0; // type:func size:0x28 ROM 0x3dc0 tier-B (JFG amSndSetXYZ body/order, external Mickey placeholder retained)
 func_800031E8 = 0x800031E8; // type:func size:0x68 ROM 0x3de8 tier-B (JFG amSndStopXYZ body/order, external Mickey placeholder retained)
 amSndUnlinkHandleXYZ = 0x80003250; // type:func size:0x4C ROM 0x3e50 tier-B (JFG name/order, Mickey-only body)
+func_8000329C = 0x8000329C; // type:func size:0x114 ROM 0x3e9c tier-B matched C (JFG audio-point constructor role/order, Mickey-only body)
 func_800038EC = 0x800038EC; // type:func size:0xF8 ROM 0x44ec tier-B matched C (JFG volume-query role/order, Mickey-only body)
 
 // ---------------------------------------------------------------------------

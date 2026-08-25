@@ -72,9 +72,11 @@ extern AudioSoundData *D_800C91E0;
 extern AudioPoint **D_800C91E4;
 extern AudioPoint *D_800C91E8;
 extern AudioPoint **D_800C91F0;
+extern u8 D_800C91EC;
 extern s8 D_800C91F4;
 extern MtxF D_800C91F8;
 extern u16 D_80078F00;
+extern s32 D_80078F14;
 extern f32 D_80080B58;
 void amAmbientStop(void);
 void amSndPlayDirect(u16 soundId, u8 volume, u8 pan, f32 pitch, u8 effects,
@@ -98,7 +100,7 @@ s32 func_8001398C(f32 x, f32 z, s32 range,
                   AudioEchoSurface ***surfaces);
 s32 amCalcSfxStereo(f32 x, f32 y, f32 z);
 void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5, u8 volume, u16 distance, u8 arg8,
-                   u8 pitch, u8 argA, u8 argB, AudioPoint **point);
+                   u8 pitch, u8 argA, s32 argB, AudioPoint **point);
 void func_800037C4(s32 index);
 u8 func_800033B0(void *sound, f32 x, f32 y, f32 z);
 void func_80003480(AudioPoint *point, s32 volume, f32 pitch, s32 pan,
@@ -407,7 +409,46 @@ void amSndUnlinkHandleXYZ(AudioPoint *point) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_8000329C.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * amCreateAudioPoint; body and pool layout use Mickey-only evidence.
+ */
+void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5,
+                   u8 volume, u16 distance, u8 arg8, u8 pitch, u8 argA,
+                   s32 argB, AudioPoint **pointHandle) {
+    AudioPoint *point;
+
+    if (D_80078F14 < D_80078F00) {
+        D_80078F14 = D_80078F00;
+    }
+    if (D_80078F00 == 40) {
+        if (pointHandle != NULL) {
+            *pointHandle = NULL;
+        }
+        return;
+    }
+    point = D_800C91F0[D_800C91EC];
+    D_800C91EC--;
+    point->x = x;
+    point->y = y;
+    point->z = z;
+    point->soundId = soundId;
+    point->flags = arg4;
+    point->minVolume = arg5;
+    point->volume = volume;
+    point->pitch = pitch;
+    point->range = distance;
+    point->fastFalloff = arg8;
+    point->priority = argA;
+    point->triggeredOnce = 0;
+    point->unk23 = argB;
+    point->handle = pointHandle;
+    D_800C91E4[D_80078F00] = point;
+    D_80078F00++;
+    if (pointHandle != NULL) {
+        *pointHandle = point;
+    }
+}
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
