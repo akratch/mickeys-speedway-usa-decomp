@@ -1294,6 +1294,7 @@ segments:
     subsegments:
       - [0x187A3F8, c, overlay26InitializeObject]
       - [0x187A598, asm, overlay_026_head]
+      - [0x187AF10, c, func_overlay_026_F0000B18_187AF10]
       - [0x187B11C, c, overlay26HandleEffects]
       - [0x187B550, c, overlay26DrawGroups]
       - [0x187B768, bin, overlay_026_data_rodata]
@@ -1707,7 +1708,7 @@ segments:
       - [0x188E518, c, overlay46UpdateSequence]
       - [0x188EA0C, c, overlay46ReleaseState]
       - [0x188EA94, c, overlay46InitializeParticles]
-      - [0x188EC6C, asm, overlay_046_prefix1]
+      - [0x188EC6C, c, func_overlay_046_F0000874_188EC6C]
       - [0x188F374, c, overlay46InitState]
       - [0x188F3C8, c, overlay46UpdateTransition]
       - [0x188F524, c, overlay46Submit]
@@ -1964,7 +1965,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x18AF1E8, asm, overlay_058_prefix]
+      - [0x18AF1E8, c, func_overlay_058_F0000000_18AF1E8]
       - [0x18AF7A8, c, overlay58ReleaseResources]
       - [0x18AF7E4, asm, overlay_058_middle]
       - [0x18B04D8, c, overlay58SetNodeValue]

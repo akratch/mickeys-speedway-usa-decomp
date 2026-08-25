@@ -797,7 +797,7 @@ TEXT_SUBSEGMENTS = {
         (0x69B0, "c", "overlay57UpdateNode"),
     ],
     58: [
-        (0x000, "asm", "overlay_058_prefix"),
+        (0x000, "c", "func_overlay_058_F0000000_18AF1E8"),
         (0x5C0, "c", "overlay58ReleaseResources"),
         (0x5FC, "asm", "overlay_058_middle"),
         (0x12F0, "c", "overlay58SetNodeValue"),
@@ -873,6 +873,7 @@ TEXT_SUBSEGMENTS = {
     26: [
         (0x000, "c", "overlay26InitializeObject"),
         (0x1A0, "asm", "overlay_026_head"),
+        (0xB18, "c", "func_overlay_026_F0000B18_187AF10"),
         (0xD24, "c", "overlay26HandleEffects"),
         (0x1158, "c", "overlay26DrawGroups"),
     ],
@@ -921,7 +922,7 @@ TEXT_SUBSEGMENTS = {
         (0x120, "c", "overlay46UpdateSequence"),
         (0x614, "c", "overlay46ReleaseState"),
         (0x69C, "c", "overlay46InitializeParticles"),
-        (0x874, "asm", "overlay_046_prefix1"),
+        (0x874, "c", "func_overlay_046_F0000874_188EC6C"),
         (0xF7C, "c", "overlay46InitState"),
         (0xFD0, "c", "overlay46UpdateTransition"),
         (0x112C, "c", "overlay46Submit"),

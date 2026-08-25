@@ -1902,6 +1902,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeParticles.c.o: POSTPROC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeBuffers.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeBuffers.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o046/func_overlay_046_F0000874_188EC6C.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o046/func_overlay_046_F0000874_188EC6C.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x708
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46UpdateTransition.c.o: \
 	$(TOOLS_DIR)/filter_elf_relocations.py \
 	$(TOOLS_DIR)/trim_elf_section.py
@@ -2493,6 +2496,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57StartMode.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x98
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58EnsureResource.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F0000000_18AF1E8.c.o: CFLAGS += -Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F0000000_18AF1E8.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5C0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawSegmentStrip.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_058_F0004C04_18B3DEC=overlay58DrawSegmentStrip $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324
@@ -2789,6 +2795,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26HandleEffects.c.o: CFLAGS += -Wab
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26HandleEffects.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x434
 
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F0000B18_187AF10.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F0000B18_187AF10.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20C
+
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26DrawGroups.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x218
 
@@ -2937,6 +2947,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46ReleaseState.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46Submit.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeBuffers.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/func_overlay_046_F0000874_188EC6C.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65Initialize.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65UpdateParticles.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65Release.c.o \
@@ -3057,7 +3068,8 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawSegmentStrip.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawPointQuad.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawLargePointQuad.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58FinalizePackedStatus.c.o
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58FinalizePackedStatus.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F0000000_18AF1E8.c.o
 OVERLAY_TRIMMED_OBJECTS += \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17CalculateEndpoints.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17ReleaseChain.c.o \
@@ -3156,6 +3168,8 @@ OVERLAY_TRIMMED_OBJECTS += \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay_049.c.o
 OVERLAY_TRIMMED_OBJECTS += \
 	$(O28_MERGED_OBJ)
+OVERLAY_TRIMMED_OBJECTS += \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F0000B18_187AF10.c.o
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35SelectHeight.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35BuildGridMasks.c.o
