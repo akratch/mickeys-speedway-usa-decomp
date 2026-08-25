@@ -20,7 +20,16 @@ extern void func_overlay_017_F0000000_18739B8(Overlay17Chain *chain,
                                                f32 *x0, f32 *y0, f32 *z0,
                                                f32 *x1, f32 *y1, f32 *z1);
 
-/* Pinned DKR v77/v80 and JFG scans found no matching chain-update body. */
+/*
+ * Plateau (2026-08-25): the natural -O2 -mips2 candidate has the exact
+ * 147-instruction boundary and is byte-identical from +0x104 onward, but 51
+ * normalized words differ beginning at +0x18 in the pre-call buffer-copy
+ * schedule and its private allocation web. The flag lattice was neutral;
+ * register-qualified and reordered local declarations either produced the
+ * same code or moved the six endpoint homes away from their exact offsets.
+ * The nearest masked skeleton scored 0.062, and pinned DKR v77/v80 and JFG
+ * scans found no matching chain-update body.
+ */
 #ifdef NON_MATCHING
 void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
     u8 *writeCursor;
