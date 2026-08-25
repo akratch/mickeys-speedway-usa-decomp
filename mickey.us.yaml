@@ -1942,7 +1942,7 @@ segments:
       - [0x18A7BCC, c, overlay57BeginMode]
       - [0x18A7C5C, c, overlay57HandleModeInput]
       - [0x18A7FC0, c, overlay57StartMode]
-      - [0x18A8058, asm, overlay_057_middle_c]
+      - [0x18A8058, c, func_overlay_057_F0004460_18A8058]
       - [0x18A8810, c, overlay57UpdateModeTrigger]
       - [0x18A8988, c, overlay57InitializeMode]
       - [0x18A8A10, asm, overlay_057_middle_b]
