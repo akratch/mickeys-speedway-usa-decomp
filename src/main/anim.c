@@ -29,6 +29,7 @@ extern s16 D_800D6C4C;
 extern s16 D_800D6C52;
 extern s16 D_800D6C54;
 extern f32 D_8007D6B4;
+extern f32 D_80084218;
 
 typedef struct AnimCameraSource {
     s16 unk0;
@@ -694,7 +695,57 @@ void func_80056274(HitCopyState *first, HitCopyState *second, f32 unused) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800563B4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
+#ifdef NON_MATCHING
+/*
+ * JFG's hitGetInelasticVelocity is structurally unrelated to this reflection
+ * helper. Plateau: exact 80-instruction size/frame and HI/LO relocation; the
+ * best bounded-permuter candidate leaves 18 FP schedule words, first +0x54.
+ */
+void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
+                   f32 timeStep) {
+    HitCopyTarget *target;
+    HitCopySource *source;
+    f32 velocityX;
+    f32 velocityY;
+    f32 normalXProduct;
+    f32 velocityZ;
+    f32 doubled;
+    f32 highPad0;
+    f32 highPad1;
+    volatile f32 bounce;
+    f32 lowPad;
+
+    target = state->target;
+    velocityX = state->velocity.x / target->unk4;
+    velocityY = state->velocity.y / target->unk4;
+    velocityZ = state->velocity.z / target->unk4;
+    source = state->source;
+    if (!target->unk0) {
+        target->unk0 = 1;
+    }
+    target->unk4 *= D_80084218;
+
+    doubled = -((normal->z * velocityZ) +
+                ((velocityX * normal->x) + (velocityY * normal->y)));
+    bounce = doubled;
+    doubled = bounce;
+    doubled += doubled;
+    normalXProduct = normal->x * doubled;
+    bounce = doubled;
+    state->velocity.x = (normalXProduct + velocityX) * target->unk4;
+    state->velocity.y = ((normal->y * bounce) + velocityY) * target->unk4;
+    state->velocity.z = ((normal->z * bounce) + velocityZ) * target->unk4;
+
+    state->position.x = source->current.x;
+    state->position.y = source->current.y;
+    state->position.z = source->current.z;
+    source->previous.x = source->current.x + (state->velocity.x * timeStep);
+    source->previous.y = source->current.y + (state->velocity.y * timeStep);
+    source->previous.z = source->current.z + (state->velocity.z * timeStep);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005716C.s")
+#endif
 void func_800572AC(HitCopyState *state, void *unused, AnimVec3f *position,
                    f32 unusedFloat) {
     f32 currentX;

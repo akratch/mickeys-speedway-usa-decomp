@@ -99,7 +99,10 @@ typedef struct HitCopySource {
 } HitCopySource;
 
 typedef struct HitCopyTarget {
-    u8 pad0[0x14];
+    s8 unk0;
+    u8 pad1[3];
+    f32 unk4;
+    u8 pad8[0xC];
     f32 unk14;
     f32 unk18;
     f32 unk1C;
@@ -110,7 +113,9 @@ typedef struct HitCopyTarget {
 typedef struct HitCopyState {
     u8 pad0[0xC];
     AnimVec3f position;
-    u8 pad18[0x30];
+    u8 pad18[4];
+    AnimVec3f velocity;
+    u8 pad28[0x20];
     HitCopySource *source;
     u8 pad4C[0x18];
     HitCopyTarget *target;

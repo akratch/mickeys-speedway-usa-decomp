@@ -1486,7 +1486,7 @@ placeholders are never imported.
 | `0x80056274` | `0x140` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 320 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; the Mickey-led declaration order fixes the two target-pointer spill homes without importing a donor body |
 | `0x800563B4` | `0xA24` | `hitVectorCheck` | B; vector/cylinder/sphere-style callee pattern |
 | `0x80056DD8` | `0x394` | no unique `hit.c` candidate | D; collision/vector shape |
-| `0x8005716C` | `0x140` | `hitGetInelasticVelocity` | D; nearest named leaf shape |
+| `0x8005716C` | `0x140` | no unique `hit.c` candidate | D; the prior JFG `hitGetInelasticVelocity` suggestion is structurally unrelated. Plateau after 10 source/type shapes and a bounded canonical-flag permuter run: best candidate is exact-size at 80 instructions with the target's 0x28 frame and HI/LO relocation, 18 FP register/schedule words remain, first mismatch `+0x54` |
 | `0x800572AC` | `0xA4` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 164 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80057350` | `0x78` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800573C8` | `0x3A4` | no unique `hit.c` candidate | D; collision/vector shape |
