@@ -1561,6 +1561,7 @@ the still-unnamed `func_8002E020` (ROM `0x2EC20`–`0x2ECA0`, 128 bytes),
 `piRomGetFileSize` (ROM `0x2EFA4`–`0x2EFE0`, 60 bytes),
 `romCopy` (ROM `0x2EFE0`–`0x2F0D0`, 240 bytes),
 `screenLoad` (ROM `0x2F0D0`–`0x2F1D4`, 260 bytes),
+`screenDraw` (ROM `0x2F1D4`–`0x2F3FC`, 552 bytes),
 `rcpWaitDP` (ROM `0x2F6A0`–`0x2F76C`, 204 bytes),
 `rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes),
 `bgdraw_fillcolour` (ROM `0x2F794`–`0x2F7D4`, 64 bytes), and the still-
