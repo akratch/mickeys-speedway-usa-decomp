@@ -418,7 +418,6 @@ SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030610.s")
 #endif
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:func_8004FF64_50B64, with Mickey's extracted trace helper. */
 SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
@@ -469,9 +468,8 @@ SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
     }
 
     startAddress = (u32) displayList - 0x140;
-    if (startAddress < 0x80000000U) {
-        startAddress =
-            (u32) ((s32) startAddress + (s32) 0x80000000U);
+    if ((void *) startAddress < (void *) 0x80000000) {
+        startAddress += 0x80000000U;
     }
     if ((s32) startAddress < (s32) task->t.data_ptr) {
         startAddress = (u32) task->t.data_ptr;
@@ -479,9 +477,6 @@ SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
     diRcpPrintDL((SchedGfx *) startAddress, displayList, 0x50);
     return displayList;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030910.s")
-#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scHandleRetrace. */
 void __scHandleRetrace(OSSched *sc) {
