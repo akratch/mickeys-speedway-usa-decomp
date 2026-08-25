@@ -25,6 +25,8 @@ typedef struct ParticleConfig {
     s16 value22;
     s16 value24;
     s16 value26;
+    u8 pad28[0x18];
+    s16 value40;
 } ParticleConfig;
 
 typedef struct ParticleTrigger {
@@ -82,6 +84,8 @@ typedef struct ParticleObject {
     ParticleObjectHeader *header;
     u8 pad44[0x28];
     ParticleTriggerSlot *triggers;
+    u8 pad70[0x10];
+    u32 triggerBits;
 } ParticleObject;
 
 typedef struct ParticleResourceEntry {
@@ -261,6 +265,7 @@ void func_80041040(ParticleLineEntry *particle, s32 updateRate);
 void func_80041388(ParticleModelEntry *particle, s32 updateRate);
 void func_8003EC8C(ParticleObject *object, s32 index);
 void func_8003E7B8(ParticleObject *object, s32 index);
+void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger);
 s8 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger);
 s32 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config);
 void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
@@ -545,7 +550,65 @@ void func_8003EDD4(f32 value) {
 void func_8003EDE0(f32 value) {
     D_8007C8F4 = value;
 }
+#ifdef NON_MATCHING
+/*
+ * Instruction-count and opcode-exact plateau: six register-only words differ,
+ * first at +0xE4, from one late pointer-color choice and the final commutative
+ * loop comparison.
+ * PROVENANCE: body adapted from JFG src/particles.c:partUpdateTriggers.
+ */
+void partUpdateTriggers(ParticleObject *object, s32 updateRate) {
+    ParticleTriggerSlot *base;
+    s32 offset;
+    s32 i;
+    s32 flags;
+    s8 count;
+    u32 triggerBits;
+    ParticleTriggerSlot *trigger;
+
+    count = object->header->triggerCount;
+    i = 0;
+    triggerBits = object->triggerBits;
+    offset = 0;
+    if (count > 0) {
+        do {
+            trigger = (ParticleTriggerSlot *)((u8 *)object->triggers + offset);
+            if (triggerBits & 1) {
+                flags = trigger->flags;
+                if (!(flags & 0x8000)) {
+                    func_8003E7B8(object, i);
+                    trigger = (ParticleTriggerSlot *)((u8 *)object->triggers + offset);
+                    flags = trigger->flags;
+                }
+                if (flags & 0x4000) {
+                    trigger->unk0C += updateRate;
+                    func_8003EF80(object, (ParticleTriggerSlot *)((u8 *)object->triggers + offset));
+                } else if (flags & 0x400) {
+                    trigger->unk0C += updateRate;
+                    func_8003EF80(object, (ParticleTriggerSlot *)((u8 *)object->triggers + offset));
+                } else {
+                    trigger->unk0C += updateRate;
+                    base = object->triggers;
+                    trigger = (ParticleTriggerSlot *)((u8 *)base + offset);
+                    if (trigger->unk0C >= trigger->config->value40) {
+                        func_8003EF80(object, (ParticleTriggerSlot *)((u8 *)object->triggers + offset));
+                    }
+                }
+            } else if (trigger->flags & 0x8000) {
+                func_8003EC8C(object, i);
+            }
+            i++;
+            offset += sizeof(ParticleTriggerSlot);
+            triggerBits >>= 1;
+        } while (i != count);
+    }
+    D_8007C8F0 = 0.0f;
+    D_8007C8F4 = 255.0f;
+    D_8007C8F8 = 1.0f;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateTriggers.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EF80.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F154.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F5F8.s")
