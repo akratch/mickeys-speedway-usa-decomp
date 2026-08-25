@@ -136,7 +136,9 @@ void func_8002CD6C(void);
 void func_80058010(void);
 void func_800581BC(void);
 void mainPreNMI(void);
+char *font_codes_to_string(u8 *inString, char *outString, s32 stringLength);
 char *string_to_font_codes(char *inString, char *outString, s32 stringLength);
+s32 func_8002E020(s32 controllerIndex, s32 fileNum);
 
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/saves.c:func_8004B070_4BC70. */
 s32 func_8002BCC0(void) {
@@ -691,7 +693,67 @@ void func_8002CF6C(u8 *globalFlags) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CF6C.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packOpen.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packOpen, with Mickey's globals and status values. */
+s32 packOpen(s32 controllerIndex) {
+    OSMesg unusedMessage;
+    s32 ret;
+    s32 bytesNotUsed;
+    s32 i;
+
+    if (D_800D21C0->validCount == 0) {
+        if (osMotorInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                        controllerIndex) == 0) {
+            return 8;
+        }
+    }
+
+    i = 0;
+    while (D_800D21C0->validCount != 0 && i < 10) {
+        osRecvMesg(D_800D21C0, &unusedMessage, OS_MESG_NOBLOCK);
+        i++;
+    }
+
+    for (i = 0; i <= 4; i++) {
+        ret = osPfsFreeBlocks(&D_800D21C8[controllerIndex], &bytesNotUsed);
+        if (ret == PFS_ERR_INVALID) {
+            ret = osPfsInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                            controllerIndex);
+        }
+        if (ret == PFS_ERR_ID_FATAL) {
+            if (osMotorInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                            controllerIndex) == 0) {
+                return 8;
+            }
+        }
+        if (ret == PFS_ERR_NEW_PACK) {
+            if (osPfsInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                          controllerIndex) == PFS_ERR_ID_FATAL &&
+                osMotorInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                            controllerIndex) == 0) {
+                return 8;
+            }
+            return 5;
+        }
+        if (ret == PFS_ERR_NOPACK || ret == PFS_ERR_DEVICE) {
+            return 1;
+        }
+        if (ret == PFS_ERR_BAD_DATA) {
+            return 6;
+        }
+        if (ret == PFS_ERR_ID_FATAL) {
+            return 3;
+        }
+        if (ret == PFS_ERR_INCONSISTENT) {
+            return 2;
+        }
+        if (ret == 0) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packClose. */
 s32 packClose(s32 controllerIndex) {
     osContStartReadData(D_800D21C0);
@@ -771,7 +833,95 @@ s32 packIsPresent(s32 controllerIndex) {
     }
     return ret;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packDirectory.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packDirectory, with Mickey's globals, status values, and file
+ * classifier. */
+s32 packDirectory(s32 controllerIndex, s32 maxNumOfFilesToGet,
+                  char **fileNames, char **fileExtensions, u32 *fileSizes,
+                  u8 *fileTypes) {
+    OSPfsState state;
+    s32 ret;
+    s32 maxNumOfFilesOnCpak;
+    s32 filesUsed;
+    s8 *directory;
+    s32 i;
+    u32 gameCode;
+
+    ret = packOpen(controllerIndex);
+    if (ret != 0) {
+        packClose(controllerIndex);
+        return ret;
+    }
+
+    if (osPfsNumFiles(&D_800D21C8[controllerIndex],
+                      &maxNumOfFilesOnCpak, &filesUsed) != 0) {
+        packClose(controllerIndex);
+        return 6;
+    }
+
+    if (frontGetLanguage() == 5) {
+        gameCode = 0x4E44594A;
+    } else if (osTvType == 0) {
+        gameCode = 0x4E445950;
+    } else {
+        gameCode = 0x4E445945;
+    }
+
+    if (maxNumOfFilesToGet < maxNumOfFilesOnCpak) {
+        maxNumOfFilesOnCpak = maxNumOfFilesToGet;
+    }
+
+    if (D_8007A280 != NULL) {
+        mmFree(D_8007A280);
+    }
+
+    filesUsed = maxNumOfFilesOnCpak * 24;
+    D_8007A280 = func_8002B280(filesUsed, 0xFF);
+    _bzero(D_8007A280, filesUsed);
+    directory = D_8007A280;
+
+    for (i = 0; i < maxNumOfFilesOnCpak; i++) {
+        fileNames[i] = (char *) directory;
+        directory += 0x12;
+        fileExtensions[i] = (char *) directory;
+        fileSizes[i] = 0;
+        fileTypes[i] = 0xFF;
+        directory += 6;
+    }
+
+    while (i < maxNumOfFilesToGet) {
+        fileExtensions[i] = NULL;
+        fileNames[i] = NULL;
+        fileSizes[i] = 0;
+        fileTypes[i] = 0xFF;
+        i++;
+    }
+
+    for (i = 0; i < maxNumOfFilesOnCpak; i++) {
+        ret = osPfsFileState(&D_800D21C8[controllerIndex], i, &state);
+        if (ret == PFS_ERR_INVALID) {
+            fileNames[i] = NULL;
+            continue;
+        }
+        if (ret != 0) {
+            packClose(controllerIndex);
+            return 6;
+        }
+
+        font_codes_to_string((u8 *) &state.game_name, fileNames[i],
+                             PFS_FILE_NAME_LEN);
+        font_codes_to_string((u8 *) &state.ext_name, fileExtensions[i],
+                             PFS_FILE_EXT_LEN);
+        fileSizes[i] = state.file_size;
+        fileTypes[i] = 1;
+        if (state.game_code == gameCode && state.company_code == 0x3459) {
+            fileTypes[i] = func_8002E020(controllerIndex, i);
+        }
+    }
+
+    packClose(controllerIndex);
+    return 0;
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packDirectoryFree. */
 void packDirectoryFree(void) {
     if (D_8007A280 != NULL) {
@@ -903,7 +1053,86 @@ s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data, s32 dataLength) {
     }
     return 6;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packWriteFile.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packWriteFile, with Mickey's status values and game codes. */
+s32 packWriteFile(s32 controllerIndex, s32 fileNumber, char *fileName,
+                  char *fileExt, u8 *dataToWrite, s32 fileSize) {
+    s32 temp;
+    u8 fileNameAsFontCodes[PFS_FILE_NAME_LEN];
+    s32 pad;
+    u8 fileExtAsFontCodes[PFS_FILE_EXT_LEN];
+    s32 ret;
+    s32 file_number;
+    s32 bytesToSave;
+    u32 gameCode;
+
+    ret = packOpen(controllerIndex);
+    if (ret != 0) {
+        packClose(controllerIndex);
+        return ret;
+    }
+
+    bytesToSave = fileSize;
+    temp = fileSize & 0xFF;
+    if (temp != 0) {
+        bytesToSave = fileSize - temp + 0x100;
+    }
+
+    string_to_font_codes(fileName, (char *) fileNameAsFontCodes,
+                         PFS_FILE_NAME_LEN);
+    string_to_font_codes(fileExt, (char *) fileExtAsFontCodes,
+                         PFS_FILE_EXT_LEN);
+
+    if (frontGetLanguage() == 5) {
+        gameCode = 0x4E44594A;
+    } else if (osTvType == 0) {
+        gameCode = 0x4E445950;
+    } else {
+        gameCode = 0x4E445945;
+    }
+
+    ret = packOpenFile(controllerIndex, fileName, fileExt, &file_number);
+    if (ret == 0) {
+        if (fileNumber != -1 && fileNumber != file_number) {
+            ret = 6;
+        }
+    } else if (ret == 5) {
+        if (fileNumber != -1) {
+            ret = 6;
+        } else {
+            temp = osPfsAllocateFile(&D_800D21C8[controllerIndex], 0x3459,
+                                     gameCode, fileNameAsFontCodes,
+                                     fileExtAsFontCodes, bytesToSave,
+                                     &file_number);
+            if (temp == 0) {
+                ret = 0;
+            } else if (temp == 7 || temp == 8) {
+                ret = 4;
+            } else {
+                ret = 6;
+            }
+        }
+    }
+
+    if (ret == 0) {
+        temp = osPfsReadWriteFile(&D_800D21C8[controllerIndex], file_number,
+                                  PFS_WRITE, 0, bytesToSave, dataToWrite);
+        if (temp == 0) {
+            ret = 0;
+        } else if (temp == PFS_ERR_NOPACK || temp == PFS_ERR_DEVICE) {
+            ret = 1;
+        } else if (temp == PFS_ERR_INCONSISTENT) {
+            ret = 2;
+        } else if (temp == PFS_ERR_ID_FATAL) {
+            ret = 3;
+        } else {
+            ret = 6;
+        }
+    }
+
+    packClose(controllerIndex);
+    return ret;
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:packFileSize. */
 s32 packFileSize(s32 controllerIndex, s32 fileNum, s32 *fileSize) {

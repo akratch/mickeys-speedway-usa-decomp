@@ -487,17 +487,17 @@ packCalculateGlobalFlagsChecksum = 0x8002CE2C; // type:func size:0x28 ROM 0x2da2
 func_8002CE54 = 0x8002CE54; // type:func size:0xB8 ROM 0x2da54 tier-B donor-jfg-src/saves.c role-callgraph+order matched-C
 func_8002CF0C = 0x8002CF0C; // type:func size:0x60 ROM 0x2db0c tier-D boundary-extracted matched-C
 func_8002CF6C = 0x8002CF6C; // type:func size:0x160 ROM 0x2db6c tier-D boundary-extracted
-packOpen = 0x8002D0CC; // type:func size:0x208 ROM 0x2dccc tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packOpen = 0x8002D0CC; // type:func size:0x208 ROM 0x2dccc tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
 packClose = 0x8002D2D4; // type:func size:0x2C ROM 0x2ded4 tier-B donor-jfg-src/saves.c role-callgraph+order matched-C
 packInit = 0x8002D300; // type:func size:0x1CC ROM 0x2df00 tier-B donor-jfg-src/saves.c pfs-callgraph+order
 packIsPresent = 0x8002D4CC; // type:func size:0x5C ROM 0x2e0cc tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
-packDirectory = 0x8002D528; // type:func size:0x2FC ROM 0x2e128 tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packDirectory = 0x8002D528; // type:func size:0x2FC ROM 0x2e128 tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
 packDirectoryFree = 0x8002D824; // type:func size:0x34 ROM 0x2e424 tier-B donor-jfg-src/saves.c role-callgraph+order matched-C
 packFreeSpace = 0x8002D858; // type:func size:0x114 ROM 0x2e458 tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
 packDeleteFile = 0x8002D96C; // type:func size:0xB4 ROM 0x2e56c tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
 packOpenFile = 0x8002DA20; // type:func size:0x12C ROM 0x2e620 tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
 packReadFile = 0x8002DB4C; // type:func size:0xC4 ROM 0x2e74c tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
-packWriteFile = 0x8002DC10; // type:func size:0x240 ROM 0x2e810 tier-B donor-jfg-src/saves.c pfs-callgraph+order
+packWriteFile = 0x8002DC10; // type:func size:0x240 ROM 0x2e810 tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
 packFileSize = 0x8002DE50; // type:func size:0x64 ROM 0x2ea50 tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
 font_codes_to_string = 0x8002DEB4; // type:func size:0xB0 ROM 0x2eab4 tier-B donor-jfg-src/saves.c role+order
 string_to_font_codes = 0x8002DF64; // type:func size:0xBC ROM 0x2eb64 tier-B donor-jfg-src/saves.c role+order
@@ -514,7 +514,7 @@ romCopy = 0x8002E3E0; // type:func size:0xF0 ROM 0x2efe0 tier-B donor-jfg-src/pi
 
 // screen.c -- ROM 0x2F0D0-0x2F400.
 screenLoad = 0x8002E4D0; // type:func size:0x104 ROM 0x2f0d0 tier-B donor-jfg-src/screen.c tu-order matched-C
-screenDraw = 0x8002E5D4; // type:func size:0x228 ROM 0x2f1d4 tier-B donor-jfg-src/screen.c draw-callgraph+order
+screenDraw = 0x8002E5D4; // type:func size:0x228 ROM 0x2f1d4 tier-B donor-jfg-src/screen.c draw-callgraph+order matched-C
 
 // rcpFast3d.c -- ROM 0x2F400-0x30CD0. bgdraw_fillcolour and rcpInit are
 // pre-existing Tier A anchors elsewhere in this file.
@@ -522,9 +522,9 @@ rcpFast3d = 0x8002E800; // type:func size:0x2A0 ROM 0x2f400 tier-B donor-jfg-src
 rcpWaitDP = 0x8002EAA0; // type:func size:0xCC ROM 0x2f6a0 tier-B donor-jfg-src/rcpFast3d.c queue-callgraph+order matched-C
 rcpSetScreenColour = 0x8002EB6C; // type:func size:0x28 ROM 0x2f76c tier-B donor-jfg-src/rcpFast3d.c role-callgraph+order matched-C
 func_8002EBD4 = 0x8002EBD4; // type:func size:0xC ROM 0x2f7d4 tier-A C-object+linked-ROM-exact name-unresolved
-func_8002EBE0 = 0x8002EBE0; // type:func size:0x3FC ROM 0x2f7e0 tier-D boundary-extracted
+func_8002EBE0 = 0x8002EBE0; // type:func size:0x3FC ROM 0x2f7e0 tier-D NON_MATCHING eight-band-gradient plateau
 rcpClearZBuffer = 0x8002EFDC; // type:func size:0x1AC ROM 0x2fbdc tier-B donor-jfg-src/rcpFast3d.c skeleton+order
-rcpClearScreen = 0x8002F188; // type:func size:0x2E0 ROM 0x2fd88 tier-B donor-jfg-src/rcpFast3d.c skeleton+callgraph
+rcpClearScreen = 0x8002F188; // type:func size:0x2E0 ROM 0x2fd88 tier-B donor-jfg-src/rcpFast3d.c skeleton+callgraph matched-C
 rcpInitDp = 0x8002F468; // type:func size:0xB0 ROM 0x30068 tier-B donor-jfg-src/rcpFast3d.c init-callgraph+order matched-C
 rcpInitDpNoSize = 0x8002F518; // type:func size:0x24 ROM 0x30118 tier-B donor-jfg-src/rcpFast3d.c role-callgraph+order matched-C
 rcpInitSp = 0x8002F53C; // type:func size:0x24 ROM 0x3013c tier-B donor-jfg-src/rcpFast3d.c role-callgraph+order matched-C
@@ -540,7 +540,7 @@ osScGetAudioSPStats = 0x80030320; // type:func size:0x18 ROM 0x30f20 tier-B dono
 __scMain = 0x80030338; // type:func size:0x1A8 ROM 0x30f38 tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 func_800304E0 = 0x800304E0; // type:func size:0xA0 ROM 0x310e0 tier-D boundary-extracted matched-C donor-jfg-src/sched.c
 func_80030608 = 0x80030608; // type:func size:0x8 ROM 0x31208 tier-A C-object+linked-ROM-exact name-unresolved
-func_80030610 = 0x80030610; // type:func size:0x300 ROM 0x31210 tier-D boundary-extracted
+func_80030610 = 0x80030610; // type:func size:0x300 ROM 0x31210 tier-D NON_MATCHING plateau, 194/192 words, first +0x5C
 func_80030910 = 0x80030910; // type:func size:0x1D8 ROM 0x31510 tier-D boundary-extracted
 __scHandleRetrace = 0x80030AE8; // type:func size:0x664 ROM 0x316e8 tier-B donor-jfg-src/sched.c scheduler-callgraph+order
 __scHandleRSP = 0x8003114C; // type:func size:0x128 ROM 0x31d4c tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
@@ -550,7 +550,7 @@ __scTaskComplete = 0x8003134C; // type:func size:0x100 ROM 0x31f4c tier-B donor-
 __scAppendList = 0x8003144C; // type:func size:0x60 ROM 0x3204c tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 __scExec = 0x800314AC; // type:func size:0xC0 ROM 0x320ac tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 __scYield = 0x8003156C; // type:func size:0x4C ROM 0x3216c tier-B donor-jfg-src/sched.c scheduler-callgraph+order
-__scSchedule = 0x800315B8; // type:func size:0x1E8 ROM 0x321b8 tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scSchedule = 0x800315B8; // type:func size:0x1E8 ROM 0x321b8 tier-B NON_MATCHING exact-text plateau, shared jtbl_800823F4 ownership
 
 // rcp_dkr.c
 bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40 ROM 0x2f794 tier-A rcp_dkr.c.o masked=2/16 matched-C

@@ -13,6 +13,7 @@
 #include "PR/os_internal.h"
 #include "PR/os_vi.h"
 #include "game/sched_internal.h"
+#include "n_audio/mbi.h"
 
 typedef struct SchedGfx {
     u32 w0;
@@ -25,6 +26,19 @@ typedef struct SchedGfx {
 #define RDP_DONE_MSG 668
 #define PRE_NMI_MSG 669
 #define UNK_MSG 99
+
+#define OS_SC_DP 0x0001
+#define OS_SC_SP 0x0002
+#define OS_SC_YIELDED 0x0020
+#define OS_SC_DRAM_DLIST 0x0004
+#define OS_SC_PARALLEL_TASK 0x0010
+#define OS_SC_TYPE_MASK 0x0007
+#define OS_SC_XBUS (OS_SC_SP | OS_SC_DP)
+#define OS_SC_DRAM (OS_SC_SP | OS_SC_DP | OS_SC_DRAM_DLIST)
+#define OS_SC_DP_XBUS OS_SC_SP
+#define OS_SC_DP_DRAM (OS_SC_SP | OS_SC_DRAM_DLIST)
+#define OS_SC_SP_XBUS OS_SC_DP
+#define OS_SC_SP_DRAM (OS_SC_DP | OS_SC_DRAM_DLIST)
 
 extern s32 D_8007A640;
 extern s32 D_8007A648;
@@ -53,6 +67,7 @@ extern u8 D_800CF520;
 extern u8 D_800CF578;
 extern u8 D_800CF590;
 extern u8 D_800CF5A8;
+extern u8 D_80000000[];
 extern s32 D_800D2D40;
 extern s32 D_800D2D44;
 extern u64 D_800D2D48;
@@ -84,7 +99,7 @@ void diPrintfSetXY(u16 x, u16 y);
 char *osScGetTaskType(s32 taskID);
 void func_800304E0(OSSched *sc);
 void func_80030608(OSScTask *task);
-SchedGfx *func_80030610(OSSched *sc, u32 commandIndex,
+SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
                         SchedGfx *displayList, OSMesgQueue *queue,
                         u64 *dataStart);
 void func_80044C94(SchedGfx *displayList, s32 *file, s32 *unkC,
@@ -283,7 +298,120 @@ char *osScGetTaskType(s32 taskID) {
 #endif
 void func_80030608(OSScTask *arg0) {
 }
+#ifdef NON_MATCHING
+/* Mickey-derived crash-diagnostic display-list bisection. JFG supplies the
+ * exact assembly skeleton and ordered scheduler position, not a C body. */
+SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
+                        SchedGfx *displayList, OSMesgQueue *queue,
+                        u64 *dataStart) {
+    s64 savedCommands[2];
+    s32 done = 0;
+    OSMesg message = NULL;
+    SchedGfx *nextCommand;
+    s32 numRetraces;
+    s32 gotRdpDone;
+    s32 commandCount;
+    s8 *commandStart;
+    s8 *printStart;
+    u32 nestedStart;
+    u32 midpoint;
+    u32 nestedCommand;
+    u32 address;
+
+    do {
+        nextCommand = displayList + 1;
+        gotRdpDone = 0;
+        numRetraces = 0;
+        __osSpSetStatus(0xAAAA82);
+        osDpSetStatus(0x1D6);
+
+        savedCommands[1] = *(s64 *) displayList;
+        savedCommands[0] = *(s64 *) (displayList + 1);
+        displayList->w1 = 0;
+        displayList->w0 = 0xE9000000;
+        (displayList + 1)->w1 = 0;
+        nextCommand->w0 = 0xB8000000;
+
+        osWritebackDCacheAll();
+        osSpTaskLoad(&sc->curRSPTask->list);
+        osSpTaskStartGo(&sc->curRSPTask->list);
+
+        do {
+            osRecvMesg(queue, &message, OS_MESG_BLOCK);
+            switch ((s32) message) {
+                case VIDEO_MSG:
+                    numRetraces++;
+                    break;
+                case RDP_DONE_MSG:
+                    gotRdpDone = 1;
+                    break;
+                case RSP_DONE_MSG:
+                    break;
+            }
+        } while (numRetraces < 10 && gotRdpDone == 0);
+
+        *(s64 *) displayList = savedCommands[1];
+        *(s64 *) nextCommand = savedCommands[0];
+
+        if (commandIndex < 2) {
+            if (*(u8 *) displayList == 6) {
+                commandStart = (s8 *) displayList - 0x140;
+                printStart = commandStart;
+                if ((u32) commandStart < 0x80000000U) {
+                    printStart = commandStart + 0x80000000;
+                }
+                if ((s32) printStart < (s32) dataStart) {
+                    printStart = (s8 *) dataStart;
+                }
+                diRcpPrintDL((SchedGfx *) printStart, displayList, 0x50);
+
+                nestedCommand = displayList->w1;
+                if (nestedCommand < 0x80000000U) {
+                    nestedCommand += (u32) D_80000000;
+                }
+                nestedStart = nestedCommand;
+                commandCount = 0;
+                while (*(s8 *) nestedCommand != (s8) 0xB8) {
+                    nestedCommand += 8;
+                    commandCount++;
+                }
+                if (commandCount & 1) {
+                    commandIndex = commandCount / 2 + 1;
+                } else {
+                    commandIndex = commandCount / 2;
+                }
+                midpoint = nestedStart + commandIndex * 8;
+                address = midpoint;
+                if (midpoint < 0x80000000U) {
+                    address = midpoint + (u32) D_80000000;
+                }
+                displayList = (SchedGfx *) address;
+                diRcpPrintDL((SchedGfx *) nestedStart, displayList, 0xA0);
+                return func_80030610(sc, commandIndex, displayList, queue,
+                                     (u64 *) nestedStart);
+            }
+            done = 1;
+        }
+
+        if (done == 0) {
+            if (commandIndex & 1) {
+                commandIndex = commandIndex / 2 + 1;
+            } else {
+                commandIndex = commandIndex / 2;
+            }
+            if (gotRdpDone != 0) {
+                displayList += commandIndex;
+            } else {
+                displayList -= commandIndex;
+            }
+        }
+    } while (done == 0);
+
+    return displayList;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030610.s")
+#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:func_8004FF64_50B64, with Mickey's extracted trace helper. */
@@ -705,4 +833,86 @@ void __scYield(OSSched *sc) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scYield.s")
 #endif
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scSchedule. */
+s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
+    s32 avail = availRCP;
+    OSScTask *gfx = sc->gfxListHead;
+    OSScTask *audio = sc->audioListHead;
+
+    if (sc->doAudio && (avail & OS_SC_SP)) {
+        if (gfx && (gfx->flags & OS_SC_PARALLEL_TASK)) {
+            *sp = gfx;
+            avail &= ~OS_SC_SP;
+        } else {
+            *sp = audio;
+            avail &= ~OS_SC_SP;
+            sc->doAudio = 0;
+            sc->audioListHead = sc->audioListHead->next;
+            if (sc->audioListHead == NULL) {
+                sc->audioListTail = NULL;
+            }
+        }
+    } else if (__scTaskReady(gfx)) {
+        switch (gfx->flags & OS_SC_TYPE_MASK) {
+            case OS_SC_XBUS:
+                if (gfx->state & OS_SC_YIELDED) {
+                    if (avail & OS_SC_SP) {
+                        *sp = gfx;
+                        avail &= ~OS_SC_SP;
+                        if (gfx->state & OS_SC_DP) {
+                            *dp = gfx;
+                            avail &= ~OS_SC_DP;
+                        }
+                        sc->gfxListHead = sc->gfxListHead->next;
+                        if (sc->gfxListHead == NULL) {
+                            sc->gfxListTail = NULL;
+                        }
+                    }
+                } else if (avail == (OS_SC_SP | OS_SC_DP)) {
+                    *sp = *dp = gfx;
+                    avail &= ~(OS_SC_SP | OS_SC_DP);
+                    sc->gfxListHead = sc->gfxListHead->next;
+                    if (sc->gfxListHead == NULL) {
+                        sc->gfxListTail = NULL;
+                    }
+                }
+                break;
+
+            case OS_SC_DRAM:
+            case OS_SC_DP_DRAM:
+            case OS_SC_DP_XBUS:
+                if (gfx->state & OS_SC_SP) {
+                    if (avail & OS_SC_SP) {
+                        *sp = gfx;
+                        avail &= ~OS_SC_SP;
+                    }
+                }
+                if (gfx->state & OS_SC_DP) {
+                    if (avail & OS_SC_DP) {
+                        *dp = gfx;
+                        avail &= ~OS_SC_DP;
+                        sc->gfxListHead = sc->gfxListHead->next;
+                        if (sc->gfxListHead == NULL) {
+                            sc->gfxListTail = NULL;
+                        }
+                    }
+                }
+                break;
+
+            case OS_SC_SP_DRAM:
+            case OS_SC_SP_XBUS:
+            default:
+                break;
+        }
+    }
+
+    if (avail != availRCP) {
+        avail = __scSchedule(sc, sp, dp, avail);
+    }
+    return avail;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scSchedule.s")
+#endif

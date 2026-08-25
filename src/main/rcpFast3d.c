@@ -4,19 +4,29 @@
  * PROVENANCE -- the TU identity and descriptive names are adapted from Jet
  * Force Gemini's public decompilation, src/rcpFast3d.c. Mickey's exact
  * rcpFast3d/rcpInit skeleton anchors, ordered init helpers and RCP call graph
- * establish the boundary. Adapted C bodies are identified in docs/modules.md;
- * all remaining functions stay as Mickey GLOBAL_ASM.
+ * establish the boundary. Adapted C bodies carry point-of-use provenance;
+ * Mickey's own code and data decide every promoted implementation.
  */
 
 #include "PR/ultratypes.h"
 #include "PR/os_message.h"
 #include "game/gameVi.h"
 #include "game/sched_internal.h"
+#include "n_audio/mbi.h"
 
 typedef struct RcpCommand {
     u32 w0;
     u32 w1;
 } RcpCommand;
+
+#ifdef NON_MATCHING
+typedef struct RcpGradientColour {
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 interpolate;
+} RcpGradientColour;
+#endif
 
 #define RCP_DISPLAY_LIST(command, list) \
     { \
@@ -46,15 +56,31 @@ typedef struct RcpCommand {
         cmd->w1 = (address); \
     }
 
+#ifdef NON_MATCHING
+#define RCP_SET_FILL_CYCLE(command) \
+    { \
+        RcpCommand *cycleCmd = (command); \
+        cycleCmd->w0 = 0xEF30000F; \
+        cycleCmd->w1 = 0; \
+    }
+#endif
+
 extern u8 D_8007A3A0;
 extern u8 D_8007A3A4;
 extern u8 D_8007A3A8;
 extern u32 D_8007A3B0;
 extern u32 D_8007A3AC;
+extern s32 D_8007A3B4;
+extern s32 D_8007A3B8;
+extern s32 D_8007A3BC;
+extern s32 D_8007A3C0;
 extern s32 D_8007A3C4;
 extern s32 D_8007A3C8;
 extern s32 D_8007A3EC;
 extern s32 D_8007A410;
+extern OSMesg D_8007A3CC;
+extern OSMesg D_8007A3F0;
+extern OSMesg D_8007A414;
 extern RcpCommand D_8007A438[];
 extern RcpCommand D_8007A4B8[];
 extern OSMesgQueue D_800D2880;
@@ -71,11 +97,113 @@ extern OSMesg D_800D2CE8[];
 extern OSMesgQueue D_800D2D08;
 extern OSMesg D_800D2D20[];
 extern s32 D_800D2FAC;
+extern OSScTask D_800D2910[];
+extern OSScTask D_800D29F0[];
+extern OSScTask D_800D2AD0[];
+extern OSScTask D_800D2BB0[];
+extern u64 D_800D2480[];
+extern u64 D_800D3670[];
+extern u64 D_80077950[];
+extern u64 D_80077AD0[];
+extern u64 D_80085240[];
+#ifdef NON_MATCHING
+extern u64 rspbootTextEnd[];
+#pragma weak rspbootTextEnd = D_80077AD0
+#endif
 
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
-void TrapDanglingJump(void);
+void osWritebackDCacheAll(void);
+s32 TrapDanglingJump(void);
+s32 func_80021C5C(s32 arg0);
+s32 func_80021EF0(s32 arg0, s32 *x1, s32 *y1, s32 *x2, s32 *y2);
+#ifdef NON_MATCHING
+s32 camGetMode(void);
+s32 frontGet2PlayerSplit(void);
+#endif
+void func_80022610(RcpCommand **dlist);
+void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height, u32 value);
+void rcpClearZBuffer(RcpCommand **dlist, u32 width, u32 height, s32 x1,
+                     s32 y1, s32 x2, s32 y2);
 
+#ifdef NON_MATCHING
+/* Mickey-derived task construction. JFG supplies the function name and the
+ * OSScTask field correspondence, while its public C file retains assembly;
+ * JFG's SDK ucode header supplies the official rspbootTextEnd symbol name. */
+s32 rcpFast3d(u64 *dataStart, u64 *dataEnd, s32 taskType,
+              void *framebuffer) {
+    OSScTask *task;
+    s32 taskFlags;
+
+    D_8007A3C4 = 1;
+    taskFlags = 3;
+    switch (taskType) {
+        case 0:
+            task = &D_800D2910[D_8007A3B4];
+            D_8007A3B4 ^= 1;
+            taskFlags = 0x23;
+            task->msgQ = &D_800D28B8;
+            task->unk58 = 0xFF0000FF;
+            task->unk5C = 0xFF0000FF;
+            task->taskID = 2;
+            break;
+        case 3:
+            task = &D_800D29F0[D_8007A3B8];
+            D_8007A3B8 ^= 1;
+            task->msgQ = &D_800D2C98;
+            task->msg = &D_8007A3CC;
+            task->unk58 = 0xFF00FFFF;
+            task->unk5C = 0xFF00FFFF;
+            task->taskID = 5;
+            break;
+        case 4:
+            task = &D_800D2AD0[D_8007A3BC];
+            D_8007A3BC ^= 1;
+            task->msgQ = &D_800D2CD0;
+            task->msg = &D_8007A3F0;
+            task->unk58 = 0xFFFF00FF;
+            task->unk5C = 0xFFFF00FF;
+            task->taskID = 6;
+            break;
+        case 5:
+            task = &D_800D2BB0[D_8007A3C0];
+            D_8007A3C0 ^= 1;
+            task->msgQ = &D_800D2D08;
+            task->msg = &D_8007A414;
+            task->unk58 = 0x00FF00FF;
+            task->unk5C = 0x00FF00FF;
+            task->taskID = 7;
+            break;
+    }
+
+    task->unk68 = 0;
+    task->list.t.dram_stack = D_800D2480;
+    task->list.t.dram_stack_size = 0x400;
+    task->list.t.yield_data_ptr = D_800D3670;
+    task->list.t.yield_data_size = 0xA00;
+    task->flags = taskFlags;
+    task->list.t.data_ptr = dataStart;
+    task->list.t.data_size = dataEnd - dataStart;
+    task->list.t.ucode_boot = D_80077950;
+    task->list.t.type = 1;
+    task->list.t.flags = 2;
+    task->list.t.ucode_boot_size = (u32) rspbootTextEnd -
+                                   (u32) D_80077950;
+    task->list.t.ucode = D_80077AD0;
+    task->list.t.ucode_data = D_80085240;
+    task->list.t.ucode_data_size = 0x800;
+    task->list.t.output_buff = NULL;
+    task->list.t.output_buff_size = NULL;
+    task->next = NULL;
+    task->framebuffer = framebuffer;
+    task->unk60 = 0xFF;
+    task->unk64 = 0xFF;
+    osWritebackDCacheAll();
+    osSendMesg(D_800D2C90, task, OS_MESG_BLOCK);
+    return 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpFast3d.s")
+#endif
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/rcpFast3d.c:rcpWaitDP. */
 s32 rcpWaitDP(void) {
@@ -116,7 +244,101 @@ void bgdraw_fillcolour(s32 red, s32 green, s32 blue) {
 void func_8002EBD4(u32 value) {
     D_8007A3B0 = value;
 }
+#ifdef NON_MATCHING
+/* Mickey-derived eight-band gradient renderer. JFG has no counterpart in
+ * the ordered gap between rcpSetBorderColour and rcpClearZBuffer. */
+void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
+                   u32 colours) {
+    RcpCommand *cmd;
+    RcpGradientColour *entry;
+    s32 screens;
+    s32 screensLeft;
+    s32 screenHeight;
+    s32 bandIndex;
+    s32 bandStart;
+    s32 bandEnd;
+    s32 steps;
+    s32 stepsLeft;
+    s32 y;
+    s32 redOffset;
+    s32 greenOffset;
+    s32 blueOffset;
+    s32 redStep;
+    s32 greenStep;
+    s32 blueStep;
+    s32 colour;
+    s32 nextY;
+    s32 mode;
+
+    cmd = *dlist;
+    screens = 1;
+    mode = camGetMode();
+    if ((mode >= 2) ||
+        ((mode == 1) && (frontGet2PlayerSplit() == 0))) {
+        screens = 2;
+    }
+
+    gDPPipeSync(cmd++);
+    gDPSetScissor(cmd++, G_SC_NON_INTERLACE, 0, 0, width - 1, height - 1);
+    RCP_SET_FILL_CYCLE(cmd++);
+    screenHeight = height >> (screens - 1);
+    y = 0;
+
+    screensLeft = screens - 1;
+    if (screens != 0) {
+        do {
+            entry = (RcpGradientColour *) colours;
+            bandIndex = 0;
+            bandStart = 0;
+            do {
+                bandIndex++;
+                if (entry->interpolate != 0) {
+                    bandEnd = bandStart + screenHeight;
+                    steps = (bandEnd >> 4) - (bandStart >> 4);
+                    redStep = (((entry + 1)->red - entry->red) << 16) / steps;
+                    greenStep = (((entry + 1)->green - entry->green) << 16) / steps;
+                    blueStep = (((entry + 1)->blue - entry->blue) << 16) / steps;
+                    redOffset = 0;
+                    greenOffset = 0;
+                    blueOffset = 0;
+                    stepsLeft = steps - 1;
+                    if (steps != 0) {
+                        do {
+                            colour = GPACK_RGBA5551(
+                                entry->red + (redOffset >> 16),
+                                entry->green + (greenOffset >> 16),
+                                entry->blue + (blueOffset >> 16), 1);
+                            gDPSetFillColor(
+                                cmd++, (colour << 16) | colour);
+                            nextY = y + 2;
+                            gDPFillRectangle(cmd++, 0, y, width, nextY);
+                            redOffset += redStep;
+                            greenOffset += greenStep;
+                            blueOffset += blueStep;
+                            y = nextY;
+                        } while (stepsLeft-- != 0);
+                    }
+                } else {
+                    colour = GPACK_RGBA5551(entry->red, entry->green,
+                                           entry->blue, 1);
+                    gDPSetFillColor(cmd++, (colour << 16) | colour);
+                    bandEnd = bandStart + screenHeight;
+                    nextY = y + (((bandEnd >> 4) - (bandStart >> 4)) * 2);
+                    gDPFillRectangle(cmd++, 0, y, width, nextY);
+                    y = nextY;
+                }
+                bandStart = bandEnd;
+                entry++;
+            } while (bandIndex != 8);
+        } while (screensLeft-- != 0);
+    }
+
+    gDPPipeSync(cmd++);
+    *dlist = cmd;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
+#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: command sequence adapted from Diddy Kong Racing's public
  * decomp, src/rcp_dkr.c:bgdraw_render, with Mickey's enable flag and bounds. */
@@ -160,7 +382,51 @@ void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearZBuffer.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearScreen.s")
+/* PROVENANCE: display-list command spelling adapted from Diddy Kong Racing's
+ * public decomp, src/rcp_dkr.c:bgdraw_render. Mickey's enable flag, helpers,
+ * coordinates, and branch structure decide the implementation; JFG supplies
+ * the ordered rcpClearScreen correspondence while retaining assembly. */
+void rcpClearScreen(RcpCommand **dlist, s32 arg1, s32 drawBackground) {
+    s32 width;
+    s32 height;
+    s32 x1;
+    s32 y1;
+    s32 x2;
+    s32 y2;
+
+    viGetCurrentSize(&width, &height);
+    if (TrapDanglingJump() == 0) {
+        rcpClearZBuffer(dlist, width, height, 0, 0, width, height);
+    }
+    if (drawBackground != 0) {
+        if (func_80021C5C(0) != 0) {
+            gDPSetFillColor((*dlist)++, D_8007A3AC);
+            gDPFillRectangle((*dlist)++, 0, 0, width - 1, height - 1);
+
+            if (func_80021EF0(0, &x1, &y1, &x2, &y2) != 0) {
+                gDPSetCycleType((*dlist)++, G_CYC_1CYCLE);
+                gDPSetPrimColor((*dlist)++, 0, 0, D_8007A3A0,
+                                D_8007A3A4, D_8007A3A8, 0xFF);
+                gDPSetCombineMode((*dlist)++, G_CC_PRIMITIVE,
+                                  G_CC_PRIMITIVE);
+                gDPSetRenderMode((*dlist)++, G_RM_OPA_SURF,
+                                 G_RM_OPA_SURF2);
+                gDPFillRectangle((*dlist)++, x1, y1, x2, y2);
+            }
+        } else if (D_8007A3B0 != 0) {
+            func_8002EBE0(dlist, width, height, D_8007A3B0);
+        } else {
+            gDPSetFillColor(
+                (*dlist)++,
+                (GPACK_RGBA5551(D_8007A3A0, D_8007A3A4, D_8007A3A8, 1)
+                 << 16) |
+                    GPACK_RGBA5551(D_8007A3A0, D_8007A3A4, D_8007A3A8, 1));
+            gDPFillRectangle((*dlist)++, 0, 0, width - 1, height - 1);
+        }
+    }
+    gDPPipeSync((*dlist)++);
+    func_80022610(dlist);
+}
 void rcpInitDp(RcpCommand **dlist) {
     s32 width;
     s32 height;

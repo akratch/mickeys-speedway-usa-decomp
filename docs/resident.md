@@ -1567,14 +1567,17 @@ Exact C reconstructions in this census currently include the still-unnamed
 `packCalculateGameChecksum` (ROM `0x2D3BC`–
 `0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
+`packOpen` (ROM `0x2DCCC`–`0x2DED4`, 520 bytes),
 the still-unnamed chunked save-device transfer `func_8002C7EC` (ROM
 `0x2D3EC`–`0x2D4B4`, 200 bytes),
 `packIsPresent` (ROM `0x2E0CC`–`0x2E128`, 92 bytes),
+`packDirectory` (ROM `0x2E128`–`0x2E424`, 764 bytes),
 `packDirectoryFree` (ROM `0x2E424`–`0x2E458`, 52 bytes),
 `packFreeSpace` (ROM `0x2E458`–`0x2E56C`, 276 bytes),
 `packDeleteFile` (ROM `0x2E56C`–`0x2E620`, 180 bytes),
 `packOpenFile` (ROM `0x2E620`–`0x2E74C`, 300 bytes),
 `packReadFile` (ROM `0x2E74C`–`0x2E810`, 196 bytes),
+`packWriteFile` (ROM `0x2E810`–`0x2EA50`, 576 bytes),
 `packFileSize` (ROM `0x2EA50`–`0x2EAB4`, 100 bytes),
 the still-unnamed `func_8002C5F4` (ROM `0x2D1F4`–`0x2D20C`, 24 bytes),
 the still-unnamed bitstream allocator `func_8002C60C` (ROM `0x2D20C`–
@@ -1598,11 +1601,13 @@ the still-unnamed `func_8002E020` (ROM `0x2EC20`–`0x2ECA0`, 128 bytes),
 `piRomGetFileSize` (ROM `0x2EFA4`–`0x2EFE0`, 60 bytes),
 `romCopy` (ROM `0x2EFE0`–`0x2F0D0`, 240 bytes),
 `screenLoad` (ROM `0x2F0D0`–`0x2F1D4`, 260 bytes),
+`screenDraw` (ROM `0x2F1D4`–`0x2F3FC`, 552 bytes),
 `rcpWaitDP` (ROM `0x2F6A0`–`0x2F76C`, 204 bytes),
 `rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes),
 `bgdraw_fillcolour` (ROM `0x2F794`–`0x2F7D4`, 64 bytes), and the still-
 unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–`0x2F7E0`, 12 bytes),
-plus `rcpInitDp` (ROM `0x30068`–`0x30118`, 176 bytes),
+plus `rcpClearScreen` (ROM `0x2FD88`–`0x30068`, 736 bytes),
+`rcpInitDp` (ROM `0x30068`–`0x30118`, 176 bytes),
 `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes), and
 `rcpInitSp` (ROM `0x3013C`–`0x30160`, 36 bytes), and
 `rcpInit` (ROM `0x30160`–`0x30218`, 184 bytes), and
@@ -1638,10 +1643,24 @@ Mickey's own bodies. `screenLoad` is likewise reconstructed from Mickey's
 display-list command writes; JFG supplies its existing TU/name association,
 not its C body. `rcpInitDp` is likewise reconstructed from Mickey's own
 display-list command flow; JFG supplies its name and ordered TU position, not
-its C body. `rcpInit` reconstructs Mickey's six message queues while JFG's
-public source supplies its name and prototype and its object supplies the exact
-skeleton anchor, not a C body. All configured object ranges and the final
-linked ROM are byte-exact.
+its C body. `rcpClearScreen` adapts DKR's public `bgdraw_render` display-list
+macro spelling to Mickey's guards, helpers, and coordinates; JFG supplies its
+name and ordered TU position while retaining assembly. `rcpInit` reconstructs
+Mickey's six message queues while JFG's public source supplies its name and
+prototype and its object supplies the exact skeleton anchor, not a C body. All
+configured object ranges and the final linked ROM are byte-exact.
+
+`rcpFast3d` retains a `NON_MATCHING` Mickey-derived task-construction body
+after the 119-combination flag lattice and ten source/type/scheduling
+hypotheses. A candidate using the SDK's distinct `rspbootTextEnd` identity is
+exact across all 168 instruction words, but strict object comparison rejects
+the HI/LO pair at function `+0x204`: the target relocations name
+`D_80077AD0`, while the candidate names the weak alias. Using
+`D_80077AD0` for both the boot-end and Fast3D-start roles gives exact
+relocation identities but lets IDO coalesce the address, emitting 166
+instructions and first diverging at the same offset. The exact-word candidate
+remains guarded for the distinct-symbol scheduling evidence; the assembly
+fallback remains canonical.
 
 `rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body after
 the 119-combination flag lattice and nine source-shape hypotheses. The best
@@ -1653,6 +1672,19 @@ cursor advances instead introduce a 24- or 32-byte spill frame absent from the
 target. The assembly fallback remains canonical pending a source spelling that
 homes the three register arguments without spilling the cursor.
 
+`func_8002EBE0` retains a Mickey-derived `NON_MATCHING` eight-band gradient
+renderer after the 119-combination flag lattice and ten source-shape
+hypotheses. The nearest skeleton is Diddy Kong Racing's `bgdraw_render` at only
+0.055 similarity; JFG has no function in the corresponding ordered gap. The
+best faithful MIPS II candidate has 249 instructions versus the target's 255
+and a 0x50-byte frame versus 0x88, with 242 positional word mismatches and the
+first at function `+0x0`. SDK scissor, fill-colour, fill-rectangle, and pipe
+macros close the body-size gap, but IDO retains 56 fewer bytes of non-save stack
+and assigns the display-list cursor and colour-step webs differently from the
+prologue onward. A bounded permuter import selected MIPS I and was rejected as
+non-canonical; its pack-expression lead also failed when recompiled with the
+resident MIPS II flags. The assembly fallback remains canonical.
+
 `__scHandleRetrace` has a preserved `NON_MATCHING` JFG-derived body after the
 119-combination flag lattice and ten source-shape hypotheses. The best
 candidate has the exact 232-byte frame and 408 instructions versus the
@@ -1662,6 +1694,31 @@ stack-byte writes schedule in a different order. The remaining tail also
 materialises the 64-bit retrace counter through one combined object while the
 target uses separate high/low symbol references. The assembly fallback
 remains canonical.
+
+The still-unnamed scheduler diagnostic `func_80030610` retains a Mickey-
+derived `NON_MATCHING` display-list bisection body after the 119-combination
+flag lattice, nine serious source/layout hypotheses, and a bounded two-worker
+permuter batch. The best candidate has 194 instructions versus the target's
+192 and first diverges at function `+0x5C`; 148 positional words differ. Its
+0x90-byte frame is eight bytes shorter than the target's 0x98-byte frame: IDO
+homes the received message at stack `+0x78` instead of `+0x70` and the saved
+second-command pointer at `+0x48` instead of `+0x4C`. Scalar, `s64` backup,
+macro, and explicit-pointer formulations either retain those homes or add
+more instructions. JFG supplies the exact assembly skeleton and scheduler
+position but no C body. The assembly fallback remains canonical pending a
+source spelling that reproduces both stack homes without synthetic padding.
+
+`__scSchedule` retains a JFG-derived `NON_MATCHING` body whose 122 instruction
+words and 0x28-byte frame are exact under the resident flags and the full
+119-combination lattice. Perfect Dark's compiled scheduler is the closest
+independent skeleton at 0.857 similarity, while Mickey's two independent RCP
+state checks select JFG's source spelling. Promotion is blocked by rodata
+ownership rather than C: both switch relocations bind the compiler's anonymous
+late-rodata section, while Mickey's existing seven-entry `jtbl_800823F4`
+remains in the shared `0x81590` rodata object and names assembly-local case
+labels. Removing the fallback therefore leaves those seven entries undefined.
+Moving the table requires a measured YAML/shared-rodata boundary handoff
+outside this lane's assigned files, so the assembly fallback remains canonical.
 
 `__scYield` also retains a `NON_MATCHING` JFG-derived body. The resident flag
 lattice and five storage/source shapes leave the faithful external-`u64`
