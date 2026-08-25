@@ -110,7 +110,7 @@ extern void joyResetMap(void);
 extern void func_8004978C(s32, s32, s32);
 extern s32 func_80049864(s32);
 extern void func_800498FC(s32, u32, u32, s32, s32, s32, s32);
-extern void TrapDanglingJump(void);
+extern s32 TrapDanglingJump();
 extern s32 joyRead(s32, s32);
 extern void mainInitGame(void);
 extern void mainPreNMI(void);
@@ -129,6 +129,19 @@ extern void func_8003A2C8(s32);
 extern s32 func_8003A408(void);
 extern void func_8003A41C(s32);
 extern void mainFrontInit(s32, s32, s32);
+extern s32 func_80021C5C(s32);
+extern void func_80021F68(s32, s32 *, s32 *, s32 *, s32 *);
+extern f32 rainDensity(void);
+extern s32 runlinkIsModuleLoaded(s32);
+extern void func_8004A0F0(void);
+extern void func_8004A51C(void);
+extern void func_8004AD34(void);
+extern s32 D_800D40E4;
+
+#ifdef NON_MATCHING
+#pragma weak mainCPUeffectsRainDraw = TrapDanglingJump
+extern void mainCPUeffectsRainDraw(void *, s32, s32, f32, f32);
+#endif
 
 #ifdef NON_MATCHING
 /*
@@ -364,7 +377,55 @@ s8 mainGetZBCheck(s32 arg0) {
     return D_800CF53F[arg0 * 8];
 }
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: function role adapted from JFG src/main.c::mainCPUeffects. JFG
+ * retains assembly, so the body is reconstructed from Mickey-only control-flow
+ * and call evidence; Mickey byte identity is decisive.
+ *
+ * Plateau: ten type, expression, storage and statement-grouping hypotheses
+ * preserve all 85 target opcodes, the 0x154 boundary and the -0x40 frame. The
+ * best differs in ten temp-FIFO register operands, first at +0x48, and its
+ * typed overlay-call alias retains a different relocation identity at +0xD8.
+ * The complete resident flag lattice does not improve either residual.
+ */
+void mainCPUeffects(u16 *framebuffer, s32 unused) {
+    s32 screenWidth;
+    u32 screenHeight;
+    s32 x1;
+    s32 y1;
+    s32 x2;
+    s32 y2;
+
+    viGetCurrentSize(&screenWidth, (s32 *) &screenHeight);
+    if (func_80021C5C(0) != 0) {
+        func_80021F68(0, &x1, &y1, &x2, &y2);
+        screenHeight = (y2 - y1) + 1;
+        framebuffer += y1 * screenWidth;
+    }
+    if ((func_80049864(4) == 0) &&
+        (runlinkIsModuleLoaded(0xF) != 0) &&
+        (TrapDanglingJump() != 0)) {
+        if ((D_800D40E4 > 0) && (screenHeight >= D_800D40E4)) {
+            mainCPUeffectsRainDraw(framebuffer, screenWidth, D_800D40E4,
+                                   256.0f, rainDensity());
+        }
+        D_800D40E4 = screenHeight;
+    }
+    func_8004AD34();
+    if ((runlinkIsModuleLoaded(0x21) != 0) &&
+        (func_80049864(4) == 0)) {
+        TrapDanglingJump();
+    }
+    if (func_80049864(4) == 0) {
+        func_8004A51C();
+    } else {
+        func_8004A0F0();
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainCPUeffects.s")
+#endif
 
 void mainSetGameWindow(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                        s32 arg5, s32 arg6, s32 arg7, s32 arg8) {

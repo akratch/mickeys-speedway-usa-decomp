@@ -1853,6 +1853,13 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
   removes three dead-looking countdown-loop register copies retained by the
   target.
+- `mainCPUeffects`, ten type/expression/storage hypotheses and the full flag
+  lattice, first mismatch `+0x48`: the best Mickey-derived candidate preserves
+  all 85 target opcodes, the 340-byte boundary and `-0x40` frame, but ten
+  temp-FIFO register operands differ in the cropped-framebuffer calculation.
+  Its typed overlay-call alias also retains a different relocation identity at
+  `+0xd8`; the natural unprototyped call instead promotes the float arguments,
+  adding four instructions and eight frame bytes.
 - `RevealReturnAddresses`, nine source/expression hypotheses, the full flag
   lattice and a bounded canonical-MIPS-II permuter batch, first mismatch
   `+0x24`: the best candidate preserves all 66 target opcodes, the 264-byte
