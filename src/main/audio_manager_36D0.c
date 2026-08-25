@@ -4,8 +4,8 @@
  *
  * PROVENANCE: the translation-unit identity and candidate routine names were
  * compared with Jet Force Gemini's public decomp, src/audio_manager_36D0.c,
- * which is a permitted source under docs/CLEANROOM.md. No C body is adapted
- * here yet. Mickey's own boundaries and symbols remain authoritative.
+ * which is a permitted source under docs/CLEANROOM.md. Adapted bodies carry
+ * their own point-of-use disclosure. Mickey's boundaries remain authoritative.
  *
  * func_80002500 has JFG amInitAudioMap's initialization role and starts at a
  * 16-byte boundary. The following twenty functions preserve JFG's TU order;
@@ -16,6 +16,15 @@
 
 #include "PR/ultratypes.h"
 
+typedef struct AudioPoint {
+    f32 x;
+    f32 y;
+    f32 z;
+    u16 soundId;
+    u8 volume;
+    u8 pitch;
+} AudioPoint;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002500.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/audspat_jingle_off.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025EC.s")
@@ -23,7 +32,13 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002768.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002E88.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002FE0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_8000309C.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amSndSetVolXYZ. */
+void func_8000309C(AudioPoint *point, u8 volume) {
+    if (point != NULL) {
+        point->volume = volume;
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800030B4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800030CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800031C0.s")

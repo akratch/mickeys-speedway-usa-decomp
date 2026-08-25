@@ -1875,6 +1875,7 @@ The final column records owned object words and relocation coverage.
 | `scalevol` | `0x22C8` / `0x24` | **tier B**: JFG supplies the complete body and official name | Exact 9 object words; no relocations |
 | `func_800016EC` | `0x22EC` / `0x1C` | **tier B**: overlay 49 supplies mode-call context; no external name is asserted | Exact 7 object words and two data relocations |
 | `func_80001708` | `0x2308` / `0x38` | **tier B**: a resident caller pins the master-volume reset role; no external name is asserted | Exact 14 object words, two calls, and data relocation |
+| `func_8000309C` | `0x3C9C` / `0x18` | **tier B**: JFG supplies the `amSndSetVolXYZ` body and exact audio-manager order; the externally visible Mickey placeholder is retained | Exact 6 object words; no relocations |
 | `amSndSetPan` | `0x1E04` / `0x28` | existing **tier A** JFG byte identity | Exact object words and relocation identity |
 | `forcelink` | `0x2298` / `0x30` | existing **tier A** JFG byte identity | Exact object words and both call relocations |
 | `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |
