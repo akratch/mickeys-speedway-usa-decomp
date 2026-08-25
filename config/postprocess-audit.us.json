@@ -2475,8 +2475,7 @@
       "size": 192,
       "source": "src/overlays/o036/overlay36SpawnFinalEffect.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {

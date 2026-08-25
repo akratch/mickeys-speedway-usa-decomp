@@ -2837,8 +2837,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36FlushQueue.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36QueueAction.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x6C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnFinalEffect.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_036_F0001688_1884B40=overlay36SpawnFinalEffect $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnAtPosition.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA8

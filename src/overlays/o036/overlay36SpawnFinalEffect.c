@@ -37,16 +37,9 @@ extern u8 gOverlay36AlternateEffects;
 extern Overlay36SpawnedObject *overlay36SpawnEffectReloc(
     Overlay36SpawnRequest *request, s32 count, Overlay36EffectSource *source);
 
-/* Plateau after the flag lattice, eight source-layout attempts, and a bounded
- * permuter batch: exact 0xC0 size and 46/48 words, first mismatch at +0x8.
- * Only the 0x38-versus-0x30 frame allocation/restoration remains; shrinking
- * the frame also shifts the request aggregate four bytes below its target
- * stack home. */
-#ifdef NON_MATCHING
 void overlay36SpawnFinalEffect(Overlay36EffectSource *source) {
-    Overlay36SpawnedObject *spawned;
-    register Overlay36EffectState *state;
     Overlay36SpawnRequest request;
+    register Overlay36EffectState *state;
 
     state = source->effectState;
     if (gOverlay36AlternateEffects != 0) {
@@ -61,10 +54,10 @@ void overlay36SpawnFinalEffect(Overlay36EffectSource *source) {
     request.source = source;
     request.effectState = state;
 
-    spawned = overlay36SpawnEffectReloc(&request, 1, source);
+    source = (Overlay36EffectSource *)overlay36SpawnEffectReloc(&request, 1, source);
     state = request.effectState;
-    if (spawned != NULL) {
-        spawned->owner = 0;
+    if (source != NULL) {
+        ((Overlay36SpawnedObject *)source)->owner = 0;
     }
 
     state->countdown--;
@@ -73,6 +66,3 @@ void overlay36SpawnFinalEffect(Overlay36EffectSource *source) {
         state->activeAction = NULL;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36SpawnFinalEffect/func_overlay_036_F0001688_1884B40.s")
-#endif
