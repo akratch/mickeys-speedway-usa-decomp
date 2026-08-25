@@ -32,22 +32,16 @@ extern f32 gOverlay79CollisionEpsilon;
 extern f32 gOverlay79CollisionLift;
 extern f32 gOverlay79CollisionProjection;
 
-/*
- * Plateau (2026-08-25, 10-attempt cap): the best -O2 -mips2
- * -Wab,-r4300_mul candidate has the exact 184-word size, differs in 150
- * words, and first diverges at +0x0.  The candidate uses a 0x90-byte frame
- * instead of the retail 0x98-byte frame; the remaining delta is dominated
- * by floating-point register allocation and spill lifetimes.  The full flag
- * lattice, the m2c-shaped formulation, and the structurally related Mickey
- * overlay 22/29 formulations all retain that allocation split.
- */
+/* Plateau (2026-08-25): exact 184-word size, 145 words differ, first +0x38.
+ * Per-branch length lifetimes fixed the 0x98 frame and cut five differences.
+ * FP allocation remains after the lattice, ten variants, and 40-minute permuter. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000FA0_18CDF40(
     void *unused, Overlay79Vector *position, Overlay79Vector *axis,
     f32 distance, Overlay79Plane *plane, Overlay79CollisionObject *object) {
     Overlay79CollisionState *state;
+    register f32 ny;
     f32 nx;
-    f32 ny;
     f32 nz;
     f32 crossZ;
     f32 projectedX;
@@ -56,8 +50,7 @@ void func_overlay_079_F0000FA0_18CDF40(
     f32 crossX;
     f32 crossY;
     f32 value;
-    f32 length;
-    f32 amount;
+    register f32 amount;
     f32 planeConstant;
 
     (void)unused;
@@ -68,6 +61,8 @@ void func_overlay_079_F0000FA0_18CDF40(
     planeConstant = plane->constant;
     if ((gOverlay79CollisionMinimumY <= ny) ||
         ((plane->flags & 0x10000000) != 0)) {
+        f32 length;
+
         crossX = axis->z * ny;
         crossY = (nz * axis->x) - (axis->z * nx);
         crossZ = -(axis->x * ny);
@@ -96,6 +91,9 @@ void func_overlay_079_F0000FA0_18CDF40(
         return;
     }
 
+    {
+        f32 length;
+
     crossX = position->x;
     crossY = position->y;
     crossZ = position->z;
@@ -121,6 +119,7 @@ void func_overlay_079_F0000FA0_18CDF40(
         position->y = projectedY;
     }
     state->flags |= 4;
+    }
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o079/func_overlay_079_F0000FA0_18CDF40/func_overlay_079_F0000FA0_18CDF40.s")

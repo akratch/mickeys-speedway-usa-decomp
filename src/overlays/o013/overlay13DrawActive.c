@@ -23,10 +23,13 @@ extern O13Record D_0[];
 extern O13View *o13GetView(void);
 extern void func_overlay_013_F0000580_186F098(O13Record *, s32, s32, s32);
 
+/* Plateau (2026-08-25): 165/166 words, 163 differ, first +0x0; frame 0x180 vs 0x168.
+ * Reversed arrays reproduce target stack order; the lattice and ten ABI/lifetime variants failed.
+ * A 40-minute permuter reached 190, but its read alias enlarged the frame to 0x188. */
 #ifdef NON_MATCHING
 void overlay13DrawActive(s32 arg0, s32 arg1, s32 arg2) {
-    f32 distances[35];
     s32 indices[32];
+    f32 distances[35];
     O13View *view;
     O13Record *record;
     s32 count;
