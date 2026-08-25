@@ -167,6 +167,15 @@ void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F0000428_18727C0.s")
 #endif
 
+/*
+ * Plateau (2026-08-25, cx-ov-2-a-r4): -O2 -mips2 with
+ * -Wab,-r4300_mul is exact-size at 0x1A4 executable bytes, with 13 differing
+ * words and the first mismatch at +0x38. The bounded ten-minute permuter
+ * improves score 935 to 580 only by aliasing inverseDepth and fadeScale,
+ * which changes the shade calculation; its best simple temporary regresses
+ * the full-TU oracle. The blocker is initial command/fade-load scheduling and
+ * the final packed-command expression order.
+ */
 #ifdef NON_MATCHING
 void overlay15DrawScreenStars(Overlay15Gfx **displayList, f32 projectionScale) {
     Overlay15Gfx *command;
