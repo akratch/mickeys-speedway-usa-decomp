@@ -2354,6 +2354,7 @@ viChangeBuffers = 0x80033FC4; // type:func size:0x1C ROM 0x34bc4 canonical C, li
 func_80033FE0 = 0x80033FE0; // type:func size:0xC ROM 0x34be0 canonical C, linked byte-identical
 viDisplayingScreen0 = 0x80033FEC; // type:func size:0x2C   ROM 0x34bec  src/gameVi.c.o  masked=4/11, canonical C is linked byte-identical
 func_80034018 = 0x80034018; // type:func size:0x7C   ROM 0x34c18  src/gameVi.c.o  masked=3/31
+func_80034094 = 0x80034094; // type:func size:0xBC ROM 0x34c94 tier-D NON_MATCHING plateau, table carve one operand late, first +0x18
 // tier B (JFG): viFrameSync advances buffers for each non-skip frame, while
 // the mode changer calls the same routine to establish new buffer state.
 fb_swap = 0x80034150; // type:func size:0xE0 ROM 0x34D50 canonical C, linked byte-identical

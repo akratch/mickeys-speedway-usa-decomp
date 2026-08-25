@@ -2054,21 +2054,10 @@ and leaves 110 differing positions. The blocker is register allocation around
 the conditional third-framebuffer allocation. The flag lattice found no exact
 variant, and the configured permuter checkout is absent in this lane.
 
-`func_80034094` has an instruction-exact 47-word `NON_MATCHING` switch body
-adapted from JFG's `viGetOsViMode`; a full 119-configuration flag sweep again
-found the resident flags exact. Strict object comparison, however, finds two
-relocation-identity differences at function offsets `+0x10` and `+0x18`: the
-target names `jtbl_8008249C`, while IDO names the candidate's anonymous
-`.rodata` table. It cannot be promoted within this TU's ownership because the
-separately extracted `jtbl_8008249C` still owns the 12 case-label references;
-replacing the asm body therefore leaves those labels undefined and also emits
-a duplicate 48-byte table. The canonical path remains the original asm pending
-coordinated rodata ownership.
-Retyping the mode argument and its `ResolutionSettings` field to JFG's
-`VideoModes` enum produced the same 47-word object and the same anonymous-table
-relocations. Strict comparison still reports only the two symbol-identity
-differences at `+0x10` and `+0x18`; the donor enum type cannot perform the
-required rodata ownership handoff.
+`func_80034094`: table-only ownership leaves a 47-word operand mismatch, first
+`+0x18`, because alignment places the table four bytes late; the full island
+leaves three named floats undefined. Next recover one TU rodata owner (`constant-audit`).
+
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
 **Why the rows do not establish new internal boundaries.** §1's "measured file

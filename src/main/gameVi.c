@@ -421,9 +421,9 @@ void func_80034018(u8 *src, s32 length) {
 
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c:viGetOsViMode. */
-/* All 47 instructions are exact; strict comparison leaves two table-symbol
- * relocations at +0x10/+0x18 (.rodata versus jtbl_8008249C).
- * Workbench verdict: relocation-symbol-mismatch; shared rodata owns the fix. */
+/* Workbench: operand-mismatch, one of 47 words differs at the table base, first +0x18.
+ * A table-only carve aligns four bytes late; the full island leaves three floats undefined.
+ * Next: recover one gameVi rodata owner without changing viInit identities (constant-audit). */
 OSViMode *func_80034094(s32 videoMode) {
     switch (videoMode) {
         case 0:
