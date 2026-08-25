@@ -559,7 +559,8 @@
       "source": "src/overlays/o009/overlay_009.c",
       "tools": [
         "trim_elf_section.py",
-        "externalize_elf_section.py"
+        "externalize_elf_section.py",
+        "objcopy"
       ]
     },
     {

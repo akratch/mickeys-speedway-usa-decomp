@@ -1059,6 +1059,10 @@ $(O8_OBJ): POSTPROCESS = \
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym \
+		ext_o0_1353c=func_overlay_009_F0000000_1866678 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		ext_o0_7cd8=func_overlay_009_F0000000_1866678 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1520 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
 		00000000000000000000000000000000000000000000000000000000000000003ca3d70a3d99999a3ccccccd3d4ccccd3dcccccd43b680003f733333bc23d70a3c23d70abecccccdbdcccccd00000000

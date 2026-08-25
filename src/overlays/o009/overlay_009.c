@@ -415,18 +415,12 @@ void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateContro
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000CE4_186735C.s")
 #endif
 
-/*
- * Plateau: the best -O2/-mips2 build differs in 2/78 words, first at +0x28;
- * both differences place the hit-list slot at +0x44 instead of retail +0x30.
- * Array and explicit-workspace source forms perturb the frame, and the local
- * permuter is unavailable because tools/permuter/import.py is absent.
- */
-#ifdef NON_MATCHING
 void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
                                        s32 steps) {
-    O9Hit **hits;
     f32 current, result, distance, candidate;
-    s32 count, i;
+    s32 count;
+    O9Hit **hits;
+    s32 i;
 
     count = ext_o0_1353c(point->x, point->z, 0x1000, &hits);
     current = point->y;
@@ -451,9 +445,6 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
     if (candidate < result) candidate = result;
     ext_o0_7cd8(point, 0.0f, candidate - current, 0.0f);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000F6C_18675E4.s")
-#endif
 
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
