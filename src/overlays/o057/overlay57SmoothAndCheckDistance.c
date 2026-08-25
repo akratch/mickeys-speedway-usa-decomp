@@ -31,6 +31,9 @@ extern void o57Tail2C28StartReloc(s32 type, s32 arg1, s32 arg2, s32 mode,
 extern void o57Tail2C28FinishReloc(void);
 
 /* Overlay 57 text +0x2C28..+0x2F48. */
+/* Plateau: canonical -O2 -mips2 is exact-size at 0x320 and differs in 92
+ * words, first at +0x24.  The residual spans both smoothing loops' private
+ * integer allocation and paired halfword-field choices. */
 #ifdef NON_MATCHING
 void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
     s32 i;

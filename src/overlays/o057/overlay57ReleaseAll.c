@@ -29,13 +29,11 @@ extern void overlay57ReleaseResidentReloc(void *resource);
 extern void overlay57ReleaseDescriptorReloc(void *resource);
 extern void overlay57FinalizeReloc(void *object);
 
-#ifdef NON_MATCHING
 void overlay57ReleaseAll(void) {
     void **cursor;
     void **end;
 
-    cursor = gOverlay57Range150Start;
-    end = gOverlay57Range150End;
+    cursor = gOverlay57Range150Start, end = gOverlay57Range150End;
     do {
         overlay57ReleaseResidentReloc(*cursor);
         cursor++;
@@ -49,36 +47,31 @@ void overlay57ReleaseAll(void) {
     overlay57ReleaseDescriptorReloc(gOverlay57Resource0F8);
     overlay57ReleaseDescriptorReloc(gOverlay57Resource0FC);
 
-    cursor = gOverlay57Range058Start;
-    end = gOverlay57Range058End;
+    cursor = gOverlay57Range058Start, end = gOverlay57Range058End;
     do {
         overlay57ReleaseDescriptorReloc(*cursor);
         cursor++;
     } while ((u32) cursor < (u32) end);
 
-    cursor = gOverlay57Range008Start;
-    end = gOverlay57Range008End;
+    cursor = gOverlay57Range008Start, end = gOverlay57Range008End;
     do {
         overlay57ReleaseDescriptorReloc(*cursor);
         cursor++;
     } while ((u32) cursor < (u32) end);
 
-    cursor = gOverlay57Range030Start;
-    end = gOverlay57Range030End;
+    cursor = gOverlay57Range030Start, end = gOverlay57Range030End;
     do {
         overlay57ReleaseDescriptorReloc(*cursor);
         cursor++;
     } while ((u32) cursor < (u32) end);
 
-    cursor = gOverlay57Range080Start;
-    end = gOverlay57Range080End;
+    cursor = gOverlay57Range080Start, end = gOverlay57Range080End;
     do {
         overlay57ReleaseDescriptorReloc(*cursor);
         cursor++;
     } while ((u32) cursor < (u32) end);
 
-    cursor = gOverlay57Range0E0Start;
-    end = gOverlay57Range0E0End;
+    cursor = gOverlay57Range0E0Start, end = gOverlay57Range0E0End;
     do {
         overlay57ReleaseDescriptorReloc(*cursor);
         cursor++;
@@ -86,6 +79,3 @@ void overlay57ReleaseAll(void) {
 
     overlay57FinalizeReloc(gOverlay57Object100);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57ReleaseAll/func_overlay_057_F0001978_18A5570.s")
-#endif

@@ -56,12 +56,16 @@ extern void o57ModeSubmitFinalReloc(void *object, void *state, f32 position,
                                    s32 index, s32 mode);
 
 /* Overlay 57 text +0x4064..+0x43C8. */
+/* Plateau: canonical -O2 -mips2 is exact-size at 0x364 and differs in 13
+ * words, first at +0xE0.  Reusing inputFlags as the compacted output index
+ * fixes the output-table carrier; the remaining initializer schedule and
+ * private a1/a2 loop web resisted the bounded source variants. */
 #ifdef NON_MATCHING
 void overlay57HandleModeInput(s32 updateRate) {
-    s8 enabled[4];
     u32 inputFlags;
     s32 i;
     s32 *idPtr;
+    s8 enabled[4];
 
     gOverlay57ModeFlag = 0;
     gOverlay57State = 3;
@@ -81,18 +85,18 @@ void overlay57HandleModeInput(s32 updateRate) {
         gO57ModeShortValue = 0x3FC;
         gO57ModeSixthByte = 0;
 
-        i = 0;
         inputFlags = 0;
+        i = 0;
         do {
-            enabled[inputFlags] = gO57ModeChoices[inputFlags].enabled;
-            if (gO57ModeChoices[inputFlags].enabled != 0) {
-                gO57ModeOutputs[i].value =
+            enabled[i] = gO57ModeChoices[i].enabled;
+            if (gO57ModeChoices[i].enabled != 0) {
+                gO57ModeOutputs[inputFlags].value =
                     (s8) gO57ModeValueTable[
-                        gO57ModeChoices[inputFlags].tableIndex];
-                i++;
+                        gO57ModeChoices[i].tableIndex];
+                inputFlags++;
             }
-            inputFlags++;
-        } while (&gO57ModeChoices[inputFlags] != gO57ModeChoicesEnd);
+            i++;
+        } while (&gO57ModeChoices[i] != gO57ModeChoicesEnd);
 
         o57ModeSubmitEnabledReloc(enabled);
         o57ModeSelectChoiceReloc(0);

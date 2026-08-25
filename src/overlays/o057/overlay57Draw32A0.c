@@ -48,6 +48,9 @@ extern void o57Draw32A0RenderReloc(void *anchor,
                                    f32 yScale, s32 color, s32 command);
 
 /* Overlay 57 text +0x32A0..+0x35E0. */
+/* Plateau: canonical -O2 -mips2 is exact-size at 0x340 and differs in 86
+ * words, first at +0x0.  Independent schedules and private frame/register
+ * webs remain despite exact calls, FP lanes, and memory effects. */
 #ifdef NON_MATCHING
 void overlay57Draw32A0(s32 updateRate) {
     Overlay57Draw32A0Record *records;
