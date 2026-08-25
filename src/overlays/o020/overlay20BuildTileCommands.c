@@ -50,6 +50,14 @@ extern void overlay20TileSetupReloc(Overlay20Command **commands,
         _g->w1 = (u32)(address);                                            \
     }
 
+/*
+ * Plateau (2026-08-25, 6 attempts): the closest exact-size -O2 experiment
+ * differs in 5 of 134 words and first diverges at +0x48.  A seven-element
+ * chunk array recovers the retail frame but is not retained because the
+ * source cannot prove that reduced capacity; the 13-element body instead
+ * differs in 7 words.  The unresolved shape is the stack allocation for the
+ * three command-macro temporaries plus one doubled-width register choice.
+ */
 #ifdef NON_MATCHING
 void overlay20BuildTileCommands(Overlay20Command **commands,
                                 Overlay20TileSource *source, s32 arg2) {
