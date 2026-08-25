@@ -81,7 +81,28 @@ void osScAddClient(OSSched *sc, OSScClient *client, OSMesgQueue *msgQ, u8 id) {
     sc->clientList = client;
     osSetIntMask(mask);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScRemoveClient.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:osScRemoveClient. */
+void osScRemoveClient(OSSched *sc, OSScClient *clientToRemove) {
+    OSScClient *client = sc->clientList;
+    OSScClient *previous = NULL;
+    OSIntMask mask;
+
+    mask = osSetIntMask(OS_IM_NONE);
+    while (client != NULL) {
+        if (client == clientToRemove) {
+            if (previous != NULL) {
+                previous->next = clientToRemove->next;
+            } else {
+                sc->clientList = clientToRemove->next;
+            }
+            break;
+        }
+        previous = client;
+        client = client->next;
+    }
+    osSetIntMask(mask);
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/sched.c:osScGetCmdQ. */
 OSMesgQueue *osScGetCmdQ(OSSched *scheduler) {
     return &scheduler->cmdQ;

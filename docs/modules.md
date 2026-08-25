@@ -1319,10 +1319,11 @@ plus `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes) and
 `0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
 `osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
 no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes), plus
-`osScAddClient` (ROM `0x30E2C`–`0x30E88`, 92 bytes) and `__scTaskReady`
-(ROM `0x31EFC`–`0x31F4C`, 80 bytes), and `__scAppendList` (ROM `0x3204C`–
-`0x320AC`, 96 bytes). All were compiled with the resident `-O2 -mips2 -32`
-flags. The saves TU additionally disables loop unrolling: the full flag
+`osScAddClient` (ROM `0x30E2C`–`0x30E88`, 92 bytes), `osScRemoveClient`
+(ROM `0x30E88`–`0x30F10`, 136 bytes), `__scTaskReady` (ROM `0x31EFC`–
+`0x31F4C`, 80 bytes), and `__scAppendList` (ROM `0x3204C`–`0x320AC`,
+96 bytes). All were compiled with the resident `-O2 -mips2 -32` flags. The
+saves TU additionally disables loop unrolling: the full flag
 lattice selects the target's scalar 24-record reset loop, and the full ROM
 comparison confirms the setting leaves its other exact functions unchanged.
 The named bodies are adapted from
