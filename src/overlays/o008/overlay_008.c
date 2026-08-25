@@ -868,16 +868,9 @@ void func_overlay_008_F0003278_1860FD0(void *unused0,
     }
 }
 
-/* Plateau after the flag lattice and six source-order/type attempts: exact
- * 0x138 size and 76/78 words, first mismatch at +0x34. The two remaining
- * words are the independent lower/upper threshold loads in reverse order;
- * declaration/register/direct-global spellings either preserve the swap or
- * disturb the loop. Reconfirmed 2026-08-25 with the full 119-combination
- * flag lattice, three additional qualifier/order spellings, and a bounded
- * ten-minute permuter batch under the real overlay flags; score 30 did not
- * improve. A fresh ten-hypothesis pass in lane cx-ov-3-a-a-r3 (statement and
- * declaration order, comma association, aggregate access, direct globals,
- * and const/register qualifiers) retained the same +0x34 two-word plateau. */
+/* Plateau: exact 0x138 size and 76/78 words; first mismatch +0x34 swaps
+ * independent lower/upper threshold loads. The 119-flag lattice, ten source
+ * shapes, and 2,401-second permuter pass retained the two-word plateau. */
 #ifdef NON_MATCHING
 void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
                           Overlay8ScaleContext *context,
