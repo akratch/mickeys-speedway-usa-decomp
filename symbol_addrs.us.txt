@@ -1866,6 +1866,10 @@ func_8000FEB4 = 0x8000FEB4; // type:func size:0x38 ROM 0x10ab4 tier-D (DKR src/t
 // accessor and 12-byte record layout; Mickey proves the resident binding.
 func_8000FEEC = 0x8000FEEC; // type:func size:0x40 ROM 0x10aec tier-D (DKR src/tracks.c block_boundbox structure, placeholder retained)
 
+// No public name adopted: JFG supplies a same-position plane-building
+// skeleton but only under a placeholder; Mickey proves the exact C and data.
+func_8000FF2C = 0x8000FF2C; // type:func size:0x24C ROM 0x10b2c tier-D (JFG src/track.c structure, placeholder retained)
+
 // JFG's `trackClip3D` supplies tier-D structure for the preceding caller,
 // while Mickey proves its shorter boundary and exact six-call body.
 func_800131AC = 0x800131AC; // type:func size:0x178 ROM 0x13dac tier-D (JFG trackClip3D structure, placeholder retained)

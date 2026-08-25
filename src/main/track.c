@@ -10,7 +10,7 @@
  * strings, calls, function boundaries, and bytes decide every disagreement.
  * Adapted bodies keep a PROVENANCE note at their point of use.
  *
- * Flags: -O2 -mips2 -32 (the resident game-code default).
+ * Flags: -O2 -mips2 -32 -Wab,-r4300_mul.
  */
 
 #include "game/track.h"
@@ -47,6 +47,25 @@ typedef struct TrackFloatRecord {
     f32 z;
     f32 unkC;
 } TrackFloatRecord;
+
+typedef struct TrackPlanePoints {
+    f32 x0;
+    f32 y0;
+    f32 z0;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 x2;
+    f32 y2;
+    f32 z2;
+} TrackPlanePoints;
+
+typedef struct TrackPlane {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 distance;
+} TrackPlane;
 
 typedef struct TrackLightColourEntry {
     s8 red;
@@ -296,6 +315,8 @@ extern void *D_800C9D20;
 extern void *D_800C9D2C;
 extern void *D_800C9D30;
 extern void *D_800C9D34;
+extern TrackPlanePoints D_8007927C[3];
+extern TrackPlane D_800C9578[3];
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -335,6 +356,8 @@ void func_800347A0(void *texture);
 void mmFree(void *data);
 void shadowFreeBuffers(void);
 void animseqFreeLevelData(void);
+f32 (*func_80024664(void))[4];
+f32 sqrtf(f32 value);
 void func_80007E40(TrackSkyObject *object, s32 updateRate,
                    TrackLevelData **levelData);
 void func_80009E78(Gfx **displayList, Mtx **matrix, TrackVertex **vertices,
@@ -1029,7 +1052,70 @@ TrackBoundingBox *func_8000FEEC(s32 segmentIndex) {
     }
     return &D_800792E8->segmentBounds[segmentIndex];
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FF2C.s")
+/*
+ * PROVENANCE: JFG's public `src/track.c` supplies a same-position,
+ * assembly-only placeholder with the same three-plane skeleton. Mickey's
+ * matrix, inputs, arithmetic, and output layout are authoritative.
+ */
+void func_8000FF2C(void) {
+    f32 x0;
+    f32 y0;
+    f32 z0;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 x2;
+    f32 y2;
+    f32 z2;
+    f32 pad0;
+    f32 distance;
+    TrackPlanePoints *points;
+    TrackPlane *plane;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 inverseLength;
+    f32 (*matrix)[4];
+    s32 index;
+
+    points = D_8007927C;
+    plane = D_800C9578;
+    matrix = func_80024664();
+    index = 0;
+    do {
+        mtxf_transform_point(matrix, points->x0, points->y0, points->z0,
+                             &x0, &y0, &z0);
+        mtxf_transform_point(matrix, points->x1, points->y1, points->z1,
+                             &x1, &y1, &z1);
+        mtxf_transform_point(matrix, points->x2, points->y2, points->z2,
+                             &x2, &y2, &z2);
+
+        normalX = ((z1 - z2) * y0) + (y1 * (z2 - z0)) +
+                  (y2 * (z0 - z1));
+        normalY = ((x1 - x2) * z0) + (z1 * (x2 - x0)) +
+                  (z2 * (x0 - x1));
+        normalZ = ((y1 - y2) * x0) + (x1 * (y2 - y0)) +
+                  (x2 * (y0 - y1));
+        inverseLength = 1.0f /
+            sqrtf((normalX * normalX) + (normalY * normalY) +
+                  (normalZ * normalZ));
+        if (inverseLength > 0.0f) {
+            normalX *= inverseLength;
+            normalY *= inverseLength;
+            normalZ *= inverseLength;
+        }
+
+        distance = -((x0 * normalX) + (y0 * normalY) +
+                     (z0 * normalZ));
+        index++;
+        plane->x = normalX;
+        plane->y = normalY;
+        plane->z = normalZ;
+        points++;
+        plane++;
+        plane[-1].distance = distance;
+    } while (index != 3);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010178.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800103D4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010654.s")
