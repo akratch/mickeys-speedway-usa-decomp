@@ -1317,7 +1317,7 @@ address-placeholder helper names are not imported.
 | `0x165DC` | `0x11C` | `getXZCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x166F8` | `0x98` | `getYCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x16790` | `0x300` | `trackLightAsm` | B; uses odd single-precision FP registers, stays `asm` |
-| `0x16A90` | `0x12C` | `shadowInitBuffers` | B; `NON_MATCHING` plateau after the flag lattice, eight source/loop forms, and a 10-minute permuter batch: exact 75-word frame/opcode/register shape, but 6 positional words differ and the two sentinel relocations at `+0xC4`/`+0xD4` bind `D_80079434 + 0xC` instead of `D_80079440` |
+| `0x16A90` | `0x12C` | `shadowInitBuffers` | tier-B; `NON_MATCHING` workbench `words-identical` plateau after a zero-based alias loop removed all six operand differences; first metadata mismatch `+0xC4`, where the remaining HI16/LO16 pair binds `D_80079434 + 0xC` instead of `D_80079440` |
 | `0x16BBC` | `0x78` | `shadowFreeBuffers` | B name; JFG-adapted exact C, 30 words, 15 relocs under O2/mips2 |
 | `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
