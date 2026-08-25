@@ -30,6 +30,18 @@ extern u8 D_8007C08C;
 extern u8 D_8007C090;
 extern s32 D_8007C098;
 extern s16 D_8007BF70;
+extern u8 D_8007BEF4;
+extern s8 D_8007BF34;
+extern u8 D_8007C0A0;
+extern s32 D_8007C09C;
+extern s32 D_8007C1A4;
+extern s32 D_8007C1AC;
+extern s32 D_800C947C;
+extern s32 D_800D3140;
+extern s32 D_800D3144;
+extern s32 D_800D3148;
+extern s32 D_800D314C;
+extern u8 D_800826C0[];
 extern u16 D_800D312C;
 extern u16 D_800D312E;
 extern void amTuneStop(void);
@@ -38,6 +50,17 @@ extern s32 levelGetRegionNo(void);
 extern s8 viGetWideAdjust(void);
 extern void gsSndpSetGlobalVolume(s32 volume);
 extern void viSetWideAdjust(s32 offset);
+extern s32 TrapDanglingJump();
+extern void amSndPlay(s32 soundId, s32 *handle);
+extern void amSndSetVol(s32 soundId, s32 handle, s32 volume, s32 *handleOut);
+extern void amSndStop(s32 handle);
+extern void func_80000510(u8 value, s16 arg1);
+extern s32 func_80005820(s32 arg0);
+extern u8 *func_80028F54(void);
+extern void func_80039720(s32 updateRate);
+extern void func_80044BC8(s32 arg0, u8 *source, s32 line);
+extern u16 joyGetPressed(s32 controller);
+extern void mainTitlePageInit(s32 mode);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038878.s")
@@ -45,7 +68,141 @@ extern void viSetWideAdjust(s32 offset);
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038BC4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038DAC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038E10.s")
+#ifdef NON_MATCHING
+/* Size- and frame-exact plateau: 248/279 words differ, first at +0x24.
+ * IDO assigns the persistent fade-state address to a0 instead of v1, then
+ * cascades into a different register and switch schedule. */
+s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
+    s32 sp24;
+    u8 *sp20;
+    u16 sp1E;
+    u16 sp1C;
+    u16 sp1A;
+    s32 temp_t1;
+    s32 temp_t4;
+    s32 temp_v0;
+    u8 temp_v0_2;
+
+    sp20 = func_80028F54();
+    if (D_800C947C != 0) {
+        if (D_8007C1A4 == 0) {
+            amSndPlay(0xA, &D_8007C1A4);
+        }
+        D_8007C1AC = 0x7F;
+    } else if (D_8007C1AC > 0) {
+        temp_t1 = D_8007C1AC - (updateRate * 3);
+        D_8007C1AC = temp_t1;
+        if (temp_t1 <= 0) {
+            if (D_8007C1A4 != 0) {
+                amSndStop(D_8007C1A4);
+            }
+        } else {
+            amSndSetVol(0xA, D_8007C1A4, temp_t1 & 0xFF, &D_8007C1A4);
+        }
+    }
+    func_80039720(updateRate);
+    if (TrapDanglingJump() != 0) {
+    } else {
+        if (func_8003A550() != 0) {
+            func_8003A544(0);
+            temp_t4 = D_8007C09C - updateRate;
+            D_8007C09C = temp_t4;
+            if ((temp_t4 < 0) ||
+                (sp1A = joyGetPressed(2), sp1C = joyGetPressed(1),
+                 sp1E = joyGetPressed(0),
+                 ((joyGetPressed(3) | sp1E | sp1C | sp1A) & 0x9000) != 0)) {
+                mainTitlePageInit(1);
+                D_8007C09C = 0x4B0;
+            } else {
+                func_8003A544(1);
+            }
+        }
+        temp_v0 = func_80005820(0);
+        D_800D3140 = *arg0;
+        D_800D3144 = *arg1;
+        D_800D3148 = *arg2;
+        sp24 = temp_v0;
+        D_800D314C = *arg3;
+        func_80044BC8(D_800D3140, D_800826C0, 0x297);
+        switch (D_8007C0A0) {
+        case 2:
+            TrapDanglingJump(updateRate);
+            break;
+        case 6:
+            TrapDanglingJump(updateRate);
+            break;
+        case 3:
+            TrapDanglingJump(updateRate);
+            break;
+        case 4:
+        case 10:
+        case 12:
+        case 17:
+        case 18:
+            TrapDanglingJump(updateRate);
+            break;
+        case 9:
+        case 11:
+            TrapDanglingJump(updateRate);
+            break;
+        case 7:
+            TrapDanglingJump(updateRate);
+            break;
+        case 8:
+            TrapDanglingJump(updateRate);
+            break;
+        case 5:
+            temp_v0_2 = *sp20;
+            if ((temp_v0_2 == 5) || (temp_v0_2 == 6)) {
+                if (D_8007BEF4 == 1) {
+                    TrapDanglingJump(sp24, updateRate);
+                    TrapDanglingJump(updateRate);
+                } else if (D_8007BEF4 < 3) {
+                    TrapDanglingJump(updateRate);
+                } else {
+                    TrapDanglingJump(updateRate);
+                }
+            } else if (D_8007BEF4 == 1) {
+                TrapDanglingJump(sp24, updateRate);
+                TrapDanglingJump(updateRate);
+            } else if (D_8007BEF4 < 3) {
+                TrapDanglingJump(updateRate);
+            } else {
+                TrapDanglingJump(updateRate);
+            }
+            break;
+        case 13:
+            TrapDanglingJump(updateRate);
+            break;
+        case 14:
+            TrapDanglingJump(updateRate);
+            break;
+        case 15:
+            TrapDanglingJump((s32)&D_800D3140, (s32)&D_800D3144, &D_800D3148, updateRate);
+            break;
+        case 16:
+            TrapDanglingJump(updateRate);
+            break;
+        }
+        func_80044BC8(D_800D3140, D_800826C0, 0x2C5);
+        *arg0 = D_800D3140;
+        *arg1 = D_800D3144;
+        *arg2 = D_800D3148;
+        *arg3 = D_800D314C;
+        D_8007BF34 = 0;
+        if (D_8007BF70 != -1) {
+            D_8007BF70 -= updateRate;
+            if (D_8007BF70 <= 0) {
+                D_8007BF70 = -1;
+                func_80000510(D_800D3050, -1);
+            }
+        }
+    }
+    return 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038E1C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039278.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039380.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/frontDrawRectangle.s")

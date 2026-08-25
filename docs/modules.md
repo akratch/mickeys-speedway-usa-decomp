@@ -953,6 +953,15 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
+`func_80038E1C` retains a Mickey-derived `NON_MATCHING` candidate with the
+exact **0x45C-byte / 279-word** size, `0x28`-byte frame, case count, and
+high-level control flow. It plateaus at **248/279 differing words**, first
+`+0x24`: IDO assigns the persistent fade-state address to `a0` rather than the
+target's `v1`, then cascades into a different register and switch schedule.
+The full 119-combination flag lattice keeps the resident defaults best; JFG
+has no C donor body for the nearest front-end routine. Canonical code remains
+assembly.
+
 `frontSetWideAdjust` is the first exact C promotion: **0x2C bytes / 11 words**
 at ROM `0x3AFDC`, with the target's four relocation-bearing words resolving
 at their real linked addresses. Its body is adapted from JFG's public
