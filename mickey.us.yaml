@@ -1926,7 +1926,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x18A3BF8, asm, overlay_057_prefix]
+      - [0x18A3BF8, c, func_overlay_057_F0000000_18A3BF8]
       - [0x18A454C, c, overlay57UpdateInterface]
       - [0x18A4C18, asm, overlay_057_prefix_b]
       - [0x18A5570, c, overlay57ReleaseAll]
