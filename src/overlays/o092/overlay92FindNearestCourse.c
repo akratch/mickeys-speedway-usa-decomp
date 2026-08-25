@@ -36,9 +36,9 @@ extern f32 gOverlay92DistanceParameters[2];
 extern O92Object **overlay92GetObjectRange(s32 *start, s32 *end);
 extern f32 sqrtf(f32 value);
 
-/* Workbench: mixed structure/schedule/allocation, 26 of 168 words differ, first +0x4.
- * Restoring flag and scalar-table identity helped; typed-local, -g0, and line-reflow levers did not.
- * Remaining: s1/s2 web swap, one move/load schedule pair, and first-distance FP coloring. */
+/* Workbench: mixed structural/schedule/allocation; best 16 words, first +0x48.
+ * Integer pool-position reads cut 26 to 16, but require non-source empty guards.
+ * Remaining: index/cursor swap, one schedule pair, and first-distance FP coloring. */
 #ifdef NON_MATCHING
 s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
                                       f32 *outY, f32 *outZ, s32 *outValue) {

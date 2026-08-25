@@ -1149,11 +1149,11 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Workbench: structure-buckets plateau, 25/32 words and first mismatch +0x0.
- * Pointer lifetime, register locals, raw-u8 access, widths, and flags tied.
- * The opening global-address lifetime still cascades through the register web. */
-/* PROVENANCE: role/order compared with JFG's public
- * src/menu.c::frontSetScreenMode; JFG retains assembly. */
+/* Workbench: allocation-mismatch, 5/32 words from +0xC; size/temp lane exact.
+ * Reversed and sequential assignment-web forms regressed to 24-25 words.
+ * Prior pool/type/permuter levers leave a v0/v1 inversion and ring comparison. */
+/* PROVENANCE: mask, state guard, and order compared with JFG's public
+ * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
 void func_8003A2C8(s32 screenMode) {
     u8 *modeState;
     s32 mode;

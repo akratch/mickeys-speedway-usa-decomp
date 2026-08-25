@@ -13,9 +13,9 @@ typedef struct Overlay41StepRecord {
 extern Overlay41StepRecord gOverlay41StepRecords[8];
 extern void overlay41EmitStep(s32 id, s32 x, s32 y);
 
-/* Workbench: register-ring-only, 26 register-only words, first +0x54; temp slot 0 is one phase ahead.
- * Temp-FIFO condition, polarity, and lifetime levers were inert or advanced the ring farther.
- * Remaining: one upstream temp-pop/death event before the inner record-update block. */
+/* Workbench: register-ring-only, 26 register words, first +0x54; phase +1.
+ * Condition/polarity/lifetime levers were inert; s16 step added four instructions.
+ * Remaining: one temp-pop/death before the inner record-update block. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0000000_1887338(s32 amount) {
     Overlay41StepRecord *record;
