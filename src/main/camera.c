@@ -166,6 +166,7 @@ extern f32 D_800D2FB4;
 extern f32 D_80081A2C;
 extern f32 D_80081A40;
 extern f32 D_80081A44;
+extern f32 D_80081A48;
 extern Camera D_800CEA20[];
 extern CameraShake D_800CEC18[];
 extern s32 D_8007C854;
@@ -1035,4 +1036,35 @@ void camSetZoom(s32 camNo, f32 zoom) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024D00.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024ED8.s")
+/* Mickey-only fixed-distance camera-transform reconstruction. */
+void func_80024ED8(CameraTransform *source, s32 unused, Camera *dest) {
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    if (D_800CEC60 == 0) {
+        distance = 100.0f;
+    } else {
+        distance = 150.0f;
+    }
+    targetX = source->x - (func_8002A8C0(source->yRotation) * distance);
+    targetY = source->y + (distance * D_80081A48);
+    targetZ = source->z - (func_8002A8BC(source->yRotation) * distance);
+    dest->transform.x = targetX;
+    dest->unk18 = targetX;
+    dest->unk1C = targetY;
+    dest->transform.y = targetY;
+    dest->unk20 = targetZ;
+    dest->transform.z = targetZ;
+    deltaX = targetX - source->x;
+    deltaY = (targetY - source->y) - 20.0f;
+    deltaZ = targetZ - source->z;
+    dest->transform.yRotation = Arctanf(deltaZ, deltaX) + 0x4000;
+    dest->transform.xRotation =
+        Arctanf(deltaY, sqrtf((deltaX * deltaX) + (deltaZ * deltaZ)));
+    dest->transform.zRotation = 0;
+}

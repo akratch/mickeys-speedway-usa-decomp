@@ -920,6 +920,7 @@ functions is classified as handwritten assembly under §6.2.
 | `camGetPlayerProjMtx` | `0x23360` | A — byte identity (named above) | 52 | Configured object, five relocations, linked range and full ROM exact. |
 | `camStopShakes` | `0x25754` | B — role/order (named above) | 76 | Configured object, three relocation pairs, linked range and full ROM exact. |
 | `camStartShake` | `0x256C4` | D — JFG TU role/order and shake-record dataflow | 144 | JFG body adapted to Mickey's six-camera bound; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
+| `func_80024ED8` | `0x25AD8` | D — retained Mickey auto-name; fixed-distance camera-transform dataflow | 324 | Mickey-only body; 81 executable instructions and nine text relocations are exact. The following four-byte TU alignment NOP is reproduced by compiler section padding; linked range and full ROM exact. |
 | `camIgnoreShake` | `0x22094` | B — role/order | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camGetFOV` | `0x220A0` | B — role/order | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `func_80021444` | `0x22044` | D — retained Mickey auto-name; paired camera-state effect only | 64 | Mickey-only bounded state setter; configured object, two HI16/LO16 relocation pairs, linked range and full ROM exact. |
