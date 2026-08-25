@@ -922,6 +922,15 @@ functions is classified as handwritten assembly under §6.2.
 | `camSetMode` | `0x22524` | D — TU order only, no per-symbol callgraph argument recorded | 64 | Configured object, two relocation pairs, linked range and full ROM exact. |
 | `camGetNo` | `0x22564` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camSetNo` | `0x22594` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact; Mickey omits JFG's bounds guard. |
+| `func_800221E8` | `0x22DE8` | D — retained Mickey auto-name; JFG `camSetView` role/order | 1,052 | JFG body adapted for Mickey's region flag, half-resolution and zoom state; configured object, 19 text relocations, linked range and full ROM exact. |
+| `func_80022794` | `0x23394` | D — retained Mickey auto-name; JFG `camSetProjMtx` role/order | 676 | JFG body adapted for Mickey's extra camera-state FOV check; configured object, 40 text relocations, linked range and full ROM exact. |
+
+Bounded plateau:
+
+| Function | ROM | Evidence and retained result |
+|---|---:|---|
+| `func_80022FD4` | `0x23BD4` | D — JFG supplies only the `camDoSprite` role/order; the Mickey-only `NON_MATCHING` reconstruction plateaued after the flag lattice and ten source/lifetime variants. The best `-Wab,-r4300_mul` build has the exact `0xB0` frame and emits 366 instructions against 369, with 297 positional words differing from first mismatch `+0x2C` because IDO places three coordinate stack homes twelve bytes above the target before a later three-instruction schedule deficit. The assembly remains canonical. |
+
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
 The later menu census below adds independent boundary evidence rather than
