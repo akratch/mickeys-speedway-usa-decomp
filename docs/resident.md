@@ -1529,6 +1529,7 @@ Exact C reconstructions in this census currently include the still-unnamed
 `packCalculateGameChecksum` (ROM `0x2D3BC`–
 `0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
+`packOpen` (ROM `0x2DCCC`–`0x2DED4`, 520 bytes),
 the still-unnamed chunked save-device transfer `func_8002C7EC` (ROM
 `0x2D3EC`–`0x2D4B4`, 200 bytes),
 `packIsPresent` (ROM `0x2E0CC`–`0x2E128`, 92 bytes),

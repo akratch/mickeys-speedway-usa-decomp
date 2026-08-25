@@ -691,7 +691,67 @@ void func_8002CF6C(u8 *globalFlags) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CF6C.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packOpen.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packOpen, with Mickey's globals and status values. */
+s32 packOpen(s32 controllerIndex) {
+    OSMesg unusedMessage;
+    s32 ret;
+    s32 bytesNotUsed;
+    s32 i;
+
+    if (D_800D21C0->validCount == 0) {
+        if (osMotorInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                        controllerIndex) == 0) {
+            return 8;
+        }
+    }
+
+    i = 0;
+    while (D_800D21C0->validCount != 0 && i < 10) {
+        osRecvMesg(D_800D21C0, &unusedMessage, OS_MESG_NOBLOCK);
+        i++;
+    }
+
+    for (i = 0; i <= 4; i++) {
+        ret = osPfsFreeBlocks(&D_800D21C8[controllerIndex], &bytesNotUsed);
+        if (ret == PFS_ERR_INVALID) {
+            ret = osPfsInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                            controllerIndex);
+        }
+        if (ret == PFS_ERR_ID_FATAL) {
+            if (osMotorInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                            controllerIndex) == 0) {
+                return 8;
+            }
+        }
+        if (ret == PFS_ERR_NEW_PACK) {
+            if (osPfsInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                          controllerIndex) == PFS_ERR_ID_FATAL &&
+                osMotorInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                            controllerIndex) == 0) {
+                return 8;
+            }
+            return 5;
+        }
+        if (ret == PFS_ERR_NOPACK || ret == PFS_ERR_DEVICE) {
+            return 1;
+        }
+        if (ret == PFS_ERR_BAD_DATA) {
+            return 6;
+        }
+        if (ret == PFS_ERR_ID_FATAL) {
+            return 3;
+        }
+        if (ret == PFS_ERR_INCONSISTENT) {
+            return 2;
+        }
+        if (ret == 0) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packClose. */
 s32 packClose(s32 controllerIndex) {
     osContStartReadData(D_800D21C0);
