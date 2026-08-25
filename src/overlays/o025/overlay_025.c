@@ -10,6 +10,10 @@
  * the same object, while volatile-u16 flags added three instructions. The
  * blocker is the saved-register/stack-home web plus the target's lhu flags
  * load; the consolidated-TU symbol could not be re-imported by permute.sh.
+ * R3 revisit: all 119 flag groups reconfirmed 39 differing words and first
+ * mismatch +0x14 under -O2 -mips3 -Wab,-r4300_mul. Correcting useOwner to
+ * u16 removed that best flag group; materializing the global u16 changed the
+ * frame; and volatile u16 reached 42 words but inserted an address add.
  */
 #ifdef NON_MATCHING
 void overlay25InitializeEffect(Overlay25Object *object,
