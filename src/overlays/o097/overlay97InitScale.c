@@ -81,6 +81,10 @@ typedef struct Overlay97ScaleEntry {
  * cursor from the bounds base; IDO instead derives the equivalent address
  * directly from the model base. Typed common-base forms disturb the scan
  * schedule, and the bounded permuter found no lower-scoring source form.
+ * Current lane structural pass (2026-08-25): bounds-derived and single-array
+ * cursors made the candidate one word short and changed 69/144 words, while
+ * typed-member and volatile-qualifier variants remained at 1/144. The best
+ * candidate and required multiply-hazard flag are unchanged.
  */
 #ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
