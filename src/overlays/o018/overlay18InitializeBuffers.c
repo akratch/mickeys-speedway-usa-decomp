@@ -19,18 +19,19 @@ extern void *overlay18AllocateReloc(s32 size, s32 tag);
 
 /* Pinned DKR v77/v80 and JFG searches found no exact donor. */
 /*
- * Plateau (2026-08-25, 8 source attempts plus a bounded permuter batch):
+ * Plateau (2026-08-25 rerun, 10 source attempts after the full flag lattice):
  * -O2 has the exact 0x15C-byte extent; the best readable candidate differs
- * in 56 of 87 words from entry.  Caching the depth address and loading its
- * value before the mode write places that write at the target +0x20 and
- * improves the later buffer setup, but it makes IDO schedule depth before
- * the layer/width loads.  The full flag lattice and local expression/load
- * reorderings did not reproduce the target temporary allocation.
+ * in 54 of 87 masked positional words, first at +0x0.  Declaring depth before
+ * size fixes the target stack spill and improves two words.  The remaining
+ * first load uses a pool register where the target uses the temporary ring;
+ * typed-offset, signedness, expression-order, and explicit-local variants all
+ * regressed.  The bounded permuter wrapper could not import the differing C
+ * and retained-assembly symbol names, so no permuter candidate was accepted.
  */
 #ifdef NON_MATCHING
 void overlay18InitializeBuffers(void) {
-    s32 size;
     s32 depth;
+    s32 size;
     s32 *depthPtr;
     u8 *buffer;
 
