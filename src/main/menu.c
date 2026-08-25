@@ -1002,20 +1002,18 @@ void setupFrontEndObject(s32 objectId) {
     destination->pad1C[3] = source->pad1C[3];
 }
 #ifdef NON_MATCHING
-/* Exact 0xB8 frame and local stack homes, but one word too long; 242/262
- * words differ, first at +0x14. IDO assigns the D_800D31C8 base/object pair
- * to t2/a3 instead of t5/t0, cascading through the function. */
+/* Workbench: mixed structural/register, 264 vs 262 words; best 190 differ, first +0x14.
+ * Levers 1, 11, 12, 16, and 18 tried; the constant audit found reordered identical offsets.
+ * Remaining: base temp t2 vs t5; inlining fixes the selected object to t0 but adds two words. */
 void func_80039E34(s32 index) {
     MenuDrawStack stack;
     s16 flags;
-    MenuFrontObject *entryObject;
     MenuFrontObject *renderObject;
     MenuCurrentObject *current;
     MenuCommand *command;
 
     current = &D_800D3550[index];
-    entryObject = D_800D31C8[current->index];
-    if ((entryObject != NULL) &&
+    if ((D_800D31C8[current->index] != NULL) &&
         ((D_8007C1B8[current->index] & 0xC000) != 0xC000)) {
         stack.sp7C = current->unk0;
         stack.sp7E = current->unk2;
@@ -1026,7 +1024,8 @@ void func_80039E34(s32 index) {
         stack.sp84 = current->unk8;
         flags = D_8007C1B8[current->index];
         if (flags & 0x4000) {
-            MenuCurrentObject *drawObject = (MenuCurrentObject *)entryObject;
+            MenuCurrentObject *drawObject =
+                (MenuCurrentObject *)D_800D31C8[current->index];
 
             drawObject->unk0 = current->unk0;
             drawObject->unk2 = current->unk2;
@@ -1035,9 +1034,9 @@ void func_80039E34(s32 index) {
             drawObject->unk10 = current->unk10;
             drawObject->unk14 = current->unk14;
             drawObject->unk8 = current->unk8;
-            *((s8 *)entryObject + 0x39) = D_8007C0BC;
+            *((s8 *)drawObject + 0x39) = D_8007C0BC;
             func_80009E78(&D_800D3140, &D_800D3144, &D_800D3148,
-                          entryObject);
+                          drawObject);
             return;
         }
         if (flags & 0x8000) {

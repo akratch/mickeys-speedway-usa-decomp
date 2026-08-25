@@ -56,15 +56,9 @@ extern s32 overlay7RuntimeChanceReloc(s32 minimum, s32 maximum);
 extern void overlay7SetRuntimeModeReloc(Overlay7RuntimeObject *object,
                                         s32 mode);
 
-/*
- * Plateau (2026-08-25): -O2 -mips2 -Wo,-loopunroll,0 produces the exact
- * 0x570-byte section, but uses a 0x80-byte frame instead of 0x78; the first
- * mismatch is at +0x0. The best structural candidate scores 4454. The full
- * 119-case flag lattice, postdecrement loop spelling, relocation-bearing
- * global accesses, source-local ordering/scoping, signedness, and redundant
- * pointer-alias removal did not close the remaining stack-slot and relocation
- * scheduling differences.
- */
+/* Workbench: mixed structure/schedule/register, 348 words exact-size; 242 raw differ, first +0x0.
+ * Levers 1 and 26 tried after the prior lattice: count aggregate and disjoint local reuses did not shrink the frame.
+ * Remaining: identical save bytes but 0x80 vs 0x78 frame; private relocation scheduling drives the temp homes. */
 #ifdef NON_MATCHING
 void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
     s32 count;
