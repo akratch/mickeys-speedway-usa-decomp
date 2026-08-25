@@ -1538,6 +1538,7 @@ the still-unnamed chunked save-device transfer `func_8002C7EC` (ROM
 `packDeleteFile` (ROM `0x2E56C`–`0x2E620`, 180 bytes),
 `packOpenFile` (ROM `0x2E620`–`0x2E74C`, 300 bytes),
 `packReadFile` (ROM `0x2E74C`–`0x2E810`, 196 bytes),
+`packWriteFile` (ROM `0x2E810`–`0x2EA50`, 576 bytes),
 `packFileSize` (ROM `0x2EA50`–`0x2EAB4`, 100 bytes),
 the still-unnamed `func_8002C5F4` (ROM `0x2D1F4`–`0x2D20C`, 24 bytes),
 the still-unnamed bitstream allocator `func_8002C60C` (ROM `0x2D20C`–

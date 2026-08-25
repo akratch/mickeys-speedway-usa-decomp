@@ -963,7 +963,86 @@ s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data, s32 dataLength) {
     }
     return 6;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packWriteFile.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packWriteFile, with Mickey's status values and game codes. */
+s32 packWriteFile(s32 controllerIndex, s32 fileNumber, char *fileName,
+                  char *fileExt, u8 *dataToWrite, s32 fileSize) {
+    s32 temp;
+    u8 fileNameAsFontCodes[PFS_FILE_NAME_LEN];
+    s32 pad;
+    u8 fileExtAsFontCodes[PFS_FILE_EXT_LEN];
+    s32 ret;
+    s32 file_number;
+    s32 bytesToSave;
+    u32 gameCode;
+
+    ret = packOpen(controllerIndex);
+    if (ret != 0) {
+        packClose(controllerIndex);
+        return ret;
+    }
+
+    bytesToSave = fileSize;
+    temp = fileSize & 0xFF;
+    if (temp != 0) {
+        bytesToSave = fileSize - temp + 0x100;
+    }
+
+    string_to_font_codes(fileName, (char *) fileNameAsFontCodes,
+                         PFS_FILE_NAME_LEN);
+    string_to_font_codes(fileExt, (char *) fileExtAsFontCodes,
+                         PFS_FILE_EXT_LEN);
+
+    if (frontGetLanguage() == 5) {
+        gameCode = 0x4E44594A;
+    } else if (osTvType == 0) {
+        gameCode = 0x4E445950;
+    } else {
+        gameCode = 0x4E445945;
+    }
+
+    ret = packOpenFile(controllerIndex, fileName, fileExt, &file_number);
+    if (ret == 0) {
+        if (fileNumber != -1 && fileNumber != file_number) {
+            ret = 6;
+        }
+    } else if (ret == 5) {
+        if (fileNumber != -1) {
+            ret = 6;
+        } else {
+            temp = osPfsAllocateFile(&D_800D21C8[controllerIndex], 0x3459,
+                                     gameCode, fileNameAsFontCodes,
+                                     fileExtAsFontCodes, bytesToSave,
+                                     &file_number);
+            if (temp == 0) {
+                ret = 0;
+            } else if (temp == 7 || temp == 8) {
+                ret = 4;
+            } else {
+                ret = 6;
+            }
+        }
+    }
+
+    if (ret == 0) {
+        temp = osPfsReadWriteFile(&D_800D21C8[controllerIndex], file_number,
+                                  PFS_WRITE, 0, bytesToSave, dataToWrite);
+        if (temp == 0) {
+            ret = 0;
+        } else if (temp == PFS_ERR_NOPACK || temp == PFS_ERR_DEVICE) {
+            ret = 1;
+        } else if (temp == PFS_ERR_INCONSISTENT) {
+            ret = 2;
+        } else if (temp == PFS_ERR_ID_FATAL) {
+            ret = 3;
+        } else {
+            ret = 6;
+        }
+    }
+
+    packClose(controllerIndex);
+    return ret;
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:packFileSize. */
 s32 packFileSize(s32 controllerIndex, s32 fileNum, s32 *fileSize) {
