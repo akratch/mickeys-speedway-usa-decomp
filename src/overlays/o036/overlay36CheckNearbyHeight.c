@@ -32,22 +32,22 @@ extern Overlay36WorldState *gOverlay36WorldStateReloc;
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 are negative and JFG's
  * Overlay 36 hits occur only at the unrelated +0x1470/+0x1490 wrappers. */
-/* Plateau after the flag lattice, eight source-layout attempts, and a bounded
- * permuter batch: exact 0xFC size and 50/63 words, first mismatch at +0x0.
- * Reusing one nearby-height load closed most of the prior gap; the remaining
- * mismatch is the 0x80-versus-0x70 frame and FP-bound scheduling/registers.
- * The permuter's lower numerical candidate read center before initialization
- * and was rejected as non-equivalent.
- * Follow-up (2026-08-25): a nine-entry result array reached a 0x70 frame but
- * left the array and spill offsets +0x10 from target; direct bound expressions
- * retained the 0x80 frame and regressed FP scheduling. The first mismatch of
- * the best 50/63-word candidate remains +0x0.
- * Lane follow-up (2026-08-25): ten additional bound-expression, register-
- * hint, aggregate-layout, lexical-scope, array-bound, declaration-order, and
- * K&R-definition attempts did not produce a safe improvement. A ten-entry
- * array reached 53/63 words and the 0x70 frame, but began at +0x48 rather
- * than the target +0x3C and under-sized the thirteen-pointer target capacity,
- * so it was rejected. The faithful best remains 50/63, first mismatch +0x0. */
+/* Workbench verdict: mixed frame/FP allocation; 13 words, first +0x0.
+ * Lever 26 local ablations reached a 0x78 frame but regressed to 25+ words.
+ * Remaining: faithful capacity keeps the 0x80 frame versus target 0x70. */
+
+
+
+
+
+
+
+
+
+
+
+
+
 #ifdef NON_MATCHING
 void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
                                        s32 remaining) {
