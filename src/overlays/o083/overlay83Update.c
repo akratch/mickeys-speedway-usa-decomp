@@ -66,19 +66,17 @@ extern void overlay83TransformObjectReloc(s32 mode, Overlay83Object *object,
 extern void overlay83UpdateLinkedReloc(Overlay83LinkedObject *object,
                                        s32 opacity);
 
-#ifdef NON_MATCHING
 void overlay83Update(Overlay83Parent *parent,
                      Overlay83Object *object,
                      s32 updateRate) {
     s32 activeCount;
     s32 recordIndex;
     Overlay83Record *record;
-    s16 sourceOpacity;
     Overlay83SourceState *sourceState;
-    u8 oldLast;
+    Overlay83LinkedObject *linkedObject;
 
-    sourceState = parent->sourceState;
     activeCount = object->recordCount;
+    sourceState = parent->sourceState;
     if (activeCount != 0) {
         recordIndex = object->firstRecord;
         do {
@@ -98,13 +96,11 @@ void overlay83Update(Overlay83Parent *parent,
         activeCount = object->recordCount;
     }
 
-    sourceOpacity = sourceState->opacity;
-    object->opacity = sourceOpacity;
-    if (activeCount < 8 && (sourceOpacity & 0xFF) != 0) {
-        oldLast = object->lastRecord;
+    object->opacity = sourceState->opacity;
+    if (activeCount < 8 && object->opacity != 0) {
+        record = &object->records[object->lastRecord];
         object->recordCount = activeCount + 1;
-        record = &object->records[oldLast];
-        object->lastRecord = oldLast + 1;
+        object->lastRecord++;
         if (object->lastRecord >= 8) {
             object->lastRecord = 0;
         }
@@ -121,23 +117,20 @@ void overlay83Update(Overlay83Parent *parent,
 
     object->x += object->velocityX * updateRate;
     object->y += object->velocityY * updateRate;
+    object->z += object->velocityZ * updateRate;
     object->worldY = object->height;
     object->worldX = 0.0f;
     object->worldZ = 0.0f;
-    object->z += object->velocityZ * updateRate;
     overlay83TransformObjectReloc(1, object, &object->worldX, &object->worldX);
+    linkedObject = object->linkedObject;
     object->worldX += parent->worldX;
     object->worldY += parent->worldY;
     object->worldZ += parent->worldZ;
 
-    if (object->linkedObject != 0) {
-        Overlay83LinkedObject *linkedObject = object->linkedObject;
+    if (linkedObject != 0) {
         linkedObject->worldX = object->worldX;
         linkedObject->worldY = object->worldY;
         linkedObject->worldZ = object->worldZ;
         overlay83UpdateLinkedReloc(linkedObject, object->opacity);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o083/overlay83Update/func_overlay_083_F00002A0_18CFA60.s")
-#endif

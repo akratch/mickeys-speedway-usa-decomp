@@ -67,14 +67,9 @@ extern void overlay2BuildPhaseReloc(void *state);
 extern void overlay2BuildReleaseReloc(void *memory);
 extern void overlay2BuildResizeReloc(s32 size, void *memory, s32 tag);
 
-/*
- * Plateau (2026-08-25): canonical -O2 -mips2 produces the exact 0x58C-byte
- * function, but uses a 0x60-byte frame instead of 0x68; the first mismatch is
- * at +0x0 and the best asm-differ score is 1821. The full 119-case flag
- * lattice, counter aliases, declaration scoping, signedness, pointer-arithmetic
- * spelling, and fieldwise copies did not close the remaining frame and
- * register-allocation differences in the region-compaction loop.
- */
+/* Deferred near-miss (2026-08-25): exact 0x58C, improved 127 to 115 words
+ * from +0x0 by delaying linked truncation and matching copy post-decrement.
+ * The flag lattice was neutral; a 6/40-minute permuter reached score 975. */
 /*
  * PROVENANCE: Jet Force Gemini src/overlays/o142/overlay_142.c identifies the
  * close assembly-backed sibling as CreateBSP. No donor C body exists there;
@@ -91,7 +86,7 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
     Overlay2BuildRegion *rootRegion;
     void *savedState;
     s32 rootValue;
-    u16 linkedValue;
+    s32 linkedValue;
     s32 hasRemaining;
     s32 remaining;
     s32 outputLineCount;
@@ -215,8 +210,8 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
                     line = (Overlay2BuildLine *)(
                         (s32)gOverlay2BuildLinesReloc +
                         (region->start * stride));
-                    lineRemaining = region->count - 1;
-                    if (region->count != 0) {
+                    lineRemaining = region->count;
+                    if (lineRemaining--) {
                         do {
                             outputLine->x1 = line->x1;
                             outputLine->y1 = line->y1;

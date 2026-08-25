@@ -58,35 +58,31 @@ void overlay16ReleaseBuffer(void) {
 }
 
 /* DKR v77/v80 and JFG contain no exact donor for this gradient pass. */
-/*
- * Plateau (2026-08-24): the best bounded permuter score was 4885 from a
- * 6580 baseline, with the first mismatch at function offset 0x0.  The C
- * candidate is four bytes larger and uses a smaller frame with one fewer
- * saved register; the remaining blocker is a whole-function allocation and
- * scheduling web plus two compiler-emitted unreachable ternary stores.  The
- * compiler flag lattice found no exact configuration. Reconfirmed 2026-08-25
- * across all 119 flag combinations and seven typed/source-order hypotheses;
- * the closest remains -O2 -g3 -mips2, four bytes over with the first mismatch
- * at +0x0. A fresh ten-hypothesis pass in lane cx-ov-3-a-a-r3 improved the
- * canonical -O2 -mips2 body to exact 0x244 size and 5/145 exact words by
- * spelling the red maximum as an if/else while retaining green/blue ternaries.
- * The first mismatch remains +0x0: the compiler still chooses a 0x18 frame
- * with five saved registers instead of the target's 0x20/six-register web.
- */
+/* Plateau (2026-08-25): exact-size 0x244, 64 register-only words differ,
+ * first +0x3C; sharing the block/vertex counter closed opcode and schedule.
+ * The flag lattice was neutral; the 40-minute permuter bottomed out at 345. */
 #ifdef NON_MATCHING
 void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
                             s32 phaseStep) {
     Overlay16Batch *batch;
     Overlay16ColorSource *source;
     Overlay16Vertex *vertex;
+    s32 *activePtr;
     u8 *input;
     u8 *gradient;
+    u8 inputBlue;
+    u8 gradientRed;
+    u8 gradientGreen;
+    u8 gradientBlue;
+    u8 inputRed;
+    u8 inputGreen;
     s32 batchIndex;
-    s32 vertexIndex;
     s32 gradientIndex;
     s32 blocks;
     s32 phase;
+    s32 one;
 
+    activePtr = active;
     gradient = gOverlay16Buffer;
     if (gradient == NULL) {
         return;
@@ -95,8 +91,9 @@ void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
     gOverlay16Phase = phase;
     batch = context->batches;
     batchIndex = context->batchCount;
+    one = 1;
     while (batchIndex--) {
-        if (*active++) {
+        if (*activePtr++) {
             source = batch->source;
             if (source) {
                 s16 *block;
@@ -107,9 +104,9 @@ void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
                 }
                 input = source->colors;
                 vertex = batch->vertices;
-                vertexIndex = batch->vertexCount;
-                if (gOverlay16Mode == 1) {
-                    while (vertexIndex--) {
+                blocks = batch->vertexCount;
+                if (gOverlay16Mode == one) {
+                    while (blocks--) {
                         u8 *gradientColor;
                         gradientIndex =
                             (vertex->z + vertex->x + vertex->y + phase) & 0xFF;
@@ -123,30 +120,34 @@ void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
                         vertex++;
                     }
                 } else {
-                    while (vertexIndex--) {
+                    while (blocks--) {
                         u8 *gradientColor;
-                        u8 inputRed;
-                        u8 inputGreen;
-                        u8 inputBlue;
                         gradientIndex =
                             (vertex->z + vertex->x + vertex->y + phase) & 0xFF;
                         gradientColor = gradient + gradientIndex;
                         gradientColor += gradientIndex;
                         gradientColor += gradientIndex;
                         inputRed = input[0];
+                        gradientRed = gradientColor[0];
+                        gradientGreen = gradientColor[1];
+                        gradientBlue = gradientColor[2];
                         inputGreen = input[1];
                         inputBlue = input[2];
-                        if (gradientColor[0] < inputRed) {
+                        if (gradientRed < inputRed) {
                             vertex->red = inputRed;
                         } else {
-                            vertex->red = gradientColor[0];
+                            vertex->red = gradientRed;
                         }
-                        vertex->green = gradientColor[1] < inputGreen
-                                            ? inputGreen
-                                            : gradientColor[1];
-                        vertex->blue = gradientColor[2] < inputBlue
-                                           ? inputBlue
-                                           : gradientColor[2];
+                        if (gradientGreen < inputGreen) {
+                            vertex->green = inputGreen;
+                        } else {
+                            vertex->green = gradientGreen;
+                        }
+                        if (gradientBlue < inputBlue) {
+                            vertex->blue = inputBlue;
+                        } else {
+                            vertex->blue = gradientBlue;
+                        }
                         input += 3;
                         vertex++;
                     }

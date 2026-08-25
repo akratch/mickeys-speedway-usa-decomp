@@ -31,15 +31,18 @@ extern void overlay17TransformReloc(
     s32 mode, Overlay17Transform *transform, f32 *source, f32 *destination);
 extern f32 overlay17SqrtReloc(f32 value);
 
+/* Plateau (2026-08-25): exact-size 0x318, 133 words differ from +0x24;
+ * reverse pointer fill closed the frame from 0x60 to the target's 0x58.
+ * The flag lattice was neutral; the 40-minute permuter reached score 3035. */
 #ifdef NON_MATCHING
 void overlay17CalculateEndpoints(
     Overlay17ChainHead *chain, f32 *outX0, f32 *outY0, f32 *outZ0,
     f32 *outX1, f32 *outY1, f32 *outZ1) {
+    f32 deltaX;
+    f32 deltaZ;
     f32 points[6];
     f32 *point;
     Overlay17Transform *transform;
-    f32 deltaX;
-    f32 deltaZ;
     volatile f32 lengthSquared;
     f32 scale;
     s32 index;
@@ -93,14 +96,14 @@ void overlay17CalculateEndpoints(
                     point[0] = (point[0] * transform->scale) + transform->x;
                     point[1] = (point[1] * transform->scale) + transform->y;
                     point[2] = (point[2] * transform->scale) + transform->z;
-                    point += 3;
-                } while (point < &points[6]);
+                } while ((point += 3) < &points[6]);
             }
         }
     } else {
+        point = &points[5];
         index = 5;
         do {
-            points[index] = 0.0f;
+            *point-- = 0.0f;
         } while (index--);
     }
 
