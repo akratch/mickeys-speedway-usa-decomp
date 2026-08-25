@@ -93,20 +93,17 @@ extern void func_overlay_035_F0000770_1882450(O35Segment *, O35Bounds *,
 extern s32 func_overlay_035_F0000B40_1882820(O35Segment *);
 extern void func_overlay_035_F0001380_1883060(O35Segment *);
 
-/*
- * NON_MATCHING plateau (2026-08-25): -O2 -mips2 -32 with
- * -Wo,-loopunroll,0 produces 353 target-owned instructions versus 356.
- * First mismatch is +0x0: the candidate frame is 0x50 rather than 0x40;
- * 284 masked words still differ, predominantly register allocation.
- * PROVENANCE: adapted from Diddy Kong Racing, src/tracks.c (generate_track).
- */
+/* NON_MATCHING plateau: 283/356 words differ, first +0x78; candidate is three words short.
+ * Both frames are 0x40; flag sweep, declaration order, and expression association were tried.
+ * Workbench: structure mismatch; the original allocation and temporary schedule remain missing. */
+/* PROVENANCE: adapted from Diddy Kong Racing, src/tracks.c (generate_track). */
 #ifdef NON_MATCHING
 void func_overlay_035_F00001E0_1881EC0(s32 modelId) {
+    register s32 mdl;
     register s32 i;
     register s32 k;
     register s32 temp_s4;
     register s32 temp;
-    register s32 mdl;
     register s32 *modelTable;
     register O35Model *model;
     register O35Segment *segment;
@@ -137,7 +134,8 @@ void func_overlay_035_F00001E0_1881EC0(s32 modelId) {
 
     mdl = modelTable[modelId];
     temp_s4 = modelTable[modelId + 1] - mdl;
-    temp = (s32)D_o35_current_model + 0x9F000 - temp_s4;
+    temp = (s32)D_o35_current_model + 0x9F000;
+    temp -= temp_s4;
     temp -= temp % 16;
 
     call_o0_0_26934();

@@ -16,21 +16,28 @@ extern u8 *gO64BuffersA[];
 extern u8 *gO64BuffersB[];
 extern s32 o64RandomRange(s32 minimum, s32 maximum);
 
+/* NON_MATCHING plateau: 404/420 words differ, first +0x0; candidate is one word short.
+ * Target/candidate frames are 0x70/0x78; flag sweep and local/pointer lifetimes were eliminated.
+ * Workbench: structure mismatch; the original allocation and temporary schedule remain missing. */
 #ifdef NON_MATCHING
 void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
                                         u8 *unused)
 {
-    s32 width = image->width;
-    s32 height = image->height;
-    s32 bufferOffset = index * 4;
+    register s32 width;
+    register s32 height;
     u8 * volatile selected;
-    u8 *source;
-    u8 *dest;
-    u8 *write;
-    s32 innerWidth = width - 6;
-    s32 innerHeight = height - 6;
-    s32 y;
-    s32 x;
+    register u8 *source;
+    register u8 *dest;
+    register u8 *write;
+    register s32 innerWidth;
+    register s32 innerHeight;
+    register s32 y;
+    register s32 x;
+    register s32 distance;
+    register s32 maximum;
+    register s32 value;
+    register u8 *below;
+    register u16 *pixels;
     u8 newSelect;
 
     (void)unused;
@@ -41,13 +48,17 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
         selected = gO64BuffersB[index];
     }
 
+    width = image->width;
+    height = image->height;
+    innerWidth = width - 6;
+    innerHeight = height - 6;
     write = selected + innerHeight * width + 3;
     if (gO64Initialized == 0) {
         x = innerWidth - 1;
         if (innerWidth != 0) {
-            s32 middle = width >> 1;
+            y = width >> 1;
             do {
-                s32 distance = middle - x - 3;
+                distance = y - x - 3;
                 if (distance <= 0) {
                     distance = -distance;
                 }
@@ -58,11 +69,9 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
     } else {
         x = innerWidth - 1;
         if (innerWidth != 0) {
-            s32 middle = width >> 1;
+            y = width >> 1;
             do {
-                s32 distance = middle - x - 3;
-                s32 maximum;
-                s32 value;
+                distance = y - x - 3;
                 if (distance <= 0) {
                     distance = -distance;
                 }
@@ -96,9 +105,9 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
             source++;
             x = width - 3;
             if (width - 2 != 0) {
-                u8 *below = source + width;
+                below = source + width;
                 do {
-                    s32 value = below[0] * 4 + source[0] * 2 + below[-1] + below[1];
+                    value = below[0] * 4 + source[0] * 2 + below[-1] + below[1];
                     source++;
                     below++;
                     value >>= 3;
@@ -124,15 +133,11 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
         source++;
         x = width - 3;
         if (width - 2 != 0) {
-            u8 *above = source - width;
-            u8 *left = above - 1;
-            u8 *right = above + 1;
+            below = source - width;
             do {
-                s32 value = above[0] + left[0] + right[0];
+                value = below[0] + below[-1] + below[1];
                 source++;
-                above++;
-                left++;
-                right++;
+                below++;
                 value >>= 2;
                 if (value < 0xAA) {
                     value--;
@@ -159,53 +164,52 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
     source = dest;
     y = height - 1;
     if (height - 7 != -7) {
-        u16 *pixels = image->pixels;
+        pixels = image->pixels;
         do {
             if (y & 1) {
                 x = width - 1;
                 if (width != 0) {
                     do {
-                        s32 value = *source++;
-                        s32 low = value;
-                        s32 high = value + 0x34;
-                        s32 scale = value >> 4;
-                        if (scale != 0) {
-                            low = value * scale;
+                        value = *source++;
+                        distance = value;
+                        maximum = value + 0x34;
+                        innerHeight = value >> 4;
+                        if (innerHeight != 0) {
+                            distance = value * innerHeight;
                         }
-                        if (high >= 0x100) {
-                            high = 0xFF;
+                        if (maximum >= 0x100) {
+                            maximum = 0xFF;
                         }
-                        if (low >= 0x100) {
-                            low = 0xFF;
+                        if (distance >= 0x100) {
+                            distance = 0xFF;
                         }
-                        *pixels++ = (high << 8) | low;
+                        *pixels++ = (maximum << 8) | distance;
                     } while (x--);
                 }
             } else {
-                s32 rowBytes = width * 2;
                 x = 0;
                 if (width > 0) {
                     do {
-                        s32 displacement = (x & 2) ? -2 : 2;
-                        s32 value = *source++;
-                        s32 low = value;
-                        s32 high = value + 0x34;
-                        s32 scale = value >> 4;
-                        if (scale != 0) {
-                            low = value * scale;
+                        innerWidth = (x & 2) ? -2 : 2;
+                        value = *source++;
+                        distance = value;
+                        maximum = value + 0x34;
+                        innerHeight = value >> 4;
+                        if (innerHeight != 0) {
+                            distance = value * innerHeight;
                         }
-                        if (high >= 0x100) {
-                            high = 0xFF;
+                        if (maximum >= 0x100) {
+                            maximum = 0xFF;
                         }
-                        if (low >= 0x100) {
-                            low = 0xFF;
+                        if (distance >= 0x100) {
+                            distance = 0xFF;
                         }
-                        *(u16 *)((u8 *)pixels + displacement * 2 + x * 2) =
-                            (high << 8) | low;
+                        *(u16 *)((u8 *)pixels + innerWidth * 2 + x * 2) =
+                            (maximum << 8) | distance;
                         x++;
                     } while (x != width);
                 }
-                pixels = (u16 *)((u8 *)pixels + rowBytes);
+                pixels = (u16 *)((u8 *)pixels + width * 2);
             }
         } while (y--);
     }

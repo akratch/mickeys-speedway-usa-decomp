@@ -74,17 +74,9 @@ extern s16 gOverlay57MenuHalf2;
 extern s8 gOverlay57MenuSourcesStart[];
 extern s8 gOverlay57MenuSourcesEnd[];
 
-/*
- * Plateau (2026-08-25): the best flag-lattice result has 17/441 instruction
- * words identical and first differs at +0x0; -O2 -mips3 is 44 bytes short,
- * while canonical -O2 -mips2 is 108 bytes short with the same word score.
- * The target has a 0x60-byte frame and three saved registers. Typed menu
- * records, separate versus chained movement tests, persistent state pointers,
- * stack-array ordering, register qualifiers, and pretested versus posttested
- * link loops did not enter a near-match basin. The remaining blocker is the
- * original local/array allocation shape and its resulting whole-function
- * schedule, not a promising register-order adjustment.
- */
+/* NON_MATCHING plateau: 424/441 words differ, first +0x0; canonical is 108 bytes short.
+ * Target frame is 0x60; flag lattice and typed record/loop/stack-array shapes were eliminated.
+ * Hypothesis: the original local/array allocation and whole-function schedule remain missing. */
 #ifdef NON_MATCHING
 void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
     s8 activePlayers[10];
