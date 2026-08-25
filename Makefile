@@ -2014,12 +2014,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeState.c.o: POSTPROCESS 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x120
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46ReleaseState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x88
-# The complete loop and all effects are natural. IDO schedules the independent
-# loop-counter constant before the resource-table low half; the shipped object
-# places those adjacent, unconditional initializations in the opposite order.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeParticles.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_046_F000069C_188EA94=overlay46InitializeParticles $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1D8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeBuffers.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
