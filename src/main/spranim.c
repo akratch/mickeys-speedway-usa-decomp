@@ -48,6 +48,24 @@ typedef struct SprasjiInitEntry {
     u8 scale;
 } SprasjiInitEntry;
 
+typedef struct SpranimInitState {
+    u8 pad0[8];
+    f32 scale;
+    u8 padC[0x1C];
+    f32 initialValue;
+    u8 pad2C[0x14];
+    f32 *baseScale;
+    u8 pad44[0x40];
+    s32 animationId;
+} SpranimInitState;
+
+typedef struct SpranimInitEntry {
+    u8 pad0[0xA];
+    u8 animationId;
+    u8 scale;
+    u8 initialValue;
+} SpranimInitEntry;
+
 typedef struct SpranimControlState {
     u8 pad0[0x28];
     u8 animationState[0x40];
@@ -60,7 +78,19 @@ extern u8 D_8007BF2C;
 extern void func_80020D8C(void *arg0, s32 arg1, s32 arg2, void *arg3);
 extern void func_80036544(void *entry, s32 *mode, s32 animationId, void *state, s32 updateRate);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimInit.s")
+/* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/spranimInit.s, with Mickey's offsets. */
+void spranimInit(SpranimInitState *state, SpranimInitEntry *entry) {
+    f32 scale;
+
+    scale = (s32) (entry->scale & 0xFF);
+    if (scale < 10.0f) {
+        scale = 10.0f;
+    }
+    scale /= 64;
+    state->scale = *state->baseScale * scale;
+    state->animationId = entry->animationId;
+    state->initialValue = entry->initialValue;
+}
 /* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/spranimControl.s, with Mickey's offsets. */
 void spranimControl(SpranimControlState *state, s32 updateRate) {
     s32 mode;
