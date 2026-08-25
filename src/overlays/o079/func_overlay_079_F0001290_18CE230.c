@@ -58,6 +58,11 @@ extern u8 gOverlay79FlagsReloc[];
  * The remaining differences are register choices in the two linked-state
  * stores and the counter/flag tail; direct, scoped, assignment-expression,
  * and declaration-order spellings all retained or worsened that register web.
+ * Revalidated on 2026-08-25: the full 119-combination lattice retained the
+ * 12-word result. Direct chained access worsened it to 18 words, a volatile
+ * pointer changed size and 83 words, and a 10-minute two-worker permuter run
+ * improved score 150 to 130 only by inserting an empty goto/label artifact;
+ * no zero-score candidate was found, so the idiomatic source remains.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
