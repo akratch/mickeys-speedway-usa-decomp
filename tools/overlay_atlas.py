@@ -1059,6 +1059,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0xB20, 0xB68, "overlay27CanUse"),
         (0xB68, 0xBC0, "overlay27Activate"),
     ],
+    28: [
+        (0x000, 0x070, "overlay28ResetBuffer"),
+        (0x070, 0x1B8, "overlay28UpdateVertices"),
+        (0x1B8, 0x318, "overlay28InitializeWork"),
+        (0x318, 0x4D8, "overlay28UpdateWork"),
+    ],
     49: [
         (0x354, 0x374, "refractOutput"),
     ],
