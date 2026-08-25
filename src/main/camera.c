@@ -274,7 +274,19 @@ void camEnableUserView(s32 camNo, s32 immediate) {
     }
     viewport->flags &= ~4;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021BE4.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camDisableUserView. */
+void camDisableUserView(s32 camNo, s32 immediate) {
+    CameraViewport *viewport;
+
+    if (immediate != 0) {
+        viewport = &D_80079C10[camNo];
+        viewport->flags &= ~1;
+    } else {
+        viewport = &D_80079C10[camNo];
+        viewport->flags |= 4;
+    }
+    viewport->flags &= ~2;
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camIsUserView. */
 s32 camIsUserView(s32 camNo) {
     return D_80079C40[camNo].flags & 1;
