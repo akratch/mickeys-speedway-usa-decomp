@@ -40,6 +40,7 @@ extern u8 D_8007C0A0;
 extern s32 D_8007C09C;
 extern s32 D_8007C1A4;
 extern s32 D_8007C1AC;
+extern u8 D_8007C308[];
 extern s32 D_800C947C;
 extern s32 D_800D314C;
 extern u8 D_800826C0[];
@@ -48,6 +49,7 @@ extern u16 D_800D312C;
 extern u16 D_800D312E;
 extern void amTuneStop(void);
 extern void amTuneSetGlobalVolume(s32 volume);
+extern void alSurround_OutputType(u8 mode);
 extern void func_80038750(void);
 extern s32 levelGetRegionNo(void);
 extern s8 viGetWideAdjust(void);
@@ -638,7 +640,18 @@ void frontSetWideAdjust(s32 offset) {
 u32 frontGetStereoMode(void) {
     return D_800D3128.stereoMode;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A41C.s")
+/* PROVENANCE: name, clamp, table lookup, and order compared with JFG's public
+ * src/menu.c::frontSetStereoMode; packed storage derived from Mickey. */
+void frontSetStereoMode(s32 mode) {
+    if (mode < 0) {
+        mode = 0;
+    }
+    if (mode >= 4) {
+        mode = 3;
+    }
+    D_800D3128.stereoMode = mode;
+    alSurround_OutputType(D_8007C308[mode]);
+}
 /* Retain the anonymous spelling used by an unsplit resident assembly caller. */
 #pragma weak func_8003A47C = frontGetSfxVolume
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetSfxVolume. */

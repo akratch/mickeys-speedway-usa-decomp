@@ -2230,6 +2230,9 @@ frontSetWideAdjust = 0x8003A3DC; // type:func size:0x2C   ROM 0x3afdc  src/menu.
 // Tier B (JFG): exact packed-field getter and ordered position between the
 // wide-adjust and SFX-volume accessors identify the stereo-mode accessor.
 frontGetStereoMode = 0x8003A408; // type:func size:0x14 tier-B ROM 0x3b008 canonical C, linked byte-identical
+// Tier B (JFG): paired packed-field access, the same clamp/table/audio call,
+// and ordered position before the SFX-volume pair identify the stereo setter.
+frontSetStereoMode = 0x8003A41C; // type:func size:0x60 tier-B ROM 0x3b01c canonical C, linked byte-identical
 // Tier B (JFG): exact halfword getter, ordered menu position, and the adjacent
 // setter's gsSndpSetGlobalVolume call establish the SFX-volume role.
 frontGetSfxVolume = 0x8003A47C; // type:func size:0xC  ROM 0x3b07c

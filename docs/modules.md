@@ -1071,6 +1071,13 @@ point-of-use `PROVENANCE`; Mickey's paired getter/setter encoding supplies the
 bitfield and `u32` ABI. The canonical flags, HI16/LO16 data relocations, object
 words, and linked ROM range are exact without post-processing.
 
+The paired tier-B `frontSetStereoMode` adds **0x60 bytes / 24 words** at ROM
+`0x3B01C`. JFG supplies the name, clamp, output-type table lookup, audio call,
+and ordered position; Mickey's paired accessors supply the packed two-bit
+storage. The adapted logic carries point-of-use `PROVENANCE`. The default
+flags, two data pairs plus call relocation, object words, and linked ROM range
+are exact without post-processing.
+
 The tier-A-named `frontGetScreenMode` adds **0x30 bytes / 12 words** at ROM
 `0x3AE98`. Mickey's draft established the two tests; JFG's published
 `Resbitfield` declaration supplied the original source shape needed to recover
