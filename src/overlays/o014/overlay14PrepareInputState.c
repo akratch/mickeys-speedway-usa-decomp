@@ -12,12 +12,18 @@ extern s32 gOverlay14Timer20;
 
 extern s32 overlay14ReadInput(s32 channel);
 
+/* Plateau (batch 20): exact 0x20C; 65 words remain, first +0x34.
+ * Four branch locals improved 78; pointer, axis, call, load, and 119 flag variants failed.
+ * The 40-minute permuter's lower scores required invented wrappers and were rejected. */
 #ifdef NON_MATCHING
 void overlay14PrepareInputState(s32 step) {
     s32 first;
     s32 second;
     s32 vertical;
-    s32 value;
+    s32 verticalPositive;
+    s32 verticalNegative;
+    s32 secondPositive;
+    s32 secondNegative;
 
     first = overlay14ReadInput(0);
     second = overlay14ReadInput(0);
@@ -35,9 +41,9 @@ void overlay14PrepareInputState(s32 step) {
         gOverlay14Timer20 = 0;
     } else if (vertical >= 0x1F) {
         if (gOverlay14Timer20 > 0) {
-            value = gOverlay14Timer20 - step;
-            gOverlay14Timer20 = value;
-            if (value <= 0) {
+            verticalPositive = gOverlay14Timer20 - step;
+            gOverlay14Timer20 = verticalPositive;
+            if (verticalPositive <= 0) {
                 gOverlay14Timer20 = 0xA;
                 gOverlay14PulseC = 1;
             }
@@ -47,9 +53,9 @@ void overlay14PrepareInputState(s32 step) {
         }
     } else if (vertical < -0x1E) {
         if (gOverlay14Timer20 < 0) {
-            value = gOverlay14Timer20 + step;
-            gOverlay14Timer20 = value;
-            if (value >= 0) {
+            verticalNegative = gOverlay14Timer20 + step;
+            gOverlay14Timer20 = verticalNegative;
+            if (verticalNegative >= 0) {
                 gOverlay14Timer20 = -0xA;
                 gOverlay14Pulse10 = 1;
             }
@@ -64,10 +70,10 @@ void overlay14PrepareInputState(s32 step) {
         return;
     }
     if (second >= 0x1F) {
-        value = gOverlay14Timer1C - step;
+        secondPositive = gOverlay14Timer1C - step;
         if (gOverlay14Timer1C > 0) {
-            gOverlay14Timer1C = value;
-            if (value <= 0) {
+            gOverlay14Timer1C = secondPositive;
+            if (secondPositive <= 0) {
                 gOverlay14Timer1C = 0xA;
                 gOverlay14Pulse18 = 1;
             }
@@ -76,10 +82,10 @@ void overlay14PrepareInputState(s32 step) {
             gOverlay14Pulse18 = 1;
         }
     } else if (second < -0x1E) {
-        value = gOverlay14Timer1C + step;
+        secondNegative = gOverlay14Timer1C + step;
         if (gOverlay14Timer1C < 0) {
-            gOverlay14Timer1C = value;
-            if (value <= 0) {
+            gOverlay14Timer1C = secondNegative;
+            if (secondNegative <= 0) {
                 gOverlay14Timer1C = -0xA;
                 gOverlay14Pulse14 = 1;
             }

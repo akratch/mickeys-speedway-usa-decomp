@@ -48,9 +48,9 @@ extern void o57Draw32A0RenderReloc(void *anchor,
                                    f32 yScale, s32 color, s32 command);
 
 /* Overlay 57 text +0x32A0..+0x35E0. */
-/* Plateau: canonical -O2 -mips2 is exact-size at 0x340 and differs in 86
- * words, first at +0x0.  Independent schedules and private frame/register
- * webs remain despite exact calls, FP lanes, and memory effects. */
+/* Plateau (batch 20): exact 0x340; 60 words remain, first +0x0 (frame -0x78/-0x70).
+ * Reused rising for packed and count-first arms improved 86; 119 flags and 10 attempts failed.
+ * The 40-minute -mips2 permuter's best 835 required unsupported pointer/width detours. */
 #ifdef NON_MATCHING
 void overlay57Draw32A0(s32 updateRate) {
     Overlay57Draw32A0Record *records;
@@ -61,7 +61,6 @@ void overlay57Draw32A0(s32 updateRate) {
     s32 rowCount[1];
     s32 position;
     s32 i;
-    u32 packed;
     u32 bits;
     s32 rising;
 
@@ -95,22 +94,22 @@ void overlay57Draw32A0(s32 updateRate) {
     }
 
     if (gO57Draw32A0TableMode18C[0] != 0) {
-        records = gO57Draw32A0Records3F8;
         rowCount[0] = 4;
+        records = gO57Draw32A0Records3F8;
         position = 0x3E;
     } else {
-        records = gO57Draw32A0Records458;
         rowCount[0] = 3;
+        records = gO57Draw32A0Records458;
         position = 0x4D;
     }
 
-    packed = gO57Draw32A0WordTable4B8[gO57Draw32A0Selection1A0] |
+    rising = gO57Draw32A0WordTable4B8[gO57Draw32A0Selection1A0] |
              ((envelope * 5) >> 3);
     i = 1;
     cursor = &records[1];
     do {
         i++;
-        cursor->packed8 = packed;
+        cursor->packed8 = rising;
         cursor++;
     } while (i < 8);
 
