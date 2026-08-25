@@ -925,16 +925,15 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* Size/frame exact: 9/66 words differ, first +0x20; donor pad/current
- * topology moves the buffer sp+44->sp+40, still four bytes high. Workbench:
- * pool-slot-5 v0/v1 mismatch; donor for-loop, s64 and dead-web probes regressed. */
+/* Workbench: register-first mixed residual, 7/66 words, first +0x38.
+ * Levers: buffer/frame census improved 9->7; current-value and return-category probes did not close.
+ * Remains: pool slot 5 assigns the current byte v0 instead of v1, cascading into two branch forms. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;
     s32 charIndex;
     s32 pad;
-    u8 value;
-    char s[255];
+    char s[260];
     u8 *ch;
     va_list args;
 
@@ -942,14 +941,13 @@ s32 debug_text_width(const char *format, ...) {
     sprintfSetSpacingCodes(1);
     vsprintf(s, format, args);
     sprintfSetSpacingCodes(0);
-    value = s[0];
+    pad = (u8)s[0];
     stringLength = 0;
     ch = (u8 *)&s[1];
-    if (value != '\0') {
+    if (pad != '\0') {
         do {
-            if (value != '\n') {
-                pad = value;
-                if (value == ' ') {
+            if (pad != '\n') {
+                if (pad == ' ') {
                     stringLength += 6;
                 } else if (pad >= 0x21 && pad < 0x80) {
                     fontTexture = 0;
@@ -968,9 +966,9 @@ s32 debug_text_width(const char *format, ...) {
                                     D_8007CE98[fontTexture][charIndex].u) + 1;
                 }
             }
-            value = *ch;
+            pad = *ch;
             ch++;
-        } while (value != '\0');
+        } while (pad != '\0');
     }
     va_end(args);
     return stringLength;
