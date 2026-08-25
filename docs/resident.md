@@ -1535,13 +1535,9 @@ The tier-B/D `rain_sound` adds **0xC0 bytes / 48 words** at ROM `0x3CF70`.
 JFG's camera-relative sound positioning compiles instruction-exact at canonical
 `-O2 -mips2 -32`, with all 13 relocations and the linked ROM range agreeing.
 
-`doWeather` plateaued after the JFG body, the 119-combination flag lattice,
-and seven source-order, typing, and allocation hypotheses. The best canonical
-candidate, preserved behind `NON_MATCHING`, differs in 54 of 169 positional
-words (115 exact), with the first mismatch at `+0xB4`; relocation identities
-agree, but update-block scheduling shifts the remaining register allocation.
-The bounded permuter was unavailable because this lane has no local
-decomp-permuter checkout.
+`doWeather`: workbench `structure-buckets`, 89 positional words differ, first
+`+0x7C`; compound updates cleared constant/commutative classes, while explicit
+return and line-assignment probes were inert. Candidate remains 168/169 words.
 
 `rain_init` and `free_rain_memory` share a synthetic static
 `TrapDanglingJump` binding with `rain_update`, but require incompatible integer,
@@ -1579,7 +1575,7 @@ the candidates remain preserved behind `NON_MATCHING`.
 | `0x3B6F0` | `0x420` | `setupWeather` | B/D name; exact C, 264 words, 41 relocs |
 | `0x3BB10` | `0x120` | `snow_init` | B/D name; exact C, 72 words, 8 relocs |
 | `0x3BC30` | `0x1EC` | `changeWeather` | B/D name; exact C, 123 words, 5 relocs |
-| `0x3BE1C` | `0x2A4` | `doWeather` | B/D; plateau, 54/169 words differ, first `+0xB4` |
+| `0x3BE1C` | `0x2A4` | `doWeather` | B/D; workbench `structure-buckets`, 89 positional words differ, first `+0x7C`; candidate 168/169 words |
 | `0x3C0C0` | `0x238` | `snow_render` | B/D |
 | `0x3C2F8` | `0xEC` | `rain_init` | B/D; plateau, 59 words exact, one reloc identity at `+0xA0` |
 | `0x3C3E4` | `0x84` | `free_rain_memory` | B/D; plateau, 33 words exact, one reloc identity at `+0x68` |
