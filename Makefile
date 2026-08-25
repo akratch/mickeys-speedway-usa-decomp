@@ -1131,8 +1131,18 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14CallUpdate.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14PrepareInputState.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_014_F0000B5C_1870434=overlay14PrepareInputState $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14AdvanceCommand.c.o: \
+	config/normalizations/overlay14AdvanceCommand.filter.spec \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14AdvanceCommand.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_014_F0000D68_1870640=overlay14AdvanceCommand $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		@config/normalizations/overlay14AdvanceCommand.filter.spec && \
+	$(OBJCOPY) \
+		--redefine-sym overlay14InitializeMode=func_overlay_014_F0000000_186F8D8 \
+		--redefine-sym gOverlay14Transition=D_D8 \
+		--redefine-sym gOverlay14Cursor=D_DC \
+		--redefine-sym overlay14ResetMode=func_overlay_014_F0000498_186FD70 \
+		--redefine-sym overlay14ApplyValues=func_overlay_014_F0000328_186FC00 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1FC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14StepCommand.c.o: \
 	config/normalizations/overlay14StepCommand.filter.spec \

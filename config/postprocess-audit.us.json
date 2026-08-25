@@ -1144,6 +1144,7 @@
       "size": 508,
       "source": "src/overlays/o014/overlay14AdvanceCommand.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
