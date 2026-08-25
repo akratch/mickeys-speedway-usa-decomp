@@ -86,13 +86,9 @@ extern void func_800349A4(Overlay46DisplayCommand **commands, void *texture,
         O46_SHIFTL(alpha, 0, 8); \
 }
 
-/* Pinned DKR v77/v80 and JFG scans found no exact donor. The nearest
- * masked-skeleton candidates score below 0.06 and are unrelated renderers.
- * Plateau: -O2 -mips2 -Wo,-loopunroll,0 emits 436 instructions for the
- * 462-instruction target, with 416 normalized word mismatches beginning at
- * +0x5C. The prologue and first 23 words are exact after separating the
- * original TU's phase-local global lifetimes; the emitter/display-list loops
- * retain different saved-register assignments. Stopped at the attempt cap. */
+/* Plateau (2026-08-25): 437/461 instructions; 415 positional words differ from +0x5C.
+ * Restored the missing stack-zero store; flag, stride, and scoped-loop variants lost.
+ * Workbench: structure-mismatch; the remaining lever is C/CFG shape before allocation. */
 #ifdef NON_MATCHING
 void func_overlay_046_F0001228_188F620(s32 updateRate) {
     s32 i;
@@ -104,6 +100,7 @@ void func_overlay_046_F0001228_188F620(s32 updateRate) {
     f32 halfX;
     f32 halfY;
     f32 step;
+    volatile f32 zero;
     Overlay46DisplayCommand *command;
     Overlay46Emitter *emitter;
     Overlay46Spark *spark;
@@ -186,7 +183,7 @@ void func_overlay_046_F0001228_188F620(s32 updateRate) {
         point.value0 = 0;
         point.value2 = 0;
         point.scale = 6.0f;
-        point.pad6 = 0;
+        zero = 0.0f;
 
         spark = D_1458;
         do {
