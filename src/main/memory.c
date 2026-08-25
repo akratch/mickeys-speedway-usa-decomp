@@ -27,8 +27,21 @@ u8 mmExtended(void) {
     return D_8007A274;
 }
 
-/* JFG correspondence: mmAllocRegion (tier B; allocation then pool creation). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B154.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmAllocRegion. */
+void *func_8002B280(s32 size, u32 colourTag);
+MemoryPoolSlot *func_8002B1A0(MemoryPoolSlot *slots, s32 poolSize, s32 numSlots);
+
+MemoryPoolSlot *func_8002B154(s32 poolDataSize, s32 numSlots) {
+    s32 size;
+    MemoryPoolSlot *slots;
+    s32 pad;
+    MemoryPoolSlot *newPool;
+
+    size = poolDataSize + (numSlots * sizeof(MemoryPoolSlot));
+    slots = (MemoryPoolSlot *)func_8002B280(size, 0x95);
+    newPool = func_8002B1A0(slots, size, numSlots);
+    return newPool;
+}
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_init. */
 MemoryPoolSlot *func_8002B1A0(MemoryPoolSlot *slots, s32 poolSize, s32 numSlots) {
