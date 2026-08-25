@@ -104,7 +104,7 @@ u8 *levelGetLevel(void);
 void func_800511C4();
 void func_80021504(f32 value, s32 arg1);
 f32 sqrtf(f32 value);
-extern void func_800031E8(s32 handle);
+extern void func_800031E8(void *handle);
 HitCopyState **func_80005750(s32 *count);
 
 /*
@@ -334,21 +334,23 @@ void func_80050348(s32 pathIndex) {
 #ifdef NON_MATCHING
 /*
  * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
- * Plateau: exact 75-instruction size; first mismatch +0x40. The typed trap
- * alias leaves one relocation identity and the remaining allocator cycle.
+ * Plateau: exact 75-instruction size; first mismatch +0x40. Pointer-typed
+ * sound state leaves one trap relocation identity and the allocator cycle.
  */
 #pragma weak animResetTrap = TrapDanglingJump
 extern s32 animResetTrap(AnimPath *, f32, s32, s32);
 void func_8005055C(u8 pathIndex) {
     AnimPath *path;
     AnimPathObject *object;
-    s32 soundHandle;
+    void *soundHandle;
+    u8 flags;
 
     path = D_800D6B00[pathIndex];
     if (path != NULL) {
-        if (!(path->flags & 8)) {
+        flags = path->flags;
+        if (!(flags & 8)) {
             object = path->unk8;
-            path->flags &= 0x80;
+            path->flags = flags & 0x80;
             path->unk10 = 1.0f;
             path->unk1 = path->unk0;
             path->unk1C = 0.0f;

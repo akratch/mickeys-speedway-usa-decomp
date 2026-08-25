@@ -54,7 +54,7 @@ typedef struct AnimPathObject {
     u8 pad46[0x12];
     AnimPathObjectTarget *unk58;
     u8 pad5C[0x28];
-    s32 soundHandle;
+    void *soundHandle;
 } AnimPathObject;
 
 typedef struct AnimPathNode {
