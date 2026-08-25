@@ -37,16 +37,22 @@ extern void overlay33SetRangeReloc(void *value, s32 range);
 extern void overlay33FinishReloc(s32 value);
 
 /* Mickey-local reconstruction using the reviewed SDK macro subset below. */
+/*
+ * Plateau (10 current-lane type/lifetime attempts): eliminating the explicit
+ * index/range scalar slots recovered the target's 0xA8-byte frame, aggregate
+ * offsets, and code through +0x398.  The best exact-size candidate has 46
+ * positional words differing from there; moving the range lifetime after the
+ * fog-command write regresses to 51 differences at +0x390, while recomputing
+ * it at the later call is eight bytes long.  The blocker is the final
+ * range/cursor expression schedule and its private temporary-register web.
+ */
 #ifdef NON_MATCHING
 void overlay33BuildDisplayList(void) {
     Overlay33Locals locals;
-    s32 range;
-    s32 index;
 
     overlay33GetDimensionsReloc(&locals.width, &locals.height);
-    index = gOverlay33BufferIndex;
-    locals.cursor = (Gfx *)&D_8[index * 0xC00];
-    locals.other = (Gfx *)&D_1808[index * 0xC00];
+    locals.cursor = (Gfx *)&D_8[gOverlay33BufferIndex * 0xC00];
+    locals.other = (Gfx *)&D_1808[gOverlay33BufferIndex * 0xC00];
 
     overlay33SetupPassReloc(&locals.cursor, 0, 0);
     overlay33SetupPassReloc(&locals.cursor, 1,
@@ -88,12 +94,13 @@ void overlay33BuildDisplayList(void) {
 
     {
         Gfx *fog = locals.cursor++;
+        s32 range = locals.high - locals.low;
+
         fog->words.w0 = 0xBC000008;
-        range = locals.high - locals.low;
         fog->words.w1 = ((128000 / range) << 16) |
                         ((((500 - locals.low) * 256) / range) & 0xFFFF);
+        overlay33SetRangeReloc(0, range);
     }
-    overlay33SetRangeReloc(0, range);
     gMoveWd(locals.cursor++, 10, 0, 0);
     gDPFullSync(locals.cursor++);
     gSPEndDisplayList(locals.cursor++);

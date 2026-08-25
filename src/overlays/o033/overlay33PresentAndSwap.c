@@ -17,6 +17,10 @@ extern void overlay33SubmitReloc(void *commands, void *displayList, s32 mode,
  * and the first mismatch at +0x10.  Control flow and scheduling agree; the
  * blocker is the complete private temporary-register web.  The strong JFG
  * refractTick skeleton hit is assembly-only and supplies no donor C body.
+ * A current-lane full flag resweep and three typed volatile-pointer lifetime
+ * variants compiled identically: 21 differing words, first at +0x10.  That
+ * independently exhausts the qualifier/alias hypothesis without register
+ * order guessing.
  */
 #ifdef NON_MATCHING
 void overlay33PresentAndSwap(void) {
