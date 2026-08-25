@@ -33,6 +33,12 @@ u8 *overlay1NextPointer(u8 *pointer) {
  * no gold-standard N64 decomp edits an instruction word after compilation.
  * It stays a queued NON_MATCHING/GLOBAL_ASM function, per DKR's convention,
  * until source restructuring makes IDO emit the retail bytes on its own. */
+/* Plateau (2026-08-25): the 119-combination flag lattice and eight source
+ * CFG/return-shape variants bottom out at 3 differing words, first mismatch
+ * +0x10, with the candidate 8 bytes short. IDO either tail-merges the two
+ * identical return epilogues or preserves both while reversing the v0/v1
+ * allocation. The bounded permuter import is blocked by splat's unresolved
+ * absolute-symbol diagnostics in this lane. */
 #ifdef NON_MATCHING
 Overlay1Entry *overlay1GetEntry(s32 index) {
     Overlay1Entry *result;
