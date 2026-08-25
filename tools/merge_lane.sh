@@ -26,7 +26,7 @@ if ! git merge --no-commit --no-ff "$branch" >/dev/null 2>&1; then
     case "$f" in
       README.md|config/overlays.us.json|config/overlay-donors.us.json|config/postprocess-audit.us.json) git checkout --theirs "$f" && git add "$f" ;;
       docs/modules.md|docs/overlays.md) .venv/bin/python tools/resolve_modules_split.py || { echo "unresolved conflict: $f" >&2; exit 1; } ;;
-      mickey.us.yaml) .venv/bin/python tools/resolve_comment_hunks.py "$f" && git add "$f" || { echo "unresolved conflict: $f" >&2; exit 1; } ;;
+      mickey.us.yaml|docs/resident.md|*.c|*.h) .venv/bin/python tools/resolve_comment_hunks.py "$f" && git add "$f" || { echo "unresolved conflict: $f" >&2; exit 1; } ;;
       *) echo "unresolved conflict: $f" >&2; exit 1 ;;
     esac
   done
