@@ -1308,6 +1308,7 @@ the still-unnamed bitstream allocator `func_8002C60C` (ROM `0x2D20C`–
 the still-unnamed `func_8002C788` (ROM `0x2D388`–`0x2D390`, 8 bytes),
 the still-unnamed `func_8002C790` (ROM `0x2D390`–`0x2D39C`, 12 bytes),
 the still-unnamed `func_8002C79C` (ROM `0x2D39C`–`0x2D3BC`, 32 bytes),
+the still-unnamed `func_8002C8B4` (ROM `0x2D4B4`–`0x2D54C`, 152 bytes),
 the still-unnamed `func_8002CCE4` (ROM `0x2D8E4`–`0x2D96C`, 136 bytes),
 the still-unnamed `func_8002E020` (ROM `0x2EC20`–`0x2ECA0`, 128 bytes),
 `piRomLoadSection` (ROM `0x2EEE0`–`0x2EF5C`, 124 bytes),

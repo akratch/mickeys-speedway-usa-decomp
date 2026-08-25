@@ -16,6 +16,7 @@ extern u8 D_8007A2F0;
 extern u8 D_8007A2F4;
 extern s32 D_8007A2E8;
 extern s32 D_8007A2FC;
+extern s32 D_8007A31C;
 extern void *D_8007A280;
 extern OSMesgQueue *D_800D21C0;
 
@@ -74,6 +75,8 @@ extern s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data,
                         s32 dataLength);
 void rumbleStop(s32 controllerIndex, s32 arg1);
 s32 func_800290A0(void);
+void func_8006FEF0(s32 arg0, s32 type, void *data, s32 size);
+void func_80070030(s32 arg0, u8 arg1, s32 arg2, s32 arg3);
 
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/saves.c:func_8004B070_4BC70. */
 s32 func_8002BCC0(void) {
@@ -241,7 +244,20 @@ s32 packCalculateGameChecksum(u8 *buffer, s32 count) {
     return checksum;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C7EC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C8B4.s")
+void func_8002C8B4(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    u8 data[16];
+
+    if (D_8007A31C != 0) {
+        if (arg1 & 1) {
+            func_8006FEF0(arg0, 0x3E, data, 8);
+            D_8007A31C = 0;
+        }
+    } else if (!(arg1 & 1)) {
+        func_8006FEF0(arg0, 0x3F, data, 8);
+        D_8007A31C = 1;
+    }
+    func_80070030(arg0, (u8) arg1, arg2, arg3);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C94C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CB18.s")
 void func_8002CCE4(void) {
