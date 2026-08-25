@@ -12,12 +12,15 @@
 #include "PR/ultratypes.h"
 #include "game/menu.h"
 
-/* PROVENANCE: adapted from JFG's public decomp, src/menu.h::Resbitfield. */
+/* PROVENANCE: base layout adapted from JFG's public decomp,
+ * src/menu.h::Resbitfield; twoPlayerSplit is Mickey-derived from its paired
+ * getter and byte-preserving setter. */
 typedef struct MenuScreenModeBits {
     u32 unused : 1;
     u32 modeBit0 : 1;
     u32 modeBit1 : 1;
-    u32 rest : 29;
+    u32 twoPlayerSplit : 1;
+    u32 rest : 28;
 } MenuScreenModeBits;
 
 extern s8 D_800D312B;
@@ -146,7 +149,12 @@ void frontSetBgmVolume(s32 volume) {
     D_800D312E = volume;
     amTuneSetGlobalVolume(volume);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A50C.s")
+s32 frontGet2PlayerSplit(void) {
+    s32 split;
+
+    split = D_800D3128.twoPlayerSplit;
+    return split;
+}
 /* Size-exact plateau: three register operands differ from +0x8; IDO assigns
  * the old-flag value chain two temporary registers earlier than the target. */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")

@@ -2211,6 +2211,9 @@ frontGetBgmVolume = 0x8003A4C4; // type:func size:0xC  ROM 0x3b0c4
 // Tier B (JFG): exact ordered setter body and the paired audio-volume call
 // identify the BGM-volume operation.
 frontSetBgmVolume = 0x8003A4D0; // type:func size:0x3C  ROM 0x3b0d0
+// Tier B (JFG): exact split-bit getter, paired setter, and ordered menu
+// position establish the two-player split-screen role.
+frontGet2PlayerSplit = 0x8003A50C; // type:func size:0x14 tier-B ROM 0x3b10c canonical C, linked byte-identical
 func_8003A520 = 0x8003A520; // type:func size:0x24 tier-D ROM 0x3b120 plateau 3/9 words differ, first +0x8
 func_8003A544 = 0x8003A544; // type:func size:0xC tier-D ROM 0x3b144 canonical C, linked byte-identical
 func_8003A550 = 0x8003A550; // type:func size:0xC tier-D ROM 0x3b150 canonical C, linked byte-identical

@@ -1022,6 +1022,14 @@ halfword store, and corresponding audio-volume call, and carries point-of-use
 linked ROM range are exact; a zero-byte weak alias preserves its assembly
 caller's anonymous spelling.
 
+The tier-B `frontGet2PlayerSplit` adds **0x14 bytes / 5 words** at ROM
+`0x3B10C`. Its extracted flag bit, its paired byte-preserving setter, and its
+exact JFG menu position establish the role; the body itself was derived from
+Mickey because JFG's remains `GLOBAL_ASM`. The extended bitfield declaration
+carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
+live range; the default flags, both data relocations, object words, and linked
+ROM range are exact without post-processing.
+
 `func_8003A520` plateaus size-exact at **3/9 differing words**, first `+0x8`.
 Its operation and ordered position correspond to JFG's
 `frontSet2PlayerSplit`, but the full 119-combination flag lattice and a bounded
