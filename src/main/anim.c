@@ -198,10 +198,8 @@ s32 func_800501AC(AnimStreamEntry *entry) {
 
 /*
  * PROVENANCE: JFG asm/nonmatchings/anim/func_80076968.s corroborates the CFG;
- * this typed body is reconstructed from Mickey's target and fresh m2c draft.
- * Plateau: exact opcode/relocation shape; the s2/s3 web swap starts at +0x5C.
+ * this exact typed body is reconstructed from Mickey's target and m2c draft.
  */
-#ifdef NON_MATCHING
 s32 func_800501C8() {
     s32 step;
     s32 done;
@@ -210,34 +208,32 @@ s32 func_800501C8() {
     AnimStreamEntry *cursor;
 
     cursor = D_8007D698;
-    total = 0;
-    done = 0;
     entryCount = 0;
+    done = 0;
+    total = 0;
     if (cursor != NULL) {
         do {
             if (((cursor->command >> 8) & 0xFF) == 0x7F) {
                 done = 1;
             }
             step = func_800501AC(cursor);
+            total += step;
             if (step != 0) {
-                total += step;
                 cursor = (AnimStreamEntry *)
                     ((u8 *) cursor + (step >> 1) * 2);
                 entryCount++;
                 if (entryCount >= 0x2001) {
-                    done = 1;
+                    goto end;
                 }
             } else {
                 total = 0;
+end:
                 done = 1;
             }
         } while (done == 0);
     }
     return total;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800501C8.s")
-#endif
 
 /* Exact JFG donor assembly corroborates this setup shape; C is Mickey-led. */
 void func_8005027C(void) {
@@ -324,8 +320,8 @@ u8 pathIndex;
 #ifdef NON_MATCHING
 /*
  * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
- * Plateau: exact 75-instruction size; first mismatch +0x40. Pointer-typed
- * sound state leaves one trap relocation identity and the allocator cycle.
+ * Plateau: exact 75-instruction shape; first mismatch +0x40. Fresh m2c
+ * typing leaves six temp-register words and one trap relocation identity.
  */
 #pragma weak animResetTrap = TrapDanglingJump
 extern s32 animResetTrap(AnimPath *, f32, s32, s32);
@@ -361,8 +357,8 @@ void func_8005055C(u8 pathIndex) {
                     path->unk8->unk58->unk132 = 0;
                 }
                 animResetTrap(path, 0.0f, 0, 0);
-                soundHandle = object->soundHandle;
-                if (soundHandle != 0) {
+                if (object->soundHandle != NULL) {
+                    soundHandle = object->soundHandle;
                     func_800031E8(soundHandle);
                     object->soundHandle = 0;
                 }
@@ -559,19 +555,15 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Plateau: the fresh fixed-count array route reaches 85/87 instructions but
- * loses the boundary-symbol relocations. This 84/87 form retains them; first
- * mismatch +0x34, with IDO carrying three boundary bases between loops.
+ * Plateau: a fresh Mickey m2c single-cursor route has the exact 87-instruction
+ * size/frame with 15 structural words left, first +0x34. Ten are paired LO16
+ * scheduling sites; the clear loop remains li/bne instead of slti/bnez.
  */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
     s32 emptyIndex;
     s32 offset;
-    AnimCameraSource **camera;
-    void **sound;
-    AnimScrollReset *scroll;
-    AnimLockonReset *lockon;
-    AnimLightReset *light;
+    u8 *cursor;
 
     D_800D6B04 = piRomLoad(0x3D);
     D_800D6B00 = func_8002B280(0x400, 0x81);
@@ -581,42 +573,42 @@ void func_80050BF4(void) {
         offset += 4;
     } while (offset < 0x400);
 
-    camera = D_800D6B08;
+    cursor = (u8 *) D_800D6B08;
     do {
-        *camera = NULL;
-        camera++;
-    } while (camera < (AnimCameraSource **) D_800D6B18);
+        cursor += 4;
+        *(void **) (cursor - 4) = NULL;
+    } while ((u32) cursor < (u32) D_800D6B18);
 
-    sound = D_800D6B18;
+    cursor = (u8 *) D_800D6B18;
     do {
-        *sound = NULL;
-        sound++;
-    } while (sound < D_800D6B58);
+        cursor += 4;
+        *(void **) (cursor - 4) = NULL;
+    } while ((u32) cursor < (u32) D_800D6B58);
 
-    scroll = (AnimScrollReset *) D_800D6B58;
+    cursor = (u8 *) D_800D6B58;
     do {
-        scroll->unk0 = 0xFF;
-        scroll->unk4 = 0;
-        scroll->unkC = 0;
-        scroll++;
-    } while (scroll < (AnimScrollReset *) D_800D6BF8);
+        cursor += 0x14;
+        cursor[-0x14] = 0xFF;
+        *(s32 *) (cursor - 0x10) = 0;
+        *(s32 *) (cursor - 8) = 0;
+    } while ((u32) cursor < (u32) D_800D6BF8);
 
     emptyIndex = -1;
-    lockon = (AnimLockonReset *) D_800D6BF8;
+    cursor = D_800D6BF8;
     do {
-        lockon->unk0 = emptyIndex;
-        lockon++;
-    } while (lockon < (AnimLockonReset *) D_800D6C38);
+        cursor += 8;
+        *(s8 *) (cursor - 8) = emptyIndex;
+    } while ((u32) cursor < (u32) D_800D6C38);
 
     D_8007D6B0 = 0;
-    light = D_800D6C58;
+    cursor = (u8 *) D_800D6C58;
     do {
-        light->unk0 = 0;
-        light->unk10 = 0;
-        light->unk20 = 0;
-        light->unk30 = 0;
-        light++;
-    } while (light != (AnimLightReset *) D_800D6D18);
+        cursor += 0x40;
+        *(s32 *) (cursor - 0x40) = 0;
+        *(s32 *) (cursor - 0x30) = 0;
+        *(s32 *) (cursor - 0x20) = 0;
+        *(s32 *) (cursor - 0x10) = 0;
+    } while (cursor != (u8 *) D_800D6D18);
 
     D_800D6C3E = 0;
     D_800D6C44 = 0;
@@ -653,18 +645,17 @@ void animseqFreeLevelData(void) {
 /*
  * PROVENANCE: adapted from JFG's public animseqLoadLevelData assembly.
  * Plateau: exact 43-word shape; two source-spill offsets differ, first +0x60.
- * The typed offset-span route fixes the prior FIFO rotation but homes at 0x18.
+ * A fresh word-bound m2c form and workbench lever 6 retain the 0x18 home.
  */
 void func_80050DF0(s32 levelId) {
-    AnimLevelRomEntry *entry;
+    s32 *bounds;
     s32 source;
 
     if (levelId != -1 && levelId != D_8007D688) {
         animseqFreeLevelData();
-        entry = (AnimLevelRomEntry *)
-            ((s32 *) D_800D6B04 + levelId);
-        source = entry->start;
-        D_8007D684 = entry->end - source;
+        bounds = (s32 *) D_800D6B04 + levelId;
+        source = bounds[0];
+        D_8007D684 = bounds[1] - source;
         if (D_8007D684 > 0) {
             D_8007D680 = func_8002B280(D_8007D684, 0x81);
             if (D_8007D680 != NULL) {
@@ -1913,9 +1904,9 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 #endif
 #ifdef NON_MATCHING
 /*
- * JFG's hitGetInelasticVelocity is structurally unrelated to this reflection
- * helper. Plateau: exact 80-instruction size/frame and HI/LO relocation; the
- * best bounded-permuter candidate leaves 18 FP schedule words, first +0x54.
+ * Fresh m2c types and explicit normal/volatile-stack lifetimes did not beat
+ * this 80-instruction candidate. Workbench leaves 18 FP register/schedule
+ * words, first +0x54; the target spill is at sp+4 instead of sp+0.
  */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
