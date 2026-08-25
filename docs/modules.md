@@ -596,18 +596,18 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2BF14` | `func_8002B314` | `mmAlloc2` | B: second wrapper with the same calls and result role; linked C exact |
 | `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator; linked C exact |
 | `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker; linked C exact |
-| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments |
+| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments; plateau, exact size, 14/116 words differ, first `+0xE0` |
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
-| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots` |
+| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots`; plateau, canonical C is one word short, first `+0x4` |
 | `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot; linked C exact |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
 | `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
 | `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records; linked C exact |
 | `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
 | `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
-| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder |
+| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; plateau, exact size, 57/72 words differ, first `+0x4` |
 | `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
@@ -672,6 +672,24 @@ reproduce Mickey's target and both call relocations.
 `mmInit` is exact for all `0x78` bytes with canonical flags. The JFG donor's
 extended-RAM choice, main-pool construction, deferred-free delay, and queue
 reset reproduce all 30 words and the linked global/call relocations.
+
+Three JFG-derived bodies remain assembly-backed `NON_MATCHING` plateaus after
+bounded source trials and the full 119-combination flag lattice. The best
+`func_8002B524` candidate has the target's 116-word size with 14 positional
+differences, first at `+0xE0`; the remaining mismatch is the slot/data pointer
+allocation, branch-likely schedule, and one stack home (`0x38` versus target
+`0x3C`). Reusing the exact wrappers' padded stack record was a new hypothesis,
+but regressed to 20 differences from `+0x34`, so the prior body is retained.
+The bounded permuter could not run because `tools/permuter/import.py` is absent
+from this lane.
+
+Canonical `func_8002B7AC` C emits 62 words against 63 in the target and first
+diverges at `+0x4`: IDO folds the initial `D_800D21B0` address/load while the
+target retains the address in a saved register, shifting the otherwise-close
+queue loop. `-O2 -g3` reaches the target size with 15 differences but is not a
+valid TU-wide replacement for the canonical flags. `func_8002BB40` reaches the
+target's 72-word size but differs in 57 words from `+0x4`; pool/slot pointer
+allocation and split-record scheduling remain structurally different.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a

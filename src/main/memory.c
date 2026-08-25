@@ -202,8 +202,60 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
     return NULL;
 }
 
-/* JFG correspondence: mmAllocAtAddr (tier B; fixed-address allocation). */
+/*
+ * PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
+ * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative.
+ */
+#ifdef NON_MATCHING
+void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
+    s32 slotIndex;
+    MemoryPoolSlot *slot;
+    MemoryPoolSlot *slots;
+    s32 moduleId;
+    s32 moduleAddress;
+    volatile s32 callerAddress = 0x666;
+    s32 pad;
+
+    D_8007A270 = colourTag;
+    if (D_8007A278 != -1) {
+        colourTag = D_8007A278 | 0xFF000000;
+    } else if (D_8007A27C != -1) {
+        colourTag = D_8007A27C | 0xFE000000;
+    } else {
+        runlinkGetAddressInfo(callerAddress - 8, &moduleId, &moduleAddress, NULL);
+        colourTag = (moduleId << 24) | moduleAddress;
+    }
+
+    if (D_800D1C60[MEMORY_POOL_MAIN].curNumSlots + 1 ==
+        D_800D1C60[MEMORY_POOL_MAIN].maxNumSlots) {
+        return NULL;
+    }
+    if (size & 0xF) {
+        size = (size & ~0xF) + 0x10;
+    }
+
+    slots = D_800D1C60[MEMORY_POOL_MAIN].slots;
+    for (slotIndex = 0; slotIndex != -1; slotIndex = slot->nextIndex) {
+        slot = (MemoryPoolSlot *)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
+        if (slot->flags == MEMORY_SLOT_FREE) {
+            if (address >= slot->data && address + size <= slot->data + slot->size) {
+                if (address == slot->data) {
+                    func_8002BB40(MEMORY_POOL_MAIN, slotIndex, size, TRUE, FALSE, colourTag);
+                    return slot->data;
+                }
+                slotIndex = func_8002BB40(MEMORY_POOL_MAIN, slotIndex,
+                                          address - slot->data, FALSE, TRUE, colourTag);
+                func_8002BB40(MEMORY_POOL_MAIN, slotIndex, size, TRUE, FALSE, colourTag);
+                return *(u8 **)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
+            }
+        }
+    }
+
+    return NULL;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B524.s")
+#endif
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmSetDelay. */
 void mmSetDelay(s32 state) {
@@ -212,8 +264,7 @@ void mmSetDelay(s32 state) {
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmFlushFreeStack. */
 extern void *D_800D1CA8[];
-extern s8 D_800D20A8[];
-extern s32 D_800D21A8;
+extern u8 D_800D20A8[];
 
 void func_8002B8A8(u8 *address);
 
@@ -236,8 +287,34 @@ void mmFree(void *data) {
     }
 }
 
-/* JFG correspondence: mmFreeTick (tier B; services deferred frees). */
+/*
+ * PROVENANCE: adapted from JFG src/memory.c:mmFreeTick. Mickey's low-memory
+ * link-slot release and absent diagnostic print are authoritative differences.
+ */
+void ReleaseUnusedLinkSlots(void);
+
+#ifdef NON_MATCHING
+void func_8002B7AC(void) {
+    s32 i;
+
+    if (D_800D21B0 < 0x14000) {
+        ReleaseUnusedLinkSlots();
+    }
+    for (i = 0; i < D_800D21A8;) {
+        D_800D20A8[i]--;
+        if (D_800D20A8[i] == 0) {
+            func_8002B8A8(D_800D1CA8[i]);
+            D_800D1CA8[i] = D_800D1CA8[D_800D21A8 - 1];
+            D_800D20A8[i] = D_800D20A8[D_800D21A8 - 1];
+            D_800D21A8--;
+        } else {
+            i++;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B7AC.s")
+#endif
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_free_addr. */
 s32 func_8002B978(u8 *address);
@@ -344,8 +421,63 @@ s32 mmGetDelay(void) {
     return D_800D21AC;
 }
 
-/* JFG correspondence: mempool_slot_assign (tier B; splits/assigns a slot). */
+/*
+ * PROVENANCE: adapted from JFG src/memory.c:mempool_slot_assign. Mickey's
+ * pool accounting, byte-sized slot fields, globals, and bytes are authoritative.
+ */
+#ifdef NON_MATCHING
+s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
+                   s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag) {
+    MemoryPool *pool;
+    MemoryPoolSlot *slots;
+    MemoryPoolSlot *slot;
+    MemoryPoolSlot *newSlot;
+    s32 *colourTagIndex;
+    s32 index;
+    s32 nextIndex;
+    s32 slotSize;
+
+    colourTagIndex = &D_8007A270;
+    if (slotIsTaken == TRUE) {
+        if (poolIndex == MEMORY_POOL_MAIN) {
+            D_800D21B0 -= size;
+        }
+        pool = (MemoryPool *)((u8 *)D_800D1C60 + (poolIndex << 4));
+        pool->freeSize -= size;
+    }
+
+    pool = (MemoryPool *)((u8 *)D_800D1C60 + (poolIndex << 4));
+    slots = pool->slots;
+    slot = (MemoryPoolSlot *)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
+    slot->flags = slotIsTaken;
+    slotSize = slot->size;
+    slot->size = size;
+    slot->colourTagIndex = *colourTagIndex;
+    slot->colourTag = colourTag;
+    if (size < slotSize) {
+        index = ((MemoryPoolSlot *)((u8 *)slots + (pool->curNumSlots << 4) +
+                                    (pool->curNumSlots << 2)))->index;
+        pool->curNumSlots++;
+        newSlot = (MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2));
+        newSlot->data = slot->data + size;
+        newSlot->size = slotSize - size;
+        newSlot->flags = newSlotIsTaken;
+        newSlot->colourTagIndex = *colourTagIndex;
+        nextIndex = slot->nextIndex;
+        newSlot->prevIndex = slotIndex;
+        newSlot->nextIndex = nextIndex;
+        slot->nextIndex = index;
+        if (nextIndex != -1) {
+            ((MemoryPoolSlot *)((u8 *)slots + (nextIndex << 4) +
+                                (nextIndex << 2)))->prevIndex = index;
+        }
+        return index;
+    }
+    return slotIndex;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002BB40.s")
+#endif
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAlign16. */
 u8 *align16(u8 *address) {
