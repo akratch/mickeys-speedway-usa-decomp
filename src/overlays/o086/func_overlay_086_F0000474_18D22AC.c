@@ -35,15 +35,18 @@ M2C_UNK ext_o0_5a914(void *, M2C_UNK, s32, f32);   /* extern */
 s16 ext_o0_f690(f32, f32, f32);                    /* extern */
 M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
 
+/* Workbench: mixed(structural:22, schedule:27, register:53); best 73/662, first +0x70.
+ * Levers: local-order stack census removed 15 constants; statement order and full flag lattice tried.
+ * Remaining: 22 opcode and 50 register raw sites; early constant-hoist/pool slot 6 unresolved. */
 #ifdef NON_MATCHING
 void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
+    s16 *var_a1;
     s32 spA0;
     f32 sp9C;
     f32 sp98;
     f32 sp94;
     f32 temp_f20;
     f32 temp_f20_2;
-    s16 *var_a1;
     s32 temp_a0;
     void *temp_s0;
     void *temp_s4;
@@ -59,9 +62,9 @@ void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
         temp_a0 = M2C_FIELD(temp_s0, u8 *, 0);
         if (temp_a0 != 0) {
             ext_o0_5a758(arg0, 0x3C88CE70, temp_f20);
-            var_a1 = (s16 *)((u8 *)temp_s0 + 0x30);
             M2C_FIELD(temp_s0, s16 *, 0x28) = 0x22;
             M2C_FIELD(temp_s0, s16 *, 0x2C) = 0x24;
+            var_a1 = (s16 *)((u8 *)temp_s0 + 0x30);
             M2C_FIELD(temp_s0, s16 *, 0x2A) = M2C_FIELD(temp_s0, s16 *, 0x1C);
             M2C_FIELD(temp_s0, s16 *, 0x2E) = M2C_FIELD(temp_s0, s16 *, 0x1C);
             if (M2C_FIELD(temp_s0, s16 *, 0x24) != 0) {
