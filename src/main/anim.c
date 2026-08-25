@@ -569,15 +569,11 @@ void func_80050AD4(u8 pathIndex) {
         }
     }
 }
-/*
- * PROVENANCE: adapted from JFG's src/anim.c animseqInit assembly. Mickey's
- * globals, allocator call, data boundaries, and compiler output are
- * independently established from Mickey's ROM.
- *
- * Plateau: the fresh fixed-count array route reaches 85/87 instructions but
- * loses the boundary-symbol relocations. This 84/87 form retains them; first
- * mismatch +0x34, with IDO carrying three boundary bases between loops.
- */
+/* Workbench structural plateau: 13 aligned residuals, 84/87 instructions;
+ * first mismatch +0x34. Boundary-expression and condition AST levers plus the
+ * 119-combo flag lattice leave IDO carrying three bases between adjacent loops. */
+/* PROVENANCE: adapted from JFG's src/anim.c animseqInit assembly. Mickey's globals,
+ * allocator call, data boundaries, and compiler output are independently established. */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
     s32 emptyIndex;

@@ -297,9 +297,10 @@ void func_80038750(s32 language) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
 #endif
 #ifdef NON_MATCHING
-/* PROVENANCE: compared with JFG's public src/menu.c::initFront, which retains assembly.
- * Plateau: the exact 85-word -Wo,-loopunroll,0 form differs 66 words, first +0x14.
- * Array/loop/volatile shapes lost; the 40-minute permuter had no zero (best 2540). */
+/* Workbench structural plateau: exact 85-instruction/0x18-frame shape differs
+ * in 66 positional words; first +0x14. Loop/volatile AST levers and the prior
+ * permuter leave the initial global-address allocation and later loop webs. */
+/* PROVENANCE: compared with JFG's public src/menu.c::initFront, which retains assembly. */
 void func_80038878(void) {
     s32 *buffer;
     s32 *bufferEnd;

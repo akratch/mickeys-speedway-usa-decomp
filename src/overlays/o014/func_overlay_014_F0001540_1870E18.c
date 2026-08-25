@@ -16,14 +16,22 @@ extern void overlay14BuildPanel(s32, void *, s32, s32, s32, s32, s32);
 extern s32 overlay14Dispatch();
 extern s32 overlay14ValidateEntry(s16);
 
+/* Workbench mixed plateau: 76 aligned residuals (24 structural, 9 schedule,
+ * 39 register, 4 constant), exact 188-instruction/0x80-frame shape; first +0x6C.
+ * Frame/layout and volatile levers leave two pool swaps plus loop-preamble order. */
 #ifdef NON_MATCHING
 void func_overlay_014_F0001540_1870E18(s32 context) {
-    s32 index, entryOffset, opacity;
-    void *drawArg;
-    u8 *cursor;
-    s32 cellWidth, remaining, x, y, first;
     u8 saved;
-    Overlay14Entry *entry;
+    s32 index;
+    s32 cellWidth;
+    s32 remaining;
+    s32 x;
+    s32 y;
+    s32 opacity;
+    u8 *cursor;
+    void *drawArg;
+    s32 first;
+    s32 entryOffset;
     overlay14BuildPanel(context, &gOverlay14DataBase, 0x5C, 0x14, 0xD0, 0x58,
                         (gOverlay14ValueC0 * 0xA0) >> 8);
     index = 0;
@@ -41,9 +49,9 @@ loop_entry:
             overlay14Dispatch(0xFF, 0xFF, 0xFF, 0xFF, opacity);
         else
             overlay14Dispatch(0, 0xC0, 0xC0, 0xFF, opacity);
-        entry = (Overlay14Entry *)((u8 *)gOverlay14Entries + entryOffset);
-        cursor = entry->text;
-        if (overlay14ValidateEntry(entry->kind) == 0) cursor = 0;
+        cursor = ((Overlay14Entry *)((u8 *)gOverlay14Entries + entryOffset))->text;
+        if (overlay14ValidateEntry(
+                ((Overlay14Entry *)((u8 *)gOverlay14Entries + entryOffset))->kind) == 0) cursor = 0;
         if ((cursor != 0) && (remaining > 0)) {
             do {
                 cursor = (u8 *)overlay14Dispatch(2, cursor, 0xC8, &drawArg, 0);
