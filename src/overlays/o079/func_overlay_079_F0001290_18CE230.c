@@ -63,6 +63,8 @@ extern u8 gOverlay79FlagsReloc[];
  * pointer changed size and 83 words, and a 10-minute two-worker permuter run
  * improved score 150 to 130 only by inserting an empty goto/label artifact;
  * no zero-score candidate was found, so the idiomatic source remains.
+ * Lane cx-ov-4-b-a-r3 repeated the full lattice and reconfirmed the exact-size
+ * 12-word result with first mismatch at +0xC8.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
