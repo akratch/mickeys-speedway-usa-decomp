@@ -2418,6 +2418,7 @@ func_80057350 = 0x80057350; // type:func size:0x78   ROM 0x57f50  tier-D collisi
 fmvInit = 0x80057910; // type:func size:0x5C   ROM 0x58510  src/fmvInit.c.o exact masked tier-A, matched C
 // jfg:libultra/src/flash/flashreadid.c.o
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C   ROM 0x58810  libultra/src/flash/flashreadid.c.o  masked=6/19
+func_80058EF4 = 0x80058EF4; // type:func size:0x90   ROM 0x59af4  tier-D logarithm-series helper, matched C
 // donor-jfg-src/camera.c.o
 camConvertMatrixList = 0x8005AB78; // type:func size:0x30   ROM 0x5b778  src/camera.c.o  masked=4/12
 // Tier D: Mickey-derived parented matrix-list builder, exact linked C.
@@ -2425,7 +2426,7 @@ func_8005B644 = 0x8005B644; // type:func size:0xCC  ROM 0x5c244
 // jfg:src/gsSnd.c.o
 func_8005B978 = 0x8005B978; // type:func size:0xC8   ROM 0x5c578  src/gsSnd.c.o  masked=3/50
 func_8005BA40 = 0x8005BA40; // type:func size:0x12FC   ROM 0x5c640  src/gsSnd.c.o  masked=108/1215
-func_8005CDAC = 0x8005CDAC; // type:func size:0x7C   ROM 0x5d9ac  src/gsSnd.c.o  masked=4/31
+func_8005CDAC = 0x8005CDAC; // type:func size:0x7C   ROM 0x5d9ac  src/gsSnd.c.o  masked=4/31 tier-A matched C
 func_8005CE28 = 0x8005CE28; // type:func size:0x104   ROM 0x5da28  src/gsSnd.c.o  masked=4/65
 func_8005D030 = 0x8005D030; // type:func size:0x230   ROM 0x5dc30  src/gsSnd.c.o  masked=22/140
 func_8005D260 = 0x8005D260; // type:func size:0x144   ROM 0x5de60  src/gsSnd.c.o  masked=23/81

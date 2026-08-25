@@ -522,16 +522,14 @@ void func_8005830C(s32 updateRate) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/vehicle_sounds/func_8005830C.s")
 #endif
 
-#ifdef NON_MATCHING
 /*
- * Plateau: the best source has the target's arithmetic and relocation
- * surface, but emits 36 instructions against 39, first diverging at +0x4,
- * and swaps the two long-lived FP webs. All 119 flag combinations were swept;
- * `-Wab,-r4300_mul` is best at 13 differing words but is still structural.
- * The bounded permuter is unavailable in this checkout.
+ * Exact under -O2 -mips2 -32 -Wab,-r4300_mul. Naming the loop-invariant
+ * square preserves the target's FP lifetimes and direct multiplication in
+ * the return expression preserves its return-register coalescing.
  */
 f32 func_80058EF4(f32 arg0) {
     f32 one;
+    f32 squared;
     f32 previous;
     f32 term;
     f32 result;
@@ -543,17 +541,14 @@ f32 func_80058EF4(f32 arg0) {
     divisor = 1;
     arg0 = (arg0 - one) / (one + arg0);
     term = arg0;
+    squared = arg0 * arg0;
     if (D_80084318 < (result - previous)) {
         do {
             previous = result;
             result += term / divisor;
             divisor += 2;
-            term *= arg0 * arg0;
+            term *= squared;
         } while (D_80084318 < (result - previous));
     }
-    result *= 2;
-    return result;
+    return result * (s32)2;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/vehicle_sounds/func_80058EF4.s")
-#endif
