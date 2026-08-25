@@ -1687,6 +1687,18 @@ alternative. The bounded permuter imported the TU as `-mips1`; its only lead
 made the signed trigger count unsigned and was rejected. The candidate remains
 under `NON_MATCHING` and the original asm body remains canonical.
 
+`func_80041CE4` reached a bounded 153-instruction plateau under the default
+resident flags with the exact opcode schedule, `0x80` frame, and relocation
+surface. Its best Mickey-derived candidate differs in 34 words, first at
+function offset `0x48`: the target colors the outer entry-count web in `$a3`
+rather than `$a2` and places the address-taken display-list local at
+`sp+0x6C` rather than `sp+0x7C`; the same pool-register rotation continues
+through the two generated command words. Declaration, lifetime, pointer-loop,
+and expression-tree variants converged on that allocation basin after the full
+flag lattice. The bounded permuter imported the TU as inadmissible `-mips1`
+and only improved its internal score with a dummy label, so the typed candidate
+remains under `NON_MATCHING` and the original asm body remains canonical.
+
 `vsprintf` reached a bounded size-exact plateau under `-Wab,-r4300_mul`: its
 1,220-word candidate differs in two adjacent words, first at function offset
 `0xB08`, where IDO loads the final exponent digit constants in the reverse

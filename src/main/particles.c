@@ -153,6 +153,55 @@ typedef struct ParticleTexture {
     u16 frameCount;
 } ParticleTexture;
 
+typedef struct ParticleLinePoint {
+    s16 x0;
+    s16 y0;
+    s16 z0;
+    s16 x1;
+    s16 y1;
+    s16 z1;
+    u8 pad0C[2];
+    u8 alpha;
+    u8 pad0F[9];
+    u8 red;
+    u8 green;
+    u8 blue;
+} ParticleLinePoint;
+
+typedef struct ParticleLineVertex {
+    s16 x0;
+    s16 y0;
+    s16 z0;
+    u8 red0;
+    u8 green0;
+    u8 blue0;
+    u8 alpha0;
+    s16 x1;
+    s16 y1;
+    s16 z1;
+    u8 red1;
+    u8 green1;
+    u8 blue1;
+    u8 alpha1;
+} ParticleLineVertex;
+
+typedef struct ParticleLineRenderEntry {
+    s32 pointCount;
+    ParticleLinePoint *points[15];
+    u8 pad40[0xE4];
+    u8 active;
+    u8 pad125[3];
+    void *texture;
+    ParticleConfig *config;
+    s32 unk130;
+    u8 pad134[4];
+    s32 descriptorWord;
+    s32 configFlags;
+    f32 textureFrame;
+    s16 value144;
+    u8 pad146[2];
+} ParticleLineRenderEntry;
+
 typedef struct ParticleModelPartConfig {
     s16 type;
     s16 triggerType;
@@ -306,6 +355,7 @@ ParticleTexture *func_80034448(s16 resourceId);
 s32 mathRnd(s32 minimum, s32 maximum);
 void camSetNo(s32 camera);
 void func_800221E8(void **dList, s32 arg1);
+void func_800349A4(Gfx **dList, void *texture, s32 mode, s32 flags);
 void func_8003D4FC(void **dList, void **vertices, void *pool);
 s32 func_8003CE10(void **dList, s32 arg1, void **vertices, void *pool, s32 mode);
 void func_8003D25C(void **dList, s32 arg1, void **vertices, void *pool);
@@ -328,6 +378,7 @@ void func_8003CD28(ParticleResourceList **listPtr);
 void func_8003CCE4(void);
 void *func_8003FB98(s32 arg0, ParticleTrigger *trigger, s32 arg2);
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry);
+extern u8 D_7C900[];
 
 /* PROVENANCE: body adapted from DKR src/particles.c:reset_particles. */
 void reset_particles(void) {
@@ -1151,7 +1202,95 @@ void func_80041C50(s32 arg0, s32 arg1) {
         }
     }
 }
+#ifdef NON_MATCHING
+/*
+ * Opcode-, size-, frame-, and relocation-exact plateau: 34 words differ from
+ * +0x48. The target colors the outer count in a3 rather than a2 and places
+ * the address-taken display-list local at sp+0x6C rather than sp+0x7C; the
+ * resulting pool-register rotation continues through the two command words.
+ * The flag lattice found no alternative, and the bounded permuter imported
+ * the TU as inadmissible -mips1 and only improved its own score with a dummy
+ * label.
+ *
+ * PROVENANCE: structure cross-checked against JFG's assembly-only
+ * func_80063514 sibling; body reconstructed from Mickey evidence.
+ */
+void func_80041CE4(void **dList, void **vertices) {
+    Gfx *displayList;
+    Gfx *command;
+    ParticleLineVertex *vertex;
+    ParticleLineVertex *vertexStart;
+    ParticleLinePoint *point;
+    ParticleLineRenderEntry *line;
+    s32 i;
+    s32 j;
+    s32 pointCount;
+    s32 vertexAddress;
+    ParticleLinePoint **pointPtr;
+
+    if (D_8007C894 != NULL) {
+        displayList = *dList;
+        vertex = *vertices;
+        line = (ParticleLineRenderEntry *)D_8007C894;
+        i = 0;
+        if (D_8007C88C > 0) {
+            do {
+                if (line->active != 0) {
+                    pointCount = line->pointCount;
+                    vertexStart = vertex;
+                    j = 0;
+                    if (pointCount >= 2) {
+                        if (pointCount > 0) {
+                            pointPtr = (ParticleLinePoint **)line;
+                            do {
+                                point = pointPtr[1];
+                                j++;
+                                pointPtr++;
+                                vertex->x0 = point->x0;
+                                vertex->y0 = point->y0;
+                                vertex->z0 = point->z0;
+                                vertex->red0 = point->red;
+                                vertex->green0 = point->green;
+                                vertex->blue0 = point->blue;
+                                vertex->alpha0 = point->alpha;
+                                vertex->x1 = point->x1;
+                                vertex->y1 = point->y1;
+                                vertex->z1 = point->z1;
+                                vertex->red1 = point->red;
+                                vertex->green1 = point->green;
+                                vertex->blue1 = point->blue;
+                                vertex->alpha1 = point->alpha;
+                                vertex++;
+                            } while (j < line->pointCount);
+                        }
+                        func_800349A4(&displayList, line->texture, 0x12,
+                                      (s32)(line->textureFrame * 65536.0f));
+                        pointCount = line->pointCount;
+                        vertexAddress = (s32)vertexStart + 0x80000000;
+                        pointCount *= 2;
+                        command = displayList++;
+                        command->words.w0 = ((((pointCount << 3) | (vertexAddress & 6)) & 0xFF) << 16) |
+                                            0x04000000 |
+                                            ((((pointCount << 3) + (pointCount << 1)) + 8) & 0xFFFF);
+                        command->words.w1 = vertexAddress;
+                        command = displayList++;
+                        command->words.w0 = (((((pointCount - 3) << 4) | 1) & 0xFF) << 16) |
+                                            0x05000000 | (((pointCount - 2) << 4) & 0xFFFF);
+                        command->words.w1 = (s32)D_7C900;
+                    }
+                }
+                i++;
+                line++;
+            } while (i < D_8007C88C);
+        }
+        gDPPipeSync(displayList++);
+        *dList = displayList;
+        *vertices = vertex;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041CE4.s")
+#endif
 void func_80041F48(s32 arg0, ParticleTrigger *trigger) {
     void *particle;
     ParticleModelEntry *entry;
