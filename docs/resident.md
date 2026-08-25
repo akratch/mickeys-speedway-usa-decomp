@@ -1614,8 +1614,9 @@ the still-unnamed scheduler helper `func_800304E0` (ROM `0x310E0`–
 `0x31E74`, 296 bytes), `__scHandleRDP` (ROM `0x31E74`–`0x31EFC`, 136
 bytes), `__scTaskReady` (ROM `0x31EFC`–`0x31F4C`, 80 bytes),
 `__scTaskComplete` (ROM `0x31F4C`–`0x3204C`, 256 bytes),
-`__scAppendList` (ROM `0x3204C`–`0x320AC`, 96 bytes), and `__scExec` (ROM
-`0x320AC`–`0x3216C`, 192 bytes). All were compiled
+`__scAppendList` (ROM `0x3204C`–`0x320AC`, 96 bytes), `__scExec` (ROM
+`0x320AC`–`0x3216C`, 192 bytes), and `__scYield` (ROM `0x3216C`–`0x321B8`,
+76 bytes). All were compiled
 with the resident `-O2 -mips2 -32` flags. The saves TU additionally disables
 loop unrolling: the full flag
 lattice selects the target's scalar 24-record reset loop, and the full ROM
@@ -1702,28 +1703,9 @@ labels. Removing the fallback therefore leaves those seven entries undefined.
 Moving the table requires a measured YAML/shared-rodata boundary handoff
 outside this lane's assigned files, so the assembly fallback remains canonical.
 
-`__scYield` also retains a `NON_MATCHING` JFG-derived body. The resident flag
-lattice and five storage/source shapes leave the faithful external-`u64`
-candidate at 20 instructions versus the target's 19, with the first positional
-mismatch at function `+0x14` after the extra base reload changes the branch
-span. Defining the timestamp in this TU is diagnostic only: it reproduces all
-19 instruction words, but its final low-half store relocates against
-`D_800D2D48` plus four rather than `D_800D2D4C` at `+0x38`, and it introduces
-new scheduler BSS that this split does not own. The assembly fallback remains
-canonical until BSS ownership can be reconstructed without changing the
-shared data layout.
-
-A fresh structural retry kept the external timestamp split without claiming
-new BSS ownership. Declaring the two extracted high/low words separately made
-IDO emit 28 instructions, with all 19 target positions differing from `+0x0`;
-writing through one adjacent `u64` lvalue returned to the existing 20-word,
-eight-difference basin at `+0x14`. The repeated full flag lattice therefore
-leaves the external-`u64` candidate as the best faithful form and confirms the
-remaining blocker is the combined return-value store versus distinct BSS
-relocation identities.
-This run's explicit timestamp-struct retry also emitted 28 words from `+0x0`;
-the guarded external-`u64` body remains best at 20/19 words, eight differences
-from `+0x14`, blocked by the separate low-word BSS relocation identity.
+`__scYield` is exact for all 19 instruction words after assigning scheduler's
+`0x800D2D40`–`0x800D2D50` BSS to this TU. The owned `u64` at `0x800D2D48`
+places its low-word store at `0x800D2D4C`; the final linked ROM is exact.
 
 `osScGetTaskType` plateau: workbench reports exact instructions and known relocation layout.
 Removing the wrapper fails the full link because `jtbl_800823D8` references seven assembly-local labels.

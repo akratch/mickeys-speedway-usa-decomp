@@ -659,6 +659,9 @@ segments:
       - [0x85700, rodata]
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }
+      # Scheduler-owned counters and the two halves of its yield timestamp.
+      - { type: .bss, vram: 0x800D2D40, name: main/sched }
+      - { type: bss, vram: 0x800D2D50, name: bss_gap_D800D2D50 }
       - { type: .bss, vram: 0x800D7D80, name: libultra/n_csplayer }
       # Mickey's alSurround loads/stores place the four donor-named globals at
       # 0x800D7DC0-0x800D7DCB; IDO pads the owning .bss section to 0x10 bytes.
