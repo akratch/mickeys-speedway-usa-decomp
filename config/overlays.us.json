@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 72532,
-  "nonmatching_overlay_c_bytes": 220844,
+  "matched_overlay_c_bytes": 73004,
+  "nonmatching_overlay_c_bytes": 220372,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -2113,7 +2113,41 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 47
-   }
+   },
+   "mixed_tu_exact_c_ranges": [
+    {
+     "offset": "0x228",
+     "end_offset": "0x298",
+     "size": "0x70",
+     "label": "overlay7CreateEntry",
+     "source": "overlays/o007/overlay_007",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x298",
+     "end_offset": "0x324",
+     "size": "0x8C",
+     "label": "overlay7AppendEntry",
+     "source": "overlays/o007/overlay_007",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0xEDC",
+     "end_offset": "0xF08",
+     "size": "0x2C",
+     "label": "overlay7FillValues",
+     "source": "overlays/o007/overlay_007_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0xF08",
+     "end_offset": "0xFB8",
+     "size": "0xB0",
+     "label": "overlay7InitPool",
+     "source": "overlays/o007/overlay_007_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    }
+   ]
   },
   {
    "overlay": 8,
