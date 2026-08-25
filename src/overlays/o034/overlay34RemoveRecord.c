@@ -17,7 +17,9 @@ extern void *func_80034448();
  * matches 32/44 instruction words with the default flags. Its first mismatch
  * is +0x14: IDO schedules the shadow count into a1 before saving ra and keeps
  * that color through both countdown loops. A two-worker, ten-minute permuter
- * run plateaued at score 165 without resolving the remaining 12 words.
+ * run plateaued at score 165 without resolving the remaining 12 words. This
+ * run's 119-combination flag lattice and coherent shadow-lifetime/loop-shape
+ * variants preserved the same size-exact 12-word residual.
  */
 #ifdef NON_MATCHING
 void overlay34RemoveRecord(Overlay34Record *record) {

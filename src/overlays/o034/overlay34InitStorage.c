@@ -15,7 +15,9 @@ extern void *func_8002B280(s32 size, s32 tag);
  * The target assigns the reused size spill to sp+0x1C; IDO assigns this body
  * to sp+0x18. Declaration, lifetime, expression, and type variants either
  * preserve those four differences or grow the frame. A 10-minute, two-worker
- * permuter run found no candidate below its baseline score of 40.
+ * permuter run found no candidate below its baseline score of 40. This run's
+ * full 119-combination flag lattice and typed scalar/aggregate layout checks
+ * preserved the same four-word residual and +0x24 first mismatch.
  */
 #ifdef NON_MATCHING
 void overlay34InitStorage(s32 count) {
