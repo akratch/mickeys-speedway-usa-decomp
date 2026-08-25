@@ -759,7 +759,7 @@ TEXT_SUBSEGMENTS = {
         (0x000, "c", "overlay53Initialize"),
         (0x11C, "c", "overlay53PatchIndices"),
         (0x16C, "c", "overlay53CopyOffsetEntries"),
-        (0x240, "asm", "overlay_053_tail_a"),
+        (0x240, "c", "func_overlay_053_F0000240_189DBE8"),
         (0xC30, "c", "overlay53ReleaseResources"),
         (0xCA8, "asm", "overlay_053_padding"),
     ],
