@@ -14,13 +14,20 @@ Run after any change to what gets built (a new TU, a renamed overlay, ...):
 objdiff.json itself is committed (it is names and paths derived from the
 build graph, not ROM content); tools/objdiff_report.sh regenerates it if the
 build/ tree looks newer, so this rarely needs to be run by hand.
+
+--base-dir DIR swaps the base ("current") side for a different build tree
+(for example `build_non_matching`, the `gmake NON_MATCHING=1` tree used by
+tools/nm_ranking.py) while the target side stays expected/build/ -- that
+tree mirrors build/'s own directory layout one-for-one below the top-level
+dir, so the relative paths line up unchanged. The emitted config is not
+committed in that case; it is regenerated/consumed in memory by the caller.
 """
+import argparse
 import json
 import pathlib
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-BUILD = ROOT / "build"
 EXCLUDE_PREFIXES = ("permuter/", "wb/")
 
 # Objects objdiff-cli's report generator can't parse (POSTPROCESS-trimmed
@@ -58,16 +65,30 @@ def category_name(cat_id: str) -> str:
     return cat_id
 
 
+def parse_args(argv) -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(
+        "--base-dir",
+        default="build",
+        help="build tree to use for the base ('current') side of each unit "
+        "(default: build). The target side is always expected/build/.",
+    )
+    return p.parse_args(argv)
+
+
 def main() -> int:
-    if not BUILD.is_dir():
-        print("no build/ directory -- run `gmake` first.", file=sys.stderr)
+    args = parse_args(sys.argv[1:])
+    base_dir_name = args.base_dir.strip("/")
+    base_dir = ROOT / base_dir_name
+    if not base_dir.is_dir():
+        print(f"no {base_dir_name}/ directory -- run `gmake` first.", file=sys.stderr)
         return 1
 
     excludes = load_excludes()
     units = []
     categories = {}
-    for obj in sorted(BUILD.rglob("*.o")):
-        rel = obj.relative_to(BUILD).as_posix()
+    for obj in sorted(base_dir.rglob("*.o")):
+        rel = obj.relative_to(base_dir).as_posix()
         if rel.startswith(EXCLUDE_PREFIXES) or rel in excludes:
             continue
         rel_p = pathlib.PurePosixPath(rel)
@@ -77,7 +98,7 @@ def main() -> int:
             {
                 "name": rel[: -len(".o")] if rel.endswith(".o") else rel,
                 "target_path": f"expected/build/{rel}",
-                "base_path": f"build/{rel}",
+                "base_path": f"{base_dir_name}/{rel}",
                 "metadata": {"progress_categories": [cat]},
             }
         )
