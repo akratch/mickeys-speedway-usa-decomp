@@ -534,7 +534,7 @@ func_8002FB34 = 0x8002FB34; // type:func size:0x59C ROM 0x30734 tier-D boundary-
 // sched.c -- ROM 0x30CD0-0x323A0. The two queue accessors are pre-existing
 // Tier A exceptions and osScGetTaskType is the pre-existing Tier C anchor.
 osCreateScheduler = 0x800300D0; // type:func size:0x15C ROM 0x30cd0 tier-B donor-jfg-src/sched.c sdk-callgraph+order
-osScAddClient = 0x8003022C; // type:func size:0x5C ROM 0x30e2c tier-B donor-jfg-src/sched.c callgraph+order
+osScAddClient = 0x8003022C; // type:func size:0x5C ROM 0x30e2c tier-B donor-jfg-src/sched.c callgraph+order matched-C
 osScRemoveClient = 0x80030288; // type:func size:0x88 ROM 0x30e88 tier-B donor-jfg-src/sched.c callgraph+order
 osScGetAudioSPStats = 0x80030320; // type:func size:0x18 ROM 0x30f20 tier-B donor-jfg-src/sched.c role-callgraph+order matched-C
 __scMain = 0x80030338; // type:func size:0x1A8 ROM 0x30f38 tier-B donor-jfg-src/sched.c scheduler-callgraph+order

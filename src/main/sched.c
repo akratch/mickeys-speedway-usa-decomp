@@ -18,6 +18,8 @@ typedef struct SchedGfx {
     u32 w1;
 } SchedGfx;
 
+#define OS_IM_NONE 1
+
 extern s32 D_8007A640;
 extern s32 D_8007A648;
 extern s32 D_8007A650;
@@ -49,6 +51,7 @@ void osSpTaskLoad(OSTask *task);
 void osSpTaskStartGo(OSTask *task);
 void osSpTaskYield(void);
 u64 osGetTime(void);
+OSIntMask osSetIntMask(OSIntMask mask);
 void *osViGetCurrentFramebuffer(void);
 void *osViGetNextFramebuffer(void);
 void rsp_segment(SchedGfx **dlist, s32 segment, void *base);
@@ -66,7 +69,18 @@ void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp);
 s8 func_80001BE8(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osCreateScheduler.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScAddClient.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:osScAddClient. */
+void osScAddClient(OSSched *sc, OSScClient *client, OSMesgQueue *msgQ, u8 id) {
+    OSIntMask mask;
+
+    mask = osSetIntMask(OS_IM_NONE);
+    client->msgQ = msgQ;
+    client->next = sc->clientList;
+    client->id = id;
+    sc->clientList = client;
+    osSetIntMask(mask);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScRemoveClient.s")
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/sched.c:osScGetCmdQ. */
 OSMesgQueue *osScGetCmdQ(OSSched *scheduler) {
