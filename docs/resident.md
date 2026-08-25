@@ -2406,6 +2406,15 @@ target, affecting eight words while leaving the command arithmetic and all
 surrounding instructions exact. Explicit locals fix those eight uses only by
 perturbing the frame or earlier allocation, so the typed macro reconstruction
 remains behind `NON_MATCHING` and the target assembly stays canonical.
+The 356-byte `func_80048080` fresh typed m2c route bottoms out at 83/89 words with 65 positional differences, first at `+0x0`.
+Workbench reports structure-mismatch: suppressing IDO's two-way unroll changes the frame from 64 to 80 bytes; the target uses 72.
+Hypothesis: the original packed-pointer loop retains the saved count while blocking unroll; no flag-lattice entry was exact.
+The 384-byte `func_8004ADE8` typed Mickey m2c/JFG-assembly route bottoms out at 92 differing words, first at `+0x0`.
+Workbench reports structure-mismatch: target frame 64 bytes with saved `s0`; the closest flag form emits 95/96 instructions with 92 differing words.
+Hypothesis: the original pointer spelling both pins the slot index in `s0` and blocks four-way unrolling of the byte-clear loop.
+The 400-byte `func_800498FC` explicit-`FxRecord` m2c route emits 101/100 instructions with 89 differing words, first at `+0x0`.
+Workbench reports structure-mismatch: an explicit record spill removes the false saved `s0`, but leaves a 40-byte frame against the target's 48.
+Hypothesis: the original call expression homes the record at `sp+0x24` and drives the target's post-call flag/store schedule; all 119 flags agree.
 The 84-byte `diCpuTraceInit` is exact at the resident defaults. Keeping JFG's
 distinct thread-control-block and stack-top declarations reproduces the target
 evaluation schedule; Mickey resolves both operands to the same address, so the
