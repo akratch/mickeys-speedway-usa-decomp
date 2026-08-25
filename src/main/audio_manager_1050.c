@@ -60,7 +60,8 @@ typedef struct AudioBankFile {
 } AudioBankFile;
 
 typedef struct AudioSequenceRomEntry {
-    u32 unk0;
+    u16 unk0;
+    s16 sequenceCount;
     u8 *romAddress;
 } AudioSequenceRomEntry;
 
@@ -524,7 +525,20 @@ u8 amSoundIsLooped(u16 soundId) {
                           ->soundArray[soundId - 1]
                           ->envelope->decayTime) == 0);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001308.s")
+/*
+ * PROVENANCE: role and order compared with JFG src/audio_manager_1050.c;
+ * body and resident sequence-header layout use Mickey-only evidence.
+ */
+void func_80001308(u8 sequenceId, void *player) {
+    stop_ALSeqp(player);
+    if (sequenceId < D_800BF790->sequenceCount) {
+        if (player == D_80078D60) {
+            D_80078D94 = sequenceId;
+        } else {
+            D_80078D98 = sequenceId;
+        }
+    }
+}
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
  * music_sequence_init; body uses Mickey-only evidence.
