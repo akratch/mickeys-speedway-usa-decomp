@@ -990,6 +990,7 @@ segments:
     subsegments:
       - [0x186D280, c, overlay_012]
       - [0x186D434, c, overlay_012_tail]
+      - [0x186D564, c, func_overlay_012_F00002E4_186D564]
       - [0x186D628, asm, overlay_012_tail1]
       - [0x186E520, bin, overlay_012_data_rodata]
       - [0x186E670, bin, overlay_012_reloc1]
