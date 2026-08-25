@@ -22,7 +22,7 @@ extern u8 *gOverlay18Region64Slot0;
 extern u8 *gOverlay18Region64Slot1[];
 extern u8 *gOverlay18Region16Slot0;
 extern u8 *gOverlay18Region16Slot1[];
-extern u8 *gOverlay18CurrentBuffer;
+extern Overlay18Command *gOverlay18CurrentBuffer;
 extern u8 *gOverlay18CurrentRegion8;
 extern u8 *gOverlay18CurrentRegion64;
 extern u8 *gOverlay18CurrentRegion16;
@@ -39,22 +39,24 @@ extern void overlay18ReleaseFailedReloc(void *buffer);
 extern void overlay18FinishReconfigureReloc(void *token);
 extern void overlay18InitializeBuffers(void);
 
+/*
+ * NON_MATCHING plateau (2026-08-25 rerun, 10 source attempts after the full
+ * flag lattice): -O2 -mips2 has exact 0x2A8 extent and differs in 6 of 170
+ * masked positional words, first +0xC. The best candidate has a 0x58-byte
+ * frame instead of 0x50; the other five differences are its corresponding
+ * argument/token stack offsets and epilogue. A target-frame variant makes
+ * those exact but moves eight pointer spill slots four bytes low, indicating
+ * one still-unmodeled local lifetime/layout constraint.
+ *
+ * PROVENANCE: Diddy Kong Racing, src/thread3_main.c
+ * (alloc_displaylist_heap); adapted allocation and cursor-update structure.
+ */
 #ifdef NON_MATCHING
 void overlay18Reconfigure(s32 mode) {
     s32 index;
-    const s32 *scale10;
-    const s32 *scale16;
-    const s32 *scale64;
-    const s32 *scale8;
-    s32 value8;
-    s32 value64;
-    s32 value16;
     s32 size;
     void *token;
-    u8 *buffer0;
-    u8 *buffer1;
-    s32 selected;
-    Overlay18Command *command;
+    volatile s16 stackPad[3];
 
     if (mode != gOverlay18Mode) {
         index = mode;
@@ -62,12 +64,10 @@ void overlay18Reconfigure(s32 mode) {
         token = overlay18BeginReconfigureReloc(mode);
         overlay18SelectReloc(0);
 
-        scale16 = &gOverlay18ModeScale16[index];
-        scale8 = &gOverlay18ModeScale8[index];
-        scale64 = &gOverlay18ModeScale64[index];
-        scale10 = &gOverlay18ModeScale10[index];
-        size = (*scale16 * 16) + (*scale8 * 8) +
-               (*scale10 * 10) + (*scale64 * 64);
+        size = (gOverlay18ModeScale8[index] * 8) +
+               (gOverlay18ModeScale64[index] * 64) +
+               (gOverlay18ModeScale10[index] * 10) +
+               (gOverlay18ModeScale16[index] * 16);
 
         overlay18ReleaseForResizeReloc(gOverlay18Buffers[0]);
         overlay18ReleaseForResizeReloc(gOverlay18Buffers[1]);
@@ -89,39 +89,46 @@ void overlay18Reconfigure(s32 mode) {
             overlay18InitializeBuffers();
         }
 
-        buffer0 = gOverlay18Buffers[0];
-        buffer1 = gOverlay18Buffers[1];
-        value8 = *scale8;
-        value64 = *scale64;
-        value16 = *scale16;
-        gOverlay18Region8Slot0 = buffer0 + (value8 * 8);
-        gOverlay18Region64Slot0 = gOverlay18Region8[0] + (value64 * 64);
-        gOverlay18Region16Slot0 = gOverlay18Region64[0] + (value16 * 16);
-        gOverlay18Region8Slot1[1] = buffer1 + (value8 * 8);
-        gOverlay18Region64Slot1[1] = gOverlay18Region8[1] + (value64 * 64);
-        gOverlay18Region16Slot1[1] = gOverlay18Region64[1] + (value16 * 16);
+        gOverlay18Region8Slot0 = gOverlay18Buffers[0] +
+                                (gOverlay18ModeScale8[index] * 8);
+        gOverlay18Region64Slot0 = gOverlay18Region8[0] +
+                                 (gOverlay18ModeScale64[index] * 64);
+        gOverlay18Region16Slot0 = gOverlay18Region64[0] +
+                                 (gOverlay18ModeScale16[index] * 16);
+        gOverlay18Region8Slot1[1] = gOverlay18Buffers[1] +
+                                    (gOverlay18ModeScale8[index] * 8);
+        gOverlay18Region64Slot1[1] = gOverlay18Region8[1] +
+                                     (gOverlay18ModeScale64[index] * 64);
+        gOverlay18Region16Slot1[1] = gOverlay18Region64[1] +
+                                     (gOverlay18ModeScale16[index] * 16);
 
-        gOverlay18ActiveScale8 = value8;
-        gOverlay18ActiveScale64 = value64;
-        gOverlay18ActiveScale16 = value16;
-        gOverlay18ActiveScale10 = *scale10;
+        gOverlay18ActiveScale8 = gOverlay18ModeScale8[index];
+        gOverlay18ActiveScale64 = gOverlay18ModeScale64[index];
+        gOverlay18ActiveScale16 = gOverlay18ModeScale16[index];
+        gOverlay18ActiveScale10 = gOverlay18ModeScale10[index];
         overlay18FinishReconfigureReloc(token);
     }
 
-    selected = gOverlay18SelectedBuffer;
-    gOverlay18CurrentBuffer = gOverlay18Buffers[selected];
-    gOverlay18CurrentRegion8 = gOverlay18Region8[selected];
-    gOverlay18CurrentRegion64 = gOverlay18Region64[selected];
-    gOverlay18CurrentRegion16 = gOverlay18Region16[selected];
+    gOverlay18CurrentBuffer =
+        (Overlay18Command *)gOverlay18Buffers[gOverlay18SelectedBuffer];
+    gOverlay18CurrentRegion8 = gOverlay18Region8[gOverlay18SelectedBuffer];
+    gOverlay18CurrentRegion64 = gOverlay18Region64[gOverlay18SelectedBuffer];
+    gOverlay18CurrentRegion16 = gOverlay18Region16[gOverlay18SelectedBuffer];
 
-    command = (Overlay18Command *)gOverlay18CurrentBuffer;
-    gOverlay18CurrentBuffer += sizeof(*command);
-    command->w1 = 0;
-    command->w0 = 0xE9000000;
-    command = (Overlay18Command *)gOverlay18CurrentBuffer;
-    gOverlay18CurrentBuffer += sizeof(*command);
-    command->w1 = 0;
-    command->w0 = 0xB8000000;
+    {
+        Overlay18Command *command;
+
+        command = gOverlay18CurrentBuffer++;
+        command->w1 = 0;
+        command->w0 = 0xE9000000;
+    }
+    {
+        Overlay18Command *command;
+
+        command = gOverlay18CurrentBuffer++;
+        command->w1 = 0;
+        command->w0 = 0xB8000000;
+    }
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o018/overlay18Reconfigure/func_overlay_018_F000024C_1874804.s")
