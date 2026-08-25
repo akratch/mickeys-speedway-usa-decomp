@@ -1709,6 +1709,10 @@ is exact after resolving `func_800347A0` as a one-argument call; its two call
 relocations and the wake-linked field access match without normalization. The
 same ABI resolves the adjacent 72-byte `func_80048980` (`wakeFreeRipple`),
 which is exact with both its linked-release and nested-wake call relocations.
+The 100-byte `stop_all_threads_except_main` is exact on Mickey's active-thread
+walk: it filters priorities 1 through 127, passes the thread itself to
+`osStopThread`, and retains the exact call relocation and 32-byte frame under
+the resident defaults.
 The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
 handle locals reproduce the target's direct second argument register and
 branch-delay schedule, with both texture-free calls and the allocator call

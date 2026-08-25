@@ -9,13 +9,24 @@
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os_internal.h"
 
 extern s32 D_8007CFD8;
 extern s32 D_8007CFDC;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuTraceInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuThread.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/stop_all_threads_except_main.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::stop_all_threads_except_main. */
+void stop_all_threads_except_main(void) {
+    OSThread *thread = __osGetActiveQueue();
+
+    while (thread->priority != -1) {
+        if (thread->priority > OS_PRIORITY_IDLE && thread->priority < 128) {
+            osStopThread(thread);
+        }
+        thread = thread->tlnext;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045BBC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045CAC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045D34.s")

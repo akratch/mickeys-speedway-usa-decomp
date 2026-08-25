@@ -1042,7 +1042,7 @@ diRcpGeometryMode = 0x8004589C;  // type:func size:0x114 tier C (geometry string
 // Tier B uses the matching OS-thread/debug call graph and source order; Tier C
 // adds the resident exception strings. JFG address placeholders are not used.
 diCpuThread = 0x80045A04;                  // type:func size:0x154 tier B (JFG call graph/order)
-stop_all_threads_except_main = 0x80045B58; // type:func size:0x64 tier B (JFG call graph/order)
+stop_all_threads_except_main = 0x80045B58; // type:func size:0x64 tier-A ROM 0x46758 exact C, JFG call graph/order
 func_80045BBC = 0x80045BBC;                // type:func size:0xF0 tier D (Mickey boundary)
 func_80045CAC = 0x80045CAC;                // type:func size:0x88 tier D (Mickey boundary)
 func_80045D34 = 0x80045D34;                // type:func size:0x72C tier D (Mickey boundary)
