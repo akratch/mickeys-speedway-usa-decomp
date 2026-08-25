@@ -639,7 +639,7 @@ func_800421F4 = 0x800421F4; // type:func size:0x148 ROM 0x42df4 tier-A IDO C exa
 func_8004233C = 0x8004233C; // type:func size:0xB0 ROM 0x42f3c tier-A IDO C exact, dkr/move_particle_basic body
 func_800423EC = 0x800423EC; // type:func size:0x108 ROM 0x42fec tier-A IDO C exact, dkr/move_particle_forward body
 partUpdateParticles = 0x800424F4; // type:func size:0x170 ROM 0x430f4 tier-B call graph/order, jfg/partUpdateParticles
-partDraw = 0x80042664; // type:func size:0x160 ROM 0x43264 tier-B resident callers/order, jfg/partDraw
+partDraw = 0x80042664; // type:func size:0x160 ROM 0x43264 tier-A IDO C exact, Mickey reconstruction with jfg/partDraw structural oracle
 partNullifyCircularParticleParents = 0x800427C4; // type:func size:0xA8 ROM 0x433c4 tier-B call graph/order, jfg/partNullifyCircularParticleParents
 
 // main/diprint, ROM 0x43470-0x45760. The aligned Mickey TU joins DKR's exact

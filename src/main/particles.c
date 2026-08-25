@@ -10,6 +10,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "n_audio/mbi.h"
 
 typedef struct ParticleConfig {
     s32 flags;
@@ -206,10 +207,15 @@ extern ParticleConfig **D_8007C8B8;
 extern ParticleTrigger *D_8007C8BC;
 extern s32 D_8007C8C0;
 extern s32 D_8007C890;
+extern s32 D_8007C8E8;
+extern s32 D_8007C8EC;
 extern ParticleModelEntry *D_8007C898;
 extern ParticleTypeDescriptor **D_8007C8AC;
 extern s32 D_800D4140;
 extern CircularParticlePool *D_800D4120[];
+extern CircularParticlePool *D_800D4124;
+extern CircularParticlePool *D_800D4128;
+extern CircularParticlePool *D_800D412C;
 extern CircularParticlePool *D_800D4134[];
 
 void mmFree(void *ptr);
@@ -219,6 +225,12 @@ void modFreeModel(void *resource);
 void mathOneFloatPY(void *rotation, void *vector);
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void *piRomLoad(s32 assetId);
+void camSetNo(s32 camera);
+void func_800221E8(void **dList, s32 arg1);
+void func_8003D4FC(void **dList, void **vertices, void *pool);
+s32 func_8003CE10(void **dList, s32 arg1, void **vertices, void *pool, s32 mode);
+void func_8003D25C(void **dList, s32 arg1, void **vertices, void *pool);
+void func_80041CE4(void **dList, void **vertices);
 void func_8003EC8C(ParticleObject *object, s32 index);
 void func_8003E7B8(ParticleObject *object, s32 index);
 s8 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger);
@@ -713,7 +725,30 @@ void func_800423EC(BasicParticle *particle) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateParticles.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partDraw.s")
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/partDraw.s; body reconstructed from Mickey evidence. */
+void partDraw(Gfx **dList, s32 arg1, s32 mode) {
+    void *vertices;
+    s32 pad;
+
+    if (mode != 0) {
+        D_8007C8EC = 0;
+    }
+    vertices = (u8 *)D_8007C89C[D_8007C8E8] + (D_8007C8EC * 10);
+    gDPPipeSync((*dList)++);
+    if (mode == 1) {
+        D_8007C8EC = func_8003CE10((void **)dList, arg1, &vertices, D_800D4128, 1);
+        return;
+    }
+    camSetNo(0);
+    func_800221E8((void **)dList, arg1);
+    func_8003D4FC((void **)dList, &vertices, D_800D4120[0]);
+    func_8003D4FC((void **)dList, &vertices, D_800D4124);
+    func_80041CE4((void **)dList, &vertices);
+    func_80041C50((s32)dList, (s32)&vertices);
+    func_8003CE10((void **)dList, arg1, &vertices, D_800D4128, mode);
+    func_8003D25C((void **)dList, arg1, &vertices, D_800D412C);
+    D_8007C8E8 ^= 1;
+}
 #ifdef NON_MATCHING
 /* Size-exact plateau: 27 words differ from +0x0; IDO assigns both nested-loop
  * carrier pairs oppositely, and declaration-order variants are identical. */
