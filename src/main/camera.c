@@ -161,6 +161,7 @@ extern u8 D_79FCC[];
 
 void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
 void mtxf_to_mtx(MtxF src, Mtx *dest);
+void matrixScale(f32 x, f32 y, f32 z, MtxF matrix);
 void func_8004FAD0(MtxF matrix, u16 *perspNorm, f32 fovy, f32 aspect,
                    f32 nearPlane, f32 farPlane, f32 scale);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -659,7 +660,17 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023F84.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024204.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800242E0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002442C.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camScaleModelMtx. */
+void camScaleModelMtx(Gfx **dlist, Mtx **mtx, f32 scale) {
+    if (scale != 1.0f) {
+        matrixScale(scale, scale, scale, D_800CECD8);
+        mtxf_mul(D_800CECD8, D_800CED18, D_800CF260);
+        mtxf_to_mtx(D_800CF260, *mtx);
+        D_800CED58 = *mtx;
+        gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 1);
+        (*mtx)++;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800244EC.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camRestoreModelMtx. */
 void camRestoreModelMtx(Gfx **dlist) {
