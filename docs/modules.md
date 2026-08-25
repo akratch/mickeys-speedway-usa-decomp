@@ -1732,7 +1732,7 @@ with the JFG identity and tier on the same row, until each function or its
 caller becomes C-owned; this avoids pretending that a source-level rename is
 already available to the stale generated caller assembly.
 
-Exact C closures in these splits begin with 516 bytes across six `diCpu`
+Exact C closures in these splits begin with 680 bytes across seven `diCpu`
 functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
 60-byte `func_8004650C` (`diCpuTraceTick`). Their natural return-zero and
 60-tick counter bodies are identical under the resident `-O2 -mips2 -32`
@@ -1819,6 +1819,10 @@ The 140-byte `cpuXYPrintf` formatter is exact too. JFG's 255-byte local text
 buffer and natural varargs setup reproduce the 288-byte frame, all 35 target
 instructions, both call relocations, and the display-mode data relocation at
 the resident defaults.
+The 164-byte `diCpuReportWatchpoint` reporter is exact as well. JFG's natural
+100-iteration clear loop, address-information query, two diagnostic prints,
+and terminal wait reproduce all 41 target words, the 56-byte frame,
+and every call and string relocation at the resident defaults.
 The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
 handle locals reproduce the target's direct second argument register and
 branch-delay schedule, with both texture-free calls and the allocator call

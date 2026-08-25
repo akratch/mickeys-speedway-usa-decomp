@@ -32,8 +32,8 @@ extern void joyRead(s32 updateRate, s32 controllers);
 extern void osWritebackDCacheAll(void);
 extern s32 viGetVideoMode(void);
 extern void viGetCurrentSize(s32 *width, s32 *height);
-extern s32 runlinkGetAddressInfo(u32 address, u32 *moduleId,
-                                 s32 *moduleOffset, s32 *size);
+extern s32 runlinkGetAddressInfo(u32 address, s32 *moduleId,
+                                 s32 *moduleAddress, u32 **outputAddress);
 extern void render_epc_lock_up_display(s32 arg0, s32 buttons);
 extern void cpuXYPrintf(s32 x, s32 y, const char *format, ...);
 extern void func_80046E00(void);
@@ -46,6 +46,8 @@ extern s32 D_8007CFE4;
 extern s32 D_8007CFE8;
 extern s32 D_8007D02C;
 extern s32 D_8007D030;
+extern char D_80083B2C[];
+extern char D_80083B48[];
 extern s32 D_800D5DF0[];
 extern s32 D_800D5E98[];
 extern s32 D_800D5F40[];
@@ -386,7 +388,22 @@ void func_80045D34(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045D34.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuReportWatchpoint.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuReportWatchpoint. */
+void diCpuReportWatchpoint(u32 address) {
+    s32 moduleAddress;
+    s32 moduleId;
+    s32 i;
+
+    for (i = 0; i < 100; i++) {
+        func_80046E00();
+    }
+    cpuXYPrintf(30, 80, D_80083B2C, address);
+    if (runlinkGetAddressInfo(address, &moduleId, &moduleAddress, 0)) {
+        cpuXYPrintf(30, 100, D_80083B48, moduleId, moduleAddress);
+    }
+    while (1) {
+    }
+}
 /* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuTraceGetFault. */
 s32 func_80046504(void) {
     return 0;
