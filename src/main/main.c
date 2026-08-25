@@ -25,6 +25,9 @@ extern s32 D_8007A188;
 extern s32 D_8007A18C;
 extern s32 D_8007A154;
 extern s32 D_8007A14C;
+extern s32 D_8007A15C;
+extern s32 D_8007A16C;
+extern s32 D_8007A190;
 extern s32 D_8007A148;
 extern s32 D_8007A150;
 extern s32 D_8007A158;
@@ -154,6 +157,14 @@ extern void func_8004A0F0(void);
 extern void func_8004A51C(void);
 extern void func_8004AD34(void);
 extern s32 D_800D40E4;
+extern f32 D_80081BCC;
+extern u8 amTuneGetSeqNo(void);
+extern void func_800005CC(f32, s32);
+extern s32 func_80001614(void);
+extern s32 func_800290A0(void);
+extern s32 func_80037664(void);
+extern s32 levelGetTune(s32);
+extern void rumbleRumbles(s32);
 
 #ifdef NON_MATCHING
 #pragma weak mainCPUeffectsRainDraw = TrapDanglingJump
@@ -603,7 +614,47 @@ void func_800282C8(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainChangeLevel.s")
+/*
+ * PROVENANCE: function role and control structure compared with Jet Force
+ * Gemini src/main.c::mainChangeLevel; JFG retains assembly. This body is
+ * reconstructed from Mickey-only control-flow and data evidence.
+ */
+void mainChangeLevel(s32 nextLevel, s32 nextCharacter, s32 nextAnimGroup,
+                     s32 nextCamera, s32 fadeOut, s32 flags) {
+    if ((D_8007A194 == 0) || (nextLevel != D_8007A14C) ||
+        (nextCharacter != D_8007A154) || (nextCamera != D_8007A16C)) {
+        D_8007A14C = nextLevel;
+        D_8007A164 = 0;
+        D_8007A15C = nextAnimGroup;
+        D_8007A154 = nextCharacter;
+        D_8007A16C = nextCamera;
+        if (D_8007A194 <= 0) {
+            D_8007A194 = 10;
+            if ((func_80049864(4) == 0) && (func_80037664() == 0)) {
+                if (fadeOut != 0) {
+                    D_8007A1A0 = 1;
+                    func_800498FC(4, 0x3EAE147B, 0xBF800000, 0, 0, 0, 0);
+                } else {
+                    D_8007A1A0 = 0;
+                    func_800498FC(4, 0x3EAE147B, 0xBF800000,
+                                  0xFF, 0xFF, 0xFF, 0);
+                }
+                func_8004978C(4, 1, 1);
+                D_8007A194 = 30;
+            }
+            if ((amTuneGetSeqNo() != levelGetTune(D_8007A14C)) &&
+                (func_800290A0() == 0) && (func_80001614() == 0)) {
+                func_800005CC(D_80081BCC, 0);
+            }
+            rumbleKill(1);
+            rumbleRumbles(0);
+        }
+        D_8007A190 = 0;
+        if (flags & 1) {
+            D_8007A190 = 1;
+        }
+    }
+}
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 void mainSetAnimGroup(s32 arg0) {
