@@ -44,6 +44,8 @@ typedef struct ParticleTrigger {
     s16 unk20;
     u8 alpha;
     s8 index;
+    u8 active;
+    u8 pad25[3];
 } ParticleTrigger;
 
 typedef struct ParticleTriggerSlot {
@@ -96,6 +98,8 @@ extern f32 D_8007C8F4;
 extern void *D_8007C89C[2];
 extern s32 D_8007C8B0;
 extern ParticleConfig **D_8007C8B8;
+extern ParticleTrigger *D_8007C8BC;
+extern s32 D_8007C8C0;
 extern CircularParticlePool *D_800D4120[];
 extern CircularParticlePool *D_800D4134[];
 
@@ -140,7 +144,26 @@ void partInitTriggerSPPos(ParticleTrigger *trigger, s32 type, s32 value, s32 ind
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partInitTriggerPos.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E730.s")
+ParticleTrigger *func_8003E730(s32 type, s32 value) {
+    ParticleTrigger *trigger;
+    s32 i;
+
+    trigger = D_8007C8BC;
+    i = 0;
+    if (D_8007C8C0 > 0) {
+        do {
+            i++;
+            if (trigger->active == 0) {
+                trigger->active = 1;
+                trigger->unk0C = 0;
+                partInitTriggerPos(trigger, type, value, 0, 0, 0);
+                return trigger;
+            }
+            trigger++;
+        } while (i < D_8007C8C0);
+    }
+    return NULL;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E7B8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E8D8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EB08.s")

@@ -1380,7 +1380,9 @@ flags, JFG body donor); `diPrintf` (ROM `0x44934`, `0x9C` bytes, default
 resident flags, JFG body donor with its stubbed diagnostic call omitted);
 `_itoa` (ROM `0x434D8`, `0xC0` bytes, default resident flags, identical JFG and
 DKR glibc-derived body donor); `func_8003CCE4` (ROM `0x3D8E4`, `0x44` bytes,
-default resident flags, Mickey-only reconstruction); `partInitTriggerSPPos`
+default resident flags, Mickey-only reconstruction); `func_8003E730` (ROM
+`0x3F330`, `0x88` bytes, default resident flags, Mickey-only reconstruction);
+`partInitTriggerSPPos`
 (ROM `0x3F224`, `0x4C` bytes, default resident flags, JFG-named Mickey
 reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default
 resident flags, JFG-named Mickey reconstruction); `debug_text_background`
