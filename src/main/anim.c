@@ -1400,21 +1400,15 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 1);
 }
 #ifdef NON_MATCHING
-/*
- * Mickey-local collision bookkeeping, state advance, and normal calculation.
- * Plateau after the flag lattice, 10 allocation/lifetime shapes, and a bounded
- * canonical-flag permuter: the full-TU candidate has the exact 109-instruction
- * size and 0x50 frame, but the target keeps first in s2 and secondTarget in s3
- * while IDO homes first on the stack and uses only s0-s2. That missing saved
- * register shifts all seven call sites by one instruction (105 positional
- * words differ, first +0x8). The best isolated permutation added an instruction
- * when restored to the consolidated TU and was rejected.
- */
+/* Plateau (2026-08-25): exact-size; four stack-offset words differ, first +0x3C.
+ * Correcting the helper ABI to (first, firstVehicle) aligned every register and schedule.
+ * firstVehicle homes at sp+0x44 instead of sp+0x48; flags and local layouts went no closer. */
 void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;
-    HitCopySource *firstSource;
+    volatile s32 stackPad;
     HitCollisionVehicle *firstVehicle;
+    HitCopySource *firstSource;
     f32 deltaX;
     f32 deltaY;
     f32 deltaZ;
@@ -1424,7 +1418,7 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     secondSource = second->source;
     firstSource = first->source;
     firstVehicle = (HitCollisionVehicle *) first->target;
-    if (TrapDanglingJump(firstVehicle) != 0) {
+    if (TrapDanglingJump(first, firstVehicle) != 0) {
         TrapDanglingJump(secondTarget->state, first, firstVehicle);
         if (1) {
         }
