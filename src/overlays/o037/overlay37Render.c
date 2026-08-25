@@ -83,6 +83,11 @@ extern void func_8002460C(Overlay37Command **commands, const void *displayData);
  * to 68 words (first mismatch +0x0), with no FP-register differences. The
  * remaining blocker is the 0x10-byte frame/stack-home gap and the command
  * temporary/register schedule; the bounded permuter remained non-exact.
+ * R3 revisit: the full 119-group lattice reconfirmed 68 words and first
+ * mismatch +0x0 only with -Wab,-r4300_mul. Moving the resource before or
+ * directly after the camera was neutral or regressed to 72 words; moving the
+ * transform declaration first also regressed to 72. None moved its spill
+ * above the camera or closed the 0x10-byte frame gap.
  */
 #ifdef NON_MATCHING
 void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
