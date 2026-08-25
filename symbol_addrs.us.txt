@@ -1021,7 +1021,7 @@ func_80044C94 = 0x80044C94;     // type:func size:0x12C tier-B ROM 0x45894 NON_M
 // and the distinctive G_* names and format strings independently state each
 // helper's role. JFG's two address-placeholder unpackers remain Mickey func_
 // names.
-diRcpPrintDL = 0x80044DC0;       // type:func size:0x604 tier-C ROM 0x459C0 NON_MATCHING rodata-table plateau, first reloc +0x44
+diRcpPrintDL = 0x80044DC0;       // type:func size:0x604 tier-C ROM 0x459C0 exact C, JFG body and compiler-owned switch tables
 func_800453C4 = 0x800453C4;      // type:func size:0x3C tier-A ROM 0x45FC4 exact C, JFG func_80066594_67194
 func_80045400 = 0x80045400;      // type:func size:0x3C tier-A ROM 0x46000 exact C, JFG func_800665D8_671D8
 diRcpVertex = 0x8004543C;        // type:func size:0x34 tier A (exact C, JFG diRcpVertex)
@@ -1035,10 +1035,14 @@ diRcpStrNameMacro = 0x80045584;  // type:func size:0x14 tier A (exact C, JFG diR
 diRcpPrimColor = 0x80045598;     // type:func size:0xC tier A (exact C, JFG diRcpPrimColor)
 diRcpColor = 0x800455A4;         // type:func size:0x14 tier A (exact C, JFG diRcpColor)
 diRcpDmaOffsets = 0x800455B8;    // type:func size:0xC tier A (exact C, JFG diRcpDmaOffsets)
-diRcpMoveWd = 0x800455C4;        // type:func size:0x9C tier-C ROM 0x461C4 NON_MATCHING rodata-table plateau, first reloc +0x34
+diRcpMoveWd = 0x800455C4;        // type:func size:0x9C tier-C ROM 0x461C4 exact C, JFG body and compiler-owned switch table
 diRcpStrName = 0x80045660;       // type:func size:0x34 tier A (exact C, JFG diRcpStrName)
 diRcpOtherMode = 0x80045694;     // type:func size:0x208 tier C (render-mode strings)
 diRcpGeometryMode = 0x8004589C;  // type:func size:0x10C tier-A ROM 0x4649C exact C, JFG body, followed by 0x8 TU padding
+jtbl_8008387C = 0x8008387C;      // type:jtbl size:0x70 tier-A compiler-owned diRcpPrintDL switch table
+jtbl_800838EC = 0x800838EC;      // type:jtbl size:0x28 tier-A compiler-owned diRcpPrintDL switch table
+jtbl_80083914 = 0x80083914;      // type:jtbl size:0x3C tier-A compiler-owned diRcpPrintDL switch table
+jtbl_80083950 = 0x80083950;      // type:jtbl size:0x2C tier-A compiler-owned diRcpMoveWd switch table
 
 // PROVENANCE: names adapted from JFG src/diCpu.{c,h}. Mickey links the
 // thread control block and the stack-top operand at the same address.

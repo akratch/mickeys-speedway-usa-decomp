@@ -139,10 +139,10 @@ segments:
     start: 0x1050
     vram: 0x80000450
     follows_vram: entry
-    # func_8004C8D8's compiler-owned jump table begins at the measured
-    # eight-byte boundary 0x80083DF8; forcing 16-byte input-section alignment
-    # moves it and every following resident address by eight bytes.
-    subalign: 0x8
+    # diRcp's compiler-owned switch tables begin at the measured four-byte
+    # boundary 0x8008387C. Later compiler-owned tables, including font's at
+    # 0x80083DF8, retain their measured placement with four-byte subalignment.
+    subalign: 0x4
     bss_size: 0x52D10
     subsegments:
       - [0x1050, c, main/audio_manager_1050]
@@ -607,7 +607,7 @@ segments:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
       #      covered 35 functions and forty-four tables. After devmgr's table
-      #      moved into its exact C object, the 35 jump tables still emitted in
+      #      moved into its exact C object, the 31 jump tables still emitted in
       #      asm/ belong to 34 functions whose ROM and table addresses are both
       #      monotonically increasing -- ZERO INVERSIONS. First pair (ROM
       #      0x7D18 -> jtbl_80080D2C), last (ROM 0x75120 -> jtbl_800849C4).
@@ -632,6 +632,10 @@ segments:
       # `enddlabel` as a zero-size label directive, preserving the symbol-size
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
+      # diRcpPrintDL's three switch tables followed by diRcpMoveWd's table.
+      # The word at 0x8457C is output-section padding, not owned object bytes.
+      - [0x8447C, .rodata, main/diRcp]
+      - [0x8457C, rodata]
       # func_8004C8D8's eight-entry texture-format switch table. The following
       # two zero words are output-section alignment, not owned object bytes.
       - [0x849F8, .rodata, main/font]
