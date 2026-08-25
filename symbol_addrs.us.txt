@@ -501,7 +501,7 @@ packWriteFile = 0x8002DC10; // type:func size:0x240 ROM 0x2e810 tier-B donor-jfg
 packFileSize = 0x8002DE50; // type:func size:0x64 ROM 0x2ea50 tier-B donor-jfg-src/saves.c pfs-callgraph+order
 font_codes_to_string = 0x8002DEB4; // type:func size:0xB0 ROM 0x2eab4 tier-B donor-jfg-src/saves.c role+order
 string_to_font_codes = 0x8002DF64; // type:func size:0xBC ROM 0x2eb64 tier-B donor-jfg-src/saves.c role+order
-func_8002E020 = 0x8002E020; // type:func size:0x80 ROM 0x2ec20 tier-D boundary-extracted
+func_8002E020 = 0x8002E020; // type:func size:0x80 ROM 0x2ec20 tier-D boundary-extracted matched-C donor-jfg-src/saves.c
 
 // pi.c -- ROM 0x2ECA0-0x2F0D0.
 piInit = 0x8002E0A0; // type:func size:0xA8 ROM 0x2eca0 tier-B donor-jfg-src/pi.c dma-callgraph+order

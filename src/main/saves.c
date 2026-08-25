@@ -33,7 +33,10 @@ typedef struct SavesBitWriter {
 } SavesBitWriter;
 
 void mmFree(void *address);
+void *func_8002B280(s32 size, s32 tag);
 s32 osContStartReadData(OSMesgQueue *messageQueue);
+extern s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data,
+                        s32 dataLength);
 void rumbleStop(s32 controllerIndex, s32 arg1);
 s32 func_800290A0(void);
 
@@ -210,4 +213,23 @@ void packDirectoryFree(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packFileSize.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/font_codes_to_string.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/string_to_font_codes.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002E020.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packGetFileType, while retaining Mickey's placeholder name. */
+s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
+    s32 *data;
+    s32 pad;
+    s32 result = 1;
+
+    data = func_8002B280(0x100, 0xFF);
+    if (packReadFile(controllerIndex, fileNum, (u8 *) data, 0x100) == 0) {
+        if (*data == 0x43484152) {
+            result = 0;
+        } else {
+            result = 1;
+        }
+    } else {
+        result = 1;
+    }
+    mmFree(data);
+    return result;
+}
