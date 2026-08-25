@@ -2630,20 +2630,9 @@ unsigned and spelling the queue toggle as a global assignment followed by a
 global-indexed clear reproduces all 41 target words, the 40-byte frame, the
 five-argument helper call, and all data/call relocations at the resident
 defaults.
-The 304-byte `func_8004A380` decimal-glyph renderer reaches a local-layout and
-allocation plateau after the full flag lattice, six coherent buffer/scan
-forms, and one bounded canonical MIPS II permuter batch. JFG's assembly-only
-`func_8006DF90` confirms the decimal formatting, minimum-width padding, glyph
-selection, and draw-call loop, while Mickey fixes the five-argument ABI and
-data symbols. The best coherent candidate retains the 128-byte frame and
-intended control flow but emits 74 words against 76 in the target, with 67
-positional differences beginning at function `+0x10`. IDO hoists the local
-text-buffer base into `s2` at `sp+0x60`; the target places the buffer at
-`sp+0x54`, keeps `s2` as the zero/index state, and forms scan and render
-addresses through temporary bases. The batch's lower score appended an empty
-buffer guard solely to perturb allocation and was discarded as semantically
-unsupported. The coherent candidate remains behind `NON_MATCHING` and the
-target assembly stays canonical.
+The 304-byte `func_8004A380` workbench verdict remains structure-mismatch: the best coherent candidate emits 74/76 words with 65 positional differences from `+0x08`.
+Constant/context audit, delayed cursor construction, index dependency/address forms, and a dead-web probe did not reach a new exact basin.
+IDO still hoists the text base into `s2` at `sp+0x50`; the target retains a zero index and forms temporary bases for the buffer at `sp+0x54`.
 The 76-byte JFG-identified `fxInit` is exact as well: its post-decrement loop
 clears all five 32-byte records, resets the global state, and preserves the
 callee plus two data relocation pairs without normalization.
