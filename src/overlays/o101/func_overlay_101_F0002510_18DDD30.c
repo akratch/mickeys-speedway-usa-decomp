@@ -34,14 +34,9 @@ typedef struct Overlay101TextureElement {
 extern u32 D_230[];
 void func_overlay_101_F0000000_18DB820();
 
-/*
- * The pinned donor scan has no close structural donor for this clipped
- * texture renderer; this reconstruction uses Mickey's own command stream.
- * Plateau (10 source-shape attempts): the best candidate is 0x490 bytes
- * versus the target's 0x494, with its first mismatch at +0x0.  The blocker
- * is the private-frame/register-web shape (224-byte frame plus s8 versus the
- * target's 232-byte frame without s8), followed by the clipping schedule.
- */
+/* PLATEAU (2026-08-25): -O2 -mips2 is 280/293 words; 276 differ, first +0x0.
+ * Inverted guards plus volatile stride reproduce the s0-s7 save set, but the frame is 0xD0 vs 0xE8.
+ * Flag lattice, command macros, cursor volatility, and register declarations did not close it; no donor used. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0002510_18DDD30(Overlay101Gfx **displayList,
                                       Overlay101ClipNode *node,
@@ -54,7 +49,7 @@ void func_overlay_101_F0002510_18DDD30(Overlay101Gfx **displayList,
     s32 y;
     s32 shift;
     s32 rows;
-    s32 stride;
+    volatile s32 stride;
     s32 sourceX;
     s32 sourceY;
     s32 drawX;
@@ -80,9 +75,19 @@ void func_overlay_101_F0002510_18DDD30(Overlay101Gfx **displayList,
                                               &bottom);
             y = node->y + element->y;
             x = node->x + element->x;
-            if ((right >= x) && (bottom >= y) &&
-                ((x + texture->width) >= left) &&
-                ((y + texture->height) >= top)) {
+            if (right < x) {
+                goto done;
+            }
+            if (bottom < y) {
+                goto done;
+            }
+            if ((x + texture->width) < left) {
+                goto done;
+            }
+            if ((y + texture->height) < top) {
+                goto done;
+            }
+            {
                 func_overlay_101_F0000000_18DB820(displayList, left, top,
                                                   right, bottom);
 
@@ -205,6 +210,8 @@ void func_overlay_101_F0002510_18DDD30(Overlay101Gfx **displayList,
             }
         }
     }
+done:
+    ;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F0002510_18DDD30/func_overlay_101_F0002510_18DDD30.s")
