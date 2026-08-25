@@ -270,7 +270,7 @@ TEXT_SUBSEGMENTS = {
     ],
     22: [
         (0x000, "c", "overlay22InitializeObject"),
-        (0x2B0, "asm", "overlay_022_prefix_b"),
+        (0x2B0, "c", "func_overlay_022_F00002B0_18783B8"),
         (0xA7C, "c", "overlay22ResolvePlane"),
         (0xD30, "c", "overlay22RemoveObject"),
         (0xE9C, "asm", "overlay_022_padding"),

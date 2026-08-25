@@ -4,6 +4,14 @@ O22_RESOLVE_PLANE_OBJ := \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o022/overlay22ResolvePlane.c.o
 O22_INITIALIZE_OBJECT_OBJ := \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o022/overlay22InitializeObject.c.o
+O22_UPDATE_OBJECT_OBJ := \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o022/func_overlay_022_F00002B0_18783B8.c.o
+
+# Phase-B reconstruction plateau. NON_MATCHING builds keep the best compiler
+# candidate; ordinary builds retain the retail body and exact ownership range.
+$(O22_UPDATE_OBJECT_OBJ): CFLAGS += -Wab,-r4300_mul
+$(O22_UPDATE_OBJECT_OBJ): POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7CC
 
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
