@@ -494,7 +494,31 @@ u8 func_800033B0(void *sound, f32 x, f32 y, f32 z) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003480.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800035F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003760.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800037C4.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * func_80003B74_4774; body and pool layout use Mickey-only evidence.
+ */
+void func_800037C4(s32 index) {
+    AudioPoint *point;
+
+    if (D_80078F00 != 0) {
+        point = D_800C91E4[index];
+        if (point->soundHandle != NULL) {
+            amSndStop(point->soundHandle);
+        }
+        if (point->handle != NULL) {
+            *point->handle = NULL;
+        }
+        if (point->unk23 != 0) {
+            func_80003760(point);
+        }
+        D_800C91EC++;
+        D_800C91F0[D_800C91EC] = D_800C91E4[index];
+        D_800C91E4[index] = D_800C91E4[D_80078F00 - 1];
+        D_80078F00--;
+        D_800C91E4[D_80078F00] = NULL;
+    }
+}
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
  * amSndGetXYZVolume; body and settings layout use Mickey-only evidence.
