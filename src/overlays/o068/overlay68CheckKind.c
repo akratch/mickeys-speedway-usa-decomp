@@ -30,6 +30,12 @@ extern Overlay68ResidentEntry *overlay68GetResidentEntriesReloc(void);
 extern s32 overlay68MapResidentIndexReloc(s32 kind);
 extern void overlay68FreeProbeReloc(void *probe);
 
+/*
+ * Plateau (2026-08-25): the -O2/-mips2 candidate is size-exact but differs
+ * in 18 of 80 words, first at +0x14. The residual is the local-home ordering
+ * plus the zero-index probe-cursor schedule; declaration reordering moved to
+ * the wrong 0x38-byte frame, and the bounded permuter found no faithful form.
+ */
 #ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {
     const Overlay68KindPair *mapping;
