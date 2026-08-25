@@ -74,18 +74,9 @@ extern f32 func_8002A8C0(s32 angle);
  * records, descriptor fields, and final control flow come from Mickey's own
  * instructions and callers.
  */
-/*
- * Plateau (2026-08-25, 10 attempts): the full flag lattice selects ordinary
- * -O2 -mips2. The best semantics-preserving source emits 681 instructions
- * versus retail's 674 and a 0x178-byte frame versus 0x190; 593 positional
- * words differ, with the first mismatch at +0x0, 439 opcode mismatches, and
- * 437 alignment gaps. The residual begins as a descriptor/window/vertex
- * register-web and local-frame-layout mismatch, then diverges through the
- * command-construction and rotated-vertex schedule. A two-worker ten-minute
- * permuter run lowered its numerical score only by introducing an
- * uninitialized display-list alias and dummy constant branches, so that
- * non-equivalent result was rejected and the typed natural body retained.
- */
+/* NON_MATCHING p2: workbench mixed(constant:34, structural:459, schedule:1,
+ * register:198); 593 words, first +0x0, frame -0x178 vs -0x190, +7 instructions.
+ * Frame audit, parameter storage, angle hoist, and operand swap left broad structure. */
 #ifdef NON_MATCHING
 void func_overlay_045_F0001158_188D5B0(
     Gfx **displayList, Overlay45Vertex **vertexPtr, void *unused,
