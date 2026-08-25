@@ -1,4 +1,5 @@
 #include "ultra64.h"
+#include "game/font.h"
 #include "game/gameVi.h"
 #include "game/menu.h"
 #include "game/sched_internal.h"
@@ -64,6 +65,17 @@ extern u8 D_8007BEF4;
 extern u8 D_8007BEF8;
 extern s8 D_8007BEF0;
 extern s8 D_800CF53F[];
+extern s32 D_80078DF0;
+extern char D_80081B98[];
+extern char D_80081BA0[];
+extern char D_80081BA8[];
+extern char D_80081BB0[];
+extern char D_80081BBC[];
+extern char D_80081BC0[];
+extern char D_80081BC4[];
+extern char D_80081BC8[];
+extern f32 D_80081BD0;
+extern void *D_800CF518;
 
 typedef struct MainGameEntry {
     u8 pad0[4];
@@ -90,6 +102,14 @@ typedef struct MainZBCheck {
     s8 height;
     s8 enabled;
 } MainZBCheck;
+
+typedef struct MainDebugMemory {
+    s16 count;
+    u8 pad2[10];
+    f32 valueC;
+    f32 value10;
+    f32 value14;
+} MainDebugMemory;
 
 extern MainGameEntry *D_800D18E0;
 extern void *D_800D18E4;
@@ -165,6 +185,12 @@ extern s32 func_800290A0(void);
 extern s32 func_80037664(void);
 extern s32 levelGetTune(s32);
 extern void rumbleRumbles(s32);
+extern void func_8004B0A4(s32);
+extern void func_8004B0DC(s32, s32, s32, s32);
+extern void func_8004B0F8(void **, s32, s32, char *, s32);
+extern MainDebugMemory *func_80005820(s32);
+extern void frontDrawRectangle(void **, s32, s32, s32, s32, s32);
+extern s32 sprintf(char *, const char *, ...);
 
 #ifdef NON_MATCHING
 #pragma weak mainCPUeffectsRainDraw = TrapDanglingJump
@@ -952,4 +978,46 @@ useAcceleration:
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029274.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_800293D0.s")
+/*
+ * PROVENANCE: the debug-memory role was compared with JFG src/main.c, where
+ * debug_print_memory remains assembly. This body is reconstructed from
+ * Mickey's own call graph, data accesses and ABI evidence.
+ */
+void func_800293D0(void) {
+    f32 ratio;
+    char text[64];
+    MainDebugMemory *memory;
+
+    if (D_8007A168 != 13) {
+        func_8004B0A4(2);
+        fontColour(255, 255, 255, 255, 255);
+        func_8004B0DC(0, 0, 0, 0);
+        memory = func_80005820(0);
+        if ((memory != NULL) || (D_80078DF0 != 0)) {
+            frontDrawRectangle(&D_800CF518, 0x18, 0xAC, 0x6C, 0xD8, 0xC0);
+        }
+        if (memory != NULL) {
+            sprintf(text, D_80081B98, (s32) memory->valueC);
+            func_8004B0F8(&D_800CF518, 0x1C, 0xAF, text, 0);
+            sprintf(text, D_80081BA0, (s32) memory->value10);
+            func_8004B0F8(&D_800CF518, 0x1C, 0xB9, text, 0);
+            sprintf(text, D_80081BA8, (s32) memory->value14);
+            func_8004B0F8(&D_800CF518, 0x1C, 0xC3, text, 0);
+            ratio = (f32) memory->count / D_80081BD0;
+            sprintf(text, D_80081BB0, &ratio);
+            func_8004B0F8(&D_800CF518, 0x1C, 0xCD, text, 0);
+        }
+        if (D_80078DF0 & 1) {
+            func_8004B0F8(&D_800CF518, 0x62, 0xAF, D_80081BBC, 0);
+        }
+        if (D_80078DF0 & 2) {
+            func_8004B0F8(&D_800CF518, 0x62, 0xB9, D_80081BC0, 0);
+        }
+        if (D_80078DF0 & 4) {
+            func_8004B0F8(&D_800CF518, 0x62, 0xC3, D_80081BC4, 0);
+        }
+        if (D_80078DF0 & 8) {
+            func_8004B0F8(&D_800CF518, 0x62, 0xCD, D_80081BC8, 0);
+        }
+    }
+}
