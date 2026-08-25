@@ -1167,27 +1167,29 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Fresh typed m2c plateau: 25/32 positional words differ, first +0x0, with
- * five opcode-schedule and two relocation-identity mismatches; resident flags
- * remain best. PROVENANCE: role/order compared with JFG's public
- * src/menu.c::frontSetScreenMode; JFG retains assembly. */
+/* Workbench: allocation mismatch, 5/32 words from +0xC; size and the temp lane are exact.
+ * Levers: pool-position/type variants stalled at 19; a 30-minute permuter remask reached 5.
+ * Remaining: a v0/v1 pool inversion and one ring-only comparison. */
+/* PROVENANCE: mask, state guard, and order compared with JFG's public
+ * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
 void func_8003A2C8(s32 screenMode) {
+    u8 *modeState;
     s32 mode;
     u8 modeBits;
 
-    modeBits = screenMode & 3;
-    mode = modeBits & 0xFF;
-    if (D_8007C090 != modeBits) {
-        D_8007C090 = modeBits;
-        if (mode & 1) {
-            D_800D3128.raw |= 0x40;
+    modeState = &D_8007C090;
+    mode = (modeBits = screenMode & 3);
+    if (*modeState != mode) {
+        D_8007C090 = screenMode & 3;
+        if (modeBits & (1 ^ 0)) {
+            D_800D3128.bits.modeBit0 = 1;
         } else {
-            D_800D3128.raw &= 0xFFBF;
+            D_800D3128.bits.modeBit0 = 0 & 0xFFFFFFFFFFFFFFFFu;
         }
-        if (mode & 2) {
-            D_800D3128.raw |= 0x20;
+        if ((screenMode & 3) & (2 & 0xFFFFFFFFu)) {
+            D_800D3128.bits.modeBit1 = 1;
         } else {
-            D_800D3128.raw &= 0xFFDF;
+            D_800D3128.bits.modeBit1 = 0;
         }
     }
 }
