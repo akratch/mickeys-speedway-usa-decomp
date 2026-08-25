@@ -23,6 +23,9 @@ extern s32 D_8007A18C;
 extern s32 D_8007A154;
 extern s32 D_8007A14C;
 extern s32 D_8007A148;
+extern s32 D_8007A150;
+extern s32 D_8007A158;
+extern s32 D_8007A168;
 extern s32 D_8007A1B0;
 extern s32 D_8007A1BC;
 extern s32 D_8007A1AC;
@@ -36,6 +39,8 @@ extern s32 D_8007A134;
 extern s32 D_8007A138;
 extern s32 D_8007A1A4;
 extern s32 D_8007A1A8;
+extern s32 D_8007A194;
+extern s8 D_8007A1A0;
 extern u32 D_8007A1CC;
 extern s32 D_8007A1D4;
 extern s32 D_8007A1EC;
@@ -82,6 +87,9 @@ extern void func_80005548(s32);
 extern void func_80028DE4(s32, s32, s32, s32, s32, s32);
 extern void func_8003A544(s32);
 extern void joyResetMap(void);
+extern void func_8004978C(s32, s32, s32);
+extern s32 func_80049864(s32);
+extern void func_800498FC(s32, u32, u32, s32, s32, s32, s32);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -156,7 +164,17 @@ void mainGameWindowSize(s32 *x1, s32 *y1, s32 *x2, s32 *y2) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027FB8.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_800282C8.s")
+void func_800282C8(void) {
+    if (D_8007A194 == 0) {
+        mainChangeLevel(D_8007A148, D_8007A150, D_8007A158, D_8007A168, 0, 0);
+        if (func_80049864(4) == 0) {
+            D_8007A1A0 = 0;
+            func_800498FC(4, 0x3EAE147B, 0xBF800000, 0xFF, 0xFF, 0xFF, 0);
+            func_8004978C(4, 1, 1);
+        }
+        D_8007A194 = 0x1E;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainChangeLevel.s")
 
