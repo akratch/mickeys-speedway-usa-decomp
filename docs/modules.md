@@ -1740,6 +1740,17 @@ at function `+0x0` because the extra scalar homes shift the complete GPR/FPR
 allocation. The typed candidate remains behind `NON_MATCHING`; the TU-wide
 unroll override is not adopted without an exact result and an impact proof for
 the existing matches.
+The 936-byte `func_80047CD8` (`fxDrawCone`) reaches an eight-word allocation
+plateau after the full flag lattice and ten source-shape hypotheses. Recasting
+its opaque words as JFG-style `gSPVertexJFG` and `gSPPolygon` macros reproduces
+the target's exact 234-instruction size, 104-byte frame, saved-register set,
+control flow and helper-call relocations under the resident defaults. The
+first mismatch is function `+0x298`: in the variable-count path IDO assigns
+the cone mode and triangle count to different argument registers than the
+target, affecting eight words while leaving the command arithmetic and all
+surrounding instructions exact. Explicit locals fix those eight uses only by
+perturbing the frame or earlier allocation, so the typed macro reconstruction
+remains behind `NON_MATCHING` and the target assembly stays canonical.
 The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
 handle locals reproduce the target's direct second argument register and
 branch-delay schedule, with both texture-free calls and the allocator call
