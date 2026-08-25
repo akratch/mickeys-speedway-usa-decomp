@@ -795,6 +795,7 @@ runlinkFlushModules = 0x80032820; // type:func size:0xAC ROM 0x33420 tier-B dono
 runlinkResumeAll = 0x80032FE0; // type:func size:0x60 ROM 0x33BE0 tier-B donor-jfg-asm/runLink/runlinkResumeAll.s role+CFG C-object+linked-ROM-exact
 // tier D -- invented: writes overlayIndex's halfword entry in linkSlotTable.
 SetLinkSlot = 0x80033040; // type:func size:0x50  tier-D invented
+runlinkTick = 0x80033090; // type:func size:0xBC ROM 0x33C90 tier-B donor-jfg-asm/runLink/runlinkTick.s role+CFG C-object+linked-ROM-exact
 // tier D -- invented: sweeps linkSlotTable over overlayCount, freeing unused.
 ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier-D invented
 

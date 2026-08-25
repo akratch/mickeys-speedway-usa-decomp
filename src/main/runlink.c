@@ -63,6 +63,7 @@ extern s32 overlayCount;           /* overlays, AND link slots: one each */
 extern RelocationEntry *mainRelocTable;
 extern s32 mainRelocTableCount;
 extern s32 D_8007A27C;
+extern s32 D_8007A67C;
 extern char D_80082410[];
 extern void func_80032BF8(s32 overlayIndex);
 extern void func_80032338(s32 slot);
@@ -660,7 +661,32 @@ void SetLinkSlot(s32 slot, u16 tag, u16 useCount) {
     linkSlotTable[slot].tag = tag;
     linkSlotTable[slot].useCount = useCount;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80033090.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkTick.s and its src/runLink.c role and order.
+ * Mickey's packed fields and linked bytes determine the final body.
+ */
+void runlinkTick(void) {
+    LinkSlot *slot;
+    s32 slotIndex;
+
+    slotIndex = overlayCount;
+    if (D_8007A67C != 0) {
+        if (slotIndex--) {
+            do {
+                slot = &linkSlotTable[slotIndex];
+                if (slot->useCount != 0) {
+                    slot->useCount--;
+                }
+                if (slot->tag != 0) {
+                    if (--slot->tag == 0) {
+                        func_80032338(slotIndex);
+                    }
+                }
+            } while (slotIndex--);
+        }
+    }
+}
 /*
  * Sweep the link-slot table and release every slot that is tagged but no
  * longer used, walking downwards from the last slot.
