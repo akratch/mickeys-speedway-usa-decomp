@@ -1,4 +1,5 @@
 #include "ultra64.h"
+#include "game/menu.h"
 
 /*
  * Resident main state and frame control, ROM 0x27760-0x2A250.
@@ -51,6 +52,7 @@ extern s16 D_8007A250[];
 extern s32 D_8007A258;
 extern u8 D_8007BEF4;
 extern u8 D_8007BEF8;
+extern s8 D_8007BEF0;
 extern s8 D_800CF53F[];
 
 typedef struct MainGameEntry {
@@ -106,6 +108,13 @@ extern void rumbleKill(s32);
 extern void rumbleTick(s32);
 extern void osSetTime(OSTime);
 extern OSTime osGetTime(void);
+extern u16 joyGetButtons(s32);
+extern s32 func_8003A24C(void);
+extern void func_8003A260(s32);
+extern void func_8003A2C8(s32);
+extern s32 func_8003A408(void);
+extern void func_8003A41C(s32);
+extern void mainFrontInit(s32, s32, s32);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -234,7 +243,31 @@ void mainGameWindowSize(s32 *x1, s32 *y1, s32 *x2, s32 *y2) {
     *y2 = D_8007A138;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027EC0.s")
+void func_80027EC0(s32 arg0) {
+    s32 i;
+    s32 buttons;
+
+    i = 0;
+    buttons = 0;
+    do {
+        buttons |= joyGetButtons(i) & 0x1000;
+        i++;
+    } while (i != 4);
+    if (buttons != 0) {
+        D_8007BEF0 = 1;
+    }
+    D_8007A1D8++;
+    if (D_8007A1D8 >= 10) {
+        func_8003A260(func_8003A24C());
+        func_8003A2C8(frontGetScreenMode());
+        frontSetWideAdjust(frontGetWideAdjust());
+        func_8003A41C(func_8003A408());
+        frontSetSfxVolume(frontGetSfxVolume());
+        frontSetBgmVolume(frontGetBgmVolume());
+        frontStoreScreenMode();
+        mainFrontInit(2, 0, 0);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027FB8.s")
 
