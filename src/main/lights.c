@@ -64,8 +64,44 @@ struct LightSourceObject {
 };
 
 typedef struct FlareEntry {
-    u8 data[0x20];
+    s8 type;
+    u8 subtype;
+    u8 pad2[6];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+    s16 kind;
+    u16 size;
+    s16 scaledSize;
+    s8 index;
+    s8 enabled;
 } FlareEntry;
+
+typedef struct GlowEntry {
+    u8 pad0[4];
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+    u16 size;
+    u8 scale;
+    u8 pad11[2];
+    u8 subtype;
+} GlowEntry;
+
+typedef struct GlowObject {
+    u8 pad0[0x3C];
+    GlowEntry *entry;
+    u8 pad40[0x24];
+    void *flare;
+} GlowObject;
 
 typedef struct FlareHeader {
     u8 pad0[0x29];
@@ -415,7 +451,34 @@ void lightSetupFlareSources(FlareObject *object) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A008.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightAdjustGlowingLight.s, with Mickey's constants and offsets. */
+void func_8001A154(GlowObject *object) {
+    FlareEntry flare;
+    GlowEntry *entry;
+    s32 scaledSize;
+
+    entry = object->entry;
+    flare.type = 0x41;
+    flare.subtype = entry->subtype;
+    flare.x = entry->x;
+    flare.y = entry->y;
+    flare.z = entry->z;
+    flare.red = entry->red;
+    flare.green = entry->green;
+    flare.blue = entry->blue & 0xFFFFU;
+    flare.alpha = entry->alpha;
+    flare.kind = 0x2B;
+    flare.size = entry->size;
+    scaledSize = (entry->size * entry->scale) / 100;
+    flare.index = -1;
+    flare.enabled = 0;
+    flare.scaledSize = scaledSize;
+    object->flare = camlightAdd(NULL, &flare);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A154.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
 s32 lightKillGlowingLight(void) {
     camlightDelete();
