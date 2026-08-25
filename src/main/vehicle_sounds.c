@@ -123,9 +123,9 @@ f32 sqrtf(f32 value);
 f32 func_80058EF4(f32 value);
 
 #ifdef NON_MATCHING
-/* Plateau (2026-08-25, cx-nm-near-26): 26 words vs 22, first mismatch +0x0;
- * the 40-minute permuter improved 930 to 590 but not to exact. Four shared
- * address bases require same-TU aggregate/BSS ownership. */
+/* Workbench: structure-mismatch, 26 versus 22 words, with no exact prefix.
+ * Lever: structure/context ownership; TU-local scalars and target-order stores still emitted four extra address loads.
+ * Remains: the target's cross-symbol high-half reuse needs original BSS layout context; named externs stay best. */
 void func_80058250(void) {
     D_800D78B0 = 0;
     D_800D78B8 = 0.0f;

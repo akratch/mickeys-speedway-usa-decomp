@@ -283,6 +283,9 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
     return writer;
 }
 #ifdef NON_MATCHING
+/* Workbench: allocation-mismatch, exact 28-word opcode shape; 18 register-only differences, first at +0x10.
+ * Lever: pool/temp routing; chained byte assignment removed the sole opcode mismatch, while reset/alias locals were inert.
+ * Remains: seven desired targets are ring-only; the permuter imported MIPS I flags, so its batch was invalid. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
     u32 nextBit;
@@ -303,11 +306,10 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
             bit = nextBit;
             cursorField = &writer->cursor;
             if (mask == 0) {
-                mask = 0x80;
                 nextCursor = writer->cursor + 1;
                 writer->cursor = nextCursor;
                 *nextCursor = 0;
-                writer->mask = 0x80;
+                mask = writer->mask = 0x80;
             }
             if (isSet != 0) {
                 cursor = *cursorField;
