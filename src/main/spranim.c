@@ -48,11 +48,26 @@ typedef struct SprasjiInitEntry {
     u8 scale;
 } SprasjiInitEntry;
 
+typedef struct SpranimControlState {
+    u8 pad0[0x28];
+    u8 animationState[0x40];
+    void **entries;
+    u8 pad6C[0x18];
+    s32 animationId;
+} SpranimControlState;
+
 extern u8 D_8007BF2C;
 extern void func_80020D8C(void *arg0, s32 arg1, s32 arg2, void *arg3);
+extern void func_80036544(void *entry, s32 *mode, s32 animationId, void *state, s32 updateRate);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimInit.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimControl.s")
+/* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/spranimControl.s, with Mickey's offsets. */
+void spranimControl(SpranimControlState *state, s32 updateRate) {
+    s32 mode;
+
+    mode = 9;
+    func_80036544(*state->entries, &mode, state->animationId, state->animationState, updateRate);
+}
 void sprasjiInit(SprasjiInitState *state, SprasjiInitEntry *entry) {
     f32 scale;
 

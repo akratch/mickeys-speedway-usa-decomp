@@ -435,7 +435,7 @@ camlightUpdate = 0x8001B280; // type:func size:0x8 tier-D order+shape, ROM 0x1be
 camlightVisibilityCheck = 0x8001B288; // type:func size:0x8 tier-D order+shape, ROM 0x1be88  src/main/camlight.c.o masked=0/2
 camlightDraw = 0x8001B290; // type:func size:0x10 tier-D order+shape, ROM 0x1be90  src/main/camlight.c.o masked=0/4
 spranimInit = 0x8001B2A0; // type:func size:0x74 tier-D order+shape, ROM 0x1bea0
-spranimControl = 0x8001B314; // type:func size:0x4C tier-D order+shape, ROM 0x1bf14
+spranimControl = 0x8001B314; // type:func size:0x4C tier-D, ROM 0x1bf14  matched C src/main/spranim.c.o -O2 -mips2 -32, JFG asm/nonmatchings/spranim/spranimControl.s donor, linked exact=19/19
 sprasjiInit = 0x8001B360; // type:func size:0x48 tier-D, ROM 0x1bf60  matched C src/main/spranim.c.o -O2 -mips2 -32, linked exact=18/18
 spranimOnceControl = 0x8001B3A8; // type:func size:0x78 tier-D order+shape, ROM 0x1bfa8
 effectboxControl = 0x8001B420; // type:func size:0x304 tier-D order+shape, ROM 0x1c020
