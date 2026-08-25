@@ -21,16 +21,25 @@ typedef struct Overlay12Effect {
     f32 z2;
     f32 zero;
     f32 value;
-    u8 pad2C[0x10];
+    f32 collisionX;
+    f32 collisionY;
+    f32 collisionZ;
+    f32 collisionValue;
     s16 lifetime;
-    u8 pad3E[0xC];
+    s16 vertexX0;
+    s16 vertexY0;
+    s16 vertexZ0;
+    s16 vertexX1;
+    s16 vertexY1;
+    s16 vertexZ1;
     u8 active;
     u8 kind1;
     s16 scaleX;
     s16 scaleY;
     u8 type;
     u8 kind2;
-    u8 pad52[2];
+    u8 collided;
+    u8 pad53;
 } Overlay12Effect;
 
 typedef struct Overlay12Particle {

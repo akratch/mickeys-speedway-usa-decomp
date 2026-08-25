@@ -118,27 +118,43 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F000004C_18723E4.s")
 #endif
 
+typedef struct Overlay15StarMovementView {
+    u8 pad00[0x30];
+    Overlay15Star movement;
+} Overlay15StarMovementView;
+
+typedef struct Overlay15StarPointerView {
+    u8 pad00[4];
+    Overlay15Star *stars;
+} Overlay15StarPointerView;
+
 /*
  * Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative.
- * Plateau (2026-08-25): canonical -O2 -mips2 emits 0xE8 bytes for the
- * 0xD8-byte target and first diverges at +0x14. A 10-minute permuter run
- * reached score 910 only by passing an uninitialized count. The remaining
- * blocker is the retail address reuse across contiguous scalar externs.
+ * Plateau (2026-08-25, cx-ov-2-a-r3): the 119-combination flag lattice leaves
+ * the best -O2 -mips2 body at 0xE8 bytes with 30 differing words; the first
+ * mismatch is +0x30. Typed proxy views recover the retail +0x30 movement and
+ * +0x4 star-pointer accesses, but IDO still emits one address pair per scalar
+ * bound instead of the retail pairwise base reuse, accounting for the four
+ * extra instructions.
  */
 #ifdef NON_MATCHING
 void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
                         s32 rate) {
     f32 scale;
 
-    gOverlay15StarMovement.x = movementX;
-    gOverlay15StarMovement.y = movementY;
-    gOverlay15StarMovement.z = movementZ;
-    if (gOverlay15Stars != 0) {
+    ((Overlay15StarMovementView *)&gOverlay15StarMovement)->movement.x =
+        movementX;
+    ((Overlay15StarMovementView *)&gOverlay15StarMovement)->movement.y =
+        movementY;
+    ((Overlay15StarMovementView *)&gOverlay15StarMovement)->movement.z =
+        movementZ;
+    if (((Overlay15StarPointerView *)&gOverlay15Stars)->stars != 0) {
         scale = (f32)rate;
         movementX *= scale;
         movementY *= scale;
         movementZ *= scale;
-        starfieldFastMove(gOverlay15StarCount, gOverlay15Stars,
+        starfieldFastMove(gOverlay15StarCount,
+                          ((Overlay15StarPointerView *)&gOverlay15Stars)->stars,
                           movementX, movementY, movementZ,
                           gOverlay15StarBound0, gOverlay15StarBound1,
                           gOverlay15StarBound2, gOverlay15StarBound3,
