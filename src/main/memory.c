@@ -81,7 +81,7 @@ void mmFree(void *data) {
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_free_addr. */
 s32 func_8002B978(u8 *address);
-void func_8002B9D0(MemoryPoolIndex poolIndex, s16 slotIndex);
+void func_8002B9D0(MemoryPoolIndex poolIndex, s32 slotIndex);
 
 void func_8002B8A8(u8 *address) {
     s16 slotIndex;
@@ -129,8 +129,52 @@ s32 func_8002B978(u8 *address) {
     return i;
 }
 
-/* JFG correspondence: mempool_slot_clear (tier B; frees/coalesces a slot). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B9D0.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mempool_slot_clear. */
+extern s32 D_800D21B0;
+
+void func_8002B9D0(MemoryPoolIndex poolIndex, s32 slotIndex) {
+    s16 nextIndex;
+    s16 prevIndex;
+    s16 tempNextIndex;
+    MemoryPoolSlot *slots;
+    MemoryPoolSlot *slot;
+    MemoryPoolSlot *nextSlot;
+    MemoryPoolSlot *prevSlot;
+
+    slots = D_800D1C60[poolIndex].slots;
+    slot = (MemoryPoolSlot *)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
+    nextIndex = slot->nextIndex;
+    prevIndex = slot->prevIndex;
+    nextSlot = (MemoryPoolSlot *)((u8 *)slots + (nextIndex << 4) + (nextIndex << 2));
+    prevSlot = (MemoryPoolSlot *)((u8 *)slots + (prevIndex << 4) + (prevIndex << 2));
+    slot->flags = MEMORY_SLOT_FREE;
+    if (poolIndex == MEMORY_POOL_MAIN) {
+        D_800D21B0 += slot->size;
+    }
+    D_800D1C60[poolIndex].freeSize += slot->size;
+    if (nextIndex != -1 && nextSlot->flags == MEMORY_SLOT_FREE) {
+        slot->size += nextSlot->size;
+        tempNextIndex = nextSlot->nextIndex;
+        slot->nextIndex = tempNextIndex;
+        if (tempNextIndex != -1) {
+            ((MemoryPoolSlot *)((u8 *)slots + (tempNextIndex << 4) +
+                                (tempNextIndex << 2)))->prevIndex = slotIndex;
+        }
+        D_800D1C60[poolIndex].curNumSlots--;
+        slots[D_800D1C60[poolIndex].curNumSlots].index = nextIndex;
+    }
+    if (prevIndex != -1 && prevSlot->flags == MEMORY_SLOT_FREE) {
+        prevSlot->size += slot->size;
+        tempNextIndex = slot->nextIndex;
+        prevSlot->nextIndex = tempNextIndex;
+        if (tempNextIndex != -1) {
+            ((MemoryPoolSlot *)((u8 *)slots + (tempNextIndex << 4) +
+                                (tempNextIndex << 2)))->prevIndex = prevIndex;
+        }
+        D_800D1C60[poolIndex].curNumSlots--;
+        slots[D_800D1C60[poolIndex].curNumSlots].index = slotIndex;
+    }
+}
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmGetSlotPtr. */
 MemoryPoolSlot *mmGetSlotPtr(MemoryPoolIndex poolIndex) {

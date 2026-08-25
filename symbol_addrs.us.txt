@@ -2124,6 +2124,7 @@ mmFree = 0x8002B768; // type:func size:0x44   ROM 0x2c368  tier-A matched C main
 func_8002B8A8 = 0x8002B8A8; // type:func size:0x94   ROM 0x2c4a8  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_free_addr
 func_8002B93C = 0x8002B93C; // type:func size:0x3C   ROM 0x2c53c  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_free_queue
 func_8002B978 = 0x8002B978; // type:func size:0x58   ROM 0x2c578  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_get_pool
+func_8002B9D0 = 0x8002B9D0; // type:func size:0x150  ROM 0x2c5d0  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_slot_clear
 mmGetSlotPtr = 0x8002BB20; // type:func size:0x14   ROM 0x2c720  tier-B donor-jfg role-callgraph matched C main/memory -O2 -mips2 -32
 mmGetDelay = 0x8002BB34; // type:func size:0xC   ROM 0x2c734  tier-B donor-jfg role-callgraph matched C main/memory -O2 -mips2 -32
 // jfg:src/saves.c.o
