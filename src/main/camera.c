@@ -103,6 +103,11 @@ typedef struct {
     f32 z;
 } CameraScaledTransform;
 
+typedef union {
+    CameraScaledTransform transform;
+    f64 align;
+} CameraAlignedScaledTransform;
+
 typedef struct {
     s32 flags;
     u8 pad04[0x30];
@@ -645,7 +650,31 @@ void camSetViewport(Gfx **dlist, s32 halfWidth, s32 halfHeight, s32 centerX,
     gSPViewport((*dlist)++, (u32) viewport + 0x80000000);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022D20.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022E80.s")
+/* Mickey-only camera-relative billboard offset reconstruction. */
+void func_80022E80(CameraScaledTransform *transform) {
+    f32 x;
+    f32 y;
+    f32 z;
+    CameraAlignedScaledTransform inverse;
+
+    inverse.transform.yRotation = -transform->yRotation;
+    inverse.transform.xRotation = -transform->xRotation;
+    inverse.transform.zRotation = -transform->zRotation;
+    inverse.transform.x = 0.0f;
+    inverse.transform.y = 0.0f;
+    inverse.transform.z = 0.0f;
+    inverse.transform.scale = 1.0f;
+    func_8002AA50(transform, D_800CF2B8);
+    func_8002AE10((CameraTransform *) &inverse.transform, D_800CF2F8);
+    D_800CF2B0 = 1.0f / transform->scale;
+    x = D_800CEA20[D_800CEC64].transform.x - transform->x;
+    y = D_800CEA20[D_800CEC64].transform.y - transform->y;
+    z = D_800CEA20[D_800CEC64].transform.z - transform->z;
+    mtxf_transform_point(D_800CF2F8, x, y, z, &x, &y, &z);
+    D_800CF2A4 = x * D_800CF2B0;
+    D_800CF2A8 = y * D_800CF2B0;
+    D_800CF2AC = z * D_800CF2B0;
+}
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: JFG's public src/camera.c identifies the camDoSprite role;
