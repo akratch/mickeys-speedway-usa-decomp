@@ -1731,6 +1731,15 @@ new scheduler BSS that this split does not own. The assembly fallback remains
 canonical until BSS ownership can be reconstructed without changing the
 shared data layout.
 
+A fresh structural retry kept the external timestamp split without claiming
+new BSS ownership. Declaring the two extracted high/low words separately made
+IDO emit 28 instructions, with all 19 target positions differing from `+0x0`;
+writing through one adjacent `u64` lvalue returned to the existing 20-word,
+eight-difference basin at `+0x14`. The repeated full flag lattice therefore
+leaves the external-`u64` candidate as the best faithful form and confirms the
+remaining blocker is the combined return-value store versus distinct BSS
+relocation identities.
+
 `osScGetTaskType` retains its JFG-derived switch under `NON_MATCHING`. The
 canonical candidate emits all 34 target text instructions and all eight
 string relocation identities exactly, but its two jump-table relocations at
@@ -1750,6 +1759,12 @@ stream operations agree. The lane's `tools/permute.sh` could not run because
 the vendored `tools/permuter/import.py` is absent. The assembly fallback
 remains canonical.
 
+A fresh structural retry removed the explicit bit-test temporary and tested
+the source value directly. That form regressed to 30 instructions versus 28,
+with 30 positional differences from `+0x0`; changing only the temporary's
+signedness stayed in the existing 29-instruction, first-`+0x0` basin. The
+original candidate remains the best faithful form.
+
 Its paired bit reader `func_8002C70C` likewise retains a Mickey-derived
 `NON_MATCHING` body. The 119-combination flag lattice and five local-width and
 expression shapes reach the target's exact 31-instruction control-flow shape,
@@ -1758,6 +1773,12 @@ but 18 words differ from the first mismatch at `+0x14`: the loop-invariant
 one remaining opcode difference and no relocation differences. Automated
 declaration permutation is blocked by the same absent permuter import. The
 assembly fallback remains canonical.
+
+A fresh local-width retry used byte-sized mask temporaries, matching the
+values' stored width rather than their promoted arithmetic width. It regressed
+to 32 instructions, 24 positional differences, and first mismatch `+0x0`.
+The promoted-width candidate remains best at the target's 31 instructions,
+18 differences, and first mismatch `+0x14`.
 
 The full-save-image builder `func_8002CF6C` also retains a Mickey-derived
 `NON_MATCHING` body after the 119-combination flag lattice and ten
