@@ -102,6 +102,17 @@ typedef struct Overlay75UpdateLocals {
     f32 delta;
 } Overlay75UpdateLocals;
 
+/*
+ * Plateau (9 structural attempts plus a bounded 10-minute permuter batch):
+ * canonical MIPS-II is exact-size, improved from 55 differing words first at
+ * +0x2C to 40 first at +0x2C by computing endpoint deltas before phase-state
+ * stores and spelling the event choice as an explicit branch.  Scalar versus
+ * aggregate locals, declaration scopes/order, delayed initializers, and
+ * register qualifiers did not remove the extra stack home that leaves the
+ * position, saved entity, and model slots four bytes above target.  The
+ * permuter's separate state-pointer snapshot regressed to 71 words at +0x0 in
+ * the real full-TU sweep.
+ */
 #ifdef NON_MATCHING
 void overlay75UpdateMovingObject(Overlay75Object *object,
                                        s32 updateRate) {
@@ -143,10 +154,10 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
             locals.delta = state->advanceRate08 * tick;
             state->progress28 += locals.delta;
             if (limit <= state->progress28) {
-                state->progress28 = limit;
-                state->phase04 = 1;
                 locals.moveX = state->endpointX1C - object->x0C;
                 moveZ = state->endpointZ24 - object->z14;
+                state->progress28 = limit;
+                state->phase04 = 1;
             } else {
                 locals.moveX = -(overlay75Sin(object->angle00) * locals.delta);
                 moveZ = -(overlay75Cos(object->angle00) * locals.delta);
@@ -165,9 +176,11 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
             }
             if (locals.previous < gOverlay75ThresholdReloc &&
                 gOverlay75ThresholdReloc <= object->transitionValue28) {
-                locals.eventId = object->status48->alternateEvent61
-                              ? 0x1BC
-                              : 0x1B9;
+                if (object->status48->alternateEvent61 != 0) {
+                    locals.eventId = 0x1BC;
+                } else {
+                    locals.eventId = 0x1B9;
+                }
             }
         } else if (state->phase04 == 2) {
             if (object->status48->alternateEvent61 != 0) {
@@ -190,11 +203,11 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
             locals.delta = state->retractRate0C * tick;
             state->progress28 -= locals.delta;
             if (state->progress28 <= 0.0f) {
+                locals.moveX = state->baseX10 - object->x0C;
+                moveZ = state->baseZ18 - object->z14;
                 state->progress28 = 0.0f;
                 state->phase04 = 0;
                 state->active02 = 0;
-                locals.moveX = state->baseX10 - object->x0C;
-                moveZ = state->baseZ18 - object->z14;
             } else {
                 locals.moveX = overlay75Sin(object->angle00) * locals.delta;
                 moveZ = overlay75Cos(object->angle00) * locals.delta;
