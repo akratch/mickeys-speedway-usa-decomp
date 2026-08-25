@@ -1170,9 +1170,9 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation mismatch, 5/32 words from +0xC; size and the temp lane are exact.
- * Levers: pool-position/type variants stalled at 19; a 30-minute permuter remask reached 5.
- * Remaining: a v0/v1 pool inversion and one ring-only comparison. */
+/* Workbench: allocation-mismatch, 5/32 words from +0xC; size/temp lane exact.
+ * Reversed and sequential assignment-web forms regressed to 24-25 words.
+ * Prior pool/type/permuter levers leave a v0/v1 inversion and ring comparison. */
 /* PROVENANCE: mask, state guard, and order compared with JFG's public
  * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
 void func_8003A2C8(s32 screenMode) {
