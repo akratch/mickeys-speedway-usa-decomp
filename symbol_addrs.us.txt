@@ -2048,6 +2048,7 @@ lightGetStrongestEffect = 0x80019358; // type:func size:0x13C   ROM 0x19f58  src
 lightUpdateObjects = 0x80019494; // type:func size:0xA8   ROM 0x1a094  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 addRomdefLight = 0x8001897C; // type:func size:0x238   ROM 0x1957c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 addObjectLight = 0x80018BB4; // type:func size:0x200   ROM 0x197b4  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
+func_80019934 = 0x80019934; // type:func size:0xF0 tier-B ROM 0x1a534 NON_MATCHING plateau, 60/60 text words exact, shared-rodata jump-table ownership blocks promotion
 lightDirectionCalc = 0x80019A24; // type:func size:0x94   ROM 0x1a624  src/lights.c.o  body adapted and compiler-exact
 lightDefaultObjectLight = 0x80019D98; // type:func size:0x50   ROM 0x1a998  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 lightSetupLightSources = 0x80019EE4; // type:func size:0x98   ROM 0x1aae4  src/lights.c.o  Mickey/JFG-adapted body compiler-exact

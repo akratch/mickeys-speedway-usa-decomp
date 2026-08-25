@@ -20,6 +20,7 @@
 
 extern void initColourCycle();
 extern f32 sqrtf(f32 value);
+extern f32 func_8002A8BC(s32 angle);
 extern void mmFree(void *ptr);
 extern void *func_8002B280(s32 size, s32 tag);
 extern void lightCreateLightTable(s32 red, s32 green, s32 blue, void *table);
@@ -411,7 +412,36 @@ void lightUpdateObjects(void) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001953C.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c, with Mickey's trigonometry helper. */
+f32 func_80019934(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
+    f32 temp;
+
+    temp = arg1 * arg2;
+    switch (arg3) {
+        case 1:
+            temp = 1.0f - temp;
+            break;
+        case 2:
+            temp = 1.0f - sqrtf(temp);
+            break;
+        case 3:
+            temp = func_8002A8BC(temp * 16384.0f);
+            break;
+        case 4:
+            temp = func_8002A8BC(temp * 16384.0f);
+            temp *= temp;
+            break;
+        case 5:
+            temp = 1.0f - temp;
+            temp *= temp;
+            break;
+    }
+    return arg0 * temp;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019934.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6) {
     f32 temp_f0;
