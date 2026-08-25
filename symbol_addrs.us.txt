@@ -1878,6 +1878,10 @@ func_80013324 = 0x80013324; // type:func size:0xD8 ROM 0x13f24 tier-D (Mickey re
 // track-layout fields; this is the TU's accessor for its current track object.
 trackGetTrack = 0x80013EB4; // type:func size:0xC ROM 0x14ab4
 
+// No public name adopted: JFG's assembly-only `trackFreeAll` supplies the
+// teardown role and TU position, while Mickey proves its own calls and data.
+func_80013EC0 = 0x80013EC0; // type:func size:0x20C ROM 0x14ac0 tier-D (JFG src/track.c structure, placeholder retained)
+
 // Tier B: external callers supply fog distance, colour, and state values.
 // Tier D: occupies JFG `trackSetFog`'s position before the independently
 // identified `trackGetFog` and tier-A `trackSetFogOff` pair.

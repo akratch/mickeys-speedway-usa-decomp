@@ -115,7 +115,11 @@ typedef struct TrackSegment {
     s16 batchCount;
     u8 pad26[0x2E - 0x26];
     s8 lightingMode;
-    u8 pad2F[0x40 - 0x2F];
+    u8 pad2F[0x30 - 0x2F];
+    void *unk30;
+    u8 pad34[0x38 - 0x34];
+    void *unk38;
+    u8 pad3C[0x40 - 0x3C];
 } TrackSegment;
 
 /*
@@ -151,7 +155,7 @@ typedef struct TrackData {
     TrackBoundingBox *segmentBounds;
     u8 pad0C[0x14 - 0x0C];
     void *bspTree;
-    u8 pad18[0x1A - 0x18];
+    s16 textureCount;
     s16 segmentCount;
 } TrackData;
 
@@ -282,6 +286,16 @@ extern f32 D_80081690;
 extern u8 D_800C95B4;
 extern s16 D_800D6C4C;
 extern s16 D_800D6C54;
+extern s8 D_80079274;
+extern s32 D_80079278;
+extern s32 D_8007930C;
+extern void *D_80079310;
+extern void *D_800C9548;
+extern void *D_800C95A8;
+extern void *D_800C9D20;
+extern void *D_800C9D2C;
+extern void *D_800C9D30;
+extern void *D_800C9D34;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -290,7 +304,7 @@ ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
                    s32 updateRate);
 s32 runlinkIsModuleLoaded(s32 module);
-void TrapDanglingJump();
+s32 TrapDanglingJump();
 void func_80022A50(Gfx **displayList, Mtx **matrix);
 void func_80034920(Gfx **displayList);
 void func_800349A4(Gfx **displayList, void *texture, s32 mode, s32 flags);
@@ -313,6 +327,14 @@ s32 func_80010178(s32 segmentIndex);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
 void func_8000D820(void);
+void func_8000439C(void);
+void func_80006EA0(void *handle);
+void func_80006FA0(void);
+void func_8001F364(void);
+void func_800347A0(void *texture);
+void mmFree(void *data);
+void shadowFreeBuffers(void);
+void animseqFreeLevelData(void);
 void func_80007E40(TrackSkyObject *object, s32 updateRate,
                    TrackLevelData **levelData);
 void func_80009E78(Gfx **displayList, Mtx **matrix, TrackVertex **vertices,
@@ -1092,7 +1114,90 @@ s32 func_80013324(f32 coefficient, f32 numerator,
 void *trackGetTrack(void) {
     return D_800792E8;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80013EC0.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `trackFreeAll`, whose assembly-only body supplies the teardown order and
+ * loop structure. Mickey's pointers, calls, and object layouts are
+ * authoritative; the donor name is not adopted.
+ */
+void func_80013EC0(void) {
+    TrackSegment *segment;
+    TrackData *track;
+    TrackData **trackSlot;
+    s32 index;
+    s32 offset;
+
+    trackSlot = &D_800792E8;
+    if (D_80079278 > 0) {
+        TrapDanglingJump();
+        D_80079278 = 0;
+    }
+    func_8000D570();
+    if (D_80079310 != NULL) {
+        mmFree(D_80079310);
+        D_80079310 = NULL;
+        D_8007930C = 0;
+    }
+    func_8001F364();
+    if (D_800792F0 != NULL) {
+        func_800347A0(D_800792F0);
+        D_800792F0 = NULL;
+    }
+
+    track = *trackSlot;
+    index = 0;
+    if (track->segmentCount > 0) {
+        offset = 0;
+        do {
+            segment = (TrackSegment *) ((u8 *) track->segments + offset);
+            if (segment->unk30 != NULL) {
+                mmFree(segment->unk30);
+                track = *trackSlot;
+                segment = (TrackSegment *)
+                    ((u8 *) track->segments + offset);
+            }
+            if (segment->unk38 != NULL) {
+                TrapDanglingJump(segment->unk38);
+                track = *trackSlot;
+            }
+            index++;
+            offset += sizeof(TrackSegment);
+        } while (index < track->segmentCount);
+        index = 0;
+    }
+
+    if (track->textureCount > 0) {
+        offset = 0;
+        do {
+            func_800347A0(((TrackTextureEntry *)
+                ((u8 *) track->textures + offset))->texture);
+            track = *trackSlot;
+            index++;
+            offset += sizeof(TrackTextureEntry);
+        } while (index < track->textureCount);
+    }
+
+    mmFree(D_800C95A8);
+    mmFree(D_800C9D2C);
+    mmFree(D_800C9D30);
+    mmFree(D_800C9D34);
+    if (TrapDanglingJump(osRomBase) != 0) {
+        mmFree(D_800C9D20);
+    }
+    shadowFreeBuffers();
+    if (D_800C9550 != NULL) {
+        func_80006EA0(D_800C9550);
+        func_80006FA0();
+    }
+    animseqFreeLevelData();
+    func_8000439C();
+    D_800792E8 = NULL;
+    if (D_800C9548 != NULL) {
+        mmFree(D_800C9548);
+        D_800C9548 = NULL;
+    }
+    D_80079274 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800140CC.s")
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
