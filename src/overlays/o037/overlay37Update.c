@@ -35,14 +35,14 @@ extern f32 overlay37SinReloc(s32 angle);
 extern void overlay37UpdateObjectReloc(Overlay37Object *object);
 
 /* Pinned DKR v77/v80 and JFG scans contain no exact source donor. */
-#ifdef NON_MATCHING
 void overlay37Update(Overlay37Object *object, s32 ticks) {
     Overlay37State *state;
-    volatile s32 savedTicks;
     Overlay37Object *target;
     Overlay37Resource *resource;
     Overlay37Object *callObject;
     f32 period;
+    f32 sine;
+    s32 savedTicks;
 
     savedTicks = ticks;
     callObject = object;
@@ -51,7 +51,7 @@ void overlay37Update(Overlay37Object *object, s32 ticks) {
     if (target != 0) {
         resource = (Overlay37Resource *)target->state;
         period = gOverlay37Period;
-        object->x = resource->x448;
+        object->x = ((Overlay37Resource *)target->state)->x448;
         object->y = resource->y44C;
         object->z = resource->z450;
         object->angle = target->angle;
@@ -59,16 +59,11 @@ void overlay37Update(Overlay37Object *object, s32 ticks) {
         if (period <= state->phase) {
             state->phase -= period;
         }
-        callObject->wave =
-            (s32)(overlay37SinReloc(
-                      (s32)((state->phase / period) * 65536.0f)) *
-                  4096.0f);
+        sine = overlay37SinReloc(
+            (s32)((state->phase / period) * 65536.0f));
+        callObject->wave = (s32)(4096.0f * sine);
         if (resource->flags1A8 & 1) {
             overlay37UpdateObjectReloc(callObject);
         }
     }
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o037/overlay37Update/func_overlay_037_F0000088_18856A8.s")
-#endif

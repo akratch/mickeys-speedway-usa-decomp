@@ -120,6 +120,10 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
 
 /*
  * Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative.
+ * Plateau (2026-08-25): canonical -O2 -mips2 emits 0xE8 bytes for the
+ * 0xD8-byte target and first diverges at +0x14. A 10-minute permuter run
+ * reached score 910 only by passing an uninitialized count. The remaining
+ * blocker is the retail address reuse across contiguous scalar externs.
  */
 #ifdef NON_MATCHING
 void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
@@ -352,11 +356,26 @@ void overlay15ClearValue7C(void) {
 }
 
 /* Mickey-local reconstruction; the pinned DKR v77/v80 and JFG scans are negative. */
+typedef struct Overlay15RainOffsets {
+    u8 pad00[0x80];
+    f32 x;
+    f32 y;
+    f32 z;
+} Overlay15RainOffsets;
+
+extern Overlay15RainOffsets gOverlay15RainOffsets;
+
+/*
+ * Plateau (2026-08-25): the typed-offset candidate is exactly 0xD8 bytes
+ * and first diverges at +0x74 with 13 differing words. A 10-minute
+ * permuter run reached score 185, but its valid pointer spelling regressed
+ * to 0xDC and 22 differing words. The blocker is post-call load scheduling.
+ */
 #ifdef NON_MATCHING
 void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
                        f32 projectionScale, f32 intensity) {
-    Overlay15CameraState *camera;
     s32 visibleCount;
+    Overlay15CameraState *camera;
 
     if (gOverlay15RainEnabled != 0) {
         visibleCount = (s32)((f32)gOverlay15RainCapacity * intensity);
@@ -364,8 +383,8 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
             camera = overlay15GetActiveCameraReloc();
             rainFastDraw(framebuffer, width, height, visibleCount,
                          gOverlay15RainPositions, gOverlay15RainColors,
-                         camera->angle + 0x8000, gOverlay15RainOffsetX,
-                         gOverlay15RainOffsetY, gOverlay15RainOffsetZ,
+                         camera->angle + 0x8000, gOverlay15RainOffsets.x,
+                         gOverlay15RainOffsets.y, gOverlay15RainOffsets.z,
                          projectionScale);
         }
     }

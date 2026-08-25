@@ -979,9 +979,24 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o010/overlay10Initialize.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_010_F0000000_1868450=overlay10Initialize $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012.c.o: CFLAGS += -Wo,-loopunroll,0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1B4
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/func_overlay_012_F00000C4_186D344.c.o: CFLAGS += -Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/func_overlay_012_F00000C4_186D344.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym gOverlay12Resource0=D_8 \
+		--redefine-sym gOverlay12Resource1=D_C \
+		--redefine-sym gOverlay12Resource2=D_10 \
+		--redefine-sym gOverlay12Resource3=D_14 \
+		--redefine-sym gOverlay12Resource4=D_18 \
+		--redefine-sym gOverlay12Resource5=D_1C $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012_tail.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1F4
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x130
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/func_overlay_012_F00002E4_186D564.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym gOverlay12ParticleCount=D_4 \
+		--redefine-sym gOverlay12Particles=D_1520 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14Reset.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ReturnOne.c.o: POSTPROCESS = \
@@ -1389,8 +1404,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o039/overlay_039.c.o: OPT_FLAGS := -O2 -Wo,-loo
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x88
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o037/overlay37Update.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_037_F0000088_18856A8=overlay37Update $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x114
 # The typed reconstruction naturally owns 852 bytes plus one proved zero
 # alignment word. Extend that word into the symbol, select the complete guarded
@@ -1601,10 +1614,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitResource.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x184
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitBounds.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1FC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96Register.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_096_F0000000_18D7638=overlay96Register $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96Unregister.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_096_F0000070_18D76A8=overlay96Unregister $@ && \
@@ -1615,10 +1624,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96BuildVolume.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_096_F00000F8_18D7730=overlay96BuildVolume $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C4
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96FindVolume.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_096_F00004BC_18D7AF4=overlay96FindVolume $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96FindVolume.c.o: CFLAGS += \
+	-Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96TestBit.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o096/overlay96DrawObject.c.o: POSTPROCESS = \

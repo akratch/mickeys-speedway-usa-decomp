@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 87040,
-  "nonmatching_overlay_c_bytes": 220796,
+  "matched_overlay_c_bytes": 88056,
+  "nonmatching_overlay_c_bytes": 219780,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 64,
   "bss_bytes": 77680,
@@ -3445,21 +3445,39 @@
    "text_ownership": [
     {
      "offset": "0x0",
-     "end_offset": "0x1B4",
-     "size": "0x1B4",
+     "end_offset": "0xC4",
+     "size": "0xC4",
      "type": "c",
      "source": "overlays/o012/overlay_012",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
+    },
+    {
+     "offset": "0xC4",
+     "end_offset": "0x1B4",
+     "size": "0xF0",
+     "type": "c",
+     "source": "overlays/o012/func_overlay_012_F00000C4_186D344",
+     "matched": true,
+     "nonmatching": false
     },
     {
      "offset": "0x1B4",
-     "end_offset": "0x3A8",
-     "size": "0x1F4",
+     "end_offset": "0x2E4",
+     "size": "0x130",
      "type": "c",
      "source": "overlays/o012/overlay_012_tail",
      "matched": true,
      "nonmatching": true
+    },
+    {
+     "offset": "0x2E4",
+     "end_offset": "0x3A8",
+     "size": "0xC4",
+     "type": "c",
+     "source": "overlays/o012/func_overlay_012_F00002E4_186D564",
+     "matched": true,
+     "nonmatching": false
     },
     {
      "offset": "0x3A8",
@@ -3543,17 +3561,7 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 87
-   },
-   "mixed_tu_exact_c_ranges": [
-    {
-     "offset": "0x0",
-     "end_offset": "0xC4",
-     "size": "0xC4",
-     "label": "overlay12Initialize",
-     "source": "overlays/o012/overlay_012",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    }
-   ]
+   }
   },
   {
    "overlay": 13,
@@ -8039,7 +8047,7 @@
      "type": "c",
      "source": "overlays/o037/overlay37Update",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x19C",
@@ -17744,7 +17752,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96Register",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x70",
@@ -17771,7 +17779,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96FindVolume",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x57C",

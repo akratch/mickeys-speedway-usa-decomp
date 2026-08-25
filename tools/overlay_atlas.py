@@ -181,7 +181,9 @@ TEXT_SUBSEGMENTS = {
     ],
     12: [
         (0x000, "c", "overlay_012"),
+        (0x0C4, "c", "func_overlay_012_F00000C4_186D344"),
         (0x1B4, "c", "overlay_012_tail"),
+        (0x2E4, "c", "func_overlay_012_F00002E4_186D564"),
         (0x3A8, "asm", "overlay_012_tail1"),
     ],
     13: [
@@ -1214,6 +1216,18 @@ def mixed_tu_exact_c_rows(overlay, ownership):
             and int(part["offset"], 16) <= start
             and end <= int(part["end_offset"], 16)
         ]
+        if not containers:
+            # The owning TU has since become fully matched: the range is
+            # credited by its plain C row and the mixed entry is obsolete.
+            plain = [
+                part for part in ownership
+                if part["type"] == "c" and not part["nonmatching"]
+                and int(part["offset"], 16) <= start
+                and end <= int(part["end_offset"], 16)
+            ]
+            if plain:
+                previous_end = end
+                continue
         if len(containers) != 1:
             raise ValueError(
                 f"overlay {overlay} exact range {hx(start)}..{hx(end)} "

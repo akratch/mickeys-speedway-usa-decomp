@@ -53,7 +53,14 @@ extern void overlay23SubmitRenderReloc(
     Overlay23RenderObject *object, void *renderResource,
     Overlay23RenderPacket *packet, s32 mode, s32 alpha);
 
-/* The live wrapper preserves the shipped packet's stack placement. */
+/*
+ * The live wrapper preserves the shipped packet's stack placement.
+ * Plateau (2026-08-25): canonical -O2 -mips2 is exactly 0x100 bytes but
+ * first diverges at +0x18 with 32 differing words. A 10-minute permuter
+ * run reached score 50 only with a macro temporary that shifted the packet
+ * and enlarged the real frame; the blocker is temporary allocation around
+ * the display-list macro expansion.
+ */
 #ifdef NON_MATCHING
 void overlay23RenderEffect(Overlay23RenderObject *object, Gfx **displayList,
                            s32 renderArg0, s32 renderArg1) {
@@ -75,10 +82,12 @@ void overlay23RenderEffect(Overlay23RenderObject *object, Gfx **displayList,
     packetStorage.packet.z = object->z;
     packetStorage.packet.resource = state->resource;
 
-    command = (*displayList)++;
+    command = *displayList;
+    *displayList = command + 1;
     command->w1 = 0;
     command->w0 = 0xE7000000;
-    command = (*displayList)++;
+    command = *displayList;
+    *displayList = command + 1;
     command->w1 = 0xFFFFFF00;
     command->w0 = 0xFB000000;
 
