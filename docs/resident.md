@@ -2053,6 +2053,37 @@ permuter importer selected inadmissible `-mips1` and then failed on this TU's
 expanded `va_arg` syntax. The candidate remains under `NON_MATCHING` and the
 original asm body remains canonical.
 
+`func_80040B88` reached a bounded 300-instruction plateau against the target's
+302 instructions under the canonical resident flags. Its `0x70` frame differs
+from the target's `0x68` frame at function offset zero; shift-tolerant alignment
+needs seven insertions and nine deletions, with 141 paired residuals. The first
+substantive divergence preserves the trigger pointer in `$t7` where the target
+spills and reloads it, rotating the later temporary lanes. The full flag
+lattice and bounded permuter found no exact form. The DKR
+`update_line_particle` body and JFG assembly sibling are the structural oracles;
+the candidate remains under `NON_MATCHING` and asm remains canonical.
+
+`func_80041530` reached a bounded 386-instruction plateau against the target's
+456 instructions. The candidate has a `0x160` frame instead of the target's
+`0x168`, first differing at function offset zero; alignment needs ten
+insertions, 21 deletions, and 64 replacements. The unresolved structural gap is
+the target's software-pipelined input-vector construction. The full flag
+lattice found no exact alternative, and the bounded permuter imported this
+resident TU as inadmissible `-mips1`. JFG `func_80062BFC` is the assembly
+oracle; the typed candidate remains under `NON_MATCHING` and asm remains
+canonical.
+
+`func_8003FB98` reached a bounded near-exact plateau at the target's full 621
+instructions, `0x38` frame, and relocation surface. Ten words remain, first at
+function offset `0x10C`: six stack operands place the reused scale value at
+`sp+0x20` rather than the target's `sp+0x24`, while two adjacent FP instruction
+pairs schedule the Z square before the X/Y partial sum. Ten coherent source,
+type, and expression-shape attempts plus the full flag lattice found no exact
+form. The bounded permuter used inadmissible `-mips1` and only moved its internal
+score from 19985 to 19900. The body is adapted from DKR
+`create_general_particle` and cross-checked against JFG `func_80060ED4`; it
+remains under `NON_MATCHING` and asm remains canonical.
+
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's
 criterion.
