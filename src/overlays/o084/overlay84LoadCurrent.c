@@ -68,10 +68,11 @@ extern Overlay84Resource *overlay84GetResource(
 extern void overlay84PrepareResource(u8 resource);
 extern void overlay84ReleaseResource(u8 resource);
 
-/* NON_MATCHING plateau (2026-08-25): the complete flag lattice and ten
- * structural source passes leave four of 72 words different, first at +0x98.
- * All four are the same private state-pointer spill: natural C selects
- * sp+0x20 while retail selects the otherwise-unused sp+0x24 slot. */
+/* NON_MATCHING plateau (reconfirmed 2026-08-25): all 119 flag combinations,
+ * focused local-lifetime/layout tests, and a bounded two-worker permuter batch
+ * leave four of 72 words different, first at +0x98. All four are the same
+ * private state-pointer spill: natural C selects sp+0x20 while retail selects
+ * the otherwise-unused sp+0x24 slot. */
 #ifdef NON_MATCHING
 void overlay84LoadCurrent(s32 kind) {
     Overlay84Object *object;
