@@ -12,7 +12,7 @@ typedef struct Overlay83Strip {
     u8 pad30[0x84];
 } Overlay83Strip;
 
-extern u8 gOverlay83VertexBase[];
+extern u8 D_80000000[];
 
 #define SHIFTL(value, shift, width) \
     (((u32)(value) & ((1U << (width)) - 1U)) << (shift))
@@ -42,10 +42,9 @@ extern u8 gOverlay83VertexBase[];
 }
 
 /*
- * Plateau (2026-08-25): canonical -O2 -mips2 is exactly 0x134 bytes but
- * first diverges at +0x4 with 73 differing words. A 10-minute permuter run
- * reached score 1405; its best live-range reuse regressed the real TU by
- * eight bytes. The blocker is retaining the display-list alias in $a3.
+ * Plateau (2026-08-25): -O2/-mips2 is size-exact with 73 words from +0x4; D_80000000 makes both relocations exact.
+ * Alias, type/width, first-use, expression, and hoist variants did not retain the display-list alias or packet schedule.
+ * A 40-minute two-worker permuter improved 3795 to 1510 only with synthetic expression/control temporaries.
  */
 #ifdef NON_MATCHING
 void overlay83DrawStrip(Overlay83Command **displayList, Overlay83Strip *strip) {
@@ -64,7 +63,7 @@ void overlay83DrawStrip(Overlay83Command **displayList, Overlay83Strip *strip) {
         VERTEX((*displayList)++,
                (u8 *)&strip[strip->vertexIndex] + 0x800000F0,
                vertexCount, 0);
-        POLYGON((*savedDisplayList)++, gOverlay83VertexBase, doubledCount, 1);
+        POLYGON((*savedDisplayList)++, D_80000000, doubledCount, 1);
     }
 }
 #else
