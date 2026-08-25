@@ -2446,6 +2446,13 @@ and then proved against Mickey, adding `0x2E8` exact bytes. Its nested
 play/retrigger event lifetimes are required for IDO's target delay-slot
 schedule. Exact C in `main/gsSnd` therefore totals `0x1024` bytes.
 
+The adjacent pitch-event helper `func_8005CDAC` is adapted from the permitted
+BK/PD sound-player implementations identified in its source provenance note.
+A 16-byte raw event footprint and integer pitch-bit copy reproduce all 31
+target instructions, the `0x30` frame, call relocations, and linked owned
+range under bare `-g -mips2 -32`. It adds `0x7C` exact bytes, bringing exact C
+in `main/gsSnd` to `0x10A0` bytes.
+
 The permitted-PD-derived event dispatcher `func_8005BA40` reaches all 1,215
 target instruction words under the measured bare `-g -mips2 -32` group, with
 the target frame and register allocation, but is not promoted or credited.
@@ -2454,14 +2461,6 @@ owned by the shared `0x81590` yaml slice; compiling both copies prevents an
 exact canonical link. Promotion therefore requires a measured rodata-boundary
 handoff in `mickey.us.yaml`, outside this lane's assigned files. The exact-text
 candidate remains under `NON_MATCHING` and target assembly stays canonical.
-
-The adjacent pitch-event helper `func_8005CDAC` plateaus after ten coherent
-source and flag variants. Its best permitted BK/PD-derived body under the
-measured bare `-g -mips2 -32` group emits 30 instructions with a `0x28` frame,
-versus the target's 31 and `0x30`; the first mismatch is `+0x2C`. The target
-copies the pitch word through an integer stack address while this IDO/header
-combination scalarizes it as an FP copy. The best body remains under
-`NON_MATCHING`; target assembly is canonical and contributes no exact bytes.
 
 In `main/models`, `camConvertMatrixList`, initialization helper
 `func_8005A700`, and the counter reset/flush pair `func_8005A764` and

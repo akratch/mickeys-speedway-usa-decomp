@@ -126,6 +126,14 @@ typedef struct GsSndEvent {
     u8 padC[4];
 } GsSndEvent;
 
+typedef struct GsSndPitchBitsEvent {
+    s16 type;
+    u16 pad2;
+    GsSoundStateLink *state;
+    u32 pitch;
+    u8 padC[4];
+} GsSndPitchBitsEvent;
+
 typedef struct GsSndPitchEvent {
     s16 type;
     u16 pad2;
@@ -589,28 +597,21 @@ void func_8005CD3C(GsSoundStateLink *state) {
  * src/core1/code_5650.c and cross-checked against Perfect Dark's
  * sndp_apply_detune_pitch in src/lib/naudio/n_sndplayer.c.
  *
- * Plateau: bare -g -mips2 -32 is best across the flag lattice, but IDO emits
- * 30 instructions and a 0x28-byte frame instead of the target's 31 and 0x30.
- * The first mismatch is +0x2C. Ten event-union, declaration-order, typed-copy,
- * pointer, volatility and flag variants either produce the same object or
- * regress it. The surviving difference is the target's integer copy through
- * a stack address versus this toolchain's scalarized FP copy, consistent with
- * an original event-union/header-layout difference.
+ * Exact under bare -g -mips2 -32. The 16-byte event footprint retains the
+ * unused final word, and representing the pitch payload as raw bits preserves
+ * the target's integer stack copy.
  */
-#ifdef NON_MATCHING
 void func_8005CDAC(GsSoundStateLink *state) {
+    GsSndPitchBitsEvent event;
     f32 pitch;
-    GsSndPitchEvent event;
 
     pitch = alCents2Ratio(state->sound->keyMap->detune) * state->pitch;
     event.type = 0x10;
     event.state = state;
-    event.pitch = pitch;
-    n_alEvtqPostEvent(D_8007FF4C->eventQueue, &event, 0x8235);
+    event.pitch = *(u32 *)&pitch;
+    n_alEvtqPostEvent(D_8007FF4C->eventQueue, (N_ALEvent *)&event,
+                      0x8235);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005CDAC.s")
-#endif
 void func_8005CE28(GsSndEventQueue *queue, GsSoundStateLink *state, u16 typeMask) {
     GsSndEventItem *item;
     GsSndEventItem *next;
