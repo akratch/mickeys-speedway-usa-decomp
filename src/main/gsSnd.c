@@ -169,12 +169,13 @@ extern GsSoundStateLink *D_8007FF40;
 extern GsSoundStateLink *D_8007FF44;
 extern GsSoundStateLink *D_8007FF48;
 extern s16 D_8007FF54;
-extern const char D_80084320[];
-extern const char D_80084370[];
-extern const char D_8008438C[];
-extern const char D_800843CC[];
-extern const char D_800843FC[];
-extern const char D_800843A4[];
+const char D_80084320[] =
+    "Bad soundState: voices =%d, states free =%d, states busy =%d, type %d data %x\n";
+const char D_80084370[] = "playing a playing sound\n";
+const char D_8008438C[] = "Nonsense sndp event\n";
+const char D_800843A4[] = "Sound state allocate failed - sndId %d\n";
+const char D_800843CC[] = "WARNING: Attempt to stop NULL sound aborted\n";
+const char D_800843FC[] = "WARNING: Attempt to modify NULL sound aborted\n";
 
 u32 osSetIntMask(u32 mask);
 f32 alCents2Ratio(s32 cents);
@@ -249,18 +250,7 @@ s32 func_8005B978(GsSndPlayer *playerArg) {
  * src/lib/naudio/n_sndplayer.c (_n_handleEvent), with Mickey's event fields,
  * state layout, volume scaling, retrigger call and diagnostics reconstructed
  * from Mickey itself.
- *
- * Plateau: bare -g produces all 1,215 target instructions exactly, including
- * frame and register allocation, after restoring the inner switch's explicit
- * default and the signed group-volume loads. The remaining promotion blocker
- * is section ownership, not C code: the compiler emits the 16-entry switch
- * table in this TU's .rodata, while the current split still owns the same
- * table inside the shared 0x81590 rodata segment. That duplicate makes the
- * canonical link fail. Moving the measured 0x150-byte gsSnd rodata range into
- * this TU's YAML row is outside this lane's assigned files; until that handoff
- * lands, the target assembly remains canonical under ADR 0001.
  */
-#ifdef NON_MATCHING
 void func_8005BA40(GsSndEvent *event) {
     ALVoiceConfig config;
     GsSound *sound;
@@ -581,9 +571,6 @@ void func_8005BA40(GsSndEvent *event) {
         }
     } while (!done && state != NULL && !isSingleStateEvent);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gsSnd/func_8005BA40.s")
-#endif
 void func_8005CD3C(GsSoundStateLink *state) {
     if (state->flags & 4) {
         n_alSynStopVoice((u8 *)state + 0xC);

@@ -607,7 +607,7 @@ segments:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
       #      covered 35 functions and forty-four tables. After devmgr's table
-      #      moved into its exact C object, the 31 jump tables still emitted in
+      #      moved into its exact C object, the 30 jump tables still emitted in
       #      asm/ belong to 34 functions whose ROM and table addresses are both
       #      monotonically increasing -- ZERO INVERSIONS. First pair (ROM
       #      0x7D18 -> jtbl_80080D2C), last (ROM 0x75120 -> jtbl_800849C4).
@@ -640,6 +640,8 @@ segments:
       # two zero words are output-section alignment, not owned object bytes.
       - [0x849F8, .rodata, main/font]
       - [0x84A18, rodata]
+      # gsSnd diagnostics followed by func_8005BA40's 16-entry switch table.
+      - [0x84F20, .rodata, main/gsSnd]
       # Five n_csplayer jump tables, in the same order and with the same
       # 0x300-byte section size as the JFG donor object.
       - [0x85070, .rodata, libultra/n_csplayer]

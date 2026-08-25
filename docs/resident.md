@@ -2841,6 +2841,7 @@ placeholder name or counting padding as function text.
 | `0x5B964` / `0x8005AD64` | `0x1B0` | `func_8005AD64` | D: selects an animation and establishes its frame/blend state; no per-symbol caller argument recorded |
 | `0x5BB14` / `0x8005AF14` | `0x730` | `func_8005AF14` | B: builds model matrices and transformed attachment points, then calls `camConvertMatrixList` to queue matrix conversion |
 | `0x5C244` / `0x8005B644` | `0xCC` | `func_8005B644` | D: constructs a parented matrix list for the builder |
+| `0x5C640` / `0x8005BA40` | `0x12FC` | `func_8005BA40` | A: bare `-g -mips2 -32` emits exact text and the measured `main/gsSnd` rodata split links byte-identically |
 
 The `gsSnd` function boundaries are: `gsSndpNew` `0x268`,
 `func_8005B978` `0xC8`, `func_8005BA40` `0x12FC`, `func_8005CD3C` `0x70`,
@@ -2890,16 +2891,7 @@ BK/PD sound-player implementations identified in its source provenance note.
 A 16-byte raw event footprint and integer pitch-bit copy reproduce all 31
 target instructions, the `0x30` frame, call relocations, and linked owned
 range under bare `-g -mips2 -32`. It adds `0x7C` exact bytes, bringing exact C
-in `main/gsSnd` to `0x10A0` bytes.
-
-The permitted-PD-derived event dispatcher `func_8005BA40` reaches all 1,215
-target instruction words under the measured bare `-g -mips2 -32` group, with
-the target frame and register allocation, but is not promoted or credited.
-Its switch and diagnostics emit a `0x150`-byte rodata section that is still
-owned by the shared `0x81590` yaml slice; compiling both copies prevents an
-exact canonical link. Promotion therefore requires a measured rodata-boundary
-handoff in `mickey.us.yaml`, outside this lane's assigned files. The exact-text
-candidate remains under `NON_MATCHING` and target assembly stays canonical.
+in `main/gsSnd` to `0x10A0` bytes before the dispatcher promotion.
 
 In `main/models`, `camConvertMatrixList`, initialization helper
 `func_8005A700`, and the counter reset/flush pair `func_8005A764` and
