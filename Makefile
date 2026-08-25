@@ -725,6 +725,10 @@ $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 # canonical setting otherwise expands the 0x40-byte light-record reset by four;
 # the flag lattice selects this setting before any source permutation.
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
+# The path reset trap needs a typed alias to preserve its f32 argument.
+# Canonicalize only the undefined symbol name; section contents are unchanged.
+$(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym animResetTrap=TrapDanglingJump $@
 
 # The menu initialization loops are scalar in the target; the flag lattice
 # selects the non-unrolled 85-instruction form for func_80038878.

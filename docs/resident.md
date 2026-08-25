@@ -975,20 +975,9 @@ confirms the stock resident flags and does not change the ownership surface.
 Canonical code and shared rodata remain assembly pending a measured yaml
 handoff outside this lane's ownership.
 
-`func_80038BC4` reaches an **exact-text tier-D NON_MATCHING plateau** over
-**0x1E8 bytes / 122 words** at ROM `0x397C4`. JFG's same-position
-`frontInitMode` supplies the role and switch-order comparison but retains an
-assembly body; the candidate is Mickey-derived and keeps its placeholder
-name. Explicit no-op cases zero and one recover the target's 19-entry range
-check, after which the resident default flags emit every executable word and
-the exact `0x18`-byte frame. Promotion is blocked by section ownership: IDO
-emits the switch's `0x4C` bytes as anonymous TU-local `.rodata`, while the
-named `jtbl_80082794` copy remains inside the shared `0x81590` yaml slice.
-Compiling both would duplicate the table. The first metadata mismatch is the
-target assembly's external-label PC16 at function `+0x2C`; the named-versus-
-anonymous table HI16/LO16 pair follows at `+0x34`/`+0x3C`. The flag lattice
-does not change this ownership surface. Canonical code and shared rodata
-remain assembly pending a measured yaml handoff outside this lane's ownership.
+`func_80038BC4` remains tier-D `NON_MATCHING`: all **0x1E8 bytes / 122 words** and the `0x18` frame are exact; workbench reports `relocation-layout-mismatch`.
+The structural-branch and shared-owner audit leaves the external PC16 at `+0x2C` and anonymous-versus-`jtbl_80082794` HI16/LO16 at `+0x34`/`+0x3C`.
+JFG's `frontInitMode` supplies role/order provenance; canonical asm and the shared `0x81590` rodata owner remain.
 
 The tier-B `frontSetMode` adds **0x64 bytes / 25 words** at ROM `0x399AC`.
 Its exact free/init/reset call sequence, mode-state store, and ordered pairing
@@ -1747,15 +1736,9 @@ one opcode); the remaining blocker is constant/next-bit register coloring.
 Chained byte assignment and a direct field test improved 18 to 14; the corrected-flag 30-minute permutation found no faithful exact form.
 The invariant-mask/next-bit web still needs ring-only temporaries unavailable to the color lever; the assembly fallback stays canonical.
 
-The full-save-image builder `func_8002CF6C` also retains a Mickey-derived
-`NON_MATCHING` body after the 119-combination flag lattice and ten
-stack-layout, call-arity, and lifetime hypotheses. Its best candidate has the
-target's exact 88-instruction opcode schedule, 72-byte frame, and relocation
-surface; nine register-only words remain from the first mismatch at `+0xCC`.
-The saved global-flags bit reload crosses from the target's temporary FIFO to
-the candidate's colored fourth-argument web, rotating the following integer
-temporaries through the second copy loop. The assembly fallback remains
-canonical.
+`func_8002CF6C` remains Mickey-derived `NON_MATCHING`: all 88 instructions, the 72-byte frame, and relocations agree; workbench reports `register-ring-only`, 9 sites from `+0xCC`.
+Hoisted-argument, folded-mask, and addressable-scalar levers leave `savedFlag` target FIFO-temp versus candidate colored-web; the 30-minute permuter produced only invented no-op identities.
+The assembly fallback remains canonical.
 
 The 0x94-byte save-window serializer `func_8002C94C` retains a Mickey-derived
 `NON_MATCHING` body after the 119-combination flag lattice and ten source,
@@ -1989,16 +1972,9 @@ basin or on structurally worse schedules. The candidate remains under
 Target loads `10` before `'-'`; IDO reverses them, and the `va_arg` body remains unparseable by the permuter.
 Twenty-eight formatter table/data relocation identities remain owned by the asm-data split, so asm stays canonical.
 
-`diPrintfAll` reached an instruction-exact 144-word plateau under
-`-Wab,-r4300_mul`. Strict object comparison finds four relocation-identity
-differences, first at function offset `0x144`: both accesses to the saved text
-Y coordinate name the separately declared `D_800D4A62`, while the target names
-`D_800D4A60+2`. Array, pointer, volatile, integer-cast, and structure spellings
-that produce the target relocation identity change IDO's address commoning,
-register allocation, and schedule to 142--145 words. The full flag lattice
-found the exact instruction stream only with separate globals, so the JFG
-candidate remains under `NON_MATCHING` and the original asm body remains
-canonical.
+`diPrintfAll` remains `NON_MATCHING`: all 144 instructions are exact under `-Wab,-r4300_mul`; workbench reports `relocation-symbol-mismatch`.
+Alias/rebind analysis leaves four identities from `+0x144`: `D_800D4A62` versus `D_800D4A60+2`; rebinding alone loses the encoded `+2` addend.
+The prior source spellings and flag lattice remain exhausted, so the JFG-derived candidate retains canonical asm.
 
 `debug_text_parse` reached an instruction-exact 263-word plateau. Strict
 object comparison still finds four relocation-identity differences: two
@@ -2112,7 +2088,7 @@ placeholders are never imported.
 | `0x8005027C` | `0x50` | `func_80076A20` | A; exact 80 B, masked `9/20`, placeholder retained. Matched C: exact 80 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800502CC` | `0x7C` | `func_80076A70` | B; same cleanup callees and position, placeholder retained. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050348` | `0x214` | `animseqInitPath` | B; exact `animseqInitGroup` calls this function. Plateau after the flag lattice, nine type/lifetime/source variants, and a bounded canonical-flag permuter run: the best candidate is 132 instructions against the target's 133, first positional mismatch `+0x0`; the decisive missing instruction is the dead incoming path-index home at `+0x18`, whose absence swaps the entry temporaries and leaves the live path spill at `sp+0x28` instead of target `sp+0x20`. The correct `-mips2` permuter base score was 275 and the capped run found no improvement |
-| `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape. Fresh Mickey m2c types plus the workbench tail-lifetime lever preserve the exact 75-instruction candidate with 6 temporary-register words remaining, first `+0x40`; the required float ABI still needs a weak alias whose relocation identity differs from `TrapDanglingJump` in this consolidated TU |
+| `0x8005055C` | `0x12C` | `animseqResetPath` | tier-B; reset/process callers and trap/audio call shape. Matched C: exact 300 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; the typed trap alias is canonicalized in symbol metadata only |
 | `0x80050688` | `0x7C` | `animseqStartPath` | B; process-command call position, adopted name. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050704` | `0x78` | `animseqStopPath` | B; process-command call position, adopted name. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005077C` | `0x40` | no unique candidate | D; placeholder retained. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |

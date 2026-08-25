@@ -834,9 +834,9 @@ s32 diPrintf(const char *format, ...) {
 }
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfAll. */
-/* Workbench words-identical plateau; four relocation identities remain, first +0x144.
- * Base+2 array/pointer/cast/struct spellings shift IDO to 142--145 words;
- * the exact 144-word stream still requires the separate D_800D4A62 declaration. */
+/* Workbench: relocation-symbol-mismatch with all 144 instructions exact.
+ * Lever: alias/rebind proved that D_800D4A60 still needs the encoded +2 addend.
+ * Remains: four D_800D4A62 versus D_800D4A60+2 relocation identities. */
 void diPrintfAll(Gfx **dList) {
     s32 width;
     s32 height;
