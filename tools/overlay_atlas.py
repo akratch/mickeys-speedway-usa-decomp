@@ -1009,6 +1009,114 @@ TEXT_SUBSEGMENTS = {
     ],
 }
 
+# A consolidated C object can contain both untouched, byte-exact C functions
+# and GLOBAL_ASM fallbacks. `is_nonmatching_source()` intentionally remains a
+# conservative object-level signal, while these reviewed ranges retain the
+# finer pre-consolidation evidence needed by the byte-weighted scoreboard.
+# Each range was an independently compiled, metadata-only object before its
+# overlay was consolidated and remains byte-identical in the linked ROM.
+MIXED_TU_EXACT_C_RANGES = {
+    1: [
+        (0x0000, 0x0050, "overlay1PointerWrap"),
+        (0x0080, 0x00A0, "overlay1GetEntryIndex"),
+        (0x00A0, 0x00C0, "overlay1PreviousIndex"),
+        (0x00C0, 0x00E4, "overlay1NextIndex"),
+        (0x00E4, 0x0154, "overlay1WrapOffset"),
+        (0x0154, 0x01AC, "overlay1SignedOffset"),
+        (0x02D4, 0x0330, "overlay1GetLinkedActive"),
+        (0x0330, 0x0378, "overlay1GetRecord"),
+        (0x0758, 0x07B0, "overlay1TestDirection"),
+        (0x10C0, 0x10C8, "overlay1Noop"),
+        (0x19B8, 0x1A54, "overlay1InitializeModeState"),
+        (0x1CA4, 0x1D58, "overlay1ReleaseRecords"),
+        (0x1D58, 0x1D78, "overlay1CallReset"),
+        (0x28D4, 0x293C, "overlay1RefreshMode"),
+        (0x293C, 0x296C, "overlay1CallGlobal"),
+        (0x3E48, 0x3E74, "overlay1SubmitGlobals"),
+        (0x3E74, 0x3EB8, "overlay1SubmitAll"),
+        (0x3EB8, 0x3F38, "overlay1AngleBetweenSamples"),
+        (0x3F38, 0x3FD8, "overlay1RelativeAngles"),
+        (0x5BA4, 0x5BC0, "overlay1InitTimedState"),
+        (0x5BC0, 0x5BF4, "overlay1ConsumeTimer"),
+        (0x5ECC, 0x5ED4, "overlay1ReturnZero"),
+        (0x63CC, 0x6424, "overlay1UpdateCountdown"),
+        (0x6424, 0x64F8, "overlay1ReadSelection"),
+        (0x6724, 0x6788, "overlay1UpdateModeSound"),
+        (0x6788, 0x67C0, "overlay1CopyBytes"),
+        (0x69A0, 0x6A14, "overlay1InitMotion"),
+        (0x6B28, 0x6B6C, "overlay1InitRange"),
+        (0x6CE8, 0x6D4C, "overlay1SelectMaskedMode"),
+        (0x7FCC, 0x8008, "overlay1ModeChecks"),
+        (0x8008, 0x8048, "overlay1DistanceFromCurrent"),
+        (0x8048, 0x80BC, "overlay1DistanceFromSelected"),
+    ],
+    4: [
+        (0x000, 0x138, "overlay4InitializeObjectMotion"),
+        (0x4D0, 0x52C, "overlay4AttachObject"),
+        (0x52C, 0x5D0, "overlay4RemoveObject"),
+        (0x710, 0x734, "overlay4GroupCount"),
+    ],
+    5: [
+        (0x2E4, 0x31C, "overlay5InitSequence"),
+        (0x6C0, 0x764, "overlay5CreatePlayer"),
+    ],
+    7: [
+        (0x228, 0x298, "overlay7CreateEntry"),
+        (0x298, 0x324, "overlay7AppendEntry"),
+        (0xEDC, 0xF08, "overlay7FillValues"),
+        (0xF08, 0xFB8, "overlay7InitPool"),
+    ],
+    8: [
+        (0x000, 0x008, "overlay8Ignore"),
+        (0x008, 0x058, "overlay8GetIndexed"),
+        (0xE88, 0xF1C, "overlay8StartMotion"),
+        (0xF1C, 0x1000, "overlay8Activate"),
+        (0x2EC0, 0x3018, "overlay8UpdateChild"),
+        (0x3018, 0x3278, "overlay8UpdateChannels"),
+        (0x3278, 0x3368, "overlay8ApplyColors"),
+        (0x49A4, 0x49B4, "overlay8SetBuffer"),
+        (0x49B4, 0x49DC, "overlay8WriteCommand"),
+        (0x49DC, 0x49E8, "overlay8SetValue"),
+        (0x49E8, 0x4CF0, "overlay8UpdateMotionOutput"),
+    ],
+    9: [
+        (0x10A4, 0x10B4, "overlay9Ignore"),
+    ],
+    12: [
+        (0x000, 0x0C4, "overlay12Initialize"),
+    ],
+    15: [
+        (0x000, 0x00C, "overlay15GetResource4"),
+        (0x00C, 0x04C, "overlay15ReleaseResource"),
+        (0x6A4, 0x6B0, "overlay15GetResource10"),
+        (0x6B0, 0x6E8, "overlay15ReleaseResource10"),
+        (0xB7C, 0xB88, "overlay15SetValueC"),
+        (0xB88, 0xB94, "overlay15ClearValue7C"),
+    ],
+    16: [
+        (0x000, 0x08C, "overlay16BuildGradient"),
+        (0x08C, 0x1A8, "overlay16InitializeBuffer"),
+        (0x1A8, 0x1E0, "overlay16ReleaseBuffer"),
+    ],
+    25: [
+        (0x588, 0x608, "overlay25SetVectorFlags"),
+    ],
+    27: [
+        (0x000, 0x064, "overlay27Init"),
+        (0xB20, 0xB68, "overlay27CanUse"),
+        (0xB68, 0xBC0, "overlay27Activate"),
+    ],
+    28: [
+        (0x000, 0x070, "overlay28ResetBuffer"),
+        (0x070, 0x1B8, "overlay28UpdateVertices"),
+        (0x1B8, 0x318, "overlay28InitializeWork"),
+        (0x318, 0x4D8, "overlay28UpdateWork"),
+    ],
+    49: [
+        (0x354, 0x374, "refractOutput"),
+    ],
+}
+
 
 def hx(value):
     """Stable hexadecimal rendering for reviewable address/size fields."""
@@ -1026,6 +1134,45 @@ def counter_dict(counter, names=None):
 
 def range_row(start, end):
     return {"start": hx(start), "end": hx(end), "size": hx(end - start)}
+
+
+def mixed_tu_exact_c_rows(overlay, ownership):
+    """Reviewed exact-C subranges inside a source-level NON_MATCHING row.
+
+    The broad ownership row remains the real splat/build subsegment. These
+    rows affect matching status only; they never emit a second copy of the C
+    object into the YAML or linker layout.
+    """
+    rows = []
+    previous_end = -1
+    for start, end, label in MIXED_TU_EXACT_C_RANGES.get(overlay, []):
+        if start < previous_end or start >= end:
+            raise ValueError(f"invalid overlay {overlay} mixed-TU exact range")
+        containers = [
+            part
+            for part in ownership
+            if part["type"] == "c"
+            and part["nonmatching"]
+            and int(part["offset"], 16) <= start
+            and end <= int(part["end_offset"], 16)
+        ]
+        if len(containers) != 1:
+            raise ValueError(
+                f"overlay {overlay} exact range {hx(start)}..{hx(end)} "
+                "is not inside exactly one mixed C ownership row"
+            )
+        rows.append(
+            {
+                "offset": hx(start),
+                "end_offset": hx(end),
+                "size": hx(end - start),
+                "label": label,
+                "source": containers[0]["source"],
+                "evidence": "pre-consolidation metadata-only object; linked bytes exact",
+            }
+        )
+        previous_end = end
+    return rows
 
 
 def priority_score(module, main_inbound, cross_inbound, export_count, record_count):
@@ -1174,6 +1321,7 @@ def build_atlas(rom):
                     "nonmatching": nonmatching,
                 }
             )
+        mixed_exact_c = mixed_tu_exact_c_rows(overlay, ownership)
         row = {
             "overlay": overlay,
             "identity": f"overlay:{overlay}",
@@ -1223,6 +1371,8 @@ def build_atlas(rom):
                 "exact_donor_match": EXACT_DONOR_OVERLAYS.get(overlay),
             },
         }
+        if mixed_exact_c:
+            row["mixed_tu_exact_c_ranges"] = mixed_exact_c
         module_rows.append(row)
 
     ranked = sorted(
@@ -1275,12 +1425,22 @@ def build_atlas(rom):
                 for row in module_rows
                 for part in row["text_ownership"]
                 if part["matched"] and not part["nonmatching"]
+            )
+            + sum(
+                int(part["size"], 16)
+                for row in module_rows
+                for part in row.get("mixed_tu_exact_c_ranges", [])
             ),
             "nonmatching_overlay_c_bytes": sum(
                 int(part["size"], 16)
                 for row in module_rows
                 for part in row["text_ownership"]
                 if part["matched"] and part["nonmatching"]
+            )
+            - sum(
+                int(part["size"], 16)
+                for row in module_rows
+                for part in row.get("mixed_tu_exact_c_ranges", [])
             ),
             "data_rodata_bytes": sum(m["data_size"] for m in modules),
             "bss_bytes": sum(m["bss_size"] for m in modules),
