@@ -112,8 +112,8 @@ typedef struct FxSpdRecord {
     s16 value0;
     s16 value2;
     s16 value4;
-    s8 value6;
-    s8 value7;
+    u8 value6;
+    u8 value7;
 } FxSpdRecord;
 
 typedef struct FxRecord {
@@ -538,7 +538,23 @@ void func_8004A4B0(s32 value0, s32 value2, s32 value4, s32 value6,
         record->value7 = value7;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A51C.s")
+/* Mickey-derived body; JFG's corresponding fx.c function is assembly-only. */
+void func_8004A51C(void) {
+    s32 group;
+    s32 count;
+    FxSpdRecord *record;
+
+    group = D_800D6040;
+    count = D_800D6038[group];
+    record = D_800D5FF8[group];
+    D_800D6040 = group ^ 1;
+    D_800D6038[D_800D6040] = 0;
+    while (count--) {
+        func_8004A380(record->value0, record->value2, record->value4,
+                      record->value6, record->value7);
+        record++;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxSPDPRipple.s")
 void fxQueueScreenEffect(s32 type, s32 value4, s32 value6, s32 value8,
                          s32 valueA, s32 valueC, s32 valueE, s32 value10) {

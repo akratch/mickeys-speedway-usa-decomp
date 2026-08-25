@@ -1853,6 +1853,12 @@ compact eight-byte record to one of two four-entry effect queues. Its natural
 post-incremented count subscript and field-order assignments reproduce all 27
 target instructions plus the three data relocation pairs under the resident
 defaults.
+The 164-byte `func_8004A51C` consumes the completed half of that double-buffered
+queue and clears the newly selected half. Keeping the record's final fields
+unsigned and spelling the queue toggle as a global assignment followed by a
+global-indexed clear reproduces all 41 target words, the 40-byte frame, the
+five-argument helper call, and all data/call relocations at the resident
+defaults.
 The 76-byte JFG-identified `fxInit` is exact as well: its post-decrement loop
 clears all five 32-byte records, resets the global state, and preserves the
 callee plus two data relocation pairs without normalization.
