@@ -224,6 +224,9 @@ s32 joyRead(s32 saveDataFlags, s32 updateRate) {
 
 /*
  * PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive.
+ * Plateau: a fresh m2c tail-byte anchor still emits 10/9 words, with ten
+ * positional differences from +0x0. Original TU-local BSS ownership is needed
+ * for the shared HI16 and four distinct LO16 identities.
  */
 void joyResetMap(void) {
     s32 i;
