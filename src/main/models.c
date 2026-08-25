@@ -616,18 +616,10 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                    struct ModelTextureUsage *usage, s32 entryIndex,
                    volatile u32 textureBase);
 
-/*
- * Mickey-only reconstruction of the display-list builder. JFG supplies the
- * tier-B makeModelGfx role and TU position but retains its body as assembly.
- * Plateau: the complete 119-combination flag lattice and ten coherent
- * command-emission, measured-type, copy-loop, and lifetime spellings reach
- * the target's exact 342-instruction size under canonical -O2 -mips2 -32,
- * but 257 positional words still differ from +0x0. The candidate uses a
- * 0xC8 frame versus the target's 0xD0 and retains a different saved-register
- * and stack-home allocation. A bounded permuter's lower-scoring mutation
- * reused lastParameter as a command-word temporary, changing the following
- * texture-cache comparison, so it was rejected.
- */
+/* Mickey-only reconstruction; JFG supplies the tier-B makeModelGfx role and TU position, but retains assembly. */
+/* Plateau (2026-08-25, near-miss p2 batch 23): structure-mismatch, 254 words, first +0x0; exact 342 instructions.
+ * Slot placement fixes target +0x90 and displayList-before-cache improves relocations; the frame stays 0xC8 vs 0xD0.
+ * A 12-byte tail reached 234 words/exact frame but conflicts with target cacheCount at +0x94; eight bytes/webs remain. */
 #ifdef NON_MATCHING
 s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
                   s32 lowerGroup, s32 upperGroup, s32 forceSimple) {
@@ -644,10 +636,10 @@ s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
     s32 triangleCount;
     s16 parameter;
     s32 commandCount;
+    s8 slots[3];
     u32 i;
     s32 previousVertex;
     Gfx *command;
-    s8 slots[3];
     Gfx *displayList;
 
     part = model->parts;
@@ -656,9 +648,9 @@ s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
         D_8007BD98 = 1;
     }
     mask = ~mask;
+    displayList = D_800CB4A4;
     lastTexture = (void *)-1;
     lastParameter = -1;
-    displayList = D_800CB4A4;
     if (lowerGroup == 0 && forceSimple == 0) {
         func_80020AD4();
         func_80034920(&displayList);

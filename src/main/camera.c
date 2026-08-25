@@ -1182,16 +1182,9 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022FD4.s")
 #endif
 #ifdef NON_MATCHING
-/*
- * Mickey-only sprite-orientation wrapper reconstruction.
- *
- * Plateau: the flag lattice and bounded structural retries leave a best
- * configured candidate with 286 instructions against 284 and 263 positional
- * words different from first mismatch +0x0. Constraining the scale-table
- * load fixes its early relocation schedule, but IDO still keeps the
- * display-list argument in $s1 and emits a 0xA0 frame; the target homes that
- * argument and uses a 0x90 frame.
- */
+/* Plateau (2026-08-25, near-miss p2 batch 23): structure-mismatch, 263 words, first +0x0; 286/284 instructions.
+ * Spill census, volatile homing, and declaration order were tried; homing removes s1 but retains the 0xA0 frame.
+ * The target remains a 0x90 frame with two fewer instructions; prior flag/type/control/lifetime levers stay eliminated. */
 void func_80023598(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
                    CameraSpriteActor *actor, u8 *spriteData, s32 alpha) {
     CameraSpritePlayer *player;
