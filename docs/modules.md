@@ -1632,6 +1632,14 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 
 **Bounded plateaus (all remain assembly):**
 
+- `levelGetCounts`, ten source/type/loop hypotheses, first mismatch `+0x13c`:
+  the best candidate has the target's 1,036-byte size, 259-instruction opcode
+  schedule and `-0x58` frame, but three register operands use `$v0` where the
+  target uses `$a0`. Its initial count-table loop also relocates against
+  `D_800CF3E0`, while the target object's HI16/LO16 pair names `D_800CF420`.
+  The resident flag lattice was unchanged; a bounded two-worker MIPS II
+  permuter batch improved its internal score from 45 to 25 but did not change
+  these object-level residuals.
 - `joyResetMap`, first mismatch `+0x0`: external storage emits 48 rather than
   36 bytes; TU-local storage is instruction-exact but wrongly claims 16 B of
   BSS and shifts the real symbol.
