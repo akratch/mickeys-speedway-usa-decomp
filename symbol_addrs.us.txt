@@ -2022,6 +2022,7 @@ func_80001668 = 0x80001668; // type:func size:0x30 ROM 0x2268 tier D (sound-volu
 scalevol = 0x800016C8; // type:func size:0x24 ROM 0x22c8 tier B (JFG body/order role)
 func_800016EC = 0x800016EC; // type:func size:0x1C ROM 0x22ec tier B (overlay caller and mode writes, name unproved)
 func_80001708 = 0x80001708; // type:func size:0x38 ROM 0x2308 tier B (resident caller and master-volume reset, name unproved)
+func_80002500 = 0x80002500; // type:func size:0xC4 ROM 0x3100 tier-B matched C (JFG initializer role/order, Mickey-only body)
 amAmbientRestart = 0x800025EC; // type:func size:0xC ROM 0x31ec tier-B (JFG body/order role)
 amPlayAudioMap = 0x80002768; // type:func size:0x720 ROM 0x3368 tier-B (JFG name/order, DKR point-update body)
 amCalcSfxStereo = 0x80002E88; // type:func size:0x158 ROM 0x3a88 tier-B (JFG complete body and audio-manager order)

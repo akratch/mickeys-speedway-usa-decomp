@@ -64,6 +64,8 @@ typedef struct AudioEchoSurface {
 
 extern AudioSoundData *D_800C91E0;
 extern AudioPoint **D_800C91E4;
+extern AudioPoint *D_800C91E8;
+extern AudioPoint **D_800C91F0;
 extern s8 D_800C91F4;
 extern MtxF D_800C91F8;
 extern u16 D_80078F00;
@@ -83,6 +85,9 @@ void TrapDanglingJump(AudioCamera *cameras, s32 cameraCount);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z, f32 *outX, f32 *outY, f32 *outZ);
 s32 Arctanf(f32 x, f32 z);
 s32 mainGetNumberOfCameras(void);
+void amGetSfxSettings(AudioSoundData **table, s32 *size, s32 *count);
+void *func_8002B280(s32 size, s32 tag);
+void func_800025F8(void);
 s32 func_8001398C(f32 x, f32 z, s32 range,
                   AudioEchoSurface ***surfaces);
 s32 amCalcSfxStereo(f32 x, f32 y, f32 z);
@@ -95,7 +100,23 @@ void func_80003480(AudioPoint *point, s32 volume, f32 pitch, s32 pan,
 void func_800035F8(s32 index);
 void func_80003760(AudioPoint *point);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002500.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * amInitAudioMap; body and pool layout use Mickey-only evidence.
+ */
+void func_80002500(void) {
+    s32 i;
+
+    amGetSfxSettings(&D_800C91E0, NULL, NULL);
+    D_800C91E8 = func_8002B280(sizeof(AudioPoint) * 40, 0x82);
+    D_800C91F0 = func_8002B280(sizeof(AudioPoint *) * 40, 0x82);
+    D_800C91E4 = func_8002B280(sizeof(AudioPoint *) * 40, 0x82);
+    D_80078F00 = 0;
+    for (i = 0; i < 40; i++) {
+        D_800C91E8[i].soundHandle = NULL;
+    }
+    func_800025F8();
+}
 /* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amAmbientPause. */
 void audspat_jingle_off(void) {
     amAmbientStop();
