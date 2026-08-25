@@ -145,7 +145,10 @@ typedef struct TrackData {
 } TrackData;
 
 typedef struct TrackLevelData {
-    u8 pad00[0xB2];
+    u8 pad00[0x52];
+    s8 skyMode;
+    u8 skyRotationSpeed;
+    u8 pad54[0xB2 - 0x54];
     u8 skyScaleS;
     u8 skyScaleT;
     u8 padB4[4];
@@ -192,7 +195,26 @@ typedef struct TrackCamera {
     f32 x;
     f32 y;
     f32 z;
+    u8 pad18[0x30 - 0x18];
+    f32 offsetX;
+    f32 offsetY;
+    f32 offsetZ;
 } TrackCamera;
+
+typedef struct TrackSkyMaterial {
+    u8 pad00[0xA2];
+    u8 textureIndex;
+} TrackSkyMaterial;
+
+typedef struct TrackSkyObject {
+    s16 rotationY;
+    u8 pad02[0xC - 2];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x40 - 0x18];
+    TrackSkyMaterial *material;
+} TrackSkyObject;
 
 typedef struct TrackVec3f {
     f32 f[3];
@@ -270,6 +292,10 @@ f32 func_8002A8C0(s32 angle);
 void func_8000F82C(s32 start, s32 count, s32 end);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
+void func_80007E40(TrackSkyObject *object, s32 updateRate,
+                   TrackLevelData **levelData);
+void func_80009E78(Gfx **displayList, Mtx **matrix, TrackVertex **vertices,
+                   TrackSkyObject *object);
 
 /*
  * PROVENANCE: Jet Force Gemini's public `src/track.c`, function
@@ -577,7 +603,38 @@ void func_8000CC78(void) {
 
     D_800C9528 = vertices;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000CED0.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c` and
+ * assembly-only `func_80013478`. Mickey proves the revised mode test, field
+ * offsets, calls, and final draw condition; the donor's placeholder name is
+ * not imported.
+ */
+void func_8000CED0(s32 updateRate) {
+    TrackCamera *camera;
+
+    if (D_800C9550 != NULL) {
+        camera = func_8002462C();
+        if ((D_800792EC->skyMode != 2) && (D_800792EC->skyMode != 5)) {
+            ((TrackSkyObject *) D_800C9550)->x = camera->x + camera->offsetX;
+            ((TrackSkyObject *) D_800C9550)->y = camera->y + camera->offsetY;
+            ((TrackSkyObject *) D_800C9550)->z = camera->z + camera->offsetZ;
+            ((TrackSkyObject *) D_800C9550)->rotationY +=
+                D_800792EC->skyRotationSpeed * updateRate;
+            if (((TrackSkyObject *) D_800C9550)->material->textureIndex !=
+                0xFF) {
+                func_80007E40(D_800C9550, updateRate, &D_800792EC);
+            }
+        } else {
+            ((TrackSkyObject *) D_800C9550)->x = camera->offsetX;
+            ((TrackSkyObject *) D_800C9550)->y = camera->offsetY;
+            ((TrackSkyObject *) D_800C9550)->z = camera->offsetZ;
+        }
+        if (D_800C9558 != 0) {
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          D_800C9550);
+        }
+    }
+}
 /*
  * JFG's corresponding TU position is `trackGetSky`, but this three-word
  * Mickey function is kept unnamed because it has no adoptable naming tier.

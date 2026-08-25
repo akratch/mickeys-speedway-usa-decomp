@@ -1787,6 +1787,10 @@ func_8000BD50 = 0x8000BD50; // type:func size:0x64 ROM 0xc950 tier-D (JFG src/tr
 // structure, while Mickey proves the vertex layout and resident bindings.
 func_8000CC78 = 0x8000CC78; // type:func size:0x258 ROM 0xd878 tier-D (JFG src/track.c gradient builder, placeholder retained)
 
+// No public name adopted: JFG's assembly-only same-position placeholder
+// supplies tier-D sky-object update structure; Mickey proves the exact body.
+func_8000CED0 = 0x8000CED0; // type:func size:0x13C ROM 0xdad0 tier-D (JFG src/track.c sky-object update, placeholder retained)
+
 // No public name adopted: JFG's final assembly-only track helper supplies
 // tier-D TU-position context; Mickey and the SDK GBI macros prove the body.
 func_80014ECC = 0x80014ECC; // type:func size:0x668 ROM 0x15acc tier-D (JFG built src/track.c.o final helper, placeholder retained)
