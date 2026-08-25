@@ -38,13 +38,20 @@ typedef struct AudioSoundData {
 
 extern AudioSoundData *D_800C91E0;
 extern AudioPoint **D_800C91E4;
+extern s8 D_800C91F4;
 extern u16 D_80078F00;
+void amAmbientStop(void);
 void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5, u8 volume, u16 distance, u8 arg8,
                    u8 pitch, u8 argA, u8 argB, AudioPoint **point);
 void func_800037C4(s32 index);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002500.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/audspat_jingle_off.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amAmbientPause. */
+void audspat_jingle_off(void) {
+    amAmbientStop();
+    D_800C91F4 = 1;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002768.s")

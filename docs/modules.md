@@ -1880,6 +1880,7 @@ The final column records owned object words and relocation coverage.
 | `scalevol` | `0x22C8` / `0x24` | **tier B**: JFG supplies the complete body and official name | Exact 9 object words; no relocations |
 | `func_800016EC` | `0x22EC` / `0x1C` | **tier B**: overlay 49 supplies mode-call context; no external name is asserted | Exact 7 object words and two data relocations |
 | `func_80001708` | `0x2308` / `0x38` | **tier B**: a resident caller pins the master-volume reset role; no external name is asserted | Exact 14 object words, two calls, and data relocation |
+| `audspat_jingle_off` | `0x31C4` / `0x28` | existing **tier A** audio-spatial object identity; JFG's `amAmbientPause` supplies the complete body while Mickey's title-specific name remains authoritative | Exact 10 object words and both call/data relocations |
 | `func_80002FE0` | `0x3BE0` / `0xBC` | **tier B**: JFG supplies the `amSndPlayXYZ` body, `SoundData` layout, and exact audio-manager order; the Mickey placeholder is retained | Exact 47 object words and all table/call relocations |
 | `func_8000309C` | `0x3C9C` / `0x18` | **tier B**: JFG supplies the `amSndSetVolXYZ` body and exact audio-manager order; the externally visible Mickey placeholder is retained | Exact 6 object words; no relocations |
 | `func_800030B4` | `0x3CB4` / `0x18` | **tier B**: JFG supplies the `amSndSetPitchXYZ` body and exact audio-manager order; the Mickey placeholder is retained | Exact 6 object words; no relocations |

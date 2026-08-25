@@ -679,7 +679,7 @@ gzip_inflate_codes = 0x8004E5E0; // type:func size:0x2F4   ROM 0x4f1e0  hasm/gzi
 
 // audio_spatial.c -- 7 unmasked words of 10; it clears the adoption threshold
 // by one word and is the thinnest row in this block. Treat accordingly.
-audspat_jingle_off = 0x800025C4; // type:func size:0x28   ROM 0x031c4  audio_spatial.c.o  masked=3/10
+audspat_jingle_off = 0x800025C4; // type:func size:0x28 ROM 0x031c4 tier-A audio_spatial.c.o masked=3/10
 
 // get_stack_pointer.c. The row quotes the FUNCTION body, 2 words, 0 masked --
 // not the enclosing 0x10 .text section, whose other two words are zero padding
