@@ -21,16 +21,16 @@ extern s16 func_8000F690(f32, f32, f32);
 extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
 /*
- * Plateau (2026-08-25, renewed 10-attempt cap): the canonical -O2 -mips2
- * -Wab,-r4300_mul candidate has the exact 172-word size, differs in 5 words,
- * and first diverges at +0xCC.  A complete 119-combination flag sweep found no
- * improvement.  Volatile/const/register carriers, declaration and assignment
- * order, direct object-position expressions, aliases, and nested call-argument
- * assignments either retained the five-word diff or disturbed the frame and
- * register web.  The blocker is IDO's coupled spill allocation: retail uses
- * object-position at sp+0x30 and the plane carrier at sp+0x2C, then stores the
- * identical D_A7C value to outgoing sp+0x10 before sp+0x2C; the best C uses
- * sp+0x28 and reverses those two stores.
+ * Plateau (2026-08-25, renewed cap): the canonical -O2 -mips2 candidate is
+ * size-exact at 172 words, differs in five instruction words, and first
+ * diverges at +0xCC. All 119 flag variants tie this result. Declaration-order,
+ * volatile object-position, declaration-initializer, and nested assignment
+ * hypotheses either add a mismatch or disturb the 0x58-byte frame; a bounded
+ * 10-minute permuter batch found no improvement. The blocker is IDO's coupled
+ * spill allocation: retail uses object-position at sp+0x30 and the plane
+ * carrier at sp+0x2C, then stores the identical D_A7C value to outgoing
+ * sp+0x10 before sp+0x2C; the best C uses sp+0x28 and reverses those stores.
+ * This likely reflects an unrecovered authentic local lifetime in the TU.
  */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {

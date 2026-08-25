@@ -6,15 +6,15 @@ typedef struct Overlay47Entry {
     u8 pad28[0x0C];
 } Overlay47Entry;
 
+extern Overlay47Entry D_D0;
+extern Overlay47Entry D_0_entries;
 extern void *D_30C;
 extern void *D_314;
 extern void *D_318;
 extern void *D_31C;
 extern void *D_320;
-extern Overlay47Entry D_0_entries[];
-extern Overlay47Entry D_D0_entries[];
-extern void *D_38C[];
-extern void *D_3B4[];
+extern void *D_38C;
+extern void *D_3B4;
 extern u8 D_358[];
 extern u8 D_status0;
 extern u8 D_status1;
@@ -26,51 +26,51 @@ extern s8 D_flag5E;
 extern s8 D_flag92;
 extern s8 D_flagC6;
 
-extern void func_overlay_045_F0000270_188C6C8(void *handle);
-extern void func_80006EA0(void *handle);
-extern void func_80039A40(void *arg);
+extern void func_overlay_047_F0000000_1890E18(void *arg);
 
 /*
- * Plateau (2026-08-25): canonical -O2 -mips2 is size-exact with 64/88
- * instruction words identical; the first mismatch is +0x54. The remaining
- * delta is pointer-initialization scheduling followed by one shifted temporary
- * register web across the four status updates. Explicit loop bounds, reversed
- * initialization order, named status temporaries, register qualifiers, and
- * the full flag lattice did not improve the 24-word difference.
+ * Plateau (2026-08-25, renewed cap): the canonical -O2 -mips2 candidate is
+ * size-exact with a 10-word masked instruction residual, first at +0x54. An
+ * explicit boolean second-loop bound improved the prior 24-word residual, but
+ * the first/second boundary low halves and the overlay-relative data addends
+ * still need the original same-TU address model; the object has 30 relocation
+ * metadata mismatches. All 119 flag variants and a bounded 10-minute permuter
+ * batch were exhausted. Static calls use the extracted offset-zero carrier;
+ * the shipped overlay relocation ledger retains their runtime identities.
  */
 #ifdef NON_MATCHING
 void func_overlay_047_F00009D0_18917E8(void) {
     Overlay47Entry *entry;
     void **slot;
 
-    func_overlay_045_F0000270_188C6C8(D_30C);
-    func_overlay_045_F0000270_188C6C8(D_314);
-    func_overlay_045_F0000270_188C6C8(D_318);
-    func_overlay_045_F0000270_188C6C8(D_31C);
-    func_overlay_045_F0000270_188C6C8(D_320);
+    func_overlay_047_F0000000_1890E18(D_30C);
+    func_overlay_047_F0000000_1890E18(D_314);
+    func_overlay_047_F0000000_1890E18(D_318);
+    func_overlay_047_F0000000_1890E18(D_31C);
+    func_overlay_047_F0000000_1890E18(D_320);
 
-    entry = D_0_entries;
+    entry = &D_0_entries;
     do {
         if (entry->handle != NULL) {
-            func_80006EA0(entry->handle);
+            func_overlay_047_F0000000_1890E18(entry->handle);
             entry->handle = NULL;
         }
         entry++;
-    } while (entry < D_D0_entries);
+    } while (entry < &D_D0);
 
-    slot = D_38C;
+    slot = &D_38C;
     do {
         if (*slot != NULL) {
-            func_80006EA0(*slot);
+            func_overlay_047_F0000000_1890E18(*slot);
             *slot = NULL;
         }
         slot++;
-    } while (slot < D_3B4);
+    } while ((slot < &D_3B4) != 0);
 
-    func_80039A40(D_358);
+    func_overlay_047_F0000000_1890E18(D_358);
     D_status0 = 0;
     if (D_flag2A != 0) {
-        D_status1 = 1;
+        D_status1 = 1U;
     }
     if (D_flag5E != 0) {
         D_status2 = D_status0 | 2;
