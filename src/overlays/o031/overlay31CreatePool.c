@@ -14,13 +14,15 @@ extern void *gOverlay31SlotTable;
 
 /* DKR v77/v80 and JFG contain no exact donor for this pool allocator. */
 /*
- * Plateau (2026-08-25): the best 50-word candidate has exact size, control
- * flow, and relocation surface at 98.42% objdiff.  The first non-relocation
- * mismatch is +0x0 (frame allocation); the rest are one pointer/counter
- * register family.  The flag lattice was neutral.  A bounded ten-minute
- * permuter run reduced cost 85 to 20 only by adding a redundant empty pointer
- * guard, which was rejected; legitimate loop and lifetime spellings did not
- * close the allocation difference.
+ * Plateau (2026-08-25, independently rechecked): the best 50-word candidate
+ * has exact size, control flow, and linked relocation surface at 98.42%
+ * objdiff. The first mismatch is +0x0: the target frame is 0x38 bytes versus
+ * 0x30, followed by one pointer/counter register family (a1/a2 versus a0/a1).
+ * The full flag lattice was neutral. Named size temporaries, register
+ * qualifiers, and local-lifetime changes were codegen-inert; an extra formal
+ * argument worsened the result to +4 bytes/47 differing words and contradicts
+ * the caller ABI. The remaining code-free dead-web lever would be a fabricated
+ * register-control construct, so it was rejected.
  */
 #ifdef NON_MATCHING
 Overlay31PoolRecord *overlay31CreatePool(s32 count) {
