@@ -63,13 +63,21 @@ typedef struct Overlay90Level {
     u8 sequence;
 } Overlay90Level;
 
-extern f32 gOverlay90ScaleDecayReloc;
-extern f32 gOverlay90ScaleStepReloc;
-extern f32 gOverlay90AccelerationReloc;
-extern f32 gOverlay90AnimationRateReloc;
-extern f32 gOverlay90RiseRateReloc;
-extern f32 gOverlay90MotionDecayReloc;
-extern f32 gOverlay90AnimationScaleReloc;
+typedef struct Overlay90Data {
+    f32 value1C;
+    f32 value20;
+    f32 scaleDecay;
+    f32 scaleStep;
+    f32 maximumAnimation;
+    f32 animationRate;
+    f32 riseRate;
+    f32 motionDecay;
+    s32 modeTable[7];
+    f32 animationScale;
+} Overlay90Data;
+
+#define OVERLAY90_DATA (*(Overlay90Data *)&gOverlay90Value1C)
+
 extern s32 gOverlay90SequenceStateReloc;
 extern s32 gOverlay90SequenceDoneReloc;
 
@@ -99,12 +107,13 @@ extern void func_800030B4(void *handle, u8 pitch);
  * The nearest five-project skeleton score is only 0.067, so no donor body is
  * used here.
  *
- * Plateau (2026-08-25): four complete 119-variant flag lattices selected
- * -O2 -mips2 -Wo,-loopunroll,0. The best coherent body is 636 target words
- * against 648, with 598 positional differences and the first at +0x0. Its
- * save set and opening schedule agree, but IDO selects a 0xE0 frame instead
- * of 0xC8 and spills updateRate at +0xA8 instead of +0xB8; the remaining
- * state-machine CFG and scalar/aggregate lifetimes keep allocation global.
+ * Plateau (2026-08-25): a fresh 119-variant flag lattice and ten coherent
+ * source attempts selected -O2 -mips2 -Wab,-r4300_mul. Typed access to the
+ * contiguous overlay data and post-decrement loop conditions align the two
+ * opening easing loops. The best body is 640 target words against 648, with
+ * 574 positional differences and the first at +0x0. IDO still selects a 0xE0
+ * frame instead of 0xC8; the remaining state-machine CFG and local lifetimes
+ * keep the allocation globally different.
  */
 #ifdef NON_MATCHING
 void func_overlay_090_F00000FC_18D4BF4(Overlay90Owner *owner,
@@ -117,6 +126,8 @@ void func_overlay_090_F00000FC_18D4BF4(Overlay90Owner *owner,
     f32 forward;
     f32 animationValue;
     f32 soundPitch;
+    f32 scaleDecay;
+    f32 scaleStep;
     f32 maximumAnimation;
     f32 animationRate;
     f32 riseRate;
@@ -124,7 +135,6 @@ void func_overlay_090_F00000FC_18D4BF4(Overlay90Owner *owner,
     f32 zero;
     s32 originalUpdateRate;
     s32 remaining;
-    s32 steps;
     s32 displayIndex;
     s32 transitioned;
     s32 value;
@@ -138,38 +148,39 @@ void func_overlay_090_F00000FC_18D4BF4(Overlay90Owner *owner,
     if ((state->active == 1) || (state->active == 7)) {
         remaining = updateRate - 1;
         if (updateRate != 0) {
+            scaleDecay = OVERLAY90_DATA.scaleDecay;
             do {
-                state->value30 *= gOverlay90ScaleDecayReloc;
-                remaining--;
-            } while (remaining != 0);
+                state->value30 *= scaleDecay;
+            } while (remaining--);
         }
     } else {
         remaining = updateRate - 1;
         if (updateRate != 0) {
+            scaleStep = OVERLAY90_DATA.scaleStep;
             do {
                 state->value30 +=
-                    (8.0f - state->value30) * gOverlay90ScaleStepReloc;
-                remaining--;
-            } while (remaining != 0);
+                    (8.0f - state->value30) * scaleStep;
+            } while (remaining--);
         }
     }
 
-    maximumAnimation = gOverlay90AccelerationReloc;
-    animationRate = gOverlay90AnimationRateReloc;
-    riseRate = gOverlay90RiseRateReloc;
+    maximumAnimation = OVERLAY90_DATA.maximumAnimation;
+    animationRate = OVERLAY90_DATA.animationRate;
+    riseRate = OVERLAY90_DATA.riseRate;
     zero = 0.0f;
-    motionDecay = gOverlay90MotionDecayReloc;
+    motionDecay = OVERLAY90_DATA.motionDecay;
 
 process_mode:
     transitioned = 0;
     switch (state->active) {
     case 1:
-        steps = 0xF0 - state->flag;
-        if (updateRate < steps) {
-            steps = updateRate;
+        displayIndex = 0;
+        remaining = 0xF0 - state->flag;
+        if (updateRate < remaining) {
+            remaining = updateRate;
         }
-        remaining = steps - 1;
-        if (steps != 0) {
+        if (remaining != 0) {
+            remaining--;
             do {
                 state->value26 += state->value2C;
                 state->value28 += state->value2E;
@@ -184,11 +195,10 @@ process_mode:
                 state->value18 += delta.x;
                 state->value1C += delta.y;
                 state->value20 += delta.z;
-                remaining--;
-            } while (remaining != 0);
+            } while (remaining--);
         }
         animationValue =
-            state->value14 * gOverlay90AnimationScaleReloc +
+            state->value14 * OVERLAY90_DATA.animationScale +
             animationRate;
         if (animationValue > maximumAnimation) {
             animationValue = maximumAnimation;
@@ -299,8 +309,7 @@ process_mode:
                 if (state->value2E < 0x80) {
                     state->value2E += 8;
                 }
-                remaining--;
-            } while (remaining != 0);
+            } while (remaining--);
         }
         if (state->value14 > 5.0f) {
             state->value14 = 5.0f;
@@ -359,8 +368,7 @@ process_mode:
                         entry->value = displayIndex << 8;
                     }
                     entry++;
-                    remaining--;
-                } while (remaining != 0);
+                } while (remaining--);
             }
         }
     }
