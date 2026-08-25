@@ -1379,6 +1379,16 @@ public source supplies its name and prototype and its object supplies the exact
 skeleton anchor, not a C body. All configured object ranges and the final
 linked ROM are byte-exact.
 
+`rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body after
+the 119-combination flag lattice and nine source-shape hypotheses. The best
+no-frame candidate has 96 instructions versus the target's 107 and first
+diverges at function `+0x10`, where the shortened body changes the first guard's
+branch span. IDO folds the candidate's derived command pointers into fixed
+base-relative stores; formulations that preserve the target's successive
+cursor advances instead introduce a 24- or 32-byte spill frame absent from the
+target. The assembly fallback remains canonical pending a source spelling that
+homes the three register arguments without spilling the cursor.
+
 `__scHandleRetrace` has a preserved `NON_MATCHING` JFG-derived body after the
 119-combination flag lattice and ten source-shape hypotheses. The best
 candidate has the exact 232-byte frame and 408 instructions versus the

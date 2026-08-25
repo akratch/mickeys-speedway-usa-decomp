@@ -70,6 +70,7 @@ extern OSMesgQueue D_800D2CD0;
 extern OSMesg D_800D2CE8[];
 extern OSMesgQueue D_800D2D08;
 extern OSMesg D_800D2D20[];
+extern s32 D_800D2FAC;
 
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
 void TrapDanglingJump(void);
@@ -116,7 +117,49 @@ void func_8002EBD4(u32 value) {
     D_8007A3B0 = value;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: command sequence adapted from Diddy Kong Racing's public
+ * decomp, src/rcp_dkr.c:bgdraw_render, with Mickey's enable flag and bounds. */
+void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
+                     s32 arg4, s32 arg5, s32 arg6) {
+    RcpCommand *dlist;
+
+    if ((D_800D2FAC != 0) && (arg3 < arg5) && (arg4 < arg6)) {
+        dlist = *arg0;
+        dlist->w0 = 0xE7000000;
+        dlist->w1 = 0;
+        dlist++;
+        dlist->w0 = 0xED000000;
+        dlist->w1 = ((((s32) ((f32) (arg1 - 1) * 4.0f) & 0xFFF) << 12) |
+                     ((s32) ((f32) (arg2 - 1) * 4.0f) & 0xFFF));
+        dlist++;
+        dlist->w0 = 0xEF30000F;
+        dlist->w1 = 0;
+        dlist++;
+        dlist->w0 = 0xFF100000 | ((arg1 - 1) & 0xFFF);
+        dlist->w1 = 0x02000000;
+        dlist++;
+        dlist->w0 = 0xF7000000;
+        dlist->w1 = 0xFFFCFFFC;
+        dlist++;
+        dlist->w0 = 0xF6000000 |
+                    ((((arg5 + 3) & ~3) & 0x3FF) << 14) |
+                    ((arg6 & 0x3FF) << 2);
+        dlist->w1 = (((arg3 & ~3) & 0x3FF) << 14) |
+                    ((arg4 & 0x3FF) << 2);
+        dlist++;
+        dlist->w0 = 0xE7000000;
+        dlist->w1 = 0;
+        dlist++;
+        dlist->w0 = 0xFF100000 | ((arg1 - 1) & 0xFFF);
+        dlist->w1 = 0x01000000;
+        dlist++;
+        *arg0 = dlist;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearZBuffer.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearScreen.s")
 void rcpInitDp(RcpCommand **dlist) {
     s32 width;
