@@ -2130,7 +2130,7 @@ segments:
       - [0x18C42E8, c, overlay65UpdateParticles]
       - [0x18C4E28, c, overlay65Release]
       - [0x18C4E58, c, overlay65ResetSlots]
-      - [0x18C4EA0, asm, overlay_065_tail]
+      - [0x18C4EA0, c, func_overlay_065_F0000C38_18C4EA0]
       - [0x18C5C7C, c, overlay65SpawnRecord]
       - [0x18C5E1C, asm, overlay_065_padding]
       - [0x18C5E28, bin, overlay_065_data_rodata]
@@ -2396,7 +2396,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x18CCFA0, c, func_overlay_079_F0000000_18CCFA0]
-      - [0x18CD0D4, asm, overlay_079_prefix]
+      - [0x18CD0D4, c, func_overlay_079_F0000134_18CD0D4]
       - [0x18CDE9C, c, overlay79FindNearby]
       - [0x18CDF40, c, func_overlay_079_F0000FA0_18CDF40]
       - [0x18CE220, c, overlay79SetLink]
@@ -2571,7 +2571,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x18D2F68, c, overlay87InitializeObject]
-      - [0x18D3090, asm, overlay_087_prefix_b]
+      - [0x18D3090, c, func_overlay_087_F0000128_18D3090]
       - [0x18D37F8, c, overlay87ReleaseCurrent]
       - [0x18D3828, c, overlay87HasNearby]
       - [0x18D38CC, asm, overlay_087_padding]

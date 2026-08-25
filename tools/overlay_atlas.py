@@ -456,7 +456,7 @@ TEXT_SUBSEGMENTS = {
         (0x080, "c", "overlay65UpdateParticles"),
         (0xBC0, "c", "overlay65Release"),
         (0xBF0, "c", "overlay65ResetSlots"),
-        (0xC38, "asm", "overlay_065_tail"),
+        (0xC38, "c", "func_overlay_065_F0000C38_18C4EA0"),
         (0x1A14, "c", "overlay65SpawnRecord"),
         (0x1BB4, "asm", "overlay_065_padding"),
     ],
@@ -561,7 +561,7 @@ TEXT_SUBSEGMENTS = {
     ],
     79: [
         (0x0000, "c", "func_overlay_079_F0000000_18CCFA0"),
-        (0x0134, "asm", "overlay_079_prefix"),
+        (0x0134, "c", "func_overlay_079_F0000134_18CD0D4"),
         (0x0EFC, "c", "overlay79FindNearby"),
         (0x0FA0, "c", "func_overlay_079_F0000FA0_18CDF40"),
         (0x1280, "c", "overlay79SetLink"),
@@ -819,7 +819,7 @@ TEXT_SUBSEGMENTS = {
     ],
     87: [
         (0x000, "c", "overlay87InitializeObject"),
-        (0x128, "asm", "overlay_087_prefix_b"),
+        (0x128, "c", "func_overlay_087_F0000128_18D3090"),
         (0x890, "c", "overlay87ReleaseCurrent"),
         (0x8C0, "c", "overlay87HasNearby"),
         (0x964, "asm", "overlay_087_padding"),
