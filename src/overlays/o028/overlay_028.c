@@ -177,7 +177,6 @@ void overlay28UpdateWork(Overlay28Owner *owner, s32 updateRate) {
     _g->words.w1 = 0; \
 }
 
-#ifdef NON_MATCHING
 void func_overlay_028_F00004D8_187CDA8(Overlay28Gfx **dl, void *matrixArg,
                                         Overlay28Owner *owner) {
     f32 dx;
@@ -203,7 +202,7 @@ void func_overlay_028_F00004D8_187CDA8(Overlay28Gfx **dl, void *matrixArg,
         dx = view->x - transformHome.x;
         dy = view->y - transformHome.y;
         dz = view->z - transformHome.z;
-        distanceSquared = (((dx * dx) + (dz * dz)) + (dy * dy));
+        distanceSquared = (dy * dy) + ((dx * dx) + (dz * dz));
         ratio = distanceSquared;
         if (distanceSquared > 0.0f) {
             ratio = work->valueA / ext_o0_6ec00(distanceSquared);
@@ -235,6 +234,3 @@ void func_overlay_028_F00004D8_187CDA8(Overlay28Gfx **dl, void *matrixArg,
         ext_o0_241bc(dl);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o028/overlay_028/func_overlay_028_F00004D8_187CDA8.s")
-#endif
