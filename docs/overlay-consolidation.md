@@ -1,7 +1,8 @@
 # Overlay consolidation: ADR 0006 pilot recipe and measurements
 
-Status: pilot complete for overlays 39, 77, 85, 95. Written for whoever
-(human or agent) applies ADR 0006 to the other ~100 overlays.
+Status: pilot complete for overlays 39, 77, 85, 95; post-consolidation
+match-loss audit complete for the 13 affected mixed translation units.
+Written for whoever (human or agent) applies ADR 0006 to other overlays.
 
 ## Scope of the pilot
 
@@ -160,6 +161,71 @@ All four overlays qualified: every POSTPROCESS row for them was
 
 10. **Commit per overlay**, `gmake cleanroom` clean, one commit per module
     (`docs/adr/0010-commit-discipline.md`).
+
+## Post-consolidation match-loss audit
+
+The apparent fall from 19.32% to 18.38% was a reporting-granularity defect,
+not a compiler-codegen regression. The consolidation commits combined some
+byte-exact C objects with `#ifdef NON_MATCHING`/`GLOBAL_ASM` fallbacks. The
+atlas's old `is_nonmatching_source()` predicate saw one guard and marked the
+merged source's entire ownership row NON_MATCHING, including the exact C that
+had shared the new TU. The ROM continued to verify.
+
+History was checked immediately before and after every `Consolidate overlay`
+commit. Candidates were excluded if their pre-consolidation object used an
+instruction-altering postprocess or if their body had since been edited. The
+remaining set is 73 independently owned exact ranges, totaling 8,944 bytes in
+13 overlays. At the 947,932-byte whole-program denominator, that is 0.9435
+percentage points: the complete explanation for the reported 0.94-point
+drop after rounding.
+
+One representative was rebuilt from the pre-consolidation source and compared
+with the corresponding current merged object in every affected overlay. The
+ordinary overlay flags reproduced all representatives except overlay 12,
+whose historical `-Wo,-loopunroll,0` override was retained for its standalone
+rebuild.
+
+| Overlay | Representative | Standalone versus merged result |
+|---|---|---|
+| 1 | `overlay1PreviousPointer` | Instructions and relocation layout exact |
+| 4 | `overlay4InitializeObjectMotion` | Instructions and relocation type/offset exact; the raw symbol spelling reflects the canonical synthetic alias, while the resolved linked target and ROM bytes are exact |
+| 5 | `overlay5InitSequence` | Instructions and relocation layout exact |
+| 7 | `overlay7CreateEntry` | Instructions and relocation layout exact |
+| 8 | `overlay8Ignore` | Instructions and relocation layout exact |
+| 9 | `overlay9Ignore` | Instructions and relocation layout exact |
+| 12 | `overlay12Initialize` | Instructions and relocation layout exact with the historical loop-unroll override |
+| 15 | `overlay15GetResource4` | Instructions and relocation layout exact |
+| 16 | `overlay16BuildGradient` | Instructions and relocation layout exact |
+| 25 | `overlay25SetVectorFlags` | Instructions and relocation layout exact |
+| 27 | `overlay27Init` | Instructions and relocation layout exact |
+| 28 | `overlay28ResetBuffer` | Instructions and relocation layout exact |
+| 49 | `refractOutput` | Instructions and relocation layout exact |
+
+The cause taxonomy for this loss is therefore: status/accounting granularity,
+13 overlays; per-TU flags, static/file-scope ordering, rodata/literal-pool
+ordering, and dropped volatile/alias declarations, zero overlays each. Those
+other causes remain real consolidation hazards (the overlay 77 pilot above
+demonstrates two of them), but they did not cause this particular regression.
+Every currently guarded body found by this audit was already an ADR 0002
+demotion of an instruction-altered object before consolidation.
+
+### Corrected mixed-TU recipe
+
+Do not split a byte-exact consolidated TU merely to restore scoreboard credit.
+After proving the standalone object, merged object, relocations, linked owned
+range, and ROM, record its exact subranges in
+`MIXED_TU_EXACT_C_RANGES` in `tools/overlay_atlas.py`. The generator requires
+each range to be ordered, nonempty, and contained in exactly one broad C row
+that is source-level NON_MATCHING. It emits `mixed_tu_exact_c_ranges` evidence
+in `config/overlays.us.json` and moves only those bytes from NON_MATCHING to
+matched C; it does not create another splat subsegment, object, or linked copy.
+
+Use that exception only for independently established, metadata-only exact
+objects. If standalone and merged compiler output really differ, follow the
+original recipe: split at the flag boundary, restore the per-TU declaration,
+or preserve the required file-scope/literal ordering, then re-prove the linked
+range and full ROM. A source file containing a NON_MATCHING guard remains a
+conservative object-level signal everywhere outside the reviewed range map.
 
 ## What did *not* come up in this pilot
 
