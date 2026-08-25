@@ -37,12 +37,20 @@ typedef struct {
 
 typedef struct {
     CameraTransform transform;
-    u8 pad18[0x14];
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+    f32 unk24;
+    f32 unk28;
     f32 fov;
     f32 shakeX;
     f32 shakeY;
     f32 shakeZ;
-    u8 pad3C[0xE];
+    u8 unk3C;
+    u8 unk3D;
+    s16 unk3E;
+    f32 unk40;
+    u8 pad44[6];
     s16 pitchOffset;
     u8 stateA;
     u8 stateB;
@@ -123,7 +131,7 @@ extern CameraViewport D_80079C10[];
 extern CameraViewportFlags D_80079C40[];
 extern Vp D_80079D58[];
 extern Vp D_80079E98[];
-extern s8 D_80079F98[];
+extern u8 D_80079F98[];
 extern CameraState3D D_800CEA5D[];
 extern u8 D_80079FA0[];
 extern s32 D_800CEC84;
@@ -265,7 +273,45 @@ f32 camDistance(f32 x, f32 y, f32 z) {
     dz = z - cam->transform.z;
     return sqrtf((dx * dx) + (dy * dy) + (dz * dz));
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021838.s")
+/*
+ * PROVENANCE: adapted from DKR's public decomp,
+ * src/camera.c:camera_reset, with Mickey's own field layout and store order.
+ */
+void func_80021838(s32 x, s32 y, s32 z, s32 zRotation, s32 xRotation,
+                   s32 yRotation) {
+    Camera *camera;
+    u8 *states;
+    f32 floatX;
+    f32 floatY;
+    f32 sourceX;
+    f32 floatZ;
+
+    camera = &D_800CEA20[D_800CEC64];
+    camera->transform.zRotation = zRotation * 182;
+    floatX = x;
+    sourceX = floatX;
+    floatY = y;
+    camera->transform.xRotation = xRotation * 182;
+    floatZ = z;
+    camera->transform.yRotation = yRotation * 182;
+    states = D_80079F98;
+    camera->pitchOffset = 0;
+    camera->transform.x = sourceX;
+    camera->transform.y = floatY;
+    camera->unk18 = sourceX;
+    camera->transform.z = floatZ;
+    camera->unk1C = floatY;
+    camera->unk20 = floatZ;
+    camera->unk3C = 0;
+    camera->shakeX = 0.0f;
+    camera->shakeY = 0.0f;
+    camera->shakeZ = 0.0f;
+    camera->unk24 = 128.0f;
+    camera->unk28 = 32.0f;
+    camera->unk3D = states[D_800CEC64];
+    camera->unk3E = -1;
+    camera->unk40 = 0.0f;
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetMode. */
 s32 camGetMode(void) {
     return D_800CEC60;

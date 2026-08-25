@@ -2301,6 +2301,7 @@ func_800214AC = 0x800214AC; // type:func size:0x38 ROM 0x220AC tier-D matched-C 
 camOverrideProjScales = 0x800214E4; // type:func size:0x20 ROM 0x220e4 tier-B matched-C, donor comparison has only 2 unmasked words
 func_800217AC = 0x800217AC; // type:func size:0x0C ROM 0x223ac tier-D matched-C Mickey auto-name retained, camera TU position
 camDistance = 0x800217B8; // type:func size:0x80 ROM 0x223B8 tier-D matched-C JFG TU role/order and camera-position dataflow
+func_80021838 = 0x80021838; // type:func size:0xE0 ROM 0x22438 tier-D matched-C Mickey auto-name retained, DKR reset role and JFG camera TU position
 // camGetMode/camSetMode/camGetNo/camSetNo/camGetWaterLine: docs/modules.md
 // §3.4's tier-B role argument names camOverrideProjScales, camGetProjOrgMtx,
 // camStopShakes and camSetZoom specifically; it does not extend that
