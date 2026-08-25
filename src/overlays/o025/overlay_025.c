@@ -10,6 +10,10 @@
  * the same object, while volatile-u16 flags added three instructions. The
  * blocker is the saved-register/stack-home web plus the target's lhu flags
  * load; the consolidated-TU symbol could not be re-imported by permute.sh.
+ * R3 revisit: all 119 flag groups reconfirmed 39 differing words and first
+ * mismatch +0x14 under -O2 -mips3 -Wab,-r4300_mul. Correcting useOwner to
+ * u16 removed that best flag group; materializing the global u16 changed the
+ * frame; and volatile u16 reached 42 words but inserted an address add.
  */
 #ifdef NON_MATCHING
 void overlay25InitializeEffect(Overlay25Object *object,
@@ -72,6 +76,10 @@ void overlay25InitializeEffect(Overlay25Object *object,
  * shared constant; the clean shared-constant form regressed to 164 differing
  * words. The blocker remains the combined stack-home and register schedule
  * across the movement and query branches.
+ * R3 revisit: all 119 flag groups reconfirmed 127 words and first mismatch
+ * +0x0 at the exact 0x40C boundary. Reversing the position/radius/object-array
+ * declarations and scoping those locals to either branch emitted the same
+ * object, so neither accounts for the target's 0xA0 versus 0xC8 frame.
  */
 #ifdef NON_MATCHING
 void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
