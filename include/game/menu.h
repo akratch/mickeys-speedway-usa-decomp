@@ -14,5 +14,6 @@ void frontSetSfxVolume(s32 volume);
 u16 frontGetBgmVolume(void);
 void frontSetBgmVolume(s32 volume);
 void func_8003A544(s32 value);
+s32 func_8003A550(void);
 
 #endif

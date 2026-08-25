@@ -1036,6 +1036,12 @@ published donor body or descriptive-name evidence is used. The default flags,
 HI16/LO16 data relocations, object words, and linked ROM range are exact
 without post-processing.
 
+The paired tier-D `func_8003A550` adds **0xC bytes / 3 words** at ROM
+`0x3B150`. Mickey's code returns the same word written by `func_8003A544`;
+no donor body or descriptive-name evidence is used. The default flags, both
+data-relocation words, object words, and linked ROM range are exact without
+post-processing.
+
 ### 3.12 Track assembly and shadows (`0x16140`–`0x18FF0`)
 
 This block contains two JFG-lineage translation units. The boundary claims are

@@ -152,6 +152,8 @@ void frontSetBgmVolume(s32 volume) {
 void func_8003A544(s32 value) {
     D_8007C098 = value;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A550.s")
+s32 func_8003A550(void) {
+    return D_8007C098;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A55C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A590.s")
