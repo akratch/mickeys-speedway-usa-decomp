@@ -16,6 +16,7 @@ gmake extract 2>&1 | tail -1
 gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/refresh_atlas_digest.py >/dev/null
 .venv/bin/python tools/fix_stale_externs.py | tail -1
+.venv/bin/python tools/check_match_regression.py HEAD || { echo "a function matched at HEAD carries GLOBAL_ASM again; merge left uncommitted (resolve hunks, never whole files)" >&2; exit 1; }
 # Fresh extraction and build: stale objects and stale asm/ have masked real failures twice.
 gmake distclean >/dev/null 2>&1; gmake extract 2>&1 | tail -1
 gmake -j12 >/dev/null 2>&1 || true   # warm-up: the first parallel build after a re-split can race
