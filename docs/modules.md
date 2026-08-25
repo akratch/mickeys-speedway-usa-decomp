@@ -975,6 +975,23 @@ variable-reuse attempts did not satisfy both the word and relocation-identity
 gates. JFG's corresponding `setLanguage` routine remains assembly, so the
 Mickey placeholder name and canonical assembly are retained.
 
+`func_80038878` remains a **tier-D NON_MATCHING plateau** over **0x154 bytes /
+85 words** at ROM `0x39478`. JFG's same-position `initFront` routine supplies
+the role and structural comparison but remains assembly, so the candidate is
+Mickey-derived and retains its placeholder name. Under
+`-Wo,-loopunroll,0`, the best candidate has the exact `0x18`-byte frame and
+instruction count, but differs in **66/85 positional words**, first `+0x14`.
+IDO reuses the address formed for the initial `D_800D3150` allocation store,
+where the target rematerializes it before walking the pointer table; that
+early lifetime difference cascades into the later clear and sentinel-loop
+address schedule. The target also forms one shared high address for four
+descending control-mode stores, while scalar declarations emit four address
+pairs and an array declaration loses three required constant loads. The stock
+flags expand the reset loops; the full flag lattice makes the no-unroll form
+the only exact-size result. Ten coherent type, expression-tree, pointer-reuse,
+scalar/array, and volatile variants did not satisfy the word and relocation
+gates. Canonical code remains assembly and no TU flag override is adopted.
+
 The tier-B `frontSetMode` adds **0x64 bytes / 25 words** at ROM `0x399AC`.
 Its exact free/init/reset call sequence, mode-state store, and ordered pairing
 with `frontGetMode` establish the JFG role. The name, role, and shared control

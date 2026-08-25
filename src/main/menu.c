@@ -35,6 +35,7 @@ extern s8 D_800D3050;
 extern MenuScreenModeBits D_800D3128;
 extern u8 D_8007C08C;
 extern u8 D_8007C090;
+extern u8 D_8007C088;
 extern s32 D_8007C098;
 extern s32 *D_8007C094;
 extern s16 D_8007BF70;
@@ -50,6 +51,8 @@ extern s32 D_8007C1AC;
 extern u8 D_8007C308[];
 extern s32 D_800C947C;
 extern s32 D_800D314C;
+extern s32 D_800D3150[];
+extern s32 D_800D3168[];
 extern u8 D_800826C0[];
 extern u16 D_800D312A;
 extern u16 D_800D312C;
@@ -86,6 +89,7 @@ extern s8 joyGetStickX(s32 controller);
 extern s8 joyGetStickY(s32 controller);
 extern void mainTitlePageInit(s32 mode);
 extern void modFreeModel(void *model);
+extern void *func_8002B280(s32 size, s32 tag);
 extern u32 *piRomLoad(u32 assetIndex);
 
 extern u32 D_800D3170[4];
@@ -102,6 +106,10 @@ extern s16 D_800D31BC;
 extern s16 D_800D31BE;
 extern s16 D_800D31C0;
 extern s16 D_800D31C2;
+extern u8 D_800D3044;
+extern u8 D_800D3045;
+extern u8 D_800D3046;
+extern u8 D_800D3047;
 extern u8 D_800D3498[];
 
 struct MenuCommand {
@@ -171,6 +179,7 @@ extern s32 D_8007C0B4;
 extern s32 D_8007C0BC;
 extern u8 D_8007C07C;
 extern s16 *D_8007C1B8;
+extern s16 D_8007C1BC;
 extern s16 D_8007C1C0;
 extern MenuCommand *D_800D3140;
 extern void *D_800D3144;
@@ -256,7 +265,66 @@ void func_80038750(s32 language) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
 #endif
+#ifdef NON_MATCHING
+/* PROVENANCE: role and structure compared with JFG's public
+ * src/menu.c::initFront; JFG retains assembly, so this body is Mickey-derived.
+ * With -Wo,-loopunroll,0 it has the exact 0x154 size and 0x18 frame, but
+ * 66/85 words differ, first at +0x14. IDO reuses the D_800D3150 address where
+ * the target rematerializes it, then diverges in later address/store schedules. */
+void func_80038878(void) {
+    s32 *buffer;
+    s32 *bufferEnd;
+    s32 value;
+    s32 nextValue;
+    u8 *loaded;
+    u8 *loadedEnd;
+
+    D_800D3150[0] = (s32) func_8002B280(0x5B8, 0x8F);
+    buffer = D_800D3150;
+    bufferEnd = D_800D3168;
+    value = buffer[-1];
+    do {
+        buffer++;
+        nextValue = value + 0xF4;
+        value = nextValue;
+        buffer[-1] = nextValue;
+    } while ((u32) buffer < (u32) bufferEnd);
+    D_8007C0B8 = func_8002B280(0x1000, 0x8F);
+    func_80038750(0);
+    buffer = (s32 *) D_800D31C8;
+    bufferEnd = (s32 *) D_800D3498;
+    do {
+        buffer += 4;
+        buffer[-4] = 0;
+        buffer[-3] = 0;
+        buffer[-2] = 0;
+        buffer[-1] = 0;
+    } while (buffer != bufferEnd);
+    D_8007C088 = 0;
+    D_8007C1B8 = (s16 *) piRomLoad(0x1A);
+    D_8007C1BC = 0;
+    if (D_8007C1B8[D_8007C1BC] != -1) {
+        do {
+            D_8007C1BC++;
+        } while (D_8007C1B8[D_8007C1BC] != -1);
+    }
+    D_8007C1C0 = 0;
+    if (D_8007C1BC > 0) {
+        loaded = D_800D3498;
+        loadedEnd = loaded + D_8007C1BC;
+        do {
+            *loaded++ = 0;
+        } while ((u32) loaded < (u32) loadedEnd);
+    }
+    D_800D3044 = 2;
+    D_800D3045 = 2;
+    D_800D3046 = 2;
+    D_800D3047 = 2;
+    D_800D31B0 = 1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038878.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800389CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038BC4.s")
 /* PROVENANCE: name, role, call order, and state resets compared with JFG's
