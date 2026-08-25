@@ -1946,6 +1946,7 @@ segments:
       - [0x18A8810, c, overlay57UpdateModeTrigger]
       - [0x18A8988, c, overlay57InitializeMode]
       - [0x18A8A10, asm, overlay_057_middle_b]
+      - [0x18A9CF0, c, func_overlay_057_F00060F8_18A9CF0]
       - [0x18AA3D4, c, overlay57SetNodeValue]
       - [0x18AA470, c, overlay57ApplyTable]
       - [0x18AA5A8, c, overlay57UpdateNode]
