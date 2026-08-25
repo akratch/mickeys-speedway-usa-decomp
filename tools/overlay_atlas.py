@@ -394,7 +394,7 @@ TEXT_SUBSEGMENTS = {
         (0x0000, "c", "overlay43InitializeState"),
         (0x0194, "c", "overlay43FlushPending"),
         (0x0280, "c", "overlay43ReleaseResources"),
-        (0x0324, "asm", "overlay_043_prefix"),
+        (0x0324, "c", "func_overlay_043_F0000324_188A2F4"),
         (0x0BE4, "c", "func_overlay_043_F0000BE4_188ABB4"),
         (0x10A8, "c", "overlay43ComputeMotion"),
         (0x1184, "c", "overlay43AllocateResources"),

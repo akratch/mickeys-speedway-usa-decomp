@@ -1641,7 +1641,7 @@ segments:
       - [0x1889FD0, c, overlay43InitializeState]
       - [0x188A164, c, overlay43FlushPending]
       - [0x188A250, c, overlay43ReleaseResources]
-      - [0x188A2F4, asm, overlay_043_prefix]
+      - [0x188A2F4, c, func_overlay_043_F0000324_188A2F4]
       - [0x188ABB4, c, func_overlay_043_F0000BE4_188ABB4]
       - [0x188B078, c, overlay43ComputeMotion]
       - [0x188B154, c, overlay43AllocateResources]
