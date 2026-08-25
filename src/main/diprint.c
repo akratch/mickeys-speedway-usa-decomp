@@ -834,8 +834,9 @@ s32 diPrintf(const char *format, ...) {
 }
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfAll. */
-/* Instruction-exact plateau. Strict promotion is blocked by four relocation
- * identities that name D_800D4A62 instead of D_800D4A60+2. */
+/* Workbench words-identical plateau; four relocation identities remain, first +0x144.
+ * Base+2 array/pointer/cast/struct spellings shift IDO to 142--145 words;
+ * the exact 144-word stream still requires the separate D_800D4A62 declaration. */
 void diPrintfAll(Gfx **dList) {
     s32 width;
     s32 height;
@@ -977,8 +978,9 @@ s32 debug_text_width(const char *format, ...) {
 #endif
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_parse. */
-/* Instruction-exact plateau. Strict promotion is blocked by the original
- * D_800D4A60+2 and named jump-table relocation identities. */
+/* Workbench words-identical plateau; four relocation identities remain, first +0x44.
+ * Direct, array, integer-cast, pointer-local, and weak-alias spellings either
+ * change codegen or are ignored; D_800D4A60+2 and jtbl_80082CD8 still block promotion. */
 s32 debug_text_parse(Gfx **dList, char *buffer) {
     char *bufferCopy;
     s32 xOffset;
