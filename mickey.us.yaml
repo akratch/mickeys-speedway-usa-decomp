@@ -1729,7 +1729,7 @@ segments:
     exclusive_ram_id: overlay_modules
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
-      - [0x1890E18, asm, overlay_047]
+      - [0x1890E18, c, func_overlay_047_F0000000_1890E18]
       - [0x18917E8, c, overlay47ReleaseResources]
       - [0x1891948, asm, overlay_047_middle]
       - [0x1893B28, c, overlay47SpawnObject]

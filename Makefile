@@ -1754,6 +1754,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x160
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000000_1890E18.c.o: CFLAGS += \
+	-Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000000_1890E18.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9D0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68PayloadLimit.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61InitResources.c.o: POSTPROCESS = \
@@ -2917,8 +2921,9 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34RemoveRecord.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34CreateRecord.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87InitializeObject.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045_tail.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000000_1890E18.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61UpdateInput.c.o \

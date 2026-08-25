@@ -426,7 +426,7 @@ TEXT_SUBSEGMENTS = {
         (0x1C1C, "asm", "overlay_045_padding"),
     ],
     47: [
-        (0x0000, "asm", "overlay_047"),
+        (0x0000, "c", "func_overlay_047_F0000000_1890E18"),
         (0x09D0, "c", "overlay47ReleaseResources"),
         (0x0B30, "asm", "overlay_047_middle"),
         (0x2D10, "c", "overlay47SpawnObject"),
