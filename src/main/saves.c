@@ -118,7 +118,37 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C69C.s")
 #endif
+#ifdef NON_MATCHING
+void func_8002C70C(SavesBitWriter *reader, s32 *value, s32 bitCount) {
+    u32 nextBit;
+    u32 bit;
+    u32 shiftedMask;
+    u32 mask;
+
+    if (bitCount != 0) {
+        *value = 0;
+        bit = 1 << (bitCount + 0x1F);
+        do {
+            mask = reader->mask;
+            nextBit = bit >> 1;
+            if (mask == 0) {
+                reader->mask = 0x80;
+                mask = 0x80U & 0xFF;
+                reader->cursor++;
+            }
+            shiftedMask = mask;
+            if (*reader->cursor & mask) {
+                *value |= bit;
+                shiftedMask = reader->mask;
+            }
+            bit = nextBit;
+            reader->mask = (u8) (shiftedMask >> 1);
+        } while (nextBit != 0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C70C.s")
+#endif
 s32 func_8002C788(SavesRecord *record) {
     return record->unk10;
 }

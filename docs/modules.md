@@ -1360,6 +1360,15 @@ stream operations agree. The lane's `tools/permute.sh` could not run because
 the vendored `tools/permuter/import.py` is absent. The assembly fallback
 remains canonical.
 
+Its paired bit reader `func_8002C70C` likewise retains a Mickey-derived
+`NON_MATCHING` body. The 119-combination flag lattice and five local-width and
+expression shapes reach the target's exact 31-instruction control-flow shape,
+but 18 words differ from the first mismatch at `+0x14`: the loop-invariant
+`0x80` mask and subsequent temporaries allocate to different registers, with
+one remaining opcode difference and no relocation differences. Automated
+declaration permutation is blocked by the same absent permuter import. The
+assembly fallback remains canonical.
+
 ### 3.16 Particle and debug-print translation units
 
 ROM `0x3D5F0`–`0x45760` is now split into two aligned resident C
