@@ -64,7 +64,6 @@ typedef struct Overlay79SpawnDesc {
 } Overlay79SpawnDesc;
 
 extern u32 gOverlay79RaceFlags;
-extern u16 gOverlay79RaceMode;
 extern f32 gOverlay79ActiveAcceleration;
 extern f32 gOverlay79InactiveAcceleration;
 extern f32 gOverlay79TurnPower;
@@ -104,17 +103,13 @@ extern void trackMakePolylist(s32 mode, Overlay79Vector *start,
 extern s32 func_80010900(Overlay79Vector *start, Overlay79Vector *end,
                          f32 height, Overlay79Object *object, void *collision);
 
-/*
- * Plateau (2026-08-25, 10 attempts): -O2 -mips2 -Wab,-r4300_mul produces
- * 0xD8C bytes versus the 0xDC8-byte target, with 849 of 882 words differing
- * after relocation masking and the first mismatch at +0x4. The remaining
- * split begins in the shared overlay-data base/prologue schedule and carries
- * through the five-state FP allocation; packed descriptors, signed mode,
- * if-chain CFG, and explicit stack-home variants did not improve it.
- */
+/* Workbench: structure-mismatch (mixed), 848/882 positional words differ; first mismatch +0x4.
+ * Levers tried: constant audit and shared-base aliases; a named base narrowed the frame deficit by 8 bytes.
+ * Remaining: 15 missing instructions, an 8-byte frame deficit, and structural/FP allocation drift. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                                        s32 updateRate) {
+    u8 *dataBase;
     Overlay79MotionState *state;
     Overlay79Object *nearby;
     Overlay79Object *spawned;
@@ -133,11 +128,12 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
     s32 delta;
 
     update = updateRate;
+    dataBase = (u8 *)&gOverlay79RaceFlags;
     state = object->state;
     raceActive = 0;
-    if (((gOverlay79RaceMode & 0x1C0) >> 6) >= 3 &&
-        (((gOverlay79RaceFlags << 5) >> 28) == 0xF) &&
-        !(gOverlay79RaceFlags & 0x40000)) {
+    if (((*(u16 *)(dataBase + 0xE) & 0x1C0) >> 6) >= 3 &&
+        (((*(u32 *)dataBase << 5) >> 28) == 0xF) &&
+        !(*(u32 *)dataBase & 0x40000)) {
         raceActive = 1;
     }
 
