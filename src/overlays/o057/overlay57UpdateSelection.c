@@ -59,9 +59,9 @@ extern void overlay57Call39F0Reloc(void *item, s32 x, s32 y, s32 z);
 extern void o57SelectionSetNodeValueReloc(s32 id, s32 argument, f32 value);
 
 /* Overlay 57 text +0x35E0..+0x3A4C. */
-/* Plateau: canonical -O2 -mips2 is exact-size at 0x46C and differs in 162
- * words, first at +0x4C.  The complete selection register web and several
- * relocation-carrying schedules remain outside the observed flag basins. */
+/* Plateau: -O2/-mips2 is exact-size, 162 masked (166 raw) words, first +0x4C.
+ * Ten cache/sentinel/volatile/split-read shapes tied or missed size/register order.
+ * A 45m MIPS2 permuter found no zero; best 4620 mixed direct/pointer/literal use. */
 #ifdef NON_MATCHING
 void overlay57UpdateSelection(s32 ignored) {
     s32 newPrimary;
