@@ -14,8 +14,10 @@
  */
 
 #include "game/track.h"
+#include "game/charControl.h"
 #include "game/math.h"
 #include "n_audio/mbi.h"
+#include "PR/os_internal.h"
 
 typedef struct TrackRotation {
     s16 x;
@@ -46,27 +48,473 @@ typedef struct TrackFloatRecord {
     f32 unkC;
 } TrackFloatRecord;
 
+typedef struct TrackTextureHeader {
+    u8 pad00[6];
+    u16 width;
+    u16 height;
+    u8 pad0A[6];
+    u16 numOfTextures;
+    u16 frameAdvanceDelay;
+    Gfx *displayList;
+    u8 pad18[3];
+    u8 unk1B;
+} TrackTextureHeader;
+
+typedef struct TrackTextureEntry {
+    TrackTextureHeader *texture;
+    u32 pad04;
+} TrackTextureEntry;
+
+typedef struct TrackTextureLoadLocals {
+    s32 pad20;
+    void *activeTextureAddress;
+    void *textureAddress;
+    s32 useOriginalTexture;
+    s32 pad30[4];
+    s32 activeMaskS;
+    s32 pad44;
+    s32 maskT;
+    s32 maskS;
+} TrackTextureLoadLocals;
+
+typedef struct TrackBatch {
+    u8 textureIndex;
+    u8 pad01[9];
+    u16 frame;
+    u32 flags;
+} TrackBatch;
+
+typedef struct TrackSegment {
+    u8 pad00[0xC];
+    TrackBatch *batches;
+    u8 pad10[0x24 - 0x10];
+    s16 batchCount;
+    u8 pad26[0x40 - 0x26];
+} TrackSegment;
+
+typedef struct TrackData {
+    TrackTextureEntry *textures;
+    TrackSegment *segments;
+    u8 pad08[0x1A - 0x08];
+    s16 segmentCount;
+} TrackData;
+
+typedef struct TrackLevelData {
+    u8 pad00[0xB2];
+    u8 skyScaleS;
+    u8 skyScaleT;
+    u8 padB4[4];
+    TrackTextureHeader *skyTexture;
+    s16 skyOffsetS;
+    s16 skyOffsetT;
+    u8 padC0[0xD2 - 0xC0];
+    u8 bottomR;
+    u8 bottomG;
+    u8 bottomB;
+    u8 topR;
+    u8 topG;
+    u8 topB;
+} TrackLevelData;
+
+typedef struct TrackVertex {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+} TrackVertex;
+
+typedef struct TrackTriangle {
+    u8 flags;
+    u8 vertex0;
+    u8 vertex1;
+    u8 vertex2;
+    s16 u0;
+    s16 v0;
+    s16 u1;
+    s16 v1;
+    s16 u2;
+    s16 v2;
+} TrackTriangle;
+
+typedef struct TrackCamera {
+    s16 rotationX;
+    u8 pad02[0xC - 2];
+    f32 x;
+    f32 y;
+    f32 z;
+} TrackCamera;
+
+typedef struct TrackVec3f {
+    f32 f[3];
+} TrackVec3f;
+
+#define TRACK_SP_VERTEX(packet, vertex, count, first)                      \
+    gDma1p(packet, G_VTX, vertex,                                         \
+           (((count) << 3) + ((count) << 1)) + 8,                         \
+           ((count) << 3) | (((u32) (vertex)) & 6) | (first))
+
+#define TRACK_SP_POLYGON(packet, address, count, textured)                 \
+    {                                                                      \
+        Gfx *_g = (Gfx *) (packet);                                        \
+        _g->words.w0 = _SHIFTL((((count) - 1) << 4) | (textured), 16, 8) | \
+                       _SHIFTL(5, 24, 8) | _SHIFTL((count) << 4, 0, 16);  \
+        _g->words.w1 = (u32) (address);                                    \
+    }
+
 extern TrackRotation *D_800C9530;
 extern TrackCachedPoint D_800C9B40;
 extern Gfx *D_800C9520;
 extern s32 D_80079314;
 extern u32 D_800C9B50[16];
 extern s32 D_800792FC;
+extern u8 D_8007BEF4;
+extern s16 D_800C9570;
+extern TrackData *D_800792E8;
+extern TrackLevelData *D_800792EC;
+extern Mtx *D_800C9524;
+extern TrackVertex *D_800C9528;
+extern TrackTriangle *D_800C952C;
+extern u8 D_79330[];
+extern TrackTextureHeader *D_800792F0;
+extern s32 D_800792F4;
+extern Gfx D_80079358[];
+extern Gfx D_80079380[];
+extern Gfx D_800793A8[];
+extern Gfx D_800793D8[];
+extern u8 D_80079318[];
+extern s32 D_800C9560;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
                           f32 *outX, f32 *outY, f32 *outZ);
+ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
+void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
+                   s32 updateRate);
+s32 runlinkIsModuleLoaded(s32 module);
+void TrapDanglingJump(s32 updateRate);
+void func_80022A50(Gfx **displayList, Mtx **matrix);
+void func_80034920(Gfx **displayList);
+void func_800349A4(Gfx **displayList, void *texture, s32 mode, s32 flags);
+void func_800221E8(Gfx **displayList, Mtx **matrix);
+s32 camGetMode(void);
+s32 camGetNo(void);
+void func_80021FB0(s32 mode, s32 camera, s32 *left, s32 *bottom,
+                   u32 *right, u32 *top);
+void viGetCurrentSize(s32 *width, s32 *height);
+void *func_800348D4(TrackTextureHeader *texture, s32 frame);
+TrackCamera *func_8002462C(void);
+f32 func_8002A8BC(s32 angle);
+f32 func_8002A8C0(s32 angle);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BD50.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public `src/track.c`, function
+ * `trackUpdateFX`, supplies the three-module update structure. Mickey proves
+ * its own module indices and unresolved call sites, so the name is not adopted.
+ */
+void func_8000BD50(s32 updateRate) {
+    if (runlinkIsModuleLoaded(13) != 0) {
+        TrapDanglingJump(updateRate);
+    }
+    if (runlinkIsModuleLoaded(12) != 0) {
+        TrapDanglingJump(updateRate);
+    }
+    if (runlinkIsModuleLoaded(34) != 0) {
+        TrapDanglingJump(updateRate);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BDB4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C400.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C540.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `func_800129AC_135AC`. Mickey proves the revised segment and texture layouts
+ * and flag bit; the donor's placeholder name is not imported.
+ */
+void func_8000C400(s32 updateRate) {
+    s32 segmentNumber;
+    TrackTextureHeader *texture;
+    s32 batchNumber;
+    TrackBatch *batch;
+    TrackSegment *segments;
+    s32 frame;
+
+    segments = D_800792E8->segments;
+    for (segmentNumber = 0; segmentNumber < D_800792E8->segmentCount; segmentNumber++) {
+        batch = segments[segmentNumber].batches;
+        for (batchNumber = 0; batchNumber < segments[segmentNumber].batchCount; batchNumber++) {
+            if (batch[batchNumber].flags & 0x100000) {
+                if (batch[batchNumber].textureIndex != 0xFF) {
+                    texture = D_800792E8->textures[batch[batchNumber].textureIndex].texture;
+                    if ((texture->numOfTextures != 0x100) && (texture->frameAdvanceDelay != 0)) {
+                        frame = batch[batchNumber].frame;
+                        func_800367E8(texture, &batch[batchNumber].flags, &frame, updateRate);
+                        batch[batchNumber].frame = frame;
+                    }
+                }
+            }
+        }
+    }
+}
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `initSky`. Mickey adds the player-count guard and proves its own object-field
+ * offsets; the public name is not adopted from tier-D TU position alone.
+ */
+void func_8000C540(s32 arg0) {
+    ControlSpawnPacket packet;
+
+    if ((arg0 == -1) || (D_8007BEF4 >= 3)) {
+        D_800C9550 = NULL;
+        D_800C9570 = arg0;
+    } else {
+        packet.x = 0;
+        packet.y = 0;
+        packet.z = 0;
+        packet.mode = 10;
+        packet.kind = arg0;
+        D_800C9550 = func_8000590C(&packet, 2);
+        D_800C9570 = arg0;
+        if (D_800C9550 != NULL) {
+            ((ControlSpawned *) D_800C9550)->unk3C = 0;
+            ((ControlSpawned *) D_800C9550)->unk46 = -1;
+        }
+    }
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function `trackSkySet`. */
 void trackSkySet(s32 skyDome) {
     D_800C9558 = skyDome;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C5F4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000CC78.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `func_80012BAC_137AC`, with the load-bearing local padding documented by
+ * Diddy Kong Racing's public `src/tracks.c` version. Mickey proves the revised
+ * level-data offsets, command bindings, and vertex/triangle layouts; the
+ * donor's placeholder name is not imported.
+ */
+void func_8000C5F4(void) {
+    TrackTriangle *triangles;
+    TrackVertex *vertices;
+    s32 maskT;
+    s32 maskS;
+    f32 scaledXSin;
+    f32 scaledXCos;
+    f32 var_f16;
+    s16 textureS[9];
+    s16 textureT[9];
+    f32 xCos;
+    f32 xSin;
+    f32 pad_sp108;
+    TrackCamera *camera;
+    f32 pad_sp100;
+    f32 xPositions[9];
+    f32 zPositions[9];
+    TrackVec3f pos;
+    s32 i;
+    s32 var_v0;
+    s32 var_v1;
+    s32 var_a1;
+    s32 var_a2;
+    u8 *var_v0_3;
+    f32 var_f14;
+    s16 vertY;
+    s16 vTempCoord;
+    s16 uTempCoord;
+    TrackTextureHeader *texture;
+    /* These donor-shaped locals determine IDO's stack homes and FP colours. */
+    s32 pad[4];
+
+    vertices = D_800C9528;
+    triangles = D_800C952C;
+    camera = func_8002462C();
+    texture = D_800792EC->skyTexture;
+    D_800C9570 = -1;
+
+    maskS = (texture->width << 5) - 1;
+    maskT = (texture->height << 5) - 1;
+    xSin = func_8002A8C0(-camera->rotationX);
+    xCos = func_8002A8BC(-camera->rotationX);
+
+    scaledXSin = xSin * 1280.0f;
+    scaledXCos = xCos * 1280.0f;
+    pad_sp100 = 2.0f * scaledXSin;
+    xPositions[0] = -scaledXCos - (xSin * 1280.0f);
+    zPositions[0] = -scaledXCos + (xSin * 1280.0f);
+    xPositions[1] = scaledXCos - (xSin * 1280.0f);
+    zPositions[1] = -scaledXCos - (xSin * 1280.0f);
+    xPositions[2] = scaledXCos + scaledXSin;
+    zPositions[2] = scaledXCos - (xSin * 1280.0f);
+    xPositions[3] = -scaledXCos + (xSin * 1280.0f);
+    zPositions[3] = scaledXCos + (xSin * 1280.0f);
+    xPositions[4] = 0.0f;
+    zPositions[4] = 0.0f;
+
+    xPositions[5] = -(xCos * 1280.0f) - (2.0f * scaledXSin);
+    zPositions[5] = scaledXSin + -(2.0f * (xCos * 1280.0f));
+    xPositions[6] = (xCos * 1280.0f) - (2.0f * scaledXSin);
+    zPositions[6] = -(2.0f * (xCos * 1280.0f)) - scaledXSin;
+    xPositions[7] = (xCos * 1280.0f) + (2.0f * scaledXSin);
+    zPositions[7] = (2.0f * (xCos * 1280.0f)) - scaledXSin;
+    xPositions[8] = -(xCos * 1280.0f) + (2.0f * scaledXSin);
+    zPositions[8] = (2.0f * (xCos * 1280.0f)) + scaledXSin;
+
+    scaledXCos = 1280.0f;
+    var_f14 = scaledXCos * 0.25f;
+    var_a1 = texture->width * 16 * D_800792EC->skyScaleS;
+    var_a2 = texture->height * 16 * D_800792EC->skyScaleT;
+    var_v0 = ((s32)(camera->x * ((scaledXCos * 0.25f) / var_a1)) +
+              (D_800792EC->skyOffsetS >> 4)) & maskS;
+    var_v1 = ((s32)(camera->z * ((scaledXCos * 0.25f) / var_a2)) +
+              (D_800792EC->skyOffsetT >> 4)) & maskT;
+
+    var_f14 = var_a1 * xCos;
+    pos.f[2] = var_a1 * xCos;
+    pos.f[0] = var_a1 * xCos;
+    var_f16 = var_a2 * xSin;
+    xCos = var_f16;
+    pad_sp108 = var_f16;
+
+    var_a2 = texture->height * 16 * D_800792EC->skyScaleT;
+
+    textureS[0] = (s16)(-var_f14 - pad_sp108) + var_v0;
+    textureT[0] = (s16)(var_f16 - var_f14) + var_v1;
+    textureS[1] = (s16)(var_f14 - pad_sp108) + var_v0;
+    textureT[1] = (s16)(-var_f14 - var_f16) + var_v1;
+    textureS[2] = (s16)(var_f14 + var_f16) + var_v0;
+    textureT[2] = (s16)(var_f14 - var_f16) + var_v1;
+    textureS[3] = (s16)(var_f16 - var_f14) + var_v0;
+    textureT[3] = (s16)(var_f14 + var_f16) + var_v1;
+    textureS[4] = var_v0;
+    textureT[4] = var_v1;
+    textureS[5] = (s16)(-var_f14 - (2.0f * xCos)) + var_v0;
+    textureT[5] = (s16)(var_f16 - (2.0f * var_f14)) + var_v1;
+    textureS[6] = (s16)(var_f14 - (2.0f * xCos)) + var_v0;
+    textureT[6] = (s16)(-(2.0f * var_f14) - var_f16) + var_v1;
+    textureS[7] = (s16)(pos.f[2] + (2.0f * xCos)) + var_v0;
+    textureT[7] = (s16)((2.0f * pos.f[0]) - var_f16) + var_v1;
+    textureS[8] = (s16)((2.0f * xCos) - pos.f[2]) + var_v0;
+    textureT[8] = (s16)((2.0f * pos.f[0]) + var_f16) + var_v1;
+
+    func_800349A4(&D_800C9520, texture, 0x10, D_800C9560 << 8);
+    gDPSetPrimColor(D_800C9520++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gDPSetEnvColor(D_800C9520++, 0xFF, 0xFF, 0xFF, 0xFF);
+    TRACK_SP_VERTEX(D_800C9520++, (u32)D_800C9528 + 0x80000000, 9, 0);
+    TRACK_SP_POLYGON(D_800C9520++, (u32)D_800C952C + 0x80000000, 8, 1);
+    gDPPipeSync(D_800C9520++);
+
+    vertY = camera->y + 192.0f;
+    for (i = 0; i < 9; i++) {
+        vertices->x = xPositions[i] + camera->x;
+        vertices->y = vertY;
+        vertices->z = zPositions[i] + camera->z;
+        vertices->r = 0xFF;
+        vertices->g = 0xFF;
+        vertices->b = 0xFF;
+        vertices->a = (i <= 4) ? 0xFF : 0;
+        vertices++;
+    }
+
+    var_v0_3 = D_80079318;
+    for (i = 0; i < 8; i++) {
+        triangles->flags = 0x40;
+        triangles->vertex0 = *var_v0_3;
+        triangles->u0 = textureS[*var_v0_3];
+        triangles->v0 = textureT[*var_v0_3];
+        var_v0_3++;
+        triangles->vertex1 = *var_v0_3;
+        triangles->u1 = textureS[*var_v0_3];
+        triangles->v1 = textureT[*var_v0_3];
+        var_v0_3++;
+        triangles->vertex2 = *var_v0_3;
+        triangles->u2 = textureS[*var_v0_3];
+        triangles->v2 = textureT[*var_v0_3];
+        var_v0_3++;
+        triangles++;
+    }
+
+    D_800C9528 = vertices;
+    D_800C952C = triangles;
+}
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `func_80013454_14054`, including its display-list command structure. Mickey
+ * proves the ten-byte vertex layout and all resident function bindings; the
+ * donor's placeholder name is not imported.
+ */
+void func_8000CC78(void) {
+    s32 width;
+    s32 height;
+    s32 left;
+    s32 bottom;
+    u32 right;
+    u32 top;
+    u8 topR;
+    u8 topG;
+    u8 topB;
+    u8 bottomR;
+    u8 bottomG;
+    u8 bottomB;
+    TrackVertex *vertices;
+
+    vertices = D_800C9528;
+    D_800C9570 = -1;
+    func_80022A50(&D_800C9520, &D_800C9524);
+    func_80034920(&D_800C9520);
+    func_800349A4(&D_800C9520, NULL, 8, 0);
+
+    TRACK_SP_VERTEX(D_800C9520++, (u32) vertices + 0x80000000, 4, 0);
+    TRACK_SP_POLYGON(D_800C9520++, D_79330, 2, 0);
+
+    func_800221E8(&D_800C9520, &D_800C9524);
+    topR = D_800792EC->topR;
+    topG = D_800792EC->topG;
+    topB = D_800792EC->topB;
+    bottomR = D_800792EC->bottomR;
+    bottomG = D_800792EC->bottomG;
+    bottomB = D_800792EC->bottomB;
+    viGetCurrentSize(&width, &height);
+    func_80021FB0(camGetMode(), camGetNo(), &left, &bottom, &right, &top);
+    width = (u32) width >> 1;
+    height = (u32) height >> 1;
+
+    vertices->x = left - (u32) width;
+    vertices->y = (u32) height - top;
+    vertices->z = 0x10;
+    vertices->r = topR;
+    vertices->g = topG;
+    vertices->b = topB;
+    vertices->a = 0xFF;
+    vertices++;
+
+    vertices->x = right - (u32) width;
+    vertices->y = (u32) height - top;
+    vertices->z = 0x10;
+    vertices->r = topR;
+    vertices->g = topG;
+    vertices->b = topB;
+    vertices->a = 0xFF;
+    vertices++;
+
+    vertices->x = left - (u32) width;
+    vertices->y = (u32) height - bottom;
+    vertices->z = 0x10;
+    vertices->r = bottomR;
+    vertices->g = bottomG;
+    vertices->b = bottomB;
+    vertices->a = 0xFF;
+    vertices++;
+
+    vertices->x = right - (u32) width;
+    vertices->y = (u32) height - bottom;
+    vertices->z = 0x10;
+    vertices->r = bottomR;
+    vertices->g = bottomG;
+    vertices->b = bottomB;
+    vertices->a = 0xFF;
+    vertices++;
+
+    D_800C9528 = vertices;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000CED0.s")
 /*
  * JFG's corresponding TU position is `trackGetSky`, but this three-word
@@ -315,7 +763,61 @@ void func_800147A4(s32 playerID) {
     gSPFogPosition(D_800C9520++, near, far);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800148E0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014BAC.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `trackFadeFog`. Mickey's argument width and direct fog-data path are
+ * authoritative where the revisions differ; JFG's name is not adopted.
+ */
+void func_80014BAC(s32 fogIndex, s32 red, s32 green, s32 blue, s32 near,
+                   s32 far, f32 timer) {
+    s32 temp;
+    s32 switchTimer;
+    TrackFog *fogData;
+
+    fogData = &D_800C99C0[fogIndex];
+
+    if (osTvType == 0) {
+        switchTimer = timer * 50.0f;
+    } else {
+        switchTimer = timer * 60.0f;
+    }
+
+    if (far < near) {
+        temp = near;
+        near = far;
+        far = temp;
+    }
+
+    if (far > 1023) {
+        far = 1023;
+    }
+    if (near >= far - 5) {
+        near = far - 5;
+    }
+
+    fogData->intendedFog.r = red;
+    fogData->intendedFog.g = green;
+    fogData->intendedFog.b = blue;
+    fogData->intendedFog.near = near;
+    fogData->intendedFog.far = far;
+
+    if (switchTimer > 0) {
+        fogData->switchTimer = switchTimer;
+        fogData->addFog.r = ((red << 16) - fogData->fog.r) / switchTimer;
+        fogData->addFog.g = ((green << 16) - fogData->fog.g) / switchTimer;
+        fogData->addFog.b = ((blue << 16) - fogData->fog.b) / switchTimer;
+        fogData->addFog.near = ((near << 16) - fogData->fog.near) / switchTimer;
+        fogData->addFog.far = ((far << 16) - fogData->fog.far) / switchTimer;
+    } else {
+        fogData->switchTimer = 0;
+        fogData->fog.r = red << 16;
+        fogData->fog.g = green << 16;
+        fogData->fog.b = blue << 16;
+        fogData->fog.near = near << 16;
+        fogData->fog.far = far << 16;
+    }
+    fogData->fogChanger = NULL;
+}
 /*
  * PROVENANCE: JFG's corresponding track.c position identifies the transform
  * role. This body and its local layout are reconstructed from Mickey's own
@@ -353,4 +855,83 @@ s32 func_80014EAC(u32 value) {
     }
     return result;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014ECC.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public built `src/track.c.o` and its
+ * assembly-only final source entry establish the tier-D TU position and
+ * display-list-helper structure. The body is reconstructed from Mickey with
+ * the SDK GBI macros; JFG's placeholder name is not imported.
+ */
+void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
+    TrackTextureLoadLocals locals;
+    TrackTextureHeader *activeTexture;
+    s32 activeFrame;
+    s32 activeMaskT;
+    s32 intensity;
+    s32 shiftS;
+    s32 shiftT;
+
+    locals.textureAddress = func_800348D4(texture, frame);
+    if (texture->unk1B >= 2) {
+        D_800C9520->words.w0 = texture->displayList->words.w0;
+        D_800C9520->words.w1 = (u32) locals.textureAddress;
+        D_800C9520++;
+        gSPDisplayList(D_800C9520++, texture->displayList + 1);
+        gSPDisplayList(D_800C9520++, D_800793D8);
+        return;
+    }
+
+    locals.maskS = func_80014EAC(texture->width);
+    locals.maskT = func_80014EAC(texture->height);
+    activeTexture = D_800792F0;
+    if (activeTexture != NULL) {
+        activeFrame = D_800792F4;
+        locals.useOriginalTexture = FALSE;
+    } else {
+        activeTexture = texture;
+        activeFrame = (frame >> 8) + 0x100;
+        if (activeFrame >= texture->numOfTextures) {
+            activeFrame -= texture->numOfTextures;
+        }
+        activeFrame <<= 8;
+        locals.useOriginalTexture = TRUE;
+    }
+
+    locals.activeTextureAddress = func_800348D4(activeTexture, activeFrame);
+    locals.activeMaskS = func_80014EAC(activeTexture->width);
+    activeMaskT = func_80014EAC(activeTexture->height);
+    shiftS = (locals.maskS - locals.activeMaskS) & 0xF;
+    shiftT = (locals.maskT - activeMaskT) & 0xF;
+    gDPLoadMultiBlockS(D_800C9520++, locals.activeTextureAddress, 0x100, 1,
+                       G_IM_FMT_IA, G_IM_SIZ_8b, activeTexture->width,
+                       activeTexture->height, 0,
+                       G_TX_NOMIRROR | G_TX_WRAP,
+                       G_TX_NOMIRROR | G_TX_WRAP, locals.activeMaskS,
+                       activeMaskT,
+                       shiftS, shiftT);
+
+    if (!locals.useOriginalTexture) {
+        gDPLoadMultiBlockS(D_800C9520++, locals.textureAddress, 0, 0,
+                           G_IM_FMT_RGBA, G_IM_SIZ_16b, texture->width,
+                           texture->height, 0,
+                           G_TX_NOMIRROR | G_TX_WRAP,
+                           G_TX_NOMIRROR | G_TX_WRAP, locals.maskS,
+                           locals.maskT,
+                           G_TX_NOLOD, G_TX_NOLOD);
+        gSPDisplayList(D_800C9520++, D_80079358);
+        return;
+    }
+
+    gDPLoadTextureBlockS(D_800C9520++, locals.textureAddress, G_IM_FMT_IA,
+                         G_IM_SIZ_8b, texture->width, texture->height, 0,
+                         G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, locals.maskS,
+                         locals.maskT,
+                         G_TX_NOLOD, G_TX_NOLOD);
+    if ((flags & 0x70) == 0x10) {
+        gSPDisplayList(D_800C9520++, D_800793A8);
+    } else {
+        gSPDisplayList(D_800C9520++, D_80079380);
+    }
+    intensity = (frame >> 8) & 0xFF;
+    gDPSetEnvColor(D_800C9520++, intensity, intensity, intensity, intensity);
+}
