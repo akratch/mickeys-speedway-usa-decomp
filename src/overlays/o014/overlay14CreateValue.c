@@ -16,13 +16,16 @@ extern s32 overlay14SelectKind(void);
 extern void *overlay14LoadRelocatedValue(s32 key, s32 kind);
 extern void *overlay14LoadAsset(s32 key, s32 kind);
 
+/* Plateau (batch 17): exact 0x180 size; 16 words differ, first at +0x18.
+ * Declaration/selector lifetime changes removed 24 differences; flags tie.
+ * Remaining mismatch is LO-load order plus pointer/key reload and spill order. */
 #ifdef NON_MATCHING
 void *overlay14CreateValue(s32 key, s32 alternate) {
     Overlay14ValueSlot *slot;
     void *value;
     s32 index;
-    s32 kind;
     Overlay14ValueSlot *volatile chosen;
+    s32 kind;
 
     slot = gOverlay14Slots28;
 scan_loop:
@@ -50,8 +53,10 @@ scan_loop:
         return 0;
     }
     chosen = &gOverlay14ChosenSlots28[index];
+    kind = overlay14SelectKind();
+    slot = chosen;
 
-    switch (overlay14SelectKind()) {
+    switch (kind) {
         case 1:
             kind = 0xC;
             break;
@@ -69,7 +74,6 @@ scan_loop:
             break;
     }
 
-    slot = chosen;
     if (alternate != 1) {
         slot->value = overlay14LoadRelocatedValue(key, kind);
     } else {
