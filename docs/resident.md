@@ -1247,9 +1247,9 @@ carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
 live range; the default flags, both data relocations, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A520`: best remains **3/9 differing words**, first `+0x8`; the fresh
-typed raw-state m2c body landed under `NON_MATCHING` at 6/9, with an exact
-nine-word shape but a whole temporary-register-ring phase shift.
+`func_8003A520`: exact nine-word shape, **3/9 register-only words** differ first
+`+0x8`. Workbench reports temp-FIFO phase; ten source forms, the flag lattice,
+and a 40-minute permuter leave the byte-lvalue candidate best.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no
