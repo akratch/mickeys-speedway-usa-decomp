@@ -117,11 +117,6 @@ typedef struct SharedDynamicSubmit {
     void *payload20;
 } SharedDynamicSubmit;
 
-typedef struct SharedFixedKeysBlock {
-    s16 values[4];
-    u8 reserved08[8];
-} SharedFixedKeysBlock;
-
 extern void SHARED_FIXED_RESOURCE_RELOC(SharedCommand **commands,
                                         void *resource);
 extern f32 SHARED_METRIC_RELOC(f32 x, f32 y, f32 z);
@@ -134,6 +129,17 @@ extern void SHARED_FIXED_SUBMIT_RELOC(SharedCommand **commands,
                                       void *reference, s32 mode, u8 key);
 
 /* DKR v77/v80 and JFG have no exact donor for this renderer. */
+/*
+ * Plateau (this run: the full flag lattice plus seven structural candidates):
+ * canonical MIPS-II is exact-size with 140 differing words, first at +0x0.
+ * The target frame is eight bytes smaller even though every accessed local
+ * has the same offset; the remaining body differences are allocator and
+ * scheduling webs.  Direct typed fixed-array indexing was four bytes short
+ * with 195 differences, while partial and full typed-local aggregates were
+ * 12 and 32 bytes short with 206 and 329 differences.  The eight-element
+ * s16 key array is target-supported but codegen-neutral.  A bounded permuter
+ * batch could not import the macro-defined shared function body.
+ */
 #ifdef NON_MATCHING
 #define OVERLAY69_COMPILE_SHARED_BODY
 #endif
@@ -149,7 +155,7 @@ void SHARED_DRAW_FUNCTION(SharedCommand **commands, void *renderArg1,
     register SharedDynamicEntry *entry;
     register SharedVec3 *vector;
     s16 order[8];
-    SharedFixedKeysBlock fixedKeys;
+    s16 fixedKeys[8];
     f32 inverseScale;
     SharedTransform transform;
     SharedDynamicSubmit submit;
@@ -258,7 +264,7 @@ void SHARED_DRAW_FUNCTION(SharedCommand **commands, void *renderArg1,
             *(void **)((u8 *)fixedGeometry + outputOffset) =
                 (u8 *)resources->geometryBases[resources->geometryGroup] +
                 (state->fixedGeometryIndex[index] * 64);
-            fixedKeys.values[accepted] = state->fixedActive[index];
+            fixedKeys[accepted] = state->fixedActive[index];
             accepted++;
         }
         index++;
@@ -283,7 +289,7 @@ void SHARED_DRAW_FUNCTION(SharedCommand **commands, void *renderArg1,
                          0x80000000U));
             SHARED_FIXED_SUBMIT_RELOC(
                 commandList, fixedRefs[order[index]], 6,
-                (u8)fixedKeys.values[order[index]]);
+                (u8)fixedKeys[order[index]]);
         }
 
         SHARED_APPEND_TRAILING_STATE((*commandList)++);
