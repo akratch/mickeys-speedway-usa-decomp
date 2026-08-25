@@ -520,9 +520,9 @@ f32 func_overlay_008_F0001000_185ED58(void *unused, O8PhaseState *state, f32 inp
 
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0001294_185EFEC.s")
 
-/* Workbench: mixed constant/structure/schedule/register residual; best is 62 words from +0xB8 with exact 183-word size and 0xD0 frame.
- * Levers: constant/stack-slot audit and 119-case flag lattice; moving the tuning-base formation between helper calls improved 70 to 62 words.
- * Remaining: the record home is 36 bytes above retail; aggregate, scope, volatility, declaration-order, and loop-carrier variants were inert or regressed. */
+/* Workbench: mixed constant/structure/schedule/register; exact 183 words/0xD0 frame, 62 positional words, first +0xB8.
+ * Lever: constant audit isolates the 36-byte record/home inversion; register-qualifying baseValue was codegen-inert.
+ * Remaining: retail homes record/base value at +0x78/+0xCC versus +0x9C/+0x80; prior aggregate/order variants remain eliminated. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0002640_1860398(
     O8P2640Anchor *anchor, O8P2640Config *config, s32 orientation,
