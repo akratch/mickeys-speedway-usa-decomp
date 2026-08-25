@@ -398,14 +398,13 @@ s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80031A30.s")
 #endif
 
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
  * src/runLink.c:runlinkDownloadCode. Mickey's section layout, loop bounds,
  * globals, and relocation rules determine every divergence here.
  */
 s32 runlinkDownloadCode(s32 overlayIndex) {
-    OverlayHeader * volatile overlay;
+    OverlayHeader *overlay;
     RelocationEntry *relocTable;
     RelocationEntry *relocEntry;
     s32 savedDelay;
@@ -443,7 +442,7 @@ s32 runlinkDownloadCode(s32 overlayIndex) {
         return 0;
     }
 
-    if (overlay->relocTableSize2 != 0) {
+    if (overlay->relocTableSize2) {
         relocTable = func_8002B280(overlay->relocTableSize2, 0x83);
         if (relocTable == NULL) {
             mmFree((void *) overlay->vramBase);
@@ -488,7 +487,7 @@ s32 runlinkDownloadCode(s32 overlayIndex) {
         relocCount = (u32) overlay->relocTableSize2 >> 3;
         relocEntry = relocTable;
         while (relocCount-- > 0) {
-            if (ProcessRelocationEntry(relocEntry, overlayIndex) == 2) {
+            if (func_80031A30(relocEntry, overlayIndex) == 2) {
                 relocCount--;
                 relocEntry++;
             }
@@ -502,7 +501,7 @@ s32 runlinkDownloadCode(s32 overlayIndex) {
     relocCount = (u32) (u16) overlay->relocTableSize >> 3;
     relocEntry = (RelocationEntry *) D_800D2DA8.relocBase;
     while (relocCount-- > 0) {
-        if (ProcessRelocationEntry(relocEntry, overlayIndex) == 2) {
+        if (func_80031A30(relocEntry, overlayIndex) == 2) {
             relocCount--;
             relocEntry++;
         }
@@ -539,7 +538,7 @@ s32 runlinkDownloadCode(s32 overlayIndex) {
                 if (overlayNumber == overlayIndex &&
                     ((relocEntry->u.info & 0xF) == RELOC_OP_SYMBOL ||
                      (relocEntry->u.info & 0xF) == RELOC_OP_DATA)) {
-                    if (ProcessRelocationEntry(relocEntry, otherIndex) == 2) {
+                    if (func_80031A30(relocEntry, otherIndex) == 2) {
                         relocCount--;
                         relocEntry++;
                     }
@@ -557,9 +556,6 @@ s32 runlinkDownloadCode(s32 overlayIndex) {
 
     return 1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkDownloadCode.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
