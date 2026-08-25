@@ -10,6 +10,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/gameVi.h"
 #include "game/menu.h"
 
 /* PROVENANCE: base layout adapted from JFG's public decomp,
@@ -34,6 +35,7 @@ extern u8 D_8007C08C;
 extern u8 D_8007C090;
 extern s32 D_8007C098;
 extern s16 D_8007BF70;
+extern s16 D_8007BF7C[];
 extern u8 D_8007BEF4;
 extern u8 D_8007BEF8;
 extern u8 D_8007BF30;
@@ -344,7 +346,24 @@ void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right,
     rectangle.colour = colour;
     func_80039380(displayList, 1, &rectangle, 1);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800395D4.s")
+/* PROVENANCE: name and screen-limit role compared with JFG's public decomp,
+ * src/menu.c::frontPlayerScreenLimits; body and table indexing derived from Mickey. */
+void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *bottom) {
+    s32 offset;
+    s16 *limits;
+
+    offset = (((D_8007BEF4 - 1) << 2) + player) << 2;
+    if (D_8007BEF4 == 2 && frontGet2PlayerSplit()) {
+        offset += 0x40;
+    }
+    limits = &D_8007BF7C[offset];
+    *left = limits[0];
+    *top = limits[1];
+    viConvertXY(left, top);
+    *right = limits[2];
+    *bottom = limits[3];
+    viConvertXY(right, bottom);
+}
 #ifdef NON_MATCHING
 /* Instruction words and linked bytes are exact, but 18 relocation sites
  * differ from +0x24: IDO binds unrolled elements to three array bases while

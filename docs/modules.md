@@ -994,6 +994,15 @@ parameters narrowed into that record recover the exact target schedule. The
 default flags, call relocation, object words, and linked ROM range are exact
 without post-processing.
 
+The tier-B `frontPlayerScreenLimits` adds **0xB8 bytes / 46 words** at ROM
+`0x3A1D4`. Its player-indexed screen-limit table, two-player split adjustment,
+two coordinate-pair conversions, and front-end ordering establish the JFG
+role. JFG supplies the name and semantic comparison but keeps its body in
+assembly; Mickey supplies this C body and table indexing, as the point-of-use
+`PROVENANCE` note records. Explicit shifts preserve `(cameraCount - 1)` against
+algebraic reassociation. The default flags, three call relocations, data pair,
+object words, and linked ROM range are exact without post-processing.
+
 `func_8003968C` remains a **tier-D NON_MATCHING plateau** over **0x94 bytes /
 37 words** at ROM `0x3A28C`. A Mickey-derived four-iteration initialization
 loop unrolls to all 37 target instruction words and the same linked bytes, but
