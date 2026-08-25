@@ -2446,38 +2446,30 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
     }
 }
 #ifdef NON_MATCHING
-/*
- * Frame/pipeline plateau: the best canonical-mips2 candidate emits 386 of the
- * target's 456 instructions with a 0x160 frame instead of 0x168. Alignment
- * needs ten insertions, 21 deletions, and 64 replacements; the first word is
- * the frame size, and the substantive blocker is the target's software-
- * pipelined input-vector construction. The full flag lattice found no exact
- * alternative. A bounded permuter imported the TU as inadmissible mips1 and
- * found no usable structural lead.
- *
- * PROVENANCE: structure cross-checked against JFG
- * asm/nonmatchings/particles/func_80062BFC.s; body reconstructed from Mickey
- * evidence.
- */
+/* Workbench: structure-mismatch; 280/456 words differ from +0x0, frame 0x160 versus 0x168.
+ * Levers: declaration order matched triangle-table homes; preload and ternary forms did not improve.
+ * Remains: one extra instruction and mixed structure/register fallout from array lifetime reconstruction. */
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/
+ * func_80062BFC.s; body reconstructed from Mickey evidence. */
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
     Gfx *displayList;
     ParticleVertex *vertices;
     ParticleVertex *vertexStart;
-    ParticleVec3f *outputPtr;
     CircularParticle *particle;
     ParticleVec3f output[8];
     ParticleVec3f input[8];
+    ParticleVec3f *outputPtr;
+    s32 particleIndex;
+    s32 i;
+    s32 triangleListIndex;
     void *triangleLists[2];
     void **particlePtr;
     Gfx *command;
     s32 vertexCount;
     s32 triangleCount;
-    s32 triangleListIndex;
     s32 vertexIndex;
     volatile s32 vertexCommandCount;
     volatile s32 vertexCommandLength;
-    s32 particleIndex;
-    s32 i;
     u8 red;
     u8 green;
     u8 blue;

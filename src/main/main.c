@@ -1146,16 +1146,9 @@ s32 mainGetNextLevel(void) {
  * src/main.c::func_800468EC_474EC; its body remains assembly. This body is
  * reconstructed from Mickey's own call graph, data accesses and ABI.
  *
- * Plateau: ten control-flow, storage, aggregate-layout and framebuffer-loop
- * hypotheses reproduce the target's -0x58 frame, but the best natural body
- * has 492 rather than 489 instructions. Its first mismatch is +0x4: IDO saves
- * an otherwise unused $s0 and places $ra at sp+0x2C, while the target saves
- * only $ra at sp+0x24. The target's six character writes share a 2 * 0x28
- * base; explicit array fields are three words long overall, while loop and
- * grouped-index forms miss by 20 and 40 words. The full 119-combination flag
- * lattice did not close the structure. A bounded two-worker resident-MIPS-II
- * permuter run improved 13,270 to 11,970 only by reusing a pointer alias on
- * paths where it is uninitialized, so that candidate was rejected.
+ * Workbench: structure-mismatch; best 426/489 positional words differ, first +0x4.
+ * Lever: constant audit found a stack-home displacement; a parameter qualifier grew 492 to 493 instructions.
+ * Remains: an unused saved-register web shifts the return-address home; prior flag and alias probes did not close it.
  */
 #ifdef NON_MATCHING
 void func_80028564(s32 updateRate) {
