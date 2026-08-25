@@ -159,15 +159,9 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
 /*
- * Plateau: with -Wo,-loopunroll,0 this reconstruction has the target's exact
- * 94 instructions, frame, opcode sequence, CFG and relocations. Its best
- * object still differs in 31 words: 28 register operands and three accesses
- * to emptyIndex at 0x34(sp) instead of the target's 0x30(sp). The first
- * mismatch is +0x40, where IDO assigns the cache-index shift to t7 instead of
- * the target's t8. Natural declaration order, a separate entry-offset local,
- * a pointer-form scan, a struct-form empty slot and reordered declarations
- * either preserve that allocator split or regress it, so the best C remains
- * available for future compiler-allocation work without entering the ROM.
+ * Plateau: exact 94 words/frame/CFG; 18 words differ, first +0x40, from a
+ * temp-FIFO shift plus emptyIndex at 0x34(sp) rather than 0x30(sp). Flags,
+ * natural bool locals and loop/access reshaping regress; explicit != 0U helps.
  */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
@@ -181,7 +175,7 @@ u8 *func_8005A948(s16 animationId) {
         do {
             AnimationCacheEntry *entry = &((AnimationCacheEntry *)D_800D7CF4)[i];
 
-            if (animationId == entry->id) {
+            if ((animationId == entry->id) != 0U) {
                 u8 *existing = entry->animation;
 
                 existing[0]++;
