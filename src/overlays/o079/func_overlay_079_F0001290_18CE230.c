@@ -65,6 +65,11 @@ extern u8 gOverlay79FlagsReloc[];
  * no zero-score candidate was found, so the idiomatic source remains.
  * Lane cx-ov-4-b-a-r3 repeated the full lattice and reconfirmed the exact-size
  * 12-word result with first mismatch at +0xC8.
+ * Lane cx-ov-4-b-a-r4 reconfirmed all 119 flag combinations and tested the
+ * linked state as a distinct typed layout rather than the spawned return type;
+ * the extra live pointer regressed to 30 words. The shared-type form remains
+ * best at 12 words, first mismatch +0xC8, blocked on the linked-state register
+ * choice and the counter/flag tail coloring.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
