@@ -16,13 +16,18 @@ typedef struct Overlay41Slot {
 
 extern Overlay41Slot gOverlay41Slots[];
 
+/* Plateau after the flag lattice and six counter-spelling/allocation attempts:
+ * exact 0xDC size and 51/55 words, first mismatch at +0x10. The remaining
+ * four words reverse the loop counter's a1/v1 register pair; reusing the
+ * parameter obtains that pair but adds a stack frame. The bounded permuter
+ * checkout is unavailable in this lane. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,
                                        f32 amount, s32 alternateColors) {
+    register s32 remaining;
     Overlay41Slot *slot;
     u8 *bytes;
-    s32 remaining;
 
     if (object == 0) {
         return;
@@ -46,9 +51,9 @@ void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                 slot->color2 = bytes[0x3A];
                 slot->color3 = bytes[0x3B];
             }
+            slot->value1 = value1;
             slot->value3 = value3;
             slot->value5 = value5;
-            slot->value1 = value1;
             slot->value7 = value7;
             slot->amount = amount * 0.59999996f;
             slot->previousAmount = slot->amount;
