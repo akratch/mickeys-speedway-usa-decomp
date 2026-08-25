@@ -294,33 +294,9 @@ out of the candidate and reverses four dependent comparison operands. The
 stock flag lattice found no exact result. The requested bounded permuter could
 not start because `tools/permuter` is absent from this lane.
 
-`func_8004BA8C` has an exact-size JFG/DKR-derived width candidate under
-`NON_MATCHING`. The best declaration ordering compiles to 46 instructions
-with the first six exact; its first mismatch is the frame allocation at
-function offset `+0x18` (40 bytes versus the target's 48). The font pointer
-spill is at the exact `sp+0x18` slot, but the spacing pointer lands at
-`sp+0x24` instead of `sp+0x20`, causing IDO to restore the stack before the
-loop and cascading into 28 positional word differences. The stock flag
-lattice remained best; ten source-shape and local-order attempts did not
-recover the retail spill layout. A focused retry after the independently
-observed IDO source-line scheduling effect in `runlinkFlushModules` explored
-formatting-only permutations for three minutes without improving the canonical
-475 permuter score; the frame and spill layout are insensitive to that lever.
-A fresh full 119-configuration flag sweep again left stock `-O2 -mips2 -32`
-best at 46 instructions, 28 positional differences, and first mismatch
-`+0x18`. Explicit padded spill-carrier variants retained the 40-byte frame
-(29 differences), while making the carrier volatile regressed to 31
-differences without producing the target stack layout.
-An additional retry checked the lattice's only plausible missing flag family,
-optimized code with bare debug metadata, but IDO's driver rejects `-O2` and
-`-g` together in either order. Marking the spacing and font-data pointers
-`register`, singly and together, produced objects byte-identical to the
-46-word baseline. The frame/spill plateau is therefore unchanged.
-Changing the input pointer from `char *` to `u8 *`, as suggested by the
-target's byte loads, also produced an object byte-identical to that baseline.
-A fresh 119-configuration sweep still left stock flags at 46 words, 28
-positional differences, and first mismatch `+0x18`; signedness is not the
-lever behind the frame and spill layout.
+`func_8004BA8C` plateaus at the exact 46-word size and relocation surface under stock flags: 10 positional words differ, first at `+0x18`.
+A distinct default-width local closes 18 prior residuals; the target frame is `0x30` versus the candidate's `0x28`.
+The remaining blocker is the font-record pointer web and its two conversion-call spill slots (`+0x18`/`+0x20` target, `+0x1C`/`+0x24` candidate).
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),

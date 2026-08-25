@@ -433,12 +433,16 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
  * PROVENANCE -- source organization was cross-checked against JFG's
  * permitted published fontStringWidth assembly and DKR's Japanese
  * get_text_width body. Mickey's own m2c draft and data layout are authority.
+ * Plateau: exact 46-word size/relocation surface, with 10 positional words
+ * differing from +0x18. The remaining blocker is the 0x28-versus-0x30 frame
+ * and font-record pointer spill/register web around the conversion call.
  */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
+    FontSpacingData *fontData;
     u8 *spacing;
     s32 width;
-    FontSpacingData *fontData;
     u8 current;
+    u8 defaultWidth;
     u8 glyphWidth;
 
     fontData = &D_800D60E4[font];
@@ -450,10 +454,11 @@ s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
 
     current = *text;
     width = 0;
+    defaultWidth = fontData->characterWidth;
     if (current != 0) {
         do {
             text++;
-            glyphWidth = fontData->characterWidth;
+            glyphWidth = defaultWidth;
             if (current & 0x80) {
                 current = *text++;
                 if (current != 0 && current != 0xF) {
