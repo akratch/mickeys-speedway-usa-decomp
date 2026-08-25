@@ -60,6 +60,14 @@ extern f32 overlay20SqrtReloc(f32 value);
  * pointer one register apart from the target.  The full flag lattice found no
  * better group, and hoisting the count assignment loses both size and CFG.
  */
+/*
+ * Current-run plateau (2026-08-25): the 119-group sweep again selected
+ * -O2 -mips2 at exact size, with eight masked words different from +0xB0.
+ * Direct field access regressed to 25 words; moving the count or pointer
+ * declarations broke the earlier exact prefix.  A two-worker, ten-minute
+ * permuter batch found no improvement over base score 60.  The remaining
+ * blocker is the count/entries temporary coloring only.
+ */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
                                    Overlay20Config *config) {

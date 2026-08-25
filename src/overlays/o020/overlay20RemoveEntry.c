@@ -21,6 +21,14 @@ extern u32 gOverlay20ActiveBits;
  * source-level explanation, and the remaining gap is the list-compaction
  * temporary/register layout.  The full flag lattice found no better group.
  */
+/*
+ * Current-run plateau (2026-08-25): a fresh 119-group flag sweep confirmed
+ * the natural -O2 -mips2 body is four bytes short, with 42 of 53 masked words
+ * different from +0xC.  The nearest DKR boolean-search spelling retained an
+ * explicit found-state register.  A two-worker, ten-minute permuter batch
+ * reached score 175 only through a non-idiomatic i+1 bounds guard and still
+ * left the compaction register web different from +0x4C.
+ */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;

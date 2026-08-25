@@ -38,6 +38,15 @@ extern Overlay21Object *gOverlay21Objects[];
 
 Overlay21Position *overlay21GetReferenceReloc(void);
 
+/*
+ * Plateau (2026-08-25, current run): -O2 -mips2 with -Wab,-r4300_mul is
+ * exact-size and differs in ten of 114 masked words from +0x24.  Every
+ * non-count word agrees; the source selects v1 for each reload of
+ * gOverlay21ObjectCount while retail selects a0.  Volatile, cached-value,
+ * and pointer spellings regress to 58 words.  A two-worker, ten-minute
+ * permuter batch reached score 45 only with redundant aliases and
+ * multiply-by-one expressions, and remained non-exact.
+ */
 #ifdef NON_MATCHING
 void overlay21ApplyPriorities(s32 planeId, s32 entryCount,
                               Overlay21PriorityEntry **entries) {
