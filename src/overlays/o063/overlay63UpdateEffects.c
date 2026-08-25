@@ -74,6 +74,15 @@ extern s32 gO63Triggered;
 extern s32 gO63TriggerTimer;
 extern s32 gO63FadeTimer;
 
+/*
+ * Plateau (current-lane flag sweep plus four structural attempts): the best
+ * candidate keeps the exact 0x578-byte size, with 139 positional words
+ * differing and the first mismatch at +0x16C.  Narrowing the particle/count
+ * lifetime compiled identically; a natural gO63Particles one-past-end pointer
+ * regressed to +8 bytes/344 differences, while scoped typed opacity pointers
+ * regressed to +12 bytes/260 differences.  The remaining blocker is IDO's
+ * path-sensitive saved-register web and separate fade-address materialization.
+ */
 #ifdef NON_MATCHING
 void overlay63UpdateEffects(s32 updateRate) {
     O63RenderPosition pos;
