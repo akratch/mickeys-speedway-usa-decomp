@@ -57,17 +57,18 @@ extern void func_8002B040(void *queryState, f32 x, f32 y, f32 z,
                           f32 *out0, f32 *out1, f32 *out2);
 extern s32 func_8002A910(f32 z, f32 x);
 
-/* Size-exact plateau at 0x44C bytes: the ordinary -O2/-mips2 build differs in
- * 115 of 275 words, first at +0x24. The initializer's aggregate saved-value
- * shape regressed this body; retail instead retains a distinct command-stack
- * slot and a broad private GPR/FP allocation web. */
+/* Size-exact plateau after ten structural/lifetime forms: the ordinary
+ * -O2/-mips2 build differs in 13 of 275 words, first at +0x38. Post-increment
+ * command stores and clamping the target in place reproduce the retail CFG
+ * and FP web; the residual is a shared spill at sp+0x38 rather than sp+0x34
+ * plus the terminal negative-velocity path's private GPR coloring. */
 #ifdef NON_MATCHING
 void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     Overlay94State *state;
     Overlay94Entity *entity;
     s32 savedValue;
-    s16 *command;
     f32 rate;
+    s16 *command;
     f32 out0;
     f32 out1;
     f32 out2;
@@ -100,21 +101,20 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
                 state->velocity = 0;
             }
 
-            command[0] = 4;
-            command[1] = (s16)state->accumulator;
-            command += 2;
+            *command++ = 4;
+            *command++ = (s16)state->accumulator;
 
             weight = func_8002A878(gO94Const0, updateRate);
             state->current =
                 ((1.0f - weight) * (0.0f - state->current)) + state->current;
         } else if ((func_800254FC(state->selector) & 0x2000) != 0) {
-            weight = (f32)func_8002565C(state->selector) / 60.0f;
-            if (weight > 1.0f) {
-                weight = 1.0f;
-            } else if (weight < 0.0f) {
-                weight = 0.0f;
+            target = (f32)func_8002565C(state->selector) / 60.0f;
+            if (target > 1.0f) {
+                target = 1.0f;
+            } else if (target < 0.0f) {
+                target = 0.0f;
             }
-            target = weight * gO94Const4;
+            target *= gO94Const4;
             weight = func_8002A878(gO94Const8, updateRate);
             state->current =
                 ((1.0f - weight) * (target - state->current)) + state->current;
@@ -146,13 +146,11 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     angle = func_8002A910(out2, out0);
 
     if (state->active != 0 && state->velocity == 0) {
-        s32 forward;
         s32 reverse;
         s32 delta;
 
-        forward = (angle - state->angle) & 0xFFFF;
+        delta = (angle - state->angle) & 0xFFFF;
         reverse = (state->angle - angle) & 0xFFFF;
-        delta = forward;
         if (reverse < delta) {
             delta = -reverse;
         }
