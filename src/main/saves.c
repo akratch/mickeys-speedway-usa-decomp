@@ -16,6 +16,12 @@ extern u8 D_8007A2F0;
 extern void *D_8007A280;
 extern OSMesgQueue *D_800D21C0;
 
+typedef struct SavesRecord {
+    u8 pad00[0xC];
+    s32 unkC;
+    s32 unk10;
+} SavesRecord;
+
 void mmFree(void *address);
 s32 osContStartReadData(OSMesgQueue *messageQueue);
 void rumbleStop(s32 controllerIndex, s32 arg1);
@@ -46,7 +52,9 @@ void rumbleUpdate(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C60C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C69C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C70C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C788.s")
+s32 func_8002C788(SavesRecord *record) {
+    return record->unk10;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C790.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C79C.s")
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packCalculateGameChecksum. */
