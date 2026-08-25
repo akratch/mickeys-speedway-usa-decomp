@@ -946,6 +946,72 @@ O8_OBJ := $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay_008.c.o
 $(O8_OBJ): CFLAGS += -Wab,-r4300_mul
 $(O8_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
+		gO8P34A0ScaleReloc=D_0 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		gO8P34A0ModeReloc=D_0 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0RandomReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0TerrainReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0EffectReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0SetModeReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0AnimateReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0EventReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0StateEffectReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0ApproachReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0TrigAReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0TrigBReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0DecayReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P34A0BlendReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		gO8P0058MirrorGateReloc=D_0 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		gO8P0058PresentReloc=D_0 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		gO8P0058ResultReloc=D_0 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		gO8P0058ActiveReloc=D_0 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		gO8P0058SpawnGateReloc=D_0 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058ResetReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058ModeReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058AcquireReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058SpawnReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058OrientReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058RotateReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058SurfaceReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058CollisionReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058EffectReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058SampleReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058UpdateReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058ReleaseReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058CreateReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P0058BounceReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
 		o8Call0894Reloc=func_overlay_008_F0000000_185DD58 $@ && \
 	$(OBJCOPY) --redefine-sym \
 		o8StartMotionResourceReloc=func_overlay_008_F0000000_185DD58 $@ && \
@@ -953,6 +1019,16 @@ $(O8_OBJ): POSTPROCESS = \
 		o8Approach291CReloc=func_overlay_008_F0000000_185DD58 $@ && \
 	$(OBJCOPY) --redefine-sym \
 		o8ApplyColorsReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P42A8SampleReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P42A8RandomReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P42A8ApproachReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P42A8TrigAReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P42A8TrigBReloc=func_overlay_008_F0000000_185DD58 $@ && \
 	$(OBJCOPY) --redefine-sym \
 		o8Call0894EmitReloc=func_overlay_008_F0002640_1860398 $@ && \
 	$(OBJCOPY) --redefine-sym \
