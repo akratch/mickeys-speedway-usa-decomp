@@ -511,6 +511,87 @@ typedef struct O8P0058Surface {
     u32 flags4;
 } O8P0058Surface;
 
+typedef struct O8P34A0Peer {
+    u8 pad00[0x63];
+    u8 gate63;
+} O8P34A0Peer;
+
+typedef struct O8P34A0Owner {
+    u8 pad00[0xC];
+    f32 xC;
+    f32 y10;
+    f32 z14;
+    u8 pad18[0x10];
+    f32 scale28;
+    u8 pad2C[0xF];
+    s8 mode3B;
+    u8 pad3C[0xC];
+    O8P34A0Peer *peer48;
+} O8P34A0Owner;
+
+typedef struct O8P34A0State {
+    u8 pad000;
+    s8 kind1;
+    u8 pad002[2];
+    f32 motion4;
+    u8 pad008[0x84];
+    f32 value8C;
+    f32 value90;
+    u8 pad094[0x6C];
+    s16 direction100;
+    s16 secondary102;
+    u8 pad104[4];
+    s16 steering108;
+    u8 pad10A[6];
+    s16 angle110;
+    s16 angle112;
+    s16 angles114[4];
+    u8 pad11C[0x28];
+    s16 angle144;
+    s16 angle146;
+    u8 pad148[0x24];
+    u8 mode16C;
+    u8 pad16D[5];
+    s8 override172;
+    u8 pad173[0xE];
+    u8 active181;
+    u8 pad182[3];
+    u8 force185;
+    u8 pad186[0xD];
+    u8 overrideMode193;
+    u8 raw194[7];
+    u8 gate19B;
+    s32 gate19C;
+    u8 pad1A0[8];
+    u16 flags1A8;
+    u8 pad1AA[0x19F];
+    u8 lowering349;
+    u8 motion34A;
+    u8 pad34B[0x3F];
+    s16 smoothed38A;
+    u8 pad38C[0x3C];
+    f32 activity3C8;
+    u8 pad3CC[0x20];
+    f32 phase3EC;
+    f32 phase3F0;
+    s16 output3F4;
+    s16 output3F6;
+    s16 output3F8;
+    u8 pad3FA[0x22];
+    u32 flags41C;
+    u8 pad420[8];
+    s32 steering428;
+} O8P34A0State;
+
+typedef struct O8P34A0Query {
+    f32 **samples0;
+    u8 pad04[0x14];
+    s32 scratch18;
+    s32 scratch1C;
+    s32 scratch20;
+    s32 scratch24;
+} O8P34A0Query;
+
 typedef struct Overlay8MotionRow {
     u8 firstSelector;
     u8 secondSelector;
@@ -840,6 +921,77 @@ extern void func_overlay_008_F0001294_185EFEC(void *owner, void *state,
 
 extern void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
                                               O8P291CState *state,
+                                              f32 update);
+
+extern f32 D_1D8;
+extern f32 D_1DC;
+extern f32 D_1E0;
+extern f32 D_1E4;
+extern f32 D_1E8;
+extern f32 D_1EC;
+extern f32 D_1F0;
+extern f32 D_1F4;
+extern f32 D_1F8;
+extern f32 D_1FC;
+extern f32 D_200;
+extern f32 D_204;
+extern f32 D_208;
+extern f32 D_20C;
+extern f32 D_210;
+extern f32 D_214;
+extern f32 D_218;
+extern f32 D_21C;
+extern f32 D_220;
+extern f32 D_224;
+extern f32 D_228;
+extern f32 D_22C;
+extern f32 D_230;
+extern f32 D_234;
+extern f32 D_238;
+extern f32 D_23C;
+extern f32 D_240;
+extern f32 D_244;
+extern f32 D_248;
+extern f32 D_24C;
+extern f32 D_250;
+extern f32 D_254;
+extern f32 D_258;
+extern f32 D_25C;
+
+extern f32 gO8P34A0ScaleReloc;
+
+extern u8 gO8P34A0ModeReloc;
+
+extern s32 o8P34A0RandomReloc(s32 low, s32 high);
+
+extern s32 o8P34A0TerrainReloc(f32 x, f32 z, s32 flags,
+                               f32 ***samples);
+
+extern void o8P34A0EffectReloc(O8P34A0Owner *owner, s32 kind, s32 mode);
+
+extern void o8P34A0SetModeReloc(O8P34A0Owner *owner, s32 mode, s32 index,
+                                f32 blend);
+
+extern s32 o8P34A0AnimateReloc(O8P34A0Owner *owner, f32 value,
+                               f32 update);
+
+extern void o8P34A0EventReloc(O8P34A0Owner *owner, s32 kind, s32 mode);
+
+extern void o8P34A0StateEffectReloc(O8P34A0State *state, s32 kind,
+                                    f32 scale);
+
+extern s32 o8P34A0ApproachReloc(s32 current, s32 target);
+
+extern f32 o8P34A0TrigAReloc(s32 angle);
+
+extern f32 o8P34A0TrigBReloc(s32 angle);
+
+extern f32 o8P34A0DecayReloc(f32 coefficient, s32 updateRate);
+
+extern s32 o8P34A0BlendReloc(s32 current, s32 target, f32 blend);
+
+extern void func_overlay_008_F00049E8_1862740(O8P34A0Owner *owner,
+                                              O8P34A0State *state,
                                               f32 update);
 
 extern s16 *gOverlay8Buffer;

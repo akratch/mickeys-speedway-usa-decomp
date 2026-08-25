@@ -927,7 +927,349 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0003368_18610C0.s")
 #endif
 
+/*
+ * NON_MATCHING plateau (2026-08-25): -O2 -mips2 -Wo,-loopunroll,0 is 0xC
+ * over, with 807 of 898 masked words differing and first mismatch +0x0.
+ * Reconstructing the terrain output/sentinel block as one typed object did
+ * not collapse the candidate's 0x98 frame to the target 0x80; local ownership
+ * and the resulting register schedule remain the blocker.
+ */
+#ifdef NON_MATCHING
+f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
+                                      O8P34A0State *state, f32 limit,
+                                      f32 update) {
+    O8P34A0Query query;
+    f32 selectedValue;
+    f32 blend;
+    f32 result;
+    f32 height;
+    f32 distance;
+    f32 strength;
+    f32 delta;
+    f32 trigA;
+    f32 trigB;
+    f32 factor;
+    f32 overrideValue;
+    s32 selectedMode;
+    s32 ownerMode;
+    s32 sampleCount;
+    s32 index;
+    s32 start;
+    s32 target;
+    s32 steps;
+    s32 remaining;
+    s16 outputAngle;
+
+    query.scratch18 = -1;
+    query.scratch1C = -1;
+    query.scratch20 = -1;
+    query.scratch24 = -1;
+    result = 0.0f;
+    selectedMode = owner->mode3B;
+    selectedValue = 0.0f;
+    blend = 0.0f;
+
+    if (state->motion4 < -0.5f) {
+        if (state->direction100 < 0) {
+            selectedMode = 6;
+            if ((state->flags41C & 0x4000) != 0) {
+                selectedMode = 0x16;
+                selectedValue = D_1D8;
+            } else {
+                selectedValue = D_1DC;
+            }
+        } else if (state->direction100 > 0) {
+            selectedMode = 7;
+            if ((state->flags41C & 0x4000) != 0) {
+                selectedMode = 0x17;
+                selectedValue = D_1E0;
+            } else {
+                selectedValue = D_1E4;
+            }
+        } else {
+            selectedValue = D_1E8;
+            if ((state->flags1A8 & 1) != 0) {
+                state->smoothed38A -= state->smoothed38A / 8;
+                state->smoothed38A += state->steering108 / 8;
+                if (state->smoothed38A >= 0xDD) {
+                    selectedMode = 4;
+                } else if (state->smoothed38A < -0xDC) {
+                    selectedMode = 5;
+                } else if ((state->smoothed38A >= 0x42) &&
+                           (state->smoothed38A < 0x96)) {
+                    selectedMode = 2;
+                } else if ((state->smoothed38A < -0x41) &&
+                           (state->smoothed38A >= -0x95)) {
+                    selectedMode = 3;
+                } else if ((state->smoothed38A >= -0x18) &&
+                           (state->smoothed38A < 0x19)) {
+                    selectedMode = 1;
+                } else {
+                    selectedMode = owner->mode3B;
+                }
+            } else if (state->steering108 >= 0x75) {
+                selectedMode = 4;
+            } else if (state->steering108 < -0x74) {
+                selectedMode = 5;
+            } else if (state->steering108 >= 0x11) {
+                selectedMode = 2;
+            } else if (state->steering108 < -0x10) {
+                selectedMode = 3;
+            } else {
+                selectedMode = 1;
+            }
+        }
+    } else if (state->motion4 > 0.5f) {
+        if (state->steering108 >= 0x11) {
+            if ((owner->mode3B == 8) && (owner->scale28 == 1.0f)) {
+                blend = 1.0f;
+                selectedMode = 0xA;
+                selectedValue = D_1EC;
+            } else if (owner->mode3B != 0xA) {
+                selectedMode = 8;
+                selectedValue = D_1F0;
+            }
+        } else if ((owner->mode3B == 9) && (owner->scale28 == 1.0f)) {
+            blend = 1.0f;
+            selectedMode = 0xB;
+            selectedValue = D_1F4;
+        } else if (owner->mode3B != 0xB) {
+            selectedMode = 9;
+            selectedValue = D_1F8;
+        }
+    } else {
+        selectedMode = 0;
+        selectedValue = D_1FC;
+        if ((owner->mode3B == 0x11) || (owner->mode3B == 0x12)) {
+            if (owner->scale28 != 1.0f) {
+                selectedMode = owner->mode3B;
+                selectedValue = D_200;
+            }
+        } else if ((owner->mode3B == 0) &&
+                   (o8P34A0RandomReloc(0, 0x3FF) >= 0x3FB)) {
+            blend = 0.0f;
+            selectedValue = D_204;
+            selectedMode = o8P34A0RandomReloc(0x11, 0x12);
+        }
+    }
+
+    if ((state->lowering349 == 0) && (state->override172 == 0)) {
+        if (owner->mode3B == 0xC) {
+            selectedMode = 0xC;
+            blend = 0.0f;
+            gO8P34A0ScaleReloc *= D_208;
+            selectedValue = D_20C;
+            result = 40.0f;
+        } else {
+            sampleCount = o8P34A0TerrainReloc(owner->xC, owner->z14,
+                                              0x1800, &query.samples0);
+            if (sampleCount != 0) {
+                index = 0;
+                if (sampleCount > 0) {
+                    do {
+                        height = *query.samples0[index];
+                        index++;
+                    } while ((height >= owner->y10) &&
+                             (index != sampleCount));
+                    result = height;
+                }
+                distance = owner->y10 - result;
+                result = distance;
+                if (distance > 40.0f) {
+                    gO8P34A0ScaleReloc *= D_210;
+                    state->mode16C = 1;
+                    selectedMode = 0xC;
+                    blend = 0.0f;
+                    selectedValue = D_214;
+                    o8P34A0EffectReloc(owner, 0x15, 0xC);
+                }
+            }
+        }
+    }
+
+    ownerMode = owner->mode3B;
+    if ((state->force185 == 1) ||
+        ((ownerMode == 0xE) && (owner->scale28 != 1.0f))) {
+        selectedMode = 0xE;
+        blend = 0.0f;
+        selectedValue = (gO8P34A0ModeReloc == 0) ? D_218 : D_21C;
+    } else if (((ownerMode == 0x13) || (ownerMode == 0x14) ||
+                (ownerMode == 0x15)) &&
+               (owner->scale28 != 1.0f)) {
+        selectedMode = ownerMode;
+        blend = 0.0f;
+        selectedValue = D_220;
+    } else if (((state->flags41C & 0x2000) != 0) &&
+               ((state->gate19B == 0) || (state->gate19C != 0))) {
+        selectedMode = 0xD;
+        blend = 0.0f;
+        selectedValue = D_224;
+    }
+
+    if (state->overrideMode193 != 0) {
+        selectedMode = state->overrideMode193;
+        selectedValue = *(f32 *)((u8 *)state + 0x194);
+        blend = 0.0f;
+    }
+
+    if (((owner->peer48->gate63 != 0) || (state->motion34A != 0)) &&
+        (state->active181 != 0) && (ownerMode != 0x13) &&
+        (ownerMode != 0x14) && (ownerMode != 0x15)) {
+        state->activity3C8 += 2.0f;
+        blend = 0.0f;
+        selectedValue = D_228;
+        if ((state->value8C <= D_22C) || (D_230 <= state->value8C)) {
+            selectedMode = 0x13;
+        } else if (state->value90 >= 0.0f) {
+            selectedMode = 0x14;
+        } else {
+            selectedMode = 0x15;
+        }
+        ownerMode = owner->mode3B;
+    }
+
+    if ((ownerMode == 0x18) && (owner->scale28 != 1.0f)) {
+        selectedMode = 0x18;
+        blend = 0.0f;
+        selectedValue = D_234;
+    } else if (state->secondary102 > 0) {
+        selectedMode = 0xF;
+        blend = 0.0f;
+        selectedValue = D_238;
+    } else if (state->secondary102 < 0) {
+        selectedMode = 0x10;
+        blend = 0.0f;
+        selectedValue = D_23C;
+    }
+
+    if (selectedMode != ownerMode) {
+        o8P34A0SetModeReloc(owner, selectedMode, -1, blend);
+    }
+    if ((o8P34A0AnimateReloc(owner, selectedValue, update) != 0) &&
+        (selectedValue != 0.0f)) {
+        state->flags1A8 |= 2;
+    } else {
+        state->flags1A8 &= 0xFFFD;
+    }
+    if ((state->overrideMode193 != 0) &&
+        (selectedMode != state->overrideMode193)) {
+        o8P34A0EventReloc(owner, 0x3C, selectedMode);
+    }
+
+    start = 0;
+    if (gOverlay8Value != 0) {
+        start = 2;
+        o8P34A0StateEffectReloc(state, 0x28, 0.15f);
+    }
+    for (index = start; index < 4; index++) {
+        state->angles114[index] +=
+            (s32)(state->motion4 * update * D_240);
+    }
+
+    target = state->steering428;
+    if (target < -0x3C) {
+        target = -0x1770;
+    } else if (target >= 0x3D) {
+        target = 0x1770;
+    } else {
+        target *= 0x64;
+    }
+    steps = (s32)update;
+    if (steps != 0) {
+        remaining = steps - 1;
+        do {
+            state->angle110 +=
+                o8P34A0ApproachReloc(state->angle110, target) >> 2;
+        } while (remaining-- != 0);
+    }
+    state->angle112 = state->angle110;
+
+    *gOverlay8Buffer = 3;
+    gOverlay8Buffer++;
+    *gOverlay8Buffer = state->angle144;
+    gOverlay8Buffer++;
+    *gOverlay8Buffer = 9;
+    gOverlay8Buffer++;
+    *gOverlay8Buffer = state->angle146;
+    gOverlay8Buffer++;
+    func_overlay_008_F00049E8_1862740(owner, state, update);
+
+    if (state->kind1 == 4) {
+        if ((state->motion4 < 0.0f) && (limit != 0.0f)) {
+            if (state->motion4 < -limit) {
+                outputAngle = -0x3000;
+            } else {
+                outputAngle = (s16)(s32)((12288.0f / limit) *
+                                         state->motion4);
+            }
+            strength = -state->motion4 / limit;
+            delta = (update / 60.0f) * strength * 25.0f;
+            state->phase3EC += delta;
+            state->phase3F0 += delta;
+            if (D_244 <= state->phase3EC) {
+                state->phase3EC -= D_244;
+            }
+            if (D_244 <= state->phase3F0) {
+                state->phase3F0 -= D_244;
+            }
+            trigA = o8P34A0TrigAReloc(
+                (s32)((state->phase3EC / D_244) * 65536.0f));
+            trigB = o8P34A0TrigBReloc(
+                (s32)((state->phase3F0 / D_248) * 65536.0f));
+            factor = strength * 4096.0f;
+            state->output3F8 = -outputAngle;
+            state->output3F4 = outputAngle + (s32)(factor * trigA);
+            state->output3F6 = outputAngle + (s32)(factor * trigB);
+        } else {
+            factor = 1.0f - o8P34A0DecayReloc(D_24C, steps);
+            state->output3F4 =
+                o8P34A0BlendReloc(state->output3F4, 0, factor);
+            factor = 1.0f - o8P34A0DecayReloc(D_250, steps);
+            state->output3F6 =
+                o8P34A0BlendReloc(state->output3F6, 0, factor);
+            factor = 1.0f - o8P34A0DecayReloc(D_254, steps);
+            state->output3F8 =
+                o8P34A0BlendReloc(state->output3F8, 0, factor);
+        }
+
+        *gOverlay8Buffer = 0x1E;
+        gOverlay8Buffer++;
+        *gOverlay8Buffer =
+            state->output3F8 + state->angle144 + state->angle146;
+        gOverlay8Buffer++;
+        *gOverlay8Buffer = 0x21;
+        gOverlay8Buffer++;
+        *gOverlay8Buffer = state->output3F4;
+        gOverlay8Buffer++;
+        *gOverlay8Buffer = 0x24;
+        gOverlay8Buffer++;
+        *gOverlay8Buffer = state->output3F6;
+        gOverlay8Buffer++;
+    } else if (state->kind1 == 2) {
+        if ((state->motion4 < 0.0f) && (limit != 0.0f)) {
+            strength = -state->motion4 / limit;
+            state->phase3EC += (update / 60.0f) * strength * 30.0f;
+            if (D_258 <= state->phase3EC) {
+                state->phase3EC -= D_258;
+            }
+            trigA = o8P34A0TrigAReloc(
+                (s32)((state->phase3EC / D_258) * 65536.0f));
+            state->output3F4 = (s32)(8192.0f * strength * trigA);
+        } else {
+            factor = 1.0f - o8P34A0DecayReloc(D_25C, steps);
+            state->output3F4 =
+                o8P34A0BlendReloc(state->output3F4, 0, factor);
+        }
+        *gOverlay8Buffer = 0x1E;
+        gOverlay8Buffer++;
+        *gOverlay8Buffer = state->output3F4;
+        gOverlay8Buffer++;
+    }
+    return result;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F00034A0_18611F8.s")
+#endif
 
 /*
  * NON_MATCHING plateau (2026-08-25): the typed reconstruction has the exact
