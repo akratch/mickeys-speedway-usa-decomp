@@ -66,6 +66,9 @@ extern const f32 gOverlay71Scale1;
 extern void func_overlay_071_F0000278_18C9D98(O71Object *object);
 
 /* Mickey-local reconstruction; no external donor body was used. */
+/* Plateau: size-exact; linked mismatch only at +0x25C's local-call placeholder.
+ * C resolves the callee to +0x278 while the ROM leaves zero for runtime relocation;
+ * adjacent-float alias and literal-offset spellings regressed the exact schedule. */
 #ifdef NON_MATCHING
 void func_overlay_071_F0000000_18C9B20(O71Object *object, O71Input *input,
                                        s32 preserveState) {
