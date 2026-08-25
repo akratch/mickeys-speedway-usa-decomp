@@ -44,7 +44,7 @@ typedef struct Overlay43RenderInput {
 
 typedef struct Overlay43RenderEntry {
     u8 pad00[0x44];
-    u8 alpha;
+    u32 alpha;
 } Overlay43RenderEntry;
 
 typedef struct Overlay43RenderLocals {
@@ -73,13 +73,9 @@ extern Overlay43RenderState *D_120[];
 extern u8 D_80000000[];
 extern u8 D_800000B8[];
 
-/*
- * PLATEAU (2026-08-25): -O2 -mips1 is the best flag group, with an exact
- * 0x158-byte frame but a 32-byte code-size excess, 309 differing positional
- * words, and first mismatch at +0x4. The remaining blocker is the display-list
- * macro expansion/register lifetime around the ninth saved transform value;
- * diagnostic comparison also masks unresolved overlay relocation identities.
- */
+/* Workbench: structure-mismatch; 307 positional words, 305/312 instructions, exact 0x158 frame, first mismatch +0x4. */
+/* Levers tried: corrected alpha width, split count/byte offset, statement placement, postfix gfx update, and transform lifetime. */
+/* Remaining: seven-instruction excess and missing ninth saved-register lifetime; explicit transform pointers regress frame and size. */
 #ifdef NON_MATCHING
 void func_overlay_043_F0000BE4_188ABB4(
     Overlay43RenderInput *input,
@@ -95,9 +91,9 @@ void func_overlay_043_F0000BE4_188ABB4(
     s32 offset;
 
     state = input->link->state;
-    model = state->model;
-    locals.vertexData = state->vertexData;
     if (D_C8 < 0xF) {
+        locals.vertexData = state->vertexData;
+        model = state->model;
         locals.displayList = state->displayList;
         matrixHeap = state->matrixHeap;
         locals.state = state;
@@ -153,8 +149,9 @@ void func_overlay_043_F0000BE4_188ABB4(
         gfx->w0 = 0xED004004;
         gfx->w1 = 0xFC0FC;
 
-        offset = (count - 1) * 4;
-        if (count - 1 >= 0) {
+        offset = count - 1;
+        if (offset >= 0) {
+            offset *= 4;
             entry = (Overlay43RenderEntry **)((u8 *)entries + offset);
             segmentAddress = D_80000000;
             do {
