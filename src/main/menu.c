@@ -82,6 +82,7 @@ extern void func_800359D4(void *sprite);
 extern void func_80039A9C(s32 assetId);
 extern void func_80039BE4(s32 assetId);
 extern void func_80039720(s32 updateRate);
+extern void func_8004BF64(s32 windowId);
 extern void func_80044BC8(s32 arg0, u8 *source, s32 line);
 extern u32 joyGetButtons(s32 controller);
 extern u32 joyGetPressed(s32 controller);
@@ -359,7 +360,94 @@ void func_80038878(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038878.s")
 #endif
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontFreeMode;
+ * Mickey supplies the smaller 19-mode switch and exact resident state. All
+ * 126 executable words are exact. Promotion is blocked by the shared 0x81590
+ * rodata slice: IDO emits an anonymous 0x4C-byte table while the target's
+ * named copy remains canonical; relocation metadata first differs at +0x2C. */
+void func_800389CC(void) {
+    u8 *selection;
+    u8 value;
+
+    if (D_8007C088 != 0) {
+        selection = func_80028F54();
+        switch (D_8007C0A0) {
+        case 0:
+            func_8004BF64(1);
+            break;
+        case 1:
+            break;
+        case 2:
+            TrapDanglingJump();
+            break;
+        case 6:
+            TrapDanglingJump();
+            break;
+        case 3:
+            TrapDanglingJump();
+            break;
+        case 4:
+        case 10:
+        case 12:
+        case 17:
+        case 18:
+            TrapDanglingJump();
+            break;
+        case 9:
+        case 11:
+            TrapDanglingJump();
+            break;
+        case 7:
+            TrapDanglingJump();
+            break;
+        case 8:
+            TrapDanglingJump();
+            break;
+        case 5:
+            value = *selection;
+            if ((value == 5) || (value == 6)) {
+                if (D_8007BEF4 == 1) {
+                    TrapDanglingJump();
+                } else if (D_8007BEF4 < 3) {
+                    TrapDanglingJump();
+                } else {
+                    TrapDanglingJump();
+                }
+            } else {
+                if (D_8007BEF4 == 1) {
+                    TrapDanglingJump();
+                } else if (D_8007BEF4 < 3) {
+                    TrapDanglingJump();
+                } else {
+                    TrapDanglingJump();
+                }
+            }
+            TrapDanglingJump();
+            break;
+        case 13:
+            TrapDanglingJump();
+            break;
+        case 14:
+            TrapDanglingJump();
+            break;
+        case 15:
+            TrapDanglingJump();
+            break;
+        case 16:
+            TrapDanglingJump();
+            break;
+        }
+        if (D_8007C1A4 != 0) {
+            amSndStop(D_8007C1A4);
+        }
+        D_8007C1AC = 0;
+        D_8007C088 = 0;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800389CC.s")
+#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: role and switch ordering compared with JFG's public
  * src/menu.c::frontInitMode; JFG retains assembly, and this body is derived
