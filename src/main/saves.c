@@ -449,7 +449,30 @@ s32 packDeleteFile(s32 controllerIndex, s32 fileNum) {
     return ret;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packOpenFile.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packReadFile.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packReadFile. */
+s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data, s32 dataLength) {
+    s32 readResult;
+
+    readResult = osPfsReadWriteFile(&D_800D21C8[controllerIndex], fileNum,
+                                    PFS_READ, 0, dataLength, data);
+    if (readResult == 0) {
+        return 0;
+    }
+    if (readResult == PFS_ERR_NOPACK || readResult == PFS_ERR_DEVICE) {
+        return 1;
+    }
+    if (readResult == PFS_ERR_INCONSISTENT) {
+        return 2;
+    }
+    if (readResult == PFS_ERR_ID_FATAL) {
+        return 3;
+    }
+    if (readResult == PFS_ERR_INVALID) {
+        return 5;
+    }
+    return 6;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packWriteFile.s")
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:packFileSize. */
