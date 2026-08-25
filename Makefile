@@ -2845,8 +2845,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnLinked7F.c.o: POSTPROCESS = 
 		func_overlay_036_F0000D8C_1884244=overlay36SpawnLinked7F $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnDirectional.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_036_F0000F20_18843D8=overlay36SpawnDirectional $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x164
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36SpawnOffsetA9.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \

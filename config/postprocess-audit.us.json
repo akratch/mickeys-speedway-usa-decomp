@@ -2462,8 +2462,7 @@
       "size": 356,
       "source": "src/overlays/o036/overlay36SpawnDirectional.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
