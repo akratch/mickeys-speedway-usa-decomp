@@ -1733,26 +1733,31 @@ s32 func_800246B0(f32 x, f32 y, f32 z, f32 *outX, f32 *outY,
  * PROVENANCE: name and role from JFG's public decomp,
  * src/camera.c:camReversePoint; body reconstructed from Mickey-only evidence.
  *
- * Plateau: the full flag lattice and a bounded two-worker permuter batch leave
- * a 66-instruction configured candidate against the 65-instruction target,
- * with 59 positional words different from first mismatch +0x0. The required
- * TU multiply scheduler uses a 0x28-byte frame and removes the target's dead
- * float spill; the same semantic body is byte-exact without that TU override,
- * which cannot be changed because camGetProjZ requires it.
+ * Plateau: after the full flag lattice, the bounded permuter batch, and ten
+ * new viewport-lifetime variants, the best configured candidate has the
+ * target's 65 instructions and exact FP-temp lane but differs in 33 positional
+ * words from first mismatch +0x0. Hoisting the four viewport coefficients
+ * recreates the target schedule but gives IDO a 0x40 frame instead of 0x38.
  */
 void func_80024834(f32 screenX, f32 screenY, f32 *x, f32 *y, f32 *z,
                    u8 transform) {
     Vp *viewport;
     f32 scale;
+    f32 transX;
+    f32 scaleY;
+    f32 scaleX;
     f32 transY;
 
-    viewport = &D_80079D58[D_800CEC64];
     scale = (*z * D_800CEC98[2][2]) * D_800CEC98[2][3];
-    *x = (((f32) (viewport->vp.vtrans[0] >> 2) - screenX) * scale) /
-         (D_800CEC98[0][0] * (f32) (viewport->vp.vscale[0] >> 2));
+    viewport = &D_80079D58[D_800CEC64];
+    transX = (f32) (viewport->vp.vtrans[0] >> 2);
+    scaleY = (f32) (viewport->vp.vscale[1] >> 2);
+    scaleX = (f32) (viewport->vp.vscale[0] >> 2);
     transY = (f32) (viewport->vp.vtrans[1] >> 2);
+    *x = ((transX - screenX) * scale) /
+         (D_800CEC98[0][0] * scaleX);
     *y = ((screenY - transY) * scale) /
-         (D_800CEC98[1][1] * (f32) (viewport->vp.vscale[1] >> 2));
+         (D_800CEC98[1][1] * scaleY);
     if (transform != 0) {
         mtxf_transform_point(D_800CF1E0, *x, *y, *z, x, y, z);
     }
