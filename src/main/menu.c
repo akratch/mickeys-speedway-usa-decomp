@@ -817,9 +817,9 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
     viConvertXY(right, bottom);
 }
 #ifdef NON_MATCHING
-/* Instruction words and linked bytes are exact, but 18 relocation sites
- * differ from +0x24: IDO binds unrolled elements to three array bases while
- * the target binds each element's BSS symbol separately. */
+/* All 37 words and linked bytes remain exact; 18 relocs differ from +0x24.
+ * Scalar labels fix them but pool constants to 29 words; four one-trip loops
+ * keep the target temp sequence but add 18 control words under all 119 flags. */
 void func_8003968C(void) {
     s32 controller;
 
