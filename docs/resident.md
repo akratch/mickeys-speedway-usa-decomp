@@ -2043,11 +2043,17 @@ at `+0x204`, followed at `+0x20C` by the zero-vector `f0`/`f6` choice. The
 remaining cluster is header-copy/branch and FP normalization scheduling. JFG
 `func_80060400` is the assembly oracle; asm stays canonical.
 
-`func_8003EC8C` plateaued size-exact at 47 words, with 24 residuals from
-`+0x30`: the target hoists `D_8007C894`'s HI16 load before the count decrement.
-A branch-local pointer fixes that schedule but disrupts both branches' register
-allocation. The flag lattice and bounded permuter found no compliant exact
-form; asm stays canonical.
+`func_8003EC8C` is size-exact with 24/47 residuals from `+0x30`; the target
+hoists the line-table address materialization across the first branch. Typed
+base locals disrupt both temporary-register rings; asm stays canonical.
+
+`partNullifyCircularParticleParents` is opcode/size-exact with 25/42 positional
+residuals from `+0x0`; implicit loop bounds seed both carrier pairs oppositely.
+An explicit end pointer changes the frame, so asm stays canonical.
+
+`debug_text_width` is size-exact with 9/66 residuals from `+0x20`; direct typed
+table access fixes one word, but its buffer remains eight stack bytes above the
+target and changes the value allocation. Asm stays canonical.
 
 `func_8004054C` plateaued one word short (124/125), with 43 aligned residuals
 from `+0x4C`: IDO folds the free-bit scan into a pointer move, then colors the

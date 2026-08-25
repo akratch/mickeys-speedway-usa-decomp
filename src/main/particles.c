@@ -119,7 +119,7 @@ typedef struct ParticleTriggerSlot {
     s16 value1C;
     s16 value1E;
     s16 value20;
-    s8 result;
+    u8 result;
     s8 index;
 } ParticleTriggerSlot;
 
@@ -1233,7 +1233,40 @@ s32 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config) {
     }
     return result;
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: structure cross-checked against JFG
+ * asm/nonmatchings/particles/func_8005FED8.s; body reconstructed from Mickey
+ * evidence. */
+/* Size-exact 47-word plateau: 24 words differ, first at +0x30. The target
+ * splits the line-table address materialization across the first branch;
+ * typed base locals either move its load or disturb both temp-register rings. */
+void func_8003EC8C(ParticleObject *object, s32 index) {
+    ParticleTriggerSlot *trigger;
+    s32 flags;
+
+    trigger = &object->triggers[index];
+    trigger->flags &= ~0x8000;
+    object->activeTriggerCount--;
+    flags = object->triggers[index].flags;
+    if (flags & 0x4000) {
+        u8 childIndex;
+
+        childIndex = trigger->result;
+        trigger->result = -1;
+        D_8007C894[childIndex].active = 1;
+        return;
+    }
+    if (flags & 0x400) {
+        u8 childIndex;
+
+        childIndex = trigger->result;
+        trigger->result = -1;
+        D_8007C898[childIndex].active = 1;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EC8C.s")
+#endif
 /* PROVENANCE: body adapted from JFG src/particles.c:partObjFreeTriggers. */
 void partObjFreeTriggers(ParticleObject *object) {
     s32 i;
@@ -2872,8 +2905,9 @@ void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     D_8007C8E8 ^= 1;
 }
 #ifdef NON_MATCHING
-/* Size-exact plateau: 27 words differ from +0x0; IDO assigns both nested-loop
- * carrier pairs oppositely, and declaration-order variants are identical. */
+/* Opcode- and size-exact plateau: 25/42 positional words differ, first at
+ * +0x0, all in the two nested-loop carrier pairs. An explicit end pointer
+ * changes the frame; the implicit end/start schedule seeds opposite colors. */
 void partNullifyCircularParticleParents(ParticlePosition *position) {
     CircularParticle *particle;
     CircularParticlePool *pool;
@@ -2892,8 +2926,8 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
                 if (particle->type != 0x80 && particle->kind == 3) {
                     particle->x += position->x;
                     particle->y += position->y;
-                    particle->parent = NULL;
                     particle->z += position->z;
+                    particle->parent = NULL;
                 }
                 particle++;
             } while (i < pool->count);
