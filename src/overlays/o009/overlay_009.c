@@ -347,13 +347,9 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
     }
 }
 
-/*
- * Plateau: the best R4300-multiply build differs in 4/162 masked words, first
- * at +0xC8; all four are the angle spill at +0x32 instead of retail +0x2A.
- * The frame, fraction, and x/y/z work slots are exact after reserving one
- * float, but further declaration placements regress them. The local 0.65f
- * pool addend is also +0x4C rather than retail +0x50.
- */
+/* Workbench: mixed constant/relocation residual; 4/162 words differ, first +0xC8.
+ * Constant-audit tried explicit local layouts, padding widths, and D_50 binding.
+ * Angle home remains +0x32 vs +0x2A; the 0.65f pool addend is +0x4C vs +0x50. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,
                                        void *unused, f32 step) {
