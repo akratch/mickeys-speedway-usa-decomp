@@ -1328,6 +1328,7 @@ unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–`0x2F7E0`, 12 bytes),
 plus `rcpInitDp` (ROM `0x30068`–`0x30118`, 176 bytes),
 `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes), and
 `rcpInitSp` (ROM `0x3013C`–`0x30160`, 36 bytes), and
+`rcpInit` (ROM `0x30160`–`0x30218`, 184 bytes), and
 `osScGetAudioSPStats` (ROM `0x30F20`–
 `0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
 `osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
@@ -1352,7 +1353,10 @@ public `src/rcp_dkr.c` body. The anonymous setter, dual-global reset,
 record-field accessors, allocation wrapper, and no-op are reconstructed from
 Mickey's own bodies. `rcpInitDp` is likewise reconstructed from Mickey's own
 display-list command flow; JFG supplies its name and ordered TU position, not
-its C body. All configured object ranges and the final linked ROM are byte-exact.
+its C body. `rcpInit` reconstructs Mickey's six message queues while JFG's
+public source supplies its name and prototype and its object supplies the exact
+skeleton anchor, not a C body. All configured object ranges and the final
+linked ROM are byte-exact.
 
 `__scHandleRetrace` has a preserved `NON_MATCHING` JFG-derived body after the
 119-combination flag lattice and ten source-shape hypotheses. The best

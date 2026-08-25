@@ -2125,7 +2125,7 @@ mmGetDelay = 0x8002BB34; // type:func size:0xC   ROM 0x2c734  tier-B donor-jfg r
 // jfg:src/saves.c.o
 rumbleKill = 0x8002BF00; // type:func size:0x44   ROM 0x2cb00  src/saves.c.o  masked=1/17  tier-A
 // jfg:src/rcpFast3d.c.o
-rcpInit = 0x8002F560; // type:func size:0xB8   ROM 0x30160  src/rcpFast3d.c.o  masked=33/46
+rcpInit = 0x8002F560; // type:func size:0xB8 ROM 0x30160 tier-A donor-jfg-src/rcpFast3d.c C-object+linked-ROM-exact matched-C
 // tier B (JFG): resident startup passes the scheduler here immediately before
 // continuing through the PI/RCP initialization sequence.
 viInit = 0x80033580; // type:func size:0x128 ROM 0x34180 canonical C, linked byte-identical

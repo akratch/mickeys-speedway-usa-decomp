@@ -9,7 +9,9 @@
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os_message.h"
 #include "game/gameVi.h"
+#include "game/sched_internal.h"
 
 typedef struct RcpCommand {
     u32 w0;
@@ -51,6 +53,21 @@ extern u32 D_8007A3B0;
 extern u32 D_8007A3AC;
 extern RcpCommand D_8007A438[];
 extern RcpCommand D_8007A4B8[];
+extern OSMesgQueue D_800D2880;
+extern OSMesg D_800D2898;
+extern OSMesgQueue D_800D28A0;
+extern OSMesgQueue D_800D28B8;
+extern OSMesg D_800D28D0[];
+extern OSMesg D_800D28F0[];
+extern OSMesgQueue *D_800D2C90;
+extern OSMesgQueue D_800D2C98;
+extern OSMesg D_800D2CB0[];
+extern OSMesgQueue D_800D2CD0;
+extern OSMesg D_800D2CE8[];
+extern OSMesgQueue D_800D2D08;
+extern OSMesg D_800D2D20[];
+
+OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpFast3d.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpWaitDP.s")
@@ -89,6 +106,16 @@ void rcpInitDpNoSize(RcpCommand **dlist) {
 void rcpInitSp(RcpCommand **dlist) {
     RCP_DISPLAY_LIST((*dlist)++, D_8007A4B8);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpInit.s")
+/* Mickey-derived reconstruction; JFG supplies the name, prototype, and exact
+ * object-skeleton anchor, while its public src/rcpFast3d.c retains assembly. */
+void rcpInit(OSSched *scheduler) {
+    D_800D2C90 = osScGetInterruptQ(scheduler);
+    osCreateMesgQueue(&D_800D2880, &D_800D2898, 1);
+    osCreateMesgQueue(&D_800D28A0, D_800D28D0, 8);
+    osCreateMesgQueue(&D_800D28B8, D_800D28F0, 8);
+    osCreateMesgQueue(&D_800D2C98, D_800D2CB0, 8);
+    osCreateMesgQueue(&D_800D2CD0, D_800D2CE8, 8);
+    osCreateMesgQueue(&D_800D2D08, D_800D2D20, 8);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002F618.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002FB34.s")
