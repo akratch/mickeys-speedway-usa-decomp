@@ -61,9 +61,12 @@ typedef struct ParticleTriggerSlot {
     s16 value14;
     s16 value16;
     s16 value18;
-    u8 pad1A[8];
+    s16 value1A;
+    s16 value1C;
+    s16 value1E;
+    s16 value20;
     s8 result;
-    u8 pad23;
+    s8 index;
 } ParticleTriggerSlot;
 
 typedef struct ParticleObjectHeader {
@@ -101,6 +104,26 @@ typedef struct ParticleModelEntry {
     u8 active;
     u8 padA5[0x1B];
 } ParticleModelEntry;
+
+typedef struct ParticleModelPartConfig {
+    s16 type;
+    s16 triggerType;
+    s16 particleType;
+} ParticleModelPartConfig;
+
+typedef struct ParticleModelObjectHeader {
+    u8 pad00[0xB0];
+    ParticleModelPartConfig *parts;
+} ParticleModelObjectHeader;
+
+typedef struct ParticleModelObject {
+    u8 pad00[0x40];
+    ParticleModelObjectHeader *header;
+    u8 pad44[0x38];
+    ParticleTriggerSlot *triggers;
+    u8 pad80[0x0D];
+    u8 triggerCount;
+} ParticleModelObject;
 
 typedef struct ParticleTypeDescriptor {
     u8 pad00[4];
@@ -436,7 +459,53 @@ void func_8003EDE0(f32 value) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EF80.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F154.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F5F8.s")
+#ifdef NON_MATCHING
+/*
+ * Size-exact plateau: IDO schedules the trigger-stride shift ahead of the
+ * descriptor-table load and then reorders the initialization stores.
+ * PROVENANCE: structure cross-checked against JFG
+ * asm/nonmatchings/particles/partModelObjEmitModelPart.s; body reconstructed
+ * from Mickey evidence.
+ */
+void partModelObjEmitModelPart(ParticleModelObject *object, f32 velocityX, f32 velocityY, f32 velocityZ, s32 index) {
+    s32 offset;
+    u8 *trigger;
+    ParticleConfig *config;
+    BasicParticle *particle;
+
+    if (index < object->triggerCount) {
+        offset = index * sizeof(ParticleModelPartConfig);
+        trigger = (u8 *)object->triggers + (index * sizeof(ParticleTriggerSlot));
+        config = D_8007C8B8[((ParticleModelPartConfig *)((u8 *)object->header->parts + offset))->type];
+        *(ParticleConfig **)(trigger + 0x00) = config;
+        *(s32 *)(trigger + 0x04) = 0;
+        *(s16 *)(trigger + 0x0C) = 0;
+        *(s16 *)(trigger + 0x1A) = 0;
+        *(s16 *)(trigger + 0x1C) = 0;
+        *(s16 *)(trigger + 0x1E) = 0;
+        *(s16 *)(trigger + 0x20) = 0;
+        *(s16 *)(trigger + 0x0A) =
+            ((ParticleModelPartConfig *)((u8 *)object->header->parts + offset))->triggerType;
+        *(s16 *)(trigger + 0x0E) = config->value14;
+        *(s16 *)(trigger + 0x10) = config->value16;
+        *(s16 *)(trigger + 0x12) = config->value18;
+        *(s16 *)(trigger + 0x14) = config->value22;
+        *(s16 *)(trigger + 0x16) = config->value24;
+        *(s8 *)(trigger + 0x23) = -1;
+        *(s16 *)(trigger + 0x18) = config->value26;
+        particle = (BasicParticle *)func_8003FB98(
+            (s32)object, (ParticleTrigger *)trigger,
+            ((ParticleModelPartConfig *)((u8 *)object->header->parts + offset))->particleType);
+        if (particle != NULL && (velocityX != 0.0f || velocityY != 0.0f || velocityZ != 0.0f)) {
+            particle->velocityX = velocityX;
+            particle->velocityY = velocityY;
+            particle->velocityZ = velocityZ;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partModelObjEmitModelPart.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003FB98.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8004054C.s")
 #ifdef NON_MATCHING

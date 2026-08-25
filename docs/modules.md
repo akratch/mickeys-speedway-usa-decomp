@@ -1433,6 +1433,17 @@ lattice found no alternative relocation binding. The candidate remains under
 `NON_MATCHING` and the original asm body remains canonical pending coordinated
 resident-rodata ownership.
 
+`partModelObjEmitModelPart` reached a bounded size-exact 84-word plateau under
+the default resident flags. The best compliant Mickey reconstruction differs
+in 19 words, first at function offset `0x58`, where the candidate performs the
+final trigger-stride shift before the descriptor-table add/load while the
+target performs it afterward. The residual continues through the trigger
+initialization stores; the call and complete post-call FP control flow are
+exact. The flag lattice found no exact alternative. A bounded permuter import
+selected `-mips1` instead of this TU's configured `-mips2`, so its output was
+inadmissible and discarded. The candidate remains under `NON_MATCHING` and the
+original asm body remains canonical.
+
 `vsprintf` reached a bounded size-exact plateau under `-Wab,-r4300_mul`: its
 1,220-word candidate differs in two adjacent words, first at function offset
 `0xB08`, where IDO loads the final exponent digit constants in the reverse
