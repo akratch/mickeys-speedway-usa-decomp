@@ -70,12 +70,17 @@ typedef struct Overlay97ScaleEntry {
 } Overlay97ScaleEntry;
 
 /*
- * DKR v77/v80 obj_init_scenery supplies the radius clamp, scale, model-index,
- * and angle semantics. Neither DKR build nor JFG contains an exact donor for
- * Mickey's model-bound scan tail.  The local header-sized pointer step is
+ * PROVENANCE: Diddy Kong Racing, src/object_functions.c
+ * (obj_init_scenery), supplies the radius clamp, scale, model-index, and
+ * angle semantics. Neither DKR v77/v80 nor JFG contains an exact donor for
+ * Mickey's model-bound scan tail. The local header-sized pointer step is
  * intentional: it preserves the original traversal base through the scan.
- * IDO spells values=bounds+2 as model+0x3E; the object rule fail-loud patches
- * only that equivalent base-selection word back to the shipped instruction.
+ *
+ * Plateau (2026-08-25): -O2/-mips2 with -Wab,-r4300_mul is size-exact and
+ * differs in 1 of 144 words, first at +0xD0. The target derives the values
+ * cursor from the bounds base; IDO instead derives the equivalent address
+ * directly from the model base. Typed common-base forms disturb the scan
+ * schedule, and the bounded permuter found no lower-scoring source form.
  */
 #ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
