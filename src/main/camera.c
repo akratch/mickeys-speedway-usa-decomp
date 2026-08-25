@@ -502,19 +502,10 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
         D_80079FA8[camNo] = waterLine;
     }
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from DKR's public decomp,
  * src/camera.c:copy_viewports_to_stack; JFG's public src/camera.c supplies
  * the camUserViewTick role while Mickey supplies the six-camera bound.
- *
- * Plateau: the full flag lattice, eight coherent expression/lifetime
- * variants, and a bounded two-worker permuter batch leave an exact-size
- * 104-instruction candidate with 17 positional words different from first
- * mismatch +0x98. The first difference is commutative output-index operand
- * order, followed by IDO scheduling/register choices in the viewport extent
- * expressions. The permuter's only improvement masked a signed 32-bit
- * coordinate to 16 bits and was rejected as semantically invalid.
  */
 void func_800219D0(void) {
     s32 width;
@@ -534,14 +525,14 @@ void func_800219D0(void) {
         D_80079C10[i].flags &= ~6;
         if (D_80079C10[i].flags & 1) {
             if (!(D_80079C10[i].flags & 8)) {
-                xPos = D_80079C10[i].x1 << 2;
-                xPos += ((D_80079C10[i].x2 - D_80079C10[i].x1) + 1) << 1;
+                xPos = (((D_80079C10[i].x2 - D_80079C10[i].x1) + 1) << 1) +
+                       (D_80079C10[i].x1 << 2);
             } else {
                 xPos = D_80079C10[i].posX << 2;
             }
             if (!(D_80079C10[i].flags & 0x10)) {
-                yPos = D_80079C10[i].y1 << 2;
-                yPos += ((D_80079C10[i].y2 - D_80079C10[i].y1) + 1) << 1;
+                yPos = (((D_80079C10[i].y2 - D_80079C10[i].y1) + 1) << 1) +
+                       (D_80079C10[i].y1 << 2);
             } else {
                 yPos = D_80079C10[i].posY << 2;
             }
@@ -555,7 +546,8 @@ void func_800219D0(void) {
             } else {
                 height = D_80079C10[i].height << 1;
             }
-            port = (D_80079D48 * 5) + i + 10;
+            port = i;
+            port += (D_80079D48 * 5) + 10;
             D_80079D58[port].vp.vtrans[0] = xPos;
             D_80079D58[port].vp.vtrans[1] = yPos;
             D_80079D58[port].vp.vscale[0] = width;
@@ -563,9 +555,6 @@ void func_800219D0(void) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800219D0.s")
-#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camEnableUserView. */
 void camEnableUserView(s32 camNo, s32 immediate) {
     CameraViewport *viewport;
