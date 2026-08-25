@@ -2582,6 +2582,7 @@ func_800246B0 = 0x800246B0; // type:func size:0x184 ROM 0x252B0 tier-D matched-C
 camGetProjZ = 0x80024938; // type:func size:0x40 ROM 0x25538 tier-D matched-C JFG TU role/order and projection-depth dataflow
 camStartShake = 0x80024AC4; // type:func size:0x90 ROM 0x256C4 tier-D matched-C JFG TU role/order and shake-record dataflow
 camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B matched-C similar-jfg-camStopShakes=1.000
+func_80024BA0 = 0x80024BA0; // type:func size:0x128 ROM 0x257A0 tier-D matched-C Mickey distance-based shake body, JFG camScreenShake role/order
 camSetZoom = 0x80024CC8; // type:func size:0x38 ROM 0x258c8 tier-B matched-C similar-jfg-camSetZoom=1.000
 func_80024D00 = 0x80024D00; // type:func size:0x1D8 ROM 0x25900 tier-D matched-C JFG camTick role/order, Mickey auto-name retained
 func_80024ED8 = 0x80024ED8; // type:func size:0x144 ROM 0x25AD8 tier-D matched-C Mickey auto-name retained, fixed-distance camera-transform dataflow
