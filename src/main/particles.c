@@ -70,6 +70,20 @@ typedef struct ParticleObject {
     ParticleTriggerSlot *triggers;
 } ParticleObject;
 
+typedef struct ParticleResourceEntry {
+    u8 pad00[0x2C];
+    s16 type;
+    u8 pad2E[0x1E];
+    void *resource;
+    u8 pad50[0x28];
+} ParticleResourceEntry;
+
+typedef struct ParticleResourceList {
+    u8 pad00[0x14];
+    ParticleResourceEntry *entries;
+    s32 count;
+} ParticleResourceList;
+
 typedef struct ParticleModelEntry {
     void *particles[15];
     s32 particleCount;
@@ -146,6 +160,9 @@ extern CircularParticlePool *D_800D4120[];
 extern CircularParticlePool *D_800D4134[];
 
 void mmFree(void *ptr);
+void func_800347A0(void *resource);
+void func_800359D4(void *resource);
+void modFreeModel(void *resource);
 void func_8003EC8C(ParticleObject *object, s32 index);
 void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
 void func_8003CA20(void);
@@ -169,7 +186,38 @@ void func_8003CCE4(void) {
         D_8007C89C[1] = NULL;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CD28.s")
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005DC7C.s; body reconstructed from Mickey evidence. */
+void func_8003CD28(ParticleResourceList **listPtr) {
+    ParticleResourceList *list;
+    ParticleResourceEntry *entry;
+    s32 i;
+
+    list = *listPtr;
+    if (list != NULL) {
+        entry = list->entries;
+        i = 0;
+        if (list->count > 0) {
+            do {
+                switch (entry->type) {
+                    case 2:
+                        func_800359D4(entry->resource);
+                        break;
+                    case 0:
+                    case 1:
+                        func_800347A0(entry->resource);
+                        break;
+                    case 3:
+                        modFreeModel(entry->resource);
+                        break;
+                }
+                i++;
+                entry++;
+            } while (i < list->count);
+        }
+        mmFree(list);
+        *listPtr = NULL;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CE10.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D25C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D4FC.s")
