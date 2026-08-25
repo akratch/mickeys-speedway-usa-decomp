@@ -1172,6 +1172,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79UpdateTimers.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79FindNearby.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79FindNearby.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym sqrtf=overlay79SqrtReloc \
+		--redefine-sym Arctanf=ext_o0_2a4c0 \
+		--redefine-sym func_8002A8BC=ext_o0_2a46c $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2E0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c.o: CFLAGS += -Wab,-r4300_mul
 # The assembly fallback already carries the shipped synthetic symbol and
 # relocation surface; discard only compiler section alignment.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000000_18CCFA0.c.o: POSTPROCESS = \
