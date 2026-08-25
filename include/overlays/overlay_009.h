@@ -199,7 +199,7 @@ extern void ext_o0_5aac4(void *, void *, void *);
 extern void ext_o0_19668(void *, void *, void *, void *);
 extern void ext_o0_1d510(void *, void *, void *, void *, s32);
 extern void ext_o0_2d98(void *);
-extern s32 ext_o0_2b90();
+extern void ext_o0_2b90();
 extern void ext_o0_3e99c(void *, s32);
 extern s32 ext_o0_2a5bc(s32, s32);
 extern s32 ext_o0_2952c(s32, s32);
