@@ -97,8 +97,27 @@ void *func_8002B280(s32 size, u32 colourTag) {
     return func_8002B3A8(MEMORY_POOL_MAIN, size, colourTag);
 }
 
-/* JFG correspondence: mmAlloc2 (tier B; duplicate allocation wrapper). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B314.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmAlloc2. */
+void *func_8002B314(s32 size, u32 colourTag) {
+    struct {
+        volatile s32 address;
+        s32 moduleAddress;
+        s32 moduleId;
+        s32 pad;
+    } stack;
+
+    stack.address = 0x666;
+    D_8007A270 = colourTag;
+    if (D_8007A278 != -1) {
+        colourTag = D_8007A278 | 0xFF000000;
+    } else if (D_8007A27C != -1) {
+        colourTag = D_8007A27C | 0xFE000000;
+    } else {
+        runlinkGetAddressInfo(stack.address - 8, &stack.moduleId, &stack.moduleAddress, NULL);
+        colourTag = (stack.moduleId << 24) | stack.moduleAddress;
+    }
+    return func_8002B3A8(MEMORY_POOL_MAIN, size, colourTag);
+}
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_slot_find. */
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
