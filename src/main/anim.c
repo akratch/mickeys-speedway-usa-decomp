@@ -807,6 +807,8 @@ typedef struct HitCollisionNormalLink {
     f32 unk14;
     f32 unk18;
     f32 unk1C;
+    f32 unk20;
+    f32 unk24;
 } HitCollisionNormalLink;
 
 void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
@@ -892,9 +894,9 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     f32 deltaZ;
     f32 distance;
 
-    firstSource = first->source;
     secondTarget = (HitCollisionNormalLink *) second->target;
     secondSource = second->source;
+    firstSource = first->source;
     firstVehicle = (HitCollisionVehicle *) first->target;
     if (TrapDanglingJump(firstVehicle) != 0) {
         TrapDanglingJump(secondTarget->state, first, firstVehicle);
@@ -933,7 +935,86 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055970.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * Mickey-local composition of the resident response and normal helpers.
+ * Plateau after the flag lattice, 10 source/lifetime shapes, and a bounded
+ * canonical-flag permuter: the candidate is exact for 113/121 instructions,
+ * all calls, the 0x50 frame, and FP schedule. Eight words remain from +0x20:
+ * five initial pointer-load/move scheduling words and the three-use 0x258
+ * temporary in v1 rather than v0. The isolated score-15 assignment reorder
+ * does not change full-TU output; score 85 adds an observable store and was
+ * rejected.
+ */
+void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCollisionNormalLink *secondTarget;
+    HitCopySource *secondSource;
+    HitCollisionVehicle *firstVehicle;
+    HitCopySource *firstSource;
+    s32 soundHandle;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    firstSource = first->source;
+    secondTarget = (HitCollisionNormalLink *) second->target;
+    secondSource = second->source;
+    firstVehicle = (HitCollisionVehicle *) first->target;
+    if ((firstVehicle->unk16A == 0) && (firstVehicle->unk168 == 0)) {
+        TrapDanglingJump(first, firstVehicle);
+        {
+            s32 timer;
+
+            timer = 0x258;
+            firstVehicle->unk158 = -0x7FFD;
+            firstVehicle->unk15A = timer;
+            firstVehicle->unk15C = timer;
+        }
+        firstVehicle->unk150 = 10.0f;
+        TrapDanglingJump(secondTarget->state, first);
+        if (1) {
+        }
+        ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
+        firstVehicle->unk3B8++;
+        if (*func_80028F54() == 5) {
+            TrapDanglingJump(first);
+        }
+        soundHandle = firstVehicle->soundHandle;
+        firstVehicle->unk185 = 0;
+        firstVehicle->unk188 = 0.0f;
+        if (soundHandle != 0) {
+            func_800031E8(soundHandle);
+        }
+        if (!(firstVehicle->flags1A8 & 1)) {
+            rumbleStart(firstVehicle->playerIndex, 0x46, 0.75f);
+        }
+    } else {
+        func_80002FE0(0x26E, secondSource->current.x,
+                      secondSource->current.y, secondSource->current.z,
+                      4, NULL);
+    }
+    second->position.x = secondSource->current.x;
+    second->position.y = secondSource->current.y;
+    second->position.z = secondSource->current.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    secondTarget->unk1C = deltaX / distance;
+    secondTarget->unk20 = deltaY / distance;
+    secondTarget->unk24 = deltaZ / distance;
+    TrapDanglingJump(second, 6);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055B24.s")
+#endif
 void func_80055D08(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopySource *firstSource;
     HitCopySource *secondSource;
