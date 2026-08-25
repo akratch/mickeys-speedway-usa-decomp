@@ -1,5 +1,7 @@
 #include "PR/ultratypes.h"
 
+/* IDO 5.3 -O2 -mips2 reproduces 0x110 bytes; -mips1 grows them to 0x11C. */
+
 typedef struct Overlay61RecordHeader {
     u32 magic;
     u8 pad4[4];
@@ -18,13 +20,13 @@ extern s32 overlay61ReadReloc(s32 arg0, void *handle, void *data, s32 size);
 extern void overlay61FreeReloc(void *data);
 extern void overlay61CloseReloc(s32 arg0);
 
-#ifdef NON_MATCHING
 s32 overlay61ReadCharacter(
     s32 arg0, s32 arg1, s32 *out0, s32 *out1, s32 *out2) {
-    void *handle;
-    s32 size;
-    Overlay61RecordHeader *buffer;
     s32 result;
+    s32 size;
+    void *handle;
+    Overlay61RecordHeader *buffer;
+    volatile s32 padding[2];
 
     result = overlay61StorageReadyReloc();
     if (result == 0) {
@@ -55,6 +57,3 @@ s32 overlay61ReadCharacter(
     overlay61CloseReloc(arg0);
     return result;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o061/overlay61ReadCharacter/func_overlay_061_F00018A0_18C0C68.s")
-#endif
