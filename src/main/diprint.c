@@ -1089,7 +1089,6 @@ void debug_text_background(Gfx **dList, u32 ulx, u32 uly, u32 lrx, u32 lry) {
         gDPFillRectangle((*dList)++, ulx, uly, lrx, lry);
     }
 }
-#ifdef NON_MATCHING
 #define G_CC_DEBUG_TEXT 0, 0, 0, ENVIRONMENT, TEXEL0, 0, ENVIRONMENT, 0
 /*
  * PROVENANCE: body adapted from JFG src/diprint.c:debug_text_character;
@@ -1099,25 +1098,28 @@ void debug_text_background(Gfx **dList, u32 ulx, u32 uly, u32 lrx, u32 lry) {
 s32 debug_text_character(Gfx **dList, s32 asciiVal) {
     s32 fontCharWidth;
     s32 fontCharU;
+    union {
+        s32 value;
+        s64 align;
+    } fontTextureWidth;
     s32 fontTexture;
-    s32 fontTextureWidth;
     s32 textureIndex;
 
     textureIndex = D_800D4A7C;
     if (asciiVal < 0x40) {
         textureIndex = 0;
         fontTexture = (s32)D_800D4A50 + 0x20;
-        fontTextureWidth = 0xC0;
+        fontTextureWidth.value = 0xC0;
         asciiVal -= 0x21;
     } else if (asciiVal < 0x60) {
         textureIndex = 1;
         fontTexture = (s32)D_800D4A54 + 0x20;
-        fontTextureWidth = 0xF8;
+        fontTextureWidth.value = 0xF8;
         asciiVal -= 0x40;
     } else if (asciiVal < 0x80) {
         textureIndex = 2;
         fontTexture = (s32)D_800D4A58 + 0x20;
-        fontTextureWidth = 0xC0;
+        fontTextureWidth.value = 0xC0;
         asciiVal -= 0x60;
     }
     fontCharU = D_8007CE98[textureIndex][asciiVal].u;
@@ -1125,7 +1127,8 @@ s32 debug_text_character(Gfx **dList, s32 asciiVal) {
     if (D_800D4A68 != 0) {
         if (textureIndex != D_800D4A7C) {
             gDPLoadTextureBlockS((*dList)++, fontTexture + 0x80000000,
-                                 G_IM_FMT_IA, G_IM_SIZ_8b, fontTextureWidth,
+                                 G_IM_FMT_IA, G_IM_SIZ_8b,
+                                 fontTextureWidth.value,
                                  11, 0, 2, 2, 0, 0, 0, 0);
             D_800D4A7C = textureIndex;
         }
@@ -1138,9 +1141,6 @@ s32 debug_text_character(Gfx **dList, s32 asciiVal) {
     return fontCharWidth;
 }
 #undef G_CC_DEBUG_TEXT
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_character.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_bounds. */
 void debug_text_bounds(void) {
     if (D_800D4A80 <= 320) {
