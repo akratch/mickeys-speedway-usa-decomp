@@ -222,12 +222,42 @@ u8 *func_8005A948(s16 animationId) {
 #endif
 
 /*
- * Plateau: two release-loop spellings emit 47 and 43 instructions against
- * the target's 46. The closer pointer-induction form diverges immediately in
- * register allocation and loop scheduling; the flag lattice does not repair
- * the structural residual.
+ * Mickey-only reconstruction; JFG retains modFreeAnim as assembly.
+ * Plateau: the best canonical candidate has the target's 46-word size but 14
+ * differing words, first at +0x40. Its remaining cache-loop temporaries rotate
+ * by one register and spill the selected index at 0x1C(sp) instead of 0x18(sp);
+ * the flag lattice and a bounded source permutation do not repair that FIFO.
  */
+#ifdef NON_MATCHING
+void func_8005AAC0(u8 *animation) {
+    s32 index;
+    s32 i;
+
+    if (animation != NULL) {
+        animation[0]--;
+        if (animation[0] > 0) {
+            return;
+        }
+        index = -1;
+        if (D_800D7D04 > 0) {
+            i = 0;
+            do {
+                if (animation == ((AnimationCacheEntry *)((u8 *)D_800D7CF4 + (i << 3)))->animation) {
+                    index = i;
+                }
+                i++;
+            } while (i < D_800D7D04);
+        }
+        if (index != -1) {
+            mmFree(animation);
+            ((s32 *)D_800D7CF4)[index * 2] = -1;
+            ((s32 *)D_800D7CF4)[index * 2 + 1] = -1;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AAC0.s")
+#endif
 /* PROVENANCE: adapted from JFG src/camera.c (camConvertMatrixList). */
 void camConvertMatrixList(Matrix *mtx, s32 count) {
     s32 index = D_800D7CF0;

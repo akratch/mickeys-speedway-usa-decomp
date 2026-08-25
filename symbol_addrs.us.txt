@@ -2155,6 +2155,7 @@ modelSetModelFlags = 0x80020564; // type:func size:0xC   ROM 0x21164  src/models
 modelGetModelFlags = 0x80020570; // type:func size:0xC   ROM 0x21170  src/models.c.o  tier-B paired JFG model-flag accessor  C-match -O2 -mips2
 func_80020AD4 = 0x80020AD4; // type:func size:0x3C   ROM 0x216d4  src/models.c.o  masked=6/15  C-match -O2 -mips2
 modResumeModelTextures = 0x80021010; // type:func size:0x8C   ROM 0x21C10  src/models.c.o  tier-B JFG name and suspended-texture traversal  C-match -O2 -mips2
+func_8002109C = 0x8002109C; // type:func size:0xF8   ROM 0x21C9C  tier-D matched C main/models -O2 -mips2 -32 Mickey-only point transform
 // jfg:src/camera.c.o
 camSetWaterLine = 0x800219B0; // type:func size:0x20 ROM 0x225b0 tier-A matched-C src/camera.c.o masked=2/8 romocc=1
 camGetPlayerProjMtx = 0x80022760; // type:func size:0x34 ROM 0x23360 tier-A matched-C src/camera.c.o masked=5/13 romocc=1
