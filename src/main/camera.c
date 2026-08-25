@@ -91,6 +91,7 @@ typedef struct {
 extern u8 D_80079F94;
 extern s32 D_80079F8C;
 extern f32 D_80079F60;
+extern f32 D_80079F48;
 extern u8 D_80079FA0[];
 extern s32 D_800CEC84;
 extern s32 D_800CEC88;
@@ -347,7 +348,9 @@ void func_80022794(Gfx **dlist, Mtx **mtx) {
 void camOrthoYAspect(f32 aspect) {
     D_80079F60 = aspect;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A44.s")
+void func_80022A44(f32 arg0) {
+    D_80079F48 = arg0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A50.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022B94.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022C58.s")
