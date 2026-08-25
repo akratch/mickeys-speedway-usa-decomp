@@ -1101,7 +1101,7 @@ body is copied by this split; Mickey's own bytes remain authoritative.
 | `0x1C020` | `0x304` | `effectboxControl` | D |
 | `0x1C324` | `0x74` | `texscrollControl` | B name; JFG-adapted exact C, 29 words, 1 call reloc under O2/mips2 |
 | `0x1C398` | `0x2BC` | `func_8001B798` | unresolved |
-| `0x1C654` | `0x90` | `rangetriggerControl` | B; identified additionally by masked skeleton and volume-trigger callees |
+| `0x1C654` | `0x90` | `rangetriggerControl` | B; `NON_MATCHING` plateau after flag sweep and 10 stack-layout hypotheses: 34/36 words exact with both call relocs exact, first mismatch `+0x50`; IDO homes the entry pointer at `sp+0x44` instead of target `sp+0x40` |
 | `0x1C6E4` | `0x14` | `func_8001BAE4` | exact C, 5 words, 0 relocs; role unresolved |
 | `0x1C6F8` | `0xC` | `func_8001BAF8` | exact C, 3 words, 0 relocs; role unresolved |
 | `0x1C704` | `0xC` | `func_8001BB04` | exact C, 3 words, 0 relocs; role unresolved |

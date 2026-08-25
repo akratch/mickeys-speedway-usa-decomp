@@ -97,11 +97,30 @@ typedef struct SpranimOnceState {
     s32 animationId;
 } SpranimOnceState;
 
+typedef struct RangetriggerEntry {
+    u8 pad0[0xA];
+    u16 radius;
+    u16 triggerId;
+} RangetriggerEntry;
+
+typedef struct RangetriggerState {
+    u8 pad0[0xC];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x24];
+    RangetriggerEntry *entry;
+    u8 pad40[0x40];
+    s32 activeTrigger;
+} RangetriggerState;
+
 extern u8 D_8007BF2C;
 extern void func_80006EA0(void *object);
 extern void func_80020D8C(void *arg0, s32 arg1, s32 arg2, void *arg3);
 extern void func_8000D16C(s16 textureIndex, s32 x, s32 y, s32 updateRate);
 extern void func_80036544(void *entry, s32 *mode, s32 animationId, void *state, s32 updateRate);
+extern s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 mode, void *hits);
+extern void partUpdateTriggers(void *state, s32 updateRate);
 
 /* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/spranimInit.s, with Mickey's offsets. */
 void spranimInit(SpranimInitState *state, SpranimInitEntry *entry) {
@@ -167,7 +186,23 @@ void texscrollControl(TexscrollState *state, s32 updateRate) {
     func_8000D16C(entry->textureIndex, x, y, updateRate);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001B798.s")
+#ifdef NON_MATCHING
+/* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/rangetriggerControl.s, with Mickey's offsets. */
+void rangetriggerControl(RangetriggerState *state, s32 updateRate) {
+    RangetriggerEntry *entry;
+    u64 hits[4];
+
+    entry = state->entry;
+    if (func_8005776C(state->x, state->y, state->z, entry->radius, 1, hits) > 0) {
+        state->activeTrigger = entry->triggerId;
+    } else {
+        state->activeTrigger = 0;
+    }
+    partUpdateTriggers(state, updateRate);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/rangetriggerControl.s")
+#endif
 void func_8001BAE4(SpranimBAE4Object *arg0, void *arg1) {
     arg0->target58->state132 = 1;
 }
