@@ -574,10 +574,9 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Plateau after 10 source/type shapes and a bounded canonical-flag permuter
- * run: the best semantic candidate has 84 of the target's 87 instructions,
- * first mismatch +0x34. IDO folds three repeated array-base HI/LO pairs into
- * carried registers; the lower-scoring permuter result made a loop invariant.
+ * Plateau: the fresh fixed-count array route reaches 85/87 instructions but
+ * loses the boundary-symbol relocations. This 84/87 form retains them; first
+ * mismatch +0x34, with IDO carrying three boundary bases between loops.
  */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
