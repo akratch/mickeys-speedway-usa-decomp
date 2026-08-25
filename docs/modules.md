@@ -1350,6 +1350,16 @@ new scheduler BSS that this split does not own. The assembly fallback remains
 canonical until BSS ownership can be reconstructed without changing the
 shared data layout.
 
+The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
+`NON_MATCHING` body after the 119-combination flag lattice and seven
+source/type/loop shapes. Its best faithful candidate is 29 instructions versus
+the target's 28; the first mismatch is at function `+0x0` because the longer
+branch span is followed by an extra value-preserving move at `+0x4`. That move
+changes the loop's register allocation even though the control flow and bit
+stream operations agree. The lane's `tools/permute.sh` could not run because
+the vendored `tools/permuter/import.py` is absent. The assembly fallback
+remains canonical.
+
 ### 3.16 Particle and debug-print translation units
 
 ROM `0x3D5F0`–`0x45760` is now split into two aligned resident C

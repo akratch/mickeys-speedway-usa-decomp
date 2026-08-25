@@ -25,6 +25,13 @@ typedef struct SavesRecord {
     s32 unk10;
 } SavesRecord;
 
+typedef struct SavesBitWriter {
+    u8 pad00[8];
+    u8 mask;
+    u8 pad09[3];
+    u8 *cursor;
+} SavesBitWriter;
+
 void mmFree(void *address);
 s32 osContStartReadData(OSMesgQueue *messageQueue);
 void rumbleStop(s32 controllerIndex, s32 arg1);
@@ -76,7 +83,41 @@ void func_8002C5F4(void) {
     D_8007A2FC = 1;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C60C.s")
+#ifdef NON_MATCHING
+void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
+    u32 mask;
+    u32 bit;
+    s32 isSet;
+    u32 nextBit;
+    u8 *nextCursor;
+    u8 *cursor;
+
+    if (bitCount != 0) {
+        bit = 1 << (bitCount + 0x1F);
+        do {
+            mask = writer->mask;
+            isSet = value & bit;
+            nextBit = bit >> 1;
+            bit = nextBit;
+            if (mask == 0) {
+                mask = 0x80;
+                nextCursor = writer->cursor + 1;
+                writer->cursor = nextCursor;
+                *nextCursor = 0;
+                writer->mask = 0x80;
+            }
+            if (isSet != 0) {
+                cursor = writer->cursor;
+                *cursor |= mask;
+                mask = writer->mask;
+            }
+            writer->mask = (u8) (mask >> 1);
+        } while (nextBit != 0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C69C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C70C.s")
 s32 func_8002C788(SavesRecord *record) {
     return record->unk10;
