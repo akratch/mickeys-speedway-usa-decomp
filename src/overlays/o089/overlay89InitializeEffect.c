@@ -123,11 +123,14 @@ extern void overlay89MaintainReloc(Overlay89Object *object,
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
 /*
- * Plateau (2026-08-25): -O2 -mips2 -Wab,-r4300_mul is 4 bytes short with
- * 94 masked word differences, first at +0x40. Declaration and store ordering
- * place the descriptor correctly, but the target preserves state in a
- * caller-save slot across create and maintain while this candidate reloads it.
- * A bounded permuter run found no exact, and its state-alias winner regressed.
+ * Plateau retry (2026-08-25): -O2 -mips2 is exact size with 58 masked word
+ * differences, first at +0x40. Assigning primaryHandle through state and
+ * matching descriptor-store order improved the prior 94-word result, but the
+ * target still preserves state in a caller-save slot across create and
+ * maintain while this candidate reloads it. Lifetime splits and a cached
+ * pointer regressed. A 10-minute permuter batch improved score 670 to 225 only
+ * by combining that cache with an empty self-conjunction block, rejected as
+ * scheduling scaffolding.
  */
 #ifdef NON_MATCHING
 void overlay89InitializeEffect(Overlay89Object *object,
@@ -173,11 +176,11 @@ void overlay89InitializeEffect(Overlay89Object *object,
     state->primaryHandle = NULL;
     state->secondaryHandle = NULL;
 
-    descriptor.kind = 3;
     descriptor.mode = init->descriptorMode;
+    descriptor.kind = 3;
+    descriptor.flags = (~init->flags) & 0x61;
     descriptor.sentinelByte = -1;
     descriptor.zero04 = 0;
-    descriptor.flags = (~init->flags) & 0x61;
     descriptor.zero06 = 0;
     descriptor.zero08 = 0;
     descriptor.zero0A = 0;
@@ -194,7 +197,7 @@ void overlay89InitializeEffect(Overlay89Object *object,
         descriptor.flags |= 0x40;
     }
 
-    object->state->primaryHandle =
+    state->primaryHandle =
         overlay89CreatePrimaryReloc(object, &descriptor, state, init);
     state = object->state;
     state->scale = (f32)(init->scale * 8);
