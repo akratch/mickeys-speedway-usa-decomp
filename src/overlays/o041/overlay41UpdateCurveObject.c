@@ -87,10 +87,17 @@ extern f32 sqrtf(f32);
 extern s32 func_8002A910(f32, f32);
 extern f32 func_8002A878(f32, s32);
 
+/*
+ * NON_MATCHING p2: workbench structure-mismatch with an exact 638-instruction,
+ * -224-byte frame; lever 26 reduced differing words from 300 to 222, first +0x80.
+ * Address-taken homes now align, but two early FP spill homes remain four bytes low.
+ */
 #ifdef NON_MATCHING
 void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
                                         s32 updateRate, s32 argument) {
+    s32 iteration;
     s16 targetX;
+    s16 targetY;
     s16 targetZ;
     f32 currentSpeed;
     f32 averageSpeed;
@@ -114,8 +121,6 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
     Overlay41CurveNode *node;
     Overlay41CurveNode *next;
     Overlay41Object *object;
-    s16 targetY;
-    s32 iteration;
 
     if (input != 0 && input->object != 0 && !(amount < 0.0f)) {
         object = input->object;

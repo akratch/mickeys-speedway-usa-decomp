@@ -1272,17 +1272,15 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
 #endif
 
 /*
- * NON_MATCHING plateau (2026-08-25): the typed reconstruction has the exact
- * 0x6FC extent under -O2 -mips1, but 421 of 447 masked words differ and the
- * first mismatch is +0x0. The canonical -Wab,-r4300_mul build is 0x50 short:
- * the target's 0xA0 frame keeps substantially more FP homes live, so local
- * lifetime/stack-home reconstruction is the remaining blocker.
+ * NON_MATCHING p2: workbench structure-mismatch; the best home-pressure variant
+ * has 433/447 instructions and 425 differing positional words, first +0x0.
+ * Lever 26 leaves an eight-byte non-save frame deficit and 14 missing instructions.
  */
 #ifdef NON_MATCHING
 void func_overlay_008_F00042A8_1862000(O8P42A8Actor *actor,
                                        O8P42A8Owner *owner, f32 update) {
     O8P42A8State *state;
-    f32 targetMotion;
+    volatile f32 targetMotion;
     f32 targetHeight;
     f32 phase;
     f32 smoothing;

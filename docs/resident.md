@@ -2321,17 +2321,9 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   target's `$a0`; the remaining five-word structural excess is concentrated
   in the two end-of-frame display commands. The valid permuter score improved
   from 3,620 to 3,050 by introducing a matrix-array temporary, not identity.
-- `func_80028564`, ten control-flow, storage, aggregate-layout and
-  framebuffer-loop hypotheses, the full 119-combination flag lattice and a
-  bounded two-worker resident-MIPS-II permuter batch, first mismatch `+0x4`:
-  the best Mickey-derived transition/level-load body has the target's `-0x58`
-  frame but 492 rather than 489 instructions. IDO saves an otherwise unused
-  `$s0` and places `$ra` at `sp+0x2C`, while the target saves only `$ra` at
-  `sp+0x24`. The target's six character writes share a `2 * 0x28` base;
-  explicit array fields are three words long overall, while loop and grouped
-  index forms miss by 20 and 40 words. The valid permuter score improved from
-  13,270 to 11,970 only by reusing a pointer alias on paths where it is
-  uninitialized, so that candidate was rejected.
+- `func_80028564`: p2 workbench structure-mismatch, 492/489 instructions and 426 differing positional words.
+  First mismatch `+0x4`; the exact frame still carries one unused saved-register web.
+  Lever 1 and volatile/address-alias probes were byte-identical, leaving that web unresolved.
 - `mainThread`, five source/address hypotheses plus the full flag lattice,
   first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
   the exact 200-byte linked instruction stream, frame and control flow, but
