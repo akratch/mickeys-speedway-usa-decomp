@@ -1834,19 +1834,16 @@ void camStopShakes(void) {
  * PROVENANCE: role from JFG's public decomp, src/camera.c:camScreenShake;
  * body reconstructed from Mickey-only evidence.
  *
- * Plateau: after the full flag lattice, ten coherent source/lifetime
- * spellings and a bounded two-worker permuter batch, the closest configured
- * candidate has the exact 296-byte size and differs in 15 positional words
- * from first mismatch +0x60. IDO assigns the long-lived $f20 register to the
- * Z delta instead of the target's X delta, cascading through the arithmetic
- * temporaries; the permuter's best score is 125, not zero.
+ * Plateau: 72/74 words exact; two adjacent LUI schedule words remain, first +0x58.
+ * R4300 scheduling fixes the FP pair; load/declaration-order variants leave
+ * the attack and camera-address materializations transposed.
  */
 void func_80024BA0(f32 x, f32 y, f32 z, f32 radius, f32 magnitude) {
     Camera *cam;
     f32 dx;
-    f32 distance;
-    f32 dz;
     f32 dy;
+    f32 dz;
+    f32 distance;
     f32 attack;
     f32 sustain;
     s32 i;
@@ -1855,22 +1852,20 @@ void func_80024BA0(f32 x, f32 y, f32 z, f32 radius, f32 magnitude) {
     if (D_800CEC60 >= 0) {
         sustain = D_80081A40;
         attack = D_80081A44;
+        cam = &D_800CEA20[i];
         do {
-            cam = &D_800CEA20[i];
-            dx = x - cam->transform.x;
+            distance = x - cam->transform.x;
+            dx = distance;
             dy = y - cam->transform.y;
-            distance = z - cam->transform.z;
-            dz = distance;
-            dx = dx * dx;
-            dy = dy * dy;
-            dz = dz * dz;
-            distance = sqrtf((dx + dy) + dz);
+            dz = z - cam->transform.z;
+            distance = sqrtf((dx * dx + dy * dy) + dz * dz);
             if (distance < radius) {
                 camStartShake(i, attack, sustain, attack,
                               (s32) (((radius - distance) * magnitude) /
                                      radius));
             }
             i++;
+            cam++;
         } while (i <= D_800CEC60);
     }
 }
