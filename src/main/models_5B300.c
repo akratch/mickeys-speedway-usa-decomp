@@ -88,14 +88,9 @@ void func_8005A770(void) {
     D_800D7CF0 = 0;
 }
 /*
- * Plateau: the direct Mickey reconstruction emits 105 instructions against
- * the target's 106 and uses a 0x58 frame instead of 0x38. Its first mismatch
- * is the prologue at +0x0; 73 positional words differ after IDO keeps the
- * bounds and loop-offset lifetimes separate instead of reusing the target's
- * s0-s2 allocation. Pointer-offset and array-index loops, two allocator-call
- * spellings, scoped arithmetic, and all 119 flag-lattice combinations retain
- * that structural split, so the best C remains available without entering
- * the ROM. JFG retains modLoadModel as asm, so no donor body was adapted.
+ * Workbench: mixed structure/register/frame; exact 106-instruction length, frame 0x50 vs 0x38, first +0x0.
+ * Levers: three-step load size, local reuse/scopes, and alignment priority reads plateaued at 10 words.
+ * Remaining: alignment spills through v1 instead of s0, shifting the load-call schedule; JFG peer is asm.
  */
 #ifdef NON_MATCHING
 s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
@@ -105,7 +100,6 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
     s32 loadSize;
     s32 loaded;
     s32 inputOffset;
-    s32 outputOffset;
     u16 *bounds;
 
     piRomLoadSection(0x28, (void *)D_800D7D00, (modelId & ~3) * 2, 0x10);
@@ -119,7 +113,8 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 
     alignment = firstAnimation & 3;
     loadSize = model->animationCount & ~3;
-    loadSize = (loadSize + 4) * 2;
+    loadSize += 4;
+    loadSize *= 2;
     if (alignment != 0) {
         loadSize += 8;
     }
@@ -131,19 +126,19 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 
     loaded = 0;
     inputOffset = alignment * 2;
-    outputOffset = 0;
+    alignment = 0;
     do {
-        *(u8 **)((u8 *)model->animations + outputOffset) =
+        *(u8 **)((u8 *)model->animations + alignment) =
             func_8005A948(*(s16 *)(D_800D7CFC + inputOffset));
-        if (*(u8 **)((u8 *)model->animations + outputOffset) == NULL) {
-            outputOffset = 0;
+        if (*(u8 **)((u8 *)model->animations + alignment) == NULL) {
+            alignment = 0;
             if (loaded > 0) {
                 inputOffset = 0;
                 do {
                     func_8005AAC0(*(u8 **)((u8 *)model->animations + inputOffset));
-                    outputOffset++;
+                    alignment++;
                     inputOffset += 4;
-                } while (outputOffset != loaded);
+                } while (alignment != loaded);
             }
             mmFree(model->animations);
             model->animations = NULL;
@@ -151,7 +146,7 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
         }
         loaded++;
         inputOffset += 2;
-        outputOffset += 4;
+        alignment += 4;
     } while (loaded < model->animationCount);
     return TRUE;
 }

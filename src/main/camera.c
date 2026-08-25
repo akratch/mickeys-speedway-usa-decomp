@@ -1730,17 +1730,15 @@ s32 func_800246B0(f32 x, f32 y, f32 z, f32 *outX, f32 *outY,
     return visible;
 }
 
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: name and role from JFG's public decomp,
  * src/camera.c:camReversePoint; body reconstructed from Mickey-only evidence.
  *
- * Plateau: after the full flag lattice, the bounded permuter batch, and ten
- * new viewport-lifetime variants, the best configured candidate has the
- * target's 65 instructions and exact FP-temp lane but differs in 33 positional
- * words from first mismatch +0x0. Hoisting the four viewport coefficients
- * recreates the target schedule but gives IDO a 0x40 frame instead of 0x38.
+ * Workbench: mixed constant/structure/register, 65 words, frame 0x40 vs 0x38, first +0x0.
+ * Levers: stack census plus register/volatile viewport qualifiers; both qualifiers were inert.
+ * Remaining: 33 positional words and ten relocation-site identity shifts; local offsets agree.
  */
+#ifdef NON_MATCHING
 void func_80024834(f32 screenX, f32 screenY, f32 *x, f32 *y, f32 *z,
                    u8 transform) {
     Vp *viewport;
