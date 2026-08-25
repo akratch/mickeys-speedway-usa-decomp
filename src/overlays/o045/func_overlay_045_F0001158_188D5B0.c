@@ -74,9 +74,9 @@ extern f32 func_8002A8C0(s32 angle);
  * records, descriptor fields, and final control flow come from Mickey's own
  * instructions and callers.
  */
-/* Workbench: structure-mismatch; 593 words differ, 681 versus 674 instructions, first mismatch +0x0.
- * Lever: constant-audit found only frame/displacement fallout; post-call pointer acquisition regressed to 639 words.
- * Remains: 24-byte frame/save-web delta and broad command/vertex structure; no source literal correction is available. */
+/* NON_MATCHING p2: workbench mixed(constant:34, structural:459, schedule:1,
+ * register:198); 593 words, first +0x0, frame -0x178 vs -0x190, +7 instructions.
+ * Frame audit, parameter storage, angle hoist, and operand swap left broad structure. */
 #ifdef NON_MATCHING
 void func_overlay_045_F0001158_188D5B0(
     Gfx **displayList, Overlay45Vertex **vertexPtr, void *unused,

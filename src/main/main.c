@@ -507,15 +507,9 @@ void mainInitGame(void) {
  * from Diddy Kong Racing's published src/thread3_main.c::main_game_loop and
  * cross-checked against JFG's published src/main.c TU ordering. Mickey's own
  * call graph, resident storage and instructions determine this body.
- *
- * Plateau: nine structural and display-command spellings plus the full flag
- * lattice and a bounded two-worker permuter batch did not reach identity.
- * With -Wo,-Olimit,100, the candidate has the target's -0x28 frame and keeps
- * its transition result at sp+0x24, but is five instructions long; the first
- * mismatch at +0x48 selects $at instead of the target's $a0 for the display-
- * list pointer assignment. The remaining structural excess is concentrated
- * in the two end-of-frame display commands. The valid permuter score improved
- * from 3,620 to 3,050 by introducing a matrix-array temporary, not a match.
+ * NON_MATCHING p2: workbench mixed(constant:1, structural:79, register:51),
+ * 418 vs 413 instructions, first mismatch +0x48. Constant audit confirmed the
+ * command literals; Olimit 108 changed frame/CFG. Five extra tail instructions remain.
  */
 void func_80026FB4(void) {
     s32 drawTransition;

@@ -38,13 +38,9 @@ extern u32 joyGetButtons(s32 controller);
 
 /* Mickey-only reconstruction. The closest permitted reference skeleton is
  * too weak to establish a donor body (masked 4-gram Jaccard 0.077). */
-/* NON_MATCHING plateau (2026-08-25): the best natural -O2/-mips2 build is
- * 0x734 bytes versus the 0x730-byte target, with 388 positional word
- * differences and the first mismatch at +0x28. The 0x880-byte frame and
- * principal stack layout agree; the remaining blocker is register lifetime
- * in the closest-object scan, including one extra spill. None of 119 flag
- * combinations matched. A bounded ten-minute permutation search also found
- * no exact candidate (best helper score 22945 from a 29585 -mips1 baseline). */
+/* NON_MATCHING p2: workbench mixed(constant:3, structural:56, schedule:2,
+ * register:268); best 386 positional words, first +0x28, frame/count exact.
+ * Spill census fixed route's home; lastCandidate ablation regressed. Phase remains. */
 #ifdef NON_MATCHING
 void func_overlay_002_F0001DF8_1858BF0(Overlay2RouteObject *object,
                                         Overlay2RouteInput *input) {
@@ -58,8 +54,8 @@ void func_overlay_002_F0001DF8_1858BF0(Overlay2RouteObject *object,
     Overlay2RouteObject *closest;
     Overlay2RouteObject *previous;
     Overlay2RouteObject *next;
-    Overlay2RouteState *route;
     Overlay2RouteState *closestRoute;
+    Overlay2RouteState *route;
     Overlay2RouteState *candidateRoute;
     Overlay2ObjectHeader *header;
     s32 closestIndex;
