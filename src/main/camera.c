@@ -117,6 +117,7 @@ extern f32 D_800CF2B0;
 extern MtxF D_800CF2B8;
 extern MtxF D_800CF2F8;
 extern f32 D_800CF2A0;
+extern f32 D_800D2FB4;
 extern Camera D_800CEA20[];
 extern CameraShake D_800CEC18[];
 extern s32 D_8007C854;
@@ -146,7 +147,9 @@ extern void func_80022C58(Gfx **dlist, u32 halfWidth, u32 halfHeight,
 extern void func_80022794(Gfx **dlist, Mtx **mtx);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021438.s")
+f32 func_80021438(void) {
+    return D_800D2FB4;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021444.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camUseShake. */
 void camUseShake(void) {

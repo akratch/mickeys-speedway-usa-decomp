@@ -908,6 +908,7 @@ functions is classified as handwritten assembly under §6.2.
 
 | Matched C function | ROM | Tier | Exact executable bytes | Proof |
 |---|---:|---|---:|---|
+| `func_80021438` | `0x22038` | D — retained Mickey auto-name; camera TU position only | 12 | Mickey-only global read; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `camUseShake` | `0x22084` | B — role/order | 16 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camOverrideProjScales` | `0x220E4` | B — role/order (named above) | 32 | Configured object, six relocations, linked range and full ROM exact. |
 | `camSetWaterLine` | `0x225B0` | A — byte identity (named above) | 32 | Configured object, relocation pair, linked range and full ROM exact. |
