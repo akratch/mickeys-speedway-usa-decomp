@@ -481,7 +481,7 @@ TEXT_SUBSEGMENTS = {
         (0x000, "c", "overlay66Select"),
         (0x034, "c", "overlay66GetCurrent"),
         (0x040, "c", "overlay66SmoothAndDraw"),
-        (0x4E0, "asm", "overlay_066_tail"),
+        (0x4E0, "c", "func_overlay_066_F00004E0_18C6948"),
     ],
     67: [
         (0x000, "c", "overlay_067"),
@@ -653,7 +653,7 @@ TEXT_SUBSEGMENTS = {
     92: [
         (0x000, "c", "overlay92Init"),
         (0x068, "c", "overlay92FindNearestCourse"),
-        (0x308, "asm", "overlay_092_tail"),
+        (0x308, "c", "func_overlay_092_F0000308_18D6228"),
     ],
     93: [
         (0x000, "c", "overlay_093"),
@@ -739,7 +739,7 @@ TEXT_SUBSEGMENTS = {
     50: [
         (0x000, "c", "overlay50Initialize"),
         (0x2E4, "c", "overlay50PatchIndices"),
-        (0x334, "asm", "overlay_050_tail"),
+        (0x334, "c", "func_overlay_050_F0000334_1896CA4"),
         (0x1BD0, "c", "overlay50Cleanup"),
         (0x1C54, "c", "overlay50SubmitTimeGlyphs"),
         (0x1E68, "asm", "overlay_050_padding"),
