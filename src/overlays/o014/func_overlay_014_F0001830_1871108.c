@@ -6,23 +6,28 @@ extern s32 func_overlay_014_F0000000_186F8D8();
 #define CASE_PREINC 1
 
 #ifdef NON_MATCHING
-/* Exact size/frame: 32/201 positional words differ, first +0x38. Preincrement
- * cases 2-5 and the skip==0 arm cut 49 to 32; case 7 postincrement loses a word.
- * Workbench mixed: four opcodes/19 registers plus six relocation identities. */
+/* PROVENANCE: structure cross-checked against JFG
+ * asm/nonmatchings/overlays/o7/overlay_7/func_overlay_7_007023D4_1EFD4FC.s;
+ * body reconstructed from Mickey evidence. */
+/* Workbench mixed: 8 constant/2 structural/3 register, 10/201 words, first +0x94.
+ * Canonical flags, stack order, byte-web reuse, and line assignment cut 32 to 10.
+ * Six reloc identities, adjust sp+128->sp+140, and case-7 increment shape remain. */
 s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
-    s32 result = 0;
-    s32 done = 0;
-    s32 cellWidth;
     s32 extra;
     s32 remaining;
     s32 y;
     s32 x;
     s32 width;
+    s32 cellWidth;
+    s32 done;
+    s32 result;
+    u8 saved;
+    void *drawArgs[7];
     s32 adjust;
     u8 *cursor;
-    void *drawArgs[7];
-    u8 saved;
 
+    result = 0;
+    done = 0;
     cellWidth = func_overlay_014_F0000000_186F8D8(2);
     remaining = (0x58 / cellWidth) - 1;
     func_overlay_014_F0000000_186F8D8(0, 0, 0, 0);
@@ -59,8 +64,9 @@ s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
         case 6:
 #if CASE_PREINC
             stream += 8;
+            saved = stream[-2];
             func_overlay_014_F0000000_186F8D8(stream[-7], stream[-6], stream[-5], stream[-3],
-                                              (stream[-2] * gOverlay14ValueC0) >> 8);
+                                              (saved * gOverlay14ValueC0) >> 8);
 #else
             func_overlay_014_F0000000_186F8D8(stream[1], stream[2], stream[3], stream[5],
                                               (stream[6] * gOverlay14ValueC0) >> 8);
@@ -94,7 +100,10 @@ s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
                 if (adjust != 0) { x -= 8; width += 8; adjust = 0; }
             } while ((cursor != 0) && (remaining >= 0));
         }
-        if (remaining < 0) { result = 1; done = 1; }
+        if (remaining < 0) {
+            result = 1;
+            done = 1;
+        }
     } while (done == 0);
     return result;
 }
