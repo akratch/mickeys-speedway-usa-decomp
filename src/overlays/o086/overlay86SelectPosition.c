@@ -46,16 +46,21 @@ extern Overlay86RingRecord *overlay86FindPreviousUsableReloc(
 extern s32 overlay86NextIndexReloc(s32 index);
 extern Overlay86Node **overlay86GetNodesReloc(s32 *start, s32 *end);
 
-#ifdef NON_MATCHING
+/*
+ * Near-miss exactness note: IDO assigns the five homed locals in reverse
+ * declaration order here; keeping the owner comparison in node-first order
+ * also preserves the target's two-load schedule.
+ */
 s16 overlay86SelectPosition(Overlay86Object *object, Overlay86VecOutput *output) {
-    Overlay86State *state = object->state;
-    Overlay86RingRecord *record;
-    Overlay86Node **nodes;
-    Overlay86Node *node;
     s32 start;
     s32 end;
     s32 selected;
+    Overlay86Node **nodes;
+    Overlay86Node *node;
+    Overlay86State *state;
+    Overlay86RingRecord *record;
 
+    state = object->state;
     record = overlay86FindPreviousUsableReloc(state->selectedIndex, &selected);
     state->selectedIndex = overlay86NextIndexReloc(selected);
     output->x = 0.0f;
@@ -74,7 +79,7 @@ s16 overlay86SelectPosition(Overlay86Object *object, Overlay86VecOutput *output)
     nodes = overlay86GetNodesReloc(&start, &end);
     while (start < end) {
         node = nodes[start++];
-        if ((node->kind == 5) && (state->ownerIndex == node->ownerIndex)) {
+        if ((node->kind == 5) && (node->ownerIndex == state->ownerIndex)) {
             output->x = node->x;
             output->y = node->y + 96.0f;
             output->z = node->z;
@@ -84,6 +89,3 @@ s16 overlay86SelectPosition(Overlay86Object *object, Overlay86VecOutput *output)
     }
     return 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o086/overlay86SelectPosition/func_overlay_086_F00002E4_18D211C.s")
-#endif
