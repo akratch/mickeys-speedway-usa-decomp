@@ -13,12 +13,9 @@ static const u8 sOverlay9ConstantPoolBase[0x20] = { 0 };
  * the intervening empty overlay9Ignore function does not change its bytes.
  */
 
-/*
- * Plateau: the best build is 36 bytes over retail and differs in 247/336
- * words from entry +0x0. The flag lattice does not move the full private
- * frame/register/schedule web, and the bounded permuter cannot run because
- * tools/permuter/import.py is absent.
- */
+/* Workbench: mixed structural/register, 338 vs 336 words; 235 raw differ, first +0x0.
+ * ABI prototype correction and lever 26 scope/aggregate variants remove seven excess words.
+ * Remaining: 0x88 vs 0x78 frame and two excess words; private temp and FPR webs still diverge. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     f32 vector[3];

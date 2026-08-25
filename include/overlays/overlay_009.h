@@ -199,7 +199,11 @@ extern void ext_o0_5aac4(void *, void *, void *);
 extern void ext_o0_19668(void *, void *, void *, void *);
 extern void ext_o0_1d510(void *, void *, void *, void *, s32);
 extern void ext_o0_2d98(void *);
+#ifdef NON_MATCHING
+extern void ext_o0_2b90(s32, f32, f32, f32, s32, void **);
+#else
 extern void ext_o0_2b90();
+#endif
 extern void ext_o0_3e99c(void *, s32);
 extern s32 ext_o0_2a5bc(s32, s32);
 extern s32 ext_o0_2952c(s32, s32);
