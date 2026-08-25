@@ -10,6 +10,7 @@
 
 #include "PR/ultratypes.h"
 #include "PR/os_message.h"
+#include "PR/os_pfs.h"
 
 extern u8 D_8007A2F8;
 extern u8 D_8007A2F0;
@@ -20,6 +21,7 @@ extern s32 D_8007A2FC;
 extern s32 D_8007A31C;
 extern void *D_8007A280;
 extern OSMesgQueue *D_800D21C0;
+extern OSPfs D_800D21C8[];
 
 typedef struct SavesRecord {
     u8 pad00[0xC];
@@ -359,7 +361,18 @@ void packDirectoryFree(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packOpenFile.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packReadFile.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packWriteFile.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packFileSize.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packFileSize. */
+s32 packFileSize(s32 controllerIndex, s32 fileNum, s32 *fileSize) {
+    OSPfsState state;
+
+    *fileSize = 0;
+    if (osPfsFileState(&D_800D21C8[controllerIndex], fileNum, &state) == 0) {
+        *fileSize = state.file_size;
+        return 0;
+    }
+    return 6;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/font_codes_to_string.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/string_to_font_codes.s")
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
