@@ -2377,13 +2377,9 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   index forms miss by 20 and 40 words. The valid permuter score improved from
   13,270 to 11,970 only by reusing a pointer alias on paths where it is
   uninitialized, so that candidate was rejected.
-- `mainThread`, five source/address hypotheses plus the full flag lattice,
-  first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
-  the exact 200-byte linked instruction stream, frame and control flow, but
-  its literal RAM-end address omits the target assembly's `D_803FFFFC`
-  HI16/LO16 pair at `+0x18`/`+0x28`. Every symbolic spelling adds an address
-  instruction and moves the aligned epilogue, growing the function by eight
-  words.
+- `mainThread`: fresh m2c pointer and indexed `D_803FFFFC` spellings either
+  change the 50-word loop or grow it to 58 words; the literal body is linked-word
+  exact, first object residual `+0x18` (workbench: `relocation-layout-mismatch`).
 - `mainUpdateZBCheck`, five loop/type hypotheses, the full flag lattice and a
   bounded two-worker permuter batch, first mismatch `+0x24`: the best
   Mickey-derived candidate has the exact `-0x48` frame and screen-size stack
