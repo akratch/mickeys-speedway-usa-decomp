@@ -113,6 +113,9 @@ extern Overlay57LookupResult *o57ModeOpaquePtrCallReloc();
 #define overlay57Call3FA4Reloc o57ModeOpaqueVoidCallReloc
 #define overlay57Call3FB8Reloc o57ModeOpaqueVoidCallReloc
 
+/* Plateau: canonical -O2 -mips2 is exact-size at 0x588 and differs in 87
+ * words, first at +0xDC.  The residual is a broad private GPR allocation web;
+ * the flag lattice found no alternate codegen basin. */
 #ifdef NON_MATCHING
 void overlay57UpdateModeState(s32 updateRate) {
     s32 eligible;

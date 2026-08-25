@@ -47,6 +47,9 @@ extern void o57Ease28B4AlternateCommandReloc(s32 command, s32 argument);
 extern void o57Ease28B4AlternateFinishReloc(s32 argument);
 
 /* Overlay 57 text +0x28B4..+0x2C28. */
+/* Plateau: canonical -O2 -mips2 is exact-size at 0x374 and differs in 92
+ * words, first at +0x2C.  Both easing loops retain a broad private integer
+ * allocation web; the flag lattice found no alternate codegen basin. */
 #ifdef NON_MATCHING
 void overlay57EaseAndLatch(s32 updateRate) {
     O57Ease28B4Primary *primary;
