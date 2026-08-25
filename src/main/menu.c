@@ -13,14 +13,16 @@
 #include "game/menu.h"
 
 /* PROVENANCE: base layout adapted from JFG's public decomp,
- * src/menu.h::Resbitfield; twoPlayerSplit is Mickey-derived from its paired
- * getter and byte-preserving setter. */
+ * src/menu.h::Resbitfield; twoPlayerSplit and stereoMode are Mickey-derived
+ * from their paired getters and byte-preserving setters. */
 typedef struct MenuScreenModeBits {
     u32 unused : 1;
     u32 modeBit0 : 1;
     u32 modeBit1 : 1;
     u32 twoPlayerSplit : 1;
-    u32 rest : 28;
+    u32 unusedStereoGap : 5;
+    u32 stereoMode : 2;
+    u32 rest : 21;
 } MenuScreenModeBits;
 
 extern s8 D_800D312B;
@@ -574,7 +576,11 @@ void frontSetWideAdjust(s32 offset) {
     viSetWideAdjust(offset);
     D_800D312B = viGetWideAdjust();
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A408.s")
+/* PROVENANCE: name and order compared with JFG's public decomp,
+ * src/menu.c::frontGetStereoMode; body and bitfield derived from Mickey. */
+u32 frontGetStereoMode(void) {
+    return D_800D3128.stereoMode;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A41C.s")
 /* Retain the anonymous spelling used by an unsplit resident assembly caller. */
 #pragma weak func_8003A47C = frontGetSfxVolume

@@ -1023,6 +1023,13 @@ its position immediately before `frontSetWideAdjust` establish the same role
 as JFG's ordered pair. The adapted body has a point-of-use `PROVENANCE` note,
 and the default flags are byte-exact in the flag lattice.
 
+The tier-B `frontGetStereoMode` adds **0x14 bytes / 5 words** at ROM
+`0x3B008`. Its two-bit packed getter and ordered position between the
+wide-adjust and SFX-volume accessors establish the JFG role. The name carries
+point-of-use `PROVENANCE`; Mickey's paired getter/setter encoding supplies the
+bitfield and `u32` ABI. The canonical flags, HI16/LO16 data relocations, object
+words, and linked ROM range are exact without post-processing.
+
 The tier-A-named `frontGetScreenMode` adds **0x30 bytes / 12 words** at ROM
 `0x3AE98`. Mickey's draft established the two tests; JFG's published
 `Resbitfield` declaration supplied the original source shape needed to recover
