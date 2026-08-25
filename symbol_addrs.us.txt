@@ -1846,6 +1846,10 @@ func_8000FEB4 = 0x8000FEB4; // type:func size:0x38 ROM 0x10ab4 tier-D (DKR src/t
 // accessor and 12-byte record layout; Mickey proves the resident binding.
 func_8000FEEC = 0x8000FEEC; // type:func size:0x40 ROM 0x10aec tier-D (DKR src/tracks.c block_boundbox structure, placeholder retained)
 
+// No public name adopted: Mickey's callers and arithmetic establish an
+// interval-clipping helper; the reference scan found no credible donor.
+func_80013324 = 0x80013324; // type:func size:0xD8 ROM 0x13f24 tier-D (Mickey reconstruction, placeholder retained)
+
 // Tier B: all three external callers consume the returned object through
 // track-layout fields; this is the TU's accessor for its current track object.
 trackGetTrack = 0x80013EB4; // type:func size:0xC ROM 0x14ab4

@@ -235,6 +235,8 @@ extern void *D_800C9574;
 extern void *D_80079300;
 extern TrackLightAllocation *D_80079308;
 extern s32 D_800792F8;
+extern s32 D_80079350;
+extern s32 D_80079354;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -768,7 +770,33 @@ TrackBoundingBox *func_8000FEEC(s32 segmentIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012658.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001291C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800131AC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80013324.s")
+s32 func_80013324(f32 coefficient, f32 numerator,
+                  f32 *minimum, f32 *maximum) {
+    f32 ratio;
+
+    D_80079350++;
+    if (coefficient > 0.0f) {
+        ratio = numerator / coefficient;
+        if (*maximum < ratio) {
+            return FALSE;
+        }
+        if (*minimum < ratio) {
+            *minimum = ratio;
+            D_80079354 = D_80079350;
+        }
+    } else if (coefficient < 0.0f) {
+        ratio = numerator / coefficient;
+        if (ratio < *minimum) {
+            return FALSE;
+        }
+        if (ratio < *maximum) {
+            *maximum = ratio;
+        }
+    } else if (numerator > 0.0f) {
+        return FALSE;
+    }
+    return TRUE;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800133FC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001357C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001398C.s")
