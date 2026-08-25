@@ -52,24 +52,17 @@ extern void func_800006BC(f32 arg0, s32 arg1);
 extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
-/*
- * Plateau (2026-08-25): the closest -O2 -g3 candidate is four bytes long
- * with 69/267 shared instruction words identical and first differs at +0x4;
- * canonical -O2 is size-exact but differs in 231 words. The candidate keeps
- * the handle induction in s0, adding a saved-register prologue/epilogue and
- * shifting the following register web, whereas retail spills both induction
- * values. Split and for-loop spellings tied across the full flag lattice,
- * and no close donor skeleton was found.
- */
+/* Plateau: -O2/-mips2 is exact-size, 227 masked (231 raw) words, first +0x4.
+ * Case scoping saved two raw words, but the handle remains in s0; spill shapes miss size.
+ * The full lattice and 40m MIPS2 permuter found no zero; best 1470 used dead/no-op syntax. */
 #ifdef NON_MATCHING
 void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
+    void **handle;
     s32 index;
     s8 direction;
     O11ObjectSub *sub;
     s16 value;
     O11StatusSlot *status;
-    s32 action;
-    void **handle;
     s32 state;
     s32 transition;
     volatile s32 *menuInput;
@@ -111,24 +104,26 @@ void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
             func_overlay_011_F0002BF4_186B43C();
             D_204 = 1;
             break;
-        case 2:
-            action = *menuInput;
-            if (action == 0) {
+        case 2: {
+            s32 caseAction;
+
+            caseAction = *menuInput;
+            if (caseAction == 0) {
                 func_overlay_011_F0001058_18698A0(6);
                 return;
             }
-            if (action == -1) {
+            if (caseAction == -1) {
                 func_overlay_011_F0001130_1869978(6);
                 return;
             }
-            if (action == 1) {
+            if (caseAction == 1) {
                 D_cfgA = 3;
                 D_cfgB = 4;
                 sub = func_80005820(D_1C4)->sub64;
                 D_204 = 1;
                 status[1].field8 = 0;
                 status[0].field8 = 0;
-                index = action * 2;
+                index = caseAction * 2;
                 status[index + 1].field8 = 0;
                 status[index + 2].field8 = 0;
                 status[index + 3].field8 = 0;
@@ -137,55 +132,65 @@ void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
                 func_80028374(transition, sub->value1, 0, 5, 1, 0);
             }
             break;
-        case 3:
-            action = *menuInput;
-            if (action == 0) {
+        }
+        case 3: {
+            s32 caseAction;
+
+            caseAction = *menuInput;
+            if (caseAction == 0) {
                 func_overlay_011_F0001058_18698A0(6);
                 return;
             }
-            if (action == -1) {
+            if (caseAction == -1) {
                 func_overlay_011_F0001130_1869978(6);
                 return;
             }
-            if (action == 1) {
+            if (caseAction == 1) {
                 func_80028528(1);
                 func_80028374(0x1D, 0, 0, 0xB, 1, 0);
                 D_204 = 1;
             }
             break;
-        case 4:
-            action = *menuInput;
-            if (action == 0) {
+        }
+        case 4: {
+            s32 caseAction;
+
+            caseAction = *menuInput;
+            if (caseAction == 0) {
                 func_overlay_011_F0001058_18698A0(6);
                 return;
             }
-            if (action == -1) {
+            if (caseAction == -1) {
                 func_overlay_011_F0001130_1869978(6);
                 return;
             }
-            if (action == 1) {
+            if (caseAction == 1) {
                 func_80028528(1);
                 func_80028374(0xC, 0, 0, 0x12, 1, 0);
                 D_204 = 1;
             }
             break;
-        case 5:
-            action = *menuInput;
-            if (action == 0) {
+        }
+        case 5: {
+            s32 caseAction;
+
+            caseAction = *menuInput;
+            if (caseAction == 0) {
                 func_overlay_011_F0001058_18698A0(6);
                 return;
             }
-            if (action == -1) {
+            if (caseAction == -1) {
                 func_overlay_011_F0001130_1869978(6);
                 return;
             }
-            if (action == 1) {
+            if (caseAction == 1) {
                 func_overlay_011_F0002AD8_186B320();
                 D_lastMode = 7;
                 func_80028374(0xC, 0, 0, 0xC, 1, 0);
                 D_204 = 1;
             }
             break;
+        }
         }
     }
 }
