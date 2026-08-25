@@ -89,6 +89,7 @@ void piRomLoadSection();
 void func_80021504(f32 value, s32 arg1);
 f32 sqrtf(f32 value);
 extern void func_800031E8(s32 handle);
+HitCopyState **func_80005750(s32 *count);
 
 /*
  * PROVENANCE: adapted from JFG's func_80076020_76C20. Mickey's globals and
@@ -1199,7 +1200,90 @@ void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
     TrapDanglingJump(state, 0xE);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800573C8.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
+ * establishes the entity cutoff, resident structures, and final code here.
+ * Plateau after the flag lattice, 10 source/workspace shapes, and a bounded
+ * canonical-flag permuter: the best full-TU candidate has the exact 105
+ * instructions and 0xC0 frame, but 53 words remain from first mismatch +0x24.
+ * The target rotates the saved players/result/count registers and places the
+ * count/distances workspace at sp+0x7C/sp+0xA0. A nominal score-545 permutation
+ * failed to reset the distance cursor on each sort pass and was rejected.
+ */
+s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
+                  HitCopyState **nearby) {
+    HitCopyState **players;
+    HitCopyState *player;
+    HitCopyState **nearbyEntry;
+    f32 distances[8];
+    f32 *distance;
+    f32 *lastDistance;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distanceSquared;
+    f32 nextDistance;
+    f32 currentDistance;
+    s32 playerCount;
+    s32 found;
+    s32 remaining;
+    s32 nearbyOffset;
+
+    found = 0;
+    radius *= radius;
+    players = func_80005750(&playerCount);
+    if (playerCount > 0) {
+        do {
+            player = *players++;
+            if ((*(s8 *) player->target >= 0) &&
+                (*(s8 *) player->target < 6)) {
+                deltaX = player->position.x - x;
+                deltaZ = player->position.z - z;
+                distanceSquared = (deltaX * deltaX) + (deltaZ * deltaZ);
+                if (useXZ == 0) {
+                    deltaY = player->position.y - y;
+                    distanceSquared += deltaY * deltaY;
+                }
+                if (distanceSquared < radius) {
+                    distances[found] = sqrtf(distanceSquared);
+                    nearby[found] = player;
+                    found++;
+                }
+            }
+            playerCount--;
+        } while (playerCount > 0);
+
+        remaining = found - 1;
+        if (remaining > 0) {
+            do {
+                distance = distances;
+                lastDistance = &distance[remaining];
+                nearbyOffset = 0;
+                do {
+                    nextDistance = distance[1];
+                    currentDistance = distance[0];
+                    nearbyEntry = (HitCopyState **)
+                        ((u8 *) nearby + nearbyOffset);
+                    if (nextDistance < currentDistance) {
+                        player = nearbyEntry[0];
+                        distance[0] = nextDistance;
+                        nearbyEntry[0] = nearbyEntry[1];
+                        distance[1] = currentDistance;
+                        nearbyEntry[1] = player;
+                    }
+                    distance++;
+                    nearbyOffset += sizeof(*nearby);
+                } while (distance < lastDistance);
+                remaining--;
+            } while (remaining != 0);
+        }
+    }
+    return found;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005776C.s")
+#endif
 /*
  * PROVENANCE: adapted from JFG's src/fmvInit.c. Mickey's ROM establishes the
  * resource ID, globals, structure layout, and final compiler output here.

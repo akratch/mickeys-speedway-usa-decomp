@@ -1490,7 +1490,7 @@ placeholders are never imported.
 | `0x800572AC` | `0xA4` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 164 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80057350` | `0x78` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800573C8` | `0x3A4` | no unique `hit.c` candidate | D; collision/vector shape |
-| `0x8005776C` | `0x1A4` | `hitPlayer` | B; same player-list/square-root call shape |
+| `0x8005776C` | `0x1A4` | `hitPlayer` | B; same player-list/square-root call shape. Plateau after the flag lattice, 10 source/workspace shapes, and a bounded canonical-flag permuter: the best full-TU semantic candidate has the exact 105-instruction size and `0xC0` frame, with 53 words remaining from first mismatch `+0x24`; the target rotates the saved players/result/count registers and places the count/distance workspace at `sp+0x7C`/`sp+0xA0`. A nominal score-545 permutation was rejected because it failed to reset the distance cursor on each outer sort pass |
 | `0x80057910` | `0x5C` + `0x4` pad | `fmvInit` | A; exact masked JFG skeleton and C donor, adopted name. Matched C: exact 92 executable B and relocation surface at `-O2 -mips2 -32`; trailing 4 B is compiler alignment padding and earns no function credit |
 
 No function in this block directly references a distinctive string. Its
