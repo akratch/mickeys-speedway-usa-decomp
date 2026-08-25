@@ -51,6 +51,10 @@ extern s32 D_8007A124;
 extern s32 D_8007A1A4;
 extern s32 D_8007A1A8;
 extern s32 D_8007A194;
+extern s32 D_8007A198;
+extern s32 D_8007A67C;
+extern s32 D_80078F7C;
+extern s32 D_8007C1A0;
 extern s8 D_8007A1A0;
 extern u32 D_8007A1CC;
 extern s32 D_8007A1D4;
@@ -78,6 +82,10 @@ extern char D_80081BBC[];
 extern char D_80081BC0[];
 extern char D_80081BC4[];
 extern char D_80081BC8[];
+extern char D_80081B24[];
+extern char D_80081B30[];
+extern char D_80081B3C[];
+extern char D_80081B48[];
 extern f32 D_80081BD0;
 extern Gfx *D_800CF510[];
 extern Gfx *D_800CF518;
@@ -95,6 +103,7 @@ extern s32 D_800CF594;
 extern s32 D_800CF5A4;
 extern s32 D_800CF5A8;
 extern s32 D_800CF5AC;
+extern s32 D_800CF5B0;
 
 typedef struct MainGameEntry {
     u8 pad0[4];
@@ -159,6 +168,7 @@ extern s32 D_800D18D0;
 extern s32 D_800D18D4;
 extern s32 D_800D18D8;
 extern s32 D_800D18DC;
+extern s32 D_800C947C;
 extern MainZBCheck D_800CF538[];
 extern u16 *D_800D2FAC;
 extern s32 *D_800D2FA0;
@@ -187,6 +197,7 @@ extern void rumbleTick(s32);
 extern void osSetTime(OSTime);
 extern OSTime osGetTime(void);
 extern u16 joyGetButtons(s32);
+extern u16 joyGetPressed(s32);
 extern s32 func_8003A24C(void);
 extern void func_8003A260(s32);
 extern void func_8003A2C8(s32);
@@ -225,6 +236,20 @@ extern void func_8004B0F8(Gfx **, s32, s32, char *, s32);
 extern MainDebugMemory *func_80005820(s32);
 extern void frontDrawRectangle(Gfx **, s32, s32, s32, s32, s32);
 extern s32 sprintf(char *, const char *, ...);
+extern u8 *levelGetLevel(void);
+extern void func_80044BC8(Gfx *, char *, s32);
+extern void func_80008028(s32);
+extern void func_80051364(s32);
+extern void func_8000784C(s32);
+extern void func_80007844(void);
+extern void partUpdateParticles(s32);
+extern s32 func_8002462C(void);
+extern void func_80053420(s32, s32);
+extern void func_8000BD50(s32);
+extern void func_80006FA0(void);
+extern void func_8000BDB4(Gfx **, Mtx **, MainVertex **, MainTriangle **, s32);
+extern void func_8004EDA8(s32);
+extern void screenDraw(Gfx **);
 
 #ifdef NON_MATCHING
 #pragma weak mainCPUeffectsRainDraw = TrapDanglingJump
@@ -736,7 +761,92 @@ void func_80027EC0(s32 arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027FB8.s")
+/*
+ * PROVENANCE: function placement and main-loop role were compared with JFG
+ * src/main.c::func_80045F00_46B00, which remains assembly. This body is
+ * reconstructed from Mickey's own control flow and call graph.
+ */
+void func_80027FB8(s32 updateRate) {
+    s32 unused[4];
+    u8 *level;
+    s32 controller;
+    s32 heldButtons;
+    s32 pressedButtons;
+    s32 pauseController;
+
+    level = levelGetLevel();
+    pauseController = -1;
+    heldButtons = 0;
+    pressedButtons = 0;
+    controller = D_8007C1A0;
+    if (controller--) {
+        do {
+            heldButtons |= joyGetButtons(controller);
+            pressedButtons |= joyGetPressed(controller);
+            if ((pressedButtons & 0x1000) && (pauseController == -1)) {
+                pauseController = controller;
+            }
+        } while (controller--);
+    }
+
+    func_80044BC8(D_800CF518, D_80081B24, 0x526);
+    func_80008028(updateRate);
+    D_8007A67C = 1;
+    if (D_8007A1A8 == 0) {
+        D_800CF5B0 += updateRate;
+        func_80051364(updateRate);
+        func_8000784C(updateRate);
+        if (runlinkIsModuleLoaded(1) != 0) {
+            TrapDanglingJump(updateRate);
+        }
+        partUpdateParticles(updateRate);
+        func_80053420(0, func_8002462C());
+        func_8000BD50(updateRate);
+        if (((s8 *) level)[0x83] != 1 && ((s8 *) level)[0x83] != 2 &&
+            (pressedButtons & 0x1000) && D_8007A1A4 == 0 &&
+            D_8007A194 == 0 && D_8007A1BC == 0 && D_800C947C == 0) {
+            rumbleKill(1);
+            TrapDanglingJump(pauseController);
+            D_8007A67C = 0;
+        }
+    } else {
+        func_80007844();
+        D_8007A67C = 0;
+    }
+
+    if (runlinkIsModuleLoaded(0x24) != 0) {
+        TrapDanglingJump();
+    }
+    if (D_8007A1A4 > 0) {
+        D_8007A1A4 -= updateRate;
+        if (D_8007A1A4 < 0) {
+            D_8007A1A4 = 0;
+        }
+    }
+    func_80006FA0();
+    func_80044BC8(D_800CF518, D_80081B30, 0x563);
+    if (D_8007A198 != 0) {
+        func_8000BDB4(&D_800CF518, &D_800CF530, &D_800CF588,
+                      &D_800CF5A0, updateRate);
+    }
+    func_80044BC8(D_800CF518, D_80081B3C, 0x589);
+    func_8004EDA8(updateRate);
+    if (runlinkIsModuleLoaded(0xE) != 0) {
+        TrapDanglingJump(&D_800CF518, updateRate);
+    }
+    if (runlinkIsModuleLoaded(7) != 0) {
+        TrapDanglingJump(&D_800CF518, updateRate);
+    }
+    if ((D_8007A1A8 == 0) ||
+        ((D_8007A1A8 != 0) && (D_8007A194 != 0))) {
+        screenDraw(&D_800CF518);
+    }
+    if (D_80078F7C != 0) {
+        TrapDanglingJump(&D_800CF518, &D_800CF530, &D_800CF588,
+                         D_80078F7C);
+    }
+    func_80044BC8(D_800CF518, D_80081B48, 0x5A0);
+}
 
 void func_800282C8(void) {
     if (D_8007A194 == 0) {
