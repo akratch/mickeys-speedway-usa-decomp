@@ -1293,7 +1293,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x187A3F8, c, overlay26InitializeObject]
-      - [0x187A598, asm, overlay_026_head]
+      - [0x187A598, c, func_overlay_026_F00001A0_187A598]
       - [0x187AF10, c, func_overlay_026_F0000B18_187AF10]
       - [0x187B11C, c, overlay26HandleEffects]
       - [0x187B550, c, overlay26DrawGroups]
