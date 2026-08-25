@@ -431,6 +431,9 @@ s32 mmGetDelay(void) {
  * Lever: pool-position/temp-FIFO; owned BSS leaves the allocator web split unchanged.
  * Assembly fallback remains canonical.
  */
+/* Workbench: allocation mismatch; exact 72-word size/opcode schedule, first +0x6C.
+ * Levers: early colour scalar and scoped data local; 30-minute MIPS2 permuter scored 175.
+ * Remaining: 26 register-only words from a pool/temp web-existence split. */
 #ifdef NON_MATCHING
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
                    s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag) {
@@ -442,6 +445,7 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
     s32 index;
     s32 nextIndex;
     s32 slotSize;
+    s32 colourIndex;
 
     colourTagIndex = &D_8007A270;
     if (slotIsTaken == TRUE) {
