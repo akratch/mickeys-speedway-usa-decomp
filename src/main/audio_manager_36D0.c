@@ -24,6 +24,8 @@ typedef struct AudioPoint {
     u16 soundId;
     u8 volume;
     u8 pitch;
+    u8 pad10[0xC];
+    struct AudioPoint **handle;
 } AudioPoint;
 
 typedef struct AudioSoundData {
@@ -142,7 +144,23 @@ void func_800031E8(AudioPoint *point) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003250.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * amSndUnlinkHandleXYZ; body uses Mickey-only evidence.
+ */
+void amSndUnlinkHandleXYZ(AudioPoint *point) {
+    s32 index;
+
+    if (point != NULL) {
+        for (index = 0; index < D_80078F00; index++) {
+            if (point == D_800C91E4[index]) {
+                D_800C91E4[index]->handle = NULL;
+                return;
+            }
+        }
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_8000329C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800033B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003480.s")

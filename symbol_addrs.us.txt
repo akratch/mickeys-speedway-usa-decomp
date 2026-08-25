@@ -1999,6 +1999,7 @@ func_800030B4 = 0x800030B4; // type:func size:0x18 ROM 0x3cb4 tier-B (JFG amSndS
 func_800030CC = 0x800030CC; // type:func size:0xF4 ROM 0x3ccc tier-B (JFG amSndPlayDirectXYZ body/order, name unproved)
 func_800031C0 = 0x800031C0; // type:func size:0x28 ROM 0x3dc0 tier-B (JFG amSndSetXYZ body/order, external Mickey placeholder retained)
 func_800031E8 = 0x800031E8; // type:func size:0x68 ROM 0x3de8 tier-B (JFG amSndStopXYZ body/order, external Mickey placeholder retained)
+amSndUnlinkHandleXYZ = 0x80003250; // type:func size:0x4C ROM 0x3e50 tier-B (JFG name/order, Mickey-only body)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
