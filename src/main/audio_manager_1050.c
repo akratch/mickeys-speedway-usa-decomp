@@ -15,6 +15,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os_message.h"
 
 typedef struct AudioSequencePlayer {
     u8 pad0[0x2C];
@@ -88,7 +89,9 @@ extern s32 D_800BF7BC;
 extern s32 D_800BF7C0;
 extern s32 D_800BF7C4;
 extern s32 D_800BFA00;
+extern s32 D_800BFA04;
 extern u8 D_800BFA08;
+extern OSMesgQueue D_800BFA10;
 extern u8 *D_800BF7A4;
 extern s32 osTvType;
 extern void gsSndpSetParam();
@@ -101,6 +104,7 @@ extern void n_alCSPNew(void *player, void *config);
 extern void n_alCSPSetMessageQ(void *player, void *queue);
 extern void n_alCSPStop(void *player);
 extern void n_alCSPVoiceLimit(void *player, u8 value);
+extern void mainPreNMI(void);
 extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
 extern void stop_ALSeqp(void *player);
@@ -217,7 +221,22 @@ void amAmbientResetFade(void) {
     D_80078D80 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000838.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000ABC.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
+ * amWaitForMidiSync; body uses Mickey-only evidence.
+ */
+void amWaitForMidiSync(void) {
+    OSMesg message;
+
+    if (D_800BFA04 != 0) {
+        D_800BFA04 = 0;
+    } else {
+        while (osRecvMesg(&D_800BFA10, &message, OS_MESG_NOBLOCK) != 0) {
+            mainPreNMI();
+        }
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000B3C.s")
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c

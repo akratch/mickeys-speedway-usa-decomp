@@ -1847,6 +1847,7 @@ The final column records owned object words and relocation coverage.
 | `amTuneResetFade` | `0x1330` / `0xC` | **tier B**: exact JFG routine order and the adjacent tune-fade controller role | Exact object words and linked ROM bytes |
 | `amAmbientSetFade` | `0x133C` / `0xF0` | **tier B**: JFG supplies the complete body and official name; the paired fade-state globals, TV-rate paths, and exact audio-manager order agree | Exact 60 object words and all data/call relocations |
 | `amAmbientResetFade` | `0x142C` / `0xC` | **tier B**: exact JFG routine order and the adjacent ambient-fade controller role | Exact object words and linked ROM bytes |
+| `amWaitForMidiSync` | `0x16BC` / `0x80` | **tier B**: JFG supplies the official name and exact audio-manager order; Mickey's own code pins the pending-sync flag, blocking receive loop, and pre-NMI call | Exact 32 object words and all flag/queue/call relocations |
 | `func_80000B48` | `0x1748` / `0xA0` | **tier B**: JFG supplies the `amTuneSetChlMask` name and exact audio-manager order; Mickey's external placeholder is retained, while the body and `u8` call ABI come from Mickey-only evidence | Exact 40 object words and all player/mask/call relocations |
 | `amTuneMuteChl` | `0x17E8` / `0x8` | **tier B**: exact JFG routine order between the channel-mask setter and its paired unmute leaf | Exact object words and linked ROM bytes |
 | `amTuneUnmuteChl` | `0x17F0` / `0x8` | **tier B**: exact JFG routine order immediately after its paired mute leaf | Exact object words and linked ROM bytes |
