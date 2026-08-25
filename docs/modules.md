@@ -2503,13 +2503,23 @@ In `main/vehicle_sounds`, the Mickey-derived handle cleanup loop
 function bytes and call relocation match.
 
 The remaining vehicle functions plateau without exact credit.
-`func_80058250`'s best direct initializer emits 26 instructions against 22,
-first differing at `+0x8`; the array spelling undershoots the target's unusual
-address schedule. `func_80058EF4`'s best lattice result emits 36 instructions
-against 39 and differs in 13 words from `+0x4`, with the two FP webs exchanged.
-The 0xBE8-byte `func_8005830C` remains blocked on untyped racer, listener and
-sound-state layouts for which the permitted JFG audio-manager sources provide
-no corresponding body.
+`func_80058250`'s best named-global initializer emits 26 instructions against
+22 and differs in 19 positional words from `+0x0`; a typed four-slot aggregate
+reaches the exact size but differs in 21 positions. The complete flag lattice
+does not produce the target's mixed global-address schedule.
+`func_80058EF4`'s best lattice result emits 36 instructions against 39 and
+differs in 13 words from `+0x4`, with the two FP webs exchanged.
+
+`func_8005830C` now has a complete typed `NON_MATCHING` reconstruction adapted
+at the organization/terminology level from DKR's permitted published
+`src/audio_vehicle.c`, with Mickey's own field offsets and calls deciding the
+body. Ten coherent source shapes and the complete flag lattice leave the best
+stock `-O2 -mips2 -32` candidate at 757 instructions against 762, a `0x110`
+frame against `0x118`, 706 positional word differences and first mismatch
+`+0x0`. Pointer induction improved the residual by 29 words. A later
+loop-invariant form reached the exact frame and only a two-instruction deficit
+but regressed to 730 words, so the retained candidate is still a broad
+allocation/structure plateau rather than a permuter-ready near match.
 
 ## 4. libultra
 
