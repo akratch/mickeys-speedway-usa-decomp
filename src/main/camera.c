@@ -25,11 +25,27 @@
 #include "n_audio/mbi.h"
 
 typedef struct {
-    u8 pad0[0x30];
+    s16 yRotation;
+    s16 xRotation;
+    s16 zRotation;
+    u8 pad06[6];
+    f32 x;
+    f32 y;
+    f32 z;
+} CameraTransform;
+
+typedef struct {
+    CameraTransform transform;
+    u8 pad18[0x14];
+    f32 fov;
     f32 shakeX;
     f32 shakeY;
     f32 shakeZ;
-    u8 pad3C[0x18];
+    u8 pad3C[0xE];
+    s16 pitchOffset;
+    u8 stateA;
+    u8 stateB;
+    u8 pad4E[6];
 } Camera;
 
 typedef struct {
@@ -51,15 +67,24 @@ extern u8 D_80079FA8[];
 extern f32 D_80079FB0[];
 extern Mtx D_800CED60[];
 extern MtxF D_800CEC98;
+extern CameraTransform D_800CEC68;
+extern u16 D_800CEC94;
+extern MtxF D_800CED18;
+extern Mtx D_800CF160;
 extern s32 D_800CEC60;
 extern s32 D_800CEC64;
 extern MtxF D_800CF1A0;
+extern MtxF D_800CF1E0;
 extern f32 D_800CF2A0;
 extern Camera D_800CEA20[];
 extern CameraShake D_800CEC18[];
 
 void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
+void mtxf_to_mtx(MtxF src, Mtx *dest);
+void func_8002AB78(CameraTransform *transform, MtxF matrix);
+void func_8002AE10(CameraTransform *transform, MtxF matrix);
 extern s32 levelInitRegionFlags(void);
+extern void func_80021504(f32 fov, s32 force);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
                           u32 *x2, u32 *y2);
 extern void func_80022C58(Gfx **dlist, u32 halfWidth, u32 halfHeight,
@@ -204,7 +229,57 @@ void func_800221E8(Gfx **dlist, Mtx **mtx) {
 void camGetPlayerProjMtx(s32 player, MtxF dest) {
     mtxf_mul(D_800CF1A0, D_800CEC98, dest);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022794.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetProjMtx. */
+void func_80022794(Gfx **dlist, Mtx **mtx) {
+    Camera *camera;
+
+    camera = &D_800CEA20[D_800CEC64];
+    if ((D_800CF2A0 != camera->fov) ||
+        (camera->stateA != camera->stateB) ||
+        (D_80079FA0[D_800CEC64] != 0)) {
+        func_80021504(camera->fov, 0);
+    }
+
+    if (dlist != NULL) {
+        gSPPerspNormalize((*dlist)++, D_800CEC94);
+    }
+
+    D_800CEC68.yRotation = camera->transform.yRotation + 0x8000;
+    D_800CEC68.xRotation = camera->transform.xRotation + camera->pitchOffset;
+    D_800CEC68.zRotation = camera->transform.zRotation;
+    D_800CEC68.x = -camera->transform.x;
+    D_800CEC68.y = -camera->transform.y;
+    D_800CEC68.z = -camera->transform.z;
+    if (D_800CEC84) {
+        D_800CEC68.x -= camera->shakeX;
+        D_800CEC68.y -= camera->shakeY;
+        D_800CEC68.z -= camera->shakeZ;
+    }
+    func_8002AE10(&D_800CEC68, D_800CF1A0);
+    mtxf_mul(D_800CF1A0, D_800CEC98, D_800CED18);
+
+    if (dlist != NULL) {
+        mtxf_to_mtx(D_800CED18, *mtx);
+        gSPMatrix((*dlist)++, (u32)*mtx + 0x80000000,
+                  G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+        (*mtx)++;
+    }
+
+    D_800CEC68.yRotation = -0x8000 - camera->transform.yRotation;
+    D_800CEC68.xRotation =
+        -(camera->transform.xRotation + camera->pitchOffset);
+    D_800CEC68.zRotation = -camera->transform.zRotation;
+    D_800CEC68.x = camera->transform.x;
+    D_800CEC68.y = camera->transform.y;
+    D_800CEC68.z = camera->transform.z;
+    if (D_800CEC84) {
+        D_800CEC68.x += camera->shakeX;
+        D_800CEC68.y += camera->shakeY;
+        D_800CEC68.z += camera->shakeZ;
+    }
+    func_8002AB78(&D_800CEC68, D_800CF1E0);
+    mtxf_to_mtx(D_800CF1E0, &D_800CF160);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A38.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A44.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A50.s")
