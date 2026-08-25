@@ -91,6 +91,9 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s32 func_overlay_101_F000CEA8_18E86C8(void *);
 
+/* PLATEAU (2026-08-25): best preserved permutation is exact-size at 316 words; 249 differ, first +0x10.
+ * The retained unsigned-zero shape has 263 differences and fixes 0x38 frame; saved-temp scheduling remains.
+ * Flag lattice, root-member modeling, and declaration/load ordering did not close it; no donor used. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000B544_18E6D64(void) {
     s32 orderIndex;
@@ -100,7 +103,6 @@ void func_overlay_101_F000B544_18E6D64(void) {
     void *handle;
     Node32 *node32;
     Node24 *node24;
-    register volatile f32 scale;
 
     D_0.height30 = 0xF0;
     D_0.width2E = 0x140;
@@ -154,8 +156,6 @@ void func_overlay_101_F000B544_18E6D64(void) {
     D_1C0[orderIndex] = &D_38;
     D_1C4 = orderIndex + 1;
 
-    scale = 0.0f;
-
     node24Index = D_1D0;
     node24 = &D_540[node24Index];
     node24->x = 0x6C;
@@ -164,7 +164,8 @@ void func_overlay_101_F000B544_18E6D64(void) {
     node24Index = D_1D0;
     node24 = &D_540[node24Index];
     node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * scale);
+    node24->opacity =
+        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0);
     node24->mode = 2;
     node24->color0 = 0xFF;
     node24->color1 = 0x80;
@@ -186,7 +187,8 @@ void func_overlay_101_F000B544_18E6D64(void) {
     node24Index = D_1D0;
     node24 = &D_540[node24Index];
     node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * scale);
+    node24->opacity =
+        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0);
     node24->mode = 2;
     node24->color0 = 0xFF;
     node24->color1 = 0xFF;
@@ -208,7 +210,8 @@ void func_overlay_101_F000B544_18E6D64(void) {
     node24Index = D_1D0;
     node24 = &D_540[node24Index];
     node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * scale);
+    node24->opacity =
+        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0);
     node24->mode = 2;
     node24->color0 = 0xFF;
     node24->color1 = 0xFF;
@@ -230,7 +233,8 @@ void func_overlay_101_F000B544_18E6D64(void) {
     node24Index = D_1D0;
     node24 = &D_540[node24Index];
     node24->length = (u8)length;
-    node24->opacity = (s8)(s32)((f32)(u32)(length & 0xFF) * scale);
+    node24->opacity =
+        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(u32)0);
     node24->mode = 2;
     node24->color0 = 0xFF;
     node24->color1 = 0xFF;
