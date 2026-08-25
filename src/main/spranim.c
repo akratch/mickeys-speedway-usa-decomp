@@ -74,8 +74,23 @@ typedef struct SpranimControlState {
     s32 animationId;
 } SpranimControlState;
 
+typedef struct TexscrollEntry {
+    s16 textureIndex;
+    s16 pad2;
+    s16 speedX;
+    s16 speedY;
+    s16 offsetX;
+    s16 offsetY;
+} TexscrollEntry;
+
+typedef struct TexscrollState {
+    u8 pad0[0x64];
+    TexscrollEntry *entry;
+} TexscrollState;
+
 extern u8 D_8007BF2C;
 extern void func_80020D8C(void *arg0, s32 arg1, s32 arg2, void *arg3);
+extern void func_8000D16C(s16 textureIndex, s32 x, s32 y, s32 updateRate);
 extern void func_80036544(void *entry, s32 *mode, s32 animationId, void *state, s32 updateRate);
 
 /* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/spranimInit.s, with Mickey's offsets. */
@@ -110,7 +125,24 @@ void sprasjiInit(SprasjiInitState *state, SprasjiInitEntry *entry) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimOnceControl.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/effectboxControl.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/texscrollControl.s")
+/* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/texscrollControl.s, with Mickey's object offset. */
+void texscrollControl(TexscrollState *state, s32 updateRate) {
+    s32 x;
+    s32 y;
+    TexscrollEntry *entry;
+
+    entry = state->entry;
+    x = updateRate;
+    x = entry->speedX * x;
+    x += entry->offsetX;
+    entry->offsetX = x & 3;
+    x >>= 2;
+    y = entry->speedY * updateRate;
+    y += entry->offsetY;
+    entry->offsetY = y & 3;
+    y >>= 2;
+    func_8000D16C(entry->textureIndex, x, y, updateRate);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001B798.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/rangetriggerControl.s")
 void func_8001BAE4(SpranimBAE4Object *arg0, void *arg1) {

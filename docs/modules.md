@@ -1099,7 +1099,7 @@ body is copied by this split; Mickey's own bytes remain authoritative.
 | `0x1BF60` | `0x48` | `sprasjiInit` | D name; exact C, 18 words, 0 relocs under O2/mips2 |
 | `0x1BFA8` | `0x78` | `spranimOnceControl` | D |
 | `0x1C020` | `0x304` | `effectboxControl` | D |
-| `0x1C324` | `0x74` | `texscrollControl` | B; identified additionally by masked skeleton and texture-scroll callees |
+| `0x1C324` | `0x74` | `texscrollControl` | B name; JFG-adapted exact C, 29 words, 1 call reloc under O2/mips2 |
 | `0x1C398` | `0x2BC` | `func_8001B798` | unresolved |
 | `0x1C654` | `0x90` | `rangetriggerControl` | B; identified additionally by masked skeleton and volume-trigger callees |
 | `0x1C6E4` | `0x14` | `func_8001BAE4` | exact C, 5 words, 0 relocs; role unresolved |
