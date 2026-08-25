@@ -158,6 +158,11 @@ extern f32 func_8002A8BC(s16 angle);
 extern f32 func_8002A8C0(s16 angle);
 extern f32 D_80083DE8;
 extern void func_800349A4(FxGfx **dList, s32 texture, s32 flags, s32 arg3);
+extern void func_8004A10C(s32 screen, u8 glyph, s32 x, s32 y, s32 arg4);
+extern s32 sprintf(char *buffer, const char *format, ...);
+extern u8 D_8007D364[];
+extern char D_80083DE0[];
+extern s32 D_800D2FA0;
 
 void func_80046E70(FxCone *cone) {
     s32 texture;
@@ -520,7 +525,52 @@ void func_8004A0F0(void) {
     D_800D6040 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: role adapted from JFG src/fx.c::func_8006DF90; both bodies are
+ * assembly-only, so this reconstruction is Mickey-derived. */
+void func_8004A380(s32 x, s32 y, s32 value, s32 minimumWidth, s32 arg4) {
+    char text[32];
+    s32 length;
+    s32 index;
+    char *cursor;
+    char *scan;
+    u8 next;
+    u8 glyph;
+    u8 character;
+
+    length = 0;
+    index = 0;
+    sprintf(text, D_80083DE0, value);
+    scan = text + length;
+    if (text[length] != '\0') {
+        do {
+            next = scan[1];
+            length++;
+            scan++;
+        } while (next != '\0');
+    }
+    cursor = text + index;
+    if (minimumWidth >= length) {
+        do {
+            glyph = D_8007D364[11];
+            if (length < minimumWidth) {
+                length++;
+            } else {
+                character = *cursor++;
+                if (character == '-') {
+                    glyph = D_8007D364[10];
+                } else if (character >= '0' && character < ':') {
+                    glyph = D_8007D364[character - '0'];
+                }
+            }
+            func_8004A10C(D_800D2FA0, glyph, x, y, arg4);
+            x += 10;
+        } while (*cursor != '\0');
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A380.s")
+#endif
 /* Mickey-derived body; JFG's corresponding fx.c function is assembly-only. */
 void func_8004A4B0(s32 value0, s32 value2, s32 value4, s32 value6,
                    s32 value7) {
