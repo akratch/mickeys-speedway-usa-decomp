@@ -47,6 +47,17 @@ extern void o38ReleaseObject(O38Object *object);
     (particle).dy += (velocity); \
 } while (0)
 
+/*
+ * Plateau (2026-08-25): -O2 -mips2 with -Wab,-r4300_mul is exact-size at
+ * 202 words, with 159 differing words and the first mismatch at +0x20. The
+ * full flag lattice confirmed that flag group as best. A single tick-delta
+ * lifetime, direct typed particle updates, changing the first update order,
+ * and carrying the next particle's vertical delta explicitly all worsened the
+ * result (the closest alternative differed in 160 words). The current split
+ * delta and deferred stores are therefore retained as the best candidate.
+ * No permitted skeleton exceeds 0.067, leaving no source-backed route to the
+ * target's FP register allocation and software-pipelined store schedule.
+ */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000154_1885E64(O38Object *object, s32 ticks)
 {

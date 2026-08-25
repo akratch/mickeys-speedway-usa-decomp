@@ -25,6 +25,17 @@ static void *const overlay31RuntimeCarrier =
 
 /* PROVENANCE: Diddy Kong Racing, src/particles.c (init_particle_assets);
  * semantic source-shape analogue only. Mickey's ROM decides every detail. */
+/*
+ * Plateau (2026-08-25): the natural -O2 -mips2 body emits 129 words for the
+ * 132-word target, with the first mismatch at +0x4. The remaining body has
+ * the same broad call and loop structure once the three-word opening skew is
+ * accounted for. The target retains the initial index value across the state
+ * reset while IDO folds it into constant offsets. The complete flag lattice
+ * was neutral; declaration-time initialization and a register-qualified index
+ * produced the same candidate. The nearest permitted skeleton is JFG
+ * partInitLib at 0.433, but that function also remains GLOBAL_ASM and supplies
+ * no source-level lifetime evidence.
+ */
 #ifdef NON_MATCHING
 void func_overlay_031_F00002E8_187F808(void) {
     s32 i;
