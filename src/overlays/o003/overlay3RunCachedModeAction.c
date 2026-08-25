@@ -13,15 +13,14 @@ extern void overlay36Mode6ActionReloc(Overlay3Object *object);
 extern void overlay36Mode7ActionReloc(Overlay3Object *object);
 extern u8 gOverlay3ModeChance[];
 /*
- * Plateau (2026-08-25): removing the synthetic pad local reproduces the
- * target's 113-word size, 0x58-byte frame, and first 31 words exactly. The
- * best -O2 -mips2 candidate has 43 differing words beginning at +0x7C: the
- * packed angle, signed angle, and validity live ranges rotate through three
- * different registers and cascade into the switch. The 119-combination flag
- * lattice was neutral; split expressions, signed/unsigned 16-bit types,
- * declaration order, nested calls, and combined conditions did not improve
- * it. The bounded permuter could not import the friendly C name against the
- * auto-named target. Stopped at the attempt cap.
+ * Plateau (2026-08-25, r4 pass): the 113-word candidate has exact size, a
+ * 0x58-byte frame, and 43 differing words beginning at +0x7C.  The target
+ * carries the packed angle directly into the encode call and performs the
+ * compensating boolean handoff after the path check; current C places that
+ * copy before the encode call, cascading through the switch.  The neutral
+ * 119-combination flag sweep and ten directed variants covering register
+ * qualification, boolean spelling, dead-web priority, existing-local reuse,
+ * statement grouping, and prototype shape did not leave this basin.
  */
 #ifdef NON_MATCHING
 s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control) {
