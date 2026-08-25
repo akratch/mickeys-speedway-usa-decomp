@@ -53,18 +53,15 @@ extern void call_o0_0_2B318(void *value);
 extern f32 sqrtf(f32 value);
 
 /*
- * NON_MATCHING plateau (2026-08-25): -O2 -mips2 -32 with
- * -Wab,-r4300_mul emits 516 target-owned instructions versus 528. The frame
- * is the target's 0x130 bytes, but 486 masked words differ; the first mismatch
- * is +0x4, where IDO assigns the segment pointer to $s3 instead of $s1.
- * The halfword-copy CFG now mirrors the target, leaving saved-register and
- * floating-point lifetime/allocation shape as the main blockers.
+ * NON_MATCHING plateau: 516/528 instructions, exact 0x130 frame, and 486
+ * masked words from +0x4; workbench reports mixed structural/allocation drift.
+ * The full flag lattice and width, volatility, expression probes did not help.
  *
  * PROVENANCE: adapted from Diddy Kong Racing,
  * src/object_models.c (model_init_collision).
  */
 #ifdef NON_MATCHING
-s16 func_overlay_035_F0000B40_1882820(register O35CollisionSegment *s) {
+s32 func_overlay_035_F0000B40_1882820(register O35CollisionSegment *s) {
     O35CollisionRecord *scratch;
     O35CollisionRecord *scratchRecord;
     O35CollisionRecord *record;
