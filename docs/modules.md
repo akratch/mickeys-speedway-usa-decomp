@@ -1402,6 +1402,8 @@ Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 `func_8003E7B8` (ROM `0x3F3B8`, `0x120` bytes, default resident flags,
 Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`func_8003EB08` (ROM `0x3F708`, `0x184` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 `func_800421F4` (ROM `0x42DF4`, `0x148` bytes, default resident flags, DKR
 `move_particle_with_acceleration` body donor);
 `partDraw` (ROM `0x43264`, `0x160` bytes, default resident flags, Mickey

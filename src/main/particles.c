@@ -109,8 +109,22 @@ typedef struct ParticleModelEntry {
 typedef struct ParticleLineEntry {
     u8 pad00[0x124];
     u8 active;
-    u8 pad125[0x23];
+    u8 pad125[3];
+    void *texture;
+    ParticleConfig *config;
+    s32 unk130;
+    u8 pad134[4];
+    s32 descriptorWord;
+    s32 configFlags;
+    f32 textureFrame;
+    s16 value144;
+    u8 pad146[2];
 } ParticleLineEntry;
+
+typedef struct ParticleTexture {
+    u8 pad00[0x10];
+    u16 frameCount;
+} ParticleTexture;
 
 typedef struct ParticleModelPartConfig {
     s16 type;
@@ -204,6 +218,7 @@ typedef struct ParticlePosition {
 extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
+extern f32 D_80082A4C;
 extern void **D_8007C884;
 extern s32 D_8007C888;
 extern s32 D_8007C88C;
@@ -233,6 +248,8 @@ void modFreeModel(void *resource);
 void mathOneFloatPY(void *rotation, void *vector);
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void *piRomLoad(s32 assetId);
+ParticleTexture *func_80034448(s16 resourceId);
+s32 mathRnd(s32 minimum, s32 maximum);
 void camSetNo(s32 camera);
 void func_800221E8(void **dList, s32 arg1);
 void func_8003D4FC(void **dList, void **vertices, void *pool);
@@ -245,7 +262,7 @@ void func_80041388(ParticleModelEntry *particle, s32 updateRate);
 void func_8003EC8C(ParticleObject *object, s32 index);
 void func_8003E7B8(ParticleObject *object, s32 index);
 s8 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger);
-s8 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger);
+s32 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config);
 void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
 void func_8003CA20(void);
 void func_8003CB3C(void);
@@ -418,7 +435,7 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     trigger->unk0C = 0;
     config = trigger->config;
     if (trigger->flags & 0x4000) {
-        trigger->result = func_8003EB08(descriptor, config, trigger);
+        trigger->result = func_8003EB08(descriptor, config);
     } else {
         if (config->flags & 1) {
             trigger->unk08 = 0;
@@ -442,7 +459,57 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     object->activeTriggerCount++;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E8D8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EB08.s")
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FD34.s; body reconstructed from Mickey evidence. */
+s32 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config) {
+    s32 result;
+    s32 i;
+    ParticleTexture *texture;
+    ParticleLineEntry *line;
+    s32 frameCount;
+
+    if (D_8007C894 == NULL) {
+        return 0xFF;
+    }
+    line = D_8007C894;
+    result = 0xFF;
+    i = 0;
+    if (D_8007C88C > 0) {
+        do {
+            if (line->active == 0) {
+                line->active = 2;
+                line->config = config;
+                line->unk130 = 0;
+                result = i;
+                i = D_8007C88C;
+            } else {
+                line++;
+            }
+            i++;
+        } while (i < D_8007C88C);
+    }
+    if (result != 0xFF) {
+        line->descriptorWord = *(s32 *)descriptor;
+        line->configFlags = config->flags;
+        if (*(s16 *)((u8 *)descriptor + 6) == -1) {
+            line->texture = NULL;
+            line->value144 = 0;
+            line->textureFrame = 0.0f;
+        } else {
+            texture = func_80034448(*(s16 *)((u8 *)descriptor + 6));
+            line->texture = texture;
+            line->value144 = *(s16 *)((u8 *)descriptor + 8);
+            frameCount = texture->frameCount >> 8;
+            if (config->flags & 0x800) {
+                line->textureFrame = mathRnd(0, frameCount - 1);
+            } else if ((line->descriptorWord & 1) == 2) {
+                line->textureFrame = frameCount - D_80082A4C;
+            } else {
+                line->textureFrame = 0.0f;
+            }
+        }
+    }
+    return result;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EC8C.s")
 #ifdef NON_MATCHING
 /* One-word plateau at +0x5C: the final bne's two operands are reversed. */
