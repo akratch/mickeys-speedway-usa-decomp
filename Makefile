@@ -791,6 +791,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_007_F0000000_185BE88=overlay7ReleaseEntry \
 		--redefine-sym func_overlay_007_F00000A8_185BF30=overlay7AcquireEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/func_overlay_007_F0000324_185C1AC.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x570
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/func_overlay_007_F0000324_185C1AC.c.o: CFLAGS += -Wo,-loopunroll,0
 # This pool initializer is naturally instruction-exact. Its ten local-BSS
 # records are already owned by overlay 7's shipped runtime relocation table,
 # so retain their exact zero-base addends without static-link adjustment.
@@ -2380,6 +2383,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2SplitRegion.c.o: POSTPROCESS = \
 		func_overlay_002_F0000B70_1857968=overlay2SplitRegion $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2AdjacentIndices.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o002/func_overlay_002_F0001364_185815C.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2F4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o002/func_overlay_002_F0000C90_1857A88.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2QueryNode.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_002_F00016A0_1858498=overlay2QueryNode $@ && \
@@ -3079,6 +3086,7 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_scaled.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/func_overlay_007_F0000324_185C1AC.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3SelectTarget.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3RunCachedModeAction.c.o \
@@ -3222,6 +3230,8 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ClassifyBoundary.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2IntersectBoundary.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ClipLines.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/func_overlay_002_F0000C90_1857A88.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/func_overlay_002_F0001364_185815C.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2AdjacentIndices.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2QueryNode.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/func_overlay_002_F0001A94_185888C.c.o \

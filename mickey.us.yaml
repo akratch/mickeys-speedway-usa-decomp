@@ -778,10 +778,10 @@ segments:
       - [0x1857294, c, overlay2ClipLines]
       - [0x18574D8, c, overlay2ChooseBoundary]
       - [0x1857968, c, overlay2SplitRegion]
-      - [0x1857A88, asm, overlay_002_middle_a]
+      - [0x1857A88, c, func_overlay_002_F0000C90_1857A88]
       - [0x1858014, c, overlay2Enable]
       - [0x1858034, c, overlay2ContainsPoint]
-      - [0x185815C, asm, overlay_002_middle_b0]
+      - [0x185815C, c, func_overlay_002_F0001364_185815C]
       - [0x1858450, c, overlay2AdjacentIndices]
       - [0x1858498, c, overlay2QueryNode]
       - [0x185888C, c, func_overlay_002_F0001A94_185888C]
@@ -881,7 +881,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x185BE88, c, overlay_007]
-      - [0x185C1AC, asm, overlay_007_middle]
+      - [0x185C1AC, c, func_overlay_007_F0000324_185C1AC]
       - [0x185C71C, c, overlay_007_tail]
       - [0x185CE40, asm, overlay_007_padding]
       - [0x185CE48, bin, overlay_007_data_rodata]
