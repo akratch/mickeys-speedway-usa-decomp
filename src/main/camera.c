@@ -156,6 +156,48 @@ typedef struct {
     u8 pad02[0x52];
 } CameraZRotationEntry;
 
+typedef struct {
+    u8 pad00[0x50];
+    f32 unk50;
+    u8 pad54[0x43C - 0x54];
+    s16 xRotation;
+    u8 pad43E[2];
+    s16 zRotation;
+    u8 pad442[2];
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+} CameraSpritePlayer;
+
+typedef struct {
+    s16 xRotation;
+    u8 pad02[2];
+    s16 zRotation;
+    u8 pad06[2];
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x30 - 0x18];
+    f32 distance;
+    u8 pad34[0x39 - 0x34];
+    u8 alpha;
+    u8 pad3A[0x40 - 0x3A];
+    f32 *baseScale;
+    s16 kind;
+    s16 spriteType;
+    u8 pad48[0x50 - 0x48];
+    f32 *opacity;
+    u8 pad54[0x64 - 0x54];
+    CameraSpritePlayer *player;
+} CameraSpriteActor;
+
+typedef struct {
+    s16 spriteType;
+    s16 scaleIndex;
+} CameraSpriteScaleEntry;
+
 extern u8 D_80079F94;
 extern s32 D_80079F8C;
 extern s32 D_80079D48;
@@ -205,6 +247,8 @@ extern f32 D_80081A20;
 extern f32 D_80081A24;
 extern f32 D_80081A28;
 extern f32 D_80081A2C;
+extern f32 D_80081A30;
+extern f32 D_80081A34;
 extern f32 D_80081A38;
 extern f32 D_80081A3C;
 extern f32 D_80081A40;
@@ -216,6 +260,9 @@ extern CameraShake D_800CEC18[];
 extern s32 D_8007C854;
 extern s32 D_8007C85C;
 extern s32 D_80079FC8;
+extern f32 D_80079FD8[];
+extern CameraSpriteScaleEntry D_80079FF0[];
+extern u8 D_8007BF0C;
 extern u8 D_79FCC[];
 
 void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
@@ -238,6 +285,10 @@ void func_8002AE10(CameraTransform *transform, MtxF matrix);
 void func_80024978(MtxF matrix);
 void func_80034E54(Gfx **dlist, u8 *spriteData, s32 flags,
                    f32 frame, s32 alpha);
+void func_80034434(s32 enabled, ...);
+void func_80023CCC(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
+                   u8 *spriteData, s16 x, s16 y, s16 z, s16 angle, f32 scale,
+                   f32 matrixScale, f32 frame, s32 flags, u8 alpha);
 f32 sqrtf(f32 value);
 s32 mathRnd(s32 minimum, s32 maximum);
 s32 levelGetNumber(void);
@@ -1165,7 +1216,139 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022FD4.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * Mickey-only sprite-orientation wrapper reconstruction.
+ *
+ * Plateau: the full flag lattice and ten coherent control-flow, type,
+ * lifetime and parameter-homing variants leave a best configured candidate
+ * with 286 instructions against 284 and 275 positional words different from
+ * first mismatch +0x0. IDO keeps the display-list argument in $s1 and emits
+ * a 0xA0 frame; the target spills that argument and uses a 0x90 frame.
+ */
+void func_80023598(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
+                   CameraSpriteActor *actor, u8 *spriteData, s32 alpha) {
+    CameraSpritePlayer *player;
+    s32 angle;
+    s32 mirroredFrame;
+    f32 scale;
+    f32 matrixScale;
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 xRotation;
+    s16 zRotation;
+    Gfx *cmd;
+    f32 threshold;
+    f32 multiplier;
+    f32 baseScale;
+    f32 distanceScale;
+    s32 spriteTypeIndex;
+    s32 frameCount;
+    s32 doubledFrameCount;
+    s32 frame;
+    s32 color;
+
+    if (actor->kind == 1) {
+        player = actor->player;
+        viGetVideoMode();
+        spriteTypeIndex = 0;
+        while ((D_80079FF0[spriteTypeIndex].spriteType !=
+                actor->spriteType) &&
+               (D_80079FF0[spriteTypeIndex].spriteType != -1)) {
+            spriteTypeIndex++;
+        }
+        baseScale = *actor->baseScale;
+        scale = D_80079FD8[D_80079FF0[spriteTypeIndex].scaleIndex] *
+                baseScale;
+        matrixScale = player->unk50;
+        xRotation = player->xRotation;
+        zRotation = player->zRotation;
+        distanceScale = player->scale;
+        x = player->x;
+        y = player->y;
+        z = player->z;
+        if (D_8007BF0C != 0) {
+            distanceScale = baseScale;
+            if (D_800CEC60 == 1) {
+                threshold = 400.0f;
+                multiplier = D_80081A30;
+            } else {
+                threshold = 250.0f;
+                multiplier = D_80081A34;
+            }
+            if (threshold < actor->distance) {
+                threshold = ((actor->distance - threshold) * multiplier) +
+                            1.0f;
+                if (threshold > 2.0f) {
+                    threshold = 2.0f;
+                }
+                distanceScale *= threshold;
+            }
+        }
+    } else {
+        xRotation = actor->xRotation;
+        zRotation = actor->zRotation;
+        distanceScale = actor->scale;
+        x = actor->x;
+        y = actor->y;
+        z = actor->z;
+        scale = distanceScale;
+        matrixScale = 1.0f;
+        baseScale = *actor->baseScale;
+    }
+
+    scale *= distanceScale / baseScale;
+    angle = xRotation - Arctanf(D_800CEA20[D_800CEC64].transform.x - x,
+                               D_800CEA20[D_800CEC64].transform.z - z);
+    frameCount = spriteData[0] - 1;
+    doubledFrameCount = frameCount * 2;
+    frame = ((((0x8000 / doubledFrameCount) + angle) & 0xFFFF) *
+             doubledFrameCount) >> 16;
+    mirroredFrame = frame;
+    if (frameCount < frame) {
+        mirroredFrame = doubledFrameCount - frame;
+        D_80079FC8 = 1;
+    }
+
+    if (D_8007C854 != 0) {
+        if (actor->opacity != NULL) {
+            color = *actor->opacity * D_8007C85C;
+        } else {
+            color = D_8007C85C;
+        }
+    } else {
+        color = 255;
+        if (actor->opacity != NULL) {
+            color = *actor->opacity * 255.0f;
+        }
+    }
+
+    color &= 0xFF;
+    cmd = (Gfx *)((*dlist)++);
+    cmd->words.w0 = 0xFA000000;
+    cmd->words.w1 = (color << 24) | (color << 16) | (color << 8) |
+                    actor->alpha;
+    cmd = (Gfx *)((*dlist)++);
+    cmd->words.w1 = 0;
+    cmd->words.w0 = 0xFB000000;
+
+    func_80034434(1, doubledFrameCount, frame, color);
+    func_80023CCC(dlist, mtx, vertices, spriteData, x, y, z,
+                  func_8002A8BC(angle) * zRotation, scale, matrixScale,
+                  mirroredFrame, 0x10E, alpha);
+    func_80034434(0);
+
+    cmd = (Gfx *)((*dlist)++);
+    cmd->words.w1 = -1;
+    cmd->words.w0 = 0xFA000000;
+    cmd = (Gfx *)((*dlist)++);
+    cmd->words.w1 = -256;
+    cmd->words.w0 = 0xFB000000;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023598.s")
+#endif
 /*
  * PROVENANCE: adapted from JFG's public decomp, src/camera.c:camDoSprite;
  * Mickey supplies the resident projection flip and display-list encoding.
