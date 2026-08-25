@@ -1303,6 +1303,8 @@ Exact C reconstructions in this census currently include the still-unnamed
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
 `packDirectoryFree` (ROM `0x2E424`–`0x2E458`, 52 bytes),
 the still-unnamed `func_8002C5F4` (ROM `0x2D1F4`–`0x2D20C`, 24 bytes),
+the still-unnamed bitstream allocator `func_8002C60C` (ROM `0x2D20C`–
+`0x2D29C`, 144 bytes),
 the still-unnamed `func_8002C788` (ROM `0x2D388`–`0x2D390`, 8 bytes),
 the still-unnamed `func_8002C790` (ROM `0x2D390`–`0x2D39C`, 12 bytes),
 the still-unnamed `func_8002C79C` (ROM `0x2D39C`–`0x2D3BC`, 32 bytes),

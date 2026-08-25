@@ -26,10 +26,12 @@ typedef struct SavesRecord {
 } SavesRecord;
 
 typedef struct SavesBitWriter {
-    u8 pad00[8];
+    s32 size;
+    s32 unk04;
     u8 mask;
     u8 pad09[3];
     u8 *cursor;
+    u8 *start;
 } SavesBitWriter;
 
 typedef struct SavesSlot {
@@ -63,7 +65,7 @@ typedef struct RumbleState {
 } RumbleState;
 
 void mmFree(void *address);
-void *func_8002B280(s32 size, s32 tag);
+void *func_8002B280();
 SavesSlot *func_800291C4(void);
 s32 joyGetController(s32 controllerIndex);
 extern RumbleState D_800D2368[];
@@ -134,7 +136,26 @@ void func_8002C5F4(void) {
     D_8007A2E8 = 0;
     D_8007A2FC = 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C60C.s")
+SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
+    SavesBitWriter *writer;
+    u8 *data;
+
+    writer = func_8002B280(size + 0x14, 0x85, size);
+    if (writer == NULL) {
+        return NULL;
+    }
+    data = (u8 *) writer + 0x14;
+    writer->size = size;
+    writer->mask = 0x80;
+    writer->cursor = data;
+    writer->start = data;
+    if (clear != 0) {
+        while (size--) {
+            writer->cursor[size] = 0;
+        }
+    }
+    return writer;
+}
 #ifdef NON_MATCHING
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     u32 mask;
