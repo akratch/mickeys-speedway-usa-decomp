@@ -1846,6 +1846,10 @@ func_8000FBD8 = 0x8000FBD8; // type:func size:0xCC ROM 0x107d8 tier-D (DKR src/t
 // segment-list body; Mickey proves the 16-bit output and resident binding.
 func_8000FCA4 = 0x8000FCA4; // type:func size:0xC4 ROM 0x108a4 tier-D (DKR src/tracks.c body adapted, placeholder retained)
 
+// No public name adopted: DKR's `get_inside_segment_count_xyz` supplies the
+// body; Mickey proves its resident layouts, binding, and exact schedule.
+func_8000FD68 = 0x8000FD68; // type:func size:0x14C ROM 0x10968 tier-D (DKR src/tracks.c body adapted, placeholder retained)
+
 // No public name adopted: DKR's `block_get` supplies the accessor structure,
 // while Mickey proves its stricter upper bound and 0x40-byte segment stride.
 func_8000FEB4 = 0x8000FEB4; // type:func size:0x38 ROM 0x10ab4 tier-D (DKR src/tracks.c block_get structure, placeholder retained)

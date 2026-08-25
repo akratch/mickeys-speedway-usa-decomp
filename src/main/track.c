@@ -834,7 +834,39 @@ s32 func_8000FCA4(s32 x, s32 z, s16 *segments) {
     }
     return count;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FD68.s")
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * `get_inside_segment_count_xyz`. Mickey's resident types, bindings, and
+ * instruction schedule are authoritative; the donor name is not adopted.
+ */
+s32 func_8000FD68(s32 *segments, s16 x1, s16 y1, s16 z1, s16 x2, s16 y2,
+                  s16 z2) {
+    s32 count;
+    s32 segmentIndex;
+    TrackBoundingBox *bounds;
+
+    x1 -= 4;
+    y1 -= 4;
+    z1 -= 4;
+    x2 += 4;
+    y2 += 4;
+    z2 += 4;
+
+    segmentIndex = 0;
+    count = 0;
+
+    while (segmentIndex < D_800792E8->segmentCount) {
+        bounds = &D_800792E8->segmentBounds[segmentIndex];
+        if ((bounds->x2 >= x1) && (x2 >= bounds->x1) &&
+            (bounds->z2 >= z1) && (z2 >= bounds->z1) &&
+            (bounds->y2 >= y1) && (y2 >= bounds->y1)) {
+            count++;
+            *segments++ = segmentIndex;
+        }
+        segmentIndex++;
+    }
+    return count;
+}
 /*
  * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
  * function `block_get`. Mickey's stricter upper bound, TrackData layout,
