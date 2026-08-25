@@ -50,6 +50,7 @@ extern s32 D_8007A1B4;
 extern s32 D_8007A1D8;
 extern s32 D_8007A200;
 extern s32 D_8007A24C;
+extern u8 *D_8007A244;
 extern s16 D_8007A250[];
 extern s32 D_8007A258;
 extern u8 D_8007BEF4;
@@ -129,7 +130,53 @@ extern s32 func_8003A408(void);
 extern void func_8003A41C(s32);
 extern void mainFrontInit(s32, s32, s32);
 
+#ifdef NON_MATCHING
+/*
+ * Plateau: nine source/expression hypotheses preserve all 66 target opcodes,
+ * the 0x108 boundary, -0x30 frame and exact relocation layout. The best has
+ * 20 register-operand differences, first at +0x24 where the target loads its
+ * comparison constant before the outer countdown. The remaining differences
+ * are the temp-FIFO choices in the byte-patch sequence. The complete flag
+ * lattice was unchanged; a canonical-MIPS-II bounded permuter batch improved
+ * its score from 225 to 120 without reaching identity.
+ */
+void RevealReturnAddresses(void) {
+    s32 outer;
+    u8 **returnAddress;
+    u8 *scan;
+    s32 inner;
+    u16 patched;
+
+    outer = 4;
+    do {
+        returnAddress = &D_8007A244;
+        outer = 4;
+        do {
+            scan = *returnAddress;
+            inner = 0x3F;
+            do {
+                if (((*(u32 *) scan >> 26) == 9) &&
+                    (*(u16 *) (scan + 2) == 0x666)) {
+                    scan[0] = scan[0] & 0xFF03;
+                    *(u16 *) scan = (patched = *(u16 *) scan | 0x3E0);
+                    scan[2] = ((patched << 1) << 2) |
+                              (scan[2] & 0xFF07);
+                    *(u16 *) (scan + 2) &= 0xF83F;
+                    scan[1] = scan[1] & 0xFFE0;
+                    scan[3] = (scan[3] & 0xFFC0) | 0x25;
+                    osWritebackDCache(scan, 4);
+                    osInvalICache(scan, 4);
+                    break;
+                }
+                scan += 4;
+            } while (inner--);
+            returnAddress--;
+        } while (outer--);
+    } while (0);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
+#endif
 
 #ifdef NON_MATCHING
 /*

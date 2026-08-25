@@ -1674,6 +1674,13 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
   removes three dead-looking countdown-loop register copies retained by the
   target.
+- `RevealReturnAddresses`, nine source/expression hypotheses, the full flag
+  lattice and a bounded canonical-MIPS-II permuter batch, first mismatch
+  `+0x24`: the best candidate preserves all 66 target opcodes, the 264-byte
+  boundary, `-0x30` frame and exact relocations but has 20 register-operand
+  differences. The target assigns its comparison constants and byte-patch
+  temporaries in a different allocator order; the permuter improved its score
+  from 225 to 120 without reaching identity.
 - `levelGetCounts`, ten source/type/loop hypotheses, first mismatch `+0x13c`:
   the best candidate has the target's 1,036-byte size, 259-instruction opcode
   schedule and `-0x58` frame, but three register operands use `$v0` where the
