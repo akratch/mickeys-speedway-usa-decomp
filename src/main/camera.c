@@ -110,6 +110,22 @@ typedef union {
 } CameraAlignedScaledTransform;
 
 typedef struct {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+} CameraVertex;
+
+typedef struct {
+    CameraScaledTransform transform;
+    u8 pad18[0x10];
+    f32 frame;
+} CameraObjectSegment;
+
+typedef struct {
     s32 flags;
     u8 pad04[0x30];
 } CameraViewportFlags;
@@ -197,6 +213,8 @@ void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
 void mtxf_to_mtx(MtxF src, Mtx *dest);
 void mtxf_translate_y(MtxF matrix, f32 y);
 void matrixScale(f32 x, f32 y, f32 z, MtxF matrix);
+void mathScaleMtx(MtxF matrix, f32 x, f32 y, f32 z);
+void mathRSMtx(s32 rotation, f32 scale, f32 aspect, MtxF matrix);
 void func_8004FAD0(MtxF matrix, u16 *perspNorm, f32 fovy, f32 aspect,
                    f32 nearPlane, f32 farPlane, f32 scale);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -1141,7 +1159,96 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023598.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023A08.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023CCC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023F84.s")
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camDo2DSprite; Mickey supplies the display-list encoding and
+ * its resident camera globals.
+ */
+void func_80023F84(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
+                   CameraObjectSegment *segment, u8 *spriteData, s32 flags,
+                   u8 alpha) {
+    CameraVertex *vertex;
+    f32 scale;
+    struct {
+        MtxF scaleMatrix;
+        MtxF aspectMatrix;
+    } matrices;
+
+    if (spriteData == NULL) {
+        return;
+    }
+
+    vertex = *vertices;
+    vertex->x = segment->transform.x;
+    vertex->y = segment->transform.y;
+    vertex->z = segment->transform.z;
+    vertex->r = 255;
+    vertex->g = 255;
+    vertex->b = 255;
+    vertex->a = 255;
+
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w0 = ((((((u32)*vertices + 0x80000000) & 6) | 8) &
+                           0xFF) << 16) | 0x04000000 | 0x12;
+        cmd->words.w1 = (u32)*vertices + 0x80000000;
+    }
+    (*vertices)++;
+
+    D_800CEC68.yRotation = -segment->transform.yRotation;
+    D_800CEC68.xRotation = -segment->transform.xRotation;
+    D_800CEC68.zRotation = segment->transform.zRotation;
+    D_800CEC68.x = 0.0f;
+    D_800CEC68.y = 0.0f;
+    D_800CEC68.z = 0.0f;
+
+    if (D_800CEC80 != 0) {
+        scale = segment->transform.scale;
+        mathScaleMtx(matrices.scaleMatrix, scale, scale, 1.0f);
+        mathRSMtx(0, 1.0f, func_80021438(), matrices.aspectMatrix);
+        mtxf_mul(matrices.aspectMatrix, matrices.scaleMatrix, D_800CF220);
+    } else {
+        scale = segment->transform.scale;
+        mathScaleMtx(D_800CF220, scale, scale, 1.0f);
+    }
+
+    func_8002AE10(&D_800CEC68, matrices.aspectMatrix);
+    mtxf_mul(D_800CF220, matrices.aspectMatrix, D_800CECD8);
+    mtxf_to_mtx(D_800CECD8, *mtx);
+    D_800CED58 = *mtx;
+
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w0 = 0x01020040;
+        cmd->words.w1 = (u32)*mtx + 0x80000000;
+    }
+    (*mtx)++;
+
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 1;
+        cmd->words.w0 = 0xBC000002;
+    }
+
+    func_80034E54(dlist, spriteData, flags, segment->frame, alpha);
+
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC00000A;
+    }
+
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC000002;
+    }
+}
 /*
  * PROVENANCE: adapted from JFG's public decomp,
  * src/camera.c:camPushFloatModelMtx.
