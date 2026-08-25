@@ -1608,6 +1608,18 @@ public source supplies its name and prototype and its object supplies the exact
 skeleton anchor, not a C body. All configured object ranges and the final
 linked ROM are byte-exact.
 
+`rcpFast3d` retains a `NON_MATCHING` Mickey-derived task-construction body
+after the 119-combination flag lattice and ten source/type/scheduling
+hypotheses. A candidate using the SDK's distinct `rspbootTextEnd` identity is
+exact across all 168 instruction words, but strict object comparison rejects
+the HI/LO pair at function `+0x204`: the target relocations name
+`D_80077AD0`, while the candidate names the weak alias. Using
+`D_80077AD0` for both the boot-end and Fast3D-start roles gives exact
+relocation identities but lets IDO coalesce the address, emitting 166
+instructions and first diverging at the same offset. The exact-word candidate
+remains guarded for the distinct-symbol scheduling evidence; the assembly
+fallback remains canonical.
+
 `rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body after
 the 119-combination flag lattice and nine source-shape hypotheses. The best
 no-frame candidate has 96 instructions versus the target's 107 and first

@@ -4,8 +4,8 @@
  * PROVENANCE -- the TU identity and descriptive names are adapted from Jet
  * Force Gemini's public decompilation, src/rcpFast3d.c. Mickey's exact
  * rcpFast3d/rcpInit skeleton anchors, ordered init helpers and RCP call graph
- * establish the boundary. Adapted C bodies are identified in docs/modules.md;
- * all remaining functions stay as Mickey GLOBAL_ASM.
+ * establish the boundary. Adapted C bodies carry point-of-use provenance;
+ * Mickey's own code and data decide every promoted implementation.
  */
 
 #include "PR/ultratypes.h"
@@ -51,10 +51,17 @@ extern u8 D_8007A3A4;
 extern u8 D_8007A3A8;
 extern u32 D_8007A3B0;
 extern u32 D_8007A3AC;
+extern s32 D_8007A3B4;
+extern s32 D_8007A3B8;
+extern s32 D_8007A3BC;
+extern s32 D_8007A3C0;
 extern s32 D_8007A3C4;
 extern s32 D_8007A3C8;
 extern s32 D_8007A3EC;
 extern s32 D_8007A410;
+extern OSMesg D_8007A3CC;
+extern OSMesg D_8007A3F0;
+extern OSMesg D_8007A414;
 extern RcpCommand D_8007A438[];
 extern RcpCommand D_8007A4B8[];
 extern OSMesgQueue D_800D2880;
@@ -71,11 +78,103 @@ extern OSMesg D_800D2CE8[];
 extern OSMesgQueue D_800D2D08;
 extern OSMesg D_800D2D20[];
 extern s32 D_800D2FAC;
+extern OSScTask D_800D2910[];
+extern OSScTask D_800D29F0[];
+extern OSScTask D_800D2AD0[];
+extern OSScTask D_800D2BB0[];
+extern u64 D_800D2480[];
+extern u64 D_800D3670[];
+extern u64 D_80077950[];
+extern u64 D_80077AD0[];
+extern u64 D_80085240[];
+#ifdef NON_MATCHING
+extern u64 rspbootTextEnd[];
+#pragma weak rspbootTextEnd = D_80077AD0
+#endif
 
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
+void osWritebackDCacheAll(void);
 void TrapDanglingJump(void);
 
+#ifdef NON_MATCHING
+/* Mickey-derived task construction. JFG supplies the function name and the
+ * OSScTask field correspondence, while its public C file retains assembly;
+ * JFG's SDK ucode header supplies the official rspbootTextEnd symbol name. */
+s32 rcpFast3d(u64 *dataStart, u64 *dataEnd, s32 taskType,
+              void *framebuffer) {
+    OSScTask *task;
+    s32 taskFlags;
+
+    D_8007A3C4 = 1;
+    taskFlags = 3;
+    switch (taskType) {
+        case 0:
+            task = &D_800D2910[D_8007A3B4];
+            D_8007A3B4 ^= 1;
+            taskFlags = 0x23;
+            task->msgQ = &D_800D28B8;
+            task->unk58 = 0xFF0000FF;
+            task->unk5C = 0xFF0000FF;
+            task->taskID = 2;
+            break;
+        case 3:
+            task = &D_800D29F0[D_8007A3B8];
+            D_8007A3B8 ^= 1;
+            task->msgQ = &D_800D2C98;
+            task->msg = &D_8007A3CC;
+            task->unk58 = 0xFF00FFFF;
+            task->unk5C = 0xFF00FFFF;
+            task->taskID = 5;
+            break;
+        case 4:
+            task = &D_800D2AD0[D_8007A3BC];
+            D_8007A3BC ^= 1;
+            task->msgQ = &D_800D2CD0;
+            task->msg = &D_8007A3F0;
+            task->unk58 = 0xFFFF00FF;
+            task->unk5C = 0xFFFF00FF;
+            task->taskID = 6;
+            break;
+        case 5:
+            task = &D_800D2BB0[D_8007A3C0];
+            D_8007A3C0 ^= 1;
+            task->msgQ = &D_800D2D08;
+            task->msg = &D_8007A414;
+            task->unk58 = 0x00FF00FF;
+            task->unk5C = 0x00FF00FF;
+            task->taskID = 7;
+            break;
+    }
+
+    task->unk68 = 0;
+    task->list.t.dram_stack = D_800D2480;
+    task->list.t.dram_stack_size = 0x400;
+    task->list.t.yield_data_ptr = D_800D3670;
+    task->list.t.yield_data_size = 0xA00;
+    task->flags = taskFlags;
+    task->list.t.data_ptr = dataStart;
+    task->list.t.data_size = dataEnd - dataStart;
+    task->list.t.ucode_boot = D_80077950;
+    task->list.t.type = 1;
+    task->list.t.flags = 2;
+    task->list.t.ucode_boot_size = (u32) rspbootTextEnd -
+                                   (u32) D_80077950;
+    task->list.t.ucode = D_80077AD0;
+    task->list.t.ucode_data = D_80085240;
+    task->list.t.ucode_data_size = 0x800;
+    task->list.t.output_buff = NULL;
+    task->list.t.output_buff_size = NULL;
+    task->next = NULL;
+    task->framebuffer = framebuffer;
+    task->unk60 = 0xFF;
+    task->unk64 = 0xFF;
+    osWritebackDCacheAll();
+    osSendMesg(D_800D2C90, task, OS_MESG_BLOCK);
+    return 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpFast3d.s")
+#endif
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/rcpFast3d.c:rcpWaitDP. */
 s32 rcpWaitDP(void) {
