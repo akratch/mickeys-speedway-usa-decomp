@@ -89,8 +89,8 @@ OSMesgQueue *joyMessageQ(void) {
 /*
  * PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive.
  *
- * Workbench verdict: structure; 86 versus 83 words, first structural +0x128.
- * Split scalar aliases and lever 23 line ties regressed to 115 words.
+ * Workbench verdict: structure/count; 86 versus 83 instructions, first structural +0x128.
+ * Levers 6/23: prior scalar, aggregate, pointer, expression, and line variants did not improve it.
  * Remaining: final clears need one shared HI16 with four LO16 identities.
  */
 

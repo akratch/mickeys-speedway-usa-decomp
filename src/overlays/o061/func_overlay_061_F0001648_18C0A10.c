@@ -10,6 +10,10 @@ extern s32 overlay68RecordSizeReloc(s32);
 extern void overlay61FreeReloc(void *);
 extern void overlay61CloseReloc(s32);
 
+/* Workbench verdict: mixed structure/schedule/register; 14 words, first +0xC8.
+ * Levers 4/23: clamp, branch, lifetime, split-expression, and line-assignment variants were no better.
+ * Remaining: the target uses a branch-likely/a0 web; the best C keeps a normal branch/a1 web. */
+
 #ifdef NON_MATCHING
 s32 func_overlay_061_F0001648_18C0A10(s32 *output, s32 device, s32 *slot) {
     s32 copySize;
