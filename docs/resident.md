@@ -2398,7 +2398,7 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Ninety-four functions / 8,444 bytes compile exactly
+**Matching progress.** Ninety-five functions / 8,808 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -2412,9 +2412,10 @@ linked ranges and the full ROM are exact.
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (60 / 6,044 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
+- `main/main` (61 / 6,408 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
   `mainGameWindowChanging`,
-  `mainGameWindowSize`, `mainCPUeffects`, `mainSetGameWindow`, `mainSetAnimGroup`,
+  `mainGameWindowSize`, `mainCPUeffects`, `mainSetGameWindow`, `func_80027D14`,
+  `mainSetAnimGroup`,
   `mainGetAnimGroup`,
   `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
   `func_80027628`, `mainAddZBCheck`,
@@ -2513,12 +2514,6 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
   removes three dead-looking countdown-loop register copies retained by the
   target.
-- `func_80027D14`, eight control-flow/register-lifetime hypotheses, the full
-  flag lattice and a bounded two-worker permuter batch, first mismatch `+0x0`:
-  the best Mickey-derived interpolation candidate compiles to 92 rather than
-  91 instructions. IDO starts its global-pointer live range in `$t1` rather
-  than the target's `$t0`, leaving 88 differing words and 24 relocation-position
-  mismatches; the permuter found no improvement from its base score of 4,900.
 - `levelGetCounts`, ten source/type/loop hypotheses, first mismatch `+0x13c`:
   the best candidate has the target's 1,036-byte size, 259-instruction opcode
   schedule and `-0x58` frame, but three register operands use `$v0` where the

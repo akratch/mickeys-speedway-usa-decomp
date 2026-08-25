@@ -902,18 +902,10 @@ void mainSetGameWindow(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
     D_8007A13C = D_8007A140;
 }
 
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: function role and interpolation structure compared with Jet
  * Force Gemini src/main.c::func_80045C38_46838; JFG retains assembly, and the
  * body below is reconstructed from Mickey-only control-flow and data evidence.
- *
- * Plateau: eight control-flow and lifetime variants, the full resident flag
- * lattice and a bounded two-worker permuter run leave this candidate at 92
- * instructions versus the target's 91. The first mismatch is +0x0: IDO starts
- * the target's live global-pointer web in t0, while this spelling starts in t1;
- * the shifted allocation leaves 88 differing words and 24 relocation-position
- * mismatches despite preserving the interpolation semantics.
  */
 void func_80027D14(s32 arg0) {
     s32 fraction;
@@ -921,35 +913,31 @@ void func_80027D14(s32 arg0) {
     s32 changing;
 
     countdown = D_8007A13C;
-    if (countdown != 0) {
-        D_8007A12C = D_800D18D0;
-        D_8007A130 = D_800D18D4;
-        D_8007A134 = D_800D18D8;
-        countdown -= arg0;
-        D_8007A13C = countdown;
-        D_8007A138 = D_800D18DC;
-        if (countdown > 0) {
-            fraction = (countdown << 16) / D_8007A140;
-            D_8007A12C += ((D_800D18C0 - D_800D18D0) * fraction) >> 16;
-            D_8007A130 += ((D_800D18C4 - D_800D18D4) * fraction) >> 16;
-            D_8007A134 += ((D_800D18C8 - D_800D18D8) * fraction) >> 16;
-            D_8007A138 += ((D_800D18CC - D_800D18DC) * fraction) >> 16;
-        } else {
-            D_8007A13C = 0;
-            countdown = 0;
-        }
+    if (countdown == 0) {
+        goto updateChanging;
     }
+    D_8007A12C = D_800D18D0;
+    D_8007A130 = D_800D18D4;
+    D_8007A134 = D_800D18D8;
+    D_8007A138 = D_800D18DC;
+    countdown = D_8007A13C = countdown - arg0;
+    if (countdown > 0) {
+        fraction = (countdown << 16) / D_8007A140;
+        D_8007A12C += ((D_800D18C0 - D_800D18D0) * fraction) >> 16;
+        D_8007A130 += ((D_800D18C4 - D_800D18D4) * fraction) >> 16;
+        D_8007A134 += ((D_800D18C8 - D_800D18D8) * fraction) >> 16;
+        D_8007A138 += ((D_800D18CC - D_800D18DC) * fraction) >> 16;
+    } else {
+        D_8007A13C = 0;
+        countdown = 0;
+    }
+updateChanging:
     changing = countdown != 0;
-    if (changing != 0) {
-        goto setChanging;
+    if (changing == 0) {
+        changing = D_8007A144 == 0;
     }
-    changing = D_8007A144 == 0;
-setChanging:
     D_8007A128 = changing;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027D14.s")
-#endif
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 s32 mainGameWindowChanging(void) {
