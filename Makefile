@@ -1922,6 +1922,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeBuffers.c.o: OPT_FLAGS 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/func_overlay_046_F0000874_188EC6C.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/func_overlay_046_F0000874_188EC6C.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x708
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o046/func_overlay_046_F0001228_188F620.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
+ifneq ($(NON_MATCHING),1)
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o046/func_overlay_046_F0001228_188F620.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x738
+endif
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46UpdateTransition.c.o: \
 	$(TOOLS_DIR)/filter_elf_relocations.py \
 	$(TOOLS_DIR)/trim_elf_section.py
@@ -2812,6 +2817,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26HandleEffects.c.o: CFLAGS += -Wab
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26HandleEffects.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x434
 
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F00001A0_187A598.c.o: CFLAGS += -Wab,-r4300_mul
+ifneq ($(NON_MATCHING),1)
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F00001A0_187A598.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x978
+endif
+
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F0000B18_187AF10.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F0000B18_187AF10.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20C
@@ -2967,6 +2978,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46Submit.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/overlay46InitializeBuffers.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/func_overlay_046_F0000874_188EC6C.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o046/func_overlay_046_F0001228_188F620.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65Initialize.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65UpdateParticles.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65Release.c.o \
@@ -3188,6 +3200,7 @@ OVERLAY_TRIMMED_OBJECTS += \
 OVERLAY_TRIMMED_OBJECTS += \
 	$(O28_MERGED_OBJ)
 OVERLAY_TRIMMED_OBJECTS += \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F00001A0_187A598.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F0000B18_187AF10.c.o
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/overlay35SelectHeight.c.o \

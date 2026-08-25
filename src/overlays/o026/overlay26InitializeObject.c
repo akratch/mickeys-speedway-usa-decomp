@@ -20,7 +20,7 @@ typedef struct O26State {
     f32 value24;
     s32 flags28;
     s16 short2C;
-    volatile s16 short2E;
+    u16 short2E;
 } O26State;
 
 typedef struct O26Object {
@@ -61,6 +61,18 @@ extern void func_overlay_026_F0000D24_187B11C(O26Object *object, s32 mode);
 extern void func_80029FE4(O26Object *object, O26Vec3f *direction);
 extern s32 func_8000FAE0(f32 x, f32 y, f32 z);
 
+/*
+ * Plateau (2026-08-25): the best -O2 -mips2 candidate has the exact
+ * 104-word size and 0x50-byte frame, with 16 positional word differences
+ * beginning at +0x74 after an exact 29-word prefix. Treating angleX as a
+ * 16-bit bit pattern, making short2E unsigned, and following the target's
+ * state-store order fixed both literal-one webs and the delayed s0 save.
+ * The remaining state stores schedule in a different temp-register order,
+ * which cascades into three later integer webs. The flag lattice was neutral;
+ * a bounded permuter import selected the wrong -mips1 mode, and its sole
+ * signedness suggestion was revalidated under -mips2. Stopped at the attempt
+ * cap without an exact match.
+ */
 #ifdef NON_MATCHING
 void func_overlay_026_F0000000_187A3F8(O26Object *object, O26Config *config) {
     O26State *state;
@@ -76,11 +88,11 @@ void func_overlay_026_F0000000_187A3F8(O26Object *object, O26Config *config) {
     object->angleY = config->angleY;
     object->angleZ = config->angleZ;
     object->active80 = 1;
-    state->short2C = config->angleX;
+    state->short2C = config->angleX & 0xFFFFu;
     state->word00 = config->word10;
-    state->word04 = config->word14;
     state->short2E = 1;
     state->value24 = 12288.0f;
+    state->word04 = config->word14;
 
     position.x = object->position.x;
     position.y = object->position.y;

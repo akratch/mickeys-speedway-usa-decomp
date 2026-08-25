@@ -872,7 +872,7 @@ TEXT_SUBSEGMENTS = {
     ],
     26: [
         (0x000, "c", "overlay26InitializeObject"),
-        (0x1A0, "asm", "overlay_026_head"),
+        (0x1A0, "c", "func_overlay_026_F00001A0_187A598"),
         (0xB18, "c", "func_overlay_026_F0000B18_187AF10"),
         (0xD24, "c", "overlay26HandleEffects"),
         (0x1158, "c", "overlay26DrawGroups"),
@@ -927,7 +927,7 @@ TEXT_SUBSEGMENTS = {
         (0xFD0, "c", "overlay46UpdateTransition"),
         (0x112C, "c", "overlay46Submit"),
         (0x1150, "c", "overlay46InitializeBuffers"),
-        (0x1228, "asm", "overlay_046_tail"),
+        (0x1228, "c", "func_overlay_046_F0001228_188F620"),
     ],
     48: [
         (0x000, "c", "overlay48Initialize"),
