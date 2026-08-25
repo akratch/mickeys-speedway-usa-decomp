@@ -158,6 +158,15 @@ typedef struct O1Pair {
     s32 valid;
 } O1Pair;
 
+typedef struct Overlay1ValueEntry {
+    f32 value;
+    u8 pad04[8];
+} Overlay1ValueEntry;
+
+typedef struct Overlay1ValueRow {
+    Overlay1ValueEntry entries[6];
+} Overlay1ValueRow;
+
 extern O1ControlTable *D_1D60;
 extern O1ControlTable *D_1D68;
 extern O1ControlTable *D_1D68Read;
@@ -171,6 +180,7 @@ extern f32 D_E8;
 extern f32 D_EC;
 extern f32 D_F0;
 extern f32 D_F4;
+extern Overlay1ValueRow D_1BA8[];
 
 extern f32 overlay1RandomWave(s32 value);
 extern O1ChoiceObject **overlay1GetChoiceObjects(s32 *count);
@@ -182,10 +192,11 @@ extern O1ChoiceObject *overlay1FindChoice(f32 progress,
                                          s32 minimum, s32 *scores);
 extern f32 overlay1MeasureChoice(f32 first, f32 second);
 
-/* Plateau (2026-08-24): -O2 -mips2 -Wab,-r4300_mul was best across the
- * flag lattice, but remains 0x4 bytes long with 360 of 446 words differing
- * and a first mismatch at +0xC.  The gap spans the full state-machine
- * register schedule rather than one local expression-order choice. */
+#define CHOICE_WORLD ((O1ChoiceState *)D_1DA0)
+
+/* Workbench plateau: structure-mismatch; 447/446 instructions, exact 0x90 frame, 360 positional words, first +0xC.
+ * Levers tried: constant audit, typed world/table access, count lifetime, declaration order, path width, and loop spelling.
+ * Remaining: one extra instruction, 85 structural and 147 register-class rows; 64 relocation symbols remain unbound. */
 #ifdef NON_MATCHING
 void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
     O1ChoiceState *otherState;
@@ -207,51 +218,51 @@ void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
     f32 temporaryX;
     f32 temporaryZ;
 
-    if (D_1DA0->transition != 0) {
-        weight = (overlay1RandomWave((D_1DA0->transition << 7) + 0x8000) +
+    if (CHOICE_WORLD->transition != 0) {
+        weight = (overlay1RandomWave((CHOICE_WORLD->transition << 7) + 0x8000) +
                   1.0f) * 0.5f;
-        overlay1InterpolatePath(outX, outZ, D_1DA0->previousSelector, 0.5f);
-        overlay1InterpolatePath(&temporaryX, &temporaryZ, D_1DA0->selector,
+        overlay1InterpolatePath(outX, outZ, CHOICE_WORLD->previousSelector, 0.5f);
+        overlay1InterpolatePath(&temporaryX, &temporaryZ, CHOICE_WORLD->selector,
                                 0.5f);
         *outX = ((*outX - temporaryX) * weight) + temporaryX;
         *outZ = ((*outZ - temporaryZ) * weight) + temporaryZ;
         value = D_1D94 * 8;
-        if (D_1DA0->transition >= value) {
-            D_1DA0->transition -= value;
+        if (CHOICE_WORLD->transition >= value) {
+            CHOICE_WORLD->transition -= value;
         } else {
-            D_1DA0->transition = 0;
+            CHOICE_WORLD->transition = 0;
         }
         return;
     }
 
-    if (D_1D64->flags & 1) {
+    if (((O1ControlTable *)D_1D64)->flags & 1) {
         table = D_1D68;
-        path = D_1DA0->selector;
+        path = CHOICE_WORLD->selector;
         if (table->points[path].enabled == 0) {
             i = 7;
             do {
                 if (table->points[i].enabled != 0 &&
-                    i != D_1DA0->selector &&
-                    table->points[D_1DA0->selector].x == table->points[i].x &&
-                    table->points[D_1DA0->selector].z == table->points[i].z) {
-                    D_1DA0->previousSelector = i;
-                    D_1DA0->selector = i;
-                    D_1DA0->transition = 0;
-                    path = D_1DA0->selector;
+                    i != CHOICE_WORLD->selector &&
+                    table->points[CHOICE_WORLD->selector].x == table->points[i].x &&
+                    table->points[CHOICE_WORLD->selector].z == table->points[i].z) {
+                    CHOICE_WORLD->previousSelector = i;
+                    CHOICE_WORLD->selector = i;
+                    CHOICE_WORLD->transition = 0;
+                    path = CHOICE_WORLD->selector;
                     break;
                 }
                 loopValue = i;
                 i--;
             } while (loopValue != 0);
         }
-        path = D_1DA0->selector;
+        path = CHOICE_WORLD->selector;
         overlay1InterpolatePath(outX, outZ, path, 0.5f);
         return;
     }
 
     i = 7;
     do {
-        difference = (f32)(i - D_1DA0->selector);
+        difference = (f32)(i - CHOICE_WORLD->selector);
         if (difference < 0.0f) difference = -difference;
         scores[i] = (s32)(48.0f - difference * 6.0f);
         loopValue = i;
@@ -264,15 +275,16 @@ void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
         do {
             object = *cursor--;
             otherState = object->state;
-            if (otherState != D_1DA0 && !(otherState->flags & 8)) {
+            if (otherState != CHOICE_WORLD && !(otherState->flags & 8)) {
                 difference =
-                    D_1BA8[D_1DA0->playerIndex][otherState->playerIndex].value;
+                    ((O1Pair (*)[6])D_1BA8)[CHOICE_WORLD->playerIndex]
+                                                [otherState->playerIndex].value;
                 if (((difference > -2.0f) && (difference < 2.0f)) ||
                     ((D_E8 < difference) && (difference < 0.0f) &&
-                     (D_1DA0->relationModes[otherState->relationIndex] == 1))) {
+                     (CHOICE_WORLD->relationModes[otherState->relationIndex] == 1))) {
                     value = otherState->selector;
                     step = 1;
-                    if (value < D_1DA0->selector) step = -1;
+                    if (value < CHOICE_WORLD->selector) step = -1;
                     do {
                         if (difference > 0.0f) {
                             weight = difference;
@@ -286,7 +298,7 @@ void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
                     } while (value >= 0 && value < 8);
                 }
                 if ((difference > -2.0f) && (difference < 0.0f) &&
-                    D_1DA0->relationModes[otherState->relationIndex] >= 4) {
+                    CHOICE_WORLD->relationModes[otherState->relationIndex] >= 4) {
                     scores[otherState->selector] =
                         (s32)((f32)scores[otherState->selector] +
                               D_EC);
@@ -313,12 +325,12 @@ void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
     } while (loopValue != 0);
 
     value = -1000000;
-    if (D_1DA0->active != 0 && D_1DA0->mode == 6) {
-        found = overlay1FindChoice(D_1DA0->progress, table, value, scores);
+    if (CHOICE_WORLD->active != 0 && CHOICE_WORLD->mode == 6) {
+        found = overlay1FindChoice(CHOICE_WORLD->progress, table, value, scores);
         if (found != 0) {
             chosenState = found->state;
             weight = (f32)chosenState->objectValue * D_F0;
-            difference = overlay1MeasureChoice(weight, D_1DA0->progress);
+            difference = overlay1MeasureChoice(weight, CHOICE_WORLD->progress);
             if (difference < D_F4) {
                 overlay1SubmitChoice(D_1D9C);
             } else if (difference < 3.0f) {
@@ -334,24 +346,26 @@ void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
             selected = i;
             value = scores[i];
             D_208 = &D_1D60->points[i];
-            D_20C = &D_1D64->points[i];
+            D_20C = &((O1ControlTable *)D_1D64)->points[i];
             D_210 = &D_1D68->points[i];
             D_214 = &D_1D6C->points[i];
         }
         i++;
     } while (i < 8);
 
-    overlay1InterpolatePath(outX, outZ, D_1DA0->selector, 0.5f);
-    if (selected != -1 && selected != D_1DA0->selector) {
-        D_1DA0->previousSelector = D_1DA0->selector;
-        D_1DA0->selector = selected;
-        D_1DA0->transition = 0xFF;
+    overlay1InterpolatePath(outX, outZ, CHOICE_WORLD->selector, 0.5f);
+    if (selected != -1 && selected != CHOICE_WORLD->selector) {
+        CHOICE_WORLD->previousSelector = CHOICE_WORLD->selector;
+        CHOICE_WORLD->selector = selected;
+        CHOICE_WORLD->transition = 0xFF;
     }
 }
 
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0003750_184FB30.s")
 #endif
+
+#undef CHOICE_WORLD
 
 /* ---- overlay1SubmitGlobals ---- */
 
@@ -1591,15 +1605,11 @@ typedef struct Overlay1DirectionalObject {
     s16 angle; u8 pad02[0xA]; f32 x; u8 pad10[4]; f32 z;
     u8 pad18[0x4C]; Overlay1ObjectState *state;
 } Overlay1DirectionalObject;
-typedef struct Overlay1ValueEntry { f32 value; u8 pad04[8]; } Overlay1ValueEntry;
-typedef struct Overlay1ValueRow { Overlay1ValueEntry entries[6]; } Overlay1ValueRow;
-
 extern Overlay1DirectionalObject **overlay1GetObjectList(s32 *count);
 extern f32 sqrtf(f32 value);
 extern f32 overlay1TrigX(s32 angle);
 extern f32 overlay1TrigY(s32 angle);
 extern f32 D_160;
-extern Overlay1ValueRow D_1BA8[];
 
 Overlay1DirectionalObject *overlay1FindDirectionalObject(
     Overlay1DirectionalObject *object, void *unused1, void *unused2,

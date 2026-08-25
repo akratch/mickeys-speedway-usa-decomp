@@ -42,11 +42,18 @@ extern void func_overlay_036_F0000914_1883DCC(Overlay36Object *object,
                                               s32 arg1, s32 state,
                                               s32 enabled);
 
+/* Workbench plateau: structure-mismatch; 170/170 instructions, 0x38 frame, 155 positional words, first structural mismatch +0x3C.
+ * Levers tried: constant audit, line assignment, and spill-slot census; declaration order fixed the 0x20/0x24 local homes.
+ * Remaining: mode-branch scheduling and downstream FP register webs; relocation placeholders also remain unbound. */
 #ifdef NON_MATCHING
 void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
                                        volatile s32 arg2,
                                        volatile s32 arg3) {
     Overlay36Inner *inner;
+    s32 total;
+    s32 state;
+    s32 position;
+    s32 i;
     f32 value;
     f32 blend;
 #if BLEND_SHAPE == 1
@@ -54,10 +61,6 @@ void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
 #elif BLEND_SHAPE == 2
     f32 blendedRemainder;
 #endif
-    s32 total;
-    s32 state;
-    s32 position;
-    s32 i;
 
     inner = object->inner;
     total = 0;
