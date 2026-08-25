@@ -437,7 +437,7 @@ camlightDraw = 0x8001B290; // type:func size:0x10 tier-D order+shape, ROM 0x1be9
 spranimInit = 0x8001B2A0; // type:func size:0x74 tier-D, ROM 0x1bea0  matched C src/main/spranim.c.o -O2 -mips2 -32, JFG asm/nonmatchings/spranim/spranimInit.s donor, linked exact=29/29
 spranimControl = 0x8001B314; // type:func size:0x4C tier-D, ROM 0x1bf14  matched C src/main/spranim.c.o -O2 -mips2 -32, JFG asm/nonmatchings/spranim/spranimControl.s donor, linked exact=19/19
 sprasjiInit = 0x8001B360; // type:func size:0x48 tier-D, ROM 0x1bf60  matched C src/main/spranim.c.o -O2 -mips2 -32, linked exact=18/18
-spranimOnceControl = 0x8001B3A8; // type:func size:0x78 tier-D order+shape, ROM 0x1bfa8
+spranimOnceControl = 0x8001B3A8; // type:func size:0x78 tier-D, ROM 0x1bfa8  matched C src/main/spranim.c.o -O2 -mips2 -32, JFG asm/nonmatchings/spranim/spranimOnceControl.s donor, linked exact=30/30
 effectboxControl = 0x8001B420; // type:func size:0x304 tier-D order+shape, ROM 0x1c020
 texscrollControl = 0x8001B724; // type:func size:0x74 tier-B, ROM 0x1c324  matched C src/main/spranim.c.o -O2 -mips2 -32, JFG asm/nonmatchings/spranim/texscrollControl.s donor, linked exact=29/29
 rangetriggerControl = 0x8001BA54; // type:func size:0x90 tier-B role-callgraph, ROM 0x1c654
