@@ -20,7 +20,10 @@ extern Overlay41Slot gOverlay41Slots[];
  * exact 0xDC size and 51/55 words, first mismatch at +0x10. The remaining
  * four words reverse the loop counter's a1/v1 register pair; reusing the
  * parameter obtains that pair but adds a stack frame. A correctly configured
- * bounded permuter batch found no improvement over the natural score. */
+ * bounded permuter batch found no improvement over the natural score.
+ * Follow-up (2026-08-25): removing the byte-pointer alias emitted the same
+ * 51/55-word object; the first mismatch remains +0x10, where allocation
+ * colors the loop counter v1 instead of the target a1. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,
