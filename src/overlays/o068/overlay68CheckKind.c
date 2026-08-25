@@ -35,6 +35,10 @@ extern void overlay68FreeProbeReloc(void *probe);
  * in 18 of 80 words, first at +0x14. The residual is the local-home ordering
  * plus the zero-index probe-cursor schedule; declaration reordering moved to
  * the wrong 0x38-byte frame, and the bounded permuter found no faithful form.
+ * Fresh lane revisit (2026-08-25): the full lattice again bottoms out at
+ * 18/80 words with the first mismatch at +0x14. Reusing the loop index for
+ * the zero cursor removed a required instruction, while ordering the four
+ * homed locals by their target slots produced the wrong 0x38-byte frame.
  */
 #ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {
