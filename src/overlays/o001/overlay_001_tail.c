@@ -2776,6 +2776,12 @@ extern Overlay1PoolRecord gOverlay1PoolEnd[];
 extern s32 gOverlay1PoolGroup;
 extern s32 gOverlay1PoolExhausted;
 
+/* Plateau (2026-08-25): the isolated 119-combination flag lattice and eight
+ * source variants are exact-sized but retain 9 differing words, first at
+ * +0x6C. The prefix and relocation surface are exact; only the post-predicate
+ * temporary FIFO web differs. Explicit temporaries, typed union/byte access,
+ * operand association, pointer aliases, and register/volatile hints all keep
+ * the same coloring. The configured tools/permuter checkout is absent. */
 #ifdef NON_MATCHING
 Overlay1PoolRecord *overlay1AllocateRecord(void) {
     Overlay1PoolRecord *cursor;
