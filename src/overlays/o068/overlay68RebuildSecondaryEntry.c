@@ -39,13 +39,21 @@ extern void overlay68FillProbeReloc(s32 kind, Overlay68Probe *probe,
                                     s32 totalBytes, s32 stride);
 extern Overlay68ResidentEntry *overlay68GetResidentEntriesReloc(void);
 extern s32 overlay68MapResidentIndexReloc(s32 kind);
-extern void overlay68BindEntryReloc(s32 kind, Overlay68EntryHeader *entry,
-                                    void *data, void *slot);
+extern s32 overlay68BindEntryReloc(s32 kind, Overlay68EntryHeader *entry,
+                                   void *data, void *slot);
 extern void overlay68FreeProbeReloc(void *probe);
 extern void overlay68ReleaseReloc(void *resource);
 
+/*
+ * NON_MATCHING plateau: -O2 -mips2 is exact-size with 9/122 differing
+ * words, first at +0x0. The target uses a 0x40-byte frame and homes amount
+ * at +0x3c; this candidate uses 0x38/+0x34. The remaining differences are
+ * the sentinel comparison operand order and probe-pointer register choice.
+ * The flag lattice and a bounded permuter run found no faithful exact form.
+ */
 #ifdef NON_MATCHING
 void overlay68RebuildSecondaryEntry(s32 kind) {
+    s32 amount;
     const Overlay68KindPair *mapping;
     volatile const s8 *loopMapping;
     Overlay68EntryHeader *entry;
@@ -53,7 +61,6 @@ void overlay68RebuildSecondaryEntry(s32 kind) {
     Overlay68ResidentEntry *entries;
     s16 *valueCursor;
     s32 currentKind;
-    s32 amount;
     s32 threshold;
     s32 index;
 
