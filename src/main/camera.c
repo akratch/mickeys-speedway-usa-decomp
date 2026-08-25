@@ -674,7 +674,24 @@ void camSetViewport(Gfx **dlist, s32 halfWidth, s32 halfHeight, s32 centerX,
     }
     gSPViewport((*dlist)++, (u32) viewport + 0x80000000);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022D20.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camResetView. */
+void func_80022D20(Gfx **dlist) {
+    u32 height;
+    u32 width;
+
+    D_800CEC64 = 4;
+    viGetCurrentSize((s32 *) &width, (s32 *) &height);
+    if (!(D_80079C40[D_800CEC64].flags & 1)) {
+        gDPSetScissor((*dlist)++, G_SC_NON_INTERLACE, 0, 0, width - 1,
+                      height - 1);
+        camSetViewport(dlist, width >> 1, height >> 1, width >> 1,
+                       height >> 1, 0);
+    } else {
+        camSetScissor(dlist);
+        camSetViewport(dlist, 0, 0, 0, 0, 0);
+    }
+    D_800CEC64 = 0;
+}
 /* Mickey-only camera-relative billboard offset reconstruction. */
 void func_80022E80(CameraScaledTransform *transform) {
     f32 x;

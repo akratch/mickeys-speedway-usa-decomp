@@ -2328,6 +2328,7 @@ func_80022A44 = 0x80022A44; // type:func size:0x0C ROM 0x23644 tier-D matched-C 
 camStandardOrtho = 0x80022A50; // type:func size:0x144 ROM 0x23650 tier-D matched-C JFG TU role/order and orthographic viewport dataflow
 camStandardPersp = 0x80022B94; // type:func size:0xC4 ROM 0x23794 tier-D matched-C JFG TU role/order and perspective-matrix dataflow
 camSetViewport = 0x80022C58; // type:func size:0xC8 ROM 0x23858 tier-D matched-C JFG TU role/order and viewport dataflow
+func_80022D20 = 0x80022D20; // type:func size:0x160 ROM 0x23920 tier-D matched-C JFG camResetView role/order, Mickey auto-name retained
 func_80022E80 = 0x80022E80; // type:func size:0x154 ROM 0x23A80 tier-D matched-C Mickey camera-relative billboard offset dataflow
 camPushFloatModelMtx = 0x80024204; // type:func size:0xDC ROM 0x24E04 tier-D matched-C JFG TU role/order and float-model matrix dataflow
 camPushMuzzleMtx = 0x800242E0; // type:func size:0x14C ROM 0x24EE0 tier-D matched-C JFG TU role/order and muzzle-matrix dataflow
