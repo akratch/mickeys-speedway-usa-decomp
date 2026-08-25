@@ -776,10 +776,9 @@ s32 mainAddZBCheck(s32 x, s32 y, s32 radius) {
 }
 
 #ifdef NON_MATCHING
-/*
- * Plateau: exact -0x48 frame and 60/63 words; first mismatch is +0x24.
- * A u16-row rewrite reaches 61 words; explicit global pointers spill to -0x50.
- */
+/* Workbench: schedule-only, 63/63 words, two positional differences, first +0x9C.
+ * Levers tried: post-decrement truth form, operand association, line grouping, value-temp and dead-read variants.
+ * Remains: one pointer decrement schedules before, rather than after, the inner countdown copy. */
 void mainUpdateZBCheck(void) {
     MainZBCheck *check;
     s32 i;
@@ -788,35 +787,29 @@ void mainUpdateZBCheck(void) {
     s32 screenWidth;
     s32 screenHeight;
     s32 columns;
-    s32 width;
     u8 *row;
     u16 *pixel;
 
     viGetCurrentSize(&screenWidth, &screenHeight);
     check = D_800CF538;
-    i = 7;
-    do {
+    i = 7; do {
         enabled = 1;
         if (D_8007A24C > 0) {
             D_8007A24C--;
             rows = check->height;
-            row = (u8 *) D_800D2FAC +
-                  (((check->y * screenWidth) + check->x) * 2);
-            if (rows != 0) {
-                rows--;
-                width = check->width;
+            row = (((check->y * screenWidth) + check->x) * 2) +
+                  (u8 *) D_800D2FAC;
+            if (rows--) {
                 do {
-                    columns = width;
-                    if (width != 0) {
-                        columns--;
-                        pixel = (u16 *) (row + (columns * 2));
+                    columns = check->width;
+                    if (columns--) {
+                        pixel = (u16 *) row + columns;
                         do {
                             if ((*pixel & 0xFFFC) == 0xFFFC) {
                                 enabled = 0;
                                 goto nextCheck;
                             }
-                            pixel--;
-                        } while (columns--);
+                            pixel--; } while (columns--);
                     }
                     row += screenWidth * 2;
                 } while (rows--);
