@@ -75,6 +75,9 @@ extern s32 mmGetDelay(void);
 extern void mmSetDelay(s32 delay);
 extern void romCopy(u32 romAddress, u32 ramAddress, s32 size);
 extern s32 D_8007A670;
+extern s32 D_8007A674;
+extern s32 D_8007A678;
+extern char D_80082488[];
 
 typedef struct RunlinkRelocContext {
     /* 0x00 */ u32 unk0;
@@ -829,4 +832,74 @@ void ReleaseUnusedLinkSlots(void) {
         }
     }
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkGetAddressInfo.s and its public prototype.
+ * Mickey's resident-address shortcut and ROM-table layout determine the
+ * final body.
+ */
+s32 runlinkGetAddressInfo(u32 address, s32 *moduleId, s32 *moduleAddress,
+                          u32 **symbolName) {
+    s32 overlayVram;
+    RomTableEntry *romEntry;
+    OverlayHeader *overlayBase;
+    OverlayHeader *overlay;
+    s32 count;
+    s32 symbolIndex;
+    u32 bestAddress;
+    u32 symbolAddress;
+    u32 symbolOffset;
+
+    romEntry = overlayRomTable;
+    *moduleId = 0;
+    *moduleAddress = 0;
+    bestAddress = 0;
+    if (symbolName != NULL) {
+        *symbolName = (u32 *) D_80082488;
+    }
+
+    if (D_8007A674 != 0) {
+        *moduleAddress = address - 0x80000450;
+        return 1;
+    }
+
+    if (symbolName != NULL) {
+        count = D_8007A678;
+        overlayBase = overlayTable;
+        while (count--) {
+            overlay = &overlayBase[romEntry->overlayNumber];
+            overlayVram = overlay->vramBase;
+            if (overlayVram != 0) {
+                symbolOffset = romEntry->functionOffset;
+                symbolAddress = overlayVram + symbolOffset;
+                if ((u32) overlay->textSize >= symbolOffset &&
+                    address >= symbolAddress && bestAddress < symbolAddress) {
+                    bestAddress = symbolAddress;
+                    symbolIndex = romEntry - overlayRomTable;
+                }
+            }
+            romEntry++;
+        }
+        if (bestAddress != 0) {
+            *symbolName = (u32 *) GetSymbolName(symbolIndex);
+        }
+    }
+
+    overlayBase = overlayTable;
+    overlay = overlayBase;
+    count = overlayCount;
+    while (count--) {
+        if (address >= (u32) overlay->vramBase &&
+            address <= (u32) (overlay->vramBase + overlay->textSize)) {
+            *moduleId = overlay - overlayBase;
+            *moduleAddress = address - overlay->vramBase;
+            return 1;
+        }
+        overlay++;
+    }
+    return 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkGetAddressInfo.s")
+#endif
