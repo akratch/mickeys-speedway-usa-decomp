@@ -9,13 +9,13 @@ extern s32 overlay3ContainsValueReloc(Object *, Object *);
 extern f32 overlay3DistanceSquaredReloc(f32, f32, f32, f32, f32, f32);
 extern f32 gOverlay3SearchMaxDistance[];
 /*
- * Plateau (2026-08-25, rechecked in this lane): the 77-word candidate retains
- * exact size, control flow, and relocation surface, with four non-relocation
- * differences first at +0x40.  The fresh 119-combination flag lattice was
- * neutral.  Struct/array output storage, register-qualified outputs, early
- * exit and condition forms, index coalescing, and declaration reordering did
- * not move the best result.  The likely missing structure is an original
- * local/live range that makes IDO load the start index into a0 instead of v1.
+ * Plateau (2026-08-25, r4 pass): the 77-word candidate retains exact size,
+ * control flow, and relocation surface, with four non-relocation differences
+ * first at +0x40.  The 119-combination flag lattice was neutral.  Ten directed
+ * variants using dead-web priority/phantom-pop forms, output-helper prototype
+ * variants, and index qualification either reproduced this object or worsened
+ * it.  The likely missing structure is an original local/live range that makes
+ * IDO load the start index into a0 instead of v1.
  */
 #ifdef NON_MATCHING
 Object *overlay3FindClosestObject(Object *anchor, void *unused) {
