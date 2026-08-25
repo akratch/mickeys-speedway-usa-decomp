@@ -219,7 +219,19 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
 MtxF *func_800217AC(void) {
     return &D_800CF260;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800217B8.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camDistance. */
+f32 camDistance(f32 x, f32 y, f32 z) {
+    Camera *cam;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+
+    cam = &D_800CEA20[D_800CEC64];
+    dx = x - cam->transform.x;
+    dy = y - cam->transform.y;
+    dz = z - cam->transform.z;
+    return sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021838.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetMode. */
 s32 camGetMode(void) {
