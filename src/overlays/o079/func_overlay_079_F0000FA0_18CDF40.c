@@ -32,9 +32,9 @@ extern f32 gOverlay79CollisionEpsilon;
 extern f32 gOverlay79CollisionLift;
 extern f32 gOverlay79CollisionProjection;
 
-/* Plateau (2026-08-25): exact 184-word size, 145 words differ, first +0x38.
- * Per-branch length lifetimes fixed the 0x98 frame and cut five differences.
- * FP allocation remains after the lattice, ten variants, and 40-minute permuter. */
+/* Plateau (2026-08-25, near-miss p3): workbench structure mismatch; 144 aligned words (145 raw), first +0x38.
+ * Constant audit found absolute-data/spill offsets; initializer and branch-scope exchanges were tried.
+ * Exact 184-word size remains, with the FP pool/temp phase driving mixed structural/register residuals. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000FA0_18CDF40(
     void *unused, Overlay79Vector *position, Overlay79Vector *axis,
