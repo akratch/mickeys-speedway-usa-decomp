@@ -123,18 +123,9 @@ f32 sqrtf(f32 value);
 f32 func_80058EF4(f32 value);
 
 #ifdef NON_MATCHING
-/*
- * Plateau: the best named-global initialization is semantically exact, but
- * emits 26 instructions against the target's 22, with 19 positional words
- * different from +0x0. A four-struct spelling reaches the exact 22-word size
- * but differs in 21 positions because IDO hoists four complete addresses.
- * All 119 flag-lattice combinations preserve the respective schedules; the
- * target's mixed one- and two-address-materialization pattern remains absent.
- * A later split-tail aggregate hypothesis preserved two source-level bases per
- * slot, but IDO materialised each tail pointer explicitly. The complete flag
- * lattice kept stock flags best: 26 emitted words against 22, all 22 target
- * positions different from +0x8, with 16 relocation records instead of 20.
- */
+/* Plateau (2026-08-25, cx-nm-near-26): 26 words vs 22, first mismatch +0x0;
+ * the 40-minute permuter improved 930 to 590 but not to exact. Four shared
+ * address bases require same-TU aggregate/BSS ownership. */
 void func_80058250(void) {
     D_800D78B0 = 0;
     D_800D78B8 = 0.0f;

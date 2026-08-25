@@ -823,6 +823,9 @@ void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp) {
 }
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scYield. */
+/* Plateau (2026-08-25, cx-nm-near-26): 20 words vs 19, first mismatch +0x14;
+ * the 40-minute permuter stayed at 105. A same-TU u64 definition is exact,
+ * proving shared BSS ownership is the remaining blocker. */
 void __scYield(OSSched *sc) {
     if (sc->curRSPTask->list.t.type == 1) {
         sc->curRSPTask->state |= 0x10;

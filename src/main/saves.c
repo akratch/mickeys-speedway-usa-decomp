@@ -283,6 +283,9 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
     return writer;
 }
 #ifdef NON_MATCHING
+/* Plateau (2026-08-25, cx-nm-near-26): exact-size at 28 words, 18 differ from
+ * +0x10; a late shift and mask re-read improved the bounded permuter 295 to
+ * 100. Remaining differences are register coloring. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     u32 mask;
     u32 bit;
@@ -296,8 +299,6 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
         do {
             mask = writer->mask;
             isSet = value & bit;
-            nextBit = bit >> 1;
-            bit = nextBit;
             if (mask == 0) {
                 mask = 0x80;
                 nextCursor = writer->cursor + 1;
@@ -305,11 +306,14 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
                 *nextCursor = 0;
                 writer->mask = 0x80;
             }
+            mask = writer->mask;
             if (isSet != 0) {
                 cursor = writer->cursor;
                 *cursor |= mask;
                 mask = writer->mask;
             }
+            nextBit = bit >> 1;
+            bit = nextBit;
             writer->mask = (u8) (mask >> 1);
         } while (nextBit != 0);
     }
