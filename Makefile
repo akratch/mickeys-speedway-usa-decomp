@@ -1939,9 +1939,33 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DispatchEvents.c.o: CFLAGS += -w
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DispatchEvents.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_101_F0001BD0_18DD3F0=overlay101DispatchEvents $@
+# The compiler emits the 16-entry switch table already owned by the overlay's
+# data/rodata asset at runtime-local +0xE0C. Rebind the text pair to that table,
+# leave call-site relocation ownership with the extracted overlay table, and
+# discard only the duplicate private table.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DispatchActive.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DispatchActive.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_101_F0001A38_18DD258=overlay101DispatchActive $@ && \
+	$(OBJCOPY) --add-symbol overlay101DispatchActiveJumpTable=0xE0C,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x44:.rodata:overlay101DispatchActiveJumpTable \
+		0x4C:.rodata:overlay101DispatchActiveJumpTable && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x05C:4:overlay101UpdateEntry \
+		0x070:4:overlay101UpdateEntry12 \
+		0x084:4:overlay101UpdateByte17 \
+		0x098:4:overlay101UpdateByte16 \
+		0x0AC:4:overlay101UpdateEntry8 \
+		0x0C0:4:overlay101UpdateEntry8B \
+		0x0D4:4:overlay101UpdateFloat12 \
+		0x0E8:4:overlay101UpdateDelta16 \
+		0x0FC:4:overlay101UpdateByte18 \
+		0x110:4:overlay101UpdateEntry8C \
+		0x124:4:overlay101UpdateColor \
+		0x138:4:overlay101UpdateFrames \
+		0x14C:4:overlay101UpdateGlobalPair && \
+	$(OBJCOPY) --remove-section=.rodata $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x17C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB4
