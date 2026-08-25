@@ -1544,7 +1544,7 @@ Overlay 33's `overlay33InitializeBuffers` adds **324 exact C bytes / 81 words** 
 
 Overlay 91's `overlay91UpdateTimeline` adds **1,136 bytes / 284 words** for the complete eight-state elapsed-carrying timeline and flagged graph-record walk. IDO emits every instruction word naturally under the measured R4300 multiply scheduler flag, and the duplicate private switch table is naturally removed.
 
-`overlay 40 FadeRecords` — 404 bytes / 101 words (final executable range in overlay 40). NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via saved-register/countdown preparation plus schedule web reassignment); source kept as decomp-permuter input. Three trailing nop words remain explicit assembly padding.
+`overlay 40 FadeRecords` — 404 bytes / 101 words. NON_MATCHING: canonical C is exact-size with three register operands differing at `+0xC`, `+0x10`, and `+0x24`; the target assembly remains canonical.
 
 The live checkpoint contributes **9,812 / 45,775 (21.44%)** Epoch 12 bytes, leaves **35,963 bytes** to the hard byte exit, raises overlay C ownership to **111,064 / 469,264 (23.67%)**, and raises whole-program resolved text to **154,104 / 950,332 (16.22%)**. Overlay 40 raises the campaign closure gate to **1 / 8**. The linked binary remains byte-identical to the US baserom at SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`.
 
