@@ -2001,6 +2001,9 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
 #endif
 /* PROVENANCE: structure cross-checked against JFG assembly function
  * func_80061B50; body reconstructed from Mickey evidence. */
+/* Workbench: mixed structural/register residual, 9/78 words, first +0x1C.
+ * Canonical flags, value lifetimes, masks, pointer math, and AST forms did not improve it.
+ * The branch-likely sense, temp-ring slot 5, and three relocation identities remain. */
 void func_80040740(CircularParticle *particle) {
     s32 index;
     CircularParticlePool *pool;

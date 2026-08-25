@@ -126,9 +126,9 @@ s32 sprintf(char *s, const char *format, ...) {
 #define isdigit(c) ((c >= '0') && (c <= '9'))
 
 /* PROVENANCE: body adapted from JFG src/diprint.c:vsprintf. */
-/* Size/frame/register pools exact under -Wab,-r4300_mul: two scheduled words
- * first +0xB08 load '-' before 10, while target order is 10 then '-'. The 28
- * formatter table/data relocation identities remain owned by the asm split. */
+/* Workbench: instruction words exact; first relocation mismatch is +0x130.
+ * The canonical flag lattice and exponent-sign line-assignment lever were tried.
+ * All 28 formatter table/data relocation identities still require the asm split. */
 s32 vsprintf(char *s, const char *fmt, va_list args) {
     /* Pointer into the format string.  */
     const char *f;
@@ -565,12 +565,7 @@ s32 vsprintf(char *s, const char *fmt, va_list args) {
 
                 outchar(fc);
 
-                if (exponent < 0) {
-                    exponent = -exponent;
-                    outchar('-');
-                } else {
-                    outchar('+');
-                }
+                if (exponent < 0) { exponent = -exponent; outchar('-'); } else { outchar('+'); }
 
                 if (exponent >= 100) {
                     outchar('0' + (exponent / 100));
