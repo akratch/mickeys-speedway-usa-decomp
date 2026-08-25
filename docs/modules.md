@@ -734,7 +734,7 @@ never imported as names, and uncertain rows retain Mickey's `func_` spelling.
 | `0x2198C` | `func_80020D8C`, `0xC0` | `modSetTextureFrame` | B: model texture-frame traversal and matching TU position |
 | `0x21A4C` | `func_80020E4C`, `0x1C4` | `modSuspendModelTextures` | B: allocate/save/free texture ownership sequence |
 | `0x21C10` | `modResumeModelTextures`, `0x8C` | `modResumeModelTextures` | B: reload/free saved texture ownership sequence; linked C match |
-| `0x21C9C` | `func_8002109C`, `0x104` | no adoptable name | D: model limb/matrix traversal; JFG candidates diverge |
+| `0x21C9C` | `func_8002109C`, `0xF8` + `0xC` alignment | no adoptable name | D: model point/matrix traversal; linked C exact, JFG candidates diverge |
 
 **PROVENANCE.** JFG's public `src/models.c`, its built `src/models.c.o`, its
 `asm/nonmatchings/models/` filenames, and its published symbol map supplied
@@ -745,6 +745,12 @@ is present in the initial all-`GLOBAL_ASM` split.
 under canonical `-O2 -mips2 -32`. Directly reloading the model's byte-sized
 texture count reproduces the target register allocation; its texture releases,
 two allocation frees, call relocations, and nulling stores are linked exact.
+`func_8002109C` is exact for all `0xF8` executable bytes under the same flags;
+the following `0xC` bytes are TU alignment, not function text. Its typed loop
+uses a four-byte point-index record to select ten-byte signed-coordinate
+records, transforms each point into a three-float output, and preserves both
+call relocation identities. JFG's neighboring model helpers remain assembly,
+so the body and tier-D role are reconstructed from Mickey alone.
 `func_80020D8C` plateaus after the 119-combination flag lattice and ten
 source/type/lifetime spellings. Its best `NON_MATCHING` candidate has the
 target's exact 48-instruction opcode schedule, frame, and relocation surface,

@@ -465,4 +465,63 @@ void modResumeModelTextures(void) {
         D_80079C08 = 0;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8002109C.s")
+
+typedef struct ModelPointRecord {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 pad6[4];
+} ModelPointRecord;
+
+typedef struct ModelPointIndex {
+    u16 pointIndex;
+    u16 pad2;
+} ModelPointIndex;
+
+typedef struct ModelPointSource {
+    u8 pad0[0x1C];
+    ModelPointRecord *points;
+    u8 pad20[0xD];
+    u8 pointCount;
+    u8 pad2E[2];
+    ModelPointIndex *indices;
+} ModelPointSource;
+
+typedef struct ModelPointOutput {
+    ModelPointSource *source;
+    u8 pad4[0x3C];
+    f32 *points;
+} ModelPointOutput;
+
+typedef struct ModelPointOwner {
+    u8 pad0[0x68];
+    ModelPointOutput **output;
+} ModelPointOwner;
+
+void func_8002AA50(void *transform, MtxF matrix);
+void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
+                          f32 *outX, f32 *outY, f32 *outZ);
+
+/* Mickey-only reconstruction; JFG's candidate model helpers remain assembly. */
+void func_8002109C(ModelPointOwner *owner) {
+    MtxF matrix;
+    ModelPointOutput *output;
+    ModelPointSource *source;
+    ModelPointRecord *point;
+    f32 *outputPoint;
+    s32 i;
+
+    output = *owner->output;
+    source = output->source;
+    func_8002AA50(owner, matrix);
+    outputPoint = output->points;
+    /* IDO's zero-initialization register schedule depends on this line grouping. */
+    i = 0; if (source->pointCount > 0) { do {
+            point = &source->points[source->indices[i].pointIndex];
+            mtxf_transform_point(matrix, point->x, point->y, point->z,
+                                 outputPoint, outputPoint + 1, outputPoint + 2);
+            i++;
+            outputPoint += 3;
+        } while (i < source->pointCount);
+    }
+}
