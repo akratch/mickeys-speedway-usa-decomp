@@ -407,7 +407,11 @@ extern Overlay15RainOffsets gOverlay15RainOffsets;
  * Plateau (2026-08-25): the typed-offset candidate is exactly 0xD8 bytes
  * and first diverges at +0x74 with 13 differing words. A 10-minute
  * permuter run reached score 185, but its valid pointer spelling regressed
- * to 0xDC and 22 differing words. The blocker is post-call load scheduling.
+ * to 0xDC and 22 differing words. The cx-ov-2-a-a-r2 follow-up found the full
+ * 119-combination flag lattice flat and tested explicit angle temporaries,
+ * scalar, split XY/Z, same-TU, volatile, and whole-state BSS views. Scalar
+ * and split views add an instruction; the whole-state view removes two. The
+ * blocker remains the retail BSS grouping and post-call load scheduling.
  */
 #ifdef NON_MATCHING
 void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
