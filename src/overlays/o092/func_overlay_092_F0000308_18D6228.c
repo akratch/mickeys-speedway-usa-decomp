@@ -65,13 +65,9 @@ extern s32 func_overlay_092_F0000068_18D5F88(void *owner, f32 *x, f32 *y,
                                              f32 *z, s32 *pathIndex);
 
 /* Exact DKR v77/v80 and JFG object scans found no donor for this overlay. */
-/* NON_MATCHING plateau (this lane: ten structural/type/lifetime forms):
- * -O2 -mips2 -Wab,-r4300_mul gives the exact 0x728-byte body extent, but 157
- * of 458 words differ; first mismatch is +0x94. The target stack map agrees
- * with the declaration map. Parameter-width, loop-counter signedness and
- * spelling, switch-selector lifetime, and declaration-order variants either
- * reproduce this result or regress it; the residual begins with the loop
- * sentinel's a0/a3 allocation and cascades into the private FP web. */
+/* Workbench plateau: structure-mismatch; 458/458 instructions, exact 0x70 frame, 157 positional words, first +0x94.
+ * Levers tried: constant audit, owner/pointer lifetime, and FP expression association; prior width/loop/order forms stayed eliminated.
+ * Remaining: four opcode-order sites and 147 register-class rows; the temp lane is exact and 31 relocation symbols remain unbound. */
 #ifdef NON_MATCHING
 void func_overlay_092_F0000308_18D6228(Overlay92Owner *owner,
                                        Overlay92UpdateConfig *config,
