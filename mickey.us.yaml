@@ -778,7 +778,7 @@ segments:
       - [0x1857294, c, overlay2ClipLines]
       - [0x18574D8, c, overlay2ChooseBoundary]
       - [0x1857968, c, overlay2SplitRegion]
-      - [0x1857A88, asm, overlay_002_middle_a]
+      - [0x1857A88, c, func_overlay_002_F0000C90_1857A88]
       - [0x1858014, c, overlay2Enable]
       - [0x1858034, c, overlay2ContainsPoint]
       - [0x185815C, c, func_overlay_002_F0001364_185815C]

@@ -138,7 +138,7 @@ TEXT_SUBSEGMENTS = {
         (0x049C, "c", "overlay2ClipLines"),
         (0x06E0, "c", "overlay2ChooseBoundary"),
         (0x0B70, "c", "overlay2SplitRegion"),
-        (0x0C90, "asm", "overlay_002_middle_a"),
+        (0x0C90, "c", "func_overlay_002_F0000C90_1857A88"),
         (0x121C, "c", "overlay2Enable"),
         (0x123C, "c", "overlay2ContainsPoint"),
         (0x1364, "c", "func_overlay_002_F0001364_185815C"),
