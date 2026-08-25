@@ -48,6 +48,17 @@ typedef struct TrackFloatRecord {
     f32 unkC;
 } TrackFloatRecord;
 
+typedef struct TrackLightColourEntry {
+    s8 red;
+    s8 green;
+    s8 blue;
+} TrackLightColourEntry;
+
+typedef struct TrackLight {
+    u8 pad00[0x20];
+    TrackLightColourEntry colours[32];
+} TrackLight;
+
 typedef struct TrackTextureHeader {
     u8 pad00[6];
     u16 width;
@@ -556,7 +567,41 @@ void func_8000D728(TrackFloatRecord *arg0) {
         D_800792FC--;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D768.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public `src/track.c` supplies the
+ * `trackLightColour` role at this established TU position. Its body remains
+ * assembly-only; this reconstruction comes from Mickey's own accesses.
+ */
+void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
+                   s32 intensity) {
+    TrackLightColourEntry *colour;
+    s32 redStep;
+    s32 greenStep;
+    s32 blueStep;
+    s32 colourIndex;
+
+    if (light != NULL) {
+        if (intensity < 255) {
+            red = (red * intensity) >> 8;
+            green = (green * intensity) >> 8;
+            blue = (blue * intensity) >> 8;
+        }
+        colour = light->colours;
+        redStep = red;
+        greenStep = green;
+        blueStep = blue;
+        colourIndex = 31;
+        do {
+            colour->red = red >> 5;
+            colour->green = green >> 5;
+            colour->blue = blue >> 5;
+            red += redStep;
+            green += greenStep;
+            blue += blueStep;
+            colour++;
+        } while (colourIndex--);
+    }
+}
 void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
     if (arg0 != NULL) {
         arg0->x = arg1;
