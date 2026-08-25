@@ -22,6 +22,10 @@ extern void overlay55CopyOffsetRecords(
 extern void overlay56InitializeReloc(void);
 extern s32 overlay55GetResultReloc(void);
 
+/* NON_MATCHING plateau (2026-08-25): all 119 flag combinations and a bounded
+ * ten-minute two-worker permutation pass retain two of 79 differing words,
+ * first at +0x94. Retail schedules the gOverlay55Status low half before the
+ * gOverlay55SourceBase low half; natural C emits those two in reverse order. */
 #ifdef NON_MATCHING
 void overlay55Initialize(void) {
     s32 index;

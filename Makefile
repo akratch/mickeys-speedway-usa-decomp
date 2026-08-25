@@ -2682,15 +2682,18 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Reconfigure.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18InitializeBuffers.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_018_F00004F4_1874AAC=overlay18InitializeBuffers $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x15C
-# Natural codegen has the exact startup CFG, frame, opcode census, and all 33
-# loader records. A two-word guarded schedule plus two proved local addends
-# selects retail; runtime-only pairs remain owned by the loader tables.
+# Natural codegen has the exact startup CFG, frame, opcode census, and loader
+# records. Its two-word address schedule remains NON_MATCHING, so the fallback
+# owns retail while runtime-only relocation pairs stay in the loader tables.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55Initialize.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_055_F0000000_18A1B18=overlay55Initialize $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x13C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x38
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o055/func_overlay_055_F000031C_18A1E34.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x914
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o055/func_overlay_055_F000031C_18A1E34.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58ReleaseResources.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o062/overlay62Initialize.c.o: POSTPROCESS = \
@@ -3271,6 +3274,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Reconfigure.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18InitializeBuffers.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55Initialize.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/func_overlay_055_F000031C_18A1E34.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55ReleaseAll.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58ReleaseResources.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o062/overlay62Initialize.c.o \

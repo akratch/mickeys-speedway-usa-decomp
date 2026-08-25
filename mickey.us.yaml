@@ -1893,7 +1893,7 @@ segments:
       - [0x18A1C54, c, overlay55PatchIndices]
       - [0x18A1CA4, c, overlay55CopyOffsetRecords]
       - [0x18A1D8C, c, overlay55GetOffsets]
-      - [0x18A1E34, asm, overlay_055_middle]
+      - [0x18A1E34, c, func_overlay_055_F000031C_18A1E34]
       - [0x18A2748, c, overlay55ReleaseAll]
       - [0x18A2780, asm, overlay_055_padding]
       - [0x18A2788, bin, overlay_055_data_rodata]
