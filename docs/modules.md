@@ -1318,8 +1318,9 @@ plus `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes) and
 `osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
 no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes), plus
 `osScAddClient` (ROM `0x30E2C`–`0x30E88`, 92 bytes) and `__scTaskReady`
-(ROM `0x31EFC`–`0x31F4C`, 80 bytes). All were compiled with the resident
-`-O2 -mips2 -32` flags. The named bodies are adapted from
+(ROM `0x31EFC`–`0x31F4C`, 80 bytes), and `__scAppendList` (ROM `0x3204C`–
+`0x320AC`, 96 bytes). All were compiled with the resident `-O2 -mips2 -32`
+flags. The named bodies are adapted from
 JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the
 still-unnamed leading rumble gate also adapts its JFG body while retaining
 Mickey's placeholder name. `bgdraw_fillcolour` adapts Diddy Kong Racing's

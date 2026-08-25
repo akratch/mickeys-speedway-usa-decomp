@@ -323,7 +323,29 @@ OSScTask *__scTaskReady(OSScTask *task) {
     return NULL;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scTaskComplete.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scAppendList.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scAppendList. */
+void __scAppendList(OSSched *sc, OSScTask *task) {
+    s32 type = task->list.t.type;
+
+    if (type == 2) {
+        if (sc->audioListTail != NULL) {
+            sc->audioListTail->next = task;
+        } else {
+            sc->audioListHead = task;
+        }
+        sc->audioListTail = task;
+    } else {
+        if (sc->gfxListTail != NULL) {
+            sc->gfxListTail->next = task;
+        } else {
+            sc->gfxListHead = task;
+        }
+        sc->gfxListTail = task;
+    }
+    task->next = NULL;
+    task->state = task->flags & 3;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scExec.s")
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scYield. */
