@@ -1149,10 +1149,10 @@ s32 packFileSize(s32 controllerIndex, s32 fileNum, s32 *fileSize) {
     }
     return 6;
 }
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:font_codes_to_string. */
 char *font_codes_to_string(u8 *inString, char *outString, s32 stringLength) {
+    s32 remainder;
     s32 index = *inString;
     s32 roundedLength;
     s32 peel;
@@ -1170,10 +1170,10 @@ char *font_codes_to_string(u8 *inString, char *outString, s32 stringLength) {
         stringLength--;
         index = *inString;
     }
+    remainder = stringLength & 3;
     if (stringLength != 0) {
-        peel = -(stringLength & 3);
-        roundedLength = peel + stringLength;
-        if (peel != 0) {
+        if ((peel = -remainder) != 0) {
+            roundedLength = peel + stringLength;
             do {
                 stringLength--;
                 *outString++ = 0;
@@ -1195,13 +1195,10 @@ done:
     *outString = 0;
     return ret;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/font_codes_to_string.s")
-#endif
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:string_to_font_codes. */
 char *string_to_font_codes(char *inString, char *outString, s32 stringLength) {
+    s32 remainder;
     s32 i;
     char currentChar;
     char *ret;
@@ -1222,16 +1219,19 @@ char *string_to_font_codes(char *inString, char *outString, s32 stringLength) {
         inString++;
         stringLength--;
     }
+    remainder = stringLength & 3;
     if (stringLength != 0) {
-        peel = -(stringLength & 3);
+        peel = -remainder;
         roundedLength = peel + stringLength;
-        if (peel != 0) {
-            do {
-                stringLength--;
-                *outString++ = 0;
-            } while (roundedLength != stringLength);
+        if (peel == 0) {
+            goto bulk_font_codes;
         }
+        do {
+            stringLength--;
+            *outString++ = 0;
+        } while (roundedLength != stringLength);
         if (stringLength != 0) {
+bulk_font_codes:
             do {
                 stringLength -= 4;
                 outString[0] = 0;
@@ -1245,9 +1245,6 @@ char *string_to_font_codes(char *inString, char *outString, s32 stringLength) {
     *outString = 0;
     return ret;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/string_to_font_codes.s")
-#endif
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:packGetFileType, while retaining Mickey's placeholder name. */
 s32 func_8002E020(s32 controllerIndex, s32 fileNum) {

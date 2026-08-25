@@ -421,7 +421,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
-| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots`; plateau, canonical C is one word short, first `+0x4` |
+| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; plateau, 62/63 words, first `+0x4`; target keeps the initial global address in `s0`, and the full flag lattice plus 40-minute permuter found no valid exact source |
 | `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot; linked C exact |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
 | `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
@@ -504,11 +504,7 @@ but regressed to 20 differences from `+0x34`, so the prior body is retained.
 The bounded permuter could not run because `tools/permuter/import.py` is absent
 from this lane.
 
-Canonical `func_8002B7AC` C emits 62 words against 63 in the target and first
-diverges at `+0x4`: IDO folds the initial `D_800D21B0` address/load while the
-target retains the address in a saved register, shifting the otherwise-close
-queue loop. `-O2 -g3` reaches the target size with 15 differences but is not a
-valid TU-wide replacement for the canonical flags. `func_8002BB40` reaches the
+`func_8002BB40` reaches the
 target's 72-word size but differs in 57 words from `+0x4`; pool/slot pointer
 allocation and split-record scheduling remain structurally different.
 
@@ -955,7 +951,7 @@ Bounded plateau:
 | `func_80021504` | `0x22104` | D — retained Mickey auto-name; JFG `camSetFOV` supplies the role and starting projection body. After the full flag lattice, nine coherent source/type/lifetime variants and a bounded two-worker permuter batch, the best configured candidate has the exact 532-byte size and 133 instructions but differs in 11 positional words from first mismatch `+0x1D4`. The first 117 instructions are exact; only temporary registers in the final projection-matrix ring update differ. The permuter's lower score moved the mandatory perspective rebuild inside the state-mirror branch and was rejected as semantically invalid; assembly remains canonical. |
 | `func_800219D0` | `0x225D0` | D — retained Mickey auto-name; DKR `copy_viewports_to_stack` supplies the body and JFG supplies the `camUserViewTick` role/order. After the full flag lattice, eight coherent expression/lifetime variants and a bounded two-worker permuter batch, the best configured candidate has the exact 416-byte size and 104 instructions but differs in 17 positional words from first mismatch `+0x98`: the output index uses the opposite commutative `addu` operand order, then IDO makes different scheduling/register choices in the viewport extent expressions. The permuter's only lower score masked a signed 32-bit coordinate to 16 bits and was rejected as semantically invalid; assembly remains canonical. |
 | `func_80021718` | `0x22318` | D — retained Mickey auto-name; DKR `cam_reset_fov` is the 0.439 nearest skeleton and supplies the projection-reset body shape. After the full flag lattice, six semantics-preserving source/type/address variants, and a bounded two-worker permuter batch, the best candidate has the exact 148-byte size, 37 instructions and relocation surface but differs in 11 positional words from first mismatch `+0x4C`, all in temporary-register allocation for the rotating matrix-slot update. The permuter's score-195 candidate removed the required ring mask and invented a dead guard, so it was rejected; assembly remains canonical. |
-| `func_80024834` | `0x25434` | D — retained Mickey auto-name; JFG `camReversePoint` is the nearest camera-TU role/skeleton. After the full flag lattice and a bounded two-worker permuter batch, the best configured candidate emits 66 instructions against 65 and differs in 59 positional words from first mismatch `+0x0`: `-Wab,-r4300_mul` reduces the frame from target `0x38` to `0x28` and removes the target's dead float spill. The same semantic body is byte-exact without that required TU override; assembly remains canonical. |
+| `func_80024834` | `0x25434` | D — retained Mickey auto-name; JFG `camReversePoint` role. Plateau: exact 65-word size and nine relocations, 25 masked words differ from `+0x0`; target frame `0x38`, candidate `0x40`; the full flag lattice and 40-minute permuter found no exact source. |
 | `func_80024978` | `0x25578` | D — retained Mickey auto-name; JFG `camCopyOrthoMatrix` supplies the role and loop body, with Mickey adding its projection scale. After the full flag lattice, eight coherent source/type/indexing variants, and a bounded two-worker permuter batch, the best configured candidate emits 84 instructions against 83 and differs in 59 positional words from first mismatch `+0x5C`: IDO emits one extra address materialization for the third peeled coefficient, likely because the reconstruction sees an extern array rather than the original same-TU data definition. The permuter's score-135 base received no improvement; assembly remains canonical. |
 | `func_80024BA0` | `0x257A0` | D — retained Mickey auto-name; JFG `camScreenShake` supplies only the camera-TU role/order while Mickey establishes the distance-based shake body. After the full flag lattice, ten coherent source/lifetime spellings and a bounded two-worker permuter batch, the best configured candidate has the exact 296-byte size and differs in 15 positional words from first mismatch `+0x60`: IDO assigns the long-lived `$f20` register to the Z delta instead of the target's X delta, cascading through the arithmetic temporaries. The permuter's best score is 125, not zero; assembly remains canonical. |
 | `func_80022FD4` | `0x23BD4` | D — JFG supplies only the `camDoSprite` role/order; the Mickey-only `NON_MATCHING` reconstruction plateaued after the flag lattice and ten source/lifetime variants. The best `-Wab,-r4300_mul` build has the exact `0xB0` frame and emits 366 instructions against 369, with 297 positional words differing from first mismatch `+0x2C` because IDO places three coordinate stack homes twelve bytes above the target before a later three-instruction schedule deficit. The assembly remains canonical. |
@@ -1915,25 +1911,10 @@ target rematerialises it twice through `$at`; the missing word changes branch
 spans. Other signed, unsigned, additive, and bitwise spellings retain that CSE
 or emit OR. The assembly fallback remains canonical.
 
-`font_codes_to_string` retains a JFG-derived `NON_MATCHING` body after the
-flag lattice and ten source/type/coalescing shapes. With ordinary resident
-flags the donor loop is instruction-exact, but this TU's required
-`-Wo,-loopunroll,0` removes the target's four-byte padding expansion. Spelling
-that expansion explicitly restores the exact 44-instruction opcode and
-relocation shape, leaving five register-only words from one `$a0`/`$v0` web
-swap, first at function `+0x64`. The unavailable permuter import prevents a
-bounded automated declaration search; the assembly fallback remains
-canonical.
-
-`string_to_font_codes` retains its paired JFG-derived `NON_MATCHING` body
-after the flag lattice and ten source, CFG, and type shapes. The donor loop is
-instruction-exact with ordinary resident flags, while this TU's required
-`-Wo,-loopunroll,0` removes the target's twelve-instruction four-byte padding
-expansion. Spelling the peel and four stores explicitly restores the exact
-47-instruction opcode and relocation shape, leaving five register-only words
-from one `$a0`/`$v0` web swap, first at function `+0x70`. The unavailable
-permuter import prevents a bounded automated declaration search; the assembly
-fallback remains canonical.
+| Function | Exact result |
+|---|---|
+| `font_codes_to_string` | 176 bytes under `-O2 -mips2 -Wo,-loopunroll,0`; JFG `src/saves.c` donor with a hoisted remainder lifetime, untouched IDO output byte-identical. |
+| `string_to_font_codes` | 188 bytes under `-O2 -mips2 -Wo,-loopunroll,0`; paired JFG donor with a hoisted remainder and shared bulk-loop entry, untouched IDO output byte-identical. |
 
 ### 3.16 Particle and debug-print translation units
 
