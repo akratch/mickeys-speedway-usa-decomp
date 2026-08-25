@@ -5835,7 +5835,7 @@
       "object": "build/src/overlays/o090/overlay_090.c.o",
       "offset": 0,
       "overlay": 90,
-      "size": 252,
+      "size": 2844,
       "source": "src/overlays/o090/overlay_090.c",
       "tools": [
         "trim_elf_section.py"
@@ -7194,7 +7194,7 @@
     "by_class": {
       "metadata": 582
     },
-    "matched_c_bytes_with_postprocess": 318728,
+    "matched_c_bytes_with_postprocess": 321320,
     "objects_with_postprocess": 582
   }
 }

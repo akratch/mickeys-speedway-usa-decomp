@@ -2766,7 +2766,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100DrawMotion.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_100_F0000580_18DB2A8=overlay100DrawMotion $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3CC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o090/overlay_090.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xFC
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB1C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3ResetObjects.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x68
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3ContainsValue.c.o: POSTPROCESS = \

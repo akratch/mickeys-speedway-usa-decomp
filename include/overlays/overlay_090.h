@@ -24,13 +24,30 @@ typedef struct Overlay90State {
     f32 value30;
     s16 value34;
     s16 value36;
-    s32 value38;
+    void *value38;
     s16 value3C;
+    s16 value3E;
+    s16 value40;
+    s16 value42;
+    s16 value44;
+    s16 value46;
 } Overlay90State;
 
+typedef struct Overlay90Attachment Overlay90Attachment;
+
 typedef struct Overlay90Owner {
-    u8 pad00[0x64];
+    s16 rotationX;
+    s16 rotationY;
+    s16 rotationZ;
+    u8 pad06[6];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x16];
+    s16 positionTag;
+    u8 pad30[0x34];
     Overlay90State *state;
+    Overlay90Attachment **attachment;
 } Overlay90Owner;
 
 typedef struct Overlay90Config {
