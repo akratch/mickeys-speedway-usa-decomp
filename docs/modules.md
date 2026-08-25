@@ -1855,6 +1855,16 @@ callee plus two data relocation pairs without normalization.
 The 136-byte Mickey-named `func_80049A8C` resets either one record or all five,
 clearing state/status and two flag bits. Its selection branches, stack home,
 countdown loop, and data relocation pair are exact at the resident defaults.
+The preceding 156-byte `func_8004978C` reaches an exact-size frame-allocation
+plateau after the full flag lattice and nine coherent local-layout hypotheses.
+The Mickey-derived typed body selects one or all five records and applies the
+caller-selected flag mask with the exact 39-instruction control flow, register
+allocation, stack spill at `sp+0x4`, and data relocation pair. Only the leaf
+frame adjustment differs: IDO chooses an 8-byte frame while the target uses 16
+bytes, leaving two words different from function `+0x4`. Padding, aggregate,
+iteration-pointer, and qualifier variants either leave that frame unchanged or
+disturb otherwise-exact allocation, so the clean scalar candidate remains
+behind `NON_MATCHING` and the target assembly stays canonical.
 The 180-byte `func_8004AD34` (`fxGenerateTextures` in JFG) is exact too. Its
 four-entry descending callback loop, flag test, callback-table refresh, and
 indirect call retain all target instruction words and relocation identities at

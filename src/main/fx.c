@@ -434,7 +434,38 @@ void fxInit(void) {
     D_800D5F50 = 0;
     func_8004ACC4(i);
 }
+#ifdef NON_MATCHING
+/* Mickey-derived body; JFG's corresponding fx.c routine is assembly-only. */
+void func_8004978C(s32 index, s32 mask, s32 enable) {
+    FxRecord *record;
+    s32 count = 0;
+    s32 andMask;
+    s32 orMask;
+
+    if (index == -1) {
+        record = D_800D5F58;
+        count = 5;
+    } else if (index >= 0 && index < 5) {
+        record = &D_800D5F58[index];
+        count = 1;
+    }
+    if (count != 0) {
+        andMask = ~mask;
+        if (enable != 0) {
+            andMask = -1;
+            orMask = mask;
+        } else {
+            orMask = 0;
+        }
+        while (count--) {
+            record->flags = (record->flags & andMask) | orMask;
+            record++;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004978C.s")
+#endif
 s32 func_80049828(s32 index, s32 mask) {
     if (index >= 0 && index < 5 && (D_800D5F5A[index].value & mask) != 0) {
         return 1;
