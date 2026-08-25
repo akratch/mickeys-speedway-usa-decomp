@@ -470,13 +470,12 @@ void controlFSUvels(s16 *rotation, ControlPlayer *player) {
     pointListRPY(3, sp18, D_80079BD4, player->unk14);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D960.s")
-#ifdef NON_MATCHING
 void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
     f32 cosine;
     f32 pitchX;
-    f32 transformedX;
-    f32 y;
     s32 angle;
+    f32 y;
+    f32 transformedX;
 
     angle = -rotation;
     cosine = func_8002A8C0(angle);
@@ -487,9 +486,6 @@ void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
     *pitch = Arctanf(-pitchX, y);
     *yaw = Arctanf(transformedX, y);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001DCD0.s")
-#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001DD70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001E5C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001EC44.s")
