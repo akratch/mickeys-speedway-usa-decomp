@@ -312,13 +312,9 @@ void func_80038750(s32 language) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
 #endif
 #ifdef NON_MATCHING
-/* PROVENANCE: role and structure compared with JFG's public
- * src/menu.c::initFront; JFG retains assembly, so this body is Mickey-derived.
- * With -Wo,-loopunroll,0 it has the exact 0x154 size and 0x18 frame, but
- * 66/85 words differ, first at +0x14. IDO reuses the D_800D3150 address where
- * the target rematerializes it, then diverges in later address/store schedules.
- * Chaining the four control-mode assignments added three instructions, so the
- * retained exact-size scalar form remains the closest candidate. */
+/* PROVENANCE: compared with JFG's public src/menu.c::initFront, which retains assembly.
+ * Plateau: the exact 85-word -Wo,-loopunroll,0 form differs 66 words, first +0x14.
+ * Array/loop/volatile shapes lost; the 40-minute permuter had no zero (best 2540). */
 void func_80038878(void) {
     s32 *buffer;
     s32 *bufferEnd;
