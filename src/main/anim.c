@@ -330,8 +330,8 @@ void func_80050348(s32 pathIndex) {
 #ifdef NON_MATCHING
 /*
  * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
- * Plateau: exact 75-instruction size; first mismatch +0x40. Pointer-typed
- * sound state leaves one trap relocation identity and the allocator cycle.
+ * Plateau: exact 75-instruction shape; first mismatch +0x40. Fresh m2c
+ * typing leaves six temp-register words and one trap relocation identity.
  */
 #pragma weak animResetTrap = TrapDanglingJump
 extern s32 animResetTrap(AnimPath *, f32, s32, s32);
@@ -367,8 +367,8 @@ void func_8005055C(u8 pathIndex) {
                     path->unk8->unk58->unk132 = 0;
                 }
                 animResetTrap(path, 0.0f, 0, 0);
-                soundHandle = object->soundHandle;
-                if (soundHandle != 0) {
+                if (object->soundHandle != NULL) {
+                    soundHandle = object->soundHandle;
                     func_800031E8(soundHandle);
                     object->soundHandle = 0;
                 }
