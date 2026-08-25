@@ -22,6 +22,7 @@ extern void func_800453C4(Gfx *dList, s32 *w0_24_31, s32 *w0_16_23,
 extern s32 sprintf(char *buffer, const char *format, ...);
 extern char D_80083340[];
 extern char D_80083388[];
+extern char D_800837C4[];
 extern char D_80082D58[];
 extern char D_80082D64[];
 extern char D_80082D70[];
@@ -438,4 +439,66 @@ s32 diRcpStrName(Gfx *dList, char *name) {
     return 8;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpOtherMode.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpGeometryMode.s")
+/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpGeometryMode. */
+#define stubbed_printf
+s32 diRcpGeometryMode(Gfx *dList, char *name, char *macroName) {
+    char buffer[0x50];
+    s32 pad;
+    s32 word1;
+    s32 bitMask;
+    s32 first;
+
+    bitMask = 1;
+    first = 1;
+    word1 = dList->words.w1;
+    sprintf(buffer, D_800837C4, name);
+    do {
+        stubbed_printf(buffer, D_800837C4 + 0x08);
+        stubbed_printf(buffer, D_800837C4 + 0x14);
+        if (word1 & bitMask) {
+            if (first) {
+                first = 0;
+            }
+            switch (bitMask) {
+                case 0x00000001:
+                    stubbed_printf(buffer, D_800837C4 + 0x18);
+                    break;
+                case 0x00000002:
+                    stubbed_printf(buffer, D_800837C4 + 0x24);
+                    break;
+                case 0x00000004:
+                    stubbed_printf(buffer, D_800837C4 + 0x38);
+                    break;
+                case 0x00000200:
+                    stubbed_printf(buffer, D_800837C4 + 0x40);
+                    break;
+                case 0x00001000:
+                    stubbed_printf(buffer, D_800837C4 + 0x54);
+                    break;
+                case 0x00002000:
+                    stubbed_printf(buffer, D_800837C4 + 0x64);
+                    break;
+                case 0x00010000:
+                    stubbed_printf(buffer, D_800837C4 + 0x70);
+                    break;
+                case 0x00020000:
+                    stubbed_printf(buffer, D_800837C4 + 0x78);
+                    break;
+                case 0x00040000:
+                    stubbed_printf(buffer, D_800837C4 + 0x84);
+                    break;
+                case 0x00080000:
+                    stubbed_printf(buffer, D_800837C4 + 0x94);
+                    break;
+                case 0x00100000:
+                    stubbed_printf(buffer, D_800837C4 + 0xAC);
+                    break;
+            }
+        } else {
+        }
+        stubbed_printf(buffer, D_800837C4 + 0xB4);
+        bitMask <<= 1;
+    } while (bitMask <= 0x100000);
+    return 8;
+}
+#undef stubbed_printf

@@ -1786,6 +1786,13 @@ the function's first table relocation at `+0x34` to this TU's `.rodata` rather
 than Mickey's existing shared `jtbl_80083950` symbol, creating a duplicate
 linked table surface. The instruction-exact body remains behind
 `NON_MATCHING` until the shared rodata split is handed off.
+The 268-byte `diRcpGeometryMode` helper is exact at the resident defaults.
+JFG's object-like `stubbed_printf` macro preserves the target's empty geometry-
+flag switch and its otherwise-unused saved registers, reproducing all 67 owned
+instructions plus the `sprintf` call and format-symbol relocations. The two
+following target words are end-of-TU alignment padding outside the function;
+IDO supplies them through normal section alignment, and the linked range is
+byte-identical without post-compile editing.
 The 1,004-byte `func_800475E8` (`fxMakeConeTextureCoords`) reaches a structural
 plateau from Mickey's recovered coordinate-generation loops. JFG confirms the
 identity but its peer is also assembly-only. After the full flag lattice and

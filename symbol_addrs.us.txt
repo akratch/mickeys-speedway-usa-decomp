@@ -1030,7 +1030,7 @@ diRcpDmaOffsets = 0x800455B8;    // type:func size:0xC tier A (exact C, JFG diRc
 diRcpMoveWd = 0x800455C4;        // type:func size:0x9C tier-C ROM 0x461C4 NON_MATCHING rodata-table plateau, first reloc +0x34
 diRcpStrName = 0x80045660;       // type:func size:0x34 tier A (exact C, JFG diRcpStrName)
 diRcpOtherMode = 0x80045694;     // type:func size:0x208 tier C (render-mode strings)
-diRcpGeometryMode = 0x8004589C;  // type:func size:0x114 tier C (geometry strings)
+diRcpGeometryMode = 0x8004589C;  // type:func size:0x10C tier-A ROM 0x4649C exact C, JFG body, followed by 0x8 TU padding
 
 // PROVENANCE: names adapted from JFG src/diCpu.{c,h}. Mickey links the
 // thread control block and the stack-top operand at the same address.
