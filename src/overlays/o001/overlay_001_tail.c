@@ -524,9 +524,9 @@ extern void ext_o0_5a914(Transform *, s32, s32, s32);
 extern Spawned *local_414(s16, Spawned **);
 extern s16 local_c0(Spawned *);
 
-/* Workbench: structure-mismatch; best is 234/237 words, 160 positional differences, first +0x20.
- * Tried constant audit, phase widths, stack-slot census, and indexed/typed pointer ASTs.
- * The local slot stays +0x10 high; an index fold leaves three words missing and early pool/temp drift. */
+/* Plateau (2026-08-25, near-miss p3): workbench structure mismatch; best is 160 words, first +0x20.
+ * Type/constant audit fixed pathId at +0x37C; copy ownership and register hints were tried.
+ * The candidate remains three instructions short with mixed structural and register residuals. */
 #ifdef NON_MATCHING
 void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateRate) {
     Spawned *sp3C;
@@ -538,18 +538,18 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
     Spawned *spawned;
 
     if (G_o1_83e4 == 3) {
-        phase = state->phase;
-        if (phase == 0) {
+        phaseValue = state->phase;
+        if (phaseValue == 0) {
             return;
         }
-        phaseValue = phase;
-        if (phase == 1) {
+        if (phaseValue == 1) {
                 ext_o7_ccc(obj, 0x13);
                 state->spawned = local_378(state);
                 state->phase = 2;
                 return;
             }
-            if (phaseValue == 2) {
+            phase = phaseValue;
+            if (phase == 2) {
                 value = state->fade - (updateRate * 4);
                 if (value <= 0) {
                     state->phase = 3;
@@ -558,7 +558,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->fade = value;
                 return;
             }
-            if (phaseValue == 3) {
+            if (phase == 3) {
                 spawned = state->spawned;
                 obj->x = spawned->x;
                 obj->y = spawned->at10.y2 + 100.0f;
@@ -575,7 +575,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->phase = 4;
                 return;
             }
-            if (phaseValue == 4) {
+            if (phase == 4) {
                 value = state->fade + (updateRate * 4);
                 if (value >= 255) {
                     state->fade = 255;
@@ -585,7 +585,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->fade = value;
                 return;
             }
-            if (phaseValue == 5) {
+            if (phase == 5) {
                 obj->header->flags |= 1;
                 state->phase = 0;
                 state->active = 0;
@@ -594,12 +594,11 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->spawned = 0;
         }
     } else {
-        phase = state->phase;
-        if (phase == 0) {
+        phaseValue = state->phase;
+        if (phaseValue == 0) {
             return;
         }
-        phaseValue = phase;
-        if (phase == 1) {
+        if (phaseValue == 1) {
                 ext_o7_ccc(obj, 0x13);
                 state->spawned = local_414(state->pathId, &sp3C);
                 state->pathId = local_c0(sp3C);
@@ -607,7 +606,8 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->phase = 2;
                 return;
             }
-            if (phaseValue == 2) {
+            phase = phaseValue;
+            if (phase == 2) {
                 value = obj->alpha - (updateRate * 4);
                 if (value <= 0) {
                     state->phase = 3;
@@ -616,7 +616,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 obj->alpha = value;
                 return;
             }
-            if (phaseValue == 3) {
+            if (phase == 3) {
                 spawned = state->spawned;
                 index = 3;
                 state->selectorA = index;
@@ -639,7 +639,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->phase = 4;
                 return;
             }
-            if (phaseValue == 4) {
+            if (phase == 4) {
                 value = obj->alpha + (updateRate * 4);
                 if (value >= 255) {
                     obj->alpha = 255;
@@ -649,7 +649,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 obj->alpha = value;
                 return;
             }
-            if (phaseValue == 5) {
+            if (phase == 5) {
                 obj->header->flags |= 1;
                 state->phase = 0;
                 state->active = 0;

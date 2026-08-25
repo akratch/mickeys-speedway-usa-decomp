@@ -1564,9 +1564,9 @@ void overlay8UpdateMotionOutput(Overlay8MotionAnchor *anchor,
     gOverlay8Buffer++;
 }
 
-/* Plateau after 10 serious attempts: exact 0x438 size/frame/opcode shape,
- * 43 instruction-word differences, first at +0x178. The normal vector's
- * stack home is four bytes high, shifting its FP pool and later temp phase. */
+/* Plateau (2026-08-25, near-miss p3): workbench mixed residual; best remains 43 words, first +0x178.
+ * Tried constant audit and stack-frame home reshaping with pads, a wider normal, and local exchange.
+ * The normal home remains four bytes high, leaving the target FP pool and temp phase unresolved. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
                                        O8P4CF0State *state,
