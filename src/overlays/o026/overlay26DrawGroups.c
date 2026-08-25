@@ -45,7 +45,17 @@ extern void o26DrawReloc(Gfx **, s32, Overlay26Group *, f32, f32);
 extern void o26FlushReloc(Gfx **);
 extern void o26FinishReloc(Gfx **);
 
-/* Exact at +0x1158; DKR v77/v80 and JFG have no exact overlay-26 donor. */
+/*
+ * Plateau (2026-08-25): the best coherent -O2 -mips2 candidate emits
+ * 133/134 instructions, with 91 normalized word differences beginning at
+ * +0x48. Spelling the node offset as unary negation removes the old dead
+ * pointer increment, but IDO folds the target's separate negation/address-add
+ * pair into one subtraction. Signed/unsigned address arithmetic, grouped and
+ * compound pointer expressions, volatile and union carriers, and an extended
+ * temporary lifetime did not preserve the pair without adding a different
+ * instruction. The flag lattice was neutral and the nearest skeleton score
+ * was 0.090, so no donor supplies the missing source shape.
+ */
 #ifdef NON_MATCHING
 void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
                                        Overlay26Context *context) {
@@ -59,8 +69,8 @@ void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
     u32 triangleCommand;
     u32 fillCommand;
     s32 alphaMask;
-    register s32 negativeNodeOffset;
-    register u8 *nodeEntry;
+    s32 negativeNodeOffset;
+    u8 *nodeEntry;
     s32 groupIndex;
     s32 nodeOffset;
 
@@ -95,7 +105,7 @@ void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
                 }
             }
 
-            negativeNodeOffset = ~nodeOffset + 1;
+            negativeNodeOffset = -nodeOffset;
             nodeEntry = context->nodeTable + negativeNodeOffset;
             node = *(Overlay26Node **)(nodeEntry + 0x10);
             choice = (Overlay26ResourceChoice *)node->resource;
