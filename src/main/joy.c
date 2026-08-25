@@ -31,7 +31,9 @@ extern s8 D_800CF372[];
 extern s8 D_800CF373[];
 extern u16 D_800CF3A0[];
 extern u16 D_800CF3A8[];
-extern u8 D_800CF3B0[];
+typedef u8 JoyControllerMap[4];
+
+extern JoyControllerMap D_800CF3B0;
 extern u8 D_800CF3B4[];
 extern u8 D_800CF3B8[];
 extern s32 D_800CF3BC;
@@ -217,7 +219,22 @@ s32 joyRead(s32 saveDataFlags, s32 updateRate) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyRead.s")
 #endif
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive.
+ * Plateau: the typed external-map loop is 12 words against 9, first +0x4.
+ * A same-TU definition is text-exact but invalidly adds 16 bytes of BSS.
+ */
+void joyResetMap(void) {
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        D_800CF3B0[i] = i;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyResetMap.s")
+#endif
 
 /* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
 void joyDisable(s32 player) {

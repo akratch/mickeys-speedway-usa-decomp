@@ -2334,7 +2334,7 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Ninety-four functions / 8,444 bytes compile exactly
+**Matching progress.** Ninety-five functions / 8,508 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -2348,7 +2348,7 @@ linked ranges and the full ROM are exact.
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (60 / 6,044 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
+- `main/main` (61 / 6,108 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
   `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainCPUeffects`, `mainSetGameWindow`, `mainSetAnimGroup`,
   `mainGetAnimGroup`,
@@ -2360,7 +2360,8 @@ linked ranges and the full ROM are exact.
   `mainGetMode`, `mainSetMode`,
   `mainTitlePageInit`,
   `mainFrontInit`, `mainStartGame`,
-  `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`, `func_80028F3C`,
+  `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`,
+  `func_80028EFC`, `func_80028F3C`,
   `func_80028F44`, `func_80028F4C`, `func_80028F54`,
   `func_80028F60`, `func_80028F98`,
   `func_80028FA8`,
@@ -2435,20 +2436,12 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   index forms miss by 20 and 40 words. The valid permuter score improved from
   13,270 to 11,970 only by reusing a pointer alias on paths where it is
   uninitialized, so that candidate was rejected.
-- `mainThread`, five source/address hypotheses plus the full flag lattice,
-  first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
-  the exact 200-byte linked instruction stream, frame and control flow, but
-  its literal RAM-end address omits the target assembly's `D_803FFFFC`
-  HI16/LO16 pair at `+0x18`/`+0x28`. Every symbolic spelling adds an address
-  instruction and moves the aligned epilogue, growing the function by eight
-  words.
-- `mainUpdateZBCheck`, five loop/type hypotheses, the full flag lattice and a
-  bounded two-worker permuter batch, first mismatch `+0x24`: the best
-  Mickey-derived candidate has the exact `-0x48` frame and screen-size stack
-  slots but compiles to 60 rather than 63 instructions. IDO schedules the
-  outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
-  removes three dead-looking countdown-loop register copies retained by the
-  target.
+- `mainThread`: linked 200-byte body/frame exact; first object mismatch is the
+  `D_803FFFFC` relocation at `+0x18`. A one-word RAM struct retains the HI/LO
+  identity but, like prior symbolic forms, grows the body to 58 instructions.
+- `mainUpdateZBCheck`: exact `-0x48` frame and 60/63 words; first `+0x24`.
+  A fresh `u16 *` row reaches 61 words but differs in 45; explicit global
+  pointers spill to a `-0x50` frame, so the prior byte-pointer body remains.
 - `func_80027D14`, eight control-flow/register-lifetime hypotheses, the full
   flag lattice and a bounded two-worker permuter batch, first mismatch `+0x0`:
   the best Mickey-derived interpolation candidate compiles to 92 rather than
@@ -2473,29 +2466,14 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   allocation divergence (`$a2` rather than `$a3`). The permuter improved its
   MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
   canonical MIPS II recompilation added two instructions, so it was rejected.
-- `joyResetMap`, first mismatch `+0x0`: external storage emits 48 rather than
-  36 bytes; TU-local storage is instruction-exact but wrongly claims 16 B of
-  BSS and shifts the real symbol. A fresh descending scalar-extern probe kept
-  the correct four relocation identities but still materialized four address
-  pairs, and weak tentative definitions retained the same 16 B BSS claim; the
-  repeated 119-combination flag lattice did not improve the valid candidate.
-- `func_80028FCC`, thirteen structural/ABI spellings, first mismatch `+0x1c`:
-  its 108-byte skeleton
-  identifies the tier-B `mainAnyoneHas` role (JFG: 108 B, similarity 0.357),
-  but Mickey passes zero as every middle argument. The exact-sized candidate
-  differs in ten words: raw-return branches versus target normalization into
-  `$t6`/`$t7`/`$t8` and a shared epilogue. A fresh old-style call declaration,
-  logical-OR spelling, explicit boolean lifetimes, and the full flag lattice
-  did not improve that result.
+- `joyResetMap`: typed external map emits 12/9 words, first mismatch `+0x4`.
+  A same-TU definition is text-exact but invalidly claims 16 B of BSS; scalar
+  externs preserve storage but materialize four separate address pairs.
+- `func_80028FCC`: exact 108-byte/27-word body, ten words differ, first `+0x1c`.
+  Raw-return branches replace target `$t6`/`$t7`/`$t8` normalization; pointer
+  return ABI was identical, while register-volatile storage added five words.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
-- `func_80028EFC`, fifteen control/typing spellings, first mismatch `+0x1c`:
-  exact 64-byte size
-  and 14/16 words; the correct loop predicate is allocated to `$t6`, while the
-  target uses `$at`. Fresh byte-pointer, `void *` cursor, explicit-goto and
-  post-increment-bound probes either unrolled or entered a three-word
-  strength-reduced basin; the repeated flag lattice did not improve the
-  two-register residual.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime
   hypotheses and the full flag lattice: the best canonical candidate has the
   exact 348-byte, 87-instruction boundary and `-0x10` frame, but differs in 39

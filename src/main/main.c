@@ -125,7 +125,13 @@ typedef struct MainGameEntry {
 } MainGameEntry;
 
 typedef struct MainCharacterState {
-    u8 bytes[40];
+    u8 character;
+    u8 variant;
+    u8 variantCopy;
+    u8 pad03[0x19];
+    u8 counters[6];
+    u16 value22;
+    u8 flags[4];
 } MainCharacterState;
 
 typedef struct MainGameState {
@@ -392,14 +398,10 @@ void RevealReturnAddresses(void) {
 }
 
 #ifdef NON_MATCHING
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 /*
- * PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive.
- *
- * Plateau: the JFG RAM_END spelling reproduces all 50 linked instruction
- * words and the 0xC8 boundary, but omits the target assembly's D_803FFFFC
- * HI16/LO16 pair at +0x18/+0x28. Symbolic pointer and array spellings emit an
- * extra address instruction, which moves the aligned epilogue and adds eight
- * words. The complete resident flag lattice leaves this result unchanged.
+ * Plateau: linked 50 words are exact; object relocation first differs +0x18.
+ * A one-word RAM struct retains HI/LO identity but grows to 58 instructions.
  */
 void mainThread(void *unused) {
     s32 i;
@@ -775,13 +777,8 @@ s32 mainAddZBCheck(s32 x, s32 y, s32 radius) {
 
 #ifdef NON_MATCHING
 /*
- * Plateau: the Mickey-derived nested countdown loops compile to 60 of the
- * target's 63 instructions with the exact -0x48 frame and screen-size stack
- * slots. The first mismatch is +0x24: IDO schedules the outer counter before
- * the target's D_8007A24C/D_800D2FAC LO16 pair. The target also retains three
- * dead-looking loop-register copies that the natural C removes. The complete
- * resident flag lattice and a bounded permuter run did not recover that
- * spelling.
+ * Plateau: exact -0x48 frame and 60/63 words; first mismatch is +0x24.
+ * A u16-row rewrite reaches 61 words; explicit global pointers spill to -0x50.
  */
 void mainUpdateZBCheck(void) {
     MainZBCheck *check;
@@ -1443,7 +1440,30 @@ void func_80028EA0(MainGameState *state) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028EFC.s")
+void func_80028EFC(MainCharacterState *state, s32 character, s32 variant) {
+    s32 i;
+    u8 *cursor;
+
+    state->character = character;
+    state->variant = variant;
+    state->variantCopy = variant;
+    state->value22 = 0;
+    i = 0;
+    cursor = state;
+    while (TRUE) {
+        i++;
+        cursor++;
+        cursor[0x1B] = 0;
+        if (i < 6) {
+            continue;
+        }
+        break;
+    }
+    state->flags[1] = 0;
+    state->flags[2] = 0;
+    state->flags[3] = 0;
+    state->flags[0] = 0;
+}
 
 void func_80028F3C(void) {
 }
@@ -1475,7 +1495,23 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
     return 0;
 }
 
+#ifdef NON_MATCHING
+/*
+ * Plateau: the 27-word target-shaped body differs in 10 words, first +0x1c.
+ * Pointer-return ABI is identical; register-volatile storage adds five words.
+ */
+s32 func_80028FCC(s32 arg0) {
+    if (func_80028FB8(0, 0, arg0)) {
+        return TRUE;
+    }
+    if (func_80028FB8(0, 0, arg0)) {
+        return TRUE;
+    }
+    return func_80028FB8(0, 0, arg0) != 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028FCC.s")
+#endif
 
 s32 func_80029038(s32 arg0, s32 arg1, s32 arg2) {
     return 0;
