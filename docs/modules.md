@@ -974,6 +974,7 @@ Current matching plateau:
 | Function | Target | Best attempt | First mismatch and blocker |
 |---|---:|---|---|
 | `func_80010B4C` | 0xA98 / 678 words | Four serious source forms reconstructed the full JFG `trackGetPlayerIntersect` role from Mickey's m2c draft. The closest was 0xA60 / 664 words under `-O2 -mips2 -32`; the required flag sweep found no exact compiler mode. | `+0x0`: target frame is `0x148`, versus `0x128`; the target also retains two additional FP live ranges and uses a different pointer-variable ordering for its unrolled copy/initialization loops. JFG's public body is assembly-only, so another attempt needs new source/declaration evidence. The bounded permuter could not run because this lane has no `tools/permuter/import.py`. |
+| `func_80012574` | 0xE4 / 57 words | JFG's assembly-only `trackSphereIntersect` is the 0.316 nearest skeleton and confirms the role and 0x48 frame. Mickey's reconstructed ray/sphere body under `-O2 -mips2 -32 -Wab,-r4300_mul` reached the exact 57-word opcode schedule, exact frame, and exact `sqrtf` relocation, with six differing words. | `+0x54`: the projection-square and distance-square webs are exchanged between `f16` and `f18`; the saved boolean also occupies `sp+0x18` instead of `sp+0x1C`. Further source-local additions overshot the frame to 0x50, so another attempt needs new declaration-order or original-source evidence rather than more register guessing. |
 
 ### 3.10 Resident camera: ROM `0x21EE0`–`0x25C20`
 
