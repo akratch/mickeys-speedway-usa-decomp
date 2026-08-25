@@ -406,7 +406,7 @@ TEXT_SUBSEGMENTS = {
         (0x000, "c", "overlay44CreateAnimationState"),
         (0x224, "c", "overlay44ReleaseHandles"),
         (0x294, "c", "overlay44UpdateFrameCache"),
-        (0x580, "asm", "overlay_044_tail_b"),
+        (0x580, "c", "func_overlay_044_F0000580_188BDE0"),
         (0xAF4, "asm", "overlay_044_padding"),
     ],
     45: [

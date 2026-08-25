@@ -3048,6 +3048,18 @@
     {
       "class": "metadata",
       "matched_c": true,
+      "object": "build/src/overlays/o044/func_overlay_044_F0000580_188BDE0.c.o",
+      "offset": 1408,
+      "overlay": 44,
+      "size": 1396,
+      "source": "src/overlays/o044/func_overlay_044_F0000580_188BDE0.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
       "object": "build/src/overlays/o044/overlay44CreateAnimationState.c.o",
       "offset": 0,
       "overlay": 44,
@@ -6881,9 +6893,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 557
+      "metadata": 558
     },
-    "matched_c_bytes_with_postprocess": 279300,
-    "objects_with_postprocess": 557
+    "matched_c_bytes_with_postprocess": 280696,
+    "objects_with_postprocess": 558
   }
 }
