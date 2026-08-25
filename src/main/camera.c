@@ -293,7 +293,22 @@ s32 camIsUserView(s32 camNo) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021C88.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021DF4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021EF0.s")
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camGetVisibleUserView.
+ */
+s32 camGetVisibleUserView(s32 camNo, s32 *x1, s32 *y1, s32 *x2, s32 *y2) {
+    CameraViewport *viewport = &D_80079C10[camNo];
+
+    *x1 = viewport->scissorX1;
+    *x2 = viewport->scissorX2;
+    *y1 = viewport->scissorY1;
+    *y2 = viewport->scissorY2;
+    if ((*x1 | *x2 | *y1 | *y2) == 0) {
+        return 0;
+    }
+    return 1;
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetUserView. */
 void camGetUserView(s32 camNo, s32 *x1, s32 *y1, s32 *x2, s32 *y2) {
     CameraViewport *viewport = &D_80079C10[camNo];
