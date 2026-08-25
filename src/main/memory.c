@@ -68,8 +68,34 @@ MemoryPoolSlot *func_8002B1A0(MemoryPoolSlot *slots, s32 poolSize, s32 numSlots)
     return D_800D1C60[poolCount].slots;
 }
 
-/* JFG correspondence: mmAlloc (tier B; main-pool allocation wrapper). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B280.s")
+extern s32 D_8007A270;
+extern s32 D_8007A278;
+extern s32 D_8007A27C;
+
+s32 runlinkGetAddressInfo(u32 address, s32 *moduleId, s32 *moduleAddress, u32 **symbolName);
+void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag);
+
+/* PROVENANCE: adapted from JFG src/memory.c:mmAlloc. */
+void *func_8002B280(s32 size, u32 colourTag) {
+    struct {
+        volatile s32 address;
+        s32 moduleAddress;
+        s32 moduleId;
+        s32 pad;
+    } stack;
+
+    stack.address = 0x666;
+    D_8007A270 = colourTag;
+    if (D_8007A278 != -1) {
+        colourTag = D_8007A278 | 0xFF000000;
+    } else if (D_8007A27C != -1) {
+        colourTag = D_8007A27C | 0xFE000000;
+    } else {
+        runlinkGetAddressInfo(stack.address - 8, &stack.moduleId, &stack.moduleAddress, NULL);
+        colourTag = (stack.moduleId << 24) | stack.moduleAddress;
+    }
+    return func_8002B3A8(MEMORY_POOL_MAIN, size, colourTag);
+}
 
 /* JFG correspondence: mmAlloc2 (tier B; duplicate allocation wrapper). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B314.s")
@@ -117,8 +143,6 @@ void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag) {
 }
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocR. */
-void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag);
-
 void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
     s32 i;
 

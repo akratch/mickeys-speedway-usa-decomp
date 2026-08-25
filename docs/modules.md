@@ -592,7 +592,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2BD48` | `mmExtended` | `mmExtended` | B: returns the expansion-memory flag consumed by `mmInit`; matched C exact |
 | `0x2BD54` | `func_8002B154` | `mmAllocRegion` | B: allocates slot storage, then calls the pool initializer with it |
 | `0x2BDA0` | `func_8002B1A0` | `mempool_init` | B: shared callee of `mmInit` and the region allocator; initializes the 0x10-byte pool and 0x14-byte slot records; linked C exact |
-| `0x2BE80` | `func_8002B280` | `mmAlloc` | B: main-pool wrapper that derives a caller colour tag and calls the slot finder |
+| `0x2BE80` | `func_8002B280` | `mmAlloc` | B: main-pool wrapper that derives a caller colour tag and calls the slot finder; linked C exact |
 | `0x2BF14` | `func_8002B314` | `mmAlloc2` | B: second wrapper with the same calls and result role |
 | `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator; linked C exact |
 | `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker; linked C exact |
@@ -660,6 +660,9 @@ pad, and natural 20-byte slot indexing at the selected-address return.
 pool initializer reproduces the pool/slot setup after applying Mickey's
 byte-sized slot flags and colour index and retaining the repeated pool-table
 expressions that determine IDO's schedule.
+`func_8002B280` is exact for all `0x94` bytes with canonical flags. Its JFG
+allocation wrapper matches after retaining Mickey's caller-colour global and
+expressing the address/module scratch area as a padded stack record.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a

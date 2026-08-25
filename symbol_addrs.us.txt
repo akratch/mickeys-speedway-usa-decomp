@@ -2120,6 +2120,7 @@ mmInit = 0x8002B0D0; // type:func size:0x78   ROM 0x2bcd0  src/memory.c.o  maske
 mmExtended = 0x8002B148; // type:func size:0xC   ROM 0x2bd48  tier-B donor-jfg role-callgraph matched C main/memory -O2 -mips2 -32
 mmSetDelay = 0x8002B6F4; // type:func size:0xC   ROM 0x2c2f4  tier-B donor-jfg role-callgraph matched C main/memory -O2 -mips2 -32
 func_8002B1A0 = 0x8002B1A0; // type:func size:0xE0   ROM 0x2bda0  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_init
+func_8002B280 = 0x8002B280; // type:func size:0x94   ROM 0x2be80  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmAlloc
 func_8002B3A8 = 0x8002B3A8; // type:func size:0x118  ROM 0x2bfa8  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_slot_find
 func_8002B4C0 = 0x8002B4C0; // type:func size:0x64   ROM 0x2c0c0  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmAllocR
 func_8002B700 = 0x8002B700; // type:func size:0x68   ROM 0x2c300  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmFlushFreeStack
