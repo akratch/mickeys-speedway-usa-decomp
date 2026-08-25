@@ -34,6 +34,9 @@ void *func_8002B280();
 void func_8004D5E0(OSPri priority, OSMesgQueue *queue, OSMesg *messages,
                    s32 count);
 void mainPreNMI(void);
+s32 byteswap32(void *address);
+void func_8004D7E0(void *compressed, void *output);
+void mmFree(void *address);
 
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/pi.c:piInit. */
 void piInit(void) {
@@ -70,7 +73,38 @@ u32 *piRomLoad(u32 assetIndex) {
     romCopy((u32) (start + D_86760), (u32) out, size);
     return out;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/pi/piRomLoadCompressed.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/pi.c:piRomLoadCompressed. */
+u8 *piRomLoadCompressed(u32 assetIndex, s32 extraMemory) {
+    s32 size;
+    s32 start;
+    s32 totalSpace;
+    u8 *gzipHeaderRamPos;
+    u8 *out;
+
+    if (assetIndex > D_800D2470->fileCount) {
+        return NULL;
+    }
+    assetIndex++;
+    out = (u8 *) (assetIndex + D_800D2470->offsets - 1);
+    start = ((s32 *) out)[0];
+    size = ((s32 *) out)[1] - start;
+    gzipHeaderRamPos = func_8002B280(8, 0x84);
+    romCopy((u32) (start + D_86760), (u32) gzipHeaderRamPos, 8);
+    totalSpace = byteswap32(gzipHeaderRamPos) + extraMemory;
+    mmFree(gzipHeaderRamPos);
+    out = func_8002B280(totalSpace + extraMemory, 0x84);
+    if (out == NULL) {
+        return NULL;
+    }
+    gzipHeaderRamPos = (out + totalSpace) - size;
+    if (1) {
+        /* Preserve IDO's tail-call parameter lifetime. */
+    }
+    romCopy((u32) (start + D_86760), (u32) gzipHeaderRamPos, size);
+    func_8004D7E0(gzipHeaderRamPos, out);
+    return out;
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/pi.c:piRomLoadSection. */
 s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size) {
     u32 *index;
