@@ -1075,7 +1075,20 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/func_overlay_012_F00000C4_186D344.c.o: POS
 		--redefine-sym gOverlay12Resource4=D_18 \
 		--redefine-sym gOverlay12Resource5=D_1C $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
+# The typed source naturally owns all 76 instruction words. The overlay-local
+# globals and three runtime roles use the split target's established carriers;
+# normalize only those symbol identities and trim compiler section alignment.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012_tail.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py \
+	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012_tail.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym gOverlay12Effects=D_20 \
+		--redefine-sym gOverlay12EffectCount=D_0 \
+		--redefine-sym overlay12Initialize=func_overlay_012_F0000000_186D280 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0xD0:overlay12Lookup:func_overlay_012_F0000000_186D280 \
+		0xFC:overlay12Lookup:func_overlay_012_F0000000_186D280 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x130
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/func_overlay_012_F00002E4_186D564.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
