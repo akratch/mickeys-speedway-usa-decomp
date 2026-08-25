@@ -2817,6 +2817,13 @@ Overlay1PoolRecord *overlay1AllocateRecord(void) {
 extern void *overlay1AllocateRecordReloc(u32 *source);
 
 /* DKR v77/v80 and JFG have generic copy loops, but no exact donor. */
+/* Plateau (2026-08-25): the isolated 119-combination flag lattice finds
+ * -O2/-mips1 exact-sized with 2 differing words, first at +0x24; -mips2 is
+ * one word worse. Retail schedules the destination setup before the loop
+ * count, while IDO reverses that adjacent pair. Declaration/assignment order,
+ * register hints, comma association, block lifetimes, initialized locals, and
+ * a typed whole-record copy either retain the pair or disturb the exact loop.
+ * The bounded permuter cannot import this internal consolidated-TU boundary. */
 #ifdef NON_MATCHING
 void *overlay1CloneRecord(u32 *source) {
     u32 *destination;
