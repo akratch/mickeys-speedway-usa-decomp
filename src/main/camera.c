@@ -172,7 +172,9 @@ void camIgnoreShake(void) {
 f32 camGetFOV(void) {
     return D_800CF2A0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800214AC.s")
+void func_800214AC(void) {
+    D_800CEA20[D_800CEC64].stateA ^= 1;
+}
 /*
  * PROVENANCE: adapted from JFG's public decomp,
  * src/camera.c:camOverrideProjScales.
