@@ -12,32 +12,24 @@ extern void overlay36Mode4ActionReloc(Overlay3Object *object);
 extern void overlay36Mode6ActionReloc(Overlay3Object *object);
 extern void overlay36Mode7ActionReloc(Overlay3Object *object);
 extern u8 gOverlay3ModeChance[];
-/*
- * Plateau (2026-08-25, r4 pass): the 113-word candidate has exact size, a
- * 0x58-byte frame, and 43 differing words beginning at +0x7C.  The target
- * carries the packed angle directly into the encode call and performs the
- * compensating boolean handoff after the path check; current C places that
- * copy before the encode call, cascading through the switch.  The neutral
- * 119-combination flag sweep and ten directed variants covering register
- * qualification, boolean spelling, dead-web priority, existing-local reuse,
- * statement grouping, and prototype shape did not leave this basin.
- */
+/* Plateau (batch 17): exact 0x1C4 size; 34 words differ, first at +0x84.
+ * Casting the raw angle and shifting only at encode removed nine differences.
+ * Flags tie; the remaining blocker is the valid/mode temporary handoff. */
 #ifdef NON_MATCHING
 s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control) {
     s32 count; Overlay3Object **objects; Overlay3Object *target;
-    s32 packedAngle; s32 angle; s32 valid; s32 encoded; s32 random;
+    s32 valid; s32 angle; s32 encoded; s32 random;
     objects = overlay3GetSearchObjectsReloc(&count);
     if (control->cachedIndex == 0x7F) return 0;
     target = objects[control->cachedIndex];
     if (target == anchor) return 0;
-    packedAngle = overlay3AngleDeltaReloc(anchor->heading,
-        overlay3PlanarAngleReloc(anchor->x - target->x, anchor->z - target->z)) << 16;
-    angle = packedAngle >> 16;
-    valid = angle >= -1999;
+    angle = overlay3AngleDeltaReloc(anchor->heading,
+        overlay3PlanarAngleReloc(anchor->x - target->x, anchor->z - target->z));
+    valid = (s16)angle >= -1999;
     if (valid) {
-        valid = angle < 2000;
+        valid = (s16)angle < 2000;
         if (valid) {
-            encoded = overlay1EncodeAngleReloc(1, packedAngle);
+            encoded = overlay1EncodeAngleReloc(1, angle << 16);
             valid = overlay2CheckPathReloc(anchor->x, anchor->z, target->x, target->z,
                                            encoded, 0, -1, 0xFFFF) == 0;
         }
