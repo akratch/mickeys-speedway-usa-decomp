@@ -63,12 +63,16 @@ extern void func_8005AD64(Overlay87MotionObject *object, s32 mode, s32 index,
                           f32 value);
 
 /*
- * Plateau (2026-08-25): -O2 -mips2 -Wab,-r4300_mul is 0x750 bytes versus
- * the 0x768-byte target, with 204 masked word differences and the first at
- * +0x2C. Reordering the FP locals moved the private update save from sp+0x60
- * to the target's sp+0x50 and improved the baseline from 220 differences.
- * A bounded permuter run reached score 3220 only by widening a signed-angle
- * prototype and duplicating a store, which was rejected as scaffolding.
+ * Plateau retry (2026-08-25): -O2 -mips2 -Wab,-r4300_mul is 0x758 bytes
+ * versus the 0x768-byte target, with 193 masked word differences and the first
+ * at +0x2C. Negating the squared numerator before division recovered two
+ * target operations, and spelling the second crossing test as else-if reduced
+ * the prior 204-word result. The remaining size deficit follows verticalDelta:
+ * the target keeps it in an FP register and spills it across calls, while this
+ * candidate passes its stack bits directly. Register and nested-scope lifetime
+ * variants did not change or regressed codegen. A fresh 10-minute permuter
+ * batch improved score 3350 to 2920 only by duplicating the later angle store,
+ * rejected as scheduling scaffolding.
  */
 #ifdef NON_MATCHING
 void func_overlay_087_F0000128_18D3090(Overlay87MotionObject *object,
@@ -167,9 +171,9 @@ void func_overlay_087_F0000128_18D3090(Overlay87MotionObject *object,
                 (state->targetAngle < newAngle)) {
                 crossed = TRUE;
             }
-            if ((state->angularVelocity < 0) &&
-                (state->targetAngle < oldAngle) &&
-                (newAngle < state->targetAngle)) {
+            else if ((state->angularVelocity < 0) &&
+                     (state->targetAngle < oldAngle) &&
+                     (newAngle < state->targetAngle)) {
                 crossed = TRUE;
             }
             if (crossed != FALSE) {
@@ -206,16 +210,16 @@ void func_overlay_087_F0000128_18D3090(Overlay87MotionObject *object,
         if (state->phase != 0) {
             if (object->verticalVelocity >= 0.0f) {
                 if (state->targetHeight <=
-                    object->y - ((object->verticalVelocity *
-                                  object->verticalVelocity) /
-                                 gOverlay87PositiveDivisor)) {
+                    object->y +
+                        (-(object->verticalVelocity * object->verticalVelocity) /
+                         gOverlay87PositiveDivisor)) {
                     state->verticalAcceleration = 0.0f;
                 } else {
                     state->verticalAcceleration =
                         gOverlay87PositiveAcceleration;
                 }
-            } else if ((object->y -
-                        ((object->verticalVelocity * object->verticalVelocity) /
+            } else if ((object->y +
+                        (-(object->verticalVelocity * object->verticalVelocity) /
                          gOverlay87NegativeDivisor)) < state->targetHeight) {
                 state->verticalAcceleration = gOverlay87NegativeAcceleration;
             } else {
