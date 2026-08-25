@@ -37,14 +37,9 @@ extern f32 sqrtf(f32 value);
 extern f32 gOverlay20TailXLimit;
 extern f32 gOverlay20TailYLimit;
 
-/*
- * Plateau (2026-08-25, 10 source variants): the best -O2 mips3 candidate
- * with -Wab,-r4300_mul is two instructions short of the 207-word executable
- * body, differs in 178 words after relocation masking, and first diverges at
- * +0x20.  The frame/save set and arithmetic topology agree; the blocker is
- * IDO's grid-field register coloring and the FP spill slots around the sqrtf
- * call.
- */
+/* Plateau (2026-08-25, batch 35): -O2 -mips3 -Wab,-r4300_mul emits 205/207 executable words.
+ * It differs in 178 executable words, first +0x20; the frame/save set and arithmetic topology agree.
+ * Init-order, type, comparison, volatile, neighbor-hoist, and 40-minute permutation probes found no exact form. */
 #ifdef NON_MATCHING
 f32 func_overlay_020_F0001148_1877720(Overlay20TailGrid *grid, f32 x, f32 y,
     Overlay20TailVector *normal) {

@@ -15,14 +15,9 @@ extern void viGetCurrentSize(u32 *width, u32 *height);
  * nearest structural oracle for this display-list command family. Mickey's
  * own function supplies the body, resident bindings, and framebuffer loop.
  */
-/*
- * Plateau (2026-08-25, fresh flag sweep plus 3 structural attempts):
- * -O2 -mips1 -32 emits 201 instructions versus the 204-instruction target
- * and differs in 181 positional words. The first mismatch remains +0x0: the
- * candidate frame is 0x78 versus 0xA8. Explicit long-lived argument aliases
- * and direct texture-rectangle command stores did not reproduce the target's
- * s0-s4 allocation; the direct command form regressed to 192 differences.
- */
+/* Plateau (2026-08-25, batch 35): -O2 -mips1 emits 201/204 words; 181 differ, first +0x0.
+ * The candidate frame is 0x78 versus 0xA8 and still lacks the target's s0-s4 allocation.
+ * Alias, type, declaration, loop, macro-split, and 40-minute permutation probes found no exact form. */
 #ifdef NON_MATCHING
 void func_overlay_066_F00004E0_18C6948(register Gfx **displayList,
                                        register u16 *framebuffer,
