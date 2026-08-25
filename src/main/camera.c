@@ -261,7 +261,19 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800219D0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021B70.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camEnableUserView. */
+void camEnableUserView(s32 camNo, s32 immediate) {
+    CameraViewport *viewport;
+
+    if (immediate != 0) {
+        viewport = &D_80079C10[camNo];
+        viewport->flags |= 1;
+    } else {
+        viewport = &D_80079C10[camNo];
+        viewport->flags |= 2;
+    }
+    viewport->flags &= ~4;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021BE4.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camIsUserView. */
 s32 camIsUserView(s32 camNo) {
