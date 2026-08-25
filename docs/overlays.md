@@ -1713,6 +1713,10 @@ Overlay 34 `+0x608..+0x900` — final 760 bytes / 190 words. NON_MATCHING: retir
 
 `overlay 1 +0x0BD4..+0x10C0` — 1,260 bytes / 315 words across four functions (motion scaling, path interpolation, motion-point resolution, sampled curve length). NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule/allocation/stack-home rewrites and local literal-addend edits); source kept as decomp-permuter input. All 44 runtime text records were confirmed authoritative. The stretch checkpoint becomes **52,764 / 45,775 campaign bytes (115.27%)**, **154,016 / 469,264 Overlay C (32.82%)**, and **197,056 / 950,332 resolved text (20.74%)**.
 
+`overlay1MeasureCurves` (`overlay 1 +0x0F84..+0x10C0`) plateau: exact 79-word size,
+frame `0x70`, and five call-relocation sites; 27 masked words differ from `+0xC`.
+The full flag lattice and 40-minute permuter produced no valid exact source.
+
 `overlay 1 +0x19B8..+0x1CA4` — 748 bytes / 187 words, covering mode-state initialization and object-mapping construction. The first function is naturally exact apart from a trimmed alignment word. NON_MATCHING (second function): retired 2026-08-24 per ADR 0002 (was made to match via a representation-web rewrite selecting the retail schedule); source kept as decomp-permuter input. All 28 runtime text records were confirmed exact. The stretch checkpoint becomes **53,512 / 45,775 campaign bytes (116.90%)**, **154,764 / 469,264 Overlay C (32.98%)**, and **197,804 / 950,332 resolved text (20.81%)**.
 
 | Overlay | Range | Function | Bytes | Exactness | Donor |
