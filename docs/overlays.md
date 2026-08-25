@@ -76,6 +76,16 @@ section layouts. The C compiles to all 130 instruction words with the exact
 relocation surface, and its linked ROM range is byte-identical under
 `-O2 -mips2 -32`.
 
+`runlinkInit` remains `NON_MATCHING` after seven coherent source variants, the
+119-combination flag lattice, and a bounded permuter pass. The best adapted
+JFG candidate is 142 instructions against 146, with a `0x40` frame against
+`0x38`, 64 masked positional differences, and its first mismatch at `+0x8`.
+The three allocation-and-copy sequences agree apart from frame-relative local
+homes; the four-instruction deficit comes later, where IDO reuses two resident
+section-anchor addresses that Mickey rematerializes. The permuter found lower
+numeric scores only by introducing the wrong relocation identities, so those
+variants were rejected rather than promoted.
+
 `runlinkDownloadCode` remains `NON_MATCHING` after a bounded ten-attempt pass.
 The best adapted candidate has the exact 286-instruction length, `0x70`-byte
 frame, opcode schedule and section-base arithmetic. Four instruction words

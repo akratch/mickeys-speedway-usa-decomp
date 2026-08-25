@@ -78,6 +78,13 @@ extern s32 D_8007A670;
 extern s32 D_8007A674;
 extern s32 D_8007A678;
 extern char D_80082488[];
+extern u8 D_1848B70[];
+extern u8 D_1849730[];
+extern u8 D_184B680[];
+extern u8 D_184C3E0[];
+extern u8 D_800D8750[];
+extern PendingOverlayLoad D_800D2E40;
+extern void _bzero(void *dst, s32 len);
 
 typedef struct RunlinkRelocContext {
     /* 0x00 */ u32 unk0;
@@ -774,7 +781,64 @@ void runlinkFlushModules(void) {
         pendingLoad++;
     } while (remaining--);
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * src/runLink.c:runlinkInitialise. Mickey's ROM-block boundaries, resident
+ * section anchors, packed header layout, and pending-load count determine the
+ * final body.
+ */
+void runlinkInit(void) {
+    u32 overlayTableSize;
+    u32 tableSize;
+    PendingOverlayLoad *pendingLoad;
+    OverlayHeader *overlay;
+
+    overlayTableSize = D_184C3E0 - D_184B680;
+    overlayTable = func_8002B280(overlayTableSize + sizeof(OverlayHeader), 0x83);
+    romCopy((u32) D_184B680, (u32) (overlayTable + 1), overlayTableSize);
+
+    tableSize = D_184B680 - D_1849730;
+    overlayRomTable = func_8002B280(tableSize, 0x83);
+    romCopy((u32) D_1849730, (u32) overlayRomTable, tableSize);
+
+    tableSize = D_1849730 - D_1848B70;
+    mainRelocTable = func_8002B280(tableSize, 0x83);
+    romCopy((u32) D_1848B70, (u32) mainRelocTable, tableSize);
+    mainRelocTableCount = *(s32 *) mainRelocTable;
+    mainRelocTable = (RelocationEntry *) ((u8 *) mainRelocTable + sizeof(s32));
+    overlayCount = (overlayTableSize >> 5) + 1;
+
+    pendingLoad = &D_800D2E40;
+    tableSize = PENDING_OVERLAY_LOADS - 1;
+    do {
+        pendingLoad->overlayIndex = 0xFFB;
+        pendingLoad--;
+    } while (tableSize--);
+
+    linkSlotTable = func_8002B280(overlayCount * sizeof(LinkSlot), 0x83);
+    _bzero(linkSlotTable, overlayCount * sizeof(LinkSlot));
+
+    overlayTable->vramBase = (s32) func_80000450;
+    overlayTable->romAddress = 0;
+    overlayTable->textSize = (s32) D_80078D60 - (s32) func_80000450;
+    overlayTable->dataSize = (s32) D_80085A40 - (s32) D_80078D60;
+    overlayTable->bssSize = (s32) D_800D8750 - (s32) D_80085A40;
+    overlayTable->relocTableSize = mainRelocTableCount * sizeof(RelocTableEntry);
+    overlayTable->relocTableSize2 = 0;
+
+    overlay = overlayTable + 1;
+    tableSize = overlayCount - 1;
+    while (tableSize--) {
+        overlay->romAddress += (s32) D_184C3E0;
+        overlay++;
+    }
+
+    D_8007A674 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkInit.s")
+#endif
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
  * asm/nonmatchings/runLink/runlinkSuspendCode.s and its src/runLink.c order.

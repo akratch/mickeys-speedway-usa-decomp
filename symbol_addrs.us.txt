@@ -832,8 +832,9 @@ ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier-D invented
 // NULL for the fourth -- which is what Mickey's own watchpoint reporter at
 // 0x80046460 does too.
 //
-// runlinkInit (0x800328CC). Tier D -- invented, from Mickey's disassembly
-// alone; JFG has no counterpart to point at. It is the only writer of any of
+// runlinkInit (0x800328CC). Tier D -- the local spelling is invented from
+// Mickey's disassembly; JFG's counterpart is named runlinkInitialise. It is
+// the only writer of any of
 // the six BSS symbols below: three malloc-and-DMA-copy sequences, one per ROM
 // block (0x1848B70, 0x1849730, 0x184B680, sizes taken as the difference of two
 // address literals), each storing the allocation into its pointer, then
