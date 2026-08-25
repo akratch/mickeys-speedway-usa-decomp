@@ -61,6 +61,8 @@ typedef struct ControlSpawnPacket {
 typedef struct ControlSpawned {
     /* 0x00 */ u8 pad00[0x3C];
     /* 0x3C */ s32 unk3C;
+    /* 0x40 */ u8 pad40[0x46 - 0x40];
+    /* 0x46 */ s16 unk46;
 } ControlSpawned;
 
 typedef struct ControlCeilingContext {

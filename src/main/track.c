@@ -14,6 +14,7 @@
  */
 
 #include "game/track.h"
+#include "game/charControl.h"
 #include "game/math.h"
 #include "n_audio/mbi.h"
 #include "PR/os_internal.h"
@@ -53,15 +54,42 @@ extern Gfx *D_800C9520;
 extern s32 D_80079314;
 extern u32 D_800C9B50[16];
 extern s32 D_800792FC;
+extern u8 D_8007BEF4;
+extern s16 D_800C9570;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
                           f32 *outX, f32 *outY, f32 *outZ);
+ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BD50.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BDB4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C400.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C540.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `initSky`. Mickey adds the player-count guard and proves its own object-field
+ * offsets; the public name is not adopted from tier-D TU position alone.
+ */
+void func_8000C540(s32 arg0) {
+    ControlSpawnPacket packet;
+
+    if ((arg0 == -1) || (D_8007BEF4 >= 3)) {
+        D_800C9550 = NULL;
+        D_800C9570 = arg0;
+    } else {
+        packet.x = 0;
+        packet.y = 0;
+        packet.z = 0;
+        packet.mode = 10;
+        packet.kind = arg0;
+        D_800C9550 = func_8000590C(&packet, 2);
+        D_800C9570 = arg0;
+        if (D_800C9550 != NULL) {
+            ((ControlSpawned *) D_800C9550)->unk3C = 0;
+            ((ControlSpawned *) D_800C9550)->unk46 = -1;
+        }
+    }
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function `trackSkySet`. */
 void trackSkySet(s32 skyDome) {
     D_800C9558 = skyDome;
