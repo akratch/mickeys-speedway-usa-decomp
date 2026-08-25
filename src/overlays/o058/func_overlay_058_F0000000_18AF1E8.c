@@ -86,15 +86,9 @@ extern void overlay58BuildOrderReloc(void *state, s32 count, s32 gap);
 extern void overlay58FinalizePackedStatus(void);
 
 /* Every Reloc name is provisional; normalized assembly does not bind it. */
-/*
- * NON_MATCHING: the best coherent candidate is 351/368 instructions with
- * its first mismatch at +0x0: IDO uses a 0x78-byte frame instead of the
- * target's 0x60-byte frame.  The target retains or reloads its loop state
- * across the two value-splitting calls while this source spills additional
- * cursors and indices.  The flag lattice selected -Wo,-loopunroll,0; cursor,
- * count-reload, and declaration-lifetime variants did not recover the target
- * CFG.  The nearest permitted donor skeleton scored only 0.059.
- */
+/* Workbench: structure-mismatch; 333 words differ, 351 versus 368 instructions, first mismatch +0x0.
+ * Lever: constant-audit found only frame offsets; scalar, array, and aggregate split-results compile equivalently.
+ * Remains: 24-byte non-save frame surplus and missing 17-instruction loop/relocation structure. */
 #ifdef NON_MATCHING
 void func_overlay_058_F0000000_18AF1E8(void) {
     Overlay58OrderState *state;
