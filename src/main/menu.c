@@ -1279,14 +1279,14 @@ s32 frontGet2PlayerSplit(void) {
     split = D_800D3128.bits.twoPlayerSplit;
     return split;
 }
-/* PROVENANCE: role and order compared with JFG's public decomp,
- * src/menu.c::frontSet2PlayerSplit; JFG retains assembly. This fresh
- * Mickey-derived m2c/raw-state body is size-exact but differs in six temporary
- * registers from +0x8; the resident flags tie the lattice's best result. */
+/* PROVENANCE: role and order compared with JFG src/menu.c::frontSet2PlayerSplit. */
+/* Plateau: exact nine-word shape, three register-only words differ first +0x8.
+ * Workbench reports temp-FIFO phase; ten source forms, the flag lattice, and a
+ * 40-minute permuter leave the retained byte-lvalue expression best. */
 #ifdef NON_MATCHING
 void func_8003A520(s32 split) {
-    D_800D3128.raw = ((split * 0x10) & 0x10) |
-                     (D_800D3128.raw & 0xFFEF);
+    *(u8 *)&D_800D3128 = (s16)(((split << 4) & 0x10) |
+                               ((s16)*(u8 *)&D_800D3128 & 0xFFEF));
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")

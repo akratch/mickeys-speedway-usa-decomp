@@ -1238,13 +1238,9 @@ s32 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config) {
     }
     return result;
 }
-#ifdef NON_MATCHING
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/func_8005FED8.s; body reconstructed from Mickey
  * evidence. */
-/* Size-exact 47-word plateau: 24 words differ, first at +0x30. The target
- * splits the line-table address materialization across the first branch;
- * typed base locals either move its load or disturb both temp-register rings. */
 void func_8003EC8C(ParticleObject *object, s32 index) {
     ParticleTriggerSlot *trigger;
     s32 flags;
@@ -1254,24 +1250,21 @@ void func_8003EC8C(ParticleObject *object, s32 index) {
     object->activeTriggerCount--;
     flags = object->triggers[index].flags;
     if (flags & 0x4000) {
-        u8 childIndex;
+        ParticleLineEntry *line;
 
-        childIndex = trigger->result;
+        line = &D_8007C894[trigger->result];
         trigger->result = -1;
-        D_8007C894[childIndex].active = 1;
+        line->active = 1;
         return;
     }
     if (flags & 0x400) {
-        u8 childIndex;
+        ParticleModelEntry *model;
 
-        childIndex = trigger->result;
+        model = &D_8007C898[trigger->result];
         trigger->result = -1;
-        D_8007C898[childIndex].active = 1;
+        model->active = 1;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EC8C.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/particles.c:partObjFreeTriggers. */
 void partObjFreeTriggers(ParticleObject *object) {
     s32 i;

@@ -1217,9 +1217,9 @@ carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
 live range; the default flags, both data relocations, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A520`: best remains **3/9 differing words**, first `+0x8`; the fresh
-typed raw-state m2c body landed under `NON_MATCHING` at 6/9, with an exact
-nine-word shape but a whole temporary-register-ring phase shift.
+`func_8003A520`: exact nine-word shape, **3/9 register-only words** differ first
+`+0x8`. Workbench reports temp-FIFO phase; ten source forms, the flag lattice,
+and a 40-minute permuter leave the byte-lvalue candidate best.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no
@@ -1822,7 +1822,8 @@ assembly reconstruction); `func_80040878` (ROM `0x41478`, `0x310` B,
 reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default
 resident flags, JFG-named Mickey reconstruction); `debug_text_background`
 (ROM `0x452F8`, `0xA0` bytes, resident flags plus `-Wab,-r4300_mul`, JFG body
-donor).
+donor); `func_8003EC8C` (ROM `0x3F88C`, `0xBC` bytes, default resident flags,
+Mickey pointer-first reconstruction with the JFG assembly sibling as oracle).
 
 `func_8003CE10` plateaued after the flag lattice, ten hypotheses, and a
 canonical-`mips2` permuter: its 275-instruction C has exact opcodes/relocations,
@@ -1842,10 +1843,6 @@ flag lattice, ten structural hypotheses, and a canonical-`mips2` permuter.
 at `+0x204`, followed at `+0x20C` by the zero-vector `f0`/`f6` choice. The
 remaining cluster is header-copy/branch and FP normalization scheduling. JFG
 `func_80060400` is the assembly oracle; asm stays canonical.
-
-`func_8003EC8C` is size-exact with 24/47 residuals from `+0x30`; the target
-hoists the line-table address materialization across the first branch. Typed
-base locals disrupt both temporary-register rings; asm stays canonical.
 
 `partNullifyCircularParticleParents` is opcode/size-exact with 25/42 positional
 residuals from `+0x0`; implicit loop bounds seed both carrier pairs oppositely.
@@ -2157,11 +2154,11 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Ninety-five functions / 8,808 bytes compile exactly
+**Matching progress.** Ninety-six functions / 8,844 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
-- `main/joy` (16 / 996 bytes): `joyMessageQ`, `joyDisable`, `joyEnable`,
+- `main/joy` (17 / 1,032 bytes): `joyMessageQ`, `joyResetMap`, `joyDisable`, `joyEnable`,
   `joyCreateMap`, `joyGetController`, `joyGetButtons`, `joyGetPressed`,
   `joyGetReleased`, `joyGetStickX`, `joyGetAbsX`, `joyGetStickY`, `joyGetAbsY`,
   `joyClamp`, `joySetSecurity`, `arithmeticFunction`, and `joyCharVal`.
@@ -2284,9 +2281,6 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   allocation divergence (`$a2` rather than `$a3`). The permuter improved its
   MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
   canonical MIPS II recompilation added two instructions, so it was rejected.
-- `joyResetMap`: fixed external-map stores improve to 10/9 words, first `+0x0`.
-  IDO materializes one extra map base; original TU-local BSS uses `$at`
-  directly, while defining it here would invalidly claim 16 B of BSS.
 - `func_80028FCC`: exact 108-byte/27-word body, ten words differ, first `+0x1c`.
   Fresh m2c-local, OR-chain and common-epilogue spellings all canonicalize to
   25 words, so the prior raw-return candidate remains best.
