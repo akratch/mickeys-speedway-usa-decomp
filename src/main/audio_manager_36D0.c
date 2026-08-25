@@ -516,33 +516,26 @@ void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5,
         *pointHandle = point;
     }
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
  * amSndSetEcho; body and surface layout use Mickey-only evidence.
- *
- * Plateau: the best stock-flag candidate has the exact 52-word length,
- * frame, and relocation surface. Ten words differ from function offset
- * 0x20 because IDO homes closestDistance at sp+0x34 instead of sp+0x2C
- * and schedules the pre-loop loads and pointer formation differently.
- * The flag lattice, ten source/layout attempts, and a ten-minute permuter
- * batch did not close the stack-allocation difference.
  */
 u8 func_800033B0(void *sound, f32 x, f32 y, f32 z) {
     AudioEchoSurface **surfaces;
     AudioEchoSurface *closest = NULL;
-    s32 closestDistance = 0;
     AudioEchoSurface *surface;
     s32 count;
+    s32 closestDistance = 0;
     s32 i;
     s32 distance;
 
     count = func_8001398C(x, z, 0x1800, &surfaces);
+    i = count - 1;
+    x = y + 10.0f;
     if (count != 0) {
-        i = count - 1;
         do {
             surface = surfaces[i];
-            distance = (s32)((y + 10.0f) - surface->height);
+            distance = (s32)(x - surface->height);
             if ((distance < closestDistance || closest == NULL) &&
                 distance > 0) {
                 closestDistance = distance;
@@ -555,9 +548,6 @@ u8 func_800033B0(void *sound, f32 x, f32 y, f32 z) {
     }
     return 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800033B0.s")
-#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003480.s")
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
