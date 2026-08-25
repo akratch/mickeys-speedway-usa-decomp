@@ -74,13 +74,9 @@ extern void func_overlay_011_F0002714_186AF5C(s32 updateRate);
     } while (0)
 
 /* DKR v77/v80 and JFG contain no matching Overlay 11 grid renderer donor. */
-/* NON_MATCHING plateau (2026-08-25): after reconstructing the jump-table
- * dispatch, a full flag lattice and five structural variants, the compact
- * vertex loop reached 487/562 differing words with a first mismatch at +0x4C
- * but was 0x220 bytes short and contradicted the target's unrolled stores.
- * This retained unrolled form is 0x78 bytes short and differs in 535/562 words
- * from +0x0; its 0x190-byte frame is 0x18 larger than retail. The remaining
- * blocker is the original cursor/global reload and local-stack schedule. */
+/* Plateau (2026-08-25): -O2/-mips2 is 0x78 short; 535/562 words differ, first +0x0.
+ * Workbench: structure-mismatch; target/candidate frames are 0x178/0x190.
+ * The table at data +0x238..+0x250 awaits a natural exact C body/rodata owner. */
 #ifdef NON_MATCHING
 void func_overlay_011_F0000150_1868998(O11Gfx **displayList, void **matrix,
                                         O11Vertex **vertices,
