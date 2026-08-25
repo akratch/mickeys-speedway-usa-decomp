@@ -36,11 +36,51 @@ u8 mmExtended(void) {
 /* JFG correspondence: mmAlloc2 (tier B; duplicate allocation wrapper). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B314.s")
 
-/* JFG correspondence: mempool_slot_find (tier B; shared allocation worker). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B3A8.s")
+extern MemoryPool D_800D1C60[];
+
+/* PROVENANCE: adapted from JFG src/memory.c:mempool_slot_find. */
+s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
+                   s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag);
+
+void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag) {
+    s32 slotSize;
+    MemoryPoolSlot *slot;
+    volatile s32 pad;
+    MemoryPool *pool;
+    MemoryPoolSlot *slots;
+    s16 nextIndex;
+    s32 currIndex;
+
+    pool = &D_800D1C60[poolIndex];
+    if (pool->maxNumSlots == pool->curNumSlots + 1) {
+        return NULL;
+    }
+    currIndex = -1;
+    if (size & 0xF) {
+        size = (size & ~0xF) + 0x10;
+    }
+    slotSize = 0x7FFFFFFF;
+    slots = pool->slots;
+    nextIndex = 0;
+    do {
+        slot = (MemoryPoolSlot *)((u8 *)slots + (nextIndex << 4) + (nextIndex << 2));
+        if (slot->flags == MEMORY_SLOT_FREE) {
+            if (slot->size >= size && slot->size < slotSize) {
+                slotSize = slot->size;
+                currIndex = nextIndex;
+            }
+        }
+        nextIndex = slot->nextIndex;
+    } while (nextIndex != -1);
+
+    if (currIndex != -1) {
+        func_8002BB40(poolIndex, currIndex, size, TRUE, FALSE, colourTag);
+        return (currIndex + slots)->data;
+    }
+    return NULL;
+}
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocR. */
-extern MemoryPool D_800D1C60[];
 extern s32 D_800D1CA0;
 
 void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag);
