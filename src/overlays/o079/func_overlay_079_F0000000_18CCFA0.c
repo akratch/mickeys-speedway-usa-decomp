@@ -41,6 +41,13 @@ extern f32 func_8002A8BC(s32 angle);
 extern void func_8005AD64(Overlay79InitObject *object, s32 mode, s32 index,
                           f32 value);
 
+/*
+ * Plateau (2026-08-25, 7 attempts): the canonical -O2 candidate has the
+ * exact 77-word size, differs in 10 words, and first diverges at +0x48.
+ * The remaining delta begins with a commuted floating-point multiply and
+ * propagates through the later floating-point register choices.  All source
+ * associations and the complete flag lattice retain that allocation split.
+ */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000000_18CCFA0(Overlay79InitObject *object,
                                         Overlay79InitConfig *config,
