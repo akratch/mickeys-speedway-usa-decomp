@@ -401,7 +401,7 @@ void RevealReturnAddresses(void) {
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 /*
  * Plateau: linked 50 words are exact; object relocation first differs +0x18.
- * A one-word RAM struct retains HI/LO identity but grows to 58 instructions.
+ * A symbolic indexed base restores the symbol but grows to 58 instructions.
  */
 void mainThread(void *unused) {
     s32 i;
@@ -1498,7 +1498,7 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 #ifdef NON_MATCHING
 /*
  * Plateau: the 27-word target-shaped body differs in 10 words, first +0x1c.
- * Pointer-return ABI is identical; register-volatile storage adds five words.
+ * Fresh m2c-local, OR-chain and common-epilogue forms all collapse to 25 words.
  */
 s32 func_80028FCC(s32 arg0) {
     if (func_80028FB8(0, 0, arg0)) {

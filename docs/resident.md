@@ -2437,8 +2437,8 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   13,270 to 11,970 only by reusing a pointer alias on paths where it is
   uninitialized, so that candidate was rejected.
 - `mainThread`: linked 200-byte body/frame exact; first object mismatch is the
-  `D_803FFFFC` relocation at `+0x18`. A one-word RAM struct retains the HI/LO
-  identity but, like prior symbolic forms, grows the body to 58 instructions.
+  `D_803FFFFC` relocation at `+0x18`. A fresh symbolic indexed base restores
+  the symbol but grows the body from 50 to 58 instructions.
 - `mainUpdateZBCheck`: exact `-0x48` frame and 60/63 words; first `+0x24`.
   A fresh `u16 *` row reaches 61 words but differs in 45; explicit global
   pointers spill to a `-0x50` frame, so the prior byte-pointer body remains.
@@ -2466,12 +2466,12 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   allocation divergence (`$a2` rather than `$a3`). The permuter improved its
   MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
   canonical MIPS II recompilation added two instructions, so it was rejected.
-- `joyResetMap`: typed external map emits 12/9 words, first mismatch `+0x4`.
-  A same-TU definition is text-exact but invalidly claims 16 B of BSS; scalar
-  externs preserve storage but materialize four separate address pairs.
+- `joyResetMap`: fixed external-map stores improve to 10/9 words, first `+0x0`.
+  IDO materializes one extra map base; original TU-local BSS uses `$at`
+  directly, while defining it here would invalidly claim 16 B of BSS.
 - `func_80028FCC`: exact 108-byte/27-word body, ten words differ, first `+0x1c`.
-  Raw-return branches replace target `$t6`/`$t7`/`$t8` normalization; pointer
-  return ABI was identical, while register-volatile storage added five words.
+  Fresh m2c-local, OR-chain and common-epilogue spellings all canonicalize to
+  25 words, so the prior raw-return candidate remains best.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime
