@@ -34,9 +34,9 @@ typedef struct Overlay101TextureElement {
 extern u32 D_230[];
 void func_overlay_101_F0000000_18DB820();
 
-/* PLATEAU (2026-08-25): -O2 -mips2 is 280/293 words; 276 differ, first +0x0.
- * Inverted guards plus volatile stride reproduce the s0-s7 save set, but the frame is 0xD0 vs 0xE8.
- * Flag lattice, command macros, cursor volatility, and register declarations did not close it; no donor used. */
+/* PLATEAU (2026-08-25): workbench structure-mismatch; best remains 276/293 words, first +0x0.
+ * Constant audit, dimension-lifetime, and targeted stack-layout levers did not improve the retained body.
+ * It remains 13 instructions short with a 0xD0 frame versus 0xE8 and 22 relocation-symbol mismatches. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0002510_18DDD30(Overlay101Gfx **displayList,
                                       Overlay101ClipNode *node,
