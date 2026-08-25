@@ -822,6 +822,9 @@ void func_8004C5A4(char *input, char *output, s32 number) {
     } while (currentChar);
 }
 
+/* Plateau (2026-08-25): -O2 -mips2 is 0x8 short with 105 differing words; first mismatch +0x0.
+ * A separate character index removes the s0 save and reusing blockCount fixes the chain lifetime;
+ * font/index allocation and IDO's peeled four-word header copy remain the likely blockers. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's
@@ -842,10 +845,10 @@ FontGlyphData *func_8004C690(s32 character) {
     s32 remaining;
     u32 blockCount;
     u32 copyIndex;
-    u8 nextLength;
     s32 fontIndex;
+    s32 characterIndex;
 
-    character &= 0xFF;
+    characterIndex = character & 0xFF;
     fontIndex = D_800D60E0;
     result = NULL;
     index = 0;
@@ -854,7 +857,7 @@ FontGlyphData *func_8004C690(s32 character) {
     entry = entries;
     do {
         index++;
-        if (fontIndex == entry->font && character == entry->character) {
+        if (fontIndex == entry->font && characterIndex == entry->character) {
             result = entry;
         }
         entry++;
@@ -862,6 +865,8 @@ FontGlyphData *func_8004C690(s32 character) {
 
     entry = entries;
     if (result != NULL) {
+        u8 nextLength;
+
         entry = result;
         do {
             nextLength = entry->chainLength;
@@ -892,22 +897,22 @@ FontGlyphData *func_8004C690(s32 character) {
             remaining = blockCount - 1;
             if (remaining >= 0) {
                 do {
-                    nextLength = entry->chainLength;
+                    blockCount = entry->chainLength;
                     entry->chainLength = remaining;
                     remaining--;
                     entry->font = fontIndex;
-                    entry->character = character;
+                    entry->character = characterIndex;
                     entry->state = 2;
                     entry++;
                 } while (remaining >= 0);
             }
-            if (nextLength != 0) {
+            if (blockCount != 0) {
                 do {
-                    nextLength = entry->chainLength;
+                    blockCount = entry->chainLength;
                     entry->font = 0xFF;
                     entry->chainLength = 0;
                     entry++;
-                } while (nextLength != 0);
+                } while (blockCount != 0);
             }
 
             header = (s32 *)
@@ -921,7 +926,7 @@ FontGlyphData *func_8004C690(s32 character) {
             } while (copyIndex < 4);
 
             piRomLoadSection(0x39, header,
-                          font->romOffset + (character * font->textureSize),
+                          font->romOffset + (characterIndex * font->textureSize),
                           font->textureSize);
             result->textureOffset =
                 (result->allocationOffset + ((u16 *) header)[0]) - 0x10;
