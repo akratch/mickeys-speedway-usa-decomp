@@ -21,10 +21,13 @@ void overlay101BuilderCreateReloc(Overlay101Gfx **displayList, s32 count,
 /*
  * Overlay 101 text +0x2DC0..+0x2EFC.  Volatile color locals and an explicit
  * final-record pointer retain the exact private-frame compiler basin.
- * Plateau (10 source-shape attempts): best candidate retains the exact 79
- * instructions and 136-byte frame but differs in 38 positional words; the
- * first mismatch is +0x44.  The remaining blocker is the straight-line
- * volatile-load/store schedule and its temporary register web.
+ * Plateau: the prior 10 source-shape attempts and a fresh 119-combination
+ * flag lattice plus four structural variants all retain the best exact 79
+ * instructions and 136-byte frame but differ in 38 positional words; the
+ * first mismatch is +0x44. Complete-record ordering, old-style call
+ * declarations, named boundary temporaries, and direct typed-array access did
+ * not improve it. The remaining blocker is the straight-line volatile-load/
+ * store schedule and its temporary register web.
  */
 #ifdef NON_MATCHING
 void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
