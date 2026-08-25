@@ -61,6 +61,7 @@ extern void func_80000510(u8 value, s16 arg1);
 extern s32 func_80005820(s32 arg0);
 extern u8 *func_80028F54(void);
 extern void func_80039A9C(s32 assetId);
+extern void func_80039BE4(s32 assetId);
 extern void func_80039720(s32 updateRate);
 extern void func_80044BC8(s32 arg0, u8 *source, s32 line);
 extern u32 joyGetButtons(s32 controller);
@@ -425,7 +426,15 @@ void freeFrontEndList(s16 *assetGroup) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039A9C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039B88.s")
+/* PROVENANCE: body adapted from DKR's public src/menu.c::menu_assetgroup_load;
+ * JFG's public src/menu.c supplies the loadFrontEndList role and order. */
+void loadFrontEndList(s16 *assetGroup) {
+    s32 index = 0;
+
+    while (assetGroup[index] != -1) {
+        func_80039BE4(assetGroup[index++]);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039BE4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039D50.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/setupFrontEndObject.s")
