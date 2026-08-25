@@ -2883,9 +2883,9 @@ void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     D_8007C8E8 ^= 1;
 }
 #ifdef NON_MATCHING
-/* Opcode- and size-exact plateau: 25/42 positional words differ, first at
- * +0x0, all in the two nested-loop carrier pairs. An explicit end pointer
- * changes the frame; the implicit end/start schedule seeds opposite colors. */
+/* Workbench: 42 instructions/opcodes exact; 10 register-only words from +0x0.
+ * Tried the flag lattice, formation order, dead webs, and end-address levers.
+ * Remaining: outer pool/cursor swap and end/start relocation completion order. */
 void partNullifyCircularParticleParents(ParticlePosition *position) {
     CircularParticle *particle;
     CircularParticlePool *pool;
@@ -2896,8 +2896,8 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
     do {
         pool = *poolPtr;
         poolPtr++;
-        i = 0;
         particle = pool->particles;
+        i = 0;
         if (pool->count > 0) {
             do {
                 i++;
