@@ -81,6 +81,8 @@ extern s32 D_800BF7A8;
 extern s32 D_800BF7B0;
 extern s32 D_800BF7B8;
 extern s32 D_800BF7BC;
+extern s32 D_800BF7C0;
+extern s32 D_800BF7C4;
 extern u8 D_800BFA08;
 extern u8 *D_800BF7A4;
 extern s32 osTvType;
@@ -148,7 +150,24 @@ void amTuneSetFadeScaled(f32 fade, u8 volume) {
 void amTuneResetFade(void) {
     D_80078D7C = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000073C.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amAmbientSetFade. */
+void amAmbientSetFade(f32 fade, u8 volume) {
+    if (volume > 0x7F) {
+        volume = 0x7F;
+    }
+    D_800BF7C0 = volume;
+    if (osTvType == 0) {
+        D_80078D80 = fade * 50.0f;
+    } else {
+        D_80078D80 = fade * 60.0f;
+    }
+    if (D_80078D80 > 0) {
+        D_800BF7C4 = ((D_80078D68 - volume) << 16) / D_80078D80;
+    } else {
+        amTuneSetVolume(volume);
+    }
+}
+
 /* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
 void amAmbientResetFade(void) {
     D_80078D80 = 0;
