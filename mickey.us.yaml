@@ -785,7 +785,7 @@ segments:
       - [0x1858450, c, overlay2AdjacentIndices]
       - [0x1858498, c, overlay2QueryNode]
       - [0x185888C, c, func_overlay_002_F0001A94_185888C]
-      - [0x1858BF0, asm, overlay_002_middle_b1_b]
+      - [0x1858BF0, c, func_overlay_002_F0001DF8_1858BF0]
       - [0x1859320, c, overlay2CopyColor]
       - [0x1859340, asm, overlay_002_tail]
       - [0x1859348, bin, overlay_002_data_rodata]
