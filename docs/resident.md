@@ -278,9 +278,9 @@ semantics or constants.
 Structure-buckets and distinct-initial-value forms compile identically under the stock flag lattice.
 A delay-slot copy and its dependent temporary web remain unrecovered, so assembly stays canonical.
 
-`func_8004BA8C` plateaus at the exact 46-word size and relocation surface under stock flags: 10 positional words differ, first at `+0x18`.
-A distinct default-width local closes 18 prior residuals; the target frame is `0x30` versus the candidate's `0x28`.
-The remaining blocker is the font-record pointer web and its two conversion-call spill slots (`+0x18`/`+0x20` target, `+0x1C`/`+0x24` candidate).
+`func_8004BA8C` is exact in 42/46 words with the target frame and relocations; four register-only words differ first at `+0x30`.
+Workbench reports one `v0`/`a3` font-data web; the restored width-hoist/u32-index body is the best retained candidate.
+Fresh explicit byte-offset and base-pointer forms regress the schedule, so assembly stays canonical.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),

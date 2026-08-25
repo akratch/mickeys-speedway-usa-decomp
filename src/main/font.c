@@ -436,6 +436,9 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
  * PROVENANCE -- source organization was cross-checked against JFG's
  * permitted published fontStringWidth assembly and DKR's Japanese
  * get_text_width body. Mickey's own m2c draft and data layout are authority.
+ * Plateau: exact 46-word size, frame, and relocations, with four register-only
+ * words differing first at +0x30. Workbench identifies one v0-to-a3 font-data
+ * web; explicit byte-offset and base-pointer forms regress the exact schedule.
  */
 /* Workbench: 46 instructions/opcodes and 0x30 frame exact; 8 words from +0x30.
  * Tried the flag lattice, formation order, stack-pad placement, and aliasing.
@@ -447,6 +450,11 @@ s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     s32 width;
     u8 current;
     u8 defaultWidth;
+    s32 width;
+    u32 glyphIndex;
+    u8 *spacing;
+    FontSpacingData *fontData;
+    u8 current;
     u8 glyphWidth;
 
     if (&stackPad);
