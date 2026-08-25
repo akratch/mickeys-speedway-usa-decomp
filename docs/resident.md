@@ -2398,7 +2398,7 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Ninety-three functions / 8,104 bytes compile exactly
+**Matching progress.** Ninety-four functions / 8,444 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -2406,15 +2406,15 @@ linked ranges and the full ROM are exact.
   `joyCreateMap`, `joyGetController`, `joyGetButtons`, `joyGetPressed`,
   `joyGetReleased`, `joyGetStickX`, `joyGetAbsX`, `joyGetStickY`, `joyGetAbsY`,
   `joyClamp`, `joySetSecurity`, `arithmeticFunction`, and `joyCharVal`.
-- `main/level` (18 / 1,324 bytes): `levelNGetType`, `levelGetTune`,
+- `main/level` (18 / 1,404 bytes): `levelNGetType`, `levelGetTune`,
   `levelGetWorld`, `levelGetRegionNo`, `levelGetScreenMode`,
   `levelGetBlurEffect`, `levelGetGfxIndex`, `levelGetColourCycling`,
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (59 / 5,784 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
+- `main/main` (60 / 6,044 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
   `mainGameWindowChanging`,
-  `mainGameWindowSize`, `mainSetGameWindow`, `mainSetAnimGroup`,
+  `mainGameWindowSize`, `mainCPUeffects`, `mainSetGameWindow`, `mainSetAnimGroup`,
   `mainGetAnimGroup`,
   `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
   `func_80027628`, `mainAddZBCheck`,
@@ -2442,7 +2442,11 @@ linked ranges and the full ROM are exact.
 The exact source preserves Mickey's six-byte level-summary and controller-pad
 layouts, packed flag extractions, bounded/wraparound searches, and guarded
 input calls. `arithmeticFunction` binds its three unavailable CIC-overlay
-calls to Mickey's existing `TrapDanglingJump` relocations.
+calls to Mickey's existing `TrapDanglingJump` relocations. `mainCPUeffects`
+reproduces its cropped-framebuffer register allocation by beginning the
+product-plus-base update before the independent height calculation; its typed
+rain callback alias is folded back to the target `TrapDanglingJump` symbol in
+ELF metadata without changing an instruction word.
 
 Two ABI/name exceptions remain explicit. Mickey's `mainGameWindowChanging`
 returns a 32-bit word, not JFG's declared `s16`; the JFG signature changed the
@@ -2509,15 +2513,6 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
   removes three dead-looking countdown-loop register copies retained by the
   target.
-- `mainCPUeffects`, seventeen type/expression/storage hypotheses and the full flag
-  lattice, first mismatch `+0x48`: the best Mickey-derived candidate preserves
-  all 85 target opcodes, the 340-byte boundary and `-0x40` frame, but ten
-  temp-FIFO register operands differ in the cropped-framebuffer calculation.
-  Its typed overlay-call alias also retains a different relocation identity at
-  `+0xd8`; the natural unprototyped call instead promotes the float arguments,
-  adding four instructions and eight frame bytes. A typed function-pointer
-  cast emits an indirect call, while raw-integer framebuffer and zero-code
-  FIFO/line probes normalize back to the same object.
 - `func_80027D14`, eight control-flow/register-lifetime hypotheses, the full
   flag lattice and a bounded two-worker permuter batch, first mismatch `+0x0`:
   the best Mickey-derived interpolation candidate compiles to 92 rather than
