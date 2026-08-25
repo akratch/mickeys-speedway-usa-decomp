@@ -8,6 +8,15 @@ extern Object **overlay3GetObjectRangeReloc(s32 *, s32 *);
 extern s32 overlay3ContainsValueReloc(Object *, Object *);
 extern f32 overlay3DistanceSquaredReloc(f32, f32, f32, f32, f32, f32);
 extern f32 gOverlay3SearchMaxDistance[];
+/*
+ * Plateau (2026-08-25): the 77-word candidate has exact size, control flow,
+ * and relocation surface at 99.52% objdiff.  Four non-relocation words differ,
+ * first at +0x40, all from the loaded start index using one caller register
+ * instead of the target's allocation.  The flag lattice was neutral.  A
+ * bounded ten-minute permuter run reduced cost 45 to 35 only with volatile
+ * output storage and extra temporaries; the coherent condition-temporary
+ * subset enlarged the frame and was rejected.
+ */
 #ifdef NON_MATCHING
 Object *overlay3FindClosestObject(Object *anchor, void *unused) {
     s32 pad;
