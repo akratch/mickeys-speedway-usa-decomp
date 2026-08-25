@@ -511,7 +511,17 @@ void func_800221E8(Gfx **dlist, Mtx **mtx) {
 void func_80022604(s32 arg0) {
     D_80079F8C = arg0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022610.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetScissor. */
+void camSetScissor(Gfx **dlist) {
+    u32 x1;
+    u32 y1;
+    u32 x2;
+    u32 y2;
+
+    func_80021FB0(D_800CEC60, D_800CEC64, (s32 *) &x1, (s32 *) &y1,
+                  &x2, &y2);
+    gDPSetScissor((*dlist)++, G_SC_NON_INTERLACE, x1, y1, x2, y2);
+}
 /*
  * PROVENANCE: adapted from JFG's public decomp,
  * src/camera.c:camGetPlayerProjMtx.
