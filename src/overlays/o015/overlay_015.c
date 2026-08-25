@@ -19,6 +19,9 @@ void overlay15ReleaseResource(void) {
     }
 }
 
+/* Plateau (2026-08-25, batch 36): canonical -O2 -mips2 is four bytes
+ * short; best 230/247 words differ, first at +0x4. Field-order/count-address
+ * lifetimes improved 238 to 230; lattice, playbook, and 40m permuter found no exact. */
 #ifdef NON_MATCHING
 void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
                                   s32 zRange, u32 startColor, u32 endColor,
@@ -38,31 +41,33 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
     s32 deltaB;
     s32 starCount;
     s32 previousStarIndex;
+    s32 *countAddress;
 
+    starIndex = count * 12;
     starCount = count;
-    starIndex = starCount * 12;
     stars = overlay15Allocate(starIndex + 0x200, 0x87);
     gOverlay15Stars = stars;
     gOverlay15StarPalette = (u16 *) ((u8 *) stars + starIndex);
 
     gOverlay15InitBounds.xRange = (f32) xRange;
     gOverlay15InitBounds.xMin = gOverlay15InitBounds.xRange * -0.5f;
+    xRange <<= 7;
     gOverlay15InitBounds.xMax = gOverlay15InitBounds.xRange * 0.5f;
     gOverlay15InitBounds.yRange = (f32) yRange;
     gOverlay15InitBounds.yMin = gOverlay15InitBounds.yRange * -0.5f;
+    yRange <<= 7;
     gOverlay15InitBounds.yMax = gOverlay15InitBounds.yRange * 0.5f;
     gOverlay15InitBounds.zRange = (f32) zRange;
+    zRange = (zRange + 1) << 8;
+    countAddress = &gOverlay15StarCount;
+    *countAddress = starCount;
     gOverlay15InitBounds.zero = 0;
     gOverlay15InitBounds.colorDivisor = (f32) colorDivisor;
     gOverlay15InitBounds.zMax = gOverlay15InitBounds.zRange + 1.0f;
-    gOverlay15StarCount = starCount;
     gOverlay15InitBounds.zMin = 1.0f;
     gOverlay15InitBounds.colorStep =
         255.0f / gOverlay15InitBounds.colorDivisor;
 
-    xRange <<= 7;
-    yRange <<= 7;
-    zRange = (zRange + 1) << 8;
     starIndex = 1;
     if (starCount > 0) {
         do {
@@ -75,7 +80,7 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
             previousStarIndex = starIndex;
             starIndex++;
             stars++;
-        } while (previousStarIndex < gOverlay15StarCount);
+        } while (previousStarIndex < *countAddress);
     }
 
     paletteIndex0 = 0;

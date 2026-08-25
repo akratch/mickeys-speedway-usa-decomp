@@ -62,12 +62,16 @@ extern void overlay29EmitReloc(s32 id, f32 x, f32 y, f32 z, s32 type, s32 arg);
         record->angle1 = object->angle1; \
         record->angle2 = object->angle2; \
         record->scalar = object->scalar; \
-        record->random0 = overlay29RandomRangeReloc(-0x500, 0x500); \
-        record->random1 = overlay29RandomRangeReloc(-0x500, 0x500); \
-        record->random2 = overlay29RandomRangeReloc(-0x500, 0x500); \
-        record->value = 0xFF; \
+        record->random0 = overlay29RandomRangeReloc(-0x500, 0x500);       \
+        record->random1 = overlay29RandomRangeReloc(-0x500, 0x500);       \
+        *(volatile s16 *) &record->random2 =                              \
+            overlay29RandomRangeReloc(-0x500, 0x500);                     \
+        *(volatile s16 *) &record->value = 0xFF;                           \
     } while (0)
 
+/* Plateau (2026-08-25, batch 36): exact-size at 257 words; 38 differ, first +0x50.
+ * Unsigned-angle and volatile-store ordering cut 100 to 38; residuals are four-byte
+ * angle/record stack homes after the lattice, playbook, and 40m canonical permuter. */
 #ifdef NON_MATCHING
 void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
     Overlay29Object *object;
@@ -88,7 +92,7 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
                                (state->direction.x * state->direction.x)),
             state->direction.y);
 
-        angles[1] = verticalAngle + 0x3000;
+        angles[1] = ((verticalAngle + 0x3000) & 0xFFFFU) & 0xFFFFU;
         angles[0] = baseAngle;
         record = &state->records[0];
         record->vector.x = 0.0f;
