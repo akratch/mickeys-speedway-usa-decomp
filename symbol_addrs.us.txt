@@ -550,7 +550,7 @@ __scTaskComplete = 0x8003134C; // type:func size:0x100 ROM 0x31f4c tier-B donor-
 __scAppendList = 0x8003144C; // type:func size:0x60 ROM 0x3204c tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 __scExec = 0x800314AC; // type:func size:0xC0 ROM 0x320ac tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 __scYield = 0x8003156C; // type:func size:0x4C ROM 0x3216c tier-B donor-jfg-src/sched.c scheduler-callgraph+order
-__scSchedule = 0x800315B8; // type:func size:0x1E8 ROM 0x321b8 tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scSchedule = 0x800315B8; // type:func size:0x1E8 ROM 0x321b8 tier-B NON_MATCHING exact-text plateau, shared jtbl_800823F4 ownership
 
 // rcp_dkr.c
 bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40 ROM 0x2f794 tier-A rcp_dkr.c.o masked=2/16 matched-C

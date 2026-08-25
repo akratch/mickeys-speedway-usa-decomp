@@ -27,6 +27,19 @@ typedef struct SchedGfx {
 #define PRE_NMI_MSG 669
 #define UNK_MSG 99
 
+#define OS_SC_DP 0x0001
+#define OS_SC_SP 0x0002
+#define OS_SC_YIELDED 0x0020
+#define OS_SC_DRAM_DLIST 0x0004
+#define OS_SC_PARALLEL_TASK 0x0010
+#define OS_SC_TYPE_MASK 0x0007
+#define OS_SC_XBUS (OS_SC_SP | OS_SC_DP)
+#define OS_SC_DRAM (OS_SC_SP | OS_SC_DP | OS_SC_DRAM_DLIST)
+#define OS_SC_DP_XBUS OS_SC_SP
+#define OS_SC_DP_DRAM (OS_SC_SP | OS_SC_DRAM_DLIST)
+#define OS_SC_SP_XBUS OS_SC_DP
+#define OS_SC_SP_DRAM (OS_SC_DP | OS_SC_DRAM_DLIST)
+
 extern s32 D_8007A640;
 extern s32 D_8007A648;
 extern s32 D_8007A650;
@@ -820,4 +833,86 @@ void __scYield(OSSched *sc) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scYield.s")
 #endif
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scSchedule. */
+s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
+    s32 avail = availRCP;
+    OSScTask *gfx = sc->gfxListHead;
+    OSScTask *audio = sc->audioListHead;
+
+    if (sc->doAudio && (avail & OS_SC_SP)) {
+        if (gfx && (gfx->flags & OS_SC_PARALLEL_TASK)) {
+            *sp = gfx;
+            avail &= ~OS_SC_SP;
+        } else {
+            *sp = audio;
+            avail &= ~OS_SC_SP;
+            sc->doAudio = 0;
+            sc->audioListHead = sc->audioListHead->next;
+            if (sc->audioListHead == NULL) {
+                sc->audioListTail = NULL;
+            }
+        }
+    } else if (__scTaskReady(gfx)) {
+        switch (gfx->flags & OS_SC_TYPE_MASK) {
+            case OS_SC_XBUS:
+                if (gfx->state & OS_SC_YIELDED) {
+                    if (avail & OS_SC_SP) {
+                        *sp = gfx;
+                        avail &= ~OS_SC_SP;
+                        if (gfx->state & OS_SC_DP) {
+                            *dp = gfx;
+                            avail &= ~OS_SC_DP;
+                        }
+                        sc->gfxListHead = sc->gfxListHead->next;
+                        if (sc->gfxListHead == NULL) {
+                            sc->gfxListTail = NULL;
+                        }
+                    }
+                } else if (avail == (OS_SC_SP | OS_SC_DP)) {
+                    *sp = *dp = gfx;
+                    avail &= ~(OS_SC_SP | OS_SC_DP);
+                    sc->gfxListHead = sc->gfxListHead->next;
+                    if (sc->gfxListHead == NULL) {
+                        sc->gfxListTail = NULL;
+                    }
+                }
+                break;
+
+            case OS_SC_DRAM:
+            case OS_SC_DP_DRAM:
+            case OS_SC_DP_XBUS:
+                if (gfx->state & OS_SC_SP) {
+                    if (avail & OS_SC_SP) {
+                        *sp = gfx;
+                        avail &= ~OS_SC_SP;
+                    }
+                }
+                if (gfx->state & OS_SC_DP) {
+                    if (avail & OS_SC_DP) {
+                        *dp = gfx;
+                        avail &= ~OS_SC_DP;
+                        sc->gfxListHead = sc->gfxListHead->next;
+                        if (sc->gfxListHead == NULL) {
+                            sc->gfxListTail = NULL;
+                        }
+                    }
+                }
+                break;
+
+            case OS_SC_SP_DRAM:
+            case OS_SC_SP_XBUS:
+            default:
+                break;
+        }
+    }
+
+    if (avail != availRCP) {
+        avail = __scSchedule(sc, sp, dp, avail);
+    }
+    return avail;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scSchedule.s")
+#endif

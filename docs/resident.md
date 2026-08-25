@@ -1657,6 +1657,18 @@ more instructions. JFG supplies the exact assembly skeleton and scheduler
 position but no C body. The assembly fallback remains canonical pending a
 source spelling that reproduces both stack homes without synthetic padding.
 
+`__scSchedule` retains a JFG-derived `NON_MATCHING` body whose 122 instruction
+words and 0x28-byte frame are exact under the resident flags and the full
+119-combination lattice. Perfect Dark's compiled scheduler is the closest
+independent skeleton at 0.857 similarity, while Mickey's two independent RCP
+state checks select JFG's source spelling. Promotion is blocked by rodata
+ownership rather than C: both switch relocations bind the compiler's anonymous
+late-rodata section, while Mickey's existing seven-entry `jtbl_800823F4`
+remains in the shared `0x81590` rodata object and names assembly-local case
+labels. Removing the fallback therefore leaves those seven entries undefined.
+Moving the table requires a measured YAML/shared-rodata boundary handoff
+outside this lane's assigned files, so the assembly fallback remains canonical.
+
 `__scYield` also retains a `NON_MATCHING` JFG-derived body. The resident flag
 lattice and five storage/source shapes leave the faithful external-`u64`
 candidate at 20 instructions versus the target's 19, with the first positional
