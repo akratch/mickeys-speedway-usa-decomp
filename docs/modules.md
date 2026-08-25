@@ -499,7 +499,10 @@ spill is at the exact `sp+0x18` slot, but the spacing pointer lands at
 `sp+0x24` instead of `sp+0x20`, causing IDO to restore the stack before the
 loop and cascading into 28 positional word differences. The stock flag
 lattice remained best; ten source-shape and local-order attempts did not
-recover the retail spill layout.
+recover the retail spill layout. A focused retry after the independently
+observed IDO source-line scheduling effect in `runlinkFlushModules` explored
+formatting-only permutations for three minutes without improving the canonical
+475 permuter score; the frame and spill layout are insensitive to that lever.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
