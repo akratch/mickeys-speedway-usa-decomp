@@ -62,6 +62,12 @@ typedef struct AudioEchoSurface {
     u32 flags;
 } AudioEchoSurface;
 
+typedef struct AudioVector3 {
+    f32 x;
+    f32 y;
+    f32 z;
+} AudioVector3;
+
 extern AudioSoundData *D_800C91E0;
 extern AudioPoint **D_800C91E4;
 extern AudioPoint *D_800C91E8;
@@ -448,4 +454,32 @@ u8 func_800033B0(void *sound, f32 x, f32 y, f32 z) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800035F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003760.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800037C4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800038EC.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * amSndGetXYZVolume; body and settings layout use Mickey-only evidence.
+ */
+s32 func_800038EC(u16 soundId, AudioVector3 *position,
+                  AudioVector3 *listener) {
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    f32 distance;
+    f32 range;
+    s32 volume;
+    s32 attenuated;
+
+    dx = position->x - listener->x;
+    dy = position->y - listener->y;
+    dz = position->z - listener->z;
+    distance = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+    volume = D_800C91E0[soundId].minVolume;
+    range = D_800C91E0[soundId].range;
+    if (distance < range) {
+        attenuated = (s32)(D_800C91E0[soundId].volume *
+                           (1.0f - (distance / range)));
+        if (volume < attenuated) {
+            volume = attenuated;
+        }
+    }
+    return volume;
+}
