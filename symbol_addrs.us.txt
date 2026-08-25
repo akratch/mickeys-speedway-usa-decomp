@@ -1984,6 +1984,7 @@ func_800016EC = 0x800016EC; // type:func size:0x1C ROM 0x22ec tier B (overlay ca
 func_80001708 = 0x80001708; // type:func size:0x38 ROM 0x2308 tier B (resident caller and master-volume reset, name unproved)
 func_8000309C = 0x8000309C; // type:func size:0x18 ROM 0x3c9c tier-B (JFG amSndSetVolXYZ body/order, name unproved)
 func_800030B4 = 0x800030B4; // type:func size:0x18 ROM 0x3cb4 tier-B (JFG amSndSetPitchXYZ body/order, name unproved)
+func_800030CC = 0x800030CC; // type:func size:0xF4 ROM 0x3ccc tier-B (JFG amSndPlayDirectXYZ body/order, name unproved)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
