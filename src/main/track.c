@@ -137,6 +137,14 @@ typedef union TrackSegmentIndex {
     TrackBoundingBox *bounds;
 } TrackSegmentIndex;
 
+typedef struct TrackBspNode {
+    s16 left;
+    s16 right;
+    u8 axis;
+    u8 segmentIndex;
+    s16 splitValue;
+} TrackBspNode;
+
 typedef struct TrackData {
     TrackTextureEntry *textures;
     TrackSegment *segments;
@@ -301,6 +309,7 @@ s32 func_80013324(f32 coefficient, f32 numerator,
                   f32 *minimum, f32 *maximum);
 f32 func_8002A8C0(s32 angle);
 void func_8000F82C(s32 start, s32 count, s32 end);
+s32 func_80010178(s32 segmentIndex);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
 void func_8000D820(void);
@@ -829,7 +838,56 @@ void func_8000D978(s32 copySegmentData, s32 updateRate) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E920.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F198.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F57C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F82C.s")
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * `traverse_segments_bsp_tree`; JFG's assembly-only `func_800150A4` confirms
+ * the same TU role. Mickey's global result state and integer camera values are
+ * authoritative, and the donor names are not imported.
+ */
+void func_8000F82C(s32 nodeIndex, s32 segmentIndex, s32 segmentIndex2) {
+    TrackBspNode *node;
+    s32 cameraValue;
+
+    node = (TrackBspNode *)
+        ((nodeIndex * sizeof(TrackBspNode)) + (u8 *) D_800C9574);
+    if (node->axis == 0) {
+        cameraValue = D_800C954C;
+    } else if (node->axis == 1) {
+        cameraValue = D_800C9554;
+    } else {
+        cameraValue = D_800C955C;
+    }
+
+    if (cameraValue < node->splitValue) {
+        if (node->left != -1) {
+            func_8000F82C(node->left, segmentIndex,
+                          node->segmentIndex - 1);
+        } else if (func_80010178(segmentIndex) != 0) {
+            ((u8 *) D_800C956C)[D_800C9564++] = segmentIndex;
+        }
+
+        if (node->right != -1) {
+            func_8000F82C(node->right, node->segmentIndex,
+                          segmentIndex2);
+        } else if (func_80010178(segmentIndex2) != 0) {
+            ((u8 *) D_800C956C)[D_800C9564++] = segmentIndex2;
+        }
+    } else {
+        if (node->right != -1) {
+            func_8000F82C(node->right, node->segmentIndex,
+                          segmentIndex2);
+        } else if (func_80010178(segmentIndex2) != 0) {
+            ((u8 *) D_800C956C)[D_800C9564++] = segmentIndex2;
+        }
+
+        if (node->left != -1) {
+            func_8000F82C(node->left, segmentIndex,
+                          node->segmentIndex - 1);
+        } else if (func_80010178(segmentIndex) != 0) {
+            ((u8 *) D_800C956C)[D_800C9564++] = segmentIndex;
+        }
+    }
+}
 void func_8000FA2C(s32 *result, s32 arg1) {
     D_800C954C = D_800C9530->x;
     D_800C9554 = D_800C9530->y;
