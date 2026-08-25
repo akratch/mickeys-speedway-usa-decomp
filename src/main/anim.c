@@ -29,6 +29,7 @@ extern s16 D_800D6C4C;
 extern s16 D_800D6C52;
 extern s16 D_800D6C54;
 extern f32 D_8007D6B4;
+extern f32 D_80084218;
 
 typedef struct AnimCameraSource {
     s16 unk0;
@@ -67,11 +68,28 @@ typedef struct AnimLightReset {
     u8 pad34[0xC];
 } AnimLightReset;
 
+typedef struct AnimScrollReset {
+    u8 unk0;
+    u8 pad1[3];
+    s32 unk4;
+    u8 pad8[4];
+    s32 unkC;
+    u8 pad10[4];
+} AnimScrollReset;
+
+typedef struct AnimLockonReset {
+    s8 unk0;
+    u8 pad1[7];
+} AnimLockonReset;
+
 extern AnimLightReset D_800D6C58[];
 
 void *func_8002B280();
 void piRomLoadSection();
 void func_80021504(f32 value, s32 arg1);
+f32 sqrtf(f32 value);
+extern void func_800031E8(s32 handle);
+HitCopyState **func_80005750(s32 *count);
 
 /*
  * PROVENANCE: adapted from JFG's func_80076020_76C20. Mickey's globals and
@@ -226,7 +244,56 @@ void func_800502CC(u8 pathIndex) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050348.s")
+#ifdef NON_MATCHING
+/*
+ * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
+ * Plateau: exact 75-instruction size; first mismatch +0x40. The typed trap
+ * alias leaves one relocation identity and the remaining allocator cycle.
+ */
+#pragma weak animResetTrap = TrapDanglingJump
+extern s32 animResetTrap(AnimPath *, f32, s32, s32);
+void func_8005055C(u8 pathIndex) {
+    AnimPath *path;
+    AnimPathObject *object;
+    s32 soundHandle;
+
+    path = D_800D6B00[pathIndex];
+    if (path != NULL) {
+        if (!(path->flags & 8)) {
+            object = path->unk8;
+            path->flags &= 0x80;
+            path->unk10 = 1.0f;
+            path->unk1 = path->unk0;
+            path->unk1C = 0.0f;
+            path->unk14 = path->unk6;
+            path->unk15 = path->unk7;
+            path->currentNode = path->nodes;
+            path->unkC = path->unk4 / 16384.0f;
+            if (object != NULL) {
+                object->unk6 |= 0x400;
+                path->unk24 = 0xFF;
+                path->unk25 = 0xFF;
+                path->unk26 = 0;
+                path->unk27 = 0;
+                path->unk2A = 0;
+                path->unk2C = 1.0f;
+                path->unk30 = 0.0f;
+                if (path->unk8->unk58 != NULL) {
+                    path->unk8->unk58->unk132 = 0;
+                }
+                animResetTrap(path, 0.0f, 0, 0);
+                soundHandle = object->soundHandle;
+                if (soundHandle != 0) {
+                    func_800031E8(soundHandle);
+                    object->soundHandle = 0;
+                }
+            }
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005055C.s")
+#endif
 void animseqStartPath(u8 pathIndex) {
     AnimPath *path;
     AnimPathObject *object;
@@ -317,8 +384,115 @@ AnimPath *func_800508B4(u8 pathIndex) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800508D4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050AD4.s")
+/* JFG's animseqLinkNodes assembly corroborates this Mickey-led body. */
+void func_80050AD4(u8 pathIndex) {
+    AnimPath *path;
+    s32 nodeIndex;
+
+    path = D_800D6B00[pathIndex];
+    if (path != NULL) {
+        if (path->nodeCount >= 2) {
+            nodeIndex = 0;
+            if (path->nodeCount > 0) {
+                do {
+                    if (nodeIndex > 0) {
+                        path->nodes[nodeIndex].previous =
+                            &path->nodes[nodeIndex - 1];
+                    }
+                    if (nodeIndex < path->nodeCount - 1) {
+                        path->nodes[nodeIndex].next =
+                            &path->nodes[nodeIndex + 1];
+                    }
+                    nodeIndex++;
+                } while (nodeIndex < path->nodeCount);
+            }
+        }
+        if (path->flags & 0x80) {
+            path->nodes[0].previous = &path->nodes[path->nodeCount - 1];
+            path->nodes[path->nodeCount - 1].next = &path->nodes[0];
+        } else {
+            path->nodes[0].previous = &path->nodes[0];
+            path->nodes[path->nodeCount - 1].next =
+                &path->nodes[path->nodeCount - 1];
+        }
+    }
+}
+/*
+ * PROVENANCE: adapted from JFG's src/anim.c animseqInit assembly. Mickey's
+ * globals, allocator call, data boundaries, and compiler output are
+ * independently established from Mickey's ROM.
+ *
+ * Plateau after 10 source/type shapes and a bounded canonical-flag permuter
+ * run: the best semantic candidate has 84 of the target's 87 instructions,
+ * first mismatch +0x34. IDO folds three repeated array-base HI/LO pairs into
+ * carried registers; the lower-scoring permuter result made a loop invariant.
+ */
+#ifdef NON_MATCHING
+void func_80050BF4(void) {
+    s32 emptyIndex;
+    s32 offset;
+    AnimCameraSource **camera;
+    void **sound;
+    AnimScrollReset *scroll;
+    AnimLockonReset *lockon;
+    AnimLightReset *light;
+
+    D_800D6B04 = piRomLoad(0x3D);
+    D_800D6B00 = func_8002B280(0x400, 0x81);
+    offset = 0;
+    do {
+        *(s32 *) ((u8 *) D_800D6B00 + offset) = 0;
+        offset += 4;
+    } while (offset < 0x400);
+
+    camera = D_800D6B08;
+    do {
+        *camera = NULL;
+        camera++;
+    } while (camera < (AnimCameraSource **) D_800D6B18);
+
+    sound = D_800D6B18;
+    do {
+        *sound = NULL;
+        sound++;
+    } while (sound < D_800D6B58);
+
+    scroll = (AnimScrollReset *) D_800D6B58;
+    do {
+        scroll->unk0 = 0xFF;
+        scroll->unk4 = 0;
+        scroll->unkC = 0;
+        scroll++;
+    } while (scroll < (AnimScrollReset *) D_800D6BF8);
+
+    emptyIndex = -1;
+    lockon = (AnimLockonReset *) D_800D6BF8;
+    do {
+        lockon->unk0 = emptyIndex;
+        lockon++;
+    } while (lockon < (AnimLockonReset *) D_800D6C38);
+
+    D_8007D6B0 = 0;
+    light = D_800D6C58;
+    do {
+        light->unk0 = 0;
+        light->unk10 = 0;
+        light->unk20 = 0;
+        light->unk30 = 0;
+        light++;
+    } while (light != (AnimLightReset *) D_800D6D18);
+
+    D_800D6C3E = 0;
+    D_800D6C44 = 0;
+    D_800D6C48 = 0;
+    D_800D6C52 = 0xFF;
+    D_800D6C54 = D_800D6C52;
+    D_800D6C4C = 0;
+    func_800534C0();
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050BF4.s")
+#endif
 void func_80050D50(void) {
     void **entry = D_800D6B18, **end = D_800D6B58;
     do {
@@ -463,7 +637,87 @@ void animseqResetGroup(void) {
         func_800534C0();
     }
 }
+
+typedef struct AnimGroupPathHeader {
+    u8 nodeCount;
+    u8 unk1;
+    s16 unk2;
+    s16 unk4;
+    u8 unk6;
+    u8 flags;
+    u8 nodeData[1];
+} AnimGroupPathHeader;
+
+void func_800508D4();
+
+/*
+ * PROVENANCE: adapted from JFG's func_80077468_78068 assembly. Mickey's
+ * resident globals, packed fields, call identities, and output are checked
+ * independently against Mickey's ROM.
+ *
+ * Plateau after 10 source/lifetime shapes and a bounded canonical-flag
+ * permuter: the best semantic candidate has the exact 104-instruction size,
+ * 0x48 frame, and five call relocations, but 58 allocation/schedule words
+ * remain from first mismatch +0x34. The target copies the header count through
+ * v0/s0 and reuses one scaled path offset; IDO instead keeps the count in s4
+ * and rematerializes that offset. The 490-score permutation is one word long.
+ */
+#ifdef NON_MATCHING
+void func_800511C4(void) {
+    u32 *entryCursor;
+    s32 remaining;
+    u32 entryWord;
+    AnimGroupPathHeader *source;
+    AnimPath *path;
+    s32 highBit;
+
+    entryCursor = (u32 *) D_8007D68C;
+    remaining = (*entryCursor >> 24) & 0xFF;
+    entryCursor++;
+    func_8005027C();
+    if (remaining > 0) {
+        highBit = 0x80;
+        do {
+            entryWord = *entryCursor++;
+            source = (AnimGroupPathHeader *)
+                ((u8 *) D_8007D68C + (entryWord & 0xFFFFFF));
+            D_800D6B00[(entryWord >> 24) & 0xFF] =
+                func_8002B280((source->nodeCount * sizeof(AnimPathNode)) +
+                                  sizeof(AnimPath),
+                              0x81);
+            entryWord >>= 24;
+            path = D_800D6B00[entryWord & 0xFF];
+            if (path != NULL) {
+                if (source->nodeCount > 0) {
+                    path->nodes = (AnimPathNode *)((u8 *)path +
+                                                   sizeof(AnimPath));
+                } else {
+                    path->nodes = NULL;
+                }
+                path->unk2 = source->unk2;
+                path->unk8 = NULL;
+                path->unk0 = source->unk1;
+                path->unk4 = source->unk4;
+                path->unk6 = source->unk6;
+                path->unk7 = source->flags;
+                path->flags = 0;
+                if (path->unk7 & highBit) {
+                    path->flags = highBit;
+                    path->unk7 &= 0x7F;
+                }
+                path->nodeCount = source->nodeCount;
+                func_8005055C(entryWord & 0xFF);
+                func_800508D4(path->nodeCount, path->nodes, source->nodeData,
+                              0, 0);
+                func_80050AD4(entryWord & 0xFF);
+            }
+            remaining--;
+        } while (remaining > 0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800511C4.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051364.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800517E0.s")
 /*
@@ -518,21 +772,539 @@ void func_800534EC(s32 arg0) {
     } while (i--);
 }
 
+typedef struct HitCollisionVehicle {
+    s8 playerIndex;
+    u8 pad1[0xC3];
+    s32 soundHandle;
+    u8 padC8[0x88];
+    f32 unk150;
+    u8 pad154[4];
+    s16 unk158;
+    s16 unk15A;
+    s16 unk15C;
+    u8 pad15E[0xA];
+    s16 unk168;
+    s16 unk16A;
+    u8 pad16C[0x19];
+    u8 unk185;
+    u8 pad186[2];
+    f32 unk188;
+    u8 pad18C[0x1C];
+    u16 flags1A8;
+    u8 pad1AA[0x20C];
+    s16 unk3B6;
+    s16 unk3B8;
+} HitCollisionVehicle;
+
+typedef struct HitCollisionLink {
+    u8 pad0[0x38];
+    HitCopyState *state;
+} HitCollisionLink;
+
+typedef struct HitCollisionNormalLink {
+    HitCopyState *state;
+    u8 pad4[0x10];
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+    f32 unk24;
+} HitCollisionNormalLink;
+
+void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
+                   void **handle);
+u8 *func_80028F54(void);
+void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053550.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053868.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80054B3C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055104.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800557F8.s")
+/* Mickey-local collision response reconstructed from its resident ABI. */
+void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
+    s32 priority;
+    HitCollisionLink *secondTarget;
+    HitCollisionVehicle *firstVehicle;
+    HitCopySource *source;
+    s32 soundHandle;
+    s32 timer;
+
+    secondTarget = (HitCollisionLink *) second->target;
+    priority = 4;
+    firstVehicle = (HitCollisionVehicle *) first->target;
+    source = second->source;
+    if ((firstVehicle->unk16A == 0) && (firstVehicle->unk168 == 0)) {
+        TrapDanglingJump(first, firstVehicle);
+        /* Preserve IDO's target v0 allocation without emitting code. */
+        if (1) {
+        }
+        timer = 0x258;
+        firstVehicle->unk158 = -0x7FFD;
+        firstVehicle->unk15A = timer;
+        firstVehicle->unk15C = timer;
+        firstVehicle->unk150 = 10.0f;
+        TrapDanglingJump(secondTarget->state, first);
+        /* Preserve IDO's target v0 allocation without emitting code. */
+        if (1) {
+        }
+        ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
+        firstVehicle->unk3B8++;
+        if (*func_80028F54() == 5) {
+            TrapDanglingJump(first);
+        }
+        soundHandle = firstVehicle->soundHandle;
+        firstVehicle->unk185 = 0;
+        firstVehicle->unk188 = 0.0f;
+        if (soundHandle != 0) {
+            func_800031E8(soundHandle);
+        }
+        if (!(firstVehicle->flags1A8 & 1)) {
+            rumbleStart(firstVehicle->playerIndex, 0x46, 0.75f);
+        }
+    } else {
+        func_80002FE0(0x26E, source->current.x, source->current.y,
+                      source->current.z, priority, NULL);
+    }
+    second->position.x = source->current.x;
+    second->position.y = source->current.y;
+    second->position.z = source->current.z;
+    source->previous.x = source->current.x;
+    source->previous.y = source->current.y;
+    source->previous.z = source->current.z;
+    TrapDanglingJump(second, 1);
+}
+#ifdef NON_MATCHING
+/*
+ * Mickey-local collision bookkeeping, state advance, and normal calculation.
+ * Plateau after the flag lattice, 10 allocation/lifetime shapes, and a bounded
+ * canonical-flag permuter: the full-TU candidate has the exact 109-instruction
+ * size and 0x50 frame, but the target keeps first in s2 and secondTarget in s3
+ * while IDO homes first on the stack and uses only s0-s2. That missing saved
+ * register shifts all seven call sites by one instruction (105 positional
+ * words differ, first +0x8). The best isolated permutation added an instruction
+ * when restored to the consolidated TU and was rejected.
+ */
+void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCollisionNormalLink *secondTarget;
+    HitCopySource *secondSource;
+    HitCopySource *firstSource;
+    HitCollisionVehicle *firstVehicle;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    secondTarget = (HitCollisionNormalLink *) second->target;
+    secondSource = second->source;
+    firstSource = first->source;
+    firstVehicle = (HitCollisionVehicle *) first->target;
+    if (TrapDanglingJump(firstVehicle) != 0) {
+        TrapDanglingJump(secondTarget->state, first, firstVehicle);
+        if (1) {
+        }
+        ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
+        firstVehicle->unk3B8++;
+        if (*func_80028F54() == 5) {
+            TrapDanglingJump(first);
+        }
+    } else {
+        func_80002FE0(0x26E, secondSource->current.x,
+                      secondSource->current.y, secondSource->current.z,
+                      4, NULL);
+    }
+    deltaX = second->position.x - secondSource->previous.x;
+    deltaY = second->position.y - secondSource->previous.y;
+    deltaZ = second->position.z - secondSource->previous.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+    second->position.x = secondSource->previous.x + deltaX;
+    second->position.y = secondSource->previous.y + deltaY;
+    second->position.z = secondSource->previous.z + deltaZ;
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    secondTarget->unk14 = deltaX / distance;
+    secondTarget->unk18 = deltaY / distance;
+    secondTarget->unk1C = deltaZ / distance;
+    TrapDanglingJump(second, 0xE);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055970.s")
+#endif
+#ifdef NON_MATCHING
+/*
+ * Mickey-local composition of the resident response and normal helpers.
+ * Plateau after the flag lattice, 10 source/lifetime shapes, and a bounded
+ * canonical-flag permuter: the candidate is exact for 113/121 instructions,
+ * all calls, the 0x50 frame, and FP schedule. Eight words remain from +0x20:
+ * five initial pointer-load/move scheduling words and the three-use 0x258
+ * temporary in v1 rather than v0. The isolated score-15 assignment reorder
+ * does not change full-TU output; score 85 adds an observable store and was
+ * rejected.
+ */
+void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCollisionNormalLink *secondTarget;
+    HitCopySource *secondSource;
+    HitCollisionVehicle *firstVehicle;
+    HitCopySource *firstSource;
+    s32 soundHandle;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    firstSource = first->source;
+    secondTarget = (HitCollisionNormalLink *) second->target;
+    secondSource = second->source;
+    firstVehicle = (HitCollisionVehicle *) first->target;
+    if ((firstVehicle->unk16A == 0) && (firstVehicle->unk168 == 0)) {
+        TrapDanglingJump(first, firstVehicle);
+        {
+            s32 timer;
+
+            timer = 0x258;
+            firstVehicle->unk158 = -0x7FFD;
+            firstVehicle->unk15A = timer;
+            firstVehicle->unk15C = timer;
+        }
+        firstVehicle->unk150 = 10.0f;
+        TrapDanglingJump(secondTarget->state, first);
+        if (1) {
+        }
+        ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
+        firstVehicle->unk3B8++;
+        if (*func_80028F54() == 5) {
+            TrapDanglingJump(first);
+        }
+        soundHandle = firstVehicle->soundHandle;
+        firstVehicle->unk185 = 0;
+        firstVehicle->unk188 = 0.0f;
+        if (soundHandle != 0) {
+            func_800031E8(soundHandle);
+        }
+        if (!(firstVehicle->flags1A8 & 1)) {
+            rumbleStart(firstVehicle->playerIndex, 0x46, 0.75f);
+        }
+    } else {
+        func_80002FE0(0x26E, secondSource->current.x,
+                      secondSource->current.y, secondSource->current.z,
+                      4, NULL);
+    }
+    second->position.x = secondSource->current.x;
+    second->position.y = secondSource->current.y;
+    second->position.z = secondSource->current.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    secondTarget->unk1C = deltaX / distance;
+    secondTarget->unk20 = deltaY / distance;
+    secondTarget->unk24 = deltaZ / distance;
+    TrapDanglingJump(second, 6);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055B24.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055D08.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055E50.s")
+#endif
+void func_80055D08(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    HitCopyTarget *target;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    firstSource = first->source;
+    first->position.x = firstSource->current.x;
+    first->position.y = firstSource->current.y;
+    first->position.z = firstSource->current.z;
+    firstSource->previous.x = firstSource->current.x;
+    firstSource->previous.y = firstSource->current.y;
+    firstSource->previous.z = firstSource->current.z;
+
+    secondSource = second->source;
+    deltaX = second->position.x - secondSource->previous.x;
+    deltaY = second->position.y - secondSource->previous.y;
+    deltaZ = second->position.z - secondSource->previous.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+    second->position.x = secondSource->previous.x + deltaX;
+    second->position.y = secondSource->previous.y + deltaY;
+    second->position.z = secondSource->previous.z + deltaZ;
+
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    target = second->target;
+    target->unk14 = deltaX / distance;
+    target->unk18 = deltaY / distance;
+    target->unk1C = deltaZ / distance;
+    TrapDanglingJump(first, 1, second);
+    TrapDanglingJump(second, 0x12);
+}
+void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    HitCopyTarget *target;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    firstSource = first->source;
+    first->position.x = firstSource->current.x;
+    first->position.y = firstSource->current.y;
+    first->position.z = firstSource->current.z;
+    firstSource->previous.x = firstSource->current.x;
+    firstSource->previous.y = firstSource->current.y;
+    firstSource->previous.z = firstSource->current.z;
+
+    secondSource = second->source;
+    second->position.x = secondSource->current.x;
+    second->position.y = secondSource->current.y;
+    second->position.z = secondSource->current.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    target = second->target;
+    target->unk1C = deltaX / distance;
+    target->unk20 = deltaY / distance;
+    target->unk24 = deltaZ / distance;
+    TrapDanglingJump(first, 1, second);
+    TrapDanglingJump(second, 0xA);
+}
+#ifdef NON_MATCHING
+/*
+ * No JFG hit.c function has this state-update and two-target normal shape.
+ * Plateau after 10 source/type shapes and a bounded canonical-flag permuter:
+ * the best semantic candidate has the exact 91-instruction size, 0x48 frame,
+ * stack homes, and call relocations, but 46 FP allocation/schedule words remain
+ * from first mismatch +0x2C. A score-10 permutation read an uninitialized float
+ * and was rejected as non-equivalent.
+ */
+void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    HitCopyTarget *secondTarget;
+    HitCopyTarget *firstTarget;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+    f32 secondX;
+    f32 secondY;
+    volatile f32 secondZ;
+    f32 secondZValue;
+
+    firstSource = first->source;
+    deltaX = first->position.x - firstSource->previous.x;
+    deltaY = first->position.y - firstSource->previous.y;
+    deltaZ = first->position.z - firstSource->previous.z;
+    firstSource->previous.x = firstSource->current.x;
+    firstSource->previous.y = firstSource->current.y;
+    firstSource->previous.z = firstSource->current.z;
+    first->position.x = firstSource->previous.x + deltaX;
+    first->position.y = firstSource->previous.y + deltaY;
+    first->position.z = firstSource->previous.z + deltaZ;
+
+    secondSource = second->source;
+    second->position.x = secondSource->current.x;
+    second->position.y = secondSource->current.y;
+    second->position.z = secondSource->current.z;
+    secondX = *(volatile f32 *)&secondSource->current.x;
+    secondY = *(volatile f32 *)&secondSource->current.y;
+    secondZValue = *(volatile f32 *)&secondSource->current.z;
+    secondSource->previous.x = secondX;
+    secondSource->previous.y = secondY;
+    secondZ = secondZValue;
+    secondSource->previous.z = secondZ;
+
+    deltaX = secondX - firstSource->current.x;
+    deltaY = secondY - firstSource->current.y;
+    deltaZ = secondZ - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    secondTarget = second->target;
+    secondTarget->unk1C = deltaX / distance;
+    secondTarget->unk20 = deltaY / distance;
+    secondTarget->unk24 = deltaZ / distance;
+    firstTarget = first->target;
+    firstTarget->unk14 = -secondTarget->unk1C;
+    firstTarget->unk18 = -secondTarget->unk20;
+    firstTarget->unk1C = -secondTarget->unk24;
+    TrapDanglingJump(first, 0x12, second);
+    TrapDanglingJump(second, 6);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055F64.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800560D0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056274.s")
+#endif
+void func_800560D0(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCopyTarget *firstTarget;
+    HitCopyTarget *secondTarget;
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    firstSource = first->source;
+    deltaX = first->position.x - firstSource->previous.x;
+    deltaY = first->position.y - firstSource->previous.y;
+    deltaZ = first->position.z - firstSource->previous.z;
+    firstTarget = first->target;
+    secondTarget = second->target;
+    secondSource = second->source;
+    firstSource->previous.x = firstSource->current.x;
+    firstSource->previous.y = firstSource->current.y;
+    firstSource->previous.z = firstSource->current.z;
+    first->position.x = firstSource->previous.x + deltaX;
+    first->position.y = firstSource->previous.y + deltaY;
+    first->position.z = firstSource->previous.z + deltaZ;
+
+    deltaX = second->position.x - secondSource->previous.x;
+    deltaY = second->position.y - secondSource->previous.y;
+    deltaZ = second->position.z - secondSource->previous.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+    second->position.x = secondSource->previous.x + deltaX;
+    second->position.y = secondSource->previous.y + deltaY;
+    second->position.z = secondSource->previous.z + deltaZ;
+
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    firstTarget->unk14 = deltaX / distance;
+    firstTarget->unk18 = deltaY / distance;
+    firstTarget->unk1C = deltaZ / distance;
+    secondTarget->unk14 = -firstTarget->unk14;
+    secondTarget->unk18 = -firstTarget->unk18;
+    secondTarget->unk1C = -firstTarget->unk1C;
+    TrapDanglingJump(first, 6);
+    TrapDanglingJump(second, 0x12);
+}
+void func_80056274(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCopyTarget *firstTarget;
+    HitCopyTarget *secondTarget;
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    firstSource = first->source;
+    secondTarget = second->target;
+    secondSource = second->source;
+    firstTarget = first->target;
+    first->position.x = firstSource->current.x;
+    first->position.y = firstSource->current.y;
+    first->position.z = firstSource->current.z;
+    firstSource->previous.x = firstSource->current.x;
+    firstSource->previous.y = firstSource->current.y;
+    firstSource->previous.z = firstSource->current.z;
+
+    second->position.x = secondSource->current.x;
+    second->position.y = secondSource->current.y;
+    second->position.z = secondSource->current.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    firstTarget->unk1C = deltaX / distance;
+    firstTarget->unk20 = deltaY / distance;
+    firstTarget->unk24 = deltaZ / distance;
+    secondTarget->unk1C = -firstTarget->unk1C;
+    secondTarget->unk20 = -firstTarget->unk20;
+    secondTarget->unk24 = -firstTarget->unk24;
+    TrapDanglingJump(first, 6, firstTarget);
+    TrapDanglingJump(second, 0xA);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800563B4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
+#ifdef NON_MATCHING
+/*
+ * JFG's hitGetInelasticVelocity is structurally unrelated to this reflection
+ * helper. Plateau: exact 80-instruction size/frame and HI/LO relocation; the
+ * best bounded-permuter candidate leaves 18 FP schedule words, first +0x54.
+ */
+void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
+                   f32 timeStep) {
+    HitCopyTarget *target;
+    HitCopySource *source;
+    f32 velocityX;
+    f32 velocityY;
+    f32 normalXProduct;
+    f32 velocityZ;
+    f32 doubled;
+    f32 highPad0;
+    f32 highPad1;
+    volatile f32 bounce;
+    f32 lowPad;
+
+    target = state->target;
+    velocityX = state->velocity.x / target->unk4;
+    velocityY = state->velocity.y / target->unk4;
+    velocityZ = state->velocity.z / target->unk4;
+    source = state->source;
+    if (!target->unk0) {
+        target->unk0 = 1;
+    }
+    target->unk4 *= D_80084218;
+
+    doubled = -((normal->z * velocityZ) +
+                ((velocityX * normal->x) + (velocityY * normal->y)));
+    bounce = doubled;
+    doubled = bounce;
+    doubled += doubled;
+    normalXProduct = normal->x * doubled;
+    bounce = doubled;
+    state->velocity.x = (normalXProduct + velocityX) * target->unk4;
+    state->velocity.y = ((normal->y * bounce) + velocityY) * target->unk4;
+    state->velocity.z = ((normal->z * bounce) + velocityZ) * target->unk4;
+
+    state->position.x = source->current.x;
+    state->position.y = source->current.y;
+    state->position.z = source->current.z;
+    source->previous.x = source->current.x + (state->velocity.x * timeStep);
+    source->previous.y = source->current.y + (state->velocity.y * timeStep);
+    source->previous.z = source->current.z + (state->velocity.z * timeStep);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005716C.s")
+#endif
 void func_800572AC(HitCopyState *state, void *unused, AnimVec3f *position,
                    f32 unusedFloat) {
     f32 currentX;
@@ -578,7 +1350,90 @@ void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
     TrapDanglingJump(state, 0xE);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800573C8.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
+ * establishes the entity cutoff, resident structures, and final code here.
+ * Plateau after the flag lattice, 10 source/workspace shapes, and a bounded
+ * canonical-flag permuter: the best full-TU candidate has the exact 105
+ * instructions and 0xC0 frame, but 53 words remain from first mismatch +0x24.
+ * The target rotates the saved players/result/count registers and places the
+ * count/distances workspace at sp+0x7C/sp+0xA0. A nominal score-545 permutation
+ * failed to reset the distance cursor on each sort pass and was rejected.
+ */
+s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
+                  HitCopyState **nearby) {
+    HitCopyState **players;
+    HitCopyState *player;
+    HitCopyState **nearbyEntry;
+    f32 distances[8];
+    f32 *distance;
+    f32 *lastDistance;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distanceSquared;
+    f32 nextDistance;
+    f32 currentDistance;
+    s32 playerCount;
+    s32 found;
+    s32 remaining;
+    s32 nearbyOffset;
+
+    found = 0;
+    radius *= radius;
+    players = func_80005750(&playerCount);
+    if (playerCount > 0) {
+        do {
+            player = *players++;
+            if ((*(s8 *) player->target >= 0) &&
+                (*(s8 *) player->target < 6)) {
+                deltaX = player->position.x - x;
+                deltaZ = player->position.z - z;
+                distanceSquared = (deltaX * deltaX) + (deltaZ * deltaZ);
+                if (useXZ == 0) {
+                    deltaY = player->position.y - y;
+                    distanceSquared += deltaY * deltaY;
+                }
+                if (distanceSquared < radius) {
+                    distances[found] = sqrtf(distanceSquared);
+                    nearby[found] = player;
+                    found++;
+                }
+            }
+            playerCount--;
+        } while (playerCount > 0);
+
+        remaining = found - 1;
+        if (remaining > 0) {
+            do {
+                distance = distances;
+                lastDistance = &distance[remaining];
+                nearbyOffset = 0;
+                do {
+                    nextDistance = distance[1];
+                    currentDistance = distance[0];
+                    nearbyEntry = (HitCopyState **)
+                        ((u8 *) nearby + nearbyOffset);
+                    if (nextDistance < currentDistance) {
+                        player = nearbyEntry[0];
+                        distance[0] = nextDistance;
+                        nearbyEntry[0] = nearbyEntry[1];
+                        distance[1] = currentDistance;
+                        nearbyEntry[1] = player;
+                    }
+                    distance++;
+                    nearbyOffset += sizeof(*nearby);
+                } while (distance < lastDistance);
+                remaining--;
+            } while (remaining != 0);
+        }
+    }
+    return found;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005776C.s")
+#endif
 /*
  * PROVENANCE: adapted from JFG's src/fmvInit.c. Mickey's ROM establishes the
  * resource ID, globals, structure layout, and final compiler output here.

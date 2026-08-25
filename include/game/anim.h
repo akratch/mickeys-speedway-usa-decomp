@@ -27,13 +27,42 @@ typedef struct AnimPathObject {
     s16 unk6;
     u8 pad8[0x50];
     AnimPathObjectTarget *unk58;
+    u8 pad5C[0x28];
+    s32 soundHandle;
 } AnimPathObject;
 
+typedef struct AnimPathNode {
+    u8 pad0[0x24];
+    struct AnimPathNode *previous;
+    struct AnimPathNode *next;
+} AnimPathNode;
+
 typedef struct AnimPath {
-    u8 pad0[8];
+    u8 unk0;
+    u8 unk1;
+    s16 unk2;
+    s16 unk4;
+    u8 unk6;
+    u8 unk7;
     AnimPathObject *unk8;
-    u8 padC[0xA];
+    f32 unkC;
+    f32 unk10;
+    u8 unk14;
+    u8 unk15;
     u8 flags;
+    u8 nodeCount;
+    AnimPathNode *currentNode;
+    f32 unk1C;
+    AnimPathNode *nodes;
+    u8 unk24;
+    u8 unk25;
+    u8 unk26;
+    u8 unk27;
+    u8 unk28;
+    u8 unk29;
+    s16 unk2A;
+    f32 unk2C;
+    f32 unk30;
 } AnimPath;
 
 extern AnimPath **D_800D6B00;
@@ -70,7 +99,10 @@ typedef struct HitCopySource {
 } HitCopySource;
 
 typedef struct HitCopyTarget {
-    u8 pad0[0x14];
+    s8 unk0;
+    u8 pad1[3];
+    f32 unk4;
+    u8 pad8[0xC];
     f32 unk14;
     f32 unk18;
     f32 unk1C;
@@ -81,7 +113,9 @@ typedef struct HitCopyTarget {
 typedef struct HitCopyState {
     u8 pad0[0xC];
     AnimVec3f position;
-    u8 pad18[0x30];
+    u8 pad18[4];
+    AnimVec3f velocity;
+    u8 pad28[0x20];
     HitCopySource *source;
     u8 pad4C[0x18];
     HitCopyTarget *target;
@@ -99,9 +133,14 @@ s32 func_800501AC(u16 *entry);
 s32 func_800501C8();
 void func_8005027C(void);
 void func_800502CC(u8 pathIndex);
+void func_80050AD4(u8 pathIndex);
 void func_80006EA0(void *ptr);
 void func_80050348(s32 pathIndex);
+#ifdef NON_MATCHING
+void func_8005055C(u8 pathIndex);
+#else
 void func_8005055C();
+#endif
 void animseqStartPath(u8 pathIndex);
 void animseqStopPath(u8 pathIndex);
 void animseqInitGroup(void);
@@ -122,6 +161,10 @@ void func_800534EC(s32 arg0);
 void animseqResetGroup(void);
 void *piRomLoad(s32 resourceId);
 void fmvInit(void);
+void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused);
+void func_80055D08(HitCopyState *first, HitCopyState *second, f32 unused);
+void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused);
+void func_80056274(HitCopyState *first, HitCopyState *second, f32 unused);
 void func_800572AC(HitCopyState *state, void *unused, AnimVec3f *position,
                    f32 unusedFloat);
 void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,

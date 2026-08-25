@@ -1775,7 +1775,7 @@ placeholders are never imported.
 | `0x8005027C` | `0x50` | `func_80076A20` | A; exact 80 B, masked `9/20`, placeholder retained. Matched C: exact 80 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800502CC` | `0x7C` | `func_80076A70` | B; same cleanup callees and position, placeholder retained. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050348` | `0x214` | `animseqInitPath` | B; exact `animseqInitGroup` calls this function |
-| `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape |
+| `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape. Plateau after 9 variants: best candidate has the exact 75-instruction size and call layout, with 9 positional words remaining (first mismatch `+0x40`); seven are a three-temporary register cycle/tail allocation, and the typed `animResetTrap` call has the correct relocation kind but cannot carry the required `TrapDanglingJump` identity alongside this consolidated TU's incompatible integer-signature calls |
 | `0x80050688` | `0x7C` | `animseqStartPath` | B; process-command call position, adopted name. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050704` | `0x78` | `animseqStopPath` | B; process-command call position, adopted name. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005077C` | `0x40` | no unique candidate | D; placeholder retained. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
@@ -1784,8 +1784,8 @@ placeholders are never imported.
 | `0x8005087C` | `0x38` | `animseqUnLockPath` | B; paired process-command calls, adopted name. Matched C: exact 56 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800508B4` | `0x20` | no unique candidate | D; placeholder retained. Matched C: exact 32 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800508D4` | `0x200` | `func_800772C4` | B; bit-reader call sequence, placeholder retained |
-| `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function |
-| `0x80050BF4` | `0x15C` | `animseqInit` | D; 0.753 skeleton similarity |
+| `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function. Matched C: exact 288 B and `D_800D6B00` relocation pair at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
+| `0x80050BF4` | `0x15C` | `animseqInit` | D; 0.753 skeleton similarity. Plateau after 10 source/type shapes and a bounded canonical-flag permuter run: best semantic candidate is 84 instructions versus 87, first mismatch `+0x34`; IDO folds three repeated array-base HI/LO relocation pairs into carried registers. A nominal 1090-score permutation was rejected because it made the scroll-loop condition invariant |
 | `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained. Matched C: exact 88 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group, adopted name. Matched C: exact 72 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function, placeholder retained. Plateau after 10 variants: exact size, opcode schedule, and relocations; 7 operand/register words remain from a three-temporary FIFO rotation and the source stack home at candidate `+0x18` versus target `+0x1C`, first mismatch `+0x28` |
@@ -1793,7 +1793,7 @@ placeholders are never imported.
 | `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family. Plateau after 10 source variants: the best candidate has the exact 57-instruction size and relocation identities but 41 positional words differ, first at `+0x2C`, because removing the extra call-argument rematerialization changes the loop's argument-register allocation |
 | `0x800510E8` | `0x40` | `animseqInitGroup` | A; exact 64 B, masked `1/16`, adopted name. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80051128` | `0x9C` | `animseqResetGroup` | B; calls reset-path family, adopted name. Matched C: exact 156 B and relocation surface at `-O2 -mips2 -32` |
-| `0x800511C4` | `0x1A0` | `func_80077BE8` | D; 0.321 skeleton similarity, placeholder retained |
+| `0x800511C4` | `0x1A0` | `func_80077BE8` | D; 0.321 skeleton similarity, placeholder retained. Plateau after 10 source/lifetime shapes and a bounded canonical-flag permuter: the best semantic candidate has the exact 104-instruction size, `0x48` frame, and five call relocations, but 58 allocation/schedule words remain from first mismatch `+0x34`; the target copies the header count through `v0`/`s0` and reuses one scaled path offset, while IDO keeps the count in `s4` and rematerializes that offset. The nominal 490-score permutation is one word long |
 | `0x80051364` | `0x47C` | `animseqUpdate` | D; nearest ordered `anim.c` function |
 | `0x800517E0` | `0x1C40` | `animseqProcessCommandList` | B; command dispatcher calls the path family in JFG order |
 | `0x80053420` | `0x90` | `animseqCamera` | D; ordered tail and nearest same-family shape. Matched C: exact 144 B and relocation surface at `-O2 -mips2 -32` |
@@ -1804,21 +1804,21 @@ placeholders are never imported.
 | `0x80053868` | `0x12D4` | `hitUpdate` | B; collision dispatcher over the following helpers |
 | `0x80054B3C` | `0x5C8` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x80055104` | `0x6F4` | no unique `hit.c` candidate | D; collision/vector shape |
-| `0x800557F8` | `0x178` | no unique `hit.c` candidate | D; collision handler family |
-| `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; collision handler family |
-| `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | D; collision handler family |
-| `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family |
-| `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family |
-| `0x80055F64` | `0x16C` | no unique `hit.c` candidate | D; collision handler family |
-| `0x800560D0` | `0x1A4` | no unique `hit.c` candidate | D; collision handler family |
-| `0x80056274` | `0x140` | no unique `hit.c` candidate | D; collision handler family |
+| `0x800557F8` | `0x178` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 376 B and eight-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; reconstructed from Mickey's resident state/counter/audio ABI after no external skeleton exceeded 0.070 similarity |
+| `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; collision handler family. Plateau after the flag lattice, 10 allocation/lifetime shapes, and a bounded canonical-flag permuter: the best full-TU semantic candidate has the exact 109-instruction size and `0x50` frame, but the target keeps the first state in `s2` and the second target in `s3`, while IDO homes the first state on the stack and uses only `s0`-`s2`. The missing saved register shifts all seven calls by one instruction (105 positional words differ, first `+0x8`); the best isolated permutation added an instruction in the consolidated TU and was rejected |
+| `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | D; collision handler family. Plateau after the flag lattice, 10 source/lifetime shapes, and a bounded canonical-flag permuter: the Mickey-local composition is exact for 113/121 instructions, all calls, the `0x50` frame, and the FP schedule. Eight words remain from first mismatch `+0x20`: five initial pointer-load/move scheduling words and the three-use `0x258` temporary in `v1` rather than target `v0`. The isolated score-15 assignment reorder does not change full-TU output; score 85 adds an observable store and was rejected |
+| `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 328 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; composed from Mickey-local exact state-update and normalization patterns |
+| `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 276 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
+| `0x80055F64` | `0x16C` | no unique `hit.c` candidate | D; collision handler family. Plateau after 10 source/type shapes and a bounded canonical-flag permuter: the best semantic candidate has the exact 91-instruction size, `0x48` frame, stack homes, and call relocations, but 46 FP allocation/schedule words remain from first mismatch `+0x2C`; a nominal score-10 permutation was rejected because it reads an uninitialized float |
+| `0x800560D0` | `0x1A4` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 420 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; composed from Mickey-local dual-state advance and normalization patterns |
+| `0x80056274` | `0x140` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 320 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; the Mickey-led declaration order fixes the two target-pointer spill homes without importing a donor body |
 | `0x800563B4` | `0xA24` | `hitVectorCheck` | B; vector/cylinder/sphere-style callee pattern |
 | `0x80056DD8` | `0x394` | no unique `hit.c` candidate | D; collision/vector shape |
-| `0x8005716C` | `0x140` | `hitGetInelasticVelocity` | D; nearest named leaf shape |
+| `0x8005716C` | `0x140` | no unique `hit.c` candidate | D; the prior JFG `hitGetInelasticVelocity` suggestion is structurally unrelated. Plateau after 10 source/type shapes and a bounded canonical-flag permuter run: best candidate is exact-size at 80 instructions with the target's 0x28 frame and HI/LO relocation, 18 FP register/schedule words remain, first mismatch `+0x54` |
 | `0x800572AC` | `0xA4` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 164 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80057350` | `0x78` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800573C8` | `0x3A4` | no unique `hit.c` candidate | D; collision/vector shape |
-| `0x8005776C` | `0x1A4` | `hitPlayer` | B; same player-list/square-root call shape |
+| `0x8005776C` | `0x1A4` | `hitPlayer` | B; same player-list/square-root call shape. Plateau after the flag lattice, 10 source/workspace shapes, and a bounded canonical-flag permuter: the best full-TU semantic candidate has the exact 105-instruction size and `0xC0` frame, with 53 words remaining from first mismatch `+0x24`; the target rotates the saved players/result/count registers and places the count/distance workspace at `sp+0x7C`/`sp+0xA0`. A nominal score-545 permutation was rejected because it failed to reset the distance cursor on each outer sort pass |
 | `0x80057910` | `0x5C` + `0x4` pad | `fmvInit` | A; exact masked JFG skeleton and C donor, adopted name. Matched C: exact 92 executable B and relocation surface at `-O2 -mips2 -32`; trailing 4 B is compiler alignment padding and earns no function credit |
 
 No function in this block directly references a distinctive string. Its
