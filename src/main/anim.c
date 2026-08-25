@@ -20,7 +20,6 @@ extern s32 D_8007D690;
 extern void *D_8007D694;
 extern s32 D_8007D6B0;
 extern s32 D_8007D684;
-extern u32 *D_800D6B04;
 extern u8 D_800D6BF8[];
 extern u8 D_800D6C38[];
 extern s16 D_800D6C3E;
@@ -97,13 +96,15 @@ typedef struct AnimLockonReset {
 
 extern AnimLightReset D_800D6C58[];
 
-void *func_8002B280();
+void *func_8002B280(s32 size, u32 colourTag);
 AnimPathObject *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_80005768(AnimPathObject *object);
 void piRomLoadSection();
+u8 *levelGetLevel(void);
+void func_800511C4();
 void func_80021504(f32 value, s32 arg1);
 f32 sqrtf(f32 value);
-extern void func_800031E8(s32 handle);
+extern void func_800031E8(void *handle);
 HitCopyState **func_80005750(s32 *count);
 
 /*
@@ -191,18 +192,22 @@ void func_8005017C(void) {
     }
 }
 
-s32 func_800501AC(u16 *entry) {
-    return D_8007D6C0[(entry[1] >> 8) & 0xFF];
+s32 func_800501AC(AnimStreamEntry *entry) {
+    return D_8007D6C0[(entry->command >> 8) & 0xFF];
 }
 
-/* JFG corroborates this scan's CFG; the C expression choices are Mickey-led. */
+/*
+ * PROVENANCE: JFG asm/nonmatchings/anim/func_80076968.s corroborates the CFG;
+ * this typed body is reconstructed from Mickey's target and fresh m2c draft.
+ * Plateau: exact opcode/relocation shape; the s2/s3 web swap starts at +0x5C.
+ */
 #ifdef NON_MATCHING
 s32 func_800501C8() {
     s32 step;
     s32 done;
     s32 entryCount;
     s32 total;
-    u8 *cursor;
+    AnimStreamEntry *cursor;
 
     cursor = D_8007D698;
     total = 0;
@@ -210,13 +215,14 @@ s32 func_800501C8() {
     entryCount = 0;
     if (cursor != NULL) {
         do {
-            if (((((u16 *) cursor)[1] >> 8) & 0xFF) == 0x7F) {
+            if (((cursor->command >> 8) & 0xFF) == 0x7F) {
                 done = 1;
             }
-            step = func_800501AC((u16 *) cursor);
+            step = func_800501AC(cursor);
             if (step != 0) {
                 total += step;
-                cursor += (step >> 1) * 2;
+                cursor = (AnimStreamEntry *)
+                    ((u8 *) cursor + (step >> 1) * 2);
                 entryCount++;
                 if (entryCount >= 0x2001) {
                     done = 1;
@@ -328,21 +334,23 @@ void func_80050348(s32 pathIndex) {
 #ifdef NON_MATCHING
 /*
  * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
- * Plateau: exact 75-instruction size; first mismatch +0x40. The typed trap
- * alias leaves one relocation identity and the remaining allocator cycle.
+ * Plateau: exact 75-instruction size; first mismatch +0x40. Pointer-typed
+ * sound state leaves one trap relocation identity and the allocator cycle.
  */
 #pragma weak animResetTrap = TrapDanglingJump
 extern s32 animResetTrap(AnimPath *, f32, s32, s32);
 void func_8005055C(u8 pathIndex) {
     AnimPath *path;
     AnimPathObject *object;
-    s32 soundHandle;
+    void *soundHandle;
+    u8 flags;
 
     path = D_800D6B00[pathIndex];
     if (path != NULL) {
-        if (!(path->flags & 8)) {
+        flags = path->flags;
+        if (!(flags & 8)) {
             object = path->unk8;
-            path->flags &= 0x80;
+            path->flags = flags & 0x80;
             path->unk10 = 1.0f;
             path->unk1 = path->unk0;
             path->unk1C = 0.0f;
@@ -566,10 +574,9 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Plateau after 10 source/type shapes and a bounded canonical-flag permuter
- * run: the best semantic candidate has 84 of the target's 87 instructions,
- * first mismatch +0x34. IDO folds three repeated array-base HI/LO pairs into
- * carried registers; the lower-scoring permuter result made a loop invariant.
+ * Plateau: the fresh fixed-count array route reaches 85/87 instructions but
+ * loses the boundary-symbol relocations. This 84/87 form retains them; first
+ * mismatch +0x34, with IDO carrying three boundary bases between loops.
  */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
@@ -658,17 +665,23 @@ void animseqFreeLevelData(void) {
 }
 
 #ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from JFG's public animseqLoadLevelData assembly.
+ * Plateau: exact 43-word shape; two source-spill offsets differ, first +0x60.
+ * The typed offset-span route fixes the prior FIFO rotation but homes at 0x18.
+ */
 void func_80050DF0(s32 levelId) {
-    u32 *entry;
+    AnimLevelRomEntry *entry;
     s32 source;
 
     if (levelId != -1 && levelId != D_8007D688) {
         animseqFreeLevelData();
-        entry = &D_800D6B04[levelId];
-        source = entry[0];
-        D_8007D684 = entry[1] - source;
+        entry = (AnimLevelRomEntry *)
+            ((s32 *) D_800D6B04 + levelId);
+        source = entry->start;
+        D_8007D684 = entry->end - source;
         if (D_8007D684 > 0) {
-            D_8007D680 = func_8002B280(D_8007D684, 0x81, source);
+            D_8007D680 = func_8002B280(D_8007D684, 0x81);
             if (D_8007D680 != NULL) {
                 piRomLoadSection(0x3E, D_8007D680, source, D_8007D684);
                 D_8007D688 = levelId;
@@ -682,11 +695,16 @@ void func_80050DF0(s32 levelId) {
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
+ * Plateau: separate camera/scroll/lockon types retain 89/90 instructions;
+ * first word +0x1C, first intrinsic schedule mismatch +0x64. IDO carries the
+ * scroll boundary instead of rematerializing the lockon base.
  */
 #ifdef NON_MATCHING
 void func_80050E9C(void) {
     s32 emptyIndex;
-    u8 *entry;
+    AnimCameraSource **camera;
+    AnimScrollReset *scroll;
+    AnimLockonReset *lockon;
     AnimLightReset *light;
     s32 pathIndex;
 
@@ -706,25 +724,25 @@ void func_80050E9C(void) {
             pathIndex++;
         } while ((pathIndex < 0x100) != 0);
 
-        entry = (u8 *) D_800D6B08;
+        camera = D_800D6B08;
         do {
-            *(s32 *) entry = 0;
-            entry += 4;
-        } while (entry < (u8 *) D_800D6B18);
+            *camera = NULL;
+            camera++;
+        } while (camera < (AnimCameraSource **) D_800D6B18);
 
-        entry = (u8 *) D_800D6B58;
+        scroll = (AnimScrollReset *) D_800D6B58;
         do {
-            entry[0] = 0xFF;
-            *(s32 *) (entry + 4) = 0;
-            *(s32 *) (entry + 0xC) = 0;
-            entry += 0x14;
-        } while (entry < D_800D6BF8);
+            scroll->unk0 = 0xFF;
+            scroll->unk4 = 0;
+            scroll->unkC = 0;
+            scroll++;
+        } while (scroll < (AnimScrollReset *) D_800D6BF8);
 
-        entry = D_800D6BF8;
+        lockon = (AnimLockonReset *) D_800D6BF8;
         do {
-            entry[0] = emptyIndex;
-            entry += 8;
-        } while (entry < D_800D6C38);
+            lockon->unk0 = emptyIndex;
+            lockon++;
+        } while (lockon < (AnimLockonReset *) D_800D6C38);
 
         D_8007D6B0 = 0;
         light = D_800D6C58;
@@ -749,7 +767,52 @@ void func_80050E9C(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050E9C.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051004.s")
+
+/*
+ * PROVENANCE: adapted from JFG's public animseqSetupGroup assembly. Mickey's
+ * directory layout, level-header field, globals, and calls are authoritative.
+ */
+void func_80051004(s32 groupId) {
+    AnimGroupDirectoryEntry *entry;
+    AnimLevelHeader *level;
+    u8 *base;
+    u32 packed;
+    s32 foundId;
+    s32 offset;
+    s32 found;
+
+    if ((groupId >= 0) && (groupId < 0x100) &&
+        (groupId != D_8007D690)) {
+        func_80050E9C();
+        base = D_8007D680;
+        entry = (AnimGroupDirectoryEntry *) base;
+        do {
+            packed = entry->packed;
+            entry++;
+            foundId = packed >> 24;
+        } while ((groupId != foundId) && (foundId != 0xFF));
+        found = (foundId == groupId);
+        if (!found) {
+            goto done;
+        }
+        offset = packed & 0xFFFFFF;
+        if (offset == 0xFFFFFF) {
+            goto done;
+        }
+        D_8007D690 = foundId;
+        D_8007D68C = (s32 *) (base + offset);
+        func_800511C4();
+        animseqInitGroup();
+        animseqResetGroup();
+        level = (AnimLevelHeader *) levelGetLevel();
+        D_8007D6B4 = level->sequenceRate;
+        D_8007D6B8 = 0.0f;
+        D_8007D6BC = 0;
+        D_8007D6A4 = 1;
+    }
+done:
+    return;
+}
 /* Exact JFG donor assembly corroborates the loop; C is Mickey-led. */
 void animseqInitGroup(void) {
     s32 pathIndex;

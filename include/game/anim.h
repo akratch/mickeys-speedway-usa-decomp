@@ -17,6 +17,28 @@ extern f32 D_8007D6AC;
 extern u32 osRomBase;
 extern void *D_8007D680;
 extern s32 D_8007D688;
+
+typedef struct AnimStreamEntry {
+    u16 unk0;
+    u16 command;
+} AnimStreamEntry;
+
+typedef struct AnimGroupDirectoryEntry {
+    u32 packed;
+} AnimGroupDirectoryEntry;
+
+typedef struct AnimLevelHeader {
+    u8 pad0[0xAE];
+    s8 sequenceRate;
+} AnimLevelHeader;
+
+typedef struct AnimLevelRomEntry {
+    s32 start;
+    s32 end;
+} AnimLevelRomEntry;
+
+extern AnimLevelRomEntry *D_800D6B04;
+
 typedef struct AnimPathObjectTarget {
     u8 pad0[0x132];
     s16 unk132;
@@ -32,7 +54,7 @@ typedef struct AnimPathObject {
     u8 pad46[0x12];
     AnimPathObjectTarget *unk58;
     u8 pad5C[0x28];
-    s32 soundHandle;
+    void *soundHandle;
 } AnimPathObject;
 
 typedef struct AnimPathNode {
@@ -147,7 +169,7 @@ s32 func_80050024(u32 bitCount);
 s32 func_800500A4(u32 bitCount);
 void func_8005013C(void);
 void func_8005017C(void);
-s32 func_800501AC(u16 *entry);
+s32 func_800501AC(AnimStreamEntry *entry);
 s32 func_800501C8();
 void func_8005027C(void);
 void func_800502CC(u8 pathIndex);
