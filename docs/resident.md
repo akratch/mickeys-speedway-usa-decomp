@@ -2409,9 +2409,9 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   allocation divergence (`$a2` rather than `$a3`). The permuter improved its
   MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
   canonical MIPS II recompilation added two instructions, so it was rejected.
-- `joyResetMap`: fixed external-map stores improve to 10/9 words, first `+0x0`.
-  IDO materializes one extra map base; original TU-local BSS uses `$at`
-  directly, while defining it here would invalidly claim 16 B of BSS.
+- `joyResetMap`: fresh m2c tail-byte anchoring remains 10/9 words with ten
+  positional differences from `+0x0`; workbench verdict `structure-mismatch`.
+  Exact C requires the original TU-local BSS shared-HI16/LO16 identity surface.
 - `func_80028FCC`: exact 108-byte/27-word body, ten words differ, first `+0x1c`.
   Fresh m2c-local, OR-chain and common-epilogue spellings all canonicalize to
   25 words, so the prior raw-return candidate remains best.

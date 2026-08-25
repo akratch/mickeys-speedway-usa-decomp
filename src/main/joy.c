@@ -222,8 +222,9 @@ s32 joyRead(s32 saveDataFlags, s32 updateRate) {
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive.
- * Plateau: fixed stores improve to 10/9 words, first +0x0; the external map
- * needs an extra base materialization that the original TU-local BSS did not.
+ * Plateau: a fresh m2c tail-byte anchor still emits 10/9 words, with ten
+ * positional differences from +0x0. Original TU-local BSS ownership is needed
+ * for the shared HI16 and four distinct LO16 identities.
  */
 void joyResetMap(void) {
     D_800CF3B0[0] = 0;
