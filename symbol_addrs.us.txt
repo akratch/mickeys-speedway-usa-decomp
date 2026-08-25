@@ -2314,6 +2314,7 @@ func_80022794 = 0x80022794; // type:func size:0x2A4 ROM 0x23394 tier-D matched-C
 camOrthoYAspect = 0x80022A38; // type:func size:0x0C ROM 0x23638 tier-D matched-C JFG TU role/order
 func_80022A44 = 0x80022A44; // type:func size:0x0C ROM 0x23644 tier-D matched-C Mickey auto-name retained, camera TU position
 camGetListPtr = 0x80024658; // type:func size:0x0C ROM 0x25258 tier-D matched-C JFG TU role/order
+camGetInvProjMtx = 0x80024664; // type:func size:0x0C ROM 0x25264 tier-D matched-C JFG TU role/order, Mickey matrix dataflow
 camGetProjOrgMtx = 0x80024670; // type:func size:0x1C ROM 0x25270 tier-B matched-C, donor comparison has only 3 unmasked words
 camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B matched-C similar-jfg-camStopShakes=1.000
 camSetZoom = 0x80024CC8; // type:func size:0x38 ROM 0x258c8 tier-B matched-C similar-jfg-camSetZoom=1.000
