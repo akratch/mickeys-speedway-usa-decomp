@@ -96,7 +96,7 @@ typedef struct AnimLockonReset {
 
 extern AnimLightReset D_800D6C58[];
 
-void *func_8002B280(s32 size, u32 colourTag);
+void *func_8002B280();
 AnimPathObject *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_80005768(AnimPathObject *object);
 void piRomLoadSection();
@@ -319,8 +319,9 @@ u8 pathIndex;
 }
 /*
  * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
- * The typed alias preserves the float ABI; the build canonicalizes its
- * undefined symbol name to the shared TrapDanglingJump target.
+ * Plateau: the 75-word weak-alias body is best; first mismatch +0x40.
+ * Workbench allocation-mismatch/g0-schedule-probe: direct strict-float typing
+ * conflicts with old-style calls; a cast emits an indirect call.
  */
 #pragma weak animResetTrap = TrapDanglingJump
 extern s32 animResetTrap(AnimPath *, f32, s32, s32);
@@ -546,11 +547,15 @@ void func_80050AD4(u8 pathIndex) {
         }
     }
 }
-/* Workbench structural plateau: 13 aligned residuals, 84/87 instructions;
- * first mismatch +0x34. Boundary-expression and condition AST levers plus the
- * 119-combo flag lattice leave IDO carrying three bases between adjacent loops. */
-/* PROVENANCE: adapted from JFG's src/anim.c animseqInit assembly. Mickey's globals,
- * allocator call, data boundaries, and compiler output are independently established. */
+/*
+ * PROVENANCE: adapted from JFG's src/anim.c animseqInit assembly. Mickey's
+ * globals, allocator call, data boundaries, and compiler output are
+ * independently established from Mickey's ROM.
+ *
+ * Plateau: the flag winner stays exact-size with 15 words, first +0x34.
+ * Integer-address/comparison-order probes are neutral; endpoint lifetimes
+ * worsen to 40. Workbench: structure/structure-buckets.
+ */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
     s32 emptyIndex;
@@ -633,33 +638,34 @@ void animseqFreeLevelData(void) {
     }
 }
 
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from JFG's public animseqLoadLevelData assembly.
- * Plateau: exact 43-word shape; two source-spill offsets differ, first +0x60.
- * A fresh word-bound m2c form and workbench lever 6 retain the 0x18 home.
+ * Mickey's third allocator argument and two-word local layout establish the
+ * source-offset home independently against Mickey's ROM.
  */
 void func_80050DF0(s32 levelId) {
+    struct {
+        s32 unused;
+        s32 source;
+    } locals;
     s32 *bounds;
-    s32 source;
 
     if (levelId != -1 && levelId != D_8007D688) {
         animseqFreeLevelData();
         bounds = (s32 *) D_800D6B04 + levelId;
-        source = bounds[0];
-        D_8007D684 = bounds[1] - source;
+        locals.source = bounds[0];
+        D_8007D684 = bounds[1] - locals.source;
         if (D_8007D684 > 0) {
-            D_8007D680 = func_8002B280(D_8007D684, 0x81);
+            D_8007D680 =
+                func_8002B280(D_8007D684, 0x81, locals.source);
             if (D_8007D680 != NULL) {
-                piRomLoadSection(0x3E, D_8007D680, source, D_8007D684);
+                piRomLoadSection(0x3E, D_8007D680, locals.source,
+                                 D_8007D684);
                 D_8007D688 = levelId;
             }
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050DF0.s")
-#endif
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
@@ -1886,9 +1892,11 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
 #endif
 #ifdef NON_MATCHING
-/* Workbench: mixed structural/FP-register plateau, 18/80 words from +0x54; size and frame are exact.
- * Levers: a dual-role normal carrier reduced the residual but lost size parity; spill-home forms grew the frame.
- * Remaining: FP pool/ring phase and the volatile spill at sp+4 rather than sp+0. */
+/*
+ * Skeleton similarity peaks at 0.156; the exact-sibling vector-alias route
+ * worsens to 82 words. Plateau: this 80-word body remains best at 18 words,
+ * first +0x54; workbench mixed/constant-audit sees sp+4 versus sp+0.
+ */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
     HitCopyTarget *target;
