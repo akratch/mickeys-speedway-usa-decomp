@@ -509,14 +509,9 @@ void mainInitGame(void) {
  * cross-checked against JFG's published src/main.c TU ordering. Mickey's own
  * call graph, resident storage and instructions determine this body.
  *
- * Plateau: nine structural and display-command spellings plus the full flag
- * lattice and a bounded two-worker permuter batch did not reach identity.
- * With -Wo,-Olimit,100, the candidate has the target's -0x28 frame and keeps
- * its transition result at sp+0x24, but is five instructions long; the first
- * mismatch at +0x48 selects $at instead of the target's $a0 for the display-
- * list pointer assignment. The remaining structural excess is concentrated
- * in the two end-of-frame display commands. The valid permuter score improved
- * from 3,620 to 3,050 by introducing a matrix-array temporary, not a match.
+ * NON_MATCHING plateau: structure mismatch; 388 words differ, first at +0x48, and the candidate is five instructions long.
+ * Tried nine display spellings, flags, a permuter, the constant audit, and statement splicing; the splice grew frame/size.
+ * Both best frames are 0x28; the remaining structural excess is concentrated in the two end-of-frame commands.
  */
 void func_80026FB4(void) {
     s32 drawTransition;

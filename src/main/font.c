@@ -827,9 +827,9 @@ void func_8004C5A4(char *input, char *output, s32 number) {
     } while (currentChar);
 }
 
-/* Plateau (2026-08-25): -O2 -mips2 is 0x8 short with 105 differing words; first mismatch +0x0.
- * A separate character index removes the s0 save and reusing blockCount fixes the chain lifetime;
- * font/index allocation and IDO's peeled four-word header copy remain the likely blockers. */
+/* NON_MATCHING plateau: mixed structure/register verdict; 105/146 words differ from +0x0, C is 8 bytes short.
+ * Tried the 119-flag lattice, allocation widths/qualifiers, copy AST/volatile, and block/pad homes.
+ * The 0x70 frame matches; the saved-header copy schedule and initial pool allocation remain. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's
