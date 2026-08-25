@@ -119,7 +119,25 @@ void osScGetAudioSPStats(f32 *first, f32 *second, f32 *third) {
     *third = 0.0f;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scMain.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_800304E0.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:func_8004FB30_50730. */
+void func_800304E0(OSSched *sc) {
+    s32 state;
+    OSScTask *sp = NULL;
+    OSScTask *dp = NULL;
+
+    if (sc->audioListHead != NULL) {
+        sc->doAudio = 1;
+    }
+    if (sc->doAudio != 0 && sc->curRSPTask != NULL) {
+        __scYield(sc);
+    } else {
+        state = ((sc->curRSPTask == NULL) << 1) | (sc->curRDPTask == NULL);
+        if (__scSchedule(sc, &sp, &dp, state) != state) {
+            __scExec(sc, sp, dp);
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetTaskType.s")
 void func_80030608(OSScTask *arg0) {
 }

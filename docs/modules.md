@@ -1324,6 +1324,8 @@ plus `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes) and
 `0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
 `osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
 no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes), plus
+the still-unnamed scheduler helper `func_800304E0` (ROM `0x310E0`–
+`0x31180`, 160 bytes),
 `osScAddClient` (ROM `0x30E2C`–`0x30E88`, 92 bytes), `osScRemoveClient`
 (ROM `0x30E88`–`0x30F10`, 136 bytes), `__scHandleRDP` (ROM `0x31E74`–
 `0x31EFC`, 136 bytes), `__scTaskReady` (ROM `0x31EFC`–`0x31F4C`, 80 bytes),
