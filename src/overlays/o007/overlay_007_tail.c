@@ -9,6 +9,10 @@ static Overlay7Entry *gOverlay7FreeHead;
 static Overlay7Entry *gOverlay7ActiveTail;
 static Overlay7Entry *gOverlay7Selected;
 
+typedef struct Overlay7SelectionRow {
+    u16 values[3];
+} Overlay7SelectionRow;
+
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
 /*
@@ -145,9 +149,10 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #endif
 
 /*
- * Plateau: exact size with two differing words, first at +0x4. The low-ten-
- * bit mask fixes every downstream temp register, but IDO keeps the flag load
- * in t7 instead of coalescing it with the target's t6 address register.
+ * Plateau (2026-08-25 rerun): exact size with two differing words, first at
+ * +0x4. The 119-case flag lattice, volatile/signed/array global types, local
+ * flag and table-offset webs, and cast placement do not coalesce the initial
+ * flag load with the later table offset; typed web reuse widens the diff.
  */
 #ifdef NON_MATCHING
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
@@ -185,9 +190,10 @@ query:
 #endif
 
 /*
- * Plateau: exact size with seven differing words, first at +0x64. The
- * remaining differences are a two-temp rotation in the default table-index
- * expression and the post-call u16 narrowing web; the O2 lattice is stable.
+ * Plateau (2026-08-25 rerun): exact size with three differing words, first at
+ * +0xBC. A typed six-byte selection row fixes the default table-index temp
+ * rotation. The 119-case flag lattice and explicit/cast/temporary narrowing
+ * forms still keep the post-call u16 result in a2 instead of target a3/t2.
  */
 #ifdef NON_MATCHING
 void overlay7CommitSelection(s32 selection) {
@@ -207,8 +213,9 @@ void overlay7CommitSelection(s32 selection) {
             value = 0x116;
             break;
         default:
-            value = *(u16 *)&gOverlay7DispatchData[
-                0x754 + overlay7LookupReloc(0, 2) * 2 + selection * 6];
+            value = ((Overlay7SelectionRow *)&gOverlay7DispatchData[0x754])
+                        [selection]
+                            .values[overlay7LookupReloc(0, 2)];
             break;
         }
         pair = (Overlay7Pair *)&gOverlay7DispatchData[0x8F4];
