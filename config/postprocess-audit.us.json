@@ -7792,6 +7792,7 @@
       "size": 944,
       "source": "src/overlays/o101/overlay101DispatchEvents.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "objcopy"
       ]
     },
