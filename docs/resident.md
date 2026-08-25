@@ -2902,7 +2902,7 @@ call graph isolates one namesake.
 | `0x8001BE0C` | `0x248` | `func_8002EDA0` | B: camera-pointer lookup then the preceding routine; JFG placeholder, retain `func_` |
 | `0x8001C054` | `0x34` | `cameraAddOverrideObject` | D + matched C: exact 24-entry append under O2/mips2; JFG comparison remains structural, so retain `func_` |
 | `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D + matched C: exact 24-entry search-and-delete under O2/mips2; JFG comparison remains structural, so retain `func_` |
-| `0x8001C114` | `0x1B0` | `func_8002F0E8` | Plateau after the 119-combination flag sweep and 10 source/lifetime hypotheses: best `NON_MATCHING` candidate preserves the target CFG in 106 instructions versus 108, with first mismatch `+0x4`; the target maps `x/y/z` to `f12/f22/f20` and saves `f22`/`f20`, while IDO maps the candidate to `f20/f14/f12` and saves only `f20`. JFG has the same target allocation but only a placeholder body; retain `func_` |
+| `0x8001C114` | `0x1B0` | `func_8002F0E8` | Workbench plateau: structure mismatch, aligned residual 39, 106/108 instructions, first mismatch `+0x0`. Else-if duplication and radius-square temporaries restored target operation order; the frame and FP/GPR register web remain after a 30-minute permuter. JFG has only a placeholder body; retain `func_` |
 | `0x8001C2C4` | `0x8` | — | Matched C: exact empty routine under O2/mips2; retain `func_` |
 | `0x8001C2CC` | `0x8` | — | Matched C: exact empty routine under O2/mips2; retain `func_` |
 | `0x8001C2D4` | `0x4C` | `func_80031F60` | A + matched C: 19/19 unmasked JFG words and independently reconstructed byte-clear C are exact; placeholder rule retains Mickey's `func_` |

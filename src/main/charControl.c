@@ -109,6 +109,9 @@ void func_8001C088(CameraTrackedObject *value) {
         D_80079BCC--;
     }
 }
+/* Workbench: structure-mismatch, aligned residual 39; first mismatch +0x0.
+ * Else-if duplication and radius-square temporaries restored target operation order.
+ * Candidate is 106/108 instructions; the frame and FP/GPR register web remain. */
 #ifdef NON_MATCHING
 void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
     CameraOverrideSlot *slot;
@@ -117,6 +120,8 @@ void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
     CameraBounds *bounds;
     f32 deltaX;
     f32 deltaZ;
+    f32 trackedRadiusSquared;
+    f32 radiusSquared;
     s32 index;
 
     if (slotIndex >= 0 && slotIndex < 4) {
@@ -127,15 +132,14 @@ void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
             if (bounds != 0) {
                 deltaX = object->x - x;
                 deltaZ = object->z - z;
-                if ((bounds->trackedRadius * bounds->trackedRadius) <
+                trackedRadiusSquared = bounds->trackedRadius * bounds->trackedRadius;
+                if (trackedRadiusSquared <
                     ((deltaX * deltaX) + (deltaZ * deltaZ))) {
                     slot->object = 0;
-                    goto clearExisting;
-                }
-                if ((bounds->flags & 0x8000) &&
-                    ((y < bounds->trackedUpper) || (bounds->trackedLower < y))) {
+                    object = 0;
+                } else if ((bounds->flags & 0x8000) &&
+                           ((y < bounds->trackedUpper) || (bounds->trackedLower < y))) {
                     slot->object = 0;
-clearExisting:
                     object = 0;
                 }
             }
@@ -147,10 +151,11 @@ clearExisting:
                 do {
                     object = *current;
                     bounds = object->bounds;
+                    radiusSquared = bounds->radius * bounds->radius;
                     deltaX = object->x - x;
                     deltaZ = object->z - z;
                     if (((deltaX * deltaX) + (deltaZ * deltaZ)) <
-                        (bounds->radius * bounds->radius)) {
+                        radiusSquared) {
                         slot->object = object;
                         slot->bounds = bounds;
                         if ((bounds->flags & 0x4000) &&
