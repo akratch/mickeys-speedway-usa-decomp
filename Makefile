@@ -714,6 +714,12 @@ $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 # the flag lattice selects this setting before any source permutation.
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 
+# free_rain_memory needs a no-argument declaration for the shared dangling-
+# jump trap while rain_update needs its four-argument float prototype. IDO
+# cannot keep both declarations in one TU, so compile the no-argument spelling
+# and restore the canonical relocation symbol without changing instructions.
+$(BUILD_DIR)/$(SRC_DIR)/main/weather.c.o: POSTPROCESS = $(OBJCOPY) --redefine-sym rainFreeTrap=TrapDanglingJump $@
+
 # The saves slot-reset loop is scalar in the target; the 119-combination flag
 # lattice otherwise expands four 0x20-byte records into each loop iteration.
 $(BUILD_DIR)/$(SRC_DIR)/main/saves.c.o: CFLAGS += -Wo,-loopunroll,0
