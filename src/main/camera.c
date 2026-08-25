@@ -358,24 +358,14 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
     D_800CEC90 = scaleY;
     D_800CEC88 = 1;
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetFOV,
  * with Mickey's camera-state mirror and region-specific projection scaling.
- *
- * Plateau: the full flag lattice, nine coherent source/type/lifetime
- * variants, and a bounded two-worker permuter batch leave an exact-size
- * 133-instruction candidate with 11 positional words different from first
- * mismatch +0x1D4. The first 117 instructions are exact; only temporary
- * registers in the final projection-matrix ring update differ. The permuter's
- * lower score moved the mandatory perspective rebuild inside the state-mirror
- * branch and was rejected as semantically invalid.
  */
 void func_80021504(f32 fov, s32 force) {
     Camera *camera;
     s32 videoMode;
     s32 type;
-    u8 index;
 
     camera = &D_800CEA20[D_800CEC64];
     camera->fov = fov;
@@ -404,41 +394,20 @@ void func_80021504(f32 fov, s32 force) {
                 D_800CEC98[0][0] *= 0.75f;
             }
         }
-        index = (D_80079F94 + 1) & 0xF;
-        D_80079F94 = index;
-        mtxf_to_mtx(D_800CEC98, &D_800CED60[index & 0xFF]);
+        D_80079F94 = (D_80079F94 + 1) & 0xF;
+        mtxf_to_mtx(D_800CEC98, &D_800CED60[D_80079F94]);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021504.s")
-#endif
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from DKR's public decomp,
  * src/camera.c:cam_reset_fov.
- *
- * Plateau: the full flag lattice, six semantics-preserving source/type/address
- * variants, and a bounded two-worker permuter batch leave an exact 0x94-byte,
- * 37-instruction candidate with 11 positional words different from first
- * mismatch +0x4C. The remaining difference is temporary-register allocation
- * in the rotating matrix-slot update. The permuter's lower-scoring candidate
- * removed the required ring mask and invented a dead guard, so it was rejected.
  */
 void func_80021718(void) {
-    s32 index;
-    s32 slot;
-
     func_8004FAD0(D_800CEC98, &D_800CEC94, 60.0f, 1.3333334f, 10.0f,
                   D_80081A2C, 1.0f);
-    index = (D_80079F94 + 1) & 0xF;
-    slot = index & 0xFF;
-    D_80079F94 = index;
-    mtxf_to_mtx(D_800CEC98,
-                (Mtx *) ((slot << 6) + (u8 *) D_800CED60));
+    D_80079F94 = (D_80079F94 + 1) & 0xF;
+    mtxf_to_mtx(D_800CEC98, &D_800CED60[D_80079F94]);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021718.s")
-#endif
 MtxF *func_800217AC(void) {
     return &D_800CF260;
 }
@@ -533,26 +502,17 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
         D_80079FA8[camNo] = waterLine;
     }
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from DKR's public decomp,
  * src/camera.c:copy_viewports_to_stack; JFG's public src/camera.c supplies
  * the camUserViewTick role while Mickey supplies the six-camera bound.
- *
- * Plateau: the full flag lattice, eight coherent expression/lifetime
- * variants, and a bounded two-worker permuter batch leave an exact-size
- * 104-instruction candidate with 17 positional words different from first
- * mismatch +0x98. The first difference is commutative output-index operand
- * order, followed by IDO scheduling/register choices in the viewport extent
- * expressions. The permuter's only improvement masked a signed 32-bit
- * coordinate to 16 bits and was rejected as semantically invalid.
  */
 void func_800219D0(void) {
     s32 width;
     s32 height;
-    s32 xPos;
-    s32 yPos;
     s32 port;
+    s32 yPos;
+    s32 xPos;
     s32 i;
 
     D_80079D48 = 1 - D_80079D48;
@@ -565,28 +525,36 @@ void func_800219D0(void) {
         D_80079C10[i].flags &= ~6;
         if (D_80079C10[i].flags & 1) {
             if (!(D_80079C10[i].flags & 8)) {
-                xPos = D_80079C10[i].x1 << 2;
-                xPos += ((D_80079C10[i].x2 - D_80079C10[i].x1) + 1) << 1;
+                xPos = (((D_80079C10[i].x2 - D_80079C10[i].x1) + 1) << 1) +
+                       (D_80079C10[i].x1 * 4);
             } else {
-                xPos = D_80079C10[i].posX << 2;
+                xPos = D_80079C10[i].posX;
+                xPos *= 4;
             }
             if (!(D_80079C10[i].flags & 0x10)) {
-                yPos = D_80079C10[i].y1 << 2;
-                yPos += ((D_80079C10[i].y2 - D_80079C10[i].y1) + 1) << 1;
+                yPos = (((D_80079C10[i].y2 - D_80079C10[i].y1) + 1) << 1) +
+                       (D_80079C10[i].y1 * 4);
             } else {
-                yPos = D_80079C10[i].posY << 2;
+                yPos = D_80079C10[i].posY;
+                yPos *= 4;
             }
             if (!(D_80079C10[i].flags & 0x20)) {
-                width = ((D_80079C10[i].x2 - D_80079C10[i].x1) + 1) << 1;
+                width = D_80079C10[i].x2 - D_80079C10[i].x1;
+                width += 1;
+                width *= 2;
             } else {
-                width = D_80079C10[i].width << 1;
+                width = D_80079C10[i].width;
+                width *= 2;
             }
             if (!(D_80079C10[i].flags & 0x40)) {
-                height = ((D_80079C10[i].y2 - D_80079C10[i].y1) + 1) << 1;
+                height = (D_80079C10[i].y2 - D_80079C10[i].y1) + 1;
+                height *= 2;
             } else {
-                height = D_80079C10[i].height << 1;
+                height = D_80079C10[i].height;
+                height *= 2;
             }
-            port = (D_80079D48 * 5) + i + 10;
+            port = i;
+            port += (D_80079D48 * 5) + 10;
             D_80079D58[port].vp.vtrans[0] = xPos;
             D_80079D58[port].vp.vtrans[1] = yPos;
             D_80079D58[port].vp.vscale[0] = width;
@@ -594,9 +562,6 @@ void func_800219D0(void) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800219D0.s")
-#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camEnableUserView. */
 void camEnableUserView(s32 camNo, s32 immediate) {
     CameraViewport *viewport;
@@ -1220,11 +1185,12 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 /*
  * Mickey-only sprite-orientation wrapper reconstruction.
  *
- * Plateau: the full flag lattice and ten coherent control-flow, type,
- * lifetime and parameter-homing variants leave a best configured candidate
- * with 286 instructions against 284 and 275 positional words different from
- * first mismatch +0x0. IDO keeps the display-list argument in $s1 and emits
- * a 0xA0 frame; the target spills that argument and uses a 0x90 frame.
+ * Plateau: the flag lattice and bounded structural retries leave a best
+ * configured candidate with 286 instructions against 284 and 263 positional
+ * words different from first mismatch +0x0. Constraining the scale-table
+ * load fixes its early relocation schedule, but IDO still keeps the
+ * display-list argument in $s1 and emits a 0xA0 frame; the target homes that
+ * argument and uses a 0x90 frame.
  */
 void func_80023598(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
                    CameraSpriteActor *actor, u8 *spriteData, s32 alpha) {
@@ -1259,7 +1225,8 @@ void func_80023598(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
             spriteTypeIndex++;
         }
         baseScale = *actor->baseScale;
-        scale = D_80079FD8[D_80079FF0[spriteTypeIndex].scaleIndex] *
+        scale = *(volatile f32 *)&D_80079FD8
+                    [D_80079FF0[spriteTypeIndex].scaleIndex] *
                 baseScale;
         matrixScale = player->unk50;
         xRotation = player->xRotation;
@@ -1768,28 +1735,28 @@ s32 func_800246B0(f32 x, f32 y, f32 z, f32 *outX, f32 *outY,
  * PROVENANCE: name and role from JFG's public decomp,
  * src/camera.c:camReversePoint; body reconstructed from Mickey-only evidence.
  *
- * Plateau: exact 65-word size and nine relocations, but 25 masked words differ
- * from +0x0; target frame 0x38, candidate 0x40. The flag lattice and 40-minute
- * permuter found no exact source under the required TU multiply scheduler.
+ * Plateau: after the full flag lattice, the bounded permuter batch, and ten
+ * new viewport-lifetime variants, the best configured candidate has the
+ * target's 65 instructions and exact FP-temp lane but differs in 33 positional
+ * words from first mismatch +0x0. Hoisting the four viewport coefficients
+ * recreates the target schedule but gives IDO a 0x40 frame instead of 0x38.
  */
 void func_80024834(f32 screenX, f32 screenY, f32 *x, f32 *y, f32 *z,
                    u8 transform) {
     Vp *viewport;
     f32 scale;
-    f32 scaleX;
-    f32 scaleY;
     f32 transX;
+    f32 scaleY;
+    f32 scaleX;
     f32 transY;
-    register f32 numerator;
 
-    viewport = &D_80079D58[D_800CEC64];
     scale = (*z * D_800CEC98[2][2]) * D_800CEC98[2][3];
+    viewport = &D_80079D58[D_800CEC64];
+    transX = (f32) (viewport->vp.vtrans[0] >> 2);
     scaleY = (f32) (viewport->vp.vscale[1] >> 2);
     scaleX = (f32) (viewport->vp.vscale[0] >> 2);
-    transX = (f32) (viewport->vp.vtrans[0] >> 2);
     transY = (f32) (viewport->vp.vtrans[1] >> 2);
-    numerator = (transX - screenX) * scale;
-    *x = numerator /
+    *x = ((transX - screenX) * scale) /
          (D_800CEC98[0][0] * scaleX);
     *y = ((screenY - transY) * scale) /
          (D_800CEC98[1][1] * scaleY);
@@ -1876,21 +1843,12 @@ void camStopShakes(void) {
         shake->magnitude = 0; \
     }
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: role from JFG's public decomp, src/camera.c:camScreenShake;
  * body reconstructed from Mickey-only evidence.
- *
- * Plateau: after the full flag lattice, ten coherent source/lifetime
- * spellings and a bounded two-worker permuter batch, the closest configured
- * candidate has the exact 296-byte size and differs in 15 positional words
- * from first mismatch +0x60. IDO assigns the long-lived $f20 register to the
- * Z delta instead of the target's X delta, cascading through the arithmetic
- * temporaries; the permuter's best score is 125, not zero.
  */
 void func_80024BA0(f32 x, f32 y, f32 z, f32 radius, f32 magnitude) {
     Camera *cam;
-    f32 dx;
     f32 distance;
     f32 dz;
     f32 dy;
@@ -1901,29 +1859,23 @@ void func_80024BA0(f32 x, f32 y, f32 z, f32 radius, f32 magnitude) {
     i = 0;
     if (D_800CEC60 >= 0) {
         sustain = D_80081A40;
-        attack = D_80081A44;
+        /* IDO: line-join keeps the paired constant/pointer setup schedulable. */
+        attack = D_80081A44; cam = D_800CEA20;
         do {
-            cam = &D_800CEA20[i];
-            dx = x - cam->transform.x;
+            distance = x - cam->transform.x;
             dy = y - cam->transform.y;
-            distance = z - cam->transform.z;
-            dz = distance;
-            dx = dx * dx;
-            dy = dy * dy;
-            dz = dz * dz;
-            distance = sqrtf((dx + dy) + dz);
+            dz = z - cam->transform.z;
+            distance = sqrtf((distance * distance) + (dy * dy) + (dz * dz));
             if (distance < radius) {
                 camStartShake(i, attack, sustain, attack,
                               (s32) (((radius - distance) * magnitude) /
                                      radius));
             }
             i++;
+            cam++;
         } while (i <= D_800CEC60);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024BA0.s")
-#endif
 
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetZoom. */
 void camSetZoom(s32 camNo, f32 zoom) {
