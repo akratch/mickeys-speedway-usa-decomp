@@ -983,7 +983,7 @@ TEXT_SUBSEGMENTS = {
         (0x78F4, "c", "func_overlay_101_F00078F4_18E3114"),
         (0x8128, "c", "func_overlay_101_F0008128_18E3948"),
         (0x895C, "c", "func_overlay_101_F000895C_18E417C"),
-        (0x9190, "asm", "overlay_101_tail_9190"),
+        (0x9190, "c", "func_overlay_101_F0009190_18E49B0"),
         (0x99C4, "c", "overlay101BuildPresentationA"),
         (0x9D04, "c", "overlay101BuildPresentationB"),
         (0xA044, "c", "overlay101BuildPresentationC"),
