@@ -1399,8 +1399,16 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86ProcessCurrent.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7C
+# The vector table address is loader-owned in the shipped overlay relocation
+# table; retain its zero-base addend and bind the sole static call to the raw
+# overlay carrier used by the extracted object.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86ScaledVectorPosition.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86ScaledVectorPosition.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_086_F000007C_18D1EB4=overlay86ScaledVectorPosition $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x18:5:gOverlay86Vectors 0x24:6:gOverlay86Vectors && \
+	$(OBJCOPY) --redefine-sym \
+		overlay86TransformVectorReloc=func_overlay_086_F0000000_18D1E38 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86SelectPosition.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_086_F00002E4_18D211C=overlay86SelectPosition $@

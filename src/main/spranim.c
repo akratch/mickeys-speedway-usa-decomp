@@ -208,14 +208,16 @@ void func_8001BAF8(void *arg0, void *arg1) {
 }
 void func_8001BB04(void *arg0, void *arg1) {
 }
-#ifdef NON_MATCHING
 void func_8001BB10(SpranimBB10Object *arg0, void *arg1) {
+    s8 index;
+    s32 frame;
+
     arg0->index3A = D_8007BF2C;
-    if ((arg0->index3A < 0) || (arg0->index3A >= arg0->header40->count22)) {
+    index = arg0->index3A;
+    if ((index < 0) || (index >= arg0->header40->count22)) {
         arg0->index3A = 0;
+        index = arg0->index3A;
     }
-    func_80020D8C(arg0->entries68[arg0->index3A], 0, (arg0->flags88 & 3) << 8, arg0);
+    frame = (arg0->flags88 & 3) << 8;
+    func_80020D8C(arg0->entries68[index], 0, frame, arg0);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001BB10.s")
-#endif
