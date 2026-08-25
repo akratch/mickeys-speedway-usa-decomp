@@ -14,15 +14,17 @@ extern void *gOverlay31SlotTable;
 
 /* DKR v77/v80 and JFG contain no exact donor for this pool allocator. */
 /*
- * Plateau (2026-08-25, independently rechecked): the best 50-word candidate
- * has exact size, control flow, and linked relocation surface at 98.42%
- * objdiff. The first mismatch is +0x0: the target frame is 0x38 bytes versus
- * 0x30, followed by one pointer/counter register family (a1/a2 versus a0/a1).
- * The full flag lattice was neutral. Named size temporaries, register
- * qualifiers, and local-lifetime changes were codegen-inert; an extra formal
- * argument worsened the result to +4 bytes/47 differing words and contradicts
- * the caller ABI. The remaining code-free dead-web lever would be a fabricated
- * register-control construct, so it was rejected.
+ * Plateau (2026-08-25, independently rechecked in the overlay 31/38/46 lane):
+ * the best 50-word candidate has exact size, control flow, and linked
+ * relocation surface at 98.42% objdiff. The first mismatch is +0x0: the target
+ * frame is 0x38 bytes versus 0x30, followed by one pointer/counter register
+ * family (a1/a2 versus a0/a1). The 119-point flag lattice was neutral. The
+ * nearest permitted skeleton is JFG's overlay 26 function at +0xF1C (0.727),
+ * but it is itself GLOBAL_ASM and supplies no C donor. Named size temporaries,
+ * register qualifiers, and local-lifetime changes were codegen-inert; an extra
+ * formal argument worsened the result to +4 bytes/47 differing words and
+ * contradicts the caller ABI. The remaining code-free dead-web lever would be
+ * a fabricated register-control construct, so it was rejected.
  */
 #ifdef NON_MATCHING
 Overlay31PoolRecord *overlay31CreatePool(s32 count) {
