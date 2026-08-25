@@ -2083,8 +2083,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ClassifyBoundary.c.o: POSTPROCESS 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2IntersectBoundary.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ClipLines.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_002_F000049C_1857294=overlay2ClipLines $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x244
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2ChooseBoundary.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
