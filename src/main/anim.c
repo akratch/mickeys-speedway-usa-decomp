@@ -20,7 +20,6 @@ extern s32 D_8007D690;
 extern void *D_8007D694;
 extern s32 D_8007D6B0;
 extern s32 D_8007D684;
-extern u32 *D_800D6B04;
 extern u8 D_800D6BF8[];
 extern u8 D_800D6C38[];
 extern s16 D_800D6C3E;
@@ -97,7 +96,7 @@ typedef struct AnimLockonReset {
 
 extern AnimLightReset D_800D6C58[];
 
-void *func_8002B280();
+void *func_8002B280(s32 size, u32 colourTag);
 AnimPathObject *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_80005768(AnimPathObject *object);
 void piRomLoadSection();
@@ -658,17 +657,23 @@ void animseqFreeLevelData(void) {
 }
 
 #ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from JFG's public animseqLoadLevelData assembly.
+ * Plateau: exact 43-word shape; two source-spill offsets differ, first +0x60.
+ * The typed offset-span route fixes the prior FIFO rotation but homes at 0x18.
+ */
 void func_80050DF0(s32 levelId) {
-    u32 *entry;
+    AnimLevelRomEntry *entry;
     s32 source;
 
     if (levelId != -1 && levelId != D_8007D688) {
         animseqFreeLevelData();
-        entry = &D_800D6B04[levelId];
-        source = entry[0];
-        D_8007D684 = entry[1] - source;
+        entry = (AnimLevelRomEntry *)
+            ((s32 *) D_800D6B04 + levelId);
+        source = entry->start;
+        D_8007D684 = entry->end - source;
         if (D_8007D684 > 0) {
-            D_8007D680 = func_8002B280(D_8007D684, 0x81, source);
+            D_8007D680 = func_8002B280(D_8007D684, 0x81);
             if (D_8007D680 != NULL) {
                 piRomLoadSection(0x3E, D_8007D680, source, D_8007D684);
                 D_8007D688 = levelId;

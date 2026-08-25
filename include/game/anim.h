@@ -17,6 +17,14 @@ extern f32 D_8007D6AC;
 extern u32 osRomBase;
 extern void *D_8007D680;
 extern s32 D_8007D688;
+
+typedef struct AnimLevelRomEntry {
+    s32 start;
+    s32 end;
+} AnimLevelRomEntry;
+
+extern AnimLevelRomEntry *D_800D6B04;
+
 typedef struct AnimPathObjectTarget {
     u8 pad0[0x132];
     s16 unk132;
