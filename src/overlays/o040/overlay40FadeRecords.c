@@ -43,6 +43,9 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
+/* Plateau: canonical output is exact-size at 101 words; three register
+ * operands remain at +0xC/+0x10/+0x24 after loop, first-use, width, and permuter
+ * sweeps: the blend base loads v0 then copies v1; retail loads v1 then v0. */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
@@ -51,60 +54,54 @@ void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
     Overlay40Color *color;
     Overlay40Vertex *vertex;
     s16 *group;
-    s32 timer;
     s32 current;
     s32 output;
+    s32 timer;
     s32 remaining;
     s32 groupRemaining;
     s32 vertexRemaining;
 
     current = gOverlay40BlendCurrent;
-    timer = gOverlay40BlendTimer;
     output = current;
+    timer = gOverlay40BlendTimer;
     if (timer != 0) {
         if (amount < timer) {
             gOverlay40BlendTimer = timer - amount;
-            output += ((gOverlay40BlendTarget - current) *
+            current += ((gOverlay40BlendTarget - output) *
                        gOverlay40BlendTimer) / gOverlay40BlendDuration;
         } else {
             gOverlay40BlendTimer = 0;
         }
-        gOverlay40BlendOutput = output;
+        gOverlay40BlendOutput = current;
     }
 
-    remaining = context->count - 1;
     record = context->records;
-    if (context->count != 0) {
-        do {
-            if (*enabled != 0) {
-                source = record->source;
-                if (source != 0) {
-                    group = source->groups;
-                    groupRemaining = ((record->count + 0xF) >> 4) - 1;
-                    if (((record->count + 0xF) >> 4) != 0) {
-                        do {
-                            *group++ = 0;
-                        } while (groupRemaining-- != 0);
-                    }
-
-                    color = source->colors;
-                    vertex = record->vertices;
-                    vertexRemaining = record->count - 1;
-                    if (record->count != 0) {
-                        do {
-                            vertex->red = (color->red * output) >> 8;
-                            vertex->green = (color->green * output) >> 8;
-                            vertex->blue = (color->blue * output) >> 8;
-                            color++;
-                            vertex++;
-                        } while (vertexRemaining-- != 0);
-                    }
-                    record->dirty = 0;
+    remaining = context->count;
+    while (remaining--) {
+        if (*enabled != 0) {
+            source = record->source;
+            if (source != 0) {
+                group = source->groups;
+                groupRemaining = (record->count + 0xF) >> 4;
+                while (groupRemaining--) {
+                    *group++ = 0;
                 }
+
+                color = source->colors;
+                vertexRemaining = record->count;
+                vertex = record->vertices;
+                while (vertexRemaining--) {
+                    vertex->red = (color->red * current) >> 8;
+                    vertex->green = (color->green * current) >> 8;
+                    vertex->blue = (color->blue * current) >> 8;
+                    vertex++;
+                    color++;
+                }
+                record->dirty = 0;
             }
-            enabled++;
-            record++;
-        } while (remaining-- != 0);
+        }
+        enabled++;
+        record++;
     }
 }
 #else

@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 97904,
-  "nonmatching_overlay_c_bytes": 325960,
+  "matched_overlay_c_bytes": 98252,
+  "nonmatching_overlay_c_bytes": 325612,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 64,
   "bss_bytes": 77680,
@@ -8553,7 +8553,7 @@
      "type": "c",
      "source": "overlays/o040/overlay40DrawTintRectangle",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x690",

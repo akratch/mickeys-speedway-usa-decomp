@@ -258,6 +258,18 @@ overlay callers/callees outside the range were observed.
 | `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | B | calls `gzip_inflate_block`; ext callers |
 | `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B | calls `_bzero`; called by `main/gzip_asm` |
 
+`func_8004BCC4` compiles to the exact 168-instruction shape and exact masked
+words at the stock flags, but is not an object match: four relocation sites
+(two HI16/LO16 pairs) retain different symbol identities. The first is at
+function offset `+0x34`, where the pool-end address is spelled as
+`D_800D60E8 + 0x400` instead of `D_800D64E8`; the second starts at `+0x98`,
+where window zero's width field is based on `D_800D64E8` instead of its
+`D_800D64F4` field alias. The 119-combination flag lattice kept the stock
+`-O2 -mips2` result best. An explicit-alias source variant fixed the names but
+changed the frame and added three instructions, so the readable JFG-derived
+candidate remains under `NON_MATCHING` and the extracted assembly is
+canonical.
+
 `func_8004B1DC` has a readable DKR-JP-derived candidate under
 `NON_MATCHING`. Its best stock-flag build has the target's 128-byte frame and
 matches through function offset `+0x2C`, but is 28 instructions short with
@@ -282,9 +294,33 @@ out of the candidate and reverses four dependent comparison operands. The
 stock flag lattice found no exact result. The requested bounded permuter could
 not start because `tools/permuter` is absent from this lane.
 
-`func_8004BA8C` plateaus at the exact 46-word size and relocation surface under stock flags: 10 positional words differ, first at `+0x18`.
-A distinct default-width local closes 18 prior residuals; the target frame is `0x30` versus the candidate's `0x28`.
-The remaining blocker is the font-record pointer web and its two conversion-call spill slots (`+0x18`/`+0x20` target, `+0x1C`/`+0x24` candidate).
+`func_8004BA8C` has an exact-size JFG/DKR-derived width candidate under
+`NON_MATCHING`. The best declaration ordering compiles to 46 instructions
+with the first six exact; its first mismatch is the frame allocation at
+function offset `+0x18` (40 bytes versus the target's 48). The font pointer
+spill is at the exact `sp+0x18` slot, but the spacing pointer lands at
+`sp+0x24` instead of `sp+0x20`, causing IDO to restore the stack before the
+loop and cascading into 28 positional word differences. The stock flag
+lattice remained best; ten source-shape and local-order attempts did not
+recover the retail spill layout. A focused retry after the independently
+observed IDO source-line scheduling effect in `runlinkFlushModules` explored
+formatting-only permutations for three minutes without improving the canonical
+475 permuter score; the frame and spill layout are insensitive to that lever.
+A fresh full 119-configuration flag sweep again left stock `-O2 -mips2 -32`
+best at 46 instructions, 28 positional differences, and first mismatch
+`+0x18`. Explicit padded spill-carrier variants retained the 40-byte frame
+(29 differences), while making the carrier volatile regressed to 31
+differences without producing the target stack layout.
+An additional retry checked the lattice's only plausible missing flag family,
+optimized code with bare debug metadata, but IDO's driver rejects `-O2` and
+`-g` together in either order. Marking the spacing and font-data pointers
+`register`, singly and together, produced objects byte-identical to the
+46-word baseline. The frame/spill plateau is therefore unchanged.
+Changing the input pointer from `char *` to `u8 *`, as suggested by the
+target's byte loads, also produced an object byte-identical to that baseline.
+A fresh 119-configuration sweep still left stock flags at 46 words, 28
+positional differences, and first mismatch `+0x18`; signedness is not the
+lever behind the frame and spill layout.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
@@ -565,14 +601,9 @@ but 17 register operands differ from first mismatch `+0x38`. IDO assigns the
 texture-table address temporaries later in the temporary FIFO and tests the
 copied loop count in `t1`, while the target uses the preceding registers and
 tests the original count in `t0`; target assembly remains canonical.
-`func_80020E4C` plateaus after the full flag lattice and ten coherent
-source/type/control-flow spellings. Its best Mickey-only `NON_MATCHING`
-candidate has the target's `0x40` frame and emits 112 instructions versus
-113, with 83 differing positional words from first mismatch `+0x48`. The
-candidate collapses the exception scan's zero-index scale-and-add pointer
-setup into one move where the target retains both instructions; the following
-temporary allocation and schedule remain shifted. Target assembly remains
-canonical and no exact bytes are claimed.
+`func_80020E4C` plateau: canonical C emits 112/113 words, with 77 differing
+from `+0x64`; the missing exception-index scale shifts later temporary
+allocation after type, assignment, induction, flag, and permuter sweeps.
 **Why most rows have no new `mickey.us.yaml` split.** §1's "measured file
 boundary" tier requires a whole-`.text` match; this pass only matched
 **Why the original scan added no `mickey.us.yaml` splits.** §1's "measured
@@ -664,9 +695,22 @@ All 11 instruction words and four HI16/LO16 relocation pairs are exact.
 same point where JFG initializes video, immediately before the PI/RCP sequence.
 The canonical body is exact at 74 words and all 52 relocation sites.
 
-`func_800339B4` retains JFG's `viReset`-shaped, linked-exact 50-word candidate;
-its literal omits framebuffer relocations from `+0x1C`, while extern/array forms
-add address formation and disrupt the schedule, so the asm remains canonical.
+`func_800339B4` has JFG's `viReset` role: the shutdown caller invokes it after
+stopping RSP/RDP work and before rumble teardown. Its best 50-word
+`NON_MATCHING` body is linked-byte-exact, but the fixed framebuffer literal
+omits the target object's three `D_80380000`/`D_80380004` relocation sites,
+first at function offset `0x1C`. Spelling the address as an extern restores the
+first symbol identity but adds an address-formation instruction and shifts the
+remaining schedule. A fresh incomplete-array extern experiment likewise added
+one instruction under the resident `-mips2` flags and produced 43 positional
+differences; a full 119-configuration flag sweep found no exact alternative.
+Driving the same extern through a direct indexed loop also emitted 51 words,
+with 44 masked positional differences from `+0x1C` and 12 relocation records
+against the target's 13. An alignment-qualified extern, intended to expose the
+framebuffer's zero low half without an added address instruction, is not valid
+IDO C syntax and was rejected by cfe. The original literal-pointer body remains
+the instruction-exact candidate.
+Section 1.5 therefore keeps the address label and the original asm canonical.
 
 `viAllocateZBuffer` and `viFreeZBuffer` are adopted at tier B as the paired
 allocation lifecycle around mode changes. Their canonical bodies are exact at
@@ -853,8 +897,6 @@ functions is classified as handwritten assembly under §6.2.
 | `camGetFOV` | `0x220A0` | B — role/order | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `func_80021444` | `0x22044` | D — retained Mickey auto-name; paired camera-state effect only | 64 | Mickey-only bounded state setter; configured object, two HI16/LO16 relocation pairs, linked range and full ROM exact. |
 | `func_800214AC` | `0x220AC` | D — retained Mickey auto-name; active-camera state effect only | 56 | Mickey-only active-camera byte toggle; configured object, two HI16/LO16 relocation pairs, linked range and full ROM exact. |
-| `func_80021504` | `0x22104` | D — retained Mickey auto-name; JFG `camSetFOV` role/order | 532 | JFG projection-update body adapted for Mickey's camera-state mirror and regional scale path; configured object, 133 instruction words and relocation layout exact. |
-| `func_80021718` | `0x22318` | D — retained Mickey auto-name; DKR `cam_reset_fov` projection-reset role | 148 | DKR projection-reset body adapted to Mickey's matrix globals; configured object, 37 instruction words and relocation layout exact. |
 | `func_80021838` | `0x22438` | D — retained Mickey auto-name; DKR reset role and JFG camera TU position only | 224 | DKR reset body adapted to Mickey's extended camera fields and store order; configured object, six relocations, linked range and full ROM exact. |
 | `camGetWaterLine` | `0x225A0` | D — TU order only, no per-symbol callgraph argument recorded | 16 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camGetMode` | `0x22518` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact. |
@@ -862,7 +904,6 @@ functions is classified as handwritten assembly under §6.2.
 | `camGetNo` | `0x22564` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact. |
 | `func_80021970` | `0x22570` | D — retained Mickey auto-name; indexed camera-array role only | 36 | Mickey-only indexed camera-array getter; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `camSetNo` | `0x22594` | D — TU order only, no per-symbol callgraph argument recorded | 12 | Configured object, relocation pair, linked range and full ROM exact; Mickey omits JFG's bounds guard. |
-| `func_800219D0` | `0x225D0` | D — retained Mickey auto-name; DKR `copy_viewports_to_stack` body and JFG `camUserViewTick` role/order | 416 | DKR viewport-stack body adapted for Mickey's six-camera bound and output index; configured object, 104 instruction words and relocation layout exact. |
 | `camEnableUserView` | `0x22770` | D — JFG TU role/order and viewport-flag dataflow | 116 | JFG body adapted to Mickey's viewport array; configured object, two HI16/LO16 relocation pairs, linked range and full ROM exact. |
 | `camDisableUserView` | `0x227E4` | D — JFG TU role/order and viewport-flag dataflow | 120 | JFG body adapted to Mickey's viewport array; configured object, two HI16/LO16 relocation pairs, linked range and full ROM exact. |
 | `camIsUserView` | `0x2285C` | D — JFG TU role/order | 44 | JFG body adapted to Mickey's viewport-flags symbol; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
@@ -899,17 +940,20 @@ functions is classified as handwritten assembly under §6.2.
 | `camGetProjectionMtx` | `0x252A4` | D — JFG role and Mickey final projection-matrix dataflow | 12 | JFG body and masked skeleton exact; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `func_800246B0` | `0x252B0` | D — retained Mickey auto-name; JFG `camProjectPoint` role/order | 388 | Mickey matrix/viewport reconstruction; configured object, 13 text relocations, linked range and full ROM exact. |
 | `camGetProjZ` | `0x25538` | D — JFG TU role/order and projection-depth dataflow | 64 | JFG body adapted to Mickey's rotation matrix; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
-| `func_80024BA0` | `0x257A0` | D — retained Mickey auto-name; JFG `camScreenShake` role/order | 296 | Mickey distance-based shake reconstruction; configured object, 74 instruction words and 10 text relocations exact. |
 | `func_80024D00` | `0x25900` | D — retained Mickey auto-name; JFG `camTick` role/order | 472 | Mickey shake-envelope tick reconstruction for six cameras; configured object, 11 text relocations, linked range and full ROM exact. |
 
 Bounded plateau:
 
 | Function | ROM | Evidence and retained result |
 |---|---:|---|
-| `func_80024834` | `0x25434` | D — retained Mickey auto-name; JFG `camReversePoint` is the nearest camera-TU role/skeleton. The new four-coefficient lifetime shape emits the target's 65 instructions and exact FP-temp lane, improving to 33 positional words different from first mismatch `+0x0`; workbench verdict `structure-mismatch`, `structure-buckets` stack-home lever. IDO allocates a `0x40` frame instead of `0x38`; assembly remains canonical. |
-| `func_80024978` | `0x25578` | D — retained Mickey auto-name; JFG `camCopyOrthoMatrix` supplies the role and loop body. Workbench verdict `structure-mismatch`, `structure-buckets` lever: the 84-word candidate aligns to the 83-word target with only one inserted address materialization at aligned row 23 and otherwise exact register lanes; positional first mismatch remains `+0x5C`. Read-only, pointer, paired-symbol, peeled-loop, and m2c-shaped retries did not remove it; same-TU camera `.data` knowledge remains the blocker and assembly stays canonical. |
-| `func_80022FD4` | `0x23BD4` | D — JFG supplies only the `camDoSprite` role/order; the Mickey-only `NON_MATCHING` reconstruction plateaued after the flag lattice and ten source/lifetime variants. The best `-Wab,-r4300_mul` build has the exact `0xB0` frame and emits 366 instructions against 369, with 297 positional words differing from first mismatch `+0x2C` because IDO places three coordinate stack homes twelve bytes above the target before a later three-instruction schedule deficit. A fresh three-float gap probe fixes the caller-relative homes but expands the frame to `0xB8` in both ordinary and volatile forms; assembly remains canonical. |
-| `func_80023598` | `0x24198` | D — retained Mickey auto-name; camera-TU placement and call to the matched sprite-direct helper. A fresh m2c-guided sentinel-loop and scale-table lifetime pass improves the best configured candidate to 286 instructions against 284 and 263 positional words different from first mismatch `+0x0`; workbench reports mixed constant/structural/register residuals and the `constant-audit` lever. Constraining the scale-table read fixes its early relocation schedule, but IDO still retains the display-list argument in `$s1` with a `0xA0` frame rather than the target's argument home and `0x90` frame; address-taking removes `$s1` but grows to 290 instructions, so assembly remains canonical. |
+| `func_80021504` | `0x22104` | D — retained Mickey auto-name; JFG `camSetFOV` supplies the role and starting projection body. After the full flag lattice, nine coherent source/type/lifetime variants and a bounded two-worker permuter batch, the best configured candidate has the exact 532-byte size and 133 instructions but differs in 11 positional words from first mismatch `+0x1D4`. The first 117 instructions are exact; only temporary registers in the final projection-matrix ring update differ. The permuter's lower score moved the mandatory perspective rebuild inside the state-mirror branch and was rejected as semantically invalid; assembly remains canonical. |
+| `func_800219D0` | `0x225D0` | D — retained Mickey auto-name; DKR `copy_viewports_to_stack` supplies the body and JFG supplies the `camUserViewTick` role/order. After the full flag lattice, eight coherent expression/lifetime variants and a bounded two-worker permuter batch, the best configured candidate has the exact 416-byte size and 104 instructions but differs in 17 positional words from first mismatch `+0x98`: the output index uses the opposite commutative `addu` operand order, then IDO makes different scheduling/register choices in the viewport extent expressions. The permuter's only lower score masked a signed 32-bit coordinate to 16 bits and was rejected as semantically invalid; assembly remains canonical. |
+| `func_80021718` | `0x22318` | D — retained Mickey auto-name; DKR `cam_reset_fov` is the 0.439 nearest skeleton and supplies the projection-reset body shape. After the full flag lattice, six semantics-preserving source/type/address variants, and a bounded two-worker permuter batch, the best candidate has the exact 148-byte size, 37 instructions and relocation surface but differs in 11 positional words from first mismatch `+0x4C`, all in temporary-register allocation for the rotating matrix-slot update. The permuter's score-195 candidate removed the required ring mask and invented a dead guard, so it was rejected; assembly remains canonical. |
+| `func_80024834` | `0x25434` | D — retained Mickey auto-name; JFG `camReversePoint` is the nearest camera-TU role/skeleton. After the full flag lattice and a bounded two-worker permuter batch, the best configured candidate emits 66 instructions against 65 and differs in 59 positional words from first mismatch `+0x0`: `-Wab,-r4300_mul` reduces the frame from target `0x38` to `0x28` and removes the target's dead float spill. The same semantic body is byte-exact without that required TU override; assembly remains canonical. |
+| `func_80024978` | `0x25578` | D — retained Mickey auto-name; JFG `camCopyOrthoMatrix` supplies the role and loop body, with Mickey adding its projection scale. After the full flag lattice, eight coherent source/type/indexing variants, and a bounded two-worker permuter batch, the best configured candidate emits 84 instructions against 83 and differs in 59 positional words from first mismatch `+0x5C`: IDO emits one extra address materialization for the third peeled coefficient, likely because the reconstruction sees an extern array rather than the original same-TU data definition. The permuter's score-135 base received no improvement; assembly remains canonical. |
+| `func_80024BA0` | `0x257A0` | D — retained Mickey auto-name; JFG `camScreenShake` supplies only the camera-TU role/order while Mickey establishes the distance-based shake body. After the full flag lattice, ten coherent source/lifetime spellings and a bounded two-worker permuter batch, the best configured candidate has the exact 296-byte size and differs in 15 positional words from first mismatch `+0x60`: IDO assigns the long-lived `$f20` register to the Z delta instead of the target's X delta, cascading through the arithmetic temporaries. The permuter's best score is 125, not zero; assembly remains canonical. |
+| `func_80022FD4` | `0x23BD4` | D — JFG supplies only the `camDoSprite` role/order; the Mickey-only `NON_MATCHING` reconstruction plateaued after the flag lattice and ten source/lifetime variants. The best `-Wab,-r4300_mul` build has the exact `0xB0` frame and emits 366 instructions against 369, with 297 positional words differing from first mismatch `+0x2C` because IDO places three coordinate stack homes twelve bytes above the target before a later three-instruction schedule deficit. The assembly remains canonical. |
+| `func_80023598` | `0x24198` | D — retained Mickey auto-name; camera-TU placement and call to the matched sprite-direct helper. The Mickey-only `NON_MATCHING` reconstruction plateaued after the full flag lattice and ten coherent control-flow, type, lifetime and parameter-homing variants. The best configured candidate emits 286 instructions against 284 and differs in 275 positional words from first mismatch `+0x0`: IDO retains the display-list argument in `$s1` and allocates a `0xA0` frame, while the target spills that argument and uses a `0x90` frame. The assembly remains canonical. |
 
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,
 `n_env`, `n_load`, `math_util`) needed no new split; they already have one.
@@ -1066,9 +1110,21 @@ assembly; Mickey supplies this C body and table indexing, as the point-of-use
 algebraic reassociation. The default flags, three call relocations, data pair,
 object words, and linked ROM range are exact without post-processing.
 
-`func_8003968C`: best remains **37/37 instruction words exact** with **18 relocation identities differing**, first `+0x24`.
-The fresh typed `MenuControllerRepeatState` body is also 37/37 but consolidates the state base and differs at 22 relocation sites; JFG's exact skeleton remains assembly.
-Resident flags tie the full lattice, so symbol binding—not instruction codegen—blocks the canonical match.
+`func_8003968C` remains a **tier-D NON_MATCHING plateau** over **0x94 bytes /
+37 words** at ROM `0x3A28C`. A Mickey-derived four-iteration initialization
+loop unrolls to all 37 target instruction words and the same linked bytes, but
+18 relocation sites differ, first at `+0x24`: IDO binds the later elements to
+the three array-base symbols, while the target names each individual BSS
+element. Scalar, volatile, cast, block, and loop variants, the full flag
+lattice, and a bounded ten-minute `-mips2` permuter run did not satisfy both
+the code and relocation-identity gates. The all-word result remains diagnostic
+only and the original assembly is canonical. A later scalar-label retry
+confirmed that the nine interior BSS labels already exist: naming them fixes
+the relocation identities, but IDO then pools the repeated constants and
+shrinks the body to 29 instructions. Switch, ternary-selection, scoped-local,
+volatile-access, dead-reference, induction-expression, and comma-expression
+variants plus a fresh 119-combination flag sweep did not preserve the target's
+37-instruction temp sequence with those scalar relocations.
 
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and
@@ -1202,9 +1258,18 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8`: best remains **19/32 differing words**, first `+0xC`; the
-fresh typed m2c body lands size-exact under `NON_MATCHING` at 25/32, first
-`+0x0`, blocked by five opcode-schedule and two relocation-identity mismatches.
+`func_8003A2C8` remains a **tier-D NON_MATCHING plateau** over **0x80 bytes /
+32 words** at ROM `0x3AEC8`. Mickey-derived packed-field writes correspond to
+JFG's `frontSetScreenMode`, with the comparison recorded in a point-of-use
+`PROVENANCE` note but no public name adopted. The best size-exact candidate
+differs in 19 register operands, first at `+0xC`: the target retains the state
+address and normalized mode in `a1`/`v0`/`v1`, while IDO assigns a different
+temporary chain. The 119-combination flag lattice and a bounded ten-minute
+permuter run did not reach exactness, so the original assembly remains
+canonical. A later raw-byte/type-role retry kept the exact 32-instruction
+opcode and relocation schedule in its best basin but did not improve the 19
+register-operand residual; declaration-order and code-free dead-read probes
+reached the same allocator boundary.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
@@ -1261,9 +1326,17 @@ carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
 live range; the default flags, both data relocations, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A520`: best remains **3/9 differing words**, first `+0x8`; the fresh
-typed raw-state m2c body landed under `NON_MATCHING` at 6/9, with an exact
-nine-word shape but a whole temporary-register-ring phase shift.
+`func_8003A520` plateaus size-exact at **3/9 differing words**, first `+0x8`.
+Its operation and ordered position correspond to JFG's
+`frontSet2PlayerSplit`, but the full 119-combination flag lattice and a bounded
+permuter batch could not reproduce the target's old-flag register chain. The
+best natural candidate uses a narrowing result cast; IDO still assigns that
+chain two temporary registers earlier than the target. It remains assembly
+and keeps its anonymous name. A later ten-variant byte-view/bitfield and
+temp-FIFO retry preserved the exact nine-instruction structure but reached no
+better than four register differences, so the earlier three-word candidate
+remains the retained plateau. A native aggregate/bitfield and explicit-DAG
+retry likewise preserved the operation but did not improve that result.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no
@@ -1743,9 +1816,6 @@ eight-difference basin at `+0x14`. The repeated full flag lattice therefore
 leaves the external-`u64` candidate as the best faithful form and confirms the
 remaining blocker is the combined return-value store versus distinct BSS
 relocation identities.
-This run's explicit timestamp-struct retry also emitted 28 words from `+0x0`;
-the guarded external-`u64` body remains best at 20/19 words, eight differences
-from `+0x14`, blocked by the separate low-word BSS relocation identity.
 
 `osScGetTaskType` retains its JFG-derived switch under `NON_MATCHING`. The
 canonical candidate emits all 34 target text instructions and all eight
@@ -1770,9 +1840,7 @@ A fresh structural retry removed the explicit bit-test temporary and tested
 the source value directly. That form regressed to 30 instructions versus 28,
 with 30 positional differences from `+0x0`; changing only the temporary's
 signedness stayed in the existing 29-instruction, first-`+0x0` basin. The
-canonical MIPS II permuter then led to a coherent value-bit/cursor-field
-lifetime rewrite: exact 28-word size, 18 differences from `+0x10` (17 register,
-one opcode); the remaining blocker is constant/next-bit register coloring.
+original candidate remains the best faithful form.
 
 Its paired bit reader `func_8002C70C` likewise retains a Mickey-derived
 `NON_MATCHING` body. The 119-combination flag lattice and five local-width and
@@ -1788,9 +1856,6 @@ values' stored width rather than their promoted arithmetic width. It regressed
 to 32 instructions, 24 positional differences, and first mismatch `+0x0`.
 The promoted-width candidate remains best at the target's 31 instructions,
 18 differences, and first mismatch `+0x14`.
-This run's explicit cursor-field retry added one word; a bounded MIPS II
-permuter improved only by inventing a 64-bit mask seed, so the faithful
-31-word/18-difference candidate remains guarded with the same `+0x14` blocker.
 
 The full-save-image builder `func_8002CF6C` also retains a Mickey-derived
 `NON_MATCHING` body after the 119-combination flag lattice and ten
@@ -1973,17 +2038,11 @@ at `+0x204`, followed at `+0x20C` by the zero-vector `f0`/`f6` choice. The
 remaining cluster is header-copy/branch and FP normalization scheduling. JFG
 `func_80060400` is the assembly oracle; asm stays canonical.
 
-`func_8003EC8C` is size-exact with 24/47 residuals from `+0x30`; the target
-hoists the line-table address materialization across the first branch. Typed
-base locals disrupt both temporary-register rings; asm stays canonical.
-
-`partNullifyCircularParticleParents` is opcode/size-exact with 25/42 positional
-residuals from `+0x0`; implicit loop bounds seed both carrier pairs oppositely.
-An explicit end pointer changes the frame, so asm stays canonical.
-
-`debug_text_width` is size-exact with 9/66 residuals from `+0x20`; direct typed
-table access fixes one word, but its buffer remains eight stack bytes above the
-target and changes the value allocation. Asm stays canonical.
+`func_8003EC8C` plateaued size-exact at 47 words, with 24 residuals from
+`+0x30`: the target hoists `D_8007C894`'s HI16 load before the count decrement.
+A branch-local pointer fixes that schedule but disrupts both branches' register
+allocation. The flag lattice and bounded permuter found no compliant exact
+form; asm stays canonical.
 
 `func_8004054C` plateaued one word short (124/125), with 43 aligned residuals
 from `+0x4C`: IDO folds the free-bit scan into a pointer move, then colors the
@@ -2189,11 +2248,11 @@ placeholders are never imported.
 | `0x8005013C` | `0x40` | `func_800768D4` | D naming; placeholder retained. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005017C` | `0x30` | `func_80076918` | A; exact 48 B, masked `6/12`, placeholder retained. Matched C: exact 48 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800501AC` | `0x1C` | `func_80076948` | D naming; placeholder retained. Matched C: exact 28 B and relocation surface at `-O2 -mips2 -32` |
-| `0x800501C8` | `0xB4` | `func_80076968` | D; 0.653 skeleton similarity, placeholder retained. Fresh explicit stream-entry typing and Mickey m2c/JFG CFG reconstruction collapse to the prior exact opcode/relocation basin; 7 register-only words remain from one `$s2`/`$s3` allocation swap, first mismatch `+0x5C` |
+| `0x800501C8` | `0xB4` | `func_80076968` | D; 0.653 skeleton similarity, placeholder retained. Plateau after 10 variants: exact size, opcode schedule, and relocations; 7 register-only words remain from one `$s2`/`$s3` allocation swap, first mismatch `+0x5C` |
 | `0x8005027C` | `0x50` | `func_80076A20` | A; exact 80 B, masked `9/20`, placeholder retained. Matched C: exact 80 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800502CC` | `0x7C` | `func_80076A70` | B; same cleanup callees and position, placeholder retained. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050348` | `0x214` | `animseqInitPath` | B; exact `animseqInitGroup` calls this function. Plateau after the flag lattice, nine type/lifetime/source variants, and a bounded canonical-flag permuter run: the best candidate is 132 instructions against the target's 133, first positional mismatch `+0x0`; the decisive missing instruction is the dead incoming path-index home at `+0x18`, whose absence swaps the entry temporaries and leaves the live path spill at `sp+0x28` instead of target `sp+0x20`. The correct `-mips2` permuter base score was 275 and the capped run found no improvement |
-| `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape. Fresh pointer-typed sound-state and direct-prototype audit after the 119-combination flag lattice preserves the exact 75-instruction candidate with 9 positional words remaining, first `+0x40`; seven are a three-temporary register cycle/tail allocation, while the required float ABI needs a weak alias whose relocation identity differs from `TrapDanglingJump` in this consolidated TU |
+| `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape. Plateau after 9 variants: best candidate has the exact 75-instruction size and call layout, with 9 positional words remaining (first mismatch `+0x40`); seven are a three-temporary register cycle/tail allocation, and the typed `animResetTrap` call has the correct relocation kind but cannot carry the required `TrapDanglingJump` identity alongside this consolidated TU's incompatible integer-signature calls |
 | `0x80050688` | `0x7C` | `animseqStartPath` | B; process-command call position, adopted name. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050704` | `0x78` | `animseqStopPath` | B; process-command call position, adopted name. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005077C` | `0x40` | no unique candidate | D; placeholder retained. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
@@ -2203,12 +2262,12 @@ placeholders are never imported.
 | `0x800508B4` | `0x20` | no unique candidate | D; placeholder retained. Matched C: exact 32 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800508D4` | `0x200` | `func_800772C4` | B; bit-reader call sequence, placeholder retained. Plateau after the flag lattice, nine source/lifetime variants, and a bounded permuter pass: the best candidate is exact-size at 128 instructions with the exact frame, loop, exits, and relocation surface; four preheader words remain from first mismatch `+0x40` because IDO loads `D_80083FA8` before the `0.5f`/`0.390625f` constants, while the target loads those constants first. The permuter imported with the wrong `-mips1` mode and its suggestion regressed the canonical `-mips2` comparison |
 | `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function. Matched C: exact 288 B and `D_800D6B00` relocation pair at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
-| `0x80050BF4` | `0x15C` | `animseqInit` | D; 0.753 skeleton similarity. Fresh fixed-count typing after the 119-combination flag lattice reaches 85/87 instructions but binds loop ends to base-plus-span relocations; the retained 84/87 boundary-symbol form first differs at `+0x34`, where IDO changes the signed-bound loop to equality and then carries three boundary bases instead of reloading them |
+| `0x80050BF4` | `0x15C` | `animseqInit` | D; 0.753 skeleton similarity. Plateau after 10 source/type shapes and a bounded canonical-flag permuter run: best semantic candidate is 84 instructions versus 87, first mismatch `+0x34`; IDO folds three repeated array-base HI/LO relocation pairs into carried registers. A nominal 1090-score permutation was rejected because it made the scroll-loop condition invariant |
 | `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained. Matched C: exact 88 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group, adopted name. Matched C: exact 72 B and relocation surface at `-O2 -mips2 -32` |
-| `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function, placeholder retained. Fresh typed offset-span reconstruction is exact in all 43 opcodes/registers/relocations; two source-spill operands remain, first `+0x60`, because IDO homes the source at `sp+0x18` rather than target `sp+0x1C` |
-| `0x80050E9C` | `0x168` | `animseqFreeGroup` | B; same member-cleanup call graph. Fresh m2c/JFG reconstruction with separate camera, scroll, and lockon types plus the 119-combination flag lattice retains the canonical 89/90-instruction candidate; first word `+0x1C` is the displaced exit branch, first intrinsic mismatch `+0x64`, and IDO still carries the scroll boundary instead of rematerializing the target's lockon-base HI/LO pair |
-| `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family. Matched C: exact 228 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; explicit four-byte directory and signed level-header types resolve the scan allocation |
+| `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function, placeholder retained. Plateau after 10 variants: exact size, opcode schedule, and relocations; 7 operand/register words remain from a three-temporary FIFO rotation and the source stack home at candidate `+0x18` versus target `+0x1C`, first mismatch `+0x28` |
+| `0x80050E9C` | `0x168` | `animseqFreeGroup` | B; same member-cleanup call graph. Plateau after 10 variants: best candidate has the exact `0x20` frame and first 25 instructions, then differs at `+0x64` on the `slti` destination and is one instruction short because IDO reuses the preceding `D_800D6BF8` address where the target rematerializes it; `-Wo,-loopunroll,0` is required to avoid a 25-instruction unroll expansion |
+| `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family. Plateau after 10 source variants: the best candidate has the exact 57-instruction size and relocation identities but 41 positional words differ, first at `+0x2C`, because removing the extra call-argument rematerialization changes the loop's argument-register allocation |
 | `0x800510E8` | `0x40` | `animseqInitGroup` | A; exact 64 B, masked `1/16`, adopted name. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80051128` | `0x9C` | `animseqResetGroup` | B; calls reset-path family, adopted name. Matched C: exact 156 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800511C4` | `0x1A0` | `func_80077BE8` | D; 0.321 skeleton similarity, placeholder retained. Plateau after 10 source/lifetime shapes and a bounded canonical-flag permuter: the best semantic candidate has the exact 104-instruction size, `0x48` frame, and five call relocations, but 58 allocation/schedule words remain from first mismatch `+0x34`; the target copies the header count through `v0`/`s0` and reuses one scaled path offset, while IDO keeps the count in `s4` and rematerializes that offset. The nominal 490-score permutation is one word long |
@@ -2334,7 +2393,7 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Ninety-five functions / 8,508 bytes compile exactly
+**Matching progress.** Ninety-five functions / 8,808 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -2348,9 +2407,10 @@ linked ranges and the full ROM are exact.
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (61 / 6,108 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
+- `main/main` (61 / 6,408 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
   `mainGameWindowChanging`,
-  `mainGameWindowSize`, `mainCPUeffects`, `mainSetGameWindow`, `mainSetAnimGroup`,
+  `mainGameWindowSize`, `mainCPUeffects`, `mainSetGameWindow`, `func_80027D14`,
+  `mainSetAnimGroup`,
   `mainGetAnimGroup`,
   `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
   `func_80027628`, `mainAddZBCheck`,
@@ -2360,8 +2420,7 @@ linked ranges and the full ROM are exact.
   `mainGetMode`, `mainSetMode`,
   `mainTitlePageInit`,
   `mainFrontInit`, `mainStartGame`,
-  `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`,
-  `func_80028EFC`, `func_80028F3C`,
+  `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`, `func_80028F3C`,
   `func_80028F44`, `func_80028F4C`, `func_80028F54`,
   `func_80028F60`, `func_80028F98`,
   `func_80028FA8`,
@@ -2436,18 +2495,20 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   index forms miss by 20 and 40 words. The valid permuter score improved from
   13,270 to 11,970 only by reusing a pointer alias on paths where it is
   uninitialized, so that candidate was rejected.
-- `mainThread`: linked 200-byte body/frame exact; first object mismatch is the
-  `D_803FFFFC` relocation at `+0x18`. A fresh symbolic indexed base restores
-  the symbol but grows the body from 50 to 58 instructions.
-- `mainUpdateZBCheck`: exact `-0x48` frame and 60/63 words; first `+0x24`.
-  A fresh `u16 *` row reaches 61 words but differs in 45; explicit global
-  pointers spill to a `-0x50` frame, so the prior byte-pointer body remains.
-- `func_80027D14`, eight control-flow/register-lifetime hypotheses, the full
-  flag lattice and a bounded two-worker permuter batch, first mismatch `+0x0`:
-  the best Mickey-derived interpolation candidate compiles to 92 rather than
-  91 instructions. IDO starts its global-pointer live range in `$t1` rather
-  than the target's `$t0`, leaving 88 differing words and 24 relocation-position
-  mismatches; the permuter found no improvement from its base score of 4,900.
+- `mainThread`, five source/address hypotheses plus the full flag lattice,
+  first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
+  the exact 200-byte linked instruction stream, frame and control flow, but
+  its literal RAM-end address omits the target assembly's `D_803FFFFC`
+  HI16/LO16 pair at `+0x18`/`+0x28`. Every symbolic spelling adds an address
+  instruction and moves the aligned epilogue, growing the function by eight
+  words.
+- `mainUpdateZBCheck`, five loop/type hypotheses, the full flag lattice and a
+  bounded two-worker permuter batch, first mismatch `+0x24`: the best
+  Mickey-derived candidate has the exact `-0x48` frame and screen-size stack
+  slots but compiles to 60 rather than 63 instructions. IDO schedules the
+  outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
+  removes three dead-looking countdown-loop register copies retained by the
+  target.
 - `levelGetCounts`, ten source/type/loop hypotheses, first mismatch `+0x13c`:
   the best candidate has the target's 1,036-byte size, 259-instruction opcode
   schedule and `-0x58` frame, but three register operands use `$v0` where the
@@ -2466,14 +2527,29 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   allocation divergence (`$a2` rather than `$a3`). The permuter improved its
   MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
   canonical MIPS II recompilation added two instructions, so it was rejected.
-- `joyResetMap`: fixed external-map stores improve to 10/9 words, first `+0x0`.
-  IDO materializes one extra map base; original TU-local BSS uses `$at`
-  directly, while defining it here would invalidly claim 16 B of BSS.
-- `func_80028FCC`: exact 108-byte/27-word body, ten words differ, first `+0x1c`.
-  Fresh m2c-local, OR-chain and common-epilogue spellings all canonicalize to
-  25 words, so the prior raw-return candidate remains best.
+- `joyResetMap`, first mismatch `+0x0`: external storage emits 48 rather than
+  36 bytes; TU-local storage is instruction-exact but wrongly claims 16 B of
+  BSS and shifts the real symbol. A fresh descending scalar-extern probe kept
+  the correct four relocation identities but still materialized four address
+  pairs, and weak tentative definitions retained the same 16 B BSS claim; the
+  repeated 119-combination flag lattice did not improve the valid candidate.
+- `func_80028FCC`, thirteen structural/ABI spellings, first mismatch `+0x1c`:
+  its 108-byte skeleton
+  identifies the tier-B `mainAnyoneHas` role (JFG: 108 B, similarity 0.357),
+  but Mickey passes zero as every middle argument. The exact-sized candidate
+  differs in ten words: raw-return branches versus target normalization into
+  `$t6`/`$t7`/`$t8` and a shared epilogue. A fresh old-style call declaration,
+  logical-OR spelling, explicit boolean lifetimes, and the full flag lattice
+  did not improve that result.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
+- `func_80028EFC`, fifteen control/typing spellings, first mismatch `+0x1c`:
+  exact 64-byte size
+  and 14/16 words; the correct loop predicate is allocated to `$t6`, while the
+  target uses `$at`. Fresh byte-pointer, `void *` cursor, explicit-goto and
+  post-increment-bound probes either unrolled or entered a three-word
+  strength-reduced basin; the repeated flag lattice did not improve the
+  two-register residual.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime
   hypotheses and the full flag lattice: the best canonical candidate has the
   exact 348-byte, 87-instruction boundary and `-0x10` frame, but differs in 39
@@ -2570,9 +2646,14 @@ function `+0x44` (plus two local PC16 assembler-metadata differences) and a
 duplicate linked table surface. The exact source remains behind
 `NON_MATCHING`, with the target assembly canonical until that rodata split is
 handed off.
-The 156-byte `diRcpMoveWd` remains 39/39 instruction-exact after a fresh m2c/table check and flag sweep.
-Its first mismatch is the table relocation at `+0x34`: IDO binds the switch to this TU's `.rodata`, not shared `jtbl_80083950`.
-Hypothesis/blocker: promotion requires the shared-rodata split outside this lane's ownership; the exact body remains `NON_MATCHING`.
+The 156-byte `diRcpMoveWd` helper reaches the same section-ownership plateau.
+JFG's six-case empty switch reproduces all 39 target instructions, the
+96-byte frame, both calls, and the diagnostic-string relocation at the
+resident defaults. IDO also emits the correct 11-entry switch table, but binds
+the function's first table relocation at `+0x34` to this TU's `.rodata` rather
+than Mickey's existing shared `jtbl_80083950` symbol, creating a duplicate
+linked table surface. The instruction-exact body remains behind
+`NON_MATCHING` until the shared rodata split is handed off.
 The 268-byte `diRcpGeometryMode` helper is exact at the resident defaults.
 JFG's object-like `stubbed_printf` macro preserves the target's empty geometry-
 flag switch and its otherwise-unused saved registers, reproducing all 67 owned
@@ -2677,18 +2758,30 @@ callee plus two data relocation pairs without normalization.
 The 136-byte Mickey-named `func_80049A8C` resets either one record or all five,
 clearing state/status and two flag bits. Its selection branches, stack home,
 countdown loop, and data relocation pair are exact at the resident defaults.
-The 156-byte `func_8004978C` remains exact in 37/39 positions after a fresh m2c pass with the proven 32-byte `FxRecord` layout and a new flag sweep.
-The first mismatch is `+0x4`: IDO chooses an 8-byte leaf frame while the target uses 16 bytes; only the prologue/epilogue adjustments differ.
-Hypothesis: an optimized-out original local enlarged the frame; prior padding/aggregate/qualifier forms disturb otherwise-exact allocation, so it remains `NON_MATCHING`.
+The preceding 156-byte `func_8004978C` reaches an exact-size frame-allocation
+plateau after the full flag lattice and nine coherent local-layout hypotheses.
+The Mickey-derived typed body selects one or all five records and applies the
+caller-selected flag mask with the exact 39-instruction control flow, register
+allocation, stack spill at `sp+0x4`, and data relocation pair. Only the leaf
+frame adjustment differs: IDO chooses an 8-byte frame while the target uses 16
+bytes, leaving two words different from function `+0x4`. Padding, aggregate,
+iteration-pointer, and qualifier variants either leave that frame unchanged or
+disturb otherwise-exact allocation, so the clean scalar candidate remains
+behind `NON_MATCHING` and the target assembly stays canonical.
 The 180-byte `func_8004AD34` (`fxGenerateTextures` in JFG) is exact too. Its
 four-entry descending callback loop, flag test, callback-table refresh, and
 indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
-The 112-byte `func_8004ACC4` retains its best exact-size candidate at 18/28 differing words; fresh m2c return typing and typed declaration-order forms regressed to 25 and 24.
-The first mismatch remains `+0x14`; the loop and relocation set are exact, but IDO rotates the counter, trap address, and callback cursor.
-Hypothesis: the missing original aggregate/type lifetime fixes that allocation; the preserved candidate remains `NON_MATCHING`.
+The 112-byte `func_8004ACC4` reaches an exact-size allocation plateau after
+the full flag lattice, nine coherent lifetime/source forms, and one bounded
+permuter batch. JFG's same-size `func_8006FFF8` establishes the descending
+four-slot initialization skeleton, while Mickey fixes the independent store
+order. The best typed candidate has the exact loop and relocation set but
+differs in 18 of 28 words under the resident defaults, first at function
+`+0x14`: IDO assigns the counter, trap address and callback cursor one register
+group earlier than the target. The candidate remains behind `NON_MATCHING`.
 
 The 208-byte `func_8004AF68` (`fxCpuTextureFlush` in JFG) reaches a bounded
 boundary/allocation plateau after the full flag lattice, nine coherent

@@ -1,46 +1,28 @@
 #include "PR/ultratypes.h"
-
-typedef struct Overlay40Command { u32 w0; u32 w1; } Overlay40Command;
-typedef struct Overlay40Position { s32 y; s32 x; s32 reserve[3]; } Overlay40Position;
+#include "n_audio/mbi.h"
 
 extern s16 gO40TintAlphaReloc, gO40TintRedReloc;
 extern s16 gO40TintGreenReloc, gO40TintBlueReloc;
-extern Overlay40Command gO40TintDisplayListReloc[];
+extern Gfx gO40TintDisplayListReloc[];
 extern void o40TintCallReloc();
 
-#define O40_SHIFTL(value, shift, width) \
-    (((u32)(value) & ((1U << (width)) - 1U)) << (shift))
-
 /* Overlay 40 text +0x534..+0x690. */
-#ifdef NON_MATCHING
-void overlay40DrawTintRectangle(Overlay40Command **displayList) {
-    Overlay40Command *command;
-    Overlay40Position position;
+void overlay40DrawTintRectangle(Gfx **displayList) {
     s32 inverse, red, green, blue;
+    s32 x;
+    s32 y;
 
     if (gO40TintAlphaReloc != 0) {
-        o40TintCallReloc(&position.x, &position.y, displayList);
+        o40TintCallReloc(&x, &y, displayList);
         inverse = 0xFF - gO40TintAlphaReloc;
         red = (gO40TintRedReloc * inverse) >> 8;
         green = (gO40TintGreenReloc * inverse) >> 8;
         blue = (gO40TintBlueReloc * inverse) >> 8;
-        command = (*displayList)++;
-        command->w0 = 0x06000000;
-        command->w1 = (u32)gO40TintDisplayListReloc;
-        command = (*displayList)++;
-        command->w0 = 0xFA000000;
-        command->w1 = (red << 24) | ((green & 0xFF) << 16) |
-                      ((blue & 0xFF) << 8) | (gO40TintAlphaReloc & 0xFF);
-        command = (*displayList)++;
-        command->w1 = 0;
-        command->w0 = 0xF6000000 | O40_SHIFTL(position.x, 14, 10) |
-                      O40_SHIFTL(position.y, 2, 10);
+        gSPDisplayList((*displayList)++, gO40TintDisplayListReloc);
+        gDPSetPrimColor((*displayList)++, 0, 0, red, green, blue,
+                        gO40TintAlphaReloc);
+        gDPFillRectangle((*displayList)++, 0, 0, x, y);
         o40TintCallReloc(displayList);
-        command = (*displayList)++;
-        command->w1 = 0xFFFFFFFF;
-        command->w0 = 0xFA000000;
+        gDPSetPrimColor((*displayList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40DrawTintRectangle/func_overlay_040_F0000534_1886DE4.s")
-#endif

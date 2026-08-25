@@ -24,7 +24,7 @@
 
 extern s32 D_80079C00;
 #ifdef NON_MATCHING
-extern void *volatile D_80079C04;
+extern SuspendedModelTexture *D_80079C04;
 #else
 extern void *D_80079C04;
 #endif
@@ -1019,14 +1019,15 @@ typedef struct ModelCacheEntry {
     ObjectModel *model;
 } ModelCacheEntry;
 
-/* Mickey-only reconstruction; JFG's modSuspendModelTextures remains assembly. */
+/* Mickey-only reconstruction; JFG's modSuspendModelTextures remains assembly.
+ * Plateau: 112/113 words, 77 differ, first +0x64; the exception-index scale
+ * remains absent after type, assignment, induction, flag, and permuter sweeps. */
 void func_80020E4C(s16 *exceptions) {
     SuspendedModelTexture *saved;
     s32 modelIndex;
 
     D_80079C08 = 0;
-    saved = func_8002B280(0x3E8, 0x8A);
-    D_80079C04 = saved;
+    saved = D_80079C04 = func_8002B280(0x3E8, 0x8A);
     modelIndex = 0;
     if (D_800CB48C > 0) {
         if (D_80079C08 < 0x7D) {
@@ -1040,30 +1041,23 @@ void func_80020E4C(s16 *exceptions) {
                     s32 exceptionIndex = 0;
 
                     if (*exceptions != -1) {
-                        s16 *exception = &exceptions[exceptionIndex];
-                        s16 exceptionId = *exception;
-
                         do {
-                            if (exceptionId == modelId) {
+                            if (exceptions[exceptionIndex] == modelId) {
                                 excluded = 1;
                             }
-                            exceptionId = exception[1];
-                            exception++;
-                        } while (exceptionId != -1 && excluded == 0);
+                            exceptionIndex++;
+                        } while (exceptions[exceptionIndex] != -1 && excluded == 0);
                     }
                     if (excluded == 0) {
                         s32 textureIndex = 0;
 
                         if (model->numberOfTextures > 0) {
-                            s32 offset = 0;
-
                             if (D_80079C08 < 0x7D) {
                                 do {
-                                    saved->value = (s32)((ModelTexture *)((u8 *)model->textures + offset))->texture;
-                                    saved->id = func_8003484C(((ModelTexture *)((u8 *)model->textures + offset))->texture);
-                                    func_800347A0(((ModelTexture *)((u8 *)model->textures + offset))->texture);
+                                    saved->value = (s32)model->textures[textureIndex].texture;
+                                    saved->id = func_8003484C(model->textures[textureIndex].texture);
+                                    func_800347A0(model->textures[textureIndex].texture);
                                     textureIndex++;
-                                    offset += sizeof(ModelTexture);
                                     D_80079C08++;
                                     saved++;
                                 } while (textureIndex < model->numberOfTextures && D_80079C08 < 0x7D);
