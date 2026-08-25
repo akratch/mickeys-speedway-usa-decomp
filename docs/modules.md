@@ -1448,6 +1448,18 @@ the candidate's colored fourth-argument web, rotating the following integer
 temporaries through the second copy loop. The assembly fallback remains
 canonical.
 
+The 0x94-byte save-window serializer `func_8002C94C` retains a Mickey-derived
+`NON_MATCHING` body after the 119-combination flag lattice and ten source,
+stack-layout, and lifetime hypotheses. Its best candidate has the target's
+exact 115-instruction opcode schedule, 112-byte frame, and relocation surface;
+12 words differ, first at function `+0x30`. Six differences place the message
+queue and two-word footer at candidate `sp+0x6C` and `sp+0x64` instead of the
+target's `sp+0x54` and `sp+0x40`; the other six swap the save-slot base and
+outer counter between `$s5` and `$s6`. Mirroring the recovered local order
+instead drops the footer-magic stores, and aggregate layouts grow the frame.
+The unavailable permuter import prevents a bounded automated declaration
+search; the assembly fallback remains canonical.
+
 `font_codes_to_string` retains a JFG-derived `NON_MATCHING` body after the
 flag lattice and ten source/type/coalescing shapes. With ordinary resident
 flags the donor loop is instruction-exact, but this TU's required

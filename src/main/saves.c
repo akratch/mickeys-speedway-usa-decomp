@@ -66,6 +66,14 @@ typedef struct SavesSlot {
     u8 unk1F;
 } SavesSlot;
 
+typedef struct SavesPackedEntry {
+    s32 unk00;
+    u8 unk04;
+    u8 unk05;
+    u8 unk06;
+    u8 unk07;
+} SavesPackedEntry;
+
 typedef struct SavesEepromWriteState {
     s32 messageQueue;
     s32 unused;
@@ -390,7 +398,59 @@ void func_8002C8B4(s32 arg0, s32 arg1, void *arg2, s32 arg3) {
     }
     func_80070030(arg0, (u8) arg1, arg2, arg3);
 }
+#ifdef NON_MATCHING
+/* Mickey-derived serialization of one 0x94-byte save window. */
+void func_8002C94C(s32 saveIndex) {
+    s32 messageQueue;
+    u32 footer[2];
+    SavesBitWriter *writer;
+    s32 inner;
+    s32 outer;
+    SavesPackedEntry *entry;
+    void *slot;
+    u8 *buffer;
+    s32 byteOffset;
+    s32 firstBlock;
+
+    messageQueue = joyMessageQ();
+    if (func_80070170(messageQueue) != 0) {
+        slot = func_800291C4();
+        writer = func_8002C60C(0x1C0, 1);
+        outer = 0;
+        do {
+            inner = 0;
+            entry = (SavesPackedEntry *) slot;
+            do {
+                func_8002C69C(writer, entry->unk04, 5);
+                func_8002C69C(writer, entry->unk05, 5);
+                func_8002C69C(writer, entry->unk06, 5);
+                func_8002C69C(writer, entry->unk00 / 3, 0x12);
+                func_8002C69C(writer, entry->unk07, 4);
+                inner += sizeof(SavesPackedEntry);
+                entry++;
+            } while (inner != sizeof(SavesSlot));
+            outer++;
+            slot = (u8 *) slot + sizeof(SavesSlot);
+        } while (outer != 0x18);
+
+        buffer = (u8 *) func_8002C788((SavesRecord *) writer);
+        footer[0] = packCalculateGameChecksum(buffer, 0x1C0);
+        footer[1] = 0x12345678;
+        if (mainResetPressed() == 0) {
+            byteOffset = saveIndex * 0x94;
+            firstBlock = byteOffset >> 6;
+            func_8002C8B4(messageQueue, firstBlock,
+                          buffer + (firstBlock * 8),
+                          (((((byteOffset + 0x93) >> 6) - firstBlock) * 8) +
+                           8));
+            func_8002C8B4(messageQueue, 0x38, footer, sizeof(footer));
+        }
+        func_8002C79C(writer);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C94C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CB18.s")
 void func_8002CCE4(void) {
     s32 i;
