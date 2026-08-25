@@ -1191,6 +1191,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79UpdateTimers.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79FindNearby.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/overlay79FindNearby.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym sqrtf=overlay79SqrtReloc \
+		--redefine-sym Arctanf=ext_o0_2a4c0 \
+		--redefine-sym func_8002A8BC=ext_o0_2a46c $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2E0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c.o: CFLAGS += -Wab,-r4300_mul
 # The assembly fallback already carries the shipped synthetic symbol and
 # relocation surface; discard only compiler section alignment.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000000_18CCFA0.c.o: POSTPROCESS = \
@@ -1796,6 +1803,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateObjectResource.c.o: POSTPRO
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_020_F0000204_18767DC=overlay20UpdateObjectResource $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x188
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F000038C_1876964.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x438
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F000038C_1876964.c.o: OPT_FLAGS := -O2 -g3
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20BuildTileCommands.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_020_F00007C4_1876D9C=overlay20BuildTileCommands $@ && \
@@ -1833,6 +1843,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateGrid.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_020_F0000A68_1877040=overlay20UpdateGrid $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x35C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F0001148_1877720.c.o: $(TOOLS_DIR)/set_elf_flags.py
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F0001148_1877720.c.o: MIPSISET := -mips3 -32
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F0001148_1877720.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F0001148_1877720.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym sqrtf=overlay20TailSqrtReloc $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/set_elf_flags.py $@ 0x10000000 && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x348
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31CreateRecords.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB8
 # NON_MATCHING fallback assembly supplies the retail body; restore the
@@ -2920,6 +2937,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseHandle.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureResource.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateObjectResource.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F000038C_1876964.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20BuildTileCommands.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20RemoveEntry.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureEntry.c.o \
@@ -2929,6 +2947,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20CreateEntry.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20DrawResource.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateGrid.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F0001148_1877720.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31BuildLookupTables.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31InitializeParticleAssets.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o031/overlay31BuildPalettes.c.o \
