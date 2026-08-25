@@ -77,6 +77,18 @@ which also removes the target's `move a0,v0`. Three calls additionally retain
 the candidate `ProcessRelocationEntry` relocation name while the assembly
 target still exposes `func_80031A30`; neither residual is an exact match.
 
+`runlinkEnsureJumpIsValid` (`0x800320F0`, `0x194` bytes) also remains
+`NON_MATCHING` after a bounded ten-attempt pass. JFG's 0x1A8-byte peer is the
+nearest skeleton at 0.504 similarity; Mickey's mips2 target omits its five
+load-delay no-ops. The best coherent C has the exact 101-word boundary and
+selector CFG under `-O2 -mips2 -32`, but 35 masked words differ, beginning at
+`+0x20`, where IDO keeps the jump address in `a3` instead of the target's
+`s0`; the resulting long-lived-register allocation differs through the loop.
+The complete 119-combination flag lattice found no better flag group. A
+bounded ten-minute, two-thread permuter batch improved its internal score from
+230 to 125 but did not reach zero; its best result added a constant-true block
+and was retained only as an ignored diagnostic artifact, not canonical source.
+
 ### 5.2 The tables
 
 Named from stride and use in Mickey's disassembly (`symbol_addrs.us.txt`), all

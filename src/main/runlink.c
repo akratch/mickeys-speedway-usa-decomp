@@ -547,7 +547,79 @@ s32 runlinkDownloadCode(s32 overlayIndex) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkDownloadCode.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkEnsureJumpIsValid.s. Mickey's relocation
+ * layout and resident section anchors determine the final body.
+ */
+s32 runlinkEnsureJumpIsValid(void **jumpAddress) {
+    register void **address;
+    OverlayHeader *overlay;
+    RelocationEntry *relocEntry;
+    s32 relocCount;
+    s32 overlayIndex;
+    s32 section;
+    s32 overlayNumber;
+    u32 relocInfo;
+
+    address = jumpAddress;
+    if (*address != (void *) TrapDanglingJump) {
+        return 0;
+    }
+
+    overlay = overlayTable;
+    for (overlayIndex = 0; overlayIndex < overlayCount; overlayIndex++) {
+        if (overlay->vramBase != 0) {
+            if (overlayIndex == 0) {
+                D_800D2DA8.textBase = (u8 *) func_80000450;
+                D_800D2DA8.dataBase = D_80078D60;
+                D_800D2DA8.bssBase = D_80085A40;
+                D_800D2DA8.relocBase = (u8 *) mainRelocTable;
+                relocEntry = mainRelocTable;
+                relocCount = mainRelocTableCount;
+            } else {
+                D_800D2DA8.textBase = (u8 *) overlay->vramBase;
+                D_800D2DA8.dataBase =
+                    (u8 *) ((s32) D_800D2DA8.textBase + overlay->textSize);
+                D_800D2DA8.bssBase =
+                    (u8 *) ((s32) D_800D2DA8.dataBase + overlay->dataSize);
+                D_800D2DA8.relocBase =
+                    (u8 *) ((s32) D_800D2DA8.bssBase + overlay->bssSize);
+                relocEntry = (RelocationEntry *) D_800D2DA8.relocBase;
+                relocCount = (u32) (u16) overlay->relocTableSize >> 3;
+            }
+
+            while (relocCount--) {
+                relocInfo = relocEntry->u.info;
+                switch (relocInfo & 0xF) {
+                    case RELOC_OP_DATA:
+                        section = 2;
+                        break;
+                    default:
+                        section = 1;
+                        break;
+                }
+                if ((u8 *) address ==
+                    ((u8 **) &D_800D2DA8)[section] + (relocInfo >> 8)) {
+                    overlayNumber = overlayRomTable[relocEntry->symbolIndex]
+                                        .overlayNumber;
+                    if (overlayNumber >= 0xFFC) {
+                        overlayNumber = 0;
+                    }
+                    runlinkDownloadCode(overlayNumber);
+                    return 1;
+                }
+                relocEntry++;
+            }
+        }
+        overlay++;
+    }
+    return 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_800320F0.s")
+#endif
 /*
  * Is this overlay resident? Returns its VRAM base, which is zero when it is
  * not. Same one-line function, same name, as JFG's public decomp.
