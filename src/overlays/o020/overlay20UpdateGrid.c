@@ -57,6 +57,13 @@ extern f32 func_8002A8C0(s32 angle);
 #define O20_REGISTER
 #endif
 
+/*
+ * Plateau (2026-08-25, 4 source variants): the best -O2 candidate is 16
+ * bytes short, differs in 173 of 215 words, and first diverges at +0x0.
+ * Explicit bounds/top-load and register-local spellings tie; scoped locals
+ * worsen the result.  The blocker is the full frame/register allocation and
+ * loop topology rather than an isolated expression or compiler-flag choice.
+ */
 #ifdef NON_MATCHING
 void overlay20UpdateGrid(Overlay20Grid *grid) {
     Overlay20Entry *overlaps[OVERLAY20_OVERLAP_CAPACITY];

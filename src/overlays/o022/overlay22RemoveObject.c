@@ -22,6 +22,16 @@ extern volatile s32 D_30;
 extern void func_overlay_022_F0000000_1878108();
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+/*
+ * Plateau (2026-08-25, 10 attempts): the best canonical -O2 candidate has
+ * the exact 91-word size, differs in 43 words, and first diverges at +0x10.
+ * Its instruction and branch topology is otherwise exact; the remaining
+ * mismatch is a cyclic temporary-register assignment across the model pointer,
+ * node count, found index, loop index, and compaction tail.  Declaration,
+ * scope, typed/raw-field, dead-assignment, and indexed-loop variants did not
+ * improve it; the bounded permuter could not run because its import.py is
+ * absent from this checkout.
+ */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000D30_1878E38(Overlay22Object *object, s32 flags) {
     s32 i;

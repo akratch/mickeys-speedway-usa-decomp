@@ -15,14 +15,20 @@ typedef struct Overlay20Entry {
     f32 radiusRatio;
 } Overlay20Entry;
 
+typedef struct Overlay20Data {
+    u8 pad00[0x24];
+    f32 lifetimeScale;
+} Overlay20Data;
+
 extern s32 gOverlay20EntryCount;
 extern u32 gOverlay20ActiveBits;
 extern Overlay20Entry gOverlay20Pool[];
 extern Overlay20Entry *gOverlay20Entries[];
-extern f32 gOverlay20LifetimeScale;
+extern Overlay20Data D_0;
+
+#define gOverlay20LifetimeScale D_0.lifetimeScale
 
 /* DKR v77/v80 and JFG have no exact donor for this entry allocator. */
-#ifdef NON_MATCHING
 Overlay20Entry *overlay20ConfigureEntry(Overlay20Entry *entry, f32 x, f32 y,
                                         f32 radius, s32 id, f32 lifetime,
                                         f32 scale, f32 ratio) {
@@ -31,16 +37,16 @@ Overlay20Entry *overlay20ConfigureEntry(Overlay20Entry *entry, f32 x, f32 y,
 
     if (entry == NULL) {
         index = gOverlay20EntryCount;
-        bit = 1;
         if (index >= 32 || gOverlay20ActiveBits == -1) {
             entry = NULL;
         } else {
+            bit = 1;
             entry = gOverlay20Pool;
-            if (gOverlay20ActiveBits & 1) {
+            if (1 & gOverlay20ActiveBits) {
                 do {
-                    bit <<= 1;
                     entry++;
-                } while (gOverlay20ActiveBits & bit);
+                    bit <<= 1;
+                } while (bit & gOverlay20ActiveBits);
             }
             gOverlay20Entries[index] = entry;
             gOverlay20EntryCount = index + 1;
@@ -66,6 +72,3 @@ Overlay20Entry *overlay20ConfigureEntry(Overlay20Entry *entry, f32 x, f32 y,
     }
     return entry;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20ConfigureEntry/func_overlay_020_F0000E28_1877400.s")
-#endif

@@ -32,6 +32,15 @@ typedef struct Overlay22Owner {
 extern f32 D_10;
 extern f32 func_overlay_022_F0000000_1878108(f32);
 
+/*
+ * Plateau (2026-08-25, 10-attempt cap): the best -O2 -mips2
+ * -Wab,-r4300_mul candidate has the exact 173-word size, differs in 7 words,
+ * and first diverges at +0x74.  Reusing lengthSquared for the square root and
+ * projection amount recovered the retail 0x88-byte frame; declaration order
+ * and statement scheduling recovered all but three commutative mul operand
+ * encodings and four call-spill offsets.  The bounded permuter could not run
+ * because its import.py is absent from this checkout.
+ */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000A7C_1878B84(
     void *unused, Vec3f *out, Vec3f *direction, f32 distance,
@@ -40,15 +49,13 @@ void func_overlay_022_F0000A7C_1878B84(
     f32 nx;
     f32 ny;
     f32 nz;
-    f32 crossX;
-    f32 crossY;
     f32 crossZ;
     f32 projectedX;
     f32 projectedY;
     f32 projectedZ;
-    f32 amount;
+    f32 crossX;
+    f32 crossY;
     f32 lengthSquared;
-    f32 length;
 
     result = owner->result64;
     nx = plane->normal.x;
@@ -68,14 +75,14 @@ void func_overlay_022_F0000A7C_1878B84(
                         (projectedZ * projectedZ);
 
         if (0.0f < lengthSquared) {
-            length = func_overlay_022_F0000000_1878108(lengthSquared);
-            projectedY /= length;
-            projectedX /= length;
-            projectedZ /= length;
-            amount = distance - plane->distance;
-            out->x = plane->point.x + (amount * projectedX);
-            out->y = plane->point.y + (amount * projectedY);
-            out->z = plane->point.z + (amount * projectedZ);
+            lengthSquared = func_overlay_022_F0000000_1878108(lengthSquared);
+            projectedY /= lengthSquared;
+            projectedX /= lengthSquared;
+            projectedZ /= lengthSquared;
+            lengthSquared = distance - plane->distance;
+            out->x = plane->point.x + (lengthSquared * projectedX);
+            out->y = plane->point.y + (lengthSquared * projectedY);
+            out->z = plane->point.z + (lengthSquared * projectedZ);
         } else {
             out->x = plane->point.x;
             out->y = plane->point.y;
@@ -84,8 +91,8 @@ void func_overlay_022_F0000A7C_1878B84(
 
         result->normal08.x = nx;
         result->normal08.y = ny;
-        result->normal08.z = nz;
         result->flags01 |= 2;
+        result->normal08.z = nz;
     } else {
         if (result->mode02 != 0) {
             out->x = plane->point.x;
@@ -102,10 +109,10 @@ void func_overlay_022_F0000A7C_1878B84(
             projectedX = direction->x + (scale * nx);
             projectedY = direction->y + (scale * ny);
             projectedZ = direction->z + (scale * nz);
-            amount = distance - plane->distance;
-            out->x = plane->point.x + (amount * projectedX);
-            out->y = plane->point.y + (amount * projectedY);
-            out->z = plane->point.z + (amount * projectedZ);
+            lengthSquared = distance - plane->distance;
+            out->x = plane->point.x + (lengthSquared * projectedX);
+            out->y = plane->point.y + (lengthSquared * projectedY);
+            out->z = plane->point.z + (lengthSquared * projectedZ);
 
             result->point20.x = plane->point.x;
             result->point20.y = plane->point.y;

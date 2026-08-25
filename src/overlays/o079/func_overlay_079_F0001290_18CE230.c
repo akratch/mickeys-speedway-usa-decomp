@@ -52,6 +52,13 @@ extern void overlay79TriggerReloc(void);
 extern s32 gOverlay79CounterReloc;
 extern u8 gOverlay79FlagsReloc[];
 
+/*
+ * Plateau (2026-08-25, 6 attempts): the canonical -O2 candidate has the
+ * exact 123-word size, differs in 12 words, and first diverges at +0xC8.
+ * The remaining differences are register choices in the two linked-state
+ * stores and the counter/flag tail; direct, scoped, assignment-expression,
+ * and declaration-order spellings all retained or worsened that register web.
+ */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
     Overlay79Node *node;

@@ -685,6 +685,7 @@
       "size": 192,
       "source": "src/overlays/o011/overlay11ReleaseCurrentGroup.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "objcopy"
       ]
     },
@@ -781,6 +782,7 @@
       "size": 976,
       "source": "src/overlays/o011/overlay11UpdateFiveOptionMenu.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "objcopy"
       ]
     },
@@ -806,6 +808,8 @@
       "size": 564,
       "source": "src/overlays/o011/overlay11UpdateModeSix.c",
       "tools": [
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -832,6 +836,8 @@
       "size": 560,
       "source": "src/overlays/o011/overlay11UpdateTwoOptionMenu.c",
       "tools": [
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
         "objcopy"
       ]
     },
@@ -1566,6 +1572,7 @@
       "size": 336,
       "source": "src/overlays/o020/overlay20ConfigureEntry.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -1579,8 +1586,7 @@
       "size": 348,
       "source": "src/overlays/o020/overlay20ConfigureResource.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -3213,7 +3219,10 @@
       "size": 216,
       "source": "src/overlays/o047/overlay47SpawnObject.c",
       "tools": [
-        "trim_elf_section.py"
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -3658,6 +3667,18 @@
       "source": "src/overlays/o057/overlay57InitializeMode.c",
       "tools": [
         "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o057/overlay57ReleaseAll.c.o",
+      "offset": 6520,
+      "overlay": 57,
+      "size": 368,
+      "source": "src/overlays/o057/overlay57ReleaseAll.c",
+      "tools": [
+        "objcopy"
       ]
     },
     {
@@ -4321,6 +4342,20 @@
       "source": "src/overlays/o065/overlay65ResetSlots.c",
       "tools": [
         "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o065/overlay65SpawnRecord.c.o",
+      "offset": 6676,
+      "overlay": 65,
+      "size": 416,
+      "source": "src/overlays/o065/overlay65SpawnRecord.c",
+      "tools": [
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
+        "objcopy"
       ]
     },
     {
@@ -6277,8 +6312,6 @@
       "size": 380,
       "source": "src/overlays/o101/overlay101DispatchActive.c",
       "tools": [
-        "rebind_elf_relocations.py",
-        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -6292,7 +6325,6 @@
       "size": 944,
       "source": "src/overlays/o101/overlay101DispatchEvents.c",
       "tools": [
-        "rebind_elf_relocations.py",
         "objcopy"
       ]
     },
@@ -6879,9 +6911,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 557
+      "metadata": 559
     },
-    "matched_c_bytes_with_postprocess": 278688,
-    "objects_with_postprocess": 557
+    "matched_c_bytes_with_postprocess": 279472,
+    "objects_with_postprocess": 559
   }
 }

@@ -30,6 +30,14 @@ extern void func_overlay_045_F0000270_188C6C8(void *handle);
 extern void func_80006EA0(void *handle);
 extern void func_80039A40(void *arg);
 
+/*
+ * Plateau (2026-08-25): canonical -O2 -mips2 is size-exact with 64/88
+ * instruction words identical; the first mismatch is +0x54. The remaining
+ * delta is pointer-initialization scheduling followed by one shifted temporary
+ * register web across the four status updates. Explicit loop bounds, reversed
+ * initialization order, named status temporaries, register qualifiers, and
+ * the full flag lattice did not improve the 24-word difference.
+ */
 #ifdef NON_MATCHING
 void func_overlay_047_F00009D0_18917E8(void) {
     Overlay47Entry *entry;

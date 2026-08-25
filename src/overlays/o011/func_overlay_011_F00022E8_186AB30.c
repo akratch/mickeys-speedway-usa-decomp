@@ -52,6 +52,15 @@ extern void func_800006BC(f32 arg0, s32 arg1);
 extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
+/*
+ * Plateau (2026-08-25): the closest -O2 -g3 candidate is four bytes long
+ * with 69/267 shared instruction words identical and first differs at +0x4;
+ * canonical -O2 is size-exact but differs in 231 words. The candidate keeps
+ * the handle induction in s0, adding a saved-register prologue/epilogue and
+ * shifting the following register web, whereas retail spills both induction
+ * values. Split and for-loop spellings tied across the full flag lattice,
+ * and no close donor skeleton was found.
+ */
 #ifdef NON_MATCHING
 void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
     s32 index;

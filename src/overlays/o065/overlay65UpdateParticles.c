@@ -81,13 +81,21 @@ extern void func_overlay_065_F0000C38_18C4EA0(O65Command **, s32 *, s32);
 #define O65_DELTA_Z D_297C
 #define O65_BUFFER_TABLE D_2980
 
+/*
+ * Plateau (2026-08-25, 6 attempts): the best -O2 -g3 candidate is 36 bytes
+ * short, differs in 546 of 720 words, and first diverges at +0x4.  Its frame
+ * size is exact, but the compiler assigns the long-lived particle, camera,
+ * transform-base, counter, and argument values to a different saved-register
+ * web.  Pointer/index and loop spellings improved the body without recovering
+ * that allocation; the complete flag lattice found no closer code shape.
+ */
 #ifdef NON_MATCHING
 void overlay65UpdateParticles(O65Command **arg0, s32 *arg1,
                                         s32 arg2) {
     O65Command *commands;
     O65Vertex *batchStart;
     s32 cursor;
-    s32 spawnCount;
+    volatile s32 spawnCount;
     f32 **ground;
     O65Vec3f transformed[4];
     O65Camera *camera;
@@ -128,6 +136,7 @@ void overlay65UpdateParticles(O65Command **arg0, s32 *arg1,
     }
     O65_CAMERA_X = camera->x;
     O65_CAMERA_Z = camera->z;
+    point = transformed;
     alpha = 0xFF;
 
     do {
@@ -188,26 +197,24 @@ void overlay65UpdateParticles(O65Command **arg0, s32 *arg1,
 
         if (particle->active != 0) {
             radius = (s16)(o65Cos(particle->angle) * 50.0f);
-            o65Transform(4, &particle->dx, D_1D8, transformed);
+            o65Transform(4, &particle->dx, D_1D8, point);
             remaining--;
-            point = transformed;
-#define O65_WRITE_POINT() \
-                D_2988->x = (s16)(point->x + \
+#define O65_WRITE_POINT(index) \
+                D_2988->x = (s16)(point[index].x + \
                                    (f32)(particle->x + radius)); \
-                D_2988->y = (s16)(point->y + \
+                D_2988->y = (s16)(point[index].y + \
                                    (f32)particle->y); \
-                D_2988->z = (s16)(point->z + \
+                D_2988->z = (s16)(point[index].z + \
                                    (f32)(particle->z + radius)); \
                 D_2988->r = particle->r; \
                 D_2988->g = particle->g; \
                 D_2988->b = particle->b; \
                 D_2988->a = alpha; \
-                D_2988++; \
-                point++
-            O65_WRITE_POINT();
-            O65_WRITE_POINT();
-            O65_WRITE_POINT();
-            O65_WRITE_POINT();
+                D_2988++
+            O65_WRITE_POINT(0);
+            O65_WRITE_POINT(1);
+            O65_WRITE_POINT(2);
+            O65_WRITE_POINT(3);
 #undef O65_WRITE_POINT
 
             if (remaining == 0) {

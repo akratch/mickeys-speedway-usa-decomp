@@ -1704,7 +1704,21 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x764
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045_tail.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3C
+# The selector table is the overlay-local +0x510 address already encoded in
+# retail, so retain that addend without a static-link relocation. The three
+# runtime calls use the extracted range's offset-zero carrier; their distinct
+# identities remain authoritative in overlay 47's shipped relocation tables.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x10:5:D_0 0x20:6:D_0 && \
+	$(OBJCOPY) --redefine-sym \
+		func_8000590C=func_overlay_047_F0000000_1890E18 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x94:func_80005768:func_overlay_047_F0000000_1890E18 \
+		0xB0:func_8005AD64:func_overlay_047_F0000000_1890E18 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x160
@@ -1750,9 +1764,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseHandle.c.o: POSTPROCESS = 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseTree.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7C
+# The typed resource initializer is exact; discard only compiler alignment.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureResource.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_020_F00000A8_1876680=overlay20ConfigureResource $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x15C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateObjectResource.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
@@ -1766,9 +1779,18 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20RemoveEntry.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_020_F0001018_18775F0=overlay20RemoveEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD4
+# The typed entry allocator is exact. Retail encodes three zero-base data
+# references directly and retains relocations only for the active mask/pool.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureEntry.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureEntry.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_020_F0000E28_1877400=overlay20ConfigureEntry $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x18:5:gOverlay20EntryCount 0x1C:6:gOverlay20EntryCount \
+		0x78:5:gOverlay20Entries 0x80:6:gOverlay20Entries \
+		0xC4:5:D_0 0x108:6:D_0 && \
+	$(OBJCOPY) \
+		--redefine-sym gOverlay20ActiveBits=D_4 \
+		--redefine-sym gOverlay20Pool=D_80 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x150
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
@@ -1882,9 +1904,22 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65Initialize.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
 
-# NON_MATCHING/GLOBAL_ASM: the spawn record already uses its canonical auto
-# symbol and requires no postprocess metadata.
+# The zero-base spawn pool is already encoded in retail. Its camera/random
+# calls use the overlay's offset-zero carrier.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x4C:5:D_0 0x64:6:D_0 && \
+	$(OBJCOPY) --redefine-sym \
+		o65GetCamera=func_overlay_065_F0000000_18C4268 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0xCC:o65RandomRange:func_overlay_065_F0000000_18C4268 \
+		0xE8:o65RandomRange:func_overlay_065_F0000000_18C4268 \
+		0x104:o65RandomRange:func_overlay_065_F0000000_18C4268 \
+		0x11C:o65RandomRange:func_overlay_065_F0000000_18C4268
 
 # The typed source owns O64's complete procedural texture generator. IDO's
 # natural stream contains four redundant representations; the target-local
@@ -2220,14 +2255,62 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateSelection.c.o: POSTPROCESS 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateMenu.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_011_F0001398_1869BE0=overlay11UpdateMenu $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4B4
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
+# Overlay-local data addends are encoded in retail, while its runtime calls
+# all use the extracted range's offset-zero carrier.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateTwoOptionMenu.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateTwoOptionMenu.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_011_F000184C_186A094=overlay11UpdateTwoOptionMenu $@
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x0:5:D_INPUT 0x4:6:D_INPUT 0x8:5:D_0 0x14:6:D_0 \
+		0x5C:5:D_INPUT 0x60:6:D_INPUT \
+		0x64:5:D_0_reload_success 0x70:6:D_0_reload_success \
+		0x7C:5:D_INPUT 0x80:6:D_INPUT \
+		0x84:5:D_0_reload_failure 0x8C:6:D_0_reload_failure \
+		0xF0:5:D_menuBase 0xF8:6:D_menuBase \
+		0x120:5:D_INPUT 0x128:6:D_INPUT \
+		0x134:5:D_INPUT 0x138:6:D_INPUT \
+		0x198:5:D_cfgA 0x1A0:6:D_cfgA \
+		0x1A4:5:D_INPUT 0x1A8:6:D_INPUT \
+		0x214:5:D_cfgA 0x218:6:D_cfgA && \
+	$(OBJCOPY) --redefine-sym \
+		func_80000F94=func_overlay_011_F0000000_1868848 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x100:func_overlay_045_F0001BF4_188E04C:func_overlay_011_F0000000_1868848 \
+		0x124:func_8002554C:func_overlay_011_F0000000_1868848 \
+		0x168:func_overlay_066_F0000000:func_overlay_011_F0000000_1868848 \
+		0x170:func_800290AC:func_overlay_011_F0000000_1868848 \
+		0x178:func_800291D8:func_overlay_011_F0000000_1868848 \
+		0x188:func_800006BC:func_overlay_011_F0000000_1868848 \
+		0x190:func_overlay_011_F0002BF4_186B43C:func_overlay_011_F0000000_1868848 \
+		0x1E8:func_80028528:func_overlay_011_F0000000_1868848 \
+		0x20C:func_80028374:func_overlay_011_F0000000_1868848
+# The compiler emits the exact five-entry switch table already present at
+# overlay-local +0x40. Rebind the text pair there, discard only the duplicate
+# private table, and preserve the retail offset-zero runtime call carriers.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateFiveOptionMenu.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateFiveOptionMenu.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_011_F0001A7C_186A2C4=overlay11UpdateFiveOptionMenu $@
+	$(OBJCOPY) \
+		--redefine-sym func_80000F94=func_overlay_011_F0000000_1868848 \
+		--add-symbol gOverlay11FiveOptionSwitchTableReloc=0x40,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x100:func_overlay_045_F0001BF4_188E04C:func_overlay_011_F0000000_1868848 \
+		0x124:func_8002554C:func_overlay_011_F0000000_1868848 \
+		0x164:.rodata:gOverlay11FiveOptionSwitchTableReloc \
+		0x16C:.rodata:gOverlay11FiveOptionSwitchTableReloc \
+		0x178:func_overlay_066_F0000000:func_overlay_011_F0000000_1868848 \
+		0x180:func_800290AC:func_overlay_011_F0000000_1868848 \
+		0x188:func_800291D8:func_overlay_011_F0000000_1868848 \
+		0x198:func_800006BC:func_overlay_011_F0000000_1868848 \
+		0x1A0:func_overlay_011_F0002BF4_186B43C:func_overlay_011_F0000000_1868848 \
+		0x218:func_80005820:func_overlay_011_F0000000_1868848 \
+		0x220:func_8002675C:func_overlay_011_F0000000_1868848 \
+		0x240:func_80028374:func_overlay_011_F0000000_1868848 \
+		0x2B0:func_80028374:func_overlay_011_F0000000_1868848 \
+		0x320:func_80028374:func_overlay_011_F0000000_1868848 \
+		0x3A8:func_80028374:func_overlay_011_F0000000_1868848 && \
+	$(OBJCOPY) --remove-section=.rodata $@
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F0001E4C_186A694.c.o: POSTPROCESS = \
@@ -2238,10 +2321,37 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F0001E4C_186A694.c.o: POS
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F00022E8_186AB30.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_011_F00022E8_186AB30=func_overlay_011_F00022E8_186AB30 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x42C
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
+# Overlay-local data addends are encoded in retail, while its runtime calls
+# use the extracted range's offset-zero carrier.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateModeSix.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py \
+	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateModeSix.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_011_F0002714_186AF5C=overlay11UpdateModeSix $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x0:5:D_INPUT 0x4:6:D_INPUT 0x8:5:D_0 0x14:6:D_0 \
+		0x5C:5:D_INPUT 0x60:6:D_INPUT \
+		0x64:5:D_0_reload_success 0x70:6:D_0_reload_success \
+		0x7C:5:D_INPUT 0x80:6:D_INPUT \
+		0x84:5:D_0_reload_failure 0x8C:6:D_0_reload_failure \
+		0xF0:5:D_menuBase 0xF8:6:D_menuBase \
+		0x120:5:D_INPUT 0x128:6:D_INPUT \
+		0x134:5:D_INPUT 0x138:6:D_INPUT \
+		0x198:5:D_cfgA 0x1A0:6:D_cfgA \
+		0x1A4:5:D_INPUT 0x1A8:6:D_INPUT \
+		0x1F4:5:D_lastMode 0x1F8:6:D_lastMode \
+		0x218:5:D_cfgA 0x21C:6:D_cfgA && \
+	$(OBJCOPY) --redefine-sym \
+		func_80000F94=func_overlay_011_F0000000_1868848 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x100:func_overlay_045_F0001BF4_188E04C:func_overlay_011_F0000000_1868848 \
+		0x124:func_8002554C:func_overlay_011_F0000000_1868848 \
+		0x168:func_overlay_066_F0000000:func_overlay_011_F0000000_1868848 \
+		0x170:func_800290AC:func_overlay_011_F0000000_1868848 \
+		0x178:func_800291D8:func_overlay_011_F0000000_1868848 \
+		0x188:func_800006BC:func_overlay_011_F0000000_1868848 \
+		0x190:func_overlay_011_F0002BF4_186B43C:func_overlay_011_F0000000_1868848 \
+		0x210:func_80028374:func_overlay_011_F0000000_1868848 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x234
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11CreateHandles.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
@@ -2272,10 +2382,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11InitializeFour.c.o: POSTPROCESS =
 		--redefine-sym func_overlay_045_F000000C_188B438=overlay11CreateReloc \
 		--redefine-sym D_800D31BC=gOverlay11ResidentFlagsReloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
+# The compiler emits the exact six-entry switch table already present in the
+# overlay's extracted data/rodata asset. Rebind the text pair to its proved
+# runtime-local +0x7C addend, then discard only the duplicate private table.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11ReleaseCurrentGroup.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11ReleaseCurrentGroup.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_011_F0002BF4_186B43C=overlay11ReleaseCurrentGroup $@
+	$(OBJCOPY) --add-symbol gOverlay11ReleaseSwitchTableReloc=0x7C,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x30:.rodata:gOverlay11ReleaseSwitchTableReloc \
+		0x38:.rodata:gOverlay11ReleaseSwitchTableReloc && \
+	$(OBJCOPY) --remove-section=.rodata $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13ProcessActive.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x78
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83Submit.c.o: POSTPROCESS = \
