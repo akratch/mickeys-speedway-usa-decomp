@@ -2186,9 +2186,12 @@ fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  ma
 // jfg:src/textures.c.o
 initColourCycle = 0x80036A50; // type:func size:0x30   ROM 0x37650  src/textures.c.o  masked=2/12
 // donor-jfg-src/menu.c.o
+func_80038E1C = 0x80038E1C; // type:func size:0x45C tier-D ROM 0x39a1c NON_MATCHING plateau 248/279 words differ, first +0x24
 frontDrawRectangle = 0x80039584; // type:func size:0x50   ROM 0x3a184  src/menu.c.o  masked=1/20
 func_8003968C = 0x8003968C; // type:func size:0x94   ROM 0x3a28c  src/menu.c.o  masked=24/37
+func_80039720 = 0x80039720; // type:func size:0x320 tier-D ROM 0x3a320 canonical C, linked byte-identical
 setupFrontEndObject = 0x80039DAC; // type:func size:0x88   ROM 0x3a9ac  src/menu.c.o  masked=4/34
+func_80039E34 = 0x80039E34; // type:func size:0x418 tier-D ROM 0x3aa34 NON_MATCHING plateau +1 word, 242/262 differ, first +0x14
 frontGetScreenMode = 0x8003A298; // type:func size:0x30   ROM 0x3ae98  src/menu.c.o  masked=2/12
 // Tier B (JFG): exact copied-byte store, adjacent ordered accessor family,
 // and correspondence with JFG's frontStoreScreenMode establish the role.
@@ -2213,6 +2216,14 @@ frontGetBgmVolume = 0x8003A4C4; // type:func size:0xC  ROM 0x3b0c4
 // Tier B (JFG): exact ordered setter body and the paired audio-volume call
 // identify the BGM-volume operation.
 frontSetBgmVolume = 0x8003A4D0; // type:func size:0x3C  ROM 0x3b0d0
+// Tier B (JFG): exact split-bit getter, paired setter, and ordered menu
+// position establish the two-player split-screen role.
+frontGet2PlayerSplit = 0x8003A50C; // type:func size:0x14 tier-B ROM 0x3b10c canonical C, linked byte-identical
+func_8003A520 = 0x8003A520; // type:func size:0x24 tier-D ROM 0x3b120 plateau 3/9 words differ, first +0x8
+func_8003A544 = 0x8003A544; // type:func size:0xC tier-D ROM 0x3b144 canonical C, linked byte-identical
+func_8003A550 = 0x8003A550; // type:func size:0xC tier-D ROM 0x3b150 canonical C, linked byte-identical
+func_8003A55C = 0x8003A55C; // type:func size:0x34 tier-D ROM 0x3b15c canonical C, linked byte-identical
+func_8003A590 = 0x8003A590; // type:func size:0x10 tier-D ROM 0x3b190 canonical C, linked byte-identical
 // jfg:src/diCpu.c.o
 diCpuTraceInit = 0x800459B0; // type:func size:0x54   ROM 0x465b0  src/diCpu.c.o  masked=10/21
 // jfg:src/font.c.o

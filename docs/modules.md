@@ -962,6 +962,36 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
+`func_80038E1C` retains a Mickey-derived `NON_MATCHING` candidate with the
+exact **0x45C-byte / 279-word** size, `0x28`-byte frame, case count, and
+high-level control flow. It plateaus at **248/279 differing words**, first
+`+0x24`: IDO assigns the persistent fade-state address to `a0` rather than the
+target's `v1`, then cascades into a different register and switch schedule.
+The full 119-combination flag lattice keeps the resident defaults best; JFG
+has no C donor body for the nearest front-end routine. Canonical code remains
+assembly.
+
+The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
+Its Mickey-derived body updates four controllers' held, pressed, stick, and
+repeat state, then aggregates the enabled controllers. Direct array indexing
+recovers IDO's seven induction pointers and exact `0x40`-byte frame; JFG's
+nearest menu routine remains assembly, so no donor body or descriptive name is
+used. The resident defaults are exact in the full flag lattice. All 53 text
+relocations match the target's offsets, kinds, and symbol identities, and the
+configured object and linked ROM range are byte-identical without
+post-processing.
+
+`func_80039E34` retains a Mickey-derived `NON_MATCHING` draw candidate with
+the target's exact **0xB8-byte frame** and local homes from `0x7C` through
+`0xAC`. Its best object is one word longer than the target's **0x418 bytes /
+262 words** and plateaus at **242/262 differing words**, first `+0x14`: IDO
+assigns the persistent `D_800D31C8` base and selected object to `t2`/`a3`
+instead of `t5`/`t0`, cascading through the command-building paths. Pointer,
+volatile-access, and stack-layout variants did not recover the allocation;
+the full flag lattice keeps the resident defaults best. JFG's corresponding
+front-end draw routine also has no C donor body. Canonical code remains
+assembly.
+
 `frontSetWideAdjust` is the first exact C promotion: **0x2C bytes / 11 words**
 at ROM `0x3AFDC`, with the target's four relocation-bearing words resolving
 at their real linked addresses. Its body is adapted from JFG's public
@@ -1030,6 +1060,47 @@ halfword store, and corresponding audio-volume call, and carries point-of-use
 `PROVENANCE`. Canonical flags, call and data relocations, object words, and the
 linked ROM range are exact; a zero-byte weak alias preserves its assembly
 caller's anonymous spelling.
+
+The tier-B `frontGet2PlayerSplit` adds **0x14 bytes / 5 words** at ROM
+`0x3B10C`. Its extracted flag bit, its paired byte-preserving setter, and its
+exact JFG menu position establish the role; the body itself was derived from
+Mickey because JFG's remains `GLOBAL_ASM`. The extended bitfield declaration
+carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
+live range; the default flags, both data relocations, object words, and linked
+ROM range are exact without post-processing.
+
+`func_8003A520` plateaus size-exact at **3/9 differing words**, first `+0x8`.
+Its operation and ordered position correspond to JFG's
+`frontSet2PlayerSplit`, but the full 119-combination flag lattice and a bounded
+permuter batch could not reproduce the target's old-flag register chain. The
+best natural candidate uses a narrowing result cast; IDO still assigns that
+chain two temporary registers earlier than the target. It remains assembly
+and keeps its anonymous name.
+
+The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
+Mickey's code is the single-word setter paired with the following getter; no
+published donor body or descriptive-name evidence is used. The default flags,
+HI16/LO16 data relocations, object words, and linked ROM range are exact
+without post-processing.
+
+The paired tier-D `func_8003A550` adds **0xC bytes / 3 words** at ROM
+`0x3B150`. Mickey's code returns the same word written by `func_8003A544`;
+no donor body or descriptive-name evidence is used. The default flags, both
+data-relocation words, object words, and linked ROM range are exact without
+post-processing.
+
+The tier-D `func_8003A55C` adds **0x34 bytes / 13 words** at ROM `0x3B15C`.
+Its Mickey-derived body stops the active tune, stores the caller's byte, and
+sets the paired halfword timer to `0x78`. The adjacent JFG menu names do not
+pin that Mickey-specific behavior, so the address label remains. The default
+flags, call relocation, two data-relocation pairs, object words, and linked ROM
+range are exact without post-processing.
+
+The tier-D `func_8003A590` adds **0x10 bytes / 4 words** at ROM `0x3B190`.
+Mickey's body writes `-1` to a resident halfword. A short-function skeleton
+collision with an unrelated published routine is rejected as naming evidence,
+so the address label remains. The default flags, HI16/LO16 relocation pair,
+object words, and linked ROM range are exact without post-processing.
 
 ### 3.12 Track assembly and shadows (`0x16140`–`0x18FF0`)
 
