@@ -11,6 +11,7 @@
 #include "PR/ultratypes.h"
 #include "PR/os.h"
 #include "PR/os_internal.h"
+#include "PR/os_vi.h"
 #include "game/sched_internal.h"
 
 typedef struct SchedGfx {
@@ -18,11 +19,19 @@ typedef struct SchedGfx {
     u32 w1;
 } SchedGfx;
 
+#define OS_IM_NONE 1
+#define VIDEO_MSG 666
+#define RSP_DONE_MSG 667
+#define RDP_DONE_MSG 668
+#define PRE_NMI_MSG 669
+#define UNK_MSG 99
+
 extern s32 D_8007A640;
 extern s32 D_8007A648;
 extern s32 D_8007A650;
 extern s32 D_8007A654;
 extern s8 D_8007A658;
+extern s32 D_8007A65C;
 extern u64 D_8007A660;
 extern char D_80082350[];
 extern char D_80082354[];
@@ -32,20 +41,42 @@ extern char D_80082390[];
 extern char D_800823A4[];
 extern char D_800823B8[];
 extern char D_800823CC[];
+extern char D_80082090[];
+extern char D_800820A0[];
+extern char D_800820AC[];
+extern char D_800820B8[];
+extern char D_800820D0[];
+extern char D_800820E0[];
+extern char D_800820F0[];
+extern char D_80082100[];
 extern u8 D_800CF520;
 extern u8 D_800CF578;
 extern u8 D_800CF590;
 extern u8 D_800CF5A8;
 extern s32 D_800D2D40;
 extern s32 D_800D2D44;
+extern u64 D_800D2D48;
 extern u8 *D_800D2FA0;
 extern u8 *D_800D2FA8;
 extern u8 *D_800D2FAC;
+extern OSViMode D_80080490;
+extern OSViMode D_800804E0;
+extern OSViMode D_80080530;
 
+void osCreateViManager(OSPri priority);
+void osViSetMode(OSViMode *mode);
+void osViBlack(u8 active);
 void osViSetEvent(OSMesgQueue *mq, OSMesg msg, u32 retraceCount);
 void osWritebackDCacheAll(void);
 void osSpTaskLoad(OSTask *task);
 void osSpTaskStartGo(OSTask *task);
+void osSpTaskYield(void);
+s32 osSpTaskYielded(OSTask *task);
+s32 osDpSetNextBuffer(void *buffer, u64 size);
+u64 osGetTime(void);
+OSIntMask osSetIntMask(OSIntMask mask);
+void *osViGetCurrentFramebuffer(void);
+void *osViGetNextFramebuffer(void);
 void rsp_segment(SchedGfx **dlist, s32 segment, void *base);
 s32 diPrintf(const char *format, ...);
 void diPrintfAll(SchedGfx **dlist);
@@ -56,13 +87,90 @@ void func_80030608(OSScTask *task);
 SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
                         s32 *arg4, s32 *arg5, s32 *arg6);
 void __scAppendList(OSSched *sc, OSScTask *task);
+void __scYield(OSSched *sc);
+void __scHandleRetrace(OSSched *sc);
+void __scHandleRSP(OSSched *sc);
+void __scHandleRDP(OSSched *sc);
+s32 __scTaskComplete(OSSched *sc, OSScTask *task);
 s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 state);
 void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp);
 s8 func_80001BE8(void);
+void __scMain(void *arg);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osCreateScheduler.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScAddClient.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScRemoveClient.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:osCreateScheduler, with Mickey's VI mode symbols. */
+void osCreateScheduler(OSSched *sc, void *stack, OSPri priority, u8 mode,
+                       u8 numFields) {
+    sc->curRSPTask = NULL;
+    sc->curRDPTask = NULL;
+    sc->clientList = NULL;
+    sc->audioListHead = NULL;
+    sc->gfxListHead = NULL;
+    sc->audioListTail = NULL;
+    sc->gfxListTail = NULL;
+    sc->frameCount = 0;
+    sc->unkTask = NULL;
+    *(u16 *) sc->retraceMsg = 1;
+    *(u16 *) sc->prenmiMsg = 4;
+
+    osCreateViManager(254);
+    switch (mode) {
+        case 14:
+            osViSetMode(&D_80080490);
+            break;
+        case 28:
+            osViSetMode(&D_800804E0);
+            break;
+        default:
+            osViSetMode(&D_80080530);
+            break;
+    }
+    osViBlack(1);
+    osCreateMesgQueue(&sc->interruptQ, sc->intBuf, 8);
+    osCreateMesgQueue(&sc->cmdQ, sc->cmdMsgBuf, 8);
+    osSetEventMesg(4, &sc->interruptQ, (OSMesg) RSP_DONE_MSG);
+    osSetEventMesg(9, &sc->interruptQ, (OSMesg) RDP_DONE_MSG);
+    osSetEventMesg(14, &sc->interruptQ, (OSMesg) PRE_NMI_MSG);
+    osViSetEvent(&sc->interruptQ, (OSMesg) VIDEO_MSG, numFields);
+
+    osCreateThread((OSThread *) sc->threadAndPad, 5, __scMain, sc, stack,
+                   priority);
+    osStartThread((OSThread *) sc->threadAndPad);
+}
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:osScAddClient. */
+void osScAddClient(OSSched *sc, OSScClient *client, OSMesgQueue *msgQ, u8 id) {
+    OSIntMask mask;
+
+    mask = osSetIntMask(OS_IM_NONE);
+    client->msgQ = msgQ;
+    client->next = sc->clientList;
+    client->id = id;
+    sc->clientList = client;
+    osSetIntMask(mask);
+}
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:osScRemoveClient. */
+void osScRemoveClient(OSSched *sc, OSScClient *clientToRemove) {
+    OSScClient *client = sc->clientList;
+    OSScClient *previous = NULL;
+    OSIntMask mask;
+
+    mask = osSetIntMask(OS_IM_NONE);
+    while (client != NULL) {
+        if (client == clientToRemove) {
+            if (previous != NULL) {
+                previous->next = clientToRemove->next;
+            } else {
+                sc->clientList = clientToRemove->next;
+            }
+            break;
+        }
+        previous = client;
+        client = client->next;
+    }
+    osSetIntMask(mask);
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/sched.c:osScGetCmdQ. */
 OSMesgQueue *osScGetCmdQ(OSSched *scheduler) {
     return &scheduler->cmdQ;
@@ -77,9 +185,96 @@ void osScGetAudioSPStats(f32 *first, f32 *second, f32 *third) {
     *second = 0.0f;
     *third = 0.0f;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scMain.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_800304E0.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scMain, with Mickey's retrace-counter symbol. */
+void __scMain(void *arg) {
+    OSMesg msg = NULL;
+    OSSched *sc = (OSSched *) arg;
+    OSScClient *client;
+    s32 state = 0;
+    OSScTask *sp = NULL;
+    OSScTask *dp = NULL;
+
+    while (1) {
+        osRecvMesg(&sc->interruptQ, &msg, OS_MESG_BLOCK);
+
+        switch ((s32) msg) {
+            case VIDEO_MSG:
+                __scHandleRetrace(sc);
+                D_8007A65C++;
+                break;
+            case RSP_DONE_MSG:
+                __scHandleRSP(sc);
+                break;
+            case RDP_DONE_MSG:
+                __scHandleRDP(sc);
+                break;
+            case UNK_MSG:
+                func_800304E0(sc);
+                break;
+            case PRE_NMI_MSG:
+                for (client = sc->clientList; client != NULL;
+                     client = client->next) {
+                    osSendMesg(client->msgQ, (OSMesg) sc->prenmiMsg,
+                               OS_MESG_NOBLOCK);
+                }
+                break;
+            default:
+                __scAppendList(sc, (OSScTask *) msg);
+                state = ((sc->curRSPTask == NULL) << 1) |
+                        (sc->curRDPTask == NULL);
+                if (__scSchedule(sc, &sp, &dp, state) != state) {
+                    __scExec(sc, sp, dp);
+                }
+                break;
+        }
+    }
+}
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:func_8004FB30_50730. */
+void func_800304E0(OSSched *sc) {
+    s32 state;
+    OSScTask *sp = NULL;
+    OSScTask *dp = NULL;
+
+    if (sc->audioListHead != NULL) {
+        sc->doAudio = 1;
+    }
+    if (sc->doAudio != 0 && sc->curRSPTask != NULL) {
+        __scYield(sc);
+    } else {
+        state = ((sc->curRSPTask == NULL) << 1) | (sc->curRDPTask == NULL);
+        if (__scSchedule(sc, &sp, &dp, state) != state) {
+            __scExec(sc, sp, dp);
+        }
+    }
+}
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:osScGetTaskType, with Mickey's own string symbols. */
+char *osScGetTaskType(s32 taskID) {
+    switch (taskID) {
+        case 1:
+            return D_80082090;
+        case 2:
+            return D_800820A0;
+        case 3:
+            return D_800820AC;
+        case 4:
+            return D_800820B8;
+        case 5:
+            return D_800820D0;
+        case 6:
+            return D_800820E0;
+        case 7:
+            return D_800820F0;
+        default:
+            return D_80082100;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetTaskType.s")
+#endif
 void func_80030608(OSScTask *arg0) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030610.s")
@@ -290,11 +485,155 @@ void __scHandleRetrace(OSSched *sc) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRetrace.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRSP.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRDP.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scTaskReady.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scTaskComplete.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scAppendList.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scExec.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scHandleRSP. */
+void __scHandleRSP(OSSched *sc) {
+    OSScTask *task;
+    OSScTask *sp = NULL;
+    OSScTask *dp = NULL;
+    s32 state;
+
+    task = sc->curRSPTask;
+    sc->curRSPTask = NULL;
+    if (task->state & 0x10) {
+        if (osSpTaskYielded(&task->list) != 0) {
+            task->state |= 0x20;
+            if ((task->flags & 7) == 3) {
+                task->next = sc->gfxListHead;
+                sc->gfxListHead = task;
+                if (sc->gfxListTail == NULL) {
+                    sc->gfxListTail = task;
+                }
+            }
+        } else {
+            task->state &= ~2;
+            do {
+            } while (0);
+        }
+        if ((task->flags & 7) != 3) {
+        }
+    } else {
+        task->state &= ~2;
+        __scTaskComplete(sc, task);
+    }
+
+    state = ((sc->curRSPTask == NULL) << 1) | (sc->curRDPTask == NULL);
+    if (__scSchedule(sc, &sp, &dp, state) != state) {
+        __scExec(sc, sp, dp);
+    }
+}
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scHandleRDP. */
+void __scHandleRDP(OSSched *sc) {
+    OSScTask *task;
+    OSScTask *sp = NULL;
+    OSScTask *dp = NULL;
+    s32 state;
+
+    task = sc->curRDPTask;
+    sc->curRDPTask = NULL;
+    task->state &= ~1;
+    __scTaskComplete(sc, task);
+    state = ((sc->curRSPTask == NULL) << 1) | (sc->curRDPTask == NULL);
+    if (__scSchedule(sc, &sp, &dp, state) != state) {
+        __scExec(sc, sp, dp);
+    }
+}
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scTaskReady. */
+OSScTask *__scTaskReady(OSScTask *task) {
+    if (task != NULL) {
+        if (osViGetCurrentFramebuffer() != osViGetNextFramebuffer()) {
+            return NULL;
+        }
+        return task;
+    }
+    return NULL;
+}
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scTaskComplete. */
+s32 __scTaskComplete(OSSched *sc, OSScTask *task) {
+    if ((task->state & 3) == 0) {
+        if (task->msgQ != NULL) {
+            if (task->flags & 0x20) {
+                if (sc->frameCount <= 1) {
+                    sc->unkTask = task;
+                    return 1;
+                }
+                if (task->unk68 != 0 || task->msg != NULL) {
+                    osSendMesg(task->msgQ, task->msg, OS_MESG_BLOCK);
+                } else {
+                    osSendMesg(task->msgQ, &D_8007A640, OS_MESG_BLOCK);
+                }
+                sc->frameCount = 0;
+                return 1;
+            }
+            if (task->unk68 != 0 || task->msg != NULL) {
+                osSendMesg(task->msgQ, task->msg, OS_MESG_BLOCK);
+                return 1;
+            }
+            osSendMesg(task->msgQ, &D_8007A640, OS_MESG_BLOCK);
+        }
+        return 1;
+    }
+    return 0;
+}
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scAppendList. */
+void __scAppendList(OSSched *sc, OSScTask *task) {
+    s32 type = task->list.t.type;
+
+    if (type == 2) {
+        if (sc->audioListTail != NULL) {
+            sc->audioListTail->next = task;
+        } else {
+            sc->audioListHead = task;
+        }
+        sc->audioListTail = task;
+    } else {
+        if (sc->gfxListTail != NULL) {
+            sc->gfxListTail->next = task;
+        } else {
+            sc->gfxListHead = task;
+        }
+        sc->gfxListTail = task;
+    }
+    task->next = NULL;
+    task->state = task->flags & 3;
+}
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scExec, with Mickey's task counters. */
+void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp) {
+    if (sp != NULL) {
+        if (sp->list.t.type == 2) {
+            osWritebackDCacheAll();
+        }
+        sp->state &= ~0x30;
+        osSpTaskLoad(&sp->list);
+        osSpTaskStartGo(&sp->list);
+        D_8007A650 = 0;
+        D_8007A654 = 0;
+        sc->curRSPTask = sp;
+        if (sp == dp) {
+            sc->curRDPTask = dp;
+        }
+    }
+    if (dp != NULL && dp != sp) {
+        osDpSetNextBuffer(dp->list.t.output_buff,
+                          *dp->list.t.output_buff_size);
+        sc->curRDPTask = dp;
+    }
+}
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scYield. */
+void __scYield(OSSched *sc) {
+    if (sc->curRSPTask->list.t.type == 1) {
+        sc->curRSPTask->state |= 0x10;
+        D_800D2D48 = osGetTime();
+        osSpTaskYield();
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scYield.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scSchedule.s")

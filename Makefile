@@ -709,6 +709,10 @@ $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 # the flag lattice selects this setting before any source permutation.
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 
+# The saves slot-reset loop is scalar in the target; the 119-combination flag
+# lattice otherwise expands four 0x20-byte records into each loop iteration.
+$(BUILD_DIR)/$(SRC_DIR)/main/saves.c.o: CFLAGS += -Wo,-loopunroll,0
+
 # The charControl target carries the R4300 multiply scheduling nops around its
 # single-precision smoothing helpers; the flag lattice isolates this assembler
 # mode without changing the resident TU's O2/MIPS-II compiler output.

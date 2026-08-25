@@ -1493,28 +1493,102 @@ membership and order, is tier D. `symbol_addrs.us.txt` carries the resulting
 per-symbol tier token for each of the 86 functions; this table is the
 TU-level summary, not a substitute for it.
 
-Exact C reconstructions in this census currently include `rumbleRumbles`
-(ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleKill` (ROM `0x2CB00`–
-`0x2CB44`, 68 bytes), `rumbleUpdate` (ROM `0x2CB44`–`0x2CB54`, 16 bytes),
+Exact C reconstructions in this census currently include the still-unnamed
+`func_8002BCC0` (ROM `0x2C8C0`–`0x2C8FC`, 60 bytes), `rumbleRumbles`
+(ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleProcessing` (ROM `0x2C908`–
+`0x2C958`, 80 bytes), `rumbleStart` (ROM `0x2C958`–`0x2CA74`, 284 bytes),
+`rumbleStop` (ROM `0x2CA74`–`0x2CB00`, 140 bytes),
+`rumbleKill` (ROM `0x2CB00`–`0x2CB44`, 68 bytes), `rumbleUpdate` (ROM
+`0x2CB44`–`0x2CB54`, 16 bytes), the still-unnamed rumble reinitializer
+`func_8002BF54` (ROM `0x2CB54`–`0x2CC98`, 324 bytes),
 `packCalculateGameChecksum` (ROM `0x2D3BC`–
 `0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
+the still-unnamed chunked save-device transfer `func_8002C7EC` (ROM
+`0x2D3EC`–`0x2D4B4`, 200 bytes),
+`packIsPresent` (ROM `0x2E0CC`–`0x2E128`, 92 bytes),
 `packDirectoryFree` (ROM `0x2E424`–`0x2E458`, 52 bytes),
+`packFreeSpace` (ROM `0x2E458`–`0x2E56C`, 276 bytes),
+`packDeleteFile` (ROM `0x2E56C`–`0x2E620`, 180 bytes),
+`packOpenFile` (ROM `0x2E620`–`0x2E74C`, 300 bytes),
+`packReadFile` (ROM `0x2E74C`–`0x2E810`, 196 bytes),
+`packFileSize` (ROM `0x2EA50`–`0x2EAB4`, 100 bytes),
+the still-unnamed `func_8002C5F4` (ROM `0x2D1F4`–`0x2D20C`, 24 bytes),
+the still-unnamed bitstream allocator `func_8002C60C` (ROM `0x2D20C`–
+`0x2D29C`, 144 bytes),
+the still-unnamed `func_8002C788` (ROM `0x2D388`–`0x2D390`, 8 bytes),
+the still-unnamed `func_8002C790` (ROM `0x2D390`–`0x2D39C`, 12 bytes),
+the still-unnamed `func_8002C79C` (ROM `0x2D39C`–`0x2D3BC`, 32 bytes),
+the still-unnamed `func_8002C8B4` (ROM `0x2D4B4`–`0x2D54C`, 152 bytes),
+the still-unnamed `func_8002CCE4` (ROM `0x2D8E4`–`0x2D96C`, 136 bytes),
+the still-unnamed game-state writer `func_8002CD6C` (ROM `0x2D96C`–
+`0x2DA2C`, 192 bytes),
+the still-unnamed global-flags loader `func_8002CE54` (ROM `0x2DA54`–
+`0x2DB0C`, 184 bytes),
+the still-unnamed `func_8002CF0C` (ROM `0x2DB0C`–`0x2DB6C`, 96 bytes),
+the still-unnamed `func_8002E020` (ROM `0x2EC20`–`0x2ECA0`, 128 bytes),
+`piInit` (ROM `0x2ECA0`–`0x2ED48`, 168 bytes),
+`piRomLoad` (ROM `0x2ED48`–`0x2EDE4`, 156 bytes),
+`piRomLoadCompressed` (ROM `0x2EDE4`–`0x2EEE0`, 252 bytes),
 `piRomLoadSection` (ROM `0x2EEE0`–`0x2EF5C`, 124 bytes),
 `piRomGetSectionPtr` (ROM `0x2EF5C`–`0x2EFA4`, 72 bytes),
 `piRomGetFileSize` (ROM `0x2EFA4`–`0x2EFE0`, 60 bytes),
-`rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes), and the still-
+`romCopy` (ROM `0x2EFE0`–`0x2F0D0`, 240 bytes),
+`screenLoad` (ROM `0x2F0D0`–`0x2F1D4`, 260 bytes),
+`rcpWaitDP` (ROM `0x2F6A0`–`0x2F76C`, 204 bytes),
+`rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes),
+`bgdraw_fillcolour` (ROM `0x2F794`–`0x2F7D4`, 64 bytes), and the still-
 unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–`0x2F7E0`, 12 bytes),
-plus `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes) and
+plus `rcpInitDp` (ROM `0x30068`–`0x30118`, 176 bytes),
+`rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes), and
 `rcpInitSp` (ROM `0x3013C`–`0x30160`, 36 bytes), and
+`rcpInit` (ROM `0x30160`–`0x30218`, 184 bytes), and
+`osCreateScheduler` (ROM `0x30CD0`–`0x30E2C`, 348 bytes),
 `osScGetAudioSPStats` (ROM `0x30F20`–
 `0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
-`osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
-no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes). All were compiled
-with the resident `-O2 -mips2 -32` flags. The named bodies are adapted from
-JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the anonymous
-setter and no-op are reconstructed from Mickey's own bodies. All configured
-object ranges and the final linked ROM are byte-exact.
+`osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), `__scMain` (ROM
+`0x30F38`–`0x310E0`, 424 bytes), and the still-unnamed
+no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes), plus
+the still-unnamed scheduler helper `func_800304E0` (ROM `0x310E0`–
+`0x31180`, 160 bytes),
+`osScAddClient` (ROM `0x30E2C`–`0x30E88`, 92 bytes), `osScRemoveClient`
+(ROM `0x30E88`–`0x30F10`, 136 bytes), `__scHandleRSP` (ROM `0x31D4C`–
+`0x31E74`, 296 bytes), `__scHandleRDP` (ROM `0x31E74`–`0x31EFC`, 136
+bytes), `__scTaskReady` (ROM `0x31EFC`–`0x31F4C`, 80 bytes),
+`__scTaskComplete` (ROM `0x31F4C`–`0x3204C`, 256 bytes),
+`__scAppendList` (ROM `0x3204C`–`0x320AC`, 96 bytes), and `__scExec` (ROM
+`0x320AC`–`0x3216C`, 192 bytes). All were compiled
+with the resident `-O2 -mips2 -32` flags. The saves TU additionally disables
+loop unrolling: the full flag
+lattice selects the target's scalar 24-record reset loop, and the full ROM
+comparison confirms the setting leaves its other exact functions unchanged.
+The named bodies are adapted from
+JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the
+Mickey `rumbleStart` body specifically corresponds to JFG's `rumbleMax`; the
+still-unnamed leading rumble gate also adapts its JFG body while retaining
+Mickey's placeholder name, and the still-unnamed global-flags loader adapts
+JFG's load-and-default-copy flow to Mickey's 24-byte resident record and I/O
+helpers. `bgdraw_fillcolour` adapts Diddy Kong Racing's
+public `src/rcp_dkr.c` body. The anonymous setter, dual-global reset,
+record-field accessors, allocation wrapper, and no-op are reconstructed from
+Mickey's own bodies. `screenLoad` is likewise reconstructed from Mickey's
+display-list command writes; JFG supplies its existing TU/name association,
+not its C body. `rcpInitDp` is likewise reconstructed from Mickey's own
+display-list command flow; JFG supplies its name and ordered TU position, not
+its C body. `rcpInit` reconstructs Mickey's six message queues while JFG's
+public source supplies its name and prototype and its object supplies the exact
+skeleton anchor, not a C body. All configured object ranges and the final
+linked ROM are byte-exact.
+
+`rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body after
+the 119-combination flag lattice and nine source-shape hypotheses. The best
+no-frame candidate has 96 instructions versus the target's 107 and first
+diverges at function `+0x10`, where the shortened body changes the first guard's
+branch span. IDO folds the candidate's derived command pointers into fixed
+base-relative stores; formulations that preserve the target's successive
+cursor advances instead introduce a 24- or 32-byte spill frame absent from the
+target. The assembly fallback remains canonical pending a source spelling that
+homes the three register arguments without spilling the cursor.
 
 `__scHandleRetrace` has a preserved `NON_MATCHING` JFG-derived body after the
 119-combination flag lattice and ten source-shape hypotheses. The best
@@ -1525,6 +1599,87 @@ stack-byte writes schedule in a different order. The remaining tail also
 materialises the 64-bit retrace counter through one combined object while the
 target uses separate high/low symbol references. The assembly fallback
 remains canonical.
+
+`__scYield` also retains a `NON_MATCHING` JFG-derived body. The resident flag
+lattice and five storage/source shapes leave the faithful external-`u64`
+candidate at 20 instructions versus the target's 19, with the first positional
+mismatch at function `+0x14` after the extra base reload changes the branch
+span. Defining the timestamp in this TU is diagnostic only: it reproduces all
+19 instruction words, but its final low-half store relocates against
+`D_800D2D48` plus four rather than `D_800D2D4C` at `+0x38`, and it introduces
+new scheduler BSS that this split does not own. The assembly fallback remains
+canonical until BSS ownership can be reconstructed without changing the
+shared data layout.
+
+`osScGetTaskType` retains its JFG-derived switch under `NON_MATCHING`. The
+canonical candidate emits all 34 target text instructions and all eight
+string relocation identities exactly, but its two jump-table relocations at
+function `+0x14` and `+0x1C` name the compiler's anonymous 0x20-byte
+`.rodata` section rather than Mickey's existing `jtbl_800823D8`. The flag
+lattice cannot change section ownership, and promoting the table requires a
+measured `mickey.us.yaml` rodata-boundary handoff outside this lane's assigned
+files. The assembly fallback therefore remains canonical.
+
+The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
+`NON_MATCHING` body after the 119-combination flag lattice and seven
+source/type/loop shapes. Its best faithful candidate is 29 instructions versus
+the target's 28; the first mismatch is at function `+0x0` because the longer
+branch span is followed by an extra value-preserving move at `+0x4`. That move
+changes the loop's register allocation even though the control flow and bit
+stream operations agree. The lane's `tools/permute.sh` could not run because
+the vendored `tools/permuter/import.py` is absent. The assembly fallback
+remains canonical.
+
+Its paired bit reader `func_8002C70C` likewise retains a Mickey-derived
+`NON_MATCHING` body. The 119-combination flag lattice and five local-width and
+expression shapes reach the target's exact 31-instruction control-flow shape,
+but 18 words differ from the first mismatch at `+0x14`: the loop-invariant
+`0x80` mask and subsequent temporaries allocate to different registers, with
+one remaining opcode difference and no relocation differences. Automated
+declaration permutation is blocked by the same absent permuter import. The
+assembly fallback remains canonical.
+
+The full-save-image builder `func_8002CF6C` also retains a Mickey-derived
+`NON_MATCHING` body after the 119-combination flag lattice and ten
+stack-layout, call-arity, and lifetime hypotheses. Its best candidate has the
+target's exact 88-instruction opcode schedule, 72-byte frame, and relocation
+surface; nine register-only words remain from the first mismatch at `+0xCC`.
+The saved global-flags bit reload crosses from the target's temporary FIFO to
+the candidate's colored fourth-argument web, rotating the following integer
+temporaries through the second copy loop. The assembly fallback remains
+canonical.
+
+The 0x94-byte save-window serializer `func_8002C94C` retains a Mickey-derived
+`NON_MATCHING` body after the 119-combination flag lattice and ten source,
+stack-layout, and lifetime hypotheses. Its best candidate has the target's
+exact 115-instruction opcode schedule, 112-byte frame, and relocation surface;
+12 words differ, first at function `+0x30`. Six differences place the message
+queue and two-word footer at candidate `sp+0x6C` and `sp+0x64` instead of the
+target's `sp+0x54` and `sp+0x40`; the other six swap the save-slot base and
+outer counter between `$s5` and `$s6`. Mirroring the recovered local order
+instead drops the footer-magic stores, and aggregate layouts grow the frame.
+The unavailable permuter import prevents a bounded automated declaration
+search; the assembly fallback remains canonical.
+
+`font_codes_to_string` retains a JFG-derived `NON_MATCHING` body after the
+flag lattice and ten source/type/coalescing shapes. With ordinary resident
+flags the donor loop is instruction-exact, but this TU's required
+`-Wo,-loopunroll,0` removes the target's four-byte padding expansion. Spelling
+that expansion explicitly restores the exact 44-instruction opcode and
+relocation shape, leaving five register-only words from one `$a0`/`$v0` web
+swap, first at function `+0x64`. The unavailable permuter import prevents a
+bounded automated declaration search; the assembly fallback remains
+canonical.
+
+`string_to_font_codes` retains its paired JFG-derived `NON_MATCHING` body
+after the flag lattice and ten source, CFG, and type shapes. The donor loop is
+instruction-exact with ordinary resident flags, while this TU's required
+`-Wo,-loopunroll,0` removes the target's twelve-instruction four-byte padding
+expansion. Spelling the peel and four stores explicitly restores the exact
+47-instruction opcode and relocation shape, leaving five register-only words
+from one `$a0`/`$v0` web swap, first at function `+0x70`. The unavailable
+permuter import prevents a bounded automated declaration search; the assembly
+fallback remains canonical.
 
 ### 3.16 Particle and debug-print translation units
 
