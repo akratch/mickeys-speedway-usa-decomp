@@ -88,6 +88,7 @@ void *func_8002B280();
 void piRomLoadSection();
 void func_80021504(f32 value, s32 arg1);
 f32 sqrtf(f32 value);
+extern void func_800031E8(s32 handle);
 
 /*
  * PROVENANCE: adapted from JFG's func_80076020_76C20. Mickey's globals and
@@ -250,7 +251,6 @@ void func_800502CC(u8 pathIndex) {
  */
 #pragma weak animResetTrap = TrapDanglingJump
 extern s32 animResetTrap(AnimPath *, f32, s32, s32);
-extern void func_800031E8(s32 handle);
 void func_8005055C(u8 pathIndex) {
     AnimPath *path;
     AnimPathObject *object;
@@ -691,11 +691,97 @@ void func_800534EC(s32 arg0) {
     } while (i--);
 }
 
+typedef struct HitCollisionVehicle {
+    s8 playerIndex;
+    u8 pad1[0xC3];
+    s32 soundHandle;
+    u8 padC8[0x88];
+    f32 unk150;
+    u8 pad154[4];
+    s16 unk158;
+    s16 unk15A;
+    s16 unk15C;
+    u8 pad15E[0xA];
+    s16 unk168;
+    s16 unk16A;
+    u8 pad16C[0x19];
+    u8 unk185;
+    u8 pad186[2];
+    f32 unk188;
+    u8 pad18C[0x1C];
+    u16 flags1A8;
+    u8 pad1AA[0x20C];
+    s16 unk3B6;
+    s16 unk3B8;
+} HitCollisionVehicle;
+
+typedef struct HitCollisionLink {
+    u8 pad0[0x38];
+    HitCopyState *state;
+} HitCollisionLink;
+
+void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
+                   void **handle);
+u8 *func_80028F54(void);
+void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053550.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053868.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80054B3C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055104.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800557F8.s")
+/* Mickey-local collision response reconstructed from its resident ABI. */
+void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
+    s32 priority;
+    HitCollisionLink *secondTarget;
+    HitCollisionVehicle *firstVehicle;
+    HitCopySource *source;
+    s32 soundHandle;
+    s32 timer;
+
+    secondTarget = (HitCollisionLink *) second->target;
+    priority = 4;
+    firstVehicle = (HitCollisionVehicle *) first->target;
+    source = second->source;
+    if ((firstVehicle->unk16A == 0) && (firstVehicle->unk168 == 0)) {
+        TrapDanglingJump(first, firstVehicle);
+        /* Preserve IDO's target v0 allocation without emitting code. */
+        if (1) {
+        }
+        timer = 0x258;
+        firstVehicle->unk158 = -0x7FFD;
+        firstVehicle->unk15A = timer;
+        firstVehicle->unk15C = timer;
+        firstVehicle->unk150 = 10.0f;
+        TrapDanglingJump(secondTarget->state, first);
+        /* Preserve IDO's target v0 allocation without emitting code. */
+        if (1) {
+        }
+        ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
+        firstVehicle->unk3B8++;
+        if (*func_80028F54() == 5) {
+            TrapDanglingJump(first);
+        }
+        soundHandle = firstVehicle->soundHandle;
+        firstVehicle->unk185 = 0;
+        firstVehicle->unk188 = 0.0f;
+        if (soundHandle != 0) {
+            func_800031E8(soundHandle);
+        }
+        if (!(firstVehicle->flags1A8 & 1)) {
+            rumbleStart(firstVehicle->playerIndex, 0x46, 0.75f);
+        }
+    } else {
+        func_80002FE0(0x26E, source->current.x, source->current.y,
+                      source->current.z, priority, NULL);
+    }
+    second->position.x = source->current.x;
+    second->position.y = source->current.y;
+    second->position.z = source->current.z;
+    source->previous.x = source->current.x;
+    source->previous.y = source->current.y;
+    source->previous.z = source->current.z;
+    TrapDanglingJump(second, 1);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055970.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055B24.s")
 void func_80055D08(HitCopyState *first, HitCopyState *second, f32 unused) {

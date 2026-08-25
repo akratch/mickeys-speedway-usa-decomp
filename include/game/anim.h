@@ -161,6 +161,7 @@ void func_800534EC(s32 arg0);
 void animseqResetGroup(void);
 void *piRomLoad(s32 resourceId);
 void fmvInit(void);
+void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused);
 void func_80055D08(HitCopyState *first, HitCopyState *second, f32 unused);
 void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused);
 void func_80056274(HitCopyState *first, HitCopyState *second, f32 unused);

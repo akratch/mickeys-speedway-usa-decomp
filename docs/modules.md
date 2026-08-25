@@ -1476,7 +1476,7 @@ placeholders are never imported.
 | `0x80053868` | `0x12D4` | `hitUpdate` | B; collision dispatcher over the following helpers |
 | `0x80054B3C` | `0x5C8` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x80055104` | `0x6F4` | no unique `hit.c` candidate | D; collision/vector shape |
-| `0x800557F8` | `0x178` | no unique `hit.c` candidate | D; collision handler family |
+| `0x800557F8` | `0x178` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 376 B and eight-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; reconstructed from Mickey's resident state/counter/audio ABI after no external skeleton exceeded 0.070 similarity |
 | `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; collision handler family |
 | `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | D; collision handler family |
 | `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 328 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; composed from Mickey-local exact state-update and normalization patterns |
