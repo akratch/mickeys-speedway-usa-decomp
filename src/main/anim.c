@@ -633,15 +633,12 @@ void animseqFreeLevelData(void) {
     }
 }
 
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from JFG's public animseqLoadLevelData assembly.
- * Plateau: exact 43-word shape; two source-spill offsets differ, first +0x60.
- * A fresh word-bound m2c form and workbench lever 6 retain the 0x18 home.
  */
 void func_80050DF0(s32 levelId) {
-    s32 *bounds;
     s32 source;
+    s32 *bounds;
 
     if (levelId != -1 && levelId != D_8007D688) {
         animseqFreeLevelData();
@@ -657,9 +654,6 @@ void func_80050DF0(s32 levelId) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050DF0.s")
-#endif
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
