@@ -1104,7 +1104,7 @@ fxScreenEffect = 0x8004AA78;           // type:func size:0x24C tier B (JFG order
 func_8004ACC4 = 0x8004ACC4;           // type:func size:0x70 tier-D ROM 0x4B8C4 NON_MATCHING plateau, first +0x14
 func_8004AD34 = 0x8004AD34;            // type:func size:0xB4 tier A (exact C, JFG fxGenerateTextures)
 func_8004ADE8 = 0x8004ADE8;            // type:func size:0x180 tier B (JFG fxCpuTextureRequired)
-func_8004AF68 = 0x8004AF68;            // type:func size:0xD0 tier B (JFG fxCpuTextureFlush)
+func_8004AF68 = 0x8004AF68;            // type:func size:0xD0 tier-B ROM 0x4BB68 NON_MATCHING plateau, 54 emitted/52 owned words, first +0x4
 
 // gsSnd.c. One distinctive literal each, and the literal states the contract:
 // 0x8005D6E4 owns "WARNING: Attempt to stop NULL sound aborted", 0x8005D898

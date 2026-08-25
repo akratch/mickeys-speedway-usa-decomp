@@ -145,8 +145,9 @@ extern s32 D_8007D488;
 extern s32 D_800D6098[];
 extern s32 D_800D60A8;
 extern s32 D_800D60BC;
+extern s32 D_800D60C0[];
 extern s32 D_800D60CC;
-extern s8 D_800D60D3;
+extern u8 D_800D60D3;
 extern s32 D_8007D478;
 extern FxScreenEffect D_800D6048[];
 extern void TrapDanglingJump(void);
@@ -600,7 +601,7 @@ void func_8004ACC4(void) {
     s32 *callback;
     s32 *value0;
     s32 *value1;
-    s8 *available;
+    u8 *available;
     s32 i;
     s32 trap;
     s32 trapValue;
@@ -643,4 +644,38 @@ s32 func_8004AD34(void) {
     D_800D60A8 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
+#ifdef NON_MATCHING
+/* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
+void func_8004AF68(void) {
+    register s32 offset;
+    register s32 *value0;
+    register s32 i;
+    register u8 *available;
+    s32 *value1;
+    void *allocation;
+
+    offset = 12;
+    value0 = &D_800D60BC;
+    i = 3;
+    available = &D_800D60D3;
+    do {
+        allocation = (void *)*value0;
+        if (allocation != 0) {
+            value1 = (s32 *)(offset + (s32)D_800D60C0);
+            mmFree(allocation);
+            mmFree((void *)*value1);
+            *value0 = 0;
+            *value1 = 0;
+        }
+        if (*available != 0) {
+            *(s32 *)((u8 *)D_8007D47C + offset) = (s32)TrapDanglingJump;
+        }
+        value0--;
+        available--;
+        offset -= 4;
+    } while (i--);
+    D_800D60A8 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AF68.s")
+#endif

@@ -1894,6 +1894,20 @@ differs in 18 of 28 words under the resident defaults, first at function
 `+0x14`: IDO assigns the counter, trap address and callback cursor one register
 group earlier than the target. The candidate remains behind `NON_MATCHING`.
 
+The 208-byte `func_8004AF68` (`fxCpuTextureFlush` in JFG) reaches a bounded
+boundary/allocation plateau after the full flag lattice, nine coherent
+pointer/index forms, and one canonical MIPS II permuter batch. JFG's peer is
+also assembly-only but confirms the four-slot descending free/reset skeleton.
+The best typed candidate keeps separate byte-offset and loop-counter
+inductions, the two conditional frees, callback reset, 56-byte frame, and all
+relocation identities, but IDO hoists the secondary texture-array base into
+`s5`. That displaces the callback/trap pair into `s6`/`s7`, emits 54
+instructions against 52 owned words, consumes the two following target padding
+words, and leaves 48 positional differences beginning at function `+0x4`.
+The batch's lower score moved the offset decrement under a conditional and was
+discarded as semantically invalid; the coherent candidate remains behind
+`NON_MATCHING` and the target assembly stays canonical.
+
 `diCpuThread` reached a bounded `NON_MATCHING` plateau after the full flag
 lattice and ten source/lifetime hypotheses. The best candidate has the exact
 85-instruction size, 88-byte frame, saved-register set, control flow and
