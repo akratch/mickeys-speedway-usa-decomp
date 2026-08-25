@@ -10,12 +10,57 @@
 
 #include "PR/ultratypes.h"
 #include "PR/os_internal.h"
+#include "PR/os_message.h"
 
 extern s32 D_8007CFD8;
 extern s32 D_8007CFDC;
+extern f32 D_80083DBC;
+extern OSMesgQueue D_800D5CD0;
+extern OSMesg D_800D5CE8[8];
+extern OSMesg D_800D5D08[8];
+extern OSMesgQueue D_800D5D28;
+extern void func_8004D5E0(s32 priority, OSMesgQueue *queue, OSMesg *messages,
+                          s32 count);
+extern void osViSetSpecialFeatures(u32 features);
+extern void func_80045CAC(void);
+void stop_all_threads_except_main(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuTraceInit.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuThread; Mickey's own
+ * draft supplies its extra VI delay loop and exact event handling. */
+void diCpuThread(void *unused) {
+    OSMesg message;
+    s32 events;
+    register s32 i;
+    register f32 divisor;
+    register f32 sum;
+
+    events = 0;
+    osCreateMesgQueue(&D_800D5CD0, D_800D5CE8, 8);
+    osSetEventMesg(12, &D_800D5CD0, (OSMesg)8);
+    osSetEventMesg(10, &D_800D5CD0, (OSMesg)2);
+    func_8004D5E0(150, &D_800D5D28, D_800D5D08, 8);
+    divisor = D_80083DBC;
+    while (1) {
+        osRecvMesg(&D_800D5CD0, &message, OS_MESG_BLOCK);
+        events |= (s32)message;
+        if ((events & 8) || (events & 2)) {
+            osViSetSpecialFeatures(0xA2);
+            sum = 0.0f;
+            i = 1000000;
+            while (i--) {
+                sum += (f32)i / divisor;
+            }
+            events &= ~8;
+            stop_all_threads_except_main();
+            func_80045CAC();
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuThread.s")
+#endif
 /* PROVENANCE: body adapted from JFG src/diCpu.c::stop_all_threads_except_main. */
 void stop_all_threads_except_main(void) {
     OSThread *thread = __osGetActiveQueue();

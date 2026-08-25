@@ -1751,6 +1751,14 @@ indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
+`diCpuThread` reached a bounded `NON_MATCHING` plateau after the full flag
+lattice and ten source/lifetime hypotheses. The best candidate has the exact
+85-instruction size, 88-byte frame, saved-register set, control flow and
+relocation identities. Its first mismatch is function `+0x90`: IDO schedules
+the invariant `D_80083DBC` load before the low half of the `999999` loop
+constant, while the target emits those adjacent instructions in the opposite
+order. The target assembly remains canonical.
+
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
 Force Gemini's public decompilation (`src/diRcpTrace.c`, `src/diRcp.c`,
