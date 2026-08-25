@@ -1692,24 +1692,16 @@ Unresolved functions remain `GLOBAL_ASM`, so the split claims no matched bytes.
 | `main/particles` | `0x3D5F0`–`0x43470` / `0x8003C9F0` | 44 | **A:** DKR's built `particles.c.o` identifies `reset_particles` byte-for-byte. **B:** the internal call graph and external particle callers. **D:** the full function order and masked-skeleton sequence track JFG's 42-function `particles.c.o` from `partFreeLib` through `partNullifyCircularParticleParents`; Mickey inserts two extra 12-byte state setters before `partUpdateTriggers`, after which the sequences reconverge. |
 | `main/diprint` | `0x43470`–`0x45760` / `0x80042870` | 19 | **A:** DKR objects identify `strcpy`, `memset`, and `sprintf` exactly. **B:** `diPrintf` brackets `vsprintf` with `sprintfSetSpacingCodes`, `diPrintfAll` drives the parse/background/character/bounds/origin helpers, and later `diRcp*` routines call `sprintf`. **C:** `_itoa` owns both digit alphabets and `vsprintf` owns `(null)` and `(nil)`. The order matches JFG's `diprint.c.o`, with DKR's `debug_text_width` inserted between `diPrintfSetXY` and `debug_text_parse`. |
 
-**PROVENANCE.** The `part*`, `diPrintf*`, and `debug_text_*` names and both TU
-attributions are adapted from Jet Force Gemini's public `src/particles.c` and
-`src/diprint.c` plus their built objects. Diddy Kong Racing's public
-`src/printf.c` supplies `debug_text_width`, while its built
-`unused_string.c.o`, `printf.c.o`, and `particles.c.o` supply the tier-A rows
-stated above. JFG address-placeholder names are not imported: Mickey's own
-`func_<VRAM>` names remain. Mickey's bytes and call graph decide every
-disagreement.
+**PROVENANCE.** Names/TU attribution use JFG's public `src/particles.c`,
+`src/diprint.c`, and objects; DKR's `src/printf.c` supplies
+`debug_text_width`, and its `unused_string.c.o`, `printf.c.o`, and
+`particles.c.o` supply the stated tier-A rows. Donor placeholders stay
+excluded; Mickey's bytes/call graph decide disagreements.
 
-The Evidence column above states categories per TU, not a per-function
-verdict. Per-symbol: `reset_particles`, `strcpy`, `memset`, and `sprintf` are
-tier A (named donor-object byte matches); the internal/external
-particle-caller and `diPrintf`/`diPrintfAll`/`diRcp*` call-graph functions
-named above are tier B; `_itoa` and `vsprintf` are tier C (string
-correspondence); every other function in `main/particles` and `main/diprint`,
-identified only by JFG/DKR order and masked-skeleton shape and not named
-individually above, is tier D. `symbol_addrs.us.txt` carries the resulting
-per-symbol tier token for each of the 63 functions in these two TUs.
+The table tiers are TU-level. Per symbol, donor-object matches are tier A;
+named call-graph functions are tier B; `_itoa`/`vsprintf` string evidence is
+tier C; remaining JFG/DKR order/skeleton attributions are tier D. Each of the
+63 `symbol_addrs.us.txt` rows carries its tier token.
 
 Exact C matches banked in these TUs: `partAdjustScaling` (ROM `0x3F9C8`,
 `0xC` bytes, default resident flags, JFG body donor) and `func_8003EDD4`
@@ -1778,6 +1770,15 @@ reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default
 resident flags, JFG-named Mickey reconstruction); `debug_text_background`
 (ROM `0x452F8`, `0xA0` bytes, resident flags plus `-Wab,-r4300_mul`, JFG body
 donor).
+
+`func_8003CE10` reached a bounded 275-instruction `NON_MATCHING` plateau
+under the default resident flags after the full flag lattice, ten structural
+hypotheses, and a corrected canonical-`mips2` permuter batch. The best
+semantic candidate has the exact opcode schedule and relocation identities,
+but 154 positional words differ from `+0x0`: IDO emits a `0x98` frame instead
+of the target's `0x90`, shifting its scalar homes and register allocation.
+JFG's `func_8005DD88` is an assembly-only structural oracle; the original asm
+remains canonical.
 
 `func_8003EC8C` reached a bounded size-exact 47-word plateau under the
 default resident flags. Its best compliant candidate differs in 24

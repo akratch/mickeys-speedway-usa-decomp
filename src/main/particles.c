@@ -323,11 +323,14 @@ typedef struct CircularParticle {
     s16 colorIndex;
     s16 colorTimer;
     u8 colorCount;
-    u8 pad6F[2];
+    u8 alpha;
+    u8 colorMode;
     u8 red;
     u8 green;
     u8 blue;
-    u8 pad74[3];
+    u8 alternateRed;
+    u8 alternateGreen;
+    u8 alternateBlue;
     u8 updateTexture;
 } CircularParticle;
 
@@ -356,6 +359,17 @@ typedef struct ParticleRenderResource {
     void *triangles[1];
 } ParticleRenderResource;
 
+typedef struct ParticleSpriteResource {
+    u8 pad00[6];
+    s16 flags;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alternateRed;
+    u8 alternateGreen;
+    u8 alternateBlue;
+} ParticleSpriteResource;
+
 typedef struct CircularParticlePool {
     u8 pad00[0x14];
     CircularParticle *particles;
@@ -376,6 +390,8 @@ typedef struct ParticlePosition {
 extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
+extern s32 D_8007C854;
+extern s32 D_8007C85C;
 extern f32 D_80082A48;
 extern f32 D_80082A4C;
 extern void **D_8007C884;
@@ -420,9 +436,13 @@ void camSetNo(s32 camera);
 void func_800221E8(void **dList, s32 arg1);
 void func_800244EC(Gfx **dList, s32 renderContext, ParticleRenderTransform *transform, f32 scale, f32 extra);
 void func_800245EC(Gfx **dList);
+void func_80023A08(Gfx **dList, s32 renderContext, void **vertices, CircularParticle *particle,
+                   ParticleSpriteResource *resource, s32 flags, s32 intensity);
+void func_80034DF0(u8 red, u8 green, u8 blue, u8 alternateRed, u8 alternateGreen, u8 alternateBlue);
+void func_80034E48(void);
 void func_800349A4(Gfx **dList, void *texture, s32 mode, s32 flags);
 void func_8003D4FC(void **dList, void **vertices, void *pool);
-s32 func_8003CE10(void **dList, s32 arg1, void **vertices, void *pool, s32 mode);
+s32 func_8003CE10(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool, s32 mode);
 void func_8003D25C(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool);
 void func_80041CE4(void **dList, void **vertices);
 void func_80041F48(s32 arg0, ParticleTrigger *trigger);
@@ -592,7 +612,138 @@ void func_8003CD28(ParticleResourceList **listPtr) {
         *listPtr = NULL;
     }
 }
+#ifdef NON_MATCHING
+/*
+ * Exact opcode schedule, instruction count, and relocation identities; 154
+ * allocation/stack-operand words remain from +0x0 because IDO emits a 0x98
+ * frame instead of the target's 0x90 frame.
+ *
+ * PROVENANCE: structure cross-checked against JFG's assembly-only
+ * asm/nonmatchings/particles/func_8005DD88.s sibling; body reconstructed
+ * from Mickey evidence.
+ */
+s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParticlePool *pool, s32 mode) {
+    CircularParticle *particle;
+    ParticleSpriteResource *resource;
+    Gfx *command;
+    void *firstVertex;
+    s32 requiredFlags;
+    s32 excludedFlags;
+    s32 count;
+    s32 i;
+    s32 flags;
+    s32 fade;
+    s32 renderFlags;
+    s32 intensity;
+    s32 red;
+    s32 green;
+    s32 blue;
+    s32 alternateRed;
+    s32 alternateGreen;
+    s32 alternateBlue;
+    u8 colorMode;
+
+    if (pool == NULL) {
+        return 0;
+    }
+
+    particle = pool->particles;
+    i = 0;
+    if (mode == 1) {
+        requiredFlags = 0;
+        excludedFlags = 0x8000;
+    } else if (mode == 0) {
+        requiredFlags = 0x8000;
+        excludedFlags = 0;
+    } else {
+        requiredFlags = 0;
+        excludedFlags = 0;
+    }
+    firstVertex = *vertices;
+    count = pool->count;
+    if (count > 0) {
+        do {
+            if (particle->type == 2) {
+                flags = particle->flags;
+                if ((flags & requiredFlags) == requiredFlags && !(flags & excludedFlags)) {
+                    renderFlags = 2;
+                    colorMode = particle->colorMode;
+                    resource = particle->resource;
+                    red = particle->red;
+                    green = particle->green;
+                    blue = particle->blue;
+                    if (colorMode != 0) {
+                        alternateRed = particle->alternateRed;
+                        alternateGreen = particle->alternateGreen;
+                        alternateBlue = particle->alternateBlue;
+                    }
+                    intensity = (particle->intensity >> 8) & 0xFF;
+                    if (D_8007C854 != 0) {
+                        if (flags & 0x800) {
+                            fade = (particle->alpha * D_8007C85C) >> 8;
+                        } else {
+                            fade = D_8007C85C;
+                        }
+                    } else {
+                        if (flags & 0x800) {
+                            fade = particle->alpha;
+                        } else {
+                            fade = 0xFF;
+                        }
+                    }
+                    if (fade < 0xFE) {
+                        red = (red * fade) >> 8;
+                        green = (green * fade) >> 8;
+                        blue = (blue * fade) >> 8;
+                        if (colorMode != 0) {
+                            alternateRed = (alternateRed * fade) >> 8;
+                            alternateGreen = (alternateGreen * fade) >> 8;
+                            alternateBlue = (alternateBlue * fade) >> 8;
+                        }
+                    }
+                    if (resource->flags & 0x200) {
+                        if (colorMode == 0) {
+                            alternateRed = (resource->alternateRed * red) >> 8;
+                            alternateGreen = (resource->alternateGreen * green) >> 8;
+                            alternateBlue = (resource->alternateBlue * blue) >> 8;
+                            red = (resource->red * red) >> 8;
+                            green = (resource->green * green) >> 8;
+                            blue = (resource->blue * blue) >> 8;
+                        }
+                        if (colorMode != 2) {
+                            func_80034DF0(red, green, blue, alternateRed, alternateGreen, alternateBlue);
+                        } else {
+                            func_80034DF0(alternateRed, alternateGreen, alternateBlue, red, green, blue);
+                        }
+                    } else if ((red << 24 | green << 16 | blue << 8 | intensity) != 0) {
+                        gDPPipeSync((*dList)++);
+                        command = (*dList)++;
+                        command->words.w0 = 0xFA000000;
+                        command->words.w1 = (red & 0xFFFFU) << 24 | (green & 0xFF) << 16 |
+                                            (blue & 0xFF) << 8 | (intensity & 0xFF);
+                    }
+                    if (intensity != 0xFF) {
+                        renderFlags = 6;
+                    }
+                    func_80023A08(dList, renderContext, vertices, particle, resource, renderFlags, intensity);
+                    if (resource->flags & 0x200) {
+                        func_80034E48();
+                    }
+                }
+            }
+            i++;
+            particle++;
+            count = pool->count;
+        } while (i < count);
+    }
+    gDPPipeSync((*dList)++);
+    gDPSetPrimColor((*dList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gDPSetEnvColor((*dList)++, 0xFF, 0xFF, 0xFF, 0);
+    return ((u8 *)*vertices - (u8 *)firstVertex) / 10;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CE10.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: structure cross-checked against JFG's assembly-only
@@ -1806,7 +1957,7 @@ void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     vertices = (u8 *)D_8007C89C[D_8007C8E8] + (D_8007C8EC * 10);
     gDPPipeSync((*dList)++);
     if (mode == 1) {
-        D_8007C8EC = func_8003CE10((void **)dList, arg1, &vertices, D_800D4128, 1);
+        D_8007C8EC = func_8003CE10(dList, arg1, &vertices, D_800D4128, 1);
         return;
     }
     camSetNo(0);
@@ -1815,7 +1966,7 @@ void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     func_8003D4FC((void **)dList, &vertices, D_800D4124);
     func_80041CE4((void **)dList, &vertices);
     func_80041C50((s32)dList, (s32)&vertices);
-    func_8003CE10((void **)dList, arg1, &vertices, D_800D4128, mode);
+    func_8003CE10(dList, arg1, &vertices, D_800D4128, mode);
     func_8003D25C(dList, arg1, &vertices, D_800D412C);
     D_8007C8E8 ^= 1;
 }
