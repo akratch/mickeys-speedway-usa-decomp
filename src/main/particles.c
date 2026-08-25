@@ -106,6 +106,12 @@ typedef struct ParticleModelEntry {
     u8 padA5[0x1B];
 } ParticleModelEntry;
 
+typedef struct ParticleLineEntry {
+    u8 pad00[0x124];
+    u8 active;
+    u8 pad125[0x23];
+} ParticleLineEntry;
+
 typedef struct ParticleModelPartConfig {
     s16 type;
     s16 triggerType;
@@ -184,7 +190,6 @@ typedef struct CircularParticle {
 typedef struct CircularParticlePool {
     u8 pad00[0x14];
     CircularParticle *particles;
-    u8 pad18[4];
     s32 count;
     u32 *freeBits;
 } CircularParticlePool;
@@ -201,6 +206,8 @@ extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
 extern void **D_8007C884;
 extern s32 D_8007C888;
+extern s32 D_8007C88C;
+extern ParticleLineEntry *D_8007C894;
 extern void *D_8007C89C[2];
 extern s32 D_8007C8B0;
 extern ParticleConfig **D_8007C8B8;
@@ -216,6 +223,7 @@ extern CircularParticlePool *D_800D4120[];
 extern CircularParticlePool *D_800D4124;
 extern CircularParticlePool *D_800D4128;
 extern CircularParticlePool *D_800D412C;
+extern CircularParticlePool *D_800D4130[];
 extern CircularParticlePool *D_800D4134[];
 
 void mmFree(void *ptr);
@@ -231,6 +239,9 @@ void func_8003D4FC(void **dList, void **vertices, void *pool);
 s32 func_8003CE10(void **dList, s32 arg1, void **vertices, void *pool, s32 mode);
 void func_8003D25C(void **dList, s32 arg1, void **vertices, void *pool);
 void func_80041CE4(void **dList, void **vertices);
+void func_80040878(CircularParticle *particle, s32 updateRate);
+void func_80041040(ParticleLineEntry *particle, s32 updateRate);
+void func_80041388(ParticleModelEntry *particle, s32 updateRate);
 void func_8003EC8C(ParticleObject *object, s32 index);
 void func_8003E7B8(ParticleObject *object, s32 index);
 s8 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger);
@@ -724,7 +735,63 @@ void func_800423EC(BasicParticle *particle) {
         particle->rotationZ += particle->angularVelocityZ;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateParticles.s")
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/partUpdateParticles.s; body reconstructed from Mickey evidence. */
+void partUpdateParticles(s32 updateRate) {
+    CircularParticlePool **poolPtr;
+    CircularParticlePool **poolEnd;
+    CircularParticlePool *pool;
+    CircularParticle *particle;
+    ParticleLineEntry *line;
+    ParticleModelEntry *pointStream;
+    s32 i;
+
+    poolPtr = D_800D4120, poolEnd = D_800D4130;
+    do {
+        pool = *poolPtr;
+        if (pool != NULL) {
+            particle = pool->particles;
+            i = 0;
+            if (pool->count > 0) {
+                do {
+                    if (particle->type != 0x80) {
+                        func_80040878(particle, updateRate);
+                    }
+                    i++;
+                    particle++;
+                } while (i < pool->count);
+            }
+        }
+        poolPtr++;
+    } while (poolPtr < poolEnd);
+
+    if (D_8007C894 != NULL) {
+        line = D_8007C894;
+        i = 0;
+        if (D_8007C88C > 0) {
+            do {
+                if (line->active != 0) {
+                    func_80041040(line, updateRate);
+                }
+                i++;
+                line++;
+            } while (i < D_8007C88C);
+        }
+    }
+
+    if (D_8007C898 != NULL) {
+        pointStream = D_8007C898;
+        i = 0;
+        if (D_8007C890 > 0) {
+            do {
+                if (pointStream->active != 0) {
+                    func_80041388(pointStream, updateRate);
+                }
+                i++;
+                pointStream++;
+            } while (i < D_8007C890);
+        }
+    }
+}
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/partDraw.s; body reconstructed from Mickey evidence. */
 void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     void *vertices;
