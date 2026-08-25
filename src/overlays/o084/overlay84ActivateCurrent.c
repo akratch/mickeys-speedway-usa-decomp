@@ -78,6 +78,14 @@ extern Overlay84Resource *overlay84LookupReloc(u8 resource);
 extern void overlay84PrepareReloc(u8 resource);
 extern void overlay84ReleaseReloc(u8 resource);
 
+/* NON_MATCHING plateau (reconfirmed 2026-08-25): the nearest skeleton score is
+ * 0.051 and all 119 flag combinations miss. The exact-size candidate differs
+ * in nine of 101 words, first at +0x8: retail keeps the selected resource as a
+ * full word in a2, uses a 0x30 frame, and spills it at sp+0x30, while natural
+ * C truncates the u8 at entry, uses a 0x40 frame, and spills a byte at sp+0x27.
+ * s32/u32 locals or reusing kind expand the mismatch to 69 words; u8 parameter
+ * forms add eight bytes. A bounded two-worker permuter chose the same int-local
+ * dead end and found no exact form. */
 #ifdef NON_MATCHING
 void overlay84ActivateCurrent(s32 kind) {
     Overlay84Object *object;
