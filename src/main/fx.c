@@ -200,9 +200,9 @@ void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047304.s")
-/* Plateau (2026-08-25): best -O2 -mips2 -Wo,-loopunroll,0 is 254/251
- * instructions, 236 differing words from +0x0, with frame 0x100/0xF8.
- * 40m permuter found no exact; its best moved a loop decrement across stores. */
+/* Workbench p3: structure-mismatch; 254/251 candidate/target instructions, 236 words from +0x0.
+ * Lever: constant audit plus array order, lifetime, and combined-buffer forms.
+ * Remains: candidate +3 instructions and +16-byte frame with a register/CFG cascade. */
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's corresponding fxMakeConeTextureCoords body is
  * also assembly-only and supplies no adaptable C source. */

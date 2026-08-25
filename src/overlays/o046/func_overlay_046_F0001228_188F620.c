@@ -86,9 +86,9 @@ extern void func_800349A4(Overlay46DisplayCommand **commands, void *texture,
         O46_SHIFTL(alpha, 0, 8); \
 }
 
-/* Plateau (2026-08-25): 437/461 instructions; 415 positional words differ from +0x5C.
- * Restored the missing stack-zero store; flag, stride, and scoped-loop variants lost.
- * Workbench: structure-mismatch; the remaining lever is C/CFG shape before allocation. */
+/* Workbench p3: structure-mismatch; 437/461 candidate/target instructions, 415 words.
+ * Lever: constant audit, split update-rate lifetime, and D_494 alias; both forms regressed.
+ * Remains: exact frame/prefix to +0x5C, then emitter CFG and pool/temp divergence. */
 #ifdef NON_MATCHING
 void func_overlay_046_F0001228_188F620(s32 updateRate) {
     s32 i;

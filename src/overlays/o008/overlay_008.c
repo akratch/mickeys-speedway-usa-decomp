@@ -21,14 +21,9 @@ void *overlay8GetIndexed(Overlay8IndexedObject *object) {
     return result;
 }
 
-/*
- * NON_MATCHING plateau (2026-08-25): the canonical -O2 -mips2
- * -Wab,-r4300_mul candidate is 0x4C short, with 477 of 527 masked words
- * differing and the first mismatch at +0x0. The flag lattice's closest raw
- * result is -mips3 at 0xC over, but it introduces non-target 64-bit extension
- * operations. The candidate's 0xB8 frame versus target 0xA0 leaves local
- * array/spill ownership as the blocker.
- */
+/* Workbench p3: structure-mismatch; 508/527 candidate/target instructions, 477 words from +0x0.
+ * Lever: constant audit plus array scopes, query declaration order, and a register hint.
+ * Remains: query call-spill ownership leaves the candidate frame 24 bytes too large. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
                                        s32 updateRate) {

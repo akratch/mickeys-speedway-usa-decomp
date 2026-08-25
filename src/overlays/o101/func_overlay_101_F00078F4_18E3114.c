@@ -80,16 +80,9 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/*
- * Mickey-local structural sibling: func_overlay_101_F000571C_18E0F3C.
- * Plateau (10 bounded source-shape attempts): the best candidate is 0x830
- * bytes against the 0x834-byte target, with 469 masked positional words
- * differing and the first mismatch at +0x4.  The flag lattice favored the
- * default -O2/-mips2/-32 configuration.  Duplicating the conditional node
- * bodies and using the packed flag nibble closed the initial 0x120-byte
- * deficit; the remaining blocker is the root/node saved-register schedule
- * and the candidate's larger local-overlay relocation surface.
- */
+/* Workbench p3: structure-mismatch; 524/525 candidate/target instructions, 469 words from +0x4.
+ * Lever: constant audit and retained-node forms; target evidence requires post-call recompute.
+ * Remains: the saved-node web plus root/node register and relocation schedule; frame exact. */
 #ifdef NON_MATCHING
 void func_overlay_101_F00078F4_18E3114(void) {
     Node32 *node32;

@@ -66,15 +66,9 @@ extern void func_8000309C(void *handle, u8 volume);
 extern void func_80036544(void *entry, s32 *mode, s32 animationId,
                           void *state, s32 updateRate);
 
-/* NON_MATCHING plateau (2026-08-25, renewed 10-attempt cap): the complete
- * 119-combination flag lattice and structural probes leave the best canonical
- * -O2 -mips2 -32 -Wab,-r4300_mul candidate at 501 versus 499 target words,
- * with 430 differing and the first mismatch at +0x4. Removing the cached
- * model pointer recovers retail's reload/branch-likely sequence; retaining the
- * target-observed multiply-by-negative-one identities improves the previous
- * 480-word diff by another 40. Hoisted velocity carriers, FP carrier
- * declaration orders, and alternate expression scopes did not recover the
- * remaining 0xE0 versus 0x90 frame/lifetime schedule. */
+/* Workbench p3: structure-mismatch; 501/499 candidate/target instructions, 430 words from +0x4.
+ * Lever: constant audit plus vector-typed acceleration and shared-timestep dataflow forms.
+ * Remains: FP slot reuse across CFG regions leaves the candidate frame 80 bytes too large. */
 #ifdef NON_MATCHING
 void func_overlay_022_F00002B0_18783B8(O22Object *object, s32 updateRate) {
     O22State *state;

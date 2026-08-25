@@ -80,9 +80,9 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/* P2 plateau: structure-mismatch, 524/525 instructions, 461 words, first +0x4.
- * Literal audit, K&R return typing, pointer-math web formation, and the family target-order variants tied or regressed.
- * The missing first pool web/saved node register remains; absolute overlay symbols obscure relocation classification. */
+/* Workbench p3: structure-mismatch; 524/525 candidate/target instructions, 461 words from +0x4.
+ * Lever: constant audit plus retained-node forms across initial and macro allocator calls.
+ * Remains: the saved-node web and root/node relocation schedule; the frame is exact. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0009190_18E49B0(void) {
     register volatile Node32 *node32;
