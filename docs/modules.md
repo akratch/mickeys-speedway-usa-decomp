@@ -599,7 +599,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments |
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker |
-| `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton; four relocated words masked |
+| `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
 | `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots` |
 | `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays |
@@ -632,6 +632,9 @@ slot-pointer anchor at `D_800D1C64`. The 0x10-byte stride and neighboring
 allocator accesses establish Mickey's 16-bit counts at `+0/+2`, slot pointer
 at `+4`, size at `+8`, and free-size field at `+0xC`; these differ from JFG's
 starting declaration and are reflected in `include/game/memory.h`.
+`mmFree` is exact for all `0x44` bytes with canonical flags. Its branch and
+two call relocations reproduce the target's immediate-free/deferred-free
+selection, using the body adapted from JFG `src/memory.c`.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a

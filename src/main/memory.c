@@ -53,7 +53,19 @@ void mmSetDelay(s32 state) {
 /* JFG correspondence: mmFlushFreeStack (tier B; drains deferred frees). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B700.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/mmFree.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmFree. */
+s32 func_8002B8A8(u8 *address);
+void func_8002B93C(void *dataAddress);
+
+void mmFree(void *data) {
+    volatile s32 callerAddress = 0x666;
+
+    if (D_800D21AC == 0) {
+        func_8002B8A8(data);
+    } else {
+        func_8002B93C(data);
+    }
+}
 
 /* JFG correspondence: mmFreeTick (tier B; services deferred frees). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B7AC.s")
