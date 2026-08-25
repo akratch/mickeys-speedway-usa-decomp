@@ -20,6 +20,7 @@
 
 extern void initColourCycle();
 extern f32 sqrtf(f32 value);
+extern f32 func_8002A8BC(s32 angle);
 extern void mmFree(void *ptr);
 extern void *func_8002B280(s32 size, s32 tag);
 extern void lightCreateLightTable(s32 red, s32 green, s32 blue, void *table);
@@ -64,8 +65,44 @@ struct LightSourceObject {
 };
 
 typedef struct FlareEntry {
-    u8 data[0x20];
+    s8 type;
+    u8 subtype;
+    u8 pad2[6];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+    s16 kind;
+    u16 size;
+    s16 scaledSize;
+    s8 index;
+    s8 enabled;
 } FlareEntry;
+
+typedef struct GlowEntry {
+    u8 pad0[4];
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+    u16 size;
+    u8 scale;
+    u8 pad11[2];
+    u8 subtype;
+} GlowEntry;
+
+typedef struct GlowObject {
+    u8 pad0[0x3C];
+    GlowEntry *entry;
+    u8 pad40[0x24];
+    void *flare;
+} GlowObject;
 
 typedef struct FlareHeader {
     u8 pad0[0x29];
@@ -375,7 +412,36 @@ void lightUpdateObjects(void) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001953C.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c, with Mickey's trigonometry helper. */
+f32 func_80019934(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
+    f32 temp;
+
+    temp = arg1 * arg2;
+    switch (arg3) {
+        case 1:
+            temp = 1.0f - temp;
+            break;
+        case 2:
+            temp = 1.0f - sqrtf(temp);
+            break;
+        case 3:
+            temp = func_8002A8BC(temp * 16384.0f);
+            break;
+        case 4:
+            temp = func_8002A8BC(temp * 16384.0f);
+            temp *= temp;
+            break;
+        case 5:
+            temp = 1.0f - temp;
+            temp *= temp;
+            break;
+    }
+    return arg0 * temp;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019934.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6) {
     f32 temp_f0;
@@ -415,7 +481,34 @@ void lightSetupFlareSources(FlareObject *object) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A008.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightAdjustGlowingLight.s, with Mickey's constants and offsets. */
+void func_8001A154(GlowObject *object) {
+    FlareEntry flare;
+    GlowEntry *entry;
+    s32 scaledSize;
+
+    entry = object->entry;
+    flare.type = 0x41;
+    flare.subtype = entry->subtype;
+    flare.x = entry->x;
+    flare.y = entry->y;
+    flare.z = entry->z;
+    flare.red = entry->red;
+    flare.green = entry->green;
+    flare.blue = entry->blue & 0xFFFFU;
+    flare.alpha = entry->alpha;
+    flare.kind = 0x2B;
+    flare.size = entry->size;
+    scaledSize = (entry->size * entry->scale) / 100;
+    flare.index = -1;
+    flare.enabled = 0;
+    flare.scaledSize = scaledSize;
+    object->flare = camlightAdd(NULL, &flare);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A154.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
 s32 lightKillGlowingLight(void) {
     camlightDelete();

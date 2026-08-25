@@ -168,7 +168,10 @@ clearExisting:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C114.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C2C4.s")
+void func_8001C2C4(void) {
+}
+void func_8001C2CC(void) {
+}
 void func_8001C2D4(u8 *start, u8 *end) {
     u8 *current = start;
 

@@ -414,7 +414,7 @@ getXZCompareMask = 0x800159DC; // type:func size:0x11C tier-B, ROM 0x165dc
 getYCompareMask = 0x80015AF8; // type:func size:0x98 tier-B, ROM 0x166f8
 trackLightAsm = 0x80015B90; // type:func size:0x300 tier-B, ROM 0x16790
 shadowInitBuffers = 0x80015E90; // type:func size:0x12C tier-B, ROM 0x16a90
-shadowFreeBuffers = 0x80015FBC; // type:func size:0x78 tier-B, ROM 0x16bbc
+shadowFreeBuffers = 0x80015FBC; // type:func size:0x78 tier-B, ROM 0x16bbc  matched C src/main/shadows.c.o -O2 -mips2 -32, JFG asm/nonmatchings/shadows/shadowFreeBuffers.s donor, linked exact=30/30
 shadowChangeBuffer = 0x80016034; // type:func size:0x18 tier-B, ROM 0x16c34  src/main/shadows.c.o masked=0/6
 shadowGetBuffers = 0x8001604C; // type:func size:0x4C tier-B, ROM 0x16c4c  src/main/shadows.c.o masked=0/19
 shadowGenerate = 0x80016098; // type:func size:0x7F8 tier-B, ROM 0x16c98
@@ -434,13 +434,13 @@ camlightUpdateAll = 0x8001B278; // type:func size:0x8 tier-D order+shape, ROM 0x
 camlightUpdate = 0x8001B280; // type:func size:0x8 tier-D order+shape, ROM 0x1be80  src/main/camlight.c.o masked=0/2
 camlightVisibilityCheck = 0x8001B288; // type:func size:0x8 tier-D order+shape, ROM 0x1be88  src/main/camlight.c.o masked=0/2
 camlightDraw = 0x8001B290; // type:func size:0x10 tier-D order+shape, ROM 0x1be90  src/main/camlight.c.o masked=0/4
-spranimInit = 0x8001B2A0; // type:func size:0x74 tier-D order+shape, ROM 0x1bea0
-spranimControl = 0x8001B314; // type:func size:0x4C tier-D order+shape, ROM 0x1bf14
-sprasjiInit = 0x8001B360; // type:func size:0x48 tier-D order+shape, ROM 0x1bf60
-spranimOnceControl = 0x8001B3A8; // type:func size:0x78 tier-D order+shape, ROM 0x1bfa8
+spranimInit = 0x8001B2A0; // type:func size:0x74 tier-D, ROM 0x1bea0  matched C src/main/spranim.c.o -O2 -mips2 -32, JFG asm/nonmatchings/spranim/spranimInit.s donor, linked exact=29/29
+spranimControl = 0x8001B314; // type:func size:0x4C tier-D, ROM 0x1bf14  matched C src/main/spranim.c.o -O2 -mips2 -32, JFG asm/nonmatchings/spranim/spranimControl.s donor, linked exact=19/19
+sprasjiInit = 0x8001B360; // type:func size:0x48 tier-D, ROM 0x1bf60  matched C src/main/spranim.c.o -O2 -mips2 -32, linked exact=18/18
+spranimOnceControl = 0x8001B3A8; // type:func size:0x78 tier-D, ROM 0x1bfa8  matched C src/main/spranim.c.o -O2 -mips2 -32, JFG asm/nonmatchings/spranim/spranimOnceControl.s donor, linked exact=30/30
 effectboxControl = 0x8001B420; // type:func size:0x304 tier-D order+shape, ROM 0x1c020
-texscrollControl = 0x8001B724; // type:func size:0x74 tier-B role-callgraph, ROM 0x1c324
-rangetriggerControl = 0x8001BA54; // type:func size:0x90 tier-B role-callgraph, ROM 0x1c654
+texscrollControl = 0x8001B724; // type:func size:0x74 tier-B, ROM 0x1c324  matched C src/main/spranim.c.o -O2 -mips2 -32, JFG asm/nonmatchings/spranim/texscrollControl.s donor, linked exact=29/29
+rangetriggerControl = 0x8001BA54; // type:func size:0x90 tier-B role-callgraph, ROM 0x1c654, NON_MATCHING plateau 34/36 words exact, first +0x50
 func_8001BAE4 = 0x8001BAE4; // type:func size:0x14 ROM 0x1c6e4 src/main/spranim.c.o masked=0/5
 func_8001BAF8 = 0x8001BAF8; // type:func size:0xC ROM 0x1c6f8 src/main/spranim.c.o masked=0/3
 func_8001BB04 = 0x8001BB04; // type:func size:0xC ROM 0x1c704 src/main/spranim.c.o masked=0/3
@@ -2076,16 +2076,20 @@ lightGetStrongestEffect = 0x80019358; // type:func size:0x13C   ROM 0x19f58  src
 lightUpdateObjects = 0x80019494; // type:func size:0xA8   ROM 0x1a094  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 addRomdefLight = 0x8001897C; // type:func size:0x238   ROM 0x1957c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 addObjectLight = 0x80018BB4; // type:func size:0x200   ROM 0x197b4  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
+func_80019934 = 0x80019934; // type:func size:0xF0 tier-B ROM 0x1a534 NON_MATCHING plateau, 60/60 text words exact, shared-rodata jump-table ownership blocks promotion
 lightDirectionCalc = 0x80019A24; // type:func size:0x94   ROM 0x1a624  src/lights.c.o  body adapted and compiler-exact
 lightDefaultObjectLight = 0x80019D98; // type:func size:0x50   ROM 0x1a998  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 lightSetupLightSources = 0x80019EE4; // type:func size:0x98   ROM 0x1aae4  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 lightSetupFlareSources = 0x80019F7C; // type:func size:0x8C   ROM 0x1ab7c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
+func_8001A154 = 0x8001A154; // type:func size:0xE8 tier-B, ROM 0x1ad54, NON_MATCHING plateau 45/58 words exact, first +0x1C
 lightKillGlowingLight = 0x8001A23C; // type:func size:0x24   ROM 0x1ae3c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 // jfg:src/charControl.c.o
 // exact-C (ADR 0001), no external name adopted: func_8001BB90, ROM 0x1c790, size 0x24
 // exact-C (ADR 0001), tier-D name not adopted: func_8001C054, ROM 0x1cc54, size 0x34
 // exact-C (ADR 0001), tier-D name not adopted: func_8001C088, ROM 0x1cc88, size 0x8c
 // NON_MATCHING plateau: func_8001C114, ROM 0x1cd14, size 0x1b0; FP allocation blocks exact C
+func_8001C2C4 = 0x8001C2C4; // type:func size:0x8 tier-D, ROM 0x1cec4  src/main/charControl.c.o exact C (ADR 0001)
+func_8001C2CC = 0x8001C2CC; // type:func size:0x8 tier-D, ROM 0x1cecc  src/main/charControl.c.o exact C (ADR 0001)
 func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charControl.c.o  masked=0/19  exact C (ADR 0001)
 // tier B + exact C -- JFG name/role; independently reconstructed from Mickey.
 controlPlayerReInit = 0x8001C320; // type:func size:0x1A0   ROM 0x1cf20

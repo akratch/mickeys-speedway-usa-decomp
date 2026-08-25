@@ -559,7 +559,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80019358` | `0x13C` | `lightGetStrongestEffect` | tier-B comparison: square-root distance calculation and TU order |
 | `0x80019494` | `0xA8` | `lightUpdateObjects` | tier-B comparison: calls the following object-light helper |
 | `0x8001953C` | `0x3F8` | JFG placeholder `func_80021B9C` | placeholder prohibited; remains `func_8001953C` |
-| `0x80019934` | `0xF0` | `lightDistanceCalc` | tier-B comparison: same distance-mode call surface |
+| `0x80019934` | `0xF0` | `lightDistanceCalc` | tier-B comparison; `NON_MATCHING` plateau: canonical flag sweep gives 60/60 text words and exact call relocations, but the shared resident rodata segment retains `jtbl_800817B4`, so promotion duplicates the compiler's anonymous table and leaves the extracted table's five local labels unresolved |
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | unique nearest skeleton (0.432) and exact JFG size; comparison only |
 | `0x80019AB8` | `0x2E0` | `lightObject` | tier-B comparison: calls all three `lights2` pipelines |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | tier-B comparison: delegates to the following setter |
@@ -567,7 +567,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | tier-B comparison: loop calls the adopted `addObjectLight` comparison |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | tier-B comparison: adjacent setup loop and flare helper |
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison: calls the object-light setter twice |
-| `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison: paired flare helper and TU order |
+| `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison; `NON_MATCHING` plateau after flag sweep, 10 source/lifetime hypotheses, and a 10-minute permuter batch: exact 58-opcode/frame shape and call relocation, 45/58 words exact, first `+0x1C` from integer temp-FIFO phase |
 | `0x8001A23C` | `0x24` | `lightKillGlowingLight` | tier-B comparison: calls the paired delete helper and returns success |
 ### 3.6 The resident allocator (`main/memory`)
 
@@ -1220,7 +1220,7 @@ address-placeholder helper names are not imported.
 | `0x166F8` | `0x98` | `getYCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x16790` | `0x300` | `trackLightAsm` | B; uses odd single-precision FP registers, stays `asm` |
 | `0x16A90` | `0x12C` | `shadowInitBuffers` | B |
-| `0x16BBC` | `0x78` | `shadowFreeBuffers` | B |
+| `0x16BBC` | `0x78` | `shadowFreeBuffers` | B name; JFG-adapted exact C, 30 words, 15 relocs under O2/mips2 |
 | `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
 | `0x16C98` | `0x7F8` | `shadowGenerate` | B |
@@ -1264,14 +1264,14 @@ body is copied by this split; Mickey's own bytes remain authoritative.
 | `0x1BE80` | `0x8` | `camlightUpdate` | D name; exact C, 2 words, 0 relocs |
 | `0x1BE88` | `0x8` | `camlightVisibilityCheck` | D name; exact C, 2 words, 0 relocs |
 | `0x1BE90` | `0x10` | `camlightDraw` | D name; exact C, 4 words, 0 relocs |
-| `0x1BEA0` | `0x74` | `spranimInit` | D |
-| `0x1BF14` | `0x4C` | `spranimControl` | D |
-| `0x1BF60` | `0x48` | `sprasjiInit` | D |
-| `0x1BFA8` | `0x78` | `spranimOnceControl` | D |
+| `0x1BEA0` | `0x74` | `spranimInit` | D name; JFG-adapted exact C, 29 words, 0 relocs under O2/mips2 |
+| `0x1BF14` | `0x4C` | `spranimControl` | D name; JFG-adapted exact C, 19 words, 1 call reloc under O2/mips2 |
+| `0x1BF60` | `0x48` | `sprasjiInit` | D name; exact C, 18 words, 0 relocs under O2/mips2 |
+| `0x1BFA8` | `0x78` | `spranimOnceControl` | D name; JFG-adapted exact C, 30 words, 2 call relocs under O2/mips2 |
 | `0x1C020` | `0x304` | `effectboxControl` | D |
-| `0x1C324` | `0x74` | `texscrollControl` | B; identified additionally by masked skeleton and texture-scroll callees |
+| `0x1C324` | `0x74` | `texscrollControl` | B name; JFG-adapted exact C, 29 words, 1 call reloc under O2/mips2 |
 | `0x1C398` | `0x2BC` | `func_8001B798` | unresolved |
-| `0x1C654` | `0x90` | `rangetriggerControl` | B; identified additionally by masked skeleton and volume-trigger callees |
+| `0x1C654` | `0x90` | `rangetriggerControl` | B; `NON_MATCHING` plateau after flag sweep and 10 stack-layout hypotheses: 34/36 words exact with both call relocs exact, first mismatch `+0x50`; IDO homes the entry pointer at `sp+0x44` instead of target `sp+0x40` |
 | `0x1C6E4` | `0x14` | `func_8001BAE4` | exact C, 5 words, 0 relocs; role unresolved |
 | `0x1C6F8` | `0xC` | `func_8001BAF8` | exact C, 3 words, 0 relocs; role unresolved |
 | `0x1C704` | `0xC` | `func_8001BB04` | exact C, 3 words, 0 relocs; role unresolved |
@@ -1720,7 +1720,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80019358` | `0x13C` | `lightGetStrongestEffect` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80019494` | `0xA8` | `lightUpdateObjects` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x8001953C` | `0x3F8` | JFG placeholder `func_80021B9C` | placeholder prohibited; remains `func_8001953C` |
-| `0x80019934` | `0xF0` | `lightDistanceCalc` | tier-B comparison: same distance-mode call surface |
+| `0x80019934` | `0xF0` | `lightDistanceCalc` | tier-B comparison; `NON_MATCHING` plateau: canonical flag sweep gives 60/60 text words and exact call relocations, but the shared resident rodata segment retains `jtbl_800817B4`, so promotion duplicates the compiler's anonymous table and leaves the extracted table's five local labels unresolved |
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | Tier A: JFG C is compiler/link exact |
 | `0x80019AB8` | `0x2E0` | `lightObject` | tier-B comparison: calls all three `lights2` pipelines |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
@@ -1728,7 +1728,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison: calls the object-light setter twice |
-| `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison: paired flare helper and TU order |
+| `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison; `NON_MATCHING` plateau after flag sweep, 10 source/lifetime hypotheses, and a 10-minute permuter batch: exact 58-opcode/frame shape and call relocation, 45/58 words exact, first `+0x1C` from integer temp-FIFO phase |
 | `0x8001A23C` | `0x24` | `lightKillGlowingLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact; Mickey uses a no-argument delete wrapper |
 
 ### 3.4 Resident controller, level and main TUs
@@ -2082,7 +2082,8 @@ call graph isolates one namesake.
 | `0x8001C054` | `0x34` | `cameraAddOverrideObject` | D + matched C: exact 24-entry append under O2/mips2; JFG comparison remains structural, so retain `func_` |
 | `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D + matched C: exact 24-entry search-and-delete under O2/mips2; JFG comparison remains structural, so retain `func_` |
 | `0x8001C114` | `0x1B0` | `func_8002F0E8` | Plateau after the 119-combination flag sweep and 10 source/lifetime hypotheses: best `NON_MATCHING` candidate preserves the target CFG in 106 instructions versus 108, with first mismatch `+0x4`; the target maps `x/y/z` to `f12/f22/f20` and saves `f22`/`f20`, while IDO maps the candidate to `f20/f14/f12` and saves only `f20`. JFG has the same target allocation but only a placeholder body; retain `func_` |
-| `0x8001C2C4` | `0x10` | — | Two return stubs under one measured label; retain `func_` |
+| `0x8001C2C4` | `0x8` | — | Matched C: exact empty routine under O2/mips2; retain `func_` |
+| `0x8001C2CC` | `0x8` | — | Matched C: exact empty routine under O2/mips2; retain `func_` |
 | `0x8001C2D4` | `0x4C` | `func_80031F60` | A + matched C: 19/19 unmasked JFG words and independently reconstructed byte-clear C are exact; placeholder rule retains Mickey's `func_` |
 | `0x8001C320` | `0x1A0` | `controlPlayerReInit` | B + matched C: exact 104-instruction save/clear/reinitialize/restore wrapper under O2/mips2 with `-Wab,-r4300_mul`; its role and call graph mirror JFG, so the name is adopted |
 | `0x8001C4C0` | `0x64C` | `controlPlayerInit` | B: initialization calls and caller edge from the preceding routine; retain `func_` |
