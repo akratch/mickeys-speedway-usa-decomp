@@ -47,7 +47,14 @@ extern s32 overlay80QueryNearbyReloc(
 extern void overlay80ResolveCandidateReloc(
     s16 key, s32 selectedValue, s16 *outputA, s16 *outputB);
 
-/* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+/*
+ * Pinned DKR v77/v80 and JFG object scans found no exact donor.
+ * Plateau (2026-08-25, 5 source forms plus a bounded permuter batch):
+ * -O2 -mips2 -Wab,-r4300_mul has the exact 71-word size and differs in
+ * one word at +0x4C. IDO commutes the outer floating-point multiply; explicit
+ * temporaries and a volatile-qualified access disturb the surrounding
+ * allocation, while the permuter found no candidate below its base score.
+ */
 #ifdef NON_MATCHING
 void overlay80InitializeContact(Overlay80Object *object,
                                 const Overlay80Init *init) {
@@ -59,7 +66,7 @@ void overlay80InitializeContact(Overlay80Object *object,
 
     state = object->state;
     object->scaledValue =
-        *object->scale * ((f32)init->scale * gOverlay80Scale0);
+        (f32)init->scale * gOverlay80Scale0 * *object->scale;
     object->key = init->key;
 
     count = overlay80QueryNearbyReloc(object->position0, object->position1,
