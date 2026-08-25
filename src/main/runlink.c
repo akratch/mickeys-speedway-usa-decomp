@@ -69,10 +69,12 @@ extern void func_80032BF8(s32 overlayIndex);
 extern void func_80032338(s32 slot);
 extern void func_80032618(s32 overlayIndex);
 extern void *func_8002B280(s32 size, s32 tag);
+extern void *func_8002B524(s32 size, void *address, u32 tag);
 extern void mmFree(void *address);
 extern s32 mmGetDelay(void);
 extern void mmSetDelay(s32 delay);
 extern void romCopy(u32 romAddress, u32 ramAddress, s32 size);
+extern s32 D_8007A670;
 
 typedef struct RunlinkRelocContext {
     /* 0x00 */ u32 unk0;
@@ -617,7 +619,42 @@ void runlinkFlushModules(void) {
     } while (remaining--);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkInit.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032B14.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkSuspendCode.s and its src/runLink.c order.
+ * Mickey's allocation tag, pending-load count, and linked bytes determine
+ * the final body.
+ */
+void runlinkSuspendCode(s32 overlayIndex) {
+    OverlayHeader *overlay;
+    PendingOverlayLoad *pendingLoad;
+    s32 remaining;
+    s32 savedDelay;
+
+    overlay = &overlayTable[overlayIndex];
+    pendingLoad = D_800D2DC8;
+    remaining = PENDING_OVERLAY_LOADS - 1;
+    if (overlay->vramBase != 0) {
+        do {
+            if (pendingLoad->overlayIndex == 0xFFB) {
+                savedDelay = mmGetDelay();
+                pendingLoad->unk0 = overlay->vramBase;
+                pendingLoad->overlayIndex = overlayIndex;
+                mmSetDelay(0);
+                D_8007A670 = 1;
+                func_80032338(overlayIndex);
+                D_8007A670 = 0;
+                mmSetDelay(savedDelay);
+                func_8002B524(overlay->dataSize + overlay->bssSize +
+                                  (u16) overlay->relocTableSize,
+                              (void *) (pendingLoad->unk0 + overlay->textSize),
+                              0x83);
+                return;
+            }
+            pendingLoad++;
+        } while (remaining--);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032BF8.s")
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
