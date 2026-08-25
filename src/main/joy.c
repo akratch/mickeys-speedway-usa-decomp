@@ -222,15 +222,14 @@ s32 joyRead(s32 saveDataFlags, s32 updateRate) {
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive.
- * Plateau: the typed external-map loop is 12 words against 9, first +0x4.
- * A same-TU definition is text-exact but invalidly adds 16 bytes of BSS.
+ * Plateau: fixed stores improve to 10/9 words, first +0x0; the external map
+ * needs an extra base materialization that the original TU-local BSS did not.
  */
 void joyResetMap(void) {
-    s32 i;
-
-    for (i = 0; i < 4; i++) {
-        D_800CF3B0[i] = i;
-    }
+    D_800CF3B0[0] = 0;
+    D_800CF3B0[1] = 1;
+    D_800CF3B0[2] = 2;
+    D_800CF3B0[3] = 3;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyResetMap.s")
