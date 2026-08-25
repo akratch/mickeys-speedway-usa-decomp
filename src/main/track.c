@@ -122,6 +122,11 @@ typedef struct TrackBoundingBox {
     s16 z2;
 } TrackBoundingBox;
 
+typedef union TrackSegmentIndex {
+    s32 value;
+    TrackBoundingBox *bounds;
+} TrackSegmentIndex;
+
 typedef struct TrackData {
     TrackTextureEntry *textures;
     TrackSegment *segments;
@@ -673,7 +678,35 @@ void func_8000FA2C(s32 *result, s32 arg1) {
     *result = D_800C9564;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FAE0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FBD8.s")
+/*
+ * PROVENANCE: Diddy Kong Racing's public `src/tracks.c`,
+ * `check_if_inside_segment`, supplies the bounding-box containment structure.
+ * Mickey's function takes coordinates directly and uses inclusive bounds.
+ */
+s32 func_8000FBD8(TrackSegmentIndex segmentIndex, f32 x, f32 y, f32 z) {
+    s32 xInt;
+    s32 yInt;
+    s32 zInt;
+
+    if (D_800792E8 != NULL) {
+        xInt = x;
+        segmentIndex.bounds =
+            &D_800792E8->segmentBounds[segmentIndex.value];
+        if (xInt >= segmentIndex.bounds->x1 &&
+            segmentIndex.bounds->x2 >= xInt) {
+            yInt = y;
+            if (yInt >= segmentIndex.bounds->y1 &&
+                segmentIndex.bounds->y2 >= yInt) {
+                zInt = z;
+                if (zInt >= segmentIndex.bounds->z1 &&
+                    segmentIndex.bounds->z2 >= zInt) {
+                    return TRUE;
+                }
+            }
+        }
+    }
+    return FALSE;
+}
 /*
  * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
  * `get_inside_segment_count_xz`. Mickey uses 16-bit output indices and its

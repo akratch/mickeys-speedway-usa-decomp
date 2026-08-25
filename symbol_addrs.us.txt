@@ -1830,6 +1830,10 @@ func_8000D7F8 = 0x8000D7F8; // type:func size:0x28 ROM 0xe3f8
 // wrapper, while the reference scan found no credible named body donor.
 func_8000FA2C = 0x8000FA2C; // type:func size:0xB4 ROM 0x1062c tier-D (Mickey reconstruction, placeholder retained)
 
+// No public name adopted: DKR's `check_if_inside_segment` supplies the
+// containment structure; Mickey proves the direct-coordinate inclusive form.
+func_8000FBD8 = 0x8000FBD8; // type:func size:0xCC ROM 0x107d8 tier-D (DKR src/tracks.c structure adapted, placeholder retained)
+
 // No public name adopted: DKR's `get_inside_segment_count_xz` supplies the
 // segment-list body; Mickey proves the 16-bit output and resident binding.
 func_8000FCA4 = 0x8000FCA4; // type:func size:0xC4 ROM 0x108a4 tier-D (DKR src/tracks.c body adapted, placeholder retained)
