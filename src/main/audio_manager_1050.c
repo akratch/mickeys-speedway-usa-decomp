@@ -72,6 +72,7 @@ extern u8 D_80078D84;
 extern u8 D_80078D94;
 extern u8 D_80078D98;
 extern s8 D_80078DA0;
+extern u8 D_80078DA8;
 extern u8 D_80078DB0;
 extern u8 D_80078DAC;
 extern u8 D_800BF794;
@@ -98,6 +99,7 @@ extern void n_alCSPSetVol(void *player, s16 volume);
 extern void n_alCSPNew(void *player, void *config);
 extern void n_alCSPSetMessageQ(void *player, void *queue);
 extern void n_alCSPStop(void *player);
+extern void n_alCSPVoiceLimit(void *player, u8 value);
 extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
 extern void stop_ALSeqp(void *player);
@@ -138,7 +140,13 @@ void func_80000510(u8 sequenceId) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000594.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amTuneVoiceLimit. */
+void amTuneVoiceLimit(u8 voiceLimit) {
+    if (D_80078DA8 == 0) {
+        n_alCSPVoiceLimit(D_80078D60, voiceLimit);
+    }
+}
+
 /* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amTuneSetFade. */
 void func_800005CC(f32 fade, u8 volume) {
     if (volume > 0x7F) {

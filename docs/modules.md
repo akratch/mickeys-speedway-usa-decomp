@@ -1842,6 +1842,7 @@ The final column records owned object words and relocation coverage.
 |---|---:|---|---|
 | `func_80000450` | `0x1050` / `0xC0` | **tier B**: JFG supplies the `amSetMuteMode` body and exact audio-manager order; Mickey's segment-start placeholder is retained for existing address arithmetic and overlay declarations | Exact 48 object words and all data/call relocations |
 | `func_80000510` | `0x1110` / `0x84` | **tier B**: JFG supplies the `amTunePlay` control flow and exact audio-manager order; Mickey's external placeholder is retained, and Mickey's shorter target omits JFG's later tempo/count updates | Exact 33 object words and all data/call relocations |
+| `amTuneVoiceLimit` | `0x1194` / `0x38` | **tier B**: JFG supplies the complete body and official name; the block flag, tune-player call, and exact audio-manager order agree | Exact 14 object words and all data/call relocations |
 | `func_800005CC` | `0x11CC` / `0xF0` | **tier B**: JFG supplies the `amTuneSetFade` body and exact audio-manager order; Mickey's externally used placeholder is retained | Exact 60 object words and all data/call relocations |
 | `amTuneResetFade` | `0x1330` / `0xC` | **tier B**: exact JFG routine order and the adjacent tune-fade controller role | Exact object words and linked ROM bytes |
 | `amAmbientSetFade` | `0x133C` / `0xF0` | **tier B**: JFG supplies the complete body and official name; the paired fade-state globals, TV-rate paths, and exact audio-manager order agree | Exact 60 object words and all data/call relocations |
