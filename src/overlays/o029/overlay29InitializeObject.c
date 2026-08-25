@@ -64,13 +64,9 @@ extern void func_overlay_029_F00010C4_187E374(void *, s32);
 extern void func_overlay_029_F00001C4_187D474(void *);
 extern void func_overlay_029_F000023C_187D4EC(void *, void *);
 
-/*
- * NON_MATCHING: typed object/state access and direct reuse of object->position
- * reproduce the exact 0x198-byte extent and 0x58-byte frame, improving the
- * baseline from 37 to 15 differing instruction words. The first mismatch is
- * +0x14; the remaining residual is the early volatile source-load/local-init
- * schedule. The full 119-combination flag lattice produced no exact variant.
- */
+/* Plateau: typed access is size/frame exact at 102 words/-88 but differs in 15 words, first at +0x14; the full lattice has no exact flags.
+ * Nine source-load, declaration, register-hint, and vector-init variants regress to 18--65 words or enlarge the frame to -96.
+ * The 40-minute permuter found no baseline improvement; blocker is the early volatile source load and vector-initialization schedule. */
 #ifdef NON_MATCHING
 void func_overlay_029_F000042C_187D6DC(Overlay29Object *object,
                                        Overlay29Init *init) {

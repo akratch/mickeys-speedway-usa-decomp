@@ -30,9 +30,9 @@ extern void overlay57SetNodeValue(s32 id, s32 argument, f32 value);
 extern void overlay57AdvanceReloc(s32 updateRate);
 
 /* Pinned DKR v77/v80 and JFG scans found no exact Overlay 57 donor. */
-/* Plateau: canonical -O2 -mips2 is exact-size at 0x178 but differs in 25
- * words, first at +0x18.  The remaining setup-index schedule/private register
- * web also needs local-base relocations that IDO elides from natural C. */
+/* Plateau: canonical -O2 -mips2 is size-exact at 94 words but differs in 25 words, first at +0x18; the full lattice has no exact flags.
+ * Parameter reuse, register-volatile index, and pointer variants constant-fold or regress to 76--91 words; none reproduces the $a0 index web.
+ * The 40-minute permuter found no baseline improvement; blocker is the setup-index schedule, -32/-40 frame split, and local-base relocations. */
 #ifdef NON_MATCHING
 void overlay57UpdateModeTrigger(s32 updateRate) {
     s32 trigger;

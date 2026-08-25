@@ -1418,6 +1418,8 @@
       "size": 340,
       "source": "src/overlays/o014/overlay14UpdateTransition.c",
       "tools": [
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
