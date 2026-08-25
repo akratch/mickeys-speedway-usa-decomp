@@ -56,6 +56,38 @@ typedef struct {
     s32 magnitude;
 } CameraShake;
 
+typedef struct {
+    u8 pad00[0xC];
+    f32 x;
+    f32 y;
+    f32 z;
+} CameraSpriteAnchor;
+
+typedef struct {
+    s16 angle;
+    s16 frame;
+    u16 pad04;
+    u16 divisor;
+    f32 transformScale;
+    f32 matrixScale;
+    f32 x;
+    f32 y;
+    f32 z;
+    s32 frameCount;
+    u8 *spriteData;
+} CameraSprite;
+
+typedef struct {
+    s16 yRotation;
+    s16 xRotation;
+    s16 zRotation;
+    u8 pad06[2];
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+} CameraScaledTransform;
+
 extern u8 D_80079F94;
 extern s32 D_80079F8C;
 extern u8 D_80079FA0[];
@@ -70,19 +102,41 @@ extern MtxF D_800CEC98;
 extern CameraTransform D_800CEC68;
 extern u16 D_800CEC94;
 extern MtxF D_800CED18;
+extern MtxF D_800CECD8;
+extern Mtx *D_800CED58;
 extern Mtx D_800CF160;
 extern s32 D_800CEC60;
 extern s32 D_800CEC64;
 extern MtxF D_800CF1A0;
 extern MtxF D_800CF1E0;
+extern MtxF D_800CF220;
+extern f32 D_800CF2A4;
+extern f32 D_800CF2A8;
+extern f32 D_800CF2AC;
+extern f32 D_800CF2B0;
+extern MtxF D_800CF2B8;
+extern MtxF D_800CF2F8;
 extern f32 D_800CF2A0;
 extern Camera D_800CEA20[];
 extern CameraShake D_800CEC18[];
+extern s32 D_8007C854;
+extern s32 D_8007C85C;
+extern u8 D_79FCC[];
 
 void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
 void mtxf_to_mtx(MtxF src, Mtx *dest);
+void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
+                          f32 *outX, f32 *outY, f32 *outZ);
+void func_80029AB8(MtxF matrix, f32 scale);
+f32 func_8002A8BC(s32 angle);
+f32 func_8002A8C0(s32 angle);
+s16 Arctanf(f32 x, f32 y);
+void func_8002AA50(CameraScaledTransform *transform, MtxF matrix);
 void func_8002AB78(CameraTransform *transform, MtxF matrix);
 void func_8002AE10(CameraTransform *transform, MtxF matrix);
+void func_80034E54(Gfx **dlist, u8 *spriteData, s32 flags,
+                   f32 frame, s32 alpha);
+f32 sqrtf(f32 value);
 extern s32 levelInitRegionFlags(void);
 extern void func_80021504(f32 fov, s32 force);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
@@ -287,7 +341,172 @@ void func_80022794(Gfx **dlist, Mtx **mtx) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022C58.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022D20.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022E80.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: JFG's public src/camera.c identifies the camDoSprite role;
+ * this substantially different body is reconstructed from Mickey-only data.
+ *
+ * Plateau: after the full flag lattice and ten source/lifetime variants, the
+ * best -Wab,-r4300_mul candidate has the target's 0xB0 frame and emits 366
+ * instructions against 369. It differs in 297 positional words, beginning at
+ * +0x2C where IDO places the three transformed-coordinate stack homes twelve
+ * bytes above the target. Later expression scheduling leaves three missing
+ * instructions, so the canonical build remains assembly-backed.
+ */
+void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
+                   CameraSpriteAnchor *anchor, f32 *opacity,
+                   CameraSprite *sprite, s32 flags, s32 alpha) {
+    register CameraSprite *spriteEarly;
+    s32 angleProduct;
+    s32 quadrant;
+    f32 transformedX;
+    f32 transformedY;
+    f32 transformedZ;
+    f32 localX;
+    f32 localY;
+    f32 localZ;
+    f32 rotatedX;
+    f32 rotatedZ;
+    f32 cosine;
+    f32 horizontal;
+    CameraScaledTransform transform;
+    f32 sine;
+    s32 angle;
+    s32 pitch;
+    s32 frameStep;
+    s32 wrappedFrame;
+    u16 divisor;
+    s32 color;
+    Gfx *cmd;
+
+    spriteEarly = sprite;
+    transformedX = spriteEarly->x - anchor->x;
+    transformedY = spriteEarly->y - anchor->y;
+    transformedZ = spriteEarly->z - anchor->z;
+    mtxf_transform_point(D_800CF2F8, transformedX, transformedY,
+                         transformedZ, &transformedX, &transformedY,
+                         &transformedZ);
+    transformedX = transformedX * D_800CF2B0;
+    transformedY = transformedY * D_800CF2B0;
+    transformedZ = transformedZ * D_800CF2B0;
+    localX = D_800CF2A4 - transformedX;
+    localY = D_800CF2A8 - transformedY;
+    localZ = D_800CF2AC - transformedZ;
+
+    cosine = func_8002A8C0(sprite->angle);
+    sine = func_8002A8BC(sprite->angle);
+    rotatedX = (localX * sine) + (localZ * cosine);
+    rotatedZ = (localZ * sine) - (localX * cosine);
+    angle = Arctanf(rotatedX,
+                    sqrtf((localY * localY) + (rotatedZ * rotatedZ)));
+    cosine = -func_8002A8C0(Arctanf(rotatedX, rotatedZ));
+    if (rotatedZ < 0.0f) {
+        rotatedZ = -rotatedZ;
+        cosine = -cosine;
+        angle = -angle;
+    }
+
+    pitch = Arctanf(localY, rotatedZ);
+    if (pitch >= 0x8001) {
+        pitch += 0xFFFF0000;
+    }
+
+    divisor = sprite->divisor;
+    quadrant = angle & 0x4000;
+    frameStep = (s32)sprite->spriteData[0] / (s32)divisor;
+    angle &= 0x3FFF;
+    angleProduct = (s32)((f32)pitch * cosine);
+    if (quadrant != 0) {
+        angle = 0x3FFF - angle;
+    }
+    angle = (angle * frameStep) >> 14;
+    if ((s32)divisor >= 2) {
+        wrappedFrame = (u16)sprite->frame;
+        while (wrappedFrame >= sprite->frameCount) {
+            wrappedFrame -= sprite->frameCount;
+        }
+        angle += frameStep * (((s32)divisor * wrappedFrame) /
+                              sprite->frameCount);
+    }
+
+    horizontal = sqrtf((localX * localX) + (localZ * localZ));
+    transform.yRotation = Arctanf(localX, localZ);
+    transform.xRotation = -Arctanf(localY, horizontal);
+    transform.zRotation = angleProduct;
+    transform.scale = sprite->transformScale;
+    transform.x = transformedX;
+    transform.y = transformedY;
+    transform.z = transformedZ;
+    func_8002AA50(&transform, D_800CF220);
+
+    if (quadrant != 0) {
+        D_800CF220[0][0] = -D_800CF220[0][0];
+        D_800CF220[0][1] = -D_800CF220[0][1];
+        D_800CF220[0][2] = -D_800CF220[0][2];
+    }
+    cosine = sprite->matrixScale;
+    if (cosine != 1.0f) {
+        func_80029AB8(D_800CF220, cosine);
+    }
+    mtxf_mul(D_800CF220, D_800CF2B8, D_800CECD8);
+    mtxf_mul(D_800CECD8, D_800CED18, D_800CF220);
+    mtxf_to_mtx(D_800CF220, *mtx);
+    D_800CED58 = *mtx;
+
+    if (flags & 4) {
+        flags |= 1;
+    } else {
+        flags &= ~1;
+    }
+
+    if (D_8007C854 != 0) {
+        if (opacity != NULL) {
+            color = *opacity * D_8007C85C;
+        } else {
+            color = D_8007C85C;
+        }
+    } else {
+        color = 255;
+        if (opacity != NULL) {
+            color = *opacity * 255.0f;
+        }
+    }
+
+    color &= 0xFF;
+    cmd = *dlist;
+    *dlist = cmd + 1;
+    cmd->words.w0 = 0xFA000000;
+    cmd->words.w1 = (color << 24) | (color << 16) | (color << 8) |
+                    (alpha & 0xFF);
+
+    cmd = *dlist;
+    *dlist = cmd + 1;
+    cmd->words.w0 = 0x01020040;
+    cmd->words.w1 = (u32)*mtx + 0x80000000;
+    (*mtx)++;
+
+    cmd = *dlist;
+    *dlist = cmd + 1;
+    cmd->words.w0 = (((((u32)D_79FCC & 6) | 8) & 0xFF) << 16) |
+                    0x04000012;
+    cmd->words.w1 = (u32)D_79FCC;
+
+    func_80034E54(dlist, sprite->spriteData, flags & 0xF,
+                  (f32)angle, alpha);
+
+    cmd = *dlist;
+    *dlist = cmd + 1;
+    cmd->words.w1 = 0;
+    cmd->words.w0 = 0xBC00000A;
+
+    cmd = *dlist;
+    *dlist = cmd + 1;
+    cmd->words.w1 = -1;
+    cmd->words.w0 = 0xFA000000;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022FD4.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023598.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023A08.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023CCC.s")
