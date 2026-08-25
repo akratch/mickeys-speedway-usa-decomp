@@ -23,7 +23,11 @@ extern Overlay41Slot gOverlay41Slots[];
  * bounded permuter batch found no improvement over the natural score.
  * Follow-up (2026-08-25): removing the byte-pointer alias emitted the same
  * 51/55-word object; the first mismatch remains +0x10, where allocation
- * colors the loop counter v1 instead of the target a1. */
+ * colors the loop counter v1 instead of the target a1.
+ * Lane follow-up (2026-08-25): ten additional storage-class, declaration-
+ * order, parameter-width, lexical-lifetime, signedness, and typed-input
+ * attempts all retained the 51/55-word result or regressed it. The best first
+ * mismatch remains +0x10; IDO still reverses the counter/temp a1/v1 pair. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,
