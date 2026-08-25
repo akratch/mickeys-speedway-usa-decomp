@@ -851,7 +851,7 @@ ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier-D invented
 // stubbed to its failure value, with the ROM-side symbol string table that
 // JFG's version reads simply absent. The name is adopted for the ROLE the call
 // site proves, and the stub is the finding.
-GetSymbolName = 0x800317E0;         // type:func size:0x10
+GetSymbolName = 0x800317E0;         // type:func size:0x10 tier-B call-graph
 runlinkInit = 0x800328CC;           // type:func size:0x248  tier-D invented
 runlinkDownloadCode = 0x80031C78;   // type:func size:0x478
 runlinkGetAddressInfo = 0x800331E4; // type:func size:0x1BC

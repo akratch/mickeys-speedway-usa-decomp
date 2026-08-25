@@ -7,7 +7,7 @@ Split out of `docs/modules.md` on 2026-08-24; evidence tiers and naming rules ar
 ### 5.1 What runs it
 
 The resident segment carries a complete Rare/DKR-lineage runtime linker at ROM
-`0x323E0`–`0x33FA0`, plus its trampoline at `0x33FA0`. Six of its functions are
+`0x323E0`–`0x33FA0`, plus its trampoline at `0x33FA0`. Seven of its functions are
 decompiled and byte-matched; four more are named from Mickey's call graph. The
 mechanism, entirely from Mickey's own disassembly:
 
@@ -36,7 +36,17 @@ symbol-name out-pointer filled by **`GetSymbolName`** (`0x800317E0`), which in
 this retail build is four instructions that spill their argument to the stack,
 never read it back, and return the constant string `"unknown"`. The ROM-side
 symbol table the mechanism is built around is simply absent from the shipped
-image.
+image. Its C now reproduces all four instructions and its `D_80082410`
+relocation exactly under the resident `-O2 -mips2 -32` flags.
+
+`runlinkDownloadCode` remains `NON_MATCHING` after a bounded ten-attempt pass.
+The best adapted candidate has the exact 286-instruction length, `0x70`-byte
+frame, opcode schedule and section-base arithmetic. Four instruction words
+remain different at function offsets `+0xD8` and `+0xE4`–`+0xEC`: IDO colors
+the secondary-relocation-size value as `a0` instead of the target's `v0`,
+which also removes the target's `move a0,v0`. Three calls additionally retain
+the candidate `ProcessRelocationEntry` relocation name while the assembly
+target still exposes `func_80031A30`; neither residual is an exact match.
 
 ### 5.2 The tables
 
