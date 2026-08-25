@@ -62,6 +62,13 @@ extern s32 D_8007A1EC;
 extern s32 D_8007A1B4;
 extern s32 D_8007A1D8;
 extern s32 D_8007A1B8;
+extern s32 D_8007A19C;
+extern s32 D_8007A1D0;
+extern s32 D_8007A1E0;
+extern s32 D_8007A1E4;
+extern s32 D_8007A20C;
+extern s32 D_8007A248;
+extern u8 D_8007A24B;
 extern s32 D_8007A200;
 extern void *D_8007A204;
 extern s32 D_8007A24C;
@@ -86,6 +93,8 @@ extern char D_80081B24[];
 extern char D_80081B30[];
 extern char D_80081B3C[];
 extern char D_80081B48[];
+extern char D_80081B0C[];
+extern char D_80081B18[];
 extern f32 D_80081BD0;
 extern Gfx *D_800CF510[];
 extern Gfx *D_800CF518;
@@ -169,6 +178,8 @@ extern s32 D_800D18D4;
 extern s32 D_800D18D8;
 extern s32 D_800D18DC;
 extern s32 D_800C947C;
+extern s32 D_8007C854;
+extern s16 D_800D6C44;
 extern MainZBCheck D_800CF538[];
 extern u16 *D_800D2FAC;
 extern s32 *D_800D2FA0;
@@ -250,6 +261,49 @@ extern void func_80006FA0(void);
 extern void func_8000BDB4(Gfx **, Mtx **, MainVertex **, MainTriangle **, s32);
 extern void func_8004EDA8(s32);
 extern void screenDraw(Gfx **);
+extern void rsp_segment(Gfx **, s32, void *);
+extern void rcpFast3d(Gfx *, Gfx *, s32, void *);
+extern void rcpInitSp(Gfx **);
+extern void rcpInitDp(Gfx **);
+extern void rcpClearScreen(Gfx **, Mtx **, s32);
+extern s32 rcpWaitDP(void);
+extern void bgdraw_fillcolour(s32, s32, s32);
+extern void func_80021C88(s32, s32, s32, s32, s32);
+extern void func_80021B70(s32, s32);
+extern void func_80021BE4(s32, s32);
+extern void func_80044B9C(void);
+extern void func_80046504(void);
+extern void func_8004650C(s32);
+extern void func_8004A9CC(Gfx **);
+extern s32 func_80049B14(s32);
+extern void func_80038E1C(Gfx **, Mtx **, MainVertex **, MainTriangle **, s32);
+extern void func_80049E4C(Gfx **, s32);
+extern void func_80000838(u8);
+extern void diPrintfAll(Gfx **);
+extern void func_8004C0C4(Gfx **, Mtx **, MainVertex **);
+extern void func_8004BFD8(s32);
+extern void func_8004BF64(s32);
+extern s32 func_800291E4(void);
+extern void func_80039278(Gfx **, s32);
+extern void func_800376CC(s32);
+extern void func_80038190(Gfx **, Mtx **, MainVertex **);
+extern void func_8005A770(void);
+extern void func_80024D00(s32);
+extern void func_800219D0(void);
+extern void func_80027D14(s32);
+extern void func_8003C80C(s32);
+extern void func_8004D32C(void);
+extern void func_8000D1B8(void);
+extern void func_8000D978(s32, s32);
+extern void func_80033090(void);
+extern void func_8002B7AC(void);
+extern void func_80027628(s32);
+extern void func_80027EC0(s32);
+extern void func_80027FB8(s32);
+extern void func_80028564(s32);
+extern void func_800293D0(void);
+extern void mainUpdateZBCheck(void);
+extern void mainCPUeffects(u16 *, s32);
 
 #ifdef NON_MATCHING
 #pragma weak mainCPUeffectsRainDraw = TrapDanglingJump
@@ -413,7 +467,159 @@ void mainInitGame(void) {
     D_8007A320 = 0;
 }
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: the main-loop role and frame-pipeline organization are adapted
+ * from Diddy Kong Racing's published src/thread3_main.c::main_game_loop and
+ * cross-checked against JFG's published src/main.c TU ordering. Mickey's own
+ * call graph, resident storage and instructions determine this body.
+ *
+ * Plateau: nine structural and display-command spellings plus the full flag
+ * lattice and a bounded two-worker permuter batch did not reach identity.
+ * With -Wo,-Olimit,100, the candidate has the target's -0x28 frame and keeps
+ * its transition result at sp+0x24, but is five instructions long; the first
+ * mismatch at +0x48 selects $at instead of the target's $a0 for the display-
+ * list pointer assignment. The remaining structural excess is concentrated
+ * in the two end-of-frame display commands. The valid permuter score improved
+ * from 3,620 to 3,050 by introducing a matrix-array temporary, not a match.
+ */
+void func_80026FB4(void) {
+    s32 drawTransition;
+
+    if (D_8007A20C != 0) {
+        TrapDanglingJump(NULL);
+    }
+    osSetTime(0);
+    if (D_8007A1D0 == 8) {
+        D_800CF518 = D_800CF510[D_8007A1B8];
+        rsp_segment(&D_800CF518, 0, NULL);
+        rsp_segment(&D_800CF518, 1, D_800D2FA0);
+        rsp_segment(&D_800CF518, 2, D_800D2FAC);
+        rsp_segment(&D_800CF518, 4, (u8 *) D_800D2FA0 - 0x500);
+    }
+    rcpFast3d(D_800CF510[D_8007A1B8], D_800CF518, 0, D_800D2FA0);
+    if (D_8007A20C != 0) {
+        TrapDanglingJump();
+    }
+
+    D_8007A1B8 ^= 1;
+    func_80044B9C();
+    D_800CF518 = D_800CF510[D_8007A1B8];
+    D_800CF530 = D_800CF528[D_8007A1B8];
+    D_800CF588 = D_800CF580[D_8007A1B8];
+    D_800CF5A0 = D_800CF598[D_8007A1B8];
+    func_80044BC8(D_800CF518, D_80081B0C, 0x2E6);
+    rsp_segment(&D_800CF518, 0, NULL);
+    rsp_segment(&D_800CF518, 1, D_800D2FA8);
+    rsp_segment(&D_800CF518, 2, D_800D2FAC);
+    rsp_segment(&D_800CF518, 4, (u8 *) D_800D2FA8 - 0x500);
+    rcpInitSp(&D_800CF518);
+
+    rcpInitDp(&D_800CF518);
+    if (D_8007A128 != 0) {
+        func_80021C88(0, D_8007A12C, D_8007A130, D_8007A134, D_8007A138);
+        func_80021B70(0, 1);
+        bgdraw_fillcolour(0, 0, 0);
+    }
+    rcpClearScreen(&D_800CF518, &D_800CF530, 1);
+    func_80021BE4(0, 1);
+
+    D_8007A1CC = joyRead(D_8007A1CC, D_8007A248);
+    func_80046504();
+    if (D_8007A1BC == 5) {
+        func_8004650C(D_8007A248);
+    } else {
+        func_80027FB8(D_8007A248);
+        if (D_8007A1BC == 6) {
+            func_80027EC0(D_8007A248);
+        }
+    }
+
+    func_8004A9CC(&D_800CF518);
+    drawTransition = func_80049B14(D_8007A248);
+    func_80038E1C(&D_800CF518, &D_800CF530, &D_800CF588, &D_800CF5A0,
+                  D_8007A248);
+    if (drawTransition != 0) {
+        func_80049E4C(&D_800CF518, 0);
+    }
+    TrapDanglingJump(&D_800CF518, &D_800CF530, D_8007A248);
+    if (runlinkIsModuleLoaded(0xB) != 0) {
+        TrapDanglingJump(&D_800CF518, &D_800CF530, &D_800CF588,
+                         D_8007A248);
+    }
+    TrapDanglingJump(&D_800CF518, &D_800CF530, &D_800CF588, &D_800CF5A0, 0,
+                     D_8007A248);
+
+    func_80000838(D_8007A24B);
+
+    diPrintfAll(&D_800CF518);
+    if (D_8007A1E0 != 0) {
+        func_800293D0();
+    }
+    func_8004C0C4(&D_800CF518, &D_800CF530, &D_800CF588);
+    func_8004BFD8(4);
+
+    func_8004BF64(4);
+    if (drawTransition != 0) {
+        func_80049E4C(&D_800CF518, 1);
+    }
+    if ((D_8007A1D8 >= 8) && (func_800291E4() != 0)) {
+        func_80039278(&D_800CF518, D_8007A248);
+    }
+
+    func_80044BC8(D_800CF518, D_80081B18, 0x355);
+    func_800376CC(D_8007A248);
+    func_80038190(&D_800CF518, &D_800CF530, &D_800CF588);
+    D_800CF518++;
+    D_800CF518[-1].words.w1 = 0;
+    D_800CF518[-1].words.w0 = 0xE9000000;
+    D_800CF518++;
+    D_800CF518[-1].words.w1 = 0;
+    D_800CF518[-1].words.w0 = 0xB8000000;
+    if ((runlinkIsModuleLoaded(0x21) != 0) && (func_80049864(4) == 0)) {
+        TrapDanglingJump();
+    }
+    func_8005A770();
+
+    func_80024D00(D_8007A248);
+
+    func_800219D0();
+
+    func_80027D14(D_8007A248);
+    if (D_800D6C44 != 0) {
+        TrapDanglingJump(D_8007A248);
+    }
+    if ((D_8007C854 != 0) && (func_800290A0() == 0)) {
+        func_8003C80C(D_8007A248);
+    }
+    func_8004D32C();
+    D_8007A1D0 = rcpWaitDP();
+    mainUpdateZBCheck();
+    mainCPUeffects((u16 *) D_800D2FA0, D_8007A248);
+    func_8000D1B8();
+    func_8000D978(1, D_8007A248);
+    if (D_8007A1E4 != 0) {
+        TrapDanglingJump(D_8007A248);
+        D_8007A1E4 = 0;
+    }
+    func_80033090();
+
+    func_8002B7AC();
+
+    func_80027628(D_8007A248);
+
+    D_8007A248 = viFrameSync(D_8007A1D0);
+    if (D_8007A19C != 0) {
+        viFrameRateReset();
+        D_8007A248 = 2;
+    } else if (D_8007A248 >= 7) {
+        D_8007A248 = 6;
+    }
+    func_80028564(D_8007A248);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80026FB4.s")
+#endif
 
 /*
  * PROVENANCE: the display-list, matrix, vertex and triangle roles are adapted

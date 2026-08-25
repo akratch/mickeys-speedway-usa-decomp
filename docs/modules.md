@@ -1850,6 +1850,15 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   split extern layout materializes the preceding bases plus their array sizes,
   leaving six relocation-identity mismatches. The permuter's 5,795-to-5,305
   improvement required an invented do-while guard and was rejected.
+- `func_80026FB4`, nine structural/display-command hypotheses, the full flag
+  lattice and a bounded two-worker resident-MIPS-II permuter batch, first
+  mismatch `+0x48`: the Mickey-derived main-loop candidate needs
+  `-Wo,-Olimit,100` to reproduce the target's `-0x28` frame and transition
+  result at `sp+0x24`, but compiles to 418 rather than 413 instructions. IDO
+  assigns the first display-list pointer store through `$at` instead of the
+  target's `$a0`; the remaining five-word structural excess is concentrated
+  in the two end-of-frame display commands. The valid permuter score improved
+  from 3,620 to 3,050 by introducing a matrix-array temporary, not identity.
 - `mainThread`, five source/address hypotheses plus the full flag lattice,
   first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
   the exact 200-byte linked instruction stream, frame and control flow, but
