@@ -93,6 +93,13 @@ EXACT_DONOR_OVERLAYS = {
 # modules not listed here remain one generated-assembly subsegment. This map is
 # deliberately explicit so the manifest, splat YAML, and progress metric share
 # one collision-free `(overlay, offset)` source of truth.
+DATA_RODATA_OWNERSHIP = {
+    # Offsets are relative to data_rodata. The source must already own a C text
+    # row: its compiled .data is linked before any remaining raw initialized
+    # tail, so no duplicate C subsegment is emitted at the section boundary.
+    42: [(0x0, 0x10, "overlay_042")],
+}
+
 TEXT_SUBSEGMENTS = {
     3: [
         (0x000, "c", "overlay3ContainsValue"),
@@ -1144,6 +1151,46 @@ def range_row(start, end):
     return {"start": hx(start), "end": hx(end), "size": hx(end - start)}
 
 
+def data_rodata_ownership_rows(overlay, data_size, text_ownership):
+    """Reviewed leading initialized ranges emitted by existing C objects."""
+    rows = []
+    previous_end = 0
+    previous_text_index = -1
+    text_sources = [
+        part["source"].rsplit("/", 1)[1]
+        for part in text_ownership
+        if part["type"] == "c"
+    ]
+    for start, end, source_name in DATA_RODATA_OWNERSHIP.get(overlay, []):
+        if start != previous_end or start >= end or end > data_size:
+            raise ValueError(
+                f"invalid overlay {overlay} data/rodata ownership range"
+            )
+        try:
+            text_index = text_sources.index(source_name)
+        except ValueError as exc:
+            raise ValueError(
+                f"overlay {overlay} data/rodata owner {source_name} "
+                "does not own a C text row"
+            ) from exc
+        if text_index <= previous_text_index:
+            raise ValueError(
+                f"overlay {overlay} data/rodata owners are not in text order"
+            )
+        rows.append(
+            {
+                "offset": hx(start),
+                "end_offset": hx(end),
+                "size": hx(end - start),
+                "type": "c",
+                "source": f"overlays/o{overlay:03d}/{source_name}",
+            }
+        )
+        previous_end = end
+        previous_text_index = text_index
+    return rows
+
+
 def mixed_tu_exact_c_rows(overlay, ownership):
     """Reviewed exact-C subranges inside a source-level NON_MATCHING row.
 
@@ -1329,6 +1376,9 @@ def build_atlas(rom):
                     "nonmatching": nonmatching,
                 }
             )
+        data_ownership = data_rodata_ownership_rows(
+            overlay, module["data_size"], ownership
+        )
         mixed_exact_c = mixed_tu_exact_c_rows(overlay, ownership)
         row = {
             "overlay": overlay,
@@ -1381,6 +1431,8 @@ def build_atlas(rom):
         }
         if mixed_exact_c:
             row["mixed_tu_exact_c_ranges"] = mixed_exact_c
+        if data_ownership:
+            row["data_rodata_ownership"] = data_ownership
         module_rows.append(row)
 
     ranked = sorted(
@@ -1499,8 +1551,8 @@ def render_yaml_block(atlas):
         "  # The common synthetic VMA preserves J-type target bits. Splat's",
         "  # shared exclusive_ram_id marks every module as the same mutually",
         "  # exclusive RAM class; ROM ranges and segment-qualified names keep",
-        "  # offsets distinct. Initialized bytes remain data_rodata until evidence",
-        "  # establishes a finer section boundary.",
+        "  # offsets distinct. Initialized bytes remain raw data_rodata except",
+        "  # where the manifest records explicit compiled-C ownership evidence.",
     ]
     for row in atlas["modules"]:
         if row["rom"]["size"] == "0x0":
@@ -1532,16 +1584,23 @@ def render_yaml_block(atlas):
                 f"      - [{hx(text_start + int(part['offset'], 16))}, "
                 f"{part['type']}, {part['source'].rsplit('/', 1)[1]}]"
             )
-        for section, seg_type, suffix in (
-            ("data_rodata", "bin", "_data_rodata"),
-            ("reloc1", "bin", "_reloc1"),
-            ("reloc2", "bin", "_reloc2"),
-        ):
+        data_row = row["sections"]["data_rodata"]
+        owned_data = row.get("data_rodata_ownership", [])
+        owned_end = (
+            int(owned_data[-1]["end_offset"], 16) if owned_data else 0
+        )
+        data_size = int(data_row["size"], 16)
+        if owned_end < data_size:
+            lines.append(
+                f"      - [{hx(int(data_row['start'], 16) + owned_end)}, "
+                f"bin, {name}_data_rodata]"
+            )
+        for section, suffix in (("reloc1", "_reloc1"), ("reloc2", "_reloc2")):
             section_row = row["sections"][section]
             if section_row["size"] == "0x0":
                 continue
             lines.append(
-                f"      - [{section_row['start']}, {seg_type}, {name}{suffix}]"
+                f"      - [{section_row['start']}, bin, {name}{suffix}]"
             )
     lines += ["", YAML_END]
     return "\n".join(lines)

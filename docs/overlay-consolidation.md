@@ -304,6 +304,26 @@ the same way `overlay_006` does for `.text`. That's real, scoped follow-up
 work, not a pilot-sized change -- but the experiment above is the exact
 "try it and see if it verifies" step ADR 0006 asked for, and it succeeded.
 
+### Overlay 42 implementation
+
+Overlay 42 is the first module to wire that experiment into the canonical
+split. Its one 16-byte initialized range is now emitted by
+`overlay_042.c` as an ordinary initialized-state object: two buffer slots,
+one buffer-index word, and one image-alpha byte, in that declaration order.
+IDO emits a 16-byte `.data` section that is byte-identical to the former raw
+asset. The module's 0x700-byte `.text`, its compiled text relocation surface,
+and both shipped relocation tails remain unchanged, and the full linked ROM
+still verifies to the expected SHA1.
+
+`DATA_RODATA_OWNERSHIP` in `tools/overlay_atlas.py` records leading,
+contiguous initialized ranges owned by C sources already present in the
+overlay's text ownership. The generator validates source and declaration
+order, records the range in `config/overlays.us.json`, omits the covered raw
+`bin` row, and retains any uncovered initialized tail plus both relocation
+tails as raw rows. Overlay 42's full initialized range is covered, so only its
+relocation tails remain raw. Its separate 16-byte BSS range is unchanged and
+is not claimed by this data-only pass.
+
 ## Environment note (unrelated to consolidation, hit during every commit)
 
 `gmake check-docs` calls `tools/overlay_donor_scan.py --check`, which
