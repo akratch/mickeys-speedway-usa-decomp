@@ -80,7 +80,14 @@ f32 overlay101ClockTrigBReloc(s32 angle);
         macroCommand->w1 = 0;                                               \
     }
 
-/* DKR v77/v80 and JFG have no exact donor for this clock renderer. */
+/*
+ * DKR v77/v80 and JFG have no exact donor for this clock renderer.
+ * Plateau (10 source-shape attempts): the best candidate retains the exact
+ * 238 instructions and 152-byte frame but differs in 11 positional words;
+ * the first mismatch is +0x208. The remaining blocker is the independent
+ * loop-constant schedule, four-iteration count web, and one commutative FP
+ * operand order.
+ */
 #ifdef NON_MATCHING
 void overlay101DrawClock(Overlay101Gfx **displayList, Overlay101Panel *panel,
                          Overlay101Vertex **vertexCursor, s32 originX,
