@@ -17,7 +17,6 @@ typedef struct Overlay96Volume {
 extern s32 gO96EntryCountReloc;
 extern Overlay96Volume *gO96EntriesReloc[];
 
-#ifdef NON_MATCHING
 Overlay96Volume *overlay96FindVolume(f32 x, f32 y, f32 z) {
     s32 count = gO96EntryCountReloc;
     s32 planeIndex;
@@ -46,6 +45,3 @@ Overlay96Volume *overlay96FindVolume(f32 x, f32 y, f32 z) {
     }
     return NULL;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o096/overlay96FindVolume/func_overlay_096_F00004BC_18D7AF4.s")
-#endif

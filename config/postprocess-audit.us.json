@@ -5688,19 +5688,6 @@
     {
       "class": "metadata",
       "matched_c": true,
-      "object": "build/src/overlays/o096/overlay96FindVolume.c.o",
-      "offset": 1212,
-      "overlay": 96,
-      "size": 192,
-      "source": "src/overlays/o096/overlay96FindVolume.c",
-      "tools": [
-        "trim_elf_section.py",
-        "objcopy"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
       "object": "build/src/overlays/o096/overlay96TestBit.c.o",
       "offset": 1404,
       "overlay": 96,
@@ -6851,9 +6838,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 555
+      "metadata": 554
     },
-    "matched_c_bytes_with_postprocess": 277968,
-    "objects_with_postprocess": 555
+    "matched_c_bytes_with_postprocess": 277776,
+    "objects_with_postprocess": 554
   }
 }

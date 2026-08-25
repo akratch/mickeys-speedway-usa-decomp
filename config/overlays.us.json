@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 72600,
-  "nonmatching_overlay_c_bytes": 220776,
+  "matched_overlay_c_bytes": 72792,
+  "nonmatching_overlay_c_bytes": 220584,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -17133,7 +17133,7 @@
      "type": "c",
      "source": "overlays/o096/overlay96FindVolume",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x57C",
