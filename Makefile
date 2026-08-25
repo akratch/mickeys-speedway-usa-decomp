@@ -1761,9 +1761,18 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20RemoveEntry.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_020_F0001018_18775F0=overlay20RemoveEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD4
+# The typed entry allocator is exact. Retail encodes three zero-base data
+# references directly and retains relocations only for the active mask/pool.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureEntry.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureEntry.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_020_F0000E28_1877400=overlay20ConfigureEntry $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x18:5:gOverlay20EntryCount 0x1C:6:gOverlay20EntryCount \
+		0x78:5:gOverlay20Entries 0x80:6:gOverlay20Entries \
+		0xC4:5:D_0 0x108:6:D_0 && \
+	$(OBJCOPY) \
+		--redefine-sym gOverlay20ActiveBits=D_4 \
+		--redefine-sym gOverlay20Pool=D_80 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x150
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
