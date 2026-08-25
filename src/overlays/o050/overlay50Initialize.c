@@ -29,6 +29,11 @@ typedef struct O50Config {
     f32 value8C;
 } O50Config;
 
+typedef struct O50Locals {
+    u8 *savedFlag;
+    u32 unused;
+} O50Locals;
+
 extern s16 D_0;
 extern s32 D_8;
 extern s16 D_C;
@@ -78,9 +83,18 @@ extern void *o50CreateC(void *value);
 extern void *o50CreateD(void *value, s32 x, s32 y, s32 count);
 extern void o50FinalizeReloc(void *value, void *arg);
 
+/*
+ * Plateau (2026-08-25, 8 attempts): the complete flag lattice selects
+ * -O2 -mips2 -32 at exact target size, with 109 of 185 positional words
+ * differing. Modeling the saved context as the first field of an 8-byte
+ * local struct moves it to the target stack slot and advances the first
+ * mismatch from +0x14 to +0xC0. The remaining mismatch begins with register
+ * allocation for the config base and continues through the record-copy loop;
+ * typed and raw-field loop spellings did not improve the score.
+ */
 #ifdef NON_MATCHING
 void func_overlay_050_F0000000_1896970(void) {
-    u8 *savedFlag;
+    volatile O50Locals locals;
     s32 *fill;
     O50Record *source;
     O50Record *dest;
@@ -88,7 +102,7 @@ void func_overlay_050_F0000000_1896970(void) {
     u8 *state;
     void *object;
 
-    savedFlag = o50AcquireFlagReloc();
+    locals.savedFlag = o50AcquireFlagReloc();
     o50LoadReloc(&D_0);
     o50ConfigureReloc(&D_48);
     o50SetModeReloc(4);
@@ -152,7 +166,7 @@ void func_overlay_050_F0000000_1896970(void) {
         D_FC.value1C -= 0x28;
     }
 
-    if (*savedFlag != 0) {
+    if (*locals.savedFlag != 0) {
         D_C4 = NULL;
     } else {
         o50SelectReloc(3);
