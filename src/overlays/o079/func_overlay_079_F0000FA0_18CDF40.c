@@ -32,9 +32,9 @@ extern f32 gOverlay79CollisionEpsilon;
 extern f32 gOverlay79CollisionLift;
 extern f32 gOverlay79CollisionProjection;
 
-/* Plateau (2026-08-25): exact 184-word size, 145 words differ, first +0x38.
- * Per-branch length lifetimes fixed the 0x98 frame and cut five differences.
- * FP allocation remains after the lattice, ten variants, and 40-minute permuter. */
+/* Workbench: structure-mismatch; best is 184/184 words, 143 differences, first +0x38.
+ * Tried exact-frame/spill census, volatile homes, declaration scopes, and expression association.
+ * The 0x98 frame is exact; 29 structural and 95 register rows remain after the FP pool split. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000FA0_18CDF40(
     void *unused, Overlay79Vector *position, Overlay79Vector *axis,
@@ -50,8 +50,10 @@ void func_overlay_079_F0000FA0_18CDF40(
     f32 crossX;
     f32 crossY;
     f32 value;
-    register f32 amount;
-    f32 planeConstant;
+    f32 length;
+    f32 amount;
+    volatile f32 planeConstant;
+    volatile f64 framePad;
 
     (void)unused;
     ny = plane->normal.y;

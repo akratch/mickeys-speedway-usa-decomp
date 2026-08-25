@@ -1,8 +1,8 @@
 #include "PR/ultratypes.h"
 
-/* Plateau (2026-08-25): best r4300 candidate is 188/189 words, 163 differ, first +0x0.
- * Moving r3/r4 first saved one difference; the lattice, ten lifetime variants, and permuter failed.
- * Product-first spelling reached the target 0x60 frame/+0x4 first, but regressed to 169 differences. */
+/* Workbench: structure-mismatch; canonical is 189/189 words, 123 differences, first +0x8.
+ * Tried spill census, truth-check spelling, coefficient/result lifetime splits, and declaration order.
+ * Frame and size are exact; temp-ring slot 0 leaves 37 structural and 79 register rows. */
 #ifdef NON_MATCHING
 s32 func_overlay_002_F0001364_185815C(f32 x1, f32 y1, f32 x2, f32 y2,
                                       f32 x3, f32 y3, f32 x4, f32 y4,
@@ -27,7 +27,7 @@ s32 func_overlay_002_F0001364_185815C(f32 x1, f32 y1, f32 x2, f32 y2,
     c1 = (x2 * y1) - (x1 * y2);
     r3 = (a1 * x3) + (b1 * y3) + c1;
     r4 = (a1 * x4) + (b1 * y4) + c1;
-    if ((r3 != 0.0f) && (r4 != 0.0f) &&
+    if (r3 && r4 &&
         (((r3 > 0.0f) && (r4 > 0.0f)) ||
          ((r3 < 0.0f) && (r4 < 0.0f)))) {
         return 0;
@@ -38,7 +38,7 @@ s32 func_overlay_002_F0001364_185815C(f32 x1, f32 y1, f32 x2, f32 y2,
     c2 = (x4 * y3) - (x3 * y4);
     r1 = (a2 * x1) + (b2 * y1) + c2;
     r2 = (a2 * x2) + (b2 * y2) + c2;
-    if ((r1 != 0.0f) && (r2 != 0.0f) &&
+    if (r1 && r2 &&
         (((r1 > 0.0f) && (r2 > 0.0f)) ||
          ((r1 < 0.0f) && (r2 < 0.0f)))) {
         return 0;
