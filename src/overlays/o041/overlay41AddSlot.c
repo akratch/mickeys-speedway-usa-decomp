@@ -16,18 +16,9 @@ typedef struct Overlay41Slot {
 
 extern Overlay41Slot gOverlay41Slots[];
 
-/* Plateau after the flag lattice and six counter-spelling/allocation attempts:
- * exact 0xDC size and 51/55 words, first mismatch at +0x10. The remaining
- * four words reverse the loop counter's a1/v1 register pair; reusing the
- * parameter obtains that pair but adds a stack frame. A correctly configured
- * bounded permuter batch found no improvement over the natural score.
- * Follow-up (2026-08-25): removing the byte-pointer alias emitted the same
- * 51/55-word object; the first mismatch remains +0x10, where allocation
- * colors the loop counter v1 instead of the target a1.
- * Lane follow-up (2026-08-25): ten additional storage-class, declaration-
- * order, parameter-width, lexical-lifetime, signedness, and typed-input
- * attempts all retained the 51/55-word result or regressed it. The best first
- * mismatch remains +0x10; IDO still reverses the counter/temp a1/v1 pair. */
+/* Workbench: allocation/register-web; 55 words, four register-only differences, first +0x10.
+ * Constant audit confirms the scalar literal; prior allocation forms and the bounded permuter found no exact.
+ * The counter/temp a1/v1 web remains reversed; canonical assembly stays. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,

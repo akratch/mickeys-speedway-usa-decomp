@@ -730,6 +730,14 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 # lattice otherwise expands four 0x20-byte records into each loop iteration.
 $(BUILD_DIR)/$(SRC_DIR)/main/saves.c.o: CFLAGS += -Wo,-loopunroll,0
 
+# Preserve the SDK end-label spelling that gives IDO the shipped address web,
+# then restore the target's equivalent Fast3D-start relocation identity.
+$(BUILD_DIR)/$(SRC_DIR)/main/rcpFast3d.c.o: \
+	config/normalizations/rcpFast3d.rebind.spec
+$(BUILD_DIR)/$(SRC_DIR)/main/rcpFast3d.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/rcpFast3d.rebind.spec
+
 # The charControl target carries the R4300 multiply scheduling nops around its
 # single-precision smoothing helpers; the flag lattice isolates this assembler
 # mode without changing the resident TU's O2/MIPS-II compiler output.
@@ -1661,7 +1669,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/func_overlay_043_F0000BE4_188ABB4.c.o: POS
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ComputeMotion.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43AllocateResources.c.o: \
+	config/normalizations/overlay43AllocateResources.calls.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43AllocateResources.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/overlay43AllocateResources.calls.spec && \
+	$(OBJCOPY) --redefine-sym \
+		func_8002B280=func_overlay_043_F0000000_1889FD0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43SubmitChildren.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
@@ -1712,7 +1726,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/overlay71UpdateCoordinates.c.o: POSTPROCES
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
 # NON_MATCHING/GLOBAL_ASM: retain only trailing-section trims where these
 # extracted functions are not naturally aligned.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000000_18C9B20.c.o: \
+	config/normalizations/overlay71InitializeObject.calls.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000000_18C9B20.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/overlay71InitializeObject.calls.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x278
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o071/func_overlay_071_F0000278_18C9D98.c.o: CFLAGS += \
 	-Wab,-r4300_mul

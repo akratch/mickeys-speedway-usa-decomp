@@ -20,18 +20,9 @@ extern void func_80006A50(void *);
 extern s16 func_8000F690(f32, f32, f32);
 extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
-/*
- * Plateau (2026-08-25, renewed cap): the canonical -O2 -mips2 candidate is
- * size-exact at 172 words, differs in five instruction words, and first
- * diverges at +0xCC. All 119 flag variants tie this result. Declaration-order,
- * volatile object-position, declaration-initializer, and nested assignment
- * hypotheses either add a mismatch or disturb the 0x58-byte frame; a bounded
- * 10-minute permuter batch found no improvement. The blocker is IDO's coupled
- * spill allocation: retail uses object-position at sp+0x30 and the plane
- * carrier at sp+0x2C, then stores the identical D_A7C value to outgoing
- * sp+0x10 before sp+0x2C; the best C uses sp+0x28 and reverses those stores.
- * This likely reflects an unrecovered authentic local lifetime in the TU.
- */
+/* Workbench: mixed constant/schedule; 172 words, five instruction-word differences, first +0xCC.
+ * Constant audit found coupled stack homes; prior declaration/volatile/nested forms and the permuter stay eliminated.
+ * Volatile keep is codegen-neutral; the missing original lifetime must move objectPosition sp+0x28 to target sp+0x30. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     void *contact;

@@ -106,10 +106,8 @@ extern u64 D_800D3670[];
 extern u64 D_80077950[];
 extern u64 D_80077AD0[];
 extern u64 D_80085240[];
-#ifdef NON_MATCHING
 extern u64 rspbootTextEnd[];
 #pragma weak rspbootTextEnd = D_80077AD0
-#endif
 
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
 void osWritebackDCacheAll(void);
@@ -125,12 +123,9 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height, u32 value);
 void rcpClearZBuffer(RcpCommand **dlist, u32 width, u32 height, s32 x1,
                      s32 y1, s32 x2, s32 y2);
 
-#ifdef NON_MATCHING
 /* Mickey-derived task construction. JFG supplies the function name and the
  * OSScTask field correspondence, while its public C file retains assembly;
- * JFG's SDK ucode header supplies the official rspbootTextEnd symbol name.
- * Plateau: all 168 instruction words are exact; only the HI16/LO16 identity at
- * +0x204 differs. Direct D_80077AD0 forms let IDO CSE the later address load. */
+ * JFG's SDK ucode header supplies the official rspbootTextEnd symbol name. */
 s32 rcpFast3d(u64 *dataStart, u64 *dataEnd, s32 taskType,
               void *framebuffer) {
     OSScTask *task;
@@ -203,9 +198,6 @@ s32 rcpFast3d(u64 *dataStart, u64 *dataEnd, s32 taskType,
     osSendMesg(D_800D2C90, task, OS_MESG_BLOCK);
     return 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpFast3d.s")
-#endif
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/rcpFast3d.c:rcpWaitDP. */
 s32 rcpWaitDP(void) {

@@ -1,0 +1,2 @@
+0x204:rspbootTextEnd:D_80077AD0
+0x208:rspbootTextEnd:D_80077AD0

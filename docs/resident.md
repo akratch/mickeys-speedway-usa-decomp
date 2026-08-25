@@ -274,13 +274,9 @@ pointer-loop variants did not reproduce the target's four-word header-copy
 loop, so the remaining blocker is source shape and live ranges rather than
 semantics or constants.
 
-`func_8004D40C` has an exact-size, exact-frame, exact-relocation candidate
-under `NON_MATCHING`: 109 instructions with five differing words. The first
-mismatch is at function offset `+0x5C`, where the target preserves the loaded
-character with `move $t2,$a3` in a branch delay slot; IDO coalesces that copy
-out of the candidate and reverses four dependent comparison operands. The
-stock flag lattice found no exact result. The requested bounded permuter could
-not start because `tools/permuter` is absent from this lane.
+`func_8004D40C`: workbench mixed structural/register; 109 words, five differences, first `+0x5C`.
+Structure-buckets and distinct-initial-value forms compile identically under the stock flag lattice.
+A delay-slot copy and its dependent temporary web remain unrecovered, so assembly stays canonical.
 
 `func_8004BA8C` plateaus at the exact 46-word size and relocation surface under stock flags: 10 positional words differ, first at `+0x18`.
 A distinct default-width local closes 18 prior residuals; the target frame is `0x30` versus the candidate's `0x28`.
@@ -1651,17 +1647,9 @@ Mickey's six message queues while JFG's public source supplies its name and
 prototype and its object supplies the exact skeleton anchor, not a C body. All
 configured object ranges and the final linked ROM are byte-exact.
 
-`rcpFast3d` retains a `NON_MATCHING` Mickey-derived task-construction body
-after the 119-combination flag lattice and ten source/type/scheduling
-hypotheses. A candidate using the SDK's distinct `rspbootTextEnd` identity is
-exact across all 168 instruction words, but strict object comparison rejects
-the HI/LO pair at function `+0x204`: the target relocations name
-`D_80077AD0`, while the candidate names the weak alias. Using
-`D_80077AD0` for both the boot-end and Fast3D-start roles gives exact
-relocation identities but lets IDO coalesce the address, emitting 166
-instructions and first diverging at the same offset. The exact-word candidate
-remains guarded for the distinct-symbol scheduling evidence; the assembly
-fallback remains canonical.
+| Function | ROM | Bytes | Flags | Verdict |
+|---|---:|---:|---|---|
+| `rcpFast3d` | `0x2F400` | 0x2A0 | `-O2 -mips2 -32` | Mickey/JFG task construction; 168/168 instruction words and all relocations exact after metadata-only weak-alias rebinding, linked ROM exact |
 
 `rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body after
 the 119-combination flag lattice and nine source-shape hypotheses. The best
