@@ -68,9 +68,9 @@ extern u8 D_800CF578;
 extern u8 D_800CF590;
 extern u8 D_800CF5A8;
 extern u8 D_80000000[];
-extern s32 D_800D2D40;
-extern s32 D_800D2D44;
-extern u64 D_800D2D48;
+s32 D_800D2D40;
+s32 D_800D2D44;
+u64 D_800D2D48;
 extern u8 *D_800D2FA0;
 extern u8 *D_800D2FA8;
 extern u8 *D_800D2FAC;
@@ -831,10 +831,6 @@ void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp) {
     }
 }
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scYield. */
-#ifdef NON_MATCHING
-/* Workbench: structure mismatch, 20 words vs 19, first mismatch +0x34.
- * Same-TU ownership was already proven exact; source and permuter levers are exhausted.
- * Remaining blocker: D_800D2D48 is still owned by the shared extracted BSS object. */
 void __scYield(OSSched *sc) {
     if (sc->curRSPTask->list.t.type == 1) {
         sc->curRSPTask->state |= 0x10;
@@ -842,9 +838,6 @@ void __scYield(OSSched *sc) {
         osSpTaskYield();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scYield.s")
-#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:__scSchedule. */

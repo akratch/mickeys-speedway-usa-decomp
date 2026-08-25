@@ -358,6 +358,9 @@ This boundary is measured from the linked pre-split ELF: `2BCD0.s.o` owns one
 12 bytes are alignment before `2C8C0.s.o` begins. This corrects the earlier
 provisional task range ending at `0x2C950`, which crosses into the next object.
 The TU has no floating-point instructions and no string references.
+It owns BSS `0x800D1C60`-`0x800D21C0` (`0x560` bytes): four pool records,
+the pool count and pad, 256 queued pointers, 256 delay bytes, four counters,
+and final section alignment.
 
 **PROVENANCE:** the correspondence names below were read from Jet Force
 Gemini's published `src/memory.c`, `src/memory.h`, built `memory.c.o`, and
@@ -377,11 +380,11 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2BF14` | `func_8002B314` | `mmAlloc2` | B: second wrapper with the same calls and result role; linked C exact |
 | `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator; linked C exact |
 | `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker; linked C exact |
-| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments; plateau, exact size, 14/116 words differ, first `+0xE0` |
+| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments; plateau, exact size, 14/116 words differ, first `+0xE0`; workbench mixed constant/structure/register |
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
-| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; plateau, 62/63 words, first `+0x4`; target keeps the initial global address in `s0`, and the full flag lattice plus 40-minute permuter found no valid exact source |
+| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; plateau, 62/63 words, first `+0x4`; workbench mixed structure/register after owned BSS leaves the target's saved base in `s0` |
 | `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot; linked C exact |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
 | `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
@@ -454,25 +457,17 @@ reproduce Mickey's target and both call relocations.
 extended-RAM choice, main-pool construction, deferred-free delay, and queue
 reset reproduce all 30 words and the linked global/call relocations.
 
-Three JFG-derived bodies remain assembly-backed `NON_MATCHING` plateaus after
-bounded source trials and the full 119-combination flag lattice. The best
-`func_8002B524` candidate has the target's 116-word size with 14 positional
-differences, first at `+0xE0`; the remaining mismatch is the slot/data pointer
-allocation, branch-likely schedule, and one stack home (`0x38` versus target
-`0x3C`). Reusing the exact wrappers' padded stack record was a new hypothesis,
-but regressed to 20 differences from `+0x34`, so the prior body is retained.
-The bounded permuter could not run because `tools/permuter/import.py` is absent
-from this lane.
+`func_8002B524`: 116/116 words, 14 positional differences, first `+0xE0`,
+with an exact frame. Workbench reports mixed constant/structure/register;
+the `constant-audit` lever did not close the slot/data-pointer allocation.
 
-`func_8002BB40` reaches the
-target's 72-word size but differs in 57 words from `+0x4`; pool/slot pointer
-allocation and split-record scheduling remain structurally different.
+`func_8002BB40`: 72/72 words, 30 register differences, first `+0x8C`.
+Workbench reports allocation mismatch; `pool-position`/temp-FIFO trials did
+not close the allocator web split.
 
-Canonical `func_8002B7AC` C emits 62 words against 63 in the target and first
-diverges at `+0x4`: IDO folds the initial `D_800D21B0` address/load while the
-target retains the address in a saved register, shifting the otherwise-close
-queue loop. `-O2 -g3` reaches the target size with 15 differences but is not a
-valid TU-wide replacement for the canonical flags.
+`func_8002B7AC`: 62/63 words, first `+0x4`; the target preserves the initial
+`D_800D21B0` base in `s0` while the candidate folds it through `t6`. Workbench
+reports mixed structure/register; `structure-buckets` did not close it.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a
@@ -1585,8 +1580,9 @@ the still-unnamed scheduler helper `func_800304E0` (ROM `0x310E0`–
 `0x31E74`, 296 bytes), `__scHandleRDP` (ROM `0x31E74`–`0x31EFC`, 136
 bytes), `__scTaskReady` (ROM `0x31EFC`–`0x31F4C`, 80 bytes),
 `__scTaskComplete` (ROM `0x31F4C`–`0x3204C`, 256 bytes),
-`__scAppendList` (ROM `0x3204C`–`0x320AC`, 96 bytes), and `__scExec` (ROM
-`0x320AC`–`0x3216C`, 192 bytes). All were compiled
+`__scAppendList` (ROM `0x3204C`–`0x320AC`, 96 bytes), `__scExec` (ROM
+`0x320AC`–`0x3216C`, 192 bytes), and `__scYield` (ROM `0x3216C`–`0x321B8`,
+76 bytes). All were compiled
 with the resident `-O2 -mips2 -32` flags. The saves TU additionally disables
 loop unrolling: the full flag
 lattice selects the target's scalar 24-record reset loop, and the full ROM
@@ -1667,28 +1663,9 @@ labels. Removing the fallback therefore leaves those seven entries undefined.
 Moving the table requires a measured YAML/shared-rodata boundary handoff
 outside this lane's assigned files, so the assembly fallback remains canonical.
 
-`__scYield` also retains a `NON_MATCHING` JFG-derived body. The resident flag
-lattice and five storage/source shapes leave the faithful external-`u64`
-candidate at 20 instructions versus the target's 19, with the first positional
-mismatch at function `+0x14` after the extra base reload changes the branch
-span. Defining the timestamp in this TU is diagnostic only: it reproduces all
-19 instruction words, but its final low-half store relocates against
-`D_800D2D48` plus four rather than `D_800D2D4C` at `+0x38`, and it introduces
-new scheduler BSS that this split does not own. The assembly fallback remains
-canonical until BSS ownership can be reconstructed without changing the
-shared data layout.
-
-A fresh structural retry kept the external timestamp split without claiming
-new BSS ownership. Declaring the two extracted high/low words separately made
-IDO emit 28 instructions, with all 19 target positions differing from `+0x0`;
-writing through one adjacent `u64` lvalue returned to the existing 20-word,
-eight-difference basin at `+0x14`. The repeated full flag lattice therefore
-leaves the external-`u64` candidate as the best faithful form and confirms the
-remaining blocker is the combined return-value store versus distinct BSS
-relocation identities.
-This run's explicit timestamp-struct retry also emitted 28 words from `+0x0`;
-the guarded external-`u64` body remains best at 20/19 words, eight differences
-from `+0x14`, blocked by the separate low-word BSS relocation identity.
+`__scYield` is exact for all 19 instruction words after assigning scheduler's
+`0x800D2D40`–`0x800D2D50` BSS to this TU. The owned `u64` at `0x800D2D48`
+places its low-word store at `0x800D2D4C`; the final linked ROM is exact.
 
 `osScGetTaskType` plateau: workbench reports exact instructions and known relocation layout.
 Removing the wrapper fails the full link because `jtbl_800823D8` references seven assembly-local labels.
@@ -2923,30 +2900,10 @@ and receive no credit. Exact executable C in `main/vehicle_sounds` now totals
 `0xF4` bytes.
 
 The remaining vehicle functions plateau without exact credit.
-`func_80058250`'s best named-global initializer emits 26 instructions against
-22 and differs in 19 positional words from `+0x0`; a typed four-slot aggregate
-reaches the exact size but differs in 21 positions. The complete flag lattice
-does not produce the target's mixed global-address schedule. A new per-slot
-volatile aggregate spelling also reaches 22 words and improves that basin to
-20 positional differences from `+0x0`, but still hoists four full extern
-addresses and carries only 8 relocation records against the target assembly's
-20. Statement reordering, pointer-relative stores, one array aggregate, and
-volatile/non-volatile per-slot objects cover the coherent extern-layout
-families; reproducing the target now appears to require the original data
-ownership/layout context rather than another initializer ordering.
-A split-tail retry modeled each handle as a scalar and its adjacent float and
-object pointer as a two-field aggregate, preserving two source-level bases per
-slot. IDO materialised each tail pointer explicitly: the candidate remained 26
-words against 22, differed in all 22 target positions from `+0x8`, and carried
-16 relocation records rather than 20. The full 119-configuration lattice kept
-stock `-O2 -mips2 -32` best, so the original data-ownership blocker remains.
-`func_8005830C` now has a complete typed `NON_MATCHING` reconstruction adapted
-at the organization/terminology level from DKR's permitted published
-`src/audio_vehicle.c`, with Mickey's own field offsets and calls deciding the
-body. Ten coherent source shapes and the complete flag lattice leave the best
-stock `-O2 -mips2 -32` candidate at 757 instructions against 762, a `0x110`
-frame against `0x118`, 706 positional word differences and first mismatch
-`+0x0`. Pointer induction improved the residual by 29 words. A later
-loop-invariant form reached the exact frame and only a two-instruction deficit
-but regressed to 730 words, so the retained candidate is still a broad
-allocation/structure plateau rather than a permuter-ready near match.
+`func_80058250`: 26/22 words, 19 positional differences from `+0x0`; workbench reports structure-mismatch.
+The TU now owns the measured four-record `0x800D78B0`–`0x800D78F0` BSS; an array collapses to 16 words and volatile slots differ in 21/22.
+Stock `-O2 -mips2 -32` remains best after the 119-configuration flag lattice; assembly stays canonical.
+
+`func_8005830C`: 758/762 words, 699 positional differences from `+0x0`, frame `0x110`/`0x118`.
+Workbench reports mixed constant/structure/register mismatch; the next lever is constant-audit.
+Its DKR organization/terminology provenance remains recorded at the body; assembly stays canonical.
