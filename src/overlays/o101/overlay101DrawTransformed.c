@@ -59,7 +59,13 @@ void overlay101SubmitTransformReloc(Overlay101Gfx **displayList, void *matrix,
  * positional differences from first mismatch +0x7C. Removing the otherwise
  * unused nested-assignment temporary shrinks the frame to 0x88 and regresses
  * to 129 words; splitting its assignment preserves the same 62-word basin.
- * The blocker is the two command schedules and the private temporary FIFO.
+ * The blocker is the two command schedules and the private temporary FIFO. A
+ * later lane reran all 119 flag combinations and tested the m2c-indicated
+ * distinct command-pointer form, the same form with the frame-shape anchor,
+ * unsigned dimension types, and a later rotation temporary. The first two
+ * regress in size or from the prologue, unsigned dimensions reproduce the
+ * same 62-word basin, and the later temporary regresses to first mismatch
+ * +0x6C. The best result remains size-exact from +0x7C.
  */
 #ifdef NON_MATCHING
 void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,
