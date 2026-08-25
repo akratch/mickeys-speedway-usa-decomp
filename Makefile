@@ -973,7 +973,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o010/overlay10Initialize.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_010_F0000000_1868450=overlay10Initialize $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012.c.o: CFLAGS += -Wo,-loopunroll,0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1B4
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/func_overlay_012_F00000C4_186D344.c.o: CFLAGS += -Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o012/func_overlay_012_F00000C4_186D344.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym gOverlay12Resource0=D_8 \
+		--redefine-sym gOverlay12Resource1=D_C \
+		--redefine-sym gOverlay12Resource2=D_10 \
+		--redefine-sym gOverlay12Resource3=D_14 \
+		--redefine-sym gOverlay12Resource4=D_18 \
+		--redefine-sym gOverlay12Resource5=D_1C $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/overlay_012_tail.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x130
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o012/func_overlay_012_F00002E4_186D564.c.o: POSTPROCESS = \

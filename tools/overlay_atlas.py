@@ -173,6 +173,7 @@ TEXT_SUBSEGMENTS = {
     ],
     12: [
         (0x000, "c", "overlay_012"),
+        (0x0C4, "c", "func_overlay_012_F00000C4_186D344"),
         (0x1B4, "c", "overlay_012_tail"),
         (0x2E4, "c", "func_overlay_012_F00002E4_186D564"),
         (0x3A8, "asm", "overlay_012_tail1"),

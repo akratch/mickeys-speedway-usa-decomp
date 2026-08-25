@@ -989,6 +989,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x186D280, c, overlay_012]
+      - [0x186D344, c, func_overlay_012_F00000C4_186D344]
       - [0x186D434, c, overlay_012_tail]
       - [0x186D564, c, func_overlay_012_F00002E4_186D564]
       - [0x186D628, asm, overlay_012_tail1]
