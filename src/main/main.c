@@ -397,12 +397,7 @@ void RevealReturnAddresses(void) {
     } while (0);
 }
 
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
-/*
- * Plateau: linked 50 words are exact; object relocation first differs +0x18.
- * A symbolic indexed base restores the symbol but grows to 58 instructions.
- */
 void mainThread(void *unused) {
     s32 i;
 
@@ -426,9 +421,6 @@ void mainThread(void *unused) {
         func_80021290();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainThread.s")
-#endif
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 s32 mainResetPressed(void) {
