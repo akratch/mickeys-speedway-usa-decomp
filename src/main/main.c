@@ -1624,15 +1624,9 @@ u8 func_80029240(s32 index) {
  * src/overlays/o3/overlay_3.c::GetSmoothAcceleration; JFG retains assembly,
  * so this body is reconstructed from Mickey-only control-flow evidence.
  *
- * Plateau: seventeen control-flow, parameter and register-lifetime hypotheses
- * reproduce the target's 87-instruction boundary and -0x10 frame. Initializing
- * the accumulators before copying the velocity improves the canonical result
- * from 42 to 39 differing words, first at +0x8, and correctly anchors the
- * acceleration accumulator in $f2. IDO still moves the first float argument
- * before the saved-register store, assigns the velocity/distance webs to
- * $f12/$f16 rather than $f14/$f12, and reshapes the negative-velocity return
- * path. The full lattice has no exact result; -g3 is size-exact at 38 differing
- * words, first at +0x14, but supplies no evidence for a TU flag override.
+ * Workbench: mixed(structural:11, register:21), 39 words, first mismatch +0x8.
+ * Levers tried: structure buckets and line assignment; accumulator association and an early-result local.
+ * Remains: the first-argument move/saved-register schedule cascades into two swapped floating-point webs.
  */
 f32 func_80029274(s32 arg0, f32 arg1, f32 arg2) {
     f32 temp_f0;
