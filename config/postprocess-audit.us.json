@@ -15,6 +15,30 @@
     },
     {
       "class": "metadata",
+      "matched_c": null,
+      "object": "build/src/main/main.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/main.c",
+      "tools": [
+        "objcopy"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
+      "object": "build/src/main/weather.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/weather.c",
+      "tools": [
+        "objcopy"
+      ]
+    },
+    {
+      "class": "metadata",
       "matched_c": true,
       "object": "build/src/overlays/o001/overlay_001.c.o",
       "offset": 0,
@@ -559,7 +583,8 @@
       "source": "src/overlays/o009/overlay_009.c",
       "tools": [
         "trim_elf_section.py",
-        "externalize_elf_section.py"
+        "externalize_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -3198,7 +3223,9 @@
       "size": 224,
       "source": "src/overlays/o043/overlay43AllocateResources.c",
       "tools": [
-        "trim_elf_section.py"
+        "rebind_elf_relocations.py",
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -5285,7 +5312,9 @@
       "size": 308,
       "source": "src/overlays/o079/func_overlay_079_F0000000_18CCFA0.c",
       "tools": [
-        "trim_elf_section.py"
+        "filter_elf_relocations.py",
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -5883,6 +5912,7 @@
       "size": 220,
       "source": "src/overlays/o086/overlay86ScaledVectorPosition.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -7471,9 +7501,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 606
+      "metadata": 608
     },
     "matched_c_bytes_with_postprocess": 396792,
-    "objects_with_postprocess": 606
+    "objects_with_postprocess": 608
   }
 }

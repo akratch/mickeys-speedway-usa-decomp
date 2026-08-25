@@ -1644,7 +1644,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/func_overlay_043_F0000BE4_188ABB4.c.o: POS
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ComputeMotion.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43AllocateResources.c.o: \
+	config/normalizations/overlay43AllocateResources.calls.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43AllocateResources.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/overlay43AllocateResources.calls.spec && \
+	$(OBJCOPY) --redefine-sym \
+		func_8002B280=func_overlay_043_F0000000_1889FD0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43SubmitChildren.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
