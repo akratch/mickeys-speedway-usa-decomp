@@ -13,7 +13,7 @@ extern volatile s32 gOverlay77Handle;
 
 void overlay77EnsureSelection(void) {
     if (gOverlay77Handle == 0) {
-        s32 count = gOverlay77Count;
+        s32 count = gOverlay77Sequence;
 
         gOverlay77Handle = count;
         gOverlay77Selection = overlay77RandomReloc(0, count - 1);

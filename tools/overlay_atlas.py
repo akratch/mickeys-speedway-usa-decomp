@@ -9,8 +9,8 @@ relocation, and derives two tracked artifacts from that one model:
   campaign-priority metadata.  It contains addresses and counts, never ROM
   bytes or disassembly.
 * the generated overlay block in ``mickey.us.yaml`` -- one independent code
-  segment per non-empty module, with text emitted as assembly and the combined
-  data/rodata and relocation tails retained as exact binary ranges.
+  segment per non-empty module, with unowned initialized ranges and relocation
+  tails retained as exact binary ranges.
 
 The shipped ``vramBase`` is zero for every module.  Splat is given one common
 synthetic VMA whose high nibble does not alter a MIPS J-type target field.  A
@@ -1017,6 +1017,14 @@ TEXT_SUBSEGMENTS = {
     ],
 }
 
+# Reviewed initialized-section ownership. These overlays reproduce their full
+# data/rodata range from ordinary definitions in an existing C translation
+# unit, so the generated YAML must not also import the same bytes as a raw bin.
+# Offsets are relative to the start of the combined data_rodata section.
+INITIALIZED_DATA_OWNERSHIP = {
+    77: [(0x0, 0x30, "overlay_077")],
+}
+
 # A consolidated C object can contain both untouched, byte-exact C functions
 # and GLOBAL_ASM fallbacks. `is_nonmatching_source()` intentionally remains a
 # conservative object-level signal, while these reviewed ranges retain the
@@ -1142,6 +1150,51 @@ def counter_dict(counter, names=None):
 
 def range_row(start, end):
     return {"start": hx(start), "end": hx(end), "size": hx(end - start)}
+
+
+def initialized_data_rows(overlay, data_size, text_ownership):
+    """Reviewed C ownership of a module's combined data/rodata section.
+
+    Splat already emits each text-owning C object's initialized sections in
+    translation-unit order. The explicit rows here prove that those sections
+    cover the complete shipped range and suppress the duplicate raw-bin row.
+    """
+    declared = INITIALIZED_DATA_OWNERSHIP.get(overlay, [])
+    if not declared:
+        return []
+    if data_size == 0:
+        raise ValueError(f"overlay {overlay} owns an empty initialized section")
+
+    c_sources = {
+        part["source"] for part in text_ownership if part["type"] == "c"
+    }
+    rows = []
+    previous_end = 0
+    for start, end, source_name in declared:
+        source = f"overlays/o{overlay:03d}/{source_name}"
+        if start != previous_end or start >= end or end > data_size:
+            raise ValueError(f"invalid overlay {overlay} initialized ownership range")
+        if source not in c_sources:
+            raise ValueError(
+                f"overlay {overlay} initialized owner {source_name} "
+                "does not own text in the same segment"
+            )
+        rows.append(
+            {
+                "offset": hx(start),
+                "end_offset": hx(end),
+                "size": hx(end - start),
+                "type": "c",
+                "source": source,
+            }
+        )
+        previous_end = end
+    if previous_end != data_size:
+        raise ValueError(
+            f"overlay {overlay} initialized ownership ends at {hx(previous_end)}, "
+            f"expected {hx(data_size)}"
+        )
+    return rows
 
 
 def mixed_tu_exact_c_rows(overlay, ownership):
@@ -1330,6 +1383,9 @@ def build_atlas(rom):
                 }
             )
         mixed_exact_c = mixed_tu_exact_c_rows(overlay, ownership)
+        initialized_ownership = initialized_data_rows(
+            overlay, module["data_size"], ownership
+        )
         row = {
             "overlay": overlay,
             "identity": f"overlay:{overlay}",
@@ -1381,6 +1437,8 @@ def build_atlas(rom):
         }
         if mixed_exact_c:
             row["mixed_tu_exact_c_ranges"] = mixed_exact_c
+        if initialized_ownership:
+            row["data_rodata_ownership"] = initialized_ownership
         module_rows.append(row)
 
     ranked = sorted(
@@ -1451,6 +1509,11 @@ def build_atlas(rom):
                 for part in row.get("mixed_tu_exact_c_ranges", [])
             ),
             "data_rodata_bytes": sum(m["data_size"] for m in modules),
+            "owned_data_rodata_bytes": sum(
+                int(part["size"], 16)
+                for row in module_rows
+                for part in row.get("data_rodata_ownership", [])
+            ),
             "bss_bytes": sum(m["bss_size"] for m in modules),
             "module_rom_bytes": sum(m["rom_end"] - m["rom_start"] for m in modules),
             "resident_relocations": len(resident_relocs),
@@ -1539,6 +1602,8 @@ def render_yaml_block(atlas):
         ):
             section_row = row["sections"][section]
             if section_row["size"] == "0x0":
+                continue
+            if section == "data_rodata" and row.get("data_rodata_ownership"):
                 continue
             lines.append(
                 f"      - [{section_row['start']}, {seg_type}, {name}{suffix}]"

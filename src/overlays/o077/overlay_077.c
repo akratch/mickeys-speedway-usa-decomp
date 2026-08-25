@@ -1,8 +1,15 @@
 #include "overlays/overlay_077.h"
 
-/* Non-volatile here: overlay77Init/overlay77Update's original per-file
- * declaration, and the one that reproduces their bytes. */
-extern s32 gOverlay77Handle;
+/* Declaration order reproduces the overlay's initialized section. */
+s32 gOverlay77Handle = 0;
+s32 gOverlay77Sequence = 0;
+s32 gOverlay77Selection = 0;
+void *gOverlay77CallbackArgument = NULL;
+f32 gOverlay77PositiveDivisor = -0.2f;
+f32 gOverlay77PositiveAcceleration = 0.4f;
+f32 gOverlay77NegativeDivisor = 0.6f;
+f32 gOverlay77NegativeAcceleration = 0.4f;
+f32 gOverlay77Gravity = -0.1f;
 
 /*
  * Overlay 77, ADR 0006 consolidation: overlay77Init.c and overlay77Update.c

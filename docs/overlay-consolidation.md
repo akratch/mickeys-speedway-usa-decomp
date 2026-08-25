@@ -1,7 +1,8 @@
 # Overlay consolidation: ADR 0006 pilot recipe and measurements
 
 Status: pilot complete for overlays 39, 77, 85, 95; post-consolidation
-match-loss audit complete for the 13 affected mixed translation units.
+match-loss audit complete for the 13 affected mixed translation units;
+initialized-data ownership wired for overlay 77.
 Written for whoever (human or agent) applies ADR 0006 to other overlays.
 
 ## Scope of the pilot
@@ -263,46 +264,34 @@ removed for any of the four (none used one before consolidation either).
 All four rebuilt byte-identical to
 `507341c0a40ca3e9a7cee969b396ee53facfb548` after their commit.
 
-## Data ownership experiment (ADR 0006's "atlas gains real data ownership" claim)
+## Data ownership (ADR 0006's "atlas gains real data ownership" claim)
 
-Tried on overlay 95, which owns a 16-byte `overlay_095_data_rodata.bin`
-blob (`assets/overlays/o095/overlay_095_data_rodata.bin`, currently
-imported via `objcopy -I binary` per the generated yaml, per ADR 0006's
-"138,992 bytes currently have no owning object" gap).
+The overlay 95 pilot first established that declaration order matters: its
+fade-rate definition followed by its disabled flag reproduced the 16-byte
+initialized section, while reversing the declarations did not. That result
+was object-level only; overlay 95 still imports the range as a raw bin.
 
-The blob's bytes are `40 07 77 77 00 00 00 00 00 00 00 00 00 00 00 00`.
-`overlay_095.c` already declares (as `extern`) the two globals used in
-`overlay95Update`: `f32 gOverlay95FadeRate` and `u8 gOverlay95Disabled`.
-Adding definitions
+Overlay 77 is the first ownership result wired through the complete build.
+Its 48-byte initialized range is four 32-bit state slots followed by five
+single-precision constants and compiler alignment. The TU's uses and local
+relocation groups establish the declaration order. `gOverlay77Count` and
+`gOverlay77Sequence` were two names for the same slot, so the tail now uses
+the single defined `gOverlay77Sequence` object.
 
-```c
-f32 gOverlay95FadeRate = 2.1166666f;  /* 0x40077777 -- 127/60 */
-u8 gOverlay95Disabled = 0;
-```
+IDO emits the complete range in `overlay_077.c`'s `.data` with no `.rodata`.
+`INITIALIZED_DATA_OWNERSHIP` in `tools/overlay_atlas.py` records the reviewed
+range and its existing text-owning TU. The generated manifest exposes that
+row as `data_rodata_ownership`, and the YAML generator omits only the former
+`overlay_077_data_rodata` bin row. Both relocation tails remain raw and in
+their original positions: all 10 symbol relocations and 36 local relocations
+are unchanged.
 
-**in that order**, right after the `#include`, and compiling with the same
-flags as the merged TU, produced a `.data` section **byte-identical** to
-the asset blob: `40077777 00000000 00000000 00000000`. (The reverse
-declaration order put the padded `u8` first and did not match --
-declaration order is significant and has to be discovered empirically per
-overlay, the same way struct field order does.)
-
-This is a real, reproducible proof of ADR 0006's data-ownership claim: IDO's
-own `.data` layout for simple initialized globals, in the right declaration
-order, reproduces the ROM's bytes exactly, and the splat subsegment for that
-range could be re-typed from `bin` to part of the `c` TU's data ownership.
-
-**Not wired into the build in this pilot.** Doing so needs changes this
-pilot didn't have budget to make safely: the yaml/atlas generator emits
-`bin overlay_NNN_data_rodata`/`reloc*` subsegments from a different code
-path than `TEXT_SUBSEGMENTS` (a separate pass over `overlay_tables.py`'s
-per-module data/rodata/relocation sizes, not the per-function offset table
-this pilot edited), and folding data ownership into the `c` TU means that
-path needs to *stop* emitting the `bin` entry for the covered range and
-instead let splat infer `.data`/`.rodata` symbols from the compiled object,
-the same way `overlay_006` does for `.text`. That's real, scoped follow-up
-work, not a pilot-sized change -- but the experiment above is the exact
-"try it and see if it verifies" step ADR 0006 asked for, and it succeeded.
+The configured object, linked overlay range, and full ROM are byte-identical;
+`gmake verify` prints the expected US SHA1. This closes 48 of the atlas's
+61,312 initialized bytes with ordinary C definitions and provides the generic
+recipe for later full-range owners. A partial initialized-section owner still
+needs an explicit ordering model before the generator can mix C-owned and raw
+fragments safely.
 
 ## Environment note (unrelated to consolidation, hit during every commit)
 
