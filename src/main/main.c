@@ -1598,15 +1598,15 @@ u8 func_80029240(s32 index) {
     return D_800D18E0[index].character;
 }
 
+/*
+ * Workbench: mixed(structural:11, register:21), canonical 39 words at +0x8; TU-wide -g3 reaches 38 at +0x14.
+ * Levers tried: structure/line/association/result, declaration and comma shapes, separate arg0 web, and 119 flags.
+ * Remains: the arg1-to-FP move schedule cascades into swapped FP webs; no TU-wide flag promotion is justified.
+ */
 #ifdef NON_MATCHING
 /* PROVENANCE: structural comparison uses Jet Force Gemini
  * src/overlays/o3/overlay_3.c::GetSmoothAcceleration; JFG retains assembly,
- * so this body is reconstructed from Mickey-only control-flow evidence.
- *
- * Workbench: mixed(structural:11, register:21), 39 words, first mismatch +0x8.
- * Levers tried: structure buckets and line assignment; accumulator association and an early-result local.
- * Remains: the first-argument move/saved-register schedule cascades into two swapped floating-point webs.
- */
+ * so this body is reconstructed from Mickey-only control-flow evidence. */
 f32 func_80029274(s32 arg0, f32 arg1, f32 arg2) {
     f32 temp_f0;
     f32 temp_f16;
