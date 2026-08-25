@@ -1058,7 +1058,7 @@ func_8004650C = 0x8004650C;                 // type:func size:0x3C tier A (exact
 render_epc_lock_up_display = 0x80046548;    // type:func size:0x560 tier B/C (crash display)
 func_80046AA8 = 0x80046AA8;                // type:func size:0x124 tier D (Mickey boundary)
 func_80046BCC = 0x80046BCC;                // type:func size:0x1A8 tier D (Mickey boundary)
-cpuXYPrintf = 0x80046D74;                  // type:func size:0x8C tier B (JFG call graph/order)
+cpuXYPrintf = 0x80046D74;                  // type:func size:0x8C tier-A (exact C, JFG body)
 func_80046E00 = 0x80046E00;                // type:func size:0x58 tier-A (exact C, JFG screen-clear body)
 
 // fx.c, ROM 0x47A70-0x4BC40. PROVENANCE: descriptive names adapted from JFG

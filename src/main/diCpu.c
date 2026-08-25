@@ -12,6 +12,7 @@
 #include "PR/os_internal.h"
 #include "PR/os_message.h"
 #include "game/memory.h"
+#include "libc/stdarg.h"
 
 extern s32 D_8007CFD8;
 extern s32 D_8007CFDC;
@@ -36,6 +37,8 @@ extern s32 runlinkGetAddressInfo(u32 address, u32 *moduleId,
 extern void render_epc_lock_up_display(s32 arg0, s32 buttons);
 extern void cpuXYPrintf(s32 x, s32 y, const char *format, ...);
 extern void func_80046E00(void);
+extern void func_80046BCC(s32 x, s32 y, char *text);
+extern s32 vsprintf(char *text, const char *format, va_list args);
 extern s32 D_80000310;
 extern s32 D_8007A1E0;
 extern s32 D_8007A200;
@@ -401,7 +404,30 @@ void func_8004650C(s32 ticks) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/render_epc_lock_up_display.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046AA8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046BCC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/cpuXYPrintf.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::cpuXYPrintf. */
+void cpuXYPrintf(s32 x, s32 y, const char *format, ...) {
+    va_list args;
+    char text[255];
+
+    va_start(args, format);
+    vsprintf(text, format, args);
+    va_end(args);
+
+    if (D_8007D02C != 0) {
+        if (D_8007D02C == 1) {
+            y -= 8;
+        } else {
+            y -= 104;
+        }
+        if (y >= 0 && y < 116) {
+            y *= 2;
+            goto draw;
+        }
+    } else {
+draw:
+        func_80046BCC(x, y, text);
+    }
+}
 /* PROVENANCE: body adapted from JFG src/diCpu.c::func_8006837C_68F7C. */
 void func_80046E00(void) {
     s32 pad;
