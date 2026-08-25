@@ -2154,20 +2154,10 @@ s32 func_80040878(CircularParticle *particle, s32 updateRate) {
 done:
     return 0;
 }
+/* Workbench: structure-mismatch, exact 302-word count but 0x70/0x68 frames; 160 words differ, first +0x0.
+ * Levers 11 and 26 tried local width/ablation, register hints, and short/long config carriers; none improved baseline.
+ * The 8-byte non-save excess and missing pool web still rotate temp lanes; PROVENANCE: adapted from DKR src/particles.c:update_line_particle and cross-checked against JFG's assembly-only sibling. */
 #ifdef NON_MATCHING
-/*
- * Frame-shape plateau: the best canonical-mips2 candidate emits 300 of the
- * target's 302 instructions with an 0x70 frame instead of 0x68. Alignment
- * needs seven insertions and nine deletions (no replacements); the first
- * substantive divergence preserves the trigger in t7 where the target
- * spills and reloads it, rotating the remaining temporary lanes. The full
- * flag lattice and a bounded permuter found no exact spelling.
- *
- * PROVENANCE: orientation and velocity-normalization structure adapted from
- * DKR src/particles.c:update_line_particle and cross-checked against JFG's
- * assembly-only particles sibling; point allocation and initialization are
- * reconstructed from Mickey evidence.
- */
 void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) {
     ParticleTypeDescriptor *descriptor;
     ParticleLineEntry *entry;
