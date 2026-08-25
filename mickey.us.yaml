@@ -1926,7 +1926,7 @@ segments:
     subsegments:
       - [0x18A3BF8, c, func_overlay_057_F0000000_18A3BF8]
       - [0x18A454C, c, overlay57UpdateInterface]
-      - [0x18A4C18, asm, overlay_057_prefix_b]
+      - [0x18A4C18, c, func_overlay_057_F0001020_18A4C18]
       - [0x18A5570, c, overlay57ReleaseAll]
       - [0x18A56E0, asm, overlay_057_prefix_a]
       - [0x18A64AC, c, overlay57EaseAndLatch]

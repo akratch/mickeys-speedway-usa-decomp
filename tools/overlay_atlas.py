@@ -772,7 +772,7 @@ TEXT_SUBSEGMENTS = {
     57: [
         (0x000, "c", "func_overlay_057_F0000000_18A3BF8"),
         (0x954, "c", "overlay57UpdateInterface"),
-        (0x1020, "asm", "overlay_057_prefix_b"),
+        (0x1020, "c", "func_overlay_057_F0001020_18A4C18"),
         (0x1978, "c", "overlay57ReleaseAll"),
         (0x1AE8, "asm", "overlay_057_prefix_a"),
         (0x28B4, "c", "overlay57EaseAndLatch"),
