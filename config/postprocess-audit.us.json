@@ -28,6 +28,18 @@
     {
       "class": "metadata",
       "matched_c": null,
+      "object": "build/src/main/lights.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/lights.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
       "object": "build/src/main/main.c.o",
       "offset": null,
       "overlay": null,
@@ -35,6 +47,18 @@
       "source": "src/main/main.c",
       "tools": [
         "objcopy"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
+      "object": "build/src/main/rcpFast3d.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/rcpFast3d.c",
+      "tools": [
+        "rebind_elf_relocations.py"
       ]
     },
     {
@@ -1156,7 +1180,9 @@
       "size": 332,
       "source": "src/overlays/o014/func_overlay_014_F00013F4_1870CCC.c",
       "tools": [
-        "trim_elf_section.py"
+        "filter_elf_relocations.py",
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -1192,6 +1218,7 @@
       "size": 508,
       "source": "src/overlays/o014/overlay14AdvanceCommand.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -1205,6 +1232,7 @@
       "size": 368,
       "source": "src/overlays/o014/overlay14ApplyValues.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -1442,6 +1470,7 @@
       "size": 196,
       "source": "src/overlays/o014/overlay14StepCommand.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -1455,6 +1484,8 @@
       "size": 340,
       "source": "src/overlays/o014/overlay14UpdateTransition.c",
       "tools": [
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -3235,7 +3266,9 @@
       "size": 224,
       "source": "src/overlays/o043/overlay43AllocateResources.c",
       "tools": [
-        "trim_elf_section.py"
+        "rebind_elf_relocations.py",
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -3272,7 +3305,10 @@
       "size": 236,
       "source": "src/overlays/o043/overlay43FlushPending.c",
       "tools": [
-        "trim_elf_section.py"
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -5117,6 +5153,8 @@
       "size": 216,
       "source": "src/overlays/o070/func_overlay_070_F0000000_18C91C8.c",
       "tools": [
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
         "trim_elf_section.py"
       ]
     },
@@ -5153,6 +5191,7 @@
       "size": 632,
       "source": "src/overlays/o071/func_overlay_071_F0000000_18C9B20.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "trim_elf_section.py"
       ]
     },
@@ -7511,9 +7550,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 609
+      "metadata": 611
     },
     "matched_c_bytes_with_postprocess": 396792,
-    "objects_with_postprocess": 609
+    "objects_with_postprocess": 611
   }
 }

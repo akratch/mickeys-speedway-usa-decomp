@@ -461,7 +461,6 @@ void lightUpdateObjects(void) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001953C.s")
-#ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c, with Mickey's trigonometry helper. */
 f32 func_80019934(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     f32 temp;
@@ -488,9 +487,6 @@ f32 func_80019934(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     }
     return arg0 * temp;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019934.s")
-#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6) {
     f32 temp_f0;

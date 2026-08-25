@@ -703,6 +703,11 @@ $(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # Both measured FP helpers in this TU require the R4300 multiply schedule.
 $(BUILD_DIR)/$(SRC_DIR)/main/lights.c.o: CFLAGS += -Wab,-r4300_mul
+# IDO rounds the five-entry switch table's 0x14-byte input section to 0x20;
+# discard only that trailing input-section padding before the linker lays out
+# the following shared resident rodata.
+$(BUILD_DIR)/$(SRC_DIR)/main/lights.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x14
 # The camera projection-depth dot product requires the R4300 multiply schedule.
 $(BUILD_DIR)/$(SRC_DIR)/main/camera.c.o: CFLAGS += -Wab,-r4300_mul
 
