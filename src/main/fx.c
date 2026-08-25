@@ -689,6 +689,9 @@ s32 func_8004AD34(void) {
     D_800D60A8 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
+/* Current-run plateau (2026-08-25): 119 flags, 10 scheduling/type forms, and
+ * a 40-minute permuter (best 500) leave 0xD8 vs owned 0xD0, 48 words, first
+ * +0x04; the post-mmFree pointer add forces a saved base and extra s7. */
 #ifdef NON_MATCHING
 /* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
 void func_8004AF68(void) {
