@@ -19,6 +19,7 @@
 typedef struct AudioSequencePlayer {
     u8 pad0[0x2C];
     s32 state;
+    u16 channelMask;
 } AudioSequencePlayer;
 
 typedef struct AudioSoundData {
@@ -106,6 +107,8 @@ extern void stop_ALSeqp(void *player);
 extern u16 amGetSfxCount(void);
 void amTuneStop(void);
 void amTuneSetVolume(u8 volume);
+void amTuneMuteChl(s32 channel);
+void amTuneUnmuteChl(s32 channel);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
                           f32 pitch, u8 arg5, void **handle);
 
@@ -216,7 +219,27 @@ void amAmbientResetFade(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000838.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000ABC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000B3C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000B48.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
+ * amTuneSetChlMask; body uses Mickey-only evidence.
+ */
+void func_80000B48(u16 channelMask) {
+    s32 channel;
+
+    if (D_80078D94 != 0) {
+        D_800BFA00 = channelMask;
+        return;
+    }
+    ((AudioSequencePlayer *)D_80078D60)->channelMask = channelMask;
+    for (channel = 0; channel < 16; channel++) {
+        if (channelMask & (1 << channel)) {
+            amTuneUnmuteChl(channel & 0xFF);
+        } else {
+            amTuneMuteChl(channel & 0xFF);
+        }
+    }
+}
+
 /* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
 void amTuneMuteChl(s32 channel) {
 }

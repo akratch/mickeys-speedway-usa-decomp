@@ -1954,6 +1954,7 @@ func_800005CC = 0x800005CC; // type:func size:0xF0 ROM 0x11cc tier-B (JFG amTune
 amTuneResetFade = 0x80000730; // type:func size:0xC ROM 0x1330 tier B (JFG role/order)
 amAmbientSetFade = 0x8000073C; // type:func size:0xF0 ROM 0x133c tier-B (JFG body/order role)
 amAmbientResetFade = 0x8000082C; // type:func size:0xC ROM 0x142c tier B (JFG role/order)
+func_80000B48 = 0x80000B48; // type:func size:0xA0 ROM 0x1748 tier-B (JFG amTuneSetChlMask name/order, external Mickey placeholder retained)
 amTuneMuteChl = 0x80000BE8; // type:func size:0x8 ROM 0x17e8 tier B (JFG role/order)
 amTuneUnmuteChl = 0x80000BF0; // type:func size:0x8 ROM 0x17f0 tier B (JFG role/order)
 amTuneSetChlVolume = 0x80000BF8; // type:func size:0x40 ROM 0x17f8 tier B (JFG role/order, ambiguous skeleton)
