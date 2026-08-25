@@ -250,6 +250,9 @@ s32 func_8005B978(GsSndPlayer *playerArg) {
  * src/lib/naudio/n_sndplayer.c (_n_handleEvent), with Mickey's event fields,
  * state layout, volume scaling, retrigger call and diagnostics reconstructed
  * from Mickey itself.
+ *
+ * NON_MATCHING plateau (2026-08-25): bare -g -mips2 is text-exact at 1,215/1,215 words; workbench reports only local-label and anonymous .rodata relocations.
+ * Promotion remains blocked by the 0x40 switch table still owned by the shared rodata split; this lane does not own mickey.us.yaml.
  */
 void func_8005BA40(GsSndEvent *event) {
     ALVoiceConfig config;

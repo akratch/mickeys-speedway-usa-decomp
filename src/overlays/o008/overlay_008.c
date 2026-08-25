@@ -925,9 +925,8 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0003368_18610C0.s")
 #endif
 
-/* NON_MATCHING p2: workbench structure-mismatch; 805/898 positional words differ,
- * first +0x0, with 901/898 instructions and 0xA0/0x80 frames. Levers 1, 6, 26:
- * the frame is derived; register was inert; narrowing/coalescing leaves structure. */
+/* NON_MATCHING plateau (2026-08-25): owner-mode first-use and block-scoped FP temps give -O2 -mips2 -Wo,-loopunroll,0 at +0x20, 749/898 words different, first +0x0.
+ * Workbench: structure-mismatch, frame 0xB0 vs 0x80; split/field-backed query, terrain-temp reuse, declaration order, register hints, and a 13,385-best permuter run did not close it. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                                       O8P34A0State *state, f32 limit,
@@ -951,14 +950,13 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
     s32 target;
     s32 steps;
     s32 remaining;
-    s16 outputAngle;
 
+    selectedMode = owner->mode3B;
     query.scratch18 = -1;
     query.scratch1C = -1;
     query.scratch20 = -1;
     query.scratch24 = -1;
     result = 0.0f;
-    selectedMode = owner->mode3B;
     selectedValue = 0.0f;
     blend = 0.0f;
 
@@ -1187,6 +1185,13 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
     func_overlay_008_F00049E8_1862740(owner, state, update);
 
     if (state->kind1 == 4) {
+        f32 strength;
+        f32 delta;
+        f32 trigA;
+        f32 trigB;
+        f32 factor;
+        s16 outputAngle;
+
         if ((state->motion4 < 0.0f) && (limit != 0.0f)) {
             if (state->motion4 < -limit) {
                 outputAngle = -0x3000;
@@ -1238,6 +1243,10 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
         *gOverlay8Buffer = state->output3F6;
         gOverlay8Buffer++;
     } else if (state->kind1 == 2) {
+        f32 strength;
+        f32 trigA;
+        f32 factor;
+
         if ((state->motion4 < 0.0f) && (limit != 0.0f)) {
             strength = -state->motion4 / limit;
             state->phase3EC += (update / 60.0f) * strength * 30.0f;
