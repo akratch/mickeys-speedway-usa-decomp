@@ -432,6 +432,9 @@ void func_overlay_008_F0000F1C_185EC74(Overlay8ActivationOwner *owner,
     overlay8FinalizeActivationReloc(owner, 0x17);
 }
 
+/* Plateau: canonical -O2 -mips2 -r4300_mul is 164/165 words with 159 positional differences, first +0x8 (unused a0 home).
+ * Signature, alias/first-use, control-flow/goto, volatile, register, and result-local variants did not reproduce retail a3 lifetime or rollover join.
+ * A 40-minute permuter's best score was 1000 by reordering independent phase-2 stores; no exact result. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F0001000_185ED58(void *unused, O8PhaseState *state, f32 input) {
     s32 nextCountdown;
