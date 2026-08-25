@@ -1912,16 +1912,7 @@ or emit OR. The assembly fallback remains canonical.
 | Function | Result |
 |---|---|
 | `font_codes_to_string` | Matched C: exact 176 B and two relocation sites at `-O2 -mips2 -32 -Wo,-loopunroll,0`; JFG `src/saves.c` donor with a reused bound local for the target allocation web |
-
-`string_to_font_codes` retains its paired JFG-derived `NON_MATCHING` body
-after the flag lattice and ten source, CFG, and type shapes. The donor loop is
-instruction-exact with ordinary resident flags, while this TU's required
-`-Wo,-loopunroll,0` removes the target's twelve-instruction four-byte padding
-expansion. Spelling the peel and four stores explicitly restores the exact
-47-instruction opcode and relocation shape, leaving five register-only words
-from one `$a0`/`$v0` web swap, first at function `+0x70`. The unavailable
-permuter import prevents a bounded automated declaration search; the assembly
-fallback remains canonical.
+| `string_to_font_codes` | Matched C: exact 188 B and two relocation sites at `-O2 -mips2 -32 -Wo,-loopunroll,0`; JFG `src/saves.c` donor with a padding carrier and shared bulk-clear CFG |
 
 ### 3.16 Particle and debug-print translation units
 
