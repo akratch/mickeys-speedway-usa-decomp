@@ -70,6 +70,7 @@ extern u8 D_80078D88;
 extern u8 D_80078D84;
 extern u8 D_80078D94;
 extern u8 D_80078D98;
+extern s8 D_80078DA0;
 extern u8 D_80078DB0;
 extern u8 D_80078DAC;
 extern u8 D_800BF794;
@@ -103,7 +104,26 @@ void amTuneSetVolume(u8 volume);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
                           f32 pitch, u8 arg5, void **handle);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000450.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amSetMuteMode. */
+void func_80000450(s32 behavior) {
+    switch (behavior) {
+        case 1:
+            gsSndpSetMasterVolume(0, 0);
+            gsSndpSetMasterVolume(1, 0x7FFF);
+            n_alCSPSetVol(D_80078D64, 0);
+            break;
+        case 2:
+            gsSndpSetMasterVolume(0, 0);
+            break;
+        default:
+            gsSndpSetMasterVolume(0, 0x7FFF);
+            gsSndpSetMasterVolume(1, 0x7FFF);
+            n_alCSPSetVol(D_80078D64, (s16)(gsSndpGetGlobalVolume() * D_80078D6C));
+            break;
+    }
+    D_80078DA0 = behavior;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000594.s")
 /* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amTuneSetFade. */
