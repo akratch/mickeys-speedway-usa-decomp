@@ -2500,20 +2500,12 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   index forms miss by 20 and 40 words. The valid permuter score improved from
   13,270 to 11,970 only by reusing a pointer alias on paths where it is
   uninitialized, so that candidate was rejected.
-- `mainThread`, five source/address hypotheses plus the full flag lattice,
-  first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
-  the exact 200-byte linked instruction stream, frame and control flow, but
-  its literal RAM-end address omits the target assembly's `D_803FFFFC`
-  HI16/LO16 pair at `+0x18`/`+0x28`. Every symbolic spelling adds an address
-  instruction and moves the aligned epilogue, growing the function by eight
-  words.
-- `mainUpdateZBCheck`, five loop/type hypotheses, the full flag lattice and a
-  bounded two-worker permuter batch, first mismatch `+0x24`: the best
-  Mickey-derived candidate has the exact `-0x48` frame and screen-size stack
-  slots but compiles to 60 rather than 63 instructions. IDO schedules the
-  outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
-  removes three dead-looking countdown-loop register copies retained by the
-  target.
+- `mainThread`: linked 200-byte body/frame exact; first object mismatch is the
+  `D_803FFFFC` relocation at `+0x18`. A one-word RAM struct retains the HI/LO
+  identity but, like prior symbolic forms, grows the body to 58 instructions.
+- `mainUpdateZBCheck`: exact `-0x48` frame and 60/63 words; first `+0x24`.
+  A fresh `u16 *` row reaches 61 words but differs in 45; explicit global
+  pointers spill to a `-0x50` frame, so the prior byte-pointer body remains.
 - `func_80027D14`, eight control-flow/register-lifetime hypotheses, the full
   flag lattice and a bounded two-worker permuter batch, first mismatch `+0x0`:
   the best Mickey-derived interpolation candidate compiles to 92 rather than
@@ -2538,20 +2530,12 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   allocation divergence (`$a2` rather than `$a3`). The permuter improved its
   MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
   canonical MIPS II recompilation added two instructions, so it was rejected.
-- `joyResetMap`, first mismatch `+0x0`: external storage emits 48 rather than
-  36 bytes; TU-local storage is instruction-exact but wrongly claims 16 B of
-  BSS and shifts the real symbol. A fresh descending scalar-extern probe kept
-  the correct four relocation identities but still materialized four address
-  pairs, and weak tentative definitions retained the same 16 B BSS claim; the
-  repeated 119-combination flag lattice did not improve the valid candidate.
-- `func_80028FCC`, thirteen structural/ABI spellings, first mismatch `+0x1c`:
-  its 108-byte skeleton
-  identifies the tier-B `mainAnyoneHas` role (JFG: 108 B, similarity 0.357),
-  but Mickey passes zero as every middle argument. The exact-sized candidate
-  differs in ten words: raw-return branches versus target normalization into
-  `$t6`/`$t7`/`$t8` and a shared epilogue. A fresh old-style call declaration,
-  logical-OR spelling, explicit boolean lifetimes, and the full flag lattice
-  did not improve that result.
+- `joyResetMap`: typed external map emits 12/9 words, first mismatch `+0x4`.
+  A same-TU definition is text-exact but invalidly claims 16 B of BSS; scalar
+  externs preserve storage but materialize four separate address pairs.
+- `func_80028FCC`: exact 108-byte/27-word body, ten words differ, first `+0x1c`.
+  Raw-return branches replace target `$t6`/`$t7`/`$t8` normalization; pointer
+  return ABI was identical, while register-volatile storage added five words.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime
