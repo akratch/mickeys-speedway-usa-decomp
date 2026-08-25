@@ -695,7 +695,22 @@ f32 camGetProjZ(f32 x, f32 y, f32 z) {
     return out;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024978.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024AC4.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStartShake. */
+void camStartShake(s32 camNo, f32 attack, f32 sustain, f32 decay,
+                   s32 magnitude) {
+    CameraShake *shake;
+
+    if ((camNo >= 0) && (camNo < 6)) {
+        shake = &D_800CEC18[camNo];
+        shake->attackEnd = (s16) (s32) (attack * 60.0f);
+        shake->sustainEnd =
+            (s16) (shake->attackEnd + (s32) (sustain * 60.0f));
+        shake->totalEnd =
+            (s16) (shake->sustainEnd + (s32) (decay * 60.0f));
+        shake->timer = 0;
+        shake->magnitude = magnitude;
+    }
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStopShakes. */
 void camStopShakes(void) {
     s32 i;
