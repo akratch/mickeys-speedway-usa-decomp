@@ -9,8 +9,8 @@ relocation, and derives two tracked artifacts from that one model:
   campaign-priority metadata.  It contains addresses and counts, never ROM
   bytes or disassembly.
 * the generated overlay block in ``mickey.us.yaml`` -- one independent code
-  segment per non-empty module, with text emitted as assembly and the combined
-  data/rodata and relocation tails retained as exact binary ranges.
+  segment per non-empty module, with unowned initialized ranges and relocation
+  tails retained as exact binary ranges.
 
 The shipped ``vramBase`` is zero for every module.  Splat is given one common
 synthetic VMA whose high nibble does not alter a MIPS J-type target field.  A
@@ -98,6 +98,7 @@ DATA_RODATA_OWNERSHIP = {
     # row: its compiled .data is linked before any remaining raw initialized
     # tail, so no duplicate C subsegment is emitted at the section boundary.
     42: [(0x0, 0x10, "overlay_042")],
+    77: [(0x0, 0x30, "overlay_077")],
 }
 
 TEXT_SUBSEGMENTS = {
@@ -1024,6 +1025,8 @@ TEXT_SUBSEGMENTS = {
     ],
 }
 
+# Reviewed initialized-section ownership. These overlays reproduce their full
+# data/rodata range from ordinary definitions in an existing C translation
 # A consolidated C object can contain both untouched, byte-exact C functions
 # and GLOBAL_ASM fallbacks. `is_nonmatching_source()` intentionally remains a
 # conservative object-level signal, while these reviewed ranges retain the
@@ -1503,6 +1506,11 @@ def build_atlas(rom):
                 for part in row.get("mixed_tu_exact_c_ranges", [])
             ),
             "data_rodata_bytes": sum(m["data_size"] for m in modules),
+            "owned_data_rodata_bytes": sum(
+                int(part["size"], 16)
+                for row in module_rows
+                for part in row.get("data_rodata_ownership", [])
+            ),
             "bss_bytes": sum(m["bss_size"] for m in modules),
             "module_rom_bytes": sum(m["rom_end"] - m["rom_start"] for m in modules),
             "resident_relocations": len(resident_relocs),
@@ -1598,6 +1606,8 @@ def render_yaml_block(atlas):
         for section, suffix in (("reloc1", "_reloc1"), ("reloc2", "_reloc2")):
             section_row = row["sections"][section]
             if section_row["size"] == "0x0":
+                continue
+            if section == "data_rodata" and row.get("data_rodata_ownership"):
                 continue
             lines.append(
                 f"      - [{section_row['start']}, bin, {name}{suffix}]"

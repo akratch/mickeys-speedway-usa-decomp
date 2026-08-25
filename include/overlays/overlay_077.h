@@ -68,13 +68,11 @@ typedef struct Overlay77Init {
     s16 angle;
 } Overlay77Init;
 
-/* gOverlay77Handle is declared separately in overlay_077.c (plain s32,
- * matching overlay77Init/overlay77Update's original per-file declaration)
- * and overlay_077_tail.c (volatile s32, matching the tail's original
- * declaration): the qualifier changes which bytes IDO emits, so it can't
- * be unified into one shared declaration without moving one function's
- * bytes off the ROM. See overlay_077.c's file comment. */
-extern s32 gOverlay77Count;
+/* gOverlay77Handle is defined as plain s32 in overlay_077.c, matching
+ * overlay77Init/overlay77Update's original per-file declaration, and
+ * redeclared volatile in overlay_077_tail.c, matching the tail's original
+ * declaration. The qualifier changes which bytes IDO emits, so it can't be
+ * unified in this shared header. See overlay_077.c's file comment. */
 extern s32 gOverlay77Selection;
 extern void *gOverlay77CallbackArgument;
 extern s32 gOverlay77Sequence;
