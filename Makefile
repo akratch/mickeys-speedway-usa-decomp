@@ -723,12 +723,6 @@ $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 # the flag lattice selects this setting before any source permutation.
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 
-# free_rain_memory needs a no-argument declaration for the shared dangling-
-# jump trap while rain_update needs its four-argument float prototype. IDO
-# cannot keep both declarations in one TU, so compile the no-argument spelling
-# and restore the canonical relocation symbol without changing instructions.
-$(BUILD_DIR)/$(SRC_DIR)/main/weather.c.o: POSTPROCESS = $(OBJCOPY) --redefine-sym rainFreeTrap=TrapDanglingJump $@
-
 # The saves slot-reset loop is scalar in the target; the 119-combination flag
 # lattice otherwise expands four 0x20-byte records into each loop iteration.
 $(BUILD_DIR)/$(SRC_DIR)/main/saves.c.o: CFLAGS += -Wo,-loopunroll,0
@@ -795,6 +789,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchSound.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchWaveTable.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x6C
+
+# rain_init, free_rain_memory and rain_update call the same unresolved resident
+# target through different integer and float ABIs.  The source alias preserves IDO's shipped
+# integer call sequence; canonicalize only that undefined symbol's name so the
+# relocation identity agrees too.  No section contents are changed.
+$(BUILD_DIR)/$(SRC_DIR)/main/weather.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym rainInitTrap=TrapDanglingJump $@ && \
+	$(OBJCOPY) --redefine-sym rainFreeTrap=TrapDanglingJump $@
+
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay_005.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_005_F000031C_185B744=overlay5InitializeAudio $@ && \
@@ -1066,6 +1069,10 @@ $(O8_OBJ): POSTPROCESS = \
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym \
+		ext_o0_1353c=func_overlay_009_F0000000_1866678 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		ext_o0_7cd8=func_overlay_009_F0000000_1866678 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1520 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
 		00000000000000000000000000000000000000000000000000000000000000003ca3d70a3d99999a3ccccccd3d4ccccd3dcccccd43b680003f733333bc23d70a3c23d70abecccccdbdcccccd00000000
@@ -1181,7 +1188,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14DispatchCommand.c.o: POSTPROCESS 
 	$(OBJCOPY) --redefine-sym func_overlay_014_F0001040_1870918=overlay14DispatchCommand $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x124
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14BuildRects.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_014_F00012D8_1870BB0=overlay14BuildRects $@ && \
+	$(OBJCOPY) --redefine-sym \
+		overlay14SubmitRectsReloc=func_overlay_014_F0000000_186F8D8 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36CallGlobal.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30

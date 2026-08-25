@@ -563,11 +563,10 @@ void lightSetupFlareSources(FlareObject *object) {
         object->flares[i] = camlightAdd(object, &object->header->flares[i]);
     }
 }
-#ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightInitObjectLighting.s, with Mickey's layout. */
 s32 func_8001A008(LightingObject *object, LightInitState *state) {
-    LightLevelData *level;
     s32 result;
+    LightLevelData *level;
     s32 mode;
     LightInitHeader *header;
 
@@ -605,9 +604,6 @@ s32 func_8001A008(LightingObject *object, LightInitState *state) {
     }
     return (result & ~3) + 4;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A008.s")
-#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightAdjustGlowingLight.s, with Mickey's constants and offsets. */
 void func_8001A154(GlowObject *object) {
