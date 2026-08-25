@@ -48,6 +48,39 @@ typedef struct TrackFloatRecord {
     f32 unkC;
 } TrackFloatRecord;
 
+typedef struct TrackTextureHeader {
+    u8 pad00[0x10];
+    u16 numOfTextures;
+    u16 frameAdvanceDelay;
+} TrackTextureHeader;
+
+typedef struct TrackTextureEntry {
+    TrackTextureHeader *texture;
+    u32 pad04;
+} TrackTextureEntry;
+
+typedef struct TrackBatch {
+    u8 textureIndex;
+    u8 pad01[9];
+    u16 frame;
+    u32 flags;
+} TrackBatch;
+
+typedef struct TrackSegment {
+    u8 pad00[0xC];
+    TrackBatch *batches;
+    u8 pad10[0x24 - 0x10];
+    s16 batchCount;
+    u8 pad26[0x40 - 0x26];
+} TrackSegment;
+
+typedef struct TrackData {
+    TrackTextureEntry *textures;
+    TrackSegment *segments;
+    u8 pad08[0x1A - 0x08];
+    s16 segmentCount;
+} TrackData;
+
 extern TrackRotation *D_800C9530;
 extern TrackCachedPoint D_800C9B40;
 extern Gfx *D_800C9520;
@@ -56,15 +89,47 @@ extern u32 D_800C9B50[16];
 extern s32 D_800792FC;
 extern u8 D_8007BEF4;
 extern s16 D_800C9570;
+extern TrackData *D_800792E8;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
                           f32 *outX, f32 *outY, f32 *outZ);
 ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
+void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
+                   s32 updateRate);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BD50.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BDB4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C400.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `func_800129AC_135AC`. Mickey proves the revised segment and texture layouts
+ * and flag bit; the donor's placeholder name is not imported.
+ */
+void func_8000C400(s32 updateRate) {
+    s32 segmentNumber;
+    TrackTextureHeader *texture;
+    s32 batchNumber;
+    TrackBatch *batch;
+    TrackSegment *segments;
+    s32 frame;
+
+    segments = D_800792E8->segments;
+    for (segmentNumber = 0; segmentNumber < D_800792E8->segmentCount; segmentNumber++) {
+        batch = segments[segmentNumber].batches;
+        for (batchNumber = 0; batchNumber < segments[segmentNumber].batchCount; batchNumber++) {
+            if (batch[batchNumber].flags & 0x100000) {
+                if (batch[batchNumber].textureIndex != 0xFF) {
+                    texture = D_800792E8->textures[batch[batchNumber].textureIndex].texture;
+                    if ((texture->numOfTextures != 0x100) && (texture->frameAdvanceDelay != 0)) {
+                        frame = batch[batchNumber].frame;
+                        func_800367E8(texture, &batch[batchNumber].flags, &frame, updateRate);
+                        batch[batchNumber].frame = frame;
+                    }
+                }
+            }
+        }
+    }
+}
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
  * `initSky`. Mickey adds the player-count guard and proves its own object-field

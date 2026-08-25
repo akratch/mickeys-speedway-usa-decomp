@@ -863,6 +863,7 @@ Matched C in this TU:
 
 | Function | ROM | Bytes | Flags | Donor and verdict |
 |---|---:|---:|---|---|
+| `func_8000C400` | `0xD000` | 0x140 | `-O2 -mips2 -32` | JFG texture-animation loop at the established tier-D TU position, revised to Mickey's segment, batch, texture, and flag layout; donor placeholder deliberately not adopted; 80/80 instruction words and all five relocation records exact, linked ROM exact |
 | `func_8000C540` | `0xD140` | 0xA8 | `-O2 -mips2 -32` | JFG `initSky` body structure at the established tier-D TU position, with Mickey's player-count guard and object layout; public name deliberately not adopted; 42/42 instruction words and all 11 relocation records exact, linked ROM exact |
 | `trackSkySet` | `0xD1E8` | 0xC | `-O2 -mips2 -32` | JFG `src/track.c` body; tier B role and tier D TU position; 3/3 instruction words and relocation layout exact, linked ROM exact |
 | `func_8000D00C` | `0xDC0C` | 0xC | `-O2 -mips2 -32` | Mickey reconstruction; JFG's corresponding `trackGetSky` is only tier D and is deliberately not adopted; 3/3 instruction words and relocation layout exact, linked ROM exact |
