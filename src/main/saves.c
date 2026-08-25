@@ -16,6 +16,7 @@ extern u8 D_8007A2F8;
 extern u8 D_8007A2F0;
 extern u8 D_8007A2F4;
 extern u8 D_8007A2E4;
+extern u8 D_8007A300;
 extern s32 D_8007A2E8;
 extern s32 D_8007A2FC;
 extern s32 D_8007A31C;
@@ -83,7 +84,8 @@ typedef struct SavesGameWriteState {
 
 typedef struct RumbleState {
     u8 state;
-    u8 pad01[2];
+    u8 pad01;
+    u8 status;
     u8 flag;
     s16 strength;
     s16 unk6;
@@ -98,6 +100,7 @@ SavesSlot *func_800291C4(void);
 u8 joyGetController(s32 controllerIndex);
 extern RumbleState D_800D2368[];
 s32 osContStartReadData(OSMesgQueue *messageQueue);
+s32 osMotorInit(OSMesgQueue *messageQueue, OSPfs *pfs, s32 channel);
 extern s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data,
                         s32 dataLength);
 void rumbleStop(s32 controllerIndex, s32 arg1);
@@ -199,7 +202,37 @@ void rumbleKill(s32 arg0) {
 void rumbleUpdate(void) {
     D_8007A2F0 = 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002BF54.s")
+void func_8002BF54(s32 clearMask, s32 initMask) {
+    RumbleState *rumble;
+    s32 i;
+    s32 controllerMask;
+
+    i = 0;
+    controllerMask = 1;
+    rumble = D_800D2368;
+    do {
+        if (clearMask & controllerMask) {
+            rumble->state = 0;
+            rumble->status = 0;
+            rumble->strength = 0;
+            rumble->unk6 = 0;
+            rumble->rumbleTime = 0;
+            rumble->timer = 0;
+            rumble->unkC = 30;
+            D_8007A2E4 &= ~controllerMask;
+        }
+        if ((initMask & controllerMask) && (D_8007A300 & controllerMask)) {
+            rumble->status = 1;
+            if (osMotorInit(D_800D21C0, &D_800D21C8[i], i) == 0) {
+                rumble->status |= 2;
+                D_8007A2E4 |= controllerMask;
+            }
+        }
+        controllerMask *= 2;
+        i++;
+        rumble++;
+    } while (i != 4);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleTick.s")
 void func_8002C5F4(void) {
     D_8007A2E8 = 0;

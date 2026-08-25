@@ -1298,7 +1298,8 @@ Exact C reconstructions in this census currently include the still-unnamed
 `0x2C958`, 80 bytes), `rumbleStart` (ROM `0x2C958`–`0x2CA74`, 284 bytes),
 `rumbleStop` (ROM `0x2CA74`–`0x2CB00`, 140 bytes),
 `rumbleKill` (ROM `0x2CB00`–`0x2CB44`, 68 bytes), `rumbleUpdate` (ROM
-`0x2CB44`–`0x2CB54`, 16 bytes),
+`0x2CB44`–`0x2CB54`, 16 bytes), the still-unnamed rumble reinitializer
+`func_8002BF54` (ROM `0x2CB54`–`0x2CC98`, 324 bytes),
 `packCalculateGameChecksum` (ROM `0x2D3BC`–
 `0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
