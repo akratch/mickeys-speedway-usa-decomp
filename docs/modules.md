@@ -603,7 +603,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots` |
 | `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
-| `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range |
+| `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
 | `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records |
 | `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
 | `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
@@ -638,6 +638,9 @@ selection, using the body adapted from JFG `src/memory.c`.
 `func_8002B93C` is exact for all `0x3C` bytes with canonical flags; its queue
 address, delay, and count accesses reproduce the JFG `mempool_free_queue`
 role without the donor's diagnostic overflow branch.
+`func_8002B978` is exact for all `0x58` bytes with canonical flags. Its reverse
+pool-table scan is adapted from JFG `mempool_get_pool` and preserves Mickey's
+pool count and 16-byte record layout.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a

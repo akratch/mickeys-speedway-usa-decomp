@@ -84,8 +84,25 @@ void func_8002B93C(void *dataAddress) {
     D_800D21A8++;
 }
 
-/* JFG correspondence: mempool_get_pool (tier B; address-to-pool search). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B978.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mempool_get_pool. */
+extern MemoryPool D_800D1C60[];
+extern s32 D_800D1CA0;
+
+s32 func_8002B978(u8 *address) {
+    s32 i;
+    MemoryPool *pool;
+
+    for (i = D_800D1CA0; i > 0; i--) {
+        pool = &D_800D1C60[i];
+        if ((u8 *)pool->slots >= address) {
+            continue;
+        }
+        if (address < pool->size + (u8 *)pool->slots) {
+            break;
+        }
+    }
+    return i;
+}
 
 /* JFG correspondence: mempool_slot_clear (tier B; frees/coalesces a slot). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B9D0.s")
