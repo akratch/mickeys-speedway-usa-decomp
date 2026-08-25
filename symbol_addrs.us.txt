@@ -2543,6 +2543,7 @@ camGetNo = 0x80021964; // type:func size:0x0C ROM 0x22564 tier-D matched-C JFG T
 func_80021970 = 0x80021970; // type:func size:0x24 ROM 0x22570 tier-D matched-C Mickey auto-name retained, indexed camera-array getter
 camSetNo = 0x80021994; // type:func size:0x0C ROM 0x22594 tier-D matched-C JFG TU order, Mickey raw active-camera update
 camGetWaterLine = 0x800219A0; // type:func size:0x10 ROM 0x225a0 tier-D matched-C JFG TU order, water-line state read
+func_800219D0 = 0x800219D0; // type:func size:0x1A0 ROM 0x225D0 tier-D matched-C DKR viewport-stack body, JFG camUserViewTick role/order
 camEnableUserView = 0x80021B70; // type:func size:0x74 ROM 0x22770 tier-D matched-C JFG TU role/order and viewport-flag dataflow
 camDisableUserView = 0x80021BE4; // type:func size:0x78 ROM 0x227E4 tier-D matched-C JFG TU role/order and viewport-flag dataflow
 camIsUserView = 0x80021C5C; // type:func size:0x2C ROM 0x2285C tier-D matched-C JFG TU role/order
