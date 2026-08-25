@@ -287,26 +287,35 @@ typedef struct CircularParticle {
     f32 renderX;
     f32 renderY;
     f32 renderZ;
-    u8 pad18[0x14];
+    u8 pad18[0x10];
+    f32 textureFrame;
     s16 type;
     u8 kind;
     u8 pad2F;
     f32 x;
     f32 y;
     f32 z;
-    u8 pad3C[0x0C];
+    u8 pad3C[8];
+    u8 *colorTable;
     void *parent;
     void *resource;
     s32 flags;
     u8 pad54[4];
     ParticleTrigger *trigger;
-    u8 pad5C[0x13];
-    u8 intensity;
-    u8 pad70;
+    s16 lifetime;
+    u8 pad5E[6];
+    s16 intensity;
+    s16 intensityVelocity;
+    s16 intensityTimer;
+    s16 colorIndex;
+    s16 colorTimer;
+    u8 colorCount;
+    u8 pad6F[2];
     u8 red;
     u8 green;
     u8 blue;
-    u8 pad74[4];
+    u8 pad74[3];
+    u8 updateTexture;
 } CircularParticle;
 
 typedef struct ParticleRenderTransform {
@@ -388,6 +397,7 @@ void mmFree(void *ptr);
 void func_800347A0(void *resource);
 void func_800359D4(void *resource);
 void modFreeModel(void *resource);
+void func_80036544(void *texture, void *state, s32 speed, f32 *frame, s32 updateRate);
 void mathOneFloatPY(void *rotation, void *vector);
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void *piRomLoad(s32 assetId);
@@ -420,6 +430,11 @@ void func_8003CD28(ParticleResourceList **listPtr);
 void func_8003CCE4(void);
 void *func_8003FB98(s32 arg0, ParticleTrigger *trigger, s32 arg2);
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry);
+void func_80041FEC(BasicParticle *particle);
+void func_800420E0(BasicParticle *particle);
+void func_800421F4(BasicParticle *particle);
+void func_8004233C(BasicParticle *particle);
+void func_800423EC(BasicParticle *particle);
 extern u8 D_7C900[];
 
 /* PROVENANCE: body adapted from DKR src/particles.c:reset_particles. */
@@ -1225,7 +1240,99 @@ void func_80040740(CircularParticle *particle) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040740.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040878.s")
+/*
+ * PROVENANCE: body adapted from DKR src/particles.c:particle_update and
+ * cross-checked against JFG asm/nonmatchings/particles/func_80061228_61E28.s.
+ * Mickey's resource-update and colour-table paths are reconstructed from its
+ * own evidence.
+ */
+s32 func_80040878(CircularParticle *particle, s32 updateRate) {
+    s32 flags;
+
+    flags = particle->flags;
+    if (flags & 0x80000) {
+        particle->flags = flags & ~0x80000;
+        return 0;
+    }
+
+    D_800D4140 = updateRate;
+    flags = particle->flags;
+    if (flags & 0x20000) {
+        particle->flags = flags ^ 0x20000;
+        if (particle->kind == 3) {
+            D_800D4140 = 0;
+            func_800420E0((BasicParticle *)particle);
+            D_800D4140 = updateRate;
+        }
+        goto done;
+    }
+
+    if (particle->type == 5) {
+        goto done;
+    }
+
+    particle->lifetime -= D_800D4140;
+    if (particle->lifetime <= 0) {
+        func_80040740(particle);
+        return 1;
+    }
+
+    if (particle->type == 2 && (particle->flags & 1)) {
+        func_80036544(particle->resource, &particle->flags, particle->updateTexture,
+                      &particle->textureFrame, D_800D4140);
+    } else if (particle->type == 1 || particle->type == 0) {
+        if (particle->resource != NULL) {
+            func_800367A4(particle->resource, &particle->flags, particle->updateTexture,
+                          &particle->textureFrame, D_800D4140);
+        }
+    }
+
+    if (particle->kind == 2) {
+        func_800421F4((BasicParticle *)particle);
+    } else if (particle->kind == 3) {
+        func_800420E0((BasicParticle *)particle);
+    } else if (particle->kind == 4) {
+        func_80041FEC((BasicParticle *)particle);
+    } else if (particle->kind == 5) {
+        func_800423EC((BasicParticle *)particle);
+    } else {
+        func_8004233C((BasicParticle *)particle);
+    }
+
+    if (particle->flags & 0x400) {
+        if (particle->colorTimer == 0) {
+            particle->colorIndex += D_800D4140;
+            while (particle->colorIndex >= particle->colorCount) {
+                particle->colorIndex -= particle->colorCount;
+            }
+            particle->red = particle->colorTable[particle->colorIndex * 4];
+            particle->green = particle->colorTable[(particle->colorIndex * 4) + 1];
+            particle->blue = particle->colorTable[(particle->colorIndex * 4) + 2];
+        } else {
+            particle->colorTimer -= D_800D4140;
+            if (particle->colorTimer < 0) {
+                particle->colorIndex -= particle->colorTimer;
+            }
+        }
+    }
+
+    if (particle->intensityTimer == 0) {
+        particle->intensity += D_800D4140 * particle->intensityVelocity;
+    } else {
+        particle->intensityTimer -= D_800D4140;
+        if (particle->intensityTimer < 0) {
+            particle->intensity -= particle->intensityTimer * particle->intensityVelocity;
+            particle->intensityTimer = 0;
+        }
+    }
+
+    if (particle->trigger != NULL) {
+        particle->trigger->unk0C += updateRate;
+        func_8003EF80((ParticleObject *)particle, (ParticleTriggerSlot *)particle->trigger);
+    }
+done:
+    return 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040B88.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041040.s")
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_80062A4C.s; body reconstructed from Mickey evidence. */
