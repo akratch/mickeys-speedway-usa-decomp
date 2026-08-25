@@ -15,6 +15,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/math.h"
 
 typedef struct AudioPoint {
     f32 x;
@@ -39,8 +40,12 @@ typedef struct AudioSoundData {
 extern AudioSoundData *D_800C91E0;
 extern AudioPoint **D_800C91E4;
 extern s8 D_800C91F4;
+extern MtxF D_800C91F8;
 extern u16 D_80078F00;
 void amAmbientStop(void);
+void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z, f32 *outX, f32 *outY, f32 *outZ);
+s32 Arctanf(f32 x, f32 z);
+s32 mainGetNumberOfCameras(void);
 void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5, u8 volume, u16 distance, u8 arg8,
                    u8 pitch, u8 argA, u8 argB, AudioPoint **point);
 void func_800037C4(s32 index);
@@ -59,7 +64,31 @@ void amAmbientRestart(void) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002768.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002E88.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amCalcSfxStereo. */
+s32 amCalcSfxStereo(f32 x, f32 y, f32 z) {
+    s16 arctan;
+    s32 result;
+    f32 transformedX;
+    f32 transformedY;
+    f32 transformedZ;
+
+    if (mainGetNumberOfCameras() >= 2) {
+        return 64;
+    }
+    mtxf_transform_point(D_800C91F8, x, y, z, &transformedX, &transformedY, &transformedZ);
+    arctan = Arctanf(transformedX, transformedZ);
+    if (arctan >= -0x2000 && arctan <= 0x2000) {
+        result = 64 + ((arctan * 0x3F) / 8192);
+    } else if (arctan < -0x2000 && arctan > -0x6000) {
+        result = (64 + ((s32)((-arctan * 0x3F) + 0xFFE86000) / 16384)) | 0xFF000000;
+    } else if (arctan > 0x2000 && arctan < 0x6000) {
+        result = (64 + (((-arctan * 0x3F) + 0x17A000) / 16384)) | 0xFF000000;
+    } else {
+        result = 64 | 0xFF000000;
+    }
+    return result;
+}
+
 /* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amSndPlayXYZ. */
 void func_80002FE0(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, AudioPoint **point) {
     if (D_800C91E0[soundId].soundBite != 0 && (point == NULL || *point == NULL)) {
