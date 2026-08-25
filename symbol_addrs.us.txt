@@ -588,6 +588,7 @@ rain_lightning = 0x8003C248; // type:func size:0x128 tier-D, ROM 0x3ce48  matche
 rain_sound = 0x8003C370; // type:func size:0xC0 tier-D, ROM 0x3cf70  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/48
 snow_update = 0x8003C430; // type:func size:0x144 tier-D, ROM 0x3d030
 snow_vertices = 0x8003C574; // type:func size:0x1FC tier-D, ROM 0x3d174
+func_8003C770 = 0x8003C770; // type:func size:0x9C tier-D, ROM 0x3d370  matched C src/main/weather_tail.c.o -O2 -mips2 -32, Mickey-only reconstruction, linked exact=39/39
 
 // main/particles, ROM 0x3D5F0-0x43470.
 //

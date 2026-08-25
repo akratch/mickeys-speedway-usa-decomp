@@ -1245,7 +1245,7 @@ the candidates remain preserved behind `NON_MATCHING`.
 | `0x3CF70` | `0xC0` | `rain_sound` | B/D name; exact C, 48 words, 13 relocs |
 | `0x3D030` | `0x144` | `snow_update` | B/D; handwritten asm |
 | `0x3D174` | `0x1FC` | `snow_vertices` | B/D; odd-FP handwritten asm |
-| `0x3D370` | `0x9C` | `func_8003C770` | unresolved |
+| `0x3D370` | `0x9C` | `func_8003C770` | D; Mickey-only reconstruction, exact C, 39 words, 15 relocs |
 | `0x3D40C` | `0x1E4` | `func_8003C80C` | unresolved |
 
 There are no string references. `snow_vertices` is the range's only function
