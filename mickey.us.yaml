@@ -2493,7 +2493,7 @@ segments:
     subsegments:
       - [0x18D04E0, c, overlay84InitState]
       - [0x18D0528, c, overlay84InitializeAndUpdate]
-      - [0x18D07F4, asm, overlay_084_prefix]
+      - [0x18D07F4, c, func_overlay_084_F0000314_18D07F4]
       - [0x18D0F34, c, overlay84UpdateResource]
       - [0x18D0FDC, c, overlay84ResetCurrent]
       - [0x18D105C, c, overlay84RefreshCurrent]

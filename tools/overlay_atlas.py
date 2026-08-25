@@ -585,7 +585,7 @@ TEXT_SUBSEGMENTS = {
     84: [
         (0x0000, "c", "overlay84InitState"),
         (0x0048, "c", "overlay84InitializeAndUpdate"),
-        (0x0314, "asm", "overlay_084_prefix"),
+        (0x0314, "c", "func_overlay_084_F0000314_18D07F4"),
         (0x0A54, "c", "overlay84UpdateResource"),
         (0x0AFC, "c", "overlay84ResetCurrent"),
         (0x0B7C, "c", "overlay84RefreshCurrent"),
