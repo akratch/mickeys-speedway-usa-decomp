@@ -248,7 +248,32 @@ void func_800203E0(ObjectModel *model) {
         func_8002057C(&model->unk6C, model, 4, 0, 0, 0xFF, 0);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_800204B8.s")
+/* Mickey-only reconstruction; JFG supplied no adoptable helper name or body. */
+void func_800204B8(ObjectModel *model) {
+    s32 offset;
+    s32 i;
+
+    offset = 0;
+    i = 0;
+    if (model->numberOfTextures > 0) {
+        do {
+            if (((ModelTexture *)((u8 *)model->textures + offset))->texture != NULL) {
+                func_800347A0(((ModelTexture *)((u8 *)model->textures + offset))->texture);
+                ((ModelTexture *)((u8 *)model->textures + offset))->texture = NULL;
+            }
+            i++;
+            offset += sizeof(ModelTexture);
+        } while (i < model->numberOfTextures);
+    }
+    if (model->unk68 != NULL) {
+        mmFree(model->unk68);
+        model->unk68 = NULL;
+    }
+    if (model->unk6C != NULL) {
+        mmFree(model->unk6C);
+        model->unk6C = NULL;
+    }
+}
 /*
  * PROVENANCE -- name follows JFG's public models.c symbol at the same TU
  * position. The body is reconstructed from Mickey's three instructions.
