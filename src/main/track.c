@@ -195,7 +195,7 @@ void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
                    s32 updateRate);
 s32 runlinkIsModuleLoaded(s32 module);
 void TrapDanglingJump(s32 updateRate);
-void func_80022A50(Gfx **displayList, Mtx **matrix);
+void camStandardOrtho(Gfx **displayList, Mtx **matrix);
 void func_80034920(Gfx **displayList);
 void func_800349A4(Gfx **displayList, void *texture, s32 mode, s32 flags);
 void func_800221E8(Gfx **displayList, Mtx **matrix);
@@ -205,7 +205,7 @@ void func_80021FB0(s32 mode, s32 camera, s32 *left, s32 *bottom,
                    u32 *right, u32 *top);
 void viGetCurrentSize(s32 *width, s32 *height);
 void *func_800348D4(TrackTextureHeader *texture, s32 frame);
-TrackCamera *func_8002462C(void);
+TrackCamera *camGetPtr(void);
 f32 func_8002A8BC(s32 angle);
 f32 func_8002A8C0(s32 angle);
 
@@ -326,7 +326,7 @@ void func_8000C5F4(void) {
 
     vertices = D_800C9528;
     triangles = D_800C952C;
-    camera = func_8002462C();
+    camera = camGetPtr();
     texture = D_800792EC->skyTexture;
     D_800C9570 = -1;
 
@@ -458,7 +458,7 @@ void func_8000CC78(void) {
 
     vertices = D_800C9528;
     D_800C9570 = -1;
-    func_80022A50(&D_800C9520, &D_800C9524);
+    camStandardOrtho(&D_800C9520, &D_800C9524);
     func_80034920(&D_800C9520);
     func_800349A4(&D_800C9520, NULL, 8, 0);
 

@@ -246,9 +246,9 @@ extern void func_80009E78(MenuCommand **commands, void **matrices,
 extern void func_80023F84(MenuCommand **commands, void **matrices,
                           void **vertices, void *transform, void *object,
                           s32 arg5, s32 arg6);
-extern void func_800244EC(MenuCommand **commands, void **matrices,
+extern void camPushModelMtx(MenuCommand **commands, void **matrices,
                           void *transform, f32 scale, f32 extra);
-extern void func_8002460C(MenuCommand **commands);
+extern void camPopModelMtx(MenuCommand **commands);
 
 #ifdef NON_MATCHING
 /* Exact-size and exact-frame plateau: 6/74 words differ, first at +0xDC.
@@ -1125,7 +1125,7 @@ void func_80039E34(s32 index) {
         renderObject = D_800D31C8[current->index];
         if (renderObject->resource->unk4E == 0) {
             stack.spAC = renderObject;
-            func_800244EC(&D_800D3140, &D_800D3144, &stack.sp7C, 1.0f,
+            camPushModelMtx(&D_800D3140, &D_800D3144, &stack.sp7C, 1.0f,
                           0.0f);
             command = D_800D3140;
             D_800D3140 = command + 1;
@@ -1141,7 +1141,7 @@ void func_80039E34(s32 index) {
             D_800D3140 = command + 1;
             command->w1 = 0;
             command->w0 = 0xBF000000;
-            func_8002460C(&D_800D3140);
+            camPopModelMtx(&D_800D3140);
         }
         if (D_8007C0BC < 0xFF) {
             command = D_800D3140;

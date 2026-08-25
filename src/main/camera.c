@@ -16,10 +16,12 @@
  * PROVENANCE note at the point of use; everything else in this split is
  * still GLOBAL_ASM.
  *
- * Flags: -O2 -mips2 -32, from the existing src/main/ compilation rule.
+ * Flags: -O2 -mips2 -32 -Wab,-r4300_mul; the projection-depth dot product
+ * fixes the TU's multiply scheduler mode.
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os_internal.h"
 #include "game/gameVi.h"
 #include "game/math.h"
 #include "n_audio/mbi.h"
@@ -35,13 +37,27 @@ typedef struct {
 } CameraTransform;
 
 typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+} CameraPoint;
+
+typedef struct {
     CameraTransform transform;
-    u8 pad18[0x14];
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+    f32 unk24;
+    f32 unk28;
     f32 fov;
     f32 shakeX;
     f32 shakeY;
     f32 shakeZ;
-    u8 pad3C[0xE];
+    u8 unk3C;
+    u8 unk3D;
+    s16 unk3E;
+    f32 unk40;
+    u8 pad44[6];
     s16 pitchOffset;
     u8 stateA;
     u8 stateB;
@@ -88,8 +104,113 @@ typedef struct {
     f32 z;
 } CameraScaledTransform;
 
+typedef union {
+    CameraScaledTransform transform;
+    f64 align;
+} CameraAlignedScaledTransform;
+
+typedef struct {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+} CameraVertex;
+
+typedef struct {
+    CameraScaledTransform transform;
+    u8 pad18[0x10];
+    f32 frame;
+} CameraObjectSegment;
+
+typedef struct {
+    s32 flags;
+    u8 pad04[0x30];
+} CameraViewportFlags;
+
+typedef struct {
+    s32 x1;
+    s32 y1;
+    s32 x2;
+    s32 y2;
+    s32 posX;
+    s32 posY;
+    s32 width;
+    s32 height;
+    s32 scissorX1;
+    s32 scissorY1;
+    s32 scissorX2;
+    s32 scissorY2;
+    s32 flags;
+} CameraViewport;
+
+typedef struct {
+    s8 state;
+    u8 pad01[0x53];
+} CameraState3D;
+
+typedef struct {
+    s16 zRotation;
+    u8 pad02[0x52];
+} CameraZRotationEntry;
+
+typedef struct {
+    u8 pad00[0x50];
+    f32 unk50;
+    u8 pad54[0x43C - 0x54];
+    s16 xRotation;
+    u8 pad43E[2];
+    s16 zRotation;
+    u8 pad442[2];
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+} CameraSpritePlayer;
+
+typedef struct {
+    s16 xRotation;
+    u8 pad02[2];
+    s16 zRotation;
+    u8 pad06[2];
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x30 - 0x18];
+    f32 distance;
+    u8 pad34[0x39 - 0x34];
+    u8 alpha;
+    u8 pad3A[0x40 - 0x3A];
+    f32 *baseScale;
+    s16 kind;
+    s16 spriteType;
+    u8 pad48[0x50 - 0x48];
+    f32 *opacity;
+    u8 pad54[0x64 - 0x54];
+    CameraSpritePlayer *player;
+} CameraSpriteActor;
+
+typedef struct {
+    s16 spriteType;
+    s16 scaleIndex;
+} CameraSpriteScaleEntry;
+
 extern u8 D_80079F94;
 extern s32 D_80079F8C;
+extern s32 D_80079D48;
+extern f32 D_80079F60;
+extern f32 D_80079F48;
+extern f32 D_80079F4C[16];
+extern f32 D_80079F90;
+extern CameraViewport D_80079C10[];
+extern CameraViewportFlags D_80079C40[];
+extern Vp D_80079D58[];
+extern Vp D_80079E98[];
+extern u8 D_80079F98[];
+extern CameraState3D D_800CEA5D[];
 extern u8 D_80079FA0[];
 extern s32 D_800CEC84;
 extern s32 D_800CEC88;
@@ -100,6 +221,7 @@ extern f32 D_80079FB0[];
 extern Mtx D_800CED60[];
 extern MtxF D_800CEC98;
 extern CameraTransform D_800CEC68;
+extern CameraTransform D_80079F18;
 extern u16 D_800CEC94;
 extern MtxF D_800CED18;
 extern MtxF D_800CECD8;
@@ -107,6 +229,7 @@ extern Mtx *D_800CED58;
 extern Mtx D_800CF160;
 extern s32 D_800CEC60;
 extern s32 D_800CEC64;
+extern s8 D_800CEC80;
 extern MtxF D_800CF1A0;
 extern MtxF D_800CF1E0;
 extern MtxF D_800CF220;
@@ -116,15 +239,40 @@ extern f32 D_800CF2AC;
 extern f32 D_800CF2B0;
 extern MtxF D_800CF2B8;
 extern MtxF D_800CF2F8;
+extern MtxF D_800CF260;
 extern f32 D_800CF2A0;
+extern f32 D_800D2FB4;
+extern f32 D_80081A1C;
+extern f32 D_80081A20;
+extern f32 D_80081A24;
+extern f32 D_80081A28;
+extern f32 D_80081A2C;
+extern f32 D_80081A30;
+extern f32 D_80081A34;
+extern f32 D_80081A38;
+extern f32 D_80081A3C;
+extern f32 D_80081A40;
+extern f32 D_80081A44;
+extern f32 D_80081A48;
 extern Camera D_800CEA20[];
+extern CameraZRotationEntry D_800CEA24[];
 extern CameraShake D_800CEC18[];
 extern s32 D_8007C854;
 extern s32 D_8007C85C;
+extern s32 D_80079FC8;
+extern f32 D_80079FD8[];
+extern CameraSpriteScaleEntry D_80079FF0[];
+extern u8 D_8007BF0C;
 extern u8 D_79FCC[];
 
 void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
 void mtxf_to_mtx(MtxF src, Mtx *dest);
+void mtxf_translate_y(MtxF matrix, f32 y);
+void matrixScale(f32 x, f32 y, f32 z, MtxF matrix);
+void mathScaleMtx(MtxF matrix, f32 x, f32 y, f32 z);
+void mathRSMtx(s32 rotation, f32 scale, f32 aspect, MtxF matrix);
+void func_8004FAD0(MtxF matrix, u16 *perspNorm, f32 fovy, f32 aspect,
+                   f32 nearPlane, f32 farPlane, f32 scale);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
                           f32 *outX, f32 *outY, f32 *outZ);
 void func_80029AB8(MtxF matrix, f32 scale);
@@ -134,20 +282,58 @@ s16 Arctanf(f32 x, f32 y);
 void func_8002AA50(CameraScaledTransform *transform, MtxF matrix);
 void func_8002AB78(CameraTransform *transform, MtxF matrix);
 void func_8002AE10(CameraTransform *transform, MtxF matrix);
+void func_80024978(MtxF matrix);
 void func_80034E54(Gfx **dlist, u8 *spriteData, s32 flags,
                    f32 frame, s32 alpha);
+void func_80034434(s32 enabled, ...);
+void func_80023CCC(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
+                   u8 *spriteData, s16 x, s16 y, s16 z, s16 angle, f32 scale,
+                   f32 matrixScale, f32 frame, s32 flags, u8 alpha);
 f32 sqrtf(f32 value);
+s32 mathRnd(s32 minimum, s32 maximum);
+s32 levelGetNumber(void);
+u8 levelGetType(void);
+s32 frontGet2PlayerSplit(void);
 extern s32 levelInitRegionFlags(void);
 extern void func_80021504(f32 fov, s32 force);
+void func_80021838(s32 x, s32 y, s32 z, s32 zRotation, s32 xRotation,
+                   s32 yRotation);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
                           u32 *x2, u32 *y2);
-extern void func_80022C58(Gfx **dlist, u32 halfWidth, u32 halfHeight,
-                          u32 centerX, u32 centerY, s32 regionFlags);
+extern void camSetViewport(Gfx **dlist, s32 halfWidth, s32 halfHeight,
+                           s32 centerX, s32 centerY, s32 regionFlags);
 extern void func_80022794(Gfx **dlist, Mtx **mtx);
+void camStopShakes(void);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021438.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021444.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camInit. */
+void camInit(void) {
+    s32 i;
+
+    D_800CEC64 = 0;
+    D_800CEC60 = 0;
+    D_800CEC80 = 0;
+    _bzero(D_800CEA20, sizeof(Camera) * 6);
+    for (i = 0; i < 6; i++) {
+        D_800CEC64 = i;
+        func_80021838(200, 200, 200, 0, 0, 180);
+        D_800CEA20[D_800CEC64].fov = 60.0f;
+    }
+    camStopShakes();
+    D_800CF2A0 = 60.0f;
+    func_8004FAD0(D_800CEC98, &D_800CEC94, D_800CF2A0, 1.3333334f,
+                  10.0f, D_80081A1C, 1.0f);
+    D_80079F94 = (D_80079F94 + 1) & 0xF;
+    mtxf_to_mtx(D_800CEC98, &D_800CED60[D_80079F94]);
+}
+f32 func_80021438(void) {
+    return D_800D2FB4;
+}
+void func_80021444(s32 cameraIndex, s32 state) {
+    if ((cameraIndex >= 0) && (cameraIndex < 6)) {
+        D_80079F98[cameraIndex] = state;
+        D_800CEA5D[cameraIndex].state = state;
+    }
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camUseShake. */
 void camUseShake(void) {
     D_800CEC84 = 1;
@@ -160,7 +346,9 @@ void camIgnoreShake(void) {
 f32 camGetFOV(void) {
     return D_800CF2A0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800214AC.s")
+void func_800214AC(void) {
+    D_800CEA20[D_800CEC64].stateA ^= 1;
+}
 /*
  * PROVENANCE: adapted from JFG's public decomp,
  * src/camera.c:camOverrideProjScales.
@@ -170,11 +358,142 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
     D_800CEC90 = scaleY;
     D_800CEC88 = 1;
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetFOV,
+ * with Mickey's camera-state mirror and region-specific projection scaling.
+ *
+ * Plateau: the full flag lattice, nine coherent source/type/lifetime
+ * variants, and a bounded two-worker permuter batch leave an exact-size
+ * 133-instruction candidate with 11 positional words different from first
+ * mismatch +0x1D4. The first 117 instructions are exact; only temporary
+ * registers in the final projection-matrix ring update differ. The permuter's
+ * lower score moved the mandatory perspective rebuild inside the state-mirror
+ * branch and was rejected as semantically invalid.
+ */
+void func_80021504(f32 fov, s32 force) {
+    Camera *camera;
+    s32 videoMode;
+    s32 type;
+    u8 index;
+
+    camera = &D_800CEA20[D_800CEC64];
+    camera->fov = fov;
+    if ((fov > 0.0f) && (fov < 90.0f) &&
+        ((force != 0) || (fov != D_800CF2A0) ||
+         (camera->stateB != camera->stateA))) {
+        D_800CF2A0 = fov;
+        if (camera->stateA != 0) {
+            D_800CF2A0 = -D_800CF2A0;
+            camera->stateB = camera->stateA;
+        }
+        func_8004FAD0(D_800CEC98, &D_800CEC94, D_800CF2A0, 1.3333334f,
+                      10.0f, D_80081A20, 1.0f);
+        D_80079F90 = D_800CEC98[0][0] / D_80081A24;
+        videoMode = viGetVideoMode();
+        if (D_800CEC88 != 0) {
+            D_800CEC98[0][0] *= D_800CEC8C;
+            D_800CEC98[1][1] *= D_800CEC90;
+            D_800CEC88 = 0;
+        } else if (videoMode & 1) {
+            type = levelGetType();
+            if (((type == 1) || (type == 2)) &&
+                (levelGetNumber() != 0x2A)) {
+                D_800CEC98[1][1] *= D_80081A28;
+            } else {
+                D_800CEC98[0][0] *= 0.75f;
+            }
+        }
+        index = (D_80079F94 + 1) & 0xF;
+        D_80079F94 = index;
+        mtxf_to_mtx(D_800CEC98, &D_800CED60[index & 0xFF]);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021504.s")
+#endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from DKR's public decomp,
+ * src/camera.c:cam_reset_fov.
+ *
+ * Plateau: the full flag lattice, six semantics-preserving source/type/address
+ * variants, and a bounded two-worker permuter batch leave an exact 0x94-byte,
+ * 37-instruction candidate with 11 positional words different from first
+ * mismatch +0x4C. The remaining difference is temporary-register allocation
+ * in the rotating matrix-slot update. The permuter's lower-scoring candidate
+ * removed the required ring mask and invented a dead guard, so it was rejected.
+ */
+void func_80021718(void) {
+    s32 index;
+    s32 slot;
+
+    func_8004FAD0(D_800CEC98, &D_800CEC94, 60.0f, 1.3333334f, 10.0f,
+                  D_80081A2C, 1.0f);
+    index = (D_80079F94 + 1) & 0xF;
+    slot = index & 0xFF;
+    D_80079F94 = index;
+    mtxf_to_mtx(D_800CEC98,
+                (Mtx *) ((slot << 6) + (u8 *) D_800CED60));
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021718.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800217AC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800217B8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021838.s")
+#endif
+MtxF *func_800217AC(void) {
+    return &D_800CF260;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camDistance. */
+f32 camDistance(f32 x, f32 y, f32 z) {
+    Camera *cam;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+
+    cam = &D_800CEA20[D_800CEC64];
+    dx = x - cam->transform.x;
+    dy = y - cam->transform.y;
+    dz = z - cam->transform.z;
+    return sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+}
+/*
+ * PROVENANCE: adapted from DKR's public decomp,
+ * src/camera.c:camera_reset, with Mickey's own field layout and store order.
+ */
+void func_80021838(s32 x, s32 y, s32 z, s32 zRotation, s32 xRotation,
+                   s32 yRotation) {
+    Camera *camera;
+    u8 *states;
+    f32 floatX;
+    f32 floatY;
+    f32 sourceX;
+    f32 floatZ;
+
+    camera = &D_800CEA20[D_800CEC64];
+    camera->transform.zRotation = zRotation * 182;
+    floatX = x;
+    sourceX = floatX;
+    floatY = y;
+    camera->transform.xRotation = xRotation * 182;
+    floatZ = z;
+    camera->transform.yRotation = yRotation * 182;
+    states = D_80079F98;
+    camera->pitchOffset = 0;
+    camera->transform.x = sourceX;
+    camera->transform.y = floatY;
+    camera->unk18 = sourceX;
+    camera->transform.z = floatZ;
+    camera->unk1C = floatY;
+    camera->unk20 = floatZ;
+    camera->unk3C = 0;
+    camera->shakeX = 0.0f;
+    camera->shakeY = 0.0f;
+    camera->shakeZ = 0.0f;
+    camera->unk24 = 128.0f;
+    camera->unk28 = 32.0f;
+    camera->unk3D = states[D_800CEC64];
+    camera->unk3E = -1;
+    camera->unk40 = 0.0f;
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetMode. */
 s32 camGetMode(void) {
     return D_800CEC60;
@@ -194,7 +513,9 @@ s32 camSetMode(s32 mode) {
 s32 camGetNo(void) {
     return D_800CEC64;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021970.s")
+Camera *func_80021970(s32 cameraIndex) {
+    return &D_800CEA20[cameraIndex];
+}
 /*
  * PROVENANCE: name and role from JFG's public decomp,
  * src/camera.c:camSetNo; body reconstructed from Mickey-only evidence.
@@ -212,15 +533,292 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
         D_80079FA8[camNo] = waterLine;
     }
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from DKR's public decomp,
+ * src/camera.c:copy_viewports_to_stack; JFG's public src/camera.c supplies
+ * the camUserViewTick role while Mickey supplies the six-camera bound.
+ *
+ * Plateau: the full flag lattice, eight coherent expression/lifetime
+ * variants, and a bounded two-worker permuter batch leave an exact-size
+ * 104-instruction candidate with 17 positional words different from first
+ * mismatch +0x98. The first difference is commutative output-index operand
+ * order, followed by IDO scheduling/register choices in the viewport extent
+ * expressions. The permuter's only improvement masked a signed 32-bit
+ * coordinate to 16 bits and was rejected as semantically invalid.
+ */
+void func_800219D0(void) {
+    s32 width;
+    s32 height;
+    s32 xPos;
+    s32 yPos;
+    s32 port;
+    s32 i;
+
+    D_80079D48 = 1 - D_80079D48;
+    for (i = 0; i < 6; i++) {
+        if (D_80079C10[i].flags & 4) {
+            D_80079C10[i].flags &= ~1;
+        } else if (D_80079C10[i].flags & 2) {
+            D_80079C10[i].flags |= 1;
+        }
+        D_80079C10[i].flags &= ~6;
+        if (D_80079C10[i].flags & 1) {
+            if (!(D_80079C10[i].flags & 8)) {
+                xPos = D_80079C10[i].x1 << 2;
+                xPos += ((D_80079C10[i].x2 - D_80079C10[i].x1) + 1) << 1;
+            } else {
+                xPos = D_80079C10[i].posX << 2;
+            }
+            if (!(D_80079C10[i].flags & 0x10)) {
+                yPos = D_80079C10[i].y1 << 2;
+                yPos += ((D_80079C10[i].y2 - D_80079C10[i].y1) + 1) << 1;
+            } else {
+                yPos = D_80079C10[i].posY << 2;
+            }
+            if (!(D_80079C10[i].flags & 0x20)) {
+                width = ((D_80079C10[i].x2 - D_80079C10[i].x1) + 1) << 1;
+            } else {
+                width = D_80079C10[i].width << 1;
+            }
+            if (!(D_80079C10[i].flags & 0x40)) {
+                height = ((D_80079C10[i].y2 - D_80079C10[i].y1) + 1) << 1;
+            } else {
+                height = D_80079C10[i].height << 1;
+            }
+            port = (D_80079D48 * 5) + i + 10;
+            D_80079D58[port].vp.vtrans[0] = xPos;
+            D_80079D58[port].vp.vtrans[1] = yPos;
+            D_80079D58[port].vp.vscale[0] = width;
+            D_80079D58[port].vp.vscale[1] = height;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800219D0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021B70.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021BE4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021C5C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021C88.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021DF4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021EF0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021F68.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021FB0.s")
+#endif
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camEnableUserView. */
+void camEnableUserView(s32 camNo, s32 immediate) {
+    CameraViewport *viewport;
+
+    if (immediate != 0) {
+        viewport = &D_80079C10[camNo];
+        viewport->flags |= 1;
+    } else {
+        viewport = &D_80079C10[camNo];
+        viewport->flags |= 2;
+    }
+    viewport->flags &= ~4;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camDisableUserView. */
+void camDisableUserView(s32 camNo, s32 immediate) {
+    CameraViewport *viewport;
+
+    if (immediate != 0) {
+        viewport = &D_80079C10[camNo];
+        viewport->flags &= ~1;
+    } else {
+        viewport = &D_80079C10[camNo];
+        viewport->flags |= 4;
+    }
+    viewport->flags &= ~2;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camIsUserView. */
+s32 camIsUserView(s32 camNo) {
+    return D_80079C40[camNo].flags & 1;
+}
+/*
+ * PROVENANCE: adapted from DKR's public decomp,
+ * src/camera.c:viewport_menu_set; JFG's public src/camera.c supplies the
+ * camSetUserView role while Mickey supplies the video-size call and layout.
+ */
+void func_80021C88(s32 camNo, s32 x1, s32 y1, s32 x2, s32 y2) {
+    s32 swap;
+    struct {
+        u32 height;
+        u32 width;
+    } videoSize;
+
+    viGetCurrentSize((s32 *) &videoSize.width, (s32 *) &videoSize.height);
+    if (x2 < x1) {
+        swap = x1;
+        x1 = x2;
+        x2 = swap;
+    }
+    if (y2 < y1) {
+        swap = y1;
+        y1 = y2;
+        y2 = swap;
+    }
+    if (((u32) x1 >= videoSize.width) || (x2 < 0) ||
+        ((u32) y1 >= videoSize.height) ||
+        (y2 < 0)) {
+        D_80079C10[camNo].scissorX1 = 0;
+        D_80079C10[camNo].scissorY1 = 0;
+        D_80079C10[camNo].scissorX2 = 0;
+        D_80079C10[camNo].scissorY2 = 0;
+    } else {
+        if (x1 < 0) {
+            D_80079C10[camNo].scissorX1 = 0;
+        } else {
+            D_80079C10[camNo].scissorX1 = x1;
+        }
+        if (y1 < 0) {
+            D_80079C10[camNo].scissorY1 = 0;
+        } else {
+            D_80079C10[camNo].scissorY1 = y1;
+        }
+        if ((u32) x2 >= videoSize.width) {
+            D_80079C10[camNo].scissorX2 = videoSize.width - 1;
+        } else {
+            D_80079C10[camNo].scissorX2 = x2;
+        }
+        if ((u32) y2 >= videoSize.height) {
+            D_80079C10[camNo].scissorY2 = videoSize.height - 1;
+        } else {
+            D_80079C10[camNo].scissorY2 = y2;
+        }
+    }
+    D_80079C10[camNo].x1 = x1;
+    D_80079C10[camNo].x2 = x2;
+    D_80079C10[camNo].y1 = y1;
+    D_80079C10[camNo].y2 = y2;
+}
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camSetUserViewSpecial.
+ */
+void camSetUserViewSpecial(s32 camNo, s32 posX, s32 posY, s32 width,
+                           s32 height) {
+    CameraViewport *viewport;
+
+    if (posX != 0x8000) {
+        viewport = &D_80079C10[camNo];
+        viewport->posX = posX;
+        viewport->flags |= 8;
+    } else {
+        viewport = &D_80079C10[camNo];
+        viewport->flags &= ~8;
+    }
+    if (posY != 0x8000) {
+        viewport->posY = posY;
+        viewport->flags |= 0x10;
+    } else {
+        viewport->flags &= ~0x10;
+    }
+    if (width != 0x8000) {
+        viewport->width = width;
+        viewport->flags |= 0x20;
+    } else {
+        viewport->flags &= ~0x20;
+    }
+    if (height != 0x8000) {
+        viewport->height = height;
+        viewport->flags |= 0x40;
+        return;
+    }
+    viewport->flags &= ~0x40;
+}
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camGetVisibleUserView.
+ */
+s32 camGetVisibleUserView(s32 camNo, s32 *x1, s32 *y1, s32 *x2, s32 *y2) {
+    CameraViewport *viewport = &D_80079C10[camNo];
+
+    *x1 = viewport->scissorX1;
+    *x2 = viewport->scissorX2;
+    *y1 = viewport->scissorY1;
+    *y2 = viewport->scissorY2;
+    if ((*x1 | *x2 | *y1 | *y2) == 0) {
+        return 0;
+    }
+    return 1;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetUserView. */
+void camGetUserView(s32 camNo, s32 *x1, s32 *y1, s32 *x2, s32 *y2) {
+    CameraViewport *viewport = &D_80079C10[camNo];
+
+    *x1 = viewport->x1;
+    *y1 = viewport->y1;
+    *x2 = viewport->x2;
+    *y2 = viewport->y2;
+}
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camGetWindowLimits; Mickey's draft supplies the inset margins
+ * and split-orientation behavior.
+ */
+void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1, u32 *x2,
+                   u32 *y2) {
+    s32 videoMode;
+    u32 halfWidth;
+    u32 halfHeight;
+    u32 marginWidth;
+    u32 marginHeight;
+
+    if (D_80079C10[camNo].flags & 1) {
+        *x1 = D_80079C10[camNo].scissorX1;
+        *y1 = D_80079C10[camNo].scissorY1;
+        *x2 = D_80079C10[camNo].scissorX2;
+        *y2 = D_80079C10[camNo].scissorY2;
+        return;
+    }
+
+    videoMode = viGetVideoMode();
+    viGetCurrentSize((s32 *) x2, (s32 *) y2);
+    *x1 = 0;
+    *y1 = 0;
+    halfWidth = *x2 >> 1;
+    halfHeight = *y2 >> 1;
+    marginWidth = *x2 / 20U;
+    marginHeight = *y2 / 20U;
+
+    switch (mode) {
+        case 1:
+            if (videoMode & 1) {
+                marginHeight = 0;
+            }
+            if (frontGet2PlayerSplit() != 0) {
+                if (D_80079C10 == &D_80079C10[camNo]) {
+                    *x1 = marginWidth;
+                    *x2 = halfWidth;
+                } else {
+                    *x1 = halfWidth;
+                    *x2 -= marginWidth;
+                }
+            } else if (D_80079C10 == &D_80079C10[camNo]) {
+                *y1 = marginHeight;
+                *y2 = halfHeight;
+            } else {
+                *y1 = halfHeight;
+                *y2 -= marginHeight;
+            }
+            break;
+        case 2:
+        case 3:
+            if (videoMode & 1) {
+                marginHeight = 0;
+            }
+            if (camNo & 1) {
+                *x1 = halfWidth;
+                *x2 -= marginWidth;
+            } else {
+                *x1 = marginWidth;
+                *x2 = halfWidth;
+            }
+            if (camNo & 2) {
+                *y1 = halfHeight;
+                *y2 -= marginHeight;
+            } else {
+                *y1 = marginHeight;
+                *y2 = halfHeight;
+            }
+            break;
+        case 0:
+            break;
+    }
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetView. */
 void func_800221E8(Gfx **dlist, Mtx **mtx) {
     u32 halfWidth;
@@ -266,16 +864,27 @@ void func_800221E8(Gfx **dlist, Mtx **mtx) {
 
     gDPSetScissor((*dlist)++, G_SC_NON_INTERLACE,
                   win.ulx, win.uly, win.lrx, win.lry);
-    func_80022C58(dlist, halfWidth, halfHeight,
-                  (win.lrx + win.ulx) >> 1, (win.lry + win.uly) >> 1,
-                  levelInitRegionFlags());
+    camSetViewport(dlist, halfWidth, halfHeight, (win.lrx + win.ulx) >> 1,
+                   (win.lry + win.uly) >> 1, levelInitRegionFlags());
 
     if (mtx != NULL) {
         func_80022794(dlist, mtx);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022604.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022610.s")
+void func_80022604(s32 arg0) {
+    D_80079F8C = arg0;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetScissor. */
+void camSetScissor(Gfx **dlist) {
+    u32 x1;
+    u32 y1;
+    u32 x2;
+    u32 y2;
+
+    func_80021FB0(D_800CEC60, D_800CEC64, (s32 *) &x1, (s32 *) &y1,
+                  &x2, &y2);
+    gDPSetScissor((*dlist)++, G_SC_NON_INTERLACE, x1, y1, x2, y2);
+}
 /*
  * PROVENANCE: adapted from JFG's public decomp,
  * src/camera.c:camGetPlayerProjMtx.
@@ -334,13 +943,113 @@ void func_80022794(Gfx **dlist, Mtx **mtx) {
     func_8002AB78(&D_800CEC68, D_800CF1E0);
     mtxf_to_mtx(D_800CF1E0, &D_800CF160);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A38.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A44.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A50.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022B94.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022C58.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022D20.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022E80.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camOrthoYAspect. */
+void camOrthoYAspect(f32 aspect) {
+    D_80079F60 = aspect;
+}
+void func_80022A44(f32 arg0) {
+    D_80079F48 = arg0;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStandardOrtho. */
+void camStandardOrtho(Gfx **dlist, Mtx **mtx) {
+    u32 width;
+    u32 height;
+    Vp *viewport;
+
+    viGetCurrentSize((s32 *) &width, (s32 *) &height);
+    if (D_80079F8C != 0) {
+        width >>= 1;
+        height >>= 1;
+        viewport = &D_80079E98[(D_800CEC64 & 3) | 4];
+    } else {
+        viewport = &D_80079D58[D_800CEC64 + 5];
+    }
+    viewport->vp.vscale[0] = width * 2;
+    viewport->vp.vscale[1] = width * 2;
+    viewport->vp.vtrans[0] = width * 2;
+    viewport->vp.vtrans[1] = height * 2;
+    gSPViewport((*dlist)++, (u32) viewport + 0x80000000);
+    func_80024978(D_800CED18);
+    mtxf_to_mtx(D_800CED18, *mtx);
+    gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 0);
+    (*mtx)++;
+}
+
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStandardPersp. */
+void camStandardPersp(Gfx **dlist, Mtx **mtx) {
+    gSPPerspNormalize((*dlist)++, D_800CEC94);
+    func_8002AE10(&D_80079F18, D_800CF220);
+    mtxf_mul(D_800CF220, D_800CEC98, D_800CED18);
+    mtxf_to_mtx(D_800CED18, *mtx);
+    gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 0);
+    (*mtx)++;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetViewport. */
+void camSetViewport(Gfx **dlist, s32 halfWidth, s32 halfHeight, s32 centerX,
+                    s32 centerY, s32 regionFlags) {
+    s32 camNo;
+    Vp *viewport;
+
+    camNo = D_800CEC64;
+    if (D_80079F8C != 0) {
+        viewport = &D_80079E98[camNo & 3];
+    } else {
+        viewport = &D_80079D58[camNo];
+    }
+    if (!(D_80079C40[camNo].flags & 1)) {
+        viewport->vp.vtrans[0] = centerX * 4;
+        viewport->vp.vtrans[1] = centerY * 4;
+        viewport->vp.vscale[0] = halfWidth * 4;
+        viewport->vp.vscale[1] = halfHeight * 4;
+        if (regionFlags != 0) {
+            viewport->vp.vscale[0] = -viewport->vp.vscale[0];
+        }
+    }
+    gSPViewport((*dlist)++, (u32) viewport + 0x80000000);
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camResetView. */
+void func_80022D20(Gfx **dlist) {
+    u32 height;
+    u32 width;
+
+    D_800CEC64 = 4;
+    viGetCurrentSize((s32 *) &width, (s32 *) &height);
+    if (!(D_80079C40[D_800CEC64].flags & 1)) {
+        gDPSetScissor((*dlist)++, G_SC_NON_INTERLACE, 0, 0, width - 1,
+                      height - 1);
+        camSetViewport(dlist, width >> 1, height >> 1, width >> 1,
+                       height >> 1, 0);
+    } else {
+        camSetScissor(dlist);
+        camSetViewport(dlist, 0, 0, 0, 0, 0);
+    }
+    D_800CEC64 = 0;
+}
+/* Mickey-only camera-relative billboard offset reconstruction. */
+void func_80022E80(CameraScaledTransform *transform) {
+    f32 x;
+    f32 y;
+    f32 z;
+    CameraAlignedScaledTransform inverse;
+
+    inverse.transform.yRotation = -transform->yRotation;
+    inverse.transform.xRotation = -transform->xRotation;
+    inverse.transform.zRotation = -transform->zRotation;
+    inverse.transform.x = 0.0f;
+    inverse.transform.y = 0.0f;
+    inverse.transform.z = 0.0f;
+    inverse.transform.scale = 1.0f;
+    func_8002AA50(transform, D_800CF2B8);
+    func_8002AE10((CameraTransform *) &inverse.transform, D_800CF2F8);
+    D_800CF2B0 = 1.0f / transform->scale;
+    x = D_800CEA20[D_800CEC64].transform.x - transform->x;
+    y = D_800CEA20[D_800CEC64].transform.y - transform->y;
+    z = D_800CEA20[D_800CEC64].transform.z - transform->z;
+    mtxf_transform_point(D_800CF2F8, x, y, z, &x, &y, &z);
+    D_800CF2A4 = x * D_800CF2B0;
+    D_800CF2A8 = y * D_800CF2B0;
+    D_800CF2AC = z * D_800CF2B0;
+}
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: JFG's public src/camera.c identifies the camDoSprite role;
@@ -507,31 +1216,643 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022FD4.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * Mickey-only sprite-orientation wrapper reconstruction.
+ *
+ * Plateau: the full flag lattice and ten coherent control-flow, type,
+ * lifetime and parameter-homing variants leave a best configured candidate
+ * with 286 instructions against 284 and 275 positional words different from
+ * first mismatch +0x0. IDO keeps the display-list argument in $s1 and emits
+ * a 0xA0 frame; the target spills that argument and uses a 0x90 frame.
+ */
+void func_80023598(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
+                   CameraSpriteActor *actor, u8 *spriteData, s32 alpha) {
+    CameraSpritePlayer *player;
+    s32 angle;
+    s32 mirroredFrame;
+    f32 scale;
+    f32 matrixScale;
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 xRotation;
+    s16 zRotation;
+    Gfx *cmd;
+    f32 threshold;
+    f32 multiplier;
+    f32 baseScale;
+    f32 distanceScale;
+    s32 spriteTypeIndex;
+    s32 frameCount;
+    s32 doubledFrameCount;
+    s32 frame;
+    s32 color;
+
+    if (actor->kind == 1) {
+        player = actor->player;
+        viGetVideoMode();
+        spriteTypeIndex = 0;
+        while ((D_80079FF0[spriteTypeIndex].spriteType !=
+                actor->spriteType) &&
+               (D_80079FF0[spriteTypeIndex].spriteType != -1)) {
+            spriteTypeIndex++;
+        }
+        baseScale = *actor->baseScale;
+        scale = D_80079FD8[D_80079FF0[spriteTypeIndex].scaleIndex] *
+                baseScale;
+        matrixScale = player->unk50;
+        xRotation = player->xRotation;
+        zRotation = player->zRotation;
+        distanceScale = player->scale;
+        x = player->x;
+        y = player->y;
+        z = player->z;
+        if (D_8007BF0C != 0) {
+            distanceScale = baseScale;
+            if (D_800CEC60 == 1) {
+                threshold = 400.0f;
+                multiplier = D_80081A30;
+            } else {
+                threshold = 250.0f;
+                multiplier = D_80081A34;
+            }
+            if (threshold < actor->distance) {
+                threshold = ((actor->distance - threshold) * multiplier) +
+                            1.0f;
+                if (threshold > 2.0f) {
+                    threshold = 2.0f;
+                }
+                distanceScale *= threshold;
+            }
+        }
+    } else {
+        xRotation = actor->xRotation;
+        zRotation = actor->zRotation;
+        distanceScale = actor->scale;
+        x = actor->x;
+        y = actor->y;
+        z = actor->z;
+        scale = distanceScale;
+        matrixScale = 1.0f;
+        baseScale = *actor->baseScale;
+    }
+
+    scale *= distanceScale / baseScale;
+    angle = xRotation - Arctanf(D_800CEA20[D_800CEC64].transform.x - x,
+                               D_800CEA20[D_800CEC64].transform.z - z);
+    frameCount = spriteData[0] - 1;
+    doubledFrameCount = frameCount * 2;
+    frame = ((((0x8000 / doubledFrameCount) + angle) & 0xFFFF) *
+             doubledFrameCount) >> 16;
+    mirroredFrame = frame;
+    if (frameCount < frame) {
+        mirroredFrame = doubledFrameCount - frame;
+        D_80079FC8 = 1;
+    }
+
+    if (D_8007C854 != 0) {
+        if (actor->opacity != NULL) {
+            color = *actor->opacity * D_8007C85C;
+        } else {
+            color = D_8007C85C;
+        }
+    } else {
+        color = 255;
+        if (actor->opacity != NULL) {
+            color = *actor->opacity * 255.0f;
+        }
+    }
+
+    color &= 0xFF;
+    cmd = (Gfx *)((*dlist)++);
+    cmd->words.w0 = 0xFA000000;
+    cmd->words.w1 = (color << 24) | (color << 16) | (color << 8) |
+                    actor->alpha;
+    cmd = (Gfx *)((*dlist)++);
+    cmd->words.w1 = 0;
+    cmd->words.w0 = 0xFB000000;
+
+    func_80034434(1, doubledFrameCount, frame, color);
+    func_80023CCC(dlist, mtx, vertices, spriteData, x, y, z,
+                  func_8002A8BC(angle) * zRotation, scale, matrixScale,
+                  mirroredFrame, 0x10E, alpha);
+    func_80034434(0);
+
+    cmd = (Gfx *)((*dlist)++);
+    cmd->words.w1 = -1;
+    cmd->words.w0 = 0xFA000000;
+    cmd = (Gfx *)((*dlist)++);
+    cmd->words.w1 = -256;
+    cmd->words.w0 = 0xFB000000;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023598.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023A08.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023CCC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023F84.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024204.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800242E0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002442C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800244EC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800245EC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002460C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002462C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024658.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024664.s")
+#endif
+/*
+ * PROVENANCE: adapted from JFG's public decomp, src/camera.c:camDoSprite;
+ * Mickey supplies the resident projection flip and display-list encoding.
+ */
+void func_80023A08(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
+                   CameraObjectSegment *segment, u8 *spriteData, s32 flags,
+                   u8 alpha) {
+    s32 rotation;
+    f32 scale;
+    f32 aspect;
+    register CameraVertex *vertex;
+
+    vertex = *vertices;
+    vertex->x = segment->transform.x;
+    vertex->y = segment->transform.y;
+    vertex->z = segment->transform.z;
+    vertex->r = 255;
+    vertex->g = 255;
+    vertex->b = 255;
+    vertex->a = 255;
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w0 = ((((((u32)*vertices + 0x80000000) & 6) | 8) &
+                           0xFF) << 16) | 0x04000000 | 0x12;
+        cmd->words.w1 = (u32)*vertices + 0x80000000;
+    }
+    (*vertices)++;
+
+    rotation = D_800CEA24[D_800CEC64].zRotation +
+               segment->transform.zRotation;
+    scale = segment->transform.scale * D_80079F90;
+    aspect = func_80021438();
+    if (viGetVideoMode() & 1) {
+        scale *= 0.75f;
+        aspect *= D_80081A38;
+    }
+    mathRSMtx(rotation, scale, aspect, D_800CECD8);
+
+    if (D_80079FC8 != 0) {
+        D_80079FC8 = 0;
+        D_800CECD8[0][0] = -D_800CECD8[0][0];
+        D_800CECD8[0][1] = -D_800CECD8[0][1];
+    }
+    if (flags & 0x8000) {
+        func_80029AB8(D_800CECD8, -segment->transform.scale);
+    }
+    mtxf_to_mtx(D_800CECD8, *mtx);
+    D_800CED58 = *mtx;
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w0 = 0x01020040;
+        cmd->words.w1 = (u32)*mtx + 0x80000000;
+    }
+    (*mtx)++;
+    gMoveWd((*dlist)++, 2, 0, 1);
+
+    flags &= ~1;
+    if (flags & 4) {
+        flags |= 1;
+    }
+    func_80034E54(dlist, spriteData, flags & 0xF, segment->frame, alpha);
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC00000A;
+    }
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC000002;
+    }
+}
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camDoSpriteDirect; Mickey supplies the secondary matrix scale,
+ * resident projection state and display-list encoding.
+ */
+void func_80023CCC(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
+                   u8 *spriteData, s16 x, s16 y, s16 z, s16 angle, f32 scale,
+                   f32 matrixScale, f32 frame, s32 flags, u8 alpha) {
+    s32 rotation;
+    f32 aspect;
+    register CameraVertex *vertex;
+
+    vertex = *vertices;
+    vertex->x = x;
+    vertex->y = y;
+    vertex->z = z;
+    vertex->r = 255;
+    vertex->g = 255;
+    vertex->b = 255;
+    vertex->a = 255;
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w0 = ((((((u32)*vertices + 0x80000000) & 6) | 8) &
+                           0xFF) << 16) | 0x04000000 | 0x12;
+        cmd->words.w1 = (u32)*vertices + 0x80000000;
+    }
+    (*vertices)++;
+
+    rotation = D_800CEA24[D_800CEC64].zRotation + angle;
+    scale *= D_80079F90;
+    aspect = func_80021438();
+    if (viGetVideoMode() & 1) {
+        scale *= 0.75f;
+        aspect *= D_80081A3C;
+    }
+    mathRSMtx(rotation, scale, aspect, D_800CECD8);
+
+    if (D_80079FC8 != 0) {
+        D_80079FC8 = 0;
+        D_800CECD8[0][0] = -D_800CECD8[0][0];
+        D_800CECD8[0][1] = -D_800CECD8[0][1];
+    }
+    if (flags & 0x8000) {
+        func_80029AB8(D_800CECD8, -scale);
+    }
+    if (matrixScale != 1.0f) {
+        func_80029AB8(D_800CECD8, matrixScale);
+    }
+    mtxf_to_mtx(D_800CECD8, *mtx);
+    D_800CED58 = *mtx;
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w0 = 0x01020040;
+        cmd->words.w1 = (u32)*mtx + 0x80000000;
+    }
+    (*mtx)++;
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 1;
+        cmd->words.w0 = 0xBC000002;
+    }
+
+    flags &= ~1;
+    if (flags & 4) {
+        flags |= 1;
+    }
+    func_80034E54(dlist, spriteData, flags & 0xF, frame, alpha);
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC00000A;
+    }
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC000002;
+    }
+}
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camDo2DSprite; Mickey supplies the display-list encoding and
+ * its resident camera globals.
+ */
+void func_80023F84(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
+                   CameraObjectSegment *segment, u8 *spriteData, s32 flags,
+                   u8 alpha) {
+    CameraVertex *vertex;
+    f32 scale;
+    struct {
+        MtxF scaleMatrix;
+        MtxF aspectMatrix;
+    } matrices;
+
+    if (spriteData == NULL) {
+        return;
+    }
+
+    vertex = *vertices;
+    vertex->x = segment->transform.x;
+    vertex->y = segment->transform.y;
+    vertex->z = segment->transform.z;
+    vertex->r = 255;
+    vertex->g = 255;
+    vertex->b = 255;
+    vertex->a = 255;
+
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w0 = ((((((u32)*vertices + 0x80000000) & 6) | 8) &
+                           0xFF) << 16) | 0x04000000 | 0x12;
+        cmd->words.w1 = (u32)*vertices + 0x80000000;
+    }
+    (*vertices)++;
+
+    D_800CEC68.yRotation = -segment->transform.yRotation;
+    D_800CEC68.xRotation = -segment->transform.xRotation;
+    D_800CEC68.zRotation = segment->transform.zRotation;
+    D_800CEC68.x = 0.0f;
+    D_800CEC68.y = 0.0f;
+    D_800CEC68.z = 0.0f;
+
+    if (D_800CEC80 != 0) {
+        scale = segment->transform.scale;
+        mathScaleMtx(matrices.scaleMatrix, scale, scale, 1.0f);
+        mathRSMtx(0, 1.0f, func_80021438(), matrices.aspectMatrix);
+        mtxf_mul(matrices.aspectMatrix, matrices.scaleMatrix, D_800CF220);
+    } else {
+        scale = segment->transform.scale;
+        mathScaleMtx(D_800CF220, scale, scale, 1.0f);
+    }
+
+    func_8002AE10(&D_800CEC68, matrices.aspectMatrix);
+    mtxf_mul(D_800CF220, matrices.aspectMatrix, D_800CECD8);
+    mtxf_to_mtx(D_800CECD8, *mtx);
+    D_800CED58 = *mtx;
+
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w0 = 0x01020040;
+        cmd->words.w1 = (u32)*mtx + 0x80000000;
+    }
+    (*mtx)++;
+
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 1;
+        cmd->words.w0 = 0xBC000002;
+    }
+
+    func_80034E54(dlist, spriteData, flags, segment->frame, alpha);
+
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC00000A;
+    }
+
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC000002;
+    }
+}
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camPushFloatModelMtx.
+ */
+void camPushFloatModelMtx(Gfx **dlist, Mtx **mtx, MtxF matrix) {
+    s32 i;
+    s32 j;
+
+    i = 0;
+    do {
+        j = 0;
+        do {
+            D_800CECD8[i][j] = matrix[i][j];
+            j++;
+        } while (j < 4);
+        i++;
+    } while (i < 4);
+    mtxf_mul(matrix, D_800CED18, D_800CF260);
+    mtxf_to_mtx(D_800CF260, *mtx);
+    D_800CED58 = *mtx;
+    gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 1);
+    (*mtx)++;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camPushMuzzleMtx. */
+void camPushMuzzleMtx(Gfx **dlist, Mtx **mtx, CameraPoint *point, MtxF matrix) {
+    f32 outZ;
+    f32 outY;
+    f32 outX;
+    MtxF temp;
+    s32 i;
+    s32 j;
+
+    D_800CECD8[3][0] = 0.0f;
+    D_800CECD8[3][1] = 0.0f;
+    D_800CECD8[3][2] = 0.0f;
+    mtxf_mul(matrix, D_800CECD8, temp);
+    i = 0;
+    do {
+        j = 0;
+        do {
+            D_800CECD8[i][j] = temp[i][j];
+            j++;
+        } while (j < 4);
+        i++;
+    } while (i < 4);
+    mtxf_transform_point(D_800CECD8, point->x, point->y, point->z,
+                         &outX, &outY, &outZ);
+    D_800CECD8[3][0] = point->x;
+    D_800CECD8[3][1] = point->y;
+    D_800CECD8[3][2] = point->z;
+    mtxf_mul(D_800CECD8, D_800CED18, D_800CF260);
+    mtxf_to_mtx(D_800CF260, *mtx);
+    D_800CED58 = *mtx;
+    gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 1);
+    (*mtx)++;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camScaleModelMtx. */
+void camScaleModelMtx(Gfx **dlist, Mtx **mtx, f32 scale) {
+    if (scale != 1.0f) {
+        matrixScale(scale, scale, scale, D_800CECD8);
+        mtxf_mul(D_800CECD8, D_800CED18, D_800CF260);
+        mtxf_to_mtx(D_800CF260, *mtx);
+        D_800CED58 = *mtx;
+        gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 1);
+        (*mtx)++;
+    }
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camPushModelMtx. */
+void camPushModelMtx(Gfx **dlist, Mtx **mtx, CameraScaledTransform *transform,
+                     f32 scale, f32 scaleY) {
+    func_8002AA50(transform, D_800CECD8);
+    if (scaleY != 0.0f) {
+        mtxf_translate_y(D_800CECD8, scaleY);
+    }
+    if (scale != 1.0f) {
+        func_80029AB8(D_800CECD8, scale);
+    }
+    mtxf_mul(D_800CECD8, D_800CED18, D_800CF260);
+    mtxf_to_mtx(D_800CF260, *mtx);
+    D_800CED58 = *mtx;
+    gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 1);
+    (*mtx)++;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camRestoreModelMtx. */
+void camRestoreModelMtx(Gfx **dlist) {
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC00000A;
+    }
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camPopModelMtx. */
+void camPopModelMtx(Gfx **dlist) {
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC00000A;
+    }
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetPtr. */
+Camera *camGetPtr(void) {
+    return &D_800CEA20[D_800CEC64];
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetListPtr. */
+Camera *camGetListPtr(void) {
+    return D_800CEA20;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetInvProjMtx. */
+MtxF *camGetInvProjMtx(void) {
+    return &D_800CF1E0;
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetProjOrgMtx. */
 Mtx *camGetProjOrgMtx(void) {
     return &D_800CED60[D_80079F94];
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002468C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024698.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800246A4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800246B0.s")
+MtxF *func_8002468C(void) {
+    return &D_800CEC98;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetRotationMtx. */
+MtxF *camGetRotationMtx(void) {
+    return &D_800CF1A0;
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetProjectionMtx. */
+MtxF *camGetProjectionMtx(void) {
+    return &D_800CED18;
+}
+/*
+ * PROVENANCE: JFG's public src/camera.c identifies the camProjectPoint role;
+ * this body is reconstructed from Mickey's matrix and viewport dataflow.
+ */
+s32 func_800246B0(f32 x, f32 y, f32 z, f32 *outX, f32 *outY,
+                  u8 transform) {
+    s32 visible;
+    f32 viewportScaleX;
+    f32 viewportScaleY;
+    f32 projectedX;
+    f32 projectedY;
+    f32 depth;
+    Vp *viewport;
+
+    visible = 0;
+    if (transform != 0) {
+        mtxf_transform_point(D_800CF1A0, x, y, z, &x, &y, &z);
+    }
+    projectedX = D_800CEC98[0][0] * x;
+    projectedY = D_800CEC98[1][1] * y;
+    depth = -(D_800CEC98[2][3] * z);
+    if (depth < -2.0f) {
+        viewport = &D_80079D58[D_800CEC64];
+        if (D_80079C40[D_800CEC64].flags & 1) {
+            viewport += (D_80079D48 * 5) + 10;
+        }
+        viewportScaleX = (f32) (viewport->vp.vscale[0] >> 2);
+        viewportScaleY = (f32) (viewport->vp.vscale[1] >> 2);
+        visible = 1;
+        *outX = (f32) (viewport->vp.vtrans[0] >> 2) -
+                ((projectedX * viewportScaleX) / depth);
+        *outY = (f32) (viewport->vp.vtrans[1] >> 2) +
+                ((projectedY * viewportScaleY) / depth);
+    }
+    return visible;
+}
+
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: name and role from JFG's public decomp,
+ * src/camera.c:camReversePoint; body reconstructed from Mickey-only evidence.
+ *
+ * Plateau: the full flag lattice and a bounded two-worker permuter batch leave
+ * a 66-instruction configured candidate against the 65-instruction target,
+ * with 59 positional words different from first mismatch +0x0. The required
+ * TU multiply scheduler uses a 0x28-byte frame and removes the target's dead
+ * float spill; the same semantic body is byte-exact without that TU override,
+ * which cannot be changed because camGetProjZ requires it.
+ */
+void func_80024834(f32 screenX, f32 screenY, f32 *x, f32 *y, f32 *z,
+                   u8 transform) {
+    Vp *viewport;
+    f32 scale;
+    f32 transY;
+
+    viewport = &D_80079D58[D_800CEC64];
+    scale = (*z * D_800CEC98[2][2]) * D_800CEC98[2][3];
+    *x = (((f32) (viewport->vp.vtrans[0] >> 2) - screenX) * scale) /
+         (D_800CEC98[0][0] * (f32) (viewport->vp.vscale[0] >> 2));
+    transY = (f32) (viewport->vp.vtrans[1] >> 2);
+    *y = ((screenY - transY) * scale) /
+         (D_800CEC98[1][1] * (f32) (viewport->vp.vscale[1] >> 2));
+    if (transform != 0) {
+        mtxf_transform_point(D_800CF1E0, *x, *y, *z, x, y, z);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024834.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024938.s")
+#endif
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetProjZ. */
+f32 camGetProjZ(f32 x, f32 y, f32 z) {
+    f32 temp;
+    f32 out;
+
+    temp = D_800CF1A0[3][2];
+    out = temp +
+          (z * D_800CF1A0[2][2] +
+           (y * D_800CF1A0[1][2] + D_800CF1A0[0][2] * (temp = x)));
+    temp = y * D_800CF1A0[1][2] + x * D_800CF1A0[0][2];
+    temp = z * D_800CF1A0[2][2] + temp;
+    out = D_800CF1A0[3][2] + temp;
+
+    return out;
+}
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camCopyOrthoMatrix.
+ *
+ * Plateau: the full flag lattice, eight coherent source/type/indexing
+ * variants, and a bounded two-worker permuter batch leave an 84-instruction
+ * configured candidate against the 83-instruction target, with 59 positional
+ * words different from first mismatch +0x5C. IDO emits one extra address
+ * materialization for the third peeled coefficient; the likely blocker is
+ * original same-TU data-definition knowledge versus this extern array.
+ * The permuter's base score was 135 and it found no improvement.
+ */
+void func_80024978(MtxF matrix) {
+    s32 i;
+    s32 width;
+    s32 height;
+
+    viGetCurrentSize(&width, &height);
+    for (i = 0; i < 15; i++) {
+        ((f32 *) matrix)[i] = D_80079F4C[i] * D_80079F48;
+    }
+    matrix[3][3] = (u32) width >> 1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024978.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024AC4.s")
+#endif
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStartShake. */
+void camStartShake(s32 camNo, f32 attack, f32 sustain, f32 decay,
+                   s32 magnitude) {
+    CameraShake *shake;
+
+    if ((camNo >= 0) && (camNo < 6)) {
+        shake = &D_800CEC18[camNo];
+        shake->attackEnd = (s16) (s32) (attack * 60.0f);
+        shake->sustainEnd =
+            (s16) (shake->attackEnd + (s32) (sustain * 60.0f));
+        shake->totalEnd =
+            (s16) (shake->sustainEnd + (s32) (decay * 60.0f));
+        shake->timer = 0;
+        shake->magnitude = magnitude;
+    }
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStopShakes. */
 void camStopShakes(void) {
     s32 i;
@@ -550,7 +1871,55 @@ void camStopShakes(void) {
         shake->magnitude = 0; \
     }
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: role from JFG's public decomp, src/camera.c:camScreenShake;
+ * body reconstructed from Mickey-only evidence.
+ *
+ * Plateau: after the full flag lattice, ten coherent source/lifetime
+ * spellings and a bounded two-worker permuter batch, the closest configured
+ * candidate has the exact 296-byte size and differs in 15 positional words
+ * from first mismatch +0x60. IDO assigns the long-lived $f20 register to the
+ * Z delta instead of the target's X delta, cascading through the arithmetic
+ * temporaries; the permuter's best score is 125, not zero.
+ */
+void func_80024BA0(f32 x, f32 y, f32 z, f32 radius, f32 magnitude) {
+    Camera *cam;
+    f32 dx;
+    f32 distance;
+    f32 dz;
+    f32 dy;
+    f32 attack;
+    f32 sustain;
+    s32 i;
+
+    i = 0;
+    if (D_800CEC60 >= 0) {
+        sustain = D_80081A40;
+        attack = D_80081A44;
+        do {
+            cam = &D_800CEA20[i];
+            dx = x - cam->transform.x;
+            dy = y - cam->transform.y;
+            distance = z - cam->transform.z;
+            dz = distance;
+            dx = dx * dx;
+            dy = dy * dy;
+            dz = dz * dz;
+            distance = sqrtf((dx + dy) + dz);
+            if (distance < radius) {
+                camStartShake(i, attack, sustain, attack,
+                              (s32) (((radius - distance) * magnitude) /
+                                     radius));
+            }
+            i++;
+        } while (i <= D_800CEC60);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024BA0.s")
+#endif
+
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetZoom. */
 void camSetZoom(s32 camNo, f32 zoom) {
     if ((camNo >= 0) && (camNo < 6)) {
@@ -558,5 +1927,72 @@ void camSetZoom(s32 camNo, f32 zoom) {
         D_80079FB0[camNo] = zoom;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024D00.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024ED8.s")
+/*
+ * PROVENANCE: JFG's public src/camera.c identifies the camTick role/order;
+ * the body is reconstructed from Mickey-only camera and shake-envelope data.
+ */
+void func_80024D00(s32 updateRate) {
+    Camera *camera;
+    CameraShake *shake;
+    s32 magnitude;
+    s32 i;
+
+    camera = D_800CEA20;
+    shake = D_800CEC18;
+    D_800CEC84 = 0;
+    for (i = 6; i--; camera++, shake++) {
+        D_80079FA0[i] = 0;
+        D_80079FA8[i] = 1;
+        camera->shakeX = 0.0f;
+        camera->shakeY = 0.0f;
+        camera->shakeZ = 0.0f;
+        if (shake->magnitude != 0) {
+            shake->timer += updateRate;
+            if (shake->timer >= shake->totalEnd) {
+                shake->magnitude = 0;
+            } else {
+                D_800CEC84 = 1;
+                magnitude = shake->magnitude;
+                if (shake->sustainEnd < shake->timer) {
+                    magnitude = ((shake->totalEnd - shake->timer) * magnitude) /
+                                (shake->totalEnd - shake->sustainEnd);
+                } else if (shake->timer < shake->attackEnd) {
+                    magnitude = (shake->timer * magnitude) / shake->attackEnd;
+                }
+                camera->shakeY = mathRnd(0, magnitude);
+            }
+        }
+    }
+}
+/* Mickey-only fixed-distance camera-transform reconstruction. */
+void func_80024ED8(CameraTransform *source, s32 unused, Camera *dest) {
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    if (D_800CEC60 == 0) {
+        distance = 100.0f;
+    } else {
+        distance = 150.0f;
+    }
+    targetX = source->x - (func_8002A8C0(source->yRotation) * distance);
+    targetY = source->y + (distance * D_80081A48);
+    targetZ = source->z - (func_8002A8BC(source->yRotation) * distance);
+    dest->transform.x = targetX;
+    dest->unk18 = targetX;
+    dest->unk1C = targetY;
+    dest->transform.y = targetY;
+    dest->unk20 = targetZ;
+    dest->transform.z = targetZ;
+    deltaX = targetX - source->x;
+    deltaY = (targetY - source->y) - 20.0f;
+    deltaZ = targetZ - source->z;
+    dest->transform.yRotation = Arctanf(deltaZ, deltaX) + 0x4000;
+    dest->transform.xRotation =
+        Arctanf(deltaY, sqrtf((deltaX * deltaX) + (deltaZ * deltaZ)));
+    dest->transform.zRotation = 0;
+}

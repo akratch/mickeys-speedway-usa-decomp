@@ -105,7 +105,7 @@ void amSndPlayDirect(u16 soundId, u8 volume, u8 pan, f32 pitch, u8 effects,
                      void **handle);
 void amSndStop(void *sound);
 void camGetPlayerProjMtx(s32 player, MtxF matrix);
-AudioCamera *func_80024658(void);
+AudioCamera *camGetListPtr(void);
 void gsSndpSetParam(void *sound, s32 parameter, u32 value);
 void gsSndpSetPriority(void *sound, u8 priority);
 s32 runlinkIsModuleLoaded(s32 moduleId);
@@ -233,7 +233,7 @@ void amPlayAudioMap(void *arg0, s32 arg1, s32 arg2) {
     if (cameraCount == 1) {
         camGetPlayerProjMtx(0, D_800C91F8);
     }
-    cameras = func_80024658();
+    cameras = camGetListPtr();
 
     for (pointIndex = 0; pointIndex < D_80078F00; pointIndex++) {
         point = D_800C91E4[pointIndex];

@@ -2453,11 +2453,17 @@ _decodeChunk = 0x80069A34; // type:func size:0x1B8   ROM 0x6a634  src/libultra/n
 // roles (tier B); they are not represented as byte-identity claims. The two
 // tier-A rows that clear docs/modules.md 1.2 remain in the donor block above.
 // ---------------------------------------------------------------------------
-camInit = 0x800212E0; // type:func size:0x158 ROM 0x21ee0 tier-B similar-jfg-camInit=0.3125
+camInit = 0x800212E0; // type:func size:0x158 ROM 0x21ee0 tier-B matched-C similar-jfg-camInit=0.3125
+func_80021438 = 0x80021438; // type:func size:0x0C ROM 0x22038 tier-D matched-C Mickey auto-name retained, camera TU position
+func_80021444 = 0x80021444; // type:func size:0x40 ROM 0x22044 tier-D matched-C Mickey auto-name retained, paired camera-state setter
 camUseShake = 0x80021484; // type:func size:0x10 ROM 0x22084 tier-B JFG role/order and state effect
 camIgnoreShake = 0x80021494; // type:func size:0x0C ROM 0x22094 tier-B matched-C JFG role/order and inverse state effect
 camGetFOV = 0x800214A0; // type:func size:0x0C ROM 0x220a0 tier-B matched-C JFG role/order and FOV state read
+func_800214AC = 0x800214AC; // type:func size:0x38 ROM 0x220AC tier-D matched-C Mickey auto-name retained, active-camera state toggle
 camOverrideProjScales = 0x800214E4; // type:func size:0x20 ROM 0x220e4 tier-B matched-C, donor comparison has only 2 unmasked words
+func_800217AC = 0x800217AC; // type:func size:0x0C ROM 0x223ac tier-D matched-C Mickey auto-name retained, camera TU position
+camDistance = 0x800217B8; // type:func size:0x80 ROM 0x223B8 tier-D matched-C JFG TU role/order and camera-position dataflow
+func_80021838 = 0x80021838; // type:func size:0xE0 ROM 0x22438 tier-D matched-C Mickey auto-name retained, DKR reset role and JFG camera TU position
 // camGetMode/camSetMode/camGetNo/camSetNo/camGetWaterLine: docs/modules.md
 // §3.4's tier-B role argument names camOverrideProjScales, camGetProjOrgMtx,
 // camStopShakes and camSetZoom specifically; it does not extend that
@@ -2466,10 +2472,48 @@ camOverrideProjScales = 0x800214E4; // type:func size:0x20 ROM 0x220e4 tier-B ma
 camGetMode = 0x80021918; // type:func size:0x0C ROM 0x22518 tier-D matched-C JFG TU order, mode-state read
 camSetMode = 0x80021924; // type:func size:0x40 ROM 0x22524 tier-D matched-C JFG TU order, mode-state update
 camGetNo = 0x80021964; // type:func size:0x0C ROM 0x22564 tier-D matched-C JFG TU order, active-camera read
+func_80021970 = 0x80021970; // type:func size:0x24 ROM 0x22570 tier-D matched-C Mickey auto-name retained, indexed camera-array getter
 camSetNo = 0x80021994; // type:func size:0x0C ROM 0x22594 tier-D matched-C JFG TU order, Mickey raw active-camera update
 camGetWaterLine = 0x800219A0; // type:func size:0x10 ROM 0x225a0 tier-D matched-C JFG TU order, water-line state read
+camEnableUserView = 0x80021B70; // type:func size:0x74 ROM 0x22770 tier-D matched-C JFG TU role/order and viewport-flag dataflow
+camDisableUserView = 0x80021BE4; // type:func size:0x78 ROM 0x227E4 tier-D matched-C JFG TU role/order and viewport-flag dataflow
+camIsUserView = 0x80021C5C; // type:func size:0x2C ROM 0x2285C tier-D matched-C JFG TU role/order
+func_80021C88 = 0x80021C88; // type:func size:0x16C ROM 0x22888 tier-D matched-C JFG camSetUserView role/order, Mickey auto-name retained
+camSetUserViewSpecial = 0x80021DF4; // type:func size:0xFC ROM 0x229F4 tier-D matched-C JFG TU role/order and viewport-field dataflow
+camGetVisibleUserView = 0x80021EF0; // type:func size:0x78 ROM 0x22AF0 tier-D matched-C JFG TU role/order and viewport-scissor dataflow
+camGetUserView = 0x80021F68; // type:func size:0x48 ROM 0x22B68 tier-D matched-C JFG TU role/order and viewport-field dataflow
+func_80021FB0 = 0x80021FB0; // type:func size:0x238 ROM 0x22BB0 tier-D matched-C JFG camGetWindowLimits role/order, Mickey auto-name retained
 func_800221E8 = 0x800221E8; // type:func size:0x41C ROM 0x22de8 tier-D matched-C, JFG camSetView body, Mickey auto-name retained
+func_80022604 = 0x80022604; // type:func size:0x0C ROM 0x23204 tier-D matched-C Mickey auto-name retained, camera TU position
+camSetScissor = 0x80022610; // type:func size:0x150 ROM 0x23210 tier-D matched-C JFG TU role/order and scissor-command dataflow
 func_80022794 = 0x80022794; // type:func size:0x2A4 ROM 0x23394 tier-D matched-C, JFG camSetProjMtx body, Mickey auto-name retained
+camOrthoYAspect = 0x80022A38; // type:func size:0x0C ROM 0x23638 tier-D matched-C JFG TU role/order
+func_80022A44 = 0x80022A44; // type:func size:0x0C ROM 0x23644 tier-D matched-C Mickey auto-name retained, camera TU position
+camStandardOrtho = 0x80022A50; // type:func size:0x144 ROM 0x23650 tier-D matched-C JFG TU role/order and orthographic viewport dataflow
+camStandardPersp = 0x80022B94; // type:func size:0xC4 ROM 0x23794 tier-D matched-C JFG TU role/order and perspective-matrix dataflow
+camSetViewport = 0x80022C58; // type:func size:0xC8 ROM 0x23858 tier-D matched-C JFG TU role/order and viewport dataflow
+func_80022D20 = 0x80022D20; // type:func size:0x160 ROM 0x23920 tier-D matched-C JFG camResetView role/order, Mickey auto-name retained
+func_80022E80 = 0x80022E80; // type:func size:0x154 ROM 0x23A80 tier-D matched-C Mickey camera-relative billboard offset dataflow
+func_80023A08 = 0x80023A08; // type:func size:0x2C4 ROM 0x24608 tier-D matched-C JFG camDoSprite role/order, Mickey auto-name retained
+func_80023CCC = 0x80023CCC; // type:func size:0x2B8 ROM 0x248CC tier-D matched-C JFG camDoSpriteDirect role/order, Mickey auto-name retained
+func_80023F84 = 0x80023F84; // type:func size:0x280 ROM 0x24B84 tier-D matched-C JFG camDo2DSprite role/order, Mickey auto-name retained
+camPushFloatModelMtx = 0x80024204; // type:func size:0xDC ROM 0x24E04 tier-D matched-C JFG TU role/order and float-model matrix dataflow
+camPushMuzzleMtx = 0x800242E0; // type:func size:0x14C ROM 0x24EE0 tier-D matched-C JFG TU role/order and muzzle-matrix dataflow
+camScaleModelMtx = 0x8002442C; // type:func size:0xC0 ROM 0x2502C tier-D matched-C JFG TU role/order and model-scale matrix dataflow
+camPushModelMtx = 0x800244EC; // type:func size:0x100 ROM 0x250EC tier-D matched-C JFG TU role/order and model-matrix dataflow
+camRestoreModelMtx = 0x800245EC; // type:func size:0x20 ROM 0x251EC tier-D matched-C JFG TU role/order
+camPopModelMtx = 0x8002460C; // type:func size:0x20 ROM 0x2520C tier-D matched-C JFG TU role/order
+camGetPtr = 0x8002462C; // type:func size:0x2C ROM 0x2522C tier-B matched-C Mickey/JFG weather call graph and active-camera dataflow
+camGetListPtr = 0x80024658; // type:func size:0x0C ROM 0x25258 tier-D matched-C JFG TU role/order
+camGetInvProjMtx = 0x80024664; // type:func size:0x0C ROM 0x25264 tier-D matched-C JFG TU role/order, Mickey matrix dataflow
 camGetProjOrgMtx = 0x80024670; // type:func size:0x1C ROM 0x25270 tier-B matched-C, donor comparison has only 3 unmasked words
+func_8002468C = 0x8002468C; // type:func size:0x0C ROM 0x2528C tier-D matched-C Mickey auto-name retained, camera matrix dataflow
+camGetRotationMtx = 0x80024698; // type:func size:0x0C ROM 0x25298 tier-B matched-C Mickey/JFG weather call graph and matrix dataflow
+camGetProjectionMtx = 0x800246A4; // type:func size:0x0C ROM 0x252A4 tier-D matched-C JFG role and Mickey final projection-matrix dataflow
+func_800246B0 = 0x800246B0; // type:func size:0x184 ROM 0x252B0 tier-D matched-C JFG camProjectPoint role/order, Mickey auto-name retained
+camGetProjZ = 0x80024938; // type:func size:0x40 ROM 0x25538 tier-D matched-C JFG TU role/order and projection-depth dataflow
+camStartShake = 0x80024AC4; // type:func size:0x90 ROM 0x256C4 tier-D matched-C JFG TU role/order and shake-record dataflow
 camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B matched-C similar-jfg-camStopShakes=1.000
 camSetZoom = 0x80024CC8; // type:func size:0x38 ROM 0x258c8 tier-B matched-C similar-jfg-camSetZoom=1.000
+func_80024D00 = 0x80024D00; // type:func size:0x1D8 ROM 0x25900 tier-D matched-C JFG camTick role/order, Mickey auto-name retained
+func_80024ED8 = 0x80024ED8; // type:func size:0x144 ROM 0x25AD8 tier-D matched-C Mickey auto-name retained, fixed-distance camera-transform dataflow

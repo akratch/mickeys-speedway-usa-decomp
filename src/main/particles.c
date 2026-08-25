@@ -595,8 +595,8 @@ f32 sqrtf(f32 value);
 void mtxf_transform_dir(void *matrix, f32 *input, f32 *output, ParticleEmitterHeader *header);
 void camSetNo(s32 camera);
 void func_800221E8(void **dList, s32 arg1);
-void func_800244EC(Gfx **dList, s32 renderContext, ParticleRenderTransform *transform, f32 scale, f32 extra);
-void func_800245EC(Gfx **dList);
+void camPushModelMtx(Gfx **dList, s32 renderContext, ParticleRenderTransform *transform, f32 scale, f32 extra);
+void camRestoreModelMtx(Gfx **dList);
 void func_80023A08(Gfx **dList, s32 renderContext, void **vertices, CircularParticle *particle,
                    ParticleSpriteResource *resource, s32 flags, s32 intensity);
 void func_80034DF0(u8 red, u8 green, u8 blue, u8 alternateRed, u8 alternateGreen, u8 alternateBlue);
@@ -946,7 +946,7 @@ void func_8003D25C(Gfx **dList, s32 renderContext, void **vertices, CircularPart
                     transform.y = particle->renderY;
                     transform.z = particle->renderZ;
                     transform.scale = particle->scale;
-                    func_800244EC(dList, renderContext, &transform, 1.0f, 0.0f);
+                    camPushModelMtx(dList, renderContext, &transform, 1.0f, 0.0f);
                     gDPPipeSync((*dList)++);
                     if (particle->flags & 0x800) {
                         intensity = particle->intensity;
@@ -977,7 +977,7 @@ void func_8003D25C(Gfx **dList, s32 renderContext, void **vertices, CircularPart
         }
         gDPPipeSync((*dList)++);
         gDPSetPrimColor((*dList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-        func_800245EC(dList);
+        camRestoreModelMtx(dList);
     }
 }
 #else

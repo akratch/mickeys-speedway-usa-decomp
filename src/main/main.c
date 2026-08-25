@@ -249,8 +249,8 @@ extern void piInit(void);
 extern void rcpInit(OSSched *);
 extern void runlinkInit(void);
 extern void runlinkFreeCode(s32);
-extern s32 func_80021C5C(s32);
-extern void func_80021F68(s32, s32 *, s32 *, s32 *, s32 *);
+extern s32 camIsUserView(s32);
+extern void camGetUserView(s32, s32 *, s32 *, s32 *, s32 *);
 extern f32 rainDensity(void);
 extern s32 runlinkIsModuleLoaded(s32);
 extern void func_8004A0F0(void);
@@ -283,7 +283,7 @@ extern void func_80051364(s32);
 extern void func_8000784C(s32);
 extern void func_80007844(void);
 extern void partUpdateParticles(s32);
-extern s32 func_8002462C(void);
+extern s32 camGetPtr(void);
 extern void func_80053420(s32, s32);
 extern void func_8000BD50(s32);
 extern void func_80006FA0(void);
@@ -298,8 +298,8 @@ extern void rcpClearScreen(Gfx **, Mtx **, s32);
 extern s32 rcpWaitDP(void);
 extern void bgdraw_fillcolour(s32, s32, s32);
 extern void func_80021C88(s32, s32, s32, s32, s32);
-extern void func_80021B70(s32, s32);
-extern void func_80021BE4(s32, s32);
+extern void camEnableUserView(s32, s32);
+extern void camDisableUserView(s32, s32);
 extern void func_80044B9C(void);
 extern void func_80046504(void);
 extern void func_8004650C(s32);
@@ -553,11 +553,11 @@ void func_80026FB4(void) {
     rcpInitDp(&D_800CF518);
     if (D_8007A128 != 0) {
         func_80021C88(0, D_8007A12C, D_8007A130, D_8007A134, D_8007A138);
-        func_80021B70(0, 1);
+        camEnableUserView(0, 1);
         bgdraw_fillcolour(0, 0, 0);
     }
     rcpClearScreen(&D_800CF518, &D_800CF530, 1);
-    func_80021BE4(0, 1);
+    camDisableUserView(0, 1);
 
     D_8007A1CC = joyRead(D_8007A1CC, D_8007A248);
     func_80046504();
@@ -868,8 +868,8 @@ void mainCPUeffects(u16 *framebuffer, s32 unused) {
     s32 y2;
 
     viGetCurrentSize(&screenWidth, (s32 *) &screenHeight);
-    if (func_80021C5C(0) != 0) {
-        func_80021F68(0, &x1, &y1, &x2, &y2);
+    if (camIsUserView(0) != 0) {
+        camGetUserView(0, &x1, &y1, &x2, &y2);
         screenHeight = (y2 - y1) + 1;
         framebuffer += y1 * screenWidth;
     }
@@ -1044,7 +1044,7 @@ void func_80027FB8(s32 updateRate) {
             TrapDanglingJump(updateRate);
         }
         partUpdateParticles(updateRate);
-        func_80053420(0, func_8002462C());
+        func_80053420(0, camGetPtr());
         func_8000BD50(updateRate);
         if (((s8 *) level)[0x83] != 1 && ((s8 *) level)[0x83] != 2 &&
             (pressedButtons & 0x1000) && D_8007A1A4 == 0 &&

@@ -114,13 +114,13 @@ extern u64 rspbootTextEnd[];
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
 void osWritebackDCacheAll(void);
 s32 TrapDanglingJump(void);
-s32 func_80021C5C(s32 arg0);
-s32 func_80021EF0(s32 arg0, s32 *x1, s32 *y1, s32 *x2, s32 *y2);
+s32 camIsUserView(s32 arg0);
+s32 camGetVisibleUserView(s32 arg0, s32 *x1, s32 *y1, s32 *x2, s32 *y2);
 #ifdef NON_MATCHING
 s32 camGetMode(void);
 s32 frontGet2PlayerSplit(void);
 #endif
-void func_80022610(RcpCommand **dlist);
+void camSetScissor(RcpCommand **dlist);
 void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height, u32 value);
 void rcpClearZBuffer(RcpCommand **dlist, u32 width, u32 height, s32 x1,
                      s32 y1, s32 x2, s32 y2);
@@ -399,11 +399,11 @@ void rcpClearScreen(RcpCommand **dlist, s32 arg1, s32 drawBackground) {
         rcpClearZBuffer(dlist, width, height, 0, 0, width, height);
     }
     if (drawBackground != 0) {
-        if (func_80021C5C(0) != 0) {
+        if (camIsUserView(0) != 0) {
             gDPSetFillColor((*dlist)++, D_8007A3AC);
             gDPFillRectangle((*dlist)++, 0, 0, width - 1, height - 1);
 
-            if (func_80021EF0(0, &x1, &y1, &x2, &y2) != 0) {
+            if (camGetVisibleUserView(0, &x1, &y1, &x2, &y2) != 0) {
                 gDPSetCycleType((*dlist)++, G_CYC_1CYCLE);
                 gDPSetPrimColor((*dlist)++, 0, 0, D_8007A3A0,
                                 D_8007A3A4, D_8007A3A8, 0xFF);
@@ -425,7 +425,7 @@ void rcpClearScreen(RcpCommand **dlist, s32 arg1, s32 drawBackground) {
         }
     }
     gDPPipeSync((*dlist)++);
-    func_80022610(dlist);
+    camSetScissor(dlist);
 }
 void rcpInitDp(RcpCommand **dlist) {
     s32 width;

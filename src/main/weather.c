@@ -168,8 +168,8 @@ extern s32 osTvType;
 extern s32 func_800299E8(s32 min, s32 max);
 extern s32 mathRnd(s32 min, s32 max);
 extern void *func_8002B280(s32 size, s32 tag);
-extern Camera *func_8002462C(void);
-extern Matrix *func_80024698(void);
+extern Camera *camGetPtr(void);
+extern Matrix *camGetRotationMtx(void);
 extern s32 *piRomLoad(s32 assetId);
 extern s32 coss_s16(s16 angle);
 extern s32 func_8002A1A4(s16 angle);
@@ -464,8 +464,8 @@ void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **a
     D_800D40D0 = *arg1;
     D_800D40D4 = *arg2;
     D_800D40D8 = *arg3;
-    D_800D40DC = func_8002462C();
-    D_800D40E0 = func_80024698();
+    D_800D40DC = camGetPtr();
+    D_800D40E0 = camGetRotationMtx();
     if (D_8007C6E8 != 0) {
         rain_update(updateRate);
     } else {

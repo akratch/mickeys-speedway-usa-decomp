@@ -60,7 +60,7 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
 s32 TrapDanglingJump();
 void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2);
 void camSetNo(s8 playerIndex, s32 cameraIndex, u8 **cameraState);
-u8 *func_80024658(void);
+u8 *camGetListPtr(void);
 s32 mainGetNumberOfCameras(void);
 s32 func_800299E8(s32 minimum, s32 maximum);
 ControlActor **func_8000572C(s32 *start, s32 *end);
@@ -284,7 +284,7 @@ void func_8001D2A0(ControlActor *actor, s32 arg1) {
     if (player->unkD4 != 0) {
         TrapDanglingJump(player->unkD4, arg1);
     }
-    D_800CB300 = func_80024658();
+    D_800CB300 = camGetListPtr();
     cameraIndex = mainGetNumberOfCameras() - 1;
     if (player->playerIndex < cameraIndex) {
         cameraIndex = player->playerIndex;

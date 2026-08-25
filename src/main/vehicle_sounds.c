@@ -115,7 +115,7 @@ void func_800030B4(void *soundHandle, u8 pitch);
 void func_800031C0(void *soundHandle, f32 x, f32 y, f32 z);
 void func_800031E8(void *soundHandle);
 VehicleObject **func_80005750(s32 *count);
-VehicleCamera *func_80024658(void);
+VehicleCamera *camGetListPtr(void);
 s32 func_8003A550(void);
 s32 mainGetNumberOfCameras(void);
 s32 mathRnd(s32 minimum, s32 maximum);
@@ -384,7 +384,7 @@ void func_8005830C(s32 updateRate) {
 
     if (func_8003A550() == 0) {
         cameraCount = mainGetNumberOfCameras();
-        cameras = func_80024658();
+        cameras = camGetListPtr();
         cameraIndex = cameraCount - 1;
         if (cameraCount != 0) {
             do {
