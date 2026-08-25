@@ -2318,5 +2318,6 @@ camGetInvProjMtx = 0x80024664; // type:func size:0x0C ROM 0x25264 tier-D matched
 camGetProjOrgMtx = 0x80024670; // type:func size:0x1C ROM 0x25270 tier-B matched-C, donor comparison has only 3 unmasked words
 func_8002468C = 0x8002468C; // type:func size:0x0C ROM 0x2528C tier-D matched-C Mickey auto-name retained, camera matrix dataflow
 camGetRotationMtx = 0x80024698; // type:func size:0x0C ROM 0x25298 tier-B matched-C Mickey/JFG weather call graph and matrix dataflow
+camGetProjectionMtx = 0x800246A4; // type:func size:0x0C ROM 0x252A4 tier-D matched-C JFG role and Mickey final projection-matrix dataflow
 camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B matched-C similar-jfg-camStopShakes=1.000
 camSetZoom = 0x80024CC8; // type:func size:0x38 ROM 0x258c8 tier-B matched-C similar-jfg-camSetZoom=1.000
