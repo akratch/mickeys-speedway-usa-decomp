@@ -1,6 +1,15 @@
 #include "overlays/overlay019.h"
 
-/* Classify an edge against a candidate edge, accepting either orientation. */
+/*
+ * Classify an edge against a candidate edge, accepting either orientation.
+ * Plateau (2026-08-25, cx-ov-2-a-r4): canonical -O2 -mips2 is exact-size at
+ * 0x1E0 bytes, with 10 differing words and the first mismatch at +0x138.
+ * Equivalent promoted-s16 `>= value + 1` tests reduce the original 14-word
+ * deficit, and the bounded ten-minute permuter improves score 110 to 90. The
+ * remaining reversed-coordinate block splits queryStartX's target $t3 live
+ * range into $v1; explicit coordinate temporaries disturb the full register
+ * web instead of preserving that allocation.
+ */
 #ifdef NON_MATCHING
 s32 overlay19ClassifyEdge(
     O19Vertex *vertices,
@@ -35,13 +44,13 @@ s32 overlay19ClassifyEdge(
         (candidateStartX < queryStartX)) {
         goto check_reversed_coordinates;
     }
-    if (candidateStart->y > queryStart->y) {
+    if (candidateStart->y >= (queryStart->y + 1)) {
         goto check_reversed_coordinates;
     }
     if (queryStart->y > candidateStart->y) {
         goto check_reversed_coordinates;
     }
-    if (candidateStart->z > queryStart->z) {
+    if (candidateStart->z >= (queryStart->z + 1)) {
         goto check_reversed_coordinates;
     }
     if (queryStart->z > candidateStart->z) {
