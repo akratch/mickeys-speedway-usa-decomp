@@ -992,6 +992,21 @@ the only exact-size result. Ten coherent type, expression-tree, pointer-reuse,
 scalar/array, and volatile variants did not satisfy the word and relocation
 gates. Canonical code remains assembly and no TU flag override is adopted.
 
+`func_80038BC4` reaches an **exact-text tier-D NON_MATCHING plateau** over
+**0x1E8 bytes / 122 words** at ROM `0x397C4`. JFG's same-position
+`frontInitMode` supplies the role and switch-order comparison but retains an
+assembly body; the candidate is Mickey-derived and keeps its placeholder
+name. Explicit no-op cases zero and one recover the target's 19-entry range
+check, after which the resident default flags emit every executable word and
+the exact `0x18`-byte frame. Promotion is blocked by section ownership: IDO
+emits the switch's `0x4C` bytes as anonymous TU-local `.rodata`, while the
+named `jtbl_80082794` copy remains inside the shared `0x81590` yaml slice.
+Compiling both would duplicate the table. The first metadata mismatch is the
+target assembly's external-label PC16 at function `+0x2C`; the named-versus-
+anonymous table HI16/LO16 pair follows at `+0x34`/`+0x3C`. The flag lattice
+does not change this ownership surface. Canonical code and shared rodata
+remain assembly pending a measured yaml handoff outside this lane's ownership.
+
 The tier-B `frontSetMode` adds **0x64 bytes / 25 words** at ROM `0x399AC`.
 Its exact free/init/reset call sequence, mode-state store, and ordered pairing
 with `frontGetMode` establish the JFG role. The name, role, and shared control

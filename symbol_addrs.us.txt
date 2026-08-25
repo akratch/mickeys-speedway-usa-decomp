@@ -2188,6 +2188,7 @@ initColourCycle = 0x80036A50; // type:func size:0x30   ROM 0x37650  src/textures
 // donor-jfg-src/menu.c.o
 func_80038750 = 0x80038750; // type:func size:0x128 tier-D ROM 0x39350 NON_MATCHING plateau 14/74 words differ, first +0x2C
 func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING plateau 66/85 words differ, first +0x14
+func_80038BC4 = 0x80038BC4; // type:func size:0x1E8 tier-D ROM 0x397C4 NON_MATCHING exact-text plateau, shared 0x4C jump table
 // Tier B (JFG): exact free/init/reset call sequence, stored mode state, and
 // ordered pairing with frontGetMode identify the front-end mode setter.
 frontSetMode = 0x80038DAC; // type:func size:0x64 tier-B ROM 0x399ac canonical C, linked byte-identical
