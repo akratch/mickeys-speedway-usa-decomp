@@ -1020,18 +1020,15 @@ void func_80022E80(CameraScaledTransform *transform) {
  * PROVENANCE: JFG's public src/camera.c identifies the camDoSprite role;
  * this substantially different body is reconstructed from Mickey-only data.
  *
- * Plateau: after the full flag lattice and ten source/lifetime variants, the
- * best -Wab,-r4300_mul candidate has the target's 0xB0 frame and emits 366
- * instructions against 369. It differs in 297 positional words, beginning at
- * +0x2C where IDO places the three transformed-coordinate stack homes twelve
- * bytes above the target. Later expression scheduling leaves three missing
- * instructions, so the canonical build remains assembly-backed.
+ * Workbench plateau: structure-mismatch, 365/369 instructions, exact 0xB0 frame, 217 positional words, first +0x2C.
+ * Levers tried: constant audit, spill census, declaration/aggregate alignment, and angle-product lifetime; volatile cut 80 words.
+ * Remaining: twelve-byte coordinate-home shift, four-instruction deficit, final Gfx schedule; ten relocations misalign downstream.
  */
 void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
                    CameraSpriteAnchor *anchor, f32 *opacity,
                    CameraSprite *sprite, s32 flags, s32 alpha) {
     register CameraSprite *spriteEarly;
-    s32 angleProduct;
+    volatile s32 angleProduct;
     s32 quadrant;
     f32 transformedX;
     f32 transformedY;
