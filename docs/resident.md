@@ -556,13 +556,9 @@ target's exact 342-instruction size but 257 positional words differ from
 and stack-home allocation. The permuter's lower-scoring candidate reused the
 last texture parameter as a command-word temporary and would corrupt the next
 part's cache comparison, so it was rejected.
-`func_80020D8C` plateaus after the 119-combination flag lattice and ten
-source/type/lifetime spellings. Its best `NON_MATCHING` candidate has the
-target's exact 48-instruction opcode schedule, frame, and relocation surface,
-but 17 register operands differ from first mismatch `+0x38`. IDO assigns the
-texture-table address temporaries later in the temporary FIFO and tests the
-copied loop count in `t1`, while the target uses the preceding registers and
-tests the original count in `t0`; target assembly remains canonical.
+`func_80020D8C` is exact-size with 13/48 positional words differing, first `+0x38`; workbench verdict: register-ring-only residual.
+Assembler-folded narrowing masks improved 17 to 13; combinations regressed, and the corrected-flag 30-minute permutation found no exact form.
+The remaining temp-FIFO web requires ring-only registers; the assembly fallback stays canonical.
 `func_80020E4C` plateau: canonical C emits 112/113 words, with 77 differing
 from `+0x64`; the missing exception-index scale shifts later temporary
 allocation after type, assignment, induction, flag, and permuter sweeps.
@@ -1751,23 +1747,9 @@ canonical MIPS II permuter then led to a coherent value-bit/cursor-field
 lifetime rewrite: exact 28-word size, 18 differences from `+0x10` (17 register,
 one opcode); the remaining blocker is constant/next-bit register coloring.
 
-Its paired bit reader `func_8002C70C` likewise retains a Mickey-derived
-`NON_MATCHING` body. The 119-combination flag lattice and five local-width and
-expression shapes reach the target's exact 31-instruction control-flow shape,
-but 18 words differ from the first mismatch at `+0x14`: the loop-invariant
-`0x80` mask and subsequent temporaries allocate to different registers, with
-one remaining opcode difference and no relocation differences. Automated
-declaration permutation is blocked by the same absent permuter import. The
-assembly fallback remains canonical.
-
-A fresh local-width retry used byte-sized mask temporaries, matching the
-values' stored width rather than their promoted arithmetic width. It regressed
-to 32 instructions, 24 positional differences, and first mismatch `+0x0`.
-The promoted-width candidate remains best at the target's 31 instructions,
-18 differences, and first mismatch `+0x14`.
-This run's explicit cursor-field retry added one word; a bounded MIPS II
-permuter improved only by inventing a 64-bit mask seed, so the faithful
-31-word/18-difference candidate remains guarded with the same `+0x14` blocker.
+`func_8002C70C` is exact-size with 14/31 positional words differing, first `+0x14`; workbench verdict: register-permutation residual.
+Chained byte assignment and a direct field test improved 18 to 14; the corrected-flag 30-minute permutation found no faithful exact form.
+The invariant-mask/next-bit web still needs ring-only temporaries unavailable to the color lever; the assembly fallback stays canonical.
 
 The full-save-image builder `func_8002CF6C` also retains a Mickey-derived
 `NON_MATCHING` body after the 119-combination flag lattice and ten
@@ -2619,9 +2601,9 @@ indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
-The 112-byte `func_8004ACC4` retains its best exact-size candidate at 18/28 differing words; fresh m2c return typing and typed declaration-order forms regressed to 25 and 24.
-The first mismatch remains `+0x14`; the loop and relocation set are exact, but IDO rotates the counter, trap address, and callback cursor.
-Hypothesis: the missing original aggregate/type lifetime fixes that allocation; the preserved candidate remains `NON_MATCHING`.
+`func_8004ACC4` remains exact-size with 14/28 positional words differing, first `+0x14`; workbench verdict: mixed structure/register residual.
+Logical-line grouping improved 18 to 14; aggregate lifetime, assignment order, and direct trap-address forms did not.
+The callback/trap address web and counter schedule remain; the assembly fallback stays canonical.
 
 `func_8004AF68` remains a workbench `structure-mismatch`: 54/52 words and 48 positional differences from `+0x4`.
 Constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement did not remove the saved secondary-array base web.
