@@ -127,7 +127,7 @@ s32 packOpen(s32 controllerIndex);
 s32 joyMessageQ(void);
 s32 func_80070170(s32 messageQueue);
 s32 mainResetPressed(void);
-s32 func_8003A24C(void);
+s32 frontGetLanguage(void);
 s32 func_8006FEF0(s32 arg0, u8 type, void *data, s32 size);
 void func_80070030(s32 arg0, u8 arg1, void *arg2, s32 arg3);
 s32 func_8002C7EC(s32 arg0, s32 arg1, void *arg2, s32 arg3);
@@ -728,7 +728,7 @@ s32 packOpenFile(s32 controllerIndex, char *fileName, char *fileExt,
     string_to_font_codes(fileName, fileNameAsFontCodes, PFS_FILE_NAME_LEN);
     string_to_font_codes(fileExt, fileExtAsFontCodes, PFS_FILE_EXT_LEN);
 
-    if (func_8003A24C() == 5) {
+    if (frontGetLanguage() == 5) {
         gameCode = 0x4E44594A;
     } else if (osTvType == 0) {
         gameCode = 0x4E445950;

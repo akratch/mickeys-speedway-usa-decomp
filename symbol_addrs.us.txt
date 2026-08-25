@@ -2276,13 +2276,61 @@ fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  ma
 // jfg:src/textures.c.o
 initColourCycle = 0x80036A50; // type:func size:0x30   ROM 0x37650  src/textures.c.o  masked=2/12
 // donor-jfg-src/menu.c.o
+func_80038750 = 0x80038750; // type:func size:0x128 tier-D ROM 0x39350 NON_MATCHING plateau 14/74 words differ, first +0x2C
+func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING plateau 66/85 words differ, first +0x14
+func_800389CC = 0x800389CC; // type:func size:0x1F8 tier-D ROM 0x395CC NON_MATCHING exact-text plateau, shared 0x4C jump table
+func_80038BC4 = 0x80038BC4; // type:func size:0x1E8 tier-D ROM 0x397C4 NON_MATCHING exact-text plateau, shared 0x4C jump table
+// Tier B (JFG): exact free/init/reset call sequence, stored mode state, and
+// ordered pairing with frontGetMode identify the front-end mode setter.
+frontSetMode = 0x80038DAC; // type:func size:0x64 tier-B ROM 0x399ac canonical C, linked byte-identical
+// Tier B (JFG): exact byte getter, ordered position between frontSetMode and
+// frontUpdate, and the following update's dispatch on the same state identify
+// the front-end mode accessor.
+frontGetMode = 0x80038E10; // type:func size:0xC tier-B ROM 0x39a10 canonical C, linked byte-identical
 func_80038E1C = 0x80038E1C; // type:func size:0x45C tier-D ROM 0x39a1c NON_MATCHING plateau 248/279 words differ, first +0x24
-frontDrawRectangle = 0x80039584; // type:func size:0x50   ROM 0x3a184  src/menu.c.o  masked=1/20
-func_8003968C = 0x8003968C; // type:func size:0x94   ROM 0x3a28c  src/menu.c.o  masked=24/37
+// Tier B (JFG): the blinking localized message renderer has the same exact
+// size, call sequence, and position immediately after frontUpdate.
+frontDemoMessage = 0x80039278; // type:func size:0x108 tier-B ROM 0x39e78 canonical C, linked byte-identical
+// Tier B (JFG): the ordered rectangle batcher role, clipping topology, colour
+// batching, and pairing with frontDrawRectangle identify frontDrawRectangles.
+frontDrawRectangles = 0x80039380; // type:func size:0x204 tier-B ROM 0x39f80 canonical C, linked byte-identical
+// Tier A (JFG): 19 unmasked words match JFG's uniquely identified
+// frontDrawRectangle skeleton; the sole masked word is its draw call.
+frontDrawRectangle = 0x80039584; // type:func size:0x50 tier-A ROM 0x3a184 canonical C, linked byte-identical
+// Tier B (JFG): the screen-limit table lookup, split-mode adjustment, two
+// coordinate conversions, and menu ordering identify frontPlayerScreenLimits.
+frontPlayerScreenLimits = 0x800395D4; // type:func size:0xB8 tier-B ROM 0x3a1d4 canonical C, linked byte-identical
+func_8003968C = 0x8003968C; // type:func size:0x94 tier-D ROM 0x3a28c NON_MATCHING plateau, 37/37 words exact but 18 relocation identities differ, first +0x24
 func_80039720 = 0x80039720; // type:func size:0x320 tier-D ROM 0x3a320 canonical C, linked byte-identical
-setupFrontEndObject = 0x80039DAC; // type:func size:0x88   ROM 0x3a9ac  src/menu.c.o  masked=4/34
+// Tier B (JFG): the exact sentinel-list loop, its call to the immediately
+// following per-item free routine, and JFG's same ordered pair identify it.
+freeFrontEndList = 0x80039A40; // type:func size:0x5C tier-B ROM 0x3a640 canonical C, linked byte-identical
+// Tier B (JFG): the resource-type dispatch, loaded-slot bookkeeping, and
+// position after freeFrontEndList identify JFG's per-item release routine.
+freeFrontEndItem = 0x80039A9C; // type:func size:0xEC tier-B ROM 0x3a69c canonical C, linked byte-identical
+// Tier B (JFG): the exact sentinel-list loop, its call to the immediately
+// following per-item load routine, and JFG's same ordered pair identify it.
+loadFrontEndList = 0x80039B88; // type:func size:0x5C tier-B ROM 0x3a788 canonical C, linked byte-identical
+// Tier B (JFG): the same-size four-way asset loader, call surface, and
+// position after loadFrontEndList identify the per-item load routine.
+loadFrontEndItem = 0x80039BE4; // type:func size:0x16C tier-B ROM 0x3a7e4 canonical C, linked byte-identical
+// Tier B (JFG): the exact sentinel-list loop, its call to the immediately
+// following object setup routine, and JFG's same ordered pair identify it.
+setupFrontEndList = 0x80039D50; // type:func size:0x5C tier-B ROM 0x3a950 canonical C, linked byte-identical
+// Tier A (JFG): the complete 34-word masked skeleton is identical, and the
+// function occupies the same ordered setupFrontEndObject position.
+setupFrontEndObject = 0x80039DAC; // type:func size:0x88 tier-A ROM 0x3a9ac canonical C, linked byte-identical
 func_80039E34 = 0x80039E34; // type:func size:0x418 tier-D ROM 0x3aa34 NON_MATCHING plateau +1 word, 242/262 differ, first +0x14
+// Tier B (JFG): exact packed-field getter, ordered position immediately before
+// the paired setter and screen-mode accessor family, and the resident caller's
+// use as a returned setting identify the language accessor.
+frontGetLanguage = 0x8003A24C; // type:func size:0x14 tier-B ROM 0x3ae4c canonical C, linked byte-identical
+// Tier B (JFG): exact packed-field setter, ordered pairing with
+// frontGetLanguage, and its call to the front-end language refresh routine
+// identify the language setter.
+frontSetLanguage = 0x8003A260; // type:func size:0x38 tier-B ROM 0x3ae60 canonical C, linked byte-identical
 frontGetScreenMode = 0x8003A298; // type:func size:0x30   ROM 0x3ae98  src/menu.c.o  masked=2/12
+func_8003A2C8 = 0x8003A2C8; // type:func size:0x80 tier-D ROM 0x3aec8 NON_MATCHING plateau, 19/32 words differ, first +0xc
 // Tier B (JFG): exact copied-byte store, adjacent ordered accessor family,
 // and correspondence with JFG's frontStoreScreenMode establish the role.
 frontStoreScreenMode = 0x8003A348; // type:func size:0x14  ROM 0x3af48
@@ -2294,6 +2342,12 @@ frontGetLevelScreenMode = 0x8003A368; // type:func size:0x68   ROM 0x3af68  src/
 // before the already tier-A-named frontSetWideAdjust establish the role.
 frontGetWideAdjust = 0x8003A3D0; // type:func size:0xC  ROM 0x3afd0
 frontSetWideAdjust = 0x8003A3DC; // type:func size:0x2C   ROM 0x3afdc  src/menu.c.o  masked=4/11
+// Tier B (JFG): exact packed-field getter and ordered position between the
+// wide-adjust and SFX-volume accessors identify the stereo-mode accessor.
+frontGetStereoMode = 0x8003A408; // type:func size:0x14 tier-B ROM 0x3b008 canonical C, linked byte-identical
+// Tier B (JFG): paired packed-field access, the same clamp/table/audio call,
+// and ordered position before the SFX-volume pair identify the stereo setter.
+frontSetStereoMode = 0x8003A41C; // type:func size:0x60 tier-B ROM 0x3b01c canonical C, linked byte-identical
 // Tier B (JFG): exact halfword getter, ordered menu position, and the adjacent
 // setter's gsSndpSetGlobalVolume call establish the SFX-volume role.
 frontGetSfxVolume = 0x8003A47C; // type:func size:0xC  ROM 0x3b07c

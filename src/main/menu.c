@@ -10,17 +10,25 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/font.h"
+#include "game/gameVi.h"
 #include "game/menu.h"
+#include "game/pi.h"
+#include "n_audio/mbi.h"
 
 /* PROVENANCE: base layout adapted from JFG's public decomp,
- * src/menu.h::Resbitfield; twoPlayerSplit is Mickey-derived from its paired
- * getter and byte-preserving setter. */
+ * src/menu.h::Resbitfield; twoPlayerSplit and stereoMode are Mickey-derived
+ * from their paired getters and byte-preserving setters. */
 typedef struct MenuScreenModeBits {
     u32 unused : 1;
     u32 modeBit0 : 1;
     u32 modeBit1 : 1;
     u32 twoPlayerSplit : 1;
-    u32 rest : 28;
+    u32 unusedStereoGap : 5;
+    u32 stereoMode : 2;
+    u32 unusedLanguageGap : 5;
+    u32 language : 6;
+    u32 rest : 10;
 } MenuScreenModeBits;
 
 extern s8 D_800D312B;
@@ -28,21 +36,35 @@ extern s8 D_800D3050;
 extern MenuScreenModeBits D_800D3128;
 extern u8 D_8007C08C;
 extern u8 D_8007C090;
+extern u8 D_8007C088;
 extern s32 D_8007C098;
+extern s32 *D_8007C094;
 extern s16 D_8007BF70;
+extern s16 D_8007BF7C[];
 extern u8 D_8007BEF4;
-extern s8 D_8007BF34;
+extern u8 D_8007BEF8;
+extern u8 D_8007BF30;
+extern u8 D_8007BF34;
 extern u8 D_8007C0A0;
 extern s32 D_8007C09C;
 extern s32 D_8007C1A4;
 extern s32 D_8007C1AC;
+extern u8 D_8007C308[];
 extern s32 D_800C947C;
 extern s32 D_800D314C;
+extern s32 D_800D3150[];
+extern s32 D_800D3168[];
 extern u8 D_800826C0[];
+extern u16 D_800D312A;
 extern u16 D_800D312C;
 extern u16 D_800D312E;
 extern void amTuneStop(void);
 extern void amTuneSetGlobalVolume(s32 volume);
+extern void alSurround_OutputType(u8 mode);
+extern void func_80038750();
+extern void func_800389CC(void);
+extern void func_80038BC4(void);
+extern void func_8003968C(void);
 extern s32 levelGetRegionNo(void);
 extern s8 viGetWideAdjust(void);
 extern void gsSndpSetGlobalVolume(s32 volume);
@@ -52,15 +74,26 @@ extern void amSndPlay(s32 soundId, s32 *handle);
 extern void amSndSetVol(s32 soundId, s32 handle, s32 volume, s32 *handleOut);
 extern void amSndStop(s32 handle);
 extern void func_80000510(u8 value, s16 arg1);
+extern void func_80006EA0(void *object);
+extern void func_80006FA0(void);
 extern s32 func_80005820(s32 arg0);
 extern u8 *func_80028F54(void);
+extern void func_800347A0(void *texture);
+extern void func_800359D4(void *sprite);
+extern void func_80034920(MenuCommand **displayList);
+extern void freeFrontEndItem(s32 assetId);
+extern void loadFrontEndItem(s32 assetId);
 extern void func_80039720(s32 updateRate);
+extern void func_8004BF64(s32 windowId);
 extern void func_80044BC8(s32 arg0, u8 *source, s32 line);
 extern u32 joyGetButtons(s32 controller);
 extern u32 joyGetPressed(s32 controller);
 extern s8 joyGetStickX(s32 controller);
 extern s8 joyGetStickY(s32 controller);
 extern void mainTitlePageInit(s32 mode);
+extern void modFreeModel(void *model);
+extern void *func_8002B280(s32 size, s32 tag);
+extern u32 *piRomLoad(u32 assetIndex);
 
 extern u32 D_800D3170[4];
 extern u32 D_800D3180[4];
@@ -76,11 +109,34 @@ extern s16 D_800D31BC;
 extern s16 D_800D31BE;
 extern s16 D_800D31C0;
 extern s16 D_800D31C2;
+extern u8 D_800D3044;
+extern u8 D_800D3045;
+extern u8 D_800D3046;
+extern u8 D_800D3047;
+extern u8 D_800D3498[];
 
-typedef struct MenuCommand {
+struct MenuCommand {
     u32 w0;
     u32 w1;
-} MenuCommand;
+};
+
+extern MenuCommand D_8007C2E8[];
+
+/* Historical display-list macro topology is significant to IDO's register
+ * allocation in the rectangle batcher. */
+#define MENU_COMMAND(pkt, a, b) { \
+    MenuCommand *_g = (MenuCommand *)(pkt); \
+    _g->w0 = (u32)(a); \
+    _g->w1 = (u32)(b); \
+}
+
+typedef struct MenuRectangle {
+    s16 left;
+    s16 top;
+    s16 right;
+    s16 bottom;
+    u32 colour;
+} MenuRectangle;
 
 typedef struct MenuCurrentObject {
     s16 unk0;
@@ -92,7 +148,7 @@ typedef struct MenuCurrentObject {
     f32 unk10;
     f32 unk14;
     f32 unk18;
-    u8 pad1C[4];
+    s8 pad1C[4];
 } MenuCurrentObject;
 
 typedef struct MenuObjectResource {
@@ -109,6 +165,40 @@ typedef struct MenuFrontObject {
     s16 indexA;
     s32 unkC[1];
 } MenuFrontObject;
+
+typedef struct MenuSpawnPacket {
+    /* 0x00 */ s16 kind;
+    /* 0x02 */ u8 mode;
+    /* 0x03 */ u8 pad3;
+    /* 0x04 */ s16 x;
+    /* 0x06 */ s16 y;
+    /* 0x08 */ s16 z;
+    /* 0x0A */ u8 unkA;
+    /* 0x0B */ u8 flags;
+    /* 0x0C */ u8 unkC;
+} MenuSpawnPacket;
+
+typedef struct MenuSpawnHeader {
+    /* 0x00 */ u8 pad0[0x22];
+    /* 0x22 */ s8 count;
+} MenuSpawnHeader;
+
+typedef struct MenuSpawnInner {
+    /* 0x00 */ u8 pad0[8];
+    /* 0x08 */ s16 mode;
+} MenuSpawnInner;
+
+typedef struct MenuSpawnedObject {
+    /* 0x00 */ u8 pad0[0x40];
+    /* 0x40 */ MenuSpawnHeader *header;
+    /* 0x44 */ u8 pad44[0x24];
+    /* 0x68 */ MenuSpawnInner **inner;
+} MenuSpawnedObject;
+
+extern void *func_80034448(s32 assetId);
+extern void *func_800355A0(s32 assetId, s32 arg1);
+extern MenuSpawnedObject *func_8000590C(MenuSpawnPacket *packet, s32 mode);
+extern void *func_8001F520(s32 assetId, s32 arg1);
 
 typedef struct MenuDrawStack {
     u8 pad30[0x24];
@@ -132,12 +222,25 @@ extern u8 D_8007C0A8;
 extern u8 D_8007C0AC;
 extern s32 D_8007C0B4;
 extern s32 D_8007C0BC;
+extern u8 D_8007C07C;
 extern s16 *D_8007C1B8;
+extern s16 D_8007C1BC;
+extern s16 D_8007C1C0;
 extern MenuCommand *D_800D3140;
 extern void *D_800D3144;
 extern void *D_800D3148;
 extern MenuFrontObject *D_800D31C8[];
+extern MenuCurrentObject D_8007C1C4[];
 extern MenuCurrentObject D_800D3550[];
+typedef struct MenuLanguageText {
+    u8 pad0[0x30];
+    char *demoMessage;
+} MenuLanguageText;
+extern MenuLanguageText *D_8007C0B8;
+extern void func_8004B0A4(s32 font);
+extern void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha);
+extern void func_8004B0F8(MenuCommand **displayList, s32 x, s32 y,
+                          char *text, s32 alignmentFlags);
 extern void func_80009E78(MenuCommand **commands, void **matrices,
                           void **vertices, void *object);
 extern void func_80023F84(MenuCommand **commands, void **matrices,
@@ -147,12 +250,325 @@ extern void func_800244EC(MenuCommand **commands, void **matrices,
                           void *transform, f32 scale, f32 extra);
 extern void func_8002460C(MenuCommand **commands);
 
+#ifdef NON_MATCHING
+/* Exact-size and exact-frame plateau: 14/74 words differ, first at +0x2C.
+ * IDO schedules the cached-header store after its local copy, then orders the
+ * destination and offset loads differently. The generated switch also binds
+ * its jump table to anonymous .rodata instead of the target's named symbol. */
+void func_80038750(s32 language) {
+    s32 *header;
+    s32 *offsets;
+    s32 assetIndex;
+    s32 destination;
+    s32 end;
+    s32 index;
+
+    header = D_8007C094;
+    if (header == NULL) {
+        header = (s32 *) piRomLoad(7);
+        D_8007C094 = header;
+    }
+    assetIndex = 1;
+    switch (language) {
+        case 1:
+            assetIndex = 6;
+            break;
+        case 2:
+            assetIndex = 5;
+            break;
+        case 3:
+            assetIndex = 4;
+            break;
+        case 4:
+            assetIndex = 3;
+            break;
+        case 5:
+            assetIndex = 2;
+            break;
+        default:
+            assetIndex = 1;
+            break;
+    }
+    offsets = (s32 *) ((u8 *) header + (assetIndex * 4));
+    destination = (s32) D_8007C0B8;
+    end = offsets[1];
+    assetIndex = offsets[0];
+    if (destination != 0) {
+        end -= assetIndex;
+        piRomLoadSection(6, destination, assetIndex, end);
+        index = 0;
+        while (index < D_8007C094[0]) {
+            if (((s32 *) D_8007C0B8)[index] == -1) {
+                ((s32 *) D_8007C0B8)[index] = 0;
+            } else {
+                ((s32 *) D_8007C0B8)[index] += (s32) D_8007C0B8;
+            }
+            index++;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
+#endif
+#ifdef NON_MATCHING
+/* PROVENANCE: role and structure compared with JFG's public
+ * src/menu.c::initFront; JFG retains assembly, so this body is Mickey-derived.
+ * With -Wo,-loopunroll,0 it has the exact 0x154 size and 0x18 frame, but
+ * 66/85 words differ, first at +0x14. IDO reuses the D_800D3150 address where
+ * the target rematerializes it, then diverges in later address/store schedules. */
+void func_80038878(void) {
+    s32 *buffer;
+    s32 *bufferEnd;
+    s32 value;
+    s32 nextValue;
+    u8 *loaded;
+    u8 *loadedEnd;
+
+    D_800D3150[0] = (s32) func_8002B280(0x5B8, 0x8F);
+    buffer = D_800D3150;
+    bufferEnd = D_800D3168;
+    value = buffer[-1];
+    do {
+        buffer++;
+        nextValue = value + 0xF4;
+        value = nextValue;
+        buffer[-1] = nextValue;
+    } while ((u32) buffer < (u32) bufferEnd);
+    D_8007C0B8 = func_8002B280(0x1000, 0x8F);
+    func_80038750(0);
+    buffer = (s32 *) D_800D31C8;
+    bufferEnd = (s32 *) D_800D3498;
+    do {
+        buffer += 4;
+        buffer[-4] = 0;
+        buffer[-3] = 0;
+        buffer[-2] = 0;
+        buffer[-1] = 0;
+    } while (buffer != bufferEnd);
+    D_8007C088 = 0;
+    D_8007C1B8 = (s16 *) piRomLoad(0x1A);
+    D_8007C1BC = 0;
+    if (D_8007C1B8[D_8007C1BC] != -1) {
+        do {
+            D_8007C1BC++;
+        } while (D_8007C1B8[D_8007C1BC] != -1);
+    }
+    D_8007C1C0 = 0;
+    if (D_8007C1BC > 0) {
+        loaded = D_800D3498;
+        loadedEnd = loaded + D_8007C1BC;
+        do {
+            *loaded++ = 0;
+        } while ((u32) loaded < (u32) loadedEnd);
+    }
+    D_800D3044 = 2;
+    D_800D3045 = 2;
+    D_800D3046 = 2;
+    D_800D3047 = 2;
+    D_800D31B0 = 1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038878.s")
+#endif
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontFreeMode;
+ * Mickey supplies the smaller 19-mode switch and exact resident state. All
+ * 126 executable words are exact. Promotion is blocked by the shared 0x81590
+ * rodata slice: IDO emits an anonymous 0x4C-byte table while the target's
+ * named copy remains canonical; relocation metadata first differs at +0x2C. */
+void func_800389CC(void) {
+    u8 *selection;
+    u8 value;
+
+    if (D_8007C088 != 0) {
+        selection = func_80028F54();
+        switch (D_8007C0A0) {
+        case 0:
+            func_8004BF64(1);
+            break;
+        case 1:
+            break;
+        case 2:
+            TrapDanglingJump();
+            break;
+        case 6:
+            TrapDanglingJump();
+            break;
+        case 3:
+            TrapDanglingJump();
+            break;
+        case 4:
+        case 10:
+        case 12:
+        case 17:
+        case 18:
+            TrapDanglingJump();
+            break;
+        case 9:
+        case 11:
+            TrapDanglingJump();
+            break;
+        case 7:
+            TrapDanglingJump();
+            break;
+        case 8:
+            TrapDanglingJump();
+            break;
+        case 5:
+            value = *selection;
+            if ((value == 5) || (value == 6)) {
+                if (D_8007BEF4 == 1) {
+                    TrapDanglingJump();
+                } else if (D_8007BEF4 < 3) {
+                    TrapDanglingJump();
+                } else {
+                    TrapDanglingJump();
+                }
+            } else {
+                if (D_8007BEF4 == 1) {
+                    TrapDanglingJump();
+                } else if (D_8007BEF4 < 3) {
+                    TrapDanglingJump();
+                } else {
+                    TrapDanglingJump();
+                }
+            }
+            TrapDanglingJump();
+            break;
+        case 13:
+            TrapDanglingJump();
+            break;
+        case 14:
+            TrapDanglingJump();
+            break;
+        case 15:
+            TrapDanglingJump();
+            break;
+        case 16:
+            TrapDanglingJump();
+            break;
+        }
+        if (D_8007C1A4 != 0) {
+            amSndStop(D_8007C1A4);
+        }
+        D_8007C1AC = 0;
+        D_8007C088 = 0;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800389CC.s")
+#endif
+#ifdef NON_MATCHING
+/* PROVENANCE: role and switch ordering compared with JFG's public
+ * src/menu.c::frontInitMode; JFG retains assembly, and this body is derived
+ * from Mickey's state and call surface. All 122 executable words are exact.
+ * Promotion is blocked by the shared 0x81590 rodata slice: IDO emits an
+ * anonymous 0x4C-byte table while the target's named copy remains canonical;
+ * relocation metadata first differs at function +0x2C. */
+void func_80038BC4(void) {
+    u8 *selection;
+    u8 value;
+
+    if (D_8007C088 == 0) {
+        selection = func_80028F54();
+        switch (D_8007C0A0) {
+        case 0:
+        case 1:
+            break;
+        case 2:
+            TrapDanglingJump();
+            break;
+        case 6:
+            TrapDanglingJump();
+            break;
+        case 3:
+            D_800D31B0 = 1;
+            TrapDanglingJump();
+            break;
+        case 4:
+        case 10:
+        case 12:
+        case 17:
+        case 18:
+            TrapDanglingJump();
+            break;
+        case 9:
+        case 11:
+            TrapDanglingJump();
+            break;
+        case 7:
+            TrapDanglingJump();
+            break;
+        case 8:
+            TrapDanglingJump();
+            break;
+        case 5:
+            value = *selection;
+            if ((value == 5) || (value == 6)) {
+                switch (D_8007BEF4) {
+                case 1:
+                    TrapDanglingJump();
+                    break;
+                case 2:
+                    TrapDanglingJump();
+                    break;
+                default:
+                    TrapDanglingJump();
+                    break;
+                }
+            } else {
+                switch (D_8007BEF4) {
+                case 1:
+                    TrapDanglingJump();
+                    break;
+                case 2:
+                    TrapDanglingJump();
+                    break;
+                default:
+                    TrapDanglingJump();
+                    break;
+                }
+            }
+            TrapDanglingJump();
+            break;
+        case 13:
+            TrapDanglingJump();
+            break;
+        case 14:
+            TrapDanglingJump();
+            break;
+        case 15:
+            TrapDanglingJump();
+            break;
+        case 16:
+            TrapDanglingJump();
+            break;
+        }
+        D_8007C088 = 1;
+        D_8007BF70 = -1;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038BC4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038DAC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038E10.s")
+#endif
+/* PROVENANCE: name, role, call order, and state resets compared with JFG's
+ * public src/menu.c::frontSetMode; Mickey supplies the exact state surface. */
+void frontSetMode(s32 mode) {
+    func_800389CC();
+    D_8007C0A0 = mode;
+    func_80038BC4();
+    func_8003968C();
+    D_8007BF30 = 0;
+    D_8007BF34 = 1;
+    if (mode == 0) {
+        D_8007BEF8 = 1;
+        D_8007BEF4 = 1;
+    }
+}
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetMode. */
+u8 frontGetMode(void) {
+    return D_8007C0A0;
+}
 #ifdef NON_MATCHING
 /* Size- and frame-exact plateau: 248/279 words differ, first at +0x24.
  * IDO assigns the persistent fade-state address to a0 instead of v1, then
@@ -288,11 +704,130 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038E1C.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039278.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039380.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/frontDrawRectangle.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800395D4.s")
+/* PROVENANCE: name and ordered role compared with JFG's public decomp,
+ * src/menu.c::frontDemoMessage; the body is derived from Mickey. */
+void frontDemoMessage(MenuCommand **displayList, s32 updateRate) {
+    s32 x;
+    s32 y;
+
+    D_8007C07C += updateRate;
+    if (D_8007C07C & 0x10) {
+        x = 0xA0;
+        y = 0xD0;
+        viConvertXY(&x, &y);
+        func_80038750(frontGetLanguage());
+        func_8004B0A4(2);
+        func_8004B0DC(0, 0, 0, 0);
+        fontColour(0, 0, 0, 0xFF, 0xFF);
+        func_8004B0F8(displayList, x + 1, y + 1,
+                      D_8007C0B8->demoMessage, 0xC);
+        fontColour(0xFF, 0xFF, 0xFF, 0, 0xFF);
+        func_8004B0F8(displayList, x, y, D_8007C0B8->demoMessage, 0xC);
+    }
+}
+/* PROVENANCE: adapted from JFG's public frontDrawRectangles assembly in
+ * asm/nonmatchings/menu/frontDrawRectangles.s; Mickey supplies the exact
+ * render-state commands, clipping order, and smaller loop schedule. */
+void frontDrawRectangles(MenuCommand **displayList, s32 count, MenuRectangle *rectangles, s32 translucent) {
+    s32 left;
+    s32 top;
+    s32 right;
+    s32 bottom;
+    u32 currentColour;
+    u32 width;
+    u32 height;
+    u32 colour;
+    u32 primitiveCommand;
+
+    viGetCurrentSize((s32 *) &width, (s32 *) &height);
+    gSPDisplayList((*displayList)++, D_8007C2E8);
+    primitiveCommand = 0xFA000000;
+    if (translucent != 0) {
+        MENU_COMMAND((*displayList)++, 0xEF082C0F, 0x00504340);
+    } else {
+        MENU_COMMAND((*displayList)++, 0xEF082C0F, 0x00504240);
+    }
+    currentColour = rectangles->colour;
+    MENU_COMMAND((*displayList)++, primitiveCommand, currentColour);
+    while (count--) {
+        right = rectangles->right;
+        bottom = rectangles->bottom;
+        if ((right >= 0) && (bottom >= 0)) {
+            left = rectangles->left;
+            top = rectangles->top;
+            if ((left < (s32) width) && (top < (s32) height)) {
+                if (left < 0) {
+                    left = 0;
+                }
+                if (top < 0) {
+                    top = 0;
+                }
+                if ((s32) width < right) {
+                    right = (s32) width;
+                }
+                if ((s32) height < bottom) {
+                    bottom = (s32) height;
+                }
+                colour = rectangles->colour;
+                if (currentColour != colour) {
+                    currentColour = colour;
+                    gDPPipeSync((*displayList)++);
+                    MENU_COMMAND((*displayList)++, primitiveCommand, colour);
+                }
+                gDPFillRectangle((*displayList)++, left, top, right, bottom);
+            }
+        }
+        rectangles++;
+    }
+    func_80034920(displayList);
+    MENU_COMMAND((*displayList)++, primitiveCommand, -1);
+}
+/* PROVENANCE: name and order compared with JFG's public decomp,
+ * src/menu.c::frontDrawRectangle; body and rectangle layout derived from Mickey. */
+void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right, s32 bottom, u32 colour) {
+    MenuRectangle rectangle;
+
+    rectangle.left = left;
+    rectangle.top = top;
+    rectangle.right = right;
+    rectangle.bottom = bottom;
+    rectangle.colour = colour;
+    frontDrawRectangles(displayList, 1, &rectangle, 1);
+}
+/* PROVENANCE: name and screen-limit role compared with JFG's public decomp,
+ * src/menu.c::frontPlayerScreenLimits; body and table indexing derived from Mickey. */
+void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *bottom) {
+    s32 offset;
+    s16 *limits;
+
+    offset = (((D_8007BEF4 - 1) << 2) + player) << 2;
+    if (D_8007BEF4 == 2 && frontGet2PlayerSplit()) {
+        offset += 0x40;
+    }
+    limits = &D_8007BF7C[offset];
+    *left = limits[0];
+    *top = limits[1];
+    viConvertXY(left, top);
+    *right = limits[2];
+    *bottom = limits[3];
+    viConvertXY(right, bottom);
+}
+#ifdef NON_MATCHING
+/* Instruction words and linked bytes are exact, but 18 relocation sites
+ * differ from +0x24: IDO binds unrolled elements to three array bases while
+ * the target binds each element's BSS symbol separately. */
+void func_8003968C(void) {
+    s32 controller;
+
+    for (controller = 0; controller < 4; controller++) {
+        D_800D31A0[controller] = -1;
+        D_800D3198[controller] = 0x14;
+        D_800D319C[controller] = 0xF;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003968C.s")
+#endif
 void func_80039720(s32 updateRate) {
     s32 controller;
     s8 repeatXNegative;
@@ -383,12 +918,118 @@ void func_80039720(s32 updateRate) {
         }
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039A40.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039A9C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039B88.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039BE4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039D50.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/setupFrontEndObject.s")
+/* PROVENANCE: body adapted from DKR's public src/menu.c::menu_assetgroup_free;
+ * JFG's public src/menu.c supplies the freeFrontEndList role and order. */
+#pragma weak func_80039A40 = freeFrontEndList
+void freeFrontEndList(s16 *assetGroup) {
+    s32 index = 0;
+
+    while (assetGroup[index] != -1) {
+        freeFrontEndItem(assetGroup[index++]);
+    }
+}
+/* PROVENANCE: name and ordered role compared with JFG's public decomp,
+ * src/menu.c::freeFrontEndItem; the body is derived from Mickey. */
+#pragma weak func_80039A9C = freeFrontEndItem
+void freeFrontEndItem(s32 assetId) {
+    if (D_800D3498[assetId] != 0) {
+        if (((s32 *) D_800D31C8)[assetId] != 0) {
+            if (((D_8007C1B8[assetId] & 0xC000) == 0xC000) &&
+                (((s32 *) D_800D31C8)[assetId] != 0)) {
+                func_800347A0((void *) ((s32 *) D_800D31C8)[assetId]);
+            } else if (D_8007C1B8[assetId] & 0x8000) {
+                func_800359D4((void *) ((s32 *) D_800D31C8)[assetId]);
+            } else if (D_8007C1B8[assetId] & 0x4000) {
+                func_80006EA0((void *) ((s32 *) D_800D31C8)[assetId]);
+            } else {
+                modFreeModel((void *) ((s32 *) D_800D31C8)[assetId]);
+            }
+        }
+        ((s32 *) D_800D31C8)[assetId] = 0;
+        D_800D3498[assetId] = 0;
+        D_8007C1C0--;
+        func_80006FA0();
+    }
+}
+/* PROVENANCE: body adapted from DKR's public src/menu.c::menu_assetgroup_load;
+ * JFG's public src/menu.c supplies the loadFrontEndList role and order. */
+void loadFrontEndList(s16 *assetGroup) {
+    s32 index = 0;
+
+    while (assetGroup[index] != -1) {
+        loadFrontEndItem(assetGroup[index++]);
+    }
+}
+/* PROVENANCE: body adapted from DKR's public src/menu.c::menu_asset_load;
+ * JFG's public src/menu.c::loadFrontEndItem and exact-size assembly skeleton
+ * supply the role and order. Mickey supplies the packet and object offsets. */
+#pragma weak func_80039BE4 = loadFrontEndItem
+void loadFrontEndItem(s32 assetId) {
+    s16 resourceId;
+    MenuSpawnPacket packet;
+    MenuSpawnedObject *object;
+
+    if (D_800D3498[assetId] == 0) {
+        resourceId = D_8007C1B8[assetId];
+        if ((resourceId & 0xC000) == 0xC000) {
+            D_800D31C8[assetId] = func_80034448(resourceId & 0x3FFF);
+        } else if (resourceId & 0x8000) {
+            D_800D31C8[assetId] = func_800355A0(resourceId & 0x3FFF, 0);
+        } else if (resourceId & 0x4000) {
+            packet.kind = resourceId & 0x3FFF;
+            packet.mode = 0xA;
+            packet.x = 0;
+            packet.y = 0;
+            packet.z = 0;
+            packet.unkC = 0;
+            packet.flags = 0x40;
+            packet.unkA = 0;
+            object = func_8000590C(&packet, 0);
+            if (object->header->count > 0) {
+                MenuSpawnInner *inner;
+
+                inner = *object->inner;
+                inner->mode = 2;
+            }
+            D_800D31C8[assetId] = (MenuFrontObject *) object;
+        } else {
+            D_800D31C8[assetId] = func_8001F520(resourceId & 0x3FFF, 0);
+        }
+        D_800D3498[assetId] = 1;
+        D_8007C1C0++;
+    }
+}
+/* PROVENANCE: body adapted from DKR's public src/menu.c::menu_imagegroup_load;
+ * JFG's public src/menu.c supplies the setupFrontEndList role and order. */
+void setupFrontEndList(s16 *objectGroup) {
+    s32 index = 0;
+
+    while (objectGroup[index] != -1) {
+        setupFrontEndObject(objectGroup[index++]);
+    }
+}
+/* PROVENANCE: name and ordered role compared with JFG's public decomp,
+ * src/menu.c::setupFrontEndObject; record layout and body derived from Mickey. */
+void setupFrontEndObject(s32 objectId) {
+    MenuCurrentObject *destination;
+    MenuCurrentObject *source;
+
+    destination = &D_800D3550[objectId];
+    source = &D_8007C1C4[objectId];
+    destination->unk0 = source->unk0;
+    destination->unk2 = source->unk2;
+    destination->unk4 = source->unk4;
+    destination->index = source->index;
+    destination->unkC = source->unkC;
+    destination->unk10 = source->unk10;
+    destination->unk14 = source->unk14;
+    destination->unk8 = source->unk8;
+    destination->unk18 = source->unk18;
+    destination->pad1C[0] = source->pad1C[0];
+    destination->pad1C[1] = source->pad1C[1];
+    destination->pad1C[2] = source->pad1C[2];
+    destination->pad1C[3] = source->pad1C[3];
+}
 #ifdef NON_MATCHING
 /* Exact 0xB8 frame and local stack homes, but one word too long; 242/262
  * words differ, first at +0x14. IDO assigns the D_800D31C8 base/object pair
@@ -513,8 +1154,18 @@ void func_80039E34(s32 index) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039E34.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A24C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A260.s")
+#pragma weak func_8003A24C = frontGetLanguage
+/* PROVENANCE: name and order compared with JFG's public decomp,
+ * src/menu.c::frontGetLanguage; body derived from Mickey. */
+s32 frontGetLanguage(void) {
+    return (u32)D_800D312A >> 10;
+}
+/* PROVENANCE: name and order compared with JFG's public decomp,
+ * src/menu.c::frontSetLanguage; body and bitfield derived from Mickey. */
+void frontSetLanguage(s32 language) {
+    D_800D3128.language = language;
+    func_80038750(language);
+}
 s32 frontGetScreenMode(void) {
     s32 mode;
 
@@ -527,7 +1178,35 @@ s32 frontGetScreenMode(void) {
     }
     return mode;
 }
+#ifdef NON_MATCHING
+/* Size-exact plateau: 19/32 words differ from +0xC, all in register operands;
+ * IDO does not retain the mode-state address and normalized mode in a1/v0/v1.
+ * PROVENANCE: mask, state-change guard, and order compared with JFG's public
+ * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
+void func_8003A2C8(s32 screenMode) {
+    u8 *modeState;
+    s32 mode;
+    u8 modeBits;
+
+    modeState = &D_8007C090;
+    mode = (modeBits = screenMode & 3);
+    if (*modeState != mode) {
+        D_8007C090 = screenMode & 3;
+        if (modeBits & (1 ^ 0)) {
+            D_800D3128.modeBit0 = 1;
+        } else {
+            D_800D3128.modeBit0 = 0 & 0xFFFFFFFFFFFFFFFFu;
+        }
+        if (modeBits & 2) {
+            D_800D3128.modeBit1 = 1;
+        } else {
+            D_800D3128.modeBit1 = 0;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A2C8.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontStoreScreenMode. */
 void frontStoreScreenMode(void) {
     D_8007C08C = D_8007C090;
@@ -565,8 +1244,23 @@ void frontSetWideAdjust(s32 offset) {
     viSetWideAdjust(offset);
     D_800D312B = viGetWideAdjust();
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A408.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A41C.s")
+/* PROVENANCE: name and order compared with JFG's public decomp,
+ * src/menu.c::frontGetStereoMode; body and bitfield derived from Mickey. */
+u32 frontGetStereoMode(void) {
+    return D_800D3128.stereoMode;
+}
+/* PROVENANCE: name, clamp, table lookup, and order compared with JFG's public
+ * src/menu.c::frontSetStereoMode; packed storage derived from Mickey. */
+void frontSetStereoMode(s32 mode) {
+    if (mode < 0) {
+        mode = 0;
+    }
+    if (mode >= 4) {
+        mode = 3;
+    }
+    D_800D3128.stereoMode = mode;
+    alSurround_OutputType(D_8007C308[mode]);
+}
 /* Retain the anonymous spelling used by an unsplit resident assembly caller. */
 #pragma weak func_8003A47C = frontGetSfxVolume
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetSfxVolume. */

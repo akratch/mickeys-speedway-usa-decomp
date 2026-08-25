@@ -886,6 +886,80 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
+`func_80038750` remains a **tier-D NON_MATCHING plateau** over **0x128 bytes /
+74 words** at ROM `0x39350`. Its Mickey-derived candidate has the exact
+`0x18`-byte frame and reconstructs the language-specific resource selection,
+section load, and pointer-relocation loop. The best stock-flag object differs
+in **14/74 positional words**, first `+0x2C`: IDO schedules the cached-header
+store after its local copy and orders the destination/offset loads
+differently. Its compiler-generated switch also binds two relocation sites to
+anonymous `.rodata` rather than the target's named jump-table symbol. The full
+flag lattice kept the resident defaults best; ten coherent source-shape and
+variable-reuse attempts did not satisfy both the word and relocation-identity
+gates. JFG's corresponding `setLanguage` routine remains assembly, so the
+Mickey placeholder name and canonical assembly are retained.
+
+`func_80038878` remains a **tier-D NON_MATCHING plateau** over **0x154 bytes /
+85 words** at ROM `0x39478`. JFG's same-position `initFront` routine supplies
+the role and structural comparison but remains assembly, so the candidate is
+Mickey-derived and retains its placeholder name. Under
+`-Wo,-loopunroll,0`, the best candidate has the exact `0x18`-byte frame and
+instruction count, but differs in **66/85 positional words**, first `+0x14`.
+IDO reuses the address formed for the initial `D_800D3150` allocation store,
+where the target rematerializes it before walking the pointer table; that
+early lifetime difference cascades into the later clear and sentinel-loop
+address schedule. The target also forms one shared high address for four
+descending control-mode stores, while scalar declarations emit four address
+pairs and an array declaration loses three required constant loads. The stock
+flags expand the reset loops; the full flag lattice makes the no-unroll form
+the only exact-size result. Ten coherent type, expression-tree, pointer-reuse,
+scalar/array, and volatile variants did not satisfy the word and relocation
+gates. Canonical code remains assembly and no TU flag override is adopted.
+
+`func_800389CC` reaches an **exact-text tier-D NON_MATCHING plateau** over
+**0x1F8 bytes / 126 words** at ROM `0x395CC`. JFG's C
+`src/menu.c::frontFreeMode` supplies the role, high-level lifetime, and switch
+ordering; Mickey supplies the smaller 19-mode switch and resident state. The
+resident default flags emit every executable word and the exact `0x18`-byte
+frame. Promotion is blocked by section ownership: IDO emits the switch's
+`0x4C` bytes as anonymous TU-local `.rodata`, while the named `jtbl_80082748`
+copy remains inside the shared `0x81590` yaml slice. Compiling both would
+duplicate the table. The first metadata mismatch is the target assembly's
+external-label PC16 at function `+0x2C`; the named-versus-anonymous table
+HI16/LO16 pair follows at `+0x34`/`+0x3C`. The 119-combination flag lattice
+confirms the stock resident flags and does not change the ownership surface.
+Canonical code and shared rodata remain assembly pending a measured yaml
+handoff outside this lane's ownership.
+
+`func_80038BC4` reaches an **exact-text tier-D NON_MATCHING plateau** over
+**0x1E8 bytes / 122 words** at ROM `0x397C4`. JFG's same-position
+`frontInitMode` supplies the role and switch-order comparison but retains an
+assembly body; the candidate is Mickey-derived and keeps its placeholder
+name. Explicit no-op cases zero and one recover the target's 19-entry range
+check, after which the resident default flags emit every executable word and
+the exact `0x18`-byte frame. Promotion is blocked by section ownership: IDO
+emits the switch's `0x4C` bytes as anonymous TU-local `.rodata`, while the
+named `jtbl_80082794` copy remains inside the shared `0x81590` yaml slice.
+Compiling both would duplicate the table. The first metadata mismatch is the
+target assembly's external-label PC16 at function `+0x2C`; the named-versus-
+anonymous table HI16/LO16 pair follows at `+0x34`/`+0x3C`. The flag lattice
+does not change this ownership surface. Canonical code and shared rodata
+remain assembly pending a measured yaml handoff outside this lane's ownership.
+
+The tier-B `frontSetMode` adds **0x64 bytes / 25 words** at ROM `0x399AC`.
+Its exact free/init/reset call sequence, mode-state store, and ordered pairing
+with `frontGetMode` establish the JFG role. The name, role, and shared control
+flow carry point-of-use `PROVENANCE`; Mickey supplies the exact state surface.
+The default flags, three calls plus five data-relocation pairs, object words, and
+linked ROM range are exact without post-processing.
+
+The tier-B `frontGetMode` adds **0xC bytes / 3 words** at ROM `0x39A10`.
+Its exact byte getter, ordered position between the front-end mode setter and
+update routine, and the update's dispatch on the same state establish the JFG
+name. The adapted body carries point-of-use `PROVENANCE`; the default flags,
+HI16/LO16 data relocations, object words, and linked ROM range are exact
+without post-processing.
+
 `func_80038E1C` retains a Mickey-derived `NON_MATCHING` candidate with the
 exact **0x45C-byte / 279-word** size, `0x28`-byte frame, case count, and
 high-level control flow. It plateaus at **248/279 differing words**, first
@@ -895,6 +969,55 @@ The full 119-combination flag lattice keeps the resident defaults best; JFG
 has no C donor body for the nearest front-end routine. Canonical code remains
 assembly.
 
+The tier-B `frontDemoMessage` adds **0x108 bytes / 66 words** at ROM
+`0x39E78`. Its exact size, 16-tick blink gate, localized-language setup,
+shadow/main text pair, and position immediately after `frontUpdate` establish
+JFG's same-name role. JFG supplies the name and semantic comparison but keeps
+its body in assembly; Mickey supplies the C body and message-record field, as
+the point-of-use `PROVENANCE` note records. Spelling the byte timer as a direct
+compound assignment recovers the target's `v0` address lifetime and temporary
+register ring. The default flags, nine call relocations, three data-relocation
+pairs, object words, and linked ROM range are exact without post-processing.
+
+The tier-B `frontDrawRectangles` adds **0x204 bytes / 129 words** at ROM
+`0x39F80`. Its ordered rectangle-batcher role, screen clipping, colour-change
+batching, display-list state setup, and pairing with `frontDrawRectangle`
+establish JFG's same-name role. JFG supplies the name and assembly-level
+comparison; Mickey supplies the C body and exact render commands, as the
+point-of-use `PROVENANCE` note records. Unsigned screen dimensions prevent
+IDO from caching the clamped values, and their declaration order recovers the
+target's `0x58`/`0x54` stack homes. The resident default flags, all 129 words,
+three call relocations, the display-list data relocation pair, configured
+object, linked ROM range, and full ROM are exact without post-processing.
+
+The tier-A `frontDrawRectangle` adds **0x50 bytes / 20 words** at ROM
+`0x3A184`. Its 19 unmasked words are byte-identical to JFG's uniquely
+identified same-named skeleton; the only masked word is the call to the paired
+rectangle-list renderer. The name/order carry point-of-use `PROVENANCE`, while
+the body and 12-byte rectangle record are Mickey-derived. Full-width coordinate
+parameters narrowed into that record recover the exact target schedule. The
+default flags, call relocation, object words, and linked ROM range are exact
+without post-processing.
+
+The tier-B `frontPlayerScreenLimits` adds **0xB8 bytes / 46 words** at ROM
+`0x3A1D4`. Its player-indexed screen-limit table, two-player split adjustment,
+two coordinate-pair conversions, and front-end ordering establish the JFG
+role. JFG supplies the name and semantic comparison but keeps its body in
+assembly; Mickey supplies this C body and table indexing, as the point-of-use
+`PROVENANCE` note records. Explicit shifts preserve `(cameraCount - 1)` against
+algebraic reassociation. The default flags, three call relocations, data pair,
+object words, and linked ROM range are exact without post-processing.
+
+`func_8003968C` remains a **tier-D NON_MATCHING plateau** over **0x94 bytes /
+37 words** at ROM `0x3A28C`. A Mickey-derived four-iteration initialization
+loop unrolls to all 37 target instruction words and the same linked bytes, but
+18 relocation sites differ, first at `+0x24`: IDO binds the later elements to
+the three array-base symbols, while the target names each individual BSS
+element. Scalar, volatile, cast, block, and loop variants, the full flag
+lattice, and a bounded ten-minute `-mips2` permuter run did not satisfy both
+the code and relocation-identity gates. The all-word result remains diagnostic
+only and the original assembly is canonical.
+
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and
 repeat state, then aggregates the enabled controllers. Direct array indexing
@@ -903,6 +1026,63 @@ nearest menu routine remains assembly, so no donor body or descriptive name is
 used. The resident defaults are exact in the full flag lattice. All 53 text
 relocations match the target's offsets, kinds, and symbol identities, and the
 configured object and linked ROM range are byte-identical without
+post-processing.
+
+The tier-B `freeFrontEndList` adds **0x5C bytes / 23 words** at ROM `0x3A640`.
+Its exact sentinel-list loop calls the immediately following per-item routine,
+matching JFG's ordered `freeFrontEndList`/`freeFrontEndItem` pair. The body is
+adapted from DKR's public `menu_assetgroup_free` with point-of-use
+`PROVENANCE`; JFG supplies the role and name. The default flags, call
+relocation, object words, and linked ROM range are exact without
+post-processing. A zero-byte weak alias preserves the anonymous name used by
+the overlay caller.
+
+The tier-B `freeFrontEndItem` adds **0xEC bytes / 59 words** at ROM
+`0x3A69C`. Its four-way dispatch by the resource table's `0xC000` type bits,
+loaded-slot clearing, live-resource decrement, and position immediately after
+`freeFrontEndList` establish the JFG role. JFG supplies the name and semantic
+comparison but keeps its body in assembly; Mickey supplies the C body, as the
+point-of-use `PROVENANCE` note records. Treating the polymorphic resource table
+as raw 32-bit handles until each typed release call preserves the target's
+`v0` lifetime. The default flags, five call relocations, four data-relocation
+pairs, object words, and linked ROM range are exact without post-processing.
+A zero-byte weak alias preserves the anonymous name used by the list wrapper.
+
+The parallel tier-B `loadFrontEndList` adds **0x5C bytes / 23 words** at ROM
+`0x3A788`. Its exact sentinel-list loop calls the immediately following
+per-item load routine, matching JFG's ordered `loadFrontEndList`/
+`loadFrontEndItem` pair. The body is adapted from DKR's public
+`menu_assetgroup_load` with point-of-use `PROVENANCE`; JFG supplies the role
+and name. The default flags, call relocation, object words, and linked ROM
+range are exact without post-processing.
+
+The tier-B `loadFrontEndItem` adds **0x16C bytes / 91 words** at ROM
+`0x3A7E4`. Its four-way dispatch by the resource table's high bits, texture,
+sprite, object, and model call surface, loaded-slot bookkeeping, exact size,
+and position after `loadFrontEndList` establish JFG's same-name role. The body
+is adapted from DKR's public `src/menu.c::menu_asset_load`; Mickey supplies
+the 13-byte spawn packet and the spawned-object fields at `0x40`, `0x22`,
+`0x68`, and `0x08`, as the point-of-use `PROVENANCE` note records. A named
+inner pointer recovers the target's pooled `v1`, while direct active-array
+indexing recovers IDO's `0x1C` compiler spill. The resident default flags, all
+91 words, four call relocations, seven data-relocation pairs, configured object,
+and linked ROM range are exact without post-processing. A zero-byte weak alias
+preserves the anonymous name used by the list wrapper.
+
+The third tier-B sentinel wrapper, `setupFrontEndList`, adds **0x5C bytes /
+23 words** at ROM `0x3A950`. Its call to the immediately following
+`setupFrontEndObject` and JFG's same ordered pair establish the role. The body
+is adapted from DKR's public `menu_imagegroup_load` with point-of-use
+`PROVENANCE`; JFG supplies the name/order. The default flags, call relocation,
+object words, and linked ROM range are exact without post-processing.
+
+The tier-A `setupFrontEndObject` adds **0x88 bytes / 34 words** at ROM
+`0x3A9AC`. Its complete masked instruction skeleton is identical to JFG's
+same-name function, while the explicit typed record copy and signed trailing
+bytes are derived from Mickey. The point-of-use `PROVENANCE` note records that
+split. Computing the destination pointer before the source pointer recovers
+the target's `v1`/`a1` allocation. The default `-O2 -mips2 -32` flags, both
+data-relocation pairs, object words, and linked ROM range are exact without
 post-processing.
 
 `func_80039E34` retains a Mickey-derived `NON_MATCHING` draw candidate with
@@ -915,6 +1095,24 @@ volatile-access, and stack-layout variants did not recover the allocation;
 the full flag lattice keeps the resident defaults best. JFG's corresponding
 front-end draw routine also has no C donor body. Canonical code remains
 assembly.
+
+The tier-B `frontGetLanguage` adds **0x14 bytes / 5 words** at ROM
+`0x3AE4C`. Its packed-field getter, position immediately before the paired
+setter and screen-mode accessors, and the resident caller's use of its result
+establish the JFG role. The JFG-derived name carries point-of-use
+`PROVENANCE`, while the body is Mickey-derived. An unsigned expression feeding
+the signed API recovers IDO's temporary return register; the default flags,
+HI16/LO16 data relocations, object words, and linked ROM range are exact
+without post-processing. A zero-byte weak alias preserves the anonymous name
+used by resident assembly.
+
+The paired tier-B `frontSetLanguage` adds **0x38 bytes / 14 words** at ROM
+`0x3AE60`. Its byte-wide read/modify/write of the same six-bit field, ordered
+position after `frontGetLanguage`, and call to the front-end language refresh
+routine establish the JFG role. The name carries point-of-use `PROVENANCE`,
+while the field layout and body are Mickey-derived. Default flags, the refresh
+call and data relocations, object words, and linked ROM range are exact without
+post-processing.
 
 `frontSetWideAdjust` is the first exact C promotion: **0x2C bytes / 11 words**
 at ROM `0x3AFDC`, with the target's four relocation-bearing words resolving
@@ -930,6 +1128,20 @@ its position immediately before `frontSetWideAdjust` establish the same role
 as JFG's ordered pair. The adapted body has a point-of-use `PROVENANCE` note,
 and the default flags are byte-exact in the flag lattice.
 
+The tier-B `frontGetStereoMode` adds **0x14 bytes / 5 words** at ROM
+`0x3B008`. Its two-bit packed getter and ordered position between the
+wide-adjust and SFX-volume accessors establish the JFG role. The name carries
+point-of-use `PROVENANCE`; Mickey's paired getter/setter encoding supplies the
+bitfield and `u32` ABI. The canonical flags, HI16/LO16 data relocations, object
+words, and linked ROM range are exact without post-processing.
+
+The paired tier-B `frontSetStereoMode` adds **0x60 bytes / 24 words** at ROM
+`0x3B01C`. JFG supplies the name, clamp, output-type table lookup, audio call,
+and ordered position; Mickey's paired accessors supply the packed two-bit
+storage. The adapted logic carries point-of-use `PROVENANCE`. The default
+flags, two data pairs plus call relocation, object words, and linked ROM range
+are exact without post-processing.
+
 The tier-A-named `frontGetScreenMode` adds **0x30 bytes / 12 words** at ROM
 `0x3AE98`. Mickey's draft established the two tests; JFG's published
 `Resbitfield` declaration supplied the original source shape needed to recover
@@ -937,6 +1149,16 @@ the compiler's temporary-register order. Mickey has two adjacent mode bits,
 confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
+
+`func_8003A2C8` remains a **tier-D NON_MATCHING plateau** over **0x80 bytes /
+32 words** at ROM `0x3AEC8`. Mickey-derived packed-field writes correspond to
+JFG's `frontSetScreenMode`, with the comparison recorded in a point-of-use
+`PROVENANCE` note but no public name adopted. The best size-exact candidate
+differs in 19 register operands, first at `+0xC`: the target retains the state
+address and normalized mode in `a1`/`v0`/`v1`, while IDO assigns a different
+temporary chain. The 119-combination flag lattice and a bounded ten-minute
+permuter run did not reach exactness, so the original assembly remains
+canonical.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was

@@ -123,11 +123,10 @@ extern void rumbleTick(s32);
 extern void osSetTime(OSTime);
 extern OSTime osGetTime(void);
 extern u16 joyGetButtons(s32);
-extern s32 func_8003A24C(void);
-extern void func_8003A260(s32);
+extern s32 frontGetLanguage(void);
+extern void frontSetLanguage(s32);
 extern void func_8003A2C8(s32);
-extern s32 func_8003A408(void);
-extern void func_8003A41C(s32);
+extern void frontSetStereoMode(s32);
 extern void mainFrontInit(s32, s32, s32);
 
 #ifdef NON_MATCHING
@@ -416,10 +415,10 @@ void func_80027EC0(s32 arg0) {
     }
     D_8007A1D8++;
     if (D_8007A1D8 >= 10) {
-        func_8003A260(func_8003A24C());
+        frontSetLanguage(frontGetLanguage());
         func_8003A2C8(frontGetScreenMode());
         frontSetWideAdjust(frontGetWideAdjust());
-        func_8003A41C(func_8003A408());
+        frontSetStereoMode(frontGetStereoMode());
         frontSetSfxVolume(frontGetSfxVolume());
         frontSetBgmVolume(frontGetBgmVolume());
         frontStoreScreenMode();
