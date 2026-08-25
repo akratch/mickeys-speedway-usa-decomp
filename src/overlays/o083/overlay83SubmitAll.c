@@ -35,7 +35,13 @@ extern void overlay83DispatchLocalReloc(Overlay83Command **displayList,
                                         void *arg1, void *arg2, void *record,
                                         void *resource);
 
-/* DKR v77/v80 and JFG contain no exact donor for this two-pass renderer. */
+/*
+ * DKR v77/v80 and JFG contain no exact donor for this two-pass renderer.
+ * Plateau (2026-08-25): canonical -O2 -mips2 is exactly 0x148 bytes and
+ * first diverges at +0xDC with three differing words. A 10-minute permuter
+ * run stayed at score 35; the blocker is the shared all-white constant in
+ * retail $a2 versus candidate $v1.
+ */
 #ifdef NON_MATCHING
 void overlay83SubmitAll(Overlay83Command **displayList, void *arg1, void *arg2,
                         Overlay83Context *context) {

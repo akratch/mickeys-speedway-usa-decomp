@@ -41,10 +41,16 @@ extern u8 gOverlay83VertexBase[];
     cmd->w1 = (u32)(triangles); \
 }
 
+/*
+ * Plateau (2026-08-25): canonical -O2 -mips2 is exactly 0x134 bytes but
+ * first diverges at +0x4 with 73 differing words. A 10-minute permuter run
+ * reached score 1405; its best live-range reuse regressed the real TU by
+ * eight bytes. The blocker is retaining the display-list alias in $a3.
+ */
 #ifdef NON_MATCHING
 void overlay83DrawStrip(Overlay83Command **displayList, Overlay83Strip *strip) {
     Overlay83Command **savedDisplayList;
-    u8 count;
+    s32 count;
     s32 doubledCount;
     s32 vertexCount;
 

@@ -3,6 +3,12 @@
 extern s32 gO96EntryCountReloc;
 extern s32 gO96EntriesReloc[16];
 
+/*
+ * Plateau (2026-08-25): canonical -O2 -mips2 emits 0x7C bytes for the
+ * 0x88-byte target and first diverges at +0x8. The flag lattice and a
+ * 10-minute permuter run (best score 715, but not semantics-preserving)
+ * did not reproduce the target's count/index allocation and reverse loop.
+ */
 #ifdef NON_MATCHING
 void overlay96Unregister(s32 value) {
     s32 count;
