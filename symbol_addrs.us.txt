@@ -1991,6 +1991,7 @@ func_80002FE0 = 0x80002FE0; // type:func size:0xBC ROM 0x3be0 tier-B (JFG amSndP
 func_8000309C = 0x8000309C; // type:func size:0x18 ROM 0x3c9c tier-B (JFG amSndSetVolXYZ body/order, name unproved)
 func_800030B4 = 0x800030B4; // type:func size:0x18 ROM 0x3cb4 tier-B (JFG amSndSetPitchXYZ body/order, name unproved)
 func_800030CC = 0x800030CC; // type:func size:0xF4 ROM 0x3ccc tier-B (JFG amSndPlayDirectXYZ body/order, name unproved)
+func_800031C0 = 0x800031C0; // type:func size:0x28 ROM 0x3dc0 tier-B (JFG amSndSetXYZ body/order, external Mickey placeholder retained)
 func_800031E8 = 0x800031E8; // type:func size:0x68 ROM 0x3de8 tier-B (JFG amSndStopXYZ body/order, external Mickey placeholder retained)
 
 // ---------------------------------------------------------------------------

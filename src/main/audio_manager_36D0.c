@@ -79,7 +79,15 @@ void func_800030CC(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 volume, f32 pit
     func_8000329C(soundId, x, y, z, arg4, 100, volume, 15000, 0, pitch, 0x3F, 0, point);
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800031C0.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amSndSetXYZ. */
+void func_800031C0(AudioPoint *point, f32 x, f32 y, f32 z) {
+    if (point != NULL) {
+        point->x = x;
+        point->y = y;
+        point->z = z;
+    }
+}
+
 /* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amSndStopXYZ. */
 void func_800031E8(AudioPoint *point) {
     s32 index;
