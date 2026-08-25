@@ -17,7 +17,12 @@ extern void overlay41EmitStep(s32 id, s32 x, s32 y);
  * size, frame, opcodes, and pool registers, with 47/73 words matching and the
  * first mismatch at +0x54. Scoping x/y/step to the active-record branch
  * emitted the same object; the residue is a temp-register coloring cascade.
- * JFG's close animseqUpdateTextureScrollers skeleton remains GLOBAL_ASM. */
+ * JFG's close animseqUpdateTextureScrollers skeleton remains GLOBAL_ASM.
+ * Lane follow-up (2026-08-25): ten additional parameter-width, declaration-
+ * order, register-hint, assignment-spelling, and typed-intermediate attempts
+ * either retained 47/73 words or regressed as early as +0x38/+0x40. Explicit
+ * delta/base temporaries worsened the coloring cascade. The faithful best
+ * remains exact-size at 47/73 words with first mismatch +0x54. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0000000_1887338(s32 amount) {
     Overlay41StepRecord *record;
