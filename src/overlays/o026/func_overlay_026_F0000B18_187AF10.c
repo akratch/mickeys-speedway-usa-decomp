@@ -34,36 +34,29 @@ extern f32 D_18;
 extern f32 D_1C;
 extern f32 sqrtf(f32 value);
 
-/*
- * NON_MATCHING: best coherent candidate is 129/131 instructions with its
- * first mismatch at +0x0: IDO uses a 0x70-byte frame instead of the target's
- * 0x78-byte frame.  The target keeps five FP values in callee-saved registers
- * across sqrtf, while this source keeps two and spills the remaining values.
- * The flag lattice and a bounded permuter run did not recover that lifetime
- * shape; the permuter's lower-scoring candidate used uninitialized values.
- */
+/* Workbench: allocation mismatch; exact 131-word size/0x78 frame, with three non-relocation differences, first +0x78.
+ * Levers: projection normalization, scalar-home ordering, result/constant scheduling, and square-root-result reuse.
+ * Remaining: one commutative operand order and one call-preservation home; compound and separate-result forms regressed. */
 #ifdef NON_MATCHING
 void func_overlay_026_F0000B18_187AF10(
     s32 unused, O26ProjectionVec3f *out, O26ProjectionVec3f *direction,
     f32 distance, O26ProjectionPlane *plane, O26ProjectionOwner *owner) {
     O26ProjectionResult *result;
-    register f32 projectedY;
-    register f32 projectedZ;
-    register f32 normalY;
-    register f32 normalX;
-    register f32 normalZ;
     f32 crossX;
     f32 crossY;
     f32 crossZ;
+    f32 planeConstant;
     f32 projectedX;
+    f32 projectedY;
+    f32 projectedZ;
     f32 lengthSquared;
-    f32 length;
     f32 amount;
+    f32 normalY = plane->normal.y;
+    f32 normalX = plane->normal.x;
+    f32 normalZ = plane->normal.z;
 
-    normalY = plane->normal.y;
-    normalX = plane->normal.x;
-    normalZ = plane->normal.z;
     result = owner->result64;
+    planeConstant = plane->constant;
     if ((D_14 <= normalY) || (plane->flags & 0x10000000)) {
         crossX = direction->z * normalY;
         crossY = (normalZ * direction->x) -
@@ -78,14 +71,17 @@ void func_overlay_026_F0000B18_187AF10(
                         (projectedZ * projectedZ);
 
         if (D_18 < lengthSquared) {
-            length = sqrtf(lengthSquared);
+            lengthSquared = sqrtf(lengthSquared);
+            projectedX /= lengthSquared;
+            projectedY /= lengthSquared;
+            projectedZ /= lengthSquared;
             amount = distance - plane->distance;
-            out->x = plane->point.x + (amount * (projectedX / length));
-            out->y = plane->point.y + (amount * (projectedY / length));
-            out->z = plane->point.z + (amount * (projectedZ / length));
+            out->x = plane->point.x + (amount * projectedX);
+            out->y = plane->point.y + (amount * projectedY);
+            out->z = plane->point.z + (amount * projectedZ);
         } else {
             out->y = (-((out->z * normalZ) +
-                        (normalX * out->x) + plane->constant) /
+                        (normalX * out->x) + planeConstant) /
                       normalY) +
                      D_1C;
         }
