@@ -1009,7 +1009,55 @@ void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055F64.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800560D0.s")
+void func_800560D0(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCopyTarget *firstTarget;
+    HitCopyTarget *secondTarget;
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    firstSource = first->source;
+    deltaX = first->position.x - firstSource->previous.x;
+    deltaY = first->position.y - firstSource->previous.y;
+    deltaZ = first->position.z - firstSource->previous.z;
+    firstTarget = first->target;
+    secondTarget = second->target;
+    secondSource = second->source;
+    firstSource->previous.x = firstSource->current.x;
+    firstSource->previous.y = firstSource->current.y;
+    firstSource->previous.z = firstSource->current.z;
+    first->position.x = firstSource->previous.x + deltaX;
+    first->position.y = firstSource->previous.y + deltaY;
+    first->position.z = firstSource->previous.z + deltaZ;
+
+    deltaX = second->position.x - secondSource->previous.x;
+    deltaY = second->position.y - secondSource->previous.y;
+    deltaZ = second->position.z - secondSource->previous.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+    second->position.x = secondSource->previous.x + deltaX;
+    second->position.y = secondSource->previous.y + deltaY;
+    second->position.z = secondSource->previous.z + deltaZ;
+
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    firstTarget->unk14 = deltaX / distance;
+    firstTarget->unk18 = deltaY / distance;
+    firstTarget->unk1C = deltaZ / distance;
+    secondTarget->unk14 = -firstTarget->unk14;
+    secondTarget->unk18 = -firstTarget->unk18;
+    secondTarget->unk1C = -firstTarget->unk1C;
+    TrapDanglingJump(first, 6);
+    TrapDanglingJump(second, 0x12);
+}
 void func_80056274(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopyTarget *firstTarget;
     HitCopyTarget *secondTarget;

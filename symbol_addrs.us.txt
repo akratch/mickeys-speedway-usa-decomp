@@ -2254,6 +2254,7 @@ func_800534EC = 0x800534EC; // type:func size:0x64   ROM 0x540ec  tier-D collisi
 func_800557F8 = 0x800557F8; // type:func size:0x178  ROM 0x563f8  tier-D collision response helper, matched C
 func_80055D08 = 0x80055D08; // type:func size:0x148  ROM 0x56908  tier-D collision motion-normal helper, matched C
 func_80055E50 = 0x80055E50; // type:func size:0x114  ROM 0x56a50  tier-D collision state-normalization helper, matched C
+func_800560D0 = 0x800560D0; // type:func size:0x1a4  ROM 0x56cd0  tier-D collision dual-advance normal helper, matched C
 func_80056274 = 0x80056274; // type:func size:0x140  ROM 0x56e74  tier-D collision bidirectional-normal helper, matched C
 func_800572AC = 0x800572AC; // type:func size:0xA4   ROM 0x57eac  tier-D collision state-delta helper, matched C
 func_80057350 = 0x80057350; // type:func size:0x78   ROM 0x57f50  tier-D collision state-copy helper, matched C
