@@ -673,6 +673,9 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
         ((void (*)(void)) (overlay->vramBase + overlay->resumeFunction))();
     }
 }
+/* Plateau (2026-08-25, batch 35): -O2 -mips2 emits 183/184 words; 117 differ, first +0x0.
+ * The candidate frame is 0x68 versus 0x58; overlay reuse and the direct patch ternary are best.
+ * Declaration, alias, relocation-lifetime, and 40-minute permutation probes found no exact form. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
@@ -682,7 +685,6 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
  */
 void runlinkFreeCode(s32 overlayIndex) {
     OverlayHeader *overlay;
-    OverlayHeader *otherOverlay;
     PendingOverlayLoad *pendingLoad;
     RelocationEntry *relocEntry;
     MipsInstruction *patchLocation;
@@ -691,8 +693,6 @@ void runlinkFreeCode(s32 overlayIndex) {
     s32 relocType;
     s32 found;
     s32 otherIndex;
-    u32 patchOperation;
-    u32 address;
 
     overlay = &overlayTable[overlayIndex];
     if (D_8007A670 == 0) {
@@ -723,10 +723,10 @@ void runlinkFreeCode(s32 overlayIndex) {
     linkSlotTable[overlayIndex].tag = 0;
     linkSlotTable[overlayIndex].useCount = 0;
 
-    otherOverlay = overlayTable;
+    overlay = overlayTable;
     otherIndex = 0;
     while (otherIndex < overlayCount) {
-        if (otherOverlay->vramBase != 0 && otherIndex != overlayIndex) {
+        if (overlay->vramBase != 0 && otherIndex != overlayIndex) {
             if (otherIndex == 0) {
                 D_800D2DA8.textBase = (u8 *) func_80000450;
                 D_800D2DA8.dataBase = D_80078D60;
@@ -735,14 +735,14 @@ void runlinkFreeCode(s32 overlayIndex) {
                 D_800D2DA8.relocBase = (u8 *) relocEntry;
                 relocCount = mainRelocTableCount;
             } else {
-                D_800D2DA8.textBase = (u8 *) otherOverlay->vramBase;
+                D_800D2DA8.textBase = (u8 *) overlay->vramBase;
                 D_800D2DA8.dataBase =
-                    D_800D2DA8.textBase + otherOverlay->textSize;
-                D_800D2DA8.bssBase = D_800D2DA8.dataBase + otherOverlay->dataSize;
+                    D_800D2DA8.textBase + overlay->textSize;
+                D_800D2DA8.bssBase = D_800D2DA8.dataBase + overlay->dataSize;
                 relocEntry = (RelocationEntry *)
-                    (D_800D2DA8.bssBase + otherOverlay->bssSize);
+                    (D_800D2DA8.bssBase + overlay->bssSize);
                 D_800D2DA8.relocBase = (u8 *) relocEntry;
-                relocCount = (u32) (u16) otherOverlay->relocTableSize >> 3;
+                relocCount = (u32) (u16) overlay->relocTableSize >> 3;
             }
 
             while (relocCount--) {
@@ -753,7 +753,6 @@ void runlinkFreeCode(s32 overlayIndex) {
                 }
 
                 if (overlayNumber == overlayIndex) {
-                    address = 0;
                     if (relocType == RELOC_OP_DATA) {
                         relocEntry->u.b.flags &= 0xFFF0;
                         patchLocation = (MipsInstruction *)
@@ -763,11 +762,12 @@ void runlinkFreeCode(s32 overlayIndex) {
                             (D_800D2DA8.textBase + (relocEntry->u.info >> 8));
                     }
 
-                    patchOperation = (u32) relocEntry->u.b.flags >> 4;
-                    if (patchOperation == RELOC_TYPE_26) {
-                        address = (u32) TrapDanglingJump;
-                    }
-                    PatchInstruction(patchLocation, address, patchOperation);
+                    PatchInstruction(
+                        patchLocation,
+                        ((u32) relocEntry->u.b.flags >> 4) == RELOC_TYPE_26
+                            ? (u32) TrapDanglingJump
+                            : 0,
+                        (u32) relocEntry->u.b.flags >> 4);
                 }
 
                 relocEntry->u.n.op = relocType;
@@ -775,7 +775,7 @@ void runlinkFreeCode(s32 overlayIndex) {
             }
         }
         otherIndex++;
-        otherOverlay++;
+        overlay++;
     }
 }
 #else
