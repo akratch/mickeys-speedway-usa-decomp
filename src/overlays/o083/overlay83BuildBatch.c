@@ -93,9 +93,13 @@ extern void *overlay83CreateLinkedReloc();
 extern f32 gOverlay83ScaleReloc;
 
 /* Mickey-local reconstruction; pinned DKR/JFG scans found no exact donor. */
+/* Plateau (2026-08-25): exact-size; 97 words differ, first +0x0; 40m permuter best 420.
+ * A transient allocator result improved 104 to 97; the 119-flag lattice found no match.
+ * The 0x78 target frame, sp+0x58 aggregate, and count/scale schedule remain blockers. */
 #ifdef NON_MATCHING
 void overlay83BuildBatch(O83Parent *parent, O83Source *source) {
     O83Batch *batch;
+    O83OutputRecord *allocated;
     O83OutputRecord *output;
     O83SourceRecord *input;
     u8 count;
@@ -105,11 +109,12 @@ void overlay83BuildBatch(O83Parent *parent, O83Source *source) {
     O83LinkedInit linkedInit;
 
     batch = parent->batch;
-    output = overlay83AllocateBatchReloc(source->count * 0x258, (void *)0x87);
-    batch->records = output;
-    if (output != 0) {
-        input = source->records;
+    allocated = overlay83AllocateBatchReloc(source->count * 0x258, (void *)0x87);
+    batch->records = allocated;
+    if (allocated != 0) {
         batch->count = source->count;
+        output = allocated;
+        input = source->records;
         batch->alpha = source->alpha;
         count = source->count;
         remaining = count - 1;
