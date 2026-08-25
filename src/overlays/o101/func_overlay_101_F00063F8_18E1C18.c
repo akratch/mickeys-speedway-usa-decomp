@@ -111,15 +111,9 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/*
- * Mickey-local structural sibling: func_overlay_101_F0005E08_18E1628.
- * Plateau (10 bounded source-shape attempts): the best candidate is
- * size-exact at 0x5F0, with 296 masked positional words differing and the
- * first mismatch at +0x2C.  The flag lattice favored the default
- * -O2/-mips2/-32 configuration.  The remaining blocker is the register and
- * store schedule across the repeated chained-node construction; the target
- * also carries fewer text relocations than this typed reconstruction.
- */
+/* P2 plateau: workbench mixed(constant:2, structural:118, register:122), 296 positional words; first mismatch +0x2C.
+ * The default flag lattice won; root-order, return-type, and direct-counter-lifetime levers were inert or regressed.
+ * Thirty-six relocation identities and the repeated-node structure/register schedule remain. */
 #ifdef NON_MATCHING
 void func_overlay_101_F00063F8_18E1C18(void) {
     s32 index;
