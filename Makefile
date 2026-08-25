@@ -1777,6 +1777,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x160
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000000_1890E18.c.o: CFLAGS += \
+	-Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000000_1890E18.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9D0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68PayloadLimit.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61InitResources.c.o: POSTPROCESS = \
@@ -2319,6 +2323,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13DrawActive.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x298
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11EnableHandles.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F0000150_1868998.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11DisableHandles.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateSelection.c.o: \
@@ -2980,6 +2986,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000134_18CD0D4.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045_tail.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000000_1890E18.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61UpdateInput.c.o \
@@ -3105,6 +3112,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13CreateRecord.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13Release.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13ProcessRecord.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F0000150_1868998.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11EnableHandles.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11DisableHandles.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateSelection.c.o \
@@ -3180,6 +3188,8 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o062/overlay62ReleaseAll.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87ReleaseCurrent.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87HasNearby.c.o
+OVERLAY_TRIMMED_OBJECTS += \
+	$(O22_UPDATE_OBJECT_OBJ)
 OVERLAY_TRIMMED_OBJECTS += \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50Initialize.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50PatchIndices.c.o \

@@ -271,7 +271,7 @@ TEXT_SUBSEGMENTS = {
     ],
     22: [
         (0x000, "c", "overlay22InitializeObject"),
-        (0x2B0, "asm", "overlay_022_prefix_b"),
+        (0x2B0, "c", "func_overlay_022_F00002B0_18783B8"),
         (0xA7C, "c", "overlay22ResolvePlane"),
         (0xD30, "c", "overlay22RemoveObject"),
         (0xE9C, "asm", "overlay_022_padding"),
@@ -427,7 +427,7 @@ TEXT_SUBSEGMENTS = {
         (0x1C1C, "asm", "overlay_045_padding"),
     ],
     47: [
-        (0x0000, "asm", "overlay_047"),
+        (0x0000, "c", "func_overlay_047_F0000000_1890E18"),
         (0x09D0, "c", "overlay47ReleaseResources"),
         (0x0B30, "asm", "overlay_047_middle"),
         (0x2D10, "c", "overlay47SpawnObject"),
@@ -831,7 +831,7 @@ TEXT_SUBSEGMENTS = {
     ],
     11: [
         (0x000, "c", "overlay11Initialize"),
-        (0x150, "asm", "overlay_011_prefix"),
+        (0x150, "c", "func_overlay_011_F0000150_1868998"),
         (0xA18, "c", "overlay11CreateHandles"),
         (0xAF4, "c", "overlay11InitializeFour"),
         (0xC88, "c", "overlay11InitializeSixB"),
