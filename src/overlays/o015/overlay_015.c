@@ -135,7 +135,11 @@ typedef struct Overlay15StarPointerView {
  * mismatch is +0x30. Typed proxy views recover the retail +0x30 movement and
  * +0x4 star-pointer accesses, but IDO still emits one address pair per scalar
  * bound instead of the retail pairwise base reuse, accounting for the four
- * extra instructions.
+ * extra instructions. The cx-ov-2-a-a-r2 follow-up tested contiguous aggregate,
+ * pair-array, explicit same-TU BSS, and volatile-pair layouts. The aggregate
+ * over-collapses by three instructions; pair layouts materialize full addresses
+ * and remain four or five instructions long. Correct full BSS ownership is the
+ * remaining structural hypothesis.
  */
 #ifdef NON_MATCHING
 void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
