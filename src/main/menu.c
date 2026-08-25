@@ -24,6 +24,7 @@ typedef struct MenuScreenModeBits {
 } MenuScreenModeBits;
 
 extern s8 D_800D312B;
+extern s8 D_800D3050;
 extern MenuScreenModeBits D_800D3128;
 extern u8 D_8007C08C;
 extern u8 D_8007C090;
@@ -31,6 +32,7 @@ extern s32 D_8007C098;
 extern s16 D_8007BF70;
 extern u16 D_800D312C;
 extern u16 D_800D312E;
+extern void amTuneStop(void);
 extern void amTuneSetGlobalVolume(s32 volume);
 extern s32 levelGetRegionNo(void);
 extern s8 viGetWideAdjust(void);
@@ -164,7 +166,11 @@ void func_8003A544(s32 value) {
 s32 func_8003A550(void) {
     return D_8007C098;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A55C.s")
+void func_8003A55C(s32 value) {
+    amTuneStop();
+    D_800D3050 = value;
+    D_8007BF70 = 0x78;
+}
 void func_8003A590(void) {
     D_8007BF70 = -1;
 }

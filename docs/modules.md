@@ -1050,6 +1050,13 @@ no donor body or descriptive-name evidence is used. The default flags, both
 data-relocation words, object words, and linked ROM range are exact without
 post-processing.
 
+The tier-D `func_8003A55C` adds **0x34 bytes / 13 words** at ROM `0x3B15C`.
+Its Mickey-derived body stops the active tune, stores the caller's byte, and
+sets the paired halfword timer to `0x78`. The adjacent JFG menu names do not
+pin that Mickey-specific behavior, so the address label remains. The default
+flags, call relocation, two data-relocation pairs, object words, and linked ROM
+range are exact without post-processing.
+
 The tier-D `func_8003A590` adds **0x10 bytes / 4 words** at ROM `0x3B190`.
 Mickey's body writes `-1` to a resident halfword. A short-function skeleton
 collision with an unrelated published routine is rejected as naming evidence,

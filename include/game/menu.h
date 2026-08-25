@@ -16,6 +16,7 @@ void frontSetBgmVolume(s32 volume);
 s32 frontGet2PlayerSplit(void);
 void func_8003A544(s32 value);
 s32 func_8003A550(void);
+void func_8003A55C(s32 value);
 void func_8003A590(void);
 
 #endif
