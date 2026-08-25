@@ -63,14 +63,29 @@ extern s32 overlayCount;           /* overlays, AND link slots: one each */
 extern RelocationEntry *mainRelocTable;
 extern s32 mainRelocTableCount;
 extern s32 D_8007A27C;
+extern s32 D_8007A67C;
 extern char D_80082410[];
-extern void func_80032BF8(s32 overlayIndex);
-extern void func_80032338(s32 slot);
+extern void runlinkResumeCode(s32 overlayIndex);
+extern void runlinkFreeCode(s32 overlayIndex);
+extern void runlinkUnloadOverlay(s32 overlayIndex);
+extern s32 func_80031A30(RelocationEntry *relocEntry, s32 otIndex);
 extern void *func_8002B280(s32 size, s32 tag);
+extern void *func_8002B524(s32 size, void *address, u32 tag);
 extern void mmFree(void *address);
 extern s32 mmGetDelay(void);
 extern void mmSetDelay(s32 delay);
 extern void romCopy(u32 romAddress, u32 ramAddress, s32 size);
+extern s32 D_8007A670;
+extern s32 D_8007A674;
+extern s32 D_8007A678;
+extern char D_80082488[];
+extern u8 D_1848B70[];
+extern u8 D_1849730[];
+extern u8 D_184B680[];
+extern u8 D_184C3E0[];
+extern u8 D_800D8750[];
+extern PendingOverlayLoad D_800D2E40;
+extern void _bzero(void *dst, s32 len);
 
 typedef struct RunlinkRelocContext {
     /* 0x00 */ u32 unk0;
@@ -185,6 +200,7 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
     osWritebackDCache(instr, sizeof(MipsInstruction));
     osInvalICache(instr, sizeof(MipsInstruction));
 }
+#ifdef NON_MATCHING
 /*
  * ProcessRelocationEntry -- PARKED, not matched. ROM 0x32630-0x32878.
  *
@@ -264,7 +280,6 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
  * provenance note above before trusting it. It is the best available reading
  * of the function, not a verified one.
  */
-#ifdef NON_MATCHING
 /*
  * Apply one relocation record, and report how many records were consumed.
  *
@@ -388,7 +403,7 @@ s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
  * globals, and relocation rules determine every divergence here.
  */
 s32 runlinkDownloadCode(s32 overlayIndex) {
-    OverlayHeader *overlay;
+    OverlayHeader * volatile overlay;
     RelocationEntry *relocTable;
     RelocationEntry *relocEntry;
     s32 savedDelay;
@@ -543,7 +558,79 @@ s32 runlinkDownloadCode(s32 overlayIndex) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkDownloadCode.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkEnsureJumpIsValid.s. Mickey's relocation
+ * layout and resident section anchors determine the final body.
+ */
+s32 runlinkEnsureJumpIsValid(void **jumpAddress) {
+    register void **address;
+    OverlayHeader *overlay;
+    RelocationEntry *relocEntry;
+    s32 relocCount;
+    s32 overlayIndex;
+    s32 section;
+    s32 overlayNumber;
+    u32 relocInfo;
+
+    address = jumpAddress;
+    if (*address != (void *) TrapDanglingJump) {
+        return 0;
+    }
+
+    overlay = overlayTable;
+    for (overlayIndex = 0; overlayIndex < overlayCount; overlayIndex++) {
+        if (overlay->vramBase != 0) {
+            if (overlayIndex == 0) {
+                D_800D2DA8.textBase = (u8 *) func_80000450;
+                D_800D2DA8.dataBase = D_80078D60;
+                D_800D2DA8.bssBase = D_80085A40;
+                D_800D2DA8.relocBase = (u8 *) mainRelocTable;
+                relocEntry = mainRelocTable;
+                relocCount = mainRelocTableCount;
+            } else {
+                D_800D2DA8.textBase = (u8 *) overlay->vramBase;
+                D_800D2DA8.dataBase =
+                    (u8 *) ((s32) D_800D2DA8.textBase + overlay->textSize);
+                D_800D2DA8.bssBase =
+                    (u8 *) ((s32) D_800D2DA8.dataBase + overlay->dataSize);
+                D_800D2DA8.relocBase =
+                    (u8 *) ((s32) D_800D2DA8.bssBase + overlay->bssSize);
+                relocEntry = (RelocationEntry *) D_800D2DA8.relocBase;
+                relocCount = (u32) (u16) overlay->relocTableSize >> 3;
+            }
+
+            while (relocCount--) {
+                relocInfo = relocEntry->u.info;
+                switch (relocInfo & 0xF) {
+                    case RELOC_OP_DATA:
+                        section = 2;
+                        break;
+                    default:
+                        section = 1;
+                        break;
+                }
+                if ((u8 *) address ==
+                    ((u8 **) &D_800D2DA8)[section] + (relocInfo >> 8)) {
+                    overlayNumber = overlayRomTable[relocEntry->symbolIndex]
+                                        .overlayNumber;
+                    if (overlayNumber >= 0xFFC) {
+                        overlayNumber = 0;
+                    }
+                    runlinkDownloadCode(overlayNumber);
+                    return 1;
+                }
+                relocEntry++;
+            }
+        }
+        overlay++;
+    }
+    return 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_800320F0.s")
+#endif
 /*
  * Is this overlay resident? Returns its VRAM base, which is zero when it is
  * not. Same one-line function, same name, as JFG's public decomp.
@@ -573,7 +660,7 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
         remaining = PENDING_OVERLAY_LOADS - 1;
         do {
             if (overlayIndex == pendingLoad->overlayIndex) {
-                func_80032BF8(overlayIndex);
+                runlinkResumeCode(overlayIndex);
                 break;
             }
             pendingLoad++;
@@ -584,13 +671,483 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
         ((void (*)(void)) (overlay->vramBase + overlay->resumeFunction))();
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032338.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032618.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032820.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkFreeCode.s and its documented role in
+ * src/runLink.c. Mickey's packed relocation records and resident section
+ * anchors determine the C body.
+ */
+void runlinkFreeCode(s32 overlayIndex) {
+    OverlayHeader *overlay;
+    OverlayHeader *otherOverlay;
+    PendingOverlayLoad *pendingLoad;
+    RelocationEntry *relocEntry;
+    MipsInstruction *patchLocation;
+    s32 overlayNumber;
+    s32 relocCount;
+    s32 relocType;
+    s32 found;
+    s32 otherIndex;
+    u32 patchOperation;
+    u32 address;
+
+    overlay = &overlayTable[overlayIndex];
+    if (D_8007A670 == 0) {
+        runlinkCallResumeFunction(overlayIndex);
+    }
+
+    found = FALSE;
+    if (overlay->vramBase == 0) {
+        pendingLoad = D_800D2DC8;
+        relocCount = PENDING_OVERLAY_LOADS - 1;
+        do {
+            if (overlayIndex == pendingLoad->overlayIndex) {
+                found = TRUE;
+                break;
+            }
+            pendingLoad++;
+        } while (relocCount--);
+
+        if (found) {
+            mmFree((void *) (pendingLoad->unk0 + overlay->textSize));
+            pendingLoad->overlayIndex = 0xFFB;
+        }
+        return;
+    }
+
+    mmFree((void *) overlay->vramBase);
+    overlay->vramBase = 0;
+    linkSlotTable[overlayIndex].tag = 0;
+    linkSlotTable[overlayIndex].useCount = 0;
+
+    otherOverlay = overlayTable;
+    otherIndex = 0;
+    while (otherIndex < overlayCount) {
+        if (otherOverlay->vramBase != 0 && otherIndex != overlayIndex) {
+            if (otherIndex == 0) {
+                D_800D2DA8.textBase = (u8 *) func_80000450;
+                D_800D2DA8.dataBase = D_80078D60;
+                D_800D2DA8.bssBase = D_80085A40;
+                relocEntry = mainRelocTable;
+                D_800D2DA8.relocBase = (u8 *) relocEntry;
+                relocCount = mainRelocTableCount;
+            } else {
+                D_800D2DA8.textBase = (u8 *) otherOverlay->vramBase;
+                D_800D2DA8.dataBase =
+                    D_800D2DA8.textBase + otherOverlay->textSize;
+                D_800D2DA8.bssBase = D_800D2DA8.dataBase + otherOverlay->dataSize;
+                relocEntry = (RelocationEntry *)
+                    (D_800D2DA8.bssBase + otherOverlay->bssSize);
+                D_800D2DA8.relocBase = (u8 *) relocEntry;
+                relocCount = (u32) (u16) otherOverlay->relocTableSize >> 3;
+            }
+
+            while (relocCount--) {
+                relocType = relocEntry->u.info & 0xF;
+                overlayNumber = overlayRomTable[relocEntry->symbolIndex].overlayNumber;
+                if (overlayNumber >= 0xFFC) {
+                    overlayNumber = 0;
+                }
+
+                if (overlayNumber == overlayIndex) {
+                    address = 0;
+                    if (relocType == RELOC_OP_DATA) {
+                        relocEntry->u.b.flags &= 0xFFF0;
+                        patchLocation = (MipsInstruction *)
+                            (D_800D2DA8.dataBase + (relocEntry->u.info >> 8));
+                    } else {
+                        patchLocation = (MipsInstruction *)
+                            (D_800D2DA8.textBase + (relocEntry->u.info >> 8));
+                    }
+
+                    patchOperation = (u32) relocEntry->u.b.flags >> 4;
+                    if (patchOperation == RELOC_TYPE_26) {
+                        address = (u32) TrapDanglingJump;
+                    }
+                    PatchInstruction(patchLocation, address, patchOperation);
+                }
+
+                relocEntry->u.n.op = relocType;
+                relocEntry++;
+            }
+        }
+        otherIndex++;
+        otherOverlay++;
+    }
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkFreeCode.s")
+#endif
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * src/runLink.c:runlinkUnloadOverlay. Mickey's packed relocation records,
+ * resident section anchors, and link-slot layout determine the final body.
+ */
+void runlinkUnloadOverlay(s32 overlayIndex) {
+    OverlayHeader *overlay;
+    PendingOverlayLoad *pendingLoad;
+    RelocationEntry *relocEntry;
+    MipsInstruction *patchLocation;
+    s32 overlayNumber;
+    s32 loadedAddress;
+    s32 relocType;
+    s32 found;
+    s32 i;
+    u32 patchOperation;
+    u32 address;
+
+    overlay = &overlayTable[overlayIndex];
+    runlinkCallResumeFunction(overlayIndex);
+    loadedAddress = overlay->vramBase;
+    address = loadedAddress;
+
+    if (address == 0) {
+        found = FALSE;
+        pendingLoad = D_800D2DC8;
+        i = PENDING_OVERLAY_LOADS;
+        while (i--) {
+            if (overlayIndex == pendingLoad->overlayIndex) {
+                found = TRUE;
+                break;
+            }
+            pendingLoad++;
+        }
+
+        if (found == FALSE) {
+            return;
+        }
+
+        mmFree((void *) (pendingLoad->unk0 + overlay->textSize));
+        pendingLoad->overlayIndex = 0xFFB;
+        return;
+    }
+
+    mmFree((void *) address);
+    overlay->vramBase = 0;
+    linkSlotTable[overlayIndex].tag = 0;
+    linkSlotTable[overlayIndex].useCount = 0;
+
+    relocEntry = mainRelocTable;
+    i = mainRelocTableCount;
+    while (i--) {
+        relocType = relocEntry->u.info & 0xF;
+        overlayNumber = overlayRomTable[relocEntry->symbolIndex].overlayNumber;
+        if (overlayNumber >= 0xFFC) {
+            overlayNumber = 0;
+        }
+
+        if (overlayNumber == overlayIndex) {
+            if ((relocEntry->u.info & 0xF) == RELOC_OP_DATA) {
+                patchLocation = (MipsInstruction *)
+                    (D_80078D60 + (relocEntry->u.info >> 8));
+                relocEntry->u.n.op = RELOC_OP_SYMBOL;
+            } else {
+                patchLocation = (MipsInstruction *)
+                    ((u8 *) func_80000450 + (relocEntry->u.info >> 8));
+            }
+
+            patchOperation = (u32) relocEntry->u.b.flags >> 4;
+            /* JFG's identity spelling preserves IDO's comparison operand order. */
+            if ((patchOperation ^ 0) == RELOC_TYPE_26) {
+                address = (u32) TrapDanglingJump;
+            } else {
+                address = 0;
+            }
+            PatchInstruction(patchLocation, address, patchOperation);
+        }
+
+        relocEntry->u.n.op = relocType;
+        relocEntry++;
+    }
+}
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkFlushModules.s and the corresponding
+ * src/runlink.c function order. Mickey's pending-load count and linked bytes
+ * determine the final body.
+ */
+void runlinkFlushModules(void) {
+    PendingOverlayLoad *pendingLoad;
+    s32 remaining;
+
+    pendingLoad = D_800D2DC8;
+    remaining = overlayCount - 1;
+    if (remaining > 0) {
+        do {
+            runlinkUnloadOverlay(remaining);
+            remaining--;
+        } while (remaining > 0);
+    }
+
+    /* Source-line grouping controls IDO's otherwise independent %lo/constant schedule. */
+    remaining = PENDING_OVERLAY_LOADS - 1; do {
+        if (pendingLoad->overlayIndex != 0xFFB) {
+            mmFree((void *) (overlayTable[pendingLoad->overlayIndex].textSize + pendingLoad->unk0));
+            pendingLoad->overlayIndex = 0xFFB;
+        }
+        pendingLoad++;
+    } while (remaining--);
+}
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * src/runLink.c:runlinkInitialise. Mickey's ROM-block boundaries, resident
+ * section anchors, packed header layout, and pending-load count determine the
+ * final body.
+ */
+void runlinkInit(void) {
+    u32 overlayTableSize;
+    u32 tableSize;
+    PendingOverlayLoad *pendingLoad;
+    OverlayHeader *overlay;
+
+    overlayTableSize = D_184C3E0 - D_184B680;
+    overlayTable = func_8002B280(overlayTableSize + sizeof(OverlayHeader), 0x83);
+    romCopy((u32) D_184B680, (u32) (overlayTable + 1), overlayTableSize);
+
+    tableSize = D_184B680 - D_1849730;
+    overlayRomTable = func_8002B280(tableSize, 0x83);
+    romCopy((u32) D_1849730, (u32) overlayRomTable, tableSize);
+
+    tableSize = D_1849730 - D_1848B70;
+    mainRelocTable = func_8002B280(tableSize, 0x83);
+    romCopy((u32) D_1848B70, (u32) mainRelocTable, tableSize);
+    mainRelocTableCount = *(s32 *) mainRelocTable;
+    mainRelocTable = (RelocationEntry *) ((u8 *) mainRelocTable + sizeof(s32));
+    overlayCount = (overlayTableSize >> 5) + 1;
+
+    pendingLoad = &D_800D2E40;
+    tableSize = PENDING_OVERLAY_LOADS - 1;
+    do {
+        pendingLoad->overlayIndex = 0xFFB;
+        pendingLoad--;
+    } while (tableSize--);
+
+    linkSlotTable = func_8002B280(overlayCount * sizeof(LinkSlot), 0x83);
+    _bzero(linkSlotTable, overlayCount * sizeof(LinkSlot));
+
+    overlayTable->vramBase = (s32) func_80000450;
+    overlayTable->romAddress = 0;
+    overlayTable->textSize = (s32) D_80078D60 - (s32) func_80000450;
+    overlayTable->dataSize = (s32) D_80085A40 - (s32) D_80078D60;
+    overlayTable->bssSize = (s32) D_800D8750 - (s32) D_80085A40;
+    overlayTable->relocTableSize = mainRelocTableCount * sizeof(RelocTableEntry);
+    overlayTable->relocTableSize2 = 0;
+
+    overlay = overlayTable + 1;
+    tableSize = overlayCount - 1;
+    while (tableSize--) {
+        overlay->romAddress += (s32) D_184C3E0;
+        overlay++;
+    }
+
+    D_8007A674 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkInit.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032B14.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032BF8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032FE0.s")
+#endif
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkSuspendCode.s and its src/runLink.c order.
+ * Mickey's allocation tag, pending-load count, and linked bytes determine
+ * the final body.
+ */
+void runlinkSuspendCode(s32 overlayIndex) {
+    OverlayHeader *overlay;
+    PendingOverlayLoad *pendingLoad;
+    s32 remaining;
+    s32 savedDelay;
+
+    overlay = &overlayTable[overlayIndex];
+    pendingLoad = D_800D2DC8;
+    remaining = PENDING_OVERLAY_LOADS - 1;
+    if (overlay->vramBase != 0) {
+        do {
+            if (pendingLoad->overlayIndex == 0xFFB) {
+                savedDelay = mmGetDelay();
+                pendingLoad->unk0 = overlay->vramBase;
+                pendingLoad->overlayIndex = overlayIndex;
+                mmSetDelay(0);
+                D_8007A670 = 1;
+                runlinkFreeCode(overlayIndex);
+                D_8007A670 = 0;
+                mmSetDelay(savedDelay);
+                func_8002B524(overlay->dataSize + overlay->bssSize +
+                                  (u16) overlay->relocTableSize,
+                              (void *) (pendingLoad->unk0 + overlay->textSize),
+                              0x83);
+                return;
+            }
+            pendingLoad++;
+        } while (remaining--);
+    }
+}
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkResumeCode.s and its documented role in
+ * src/runLink.c. Mickey's allocation tag, packed relocation records, and
+ * resident section anchors determine the C body.
+ */
+void runlinkResumeCode(s32 overlayIndex) {
+    OverlayHeader *overlay;
+    PendingOverlayLoad *pendingLoad;
+    s32 savedDelay;
+    s32 relocSavedDelay;
+    RelocationEntry *relocTable;
+    RelocationEntry *relocEntry;
+    s32 relocCount;
+    s32 otherIndex;
+    s32 overlayNumber;
+    s32 found;
+
+    overlay = &overlayTable[overlayIndex];
+    pendingLoad = D_800D2DC8;
+    found = FALSE;
+    relocTable = NULL;
+    relocCount = PENDING_OVERLAY_LOADS - 1;
+    do {
+        if (overlayIndex == pendingLoad->overlayIndex) {
+            found = TRUE;
+            break;
+        }
+        pendingLoad++;
+    } while (relocCount--);
+
+    if (found) {
+        savedDelay = mmGetDelay();
+        mmSetDelay(0);
+        mmFree((void *) (pendingLoad->unk0 + overlay->textSize));
+        mmSetDelay(savedDelay);
+
+        overlay->vramBase = (s32) func_8002B524(
+            overlay->textSize + overlay->dataSize + overlay->bssSize +
+                (u16) overlay->relocTableSize,
+            (void *) pendingLoad->unk0, 0x83);
+        if (overlay->vramBase == 0) {
+            return;
+        }
+
+        if (overlay->relocTableSize2) {
+            relocTable = func_8002B280(overlay->relocTableSize2, 0x83);
+            if (relocTable == NULL) {
+                mmFree((void *) overlay->vramBase);
+                return;
+            }
+            romCopy(overlay->romAddress + overlay->textSize + overlay->dataSize +
+                        (u16) overlay->relocTableSize,
+                    (u32) relocTable, overlay->relocTableSize2);
+        }
+
+        D_800D2DA8.textBase = (u8 *) overlay->vramBase;
+        D_800D2DA8.dataBase =
+            (u8 *) ((s32) D_800D2DA8.textBase + overlay->textSize);
+        D_800D2DA8.bssBase =
+            (u8 *) ((s32) D_800D2DA8.dataBase + overlay->dataSize);
+        D_800D2DA8.relocBase =
+            (u8 *) ((s32) D_800D2DA8.bssBase + overlay->bssSize);
+
+        romCopy(overlay->romAddress, (u32) overlay->vramBase, overlay->textSize);
+
+        if (relocTable != NULL) {
+            relocSavedDelay = mmGetDelay();
+            relocCount = (u32) overlay->relocTableSize2 >> 3;
+            relocEntry = relocTable;
+            while (relocCount-- > 0) {
+                if ((relocEntry->u.info >> 8) < (u32) overlay->textSize &&
+                    func_80031A30(relocEntry, overlayIndex) == 2) {
+                    relocCount--;
+                    relocEntry++;
+                }
+                relocEntry++;
+            }
+            mmSetDelay(0);
+            mmFree(relocTable);
+            mmSetDelay(relocSavedDelay);
+        }
+
+        relocCount = (u32) (u16) overlay->relocTableSize >> 3;
+        relocEntry = (RelocationEntry *) D_800D2DA8.relocBase;
+        while (relocCount-- > 0) {
+            if ((relocEntry->u.info >> 8) < (u32) overlay->textSize &&
+                func_80031A30(relocEntry, overlayIndex) == 2) {
+                relocCount--;
+                relocEntry++;
+            }
+            relocEntry++;
+        }
+
+        overlay = overlayTable;
+        for (otherIndex = 0; otherIndex < overlayCount; otherIndex++) {
+            if (overlay->vramBase != 0 && otherIndex != overlayIndex) {
+                if (otherIndex == 0) {
+                    D_800D2DA8.textBase = (u8 *) func_80000450;
+                    D_800D2DA8.dataBase = D_80078D60;
+                    D_800D2DA8.bssBase = D_80085A40;
+                    D_800D2DA8.relocBase = (u8 *) mainRelocTable;
+                    relocEntry = mainRelocTable;
+                    relocCount = mainRelocTableCount;
+                } else {
+                    D_800D2DA8.textBase = (u8 *) overlay->vramBase;
+                    D_800D2DA8.dataBase =
+                        (u8 *) ((s32) D_800D2DA8.textBase + overlay->textSize);
+                    D_800D2DA8.bssBase =
+                        (u8 *) ((s32) D_800D2DA8.dataBase + overlay->dataSize);
+                    D_800D2DA8.relocBase =
+                        (u8 *) ((s32) D_800D2DA8.bssBase + overlay->bssSize);
+                    relocEntry = (RelocationEntry *) D_800D2DA8.relocBase;
+                    relocCount = (u32) (u16) overlay->relocTableSize >> 3;
+                }
+
+                while (relocCount-- > 0) {
+                    overlayNumber =
+                        overlayRomTable[relocEntry->symbolIndex].overlayNumber;
+                    if (overlayNumber >= 0xFFC) {
+                        overlayNumber = 0;
+                    }
+                    if (overlayNumber == overlayIndex &&
+                        ((relocEntry->u.info & 0xF) == RELOC_OP_SYMBOL ||
+                         (relocEntry->u.info & 0xF) == RELOC_OP_DATA)) {
+                        if (func_80031A30(relocEntry, otherIndex) == 2) {
+                            relocCount--;
+                            relocEntry++;
+                        }
+                    }
+                    relocEntry++;
+                }
+            }
+            overlay++;
+        }
+
+        pendingLoad->overlayIndex = 0xFFB;
+    }
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkResumeCode.s")
+#endif
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkResumeAll.s and the corresponding
+ * src/runlink.c function order. Mickey's pending-load count and linked bytes
+ * determine the final body.
+ */
+void runlinkResumeAll(void) {
+    PendingOverlayLoad *pendingLoad;
+    s32 overlayIndex;
+    s32 remaining;
+
+    pendingLoad = D_800D2DC8;
+    remaining = PENDING_OVERLAY_LOADS;
+    remaining--;
+    do {
+        if (pendingLoad->overlayIndex != 0xFFB) {
+            overlayIndex = pendingLoad->overlayIndex;
+            runlinkResumeCode(overlayIndex);
+        }
+        pendingLoad++;
+    } while (remaining--);
+}
 /*
  * Write both halves of one link slot.
  *
@@ -611,7 +1168,32 @@ void SetLinkSlot(s32 slot, u16 tag, u16 useCount) {
     linkSlotTable[slot].tag = tag;
     linkSlotTable[slot].useCount = useCount;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80033090.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkTick.s and its src/runLink.c role and order.
+ * Mickey's packed fields and linked bytes determine the final body.
+ */
+void runlinkTick(void) {
+    LinkSlot *slot;
+    s32 slotIndex;
+
+    slotIndex = overlayCount;
+    if (D_8007A67C != 0) {
+        if (slotIndex--) {
+            do {
+                slot = &linkSlotTable[slotIndex];
+                if (slot->useCount != 0) {
+                    slot->useCount--;
+                }
+                if (slot->tag != 0) {
+                    if (--slot->tag == 0) {
+                        runlinkFreeCode(slotIndex);
+                    }
+                }
+            } while (slotIndex--);
+        }
+    }
+}
 /*
  * Sweep the link-slot table and release every slot that is tagged but no
  * longer used, walking downwards from the last slot.
@@ -639,10 +1221,80 @@ void ReleaseUnusedLinkSlots(void) {
     while (i--) {
         slot = &linkSlotTable[i];
         if (slot->tag != 0 && slot->useCount == 0) {
-            func_80032338(i);
+            runlinkFreeCode(i);
             slot->tag = 0;
             slot->useCount = 0;
         }
     }
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkGetAddressInfo.s and its public prototype.
+ * Mickey's resident-address shortcut and ROM-table layout determine the
+ * final body.
+ */
+s32 runlinkGetAddressInfo(u32 address, s32 *moduleId, s32 *moduleAddress,
+                          u32 **symbolName) {
+    s32 overlayVram;
+    RomTableEntry *romEntry;
+    OverlayHeader *overlayBase;
+    OverlayHeader *overlay;
+    s32 count;
+    s32 symbolIndex;
+    u32 bestAddress;
+    u32 symbolAddress;
+    u32 symbolOffset;
+
+    romEntry = overlayRomTable;
+    *moduleId = 0;
+    *moduleAddress = 0;
+    bestAddress = 0;
+    if (symbolName != NULL) {
+        *symbolName = (u32 *) D_80082488;
+    }
+
+    if (D_8007A674 != 0) {
+        *moduleAddress = address - 0x80000450;
+        return 1;
+    }
+
+    if (symbolName != NULL) {
+        count = D_8007A678;
+        overlayBase = overlayTable;
+        while (count--) {
+            overlay = &overlayBase[romEntry->overlayNumber];
+            overlayVram = overlay->vramBase;
+            if (overlayVram != 0) {
+                symbolOffset = romEntry->functionOffset;
+                symbolAddress = overlayVram + symbolOffset;
+                if ((u32) overlay->textSize >= symbolOffset &&
+                    address >= symbolAddress && bestAddress < symbolAddress) {
+                    bestAddress = symbolAddress;
+                    symbolIndex = romEntry - overlayRomTable;
+                }
+            }
+            romEntry++;
+        }
+        if (bestAddress != 0) {
+            *symbolName = (u32 *) GetSymbolName(symbolIndex);
+        }
+    }
+
+    overlayBase = overlayTable;
+    overlay = overlayBase;
+    count = overlayCount;
+    while (count--) {
+        if (address >= (u32) overlay->vramBase &&
+            address <= (u32) (overlay->vramBase + overlay->textSize)) {
+            *moduleId = overlay - overlayBase;
+            *moduleAddress = address - overlay->vramBase;
+            return 1;
+        }
+        overlay++;
+    }
+    return 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkGetAddressInfo.s")
+#endif

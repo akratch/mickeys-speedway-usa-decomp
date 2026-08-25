@@ -7,7 +7,7 @@ Split out of `docs/modules.md` on 2026-08-24; evidence tiers and naming rules ar
 ### 5.1 What runs it
 
 The resident segment carries a complete Rare/DKR-lineage runtime linker at ROM
-`0x323E0`–`0x33FA0`, plus its trampoline at `0x33FA0`. Seven of its functions are
+`0x323E0`–`0x33FA0`, plus its trampoline at `0x33FA0`. Twelve of its functions are
 decompiled and byte-matched; four more are named from Mickey's call graph. The
 mechanism, entirely from Mickey's own disassembly:
 
@@ -39,6 +39,81 @@ symbol table the mechanism is built around is simply absent from the shipped
 image. Its C now reproduces all four instructions and its `D_80082410`
 relocation exactly under the resident `-O2 -mips2 -32` flags.
 
+`runlinkResumeAll` (`0x80032FE0`, `0x60` bytes) scans the sixteen pending-load
+slots and resumes every entry not marked `0xFFB`. Its name and role follow
+JFG's ordered `runlinkResumeAll` peer (tier B); the adapted C compiles to all
+24 Mickey instruction words with the exact data/call relocation surface under
+the resident `-O2 -mips2 -32` flags, and its linked ROM range is byte-identical.
+
+`runlinkFlushModules` (`0x80032820`, `0xAC` bytes) unloads resident overlays in
+descending order, then frees and clears all sixteen pending-load slots. Its
+name, position, and control flow follow JFG's `runlinkFlushModules` peer (tier
+B); the adapted C compiles to all 43 Mickey instruction words with the exact
+global and call relocation surface under the resident `-O2 -mips2 -32` flags,
+and its linked ROM range is byte-identical.
+
+`runlinkTick` (`0x80033090`, `0xBC` bytes) walks the packed link-slot table
+backwards when the resident enable flag is set. It ages both counters and calls
+`runlinkFreeCode` when the upper ten-bit counter reaches zero. Its name, role, and
+control flow follow JFG's 0xC0-byte `runlinkTick` peer (tier B); Mickey's mips2
+build omits JFG's load-delay nops. The C compiles to all 47 instruction words
+with the exact three-global/one-call relocation surface, and its linked ROM
+range is byte-identical under `-O2 -mips2 -32`.
+
+`runlinkSuspendCode` (`0x80032B14`, `0xE4` bytes) claims a free pending-load
+slot, records the overlay's resident address, unloads it, and reserves its old
+address range for a later resume. Its name, position, and control flow follow
+JFG's 0xE8-byte peer (tier B); Mickey uses allocation tag `0x83` and its mips2
+build omits JFG's load-delay no-op. The adapted C compiles to all 57
+instruction words with the exact relocation surface, and the linked ROM range
+is byte-identical under `-O2 -mips2 -32`.
+
+`runlinkUnloadOverlay` (`0x80032618`, `0x208` bytes) frees a resident overlay
+or cancels its pending allocation, clears the packed link-slot state, and
+rewrites resident references to the dangling-jump trap. Its name, role, and
+body follow JFG's published peer (tier B), adapted to Mickey's relocation and
+section layouts. The C compiles to all 130 instruction words with the exact
+relocation surface, and its linked ROM range is byte-identical under
+`-O2 -mips2 -32`.
+
+`runlinkFreeCode` (`0x80032338`) remains `NON_MATCHING` after ten coherent
+source variants, the 119-combination flag lattice, and a bounded MIPS2
+permuter pass. The best JFG-guided candidate has the exact 184-instruction
+boundary but 137 masked positional differences, beginning with its `0x68`
+frame allocation at `+0x0` against the target's `0x58`. The high-level control
+flow and relocation semantics agree; the remaining blocker is IDO's local-home
+and saved-register allocation. In particular, the candidate assigns separate
+stack homes to the selected and scanned overlay pointers where the target
+reuses one home, while source spellings that force that reuse add memory
+traffic or lose instructions. The stock `-O2 -mips2 -32` flags remained best;
+permuter variants with lower internal scores either regressed the full-TU
+comparison or changed relocation identities and were rejected.
+
+`runlinkResumeCode` (`0x80032BF8`) remains `NON_MATCHING` after ten coherent
+source variants, the 119-combination flag lattice, and a bounded MIPS2
+permuter pass. The best JFG-guided candidate has the exact 250-instruction
+boundary, opcode schedule, register allocation, and relocation identities;
+six frame operands remain different, first at `+0x0`. Mickey reserves a
+`0x50` frame and homes the pending-load pointer at `sp+0x44`, while IDO gives
+the candidate a `0x48` frame and `sp+0x40` home with the same 40 bytes of saved
+registers. Splitting the two delay-preservation lifetimes and spelling the
+secondary-size test as a truth test closed the other sixteen masked word
+differences. The corrected permuter reported an internal zero score because
+its metric ignores these frame-offset operands; the full-TU object comparison
+still proves the six-word mismatch. Meaningful allocation-size and
+secondary-size locals did not alter the frame, and artificial padding probes
+were rejected rather than retained.
+
+`runlinkInit` remains `NON_MATCHING` after seven coherent source variants, the
+119-combination flag lattice, and a bounded permuter pass. The best adapted
+JFG candidate is 142 instructions against 146, with a `0x40` frame against
+`0x38`, 64 masked positional differences, and its first mismatch at `+0x8`.
+The three allocation-and-copy sequences agree apart from frame-relative local
+homes; the four-instruction deficit comes later, where IDO reuses two resident
+section-anchor addresses that Mickey rematerializes. The permuter found lower
+numeric scores only by introducing the wrong relocation identities, so those
+variants were rejected rather than promoted.
+
 `runlinkDownloadCode` remains `NON_MATCHING` after a bounded ten-attempt pass.
 The best adapted candidate has the exact 286-instruction length, `0x70`-byte
 frame, opcode schedule and section-base arithmetic. Four instruction words
@@ -47,6 +122,30 @@ the secondary-relocation-size value as `a0` instead of the target's `v0`,
 which also removes the target's `move a0,v0`. Three calls additionally retain
 the candidate `ProcessRelocationEntry` relocation name while the assembly
 target still exposes `func_80031A30`; neither residual is an exact match.
+
+`runlinkEnsureJumpIsValid` (`0x800320F0`, `0x194` bytes) also remains
+`NON_MATCHING` after a bounded ten-attempt pass. JFG's 0x1A8-byte peer is the
+nearest skeleton at 0.504 similarity; Mickey's mips2 target omits its five
+load-delay no-ops. The best coherent C has the exact 101-word boundary and
+selector CFG under `-O2 -mips2 -32`, but 35 masked words differ, beginning at
+`+0x20`, where IDO keeps the jump address in `a3` instead of the target's
+`s0`; the resulting long-lived-register allocation differs through the loop.
+The complete 119-combination flag lattice found no better flag group. A
+bounded ten-minute, two-thread permuter batch improved its internal score from
+230 to 125 but did not reach zero; its best result added a constant-true block
+and was retained only as an ignored diagnostic artifact, not canonical source.
+
+`runlinkGetAddressInfo` (`0x800331E4`) remains `NON_MATCHING` after its own
+bounded pass. The best adapted C has the exact `0x38` frame and 108-word
+executable boundary under `-O2 -mips2 -32`; the following three nop
+words are alignment padding before the separately split trap TU. Seven masked
+words still differ, first at `+0x88`: IDO loads `overlayTable` before the first
+ROM-table countdown check, while the target schedules that load after the
+branch. The full 119-combination flag lattice did not change this. A bounded
+ten-minute, two-thread permuter batch improved its internal score from 700 to
+60 by caching the current overlay's VRAM base; that coherent improvement is
+preserved in the guarded source, but the result did not reach zero and was not
+promoted.
 
 ### 5.2 The tables
 

@@ -791,8 +791,15 @@ ResolveRelocAddress = 0x800317F0; // type:func size:0x188  tier-C donor-jfg
 PatchInstruction = 0x80031978; // type:func size:0xB8  tier-C donor-jfg
 runlinkIsModuleLoaded = 0x80032284; // type:func size:0x18  tier-C donor-jfg
 runlinkCallResumeFunction = 0x8003229C; // type:func size:0x9C  tier-C donor-jfg
+runlinkFreeCode = 0x80032338; // type:func size:0x2E0 ROM 0x32F38 tier-B donor-jfg-asm/runLink/runlinkFreeCode.s role+CFG
+runlinkUnloadOverlay = 0x80032618; // type:func size:0x208 ROM 0x33218 tier-B donor-jfg-src/runLink.c role+CFG C-object+linked-ROM-exact
+runlinkFlushModules = 0x80032820; // type:func size:0xAC ROM 0x33420 tier-B donor-jfg-asm/runLink/runlinkFlushModules.s role+CFG C-object+linked-ROM-exact
+runlinkSuspendCode = 0x80032B14; // type:func size:0xE4 ROM 0x33714 tier-B donor-jfg-asm/runLink/runlinkSuspendCode.s role+CFG C-object+linked-ROM-exact
+runlinkResumeCode = 0x80032BF8; // type:func size:0x3E8 ROM 0x337F8 tier-B donor-jfg-asm/runLink/runlinkResumeCode.s role+CFG
+runlinkResumeAll = 0x80032FE0; // type:func size:0x60 ROM 0x33BE0 tier-B donor-jfg-asm/runLink/runlinkResumeAll.s role+CFG C-object+linked-ROM-exact
 // tier D -- invented: writes overlayIndex's halfword entry in linkSlotTable.
 SetLinkSlot = 0x80033040; // type:func size:0x50  tier-D invented
+runlinkTick = 0x80033090; // type:func size:0xBC ROM 0x33C90 tier-B donor-jfg-asm/runLink/runlinkTick.s role+CFG C-object+linked-ROM-exact
 // tier D -- invented: sweeps linkSlotTable over overlayCount, freeing unused.
 ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier-D invented
 
@@ -827,8 +834,9 @@ ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier-D invented
 // NULL for the fourth -- which is what Mickey's own watchpoint reporter at
 // 0x80046460 does too.
 //
-// runlinkInit (0x800328CC). Tier D -- invented, from Mickey's disassembly
-// alone; JFG has no counterpart to point at. It is the only writer of any of
+// runlinkInit (0x800328CC). Tier D -- the local spelling is invented from
+// Mickey's disassembly; JFG's counterpart is named runlinkInitialise. It is
+// the only writer of any of
 // the six BSS symbols below: three malloc-and-DMA-copy sequences, one per ROM
 // block (0x1848B70, 0x1849730, 0x184B680, sizes taken as the difference of two
 // address literals), each storing the allocation into its pointer, then
