@@ -52,7 +52,11 @@ void audspat_jingle_off(void) {
     D_800C91F4 = 1;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025EC.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amAmbientRestart. */
+void amAmbientRestart(void) {
+    D_800C91F4 = 0;
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002768.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002E88.s")
