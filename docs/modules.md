@@ -911,6 +911,7 @@ functions is classified as handwritten assembly under §6.2.
 | `func_80021438` | `0x22038` | D — retained Mickey auto-name; camera TU position only | 12 | Mickey-only global read; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `camUseShake` | `0x22084` | B — role/order | 16 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camOverrideProjScales` | `0x220E4` | B — role/order (named above) | 32 | Configured object, six relocations, linked range and full ROM exact. |
+| `func_800217AC` | `0x223AC` | D — retained Mickey auto-name; camera TU position only | 12 | Mickey-only matrix pointer getter; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `camSetWaterLine` | `0x225B0` | A — byte identity (named above) | 32 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camGetProjOrgMtx` | `0x25270` | B — role/order (named above) | 28 | Configured object, two relocation pairs, linked range and full ROM exact. |
 | `camSetZoom` | `0x258C8` | B — role/order (named above) | 56 | Configured object, two relocation pairs, linked range and full ROM exact. |
