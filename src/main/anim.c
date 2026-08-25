@@ -801,6 +801,14 @@ typedef struct HitCollisionLink {
     HitCopyState *state;
 } HitCollisionLink;
 
+typedef struct HitCollisionNormalLink {
+    HitCopyState *state;
+    u8 pad4[0x10];
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+} HitCollisionNormalLink;
+
 void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
                    void **handle);
 u8 *func_80028F54(void);
@@ -863,7 +871,68 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     source->previous.z = source->current.z;
     TrapDanglingJump(second, 1);
 }
+#ifdef NON_MATCHING
+/*
+ * Mickey-local collision bookkeeping, state advance, and normal calculation.
+ * Plateau after the flag lattice, 10 allocation/lifetime shapes, and a bounded
+ * canonical-flag permuter: the full-TU candidate has the exact 109-instruction
+ * size and 0x50 frame, but the target keeps first in s2 and secondTarget in s3
+ * while IDO homes first on the stack and uses only s0-s2. That missing saved
+ * register shifts all seven call sites by one instruction (105 positional
+ * words differ, first +0x8). The best isolated permutation added an instruction
+ * when restored to the consolidated TU and was rejected.
+ */
+void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCollisionNormalLink *secondTarget;
+    HitCopySource *secondSource;
+    HitCopySource *firstSource;
+    HitCollisionVehicle *firstVehicle;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    firstSource = first->source;
+    secondTarget = (HitCollisionNormalLink *) second->target;
+    secondSource = second->source;
+    firstVehicle = (HitCollisionVehicle *) first->target;
+    if (TrapDanglingJump(firstVehicle) != 0) {
+        TrapDanglingJump(secondTarget->state, first, firstVehicle);
+        if (1) {
+        }
+        ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
+        firstVehicle->unk3B8++;
+        if (*func_80028F54() == 5) {
+            TrapDanglingJump(first);
+        }
+    } else {
+        func_80002FE0(0x26E, secondSource->current.x,
+                      secondSource->current.y, secondSource->current.z,
+                      4, NULL);
+    }
+    deltaX = second->position.x - secondSource->previous.x;
+    deltaY = second->position.y - secondSource->previous.y;
+    deltaZ = second->position.z - secondSource->previous.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+    second->position.x = secondSource->previous.x + deltaX;
+    second->position.y = secondSource->previous.y + deltaY;
+    second->position.z = secondSource->previous.z + deltaZ;
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    secondTarget->unk14 = deltaX / distance;
+    secondTarget->unk18 = deltaY / distance;
+    secondTarget->unk1C = deltaZ / distance;
+    TrapDanglingJump(second, 0xE);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055970.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055B24.s")
 void func_80055D08(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopySource *firstSource;

@@ -1477,7 +1477,7 @@ placeholders are never imported.
 | `0x80054B3C` | `0x5C8` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x80055104` | `0x6F4` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x800557F8` | `0x178` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 376 B and eight-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; reconstructed from Mickey's resident state/counter/audio ABI after no external skeleton exceeded 0.070 similarity |
-| `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; collision handler family |
+| `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; collision handler family. Plateau after the flag lattice, 10 allocation/lifetime shapes, and a bounded canonical-flag permuter: the best full-TU semantic candidate has the exact 109-instruction size and `0x50` frame, but the target keeps the first state in `s2` and the second target in `s3`, while IDO homes the first state on the stack and uses only `s0`-`s2`. The missing saved register shifts all seven calls by one instruction (105 positional words differ, first `+0x8`); the best isolated permutation added an instruction in the consolidated TU and was rejected |
 | `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | D; collision handler family |
 | `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 328 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; composed from Mickey-local exact state-update and normalization patterns |
 | `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 276 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
