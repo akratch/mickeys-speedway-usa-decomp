@@ -11,17 +11,9 @@ extern f32 gOverlay13Gravity;
 extern s32 gOverlay13ActiveCount;
 extern void overlay13Prepare(s32, s32, s32, Overlay13Record *);
 
-/*
- * NON_MATCHING plateau (2026-08-25): the canonical -O2 -mips2 candidate
- * is exactly 0x284 bytes, with 65/161 words exact and the first mismatch at
- * +0x2C. A fresh ten-hypothesis pass in lane cx-ov-3-a-a-r3 merged the fade
- * loop's duplicate index into its post-decrement tick counter (also fixing
- * the zero/one-tick control shape) and merged the output/return pointer,
- * improving the previous 63-word result by two words. The full 119-flag
- * lattice found no exact configuration. An earlier bounded permuter reduced
- * its score from 5030 to 3815; result/constant allocation and the coupled
- * float-loop schedule remain the blocker.
- */
+/* Plateau (2026-08-25): exact-size; 96 words differ, first +0x2C.
+ * The 119-flag lattice, tick-loop CFGs, result types, and pointer lifetimes did not improve it.
+ * The result/constant register pair and coupled floating-loop schedule remain the blocker. */
 #ifdef NON_MATCHING
 s16 *overlay13UpdateRecord(Overlay13Record *record, s32 ticks) {
     f32 radius;
