@@ -601,14 +601,9 @@ but 17 register operands differ from first mismatch `+0x38`. IDO assigns the
 texture-table address temporaries later in the temporary FIFO and tests the
 copied loop count in `t1`, while the target uses the preceding registers and
 tests the original count in `t0`; target assembly remains canonical.
-`func_80020E4C` plateaus after the full flag lattice and ten coherent
-source/type/control-flow spellings. Its best Mickey-only `NON_MATCHING`
-candidate has the target's `0x40` frame and emits 112 instructions versus
-113, with 83 differing positional words from first mismatch `+0x48`. The
-candidate collapses the exception scan's zero-index scale-and-add pointer
-setup into one move where the target retains both instructions; the following
-temporary allocation and schedule remain shifted. Target assembly remains
-canonical and no exact bytes are claimed.
+`func_80020E4C` plateau: canonical C emits 112/113 words, with 77 differing
+from `+0x64`; the missing exception-index scale shifts later temporary
+allocation after type, assignment, induction, flag, and permuter sweeps.
 **Why most rows have no new `mickey.us.yaml` split.** §1's "measured file
 boundary" tier requires a whole-`.text` match; this pass only matched
 **Why the original scan added no `mickey.us.yaml` splits.** §1's "measured
