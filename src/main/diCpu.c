@@ -72,13 +72,12 @@ void diCpuTraceInit(void) {
     osCreateThread(&diCpuOSThread, 0, diCpuThread, 0, diCpuThreadStack, 0xFF);
     osStartThread(&diCpuOSThread);
 }
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuThread; Mickey's own
  * draft supplies its extra VI delay loop and exact event handling. */
 void diCpuThread(void *unused) {
-    OSMesg message;
     s32 events;
     register s32 i;
+    OSMesg message;
     register f32 divisor;
     register f32 sum;
 
@@ -87,8 +86,7 @@ void diCpuThread(void *unused) {
     osSetEventMesg(12, &D_800D5CD0, (OSMesg)8);
     osSetEventMesg(10, &D_800D5CD0, (OSMesg)2);
     func_8004D5E0(150, &D_800D5D28, D_800D5D08, 8);
-    divisor = D_80083DBC;
-    while (1) {
+    for (divisor = D_80083DBC; ; ) {
         osRecvMesg(&D_800D5CD0, &message, OS_MESG_BLOCK);
         events |= (s32)message;
         if ((events & 8) || (events & 2)) {
@@ -104,9 +102,6 @@ void diCpuThread(void *unused) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuThread.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/diCpu.c::stop_all_threads_except_main. */
 void stop_all_threads_except_main(void) {
     OSThread *thread = __osGetActiveQueue();
