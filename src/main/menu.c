@@ -22,7 +22,9 @@ typedef struct MenuScreenModeBits {
     u32 twoPlayerSplit : 1;
     u32 unusedStereoGap : 5;
     u32 stereoMode : 2;
-    u32 rest : 21;
+    u32 unusedLanguageGap : 5;
+    u32 language : 6;
+    u32 rest : 10;
 } MenuScreenModeBits;
 
 extern s8 D_800D312B;
@@ -46,6 +48,7 @@ extern u16 D_800D312C;
 extern u16 D_800D312E;
 extern void amTuneStop(void);
 extern void amTuneSetGlobalVolume(s32 volume);
+extern void func_80038750(void);
 extern s32 levelGetRegionNo(void);
 extern s8 viGetWideAdjust(void);
 extern void gsSndpSetGlobalVolume(s32 volume);
@@ -525,7 +528,12 @@ void func_80039E34(s32 index) {
 s32 frontGetLanguage(void) {
     return (u32)D_800D312A >> 10;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A260.s")
+/* PROVENANCE: name and order compared with JFG's public decomp,
+ * src/menu.c::frontSetLanguage; body and bitfield derived from Mickey. */
+void frontSetLanguage(s32 language) {
+    D_800D3128.language = language;
+    func_80038750();
+}
 s32 frontGetScreenMode(void) {
     s32 mode;
 

@@ -2200,6 +2200,10 @@ func_80039E34 = 0x80039E34; // type:func size:0x418 tier-D ROM 0x3aa34 NON_MATCH
 // the paired setter and screen-mode accessor family, and the resident caller's
 // use as a returned setting identify the language accessor.
 frontGetLanguage = 0x8003A24C; // type:func size:0x14 tier-B ROM 0x3ae4c canonical C, linked byte-identical
+// Tier B (JFG): exact packed-field setter, ordered pairing with
+// frontGetLanguage, and its call to the front-end language refresh routine
+// identify the language setter.
+frontSetLanguage = 0x8003A260; // type:func size:0x38 tier-B ROM 0x3ae60 canonical C, linked byte-identical
 frontGetScreenMode = 0x8003A298; // type:func size:0x30   ROM 0x3ae98  src/menu.c.o  masked=2/12
 // Tier B (JFG): exact copied-byte store, adjacent ordered accessor family,
 // and correspondence with JFG's frontStoreScreenMode establish the role.

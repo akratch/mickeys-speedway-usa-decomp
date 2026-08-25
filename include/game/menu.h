@@ -5,6 +5,7 @@
 
 u8 frontGetMode(void);
 s32 frontGetLanguage(void);
+void frontSetLanguage(s32 language);
 s32 frontGetScreenMode(void);
 void frontStoreScreenMode(void);
 u8 frontRecallScreenMode(void);

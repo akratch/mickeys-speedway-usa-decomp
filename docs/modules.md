@@ -1009,6 +1009,14 @@ HI16/LO16 data relocations, object words, and linked ROM range are exact
 without post-processing. A zero-byte weak alias preserves the anonymous name
 used by resident assembly.
 
+The paired tier-B `frontSetLanguage` adds **0x38 bytes / 14 words** at ROM
+`0x3AE60`. Its byte-wide read/modify/write of the same six-bit field, ordered
+position after `frontGetLanguage`, and call to the front-end language refresh
+routine establish the JFG role. The name carries point-of-use `PROVENANCE`,
+while the field layout and body are Mickey-derived. Default flags, the refresh
+call and data relocations, object words, and linked ROM range are exact without
+post-processing.
+
 `frontSetWideAdjust` is the first exact C promotion: **0x2C bytes / 11 words**
 at ROM `0x3AFDC`, with the target's four relocation-bearing words resolving
 at their real linked addresses. Its body is adapted from JFG's public
