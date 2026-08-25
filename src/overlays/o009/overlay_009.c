@@ -449,12 +449,9 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
-/*
- * Plateau: the R4300-multiply build is 4 bytes short and differs in 80/283
- * words, first at +0x88. Plain -O2 regresses to 209 words; the remaining gap
- * is a coupled frame/register web across the smoothing loops, and the bounded
- * permuter is unavailable.
- */
+/* Workbench: allocation-mismatch, exact 282-word/0x98-frame shape; 79 words differ, first +0x88.
+ * Levers 2, 7, 8, 12, 14, 15, and 28 (AST order, dead webs, materialisation, aliasing) did not improve it.
+ * The coupled temp/pool stack-home swap remains, cascading through 67 integer and 11 FP register sites. */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {

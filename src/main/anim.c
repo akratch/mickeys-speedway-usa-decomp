@@ -1809,18 +1809,9 @@ typedef struct HitImpulseMass {
 f32 func_8002A8BC(s16 angle);
 f32 func_8002A8C0(s16 angle);
 
-/*
- * Mickey-led collision response reconstruction; the nearest external
- * skeleton is only 0.088 similar and supplies no usable donor body.
- *
- * Plateau after the flag lattice, focused expression/lifetime variants, and
- * an eight-minute canonical-flag permuter batch: the best semantic full-TU
- * candidate has 226 instructions against the target's 229 and a 0x80 frame
- * against 0x70. Its eight call/global relocation identities agree, but 214
- * positional words differ from +0x0 because the extra local/spill space
- * changes the floating-point schedule. The permuter's lower-score candidate
- * read a branch-local normal component before initialization and was rejected.
- */
+/* Workbench: structure-mismatch, 226/229 instructions and 0x80/0x70 frames; 214 words differ, first +0x0.
+ * Levers 2 and 26 tried local ablation/reuse, register hints, statement order, and comparison AST direction.
+ * The 16-byte non-save-frame excess still rephases the FP pool/FIFO from entry; the nearest donor is 0.088. */
 #ifdef NON_MATCHING
 void func_80056DD8(HitCopyState *first, HitCopyState *second,
                    AnimVec3f *normal, f32 timeStep) {
