@@ -25,6 +25,18 @@ typedef struct AudioPoint {
     u8 pitch;
 } AudioPoint;
 
+typedef struct AudioSoundData {
+    u16 soundBite;
+    u8 volume;
+    u8 minVolume;
+    u8 pitch;
+    u8 unk5;
+    u16 range;
+    u8 priority;
+    u8 unk9;
+} AudioSoundData;
+
+extern AudioSoundData *D_800C91E0;
 void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5, u8 volume, u16 distance, u8 arg8,
                    u8 pitch, u8 argA, u8 argB, AudioPoint **point);
 
@@ -34,7 +46,16 @@ void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5, u8 volume
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002768.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002E88.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002FE0.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amSndPlayXYZ. */
+void func_80002FE0(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, AudioPoint **point) {
+    if (D_800C91E0[soundId].soundBite != 0 && (point == NULL || *point == NULL)) {
+        func_8000329C(D_800C91E0[soundId].soundBite, x, y, z, arg4, D_800C91E0[soundId].minVolume,
+                      D_800C91E0[soundId].volume, D_800C91E0[soundId].range, 0,
+                      D_800C91E0[soundId].pitch, D_800C91E0[soundId].priority,
+                      D_800C91E0[soundId].unk5, point);
+    }
+}
+
 /* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amSndSetVolXYZ. */
 void func_8000309C(AudioPoint *point, u8 volume) {
     if (point != NULL) {
