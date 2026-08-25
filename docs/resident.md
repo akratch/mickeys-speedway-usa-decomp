@@ -348,7 +348,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | tier-B comparison: loop calls the adopted `addObjectLight` comparison |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | tier-B comparison: adjacent setup loop and flare helper |
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison; `NON_MATCHING` plateau after the flag lattice and nine source/declaration forms: exact 83-word frame/opcode/register/FP/relocation shape, but 4 positional words differ, first `+0x70`, because the call-live result spills at `0x28(sp)` instead of `0x2C(sp)`; the permuter importer scores the isolated function zero, but the required full-TU build retains this mismatch |
-| `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison; `NON_MATCHING` plateau after flag sweep, 10 source/lifetime hypotheses, and a 10-minute permuter batch: exact 58-opcode/frame shape and call relocation, 45/58 words exact, first `+0x1C` from integer temp-FIFO phase |
+| `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison; `NON_MATCHING` workbench `register-ring-only` plateau after lifetime/mask/scaled-size levers and a 30-minute permuter batch: exact 58-word shape and call relocation, 13 register-only differences from `+0x1C`; the isolated permuter lead regresses in the full TU |
 | `0x8001A23C` | `0x24` | `lightKillGlowingLight` | tier-B comparison: calls the paired delete helper and returns success |
 ### 3.6 The resident allocator (`main/memory`)
 
@@ -1273,7 +1273,7 @@ address-placeholder helper names are not imported.
 | `0x165DC` | `0x11C` | `getXZCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x166F8` | `0x98` | `getYCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x16790` | `0x300` | `trackLightAsm` | B; uses odd single-precision FP registers, stays `asm` |
-| `0x16A90` | `0x12C` | `shadowInitBuffers` | B; `NON_MATCHING` plateau after the flag lattice, eight source/loop forms, and a 10-minute permuter batch: exact 75-word frame/opcode/register shape, but 6 positional words differ and the two sentinel relocations at `+0xC4`/`+0xD4` bind `D_80079434 + 0xC` instead of `D_80079440` |
+| `0x16A90` | `0x12C` | `shadowInitBuffers` | tier-B; `NON_MATCHING` workbench `words-identical` plateau after a zero-based alias loop removed all six operand differences; first metadata mismatch `+0xC4`, where the remaining HI16/LO16 pair binds `D_80079434 + 0xC` instead of `D_80079440` |
 | `0x16BBC` | `0x78` | `shadowFreeBuffers` | B name; JFG-adapted exact C, 30 words, 15 relocs under O2/mips2 |
 | `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
@@ -1697,27 +1697,13 @@ The invariant-mask/next-bit web still needs ring-only temporaries unavailable to
 Hoisted-argument, folded-mask, and addressable-scalar levers leave `savedFlag` target FIFO-temp versus candidate colored-web; the 30-minute permuter produced only invented no-op identities.
 The assembly fallback remains canonical.
 
-The 0x94-byte save-window serializer `func_8002C94C` retains a Mickey-derived
-`NON_MATCHING` body after the 119-combination flag lattice and ten source,
-stack-layout, and lifetime hypotheses. Its best candidate has the target's
-exact 115-instruction opcode schedule, 112-byte frame, and relocation surface;
-12 words differ, first at function `+0x30`. Six differences place the message
-queue and two-word footer at candidate `sp+0x6C` and `sp+0x64` instead of the
-target's `sp+0x54` and `sp+0x40`; the other six swap the save-slot base and
-outer counter between `$s5` and `$s6`. Mirroring the recovered local order
-instead drops the footer-magic stores, and aggregate layouts grow the frame.
-The unavailable permuter import prevents a bounded automated declaration
-search; the assembly fallback remains canonical.
+The save-window serializer `func_8002C94C` remains `NON_MATCHING`: workbench reports `schedule-mismatch` with the exact 115-word shape, `0x70` frame, and relocation surface.
+Local order/type, slot-count lifetime, and statement-grouping levers leave two scheduled rows/five raw positions from `+0x50`; a 30-minute permuter found no zero.
+Its score-580 isolated lead enlarged the canonical frame and regressed to 12 words, so the assembly fallback remains canonical.
 
-The paired save-window loader `func_8002CB18` retains a Mickey-derived
-`NON_MATCHING` body after the 119-combination flag lattice and ten local-order,
-scope, and aggregate-layout hypotheses. Its best candidate has the exact 115
-instructions, 112-byte frame, and relocations; ten words differ, first at
-`+0x30`. Nine are stack homes: the footer is exact, but the queue lands at
-candidate `sp+0x64` versus target `sp+0x5C`, and the decoded value at `sp+0x5C`
-versus `sp+0x60`. The last reuses `$s5` where the target rematerialises four.
-Aggregates grow the frame and narrower scopes move both homes together. With
-the permuter import unavailable, the assembly fallback remains canonical.
+| Function | ROM | Bytes | Flags | Verdict |
+|---|---:|---:|---|---|
+| `func_8002CB18` | `0x2D718` | `0x1CC` | `-O2 -mips2 -32 -Wo,-loopunroll,0` | Mickey-derived save-window loader; exact 115 instruction words, frame, relocations, and linked ROM bytes after the stack-home census and unsigned width rematerialization |
 
 `packInit` retains a `NON_MATCHING` body adapted from Diddy Kong Racing's
 public `src/save_data.c:init_controller_paks` after the 119-combination flag
@@ -2120,7 +2106,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison; `NON_MATCHING` plateau after the flag lattice and nine source/declaration forms: exact 83-word frame/opcode/register/FP/relocation shape, but 4 positional words differ, first `+0x70`, because the call-live result spills at `0x28(sp)` instead of `0x2C(sp)`; the permuter importer scores the isolated function zero, but the required full-TU build retains this mismatch |
-| `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison; `NON_MATCHING` plateau after flag sweep, 10 source/lifetime hypotheses, and a 10-minute permuter batch: exact 58-opcode/frame shape and call relocation, 45/58 words exact, first `+0x1C` from integer temp-FIFO phase |
+| `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison; `NON_MATCHING` workbench `register-ring-only` plateau after lifetime/mask/scaled-size levers and a 30-minute permuter batch: exact 58-word shape and call relocation, 13 register-only differences from `+0x1C`; the isolated permuter lead regresses in the full TU |
 | `0x8001A23C` | `0x24` | `lightKillGlowingLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact; Mickey uses a no-argument delete wrapper |
 
 ### 3.4 Resident controller, level and main TUs
@@ -2721,6 +2707,7 @@ The final column records owned object words and relocation coverage.
 | `func_800031E8` | `0x3DE8` / `0x68` | **tier B**: JFG supplies the `amSndStopXYZ` body and exact audio-manager order; Mickey's widely used external placeholder is retained | Exact 26 object words and all heap/count/call relocations |
 | `amSndUnlinkHandleXYZ` | `0x3E50` / `0x4C` | **tier B**: JFG supplies the official name and exact audio-manager order; Mickey's own body pins the heap search and handle unlink field | Exact 19 object words and all heap/count relocation identities |
 | `func_8000329C` | `0x3E9C` / `0x114` | **tier B**: JFG supplies the `amCreateAudioPoint` role, prototype, and exact audio-manager order; Mickey's placeholder is retained, while its high-water mark, free/used pools, point-field layout, and body come from Mickey-only evidence | Exact 69 object words and all count, high-water, free-pool, and used-pool relocation identities under `-Wab,-r4300_mul` |
+| `func_800033B0` | `0x3FB0` / `0xD0` | **tier B**: JFG supplies the ordered `amSndSetEcho` role; Mickey's placeholder, echo-surface layout, and body remain authoritative | Exact 52 object words, frame, call relocation, and linked ROM bytes under `-Wab,-r4300_mul`; stack-home census plus dead-parameter reuse closed the prior schedule residual |
 | `func_800035F8` | `0x41F8` / `0x168` | **tier B**: JFG supplies the ordered positional-update placeholder peer; Mickey's placeholder is retained, while the per-group queue, point layout, and sound-parameter update body come from Mickey-only evidence | Exact 90 object words and all group-count, update-entry, sound-start, parameter, priority, and echo relocation identities under `-Wab,-r4300_mul` |
 | `func_800037C4` | `0x43C4` / `0x128` | **tier B**: Mickey callers pin the used-pool removal role and JFG supplies the ordered placeholder peer; no donor placeholder is adopted | Exact 74 object words and all sound-stop, auxiliary-cleanup, free/used-pool, and count relocation identities under `-Wab,-r4300_mul` |
 | `func_800038EC` | `0x44EC` / `0xF8` | **tier B**: JFG supplies the `amSndGetXYZVolume` role and terminal audio-manager order; Mickey's placeholder is retained, while the coordinate distance, sound-setting layout, and attenuation body come from Mickey-only evidence | Exact 62 object words and all settings-table, `sqrtf`, and floating-constant relocation identities under `-Wab,-r4300_mul`; the following `0xC` bytes are TU alignment padding, not function credit |
@@ -2737,7 +2724,6 @@ Measured plateau:
 | Mickey routine | Best result | First mismatch | Remaining hypothesis |
 |---|---|---:|---|
 | `amTuneSetFadeScaled` | Exact 29-word instruction/opcode schedule, frame, and relocation surface; 7 register-only differences after the flag lattice and 10 source-shape attempts | function `+0x1C` | IDO 5.3 temporary-FIFO phase: the target and candidate assign the three initial address/index temporaries from different positions in the same ring. The candidate remains under `NON_MATCHING`; canonical output is still assembly-backed |
-| `func_800033B0` | Exact 52-word length, `0x40` frame, and relocation surface in the best Mickey-derived echo-surface candidate after the 119-combination flag lattice, 10 source/layout hypotheses, and a 10-minute permuter batch; 10 positional words differ | function `+0x20` | IDO 5.3 stack-home placement and entry scheduling: the target homes the closest positive height delta at `sp+0x2C` with two intervening words before the closest-surface pointer at `sp+0x38`, while the coherent candidate homes the delta at `sp+0x34`; the target also loads the saved values before the empty-result branch and forms the surface pointer after the FP addition. JFG's ordered `amSndSetEcho` peer is assembly-only; canonical output remains assembly-backed |
 | `func_80003480` | Exact 94-word length in the best per-lane entry-update candidate after the 119-combination flag sweep and 10 typed/raw, loop, and array-layout hypotheses; 74 words still differ, with the candidate using a `0x40` frame instead of the target's `0x30` | function `+0x0` | IDO 5.3 web formation and spill placement: the target recomputes the lane base and spills the replacement index at `sp+0x24`, while the candidate retains the scaled lane and spills at `sp+0x38`. JFG's ordered peer is assembly-only and retains a placeholder name; canonical output remains assembly-backed |
 | `func_80003760` | Exact 25-word opcode schedule, relocation surface, and temp-FIFO lane under `-Wo,-loopunroll,0`; 8 register-only words remain after the flag lattice and 10 source/web hypotheses | function `+0x4` | IDO 5.3 pool ordering: the target assigns the lane count/index to `a2`/`a1` and emits the comparison through `at`, while every coherent candidate basin assigns `a1`/`a2` and a final temp. The donor peer is assembly-only; canonical output remains assembly-backed and the TU's verified flags are unchanged |
 

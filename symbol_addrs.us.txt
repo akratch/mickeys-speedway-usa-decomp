@@ -413,7 +413,7 @@ trackMakePolylist = 0x80015540; // type:func size:0x49C tier-B, ROM 0x16140
 getXZCompareMask = 0x800159DC; // type:func size:0x11C tier-B, ROM 0x165dc
 getYCompareMask = 0x80015AF8; // type:func size:0x98 tier-B, ROM 0x166f8
 trackLightAsm = 0x80015B90; // type:func size:0x300 tier-B, ROM 0x16790
-shadowInitBuffers = 0x80015E90; // type:func size:0x12C tier-B, ROM 0x16a90, NON_MATCHING plateau, exact 75-word shape, first +0xC4, two sentinel relocation identities differ
+shadowInitBuffers = 0x80015E90; // type:func size:0x12C tier-B, ROM 0x16a90, NON_MATCHING words-identical plateau, first metadata mismatch +0xC4, sentinel relocation identity differs
 shadowFreeBuffers = 0x80015FBC; // type:func size:0x78 tier-B, ROM 0x16bbc  matched C src/main/shadows.c.o -O2 -mips2 -32, JFG asm/nonmatchings/shadows/shadowFreeBuffers.s donor, linked exact=30/30
 shadowChangeBuffer = 0x80016034; // type:func size:0x18 tier-B, ROM 0x16c34  src/main/shadows.c.o masked=0/6
 shadowGetBuffers = 0x8001604C; // type:func size:0x4C tier-B, ROM 0x16c4c  src/main/shadows.c.o masked=0/19
@@ -479,8 +479,8 @@ func_8002C79C = 0x8002C79C; // type:func size:0x20 ROM 0x2d39c tier-D boundary-e
 packCalculateGameChecksum = 0x8002C7BC; // type:func size:0x30 ROM 0x2d3bc tier-B donor-jfg-src/saves.c role-callgraph+order matched-C
 func_8002C7EC = 0x8002C7EC; // type:func size:0xC8 ROM 0x2d3ec tier-D boundary-extracted matched-C
 func_8002C8B4 = 0x8002C8B4; // type:func size:0x98 ROM 0x2d4b4 tier-D boundary-extracted matched-C
-func_8002C94C = 0x8002C94C; // type:func size:0x1CC ROM 0x2d54c tier-D boundary-extracted
-func_8002CB18 = 0x8002CB18; // type:func size:0x1CC ROM 0x2d718 tier-D boundary-extracted
+func_8002C94C = 0x8002C94C; // type:func size:0x1CC ROM 0x2d54c tier-D, NON_MATCHING schedule plateau, 5 raw words from +0x50
+func_8002CB18 = 0x8002CB18; // type:func size:0x1CC ROM 0x2d718 tier-D boundary-extracted matched-C
 func_8002CCE4 = 0x8002CCE4; // type:func size:0x88 ROM 0x2d8e4 tier-D boundary-extracted matched-C
 func_8002CD6C = 0x8002CD6C; // type:func size:0xC0 ROM 0x2d96c tier-D boundary-extracted matched-C
 packCalculateGlobalFlagsChecksum = 0x8002CE2C; // type:func size:0x28 ROM 0x2da2c tier-B donor-jfg-src/saves.c role-callgraph+order matched-C
@@ -2207,7 +2207,7 @@ func_80019DE8 = 0x80019DE8; // type:func size:0xFC tier-D ROM 0x1a9e8 NON_MATCHI
 lightSetupLightSources = 0x80019EE4; // type:func size:0x98   ROM 0x1aae4  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 lightSetupFlareSources = 0x80019F7C; // type:func size:0x8C   ROM 0x1ab7c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 func_8001A008 = 0x8001A008; // type:func size:0x14C tier-B ROM 0x1ac08 src/lights.c.o JFG-adapted body compiler-exact
-func_8001A154 = 0x8001A154; // type:func size:0xE8 tier-B, ROM 0x1ad54, NON_MATCHING plateau 45/58 words exact, first +0x1C
+func_8001A154 = 0x8001A154; // type:func size:0xE8 tier-B, ROM 0x1ad54, NON_MATCHING register-ring-only plateau, 13 register-only words from +0x1C
 lightKillGlowingLight = 0x8001A23C; // type:func size:0x24   ROM 0x1ae3c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 // jfg:src/charControl.c.o
 // exact-C (ADR 0001), no external name adopted: func_8001BB90, ROM 0x1c790, size 0x24
