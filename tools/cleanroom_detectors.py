@@ -330,6 +330,10 @@ CONTENT_EXEMPTIONS: "dict[tuple[str, str], str]" = {
         "docs/resident.md",
         "word-table",
     ): "section 3 of the module ledger, split out of docs/modules.md on 2026-08-25 for the size limit; same content class (ROM/VRAM ranges, byte counts, object hashes)",
+    (
+        "docs/resident.md",
+        "oversize",
+    ): "prose ledger of the resident segment (per-function census, evidence, plateaus); grows with every matched TU and carries no extracted data; the word-table rule above still applies to its content",
 }
 
 # 8. (The aggregate budget now lives with rule 4 -- it is measured on the
