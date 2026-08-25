@@ -885,7 +885,93 @@ void func_8000D978(s32 copySegmentData, s32 updateRate) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E5EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E920.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F198.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F57C.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public assembly-only `trackGetBlockList` in
+ * `src/track.c` supplies tier-D TU-position and role context. The body and
+ * resident layouts below are reconstructed from Mickey-only evidence; the
+ * public name is not adopted.
+ */
+void func_8000F57C(s32 *resultCount, u8 *resultSegments) {
+    s32 distanceX;
+    s32 distanceY;
+    s32 distanceZ;
+    s32 resultIndex;
+    s32 lastIndex;
+    s32 cameraX;
+    s32 cameraY;
+    s32 cameraZ;
+    s32 index;
+    s32 tempDistance;
+    s32 segmentIndex;
+    s32 distances[100];
+    TrackBoundingBox *bounds;
+
+    cameraX = D_800C9530->x;
+    resultIndex = 0;
+    cameraY = D_800C9530->y;
+    segmentIndex = 0;
+    bounds = D_800792E8->segmentBounds;
+    cameraZ = D_800C9530->z;
+
+    if (D_800792E8->segmentCount > 0) {
+        do {
+            if (func_80010178(segmentIndex) != 0) {
+                if (cameraX < bounds->x1) {
+                    distanceX = bounds->x1 - cameraX;
+                } else if (bounds->x2 < cameraX) {
+                    distanceX = cameraX - bounds->x2;
+                } else {
+                    distanceX = 0;
+                }
+
+                if (cameraY < bounds->y1) {
+                    distanceY = bounds->y1 - cameraY;
+                } else if (bounds->y2 < cameraY) {
+                    distanceY = cameraY - bounds->y2;
+                } else {
+                    distanceY = 0;
+                }
+
+                if (cameraZ < bounds->z1) {
+                    distanceZ = bounds->z1 - cameraZ;
+                } else if (bounds->z2 < cameraZ) {
+                    distanceZ = cameraZ - bounds->z2;
+                } else {
+                    distanceZ = 0;
+                }
+
+                distances[resultIndex] =
+                    (distanceX * distanceX) + (distanceY * distanceY) +
+                    (distanceZ * distanceZ);
+                resultSegments[resultIndex] = segmentIndex;
+                resultIndex++;
+                if (resultIndex >= 100) {
+                    segmentIndex = D_800792E8->segmentCount;
+                }
+            }
+            segmentIndex++;
+            bounds++;
+        } while (segmentIndex < D_800792E8->segmentCount);
+    }
+
+    lastIndex = resultIndex - 1;
+    while (lastIndex > 0) {
+        index = 0;
+        while (index < lastIndex) {
+            if (distances[index + 1] < distances[index]) {
+                tempDistance = *(resultSegments + index);
+                *(resultSegments + index) = *(resultSegments + index + 1);
+                *(resultSegments + index + 1) = tempDistance;
+                tempDistance = distances[index];
+                distances[index] = distances[index + 1];
+                distances[index + 1] = tempDistance;
+            }
+            index++;
+        }
+        lastIndex--;
+    }
+    *resultCount = resultIndex;
+}
 /*
  * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
  * `traverse_segments_bsp_tree`; JFG's assembly-only `func_800150A4` confirms
