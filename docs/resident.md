@@ -2412,9 +2412,9 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `joyResetMap`: fresh m2c tail-byte anchoring remains 10/9 words with ten
   positional differences from `+0x0`; workbench verdict `structure-mismatch`.
   Exact C requires the original TU-local BSS shared-HI16/LO16 identity surface.
-- `func_80028FCC`: exact 108-byte/27-word body, ten words differ, first `+0x1c`.
-  Fresh m2c-local, OR-chain and common-epilogue spellings all canonicalize to
-  25 words, so the prior raw-return candidate remains best.
+- `func_80028FCC`: JFG `mainAnyoneHas` is the nearest equal-size skeleton;
+  register-web adaptations collapse to 25 words, so 27 words/ten differences
+  from `+0x1c` remains best. Workbench verdict: `structure-mismatch`.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime

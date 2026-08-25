@@ -1485,8 +1485,9 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 
 #ifdef NON_MATCHING
 /*
- * Plateau: the 27-word target-shaped body differs in 10 words, first +0x1c.
- * Fresh m2c-local, OR-chain and common-epilogue forms all collapse to 25 words.
+ * Plateau: JFG mainAnyoneHas is the nearest equal-size skeleton, but its
+ * result-web adaptations collapse to 25 words. This 27-word body remains best
+ * at ten positional differences from +0x1c (workbench: structure-mismatch).
  */
 s32 func_80028FCC(s32 arg0) {
     if (func_80028FB8(0, 0, arg0)) {
