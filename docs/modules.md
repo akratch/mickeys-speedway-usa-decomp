@@ -1305,6 +1305,7 @@ the still-unnamed chunked save-device transfer `func_8002C7EC` (ROM
 `0x2D3EC`–`0x2D4B4`, 200 bytes),
 `packIsPresent` (ROM `0x2E0CC`–`0x2E128`, 92 bytes),
 `packDirectoryFree` (ROM `0x2E424`–`0x2E458`, 52 bytes),
+`packFreeSpace` (ROM `0x2E458`–`0x2E56C`, 276 bytes),
 `packDeleteFile` (ROM `0x2E56C`–`0x2E620`, 180 bytes),
 `packReadFile` (ROM `0x2E74C`–`0x2E810`, 196 bytes),
 `packFileSize` (ROM `0x2EA50`–`0x2EAB4`, 100 bytes),

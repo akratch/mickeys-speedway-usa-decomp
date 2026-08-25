@@ -449,7 +449,42 @@ void packDirectoryFree(void) {
     }
     D_8007A280 = NULL;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packFreeSpace.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packFreeSpace, with Mickey's status constants. */
+s32 packFreeSpace(s32 controllerIndex, u32 *bytesFree, s32 *notesFree) {
+    s32 ret;
+    s32 bytesNotUsed;
+    s32 maxNotes;
+    s32 notesUsed;
+
+    ret = packOpen(controllerIndex);
+    if (ret == 0) {
+        if (bytesFree != NULL) {
+            ret = osPfsFreeBlocks(&D_800D21C8[controllerIndex], &bytesNotUsed);
+            if (ret != 0) {
+                packClose(controllerIndex);
+                return 6;
+            }
+            *bytesFree = bytesNotUsed;
+        }
+        if (notesFree != NULL) {
+            ret = osPfsNumFiles(&D_800D21C8[controllerIndex], &maxNotes,
+                                &notesUsed);
+            if (ret != 0) {
+                packClose(controllerIndex);
+                return 6;
+            }
+            if (notesUsed >= 16) {
+                *notesFree = 0;
+            } else {
+                *notesFree = 16 - notesUsed;
+            }
+        }
+    }
+
+    packClose(controllerIndex);
+    return ret;
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:packDeleteFile. */
 s32 packDeleteFile(s32 controllerIndex, s32 fileNum) {
