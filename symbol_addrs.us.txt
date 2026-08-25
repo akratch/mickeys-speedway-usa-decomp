@@ -2368,7 +2368,7 @@ frontDrawRectangle = 0x80039584; // type:func size:0x50 tier-A ROM 0x3a184 canon
 // Tier B (JFG): the screen-limit table lookup, split-mode adjustment, two
 // coordinate conversions, and menu ordering identify frontPlayerScreenLimits.
 frontPlayerScreenLimits = 0x800395D4; // type:func size:0xB8 tier-B ROM 0x3a1d4 canonical C, linked byte-identical
-func_8003968C = 0x8003968C; // type:func size:0x94 tier-D ROM 0x3a28c NON_MATCHING plateau, 37/37 words exact but 18 relocation identities differ, first +0x24
+func_8003968C = 0x8003968C; // type:func size:0x94 tier-D ROM 0x3a28c NON_MATCHING best 37/37 words exact, 18 relocation identities differ first +0x24, fresh typed body 22
 func_80039720 = 0x80039720; // type:func size:0x320 tier-D ROM 0x3a320 canonical C, linked byte-identical
 // Tier B (JFG): the exact sentinel-list loop, its call to the immediately
 // following per-item free routine, and JFG's same ordered pair identify it.

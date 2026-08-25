@@ -802,16 +802,19 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
     viConvertXY(right, bottom);
 }
 #ifdef NON_MATCHING
-/* Instruction words and linked bytes are exact, but 18 relocation sites
- * differ from +0x24: IDO binds unrolled elements to three array bases while
- * the target binds each element's BSS symbol separately. */
+/* All 37 words are exact, but the typed view consolidates the state to one
+ * base and leaves 22 relocation identities wrong; the array form remains
+ * better at 18. PROVENANCE: JFG src/menu.c has the exact skeleton but retains
+ * assembly; the body and field layout are Mickey-derived. */
 void func_8003968C(void) {
     s32 controller;
+    MenuControllerRepeatState *state;
 
+    state = (MenuControllerRepeatState *)D_800D3198;
     for (controller = 0; controller < 4; controller++) {
-        D_800D31A0[controller] = -1;
-        D_800D3198[controller] = 0x14;
-        D_800D319C[controller] = 0xF;
+        state->previousButtons[controller] = -1;
+        state->repeatX[controller] = 0x14;
+        state->repeatY[controller] = 0xF;
     }
 }
 #else

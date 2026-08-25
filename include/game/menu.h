@@ -25,6 +25,13 @@ typedef union MenuScreenModeState {
     u8 raw;
 } MenuScreenModeState;
 
+/* Mickey-derived from the adjacent per-controller accesses in func_80039720. */
+typedef struct MenuControllerRepeatState {
+    s8 repeatX[4];
+    s8 repeatY[4];
+    u32 previousButtons[4];
+} MenuControllerRepeatState;
+
 void frontSetMode(s32 mode);
 u8 frontGetMode(void);
 void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right, s32 bottom, u32 colour);

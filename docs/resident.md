@@ -1115,21 +1115,9 @@ assembly; Mickey supplies this C body and table indexing, as the point-of-use
 algebraic reassociation. The default flags, three call relocations, data pair,
 object words, and linked ROM range are exact without post-processing.
 
-`func_8003968C` remains a **tier-D NON_MATCHING plateau** over **0x94 bytes /
-37 words** at ROM `0x3A28C`. A Mickey-derived four-iteration initialization
-loop unrolls to all 37 target instruction words and the same linked bytes, but
-18 relocation sites differ, first at `+0x24`: IDO binds the later elements to
-the three array-base symbols, while the target names each individual BSS
-element. Scalar, volatile, cast, block, and loop variants, the full flag
-lattice, and a bounded ten-minute `-mips2` permuter run did not satisfy both
-the code and relocation-identity gates. The all-word result remains diagnostic
-only and the original assembly is canonical. A later scalar-label retry
-confirmed that the nine interior BSS labels already exist: naming them fixes
-the relocation identities, but IDO then pools the repeated constants and
-shrinks the body to 29 instructions. Switch, ternary-selection, scoped-local,
-volatile-access, dead-reference, induction-expression, and comma-expression
-variants plus a fresh 119-combination flag sweep did not preserve the target's
-37-instruction temp sequence with those scalar relocations.
+`func_8003968C`: best remains **37/37 instruction words exact** with **18 relocation identities differing**, first `+0x24`.
+The fresh typed `MenuControllerRepeatState` body is also 37/37 but consolidates the state base and differs at 22 relocation sites; JFG's exact skeleton remains assembly.
+Resident flags tie the full lattice, so symbol binding—not instruction codegen—blocks the canonical match.
 
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and
