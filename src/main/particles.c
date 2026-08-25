@@ -1298,9 +1298,9 @@ void func_8003EDE0(f32 value) {
 }
 #ifdef NON_MATCHING
 /*
- * Instruction-count and opcode-exact plateau: six register-only words differ,
- * first at +0xE4, from one late pointer-color choice and the final commutative
- * loop comparison.
+ * Workbench: register-permutation; 100/101 words exact, first at +0x13C.
+ * Lever 18 plus the canonical-flag permuter fixed the late pointer web.
+ * Remains: one commutative loop-branch web; condition spellings were inert.
  * PROVENANCE: body adapted from JFG src/particles.c:partUpdateTriggers.
  */
 void partUpdateTriggers(ParticleObject *object, s32 updateRate) {
@@ -1311,6 +1311,7 @@ void partUpdateTriggers(ParticleObject *object, s32 updateRate) {
     s8 count;
     u32 triggerBits;
     ParticleTriggerSlot *trigger;
+    ParticleTriggerSlot *callBase;
 
     count = object->header->triggerCount;
     i = 0;
@@ -1328,16 +1329,17 @@ void partUpdateTriggers(ParticleObject *object, s32 updateRate) {
                 }
                 if (flags & 0x4000) {
                     trigger->unk0C += updateRate;
-                    func_8003EF80(object, (ParticleTriggerSlot *)((u8 *)object->triggers + offset));
+                    func_8003EF80(object, (ParticleTriggerSlot *)(offset + (u8 *)object->triggers));
                 } else if (flags & 0x400) {
                     trigger->unk0C += updateRate;
                     func_8003EF80(object, (ParticleTriggerSlot *)((u8 *)object->triggers + offset));
                 } else {
                     trigger->unk0C += updateRate;
                     base = object->triggers;
+                    callBase = object->triggers;
                     trigger = (ParticleTriggerSlot *)((u8 *)base + offset);
                     if (trigger->unk0C >= trigger->config->value40) {
-                        func_8003EF80(object, (ParticleTriggerSlot *)((u8 *)object->triggers + offset));
+                        func_8003EF80(object, (ParticleTriggerSlot *)((u8 *)callBase + offset));
                     }
                 }
             } else if (trigger->flags & 0x8000) {
