@@ -738,6 +738,11 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
 # The menu initialization loops are scalar in the target; the flag lattice
 # selects the non-unrolled 85-instruction form for func_80038878.
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: CFLAGS += -Wo,-loopunroll,0
+# IDO rounds the two consecutive 0x4C-byte switch tables from 0x98 to 0xA0;
+# discard only the trailing input-section padding before linking the next
+# shared resident rodata table.
+$(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x98
 
 # The saves slot-reset loop is scalar in the target; the 119-combination flag
 # lattice otherwise expands four 0x20-byte records into each loop iteration.

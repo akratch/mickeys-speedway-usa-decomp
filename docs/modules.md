@@ -714,7 +714,7 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 33 jump tables still emitted
+- **rodata order follows text order exactly.** The 31 jump tables still emitted
   in `asm/` are monotonic in both columns, with **zero inversions**. So
   `.rodata` can be carved TU by TU in text order, which is what makes the
   per-TU split tractable. Five more tables now belong to matched `n_csplayer`
@@ -724,7 +724,7 @@ Where the boundary comes from:
   jump tables still emitted in `asm/` belong to 34 functions and remain
   monotonic in both columns, with **zero inversions**. So `.rodata` can be
   carved TU by TU in text order.
-- **rodata order follows text order exactly.** 33 functions, 33 jump tables,
+- **rodata order follows text order exactly.** 31 functions, 31 jump tables,
   monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
   by TU in text order, which is what makes the per-TU split tractable.
   per-TU split tractable. Thirteen more tables now belong to matched C,

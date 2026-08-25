@@ -52,6 +52,18 @@
     {
       "class": "metadata",
       "matched_c": null,
+      "object": "build/src/main/menu.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/menu.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
       "object": "build/src/main/rcpFast3d.c.o",
       "offset": null,
       "overlay": null,
@@ -7550,9 +7562,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 611
+      "metadata": 612
     },
     "matched_c_bytes_with_postprocess": 396792,
-    "objects_with_postprocess": 611
+    "objects_with_postprocess": 612
   }
 }
