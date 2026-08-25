@@ -62,11 +62,16 @@ void overlay25InitializeEffect(Overlay25Object *object,
 #endif
 
 /*
- * Plateau (2026-08-24): the exact-size C candidate scored 2335, improving
- * to 1705 in the bounded permuter run; its first mismatch is at function
- * offset 0x0.  The flag lattice produced no different leading candidate.
- * The remaining blocker is the whole-function register, stack-home, and
- * scheduling web; the lowest-score permutation did not preserve semantics.
+ * Plateau (2026-08-25): -O2 -mips2 emits the exact 0x40C-byte size. Naming
+ * the two update-rate terms reduced the residual from 140 to 127 differing
+ * words (18 opcode mismatches), with the first mismatch at function offset
+ * 0x0. The candidate frame is 0xC8 bytes versus the target's 0xA0 bytes;
+ * mutually exclusive scopes and declaration reordering regressed to +0x10
+ * bytes and 216 differing words. A bounded ten-minute permuter run lowered
+ * its imported score from 3090 to 2605 only by adding a vacuous guard and a
+ * shared constant; the clean shared-constant form regressed to 164 differing
+ * words. The blocker remains the combined stack-home and register schedule
+ * across the movement and query branches.
  */
 #ifdef NON_MATCHING
 void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
@@ -78,6 +83,7 @@ void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
 
     if (state->activeDuration != 0) {
         s32 remaining;
+        s32 extraSteps;
         f32 accum;
         f32 moveX;
         f32 moveZ;
@@ -86,6 +92,8 @@ void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
 
         state->activeDuration -= updateRate;
         object->value = object->transform->value + object->transform->value;
+        remaining = updateRate - 2;
+        extraSteps = updateRate - 1;
         if (state->activeDuration <= 0) {
             overlay25DestroyReloc(object);
             return;
@@ -97,8 +105,7 @@ void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
         moveX = velocityX;
         moveZ = velocityZ;
         state->lift = accum - 1.1034483f;
-        if ((updateRate - 1) != 0) {
-            remaining = updateRate - 2;
+        if (extraSteps != 0) {
             do {
                 f32 current = state->lift;
                 moveX += velocityX;
