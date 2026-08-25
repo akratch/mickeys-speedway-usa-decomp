@@ -12,9 +12,16 @@
 
 #include "PR/ultratypes.h"
 
+typedef struct Gfx {
+    struct {
+        u32 w0;
+        u32 w1;
+    } words;
+} Gfx;
+
 typedef struct DiRcpTraceEntry {
-    s32 value0;
-    s32 value4;
+    Gfx *value0;
+    char *value4;
     s32 value8;
 } DiRcpTraceEntry;
 
@@ -35,7 +42,7 @@ void func_80044B9C(void) {
     D_800D4A90[D_8007CFC8] = 0;
 }
 /* Mickey-derived body; JFG's diRcpTrace implementation is assembly-only. */
-void func_80044BC8(s32 value0, s32 value4, s32 value8) {
+void func_80044BC8(Gfx *value0, char *value4, s32 value8) {
     if (DI_RCP_TRACE_BUFFERS[D_8007CFC8] != 0) {
         if (D_800D4A90[D_8007CFC8] < 100) {
             DI_RCP_TRACE_BUFFERS[D_8007CFC8][D_800D4A90[D_8007CFC8]].value0 =
@@ -48,4 +55,67 @@ void func_80044BC8(s32 value0, s32 value4, s32 value8) {
         }
     }
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: parameter and entry roles adapted from JFG src/sched.c and
+ * src/diRcpTrace.c; the body is Mickey-derived and JFG's peer is assembly-only. */
+void func_80044C94(Gfx *value, char **lowerValue4, s32 *lowerValue8,
+                   Gfx **lowerValue0, char **upperValue4, s32 *upperValue8,
+                   Gfx **upperValue0) {
+    s32 buffer;
+    s32 lowerOffset;
+    s32 count;
+    s32 offset;
+    DiRcpTraceEntry *entries;
+    DiRcpTraceEntry *entry;
+    Gfx *entryValue;
+    Gfx *lower;
+    Gfx *upper;
+    DiRcpTraceEntry *lowerEntry;
+    s32 entrySize;
+    DiRcpTraceEntry *upperEntry;
+
+    entrySize = sizeof(DiRcpTraceEntry);
+    buffer = 1 - D_8007CFC8;
+    count = D_800D4A90[buffer];
+    lower = 0;
+    upper = (Gfx *)-1;
+    lowerEntry = NULL;
+    upperEntry = NULL;
+    if (count > 0) {
+        entries = DI_RCP_TRACE_BUFFERS[buffer];
+        offset = 0;
+        entry = entries;
+        do {
+            entryValue = entry->value0;
+            if (value >= entryValue && lower < entryValue) {
+                lower = entryValue;
+                lowerOffset = offset;
+                lowerEntry =
+                    (DiRcpTraceEntry *)((u8 *)entries + lowerOffset);
+            }
+            if (value < entryValue && entryValue < upper) {
+                upper = entryValue;
+                upperEntry = (DiRcpTraceEntry *)((u8 *)entries + offset);
+            }
+            offset += sizeof(DiRcpTraceEntry);
+            entry++;
+        } while (offset < count * entrySize);
+    }
+    if (lowerEntry != NULL) {
+        *lowerValue4 = lowerEntry->value4;
+        *lowerValue8 = lowerEntry->value8;
+        *lowerValue0 = lowerEntry->value0;
+    } else {
+        *lowerValue4 = 0;
+    }
+    if (upperEntry != NULL) {
+        *upperValue4 = upperEntry->value4;
+        *upperValue8 = upperEntry->value8;
+        *upperValue0 = upperEntry->value0;
+    } else {
+        *upperValue4 = 0;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcpTrace/func_80044C94.s")
+#endif

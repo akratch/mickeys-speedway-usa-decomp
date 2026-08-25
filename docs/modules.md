@@ -1953,6 +1953,23 @@ only to perturb allocation and were discarded as semantically unsupported.
 The coherent candidate remains behind `NON_MATCHING` and the target assembly
 stays canonical.
 
+The 300-byte `func_80044C94` trace-neighbor lookup reaches an allocation and
+loop-scheduling plateau after the full flag lattice, seven coherent
+type/lifetime/bound forms, and one bounded canonical MIPS II permuter batch.
+JFG's assembly-only `diRcpTraceGetInfo` confirms the inactive-buffer scan and
+nearest-lower/nearest-upper entry selection; Mickey's callers and three-word
+trace entry fix the seven-argument ABI. The best candidate has the exact
+75-word size, 8-byte frame, argument homes, unsigned comparisons, branch
+structure, and all six data-relocation identities, but differs at 35
+instruction positions beginning at function `+0xC`. Two positions swap the
+hoisted `count * 12` bound shift with the byte-offset initialization; the
+remaining differences are IDO temp-ring and pool allocation across the count,
+buffer base, cursor, entry value, and selected-neighbor webs. Naming the bound
+makes every opcode positional but worsens the residual to 47 register words;
+the lower-score permuter result's explicit entry size and selected offset is
+retained as the coherent best. The candidate remains behind `NON_MATCHING`
+and the target assembly stays canonical.
+
 The 1,836-byte `func_80045D34` crash-screen controller also remains
 `NON_MATCHING`. Supplying its jump table recovered a complete Mickey-derived
 draft, but JFG's closest 1,888-byte peer (`func_80067880`) is assembly-only and
