@@ -1481,7 +1481,7 @@ placeholders are never imported.
 | `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | D; collision handler family |
 | `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 328 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; composed from Mickey-local exact state-update and normalization patterns |
 | `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 276 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
-| `0x80055F64` | `0x16C` | no unique `hit.c` candidate | D; collision handler family |
+| `0x80055F64` | `0x16C` | no unique `hit.c` candidate | D; collision handler family. Plateau after 10 source/type shapes and a bounded canonical-flag permuter: the best semantic candidate has the exact 91-instruction size, `0x48` frame, stack homes, and call relocations, but 46 FP allocation/schedule words remain from first mismatch `+0x2C`; a nominal score-10 permutation was rejected because it reads an uninitialized float |
 | `0x800560D0` | `0x1A4` | no unique `hit.c` candidate | D; collision handler family |
 | `0x80056274` | `0x140` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 320 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; the Mickey-led declaration order fixes the two target-pointer spill homes without importing a donor body |
 | `0x800563B4` | `0xA24` | `hitVectorCheck` | B; vector/cylinder/sphere-style callee pattern |

@@ -777,7 +777,72 @@ void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(first, 1, second);
     TrapDanglingJump(second, 0xA);
 }
+#ifdef NON_MATCHING
+/*
+ * No JFG hit.c function has this state-update and two-target normal shape.
+ * Plateau after 10 source/type shapes and a bounded canonical-flag permuter:
+ * the best semantic candidate has the exact 91-instruction size, 0x48 frame,
+ * stack homes, and call relocations, but 46 FP allocation/schedule words remain
+ * from first mismatch +0x2C. A score-10 permutation read an uninitialized float
+ * and was rejected as non-equivalent.
+ */
+void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    HitCopyTarget *secondTarget;
+    HitCopyTarget *firstTarget;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+    f32 secondX;
+    f32 secondY;
+    volatile f32 secondZ;
+    f32 secondZValue;
+
+    firstSource = first->source;
+    deltaX = first->position.x - firstSource->previous.x;
+    deltaY = first->position.y - firstSource->previous.y;
+    deltaZ = first->position.z - firstSource->previous.z;
+    firstSource->previous.x = firstSource->current.x;
+    firstSource->previous.y = firstSource->current.y;
+    firstSource->previous.z = firstSource->current.z;
+    first->position.x = firstSource->previous.x + deltaX;
+    first->position.y = firstSource->previous.y + deltaY;
+    first->position.z = firstSource->previous.z + deltaZ;
+
+    secondSource = second->source;
+    second->position.x = secondSource->current.x;
+    second->position.y = secondSource->current.y;
+    second->position.z = secondSource->current.z;
+    secondX = *(volatile f32 *)&secondSource->current.x;
+    secondY = *(volatile f32 *)&secondSource->current.y;
+    secondZValue = *(volatile f32 *)&secondSource->current.z;
+    secondSource->previous.x = secondX;
+    secondSource->previous.y = secondY;
+    secondZ = secondZValue;
+    secondSource->previous.z = secondZ;
+
+    deltaX = secondX - firstSource->current.x;
+    deltaY = secondY - firstSource->current.y;
+    deltaZ = secondZ - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    secondTarget = second->target;
+    secondTarget->unk1C = deltaX / distance;
+    secondTarget->unk20 = deltaY / distance;
+    secondTarget->unk24 = deltaZ / distance;
+    firstTarget = first->target;
+    firstTarget->unk14 = -secondTarget->unk1C;
+    firstTarget->unk18 = -secondTarget->unk20;
+    firstTarget->unk1C = -secondTarget->unk24;
+    TrapDanglingJump(first, 0x12, second);
+    TrapDanglingJump(second, 6);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055F64.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800560D0.s")
 void func_80056274(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopyTarget *firstTarget;
