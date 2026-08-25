@@ -20,6 +20,7 @@ extern s32 D_8007A2E8;
 extern s32 D_8007A2FC;
 extern s32 D_8007A31C;
 extern f32 D_80082088;
+extern s32 osTvType;
 extern u8 D_8007A284[];
 extern u8 D_8007A304[];
 extern void *D_8007A280;
@@ -105,10 +106,12 @@ s32 packOpen(s32 controllerIndex);
 s32 joyMessageQ(void);
 s32 func_80070170(s32 messageQueue);
 s32 mainResetPressed(void);
+s32 func_8003A24C(void);
 s32 func_8006FEF0(s32 arg0, u8 type, void *data, s32 size);
 void func_80070030(s32 arg0, u8 arg1, void *arg2, s32 arg3);
 s32 func_8002C7EC(s32 arg0, s32 arg1, void *arg2, s32 arg3);
 void mainPreNMI(void);
+char *string_to_font_codes(char *inString, char *outString, s32 stringLength);
 
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/saves.c:func_8004B070_4BC70. */
 s32 func_8002BCC0(void) {
@@ -543,7 +546,48 @@ s32 packDeleteFile(s32 controllerIndex, s32 fileNum) {
     packClose(controllerIndex);
     return ret;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packOpenFile.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packOpenFile, with Mickey's language helper and game codes. */
+s32 packOpenFile(s32 controllerIndex, char *fileName, char *fileExt,
+                 s32 *fileNumber) {
+    u32 gameCode;
+    char fileNameAsFontCodes[PFS_FILE_NAME_LEN];
+    s32 pad;
+    char fileExtAsFontCodes[PFS_FILE_EXT_LEN];
+    s32 pad2;
+    s32 ret;
+
+    string_to_font_codes(fileName, fileNameAsFontCodes, PFS_FILE_NAME_LEN);
+    string_to_font_codes(fileExt, fileExtAsFontCodes, PFS_FILE_EXT_LEN);
+
+    if (func_8003A24C() == 5) {
+        gameCode = 0x4E44594A;
+    } else if (osTvType == 0) {
+        gameCode = 0x4E445950;
+    } else {
+        gameCode = 0x4E445945;
+    }
+
+    ret = osPfsFindFile(&D_800D21C8[controllerIndex], 0x3459, gameCode,
+                        (u8 *) fileNameAsFontCodes,
+                        (u8 *) fileExtAsFontCodes, fileNumber);
+    if (ret == 0) {
+        return 0;
+    }
+    if (ret == PFS_ERR_NOPACK || ret == PFS_ERR_DEVICE) {
+        return 1;
+    }
+    if (ret == PFS_ERR_INCONSISTENT) {
+        return 2;
+    }
+    if (ret == PFS_ERR_ID_FATAL) {
+        return 3;
+    }
+    if (ret == PFS_ERR_INVALID) {
+        return 5;
+    }
+    return 6;
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:packReadFile. */
 s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data, s32 dataLength) {
