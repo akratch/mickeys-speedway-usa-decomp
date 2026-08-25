@@ -120,11 +120,19 @@ typedef struct FxRecord {
     u8 state;
     u8 status;
     u16 flags;
-    u8 pad4[0x16];
+    s32 value4;
+    s32 value8;
+    s32 valueC;
+    s32 value10;
+    s16 value14;
+    s16 value16;
+    s16 value18;
     u8 red;
     u8 green;
     u8 blue;
-    u8 pad1D[3];
+    u8 value1D;
+    u8 value1E;
+    u8 value1F;
 } FxRecord;
 
 typedef void (*FxTextureCallback)(s32 index, s32 value, s32 arg2);

@@ -1082,7 +1082,7 @@ func_80047304 = 0x80047304;           // type:func size:0x2E4 tier D (JFG placeh
 func_800475E8 = 0x800475E8;           // type:func size:0x3EC tier-B ROM 0x481E8 NON_MATCHING plateau, first +0x0
 func_800479D4 = 0x800479D4;           // type:func size:0x304 tier B (JFG fxMakeConeLength)
 func_80047CD8 = 0x80047CD8;           // type:func size:0x3A8 tier-B ROM 0x488D8 NON_MATCHING plateau, first +0x298 (JFG fxDrawCone)
-func_80048080 = 0x80048080;           // type:func size:0x164 tier D (JFG placeholder)
+func_80048080 = 0x80048080;           // type:func size:0x164 tier-D ROM 0x48C80 plateau, best 83/89 words, 65 positional differences, first +0x0
 wakeAllocate = 0x800481E4;            // type:func size:0x57C tier B (JFG call graph/order)
 func_80048760 = 0x80048760;           // type:func size:0x1E4 tier B (JFG wakeSetupRipple)
 wakeFree = 0x80048944;                // type:func size:0x3C tier A (exact C, JFG wakeFree)
@@ -1096,7 +1096,7 @@ func_8004978C = 0x8004978C;           // type:func size:0x9C tier-D ROM 0x4A38C 
 func_80049828 = 0x80049828;           // type:func size:0x3C tier A (exact C)
 func_80049864 = 0x80049864;           // type:func size:0x38 tier A (exact C)
 func_8004989C = 0x8004989C;           // type:func size:0x60 tier A (exact C)
-func_800498FC = 0x800498FC;           // type:func size:0x190 tier D (Mickey boundary)
+func_800498FC = 0x800498FC;           // type:func size:0x190 tier-D ROM 0x4A4FC plateau, best 101/100 words, 89 differences, first +0x0
 func_80049A8C = 0x80049A8C;           // type:func size:0x88 tier A (exact C)
 func_80049B14 = 0x80049B14;           // type:func size:0x338 tier D (Mickey boundary)
 func_80049E4C = 0x80049E4C;           // type:func size:0x2A4 tier D (Mickey boundary)
@@ -1111,7 +1111,7 @@ func_8004A9CC = 0x8004A9CC;           // type:func size:0xAC tier A (exact C, JF
 fxScreenEffect = 0x8004AA78;           // type:func size:0x24C tier B (JFG order/calls)
 func_8004ACC4 = 0x8004ACC4;           // type:func size:0x70 tier-D ROM 0x4B8C4 NON_MATCHING plateau, first +0x14
 func_8004AD34 = 0x8004AD34;            // type:func size:0xB4 tier A (exact C, JFG fxGenerateTextures)
-func_8004ADE8 = 0x8004ADE8;            // type:func size:0x180 tier B (JFG fxCpuTextureRequired)
+func_8004ADE8 = 0x8004ADE8;            // type:func size:0x180 tier-B ROM 0x4B9E8 plateau, best 92 differing words, first +0x0 (JFG fxCpuTextureRequired)
 func_8004AF68 = 0x8004AF68;            // type:func size:0xD0 tier-B ROM 0x4BB68 NON_MATCHING plateau, 54 emitted/52 owned words, first +0x4
 
 // gsSnd.c. One distinctive literal each, and the literal states the contract:
