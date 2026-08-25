@@ -105,12 +105,9 @@ extern s32 func_80010900(Overlay79Vector *start, Overlay79Vector *end,
                          f32 height, Overlay79Object *object, void *collision);
 
 /*
- * Plateau (2026-08-25, 10 attempts): -O2 -mips2 -Wab,-r4300_mul produces
- * 0xD8C bytes versus the 0xDC8-byte target, with 849 of 882 words differing
- * after relocation masking and the first mismatch at +0x4. The remaining
- * split begins in the shared overlay-data base/prologue schedule and carries
- * through the five-state FP allocation; packed descriptors, signed mode,
- * if-chain CFG, and explicit stack-home variants did not improve it.
+ * Plateau p2 (2026-08-25): workbench structure-mismatch; 831/882 positional words differ, first +0x4.
+ * Tried a shared data-block base, distinct 3D component homes, and stack-census declaration ordering.
+ * A separate dy recovers half the frame; 14 instructions and eight non-save frame bytes remain missing.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
@@ -124,6 +121,7 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
     Overlay79Vector end;
     f32 update;
     f32 dx;
+    f32 dy;
     f32 dz;
     f32 distance;
     f32 verticalDistance;
@@ -203,9 +201,9 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
         }
         if (state->target != NULL) {
             dx = state->target->x - object->x;
-            distance = state->target->y - object->y;
+            dy = state->target->y - object->y;
             dz = state->target->z - object->z;
-            if (sqrtf((dx * dx) + (distance * distance) + (dz * dz)) < 30.0f) {
+            if (sqrtf((dx * dx) + (dy * dy) + (dz * dz)) < 30.0f) {
                 *(s32 *)state->target->state = 1;
             }
         }

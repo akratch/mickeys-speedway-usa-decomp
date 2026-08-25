@@ -56,11 +56,9 @@ extern void func_800349A4(Overlay65TrailCommand **commands, void *texture,
 extern void func_overlay_065_F0001A14_18C5C7C(f32 x, f32 y, f32 z);
 
 /*
- * Plateau (2026-08-25, 10 attempts): -O2 -mips1 produces 0x610 bytes versus
- * the 0xDDC-byte target, with 876 of 887 words differing after relocation
- * masking and the first mismatch at +0x0. The retail body heavily unrolls the
- * nine-point/two-vertex writer; indexed, pointer-walk, preincrement, explicit
- * tail, and loop-unroll flag variants did not recover its saved-register web.
+ * Plateau p2 (2026-08-25): workbench structure-mismatch; 875/887 positional words differ, first +0x0.
+ * Tried explicit two-side output, an s32 conversion carrier, full expansion, and the MIPS-II flag lattice.
+ * The best positional candidate remains 392 instructions short, and the retail saved-register web is absent.
  */
 #ifdef NON_MATCHING
 void func_overlay_065_F0000C38_18C4EA0(Overlay65TrailCommand **commandPtr,
@@ -73,7 +71,6 @@ void func_overlay_065_F0000C38_18C4EA0(Overlay65TrailCommand **commandPtr,
     s32 recordIndex;
     s32 updateIndex;
     s32 pointIndex;
-    s32 side;
     s32 randomX;
     s32 randomZ;
     f32 sinAngle;
@@ -148,16 +145,22 @@ void func_overlay_065_F0000C38_18C4EA0(Overlay65TrailCommand **commandPtr,
         commands++;
 
         for (pointIndex = 0; pointIndex < 9; pointIndex++) {
-            for (side = -1; side <= 1; side += 2) {
-                vertex->x = record->x[pointIndex] + (side * 3.0f);
-                vertex->y = record->y[pointIndex];
-                vertex->z = record->z[pointIndex] + (side * 3.0f);
-                vertex->red = record->red;
-                vertex->green = record->green;
-                vertex->blue = record->blue;
-                vertex->alpha = 0xFF;
-                vertex++;
-            }
+            vertex->x = (s32)(record->x[pointIndex] - 3.0f);
+            vertex->y = (s32)record->y[pointIndex];
+            vertex->z = (s32)(record->z[pointIndex] - 3.0f);
+            vertex->red = record->red;
+            vertex->green = record->green;
+            vertex->blue = record->blue;
+            vertex->alpha = 0xFF;
+            vertex++;
+            vertex->x = (s32)(record->x[pointIndex] + 3.0f);
+            vertex->y = (s32)record->y[pointIndex];
+            vertex->z = (s32)(record->z[pointIndex] + 3.0f);
+            vertex->red = record->red;
+            vertex->green = record->green;
+            vertex->blue = record->blue;
+            vertex->alpha = 0xFF;
+            vertex++;
         }
         D_2988 = vertex;
     }
