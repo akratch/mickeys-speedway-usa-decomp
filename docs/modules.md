@@ -1335,6 +1335,17 @@ materialises the 64-bit retrace counter through one combined object while the
 target uses separate high/low symbol references. The assembly fallback
 remains canonical.
 
+`__scYield` also retains a `NON_MATCHING` JFG-derived body. The resident flag
+lattice and five storage/source shapes leave the faithful external-`u64`
+candidate at 20 instructions versus the target's 19, with the first positional
+mismatch at function `+0x14` after the extra base reload changes the branch
+span. Defining the timestamp in this TU is diagnostic only: it reproduces all
+19 instruction words, but its final low-half store relocates against
+`D_800D2D48` plus four rather than `D_800D2D4C` at `+0x38`, and it introduces
+new scheduler BSS that this split does not own. The assembly fallback remains
+canonical until BSS ownership can be reconstructed without changing the
+shared data layout.
+
 ### 3.16 Particle and debug-print translation units
 
 ROM `0x3D5F0`–`0x45760` is now split into two aligned resident C

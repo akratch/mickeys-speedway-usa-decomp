@@ -38,6 +38,7 @@ extern u8 D_800CF590;
 extern u8 D_800CF5A8;
 extern s32 D_800D2D40;
 extern s32 D_800D2D44;
+extern u64 D_800D2D48;
 extern u8 *D_800D2FA0;
 extern u8 *D_800D2FA8;
 extern u8 *D_800D2FAC;
@@ -46,6 +47,8 @@ void osViSetEvent(OSMesgQueue *mq, OSMesg msg, u32 retraceCount);
 void osWritebackDCacheAll(void);
 void osSpTaskLoad(OSTask *task);
 void osSpTaskStartGo(OSTask *task);
+void osSpTaskYield(void);
+u64 osGetTime(void);
 void rsp_segment(SchedGfx **dlist, s32 segment, void *base);
 s32 diPrintf(const char *format, ...);
 void diPrintfAll(SchedGfx **dlist);
@@ -296,5 +299,16 @@ void __scHandleRetrace(OSSched *sc) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scTaskComplete.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scAppendList.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scExec.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scYield. */
+void __scYield(OSSched *sc) {
+    if (sc->curRSPTask->list.t.type == 1) {
+        sc->curRSPTask->state |= 0x10;
+        D_800D2D48 = osGetTime();
+        osSpTaskYield();
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scYield.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scSchedule.s")
