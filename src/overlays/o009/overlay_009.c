@@ -337,9 +337,9 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
     }
 }
 
-/* Plateau: canonical -O2 -mips2 -r4300_mul differs in 4/162 words from +0xC8: angle spills at +0x32, retail +0x2A.
- * Declaration, first-use, member reread, register, volatile, and padding variants regress; every other instruction remains exact.
- * A 40-minute permuter found no improvement; the 0.65f pool addend remains +0x4C versus retail +0x50. */
+/* Workbench: mixed constant/relocation residual; 4/162 words differ, first +0xC8.
+ * Constant-audit tried explicit local layouts, padding widths, and D_50 binding.
+ * Angle home remains +0x32 vs +0x2A; the 0.65f pool addend is +0x4C vs +0x50. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,
                                        void *unused, f32 step) {

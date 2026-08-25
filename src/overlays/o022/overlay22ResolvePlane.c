@@ -32,17 +32,9 @@ typedef struct Overlay22Owner {
 extern f32 D_10;
 extern f32 func_overlay_022_F0000000_1878108(f32);
 
-/*
- * Plateau (2026-08-25, renewed 10-attempt cap): the best -O2 -mips2
- * -Wab,-r4300_mul candidate has the exact 173-word size, differs in 7 words,
- * and first diverges at +0x74.  A complete 119-combination flag sweep found no
- * improvement.  Reversed multiply operands, compound expressions, direction
- * carriers, a separate square-root carrier, and function/block-scope and
- * declaration-order variants either preserved the seven-word diff or changed
- * the frame/register web.  The remaining blocker is three commutative mul.s
- * source-lane encodings plus projected-X/Z call spills at sp+0x50/sp+0x48;
- * retail uses sp+0x54/sp+0x4C with otherwise identical instructions.
- */
+/* Workbench: mixed constant/commutative; best differs 7/173 words, first linked +0x74.
+ * Compound assignment, spill-padding widths, and a projected-vector aggregate were tried.
+ * Three mul operand encodings and X/Z homes +0x50/+0x48 vs +0x54/+0x4C remain. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000A7C_1878B84(
     void *unused, Vec3f *out, Vec3f *direction, f32 distance,
