@@ -51,6 +51,10 @@ extern u8 D_8007A3A4;
 extern u8 D_8007A3A8;
 extern u32 D_8007A3B0;
 extern u32 D_8007A3AC;
+extern s32 D_8007A3C4;
+extern s32 D_8007A3C8;
+extern s32 D_8007A3EC;
+extern s32 D_8007A410;
 extern RcpCommand D_8007A438[];
 extern RcpCommand D_8007A4B8[];
 extern OSMesgQueue D_800D2880;
@@ -68,9 +72,35 @@ extern OSMesgQueue D_800D2D08;
 extern OSMesg D_800D2D20[];
 
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
+void TrapDanglingJump(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpFast3d.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpWaitDP.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/rcpFast3d.c:rcpWaitDP. */
+s32 rcpWaitDP(void) {
+    OSMesg message = NULL;
+    OSMesg refractDoneMessage = NULL;
+    OSMesg blurDoneMessage = NULL;
+
+    if (D_8007A3C4 == 0) {
+        return 0;
+    }
+    osRecvMesg(&D_800D28B8, &message, OS_MESG_BLOCK);
+    if (D_8007A410 != 0) {
+        osRecvMesg(&D_800D2D08, &blurDoneMessage, OS_MESG_BLOCK);
+        D_8007A410 = 0;
+    }
+    if (D_8007A3EC != 0) {
+        osRecvMesg(&D_800D2CD0, &refractDoneMessage, OS_MESG_BLOCK);
+        D_8007A3EC = 0;
+    }
+    if (D_8007A3C8 != 0) {
+        TrapDanglingJump();
+        D_8007A3C8 = 0;
+    }
+    D_8007A3C4 = 0;
+    return ((s32 *) message)[1];
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/rcpFast3d.c:rcpSetScreenColour. */
 void rcpSetScreenColour(u8 red, u8 green, u8 blue) {
     D_8007A3A0 = red;

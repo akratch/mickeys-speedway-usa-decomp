@@ -519,7 +519,7 @@ screenDraw = 0x8002E5D4; // type:func size:0x228 ROM 0x2f1d4 tier-B donor-jfg-sr
 // rcpFast3d.c -- ROM 0x2F400-0x30CD0. bgdraw_fillcolour and rcpInit are
 // pre-existing Tier A anchors elsewhere in this file.
 rcpFast3d = 0x8002E800; // type:func size:0x2A0 ROM 0x2f400 tier-B donor-jfg-src/rcpFast3d.c task-shape+order
-rcpWaitDP = 0x8002EAA0; // type:func size:0xCC ROM 0x2f6a0 tier-B donor-jfg-src/rcpFast3d.c queue-callgraph+order
+rcpWaitDP = 0x8002EAA0; // type:func size:0xCC ROM 0x2f6a0 tier-B donor-jfg-src/rcpFast3d.c queue-callgraph+order matched-C
 rcpSetScreenColour = 0x8002EB6C; // type:func size:0x28 ROM 0x2f76c tier-B donor-jfg-src/rcpFast3d.c role-callgraph+order matched-C
 func_8002EBD4 = 0x8002EBD4; // type:func size:0xC ROM 0x2f7d4 tier-A C-object+linked-ROM-exact name-unresolved
 func_8002EBE0 = 0x8002EBE0; // type:func size:0x3FC ROM 0x2f7e0 tier-D boundary-extracted
