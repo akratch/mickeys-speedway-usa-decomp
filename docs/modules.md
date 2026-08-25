@@ -1313,6 +1313,8 @@ the still-unnamed `func_8002C790` (ROM `0x2D390`–`0x2D39C`, 12 bytes),
 the still-unnamed `func_8002C79C` (ROM `0x2D39C`–`0x2D3BC`, 32 bytes),
 the still-unnamed `func_8002C8B4` (ROM `0x2D4B4`–`0x2D54C`, 152 bytes),
 the still-unnamed `func_8002CCE4` (ROM `0x2D8E4`–`0x2D96C`, 136 bytes),
+the still-unnamed global-flags loader `func_8002CE54` (ROM `0x2DA54`–
+`0x2DB0C`, 184 bytes),
 the still-unnamed `func_8002CF0C` (ROM `0x2DB0C`–`0x2DB6C`, 96 bytes),
 the still-unnamed `func_8002E020` (ROM `0x2EC20`–`0x2ECA0`, 128 bytes),
 `piInit` (ROM `0x2ECA0`–`0x2ED48`, 168 bytes),
@@ -1343,7 +1345,9 @@ comparison confirms the setting leaves its other exact functions unchanged.
 The named bodies are adapted from
 JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the
 still-unnamed leading rumble gate also adapts its JFG body while retaining
-Mickey's placeholder name. `bgdraw_fillcolour` adapts Diddy Kong Racing's
+Mickey's placeholder name, and the still-unnamed global-flags loader adapts
+JFG's load-and-default-copy flow to Mickey's 24-byte resident record and I/O
+helpers. `bgdraw_fillcolour` adapts Diddy Kong Racing's
 public `src/rcp_dkr.c` body. The anonymous setter, dual-global reset,
 record-field accessors, allocation wrapper, and no-op are reconstructed from
 Mickey's own bodies. `rcpInitDp` is likewise reconstructed from Mickey's own

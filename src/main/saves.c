@@ -20,6 +20,7 @@ extern s32 D_8007A2E8;
 extern s32 D_8007A2FC;
 extern s32 D_8007A31C;
 extern u8 D_8007A284[];
+extern u8 D_8007A304[];
 extern void *D_8007A280;
 extern OSMesgQueue *D_800D21C0;
 extern OSPfs D_800D21C8[];
@@ -67,6 +68,11 @@ typedef struct SavesEepromWriteState {
     s32 unused;
 } SavesEepromWriteState;
 
+typedef struct SavesEepromReadState {
+    s32 messageQueue;
+    u8 unused[0x14];
+} SavesEepromReadState;
+
 typedef struct RumbleState {
     u8 state;
     u8 pad01[2];
@@ -90,6 +96,7 @@ s32 func_80070170(s32 messageQueue);
 s32 mainResetPressed(void);
 void func_8006FEF0(s32 arg0, s32 type, void *data, s32 size);
 void func_80070030(s32 arg0, u8 arg1, void *arg2, s32 arg3);
+s32 func_8002C7EC(s32 arg0, s32 arg1, void *arg2, s32 arg3);
 
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/saves.c:func_8004B070_4BC70. */
 s32 func_8002BCC0(void) {
@@ -317,7 +324,39 @@ s32 packCalculateGlobalFlagsChecksum(u8 *buffer) {
     }
     return checksum;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CE54.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packLoadGlobalFlagsEprom, using Mickey's record and I/O path. */
+void func_8002CE54(void *globalFlags) {
+    s32 failed;
+    SavesEepromReadState state;
+    u8 *src;
+    u8 *dst;
+    s32 bytesToCopy;
+
+    failed = 0;
+    state.messageQueue = joyMessageQ();
+    if (func_80070170(state.messageQueue) == 0) {
+        failed = 1;
+    }
+    if (failed == 0 &&
+        func_8002C7EC(state.messageQueue, 0x39, globalFlags, 0x18) != 0) {
+        failed = 1;
+    }
+    if (packCalculateGlobalFlagsChecksum(globalFlags) !=
+        *(u16 *) ((u8 *) globalFlags + 0x16)) {
+        failed = 1;
+    }
+    src = D_8007A304;
+    dst = globalFlags;
+    bytesToCopy = 0x17;
+    if (failed != 0) {
+        do {
+            *dst++ = *src++;
+        } while (bytesToCopy--);
+        *(u16 *) ((u8 *) globalFlags + 0x16) =
+            packCalculateGlobalFlagsChecksum(globalFlags);
+    }
+}
 /* Mickey-derived reconstruction; JFG supplies only the neighboring TU order. */
 void func_8002CF0C(void *globalFlags) {
     SavesEepromWriteState state;
