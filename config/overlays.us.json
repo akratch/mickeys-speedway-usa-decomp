@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 95868,
-  "nonmatching_overlay_c_bytes": 327996,
+  "matched_overlay_c_bytes": 96104,
+  "nonmatching_overlay_c_bytes": 327760,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 64,
   "bss_bytes": 77680,
@@ -9209,7 +9209,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43FlushPending",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x280",

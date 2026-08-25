@@ -3229,6 +3229,8 @@
       "size": 236,
       "source": "src/overlays/o043/overlay43FlushPending.c",
       "tools": [
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
         "trim_elf_section.py"
       ]
     },

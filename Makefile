@@ -1593,7 +1593,23 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay_042.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x700
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43InitializeState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FlushPending.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FlushPending.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x004:5:D_C8 \
+		0x008:6:D_C8 \
+		0x038:5:ext_4d258 \
+		0x03c:6:ext_4d258 \
+		0x09c:5:D_C8 \
+		0x0a0:6:D_C8 \
+		0x0c4:5:D_C8 \
+		0x0e0:6:D_C8 && \
+	$(OBJCOPY) --redefine-sym \
+		func_8002E800=func_overlay_043_F0000000_1889FD0 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x094:osRecvMesg:func_overlay_043_F0000000_1889FD0 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xEC
 # Six resident release roles are stored through one overlay carrier. The source
 # is otherwise instruction-natural; rebind the exceptional release site and
