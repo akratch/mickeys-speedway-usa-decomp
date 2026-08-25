@@ -18,6 +18,15 @@ extern u32 gO63ToggleReloc;
 extern u8 gO63GraphicReloc[];
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 63 as none. */
+/*
+ * Plateau (5 structural attempts): the flag lattice's closest row is MIPS I,
+ * eight bytes long with 82 positional words differing and the first mismatch
+ * at +0x18; canonical MIPS II is four bytes short with its first mismatch at
+ * +0x14.  The target keeps the poll result separate from the sequence-pointer
+ * snapshot, but return-type, element-type, expression-association, explicit
+ * next-index/timer temporaries, and a local sequence snapshot did not recover
+ * that allocation without register-order guessing.
+ */
 #ifdef NON_MATCHING
 void overlay63UpdateSequence(s32 delta) {
     void *token;

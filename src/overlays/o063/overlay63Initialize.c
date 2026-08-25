@@ -1,11 +1,5 @@
 #include "PR/ultratypes.h"
 
-typedef struct O63ChainEntry {
-    s16 tableIndex;
-    s16 value4;
-    s16 value6;
-} O63ChainEntry;
-
 typedef struct O63Config {
     void *resource;
     s16 value4;
@@ -37,7 +31,7 @@ extern s32 gO63LocalWord;
 extern f32 gO63LocalFloat;
 extern s32 gO63SavedTableWord;
 extern O63Config gO63Configs[];
-extern O63ChainEntry gO63Chain[];
+extern s16 gO63Chain;
 extern s32 gO63State18C;
 extern s32 gO63State190;
 extern s32 gO63State194;
@@ -45,9 +39,20 @@ extern s32 gO63State198;
 extern s32 gO63State19C;
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 63 as none. */
+/*
+ * Plateau (8 structural attempts plus a bounded 10-minute permuter batch):
+ * the baseline flag sweep produced an exact-size MIPS-I object with 31 words
+ * differing at +0x8C, while canonical MIPS-II was four bytes short with 67
+ * words differing at +0xC4.  Viewing the six-byte chain as raw s16 fields
+ * gives an exact-size MIPS-II object with 22 positional words differing first
+ * at +0xB8.  Separate base pointers, scalar/array/struct element types, local
+ * zero materialization, and targeted volatile qualifiers did not recover the
+ * target's initial chain reload; the permuter's pointer-snapshot winner
+ * regressed to 67 words in the real full-TU flag sweep.
+ */
 #ifdef NON_MATCHING
 void overlay63Initialize(void) {
-    O63ChainEntry *chain;
+    s16 *chain;
     O63Config *config;
     s16 index;
     s32 slot;
@@ -63,22 +68,22 @@ void overlay63Initialize(void) {
     gO63LocalFloat = 0.0f;
     o63AttachReloc(gO63LocalResource, 0);
 
-    chain = gO63Chain;
+    chain = &gO63Chain;
     config = gO63Configs;
-    if (chain->tableIndex != -1) {
-        index = chain->tableIndex;
+    if (gO63Chain != -1) {
+        index = gO63Chain;
         do {
             config->resource = gO63TableReloc[index];
-            config->value4 = chain->value4;
-            config->value6 = chain->value6;
+            config->value4 = chain[1];
+            config->value6 = chain[2];
             config->randomA = o63RandomReloc(0, 0x8000);
             config->randomB = o63RandomReloc(0x600, 0xA00);
             config->randomC = o63RandomReloc(0x100, 0x300);
             if (o63RandomReloc(0, 1) == 0) {
                 config->randomC = -config->randomC;
             }
-            index = chain[1].tableIndex;
-            chain++;
+            index = chain[3];
+            chain += 3;
             config++;
         } while (index != -1);
     }
