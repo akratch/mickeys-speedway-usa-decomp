@@ -12,7 +12,7 @@ extern s32 D_8007D6A0;
 extern s8 D_8007D6C0[];
 extern s32 *D_8007D68C;
 extern s32 D_8007D6A4;
-extern s32 D_8007D6A8;
+extern u32 D_8007D6A8;
 extern f32 D_8007D6AC;
 extern u32 osRomBase;
 extern void *D_8007D680;
