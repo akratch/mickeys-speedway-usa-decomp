@@ -1667,6 +1667,13 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   HI16/LO16 pair at `+0x18`/`+0x28`. Every symbolic spelling adds an address
   instruction and moves the aligned epilogue, growing the function by eight
   words.
+- `mainUpdateZBCheck`, five loop/type hypotheses, the full flag lattice and a
+  bounded two-worker permuter batch, first mismatch `+0x24`: the best
+  Mickey-derived candidate has the exact `-0x48` frame and screen-size stack
+  slots but compiles to 60 rather than 63 instructions. IDO schedules the
+  outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
+  removes three dead-looking countdown-loop register copies retained by the
+  target.
 - `levelGetCounts`, ten source/type/loop hypotheses, first mismatch `+0x13c`:
   the best candidate has the target's 1,036-byte size, 259-instruction opcode
   schedule and `-0x58` frame, but three register operands use `$v0` where the

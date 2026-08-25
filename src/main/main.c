@@ -97,6 +97,7 @@ extern s32 D_800D18D4;
 extern s32 D_800D18D8;
 extern s32 D_800D18DC;
 extern MainZBCheck D_800CF538[];
+extern u16 *D_800D2FAC;
 extern s32 osTvType;
 extern s32 levelNGetType(s32 level);
 extern void func_80028EFC(MainCharacterState *, s32, s32);
@@ -247,7 +248,66 @@ s32 mainAddZBCheck(s32 x, s32 y, s32 radius) {
     return result;
 }
 
+#ifdef NON_MATCHING
+/*
+ * Plateau: the Mickey-derived nested countdown loops compile to 60 of the
+ * target's 63 instructions with the exact -0x48 frame and screen-size stack
+ * slots. The first mismatch is +0x24: IDO schedules the outer counter before
+ * the target's D_8007A24C/D_800D2FAC LO16 pair. The target also retains three
+ * dead-looking loop-register copies that the natural C removes. The complete
+ * resident flag lattice and a bounded permuter run did not recover that
+ * spelling.
+ */
+void mainUpdateZBCheck(void) {
+    MainZBCheck *check;
+    s32 i;
+    s32 enabled;
+    s32 rows;
+    s32 screenWidth;
+    s32 screenHeight;
+    s32 columns;
+    s32 width;
+    u8 *row;
+    u16 *pixel;
+
+    viGetCurrentSize(&screenWidth, &screenHeight);
+    check = D_800CF538;
+    i = 7;
+    do {
+        enabled = 1;
+        if (D_8007A24C > 0) {
+            D_8007A24C--;
+            rows = check->height;
+            row = (u8 *) D_800D2FAC +
+                  (((check->y * screenWidth) + check->x) * 2);
+            if (rows != 0) {
+                rows--;
+                width = check->width;
+                do {
+                    columns = width;
+                    if (width != 0) {
+                        columns--;
+                        pixel = (u16 *) (row + (columns * 2));
+                        do {
+                            if ((*pixel & 0xFFFC) == 0xFFFC) {
+                                enabled = 0;
+                                goto nextCheck;
+                            }
+                            pixel--;
+                        } while (columns--);
+                    }
+                    row += screenWidth * 2;
+                } while (rows--);
+            }
+        }
+nextCheck:
+        check->enabled = enabled;
+        check++;
+    } while (i--);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainUpdateZBCheck.s")
+#endif
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 s8 mainGetZBCheck(s32 arg0) {
