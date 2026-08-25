@@ -2686,9 +2686,9 @@ indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
-The 112-byte `func_8004ACC4` retains its best exact-size candidate at 18/28 differing words; fresh m2c return typing and typed declaration-order forms regressed to 25 and 24.
-The first mismatch remains `+0x14`; the loop and relocation set are exact, but IDO rotates the counter, trap address, and callback cursor.
-Hypothesis: the missing original aggregate/type lifetime fixes that allocation; the preserved candidate remains `NON_MATCHING`.
+`func_8004ACC4` remains exact-size with 14/28 positional words differing, first `+0x14`; workbench verdict: mixed structure/register residual.
+Logical-line grouping improved 18 to 14; aggregate lifetime, assignment order, and direct trap-address forms did not.
+The callback/trap address web and counter schedule remain; the assembly fallback stays canonical.
 
 The 208-byte `func_8004AF68` (`fxCpuTextureFlush` in JFG) reaches a bounded
 boundary/allocation plateau after the full flag lattice, nine coherent
