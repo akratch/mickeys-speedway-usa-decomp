@@ -1494,6 +1494,17 @@ could not parse the formatter's `va_arg` macros. Promotion is additionally
 blocked because the C body emits formatter jump tables and static strings
 still owned by the resident asm-data split.
 
+`diPrintfAll` reached an instruction-exact 144-word plateau under
+`-Wab,-r4300_mul`. Strict object comparison finds four relocation-identity
+differences, first at function offset `0x144`: both accesses to the saved text
+Y coordinate name the separately declared `D_800D4A62`, while the target names
+`D_800D4A60+2`. Array, pointer, volatile, integer-cast, and structure spellings
+that produce the target relocation identity change IDO's address commoning,
+register allocation, and schedule to 142--145 words. The full flag lattice
+found the exact instruction stream only with separate globals, so the JFG
+candidate remains under `NON_MATCHING` and the original asm body remains
+canonical.
+
 `debug_text_parse` reached an instruction-exact 263-word plateau. Strict
 object comparison still finds four relocation-identity differences: two
 accesses use the separately named `D_800D4A62` instead of `D_800D4A60+2`, and
