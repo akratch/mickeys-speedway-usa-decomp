@@ -471,6 +471,9 @@ void controlFSUvels(s16 *rotation, ControlPlayer *player) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D960.s")
 #ifdef NON_MATCHING
+/* Workbench: size/frame exact constant-class plateau, 2 operands from +0x70.
+ * Tried declaration order, register, block-scope, reuse, and dummy-home levers.
+ * One live-across-call floating-point spill remains in the wrong stack slot. */
 void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
     f32 cosine;
     f32 pitchX;

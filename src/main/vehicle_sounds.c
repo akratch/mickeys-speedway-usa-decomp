@@ -123,9 +123,9 @@ f32 sqrtf(f32 value);
 f32 func_80058EF4(f32 value);
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 26 versus 22 words, with no exact prefix.
- * Lever: structure/context ownership; TU-local scalars and target-order stores still emitted four extra address loads.
- * Remains: the target's cross-symbol high-half reuse needs original BSS layout context; named externs stay best. */
+/* Workbench: structure-buckets; 26 vs 22 instructions, 19 words differ at +0x0.
+ * Store reordering and the prior bounded permuter did not remove four bases.
+ * Exact codegen still requires same-TU aggregate/BSS ownership. */
 void func_80058250(void) {
     D_800D78B0 = 0;
     D_800D78B8 = 0.0f;
