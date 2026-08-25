@@ -1930,9 +1930,9 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 #endif
 #ifdef NON_MATCHING
 /*
- * JFG's hitGetInelasticVelocity is structurally unrelated to this reflection
- * helper. Plateau: exact 80-instruction size/frame and HI/LO relocation; the
- * best bounded-permuter candidate leaves 18 FP schedule words, first +0x54.
+ * Fresh m2c types and explicit normal/volatile-stack lifetimes did not beat
+ * this 80-instruction candidate. Workbench leaves 18 FP register/schedule
+ * words, first +0x54; the target spill is at sp+4 instead of sp+0.
  */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
