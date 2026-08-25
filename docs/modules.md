@@ -1345,7 +1345,8 @@ plus `rcpInitDp` (ROM `0x30068`–`0x30118`, 176 bytes),
 `osCreateScheduler` (ROM `0x30CD0`–`0x30E2C`, 348 bytes),
 `osScGetAudioSPStats` (ROM `0x30F20`–
 `0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
-`osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
+`osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), `__scMain` (ROM
+`0x30F38`–`0x310E0`, 424 bytes), and the still-unnamed
 no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes), plus
 the still-unnamed scheduler helper `func_800304E0` (ROM `0x310E0`–
 `0x31180`, 160 bytes),

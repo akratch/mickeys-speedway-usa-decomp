@@ -24,12 +24,14 @@ typedef struct SchedGfx {
 #define RSP_DONE_MSG 667
 #define RDP_DONE_MSG 668
 #define PRE_NMI_MSG 669
+#define UNK_MSG 99
 
 extern s32 D_8007A640;
 extern s32 D_8007A648;
 extern s32 D_8007A650;
 extern s32 D_8007A654;
 extern s8 D_8007A658;
+extern s32 D_8007A65C;
 extern u64 D_8007A660;
 extern char D_80082350[];
 extern char D_80082354[];
@@ -86,6 +88,9 @@ SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
                         s32 *arg4, s32 *arg5, s32 *arg6);
 void __scAppendList(OSSched *sc, OSScTask *task);
 void __scYield(OSSched *sc);
+void __scHandleRetrace(OSSched *sc);
+void __scHandleRSP(OSSched *sc);
+void __scHandleRDP(OSSched *sc);
 s32 __scTaskComplete(OSSched *sc, OSScTask *task);
 s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 state);
 void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp);
@@ -180,7 +185,51 @@ void osScGetAudioSPStats(f32 *first, f32 *second, f32 *third) {
     *second = 0.0f;
     *third = 0.0f;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scMain.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scMain, with Mickey's retrace-counter symbol. */
+void __scMain(void *arg) {
+    OSMesg msg = NULL;
+    OSSched *sc = (OSSched *) arg;
+    OSScClient *client;
+    s32 state = 0;
+    OSScTask *sp = NULL;
+    OSScTask *dp = NULL;
+
+    while (1) {
+        osRecvMesg(&sc->interruptQ, &msg, OS_MESG_BLOCK);
+
+        switch ((s32) msg) {
+            case VIDEO_MSG:
+                __scHandleRetrace(sc);
+                D_8007A65C++;
+                break;
+            case RSP_DONE_MSG:
+                __scHandleRSP(sc);
+                break;
+            case RDP_DONE_MSG:
+                __scHandleRDP(sc);
+                break;
+            case UNK_MSG:
+                func_800304E0(sc);
+                break;
+            case PRE_NMI_MSG:
+                for (client = sc->clientList; client != NULL;
+                     client = client->next) {
+                    osSendMesg(client->msgQ, (OSMesg) sc->prenmiMsg,
+                               OS_MESG_NOBLOCK);
+                }
+                break;
+            default:
+                __scAppendList(sc, (OSScTask *) msg);
+                state = ((sc->curRSPTask == NULL) << 1) |
+                        (sc->curRDPTask == NULL);
+                if (__scSchedule(sc, &sp, &dp, state) != state) {
+                    __scExec(sc, sp, dp);
+                }
+                break;
+        }
+    }
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:func_8004FB30_50730. */
 void func_800304E0(OSSched *sc) {
