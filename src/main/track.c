@@ -97,8 +97,25 @@ void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
 ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
                    s32 updateRate);
+s32 runlinkIsModuleLoaded(s32 module);
+void TrapDanglingJump(s32 updateRate);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BD50.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public `src/track.c`, function
+ * `trackUpdateFX`, supplies the three-module update structure. Mickey proves
+ * its own module indices and unresolved call sites, so the name is not adopted.
+ */
+void func_8000BD50(s32 updateRate) {
+    if (runlinkIsModuleLoaded(13) != 0) {
+        TrapDanglingJump(updateRate);
+    }
+    if (runlinkIsModuleLoaded(12) != 0) {
+        TrapDanglingJump(updateRate);
+    }
+    if (runlinkIsModuleLoaded(34) != 0) {
+        TrapDanglingJump(updateRate);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BDB4.s")
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
