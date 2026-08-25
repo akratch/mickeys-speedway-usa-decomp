@@ -1774,6 +1774,14 @@ function `+0x44` (plus two local PC16 assembler-metadata differences) and a
 duplicate linked table surface. The exact source remains behind
 `NON_MATCHING`, with the target assembly canonical until that rodata split is
 handed off.
+The 156-byte `diRcpMoveWd` helper reaches the same section-ownership plateau.
+JFG's six-case empty switch reproduces all 39 target instructions, the
+96-byte frame, both calls, and the diagnostic-string relocation at the
+resident defaults. IDO also emits the correct 11-entry switch table, but binds
+the function's first table relocation at `+0x34` to this TU's `.rodata` rather
+than Mickey's existing shared `jtbl_80083950` symbol, creating a duplicate
+linked table surface. The instruction-exact body remains behind
+`NON_MATCHING` until the shared rodata split is handed off.
 The 1,004-byte `func_800475E8` (`fxMakeConeTextureCoords`) reaches a structural
 plateau from Mickey's recovered coordinate-generation loops. JFG confirms the
 identity but its peer is also assembly-only. After the full flag lattice and

@@ -20,6 +20,7 @@ typedef struct Gfx {
 extern void func_800453C4(Gfx *dList, s32 *w0_24_31, s32 *w0_16_23,
                           s32 *w0_0_15, s32 *w1);
 extern s32 sprintf(char *buffer, const char *format, ...);
+extern char D_80083340[];
 extern char D_80083388[];
 extern char D_80082D58[];
 extern char D_80082D64[];
@@ -393,7 +394,41 @@ s32 diRcpDmaOffsets(Gfx *dList, char *name) {
     }
     return 8;
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpMoveWd. */
+s32 diRcpMoveWd(Gfx *dList) {
+    s32 w0_24_31;
+    s32 w0_0_7;
+    s32 w0_8_23;
+    s32 w1;
+    char buffer[0x2C];
+
+    func_80045400(dList, &w0_24_31, &w0_8_23, &w0_0_7, &w1);
+    switch (w0_0_7) {
+        case 6:
+            break;
+        case 4:
+            break;
+        case 10:
+            break;
+        case 12:
+            break;
+        case 2:
+            break;
+        case 8:
+            w0_24_31 = w0_0_7;
+            break;
+        default:
+            sprintf(buffer, D_80083340, w0_0_7);
+            break;
+    }
+    if (w0_24_31 && w0_24_31) {
+    }
+    return 8;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpMoveWd.s")
+#endif
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpStrName. */
 s32 diRcpStrName(Gfx *dList, char *name) {
     char buffer[0x50];
