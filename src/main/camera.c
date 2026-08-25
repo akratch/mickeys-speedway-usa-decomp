@@ -539,7 +539,15 @@ void camRestoreModelMtx(Gfx **dlist) {
         cmd->words.w0 = 0xBC00000A;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002460C.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camPopModelMtx. */
+void camPopModelMtx(Gfx **dlist) {
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC00000A;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002462C.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetListPtr. */
 Camera *camGetListPtr(void) {
