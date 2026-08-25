@@ -76,6 +76,10 @@ void overlay25InitializeEffect(Overlay25Object *object,
  * shared constant; the clean shared-constant form regressed to 164 differing
  * words. The blocker remains the combined stack-home and register schedule
  * across the movement and query branches.
+ * R3 revisit: all 119 flag groups reconfirmed 127 words and first mismatch
+ * +0x0 at the exact 0x40C boundary. Reversing the position/radius/object-array
+ * declarations and scoping those locals to either branch emitted the same
+ * object, so neither accounts for the target's 0xA0 versus 0xC8 frame.
  */
 #ifdef NON_MATCHING
 void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
