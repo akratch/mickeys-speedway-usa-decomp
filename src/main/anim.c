@@ -609,7 +609,47 @@ void func_800534EC(s32 arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800557F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055970.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055B24.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055D08.s")
+void func_80055D08(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    HitCopyTarget *target;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    firstSource = first->source;
+    first->position.x = firstSource->current.x;
+    first->position.y = firstSource->current.y;
+    first->position.z = firstSource->current.z;
+    firstSource->previous.x = firstSource->current.x;
+    firstSource->previous.y = firstSource->current.y;
+    firstSource->previous.z = firstSource->current.z;
+
+    secondSource = second->source;
+    deltaX = second->position.x - secondSource->previous.x;
+    deltaY = second->position.y - secondSource->previous.y;
+    deltaZ = second->position.z - secondSource->previous.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+    second->position.x = secondSource->previous.x + deltaX;
+    second->position.y = secondSource->previous.y + deltaY;
+    second->position.z = secondSource->previous.z + deltaZ;
+
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    target = second->target;
+    target->unk14 = deltaX / distance;
+    target->unk18 = deltaY / distance;
+    target->unk1C = deltaZ / distance;
+    TrapDanglingJump(first, 1, second);
+    TrapDanglingJump(second, 0x12);
+}
 void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopySource *firstSource;
     HitCopySource *secondSource;
