@@ -669,9 +669,9 @@ void func_80050DF0(s32 levelId) {
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
- * Plateau: separate camera/scroll/lockon types retain 89/90 instructions;
- * first word +0x1C, first intrinsic schedule mismatch +0x64. IDO carries the
- * scroll boundary instead of rematerializing the lockon base.
+ * Workbench: mixed structure/register, 89/90 instructions and exact 0x20 frame; 46 words differ, first +0x64.
+ * Levers tried: direct loop predicate, redundant address expression, structure buckets, and context lint.
+ * Remaining: IDO reuses the scroll boundary instead of rematerializing the lockon base, shifting later relocations.
  */
 #ifdef NON_MATCHING
 void func_80050E9C(void) {
@@ -2132,9 +2132,9 @@ no_intersection:
  * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
  * establishes the entity cutoff, resident structures, and final code here.
  */
-/* Plateau retry (2026-08-25): exact-sized at 51/105 words, first +0x24;
- * scoped deltas recover sp+0x7C, but distances stay at sp+0x94; no permuter zero.
- * Its 520-score hoist broke cursor reset, leaving the layout/register phase. */
+/* Workbench: mixed structure/register, exact 105-word length and 0xC0 frame; 51 words differ, first +0x24.
+ * Levers tried: structure buckets, squared-radius lifetime, statement order/ties, and context lint.
+ * Remaining: radius/call delay-slot order and the outer sort-cursor reset keep the allocator lanes displaced. */
 s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
                   HitCopyState **nearby) {
     f32 distances[8];

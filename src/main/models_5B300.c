@@ -88,9 +88,9 @@ void func_8005A770(void) {
     D_800D7CF0 = 0;
 }
 /*
- * Plateau: workbench structure-mismatch, exact 106-word length, 10 positional differences, first +0x0.
- * Levers tried: shift-shaped size expression, stack census/local reuse, context lint, and all 119 flag combinations.
- * Remaining: 0x50 versus 0x38 frame and alignment v1 versus s0, which shifts the load-call spill schedule.
+ * Workbench: mixed constant/structure/register, exact 106-word length; 10 words differ, first +0x0.
+ * Levers tried: frame audit, register storage, parameter/local coalescing, and compound-and shape.
+ * Remaining: the 0x50/0x38 frame and alignment v1/s0 web shift the second load-call spill schedule.
  */
 #ifdef NON_MATCHING
 s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
