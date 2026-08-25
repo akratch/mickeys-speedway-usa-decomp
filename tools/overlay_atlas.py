@@ -799,7 +799,7 @@ TEXT_SUBSEGMENTS = {
     58: [
         (0x000, "c", "func_overlay_058_F0000000_18AF1E8"),
         (0x5C0, "c", "overlay58ReleaseResources"),
-        (0x5FC, "asm", "overlay_058_middle"),
+        (0x5FC, "c", "func_overlay_058_F00005FC_18AF7E4"),
         (0x12F0, "c", "overlay58SetNodeValue"),
         (0x138C, "asm", "overlay_058_tail"),
         (0x4C04, "c", "overlay58DrawSegmentStrip"),
