@@ -14,8 +14,11 @@
 #include "game/memory.h"
 
 extern u8 D_8007A274;
+extern MemoryPool D_800D1C60[];
+extern s32 D_800D1CA0;
 extern MemoryPoolSlot *D_800D1C64;
 extern s32 D_800D21AC;
+extern s32 D_800D21B0;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/mmInit.s")
 
@@ -27,16 +30,49 @@ u8 mmExtended(void) {
 /* JFG correspondence: mmAllocRegion (tier B; allocation then pool creation). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B154.s")
 
-/* JFG correspondence: mempool_init (tier B; called by mmInit/mmAllocRegion). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B1A0.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mempool_init. */
+MemoryPoolSlot *func_8002B1A0(MemoryPoolSlot *slots, s32 poolSize, s32 numSlots) {
+    MemoryPoolSlot *firstSlot;
+    s32 poolCount;
+    s32 i;
+    s32 firstSlotSize;
+
+    poolCount = ++D_800D1CA0;
+    firstSlotSize = poolSize - (numSlots * sizeof(MemoryPoolSlot));
+    D_800D1C60[poolCount].maxNumSlots = numSlots;
+    D_800D1C60[poolCount].curNumSlots = 0;
+    D_800D1C60[poolCount].slots = slots;
+    D_800D1C60[poolCount].size = poolSize;
+    D_800D1C60[poolCount].freeSize = firstSlotSize;
+    firstSlot = slots;
+    for (i = 0; i < D_800D1C60[poolCount].maxNumSlots; i++) {
+        firstSlot->index = i;
+        firstSlot++;
+    }
+    firstSlot = &D_800D1C60[poolCount].slots[0];
+    slots += numSlots;
+    if ((s32)slots & 0xF) {
+        firstSlot->data = (u8 *)(((s32)slots & ~0xF) + 0x10);
+    } else {
+        firstSlot->data = (u8 *)slots;
+    }
+    firstSlot->size = firstSlotSize;
+    firstSlot->flags = MEMORY_SLOT_FREE;
+    firstSlot->colourTagIndex = 0x95;
+    firstSlot->prevIndex = -1;
+    firstSlot->nextIndex = -1;
+    D_800D1C60[poolCount].curNumSlots++;
+    if (poolCount == MEMORY_POOL_MAIN) {
+        D_800D21B0 = firstSlotSize;
+    }
+    return D_800D1C60[poolCount].slots;
+}
 
 /* JFG correspondence: mmAlloc (tier B; main-pool allocation wrapper). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B280.s")
 
 /* JFG correspondence: mmAlloc2 (tier B; duplicate allocation wrapper). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B314.s")
-
-extern MemoryPool D_800D1C60[];
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_slot_find. */
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
@@ -81,8 +117,6 @@ void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag) {
 }
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocR. */
-extern s32 D_800D1CA0;
-
 void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag);
 
 void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
@@ -184,8 +218,6 @@ s32 func_8002B978(u8 *address) {
 }
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_slot_clear. */
-extern s32 D_800D21B0;
-
 void func_8002B9D0(MemoryPoolIndex poolIndex, s32 slotIndex) {
     s16 nextIndex;
     s16 prevIndex;

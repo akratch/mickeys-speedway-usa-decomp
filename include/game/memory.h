@@ -28,7 +28,8 @@ typedef enum MemorySlotFlags {
 typedef struct MemoryPoolSlot {
     /* 0x00 */ u8 *data;
     /* 0x04 */ s32 size;
-    /* 0x08 */ s16 flags;
+    /* 0x08 */ u8 flags;
+    /* 0x09 */ u8 colourTagIndex;
     /* 0x0A */ s16 prevIndex;
     /* 0x0C */ s16 nextIndex;
     /* 0x0E */ s16 index;
