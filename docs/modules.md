@@ -1022,6 +1022,14 @@ halfword store, and corresponding audio-volume call, and carries point-of-use
 linked ROM range are exact; a zero-byte weak alias preserves its assembly
 caller's anonymous spelling.
 
+`func_8003A520` plateaus size-exact at **3/9 differing words**, first `+0x8`.
+Its operation and ordered position correspond to JFG's
+`frontSet2PlayerSplit`, but the full 119-combination flag lattice and a bounded
+permuter batch could not reproduce the target's old-flag register chain. The
+best natural candidate uses a narrowing result cast; IDO still assigns that
+chain two temporary registers earlier than the target. It remains assembly
+and keeps its anonymous name.
+
 ### 3.12 Track assembly and shadows (`0x16140`–`0x18FF0`)
 
 This block contains two JFG-lineage translation units. The boundary claims are

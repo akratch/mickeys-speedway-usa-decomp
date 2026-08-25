@@ -145,6 +145,8 @@ void frontSetBgmVolume(s32 volume) {
     amTuneSetGlobalVolume(volume);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A50C.s")
+/* Size-exact plateau: three register operands differ from +0x8; IDO assigns
+ * the old-flag value chain two temporary registers earlier than the target. */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A544.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A550.s")

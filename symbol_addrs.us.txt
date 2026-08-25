@@ -2211,6 +2211,7 @@ frontGetBgmVolume = 0x8003A4C4; // type:func size:0xC  ROM 0x3b0c4
 // Tier B (JFG): exact ordered setter body and the paired audio-volume call
 // identify the BGM-volume operation.
 frontSetBgmVolume = 0x8003A4D0; // type:func size:0x3C  ROM 0x3b0d0
+func_8003A520 = 0x8003A520; // type:func size:0x24 tier-D ROM 0x3b120 plateau 3/9 words differ, first +0x8
 // jfg:src/diCpu.c.o
 diCpuTraceInit = 0x800459B0; // type:func size:0x54   ROM 0x465b0  src/diCpu.c.o  masked=10/21
 // jfg:src/font.c.o
