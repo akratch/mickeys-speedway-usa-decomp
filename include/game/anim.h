@@ -25,14 +25,32 @@ typedef struct AnimPathObjectTarget {
 typedef struct AnimPathObject {
     u8 pad0[6];
     s16 unk6;
-    u8 pad8[0x50];
+    u8 pad8[0x34];
+    s32 unk3C;
+    u8 pad40[4];
+    s16 unk44;
+    u8 pad46[0x12];
     AnimPathObjectTarget *unk58;
     u8 pad5C[0x28];
     s32 soundHandle;
 } AnimPathObject;
 
 typedef struct AnimPathNode {
-    u8 pad0[0x24];
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    u8 unk6;
+    u8 unk7;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    s16 unk18;
+    s16 unk1A;
+    s16 unk1C;
+    u8 unk1E;
+    u8 pad1F;
+    f32 unk20;
     struct AnimPathNode *previous;
     struct AnimPathNode *next;
 } AnimPathNode;
