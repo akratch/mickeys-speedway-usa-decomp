@@ -345,9 +345,9 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
     }
 }
 
-/* Workbench: mixed(constant:5, structural:1, schedule:4), exact 162-word size/0x50 frame; 4 words, first +0xC8.
- * Lever tried: constant/stack audit with typed local aggregates; the best scalar angle home remains +0x32 versus +0x2A.
- * Remains: four angle-home operands and the 0.65f pool addend at +0x4C versus +0x50; all register lanes are exact. */
+/* Workbench: mixed constant/relocation; 4/162 object words differ from +0xC8, and the linked oracle reports five operands.
+ * Constant-audit tried explicit local layouts, padding widths, and D_50 binding.
+ * Angle home remains +0x32 vs +0x2A; the 0.65f pool addend is +0x4C vs +0x50. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,
                                        void *unused, f32 step) {

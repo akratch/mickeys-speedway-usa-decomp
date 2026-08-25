@@ -29,12 +29,12 @@ typedef struct Overlay22Owner {
     Overlay22Result *result64;
 } Overlay22Owner;
 
-extern f32 D_10;
+extern f32 gOverlay22DataBase[];
 extern f32 func_overlay_022_F0000000_1878108(f32);
 
-/* Workbench: mixed(constant:5, commutative:3), exact 173-word size/0x88 frame; 7 words, first +0x74.
- * Lever tried: constant/spill audit with a typed projected-vector aggregate; codegen was unchanged.
- * Remains: three commutative source orders and projected-X/Z homes +0x4 below target; all lanes are exact. */
+/* Workbench: mixed constant/commutative; best differs 7/173 words, first linked +0x74.
+ * Typed base indexing fixes the +0x10 relocation; compound, padding/aggregate, and address-mark levers regress or are neutral.
+ * Three mul operand encodings and X/Z homes +0x50/+0x48 vs +0x54/+0x4C remain. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000A7C_1878B84(
     void *unused, Vec3f *out, Vec3f *direction, f32 distance,
@@ -56,7 +56,7 @@ void func_overlay_022_F0000A7C_1878B84(
     ny = plane->normal.y;
     nz = plane->normal.z;
 
-    if ((D_10 <= ny) || (((s32)plane->flags << 3) < 0)) {
+    if ((gOverlay22DataBase[4] <= ny) || (((s32)plane->flags << 3) < 0)) {
         crossX = (ny * direction->z) - (direction->y * nz);
         crossY = (nz * direction->x) - (direction->z * nx);
         crossZ = (nx * direction->y) - (direction->x * ny);
