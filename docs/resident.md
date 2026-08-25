@@ -421,7 +421,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
-| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots`; plateau, canonical C is one word short, first `+0x4` |
+| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; plateau, 62/63 words, first `+0x4`; target keeps the initial global address in `s0`, and the full flag lattice plus 40-minute permuter found no valid exact source |
 | `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot; linked C exact |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
 | `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
@@ -504,11 +504,7 @@ but regressed to 20 differences from `+0x34`, so the prior body is retained.
 The bounded permuter could not run because `tools/permuter/import.py` is absent
 from this lane.
 
-Canonical `func_8002B7AC` C emits 62 words against 63 in the target and first
-diverges at `+0x4`: IDO folds the initial `D_800D21B0` address/load while the
-target retains the address in a saved register, shifting the otherwise-close
-queue loop. `-O2 -g3` reaches the target size with 15 differences but is not a
-valid TU-wide replacement for the canonical flags. `func_8002BB40` reaches the
+`func_8002BB40` reaches the
 target's 72-word size but differs in 57 words from `+0x4`; pool/slot pointer
 allocation and split-record scheduling remain structurally different.
 

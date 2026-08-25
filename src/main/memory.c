@@ -293,6 +293,8 @@ void mmFree(void *data) {
  */
 void ReleaseUnusedLinkSlots(void);
 
+/* Plateau: 62/63 words, first +0x4; the target keeps &D_800D21B0 in s0.
+ * The 119-flag lattice and 40-minute permuter found no valid exact source. */
 #ifdef NON_MATCHING
 void func_8002B7AC(void) {
     s32 i;
