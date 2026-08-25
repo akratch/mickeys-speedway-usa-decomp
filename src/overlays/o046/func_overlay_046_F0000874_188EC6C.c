@@ -70,15 +70,10 @@ extern void overlay46DrawParticleReloc(void *data, void *model,
                                        Overlay46Particle *particle,
                                        void *resource, s32 flags, s32 alpha);
 
-/* Pinned DKR v77/v80 and JFG skeleton scans found no close donor.
- * Plateau: -O2 -mips2 -Wab,-r4300_mul emits 453 instructions for the
- * 450-instruction target, with 363 normalized word mismatches beginning at
- * +0x0. The target's 0xC0 frame assigns update/completion/slot-base to
- * s4/s3/s2; this candidate's 0xE0 frame assigns them to s3/s2/s4 because
- * IDO gives the three switch-local FP steps and result/slot array different
- * stack homes. Structural variants reached exact size but increased the
- * mismatch count; register-order guessing was stopped at the attempt cap.
- */
+/* Pinned DKR v77/v80 and JFG skeleton scans found no close donor. */
+/* Workbench: structure-mismatch; 453/450 instructions, 363 words, first +0x0.
+ * Levers: constant audit and a case-1 particle-base preload worsened to 404 words.
+ * Remains: the 0xE0/0xC0 frame and switch-local FP/result stack allocation. */
 #ifdef NON_MATCHING
 s32 func_overlay_046_F0000874_188EC6C(s32 updateRate) {
     s32 result;

@@ -74,9 +74,9 @@ extern s16 gOverlay57MenuHalf2;
 extern s8 gOverlay57MenuSourcesStart[];
 extern s8 gOverlay57MenuSourcesEnd[];
 
-/* NON_MATCHING plateau: 424/441 words differ, first +0x0; canonical is 108 bytes short.
- * Target frame is 0x60; flag lattice and typed record/loop/stack-array shapes were eliminated.
- * Hypothesis: the original local/array allocation and whole-function schedule remain missing. */
+/* Workbench: structure-mismatch; 414/441 instructions, 424 words, first +0x0.
+ * Levers: constant audit verified movement-call arguments; prior CFG shapes stand.
+ * Remains: the 27-instruction deficit, 0x68/0x60 frame, and array allocation. */
 #ifdef NON_MATCHING
 void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
     s8 activePlayers[10];

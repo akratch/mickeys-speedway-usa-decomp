@@ -42,14 +42,10 @@ extern u8 D_0[];
 extern u8 D_28[];
 extern void func_overlay_044_F0000000_188B860();
 
-/*
- * PLATEAU (2026-08-25): the stock -O2 -mips2 group is best at 347 target-
- * range instructions versus 349, with 330 differing positional words and
- * first mismatch at +0x0. The target's 0x100-byte frame becomes 0x138 because
- * IDO assigns distinct stack homes to the reconstructed display-list macro
- * temporaries; flattening them fixes the frame pressure but loses the target's
- * saved-register topology. No external donor body was used.
- */
+/* Workbench: structure-mismatch; 347/349 instructions, 330 words, first +0x0.
+ * Levers: constant audit, OR association, and a register macro temp were inert.
+ * Remains: the 0x138/0x100 frame and display-list macro stack-home topology. */
+/* No external donor body was used. */
 #ifdef NON_MATCHING
 void func_overlay_044_F0000580_188BDE0(
     Overlay44AnimationState *arg0,
