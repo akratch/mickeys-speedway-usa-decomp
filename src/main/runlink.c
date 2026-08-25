@@ -66,6 +66,7 @@ extern s32 D_8007A27C;
 extern char D_80082410[];
 extern void func_80032BF8(s32 overlayIndex);
 extern void func_80032338(s32 slot);
+extern void func_80032618(s32 overlayIndex);
 extern void *func_8002B280(s32 size, s32 tag);
 extern void mmFree(void *address);
 extern s32 mmGetDelay(void);
@@ -586,7 +587,34 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032338.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032618.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032820.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkFlushModules.s and the corresponding
+ * src/runlink.c function order. Mickey's pending-load count and linked bytes
+ * determine the final body.
+ */
+void runlinkFlushModules(void) {
+    PendingOverlayLoad *pendingLoad;
+    s32 remaining;
+
+    pendingLoad = D_800D2DC8;
+    remaining = overlayCount - 1;
+    if (remaining > 0) {
+        do {
+            func_80032618(remaining);
+            remaining--;
+        } while (remaining > 0);
+    }
+
+    /* Source-line grouping controls IDO's otherwise independent %lo/constant schedule. */
+    remaining = PENDING_OVERLAY_LOADS - 1; do {
+        if (pendingLoad->overlayIndex != 0xFFB) {
+            mmFree((void *) (overlayTable[pendingLoad->overlayIndex].textSize + pendingLoad->unk0));
+            pendingLoad->overlayIndex = 0xFFB;
+        }
+        pendingLoad++;
+    } while (remaining--);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032B14.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032BF8.s")
