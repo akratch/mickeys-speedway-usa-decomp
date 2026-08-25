@@ -26,15 +26,17 @@ static void *const overlay31RuntimeCarrier =
 /* PROVENANCE: Diddy Kong Racing, src/particles.c (init_particle_assets);
  * semantic source-shape analogue only. Mickey's ROM decides every detail. */
 /*
- * Plateau (2026-08-25): the natural -O2 -mips2 body emits 129 words for the
- * 132-word target, with the first mismatch at +0x4. The remaining body has
- * the same broad call and loop structure once the three-word opening skew is
- * accounted for. The target retains the initial index value across the state
- * reset while IDO folds it into constant offsets. The complete flag lattice
- * was neutral; declaration-time initialization and a register-qualified index
- * produced the same candidate. The nearest permitted skeleton is JFG
- * partInitLib at 0.433, but that function also remains GLOBAL_ASM and supplies
- * no source-level lifetime evidence.
+ * Plateau (2026-08-25, independently rechecked in the overlay 31/38/46 lane):
+ * the natural -O2 -mips2 body emits 129 words for the 132-word target, first
+ * differing at +0x4. Retail retains the initial state index in s1, forms one
+ * indexed base, and reuses it for four stores; IDO folds the same value into
+ * constant offsets. The 119-point flag lattice had no exact result (-O2
+ * -mips1 was only the least-bad ranking at 129 differing words). A typed base,
+ * chained initialization, preincrement/embedded-assignment forms, and source
+ * line regrouping were codegen-inert; a volatile index enlarged the frame and
+ * worsened the ABI shape. The bounded two-thread permuter improved score 1030
+ * to 320 in 601 seconds but found no zero. The nearest permitted skeleton is
+ * JFG partInitLib at 0.433, itself GLOBAL_ASM with no usable C lifetime proof.
  */
 #ifdef NON_MATCHING
 void func_overlay_031_F00002E8_187F808(void) {

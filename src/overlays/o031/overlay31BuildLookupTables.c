@@ -21,16 +21,36 @@
     (record)->d1C = 0;        \
     (record)->d1E = 0x200
 
+#define INIT_SHORT_PREFIX_REVERSED(record) \
+    (record)->c10 = 0x40;     \
+    (record)->bE = 0x200;     \
+    (record)->bC = 0x200;     \
+    (record)->bA = 0;         \
+    (record)->b8 = 0x200;     \
+    (record)->b6 = 0;         \
+    (record)->b4 = 0
+
+#define INIT_SHORT_SUFFIX_REVERSED(record) \
+    (record)->d1E = 0x200;    \
+    (record)->d1C = 0;        \
+    (record)->d1A = 0x200;    \
+    (record)->d18 = 0x200;    \
+    (record)->d16 = 0;        \
+    (record)->d14 = 0
+
 /*
- * Plateau (2026-08-25): the best -O2 -mips2 candidate is exact-size at 186
- * words, with 104 differing words and the first mismatch at +0x34. Reusing
- * the level/index lifetimes across both phases and splitting the shared field
- * initializer around the c-fields improved the baseline by 48 words. The
- * full flag lattice was neutral. Further declaration-order, scope-lifetime,
- * explicit-condition, and pointer-increment spellings were codegen-inert;
- * the remaining first-half mismatch is a global-address/register family and
- * store schedule with no supported semantic dependency. The nearest JFG
- * skeleton is 0.512 but also remains GLOBAL_ASM, so it supplies no C donor.
+ * Plateau (2026-08-25, independently rechecked in the overlay 31/38/46 lane):
+ * the best -O2 -mips2 candidate is exact-size at 186 words, with 94 differing
+ * words and the first mismatch at +0x34. Reusing level/index across both
+ * phases and splitting the shared initializer had previously removed 48
+ * differences; reversing the source order of the second record's independent
+ * short stores removed 10 more. The 119-point flag lattice was neutral. A
+ * typed initial-row base, declaration-order changes, and coupling the sum to
+ * the branch source line were codegen-inert. The remaining first-half gap is
+ * the global-address/register family, and the second phase swaps the long-lived
+ * index/pair-pointer webs. A two-thread bounded permuter improved 2460 to 1970
+ * in 602 seconds without reaching zero. The nearest JFG skeleton scores 0.512
+ * but is itself GLOBAL_ASM and supplies no C lifetime evidence.
  */
 #ifdef NON_MATCHING
 void func_overlay_031_F0000000_187F520(void) {
@@ -81,9 +101,9 @@ void func_overlay_031_F0000000_187F520(void) {
                 first++;
                 second->a0 = 0x40;
                 second->a3 = next;
-                INIT_SHORT_PREFIX(second);
+                INIT_SHORT_PREFIX_REVERSED(second);
                 second->c12 = next;
-                INIT_SHORT_SUFFIX(second);
+                INIT_SHORT_SUFFIX_REVERSED(second);
                 second++;
             } while (next < limit);
         }
@@ -104,11 +124,11 @@ void func_overlay_031_F0000000_187F520(void) {
             second->a1 = sum;
             second->a2 = level;
             second->a3 = 0;
-            INIT_SHORT_PREFIX(second);
+            INIT_SHORT_PREFIX_REVERSED(second);
             second->c11 = sum;
             second->c12 = 0;
             second->c13 = index;
-            INIT_SHORT_SUFFIX(second);
+            INIT_SHORT_SUFFIX_REVERSED(second);
             second++;
         }
         level++;

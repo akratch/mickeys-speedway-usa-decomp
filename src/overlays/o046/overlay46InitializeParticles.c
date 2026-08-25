@@ -45,17 +45,10 @@ extern s32 overlay46RandomBoolReloc(s32 minimum, s32 maximum);
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
 /*
- * Plateau (2026-08-25): the natural 118-word body has exact size, frame,
- * control flow, and relocation positions, with 2 differing words first at
- * +0x60. The target materializes the resource-table low half before the loop
- * count; IDO schedules those independent initializations in the opposite
- * order. The full flag lattice was neutral and the closest permitted skeleton
- * scored 0.052. Assignment reordering, declaration initializers, comma
- * sequencing, explicit array-address spelling, and register qualifiers were
- * inert or worsened the diff to 12 words. No semantic source dependency
- * supports forcing the remaining scheduler order.
+ * IDO 5.3 uses the loop opener's source-line boundary when scheduling the
+ * independent resource-table address and loop count initializations. Keeping
+ * the count assignment with the do opener reproduces the retail order.
  */
-#ifdef NON_MATCHING
 void overlay46InitializeParticles(void) {
     Overlay46Particle *particle;
     Overlay46ParticleConfig *config;
@@ -70,9 +63,8 @@ void overlay46InitializeParticles(void) {
     config = gOverlay46Configs1C8;
     spacing = gOverlay46Spacing48;
     magnitude = -0x4000;
-    index = 0x12;
     resources = gOverlay46ResourceTable0;
-    do {
+    index = 0x12; do {
         particle->value00 = 0;
         particle->value02 = 0;
         particle->value04 = 0;
@@ -110,7 +102,3 @@ void overlay46InitializeParticles(void) {
     gOverlay46Value18 = 0;
     gOverlay46Timer5C = 0x3C;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o046/overlay46InitializeParticles/func_overlay_046_F000069C_188EA94.s")
-#endif
