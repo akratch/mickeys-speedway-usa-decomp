@@ -158,19 +158,19 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/*
- * Plateau: exact 94 words/frame/CFG; 18 words differ, first +0x40, from a
- * temp-FIFO shift plus emptyIndex at 0x34(sp) rather than 0x30(sp). Flags,
- * natural bool locals and loop/access reshaping regress; explicit != 0U helps.
- */
+/* Workbench: allocation, 15 register-only words, first +0x40; temp slot 4 and pool slot 30 diverge.
+ * Frame-home declaration/assignment splitting helped; temp-FIFO boolean and lifetime levers regressed or were inert.
+ * Remaining: cache-index temp t7/t8 phase and final emptyIndex pool/temp class crossing. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
-    s32 emptyIndex = -1;
-    s32 i = 0;
+    s32 i;
+    s32 emptyIndex;
     s32 offset;
     s32 size;
     LoadedAnimation *animation;
 
+    emptyIndex = -1;
+    i = 0;
     if (D_800D7D04 > 0) {
         do {
             AnimationCacheEntry *entry = &((AnimationCacheEntry *)D_800D7CF4)[i];
