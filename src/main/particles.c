@@ -110,13 +110,26 @@ typedef struct BasicParticle {
     f32 velocityX;
     f32 velocityY;
     f32 velocityZ;
-    u8 pad28[0x18];
+    u8 pad28[8];
+    f32 localX;
+    f32 localY;
+    f32 localZ;
+    u8 pad3C[4];
     f32 gravity;
-    u8 pad44[0x1A];
+    u8 pad44[4];
+    void *parent;
+    u8 pad4C[0x12];
     s16 angularVelocityY;
     s16 angularVelocityX;
     s16 angularVelocityZ;
 } BasicParticle;
+
+typedef struct ParticleParent {
+    u8 pad00[0x0C];
+    f32 x;
+    f32 y;
+    f32 z;
+} ParticleParent;
 
 typedef struct CircularParticle {
     u8 pad00[0x2C];
@@ -378,7 +391,32 @@ void func_80041F48(s32 arg0, ParticleTrigger *trigger) {
         }
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041FEC.s")
+/* PROVENANCE: body adapted from DKR src/particles.c:move_particle_basic_parent. */
+void func_80041FEC(BasicParticle *particle) {
+    s32 i;
+    ParticleParent *parent;
+
+    i = D_800D4140;
+    while (i-- > 0) {
+        particle->localX += particle->velocityX;
+        particle->localY += particle->velocityY;
+        particle->velocityY -= particle->gravity;
+        particle->localZ += particle->velocityZ;
+        particle->rotationY += particle->angularVelocityY;
+        particle->rotationX += particle->angularVelocityX;
+        particle->rotationZ += particle->angularVelocityZ;
+        particle->scale += particle->scaleVelocity;
+    }
+    particle->x = particle->localX;
+    particle->y = particle->localY;
+    particle->z = particle->localZ;
+    parent = particle->parent;
+    if (parent != NULL) {
+        particle->x += parent->x;
+        particle->y += parent->y;
+        particle->z += parent->z;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800420E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800421F4.s")
 /* PROVENANCE: body adapted from DKR src/particles.c:move_particle_basic. */
