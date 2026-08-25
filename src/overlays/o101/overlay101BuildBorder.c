@@ -18,25 +18,9 @@ void overlay101BuildIntensityColorsReloc(s32 intensity, s32 alpha, u32 *full,
 void overlay101BuilderCreateReloc(Overlay101Gfx **displayList, s32 count,
                                   Overlay101BorderRect *rects, s32 flags);
 
-/*
- * Overlay 101 text +0x2DC0..+0x2EFC.  Volatile color locals and an explicit
- * final-record pointer retain the exact private-frame compiler basin.
- * Plateau: the prior 10 source-shape attempts and a fresh 119-combination
- * flag lattice plus four structural variants all retain the best exact 79
- * instructions and 136-byte frame but differ in 38 positional words; the
- * first mismatch is +0x44. Complete-record ordering, old-style call
- * declarations, named boundary temporaries, and direct typed-array access did
- * not improve it. A fresh source-order audit moved the second record's right
- * edge to reproduce the target's complete field-store order, but the best
- * result remains 38 positional words from first mismatch +0x44; explicit
- * right/bottom boundary locals regress that result to 40 or 43 words. The
- * remaining blocker is the straight-line volatile-load/store schedule and its
- * temporary register web. A later lane reran the full flag lattice and tested
- * explicit register-qualified geometry parameters plus a complete typed set
- * of six boundary temporaries; the qualifiers preserve the 38-word basin,
- * while the typed boundary web diverges from the prologue. The best result
- * therefore remains size-exact with first mismatch +0x44.
- */
+/* Plateau: canonical is size/frame exact at 79 words/-136 but differs in 38 words; full lattice found no exact flags.
+ * Volatile-record and boundary-local variants regress to 40--62 words; the 40-minute permuter improved 1020 to 515, not zero.
+ * First mismatch +0x44; blocker is the geometry store schedule and its temporary-register web. */
 #ifdef NON_MATCHING
 void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
                            s32 width, s32 height, s32 intensity, s32 alpha,

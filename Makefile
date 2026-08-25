@@ -1164,8 +1164,25 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14CreateValue.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14LoadRelocatedValue.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_014_F000087C_1870154=overlay14LoadRelocatedValue $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x178
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14UpdateTransition.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py \
+	config/normalizations/overlay14UpdateTransition.filter.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14UpdateTransition.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_014_F0001184_1870A5C=overlay14UpdateTransition $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		@config/normalizations/overlay14UpdateTransition.filter.spec && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_014_F0001184_1870A5C=overlay14UpdateTransition \
+		--redefine-sym gOverlay14TransitionValue=D_C0 \
+		--redefine-sym overlay14PrepareReloc=func_overlay_014_F0000B5C_1870434 \
+		--redefine-sym overlay14AdvanceReloc=func_overlay_014_F0000D68_1870640 \
+		--redefine-sym overlay14RetreatReloc=func_overlay_014_F0000F64_187083C \
+		--redefine-sym overlay14InitializeReloc=func_overlay_014_F0000000_186F8D8 \
+		--redefine-sym overlay14DrawPrimaryReloc=func_overlay_014_F00013F4_1870CCC \
+		--redefine-sym overlay14DrawAlternateReloc=func_overlay_014_F0001540_1870E18 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0xF4:overlay14SetActiveReloc:func_overlay_014_F0000000_186F8D8 \
+		0x13C:overlay14SetActiveReloc:func_overlay_014_F0000000_186F8D8 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x154
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14DispatchCommand.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_014_F0001040_1870918=overlay14DispatchCommand $@ && \
