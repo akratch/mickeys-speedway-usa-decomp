@@ -122,23 +122,31 @@ extern void overlay89MaintainReloc(Overlay89Object *object,
                                    Overlay89EffectState *state);
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
+/*
+ * Plateau (2026-08-25): -O2 -mips2 -Wab,-r4300_mul is 4 bytes short with
+ * 94 masked word differences, first at +0x40. Declaration and store ordering
+ * place the descriptor correctly, but the target preserves state in a
+ * caller-save slot across create and maintain while this candidate reloads it.
+ * A bounded permuter run found no exact, and its state-alias winner regressed.
+ */
 #ifdef NON_MATCHING
 void overlay89InitializeEffect(Overlay89Object *object,
-                                       Overlay89Init *init) {
-    Overlay89CreateDescriptor descriptor;
+                               Overlay89Init *init) {
     Overlay89EffectState *state;
+    Overlay89CreateDescriptor descriptor;
     Overlay89NestedRoot *root;
     Overlay89ColorEntry *source;
     Overlay89ColorEntry *colors;
     s32 count;
     f32 range;
+    f32 size;
 
     object->angleA = init->angleA << 8;
     state = object->state;
     object->angleB = init->angleB << 8;
 
-    range = (f32)(u32)init->size;
-    object->size = range * gOverlay89InitScale[1];
+    size = (f32)(u32)init->size;
+    object->size = size * gOverlay89InitScale[1];
 
     state->mode = init->mode;
     state->particleCount = init->particleCount;
@@ -147,9 +155,9 @@ void overlay89InitializeEffect(Overlay89Object *object,
     state->red = init->red;
     state->green = init->green;
     state->blue = init->blue;
+    state->intensity = init->intensity;
     state->enabled = 1;
     state->timer = 0;
-    state->intensity = init->intensity;
 
     range = (f32)(u32)init->squaredRange;
     state->squaredRange = range * range;
@@ -158,11 +166,10 @@ void overlay89InitializeEffect(Overlay89Object *object,
     state->left = object->angleA - (init->halfWidth << 7);
     state->right = object->angleA + (init->halfWidth << 7);
     state->top = object->angleB - (init->halfHeight << 7);
-    state->motionWord = 0;
     state->bottom = object->angleB + (init->halfHeight << 7);
+    state->motionWord = 0;
 
     state->enabled = overlay89Evaluate(state);
-    state = object->state;
     state->primaryHandle = NULL;
     state->secondaryHandle = NULL;
 
