@@ -14,6 +14,7 @@
 #include "game/gameVi.h"
 #include "game/menu.h"
 #include "game/pi.h"
+#include "n_audio/mbi.h"
 
 /* PROVENANCE: base layout adapted from JFG's public decomp,
  * src/menu.h::Resbitfield; twoPlayerSplit and stereoMode are Mickey-derived
@@ -79,6 +80,7 @@ extern s32 func_80005820(s32 arg0);
 extern u8 *func_80028F54(void);
 extern void func_800347A0(void *texture);
 extern void func_800359D4(void *sprite);
+extern void func_80034920(MenuCommand **displayList);
 extern void func_80039A9C(s32 assetId);
 extern void func_80039BE4(s32 assetId);
 extern void func_80039720(s32 updateRate);
@@ -118,6 +120,16 @@ struct MenuCommand {
     u32 w1;
 };
 
+extern MenuCommand D_8007C2E8[];
+
+/* Historical display-list macro topology is significant to IDO's register
+ * allocation in the rectangle batcher. */
+#define MENU_COMMAND(pkt, a, b) { \
+    MenuCommand *_g = (MenuCommand *)(pkt); \
+    _g->w0 = (u32)(a); \
+    _g->w1 = (u32)(b); \
+}
+
 typedef struct MenuRectangle {
     s16 left;
     s16 top;
@@ -125,8 +137,6 @@ typedef struct MenuRectangle {
     s16 bottom;
     u32 colour;
 } MenuRectangle;
-
-extern void func_80039380(MenuCommand **displayList, s32 count, MenuRectangle *rectangles, s32 arg3);
 
 typedef struct MenuCurrentObject {
     s16 unk0;
@@ -715,7 +725,63 @@ void frontDemoMessage(MenuCommand **displayList, s32 updateRate) {
         func_8004B0F8(displayList, x, y, D_8007C0B8->demoMessage, 0xC);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039380.s")
+/* PROVENANCE: adapted from JFG's public frontDrawRectangles assembly in
+ * asm/nonmatchings/menu/frontDrawRectangles.s; Mickey supplies the exact
+ * render-state commands, clipping order, and smaller loop schedule. */
+void frontDrawRectangles(MenuCommand **displayList, s32 count, MenuRectangle *rectangles, s32 translucent) {
+    s32 left;
+    s32 top;
+    s32 right;
+    s32 bottom;
+    u32 currentColour;
+    u32 width;
+    u32 height;
+    u32 colour;
+    u32 primitiveCommand;
+
+    viGetCurrentSize((s32 *) &width, (s32 *) &height);
+    gSPDisplayList((*displayList)++, D_8007C2E8);
+    primitiveCommand = 0xFA000000;
+    if (translucent != 0) {
+        MENU_COMMAND((*displayList)++, 0xEF082C0F, 0x00504340);
+    } else {
+        MENU_COMMAND((*displayList)++, 0xEF082C0F, 0x00504240);
+    }
+    currentColour = rectangles->colour;
+    MENU_COMMAND((*displayList)++, primitiveCommand, currentColour);
+    while (count--) {
+        right = rectangles->right;
+        bottom = rectangles->bottom;
+        if ((right >= 0) && (bottom >= 0)) {
+            left = rectangles->left;
+            top = rectangles->top;
+            if ((left < (s32) width) && (top < (s32) height)) {
+                if (left < 0) {
+                    left = 0;
+                }
+                if (top < 0) {
+                    top = 0;
+                }
+                if ((s32) width < right) {
+                    right = (s32) width;
+                }
+                if ((s32) height < bottom) {
+                    bottom = (s32) height;
+                }
+                colour = rectangles->colour;
+                if (currentColour != colour) {
+                    currentColour = colour;
+                    gDPPipeSync((*displayList)++);
+                    MENU_COMMAND((*displayList)++, primitiveCommand, colour);
+                }
+                gDPFillRectangle((*displayList)++, left, top, right, bottom);
+            }
+        }
+        rectangles++;
+    }
+    func_80034920(displayList);
+    MENU_COMMAND((*displayList)++, primitiveCommand, -1);
+}
 /* PROVENANCE: name and order compared with JFG's public decomp,
  * src/menu.c::frontDrawRectangle; body and rectangle layout derived from Mickey. */
 void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right, s32 bottom, u32 colour) {
@@ -726,7 +792,7 @@ void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right,
     rectangle.right = right;
     rectangle.bottom = bottom;
     rectangle.colour = colour;
-    func_80039380(displayList, 1, &rectangle, 1);
+    frontDrawRectangles(displayList, 1, &rectangle, 1);
 }
 /* PROVENANCE: name and screen-limit role compared with JFG's public decomp,
  * src/menu.c::frontPlayerScreenLimits; body and table indexing derived from Mickey. */

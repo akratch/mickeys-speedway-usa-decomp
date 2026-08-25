@@ -1055,6 +1055,17 @@ compound assignment recovers the target's `v0` address lifetime and temporary
 register ring. The default flags, nine call relocations, three data-relocation
 pairs, object words, and linked ROM range are exact without post-processing.
 
+The tier-B `frontDrawRectangles` adds **0x204 bytes / 129 words** at ROM
+`0x39F80`. Its ordered rectangle-batcher role, screen clipping, colour-change
+batching, display-list state setup, and pairing with `frontDrawRectangle`
+establish JFG's same-name role. JFG supplies the name and assembly-level
+comparison; Mickey supplies the C body and exact render commands, as the
+point-of-use `PROVENANCE` note records. Unsigned screen dimensions prevent
+IDO from caching the clamped values, and their declaration order recovers the
+target's `0x58`/`0x54` stack homes. The resident default flags, all 129 words,
+three call relocations, the display-list data relocation pair, configured
+object, linked ROM range, and full ROM are exact without post-processing.
+
 The tier-A `frontDrawRectangle` adds **0x50 bytes / 20 words** at ROM
 `0x3A184`. Its 19 unmasked words are byte-identical to JFG's uniquely
 identified same-named skeleton; the only masked word is the call to the paired

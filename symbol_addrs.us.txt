@@ -2201,6 +2201,9 @@ func_80038E1C = 0x80038E1C; // type:func size:0x45C tier-D ROM 0x39a1c NON_MATCH
 // Tier B (JFG): the blinking localized message renderer has the same exact
 // size, call sequence, and position immediately after frontUpdate.
 frontDemoMessage = 0x80039278; // type:func size:0x108 tier-B ROM 0x39e78 canonical C, linked byte-identical
+// Tier B (JFG): the ordered rectangle batcher role, clipping topology, colour
+// batching, and pairing with frontDrawRectangle identify frontDrawRectangles.
+frontDrawRectangles = 0x80039380; // type:func size:0x204 tier-B ROM 0x39f80 canonical C, linked byte-identical
 // Tier A (JFG): 19 unmasked words match JFG's uniquely identified
 // frontDrawRectangle skeleton; the sole masked word is its draw call.
 frontDrawRectangle = 0x80039584; // type:func size:0x50 tier-A ROM 0x3a184 canonical C, linked byte-identical
