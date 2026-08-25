@@ -1782,6 +1782,10 @@ func_8000C400 = 0x8000C400; // type:func size:0x140 ROM 0xd000 tier-D (JFG src/t
 // structure, while Mickey's module IDs and unresolved calls are authoritative.
 func_8000BD50 = 0x8000BD50; // type:func size:0x64 ROM 0xc950 tier-D (JFG src/track.c trackUpdateFX structure, placeholder retained)
 
+// No public name adopted: JFG's background-gradient placeholder supplies the
+// structure, while Mickey proves the vertex layout and resident bindings.
+func_8000CC78 = 0x8000CC78; // type:func size:0x258 ROM 0xd878 tier-D (JFG src/track.c gradient builder, placeholder retained)
+
 // Tier B: the sole setter of the flag tested by the track sky-render path.
 // Tier D: occupies JFG `trackSkySet`'s position in the established TU order.
 trackSkySet = 0x8000C5E8; // type:func size:0xC ROM 0xd1e8

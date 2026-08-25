@@ -81,6 +81,39 @@ typedef struct TrackData {
     s16 segmentCount;
 } TrackData;
 
+typedef struct TrackLevelData {
+    u8 pad00[0xD2];
+    u8 bottomR;
+    u8 bottomG;
+    u8 bottomB;
+    u8 topR;
+    u8 topG;
+    u8 topB;
+} TrackLevelData;
+
+typedef struct TrackVertex {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+} TrackVertex;
+
+#define TRACK_SP_VERTEX(packet, vertex, count, first)                      \
+    gDma1p(packet, G_VTX, vertex,                                         \
+           (((count) << 3) + ((count) << 1)) + 8,                         \
+           ((count) << 3) | (((u32) (vertex)) & 6) | (first))
+
+#define TRACK_SP_POLYGON(packet, address, count, textured)                 \
+    {                                                                      \
+        Gfx *_g = (Gfx *) (packet);                                        \
+        _g->words.w0 = _SHIFTL((((count) - 1) << 4) | (textured), 16, 8) | \
+                       _SHIFTL(5, 24, 8) | _SHIFTL((count) << 4, 0, 16);  \
+        _g->words.w1 = (u32) (address);                                    \
+    }
+
 extern TrackRotation *D_800C9530;
 extern TrackCachedPoint D_800C9B40;
 extern Gfx *D_800C9520;
@@ -90,6 +123,10 @@ extern s32 D_800792FC;
 extern u8 D_8007BEF4;
 extern s16 D_800C9570;
 extern TrackData *D_800792E8;
+extern TrackLevelData *D_800792EC;
+extern Mtx *D_800C9524;
+extern TrackVertex *D_800C9528;
+extern u8 D_79330[];
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -99,6 +136,15 @@ void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
                    s32 updateRate);
 s32 runlinkIsModuleLoaded(s32 module);
 void TrapDanglingJump(s32 updateRate);
+void func_80022A50(Gfx **displayList, Mtx **matrix);
+void func_80034920(Gfx **displayList);
+void func_800349A4(Gfx **displayList, void *texture, s32 mode, s32 flags);
+void func_800221E8(Gfx **displayList, Mtx **matrix);
+s32 camGetMode(void);
+s32 camGetNo(void);
+void func_80021FB0(s32 mode, s32 camera, s32 *left, s32 *bottom,
+                   u32 *right, u32 *top);
+void viGetCurrentSize(s32 *width, s32 *height);
 
 /*
  * PROVENANCE: Jet Force Gemini's public `src/track.c`, function
@@ -177,7 +223,86 @@ void trackSkySet(s32 skyDome) {
     D_800C9558 = skyDome;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000C5F4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000CC78.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `func_80013454_14054`, including its display-list command structure. Mickey
+ * proves the ten-byte vertex layout and all resident function bindings; the
+ * donor's placeholder name is not imported.
+ */
+void func_8000CC78(void) {
+    s32 width;
+    s32 height;
+    s32 left;
+    s32 bottom;
+    u32 right;
+    u32 top;
+    u8 topR;
+    u8 topG;
+    u8 topB;
+    u8 bottomR;
+    u8 bottomG;
+    u8 bottomB;
+    TrackVertex *vertices;
+
+    vertices = D_800C9528;
+    D_800C9570 = -1;
+    func_80022A50(&D_800C9520, &D_800C9524);
+    func_80034920(&D_800C9520);
+    func_800349A4(&D_800C9520, NULL, 8, 0);
+
+    TRACK_SP_VERTEX(D_800C9520++, (u32) vertices + 0x80000000, 4, 0);
+    TRACK_SP_POLYGON(D_800C9520++, D_79330, 2, 0);
+
+    func_800221E8(&D_800C9520, &D_800C9524);
+    topR = D_800792EC->topR;
+    topG = D_800792EC->topG;
+    topB = D_800792EC->topB;
+    bottomR = D_800792EC->bottomR;
+    bottomG = D_800792EC->bottomG;
+    bottomB = D_800792EC->bottomB;
+    viGetCurrentSize(&width, &height);
+    func_80021FB0(camGetMode(), camGetNo(), &left, &bottom, &right, &top);
+    width = (u32) width >> 1;
+    height = (u32) height >> 1;
+
+    vertices->x = left - (u32) width;
+    vertices->y = (u32) height - top;
+    vertices->z = 0x10;
+    vertices->r = topR;
+    vertices->g = topG;
+    vertices->b = topB;
+    vertices->a = 0xFF;
+    vertices++;
+
+    vertices->x = right - (u32) width;
+    vertices->y = (u32) height - top;
+    vertices->z = 0x10;
+    vertices->r = topR;
+    vertices->g = topG;
+    vertices->b = topB;
+    vertices->a = 0xFF;
+    vertices++;
+
+    vertices->x = left - (u32) width;
+    vertices->y = (u32) height - bottom;
+    vertices->z = 0x10;
+    vertices->r = bottomR;
+    vertices->g = bottomG;
+    vertices->b = bottomB;
+    vertices->a = 0xFF;
+    vertices++;
+
+    vertices->x = right - (u32) width;
+    vertices->y = (u32) height - bottom;
+    vertices->z = 0x10;
+    vertices->r = bottomR;
+    vertices->g = bottomG;
+    vertices->b = bottomB;
+    vertices->a = 0xFF;
+    vertices++;
+
+    D_800C9528 = vertices;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000CED0.s")
 /*
  * JFG's corresponding TU position is `trackGetSky`, but this three-word
