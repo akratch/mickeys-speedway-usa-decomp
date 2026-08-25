@@ -76,6 +76,17 @@ section layouts. The C compiles to all 130 instruction words with the exact
 relocation surface, and its linked ROM range is byte-identical under
 `-O2 -mips2 -32`.
 
+`ProcessRelocationEntry` (`0x80031A30`, `0x248` bytes) remains
+`NON_MATCHING`. A fresh 119-combination flag sweep and an explicit
+`-O2 -g0 -mips2 -32` schedule probe both retain the stock 147-instruction
+candidate against the target's 146, with 126 positional word differences from
+`+0x0` and a `0x48` frame against `0x40`; `-O2 -g3` regresses to 128 words.
+The candidate continues to promote `patchLocation` to `s1`, adding its
+save/restore pair, while the target caller-saves that value around
+`ResolveRelocAddress` and reserves `s0` only for `relocEntry`. The remaining
+untried family is the documented pool-position levers 8-13, not another flag
+or branch-shape permutation.
+
 `runlinkFreeCode` (`0x80032338`) remains `NON_MATCHING` after ten coherent
 source variants, the 119-combination flag lattice, and a bounded MIPS2
 permuter pass. The best JFG-guided candidate has the exact 184-instruction

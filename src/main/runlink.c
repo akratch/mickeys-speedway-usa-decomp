@@ -213,8 +213,8 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
  * NONMATCHING-notes:
  *
  *  - Residual after fifteen source variants: verdict=structure-mismatch,
- *    words=126, regs=121, insns=147 against the ROM's 146, frame -0x40 on both
- *    sides for the best variant. Measured with
+ *    words=126, regs=121, insns=147 against the ROM's 146, with a 0x48-byte
+ *    candidate frame against the target's 0x40. Measured with
  *    `decomp-workbench diagnose-dumps` plus two `campaign` runs, 8 variants
  *    then 7, both recorded in the one ledger named below. The brief's parking
  *    rule asked for five campaigns; two were run. See the report.
@@ -257,7 +257,7 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
  *    shifted by that same save. It is also not the flags nibble: the mode and
  *    operation reads match the ROM instruction for instruction.
  *
- *  - Two leads, both now TRIED AND DEAD, recorded so nobody repeats them.
+ *  - Three leads, all now TRIED AND DEAD, recorded so nobody repeats them.
  *    (1) The ROM emits `bnezl` at 0x326F4/0x3270C where every candidate emits
  *    `bnez`, which suggested the guard was two nested `if`s rather than one
  *    `&&`. It is not: the nested form compiles to an object byte-identical to
@@ -265,16 +265,18 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
  *    allocation problem, not a cause of it. (2) The temp-fifo-phase playbook
  *    (levers 14-16) is the documented lever for this class and does not move
  *    it -- hoisting the call argument to a local before the divergence is
- *    another byte-identical object, and levers 15 and 16 both regress.
+ *    another byte-identical object, and levers 15 and 16 both regress. (3) A
+ *    fresh 119-combination flag sweep and an explicit `-O2 -g0 -mips2 -32`
+ *    schedule probe both retain the stock 147-instruction, 126-word object;
+ *    `-O2 -g3` regresses to 128 words.
  *
  *  - What is left to try, for the next person. The allocation decision is
- *    uopt's, so the remaining levers are the pool-position family (7-13),
- *    which were only sampled (lever 7, worse), and the -g0 schedule probe
- *    (lever 3). Failing those, this is a candidate for the compiler-identity
- *    question that src/main/matrix.c raises: if the float code says this ROM
- *    was not built by the IDO 5.3 in tools/ido/, then an allocator difference
- *    in integer code is exactly the second symptom that hypothesis predicts,
- *    and no amount of source rewriting will close it.
+ *    uopt's, so only the unsampled pool-position family (8-13) remains. Failing
+ *    that, this is a candidate for the compiler-identity question that
+ *    src/main/matrix.c raises: if the float code says this ROM was not built by
+ *    the IDO 5.3 in tools/ido/, then an allocator difference in integer code is
+ *    exactly the second symptom that hypothesis predicts, and no amount of
+ *    source rewriting will close it.
  *
  * The C is kept, under NON_MATCHING, rather than deleted -- but see the
  * provenance note above before trusting it. It is the best available reading
