@@ -27,6 +27,8 @@ typedef struct AnimPathObject {
     s16 unk6;
     u8 pad8[0x50];
     AnimPathObjectTarget *unk58;
+    u8 pad5C[0x28];
+    s32 soundHandle;
 } AnimPathObject;
 
 typedef struct AnimPathNode {
@@ -36,13 +38,31 @@ typedef struct AnimPathNode {
 } AnimPathNode;
 
 typedef struct AnimPath {
-    u8 pad0[8];
+    u8 unk0;
+    u8 unk1;
+    s16 unk2;
+    s16 unk4;
+    u8 unk6;
+    u8 unk7;
     AnimPathObject *unk8;
-    u8 padC[0xA];
+    f32 unkC;
+    f32 unk10;
+    u8 unk14;
+    u8 unk15;
     u8 flags;
     u8 nodeCount;
-    u8 pad18[8];
+    AnimPathNode *currentNode;
+    f32 unk1C;
     AnimPathNode *nodes;
+    u8 unk24;
+    u8 unk25;
+    u8 unk26;
+    u8 unk27;
+    u8 unk28;
+    u8 unk29;
+    s16 unk2A;
+    f32 unk2C;
+    f32 unk30;
 } AnimPath;
 
 extern AnimPath **D_800D6B00;
@@ -111,7 +131,11 @@ void func_800502CC(u8 pathIndex);
 void func_80050AD4(u8 pathIndex);
 void func_80006EA0(void *ptr);
 void func_80050348(s32 pathIndex);
+#ifdef NON_MATCHING
+void func_8005055C(u8 pathIndex);
+#else
 void func_8005055C();
+#endif
 void animseqStartPath(u8 pathIndex);
 void animseqStopPath(u8 pathIndex);
 void animseqInitGroup(void);

@@ -1447,7 +1447,7 @@ placeholders are never imported.
 | `0x8005027C` | `0x50` | `func_80076A20` | A; exact 80 B, masked `9/20`, placeholder retained. Matched C: exact 80 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800502CC` | `0x7C` | `func_80076A70` | B; same cleanup callees and position, placeholder retained. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050348` | `0x214` | `animseqInitPath` | B; exact `animseqInitGroup` calls this function |
-| `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape |
+| `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape. Plateau after 9 variants: best candidate has the exact 75-instruction size and call layout, with 9 positional words remaining (first mismatch `+0x40`); seven are a three-temporary register cycle/tail allocation, and the typed `animResetTrap` call has the correct relocation kind but cannot carry the required `TrapDanglingJump` identity alongside this consolidated TU's incompatible integer-signature calls |
 | `0x80050688` | `0x7C` | `animseqStartPath` | B; process-command call position, adopted name. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050704` | `0x78` | `animseqStopPath` | B; process-command call position, adopted name. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005077C` | `0x40` | no unique candidate | D; placeholder retained. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |

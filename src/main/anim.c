@@ -227,7 +227,57 @@ void func_800502CC(u8 pathIndex) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050348.s")
+#ifdef NON_MATCHING
+/*
+ * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
+ * Plateau: exact 75-instruction size; first mismatch +0x40. The typed trap
+ * alias leaves one relocation identity and the remaining allocator cycle.
+ */
+#pragma weak animResetTrap = TrapDanglingJump
+extern s32 animResetTrap(AnimPath *, f32, s32, s32);
+extern void func_800031E8(s32 handle);
+void func_8005055C(u8 pathIndex) {
+    AnimPath *path;
+    AnimPathObject *object;
+    s32 soundHandle;
+
+    path = D_800D6B00[pathIndex];
+    if (path != NULL) {
+        if (!(path->flags & 8)) {
+            object = path->unk8;
+            path->flags &= 0x80;
+            path->unk10 = 1.0f;
+            path->unk1 = path->unk0;
+            path->unk1C = 0.0f;
+            path->unk14 = path->unk6;
+            path->unk15 = path->unk7;
+            path->currentNode = path->nodes;
+            path->unkC = path->unk4 / 16384.0f;
+            if (object != NULL) {
+                object->unk6 |= 0x400;
+                path->unk24 = 0xFF;
+                path->unk25 = 0xFF;
+                path->unk26 = 0;
+                path->unk27 = 0;
+                path->unk2A = 0;
+                path->unk2C = 1.0f;
+                path->unk30 = 0.0f;
+                if (path->unk8->unk58 != NULL) {
+                    path->unk8->unk58->unk132 = 0;
+                }
+                animResetTrap(path, 0.0f, 0, 0);
+                soundHandle = object->soundHandle;
+                if (soundHandle != 0) {
+                    func_800031E8(soundHandle);
+                    object->soundHandle = 0;
+                }
+            }
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005055C.s")
+#endif
 void animseqStartPath(u8 pathIndex) {
     AnimPath *path;
     AnimPathObject *object;
