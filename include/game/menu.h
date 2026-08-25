@@ -13,6 +13,7 @@ void frontDemoMessage(MenuCommand **displayList, s32 updateRate);
 void freeFrontEndList(s16 *assetGroup);
 void freeFrontEndItem(s32 assetId);
 void loadFrontEndList(s16 *assetGroup);
+void loadFrontEndItem(s32 assetId);
 void setupFrontEndList(s16 *objectGroup);
 void setupFrontEndObject(s32 objectId);
 s32 frontGetLanguage(void);

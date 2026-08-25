@@ -2216,6 +2216,9 @@ freeFrontEndItem = 0x80039A9C; // type:func size:0xEC tier-B ROM 0x3a69c canonic
 // Tier B (JFG): the exact sentinel-list loop, its call to the immediately
 // following per-item load routine, and JFG's same ordered pair identify it.
 loadFrontEndList = 0x80039B88; // type:func size:0x5C tier-B ROM 0x3a788 canonical C, linked byte-identical
+// Tier B (JFG): the same-size four-way asset loader, call surface, and
+// position after loadFrontEndList identify the per-item load routine.
+loadFrontEndItem = 0x80039BE4; // type:func size:0x16C tier-B ROM 0x3a7e4 canonical C, linked byte-identical
 // Tier B (JFG): the exact sentinel-list loop, its call to the immediately
 // following object setup routine, and JFG's same ordered pair identify it.
 setupFrontEndList = 0x80039D50; // type:func size:0x5C tier-B ROM 0x3a950 canonical C, linked byte-identical

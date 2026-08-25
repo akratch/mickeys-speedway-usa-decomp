@@ -155,6 +155,40 @@ typedef struct MenuFrontObject {
     s32 unkC[1];
 } MenuFrontObject;
 
+typedef struct MenuSpawnPacket {
+    /* 0x00 */ s16 kind;
+    /* 0x02 */ u8 mode;
+    /* 0x03 */ u8 pad3;
+    /* 0x04 */ s16 x;
+    /* 0x06 */ s16 y;
+    /* 0x08 */ s16 z;
+    /* 0x0A */ u8 unkA;
+    /* 0x0B */ u8 flags;
+    /* 0x0C */ u8 unkC;
+} MenuSpawnPacket;
+
+typedef struct MenuSpawnHeader {
+    /* 0x00 */ u8 pad0[0x22];
+    /* 0x22 */ s8 count;
+} MenuSpawnHeader;
+
+typedef struct MenuSpawnInner {
+    /* 0x00 */ u8 pad0[8];
+    /* 0x08 */ s16 mode;
+} MenuSpawnInner;
+
+typedef struct MenuSpawnedObject {
+    /* 0x00 */ u8 pad0[0x40];
+    /* 0x40 */ MenuSpawnHeader *header;
+    /* 0x44 */ u8 pad44[0x24];
+    /* 0x68 */ MenuSpawnInner **inner;
+} MenuSpawnedObject;
+
+extern void *func_80034448(s32 assetId);
+extern void *func_800355A0(s32 assetId, s32 arg1);
+extern MenuSpawnedObject *func_8000590C(MenuSpawnPacket *packet, s32 mode);
+extern void *func_8001F520(s32 assetId, s32 arg1);
+
 typedef struct MenuDrawStack {
     u8 pad30[0x24];
     s16 sp7C;
@@ -680,7 +714,45 @@ void loadFrontEndList(s16 *assetGroup) {
         func_80039BE4(assetGroup[index++]);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039BE4.s")
+/* PROVENANCE: body adapted from DKR's public src/menu.c::menu_asset_load;
+ * JFG's public src/menu.c::loadFrontEndItem and exact-size assembly skeleton
+ * supply the role and order. Mickey supplies the packet and object offsets. */
+#pragma weak func_80039BE4 = loadFrontEndItem
+void loadFrontEndItem(s32 assetId) {
+    s16 resourceId;
+    MenuSpawnPacket packet;
+    MenuSpawnedObject *object;
+
+    if (D_800D3498[assetId] == 0) {
+        resourceId = D_8007C1B8[assetId];
+        if ((resourceId & 0xC000) == 0xC000) {
+            D_800D31C8[assetId] = func_80034448(resourceId & 0x3FFF);
+        } else if (resourceId & 0x8000) {
+            D_800D31C8[assetId] = func_800355A0(resourceId & 0x3FFF, 0);
+        } else if (resourceId & 0x4000) {
+            packet.kind = resourceId & 0x3FFF;
+            packet.mode = 0xA;
+            packet.x = 0;
+            packet.y = 0;
+            packet.z = 0;
+            packet.unkC = 0;
+            packet.flags = 0x40;
+            packet.unkA = 0;
+            object = func_8000590C(&packet, 0);
+            if (object->header->count > 0) {
+                MenuSpawnInner *inner;
+
+                inner = *object->inner;
+                inner->mode = 2;
+            }
+            D_800D31C8[assetId] = (MenuFrontObject *) object;
+        } else {
+            D_800D31C8[assetId] = func_8001F520(resourceId & 0x3FFF, 0);
+        }
+        D_800D3498[assetId] = 1;
+        D_8007C1C0++;
+    }
+}
 /* PROVENANCE: body adapted from DKR's public src/menu.c::menu_imagegroup_load;
  * JFG's public src/menu.c supplies the setupFrontEndList role and order. */
 void setupFrontEndList(s16 *objectGroup) {

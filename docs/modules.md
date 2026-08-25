@@ -1091,6 +1091,19 @@ per-item load routine, matching JFG's ordered `loadFrontEndList`/
 and name. The default flags, call relocation, object words, and linked ROM
 range are exact without post-processing.
 
+The tier-B `loadFrontEndItem` adds **0x16C bytes / 91 words** at ROM
+`0x3A7E4`. Its four-way dispatch by the resource table's high bits, texture,
+sprite, object, and model call surface, loaded-slot bookkeeping, exact size,
+and position after `loadFrontEndList` establish JFG's same-name role. The body
+is adapted from DKR's public `src/menu.c::menu_asset_load`; Mickey supplies
+the 13-byte spawn packet and the spawned-object fields at `0x40`, `0x22`,
+`0x68`, and `0x08`, as the point-of-use `PROVENANCE` note records. A named
+inner pointer recovers the target's pooled `v1`, while direct active-array
+indexing recovers IDO's `0x1C` compiler spill. The resident default flags, all
+91 words, four call relocations, seven data-relocation pairs, configured object,
+and linked ROM range are exact without post-processing. A zero-byte weak alias
+preserves the anonymous name used by the list wrapper.
+
 The third tier-B sentinel wrapper, `setupFrontEndList`, adds **0x5C bytes /
 23 words** at ROM `0x3A950`. Its call to the immediately following
 `setupFrontEndObject` and JFG's same ordered pair establish the role. The body
