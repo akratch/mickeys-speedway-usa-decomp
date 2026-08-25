@@ -55,7 +55,7 @@ extern void *D_800D1CA8[];
 extern s8 D_800D20A8[];
 extern s32 D_800D21A8;
 
-s32 func_8002B8A8(u8 *address);
+void func_8002B8A8(u8 *address);
 
 void func_8002B700(void) {
     while (D_800D21A8 > 0) {
@@ -79,8 +79,28 @@ void mmFree(void *data) {
 /* JFG correspondence: mmFreeTick (tier B; services deferred frees). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B7AC.s")
 
-/* JFG correspondence: mempool_free_addr (tier B; locates and clears a slot). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B8A8.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mempool_free_addr. */
+s32 func_8002B978(u8 *address);
+void func_8002B9D0(MemoryPoolIndex poolIndex, s16 slotIndex);
+
+void func_8002B8A8(u8 *address) {
+    s16 slotIndex;
+    s32 poolIndex;
+    MemoryPoolSlot *slots;
+    MemoryPoolSlot *slot;
+
+    poolIndex = func_8002B978(address);
+    slots = *(MemoryPoolSlot **)((u8 *)&D_800D1C64 + (poolIndex << 4));
+    for (slotIndex = 0; slotIndex != -1; slotIndex = slot->nextIndex) {
+        slot = (MemoryPoolSlot *)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
+        if (address == slot->data) {
+            if (slot->flags == MEMORY_SLOT_USED || slot->flags == MEMORY_SLOT_SAFEGUARD) {
+                func_8002B9D0(poolIndex, slotIndex);
+            }
+            break;
+        }
+    }
+}
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_free_queue. */
 void func_8002B93C(void *dataAddress) {

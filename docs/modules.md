@@ -601,7 +601,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
 | `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots` |
-| `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot |
+| `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot; linked C exact |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
 | `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
 | `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records |
@@ -644,6 +644,9 @@ pool count and 16-byte record layout.
 `func_8002B700` is exact for all `0x68` bytes with canonical flags. The JFG
 `mmFlushFreeStack` loop reproduces Mickey's LIFO queue drain and its call
 relocation to the immediate-free worker.
+`func_8002B8A8` is exact for all `0x94` bytes with canonical flags. The JFG
+`mempool_free_addr` search matches after expressing Mickey's 20-byte slot
+stride explicitly and retaining the linked list index at its 16-bit width.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a
