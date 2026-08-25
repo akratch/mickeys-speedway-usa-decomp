@@ -503,6 +503,11 @@ recover the retail spill layout. A focused retry after the independently
 observed IDO source-line scheduling effect in `runlinkFlushModules` explored
 formatting-only permutations for three minutes without improving the canonical
 475 permuter score; the frame and spill layout are insensitive to that lever.
+A fresh full 119-configuration flag sweep again left stock `-O2 -mips2 -32`
+best at 46 instructions, 28 positional differences, and first mismatch
+`+0x18`. Explicit padded spill-carrier variants retained the 40-byte frame
+(29 differences), while making the carrier volatile regressed to 31
+differences without producing the target stack layout.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
@@ -888,8 +893,10 @@ stopping RSP/RDP work and before rumble teardown. Its best 50-word
 omits the target object's three `D_80380000`/`D_80380004` relocation sites,
 first at function offset `0x1C`. Spelling the address as an extern restores the
 first symbol identity but adds an address-formation instruction and shifts the
-remaining schedule. Section 1.5 therefore keeps the address label and the
-original asm canonical.
+remaining schedule. A fresh incomplete-array extern experiment likewise added
+one instruction under the resident `-mips2` flags and produced 43 positional
+differences; a full 119-configuration flag sweep found no exact alternative.
+Section 1.5 therefore keeps the address label and the original asm canonical.
 
 `viAllocateZBuffer` and `viFreeZBuffer` are adopted at tier B as the paired
 allocation lifecycle around mode changes. Their canonical bodies are exact at
@@ -1725,13 +1732,16 @@ and leaves 110 differing positions. The blocker is register allocation around
 the conditional third-framebuffer allocation. The flag lattice found no exact
 variant, and the configured permuter checkout is absent in this lane.
 
-`func_80034094` has an instruction- and relocation-exact 47-word
-`NON_MATCHING` switch body adapted from JFG's `viGetOsViMode`. It cannot be
-promoted within this TU's ownership because the separately extracted
-`jtbl_8008249C` still owns the 12 case-label references; replacing the asm body
-therefore leaves those labels undefined and also emits a duplicate 48-byte
-table. The canonical path remains the original asm pending coordinated rodata
-ownership.
+`func_80034094` has an instruction-exact 47-word `NON_MATCHING` switch body
+adapted from JFG's `viGetOsViMode`; a full 119-configuration flag sweep again
+found the resident flags exact. Strict object comparison, however, finds two
+relocation-identity differences at function offsets `+0x10` and `+0x18`: the
+target names `jtbl_8008249C`, while IDO names the candidate's anonymous
+`.rodata` table. It cannot be promoted within this TU's ownership because the
+separately extracted `jtbl_8008249C` still owns the 12 case-label references;
+replacing the asm body therefore leaves those labels undefined and also emits
+a duplicate 48-byte table. The canonical path remains the original asm pending
+coordinated rodata ownership.
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
 **Why the rows do not establish new internal boundaries.** §1's "measured file
