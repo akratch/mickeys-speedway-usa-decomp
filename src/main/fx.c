@@ -522,31 +522,29 @@ void func_8004A0F0(void) {
     D_800D6040 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
+/* Plateau (batch 29): exact 0x80 frame, two instructions short; 65 words
+ * differ from +0x08 after 119 flags, nine shapes, and a 40-minute permuter.
+ * IDO puts text at sp+0x50 in s2; target keeps index zero and uses sp+0x54. */
 #ifdef NON_MATCHING
 /* PROVENANCE: role adapted from JFG src/fx.c::func_8006DF90; both bodies are
  * assembly-only, so this reconstruction is Mickey-derived. */
 void func_8004A380(s32 x, s32 y, s32 value, s32 minimumWidth, s32 arg4) {
-    char text[32];
     s32 length;
     s32 index;
     char *cursor;
-    char *scan;
-    u8 next;
     u8 glyph;
     u8 character;
+    char text[32];
 
     length = 0;
     index = 0;
+    cursor = text + index;
     sprintf(text, D_80083DE0, value);
-    scan = text + length;
     if (text[length] != '\0') {
         do {
-            next = scan[1];
             length++;
-            scan++;
-        } while (next != '\0');
+        } while (text[length] != '\0');
     }
-    cursor = text + index;
     if (minimumWidth >= length) {
         do {
             glyph = D_8007D364[11];

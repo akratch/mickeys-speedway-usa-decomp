@@ -2,22 +2,14 @@
 
 /* Pinned DKR v77/v80 and JFG scans found no exact initializer donor. */
 
-/*
- * Plateau (2026-08-25): the closest flag-lattice result remains -O2 -mips3
- * with -Wab,-r4300_mul. It has the exact 0x17C-byte boundary, 39 differing
- * words, and a first mismatch at +0x14; canonical -mips2 is four bytes
- * short. Hoisted locals, assignment-chain, and typed-state variants emitted
- * the same object, while volatile-u16 flags added three instructions. The
- * blocker is the saved-register/stack-home web plus the target's lhu flags
- * load; the consolidated-TU symbol could not be re-imported by permute.sh.
- * R3 revisit: all 119 flag groups reconfirmed 39 differing words and first
- * mismatch +0x14 under -O2 -mips3 -Wab,-r4300_mul. Correcting useOwner to
- * u16 removed that best flag group; materializing the global u16 changed the
- * frame; and volatile u16 reached 42 words but inserted an address add.
- */
+/* Plateau (batch 29): all 119 flags plus ten shapes leave canonical MIPS2
+ * four bytes short; best exact-size MIPS3/r4300 is 37 words from +0x14.
+ * Its s0/s1 allocation and signed flags load differ; a 40m permuter found no exact. */
 #ifdef NON_MATCHING
 void overlay25InitializeEffect(Overlay25Object *object,
                                const Overlay25Init *init) {
+    Overlay25OwnerState *ownerState;
+    s32 combinedAngle;
     Overlay25InitState *state;
     Overlay25Owner *owner;
     s32 paletteIndex;
@@ -31,8 +23,8 @@ void overlay25InitializeEffect(Overlay25Object *object,
     state->owner = owner;
 
     if (init->useOwner != 0 && owner != NULL) {
-        Overlay25OwnerState *ownerState = owner->state;
-        s32 combinedAngle = ownerState->baseAngle + ownerState->relativeAngle;
+        ownerState = owner->state;
+        combinedAngle = ownerState->baseAngle + ownerState->relativeAngle;
 
         state->activeDuration = 60;
         state->velocityX =
