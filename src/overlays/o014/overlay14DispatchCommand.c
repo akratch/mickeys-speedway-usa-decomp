@@ -24,10 +24,9 @@ extern void overlay14CallUpdate(s32 value);
 extern void overlay14ApplyActionReloc(s32 value, s32 mode);
 extern void overlay14UpdateReloc(void);
 
-#ifdef NON_MATCHING
 void overlay14DispatchCommand(void) {
-    Overlay14CommandHeader *header;
     Overlay14Command *command;
+    Overlay14CommandHeader *header;
     s32 encoded;
     s32 kind;
     s32 action;
@@ -39,27 +38,26 @@ void overlay14DispatchCommand(void) {
         if (overlay14ReturnOneCallbackB(command->checkValue) != 0) {
             encoded = command->encodedAction;
             kind = encoded & 0xF000;
-            if (kind != 0) {
-                switch (kind) {
-                    case 0x1000:
-                        overlay14ApplyActionReloc(encoded & 0xFFF, 4);
-                        break;
-                    case 0x2000:
-                        overlay14ApplyActionReloc(encoded & 0xFFF, 1);
-                        break;
-                    case 0x3000:
-                        gOverlay14ActiveHandle = encoded & 0xFFF;
-                        gOverlay14FlagC8 = 2;
-                        break;
-                    case 0x4000:
-                        overlay14UpdateReloc();
-                        break;
-                    default:
-                        gOverlay14FlagC4 = 0;
-                        break;
-                }
-            } else {
-                overlay14CallUpdate(encoded);
+            switch (kind) {
+                case 0:
+                    overlay14CallUpdate(encoded);
+                    break;
+                case 0x1000:
+                    overlay14ApplyActionReloc(encoded & 0xFFF, 4);
+                    break;
+                case 0x2000:
+                    overlay14ApplyActionReloc(encoded & 0xFFF, 1);
+                    break;
+                case 0x3000:
+                    gOverlay14ActiveHandle = encoded & 0xFFF;
+                    gOverlay14FlagC8 = 2;
+                    break;
+                case 0x4000:
+                    overlay14UpdateReloc();
+                    break;
+                default:
+                    gOverlay14FlagC4 = 0;
+                    break;
             }
             action = command->trailingAction;
             if (action != -1) {
@@ -73,6 +71,3 @@ void overlay14DispatchCommand(void) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14DispatchCommand/func_overlay_014_F0001040_1870918.s")
-#endif
