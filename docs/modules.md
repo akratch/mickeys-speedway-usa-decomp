@@ -542,7 +542,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80018544` | `0x110` | `shadowYHeight` | comparison only: unique nearest 4-gram skeleton, 0.919; remains `func_80018544` |
 | `0x80018654` | `0xBC` | `shadowMakeYs` | Tier-A candidate: 47/47 unmasked words, ROM-wide unique; assembly pending a function-sized naming commit |
 | `0x80018710` | `0x8C` | `freeLights` | tier-B comparison: three frees and the JFG TU position; C still `func_80018710` |
-| `0x8001879C` | `0x130` | `setupLights` | tier-B comparison: calls the preceding free, three allocators and `lightCreateLightTable`; C still `func_8001879C` |
+| `0x8001879C` | `0x130` | `setupLights` | tier-B comparison; `NON_MATCHING` plateau at 75/76 linked words, first mismatch +`0x98` from commutative `addu` operand order |
 | `0x800188CC` | `0xB0` | JFG placeholder `func_80020D94` | placeholder names are prohibited by §1.5; remains `func_800188CC` |
 | `0x8001897C` | `0x238` | `addRomdefLight` | tier-B comparison from TU order and light-update callees; C still `func_8001897C` |
 | `0x80018BB4` | `0x200` | `addObjectLight` | tier-B comparison from TU order and light-update callees; C still `func_80018BB4` |
@@ -1245,7 +1245,7 @@ the candidates remain preserved behind `NON_MATCHING`.
 | `0x3CF70` | `0xC0` | `rain_sound` | B/D name; exact C, 48 words, 13 relocs |
 | `0x3D030` | `0x144` | `snow_update` | B/D; handwritten asm |
 | `0x3D174` | `0x1FC` | `snow_vertices` | B/D; odd-FP handwritten asm |
-| `0x3D370` | `0x9C` | `func_8003C770` | unresolved |
+| `0x3D370` | `0x9C` | `func_8003C770` | D; Mickey-only reconstruction, exact C, 39 words, 15 relocs |
 | `0x3D40C` | `0x1E4` | `func_8003C80C` | unresolved |
 
 There are no string references. `snow_vertices` is the range's only function
@@ -1533,7 +1533,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80018544` | `0x110` | `shadowYHeight` | comparison only: unique nearest 4-gram skeleton, 0.919; remains `func_80018544` |
 | `0x80018654` | `0xBC` | `shadowMakeYs` | Tier-A candidate: 47/47 unmasked words, ROM-wide unique; assembly pending a function-sized naming commit |
 | `0x80018710` | `0x8C` | `freeLights` | Tier A: JFG-adapted C is compiler/link exact |
-| `0x8001879C` | `0x130` | `setupLights` | tier-B comparison: calls the preceding free, three allocators and `lightCreateLightTable`; C still `func_8001879C` |
+| `0x8001879C` | `0x130` | `setupLights` | tier-B comparison; `NON_MATCHING` plateau at 75/76 linked words, first mismatch +`0x98` from commutative `addu` operand order |
 | `0x800188CC` | `0xB0` | JFG placeholder `func_80020D94` | Tier A: Mickey/DKR-adapted C is compiler/link exact; placeholder remains prohibited by §1.5 |
 | `0x8001897C` | `0x238` | `addRomdefLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80018BB4` | `0x200` | `addObjectLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |

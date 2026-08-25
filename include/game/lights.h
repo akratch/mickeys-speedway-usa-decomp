@@ -87,6 +87,7 @@ typedef struct LightSourceObject LightSourceObject;
 typedef struct FlareObject FlareObject;
 
 void freeLights(void);
+void setupLights(s32 count, s32 arg1, s32 arg2);
 void turnLightOff(UnkLight *light);
 void turnLightOn(UnkLight *light);
 void toggleLight(UnkLight *light);

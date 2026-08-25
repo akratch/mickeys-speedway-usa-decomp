@@ -588,6 +588,7 @@ rain_lightning = 0x8003C248; // type:func size:0x128 tier-D, ROM 0x3ce48  matche
 rain_sound = 0x8003C370; // type:func size:0xC0 tier-D, ROM 0x3cf70  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/48
 snow_update = 0x8003C430; // type:func size:0x144 tier-D, ROM 0x3d030
 snow_vertices = 0x8003C574; // type:func size:0x1FC tier-D, ROM 0x3d174
+func_8003C770 = 0x8003C770; // type:func size:0x9C tier-D, ROM 0x3d370  matched C src/main/weather_tail.c.o -O2 -mips2 -32, Mickey-only reconstruction, linked exact=39/39
 
 // main/particles, ROM 0x3D5F0-0x43470.
 //
@@ -2032,6 +2033,7 @@ shadowBoxPolyOverlap = 0x800183F0; // type:func size:0xC4   ROM 0x18ff0  src/sha
 shadowBoundingBox = 0x800184B4; // type:func size:0x90   ROM 0x190b4  src/shadows_214A0.c.o  masked=0/36
 // jfg:src/lights.c.o -- tier A, ROM-wide unique; body adapted in src/main/lights.c
 freeLights = 0x80018710; // type:func size:0x8C   ROM 0x19310  src/lights.c.o  JFG-adapted body compiler-exact
+setupLights = 0x8001879C; // type:func size:0x130 ROM 0x1939c tier-B NON_MATCHING plateau, 75/76 linked words exact, first mismatch +0x98 from commutative addu operand order
 func_800188CC = 0x800188CC; // type:func size:0xB0   ROM 0x194cc  src/lights.c.o  Mickey/DKR-adapted body compiler-exact
 turnLightOff = 0x80018DB4; // type:func size:0x10   ROM 0x199b4  src/lights.c.o  body adapted and compiler-exact
 turnLightOn = 0x80018DC4; // type:func size:0x10   ROM 0x199c4  src/lights.c.o  body adapted and compiler-exact

@@ -21,6 +21,8 @@
 extern void initColourCycle();
 extern f32 sqrtf(f32 value);
 extern void mmFree(void *ptr);
+extern void *func_8002B280(s32 size, s32 tag);
+extern void lightCreateLightTable(s32 red, s32 green, s32 blue, void *table);
 extern void func_8000D728(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_8000D62C(f32 x, f32 y, f32 z, f32 radius, f32 radius2, s32 red, s32 green, s32 blue);
 extern void func_800188CC(UnkLight *light);
@@ -104,7 +106,29 @@ void freeLights(void) {
     D_80079494 = 0;
     D_80079490 = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001879C.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public decomp, src/lights.c, with Mickey's allocation sizes. */
+void setupLights(s32 count, s32 arg1, s32 arg2) {
+    s32 i;
+    void **buffer;
+
+    freeLights();
+    D_80079490 = count;
+    buffer = func_8002B280(D_80079490 * 0x78, 0x89);
+    D_800CB290 = func_8002B280((D_80079490 << 9) + 0x200, 0x89);
+    D_800794A0 = func_8002B280(0x240, 0x89);
+    D_8007949C = &buffer[D_80079490];
+    D_80079498 = buffer;
+    for (i = 0; i < D_80079490; i++) {
+        D_80079498[i] = (i * 0x74) + (u8 *) D_8007949C;
+        *(void **) ((u8 *) D_8007949C + (i * 0x74) + 0x70) =
+            (u8 *) D_800CB290 + 0x200 + (i * 0x200);
+    }
+    lightCreateLightTable(255, 255, 255, D_800CB290);
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/setupLights.s")
+#endif
 /* PROVENANCE: adapted from DKR's public decomp, src/lights.c, and Mickey's own assembly. */
 void func_800188CC(UnkLight *light) {
     f32 radius;
