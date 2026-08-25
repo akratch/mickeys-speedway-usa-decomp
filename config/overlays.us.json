@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 75328,
-  "nonmatching_overlay_c_bytes": 218048,
+  "matched_overlay_c_bytes": 77828,
+  "nonmatching_overlay_c_bytes": 215548,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -2506,7 +2506,97 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 80
-   }
+   },
+   "mixed_tu_exact_c_ranges": [
+    {
+     "offset": "0x0",
+     "end_offset": "0x8",
+     "size": "0x8",
+     "label": "overlay8Ignore",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x8",
+     "end_offset": "0x58",
+     "size": "0x50",
+     "label": "overlay8GetIndexed",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0xE88",
+     "end_offset": "0xF1C",
+     "size": "0x94",
+     "label": "overlay8StartMotion",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0xF1C",
+     "end_offset": "0x1000",
+     "size": "0xE4",
+     "label": "overlay8Activate",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x2EC0",
+     "end_offset": "0x3018",
+     "size": "0x158",
+     "label": "overlay8UpdateChild",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x3018",
+     "end_offset": "0x3278",
+     "size": "0x260",
+     "label": "overlay8UpdateChannels",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x3278",
+     "end_offset": "0x3368",
+     "size": "0xF0",
+     "label": "overlay8ApplyColors",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x49A4",
+     "end_offset": "0x49B4",
+     "size": "0x10",
+     "label": "overlay8SetBuffer",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x49B4",
+     "end_offset": "0x49DC",
+     "size": "0x28",
+     "label": "overlay8WriteCommand",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x49DC",
+     "end_offset": "0x49E8",
+     "size": "0xC",
+     "label": "overlay8SetValue",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x49E8",
+     "end_offset": "0x4CF0",
+     "size": "0x308",
+     "label": "overlay8UpdateMotionOutput",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    }
+   ]
   },
   {
    "overlay": 9,
