@@ -16,24 +16,9 @@
 #include "game/pi.h"
 #include "n_audio/mbi.h"
 
-/* PROVENANCE: base layout adapted from JFG's public decomp,
- * src/menu.h::Resbitfield; twoPlayerSplit and stereoMode are Mickey-derived
- * from their paired getters and byte-preserving setters. */
-typedef struct MenuScreenModeBits {
-    u32 unused : 1;
-    u32 modeBit0 : 1;
-    u32 modeBit1 : 1;
-    u32 twoPlayerSplit : 1;
-    u32 unusedStereoGap : 5;
-    u32 stereoMode : 2;
-    u32 unusedLanguageGap : 5;
-    u32 language : 6;
-    u32 rest : 10;
-} MenuScreenModeBits;
-
 extern s8 D_800D312B;
 extern s8 D_800D3050;
-extern MenuScreenModeBits D_800D3128;
+extern MenuScreenModeState D_800D3128;
 extern u8 D_8007C08C;
 extern u8 D_8007C090;
 extern u8 D_8007C088;
@@ -1167,17 +1152,17 @@ s32 frontGetLanguage(void) {
 /* PROVENANCE: name and order compared with JFG's public decomp,
  * src/menu.c::frontSetLanguage; body and bitfield derived from Mickey. */
 void frontSetLanguage(s32 language) {
-    D_800D3128.language = language;
+    D_800D3128.bits.language = language;
     func_80038750(language);
 }
 s32 frontGetScreenMode(void) {
     s32 mode;
 
     mode = 0;
-    if (D_800D3128.modeBit0) {
+    if (D_800D3128.bits.modeBit0) {
         mode = 1;
     }
-    if (D_800D3128.modeBit1) {
+    if (D_800D3128.bits.modeBit1) {
         mode |= 2;
     }
     return mode;
@@ -1197,14 +1182,14 @@ void func_8003A2C8(s32 screenMode) {
     if (*modeState != mode) {
         D_8007C090 = screenMode & 3;
         if (modeBits & (1 ^ 0)) {
-            D_800D3128.modeBit0 = 1;
+            D_800D3128.bits.modeBit0 = 1;
         } else {
-            D_800D3128.modeBit0 = 0 & 0xFFFFFFFFFFFFFFFFu;
+            D_800D3128.bits.modeBit0 = 0 & 0xFFFFFFFFFFFFFFFFu;
         }
         if (modeBits & 2) {
-            D_800D3128.modeBit1 = 1;
+            D_800D3128.bits.modeBit1 = 1;
         } else {
-            D_800D3128.modeBit1 = 0;
+            D_800D3128.bits.modeBit1 = 0;
         }
     }
 }
@@ -1251,7 +1236,7 @@ void frontSetWideAdjust(s32 offset) {
 /* PROVENANCE: name and order compared with JFG's public decomp,
  * src/menu.c::frontGetStereoMode; body and bitfield derived from Mickey. */
 u32 frontGetStereoMode(void) {
-    return D_800D3128.stereoMode;
+    return D_800D3128.bits.stereoMode;
 }
 /* PROVENANCE: name, clamp, table lookup, and order compared with JFG's public
  * src/menu.c::frontSetStereoMode; packed storage derived from Mickey. */
@@ -1262,7 +1247,7 @@ void frontSetStereoMode(s32 mode) {
     if (mode >= 4) {
         mode = 3;
     }
-    D_800D3128.stereoMode = mode;
+    D_800D3128.bits.stereoMode = mode;
     alSurround_OutputType(D_8007C308[mode]);
 }
 /* Retain the anonymous spelling used by an unsplit resident assembly caller. */
@@ -1306,14 +1291,21 @@ void frontSetBgmVolume(s32 volume) {
 s32 frontGet2PlayerSplit(void) {
     s32 split;
 
-    split = D_800D3128.twoPlayerSplit;
+    split = D_800D3128.bits.twoPlayerSplit;
     return split;
 }
-/* Size-exact plateau: three register operands differ from +0x8; IDO assigns
- * the old-flag value chain two temporary registers earlier than the target.
- * Native bitfield, zero-index aggregate, and explicit-DAG retries did not
- * improve the retained result. */
+/* PROVENANCE: role and order compared with JFG's public decomp,
+ * src/menu.c::frontSet2PlayerSplit; JFG retains assembly. This fresh
+ * Mickey-derived m2c/raw-state body is size-exact but differs in six temporary
+ * registers from +0x8; the resident flags tie the lattice's best result. */
+#ifdef NON_MATCHING
+void func_8003A520(s32 split) {
+    D_800D3128.raw = ((split * 0x10) & 0x10) |
+                     (D_800D3128.raw & 0xFFEF);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")
+#endif
 void func_8003A544(s32 value) {
     D_8007C098 = value;
 }

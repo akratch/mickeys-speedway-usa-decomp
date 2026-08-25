@@ -1331,17 +1331,9 @@ carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
 live range; the default flags, both data relocations, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A520` plateaus size-exact at **3/9 differing words**, first `+0x8`.
-Its operation and ordered position correspond to JFG's
-`frontSet2PlayerSplit`, but the full 119-combination flag lattice and a bounded
-permuter batch could not reproduce the target's old-flag register chain. The
-best natural candidate uses a narrowing result cast; IDO still assigns that
-chain two temporary registers earlier than the target. It remains assembly
-and keeps its anonymous name. A later ten-variant byte-view/bitfield and
-temp-FIFO retry preserved the exact nine-instruction structure but reached no
-better than four register differences, so the earlier three-word candidate
-remains the retained plateau. A native aggregate/bitfield and explicit-DAG
-retry likewise preserved the operation but did not improve that result.
+`func_8003A520`: best remains **3/9 differing words**, first `+0x8`; the fresh
+typed raw-state m2c body landed under `NON_MATCHING` at 6/9, with an exact
+nine-word shape but a whole temporary-register-ring phase shift.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no
