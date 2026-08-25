@@ -82,6 +82,16 @@ typedef struct SavesGameWriteState {
     s32 messageQueue;
 } SavesGameWriteState;
 
+typedef struct SavesFullWriteState {
+    s32 messageQueue;
+    s32 unused;
+    u8 *volatile buffer;
+    u8 pad0C[0xC];
+    s32 savedByte;
+    u32 savedFlag;
+    u8 pad20[8];
+} SavesFullWriteState;
+
 typedef struct RumbleState {
     u8 state;
     u8 pad01;
@@ -440,7 +450,9 @@ void func_8002CD6C(void) {
     func_8002C79C(state.writer);
 }
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packCalculateGlobalFlagsChecksum. */
-s32 packCalculateGlobalFlagsChecksum(u8 *buffer) {
+s32 packCalculateGlobalFlagsChecksum(buffer)
+u8 *buffer;
+{
     s32 bytesToChecksum = 22;
     s32 checksum = 5;
 
@@ -493,7 +505,70 @@ void func_8002CF0C(void *globalFlags) {
         func_8002C8B4(state.messageQueue, 0x39, globalFlags, 0x18);
     }
 }
+#ifdef NON_MATCHING
+void func_8002CF6C(u8 *globalFlags) {
+    SavesFullWriteState state;
+    s32 messageQueue;
+    u8 *allocatedBuffer;
+    u8 *footerBuffer;
+    u8 *src;
+    u8 *dst;
+    s32 count;
+
+    messageQueue = joyMessageQ();
+    state.messageQueue = messageQueue;
+    if (func_80070170(messageQueue) != 0) {
+        allocatedBuffer = func_8002B280(0x200, 0x85);
+        state.buffer = allocatedBuffer;
+        if (allocatedBuffer != NULL) {
+            dst = allocatedBuffer;
+            count = 0x1FF;
+            do {
+                *dst++ = 0;
+            } while (count--);
+            func_8002CCE4();
+            count = packCalculateGameChecksum(state.buffer, 0x1C0);
+            footerBuffer = state.buffer;
+            *(u32 *) (footerBuffer + 0x1C0) = count;
+            *(u32 *) (footerBuffer + 0x1C4) = 0x12345678;
+            footerBuffer += 0x1C0;
+
+            state.savedByte = (s8) globalFlags[3];
+            state.savedFlag =
+                (u32) (*(u16 *) globalFlags << 17) >> 31;
+            src = D_8007A304;
+            dst = globalFlags;
+            count = 0x17;
+            do {
+                *dst++ = *src++;
+            } while (count--);
+            *(u16 *) (globalFlags + 0x16) =
+                packCalculateGlobalFlagsChecksum(globalFlags, src,
+                                                  footerBuffer,
+                                                  state.savedFlag);
+            globalFlags[0] =
+                ((state.savedFlag << 6) & 0x40) |
+                (globalFlags[0] & ~0x40);
+            globalFlags[3] = state.savedByte;
+
+            src = globalFlags;
+            dst = state.buffer + 0x1C8;
+            count = 0x17;
+            do {
+                *dst++ = *src++;
+            } while (count--);
+            count = mainResetPressed();
+            allocatedBuffer = state.buffer;
+            if (count == 0) {
+                func_8002C8B4(state.messageQueue, 0, allocatedBuffer, 0x200);
+            }
+            mmFree(allocatedBuffer);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CF6C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packOpen.s")
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packClose. */
 s32 packClose(s32 controllerIndex) {

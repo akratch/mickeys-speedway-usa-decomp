@@ -1427,6 +1427,16 @@ one remaining opcode difference and no relocation differences. Automated
 declaration permutation is blocked by the same absent permuter import. The
 assembly fallback remains canonical.
 
+The full-save-image builder `func_8002CF6C` also retains a Mickey-derived
+`NON_MATCHING` body after the 119-combination flag lattice and ten
+stack-layout, call-arity, and lifetime hypotheses. Its best candidate has the
+target's exact 88-instruction opcode schedule, 72-byte frame, and relocation
+surface; nine register-only words remain from the first mismatch at `+0xCC`.
+The saved global-flags bit reload crosses from the target's temporary FIFO to
+the candidate's colored fourth-argument web, rotating the following integer
+temporaries through the second copy loop. The assembly fallback remains
+canonical.
+
 `font_codes_to_string` retains a JFG-derived `NON_MATCHING` body after the
 flag lattice and ten source/type/coalescing shapes. With ordinary resident
 flags the donor loop is instruction-exact, but this TU's required
