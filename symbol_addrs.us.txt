@@ -2328,6 +2328,7 @@ camStandardPersp = 0x80022B94; // type:func size:0xC4 ROM 0x23794 tier-D matched
 camSetViewport = 0x80022C58; // type:func size:0xC8 ROM 0x23858 tier-D matched-C JFG TU role/order and viewport dataflow
 camPushFloatModelMtx = 0x80024204; // type:func size:0xDC ROM 0x24E04 tier-D matched-C JFG TU role/order and float-model matrix dataflow
 camScaleModelMtx = 0x8002442C; // type:func size:0xC0 ROM 0x2502C tier-D matched-C JFG TU role/order and model-scale matrix dataflow
+camPushModelMtx = 0x800244EC; // type:func size:0x100 ROM 0x250EC tier-D matched-C JFG TU role/order and model-matrix dataflow
 camRestoreModelMtx = 0x800245EC; // type:func size:0x20 ROM 0x251EC tier-D matched-C JFG TU role/order
 camPopModelMtx = 0x8002460C; // type:func size:0x20 ROM 0x2520C tier-D matched-C JFG TU role/order
 camGetPtr = 0x8002462C; // type:func size:0x2C ROM 0x2522C tier-B matched-C Mickey/JFG weather call graph and active-camera dataflow
