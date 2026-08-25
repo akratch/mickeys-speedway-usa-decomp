@@ -1419,6 +1419,18 @@ lattice found no exact alternative; a ten-minute bounded permuter run
 improved its internal score from 1410 to 820, but the winning form invented
 an empty guard and was rejected. The original asm body remains canonical.
 
+`func_80040740` has a 78-word C candidate with the target text instruction
+schedule under the default resident flags, reconstructed from Mickey evidence
+with the JFG assembly sibling as a structural oracle. It cannot be promoted
+within this TU's ownership: the first relocation mismatch is at function
+offset `0x38`, where IDO binds the generated switch to anonymous compiler
+rodata rather than the separately extracted `jtbl_80082A58`. That external
+table still owns five case-label references, so replacing the asm body also
+leaves those labels undefined and emits a duplicate 20-byte table. The flag
+lattice found no alternative relocation binding. The candidate remains under
+`NON_MATCHING` and the original asm body remains canonical pending coordinated
+resident-rodata ownership.
+
 `vsprintf` reached a bounded size-exact plateau under `-Wab,-r4300_mul`: its
 1,220-word candidate differs in two adjacent words, first at function offset
 `0xB08`, where IDO loads the final exponent digit constants in the reverse

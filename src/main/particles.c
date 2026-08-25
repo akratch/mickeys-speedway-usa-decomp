@@ -151,13 +151,18 @@ typedef struct CircularParticle {
     f32 z;
     u8 pad3C[0x0C];
     void *parent;
-    u8 pad4C[0x2C];
+    void *resource;
+    u8 pad50[8];
+    ParticleTrigger *trigger;
+    u8 pad5C[0x1C];
 } CircularParticle;
 
 typedef struct CircularParticlePool {
     u8 pad00[0x14];
     CircularParticle *particles;
+    u8 pad18[4];
     s32 count;
+    u32 *freeBits;
 } CircularParticlePool;
 
 typedef struct ParticlePosition {
@@ -434,7 +439,57 @@ void func_8003EDE0(f32 value) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partModelObjEmitModelPart.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003FB98.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8004054C.s")
+#ifdef NON_MATCHING
+/*
+ * Text-exact plateau: the compiler emits a duplicate jump table rather than
+ * binding the separately extracted jtbl_80082A58 resident-rodata table.
+ * PROVENANCE: structure cross-checked against JFG
+ * asm/nonmatchings/particles/func_80061B50.s; body reconstructed from Mickey
+ * evidence.
+ */
+void func_80040740(CircularParticle *particle) {
+    CircularParticlePool *pool;
+    s32 index;
+
+    if (particle->type >= 5) {
+        if (particle->type == 0x80) {}
+        return;
+    }
+    switch (particle->type) {
+        case 2:
+            if (particle->resource != NULL) {
+                func_800359D4(particle->resource);
+                particle->resource = NULL;
+            }
+            break;
+        case 3:
+            if (particle->resource != NULL) {
+                modFreeModel(particle->resource);
+                particle->resource = NULL;
+            }
+            break;
+        case 0:
+        case 1:
+        case 4:
+            break;
+    }
+    if (particle->trigger != NULL) {
+        particle->trigger->active = 0;
+    }
+    pool = D_800D4120[particle->type];
+    if (pool->count > 0) {
+        if (particle->resource != NULL) {
+            func_800347A0(particle->resource);
+        }
+        pool->count--;
+        particle->type = 0x80;
+        index = (particle - pool->particles);
+        pool->freeBits[index >> 5] |= 1 << (index & 0x1F);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040740.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040878.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040B88.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041040.s")
