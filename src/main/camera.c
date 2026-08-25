@@ -137,6 +137,7 @@ typedef struct {
 
 extern u8 D_80079F94;
 extern s32 D_80079F8C;
+extern s32 D_80079D48;
 extern f32 D_80079F60;
 extern f32 D_80079F48;
 extern f32 D_80079F4C[16];
@@ -1071,7 +1072,42 @@ MtxF *camGetRotationMtx(void) {
 MtxF *camGetProjectionMtx(void) {
     return &D_800CED18;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800246B0.s")
+/*
+ * PROVENANCE: JFG's public src/camera.c identifies the camProjectPoint role;
+ * this body is reconstructed from Mickey's matrix and viewport dataflow.
+ */
+s32 func_800246B0(f32 x, f32 y, f32 z, f32 *outX, f32 *outY,
+                  u8 transform) {
+    s32 visible;
+    f32 viewportScaleX;
+    f32 viewportScaleY;
+    f32 projectedX;
+    f32 projectedY;
+    f32 depth;
+    Vp *viewport;
+
+    visible = 0;
+    if (transform != 0) {
+        mtxf_transform_point(D_800CF1A0, x, y, z, &x, &y, &z);
+    }
+    projectedX = D_800CEC98[0][0] * x;
+    projectedY = D_800CEC98[1][1] * y;
+    depth = -(D_800CEC98[2][3] * z);
+    if (depth < -2.0f) {
+        viewport = &D_80079D58[D_800CEC64];
+        if (D_80079C40[D_800CEC64].flags & 1) {
+            viewport += (D_80079D48 * 5) + 10;
+        }
+        viewportScaleX = (f32) (viewport->vp.vscale[0] >> 2);
+        viewportScaleY = (f32) (viewport->vp.vscale[1] >> 2);
+        visible = 1;
+        *outX = (f32) (viewport->vp.vtrans[0] >> 2) -
+                ((projectedX * viewportScaleX) / depth);
+        *outY = (f32) (viewport->vp.vtrans[1] >> 2) +
+                ((projectedY * viewportScaleY) / depth);
+    }
+    return visible;
+}
 
 #ifdef NON_MATCHING
 /*

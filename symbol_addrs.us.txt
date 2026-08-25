@@ -2344,6 +2344,7 @@ camGetProjOrgMtx = 0x80024670; // type:func size:0x1C ROM 0x25270 tier-B matched
 func_8002468C = 0x8002468C; // type:func size:0x0C ROM 0x2528C tier-D matched-C Mickey auto-name retained, camera matrix dataflow
 camGetRotationMtx = 0x80024698; // type:func size:0x0C ROM 0x25298 tier-B matched-C Mickey/JFG weather call graph and matrix dataflow
 camGetProjectionMtx = 0x800246A4; // type:func size:0x0C ROM 0x252A4 tier-D matched-C JFG role and Mickey final projection-matrix dataflow
+func_800246B0 = 0x800246B0; // type:func size:0x184 ROM 0x252B0 tier-D matched-C JFG camProjectPoint role/order, Mickey auto-name retained
 camGetProjZ = 0x80024938; // type:func size:0x40 ROM 0x25538 tier-D matched-C JFG TU role/order and projection-depth dataflow
 camStartShake = 0x80024AC4; // type:func size:0x90 ROM 0x256C4 tier-D matched-C JFG TU role/order and shake-record dataflow
 camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B matched-C similar-jfg-camStopShakes=1.000
