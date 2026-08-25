@@ -510,16 +510,12 @@ void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **a
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/doWeather.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/snow_render.s")
-#ifdef NON_MATCHING
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
  * src/weather.c::func_8005BC44_5C844 (DKR's rain_init). Mickey's rain setup
- * constants, asset IDs, and unresolved initializer binding are authoritative.
- *
- * Plateau: the three-parameter donor body is instruction-word exact, but its
- * integer-signature alias leaves one relocation identity different at +0xA0.
- * Calling TrapDanglingJump directly conflicts with rain_update's float ABI in
- * this consolidated TU; a function-pointer cast adds three instructions.
+ * constants and asset IDs are authoritative. The typed alias preserves this
+ * call's integer ABI; the build canonicalizes its undefined symbol name to the
+ * shared TrapDanglingJump target without changing section contents.
  */
 #pragma weak rainInitTrap = TrapDanglingJump
 extern void rainInitTrap(s32, s32, s32, s32, s32, s32, s32);
@@ -542,9 +538,6 @@ void rain_init(s32 count, s32 intensity, s32 opacity) {
     D_8007C6E8 = 1;
     D_800D40E4 = NULL;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_init.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
