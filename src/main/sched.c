@@ -13,6 +13,7 @@
 #include "PR/os_internal.h"
 #include "PR/os_vi.h"
 #include "game/sched_internal.h"
+#include "n_audio/mbi.h"
 
 typedef struct SchedGfx {
     u32 w0;
@@ -53,6 +54,7 @@ extern u8 D_800CF520;
 extern u8 D_800CF578;
 extern u8 D_800CF590;
 extern u8 D_800CF5A8;
+extern u8 D_80000000[];
 extern s32 D_800D2D40;
 extern s32 D_800D2D44;
 extern u64 D_800D2D48;
@@ -84,7 +86,7 @@ void diPrintfSetXY(u16 x, u16 y);
 char *osScGetTaskType(s32 taskID);
 void func_800304E0(OSSched *sc);
 void func_80030608(OSScTask *task);
-SchedGfx *func_80030610(OSSched *sc, u32 commandIndex,
+SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
                         SchedGfx *displayList, OSMesgQueue *queue,
                         u64 *dataStart);
 void func_80044C94(SchedGfx *displayList, s32 *file, s32 *unkC,
@@ -283,7 +285,120 @@ char *osScGetTaskType(s32 taskID) {
 #endif
 void func_80030608(OSScTask *arg0) {
 }
+#ifdef NON_MATCHING
+/* Mickey-derived crash-diagnostic display-list bisection. JFG supplies the
+ * exact assembly skeleton and ordered scheduler position, not a C body. */
+SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
+                        SchedGfx *displayList, OSMesgQueue *queue,
+                        u64 *dataStart) {
+    s64 savedCommands[2];
+    s32 done = 0;
+    OSMesg message = NULL;
+    SchedGfx *nextCommand;
+    s32 numRetraces;
+    s32 gotRdpDone;
+    s32 commandCount;
+    s8 *commandStart;
+    s8 *printStart;
+    u32 nestedStart;
+    u32 midpoint;
+    u32 nestedCommand;
+    u32 address;
+
+    do {
+        nextCommand = displayList + 1;
+        gotRdpDone = 0;
+        numRetraces = 0;
+        __osSpSetStatus(0xAAAA82);
+        osDpSetStatus(0x1D6);
+
+        savedCommands[1] = *(s64 *) displayList;
+        savedCommands[0] = *(s64 *) (displayList + 1);
+        displayList->w1 = 0;
+        displayList->w0 = 0xE9000000;
+        (displayList + 1)->w1 = 0;
+        nextCommand->w0 = 0xB8000000;
+
+        osWritebackDCacheAll();
+        osSpTaskLoad(&sc->curRSPTask->list);
+        osSpTaskStartGo(&sc->curRSPTask->list);
+
+        do {
+            osRecvMesg(queue, &message, OS_MESG_BLOCK);
+            switch ((s32) message) {
+                case VIDEO_MSG:
+                    numRetraces++;
+                    break;
+                case RDP_DONE_MSG:
+                    gotRdpDone = 1;
+                    break;
+                case RSP_DONE_MSG:
+                    break;
+            }
+        } while (numRetraces < 10 && gotRdpDone == 0);
+
+        *(s64 *) displayList = savedCommands[1];
+        *(s64 *) nextCommand = savedCommands[0];
+
+        if (commandIndex < 2) {
+            if (*(u8 *) displayList == 6) {
+                commandStart = (s8 *) displayList - 0x140;
+                printStart = commandStart;
+                if ((u32) commandStart < 0x80000000U) {
+                    printStart = commandStart + 0x80000000;
+                }
+                if ((s32) printStart < (s32) dataStart) {
+                    printStart = (s8 *) dataStart;
+                }
+                diRcpPrintDL((SchedGfx *) printStart, displayList, 0x50);
+
+                nestedCommand = displayList->w1;
+                if (nestedCommand < 0x80000000U) {
+                    nestedCommand += (u32) D_80000000;
+                }
+                nestedStart = nestedCommand;
+                commandCount = 0;
+                while (*(s8 *) nestedCommand != (s8) 0xB8) {
+                    nestedCommand += 8;
+                    commandCount++;
+                }
+                if (commandCount & 1) {
+                    commandIndex = commandCount / 2 + 1;
+                } else {
+                    commandIndex = commandCount / 2;
+                }
+                midpoint = nestedStart + commandIndex * 8;
+                address = midpoint;
+                if (midpoint < 0x80000000U) {
+                    address = midpoint + (u32) D_80000000;
+                }
+                displayList = (SchedGfx *) address;
+                diRcpPrintDL((SchedGfx *) nestedStart, displayList, 0xA0);
+                return func_80030610(sc, commandIndex, displayList, queue,
+                                     (u64 *) nestedStart);
+            }
+            done = 1;
+        }
+
+        if (done == 0) {
+            if (commandIndex & 1) {
+                commandIndex = commandIndex / 2 + 1;
+            } else {
+                commandIndex = commandIndex / 2;
+            }
+            if (gotRdpDone != 0) {
+                displayList += commandIndex;
+            } else {
+                displayList -= commandIndex;
+            }
+        }
+    } while (done == 0);
+
+    return displayList;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030610.s")
+#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:func_8004FF64_50B64, with Mickey's extracted trace helper. */

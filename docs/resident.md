@@ -1644,6 +1644,19 @@ materialises the 64-bit retrace counter through one combined object while the
 target uses separate high/low symbol references. The assembly fallback
 remains canonical.
 
+The still-unnamed scheduler diagnostic `func_80030610` retains a Mickey-
+derived `NON_MATCHING` display-list bisection body after the 119-combination
+flag lattice, nine serious source/layout hypotheses, and a bounded two-worker
+permuter batch. The best candidate has 194 instructions versus the target's
+192 and first diverges at function `+0x5C`; 148 positional words differ. Its
+0x90-byte frame is eight bytes shorter than the target's 0x98-byte frame: IDO
+homes the received message at stack `+0x78` instead of `+0x70` and the saved
+second-command pointer at `+0x48` instead of `+0x4C`. Scalar, `s64` backup,
+macro, and explicit-pointer formulations either retain those homes or add
+more instructions. JFG supplies the exact assembly skeleton and scheduler
+position but no C body. The assembly fallback remains canonical pending a
+source spelling that reproduces both stack homes without synthetic padding.
+
 `__scYield` also retains a `NON_MATCHING` JFG-derived body. The resident flag
 lattice and five storage/source shapes leave the faithful external-`u64`
 candidate at 20 instructions versus the target's 19, with the first positional
