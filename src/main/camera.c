@@ -151,6 +151,11 @@ typedef struct {
     u8 pad01[0x53];
 } CameraState3D;
 
+typedef struct {
+    s16 zRotation;
+    u8 pad02[0x52];
+} CameraZRotationEntry;
+
 extern u8 D_80079F94;
 extern s32 D_80079F8C;
 extern s32 D_80079D48;
@@ -200,13 +205,16 @@ extern f32 D_80081A20;
 extern f32 D_80081A24;
 extern f32 D_80081A28;
 extern f32 D_80081A2C;
+extern f32 D_80081A3C;
 extern f32 D_80081A40;
 extern f32 D_80081A44;
 extern f32 D_80081A48;
 extern Camera D_800CEA20[];
+extern CameraZRotationEntry D_800CEA24[];
 extern CameraShake D_800CEC18[];
 extern s32 D_8007C854;
 extern s32 D_8007C85C;
+extern s32 D_80079FC8;
 extern u8 D_79FCC[];
 
 void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
@@ -1158,7 +1166,89 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023598.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023A08.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023CCC.s")
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camDoSpriteDirect; Mickey supplies the secondary matrix scale,
+ * resident projection state and display-list encoding.
+ */
+void func_80023CCC(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
+                   u8 *spriteData, s16 x, s16 y, s16 z, s16 angle, f32 scale,
+                   f32 matrixScale, f32 frame, s32 flags, u8 alpha) {
+    s32 rotation;
+    f32 aspect;
+    register CameraVertex *vertex;
+
+    vertex = *vertices;
+    vertex->x = x;
+    vertex->y = y;
+    vertex->z = z;
+    vertex->r = 255;
+    vertex->g = 255;
+    vertex->b = 255;
+    vertex->a = 255;
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w0 = ((((((u32)*vertices + 0x80000000) & 6) | 8) &
+                           0xFF) << 16) | 0x04000000 | 0x12;
+        cmd->words.w1 = (u32)*vertices + 0x80000000;
+    }
+    (*vertices)++;
+
+    rotation = D_800CEA24[D_800CEC64].zRotation + angle;
+    scale *= D_80079F90;
+    aspect = func_80021438();
+    if (viGetVideoMode() & 1) {
+        scale *= 0.75f;
+        aspect *= D_80081A3C;
+    }
+    mathRSMtx(rotation, scale, aspect, D_800CECD8);
+
+    if (D_80079FC8 != 0) {
+        D_80079FC8 = 0;
+        D_800CECD8[0][0] = -D_800CECD8[0][0];
+        D_800CECD8[0][1] = -D_800CECD8[0][1];
+    }
+    if (flags & 0x8000) {
+        func_80029AB8(D_800CECD8, -scale);
+    }
+    if (matrixScale != 1.0f) {
+        func_80029AB8(D_800CECD8, matrixScale);
+    }
+    mtxf_to_mtx(D_800CECD8, *mtx);
+    D_800CED58 = *mtx;
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w0 = 0x01020040;
+        cmd->words.w1 = (u32)*mtx + 0x80000000;
+    }
+    (*mtx)++;
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 1;
+        cmd->words.w0 = 0xBC000002;
+    }
+
+    flags &= ~1;
+    if (flags & 4) {
+        flags |= 1;
+    }
+    func_80034E54(dlist, spriteData, flags & 0xF, frame, alpha);
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC00000A;
+    }
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC000002;
+    }
+}
 /*
  * PROVENANCE: adapted from JFG's public decomp,
  * src/camera.c:camDo2DSprite; Mickey supplies the display-list encoding and
