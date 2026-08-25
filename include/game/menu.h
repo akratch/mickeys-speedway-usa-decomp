@@ -5,6 +5,33 @@
 
 typedef struct MenuCommand MenuCommand;
 
+/* PROVENANCE: base layout adapted from JFG's public decomp,
+ * src/menu.h::Resbitfield; twoPlayerSplit and stereoMode are Mickey-derived
+ * from their paired getters and byte-preserving setters. */
+typedef struct MenuScreenModeBits {
+    u32 unused : 1;
+    u32 modeBit0 : 1;
+    u32 modeBit1 : 1;
+    u32 twoPlayerSplit : 1;
+    u32 unusedStereoGap : 5;
+    u32 stereoMode : 2;
+    u32 unusedLanguageGap : 5;
+    u32 language : 6;
+    u32 rest : 10;
+} MenuScreenModeBits;
+
+typedef union MenuScreenModeState {
+    MenuScreenModeBits bits;
+    u8 raw;
+} MenuScreenModeState;
+
+/* Mickey-derived from the adjacent per-controller accesses in func_80039720. */
+typedef struct MenuControllerRepeatState {
+    s8 repeatX[4];
+    s8 repeatY[4];
+    u32 previousButtons[4];
+} MenuControllerRepeatState;
+
 void frontSetMode(s32 mode);
 u8 frontGetMode(void);
 void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right, s32 bottom, u32 colour);

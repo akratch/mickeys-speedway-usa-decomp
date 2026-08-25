@@ -1090,21 +1090,9 @@ assembly; Mickey supplies this C body and table indexing, as the point-of-use
 algebraic reassociation. The default flags, three call relocations, data pair,
 object words, and linked ROM range are exact without post-processing.
 
-`func_8003968C` remains a **tier-D NON_MATCHING plateau** over **0x94 bytes /
-37 words** at ROM `0x3A28C`. A Mickey-derived four-iteration initialization
-loop unrolls to all 37 target instruction words and the same linked bytes, but
-18 relocation sites differ, first at `+0x24`: IDO binds the later elements to
-the three array-base symbols, while the target names each individual BSS
-element. Scalar, volatile, cast, block, and loop variants, the full flag
-lattice, and a bounded ten-minute `-mips2` permuter run did not satisfy both
-the code and relocation-identity gates. The all-word result remains diagnostic
-only and the original assembly is canonical. A later scalar-label retry
-confirmed that the nine interior BSS labels already exist: naming them fixes
-the relocation identities, but IDO then pools the repeated constants and
-shrinks the body to 29 instructions. Switch, ternary-selection, scoped-local,
-volatile-access, dead-reference, induction-expression, and comma-expression
-variants plus a fresh 119-combination flag sweep did not preserve the target's
-37-instruction temp sequence with those scalar relocations.
+`func_8003968C`: best remains **37/37 instruction words exact** with **18 relocation identities differing**, first `+0x24`.
+The fresh typed `MenuControllerRepeatState` body is also 37/37 but consolidates the state base and differs at 22 relocation sites; JFG's exact skeleton remains assembly.
+Resident flags tie the full lattice, so symbol binding—not instruction codegen—blocks the canonical match.
 
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and
@@ -1238,18 +1226,9 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8` remains a **tier-D NON_MATCHING plateau** over **0x80 bytes /
-32 words** at ROM `0x3AEC8`. Mickey-derived packed-field writes correspond to
-JFG's `frontSetScreenMode`, with the comparison recorded in a point-of-use
-`PROVENANCE` note but no public name adopted. The best size-exact candidate
-differs in 19 register operands, first at `+0xC`: the target retains the state
-address and normalized mode in `a1`/`v0`/`v1`, while IDO assigns a different
-temporary chain. The 119-combination flag lattice and a bounded ten-minute
-permuter run did not reach exactness, so the original assembly remains
-canonical. A later raw-byte/type-role retry kept the exact 32-instruction
-opcode and relocation schedule in its best basin but did not improve the 19
-register-operand residual; declaration-order and code-free dead-read probes
-reached the same allocator boundary.
+`func_8003A2C8`: best remains **19/32 differing words**, first `+0xC`; the
+fresh typed m2c body lands size-exact under `NON_MATCHING` at 25/32, first
+`+0x0`, blocked by five opcode-schedule and two relocation-identity mismatches.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
@@ -1306,17 +1285,9 @@ carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
 live range; the default flags, both data relocations, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A520` plateaus size-exact at **3/9 differing words**, first `+0x8`.
-Its operation and ordered position correspond to JFG's
-`frontSet2PlayerSplit`, but the full 119-combination flag lattice and a bounded
-permuter batch could not reproduce the target's old-flag register chain. The
-best natural candidate uses a narrowing result cast; IDO still assigns that
-chain two temporary registers earlier than the target. It remains assembly
-and keeps its anonymous name. A later ten-variant byte-view/bitfield and
-temp-FIFO retry preserved the exact nine-instruction structure but reached no
-better than four register differences, so the earlier three-word candidate
-remains the retained plateau. A native aggregate/bitfield and explicit-DAG
-retry likewise preserved the operation but did not improve that result.
+`func_8003A520`: best remains **3/9 differing words**, first `+0x8`; the fresh
+typed raw-state m2c body landed under `NON_MATCHING` at 6/9, with an exact
+nine-word shape but a whole temporary-register-ring phase shift.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no
