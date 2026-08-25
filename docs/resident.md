@@ -316,6 +316,11 @@ optimized code with bare debug metadata, but IDO's driver rejects `-O2` and
 `-g` together in either order. Marking the spacing and font-data pointers
 `register`, singly and together, produced objects byte-identical to the
 46-word baseline. The frame/spill plateau is therefore unchanged.
+Changing the input pointer from `char *` to `u8 *`, as suggested by the
+target's byte loads, also produced an object byte-identical to that baseline.
+A fresh 119-configuration sweep still left stock flags at 46 words, 28
+positional differences, and first mismatch `+0x18`; signedness is not the
+lever behind the frame and spill layout.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
@@ -2013,6 +2018,11 @@ separately extracted `jtbl_8008249C` still owns the 12 case-label references;
 replacing the asm body therefore leaves those labels undefined and also emits
 a duplicate 48-byte table. The canonical path remains the original asm pending
 coordinated rodata ownership.
+Retyping the mode argument and its `ResolutionSettings` field to JFG's
+`VideoModes` enum produced the same 47-word object and the same anonymous-table
+relocations. Strict comparison still reports only the two symbol-identity
+differences at `+0x10` and `+0x18`; the donor enum type cannot perform the
+required rodata ownership handoff.
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
 **Why the rows do not establish new internal boundaries.** §1's "measured file
@@ -3003,6 +3013,12 @@ addresses and carries only 8 relocation records against the target assembly's
 volatile/non-volatile per-slot objects cover the coherent extern-layout
 families; reproducing the target now appears to require the original data
 ownership/layout context rather than another initializer ordering.
+A split-tail retry modeled each handle as a scalar and its adjacent float and
+object pointer as a two-field aggregate, preserving two source-level bases per
+slot. IDO materialised each tail pointer explicitly: the candidate remained 26
+words against 22, differed in all 22 target positions from `+0x8`, and carried
+16 relocation records rather than 20. The full 119-configuration lattice kept
+stock `-O2 -mips2 -32` best, so the original data-ownership blocker remains.
 `func_8005830C` now has a complete typed `NON_MATCHING` reconstruction adapted
 at the organization/terminology level from DKR's permitted published
 `src/audio_vehicle.c`, with Mickey's own field offsets and calls deciding the

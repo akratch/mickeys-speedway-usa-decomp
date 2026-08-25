@@ -130,6 +130,10 @@ f32 func_80058EF4(f32 value);
  * but differs in 21 positions because IDO hoists four complete addresses.
  * All 119 flag-lattice combinations preserve the respective schedules; the
  * target's mixed one- and two-address-materialization pattern remains absent.
+ * A later split-tail aggregate hypothesis preserved two source-level bases per
+ * slot, but IDO materialised each tail pointer explicitly. The complete flag
+ * lattice kept stock flags best: 26 emitted words against 22, all 22 target
+ * positions different from +0x8, with 16 relocation records instead of 20.
  */
 void func_80058250(void) {
     D_800D78B0 = 0;
