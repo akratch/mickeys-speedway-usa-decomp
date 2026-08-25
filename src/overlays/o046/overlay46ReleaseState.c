@@ -20,19 +20,18 @@ extern void overlay46RegisterResourceReloc(Overlay46Resource *resource);
 extern u8 overlay46GetModeReloc(void);
 extern void overlay46SetModeReloc(s32 mode);
 
-#ifdef NON_MATCHING
 void overlay46ReleaseState(void) {
     Overlay46Resource *resource;
 
     overlay46ReleaseIdsReloc(gOverlay46Data.resourceIds);
     overlay46ClearGroupReloc(gOverlay46Data.group54);
 
-    resource = gOverlay46Data.resource50;
-    if (resource != NULL) {
+    if (gOverlay46Data.resource50 != NULL) {
+        resource = gOverlay46Data.resource50;
         overlay46SyncResourceReloc(resource);
     }
-    resource = gOverlay46Data.resource4C;
-    if (resource != NULL) {
+    if (gOverlay46Data.resource4C != NULL) {
+        resource = gOverlay46Data.resource4C;
         overlay46SyncResourceReloc(resource);
     }
     if (gOverlay46Data.resource184 != NULL) {
@@ -41,7 +40,3 @@ void overlay46ReleaseState(void) {
 
     overlay46SetModeReloc(overlay46GetModeReloc());
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o046/overlay46ReleaseState/func_overlay_046_F0000614_188EA0C.s")
-#endif
