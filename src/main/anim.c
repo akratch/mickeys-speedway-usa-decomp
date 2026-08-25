@@ -19,7 +19,6 @@ extern s32 D_8007D690;
 extern void *D_8007D694;
 extern s32 D_8007D6B0;
 extern s32 D_8007D684;
-extern u8 D_800D6B08[];
 extern u32 *D_800D6B04;
 extern u8 D_800D6BF8[];
 extern u8 D_800D6C38[];
@@ -29,6 +28,33 @@ extern s32 D_800D6C48;
 extern s16 D_800D6C4C;
 extern s16 D_800D6C52;
 extern s16 D_800D6C54;
+extern f32 D_8007D6B4;
+
+typedef struct AnimCameraSource {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    u8 pad6[6];
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[0x16];
+    s16 unk2E;
+} AnimCameraSource;
+
+typedef struct AnimCameraTarget {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    u8 pad6[6];
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[0x26];
+    s16 unk3E;
+} AnimCameraTarget;
+
+extern AnimCameraSource *D_800D6B08[];
 
 typedef struct AnimLightReset {
     s32 unk0;
@@ -45,6 +71,7 @@ extern AnimLightReset D_800D6C58[];
 
 void *func_8002B280();
 void piRomLoadSection();
+void func_80021504(f32 value, s32 arg1);
 
 /*
  * PROVENANCE: adapted from JFG's func_80076020_76C20. Mickey's globals and
@@ -361,7 +388,7 @@ void func_80050E9C(void) {
             pathIndex++;
         } while ((pathIndex < 0x100) != 0);
 
-        entry = D_800D6B08;
+        entry = (u8 *) D_800D6B08;
         do {
             *(s32 *) entry = 0;
             entry += 4;
@@ -439,7 +466,26 @@ void animseqResetGroup(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800511C4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051364.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800517E0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053420.s")
+/*
+ * PROVENANCE: JFG's public src/anim.c supplies the ordered animseqCamera
+ * comparison; the body and local layouts are reconstructed from Mickey.
+ */
+AnimCameraSource *func_80053420(s32 index, AnimCameraTarget *target) {
+    AnimCameraSource *source;
+
+    source = D_800D6B08[index];
+    if (source != NULL) {
+        target->unkC = source->unkC;
+        target->unk10 = source->unk10;
+        target->unk14 = source->unk14;
+        target->unk3E = source->unk2E;
+        target->unk0 = 0x8000 - source->unk0;
+        target->unk2 = -source->unk2;
+        target->unk4 = source->unk4;
+        func_80021504(D_8007D6B4, 0);
+    }
+    return source;
+}
 /* JFG's ordered anim.c tail and this store establish the tier-D Play name. */
 void animseqPlay(void) {
     D_8007D6A4 = 1;
