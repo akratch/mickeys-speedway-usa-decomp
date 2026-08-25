@@ -41,13 +41,97 @@ typedef struct AudioOscillatorState {
 
 extern f32 __sinf(f32 angle);
 extern f32 alCents2Ratio(s32 cents);
+f32 _depth2Cents(u8 depth);
 extern f32 D_80080BA0;
 extern f32 D_80080BA4;
 extern f32 D_80080BA8;
 extern AudioOscillatorState *D_800C9300;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_4C50/amVibratoInit.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_4C50/func_80003A80.s")
+/*
+ * PROVENANCE: body adapted from Perfect Dark src/lib/naudio/osc.c osc_init
+ * and compared with JFG src/audio_manager_4C50.c amInitOsc; Mickey's state
+ * layout and oscillator case set remain authoritative.
+ */
+s32 amInitOsc(void **oscillatorState, f32 *initValue, u8 oscillatorType,
+              u8 rate, u8 depth, u8 delay, u8 timeIndex) {
+    AudioOscillatorState *state;
+    s32 interval = 0;
+    s32 cents;
+
+    if (D_800C9300 != NULL) {
+        state = D_800C9300;
+        D_800C9300 = state->next;
+        state->type = oscillatorType;
+        *oscillatorState = state;
+        interval = delay << 14;
+
+        switch (oscillatorType) {
+        case 1:
+            state->counter = 0;
+            state->period = 0x103 - rate;
+            state->data.tremolo.depth = depth >> 1;
+            state->data.tremolo.base = 0x7F - state->data.tremolo.depth;
+            *initValue = state->data.tremolo.base;
+            break;
+        case 2:
+            state->period = 0x100 - rate;
+            state->counter = state->period;
+            state->phase = 0;
+            state->data.tremolo.alternate = 0x7F - depth;
+            state->data.tremolo.base = 0x7F;
+            state->data.tremolo.depth = 0x7F;
+            *initValue = 127.0f;
+            break;
+        case 3:
+            state->period = 0x100 - rate;
+            state->counter = 0;
+            state->data.tremolo.depth = 0x7F;
+            state->data.tremolo.base = depth;
+            *initValue = state->data.tremolo.depth;
+            break;
+        case 4:
+            state->period = 0x100 - rate;
+            state->counter = 0;
+            state->data.tremolo.base = depth;
+            state->data.tremolo.depth = 0x7F - depth;
+            *initValue = state->data.tremolo.depth;
+            break;
+        case 0x80:
+            state->data.vibrato.depth = _depth2Cents(depth);
+            state->counter = 0;
+            state->period = 0x103 - rate;
+            *initValue = 1.0f;
+            break;
+        case 0x81:
+            state->period = 0x100 - rate;
+            state->counter = state->period;
+            state->phase = 0;
+            cents = (s32)_depth2Cents(depth);
+            state->data.vibrato.depth = alCents2Ratio(-cents);
+            state->data.vibrato.alternate = alCents2Ratio(cents);
+            *initValue = state->data.vibrato.alternate;
+            break;
+        case 0x82:
+            state->period = 0x100 - rate;
+            state->counter = state->period;
+            cents = (s32)_depth2Cents(depth);
+            state->data.cents.depth = cents * 2;
+            state->data.cents.base = cents;
+            *initValue = alCents2Ratio(cents);
+            break;
+        case 0x83:
+            state->period = 0x100 - rate;
+            state->counter = state->period;
+            cents = (s32)_depth2Cents(depth);
+            state->data.cents.base = -cents;
+            state->data.cents.depth = cents * 2;
+            *initValue = alCents2Ratio(state->data.cents.base);
+            break;
+        }
+    }
+    return interval;
+}
 /*
  * PROVENANCE: body adapted from Perfect Dark src/lib/naudio/osc.c osc_update
  * and compared with JFG src/audio_manager_4C50.c amUpdateOsc; Mickey's state
