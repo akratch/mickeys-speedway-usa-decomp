@@ -58,6 +58,7 @@ void osWritebackDCacheAll(void);
 void osSpTaskLoad(OSTask *task);
 void osSpTaskStartGo(OSTask *task);
 void osSpTaskYield(void);
+s32 osDpSetNextBuffer(void *buffer, u64 size);
 u64 osGetTime(void);
 OSIntMask osSetIntMask(OSIntMask mask);
 void *osViGetCurrentFramebuffer(void);
@@ -72,6 +73,7 @@ void func_80030608(OSScTask *task);
 SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
                         s32 *arg4, s32 *arg5, s32 *arg6);
 void __scAppendList(OSSched *sc, OSScTask *task);
+void __scYield(OSSched *sc);
 s32 __scTaskComplete(OSSched *sc, OSScTask *task);
 s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 state);
 void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp);
@@ -435,7 +437,29 @@ void __scAppendList(OSSched *sc, OSScTask *task) {
     task->next = NULL;
     task->state = task->flags & 3;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scExec.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scExec, with Mickey's task counters. */
+void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp) {
+    if (sp != NULL) {
+        if (sp->list.t.type == 2) {
+            osWritebackDCacheAll();
+        }
+        sp->state &= ~0x30;
+        osSpTaskLoad(&sp->list);
+        osSpTaskStartGo(&sp->list);
+        D_8007A650 = 0;
+        D_8007A654 = 0;
+        sc->curRSPTask = sp;
+        if (sp == dp) {
+            sc->curRDPTask = dp;
+        }
+    }
+    if (dp != NULL && dp != sp) {
+        osDpSetNextBuffer(dp->list.t.output_buff,
+                          *dp->list.t.output_buff_size);
+        sc->curRDPTask = dp;
+    }
+}
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scYield. */
 void __scYield(OSSched *sc) {

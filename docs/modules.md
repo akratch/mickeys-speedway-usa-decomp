@@ -1338,7 +1338,8 @@ the still-unnamed scheduler helper `func_800304E0` (ROM `0x310E0`–
 `osScAddClient` (ROM `0x30E2C`–`0x30E88`, 92 bytes), `osScRemoveClient`
 (ROM `0x30E88`–`0x30F10`, 136 bytes), `__scHandleRDP` (ROM `0x31E74`–
 `0x31EFC`, 136 bytes), `__scTaskReady` (ROM `0x31EFC`–`0x31F4C`, 80 bytes),
-and `__scAppendList` (ROM `0x3204C`–`0x320AC`, 96 bytes). All were compiled
+`__scAppendList` (ROM `0x3204C`–`0x320AC`, 96 bytes), and `__scExec` (ROM
+`0x320AC`–`0x3216C`, 192 bytes). All were compiled
 with the resident `-O2 -mips2 -32` flags. The saves TU additionally disables
 loop unrolling: the full flag
 lattice selects the target's scalar 24-record reset loop, and the full ROM

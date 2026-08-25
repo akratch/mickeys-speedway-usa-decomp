@@ -548,7 +548,7 @@ __scHandleRDP = 0x80031274; // type:func size:0x88 ROM 0x31e74 tier-B donor-jfg-
 __scTaskReady = 0x800312FC; // type:func size:0x50 ROM 0x31efc tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 __scTaskComplete = 0x8003134C; // type:func size:0x100 ROM 0x31f4c tier-B donor-jfg-src/sched.c scheduler-callgraph+order
 __scAppendList = 0x8003144C; // type:func size:0x60 ROM 0x3204c tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
-__scExec = 0x800314AC; // type:func size:0xC0 ROM 0x320ac tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scExec = 0x800314AC; // type:func size:0xC0 ROM 0x320ac tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 __scYield = 0x8003156C; // type:func size:0x4C ROM 0x3216c tier-B donor-jfg-src/sched.c scheduler-callgraph+order
 __scSchedule = 0x800315B8; // type:func size:0x1E8 ROM 0x321b8 tier-B donor-jfg-src/sched.c scheduler-callgraph+order
 
