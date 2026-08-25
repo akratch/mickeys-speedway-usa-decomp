@@ -31,7 +31,11 @@ void overlay101BuilderCreateReloc(Overlay101Gfx **displayList, s32 count,
  * result remains 38 positional words from first mismatch +0x44; explicit
  * right/bottom boundary locals regress that result to 40 or 43 words. The
  * remaining blocker is the straight-line volatile-load/store schedule and its
- * temporary register web.
+ * temporary register web. A later lane reran the full flag lattice and tested
+ * explicit register-qualified geometry parameters plus a complete typed set
+ * of six boundary temporaries; the qualifiers preserve the 38-word basin,
+ * while the typed boundary web diverges from the prologue. The best result
+ * therefore remains size-exact with first mismatch +0x44.
  */
 #ifdef NON_MATCHING
 void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,

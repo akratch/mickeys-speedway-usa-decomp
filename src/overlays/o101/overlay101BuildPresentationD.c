@@ -72,6 +72,8 @@ typedef struct Overlay101Node24 {
 /* Every A/B alias below is a distinct relocation identity, even where its
  * workbench link placeholder has the same encoded addend as its sibling. */
 extern Overlay101BuilderRoot gOverlay101BuilderRoot;
+extern s32 gOverlay101BuilderRootChainReloc;
+extern s32 gOverlay101BuilderRootChildReloc;
 extern s32 gOverlay101BuilderOrderCountA;
 extern s32 gOverlay101BuilderOrderCountB;
 extern void *gOverlay101BuilderOrderA[];
@@ -112,7 +114,12 @@ extern s32 overlay101ByteLength(u8 *text);
  * 158 masked positional words differing and the first mismatch at +0x10.
  * Moving the asset assignment ahead of the root constants remains in the
  * same structural basin. The blocker is the function-wide global-address,
- * store, and saved-register schedule across the chained node construction.
+ * store, and saved-register schedule across the chained node construction. A
+ * later lane reran the full flag lattice and modeled the target's standalone
+ * chain/child field relocation identities, following presentation B. Those
+ * aliases improve the relocation surface but retain the same 158-word basin;
+ * explicit typed root-default temporaries also compile identically. The best
+ * result remains size-exact from +0x10 under default flags.
  */
 #ifdef NON_MATCHING
 void overlay101BuildPresentationD(void) {
@@ -150,8 +157,7 @@ void overlay101BuildPresentationD(void) {
     gOverlay101BuilderRoot.value2C = 0;
     gOverlay101BuilderRoot.chainType = 0;
     gOverlay101BuilderRoot.chain = NULL;
-    gOverlay101BuilderOrderA[orderIndex] =
-        &gOverlay101BuilderRoot.chainType;
+    gOverlay101BuilderOrderA[orderIndex] = &gOverlay101BuilderRootChainReloc;
     gOverlay101BuilderOrderCountA = orderIndex + 1;
 
     node32IndexA = gOverlay101BuilderNode32CountA;
@@ -189,8 +195,7 @@ void overlay101BuildPresentationD(void) {
     gOverlay101BuilderRoot.child = NULL;
     gOverlay101BuilderRoot.childType = 0;
     gOverlay101BuilderRoot.text50 = gOverlay101BuilderInput144;
-    gOverlay101BuilderOrderB[orderIndex] =
-        &gOverlay101BuilderRoot.childType;
+    gOverlay101BuilderOrderB[orderIndex] = &gOverlay101BuilderRootChildReloc;
     gOverlay101BuilderOrderCountB = orderIndex + 1;
 
     node20IndexA = gOverlay101BuilderNode20CountA;
