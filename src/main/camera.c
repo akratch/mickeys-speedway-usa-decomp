@@ -95,6 +95,22 @@ typedef struct {
 } CameraViewportFlags;
 
 typedef struct {
+    s32 x1;
+    s32 y1;
+    s32 x2;
+    s32 y2;
+    s32 posX;
+    s32 posY;
+    s32 width;
+    s32 height;
+    s32 scissorX1;
+    s32 scissorY1;
+    s32 scissorX2;
+    s32 scissorY2;
+    s32 flags;
+} CameraViewport;
+
+typedef struct {
     s8 state;
     u8 pad01[0x53];
 } CameraState3D;
@@ -103,6 +119,7 @@ extern u8 D_80079F94;
 extern s32 D_80079F8C;
 extern f32 D_80079F60;
 extern f32 D_80079F48;
+extern CameraViewport D_80079C10[];
 extern CameraViewportFlags D_80079C40[];
 extern s8 D_80079F98[];
 extern CameraState3D D_800CEA5D[];
@@ -253,7 +270,15 @@ s32 camIsUserView(s32 camNo) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021C88.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021DF4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021EF0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021F68.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetUserView. */
+void camGetUserView(s32 camNo, s32 *x1, s32 *y1, s32 *x2, s32 *y2) {
+    CameraViewport *viewport = &D_80079C10[camNo];
+
+    *x1 = viewport->x1;
+    *y1 = viewport->y1;
+    *x2 = viewport->x2;
+    *y2 = viewport->y2;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021FB0.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetView. */
 void func_800221E8(Gfx **dlist, Mtx **mtx) {
