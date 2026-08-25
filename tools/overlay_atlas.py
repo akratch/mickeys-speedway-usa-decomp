@@ -1039,8 +1039,9 @@ TEXT_SUBSEGMENTS = {
 # and GLOBAL_ASM fallbacks. `is_nonmatching_source()` intentionally remains a
 # conservative object-level signal, while these reviewed ranges retain the
 # finer pre-consolidation evidence needed by the byte-weighted scoreboard.
-# Each range was an independently compiled, metadata-only object before its
-# overlay was consolidated and remains byte-identical in the linked ROM.
+# Three-field ranges were independently compiled, metadata-only objects before
+# consolidation. Newly promoted ranges carry a fourth, range-specific evidence
+# field after their canonical mixed-TU and linked-ROM proofs.
 MIXED_TU_EXACT_C_RANGES = {
     1: [
         (0x0000, 0x0050, "overlay1PointerWrap"),
@@ -1087,6 +1088,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x6C0, 0x764, "overlay5CreatePlayer"),
     ],
     7: [
+        (
+            0x000,
+            0x0A8,
+            "overlay7ReleaseEntry",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x228, 0x298, "overlay7CreateEntry"),
         (0x298, 0x324, "overlay7AppendEntry"),
         (0xEDC, 0xF08, "overlay7FillValues"),
@@ -1214,7 +1221,13 @@ def mixed_tu_exact_c_rows(overlay, ownership):
     """
     rows = []
     previous_end = -1
-    for start, end, label in MIXED_TU_EXACT_C_RANGES.get(overlay, []):
+    for exact_range in MIXED_TU_EXACT_C_RANGES.get(overlay, []):
+        start, end, label = exact_range[:3]
+        evidence = (
+            exact_range[3]
+            if len(exact_range) == 4
+            else "pre-consolidation metadata-only object; linked bytes exact"
+        )
         if start < previous_end or start >= end:
             raise ValueError(f"invalid overlay {overlay} mixed-TU exact range")
         containers = [
@@ -1249,7 +1262,7 @@ def mixed_tu_exact_c_rows(overlay, ownership):
                 "size": hx(end - start),
                 "label": label,
                 "source": containers[0]["source"],
-                "evidence": "pre-consolidation metadata-only object; linked bytes exact",
+                "evidence": evidence,
             }
         )
         previous_end = end

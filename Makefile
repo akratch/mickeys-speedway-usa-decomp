@@ -788,7 +788,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o: POSTPROC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ChooseFileExtension.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
-		--redefine-sym func_overlay_007_F0000000_185BE88=overlay7ReleaseEntry \
 		--redefine-sym func_overlay_007_F00000A8_185BF30=overlay7AcquireEntry $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/func_overlay_007_F0000324_185C1AC.c.o: POSTPROCESS = \

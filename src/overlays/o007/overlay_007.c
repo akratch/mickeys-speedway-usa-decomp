@@ -2,12 +2,6 @@
 
 /* Overlay 7, ADR 0006 consolidation: C before the middle assembly island. */
 
-/*
- * Plateau: exact size with one differing word at +0x3C. The target orders
- * the equality branch operands as v0,a0; equivalent ==/!= and goto spellings
- * all collapse to IDO's a0,v0 ordering under the complete O2 flag lattice.
- */
-#ifdef NON_MATCHING
 void overlay7ReleaseEntry(Overlay7Entry *entry) {
     Overlay7Entry *previous;
     Overlay7Entry *current;
@@ -20,7 +14,7 @@ void overlay7ReleaseEntry(Overlay7Entry *entry) {
 
         previous = 0;
         current = gOverlay7ActiveHead;
-        if (gOverlay7ActiveHead != entry) {
+        if (current != entry) {
             do {
                 previous = current;
                 current = current->next;
@@ -47,6 +41,7 @@ void overlay7ReleaseEntry(Overlay7Entry *entry) {
  * target's s0 web; the remaining allocation-tail register/layout differences
  * follow from that copy-propagation choice. The O2 flag lattice is unchanged.
  */
+#ifdef NON_MATCHING
 Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
     Overlay7Entry *head;
     Overlay7Entry *entry;
@@ -100,7 +95,6 @@ Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
     return entry;
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007/func_overlay_007_F0000000_185BE88.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007/func_overlay_007_F00000A8_185BF30.s")
 #endif
 
