@@ -35,7 +35,9 @@ extern u8 D_8007C090;
 extern s32 D_8007C098;
 extern s16 D_8007BF70;
 extern u8 D_8007BEF4;
-extern s8 D_8007BF34;
+extern u8 D_8007BEF8;
+extern u8 D_8007BF30;
+extern u8 D_8007BF34;
 extern u8 D_8007C0A0;
 extern s32 D_8007C09C;
 extern s32 D_8007C1A4;
@@ -51,6 +53,9 @@ extern void amTuneStop(void);
 extern void amTuneSetGlobalVolume(s32 volume);
 extern void alSurround_OutputType(u8 mode);
 extern void func_80038750(void);
+extern void func_800389CC(void);
+extern void func_80038BC4(void);
+extern void func_8003968C(void);
 extern s32 levelGetRegionNo(void);
 extern s8 viGetWideAdjust(void);
 extern void gsSndpSetGlobalVolume(s32 volume);
@@ -172,7 +177,20 @@ extern void func_8002460C(MenuCommand **commands);
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038878.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800389CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038BC4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038DAC.s")
+/* PROVENANCE: name, role, call order, and state resets compared with JFG's
+ * public src/menu.c::frontSetMode; Mickey supplies the exact state surface. */
+void frontSetMode(s32 mode) {
+    func_800389CC();
+    D_8007C0A0 = mode;
+    func_80038BC4();
+    func_8003968C();
+    D_8007BF30 = 0;
+    D_8007BF34 = 1;
+    if (mode == 0) {
+        D_8007BEF8 = 1;
+        D_8007BEF4 = 1;
+    }
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetMode. */
 u8 frontGetMode(void) {
     return D_8007C0A0;

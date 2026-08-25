@@ -962,6 +962,13 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
+The tier-B `frontSetMode` adds **0x64 bytes / 25 words** at ROM `0x399AC`.
+Its exact free/init/reset call sequence, mode-state store, and ordered pairing
+with `frontGetMode` establish the JFG role. The name, role, and shared control
+flow carry point-of-use `PROVENANCE`; Mickey supplies the exact state surface.
+The default flags, three calls plus five data-relocation pairs, object words, and
+linked ROM range are exact without post-processing.
+
 The tier-B `frontGetMode` adds **0xC bytes / 3 words** at ROM `0x39A10`.
 Its exact byte getter, ordered position between the front-end mode setter and
 update routine, and the update's dispatch on the same state establish the JFG

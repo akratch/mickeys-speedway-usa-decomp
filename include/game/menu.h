@@ -5,6 +5,7 @@
 
 typedef struct MenuCommand MenuCommand;
 
+void frontSetMode(s32 mode);
 u8 frontGetMode(void);
 void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right, s32 bottom, u32 colour);
 void freeFrontEndList(s16 *assetGroup);
