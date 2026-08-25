@@ -19,26 +19,27 @@ typedef struct Overlay14SelectionList {
     s16 firstValue;
 } Overlay14SelectionList;
 
-extern Overlay14SelectionList *gOverlay14SelectionList;
-extern s32 overlay14IsSelectable(s16 value);
+extern Overlay14SelectionList *gOverlay14CommandHeader;
+extern s32 overlay14ReturnOneCallbackA(s16 value);
 
-#ifdef NON_MATCHING
 s32 overlay14MoveCommandCursor(s32 direction) {
     Overlay14SelectionList *list;
     Overlay14SelectionEntry *entry;
     s32 index;
     s32 eligible;
+    s16 value;
 
-    list = gOverlay14SelectionList;
+    list = gOverlay14CommandHeader;
     eligible = 0;
     if (list != 0) {
         index = 0;
         entry = (Overlay14SelectionEntry *)list;
         if (list->count > 0) {
             do {
+                value = entry->value;
                 index++;
                 entry++;
-                if (overlay14IsSelectable(entry[-1].value)) {
+                if (overlay14ReturnOneCallbackA(value)) {
                     eligible++;
                 }
             } while (index < list->count);
@@ -52,45 +53,37 @@ s32 overlay14MoveCommandCursor(s32 direction) {
                     if (index >= list->count) {
                         break;
                     }
-                } while (!overlay14IsSelectable(
+                } while (!overlay14ReturnOneCallbackA(
                     ((Overlay14SelectionEntry *)list)[index].value));
             } else if (direction < 0) {
-                index--;
-backward_loop:
-                if (index < 0) {
-                    goto selection_done;
-                }
-                if (!overlay14IsSelectable(
-                        ((Overlay14SelectionEntry *)list)[index].value)) {
-                    index--;
-                    goto backward_loop;
-                }
-                goto selection_done;
-            } else if (!overlay14IsSelectable(
-                           ((Overlay14SelectionEntry *)list)[index].value)) {
-                index--;
-zero_backward_loop:
-                if (index < 0) {
-                    goto scan_forward;
-                }
-                if (!overlay14IsSelectable(
-                        ((Overlay14SelectionEntry *)list)[index].value)) {
-                    index--;
-                    goto zero_backward_loop;
-                }
-                goto selection_done;
-scan_forward:
-                index = list->selected;
                 do {
-                    index++;
-                    if (index >= list->count) {
+                    index--;
+                    if (index < 0) {
                         break;
                     }
-                } while (!overlay14IsSelectable(
+                } while (!overlay14ReturnOneCallbackA(
                     ((Overlay14SelectionEntry *)list)[index].value));
+            } else if (!overlay14ReturnOneCallbackA(
+                           ((Overlay14SelectionEntry *)list)[index].value)) {
+                do {
+                    index--;
+                    if (index < 0) {
+                        break;
+                    }
+                } while (!overlay14ReturnOneCallbackA(
+                    ((Overlay14SelectionEntry *)list)[index].value));
+                if (index < 0) {
+                    index = list->selected;
+                    do {
+                        index++;
+                        if (index >= list->count) {
+                            break;
+                        }
+                    } while (!overlay14ReturnOneCallbackA(
+                        ((Overlay14SelectionEntry *)list)[index].value));
+                }
             }
 
-selection_done:
             if ((index >= 0) && (index < list->count)) {
                 list->selected = index;
             }
@@ -98,6 +91,3 @@ selection_done:
     }
     return eligible;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14MoveCommandCursor/func_overlay_014_F0000578_186FE50.s")
-#endif
