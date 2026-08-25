@@ -61,15 +61,9 @@ typedef struct Overlay20InitGrid {
 
 extern void *func_overlay_020_F0000000_18765D8();
 
-/*
- * Plateau (2026-08-25, 10 source variants): the closest viable flag-lattice
- * result is -O2 -g3 -mips2, six instructions short and different in 256 of
- * 270 words after relocation masking, with its first mismatch at +0x0. A
- * cursor-split spelling came within five instructions but worsened the word
- * score to 257. The blocker is IDO's saved-register web: retail uses the
- * s7/fp texture-and-index lifetimes and a 0x40 frame, while this source
- * collapses them into the s0-s6 set and a 0x38 frame.
- */
+/* PLATEAU (2026-08-25): workbench structure-mismatch; best is 256/270 words, first +0x0.
+ * Constant audit, texture lifetime, cursor, and command/store ordering levers did not close it.
+ * Six instructions and one saved-register slot remain (0x38 frame versus target 0x40). */
 #ifdef NON_MATCHING
 Overlay20InitGrid *func_overlay_020_F000038C_1876964(Overlay20InitGrid *grid) {
     Overlay20InitVertex *vertex;
