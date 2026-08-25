@@ -974,6 +974,8 @@ TEXT_SUBSEGMENTS = {
         (0x3814, "c", "overlay101UpdateChains"),
         (0x3998, "c", "overlay101DrawSlots"),
         (0x3A58, "asm", "overlay_101_post_draw_slots"),
+        (0x512C, "c", "func_overlay_101_F000512C_18E094C"),
+        (0x571C, "asm", "overlay_101_tail_571c"),
         (0x99C4, "c", "overlay101BuildPresentationA"),
         (0x9D04, "c", "overlay101BuildPresentationB"),
         (0xA044, "c", "overlay101BuildPresentationC"),
