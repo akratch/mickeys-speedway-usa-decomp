@@ -56,8 +56,26 @@ extern s32 func_80005820(s32 arg0);
 extern u8 *func_80028F54(void);
 extern void func_80039720(s32 updateRate);
 extern void func_80044BC8(s32 arg0, u8 *source, s32 line);
-extern u16 joyGetPressed(s32 controller);
+extern u32 joyGetButtons(s32 controller);
+extern u32 joyGetPressed(s32 controller);
+extern s8 joyGetStickX(s32 controller);
+extern s8 joyGetStickY(s32 controller);
 extern void mainTitlePageInit(s32 mode);
+
+extern u32 D_800D3170[4];
+extern u32 D_800D3180[4];
+extern s8 D_800D3190[4];
+extern s8 D_800D3194[4];
+extern s8 D_800D3198[4];
+extern s8 D_800D319C[4];
+extern u32 D_800D31A0[4];
+extern u8 D_800D31B0;
+extern s32 D_800D31B4;
+extern s32 D_800D31B8;
+extern s16 D_800D31BC;
+extern s16 D_800D31BE;
+extern s16 D_800D31C0;
+extern s16 D_800D31C2;
 
 typedef struct MenuCommand {
     u32 w0;
@@ -275,7 +293,96 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/frontDrawRectangle.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800395D4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003968C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039720.s")
+void func_80039720(s32 updateRate) {
+    s32 controller;
+    s8 repeatXNegative;
+    s8 repeatXPositive;
+    s8 repeatYNegative;
+    s8 repeatYPositive;
+    s8 axisX;
+    s8 axisY;
+
+    D_800D31B8 = 0;
+    D_800D31B4 = 0;
+    D_800D31C0 = 0;
+    D_800D31C2 = 0;
+    D_800D31BC = 0;
+    D_800D31BE = 0;
+    for (controller = 0; controller != 4; controller++) {
+        D_800D3170[controller] = joyGetButtons(controller);
+        D_800D3180[controller] =
+            D_800D3170[controller] & ~D_800D31A0[controller];
+        D_800D31A0[controller] = D_800D3170[controller];
+        D_800D3190[controller] = joyGetStickX(controller);
+        axisX = D_800D3190[controller];
+        if (axisX < -0x23) {
+            repeatXNegative = D_800D3198[controller];
+            if (repeatXNegative < 0) {
+                D_800D3198[controller] = repeatXNegative + updateRate;
+                if (D_800D3198[controller] >= 0) {
+                    D_800D3198[controller] = -0xF;
+                } else {
+                    D_800D3190[controller] = 0;
+                }
+            } else {
+                D_800D3198[controller] = -0x14;
+            }
+        } else if (axisX >= 0x24) {
+            repeatXPositive = D_800D3198[controller];
+            if (repeatXPositive > 0) {
+                D_800D3198[controller] = repeatXPositive - updateRate;
+                if (D_800D3198[controller] <= 0) {
+                    D_800D3198[controller] = 0xF;
+                } else {
+                    D_800D3190[controller] = 0;
+                }
+            } else {
+                D_800D3198[controller] = 0x14;
+            }
+        } else {
+            D_800D3190[controller] = 0;
+            D_800D3198[controller] = 0;
+        }
+        D_800D3194[controller] = joyGetStickY(controller);
+        axisY = D_800D3194[controller];
+        if (axisY < -0x23) {
+            repeatYNegative = D_800D319C[controller];
+            if (repeatYNegative < 0) {
+                D_800D319C[controller] = repeatYNegative + updateRate;
+                if (D_800D319C[controller] >= 0) {
+                    D_800D319C[controller] = -0xF;
+                } else {
+                    D_800D3194[controller] = 0;
+                }
+            } else {
+                D_800D319C[controller] = -0x14;
+            }
+        } else if (axisY >= 0x24) {
+            repeatYPositive = D_800D319C[controller];
+            if (repeatYPositive > 0) {
+                D_800D319C[controller] = repeatYPositive - updateRate;
+                if (D_800D319C[controller] <= 0) {
+                    D_800D319C[controller] = 0xF;
+                } else {
+                    D_800D3194[controller] = 0;
+                }
+            } else {
+                D_800D319C[controller] = 0x14;
+            }
+        } else {
+            D_800D3194[controller] = 0;
+            D_800D319C[controller] = 0;
+        }
+        if (D_800D31B0 & (1 << controller)) {
+            D_800D31B8 |= joyGetPressed(controller);
+            D_800D31B4 |= joyGetButtons(controller);
+            D_800D31C0 += joyGetStickX(controller);
+            D_800D31C2 += joyGetStickY(controller);
+            D_800D31BC += D_800D3190[controller];
+            D_800D31BE += D_800D3194[controller];
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039A40.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039A9C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039B88.s")

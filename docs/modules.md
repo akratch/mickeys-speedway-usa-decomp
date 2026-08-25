@@ -962,6 +962,16 @@ The full 119-combination flag lattice keeps the resident defaults best; JFG
 has no C donor body for the nearest front-end routine. Canonical code remains
 assembly.
 
+The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
+Its Mickey-derived body updates four controllers' held, pressed, stick, and
+repeat state, then aggregates the enabled controllers. Direct array indexing
+recovers IDO's seven induction pointers and exact `0x40`-byte frame; JFG's
+nearest menu routine remains assembly, so no donor body or descriptive name is
+used. The resident defaults are exact in the full flag lattice. All 53 text
+relocations match the target's offsets, kinds, and symbol identities, and the
+configured object and linked ROM range are byte-identical without
+post-processing.
+
 `func_80039E34` retains a Mickey-derived `NON_MATCHING` draw candidate with
 the target's exact **0xB8-byte frame** and local homes from `0x7C` through
 `0xAC`. Its best object is one word longer than the target's **0x418 bytes /
