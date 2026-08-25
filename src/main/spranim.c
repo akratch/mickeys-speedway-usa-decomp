@@ -186,23 +186,21 @@ void texscrollControl(TexscrollState *state, s32 updateRate) {
     func_8000D16C(entry->textureIndex, x, y, updateRate);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001B798.s")
-#ifdef NON_MATCHING
 /* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/rangetriggerControl.s, with Mickey's offsets. */
 void rangetriggerControl(RangetriggerState *state, s32 updateRate) {
+    RangetriggerState *owner;
     RangetriggerEntry *entry;
     u64 hits[4];
 
-    entry = state->entry;
-    if (func_8005776C(state->x, state->y, state->z, entry->radius, 1, hits) > 0) {
-        state->activeTrigger = entry->triggerId;
+    owner = state;
+    entry = owner->entry;
+    if (func_8005776C(owner->x, owner->y, owner->z, entry->radius, 1, hits) > 0) {
+        owner->activeTrigger = entry->triggerId;
     } else {
-        state->activeTrigger = 0;
+        owner->activeTrigger = 0;
     }
-    partUpdateTriggers(state, updateRate);
+    partUpdateTriggers(owner, updateRate);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/rangetriggerControl.s")
-#endif
 void func_8001BAE4(SpranimBAE4Object *arg0, void *arg1) {
     arg0->target58->state132 = 1;
 }
