@@ -10,7 +10,7 @@
  * strings, calls, function boundaries, and bytes decide every disagreement.
  * Adapted bodies keep a PROVENANCE note at their point of use.
  *
- * Flags: -O2 -mips2 -32 (the resident game-code default).
+ * Flags: -O2 -mips2 -32 -Wab,-r4300_mul.
  */
 
 #include "game/track.h"
@@ -47,6 +47,48 @@ typedef struct TrackFloatRecord {
     f32 z;
     f32 unkC;
 } TrackFloatRecord;
+
+typedef struct TrackPlanePoints {
+    f32 x0;
+    f32 y0;
+    f32 z0;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 x2;
+    f32 y2;
+    f32 z2;
+} TrackPlanePoints;
+
+typedef struct TrackPlane {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 distance;
+} TrackPlane;
+
+typedef struct TrackLightColourEntry {
+    s8 red;
+    s8 green;
+    s8 blue;
+} TrackLightColourEntry;
+
+typedef struct TrackLight {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 radius;
+    f32 secondaryRadius;
+    f32 radiusSquared;
+    f32 secondaryRadiusSquared;
+    f32 falloff;
+    TrackLightColourEntry colours[32];
+} TrackLight;
+
+typedef struct TrackLightAllocation {
+    u32 pad00;
+    void *data;
+} TrackLightAllocation;
 
 typedef struct TrackTextureHeader {
     u8 pad00[6];
@@ -85,22 +127,63 @@ typedef struct TrackBatch {
 } TrackBatch;
 
 typedef struct TrackSegment {
-    u8 pad00[0xC];
+    void *lightData;
+    u8 pad04[0xC - 0x04];
     TrackBatch *batches;
     u8 pad10[0x24 - 0x10];
     s16 batchCount;
-    u8 pad26[0x40 - 0x26];
+    u8 pad26[0x2E - 0x26];
+    s8 lightingMode;
+    u8 pad2F[0x30 - 0x2F];
+    void *unk30;
+    u8 pad34[0x38 - 0x34];
+    void *unk38;
+    u8 pad3C[0x40 - 0x3C];
 } TrackSegment;
+
+/*
+ * PROVENANCE: field order comes from Diddy Kong Racing's public
+ * `include/structs.h`, type `LevelModelSegmentBoundingBox`. Mickey's
+ * 12-byte accessor stride independently confirms the layout size.
+ */
+typedef struct TrackBoundingBox {
+    s16 x1;
+    s16 y1;
+    s16 z1;
+    s16 x2;
+    s16 y2;
+    s16 z2;
+} TrackBoundingBox;
+
+typedef union TrackSegmentIndex {
+    s32 value;
+    TrackBoundingBox *bounds;
+} TrackSegmentIndex;
+
+typedef struct TrackBspNode {
+    s16 left;
+    s16 right;
+    u8 axis;
+    u8 segmentIndex;
+    s16 splitValue;
+} TrackBspNode;
 
 typedef struct TrackData {
     TrackTextureEntry *textures;
     TrackSegment *segments;
-    u8 pad08[0x1A - 0x08];
+    TrackBoundingBox *segmentBounds;
+    u8 pad0C[0x10 - 0x0C];
+    s32 *visibility;
+    void *bspTree;
+    s16 textureCount;
     s16 segmentCount;
 } TrackData;
 
 typedef struct TrackLevelData {
-    u8 pad00[0xB2];
+    u8 pad00[0x52];
+    s8 skyMode;
+    u8 skyRotationSpeed;
+    u8 pad54[0xB2 - 0x54];
     u8 skyScaleS;
     u8 skyScaleT;
     u8 padB4[4];
@@ -141,11 +224,32 @@ typedef struct TrackTriangle {
 
 typedef struct TrackCamera {
     s16 rotationX;
+    s16 rotationY;
+    s16 rotationZ;
+    u8 pad06[0xC - 6];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x30 - 0x18];
+    f32 offsetX;
+    f32 offsetY;
+    f32 offsetZ;
+} TrackCamera;
+
+typedef struct TrackSkyMaterial {
+    u8 pad00[0xA2];
+    u8 textureIndex;
+} TrackSkyMaterial;
+
+typedef struct TrackSkyObject {
+    s16 rotationY;
     u8 pad02[0xC - 2];
     f32 x;
     f32 y;
     f32 z;
-} TrackCamera;
+    u8 pad18[0x40 - 0x18];
+    TrackSkyMaterial *material;
+} TrackSkyObject;
 
 typedef struct TrackVec3f {
     f32 f[3];
@@ -164,7 +268,7 @@ typedef struct TrackVec3f {
         _g->words.w1 = (u32) (address);                                    \
     }
 
-extern TrackRotation *D_800C9530;
+extern TrackCamera *D_800C9530;
 extern TrackCachedPoint D_800C9B40;
 extern Gfx *D_800C9520;
 extern s32 D_80079314;
@@ -186,6 +290,36 @@ extern Gfx D_800793A8[];
 extern Gfx D_800793D8[];
 extern u8 D_80079318[];
 extern s32 D_800C9560;
+extern s32 D_800C954C;
+extern s32 D_800C9554;
+extern s32 D_800C955C;
+extern s32 D_800C9564;
+extern s32 D_800C956C;
+extern void *D_800C9574;
+extern TrackLight *D_80079300;
+extern s32 D_80079304;
+extern TrackLightAllocation *D_80079308;
+extern s32 D_800792F8;
+extern s32 D_80079350;
+extern s32 D_80079354;
+extern f32 D_80081690;
+extern u8 D_800C95B4;
+extern s16 D_800D6C4C;
+extern s16 D_800D6C54;
+extern s8 D_80079274;
+extern s32 D_80079278;
+extern s32 D_8007930C;
+extern void *D_80079310;
+extern void *D_800C9548;
+extern void *D_800C95A8;
+extern void *D_800C9D20;
+extern void *D_800C9D2C;
+extern void *D_800C9D30;
+extern void *D_800C9D34;
+extern void *D_8007926C;
+extern s32 D_800C953C;
+extern TrackPlanePoints D_8007927C[3];
+extern TrackPlane D_800C9578[3];
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -194,7 +328,7 @@ ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
                    s32 updateRate);
 s32 runlinkIsModuleLoaded(s32 module);
-void TrapDanglingJump(s32 updateRate);
+s32 TrapDanglingJump();
 void camStandardOrtho(Gfx **displayList, Mtx **matrix);
 void func_80034920(Gfx **displayList);
 void func_800349A4(Gfx **displayList, void *texture, s32 mode, s32 flags);
@@ -206,8 +340,31 @@ void func_80021FB0(s32 mode, s32 camera, s32 *left, s32 *bottom,
 void viGetCurrentSize(s32 *width, s32 *height);
 void *func_800348D4(TrackTextureHeader *texture, s32 frame);
 TrackCamera *camGetPtr(void);
+TrackLight *trackLightAsm(TrackData *track, TrackLight *light, void *state);
+s32 mainGetNumberOfCameras(void);
 f32 func_8002A8BC(s32 angle);
+s32 func_80013324(f32 coefficient, f32 numerator,
+                  f32 *minimum, f32 *maximum);
 f32 func_8002A8C0(s32 angle);
+void func_8000F82C(s32 start, s32 count, s32 end);
+s32 func_80010178(u32 segmentIndex);
+void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
+                   s32 intensity);
+void func_8000D820(void);
+void func_8000439C(void);
+void func_80006EA0(void *handle);
+void func_80006FA0(void);
+void func_8001F364(void);
+void func_800347A0(void *texture);
+void mmFree(void *data);
+void shadowFreeBuffers(void);
+void animseqFreeLevelData(void);
+f32 (*camGetInvProjMtx(void))[4];
+f32 sqrtf(f32 value);
+void func_80007E40(TrackSkyObject *object, s32 updateRate,
+                   TrackLevelData **levelData);
+void func_80009E78(Gfx **displayList, Mtx **matrix, TrackVertex **vertices,
+                   TrackSkyObject *object);
 
 /*
  * PROVENANCE: Jet Force Gemini's public `src/track.c`, function
@@ -515,7 +672,38 @@ void func_8000CC78(void) {
 
     D_800C9528 = vertices;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000CED0.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c` and
+ * assembly-only `func_80013478`. Mickey proves the revised mode test, field
+ * offsets, calls, and final draw condition; the donor's placeholder name is
+ * not imported.
+ */
+void func_8000CED0(s32 updateRate) {
+    TrackCamera *camera;
+
+    if (D_800C9550 != NULL) {
+        camera = camGetPtr();
+        if ((D_800792EC->skyMode != 2) && (D_800792EC->skyMode != 5)) {
+            ((TrackSkyObject *) D_800C9550)->x = camera->x + camera->offsetX;
+            ((TrackSkyObject *) D_800C9550)->y = camera->y + camera->offsetY;
+            ((TrackSkyObject *) D_800C9550)->z = camera->z + camera->offsetZ;
+            ((TrackSkyObject *) D_800C9550)->rotationY +=
+                D_800792EC->skyRotationSpeed * updateRate;
+            if (((TrackSkyObject *) D_800C9550)->material->textureIndex !=
+                0xFF) {
+                func_80007E40(D_800C9550, updateRate, &D_800792EC);
+            }
+        } else {
+            ((TrackSkyObject *) D_800C9550)->x = camera->offsetX;
+            ((TrackSkyObject *) D_800C9550)->y = camera->offsetY;
+            ((TrackSkyObject *) D_800C9550)->z = camera->offsetZ;
+        }
+        if (D_800C9558 != 0) {
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          D_800C9550);
+        }
+    }
+}
 /*
  * JFG's corresponding TU position is `trackGetSky`, but this three-word
  * Mickey function is kept unnamed because it has no adoptable naming tier.
@@ -533,15 +721,109 @@ void func_8000D16C(s32 arg0, s32 arg1, s32 arg2) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D1B8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D3B8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D570.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D62C.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public `src/track.c` and built
+ * `trackLightFreeMem` establish this function's role and control-flow
+ * skeleton. Mickey's own globals, types, and bytes determine this body.
+ */
+void func_8000D570(void) {
+    s32 lightIndex;
+
+    if (D_80079308 != NULL) {
+        lightIndex = D_800792E8->segmentCount;
+        while (lightIndex--) {
+            if (D_80079308[lightIndex].data != NULL) {
+                mmFree(D_80079308[lightIndex].data);
+            }
+        }
+        mmFree(D_80079308);
+        D_80079308 = NULL;
+    }
+    if (D_80079300 != 0) {
+        mmFree(D_80079300);
+        D_80079300 = NULL;
+    }
+    D_800792FC = 0;
+    D_800792F8 = 0;
+}
+/*
+ * PROVENANCE: Jet Force Gemini's public `src/track.c`, assembly-only
+ * `trackLightAdd`, supplies the role and 0x80-byte pool stride. Mickey's own
+ * stores establish the record fields and body; the public name is not adopted.
+ */
+TrackLight *func_8000D62C(f32 x, f32 y, f32 z, f32 radius,
+                          f32 secondaryRadius, s32 red, s32 green, s32 blue) {
+    s32 lightIndex;
+    TrackLight *light;
+
+    if (radius <= 0.0f) {
+        return NULL;
+    }
+    light = D_80079300;
+    lightIndex = D_800792F8;
+    if (lightIndex--) {
+        do {
+            if (light->radius == 0.0f) {
+                light->x = x;
+                light->y = y;
+                light->z = z;
+                light->radius = radius;
+                light->secondaryRadius = secondaryRadius;
+                light->radiusSquared = radius * radius;
+                light->secondaryRadiusSquared =
+                    secondaryRadius * secondaryRadius;
+                light->falloff =
+                    D_80081690 / (radius - secondaryRadius);
+                func_8000D768(light, red, green, blue, 0xFF);
+                D_800792FC++;
+                return light;
+            }
+            light++;
+        } while (lightIndex--);
+    }
+    return NULL;
+}
 void func_8000D728(TrackFloatRecord *arg0) {
     if ((arg0 != NULL) && (arg0->unkC != 0.0f)) {
         arg0->unkC = 0.0f;
         D_800792FC--;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D768.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public `src/track.c` supplies the
+ * `trackLightColour` role at this established TU position. Its body remains
+ * assembly-only; this reconstruction comes from Mickey's own accesses.
+ */
+void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
+                   s32 intensity) {
+    TrackLightColourEntry *colour;
+    s32 redStep;
+    s32 greenStep;
+    s32 blueStep;
+    s32 colourIndex;
+
+    if (light != NULL) {
+        if (intensity < 255) {
+            red = (red * intensity) >> 8;
+            green = (green * intensity) >> 8;
+            blue = (blue * intensity) >> 8;
+        }
+        colour = light->colours;
+        redStep = red;
+        greenStep = green;
+        blueStep = blue;
+        colourIndex = 31;
+        do {
+            colour->red = red >> 5;
+            colour->green = green >> 5;
+            colour->blue = blue >> 5;
+            red += redStep;
+            green += greenStep;
+            blue += blueStep;
+            colour++;
+        } while (colourIndex--);
+    }
+}
 void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
     if (arg0 != NULL) {
         arg0->x = arg1;
@@ -550,7 +832,53 @@ void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D820.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D978.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c` and
+ * assembly-only `trackUpdateLighting`. Mickey's module path, segment layout,
+ * globals, and bytes are authoritative; the public name is not adopted.
+ */
+void func_8000D978(s32 copySegmentData, s32 updateRate) {
+    s32 segmentCount;
+    s8 mode;
+    TrackSegment *segment;
+    TrackLightAllocation *allocation;
+    TrackLight *light;
+
+    if ((D_800792E8 != NULL) && (mainGetNumberOfCameras() < 2) &&
+        ((copySegmentData == 0) || (D_80079308 == NULL)) &&
+        ((copySegmentData != 0) || (D_80079308 != NULL))) {
+        allocation = D_80079308;
+        if (allocation != NULL) {
+            D_80079304 ^= 1;
+            segmentCount = D_800792E8->segmentCount;
+            segment = D_800792E8->segments;
+            while (segmentCount--) {
+                mode = segment->lightingMode;
+                segment->lightData =
+                    ((void **) allocation)[D_80079304];
+                segment->lightingMode =
+                    ((mode << 1) & 2) | ((mode >> 1) & 1);
+                segment++;
+                allocation++;
+            }
+        }
+        if (runlinkIsModuleLoaded(16) != 0) {
+            TrapDanglingJump(&D_800C95B4, D_800792E8, updateRate);
+        } else if ((D_800D6C54 != 0xFF) || (D_800D6C4C != 0)) {
+            TrapDanglingJump(&D_800C95B4, D_800792E8, updateRate);
+        } else {
+            func_8000D820();
+        }
+        segmentCount = D_800792F8;
+        light = D_80079300;
+        while (segmentCount--) {
+            if (light->radius != 0.0f) {
+                trackLightAsm(D_800792E8, light, &D_800C95B4);
+            }
+            light++;
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DDE4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DFBC.s")
@@ -558,16 +886,309 @@ void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E920.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F198.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F57C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F82C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FA2C.s")
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * `traverse_segments_bsp_tree`; JFG's assembly-only `func_800150A4` confirms
+ * the same TU role. Mickey's global result state and integer camera values are
+ * authoritative, and the donor names are not imported.
+ */
+void func_8000F82C(s32 nodeIndex, s32 segmentIndex, s32 segmentIndex2) {
+    TrackBspNode *node;
+    s32 cameraValue;
+
+    node = (TrackBspNode *)
+        ((nodeIndex * sizeof(TrackBspNode)) + (u8 *) D_800C9574);
+    if (node->axis == 0) {
+        cameraValue = D_800C954C;
+    } else if (node->axis == 1) {
+        cameraValue = D_800C9554;
+    } else {
+        cameraValue = D_800C955C;
+    }
+
+    if (cameraValue < node->splitValue) {
+        if (node->left != -1) {
+            func_8000F82C(node->left, segmentIndex,
+                          node->segmentIndex - 1);
+        } else if (func_80010178(segmentIndex) != 0) {
+            ((u8 *) D_800C956C)[D_800C9564++] = segmentIndex;
+        }
+
+        if (node->right != -1) {
+            func_8000F82C(node->right, node->segmentIndex,
+                          segmentIndex2);
+        } else if (func_80010178(segmentIndex2) != 0) {
+            ((u8 *) D_800C956C)[D_800C9564++] = segmentIndex2;
+        }
+    } else {
+        if (node->right != -1) {
+            func_8000F82C(node->right, node->segmentIndex,
+                          segmentIndex2);
+        } else if (func_80010178(segmentIndex2) != 0) {
+            ((u8 *) D_800C956C)[D_800C9564++] = segmentIndex2;
+        }
+
+        if (node->left != -1) {
+            func_8000F82C(node->left, segmentIndex,
+                          node->segmentIndex - 1);
+        } else if (func_80010178(segmentIndex) != 0) {
+            ((u8 *) D_800C956C)[D_800C9564++] = segmentIndex;
+        }
+    }
+}
+void func_8000FA2C(s32 *result, s32 arg1) {
+    D_800C954C = D_800C9530->x;
+    D_800C9554 = D_800C9530->y;
+    D_800C955C = D_800C9530->z;
+    D_800C9574 = D_800792E8->bspTree;
+    D_800C9564 = 0;
+    D_800C956C = arg1;
+    func_8000F82C(0, 0, D_800792E8->segmentCount - 1);
+    *result = D_800C9564;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FAE0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FBD8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FCA4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FD68.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FEB4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FEEC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FF2C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010178.s")
+/*
+ * PROVENANCE: Diddy Kong Racing's public `src/tracks.c`,
+ * `check_if_inside_segment`, supplies the bounding-box containment structure.
+ * Mickey's function takes coordinates directly and uses inclusive bounds.
+ */
+s32 func_8000FBD8(TrackSegmentIndex segmentIndex, f32 x, f32 y, f32 z) {
+    s32 xInt;
+    s32 yInt;
+    s32 zInt;
+
+    if (D_800792E8 != NULL) {
+        xInt = x;
+        segmentIndex.bounds =
+            &D_800792E8->segmentBounds[segmentIndex.value];
+        if (xInt >= segmentIndex.bounds->x1 &&
+            segmentIndex.bounds->x2 >= xInt) {
+            yInt = y;
+            if (yInt >= segmentIndex.bounds->y1 &&
+                segmentIndex.bounds->y2 >= yInt) {
+                zInt = z;
+                if (zInt >= segmentIndex.bounds->z1 &&
+                    segmentIndex.bounds->z2 >= zInt) {
+                    return TRUE;
+                }
+            }
+        }
+    }
+    return FALSE;
+}
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * `get_inside_segment_count_xz`. Mickey uses 16-bit output indices and its
+ * resident track/bounding-box types and bindings.
+ */
+s32 func_8000FCA4(s32 x, s32 z, s16 *segments) {
+    s32 segmentIndex;
+    s32 count = 0;
+    TrackBoundingBox *bounds;
+
+    for (segmentIndex = 0; segmentIndex < D_800792E8->segmentCount;
+         segmentIndex++) {
+        bounds = D_800792E8->segmentBounds + segmentIndex;
+        if (x < bounds->x2 + 4 && bounds->x1 - 4 < x &&
+            z < bounds->z2 + 4 && bounds->z1 - 4 < z) {
+            *segments = segmentIndex;
+            count++;
+            segments++;
+        }
+    }
+    return count;
+}
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * `get_inside_segment_count_xyz`. Mickey's resident types, bindings, and
+ * instruction schedule are authoritative; the donor name is not adopted.
+ */
+s32 func_8000FD68(s32 *segments, s16 x1, s16 y1, s16 z1, s16 x2, s16 y2,
+                  s16 z2) {
+    s32 count;
+    s32 segmentIndex;
+    TrackBoundingBox *bounds;
+
+    x1 -= 4;
+    y1 -= 4;
+    z1 -= 4;
+    x2 += 4;
+    y2 += 4;
+    z2 += 4;
+
+    segmentIndex = 0;
+    count = 0;
+
+    while (segmentIndex < D_800792E8->segmentCount) {
+        bounds = &D_800792E8->segmentBounds[segmentIndex];
+        if ((bounds->x2 >= x1) && (x2 >= bounds->x1) &&
+            (bounds->z2 >= z1) && (z2 >= bounds->z1) &&
+            (bounds->y2 >= y1) && (y2 >= bounds->y1)) {
+            count++;
+            *segments++ = segmentIndex;
+        }
+        segmentIndex++;
+    }
+    return count;
+}
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * function `block_get`. Mickey's stricter upper bound, TrackData layout,
+ * function boundary, and bytes are authoritative.
+ */
+TrackSegment *func_8000FEB4(s32 segmentIndex) {
+    if ((segmentIndex < 0) ||
+        (segmentIndex >= D_800792E8->segmentCount)) {
+        return NULL;
+    }
+    return &D_800792E8->segments[segmentIndex];
+}
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * function `block_boundbox`. Mickey's TrackData layout, function boundary,
+ * and bytes are authoritative.
+ */
+TrackBoundingBox *func_8000FEEC(s32 segmentIndex) {
+    if ((segmentIndex < 0) ||
+        (D_800792E8->segmentCount < segmentIndex)) {
+        return NULL;
+    }
+    return &D_800792E8->segmentBounds[segmentIndex];
+}
+/*
+ * PROVENANCE: JFG's public `src/track.c` supplies a same-position,
+ * assembly-only placeholder with the same three-plane skeleton. Mickey's
+ * matrix, inputs, arithmetic, and output layout are authoritative.
+ */
+void func_8000FF2C(void) {
+    f32 x0;
+    f32 y0;
+    f32 z0;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 x2;
+    f32 y2;
+    f32 z2;
+    f32 pad0;
+    f32 distance;
+    TrackPlanePoints *points;
+    TrackPlane *plane;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 inverseLength;
+    f32 (*matrix)[4];
+    s32 index;
+
+    points = D_8007927C;
+    plane = D_800C9578;
+    matrix = camGetInvProjMtx();
+    index = 0;
+    do {
+        mtxf_transform_point(matrix, points->x0, points->y0, points->z0,
+                             &x0, &y0, &z0);
+        mtxf_transform_point(matrix, points->x1, points->y1, points->z1,
+                             &x1, &y1, &z1);
+        mtxf_transform_point(matrix, points->x2, points->y2, points->z2,
+                             &x2, &y2, &z2);
+
+        normalX = ((z1 - z2) * y0) + (y1 * (z2 - z0)) +
+                  (y2 * (z0 - z1));
+        normalY = ((x1 - x2) * z0) + (z1 * (x2 - x0)) +
+                  (z2 * (x0 - x1));
+        normalZ = ((y1 - y2) * x0) + (x1 * (y2 - y0)) +
+                  (x2 * (y0 - y1));
+        inverseLength = 1.0f /
+            sqrtf((normalX * normalX) + (normalY * normalY) +
+                  (normalZ * normalZ));
+        if (inverseLength > 0.0f) {
+            normalX *= inverseLength;
+            normalY *= inverseLength;
+            normalZ *= inverseLength;
+        }
+
+        distance = -((x0 * normalX) + (y0 * normalY) +
+                     (z0 * normalZ));
+        index++;
+        plane->x = normalX;
+        plane->y = normalY;
+        plane->z = normalZ;
+        points++;
+        plane++;
+        plane[-1].distance = distance;
+    } while (index != 3);
+}
+s32 func_80010178(u32 segmentIndex) {
+    f32 pad0;
+    f32 pad1;
+    f32 pad2;
+    f32 pad3;
+    f32 pad4;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 pad5;
+    f32 y2;
+    f32 z2;
+    f32 x2;
+    f32 pad6;
+    f32 planeX;
+    f32 planeY;
+    f32 planeZ;
+    TrackPlane *plane;
+    TrackBoundingBox *bounds;
+    s32 planeCount;
+
+    if (D_8007926C != NULL) {
+        if (TrapDanglingJump(D_8007926C, segmentIndex) == 0) {
+            return FALSE;
+        }
+    } else {
+        if ((segmentIndex >= (u32) D_800792E8->segmentCount) ||
+            (D_800C953C == -1) ||
+            (D_800792E8->visibility[D_800C953C + segmentIndex] == 0)) {
+            return FALSE;
+        }
+    }
+
+    bounds = &D_800792E8->segmentBounds[segmentIndex];
+    plane = D_800C9578;
+    planeCount = 2;
+    x2 = bounds->x2;
+    y2 = bounds->y2;
+    z2 = bounds->z2;
+    x1 = bounds->x1;
+    y1 = bounds->y1;
+    z1 = bounds->z1;
+    do {
+        planeX = plane->x;
+        planeY = plane->y;
+        planeZ = plane->z;
+        if ((-plane->distance <
+             (((x2 * planeX) + (y2 * planeY)) + (z2 * planeZ))) ||
+            (-plane->distance <
+             (((x1 * planeX) + (y2 * planeY)) + (z2 * planeZ))) ||
+            (-plane->distance <
+             (((x2 * planeX) + (y1 * planeY)) + (z2 * planeZ))) ||
+            (-plane->distance <
+             (((x1 * planeX) + (y1 * planeY)) + (z2 * planeZ))) ||
+            (-plane->distance <
+             (((x2 * planeX) + (y2 * planeY)) + (z1 * planeZ))) ||
+            (-plane->distance <
+             (((x1 * planeX) + (y2 * planeY)) + (z1 * planeZ))) ||
+            (-plane->distance <
+             (((x2 * planeX) + (y1 * planeY)) + (z1 * planeZ))) ||
+            (-plane->distance <
+             (((x1 * planeX) + (y1 * planeY)) + (z1 * planeZ)))) {
+            goto next_plane;
+        }
+        return FALSE;
+next_plane:
+        plane++;
+    } while (planeCount--);
+    return TRUE;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800103D4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010654.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010900.s")
@@ -579,8 +1200,68 @@ void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012574.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012658.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001291C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800131AC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80013324.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public assembly-only `trackClip3D` in
+ * `src/track.c` supplies the six-plane clipping structure and paired helper
+ * context. Mickey's shorter function boundary, fields, globals, and body are
+ * reconstructed from Mickey-only evidence.
+ */
+s32 func_800131AC(TrackVec3f *origin, TrackVec3f *direction,
+                  TrackVec3f *minimum, TrackVec3f *maximum,
+                  f32 *nearClip, f32 *farClip) {
+    f32 near;
+    f32 far;
+    s32 result;
+
+    D_80079350 = 0;
+    result = FALSE;
+    near = -32000.0f;
+    far = 32000.0f;
+    if ((func_80013324(direction->f[0],
+                       minimum->f[0] - origin->f[0], &near, &far) != 0) &&
+        (func_80013324(-direction->f[0],
+                       origin->f[0] - maximum->f[0], &near, &far) != 0) &&
+        (func_80013324(direction->f[1],
+                       minimum->f[1] - origin->f[1], &near, &far) != 0) &&
+        (func_80013324(-direction->f[1],
+                       origin->f[1] - maximum->f[1], &near, &far) != 0) &&
+        (func_80013324(direction->f[2],
+                       minimum->f[2] - origin->f[2], &near, &far) != 0) &&
+        (func_80013324(-direction->f[2],
+                       origin->f[2] - maximum->f[2], &near, &far) != 0)) {
+        result = D_80079354;
+        *nearClip = near;
+        *farClip = far;
+    }
+    return result;
+}
+s32 func_80013324(f32 coefficient, f32 numerator,
+                  f32 *minimum, f32 *maximum) {
+    f32 ratio;
+
+    D_80079350++;
+    if (coefficient > 0.0f) {
+        ratio = numerator / coefficient;
+        if (*maximum < ratio) {
+            return FALSE;
+        }
+        if (*minimum < ratio) {
+            *minimum = ratio;
+            D_80079354 = D_80079350;
+        }
+    } else if (coefficient < 0.0f) {
+        ratio = numerator / coefficient;
+        if (ratio < *minimum) {
+            return FALSE;
+        }
+        if (ratio < *maximum) {
+            *maximum = ratio;
+        }
+    } else if (numerator > 0.0f) {
+        return FALSE;
+    }
+    return TRUE;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800133FC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001357C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001398C.s")
@@ -591,7 +1272,90 @@ void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
 void *trackGetTrack(void) {
     return D_800792E8;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80013EC0.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `trackFreeAll`, whose assembly-only body supplies the teardown order and
+ * loop structure. Mickey's pointers, calls, and object layouts are
+ * authoritative; the donor name is not adopted.
+ */
+void func_80013EC0(void) {
+    TrackSegment *segment;
+    TrackData *track;
+    TrackData **trackSlot;
+    s32 index;
+    s32 offset;
+
+    trackSlot = &D_800792E8;
+    if (D_80079278 > 0) {
+        TrapDanglingJump();
+        D_80079278 = 0;
+    }
+    func_8000D570();
+    if (D_80079310 != NULL) {
+        mmFree(D_80079310);
+        D_80079310 = NULL;
+        D_8007930C = 0;
+    }
+    func_8001F364();
+    if (D_800792F0 != NULL) {
+        func_800347A0(D_800792F0);
+        D_800792F0 = NULL;
+    }
+
+    track = *trackSlot;
+    index = 0;
+    if (track->segmentCount > 0) {
+        offset = 0;
+        do {
+            segment = (TrackSegment *) ((u8 *) track->segments + offset);
+            if (segment->unk30 != NULL) {
+                mmFree(segment->unk30);
+                track = *trackSlot;
+                segment = (TrackSegment *)
+                    ((u8 *) track->segments + offset);
+            }
+            if (segment->unk38 != NULL) {
+                TrapDanglingJump(segment->unk38);
+                track = *trackSlot;
+            }
+            index++;
+            offset += sizeof(TrackSegment);
+        } while (index < track->segmentCount);
+        index = 0;
+    }
+
+    if (track->textureCount > 0) {
+        offset = 0;
+        do {
+            func_800347A0(((TrackTextureEntry *)
+                ((u8 *) track->textures + offset))->texture);
+            track = *trackSlot;
+            index++;
+            offset += sizeof(TrackTextureEntry);
+        } while (index < track->textureCount);
+    }
+
+    mmFree(D_800C95A8);
+    mmFree(D_800C9D2C);
+    mmFree(D_800C9D30);
+    mmFree(D_800C9D34);
+    if (TrapDanglingJump(osRomBase) != 0) {
+        mmFree(D_800C9D20);
+    }
+    shadowFreeBuffers();
+    if (D_800C9550 != NULL) {
+        func_80006EA0(D_800C9550);
+        func_80006FA0();
+    }
+    animseqFreeLevelData();
+    func_8000439C();
+    D_800792E8 = NULL;
+    if (D_800C9548 != NULL) {
+        mmFree(D_800C9548);
+        D_800C9548 = NULL;
+    }
+    D_80079274 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800140CC.s")
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
@@ -833,9 +1597,9 @@ void func_80014DE4(void) {
     x = 0.0f;
     y = 0.0f;
     z = -65536.0f;
-    transform.zRotation = D_800C9530->z;
-    transform.yRotation = D_800C9530->y;
-    transform.xRotation = D_800C9530->x;
+    transform.zRotation = D_800C9530->rotationZ;
+    transform.yRotation = D_800C9530->rotationY;
+    transform.xRotation = D_800C9530->rotationX;
     transform.x = 0.0f;
     transform.y = 0.0f;
     transform.z = 0.0f;

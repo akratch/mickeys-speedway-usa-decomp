@@ -1800,6 +1800,10 @@ func_8000BD50 = 0x8000BD50; // type:func size:0x64 ROM 0xc950 tier-D (JFG src/tr
 // structure, while Mickey proves the vertex layout and resident bindings.
 func_8000CC78 = 0x8000CC78; // type:func size:0x258 ROM 0xd878 tier-D (JFG src/track.c gradient builder, placeholder retained)
 
+// No public name adopted: JFG's assembly-only same-position placeholder
+// supplies tier-D sky-object update structure; Mickey proves the exact body.
+func_8000CED0 = 0x8000CED0; // type:func size:0x13C ROM 0xdad0 tier-D (JFG src/track.c sky-object update, placeholder retained)
+
 // No public name adopted: JFG's final assembly-only track helper supplies
 // tier-D TU-position context; Mickey and the SDK GBI macros prove the body.
 func_80014ECC = 0x80014ECC; // type:func size:0x668 ROM 0x15acc tier-D (JFG built src/track.c.o final helper, placeholder retained)
@@ -1821,19 +1825,83 @@ func_8000D00C = 0x8000D00C; // type:func size:0xC ROM 0xdc0c
 // all 19 words and the two HI16/LO16 relocation pairs are exact.
 func_8000D16C = 0x8000D16C; // type:func size:0x4C ROM 0xdd6c
 
+// No public name adopted: JFG's assembly-only `trackLightFreeMem` supplies
+// tier-D role/TU and control-flow context; Mickey proves the exact C body.
+func_8000D570 = 0x8000D570; // type:func size:0xBC ROM 0xe170 tier-D (JFG src/track.c trackLightFreeMem role, placeholder retained)
+
+// No public name adopted: JFG's assembly-only `trackLightAdd` supplies the
+// tier-D role/TU and 0x80-byte stride; Mickey proves the typed body.
+func_8000D62C = 0x8000D62C; // type:func size:0xFC ROM 0xe22c tier-D (JFG src/track.c trackLightAdd role, placeholder retained)
+
 // No public name adopted: JFG's corresponding `trackLightDelete` is a tier-D
 // TU-position identification only. Mickey's placeholder is retained; all 16
 // words and the D_800792FC HI16/LO16 relocation pair are exact.
 func_8000D728 = 0x8000D728; // type:func size:0x40 ROM 0xe328
+
+// No public name adopted: JFG's corresponding `trackLightColour` is an
+// assembly-only tier-D role/TU-position comparison. Mickey proves this body.
+func_8000D768 = 0x8000D768; // type:func size:0x90 ROM 0xe368 tier-D (JFG src/track.c trackLightColour role, placeholder retained)
 
 // No public name adopted: JFG's corresponding `trackLightMove` is a tier-D
 // TU-position identification only. Mickey's placeholder is retained; all 10
 // words are exact and the function has no relocation records.
 func_8000D7F8 = 0x8000D7F8; // type:func size:0x28 ROM 0xe3f8
 
+// No public name adopted: JFG's assembly-only `trackUpdateLighting` supplies
+// tier-D role/TU context; Mickey proves the revised module path and exact C.
+func_8000D978 = 0x8000D978; // type:func size:0x1BC ROM 0xe578 tier-D (JFG src/track.c trackUpdateLighting role, placeholder retained)
+
+// No public name adopted: DKR's `traverse_segments_bsp_tree` supplies the
+// body structure, while Mickey proves its global-result adaptation.
+func_8000F82C = 0x8000F82C; // type:func size:0x200 ROM 0x1042c tier-D (DKR src/tracks.c structure adapted, placeholder retained)
+
+// No public name adopted: Mickey's accesses establish the camera/BSP setup
+// wrapper, while the reference scan found no credible named body donor.
+func_8000FA2C = 0x8000FA2C; // type:func size:0xB4 ROM 0x1062c tier-D (Mickey reconstruction, placeholder retained)
+
+// No public name adopted: DKR's `check_if_inside_segment` supplies the
+// containment structure; Mickey proves the direct-coordinate inclusive form.
+func_8000FBD8 = 0x8000FBD8; // type:func size:0xCC ROM 0x107d8 tier-D (DKR src/tracks.c structure adapted, placeholder retained)
+
+// No public name adopted: DKR's `get_inside_segment_count_xz` supplies the
+// segment-list body; Mickey proves the 16-bit output and resident binding.
+func_8000FCA4 = 0x8000FCA4; // type:func size:0xC4 ROM 0x108a4 tier-D (DKR src/tracks.c body adapted, placeholder retained)
+
+// No public name adopted: DKR's `get_inside_segment_count_xyz` supplies the
+// body; Mickey proves its resident layouts, binding, and exact schedule.
+func_8000FD68 = 0x8000FD68; // type:func size:0x14C ROM 0x10968 tier-D (DKR src/tracks.c body adapted, placeholder retained)
+
+// No public name adopted: DKR's `block_get` supplies the accessor structure,
+// while Mickey proves its stricter upper bound and 0x40-byte segment stride.
+func_8000FEB4 = 0x8000FEB4; // type:func size:0x38 ROM 0x10ab4 tier-D (DKR src/tracks.c block_get structure, placeholder retained)
+
+// No public name adopted: DKR's `block_boundbox` supplies the adjacent
+// accessor and 12-byte record layout; Mickey proves the resident binding.
+func_8000FEEC = 0x8000FEEC; // type:func size:0x40 ROM 0x10aec tier-D (DKR src/tracks.c block_boundbox structure, placeholder retained)
+
+// No public name adopted: JFG supplies a same-position plane-building
+// skeleton but only under a placeholder; Mickey proves the exact C and data.
+func_8000FF2C = 0x8000FF2C; // type:func size:0x24C ROM 0x10b2c tier-D (JFG src/track.c structure, placeholder retained)
+
+// No public name adopted: Mickey's callers and exact three-plane AABB test
+// establish the role; the reference scan found no credible donor.
+func_80010178 = 0x80010178; // type:func size:0x25C ROM 0x10d78 tier-D (Mickey reconstruction, placeholder retained)
+
+// JFG's `trackClip3D` supplies tier-D structure for the preceding caller,
+// while Mickey proves its shorter boundary and exact six-call body.
+func_800131AC = 0x800131AC; // type:func size:0x178 ROM 0x13dac tier-D (JFG trackClip3D structure, placeholder retained)
+
+// No public name adopted: Mickey's callers and arithmetic establish an
+// interval-clipping helper; the reference scan found no credible donor.
+func_80013324 = 0x80013324; // type:func size:0xD8 ROM 0x13f24 tier-D (Mickey reconstruction, placeholder retained)
+
 // Tier B: all three external callers consume the returned object through
 // track-layout fields; this is the TU's accessor for its current track object.
 trackGetTrack = 0x80013EB4; // type:func size:0xC ROM 0x14ab4
+
+// No public name adopted: JFG's assembly-only `trackFreeAll` supplies the
+// teardown role and TU position, while Mickey proves its own calls and data.
+func_80013EC0 = 0x80013EC0; // type:func size:0x20C ROM 0x14ac0 tier-D (JFG src/track.c structure, placeholder retained)
 
 // Tier B: external callers supply fog distance, colour, and state values.
 // Tier D: occupies JFG `trackSetFog`'s position before the independently
