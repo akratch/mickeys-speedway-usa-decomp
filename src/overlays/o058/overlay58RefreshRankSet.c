@@ -35,7 +35,6 @@ extern s32 overlay58RankSetIndexReloc(s32 id);
 extern Overlay58PrioritySource *overlay58PrioritySourceReloc(void);
 
 /* Pinned DKR v77/v80 and JFG scans found no matching donor. */
-#ifdef NON_MATCHING
 void overlay58RefreshRankSet(void) {
     Overlay58RankSet *set;
     Overlay58RankSet *sets;
@@ -50,15 +49,15 @@ void overlay58RefreshRankSet(void) {
 
     sets = overlay58RankSetsReloc();
     setIndex = overlay58RankSetIndexReloc(gOverlay58RankSetIdReloc);
-    set = setIndex + sets;
+    set = (Overlay58RankSet *)((u8 *)sets + (setIndex << 5));
     source = overlay58PrioritySourceReloc();
     sourceMeta = &source->tag;
     gOverlay58FloorChoice = -1;
     floorCursor = (s32 *)sourceMeta;
 
     for (i = 0; i < 3; i++) {
-        candidateFloor = floorCursor[2];
         existingFloor = set->floorValue;
+        candidateFloor = floorCursor[2];
         if (((candidateFloor / 3) < (existingFloor / 3)) ||
             (existingFloor == 0)) {
             set->floorValue = candidateFloor;
@@ -91,6 +90,3 @@ void overlay58RefreshRankSet(void) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/overlay58RefreshRankSet/func_overlay_058_F0005268_18B4450.s")
-#endif
