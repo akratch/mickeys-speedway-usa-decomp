@@ -86,9 +86,9 @@ extern void overlay58BuildOrderReloc(void *state, s32 count, s32 gap);
 extern void overlay58FinalizePackedStatus(void);
 
 /* Every Reloc name is provisional; normalized assembly does not bind it. */
-/* Plateau (2026-08-25, near-miss pass): -O2 -mips2 -loopunroll0 emits 369/368
- * instructions, 319 differing words, first mismatch +0x0; workbench: structure-mismatch.
- * Count reloads/pointer loops helped; the 0x78/0x60 frame gap leaves local layout next. */
+/* Workbench: structure-mismatch; 333 words differ, 351 versus 368 instructions, first mismatch +0x0.
+ * Lever: constant-audit found only frame offsets; scalar, array, and aggregate split-results compile equivalently.
+ * Remains: 24-byte non-save frame surplus and missing 17-instruction loop/relocation structure. */
 #ifdef NON_MATCHING
 void func_overlay_058_F0000000_18AF1E8(void) {
     register s32 i;
