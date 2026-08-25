@@ -416,13 +416,11 @@ void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateContro
 #endif
 
 /*
- * Plateau (2026-08-25): the best -O2/-mips2 build differs in 2/78 words,
- * first at +0x28; both differences place the hit-list slot at +0x44 instead
- * of retail +0x30. Moving the address-taken declaration behind all promoted
- * scalars did not move the slot under any of the 119 flag combinations.
- * Array and explicit-workspace forms perturb the otherwise exact frame; no
- * register-order permutation was run because this stack-home-only case is
- * already assigned to the parallel permuter farm.
+ * Plateau (2026-08-25 rerun): the best -O2/-mips2 build differs in 2/78
+ * words, first at +0x28; both references use the hit-list home at sp+0x2C
+ * instead of retail sp+0x30. The 119-case flag lattice is stable. Declaration
+ * order, padded structs/arrays, an aligned union, and volatile padding either
+ * retain the slot or perturb the otherwise exact frame.
  */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
