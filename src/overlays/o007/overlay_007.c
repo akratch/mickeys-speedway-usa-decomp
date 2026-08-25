@@ -35,14 +35,9 @@ void overlay7ReleaseEntry(Overlay7Entry *entry) {
     }
 }
 
-/*
- * Plateau (2026-08-25): exact size with 16 differing words, first at +0x104.
- * Reloading the global head between scans makes both scan loops exact and
- * removes one difference. The remaining allocation-tail register/layout web
- * is stable across all 119 flag combinations; removing the result temporary
- * and adding typed free-head/tail address aliases both regress size and move
- * the first mismatch back into the second scan.
- */
+/* Plateau: 80/96 linked words are exact; 16 tail words remain, first +0x104.
+ * Tail caching fixes a0/a1 but disrupts the null CFG; aliases regress size.
+ * The full flag lattice and 40-minute permuter (best 5135) found no exact. */
 #ifdef NON_MATCHING
 Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
     Overlay7Entry *entry;

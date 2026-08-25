@@ -40,23 +40,13 @@ extern void overlay18FinishReconfigureReloc(void *token);
 extern void overlay18InitializeBuffers(void);
 
 /*
- * NON_MATCHING plateau (2026-08-25 rerun, 10 source attempts after the full
- * flag lattice): -O2 -mips2 has exact 0x2A8 extent and differs in 6 of 170
- * masked positional words, first +0xC. The best candidate has a 0x58-byte
- * frame instead of 0x50; the other five differences are its corresponding
- * argument/token stack offsets and epilogue. A target-frame variant makes
- * those exact but moves eight pointer spill slots four bytes low, indicating
- * one still-unmodeled local lifetime/layout constraint.
- *
  * PROVENANCE: Diddy Kong Racing, src/thread3_main.c
  * (alloc_displaylist_heap); adapted allocation and cursor-update structure.
  */
-#ifdef NON_MATCHING
 void overlay18Reconfigure(s32 mode) {
     s32 index;
     s32 size;
     void *token;
-    volatile s16 stackPad[3];
 
     if (mode != gOverlay18Mode) {
         index = mode;
@@ -130,6 +120,3 @@ void overlay18Reconfigure(s32 mode) {
         command->w0 = 0xB8000000;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o018/overlay18Reconfigure/func_overlay_018_F000024C_1874804.s")
-#endif

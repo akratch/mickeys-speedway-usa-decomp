@@ -706,6 +706,9 @@ $(BUILD_DIR)/$(SRC_DIR)/main/lights.c.o: CFLAGS += -Wab,-r4300_mul
 # The camera projection-depth dot product requires the R4300 multiply schedule.
 $(BUILD_DIR)/$(SRC_DIR)/main/camera.c.o: CFLAGS += -Wab,-r4300_mul
 
+# The general-particle velocity magnitudes require the R4300 multiply schedule.
+$(BUILD_DIR)/$(SRC_DIR)/main/particles.c.o: CFLAGS += -Wab,-r4300_mul
+
 # The vehicle logarithm-series helper needs the R4300 multiply-hazard pass.
 $(BUILD_DIR)/$(SRC_DIR)/main/vehicle_sounds.c.o: CFLAGS += -Wab,-r4300_mul
 
