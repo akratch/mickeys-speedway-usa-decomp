@@ -1753,6 +1753,10 @@ is exact after resolving `func_800347A0` as a one-argument call; its two call
 relocations and the wake-linked field access match without normalization. The
 same ABI resolves the adjacent 72-byte `func_80048980` (`wakeFreeRipple`),
 which is exact with both its linked-release and nested-wake call relocations.
+The 204-byte `func_80044BC8` (`diRcpTrace` in JFG) is exact too. Its typed
+three-word trace entries and direct global-index expressions reproduce all 51
+target words, including the repeated buffer/count reloads, the 100-entry
+limit, and all four data relocation pairs at the resident defaults.
 The 100-byte `stop_all_threads_except_main` is exact on Mickey's active-thread
 walk: it filters priorities 1 through 127, passes the thread itself to
 `osStopThread`, and retains the exact call relocation and 32-byte frame under
