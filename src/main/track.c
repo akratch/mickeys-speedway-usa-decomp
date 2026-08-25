@@ -222,6 +222,48 @@ typedef struct TrackTriangle {
     s16 v2;
 } TrackTriangle;
 
+typedef struct TrackFogChangerData {
+    u8 pad00[0x0B];
+    u8 red;
+    u8 green;
+    u8 blue;
+    s16 near;
+    s16 far;
+    s16 duration;
+} TrackFogChangerData;
+
+typedef struct TrackFogChanger {
+    u8 pad00[0x0C];
+    f32 x;
+    u8 pad10[4];
+    f32 z;
+    u8 pad18[0x3C - 0x18];
+    TrackFogChangerData *data;
+    u8 pad40[0x84 - 0x40];
+    f32 radiusSquared;
+} TrackFogChanger;
+
+typedef struct TrackFogPlayerState {
+    s8 fogIndex;
+} TrackFogPlayerState;
+
+typedef struct TrackFogPlayer {
+    u8 pad00[0x0C];
+    f32 x;
+    u8 pad10[4];
+    f32 z;
+    u8 pad18[0x64 - 0x18];
+    TrackFogPlayerState *state;
+} TrackFogPlayer;
+
+typedef struct TrackFallbackPlayer {
+    u8 pad00[0x0C];
+    f32 x;
+    u8 pad10[4];
+    f32 z;
+    u8 pad18[0x54 - 0x18];
+} TrackFallbackPlayer;
+
 typedef struct TrackCamera {
     s16 rotationX;
     s16 rotationY;
@@ -325,6 +367,7 @@ void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
                           f32 *outX, f32 *outY, f32 *outZ);
 ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
+TrackFogPlayer **func_80005750(s32 *count);
 void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
                    s32 updateRate);
 s32 runlinkIsModuleLoaded(s32 module);
@@ -885,7 +928,93 @@ void func_8000D978(s32 copySegmentData, s32 updateRate) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E5EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E920.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F198.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F57C.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public assembly-only `trackGetBlockList` in
+ * `src/track.c` supplies tier-D TU-position and role context. The body and
+ * resident layouts below are reconstructed from Mickey-only evidence; the
+ * public name is not adopted.
+ */
+void func_8000F57C(s32 *resultCount, u8 *resultSegments) {
+    s32 distanceX;
+    s32 distanceY;
+    s32 distanceZ;
+    s32 resultIndex;
+    s32 lastIndex;
+    s32 cameraX;
+    s32 cameraY;
+    s32 cameraZ;
+    s32 index;
+    s32 tempDistance;
+    s32 segmentIndex;
+    s32 distances[100];
+    TrackBoundingBox *bounds;
+
+    cameraX = D_800C9530->x;
+    resultIndex = 0;
+    cameraY = D_800C9530->y;
+    segmentIndex = 0;
+    bounds = D_800792E8->segmentBounds;
+    cameraZ = D_800C9530->z;
+
+    if (D_800792E8->segmentCount > 0) {
+        do {
+            if (func_80010178(segmentIndex) != 0) {
+                if (cameraX < bounds->x1) {
+                    distanceX = bounds->x1 - cameraX;
+                } else if (bounds->x2 < cameraX) {
+                    distanceX = cameraX - bounds->x2;
+                } else {
+                    distanceX = 0;
+                }
+
+                if (cameraY < bounds->y1) {
+                    distanceY = bounds->y1 - cameraY;
+                } else if (bounds->y2 < cameraY) {
+                    distanceY = cameraY - bounds->y2;
+                } else {
+                    distanceY = 0;
+                }
+
+                if (cameraZ < bounds->z1) {
+                    distanceZ = bounds->z1 - cameraZ;
+                } else if (bounds->z2 < cameraZ) {
+                    distanceZ = cameraZ - bounds->z2;
+                } else {
+                    distanceZ = 0;
+                }
+
+                distances[resultIndex] =
+                    (distanceX * distanceX) + (distanceY * distanceY) +
+                    (distanceZ * distanceZ);
+                resultSegments[resultIndex] = segmentIndex;
+                resultIndex++;
+                if (resultIndex >= 100) {
+                    segmentIndex = D_800792E8->segmentCount;
+                }
+            }
+            segmentIndex++;
+            bounds++;
+        } while (segmentIndex < D_800792E8->segmentCount);
+    }
+
+    lastIndex = resultIndex - 1;
+    while (lastIndex > 0) {
+        index = 0;
+        while (index < lastIndex) {
+            if (distances[index + 1] < distances[index]) {
+                tempDistance = *(resultSegments + index);
+                *(resultSegments + index) = *(resultSegments + index + 1);
+                *(resultSegments + index + 1) = tempDistance;
+                tempDistance = distances[index];
+                distances[index] = distances[index + 1];
+                distances[index + 1] = tempDistance;
+            }
+            index++;
+        }
+        lastIndex--;
+    }
+    *resultCount = resultIndex;
+}
 /*
  * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
  * `traverse_segments_bsp_tree`; JFG's assembly-only `func_800150A4` confirms
@@ -1526,7 +1655,108 @@ void func_800147A4(s32 playerID) {
     gDPSetFogColor(D_800C9520++, red, green, blue, 0xFF);
     gSPFogPosition(D_800C9520++, near, far);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800148E0.s")
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * `obj_loop_fogchanger`; JFG's assembly-only `trackChangeFog` independently
+ * supplies the TU position. Mickey's object fields, direct player-list call,
+ * fallback stride, radius offset, and fog layout are authoritative.
+ */
+void func_800148E0(TrackFogChanger *changer) {
+    s32 nearTemp;
+    s32 fogNear;
+    s32 views;
+    s32 playerIndex;
+    s32 index;
+    s32 pad;
+    s32 fogFar;
+    s32 i;
+    s32 fogR;
+    s32 fogG;
+    s32 fogB;
+    f32 x;
+    f32 z;
+    s32 switchTimer;
+    TrackFogChangerData *fogChanger;
+    TrackFogPlayer **racers;
+    TrackFogPlayerState *racer;
+    s32 pad2;
+    TrackFog *fogData;
+    TrackFallbackPlayer *camera;
+
+    racers = NULL;
+    fogChanger = changer->data;
+    camera = NULL;
+    racers = func_80005750(&views);
+
+    i = 0;
+    if (views > 0) {
+        do {
+            index = -1;
+            if (racers != NULL) {
+                racer = racers[i]->state;
+                playerIndex = racer->fogIndex;
+                if ((playerIndex >= 0) && (playerIndex < 4) &&
+                    (changer != D_800C99C0[playerIndex].fogChanger)) {
+                    index = playerIndex;
+                    x = racers[i]->x;
+                    z = racers[i]->z;
+                }
+            } else if ((i < 4) &&
+                       (changer != D_800C99C0[i].fogChanger)) {
+                index = i;
+                x = camera[i].x;
+                z = camera[i].z;
+            }
+
+            if (index != -1) {
+                x -= changer->x;
+                z -= changer->z;
+                if (1) {
+                }
+                if (((x * x) + (z * z)) <
+                    changer->radiusSquared) {
+                    fogNear = fogChanger->near;
+                    fogFar = fogChanger->far;
+                    fogR = fogChanger->red;
+                    fogG = fogChanger->green;
+                    fogB = fogChanger->blue;
+                    switchTimer = fogChanger->duration;
+                    if (fogFar < fogNear) {
+                        nearTemp = fogNear;
+                        fogNear = fogFar;
+                        fogFar = nearTemp;
+                    }
+                    if (fogFar > 1023) {
+                        fogFar = 1023;
+                    }
+                    if (fogNear >= fogFar - 5) {
+                        fogNear = fogFar - 5;
+                    }
+
+                    fogData = &D_800C99C0[index];
+                    fogData->intendedFog.r = fogR;
+                    fogData->intendedFog.g = fogG;
+                    fogData->intendedFog.b = fogB;
+                    fogData->intendedFog.near = fogNear;
+                    fogData->intendedFog.far = fogFar;
+                    fogData->addFog.r =
+                        ((fogR << 16) - fogData->fog.r) / switchTimer;
+                    fogData->addFog.g =
+                        ((fogG << 16) - fogData->fog.g) / switchTimer;
+                    fogData->addFog.b =
+                        ((fogB << 16) - fogData->fog.b) / switchTimer;
+                    fogData->addFog.near =
+                        ((fogNear << 16) - fogData->fog.near) / switchTimer;
+                    fogData->addFog.far =
+                        ((fogFar << 16) - fogData->fog.far) / switchTimer;
+                    fogData->switchTimer = switchTimer;
+                    fogData->fogChanger = changer;
+                }
+            }
+            i++;
+        } while (i != views);
+    }
+}
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
  * `trackFadeFog`. Mickey's argument width and direct fog-data path are
