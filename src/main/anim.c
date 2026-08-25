@@ -570,19 +570,15 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Plateau: the fresh fixed-count array route reaches 85/87 instructions but
- * loses the boundary-symbol relocations. This 84/87 form retains them; first
- * mismatch +0x34, with IDO carrying three boundary bases between loops.
+ * Plateau: a fresh Mickey m2c single-cursor route has the exact 87-instruction
+ * size/frame with 15 structural words left, first +0x34. Ten are paired LO16
+ * scheduling sites; the clear loop remains li/bne instead of slti/bnez.
  */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
     s32 emptyIndex;
     s32 offset;
-    AnimCameraSource **camera;
-    void **sound;
-    AnimScrollReset *scroll;
-    AnimLockonReset *lockon;
-    AnimLightReset *light;
+    u8 *cursor;
 
     D_800D6B04 = piRomLoad(0x3D);
     D_800D6B00 = func_8002B280(0x400, 0x81);
@@ -592,42 +588,42 @@ void func_80050BF4(void) {
         offset += 4;
     } while (offset < 0x400);
 
-    camera = D_800D6B08;
+    cursor = (u8 *) D_800D6B08;
     do {
-        *camera = NULL;
-        camera++;
-    } while (camera < (AnimCameraSource **) D_800D6B18);
+        cursor += 4;
+        *(void **) (cursor - 4) = NULL;
+    } while ((u32) cursor < (u32) D_800D6B18);
 
-    sound = D_800D6B18;
+    cursor = (u8 *) D_800D6B18;
     do {
-        *sound = NULL;
-        sound++;
-    } while (sound < D_800D6B58);
+        cursor += 4;
+        *(void **) (cursor - 4) = NULL;
+    } while ((u32) cursor < (u32) D_800D6B58);
 
-    scroll = (AnimScrollReset *) D_800D6B58;
+    cursor = (u8 *) D_800D6B58;
     do {
-        scroll->unk0 = 0xFF;
-        scroll->unk4 = 0;
-        scroll->unkC = 0;
-        scroll++;
-    } while (scroll < (AnimScrollReset *) D_800D6BF8);
+        cursor += 0x14;
+        cursor[-0x14] = 0xFF;
+        *(s32 *) (cursor - 0x10) = 0;
+        *(s32 *) (cursor - 8) = 0;
+    } while ((u32) cursor < (u32) D_800D6BF8);
 
     emptyIndex = -1;
-    lockon = (AnimLockonReset *) D_800D6BF8;
+    cursor = D_800D6BF8;
     do {
-        lockon->unk0 = emptyIndex;
-        lockon++;
-    } while (lockon < (AnimLockonReset *) D_800D6C38);
+        cursor += 8;
+        *(s8 *) (cursor - 8) = emptyIndex;
+    } while ((u32) cursor < (u32) D_800D6C38);
 
     D_8007D6B0 = 0;
-    light = D_800D6C58;
+    cursor = (u8 *) D_800D6C58;
     do {
-        light->unk0 = 0;
-        light->unk10 = 0;
-        light->unk20 = 0;
-        light->unk30 = 0;
-        light++;
-    } while (light != (AnimLightReset *) D_800D6D18);
+        cursor += 0x40;
+        *(s32 *) (cursor - 0x40) = 0;
+        *(s32 *) (cursor - 0x30) = 0;
+        *(s32 *) (cursor - 0x20) = 0;
+        *(s32 *) (cursor - 0x10) = 0;
+    } while (cursor != (u8 *) D_800D6D18);
 
     D_800D6C3E = 0;
     D_800D6C44 = 0;
