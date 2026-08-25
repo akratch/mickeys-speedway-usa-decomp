@@ -23,7 +23,7 @@
   "nonempty_modules": 106,
   "text_bytes": 469264,
   "matched_overlay_c_bytes": 83296,
-  "nonmatching_overlay_c_bytes": 210080,
+  "nonmatching_overlay_c_bytes": 214292,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -19066,10 +19066,10 @@
      "offset": "0x2510",
      "end_offset": "0x29A4",
      "size": "0x494",
-     "type": "asm",
-     "source": "overlays/o101/overlay_101_tail_2510_a",
-     "matched": false,
-     "nonmatching": false
+     "type": "c",
+     "source": "overlays/o101/func_overlay_101_F0002510_18DDD30",
+     "matched": true,
+     "nonmatching": true
     },
     {
      "offset": "0x29A4",
@@ -19154,10 +19154,46 @@
     },
     {
      "offset": "0x3A58",
-     "end_offset": "0x99C4",
-     "size": "0x5F6C",
+     "end_offset": "0x512C",
+     "size": "0x16D4",
      "type": "asm",
      "source": "overlays/o101/overlay_101_post_draw_slots",
+     "matched": false,
+     "nonmatching": false
+    },
+    {
+     "offset": "0x512C",
+     "end_offset": "0x571C",
+     "size": "0x5F0",
+     "type": "c",
+     "source": "overlays/o101/func_overlay_101_F000512C_18E094C",
+     "matched": true,
+     "nonmatching": true
+    },
+    {
+     "offset": "0x571C",
+     "end_offset": "0x5E08",
+     "size": "0x6EC",
+     "type": "asm",
+     "source": "overlays/o101/overlay_101_tail_571c",
+     "matched": false,
+     "nonmatching": false
+    },
+    {
+     "offset": "0x5E08",
+     "end_offset": "0x63F8",
+     "size": "0x5F0",
+     "type": "c",
+     "source": "overlays/o101/func_overlay_101_F0005E08_18E1628",
+     "matched": true,
+     "nonmatching": true
+    },
+    {
+     "offset": "0x63F8",
+     "end_offset": "0x99C4",
+     "size": "0x35CC",
+     "type": "asm",
+     "source": "overlays/o101/overlay_101_tail_63f8",
      "matched": false,
      "nonmatching": false
     },
