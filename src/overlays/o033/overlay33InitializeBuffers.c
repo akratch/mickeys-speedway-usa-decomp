@@ -15,6 +15,12 @@ extern s32 overlay33AllocateReloc(s32 size, s32 tag);
 extern s32 overlay33InitializeBufferReloc(s32 *context, s32 *status, s32 mode);
 extern void overlay33AllocationFailedReloc(void);
 
+/*
+ * Plateau (10 source-shape attempts): the best candidate has the exact
+ * 81-instruction size and 56-byte frame, with 14 positional words differing
+ * and the first mismatch at +0x74.  The remaining blocker is the allocation
+ * alignment delay-slot schedule and its v0/v1 temporary register web.
+ */
 #ifdef NON_MATCHING
 void overlay33InitializeBuffers(void) {
     s32 width;
