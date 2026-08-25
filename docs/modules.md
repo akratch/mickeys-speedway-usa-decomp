@@ -962,6 +962,13 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
+The tier-B `frontGetMode` adds **0xC bytes / 3 words** at ROM `0x39A10`.
+Its exact byte getter, ordered position between the front-end mode setter and
+update routine, and the update's dispatch on the same state establish the JFG
+name. The adapted body carries point-of-use `PROVENANCE`; the default flags,
+HI16/LO16 data relocations, object words, and linked ROM range are exact
+without post-processing.
+
 `func_80038E1C` retains a Mickey-derived `NON_MATCHING` candidate with the
 exact **0x45C-byte / 279-word** size, `0x28`-byte frame, case count, and
 high-level control flow. It plateaus at **248/279 differing words**, first

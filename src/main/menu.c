@@ -152,7 +152,10 @@ extern void func_8002460C(MenuCommand **commands);
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800389CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038BC4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038DAC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038E10.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontGetMode. */
+u8 frontGetMode(void) {
+    return D_8007C0A0;
+}
 #ifdef NON_MATCHING
 /* Size- and frame-exact plateau: 248/279 words differ, first at +0x24.
  * IDO assigns the persistent fade-state address to a0 instead of v1, then
