@@ -115,8 +115,23 @@ typedef struct ParticleModelEntry {
     s16 animationSpeed;
     u8 padB6[2];
     void *resource;
-    u8 padBC[4];
+    ParticleTriggerSlot *trigger;
 } ParticleModelEntry;
+
+typedef struct ParticlePointStreamEntry {
+    u8 pad00[0x40];
+    s32 pointCount;
+    f32 points[8][3];
+    u8 active;
+    u8 padA5[3];
+    s32 animationState;
+    s32 configFlags;
+    f32 textureFrame;
+    s16 animationSpeed;
+    u8 padB6[2];
+    void *resource;
+    ParticleTriggerSlot *trigger;
+} ParticlePointStreamEntry;
 
 typedef struct ParticleLineEntry {
     u8 pad00[0x124];
@@ -159,8 +174,16 @@ typedef struct ParticleModelObject {
 } ParticleModelObject;
 
 typedef struct ParticleTypeDescriptor {
-    u8 pad00[4];
-    s32 flags;
+    s32 descriptorWord;
+    union {
+        s32 flags;
+        struct {
+            u8 pad04;
+            u8 pointCount;
+            s16 resourceId;
+        };
+    };
+    s16 animationSpeed;
 } ParticleTypeDescriptor;
 
 typedef struct BasicParticle {
@@ -242,6 +265,7 @@ typedef struct ParticlePosition {
 extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
+extern f32 D_80082A48;
 extern f32 D_80082A4C;
 extern void **D_8007C884;
 extern s32 D_8007C888;
@@ -268,6 +292,7 @@ extern f32 D_800D4134;
 extern f32 D_800D4138;
 extern f32 D_800D413C;
 extern void *D_8007CA60;
+extern f32 *D_8007CA90[];
 extern void *D_8007CA98;
 
 void mmFree(void *ptr);
@@ -294,7 +319,7 @@ void func_800367A4(void *texture, void *state, s16 speed, f32 *frame, s32 update
 void func_8003EC8C(ParticleObject *object, s32 index);
 void func_8003E7B8(ParticleObject *object, s32 index);
 void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger);
-s8 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger);
+s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger);
 s32 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config);
 void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
 void func_8003CA20(void);
@@ -552,7 +577,101 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     trigger->flags = flags | 0x8000;
     object->activeTriggerCount++;
 }
+#ifdef NON_MATCHING
+/*
+ * Exact-size plateau: the configured TU emits all 140 target opcodes but a
+ * 0x30 frame instead of 0x38, leaving 22 aligned residuals (19 stack/frame,
+ * two register, one branch-target) from +0x8. The 119-entry flag lattice did
+ * not improve the default flags. A bounded permuter found a standalone zero
+ * that did not reproduce in the configured TU and was not promoted.
+ * PROVENANCE: structure cross-checked against JFG
+ * asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey
+ * evidence.
+ */
+s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
+    ParticlePointStreamEntry *entry;
+    f32 *pointData;
+    f32 *point;
+    s32 result;
+    s32 i;
+    ParticleModelEntry *modelEntries;
+    s32 pointIndex;
+    s32 frameCount;
+
+    if (D_8007C898 == NULL) {
+        return 0xFF;
+    }
+
+    modelEntries = D_8007C898;
+    entry = (ParticlePointStreamEntry *)modelEntries;
+    result = 0xFF;
+    i = 0;
+    if (D_8007C890 > 0) {
+        do {
+            if (trigger == entry->trigger && entry->active == 1) {
+                entry->active = 2;
+                return i;
+            }
+            i++;
+            entry++;
+        } while (i < D_8007C890);
+    }
+
+    entry = (ParticlePointStreamEntry *)D_8007C898;
+    i = 0;
+    if (D_8007C890 > 0) {
+        do {
+            if (entry->active == 0) {
+                result = i;
+                i = D_8007C890;
+            } else {
+                entry++;
+            }
+            i++;
+        } while (i < D_8007C890);
+    }
+
+    if (result != 0xFF) {
+        entry->active = 2;
+        point = &entry->points[0][0];
+        pointIndex = 0;
+        entry->pointCount = (u32)descriptor->pointCount >> 4;
+        pointData = D_8007CA90[(u32)descriptor->pointCount >> 4];
+        if (entry->pointCount > 0) {
+            do {
+                point[0] = pointData[0];
+                point[1] = pointData[1];
+                point[2] = 0.0f;
+                pointIndex++;
+                pointData += 2;
+                point += 3;
+            } while (pointIndex < entry->pointCount);
+        }
+        entry->animationState = descriptor->descriptorWord;
+        entry->configFlags = config->flags;
+        if (descriptor->resourceId == -1) {
+            entry->resource = NULL;
+            entry->animationSpeed = 0;
+            entry->textureFrame = 0.0f;
+        } else {
+            entry->resource = func_80034448(descriptor->resourceId);
+            entry->animationSpeed = descriptor->animationSpeed;
+            frameCount = ((ParticleTexture *)entry->resource)->frameCount >> 8;
+            if (config->flags & 0x800) {
+                entry->textureFrame = mathRnd(0, frameCount - 1);
+            } else if ((entry->animationState & 1) == 2) {
+                entry->textureFrame = (f32)frameCount - D_80082A48;
+            } else {
+                entry->textureFrame = 0.0f;
+            }
+        }
+        entry->trigger = trigger;
+    }
+    return result;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E8D8.s")
+#endif
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FD34.s; body reconstructed from Mickey evidence. */
 s32 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config) {
     s32 result;

@@ -1443,6 +1443,15 @@ improvement. A bounded ten-minute permuter batch improved its internal score
 from 1065 to 705 without reaching an exact result. The original asm body
 remains canonical.
 
+`func_8003E8D8` has an exact-size 140-word C candidate with the target opcode
+schedule under the default resident flags. The configured whole-TU build uses
+a `0x30` frame instead of the target `0x38` frame, leaving 22 aligned
+residuals (19 stack/frame constants, two register operands, and one branch
+target), first differing at function offset `0x8`. The full 119-entry flag
+lattice found no improvement. A bounded permuter found a standalone zero that
+did not reproduce when compiled in the canonical TU, so it was rejected. The
+original asm body remains canonical.
+
 `func_80040740` has a 78-word C candidate with the target text instruction
 schedule under the default resident flags, reconstructed from Mickey evidence
 with the JFG assembly sibling as a structural oracle. It cannot be promoted
