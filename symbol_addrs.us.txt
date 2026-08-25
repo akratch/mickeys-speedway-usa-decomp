@@ -2317,6 +2317,7 @@ camOrthoYAspect = 0x80022A38; // type:func size:0x0C ROM 0x23638 tier-D matched-
 func_80022A44 = 0x80022A44; // type:func size:0x0C ROM 0x23644 tier-D matched-C Mickey auto-name retained, camera TU position
 camRestoreModelMtx = 0x800245EC; // type:func size:0x20 ROM 0x251EC tier-D matched-C JFG TU role/order
 camPopModelMtx = 0x8002460C; // type:func size:0x20 ROM 0x2520C tier-D matched-C JFG TU role/order
+camGetPtr = 0x8002462C; // type:func size:0x2C ROM 0x2522C tier-B matched-C Mickey/JFG weather call graph and active-camera dataflow
 camGetListPtr = 0x80024658; // type:func size:0x0C ROM 0x25258 tier-D matched-C JFG TU role/order
 camGetInvProjMtx = 0x80024664; // type:func size:0x0C ROM 0x25264 tier-D matched-C JFG TU role/order, Mickey matrix dataflow
 camGetProjOrgMtx = 0x80024670; // type:func size:0x1C ROM 0x25270 tier-B matched-C, donor comparison has only 3 unmasked words

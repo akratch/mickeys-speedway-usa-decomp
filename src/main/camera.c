@@ -559,7 +559,10 @@ void camPopModelMtx(Gfx **dlist) {
         cmd->words.w0 = 0xBC00000A;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002462C.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetPtr. */
+Camera *camGetPtr(void) {
+    return &D_800CEA20[D_800CEC64];
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetListPtr. */
 Camera *camGetListPtr(void) {
     return D_800CEA20;
