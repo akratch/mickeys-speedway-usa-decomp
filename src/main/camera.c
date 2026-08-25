@@ -398,33 +398,16 @@ void func_80021504(f32 fov, s32 force) {
         mtxf_to_mtx(D_800CEC98, &D_800CED60[D_80079F94]);
     }
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from DKR's public decomp,
  * src/camera.c:cam_reset_fov.
- *
- * Plateau: the full flag lattice, six semantics-preserving source/type/address
- * variants, and a bounded two-worker permuter batch leave an exact 0x94-byte,
- * 37-instruction candidate with 11 positional words different from first
- * mismatch +0x4C. The remaining difference is temporary-register allocation
- * in the rotating matrix-slot update. The permuter's lower-scoring candidate
- * removed the required ring mask and invented a dead guard, so it was rejected.
  */
 void func_80021718(void) {
-    s32 index;
-    s32 slot;
-
     func_8004FAD0(D_800CEC98, &D_800CEC94, 60.0f, 1.3333334f, 10.0f,
                   D_80081A2C, 1.0f);
-    index = (D_80079F94 + 1) & 0xF;
-    slot = index & 0xFF;
-    D_80079F94 = index;
-    mtxf_to_mtx(D_800CEC98,
-                (Mtx *) ((slot << 6) + (u8 *) D_800CED60));
+    D_80079F94 = (D_80079F94 + 1) & 0xF;
+    mtxf_to_mtx(D_800CEC98, &D_800CED60[D_80079F94]);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021718.s")
-#endif
 MtxF *func_800217AC(void) {
     return &D_800CF260;
 }
