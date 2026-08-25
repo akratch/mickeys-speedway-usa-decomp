@@ -28,20 +28,17 @@ extern s32 D_21C;
 extern Overlay65Camera *o65GetCamera(s32 index);
 extern s32 o65RandomRange(s32 low, s32 high);
 
-#ifdef NON_MATCHING
 void func_overlay_065_F0001A14_18C5C7C(f32 baseX, f32 baseY, f32 baseZ) {
     Overlay65Camera *camera;
     void *record;
     s32 i;
     s32 j;
-    s32 keepGoing;
     void *point;
     u8 *colors;
 
     camera = o65GetCamera(0);
     record = D_0;
-    i = 0;
-    do {
+    for (i = 0; i < 50; i++, record = (u8 *)record + 0x80) {
         j = 0;
         point = record;
         if (FIELD(record, u8, 0x7C) == 0) {
@@ -49,12 +46,11 @@ void func_overlay_065_F0001A14_18C5C7C(f32 baseX, f32 baseY, f32 baseZ) {
             for (;;) {
                 f32 value = (f32)j;
                 j++;
-                keepGoing = j < 9;
                 point = (u8 *)point + 4;
                 FIELD(point, f32, -4) = value + baseX;
                 FIELD(point, f32, 0x20) = value + baseY;
                 FIELD(point, f32, 0x44) = value + baseZ;
-                if (keepGoing != 0) {
+                if (j < 9) {
                     continue;
                 }
                 break;
@@ -69,10 +65,5 @@ void func_overlay_065_F0001A14_18C5C7C(f32 baseX, f32 baseY, f32 baseZ) {
             FIELD(record, f32, 0x78) = camera->y - 200.0f;
             i = 50;
         }
-        i++;
-        record = (u8 *)record + 0x80;
-    } while (i < 50);
+    }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o065/overlay65SpawnRecord/func_overlay_065_F0001A14_18C5C7C.s")
-#endif

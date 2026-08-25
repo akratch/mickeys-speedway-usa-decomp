@@ -1880,9 +1880,22 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x80
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65Initialize.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
 
-# NON_MATCHING/GLOBAL_ASM: the spawn record already uses its canonical auto
-# symbol and requires no postprocess metadata.
+# The zero-base spawn pool is already encoded in retail. Its camera/random
+# calls use the overlay's offset-zero carrier.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65SpawnRecord.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x4C:5:D_0 0x64:6:D_0 && \
+	$(OBJCOPY) --redefine-sym \
+		o65GetCamera=func_overlay_065_F0000000_18C4268 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0xCC:o65RandomRange:func_overlay_065_F0000000_18C4268 \
+		0xE8:o65RandomRange:func_overlay_065_F0000000_18C4268 \
+		0x104:o65RandomRange:func_overlay_065_F0000000_18C4268 \
+		0x11C:o65RandomRange:func_overlay_065_F0000000_18C4268
 
 # The typed source owns O64's complete procedural texture generator. IDO's
 # natural stream contains four redundant representations; the target-local
