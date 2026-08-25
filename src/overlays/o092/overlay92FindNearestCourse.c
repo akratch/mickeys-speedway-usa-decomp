@@ -37,6 +37,9 @@ extern f32 gOverlay92Interpolation;
 extern O92Object **overlay92GetObjectRange(s32 *start, s32 *end);
 extern f32 sqrtf(f32 value);
 
+/* Size-exact plateau under -Wab,-r4300_mul: 41 of 168 words differ, first at
+ * +0x4. Aggregate, declaration-order, and explicit-register lifetime variants
+ * did not reproduce retail's private GPR/FP/stack allocation web. */
 #ifdef NON_MATCHING
 s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
                                       f32 *outY, f32 *outZ, s32 *outValue) {
