@@ -1,6 +1,7 @@
 #include "ultra64.h"
 #include "game/gameVi.h"
 #include "game/menu.h"
+#include "game/sched_internal.h"
 
 /*
  * Resident main state and frame control, ROM 0x27760-0x2A250.
@@ -49,7 +50,9 @@ extern s32 D_8007A1EC;
 extern s32 D_8007A1B4;
 extern s32 D_8007A1D8;
 extern s32 D_8007A200;
+extern void *D_8007A204;
 extern s32 D_8007A24C;
+extern s32 D_8007A320;
 extern u8 *D_8007A244;
 extern s16 D_8007A250[];
 extern s32 D_8007A258;
@@ -88,6 +91,9 @@ extern MainGameEntry *D_800D18E0;
 extern void *D_800D18E4;
 extern u8 D_800D1928[];
 extern OSMesgQueue D_800D18F8;
+extern OSMesg D_800D18F4;
+extern OSScClient D_800D18E8;
+extern OSSched D_800CF5B8;
 extern s32 D_800D1910;
 extern s32 D_800D18C0;
 extern s32 D_800D18C4;
@@ -129,6 +135,16 @@ extern void func_8003A2C8(s32);
 extern s32 func_8003A408(void);
 extern void func_8003A41C(s32);
 extern void mainFrontInit(s32, s32, s32);
+extern void RevealReturnAddresses(void);
+extern void mmInit(void);
+extern void func_8004D750(void);
+extern void *func_8002B280(s32, s32);
+extern void osCreateScheduler(OSSched *, void *, s32, u8, u8);
+extern void osScAddClient(OSSched *, OSScClient *, OSMesgQueue *, u8);
+extern void piInit(void);
+extern void rcpInit(OSSched *);
+extern void runlinkInit(void);
+extern void func_80032338(s32);
 extern s32 func_80021C5C(s32);
 extern void func_80021F68(s32, s32 *, s32 *, s32 *, s32 *);
 extern f32 rainDensity(void);
@@ -261,7 +277,44 @@ void mainPreNMI(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainInitGame.s")
+/*
+ * PROVENANCE: body adapted from Jet Force Gemini src/main.c::mainInitGame;
+ * Mickey's subsystem calls, storage and byte identity are decisive.
+ */
+void mainInitGame(void) {
+    s32 viMode;
+
+    if (osTvType == 0) {
+        viMode = 0xE;
+    } else if (osTvType == 1) {
+        viMode = 0;
+    } else if (osTvType == 2) {
+        viMode = 0x1C;
+    }
+    osCreateScheduler(&D_800CF5B8, &D_800D18C0, 13, viMode, 1);
+    RevealReturnAddresses();
+    mmInit();
+    func_8004D750();
+    D_8007A204 = func_8002B280(0x40, 0x7F7F7FFF);
+    D_8007A1AC = 0;
+    osCreateMesgQueue(&D_800D18F8, &D_800D18F4, 1);
+    osScAddClient(&D_800CF5B8, &D_800D18E8, &D_800D18F8, 3);
+    D_800D1910 = 0;
+    D_8007A320 = 1;
+    D_8007A1B4 = 0;
+    viInit(&D_800CF5B8);
+    mainPreNMI();
+    piInit();
+    mainPreNMI();
+    rcpInit(&D_800CF5B8);
+    mainPreNMI();
+    runlinkInit();
+    mainPreNMI();
+    TrapDanglingJump();
+    mainPreNMI();
+    func_80032338(0x12);
+    D_8007A320 = 0;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80026FB4.s")
 
