@@ -1863,9 +1863,9 @@ schedule, but the whole TU emits a `0x30` frame versus `0x38`: 22 residuals
 did not improve it; a standalone permuter zero failed in the canonical TU and
 was rejected. Asm stays canonical.
 
-`func_80040740` is size/frame exact with 9/78 executable words different, first `+0x1C`.
-Reversing its empty guard fixes one branch but was rejected as a fake; temp slot 5 still cycles `t0`/`t9`/`t1`.
-Three switch/PC16 relocation identities remain; the invalid `-mips1` permuter import was rejected and asm stays canonical.
+| Newly matched function | ROM / size | Match evidence |
+|---|---:|---|
+| `func_80040740` | ROM `0x41340`, `0x138` B | IDO 5.3 exact under resident `-O2 -mips2 -32`; Mickey reconstruction with JFG structural oracle |
 
 `partModelObjEmitModelPart` reached a bounded size-exact 84-word plateau under
 the default resident flags. The best compliant Mickey reconstruction differs

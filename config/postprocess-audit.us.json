@@ -28,18 +28,6 @@
     {
       "class": "metadata",
       "matched_c": null,
-      "object": "build/src/main/lights.c.o",
-      "offset": null,
-      "overlay": null,
-      "size": null,
-      "source": "src/main/lights.c",
-      "tools": [
-        "trim_elf_section.py"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": null,
       "object": "build/src/main/main.c.o",
       "offset": null,
       "overlay": null,
@@ -52,11 +40,11 @@
     {
       "class": "metadata",
       "matched_c": null,
-      "object": "build/src/main/menu.c.o",
+      "object": "build/src/main/particles.c.o",
       "offset": null,
       "overlay": null,
       "size": null,
-      "source": "src/main/menu.c",
+      "source": "src/main/particles.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -630,7 +618,6 @@
       "size": 5408,
       "source": "src/overlays/o009/overlay_009.c",
       "tools": [
-        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "externalize_elf_section.py",
         "objcopy"
@@ -7563,9 +7550,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 612
+      "metadata": 611
     },
     "matched_c_bytes_with_postprocess": 396792,
-    "objects_with_postprocess": 612
+    "objects_with_postprocess": 611
   }
 }

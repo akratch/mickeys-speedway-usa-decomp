@@ -723,6 +723,10 @@ $(BUILD_DIR)/$(SRC_DIR)/main/camera.c.o: CFLAGS += -Wab,-r4300_mul
 
 # The general-particle velocity magnitudes require the R4300 multiply schedule.
 $(BUILD_DIR)/$(SRC_DIR)/main/particles.c.o: CFLAGS += -Wab,-r4300_mul
+# The matched switch table and the following particle constants own 0x28
+# bytes; discard only IDO's trailing zero section alignment.
+$(BUILD_DIR)/$(SRC_DIR)/main/particles.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x28
 
 # The vehicle logarithm-series helper needs the R4300 multiply-hazard pass.
 $(BUILD_DIR)/$(SRC_DIR)/main/vehicle_sounds.c.o: CFLAGS += -Wab,-r4300_mul
