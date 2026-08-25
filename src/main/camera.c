@@ -133,6 +133,7 @@ extern u8 D_80079F94;
 extern s32 D_80079F8C;
 extern f32 D_80079F60;
 extern f32 D_80079F48;
+extern f32 D_80079F4C[16];
 extern CameraViewport D_80079C10[];
 extern CameraViewportFlags D_80079C40[];
 extern Vp D_80079D58[];
@@ -982,7 +983,33 @@ f32 camGetProjZ(f32 x, f32 y, f32 z) {
 
     return out;
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camCopyOrthoMatrix.
+ *
+ * Plateau: the full flag lattice, eight coherent source/type/indexing
+ * variants, and a bounded two-worker permuter batch leave an 84-instruction
+ * configured candidate against the 83-instruction target, with 59 positional
+ * words different from first mismatch +0x5C. IDO emits one extra address
+ * materialization for the third peeled coefficient; the likely blocker is
+ * original same-TU data-definition knowledge versus this extern array.
+ * The permuter's base score was 135 and it found no improvement.
+ */
+void func_80024978(MtxF matrix) {
+    s32 i;
+    s32 width;
+    s32 height;
+
+    viGetCurrentSize(&width, &height);
+    for (i = 0; i < 15; i++) {
+        ((f32 *) matrix)[i] = D_80079F4C[i] * D_80079F48;
+    }
+    matrix[3][3] = (u32) width >> 1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024978.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStartShake. */
 void camStartShake(s32 camNo, f32 attack, f32 sustain, f32 decay,
                    s32 magnitude) {
