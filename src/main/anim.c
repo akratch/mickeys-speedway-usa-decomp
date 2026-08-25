@@ -96,7 +96,7 @@ typedef struct AnimLockonReset {
 
 extern AnimLightReset D_800D6C58[];
 
-void *func_8002B280(s32 size, u32 colourTag);
+void *func_8002B280();
 AnimPathObject *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_80005768(AnimPathObject *object);
 void piRomLoadSection();
@@ -641,33 +641,34 @@ void animseqFreeLevelData(void) {
     }
 }
 
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from JFG's public animseqLoadLevelData assembly.
- * Plateau: exact 43-word shape; two source-spill offsets differ, first +0x60.
- * A fresh word-bound m2c form and workbench lever 6 retain the 0x18 home.
+ * Mickey's third allocator argument and two-word local layout establish the
+ * source-offset home independently against Mickey's ROM.
  */
 void func_80050DF0(s32 levelId) {
+    struct {
+        s32 unused;
+        s32 source;
+    } locals;
     s32 *bounds;
-    s32 source;
 
     if (levelId != -1 && levelId != D_8007D688) {
         animseqFreeLevelData();
         bounds = (s32 *) D_800D6B04 + levelId;
-        source = bounds[0];
-        D_8007D684 = bounds[1] - source;
+        locals.source = bounds[0];
+        D_8007D684 = bounds[1] - locals.source;
         if (D_8007D684 > 0) {
-            D_8007D680 = func_8002B280(D_8007D684, 0x81);
+            D_8007D680 =
+                func_8002B280(D_8007D684, 0x81, locals.source);
             if (D_8007D680 != NULL) {
-                piRomLoadSection(0x3E, D_8007D680, source, D_8007D684);
+                piRomLoadSection(0x3E, D_8007D680, locals.source,
+                                 D_8007D684);
                 D_8007D688 = levelId;
             }
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050DF0.s")
-#endif
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
