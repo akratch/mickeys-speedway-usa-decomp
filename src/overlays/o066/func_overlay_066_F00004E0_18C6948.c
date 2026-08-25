@@ -16,12 +16,12 @@ extern void viGetCurrentSize(u32 *width, u32 *height);
  * own function supplies the body, resident bindings, and framebuffer loop.
  */
 /*
- * Plateau (2026-08-25, 10 attempts): -O2 -g3 -mips2 emits 195 instructions
- * versus the 204-instruction target and differs in 182 positional words. The
- * first mismatch is +0x0: a 0x78-byte frame versus 0xA8. The remaining gap is
- * callee-save allocation and the loop-entry/texture-command schedule. The full
- * flag lattice found no closer codegen group; the bounded permuter was blocked
- * by the checkout's unrelated diCpuThreadStack splat-symbol overlap.
+ * Plateau (2026-08-25, fresh flag sweep plus 3 structural attempts):
+ * -O2 -mips1 -32 emits 201 instructions versus the 204-instruction target
+ * and differs in 181 positional words. The first mismatch remains +0x0: the
+ * candidate frame is 0x78 versus 0xA8. Explicit long-lived argument aliases
+ * and direct texture-rectangle command stores did not reproduce the target's
+ * s0-s4 allocation; the direct command form regressed to 192 differences.
  */
 #ifdef NON_MATCHING
 void func_overlay_066_F00004E0_18C6948(register Gfx **displayList,
