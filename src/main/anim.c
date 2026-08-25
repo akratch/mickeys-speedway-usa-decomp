@@ -2116,26 +2116,20 @@ no_intersection:
 /*
  * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
  * establishes the entity cutoff, resident structures, and final code here.
- * Plateau after the flag lattice, 10 source/workspace shapes, and a bounded
- * canonical-flag permuter: the best full-TU candidate has the exact 105
- * instructions and 0xC0 frame, but 53 words remain from first mismatch +0x24.
- * The target rotates the saved players/result/count registers and places the
- * count/distances workspace at sp+0x7C/sp+0xA0. A nominal score-545 permutation
- * failed to reset the distance cursor on each sort pass and was rejected.
  */
+/* Plateau retry (2026-08-25): exact-sized at 51/105 words, first +0x24;
+ * scoped deltas recover sp+0x7C, but distances stay at sp+0x94; no permuter zero.
+ * Its 520-score hoist broke cursor reset, leaving the layout/register phase. */
 s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
                   HitCopyState **nearby) {
+    f32 distances[8];
     HitCopyState **players;
     HitCopyState *player;
     HitCopyState **nearbyEntry;
-    f32 distances[8];
     f32 *distance;
     f32 *lastDistance;
-    f32 deltaX;
     f32 deltaY;
-    f32 deltaZ;
     f32 distanceSquared;
-    f32 nextDistance;
     f32 currentDistance;
     s32 playerCount;
     s32 found;
@@ -2150,6 +2144,9 @@ s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
             player = *players++;
             if ((*(s8 *) player->target >= 0) &&
                 (*(s8 *) player->target < 6)) {
+                f32 deltaX;
+                f32 deltaZ;
+
                 deltaX = player->position.x - x;
                 deltaZ = player->position.z - z;
                 distanceSquared = (deltaX * deltaX) + (deltaZ * deltaZ);
@@ -2173,13 +2170,12 @@ s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
                 lastDistance = &distance[remaining];
                 nearbyOffset = 0;
                 do {
-                    nextDistance = distance[1];
                     currentDistance = distance[0];
                     nearbyEntry = (HitCopyState **)
                         ((u8 *) nearby + nearbyOffset);
-                    if (nextDistance < currentDistance) {
+                    if (distance[1] < currentDistance) {
                         player = nearbyEntry[0];
-                        distance[0] = nextDistance;
+                        distance[0] = distance[1];
                         nearbyEntry[0] = nearbyEntry[1];
                         distance[1] = currentDistance;
                         nearbyEntry[1] = player;
