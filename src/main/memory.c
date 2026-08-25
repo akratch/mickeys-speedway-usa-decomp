@@ -50,11 +50,20 @@ void mmSetDelay(s32 state) {
     D_800D21AC = state;
 }
 
-/* JFG correspondence: mmFlushFreeStack (tier B; drains deferred frees). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B700.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmFlushFreeStack. */
+extern void *D_800D1CA8[];
+extern s8 D_800D20A8[];
+extern s32 D_800D21A8;
+
+s32 func_8002B8A8(u8 *address);
+
+void func_8002B700(void) {
+    while (D_800D21A8 > 0) {
+        func_8002B8A8(D_800D1CA8[--D_800D21A8]);
+    }
+}
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmFree. */
-s32 func_8002B8A8(u8 *address);
 void func_8002B93C(void *dataAddress);
 
 void mmFree(void *data) {
@@ -74,10 +83,6 @@ void mmFree(void *data) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B8A8.s")
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_free_queue. */
-extern void *D_800D1CA8[];
-extern s8 D_800D20A8[];
-extern s32 D_800D21A8;
-
 void func_8002B93C(void *dataAddress) {
     D_800D1CA8[D_800D21A8] = dataAddress;
     D_800D20A8[D_800D21A8] = D_800D21AC;
