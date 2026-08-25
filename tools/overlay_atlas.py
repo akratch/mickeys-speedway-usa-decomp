@@ -1016,6 +1016,9 @@ TEXT_SUBSEGMENTS = {
 # Each range was an independently compiled, metadata-only object before its
 # overlay was consolidated and remains byte-identical in the linked ROM.
 MIXED_TU_EXACT_C_RANGES = {
+    9: [
+        (0x10A4, 0x10B4, "overlay9Ignore"),
+    ],
     12: [
         (0x000, 0x0C4, "overlay12Initialize"),
     ],
