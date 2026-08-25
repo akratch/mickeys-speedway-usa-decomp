@@ -7,6 +7,19 @@
 /* Retail's runtime relocation table addresses this pool from offset 0x20. */
 static const u8 sOverlay9ConstantPoolBase[0x20] = { 0 };
 
+typedef struct Overlay9LevelScaleReloc {
+    u8 pad00[0x18];
+    f32 value;
+} Overlay9LevelScaleReloc;
+
+typedef struct Overlay9YawScaleReloc {
+    u8 pad00[0x1C];
+    f32 value;
+} Overlay9YawScaleReloc;
+
+extern Overlay9LevelScaleReloc gOverlay9LevelScaleReloc;
+extern Overlay9YawScaleReloc gOverlay9YawScaleReloc;
+
 /*
  * Overlay 9, ADR 0006 consolidation. Functions remain in retail ROM order.
  * The module uses the R4300 multiply-hazard schedule; applying that flag to
@@ -230,13 +243,14 @@ void func_overlay_009_F0000744_1866DBC(O9OutputRecord *output, O9OutputControl *
         } while (i--);
     }
 
-    level = state->scale * D_18;
+    level = state->scale * gOverlay9LevelScaleReloc.value;
     if (level > 1.0f) {
         level = 1.0f;
     }
 
     output->pitch = -(s32)(state->x * 8192.0f * level);
-    output->yaw = (s32)(state->throttle * state->y * D_1C * level);
+    output->yaw = (s32)(state->throttle * state->y *
+                        gOverlay9YawScaleReloc.value * level);
 
     state->magnitude = control->lean / 20.0f;
     if (state->magnitude < 0.0f) {

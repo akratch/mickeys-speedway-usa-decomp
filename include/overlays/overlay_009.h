@@ -164,8 +164,6 @@ extern s16 *D_0;
 extern f32 D_C;
 extern f32 D_10;
 extern f32 D_14;
-extern f32 D_18;
-extern f32 D_1C;
 extern f32 D_4C;
 extern f32 D_54;
 extern f32 D_58;

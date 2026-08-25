@@ -1,0 +1,4 @@
+0x794:5:gOverlay9LevelScaleReloc
+0x798:6:gOverlay9LevelScaleReloc
+0x7d0:5:gOverlay9YawScaleReloc
+0x800:6:gOverlay9YawScaleReloc
