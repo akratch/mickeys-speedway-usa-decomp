@@ -989,20 +989,9 @@ confirms the stock resident flags and does not change the ownership surface.
 Canonical code and shared rodata remain assembly pending a measured yaml
 handoff outside this lane's ownership.
 
-`func_80038BC4` reaches an **exact-text tier-D NON_MATCHING plateau** over
-**0x1E8 bytes / 122 words** at ROM `0x397C4`. JFG's same-position
-`frontInitMode` supplies the role and switch-order comparison but retains an
-assembly body; the candidate is Mickey-derived and keeps its placeholder
-name. Explicit no-op cases zero and one recover the target's 19-entry range
-check, after which the resident default flags emit every executable word and
-the exact `0x18`-byte frame. Promotion is blocked by section ownership: IDO
-emits the switch's `0x4C` bytes as anonymous TU-local `.rodata`, while the
-named `jtbl_80082794` copy remains inside the shared `0x81590` yaml slice.
-Compiling both would duplicate the table. The first metadata mismatch is the
-target assembly's external-label PC16 at function `+0x2C`; the named-versus-
-anonymous table HI16/LO16 pair follows at `+0x34`/`+0x3C`. The flag lattice
-does not change this ownership surface. Canonical code and shared rodata
-remain assembly pending a measured yaml handoff outside this lane's ownership.
+`func_80038BC4` remains tier-D `NON_MATCHING`: all **0x1E8 bytes / 122 words** and the `0x18` frame are exact; workbench reports `relocation-layout-mismatch`.
+The structural-branch and shared-owner audit leaves the external PC16 at `+0x2C` and anonymous-versus-`jtbl_80082794` HI16/LO16 at `+0x34`/`+0x3C`.
+JFG's `frontInitMode` supplies role/order provenance; canonical asm and the shared `0x81590` rodata owner remain.
 
 The tier-B `frontSetMode` adds **0x64 bytes / 25 words** at ROM `0x399AC`.
 Its exact free/init/reset call sequence, mode-state store, and ordered pairing
@@ -1792,15 +1781,9 @@ This run's explicit cursor-field retry added one word; a bounded MIPS II
 permuter improved only by inventing a 64-bit mask seed, so the faithful
 31-word/18-difference candidate remains guarded with the same `+0x14` blocker.
 
-The full-save-image builder `func_8002CF6C` also retains a Mickey-derived
-`NON_MATCHING` body after the 119-combination flag lattice and ten
-stack-layout, call-arity, and lifetime hypotheses. Its best candidate has the
-target's exact 88-instruction opcode schedule, 72-byte frame, and relocation
-surface; nine register-only words remain from the first mismatch at `+0xCC`.
-The saved global-flags bit reload crosses from the target's temporary FIFO to
-the candidate's colored fourth-argument web, rotating the following integer
-temporaries through the second copy loop. The assembly fallback remains
-canonical.
+`func_8002CF6C` remains Mickey-derived `NON_MATCHING`: all 88 instructions, the 72-byte frame, and relocations agree; workbench reports `register-ring-only`, 9 sites from `+0xCC`.
+Hoisted-argument, folded-mask, and addressable-scalar levers leave `savedFlag` target FIFO-temp versus candidate colored-web; the 30-minute permuter produced only invented no-op identities.
+The assembly fallback remains canonical.
 
 The 0x94-byte save-window serializer `func_8002C94C` retains a Mickey-derived
 `NON_MATCHING` body after the 119-combination flag lattice and ten source,
@@ -2061,16 +2044,9 @@ could not parse the formatter's `va_arg` macros. Promotion is additionally
 blocked because the C body emits formatter jump tables and static strings
 still owned by the resident asm-data split.
 
-`diPrintfAll` reached an instruction-exact 144-word plateau under
-`-Wab,-r4300_mul`. Strict object comparison finds four relocation-identity
-differences, first at function offset `0x144`: both accesses to the saved text
-Y coordinate name the separately declared `D_800D4A62`, while the target names
-`D_800D4A60+2`. Array, pointer, volatile, integer-cast, and structure spellings
-that produce the target relocation identity change IDO's address commoning,
-register allocation, and schedule to 142--145 words. The full flag lattice
-found the exact instruction stream only with separate globals, so the JFG
-candidate remains under `NON_MATCHING` and the original asm body remains
-canonical.
+`diPrintfAll` remains `NON_MATCHING`: all 144 instructions are exact under `-Wab,-r4300_mul`; workbench reports `relocation-symbol-mismatch`.
+Alias/rebind analysis leaves four identities from `+0x144`: `D_800D4A62` versus `D_800D4A60+2`; rebinding alone loses the encoded `+2` addend.
+The prior source spellings and flag lattice remain exhausted, so the JFG-derived candidate retains canonical asm.
 
 `debug_text_parse` reached an instruction-exact 263-word plateau. Strict
 object comparison still finds four relocation-identity differences: two

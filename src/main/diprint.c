@@ -834,8 +834,9 @@ s32 diPrintf(const char *format, ...) {
 }
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfAll. */
-/* Instruction-exact plateau. Strict promotion is blocked by four relocation
- * identities that name D_800D4A62 instead of D_800D4A60+2. */
+/* Workbench: relocation-symbol-mismatch with all 144 instructions exact.
+ * Lever: alias/rebind proved that D_800D4A60 still needs the encoded +2 addend.
+ * Remains: four D_800D4A62 versus D_800D4A60+2 relocation identities. */
 void diPrintfAll(Gfx **dList) {
     s32 width;
     s32 height;
