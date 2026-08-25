@@ -4,6 +4,7 @@
 #include "PR/ultratypes.h"
 
 u8 frontGetMode(void);
+s32 frontGetLanguage(void);
 s32 frontGetScreenMode(void);
 void frontStoreScreenMode(void);
 u8 frontRecallScreenMode(void);

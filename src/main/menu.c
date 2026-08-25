@@ -39,6 +39,7 @@ extern s32 D_8007C1AC;
 extern s32 D_800C947C;
 extern s32 D_800D314C;
 extern u8 D_800826C0[];
+extern u16 D_800D312A;
 extern u16 D_800D312C;
 extern u16 D_800D312E;
 extern void amTuneStop(void);
@@ -516,7 +517,12 @@ void func_80039E34(s32 index) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039E34.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A24C.s")
+#pragma weak func_8003A24C = frontGetLanguage
+/* PROVENANCE: name and order compared with JFG's public decomp,
+ * src/menu.c::frontGetLanguage; body derived from Mickey. */
+s32 frontGetLanguage(void) {
+    return (u32)D_800D312A >> 10;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A260.s")
 s32 frontGetScreenMode(void) {
     s32 mode;

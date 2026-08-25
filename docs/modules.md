@@ -999,6 +999,16 @@ the full flag lattice keeps the resident defaults best. JFG's corresponding
 front-end draw routine also has no C donor body. Canonical code remains
 assembly.
 
+The tier-B `frontGetLanguage` adds **0x14 bytes / 5 words** at ROM
+`0x3AE4C`. Its packed-field getter, position immediately before the paired
+setter and screen-mode accessors, and the resident caller's use of its result
+establish the JFG role. The JFG-derived name carries point-of-use
+`PROVENANCE`, while the body is Mickey-derived. An unsigned expression feeding
+the signed API recovers IDO's temporary return register; the default flags,
+HI16/LO16 data relocations, object words, and linked ROM range are exact
+without post-processing. A zero-byte weak alias preserves the anonymous name
+used by resident assembly.
+
 `frontSetWideAdjust` is the first exact C promotion: **0x2C bytes / 11 words**
 at ROM `0x3AFDC`, with the target's four relocation-bearing words resolving
 at their real linked addresses. Its body is adapted from JFG's public
