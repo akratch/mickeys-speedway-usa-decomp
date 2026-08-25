@@ -1371,9 +1371,9 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 1);
 }
 #ifdef NON_MATCHING
-/* Plateau (2026-08-25): exact-size; four stack-offset words differ, first +0x3C.
- * Correcting the helper ABI to (first, firstVehicle) aligned every register and schedule.
- * firstVehicle homes at sp+0x44 instead of sp+0x48; flags and local layouts went no closer. */
+/* Workbench: constant-audit; four stack-home operands differ, first +0x3C.
+ * Tried a code-free web, formal type/qualifier, and stack-home carrier reuse.
+ * Frame/register/schedule stay exact; second remains at sp+0x40, target sp+0x48. */
 void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;

@@ -1442,13 +1442,9 @@ The tier-B/D `rain_sound` adds **0xC0 bytes / 48 words** at ROM `0x3CF70`.
 JFG's camera-relative sound positioning compiles instruction-exact at canonical
 `-O2 -mips2 -32`, with all 13 relocations and the linked ROM range agreeing.
 
-`doWeather` plateaued after the JFG body, the 119-combination flag lattice,
-and seven source-order, typing, and allocation hypotheses. The best canonical
-candidate, preserved behind `NON_MATCHING`, differs in 54 of 169 positional
-words (115 exact), with the first mismatch at `+0xB4`; relocation identities
-agree, but update-block scheduling shifts the remaining register allocation.
-The bounded permuter was unavailable because this lane has no local
-decomp-permuter checkout.
+`doWeather`: workbench `structure-buckets`, 89 positional words differ, first
+`+0x7C`; compound updates cleared constant/commutative classes, while explicit
+return and line-assignment probes were inert. Candidate remains 168/169 words.
 
 `rain_init` and `free_rain_memory` share a synthetic static
 `TrapDanglingJump` binding with `rain_update`, but require incompatible integer,
@@ -1486,7 +1482,7 @@ the candidates remain preserved behind `NON_MATCHING`.
 | `0x3B6F0` | `0x420` | `setupWeather` | B/D name; exact C, 264 words, 41 relocs |
 | `0x3BB10` | `0x120` | `snow_init` | B/D name; exact C, 72 words, 8 relocs |
 | `0x3BC30` | `0x1EC` | `changeWeather` | B/D name; exact C, 123 words, 5 relocs |
-| `0x3BE1C` | `0x2A4` | `doWeather` | B/D; plateau, 54/169 words differ, first `+0xB4` |
+| `0x3BE1C` | `0x2A4` | `doWeather` | B/D; workbench `structure-buckets`, 89 positional words differ, first `+0x7C`; candidate 168/169 words |
 | `0x3C0C0` | `0x238` | `snow_render` | B/D |
 | `0x3C2F8` | `0xEC` | `rain_init` | B/D; plateau, 59 words exact, one reloc identity at `+0xA0` |
 | `0x3C3E4` | `0x84` | `free_rain_memory` | B/D; plateau, 33 words exact, one reloc identity at `+0x68` |
@@ -2146,7 +2142,7 @@ placeholders are never imported.
 | `0x80054B3C` | `0x5C8` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x80055104` | `0x6F4` | no unique `hit.c` candidate | D; collision/vector shape |
 | `0x800557F8` | `0x178` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 376 B and eight-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; reconstructed from Mickey's resident state/counter/audio ABI after no external skeleton exceeded 0.070 similarity |
-| `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; collision handler family. Plateau after the flag lattice, 10 allocation/lifetime shapes, and a bounded canonical-flag permuter: the best full-TU semantic candidate has the exact 109-instruction size and `0x50` frame, but the target keeps the first state in `s2` and the second target in `s3`, while IDO homes the first state on the stack and uses only `s0`-`s2`. The missing saved register shifts all seven calls by one instruction (105 positional words differ, first `+0x8`); the best isolated permutation added an instruction in the consolidated TU and was rejected |
+| `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; collision handler family. Workbench `constant-audit`: exact 109-instruction size, `0x50` frame, register lanes, and schedule; four stack-home operands remain, first `+0x3C`. Code-free web, unused-formal type/qualifier, and stack-home carrier reuse did not move candidate `sp+0x40` toward target `sp+0x48` |
 | `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | D; collision handler family. Plateau after the flag lattice, 10 source/lifetime shapes, and a bounded canonical-flag permuter: the Mickey-local composition is exact for 113/121 instructions, all calls, the `0x50` frame, and the FP schedule. Eight words remain from first mismatch `+0x20`: five initial pointer-load/move scheduling words and the three-use `0x258` temporary in `v1` rather than target `v0`. The isolated score-15 assignment reorder does not change full-TU output; score 85 adds an observable store and was rejected |
 | `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 328 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; composed from Mickey-local exact state-update and normalization patterns |
 | `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 276 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
@@ -2712,7 +2708,7 @@ call graph isolates one namesake.
 | `0x8001BE0C` | `0x248` | `func_8002EDA0` | B: camera-pointer lookup then the preceding routine; JFG placeholder, retain `func_` |
 | `0x8001C054` | `0x34` | `cameraAddOverrideObject` | D + matched C: exact 24-entry append under O2/mips2; JFG comparison remains structural, so retain `func_` |
 | `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D + matched C: exact 24-entry search-and-delete under O2/mips2; JFG comparison remains structural, so retain `func_` |
-| `0x8001C114` | `0x1B0` | `func_8002F0E8` | Plateau after the 119-combination flag sweep and 10 source/lifetime hypotheses: best `NON_MATCHING` candidate preserves the target CFG in 106 instructions versus 108, with first mismatch `+0x4`; the target maps `x/y/z` to `f12/f22/f20` and saves `f22`/`f20`, while IDO maps the candidate to `f20/f14/f12` and saves only `f20`. JFG has the same target allocation but only a placeholder body; retain `func_` |
+| `0x8001C114` | `0x1B0` | `func_8002F0E8` | Workbench plateau: structure mismatch, aligned residual 39, 106/108 instructions, first mismatch `+0x0`. Else-if duplication and radius-square temporaries restored target operation order; the frame and FP/GPR register web remain after a 30-minute permuter. JFG has only a placeholder body; retain `func_` |
 | `0x8001C2C4` | `0x8` | — | Matched C: exact empty routine under O2/mips2; retain `func_` |
 | `0x8001C2CC` | `0x8` | — | Matched C: exact empty routine under O2/mips2; retain `func_` |
 | `0x8001C2D4` | `0x4C` | `func_80031F60` | A + matched C: 19/19 unmasked JFG words and independently reconstructed byte-clear C are exact; placeholder rule retains Mickey's `func_` |

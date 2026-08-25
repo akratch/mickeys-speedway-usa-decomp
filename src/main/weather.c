@@ -457,6 +457,9 @@ void changeWeather(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
  * src/weather.c::doWeather. Mickey's split vertex/render calls and globals
  * are authoritative here.
  */
+/* Workbench: structure-buckets; 89 positional words differ, first +0x7C.
+ * Compound updates cleared constant/commutative classes; return/line probes were inert.
+ * Candidate is 168/169 instructions; transition structure/temp allocation remain. */
 void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **arg3, s32 updateRate) {
     WeatherVertex *temp_t3;
 
@@ -471,14 +474,12 @@ void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **a
     } else {
         if (D_800D4078.shiftTime > 0) {
             if (updateRate < D_800D4078.shiftTime) {
-                D_800D4078.intensity =
-                    (s32) (D_800D4078.intensity + (D_800D4078.intensityStep * updateRate));
-                D_800D4078.velX = (s32) (D_800D4078.velX + (D_800D4078.velXStep * updateRate));
-                D_800D4078.velY = (s32) (D_800D4078.velY + (D_800D4078.velYStep * updateRate));
-                D_800D4078.shiftTime = (s32) (D_800D4078.shiftTime - updateRate);
-                D_800D4078.velZ = (s32) (D_800D4078.velZ + (D_800D4078.velZStep * updateRate));
-                D_800D4078.opacity =
-                    (s32) (D_800D4078.opacity + (D_800D4078.opacityStep * updateRate));
+                D_800D4078.intensity += D_800D4078.intensityStep * updateRate;
+                D_800D4078.velX += D_800D4078.velXStep * updateRate;
+                D_800D4078.velY += D_800D4078.velYStep * updateRate;
+                D_800D4078.shiftTime -= updateRate;
+                D_800D4078.velZ += D_800D4078.velZStep * updateRate;
+                D_800D4078.opacity += D_800D4078.opacityStep * updateRate;
             } else {
                 D_800D4078.shiftTime = 0;
                 D_800D4078.intensity = D_800D4078.intensityTarget;

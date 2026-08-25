@@ -575,7 +575,7 @@ freeWeather = 0x8003A9D0; // type:func size:0x120 tier-D, ROM 0x3b5d0  matched C
 setupWeather = 0x8003AAF0; // type:func size:0x420 tier-D, ROM 0x3b6f0  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/264
 snow_init = 0x8003AF10; // type:func size:0x120 tier-D, ROM 0x3bb10  matched C src/main/weather.c.o -O2 -mips2 -32, DKR src/weather.c donor, masked=0/72
 changeWeather = 0x8003B030; // type:func size:0x1EC tier-D, ROM 0x3bc30  matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, masked=0/123
-doWeather = 0x8003B21C; // type:func size:0x2A4 tier-D, ROM 0x3be1c  NON_MATCHING plateau 54/169 words differ, first +0xB4
+doWeather = 0x8003B21C; // type:func size:0x2A4 tier-D, ROM 0x3be1c  NON_MATCHING workbench 89 positional words differ, first +0x7C
 snow_render = 0x8003B4C0; // type:func size:0x238 tier-D, ROM 0x3c0c0
 rain_init = 0x8003B6F8; // type:func size:0xEC tier-D, ROM 0x3c2f8 matched C src/main/weather.c.o -O2 -mips2 -32, JFG src/weather.c donor, linked exact=59/59
 free_rain_memory = 0x8003B7E4; // type:func size:0x84 tier-D, ROM 0x3c3e4  matched C src/main/weather.c.o -O2 -mips2 -32, JFG/DKR donor, linked exact=33/33
@@ -2208,7 +2208,7 @@ lightKillGlowingLight = 0x8001A23C; // type:func size:0x24   ROM 0x1ae3c  src/li
 // exact-C (ADR 0001), no external name adopted: func_8001BB90, ROM 0x1c790, size 0x24
 // exact-C (ADR 0001), tier-D name not adopted: func_8001C054, ROM 0x1cc54, size 0x34
 // exact-C (ADR 0001), tier-D name not adopted: func_8001C088, ROM 0x1cc88, size 0x8c
-// NON_MATCHING plateau: func_8001C114, ROM 0x1cd14, size 0x1b0; FP allocation blocks exact C
+// NON_MATCHING workbench plateau: func_8001C114, ROM 0x1cd14, size 0x1b0; 106/108 instructions, register web remains
 func_8001C2C4 = 0x8001C2C4; // type:func size:0x8 tier-D, ROM 0x1cec4  src/main/charControl.c.o exact C (ADR 0001)
 func_8001C2CC = 0x8001C2CC; // type:func size:0x8 tier-D, ROM 0x1cecc  src/main/charControl.c.o exact C (ADR 0001)
 func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charControl.c.o  masked=0/19  exact C (ADR 0001)
