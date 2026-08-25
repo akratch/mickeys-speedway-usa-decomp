@@ -1145,7 +1145,18 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14StepCommand.c.o: POSTPROCESS = \
 		--redefine-sym overlay14DispatchCommand=func_overlay_014_F0001040_1870918 \
 		--redefine-sym overlay14MoveCommandCursor=func_overlay_014_F0000578_186FE50 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F00013F4_1870CCC.c.o: \
+	config/normalizations/func_overlay_014_F00013F4_1870CCC.filter.spec \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F00013F4_1870CCC.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		@config/normalizations/func_overlay_014_F00013F4_1870CCC.filter.spec && \
+	$(OBJCOPY) \
+		--redefine-sym overlay14BuildPanel=func_overlay_014_F00012D8_1870BB0 \
+		--redefine-sym overlay14CreateHandle=func_overlay_014_F0001830_1871108 \
+		--redefine-sym overlay14DrawPrimitive=func_overlay_014_F0000000_186F8D8 \
+		--redefine-sym gOverlay14Args2C=D_2C \
+		--redefine-sym gOverlay14Args30=D_30 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0001830_1871108.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324

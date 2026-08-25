@@ -1107,6 +1107,7 @@
       "size": 332,
       "source": "src/overlays/o014/func_overlay_014_F00013F4_1870CCC.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py"
       ]
     },
