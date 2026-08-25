@@ -5275,7 +5275,9 @@
       "size": 308,
       "source": "src/overlays/o079/func_overlay_079_F0000000_18CCFA0.c",
       "tools": [
-        "trim_elf_section.py"
+        "filter_elf_relocations.py",
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
