@@ -236,7 +236,7 @@ typedef struct MenuLanguageText {
     u8 pad0[0x30];
     char *demoMessage;
 } MenuLanguageText;
-extern MenuLanguageText *D_8007C0B8;
+extern s32 *D_8007C0B8;
 extern void func_8004B0A4(s32 font);
 extern void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha);
 extern void func_8004B0F8(MenuCommand **displayList, s32 x, s32 y,
@@ -251,10 +251,11 @@ extern void func_800244EC(MenuCommand **commands, void **matrices,
 extern void func_8002460C(MenuCommand **commands);
 
 #ifdef NON_MATCHING
-/* Exact-size and exact-frame plateau: 14/74 words differ, first at +0x2C.
- * IDO schedules the cached-header store after its local copy, then orders the
- * destination and offset loads differently. The generated switch also binds
- * its jump table to anonymous .rodata instead of the target's named symbol. */
+/* Exact-size and exact-frame plateau: 6/74 words differ, first at +0xDC.
+ * Word-table state typing and load order leave one a0/a1 pool-web swap.
+ * The generated switch also binds its jump table to anonymous .rodata instead
+ * of the target's named symbol, with relocation identity first differing at
+ * +0x4C. */
 void func_80038750(s32 language) {
     s32 *header;
     s32 *offsets;
@@ -265,8 +266,8 @@ void func_80038750(s32 language) {
 
     header = D_8007C094;
     if (header == NULL) {
-        header = (s32 *) piRomLoad(7);
-        D_8007C094 = header;
+        D_8007C094 = (s32 *) piRomLoad(7);
+        header = D_8007C094;
     }
     assetIndex = 1;
     switch (language) {
@@ -290,18 +291,18 @@ void func_80038750(s32 language) {
             break;
     }
     offsets = (s32 *) ((u8 *) header + (assetIndex * 4));
-    destination = (s32) D_8007C0B8;
     end = offsets[1];
     assetIndex = offsets[0];
+    destination = (s32) D_8007C0B8;
+    end -= assetIndex;
     if (destination != 0) {
-        end -= assetIndex;
         piRomLoadSection(6, destination, assetIndex, end);
         index = 0;
         while (index < D_8007C094[0]) {
-            if (((s32 *) D_8007C0B8)[index] == -1) {
-                ((s32 *) D_8007C0B8)[index] = 0;
+            if (D_8007C0B8[index] == -1) {
+                D_8007C0B8[index] = 0;
             } else {
-                ((s32 *) D_8007C0B8)[index] += (s32) D_8007C0B8;
+                D_8007C0B8[index] = D_8007C0B8[index] + (s32) D_8007C0B8;
             }
             index++;
         }
@@ -315,7 +316,9 @@ void func_80038750(s32 language) {
  * src/menu.c::initFront; JFG retains assembly, so this body is Mickey-derived.
  * With -Wo,-loopunroll,0 it has the exact 0x154 size and 0x18 frame, but
  * 66/85 words differ, first at +0x14. IDO reuses the D_800D3150 address where
- * the target rematerializes it, then diverges in later address/store schedules. */
+ * the target rematerializes it, then diverges in later address/store schedules.
+ * Chaining the four control-mode assignments added three instructions, so the
+ * retained exact-size scalar form remains the closest candidate. */
 void func_80038878(void) {
     s32 *buffer;
     s32 *bufferEnd;
@@ -720,9 +723,10 @@ void frontDemoMessage(MenuCommand **displayList, s32 updateRate) {
         func_8004B0DC(0, 0, 0, 0);
         fontColour(0, 0, 0, 0xFF, 0xFF);
         func_8004B0F8(displayList, x + 1, y + 1,
-                      D_8007C0B8->demoMessage, 0xC);
+                      ((MenuLanguageText *) D_8007C0B8)->demoMessage, 0xC);
         fontColour(0xFF, 0xFF, 0xFF, 0, 0xFF);
-        func_8004B0F8(displayList, x, y, D_8007C0B8->demoMessage, 0xC);
+        func_8004B0F8(displayList, x, y,
+                      ((MenuLanguageText *) D_8007C0B8)->demoMessage, 0xC);
     }
 }
 /* PROVENANCE: adapted from JFG's public frontDrawRectangles assembly in
@@ -1306,7 +1310,9 @@ s32 frontGet2PlayerSplit(void) {
     return split;
 }
 /* Size-exact plateau: three register operands differ from +0x8; IDO assigns
- * the old-flag value chain two temporary registers earlier than the target. */
+ * the old-flag value chain two temporary registers earlier than the target.
+ * Native bitfield, zero-index aggregate, and explicit-DAG retries did not
+ * improve the retained result. */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")
 void func_8003A544(s32 value) {
     D_8007C098 = value;
