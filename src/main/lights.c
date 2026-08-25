@@ -508,6 +508,9 @@ f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg
 void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4) {
     func_80019DE8(&D_800CB298, arg0, arg1, arg2, arg3, arg4);
 }
+/* Workbench: mixed structure/register, 45 words, first +0x44; size 64/63.
+ * Tried expression association and signed/unsigned local-width levers.
+ * Remains one extra instruction and pool/temp phase divergence at slot 5. */
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightSetObjectLight.s, with Mickey's globals. */
 void func_80019DE8(ObjectLightState *state, s32 arg1, s32 arg2, s16 pitch, s16 yaw, s32 shift) {
@@ -522,8 +525,8 @@ void func_80019DE8(ObjectLightState *state, s32 arg1, s32 arg2, s16 pitch, s16 y
     }
     state->startValue = arg1;
     state->endValue = arg2;
+    state->colourStep = ((arg2 - arg1) & 0xFF) << (shift & 0xFF);
     state->valueDelta = arg2 - arg1;
-    state->colourStep = (state->valueDelta & 0xFF) << (shift & 0xFF);
     state->shift = shift;
     state->scaleStep = (1 << (8 - shift)) << 6;
     state->pitch = pitch;

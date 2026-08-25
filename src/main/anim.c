@@ -1587,15 +1587,11 @@ void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(first, 1, second);
     TrapDanglingJump(second, 0xA);
 }
+
+/* Workbench: constant-only, exact size/opcodes/registers/frame; 3 words, first +0xA0.
+ * Tried pool/temp crossing, statement scheduling, and stack layout/alignment.
+ * Remains the volatile secondZ spill at target +0x1C versus candidate +0x18. */
 #ifdef NON_MATCHING
-/*
- * No JFG hit.c function has this state-update and two-target normal shape.
- * Plateau after 10 source/type shapes and a bounded canonical-flag permuter:
- * the best semantic candidate has the exact 91-instruction size, 0x48 frame,
- * stack homes, and call relocations, but 46 FP allocation/schedule words remain
- * from first mismatch +0x2C. A score-10 permutation read an uninitialized float
- * and was rejected as non-equivalent.
- */
 void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopySource *firstSource;
     HitCopySource *secondSource;
@@ -1605,19 +1601,20 @@ void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
     f32 deltaY;
     f32 deltaZ;
     f32 distance;
+    f32 firstX;
     f32 secondX;
     f32 secondY;
     volatile f32 secondZ;
-    f32 secondZValue;
 
     firstSource = first->source;
+    firstX = firstSource->current.x;
     deltaX = first->position.x - firstSource->previous.x;
     deltaY = first->position.y - firstSource->previous.y;
     deltaZ = first->position.z - firstSource->previous.z;
-    firstSource->previous.x = firstSource->current.x;
+    firstSource->previous.x = firstX;
     firstSource->previous.y = firstSource->current.y;
     firstSource->previous.z = firstSource->current.z;
-    first->position.x = firstSource->previous.x + deltaX;
+    first->position.x = firstX + deltaX;
     first->position.y = firstSource->previous.y + deltaY;
     first->position.z = firstSource->previous.z + deltaZ;
 
@@ -1627,10 +1624,9 @@ void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
     second->position.z = secondSource->current.z;
     secondX = *(volatile f32 *)&secondSource->current.x;
     secondY = *(volatile f32 *)&secondSource->current.y;
-    secondZValue = *(volatile f32 *)&secondSource->current.z;
     secondSource->previous.x = secondX;
     secondSource->previous.y = secondY;
-    secondZ = secondZValue;
+    secondZ = *(volatile f32 *)&secondSource->current.z;
     secondSource->previous.z = secondZ;
 
     deltaX = secondX - firstSource->current.x;

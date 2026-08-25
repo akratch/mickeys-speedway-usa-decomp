@@ -75,11 +75,9 @@ extern Overlay60Object *overlay60FindReloc(u8 index);
 
 #define SOURCE(type, offset) (*(type *)(gOverlay60SourceReloc + (offset)))
 
-/*
- * Plateau: exact 0x334 size, 21 of 205 words differ, first mismatch +0x7C.
- * All flag groups tie at the best score; the remaining mismatch is the
- * scheduling of loop setup and descriptor field stores before the spawn.
- */
+/* Workbench: mixed structure/schedule/register, 21 words, first +0x7C.
+ * Tried loop-base placement, descriptor-store ordering, and coordinate temporaries.
+ * Remains loop-setup scheduling and descriptor temporary allocation. */
 #ifdef NON_MATCHING
 void func_overlay_060_F0000000_18B9DD8(void) {
     Overlay60Object **objects;
