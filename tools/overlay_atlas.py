@@ -596,7 +596,7 @@ TEXT_SUBSEGMENTS = {
     84: [
         (0x0000, "c", "overlay84InitState"),
         (0x0048, "c", "overlay84InitializeAndUpdate"),
-        (0x0314, "asm", "overlay_084_prefix"),
+        (0x0314, "c", "func_overlay_084_F0000314_18D07F4"),
         (0x0A54, "c", "overlay84UpdateResource"),
         (0x0AFC, "c", "overlay84ResetCurrent"),
         (0x0B7C, "c", "overlay84RefreshCurrent"),
@@ -888,9 +888,9 @@ TEXT_SUBSEGMENTS = {
     ],
     35: [
         (0x000, "c", "overlay35Initialize"),
-        (0x1E0, "asm", "overlay_035_prefix"),
+        (0x1E0, "c", "func_overlay_035_F00001E0_1881EC0"),
         (0x770, "c", "overlay35BuildGridMasks"),
-        (0xB40, "asm", "overlay_035_middle"),
+        (0xB40, "c", "func_overlay_035_F0000B40_1882820"),
         (0x1380, "c", "overlay35SelectHeight"),
         (0x13E8, "asm", "overlay_035_padding"),
     ],

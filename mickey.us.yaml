@@ -1460,9 +1460,9 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x1881CE0, c, overlay35Initialize]
-      - [0x1881EC0, asm, overlay_035_prefix]
+      - [0x1881EC0, c, func_overlay_035_F00001E0_1881EC0]
       - [0x1882450, c, overlay35BuildGridMasks]
-      - [0x1882820, asm, overlay_035_middle]
+      - [0x1882820, c, func_overlay_035_F0000B40_1882820]
       - [0x1883060, c, overlay35SelectHeight]
       - [0x18830C8, asm, overlay_035_padding]
       - [0x18830D0, bin, overlay_035_reloc1]
@@ -2495,7 +2495,7 @@ segments:
     subsegments:
       - [0x18D04E0, c, overlay84InitState]
       - [0x18D0528, c, overlay84InitializeAndUpdate]
-      - [0x18D07F4, asm, overlay_084_prefix]
+      - [0x18D07F4, c, func_overlay_084_F0000314_18D07F4]
       - [0x18D0F34, c, overlay84UpdateResource]
       - [0x18D0FDC, c, overlay84ResetCurrent]
       - [0x18D105C, c, overlay84RefreshCurrent]
