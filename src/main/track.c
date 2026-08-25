@@ -49,15 +49,33 @@ typedef struct TrackFloatRecord {
 } TrackFloatRecord;
 
 typedef struct TrackTextureHeader {
-    u8 pad00[0x10];
+    u8 pad00[6];
+    u16 width;
+    u16 height;
+    u8 pad0A[6];
     u16 numOfTextures;
     u16 frameAdvanceDelay;
+    Gfx *displayList;
+    u8 pad18[3];
+    u8 unk1B;
 } TrackTextureHeader;
 
 typedef struct TrackTextureEntry {
     TrackTextureHeader *texture;
     u32 pad04;
 } TrackTextureEntry;
+
+typedef struct TrackTextureLoadLocals {
+    s32 pad20;
+    void *activeTextureAddress;
+    void *textureAddress;
+    s32 useOriginalTexture;
+    s32 pad30[4];
+    s32 activeMaskS;
+    s32 pad44;
+    s32 maskT;
+    s32 maskS;
+} TrackTextureLoadLocals;
 
 typedef struct TrackBatch {
     u8 textureIndex;
@@ -127,6 +145,12 @@ extern TrackLevelData *D_800792EC;
 extern Mtx *D_800C9524;
 extern TrackVertex *D_800C9528;
 extern u8 D_79330[];
+extern TrackTextureHeader *D_800792F0;
+extern s32 D_800792F4;
+extern Gfx D_80079358[];
+extern Gfx D_80079380[];
+extern Gfx D_800793A8[];
+extern Gfx D_800793D8[];
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -145,6 +169,7 @@ s32 camGetNo(void);
 void func_80021FB0(s32 mode, s32 camera, s32 *left, s32 *bottom,
                    u32 *right, u32 *top);
 void viGetCurrentSize(s32 *width, s32 *height);
+void *func_800348D4(TrackTextureHeader *texture, s32 frame);
 
 /*
  * PROVENANCE: Jet Force Gemini's public `src/track.c`, function
@@ -643,4 +668,83 @@ s32 func_80014EAC(u32 value) {
     }
     return result;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014ECC.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public built `src/track.c.o` and its
+ * assembly-only final source entry establish the tier-D TU position and
+ * display-list-helper structure. The body is reconstructed from Mickey with
+ * the SDK GBI macros; JFG's placeholder name is not imported.
+ */
+void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
+    TrackTextureLoadLocals locals;
+    TrackTextureHeader *activeTexture;
+    s32 activeFrame;
+    s32 activeMaskT;
+    s32 intensity;
+    s32 shiftS;
+    s32 shiftT;
+
+    locals.textureAddress = func_800348D4(texture, frame);
+    if (texture->unk1B >= 2) {
+        D_800C9520->words.w0 = texture->displayList->words.w0;
+        D_800C9520->words.w1 = (u32) locals.textureAddress;
+        D_800C9520++;
+        gSPDisplayList(D_800C9520++, texture->displayList + 1);
+        gSPDisplayList(D_800C9520++, D_800793D8);
+        return;
+    }
+
+    locals.maskS = func_80014EAC(texture->width);
+    locals.maskT = func_80014EAC(texture->height);
+    activeTexture = D_800792F0;
+    if (activeTexture != NULL) {
+        activeFrame = D_800792F4;
+        locals.useOriginalTexture = FALSE;
+    } else {
+        activeTexture = texture;
+        activeFrame = (frame >> 8) + 0x100;
+        if (activeFrame >= texture->numOfTextures) {
+            activeFrame -= texture->numOfTextures;
+        }
+        activeFrame <<= 8;
+        locals.useOriginalTexture = TRUE;
+    }
+
+    locals.activeTextureAddress = func_800348D4(activeTexture, activeFrame);
+    locals.activeMaskS = func_80014EAC(activeTexture->width);
+    activeMaskT = func_80014EAC(activeTexture->height);
+    shiftS = (locals.maskS - locals.activeMaskS) & 0xF;
+    shiftT = (locals.maskT - activeMaskT) & 0xF;
+    gDPLoadMultiBlockS(D_800C9520++, locals.activeTextureAddress, 0x100, 1,
+                       G_IM_FMT_IA, G_IM_SIZ_8b, activeTexture->width,
+                       activeTexture->height, 0,
+                       G_TX_NOMIRROR | G_TX_WRAP,
+                       G_TX_NOMIRROR | G_TX_WRAP, locals.activeMaskS,
+                       activeMaskT,
+                       shiftS, shiftT);
+
+    if (!locals.useOriginalTexture) {
+        gDPLoadMultiBlockS(D_800C9520++, locals.textureAddress, 0, 0,
+                           G_IM_FMT_RGBA, G_IM_SIZ_16b, texture->width,
+                           texture->height, 0,
+                           G_TX_NOMIRROR | G_TX_WRAP,
+                           G_TX_NOMIRROR | G_TX_WRAP, locals.maskS,
+                           locals.maskT,
+                           G_TX_NOLOD, G_TX_NOLOD);
+        gSPDisplayList(D_800C9520++, D_80079358);
+        return;
+    }
+
+    gDPLoadTextureBlockS(D_800C9520++, locals.textureAddress, G_IM_FMT_IA,
+                         G_IM_SIZ_8b, texture->width, texture->height, 0,
+                         G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMIRROR | G_TX_WRAP, locals.maskS,
+                         locals.maskT,
+                         G_TX_NOLOD, G_TX_NOLOD);
+    if ((flags & 0x70) == 0x10) {
+        gSPDisplayList(D_800C9520++, D_800793A8);
+    } else {
+        gSPDisplayList(D_800C9520++, D_80079380);
+    }
+    intensity = (frame >> 8) & 0xFF;
+    gDPSetEnvColor(D_800C9520++, intensity, intensity, intensity, intensity);
+}
