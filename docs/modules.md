@@ -1096,7 +1096,7 @@ body is copied by this split; Mickey's own bytes remain authoritative.
 | `0x1BE90` | `0x10` | `camlightDraw` | D name; exact C, 4 words, 0 relocs |
 | `0x1BEA0` | `0x74` | `spranimInit` | D |
 | `0x1BF14` | `0x4C` | `spranimControl` | D |
-| `0x1BF60` | `0x48` | `sprasjiInit` | D |
+| `0x1BF60` | `0x48` | `sprasjiInit` | D name; exact C, 18 words, 0 relocs under O2/mips2 |
 | `0x1BFA8` | `0x78` | `spranimOnceControl` | D |
 | `0x1C020` | `0x304` | `effectboxControl` | D |
 | `0x1C324` | `0x74` | `texscrollControl` | B; identified additionally by masked skeleton and texture-scroll callees |

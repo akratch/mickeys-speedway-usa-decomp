@@ -36,12 +36,33 @@ typedef struct SpranimBB10Object {
     u32 flags88;
 } SpranimBB10Object;
 
+typedef struct SprasjiInitState {
+    u8 pad0[8];
+    f32 scale;
+    u8 padC[0x34];
+    f32 *baseScale;
+} SprasjiInitState;
+
+typedef struct SprasjiInitEntry {
+    u8 pad0[0xB];
+    u8 scale;
+} SprasjiInitEntry;
+
 extern u8 D_8007BF2C;
 extern void func_80020D8C(void *arg0, s32 arg1, s32 arg2, void *arg3);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimControl.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/sprasjiInit.s")
+void sprasjiInit(SprasjiInitState *state, SprasjiInitEntry *entry) {
+    f32 scale;
+
+    scale = (s32) (entry->scale & 0xFF);
+    if (scale < 10.0f) {
+        scale = 10.0f;
+    }
+    scale /= 64;
+    state->scale = *state->baseScale * scale;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/spranimOnceControl.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/effectboxControl.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/texscrollControl.s")
