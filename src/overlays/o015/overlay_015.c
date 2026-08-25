@@ -1,5 +1,39 @@
 #include "overlays/overlay_015.h"
 
+/* The shipped LOCAL relocations address this block through the initialized
+ * section base; text-side proxy symbols remain the relocation carriers. */
+typedef struct Overlay15InitializedData {
+    u32 prefix[6];
+    Overlay15Gfx starSetup[5];
+    f32 starFadeScale;
+} Overlay15InitializedData;
+
+Overlay15InitializedData gOverlay15InitializedData = {
+    { 0, 0, 0, 1, 0, 0 },
+    {
+        { 0xE7000000U, 0 },
+        { 0xB6000000U, 0x00010001U },
+        { 0xFCFFFFFFU, 0xFFFDF6FBU },
+        { 0xEF000C0FU, 0x0F0A4000U },
+        { 0xB8000000U, 0 },
+    },
+    0.8732876777648926F,
+};
+
+/* The primary bound scalars lead the BSS exactly as they do in the retail
+ * object. Other particle modes alias these words through text-side proxies. */
+f32 gOverlay15StarBound0;
+f32 gOverlay15StarBound1;
+f32 gOverlay15StarBound2;
+f32 gOverlay15StarBound3;
+f32 gOverlay15StarBound4;
+f32 gOverlay15StarBound5;
+f32 gOverlay15StarBound6;
+f32 gOverlay15StarBound7;
+f32 gOverlay15StarBound8;
+u32 gOverlay15BssPad24;
+u8 gOverlay15BssTail[0x78];
+
 /*
  * Overlay 15, ADR 0006 consolidation. Functions remain in retail ROM order.
  * The R4300 multiply-hazard flag is harmless for the active resource/value
@@ -133,19 +167,9 @@ typedef struct Overlay15StarPointerView {
     Overlay15Star *stars;
 } Overlay15StarPointerView;
 
-/*
- * Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative.
- * Plateau (2026-08-25, cx-ov-2-a-r3): the 119-combination flag lattice leaves
- * the best -O2 -mips2 body at 0xE8 bytes with 30 differing words; the first
- * mismatch is +0x30. Typed proxy views recover the retail +0x30 movement and
- * +0x4 star-pointer accesses, but IDO still emits one address pair per scalar
- * bound instead of the retail pairwise base reuse, accounting for the four
- * extra instructions. The cx-ov-2-a-a-r2 follow-up tested contiguous aggregate,
- * pair-array, explicit same-TU BSS, and volatile-pair layouts. The aggregate
- * over-collapses by three instructions; pair layouts materialize full addresses
- * and remain four or five instructions long. Correct full BSS ownership is the
- * remaining structural hypothesis.
- */
+/* Plateau (2026-08-25, ownership): full 0xA0 C-owned BSS retains 0xE8 vs 0xD8,
+ * 30 differing words, first +0x30; a single aggregate shrinks to 0xBC.
+ * Workbench: structure-mismatch; expression-tree grouping leaves four HIs. */
 #ifdef NON_MATCHING
 void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
                         s32 rate) {
@@ -401,16 +425,9 @@ typedef struct Overlay15RainOffsets {
 
 extern Overlay15RainOffsets gOverlay15RainOffsets;
 
-/*
- * Plateau (2026-08-25): the typed-offset candidate is exactly 0xD8 bytes
- * and first diverges at +0x74 with 13 differing words. A 10-minute
- * permuter run reached score 185, but its valid pointer spelling regressed
- * to 0xDC and 22 differing words. The cx-ov-2-a-a-r2 follow-up found the full
- * 119-combination flag lattice flat and tested explicit angle temporaries,
- * scalar, split XY/Z, same-TU, volatile, and whole-state BSS views. Scalar
- * and split views add an instruction; the whole-state view removes two. The
- * blocker remains the retail BSS grouping and post-call load scheduling.
- */
+/* Plateau (2026-08-25, ownership): linked full-BSS candidate is exact-size
+ * 0xD8 with 13 differing words, first +0x74; the 119-flag lattice is flat.
+ * Workbench: structure-mismatch; post-call load scheduling remains. */
 #ifdef NON_MATCHING
 void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
                        f32 projectionScale, f32 intensity) {

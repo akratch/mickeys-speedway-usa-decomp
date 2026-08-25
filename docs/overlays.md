@@ -1841,3 +1841,7 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 `overlay 11 +0x1E4C..+0x22E8` (`func_overlay_011_F0001E4C_186A694`) — 1,180 bytes / 295 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete carrier-schedule rewrite); source kept as decomp-permuter input. The retained split text surface is 41 records; the five-entry runtime switch table and its five relocations remain in their original data/rodata owner. The checkpoint becomes **97,724 / 45,775 campaign bytes (213.49%)**, **198,976 / 469,264 Overlay C (42.40%)**, and **242,016 / 950,332 resolved text (25.47%)**.
 
 `overlay 11 +0x22E8..+0x2714` — 1,068 bytes / 267 words, eliminating the former `+0x1E4C..+0x2714` middle deficit. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete carrier-schedule rewrite plus a link-only addend rebind); source kept as decomp-permuter input. The pre-link object's split text surface was 39 records. The checkpoint becomes **98,792 / 45,775 campaign bytes (215.82%)**, **200,044 / 469,264 Overlay C (42.63%)**, and **243,084 / 950,332 resolved text (25.58%)**.
+
+| Overlay | C-owned non-text | Translation unit | Proof |
+|---:|---|---|---|
+| 15 | data/rodata `+0x0..+0x50`; BSS `+0x0..+0xA0` | `overlay_015.c` | configured object and linked ROM exact |

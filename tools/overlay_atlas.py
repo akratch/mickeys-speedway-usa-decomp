@@ -97,8 +97,16 @@ DATA_RODATA_OWNERSHIP = {
     # Offsets are relative to data_rodata. The source must already own a C text
     # row: its compiled .data is linked before any remaining raw initialized
     # tail, so no duplicate C subsegment is emitted at the section boundary.
+    15: [(0x0, 0x50, "overlay_015")],
     42: [(0x0, 0x10, "overlay_042")],
     77: [(0x0, 0x30, "overlay_077")],
+}
+
+# When a C owner's initialized input follows its text, IDO's measured .text
+# alignment can emit the intervening zero padding without a separate asm row.
+# Keep the row in the atlas so padding is never counted as executable C credit.
+COMPILER_TEXT_ALIGNMENT_PADDING = {
+    15: "overlay_015_padding",
 }
 
 TEXT_SUBSEGMENTS = {
@@ -1635,13 +1643,20 @@ def render_yaml_block(atlas):
             "    subsegments:",
         ]
         text_start = int(row["sections"]["text"]["start"], 16)
+        owned_data = row.get("data_rodata_ownership", [])
+        compiler_padding = COMPILER_TEXT_ALIGNMENT_PADDING.get(ov)
         for part in row["text_ownership"]:
+            if part["source"].rsplit("/", 1)[1] == compiler_padding:
+                if not owned_data:
+                    raise ValueError(
+                        f"overlay {ov} compiler padding needs C-owned data"
+                    )
+                continue
             lines.append(
                 f"      - [{hx(text_start + int(part['offset'], 16))}, "
                 f"{part['type']}, {part['source'].rsplit('/', 1)[1]}]"
             )
         data_row = row["sections"]["data_rodata"]
-        owned_data = row.get("data_rodata_ownership", [])
         owned_end = (
             int(owned_data[-1]["end_offset"], 16) if owned_data else 0
         )
