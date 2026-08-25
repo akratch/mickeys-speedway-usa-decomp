@@ -240,9 +240,9 @@ void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0000058_185DDB0.s")
 #endif
 
-/* Plateau after 10 serious attempts: exact 0x5F4 size/frame/opcode shape,
- * 88 instruction-word register differences, first at +0x1FC. The remaining
- * mismatch is an FP temp-FIFO phase shift that later cascades into GPR temps. */
+/* Workbench: allocation-mismatch, 48 masked/57 raw words; first register +0x428.
+ * Flag lattice, arm ordering, widened mask, and a bounded -mips2 permuter tried.
+ * Both FP lanes are exact; GPR temp slot 54 and pool slot 64 still diverge. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
                                        s32 updateRate) {
@@ -297,12 +297,12 @@ void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
             x = 4.0f - state->lateral4 * gO8FloatD0;
         } else if (state->mode34A & 5) {
             effect = 0;
-            x = 0.0f;
             y = 4.0f - state->lateral4 * gO8FloatD4;
+            x = 0.0f;
         } else if (state->mode34A & 0xa) {
             effect = 2;
-            x = 0.0f;
             y = state->lateral4 * gO8FloatD8 + -4.0f;
+            x = 0.0f;
         }
         if (effect != -1) {
             sine = ext_o0_2a46c(state->angle43C);
@@ -335,7 +335,7 @@ void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
     ext_o8_3018(owner, state, state->value70, updateRate);
 
     if ((state->condition172 != 0) && (state->lateral4 < -2.0f)) {
-        flags = owner->flags80 & ~0x33;
+        flags = owner->flags80 & ((~0x33) & 0xFFFFFFFFFFFFFFFFu);
         owner->flags80 = flags;
         flags |= gO8Value370;
         owner->flags80 = flags;

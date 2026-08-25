@@ -45,7 +45,6 @@ void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
     f32 sp9C;
     f32 sp98;
     f32 sp94;
-    f32 temp_f20;
     f32 temp_f20_2;
     s32 temp_a0;
     void *temp_s0;

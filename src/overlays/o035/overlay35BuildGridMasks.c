@@ -27,9 +27,9 @@ typedef struct O35GridSource {
     s16 groupCount;
 } O35GridSource;
 
-/* Workbench: mixed(constant:11, structural:22, register:50); best 91/244, first +0x0.
- * Levers: five-home census; explicit-stack, phantom-home ablation, register and selector probes.
- * Remaining: non-save frame -0x90/-0x80; pool slot 5 and temp slot 47 diverge. */
+/* Workbench: mixed constant/structural/register residual, 70 words; first +0x0.
+ * Flag lattice and spill-home/liveness reuse tried; merged x/counter is best.
+ * Frame remains -0x88 versus -0x80, with the pool first diverging at slot 5. */
 #ifdef NON_MATCHING
 void func_overlay_035_F0000770_1882450(O35GridSource *source,
                                         O35GridBounds *bounds) {
@@ -73,7 +73,6 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                         s16 minY;
                         s16 minZ;
                         s32 i;
-                        s16 bucket;
                         s32 bit;
                         s32 mask;
                         u8 zMask;
@@ -114,7 +113,7 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                         step = ((bounds->x1 - origin) >> 4) + 1;
                         value = step + origin;
                         start = origin;
-                        bucket = 0;
+                        x = 0;
                         do {
                             if ((value >= minX) && (maxX >= start)) {
                                 mask |= bit;
@@ -122,14 +121,14 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                             value += step;
                             start += step;
                             bit *= 2;
-                            bucket++;
-                        } while (bucket < 16);
+                            x++;
+                        } while (x < 16);
 
                         origin = bounds->y0;
                         step = ((bounds->z1 - origin) >> 4) + 1;
                         value = step + origin;
                         start = origin;
-                        bucket = 0;
+                        x = 0;
                         do {
                             if ((value >= minZ) && (maxZ >= start)) {
                                 mask |= bit;
@@ -137,8 +136,8 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                             value += step;
                             start += step;
                             bit *= 2;
-                            bucket++;
-                        } while (bucket < 16);
+                            x++;
+                        } while (x < 16);
                         *(u32 *)((u8 *)source->masks + maskOffset) = mask;
 
                         bit = 1;
@@ -147,7 +146,7 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                         step = ((bounds->y1 - origin) >> 3) + 1;
                         value = step + origin;
                         start = origin;
-                        bucket = 0;
+                        x = 0;
                         do {
                             if ((value >= minY) && (maxY >= start)) {
                                 zMask |= bit;
@@ -155,8 +154,8 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                             value += step;
                             start += step;
                             bit *= 2;
-                            bucket++;
-                        } while (bucket < 8);
+                            x++;
+                        } while (x < 8);
                         source->zMasks[vertex] = zMask;
                     }
                     vertex++;
