@@ -89,6 +89,17 @@ extern s32 D_80078F14;
 extern s32 D_80078F04[];
 extern f32 D_80080B58;
 extern AudioUpdateEntry D_800C9238[][3];
+extern AudioUpdateEntry D_800C9248;
+extern AudioUpdateEntry D_800C9258;
+extern AudioUpdateEntry D_800C9268;
+extern AudioUpdateEntry D_800C9278;
+extern AudioUpdateEntry D_800C9288;
+extern AudioUpdateEntry D_800C9298;
+extern AudioUpdateEntry D_800C92A8;
+extern AudioUpdateEntry D_800C92B8;
+extern AudioUpdateEntry D_800C92C8;
+extern AudioUpdateEntry D_800C92D8;
+extern AudioUpdateEntry D_800C92E8;
 void amAmbientStop(void);
 void amSndPlayDirect(u16 soundId, u8 volume, u8 pan, f32 pitch, u8 effects,
                      void **handle);
@@ -100,13 +111,13 @@ void gsSndpSetPriority(void *sound, u8 priority);
 s32 runlinkIsModuleLoaded(s32 moduleId);
 s32 scalevol(s32 volume);
 f32 sqrtf(f32 value);
-void TrapDanglingJump(AudioCamera *cameras, s32 cameraCount);
+void TrapDanglingJump();
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z, f32 *outX, f32 *outY, f32 *outZ);
 s32 Arctanf(f32 x, f32 z);
 s32 mainGetNumberOfCameras(void);
 void amGetSfxSettings(AudioSoundData **table, s32 *size, s32 *count);
 void *func_8002B280(s32 size, s32 tag);
-void func_800025F8(void);
+void amResetAudioMap(void);
 s32 func_8001398C(f32 x, f32 z, s32 range,
                   AudioEchoSurface ***surfaces);
 s32 amCalcSfxStereo(f32 x, f32 y, f32 z);
@@ -134,7 +145,7 @@ void func_80002500(void) {
     for (i = 0; i < 40; i++) {
         D_800C91E8[i].soundHandle = NULL;
     }
-    func_800025F8();
+    amResetAudioMap();
 }
 /* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amAmbientPause. */
 void audspat_jingle_off(void) {
@@ -147,7 +158,52 @@ void amAmbientRestart(void) {
     D_800C91F4 = 0;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025F8.s")
+/*
+ * PROVENANCE: role, order, and source shape compared with JFG
+ * src/audio_manager_36D0.c amResetAudioMap; Mickey's pool layout, module ID,
+ * and body remain authoritative.
+ */
+void amResetAudioMap(void) {
+    AudioPoint *freePoint;
+    AudioPoint *point;
+    s32 i;
+
+    freePoint = D_800C91E8;
+    D_800C91EC = 0;
+    while (D_800C91EC < 40) {
+        D_800C91F0[D_800C91EC] = freePoint;
+        freePoint++;
+        D_800C91EC++;
+    }
+    D_800C91EC--;
+
+    for (i = 0; i < D_80078F00; i++) {
+        point = D_800C91E4[i];
+        point->inRange = 0;
+        if (point->soundHandle != NULL) {
+            amSndStop(point->soundHandle);
+        }
+    }
+
+    D_80078F00 = 0;
+    D_800C91F4 = 0;
+    D_800C9238[0][0].point = NULL;
+    D_800C9248.point = NULL;
+    D_800C9258.point = NULL;
+    D_800C9268.point = NULL;
+    D_800C9278.point = NULL;
+    D_800C9288.point = NULL;
+    D_800C9298.point = NULL;
+    D_800C92A8.point = NULL;
+    D_800C92B8.point = NULL;
+    D_800C92C8.point = NULL;
+    D_800C92D8.point = NULL;
+    D_800C92E8.point = NULL;
+
+    if (runlinkIsModuleLoaded(6) != 0) {
+        TrapDanglingJump();
+    }
+}
 /*
  * PROVENANCE: body shape adapted from DKR src/audio_spatial.c
  * audspat_update_all and compared with JFG src/audio_manager_36D0.c
