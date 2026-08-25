@@ -614,7 +614,7 @@ func_8003E7B8 = 0x8003E7B8; // type:func size:0x120 ROM 0x3f3b8 tier-A IDO C exa
 func_8003E8D8 = 0x8003E8D8; // type:func size:0x230 ROM 0x3f4d8 tier-B exact-size C plateau, 22 aligned residuals from +0x8, jfg/func_8005FAE8 structural oracle
 func_8003EB08 = 0x8003EB08; // type:func size:0x184 ROM 0x3f708 tier-A IDO C exact, Mickey reconstruction with jfg/func_8005FD34 structural oracle
 func_8003EC8C = 0x8003EC8C; // type:func size:0xBC ROM 0x3f88c tier-B TU, donor placeholder jfg/func_8005FED8
-partObjFreeTriggers = 0x8003ED48; // type:func size:0x80 ROM 0x3f948 tier-B call graph/order, jfg/partObjFreeTriggers
+partObjFreeTriggers = 0x8003ED48; // type:func size:0x80 ROM 0x3f948 tier-A IDO C exact, jfg/partObjFreeTriggers
 partAdjustScaling = 0x8003EDC8; // type:func size:0xC ROM 0x3f9c8 tier-A IDO C exact, jfg/partAdjustScaling
 func_8003EDD4 = 0x8003EDD4; // type:func size:0xC ROM 0x3f9d4 tier-A IDO C exact, Mickey-only particle-state setter
 func_8003EDE0 = 0x8003EDE0; // type:func size:0xC ROM 0x3f9e0 tier-A IDO C exact, Mickey-only particle-state setter
@@ -2172,7 +2172,7 @@ shadowBoxPolyOverlap = 0x800183F0; // type:func size:0xC4   ROM 0x18ff0  src/sha
 shadowBoundingBox = 0x800184B4; // type:func size:0x90   ROM 0x190b4  src/shadows_214A0.c.o  masked=0/36
 // jfg:src/lights.c.o -- tier A, ROM-wide unique; body adapted in src/main/lights.c
 freeLights = 0x80018710; // type:func size:0x8C   ROM 0x19310  src/lights.c.o  JFG-adapted body compiler-exact
-setupLights = 0x8001879C; // type:func size:0x130 ROM 0x1939c tier-B NON_MATCHING plateau, 75/76 linked words exact, first mismatch +0x98 from commutative addu operand order
+setupLights = 0x8001879C; // type:func size:0x130 ROM 0x1939c tier-B matched C src/main/lights.c.o -O2 -mips2 -32, JFG src/lights.c donor, linked exact=76/76
 func_800188CC = 0x800188CC; // type:func size:0xB0   ROM 0x194cc  src/lights.c.o  Mickey/DKR-adapted body compiler-exact
 turnLightOff = 0x80018DB4; // type:func size:0x10   ROM 0x199b4  src/lights.c.o  body adapted and compiler-exact
 turnLightOn = 0x80018DC4; // type:func size:0x10   ROM 0x199c4  src/lights.c.o  body adapted and compiler-exact

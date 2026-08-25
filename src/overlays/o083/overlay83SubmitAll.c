@@ -1,4 +1,5 @@
 #include "PR/ultratypes.h"
+#include "n_audio/mbi.h"
 
 typedef struct Overlay83Command {
     u32 w0;
@@ -35,14 +36,7 @@ extern void overlay83DispatchLocalReloc(Overlay83Command **displayList,
                                         void *arg1, void *arg2, void *record,
                                         void *resource);
 
-/*
- * DKR v77/v80 and JFG contain no exact donor for this two-pass renderer.
- * Plateau (2026-08-25): canonical -O2 -mips2 is exactly 0x148 bytes and
- * first diverges at +0xDC with three differing words. A 10-minute permuter
- * run stayed at score 35; the blocker is the shared all-white constant in
- * retail $a2 versus candidate $v1.
- */
-#ifdef NON_MATCHING
+/* DKR v77/v80 and JFG contain no exact donor for this two-pass renderer. */
 void overlay83SubmitAll(Overlay83Command **displayList, void *arg1, void *arg2,
                         Overlay83Context *context) {
     s32 count;
@@ -70,27 +64,7 @@ void overlay83SubmitAll(Overlay83Command **displayList, void *arg1, void *arg2,
                                     *context->nested->resource);
     }
 
-    {
-        Overlay83Command *command;
-        u32 color;
-
-        color = OVERLAY83_PACK_COLOR(0xFF, 0xFF, 0xFF, 0xFF);
-        command = *displayList;
-        *displayList = command + 1;
-        command->w1 = 0;
-        command->w0 = 0xE7000000;
-
-        command = *displayList;
-        *displayList = command + 1;
-        command->w1 = color;
-        command->w0 = 0xFA000000;
-
-        command = *displayList;
-        *displayList = command + 1;
-        command->w1 = color;
-        command->w0 = 0xFB000000;
-    }
+    gDPPipeSync((*displayList)++);
+    gDPSetPrimColor((*displayList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gDPSetEnvColor((*displayList)++, 0xFF, 0xFF, 0xFF, 0xFF);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o083/overlay83SubmitAll/func_overlay_083_F0000A18_18D01D8.s")
-#endif

@@ -1234,8 +1234,7 @@ s32 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config) {
     return result;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EC8C.s")
-#ifdef NON_MATCHING
-/* One-word plateau at +0x5C: the final bne's two operands are reversed. */
+/* PROVENANCE: body adapted from JFG src/particles.c:partObjFreeTriggers. */
 void partObjFreeTriggers(ParticleObject *object) {
     s32 i;
     s32 offset;
@@ -1249,15 +1248,11 @@ void partObjFreeTriggers(ParticleObject *object) {
             if (((ParticleTriggerSlot *)((u8 *)object->triggers + offset))->flags & 0x8000) {
                 func_8003EC8C(object, i);
             }
-            i++;
             offset += sizeof(ParticleTriggerSlot);
             if (offset) {}
-        } while (i != count);
+        } while (++i != count);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partObjFreeTriggers.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/particles.c:partAdjustScaling. */
 void partAdjustScaling(f32 scale) {
     D_8007C8F8 = scale;
