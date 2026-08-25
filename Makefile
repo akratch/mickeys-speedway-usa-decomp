@@ -701,6 +701,16 @@ $(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym mainCPUeffectsRainDraw=TrapDanglingJump $@
 # The resident formatter's integer multiply/divide schedule uses R4300 timing.
 $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
+# osScGetTaskType owns seven table words; IDO's trailing four zero bytes are
+# object-section alignment and the following scheduler table begins immediately.
+$(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x1C
+# diRcpMoveWd owns eleven table words; the following zero is shared padding.
+$(BUILD_DIR)/$(SRC_DIR)/main/diRcp.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x2C
+# func_80038BC4 owns nineteen table words; the next menu table starts immediately.
+$(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x4C
 # Both measured FP helpers in this TU require the R4300 multiply schedule.
 $(BUILD_DIR)/$(SRC_DIR)/main/lights.c.o: CFLAGS += -Wab,-r4300_mul
 # IDO rounds the five-entry switch table's 0x14-byte input section to 0x20;

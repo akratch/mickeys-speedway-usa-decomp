@@ -270,15 +270,8 @@ void func_800304E0(OSSched *sc) {
         }
     }
 }
-/* Workbench: exact instruction words and known relocation-kind layout.
- * Lever tried: canonical wrapper removal followed by a full link.
- * Remaining: jtbl_800823D8 still owns seven assembly-local case labels. */
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:osScGetTaskType, with Mickey's own string symbols. */
-/* All 34 instructions are exact; strict comparison leaves two table-symbol
- * relocations at +0x14/+0x1C (.rodata versus jtbl_800823D8).
- * Workbench verdict: relocation-symbol-mismatch; shared rodata owns the fix. */
 char *osScGetTaskType(s32 taskID) {
     switch (taskID) {
         case 1:
@@ -299,9 +292,6 @@ char *osScGetTaskType(s32 taskID) {
             return D_80082100;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetTaskType.s")
-#endif
 void func_80030608(OSScTask *arg0) {
 }
 #ifdef NON_MATCHING
