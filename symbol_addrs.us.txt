@@ -2322,6 +2322,7 @@ func_80022604 = 0x80022604; // type:func size:0x0C ROM 0x23204 tier-D matched-C 
 func_80022794 = 0x80022794; // type:func size:0x2A4 ROM 0x23394 tier-D matched-C, JFG camSetProjMtx body, Mickey auto-name retained
 camOrthoYAspect = 0x80022A38; // type:func size:0x0C ROM 0x23638 tier-D matched-C JFG TU role/order
 func_80022A44 = 0x80022A44; // type:func size:0x0C ROM 0x23644 tier-D matched-C Mickey auto-name retained, camera TU position
+camStandardPersp = 0x80022B94; // type:func size:0xC4 ROM 0x23794 tier-D matched-C JFG TU role/order and perspective-matrix dataflow
 camScaleModelMtx = 0x8002442C; // type:func size:0xC0 ROM 0x2502C tier-D matched-C JFG TU role/order and model-scale matrix dataflow
 camRestoreModelMtx = 0x800245EC; // type:func size:0x20 ROM 0x251EC tier-D matched-C JFG TU role/order
 camPopModelMtx = 0x8002460C; // type:func size:0x20 ROM 0x2520C tier-D matched-C JFG TU role/order

@@ -133,6 +133,7 @@ extern f32 D_80079FB0[];
 extern Mtx D_800CED60[];
 extern MtxF D_800CEC98;
 extern CameraTransform D_800CEC68;
+extern CameraTransform D_80079F18;
 extern u16 D_800CEC94;
 extern MtxF D_800CED18;
 extern MtxF D_800CECD8;
@@ -484,7 +485,15 @@ void func_80022A44(f32 arg0) {
     D_80079F48 = arg0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A50.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022B94.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStandardPersp. */
+void camStandardPersp(Gfx **dlist, Mtx **mtx) {
+    gSPPerspNormalize((*dlist)++, D_800CEC94);
+    func_8002AE10(&D_80079F18, D_800CF220);
+    mtxf_mul(D_800CF220, D_800CEC98, D_800CED18);
+    mtxf_to_mtx(D_800CED18, *mtx);
+    gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 0);
+    (*mtx)++;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022C58.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022D20.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022E80.s")
