@@ -92,10 +92,25 @@ typedef struct TrackSegment {
     u8 pad26[0x40 - 0x26];
 } TrackSegment;
 
+/*
+ * PROVENANCE: field order comes from Diddy Kong Racing's public
+ * `include/structs.h`, type `LevelModelSegmentBoundingBox`. Mickey's
+ * 12-byte accessor stride independently confirms the layout size.
+ */
+typedef struct TrackBoundingBox {
+    s16 x1;
+    s16 y1;
+    s16 z1;
+    s16 x2;
+    s16 y2;
+    s16 z2;
+} TrackBoundingBox;
+
 typedef struct TrackData {
     TrackTextureEntry *textures;
     TrackSegment *segments;
-    u8 pad08[0x1A - 0x08];
+    TrackBoundingBox *segmentBounds;
+    u8 pad0C[0x1A - 0x0C];
     s16 segmentCount;
 } TrackData;
 
@@ -576,7 +591,18 @@ TrackSegment *func_8000FEB4(s32 segmentIndex) {
     }
     return &D_800792E8->segments[segmentIndex];
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FEEC.s")
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * function `block_boundbox`. Mickey's TrackData layout, function boundary,
+ * and bytes are authoritative.
+ */
+TrackBoundingBox *func_8000FEEC(s32 segmentIndex) {
+    if ((segmentIndex < 0) ||
+        (D_800792E8->segmentCount < segmentIndex)) {
+        return NULL;
+    }
+    return &D_800792E8->segmentBounds[segmentIndex];
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FF2C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010178.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800103D4.s")

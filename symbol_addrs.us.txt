@@ -1822,6 +1822,10 @@ func_8000D7F8 = 0x8000D7F8; // type:func size:0x28 ROM 0xe3f8
 // while Mickey proves its stricter upper bound and 0x40-byte segment stride.
 func_8000FEB4 = 0x8000FEB4; // type:func size:0x38 ROM 0x10ab4 tier-D (DKR src/tracks.c block_get structure, placeholder retained)
 
+// No public name adopted: DKR's `block_boundbox` supplies the adjacent
+// accessor and 12-byte record layout; Mickey proves the resident binding.
+func_8000FEEC = 0x8000FEEC; // type:func size:0x40 ROM 0x10aec tier-D (DKR src/tracks.c block_boundbox structure, placeholder retained)
+
 // Tier B: all three external callers consume the returned object through
 // track-layout fields; this is the TU's accessor for its current track object.
 trackGetTrack = 0x80013EB4; // type:func size:0xC ROM 0x14ab4
