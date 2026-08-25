@@ -707,7 +707,219 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
 
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F00034A0_18611F8.s")
 
+/*
+ * NON_MATCHING plateau (2026-08-25): the typed reconstruction has the exact
+ * 0x6FC extent under -O2 -mips1, but 421 of 447 masked words differ and the
+ * first mismatch is +0x0. The canonical -Wab,-r4300_mul build is 0x50 short:
+ * the target's 0xA0 frame keeps substantially more FP homes live, so local
+ * lifetime/stack-home reconstruction is the remaining blocker.
+ */
+#ifdef NON_MATCHING
+void func_overlay_008_F00042A8_1862000(O8P42A8Actor *actor,
+                                       O8P42A8Owner *owner, f32 update) {
+    O8P42A8State *state;
+    f32 targetMotion;
+    f32 targetHeight;
+    f32 phase;
+    f32 smoothing;
+    f32 firstTrig;
+    f32 secondTrig;
+    f32 relativeFirst;
+    f32 relativeSecond;
+    f32 lateral;
+    f32 forward;
+    f32 vertical;
+    f32 baseX;
+    f32 baseY;
+    f32 baseZ;
+    f32 targetTilt;
+    f32 absoluteVelocity;
+    s32 mode;
+    s32 randomMode;
+    s32 tableIndex;
+    s32 targetAngle;
+    s32 steps;
+    s32 remaining;
+
+    state = owner->state64;
+    mode = state->mode0 & 3;
+    o8P42A8SampleReloc(60.0f, 0);
+
+    if (state->reset170 != 0) {
+        steps = (s32)update;
+        if (steps != 0) {
+            s16 savedAngle = actor->angle0;
+
+            remaining = steps - 1;
+            do {
+                actor->angle0 +=
+                    o8P42A8ApproachReloc(actor->angle0, savedAngle) >> 3;
+                actor->angle2 +=
+                    o8P42A8ApproachReloc(actor->angle2, 0x800) >> 3;
+                actor->angle4 -= actor->angle4 >> 3;
+            } while (remaining--);
+        }
+        return;
+    }
+
+    if ((state->cycleFlags420 & 8) != 0) {
+        D_0[mode]++;
+    }
+    D_0[mode] &= 3;
+    tableIndex = D_0[mode];
+    randomMode = o8P42A8RandomReloc() & 3;
+    if ((state->reset170 != 0) || (state->lock191 != 0)) {
+        tableIndex = 1;
+    }
+
+    targetAngle = ((s16 *)0x2208)[randomMode];
+    targetMotion = O8_F32(0x2188 + (((randomMode * 4) + tableIndex) * 4));
+    phase = D_2210[mode];
+    if ((state->lowering349 == 0) && (state->lock191 == 0)) {
+        phase += O8_F32(0x260) * update;
+        if (phase > 1.0f) {
+            phase = 1.0f;
+        }
+    } else {
+        phase -= 0.125f * update;
+        if (phase < 0.0f) {
+            phase = 0.0f;
+        }
+    }
+    D_2210[mode] = phase;
+
+    state->directionDC = 0x8000 - state->angleF0;
+    targetAngle -= (owner->angle2 * 3) >> 2;
+    if (targetAngle >= 0x2001) {
+        targetAngle = 0x2000;
+    }
+    if (targetAngle < -0x2000) {
+        targetAngle = -0x2000;
+    }
+    targetHeight = O8_F32(0x21C8 + (((randomMode * 4) + tableIndex) * 4));
+    targetHeight += phase * O8_F32(0x2220 + (randomMode * 4));
+
+    steps = (s32)update;
+    remaining = steps - 1;
+    if (steps != 0) {
+        do {
+            actor->angle2 +=
+                o8P42A8ApproachReloc(actor->angle2, targetAngle) >> 4;
+        } while (remaining--);
+    }
+
+    if (state->velocity4 < 0.0f) {
+        f32 reduction = -6.0f * state->accelerationE4 * state->velocity4;
+
+        if (state->modifier100 != 0) {
+            reduction *= 0.5f;
+        }
+        if (reduction > 65.0f) {
+            reduction = 65.0f;
+        }
+        targetMotion -= reduction;
+    }
+
+    smoothing = state->steeringE0 * 60.0f;
+    if (state->double184 != 0) {
+        smoothing += smoothing;
+    }
+    if (state->modifier100 != 0) {
+        smoothing *= 0.5f;
+    }
+    targetMotion += smoothing;
+    if ((state->force185 == 1) && ((state->flags41C & 0x4000) == 0)) {
+        targetMotion = 32.0f;
+    }
+    if (state->special18D != 0) {
+        targetMotion = 200.0f;
+        targetHeight = 10.0f;
+    }
+
+    if (O8_S32(0) == 0) {
+        smoothing = O8_F32(0x264);
+    } else {
+        smoothing = O8_F32(0x268);
+    }
+    remaining = steps - 1;
+    if (steps != 0) {
+        do {
+            actor->motion24 += (targetMotion - actor->motion24) * smoothing;
+            actor->motion28 += (targetHeight - actor->motion28) * smoothing;
+        } while (remaining--);
+    }
+
+    firstTrig = o8P42A8TrigAReloc(0x8000 - state->directionDC);
+    secondTrig = o8P42A8TrigBReloc(0x8000 - state->directionDC);
+    relativeFirst = o8P42A8TrigAReloc(actor->angle2 - targetAngle);
+    relativeSecond = o8P42A8TrigBReloc(actor->angle2 - targetAngle);
+    lateral = (actor->motion24 * relativeSecond) -
+              (actor->motion28 * relativeFirst);
+    baseX = lateral * firstTrig;
+    baseY = (actor->motion24 * relativeFirst) +
+            (actor->motion28 * relativeSecond);
+    baseZ = lateral * secondTrig;
+
+    if (state->sign102 == 0) {
+        targetTilt = -10.0f;
+    } else {
+        targetTilt = 10.0f;
+    }
+    remaining = steps - 1;
+    if (steps != 0) {
+        do {
+            state->heightE8 +=
+                (targetTilt - state->heightE8) * O8_F32(0x27C);
+        } while (remaining--);
+    }
+
+    baseX += owner->xC + (state->offset14 * state->heightE8);
+    baseY += owner->y10 + (state->offset18 * state->heightE8);
+    baseZ += owner->z14 + (state->offset1C * state->heightE8);
+    firstTrig = o8P42A8TrigAReloc(state->directionDC + 0x4000);
+    secondTrig = o8P42A8TrigBReloc(state->directionDC + 0x4000);
+
+    if (state->modifier100 != 0) {
+        targetTilt = (f32)(state->modifier100 * -12);
+    } else if ((state->flags41C & 0x8000) != 0) {
+        absoluteVelocity = state->velocity4;
+        if (absoluteVelocity < 0.0f) {
+            absoluteVelocity = -absoluteVelocity;
+        }
+        if (absoluteVelocity > 1.0f) {
+            absoluteVelocity = 1.0f;
+        }
+        targetTilt = absoluteVelocity * (f32)state->magnitude108 *
+                     O8_F32(0x288);
+    } else {
+        targetTilt = 0.0f;
+    }
+
+    remaining = steps - 1;
+    if (steps != 0) {
+        do {
+            state->tiltEC +=
+                (targetTilt - state->tiltEC) * O8_F32(0x284);
+        } while (remaining--);
+    }
+
+    vertical = state->tiltEC;
+    actor->xC = baseX + (vertical * firstTrig);
+    actor->y10 = baseY;
+    actor->z14 = (baseZ - (vertical * secondTrig));
+    actor->angle0 = state->directionDC;
+
+    remaining = steps - 1;
+    if (steps != 0) {
+        do {
+            actor->angle4 +=
+                o8P42A8ApproachReloc(actor->angle4, owner->angle4 >> 1) >> 5;
+        } while (remaining--);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F00042A8_1862000.s")
+#endif
 
 void overlay8SetBuffer(void *base) {
     gOverlay8Buffer = (s16 *)((u8 *)base + 0x1B8);

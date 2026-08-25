@@ -350,6 +350,68 @@ typedef struct Overlay8ScaleState {
     s32 value42C;
 } Overlay8ScaleState;
 
+typedef struct O8P42A8Actor {
+    s16 angle0;
+    s16 angle2;
+    s16 angle4;
+    u8 pad06[6];
+    f32 xC;
+    f32 y10;
+    f32 z14;
+    u8 pad18[0xC];
+    f32 motion24;
+    f32 motion28;
+} O8P42A8Actor;
+
+typedef struct O8P42A8State {
+    s8 mode0;
+    u8 pad001[3];
+    f32 velocity4;
+    u8 pad008[0xC];
+    f32 offset14;
+    f32 offset18;
+    f32 offset1C;
+    u8 pad020[0xBC];
+    s16 directionDC;
+    u8 pad0DE[2];
+    f32 steeringE0;
+    f32 accelerationE4;
+    f32 heightE8;
+    f32 tiltEC;
+    s16 angleF0;
+    u8 pad0F2[0xE];
+    s16 modifier100;
+    s16 sign102;
+    u8 pad104[4];
+    s16 magnitude108;
+    u8 pad10A[0x66];
+    u8 reset170;
+    u8 pad171[0x13];
+    u8 double184;
+    u8 force185;
+    u8 pad186[7];
+    s8 special18D;
+    u8 pad18E[3];
+    s8 lock191;
+    u8 pad192[0x1B7];
+    u8 lowering349;
+    u8 pad34A[0xD2];
+    u32 flags41C;
+    u32 cycleFlags420;
+} O8P42A8State;
+
+typedef struct O8P42A8Owner {
+    u8 pad00[2];
+    s16 angle2;
+    s16 angle4;
+    u8 pad06[6];
+    f32 xC;
+    f32 y10;
+    f32 z14;
+    u8 pad18[0x4C];
+    O8P42A8State *state64;
+} O8P42A8Owner;
+
 typedef struct Overlay8MotionRow {
     u8 firstSelector;
     u8 secondSelector;
@@ -588,6 +650,20 @@ extern void o8ApplyColorsReloc(void *target, s32 alpha0,
 extern const f32 gOverlay8ScaleLowerReloc;
 
 extern const f32 gOverlay8ScaleUpperReloc;
+
+extern u8 D_0[];
+
+extern f32 D_2210[];
+
+extern f32 o8P42A8SampleReloc(f32 value, s32 mode);
+
+extern s32 o8P42A8RandomReloc(void);
+
+extern s32 o8P42A8ApproachReloc(s32 current, s32 target);
+
+extern f32 o8P42A8TrigAReloc(s32 angle);
+
+extern f32 o8P42A8TrigBReloc(s32 angle);
 
 extern s16 *gOverlay8Buffer;
 

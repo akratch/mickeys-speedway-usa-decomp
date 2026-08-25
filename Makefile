@@ -950,6 +950,16 @@ $(O8_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		o8ApplyColorsReloc=func_overlay_008_F0000000_185DD58 $@ && \
 	$(OBJCOPY) --redefine-sym \
+		o8P42A8SampleReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P42A8RandomReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P42A8ApproachReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P42A8TrigAReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o8P42A8TrigBReloc=func_overlay_008_F0000000_185DD58 $@ && \
+	$(OBJCOPY) --redefine-sym \
 		o8Call0894EmitReloc=func_overlay_008_F0002640_1860398 $@ && \
 	$(OBJCOPY) --redefine-sym \
 		o8Surface291CReloc=func_overlay_008_F0004CF0_1862A48 $@ && \
