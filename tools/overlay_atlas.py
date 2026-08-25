@@ -647,7 +647,7 @@ TEXT_SUBSEGMENTS = {
     ],
     90: [
         (0x000, "c", "overlay_090"),
-        (0x0FC, "asm", "overlay_090_padding"),
+        (0xB1C, "asm", "overlay_090_padding"),
     ],
     92: [
         (0x000, "c", "overlay92Init"),
@@ -1139,6 +1139,9 @@ MIXED_TU_EXACT_C_RANGES = {
     ],
     49: [
         (0x354, 0x374, "refractOutput"),
+    ],
+    90: [
+        (0x000, 0x0FC, "overlay90Initialize"),
     ],
 }
 

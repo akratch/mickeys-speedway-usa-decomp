@@ -63,10 +63,12 @@ extern void overlay96TransformPointsReloc(s32 count, s16 *angles, Vec3f *source,
 extern f32 overlay96SqrtReloc(f32 value);
 extern void overlay96Register(Overlay96Volume *volume);
 
-#ifdef NON_MATCHING
 void overlay96BuildVolume(Overlay96Object *object,
                           Overlay96Definition *definition) {
     f32 extentZ;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
     f32 ax;
     f32 ay;
     f32 az;
@@ -76,19 +78,16 @@ void overlay96BuildVolume(Overlay96Object *object,
     f32 cx;
     f32 cy;
     f32 cz;
-    f32 normalX;
-    f32 normalY;
-    f32 normalZ;
     f32 magnitudeSquared;
     f32 scale;
     Overlay96Volume *volume;
     Vec3f *point;
+    s16 angles[3];
+    Vec3f points[8];
     Overlay96Vertex *vertex;
     Overlay96Plane *plane;
     Overlay96FaceDefinition *face;
     s32 count;
-    s16 angles[3];
-    Vec3f points[8];
 
     volume = object->volume;
     ax = (f32)definition->extentX;
@@ -125,16 +124,16 @@ void overlay96BuildVolume(Overlay96Object *object,
     angles[2] = 0;
     overlay96TransformPointsReloc(8, angles, points, points);
 
-    ax = (f32)definition->centerX;
+    az = (f32)definition->centerX;
     ay = (f32)definition->centerY;
-    az = (f32)definition->centerZ;
+    ax = (f32)definition->centerZ;
     point = points;
     vertex = volume->vertices;
     count = 7;
     do {
-        point->x += ax;
+        point->x += az;
         point->y += ay;
-        point->z += az;
+        point->z += ax;
         vertex->x = point->x;
         vertex->y = point->y;
         vertex->z = point->z;
@@ -183,6 +182,3 @@ void overlay96BuildVolume(Overlay96Object *object,
     } while (count--);
     overlay96Register(volume);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o096/overlay96BuildVolume/func_overlay_096_F00000F8_18D7730.s")
-#endif
