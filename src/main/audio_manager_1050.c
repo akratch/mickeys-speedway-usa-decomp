@@ -65,6 +65,7 @@ extern void *D_80078D60;
 extern void *D_80078D64;
 extern u8 D_80078D68;
 extern u8 D_80078D6C;
+extern u8 D_80078D70;
 extern u8 D_80078D74;
 extern u8 D_80078D88;
 extern u8 D_80078D84;
@@ -84,6 +85,7 @@ extern s32 D_800BF7B8;
 extern s32 D_800BF7BC;
 extern s32 D_800BF7C0;
 extern s32 D_800BF7C4;
+extern s32 D_800BFA00;
 extern u8 D_800BFA08;
 extern u8 *D_800BF7A4;
 extern s32 osTvType;
@@ -100,6 +102,7 @@ extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
 extern void stop_ALSeqp(void *player);
 extern u16 amGetSfxCount(void);
+void amTuneStop(void);
 void amTuneSetVolume(u8 volume);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
                           f32 pitch, u8 arg5, void **handle);
@@ -124,7 +127,17 @@ void func_80000450(s32 behavior) {
     D_80078DA0 = behavior;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amTunePlay. */
+void func_80000510(u8 sequenceId) {
+    if (D_80078D78 == 0 && D_800BF798[sequenceId] <= 0x8000) {
+        if (D_80078D70 != 0) {
+            amTuneStop();
+            func_80001308(sequenceId, D_80078D60);
+        }
+        D_800BFA00 = -1;
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000594.s")
 /* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amTuneSetFade. */
 void func_800005CC(f32 fade, u8 volume) {
