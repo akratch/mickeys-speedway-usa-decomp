@@ -1293,12 +1293,14 @@ void func_overlay_008_F00042A8_1862000(O8P42A8Actor *actor,
     f32 baseZ;
     f32 targetTilt;
     f32 absoluteVelocity;
-    s32 mode;
+    f32 acceleration;
+    f32 steering;
     s32 randomMode;
     s32 tableIndex;
     s32 targetAngle;
     s32 steps;
     s32 remaining;
+    s16 savedAngle;
 
     state = owner->state64;
     mode = state->mode0 & 3;
@@ -1306,9 +1308,8 @@ void func_overlay_008_F00042A8_1862000(O8P42A8Actor *actor,
 
     if (state->reset170 != 0) {
         steps = (s32)update;
+        savedAngle = actor->angle0;
         if (steps != 0) {
-            s16 savedAngle = actor->angle0;
-
             remaining = steps - 1;
             do {
                 actor->angle0 +=
@@ -1348,6 +1349,8 @@ void func_overlay_008_F00042A8_1862000(O8P42A8Actor *actor,
     D_2210[mode] = phase;
 
     state->directionDC = 0x8000 - state->angleF0;
+    acceleration = state->accelerationE4;
+    steering = state->steeringE0;
     targetAngle -= (owner->angle2 * 3) >> 2;
     if (targetAngle >= 0x2001) {
         targetAngle = 0x2000;
@@ -1368,7 +1371,7 @@ void func_overlay_008_F00042A8_1862000(O8P42A8Actor *actor,
     }
 
     if (state->velocity4 < 0.0f) {
-        f32 reduction = -6.0f * state->accelerationE4 * state->velocity4;
+        f32 reduction = -6.0f * acceleration * state->velocity4;
 
         if (state->modifier100 != 0) {
             reduction *= 0.5f;
@@ -1379,7 +1382,7 @@ void func_overlay_008_F00042A8_1862000(O8P42A8Actor *actor,
         targetMotion -= reduction;
     }
 
-    smoothing = state->steeringE0 * 60.0f;
+    smoothing = steering * 60.0f;
     if (state->double184 != 0) {
         smoothing += smoothing;
     }

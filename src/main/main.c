@@ -1138,9 +1138,9 @@ s32 mainGetNextLevel(void) {
  * src/main.c::func_800468EC_474EC; its body remains assembly. This body is
  * reconstructed from Mickey's own call graph, data accesses and ABI.
  *
- * NON_MATCHING p2: workbench structure-mismatch, 492/489 instructions and
- * 426 positional words differ; first mismatch +0x4, with one unused saved web.
- * Lever 1 and volatile/address-alias probes were byte-identical; the web remains.
+ * Workbench: structure-mismatch; best 426/489 positional words differ, first +0x4.
+ * Lever: constant audit found a stack-home displacement; a parameter qualifier grew 492 to 493 instructions.
+ * Remains: an unused saved-register web shifts the return-address home; prior flag and alias probes did not close it.
  */
 #ifdef NON_MATCHING
 void func_80028564(s32 updateRate) {
