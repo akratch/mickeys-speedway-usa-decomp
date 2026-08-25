@@ -395,6 +395,9 @@ s32 diRcpDmaOffsets(Gfx *dList, char *name) {
     }
     return 8;
 }
+/* Workbench verdict: exact instructions and known relocation-kind layout.
+ * Lever tried: canonical wrapper removal followed by the full-link gate.
+ * Remaining: jtbl_80083950 still owns eleven assembly-local case labels. */
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpMoveWd. */
 s32 diRcpMoveWd(Gfx *dList) {

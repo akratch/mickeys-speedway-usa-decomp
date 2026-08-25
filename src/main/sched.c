@@ -270,6 +270,9 @@ void func_800304E0(OSSched *sc) {
         }
     }
 }
+/* Workbench: exact instruction words and known relocation-kind layout.
+ * Lever tried: canonical wrapper removal followed by a full link.
+ * Remaining: jtbl_800823D8 still owns seven assembly-local case labels. */
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:osScGetTaskType, with Mickey's own string symbols. */

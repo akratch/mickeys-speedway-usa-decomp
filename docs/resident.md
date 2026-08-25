@@ -949,8 +949,8 @@ Bounded plateau:
 | Function | ROM | Evidence and retained result |
 |---|---:|---|
 | `func_80021504` | `0x22104` | D — retained Mickey auto-name; JFG `camSetFOV` supplies the role and starting projection body. After the full flag lattice, nine coherent source/type/lifetime variants and a bounded two-worker permuter batch, the best configured candidate has the exact 532-byte size and 133 instructions but differs in 11 positional words from first mismatch `+0x1D4`. The first 117 instructions are exact; only temporary registers in the final projection-matrix ring update differ. The permuter's lower score moved the mandatory perspective rebuild inside the state-mirror branch and was rejected as semantically invalid; assembly remains canonical. |
+| `func_80021718` | `0x22318` | D — retained Mickey auto-name; DKR `cam_reset_fov` role. Workbench reports an exact 148-byte, 37-instruction shape with 11 register-only differences; removing the named slot web via pool-vs-temp routing is byte-identical. Six target values remain temp-ring webs, so assembly stays canonical. |
 | `func_800219D0` | `0x225D0` | D — retained Mickey auto-name; DKR `copy_viewports_to_stack` supplies the body and JFG supplies the `camUserViewTick` role/order. After the full flag lattice, eight coherent expression/lifetime variants and a bounded two-worker permuter batch, the best configured candidate has the exact 416-byte size and 104 instructions but differs in 17 positional words from first mismatch `+0x98`: the output index uses the opposite commutative `addu` operand order, then IDO makes different scheduling/register choices in the viewport extent expressions. The permuter's only lower score masked a signed 32-bit coordinate to 16 bits and was rejected as semantically invalid; assembly remains canonical. |
-| `func_80021718` | `0x22318` | D — retained Mickey auto-name; DKR `cam_reset_fov` is the 0.439 nearest skeleton and supplies the projection-reset body shape. After the full flag lattice, six semantics-preserving source/type/address variants, and a bounded two-worker permuter batch, the best candidate has the exact 148-byte size, 37 instructions and relocation surface but differs in 11 positional words from first mismatch `+0x4C`, all in temporary-register allocation for the rotating matrix-slot update. The permuter's score-195 candidate removed the required ring mask and invented a dead guard, so it was rejected; assembly remains canonical. |
 | `func_80024834` | `0x25434` | D — retained Mickey auto-name; JFG `camReversePoint` role. Plateau: exact 65-word size and nine relocations, 25 masked words differ from `+0x0`; target frame `0x38`, candidate `0x40`; the full flag lattice and 40-minute permuter found no exact source. |
 | `func_80024978` | `0x25578` | D — retained Mickey auto-name; JFG `camCopyOrthoMatrix` supplies the role and loop body, with Mickey adding its projection scale. After the full flag lattice, eight coherent source/type/indexing variants, and a bounded two-worker permuter batch, the best configured candidate emits 84 instructions against 83 and differs in 59 positional words from first mismatch `+0x5C`: IDO emits one extra address materialization for the third peeled coefficient, likely because the reconstruction sees an extern array rather than the original same-TU data definition. The permuter's score-135 base received no improvement; assembly remains canonical. |
 | `func_80024BA0` | `0x257A0` | D — retained Mickey auto-name; JFG `camScreenShake` supplies only the camera-TU role/order while Mickey establishes the distance-based shake body. After the full flag lattice, ten coherent source/lifetime spellings and a bounded two-worker permuter batch, the best configured candidate has the exact 296-byte size and differs in 15 positional words from first mismatch `+0x60`: IDO assigns the long-lived `$f20` register to the Z delta instead of the target's X delta, cascading through the arithmetic temporaries. The permuter's best score is 125, not zero; assembly remains canonical. |
@@ -1819,14 +1819,9 @@ leaves the external-`u64` candidate as the best faithful form and confirms the
 remaining blocker is the combined return-value store versus distinct BSS
 relocation identities.
 
-`osScGetTaskType` retains its JFG-derived switch under `NON_MATCHING`. The
-canonical candidate emits all 34 target text instructions and all eight
-string relocation identities exactly, but its two jump-table relocations at
-function `+0x14` and `+0x1C` name the compiler's anonymous 0x20-byte
-`.rodata` section rather than Mickey's existing `jtbl_800823D8`. The flag
-lattice cannot change section ownership, and promoting the table requires a
-measured `mickey.us.yaml` rodata-boundary handoff outside this lane's assigned
-files. The assembly fallback therefore remains canonical.
+`osScGetTaskType` plateau: workbench reports exact instructions and known relocation layout.
+Removing the wrapper fails the full link because `jtbl_800823D8` references seven assembly-local labels.
+The remaining lever is coordinated rodata ownership; assembly stays canonical.
 
 The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
 `NON_MATCHING` body after the 119-combination flag lattice and seven
@@ -2633,14 +2628,9 @@ function `+0x44` (plus two local PC16 assembler-metadata differences) and a
 duplicate linked table surface. The exact source remains behind
 `NON_MATCHING`, with the target assembly canonical until that rodata split is
 handed off.
-The 156-byte `diRcpMoveWd` helper reaches the same section-ownership plateau.
-JFG's six-case empty switch reproduces all 39 target instructions, the
-96-byte frame, both calls, and the diagnostic-string relocation at the
-resident defaults. IDO also emits the correct 11-entry switch table, but binds
-the function's first table relocation at `+0x34` to this TU's `.rodata` rather
-than Mickey's existing shared `jtbl_80083950` symbol, creating a duplicate
-linked table surface. The instruction-exact body remains behind
-`NON_MATCHING` until the shared rodata split is handed off.
+`diRcpMoveWd` plateau: workbench reports exact instructions and known relocation layout.
+Removing the wrapper fails the full link because `jtbl_80083950` references eleven assembly-local labels.
+The remaining lever is coordinated rodata ownership; assembly stays canonical.
 The 268-byte `diRcpGeometryMode` helper is exact at the resident defaults.
 JFG's object-like `stubbed_printf` macro preserves the target's empty geometry-
 flag switch and its otherwise-unused saved registers, reproducing all 67 owned

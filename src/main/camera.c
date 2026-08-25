@@ -412,18 +412,12 @@ void func_80021504(f32 fov, s32 force) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021504.s")
 #endif
+/* Workbench verdict: allocation mismatch, 11 register-only words.
+ * Lever tried: pool-vs-temp routing by removing the named slot web; byte-identical.
+ * Remaining: six target values are temp-ring webs; assembly stays canonical. */
 #ifdef NON_MATCHING
-/*
- * PROVENANCE: adapted from DKR's public decomp,
- * src/camera.c:cam_reset_fov.
- *
- * Plateau: the full flag lattice, six semantics-preserving source/type/address
- * variants, and a bounded two-worker permuter batch leave an exact 0x94-byte,
- * 37-instruction candidate with 11 positional words different from first
- * mismatch +0x4C. The remaining difference is temporary-register allocation
- * in the rotating matrix-slot update. The permuter's lower-scoring candidate
- * removed the required ring mask and invented a dead guard, so it was rejected.
- */
+/* PROVENANCE: adapted from DKR's public decomp,
+ * src/camera.c:cam_reset_fov. */
 void func_80021718(void) {
     s32 index;
     s32 slot;
