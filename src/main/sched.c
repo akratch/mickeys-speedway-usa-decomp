@@ -49,6 +49,8 @@ void osSpTaskLoad(OSTask *task);
 void osSpTaskStartGo(OSTask *task);
 void osSpTaskYield(void);
 u64 osGetTime(void);
+void *osViGetCurrentFramebuffer(void);
+void *osViGetNextFramebuffer(void);
 void rsp_segment(SchedGfx **dlist, s32 segment, void *base);
 s32 diPrintf(const char *format, ...);
 void diPrintfAll(SchedGfx **dlist);
@@ -295,7 +297,17 @@ void __scHandleRetrace(OSSched *sc) {
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRSP.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRDP.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scTaskReady.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scTaskReady. */
+OSScTask *__scTaskReady(OSScTask *task) {
+    if (task != NULL) {
+        if (osViGetCurrentFramebuffer() != osViGetNextFramebuffer()) {
+            return NULL;
+        }
+        return task;
+    }
+    return NULL;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scTaskComplete.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scAppendList.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scExec.s")
