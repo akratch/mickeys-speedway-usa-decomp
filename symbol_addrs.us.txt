@@ -1794,6 +1794,10 @@ func_80014ECC = 0x80014ECC; // type:func size:0x668 ROM 0x15acc tier-D (JFG buil
 // Tier D: occupies JFG `trackSkySet`'s position in the established TU order.
 trackSkySet = 0x8000C5E8; // type:func size:0xC ROM 0xd1e8
 
+// No public name adopted: JFG's same-role flashy-sky placeholder supplies the
+// source structure, while Mickey proves its resident layouts and bindings.
+func_8000C5F4 = 0x8000C5F4; // type:func size:0x684 ROM 0xd1f4 tier-D (JFG src/track.c flashy-sky builder, placeholder retained)
+
 // No name adopted: JFG's corresponding `trackGetSky` is only a tier-D TU
 // position argument. Mickey's address placeholder is retained for the exact C.
 func_8000D00C = 0x8000D00C; // type:func size:0xC ROM 0xdc0c
