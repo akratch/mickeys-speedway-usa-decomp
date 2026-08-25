@@ -33,7 +33,10 @@ extern void *func_8002B280(s32 size, s32 tag);
 extern void mmFree(void *ptr);
 
 #ifdef NON_MATCHING
-/* PROVENANCE -- adapted from JFG's public asm/nonmatchings/shadows/shadowInitBuffers.s, with Mickey's globals. */
+/* PROVENANCE -- adapted from JFG's public asm/nonmatchings/shadows/shadowInitBuffers.s, with Mickey's globals.
+ * Workbench: words-identical; first metadata mismatch +0xC4 is the sentinel relocation pair.
+ * Lever tried: zero-based alias loop removed all six operand differences.
+ * Remains: D_80079434+0xC binds where the target metadata names D_80079440. */
 void shadowInitBuffers(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 i;
     s32 stride0;
@@ -52,10 +55,10 @@ void shadowInitBuffers(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     stride2 = arg4 * 8;
     D_80079430[0] = func_8002B280(stride2 * 4, 0x8D);
 
-    for (i = 1; i < 4; i++) {
-        D_80079414[i - 1] = D_80079414[i - 2] + stride0;
-        D_80079424[i - 1] = D_80079424[i - 2] + stride1;
-        D_80079434[i - 1] = D_80079434[i - 2] + stride2;
+    for (i = 0; i < 3; i++) {
+        D_80079414[i] = D_80079414[i - 1] + stride0;
+        D_80079424[i] = D_80079424[i - 1] + stride1;
+        D_80079434[i] = D_80079434[i - 1] + stride2;
     }
     D_80079458 = 0;
 }

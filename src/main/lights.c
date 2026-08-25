@@ -605,6 +605,9 @@ s32 func_8001A008(LightingObject *object, LightInitState *state) {
     return (result & ~3) + 4;
 }
 #ifdef NON_MATCHING
+/* Workbench: register-ring-only; exact 58-word shape and call relocation, first +0x1C.
+ * Tried the temp-FIFO hoist lever on the final call argument; it grew the frame by 8 bytes.
+ * Remains 13 register-only words; prior mask/scaled-size levers and permuter were exhausted. */
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightAdjustGlowingLight.s, with Mickey's constants and offsets. */
 void func_8001A154(GlowObject *object) {
     FlareEntry flare;

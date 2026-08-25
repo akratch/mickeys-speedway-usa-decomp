@@ -1301,7 +1301,7 @@ address-placeholder helper names are not imported.
 | `0x165DC` | `0x11C` | `getXZCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x166F8` | `0x98` | `getYCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x16790` | `0x300` | `trackLightAsm` | B; uses odd single-precision FP registers, stays `asm` |
-| `0x16A90` | `0x12C` | `shadowInitBuffers` | B; `NON_MATCHING` plateau after the flag lattice, eight source/loop forms, and a 10-minute permuter batch: exact 75-word frame/opcode/register shape, but 6 positional words differ and the two sentinel relocations at `+0xC4`/`+0xD4` bind `D_80079434 + 0xC` instead of `D_80079440` |
+| `0x16A90` | `0x12C` | `shadowInitBuffers` | B; `NON_MATCHING`, all 75 words exact; sentinel relocations at `+0xC4`/`+0xD4` bind `D_80079434 + 0xC` instead of `D_80079440` |
 | `0x16BBC` | `0x78` | `shadowFreeBuffers` | B name; JFG-adapted exact C, 30 words, 15 relocs under O2/mips2 |
 | `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
@@ -1773,17 +1773,9 @@ the candidate's colored fourth-argument web, rotating the following integer
 temporaries through the second copy loop. The assembly fallback remains
 canonical.
 
-The 0x94-byte save-window serializer `func_8002C94C` retains a Mickey-derived
-`NON_MATCHING` body after the 119-combination flag lattice and ten source,
-stack-layout, and lifetime hypotheses. Its best candidate has the target's
-exact 115-instruction opcode schedule, 112-byte frame, and relocation surface;
-12 words differ, first at function `+0x30`. Six differences place the message
-queue and two-word footer at candidate `sp+0x6C` and `sp+0x64` instead of the
-target's `sp+0x54` and `sp+0x40`; the other six swap the save-slot base and
-outer counter between `$s5` and `$s6`. Mirroring the recovered local order
-instead drops the footer-magic stores, and aggregate layouts grow the frame.
-The unavailable permuter import prevents a bounded automated declaration
-search; the assembly fallback remains canonical.
+`func_8002C94C`: workbench `schedule-mismatch`; exact 115-word shape, `0x70` frame, and relocation surface.
+Local order/type, slot-count lifetime, statement grouping, context lint, and a bounded permuter leave five raw positions from `+0x50`.
+The source is already a `-g0` build and the isolated lead regresses canonically, so assembly remains canonical.
 
 | Function | ROM | Bytes | Flags | Verdict |
 |---|---:|---:|---|---|
