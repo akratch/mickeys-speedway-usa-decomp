@@ -487,17 +487,17 @@ typedef struct State {
     u8 done;
     u8 pad16D[3];
     u8 phase;
-    u8 pad171[0xB];
-    s16 pathId;
-    u8 selectorA;
-    u8 selectorB;
-    u8 selectorC;
-    u8 pad181[0xF];
+    u8 pad171[0x1F];
     u8 fade;
     u8 active;
     u8 pad192[0x16];
     u16 flags;
-    u8 pad1AA[0x236];
+    u8 pad1AA[0x1D2];
+    s16 pathId;
+    u8 selectorA;
+    u8 selectorB;
+    u8 selectorC;
+    u8 pad381[0x5F];
     Spawned *spawned;
 } State;
 
@@ -510,16 +510,15 @@ extern void ext_o0_5a914(Transform *, s32, s32, s32);
 extern Spawned *local_414(s16, Spawned **);
 extern s16 local_c0(Spawned *);
 
-/* Plateau (2026-08-24): the full flag lattice ties at -O2 -mips2; the
- * candidate is 0xC bytes short, differs in 164 of 237 words, and first
- * diverges at +0x20.  Its nested phase-state CFG is structurally incomplete,
- * so statement permutation cannot supply the missing blocks. */
+/* Workbench: structure-mismatch; best is 234/237 words, 160 positional differences, first +0x20.
+ * Tried constant audit, phase widths, stack-slot census, and indexed/typed pointer ASTs.
+ * The local slot stays +0x10 high; an index fold leaves three words missing and early pool/temp drift. */
 #ifdef NON_MATCHING
 void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateRate) {
     Spawned *sp3C;
     s32 value;
-    s32 phaseValue;
-    u8 phase;
+    u8 phaseValue;
+    s32 phase;
     u8 index;
     u8 *point;
     Spawned *spawned;

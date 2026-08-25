@@ -32,15 +32,9 @@ extern f32 gOverlay79CollisionEpsilon;
 extern f32 gOverlay79CollisionLift;
 extern f32 gOverlay79CollisionProjection;
 
-/*
- * Plateau (2026-08-25, 10-attempt cap): the best -O2 -mips2
- * -Wab,-r4300_mul candidate has the exact 184-word size, differs in 150
- * words, and first diverges at +0x0.  The candidate uses a 0x90-byte frame
- * instead of the retail 0x98-byte frame; the remaining delta is dominated
- * by floating-point register allocation and spill lifetimes.  The full flag
- * lattice, the m2c-shaped formulation, and the structurally related Mickey
- * overlay 22/29 formulations all retain that allocation split.
- */
+/* Workbench: structure-mismatch; best is 184/184 words, 143 differences, first +0x38.
+ * Tried exact-frame/spill census, volatile homes, declaration scopes, and expression association.
+ * The 0x98 frame is exact; 29 structural and 95 register rows remain after the FP pool split. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000FA0_18CDF40(
     void *unused, Overlay79Vector *position, Overlay79Vector *axis,
@@ -58,7 +52,8 @@ void func_overlay_079_F0000FA0_18CDF40(
     f32 value;
     f32 length;
     f32 amount;
-    f32 planeConstant;
+    volatile f32 planeConstant;
+    volatile f64 framePad;
 
     (void)unused;
     ny = plane->normal.y;
