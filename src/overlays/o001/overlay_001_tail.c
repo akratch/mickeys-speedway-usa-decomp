@@ -2710,42 +2710,41 @@ typedef struct Overlay1SimpleTransientWorld {
     Overlay1SimpleTransientObject *object;
 } Overlay1SimpleTransientWorld;
 
-extern Overlay1SimpleTransientOwner *gOverlay1SimpleTransientOwner;
-extern Overlay1SimpleTransientWorld *gOverlay1SimpleTransientWorld;
 extern f32 gOverlay1TransientScale;
 extern f32 gOverlay1TransientThreshold;
 extern f32 gOverlay1TransientVelocityY;
+extern Overlay1SimpleTransientObject *overlay1TransientCallReloc();
 
-#ifdef NON_MATCHING
 void overlay1UpdateTransient(void) {
     Overlay1SimpleTransientObject *object;
     Overlay1SimpleTransientState *state;
 
-    object = gOverlay1SimpleTransientWorld->object;
+    object = ((Overlay1SimpleTransientWorld *)D_1DA0)->object;
     if (object == 0) {
-        object = func_overlay_036_F0000694_1883B4C(
-            gOverlay1SimpleTransientOwner, gOverlay1SimpleTransientWorld);
+        object = overlay1TransientCallReloc(
+            (Overlay1SimpleTransientOwner *)D_1D9C,
+            (Overlay1SimpleTransientWorld *)D_1DA0);
         if (object != 0) {
             state = object->state;
+            state->owner = D_1D9C;
             state->type = 2;
             state->active = 1;
             state->selector = 9;
             state->pad0A = 0;
-            state->owner = gOverlay1SimpleTransientOwner;
             object->scale = gOverlay1TransientScale;
-            overlay1ReadSelection(gOverlay1SimpleTransientOwner, 9, &object->x,
-                                  &object->y, &object->z);
-            gOverlay1SimpleTransientWorld->object = object;
+            overlay1TransientCallReloc(D_1D9C, 9, &object->x, &object->y,
+                                       &object->z);
+            ((Overlay1SimpleTransientWorld *)D_1DA0)->object = object;
         }
     } else {
         state = object->state;
     }
 
-    if (gOverlay1SimpleTransientWorld->flags & 2) {
-        overlay1InitTimedState(gOverlay1SimpleTransientOwner, 0x78);
+    if (((Overlay1SimpleTransientWorld *)D_1DA0)->flags & 2) {
+        overlay1TransientCallReloc(D_1D9C, 0x78);
     }
-    if ((gOverlay1SimpleTransientWorld->mode == 0xD) &&
-        (gOverlay1SimpleTransientOwner->distance >= gOverlay1TransientThreshold) &&
+    if ((((Overlay1SimpleTransientWorld *)D_1DA0)->mode == 0xD) &&
+        (((Overlay1SimpleTransientOwner *)D_1D9C)->distance >= gOverlay1TransientThreshold) &&
         state->active) {
         state->active = 0;
         state->linkedIndex = -1;
@@ -2756,10 +2755,6 @@ void overlay1UpdateTransient(void) {
         *object->flags &= ~2;
     }
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0007130_1853510.s")
-#endif
 
 /* ---- overlay1AllocateRecord ---- */
 
