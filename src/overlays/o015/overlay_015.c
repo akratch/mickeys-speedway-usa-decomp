@@ -312,7 +312,16 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F00006E8_1872A80.s")
 #endif
 
-/* Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative. */
+/*
+ * Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative.
+ * Plateau (2026-08-25, cx-ov-2-a-r4): the 119-combination flag lattice leaves
+ * canonical -O2 -mips2 at 0x1B8 bytes versus 0x19C executable target bytes,
+ * with 84 differing words and the first mismatch at +0x30. A valid statement
+ * reorder improved the bounded ten-minute permuter score from 2160 to 1890.
+ * Pairwise and whole-state typed views either retain the seven extra address
+ * instructions or over-collapse the allocation. The blocker is the target's
+ * high-half reuse across adjacent overlay-local scalar symbols.
+ */
 #ifdef NON_MATCHING
 void overlay15UpdateMovingStars(f32 positionX, f32 positionY, f32 positionZ,
                                 s32 updateRate) {
@@ -348,8 +357,8 @@ void overlay15UpdateMovingStars(f32 positionX, f32 positionY, f32 positionZ,
     if (gOverlay15MovingStars != 0) {
         scale = (f32)updateRate;
         positionX *= scale;
-        positionY *= scale;
         positionZ *= scale;
+        positionY *= scale;
         starfieldFastMove(gOverlay15MovingStarCount, gOverlay15MovingStars,
                           positionX, positionY, positionZ,
                           gOverlay15MovingBound0, gOverlay15MovingBound1,
