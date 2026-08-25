@@ -76,6 +76,14 @@ extern void func_800349A4(Overlay37Command **commands, void *resource,
                           s32 mode, s32 flags);
 extern void func_8002460C(Overlay37Command **commands, const void *displayData);
 
+/*
+ * Plateau (2026-08-25): -O2 -mips2 with -Wab,-r4300_mul emits the exact
+ * 0x358-byte/214-instruction boundary. Named distance arithmetic,
+ * branch-local blends, and camera-delta-first ordering reduce the residual
+ * to 68 words (first mismatch +0x0), with no FP-register differences. The
+ * remaining blocker is the 0x10-byte frame/stack-home gap and the command
+ * temporary/register schedule; the bounded permuter remained non-exact.
+ */
 #ifdef NON_MATCHING
 void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
                            Overlay37Object *object) {
@@ -84,12 +92,12 @@ void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
     Overlay37Resource *resource;
     Overlay37Record *record;
     Overlay37Transform transform;
+    f32 distanceDelta;
     Overlay37Command *command;
     s32 frame;
     s32 red;
     s32 green;
     s32 blue;
-    f32 blend;
     f32 deltaX;
     f32 deltaY;
     f32 deltaZ;
@@ -113,11 +121,15 @@ void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
         blue = 0;
     } else if ((record->distance > 1000.0f) &&
                (record->distance < 2000.0f)) {
-        blend = (record->distance - 1000.0f) / (f32)1000;
+        f32 blend;
+
+        blend = (distanceDelta = record->distance - 1000.0f) / (f32)1000;
         red = 255.0f - blend * (f32)255;
         green = 255.0f - (16.0f - blend * (f32)16);
         blue = 13.0f - blend * (f32)13;
     } else {
+        f32 blend;
+
         blend = record->distance / 1000.0f;
         red = 0xFF;
         green = blend * 239.0f;
@@ -129,13 +141,13 @@ void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
     transform.position.y += resource->y44C;
     transform.position.z += resource->z450;
 
+    deltaX = camera->x - transform.position.x;
+    deltaY = camera->y - transform.position.y;
+    deltaZ = camera->z - transform.position.z;
     transform.angle0 = -camera->angle0;
     transform.angle2 = camera->angle2;
     transform.objectAngle = object->angle4;
     transform.scale = 0.5f;
-    deltaX = camera->x - transform.position.x;
-    deltaY = camera->y - transform.position.y;
-    deltaZ = camera->z - transform.position.z;
     transform.position.x += deltaX * 0.5f;
     transform.position.y += deltaY * 0.5f;
     transform.position.z += deltaZ * 0.5f;

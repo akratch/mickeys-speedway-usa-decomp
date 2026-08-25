@@ -5,6 +5,20 @@ typedef struct Gfx {
     u32 w1;
 } Gfx;
 
+#define OVERLAY23_PIPE_SYNC(packet)                \
+    {                                              \
+        Gfx *macroCommand = (Gfx *)(packet);       \
+        macroCommand->w0 = 0xE7000000;             \
+        macroCommand->w1 = 0;                      \
+    }
+
+#define OVERLAY23_ENV_WHITE(packet)                \
+    {                                              \
+        Gfx *macroCommand = (Gfx *)(packet);       \
+        macroCommand->w0 = 0xFB000000;             \
+        macroCommand->w1 = 0xFFFFFF00;             \
+    }
+
 typedef struct Overlay23RenderState {
     u8 pad00[8];
     f32 scale;
@@ -42,59 +56,34 @@ typedef struct Overlay23RenderPacket {
     s32 resource;
 } Overlay23RenderPacket;
 
-typedef struct Overlay23AlignedRenderPacket {
-    u8 pad00[8];
-    Overlay23RenderPacket packet;
-} Overlay23AlignedRenderPacket;
+/* The overlay relocation stream resolves these two call sites independently,
+ * although the relocatable object stores the same zero-valued proxy symbol. */
+extern void overlay23CallReloc();
 
-extern void overlay23PrepareRenderReloc(void);
-extern void overlay23SubmitRenderReloc(
-    Gfx **displayList, s32 renderArg0, s32 renderArg1,
-    Overlay23RenderObject *object, void *renderResource,
-    Overlay23RenderPacket *packet, s32 mode, s32 alpha);
-
-/*
- * The live wrapper preserves the shipped packet's stack placement.
- * Plateau (2026-08-25): canonical -O2 -mips2 is exactly 0x100 bytes but
- * first diverges at +0x18 with 32 differing words. A 10-minute permuter
- * run reached score 50 only with a macro temporary that shifted the packet
- * and enlarged the real frame; the blocker is temporary allocation around
- * the display-list macro expansion.
- */
-#ifdef NON_MATCHING
+/* Block-local command temporaries reproduce the original display-list macro
+ * expansion and its live ranges. */
 void overlay23RenderEffect(Overlay23RenderObject *object, Gfx **displayList,
                            s32 renderArg0, s32 renderArg1) {
     Overlay23RenderState *state;
-    Overlay23AlignedRenderPacket packetStorage;
-    Gfx *command;
+    Overlay23RenderPacket packet;
 
     state = object->state;
-    overlay23PrepareRenderReloc();
+    overlay23CallReloc();
 
-    packetStorage.packet.mode = 3;
-    packetStorage.packet.color = 0x3333;
-    packetStorage.packet.value0 = state->value0;
-    packetStorage.packet.value1 = state->value1;
-    packetStorage.packet.scale = state->scale;
-    packetStorage.packet.unitScale = 1.0f;
-    packetStorage.packet.x = object->x;
-    packetStorage.packet.y = object->y;
-    packetStorage.packet.z = object->z;
-    packetStorage.packet.resource = state->resource;
+    packet.mode = 3;
+    packet.color = 0x3333;
+    packet.value0 = state->value0;
+    packet.value1 = state->value1;
+    packet.scale = state->scale;
+    packet.unitScale = 1.0f;
+    packet.x = object->x;
+    packet.y = object->y;
+    packet.z = object->z;
+    packet.resource = state->resource;
 
-    command = *displayList;
-    *displayList = command + 1;
-    command->w1 = 0;
-    command->w0 = 0xE7000000;
-    command = *displayList;
-    *displayList = command + 1;
-    command->w1 = 0xFFFFFF00;
-    command->w0 = 0xFB000000;
+    OVERLAY23_PIPE_SYNC((*displayList)++);
+    OVERLAY23_ENV_WHITE((*displayList)++);
 
-    overlay23SubmitRenderReloc(displayList, renderArg0, renderArg1, object,
-                               object->renderResource, &packetStorage.packet,
-                               14, object->alpha);
+    overlay23CallReloc(displayList, renderArg0, renderArg1, object,
+                       object->renderResource, &packet, 14, object->alpha);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o023/overlay23RenderEffect/func_overlay_023_F0000468_1879678.s")
-#endif
