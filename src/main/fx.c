@@ -108,6 +108,14 @@ typedef struct FxScreenEffect {
     s32 value10;
 } FxScreenEffect;
 
+typedef struct FxSpdRecord {
+    s16 value0;
+    s16 value2;
+    s16 value4;
+    s8 value6;
+    s8 value7;
+} FxSpdRecord;
+
 typedef struct FxRecord {
     u8 state;
     u8 status;
@@ -131,6 +139,7 @@ extern FxRecord D_800D5F58[];
 extern s32 D_800D5F50;
 extern s32 D_800D6038[];
 extern s32 D_800D6040;
+extern FxSpdRecord D_800D5FF8[][4];
 extern s32 D_8007D47C[];
 extern s32 D_800D6098[];
 extern s32 D_800D60A8;
@@ -475,7 +484,24 @@ void func_8004A0F0(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A380.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A4B0.s")
+/* Mickey-derived body; JFG's corresponding fx.c function is assembly-only. */
+void func_8004A4B0(s32 value0, s32 value2, s32 value4, s32 value6,
+                   s32 value7) {
+    s32 group;
+    s32 *countPtr;
+    FxSpdRecord *record;
+
+    group = D_800D6040;
+    countPtr = &D_800D6038[group];
+    if (*countPtr < 4) {
+        record = &D_800D5FF8[group][(*countPtr)++];
+        record->value0 = value0;
+        record->value2 = value2;
+        record->value4 = value4;
+        record->value6 = value6;
+        record->value7 = value7;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A51C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxSPDPRipple.s")
 void fxQueueScreenEffect(s32 type, s32 value4, s32 value6, s32 value8,

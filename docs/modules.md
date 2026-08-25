@@ -1828,7 +1828,11 @@ also with the target's data-symbol relocation pair. The following 96-byte
 the typed record body, expression schedule, and data relocation are exact at
 the resident defaults. The 28-byte `func_8004A0F0` clears two adjacent effect
 queue words and their index; its three stores and both data relocation pairs
-are exact under the same defaults.
+are exact under the same defaults. The 108-byte `func_8004A4B0` appends a
+compact eight-byte record to one of two four-entry effect queues. Its natural
+post-incremented count subscript and field-order assignments reproduce all 27
+target instructions plus the three data relocation pairs under the resident
+defaults.
 The 76-byte JFG-identified `fxInit` is exact as well: its post-decrement loop
 clears all five 32-byte records, resets the global state, and preserves the
 callee plus two data relocation pairs without normalization.
