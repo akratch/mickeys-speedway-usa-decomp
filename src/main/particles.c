@@ -114,7 +114,7 @@ typedef struct BasicParticle {
     f32 localX;
     f32 localY;
     f32 localZ;
-    u8 pad3C[4];
+    f32 forwardVelocity;
     f32 gravity;
     u8 pad44[4];
     void *parent;
@@ -176,6 +176,7 @@ void mmFree(void *ptr);
 void func_800347A0(void *resource);
 void func_800359D4(void *resource);
 void modFreeModel(void *resource);
+void mathOneFloatPY(void *rotation, void *vector);
 void func_8003EC8C(ParticleObject *object, s32 index);
 void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
 void func_8003CA20(void);
@@ -434,7 +435,24 @@ void func_8004233C(BasicParticle *particle) {
         particle->rotationZ += particle->angularVelocityZ;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800423EC.s")
+/* PROVENANCE: body adapted from DKR src/particles.c:move_particle_forward. */
+void func_800423EC(BasicParticle *particle) {
+    s32 i = 0;
+
+    while (i++ < D_800D4140) {
+        particle->velocityX = 0.0f;
+        particle->velocityY = 0.0f;
+        particle->velocityZ = -particle->forwardVelocity;
+        mathOneFloatPY(particle, &particle->velocityX);
+        particle->x += particle->velocityX;
+        particle->y += particle->velocityY - particle->gravity;
+        particle->z += particle->velocityZ;
+        particle->scale += particle->scaleVelocity;
+        particle->rotationY += particle->angularVelocityY;
+        particle->rotationX += particle->angularVelocityX;
+        particle->rotationZ += particle->angularVelocityZ;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateParticles.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partDraw.s")
 #ifdef NON_MATCHING
