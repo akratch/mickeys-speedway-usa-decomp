@@ -1821,6 +1821,9 @@ eight-difference basin at `+0x14`. The repeated full flag lattice therefore
 leaves the external-`u64` candidate as the best faithful form and confirms the
 remaining blocker is the combined return-value store versus distinct BSS
 relocation identities.
+This run's explicit timestamp-struct retry also emitted 28 words from `+0x0`;
+the guarded external-`u64` body remains best at 20/19 words, eight differences
+from `+0x14`, blocked by the separate low-word BSS relocation identity.
 
 `osScGetTaskType` retains its JFG-derived switch under `NON_MATCHING`. The
 canonical candidate emits all 34 target text instructions and all eight
@@ -1863,6 +1866,9 @@ values' stored width rather than their promoted arithmetic width. It regressed
 to 32 instructions, 24 positional differences, and first mismatch `+0x0`.
 The promoted-width candidate remains best at the target's 31 instructions,
 18 differences, and first mismatch `+0x14`.
+This run's explicit cursor-field retry added one word; a bounded MIPS II
+permuter improved only by inventing a 64-bit mask seed, so the faithful
+31-word/18-difference candidate remains guarded with the same `+0x14` blocker.
 
 The full-save-image builder `func_8002CF6C` also retains a Mickey-derived
 `NON_MATCHING` body after the 119-combination flag lattice and ten
