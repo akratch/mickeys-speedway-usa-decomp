@@ -1384,6 +1384,8 @@ default resident flags, Mickey-only reconstruction); `func_8003E730` (ROM
 `0x3F330`, `0x88` bytes, default resident flags, Mickey-only reconstruction);
 `func_80041C50` (ROM `0x42850`, `0x94` bytes, default resident flags,
 Mickey-only reconstruction);
+`func_80041F48` (ROM `0x42B48`, `0xA4` bytes, default resident flags,
+Mickey-only reconstruction);
 `partInitTriggerSPPos`
 (ROM `0x3F224`, `0x4C` bytes, default resident flags, JFG-named Mickey
 reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default

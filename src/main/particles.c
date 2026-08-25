@@ -67,10 +67,17 @@ typedef struct ParticleObject {
 } ParticleObject;
 
 typedef struct ParticleModelEntry {
-    u8 pad00[0xA4];
+    void *particles[15];
+    s32 particleCount;
+    u8 pad40[0x64];
     u8 active;
     u8 padA5[0x1B];
 } ParticleModelEntry;
+
+typedef struct ParticleTypeDescriptor {
+    u8 pad00[4];
+    s32 flags;
+} ParticleTypeDescriptor;
 
 typedef struct CircularParticle {
     u8 pad00[0x2C];
@@ -108,6 +115,7 @@ extern ParticleTrigger *D_8007C8BC;
 extern s32 D_8007C8C0;
 extern s32 D_8007C890;
 extern ParticleModelEntry *D_8007C898;
+extern ParticleTypeDescriptor **D_8007C8AC;
 extern CircularParticlePool *D_800D4120[];
 extern CircularParticlePool *D_800D4134[];
 
@@ -117,6 +125,7 @@ void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s1
 void func_8003CA20(void);
 void func_8003CB3C(void);
 void func_8003CCE4(void);
+void *func_8003FB98(s32 arg0, ParticleTrigger *trigger, s32 arg2);
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry);
 
 /* PROVENANCE: body adapted from DKR src/particles.c:reset_particles. */
@@ -243,7 +252,25 @@ void func_80041C50(s32 arg0, s32 arg1) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041CE4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041F48.s")
+void func_80041F48(s32 arg0, ParticleTrigger *trigger) {
+    void *particle;
+    ParticleModelEntry *entry;
+    ParticleTypeDescriptor *descriptor;
+    u8 index;
+
+    descriptor = D_8007C8AC[trigger->value];
+    index = trigger->alpha;
+    if (index != 0xFF && ((u32)descriptor->flags >> 28) == 4) {
+        entry = &D_8007C898[index];
+        if (entry->particleCount != 15) {
+            particle = func_8003FB98(arg0, trigger, -1);
+            if (particle != NULL) {
+                entry->particles[entry->particleCount] = particle;
+                entry->particleCount++;
+            }
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041FEC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800420E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800421F4.s")
