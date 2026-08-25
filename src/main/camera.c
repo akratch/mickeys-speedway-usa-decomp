@@ -20,12 +20,9 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/gameVi.h"
 #include "game/math.h"
-
-typedef union {
-    s32 m[4][4];
-    s64 force_structure_alignment;
-} Mtx;
+#include "n_audio/mbi.h"
 
 typedef struct {
     u8 pad0[0x30];
@@ -44,6 +41,7 @@ typedef struct {
 } CameraShake;
 
 extern u8 D_80079F94;
+extern s32 D_80079F8C;
 extern u8 D_80079FA0[];
 extern s32 D_800CEC84;
 extern s32 D_800CEC88;
@@ -61,6 +59,12 @@ extern Camera D_800CEA20[];
 extern CameraShake D_800CEC18[];
 
 void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
+extern s32 levelInitRegionFlags(void);
+extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
+                          u32 *x2, u32 *y2);
+extern void func_80022C58(Gfx **dlist, u32 halfWidth, u32 halfHeight,
+                          u32 centerX, u32 centerY, s32 regionFlags);
+extern void func_80022794(Gfx **dlist, Mtx **mtx);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021438.s")
@@ -138,7 +142,59 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021EF0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021F68.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021FB0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800221E8.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetView. */
+void func_800221E8(Gfx **dlist, Mtx **mtx) {
+    u32 halfWidth;
+    struct {
+        u32 pad;
+        u32 lry;
+        u32 lrx;
+        u32 uly;
+        u32 ulx;
+    } win;
+    u32 halfHeight;
+    s32 videoMode;
+
+    func_80021FB0(D_800CEC60, D_800CEC64, (s32 *)&win.ulx,
+                  (s32 *)&win.uly, &win.lrx, &win.lry);
+
+    videoMode = viGetVideoMode();
+    if ((videoMode == 2) || (videoMode == 3)) {
+        halfWidth = 224;
+        halfHeight = 168;
+    } else {
+        halfWidth = 160;
+        halfHeight = 120;
+    }
+
+    if (D_800CEC60 >= 2) {
+        halfWidth >>= 1;
+        halfHeight >>= 1;
+    }
+
+    if (D_80079F8C != 0) {
+        win.lrx >>= 1;
+        win.lry >>= 1;
+        halfWidth >>= 1;
+        halfHeight >>= 1;
+    }
+
+    if (D_80079FA0[D_800CEC64] != 0) {
+        halfWidth *= D_80079FB0[D_800CEC64];
+        halfHeight *= D_80079FB0[D_800CEC64];
+        gSPClipRatio((*dlist)++, FRUSTRATIO_1);
+    }
+
+    gDPSetScissor((*dlist)++, G_SC_NON_INTERLACE,
+                  win.ulx, win.uly, win.lrx, win.lry);
+    func_80022C58(dlist, halfWidth, halfHeight,
+                  (win.lrx + win.ulx) >> 1, (win.lry + win.uly) >> 1,
+                  levelInitRegionFlags());
+
+    if (mtx != NULL) {
+        func_80022794(dlist, mtx);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022604.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022610.s")
 /*
