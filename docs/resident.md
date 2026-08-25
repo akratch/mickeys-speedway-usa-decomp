@@ -340,7 +340,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80019358` | `0x13C` | `lightGetStrongestEffect` | tier-B comparison: square-root distance calculation and TU order |
 | `0x80019494` | `0xA8` | `lightUpdateObjects` | tier-B comparison: calls the following object-light helper |
 | `0x8001953C` | `0x3F8` | JFG placeholder `func_80021B9C` | placeholder prohibited; remains `func_8001953C` |
-| `0x80019934` | `0xF0` | `lightDistanceCalc` | tier-B comparison; `NON_MATCHING` plateau: canonical flag sweep gives 60/60 text words and exact call relocations, but the shared resident rodata segment retains `jtbl_800817B4`, so promotion duplicates the compiler's anonymous table and leaves the extracted table's five local labels unresolved |
+| `0x80019934` | `0xF0` | `lightDistanceCalc` | Tier A: JFG-adapted C and the five-entry compiler-owned switch table are linked byte-identically |
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | unique nearest skeleton (0.432) and exact JFG size; comparison only |
 | `0x80019AB8` | `0x2E0` | `lightObject` | tier-B comparison: calls all three `lights2` pipelines |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | tier-B comparison: delegates to the following setter |
@@ -960,24 +960,10 @@ gates. A later chained-assignment retry made the function three instructions
 longer and was rejected. Canonical code remains assembly and no TU flag
 override is adopted.
 
-`func_800389CC` reaches an **exact-text tier-D NON_MATCHING plateau** over
-**0x1F8 bytes / 126 words** at ROM `0x395CC`. JFG's C
-`src/menu.c::frontFreeMode` supplies the role, high-level lifetime, and switch
-ordering; Mickey supplies the smaller 19-mode switch and resident state. The
-resident default flags emit every executable word and the exact `0x18`-byte
-frame. Promotion is blocked by section ownership: IDO emits the switch's
-`0x4C` bytes as anonymous TU-local `.rodata`, while the named `jtbl_80082748`
-copy remains inside the shared `0x81590` yaml slice. Compiling both would
-duplicate the table. The first metadata mismatch is the target assembly's
-external-label PC16 at function `+0x2C`; the named-versus-anonymous table
-HI16/LO16 pair follows at `+0x34`/`+0x3C`. The 119-combination flag lattice
-confirms the stock resident flags and does not change the ownership surface.
-Canonical code and shared rodata remain assembly pending a measured yaml
-handoff outside this lane's ownership.
-
-`func_80038BC4` remains tier-D `NON_MATCHING`: all **0x1E8 bytes / 122 words** and the `0x18` frame are exact; workbench reports `relocation-layout-mismatch`.
-The structural-branch and shared-owner audit leaves the external PC16 at `+0x2C` and anonymous-versus-`jtbl_80082794` HI16/LO16 at `+0x34`/`+0x3C`.
-JFG's `frontInitMode` supplies role/order provenance; canonical asm and the shared `0x81590` rodata owner remain.
+| Function | Exact result |
+|---|---|
+| `func_800389CC` | 504 bytes under `-O2 -mips2 -32 -Wo,-loopunroll,0`; JFG `src/menu.c::frontFreeMode` body, all 126 instruction words exact, with its 76-byte compiler-owned switch table. |
+| `func_80038BC4` | 488 bytes under `-O2 -mips2 -32 -Wo,-loopunroll,0`; JFG `frontInitMode` role/order comparison and Mickey-derived body, all 122 instruction words exact, with its 76-byte compiler-owned switch table. |
 
 The tier-B `frontSetMode` adds **0x64 bytes / 25 words** at ROM `0x399AC`.
 Its exact free/init/reset call sequence, mode-state store, and ordered pairing
@@ -2024,21 +2010,9 @@ and leaves 110 differing positions. The blocker is register allocation around
 the conditional third-framebuffer allocation. The flag lattice found no exact
 variant, and the configured permuter checkout is absent in this lane.
 
-`func_80034094` has an instruction-exact 47-word `NON_MATCHING` switch body
-adapted from JFG's `viGetOsViMode`; a full 119-configuration flag sweep again
-found the resident flags exact. Strict object comparison, however, finds two
-relocation-identity differences at function offsets `+0x10` and `+0x18`: the
-target names `jtbl_8008249C`, while IDO names the candidate's anonymous
-`.rodata` table. It cannot be promoted within this TU's ownership because the
-separately extracted `jtbl_8008249C` still owns the 12 case-label references;
-replacing the asm body therefore leaves those labels undefined and also emits
-a duplicate 48-byte table. The canonical path remains the original asm pending
-coordinated rodata ownership.
-Retyping the mode argument and its `ResolutionSettings` field to JFG's
-`VideoModes` enum produced the same 47-word object and the same anonymous-table
-relocations. Strict comparison still reports only the two symbol-identity
-differences at `+0x10` and `+0x18`; the donor enum type cannot perform the
-required rodata ownership handoff.
+| Function | Exact result |
+|---|---|
+| `func_80034094` | 188 bytes under `-O2 -mips2 -32`; JFG `src/gameVi.c::viGetOsViMode` body, all 47 instruction words exact, with its 48-byte compiler-owned switch table in `main/gameVi` `.rodata`. |
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
 **Why the rows do not establish new internal boundaries.** §1's "measured file
@@ -2168,7 +2142,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80019358` | `0x13C` | `lightGetStrongestEffect` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80019494` | `0xA8` | `lightUpdateObjects` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x8001953C` | `0x3F8` | JFG placeholder `func_80021B9C` | placeholder prohibited; remains `func_8001953C` |
-| `0x80019934` | `0xF0` | `lightDistanceCalc` | tier-B comparison; `NON_MATCHING` plateau: canonical flag sweep gives 60/60 text words and exact call relocations, but the shared resident rodata segment retains `jtbl_800817B4`, so promotion duplicates the compiler's anonymous table and leaves the extracted table's five local labels unresolved |
+| `0x80019934` | `0xF0` | `lightDistanceCalc` | Tier A: JFG-adapted C and the five-entry compiler-owned switch table are linked byte-identically |
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | Tier A: JFG C is compiler/link exact |
 | `0x80019AB8` | `0x2E0` | `lightObject` | tier-B comparison: calls all three `lights2` pipelines |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
