@@ -1042,6 +1042,12 @@ no donor body or descriptive-name evidence is used. The default flags, both
 data-relocation words, object words, and linked ROM range are exact without
 post-processing.
 
+The tier-D `func_8003A590` adds **0x10 bytes / 4 words** at ROM `0x3B190`.
+Mickey's body writes `-1` to a resident halfword. A short-function skeleton
+collision with an unrelated published routine is rejected as naming evidence,
+so the address label remains. The default flags, HI16/LO16 relocation pair,
+object words, and linked ROM range are exact without post-processing.
+
 ### 3.12 Track assembly and shadows (`0x16140`–`0x18FF0`)
 
 This block contains two JFG-lineage translation units. The boundary claims are

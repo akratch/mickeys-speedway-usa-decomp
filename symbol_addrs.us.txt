@@ -2214,6 +2214,7 @@ frontSetBgmVolume = 0x8003A4D0; // type:func size:0x3C  ROM 0x3b0d0
 func_8003A520 = 0x8003A520; // type:func size:0x24 tier-D ROM 0x3b120 plateau 3/9 words differ, first +0x8
 func_8003A544 = 0x8003A544; // type:func size:0xC tier-D ROM 0x3b144 canonical C, linked byte-identical
 func_8003A550 = 0x8003A550; // type:func size:0xC tier-D ROM 0x3b150 canonical C, linked byte-identical
+func_8003A590 = 0x8003A590; // type:func size:0x10 tier-D ROM 0x3b190 canonical C, linked byte-identical
 // jfg:src/diCpu.c.o
 diCpuTraceInit = 0x800459B0; // type:func size:0x54   ROM 0x465b0  src/diCpu.c.o  masked=10/21
 // jfg:src/font.c.o
