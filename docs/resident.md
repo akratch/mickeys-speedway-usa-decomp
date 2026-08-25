@@ -2982,30 +2982,10 @@ and receive no credit. Exact executable C in `main/vehicle_sounds` now totals
 `0xF4` bytes.
 
 The remaining vehicle functions plateau without exact credit.
-`func_80058250`'s best named-global initializer emits 26 instructions against
-22 and differs in 19 positional words from `+0x0`; a typed four-slot aggregate
-reaches the exact size but differs in 21 positions. The complete flag lattice
-does not produce the target's mixed global-address schedule. A new per-slot
-volatile aggregate spelling also reaches 22 words and improves that basin to
-20 positional differences from `+0x0`, but still hoists four full extern
-addresses and carries only 8 relocation records against the target assembly's
-20. Statement reordering, pointer-relative stores, one array aggregate, and
-volatile/non-volatile per-slot objects cover the coherent extern-layout
-families; reproducing the target now appears to require the original data
-ownership/layout context rather than another initializer ordering.
-A split-tail retry modeled each handle as a scalar and its adjacent float and
-object pointer as a two-field aggregate, preserving two source-level bases per
-slot. IDO materialised each tail pointer explicitly: the candidate remained 26
-words against 22, differed in all 22 target positions from `+0x8`, and carried
-16 relocation records rather than 20. The full 119-configuration lattice kept
-stock `-O2 -mips2 -32` best, so the original data-ownership blocker remains.
-`func_8005830C` now has a complete typed `NON_MATCHING` reconstruction adapted
-at the organization/terminology level from DKR's permitted published
-`src/audio_vehicle.c`, with Mickey's own field offsets and calls deciding the
-body. Ten coherent source shapes and the complete flag lattice leave the best
-stock `-O2 -mips2 -32` candidate at 757 instructions against 762, a `0x110`
-frame against `0x118`, 706 positional word differences and first mismatch
-`+0x0`. Pointer induction improved the residual by 29 words. A later
-loop-invariant form reached the exact frame and only a two-instruction deficit
-but regressed to 730 words, so the retained candidate is still a broad
-allocation/structure plateau rather than a permuter-ready near match.
+`func_80058250`: 26/22 words, 19 positional differences from `+0x0`; workbench reports structure-mismatch.
+The TU now owns the measured four-record `0x800D78B0`–`0x800D78F0` BSS; an array collapses to 16 words and volatile slots differ in 21/22.
+Stock `-O2 -mips2 -32` remains best after the 119-configuration flag lattice; assembly stays canonical.
+
+`func_8005830C`: 758/762 words, 699 positional differences from `+0x0`, frame `0x110`/`0x118`.
+Workbench reports mixed constant/structure/register mismatch; the next lever is constant-audit.
+Its DKR organization/terminology provenance remains recorded at the body; assembly stays canonical.

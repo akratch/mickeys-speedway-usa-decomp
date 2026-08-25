@@ -71,18 +71,22 @@ typedef struct VehicleCamera {
     /* 0x18 */ u8 pad18[0x54 - 0x18];
 } VehicleCamera;
 
-extern s32 D_800D78B0;
-extern f32 D_800D78B8;
-extern s32 D_800D78BC;
-extern s32 D_800D78C0;
-extern f32 D_800D78C8;
-extern s32 D_800D78CC;
-extern s32 D_800D78D0;
-extern f32 D_800D78D8;
-extern s32 D_800D78DC;
-extern s32 D_800D78E0;
-extern f32 D_800D78E8;
-extern s32 D_800D78EC;
+void *D_800D78B0;
+f32 sVehicleSoundPreviousDistance0;
+f32 D_800D78B8;
+void *D_800D78BC;
+void *D_800D78C0;
+f32 sVehicleSoundPreviousDistance1;
+f32 D_800D78C8;
+void *D_800D78CC;
+void *D_800D78D0;
+f32 sVehicleSoundPreviousDistance2;
+f32 D_800D78D8;
+void *D_800D78DC;
+void *D_800D78E0;
+f32 sVehicleSoundPreviousDistance3;
+f32 D_800D78E8;
+void *D_800D78EC;
 extern s32 D_800D78F0;
 extern u8 D_8007BF04;
 extern u8 D_8007BF0C;
@@ -123,9 +127,9 @@ f32 sqrtf(f32 value);
 f32 func_80058EF4(f32 value);
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 26 versus 22 words, with no exact prefix.
- * Lever: structure/context ownership; TU-local scalars and target-order stores still emitted four extra address loads.
- * Remains: the target's cross-symbol high-half reuse needs original BSS layout context; named externs stay best. */
+/* Workbench: structure-mismatch, 26 versus 22 words, 19 positional differences from +0x0.
+ * The TU now owns four measured 0x10-byte records; one aggregate collapses to 16 words, while volatile slots differ in 21/22.
+ * Lever: source structure; stock -O2/mips2 remains best after the 119-configuration flag lattice. */
 void func_80058250(void) {
     D_800D78B0 = 0;
     D_800D78B8 = 0.0f;
@@ -165,14 +169,9 @@ void func_800582A8(void) {
  * offsets, tables, control flow, constants and positional-audio calls decide
  * this body.
  *
- * Plateau: ten coherent type, lifetime, pointer-induction and loop-invariant
- * shapes were compiled after the complete flag lattice. The retained stock
- * `-O2 -mips2 -32` candidate is 757 instructions against 762, with a 0x110
- * frame against 0x118, 706 positional word differences and first mismatch
- * +0x0. Pointer induction closed 29 words; an explicit-invariant variant
- * reached the exact frame and a two-instruction deficit but regressed to 730
- * words. The residual remains broad allocation/structure, so a whole-function
- * permuter batch would not be a meaningful register-order search.
+ * Workbench: mixed constant/structure/register mismatch, 758 versus 762 words,
+ * 699 positional differences from +0x0, and a 0x110 versus 0x118 frame.
+ * Lever: constant-audit; the assembly fallback remains canonical.
  */
 void func_8005830C(s32 updateRate) {
     s32 racerCount;
