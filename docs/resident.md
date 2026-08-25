@@ -1022,9 +1022,9 @@ assembly; Mickey supplies this C body and table indexing, as the point-of-use
 algebraic reassociation. The default flags, three call relocations, data pair,
 object words, and linked ROM range are exact without post-processing.
 
-`func_8003968C`: best remains **37/37 instruction words exact** with **18 relocation identities differing**, first `+0x24`.
-The fresh typed `MenuControllerRepeatState` body is also 37/37 but consolidates the state base and differs at 22 relocation sites; JFG's exact skeleton remains assembly.
-Resident flags tie the full lattice, so symbol binding—not instruction codegen—blocks the canonical match.
+`func_8003968C`: TU-owned repeat state regresses to **16/37 words**, first
+`+0x0`; the exact 200-word consumer gains 16 operand differences. Next preserve
+the consumer immediates while restoring expression multiplicity.
 
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and
