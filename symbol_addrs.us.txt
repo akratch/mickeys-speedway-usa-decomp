@@ -1925,6 +1925,10 @@ func_80014614 = 0x80014614; // type:func size:0x190 ROM 0x15214
 // commands; JFG's corresponding function is still an address placeholder.
 func_800147A4 = 0x800147A4; // type:func size:0x13C ROM 0x153a4
 
+// DKR's public `obj_loop_fogchanger` supplies the adapted body; JFG's
+// assembly-only `trackChangeFog` supplies independent tier-D TU context.
+func_800148E0 = 0x800148E0; // type:func size:0x2CC ROM 0x154e0 tier-D (DKR src/tracks.c body adapted, placeholder retained)
+
 // No public name adopted: this Mickey-only helper builds a transform from the
 // current track rotation and caches one transformed point.
 func_80014DE4 = 0x80014DE4; // type:func size:0xC8 ROM 0x159e4
