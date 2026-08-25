@@ -280,7 +280,9 @@ void func_800221E8(Gfx **dlist, Mtx **mtx) {
         func_80022794(dlist, mtx);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022604.s")
+void func_80022604(s32 arg0) {
+    D_80079F8C = arg0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022610.s")
 /*
  * PROVENANCE: adapted from JFG's public decomp,
