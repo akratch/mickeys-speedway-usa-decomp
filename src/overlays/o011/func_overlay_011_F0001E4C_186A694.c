@@ -49,6 +49,15 @@ extern void func_800006BC(f32 arg0, s32 arg1);
 extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
+/*
+ * Plateau (2026-08-25): the exact-size -O2 -g3 candidate has 113/295
+ * instruction words identical and first differs at +0x8; canonical -O2 is
+ * four bytes short but preserves the retail prefix through +0xD4. The main
+ * blocker is a shifted v0/v1 register web beginning in the five-handle loop
+ * and continuing through the switch. Declaration order, register and
+ * volatile qualifiers, split versus for-loop spelling, and the full flag
+ * lattice did not improve it; no close donor skeleton was found.
+ */
 #ifdef NON_MATCHING
 void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
     s32 index;
