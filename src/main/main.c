@@ -144,6 +144,29 @@ typedef struct MainZBCheck {
     s8 enabled;
 } MainZBCheck;
 
+/*
+ * PROVENANCE: bitfield names and layout adapted from JFG include/mips.h;
+ * Mickey's own patch sequence and byte identity validate their use here.
+ */
+typedef union MainMipsInstruction {
+    u32 word;
+    struct {
+        u32 opcode : 6;
+        u32 sourceRegister : 5;
+        u32 targetRegister : 5;
+        u32 destinationRegister : 5;
+        u32 shiftAmount : 5;
+        u32 function : 6;
+    } shiftEncoding;
+    struct {
+        u32 opcode : 6;
+        u32 sourceRegister : 5;
+        u32 targetRegister : 5;
+        u32 immediate : 16;
+    } addiu;
+    u8 bytes[4];
+} MainMipsInstruction;
+
 typedef struct MainDebugMemory {
     s16 count;
     u8 pad2[10];
@@ -328,53 +351,47 @@ extern void amWaitForMidiSync(void);
 extern void mainCPUeffectsRainDraw(void *, s32, s32, f32, f32);
 #endif
 
-#ifdef NON_MATCHING
 /*
- * Plateau: nine source/expression hypotheses preserve all 66 target opcodes,
- * the 0x108 boundary, -0x30 frame and exact relocation layout. The best has
- * 20 register-operand differences, first at +0x24 where the target loads its
- * comparison constant before the outer countdown. The remaining differences
- * are the temp-FIFO choices in the byte-patch sequence. The complete flag
- * lattice was unchanged; a canonical-MIPS-II bounded permuter batch improved
- * its score from 225 to 120 without reaching identity.
+ * PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is
+ * decisive. Keep the nested statement line-spliced: IDO uses its source-line
+ * group when scheduling the three hoisted loop constants.
  */
 void RevealReturnAddresses(void) {
     s32 outer;
-    u8 **returnAddress;
-    u8 *scan;
+    MainMipsInstruction **returnAddress;
+    MainMipsInstruction *scan;
     s32 inner;
-    u16 patched;
+    s32 opcode;
+    s32 canary;
 
-    outer = 4;
-    do {
-        returnAddress = &D_8007A244;
-        outer = 4;
-        do {
-            scan = *returnAddress;
-            inner = 0x3F;
-            do {
-                if (((*(u32 *) scan >> 26) == 9) &&
-                    (*(u16 *) (scan + 2) == 0x666)) {
-                    scan[0] = scan[0] & 0xFF03;
-                    *(u16 *) scan = (patched = *(u16 *) scan | 0x3E0);
-                    scan[2] = ((patched << 1) << 2) |
-                              (scan[2] & 0xFF07);
-                    *(u16 *) (scan + 2) &= 0xF83F;
-                    scan[1] = scan[1] & 0xFFE0;
-                    scan[3] = (scan[3] & 0xFFC0) | 0x25;
-                    osWritebackDCache(scan, 4);
-                    osInvalICache(scan, 4);
-                    break;
-                }
-                scan += 4;
-            } while (inner--);
-            returnAddress--;
-        } while (outer--);
+    do { \
+        opcode = 9, canary = 0x666, outer = 4; \
+        do { \
+            returnAddress = (MainMipsInstruction **) &D_8007A244, outer = 4; \
+            do { \
+                scan = *returnAddress; \
+                inner = 0x3F; \
+                do { \
+                    if ((scan->addiu.opcode == opcode) && \
+                        (scan->addiu.immediate == canary)) { \
+                        scan->shiftEncoding.opcode = 0; \
+                        scan->shiftEncoding.sourceRegister = 31; \
+                        scan->shiftEncoding.destinationRegister = \
+                            scan->addiu.targetRegister; \
+                        scan->shiftEncoding.targetRegister = 0; \
+                        scan->shiftEncoding.shiftAmount = 0; \
+                        scan->shiftEncoding.function = 0x25; \
+                        osWritebackDCache(scan, 4); \
+                        osInvalICache(scan, 4); \
+                        break; \
+                    } \
+                    scan++; \
+                } while (inner--); \
+                returnAddress--; \
+            } while (outer--); \
+        } while (0); \
     } while (0);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
-#endif
 
 #ifdef NON_MATCHING
 /*

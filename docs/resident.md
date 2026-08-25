@@ -2132,7 +2132,7 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Ninety-two functions / 7,840 bytes compile exactly
+**Matching progress.** Ninety-three functions / 8,104 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -2146,7 +2146,8 @@ linked ranges and the full ROM are exact.
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (58 / 5,520 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
+- `main/main` (59 / 5,784 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
+  `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainSetGameWindow`, `mainSetAnimGroup`,
   `mainGetAnimGroup`,
   `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
@@ -2254,13 +2255,6 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   91 instructions. IDO starts its global-pointer live range in `$t1` rather
   than the target's `$t0`, leaving 88 differing words and 24 relocation-position
   mismatches; the permuter found no improvement from its base score of 4,900.
-- `RevealReturnAddresses`, nine source/expression hypotheses, the full flag
-  lattice and a bounded canonical-MIPS-II permuter batch, first mismatch
-  `+0x24`: the best candidate preserves all 66 target opcodes, the 264-byte
-  boundary, `-0x30` frame and exact relocations but has 20 register-operand
-  differences. The target assigns its comparison constants and byte-patch
-  temporaries in a different allocator order; the permuter improved its score
-  from 225 to 120 without reaching identity.
 - `levelGetCounts`, ten source/type/loop hypotheses, first mismatch `+0x13c`:
   the best candidate has the target's 1,036-byte size, 259-instruction opcode
   schedule and `-0x58` frame, but three register operands use `$v0` where the
