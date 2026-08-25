@@ -2027,16 +2027,14 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8004054C.s")
 #endif
 #ifdef NON_MATCHING
-/*
- * Text-exact plateau: the compiler emits a duplicate jump table rather than
- * binding the separately extracted jtbl_80082A58 resident-rodata table.
- * PROVENANCE: structure cross-checked against JFG
- * asm/nonmatchings/particles/func_80061B50.s; body reconstructed from Mickey
- * evidence.
- */
+/* PROVENANCE: structure cross-checked against JFG assembly function
+ * func_80061B50; body reconstructed from Mickey evidence. */
+/* Exact size/frame: 9/78 executable words differ, first +0x1C; reversing the
+ * empty guard fixes its branch but was rejected as a fake. Temp slot 5 cycles
+ * t0/t9/t1; three switch/PC16 relocation identities also remain. */
 void func_80040740(CircularParticle *particle) {
-    CircularParticlePool *pool;
     s32 index;
+    CircularParticlePool *pool;
 
     if (particle->type >= 5) {
         if (particle->type == 0x80) {}
@@ -2059,6 +2057,8 @@ void func_80040740(CircularParticle *particle) {
         case 1:
         case 4:
             break;
+        default:
+            return;
     }
     if (particle->trigger != NULL) {
         particle->trigger->active = 0;
@@ -2068,9 +2068,9 @@ void func_80040740(CircularParticle *particle) {
         if (particle->resource != NULL) {
             func_800347A0(particle->resource);
         }
+        index = (particle - pool->particles);
         pool->activeCount--;
         particle->type = 0x80;
-        index = (particle - pool->particles);
         pool->freeBits[index >> 5] |= 1 << (index & 0x1F);
     }
 }

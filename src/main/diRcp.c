@@ -397,6 +397,9 @@ s32 diRcpDmaOffsets(Gfx *dList, char *name) {
 }
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpMoveWd. */
+/* All 39 instructions/register lanes are exact; strict comparison leaves the
+ * named table at +0x34/+0x3C plus target-only local PC16 metadata at +0x2C.
+ * Workbench verdict: relocation-layout-mismatch; shared rodata owns the fix. */
 s32 diRcpMoveWd(Gfx *dList) {
     s32 w0_24_31;
     s32 w0_0_7;
