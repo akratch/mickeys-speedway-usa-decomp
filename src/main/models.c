@@ -305,7 +305,71 @@ void func_80020AD4(void) {
     } while (D_800CB4A2 != &D_800CB49C[i]);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020B10.s")
+#ifdef NON_MATCHING
+typedef struct ModelFrameEntry {
+    s16 frame;
+    s16 nextFrame;
+    u32 textureIndex;
+} ModelFrameEntry;
+
+typedef struct ModelTextureHeader {
+    u8 pad0[0xE];
+    u16 frameScale;
+    u16 frameCount;
+} ModelTextureHeader;
+
+typedef struct ModelFrameInstance {
+    ObjectModel *model;
+    u8 pad4[6];
+    s16 outputIndex;
+    u8 padC[0x40];
+    ModelFrameEntry *entries;
+    u16 *outputs[1];
+} ModelFrameInstance;
+
+/* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
+void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
+    ObjectModel *model;
+    ModelFrameEntry *entry;
+    u16 *output;
+    s32 remaining;
+    s32 remainingCopy;
+
+    model = instance->model;
+    entry = instance->entries;
+    output = instance->outputs[instance->outputIndex];
+    remaining = *((u8 *)model + 0x2C);
+    remainingCopy = remaining;
+    remaining--;
+    if (remainingCopy != 0) {
+        do {
+            s32 index = entry->textureIndex & 0xFF;
+            ModelTextureHeader *texture = model->textures[index].texture;
+            s16 nextFrame;
+            s16 outputValue;
+            u16 frameScale;
+
+            if (index == textureIndex && frame < texture->frameCount) {
+                entry->frame = frame;
+            }
+            frameScale = texture->frameScale;
+            nextFrame = entry->nextFrame;
+            outputValue = (entry->frame >> 8) * frameScale;
+            output++;
+            remainingCopy = remaining;
+            entry++;
+            output[-1] = outputValue;
+            if (nextFrame >= 0) {
+                output++;
+                output[-1] = (nextFrame >> 8) * frameScale;
+            }
+            remaining--;
+        } while (remainingCopy != 0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020D8C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020E4C.s")
 /*
  * PROVENANCE -- name and TU position follow JFG's public
