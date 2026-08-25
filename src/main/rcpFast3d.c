@@ -26,6 +26,7 @@ extern u8 D_8007A3A0;
 extern u8 D_8007A3A4;
 extern u8 D_8007A3A8;
 extern u32 D_8007A3B0;
+extern u32 D_8007A3AC;
 extern RcpCommand D_8007A438[];
 extern RcpCommand D_8007A4B8[];
 
@@ -37,7 +38,11 @@ void rcpSetScreenColour(u8 red, u8 green, u8 blue) {
     D_8007A3A4 = green;
     D_8007A3A8 = blue;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/bgdraw_fillcolour.s")
+/* PROVENANCE: body and name adapted from Diddy Kong Racing's public decomp, src/rcp_dkr.c:bgdraw_fillcolour. */
+void bgdraw_fillcolour(s32 red, s32 green, s32 blue) {
+    D_8007A3AC = ((red << 8) & 0xF800) | ((green << 3) & 0x7C0) | ((blue >> 2) & 0x3E) | 1;
+    D_8007A3AC |= D_8007A3AC << 16;
+}
 void func_8002EBD4(u32 value) {
     D_8007A3B0 = value;
 }

@@ -553,7 +553,7 @@ __scYield = 0x8003156C; // type:func size:0x4C ROM 0x3216c tier-B donor-jfg-src/
 __scSchedule = 0x800315B8; // type:func size:0x1E8 ROM 0x321b8 tier-B donor-jfg-src/sched.c scheduler-callgraph+order
 
 // rcp_dkr.c
-bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40   ROM 0x2f794  rcp_dkr.c.o  masked=2/16
+bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40 ROM 0x2f794 tier-A rcp_dkr.c.o masked=2/16 matched-C
 
 // set_rsp_segment.c -- WHOLE .text matched (0x40 bytes, 0 masked, unique), so
 // this one is a measured FILE boundary and gets a named subsegment in the yaml.
