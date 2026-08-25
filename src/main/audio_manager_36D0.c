@@ -39,7 +39,13 @@ void func_8000309C(AudioPoint *point, u8 volume) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800030B4.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amSndSetPitchXYZ. */
+void func_800030B4(AudioPoint *point, u8 pitch) {
+    if (point != NULL) {
+        point->pitch = pitch;
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800030CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800031C0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800031E8.s")
