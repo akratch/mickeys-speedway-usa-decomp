@@ -61,19 +61,11 @@ extern void overlay36ReleaseReloc(void *resource);
 extern void overlay36CreateResourceReloc(u16 kind, f32 x, f32 y, f32 z,
                                          s32 mode, void **resource);
 
-/*
- * Plateau (2026-08-25): 93/95 owned words exact with the default flags;
- * first mismatch +0x0. Typed peerResource access and the index++ loop fix the
- * register allocation and request offsets, but retaining the spawned-result
- * temporary makes IDO reserve a 0x68 frame instead of the target 0x60 frame.
- */
-#ifdef NON_MATCHING
 void overlay36UpdatePeers(Overlay36Object *object) {
     Overlay36Object *peer;
+    Overlay36SpawnRequest request;
     Overlay36State *peerState;
     Overlay36State *state;
-    Overlay36SpawnRequest request;
-    Overlay36SpawnedObject *spawned;
     s32 index;
 
     state = object->state;
@@ -88,8 +80,7 @@ void overlay36UpdatePeers(Overlay36Object *object) {
                 request.y = (s16)peer->y;
                 request.z = (s16)peer->z;
                 request.owner = peer;
-                spawned = peerState->peerResource =
-                    overlay36SpawnReloc(&request, 0);
+                peerState->peerResource = overlay36SpawnReloc(&request, 0);
                 if (peerState->peerResource != 0) {
                     peerState->peerResource->state = 0;
                 }
@@ -111,6 +102,3 @@ void overlay36UpdatePeers(Overlay36Object *object) {
         state->action = 0;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36UpdatePeers/func_overlay_036_F000150C_18849C4.s")
-#endif
