@@ -1045,6 +1045,12 @@ TEXT_SUBSEGMENTS = {
 MIXED_TU_EXACT_C_RANGES = {
     1: [
         (0x0000, 0x0050, "overlay1PointerWrap"),
+        (
+            0x0050,
+            0x0080,
+            "overlay1GetEntry",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x0080, 0x00A0, "overlay1GetEntryIndex"),
         (0x00A0, 0x00C0, "overlay1PreviousIndex"),
         (0x00C0, 0x00E4, "overlay1NextIndex"),

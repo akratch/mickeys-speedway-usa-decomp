@@ -1159,12 +1159,9 @@ slices at file offset `0x184C758` share SHA256
 `daeb9395211c01871e6c40bafdf49a8187ac111a96855d1ed62d05ca5e80271d`,
 and the cumulative full ROM is exact.
 
-Overlay 1's entry lookup at decimal offsets `+80..+128` — 48 bytes / 12
-words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via
-three guarded words selecting the duplicate retail return site); source kept
-as decomp-permuter input. Direct ROM slices at file offset `0x184C430` share
-SHA256
-`698f9adbf65e2128e034071353e438b9fa2c3a346ee401752148a970cc652875`.
+| Overlay | Range | Function | Bytes | Exactness | Donor |
+|---:|---|---|---:|---|---|
+| 1 | `+0x0050..+0x0080` | `overlay1GetEntry` | 48 | canonical object and linked ROM exact | pinned DKR/JFG scans negative |
 
 Overlay 1's backward usable-record search at decimal offsets `+1,044..+1,204`
 — 160 bytes / 40 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was
