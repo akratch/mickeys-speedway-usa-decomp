@@ -58,26 +58,18 @@ typedef struct Overlay17Chain {
 extern Overlay17Template gOverlay17TemplateReloc[];
 extern void *func_overlay_017_F0000000_18739B8();
 
-/*
- * Plateau (2026-08-25): the natural -O2 -mips2 candidate has the exact
- * 196-instruction boundary, but 137 normalized words differ beginning at
- * +0x0 across the constructor's frame, schedule, and private allocation web.
- * The flag lattice was neutral. Separating the initial allocation size from
- * the chain pointer produced a 197-instruction function and enlarged the
- * target's 0x80-byte frame to 0x90, so the pointer-width carrier is retained.
- * The nearest masked skeleton scored 0.057, and pinned DKR v77/v80 and JFG
- * scans found no matching constructor body.
- */
+/* Plateau (2026-08-25): exact-size 0x310, 130 words differ from +0x0;
+ * removing an unused local reduced the frame from 0x90 to 0x88 (target 0x80).
+ * The flag lattice was neutral; the 40-minute permuter bottomed out at 2440. */
 #ifdef NON_MATCHING
 Overlay17Chain *overlay17CreateChain(
     void *owner, s32 count, Overlay17Material *materialToken, s32 materialScale,
     f32 x, f32 y, f32 z, f32 radius,
     u8 red, u8 green, u8 blue, u8 alpha) {
+    s32 halfBufferBytes;
     Overlay17Chain *chain;
     Overlay17Template *destination;
     Overlay17Template *source;
-    s32 halfBufferBytes;
-    s32 allocationBytes;
     s32 index;
     s32 buffer;
     s32 vertex;
@@ -104,11 +96,11 @@ Overlay17Chain *overlay17CreateChain(
     }
 
     destination = (Overlay17Template *)((u8 *)chain + 0x40);
+    source = gOverlay17TemplateReloc;
     if (chain->material != 0) {
-        u32 widthScale = chain->material->width - 1;
-        u32 heightScale = chain->material->height * materialScale;
+        s32 widthScale = chain->material->width - 1;
+        s32 heightScale = chain->material->height * materialScale;
         chain->template = destination;
-        source = gOverlay17TemplateReloc;
         index = 15;
         do {
             destination->byte0 = source->byte0;
