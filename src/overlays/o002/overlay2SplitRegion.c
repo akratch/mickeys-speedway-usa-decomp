@@ -14,9 +14,17 @@ extern s32 gOverlay2RegionCount;
 
 extern s32 func_overlay_002_F0000000_1856DF8(Overlay2Region *region);
 extern void overlay2ChooseBoundary(Overlay2Region *region);
-extern s32 overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
-                             s32 wantedSide);
+extern void overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
+                              s32 wantedSide);
 
+/*
+ * Plateau: the best -O2/-mips2 body is exact-size and differs in 9/72
+ * relocation-masked words, first at +0xC; every word from +0x38 onward is
+ * aligned, leaving only the callee-save/global-address prologue schedule.
+ * Reversing the two equality spellings removed four real differences. A
+ * five-minute permuter batch improved its internal score only by inventing a
+ * repeated null guard and a dead assignment, so that candidate was rejected.
+ */
 #ifdef NON_MATCHING
 void overlay2SplitRegion(Overlay2Region *previous, Overlay2Region *region) {
     Overlay2Region *current;
@@ -30,8 +38,8 @@ void overlay2SplitRegion(Overlay2Region *previous, Overlay2Region *region) {
         }
         overlay2ChooseBoundary(current);
         if ((parent != NULL) &&
-            (current->boundaryAxis == parent->boundaryAxis) &&
-            (current->boundaryValue == parent->boundaryValue)) {
+            (parent->boundaryAxis == current->boundaryAxis) &&
+            (parent->boundaryValue == current->boundaryValue)) {
             break;
         }
 
