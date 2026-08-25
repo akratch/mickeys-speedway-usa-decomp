@@ -37,9 +37,6 @@ extern s32 D_8007C09C;
 extern s32 D_8007C1A4;
 extern s32 D_8007C1AC;
 extern s32 D_800C947C;
-extern s32 D_800D3140;
-extern s32 D_800D3144;
-extern s32 D_800D3148;
 extern s32 D_800D314C;
 extern u8 D_800826C0[];
 extern u16 D_800D312C;
@@ -61,6 +58,76 @@ extern void func_80039720(s32 updateRate);
 extern void func_80044BC8(s32 arg0, u8 *source, s32 line);
 extern u16 joyGetPressed(s32 controller);
 extern void mainTitlePageInit(s32 mode);
+
+typedef struct MenuCommand {
+    u32 w0;
+    u32 w1;
+} MenuCommand;
+
+typedef struct MenuCurrentObject {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 index;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    u8 pad1C[4];
+} MenuCurrentObject;
+
+typedef struct MenuObjectResource {
+    u8 pad0[0x4E];
+    s8 unk4E;
+    u8 pad4F[0x19];
+    void *unk68;
+} MenuObjectResource;
+
+typedef struct MenuFrontObject {
+    MenuObjectResource *resource;
+    s32 unk4;
+    u8 pad8[2];
+    s16 indexA;
+    s32 unkC[1];
+} MenuFrontObject;
+
+typedef struct MenuDrawStack {
+    u8 pad30[0x24];
+    s16 sp7C;
+    s16 sp7E;
+    s16 sp80;
+    u8 pad82[2];
+    f32 sp84;
+    f32 sp88;
+    f32 sp8C;
+    f32 sp90;
+    u8 pad94[0x10];
+    f32 spA4;
+    u8 padA8[4];
+    MenuFrontObject *spAC;
+    u8 padB0[8];
+} MenuDrawStack;
+
+extern u8 D_8007C0A4;
+extern u8 D_8007C0A8;
+extern u8 D_8007C0AC;
+extern s32 D_8007C0B4;
+extern s32 D_8007C0BC;
+extern s16 *D_8007C1B8;
+extern MenuCommand *D_800D3140;
+extern void *D_800D3144;
+extern void *D_800D3148;
+extern MenuFrontObject *D_800D31C8[];
+extern MenuCurrentObject D_800D3550[];
+extern void func_80009E78(MenuCommand **commands, void **matrices,
+                          void **vertices, void *object);
+extern void func_80023F84(MenuCommand **commands, void **matrices,
+                          void **vertices, void *transform, void *object,
+                          s32 arg5, s32 arg6);
+extern void func_800244EC(MenuCommand **commands, void **matrices,
+                          void *transform, f32 scale, f32 extra);
+extern void func_8002460C(MenuCommand **commands);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038878.s")
@@ -215,7 +282,130 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039BE4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039D50.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/setupFrontEndObject.s")
+#ifdef NON_MATCHING
+/* Exact 0xB8 frame and local stack homes, but one word too long; 242/262
+ * words differ, first at +0x14. IDO assigns the D_800D31C8 base/object pair
+ * to t2/a3 instead of t5/t0, cascading through the function. */
+void func_80039E34(s32 index) {
+    MenuDrawStack stack;
+    s16 flags;
+    MenuFrontObject *entryObject;
+    MenuFrontObject *renderObject;
+    MenuCurrentObject *current;
+    MenuCommand *command;
+
+    current = &D_800D3550[index];
+    entryObject = D_800D31C8[current->index];
+    if ((entryObject != NULL) &&
+        ((D_8007C1B8[current->index] & 0xC000) != 0xC000)) {
+        stack.sp7C = current->unk0;
+        stack.sp7E = current->unk2;
+        stack.sp80 = current->unk4;
+        stack.sp88 = current->unkC;
+        stack.sp8C = current->unk10;
+        stack.sp90 = current->unk14;
+        stack.sp84 = current->unk8;
+        flags = D_8007C1B8[current->index];
+        if (flags & 0x4000) {
+            MenuCurrentObject *drawObject = (MenuCurrentObject *)entryObject;
+
+            drawObject->unk0 = current->unk0;
+            drawObject->unk2 = current->unk2;
+            drawObject->unk4 = current->unk4;
+            drawObject->unkC = current->unkC;
+            drawObject->unk10 = current->unk10;
+            drawObject->unk14 = current->unk14;
+            drawObject->unk8 = current->unk8;
+            *((s8 *)entryObject + 0x39) = D_8007C0BC;
+            func_80009E78(&D_800D3140, &D_800D3144, &D_800D3148,
+                          entryObject);
+            return;
+        }
+        if (flags & 0x8000) {
+            stack.spA4 = current->unk18;
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w0 = 0xE7000000;
+            command->w1 = 0;
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w0 = 0xFA000000;
+            command->w1 = (D_8007C0A4 << 24) | (D_8007C0A8 << 16) |
+                          (D_8007C0AC << 8) | (D_8007C0BC & 0xFF);
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w1 = -0x100;
+            command->w0 = 0xFB000000;
+            func_80023F84(&D_800D3140, &D_800D3144, &D_800D3148,
+                          &stack.sp7C,
+                          D_800D31C8[current->index], D_8007C0B4,
+                          D_8007C0BC);
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w1 = 0;
+            command->w0 = 0xE7000000;
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w1 = -1;
+            command->w0 = 0xFA000000;
+            return;
+        }
+        command = D_800D3140;
+        D_800D3140 = command + 1;
+        command->w1 = 0;
+        command->w0 = 0xE7000000;
+        if (D_8007C0BC < 0xFF) {
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w0 = 0xFA000000;
+            command->w1 = (D_8007C0BC & 0xFF) | ~0xFF;
+        } else {
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w1 = -1;
+            command->w0 = 0xFA000000;
+        }
+        command = D_800D3140;
+        D_800D3140 = command + 1;
+        command->w1 = -0x100;
+        command->w0 = 0xFB000000;
+        stack.spA4 = current->unk18 * 0.0625f;
+        renderObject = D_800D31C8[current->index];
+        if (renderObject->resource->unk4E == 0) {
+            stack.spAC = renderObject;
+            func_800244EC(&D_800D3140, &D_800D3144, &stack.sp7C, 1.0f,
+                          0.0f);
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w0 = (((stack.spAC->unkC[stack.spAC->indexA] +
+                            0x80000000) &
+                            0xFFFFFF) | 0xBF000000);
+            command->w1 = stack.spAC->unk4 + 0x80000000;
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w0 = 0x06000000;
+            command->w1 = (s32)stack.spAC->resource->unk68 + 0x80000000;
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w1 = 0;
+            command->w0 = 0xBF000000;
+            func_8002460C(&D_800D3140);
+        }
+        if (D_8007C0BC < 0xFF) {
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w1 = 0;
+            command->w0 = 0xE7000000;
+            command = D_800D3140;
+            D_800D3140 = command + 1;
+            command->w1 = -1;
+            command->w0 = 0xFA000000;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039E34.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A24C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A260.s")
 s32 frontGetScreenMode(void) {

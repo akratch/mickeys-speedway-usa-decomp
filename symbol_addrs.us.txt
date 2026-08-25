@@ -2188,6 +2188,7 @@ func_80038E1C = 0x80038E1C; // type:func size:0x45C tier-D ROM 0x39a1c NON_MATCH
 frontDrawRectangle = 0x80039584; // type:func size:0x50   ROM 0x3a184  src/menu.c.o  masked=1/20
 func_8003968C = 0x8003968C; // type:func size:0x94   ROM 0x3a28c  src/menu.c.o  masked=24/37
 setupFrontEndObject = 0x80039DAC; // type:func size:0x88   ROM 0x3a9ac  src/menu.c.o  masked=4/34
+func_80039E34 = 0x80039E34; // type:func size:0x418 tier-D ROM 0x3aa34 NON_MATCHING plateau +1 word, 242/262 differ, first +0x14
 frontGetScreenMode = 0x8003A298; // type:func size:0x30   ROM 0x3ae98  src/menu.c.o  masked=2/12
 // Tier B (JFG): exact copied-byte store, adjacent ordered accessor family,
 // and correspondence with JFG's frontStoreScreenMode establish the role.

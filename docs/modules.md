@@ -962,6 +962,17 @@ The full 119-combination flag lattice keeps the resident defaults best; JFG
 has no C donor body for the nearest front-end routine. Canonical code remains
 assembly.
 
+`func_80039E34` retains a Mickey-derived `NON_MATCHING` draw candidate with
+the target's exact **0xB8-byte frame** and local homes from `0x7C` through
+`0xAC`. Its best object is one word longer than the target's **0x418 bytes /
+262 words** and plateaus at **242/262 differing words**, first `+0x14`: IDO
+assigns the persistent `D_800D31C8` base and selected object to `t2`/`a3`
+instead of `t5`/`t0`, cascading through the command-building paths. Pointer,
+volatile-access, and stack-layout variants did not recover the allocation;
+the full flag lattice keeps the resident defaults best. JFG's corresponding
+front-end draw routine also has no C donor body. Canonical code remains
+assembly.
+
 `frontSetWideAdjust` is the first exact C promotion: **0x2C bytes / 11 words**
 at ROM `0x3AFDC`, with the target's four relocation-bearing words resolving
 at their real linked addresses. Its body is adapted from JFG's public
