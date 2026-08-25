@@ -762,7 +762,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/_bnkfPatchWaveTable.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay_005.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_005_F000031C_185B744=overlay5InitializeAudio $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x480
 # Two independent operations straddle the same source-line scheduling points
 # in the shipped object. Assert IDO's natural order before restoring them.
 # The source produces the shipped control flow and every memory operation, but

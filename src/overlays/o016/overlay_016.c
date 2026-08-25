@@ -143,5 +143,5 @@ void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o016/overlay16ApplyGradient/func_overlay_016_F00001E0_1873678.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o016/overlay_016/func_overlay_016_F00001E0_1873678.s")
 #endif

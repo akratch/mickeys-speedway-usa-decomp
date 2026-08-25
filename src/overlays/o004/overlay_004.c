@@ -100,7 +100,7 @@ void overlay4UpdateObjectMotion(Overlay4MotionObject *object, s32 updateRate) {
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay4UpdateObjectMotion/func_overlay_004_F0000138_185A7B0.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o004/overlay_004/func_overlay_004_F0000138_185A7B0.s")
 #endif
 
 /* DKR v77/v80 and JFG contain no exact donor for this group attachment. */

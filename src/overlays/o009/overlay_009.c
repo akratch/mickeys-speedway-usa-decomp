@@ -162,7 +162,7 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     ext_o0_3e99c(object, steps);
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateObjectState/func_overlay_009_F0000000_1866678.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000000_1866678.s")
 #endif
 /*
  * Plateau: the best build differs in 8/129 words, first at +0x4C; the body,
@@ -214,7 +214,7 @@ void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
     *D_0++ = -delta;
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateAngle/func_overlay_009_F0000540_1866BB8.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000540_1866BB8.s")
 #endif
 
 /*
@@ -271,7 +271,7 @@ void func_overlay_009_F0000744_1866DBC(O9OutputRecord *output, O9OutputControl *
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateOutput/func_overlay_009_F0000744_1866DBC.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000744_1866DBC.s")
 #endif
 
 void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
@@ -412,7 +412,7 @@ void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateContro
     ext_o0_1d920(out, control, step);
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9IntegrateVelocity/func_overlay_009_F0000CE4_186735C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000CE4_186735C.s")
 #endif
 
 /*
@@ -452,7 +452,7 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
     ext_o0_7cd8(point, 0.0f, candidate - current, 0.0f);
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9ResolveHeight/func_overlay_009_F0000F6C_18675E4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000F6C_18675E4.s")
 #endif
 
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
@@ -562,5 +562,5 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay9UpdateMotion/func_overlay_009_F00010B4_186772C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F00010B4_186772C.s")
 #endif

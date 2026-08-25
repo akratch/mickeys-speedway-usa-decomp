@@ -60,7 +60,7 @@ finish:
     gOverlay49Finished = 0;
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o049/overlay49Initialize/func_overlay_049_F0000000_1896410.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o049/overlay_049/func_overlay_049_F0000000_1896410.s")
 #endif
 
 /* No exact updater donor exists in DKR v77/v80 or JFG. */

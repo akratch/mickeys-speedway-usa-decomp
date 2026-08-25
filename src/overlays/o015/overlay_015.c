@@ -115,7 +115,7 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
     } while (paletteIndex0 != 0x100);
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15InitStarsAndPalette/func_overlay_015_F000004C_18723E4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F000004C_18723E4.s")
 #endif
 
 /*
@@ -144,7 +144,7 @@ void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15MoveStars/func_overlay_015_F0000428_18727C0.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F0000428_18727C0.s")
 #endif
 
 #ifdef NON_MATCHING
@@ -197,7 +197,7 @@ void overlay15DrawScreenStars(Overlay15Gfx **displayList, f32 projectionScale) {
     overlay15FinishDisplayListReloc(displayList);
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15DrawScreenStars/func_overlay_015_F0000500_1872898.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F0000500_1872898.s")
 #endif
 
 void *overlay15GetResource10(void) {
@@ -289,7 +289,7 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15InitStars/func_overlay_015_F00006E8_1872A80.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F00006E8_1872A80.s")
 #endif
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans are negative. */
@@ -340,7 +340,7 @@ void overlay15UpdateMovingStars(f32 positionX, f32 positionY, f32 positionZ,
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15UpdateMovingStars/func_overlay_015_F00009E0_1872D78.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F00009E0_1872D78.s")
 #endif
 
 void overlay15SetValueC(s32 value) {
@@ -371,5 +371,5 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay15DrawRain/func_overlay_015_F0000B94_1872F2C.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F0000B94_1872F2C.s")
 #endif

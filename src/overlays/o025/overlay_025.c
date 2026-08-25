@@ -57,7 +57,7 @@ void overlay25InitializeEffect(Overlay25Object *object,
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o025/overlay25InitializeEffect/func_overlay_025_F0000000_1879C88.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o025/overlay_025/func_overlay_025_F0000000_1879C88.s")
 #endif
 
 /*
@@ -197,7 +197,7 @@ void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o025/overlay25UpdateEffect/func_overlay_025_F000017C_1879E04.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o025/overlay_025/func_overlay_025_F000017C_1879E04.s")
 #endif
 
 /* No corresponding DKR/JFG source or object match was found. */
