@@ -831,7 +831,7 @@ void animseqResetGroup(void) {
     if (D_8007D68C != NULL) {
         pathIndex = 0;
         do {
-            func_8005055C(pathIndex & 0xFF);
+            func_8005055C(pathIndex);
             pathIndex++;
         } while (pathIndex != 0x100);
         D_8007D69C = D_8007D698;
@@ -861,26 +861,28 @@ void func_800508D4();
  * PROVENANCE: adapted from JFG's func_80077468_78068 assembly. Mickey's
  * resident globals, packed fields, call identities, and output are checked
  * independently against Mickey's ROM.
- *
- * Plateau after 10 source/lifetime shapes and a bounded canonical-flag
- * permuter: the best semantic candidate has the exact 104-instruction size,
- * 0x48 frame, and five call relocations, but 58 allocation/schedule words
- * remain from first mismatch +0x34. The target copies the header count through
- * v0/s0 and reuses one scaled path offset; IDO instead keeps the count in s4
- * and rematerializes that offset. The 490-score permutation is one word long.
  */
-#ifdef NON_MATCHING
+
+
+
+
+
+
+
+
 void func_800511C4(void) {
     u32 *entryCursor;
     s32 remaining;
+    u32 headerWord;
     u32 entryWord;
+    s32 pathIndex;
     AnimGroupPathHeader *source;
     AnimPath *path;
     s32 highBit;
 
     entryCursor = (u32 *) D_8007D68C;
-    remaining = (*entryCursor >> 24) & 0xFF;
-    entryCursor++;
+    headerWord = *entryCursor++;
+    remaining = (headerWord >> 24) & 0xFF;
     func_8005027C();
     if (remaining > 0) {
         highBit = 0x80;
@@ -888,12 +890,12 @@ void func_800511C4(void) {
             entryWord = *entryCursor++;
             source = (AnimGroupPathHeader *)
                 ((u8 *) D_8007D68C + (entryWord & 0xFFFFFF));
-            D_800D6B00[(entryWord >> 24) & 0xFF] =
-                func_8002B280((source->nodeCount * sizeof(AnimPathNode)) +
-                                  sizeof(AnimPath),
-                              0x81);
-            entryWord >>= 24;
-            path = D_800D6B00[entryWord & 0xFF];
+            path = func_8002B280((source->nodeCount * sizeof(AnimPathNode)) +
+                                     sizeof(AnimPath),
+                                 0x81);
+            pathIndex = (entryWord >> 24) & 0xFF;
+            D_800D6B00[pathIndex] = path;
+            path = D_800D6B00[pathIndex];
             if (path != NULL) {
                 if (source->nodeCount > 0) {
                     path->nodes = (AnimPathNode *)((u8 *)path +
@@ -913,18 +915,18 @@ void func_800511C4(void) {
                     path->unk7 &= 0x7F;
                 }
                 path->nodeCount = source->nodeCount;
-                func_8005055C(entryWord & 0xFF);
+                func_8005055C(pathIndex);
                 func_800508D4(path->nodeCount, path->nodes, source->nodeData,
                               0, 0);
-                func_80050AD4(entryWord & 0xFF);
+                func_80050AD4(pathIndex);
             }
             remaining--;
         } while (remaining > 0);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800511C4.s")
-#endif
+
+
+
 
 typedef struct AnimUpdateCommand {
     u16 duration;
