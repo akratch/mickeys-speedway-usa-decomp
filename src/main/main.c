@@ -1,4 +1,6 @@
 #include "ultra64.h"
+#include "game/gameVi.h"
+#include "game/menu.h"
 
 /*
  * Resident main state and frame control, ROM 0x27760-0x2A250.
@@ -23,6 +25,9 @@ extern s32 D_8007A18C;
 extern s32 D_8007A154;
 extern s32 D_8007A14C;
 extern s32 D_8007A148;
+extern s32 D_8007A150;
+extern s32 D_8007A158;
+extern s32 D_8007A168;
 extern s32 D_8007A1B0;
 extern s32 D_8007A1BC;
 extern s32 D_8007A1AC;
@@ -36,13 +41,21 @@ extern s32 D_8007A134;
 extern s32 D_8007A138;
 extern s32 D_8007A1A4;
 extern s32 D_8007A1A8;
+extern s32 D_8007A194;
+extern s8 D_8007A1A0;
 extern u32 D_8007A1CC;
 extern s32 D_8007A1D4;
 extern s32 D_8007A1EC;
+extern s32 D_8007A1B4;
+extern s32 D_8007A1D8;
+extern s32 D_8007A200;
+extern s32 D_8007A24C;
+extern u8 *D_8007A244;
 extern s16 D_8007A250[];
 extern s32 D_8007A258;
 extern u8 D_8007BEF4;
 extern u8 D_8007BEF8;
+extern s8 D_8007BEF0;
 extern s8 D_800CF53F[];
 
 typedef struct MainGameEntry {
@@ -62,6 +75,15 @@ typedef struct MainGameState {
     MainCharacterState characters[6];
 } MainGameState;
 
+typedef struct MainZBCheck {
+    s16 x;
+    s16 y;
+    u8 pad4;
+    s8 width;
+    s8 height;
+    s8 enabled;
+} MainZBCheck;
+
 extern MainGameEntry *D_800D18E0;
 extern void *D_800D18E4;
 extern u8 D_800D1928[];
@@ -75,6 +97,9 @@ extern s32 D_800D18D0;
 extern s32 D_800D18D4;
 extern s32 D_800D18D8;
 extern s32 D_800D18DC;
+extern MainZBCheck D_800CF538[];
+extern u16 *D_800D2FAC;
+extern s32 osTvType;
 extern s32 levelNGetType(s32 level);
 extern void func_80028EFC(MainCharacterState *, s32, s32);
 extern void mainChangeLevel(s32, s32, s32, s32, s32, s32);
@@ -82,10 +107,113 @@ extern void func_80005548(s32);
 extern void func_80028DE4(s32, s32, s32, s32, s32, s32);
 extern void func_8003A544(s32);
 extern void joyResetMap(void);
+extern void func_8004978C(s32, s32, s32);
+extern s32 func_80049864(s32);
+extern void func_800498FC(s32, u32, u32, s32, s32, s32, s32);
+extern void TrapDanglingJump(void);
+extern s32 joyRead(s32, s32);
+extern void mainInitGame(void);
+extern void mainPreNMI(void);
+extern void func_80026FB4(void);
+extern void func_80021290(void);
+extern void func_80001BC4(void);
+extern void func_800339B4(void);
+extern void rumbleKill(s32);
+extern void rumbleTick(s32);
+extern void osSetTime(OSTime);
+extern OSTime osGetTime(void);
+extern u16 joyGetButtons(s32);
+extern s32 func_8003A24C(void);
+extern void func_8003A260(s32);
+extern void func_8003A2C8(s32);
+extern s32 func_8003A408(void);
+extern void func_8003A41C(s32);
+extern void mainFrontInit(s32, s32, s32);
 
+#ifdef NON_MATCHING
+/*
+ * Plateau: nine source/expression hypotheses preserve all 66 target opcodes,
+ * the 0x108 boundary, -0x30 frame and exact relocation layout. The best has
+ * 20 register-operand differences, first at +0x24 where the target loads its
+ * comparison constant before the outer countdown. The remaining differences
+ * are the temp-FIFO choices in the byte-patch sequence. The complete flag
+ * lattice was unchanged; a canonical-MIPS-II bounded permuter batch improved
+ * its score from 225 to 120 without reaching identity.
+ */
+void RevealReturnAddresses(void) {
+    s32 outer;
+    u8 **returnAddress;
+    u8 *scan;
+    s32 inner;
+    u16 patched;
+
+    outer = 4;
+    do {
+        returnAddress = &D_8007A244;
+        outer = 4;
+        do {
+            scan = *returnAddress;
+            inner = 0x3F;
+            do {
+                if (((*(u32 *) scan >> 26) == 9) &&
+                    (*(u16 *) (scan + 2) == 0x666)) {
+                    scan[0] = scan[0] & 0xFF03;
+                    *(u16 *) scan = (patched = *(u16 *) scan | 0x3E0);
+                    scan[2] = ((patched << 1) << 2) |
+                              (scan[2] & 0xFF07);
+                    *(u16 *) (scan + 2) &= 0xF83F;
+                    scan[1] = scan[1] & 0xFFE0;
+                    scan[3] = (scan[3] & 0xFFC0) | 0x25;
+                    osWritebackDCache(scan, 4);
+                    osInvalICache(scan, 4);
+                    break;
+                }
+                scan += 4;
+            } while (inner--);
+            returnAddress--;
+        } while (outer--);
+    } while (0);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
+#endif
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive.
+ *
+ * Plateau: the JFG RAM_END spelling reproduces all 50 linked instruction
+ * words and the 0xC8 boundary, but omits the target assembly's D_803FFFFC
+ * HI16/LO16 pair at +0x18/+0x28. Symbolic pointer and array spellings emit an
+ * extra address instruction, which moves the aligned epilogue and adds eight
+ * words. The complete resident flag lattice leaves this result unchanged.
+ */
+void mainThread(void *unused) {
+    s32 i;
+
+    mainInitGame();
+    if (osTvType == 0) {
+        i = 0;
+        while (1) {
+            ((volatile u32 *) 0x80400000)[--i] = 0;
+        }
+    }
+    D_8007A200 = 1;
+    TrapDanglingJump();
+    D_8007A1CC = joyRead(D_8007A1CC, 0);
+    D_8007A1B4 = 1;
+    D_8007A1D8 = 0;
+    D_8007A1BC = 6;
+    mainChangeLevel(0, D_8007A154, 0, 0, 1, 0);
+    while (1) {
+        mainPreNMI();
+        func_80026FB4();
+        func_80021290();
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainThread.s")
+#endif
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 s32 mainResetPressed(void) {
@@ -95,7 +223,30 @@ s32 mainResetPressed(void) {
     return D_800D1910;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainPreNMI.s")
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+void mainPreNMI(void) {
+    OSTime time;
+
+    if (mainResetPressed()) {
+        if (D_8007A1B4 != 0) {
+            func_80001BC4();
+            osSetTime(0);
+            time = osGetTime();
+            while (time < 2300000) {
+                time = osGetTime();
+            }
+            __osSpSetStatus(0xAAAA82);
+            osDpSetStatus(0x1D6);
+            func_800339B4();
+            rumbleKill(1);
+            rumbleTick(2);
+            rumbleTick(2);
+            rumbleTick(2);
+        }
+        while (1) {
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainInitGame.s")
 
@@ -103,9 +254,107 @@ s32 mainResetPressed(void) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027628.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainAddZBCheck.s")
+s32 mainAddZBCheck(s32 x, s32 y, s32 radius) {
+    s32 result;
+    s32 x1;
+    s32 y1;
+    s32 x2;
+    s32 y2;
+    s32 screenWidth;
+    s32 screenHeight;
 
+    viGetCurrentSize(&screenWidth, &screenHeight);
+    result = -1;
+    if (D_8007A24C < 8) {
+        x2 = x + radius;
+        y2 = y + radius;
+        if ((x2 >= 0) && (y2 >= 0)) {
+            x1 = x - radius;
+            y1 = y - radius;
+            if ((x1 < screenWidth) && (y1 < screenHeight)) {
+                if (x1 < 0) {
+                    x1 = 0;
+                }
+                if (y1 < 0) {
+                    y1 = 0;
+                }
+                if (x2 >= screenWidth) {
+                    x2 = screenWidth - 1;
+                }
+                if (y2 >= screenHeight) {
+                    y2 = screenHeight - 1;
+                }
+                result = D_8007A24C++;
+                D_800CF538[result].x = x1;
+                D_800CF538[result].y = y1;
+                D_800CF538[result].width = (x2 - x1) + 1;
+                D_800CF538[result].height = (y2 - y1) + 1;
+            }
+        }
+    }
+    return result;
+}
+
+#ifdef NON_MATCHING
+/*
+ * Plateau: the Mickey-derived nested countdown loops compile to 60 of the
+ * target's 63 instructions with the exact -0x48 frame and screen-size stack
+ * slots. The first mismatch is +0x24: IDO schedules the outer counter before
+ * the target's D_8007A24C/D_800D2FAC LO16 pair. The target also retains three
+ * dead-looking loop-register copies that the natural C removes. The complete
+ * resident flag lattice and a bounded permuter run did not recover that
+ * spelling.
+ */
+void mainUpdateZBCheck(void) {
+    MainZBCheck *check;
+    s32 i;
+    s32 enabled;
+    s32 rows;
+    s32 screenWidth;
+    s32 screenHeight;
+    s32 columns;
+    s32 width;
+    u8 *row;
+    u16 *pixel;
+
+    viGetCurrentSize(&screenWidth, &screenHeight);
+    check = D_800CF538;
+    i = 7;
+    do {
+        enabled = 1;
+        if (D_8007A24C > 0) {
+            D_8007A24C--;
+            rows = check->height;
+            row = (u8 *) D_800D2FAC +
+                  (((check->y * screenWidth) + check->x) * 2);
+            if (rows != 0) {
+                rows--;
+                width = check->width;
+                do {
+                    columns = width;
+                    if (width != 0) {
+                        columns--;
+                        pixel = (u16 *) (row + (columns * 2));
+                        do {
+                            if ((*pixel & 0xFFFC) == 0xFFFC) {
+                                enabled = 0;
+                                goto nextCheck;
+                            }
+                            pixel--;
+                        } while (columns--);
+                    }
+                    row += screenWidth * 2;
+                } while (rows--);
+            }
+        }
+nextCheck:
+        check->enabled = enabled;
+        check++;
+    } while (i--);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainUpdateZBCheck.s")
+#endif
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 s8 mainGetZBCheck(s32 arg0) {
@@ -152,11 +401,45 @@ void mainGameWindowSize(s32 *x1, s32 *y1, s32 *x2, s32 *y2) {
     *y2 = D_8007A138;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027EC0.s")
+void func_80027EC0(s32 arg0) {
+    s32 i;
+    s32 buttons;
+
+    i = 0;
+    buttons = 0;
+    do {
+        buttons |= joyGetButtons(i) & 0x1000;
+        i++;
+    } while (i != 4);
+    if (buttons != 0) {
+        D_8007BEF0 = 1;
+    }
+    D_8007A1D8++;
+    if (D_8007A1D8 >= 10) {
+        func_8003A260(func_8003A24C());
+        func_8003A2C8(frontGetScreenMode());
+        frontSetWideAdjust(frontGetWideAdjust());
+        func_8003A41C(func_8003A408());
+        frontSetSfxVolume(frontGetSfxVolume());
+        frontSetBgmVolume(frontGetBgmVolume());
+        frontStoreScreenMode();
+        mainFrontInit(2, 0, 0);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027FB8.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_800282C8.s")
+void func_800282C8(void) {
+    if (D_8007A194 == 0) {
+        mainChangeLevel(D_8007A148, D_8007A150, D_8007A158, D_8007A168, 0, 0);
+        if (func_80049864(4) == 0) {
+            D_8007A1A0 = 0;
+            func_800498FC(4, 0x3EAE147B, 0xBF800000, 0xFF, 0xFF, 0xFF, 0);
+            func_8004978C(4, 1, 1);
+        }
+        D_8007A194 = 0x1E;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainChangeLevel.s")
 

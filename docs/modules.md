@@ -1775,7 +1775,7 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Eighty-two functions / 3,964 bytes compile exactly
+**Matching progress.** Eighty-six functions / 4,836 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -1789,11 +1789,12 @@ linked ranges and the full ROM are exact.
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (48 / 1,644 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
+- `main/main` (52 / 2,516 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainSetGameWindow`, `mainSetAnimGroup`,
   `mainGetAnimGroup`,
-  `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
-  `mainResetPressed`, `mainSyncNextLevel`, `mainGetMode`, `mainSetMode`,
+  `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`, `mainAddZBCheck`,
+  `func_80027EC0`, `func_800282C8`,
+  `mainResetPressed`, `mainPreNMI`, `mainSyncNextLevel`, `mainGetMode`, `mainSetMode`,
   `mainTitlePageInit`,
   `mainFrontInit`, `mainStartGame`,
   `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`, `func_80028F3C`,
@@ -1829,6 +1830,36 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 
 **Bounded plateaus (all remain assembly):**
 
+- `joyInit`, seven source/storage hypotheses, the full flag lattice and a
+  bounded two-worker canonical-MIPS-II permuter batch, first mismatch
+  `+0x11C`: the JFG-shaped candidate is exact through the controller scan but
+  compiles to 86 rather than 83 instructions. External `D_800CF3B4` storage
+  makes IDO materialize four HI16/LO16 pairs for the final byte clears; the
+  target shares one HI16 and names `D_800CF3B4` through `D_800CF3B7` in four
+  distinct LO16 relocations. Alternative scalar and aggregate declarations
+  disrupt the otherwise exact loop. The permuter found no improvement from
+  its base score of 325.
+- `mainThread`, five source/address hypotheses plus the full flag lattice,
+  first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
+  the exact 200-byte linked instruction stream, frame and control flow, but
+  its literal RAM-end address omits the target assembly's `D_803FFFFC`
+  HI16/LO16 pair at `+0x18`/`+0x28`. Every symbolic spelling adds an address
+  instruction and moves the aligned epilogue, growing the function by eight
+  words.
+- `mainUpdateZBCheck`, five loop/type hypotheses, the full flag lattice and a
+  bounded two-worker permuter batch, first mismatch `+0x24`: the best
+  Mickey-derived candidate has the exact `-0x48` frame and screen-size stack
+  slots but compiles to 60 rather than 63 instructions. IDO schedules the
+  outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
+  removes three dead-looking countdown-loop register copies retained by the
+  target.
+- `RevealReturnAddresses`, nine source/expression hypotheses, the full flag
+  lattice and a bounded canonical-MIPS-II permuter batch, first mismatch
+  `+0x24`: the best candidate preserves all 66 target opcodes, the 264-byte
+  boundary, `-0x30` frame and exact relocations but has 20 register-operand
+  differences. The target assigns its comparison constants and byte-patch
+  temporaries in a different allocator order; the permuter improved its score
+  from 225 to 120 without reaching identity.
 - `levelGetCounts`, ten source/type/loop hypotheses, first mismatch `+0x13c`:
   the best candidate has the target's 1,036-byte size, 259-instruction opcode
   schedule and `-0x58` frame, but three register operands use `$v0` where the
