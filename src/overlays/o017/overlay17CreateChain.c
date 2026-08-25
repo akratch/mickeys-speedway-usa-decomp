@@ -58,7 +58,16 @@ typedef struct Overlay17Chain {
 extern Overlay17Template gOverlay17TemplateReloc[];
 extern void *func_overlay_017_F0000000_18739B8();
 
-/* Pinned DKR v77/v80 and JFG scans found no matching constructor body. */
+/*
+ * Plateau (2026-08-25): the natural -O2 -mips2 candidate has the exact
+ * 196-instruction boundary, but 137 normalized words differ beginning at
+ * +0x0 across the constructor's frame, schedule, and private allocation web.
+ * The flag lattice was neutral. Separating the initial allocation size from
+ * the chain pointer produced a 197-instruction function and enlarged the
+ * target's 0x80-byte frame to 0x90, so the pointer-width carrier is retained.
+ * The nearest masked skeleton scored 0.057, and pinned DKR v77/v80 and JFG
+ * scans found no matching constructor body.
+ */
 #ifdef NON_MATCHING
 Overlay17Chain *overlay17CreateChain(
     void *owner, s32 count, Overlay17Material *materialToken, s32 materialScale,
