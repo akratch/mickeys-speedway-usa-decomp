@@ -32,6 +32,12 @@ extern Overlay36WorldState *gOverlay36WorldStateReloc;
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 are negative and JFG's
  * Overlay 36 hits occur only at the unrelated +0x1470/+0x1490 wrappers. */
+/* Plateau after the flag lattice, eight source-layout attempts, and a bounded
+ * permuter batch: exact 0xFC size and 50/63 words, first mismatch at +0x0.
+ * Reusing one nearby-height load closed most of the prior gap; the remaining
+ * mismatch is the 0x80-versus-0x70 frame and FP-bound scheduling/registers.
+ * The permuter's lower numerical candidate read center before initialization
+ * and was rejected as non-equivalent. */
 #ifdef NON_MATCHING
 void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
                                        s32 remaining) {
@@ -58,7 +64,8 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
                 current = &results[i];
                 do {
                     nearby = *current--;
-                    if ((nearby->y < low) || (high < nearby->y)) {
+                    center = nearby->y;
+                    if ((center < low) || (high < center)) {
                         remaining--;
                     }
                 } while (i--);
