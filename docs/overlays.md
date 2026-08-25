@@ -578,7 +578,7 @@ generated assembly, exact-size-only body, or semantic near match is included.
 |---:|---|---:|---|
 | 37 | `+0x000..+0x088`, `+0x4F4..+0x558` | 236 | negative |
 | 39 | `+0x000..+0x0C8` | 200 | negative; module closed with its existing tail |
-| 40 | `+0x2E4..+0x534` | 592 | timed interpolation is semantically related to DKR weather shifting; draw code has DKR menu-border/projection leads, but neither is an exact donor; `+0x0E8` remains assembly after a two-instruction startup scheduling mismatch |
+| 40 | `+0x2E4..+0x690` | 940 | timed interpolation is semantically related to DKR weather shifting; the tint rectangle matched through SDK display-list macro scoping, with no exact donor; `+0x0E8` remains assembly after a two-instruction startup scheduling mismatch |
 | 42 | `+0x000..+0x0F4`, `+0x6A4..+0x700` | 336 | semantic display-list lifecycle / framebuffer swap; the unresolved renderer resembles `screenimage_draw` |
 | 45 | `+0x00C..+0x314`, `+0x1BE0..+0x1BF4` | 796 | negative for allocator, release, and setter shapes |
 | 56 | `+0x000..+0x0B8`, `+0x10C..+0x1A0` | 332 | generic setter/viewport idioms; unresolved minimap has a strong DKR HUD semantic lead |
