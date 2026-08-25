@@ -1329,6 +1329,7 @@ the still-unnamed `func_8002E020` (ROM `0x2EC20`–`0x2ECA0`, 128 bytes),
 `piRomGetSectionPtr` (ROM `0x2EF5C`–`0x2EFA4`, 72 bytes),
 `piRomGetFileSize` (ROM `0x2EFA4`–`0x2EFE0`, 60 bytes),
 `romCopy` (ROM `0x2EFE0`–`0x2F0D0`, 240 bytes),
+`screenLoad` (ROM `0x2F0D0`–`0x2F1D4`, 260 bytes),
 `rcpWaitDP` (ROM `0x2F6A0`–`0x2F76C`, 204 bytes),
 `rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes),
 `bgdraw_fillcolour` (ROM `0x2F794`–`0x2F7D4`, 64 bytes), and the still-
@@ -1361,7 +1362,9 @@ JFG's load-and-default-copy flow to Mickey's 24-byte resident record and I/O
 helpers. `bgdraw_fillcolour` adapts Diddy Kong Racing's
 public `src/rcp_dkr.c` body. The anonymous setter, dual-global reset,
 record-field accessors, allocation wrapper, and no-op are reconstructed from
-Mickey's own bodies. `rcpInitDp` is likewise reconstructed from Mickey's own
+Mickey's own bodies. `screenLoad` is likewise reconstructed from Mickey's
+display-list command writes; JFG supplies its existing TU/name association,
+not its C body. `rcpInitDp` is likewise reconstructed from Mickey's own
 display-list command flow; JFG supplies its name and ordered TU position, not
 its C body. `rcpInit` reconstructs Mickey's six message queues while JFG's
 public source supplies its name and prototype and its object supplies the exact

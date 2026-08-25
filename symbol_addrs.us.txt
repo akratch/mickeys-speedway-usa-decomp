@@ -513,7 +513,7 @@ piRomGetFileSize = 0x8002E3A4; // type:func size:0x3C ROM 0x2efa4 tier-B donor-j
 romCopy = 0x8002E3E0; // type:func size:0xF0 ROM 0x2efe0 tier-B donor-jfg-src/pi.c pi-dma-callgraph matched-C
 
 // screen.c -- ROM 0x2F0D0-0x2F400.
-screenLoad = 0x8002E4D0; // type:func size:0x104 ROM 0x2f0d0 tier-B donor-jfg-src/screen.c load-callgraph+order
+screenLoad = 0x8002E4D0; // type:func size:0x104 ROM 0x2f0d0 tier-B donor-jfg-src/screen.c tu-order matched-C
 screenDraw = 0x8002E5D4; // type:func size:0x228 ROM 0x2f1d4 tier-B donor-jfg-src/screen.c draw-callgraph+order
 
 // rcpFast3d.c -- ROM 0x2F400-0x30CD0. bgdraw_fillcolour and rcpInit are
