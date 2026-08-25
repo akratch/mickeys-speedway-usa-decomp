@@ -70,6 +70,9 @@ extern u8 gOverlay79FlagsReloc[];
  * the extra live pointer regressed to 30 words. The shared-type form remains
  * best at 12 words, first mismatch +0xC8, blocked on the linked-state register
  * choice and the counter/flag tail coloring.
+ * Lane cx-ov-4-b-a-r5 reconfirmed all 119 flag combinations. The existing
+ * direct/scoped/typed experiments already cover the visible struct hypothesis,
+ * so the exact-size 12-word result at +0xC8 remains the plateau.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {

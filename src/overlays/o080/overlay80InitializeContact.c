@@ -60,6 +60,9 @@ extern void overlay80ResolveCandidateReloc(
  * pointer qualifiers plus split assignment and local-intermediate forms. The
  * unqualified single expression remains best: exact size, first and only
  * mismatch +0x4C, blocked on IDO's outer multiply operand ordering.
+ * Lane cx-ov-4-b-a-r5 reconfirmed all 119 flag combinations and tested local
+ * and field compound-assignment forms. Both regressed; the same one-word
+ * +0x4C outer-multiply operand-order mismatch remains the plateau.
  */
 #ifdef NON_MATCHING
 void overlay80InitializeContact(Overlay80Object *object,
