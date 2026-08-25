@@ -2340,17 +2340,27 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   canonical MIPS II recompilation added two instructions, so it was rejected.
 - `joyResetMap`, first mismatch `+0x0`: external storage emits 48 rather than
   36 bytes; TU-local storage is instruction-exact but wrongly claims 16 B of
-  BSS and shifts the real symbol.
-- `func_80028FCC`, ten spellings, first mismatch `+0x1c`: its 108-byte skeleton
+  BSS and shifts the real symbol. A fresh descending scalar-extern probe kept
+  the correct four relocation identities but still materialized four address
+  pairs, and weak tentative definitions retained the same 16 B BSS claim; the
+  repeated 119-combination flag lattice did not improve the valid candidate.
+- `func_80028FCC`, thirteen structural/ABI spellings, first mismatch `+0x1c`:
+  its 108-byte skeleton
   identifies the tier-B `mainAnyoneHas` role (JFG: 108 B, similarity 0.357),
   but Mickey passes zero as every middle argument. The exact-sized candidate
   differs in ten words: raw-return branches versus target normalization into
-  `$t6`/`$t7`/`$t8` and a shared epilogue.
+  `$t6`/`$t7`/`$t8` and a shared epilogue. A fresh old-style call declaration,
+  logical-OR spelling, explicit boolean lifetimes, and the full flag lattice
+  did not improve that result.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
-- `func_80028EFC`, ten spellings, first mismatch `+0x1c`: exact 64-byte size
+- `func_80028EFC`, fifteen control/typing spellings, first mismatch `+0x1c`:
+  exact 64-byte size
   and 14/16 words; the correct loop predicate is allocated to `$t6`, while the
-  target uses `$at`.
+  target uses `$at`. Fresh byte-pointer, `void *` cursor, explicit-goto and
+  post-increment-bound probes either unrolled or entered a three-word
+  strength-reduced basin; the repeated flag lattice did not improve the
+  two-register residual.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime
   hypotheses and the full flag lattice: the best canonical candidate has the
   exact 348-byte, 87-instruction boundary and `-0x10` frame, but differs in 39
