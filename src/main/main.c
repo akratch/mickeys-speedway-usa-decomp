@@ -1,4 +1,5 @@
 #include "ultra64.h"
+#include "game/gameVi.h"
 #include "game/menu.h"
 
 /*
@@ -48,6 +49,7 @@ extern s32 D_8007A1EC;
 extern s32 D_8007A1B4;
 extern s32 D_8007A1D8;
 extern s32 D_8007A200;
+extern s32 D_8007A24C;
 extern s16 D_8007A250[];
 extern s32 D_8007A258;
 extern u8 D_8007BEF4;
@@ -72,6 +74,15 @@ typedef struct MainGameState {
     MainCharacterState characters[6];
 } MainGameState;
 
+typedef struct MainZBCheck {
+    s16 x;
+    s16 y;
+    u8 pad4;
+    s8 width;
+    s8 height;
+    s8 enabled;
+} MainZBCheck;
+
 extern MainGameEntry *D_800D18E0;
 extern void *D_800D18E4;
 extern u8 D_800D1928[];
@@ -85,6 +96,7 @@ extern s32 D_800D18D0;
 extern s32 D_800D18D4;
 extern s32 D_800D18D8;
 extern s32 D_800D18DC;
+extern MainZBCheck D_800CF538[];
 extern s32 osTvType;
 extern s32 levelNGetType(s32 level);
 extern void func_80028EFC(MainCharacterState *, s32, s32);
@@ -194,7 +206,46 @@ void mainPreNMI(void) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027628.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainAddZBCheck.s")
+s32 mainAddZBCheck(s32 x, s32 y, s32 radius) {
+    s32 result;
+    s32 x1;
+    s32 y1;
+    s32 x2;
+    s32 y2;
+    s32 screenWidth;
+    s32 screenHeight;
+
+    viGetCurrentSize(&screenWidth, &screenHeight);
+    result = -1;
+    if (D_8007A24C < 8) {
+        x2 = x + radius;
+        y2 = y + radius;
+        if ((x2 >= 0) && (y2 >= 0)) {
+            x1 = x - radius;
+            y1 = y - radius;
+            if ((x1 < screenWidth) && (y1 < screenHeight)) {
+                if (x1 < 0) {
+                    x1 = 0;
+                }
+                if (y1 < 0) {
+                    y1 = 0;
+                }
+                if (x2 >= screenWidth) {
+                    x2 = screenWidth - 1;
+                }
+                if (y2 >= screenHeight) {
+                    y2 = screenHeight - 1;
+                }
+                result = D_8007A24C++;
+                D_800CF538[result].x = x1;
+                D_800CF538[result].y = y1;
+                D_800CF538[result].width = (x2 - x1) + 1;
+                D_800CF538[result].height = (y2 - y1) + 1;
+            }
+        }
+    }
+    return result;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainUpdateZBCheck.s")
 
