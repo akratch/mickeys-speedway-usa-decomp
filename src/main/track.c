@@ -121,7 +121,9 @@ typedef struct TrackData {
     TrackTextureEntry *textures;
     TrackSegment *segments;
     TrackBoundingBox *segmentBounds;
-    u8 pad0C[0x1A - 0x0C];
+    u8 pad0C[0x14 - 0x0C];
+    void *bspTree;
+    u8 pad18[0x1A - 0x18];
     s16 segmentCount;
 } TrackData;
 
@@ -167,7 +169,9 @@ typedef struct TrackTriangle {
 
 typedef struct TrackCamera {
     s16 rotationX;
-    u8 pad02[0xC - 2];
+    s16 rotationY;
+    s16 rotationZ;
+    u8 pad06[0xC - 6];
     f32 x;
     f32 y;
     f32 z;
@@ -190,7 +194,7 @@ typedef struct TrackVec3f {
         _g->words.w1 = (u32) (address);                                    \
     }
 
-extern TrackRotation *D_800C9530;
+extern TrackCamera *D_800C9530;
 extern TrackCachedPoint D_800C9B40;
 extern Gfx *D_800C9520;
 extern s32 D_80079314;
@@ -212,6 +216,12 @@ extern Gfx D_800793A8[];
 extern Gfx D_800793D8[];
 extern u8 D_80079318[];
 extern s32 D_800C9560;
+extern s32 D_800C954C;
+extern s32 D_800C9554;
+extern s32 D_800C955C;
+extern s32 D_800C9564;
+extern s32 D_800C956C;
+extern void *D_800C9574;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -234,6 +244,7 @@ void *func_800348D4(TrackTextureHeader *texture, s32 frame);
 TrackCamera *func_8002462C(void);
 f32 func_8002A8BC(s32 angle);
 f32 func_8002A8C0(s32 angle);
+void func_8000F82C(s32 start, s32 count, s32 end);
 
 /*
  * PROVENANCE: Jet Force Gemini's public `src/track.c`, function
@@ -619,7 +630,16 @@ void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F198.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F57C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F82C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FA2C.s")
+void func_8000FA2C(s32 *result, s32 arg1) {
+    D_800C954C = D_800C9530->x;
+    D_800C9554 = D_800C9530->y;
+    D_800C955C = D_800C9530->z;
+    D_800C9574 = D_800792E8->bspTree;
+    D_800C9564 = 0;
+    D_800C956C = arg1;
+    func_8000F82C(0, 0, D_800792E8->segmentCount - 1);
+    *result = D_800C9564;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FAE0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FBD8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FCA4.s")
@@ -915,9 +935,9 @@ void func_80014DE4(void) {
     x = 0.0f;
     y = 0.0f;
     z = -65536.0f;
-    transform.zRotation = D_800C9530->z;
-    transform.yRotation = D_800C9530->y;
-    transform.xRotation = D_800C9530->x;
+    transform.zRotation = D_800C9530->rotationZ;
+    transform.yRotation = D_800C9530->rotationY;
+    transform.xRotation = D_800C9530->rotationX;
     transform.x = 0.0f;
     transform.y = 0.0f;
     transform.z = 0.0f;

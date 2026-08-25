@@ -1822,6 +1822,10 @@ func_8000D768 = 0x8000D768; // type:func size:0x90 ROM 0xe368 tier-D (JFG src/tr
 // words are exact and the function has no relocation records.
 func_8000D7F8 = 0x8000D7F8; // type:func size:0x28 ROM 0xe3f8
 
+// No public name adopted: Mickey's accesses establish the camera/BSP setup
+// wrapper, while the reference scan found no credible named body donor.
+func_8000FA2C = 0x8000FA2C; // type:func size:0xB4 ROM 0x1062c tier-D (Mickey reconstruction, placeholder retained)
+
 // No public name adopted: DKR's `block_get` supplies the accessor structure,
 // while Mickey proves its stricter upper bound and 0x40-byte segment stride.
 func_8000FEB4 = 0x8000FEB4; // type:func size:0x38 ROM 0x10ab4 tier-D (DKR src/tracks.c block_get structure, placeholder retained)
