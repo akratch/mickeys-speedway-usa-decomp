@@ -16,10 +16,9 @@ void overlay27Init(O27Object *object, Overlay27InitData *init) {
 }
 
 /*
- * Plateau: -O2/-mips2 has exact size with 68 differing words; the first
- * mismatch is +0x0 (0x68-byte frame versus retail's 0x60). The flag lattice,
- * a ten-minute two-worker permutation batch, and local-lifetime reorderings
- * leave frame allocation and floating-register order as the blockers.
+ * Plateau: workbench mixed/structure-mismatch, exact 368-word length and 0x60 frame; 66 words differ, first +0x18.
+ * Levers tried: stack-home census/reordering, pulse-local ablation/reuse, and pool-position no-code reads.
+ * Remaining: source/argument homes differ and the persistent float is f12 versus f16, cascading through the FP FIFO.
  */
 #ifdef NON_MATCHING
 void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
@@ -29,7 +28,6 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
         O27State *sourceState;
         s32 intensity;
     } tail;
-    s16 pulseTimer;
     s32 pulseStep;
     s32 initialPhase;
     s32 phase;
@@ -198,7 +196,7 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
         } else {
             state->pulseTimer -= pulseStep << 5;
         }
-        value = (pulseTimer = state->pulseTimer);
+        value = (pulseStep = state->pulseTimer);
         if (value >= 0x100) {
             state->pulseTimer = 0xFF;
             state->pulseState = 2;
