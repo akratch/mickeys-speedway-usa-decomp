@@ -133,14 +133,23 @@ typedef struct ParticlePointStreamEntry {
     ParticleTriggerSlot *trigger;
 } ParticlePointStreamEntry;
 
+typedef struct ParticleLinePoint ParticleLinePoint;
+typedef struct ParticleTexture ParticleTexture;
+
 typedef struct ParticleLineEntry {
-    u8 pad00[0x124];
+    s32 pointCount;
+    ParticleLinePoint *points[15];
+    u8 pad40[0xE4];
     u8 active;
     u8 pad125[3];
-    void *texture;
+    ParticleTexture *texture;
     ParticleConfig *config;
-    s32 unk130;
-    u8 pad134[4];
+    union {
+        u32 *colorTable;
+        s32 unk130;
+    };
+    s16 colorCount;
+    u8 pad136[2];
     s32 descriptorWord;
     s32 configFlags;
     f32 textureFrame;
@@ -148,25 +157,29 @@ typedef struct ParticleLineEntry {
     u8 pad146[2];
 } ParticleLineEntry;
 
-typedef struct ParticleTexture {
+struct ParticleTexture {
     u8 pad00[0x10];
     u16 frameCount;
-} ParticleTexture;
+};
 
-typedef struct ParticleLinePoint {
+struct ParticleLinePoint {
     s16 x0;
     s16 y0;
     s16 z0;
     s16 x1;
     s16 y1;
     s16 z1;
-    u8 pad0C[2];
-    u8 alpha;
-    u8 pad0F[9];
+    s16 intensityTimer;
+    s16 intensity;
+    s16 colorTimer;
+    s16 colorIndex;
+    s16 lifetime;
+    s16 intensityVelocity;
     u8 red;
     u8 green;
     u8 blue;
-} ParticleLinePoint;
+    u8 alpha;
+};
 
 typedef struct ParticleLineVertex {
     s16 x0;
@@ -1334,7 +1347,92 @@ done:
     return 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040B88.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041040.s")
+/*
+ * PROVENANCE: structure cross-checked against JFG
+ * asm/nonmatchings/particles/func_80061C30_62830.s and DKR
+ * src/particles.c:update_line_particle; body reconstructed from Mickey
+ * evidence.
+ */
+void func_80041040(ParticleLineEntry *entry, s32 updateRate) {
+    ParticleLinePoint *point;
+    s32 i;
+    s32 j;
+    ParticleLinePoint *removedPoints[9];
+
+    i = 0;
+    if (entry->pointCount > 0 && entry->points[0]->lifetime < updateRate) {
+        do {
+            i++;
+        } while (i < entry->pointCount && entry->points[i]->lifetime < updateRate);
+    }
+
+    if (i > 0) {
+        entry->pointCount -= i;
+        for (j = 0; j < i; j++) {
+            removedPoints[j] = entry->points[j];
+        }
+        j = 0;
+        while (i < 9) {
+            j++;
+            i++;
+            entry->points[j - 1] = entry->points[i - 1];
+        }
+        i = 0;
+        while (j < 9) {
+            j++;
+            entry->points[j - 1] = removedPoints[i];
+            i++;
+        }
+    }
+
+    if (entry->active == 1 && entry->pointCount == 0) {
+        entry->active = 0;
+        if (entry->texture != NULL) {
+            func_800347A0(entry->texture);
+        }
+    } else {
+        for (i = 0; i < entry->pointCount; i++) {
+            point = entry->points[i];
+            point->lifetime -= updateRate;
+            if (entry->colorTable != NULL) {
+                if (point->colorTimer == 0) {
+                    point->colorIndex += updateRate;
+                    if (point->colorIndex >= entry->colorCount) {
+                        point->colorIndex -= entry->colorCount;
+                    }
+                    point->red = (entry->colorTable[point->colorIndex] & 0xFF000000) >> 24;
+                    point->green = (entry->colorTable[point->colorIndex] & 0xFF0000) >> 16;
+                    point->blue = (entry->colorTable[point->colorIndex] & 0xFF00) >> 8;
+                } else {
+                    point->colorTimer -= updateRate;
+                    if (point->colorTimer < 0) {
+                        point->colorIndex -= point->colorTimer;
+                    }
+                }
+            }
+            if (point->intensityTimer == 0) {
+                point->intensity += updateRate * point->intensityVelocity;
+            } else {
+                point->intensityTimer -= updateRate;
+                if (point->intensityTimer < 0) {
+                    point->intensity -= point->intensityTimer * point->intensityVelocity;
+                    point->intensityTimer = 0;
+                }
+            }
+        }
+
+        if (entry->active != 0) {
+            if (entry->texture != NULL) {
+                if (entry->configFlags & 0x800) {
+                    entry->textureFrame = mathRnd(0, (entry->texture->frameCount >> 8) - 1);
+                } else {
+                    func_800367A4(entry->texture, &entry->descriptorWord, entry->value144,
+                                  &entry->textureFrame, updateRate);
+                }
+            }
+        }
+    }
+}
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_80062A4C.s; body reconstructed from Mickey evidence. */
 void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
     void **particle;

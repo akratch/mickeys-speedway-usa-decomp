@@ -1683,11 +1683,9 @@ fallback remains canonical.
 
 ### 3.16 Particle and debug-print translation units
 
-ROM `0x3D5F0`–`0x45760` is now split into two aligned resident C
-subsegments. The complete per-function census, including exact sizes and the
-evidence tier on every adopted name, is in `symbol_addrs.us.txt`; the source
-files keep unresolved functions as `GLOBAL_ASM`, so the split itself claims no
-new matched bytes.
+ROM `0x3D5F0`–`0x45760` contains two aligned resident C subsegments.
+`symbol_addrs.us.txt` records every function's exact size and evidence tier.
+Unresolved functions remain `GLOBAL_ASM`, so the split claims no matched bytes.
 
 | Mickey TU | ROM / VRAM | Functions | Evidence |
 |---|---|---:|---|
@@ -1772,7 +1770,8 @@ Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 reconstruction with the JFG assembly sibling as a structural oracle);
 `partUpdateParticles` (ROM `0x430F4`, `0x170` B, default flags, Mickey/JFG
 assembly reconstruction); `func_80040878` (ROM `0x41478`, `0x310` B,
-`-O2 -mips2 -32`, DKR body/JFG assembly oracle);
+`-O2 -mips2 -32`, DKR body/JFG assembly oracle); `func_80041040` (ROM
+`0x41C40`, `0x348` B, default flags, Mickey body/JFG assembly oracle);
 `partInitTriggerSPPos`
 (ROM `0x3F224`, `0x4C` bytes, default resident flags, JFG-named Mickey
 reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default
