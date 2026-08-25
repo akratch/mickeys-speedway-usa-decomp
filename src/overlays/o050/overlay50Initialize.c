@@ -83,15 +83,9 @@ extern void *o50CreateC(void *value);
 extern void *o50CreateD(void *value, s32 x, s32 y, s32 count);
 extern void o50FinalizeReloc(void *value, void *arg);
 
-/*
- * Plateau (2026-08-25, 8 attempts): the complete flag lattice selects
- * -O2 -mips2 -32 at exact target size, with 109 of 185 positional words
- * differing. Modeling the saved context as the first field of an 8-byte
- * local struct moves it to the target stack slot and advances the first
- * mismatch from +0x14 to +0xC0. The remaining mismatch begins with register
- * allocation for the config base and continues through the record-copy loop;
- * typed and raw-field loop spellings did not improve the score.
- */
+/* Workbench: mixed structure/schedule/register residual; best 108/185 words, first linked mismatch +0xC0.
+ * A named config-base local improved one word; register, placement, and empty-read pool levers did not close.
+ * Config-base coloring and the record-copy schedule remain divergent. */
 #ifdef NON_MATCHING
 void func_overlay_050_F0000000_1896970(void) {
     volatile O50Locals locals;
@@ -99,6 +93,7 @@ void func_overlay_050_F0000000_1896970(void) {
     O50Record *source;
     O50Record *dest;
     O50Record *end;
+    O50Config *config;
     u8 *state;
     void *object;
 
@@ -119,12 +114,13 @@ void func_overlay_050_F0000000_1896970(void) {
     overlay50PatchIndices(&D_2E0);
     overlay50PatchIndices(&D_1CC);
 
+    config = &gO50Config;
     D_A4 = -100.0f;
     D_A8 = 120.0f;
-    gO50Config.value8C = 42.0f;
-    gO50Config.value2C = -78.0f;
-    gO50Config.value04 = 0x4000;
-    gO50Config.value28 = gO50FloatSource;
+    config->value8C = 42.0f;
+    config->value2C = -78.0f;
+    config->value04 = 0x4000;
+    config->value28 = gO50FloatSource;
     fill = D_B0;
     do {
         *fill++ = 0xA0;
@@ -161,7 +157,7 @@ void func_overlay_050_F0000000_1896970(void) {
 
     state = o50GetStateReloc();
     if (*state == 1) {
-        gO50Config.value2C += -40.0f;
+        config->value2C += -40.0f;
         D_FC.value0C -= 0x28;
         D_FC.value1C -= 0x28;
     }

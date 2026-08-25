@@ -79,6 +79,9 @@ extern s16 ext_resident_result;
 extern s32 ext_resident_word_190;
 
 /* Independently reconstructed from Mickey-local evidence; no DKR/JFG donor. */
+/* Workbench: structure-mismatch, best 115/316 positional words; first structural mismatch +0x17C.
+ * Single-line pointer declarations improved six words; loop-condition and resident-staging levers did not close.
+ * The loop compare, record-copy allocation, and later constant-store schedules remain divergent. */
 #ifdef NON_MATCHING
 void func_overlay_052_F0000000_189A670(void) {
     u8 *state;
@@ -101,12 +104,7 @@ void func_overlay_052_F0000000_189A670(void) {
     func_overlay_052_F00004F0_189AB60(D_2F4);
 
     {
-    u8 *p0 = D_0;
-    u8 *p1 = D_60;
-    u8 *p2 = D_200;
-    u8 *p3 = D_340;
-    u8 *p4 = D_A0;
-    u8 *p5 = D_100;
+    u8 *p0 = D_0, *p1 = D_60, *p2 = D_200, *p3 = D_340, *p4 = D_A0, *p5 = D_100;
     i = 0;
     do {
         func_overlay_052_F0000540_189ABB0(D_30, p0, i, 0);

@@ -109,9 +109,9 @@ void func_8001C088(CameraTrackedObject *value) {
         D_80079BCC--;
     }
 }
-/* Workbench: structure-mismatch, aligned residual 39; first mismatch +0x0.
- * Else-if duplication and radius-square temporaries restored target operation order.
- * Candidate is 106/108 instructions; the frame and FP/GPR register web remain. */
+/* Workbench: mixed frame/allocation residual, 106/108 instructions; first mismatch +0x0.
+ * Tried register-qualified parameters/locals, named aliases, and empty-read pool levers.
+ * The second FP callee-save web remains absent, leaving a 0x10 rather than 0x18 frame. */
 #ifdef NON_MATCHING
 void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
     CameraOverrideSlot *slot;
