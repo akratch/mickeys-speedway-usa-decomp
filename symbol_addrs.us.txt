@@ -1954,6 +1954,7 @@ func_800005CC = 0x800005CC; // type:func size:0xF0 ROM 0x11cc tier-B (JFG amTune
 amTuneResetFade = 0x80000730; // type:func size:0xC ROM 0x1330 tier B (JFG role/order)
 amAmbientSetFade = 0x8000073C; // type:func size:0xF0 ROM 0x133c tier-B (JFG body/order role)
 amAmbientResetFade = 0x8000082C; // type:func size:0xC ROM 0x142c tier B (JFG role/order)
+amAudioTick = 0x80000838; // type:func size:0x284 ROM 0x1438 tier-B (JFG name/body, Mickey sequence/master-volume tail)
 amWaitForMidiSync = 0x80000ABC; // type:func size:0x80 ROM 0x16bc tier-B (JFG name/order, Mickey-only body)
 amResetMidiSync = 0x80000B3C; // type:func size:0xC ROM 0x173c tier-B (JFG name/order, Mickey-only body)
 func_80000B48 = 0x80000B48; // type:func size:0xA0 ROM 0x1748 tier-B (JFG amTuneSetChlMask name/order, external Mickey placeholder retained)

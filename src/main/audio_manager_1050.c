@@ -71,10 +71,17 @@ typedef struct AudioMusicData {
     u8 reverb;
 } AudioMusicData;
 
+typedef struct AudioDelayedSound {
+    u16 soundId;
+    s16 timer;
+    void **handle;
+} AudioDelayedSound;
+
 extern s32 D_80078D7C;
 extern s32 D_80078D80;
 extern s32 D_80078D78;
 extern s32 D_80078D8C;
+extern s32 D_80078D90;
 extern void *D_80078D60;
 extern void *D_80078D64;
 extern u8 D_80078D68;
@@ -90,6 +97,7 @@ extern u8 D_80078DA8;
 extern u8 D_80078DB0;
 extern s8 D_80078DB4;
 extern u8 D_80078DAC;
+extern s32 D_80078DA4;
 extern AudioSequenceRomEntry *D_800BF790;
 extern u8 D_800BF794;
 extern u8 D_800BF795;
@@ -102,10 +110,15 @@ extern s32 D_800BF7B8;
 extern s32 D_800BF7BC;
 extern s32 D_800BF7C0;
 extern s32 D_800BF7C4;
+extern AudioDelayedSound D_800BF7C8[];
 extern s32 D_800BFA00;
 extern s32 D_800BFA04;
 extern u8 D_800BFA08;
 extern OSMesgQueue D_800BFA10;
+extern void *D_800BF900;
+extern u8 D_800BF908;
+extern u8 D_80085A40[];
+extern u8 D_8008DA40[];
 extern AudioMusicData *D_800BF7A4;
 extern s32 osTvType;
 extern void gsSndpSetParam();
@@ -135,6 +148,9 @@ void amAmbientSetVolume(u8 volume);
 void amTuneSetReverbOnOff(s32 enabled);
 void amTuneMuteChl(s32 channel);
 void amTuneUnmuteChl(s32 channel);
+void amSndPlay(u16 soundId, void **handle);
+void func_8000137C(void *player, u8 *sequenceData, u8 *sequenceId,
+                   void *sequence);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
                           f32 pitch, u8 arg5, void **handle);
 
@@ -242,7 +258,76 @@ void amAmbientSetFade(f32 fade, u8 volume) {
 void amAmbientResetFade(void) {
     D_80078D80 = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000838.s")
+/*
+ * PROVENANCE: body adapted from JFG src/audio_manager_1050.c amAudioTick;
+ * Mickey's resident sequence-init calls and master-volume fade tail remain
+ * authoritative.
+ */
+void amAudioTick(u8 updateRate) {
+    s32 i;
+    s32 j;
+    s32 volume;
+    OSMesg message;
+    s32 fadeStep;
+
+    if (osRecvMesg(&D_800BFA10, &message, OS_MESG_NOBLOCK) == 0) {
+        D_800BFA04 = 1;
+    }
+
+    if (D_80078D7C > 0 || D_80078DA4 != -1) {
+        D_80078D7C -= updateRate;
+        if (D_80078D7C < 0) {
+            D_80078D7C = 0;
+        }
+        volume = ((D_800BF7BC * D_80078D7C) >> 16) + D_800BF7B8;
+        amTuneSetVolume(volume);
+    }
+    if (D_80078D80 > 0) {
+        D_80078D80 -= updateRate;
+        if (D_80078D80 < 0) {
+            D_80078D80 = 0;
+        }
+        volume = ((D_800BF7C4 * D_80078D80) >> 16) + D_800BF7C0;
+        amAmbientSetVolume(volume);
+    }
+
+    if (D_80078D90 > 0) {
+        for (i = 0; i < D_80078D90;) {
+            D_800BF7C8[i].timer -= updateRate;
+            if (D_800BF7C8[i].timer <= 0) {
+                j = i;
+                amSndPlay(D_800BF7C8[i].soundId, D_800BF7C8[i].handle);
+                D_80078D90--;
+                if (i < D_80078D90) {
+                    D_800BF7C8[i].soundId = D_800BF7C8[i + 1].soundId;
+                    D_800BF7C8[i].timer = D_800BF7C8[i + 1].timer;
+                    D_800BF7C8[i].handle = D_800BF7C8[i + 1].handle;
+                    do {
+                        j++;
+                    } while (j < D_80078D90);
+                }
+            } else {
+                i++;
+            }
+        }
+    }
+
+    func_8000137C(D_80078D60, D_80085A40, &D_80078D94, D_800BF900);
+    func_8000137C(D_80078D64, D_8008DA40, &D_80078D98, &D_800BF908);
+    D_80078DB0 = 0;
+    D_80078DB4 = 0;
+
+    if (D_80078DAC != 0) {
+        fadeStep = D_80078DAC * updateRate;
+        if (fadeStep < D_800BFA08) {
+            D_800BFA08 -= fadeStep;
+        } else {
+            D_800BFA08 = 0;
+        }
+        gsSndpSetMasterVolume(0, D_800BFA08 << 7);
+        gsSndpSetMasterVolume(1, D_800BFA08 << 7);
+    }
+}
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
  * amWaitForMidiSync; body uses Mickey-only evidence.
