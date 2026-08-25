@@ -17,7 +17,7 @@ typedef struct ParticleConfig {
     f32 x;
     f32 y;
     f32 z;
-    u8 pad10[4];
+    f32 value10;
     s16 value14;
     s16 value16;
     s16 value18;
@@ -25,9 +25,29 @@ typedef struct ParticleConfig {
     s16 value22;
     s16 value24;
     s16 value26;
-    u8 pad28[0x18];
+    u8 pad28[8];
+    f32 value30;
+    f32 value34;
+    f32 value38;
+    f32 value3C;
     s16 value40;
     s16 value42;
+    u8 pad44[0x14];
+    f32 value58;
+    s32 flags5C;
+    s32 value60;
+    s16 value64;
+    s16 value66;
+    u8 pad68[2];
+    s16 value6A;
+    s16 value6C;
+    u8 pad6E[2];
+    s32 value70;
+    s32 value74;
+    s32 value78;
+    s32 value7C;
+    u8 pad80[0x14];
+    s32 value94;
 } ParticleConfig;
 
 typedef struct ParticleTrigger {
@@ -133,14 +153,23 @@ typedef struct ParticlePointStreamEntry {
     ParticleTriggerSlot *trigger;
 } ParticlePointStreamEntry;
 
+typedef struct ParticleLinePoint ParticleLinePoint;
+typedef struct ParticleTexture ParticleTexture;
+
 typedef struct ParticleLineEntry {
-    u8 pad00[0x124];
+    s32 pointCount;
+    ParticleLinePoint *points[15];
+    u8 pad40[0xE4];
     u8 active;
     u8 pad125[3];
-    void *texture;
+    ParticleTexture *texture;
     ParticleConfig *config;
-    s32 unk130;
-    u8 pad134[4];
+    union {
+        u32 *colorTable;
+        s32 unk130;
+    };
+    s16 colorCount;
+    u8 pad136[2];
     s32 descriptorWord;
     s32 configFlags;
     f32 textureFrame;
@@ -148,25 +177,29 @@ typedef struct ParticleLineEntry {
     u8 pad146[2];
 } ParticleLineEntry;
 
-typedef struct ParticleTexture {
+struct ParticleTexture {
     u8 pad00[0x10];
     u16 frameCount;
-} ParticleTexture;
+};
 
-typedef struct ParticleLinePoint {
+struct ParticleLinePoint {
     s16 x0;
     s16 y0;
     s16 z0;
     s16 x1;
     s16 y1;
     s16 z1;
-    u8 pad0C[2];
-    u8 alpha;
-    u8 pad0F[9];
+    s16 intensityTimer;
+    s16 intensity;
+    s16 colorTimer;
+    s16 colorIndex;
+    s16 lifetime;
+    s16 intensityVelocity;
     u8 red;
     u8 green;
     u8 blue;
-} ParticleLinePoint;
+    u8 alpha;
+};
 
 typedef struct ParticleLineVertex {
     s16 x0;
@@ -248,7 +281,9 @@ typedef struct BasicParticle {
     f32 velocityX;
     f32 velocityY;
     f32 velocityZ;
-    u8 pad28[8];
+    u8 pad28[6];
+    u8 type;
+    u8 pad2F;
     f32 localX;
     f32 localY;
     f32 localZ;
@@ -261,6 +296,52 @@ typedef struct BasicParticle {
     s16 angularVelocityX;
     s16 angularVelocityZ;
 } BasicParticle;
+
+typedef struct ParticleEmitterTransformIndex {
+    u16 pad00;
+    u16 matrixIndex;
+} ParticleEmitterTransformIndex;
+
+typedef struct ParticleEmitterHeader {
+    u8 pad00[0x30];
+    ParticleEmitterTransformIndex *transformIndices;
+    u8 pad34[0x1A];
+    s8 transformedPoints;
+} ParticleEmitterHeader;
+
+typedef struct ParticleEmitterPointSet {
+    u8 pad00[0x1E];
+    s8 transformedPoints;
+} ParticleEmitterPointSet;
+
+typedef struct ParticleEmitterResource {
+    ParticleEmitterHeader *header;
+    u8 pad04[4];
+    s16 disableTransform;
+    s16 matrixTableIndex;
+    void *matrices[13];
+    f32 (*points)[3];
+} ParticleEmitterResource;
+
+typedef struct ParticleEmitterObject {
+    u8 pad00[8];
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[4];
+    f32 velocityX;
+    f32 velocityY;
+    f32 velocityZ;
+    u8 pad28[0x12];
+    s8 resourceIndex;
+    u8 pad3B[5];
+    u8 *header;
+    u8 pad44[0x24];
+    ParticleEmitterResource **resources;
+    u8 pad6C[0x27];
+    u8 pointSetIndex;
+} ParticleEmitterObject;
 
 typedef struct EmittedParticle {
     u8 pad00[0x1C];
@@ -287,26 +368,38 @@ typedef struct CircularParticle {
     f32 renderX;
     f32 renderY;
     f32 renderZ;
-    u8 pad18[0x14];
+    u8 pad18[0x10];
+    f32 textureFrame;
     s16 type;
     u8 kind;
     u8 pad2F;
     f32 x;
     f32 y;
     f32 z;
-    u8 pad3C[0x0C];
+    u8 pad3C[8];
+    u8 *colorTable;
     void *parent;
     void *resource;
     s32 flags;
     u8 pad54[4];
     ParticleTrigger *trigger;
-    u8 pad5C[0x13];
-    u8 intensity;
-    u8 pad70;
+    s16 lifetime;
+    u8 pad5E[6];
+    s16 intensity;
+    s16 intensityVelocity;
+    s16 intensityTimer;
+    s16 colorIndex;
+    s16 colorTimer;
+    u8 colorCount;
+    u8 alpha;
+    u8 colorMode;
     u8 red;
     u8 green;
     u8 blue;
-    u8 pad74[4];
+    u8 alternateRed;
+    u8 alternateGreen;
+    u8 alternateBlue;
+    u8 updateTexture;
 } CircularParticle;
 
 typedef struct ParticleRenderTransform {
@@ -334,6 +427,17 @@ typedef struct ParticleRenderResource {
     void *triangles[1];
 } ParticleRenderResource;
 
+typedef struct ParticleSpriteResource {
+    u8 pad00[6];
+    s16 flags;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alternateRed;
+    u8 alternateGreen;
+    u8 alternateBlue;
+} ParticleSpriteResource;
+
 typedef struct CircularParticlePool {
     u8 pad00[0x14];
     CircularParticle *particles;
@@ -354,6 +458,8 @@ typedef struct ParticlePosition {
 extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
+extern s32 D_8007C854;
+extern s32 D_8007C85C;
 extern f32 D_80082A48;
 extern f32 D_80082A4C;
 extern void **D_8007C884;
@@ -388,19 +494,30 @@ void mmFree(void *ptr);
 void func_800347A0(void *resource);
 void func_800359D4(void *resource);
 void modFreeModel(void *resource);
+void func_80036544(void *texture, void *state, s32 speed, f32 *frame, s32 updateRate);
 void mathOneFloatPY(void *rotation, void *vector);
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void *piRomLoad(s32 assetId);
 ParticleTexture *func_80034448(s16 resourceId);
 s32 mathRnd(s32 minimum, s32 maximum);
+f32 sqrtf(f32 value);
+void mtxf_transform_dir(void *matrix, f32 *input, f32 *output, ParticleEmitterHeader *header);
 void camSetNo(s32 camera);
 void func_800221E8(void **dList, s32 arg1);
 void func_800244EC(Gfx **dList, s32 renderContext, ParticleRenderTransform *transform, f32 scale, f32 extra);
 void func_800245EC(Gfx **dList);
+void func_80023A08(Gfx **dList, s32 renderContext, void **vertices, CircularParticle *particle,
+                   ParticleSpriteResource *resource, s32 flags, s32 intensity);
+void func_80034DF0(u8 red, u8 green, u8 blue, u8 alternateRed, u8 alternateGreen, u8 alternateBlue);
+void func_80034E48(void);
 void func_800349A4(Gfx **dList, void *texture, s32 mode, s32 flags);
 void func_8003D4FC(void **dList, void **vertices, void *pool);
-s32 func_8003CE10(void **dList, s32 arg1, void **vertices, void *pool, s32 mode);
+s32 func_8003CE10(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool, s32 mode);
 void func_8003D25C(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool);
+void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
+                   ParticleConfig *config);
+void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
+                   ParticleConfig *config);
 void func_80041CE4(void **dList, void **vertices);
 void func_80041F48(s32 arg0, ParticleTrigger *trigger);
 s32 func_80040878(CircularParticle *particle, s32 updateRate);
@@ -420,6 +537,11 @@ void func_8003CD28(ParticleResourceList **listPtr);
 void func_8003CCE4(void);
 void *func_8003FB98(s32 arg0, ParticleTrigger *trigger, s32 arg2);
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry);
+void func_80041FEC(BasicParticle *particle);
+void func_800420E0(BasicParticle *particle);
+void func_800421F4(BasicParticle *particle);
+void func_8004233C(BasicParticle *particle);
+void func_800423EC(BasicParticle *particle);
 extern u8 D_7C900[];
 
 /* PROVENANCE: body adapted from DKR src/particles.c:reset_particles. */
@@ -564,7 +686,138 @@ void func_8003CD28(ParticleResourceList **listPtr) {
         *listPtr = NULL;
     }
 }
+#ifdef NON_MATCHING
+/*
+ * Exact opcode schedule, instruction count, and relocation identities; 154
+ * allocation/stack-operand words remain from +0x0 because IDO emits a 0x98
+ * frame instead of the target's 0x90 frame.
+ *
+ * PROVENANCE: structure cross-checked against JFG's assembly-only
+ * asm/nonmatchings/particles/func_8005DD88.s sibling; body reconstructed
+ * from Mickey evidence.
+ */
+s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParticlePool *pool, s32 mode) {
+    CircularParticle *particle;
+    ParticleSpriteResource *resource;
+    Gfx *command;
+    void *firstVertex;
+    s32 requiredFlags;
+    s32 excludedFlags;
+    s32 count;
+    s32 i;
+    s32 flags;
+    s32 fade;
+    s32 renderFlags;
+    s32 intensity;
+    s32 red;
+    s32 green;
+    s32 blue;
+    s32 alternateRed;
+    s32 alternateGreen;
+    s32 alternateBlue;
+    u8 colorMode;
+
+    if (pool == NULL) {
+        return 0;
+    }
+
+    particle = pool->particles;
+    i = 0;
+    if (mode == 1) {
+        requiredFlags = 0;
+        excludedFlags = 0x8000;
+    } else if (mode == 0) {
+        requiredFlags = 0x8000;
+        excludedFlags = 0;
+    } else {
+        requiredFlags = 0;
+        excludedFlags = 0;
+    }
+    firstVertex = *vertices;
+    count = pool->count;
+    if (count > 0) {
+        do {
+            if (particle->type == 2) {
+                flags = particle->flags;
+                if ((flags & requiredFlags) == requiredFlags && !(flags & excludedFlags)) {
+                    renderFlags = 2;
+                    colorMode = particle->colorMode;
+                    resource = particle->resource;
+                    red = particle->red;
+                    green = particle->green;
+                    blue = particle->blue;
+                    if (colorMode != 0) {
+                        alternateRed = particle->alternateRed;
+                        alternateGreen = particle->alternateGreen;
+                        alternateBlue = particle->alternateBlue;
+                    }
+                    intensity = (particle->intensity >> 8) & 0xFF;
+                    if (D_8007C854 != 0) {
+                        if (flags & 0x800) {
+                            fade = (particle->alpha * D_8007C85C) >> 8;
+                        } else {
+                            fade = D_8007C85C;
+                        }
+                    } else {
+                        if (flags & 0x800) {
+                            fade = particle->alpha;
+                        } else {
+                            fade = 0xFF;
+                        }
+                    }
+                    if (fade < 0xFE) {
+                        red = (red * fade) >> 8;
+                        green = (green * fade) >> 8;
+                        blue = (blue * fade) >> 8;
+                        if (colorMode != 0) {
+                            alternateRed = (alternateRed * fade) >> 8;
+                            alternateGreen = (alternateGreen * fade) >> 8;
+                            alternateBlue = (alternateBlue * fade) >> 8;
+                        }
+                    }
+                    if (resource->flags & 0x200) {
+                        if (colorMode == 0) {
+                            alternateRed = (resource->alternateRed * red) >> 8;
+                            alternateGreen = (resource->alternateGreen * green) >> 8;
+                            alternateBlue = (resource->alternateBlue * blue) >> 8;
+                            red = (resource->red * red) >> 8;
+                            green = (resource->green * green) >> 8;
+                            blue = (resource->blue * blue) >> 8;
+                        }
+                        if (colorMode != 2) {
+                            func_80034DF0(red, green, blue, alternateRed, alternateGreen, alternateBlue);
+                        } else {
+                            func_80034DF0(alternateRed, alternateGreen, alternateBlue, red, green, blue);
+                        }
+                    } else if ((red << 24 | green << 16 | blue << 8 | intensity) != 0) {
+                        gDPPipeSync((*dList)++);
+                        command = (*dList)++;
+                        command->words.w0 = 0xFA000000;
+                        command->words.w1 = (red & 0xFFFFU) << 24 | (green & 0xFF) << 16 |
+                                            (blue & 0xFF) << 8 | (intensity & 0xFF);
+                    }
+                    if (intensity != 0xFF) {
+                        renderFlags = 6;
+                    }
+                    func_80023A08(dList, renderContext, vertices, particle, resource, renderFlags, intensity);
+                    if (resource->flags & 0x200) {
+                        func_80034E48();
+                    }
+                }
+            }
+            i++;
+            particle++;
+            count = pool->count;
+        } while (i < count);
+    }
+    gDPPipeSync((*dList)++);
+    gDPSetPrimColor((*dList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gDPSetEnvColor((*dList)++, 0xFF, 0xFF, 0xFF, 0);
+    return ((u8 *)*vertices - (u8 *)firstVertex) / 10;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CE10.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: structure cross-checked against JFG's assembly-only
@@ -1023,8 +1276,245 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
         } while (trigger->unk0C >= config->value40);
     }
 }
+#ifdef NON_MATCHING
+/*
+ * Frame-exact plateau: 294 instructions against the 297-instruction target,
+ * with 252 aligned rows matching. The first raw mismatch is the end-branch
+ * displacement at +0x204; the first substantive mismatch at +0x20C assigns
+ * the zero-vector web to f6 instead of f0. The remaining cluster is the
+ * resource-header copy/branch shape and FP normalization schedule. The full
+ * flag lattice, ten structural hypotheses, and a canonical-mips2 permuter
+ * found no exact spelling; asm remains canonical.
+ *
+ * PROVENANCE: structure cross-checked against JFG's assembly-only
+ * asm/nonmatchings/particles/func_80060400.s sibling; body reconstructed
+ * from Mickey evidence.
+ */
+void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
+                   ParticleConfig *config) {
+    s32 flags;
+    f32 offset[3];
+    ParticleEmitterResource *resource;
+    s16 rotation[2];
+    f32 magnitude;
+    f32 scale;
+    s32 randomRange;
+    f32 speed;
+    ParticleEmitterHeader *header;
+    s8 pointIndex;
+
+    if (config->flags & 0x70) {
+        particle->velocityX = config->value30;
+        particle->velocityY = config->value34;
+        particle->velocityZ = config->value38;
+    } else {
+        particle->velocityX = 0.0f;
+        particle->velocityY = 0.0f;
+        particle->velocityZ = 0.0f;
+    }
+
+    flags = config->flags5C & 0x700;
+    if (flags != 0) {
+        if (flags & 0x100) {
+            randomRange = config->value74;
+            particle->velocityX += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+        }
+        if (flags & 0x200) {
+            randomRange = config->value78;
+            particle->velocityY += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+        }
+        if (flags & 0x400) {
+            randomRange = config->value7C;
+            particle->velocityZ += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+        }
+    }
+
+    switch (config->flags & 0x70) {
+        case 0x10:
+            particle->velocityX += object->velocityX;
+            particle->velocityY += object->velocityY;
+            particle->velocityZ += object->velocityZ;
+            break;
+        case 0x40:
+            particle->velocityX *= object->velocityX;
+            particle->velocityY *= object->velocityY;
+            particle->velocityZ *= object->velocityZ;
+            break;
+    }
+
+    D_800D4134 = particle->velocityX;
+    D_800D4138 = particle->velocityY;
+    D_800D413C = particle->velocityZ;
+
+    if (config->flags & 4) {
+        offset[0] = (flags = config->flags5C, 0.0f);
+        offset[1] = offset[0];
+        speed = config->value3C;
+        offset[2] = -speed;
+        if (flags & 0x10) {
+            randomRange = config->value70;
+            offset[2] += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+        }
+        speed = -offset[2];
+        if (flags & 0x60) {
+            rotation[0] = trigger->value14;
+            if (flags & 0x20) {
+                rotation[0] += mathRnd(-config->value6A, config->value6A);
+            }
+            rotation[1] = trigger->value16;
+            if (flags & 0x40) {
+                rotation[1] += mathRnd(-config->value6C, config->value6C);
+            }
+        } else {
+            rotation[0] = trigger->value14;
+            rotation[1] = trigger->value16;
+        }
+        mathOneFloatPY(rotation, offset);
+
+        if (((ParticleEmitterPointSet *)(object->header + object->pointSetIndex))->transformedPoints != 0) {
+            resource = object->resources[object->resourceIndex];
+        } else {
+            resource = NULL;
+        }
+        pointIndex = trigger->index;
+        if (pointIndex != -1 && resource != NULL &&
+            (header = resource->header, header->transformedPoints != 0)) {
+            if (resource->disableTransform != 0) {
+                offset[0] = 0.0f;
+                offset[1] = 0.0f;
+                offset[2] = 0.0f;
+            } else {
+                mtxf_transform_dir(
+                    (u8 *)resource->matrices[resource->matrixTableIndex] +
+                        (header->transformIndices[pointIndex].matrixIndex << 6),
+                    offset, offset, header);
+                magnitude = sqrtf((offset[2] * offset[2]) +
+                                  ((offset[0] * offset[0]) + (offset[1] * offset[1])));
+                if (magnitude == 0.0f) {
+                    scale = speed;
+                } else {
+                    scale = speed / magnitude;
+                }
+                offset[0] *= scale;
+                offset[1] *= scale;
+                offset[2] *= scale;
+            }
+        } else if (particle->parent != NULL) {
+            pointListRPY(1, particle->parent, offset, offset);
+        }
+
+        particle->velocityX += offset[0];
+        particle->velocityY += offset[1];
+        particle->velocityZ += offset[2];
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F154.s")
+#endif
+#ifdef NON_MATCHING
+/*
+ * One instruction short: 262 of 276 aligned target rows match. The target has
+ * an otherwise redundant branch at +0xA4; IDO also places the flags spill at
+ * sp+0x44 and the rotation pair at sp+0x30, while this spelling swaps them.
+ * The full flag lattice and a bounded canonical-mips2 permuter found no exact
+ * alternative; the 0x48 frame and all integer/FP register lanes match.
+ *
+ * PROVENANCE: structure cross-checked against JFG's assembly-only
+ * asm/nonmatchings/particles/func_800608EC.s sibling; body reconstructed
+ * from Mickey evidence.
+ */
+void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
+                   ParticleConfig *config) {
+    s16 rotation[2];
+    f32 offset[3];
+    ParticleEmitterResource *resource;
+    s32 flags;
+    s32 randomRange;
+    s8 pointIndex;
+
+    pointIndex = trigger->index;
+    if (pointIndex == -1) {
+        particle->localX = trigger->value1A;
+        particle->localY = trigger->value1C;
+        particle->localZ = trigger->value1E;
+    } else {
+        resource = NULL;
+        if (((ParticleEmitterPointSet *)(object->header + object->pointSetIndex))->transformedPoints == 0) {
+            resource = object->resources[object->resourceIndex];
+        }
+        if (resource != NULL && resource->points != NULL) {
+            particle->localX = resource->points[pointIndex][0];
+            particle->localY = resource->points[trigger->index][1];
+            particle->localZ = resource->points[trigger->index][2];
+            if (resource->header->transformedPoints == 0) {
+                particle->localX *= object->scale;
+                particle->localY *= object->scale;
+                particle->localZ *= object->scale;
+                pointListRPY(1, (s16 *)object, &particle->localX, &particle->localX);
+            } else {
+                particle->localX -= object->x;
+                particle->localY -= object->y;
+                particle->localZ -= object->z;
+            }
+        } else {
+            particle->localX = 0.0f;
+            particle->localY = 0.0f;
+            particle->localZ = 0.0f;
+        }
+    }
+
+    particle->movementValue = config->value58;
+    if (config->flags5C & 0x80000) {
+        randomRange = config->value94;
+        particle->movementValue += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+    }
+    if (config->flags & 1) {
+        offset[0] = 0.0f;
+        offset[1] = 0.0f;
+        offset[2] = -config->value10;
+        flags = config->flags5C;
+        if (flags & 1) {
+            randomRange = config->value60;
+            offset[2] += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+        }
+        if (flags & 6) {
+            rotation[0] = trigger->value0E;
+            if (flags & 2) {
+                rotation[0] += mathRnd(-config->value64, config->value64);
+            }
+            rotation[1] = trigger->value10;
+            if (flags & 4) {
+                rotation[1] += mathRnd(-config->value66, config->value66);
+            }
+            mathOneFloatPY(rotation, offset);
+        } else {
+            pointListRPY(1, &trigger->value0E, offset, offset);
+        }
+        particle->localX += offset[0];
+        particle->localY += offset[1];
+        particle->localZ += offset[2];
+    }
+    if (particle->type != 4 && trigger->index == -1) {
+        pointListRPY(1, (s16 *)object, &particle->localX, &particle->localX);
+    }
+    particle->x = particle->localX;
+    particle->y = particle->localY;
+    particle->z = particle->localZ;
+    if (particle->type == 4) {
+        pointListRPY(1, (s16 *)object, &particle->x, &particle->x);
+    }
+    if (D_8007C8F8 != 1.0f) {
+        particle->x *= D_8007C8F8;
+        particle->y *= D_8007C8F8;
+        particle->z *= D_8007C8F8;
+    }
+    particle->x += object->x;
+    particle->y += object->y;
+    particle->z += object->z;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F5F8.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * Size-exact plateau: IDO schedules the trigger-stride shift ahead of the
@@ -1225,9 +1715,186 @@ void func_80040740(CircularParticle *particle) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040740.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040878.s")
+/*
+ * PROVENANCE: body adapted from DKR src/particles.c:particle_update and
+ * cross-checked against JFG asm/nonmatchings/particles/func_80061228_61E28.s.
+ * Mickey's resource-update and colour-table paths are reconstructed from its
+ * own evidence.
+ */
+s32 func_80040878(CircularParticle *particle, s32 updateRate) {
+    s32 flags;
+
+    flags = particle->flags;
+    if (flags & 0x80000) {
+        particle->flags = flags & ~0x80000;
+        return 0;
+    }
+
+    D_800D4140 = updateRate;
+    flags = particle->flags;
+    if (flags & 0x20000) {
+        particle->flags = flags ^ 0x20000;
+        if (particle->kind == 3) {
+            D_800D4140 = 0;
+            func_800420E0((BasicParticle *)particle);
+            D_800D4140 = updateRate;
+        }
+        goto done;
+    }
+
+    if (particle->type == 5) {
+        goto done;
+    }
+
+    particle->lifetime -= D_800D4140;
+    if (particle->lifetime <= 0) {
+        func_80040740(particle);
+        return 1;
+    }
+
+    if (particle->type == 2 && (particle->flags & 1)) {
+        func_80036544(particle->resource, &particle->flags, particle->updateTexture,
+                      &particle->textureFrame, D_800D4140);
+    } else if (particle->type == 1 || particle->type == 0) {
+        if (particle->resource != NULL) {
+            func_800367A4(particle->resource, &particle->flags, particle->updateTexture,
+                          &particle->textureFrame, D_800D4140);
+        }
+    }
+
+    if (particle->kind == 2) {
+        func_800421F4((BasicParticle *)particle);
+    } else if (particle->kind == 3) {
+        func_800420E0((BasicParticle *)particle);
+    } else if (particle->kind == 4) {
+        func_80041FEC((BasicParticle *)particle);
+    } else if (particle->kind == 5) {
+        func_800423EC((BasicParticle *)particle);
+    } else {
+        func_8004233C((BasicParticle *)particle);
+    }
+
+    if (particle->flags & 0x400) {
+        if (particle->colorTimer == 0) {
+            particle->colorIndex += D_800D4140;
+            while (particle->colorIndex >= particle->colorCount) {
+                particle->colorIndex -= particle->colorCount;
+            }
+            particle->red = particle->colorTable[particle->colorIndex * 4];
+            particle->green = particle->colorTable[(particle->colorIndex * 4) + 1];
+            particle->blue = particle->colorTable[(particle->colorIndex * 4) + 2];
+        } else {
+            particle->colorTimer -= D_800D4140;
+            if (particle->colorTimer < 0) {
+                particle->colorIndex -= particle->colorTimer;
+            }
+        }
+    }
+
+    if (particle->intensityTimer == 0) {
+        particle->intensity += D_800D4140 * particle->intensityVelocity;
+    } else {
+        particle->intensityTimer -= D_800D4140;
+        if (particle->intensityTimer < 0) {
+            particle->intensity -= particle->intensityTimer * particle->intensityVelocity;
+            particle->intensityTimer = 0;
+        }
+    }
+
+    if (particle->trigger != NULL) {
+        particle->trigger->unk0C += updateRate;
+        func_8003EF80((ParticleObject *)particle, (ParticleTriggerSlot *)particle->trigger);
+    }
+done:
+    return 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040B88.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041040.s")
+/*
+ * PROVENANCE: structure cross-checked against JFG
+ * asm/nonmatchings/particles/func_80061C30_62830.s and DKR
+ * src/particles.c:update_line_particle; body reconstructed from Mickey
+ * evidence.
+ */
+void func_80041040(ParticleLineEntry *entry, s32 updateRate) {
+    ParticleLinePoint *point;
+    s32 i;
+    s32 j;
+    ParticleLinePoint *removedPoints[9];
+
+    i = 0;
+    if (entry->pointCount > 0 && entry->points[0]->lifetime < updateRate) {
+        do {
+            i++;
+        } while (i < entry->pointCount && entry->points[i]->lifetime < updateRate);
+    }
+
+    if (i > 0) {
+        entry->pointCount -= i;
+        for (j = 0; j < i; j++) {
+            removedPoints[j] = entry->points[j];
+        }
+        j = 0;
+        while (i < 9) {
+            j++;
+            i++;
+            entry->points[j - 1] = entry->points[i - 1];
+        }
+        i = 0;
+        while (j < 9) {
+            j++;
+            entry->points[j - 1] = removedPoints[i];
+            i++;
+        }
+    }
+
+    if (entry->active == 1 && entry->pointCount == 0) {
+        entry->active = 0;
+        if (entry->texture != NULL) {
+            func_800347A0(entry->texture);
+        }
+    } else {
+        for (i = 0; i < entry->pointCount; i++) {
+            point = entry->points[i];
+            point->lifetime -= updateRate;
+            if (entry->colorTable != NULL) {
+                if (point->colorTimer == 0) {
+                    point->colorIndex += updateRate;
+                    if (point->colorIndex >= entry->colorCount) {
+                        point->colorIndex -= entry->colorCount;
+                    }
+                    point->red = (entry->colorTable[point->colorIndex] & 0xFF000000) >> 24;
+                    point->green = (entry->colorTable[point->colorIndex] & 0xFF0000) >> 16;
+                    point->blue = (entry->colorTable[point->colorIndex] & 0xFF00) >> 8;
+                } else {
+                    point->colorTimer -= updateRate;
+                    if (point->colorTimer < 0) {
+                        point->colorIndex -= point->colorTimer;
+                    }
+                }
+            }
+            if (point->intensityTimer == 0) {
+                point->intensity += updateRate * point->intensityVelocity;
+            } else {
+                point->intensityTimer -= updateRate;
+                if (point->intensityTimer < 0) {
+                    point->intensity -= point->intensityTimer * point->intensityVelocity;
+                    point->intensityTimer = 0;
+                }
+            }
+        }
+
+        if (entry->active != 0) {
+            if (entry->texture != NULL) {
+                if (entry->configFlags & 0x800) {
+                    entry->textureFrame = mathRnd(0, (entry->texture->frameCount >> 8) - 1);
+                } else {
+                    func_800367A4(entry->texture, &entry->descriptorWord, entry->value144,
+                                  &entry->textureFrame, updateRate);
+                }
+            }
+        }
+    }
+}
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_80062A4C.s; body reconstructed from Mickey evidence. */
 void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
     void **particle;
@@ -1601,7 +2268,7 @@ void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     vertices = (u8 *)D_8007C89C[D_8007C8E8] + (D_8007C8EC * 10);
     gDPPipeSync((*dList)++);
     if (mode == 1) {
-        D_8007C8EC = func_8003CE10((void **)dList, arg1, &vertices, D_800D4128, 1);
+        D_8007C8EC = func_8003CE10(dList, arg1, &vertices, D_800D4128, 1);
         return;
     }
     camSetNo(0);
@@ -1610,7 +2277,7 @@ void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     func_8003D4FC((void **)dList, &vertices, D_800D4124);
     func_80041CE4((void **)dList, &vertices);
     func_80041C50((s32)dList, (s32)&vertices);
-    func_8003CE10((void **)dList, arg1, &vertices, D_800D4128, mode);
+    func_8003CE10(dList, arg1, &vertices, D_800D4128, mode);
     func_8003D25C(dList, arg1, &vertices, D_800D412C);
     D_8007C8E8 ^= 1;
 }

@@ -1768,35 +1768,25 @@ fallback remains canonical.
 
 ### 3.16 Particle and debug-print translation units
 
-ROM `0x3D5F0`–`0x45760` is now split into two aligned resident C
-subsegments. The complete per-function census, including exact sizes and the
-evidence tier on every adopted name, is in `symbol_addrs.us.txt`; the source
-files keep unresolved functions as `GLOBAL_ASM`, so the split itself claims no
-new matched bytes.
+ROM `0x3D5F0`–`0x45760` contains two aligned resident C subsegments.
+`symbol_addrs.us.txt` records every function's exact size and evidence tier.
+Unresolved functions remain `GLOBAL_ASM`, so the split claims no matched bytes.
 
 | Mickey TU | ROM / VRAM | Functions | Evidence |
 |---|---|---:|---|
 | `main/particles` | `0x3D5F0`–`0x43470` / `0x8003C9F0` | 44 | **A:** DKR's built `particles.c.o` identifies `reset_particles` byte-for-byte. **B:** the internal call graph and external particle callers. **D:** the full function order and masked-skeleton sequence track JFG's 42-function `particles.c.o` from `partFreeLib` through `partNullifyCircularParticleParents`; Mickey inserts two extra 12-byte state setters before `partUpdateTriggers`, after which the sequences reconverge. |
 | `main/diprint` | `0x43470`–`0x45760` / `0x80042870` | 19 | **A:** DKR objects identify `strcpy`, `memset`, and `sprintf` exactly. **B:** `diPrintf` brackets `vsprintf` with `sprintfSetSpacingCodes`, `diPrintfAll` drives the parse/background/character/bounds/origin helpers, and later `diRcp*` routines call `sprintf`. **C:** `_itoa` owns both digit alphabets and `vsprintf` owns `(null)` and `(nil)`. The order matches JFG's `diprint.c.o`, with DKR's `debug_text_width` inserted between `diPrintfSetXY` and `debug_text_parse`. |
 
-**PROVENANCE.** The `part*`, `diPrintf*`, and `debug_text_*` names and both TU
-attributions are adapted from Jet Force Gemini's public `src/particles.c` and
-`src/diprint.c` plus their built objects. Diddy Kong Racing's public
-`src/printf.c` supplies `debug_text_width`, while its built
-`unused_string.c.o`, `printf.c.o`, and `particles.c.o` supply the tier-A rows
-stated above. JFG address-placeholder names are not imported: Mickey's own
-`func_<VRAM>` names remain. Mickey's bytes and call graph decide every
-disagreement.
+**PROVENANCE.** Names/TU attribution use JFG's public `src/particles.c`,
+`src/diprint.c`, and objects; DKR's `src/printf.c` supplies
+`debug_text_width`, and its `unused_string.c.o`, `printf.c.o`, and
+`particles.c.o` supply the stated tier-A rows. Donor placeholders stay
+excluded; Mickey's bytes/call graph decide disagreements.
 
-The Evidence column above states categories per TU, not a per-function
-verdict. Per-symbol: `reset_particles`, `strcpy`, `memset`, and `sprintf` are
-tier A (named donor-object byte matches); the internal/external
-particle-caller and `diPrintf`/`diPrintfAll`/`diRcp*` call-graph functions
-named above are tier B; `_itoa` and `vsprintf` are tier C (string
-correspondence); every other function in `main/particles` and `main/diprint`,
-identified only by JFG/DKR order and masked-skeleton shape and not named
-individually above, is tier D. `symbol_addrs.us.txt` carries the resulting
-per-symbol tier token for each of the 63 functions in these two TUs.
+The table tiers are TU-level. Per symbol, donor-object matches are tier A;
+named call-graph functions are tier B; `_itoa`/`vsprintf` string evidence is
+tier C; remaining JFG/DKR order/skeleton attributions are tier D. Each of the
+63 `symbol_addrs.us.txt` rows carries its tier token.
 
 Exact C matches banked in these TUs: `partAdjustScaling` (ROM `0x3F9C8`,
 `0xC` bytes, default resident flags, JFG body donor) and `func_8003EDD4`
@@ -1855,8 +1845,10 @@ Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 `move_particle_with_acceleration` body donor);
 `partDraw` (ROM `0x43264`, `0x160` bytes, default resident flags, Mickey
 reconstruction with the JFG assembly sibling as a structural oracle);
-`partUpdateParticles` (ROM `0x430F4`, `0x170` bytes, default resident flags,
-Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`partUpdateParticles` (ROM `0x430F4`, `0x170` B, default flags, Mickey/JFG
+assembly reconstruction); `func_80040878` (ROM `0x41478`, `0x310` B,
+`-O2 -mips2 -32`, DKR body/JFG assembly oracle); `func_80041040` (ROM
+`0x41C40`, `0x348` B, default flags, Mickey body/JFG assembly oracle);
 `partInitTriggerSPPos`
 (ROM `0x3F224`, `0x4C` bytes, default resident flags, JFG-named Mickey
 reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default
@@ -1864,34 +1856,41 @@ resident flags, JFG-named Mickey reconstruction); `debug_text_background`
 (ROM `0x452F8`, `0xA0` bytes, resident flags plus `-Wab,-r4300_mul`, JFG body
 donor).
 
-`func_8003EC8C` reached a bounded size-exact 47-word plateau under the
-default resident flags. Its best compliant candidate differs in 24
-relocation-masked words, first at function offset `0x30`, where the target
-hoists the `D_8007C894` HI16 load ahead of the object-count decrement. A
-branch-local pool pointer fixes that relocation schedule but changes the
-register assignment throughout both resource-release branches. The flag
-lattice found no exact alternative; a ten-minute bounded permuter run
-improved its internal score from 1410 to 820, but the winning form invented
-an empty guard and was rejected. The original asm body remains canonical.
+`func_8003CE10` plateaued after the flag lattice, ten hypotheses, and a
+canonical-`mips2` permuter: its 275-instruction C has exact opcodes/relocations,
+but 154 words differ from `+0x0` because IDO emits a `0x98` frame versus
+`0x90`. JFG `func_8005DD88` is the assembly oracle; asm stays canonical.
 
-`func_8004054C` reached a bounded one-word-short plateau under the default
-resident flags. The best compliant candidate has 124 words against the
-125-word target and 43 aligned residuals, first differing at function offset
-`0x4C`. IDO folds the initial free-bit scan address into a pointer move instead
-of the target shift/add pair and then allocates the scan and particle-index
-scratch registers differently. The full 119-entry flag lattice found no
-improvement. A bounded ten-minute permuter batch improved its internal score
-from 1065 to 705 without reaching an exact result. The original asm body
-remains canonical.
+`func_8003F5F8` plateaued one instruction short after the flag lattice, ten
+hypotheses, and a canonical-`mips2` permuter. Its `0x48` frame and all register
+lanes match; 262/276 aligned rows match. The first mismatch is the target's
+redundant branch at `+0xA4`; 11 later words swap the flags spill (`sp+0x44`)
+with the rotation pair (`sp+0x30`). JFG `func_800608EC` is the assembly oracle;
+asm stays canonical.
 
-`func_8003E8D8` has an exact-size 140-word C candidate with the target opcode
-schedule under the default resident flags. The configured whole-TU build uses
-a `0x30` frame instead of the target `0x38` frame, leaving 22 aligned
-residuals (19 stack/frame constants, two register operands, and one branch
-target), first differing at function offset `0x8`. The full 119-entry flag
-lattice found no improvement. A bounded permuter found a standalone zero that
-did not reproduce when compiled in the canonical TU, so it was rejected. The
-original asm body remains canonical.
+`func_8003F154` plateaued frame-exact at 294 instructions versus 297 after the
+flag lattice, ten structural hypotheses, and a canonical-`mips2` permuter.
+252 aligned rows match; the first raw mismatch is the end-branch displacement
+at `+0x204`, followed at `+0x20C` by the zero-vector `f0`/`f6` choice. The
+remaining cluster is header-copy/branch and FP normalization scheduling. JFG
+`func_80060400` is the assembly oracle; asm stays canonical.
+
+`func_8003EC8C` plateaued size-exact at 47 words, with 24 residuals from
+`+0x30`: the target hoists `D_8007C894`'s HI16 load before the count decrement.
+A branch-local pointer fixes that schedule but disrupts both branches' register
+allocation. The flag lattice and bounded permuter found no compliant exact
+form; asm stays canonical.
+
+`func_8004054C` plateaued one word short (124/125), with 43 aligned residuals
+from `+0x4C`: IDO folds the free-bit scan into a pointer move, then colors the
+scan/index scratch registers differently. The flag lattice and bounded
+permuter (score 1065 to 705) found no exact form; asm stays canonical.
+
+`func_8003E8D8` plateaued size-exact at 140 words with the target opcode
+schedule, but the whole TU emits a `0x30` frame versus `0x38`: 22 residuals
+(19 stack/frame, two registers, one branch) begin at `+0x8`. The flag lattice
+did not improve it; a standalone permuter zero failed in the canonical TU and
+was rejected. Asm stays canonical.
 
 `func_80040740` has a 78-word C candidate with the target text instruction
 schedule under the default resident flags, reconstructed from Mickey evidence
