@@ -345,7 +345,22 @@ void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right,
     func_80039380(displayList, 1, &rectangle, 1);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800395D4.s")
+#ifdef NON_MATCHING
+/* Instruction words and linked bytes are exact, but 18 relocation sites
+ * differ from +0x24: IDO binds unrolled elements to three array bases while
+ * the target binds each element's BSS symbol separately. */
+void func_8003968C(void) {
+    s32 controller;
+
+    for (controller = 0; controller < 4; controller++) {
+        D_800D31A0[controller] = -1;
+        D_800D3198[controller] = 0x14;
+        D_800D319C[controller] = 0xF;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003968C.s")
+#endif
 void func_80039720(s32 updateRate) {
     s32 controller;
     s8 repeatXNegative;

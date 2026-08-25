@@ -2197,7 +2197,7 @@ func_80038E1C = 0x80038E1C; // type:func size:0x45C tier-D ROM 0x39a1c NON_MATCH
 // Tier A (JFG): 19 unmasked words match JFG's uniquely identified
 // frontDrawRectangle skeleton; the sole masked word is its draw call.
 frontDrawRectangle = 0x80039584; // type:func size:0x50 tier-A ROM 0x3a184 canonical C, linked byte-identical
-func_8003968C = 0x8003968C; // type:func size:0x94   ROM 0x3a28c  src/menu.c.o  masked=24/37
+func_8003968C = 0x8003968C; // type:func size:0x94 tier-D ROM 0x3a28c NON_MATCHING plateau, 37/37 words exact but 18 relocation identities differ, first +0x24
 func_80039720 = 0x80039720; // type:func size:0x320 tier-D ROM 0x3a320 canonical C, linked byte-identical
 // Tier B (JFG): the exact sentinel-list loop, its call to the immediately
 // following per-item free routine, and JFG's same ordered pair identify it.

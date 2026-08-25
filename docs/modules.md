@@ -994,6 +994,16 @@ parameters narrowed into that record recover the exact target schedule. The
 default flags, call relocation, object words, and linked ROM range are exact
 without post-processing.
 
+`func_8003968C` remains a **tier-D NON_MATCHING plateau** over **0x94 bytes /
+37 words** at ROM `0x3A28C`. A Mickey-derived four-iteration initialization
+loop unrolls to all 37 target instruction words and the same linked bytes, but
+18 relocation sites differ, first at `+0x24`: IDO binds the later elements to
+the three array-base symbols, while the target names each individual BSS
+element. Scalar, volatile, cast, block, and loop variants, the full flag
+lattice, and a bounded ten-minute `-mips2` permuter run did not satisfy both
+the code and relocation-identity gates. The all-word result remains diagnostic
+only and the original assembly is canonical.
+
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and
 repeat state, then aggregates the enabled controllers. Direct array indexing
