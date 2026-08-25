@@ -56,6 +56,12 @@ typedef struct AudioSoundData {
     u8 unk9;
 } AudioSoundData;
 
+typedef struct AudioEchoSurface {
+    f32 height;
+    u8 pad04[4];
+    u32 flags;
+} AudioEchoSurface;
+
 extern AudioSoundData *D_800C91E0;
 extern AudioPoint **D_800C91E4;
 extern s8 D_800C91F4;
@@ -77,6 +83,8 @@ void TrapDanglingJump(AudioCamera *cameras, s32 cameraCount);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z, f32 *outX, f32 *outY, f32 *outZ);
 s32 Arctanf(f32 x, f32 z);
 s32 mainGetNumberOfCameras(void);
+s32 func_8001398C(f32 x, f32 z, s32 range,
+                  AudioEchoSurface ***surfaces);
 s32 amCalcSfxStereo(f32 x, f32 y, f32 z);
 void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5, u8 volume, u16 distance, u8 arg8,
                    u8 pitch, u8 argA, u8 argB, AudioPoint **point);
@@ -373,7 +381,48 @@ void amSndUnlinkHandleXYZ(AudioPoint *point) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_8000329C.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * amSndSetEcho; body and surface layout use Mickey-only evidence.
+ *
+ * Plateau: the best stock-flag candidate has the exact 52-word length,
+ * frame, and relocation surface. Ten words differ from function offset
+ * 0x20 because IDO homes closestDistance at sp+0x34 instead of sp+0x2C
+ * and schedules the pre-loop loads and pointer formation differently.
+ * The flag lattice, ten source/layout attempts, and a ten-minute permuter
+ * batch did not close the stack-allocation difference.
+ */
+u8 func_800033B0(void *sound, f32 x, f32 y, f32 z) {
+    AudioEchoSurface **surfaces;
+    AudioEchoSurface *closest = NULL;
+    s32 closestDistance = 0;
+    AudioEchoSurface *surface;
+    s32 count;
+    s32 i;
+    s32 distance;
+
+    count = func_8001398C(x, z, 0x1800, &surfaces);
+    if (count != 0) {
+        i = count - 1;
+        do {
+            surface = surfaces[i];
+            distance = (s32)((y + 10.0f) - surface->height);
+            if ((distance < closestDistance || closest == NULL) &&
+                distance > 0) {
+                closestDistance = distance;
+                closest = surface;
+            }
+        } while (i--);
+    }
+    if (closest != NULL && (closest->flags & 0x20000000)) {
+        return 0x3C;
+    }
+    return 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800033B0.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003480.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800035F8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003760.s")
