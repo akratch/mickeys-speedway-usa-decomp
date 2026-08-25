@@ -172,7 +172,7 @@ typedef struct ParticleModelEntry {
     s16 animationSpeed;
     u8 padB6[2];
     void *resource;
-    ParticleTriggerSlot *trigger;
+    volatile ParticleTriggerSlot *trigger;
 } ParticleModelEntry;
 
 typedef struct ParticleVertex {
@@ -1604,40 +1604,37 @@ void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, Parti
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F5F8.s")
 #endif
-#ifdef NON_MATCHING
 /*
- * Size-exact plateau: IDO schedules the trigger-stride shift ahead of the
- * descriptor-table load and then reorders the initialization stores.
  * PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/partModelObjEmitModelPart.s; body reconstructed
  * from Mickey evidence.
  */
 void partModelObjEmitModelPart(ParticleModelObject *object, f32 velocityX, f32 velocityY, f32 velocityZ, s32 index) {
     s32 offset;
-    u8 *trigger;
+    ParticleTriggerSlot *trigger;
     ParticleConfig *config;
     BasicParticle *particle;
 
     if (index < object->triggerCount) {
         offset = index * sizeof(ParticleModelPartConfig);
-        trigger = (u8 *)object->triggers + (index * sizeof(ParticleTriggerSlot));
+        trigger = &object->triggers[index];
         config = D_8007C8B8[((ParticleModelPartConfig *)((u8 *)object->header->parts + offset))->type];
-        *(ParticleConfig **)(trigger + 0x00) = config;
-        *(s32 *)(trigger + 0x04) = 0;
-        *(s16 *)(trigger + 0x0C) = 0;
-        *(s16 *)(trigger + 0x1A) = 0;
-        *(s16 *)(trigger + 0x1C) = 0;
-        *(s16 *)(trigger + 0x1E) = 0;
-        *(s16 *)(trigger + 0x20) = 0;
-        *(s16 *)(trigger + 0x0A) =
+        trigger->config = config;
+        trigger->type =
             ((ParticleModelPartConfig *)((u8 *)object->header->parts + offset))->triggerType;
-        *(s16 *)(trigger + 0x0E) = config->value14;
-        *(s16 *)(trigger + 0x10) = config->value16;
-        *(s16 *)(trigger + 0x12) = config->value18;
-        *(s16 *)(trigger + 0x14) = config->value22;
-        *(s16 *)(trigger + 0x16) = config->value24;
-        *(s8 *)(trigger + 0x23) = -1;
-        *(s16 *)(trigger + 0x18) = config->value26;
+        trigger->flags = 0;
+        trigger->unk0C = 0;
+        trigger->value1A = 0;
+        trigger->value1C = 0;
+        trigger->value1E = 0;
+        trigger->value20 = 0;
+        trigger->value0E = config->value14;
+        trigger->value10 = config->value16;
+        trigger->value12 = config->value18;
+        trigger->value14 = config->value22;
+        trigger->value16 = config->value24;
+        trigger->value18 = config->value26;
+        trigger->index = -1;
         particle = (BasicParticle *)func_8003FB98(
             (ParticleEmitterObject *)object, (ParticleTrigger *)trigger,
             ((ParticleModelPartConfig *)((u8 *)object->header->parts + offset))->particleType);
@@ -1648,9 +1645,6 @@ void partModelObjEmitModelPart(ParticleModelObject *object, f32 velocityX, f32 v
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partModelObjEmitModelPart.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * Near-exact FP-schedule plateau: the best canonical-mips2 candidate has the
