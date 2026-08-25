@@ -2058,6 +2058,8 @@ lightKillGlowingLight = 0x8001A23C; // type:func size:0x24   ROM 0x1ae3c  src/li
 // exact-C (ADR 0001), tier-D name not adopted: func_8001C054, ROM 0x1cc54, size 0x34
 // exact-C (ADR 0001), tier-D name not adopted: func_8001C088, ROM 0x1cc88, size 0x8c
 // NON_MATCHING plateau: func_8001C114, ROM 0x1cd14, size 0x1b0; FP allocation blocks exact C
+func_8001C2C4 = 0x8001C2C4; // type:func size:0x8 tier-D, ROM 0x1cec4  src/main/charControl.c.o exact C (ADR 0001)
+func_8001C2CC = 0x8001C2CC; // type:func size:0x8 tier-D, ROM 0x1cecc  src/main/charControl.c.o exact C (ADR 0001)
 func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charControl.c.o  masked=0/19  exact C (ADR 0001)
 // tier B + exact C -- JFG name/role; independently reconstructed from Mickey.
 controlPlayerReInit = 0x8001C320; // type:func size:0x1A0   ROM 0x1cf20
