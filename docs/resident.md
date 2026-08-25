@@ -1896,7 +1896,8 @@ assembly reconstruction); `func_80040878` (ROM `0x41478`, `0x310` B,
 reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default
 resident flags, JFG-named Mickey reconstruction); `debug_text_background`
 (ROM `0x452F8`, `0xA0` bytes, resident flags plus `-Wab,-r4300_mul`, JFG body
-donor).
+donor); `func_8003EC8C` (ROM `0x3F88C`, `0xBC` bytes, default resident flags,
+Mickey pointer-first reconstruction with the JFG assembly sibling as oracle).
 
 `func_8003CE10` plateaued after the flag lattice, ten hypotheses, and a
 canonical-`mips2` permuter: its 275-instruction C has exact opcodes/relocations,
@@ -1916,10 +1917,6 @@ flag lattice, ten structural hypotheses, and a canonical-`mips2` permuter.
 at `+0x204`, followed at `+0x20C` by the zero-vector `f0`/`f6` choice. The
 remaining cluster is header-copy/branch and FP normalization scheduling. JFG
 `func_80060400` is the assembly oracle; asm stays canonical.
-
-`func_8003EC8C` is size-exact with 24/47 residuals from `+0x30`; the target
-hoists the line-table address materialization across the first branch. Typed
-base locals disrupt both temporary-register rings; asm stays canonical.
 
 `partNullifyCircularParticleParents` is opcode/size-exact with 25/42 positional
 residuals from `+0x0`; implicit loop bounds seed both carrier pairs oppositely.
