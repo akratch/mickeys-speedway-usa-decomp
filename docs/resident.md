@@ -2079,18 +2079,9 @@ two switch-table references use compiler `.rodata` instead of
 `jtbl_80082CD8`. The generated switch table would also duplicate the resident
 asm-data owner, so the original asm body remains canonical.
 
-`debug_text_character` reached a bounded 186-instruction plateau under
-`-Wab,-r4300_mul` with the exact opcode schedule, register assignment, and
-relocation surface. The JFG-derived Mickey candidate differs in six stack
-operands, first at function offset `0x10`: IDO gives the candidate a `0x10`
-frame with the selected texture width at `sp+0`, while the target has a `0x18`
-frame and places that width at `sp+8`; the selected texture address is already
-at the target's `sp+4`. The full 119-entry flag lattice found no alternative,
-and scalar, aggregate, reserved-field, and physical-address source layouts did
-not reproduce the empty target slot without worsening the code. The bounded
-permuter importer selected inadmissible `-mips1` and then failed on this TU's
-expanded `va_arg` syntax. The candidate remains under `NON_MATCHING` and the
-original asm body remains canonical.
+| Function | Exact result |
+|---|---|
+| `debug_text_character` | **tier-A**, ROM `0x45398`, `0x2E8` bytes, `-Wab,-r4300_mul`; an aligned width union recovers the target `0x18` frame and all 186 instructions/relocations. JFG body donor. |
 
 `func_80040B88` reached a bounded 300-instruction plateau against the target's
 302 instructions under the canonical resident flags. Its `0x70` frame differs
