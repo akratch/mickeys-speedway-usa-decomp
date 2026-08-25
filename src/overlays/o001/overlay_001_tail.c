@@ -13,12 +13,16 @@ extern O1GaugeTableEntry *overlay1GetGaugeTable(void);
 extern O1GaugeObject **overlay1GetGaugeObjects(s32 *count);
 extern s32 overlay1RandomRange(s32 minimum, s32 maximum);
 
+/* Plateau: exact 74 words/frame; best is 18 words different, first +0x1C.
+ * Byte-form cursor plus named object/loopValue temporaries improve allocation;
+ * count's stack home and the retained objects alias remain divergent. */
 #ifdef NON_MATCHING
 void overlay1InitializeGaugeObjects(void) {
     O1GaugeTableEntry *table;
     O1GaugeObject **objects;
     O1GaugeObject **firstCursor;
     O1GaugeObject **secondCursor;
+    O1GaugeObject *object;
     O1GaugeState *state;
     volatile s32 count;
     s32 initialIndex;
@@ -32,10 +36,12 @@ void overlay1InitializeGaugeObjects(void) {
     initialIndex = count - 1;
     index = initialIndex;
     if (count != 0) {
-        firstCursor = objects + index;
+        firstCursor = (O1GaugeObject **)((u8 *)objects + (index * 4));
         do {
-            state = (*firstCursor--)->state;
-            if ((state->enabled != 0) && (maximum < state->value)) maximum = state->value;
+            object = *firstCursor--;
+            state = object->state;
+            loopValue = state->enabled;
+            if ((loopValue != 0) && (maximum < state->value)) maximum = state->value;
             loopValue = index;
             index--;
         } while (loopValue != 0);
@@ -2983,11 +2989,14 @@ extern s32 overlay1AngleDifferenceReloc(s16 first, s16 second);
 extern f32 overlay1TrigXReloc(s32 angle);
 extern f32 overlay1TrigYReloc(s32 angle);
 
+/* Plateau: exact 107 words/frame; best is 25 words different, first +0xC.
+ * Angle-local order and a split previous-index decrement improve allocation;
+ * parameter stack homes and integer/pointer registers remain divergent. */
 #ifdef NON_MATCHING
 void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
     Overlay1PathPoint *next, *previous, *current;
     Overlay1Path *path;
-    s16 midpointAngle, secondAngle, firstAngle;
+    s16 firstAngle, secondAngle, midpointAngle;
     volatile u8 localIndex;
     s32 nextIndex, previousIndex, currentIndex;
 
@@ -2999,7 +3008,8 @@ void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
         currentIndex = index;
         previousIndex = index - 1;
     } else {
-        previousIndex = path->count - 1;
+        previousIndex = path->count;
+        previousIndex--;
         currentIndex = 0;
     }
     previous = &path->points[previousIndex];
