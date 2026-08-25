@@ -55,7 +55,7 @@ extern s32 D_8007A198;
 extern s32 D_8007A67C;
 extern s32 D_80078F7C;
 extern s32 D_8007C1A0;
-extern s8 D_8007A1A0;
+extern u8 D_8007A1A0;
 extern u32 D_8007A1CC;
 extern s32 D_8007A1D4;
 extern s32 D_8007A1EC;
@@ -73,11 +73,15 @@ extern s32 D_8007A200;
 extern void *D_8007A204;
 extern s32 D_8007A24C;
 extern s32 D_8007A320;
+extern s32 D_8007A6A8;
 extern u8 *D_8007A244;
 extern s16 D_8007A250[];
 extern s32 D_8007A258;
 extern u8 D_8007BEF4;
 extern u8 D_8007BEF8;
+extern u8 D_8007BEFC;
+extern u8 D_8007BF04;
+extern u8 D_8007BF0C;
 extern s8 D_8007BEF0;
 extern s8 D_800CF53F[];
 extern s32 D_80078DF0;
@@ -194,6 +198,7 @@ extern void func_8003A544(s32);
 extern void joyResetMap(void);
 extern void func_8004978C(s32, s32, s32);
 extern s32 func_80049864(s32);
+extern s32 func_8004989C(s32, s32 *);
 extern void func_800498FC(s32, u32, u32, s32, s32, s32, s32);
 extern s32 TrapDanglingJump();
 extern s32 joyRead(s32, s32);
@@ -240,7 +245,13 @@ extern s32 func_80001614(void);
 extern s32 func_800290A0(void);
 extern s32 func_80037664(void);
 extern s32 levelGetTune(s32);
+extern s32 levelGetScreenMode(s32);
+extern u32 levelGetGfxIndex(s32);
+extern void levelInit(s32, s32, s32, s32);
+extern void levelFreeAll(void);
 extern void rumbleRumbles(s32);
+extern void rumbleUpdate(void);
+extern void reset_particles(void);
 extern void func_8004B0A4(s32);
 extern void func_8004B0DC(s32, s32, s32, s32);
 extern void func_8004B0F8(Gfx **, s32, s32, char *, s32);
@@ -304,6 +315,20 @@ extern void func_80028564(s32);
 extern void func_800293D0(void);
 extern void mainUpdateZBCheck(void);
 extern void mainCPUeffects(u16 *, s32);
+extern void func_8002B700(void);
+extern void mmSetDelay(s32);
+extern void func_800389CC(void);
+extern void func_80037150(void);
+extern void func_8004E99C(void);
+extern void amTuneStop(void);
+extern void func_800336A8(s32);
+extern void camInit(void);
+extern void func_8005A764(void);
+extern void func_8004E8E0(void);
+extern void func_80049A8C(s32);
+extern void func_80037414(s32, f32, f32, s32, s32, s32, s32);
+extern void func_80038DAC(s32);
+extern void func_80000ABC(void);
 
 #ifdef NON_MATCHING
 #pragma weak mainCPUeffectsRainDraw = TrapDanglingJump
@@ -1133,7 +1158,231 @@ s32 mainGetNextLevel(void) {
     return D_8007A14C;
 }
 
+/*
+ * PROVENANCE: function identity and TU position cross-checked against JFG
+ * src/main.c::func_800468EC_474EC; its body remains assembly. This body is
+ * reconstructed from Mickey's own call graph, data accesses and ABI.
+ *
+ * Plateau: ten control-flow, storage, aggregate-layout and framebuffer-loop
+ * hypotheses reproduce the target's -0x58 frame, but the best natural body
+ * has 492 rather than 489 instructions. Its first mismatch is +0x4: IDO saves
+ * an otherwise unused $s0 and places $ra at sp+0x2C, while the target saves
+ * only $ra at sp+0x24. The target's six character writes share a 2 * 0x28
+ * base; explicit array fields are three words long overall, while loop and
+ * grouped-index forms miss by 20 and 40 words. The full 119-combination flag
+ * lattice did not close the structure. A bounded two-worker resident-MIPS-II
+ * permuter run improved 13,270 to 11,970 only by reusing a pointer alias on
+ * paths where it is uninitialized, so that candidate was rejected.
+ */
+#ifdef NON_MATCHING
+void func_80028564(s32 updateRate) {
+    s32 screenMode;
+    u32 pixelCount;
+    s32 *framebuffer;
+    s32 width;
+    s32 height;
+    s32 fill;
+    u8 tune;
+
+    mainPreNMI();
+    D_8007A19C = 0;
+    if ((D_8007A194 != 0) && ((D_8007A194 -= updateRate) <= 0)) {
+        if ((viDisplayingScreen0() == 0) || (func_80037664() == 1)) {
+            D_8007A194 = 1;
+            return;
+        }
+        if (D_800D18E0->pad0[0] == 1) {
+            TrapDanglingJump();
+
+            TrapDanglingJump();
+
+            TrapDanglingJump();
+        }
+        D_8007A320 = 1;
+        func_8002B700();
+
+        mmSetDelay(0);
+
+        mainPreNMI();
+
+        func_800389CC();
+
+        mainPreNMI();
+        if (runlinkIsModuleLoaded(0x22)) {
+            TrapDanglingJump();
+        }
+        if (runlinkIsModuleLoaded(0xC)) {
+            TrapDanglingJump();
+        }
+        if (runlinkIsModuleLoaded(0xE)) {
+            TrapDanglingJump();
+        }
+        if (runlinkIsModuleLoaded(0xB)) {
+            TrapDanglingJump();
+        }
+        mainPreNMI();
+
+        func_80037150();
+        if (D_8007A198) {
+            mainPreNMI();
+            if (D_8007A190) {
+                if ((D_800D18E0->pad0[0] == 5) ||
+                    (D_800D18E0->pad0[0] == 6)) {
+                    TrapDanglingJump();
+                } else {
+                    TrapDanglingJump();
+                }
+            }
+            levelFreeAll();
+
+            mainPreNMI();
+
+            reset_particles();
+
+            mainPreNMI();
+
+            func_8004E99C();
+            D_800CF518 = D_800CF510[D_8007A1B8];
+            gDPFullSync(D_800CF518++);
+            gSPEndDisplayList(D_800CF518++);
+            D_8007A198 = 0;
+        }
+        if (D_8007A1EC) {
+            D_8007A1CC |= 0x08000000;
+            D_8007A1EC = 0;
+        }
+        tune = amTuneGetSeqNo();
+        if (levelGetTune(D_8007A14C) != tune) {
+            amTuneStop();
+        }
+        D_8007A148 = D_8007A14C;
+        D_8007A160 = D_8007A164;
+        D_8007A158 = D_8007A15C;
+        D_8007A150 = D_8007A154;
+        D_8007A168 = D_8007A16C;
+        if (D_8007A18C) {
+            D_8007BEF8 = D_8007A174;
+            D_8007BEFC = D_8007A178;
+            D_8007BF0C = D_8007A17C;
+            D_8007BF04 = D_8007A180;
+            D_800D18E0->pad0[0] = D_8007A184;
+            if (D_8007A188 != 0) {
+                D_800D18E0[0].character = ((u8 *) D_8007A188)[0];
+                D_800D18E0[1].character = ((u8 *) D_8007A188)[1];
+                D_800D18E0[2].character = ((u8 *) D_8007A188)[2];
+                D_800D18E0[3].character = ((u8 *) D_8007A188)[3];
+                D_800D18E0[4].character = ((u8 *) D_8007A188)[4];
+                D_800D18E0[5].character = ((u8 *) D_8007A188)[5];
+            } else {
+                D_800D18E0[0].character = 0;
+                D_800D18E0[1].character = 1;
+                D_800D18E0[2].character = 2;
+                D_800D18E0[3].character = 3;
+                D_800D18E0[4].character = 4;
+                D_800D18E0[5].character = 5;
+            }
+            D_8007A18C = 0;
+        }
+        if (D_8007A170) {
+            D_8007BEF4 = D_8007A170;
+            D_8007A170 = 0;
+        }
+        mainPreNMI();
+
+        screenMode = frontGetLevelScreenMode(D_8007A148);
+        viSetTrippleBuffer(levelGetScreenMode(D_8007A148));
+        if ((viGetVideoMode() != screenMode) || viChangeBuffers()) {
+            func_800336A8(screenMode);
+        } else {
+            viGetCurrentSize(&width, &height);
+            framebuffer = D_800D2FA0;
+            pixelCount = (u32) (width * height) >> 1;
+            fill = func_8004989C(4, framebuffer);
+            while (pixelCount--) {
+                *framebuffer++ = fill;
+            }
+        }
+        D_8007A6A8 = 0;
+        mainPreNMI();
+
+        func_8002B700();
+
+        mmSetDelay(0);
+
+        mainPreNMI();
+
+        TrapDanglingJump(levelGetGfxIndex(D_8007A148));
+
+        func_80032338(0x12);
+
+        mainPreNMI();
+
+        func_8002B700();
+
+        mmSetDelay(0);
+
+        camInit();
+
+        func_8005A764();
+
+        mainPreNMI();
+
+        func_8004E8E0();
+
+        mainPreNMI();
+
+        TrapDanglingJump(0x10, 0x10, 0x64, 0xA, 0xA, 0xC, 0xA);
+
+        mainPreNMI();
+
+        func_80032338(0x1F);
+
+        mainPreNMI();
+
+        levelInit(D_8007A148, D_8007A158, D_8007A150, D_8007A160);
+
+        mainPreNMI();
+
+        func_80049A8C(-1);
+        if ((s8) levelGetLevel()[0x83] == 0) {
+            if (D_8007A168 == 3) {
+                func_80037414(1, 1.5f, 0.0f, 0, 0, 0, 0);
+            } else {
+                func_80037414(1, 3.0f, 0.0f, 0, 0, 0, 0);
+            }
+        } else {
+            if (D_8007A1A0) {
+                func_800498FC(4, 0x3EAE147B, 0, 0, 0, 0, 0x80);
+            } else {
+                func_800498FC(4, 0x3EAE147B, 0, 0xFF, 0xFF, 0xFF, 0x80);
+            }
+            func_8004978C(4, 4, 1);
+        }
+        osSetTime(0);
+
+        mainPreNMI();
+
+        func_80038DAC(D_8007A168);
+
+        mmSetDelay(2);
+
+        rumbleUpdate();
+        D_8007A1CC = joyRead(D_8007A1CC, 2);
+        D_8007A1A8 = 0;
+        D_8007A194 = 0;
+        D_8007A198 = 1;
+        D_8007A19C = 1;
+        if (D_8007A1B0) {
+            func_80000ABC();
+            D_8007A1B0 = 0;
+        }
+        rumbleRumbles(1);
+        D_8007A320 = 0;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028564.s")
+#endif
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 void mainSyncNextLevel(void) {
