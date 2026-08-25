@@ -21,6 +21,10 @@ void overlay101BuilderCreateReloc(Overlay101Gfx **displayList, s32 count,
 /*
  * Overlay 101 text +0x2DC0..+0x2EFC.  Volatile color locals and an explicit
  * final-record pointer retain the exact private-frame compiler basin.
+ * Plateau (10 source-shape attempts): best candidate retains the exact 79
+ * instructions and 136-byte frame but differs in 38 positional words; the
+ * first mismatch is +0x44.  The remaining blocker is the straight-line
+ * volatile-load/store schedule and its temporary register web.
  */
 #ifdef NON_MATCHING
 void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
@@ -44,30 +48,30 @@ void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
 
     rect = rects;
     rect[0].x0 = x;
+    rect[1].x0 = x;
     rect[0].y0 = y;
     rect[0].x1 = x + 1;
-    rect[0].y1 = y + height - 1;
-    rect[0].color = leadingColor;
-
-    rect[1].x0 = x;
-    rect[1].y0 = y + height - 1;
     rect[1].x1 = x + width;
+    rect[0].y1 = y + height - 1;
+
+    rect[1].y0 = y + height - 1;
     rect[1].y1 = y + height;
-    rect[1].color = leadingColor;
 
     rect[2].x0 = x + width - 1;
     rect[2].y0 = y + 1;
     rect[2].x1 = x + width;
     rect[2].y1 = y + height - 1;
-    rect[2].color = trailingColor;
 
     rect[3].x0 = x + 1;
     rect[3].y0 = y;
     rect[3].x1 = x + width;
     rect[3].y1 = y + 1;
-    rect[3].color = trailingColor;
 
     rect += 4;
+    rects[0].color = leadingColor;
+    rects[1].color = leadingColor;
+    rects[2].color = trailingColor;
+    rects[3].color = trailingColor;
     rect->x0 = x + 1;
     rect->y0 = y + 1;
     rect->x1 = x + width - 1;
