@@ -1030,6 +1030,12 @@ best natural candidate uses a narrowing result cast; IDO still assigns that
 chain two temporary registers earlier than the target. It remains assembly
 and keeps its anonymous name.
 
+The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
+Mickey's code is the single-word setter paired with the following getter; no
+published donor body or descriptive-name evidence is used. The default flags,
+HI16/LO16 data relocations, object words, and linked ROM range are exact
+without post-processing.
+
 ### 3.12 Track assembly and shadows (`0x16140`–`0x18FF0`)
 
 This block contains two JFG-lineage translation units. The boundary claims are

@@ -24,6 +24,7 @@ extern s8 D_800D312B;
 extern MenuScreenModeBits D_800D3128;
 extern u8 D_8007C08C;
 extern u8 D_8007C090;
+extern s32 D_8007C098;
 extern u16 D_800D312C;
 extern u16 D_800D312E;
 extern void amTuneSetGlobalVolume(s32 volume);
@@ -148,7 +149,9 @@ void frontSetBgmVolume(s32 volume) {
 /* Size-exact plateau: three register operands differ from +0x8; IDO assigns
  * the old-flag value chain two temporary registers earlier than the target. */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A544.s")
+void func_8003A544(s32 value) {
+    D_8007C098 = value;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A550.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A55C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A590.s")
