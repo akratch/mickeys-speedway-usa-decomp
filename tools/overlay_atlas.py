@@ -1019,6 +1019,9 @@ MIXED_TU_EXACT_C_RANGES = {
     12: [
         (0x000, 0x0C4, "overlay12Initialize"),
     ],
+    49: [
+        (0x354, 0x374, "refractOutput"),
+    ],
 }
 
 
