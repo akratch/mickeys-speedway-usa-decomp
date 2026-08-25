@@ -1315,6 +1315,16 @@ JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the anony
 setter and no-op are reconstructed from Mickey's own bodies. All configured
 object ranges and the final linked ROM are byte-exact.
 
+`__scHandleRetrace` has a preserved `NON_MATCHING` JFG-derived body after the
+119-combination flag lattice and ten source-shape hypotheses. The best
+candidate has the exact 232-byte frame and 408 instructions versus the
+target's 409; 84 positional words differ after relocation masking. Its first
+mismatch is at function `+0x3B4`, where the diagnostic Y-coordinate and two
+stack-byte writes schedule in a different order. The remaining tail also
+materialises the 64-bit retrace counter through one combined object while the
+target uses separate high/low symbol references. The assembly fallback
+remains canonical.
+
 ### 3.16 Particle and debug-print translation units
 
 ROM `0x3D5F0`–`0x45760` is now split into two aligned resident C
