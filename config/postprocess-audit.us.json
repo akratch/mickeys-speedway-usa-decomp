@@ -16,11 +16,11 @@
     {
       "class": "metadata",
       "matched_c": null,
-      "object": "build/src/main/main.c.o",
+      "object": "build/src/main/weather.c.o",
       "offset": null,
       "overlay": null,
       "size": null,
-      "source": "src/main/main.c",
+      "source": "src/main/weather.c",
       "tools": [
         "objcopy"
       ]

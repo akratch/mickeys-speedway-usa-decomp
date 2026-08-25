@@ -545,20 +545,14 @@ void rain_init(s32 count, s32 intensity, s32 opacity) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_init.s")
 #endif
-#ifdef NON_MATCHING
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
  * src/weather.c::func_8005BD30_5C930 (DKR's free_rain_memory). Mickey's
- * globals and unresolved rain-free binding are authoritative here.
- *
- * Plateau: all 33 instruction words and relocation kinds agree, but the
- * integer-signature alias leaves the call at +0x68 bound to rainFreeTrap
- * instead of the shared float-signature TrapDanglingJump symbol.
+ * globals and trap binding are authoritative here.
  */
-#pragma weak rainFreeTrap = TrapDanglingJump
-extern void rainFreeTrap(void);
 extern void func_800359D4(void *sprite);
 extern void func_800031E8(void *sound);
+extern void rainFreeTrap(void);
 void free_rain_memory(void) {
     if (D_8007C714 != NULL) {
         func_800359D4(D_8007C714);
@@ -575,9 +569,6 @@ void free_rain_memory(void) {
     rainFreeTrap();
     D_8007C6E8 = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/free_rain_memory.s")
-#endif
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
  * src/weather.c::func_8005BDB8_5C9B8 (DKR's rain_set). Mickey's global
