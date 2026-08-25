@@ -15,12 +15,25 @@
 
 #include "PR/ultratypes.h"
 
+typedef struct AudioOscillatorState {
+    struct AudioOscillatorState *next;
+} AudioOscillatorState;
+
 extern f32 D_80080BA8;
+extern AudioOscillatorState *D_800C9300;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_4C50/amVibratoInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_4C50/func_80003A80.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_4C50/func_80003D58.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_4C50/func_800042CC.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_4C50.c amStopOsc;
+ * body uses Mickey-only evidence.
+ */
+void amStopOsc(AudioOscillatorState *state) {
+    state->next = D_800C9300;
+    D_800C9300 = state;
+}
+
 /* PROVENANCE: body adapted from JFG src/audio_manager_4C50.c and BK src/core1/code_1D00.c. */
 f32 _depth2Cents(u8 depth) {
     f32 ratio;
