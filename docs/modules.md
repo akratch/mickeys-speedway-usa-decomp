@@ -1660,6 +1660,15 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 
 **Bounded plateaus (all remain assembly):**
 
+- `joyInit`, seven source/storage hypotheses, the full flag lattice and a
+  bounded two-worker canonical-MIPS-II permuter batch, first mismatch
+  `+0x11C`: the JFG-shaped candidate is exact through the controller scan but
+  compiles to 86 rather than 83 instructions. External `D_800CF3B4` storage
+  makes IDO materialize four HI16/LO16 pairs for the final byte clears; the
+  target shares one HI16 and names `D_800CF3B4` through `D_800CF3B7` in four
+  distinct LO16 relocations. Alternative scalar and aggregate declarations
+  disrupt the otherwise exact loop. The permuter found no improvement from
+  its base score of 325.
 - `mainThread`, five source/address hypotheses plus the full flag lattice,
   first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
   the exact 200-byte linked instruction stream, frame and control flow, but
