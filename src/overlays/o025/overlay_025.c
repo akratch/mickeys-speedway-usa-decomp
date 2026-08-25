@@ -3,12 +3,13 @@
 /* Pinned DKR v77/v80 and JFG scans found no exact initializer donor. */
 
 /*
- * Plateau (2026-08-24): the closest flag-lattice result uses -O2 -mips3
- * with -Wab,-r4300_mul and is exact-size, first differing at function
- * offset 0x14.  Its bounded permuter score improved from 430 to 245 but
- * remained non-exact.  The canonical -mips2 candidate is four bytes short;
- * the remaining blocker is the register/stack-home scheduling web and its
- * trailing alignment instruction.
+ * Plateau (2026-08-25): the closest flag-lattice result remains -O2 -mips3
+ * with -Wab,-r4300_mul. It has the exact 0x17C-byte boundary, 39 differing
+ * words, and a first mismatch at +0x14; canonical -mips2 is four bytes
+ * short. Hoisted locals, assignment-chain, and typed-state variants emitted
+ * the same object, while volatile-u16 flags added three instructions. The
+ * blocker is the saved-register/stack-home web plus the target's lhu flags
+ * load; the consolidated-TU symbol could not be re-imported by permute.sh.
  */
 #ifdef NON_MATCHING
 void overlay25InitializeEffect(Overlay25Object *object,
