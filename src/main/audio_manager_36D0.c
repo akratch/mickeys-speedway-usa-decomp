@@ -37,8 +37,11 @@ typedef struct AudioSoundData {
 } AudioSoundData;
 
 extern AudioSoundData *D_800C91E0;
+extern AudioPoint **D_800C91E4;
+extern u16 D_80078F00;
 void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5, u8 volume, u16 distance, u8 arg8,
                    u8 pitch, u8 argA, u8 argB, AudioPoint **point);
+void func_800037C4(s32 index);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002500.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/audspat_jingle_off.s")
@@ -77,7 +80,20 @@ void func_800030CC(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 volume, f32 pit
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800031C0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800031E8.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amSndStopXYZ. */
+void func_800031E8(AudioPoint *point) {
+    s32 index;
+
+    if (point != NULL) {
+        for (index = 0; index < D_80078F00; index++) {
+            if (point == D_800C91E4[index]) {
+                func_800037C4(index);
+                break;
+            }
+        }
+    }
+}
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003250.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_8000329C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800033B0.s")
