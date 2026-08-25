@@ -342,42 +342,30 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
 #endif
 #ifdef NON_MATCHING
-/* PROVENANCE: command sequence adapted from Diddy Kong Racing's public
- * decomp, src/rcp_dkr.c:bgdraw_render, with Mickey's enable flag and bounds. */
+/* PROVENANCE: command sequence adapted from DKR's public src/rcp_dkr.c:bgdraw_render.
+ * Plateau: the exact 107-word -mips2 form differs four register words, first +0x74.
+ * Macro/lifetime shapes and flags lost; the 40-minute permuter had no zero (best 100). */
 void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
                      s32 arg4, s32 arg5, s32 arg6) {
     RcpCommand *dlist;
+    s32 alignedX1;
+    s32 alignedX2;
 
     if ((D_800D2FAC != 0) && (arg3 < arg5) && (arg4 < arg6)) {
+        alignedX1 = arg3 & ~3;
+        alignedX2 = (arg5 + 3) & ~3;
+        arg3 = alignedX1;
+        arg5 = alignedX2;
         dlist = *arg0;
-        dlist->w0 = 0xE7000000;
-        dlist->w1 = 0;
-        dlist++;
-        dlist->w0 = 0xED000000;
-        dlist->w1 = ((((s32) ((f32) (arg1 - 1) * 4.0f) & 0xFFF) << 12) |
-                     ((s32) ((f32) (arg2 - 1) * 4.0f) & 0xFFF));
-        dlist++;
-        dlist->w0 = 0xEF30000F;
-        dlist->w1 = 0;
-        dlist++;
-        dlist->w0 = 0xFF100000 | ((arg1 - 1) & 0xFFF);
-        dlist->w1 = 0x02000000;
-        dlist++;
-        dlist->w0 = 0xF7000000;
-        dlist->w1 = 0xFFFCFFFC;
-        dlist++;
-        dlist->w0 = 0xF6000000 |
-                    ((((arg5 + 3) & ~3) & 0x3FF) << 14) |
-                    ((arg6 & 0x3FF) << 2);
-        dlist->w1 = (((arg3 & ~3) & 0x3FF) << 14) |
-                    ((arg4 & 0x3FF) << 2);
-        dlist++;
-        dlist->w0 = 0xE7000000;
-        dlist->w1 = 0;
-        dlist++;
-        dlist->w0 = 0xFF100000 | ((arg1 - 1) & 0xFFF);
-        dlist->w1 = 0x01000000;
-        dlist++;
+        RCP_PIPE_SYNC(dlist++);
+        gDPSetScissor(dlist++, G_SC_NON_INTERLACE, 0, 0, arg1 - 1,
+                      arg2 - 1);
+        RCP_SET_FILL_CYCLE(dlist++);
+        RCP_SET_COLOR_IMAGE(dlist++, arg1, 0x02000000);
+        gDPSetFillColor(dlist++, 0xFFFCFFFC);
+        gDPFillRectangle(dlist++, arg3, arg4, arg5, arg6);
+        RCP_PIPE_SYNC(dlist++);
+        RCP_SET_COLOR_IMAGE(dlist++, arg1, 0x01000000);
         *arg0 = dlist;
     }
 }
