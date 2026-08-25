@@ -963,7 +963,7 @@ TEXT_SUBSEGMENTS = {
         (0x1F80, "c", "overlay101SetScissor"),
         (0x2118, "c", "overlay101GetBounds"),
         (0x2250, "c", "overlay101DrawElement"),
-        (0x2510, "asm", "overlay_101_tail_2510_a"),
+        (0x2510, "c", "func_overlay_101_F0002510_18DDD30"),
         (0x29A4, "c", "overlay101DrawTransformed"),
         (0x2C3C, "c", "overlay101BuildFrame"),
         (0x2CE4, "c", "overlay101BuildIntensityColors"),

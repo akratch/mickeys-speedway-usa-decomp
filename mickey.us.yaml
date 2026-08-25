@@ -2881,7 +2881,7 @@ segments:
       - [0x18DD7A0, c, overlay101SetScissor]
       - [0x18DD938, c, overlay101GetBounds]
       - [0x18DDA70, c, overlay101DrawElement]
-      - [0x18DDD30, asm, overlay_101_tail_2510_a]
+      - [0x18DDD30, c, func_overlay_101_F0002510_18DDD30]
       - [0x18DE1C4, c, overlay101DrawTransformed]
       - [0x18DE45C, c, overlay101BuildFrame]
       - [0x18DE504, c, overlay101BuildIntensityColors]
