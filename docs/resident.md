@@ -897,14 +897,14 @@ per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 74 words** at ROM `0x39350`. Its Mickey-derived candidate has the exact
 `0x18`-byte frame and reconstructs the language-specific resource selection,
 section load, and pointer-relocation loop. The best stock-flag object differs
-in **14/74 positional words**, first `+0x2C`: IDO schedules the cached-header
-store after its local copy and orders the destination/offset loads
-differently. Its compiler-generated switch also binds two relocation sites to
-anonymous `.rodata` rather than the target's named jump-table symbol. The full
-flag lattice kept the resident defaults best; ten coherent source-shape and
-variable-reuse attempts did not satisfy both the word and relocation-identity
-gates. JFG's corresponding `setLanguage` routine remains assembly, so the
-Mickey placeholder name and canonical assembly are retained.
+in **6/74 positional words**, first `+0xDC`. Word-table state typing and
+source load order recover the cached-header and destination schedules; the
+remaining executable residual is one swapped `a0`/`a1` pool web, including a
+commutative operand-order site. Its compiler-generated switch still binds two
+relocation sites, first `+0x4C`, to anonymous `.rodata` rather than the
+target's named jump-table symbol. The full flag lattice kept the resident
+defaults best. JFG's corresponding `setLanguage` routine remains assembly, so
+the Mickey placeholder name and canonical assembly are retained.
 
 `func_80038878` remains a **tier-D NON_MATCHING plateau** over **0x154 bytes /
 85 words** at ROM `0x39478`. JFG's same-position `initFront` routine supplies
@@ -921,7 +921,9 @@ pairs and an array declaration loses three required constant loads. The stock
 flags expand the reset loops; the full flag lattice makes the no-unroll form
 the only exact-size result. Ten coherent type, expression-tree, pointer-reuse,
 scalar/array, and volatile variants did not satisfy the word and relocation
-gates. Canonical code remains assembly and no TU flag override is adopted.
+gates. A later chained-assignment retry made the function three instructions
+longer and was rejected. Canonical code remains assembly and no TU flag
+override is adopted.
 
 `func_800389CC` reaches an **exact-text tier-D NON_MATCHING plateau** over
 **0x1F8 bytes / 126 words** at ROM `0x395CC`. JFG's C
@@ -1240,7 +1242,8 @@ chain two temporary registers earlier than the target. It remains assembly
 and keeps its anonymous name. A later ten-variant byte-view/bitfield and
 temp-FIFO retry preserved the exact nine-instruction structure but reached no
 better than four register differences, so the earlier three-word candidate
-remains the retained plateau.
+remains the retained plateau. A native aggregate/bitfield and explicit-DAG
+retry likewise preserved the operation but did not improve that result.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no
