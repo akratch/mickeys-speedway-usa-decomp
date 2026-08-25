@@ -88,8 +88,11 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
  * at +0x4.  Default -O2/-mips2/-32 wins the flag lattice.  Typed node
  * volatility improves eight words, but the remaining blocker is the target's
  * extra saved node register, which shifts the root/node register coloring and
- * local-overlay relocation schedule.  The permuter's lower numeric score
- * depended on a conditionally uninitialized float and was rejected.
+ * local-overlay relocation schedule. The corrected -mips2 permuter moved
+ * from 16200 to 13660 by adding an undefined increment/decrement of an
+ * uninitialized text index and a node-index alias. With the undefined no-op
+ * removed, that alias grew 92 bytes and differed in 509 words from +0x0, so
+ * it was rejected.
  */
 #ifdef NON_MATCHING
 void func_overlay_101_F0008128_18E3948(void) {

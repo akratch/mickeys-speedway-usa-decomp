@@ -87,9 +87,10 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
  * the 0x834-byte target, with 461 masked positional words differing and the
  * first mismatch at +0x4. Default -O2/-mips2/-32 wins the flag lattice. The
  * blocker is the family's extra saved node register and shifted root/node
- * register coloring. The permuter's 20640-score candidate used a float
- * initialized in only one branch from the opposite and later branches, so it
- * was rejected.
+ * register coloring. The corrected -mips2 permuter moved from 16200 to 11950
+ * with a node-index alias and a redundant-cast removal. Direct comparison
+ * regressed from the imported base's -4 bytes/469 words to +80 bytes/509
+ * words, so it was rejected.
  */
 #ifdef NON_MATCHING
 void func_overlay_101_F0009190_18E49B0(void) {
