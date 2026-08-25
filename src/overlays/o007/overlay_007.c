@@ -36,20 +36,20 @@ void overlay7ReleaseEntry(Overlay7Entry *entry) {
 }
 
 /*
- * Plateau: exact size with 17 differing words, first at +0x84. IDO retains
- * the reset head in v0 for the second-loop null check instead of using the
- * target's s0 web; the remaining allocation-tail register/layout differences
- * follow from that copy-propagation choice. The O2 flag lattice is unchanged.
+ * Plateau (2026-08-25): exact size with 16 differing words, first at +0x104.
+ * Reloading the global head between scans makes both scan loops exact and
+ * removes one difference. The remaining allocation-tail register/layout web
+ * is stable across all 119 flag combinations; removing the result temporary
+ * and adding typed free-head/tail address aliases both regress size and move
+ * the first mismatch back into the second scan.
  */
 #ifdef NON_MATCHING
 Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
-    Overlay7Entry *head;
     Overlay7Entry *entry;
     Overlay7Entry *result;
     s8 *ownerPriority;
 
-    head = gOverlay7ActiveHead;
-    entry = head;
+    entry = gOverlay7ActiveHead;
     if (entry != 0) {
         do {
             if (entry->active != 0 && entry->owner == owner &&
@@ -60,7 +60,7 @@ Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type) {
         } while (entry != 0);
     }
 
-    entry = head;
+    entry = gOverlay7ActiveHead;
     ownerPriority = owner->priority;
     if (entry != 0) {
         do {
