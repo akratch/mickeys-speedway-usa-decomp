@@ -43,15 +43,17 @@ extern s32 o38RandomRange(s32 minimum, s32 maximum);
 extern void o38MakeDirection(s16 *source, s16 *destination);
 
 /*
- * Plateau (2026-08-25, independently rechecked): natural -O2 -mips2 -32
- * output is size- and opcode-shape exact but differs in 7 of 85 words, first
- * at +0x48. The full flag lattice was neutral and the closest permitted
- * skeleton scored only 0.098. IDO folds the direction address back to the
- * pool base and schedules the particle/direction setup later than the target;
- * declaration initializers and coupling the particle to the zero loop offset
- * were codegen-inert. Typed/byte-addressed forms, assignment order, register
- * hints, and loop spellings likewise did not close the preserved pointer
- * chain without unsupported aliasing artifacts.
+ * Plateau (2026-08-25, independently rechecked in the overlay 31/38/46 lane):
+ * natural -O2 -mips2 -32 output is size- and opcode-shape exact but differs in
+ * 7 of 85 words, first at +0x48. The 119-point flag lattice was neutral and
+ * the closest permitted skeleton scored only 0.098. IDO folds the direction
+ * address back to the pool base and schedules the particle/direction setup
+ * later than the target; declaration initializers were codegen-inert, while
+ * moving the pointer assignments ahead of the object update changed the saved
+ * register family and worsened the candidate. Typed/byte-addressed forms,
+ * coupling the particle to the zero loop offset, register hints, and loop
+ * spellings likewise did not close the preserved pointer chain without
+ * unsupported aliasing artifacts.
  */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000000_1885D10(O38Object *object,
