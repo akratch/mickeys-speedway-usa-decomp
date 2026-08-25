@@ -79,6 +79,27 @@ typedef struct ParticleTypeDescriptor {
     s32 flags;
 } ParticleTypeDescriptor;
 
+typedef struct BasicParticle {
+    s16 rotationY;
+    s16 rotationX;
+    s16 rotationZ;
+    u8 pad06[2];
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 scaleVelocity;
+    f32 velocityX;
+    f32 velocityY;
+    f32 velocityZ;
+    u8 pad28[0x18];
+    f32 gravity;
+    u8 pad44[0x1A];
+    s16 angularVelocityY;
+    s16 angularVelocityX;
+    s16 angularVelocityZ;
+} BasicParticle;
+
 typedef struct CircularParticle {
     u8 pad00[0x2C];
     s16 type;
@@ -116,6 +137,7 @@ extern s32 D_8007C8C0;
 extern s32 D_8007C890;
 extern ParticleModelEntry *D_8007C898;
 extern ParticleTypeDescriptor **D_8007C8AC;
+extern s32 D_800D4140;
 extern CircularParticlePool *D_800D4120[];
 extern CircularParticlePool *D_800D4134[];
 
@@ -274,7 +296,21 @@ void func_80041F48(s32 arg0, ParticleTrigger *trigger) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041FEC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800420E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800421F4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8004233C.s")
+/* PROVENANCE: body adapted from DKR src/particles.c:move_particle_basic. */
+void func_8004233C(BasicParticle *particle) {
+    s32 i = 0;
+
+    while (i++ < D_800D4140) {
+        particle->x += particle->velocityX;
+        particle->y += particle->velocityY;
+        particle->velocityY -= particle->gravity;
+        particle->z += particle->velocityZ;
+        particle->scale += particle->scaleVelocity;
+        particle->rotationY += particle->angularVelocityY;
+        particle->rotationX += particle->angularVelocityX;
+        particle->rotationZ += particle->angularVelocityZ;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800423EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateParticles.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partDraw.s")
