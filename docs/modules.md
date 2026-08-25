@@ -1845,6 +1845,15 @@ indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
+The 112-byte `func_8004ACC4` reaches an exact-size allocation plateau after
+the full flag lattice, nine coherent lifetime/source forms, and one bounded
+permuter batch. JFG's same-size `func_8006FFF8` establishes the descending
+four-slot initialization skeleton, while Mickey fixes the independent store
+order. The best typed candidate has the exact loop and relocation set but
+differs in 18 of 28 words under the resident defaults, first at function
+`+0x14`: IDO assigns the counter, trap address and callback cursor one register
+group earlier than the target. The candidate remains behind `NON_MATCHING`.
+
 `diCpuThread` reached a bounded `NON_MATCHING` plateau after the full flag
 lattice and ten source/lifetime hypotheses. The best candidate has the exact
 85-instruction size, 88-byte frame, saved-register set, control flow and

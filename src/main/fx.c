@@ -131,7 +131,7 @@ typedef void (*FxTextureCallback)(s32 index, s32 value, s32 arg2);
 
 extern void func_800347A0(s32 linked);
 extern void func_800320F0(s32 callback);
-extern void func_8004ACC4(s32 index);
+extern void func_8004ACC4();
 extern void mmFree(void *ptr);
 extern FxFlags D_800D5F5A[];
 extern FxStatus D_800D5F59[];
@@ -141,10 +141,15 @@ extern s32 D_800D6038[];
 extern s32 D_800D6040;
 extern FxSpdRecord D_800D5FF8[][4];
 extern s32 D_8007D47C[];
+extern s32 D_8007D488;
 extern s32 D_800D6098[];
 extern s32 D_800D60A8;
+extern s32 D_800D60BC;
+extern s32 D_800D60CC;
+extern s8 D_800D60D3;
 extern s32 D_8007D478;
 extern FxScreenEffect D_800D6048[];
+extern void TrapDanglingJump(void);
 extern void fxScreenEffect(s32 arg0, s32 type, s32 value4, s32 value6,
                            s32 value8, s32 valueA, s32 valueC, s32 valueE,
                            s32 value10);
@@ -538,7 +543,42 @@ void func_8004A9CC(s32 arg0) {
     D_8007D478 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: the descending four-slot loop skeleton is adapted from Jet
+ * Force Gemini asm/nonmatchings/fx/func_8006FFF8.s. Mickey's own symbols and
+ * instruction schedule establish the assignment order below.
+ */
+void func_8004ACC4(void) {
+    s32 *callback;
+    s32 *value0;
+    s32 *value1;
+    s8 *available;
+    s32 i;
+    s32 trap;
+    s32 trapValue;
+
+    D_800D60A8 = 0;
+    i = 3;
+    trapValue = (s32) TrapDanglingJump;
+    value0 = &D_800D60BC;
+    value1 = &D_800D60CC;
+    available = &D_800D60D3;
+    trap = trapValue;
+    callback = &D_8007D488;
+    do {
+        *value0 = 0;
+        *value1 = 0;
+        *available = trap == *callback;
+        value0--;
+        value1--;
+        available--;
+        callback--;
+    } while (i--);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ACC4.s")
+#endif
 s32 func_8004AD34(void) {
     FxTextureCallback callback;
     s32 index;
