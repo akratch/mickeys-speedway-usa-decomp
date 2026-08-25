@@ -817,7 +817,7 @@ TEXT_SUBSEGMENTS = {
     ],
     87: [
         (0x000, "c", "overlay87InitializeObject"),
-        (0x128, "asm", "overlay_087_prefix_b"),
+        (0x128, "c", "func_overlay_087_F0000128_18D3090"),
         (0x890, "c", "overlay87ReleaseCurrent"),
         (0x8C0, "c", "overlay87HasNearby"),
         (0x964, "asm", "overlay_087_padding"),
