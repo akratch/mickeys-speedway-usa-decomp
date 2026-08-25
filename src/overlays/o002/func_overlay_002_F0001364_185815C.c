@@ -7,6 +7,13 @@
  * delta is coefficient lifetime/spill scheduling. The full flag lattice,
  * m2c register-variable form, semantic temporary reuse, nested condition
  * spelling, and selective register qualifiers did not close the difference.
+ * Fresh lane recheck: all 119 flag combinations still favor
+ * -Wab,-r4300_mul, but its 188-instruction candidate remains one instruction
+ * short, differs in 164/189 words from +0x0, and retains the 0x68 frame. A
+ * full m2c lifetime spelling regressed to a 0x90 frame and 181 differences;
+ * comparing the denominator products before subtracting preserved 164
+ * differences but moved the candidate two instructions short. The 0x60
+ * target frame remains the unresolved spill-allocation boundary.
  */
 #ifdef NON_MATCHING
 s32 func_overlay_002_F0001364_185815C(f32 x1, f32 y1, f32 x2, f32 y2,
