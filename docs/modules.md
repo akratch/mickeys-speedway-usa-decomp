@@ -954,6 +954,7 @@ Bounded plateau:
 
 | Function | ROM | Evidence and retained result |
 |---|---:|---|
+| `func_80021718` | `0x22318` | D — retained Mickey auto-name; DKR `cam_reset_fov` is the 0.439 nearest skeleton and supplies the projection-reset body shape. After the full flag lattice, six semantics-preserving source/type/address variants, and a bounded two-worker permuter batch, the best candidate has the exact 148-byte size, 37 instructions and relocation surface but differs in 11 positional words from first mismatch `+0x4C`, all in temporary-register allocation for the rotating matrix-slot update. The permuter's score-195 candidate removed the required ring mask and invented a dead guard, so it was rejected; assembly remains canonical. |
 | `func_80022FD4` | `0x23BD4` | D — JFG supplies only the `camDoSprite` role/order; the Mickey-only `NON_MATCHING` reconstruction plateaued after the flag lattice and ten source/lifetime variants. The best `-Wab,-r4300_mul` build has the exact `0xB0` frame and emits 366 instructions against 369, with 297 positional words differing from first mismatch `+0x2C` because IDO places three coordinate stack homes twelve bytes above the target before a later three-instruction schedule deficit. The assembly remains canonical. |
 
 level up. The already-measured TUs above (`n_csplayer`, `gsSnd`, `n_drvrNew`,

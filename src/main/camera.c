@@ -152,6 +152,7 @@ extern MtxF D_800CF2F8;
 extern MtxF D_800CF260;
 extern f32 D_800CF2A0;
 extern f32 D_800D2FB4;
+extern f32 D_80081A2C;
 extern Camera D_800CEA20[];
 extern CameraShake D_800CEC18[];
 extern s32 D_8007C854;
@@ -160,6 +161,8 @@ extern u8 D_79FCC[];
 
 void mtxf_mul(MtxF lhs, MtxF rhs, MtxF dest);
 void mtxf_to_mtx(MtxF src, Mtx *dest);
+void func_8004FAD0(MtxF matrix, u16 *perspNorm, f32 fovy, f32 aspect,
+                   f32 nearPlane, f32 farPlane, f32 scale);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
                           f32 *outX, f32 *outY, f32 *outZ);
 void func_80029AB8(MtxF matrix, f32 scale);
@@ -215,7 +218,33 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
     D_800CEC88 = 1;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021504.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from DKR's public decomp,
+ * src/camera.c:cam_reset_fov.
+ *
+ * Plateau: the full flag lattice, six semantics-preserving source/type/address
+ * variants, and a bounded two-worker permuter batch leave an exact 0x94-byte,
+ * 37-instruction candidate with 11 positional words different from first
+ * mismatch +0x4C. The remaining difference is temporary-register allocation
+ * in the rotating matrix-slot update. The permuter's lower-scoring candidate
+ * removed the required ring mask and invented a dead guard, so it was rejected.
+ */
+void func_80021718(void) {
+    s32 index;
+    s32 slot;
+
+    func_8004FAD0(D_800CEC98, &D_800CEC94, 60.0f, 1.3333334f, 10.0f,
+                  D_80081A2C, 1.0f);
+    index = (D_80079F94 + 1) & 0xF;
+    slot = index & 0xFF;
+    D_80079F94 = index;
+    mtxf_to_mtx(D_800CEC98,
+                (Mtx *) ((slot << 6) + (u8 *) D_800CED60));
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021718.s")
+#endif
 MtxF *func_800217AC(void) {
     return &D_800CF260;
 }
