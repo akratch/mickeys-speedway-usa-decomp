@@ -530,7 +530,15 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800242E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002442C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800244EC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800245EC.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camRestoreModelMtx. */
+void camRestoreModelMtx(Gfx **dlist) {
+    {
+        Gfx *cmd = (Gfx *)((*dlist)++);
+
+        cmd->words.w1 = 0;
+        cmd->words.w0 = 0xBC00000A;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002460C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002462C.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetListPtr. */

@@ -929,6 +929,7 @@ functions is classified as handwritten assembly under §6.2.
 | `func_80022794` | `0x23394` | D — retained Mickey auto-name; JFG `camSetProjMtx` role/order | 676 | JFG body adapted for Mickey's extra camera-state FOV check; configured object, 40 text relocations, linked range and full ROM exact. |
 | `camOrthoYAspect` | `0x23638` | D — JFG TU role/order | 12 | JFG body and masked skeleton exact; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `func_80022A44` | `0x23644` | D — retained Mickey auto-name; camera TU position only | 12 | Mickey-only float-state setter; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
+| `camRestoreModelMtx` | `0x251EC` | D — JFG TU role/order | 32 | JFG display-list body adapted to Mickey's Gfx layout; configured object, relocation-free linked range and full ROM exact. |
 | `camGetListPtr` | `0x25258` | D — JFG TU role/order | 12 | JFG body and masked skeleton exact; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `camGetInvProjMtx` | `0x25264` | D — JFG TU role/order and Mickey matrix dataflow | 12 | JFG body and masked skeleton exact; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `func_8002468C` | `0x2528C` | D — retained Mickey auto-name; camera matrix dataflow only | 12 | Mickey standalone perspective-matrix getter; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
