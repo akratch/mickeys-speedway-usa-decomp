@@ -40,31 +40,38 @@ step itself isn't something this tool can fix.
 So the ranking's primary source is a **per-function isolated compile**,
 which sidesteps the Makefile path entirely: for each queued function,
 `tools/permute_batch.py`'s own machinery (`write_settings_toml`,
-`prepare_target_asm`, `run_import`) is reused to run the exact
+`prepare_target_asm`, `run_import`) is reused to run the same
 asm-processor + IDO invocation the permuter itself runs, producing two
-single-function objects:
+function-comparable objects:
 
 - `target.o` -- the function's own `asm/nonmatchings/**/<f>.s`, assembled
   directly. This *is* the ROM's bytes; splat only stops emitting a
   function's nonmatchings `.s` once C actually implements it, so as long as
   the tree is still in `#ifdef NON_MATCHING` form the `.s` is authoritative
   (the same ordering constraint `tools/wb_compare.sh` documents).
-- `base.o` -- the `#ifdef NON_MATCHING` C body, compiled with this
-  project's real per-TU flags (`tools/permute_batch.py`'s `flag_group_for`:
+- `base.o` -- normally the `#ifdef NON_MATCHING` C body isolated by
+  permuter import and compiled with its established flag group
+  (`tools/permute_batch.py`'s `flag_group_for`:
   the `-O2 -mips2 -32` overlay/main default, the `-O2 -mips1 -32` libultra
   default, or the `-O2 -g3` override list).
 
-Both are single-function objects, so the comparison needs no linking and no
-whole-TU rebuild, and it isn't affected by the trim assertion at all. This
-resolved 412 of the 514 queued functions in this run; the other 102 are
-functions whose target `.s` carries more than one label (a jump table or
-other data label alongside the function's own `glabel`) --
-`prepare_target_asm` deliberately refuses to guess a rename for those (see
-its docstring), so they're reported unresolved rather than silently
-mis-scored. They are listed by name in
-`config/nonmatching-ranking.us.json`'s `unresolved_functions`, and need
-either a `prepare_target_asm` extension (out of this lane's file list) or a
-hand pass.
+If import cannot compile the pruned source, the tool writes an untracked TU
+copy that selects only this C body and retains every other function's ASM
+fallback. It dry-runs the real `NON_MATCHING=1` Makefile rule and executes
+only its raw asm-processor/IDO command, preserving TU-specific flags while
+skipping POSTPROCESS. Consolidated candidates whose private typed externs
+were lost use their last tracked pre-consolidation declaration wrapper, but
+only after the current and historical candidate bodies compare identical.
+Function offsets and relocations are then normalized out of that larger
+object before comparison.
+
+The failure classes fixed in this pass were: nested conditional directives;
+atlas rows that name a consolidated TU rather than a function; a function
+name spelled through an object-like macro; auxiliary text/data labels and
+jump tables in target assembly; import pruning failures on complex C, static
+symbols and local rodata; missing private declaration context after TU
+consolidation; exact per-TU flag overrides; and a concurrent-import race that
+removed the shared scratch parent directory.
 
 The isolated compile is also, on its own terms, a closer proxy to "how much
 work is left" than a whole-TU diff would be: it isolates exactly the
@@ -103,12 +110,11 @@ Coverage here is partial in both directions this run covers:
   bisection, could recover more of the difference; the mechanism
   (`--base-dir`) is already in place for it.
 
-With that exclusion, this run's report covers 124 of the 412 resolved
-functions with a `fuzzy_match_percent`; the rest have
-`objdiff_match_pct: null`. Since `objdiff_match_pct` is supplementary
+The committed refresh omits `--objdiff-report`, so its
+`objdiff_match_pct` values are `null`. Since that field is supplementary
 context (it reflects the function in its real linked/whole-TU context) and
 `differing_words`/`category` come from the isolated compile regardless,
-every resolved function is fully ranked either way.
+every function is fully ranked either way.
 
 ### Word diff and categorization
 
@@ -153,7 +159,7 @@ each side's own symbol size:
      carries a relocation entry (`objdump -r .text`) on the base or the
      target side.
   6. **`other`** -- equal size, everything else. This is the largest
-     bucket in this run (208/412) and is exactly the "needs a human/model
+     bucket in this run and is exactly the "needs a human/model
      look, no cheap mechanical explanation available" category.
 
 Sort order for the table and the JSON: category rank (`register-only` <
@@ -193,40 +199,42 @@ tools/objdiff/objdiff-cli report generate -p . -o /tmp/nm_report.json -f json -d
 .venv/bin/python tools/gen_objdiff_config.py > objdiff.json
 
 # the ranking itself:
-.venv/bin/python tools/nm_ranking.py --objdiff-report /tmp/nm_report.json --jobs 10
+.venv/bin/python tools/nm_ranking.py --jobs 12 \
+    --out config/nonmatching-ranking.us.json --no-table
+# Optional linked/whole-TU context:
+.venv/bin/python tools/nm_ranking.py --objdiff-report /tmp/nm_report.json --jobs 12
 .venv/bin/python tools/nm_ranking.py --top 20 --markdown --no-table  # fleet-prompt excerpt
 ```
 
 ## Distribution (this run)
 
-514 queued functions (`tools/permute_batch.py discover_queue()`, atlas +
-source-scan union); 412 resolved, 102 unresolved (multi-label target `.s`,
-see above). Total resolved size: 341,692 bytes (333.7 KiB) across 79
+456 queued functions (`tools/permute_batch.py discover_queue()`, validated
+atlas + depth-aware source-scan union); 456 resolved, zero unresolved. Total
+resolved size: 405,632 bytes (396.1 KiB) across 80
 distinct overlays plus `src/main`/`src/libultra` TUs.
 
 | Category | Count | Share of resolved |
 |---|---:|---:|
-| `register-only` | 26 | 6.3% |
-| `schedule-only` | 3 | 0.7% |
-| `other` | 208 | 50.5% |
-| `reloc-mismatch` | 13 | 3.2% |
-| `size-mismatch` | 162 | 39.3% |
+| `register-only` | 23 | 5.0% |
+| `schedule-only` | 4 | 0.9% |
+| `other` | 223 | 48.9% |
+| `reloc-mismatch` | 19 | 4.2% |
+| `size-mismatch` | 187 | 41.0% |
 
 Differing-word thresholds (resolved functions, any category):
 
 | Threshold | Count |
 |---|---:|
-| `differing_words <= 5` | 42 |
-| `differing_words <= 10` | 84 |
-| `differing_words <= 20` | 132 |
+| `differing_words <= 5` | 43 |
+| `differing_words <= 10` | 90 |
+| `differing_words <= 20` | 150 |
 
-`objdiff_match_pct` (whole-TU, linked-context match percentage) is
-available for 124 of the 412 resolved functions -- see "objdiff-cli, as
-supplementary context" above for why the rest are `null`.
+`objdiff_match_pct` is `null` for this refresh because no supplementary
+objdiff report was supplied.
 
 ## Recommended batching for the fleet
 
-1. **`register-only` and `schedule-only` first (29 functions)** -- the
+1. **`register-only` and `schedule-only` first (27 functions)** -- the
    cheapest category by construction: the candidate already has the right
    instructions, just the wrong register allocation or schedule. These are
    flag-lattice/`mips_to_c` tweaks, not rewrites, and most are also small
@@ -237,7 +245,7 @@ supplementary context" above for why the rest are `null`.
    that a worker can read the whole diff by hand quickly. Batch by overlay
    where more than one queued function shares a TU, since the worker
    already has that file's context loaded.
-3. **`reloc-mismatch` (13 functions).** Usually a symbol/addend binding
+3. **`reloc-mismatch` (19 functions).** Usually a symbol/addend binding
    question (wrong `%hi`/`%lo` target, or a static vs. extern reference) --
    narrow enough to hand off as its own small batch, distinct skill from
    the register/schedule fixes.
@@ -249,12 +257,8 @@ supplementary context" above for why the rest are `null`.
    different loop shape) rather than a tweak -- expect these to need more
    than one attempt, and route them to workers/models with more budget per
    function (`docs/adr/0009` model-routing).
-5. **The 102 unresolved functions are not yet part of any fleet batch.**
-   They need `prepare_target_asm` taught to handle a target `.s` with
-   embedded jump-table/data labels (or a hand-written workaround per
-   function) before they can be scored at all; see
-   `config/nonmatching-ranking.us.json`'s `unresolved_functions` for the
-   full list with reasons.
+5. **No isolation backlog remains.** All discovered functions participate
+   in the same sorted fleet queue.
 
 ## Top 20 near-misses (this run)
 
@@ -265,26 +269,26 @@ table from a fresh run):
 
 | name | overlay/TU | differing_words | first_mismatch_offset | size | size_delta | category |
 |---|---|---:|---:|---:|---:|---|
-| setupLights | main | 1 | 152 | 304 | 0 | register-only |
-| partObjFreeTriggers | main | 1 | 92 | 128 | 0 | register-only |
-| overlay3TouchObject | o003 | 1 | 52 | 136 | 0 | register-only |
-| overlay7ReleaseEntry | o007 | 1 | 60 | 168 | 0 | register-only |
-| overlay83SubmitAll | o083 | 3 | 220 | 328 | 0 | register-only |
 | overlay3FindClosestObject | o003 | 4 | 64 | 308 | 0 | register-only |
 | overlay40AddEntry | o040 | 4 | 32 | 132 | 0 | register-only |
 | overlay43SubmitChildren | o043 | 4 | 44 | 276 | 0 | register-only |
+| func_80038750 | main | 6 | 220 | 296 | 0 | register-only |
 | partUpdateTriggers | main | 6 | 228 | 404 | 0 | register-only |
+| overlay74Update | o074 | 6 | 12 | 400 | 0 | register-only |
 | overlay20UpdateObjectResource | o020 | 8 | 176 | 392 | 0 | register-only |
 | func_8002CF6C | main | 9 | 204 | 352 | 0 | register-only |
-| mainCPUeffects | main | 10 | 72 | 340 | 0 | register-only |
 | overlay19ClassifyEdge | o019 | 10 | 312 | 480 | 0 | register-only |
+| func_80021504 | main | 11 | 468 | 532 | 0 | register-only |
+| func_80021718 | main | 11 | 76 | 148 | 0 | register-only |
 | func_overlay_079_F0001290_18CE230 | o079 | 12 | 200 | 492 | 0 | register-only |
 | func_8001A154 | main | 13 | 28 | 232 | 0 | register-only |
-| overlay74Update | o074 | 14 | 12 | 400 | 0 | register-only |
 | overlay1UpdateValueCache | o001 | 15 | 40 | 480 | 0 | register-only |
+| func_800219D0 | main | 17 | 152 | 416 | 0 | register-only |
 | func_80020D8C | main | 17 | 56 | 192 | 0 | register-only |
 | overlay1FindType5ByKey | o001 | 17 | 28 | 156 | 0 | register-only |
 | func_8003A2C8 | main | 19 | 12 | 128 | 0 | register-only |
+| func_overlay_041_F0000000_1887338 | o041 | 26 | 84 | 292 | 0 | register-only |
+| runlinkEnsureJumpIsValid | main | 35 | 32 | 404 | 0 | register-only |
 
-All 20 are `register-only`, size-exact, single-digit-to-low-double-digit
-word counts -- the cheapest tier the queue has to offer right now.
+All 20 are `register-only` and size-exact -- the cheapest tier the queue
+has to offer right now.

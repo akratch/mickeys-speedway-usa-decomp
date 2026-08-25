@@ -106,6 +106,11 @@ NON_MATCHING_BLOCK_RE = re.compile(
     r"#ifdef NON_MATCHING\b(?P<body>.*?)#else\b(?P<else_>.*?)#endif\b",
     re.DOTALL,
 )
+PP_DIRECTIVE_RE = re.compile(
+    r"^[ \t]*#[ \t]*(?P<kind>if|ifdef|ifndef|elif|else|endif)\b"
+    r"(?P<argument>[^\n]*)",
+    re.MULTILINE,
+)
 FUNC_DEF_RE = re.compile(
     r"^[A-Za-z_][A-Za-z0-9_ \t\*]*?\b(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*"
     r"\([^;{]*\)\s*\{",
@@ -158,6 +163,100 @@ class QueueItem:
         return str(self.c_file.relative_to(ROOT))
 
 
+@dataclasses.dataclass(frozen=True)
+class NonMatchingBlock:
+    body: str
+    fallback: str
+    start: int
+    end: int
+    body_start: int
+    body_end: int
+    fallback_start: int
+    fallback_end: int
+
+
+def iter_nonmatching_blocks(source_text: str):
+    """Yield top-level ``#ifdef NON_MATCHING`` body/fallback pairs.
+
+    The old non-greedy regex stopped at the first nested ``#else`` or
+    ``#endif``. Several candidates legitimately contain feature switches,
+    so their GLOBAL_ASM fallback was invisible to queue isolation.
+    """
+    stack: list[dict[str, object]] = []
+    completed: list[tuple[int, NonMatchingBlock]] = []
+    for match in PP_DIRECTIVE_RE.finditer(source_text):
+        kind = match.group("kind")
+        argument = match.group("argument").strip()
+        if kind in ("if", "ifdef", "ifndef"):
+            stack.append(
+                {
+                    "target": kind == "ifdef" and argument == "NON_MATCHING",
+                    "start": match.start(),
+                    "body_start": match.end(),
+                    "body_end": None,
+                    "fallback_start": None,
+                }
+            )
+            continue
+        if not stack:
+            continue
+        current = stack[-1]
+        if kind in ("else", "elif"):
+            if current["target"] and current["body_end"] is None:
+                current["body_end"] = match.start()
+                current["fallback_start"] = match.end()
+            continue
+        if kind == "endif":
+            current = stack.pop()
+            if not current["target"]:
+                continue
+            body_end = current["body_end"]
+            fallback_start = current["fallback_start"]
+            if body_end is None or fallback_start is None:
+                continue
+            completed.append(
+                (
+                    int(current["start"]),
+                    NonMatchingBlock(
+                        body=source_text[int(current["body_start"]):int(body_end)],
+                        fallback=source_text[int(fallback_start):match.start()],
+                        start=int(current["start"]),
+                        end=match.end(),
+                        body_start=int(current["body_start"]),
+                        body_end=int(body_end),
+                        fallback_start=int(fallback_start),
+                        fallback_end=match.start(),
+                    ),
+                )
+            )
+    for _, block in sorted(completed, key=lambda pair: pair[0]):
+        yield block
+
+
+def block_function_name(source_text: str, block: NonMatchingBlock) -> Optional[str]:
+    """Return the C symbol defined by a NON_MATCHING candidate body.
+
+    A few shared implementations spell the definition through a simple
+    object-like macro. Resolve that one identifier without attempting to
+    duplicate the C preprocessor.
+    """
+    fn = FUNC_DEF_RE.search(block.body)
+    if fn is None:
+        return None
+    name = fn.group("name")
+    for _ in range(8):
+        macro = re.search(
+            rf"^[ \t]*#[ \t]*define[ \t]+{re.escape(name)}[ \t]+"
+            r"(?P<replacement>[A-Za-z_][A-Za-z0-9_]*)[ \t]*(?:/\*.*\*/)?$",
+            source_text,
+            re.MULTILINE,
+        )
+        if macro is None:
+            break
+        name = macro.group("replacement")
+    return name
+
+
 def _libultra_o2_g3_tus() -> set[str]:
     """Parse Makefile's LIBULTRA_O2_G3_TUS := ... continuation list."""
     text = (ROOT / "Makefile").read_text(errors="replace")
@@ -202,6 +301,18 @@ def discover_queue_from_atlas() -> list[QueueItem]:
             c_file = ROOT / "src" / f"{source}.c"
             if not c_file.is_file():
                 continue
+            text = c_file.read_text(errors="replace")
+            body_funcs = {
+                name
+                for block in iter_nonmatching_blocks(text)
+                if (name := block_function_name(text, block)) is not None
+            }
+            # An atlas row identifies a C translation unit, not necessarily
+            # a function. Consolidated overlay TUs therefore have source
+            # basenames such as overlay_001 while their queued functions are
+            # found by the source scan below. Do not invent a queue symbol.
+            if func not in body_funcs:
+                continue
             items.append(
                 QueueItem(func=func, c_file=c_file, overlay=overlay, source=source)
             )
@@ -218,11 +329,10 @@ def discover_queue_from_source_scan() -> list[QueueItem]:
         text = c_file.read_text(errors="replace")
         if "#ifdef NON_MATCHING" not in text:
             continue
-        for m in NON_MATCHING_BLOCK_RE.finditer(text):
-            fn = FUNC_DEF_RE.search(m.group("body"))
-            if not fn:
+        for block in iter_nonmatching_blocks(text):
+            func = block_function_name(text, block)
+            if func is None:
                 continue
-            func = fn.group("name")
             overlay = None
             mo = re.search(r"src/overlays/o(\d+)/", str(c_file))
             if mo:
@@ -249,10 +359,9 @@ def find_asm_target(item: QueueItem) -> Optional[str]:
     has been `gmake extract`-ed with NON_MATCHING=0 active, since the
     pragma string is present in the source either way)."""
     text = item.c_file.read_text(errors="replace")
-    for m in NON_MATCHING_BLOCK_RE.finditer(text):
-        fn = FUNC_DEF_RE.search(m.group("body"))
-        if fn and fn.group("name") == item.func:
-            am = GLOBAL_ASM_RE.search(m.group("else_"))
+    for block in iter_nonmatching_blocks(text):
+        if block_function_name(text, block) == item.func:
+            am = GLOBAL_ASM_RE.search(block.fallback)
             if am:
                 return am.group("path")
     return None
@@ -314,12 +423,21 @@ def prepare_target_asm(item: QueueItem, out_dir: Path) -> Path:
             f"target asm {asm_rel} does not exist -- run `gmake extract` first"
         )
     text = asm_path.read_text(errors="replace")
-    labels = set(m.group(2) for m in GLABEL_RE.finditer(text))
-    if len(labels) != 1:
+    labels = [m.group(2) for m in GLABEL_RE.finditer(text)]
+    label_set = set(labels)
+    # The file stem is splat's symbol for the owned function. Auxiliary
+    # labels (local branches and jump-table/data labels) must retain their
+    # identities and relocations. Fall back to the C symbol for resident
+    # assembly that already uses its friendly name.
+    if asm_path.stem in label_set:
+        auto_name = asm_path.stem
+    elif item.func in label_set:
+        auto_name = item.func
+    else:
         raise RuntimeError(
-            f"{asm_rel}: expected exactly one label, found {sorted(labels)}"
+            f"{asm_rel}: neither target stem {asm_path.stem!r} nor "
+            f"C symbol {item.func!r} is defined"
         )
-    (auto_name,) = labels
     if auto_name != item.func:
         text = re.sub(
             r"\b" + re.escape(auto_name) + r"\b", item.func, text
@@ -357,11 +475,9 @@ def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: 
     if scratch.exists():
         shutil.rmtree(scratch)
     shutil.move(str(root_nonmatchings), str(scratch))
-    # nonmatchings/ at repo root may now be empty; tidy it up.
-    try:
-        (ROOT / "nonmatchings").rmdir()
-    except OSError:
-        pass
+    # Keep the empty parent directory. Removing it races another concurrent
+    # import.py between its os.makedirs("nonmatchings") and per-function
+    # os.mkdir calls, producing a sporadic FileNotFoundError at --jobs > 1.
     return scratch
 
 
