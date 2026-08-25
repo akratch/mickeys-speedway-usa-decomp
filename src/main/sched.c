@@ -821,8 +821,11 @@ void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp) {
         sc->curRDPTask = dp;
     }
 }
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scYield. */
+#ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 20 versus 19 words, with an exact 13-word prefix.
+ * Lever: structure/BSS layout; split stores regressed to 28 words and local definitions retained the extra base load.
+ * Remains: distinct low-word relocation identity requires correct scheduler BSS ownership; external u64 stays best. */
 void __scYield(OSSched *sc) {
     if (sc->curRSPTask->list.t.type == 1) {
         sc->curRSPTask->state |= 0x10;
