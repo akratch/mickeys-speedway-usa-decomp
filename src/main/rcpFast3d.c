@@ -12,6 +12,7 @@
 #include "PR/os_message.h"
 #include "game/gameVi.h"
 #include "game/sched_internal.h"
+#include "n_audio/mbi.h"
 
 typedef struct RcpCommand {
     u32 w0;
@@ -94,7 +95,13 @@ extern u64 rspbootTextEnd[];
 
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
 void osWritebackDCacheAll(void);
-void TrapDanglingJump(void);
+s32 TrapDanglingJump(void);
+s32 func_80021C5C(s32 arg0);
+s32 func_80021EF0(s32 arg0, s32 *x1, s32 *y1, s32 *x2, s32 *y2);
+void func_80022610(RcpCommand **dlist);
+void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height, u32 value);
+void rcpClearZBuffer(RcpCommand **dlist, u32 width, u32 height, s32 x1,
+                     s32 y1, s32 x2, s32 y2);
 
 #ifdef NON_MATCHING
 /* Mickey-derived task construction. JFG supplies the function name and the
@@ -259,7 +266,51 @@ void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearZBuffer.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearScreen.s")
+/* PROVENANCE: display-list command spelling adapted from Diddy Kong Racing's
+ * public decomp, src/rcp_dkr.c:bgdraw_render. Mickey's enable flag, helpers,
+ * coordinates, and branch structure decide the implementation; JFG supplies
+ * the ordered rcpClearScreen correspondence while retaining assembly. */
+void rcpClearScreen(RcpCommand **dlist, s32 arg1, s32 drawBackground) {
+    s32 width;
+    s32 height;
+    s32 x1;
+    s32 y1;
+    s32 x2;
+    s32 y2;
+
+    viGetCurrentSize(&width, &height);
+    if (TrapDanglingJump() == 0) {
+        rcpClearZBuffer(dlist, width, height, 0, 0, width, height);
+    }
+    if (drawBackground != 0) {
+        if (func_80021C5C(0) != 0) {
+            gDPSetFillColor((*dlist)++, D_8007A3AC);
+            gDPFillRectangle((*dlist)++, 0, 0, width - 1, height - 1);
+
+            if (func_80021EF0(0, &x1, &y1, &x2, &y2) != 0) {
+                gDPSetCycleType((*dlist)++, G_CYC_1CYCLE);
+                gDPSetPrimColor((*dlist)++, 0, 0, D_8007A3A0,
+                                D_8007A3A4, D_8007A3A8, 0xFF);
+                gDPSetCombineMode((*dlist)++, G_CC_PRIMITIVE,
+                                  G_CC_PRIMITIVE);
+                gDPSetRenderMode((*dlist)++, G_RM_OPA_SURF,
+                                 G_RM_OPA_SURF2);
+                gDPFillRectangle((*dlist)++, x1, y1, x2, y2);
+            }
+        } else if (D_8007A3B0 != 0) {
+            func_8002EBE0(dlist, width, height, D_8007A3B0);
+        } else {
+            gDPSetFillColor(
+                (*dlist)++,
+                (GPACK_RGBA5551(D_8007A3A0, D_8007A3A4, D_8007A3A8, 1)
+                 << 16) |
+                    GPACK_RGBA5551(D_8007A3A0, D_8007A3A4, D_8007A3A8, 1));
+            gDPFillRectangle((*dlist)++, 0, 0, width - 1, height - 1);
+        }
+    }
+    gDPPipeSync((*dlist)++);
+    func_80022610(dlist);
+}
 void rcpInitDp(RcpCommand **dlist) {
     s32 width;
     s32 height;

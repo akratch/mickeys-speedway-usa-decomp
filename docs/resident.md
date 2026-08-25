@@ -1567,7 +1567,8 @@ the still-unnamed `func_8002E020` (ROM `0x2EC20`–`0x2ECA0`, 128 bytes),
 `rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes),
 `bgdraw_fillcolour` (ROM `0x2F794`–`0x2F7D4`, 64 bytes), and the still-
 unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–`0x2F7E0`, 12 bytes),
-plus `rcpInitDp` (ROM `0x30068`–`0x30118`, 176 bytes),
+plus `rcpClearScreen` (ROM `0x2FD88`–`0x30068`, 736 bytes),
+`rcpInitDp` (ROM `0x30068`–`0x30118`, 176 bytes),
 `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes), and
 `rcpInitSp` (ROM `0x3013C`–`0x30160`, 36 bytes), and
 `rcpInit` (ROM `0x30160`–`0x30218`, 184 bytes), and
@@ -1603,10 +1604,12 @@ Mickey's own bodies. `screenLoad` is likewise reconstructed from Mickey's
 display-list command writes; JFG supplies its existing TU/name association,
 not its C body. `rcpInitDp` is likewise reconstructed from Mickey's own
 display-list command flow; JFG supplies its name and ordered TU position, not
-its C body. `rcpInit` reconstructs Mickey's six message queues while JFG's
-public source supplies its name and prototype and its object supplies the exact
-skeleton anchor, not a C body. All configured object ranges and the final
-linked ROM are byte-exact.
+its C body. `rcpClearScreen` adapts DKR's public `bgdraw_render` display-list
+macro spelling to Mickey's guards, helpers, and coordinates; JFG supplies its
+name and ordered TU position while retaining assembly. `rcpInit` reconstructs
+Mickey's six message queues while JFG's public source supplies its name and
+prototype and its object supplies the exact skeleton anchor, not a C body. All
+configured object ranges and the final linked ROM are byte-exact.
 
 `rcpFast3d` retains a `NON_MATCHING` Mickey-derived task-construction body
 after the 119-combination flag lattice and ten source/type/scheduling
