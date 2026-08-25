@@ -1916,9 +1916,9 @@ RevealReturnAddresses = 0x80026B60; // type:func size:0x108 ROM 0x27760 tier B (
 mainThread = 0x80026C68; // type:func size:0xC8 ROM 0x27868 tier B (JFG src/main.c.o mainThread, call graph)
 mainResetPressed = 0x80026D30; // type:func size:0x54 ROM 0x27930 tier B (JFG src/main.c.o mainResetPressed, call graph)
 mainPreNMI = 0x80026D84; // type:func size:0xC8 ROM 0x27984 tier-A (compiler/link exact)
-mainInitGame = 0x80026E4C; // type:func size:0x168 ROM 0x27A4C tier B (JFG src/main.c.o mainInitGame, call graph)
+mainInitGame = 0x80026E4C; // type:func size:0x168 ROM 0x27A4C tier-A (compiler/link exact, JFG src/main.c mainInitGame donor)
 func_80026FB4 = 0x80026FB4; // type:func size:0x674 ROM 0x27BB4 tier B (JFG src/main.c.o TU order, placeholder retained)
-func_80027628 = 0x80027628; // type:func size:0x2D4 ROM 0x28228 tier B (JFG src/main.c.o TU order, placeholder retained)
+func_80027628 = 0x80027628; // type:func size:0x2D4 ROM 0x28228 tier-A (compiler/link exact, DKR main-loop roles, placeholder retained)
 mainAddZBCheck = 0x800278FC; // type:func size:0xFC ROM 0x284FC tier-A (compiler/link exact)
 mainUpdateZBCheck = 0x800279F8; // type:func size:0xFC ROM 0x285F8 tier B (JFG src/main.c.o mainUpdateZBCheck, call graph)
 mainGetZBCheck = 0x80027AF4; // type:func size:0x2C ROM 0x286F4 tier B (JFG src/main.c.o mainGetZBCheck, call graph)
@@ -1928,9 +1928,9 @@ func_80027D14 = 0x80027D14; // type:func size:0x16C ROM 0x28914 tier B (JFG src/
 mainGameWindowChanging = 0x80027E80; // type:func size:0xC ROM 0x28A80 tier B (JFG src/main.c.o mainGameWindowChanging, call graph)
 mainGameWindowSize = 0x80027E8C; // type:func size:0x34 ROM 0x28A8C tier B (JFG src/main.c.o mainGameWindowSize, call graph)
 func_80027EC0 = 0x80027EC0; // type:func size:0xF8 ROM 0x28AC0 tier-A (compiler/link exact)
-func_80027FB8 = 0x80027FB8; // type:func size:0x310 ROM 0x28BB8 tier B (JFG src/main.c.o TU order, placeholder retained)
+func_80027FB8 = 0x80027FB8; // type:func size:0x310 ROM 0x28BB8 tier-A (compiler/link exact, JFG main-loop role, placeholder retained)
 func_800282C8 = 0x800282C8; // type:func size:0xAC ROM 0x28EC8 tier-A (compiler/link exact, placeholder retained)
-mainChangeLevel = 0x80028374; // type:func size:0x1B4 ROM 0x28F74 tier B (JFG src/main.c.o mainChangeLevel, call graph)
+mainChangeLevel = 0x80028374; // type:func size:0x1B4 ROM 0x28F74 tier-A (compiler/link exact, JFG src/main.c mainChangeLevel role)
 mainSetAnimGroup = 0x80028528; // type:func size:0xC ROM 0x29128 tier B (JFG src/main.c.o mainSetAnimGroup, call graph)
 mainGetAnimGroup = 0x80028534; // type:func size:0xC ROM 0x29134 tier B (JFG src/main.c.o mainGetAnimGroup, call graph)
 mainChangeCameras = 0x80028540; // type:func size:0xC ROM 0x29140 tier B (JFG src/main.c.o mainChangeCameras, call graph)
@@ -1979,7 +1979,7 @@ mainGetNumberOfCameras = 0x800291F0; // type:func size:0xC ROM 0x29DF0 tier B (J
 func_800291FC = 0x800291FC; // type:func size:0x44 ROM 0x29DFC tier B (JFG src/main.c.o TU order, placeholder retained)
 func_80029240 = 0x80029240; // type:func size:0x34 ROM 0x29E40 tier B (JFG src/main.c.o TU order, placeholder retained)
 func_80029274 = 0x80029274; // type:func size:0x15C ROM 0x29E74 tier B (JFG src/main.c.o TU order, placeholder retained)
-func_800293D0 = 0x800293D0; // type:func size:0x27C ROM 0x29FD0 tier B (JFG src/main.c.o TU order, placeholder retained)
+func_800293D0 = 0x800293D0; // type:func size:0x27C ROM 0x29FD0 tier-A (compiler/link exact, JFG debug_print_memory role, placeholder retained)
 
 // Resident audio-manager tier-B names from exact role and sequence
 //

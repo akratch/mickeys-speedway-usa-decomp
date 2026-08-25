@@ -2132,7 +2132,7 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Eighty-six functions / 4,836 bytes compile exactly
+**Matching progress.** Ninety-one functions / 7,776 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -2146,12 +2146,15 @@ linked ranges and the full ROM are exact.
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (52 / 2,516 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
+- `main/main` (57 / 5,456 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainSetGameWindow`, `mainSetAnimGroup`,
   `mainGetAnimGroup`,
-  `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`, `mainAddZBCheck`,
-  `func_80027EC0`, `func_800282C8`,
-  `mainResetPressed`, `mainPreNMI`, `mainSyncNextLevel`, `mainGetMode`, `mainSetMode`,
+  `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
+  `func_80027628`, `mainAddZBCheck`,
+  `func_80027EC0`, `func_80027FB8`, `func_800282C8`,
+  `mainResetPressed`, `mainPreNMI`, `mainInitGame`, `mainChangeLevel`,
+  `mainSyncNextLevel`,
+  `mainGetMode`, `mainSetMode`,
   `mainTitlePageInit`,
   `mainFrontInit`, `mainStartGame`,
   `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`, `func_80028F3C`,
@@ -2167,7 +2170,7 @@ linked ranges and the full ROM are exact.
   `func_800291B4`,
   `func_800291C4`,
   `func_800291D0`, `func_800291D8`, `func_800291E4`, `func_800291FC`, and
-  `func_80029240`.
+  `func_80029240`, and `func_800293D0`.
 
 The exact source preserves Mickey's six-byte level-summary and controller-pad
 layouts, packed flag extractions, bounded/wraparound searches, and guarded
@@ -2196,6 +2199,34 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   distinct LO16 relocations. Alternative scalar and aggregate declarations
   disrupt the otherwise exact loop. The permuter found no improvement from
   its base score of 325.
+- `joyRead`, six loop/storage/type hypotheses, the full flag lattice and a
+  bounded two-worker permuter batch, first mismatch `+0x18`: the JFG-shaped
+  candidate has the exact 636-byte size, 159-instruction schedule and `-0x38`
+  frame, but differs in 48 words. Original TU-local adjacency lets IDO name
+  `D_800CF388`, `D_800CF3BC` and `D_800CF3B0` as three loop endpoints; the
+  split extern layout materializes the preceding bases plus their array sizes,
+  leaving six relocation-identity mismatches. The permuter's 5,795-to-5,305
+  improvement required an invented do-while guard and was rejected.
+- `func_80026FB4`, nine structural/display-command hypotheses, the full flag
+  lattice and a bounded two-worker resident-MIPS-II permuter batch, first
+  mismatch `+0x48`: the Mickey-derived main-loop candidate needs
+  `-Wo,-Olimit,100` to reproduce the target's `-0x28` frame and transition
+  result at `sp+0x24`, but compiles to 418 rather than 413 instructions. IDO
+  assigns the first display-list pointer store through `$at` instead of the
+  target's `$a0`; the remaining five-word structural excess is concentrated
+  in the two end-of-frame display commands. The valid permuter score improved
+  from 3,620 to 3,050 by introducing a matrix-array temporary, not identity.
+- `func_80028564`, ten control-flow, storage, aggregate-layout and
+  framebuffer-loop hypotheses, the full 119-combination flag lattice and a
+  bounded two-worker resident-MIPS-II permuter batch, first mismatch `+0x4`:
+  the best Mickey-derived transition/level-load body has the target's `-0x58`
+  frame but 492 rather than 489 instructions. IDO saves an otherwise unused
+  `$s0` and places `$ra` at `sp+0x2C`, while the target saves only `$ra` at
+  `sp+0x24`. The target's six character writes share a `2 * 0x28` base;
+  explicit array fields are three words long overall, while loop and grouped
+  index forms miss by 20 and 40 words. The valid permuter score improved from
+  13,270 to 11,970 only by reusing a pointer alias on paths where it is
+  uninitialized, so that candidate was rejected.
 - `mainThread`, five source/address hypotheses plus the full flag lattice,
   first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
   the exact 200-byte linked instruction stream, frame and control flow, but
@@ -2210,6 +2241,19 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
   removes three dead-looking countdown-loop register copies retained by the
   target.
+- `mainCPUeffects`, ten type/expression/storage hypotheses and the full flag
+  lattice, first mismatch `+0x48`: the best Mickey-derived candidate preserves
+  all 85 target opcodes, the 340-byte boundary and `-0x40` frame, but ten
+  temp-FIFO register operands differ in the cropped-framebuffer calculation.
+  Its typed overlay-call alias also retains a different relocation identity at
+  `+0xd8`; the natural unprototyped call instead promotes the float arguments,
+  adding four instructions and eight frame bytes.
+- `func_80027D14`, eight control-flow/register-lifetime hypotheses, the full
+  flag lattice and a bounded two-worker permuter batch, first mismatch `+0x0`:
+  the best Mickey-derived interpolation candidate compiles to 92 rather than
+  91 instructions. IDO starts its global-pointer live range in `$t1` rather
+  than the target's `$t0`, leaving 88 differing words and 24 relocation-position
+  mismatches; the permuter found no improvement from its base score of 4,900.
 - `RevealReturnAddresses`, nine source/expression hypotheses, the full flag
   lattice and a bounded canonical-MIPS-II permuter batch, first mismatch
   `+0x24`: the best candidate preserves all 66 target opcodes, the 264-byte
@@ -2225,6 +2269,16 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   The resident flag lattice was unchanged; a bounded two-worker MIPS II
   permuter batch improved its internal score from 45 to 25 but did not change
   these object-level residuals.
+- `levelInit`, ten structural, storage, type and register-lifetime hypotheses,
+  the full 119-combination flag lattice and a bounded two-worker permuter
+  batch, first mismatch `+0x238`: the JFG-adapted, Mickey-specific candidate
+  reproduces all 516 target opcodes, the 2,064-byte boundary, `-0x80` frame,
+  stack homes and relocation identities, but 122 register operands differ.
+  The first residual is a temp-FIFO allocation (`$t4` rather than `$t7`) in
+  the fog-load delay slot; the following resource-table address starts a pool
+  allocation divergence (`$a2` rather than `$a3`). The permuter improved its
+  MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
+  canonical MIPS II recompilation added two instructions, so it was rejected.
 - `joyResetMap`, first mismatch `+0x0`: external storage emits 48 rather than
   36 bytes; TU-local storage is instruction-exact but wrongly claims 16 B of
   BSS and shifts the real symbol.
@@ -2241,6 +2295,12 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `func_80028EFC`, ten spellings, first mismatch `+0x1c`: exact 64-byte size
   and 14/16 words; the correct loop predicate is allocated to `$t6`, while the
   target uses `$at`.
+- `func_80029274`, nine control-flow/parameter/register-lifetime hypotheses
+  and the full flag lattice, first mismatch `+0x8`: the best Mickey-derived
+  candidate has the exact 348-byte, 87-instruction boundary and `-0x10` frame,
+  but differs in 42 words. IDO moves the first float argument before the saved
+  register store, colors the long-lived float webs differently and reshapes
+  the negative-velocity return path.
 
 The full flag lattice did not change any of these allocation plateaus.
 

@@ -26,6 +26,7 @@ typedef struct JoyPad {
 } JoyPad;
 
 extern JoyPad D_800CF370[];
+extern JoyPad D_800CF388[];
 extern s8 D_800CF372[];
 extern s8 D_800CF373[];
 extern u16 D_800CF3A0[];
@@ -39,6 +40,38 @@ extern void TrapDanglingJump();
 extern s32 osContInit(OSMesgQueue *, u8 *, OSContStatus *);
 extern s32 osContStartReadData(OSMesgQueue *);
 extern void joyResetMap(void);
+extern void rumbleTick(s32);
+extern u8 D_800D3128[];
+
+#ifdef NON_MATCHING
+#define joySaveActionA func_8002C94C
+#define joySaveActionB func_8002CB18
+#define joySaveActionC func_8002CD6C
+#define joySaveActionD func_8002CE54
+#define joySaveActionE func_8002CF0C
+#define joySaveActionF func_8002CF6C
+#define joySaveActionG func_8005807C
+#define joySaveActionH func_800580F0
+extern void joySaveActionA(s32);
+extern void joySaveActionB(void);
+extern void joySaveActionC(s32 *, s32, s32 *);
+extern void joySaveActionD(void *);
+extern void joySaveActionE(void *);
+extern void joySaveActionF(void *);
+extern void joySaveActionG(void);
+extern void joySaveActionH(s32);
+
+#define joyCurrentPads D_800CF370
+#define joyPreviousPads D_800CF388
+#define joyButtonsPressed D_800CF3A0
+#define joyButtonsReleased D_800CF3A8
+#define joyEnabledPads D_800CF3B4
+#define joyConnectedPads D_800CF3B8
+#define joyConnectedCount D_800CF3BC
+#define joySecurityMask D_8007A0C8
+#define joyDisableAll D_8007A0C0
+#define joySaveState D_800D3128
+#endif
 
 s8 joyClamp(s8 stickMag);
 
@@ -97,7 +130,90 @@ s32 joyInit(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyInit.s")
 #endif
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: body structure adapted from Jet Force Gemini src/joy.c::joyRead;
+ * Mickey's save-flag calls and byte identity are decisive.
+ *
+ * Plateau: six loop/storage/type hypotheses preserve the target's 159
+ * instructions, 636-byte boundary and -0x38 frame. The first mismatch is
+ * +0x18, where the split extern layout gives the message local a different
+ * stack slot. More decisively, original TU-local adjacency lets IDO use
+ * D_800CF388, D_800CF3BC and D_800CF3B0 as three loop endpoints; the split C
+ * instead materializes preceding extern bases plus their array sizes, leaving
+ * 48 differing words and six relocation-identity mismatches. The full flag
+ * lattice was unchanged. A bounded permuter improved 5,795 to 5,305 only by
+ * inventing a do-while guard, which was rejected.
+ */
+s32 joyRead(s32 saveDataFlags, s32 updateRate) {
+    OSMesg unusedMsg;
+    s32 i;
+
+    if (osRecvMesg(&D_800CF340, &unusedMsg, OS_MESG_NOBLOCK) == 0) {
+        for (i = 0; i < 4; i++) {
+            joyPreviousPads[i] = joyCurrentPads[i];
+        }
+        osContGetReadData(joyCurrentPads);
+        joyConnectedCount = 0;
+        for (i = 0; i < 4; i++) {
+            if (joyCurrentPads[i].errno == 0) {
+                joyConnectedPads[i] = TRUE;
+                joyConnectedCount++;
+            } else {
+                joyConnectedPads[i] = FALSE;
+            }
+        }
+        if (saveDataFlags != 0) {
+            if (saveDataFlags & 0x80000000) {
+                joySaveActionC(&joyConnectedCount, 1, &joyConnectedCount);
+            }
+            if (saveDataFlags & 0x40000000) {
+                joySaveActionB();
+            }
+            if (saveDataFlags & 0x20000000) {
+                joySaveActionA(saveDataFlags & 0x1F);
+            }
+            if (saveDataFlags & 0x00800000) {
+                joySaveActionF(joySaveState);
+            }
+            if (saveDataFlags & 0x10000000) {
+                joySaveActionD(joySaveState);
+            }
+            if (saveDataFlags & 0x08000000) {
+                joySaveActionE(joySaveState);
+            }
+            if (saveDataFlags & 0x04000000) {
+                joySaveActionG();
+            }
+            if (saveDataFlags & 0x02000000) {
+                joySaveActionH(1);
+            }
+            if (saveDataFlags & 0x01000000) {
+                joySaveActionH(0);
+            }
+            saveDataFlags = 0;
+        }
+        rumbleTick(updateRate);
+        osContStartReadData(&D_800CF340);
+    }
+    for (i = 0; i < 4; i++) {
+        if ((joyEnabledPads[i] == 0) || (joyDisableAll != 0)) {
+            joyCurrentPads[i].button = 0;
+            joyCurrentPads[i].stick_x = 0;
+            joyCurrentPads[i].stick_y = 0;
+        }
+        joyButtonsPressed[i] =
+            ((joyCurrentPads[i].button ^ joyPreviousPads[i].button) &
+             joyCurrentPads[i].button) & joySecurityMask;
+        joyButtonsReleased[i] =
+            ((joyCurrentPads[i].button ^ joyPreviousPads[i].button) &
+             joyPreviousPads[i].button) & joySecurityMask;
+    }
+    return saveDataFlags;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyRead.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyResetMap.s")
 

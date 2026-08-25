@@ -693,6 +693,8 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ldiv.c.o: CFLAGS += -Xphase,cfe,-O3 \
 # findings above stay untouched and so the claim stays exactly as wide as the
 # evidence. Widen it when the next game module is measured, not before.
 $(BUILD_DIR)/$(SRC_DIR)/main/%.c.o: MIPSISET := -mips2 -32
+# The reconstructed resident main loop reproduces its target frame with uopt capped.
+$(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: CFLAGS += -Wo,-Olimit,100
 # The resident formatter's integer multiply/divide schedule uses R4300 timing.
 $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # Both measured FP helpers in this TU require the R4300 multiply schedule.
