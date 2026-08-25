@@ -192,6 +192,9 @@ typedef struct O1AdvanceGaugeObject { u8 pad00[0x64]; O1AdvanceGaugeState *state
 extern s32 D_0;
 extern O1AdvanceGaugeObject **overlay1GetGaugeObjects(s32 *count);
 
+/* Plateau (batch 14): exact 0xA8 size; 26 words differ first at +0x14.
+ * Count lands at stack +0x38 versus target +0x30, cascading register colors;
+ * declaration, scalar/array, s64, and aggregate-slot variants regressed. */
 #ifdef NON_MATCHING
 void overlay1AdvanceGauge(s32 amount) {
     volatile s32 private;
