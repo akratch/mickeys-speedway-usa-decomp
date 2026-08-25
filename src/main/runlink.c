@@ -63,6 +63,7 @@ extern s32 overlayCount;           /* overlays, AND link slots: one each */
 extern RelocationEntry *mainRelocTable;
 extern s32 mainRelocTableCount;
 extern s32 D_8007A27C;
+extern char D_80082410[];
 extern void func_80032BF8(s32 overlayIndex);
 extern void func_80032338(s32 slot);
 extern void *func_8002B280(s32 size, s32 tag);
@@ -86,7 +87,9 @@ extern u8 D_80078D60[]; /* start of .data  */
 extern u8 D_80085A40[]; /* start of .bss   */
 extern void func_80000450(void); /* start of .text */
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/GetSymbolName.s")
+char *GetSymbolName(s32 symbolIndex) {
+    return D_80082410;
+}
 
 /*
  * Turn one relocation record into the address it should resolve to.
