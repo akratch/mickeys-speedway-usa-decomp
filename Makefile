@@ -2236,10 +2236,37 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F0001E4C_186A694.c.o: POS
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F00022E8_186AB30.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_011_F00022E8_186AB30=func_overlay_011_F00022E8_186AB30 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x42C
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
+# Overlay-local data addends are encoded in retail, while its runtime calls
+# use the extracted range's offset-zero carrier.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateModeSix.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py \
+	$(TOOLS_DIR)/trim_elf_section.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateModeSix.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_011_F0002714_186AF5C=overlay11UpdateModeSix $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x0:5:D_INPUT 0x4:6:D_INPUT 0x8:5:D_0 0x14:6:D_0 \
+		0x5C:5:D_INPUT 0x60:6:D_INPUT \
+		0x64:5:D_0_reload_success 0x70:6:D_0_reload_success \
+		0x7C:5:D_INPUT 0x80:6:D_INPUT \
+		0x84:5:D_0_reload_failure 0x8C:6:D_0_reload_failure \
+		0xF0:5:D_menuBase 0xF8:6:D_menuBase \
+		0x120:5:D_INPUT 0x128:6:D_INPUT \
+		0x134:5:D_INPUT 0x138:6:D_INPUT \
+		0x198:5:D_cfgA 0x1A0:6:D_cfgA \
+		0x1A4:5:D_INPUT 0x1A8:6:D_INPUT \
+		0x1F4:5:D_lastMode 0x1F8:6:D_lastMode \
+		0x218:5:D_cfgA 0x21C:6:D_cfgA && \
+	$(OBJCOPY) --redefine-sym \
+		func_80000F94=func_overlay_011_F0000000_1868848 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x100:func_overlay_045_F0001BF4_188E04C:func_overlay_011_F0000000_1868848 \
+		0x124:func_8002554C:func_overlay_011_F0000000_1868848 \
+		0x168:func_overlay_066_F0000000:func_overlay_011_F0000000_1868848 \
+		0x170:func_800290AC:func_overlay_011_F0000000_1868848 \
+		0x178:func_800291D8:func_overlay_011_F0000000_1868848 \
+		0x188:func_800006BC:func_overlay_011_F0000000_1868848 \
+		0x190:func_overlay_011_F0002BF4_186B43C:func_overlay_011_F0000000_1868848 \
+		0x210:func_80028374:func_overlay_011_F0000000_1868848 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x234
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11CreateHandles.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
