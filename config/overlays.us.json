@@ -23,7 +23,7 @@
   "nonempty_modules": 106,
   "text_bytes": 469264,
   "matched_overlay_c_bytes": 83296,
-  "nonmatching_overlay_c_bytes": 214292,
+  "nonmatching_overlay_c_bytes": 215812,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -19190,10 +19190,19 @@
     },
     {
      "offset": "0x63F8",
+     "end_offset": "0x69E8",
+     "size": "0x5F0",
+     "type": "c",
+     "source": "overlays/o101/func_overlay_101_F00063F8_18E1C18",
+     "matched": true,
+     "nonmatching": true
+    },
+    {
+     "offset": "0x69E8",
      "end_offset": "0x99C4",
-     "size": "0x35CC",
+     "size": "0x2FDC",
      "type": "asm",
-     "source": "overlays/o101/overlay_101_tail_63f8",
+     "source": "overlays/o101/overlay_101_tail_69e8",
      "matched": false,
      "nonmatching": false
     },

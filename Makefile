@@ -1255,6 +1255,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/func_overlay_101_F000512C_18E094C.c.o: POS
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5F0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/func_overlay_101_F0005E08_18E1628.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5F0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/func_overlay_101_F00063F8_18E1C18.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5F0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101Reset.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101FindEntry.c.o: POSTPROCESS = \
@@ -2812,6 +2814,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/func_overlay_101_F0002510_18DDD30.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/func_overlay_101_F000512C_18E094C.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/func_overlay_101_F0005E08_18E1628.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/func_overlay_101_F00063F8_18E1C18.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84InitState.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84InitializeAndUpdate.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84GetActive.c.o \

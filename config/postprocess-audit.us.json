@@ -2879,7 +2879,9 @@
       "size": 540,
       "source": "src/overlays/o041/overlay41SpawnItems.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "trim_elf_section.py",
+        "externalize_elf_section.py",
         "objcopy"
       ]
     },
@@ -3828,18 +3830,6 @@
       "overlay": 58,
       "size": 1216,
       "source": "src/overlays/o058/overlay58FinalizePackedStatus.c",
-      "tools": [
-        "objcopy"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
-      "object": "build/src/overlays/o058/overlay58RefreshRankSet.c.o",
-      "offset": 21096,
-      "overlay": 58,
-      "size": 608,
-      "source": "src/overlays/o058/overlay58RefreshRankSet.c",
       "tools": [
         "objcopy"
       ]
@@ -6125,6 +6115,54 @@
     {
       "class": "metadata",
       "matched_c": true,
+      "object": "build/src/overlays/o101/func_overlay_101_F0002510_18DDD30.c.o",
+      "offset": 9488,
+      "overlay": 101,
+      "size": 1172,
+      "source": "src/overlays/o101/func_overlay_101_F0002510_18DDD30.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o101/func_overlay_101_F000512C_18E094C.c.o",
+      "offset": 20780,
+      "overlay": 101,
+      "size": 1520,
+      "source": "src/overlays/o101/func_overlay_101_F000512C_18E094C.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o101/func_overlay_101_F0005E08_18E1628.c.o",
+      "offset": 24072,
+      "overlay": 101,
+      "size": 1520,
+      "source": "src/overlays/o101/func_overlay_101_F0005E08_18E1628.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o101/func_overlay_101_F00063F8_18E1C18.c.o",
+      "offset": 25592,
+      "overlay": 101,
+      "size": 1520,
+      "source": "src/overlays/o101/func_overlay_101_F00063F8_18E1C18.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
       "object": "build/src/overlays/o101/overlay101ActivateSlot.c.o",
       "offset": 1316,
       "overlay": 101,
@@ -6879,9 +6917,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 557
+      "metadata": 560
     },
-    "matched_c_bytes_with_postprocess": 278688,
-    "objects_with_postprocess": 557
+    "matched_c_bytes_with_postprocess": 283812,
+    "objects_with_postprocess": 560
   }
 }
