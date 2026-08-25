@@ -12,6 +12,11 @@ typedef struct Overlay40Entry {
 extern s32 gOverlay40Count;
 extern Overlay40Entry gOverlay40Entries[8];
 
+/*
+ * Plateau: correct 0x84-byte shape at -O2 -mips2, with four register-only
+ * differences starting at +0x20. The flag lattice and a bounded permuter run
+ * did not change the a0/v1 pool-color swap around the loop counter.
+ */
 #ifdef NON_MATCHING
 void overlay40AddEntry(volatile s32 id, s32 red, s32 green, s32 blue) {
     Overlay40Entry *entry;
