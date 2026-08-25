@@ -2390,7 +2390,7 @@ placeholder name or counting padding as function text.
 | `0x58E50` / `0x80058250` | `0x58` | `func_80058250` | D: clears four positional engine-sound slots; called from resident audio setup |
 | `0x58EA8` / `0x800582A8` | `0x64` | `func_800582A8` | B: stops those four handles; called from the main state-transition path |
 | `0x58F0C` / `0x8005830C` | `0xBE8` | `func_8005830C` | D: walks active racers and maintains two positional sounds from speed and listener distance; no per-symbol caller argument recorded |
-| `0x59AF4` / `0x80058EF4` | `0x9C` | `func_80058EF4` | D: local logarithm-series helper used to derive Doppler pitch |
+| `0x59AF4` / `0x80058EF4` | `0x90` + `0x0C` padding | `func_80058EF4` | D: local logarithm-series helper used to derive Doppler pitch |
 | `0x5B300` / `0x8005A700` | `0x64` | `func_8005A700` | D: allocates animation table/cache storage |
 | `0x5B364` / `0x8005A764` | `0x0C` | `func_8005A764` | D: resets the pending-animation counter |
 | `0x5B370` / `0x8005A770` | `0x30` | `func_8005A770` | D: flushes the pending animation table, then resets its count; no per-symbol caller argument recorded |
@@ -2501,14 +2501,19 @@ In `main/vehicle_sounds`, the Mickey-derived handle cleanup loop
 `func_800582A8` (`0x64` bytes) is exact under `-O2 -mips2 -32`; its linked
 function bytes and call relocation match.
 
+The Mickey-derived logarithm-series helper `func_80058EF4` is exact under
+`-O2 -mips2 -32 -Wab,-r4300_mul`. A named loop-invariant square reproduces
+the target FP lifetime coloring, and a direct integer-constant multiplication
+reproduces its return-register coalescing. All 36 executable words and the
+`D_80084318` relocation pair match; the following `0x0C` bytes are TU padding
+and receive no credit. Exact executable C in `main/vehicle_sounds` now totals
+`0xF4` bytes.
+
 The remaining vehicle functions plateau without exact credit.
 `func_80058250`'s best named-global initializer emits 26 instructions against
 22 and differs in 19 positional words from `+0x0`; a typed four-slot aggregate
 reaches the exact size but differs in 21 positions. The complete flag lattice
 does not produce the target's mixed global-address schedule.
-`func_80058EF4`'s best lattice result emits 36 instructions against 39 and
-differs in 13 words from `+0x4`, with the two FP webs exchanged.
-
 `func_8005830C` now has a complete typed `NON_MATCHING` reconstruction adapted
 at the organization/terminology level from DKR's permitted published
 `src/audio_vehicle.c`, with Mickey's own field offsets and calls deciding the
