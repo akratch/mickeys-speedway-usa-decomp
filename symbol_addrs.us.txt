@@ -1013,9 +1013,9 @@ func_80044C94 = 0x80044C94;     // type:func size:0x12C tier B (JFG diRcpTraceGe
 // and the distinctive G_* names and format strings independently state each
 // helper's role. JFG's two address-placeholder unpackers remain Mickey func_
 // names.
-diRcpPrintDL = 0x80044DC0;       // type:func size:0x604 tier C (GBI strings)
-func_800453C4 = 0x800453C4;      // type:func size:0x3C tier D (Mickey boundary)
-func_80045400 = 0x80045400;      // type:func size:0x3C tier D (Mickey boundary)
+diRcpPrintDL = 0x80044DC0;       // type:func size:0x604 tier-C ROM 0x459C0 NON_MATCHING rodata-table plateau, first reloc +0x44
+func_800453C4 = 0x800453C4;      // type:func size:0x3C tier-A ROM 0x45FC4 exact C, JFG func_80066594_67194
+func_80045400 = 0x80045400;      // type:func size:0x3C tier-A ROM 0x46000 exact C, JFG func_800665D8_671D8
 diRcpVertex = 0x8004543C;        // type:func size:0x34 tier A (exact C, JFG diRcpVertex)
 diRcpReserved1 = 0x80045470;     // type:func size:0x34 tier A (exact C, JFG diRcpReserved1)
 diRcpMatrix = 0x800454A4;        // type:func size:0x34 tier A (exact C, JFG diRcpMatrix)
@@ -1042,11 +1042,11 @@ diRcpGeometryMode = 0x8004589C;  // type:func size:0x114 tier C (geometry string
 // PROVENANCE for descriptive names below: adapted from JFG src/diCpu.c.
 // Tier B uses the matching OS-thread/debug call graph and source order; Tier C
 // adds the resident exception strings. JFG address placeholders are not used.
-diCpuThread = 0x80045A04;                  // type:func size:0x154 tier B (JFG call graph/order)
-stop_all_threads_except_main = 0x80045B58; // type:func size:0x64 tier B (JFG call graph/order)
+diCpuThread = 0x80045A04;                  // type:func size:0x154 tier-B ROM 0x46604 NON_MATCHING plateau, first +0x90
+stop_all_threads_except_main = 0x80045B58; // type:func size:0x64 tier-A ROM 0x46758 exact C, JFG call graph/order
 func_80045BBC = 0x80045BBC;                // type:func size:0xF0 tier D (Mickey boundary)
 func_80045CAC = 0x80045CAC;                // type:func size:0x88 tier D (Mickey boundary)
-func_80045D34 = 0x80045D34;                // type:func size:0x72C tier D (Mickey boundary)
+func_80045D34 = 0x80045D34;                // type:func size:0x72C tier-D ROM 0x46934 NON_MATCHING plateau, first +0x0
 diCpuReportWatchpoint = 0x80046460;         // type:func size:0xA4 tier C (watchpoint strings)
 func_80046504 = 0x80046504;                 // type:func size:0x8 tier A (exact C, JFG diCpuTraceGetFault)
 func_8004650C = 0x8004650C;                 // type:func size:0x3C tier A (exact C, JFG diCpuTraceTick)
@@ -1066,9 +1066,9 @@ func_80046EC4 = 0x80046EC4;           // type:func size:0x1B8 tier B (JFG fxAllo
 func_8004707C = 0x8004707C;           // type:func size:0x34 tier A (exact C)
 func_800470B0 = 0x800470B0;           // type:func size:0x254 tier D (JFG placeholder)
 func_80047304 = 0x80047304;           // type:func size:0x2E4 tier D (JFG placeholder)
-func_800475E8 = 0x800475E8;           // type:func size:0x3EC tier B (JFG fxMakeConeTextureCoords)
+func_800475E8 = 0x800475E8;           // type:func size:0x3EC tier-B ROM 0x481E8 NON_MATCHING plateau, first +0x0
 func_800479D4 = 0x800479D4;           // type:func size:0x304 tier B (JFG fxMakeConeLength)
-func_80047CD8 = 0x80047CD8;           // type:func size:0x3A8 tier B (JFG fxDrawCone)
+func_80047CD8 = 0x80047CD8;           // type:func size:0x3A8 tier-B ROM 0x488D8 NON_MATCHING plateau, first +0x298 (JFG fxDrawCone)
 func_80048080 = 0x80048080;           // type:func size:0x164 tier D (JFG placeholder)
 wakeAllocate = 0x800481E4;            // type:func size:0x57C tier B (JFG call graph/order)
 func_80048760 = 0x80048760;           // type:func size:0x1E4 tier B (JFG wakeSetupRipple)

@@ -30,6 +30,56 @@ typedef struct FxCone {
     s8 value32;
 } FxCone;
 
+typedef struct FxConeTextureInfo {
+    u8 pad0[6];
+    u16 width;
+    u16 height;
+} FxConeTextureInfo;
+
+typedef struct FxConeVertex {
+    u8 pad0;
+    u8 index0;
+    u8 index1;
+    u8 index2;
+    s16 s0;
+    s16 t0;
+    s16 s1;
+    s16 t1;
+    s16 s2;
+    s16 t2;
+} FxConeVertex;
+
+typedef struct FxConeCoords {
+    FxConeTextureInfo *textureInfo;
+    u8 pad4[0xC];
+    FxConeVertex *vertices;
+    u8 pad14;
+    u8 segmentCount;
+} FxConeCoords;
+
+typedef struct FxGfx {
+    u32 w0;
+    u32 w1;
+} FxGfx;
+
+typedef struct FxDrawCone {
+    s32 texture0;
+    s32 texture1;
+    s32 addresses[2];
+    s32 vertices;
+    u8 mode;
+    u8 vertexCount;
+    u8 addressIndex;
+    u8 pad17[0x15];
+    u8 primRed;
+    u8 primGreen;
+    u8 primBlue;
+    u8 pad2F;
+    u8 envRed;
+    u8 envGreen;
+    u8 envBlue;
+} FxDrawCone;
+
 typedef struct WakeRipple {
     u8 pad0[0x70];
     s32 linked;
@@ -89,6 +139,10 @@ extern FxScreenEffect D_800D6048[];
 extern void fxScreenEffect(s32 arg0, s32 type, s32 value4, s32 value6,
                            s32 value8, s32 valueA, s32 valueC, s32 valueE,
                            s32 value10);
+extern f32 func_8002A8BC(s16 angle);
+extern f32 func_8002A8C0(s16 angle);
+extern f32 D_80083DE8;
+extern void func_800349A4(FxGfx **dList, s32 texture, s32 flags, s32 arg3);
 
 void func_80046E70(FxCone *cone) {
     s32 texture;
@@ -118,9 +172,214 @@ void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047304.s")
+#ifdef NON_MATCHING
+/* Mickey-derived draft; JFG's corresponding fxMakeConeTextureCoords body is
+ * also assembly-only and supplies no adaptable C source. */
+void func_800475E8(FxConeCoords *cone, s16 angle) {
+    s16 x[20];
+    s16 y[20];
+    FxConeTextureInfo *textureInfo;
+    FxConeVertex *vertex;
+    s16 width;
+    s16 height;
+    s16 currentAngle;
+    u8 segmentCount;
+    s32 angleStep;
+    s32 i;
+
+    currentAngle = angle;
+    if (cone != 0) {
+        textureInfo = cone->textureInfo;
+        if (textureInfo != 0) {
+            width = textureInfo->width * 16;
+            height = textureInfo->height * 16;
+            segmentCount = cone->segmentCount;
+            vertex = cone->vertices;
+            if (segmentCount == 0) {
+                f32 widthEdge = (f32)(width - 1);
+                f32 scale = D_80083DE8;
+                f32 heightEdge = (f32)(height - 1);
+                s16 *xIt = x;
+                s16 *yIt = y;
+
+                do {
+                    f32 sine = func_8002A8C0(currentAngle);
+                    f32 cosine = func_8002A8BC(currentAngle);
+
+                    xIt++;
+                    yIt++;
+                    currentAngle += 0x2000;
+                    *yIt = (s32)(scale * sine) + width;
+                    *xIt = (s32)(scale * cosine) + height;
+                    yIt[8] = (s32)(widthEdge * sine) + width;
+                    xIt[8] = (s32)(heightEdge * cosine) + height;
+                } while (xIt != &x[8]);
+
+                i = 31;
+                do {
+                    vertex->s0 = y[vertex->index0];
+                    vertex->t0 = x[vertex->index0];
+                    vertex->s1 = y[vertex->index1];
+                    vertex->t1 = x[vertex->index1];
+                    vertex->s2 = y[vertex->index2];
+                    vertex->t2 = x[vertex->index2];
+                    vertex++;
+                    i--;
+                } while (i != 0);
+                segmentCount = 8;
+                angleStep = 0x2000;
+            } else {
+                angleStep = 0x10000 / segmentCount;
+            }
+
+            i = 0;
+            do {
+                y[i] = (s32)(func_8002A8C0(angle) * (f32)(width - 1)) +
+                       width;
+                x[i] = (s32)(func_8002A8BC(angle) * (f32)(height - 1)) +
+                       height;
+                angle += angleStep;
+                i++;
+            } while (i <= segmentCount);
+
+            i = 0;
+            while (i < (segmentCount & 3)) {
+                vertex->s0 = y[i];
+                vertex->t0 = x[i];
+                vertex->s1 = y[i + 1];
+                vertex->t1 = x[i + 1];
+                vertex->s2 = width;
+                vertex->t2 = height;
+                vertex++;
+                i++;
+            }
+            while (i < segmentCount) {
+                vertex[0].s0 = y[i + 0];
+                vertex[0].t0 = x[i + 0];
+                vertex[0].s1 = y[i + 1];
+                vertex[0].t1 = x[i + 1];
+                vertex[0].s2 = width;
+                vertex[0].t2 = height;
+                vertex[1].s0 = y[i + 1];
+                vertex[1].t0 = x[i + 1];
+                vertex[1].s1 = y[i + 2];
+                vertex[1].t1 = x[i + 2];
+                vertex[1].s2 = width;
+                vertex[1].t2 = height;
+                vertex[2].s0 = y[i + 2];
+                vertex[2].t0 = x[i + 2];
+                vertex[2].s1 = y[i + 3];
+                vertex[2].t1 = x[i + 3];
+                vertex[2].s2 = width;
+                vertex[2].t2 = height;
+                vertex[3].s0 = y[i + 3];
+                vertex[3].t0 = x[i + 3];
+                vertex[3].s1 = y[i + 4];
+                vertex[3].t1 = x[i + 4];
+                vertex[3].s2 = width;
+                vertex[3].t2 = height;
+                vertex += 4;
+                i += 4;
+            }
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800475E8.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800479D4.s")
+
+/*
+ * PROVENANCE: the block-local display-list macro spelling below is adapted
+ * from Jet Force Gemini include/f3ddkr.h. Mickey's own bytes establish every
+ * invocation, argument, constant and operation order in func_80047CD8.
+ */
+#define FX_SHIFTL(value, shift, width) \
+    ((u32)(((u32)(value) & ((1U << (width)) - 1U)) << (shift)))
+#define FX_PIPE_SYNC(packet) { \
+    FxGfx *_g = (FxGfx *)(packet); \
+    _g->w0 = FX_SHIFTL(0xE7, 24, 8); \
+    _g->w1 = 0; \
+}
+#define FX_SET_PRIM(packet, red, green, blue, alpha) { \
+    FxGfx *_g = (FxGfx *)(packet); \
+    _g->w0 = FX_SHIFTL(0xFA, 24, 8); \
+    _g->w1 = FX_SHIFTL(red, 24, 8) | FX_SHIFTL(green, 16, 8) | \
+             FX_SHIFTL(blue, 8, 8) | FX_SHIFTL(alpha, 0, 8); \
+}
+#define FX_SET_ENV(packet, red, green, blue, alpha) { \
+    FxGfx *_g = (FxGfx *)(packet); \
+    _g->w0 = FX_SHIFTL(0xFB, 24, 8); \
+    _g->w1 = FX_SHIFTL(red, 24, 8) | FX_SHIFTL(green, 16, 8) | \
+             FX_SHIFTL(blue, 8, 8) | FX_SHIFTL(alpha, 0, 8); \
+}
+#define FX_VERTEX_JFG(packet, address, count, first) { \
+    FxGfx *_g = (FxGfx *)(packet); \
+    _g->w0 = FX_SHIFTL(4, 24, 8) | \
+             FX_SHIFTL(((count) << 3) | ((u32)(address) & 6) | (first), \
+                       16, 8) | \
+             FX_SHIFTL(((count) << 3) + ((count) << 1) + 8, 0, 16); \
+    _g->w1 = (u32)(address); \
+}
+#define FX_POLYGON(packet, address, count, textured) { \
+    FxGfx *_g = (FxGfx *)(packet); \
+    _g->w0 = FX_SHIFTL((((count) - 1) << 4) | (textured), 16, 8) | \
+             FX_SHIFTL(5, 24, 8) | FX_SHIFTL((count) * 16, 0, 16); \
+    _g->w1 = (u32)(address); \
+}
+
+#ifdef NON_MATCHING
+/* Mickey-derived draft; JFG's corresponding fxDrawCone body is assembly-only. */
+void func_80047CD8(FxGfx **dList, FxDrawCone *cone, s32 flags, u8 alpha) {
+    s32 hasTexture;
+
+    if (cone != 0) {
+        FX_PIPE_SYNC((*dList)++);
+        if (flags & 0x200) {
+            FX_SET_PRIM((*dList)++, cone->primRed, cone->primGreen,
+                        cone->primBlue, alpha);
+            FX_SET_ENV((*dList)++, cone->envRed, cone->envGreen,
+                       cone->envBlue, 0);
+        } else {
+            FX_SET_PRIM((*dList)++, 0xFF, 0xFF, 0xFF, alpha);
+            FX_SET_ENV((*dList)++, 0xFF, 0xFF, 0xFF, 0);
+        }
+
+        if (cone->texture0 != 0) {
+            hasTexture = 1;
+        } else {
+            hasTexture = 0;
+        }
+        if (cone->vertexCount == 0) {
+            FX_VERTEX_JFG((*dList)++,
+                          cone->addresses[cone->addressIndex] + 0x80000000,
+                          17, 0);
+            func_800349A4(dList, cone->texture1, flags, 0);
+            FX_POLYGON((*dList)++, cone->vertices + 0x80000000, 16,
+                       hasTexture);
+            func_800349A4(dList, cone->texture0, flags, 0);
+            FX_POLYGON((*dList)++, cone->vertices + 0x80000200, 8,
+                       hasTexture);
+            func_800349A4(dList, cone->texture1, flags, 0);
+            FX_POLYGON((*dList)++, cone->vertices + 0x80000100, 16,
+                       hasTexture);
+        } else {
+            func_800349A4(dList, cone->texture0, flags, 0);
+            FX_VERTEX_JFG((*dList)++,
+                          cone->addresses[cone->addressIndex] + 0x80000000,
+                          cone->mode, 0);
+            FX_POLYGON((*dList)++, cone->vertices + 0x80000000,
+                       cone->vertexCount, hasTexture);
+        }
+
+        FX_PIPE_SYNC((*dList)++);
+        FX_SET_PRIM((*dList)++, 0xFF, 0xFF, 0xFF, 0xFF);
+        FX_SET_ENV((*dList)++, 0xFF, 0xFF, 0xFF, 0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047CD8.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048760.s")

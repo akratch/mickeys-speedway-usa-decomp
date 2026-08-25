@@ -1753,6 +1753,48 @@ is exact after resolving `func_800347A0` as a one-argument call; its two call
 relocations and the wake-linked field access match without normalization. The
 same ABI resolves the adjacent 72-byte `func_80048980` (`wakeFreeRipple`),
 which is exact with both its linked-release and nested-wake call relocations.
+The 100-byte `stop_all_threads_except_main` is exact on Mickey's active-thread
+walk: it filters priorities 1 through 127, passes the thread itself to
+`osStopThread`, and retains the exact call relocation and 32-byte frame under
+the resident defaults.
+The 60-byte `func_800453C4` display-list unpacker is exact too: its four typed
+word extractions reproduce all 15 target instructions at the resident defaults
+and have no relocation surface.
+Its adjacent 60-byte `func_80045400` unpacker is likewise exact: the alternate
+24/16/8-bit field split retains all 15 target instructions and has no
+relocations under the same flags.
+The 1,540-byte `diRcpPrintDL` dispatcher reaches an instruction-exact source
+plateau: JFG's natural nested switches reproduce all 385 target words, the
+32-byte frame, helper-call order, and every named diagnostic-string relocation
+under the resident defaults. Promotion is blocked by section ownership. IDO
+emits three switch tables into this TU's `.rodata`, but the same tables remain
+inside the shared `0x81590` rodata segment outside this lane's ownership; the
+result has six HI16/LO16 table-relocation identity mismatches beginning at
+function `+0x44` (plus two local PC16 assembler-metadata differences) and a
+duplicate linked table surface. The exact source remains behind
+`NON_MATCHING`, with the target assembly canonical until that rodata split is
+handed off.
+The 1,004-byte `func_800475E8` (`fxMakeConeTextureCoords`) reaches a structural
+plateau from Mickey's recovered coordinate-generation loops. JFG confirms the
+identity but its peer is also assembly-only. After the full flag lattice and
+four coherent loop/lifetime variants, the closest relevant candidate needs
+`-Wo,-loopunroll,0`, is six instructions long (257 versus 251), and uses a
+256-byte frame instead of 248 bytes; all 257 positional words differ beginning
+at function `+0x0` because the extra scalar homes shift the complete GPR/FPR
+allocation. The typed candidate remains behind `NON_MATCHING`; the TU-wide
+unroll override is not adopted without an exact result and an impact proof for
+the existing matches.
+The 936-byte `func_80047CD8` (`fxDrawCone`) reaches an eight-word allocation
+plateau after the full flag lattice and ten source-shape hypotheses. Recasting
+its opaque words as JFG-style `gSPVertexJFG` and `gSPPolygon` macros reproduces
+the target's exact 234-instruction size, 104-byte frame, saved-register set,
+control flow and helper-call relocations under the resident defaults. The
+first mismatch is function `+0x298`: in the variable-count path IDO assigns
+the cone mode and triangle count to different argument registers than the
+target, affecting eight words while leaving the command arithmetic and all
+surrounding instructions exact. Explicit locals fix those eight uses only by
+perturbing the frame or earlier allocation, so the typed macro reconstruction
+remains behind `NON_MATCHING` and the target assembly stays canonical.
 The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
 handle locals reproduce the target's direct second argument register and
 branch-delay schedule, with both texture-free calls and the allocator call
@@ -1790,6 +1832,24 @@ four-entry descending callback loop, flag test, callback-table refresh, and
 indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
+
+`diCpuThread` reached a bounded `NON_MATCHING` plateau after the full flag
+lattice and ten source/lifetime hypotheses. The best candidate has the exact
+85-instruction size, 88-byte frame, saved-register set, control flow and
+relocation identities. Its first mismatch is function `+0x90`: IDO schedules
+the invariant `D_80083DBC` load before the low half of the `999999` loop
+constant, while the target emits those adjacent instructions in the opposite
+order. The target assembly remains canonical.
+
+The 1,836-byte `func_80045D34` crash-screen controller also remains
+`NON_MATCHING`. Supplying its jump table recovered a complete Mickey-derived
+draft, but JFG's closest 1,888-byte peer (`func_80067880`) is assembly-only and
+offers no source body. At the resident defaults the best typed candidate is
+eight instructions short (451 versus 459), uses a 176-byte frame instead of
+168 bytes, and differs in 432 positional words from function `+0x0`; the full
+flag lattice's smaller MIPS I result cannot be adopted for a TU containing
+existing MIPS II exact matches. Source/lifetime and named-string experiments
+remained structural mismatches, so the target assembly stays canonical.
 
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
