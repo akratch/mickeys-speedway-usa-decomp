@@ -545,7 +545,9 @@ MtxF *camGetInvProjMtx(void) {
 Mtx *camGetProjOrgMtx(void) {
     return &D_800CED60[D_80079F94];
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002468C.s")
+MtxF *func_8002468C(void) {
+    return &D_800CEC98;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024698.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800246A4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800246B0.s")
