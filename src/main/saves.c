@@ -19,6 +19,7 @@ extern u8 D_8007A2E4;
 extern s32 D_8007A2E8;
 extern s32 D_8007A2FC;
 extern s32 D_8007A31C;
+extern f32 D_80082088;
 extern u8 D_8007A284[];
 extern u8 D_8007A304[];
 extern void *D_8007A280;
@@ -83,13 +84,17 @@ typedef struct RumbleState {
     u8 state;
     u8 pad01[2];
     u8 flag;
-    u8 pad04[0xA];
+    s16 strength;
+    s16 unk6;
+    s16 rumbleTime;
+    s16 timer;
+    s16 unkC;
 } RumbleState;
 
 void mmFree(void *address);
 void *func_8002B280();
 SavesSlot *func_800291C4(void);
-s32 joyGetController(s32 controllerIndex);
+u8 joyGetController(s32 controllerIndex);
 extern RumbleState D_800D2368[];
 s32 osContStartReadData(OSMesgQueue *messageQueue);
 extern s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data,
@@ -130,7 +135,38 @@ void rumbleProcessing(s32 enabled) {
         D_8007A2F4 = 0;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStart.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:rumbleMax, under Mickey's established rumbleStart name. */
+void rumbleStart(s32 controllerIndex, s32 arg1, f32 arg2) {
+    RumbleState *rumble;
+    s32 temp_f16;
+    s32 controllerNum;
+
+    if (func_8002BCC0() != 0) {
+        if (controllerIndex >= 0 && controllerIndex < 4) {
+            controllerNum = joyGetController(controllerIndex);
+            if ((1 << controllerNum) & D_8007A2E8) {
+                rumble = &D_800D2368[controllerNum];
+                if (rumble->rumbleTime <= 0) {
+                    rumble->strength = 0;
+                }
+                if (arg1 != 0) {
+                    arg1 = (s32) ((f32) (arg1 * arg1) * D_80082088);
+                    if (rumble->strength < arg1) {
+                        rumble->strength = arg1;
+                    }
+                }
+                if (rumble->state != 2) {
+                    rumble->state = 1;
+                    temp_f16 = (s32) (arg2 * 60.0f);
+                    if (rumble->rumbleTime < temp_f16) {
+                        rumble->rumbleTime = temp_f16;
+                    }
+                }
+            }
+        }
+    }
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:rumbleStop, with Mickey's force argument. */
 void rumbleStop(s32 controllerIndex, s32 force) {

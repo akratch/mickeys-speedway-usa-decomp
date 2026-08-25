@@ -1295,7 +1295,8 @@ TU-level summary, not a substitute for it.
 Exact C reconstructions in this census currently include the still-unnamed
 `func_8002BCC0` (ROM `0x2C8C0`–`0x2C8FC`, 60 bytes), `rumbleRumbles`
 (ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleProcessing` (ROM `0x2C908`–
-`0x2C958`, 80 bytes), `rumbleStop` (ROM `0x2CA74`–`0x2CB00`, 140 bytes),
+`0x2C958`, 80 bytes), `rumbleStart` (ROM `0x2C958`–`0x2CA74`, 284 bytes),
+`rumbleStop` (ROM `0x2CA74`–`0x2CB00`, 140 bytes),
 `rumbleKill` (ROM `0x2CB00`–`0x2CB44`, 68 bytes), `rumbleUpdate` (ROM
 `0x2CB44`–`0x2CB54`, 16 bytes),
 `packCalculateGameChecksum` (ROM `0x2D3BC`–
@@ -1357,6 +1358,7 @@ lattice selects the target's scalar 24-record reset loop, and the full ROM
 comparison confirms the setting leaves its other exact functions unchanged.
 The named bodies are adapted from
 JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the
+Mickey `rumbleStart` body specifically corresponds to JFG's `rumbleMax`; the
 still-unnamed leading rumble gate also adapts its JFG body while retaining
 Mickey's placeholder name, and the still-unnamed global-flags loader adapts
 JFG's load-and-default-copy flow to Mickey's 24-byte resident record and I/O
