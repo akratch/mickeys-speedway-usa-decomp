@@ -2879,7 +2879,9 @@
       "size": 540,
       "source": "src/overlays/o041/overlay41SpawnItems.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "trim_elf_section.py",
+        "externalize_elf_section.py",
         "objcopy"
       ]
     },
@@ -2939,6 +2941,18 @@
       "overlay": 42,
       "size": 1792,
       "source": "src/overlays/o042/overlay_042.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o043/func_overlay_043_F0000BE4_188ABB4.c.o",
+      "offset": 3044,
+      "overlay": 43,
+      "size": 1220,
+      "source": "src/overlays/o043/func_overlay_043_F0000BE4_188ABB4.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -3828,18 +3842,6 @@
       "overlay": 58,
       "size": 1216,
       "source": "src/overlays/o058/overlay58FinalizePackedStatus.c",
-      "tools": [
-        "objcopy"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
-      "object": "build/src/overlays/o058/overlay58RefreshRankSet.c.o",
-      "offset": 21096,
-      "overlay": 58,
-      "size": 608,
-      "source": "src/overlays/o058/overlay58RefreshRankSet.c",
       "tools": [
         "objcopy"
       ]
@@ -6881,7 +6883,7 @@
     "by_class": {
       "metadata": 557
     },
-    "matched_c_bytes_with_postprocess": 278688,
+    "matched_c_bytes_with_postprocess": 279300,
     "objects_with_postprocess": 557
   }
 }
