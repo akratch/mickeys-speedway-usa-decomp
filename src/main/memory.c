@@ -14,13 +14,16 @@
 #include "game/memory.h"
 
 extern u8 D_8007A274;
-extern MemoryPool D_800D1C60[];
-extern s32 D_800D1CA0;
-extern MemoryPoolSlot *D_800D1C64;
-extern s32 D_800D21AC;
-extern s32 D_800D21B0;
-extern s32 D_800D21B4;
-extern s32 D_800D21A8;
+MemoryPool D_800D1C60[MEMORY_POOL_COUNT];
+s32 D_800D1CA0;
+s32 sMemoryPoolCountPadding;
+void *D_800D1CA8[256];
+u8 D_800D20A8[256];
+s32 D_800D21A8;
+s32 D_800D21AC;
+s32 D_800D21B0;
+s32 D_800D21B4;
+#define D_800D1C64 (D_800D1C60[0].slots)
 extern u8 D_800D8750[];
 
 MemoryPoolSlot *func_8002B1A0(MemoryPoolSlot *slots, s32 poolSize, s32 numSlots);
@@ -205,6 +208,9 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
 /*
  * PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
  * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative.
+ * Workbench: mixed constant/structure/register, 116/116 words, 14 differences
+ * from +0xE0 with the exact frame. Lever: constant-audit; owned BSS did not
+ * alter the remaining slot/data-pointer allocation.
  */
 #ifdef NON_MATCHING
 void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
@@ -263,9 +269,6 @@ void mmSetDelay(s32 state) {
 }
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmFlushFreeStack. */
-extern void *D_800D1CA8[];
-extern u8 D_800D20A8[];
-
 void func_8002B8A8(u8 *address);
 
 void func_8002B700(void) {
@@ -293,8 +296,9 @@ void mmFree(void *data) {
  */
 void ReleaseUnusedLinkSlots(void);
 
-/* Plateau: 62/63 words, first +0x4; the target keeps &D_800D21B0 in s0.
- * The 119-flag lattice and 40-minute permuter found no valid exact source. */
+/* Workbench: mixed structure/register, 62/63 words, first +0x4; the target
+ * keeps &D_800D21B0 in s0. Lever: structure-buckets; owned BSS leaves the
+ * candidate's folded t6 base unchanged. */
 #ifdef NON_MATCHING
 void func_8002B7AC(void) {
     s32 i;
@@ -349,9 +353,6 @@ void func_8002B93C(void *dataAddress) {
 }
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_get_pool. */
-extern MemoryPool D_800D1C60[];
-extern s32 D_800D1CA0;
-
 s32 func_8002B978(u8 *address) {
     s32 i;
     MemoryPool *pool;
@@ -427,12 +428,9 @@ s32 mmGetDelay(void) {
  * PROVENANCE: adapted from JFG src/memory.c:mempool_slot_assign. Mickey's
  * pool accounting, byte-sized slot fields, globals, and bytes are authoritative.
  * Workbench: allocation-mismatch, exact 72 words, 30 register differences from +0x8C.
- * Tried volatile carrier, store reorder, donor indexing, association, and pool-vs-temp inlining.
- * curNumSlots remains a temp instead of a3; downstream temp/index webs remain shifted.
+ * Lever: pool-position/temp-FIFO; owned BSS leaves the allocator web split unchanged.
+ * Assembly fallback remains canonical.
  */
-/* Plateau retry (2026-08-25): -O2/-mips2 stays exact-sized; a volatile
- * colour-index read reduces 57 to 47 differing words, first +0x8. Donor-style
- * arrays, widths, declaration order, and pointer lifetimes did not close it. */
 #ifdef NON_MATCHING
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
                    s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag) {
