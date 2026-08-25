@@ -100,6 +100,8 @@ void *func_8002B280(s32 size, u32 colourTag);
 AnimPathObject *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_80005768(AnimPathObject *object);
 void piRomLoadSection();
+u8 *levelGetLevel(void);
+void func_800511C4();
 void func_80021504(f32 value, s32 arg1);
 f32 sqrtf(f32 value);
 extern void func_800031E8(s32 handle);
@@ -759,7 +761,52 @@ void func_80050E9C(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050E9C.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051004.s")
+
+/*
+ * PROVENANCE: adapted from JFG's public animseqSetupGroup assembly. Mickey's
+ * directory layout, level-header field, globals, and calls are authoritative.
+ */
+void func_80051004(s32 groupId) {
+    AnimGroupDirectoryEntry *entry;
+    AnimLevelHeader *level;
+    u8 *base;
+    u32 packed;
+    s32 foundId;
+    s32 offset;
+    s32 found;
+
+    if ((groupId >= 0) && (groupId < 0x100) &&
+        (groupId != D_8007D690)) {
+        func_80050E9C();
+        base = D_8007D680;
+        entry = (AnimGroupDirectoryEntry *) base;
+        do {
+            packed = entry->packed;
+            entry++;
+            foundId = packed >> 24;
+        } while ((groupId != foundId) && (foundId != 0xFF));
+        found = (foundId == groupId);
+        if (!found) {
+            goto done;
+        }
+        offset = packed & 0xFFFFFF;
+        if (offset == 0xFFFFFF) {
+            goto done;
+        }
+        D_8007D690 = foundId;
+        D_8007D68C = (s32 *) (base + offset);
+        func_800511C4();
+        animseqInitGroup();
+        animseqResetGroup();
+        level = (AnimLevelHeader *) levelGetLevel();
+        D_8007D6B4 = level->sequenceRate;
+        D_8007D6B8 = 0.0f;
+        D_8007D6BC = 0;
+        D_8007D6A4 = 1;
+    }
+done:
+    return;
+}
 /* Exact JFG donor assembly corroborates the loop; C is Mickey-led. */
 void animseqInitGroup(void) {
     s32 pathIndex;

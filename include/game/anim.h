@@ -23,6 +23,15 @@ typedef struct AnimStreamEntry {
     u16 command;
 } AnimStreamEntry;
 
+typedef struct AnimGroupDirectoryEntry {
+    u32 packed;
+} AnimGroupDirectoryEntry;
+
+typedef struct AnimLevelHeader {
+    u8 pad0[0xAE];
+    s8 sequenceRate;
+} AnimLevelHeader;
+
 typedef struct AnimLevelRomEntry {
     s32 start;
     s32 end;
