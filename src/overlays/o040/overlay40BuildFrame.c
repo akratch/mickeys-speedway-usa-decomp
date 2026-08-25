@@ -12,6 +12,9 @@ extern void overlay40SubmitFrameReloc(void *displayList, s32 count,
                                       Overlay40FrameRecord *records,
                                       s32 flags);
 
+/* Plateau (near-miss batch 20): exact 0x144 size; 75 words remain, first +0x4.
+ * Layout, width, statement/lifetime, volatile-read, and 20 flag variants failed;
+ * the 40-minute permuter best was 12 bytes short (74 words, first +0x0). */
 #line 22
 #ifdef NON_MATCHING
 void overlay40BuildFrame(void *displayList, s32 x, s32 y, s32 width,
