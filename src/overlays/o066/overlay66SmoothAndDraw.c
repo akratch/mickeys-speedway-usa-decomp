@@ -2,9 +2,9 @@
 
 typedef struct Overlay66Gfx Overlay66Gfx;
 
-extern s32 gOverlay66TimerCheck;
-extern s32 gOverlay66TimerUpdate;
-extern s32 gOverlay66RuntimeFlagReloc;
+extern s32 gOverlay66Timer;
+extern s32 gOverlay66Flag;
+extern s32 D_F8;
 extern s32 gOverlay66BssControl;
 extern u16 *gOverlay66FirstPrimary;
 extern u16 *gOverlay66SharedFirst;
@@ -13,10 +13,10 @@ extern u16 *gOverlay66SharedPixels;
 extern u16 *gOverlay66SharedFinal;
 extern u16 *gOverlay66FinalSecondary;
 
-void overlay66DrawBuffer(Overlay66Gfx **commands, const u16 *primary,
-                         const u16 *secondary);
-void overlay66BeginBufferMutation(void *buffer, s32 size);
-void overlay66EndBufferMutation(void);
+void func_overlay_066_F00004E0_18C6948(Overlay66Gfx **commands,
+                                       const u16 *primary,
+                                       const u16 *secondary);
+void func_overlay_066_F0000000_18C6468();
 
 #define O66_FILTER_ONE(destination, source, leftRed, leftGreen, leftBlue, \
                        centerRed, centerGreen, centerBlue)               \
@@ -46,9 +46,13 @@ do {                                                                    \
     blue1 = blue2;                                                      \
 } while (0)
 
+/* Plateau (2026-08-25, near-miss p2 batch 23): structure-mismatch, 249 masked words (251 raw), first +0x7C.
+ * Tried constant/identifier repair, exact call bindings, flag lattice, D_F8 identity, pointer/carrier, and register forms.
+ * The exact 296-word/frame candidate remains 73 structural/209 register; pointer induction and filter order diverge. */
 #ifdef NON_MATCHING
 void func_overlay_066_F0000040_18C64A8(Overlay66Gfx **commands) {
     u16 *pixels;
+    u16 *pixelBase;
     s32 remaining;
     s32 pixel;
     s32 red0;
@@ -61,16 +65,17 @@ void func_overlay_066_F0000040_18C64A8(Overlay66Gfx **commands) {
     s32 green2;
     s32 blue2;
 
-    if (gOverlay66RuntimeFlagReloc == 0) {
-        overlay66DrawBuffer(commands, gOverlay66FirstPrimary,
-                            gOverlay66SharedFirst);
+    if (gOverlay66Flag == 0) {
+        func_overlay_066_F00004E0_18C6948(commands, gOverlay66FirstPrimary,
+                                          gOverlay66SharedFirst);
         gOverlay66BssControl = 1;
     } else if (gOverlay66BssControl > 0) {
         gOverlay66BssControl--;
-    } else if (gOverlay66TimerCheck > 0) {
-        overlay66BeginBufferMutation(gOverlay66SharedMutation, 0x25800);
-        pixels = gOverlay66SharedPixels;
+    } else if (gOverlay66Timer > 0) {
+        func_overlay_066_F0000000_18C6468(gOverlay66SharedMutation, 0x25800);
+        pixelBase = gOverlay66SharedPixels;
         remaining = 0x12BFC;
+        pixels = pixelBase;
         pixels += 3;
 
         pixel = pixels[-3] >> 2;
@@ -101,13 +106,13 @@ void func_overlay_066_F0000040_18C64A8(Overlay66Gfx **commands) {
             remaining -= 4;
         } while (remaining != 0);
 
-        gOverlay66TimerUpdate--;
-        overlay66EndBufferMutation();
+        D_F8--;
+        func_overlay_066_F0000000_18C6468();
     }
 
-    gOverlay66RuntimeFlagReloc = 1;
-    overlay66DrawBuffer(commands, gOverlay66SharedFinal,
-                        gOverlay66FinalSecondary);
+    gOverlay66Flag = 1;
+    func_overlay_066_F00004E0_18C6948(commands, gOverlay66SharedFinal,
+                                      gOverlay66FinalSecondary);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o066/overlay66SmoothAndDraw/func_overlay_066_F0000040_18C64A8.s")
