@@ -14,6 +14,7 @@
 
 #include "PR/ultratypes.h"
 #include "game/anim.h"
+#include "game/charControl.h"
 
 extern s32 D_8007D690;
 extern void *D_8007D694;
@@ -29,7 +30,13 @@ extern s16 D_800D6C4C;
 extern s16 D_800D6C52;
 extern s16 D_800D6C54;
 extern f32 D_8007D6B4;
+extern f32 D_80083FA8;
 extern f32 D_80084218;
+extern u8 D_8007BF04;
+extern u8 D_8007BF20;
+extern u8 D_8007BF24;
+extern u8 D_8007BF28;
+extern s16 *D_8007D780[];
 
 typedef struct AnimCameraSource {
     s16 unk0;
@@ -85,6 +92,8 @@ typedef struct AnimLockonReset {
 extern AnimLightReset D_800D6C58[];
 
 void *func_8002B280();
+AnimPathObject *func_8000590C(ControlSpawnPacket *packet, s32 mode);
+void func_80005768(AnimPathObject *object);
 void piRomLoadSection();
 void func_80021504(f32 value, s32 arg1);
 f32 sqrtf(f32 value);
@@ -243,7 +252,73 @@ void func_800502CC(u8 pathIndex) {
     D_800D6B00[pathIndex] = NULL;
 }
 
+/*
+ * PROVENANCE: adapted from JFG's public
+ * asm/nonmatchings/anim/animseqInitPath.s. Mickey's shorter character-table
+ * selection, resident object layout, and final compiler output are
+ * independently established from Mickey's ROM.
+ *
+ * Plateau after the flag lattice, nine type/lifetime/source variants, and a
+ * bounded canonical-flag permuter run: the best candidate is 132 instructions
+ * against the target's 133, with first positional mismatch +0x0. The decisive
+ * missing instruction is the dead incoming path-index home at +0x18; its
+ * absence swaps the entry temporaries and leaves the live path spill at
+ * sp+0x28 instead of the target's sp+0x20. The correct -mips2 permuter base
+ * score was 275 and the capped run found no improvement.
+ */
+#ifdef NON_MATCHING
+void func_80050348(s32 pathIndex) {
+    ControlSpawnPacket packet;
+    AnimPath *path;
+    AnimPathNode *node;
+    AnimPathObject *object;
+    s16 objectId;
+
+    path = D_800D6B00[pathIndex & 0xFF];
+    if (path != NULL) {
+        node = path->nodes;
+        if ((node != NULL) && (path->unk8 == NULL) && (path->unk2 != -1)) {
+            packet.x = (s16) node->unkC;
+            packet.y = (s16) node->unk10;
+            packet.z = (s16) node->unk14;
+            packet.mode = 0xA;
+            objectId = path->unk2;
+            if (objectId == 0x115) {
+                packet.kind = D_8007D780[D_8007BF04 & 3][D_8007BF20 & 0xF];
+            } else if (objectId == 0x11A) {
+                packet.kind = D_8007D780[D_8007BF04 & 3][D_8007BF24 & 0xF];
+            } else if (objectId == 0x119) {
+                packet.kind = D_8007D780[D_8007BF04 & 3][D_8007BF28 & 0xF];
+            } else {
+                packet.kind = objectId;
+            }
+            object = func_8000590C(&packet, 1);
+            path->unk8 = object;
+            if (object != NULL) {
+                object->unk3C = 0;
+                object->unk6 |= 0x400;
+                if (object->unk44 == 0x1D) {
+                    func_80005768(path->unk8);
+                }
+                path->unk24 = 0xFF;
+                path->unk25 = 0xFF;
+                path->unk26 = 0;
+                path->unk27 = 0;
+                path->unk2A = 0;
+                path->unk2C = 1.0f;
+                path->unk30 = 0.0f;
+                if (path->unk8->unk58 != NULL) {
+                    path->unk8->unk58->unk132 = 0;
+                }
+            }
+        }
+        path->unk28 = 0x64;
+        path->unk29 = 0;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050348.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
@@ -383,7 +458,70 @@ AnimPath *func_800508B4(u8 pathIndex) {
     return D_800D6B00[pathIndex];
 }
 
+/*
+ * PROVENANCE: adapted from JFG's public
+ * asm/nonmatchings/anim/func_800772C4.s. Mickey's bit-reader calls, field
+ * layout, constants, and final compiler output are independently established
+ * from Mickey's ROM.
+ *
+ * Plateau after the flag lattice, nine source/lifetime variants, and a
+ * bounded permuter pass: the best candidate has the exact 128-instruction
+ * size, frame, loop, exits, and relocation surface. Four preheader words
+ * remain from first mismatch +0x40 because IDO loads D_80083FA8 before the
+ * 0.5f/0.390625f constants, while the target loads those constants first.
+ * The permuter imported the TU with the wrong -mips1 mode and its suggestion
+ * regressed the canonical -mips2 comparison.
+ */
+#ifdef NON_MATCHING
+void func_800508D4(s32 count, AnimPathNode *node, s32 stream,
+                   AnimPathNode **nodeEnd, s32 *streamEnd) {
+    f32 valueFloat;
+    u32 value;
+    s32 wideValues;
+
+    if (count > 0) {
+        f32 halfScale = 0.5f;
+        f32 wideScale = 0.390625f;
+        f32 unsignedScale = D_80083FA8;
+        f32 signedScale = 0.125f;
+
+        do {
+            func_80050000(&stream);
+            node->unk6 = func_80050024(8);
+            wideValues = func_80050024(1);
+            node->unk7 = func_80050024(1);
+            node->unkC = func_800500A4(0x12) * signedScale;
+            node->unk10 = func_800500A4(0x12) * signedScale;
+            node->unk14 = func_800500A4(0x12) * signedScale;
+            node->unk0 = func_80050024(0xC) * 0x10;
+            node->unk2 = func_80050024(0xC) * 0x10;
+            node->unk4 = func_80050024(0xC) * 0x10;
+            node->unk8 = (u32) func_80050024(0xC) * unsignedScale;
+            if (wideValues == 0) {
+                node->unk8 *= wideScale;
+            }
+            node->unk18 = func_800500A4(0xC) * 4;
+            node->unk1A = func_800500A4(0xC) * 4;
+            node->unk1C = func_800500A4(0xC) * 4;
+            value = func_80050024(0xC);
+            valueFloat = value;
+            node->unk20 = valueFloat * halfScale;
+            node->unk1E = 0;
+            func_8005013C();
+            count--;
+            node++;
+        } while (count > 0);
+    }
+    if (nodeEnd != NULL) {
+        *nodeEnd = node;
+    }
+    if (streamEnd != NULL) {
+        *streamEnd = stream;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800508D4.s")
+#endif
 /* JFG's animseqLinkNodes assembly corroborates this Mickey-led body. */
 void func_80050AD4(u8 pathIndex) {
     AnimPath *path;
@@ -811,12 +949,188 @@ typedef struct HitCollisionNormalLink {
     f32 unk24;
 } HitCollisionNormalLink;
 
+typedef struct HitInitEntry {
+    u8 pad0[0x18];
+    AnimVec3f position;
+    f32 scaleX;
+    f32 scaleY;
+    u8 pad2C[8];
+} HitInitEntry;
+
+typedef struct HitInitRecord {
+    s16 rotationX;
+    s16 rotationY;
+    s16 rotationZ;
+    u16 flags;
+    u8 kind;
+    u8 mode;
+    s16 entryCount;
+    AnimVec3f localOffset;
+    AnimVec3f position;
+    AnimVec3f basePosition;
+    u8 pad30[0xC];
+    f32 minX;
+    f32 minY;
+    f32 minZ;
+    f32 maxX;
+    f32 maxY;
+    f32 maxZ;
+    u8 pad54[4];
+    f32 radius;
+    f32 height;
+    s8 collisionType;
+    u8 pad61[7];
+    f32 unk68;
+    f32 unk6C;
+    u8 pad70[4];
+    HitInitEntry *entries;
+} HitInitRecord;
+
+typedef struct HitInitDescriptor {
+    u16 vertexIndex;
+    u8 pad2[6];
+    f32 scale;
+} HitInitDescriptor;
+
+typedef struct HitInitHeader {
+    u8 pad0[0x38];
+    HitInitDescriptor *descriptors;
+    u8 pad3C[0x12];
+    s8 useFloatPositions;
+} HitInitHeader;
+
+typedef struct HitInitModel {
+    HitInitHeader *header;
+    s16 *vertices;
+    u8 pad8[0x40];
+    f32 *floatPositions;
+} HitInitModel;
+
+typedef struct HitInitSource {
+    u8 pad0[8];
+    f32 scale;
+    AnimVec3f position;
+    u8 pad18[0x30];
+    HitInitRecord *hit;
+    u8 pad4C[0x1C];
+    HitInitModel **model;
+} HitInitSource;
+
 void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
                    void **handle);
 u8 *func_80028F54(void);
 void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
+void mathOneFloatRPY(ControlTransform *transform, f32 *output);
 
+/*
+ * PROVENANCE: JFG's public asm/nonmatchings/hit/hitInitObjectHit.s supplies
+ * the structural comparison. Mickey's ABI, field offsets, branches, and
+ * generated code remain independently established from Mickey's ROM.
+ *
+ * Plateau after the flag lattice, approximately 10 type/lifetime/workspace
+ * shapes, and a bounded canonical-flag permuter: the best candidate has the
+ * exact 198-instruction opcode/register schedule, 0x78 frame, and two call
+ * relocations. Its 16 differing words begin at +0xA4 and are stack offsets
+ * only: IDO places offset[3] at sp+0x54 and the call-live hit pointer at
+ * sp+0x74, while the target places them at sp+0x6C and sp+0x64. The permuter
+ * normalizes those offsets, reports its base as score zero, and exits without
+ * producing an object-exact alternative.
+ */
+#ifdef NON_MATCHING
+void func_80053550(HitInitSource *source, s32 kind, s32 mode, s16 rotationX,
+                   s16 rotationY, s16 rotationZ, f32 radius, f32 height,
+                   f32 arg8, f32 arg9, s32 collisionType, u16 flags) {
+    HitInitRecord *hit;
+    HitInitModel *model;
+    HitInitHeader *header;
+    HitInitDescriptor *descriptor;
+    HitInitEntry *entry;
+    f32 *floatPosition;
+    f32 offset[3];
+    s16 *vertex;
+    s32 entryCount;
+    s32 remaining;
+    f32 extent;
+
+    hit = source->hit;
+    if (hit != NULL) {
+        hit->rotationX = rotationX;
+        hit->rotationY = rotationY;
+        hit->rotationZ = rotationZ;
+        hit->collisionType = collisionType;
+        hit->kind = kind;
+        hit->mode = mode;
+        hit->position.x = source->position.x;
+        hit->position.y = source->position.y;
+        hit->position.z = source->position.z;
+        if ((rotationX | rotationY | rotationZ) != 0) {
+            hit->localOffset.x = rotationX * source->scale;
+            hit->localOffset.y = rotationY * source->scale;
+            hit->localOffset.z = rotationZ * source->scale;
+            offset[0] = hit->localOffset.x;
+            offset[1] = hit->localOffset.y;
+            offset[2] = hit->localOffset.z;
+            mathOneFloatRPY((ControlTransform *) source, offset);
+            hit->position.x += offset[0];
+            hit->position.y += offset[1];
+            hit->position.z += offset[2];
+        }
+        hit->basePosition.x = hit->position.x;
+        hit->basePosition.y = hit->position.y;
+        hit->basePosition.z = hit->position.z;
+        hit->radius = source->scale * radius;
+        hit->height = source->scale * height;
+        if (hit->mode == 0) {
+            extent = hit->radius + 5.0f;
+            hit->minX = hit->basePosition.x - extent;
+            hit->maxX = hit->basePosition.x + extent;
+            hit->minZ = hit->basePosition.z - extent;
+            hit->maxZ = hit->basePosition.z + extent;
+            extent = hit->height + 5.0f;
+            hit->minY = hit->basePosition.y - extent;
+            hit->maxY = hit->basePosition.y + extent;
+        }
+        hit->unk68 = arg8;
+        hit->unk6C = arg9;
+        hit->flags |= flags;
+        entryCount = hit->entryCount;
+        if (entryCount != 0) {
+            entry = hit->entries;
+            remaining = entryCount;
+            model = *source->model;
+            header = model->header;
+            floatPosition = model->floatPositions;
+            descriptor = header->descriptors;
+            do {
+                if (header->useFloatPositions != 0) {
+                    entry->position.x = floatPosition[0];
+                    floatPosition += 3;
+                    entry->position.y = floatPosition[-2];
+                    entry->position.z = floatPosition[-1];
+                } else {
+                    vertex = (s16 *)((u8 *)model->vertices +
+                                     (descriptor->vertexIndex * 10));
+                    offset[0] = vertex[0];
+                    offset[1] = vertex[1];
+                    offset[2] = vertex[2];
+                    mathOneFloatRPY((ControlTransform *) source, offset);
+                    entry->position.x = offset[0] + source->position.x;
+                    entry->position.y = offset[1] + source->position.y;
+                    entry->position.z = offset[2] + source->position.z;
+                }
+                remaining--;
+                entry++;
+                extent = descriptor->scale * source->scale;
+                descriptor++;
+                entry[-1].scaleX = extent;
+                entry[-1].scaleY = extent;
+            } while (remaining > 0);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053550.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053868.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80054B3C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055104.s")
