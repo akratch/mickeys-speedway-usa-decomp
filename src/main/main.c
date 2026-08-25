@@ -144,6 +144,29 @@ typedef struct MainZBCheck {
     s8 enabled;
 } MainZBCheck;
 
+/*
+ * PROVENANCE: bitfield names and layout adapted from JFG include/mips.h;
+ * Mickey's own patch sequence and byte identity validate their use here.
+ */
+typedef union MainMipsInstruction {
+    u32 word;
+    struct {
+        u32 opcode : 6;
+        u32 sourceRegister : 5;
+        u32 targetRegister : 5;
+        u32 destinationRegister : 5;
+        u32 shiftAmount : 5;
+        u32 function : 6;
+    } shiftEncoding;
+    struct {
+        u32 opcode : 6;
+        u32 sourceRegister : 5;
+        u32 targetRegister : 5;
+        u32 immediate : 16;
+    } addiu;
+    u8 bytes[4];
+} MainMipsInstruction;
+
 typedef struct MainDebugMemory {
     s16 count;
     u8 pad2[10];
@@ -328,53 +351,47 @@ extern void amWaitForMidiSync(void);
 extern void mainCPUeffectsRainDraw(void *, s32, s32, f32, f32);
 #endif
 
-#ifdef NON_MATCHING
 /*
- * Plateau: nine source/expression hypotheses preserve all 66 target opcodes,
- * the 0x108 boundary, -0x30 frame and exact relocation layout. The best has
- * 20 register-operand differences, first at +0x24 where the target loads its
- * comparison constant before the outer countdown. The remaining differences
- * are the temp-FIFO choices in the byte-patch sequence. The complete flag
- * lattice was unchanged; a canonical-MIPS-II bounded permuter batch improved
- * its score from 225 to 120 without reaching identity.
+ * PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is
+ * decisive. Keep the nested statement line-spliced: IDO uses its source-line
+ * group when scheduling the three hoisted loop constants.
  */
 void RevealReturnAddresses(void) {
     s32 outer;
-    u8 **returnAddress;
-    u8 *scan;
+    MainMipsInstruction **returnAddress;
+    MainMipsInstruction *scan;
     s32 inner;
-    u16 patched;
+    s32 opcode;
+    s32 canary;
 
-    outer = 4;
-    do {
-        returnAddress = &D_8007A244;
-        outer = 4;
-        do {
-            scan = *returnAddress;
-            inner = 0x3F;
-            do {
-                if (((*(u32 *) scan >> 26) == 9) &&
-                    (*(u16 *) (scan + 2) == 0x666)) {
-                    scan[0] = scan[0] & 0xFF03;
-                    *(u16 *) scan = (patched = *(u16 *) scan | 0x3E0);
-                    scan[2] = ((patched << 1) << 2) |
-                              (scan[2] & 0xFF07);
-                    *(u16 *) (scan + 2) &= 0xF83F;
-                    scan[1] = scan[1] & 0xFFE0;
-                    scan[3] = (scan[3] & 0xFFC0) | 0x25;
-                    osWritebackDCache(scan, 4);
-                    osInvalICache(scan, 4);
-                    break;
-                }
-                scan += 4;
-            } while (inner--);
-            returnAddress--;
-        } while (outer--);
+    do { \
+        opcode = 9, canary = 0x666, outer = 4; \
+        do { \
+            returnAddress = (MainMipsInstruction **) &D_8007A244, outer = 4; \
+            do { \
+                scan = *returnAddress; \
+                inner = 0x3F; \
+                do { \
+                    if ((scan->addiu.opcode == opcode) && \
+                        (scan->addiu.immediate == canary)) { \
+                        scan->shiftEncoding.opcode = 0; \
+                        scan->shiftEncoding.sourceRegister = 31; \
+                        scan->shiftEncoding.destinationRegister = \
+                            scan->addiu.targetRegister; \
+                        scan->shiftEncoding.targetRegister = 0; \
+                        scan->shiftEncoding.shiftAmount = 0; \
+                        scan->shiftEncoding.function = 0x25; \
+                        osWritebackDCache(scan, 4); \
+                        osInvalICache(scan, 4); \
+                        break; \
+                    } \
+                    scan++; \
+                } while (inner--); \
+                returnAddress--; \
+            } while (outer--); \
+        } while (0); \
     } while (0);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
-#endif
 
 #ifdef NON_MATCHING
 /*
@@ -833,11 +850,14 @@ s8 mainGetZBCheck(s32 arg0) {
  * retains assembly, so the body is reconstructed from Mickey-only control-flow
  * and call evidence; Mickey byte identity is decisive.
  *
- * Plateau: ten type, expression, storage and statement-grouping hypotheses
+ * Plateau: seventeen type, expression, storage and statement-grouping hypotheses
  * preserve all 85 target opcodes, the 0x154 boundary and the -0x40 frame. The
  * best differs in ten temp-FIFO register operands, first at +0x48, and its
  * typed overlay-call alias retains a different relocation identity at +0xD8.
- * The complete resident flag lattice does not improve either residual.
+ * Function-pointer casting preserves that type but emits an indirect call;
+ * raw-integer framebuffer and zero-code FIFO/line probes normalize back to
+ * the same object. The complete resident flag lattice does not improve either
+ * residual.
  */
 void mainCPUeffects(u16 *framebuffer, s32 unused) {
     s32 screenWidth;
@@ -1494,7 +1514,16 @@ s32 func_800290A0(void) {
     return D_8007A1A8;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_800290AC.s")
+void func_800290AC(s32 arg0) {
+    register s32 *value = &D_8007A1A8;
+
+    *value = arg0;
+    if (*value == 0) {
+        func_80000450(0);
+        return;
+    }
+    func_80000450(1);
+}
 
 s32 func_800290EC(void) {
     return D_8007A148;
@@ -1574,12 +1603,15 @@ u8 func_80029240(s32 index) {
  * src/overlays/o3/overlay_3.c::GetSmoothAcceleration; JFG retains assembly,
  * so this body is reconstructed from Mickey-only control-flow evidence.
  *
- * Plateau: nine control-flow, parameter and register-lifetime hypotheses
- * reproduce the target's 87-instruction boundary and -0x10 frame. The best
- * differs in 42 words, first at +0x8: IDO moves the first float argument
- * before the saved-register store, colors the long-lived float webs
- * differently and reshapes the negative-velocity return path. The complete
- * resident flag lattice leaves this result unchanged.
+ * Plateau: seventeen control-flow, parameter and register-lifetime hypotheses
+ * reproduce the target's 87-instruction boundary and -0x10 frame. Initializing
+ * the accumulators before copying the velocity improves the canonical result
+ * from 42 to 39 differing words, first at +0x8, and correctly anchors the
+ * acceleration accumulator in $f2. IDO still moves the first float argument
+ * before the saved-register store, assigns the velocity/distance webs to
+ * $f12/$f16 rather than $f14/$f12, and reshapes the negative-velocity return
+ * path. The full lattice has no exact result; -g3 is size-exact at 38 differing
+ * words, first at +0x14, but supplies no evidence for a TU flag override.
  */
 f32 func_80029274(s32 arg0, f32 arg1, f32 arg2) {
     f32 temp_f0;
@@ -1588,14 +1620,14 @@ f32 func_80029274(s32 arg0, f32 arg1, f32 arg2) {
     f32 temp_f16_2;
     f32 var_f0;
     f32 var_f12;
-    f32 var_f2;
     register f32 var_f14;
+    f32 var_f2;
     s32 temp_v0;
 
-    var_f14 = arg1;
-    temp_v0 = arg0 < 0;
     var_f0 = 0.0f;
     var_f2 = 0.0f;
+    var_f14 = arg1;
+    temp_v0 = arg0 < 0;
     if (temp_v0 != 0) {
         arg0 = -arg0;
         var_f14 = -var_f14;
