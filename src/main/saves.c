@@ -136,7 +136,9 @@ void func_8002CD6C(void);
 void func_80058010(void);
 void func_800581BC(void);
 void mainPreNMI(void);
+char *font_codes_to_string(u8 *inString, char *outString, s32 stringLength);
 char *string_to_font_codes(char *inString, char *outString, s32 stringLength);
+s32 func_8002E020(s32 controllerIndex, s32 fileNum);
 
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/saves.c:func_8004B070_4BC70. */
 s32 func_8002BCC0(void) {
@@ -831,7 +833,95 @@ s32 packIsPresent(s32 controllerIndex) {
     }
     return ret;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packDirectory.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packDirectory, with Mickey's globals, status values, and file
+ * classifier. */
+s32 packDirectory(s32 controllerIndex, s32 maxNumOfFilesToGet,
+                  char **fileNames, char **fileExtensions, u32 *fileSizes,
+                  u8 *fileTypes) {
+    OSPfsState state;
+    s32 ret;
+    s32 maxNumOfFilesOnCpak;
+    s32 filesUsed;
+    s8 *directory;
+    s32 i;
+    u32 gameCode;
+
+    ret = packOpen(controllerIndex);
+    if (ret != 0) {
+        packClose(controllerIndex);
+        return ret;
+    }
+
+    if (osPfsNumFiles(&D_800D21C8[controllerIndex],
+                      &maxNumOfFilesOnCpak, &filesUsed) != 0) {
+        packClose(controllerIndex);
+        return 6;
+    }
+
+    if (frontGetLanguage() == 5) {
+        gameCode = 0x4E44594A;
+    } else if (osTvType == 0) {
+        gameCode = 0x4E445950;
+    } else {
+        gameCode = 0x4E445945;
+    }
+
+    if (maxNumOfFilesToGet < maxNumOfFilesOnCpak) {
+        maxNumOfFilesOnCpak = maxNumOfFilesToGet;
+    }
+
+    if (D_8007A280 != NULL) {
+        mmFree(D_8007A280);
+    }
+
+    filesUsed = maxNumOfFilesOnCpak * 24;
+    D_8007A280 = func_8002B280(filesUsed, 0xFF);
+    _bzero(D_8007A280, filesUsed);
+    directory = D_8007A280;
+
+    for (i = 0; i < maxNumOfFilesOnCpak; i++) {
+        fileNames[i] = (char *) directory;
+        directory += 0x12;
+        fileExtensions[i] = (char *) directory;
+        fileSizes[i] = 0;
+        fileTypes[i] = 0xFF;
+        directory += 6;
+    }
+
+    while (i < maxNumOfFilesToGet) {
+        fileExtensions[i] = NULL;
+        fileNames[i] = NULL;
+        fileSizes[i] = 0;
+        fileTypes[i] = 0xFF;
+        i++;
+    }
+
+    for (i = 0; i < maxNumOfFilesOnCpak; i++) {
+        ret = osPfsFileState(&D_800D21C8[controllerIndex], i, &state);
+        if (ret == PFS_ERR_INVALID) {
+            fileNames[i] = NULL;
+            continue;
+        }
+        if (ret != 0) {
+            packClose(controllerIndex);
+            return 6;
+        }
+
+        font_codes_to_string((u8 *) &state.game_name, fileNames[i],
+                             PFS_FILE_NAME_LEN);
+        font_codes_to_string((u8 *) &state.ext_name, fileExtensions[i],
+                             PFS_FILE_EXT_LEN);
+        fileSizes[i] = state.file_size;
+        fileTypes[i] = 1;
+        if (state.game_code == gameCode && state.company_code == 0x3459) {
+            fileTypes[i] = func_8002E020(controllerIndex, i);
+        }
+    }
+
+    packClose(controllerIndex);
+    return 0;
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packDirectoryFree. */
 void packDirectoryFree(void) {
     if (D_8007A280 != NULL) {

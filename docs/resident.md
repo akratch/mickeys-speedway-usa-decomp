@@ -1533,6 +1533,7 @@ Exact C reconstructions in this census currently include the still-unnamed
 the still-unnamed chunked save-device transfer `func_8002C7EC` (ROM
 `0x2D3EC`–`0x2D4B4`, 200 bytes),
 `packIsPresent` (ROM `0x2E0CC`–`0x2E128`, 92 bytes),
+`packDirectory` (ROM `0x2E128`–`0x2E424`, 764 bytes),
 `packDirectoryFree` (ROM `0x2E424`–`0x2E458`, 52 bytes),
 `packFreeSpace` (ROM `0x2E458`–`0x2E56C`, 276 bytes),
 `packDeleteFile` (ROM `0x2E56C`–`0x2E620`, 180 bytes),
