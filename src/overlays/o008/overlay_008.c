@@ -646,6 +646,12 @@ void func_overlay_008_F0003278_1860FD0(void *unused0,
     }
 }
 
+/* Plateau after the flag lattice and six source-order/type attempts: exact
+ * 0x138 size and 76/78 words, first mismatch at +0x34. The two remaining
+ * words are the independent lower/upper threshold loads in reverse order;
+ * declaration/register/direct-global spellings either preserve the swap or
+ * disturb the loop. The bounded permuter checkout is unavailable in this
+ * lane. */
 #ifdef NON_MATCHING
 void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
                           Overlay8ScaleContext *context,
@@ -663,8 +669,8 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
     i = 0;
 
     if (context->count > 0) {
-        lowerThreshold = gOverlay8ScaleLowerReloc;
         upperThreshold = gOverlay8ScaleUpperReloc;
+        lowerThreshold = gOverlay8ScaleLowerReloc;
         do {
             output = (Overlay8ScaleOutput *)pair->selector;
             index = (u32)output & 0xFF;
