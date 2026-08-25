@@ -1299,6 +1299,7 @@ Exact C reconstructions in this census currently include `rumbleRumbles`
 `0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
 `packDirectoryFree` (ROM `0x2E424`–`0x2E458`, 52 bytes),
+the still-unnamed `func_8002C5F4` (ROM `0x2D1F4`–`0x2D20C`, 24 bytes),
 the still-unnamed `func_8002C788` (ROM `0x2D388`–`0x2D390`, 8 bytes),
 the still-unnamed `func_8002C790` (ROM `0x2D390`–`0x2D39C`, 12 bytes),
 `piRomLoadSection` (ROM `0x2EEE0`–`0x2EF5C`, 124 bytes),
@@ -1314,8 +1315,9 @@ plus `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes) and
 no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes). All were compiled
 with the resident `-O2 -mips2 -32` flags. The named bodies are adapted from
 JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the anonymous
-setter, record-field accessors, and no-op are reconstructed from Mickey's own
-bodies. All configured object ranges and the final linked ROM are byte-exact.
+setter, dual-global reset, record-field accessors, and no-op are reconstructed
+from Mickey's own bodies. All configured object ranges and the final linked
+ROM are byte-exact.
 
 `__scHandleRetrace` has a preserved `NON_MATCHING` JFG-derived body after the
 119-combination flag lattice and ten source-shape hypotheses. The best

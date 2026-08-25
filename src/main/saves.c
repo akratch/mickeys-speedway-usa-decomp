@@ -13,6 +13,8 @@
 
 extern u8 D_8007A2F8;
 extern u8 D_8007A2F0;
+extern s32 D_8007A2E8;
+extern s32 D_8007A2FC;
 extern void *D_8007A280;
 extern OSMesgQueue *D_800D21C0;
 
@@ -48,7 +50,10 @@ void rumbleUpdate(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002BF54.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleTick.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C5F4.s")
+void func_8002C5F4(void) {
+    D_8007A2E8 = 0;
+    D_8007A2FC = 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C60C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C69C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C70C.s")
