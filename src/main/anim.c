@@ -263,28 +263,21 @@ void func_800502CC(u8 pathIndex) {
  * asm/nonmatchings/anim/animseqInitPath.s. Mickey's shorter character-table
  * selection, resident object layout, and final compiler output are
  * independently established from Mickey's ROM.
- *
- * Plateau after the flag lattice, nine type/lifetime/source variants, and a
- * bounded canonical-flag permuter run: the best candidate is 132 instructions
- * against the target's 133, with first positional mismatch +0x0. The decisive
- * missing instruction is the dead incoming path-index home at +0x18; its
- * absence swaps the entry temporaries and leaves the live path spill at
- * sp+0x28 instead of the target's sp+0x20. The correct -mips2 permuter base
- * score was 275 and the capped run found no improvement.
  */
-#ifdef NON_MATCHING
-void func_80050348(s32 pathIndex) {
+void func_80050348(pathIndex)
+u8 pathIndex;
+{
     ControlSpawnPacket packet;
-    AnimPath *path;
     AnimPathNode *node;
     AnimPathObject *object;
+    AnimPath *path;
     s16 objectId;
 
-    path = D_800D6B00[pathIndex & 0xFF];
+    path = D_800D6B00[pathIndex];
     if (path != NULL) {
         node = path->nodes;
         if ((node != NULL) && (path->unk8 == NULL) && (path->unk2 != -1)) {
-            packet.x = (s16) node->unkC;
+            packet.x = node->unkC;
             packet.y = (s16) node->unk10;
             packet.z = (s16) node->unk14;
             packet.mode = 0xA;
@@ -322,9 +315,6 @@ void func_80050348(s32 pathIndex) {
         path->unk29 = 0;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050348.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * JFG's animseqResetPath assembly corroborates this Mickey-led reset.

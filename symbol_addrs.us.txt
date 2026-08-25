@@ -2460,6 +2460,7 @@ func_8005017C = 0x8005017C; // type:func size:0x30   ROM 0x50d7c  src/anim.c.o  
 func_800501AC = 0x800501AC; // type:func size:0x1C   ROM 0x50dac  tier-D JFG signed-table-lookup structure, matched C
 func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  masked=9/20 tier-A matched-C
 func_800502CC = 0x800502CC; // type:func size:0x7C   ROM 0x50ecc  tier-B JFG cleanup callees and position, matched C
+func_80050348 = 0x80050348; // type:func size:0x214  ROM 0x50f48  tier-A C-object+linked-ROM-exact matched-C
 animseqStartPath = 0x80050688; // type:func size:0x7C   ROM 0x51288  tier-B JFG process-command call position, matched C
 animseqStopPath = 0x80050704; // type:func size:0x78   ROM 0x51304  tier-B JFG process-command call position, matched C
 func_8005077C = 0x8005077C; // type:func size:0x40   ROM 0x5137c  tier-D path-state helper, matched C
