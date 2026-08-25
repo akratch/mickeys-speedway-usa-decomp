@@ -1508,7 +1508,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x118
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23Update.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o023/overlay23RenderEffect.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_023_F0000468_1879678=overlay23RenderEffect $@
+	$(OBJCOPY) --redefine-sym \
+		overlay23CallReloc=func_overlay_023_F0000000_1879210 $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay_024.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x414 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
