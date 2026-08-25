@@ -52,13 +52,19 @@ extern void overlay41ApplyEntry(Overlay41Context *, Overlay41Entry *, void *,
 extern void overlay41FinishEntry(Overlay41Context *, Overlay41Child *,
                                  Overlay41Entry *, s32);
 
+/* Plateau (2026-08-25): -O2 -mips2 remains 0x14 long; first mismatch +0x10.
+ * mode/child now use target sp+0x40/sp+0x38, but input is still spilled instead of kept in a3;
+ * the flag lattice plus type, alias, declaration-order, and scope variants did not change it. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001464_188879C(Overlay41Input *input,
                                        Overlay41Context *context,
                                        s32 argument) {
+    register Overlay41Input *savedInput;
+    s32 mode;
+    Overlay41Entry *entry;
+    Overlay41Child *child;
     Overlay41State *state;
     s32 selected;
-    register Overlay41Input *savedInput;
 
     state = context->state;
     savedInput = input;
@@ -67,7 +73,6 @@ void func_overlay_041_F0001464_188879C(Overlay41Input *input,
          (((Overlay41State *)((u8 *)state + context->stateIndex))->status == 1)) ||
         ((selected == 0) && (state->status == 1))) {
         Overlay41Entry *firstEntry;
-        s32 mode;
 
         firstEntry = context->entries[context->entryIndex];
         if (firstEntry != 0) {
@@ -82,12 +87,8 @@ void func_overlay_041_F0001464_188879C(Overlay41Input *input,
     } else if (((selected != 0) &&
                 (((Overlay41State *)((u8 *)state + context->stateIndex))->status == 0)) ||
                ((selected == 0) && (state->status == 0))) {
-        Overlay41Entry *entry;
-
         entry = context->entries[context->entryIndex];
         if (entry->active != 0) {
-            Overlay41Child *child;
-
             child = entry->child;
             if (child->refreshEnabled != 0) {
                 overlay41RefreshEntry(entry, child, context, savedInput);

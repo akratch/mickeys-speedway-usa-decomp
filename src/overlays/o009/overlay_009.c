@@ -217,13 +217,6 @@ void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000540_1866BB8.s")
 #endif
 
-/*
- * Plateau: the R4300-multiply build differs in 5/158 words, first at +0x140;
- * every mismatch is the handle test's v1 allocation versus retail v0.
- * Direct, truth-value, scoped-local, live-local, and register-local forms all
- * retained that web or worsened it; the bounded permuter is unavailable.
- */
-#ifdef NON_MATCHING
 void func_overlay_009_F0000744_1866DBC(O9OutputRecord *output, O9OutputControl *control,
                                        O9OutputState *state, s32 updateCount) {
     f32 level;
@@ -270,9 +263,6 @@ void func_overlay_009_F0000744_1866DBC(O9OutputRecord *output, O9OutputControl *
         ext_o0_2c64(control->handle, (u8)(u32)amount);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000744_1866DBC.s")
-#endif
 
 void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
                                        O9InputState *state) {
