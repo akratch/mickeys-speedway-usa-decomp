@@ -2502,6 +2502,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F0000000_18AF1E8.c.o: POS
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c.o: OPT_FLAGS := -O2 -g3
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xCF4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F000138C_18B0574.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3878
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F000138C_18B0574.c.o: OPT_FLAGS := -O2
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F000138C_18B0574.c.o: MIPSISET := -mips1 -32
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawSegmentStrip.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_058_F0004C04_18B3DEC=overlay58DrawSegmentStrip $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324
@@ -3073,7 +3077,8 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawLargePointQuad.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58FinalizePackedStatus.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F0000000_18AF1E8.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c.o
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F000138C_18B0574.c.o
 OVERLAY_TRIMMED_OBJECTS += \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17CalculateEndpoints.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17ReleaseChain.c.o \

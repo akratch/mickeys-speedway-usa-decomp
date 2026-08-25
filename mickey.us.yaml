@@ -1969,7 +1969,7 @@ segments:
       - [0x18AF7A8, c, overlay58ReleaseResources]
       - [0x18AF7E4, c, func_overlay_058_F00005FC_18AF7E4]
       - [0x18B04D8, c, overlay58SetNodeValue]
-      - [0x18B0574, asm, overlay_058_tail]
+      - [0x18B0574, c, func_overlay_058_F000138C_18B0574]
       - [0x18B3DEC, c, overlay58DrawSegmentStrip]
       - [0x18B4110, c, overlay58DrawPointQuad]
       - [0x18B42B0, c, overlay58DrawLargePointQuad]
