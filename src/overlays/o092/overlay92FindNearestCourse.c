@@ -32,16 +32,13 @@ typedef struct O92Racer {
     O92VehicleState *vehicle;
 } O92Racer;
 
-extern f32 gOverlay92MaximumDistance;
-extern f32 gOverlay92Interpolation;
+extern f32 gOverlay92DistanceParameters[2];
 extern O92Object **overlay92GetObjectRange(s32 *start, s32 *end);
 extern f32 sqrtf(f32 value);
 
-/* Size-exact plateau under -Wab,-r4300_mul after ten structural/lifetime
- * forms: 26 of 168 words differ, first at +0x4. Declaration ordering now
- * reproduces the start/end, retained-course, and FP spill homes exactly; the
- * residual is an s1/s2 allocation swap, one two-instruction schedule swap,
- * and the first distance calculation's private FP register coloring. */
+/* Workbench: mixed structure/schedule/allocation, 26 of 168 words differ, first +0x4.
+ * Restoring flag and scalar-table identity helped; typed-local, -g0, and line-reflow levers did not.
+ * Remaining: s1/s2 web swap, one move/load schedule pair, and first-distance FP coloring. */
 #ifdef NON_MATCHING
 s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
                                       f32 *outY, f32 *outZ, s32 *outValue) {
@@ -65,7 +62,7 @@ s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
 
     vehicle = racer->vehicle;
     objects = overlay92GetObjectRange(&start, &end);
-    nearestDistance = gOverlay92MaximumDistance;
+    nearestDistance = gOverlay92DistanceParameters[0];
     nearest = 0;
 
     if (start < end) {
@@ -110,7 +107,7 @@ s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
         dz = nearest->z - racer->z;
         course = nearest->course;
         distance = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
-        nearestDistance = gOverlay92Interpolation;
+        nearestDistance = gOverlay92DistanceParameters[1];
         scale = 60.0f / distance;
         dx *= scale;
         dy *= scale;
