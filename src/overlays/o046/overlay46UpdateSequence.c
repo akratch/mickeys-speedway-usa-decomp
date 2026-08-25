@@ -73,7 +73,9 @@ extern s32 func_overlay_046_F0000874_188EC6C();
         O46_SHIFTL(alpha, 0, 8); \
 }
 
-/* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+/* Workbench: allocation-mismatch, 54 masked/70 raw words; first +0x78.
+ * Flag lattice, temp/materialization variants, and a bounded -mips2 permuter tried.
+ * The packet carrier is best; temp slot 7 and pool slot 58 still diverge. */
 #ifdef NON_MATCHING
 void func_overlay_046_F0000120_188E518(s32 amount) {
     s32 matched;
@@ -190,8 +192,14 @@ compare_name:
     }
 
     if (gOverlay46Value4 != 0) {
-        O46_PRIM(gDisplayListHead++, gOverlay46Value4, gOverlay46Value4,
-                 gOverlay46Value4, 0xFF);
+        Overlay46DisplayCommand *macroCommand;
+
+        macroCommand = gDisplayListHead++;
+        macroCommand->w0 = O46_SHIFTL(0xFA, 24, 8);
+        matched = (u32)gOverlay46Value4 & 0xFF;
+        macroCommand->w1 = O46_SHIFTL(matched, 24, 8) |
+            O46_SHIFTL(gOverlay46Value4, 16, 8) |
+            O46_SHIFTL(gOverlay46Value4, 8, 8) | 0xFF;
         func_80036F08(&gDisplayListHead, gOverlay46Resource50, 0);
     }
 
