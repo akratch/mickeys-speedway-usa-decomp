@@ -533,7 +533,10 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800245EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002460C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_8002462C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024658.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetListPtr. */
+Camera *camGetListPtr(void) {
+    return D_800CEA20;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024664.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetProjOrgMtx. */
 Mtx *camGetProjOrgMtx(void) {
