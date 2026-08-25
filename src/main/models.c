@@ -22,7 +22,11 @@
 #include "game/models.h"
 
 extern s32 D_80079C00;
+#ifdef NON_MATCHING
+extern void *volatile D_80079C04;
+#else
 extern void *D_80079C04;
+#endif
 extern s16 D_80079C08;
 extern s32 *D_800CB480;
 extern s32 *D_800CB484;
@@ -40,6 +44,7 @@ void *func_8002B314(s32 size, s32 tag);
 s32 *piRomLoad(s32 assetId);
 void *func_80034448(s16 textureId);
 void func_800347A0(void *texture);
+s32 func_8003484C(void *texture);
 void func_800348A0(s32 id, s32 value);
 void func_8005AAC0(void *animation);
 u8 func_8002057C(void **out, ObjectModel *model, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
@@ -370,7 +375,72 @@ void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020D8C.s")
 #endif
+#ifdef NON_MATCHING
+typedef struct ModelCacheEntry {
+    s32 id;
+    ObjectModel *model;
+} ModelCacheEntry;
+
+/* Mickey-only reconstruction; JFG's modSuspendModelTextures remains assembly. */
+void func_80020E4C(s16 *exceptions) {
+    SuspendedModelTexture *saved;
+    s32 modelIndex;
+
+    D_80079C08 = 0;
+    saved = func_8002B280(0x3E8, 0x8A);
+    D_80079C04 = saved;
+    modelIndex = 0;
+    if (D_800CB48C > 0) {
+        if (D_80079C08 < 0x7D) {
+            do {
+                ModelCacheEntry *cache = (ModelCacheEntry *)((u8 *)D_800CB484 + (modelIndex << 3));
+                s32 modelId = cache->id;
+
+                if (modelId != -1) {
+                    ObjectModel *model = cache->model;
+                    s32 excluded = 0;
+                    s32 exceptionIndex = 0;
+
+                    if (*exceptions != -1) {
+                        s16 *exception = &exceptions[exceptionIndex];
+                        s16 exceptionId = *exception;
+
+                        do {
+                            if (exceptionId == modelId) {
+                                excluded = 1;
+                            }
+                            exceptionId = exception[1];
+                            exception++;
+                        } while (exceptionId != -1 && excluded == 0);
+                    }
+                    if (excluded == 0) {
+                        s32 textureIndex = 0;
+
+                        if (model->numberOfTextures > 0) {
+                            s32 offset = 0;
+
+                            if (D_80079C08 < 0x7D) {
+                                do {
+                                    saved->value = (s32)((ModelTexture *)((u8 *)model->textures + offset))->texture;
+                                    saved->id = func_8003484C(((ModelTexture *)((u8 *)model->textures + offset))->texture);
+                                    func_800347A0(((ModelTexture *)((u8 *)model->textures + offset))->texture);
+                                    textureIndex++;
+                                    offset += sizeof(ModelTexture);
+                                    D_80079C08++;
+                                    saved++;
+                                } while (textureIndex < model->numberOfTextures && D_80079C08 < 0x7D);
+                            }
+                        }
+                    }
+                }
+                modelIndex++;
+            } while (modelIndex < D_800CB48C && D_80079C08 < 0x7D);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020E4C.s")
+#endif
 /*
  * PROVENANCE -- name and TU position follow JFG's public
  * modResumeModelTextures symbol. JFG has no public C body; Mickey is the body
