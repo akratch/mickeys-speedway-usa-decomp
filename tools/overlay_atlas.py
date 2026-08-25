@@ -867,7 +867,7 @@ TEXT_SUBSEGMENTS = {
         (0x23C, "c", "overlay29UpdateRatio"),
         (0x304, "c", "overlay29Sample"),
         (0x42C, "c", "overlay29InitializeObject"),
-        (0x5C4, "asm", "overlay_029_tail"),
+        (0x5C4, "c", "func_overlay_029_F00005C4_187D874"),
         (0xEE0, "c", "overlay29ProjectPoint"),
         (0x10C4, "c", "overlay29HandleEffects"),
         (0x14C8, "c", "overlay29DrawGroups"),

@@ -1353,7 +1353,7 @@ segments:
       - [0x187D4EC, c, overlay29UpdateRatio]
       - [0x187D5B4, c, overlay29Sample]
       - [0x187D6DC, c, overlay29InitializeObject]
-      - [0x187D874, asm, overlay_029_tail]
+      - [0x187D874, c, func_overlay_029_F00005C4_187D874]
       - [0x187E190, c, overlay29ProjectPoint]
       - [0x187E374, c, overlay29HandleEffects]
       - [0x187E778, c, overlay29DrawGroups]
