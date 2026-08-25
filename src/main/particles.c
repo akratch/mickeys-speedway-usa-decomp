@@ -107,7 +107,12 @@ typedef struct ParticleModelEntry {
     s32 particleCount;
     u8 pad40[0x64];
     u8 active;
-    u8 padA5[0x13];
+    u8 padA5[3];
+    s32 animationState;
+    s32 configFlags;
+    f32 textureFrame;
+    s16 animationSpeed;
+    u8 padB6[2];
     void *resource;
     u8 padBC[4];
 } ParticleModelEntry;
@@ -265,9 +270,10 @@ void func_8003D4FC(void **dList, void **vertices, void *pool);
 s32 func_8003CE10(void **dList, s32 arg1, void **vertices, void *pool, s32 mode);
 void func_8003D25C(void **dList, s32 arg1, void **vertices, void *pool);
 void func_80041CE4(void **dList, void **vertices);
-void func_80040878(CircularParticle *particle, s32 updateRate);
+s32 func_80040878(CircularParticle *particle, s32 updateRate);
 void func_80041040(ParticleLineEntry *particle, s32 updateRate);
 void func_80041388(ParticleModelEntry *particle, s32 updateRate);
+void func_800367A4(void *texture, void *state, s16 speed, f32 *frame, s32 updateRate);
 void func_8003EC8C(ParticleObject *object, s32 index);
 void func_8003E7B8(ParticleObject *object, s32 index);
 void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger);
@@ -781,7 +787,74 @@ void func_80040740(CircularParticle *particle) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040878.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040B88.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041040.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041388.s")
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_80062A4C.s; body reconstructed from Mickey evidence. */
+void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
+    void **particle;
+    s32 changed;
+    s32 found;
+    s32 i;
+    s32 j;
+    ParticleTexture *texture;
+
+    changed = 0;
+    i = 0;
+    if (entry->particleCount > 0) {
+        particle = entry->particles;
+        do {
+            if (func_80040878((CircularParticle *)*particle, updateRate) != 0) {
+                *particle = NULL;
+                changed = 1;
+            }
+            i++;
+            particle++;
+        } while (i < entry->particleCount);
+    }
+
+    if (changed != 0) {
+        entry->particleCount = 0;
+        i = 0;
+        do {
+            found = 0;
+            j = i;
+            if (i < 15) {
+                do {
+                    particle = &entry->particles[j];
+                    if (*particle != NULL) {
+                        found = 1;
+                        if (i != j) {
+                            entry->particles[i] = *particle;
+                            *particle = NULL;
+                        }
+                        j = 15;
+                        entry->particleCount++;
+                    }
+                    j++;
+                } while (j < 15);
+            }
+            if (found == 0) {
+                entry->particles[i] = NULL;
+            }
+            i++;
+        } while (i != 15);
+    }
+
+    if (entry->active == 1 && entry->particleCount == 0) {
+        texture = entry->resource;
+        entry->active = 0;
+        if (texture != NULL) {
+            func_800347A0(texture);
+            entry->resource = NULL;
+        }
+    }
+    if (entry->active != 0) {
+        texture = entry->resource;
+        if (entry->configFlags & 0x800) {
+            entry->textureFrame = mathRnd(0, (texture->frameCount >> 8) - 1);
+        } else {
+            func_800367A4(texture, &entry->animationState, entry->animationSpeed, &entry->textureFrame, updateRate);
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041530.s")
 void func_80041C50(s32 arg0, s32 arg1) {
     ParticleModelEntry *entry;
