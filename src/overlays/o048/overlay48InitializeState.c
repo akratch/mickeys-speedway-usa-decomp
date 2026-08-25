@@ -25,14 +25,16 @@ extern void overlay48FinishSetup(void);
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
 /*
- * Plateau (2026-08-25): the retained 57-word candidate has exact size and a
- * 73.07% object score; its first mismatch is +0x0.  Explicit seed temporaries
- * recover the target's unrolled load/store cadence, but the overlay-data alias
- * and prologue schedule remain different.  MIPS1 and MIPS2 are identical for
- * this candidate and secondary lattice flags were neutral.  A bounded
- * ten-minute permuter run reduced cost 1340 to 1075 only through synthetic
- * conditions, canceling arithmetic, and a widened temporary, so its result was
- * rejected.
+ * Plateau (2026-08-25): this run's full 119-combination lattice retains the
+ * natural -O2 source at 212/228 bytes; 51/57 instruction words differ and the
+ * first mismatch is +0x0.  Its 0x18-byte frame is the right size, but IDO
+ * schedules the frame setup at +0x98 instead of the target's +0x1C.  A
+ * five-entry combined structure shortened the function by another 16 bytes;
+ * separate first-seed aliases, header-tail packing, volatile qualification,
+ * and pointer/indexed unrolled loops either moved the prologue to entry or
+ * emitted repeated absolute accesses.  MIPS1/MIPS2 and the secondary lattice
+ * flags are neutral.  The earlier bounded permuter result remains rejected
+ * because its lower cost depended on synthetic conditions and arithmetic.
  */
 #ifdef NON_MATCHING
 void overlay48InitializeState(void) {
