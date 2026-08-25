@@ -27,6 +27,7 @@ s32 debug_text_character(Gfx **dList, s32 asciiVal);
 void debug_text_newline(void);
 
 extern char D_800D4150[];
+extern Gfx D_8007CF58[];
 extern const char D_80082A80[];
 extern const char D_80082AA8[];
 extern DebugFontCoords D_8007CE98[3][32];
@@ -41,12 +42,19 @@ extern s32 D_800D4A6C;
 extern s32 D_800D4A70;
 extern s32 D_800D4A74;
 extern s32 D_800D4A78;
+extern s32 D_800D4A7C;
 extern u16 D_800D4A60;
 extern u16 D_800D4A62;
 extern s32 D_800D4A64;
 extern s32 D_800D4A68;
 extern u16 D_800D4A80;
 extern u16 D_800D4A82;
+
+void rcpInitDp(Gfx **dList);
+void viGetCurrentSize(s32 *width, s32 *height);
+void debug_text_bounds(void);
+void debug_text_origin(void);
+s32 debug_text_parse(Gfx **dList, char *buffer);
 
 /* PROVENANCE: body adapted from DKR src/unused_string.c:strcpy. */
 char *strcpy(char *src, const char *dest) {
@@ -824,7 +832,46 @@ s32 diPrintf(const char *format, ...) {
     }
     return 0;
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfAll. */
+/* Instruction-exact plateau. Strict promotion is blocked by four relocation
+ * identities that name D_800D4A62 instead of D_800D4A60+2. */
+void diPrintfAll(Gfx **dList) {
+    s32 width;
+    s32 height;
+    char *buffer;
+
+    rcpInitDp(dList);
+    viGetCurrentSize(&width, &height);
+    D_800D4A80 = width;
+    D_800D4A82 = height;
+    gDPSetScissor((*dList)++, 0, 0, 0, D_800D4A80, D_800D4A82);
+    debug_text_bounds();
+    gSPDisplayList((*dList)++, D_8007CF58);
+    buffer = D_800D4150;
+    debug_text_origin();
+    D_800D4A7C = -1;
+    D_800D4A64 = 0;
+    D_800D4A60 = D_800D4A5C;
+    D_800D4A62 = D_800D4A5E;
+    while (buffer != D_8007CE94) {
+        D_800D4A68 = 0;
+        buffer += debug_text_parse(dList, buffer);
+    }
+    debug_text_background(dList, D_800D4A60, D_800D4A62, D_800D4A5C, D_800D4A5E + 10);
+    buffer = D_800D4150;
+    debug_text_origin();
+    D_800D4A7C = -1;
+    D_800D4A64 = 0;
+    while (buffer != D_8007CE94) {
+        D_800D4A68 = 1;
+        buffer += debug_text_parse(dList, buffer);
+    }
+    D_8007CE94 = D_800D4150;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfAll.s")
+#endif
 /* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfSetCol. */
 void diPrintfSetCol(u8 red, u8 green, u8 blue, u8 alpha) {
     *D_8007CE94 = 0x81;

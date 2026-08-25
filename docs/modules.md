@@ -1581,12 +1581,111 @@ flags, JFG body donor); `diPrintf` (ROM `0x44934`, `0x9C` bytes, default
 resident flags, JFG body donor with its stubbed diagnostic call omitted);
 `_itoa` (ROM `0x434D8`, `0xC0` bytes, default resident flags, identical JFG and
 DKR glibc-derived body donor); `func_8003CCE4` (ROM `0x3D8E4`, `0x44` bytes,
-default resident flags, Mickey-only reconstruction); `partInitTriggerSPPos`
+default resident flags, Mickey-only reconstruction); `func_8003E730` (ROM
+`0x3F330`, `0x88` bytes, default resident flags, Mickey-only reconstruction);
+`func_80041C50` (ROM `0x42850`, `0x94` bytes, default resident flags,
+Mickey-only reconstruction);
+`func_80041F48` (ROM `0x42B48`, `0xA4` bytes, default resident flags,
+Mickey-only reconstruction);
+`func_8004233C` (ROM `0x42F3C`, `0xB0` bytes, default resident flags, DKR
+`move_particle_basic` body donor);
+`partInitTriggerPos` (ROM `0x3F270`, `0xC0` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`func_8003CD28` (ROM `0x3D928`, `0xE8` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`func_80041FEC` (ROM `0x42BEC`, `0xF4` bytes, default resident flags, DKR
+`move_particle_basic_parent` body donor);
+`func_800423EC` (ROM `0x42FEC`, `0x108` bytes, default resident flags, DKR
+`move_particle_forward` body donor);
+`func_800420E0` (ROM `0x42CE0`, `0x114` bytes, default resident flags, DKR
+`move_particle_attached_to_parent` body donor);
+`func_8003CA20` (ROM `0x3D620`, `0x11C` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`func_8003E7B8` (ROM `0x3F3B8`, `0x120` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`func_8003CB3C` (ROM `0x3D73C`, `0x1A8` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`func_80041388` (ROM `0x41F88`, `0x1A8` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`func_8003EF80` (ROM `0x3FB80`, `0x1D4` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`func_8003EB08` (ROM `0x3F708`, `0x184` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`func_800421F4` (ROM `0x42DF4`, `0x148` bytes, default resident flags, DKR
+`move_particle_with_acceleration` body donor);
+`partDraw` (ROM `0x43264`, `0x160` bytes, default resident flags, Mickey
+reconstruction with the JFG assembly sibling as a structural oracle);
+`partUpdateParticles` (ROM `0x430F4`, `0x170` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`partInitTriggerSPPos`
 (ROM `0x3F224`, `0x4C` bytes, default resident flags, JFG-named Mickey
 reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default
 resident flags, JFG-named Mickey reconstruction); `debug_text_background`
 (ROM `0x452F8`, `0xA0` bytes, resident flags plus `-Wab,-r4300_mul`, JFG body
 donor).
+
+`func_8003EC8C` reached a bounded size-exact 47-word plateau under the
+default resident flags. Its best compliant candidate differs in 24
+relocation-masked words, first at function offset `0x30`, where the target
+hoists the `D_8007C894` HI16 load ahead of the object-count decrement. A
+branch-local pool pointer fixes that relocation schedule but changes the
+register assignment throughout both resource-release branches. The flag
+lattice found no exact alternative; a ten-minute bounded permuter run
+improved its internal score from 1410 to 820, but the winning form invented
+an empty guard and was rejected. The original asm body remains canonical.
+
+`func_8004054C` reached a bounded one-word-short plateau under the default
+resident flags. The best compliant candidate has 124 words against the
+125-word target and 43 aligned residuals, first differing at function offset
+`0x4C`. IDO folds the initial free-bit scan address into a pointer move instead
+of the target shift/add pair and then allocates the scan and particle-index
+scratch registers differently. The full 119-entry flag lattice found no
+improvement. A bounded ten-minute permuter batch improved its internal score
+from 1065 to 705 without reaching an exact result. The original asm body
+remains canonical.
+
+`func_8003E8D8` has an exact-size 140-word C candidate with the target opcode
+schedule under the default resident flags. The configured whole-TU build uses
+a `0x30` frame instead of the target `0x38` frame, leaving 22 aligned
+residuals (19 stack/frame constants, two register operands, and one branch
+target), first differing at function offset `0x8`. The full 119-entry flag
+lattice found no improvement. A bounded permuter found a standalone zero that
+did not reproduce when compiled in the canonical TU, so it was rejected. The
+original asm body remains canonical.
+
+`func_80040740` has a 78-word C candidate with the target text instruction
+schedule under the default resident flags, reconstructed from Mickey evidence
+with the JFG assembly sibling as a structural oracle. It cannot be promoted
+within this TU's ownership: the first relocation mismatch is at function
+offset `0x38`, where IDO binds the generated switch to anonymous compiler
+rodata rather than the separately extracted `jtbl_80082A58`. That external
+table still owns five case-label references, so replacing the asm body also
+leaves those labels undefined and emits a duplicate 20-byte table. The flag
+lattice found no alternative relocation binding. The candidate remains under
+`NON_MATCHING` and the original asm body remains canonical pending coordinated
+resident-rodata ownership.
+
+`partModelObjEmitModelPart` reached a bounded size-exact 84-word plateau under
+the default resident flags. The best compliant Mickey reconstruction differs
+in 19 words, first at function offset `0x58`, where the candidate performs the
+final trigger-stride shift before the descriptor-table add/load while the
+target performs it afterward. The residual continues through the trigger
+initialization stores; the call and complete post-call FP control flow are
+exact. The flag lattice found no exact alternative. A bounded permuter import
+selected `-mips1` instead of this TU's configured `-mips2`, so its output was
+inadmissible and discarded. The candidate remains under `NON_MATCHING` and the
+original asm body remains canonical.
+
+`partUpdateTriggers` reached a bounded instruction-count and opcode-exact
+101-word plateau under the default resident flags. Six register-only words
+remain, first at function offset `0xE4`: the target colors the late trigger
+array base/current pointer pair as `$v1`/`$v0`, while IDO colors the candidate
+as `$a2`/`$v1`; the final `bne` also emits the two commutative operands in the
+opposite order. Pointer and integer base types plus declaration/lifetime
+variants all canonicalized to this basin, and the full flag lattice found no
+alternative. The bounded permuter imported the TU as `-mips1`; its only lead
+made the signed trigger count unsigned and was rejected. The candidate remains
+under `NON_MATCHING` and the original asm body remains canonical.
 
 `vsprintf` reached a bounded size-exact plateau under `-Wab,-r4300_mul`: its
 1,220-word candidate differs in two adjacent words, first at function offset
@@ -1595,6 +1694,17 @@ order. The flag lattice found no exact alternative, and the bounded permuter
 could not parse the formatter's `va_arg` macros. Promotion is additionally
 blocked because the C body emits formatter jump tables and static strings
 still owned by the resident asm-data split.
+
+`diPrintfAll` reached an instruction-exact 144-word plateau under
+`-Wab,-r4300_mul`. Strict object comparison finds four relocation-identity
+differences, first at function offset `0x144`: both accesses to the saved text
+Y coordinate name the separately declared `D_800D4A62`, while the target names
+`D_800D4A60+2`. Array, pointer, volatile, integer-cast, and structure spellings
+that produce the target relocation identity change IDO's address commoning,
+register allocation, and schedule to 142--145 words. The full flag lattice
+found the exact instruction stream only with separate globals, so the JFG
+candidate remains under `NON_MATCHING` and the original asm body remains
+canonical.
 
 `debug_text_parse` reached an instruction-exact 263-word plateau. Strict
 object comparison still finds four relocation-identity differences: two
