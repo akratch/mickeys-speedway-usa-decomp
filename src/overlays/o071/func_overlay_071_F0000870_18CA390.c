@@ -31,12 +31,18 @@ extern void func_80034554(Overlay71Command **commands, s32 resource, s32 mode,
 extern void func_800241BC(Overlay71Command **commands);
 
 /* DKR v77/v80 and JFG contain no exact donor for this renderer. */
+/*
+ * Workbench: mixed(structural:3, schedule:27, register:9), 33 words, exact size/frame, first mismatch +0x50.
+ * Levers tried: spill-slot census/declaration order and a scoped flag web; reversed command-word ordering regressed.
+ * Remains: statement scheduling plus split a2-to-a1/a0 pool webs; nine relocation identities also differ diagnostically.
+ */
 #ifdef NON_MATCHING
 void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
                                        s32 context,
                                        Overlay71DrawObject *object) {
-    Overlay71Command *command;
     Overlay71DrawState *state;
+    Overlay71Command *command;
+    u16 flags;
     /* This unused identity preserves the retail IDO allocation basin. */
     volatile u32 stackShape;
 
@@ -54,7 +60,8 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
         command->w0 = 0xFB000000;
         command->w1 = 0xFFFFFFFF;
 
-        if (state->flags & 1) {
+        flags = state->flags;
+        if (flags & 1) {
             func_80034554(commands, 0, 0x17, 0);
             command = *commands;
             *commands = command + 1;
