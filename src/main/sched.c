@@ -34,6 +34,14 @@ extern char D_80082390[];
 extern char D_800823A4[];
 extern char D_800823B8[];
 extern char D_800823CC[];
+extern char D_80082090[];
+extern char D_800820A0[];
+extern char D_800820AC[];
+extern char D_800820B8[];
+extern char D_800820D0[];
+extern char D_800820E0[];
+extern char D_800820F0[];
+extern char D_80082100[];
 extern u8 D_800CF520;
 extern u8 D_800CF578;
 extern u8 D_800CF590;
@@ -138,7 +146,32 @@ void func_800304E0(OSSched *sc) {
         }
     }
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:osScGetTaskType, with Mickey's own string symbols. */
+char *osScGetTaskType(s32 taskID) {
+    switch (taskID) {
+        case 1:
+            return D_80082090;
+        case 2:
+            return D_800820A0;
+        case 3:
+            return D_800820AC;
+        case 4:
+            return D_800820B8;
+        case 5:
+            return D_800820D0;
+        case 6:
+            return D_800820E0;
+        case 7:
+            return D_800820F0;
+        default:
+            return D_80082100;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osScGetTaskType.s")
+#endif
 void func_80030608(OSScTask *arg0) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030610.s")

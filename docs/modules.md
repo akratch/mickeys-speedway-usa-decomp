@@ -1370,6 +1370,15 @@ new scheduler BSS that this split does not own. The assembly fallback remains
 canonical until BSS ownership can be reconstructed without changing the
 shared data layout.
 
+`osScGetTaskType` retains its JFG-derived switch under `NON_MATCHING`. The
+canonical candidate emits all 34 target text instructions and all eight
+string relocation identities exactly, but its two jump-table relocations at
+function `+0x14` and `+0x1C` name the compiler's anonymous 0x20-byte
+`.rodata` section rather than Mickey's existing `jtbl_800823D8`. The flag
+lattice cannot change section ownership, and promoting the table requires a
+measured `mickey.us.yaml` rodata-boundary handoff outside this lane's assigned
+files. The assembly fallback therefore remains canonical.
+
 The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
 `NON_MATCHING` body after the 119-combination flag lattice and seven
 source/type/loop shapes. Its best faithful candidate is 29 instructions versus
