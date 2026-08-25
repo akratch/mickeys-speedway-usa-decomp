@@ -520,6 +520,9 @@ f32 func_overlay_008_F0001000_185ED58(void *unused, O8PhaseState *state, f32 inp
 
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0001294_185EFEC.s")
 
+/* Workbench: mixed constant/structure/schedule/register residual; best is 62 words from +0xB8 with exact 183-word size and 0xD0 frame.
+ * Levers: constant/stack-slot audit and 119-case flag lattice; moving the tuning-base formation between helper calls improved 70 to 62 words.
+ * Remaining: the record home is 36 bytes above retail; aggregate, scope, volatility, declaration-order, and loop-carrier variants were inert or regressed. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0002640_1860398(
     O8P2640Anchor *anchor, O8P2640Config *config, s32 orientation,
@@ -555,8 +558,8 @@ void func_overlay_008_F0002640_1860398(
 
     baseValue = O8P2640_call_26F0(-distanceX, -distanceZ);
     axisA = O8P2640_call_26FC(anchor->helperInput0);
-    axisB = O8P2640_call_2708(anchor->helperInput0);
     tuning = &D_2110[tuningIndex];
+    axisB = O8P2640_call_2708(anchor->helperInput0);
 
     record.coordC = anchor->coord10 + tuning->offset4;
     record.phase14 = O8P2640_data_198;
