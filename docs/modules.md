@@ -1861,6 +1861,12 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   Its typed overlay-call alias also retains a different relocation identity at
   `+0xd8`; the natural unprototyped call instead promotes the float arguments,
   adding four instructions and eight frame bytes.
+- `func_80027D14`, eight control-flow/register-lifetime hypotheses, the full
+  flag lattice and a bounded two-worker permuter batch, first mismatch `+0x0`:
+  the best Mickey-derived interpolation candidate compiles to 92 rather than
+  91 instructions. IDO starts its global-pointer live range in `$t1` rather
+  than the target's `$t0`, leaving 88 differing words and 24 relocation-position
+  mismatches; the permuter found no improvement from its base score of 4,900.
 - `RevealReturnAddresses`, nine source/expression hypotheses, the full flag
   lattice and a bounded canonical-MIPS-II permuter batch, first mismatch
   `+0x24`: the best candidate preserves all 66 target opcodes, the 264-byte
