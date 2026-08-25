@@ -84,14 +84,16 @@ OSMesgQueue *joyMessageQ(void) {
 /*
  * PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive.
  *
- * Plateau: the donor-shaped candidate is exact through +0x118, then emits
+ * Plateau: eight source/storage hypotheses leave the donor-shaped candidate
+ * exact through +0x118, after which it emits
  * 86 instructions versus the target's 83. Because D_800CF3B4 is external to
  * this split TU, IDO materializes four HI16/LO16 pairs for the final unrolled
  * clears. The target shares one HI16 and uses four distinct LO16 identities
- * D_800CF3B4..D_800CF3B7. Scalar, aggregate, pointer, and expression-chain
- * spellings either retained the three surplus instructions or disrupted the
- * otherwise exact controller loop. The full flag lattice was unchanged, and
- * a bounded two-worker canonical-MIPS-II permuter batch found no improvement
+ * D_800CF3B4..D_800CF3B7. Scalar, aggregate, pointer, expression-chain, and
+ * block-scoped named-byte spellings either retain the three surplus
+ * instructions or disrupt the otherwise exact controller loop; the latter
+ * expands to 115 instructions. The full flag lattice was unchanged, and a
+ * bounded two-worker canonical-MIPS-II permuter batch found no improvement
  * from its base score of 325.
  */
 s32 joyInit(void) {

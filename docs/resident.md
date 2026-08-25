@@ -2191,15 +2191,16 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 
 **Bounded plateaus (all remain assembly):**
 
-- `joyInit`, seven source/storage hypotheses, the full flag lattice and a
+- `joyInit`, eight source/storage hypotheses, the full flag lattice and a
   bounded two-worker canonical-MIPS-II permuter batch, first mismatch
   `+0x11C`: the JFG-shaped candidate is exact through the controller scan but
   compiles to 86 rather than 83 instructions. External `D_800CF3B4` storage
   makes IDO materialize four HI16/LO16 pairs for the final byte clears; the
   target shares one HI16 and names `D_800CF3B4` through `D_800CF3B7` in four
   distinct LO16 relocations. Alternative scalar and aggregate declarations
-  disrupt the otherwise exact loop. The permuter found no improvement from
-  its base score of 325.
+  disrupt the otherwise exact loop; exposing the named bytes in a block-scoped
+  comma expression expands the function to 115 instructions. The permuter
+  found no improvement from its base score of 325.
 - `joyRead`, six loop/storage/type hypotheses, the full flag lattice and a
   bounded two-worker permuter batch, first mismatch `+0x18`: the JFG-shaped
   candidate has the exact 636-byte size, 159-instruction schedule and `-0x38`
@@ -2242,13 +2243,15 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
   removes three dead-looking countdown-loop register copies retained by the
   target.
-- `mainCPUeffects`, ten type/expression/storage hypotheses and the full flag
+- `mainCPUeffects`, seventeen type/expression/storage hypotheses and the full flag
   lattice, first mismatch `+0x48`: the best Mickey-derived candidate preserves
   all 85 target opcodes, the 340-byte boundary and `-0x40` frame, but ten
   temp-FIFO register operands differ in the cropped-framebuffer calculation.
   Its typed overlay-call alias also retains a different relocation identity at
   `+0xd8`; the natural unprototyped call instead promotes the float arguments,
-  adding four instructions and eight frame bytes.
+  adding four instructions and eight frame bytes. A typed function-pointer
+  cast emits an indirect call, while raw-integer framebuffer and zero-code
+  FIFO/line probes normalize back to the same object.
 - `func_80027D14`, eight control-flow/register-lifetime hypotheses, the full
   flag lattice and a bounded two-worker permuter batch, first mismatch `+0x0`:
   the best Mickey-derived interpolation candidate compiles to 92 rather than
@@ -2286,14 +2289,18 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `func_80028EFC`, ten spellings, first mismatch `+0x1c`: exact 64-byte size
   and 14/16 words; the correct loop predicate is allocated to `$t6`, while the
   target uses `$at`.
-- `func_80029274`, nine control-flow/parameter/register-lifetime hypotheses
-  and the full flag lattice, first mismatch `+0x8`: the best Mickey-derived
-  candidate has the exact 348-byte, 87-instruction boundary and `-0x10` frame,
-  but differs in 42 words. IDO moves the first float argument before the saved
-  register store, colors the long-lived float webs differently and reshapes
-  the negative-velocity return path.
+- `func_80029274`, seventeen control-flow/parameter/register-lifetime
+  hypotheses and the full flag lattice: the best canonical candidate has the
+  exact 348-byte, 87-instruction boundary and `-0x10` frame, but differs in 39
+  words, first at `+0x8`. Initializing the accumulators before copying the
+  velocity correctly anchors `$f2`; IDO still hoists the first float argument,
+  colors the velocity/distance webs as `$f12`/`$f16` rather than `$f14`/`$f12`,
+  and reshapes the negative-velocity return path. The size-exact `-g3` probe
+  reaches 38 differing words, first at `+0x14`, but is not exact and does not
+  justify a TU flag override.
 
-The full flag lattice did not change any of these allocation plateaus.
+The full flag lattice produced no exact result for any of these plateaus; the
+single one-word `-g3` improvement is recorded above and was not adopted.
 
 **PROVENANCE.** TU identities and adopted function names are adapted from Jet
 Force Gemini's published `src/{joy,level,main}.c` and built

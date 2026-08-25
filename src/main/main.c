@@ -850,11 +850,14 @@ s8 mainGetZBCheck(s32 arg0) {
  * retains assembly, so the body is reconstructed from Mickey-only control-flow
  * and call evidence; Mickey byte identity is decisive.
  *
- * Plateau: ten type, expression, storage and statement-grouping hypotheses
+ * Plateau: seventeen type, expression, storage and statement-grouping hypotheses
  * preserve all 85 target opcodes, the 0x154 boundary and the -0x40 frame. The
  * best differs in ten temp-FIFO register operands, first at +0x48, and its
  * typed overlay-call alias retains a different relocation identity at +0xD8.
- * The complete resident flag lattice does not improve either residual.
+ * Function-pointer casting preserves that type but emits an indirect call;
+ * raw-integer framebuffer and zero-code FIFO/line probes normalize back to
+ * the same object. The complete resident flag lattice does not improve either
+ * residual.
  */
 void mainCPUeffects(u16 *framebuffer, s32 unused) {
     s32 screenWidth;
@@ -1600,12 +1603,15 @@ u8 func_80029240(s32 index) {
  * src/overlays/o3/overlay_3.c::GetSmoothAcceleration; JFG retains assembly,
  * so this body is reconstructed from Mickey-only control-flow evidence.
  *
- * Plateau: nine control-flow, parameter and register-lifetime hypotheses
- * reproduce the target's 87-instruction boundary and -0x10 frame. The best
- * differs in 42 words, first at +0x8: IDO moves the first float argument
- * before the saved-register store, colors the long-lived float webs
- * differently and reshapes the negative-velocity return path. The complete
- * resident flag lattice leaves this result unchanged.
+ * Plateau: seventeen control-flow, parameter and register-lifetime hypotheses
+ * reproduce the target's 87-instruction boundary and -0x10 frame. Initializing
+ * the accumulators before copying the velocity improves the canonical result
+ * from 42 to 39 differing words, first at +0x8, and correctly anchors the
+ * acceleration accumulator in $f2. IDO still moves the first float argument
+ * before the saved-register store, assigns the velocity/distance webs to
+ * $f12/$f16 rather than $f14/$f12, and reshapes the negative-velocity return
+ * path. The full lattice has no exact result; -g3 is size-exact at 38 differing
+ * words, first at +0x14, but supplies no evidence for a TU flag override.
  */
 f32 func_80029274(s32 arg0, f32 arg1, f32 arg2) {
     f32 temp_f0;
@@ -1614,14 +1620,14 @@ f32 func_80029274(s32 arg0, f32 arg1, f32 arg2) {
     f32 temp_f16_2;
     f32 var_f0;
     f32 var_f12;
-    f32 var_f2;
     register f32 var_f14;
+    f32 var_f2;
     s32 temp_v0;
 
-    var_f14 = arg1;
-    temp_v0 = arg0 < 0;
     var_f0 = 0.0f;
     var_f2 = 0.0f;
+    var_f14 = arg1;
+    temp_v0 = arg0 < 0;
     if (temp_v0 != 0) {
         arg0 = -arg0;
         var_f14 = -var_f14;
