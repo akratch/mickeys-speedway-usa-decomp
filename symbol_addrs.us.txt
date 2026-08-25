@@ -510,7 +510,7 @@ piRomLoadCompressed = 0x8002E1E4; // type:func size:0xFC ROM 0x2ede4 tier-B dono
 piRomLoadSection = 0x8002E2E0; // type:func size:0x7C ROM 0x2eee0 tier-B donor-jfg-src/pi.c role-callgraph+order matched-C
 piRomGetSectionPtr = 0x8002E35C; // type:func size:0x48 ROM 0x2ef5c tier-B donor-jfg-src/pi.c role-callgraph+order matched-C
 piRomGetFileSize = 0x8002E3A4; // type:func size:0x3C ROM 0x2efa4 tier-B donor-jfg-src/pi.c role-callgraph+order matched-C
-romCopy = 0x8002E3E0; // type:func size:0xF0 ROM 0x2efe0 tier-B donor-jfg-src/pi.c pi-dma-callgraph
+romCopy = 0x8002E3E0; // type:func size:0xF0 ROM 0x2efe0 tier-B donor-jfg-src/pi.c pi-dma-callgraph matched-C
 
 // screen.c -- ROM 0x2F0D0-0x2F400.
 screenLoad = 0x8002E4D0; // type:func size:0x104 ROM 0x2f0d0 tier-B donor-jfg-src/screen.c load-callgraph+order

@@ -8,8 +8,10 @@
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os.h"
 #include "PR/os_internal.h"
 #include "PR/os_message.h"
+#include "PR/os_pi.h"
 #include "game/pi.h"
 
 typedef struct AssetLookupTable {
@@ -19,16 +21,19 @@ typedef struct AssetLookupTable {
 
 extern AssetLookupTable *D_800D2470;
 extern OSMesg D_800D23B8;
+extern OSIoMesg D_800D23A0;
 extern OSMesgQueue D_800D23C0;
 extern OSMesg D_800D23D8[];
 extern OSMesgQueue D_800D2458;
 extern u8 D_86640[];
 extern u8 D_86760[];
+extern s32 D_8007A320;
 
 void romCopy(u32 romOffset, u32 ramAddress, s32 numBytes);
 void *func_8002B280();
 void func_8004D5E0(OSPri priority, OSMesgQueue *queue, OSMesg *messages,
                    s32 count);
+void mainPreNMI(void);
 
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/pi.c:piInit. */
 void piInit(void) {
@@ -109,4 +114,26 @@ s32 piRomGetFileSize(u32 assetIndex) {
     size = index[1] - index[0];
     return size;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/pi/romCopy.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/pi.c:romCopy, with Mickey's 0x400-byte transfer chunks. */
+void romCopy(u32 romOffset, u32 ramAddress, s32 numBytes) {
+    OSMesg dmaMessage;
+    s32 transferSize;
+
+    osInvalDCache((void *) ramAddress, numBytes);
+    transferSize = 0x400;
+    while (numBytes > 0) {
+        if (numBytes < transferSize) {
+            transferSize = numBytes;
+        }
+        osPiStartDma(&D_800D23A0, OS_MESG_PRI_NORMAL, OS_READ, romOffset,
+                     (void *) ramAddress, transferSize, &D_800D23C0);
+        osRecvMesg(&D_800D23C0, &dmaMessage, OS_MESG_BLOCK);
+        if (D_8007A320 != 0) {
+            mainPreNMI();
+        }
+        numBytes -= transferSize;
+        romOffset += transferSize;
+        ramAddress += transferSize;
+    }
+}
