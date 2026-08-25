@@ -215,6 +215,7 @@ f32 sqrtf(f32 value);
 s32 mathRnd(s32 minimum, s32 maximum);
 s32 levelGetNumber(void);
 u8 levelGetType(void);
+s32 func_8003A50C(void);
 extern s32 levelInitRegionFlags(void);
 extern void func_80021504(f32 fov, s32 force);
 void func_80021838(s32 x, s32 y, s32 z, s32 zRotation, s32 xRotation,
@@ -665,7 +666,81 @@ void camGetUserView(s32 camNo, s32 *x1, s32 *y1, s32 *x2, s32 *y2) {
     *x2 = viewport->x2;
     *y2 = viewport->y2;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021FB0.s")
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camGetWindowLimits; Mickey's draft supplies the inset margins
+ * and split-orientation behavior.
+ */
+void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1, u32 *x2,
+                   u32 *y2) {
+    s32 videoMode;
+    u32 halfWidth;
+    u32 halfHeight;
+    u32 marginWidth;
+    u32 marginHeight;
+
+    if (D_80079C10[camNo].flags & 1) {
+        *x1 = D_80079C10[camNo].scissorX1;
+        *y1 = D_80079C10[camNo].scissorY1;
+        *x2 = D_80079C10[camNo].scissorX2;
+        *y2 = D_80079C10[camNo].scissorY2;
+        return;
+    }
+
+    videoMode = viGetVideoMode();
+    viGetCurrentSize((s32 *) x2, (s32 *) y2);
+    *x1 = 0;
+    *y1 = 0;
+    halfWidth = *x2 >> 1;
+    halfHeight = *y2 >> 1;
+    marginWidth = *x2 / 20U;
+    marginHeight = *y2 / 20U;
+
+    switch (mode) {
+        case 1:
+            if (videoMode & 1) {
+                marginHeight = 0;
+            }
+            if (func_8003A50C() != 0) {
+                if (D_80079C10 == &D_80079C10[camNo]) {
+                    *x1 = marginWidth;
+                    *x2 = halfWidth;
+                } else {
+                    *x1 = halfWidth;
+                    *x2 -= marginWidth;
+                }
+            } else if (D_80079C10 == &D_80079C10[camNo]) {
+                *y1 = marginHeight;
+                *y2 = halfHeight;
+            } else {
+                *y1 = halfHeight;
+                *y2 -= marginHeight;
+            }
+            break;
+        case 2:
+        case 3:
+            if (videoMode & 1) {
+                marginHeight = 0;
+            }
+            if (camNo & 1) {
+                *x1 = halfWidth;
+                *x2 -= marginWidth;
+            } else {
+                *x1 = marginWidth;
+                *x2 = halfWidth;
+            }
+            if (camNo & 2) {
+                *y1 = halfHeight;
+                *y2 -= marginHeight;
+            } else {
+                *y1 = marginHeight;
+                *y2 = halfHeight;
+            }
+            break;
+        case 0:
+            break;
+    }
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetView. */
 void func_800221E8(Gfx **dlist, Mtx **mtx) {
     u32 halfWidth;

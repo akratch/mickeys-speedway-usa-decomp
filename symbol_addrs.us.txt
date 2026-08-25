@@ -2320,6 +2320,7 @@ func_80021C88 = 0x80021C88; // type:func size:0x16C ROM 0x22888 tier-D matched-C
 camSetUserViewSpecial = 0x80021DF4; // type:func size:0xFC ROM 0x229F4 tier-D matched-C JFG TU role/order and viewport-field dataflow
 camGetVisibleUserView = 0x80021EF0; // type:func size:0x78 ROM 0x22AF0 tier-D matched-C JFG TU role/order and viewport-scissor dataflow
 camGetUserView = 0x80021F68; // type:func size:0x48 ROM 0x22B68 tier-D matched-C JFG TU role/order and viewport-field dataflow
+func_80021FB0 = 0x80021FB0; // type:func size:0x238 ROM 0x22BB0 tier-D matched-C JFG camGetWindowLimits role/order, Mickey auto-name retained
 func_800221E8 = 0x800221E8; // type:func size:0x41C ROM 0x22de8 tier-D matched-C, JFG camSetView body, Mickey auto-name retained
 func_80022604 = 0x80022604; // type:func size:0x0C ROM 0x23204 tier-D matched-C Mickey auto-name retained, camera TU position
 camSetScissor = 0x80022610; // type:func size:0x150 ROM 0x23210 tier-D matched-C JFG TU role/order and scissor-command dataflow
