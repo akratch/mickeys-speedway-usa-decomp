@@ -42,6 +42,14 @@ typedef struct O38DirectionInput {
 extern s32 o38RandomRange(s32 minimum, s32 maximum);
 extern void o38MakeDirection(s16 *source, s16 *destination);
 
+/*
+ * Plateau: natural -O2 -mips2 -32 output is size- and opcode-shape exact but
+ * differs in 7 of 85 words, first at +0x48. IDO folds the direction address
+ * back to the pool base and schedules the particle/direction setup later than
+ * the target. Declaration initializers, typed/byte-addressed pointer forms,
+ * assignment order, register hints, and for/do-while spellings did not close
+ * the gap; the bounded permuter is unavailable in this lane.
+ */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000000_1885D10(O38Object *object,
                                        O38Descriptor *descriptor)
