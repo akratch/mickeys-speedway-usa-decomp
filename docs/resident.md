@@ -1845,7 +1845,9 @@ A fresh structural retry removed the explicit bit-test temporary and tested
 the source value directly. That form regressed to 30 instructions versus 28,
 with 30 positional differences from `+0x0`; changing only the temporary's
 signedness stayed in the existing 29-instruction, first-`+0x0` basin. The
-original candidate remains the best faithful form.
+canonical MIPS II permuter then led to a coherent value-bit/cursor-field
+lifetime rewrite: exact 28-word size, 18 differences from `+0x10` (17 register,
+one opcode); the remaining blocker is constant/next-bit register coloring.
 
 Its paired bit reader `func_8002C70C` likewise retains a Mickey-derived
 `NON_MATCHING` body. The 119-combination flag lattice and five local-width and

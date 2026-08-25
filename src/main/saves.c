@@ -284,20 +284,24 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
 }
 #ifdef NON_MATCHING
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
-    u32 mask;
-    u32 bit;
     s32 isSet;
     u32 nextBit;
-    u8 *nextCursor;
+    u32 bit;
     u8 *cursor;
+    s32 valueBit;
+    u8 *nextCursor;
+    u8 **cursorField;
+    u32 mask;
 
     if (bitCount != 0) {
         bit = 1 << (bitCount + 0x1F);
         do {
             mask = writer->mask;
-            isSet = value & bit;
+            valueBit = value & bit;
+            isSet = valueBit;
             nextBit = bit >> 1;
             bit = nextBit;
+            cursorField = &writer->cursor;
             if (mask == 0) {
                 mask = 0x80;
                 nextCursor = writer->cursor + 1;
@@ -306,7 +310,7 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
                 writer->mask = 0x80;
             }
             if (isSet != 0) {
-                cursor = writer->cursor;
+                cursor = *cursorField;
                 *cursor |= mask;
                 mask = writer->mask;
             }
