@@ -14,6 +14,9 @@ extern void overlay61DrawScrollReloc(s32, s32, s32, void *, s32);
 extern void func_overlay_061_F00003C0_18BF788(
     s32 context, s32 y, void *item, s32 selected);
 
+/* Plateau: exact 0x1A4 and 102/105 words; first mismatch +0x94 schedules the
+ * loop-limit li before two address addends. The 119-flag/access-shape pass
+ * failed; a 2,401s permuter fixed that window but swapped initial v0/v1. */
 #ifdef NON_MATCHING
 void overlay61DrawList(s32 context) {
     s32 index;
