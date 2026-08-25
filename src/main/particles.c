@@ -911,6 +911,11 @@ s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParti
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CE10.s")
 #endif
+/*
+ * Plateau: workbench allocation-mismatch, exact 168-word length and 0xB8 frame; 70 register-only words differ, first +0x50.
+ * Levers tried: temp-FIFO command forms, pool-web scopes/aliases, direct fields, and color-web removal.
+ * Remaining: temp queue diverges at slot 0 and 37/41 substitutions use target-only registers; bounded permutation did not resolve it.
+ */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: structure cross-checked against JFG's assembly-only
