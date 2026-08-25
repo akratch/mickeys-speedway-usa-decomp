@@ -32,9 +32,9 @@ typedef struct Overlay22Owner {
 extern f32 D_10;
 extern f32 func_overlay_022_F0000000_1878108(f32);
 
-/* Workbench: mixed constant/commutative; best differs 7/173 words, first linked +0x74.
- * Compound assignment, spill-padding widths, and a projected-vector aggregate were tried.
- * Three mul operand encodings and X/Z homes +0x50/+0x48 vs +0x54/+0x4C remain. */
+/* Workbench: mixed(constant:5, commutative:3), exact 173-word size/0x88 frame; 7 words, first +0x74.
+ * Lever tried: constant/spill audit with a typed projected-vector aggregate; codegen was unchanged.
+ * Remains: three commutative source orders and projected-X/Z homes +0x4 below target; all lanes are exact. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000A7C_1878B84(
     void *unused, Vec3f *out, Vec3f *direction, f32 distance,
