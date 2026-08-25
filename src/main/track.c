@@ -288,6 +288,8 @@ void viGetCurrentSize(s32 *width, s32 *height);
 void *func_800348D4(TrackTextureHeader *texture, s32 frame);
 TrackCamera *func_8002462C(void);
 f32 func_8002A8BC(s32 angle);
+s32 func_80013324(f32 coefficient, f32 numerator,
+                  f32 *minimum, f32 *maximum);
 f32 func_8002A8C0(s32 angle);
 void func_8000F82C(s32 start, s32 count, s32 end);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
@@ -904,7 +906,41 @@ TrackBoundingBox *func_8000FEEC(s32 segmentIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012574.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012658.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001291C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800131AC.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public assembly-only `trackClip3D` in
+ * `src/track.c` supplies the six-plane clipping structure and paired helper
+ * context. Mickey's shorter function boundary, fields, globals, and body are
+ * reconstructed from Mickey-only evidence.
+ */
+s32 func_800131AC(TrackVec3f *origin, TrackVec3f *direction,
+                  TrackVec3f *minimum, TrackVec3f *maximum,
+                  f32 *nearClip, f32 *farClip) {
+    f32 near;
+    f32 far;
+    s32 result;
+
+    D_80079350 = 0;
+    result = FALSE;
+    near = -32000.0f;
+    far = 32000.0f;
+    if ((func_80013324(direction->f[0],
+                       minimum->f[0] - origin->f[0], &near, &far) != 0) &&
+        (func_80013324(-direction->f[0],
+                       origin->f[0] - maximum->f[0], &near, &far) != 0) &&
+        (func_80013324(direction->f[1],
+                       minimum->f[1] - origin->f[1], &near, &far) != 0) &&
+        (func_80013324(-direction->f[1],
+                       origin->f[1] - maximum->f[1], &near, &far) != 0) &&
+        (func_80013324(direction->f[2],
+                       minimum->f[2] - origin->f[2], &near, &far) != 0) &&
+        (func_80013324(-direction->f[2],
+                       origin->f[2] - maximum->f[2], &near, &far) != 0)) {
+        result = D_80079354;
+        *nearClip = near;
+        *farClip = far;
+    }
+    return result;
+}
 s32 func_80013324(f32 coefficient, f32 numerator,
                   f32 *minimum, f32 *maximum) {
     f32 ratio;
