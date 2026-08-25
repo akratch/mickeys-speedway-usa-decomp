@@ -42,6 +42,14 @@ extern void func_overlay_099_F0000800_18D9DB0(
     Overlay99Gfx **displayList, void *arg1, s32 arg2,
     Overlay99RenderObject *object, f32 scale);
 
+/* Plateau (2026-08-25): the configured -O2/-mips2/-Wab,-r4300_mul build and
+ * the best of all 119 flag combinations are exact-sized with 6 differing
+ * words, first at +0x7c. The addressed setup result places its second word at
+ * sp+0xa0 instead of retail's sp+0x98, while the display-list temporary uses
+ * v0 instead of v1. Reordered, split, and explicitly aligned setup storage and
+ * a register-qualified command pointer either tie or disturb the exact frame.
+ * The configured tools/permuter checkout is absent; work stopped after the
+ * campaign's no-closures window elapsed. */
 #ifdef NON_MATCHING
 void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
                              f32 scale) {
