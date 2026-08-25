@@ -1313,6 +1313,8 @@ the still-unnamed `func_8002C790` (ROM `0x2D390`–`0x2D39C`, 12 bytes),
 the still-unnamed `func_8002C79C` (ROM `0x2D39C`–`0x2D3BC`, 32 bytes),
 the still-unnamed `func_8002C8B4` (ROM `0x2D4B4`–`0x2D54C`, 152 bytes),
 the still-unnamed `func_8002CCE4` (ROM `0x2D8E4`–`0x2D96C`, 136 bytes),
+the still-unnamed game-state writer `func_8002CD6C` (ROM `0x2D96C`–
+`0x2DA2C`, 192 bytes),
 the still-unnamed global-flags loader `func_8002CE54` (ROM `0x2DA54`–
 `0x2DB0C`, 184 bytes),
 the still-unnamed `func_8002CF0C` (ROM `0x2DB0C`–`0x2DB6C`, 96 bytes),

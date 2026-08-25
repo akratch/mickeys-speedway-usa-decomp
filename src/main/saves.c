@@ -73,6 +73,12 @@ typedef struct SavesEepromReadState {
     u8 unused[0x14];
 } SavesEepromReadState;
 
+typedef struct SavesGameWriteState {
+    u32 footer[2];
+    SavesBitWriter *writer;
+    s32 messageQueue;
+} SavesGameWriteState;
+
 typedef struct RumbleState {
     u8 state;
     u8 pad01[2];
@@ -313,7 +319,30 @@ void func_8002CCE4(void) {
         slot++;
     } while (i != limit);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CD6C.s")
+/* Mickey-derived reconstruction; JFG supplies only the neighboring saves TU
+ * order, while Mickey's writer/checksum/I/O calls establish this body. */
+void func_8002CD6C(void) {
+    SavesGameWriteState state;
+
+    state.writer = func_8002C60C(0x1C0, 1);
+    func_8002CCE4();
+    state.messageQueue = joyMessageQ();
+    if (func_80070170(state.messageQueue) == 0) {
+        func_8002C79C(state.writer);
+        return;
+    }
+    state.footer[0] = packCalculateGameChecksum(
+        (u8 *) func_8002C788((SavesRecord *) state.writer), 0x1C0);
+    state.footer[1] = 0x12345678;
+    if (mainResetPressed() == 0) {
+        func_8002C8B4(state.messageQueue, 0,
+                      (void *) func_8002C788((SavesRecord *) state.writer),
+                      0x1C0);
+        func_8002C8B4(state.messageQueue, 0x38, state.footer,
+                      sizeof(state.footer));
+    }
+    func_8002C79C(state.writer);
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packCalculateGlobalFlagsChecksum. */
 s32 packCalculateGlobalFlagsChecksum(u8 *buffer) {
     s32 bytesToChecksum = 22;
