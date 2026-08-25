@@ -1,11 +1,8 @@
 #include "overlays/overlay019.h"
 
-/*
- * Builds the three edge-neighbour entries for every point in each span.
- * The explicit frame object preserves the stack/lifetime shape of the shipped
- * IDO object. The candidate remains available under NON_MATCHING while the
- * canonical build uses the extracted function.
- */
+/* Plateau (batch 17): exact 0x1EC size; 41 words differ, first at +0x7C.
+ * Edge-loop locals, statement order, register hints, and signedness tie or regress.
+ * The blocker is the temporary-register web; flags tie and permuter setup failed. */
 #ifdef NON_MATCHING
 void overlay19BuildAdjacency(
     O19Context *context,
