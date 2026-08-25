@@ -37,7 +37,11 @@ extern Overlay36WorldState *gOverlay36WorldStateReloc;
  * Reusing one nearby-height load closed most of the prior gap; the remaining
  * mismatch is the 0x80-versus-0x70 frame and FP-bound scheduling/registers.
  * The permuter's lower numerical candidate read center before initialization
- * and was rejected as non-equivalent. */
+ * and was rejected as non-equivalent.
+ * Follow-up (2026-08-25): a nine-entry result array reached a 0x70 frame but
+ * left the array and spill offsets +0x10 from target; direct bound expressions
+ * retained the 0x80 frame and regressed FP scheduling. The first mismatch of
+ * the best 50/63-word candidate remains +0x0. */
 #ifdef NON_MATCHING
 void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
                                        s32 remaining) {
