@@ -1040,6 +1040,11 @@ MIXED_TU_EXACT_C_RANGES = {
         (0xB7C, 0xB88, "overlay15SetValueC"),
         (0xB88, 0xB94, "overlay15ClearValue7C"),
     ],
+    16: [
+        (0x000, 0x08C, "overlay16BuildGradient"),
+        (0x08C, 0x1A8, "overlay16InitializeBuffer"),
+        (0x1A8, 0x1E0, "overlay16ReleaseBuffer"),
+    ],
     25: [
         (0x588, 0x608, "overlay25SetVectorFlags"),
     ],

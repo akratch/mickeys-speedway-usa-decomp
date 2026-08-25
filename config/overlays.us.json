@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 73004,
-  "nonmatching_overlay_c_bytes": 220372,
+  "matched_overlay_c_bytes": 73484,
+  "nonmatching_overlay_c_bytes": 219892,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -4059,7 +4059,33 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 40
-   }
+   },
+   "mixed_tu_exact_c_ranges": [
+    {
+     "offset": "0x0",
+     "end_offset": "0x8C",
+     "size": "0x8C",
+     "label": "overlay16BuildGradient",
+     "source": "overlays/o016/overlay_016",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x8C",
+     "end_offset": "0x1A8",
+     "size": "0x11C",
+     "label": "overlay16InitializeBuffer",
+     "source": "overlays/o016/overlay_016",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x1A8",
+     "end_offset": "0x1E0",
+     "size": "0x38",
+     "label": "overlay16ReleaseBuffer",
+     "source": "overlays/o016/overlay_016",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    }
+   ]
   },
   {
    "overlay": 17,
