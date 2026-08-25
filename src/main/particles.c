@@ -107,7 +107,9 @@ typedef struct ParticleModelEntry {
     s32 particleCount;
     u8 pad40[0x64];
     u8 active;
-    u8 padA5[0x1B];
+    u8 padA5[0x13];
+    void *resource;
+    u8 padBC[4];
 } ParticleModelEntry;
 
 typedef struct ParticleLineEntry {
@@ -232,6 +234,7 @@ extern s32 D_8007C8B0;
 extern ParticleConfig **D_8007C8B8;
 extern ParticleTrigger *D_8007C8BC;
 extern s32 D_8007C8C0;
+extern s32 D_8007C8C4;
 extern s32 D_8007C890;
 extern s32 D_8007C8E8;
 extern s32 D_8007C8EC;
@@ -244,6 +247,8 @@ extern CircularParticlePool *D_800D4128;
 extern CircularParticlePool *D_800D412C;
 extern CircularParticlePool *D_800D4130[];
 extern CircularParticlePool *D_800D4134[];
+extern void *D_8007CA60;
+extern void *D_8007CA98;
 
 void mmFree(void *ptr);
 void func_800347A0(void *resource);
@@ -271,6 +276,7 @@ s32 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config);
 void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
 void func_8003CA20(void);
 void func_8003CB3C(void);
+void func_8003CD28(ParticleResourceList **listPtr);
 void func_8003CCE4(void);
 void *func_8003FB98(s32 arg0, ParticleTrigger *trigger, s32 arg2);
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry);
@@ -317,7 +323,67 @@ void func_8003CA20(void) {
         D_8007C884 = NULL;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CB3C.s")
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005DA70.s; body reconstructed from Mickey evidence. */
+void func_8003CB3C(void) {
+    CircularParticlePool **pool;
+    CircularParticlePool **poolEnd;
+    ParticleLineEntry *line;
+    ParticleModelEntry *model;
+    s32 i;
+
+    pool = D_800D4120, poolEnd = D_800D4134;
+    do {
+        func_8003CD28((ParticleResourceList **)pool);
+        pool++;
+    } while (pool < poolEnd);
+
+    D_8007C8C4 = 0;
+    if (D_8007C894 != NULL) {
+        line = D_8007C894;
+        i = 0;
+        if (D_8007C88C > 0) {
+            do {
+                if (line->active && line->texture != NULL) {
+                    func_800347A0(line->texture);
+                }
+                i++;
+                line++;
+            } while (i < D_8007C88C);
+        }
+        mmFree(D_8007C894);
+        D_8007C894 = NULL;
+    }
+
+    if (D_8007C898 != NULL) {
+        model = D_8007C898;
+        i = 0;
+        if (D_8007C890 > 0) {
+            do {
+                if (model->active && model->resource != NULL) {
+                    func_800347A0(model->resource);
+                }
+                i++;
+                model++;
+            } while (i < D_8007C890);
+        }
+        mmFree(D_8007C898);
+        D_8007C898 = NULL;
+    }
+
+    if (D_8007CA60 != NULL) {
+        mmFree(D_8007CA60);
+        D_8007CA60 = NULL;
+    }
+    if (D_8007CA98 != NULL) {
+        mmFree(D_8007CA98);
+        D_8007CA98 = NULL;
+    }
+    if (D_8007C8BC != NULL) {
+        mmFree(D_8007C8BC);
+        D_8007C8BC = NULL;
+        D_8007C8C0 = 0;
+    }
+}
 void func_8003CCE4(void) {
     if (D_8007C89C[0] != NULL) {
         mmFree(D_8007C89C[0]);
