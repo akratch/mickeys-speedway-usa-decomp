@@ -13,6 +13,7 @@
 
 extern u8 D_8007A2F8;
 extern u8 D_8007A2F0;
+extern u8 D_8007A2F4;
 extern s32 D_8007A2E8;
 extern s32 D_8007A2FC;
 extern void *D_8007A280;
@@ -42,7 +43,18 @@ s32 func_8002BCC0(void) {
 void rumbleRumbles(s32 value) {
     D_8007A2F8 = value;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleProcessing.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:rumbleProcessing, with Mickey's outer enable guard. */
+void rumbleProcessing(s32 enabled) {
+    if (D_8007A2E8 != 0) {
+        if (enabled != 0 && D_8007A2F4 == 0) {
+            D_8007A2F0 = 1;
+            D_8007A2F4 = 1;
+            return;
+        }
+        D_8007A2F4 = 0;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStart.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStop.s")
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:rumbleKill. */

@@ -1294,8 +1294,9 @@ TU-level summary, not a substitute for it.
 
 Exact C reconstructions in this census currently include the still-unnamed
 `func_8002BCC0` (ROM `0x2C8C0`–`0x2C8FC`, 60 bytes), `rumbleRumbles`
-(ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleKill` (ROM `0x2CB00`–
-`0x2CB44`, 68 bytes), `rumbleUpdate` (ROM `0x2CB44`–`0x2CB54`, 16 bytes),
+(ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleProcessing` (ROM `0x2C908`–
+`0x2C958`, 80 bytes), `rumbleKill` (ROM `0x2CB00`–`0x2CB44`, 68 bytes),
+`rumbleUpdate` (ROM `0x2CB44`–`0x2CB54`, 16 bytes),
 `packCalculateGameChecksum` (ROM `0x2D3BC`–
 `0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
