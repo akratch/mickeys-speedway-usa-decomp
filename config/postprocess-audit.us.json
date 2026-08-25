@@ -782,6 +782,7 @@
       "size": 976,
       "source": "src/overlays/o011/overlay11UpdateFiveOptionMenu.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "objcopy"
       ]
     },

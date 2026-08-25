@@ -2200,10 +2200,32 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateTwoOptionMenu.c.o: POSTPROC
 		0x190:func_overlay_011_F0002BF4_186B43C:func_overlay_011_F0000000_1868848 \
 		0x1E8:func_80028528:func_overlay_011_F0000000_1868848 \
 		0x20C:func_80028374:func_overlay_011_F0000000_1868848
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
+# The compiler emits the exact five-entry switch table already present at
+# overlay-local +0x40. Rebind the text pair there, discard only the duplicate
+# private table, and preserve the retail offset-zero runtime call carriers.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateFiveOptionMenu.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateFiveOptionMenu.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_011_F0001A7C_186A2C4=overlay11UpdateFiveOptionMenu $@
+	$(OBJCOPY) \
+		--redefine-sym func_80000F94=func_overlay_011_F0000000_1868848 \
+		--add-symbol gOverlay11FiveOptionSwitchTableReloc=0x40,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x100:func_overlay_045_F0001BF4_188E04C:func_overlay_011_F0000000_1868848 \
+		0x124:func_8002554C:func_overlay_011_F0000000_1868848 \
+		0x164:.rodata:gOverlay11FiveOptionSwitchTableReloc \
+		0x16C:.rodata:gOverlay11FiveOptionSwitchTableReloc \
+		0x178:func_overlay_066_F0000000:func_overlay_011_F0000000_1868848 \
+		0x180:func_800290AC:func_overlay_011_F0000000_1868848 \
+		0x188:func_800291D8:func_overlay_011_F0000000_1868848 \
+		0x198:func_800006BC:func_overlay_011_F0000000_1868848 \
+		0x1A0:func_overlay_011_F0002BF4_186B43C:func_overlay_011_F0000000_1868848 \
+		0x218:func_80005820:func_overlay_011_F0000000_1868848 \
+		0x220:func_8002675C:func_overlay_011_F0000000_1868848 \
+		0x240:func_80028374:func_overlay_011_F0000000_1868848 \
+		0x2B0:func_80028374:func_overlay_011_F0000000_1868848 \
+		0x320:func_80028374:func_overlay_011_F0000000_1868848 \
+		0x3A8:func_80028374:func_overlay_011_F0000000_1868848 && \
+	$(OBJCOPY) --remove-section=.rodata $@
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/func_overlay_011_F0001E4C_186A694.c.o: POSTPROCESS = \
