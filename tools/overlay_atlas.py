@@ -876,7 +876,7 @@ TEXT_SUBSEGMENTS = {
     ],
     35: [
         (0x000, "c", "overlay35Initialize"),
-        (0x1E0, "asm", "overlay_035_prefix"),
+        (0x1E0, "c", "func_overlay_035_F00001E0_1881EC0"),
         (0x770, "c", "overlay35BuildGridMasks"),
         (0xB40, "asm", "overlay_035_middle"),
         (0x1380, "c", "overlay35SelectHeight"),

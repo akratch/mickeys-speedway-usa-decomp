@@ -1,0 +1,275 @@
+#include "ultra64.h"
+
+typedef struct O35TextureInfo {
+    void *texture;
+    u8 pad4[4];
+} O35TextureInfo;
+
+typedef struct O35Segment {
+    u8 *vertices;
+    void *triangles;
+    void *unk8;
+    void *groups;
+    u32 *masks;
+    void *collisionFacets;
+    void *unk18;
+    f32 *collisionPlanes;
+    s16 count20;
+    s16 dataOffset;
+    u8 pad24[0xA];
+    u8 flag2E;
+    u8 pad2F;
+    void *colorData;
+    u8 pad34[4];
+    s32 selectedValue;
+    u8 pad3C[4];
+} O35Segment;
+
+typedef struct O35Bounds {
+    s16 x0;
+    s16 y0;
+    s16 z0;
+    s16 x1;
+    s16 y1;
+    s16 z1;
+} O35Bounds;
+
+typedef struct O35Model {
+    O35TextureInfo *textures;
+    O35Segment *segments;
+    O35Bounds *bounds;
+    void *unkC;
+    void *unk10;
+    void *unk14;
+    s16 textureCount;
+    s16 segmentCount;
+    u8 pad1C[0x10];
+    s32 modelSize;
+} O35Model;
+
+typedef struct O35LoaderState {
+    u8 pad0[0xEE];
+    s16 allocationCount;
+    s16 segmentAllocationCount;
+    u8 padF2[0x17];
+    u8 finalArg0;
+    u8 finalArg1;
+} O35LoaderState;
+
+typedef struct O35ColorData {
+    u8 *colors;
+    s16 *flags;
+} O35ColorData;
+
+extern O35LoaderState *D_o35_loader_state;
+extern s32 D_o35_allocation_count;
+extern void **D_o35_allocations;
+extern s16 *D_o35_values_a;
+extern s16 *D_o35_values_b;
+extern void *D_o35_segment_storage;
+extern s32 D_o35_reset;
+extern void *D_o35_model_heap;
+extern O35Model *D_o35_current_model;
+extern s32 *D_o35_model_table;
+extern s32 D_o35_final_reset;
+
+extern void *call_o0_0_2AE30(s32, s32);
+extern void call_o0_0_29DF4(void);
+extern void call_o0_0_26934(void);
+extern s32 *call_o0_0_2DCF8(s32);
+extern void call_o0_0_2DE90(s32, void *, s32, s32);
+extern void call_o0_0_4D390(void *, void *);
+extern void call_o0_0_2B318(void *);
+extern void *call_o0_0_2B848(void *);
+extern void *call_o0_0_2B810(void *);
+extern s32 call_o0_0_2B6E4(void);
+extern void call_o0_0_2B2A4(s32);
+extern void *call_o0_0_2B0D4(s32, void *, s32);
+extern void *call_o0_0_33FF8(s32);
+extern void call_o0_0_CF68(u8, u8);
+
+extern void func_overlay_035_F0000770_1882450(O35Segment *, O35Bounds *,
+                                                O35Segment *);
+extern s32 func_overlay_035_F0000B40_1882820(O35Segment *);
+extern void func_overlay_035_F0001380_1883060(O35Segment *);
+
+/*
+ * NON_MATCHING plateau (2026-08-25): -O2 -mips2 -32 with
+ * -Wo,-loopunroll,0 produces 353 target-owned instructions versus 356.
+ * First mismatch is +0x0: the candidate frame is 0x50 rather than 0x40;
+ * 284 masked words still differ, predominantly register allocation.
+ * PROVENANCE: adapted from Diddy Kong Racing, src/tracks.c (generate_track).
+ */
+#ifdef NON_MATCHING
+void func_overlay_035_F00001E0_1881EC0(s32 modelId) {
+    register s32 i;
+    register s32 k;
+    register s32 temp_s4;
+    register s32 temp;
+    register s32 mdl;
+    register s32 *modelTable;
+    register O35Model *model;
+    register O35Segment *segment;
+    register u8 *cursor;
+
+    D_o35_allocation_count = D_o35_loader_state->allocationCount;
+    D_o35_allocations = call_o0_0_2AE30(D_o35_allocation_count * 4, 0x91);
+    D_o35_values_a = call_o0_0_2AE30(D_o35_allocation_count * 2, 0x91);
+    D_o35_values_b = call_o0_0_2AE30(D_o35_allocation_count * 2, 0x91);
+    D_o35_segment_storage = call_o0_0_2AE30(
+        D_o35_loader_state->segmentAllocationCount * 0x2C, 0x91);
+    D_o35_reset = 0;
+    D_o35_model_heap = call_o0_0_2AE30(0x9F000, 0x91);
+    D_o35_current_model = D_o35_model_heap;
+    if (D_o35_model_heap == 0) {
+        call_o0_0_29DF4();
+    }
+    call_o0_0_26934();
+
+    modelTable = call_o0_0_2DCF8(0x24);
+    D_o35_model_table = modelTable;
+    for (i = 0; modelTable[i] != -1; i++) {
+    }
+    i--;
+    if (modelId >= i) {
+        modelId = 0;
+    }
+
+    mdl = modelTable[modelId];
+    temp_s4 = modelTable[modelId + 1] - mdl;
+    temp = (s32)D_o35_current_model + 0x9F000 - temp_s4;
+    temp -= temp % 16;
+
+    call_o0_0_26934();
+    call_o0_0_2DE90(0x25, (void *)temp, mdl, temp_s4);
+    call_o0_0_4D390((void *)temp, D_o35_current_model);
+    call_o0_0_2B318(D_o35_model_table);
+    call_o0_0_26934();
+
+    model = D_o35_current_model;
+    mdl = (s32)model;
+    model->textures = (O35TextureInfo *)((s32)model->textures + mdl);
+    model = D_o35_current_model;
+    model->segments = (O35Segment *)((s32)model->segments + mdl);
+    model = D_o35_current_model;
+    model->bounds = (O35Bounds *)((s32)model->bounds + mdl);
+    model = D_o35_current_model;
+    model->unkC = (void *)((s32)model->unkC + mdl);
+    model = D_o35_current_model;
+    model->unk10 = (void *)((s32)model->unk10 + mdl);
+    model = D_o35_current_model;
+    model->unk14 = (void *)((s32)model->unk14 + mdl);
+
+    k = 0;
+    model = D_o35_current_model;
+    if (model->segmentCount > 0) {
+        do {
+            segment = (O35Segment *)((u8 *)model->segments + k * 0x40);
+            segment->vertices += mdl;
+            segment = (O35Segment *)((u8 *)D_o35_current_model->segments +
+                                     k * 0x40);
+            segment->triangles = (void *)((s32)segment->triangles + mdl);
+            segment = (O35Segment *)((u8 *)D_o35_current_model->segments +
+                                     k * 0x40);
+            segment->groups = (void *)((s32)segment->groups + mdl);
+            segment = (O35Segment *)((u8 *)D_o35_current_model->segments +
+                                     k * 0x40);
+            segment->unk18 = (void *)((s32)segment->unk18 + mdl);
+            k++;
+        } while (k < D_o35_current_model->segmentCount);
+        k = 0;
+    }
+
+    cursor = (u8 *)model + model->modelSize;
+    if (model->segmentCount > 0) {
+        do {
+            segment = (O35Segment *)((u8 *)D_o35_current_model->segments +
+                                     k * 0x40);
+            D_o35_current_model->segments[k].masks =
+                call_o0_0_2B848(cursor);
+            cursor = (u8 *)D_o35_current_model->segments[k].masks +
+                     D_o35_current_model->segments[k].dataOffset;
+            D_o35_current_model->segments[k].collisionFacets = cursor;
+            cursor += D_o35_current_model->segments[k].dataOffset;
+            func_overlay_035_F0000770_1882450(
+                &D_o35_current_model->segments[k],
+                &D_o35_current_model->bounds[k],
+                D_o35_current_model->segments);
+            D_o35_current_model->segments[k].collisionPlanes =
+                call_o0_0_2B810(cursor);
+            cursor = (u8 *)D_o35_current_model->segments[k].collisionPlanes +
+                     func_overlay_035_F0000B40_1882820(
+                         &D_o35_current_model->segments[k]) *
+                         0x10;
+            D_o35_current_model->segments[k].selectedValue = 0;
+            func_overlay_035_F0001380_1883060(
+                &D_o35_current_model->segments[k]);
+            k++;
+        } while (k < D_o35_current_model->segmentCount);
+        k = 0;
+    }
+
+    cursor = call_o0_0_2B810(cursor);
+    temp_s4 = cursor - (u8 *)D_o35_current_model;
+    call_o0_0_26934();
+    temp = call_o0_0_2B6E4();
+    call_o0_0_2B2A4(0);
+    call_o0_0_2B318(D_o35_model_heap);
+    call_o0_0_2B0D4(temp_s4, D_o35_model_heap, 0x91);
+    call_o0_0_2B2A4(temp);
+    call_o0_0_26934();
+
+    for (i = 0; i < D_o35_current_model->textureCount; i++) {
+        D_o35_current_model->textures[i].texture = call_o0_0_33FF8(
+            (s32)D_o35_current_model->textures[i].texture | 0x8000);
+    }
+    call_o0_0_26934();
+
+    model = D_o35_current_model;
+    segment = model->segments;
+    if (model->segmentCount > 0) {
+        do {
+            register O35ColorData *colorData;
+            register u8 *colors;
+            register s16 *flags;
+
+            i = segment->count20;
+            temp_s4 = ((i + 0xF) >> 4) * 2;
+            colorData = call_o0_0_2AE30(temp_s4 + i * 3 + 8, 0x91);
+            flags = (s16 *)((u8 *)colorData + 8);
+            if (colorData != 0) {
+                register s32 remaining;
+                register u8 *source;
+
+                segment->colorData = colorData;
+                colors = (u8 *)colorData + temp_s4 + 8;
+                colorData->flags = flags;
+                colorData->colors = colors;
+                source = segment->vertices;
+                remaining = i;
+                while (remaining != 0) {
+                    *colors++ = source[6];
+                    *colors++ = source[7];
+                    *colors++ = source[8];
+                    source += 0xA;
+                    remaining--;
+                }
+                remaining = temp_s4 >> 1;
+                while (remaining != 0) {
+                    *flags++ = 0;
+                    remaining--;
+                }
+                segment->flag2E = 0;
+            }
+            k++;
+            segment++;
+        } while (k < D_o35_current_model->segmentCount);
+    }
+    call_o0_0_26934();
+    D_o35_final_reset = 0;
+    call_o0_0_CF68(D_o35_loader_state->finalArg0,
+                   D_o35_loader_state->finalArg1);
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o035/func_overlay_035_F00001E0_1881EC0/func_overlay_035_F00001E0_1881EC0.s")
+#endif

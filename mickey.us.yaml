@@ -1457,7 +1457,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x1881CE0, c, overlay35Initialize]
-      - [0x1881EC0, asm, overlay_035_prefix]
+      - [0x1881EC0, c, func_overlay_035_F00001E0_1881EC0]
       - [0x1882450, c, overlay35BuildGridMasks]
       - [0x1882820, asm, overlay_035_middle]
       - [0x1883060, c, overlay35SelectHeight]
