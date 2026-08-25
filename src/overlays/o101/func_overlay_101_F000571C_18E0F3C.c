@@ -98,15 +98,10 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/*
- * Mickey-local structural sibling: func_overlay_101_F00063F8_18E1C18.
- * Plateau (10 bounded source-shape attempts): the best candidate is
- * size-exact at 0x6EC, with 326 masked positional words differing and the
- * first mismatch at +0x2C.  The flag lattice favored the default
- * -O2/-mips2/-32 configuration.  Splitting the input block into typed globals
- * closed the 36-byte size deficit, but the remaining register/store schedule
- * and local-overlay relocation model still differ.
- */
+/* Mickey-local structural sibling: func_overlay_101_F00063F8_18E1C18. */
+/* Workbench: structure-mismatch; size-exact, 326 words, first +0x2C.
+ * Levers: counter-index temporaries and store-order audit worsened register webs.
+ * Remains: local-overlay relocation identity and the root-store schedule. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000571C_18E0F3C(void) {
     s32 index;

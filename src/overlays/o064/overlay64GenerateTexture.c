@@ -16,6 +16,9 @@ extern u8 *gO64BuffersA[];
 extern u8 *gO64BuffersB[];
 extern s32 o64RandomRange(s32 minimum, s32 maximum);
 
+/* Workbench: structure-mismatch; 419/420 instructions, 405 words, first +0x0.
+ * Levers: spelling displacement as an if removed five instructions and nine words.
+ * Remains: the 0xC0/0x70 frame and unrolled-loop local stack allocation. */
 #ifdef NON_MATCHING
 void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
                                         u8 *unused)
@@ -186,11 +189,14 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
                 x = 0;
                 if (width > 0) {
                     do {
-                        s32 displacement = (x & 2) ? -2 : 2;
+                        s32 displacement = 2;
                         s32 value = *source++;
                         s32 low = value;
                         s32 high = value + 0x34;
                         s32 scale = value >> 4;
+                        if (x & 2) {
+                            displacement = -2;
+                        }
                         if (scale != 0) {
                             low = value * scale;
                         }

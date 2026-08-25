@@ -93,13 +93,10 @@ extern void func_overlay_035_F0000770_1882450(O35Segment *, O35Bounds *,
 extern s32 func_overlay_035_F0000B40_1882820(O35Segment *);
 extern void func_overlay_035_F0001380_1883060(O35Segment *);
 
-/*
- * NON_MATCHING plateau (2026-08-25): -O2 -mips2 -32 with
- * -Wo,-loopunroll,0 produces 353 target-owned instructions versus 356.
- * First mismatch is +0x0: the candidate frame is 0x50 rather than 0x40;
- * 284 masked words still differ, predominantly register allocation.
- * PROVENANCE: adapted from Diddy Kong Racing, src/tracks.c (generate_track).
- */
+/* Workbench: structure-mismatch; 353/356 instructions, 284 words, first +0x0.
+ * Levers: typed pointer scaling and return cursors cut structural sites 47 to 42.
+ * Remains: the 0x50/0x40 frame and the whole-function saved-register web.
+ * PROVENANCE: adapted from Diddy Kong Racing, src/tracks.c (generate_track). */
 #ifdef NON_MATCHING
 void func_overlay_035_F00001E0_1881EC0(s32 modelId) {
     register s32 i;
@@ -185,22 +182,21 @@ void func_overlay_035_F00001E0_1881EC0(s32 modelId) {
         do {
             segment = (O35Segment *)((u8 *)D_o35_current_model->segments +
                                      k * 0x40);
-            D_o35_current_model->segments[k].masks =
-                call_o0_0_2B848(cursor);
-            cursor = (u8 *)D_o35_current_model->segments[k].masks +
-                     D_o35_current_model->segments[k].dataOffset;
+            cursor = call_o0_0_2B848(cursor);
+            D_o35_current_model->segments[k].masks = (u32 *)cursor;
+            cursor = (u8 *)((u32 *)cursor +
+                            D_o35_current_model->segments[k].dataOffset);
             D_o35_current_model->segments[k].collisionFacets = cursor;
             cursor += D_o35_current_model->segments[k].dataOffset;
             func_overlay_035_F0000770_1882450(
                 &D_o35_current_model->segments[k],
                 &D_o35_current_model->bounds[k],
                 D_o35_current_model->segments);
-            D_o35_current_model->segments[k].collisionPlanes =
-                call_o0_0_2B810(cursor);
-            cursor = (u8 *)D_o35_current_model->segments[k].collisionPlanes +
-                     func_overlay_035_F0000B40_1882820(
-                         &D_o35_current_model->segments[k]) *
-                         0x10;
+            cursor = call_o0_0_2B810(cursor);
+            D_o35_current_model->segments[k].collisionPlanes = (f32 *)cursor;
+            cursor += func_overlay_035_F0000B40_1882820(
+                          &D_o35_current_model->segments[k]) *
+                      0x10;
             D_o35_current_model->segments[k].selectedValue = 0;
             func_overlay_035_F0001380_1883060(
                 &D_o35_current_model->segments[k]);
