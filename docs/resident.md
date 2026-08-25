@@ -1023,7 +1023,13 @@ the three array-base symbols, while the target names each individual BSS
 element. Scalar, volatile, cast, block, and loop variants, the full flag
 lattice, and a bounded ten-minute `-mips2` permuter run did not satisfy both
 the code and relocation-identity gates. The all-word result remains diagnostic
-only and the original assembly is canonical.
+only and the original assembly is canonical. A later scalar-label retry
+confirmed that the nine interior BSS labels already exist: naming them fixes
+the relocation identities, but IDO then pools the repeated constants and
+shrinks the body to 29 instructions. Switch, ternary-selection, scoped-local,
+volatile-access, dead-reference, induction-expression, and comma-expression
+variants plus a fresh 119-combination flag sweep did not preserve the target's
+37-instruction temp sequence with those scalar relocations.
 
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and
@@ -1165,7 +1171,10 @@ differs in 19 register operands, first at `+0xC`: the target retains the state
 address and normalized mode in `a1`/`v0`/`v1`, while IDO assigns a different
 temporary chain. The 119-combination flag lattice and a bounded ten-minute
 permuter run did not reach exactness, so the original assembly remains
-canonical.
+canonical. A later raw-byte/type-role retry kept the exact 32-instruction
+opcode and relocation schedule in its best basin but did not improve the 19
+register-operand residual; declaration-order and code-free dead-read probes
+reached the same allocator boundary.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
@@ -1228,7 +1237,10 @@ Its operation and ordered position correspond to JFG's
 permuter batch could not reproduce the target's old-flag register chain. The
 best natural candidate uses a narrowing result cast; IDO still assigns that
 chain two temporary registers earlier than the target. It remains assembly
-and keeps its anonymous name.
+and keeps its anonymous name. A later ten-variant byte-view/bitfield and
+temp-FIFO retry preserved the exact nine-instruction structure but reached no
+better than four register differences, so the earlier three-word candidate
+remains the retained plateau.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no
