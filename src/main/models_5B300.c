@@ -208,17 +208,14 @@ u8 *func_8005A948(s16 animationId) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A948.s")
 #endif
 
-/*
- * Mickey-only reconstruction; JFG retains modFreeAnim as assembly.
- * Workbench verdict: temp-FIFO phase shift; exact 46-word size, first +0x40.
- * Levers 15 and 16 added instructions or disturbed the pool/register shape.
- * Remaining: 14 words and one invisible temp pop before the cache loop.
- */
+/* Mickey-only; JFG retains modFreeAnim as assembly. Workbench: temp-FIFO phase
+ * shift, exact 46-word size, 12 words from +0x40. Declaration order fixed the
+ * stack home; named-local/array levers left one invisible temp pop unresolved. */
 
 #ifdef NON_MATCHING
 void func_8005AAC0(u8 *animation) {
-    s32 index;
     s32 i;
+    s32 index;
 
     if (animation != NULL) {
         animation[0]--;
