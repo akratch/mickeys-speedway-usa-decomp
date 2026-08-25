@@ -27,6 +27,11 @@ extern void overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
  * equality spellings previously removed four real differences. A five-minute
  * permuter batch improved its internal score only by inventing a repeated null
  * guard and a dead assignment, so that candidate was rejected.
+ * Fresh lane recheck: all 119 flag combinations still bottom out at the same
+ * 7/72 words and +0xC first mismatch. Pairing the allocation/increment source
+ * lines, spelling the m2c compound condition directly, and compiling through
+ * the raw D_4/D_24 symbols all produced the same residual. This remains a
+ * late prologue-scheduling plateau with no remaining structural lead.
  */
 #ifdef NON_MATCHING
 void overlay2SplitRegion(Overlay2Region *previous, Overlay2Region *region) {
