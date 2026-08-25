@@ -2001,16 +2001,9 @@ selected `-mips1` instead of this TU's configured `-mips2`, so its output was
 inadmissible and discarded. The candidate remains under `NON_MATCHING` and the
 original asm body remains canonical.
 
-`partUpdateTriggers` reached a bounded instruction-count and opcode-exact
-101-word plateau under the default resident flags. Six register-only words
-remain, first at function offset `0xE4`: the target colors the late trigger
-array base/current pointer pair as `$v1`/`$v0`, while IDO colors the candidate
-as `$a2`/`$v1`; the final `bne` also emits the two commutative operands in the
-opposite order. Pointer and integer base types plus declaration/lifetime
-variants all canonicalized to this basin, and the full flag lattice found no
-alternative. The bounded permuter imported the TU as `-mips1`; its only lead
-made the signed trigger count unsigned and was rejected. The candidate remains
-under `NON_MATCHING` and the original asm body remains canonical.
+`partUpdateTriggers` is an exact 101-word match under `-Wab,-r4300_mul`; JFG
+supplies the body donor and a bounded canonical-flag permuter found the final
+loop-condition web coalescing.
 
 `func_80041CE4` reached a bounded 153-instruction plateau under the default
 resident flags with the exact opcode schedule, `0x80` frame, and relocation

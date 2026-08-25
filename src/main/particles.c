@@ -1296,13 +1296,7 @@ void func_8003EDD4(f32 value) {
 void func_8003EDE0(f32 value) {
     D_8007C8F4 = value;
 }
-#ifdef NON_MATCHING
-/*
- * Workbench: register-permutation; 100/101 words exact, first at +0x13C.
- * Lever 18 plus the canonical-flag permuter fixed the late pointer web.
- * Remains: one commutative loop-branch web; condition spellings were inert.
- * PROVENANCE: body adapted from JFG src/particles.c:partUpdateTriggers.
- */
+/* PROVENANCE: body adapted from JFG src/particles.c:partUpdateTriggers. */
 void partUpdateTriggers(ParticleObject *object, s32 updateRate) {
     ParticleTriggerSlot *base;
     s32 offset;
@@ -1348,15 +1342,12 @@ void partUpdateTriggers(ParticleObject *object, s32 updateRate) {
             i++;
             offset += sizeof(ParticleTriggerSlot);
             triggerBits >>= 1;
-        } while (i != count);
+        } while ((flags = i) != count);
     }
     D_8007C8F0 = 0.0f;
     D_8007C8F4 = 255.0f;
     D_8007C8F8 = 1.0f;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateTriggers.s")
-#endif
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8006020C.s; body reconstructed from Mickey evidence. */
 void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
     ParticleConfig *config;
