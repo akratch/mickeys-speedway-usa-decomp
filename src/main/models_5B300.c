@@ -217,11 +217,11 @@ u8 *func_8005A948(s16 animationId) {
 
 /*
  * Mickey-only reconstruction; JFG retains modFreeAnim as assembly.
- * Plateau: the best canonical candidate has the target's 46-word size but 14
- * differing words, first at +0x40. Its remaining cache-loop temporaries rotate
- * by one register and spill the selected index at 0x1C(sp) instead of 0x18(sp);
- * the flag lattice and a bounded source permutation do not repair that FIFO.
+ * Workbench verdict: temp-FIFO phase shift; exact 46-word size, first +0x40.
+ * Levers 15 and 16 added instructions or disturbed the pool/register shape.
+ * Remaining: 14 words and one invisible temp pop before the cache loop.
  */
+
 #ifdef NON_MATCHING
 void func_8005AAC0(u8 *animation) {
     s32 index;
