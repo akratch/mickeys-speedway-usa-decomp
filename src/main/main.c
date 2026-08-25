@@ -399,10 +399,9 @@ void RevealReturnAddresses(void) {
 
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
-/*
- * Plateau: linked 50 words are exact; object relocation first differs +0x18.
- * A symbolic indexed base restores the symbol but grows to 58 instructions.
- */
+/* Workbench: relocation-layout-mismatch; all 50 words link exactly, first +0x18. */
+/* Lever: symbolic scalar, pointer, and indexed-base spellings all grow by 8 words. */
+/* Remaining: the exact-size literal form cannot carry the D_803FFFFC relocations. */
 void mainThread(void *unused) {
     s32 i;
 
