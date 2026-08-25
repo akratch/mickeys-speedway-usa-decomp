@@ -79,8 +79,11 @@ extern AudioBankFile *D_800BF79C;
 extern AudioSoundData *D_800BF7A0;
 extern s32 D_800BF7A8;
 extern s32 D_800BF7B0;
+extern s32 D_800BF7B8;
+extern s32 D_800BF7BC;
 extern u8 D_800BFA08;
 extern u8 *D_800BF7A4;
+extern s32 osTvType;
 extern void gsSndpSetParam();
 extern void gsSndpSetMasterVolume(u8 group, u16 volume);
 extern u32 gsSndpGetGlobalVolume(void);
@@ -90,18 +93,35 @@ extern void n_alCSPSetVol(void *player, s16 volume);
 extern void n_alCSPNew(void *player, void *config);
 extern void n_alCSPSetMessageQ(void *player, void *queue);
 extern void n_alCSPStop(void *player);
-extern void func_800005CC(f32 fade, s32 volume);
 extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
 extern void stop_ALSeqp(void *player);
 extern u16 amGetSfxCount(void);
+void amTuneSetVolume(u8 volume);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
                           f32 pitch, u8 arg5, void **handle);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000450.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000594.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800005CC.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amTuneSetFade. */
+void func_800005CC(f32 fade, u8 volume) {
+    if (volume > 0x7F) {
+        volume = 0x7F;
+    }
+    D_800BF7B8 = volume;
+    if (osTvType == 0) {
+        D_80078D7C = fade * 50.0f;
+    } else {
+        D_80078D7C = fade * 60.0f;
+    }
+    if (D_80078D7C > 0) {
+        D_800BF7BC = ((D_80078D68 - volume) << 16) / D_80078D7C;
+    } else {
+        amTuneSetVolume(volume);
+    }
+}
+
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c.

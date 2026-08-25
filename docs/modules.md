@@ -1840,6 +1840,7 @@ The final column records owned object words and relocation coverage.
 
 | Mickey routine | ROM / size | Name evidence | Match evidence |
 |---|---:|---|---|
+| `func_800005CC` | `0x11CC` / `0xF0` | **tier B**: JFG supplies the `amTuneSetFade` body and exact audio-manager order; Mickey's externally used placeholder is retained | Exact 60 object words and all data/call relocations |
 | `amTuneResetFade` | `0x1330` / `0xC` | **tier B**: exact JFG routine order and the adjacent tune-fade controller role | Exact object words and linked ROM bytes |
 | `amAmbientResetFade` | `0x142C` / `0xC` | **tier B**: exact JFG routine order and the adjacent ambient-fade controller role | Exact object words and linked ROM bytes |
 | `amTuneMuteChl` | `0x17E8` / `0x8` | **tier B**: exact JFG routine order between the channel-mask setter and its paired unmute leaf | Exact object words and linked ROM bytes |
