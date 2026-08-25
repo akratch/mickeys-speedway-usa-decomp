@@ -1160,9 +1160,9 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8`: workbench allocation mismatch, **5/32 differing words** from `+0xC`.
-Pool-position/type variants stalled at 19; a 30-minute permuter remask reached 5.
-Size and the temp lane are exact; a pool inversion and one ring-only comparison remain.
+`func_8003A2C8`: the retained workbench allocation plateau is **5/32 differing words**, first `+0xC`.
+Fresh raw-byte m2c/JFG-shaped bodies kept the 32-word size but regressed to 26–27 differences and were rejected.
+All 119 flag combinations leave the default O2/mips2 result tied for best; assembly remains authoritative.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was

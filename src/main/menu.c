@@ -789,13 +789,11 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
  * Scalar labels shrink to 29 words; 18 array-base identities remain from +0x24. */
 void func_8003968C(void) {
     s32 controller;
-    MenuControllerRepeatState *state;
 
-    state = (MenuControllerRepeatState *)D_800D3198;
     for (controller = 0; controller < 4; controller++) {
-        state->previousButtons[controller] = -1;
-        state->repeatX[controller] = 0x14;
-        state->repeatY[controller] = 0xF;
+        D_800D31A0[controller] = -1;
+        D_800D3198[controller] = 0x14;
+        D_800D319C[controller] = 0xF;
     }
 }
 #else
