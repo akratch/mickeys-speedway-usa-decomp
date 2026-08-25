@@ -7,7 +7,7 @@ Split out of `docs/modules.md` on 2026-08-24; evidence tiers and naming rules ar
 ### 5.1 What runs it
 
 The resident segment carries a complete Rare/DKR-lineage runtime linker at ROM
-`0x323E0`–`0x33FA0`, plus its trampoline at `0x33FA0`. Eleven of its functions are
+`0x323E0`–`0x33FA0`, plus its trampoline at `0x33FA0`. Twelve of its functions are
 decompiled and byte-matched; four more are named from Mickey's call graph. The
 mechanism, entirely from Mickey's own disassembly:
 
@@ -67,6 +67,14 @@ JFG's 0xE8-byte peer (tier B); Mickey uses allocation tag `0x83` and its mips2
 build omits JFG's load-delay no-op. The adapted C compiles to all 57
 instruction words with the exact relocation surface, and the linked ROM range
 is byte-identical under `-O2 -mips2 -32`.
+
+`runlinkUnloadOverlay` (`0x80032618`, `0x208` bytes) frees a resident overlay
+or cancels its pending allocation, clears the packed link-slot state, and
+rewrites resident references to the dangling-jump trap. Its name, role, and
+body follow JFG's published peer (tier B), adapted to Mickey's relocation and
+section layouts. The C compiles to all 130 instruction words with the exact
+relocation surface, and its linked ROM range is byte-identical under
+`-O2 -mips2 -32`.
 
 `runlinkDownloadCode` remains `NON_MATCHING` after a bounded ten-attempt pass.
 The best adapted candidate has the exact 286-instruction length, `0x70`-byte

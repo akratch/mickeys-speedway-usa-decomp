@@ -67,7 +67,7 @@ extern s32 D_8007A67C;
 extern char D_80082410[];
 extern void func_80032BF8(s32 overlayIndex);
 extern void func_80032338(s32 slot);
-extern void func_80032618(s32 overlayIndex);
+extern void runlinkUnloadOverlay(s32 overlayIndex);
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_8002B524(s32 size, void *address, u32 tag);
 extern void mmFree(void *address);
@@ -192,6 +192,7 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
     osWritebackDCache(instr, sizeof(MipsInstruction));
     osInvalICache(instr, sizeof(MipsInstruction));
 }
+#ifdef NON_MATCHING
 /*
  * ProcessRelocationEntry -- PARKED, not matched. ROM 0x32630-0x32878.
  *
@@ -271,7 +272,6 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
  * provenance note above before trusting it. It is the best available reading
  * of the function, not a verified one.
  */
-#ifdef NON_MATCHING
 /*
  * Apply one relocation record, and report how many records were consumed.
  *
@@ -664,7 +664,88 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032338.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032618.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * src/runLink.c:runlinkUnloadOverlay. Mickey's packed relocation records,
+ * resident section anchors, and link-slot layout determine the final body.
+ */
+void runlinkUnloadOverlay(s32 overlayIndex) {
+    OverlayHeader *overlay;
+    PendingOverlayLoad *pendingLoad;
+    RelocationEntry *relocEntry;
+    MipsInstruction *patchLocation;
+    s32 overlayNumber;
+    s32 loadedAddress;
+    s32 relocType;
+    s32 found;
+    s32 i;
+    u32 patchOperation;
+    u32 address;
+
+    overlay = &overlayTable[overlayIndex];
+    runlinkCallResumeFunction(overlayIndex);
+    loadedAddress = overlay->vramBase;
+    address = loadedAddress;
+
+    if (address == 0) {
+        found = FALSE;
+        pendingLoad = D_800D2DC8;
+        i = PENDING_OVERLAY_LOADS;
+        while (i--) {
+            if (overlayIndex == pendingLoad->overlayIndex) {
+                found = TRUE;
+                break;
+            }
+            pendingLoad++;
+        }
+
+        if (found == FALSE) {
+            return;
+        }
+
+        mmFree((void *) (pendingLoad->unk0 + overlay->textSize));
+        pendingLoad->overlayIndex = 0xFFB;
+        return;
+    }
+
+    mmFree((void *) address);
+    overlay->vramBase = 0;
+    linkSlotTable[overlayIndex].tag = 0;
+    linkSlotTable[overlayIndex].useCount = 0;
+
+    relocEntry = mainRelocTable;
+    i = mainRelocTableCount;
+    while (i--) {
+        relocType = relocEntry->u.info & 0xF;
+        overlayNumber = overlayRomTable[relocEntry->symbolIndex].overlayNumber;
+        if (overlayNumber >= 0xFFC) {
+            overlayNumber = 0;
+        }
+
+        if (overlayNumber == overlayIndex) {
+            if ((relocEntry->u.info & 0xF) == RELOC_OP_DATA) {
+                patchLocation = (MipsInstruction *)
+                    (D_80078D60 + (relocEntry->u.info >> 8));
+                relocEntry->u.n.op = RELOC_OP_SYMBOL;
+            } else {
+                patchLocation = (MipsInstruction *)
+                    ((u8 *) func_80000450 + (relocEntry->u.info >> 8));
+            }
+
+            patchOperation = (u32) relocEntry->u.b.flags >> 4;
+            /* JFG's identity spelling preserves IDO's comparison operand order. */
+            if ((patchOperation ^ 0) == RELOC_TYPE_26) {
+                address = (u32) TrapDanglingJump;
+            } else {
+                address = 0;
+            }
+            PatchInstruction(patchLocation, address, patchOperation);
+        }
+
+        relocEntry->u.n.op = relocType;
+        relocEntry++;
+    }
+}
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
  * asm/nonmatchings/runLink/runlinkFlushModules.s and the corresponding
@@ -679,7 +760,7 @@ void runlinkFlushModules(void) {
     remaining = overlayCount - 1;
     if (remaining > 0) {
         do {
-            func_80032618(remaining);
+            runlinkUnloadOverlay(remaining);
             remaining--;
         } while (remaining > 0);
     }
