@@ -15,9 +15,9 @@ extern void viGetCurrentSize(u32 *width, u32 *height);
  * nearest structural oracle for this display-list command family. Mickey's
  * own function supplies the body, resident bindings, and framebuffer loop.
  */
-/* Plateau (2026-08-25, batch 35): -O2 -mips1 emits 201/204 words; 181 differ, first +0x0.
- * The candidate frame is 0x78 versus 0xA8 and still lacks the target's s0-s4 allocation.
- * Alias, type, declaration, loop, macro-split, and 40-minute permutation probes found no exact form. */
+/* Workbench structure mismatch: 181/204 positional words differ, first +0x0.
+ * Levers tried: constant/frame audit and the full MIPS-I/MIPS-II/-g3 flag lattice.
+ * Remaining: 0x78 vs 0xA8 frame and s0-s2 vs s0-s4 saved-register allocation. */
 #ifdef NON_MATCHING
 void func_overlay_066_F00004E0_18C6948(register Gfx **displayList,
                                        register u16 *framebuffer,
