@@ -798,13 +798,9 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
     viConvertXY(right, bottom);
 }
 #ifdef NON_MATCHING
-/* All 37 words are exact, but the typed view consolidates the state to one
- * base and leaves 22 relocation identities wrong; the array form remains
- * better at 18. PROVENANCE: JFG src/menu.c has the exact skeleton but retains
- * assembly; the body and field layout are Mickey-derived.
- * near-miss batch 25: All 37 words and linked bytes remain exact; 18 relocs differ from +0x24.
- * Scalar labels fix them but pool constants to 29 words; four one-trip loops
- * keep the target temp sequence but add 18 control words under all 119 flags. */
+/* PROVENANCE: JFG src/menu.c supplies the skeleton; Mickey supplies the layout.
+ * Workbench: structure-mismatch, 16 versus 37 words, first mismatch +0x0.
+ * TU ownership pools the stores; next restore expression multiplicity (structure-buckets). */
 void func_8003968C(void) {
     s32 controller;
     MenuControllerRepeatState *state;
