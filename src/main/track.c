@@ -674,7 +674,28 @@ void func_8000FA2C(s32 *result, s32 arg1) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FAE0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FBD8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FCA4.s")
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * `get_inside_segment_count_xz`. Mickey uses 16-bit output indices and its
+ * resident track/bounding-box types and bindings.
+ */
+s32 func_8000FCA4(s32 x, s32 z, s16 *segments) {
+    s32 segmentIndex;
+    s32 count = 0;
+    TrackBoundingBox *bounds;
+
+    for (segmentIndex = 0; segmentIndex < D_800792E8->segmentCount;
+         segmentIndex++) {
+        bounds = D_800792E8->segmentBounds + segmentIndex;
+        if (x < bounds->x2 + 4 && bounds->x1 - 4 < x &&
+            z < bounds->z2 + 4 && bounds->z1 - 4 < z) {
+            *segments = segmentIndex;
+            count++;
+            segments++;
+        }
+    }
+    return count;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FD68.s")
 /*
  * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
