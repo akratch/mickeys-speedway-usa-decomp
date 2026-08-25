@@ -84,6 +84,12 @@ void diPrintfSetXY(u16 x, u16 y);
 char *osScGetTaskType(s32 taskID);
 void func_800304E0(OSSched *sc);
 void func_80030608(OSScTask *task);
+SchedGfx *func_80030610(OSSched *sc, u32 commandIndex,
+                        SchedGfx *displayList, OSMesgQueue *queue,
+                        u64 *dataStart);
+void func_80044C94(SchedGfx *displayList, s32 *file, s32 *unkC,
+                   s32 *unk10, s32 *file2, s32 *unkC2, s32 *unk102);
+void diRcpPrintDL(SchedGfx *start, SchedGfx *end, s32 count);
 SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
                         s32 *arg4, s32 *arg5, s32 *arg6);
 void __scAppendList(OSSched *sc, OSScTask *task);
@@ -278,7 +284,70 @@ char *osScGetTaskType(s32 taskID) {
 void func_80030608(OSScTask *arg0) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030610.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:func_8004FF64_50B64, with Mickey's extracted trace helper. */
+SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
+                        s32 *arg4, s32 *arg5, s32 *arg6) {
+    u32 commandIndex;
+    OSMesg queueBuffer[8];
+    OSMesgQueue queue;
+    SchedGfx *displayList;
+    OSTask *task;
+    s32 file2;
+    s32 file;
+    s32 unkC2;
+    s32 unkC;
+    s32 unk102;
+    s32 unk10;
+    u32 startAddress;
+
+    task = &sc->curRSPTask->list;
+    commandIndex = task->t.data_size >> 1;
+    displayList = (SchedGfx *) &task->t.data_ptr[commandIndex];
+
+    osCreateMesgQueue(&queue, queueBuffer, 8);
+    osSetEventMesg(4, &queue, (OSMesg) RSP_DONE_MSG);
+    osSetEventMesg(9, &queue, (OSMesg) RDP_DONE_MSG);
+    osViSetEvent(&queue, (OSMesg) VIDEO_MSG, 1);
+    displayList = func_80030610(sc, commandIndex, displayList, &queue,
+                               task->t.data_ptr);
+
+    osSetEventMesg(4, &sc->interruptQ, (OSMesg) RSP_DONE_MSG);
+    osSetEventMesg(9, &sc->interruptQ, (OSMesg) RDP_DONE_MSG);
+    osViSetEvent(&sc->interruptQ, (OSMesg) VIDEO_MSG, 1);
+
+    *arg4 = 0;
+    *arg1 = 0;
+    func_80044C94(displayList, &file, &unkC, &unk10, &file2, &unkC2,
+                  &unk102);
+    if (file2 != 0 || file != 0) {
+        if (file != 0) {
+            *arg1 = file;
+            *arg2 = unkC;
+            *arg3 = unk10;
+        }
+        if (file2 != 0) {
+            *arg4 = file2;
+            *arg5 = unkC2;
+            *arg6 = unk102;
+        }
+    }
+
+    startAddress = (u32) displayList - 0x140;
+    if (startAddress < 0x80000000U) {
+        startAddress =
+            (u32) ((s32) startAddress + (s32) 0x80000000U);
+    }
+    if ((s32) startAddress < (s32) task->t.data_ptr) {
+        startAddress = (u32) task->t.data_ptr;
+    }
+    diRcpPrintDL((SchedGfx *) startAddress, displayList, 0x50);
+    return displayList;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/func_80030910.s")
+#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scHandleRetrace. */
 void __scHandleRetrace(OSSched *sc) {

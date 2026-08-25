@@ -16,6 +16,7 @@ extern u8 D_8007A2F8;
 extern u8 D_8007A2F0;
 extern u8 D_8007A2F4;
 extern u8 D_8007A2E4;
+extern u8 D_8007A2C8;
 extern u8 D_8007A300;
 extern s32 D_8007A2E8;
 extern s32 D_8007A2FC;
@@ -131,6 +132,9 @@ s32 frontGetLanguage(void);
 s32 func_8006FEF0(s32 arg0, u8 type, void *data, s32 size);
 void func_80070030(s32 arg0, u8 arg1, void *arg2, s32 arg3);
 s32 func_8002C7EC(s32 arg0, s32 arg1, void *arg2, s32 arg3);
+void func_8002CD6C(void);
+void func_80058010(void);
+void func_800581BC(void);
 void mainPreNMI(void);
 char *string_to_font_codes(char *inString, char *outString, s32 stringLength);
 
@@ -451,7 +455,65 @@ void func_8002C94C(s32 saveIndex) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C94C.s")
 #endif
+#ifdef NON_MATCHING
+/* Mickey-derived reconstruction of the serialized save-window loader. */
+void func_8002CB18(void) {
+    s32 checksum;
+    s32 inner;
+    s32 messageQueue;
+    s32 outer;
+    s32 value;
+    SavesBitWriter *reader;
+    SavesSlot *slot;
+    SavesPackedEntry *entry;
+
+    messageQueue = joyMessageQ();
+    if (func_80070170(messageQueue) == 0) {
+        func_8002CD6C();
+        return;
+    }
+
+    slot = func_800291C4();
+    reader = func_8002C60C(0x1C0, 0);
+    func_8002C7EC(messageQueue, 0,
+                  (void *) func_8002C788((SavesRecord *) reader), 0x1C0);
+    outer = 0;
+    do {
+        inner = 0;
+        entry = (SavesPackedEntry *) slot;
+        do {
+            func_8002C70C(reader, &value, 5);
+            entry->unk04 = value;
+            func_8002C70C(reader, &value, 5);
+            entry->unk05 = value;
+            func_8002C70C(reader, &value, 5);
+            entry->unk06 = value;
+            func_8002C70C(reader, &value, 0x12);
+            entry->unk00 = value * 3;
+            func_8002C70C(reader, &value, 4);
+            entry->unk07 = value;
+            inner++;
+            entry++;
+        } while (inner != 4);
+        outer++;
+        slot++;
+    } while (outer != 0x18);
+
+    checksum = packCalculateGameChecksum(
+        (u8 *) func_8002C788((SavesRecord *) reader), 0x1C0);
+    {
+        u32 footer[2];
+
+        func_8002C7EC(messageQueue, 0x38, footer, sizeof(footer));
+        if (checksum != footer[0] || footer[1] != 0x12345678) {
+            func_8002CD6C();
+        }
+    }
+    func_8002C79C(reader);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CB18.s")
+#endif
 void func_8002CCE4(void) {
     s32 i;
     s32 limit;
@@ -635,7 +697,68 @@ s32 packClose(s32 controllerIndex) {
     osContStartReadData(D_800D21C0);
     return 0;
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Diddy Kong Racing's public decomp,
+ * src/save_data.c:init_controller_paks, with Mickey's globals and helpers. */
+void packInit(void) {
+    s32 controllerIndex;
+    s32 ret;
+    u8 controllerBit;
+    u8 pakPattern;
+    s8 maxControllers;
+    RumbleState *rumble;
+
+    D_800D21C0 = (OSMesgQueue *) joyMessageQ();
+    rumble = D_800D2368;
+    controllerIndex = 3;
+    do {
+        rumble->state = 0;
+        rumble->status = 0;
+        rumble->pad01 = 0;
+        rumble->flag = 0;
+        rumble->strength = 0;
+        rumble->rumbleTime = 0;
+        rumble->timer = 0;
+        rumble->unkC = 0;
+        rumble++;
+    } while (controllerIndex--);
+    D_8007A2E4 = 0;
+    D_8007A2C8 = 0;
+    osPfsIsPlug(D_800D21C0, &pakPattern);
+
+    controllerIndex = 0;
+    controllerBit = 1;
+    maxControllers = 4;
+    do {
+        if (pakPattern & controllerBit) {
+            rumble = &D_800D2368[controllerIndex];
+            ret = osPfsInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                            controllerIndex);
+            if (ret == PFS_ERR_NEW_PACK) {
+                ret = osPfsInit(D_800D21C0, &D_800D21C8[controllerIndex],
+                                controllerIndex);
+            }
+            rumble->status |= 1;
+            if (ret == 0) {
+                D_8007A2C8 |= controllerBit;
+            } else if (ret == PFS_ERR_ID_FATAL &&
+                       osMotorInit(D_800D21C0,
+                                   &D_800D21C8[controllerIndex],
+                                   controllerIndex) == 0) {
+                D_8007A2E4 |= controllerBit;
+                rumble->status |= 2;
+            }
+        }
+        controllerIndex++;
+        controllerBit *= 2;
+    } while ((0, controllerIndex) != maxControllers);
+    func_80058010();
+    func_800581BC();
+    osContStartReadData(D_800D21C0);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packInit.s")
+#endif
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:packIsPresent. */
 s32 packIsPresent(s32 controllerIndex) {

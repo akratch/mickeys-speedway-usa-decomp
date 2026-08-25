@@ -1686,6 +1686,36 @@ instead drops the footer-magic stores, and aggregate layouts grow the frame.
 The unavailable permuter import prevents a bounded automated declaration
 search; the assembly fallback remains canonical.
 
+The paired save-window loader `func_8002CB18` retains a Mickey-derived
+`NON_MATCHING` body after the 119-combination flag lattice and ten local-order,
+scope, and aggregate-layout hypotheses. Its best candidate has the exact 115
+instructions, 112-byte frame, and relocations; ten words differ, first at
+`+0x30`. Nine are stack homes: the footer is exact, but the queue lands at
+candidate `sp+0x64` versus target `sp+0x5C`, and the decoded value at `sp+0x5C`
+versus `sp+0x60`. The last reuses `$s5` where the target rematerialises four.
+Aggregates grow the frame and narrower scopes move both homes together. With
+the permuter import unavailable, the assembly fallback remains canonical.
+
+`packInit` retains a `NON_MATCHING` body adapted from Diddy Kong Racing's
+public `src/save_data.c:init_controller_paks` after the 119-combination flag
+lattice and ten loop, local-order, pointer, and controller-limit hypotheses.
+Its best candidate has the exact 115 instructions, 96-byte frame, reset loop,
+calls, and relocations; 34 words differ, first at `+0xA0`. IDO delays the PFS
+base's low half into the loop, rotating address temporaries and serialising the
+rumble-success stores. Explicit pointers revert to a multiply, grow the frame,
+and score worse. The assembly fallback remains canonical.
+
+The scheduler display-list trace helper `func_80030910` retains a
+`NON_MATCHING` body adapted from Jet Force Gemini's public
+`src/sched.c:func_8004FF64_50B64` after the 119-combination flag lattice and
+ten declaration-order, aggregate-layout, pointer, and address-expression
+hypotheses. Its best candidate has the exact 152-byte frame, local addresses,
+control flow, calls, and relocations, but 117 instructions versus 118; 20 words
+differ, first at `+0x11C`. IDO keeps `0x80000000` live once in `$v1`, while the
+target rematerialises it twice through `$at`; the missing word changes branch
+spans. Other signed, unsigned, additive, and bitwise spellings retain that CSE
+or emit OR. The assembly fallback remains canonical.
+
 `font_codes_to_string` retains a JFG-derived `NON_MATCHING` body after the
 flag lattice and ten source/type/coalescing shapes. With ordinary resident
 flags the donor loop is instruction-exact, but this TU's required
