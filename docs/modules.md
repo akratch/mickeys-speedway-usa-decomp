@@ -721,16 +721,16 @@ never imported as names, and uncertain rows retain Mickey's `func_` spelling.
 | `0x20120` | `func_8001F520`, `0x644` | `modLoadModel` | B: same cache, decompression, texture and instance-helper call graph |
 | `0x20764` | `func_8001FB64`, `0x68` | JFG placeholder in `models.c.o` | A: exact 26-word skeleton and linked C match; placeholder retained |
 | `0x207CC` | `func_8001FBCC`, `0x84` | JFG placeholder helper | D: function order and allocation/copy structure; linked C match |
-| `0x20850` | `func_8001FC50`, `0x534` | JFG placeholder helper | D: function order and model-instance construction only |
+| `0x20850` | `func_8001FC50`, `0x534` | JFG placeholder helper | D: function order and model-instance construction; non-matching C plateau |
 | `0x20D84` | `modFreeModel`, `0xF4` | `modFreeModel` | B: instance free followed by model-reference/resource release; linked C match |
 | `0x20E78` | `func_80020278`, `0x168` | JFG placeholder resource-free helper | B: texture free plus the same family of owned allocations; linked C match |
 | `0x20FE0` | `func_800203E0`, `0xD8` | no adoptable name | D: model helper calls only; linked C match, placeholder retained |
 | `0x210B8` | `func_800204B8`, `0xAC` | no adoptable name | D: texture/allocation release structure only; linked C exact |
 | `0x21164` | `modelSetModelFlags`, `0xC` | `modelSetModelFlags` | B: paired global setter and observed callers; linked C match |
 | `0x21170` | `modelGetModelFlags`, `0xC` | `modelGetModelFlags` | B: paired global getter; linked C match |
-| `0x2117C` | `func_8002057C`, `0x558` | `makeModelGfx` | B: texture/display-list construction call graph and TU order |
+| `0x2117C` | `func_8002057C`, `0x558` | `makeModelGfx` | B: texture/display-list construction call graph and TU order; non-matching C plateau |
 | `0x216D4` | `func_80020AD4`, `0x3C` | JFG placeholder in `models.c.o` | A: exact 15-word skeleton and linked C match; placeholder retained |
-| `0x21710` | `func_80020B10`, `0x27C` | JFG placeholder helper | D: adjacent table-builder structure only |
+| `0x21710` | `func_80020B10`, `0x27C` | JFG placeholder helper | D: adjacent table-builder structure; non-matching C plateau |
 | `0x2198C` | `func_80020D8C`, `0xC0` | `modSetTextureFrame` | B: model texture-frame traversal and matching TU position |
 | `0x21A4C` | `func_80020E4C`, `0x1C4` | `modSuspendModelTextures` | B: allocate/save/free texture ownership sequence |
 | `0x21C10` | `modResumeModelTextures`, `0x8C` | `modResumeModelTextures` | B: reload/free saved texture ownership sequence; linked C match |
@@ -751,6 +751,28 @@ uses a four-byte point-index record to select ten-byte signed-coordinate
 records, transforms each point into a three-float output, and preserves both
 call relocation identities. JFG's neighboring model helpers remain assembly,
 so the body and tier-D role are reconstructed from Mickey alone.
+`func_80020B10` plateaus after the complete 119-combination flag lattice,
+pointer- and index-induction spellings, the measured `gSPMatrix` command macro,
+and a bounded ten-minute permutation. The best coherent candidate is 160
+instructions against 159 and differs first at `+0x0`: it uses a `0x20` frame
+and six saved registers where the target uses `0x10` and three. The permuter's
+lower-scoring mutations depended on invented guards or a potentially
+uninitialized read and were rejected.
+`func_8001FC50` plateaus after ten coherent allocation-layout, stack-home,
+zeroing-loop, and copy-loop spellings plus a bounded ten-minute permutation.
+The best canonical candidate is 330 instructions against 333, has 300
+differing positional words, and first differs at `+0x0`: its frame is `0x88`
+instead of `0x78`. A function-local `-Wo,-loopunroll,2` diagnostic was also
+non-exact and cannot establish a TU-wide override for the already-proven
+canonical consumers.
+`func_8002057C` plateaus after the complete 119-combination flag lattice,
+ten coherent command-emission, measured-type, copy-loop, and lifetime
+spellings, and a bounded permutation. Its best canonical candidate has the
+target's exact 342-instruction size but 257 positional words differ from
+`+0x0`; its frame is `0xC8` rather than `0xD0`, with a different saved-register
+and stack-home allocation. The permuter's lower-scoring candidate reused the
+last texture parameter as a command-word temporary and would corrupt the next
+part's cache comparison, so it was rejected.
 `func_80020D8C` plateaus after the 119-combination flag lattice and ten
 source/type/lifetime spellings. Its best `NON_MATCHING` candidate has the
 target's exact 48-instruction opcode schedule, frame, and relocation surface,
@@ -2274,9 +2296,12 @@ is retained under `NON_MATCHING` and the target assembly remains canonical.
 `func_8005A7A0` plateaus at 105 instructions against 106, with a `0x58`
 frame against `0x38` and 73 differing positional words from the prologue;
 pointer/array loop variants and all 119 flag combinations retain the excess
-live ranges. The closer `func_8005AAC0` release loop emits 47 instructions
-against 46, while `func_8005ABA8` emits 110 against 111 and first diverges at
-`+0x38` before an FP-allocation cascade. `func_8005AF14` remains a structural
+live ranges. A new pointer-induction spelling brings `func_8005AAC0` to the
+target's 46 instructions with 14 differing words, first at `+0x40`; its cache
+temporaries rotate by one register and its selected-index spill lands at
+`0x1C(sp)` instead of `0x18(sp)`. The flag lattice and bounded permutation do
+not repair that FIFO. `func_8005ABA8` emits 110 against 111 and first diverges
+at `+0x38` before an FP-allocation cascade. `func_8005AF14` remains a structural
 plateau because neither Mickey's current types nor JFG's assembly-only peer
 establish its model-node and attachment layouts.
 
