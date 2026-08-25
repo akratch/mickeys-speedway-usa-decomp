@@ -318,7 +318,39 @@ AnimPath *func_800508B4(u8 pathIndex) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800508D4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050AD4.s")
+/* JFG's animseqLinkNodes assembly corroborates this Mickey-led body. */
+void func_80050AD4(u8 pathIndex) {
+    AnimPath *path;
+    s32 nodeIndex;
+
+    path = D_800D6B00[pathIndex];
+    if (path != NULL) {
+        if (path->nodeCount >= 2) {
+            nodeIndex = 0;
+            if (path->nodeCount > 0) {
+                do {
+                    if (nodeIndex > 0) {
+                        path->nodes[nodeIndex].previous =
+                            &path->nodes[nodeIndex - 1];
+                    }
+                    if (nodeIndex < path->nodeCount - 1) {
+                        path->nodes[nodeIndex].next =
+                            &path->nodes[nodeIndex + 1];
+                    }
+                    nodeIndex++;
+                } while (nodeIndex < path->nodeCount);
+            }
+        }
+        if (path->flags & 0x80) {
+            path->nodes[0].previous = &path->nodes[path->nodeCount - 1];
+            path->nodes[path->nodeCount - 1].next = &path->nodes[0];
+        } else {
+            path->nodes[0].previous = &path->nodes[0];
+            path->nodes[path->nodeCount - 1].next =
+                &path->nodes[path->nodeCount - 1];
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050BF4.s")
 void func_80050D50(void) {
     void **entry = D_800D6B18, **end = D_800D6B58;

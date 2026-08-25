@@ -29,11 +29,20 @@ typedef struct AnimPathObject {
     AnimPathObjectTarget *unk58;
 } AnimPathObject;
 
+typedef struct AnimPathNode {
+    u8 pad0[0x24];
+    struct AnimPathNode *previous;
+    struct AnimPathNode *next;
+} AnimPathNode;
+
 typedef struct AnimPath {
     u8 pad0[8];
     AnimPathObject *unk8;
     u8 padC[0xA];
     u8 flags;
+    u8 nodeCount;
+    u8 pad18[8];
+    AnimPathNode *nodes;
 } AnimPath;
 
 extern AnimPath **D_800D6B00;
@@ -99,6 +108,7 @@ s32 func_800501AC(u16 *entry);
 s32 func_800501C8();
 void func_8005027C(void);
 void func_800502CC(u8 pathIndex);
+void func_80050AD4(u8 pathIndex);
 void func_80006EA0(void *ptr);
 void func_80050348(s32 pathIndex);
 void func_8005055C();

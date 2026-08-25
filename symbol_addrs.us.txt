@@ -2242,6 +2242,7 @@ animseqHoldPath = 0x800507BC; // type:func size:0x88   ROM 0x513bc  tier-B JFG p
 animseqLockPath = 0x80050844; // type:func size:0x38   ROM 0x51444  tier-B JFG paired process-command calls, matched C
 animseqUnLockPath = 0x8005087C; // type:func size:0x38   ROM 0x5147c  tier-B JFG paired process-command calls, matched C
 func_800508B4 = 0x800508B4; // type:func size:0x20   ROM 0x514b4  tier-D path-table getter structure, matched C
+func_80050AD4 = 0x80050AD4; // type:func size:0x120  ROM 0x516d4  tier-D JFG ordered node-linking candidate, matched C
 func_80050D50 = 0x80050D50; // type:func size:0x58   ROM 0x51950  tier-D JFG nearest anim skeleton, matched C
 animseqFreeLevelData = 0x80050DA8; // type:func size:0x48   ROM 0x519a8  tier-B JFG storage and group cleanup calls, matched C
 animseqInitGroup = 0x800510E8; // type:func size:0x40   ROM 0x51ce8  src/anim.c.o  masked=1/16 tier-A matched-C
