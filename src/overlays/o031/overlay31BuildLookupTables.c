@@ -4,13 +4,16 @@
 #define OVERLAY31_MAX_LEVEL 9
 #endif
 
-#define INIT_SHORTS(record) \
+#define INIT_SHORT_PREFIX(record) \
     (record)->b4 = 0;         \
     (record)->b6 = 0;         \
     (record)->b8 = 0x200;     \
     (record)->bA = 0;         \
     (record)->bC = 0x200;     \
     (record)->bE = 0x200;     \
+    (record)->c10 = 0x40
+
+#define INIT_SHORT_SUFFIX(record) \
     (record)->d14 = 0;        \
     (record)->d16 = 0;        \
     (record)->d18 = 0x200;    \
@@ -18,6 +21,17 @@
     (record)->d1C = 0;        \
     (record)->d1E = 0x200
 
+/*
+ * Plateau (2026-08-25): the best -O2 -mips2 candidate is exact-size at 186
+ * words, with 104 differing words and the first mismatch at +0x34. Reusing
+ * the level/index lifetimes across both phases and splitting the shared field
+ * initializer around the c-fields improved the baseline by 48 words. The
+ * full flag lattice was neutral. Further declaration-order, scope-lifetime,
+ * explicit-condition, and pointer-increment spellings were codegen-inert;
+ * the remaining first-half mismatch is a global-address/register family and
+ * store schedule with no supported semantic dependency. The nearest JFG
+ * skeleton is 0.512 but also remains GLOBAL_ASM, so it supplies no C donor.
+ */
 #ifdef NON_MATCHING
 void func_overlay_031_F0000000_187F520(void) {
     Overlay31IndexRecord *first;
@@ -54,8 +68,8 @@ void func_overlay_031_F0000000_187F520(void) {
                 first->c13 = firstNeighbor;
                 first->a0 = 0x40;
                 first->a2 = next;
-                INIT_SHORTS(first);
-                first->c10 = 0x40;
+                INIT_SHORT_PREFIX(first);
+                INIT_SHORT_SUFFIX(first);
 
                 second->a1 = firstNeighbor;
                 second->a2 = secondNeighbor;
@@ -67,9 +81,9 @@ void func_overlay_031_F0000000_187F520(void) {
                 first++;
                 second->a0 = 0x40;
                 second->a3 = next;
-                INIT_SHORTS(second);
-                second->c10 = 0x40;
+                INIT_SHORT_PREFIX(second);
                 second->c12 = next;
+                INIT_SHORT_SUFFIX(second);
                 second++;
             } while (next < limit);
         }
@@ -79,22 +93,22 @@ void func_overlay_031_F0000000_187F520(void) {
             first->a1 = index;
             first->a2 = 0;
             first->a3 = level;
-            INIT_SHORTS(first);
-            first->c10 = 0x40;
+            INIT_SHORT_PREFIX(first);
             first->c11 = index;
             first->c12 = level;
             first->c13 = sum;
+            INIT_SHORT_SUFFIX(first);
             first++;
 
             second->a0 = 0x40;
             second->a1 = sum;
             second->a2 = level;
             second->a3 = 0;
-            INIT_SHORTS(second);
-            second->c10 = 0x40;
+            INIT_SHORT_PREFIX(second);
             second->c11 = sum;
             second->c12 = 0;
             second->c13 = index;
+            INIT_SHORT_SUFFIX(second);
             second++;
         }
         level++;
@@ -102,19 +116,16 @@ void func_overlay_031_F0000000_187F520(void) {
 
     pairs = overlay31AllocateReloc(0x118, 0x8C);
     {
-        s32 level2;
-
-        level2 = 2;
+        level = 2;
         do {
             s16 angle;
-            s32 count;
             s16 step;
 
-            gOverlay31FloatRows[level2 - 2] = pairs;
+            gOverlay31FloatRows[level - 2] = pairs;
             angle = 0;
-            count = 0;
-            if (level2 > 0) {
-                step = (s16)(0xFFFF / level2);
+            index = 0;
+            if (level > 0) {
+                step = (s16)(0xFFFF / level);
                 do {
                 f32 firstValue;
                 f32 secondValue;
@@ -126,14 +137,14 @@ void func_overlay_031_F0000000_187F520(void) {
                 doubledFirst = firstValue + firstValue;
                 doubledSecond = secondValue + secondValue;
                 angle += step;
-                count++;
+                index++;
                 pairs->first = doubledFirst + doubledSecond;
                 pairs->second = doubledFirst - doubledSecond;
                     pairs++;
-                } while (count != level2);
+                } while (index != level);
             }
-            level2++;
-        } while (level2 != OVERLAY31_MAX_LEVEL);
+            level++;
+        } while (level != OVERLAY31_MAX_LEVEL);
     }
 }
 #else
