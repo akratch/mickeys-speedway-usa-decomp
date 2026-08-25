@@ -39,6 +39,13 @@ extern void *call_o0_0_33FF8(s16);
 extern void call_o98_0_0(void *);
 extern void func_overlay_035_F00001E0_1881EC0(s32);
 
+/*
+ * Plateau (2026-08-25): 106/120 masked words exact with the default flags;
+ * first mismatch +0x30. Same-line grouping fixes the two-word tail cluster,
+ * but the target's early volatile-slot address uses a2 where this candidate
+ * uses t6, shifting temporary registers in three later clusters. The closest
+ * JFG skeleton, trackInit, is assembly-only at the pinned reference commit.
+ */
 #ifdef NON_MATCHING
 void func_overlay_035_F0000000_1881CE0(s32 arg0, s32 arg1, s32 arg2,
                                         s32 arg3, s32 arg4, s32 arg5) {
@@ -85,9 +92,7 @@ void func_overlay_035_F0000000_1881CE0(s32 arg0, s32 arg1, s32 arg2,
     D_o35_mask = 0x100000;
     if (system->handle92 != -1) {
         D_o35_handle = call_o0_0_33FF8(system->handle92);
-        D_o35_zero = 0;
-        system = D_o35_system;
-    }
+        D_o35_zero = 0; system = D_o35_system; }
     D_o35_byte = 0;
     if (system->flagF6 != 0) {
         call_o98_0_0(D_o35_paramA);

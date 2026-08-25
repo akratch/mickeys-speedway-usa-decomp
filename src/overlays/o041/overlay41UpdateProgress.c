@@ -35,6 +35,13 @@ typedef struct Overlay41Input {
 extern Overlay41State *gOverlay41CurrentState;
 extern void overlay41ApplyAmount(Overlay41State *state, f32 amount, f32 step);
 
+/*
+ * Plateau (2026-08-25): 81/115 masked words exact with the default flags;
+ * first mismatch +0xE8. The target moves the limit from v1 to a0 in the
+ * outer branch delay slot and then reuses v1 for the start value, while this
+ * exact-size candidate splits the start across a2/a1 and keeps the limit in
+ * v1, causing a register-coloring cascade through the interpolation block.
+ */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
                                         Overlay41State *state, s32 step) {

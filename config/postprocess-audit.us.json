@@ -2609,8 +2609,7 @@
       "size": 356,
       "source": "src/overlays/o036/overlay36SpawnDirectional.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -2622,8 +2621,7 @@
       "size": 192,
       "source": "src/overlays/o036/overlay36SpawnFinalEffect.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -2635,8 +2633,7 @@
       "size": 404,
       "source": "src/overlays/o036/overlay36SpawnLinked7F.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -2648,8 +2645,7 @@
       "size": 356,
       "source": "src/overlays/o036/overlay36SpawnOffsetA9.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -2661,8 +2657,7 @@
       "size": 284,
       "source": "src/overlays/o036/overlay36SpawnTransient.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {

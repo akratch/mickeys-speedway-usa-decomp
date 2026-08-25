@@ -6,6 +6,7 @@
 
 typedef struct Overlay36Object Overlay36Object;
 typedef struct Overlay36State Overlay36State;
+typedef struct Overlay36SpawnedObject Overlay36SpawnedObject;
 
 typedef struct Overlay36Action {
     u8 pad00[0x20];
@@ -16,7 +17,7 @@ struct Overlay36State {
     u8 pad000[0xA8];
     void *resource;
     u8 pad0AC[0x28];
-    void *peerResource;
+    Overlay36SpawnedObject *peerResource;
     u8 pad0D8[0x92];
     s16 timer;
     u8 pad16C[0x2E];
@@ -47,10 +48,10 @@ typedef struct Overlay36SpawnRequest {
     Overlay36Object *owner;
 } Overlay36SpawnRequest;
 
-typedef struct Overlay36SpawnedObject {
+struct Overlay36SpawnedObject {
     u8 pad00[0x3C];
     s32 state;
-} Overlay36SpawnedObject;
+};
 
 extern Overlay36Object *overlay36LookupObjectReloc(s32 index);
 extern s32 overlay36ActivateReloc(void *resource);
@@ -60,6 +61,12 @@ extern void overlay36ReleaseReloc(void *resource);
 extern void overlay36CreateResourceReloc(u16 kind, f32 x, f32 y, f32 z,
                                          s32 mode, void **resource);
 
+/*
+ * Plateau (2026-08-25): 93/95 owned words exact with the default flags;
+ * first mismatch +0x0. Typed peerResource access and the index++ loop fix the
+ * register allocation and request offsets, but retaining the spawned-result
+ * temporary makes IDO reserve a 0x68 frame instead of the target 0x60 frame.
+ */
 #ifdef NON_MATCHING
 void overlay36UpdatePeers(Overlay36Object *object) {
     Overlay36Object *peer;
@@ -70,9 +77,8 @@ void overlay36UpdatePeers(Overlay36Object *object) {
     s32 index;
 
     state = object->state;
-    index = 1;
-    peer = overlay36LookupObjectReloc(0);
-    while (peer != 0) {
+    index = 0;
+    while ((peer = overlay36LookupObjectReloc(index++)) != 0) {
         if (peer != object) {
             peerState = peer->state;
             if (peerState->rank < state->rank && peerState->timer < 0x40 &&
@@ -82,14 +88,13 @@ void overlay36UpdatePeers(Overlay36Object *object) {
                 request.y = (s16)peer->y;
                 request.z = (s16)peer->z;
                 request.owner = peer;
-                spawned = overlay36SpawnReloc(&request, 0);
-                peerState->peerResource = spawned;
-                if (spawned != 0) {
-                    spawned->state = 0;
+                spawned = peerState->peerResource =
+                    overlay36SpawnReloc(&request, 0);
+                if (peerState->peerResource != 0) {
+                    peerState->peerResource->state = 0;
                 }
             }
         }
-        peer = overlay36LookupObjectReloc(index++);
     }
 
     if (state->action->kind != 0) {

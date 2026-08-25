@@ -30,15 +30,14 @@ extern void overlay36ReleaseReloc(void *resource);
 extern void overlay36CreateResourceReloc(u16 kind, f32 x, f32 y, f32 z,
                                          s32 mode, void **resource);
 
-#ifdef NON_MATCHING
 void overlay36SpawnOffsetA9(Overlay36Object *object) {
     Overlay36SpawnedObject *spawned;
     Overlay36State *state;
     Overlay36Locals1214 locals;
 
     state = object->state;
-    locals.offset[1] = 25.0f;
     locals.offset[0] = 0.0f;
+    locals.offset[1] = 25.0f;
     locals.offset[2] = 14.0f;
     overlay36OffsetReloc(object, locals.offset);
     locals.request.kind = 0xA9;
@@ -70,6 +69,3 @@ void overlay36SpawnOffsetA9(Overlay36Object *object) {
         state->action = 0;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36SpawnOffsetA9/func_overlay_036_F0001214_18846CC.s")
-#endif

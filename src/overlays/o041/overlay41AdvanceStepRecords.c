@@ -13,6 +13,11 @@ typedef struct Overlay41StepRecord {
 extern Overlay41StepRecord gOverlay41StepRecords[8];
 extern void overlay41EmitStep(s32 id, s32 x, s32 y);
 
+/* Plateau after the flag lattice and a lexical-lifetime attempt: exact 0x124
+ * size, frame, opcodes, and pool registers, with 47/73 words matching and the
+ * first mismatch at +0x54. Scoping x/y/step to the active-record branch
+ * emitted the same object; the residue is a temp-register coloring cascade.
+ * JFG's close animseqUpdateTextureScrollers skeleton remains GLOBAL_ASM. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0000000_1887338(s32 amount) {
     Overlay41StepRecord *record;

@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 91820,
-  "nonmatching_overlay_c_bytes": 327872,
+  "matched_overlay_c_bytes": 93412,
+  "nonmatching_overlay_c_bytes": 326280,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 64,
   "bss_bytes": 77680,
@@ -7726,7 +7726,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnTransient",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x7B0",
@@ -7798,7 +7798,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnLinked7F",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0xF20",
@@ -7807,7 +7807,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnDirectional",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x1084",
@@ -7825,7 +7825,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnOffsetA9",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x1378",
@@ -7870,7 +7870,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnFinalEffect",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x1748",

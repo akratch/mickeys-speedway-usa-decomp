@@ -43,7 +43,6 @@ extern Overlay36Spawned *overlay36SpawnReloc(Overlay36SpawnDescriptor *desc,
                                               s32 one,
                                               Overlay36World *world);
 
-#ifdef NON_MATCHING
 Overlay36Spawned *overlay36SpawnTransient(
     Overlay36Position *position, Overlay36World *world) {
     Overlay36SpawnDescriptor desc;
@@ -51,9 +50,9 @@ Overlay36Spawned *overlay36SpawnTransient(
     Overlay36SpawnState *state;
     volatile s32 framePad[1];
 
+    desc.type = *world->type1A0;
     desc.value2 = 10;
     desc.value3 = 0;
-    desc.type = *world->type1A0;
     desc.x = (s16)(s32)position->x;
     desc.y = (s16)(s32)(position->y + 30.0f);
     desc.z = (s16)(s32)position->z;
@@ -83,6 +82,3 @@ Overlay36Spawned *overlay36SpawnTransient(
     }
     return spawned;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36SpawnTransient/func_overlay_036_F0000694_1883B4C.s")
-#endif
