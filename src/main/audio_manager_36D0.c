@@ -68,6 +68,15 @@ typedef struct AudioVector3 {
     f32 z;
 } AudioVector3;
 
+typedef struct AudioUpdateEntry {
+    AudioPoint *point;
+    f32 pitch;
+    u8 volume;
+    u8 effects;
+    u8 pad0A[2];
+    s32 pan;
+} AudioUpdateEntry;
+
 extern AudioSoundData *D_800C91E0;
 extern AudioPoint **D_800C91E4;
 extern AudioPoint *D_800C91E8;
@@ -77,7 +86,9 @@ extern s8 D_800C91F4;
 extern MtxF D_800C91F8;
 extern u16 D_80078F00;
 extern s32 D_80078F14;
+extern s32 D_80078F04[];
 extern f32 D_80080B58;
+extern AudioUpdateEntry D_800C9238[][3];
 void amAmbientStop(void);
 void amSndPlayDirect(u16 soundId, u8 volume, u8 pan, f32 pitch, u8 effects,
                      void **handle);
@@ -492,7 +503,52 @@ u8 func_800033B0(void *sound, f32 x, f32 y, f32 z) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800033B0.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003480.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800035F8.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * func_80003994_4594; body and update-entry layout use Mickey-only evidence.
+ */
+void func_800035F8(s32 group) {
+    AudioUpdateEntry *entry;
+    AudioPoint *point;
+    s32 *count;
+    s32 countValue;
+    s32 index;
+
+    count = &D_80078F04[group];
+    entry = &D_800C9238[group][0];
+    index = 0;
+    countValue = *count;
+    if (countValue > 0) {
+        do {
+            if (entry->point != NULL) {
+                point = entry->point;
+                if (point->soundHandle == NULL &&
+                    (!(point->flags & 4) || point->triggeredOnce == 0)) {
+                    amSndPlayDirect(point->soundId, entry->volume,
+                                    entry->pan, entry->pitch, entry->effects,
+                                    &point->soundHandle);
+                }
+                if (point->soundHandle != NULL) {
+                    gsSndpSetParam(point->soundHandle, 8,
+                                   scalevol(entry->volume << 8));
+                    gsSndpSetParam(point->soundHandle, 0x10,
+                                   *(u32 *)&entry->pitch);
+                    gsSndpSetParam(point->soundHandle, 4, entry->pan);
+                    gsSndpSetPriority(point->soundHandle, point->priority);
+                    gsSndpSetParam(
+                        point->soundHandle, 0x100,
+                        func_800033B0(point->soundHandle, point->x, point->y,
+                                      point->z) |
+                            entry->effects);
+                }
+                point->triggeredOnce = 1;
+            }
+            index++;
+            entry++;
+            countValue = *count;
+        } while (index < countValue);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003760.s")
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
