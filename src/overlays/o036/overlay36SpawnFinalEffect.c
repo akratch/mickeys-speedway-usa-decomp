@@ -37,6 +37,11 @@ extern u8 gOverlay36AlternateEffects;
 extern Overlay36SpawnedObject *overlay36SpawnEffectReloc(
     Overlay36SpawnRequest *request, s32 count, Overlay36EffectSource *source);
 
+/* Plateau after the flag lattice, eight source-layout attempts, and a bounded
+ * permuter batch: exact 0xC0 size and 46/48 words, first mismatch at +0x8.
+ * Only the 0x38-versus-0x30 frame allocation/restoration remains; shrinking
+ * the frame also shifts the request aggregate four bytes below its target
+ * stack home. */
 #ifdef NON_MATCHING
 void overlay36SpawnFinalEffect(Overlay36EffectSource *source) {
     Overlay36SpawnedObject *spawned;
