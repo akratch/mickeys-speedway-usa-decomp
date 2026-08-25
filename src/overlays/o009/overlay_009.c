@@ -446,9 +446,11 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
-/* Workbench: allocation-mismatch, exact 282-word/0x98-frame shape; 79 words differ, first +0x88.
- * Levers 2, 7, 8, 12, 14, 15, and 28 (AST order, dead webs, materialisation, aliasing) did not improve it.
- * The coupled temp/pool stack-home swap remains, cascading through 67 integer and 11 FP register sites. */
+/*
+ * Plateau (2026-08-25): Workbench allocation-mismatch, 282/282 words with 79 masked and 86 raw differences; first unmasked code mismatch +0x88.
+ * Constant-audit and stack-home census found swapped pointer/step spills; explicit pointer, declaration move, and local-base alias variants regressed.
+ * The equal-frame residual is 67 GPR and 11 FPR sites plus 27 overlay-local relocation identities; no structural lever moved the paired spill homes.
+ */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {

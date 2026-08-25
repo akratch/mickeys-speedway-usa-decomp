@@ -1779,9 +1779,11 @@ typedef struct HitImpulseMass {
 f32 func_8002A8BC(s16 angle);
 f32 func_8002A8C0(s16 angle);
 
-/* Workbench: structure-mismatch, 226/229 instructions and 0x80/0x70 frames; 214 words differ, first +0x0.
- * Levers 2 and 26 tried local ablation/reuse, register hints, statement order, and comparison AST direction.
- * The 16-byte non-save-frame excess still rephases the FP pool/FIFO from entry; the nearest donor is 0.088. */
+/*
+ * Plateau (2026-08-25): Workbench structure-mismatch, 226/229 words and 214 raw differences from +0x0; candidate frame 0x80 versus target 0x70.
+ * Spill-slot census, three volatile-home declaration placements, and an exact-layout state type left the frame/count unchanged; no donor body was used.
+ * The 16-byte non-save-frame excess still shifts the FP pool/temp phase; allocator edits are premature until that extra live range is identified.
+ */
 #ifdef NON_MATCHING
 void func_80056DD8(HitCopyState *first, HitCopyState *second,
                    AnimVec3f *normal, f32 timeStep) {
