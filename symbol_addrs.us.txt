@@ -795,6 +795,7 @@ runlinkFreeCode = 0x80032338; // type:func size:0x2E0 ROM 0x32F38 tier-B donor-j
 runlinkUnloadOverlay = 0x80032618; // type:func size:0x208 ROM 0x33218 tier-B donor-jfg-src/runLink.c role+CFG C-object+linked-ROM-exact
 runlinkFlushModules = 0x80032820; // type:func size:0xAC ROM 0x33420 tier-B donor-jfg-asm/runLink/runlinkFlushModules.s role+CFG C-object+linked-ROM-exact
 runlinkSuspendCode = 0x80032B14; // type:func size:0xE4 ROM 0x33714 tier-B donor-jfg-asm/runLink/runlinkSuspendCode.s role+CFG C-object+linked-ROM-exact
+runlinkResumeCode = 0x80032BF8; // type:func size:0x3E8 ROM 0x337F8 tier-B donor-jfg-asm/runLink/runlinkResumeCode.s role+CFG
 runlinkResumeAll = 0x80032FE0; // type:func size:0x60 ROM 0x33BE0 tier-B donor-jfg-asm/runLink/runlinkResumeAll.s role+CFG C-object+linked-ROM-exact
 // tier D -- invented: writes overlayIndex's halfword entry in linkSlotTable.
 SetLinkSlot = 0x80033040; // type:func size:0x50  tier-D invented
