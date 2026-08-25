@@ -1765,6 +1765,16 @@ the invariant `D_80083DBC` load before the low half of the `999999` loop
 constant, while the target emits those adjacent instructions in the opposite
 order. The target assembly remains canonical.
 
+The 1,836-byte `func_80045D34` crash-screen controller also remains
+`NON_MATCHING`. Supplying its jump table recovered a complete Mickey-derived
+draft, but JFG's closest 1,888-byte peer (`func_80067880`) is assembly-only and
+offers no source body. At the resident defaults the best typed candidate is
+eight instructions short (451 versus 459), uses a 176-byte frame instead of
+168 bytes, and differs in 432 positional words from function `+0x0`; the full
+flag lattice's smaller MIPS I result cannot be adopted for a TU containing
+existing MIPS II exact matches. Source/lifetime and named-string experiments
+remained structural mismatches, so the target assembly stays canonical.
+
 **PROVENANCE.** The TU identities and descriptive names in this subsection,
 `symbol_addrs.us.txt`, and the four `src/main/*.c` files are adapted from Jet
 Force Gemini's public decompilation (`src/diRcpTrace.c`, `src/diRcp.c`,
