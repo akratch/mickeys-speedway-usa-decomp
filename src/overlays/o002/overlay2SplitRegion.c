@@ -18,40 +18,38 @@ extern void overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
                               s32 wantedSide);
 
 /*
- * Plateau: the best -O2/-mips2 body is exact-size and differs in 9/72
+ * Plateau (2026-08-25): the best -O2/-mips2 body is exact-size and differs
+ * in 7/72
  * relocation-masked words, first at +0xC; every word from +0x38 onward is
  * aligned, leaving only the callee-save/global-address prologue schedule.
- * Reversing the two equality spellings removed four real differences. A
- * five-minute permuter batch improved its internal score only by inventing a
- * repeated null guard and a dead assignment, so that candidate was rejected.
+ * Reusing the two parameters as the loop state removed two differences;
+ * explicit global-address aliases regressed the full body. Reversing the two
+ * equality spellings previously removed four real differences. A five-minute
+ * permuter batch improved its internal score only by inventing a repeated null
+ * guard and a dead assignment, so that candidate was rejected.
  */
 #ifdef NON_MATCHING
 void overlay2SplitRegion(Overlay2Region *previous, Overlay2Region *region) {
-    Overlay2Region *current;
-    Overlay2Region *parent;
-
-    current = region;
-    parent = previous;
     for (;;) {
-        if (func_overlay_002_F0000000_1856DF8(current) != 0) {
+        if (func_overlay_002_F0000000_1856DF8(region) != 0) {
             break;
         }
-        overlay2ChooseBoundary(current);
-        if ((parent != NULL) &&
-            (parent->boundaryAxis == current->boundaryAxis) &&
-            (parent->boundaryValue == current->boundaryValue)) {
+        overlay2ChooseBoundary(region);
+        if ((previous != NULL) &&
+            (previous->boundaryAxis == region->boundaryAxis) &&
+            (previous->boundaryValue == region->boundaryValue)) {
             break;
         }
 
-        current->side1 = &gOverlay2Regions[gOverlay2RegionCount];
+        region->side1 = &gOverlay2Regions[gOverlay2RegionCount];
         gOverlay2RegionCount++;
-        overlay2ClipLines(current, current->side1, 1);
-        current->side0 = &gOverlay2Regions[gOverlay2RegionCount];
+        overlay2ClipLines(region, region->side1, 1);
+        region->side0 = &gOverlay2Regions[gOverlay2RegionCount];
         gOverlay2RegionCount++;
-        overlay2ClipLines(current, current->side0, 0);
-        overlay2SplitRegion(current, current->side1);
-        parent = current;
-        current = current->side0;
+        overlay2ClipLines(region, region->side0, 0);
+        overlay2SplitRegion(region, region->side1);
+        previous = region;
+        region = region->side0;
     }
 }
 #else
