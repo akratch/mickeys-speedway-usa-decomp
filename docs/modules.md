@@ -1699,6 +1699,17 @@ flag lattice. The bounded permuter imported the TU as inadmissible `-mips1`
 and only improved its internal score with a dummy label, so the typed candidate
 remains under `NON_MATCHING` and the original asm body remains canonical.
 
+`func_8003D25C` reached a bounded 168-instruction plateau under the default
+resident flags with the exact opcode schedule, `0xB8` frame, and relocation
+surface. Its best typed Mickey reconstruction differs in 70 register-only
+words, first at function offset `0x50`: the target begins the command-temporary
+ring with `$t0` while the candidate begins with `$t1`, and the color-component
+webs occupy different pool positions. The full 119-entry flag lattice found no
+exact alternative. Expression ordering, explicit and macro command forms,
+component lifetimes, and nested scopes converged either on this allocation
+basin or on structurally worse schedules. The candidate remains under
+`NON_MATCHING` and the original asm body remains canonical.
+
 `vsprintf` reached a bounded size-exact plateau under `-Wab,-r4300_mul`: its
 1,220-word candidate differs in two adjacent words, first at function offset
 `0xB08`, where IDO loads the final exponent digit constants in the reverse

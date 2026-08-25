@@ -279,7 +279,15 @@ typedef struct ParticleParent {
 } ParticleParent;
 
 typedef struct CircularParticle {
-    u8 pad00[0x2C];
+    s16 rotationY;
+    s16 rotationX;
+    s16 rotationZ;
+    u8 pad06[2];
+    f32 scale;
+    f32 renderX;
+    f32 renderY;
+    f32 renderZ;
+    u8 pad18[0x14];
     s16 type;
     u8 kind;
     u8 pad2F;
@@ -289,10 +297,42 @@ typedef struct CircularParticle {
     u8 pad3C[0x0C];
     void *parent;
     void *resource;
-    u8 pad50[8];
+    s32 flags;
+    u8 pad54[4];
     ParticleTrigger *trigger;
-    u8 pad5C[0x1C];
+    u8 pad5C[0x13];
+    u8 intensity;
+    u8 pad70;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 pad74[4];
 } CircularParticle;
+
+typedef struct ParticleRenderTransform {
+    s16 rotationY;
+    s16 rotationX;
+    s16 rotationZ;
+    s16 flags;
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[8];
+} ParticleRenderTransform;
+
+typedef struct ParticleRenderResourceHeader {
+    u8 pad00[0x68];
+    void *displayList;
+} ParticleRenderResourceHeader;
+
+typedef struct ParticleRenderResource {
+    ParticleRenderResourceHeader *header;
+    void *vertices;
+    u8 pad08[2];
+    s16 triangleIndex;
+    void *triangles[1];
+} ParticleRenderResource;
 
 typedef struct CircularParticlePool {
     u8 pad00[0x14];
@@ -355,10 +395,12 @@ ParticleTexture *func_80034448(s16 resourceId);
 s32 mathRnd(s32 minimum, s32 maximum);
 void camSetNo(s32 camera);
 void func_800221E8(void **dList, s32 arg1);
+void func_800244EC(Gfx **dList, s32 renderContext, ParticleRenderTransform *transform, f32 scale, f32 extra);
+void func_800245EC(Gfx **dList);
 void func_800349A4(Gfx **dList, void *texture, s32 mode, s32 flags);
 void func_8003D4FC(void **dList, void **vertices, void *pool);
 s32 func_8003CE10(void **dList, s32 arg1, void **vertices, void *pool, s32 mode);
-void func_8003D25C(void **dList, s32 arg1, void **vertices, void *pool);
+void func_8003D25C(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool);
 void func_80041CE4(void **dList, void **vertices);
 void func_80041F48(s32 arg0, ParticleTrigger *trigger);
 s32 func_80040878(CircularParticle *particle, s32 updateRate);
@@ -523,7 +565,78 @@ void func_8003CD28(ParticleResourceList **listPtr) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CE10.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: structure cross-checked against JFG's assembly-only
+ * func_8005E100 sibling; body reconstructed from Mickey evidence and the
+ * resident render-command pattern in src/main/menu.c.
+ */
+void func_8003D25C(Gfx **dList, s32 renderContext, void **vertices, CircularParticlePool *pool) {
+    ParticleRenderTransform transform;
+    CircularParticle *particle;
+    ParticleRenderResource *resource;
+    Gfx *command;
+    s32 count;
+    s32 i;
+    s32 color;
+    u8 intensity;
+    u8 red;
+    u8 green;
+    u8 blue;
+
+    if (pool != NULL) {
+        particle = pool->particles;
+        gDPPipeSync((*dList)++);
+        i = 0;
+        count = pool->count;
+        if (count > 0) {
+            do {
+                if (particle->type == 3) {
+                    resource = particle->resource;
+                    transform.rotationZ = particle->rotationZ;
+                    transform.rotationX = particle->rotationX;
+                    transform.rotationY = particle->rotationY;
+                    transform.x = particle->renderX;
+                    transform.y = particle->renderY;
+                    transform.z = particle->renderZ;
+                    transform.scale = particle->scale;
+                    func_800244EC(dList, renderContext, &transform, 1.0f, 0.0f);
+                    gDPPipeSync((*dList)++);
+                    if (particle->flags & 0x800) {
+                        intensity = particle->intensity;
+                        red = particle->red;
+                        green = particle->green;
+                        blue = particle->blue;
+                        color = (((red * intensity) >> 8) << 24) |
+                                ((((green * intensity) >> 8) & 0xFF) << 16) |
+                                ((((blue * intensity) >> 8) & 0xFF) << 8) | 0xFF;
+                        command = (*dList)++;
+                        command->words.w0 = 0xFA000000;
+                        command->words.w1 = color;
+                    } else {
+                        gDPSetPrimColor((*dList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+                    }
+                    command = (*dList)++;
+                    command->words.w0 = (((s32)resource->triangles[resource->triangleIndex] + 0x80000000) &
+                                         0xFFFFFF) |
+                                        0xBF000000;
+                    command->words.w1 = (s32)resource->vertices + 0x80000000;
+                    gSPDisplayList((*dList)++, (s32)resource->header->displayList + 0x80000000);
+                    gSP1Triangle((*dList)++, 0, 0, 0, 0);
+                    count = pool->count;
+                }
+                i++;
+                particle++;
+            } while (i < count);
+        }
+        gDPPipeSync((*dList)++);
+        gDPSetPrimColor((*dList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_800245EC(dList);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D25C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D4FC.s")
 void partInitTrigger(ParticleTrigger *trigger, s32 type, s32 value) {
     ParticleConfig *config;
@@ -1498,7 +1611,7 @@ void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     func_80041CE4((void **)dList, &vertices);
     func_80041C50((s32)dList, (s32)&vertices);
     func_8003CE10((void **)dList, arg1, &vertices, D_800D4128, mode);
-    func_8003D25C((void **)dList, arg1, &vertices, D_800D412C);
+    func_8003D25C(dList, arg1, &vertices, D_800D412C);
     D_8007C8E8 ^= 1;
 }
 #ifdef NON_MATCHING
