@@ -941,6 +941,7 @@ functions is classified as handwritten assembly under §6.2.
 | `camOrthoYAspect` | `0x23638` | D — JFG TU role/order | 12 | JFG body and masked skeleton exact; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `func_80022A44` | `0x23644` | D — retained Mickey auto-name; camera TU position only | 12 | Mickey-only float-state setter; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `camStandardPersp` | `0x23794` | D — JFG TU role/order and perspective-matrix dataflow | 196 | JFG body adapted to Mickey's camera transform and matrix globals; configured object, 17 relocations, linked range and full ROM exact. |
+| `camSetViewport` | `0x23858` | D — JFG TU role/order and viewport dataflow | 200 | JFG body adapted for Mickey's alternate viewport bank and horizontal region flip; configured object, 10 relocations, linked range and full ROM exact. |
 | `camScaleModelMtx` | `0x2502C` | D — JFG TU role/order and model-scale matrix dataflow | 192 | JFG body adapted to Mickey's matrix globals and display-list encoding; configured object, 15 relocations, linked range and full ROM exact. |
 | `camRestoreModelMtx` | `0x251EC` | D — JFG TU role/order | 32 | JFG display-list body adapted to Mickey's Gfx layout; configured object, relocation-free linked range and full ROM exact. |
 | `camPopModelMtx` | `0x2520C` | D — JFG TU role/order | 32 | JFG display-list body adapted to Mickey's Gfx layout; configured object, relocation-free linked range and full ROM exact. |

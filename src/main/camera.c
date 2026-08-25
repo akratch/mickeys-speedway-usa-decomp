@@ -121,6 +121,8 @@ extern f32 D_80079F60;
 extern f32 D_80079F48;
 extern CameraViewport D_80079C10[];
 extern CameraViewportFlags D_80079C40[];
+extern Vp D_80079D58[];
+extern Vp D_80079E98[];
 extern s8 D_80079F98[];
 extern CameraState3D D_800CEA5D[];
 extern u8 D_80079FA0[];
@@ -181,8 +183,8 @@ extern s32 levelInitRegionFlags(void);
 extern void func_80021504(f32 fov, s32 force);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
                           u32 *x2, u32 *y2);
-extern void func_80022C58(Gfx **dlist, u32 halfWidth, u32 halfHeight,
-                          u32 centerX, u32 centerY, s32 regionFlags);
+extern void camSetViewport(Gfx **dlist, s32 halfWidth, s32 halfHeight,
+                           s32 centerX, s32 centerY, s32 regionFlags);
 extern void func_80022794(Gfx **dlist, Mtx **mtx);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
@@ -407,9 +409,8 @@ void func_800221E8(Gfx **dlist, Mtx **mtx) {
 
     gDPSetScissor((*dlist)++, G_SC_NON_INTERLACE,
                   win.ulx, win.uly, win.lrx, win.lry);
-    func_80022C58(dlist, halfWidth, halfHeight,
-                  (win.lrx + win.ulx) >> 1, (win.lry + win.uly) >> 1,
-                  levelInitRegionFlags());
+    camSetViewport(dlist, halfWidth, halfHeight, (win.lrx + win.ulx) >> 1,
+                   (win.lry + win.uly) >> 1, levelInitRegionFlags());
 
     if (mtx != NULL) {
         func_80022794(dlist, mtx);
@@ -494,7 +495,29 @@ void camStandardPersp(Gfx **dlist, Mtx **mtx) {
     gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 0);
     (*mtx)++;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022C58.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetViewport. */
+void camSetViewport(Gfx **dlist, s32 halfWidth, s32 halfHeight, s32 centerX,
+                    s32 centerY, s32 regionFlags) {
+    s32 camNo;
+    Vp *viewport;
+
+    camNo = D_800CEC64;
+    if (D_80079F8C != 0) {
+        viewport = &D_80079E98[camNo & 3];
+    } else {
+        viewport = &D_80079D58[camNo];
+    }
+    if (!(D_80079C40[camNo].flags & 1)) {
+        viewport->vp.vtrans[0] = centerX * 4;
+        viewport->vp.vtrans[1] = centerY * 4;
+        viewport->vp.vscale[0] = halfWidth * 4;
+        viewport->vp.vscale[1] = halfHeight * 4;
+        if (regionFlags != 0) {
+            viewport->vp.vscale[0] = -viewport->vp.vscale[0];
+        }
+    }
+    gSPViewport((*dlist)++, (u32) viewport + 0x80000000);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022D20.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022E80.s")
 #ifdef NON_MATCHING
