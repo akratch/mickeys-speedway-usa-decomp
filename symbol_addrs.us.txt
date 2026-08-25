@@ -791,6 +791,7 @@ ResolveRelocAddress = 0x800317F0; // type:func size:0x188  tier-C donor-jfg
 PatchInstruction = 0x80031978; // type:func size:0xB8  tier-C donor-jfg
 runlinkIsModuleLoaded = 0x80032284; // type:func size:0x18  tier-C donor-jfg
 runlinkCallResumeFunction = 0x8003229C; // type:func size:0x9C  tier-C donor-jfg
+runlinkResumeAll = 0x80032FE0; // type:func size:0x60 ROM 0x33BE0 tier-B donor-jfg-asm/runLink/runlinkResumeAll.s role+CFG C-object+linked-ROM-exact
 // tier D -- invented: writes overlayIndex's halfword entry in linkSlotTable.
 SetLinkSlot = 0x80033040; // type:func size:0x50  tier-D invented
 // tier D -- invented: sweeps linkSlotTable over overlayCount, freeing unused.

@@ -590,7 +590,28 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkInit.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032B14.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032BF8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80032FE0.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * asm/nonmatchings/runLink/runlinkResumeAll.s and the corresponding
+ * src/runlink.c function order. Mickey's pending-load count and linked bytes
+ * determine the final body.
+ */
+void runlinkResumeAll(void) {
+    PendingOverlayLoad *pendingLoad;
+    s32 overlayIndex;
+    s32 remaining;
+
+    pendingLoad = D_800D2DC8;
+    remaining = PENDING_OVERLAY_LOADS;
+    remaining--;
+    do {
+        if (pendingLoad->overlayIndex != 0xFFB) {
+            overlayIndex = pendingLoad->overlayIndex;
+            func_80032BF8(overlayIndex);
+        }
+        pendingLoad++;
+    } while (remaining--);
+}
 /*
  * Write both halves of one link slot.
  *

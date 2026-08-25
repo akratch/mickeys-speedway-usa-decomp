@@ -7,7 +7,7 @@ Split out of `docs/modules.md` on 2026-08-24; evidence tiers and naming rules ar
 ### 5.1 What runs it
 
 The resident segment carries a complete Rare/DKR-lineage runtime linker at ROM
-`0x323E0`–`0x33FA0`, plus its trampoline at `0x33FA0`. Seven of its functions are
+`0x323E0`–`0x33FA0`, plus its trampoline at `0x33FA0`. Eight of its functions are
 decompiled and byte-matched; four more are named from Mickey's call graph. The
 mechanism, entirely from Mickey's own disassembly:
 
@@ -38,6 +38,12 @@ never read it back, and return the constant string `"unknown"`. The ROM-side
 symbol table the mechanism is built around is simply absent from the shipped
 image. Its C now reproduces all four instructions and its `D_80082410`
 relocation exactly under the resident `-O2 -mips2 -32` flags.
+
+`runlinkResumeAll` (`0x80032FE0`, `0x60` bytes) scans the sixteen pending-load
+slots and resumes every entry not marked `0xFFB`. Its name and role follow
+JFG's ordered `runlinkResumeAll` peer (tier B); the adapted C compiles to all
+24 Mickey instruction words with the exact data/call relocation surface under
+the resident `-O2 -mips2 -32` flags, and its linked ROM range is byte-identical.
 
 `runlinkDownloadCode` remains `NON_MATCHING` after a bounded ten-attempt pass.
 The best adapted candidate has the exact 286-instruction length, `0x70`-byte
