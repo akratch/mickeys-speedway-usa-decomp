@@ -2989,11 +2989,14 @@ extern s32 overlay1AngleDifferenceReloc(s16 first, s16 second);
 extern f32 overlay1TrigXReloc(s32 angle);
 extern f32 overlay1TrigYReloc(s32 angle);
 
+/* Plateau: exact 107 words/frame; best is 25 words different, first +0xC.
+ * Angle-local order and a split previous-index decrement improve allocation;
+ * parameter stack homes and integer/pointer registers remain divergent. */
 #ifdef NON_MATCHING
 void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
     Overlay1PathPoint *next, *previous, *current;
     Overlay1Path *path;
-    s16 midpointAngle, secondAngle, firstAngle;
+    s16 firstAngle, secondAngle, midpointAngle;
     volatile u8 localIndex;
     s32 nextIndex, previousIndex, currentIndex;
 
@@ -3005,7 +3008,8 @@ void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
         currentIndex = index;
         previousIndex = index - 1;
     } else {
-        previousIndex = path->count - 1;
+        previousIndex = path->count;
+        previousIndex--;
         currentIndex = 0;
     }
     previous = &path->points[previousIndex];
