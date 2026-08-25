@@ -962,6 +962,19 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
+`func_80038750` remains a **tier-D NON_MATCHING plateau** over **0x128 bytes /
+74 words** at ROM `0x39350`. Its Mickey-derived candidate has the exact
+`0x18`-byte frame and reconstructs the language-specific resource selection,
+section load, and pointer-relocation loop. The best stock-flag object differs
+in **14/74 positional words**, first `+0x2C`: IDO schedules the cached-header
+store after its local copy and orders the destination/offset loads
+differently. Its compiler-generated switch also binds two relocation sites to
+anonymous `.rodata` rather than the target's named jump-table symbol. The full
+flag lattice kept the resident defaults best; ten coherent source-shape and
+variable-reuse attempts did not satisfy both the word and relocation-identity
+gates. JFG's corresponding `setLanguage` routine remains assembly, so the
+Mickey placeholder name and canonical assembly are retained.
+
 The tier-B `frontSetMode` adds **0x64 bytes / 25 words** at ROM `0x399AC`.
 Its exact free/init/reset call sequence, mode-state store, and ordered pairing
 with `frontGetMode` establish the JFG role. The name, role, and shared control

@@ -13,6 +13,7 @@
 #include "game/font.h"
 #include "game/gameVi.h"
 #include "game/menu.h"
+#include "game/pi.h"
 
 /* PROVENANCE: base layout adapted from JFG's public decomp,
  * src/menu.h::Resbitfield; twoPlayerSplit and stereoMode are Mickey-derived
@@ -35,6 +36,7 @@ extern MenuScreenModeBits D_800D3128;
 extern u8 D_8007C08C;
 extern u8 D_8007C090;
 extern s32 D_8007C098;
+extern s32 *D_8007C094;
 extern s16 D_8007BF70;
 extern s16 D_8007BF7C[];
 extern u8 D_8007BEF4;
@@ -84,6 +86,7 @@ extern s8 joyGetStickX(s32 controller);
 extern s8 joyGetStickY(s32 controller);
 extern void mainTitlePageInit(s32 mode);
 extern void modFreeModel(void *model);
+extern u32 *piRomLoad(u32 assetIndex);
 
 extern u32 D_800D3170[4];
 extern u32 D_800D3180[4];
@@ -193,7 +196,66 @@ extern void func_800244EC(MenuCommand **commands, void **matrices,
                           void *transform, f32 scale, f32 extra);
 extern void func_8002460C(MenuCommand **commands);
 
+#ifdef NON_MATCHING
+/* Exact-size and exact-frame plateau: 14/74 words differ, first at +0x2C.
+ * IDO schedules the cached-header store after its local copy, then orders the
+ * destination and offset loads differently. The generated switch also binds
+ * its jump table to anonymous .rodata instead of the target's named symbol. */
+void func_80038750(s32 language) {
+    s32 *header;
+    s32 *offsets;
+    s32 assetIndex;
+    s32 destination;
+    s32 end;
+    s32 index;
+
+    header = D_8007C094;
+    if (header == NULL) {
+        header = (s32 *) piRomLoad(7);
+        D_8007C094 = header;
+    }
+    assetIndex = 1;
+    switch (language) {
+        case 1:
+            assetIndex = 6;
+            break;
+        case 2:
+            assetIndex = 5;
+            break;
+        case 3:
+            assetIndex = 4;
+            break;
+        case 4:
+            assetIndex = 3;
+            break;
+        case 5:
+            assetIndex = 2;
+            break;
+        default:
+            assetIndex = 1;
+            break;
+    }
+    offsets = (s32 *) ((u8 *) header + (assetIndex * 4));
+    destination = (s32) D_8007C0B8;
+    end = offsets[1];
+    assetIndex = offsets[0];
+    if (destination != 0) {
+        end -= assetIndex;
+        piRomLoadSection(6, destination, assetIndex, end);
+        index = 0;
+        while (index < D_8007C094[0]) {
+            if (((s32 *) D_8007C0B8)[index] == -1) {
+                ((s32 *) D_8007C0B8)[index] = 0;
+            } else {
+                ((s32 *) D_8007C0B8)[index] += (s32) D_8007C0B8;
+            }
+            index++;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038878.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800389CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038BC4.s")
@@ -716,7 +778,7 @@ s32 frontGetLanguage(void) {
  * src/menu.c::frontSetLanguage; body and bitfield derived from Mickey. */
 void frontSetLanguage(s32 language) {
     D_800D3128.language = language;
-    func_80038750();
+    func_80038750(language);
 }
 s32 frontGetScreenMode(void) {
     s32 mode;
