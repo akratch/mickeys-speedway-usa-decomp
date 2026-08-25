@@ -2222,10 +2222,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11InitializeFour.c.o: POSTPROCESS =
 		--redefine-sym func_overlay_045_F000000C_188B438=overlay11CreateReloc \
 		--redefine-sym D_800D31BC=gOverlay11ResidentFlagsReloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
+# The compiler emits the exact six-entry switch table already present in the
+# overlay's extracted data/rodata asset. Rebind the text pair to its proved
+# runtime-local +0x7C addend, then discard only the duplicate private table.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11ReleaseCurrentGroup.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11ReleaseCurrentGroup.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_011_F0002BF4_186B43C=overlay11ReleaseCurrentGroup $@
+	$(OBJCOPY) --add-symbol gOverlay11ReleaseSwitchTableReloc=0x7C,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x30:.rodata:gOverlay11ReleaseSwitchTableReloc \
+		0x38:.rodata:gOverlay11ReleaseSwitchTableReloc && \
+	$(OBJCOPY) --remove-section=.rodata $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o013/overlay13ProcessActive.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x78
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o083/overlay83Submit.c.o: POSTPROCESS = \

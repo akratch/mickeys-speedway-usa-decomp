@@ -685,6 +685,7 @@
       "size": 192,
       "source": "src/overlays/o011/overlay11ReleaseCurrentGroup.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "objcopy"
       ]
     },
