@@ -67,8 +67,12 @@ extern void amSndPlay(s32 soundId, s32 *handle);
 extern void amSndSetVol(s32 soundId, s32 handle, s32 volume, s32 *handleOut);
 extern void amSndStop(s32 handle);
 extern void func_80000510(u8 value, s16 arg1);
+extern void func_80006EA0(void *object);
+extern void func_80006FA0(void);
 extern s32 func_80005820(s32 arg0);
 extern u8 *func_80028F54(void);
+extern void func_800347A0(void *texture);
+extern void func_800359D4(void *sprite);
 extern void func_80039A9C(s32 assetId);
 extern void func_80039BE4(s32 assetId);
 extern void func_80039720(s32 updateRate);
@@ -78,6 +82,7 @@ extern u32 joyGetPressed(s32 controller);
 extern s8 joyGetStickX(s32 controller);
 extern s8 joyGetStickY(s32 controller);
 extern void mainTitlePageInit(s32 mode);
+extern void modFreeModel(void *model);
 
 extern u32 D_800D3170[4];
 extern u32 D_800D3180[4];
@@ -93,6 +98,7 @@ extern s16 D_800D31BC;
 extern s16 D_800D31BE;
 extern s16 D_800D31C0;
 extern s16 D_800D31C2;
+extern u8 D_800D3498[];
 
 struct MenuCommand {
     u32 w0;
@@ -160,6 +166,7 @@ extern u8 D_8007C0AC;
 extern s32 D_8007C0B4;
 extern s32 D_8007C0BC;
 extern s16 *D_8007C1B8;
+extern s16 D_8007C1C0;
 extern MenuCommand *D_800D3140;
 extern void *D_800D3144;
 extern void *D_800D3148;
@@ -480,7 +487,29 @@ void freeFrontEndList(s16 *assetGroup) {
         func_80039A9C(assetGroup[index++]);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039A9C.s")
+/* PROVENANCE: name and ordered role compared with JFG's public decomp,
+ * src/menu.c::freeFrontEndItem; the body is derived from Mickey. */
+#pragma weak func_80039A9C = freeFrontEndItem
+void freeFrontEndItem(s32 assetId) {
+    if (D_800D3498[assetId] != 0) {
+        if (((s32 *) D_800D31C8)[assetId] != 0) {
+            if (((D_8007C1B8[assetId] & 0xC000) == 0xC000) &&
+                (((s32 *) D_800D31C8)[assetId] != 0)) {
+                func_800347A0((void *) ((s32 *) D_800D31C8)[assetId]);
+            } else if (D_8007C1B8[assetId] & 0x8000) {
+                func_800359D4((void *) ((s32 *) D_800D31C8)[assetId]);
+            } else if (D_8007C1B8[assetId] & 0x4000) {
+                func_80006EA0((void *) ((s32 *) D_800D31C8)[assetId]);
+            } else {
+                modFreeModel((void *) ((s32 *) D_800D31C8)[assetId]);
+            }
+        }
+        ((s32 *) D_800D31C8)[assetId] = 0;
+        D_800D3498[assetId] = 0;
+        D_8007C1C0--;
+        func_80006FA0();
+    }
+}
 /* PROVENANCE: body adapted from DKR's public src/menu.c::menu_assetgroup_load;
  * JFG's public src/menu.c supplies the loadFrontEndList role and order. */
 void loadFrontEndList(s16 *assetGroup) {

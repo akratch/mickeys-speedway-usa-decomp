@@ -10,6 +10,7 @@ u8 frontGetMode(void);
 void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right, s32 bottom, u32 colour);
 void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *bottom);
 void freeFrontEndList(s16 *assetGroup);
+void freeFrontEndItem(s32 assetId);
 void loadFrontEndList(s16 *assetGroup);
 void setupFrontEndList(s16 *objectGroup);
 void setupFrontEndObject(s32 objectId);

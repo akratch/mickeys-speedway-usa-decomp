@@ -2205,6 +2205,9 @@ func_80039720 = 0x80039720; // type:func size:0x320 tier-D ROM 0x3a320 canonical
 // Tier B (JFG): the exact sentinel-list loop, its call to the immediately
 // following per-item free routine, and JFG's same ordered pair identify it.
 freeFrontEndList = 0x80039A40; // type:func size:0x5C tier-B ROM 0x3a640 canonical C, linked byte-identical
+// Tier B (JFG): the resource-type dispatch, loaded-slot bookkeeping, and
+// position after freeFrontEndList identify JFG's per-item release routine.
+freeFrontEndItem = 0x80039A9C; // type:func size:0xEC tier-B ROM 0x3a69c canonical C, linked byte-identical
 // Tier B (JFG): the exact sentinel-list loop, its call to the immediately
 // following per-item load routine, and JFG's same ordered pair identify it.
 loadFrontEndList = 0x80039B88; // type:func size:0x5C tier-B ROM 0x3a788 canonical C, linked byte-identical

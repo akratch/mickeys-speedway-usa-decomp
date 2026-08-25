@@ -1032,6 +1032,17 @@ relocation, object words, and linked ROM range are exact without
 post-processing. A zero-byte weak alias preserves the anonymous name used by
 the overlay caller.
 
+The tier-B `freeFrontEndItem` adds **0xEC bytes / 59 words** at ROM
+`0x3A69C`. Its four-way dispatch by the resource table's `0xC000` type bits,
+loaded-slot clearing, live-resource decrement, and position immediately after
+`freeFrontEndList` establish the JFG role. JFG supplies the name and semantic
+comparison but keeps its body in assembly; Mickey supplies the C body, as the
+point-of-use `PROVENANCE` note records. Treating the polymorphic resource table
+as raw 32-bit handles until each typed release call preserves the target's
+`v0` lifetime. The default flags, five call relocations, four data-relocation
+pairs, object words, and linked ROM range are exact without post-processing.
+A zero-byte weak alias preserves the anonymous name used by the list wrapper.
+
 The parallel tier-B `loadFrontEndList` adds **0x5C bytes / 23 words** at ROM
 `0x3A788`. Its exact sentinel-list loop calls the immediately following
 per-item load routine, matching JFG's ordered `loadFrontEndList`/
