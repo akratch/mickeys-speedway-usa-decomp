@@ -55,7 +55,9 @@ void rumbleUpdate(void) {
 s32 func_8002C788(SavesRecord *record) {
     return record->unk10;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C790.s")
+s32 func_8002C790(SavesRecord *record) {
+    return record->unkC = record->unk10;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C79C.s")
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packCalculateGameChecksum. */
 s32 packCalculateGameChecksum(u8 *buffer, s32 count) {
