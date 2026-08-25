@@ -17,7 +17,7 @@ typedef struct ParticleConfig {
     f32 x;
     f32 y;
     f32 z;
-    u8 pad10[4];
+    f32 value10;
     s16 value14;
     s16 value16;
     s16 value18;
@@ -28,6 +28,14 @@ typedef struct ParticleConfig {
     u8 pad28[0x18];
     s16 value40;
     s16 value42;
+    u8 pad44[0x14];
+    f32 value58;
+    s32 flags5C;
+    s32 value60;
+    s16 value64;
+    s16 value66;
+    u8 pad68[0x2C];
+    s32 value94;
 } ParticleConfig;
 
 typedef struct ParticleTrigger {
@@ -261,7 +269,9 @@ typedef struct BasicParticle {
     f32 velocityX;
     f32 velocityY;
     f32 velocityZ;
-    u8 pad28[8];
+    u8 pad28[6];
+    u8 type;
+    u8 pad2F;
     f32 localX;
     f32 localY;
     f32 localZ;
@@ -274,6 +284,38 @@ typedef struct BasicParticle {
     s16 angularVelocityX;
     s16 angularVelocityZ;
 } BasicParticle;
+
+typedef struct ParticleEmitterHeader {
+    u8 pad00[0x4E];
+    s8 transformedPoints;
+} ParticleEmitterHeader;
+
+typedef struct ParticleEmitterPointSet {
+    u8 pad00[0x1E];
+    s8 transformedPoints;
+} ParticleEmitterPointSet;
+
+typedef struct ParticleEmitterResource {
+    ParticleEmitterHeader *header;
+    u8 pad04[0x3C];
+    f32 (*points)[3];
+} ParticleEmitterResource;
+
+typedef struct ParticleEmitterObject {
+    u8 pad00[8];
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x22];
+    s8 resourceIndex;
+    u8 pad3B[5];
+    u8 *header;
+    u8 pad44[0x24];
+    ParticleEmitterResource **resources;
+    u8 pad6C[0x27];
+    u8 pointSetIndex;
+} ParticleEmitterObject;
 
 typedef struct EmittedParticle {
     u8 pad00[0x1C];
@@ -444,6 +486,8 @@ void func_800349A4(Gfx **dList, void *texture, s32 mode, s32 flags);
 void func_8003D4FC(void **dList, void **vertices, void *pool);
 s32 func_8003CE10(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool, s32 mode);
 void func_8003D25C(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool);
+void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
+                   ParticleConfig *config);
 void func_80041CE4(void **dList, void **vertices);
 void func_80041F48(s32 arg0, ParticleTrigger *trigger);
 s32 func_80040878(CircularParticle *particle, s32 updateRate);
@@ -1203,7 +1247,110 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F154.s")
+#ifdef NON_MATCHING
+/*
+ * One instruction short: 262 of 276 aligned target rows match. The target has
+ * an otherwise redundant branch at +0xA4; IDO also places the flags spill at
+ * sp+0x44 and the rotation pair at sp+0x30, while this spelling swaps them.
+ * The full flag lattice and a bounded canonical-mips2 permuter found no exact
+ * alternative; the 0x48 frame and all integer/FP register lanes match.
+ *
+ * PROVENANCE: structure cross-checked against JFG's assembly-only
+ * asm/nonmatchings/particles/func_800608EC.s sibling; body reconstructed
+ * from Mickey evidence.
+ */
+void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
+                   ParticleConfig *config) {
+    s16 rotation[2];
+    f32 offset[3];
+    ParticleEmitterResource *resource;
+    s32 flags;
+    s32 randomRange;
+    s8 pointIndex;
+
+    pointIndex = trigger->index;
+    if (pointIndex == -1) {
+        particle->localX = trigger->value1A;
+        particle->localY = trigger->value1C;
+        particle->localZ = trigger->value1E;
+    } else {
+        resource = NULL;
+        if (((ParticleEmitterPointSet *)(object->header + object->pointSetIndex))->transformedPoints == 0) {
+            resource = object->resources[object->resourceIndex];
+        }
+        if (resource != NULL && resource->points != NULL) {
+            particle->localX = resource->points[pointIndex][0];
+            particle->localY = resource->points[trigger->index][1];
+            particle->localZ = resource->points[trigger->index][2];
+            if (resource->header->transformedPoints == 0) {
+                particle->localX *= object->scale;
+                particle->localY *= object->scale;
+                particle->localZ *= object->scale;
+                pointListRPY(1, (s16 *)object, &particle->localX, &particle->localX);
+            } else {
+                particle->localX -= object->x;
+                particle->localY -= object->y;
+                particle->localZ -= object->z;
+            }
+        } else {
+            particle->localX = 0.0f;
+            particle->localY = 0.0f;
+            particle->localZ = 0.0f;
+        }
+    }
+
+    particle->movementValue = config->value58;
+    if (config->flags5C & 0x80000) {
+        randomRange = config->value94;
+        particle->movementValue += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+    }
+    if (config->flags & 1) {
+        offset[0] = 0.0f;
+        offset[1] = 0.0f;
+        offset[2] = -config->value10;
+        flags = config->flags5C;
+        if (flags & 1) {
+            randomRange = config->value60;
+            offset[2] += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+        }
+        if (flags & 6) {
+            rotation[0] = trigger->value0E;
+            if (flags & 2) {
+                rotation[0] += mathRnd(-config->value64, config->value64);
+            }
+            rotation[1] = trigger->value10;
+            if (flags & 4) {
+                rotation[1] += mathRnd(-config->value66, config->value66);
+            }
+            mathOneFloatPY(rotation, offset);
+        } else {
+            pointListRPY(1, &trigger->value0E, offset, offset);
+        }
+        particle->localX += offset[0];
+        particle->localY += offset[1];
+        particle->localZ += offset[2];
+    }
+    if (particle->type != 4 && trigger->index == -1) {
+        pointListRPY(1, (s16 *)object, &particle->localX, &particle->localX);
+    }
+    particle->x = particle->localX;
+    particle->y = particle->localY;
+    particle->z = particle->localZ;
+    if (particle->type == 4) {
+        pointListRPY(1, (s16 *)object, &particle->x, &particle->x);
+    }
+    if (D_8007C8F8 != 1.0f) {
+        particle->x *= D_8007C8F8;
+        particle->y *= D_8007C8F8;
+        particle->z *= D_8007C8F8;
+    }
+    particle->x += object->x;
+    particle->y += object->y;
+    particle->z += object->z;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F5F8.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * Size-exact plateau: IDO schedules the trigger-stride shift ahead of the

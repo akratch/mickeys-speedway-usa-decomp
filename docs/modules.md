@@ -1771,24 +1771,23 @@ resident flags, JFG-named Mickey reconstruction); `debug_text_background`
 (ROM `0x452F8`, `0xA0` bytes, resident flags plus `-Wab,-r4300_mul`, JFG body
 donor).
 
-`func_8003CE10` reached a bounded 275-instruction `NON_MATCHING` plateau
-under the default resident flags after the full flag lattice, ten structural
-hypotheses, and a corrected canonical-`mips2` permuter batch. The best
-semantic candidate has the exact opcode schedule and relocation identities,
-but 154 positional words differ from `+0x0`: IDO emits a `0x98` frame instead
-of the target's `0x90`, shifting its scalar homes and register allocation.
-JFG's `func_8005DD88` is an assembly-only structural oracle; the original asm
-remains canonical.
+`func_8003CE10` plateaued after the flag lattice, ten hypotheses, and a
+canonical-`mips2` permuter: its 275-instruction C has exact opcodes/relocations,
+but 154 words differ from `+0x0` because IDO emits a `0x98` frame versus
+`0x90`. JFG `func_8005DD88` is the assembly oracle; asm stays canonical.
 
-`func_8003EC8C` reached a bounded size-exact 47-word plateau under the
-default resident flags. Its best compliant candidate differs in 24
-relocation-masked words, first at function offset `0x30`, where the target
-hoists the `D_8007C894` HI16 load ahead of the object-count decrement. A
-branch-local pool pointer fixes that relocation schedule but changes the
-register assignment throughout both resource-release branches. The flag
-lattice found no exact alternative; a ten-minute bounded permuter run
-improved its internal score from 1410 to 820, but the winning form invented
-an empty guard and was rejected. The original asm body remains canonical.
+`func_8003F5F8` plateaued one instruction short after the flag lattice, ten
+hypotheses, and a canonical-`mips2` permuter. Its `0x48` frame and all register
+lanes match; 262/276 aligned rows match. The first mismatch is the target's
+redundant branch at `+0xA4`; 11 later words swap the flags spill (`sp+0x44`)
+with the rotation pair (`sp+0x30`). JFG `func_800608EC` is the assembly oracle;
+asm stays canonical.
+
+`func_8003EC8C` plateaued size-exact at 47 words, with 24 residuals from
+`+0x30`: the target hoists `D_8007C894`'s HI16 load before the count decrement.
+A branch-local pointer fixes that schedule but disrupts both branches' register
+allocation. The flag lattice and bounded permuter found no compliant exact
+form; asm stays canonical.
 
 `func_8004054C` reached a bounded one-word-short plateau under the default
 resident flags. The best compliant candidate has 124 words against the
