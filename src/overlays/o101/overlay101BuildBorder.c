@@ -26,8 +26,12 @@ void overlay101BuilderCreateReloc(Overlay101Gfx **displayList, s32 count,
  * instructions and 136-byte frame but differ in 38 positional words; the
  * first mismatch is +0x44. Complete-record ordering, old-style call
  * declarations, named boundary temporaries, and direct typed-array access did
- * not improve it. The remaining blocker is the straight-line volatile-load/
- * store schedule and its temporary register web.
+ * not improve it. A fresh source-order audit moved the second record's right
+ * edge to reproduce the target's complete field-store order, but the best
+ * result remains 38 positional words from first mismatch +0x44; explicit
+ * right/bottom boundary locals regress that result to 40 or 43 words. The
+ * remaining blocker is the straight-line volatile-load/store schedule and its
+ * temporary register web.
  */
 #ifdef NON_MATCHING
 void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
@@ -54,10 +58,10 @@ void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
     rect[1].x0 = x;
     rect[0].y0 = y;
     rect[0].x1 = x + 1;
-    rect[1].x1 = x + width;
     rect[0].y1 = y + height - 1;
 
     rect[1].y0 = y + height - 1;
+    rect[1].x1 = x + width;
     rect[1].y1 = y + height;
 
     rect[2].x0 = x + width - 1;

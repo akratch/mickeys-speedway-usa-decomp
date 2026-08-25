@@ -54,7 +54,12 @@ void overlay101SubmitTransformReloc(Overlay101Gfx **displayList, void *matrix,
  * Overlay 101 text +0x29A4..+0x2C3C. Natural source supplies the exact size,
  * 0x90 frame, ABI, CFG, FP topology, stack homes, and seven call sites. A
  * scoped decoded ledger selects two retail command schedules and complete
- * equivalent private temporary-register webs.
+ * equivalent private temporary-register webs. Plateau after the full flag
+ * lattice and a command-expression audit: the best 166-word candidate has 62
+ * positional differences from first mismatch +0x7C. Removing the otherwise
+ * unused nested-assignment temporary shrinks the frame to 0x88 and regresses
+ * to 129 words; splitting its assignment preserves the same 62-word basin.
+ * The blocker is the two command schedules and the private temporary FIFO.
  */
 #ifdef NON_MATCHING
 void overlay101DrawTransformed(Overlay101Gfx **displayList, void *matrix,

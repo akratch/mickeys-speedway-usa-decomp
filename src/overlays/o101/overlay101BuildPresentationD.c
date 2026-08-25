@@ -104,7 +104,16 @@ extern void overlay101BuilderCreateFinalReloc(void *text, s32 index,
                                                s32 *count);
 extern s32 overlay101ByteLength(u8 *text);
 
-/* Exact overlay 101 body at +0xA384. */
+/*
+ * Mickey-local reconstruction for overlay 101 text +0xA384. The nearest-
+ * sibling scan found no close structural donor. Plateau after the complete
+ * 119-combination flag lattice and a bounded initial-store ordering audit:
+ * the best default -O2/-mips2/-32 candidate is size-exact at 206 words, with
+ * 158 masked positional words differing and the first mismatch at +0x10.
+ * Moving the asset assignment ahead of the root constants remains in the
+ * same structural basin. The blocker is the function-wide global-address,
+ * store, and saved-register schedule across the chained node construction.
+ */
 #ifdef NON_MATCHING
 void overlay101BuildPresentationD(void) {
     s32 orderIndex;
