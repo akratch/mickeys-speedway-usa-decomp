@@ -1012,7 +1012,7 @@ func_80044C94 = 0x80044C94;     // type:func size:0x12C tier B (JFG diRcpTraceGe
 // and the distinctive G_* names and format strings independently state each
 // helper's role. JFG's two address-placeholder unpackers remain Mickey func_
 // names.
-diRcpPrintDL = 0x80044DC0;       // type:func size:0x604 tier C (GBI strings)
+diRcpPrintDL = 0x80044DC0;       // type:func size:0x604 tier-C ROM 0x459C0 NON_MATCHING rodata-table plateau, first reloc +0x44
 func_800453C4 = 0x800453C4;      // type:func size:0x3C tier-A ROM 0x45FC4 exact C, JFG func_80066594_67194
 func_80045400 = 0x80045400;      // type:func size:0x3C tier-A ROM 0x46000 exact C, JFG func_800665D8_671D8
 diRcpVertex = 0x8004543C;        // type:func size:0x34 tier A (exact C, JFG diRcpVertex)
