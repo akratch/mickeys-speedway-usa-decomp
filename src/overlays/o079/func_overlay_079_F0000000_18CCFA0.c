@@ -14,6 +14,10 @@ typedef struct Overlay79InitState {
     f32 range34;
 } Overlay79InitState;
 
+typedef struct Overlay79InitScale {
+    f32 value;
+} Overlay79InitScale;
+
 typedef struct Overlay79InitObject {
     s16 angle;
     u8 pad02[6];
@@ -22,7 +26,7 @@ typedef struct Overlay79InitObject {
     f32 position10;
     f32 position14;
     u8 pad18[0x28];
-    f32 *scale40;
+    Overlay79InitScale *scale40;
     u8 pad44[0x20];
     Overlay79InitState *state64;
 } Overlay79InitObject;
@@ -41,26 +45,6 @@ extern f32 func_8002A8BC(s32 angle);
 extern void func_8005AD64(Overlay79InitObject *object, s32 mode, s32 index,
                           f32 value);
 
-/*
- * Plateau (2026-08-25, 7 attempts): the canonical -O2 candidate has the
- * exact 77-word size, differs in 10 words, and first diverges at +0x48.
- * The remaining delta begins with a commuted floating-point multiply and
- * propagates through the later floating-point register choices.  All source
- * associations and the complete flag lattice retain that allocation split.
- * Revalidated on 2026-08-25: the full 119-combination lattice reproduced the
- * same result, and a 10-minute two-worker permuter batch found no improvement
- * over its base score of 105.
- * Lane cx-ov-4-b-a-r3 repeated the full lattice and reconfirmed the exact-size
- * 10-word result with first mismatch at +0x48.
- * Lane cx-ov-4-b-a-r4 reconfirmed all 119 flag combinations and tested the
- * target's immediate scaled08 reload as a volatile-field type clue; that
- * regressed to 33 words. The unqualified form remains best at 10 words, first
- * mismatch +0x48, blocked on the initial multiply and downstream FPR coloring.
- * Lane cx-ov-4-b-a-r5 reconfirmed all 119 flag combinations and tested both
- * inner-result and loaded-scale local temporaries. They regressed to 41 and 44
- * words; the exact-size 10-word result at +0x48 remains the plateau.
- */
-#ifdef NON_MATCHING
 void func_overlay_079_F0000000_18CCFA0(Overlay79InitObject *object,
                                         Overlay79InitConfig *config,
                                         void *unused) {
@@ -71,7 +55,7 @@ void func_overlay_079_F0000000_18CCFA0(Overlay79InitObject *object,
     (void)unused;
     state = object->state64;
     object->scaled08 = config->scale0C * gOverlay79InitScaleReloc
-                     * *object->scale40;
+                     * object->scale40->value;
     object->angle = config->angle0A;
     state->scaled20 = object->scaled08 * 60.0f;
     state->range34 = config->range0E;
@@ -86,7 +70,3 @@ void func_overlay_079_F0000000_18CCFA0(Overlay79InitObject *object,
     state->value14 = state->position2C - (func_8002A8BC(random) * range);
     func_8005AD64(object, 0, -1, 0.0f);
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o079/func_overlay_079_F0000000_18CCFA0/func_overlay_079_F0000000_18CCFA0.s")
-#endif
