@@ -55,25 +55,19 @@ extern void func_800349A4(Overlay65TrailCommand **commands, void *texture,
                           s32 flags, s32 parameter);
 extern void func_overlay_065_F0001A14_18C5C7C(f32 x, f32 y, f32 z);
 
-/*
- * Plateau (2026-08-25, 10 attempts): -O2 -mips1 produces 0x610 bytes versus
- * the 0xDDC-byte target, with 876 of 887 words differing after relocation
- * masking and the first mismatch at +0x0. The retail body heavily unrolls the
- * nine-point/two-vertex writer; indexed, pointer-walk, preincrement, explicit
- * tail, and loop-unroll flag variants did not recover its saved-register web.
- */
+/* Workbench: structure-mismatch (mixed), 870/887 positional words differ; first mismatch +0x0.
+ * Levers tried: explicit vertex-pair expansion and live-global pointer access reduced the size gap to 34 instructions.
+ * Remaining: a 24-byte frame deficit, four missing saved registers, and structural/FP allocation drift. */
 #ifdef NON_MATCHING
 void func_overlay_065_F0000C38_18C4EA0(Overlay65TrailCommand **commandPtr,
                                        s32 **cursorPtr, s32 updateRate) {
     Overlay65TrailCommand *commands;
     Overlay65TrailCamera *camera;
     Overlay65TrailRecord *record;
-    Overlay65TrailVertex *vertex;
     s32 *cursor;
     s32 recordIndex;
     s32 updateIndex;
     s32 pointIndex;
-    s32 side;
     s32 randomX;
     s32 randomZ;
     f32 sinAngle;
@@ -138,28 +132,32 @@ void func_overlay_065_F0000C38_18C4EA0(Overlay65TrailCommand **commandPtr,
         if (record->active == 0) {
             continue;
         }
-        vertex = D_2988;
         commands->w0 = 0x040000BCU |
-            (((((u32)vertex + 0x80000000U) & 6U) | 0x90U) << 16);
-        commands->w1 = (u32)vertex + 0x80000000U;
+            (((((u32)D_2988 + 0x80000000U) & 6U) | 0x90U) << 16);
+        commands->w1 = (u32)D_2988 + 0x80000000U;
         commands++;
         commands->w0 = 0x05F10100U;
         commands->w1 = (u32)D_800000C0;
         commands++;
 
         for (pointIndex = 0; pointIndex < 9; pointIndex++) {
-            for (side = -1; side <= 1; side += 2) {
-                vertex->x = record->x[pointIndex] + (side * 3.0f);
-                vertex->y = record->y[pointIndex];
-                vertex->z = record->z[pointIndex] + (side * 3.0f);
-                vertex->red = record->red;
-                vertex->green = record->green;
-                vertex->blue = record->blue;
-                vertex->alpha = 0xFF;
-                vertex++;
-            }
+            D_2988->x = record->x[pointIndex] - 3.0f;
+            D_2988->y = record->y[pointIndex];
+            D_2988->z = record->z[pointIndex] - 3.0f;
+            D_2988->red = record->red;
+            D_2988->green = record->green;
+            D_2988->blue = record->blue;
+            D_2988->alpha = 0xFF;
+            D_2988++;
+            D_2988->x = record->x[pointIndex] + 3.0f;
+            D_2988->y = record->y[pointIndex];
+            D_2988->z = record->z[pointIndex] + 3.0f;
+            D_2988->red = record->red;
+            D_2988->green = record->green;
+            D_2988->blue = record->blue;
+            D_2988->alpha = 0xFF;
+            D_2988++;
         }
-        D_2988 = vertex;
     }
     *commandPtr = commands;
     *cursorPtr = cursor;
