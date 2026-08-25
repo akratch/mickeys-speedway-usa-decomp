@@ -311,6 +311,11 @@ best at 46 instructions, 28 positional differences, and first mismatch
 `+0x18`. Explicit padded spill-carrier variants retained the 40-byte frame
 (29 differences), while making the carrier volatile regressed to 31
 differences without producing the target stack layout.
+An additional retry checked the lattice's only plausible missing flag family,
+optimized code with bare debug metadata, but IDO's driver rejects `-O2` and
+`-g` together in either order. Marking the spacing and font-data pointers
+`register`, singly and together, produced objects byte-identical to the
+46-word baseline. The frame/spill plateau is therefore unchanged.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
@@ -699,6 +704,12 @@ first symbol identity but adds an address-formation instruction and shifts the
 remaining schedule. A fresh incomplete-array extern experiment likewise added
 one instruction under the resident `-mips2` flags and produced 43 positional
 differences; a full 119-configuration flag sweep found no exact alternative.
+Driving the same extern through a direct indexed loop also emitted 51 words,
+with 44 masked positional differences from `+0x1C` and 12 relocation records
+against the target's 13. An alignment-qualified extern, intended to expose the
+framebuffer's zero low half without an added address instruction, is not valid
+IDO C syntax and was rejected by cfe. The original literal-pointer body remains
+the instruction-exact candidate.
 Section 1.5 therefore keeps the address label and the original asm canonical.
 
 `viAllocateZBuffer` and `viFreeZBuffer` are adopted at tier B as the paired
@@ -2972,7 +2983,14 @@ The remaining vehicle functions plateau without exact credit.
 `func_80058250`'s best named-global initializer emits 26 instructions against
 22 and differs in 19 positional words from `+0x0`; a typed four-slot aggregate
 reaches the exact size but differs in 21 positions. The complete flag lattice
-does not produce the target's mixed global-address schedule.
+does not produce the target's mixed global-address schedule. A new per-slot
+volatile aggregate spelling also reaches 22 words and improves that basin to
+20 positional differences from `+0x0`, but still hoists four full extern
+addresses and carries only 8 relocation records against the target assembly's
+20. Statement reordering, pointer-relative stores, one array aggregate, and
+volatile/non-volatile per-slot objects cover the coherent extern-layout
+families; reproducing the target now appears to require the original data
+ownership/layout context rather than another initializer ordering.
 `func_8005830C` now has a complete typed `NON_MATCHING` reconstruction adapted
 at the organization/terminology level from DKR's permitted published
 `src/audio_vehicle.c`, with Mickey's own field offsets and calls deciding the
