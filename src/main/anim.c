@@ -695,11 +695,16 @@ void func_80050DF0(s32 levelId) {
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
+ * Plateau: separate camera/scroll/lockon types retain 89/90 instructions;
+ * first word +0x1C, first intrinsic schedule mismatch +0x64. IDO carries the
+ * scroll boundary instead of rematerializing the lockon base.
  */
 #ifdef NON_MATCHING
 void func_80050E9C(void) {
     s32 emptyIndex;
-    u8 *entry;
+    AnimCameraSource **camera;
+    AnimScrollReset *scroll;
+    AnimLockonReset *lockon;
     AnimLightReset *light;
     s32 pathIndex;
 
@@ -719,25 +724,25 @@ void func_80050E9C(void) {
             pathIndex++;
         } while ((pathIndex < 0x100) != 0);
 
-        entry = (u8 *) D_800D6B08;
+        camera = D_800D6B08;
         do {
-            *(s32 *) entry = 0;
-            entry += 4;
-        } while (entry < (u8 *) D_800D6B18);
+            *camera = NULL;
+            camera++;
+        } while (camera < (AnimCameraSource **) D_800D6B18);
 
-        entry = (u8 *) D_800D6B58;
+        scroll = (AnimScrollReset *) D_800D6B58;
         do {
-            entry[0] = 0xFF;
-            *(s32 *) (entry + 4) = 0;
-            *(s32 *) (entry + 0xC) = 0;
-            entry += 0x14;
-        } while (entry < D_800D6BF8);
+            scroll->unk0 = 0xFF;
+            scroll->unk4 = 0;
+            scroll->unkC = 0;
+            scroll++;
+        } while (scroll < (AnimScrollReset *) D_800D6BF8);
 
-        entry = D_800D6BF8;
+        lockon = (AnimLockonReset *) D_800D6BF8;
         do {
-            entry[0] = emptyIndex;
-            entry += 8;
-        } while (entry < D_800D6C38);
+            lockon->unk0 = emptyIndex;
+            lockon++;
+        } while (lockon < (AnimLockonReset *) D_800D6C38);
 
         D_8007D6B0 = 0;
         light = D_800D6C58;
