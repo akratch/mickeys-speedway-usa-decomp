@@ -12,10 +12,14 @@ extern f32 overlay3SqrtReloc(f32 value);
  * index slot at sp+0x5C. The best candidate has 22 differing words beginning
  * at +0x44; its timer, cached index, object-list base, and count use a
  * different four-register allocation through the early cached-result path.
- * Code from the loop body at +0xA0 onward is otherwise exact. The flag lattice
- * confirms -Wab,-r4300_mul and all type, declaration-order, and loop-entry
- * variants plateaued here. The permuter cannot import the friendly C name
- * against the auto-named target. Stopped at the attempt cap.
+ * Code from the loop body at +0xA0 onward is otherwise exact. An r4 pass
+ * reconfirmed -Wab,-r4300_mul across the full flag lattice and found no usable
+ * skeleton donor. Ten directed variants covered register qualifiers, pointer
+ * aliases and casts, the helper return type, and moving the index initializer
+ * into the guarded loop. They either reproduced this result or regressed to
+ * 117 words / a larger frame. The remaining hypothesis is an original typed
+ * alias relationship that split the list base from the helper result while
+ * coalescing count directly with the loop index. Stopped at the attempt cap.
  */
 #ifdef NON_MATCHING
 Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Search *search, s32 elapsed) {
