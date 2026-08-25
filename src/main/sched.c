@@ -11,6 +11,7 @@
 #include "PR/ultratypes.h"
 #include "PR/os.h"
 #include "PR/os_internal.h"
+#include "PR/os_vi.h"
 #include "game/sched_internal.h"
 
 typedef struct SchedGfx {
@@ -19,6 +20,10 @@ typedef struct SchedGfx {
 } SchedGfx;
 
 #define OS_IM_NONE 1
+#define VIDEO_MSG 666
+#define RSP_DONE_MSG 667
+#define RDP_DONE_MSG 668
+#define PRE_NMI_MSG 669
 
 extern s32 D_8007A640;
 extern s32 D_8007A648;
@@ -52,7 +57,13 @@ extern u64 D_800D2D48;
 extern u8 *D_800D2FA0;
 extern u8 *D_800D2FA8;
 extern u8 *D_800D2FAC;
+extern OSViMode D_80080490;
+extern OSViMode D_800804E0;
+extern OSViMode D_80080530;
 
+void osCreateViManager(OSPri priority);
+void osViSetMode(OSViMode *mode);
+void osViBlack(u8 active);
 void osViSetEvent(OSMesgQueue *mq, OSMesg msg, u32 retraceCount);
 void osWritebackDCacheAll(void);
 void osSpTaskLoad(OSTask *task);
@@ -79,8 +90,48 @@ s32 __scTaskComplete(OSSched *sc, OSScTask *task);
 s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 state);
 void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp);
 s8 func_80001BE8(void);
+void __scMain(void *arg);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/osCreateScheduler.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:osCreateScheduler, with Mickey's VI mode symbols. */
+void osCreateScheduler(OSSched *sc, void *stack, OSPri priority, u8 mode,
+                       u8 numFields) {
+    sc->curRSPTask = NULL;
+    sc->curRDPTask = NULL;
+    sc->clientList = NULL;
+    sc->audioListHead = NULL;
+    sc->gfxListHead = NULL;
+    sc->audioListTail = NULL;
+    sc->gfxListTail = NULL;
+    sc->frameCount = 0;
+    sc->unkTask = NULL;
+    *(u16 *) sc->retraceMsg = 1;
+    *(u16 *) sc->prenmiMsg = 4;
+
+    osCreateViManager(254);
+    switch (mode) {
+        case 14:
+            osViSetMode(&D_80080490);
+            break;
+        case 28:
+            osViSetMode(&D_800804E0);
+            break;
+        default:
+            osViSetMode(&D_80080530);
+            break;
+    }
+    osViBlack(1);
+    osCreateMesgQueue(&sc->interruptQ, sc->intBuf, 8);
+    osCreateMesgQueue(&sc->cmdQ, sc->cmdMsgBuf, 8);
+    osSetEventMesg(4, &sc->interruptQ, (OSMesg) RSP_DONE_MSG);
+    osSetEventMesg(9, &sc->interruptQ, (OSMesg) RDP_DONE_MSG);
+    osSetEventMesg(14, &sc->interruptQ, (OSMesg) PRE_NMI_MSG);
+    osViSetEvent(&sc->interruptQ, (OSMesg) VIDEO_MSG, numFields);
+
+    osCreateThread((OSThread *) sc->threadAndPad, 5, __scMain, sc, stack,
+                   priority);
+    osStartThread((OSThread *) sc->threadAndPad);
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:osScAddClient. */
 void osScAddClient(OSSched *sc, OSScClient *client, OSMesgQueue *msgQ, u8 id) {

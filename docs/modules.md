@@ -1342,6 +1342,7 @@ plus `rcpInitDp` (ROM `0x30068`–`0x30118`, 176 bytes),
 `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes), and
 `rcpInitSp` (ROM `0x3013C`–`0x30160`, 36 bytes), and
 `rcpInit` (ROM `0x30160`–`0x30218`, 184 bytes), and
+`osCreateScheduler` (ROM `0x30CD0`–`0x30E2C`, 348 bytes),
 `osScGetAudioSPStats` (ROM `0x30F20`–
 `0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
 `osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
