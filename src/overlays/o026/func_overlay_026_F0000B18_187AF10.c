@@ -34,9 +34,9 @@ extern f32 D_18;
 extern f32 D_1C;
 extern f32 sqrtf(f32 value);
 
-/* Workbench: allocation mismatch; exact 131-word size/0x78 frame, with three non-relocation differences, first +0x78.
- * Levers: projection normalization, scalar-home ordering, result/constant scheduling, and square-root-result reuse.
- * Remaining: one commutative operand order and one call-preservation home; compound and separate-result forms regressed. */
+/* Workbench: mixed constant/structure/commutative; exact 131 words/0x78 frame, three instruction-bit residuals, first +0x78.
+ * Levers: constant audit found only overlay-local addends; operand swap and sqrt-result reuse were codegen-inert.
+ * Remaining: one FP commutative order and the sqrt call-preservation home at +0x44 versus +0x40. */
 #ifdef NON_MATCHING
 void func_overlay_026_F0000B18_187AF10(
     s32 unused, O26ProjectionVec3f *out, O26ProjectionVec3f *direction,
