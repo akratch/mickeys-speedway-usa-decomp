@@ -55,9 +55,18 @@ typedef struct SavesSlot {
     u8 unk1F;
 } SavesSlot;
 
+typedef struct RumbleState {
+    u8 state;
+    u8 pad01[2];
+    u8 flag;
+    u8 pad04[0xA];
+} RumbleState;
+
 void mmFree(void *address);
 void *func_8002B280(s32 size, s32 tag);
 SavesSlot *func_800291C4(void);
+s32 joyGetController(s32 controllerIndex);
+extern RumbleState D_800D2368[];
 s32 osContStartReadData(OSMesgQueue *messageQueue);
 extern s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data,
                         s32 dataLength);
@@ -90,7 +99,23 @@ void rumbleProcessing(s32 enabled) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStart.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleStop.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:rumbleStop, with Mickey's force argument. */
+void rumbleStop(s32 controllerIndex, s32 force) {
+    s32 controllerNum;
+    RumbleState *rumble;
+
+    if (controllerIndex >= 0 && controllerIndex < 4) {
+        controllerNum = joyGetController(controllerIndex);
+        if (force != 0 ||
+            (D_800D2368[controllerNum].state != 0 &&
+             D_800D2368[controllerNum].state != 3)) {
+            rumble = &D_800D2368[controllerNum];
+            rumble->state = 3;
+            rumble->flag = 1;
+        }
+    }
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:rumbleKill. */
 void rumbleKill(s32 arg0) {
     s32 i = 4;
