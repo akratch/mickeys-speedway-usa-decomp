@@ -141,6 +141,7 @@ extern s32 D_80079D48;
 extern f32 D_80079F60;
 extern f32 D_80079F48;
 extern f32 D_80079F4C[16];
+extern f32 D_80079F90;
 extern CameraViewport D_80079C10[];
 extern CameraViewportFlags D_80079C40[];
 extern Vp D_80079D58[];
@@ -179,6 +180,9 @@ extern MtxF D_800CF260;
 extern f32 D_800CF2A0;
 extern f32 D_800D2FB4;
 extern f32 D_80081A1C;
+extern f32 D_80081A20;
+extern f32 D_80081A24;
+extern f32 D_80081A28;
 extern f32 D_80081A2C;
 extern f32 D_80081A40;
 extern f32 D_80081A44;
@@ -209,6 +213,8 @@ void func_80034E54(Gfx **dlist, u8 *spriteData, s32 flags,
                    f32 frame, s32 alpha);
 f32 sqrtf(f32 value);
 s32 mathRnd(s32 minimum, s32 maximum);
+s32 levelGetNumber(void);
+u8 levelGetType(void);
 extern s32 levelInitRegionFlags(void);
 extern void func_80021504(f32 fov, s32 force);
 void func_80021838(s32 x, s32 y, s32 z, s32 zRotation, s32 xRotation,
@@ -273,7 +279,60 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
     D_800CEC90 = scaleY;
     D_800CEC88 = 1;
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetFOV,
+ * with Mickey's camera-state mirror and region-specific projection scaling.
+ *
+ * Plateau: the full flag lattice, nine coherent source/type/lifetime
+ * variants, and a bounded two-worker permuter batch leave an exact-size
+ * 133-instruction candidate with 11 positional words different from first
+ * mismatch +0x1D4. The first 117 instructions are exact; only temporary
+ * registers in the final projection-matrix ring update differ. The permuter's
+ * lower score moved the mandatory perspective rebuild inside the state-mirror
+ * branch and was rejected as semantically invalid.
+ */
+void func_80021504(f32 fov, s32 force) {
+    Camera *camera;
+    s32 videoMode;
+    s32 type;
+    u8 index;
+
+    camera = &D_800CEA20[D_800CEC64];
+    camera->fov = fov;
+    if ((fov > 0.0f) && (fov < 90.0f) &&
+        ((force != 0) || (fov != D_800CF2A0) ||
+         (camera->stateB != camera->stateA))) {
+        D_800CF2A0 = fov;
+        if (camera->stateA != 0) {
+            D_800CF2A0 = -D_800CF2A0;
+            camera->stateB = camera->stateA;
+        }
+        func_8004FAD0(D_800CEC98, &D_800CEC94, D_800CF2A0, 1.3333334f,
+                      10.0f, D_80081A20, 1.0f);
+        D_80079F90 = D_800CEC98[0][0] / D_80081A24;
+        videoMode = viGetVideoMode();
+        if (D_800CEC88 != 0) {
+            D_800CEC98[0][0] *= D_800CEC8C;
+            D_800CEC98[1][1] *= D_800CEC90;
+            D_800CEC88 = 0;
+        } else if (videoMode & 1) {
+            type = levelGetType();
+            if (((type == 1) || (type == 2)) &&
+                (levelGetNumber() != 0x2A)) {
+                D_800CEC98[1][1] *= D_80081A28;
+            } else {
+                D_800CEC98[0][0] *= 0.75f;
+            }
+        }
+        index = (D_80079F94 + 1) & 0xF;
+        D_80079F94 = index;
+        mtxf_to_mtx(D_800CEC98, &D_800CED60[index & 0xFF]);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021504.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from DKR's public decomp,
