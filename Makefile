@@ -2149,7 +2149,23 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: CFL
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x36C
 
+
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000000_18C91C8.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000000_18C91C8.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x078:5:gOverlay70FloatTableReloc \
+		0x094:6:gOverlay70FloatTableReloc \
+		0x098:5:gOverlay70VerticalStepReloc \
+		0x0ac:6:gOverlay70VerticalStepReloc \
+		0x09c:5:gOverlay70AngleReloc \
+		0x0bc:6:gOverlay70AngleReloc && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x028:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
+		0x038:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
+		0x04c:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
+		0x05c:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: CFLAGS += -Wab,-r4300_mul

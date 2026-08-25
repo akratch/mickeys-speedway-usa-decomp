@@ -1163,6 +1163,7 @@ and the cumulative full ROM is exact.
 |---:|---|---|---:|---|---|
 | 1 | `+0x0050..+0x0080` | `overlay1GetEntry` | 48 | canonical object and linked ROM exact | pinned DKR/JFG scans negative |
 | 14 | `+0x0F64..+0x1028` | `overlay14StepCommand` | 196 | canonical object and linked ROM exact | Mickey-only |
+| 70 | `+0x0000..+0x00D8` | `func_overlay_070_F0000000_18C91C8` | 216 | canonical object and linked ROM exact | Mickey-only |
 
 Overlay 1's backward usable-record search at decimal offsets `+1,044..+1,204`
 — 160 bytes / 40 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was
