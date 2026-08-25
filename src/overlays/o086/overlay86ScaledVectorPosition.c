@@ -21,12 +21,13 @@ extern Overlay86Vec3f gOverlay86Vectors[10];
 extern void overlay86TransformVectorReloc(s32 mode, Overlay86Object *object,
                                           f32 *input, f32 *output);
 
-#ifdef NON_MATCHING
 void overlay86ScaledVectorPosition(Overlay86Object *object,
                                    Overlay86State *state, f32 *outX,
                                    f32 *outY, f32 *outZ) {
+    s32 index;
     f32 vector[3];
-    s32 index = state->vectorIndex;
+
+    index = state->vectorIndex;
 
     if ((index < 0) || (index >= 10)) {
         index = 0;
@@ -40,6 +41,3 @@ void overlay86ScaledVectorPosition(Overlay86Object *object,
     *outY = vector[1] + object->position.y;
     *outZ = vector[2] + object->position.z;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o086/overlay86ScaledVectorPosition/func_overlay_086_F000007C_18D1EB4.s")
-#endif
