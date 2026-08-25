@@ -15,10 +15,12 @@
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os_message.h"
 
 typedef struct AudioSequencePlayer {
     u8 pad0[0x2C];
     s32 state;
+    u16 channelMask;
 } AudioSequencePlayer;
 
 typedef struct AudioSoundData {
@@ -57,21 +59,46 @@ typedef struct AudioBankFile {
     AudioBank *bankArray[1];
 } AudioBankFile;
 
+typedef struct AudioSequenceRomEntry {
+    u16 unk0;
+    s16 sequenceCount;
+    u8 *romAddress;
+} AudioSequenceRomEntry;
+
+typedef struct AudioMusicData {
+    u8 volume;
+    u8 tempo;
+    u8 reverb;
+} AudioMusicData;
+
+typedef struct AudioDelayedSound {
+    u16 soundId;
+    s16 timer;
+    void **handle;
+} AudioDelayedSound;
+
 extern s32 D_80078D7C;
 extern s32 D_80078D80;
 extern s32 D_80078D78;
 extern s32 D_80078D8C;
+extern s32 D_80078D90;
 extern void *D_80078D60;
 extern void *D_80078D64;
 extern u8 D_80078D68;
 extern u8 D_80078D6C;
+extern u8 D_80078D70;
 extern u8 D_80078D74;
 extern u8 D_80078D88;
 extern u8 D_80078D84;
 extern u8 D_80078D94;
 extern u8 D_80078D98;
+extern s8 D_80078DA0;
+extern u8 D_80078DA8;
 extern u8 D_80078DB0;
+extern s8 D_80078DB4;
 extern u8 D_80078DAC;
+extern s32 D_80078DA4;
+extern AudioSequenceRomEntry *D_800BF790;
 extern u8 D_800BF794;
 extern u8 D_800BF795;
 extern u32 *D_800BF798;
@@ -79,8 +106,21 @@ extern AudioBankFile *D_800BF79C;
 extern AudioSoundData *D_800BF7A0;
 extern s32 D_800BF7A8;
 extern s32 D_800BF7B0;
+extern s32 D_800BF7B8;
+extern s32 D_800BF7BC;
+extern s32 D_800BF7C0;
+extern s32 D_800BF7C4;
+extern AudioDelayedSound D_800BF7C8[];
+extern s32 D_800BFA00;
+extern s32 D_800BFA04;
 extern u8 D_800BFA08;
-extern u8 *D_800BF7A4;
+extern OSMesgQueue D_800BFA10;
+extern void *D_800BF900;
+extern u8 D_800BF908;
+extern u8 D_80085A40[];
+extern u8 D_8008DA40[];
+extern AudioMusicData *D_800BF7A4;
+extern s32 osTvType;
 extern void gsSndpSetParam();
 extern void gsSndpSetMasterVolume(u8 group, u16 volume);
 extern u32 gsSndpGetGlobalVolume(void);
@@ -90,18 +130,86 @@ extern void n_alCSPSetVol(void *player, s16 volume);
 extern void n_alCSPNew(void *player, void *config);
 extern void n_alCSPSetMessageQ(void *player, void *queue);
 extern void n_alCSPStop(void *player);
-extern void func_800005CC(f32 fade, s32 volume);
+extern void n_alCSPVoiceLimit(void *player, u8 value);
+extern s32 n_alCSPGetState(void *player);
+extern void n_alCSeqNew(void *sequence, u8 *data);
+extern void n_alCSPSetSeq(void *player, void *sequence);
+extern void n_alCSPPlay(void *player);
+extern void mainPreNMI(void);
+extern u8 *piRomGetSectionPtr(u32 assetIndex, u32 assetOffset);
+extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size);
 extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
 extern void stop_ALSeqp(void *player);
 extern u16 amGetSfxCount(void);
+void amTuneStop(void);
+void amTuneSetVolume(u8 volume);
+void amAmbientSetVolume(u8 volume);
+void amTuneSetReverbOnOff(s32 enabled);
+void amTuneMuteChl(s32 channel);
+void amTuneUnmuteChl(s32 channel);
+void amSndPlay(u16 soundId, void **handle);
+void func_8000137C(void *player, u8 *sequenceData, u8 *sequenceId,
+                   void *sequence);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
                           f32 pitch, u8 arg5, void **handle);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000450.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000510.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000594.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_800005CC.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amSetMuteMode. */
+void func_80000450(s32 behavior) {
+    switch (behavior) {
+        case 1:
+            gsSndpSetMasterVolume(0, 0);
+            gsSndpSetMasterVolume(1, 0x7FFF);
+            n_alCSPSetVol(D_80078D64, 0);
+            break;
+        case 2:
+            gsSndpSetMasterVolume(0, 0);
+            break;
+        default:
+            gsSndpSetMasterVolume(0, 0x7FFF);
+            gsSndpSetMasterVolume(1, 0x7FFF);
+            n_alCSPSetVol(D_80078D64, (s16)(gsSndpGetGlobalVolume() * D_80078D6C));
+            break;
+    }
+    D_80078DA0 = behavior;
+}
+
+/* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amTunePlay. */
+void func_80000510(u8 sequenceId) {
+    if (D_80078D78 == 0 && D_800BF798[sequenceId] <= 0x8000) {
+        if (D_80078D70 != 0) {
+            amTuneStop();
+            func_80001308(sequenceId, D_80078D60);
+        }
+        D_800BFA00 = -1;
+    }
+}
+
+/* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amTuneVoiceLimit. */
+void amTuneVoiceLimit(u8 voiceLimit) {
+    if (D_80078DA8 == 0) {
+        n_alCSPVoiceLimit(D_80078D60, voiceLimit);
+    }
+}
+
+/* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amTuneSetFade. */
+void func_800005CC(f32 fade, u8 volume) {
+    if (volume > 0x7F) {
+        volume = 0x7F;
+    }
+    D_800BF7B8 = volume;
+    if (osTvType == 0) {
+        D_80078D7C = fade * 50.0f;
+    } else {
+        D_80078D7C = fade * 60.0f;
+    }
+    if (D_80078D7C > 0) {
+        D_800BF7BC = ((D_80078D68 - volume) << 16) / D_80078D7C;
+    } else {
+        amTuneSetVolume(volume);
+    }
+}
+
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c.
@@ -118,7 +226,7 @@ void amTuneSetFadeScaled(f32 fade, u8 volume) {
         volume = 0x7F;
     }
     scaled =
-        (s32)((u32)*(D_800BF7A4 + (D_800BF794 * 3)) * volume) / 0x7F;
+        (s32)((u32)D_800BF7A4[D_800BF794].volume * volume) / 0x7F;
     func_800005CC(fade, scaled & 0xFF);
 }
 #else
@@ -128,15 +236,143 @@ void amTuneSetFadeScaled(f32 fade, u8 volume) {
 void amTuneResetFade(void) {
     D_80078D7C = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000073C.s")
+/* PROVENANCE: body adapted from JFG src/audio_manager_1050.c amAmbientSetFade. */
+void amAmbientSetFade(f32 fade, u8 volume) {
+    if (volume > 0x7F) {
+        volume = 0x7F;
+    }
+    D_800BF7C0 = volume;
+    if (osTvType == 0) {
+        D_80078D80 = fade * 50.0f;
+    } else {
+        D_80078D80 = fade * 60.0f;
+    }
+    if (D_80078D80 > 0) {
+        D_800BF7C4 = ((D_80078D68 - volume) << 16) / D_80078D80;
+    } else {
+        amTuneSetVolume(volume);
+    }
+}
+
 /* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
 void amAmbientResetFade(void) {
     D_80078D80 = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000838.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000ABC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000B3C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000B48.s")
+/*
+ * PROVENANCE: body adapted from JFG src/audio_manager_1050.c amAudioTick;
+ * Mickey's resident sequence-init calls and master-volume fade tail remain
+ * authoritative.
+ */
+void amAudioTick(u8 updateRate) {
+    s32 i;
+    s32 j;
+    s32 volume;
+    OSMesg message;
+    s32 fadeStep;
+
+    if (osRecvMesg(&D_800BFA10, &message, OS_MESG_NOBLOCK) == 0) {
+        D_800BFA04 = 1;
+    }
+
+    if (D_80078D7C > 0 || D_80078DA4 != -1) {
+        D_80078D7C -= updateRate;
+        if (D_80078D7C < 0) {
+            D_80078D7C = 0;
+        }
+        volume = ((D_800BF7BC * D_80078D7C) >> 16) + D_800BF7B8;
+        amTuneSetVolume(volume);
+    }
+    if (D_80078D80 > 0) {
+        D_80078D80 -= updateRate;
+        if (D_80078D80 < 0) {
+            D_80078D80 = 0;
+        }
+        volume = ((D_800BF7C4 * D_80078D80) >> 16) + D_800BF7C0;
+        amAmbientSetVolume(volume);
+    }
+
+    if (D_80078D90 > 0) {
+        for (i = 0; i < D_80078D90;) {
+            D_800BF7C8[i].timer -= updateRate;
+            if (D_800BF7C8[i].timer <= 0) {
+                j = i;
+                amSndPlay(D_800BF7C8[i].soundId, D_800BF7C8[i].handle);
+                D_80078D90--;
+                if (i < D_80078D90) {
+                    D_800BF7C8[i].soundId = D_800BF7C8[i + 1].soundId;
+                    D_800BF7C8[i].timer = D_800BF7C8[i + 1].timer;
+                    D_800BF7C8[i].handle = D_800BF7C8[i + 1].handle;
+                    do {
+                        j++;
+                    } while (j < D_80078D90);
+                }
+            } else {
+                i++;
+            }
+        }
+    }
+
+    func_8000137C(D_80078D60, D_80085A40, &D_80078D94, D_800BF900);
+    func_8000137C(D_80078D64, D_8008DA40, &D_80078D98, &D_800BF908);
+    D_80078DB0 = 0;
+    D_80078DB4 = 0;
+
+    if (D_80078DAC != 0) {
+        fadeStep = D_80078DAC * updateRate;
+        if (fadeStep < D_800BFA08) {
+            D_800BFA08 -= fadeStep;
+        } else {
+            D_800BFA08 = 0;
+        }
+        gsSndpSetMasterVolume(0, D_800BFA08 << 7);
+        gsSndpSetMasterVolume(1, D_800BFA08 << 7);
+    }
+}
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
+ * amWaitForMidiSync; body uses Mickey-only evidence.
+ */
+void amWaitForMidiSync(void) {
+    OSMesg message;
+
+    if (D_800BFA04 != 0) {
+        D_800BFA04 = 0;
+    } else {
+        while (osRecvMesg(&D_800BFA10, &message, OS_MESG_NOBLOCK) != 0) {
+            mainPreNMI();
+        }
+    }
+}
+
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
+ * amResetMidiSync; body uses Mickey-only evidence.
+ */
+void amResetMidiSync(void) {
+    D_800BFA04 = 0;
+}
+
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
+ * amTuneSetChlMask; body uses Mickey-only evidence.
+ */
+void func_80000B48(u16 channelMask) {
+    s32 channel;
+
+    if (D_80078D94 != 0) {
+        D_800BFA00 = channelMask;
+        return;
+    }
+    ((AudioSequencePlayer *)D_80078D60)->channelMask = channelMask;
+    for (channel = 0; channel < 16; channel++) {
+        if (channelMask & (1 << channel)) {
+            amTuneUnmuteChl(channel & 0xFF);
+        } else {
+            amTuneMuteChl(channel & 0xFF);
+        }
+    }
+}
+
 /* PROVENANCE: name/order compared with JFG src/audio_manager_1050.c. */
 void amTuneMuteChl(s32 channel) {
 }
@@ -374,8 +610,62 @@ u8 amSoundIsLooped(u16 soundId) {
                           ->soundArray[soundId - 1]
                           ->envelope->decayTime) == 0);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001308.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000137C.s")
+/*
+ * PROVENANCE: role and order compared with JFG src/audio_manager_1050.c;
+ * body and resident sequence-header layout use Mickey-only evidence.
+ */
+void func_80001308(u8 sequenceId, void *player) {
+    stop_ALSeqp(player);
+    if (sequenceId < D_800BF790->sequenceCount) {
+        if (player == D_80078D60) {
+            D_80078D94 = sequenceId;
+        } else {
+            D_80078D98 = sequenceId;
+        }
+    }
+}
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
+ * music_sequence_init; body uses Mickey-only evidence.
+ */
+void func_8000137C(void *player, u8 *sequenceData, u8 *sequenceId, void *sequence) {
+    s32 channel;
+
+    if (n_alCSPGetState(player) == 0 && *sequenceId != 0) {
+        piRomLoadSection(0x32, (u32)sequenceData,
+                         D_800BF790[*sequenceId].romAddress - piRomGetSectionPtr(0x32, 0),
+                         D_800BF798[*sequenceId]);
+        n_alCSeqNew(sequence, sequenceData);
+        n_alCSPSetSeq(player, sequence);
+        n_alCSPPlay(player);
+        if (player == D_80078D60) {
+            D_800BF794 = *sequenceId;
+            D_80078D84 = 1;
+            if (D_80078DB0 != 0) {
+                amTuneSetVolume(D_80078D68);
+            } else {
+                amTuneSetVolume(D_800BF7A4[*sequenceId].volume);
+            }
+            amTuneSetReverbOnOff(D_800BF7A4[*sequenceId].reverb);
+            if (D_800BFA00 != -1) {
+                for (channel = 0; channel < 16; channel++) {
+                    if ((1 << channel) & D_800BFA00) {
+                        amTuneUnmuteChl(channel & 0xFF);
+                    } else {
+                        amTuneMuteChl(channel & 0xFF);
+                    }
+                }
+            }
+        } else {
+            amAmbientSetVolume(D_800BF7A4[*sequenceId].volume);
+            D_800BF795 = *sequenceId;
+        }
+        *sequenceId = 0;
+    }
+    D_80078DB0 = 0;
+    D_80078DB4 = 0;
+}
+
 /* PROVENANCE: body and name adapted from JFG stop_ALSeqp assembly. */
 void stop_ALSeqp(void *player) {
     if (player == D_80078D60 && D_80078D84 != 0) {

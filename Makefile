@@ -714,6 +714,10 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 # mode without changing the resident TU's O2/MIPS-II compiler output.
 $(BUILD_DIR)/$(SRC_DIR)/main/charControl.c.o: CFLAGS += -Wab,-r4300_mul
 
+# The positional-audio distance loops retain the R4300 multiply schedule;
+# the full flag lattice selects this mode for amPlayAudioMap.
+$(BUILD_DIR)/$(SRC_DIR)/main/audio_manager_36D0.c.o: CFLAGS += -Wab,-r4300_mul
+
 # The oscillator TU uses the VR4300 multiply scheduling mode. The exact BK
 # depth2Cents body reaches Mickey's instruction schedule only with this flag;
 # the flag lattice leaves canonical -O2/-mips2 otherwise unchanged.

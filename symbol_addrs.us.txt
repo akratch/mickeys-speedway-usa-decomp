@@ -680,7 +680,7 @@ gzip_inflate_codes = 0x8004E5E0; // type:func size:0x2F4   ROM 0x4f1e0  hasm/gzi
 
 // audio_spatial.c -- 7 unmasked words of 10; it clears the adoption threshold
 // by one word and is the thinnest row in this block. Treat accordingly.
-audspat_jingle_off = 0x800025C4; // type:func size:0x28   ROM 0x031c4  audio_spatial.c.o  masked=3/10
+audspat_jingle_off = 0x800025C4; // type:func size:0x28 ROM 0x031c4 tier-A audio_spatial.c.o masked=3/10
 
 // get_stack_pointer.c. The row quotes the FUNCTION body, 2 words, 0 masked --
 // not the enclosing 0x10 .text section, whose other two words are zero padding
@@ -1976,8 +1976,17 @@ func_800293D0 = 0x800293D0; // type:func size:0x27C ROM 0x29FD0 tier B (JFG src/
 // JFG function order documented in docs/modules.md. Each line records its own
 // tier so it cannot be mistaken for a byte-identity name claim.
 // ---------------------------------------------------------------------------
+func_80000450 = 0x80000450; // type:func size:0xC0 ROM 0x1050 tier-B (JFG amSetMuteMode body/order, segment-start placeholder retained)
+func_80000510 = 0x80000510; // type:func size:0x84 ROM 0x1110 tier-B (JFG amTunePlay body/order, external Mickey placeholder retained)
+amTuneVoiceLimit = 0x80000594; // type:func size:0x38 ROM 0x1194 tier-B (JFG body/order role)
+func_800005CC = 0x800005CC; // type:func size:0xF0 ROM 0x11cc tier-B (JFG amTuneSetFade body/order, external Mickey placeholder retained)
 amTuneResetFade = 0x80000730; // type:func size:0xC ROM 0x1330 tier B (JFG role/order)
+amAmbientSetFade = 0x8000073C; // type:func size:0xF0 ROM 0x133c tier-B (JFG body/order role)
 amAmbientResetFade = 0x8000082C; // type:func size:0xC ROM 0x142c tier B (JFG role/order)
+amAudioTick = 0x80000838; // type:func size:0x284 ROM 0x1438 tier-B (JFG name/body, Mickey sequence/master-volume tail)
+amWaitForMidiSync = 0x80000ABC; // type:func size:0x80 ROM 0x16bc tier-B (JFG name/order, Mickey-only body)
+amResetMidiSync = 0x80000B3C; // type:func size:0xC ROM 0x173c tier-B (JFG name/order, Mickey-only body)
+func_80000B48 = 0x80000B48; // type:func size:0xA0 ROM 0x1748 tier-B (JFG amTuneSetChlMask name/order, external Mickey placeholder retained)
 amTuneMuteChl = 0x80000BE8; // type:func size:0x8 ROM 0x17e8 tier B (JFG role/order)
 amTuneUnmuteChl = 0x80000BF0; // type:func size:0x8 ROM 0x17f0 tier B (JFG role/order)
 amTuneSetChlVolume = 0x80000BF8; // type:func size:0x40 ROM 0x17f8 tier B (JFG role/order, ambiguous skeleton)
@@ -2001,6 +2010,8 @@ amSndSetPitchDirect = 0x8000122C; // type:func size:0x2C ROM 0x1e2c tier B (JFG/
 amGetSfxCount = 0x80001258; // type:func size:0x18 ROM 0x1e58 tier B (JFG body/structure role)
 amGetSfxSettings = 0x80001270; // type:func size:0x38 ROM 0x1e70 tier B (JFG body/global role)
 amSoundIsLooped = 0x800012A8; // type:func size:0x60 ROM 0x1ea8 tier B (JFG body/structure role)
+func_80001308 = 0x80001308; // type:func size:0x74 ROM 0x1f08 tier-B (JFG alternate sequence-initializer order, Mickey-only body)
+func_8000137C = 0x8000137C; // type:func size:0x1EC ROM 0x1f7c tier-B (JFG music_sequence_init name/order, Mickey-only body)
 stop_ALSeqp = 0x80001568; // type:func size:0x88 ROM 0x2168 tier B (JFG role and two-player stop state machine)
 amTuneSetReverbOnOff = 0x800015F0; // type:func size:0x8 ROM 0x21f0 tier B (JFG body/order role)
 func_800015F8 = 0x800015F8; // type:func size:0x10 ROM 0x21f8 tier D (global flag setter, name unproved)
@@ -2011,6 +2022,16 @@ func_80001668 = 0x80001668; // type:func size:0x30 ROM 0x2268 tier D (sound-volu
 scalevol = 0x800016C8; // type:func size:0x24 ROM 0x22c8 tier B (JFG body/order role)
 func_800016EC = 0x800016EC; // type:func size:0x1C ROM 0x22ec tier B (overlay caller and mode writes, name unproved)
 func_80001708 = 0x80001708; // type:func size:0x38 ROM 0x2308 tier B (resident caller and master-volume reset, name unproved)
+amAmbientRestart = 0x800025EC; // type:func size:0xC ROM 0x31ec tier-B (JFG body/order role)
+amPlayAudioMap = 0x80002768; // type:func size:0x720 ROM 0x3368 tier-B (JFG name/order, DKR point-update body)
+amCalcSfxStereo = 0x80002E88; // type:func size:0x158 ROM 0x3a88 tier-B (JFG complete body and audio-manager order)
+func_80002FE0 = 0x80002FE0; // type:func size:0xBC ROM 0x3be0 tier-B (JFG amSndPlayXYZ body/order, name unproved)
+func_8000309C = 0x8000309C; // type:func size:0x18 ROM 0x3c9c tier-B (JFG amSndSetVolXYZ body/order, name unproved)
+func_800030B4 = 0x800030B4; // type:func size:0x18 ROM 0x3cb4 tier-B (JFG amSndSetPitchXYZ body/order, name unproved)
+func_800030CC = 0x800030CC; // type:func size:0xF4 ROM 0x3ccc tier-B (JFG amSndPlayDirectXYZ body/order, name unproved)
+func_800031C0 = 0x800031C0; // type:func size:0x28 ROM 0x3dc0 tier-B (JFG amSndSetXYZ body/order, external Mickey placeholder retained)
+func_800031E8 = 0x800031E8; // type:func size:0x68 ROM 0x3de8 tier-B (JFG amSndStopXYZ body/order, external Mickey placeholder retained)
+amSndUnlinkHandleXYZ = 0x80003250; // type:func size:0x4C ROM 0x3e50 tier-B (JFG name/order, Mickey-only body)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
@@ -2051,6 +2072,9 @@ forcelink = 0x80001698; // type:func size:0x30   ROM 0x2298  src/audio_manager_1
 audioManager_DMAInitProc = 0x80002354; // type:func size:0x38   ROM 0x2f54  us.v10/src/core1/code_1D00.c.o  masked=6/14
 // donor-jfg-src/audio_manager_4C50.c.o
 amVibratoInit = 0x800039F0; // type:func size:0x90   ROM 0x45f0  src/audio_manager_4C50.c.o  masked=22/36
+amInitOsc = 0x80003A80; // type:func size:0x2D8 ROM 0x4680 tier-B (JFG name/order, PD oscillator-init body)
+amUpdateOsc = 0x80003D58; // type:func size:0x574 ROM 0x4958 tier-B (JFG name/order, PD oscillator-case body)
+amStopOsc = 0x800042CC; // type:func size:0x18 ROM 0x4ecc tier-B (JFG name/order, Mickey-only body)
 _depth2Cents = 0x800042E4; // type:func size:0x50 ROM 0x4ee4 src/audio_manager_4C50.c.o masked=2/20, followed by 0xC target padding
 // jfg:src/objects.c.o
 GetRomlistInfo = 0x8000BC88; // type:func size:0x28   ROM 0xc888  src/objects.c.o  masked=4/10
