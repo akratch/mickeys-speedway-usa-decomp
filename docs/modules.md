@@ -1383,7 +1383,24 @@ DKR glibc-derived body donor); `func_8003CCE4` (ROM `0x3D8E4`, `0x44` bytes,
 default resident flags, Mickey-only reconstruction); `partInitTriggerSPPos`
 (ROM `0x3F224`, `0x4C` bytes, default resident flags, JFG-named Mickey
 reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default
-resident flags, JFG-named Mickey reconstruction).
+resident flags, JFG-named Mickey reconstruction); `debug_text_background`
+(ROM `0x452F8`, `0xA0` bytes, resident flags plus `-Wab,-r4300_mul`, JFG body
+donor).
+
+`vsprintf` reached a bounded size-exact plateau under `-Wab,-r4300_mul`: its
+1,220-word candidate differs in two adjacent words, first at function offset
+`0xB08`, where IDO loads the final exponent digit constants in the reverse
+order. The flag lattice found no exact alternative, and the bounded permuter
+could not parse the formatter's `va_arg` macros. Promotion is additionally
+blocked because the C body emits formatter jump tables and static strings
+still owned by the resident asm-data split.
+
+`debug_text_parse` reached an instruction-exact 263-word plateau. Strict
+object comparison still finds four relocation-identity differences: two
+accesses use the separately named `D_800D4A62` instead of `D_800D4A60+2`, and
+two switch-table references use compiler `.rodata` instead of
+`jtbl_80082CD8`. The generated switch table would also duplicate the resident
+asm-data owner, so the original asm body remains canonical.
 
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's
