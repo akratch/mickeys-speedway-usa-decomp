@@ -88,10 +88,16 @@ typedef struct {
     f32 z;
 } CameraScaledTransform;
 
+typedef struct {
+    s32 flags;
+    u8 pad04[0x30];
+} CameraViewportFlags;
+
 extern u8 D_80079F94;
 extern s32 D_80079F8C;
 extern f32 D_80079F60;
 extern f32 D_80079F48;
+extern CameraViewportFlags D_80079C40[];
 extern u8 D_80079FA0[];
 extern s32 D_800CEC84;
 extern s32 D_800CEC88;
@@ -225,7 +231,10 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800219D0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021B70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021BE4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021C5C.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camIsUserView. */
+s32 camIsUserView(s32 camNo) {
+    return D_80079C40[camNo].flags & 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021C88.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021DF4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021EF0.s")
