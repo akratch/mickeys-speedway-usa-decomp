@@ -426,6 +426,9 @@ s32 mmGetDelay(void) {
 /*
  * PROVENANCE: adapted from JFG src/memory.c:mempool_slot_assign. Mickey's
  * pool accounting, byte-sized slot fields, globals, and bytes are authoritative.
+ * Workbench: allocation-mismatch, exact 72 words, 30 register differences from +0x8C.
+ * Tried volatile carrier, store reorder, donor indexing, association, and pool-vs-temp inlining.
+ * curNumSlots remains a temp instead of a3; downstream temp/index webs remain shifted.
  */
 /* Plateau retry (2026-08-25): -O2/-mips2 stays exact-sized; a volatile
  * colour-index read reduces 57 to 47 differing words, first +0x8. Donor-style
@@ -455,22 +458,27 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
     slots = pool->slots;
     slot = (MemoryPoolSlot *)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
     slot->flags = slotIsTaken;
+    slot->colourTagIndex = *colourTagIndex;
     slotSize = slot->size;
     slot->size = size;
-    slot->colourTagIndex = *colourTagIndex;
     slot->colourTag = colourTag;
     if (size < slotSize) {
-        index = ((MemoryPoolSlot *)((u8 *)slots + (pool->curNumSlots << 4) +
-                                    (pool->curNumSlots << 2)))->index;
+        index = ((MemoryPoolSlot *)((u8 *)slots +
+                                    (((pool->curNumSlots << 2) + pool->curNumSlots) << 2)))->index;
         pool->curNumSlots++;
-        newSlot = (MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2));
-        newSlot->data = slot->data + size;
-        newSlot->size = slotSize - size;
-        newSlot->flags = newSlotIsTaken;
-        newSlot->colourTagIndex = *colourTagIndex;
+        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->data =
+            slot->data + size;
+        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->size =
+            slotSize - size;
+        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->flags =
+            newSlotIsTaken;
+        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) +
+                            (index << 2)))->colourTagIndex = *colourTagIndex;
         nextIndex = slot->nextIndex;
-        newSlot->prevIndex = slotIndex;
-        newSlot->nextIndex = nextIndex;
+        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->prevIndex =
+            slotIndex;
+        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->nextIndex =
+            nextIndex;
         slot->nextIndex = index;
         if (nextIndex != -1) {
             ((MemoryPoolSlot *)((u8 *)slots + (nextIndex << 4) +

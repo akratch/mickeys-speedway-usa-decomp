@@ -388,7 +388,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records; linked C exact |
 | `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
 | `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
-| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; plateau, exact size, 57/72 words differ, first `+0x4` |
+| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; allocation plateau, exact size, 30/72 register-only words differ, first `+0x8C` |
 | `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
@@ -467,6 +467,12 @@ from this lane.
 `func_8002BB40` reaches the
 target's 72-word size but differs in 57 words from `+0x4`; pool/slot pointer
 allocation and split-record scheduling remain structurally different.
+
+Canonical `func_8002B7AC` C emits 62 words against 63 in the target and first
+diverges at `+0x4`: IDO folds the initial `D_800D21B0` address/load while the
+target retains the address in a saved register, shifting the otherwise-close
+queue loop. `-O2 -g3` reaches the target size with 15 differences but is not a
+valid TU-wide replacement for the canonical flags.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a
@@ -2617,19 +2623,9 @@ The 112-byte `func_8004ACC4` retains its best exact-size candidate at 18/28 diff
 The first mismatch remains `+0x14`; the loop and relocation set are exact, but IDO rotates the counter, trap address, and callback cursor.
 Hypothesis: the missing original aggregate/type lifetime fixes that allocation; the preserved candidate remains `NON_MATCHING`.
 
-The 208-byte `func_8004AF68` (`fxCpuTextureFlush` in JFG) reaches a bounded
-boundary/allocation plateau after the full flag lattice, nine coherent
-pointer/index forms, and one canonical MIPS II permuter batch. JFG's peer is
-also assembly-only but confirms the four-slot descending free/reset skeleton.
-The best typed candidate keeps separate byte-offset and loop-counter
-inductions, the two conditional frees, callback reset, 56-byte frame, and all
-relocation identities, but IDO hoists the secondary texture-array base into
-`s5`. That displaces the callback/trap pair into `s6`/`s7`, emits 54
-instructions against 52 owned words, consumes the two following target padding
-words, and leaves 48 positional differences beginning at function `+0x4`.
-The batch's lower score moved the offset decrement under a conditional and was
-discarded as semantically invalid; the coherent candidate remains behind
-`NON_MATCHING` and the target assembly stays canonical.
+`func_8004AF68` remains a workbench `structure-mismatch`: 54/52 words and 48 positional differences from `+0x4`.
+Constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement did not remove the saved secondary-array base web.
+Its two extra boundary words remain; the coherent candidate stays `NON_MATCHING` and assembly remains canonical.
 
 `diCpuThread` reached a bounded `NON_MATCHING` plateau after the full flag
 lattice and ten source/lifetime hypotheses. The best candidate has the exact
