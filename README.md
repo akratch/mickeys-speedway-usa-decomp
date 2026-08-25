@@ -11,14 +11,14 @@ from the original stub but have not been modernized or verified.
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-856_of_1464_(58.47%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-272448_of_947864_(28.74%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1129_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-856_of_1464_(58.47%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-272616_of_947864_(28.76%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1129_adopted-blue)](#progress)
 
 ```
 functions      856 / 1464    58.47%   matched to C, byte-identical
 .text bytes 163996 / 478600  34.27%   matched C in the resident segment
 verified asm  17104 / 478600   3.57%   original hand-written assembly (83 functions)
-overlay C    91348 / 469264  19.47%   matched C keyed by overlay and offset
-whole resolved 272448 / 947864  28.74%   resident C + verified asm + overlay C
+overlay C    91516 / 469264  19.50%   matched C keyed by overlay and offset
+whole resolved 272616 / 947864  28.76%   resident C + verified asm + overlay C
 named         1025 / 1464    70.01%   functions carrying an adopted name
 symbols       1129                    adopted in symbol_addrs.us.txt
 ```
@@ -26,10 +26,10 @@ symbols       1129                    adopted in symbol_addrs.us.txt
 DKR-style report (docs/acceleration-survey.md sec.13.1: NON_MATCHING and NON_EQUIVALENT count as unmatched, exactly like extracted assembly):
 
 ```
-decompiled              255344 / 947864  (26.94%)
+decompiled              255512 / 947864  (26.96%)
 handwritten asm          17104 / 947864  ( 1.80%)
 GLOBAL_ASM remaining    359588 / 947864  (37.94%)
-NON_MATCHING            315828 / 947864  (33.32%)
+NON_MATCHING            315660 / 947864  (33.30%)
 NON_EQUIVALENT               0 / 947864  ( 0.00%)
 ```
 

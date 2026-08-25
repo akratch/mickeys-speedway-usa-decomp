@@ -1087,6 +1087,7 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x6C0, 0x764, "overlay5CreatePlayer"),
     ],
     7: [
+        (0x000, 0x0A8, "overlay7ReleaseEntry"),
         (0x228, 0x298, "overlay7CreateEntry"),
         (0x298, 0x324, "overlay7AppendEntry"),
         (0xEDC, 0xF08, "overlay7FillValues"),
