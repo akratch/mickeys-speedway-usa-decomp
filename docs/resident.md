@@ -258,18 +258,6 @@ overlay callers/callees outside the range were observed.
 | `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | B | calls `gzip_inflate_block`; ext callers |
 | `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B | calls `_bzero`; called by `main/gzip_asm` |
 
-`func_8004BCC4` compiles to the exact 168-instruction shape and exact masked
-words at the stock flags, but is not an object match: four relocation sites
-(two HI16/LO16 pairs) retain different symbol identities. The first is at
-function offset `+0x34`, where the pool-end address is spelled as
-`D_800D60E8 + 0x400` instead of `D_800D64E8`; the second starts at `+0x98`,
-where window zero's width field is based on `D_800D64E8` instead of its
-`D_800D64F4` field alias. The 119-combination flag lattice kept the stock
-`-O2 -mips2` result best. An explicit-alias source variant fixed the names but
-changed the frame and added three instructions, so the readable JFG-derived
-candidate remains under `NON_MATCHING` and the extracted assembly is
-canonical.
-
 `func_8004B1DC` has a readable DKR-JP-derived candidate under
 `NON_MATCHING`. Its best stock-flag build has the target's 128-byte frame and
 matches through function offset `+0x2C`, but is 28 instructions short with
@@ -700,22 +688,9 @@ All 11 instruction words and four HI16/LO16 relocation pairs are exact.
 same point where JFG initializes video, immediately before the PI/RCP sequence.
 The canonical body is exact at 74 words and all 52 relocation sites.
 
-`func_800339B4` has JFG's `viReset` role: the shutdown caller invokes it after
-stopping RSP/RDP work and before rumble teardown. Its best 50-word
-`NON_MATCHING` body is linked-byte-exact, but the fixed framebuffer literal
-omits the target object's three `D_80380000`/`D_80380004` relocation sites,
-first at function offset `0x1C`. Spelling the address as an extern restores the
-first symbol identity but adds an address-formation instruction and shifts the
-remaining schedule. A fresh incomplete-array extern experiment likewise added
-one instruction under the resident `-mips2` flags and produced 43 positional
-differences; a full 119-configuration flag sweep found no exact alternative.
-Driving the same extern through a direct indexed loop also emitted 51 words,
-with 44 masked positional differences from `+0x1C` and 12 relocation records
-against the target's 13. An alignment-qualified extern, intended to expose the
-framebuffer's zero low half without an added address instruction, is not valid
-IDO C syntax and was rejected by cfe. The original literal-pointer body remains
-the instruction-exact candidate.
-Section 1.5 therefore keeps the address label and the original asm canonical.
+`func_800339B4` retains JFG's `viReset`-shaped, linked-exact 50-word candidate;
+its literal omits framebuffer relocations from `+0x1C`, while extern/array forms
+add address formation and disrupt the schedule, so the asm remains canonical.
 
 `viAllocateZBuffer` and `viFreeZBuffer` are adopted at tier B as the paired
 allocation lifecycle around mode changes. Their canonical bodies are exact at
