@@ -1305,6 +1305,7 @@ the still-unnamed `func_8002C5F4` (ROM `0x2D1F4`–`0x2D20C`, 24 bytes),
 the still-unnamed `func_8002C788` (ROM `0x2D388`–`0x2D390`, 8 bytes),
 the still-unnamed `func_8002C790` (ROM `0x2D390`–`0x2D39C`, 12 bytes),
 the still-unnamed `func_8002C79C` (ROM `0x2D39C`–`0x2D3BC`, 32 bytes),
+the still-unnamed `func_8002CCE4` (ROM `0x2D8E4`–`0x2D96C`, 136 bytes),
 the still-unnamed `func_8002E020` (ROM `0x2EC20`–`0x2ECA0`, 128 bytes),
 `piRomLoadSection` (ROM `0x2EEE0`–`0x2EF5C`, 124 bytes),
 `piRomGetSectionPtr` (ROM `0x2EF5C`–`0x2EFA4`, 72 bytes),
@@ -1321,7 +1322,10 @@ no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes), plus
 `osScAddClient` (ROM `0x30E2C`–`0x30E88`, 92 bytes) and `__scTaskReady`
 (ROM `0x31EFC`–`0x31F4C`, 80 bytes), and `__scAppendList` (ROM `0x3204C`–
 `0x320AC`, 96 bytes). All were compiled with the resident `-O2 -mips2 -32`
-flags. The named bodies are adapted from
+flags. The saves TU additionally disables loop unrolling: the full flag
+lattice selects the target's scalar 24-record reset loop, and the full ROM
+comparison confirms the setting leaves its other exact functions unchanged.
+The named bodies are adapted from
 JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the
 still-unnamed leading rumble gate also adapts its JFG body while retaining
 Mickey's placeholder name. `bgdraw_fillcolour` adapts Diddy Kong Racing's

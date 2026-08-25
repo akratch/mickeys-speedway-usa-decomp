@@ -32,8 +32,32 @@ typedef struct SavesBitWriter {
     u8 *cursor;
 } SavesBitWriter;
 
+typedef struct SavesSlot {
+    s32 unk00;
+    u8 unk04;
+    u8 unk05;
+    u8 unk06;
+    u8 unk07;
+    s32 unk08;
+    u8 unk0C;
+    u8 unk0D;
+    u8 unk0E;
+    u8 unk0F;
+    s32 unk10;
+    u8 unk14;
+    u8 unk15;
+    u8 unk16;
+    u8 unk17;
+    s32 unk18;
+    u8 unk1C;
+    u8 unk1D;
+    u8 unk1E;
+    u8 unk1F;
+} SavesSlot;
+
 void mmFree(void *address);
 void *func_8002B280(s32 size, s32 tag);
+SavesSlot *func_800291C4(void);
 s32 osContStartReadData(OSMesgQueue *messageQueue);
 extern s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data,
                         s32 dataLength);
@@ -174,7 +198,39 @@ s32 packCalculateGameChecksum(u8 *buffer, s32 count) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C8B4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C94C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CB18.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CCE4.s")
+void func_8002CCE4(void) {
+    s32 i;
+    s32 limit;
+    SavesSlot *slot;
+
+    slot = func_800291C4();
+    i = 0;
+    limit = 0x18;
+    do {
+        i++;
+        slot->unk0C = 0;
+        slot->unk0D = 0;
+        slot->unk0E = 0;
+        slot->unk08 = 0;
+        slot->unk0F = 0;
+        slot->unk14 = 0;
+        slot->unk15 = 0;
+        slot->unk16 = 0;
+        slot->unk10 = 0;
+        slot->unk17 = 0;
+        slot->unk1C = 0;
+        slot->unk1D = 0;
+        slot->unk1E = 0;
+        slot->unk18 = 0;
+        slot->unk1F = 0;
+        slot->unk04 = 0;
+        slot->unk05 = 0;
+        slot->unk06 = 0;
+        slot->unk00 = 0;
+        slot->unk07 = 0;
+        slot++;
+    } while (i != limit);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CD6C.s")
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packCalculateGlobalFlagsChecksum. */
 s32 packCalculateGlobalFlagsChecksum(u8 *buffer) {
