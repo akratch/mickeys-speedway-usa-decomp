@@ -76,6 +76,9 @@ extern s32 func_overlay_043_F0001184_188B154(
 extern void func_overlay_043_F0001264_188B234(
     Overlay43Input *input, Overlay43State *state, s32 flags, s32 mode);
 
+/* Plateau (batch 14): exact 0x194, best 25 words first at +0x38.
+ * byte12 ^ 0 fixes two; target hoists a2=0x800 before current/parent selection.
+ * Flags, declarations, locals, grouping, and bounded permuter found no zero. */
 #ifdef NON_MATCHING
 s32 func_overlay_043_F0000000_1889FD0(Overlay43Input *input) {
     Overlay43Command *command;
@@ -132,7 +135,7 @@ s32 func_overlay_043_F0000000_1889FD0(Overlay43Input *input) {
     state->y = input->source->y;
     state->flags = input->source->flags | 0x10;
     state->byte11 = input->source->byte11;
-    byte12 = input->source->byte12;
+    byte12 = input->source->byte12 ^ 0;
     state->byte13 = 0;
     state->short0C = 0;
     state->short0E = 0;
