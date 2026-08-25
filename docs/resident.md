@@ -2656,14 +2656,9 @@ function `+0x44` (plus two local PC16 assembler-metadata differences) and a
 duplicate linked table surface. The exact source remains behind
 `NON_MATCHING`, with the target assembly canonical until that rodata split is
 handed off.
-The 156-byte `diRcpMoveWd` helper reaches the same section-ownership plateau.
-JFG's six-case empty switch reproduces all 39 target instructions, the
-96-byte frame, both calls, and the diagnostic-string relocation at the
-resident defaults. IDO also emits the correct 11-entry switch table, but binds
-the function's first table relocation at `+0x34` to this TU's `.rodata` rather
-than Mickey's existing shared `jtbl_80083950` symbol, creating a duplicate
-linked table surface. The instruction-exact body remains behind
-`NON_MATCHING` until the shared rodata split is handed off.
+The 156-byte `diRcpMoveWd` remains 39/39 instruction-exact after a fresh m2c/table check and flag sweep.
+Its first mismatch is the table relocation at `+0x34`: IDO binds the switch to this TU's `.rodata`, not shared `jtbl_80083950`.
+Hypothesis/blocker: promotion requires the shared-rodata split outside this lane's ownership; the exact body remains `NON_MATCHING`.
 The 268-byte `diRcpGeometryMode` helper is exact at the resident defaults.
 JFG's object-like `stubbed_printf` macro preserves the target's empty geometry-
 flag switch and its otherwise-unused saved registers, reproducing all 67 owned
@@ -2768,30 +2763,18 @@ callee plus two data relocation pairs without normalization.
 The 136-byte Mickey-named `func_80049A8C` resets either one record or all five,
 clearing state/status and two flag bits. Its selection branches, stack home,
 countdown loop, and data relocation pair are exact at the resident defaults.
-The preceding 156-byte `func_8004978C` reaches an exact-size frame-allocation
-plateau after the full flag lattice and nine coherent local-layout hypotheses.
-The Mickey-derived typed body selects one or all five records and applies the
-caller-selected flag mask with the exact 39-instruction control flow, register
-allocation, stack spill at `sp+0x4`, and data relocation pair. Only the leaf
-frame adjustment differs: IDO chooses an 8-byte frame while the target uses 16
-bytes, leaving two words different from function `+0x4`. Padding, aggregate,
-iteration-pointer, and qualifier variants either leave that frame unchanged or
-disturb otherwise-exact allocation, so the clean scalar candidate remains
-behind `NON_MATCHING` and the target assembly stays canonical.
+The 156-byte `func_8004978C` remains exact in 37/39 positions after a fresh m2c pass with the proven 32-byte `FxRecord` layout and a new flag sweep.
+The first mismatch is `+0x4`: IDO chooses an 8-byte leaf frame while the target uses 16 bytes; only the prologue/epilogue adjustments differ.
+Hypothesis: an optimized-out original local enlarged the frame; prior padding/aggregate/qualifier forms disturb otherwise-exact allocation, so it remains `NON_MATCHING`.
 The 180-byte `func_8004AD34` (`fxGenerateTextures` in JFG) is exact too. Its
 four-entry descending callback loop, flag test, callback-table refresh, and
 indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
-The 112-byte `func_8004ACC4` reaches an exact-size allocation plateau after
-the full flag lattice, nine coherent lifetime/source forms, and one bounded
-permuter batch. JFG's same-size `func_8006FFF8` establishes the descending
-four-slot initialization skeleton, while Mickey fixes the independent store
-order. The best typed candidate has the exact loop and relocation set but
-differs in 18 of 28 words under the resident defaults, first at function
-`+0x14`: IDO assigns the counter, trap address and callback cursor one register
-group earlier than the target. The candidate remains behind `NON_MATCHING`.
+The 112-byte `func_8004ACC4` retains its best exact-size candidate at 18/28 differing words; fresh m2c return typing and typed declaration-order forms regressed to 25 and 24.
+The first mismatch remains `+0x14`; the loop and relocation set are exact, but IDO rotates the counter, trap address, and callback cursor.
+Hypothesis: the missing original aggregate/type lifetime fixes that allocation; the preserved candidate remains `NON_MATCHING`.
 
 The 208-byte `func_8004AF68` (`fxCpuTextureFlush` in JFG) reaches a bounded
 boundary/allocation plateau after the full flag lattice, nine coherent
