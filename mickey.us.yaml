@@ -1789,7 +1789,7 @@ segments:
     subsegments:
       - [0x1896970, c, overlay50Initialize]
       - [0x1896C54, c, overlay50PatchIndices]
-      - [0x1896CA4, asm, overlay_050_tail]
+      - [0x1896CA4, c, func_overlay_050_F0000334_1896CA4]
       - [0x1898540, c, overlay50Cleanup]
       - [0x18985C4, c, overlay50SubmitTimeGlyphs]
       - [0x18987D8, asm, overlay_050_padding]

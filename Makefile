@@ -2719,6 +2719,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2E4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50PatchIndices.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x50
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o050/func_overlay_050_F0000334_1896CA4.c.o: OPT_FLAGS := \
+	-O2 -g3
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o050/func_overlay_050_F0000334_1896CA4.c.o: CFLAGS += \
+	-Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o050/func_overlay_050_F0000334_1896CA4.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x189C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50Cleanup.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x84
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o050/overlay50SubmitTimeGlyphs.c.o: POSTPROCESS = \
