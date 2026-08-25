@@ -535,6 +535,9 @@ void fontWindowFontBackground(s32 windowId, s32 red, s32 green, s32 blue,
     }
 }
 
+/* Plateau: size-exact (168 instructions); only HI16/LO16 identities differ at +0x34/+0x98.
+ * The target names pool end D_800D64E8 and width alias D_800D64F4 instead of base addends.
+ * Direct aliases, pointer bounds, and a hoisted stride changed the frame/schedule; stock flags remain best. */
 #ifdef NON_MATCHING
 void *func_8004BCC4(s32 windowId, s32 posX, s32 posY, char *text, s32 number,
                     s32 flags) {
