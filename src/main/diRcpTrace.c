@@ -55,6 +55,11 @@ void func_80044BC8(Gfx *value0, char *value4, s32 value8) {
         }
     }
 }
+/*
+ * Workbench: mixed(schedule:2, register:30), 32 words, exact size/frame, first mismatch +0xC.
+ * Levers tried: statement order/lines, pool-vs-temp routing, dead-read formation, and all 119 flag variants.
+ * Remains: target colors buffer in v1 without the two instructions added by admissible dead reads; temp phase follows.
+ */
 #ifdef NON_MATCHING
 /* PROVENANCE: parameter and entry roles adapted from JFG src/sched.c and
  * src/diRcpTrace.c; the body is Mickey-derived and JFG's peer is assembly-only. */
@@ -83,8 +88,8 @@ void func_80044C94(Gfx *value, char **lowerValue4, s32 *lowerValue8,
     upperEntry = NULL;
     if (count > 0) {
         entries = DI_RCP_TRACE_BUFFERS[buffer];
-        offset = 0;
         entry = entries;
+        offset = 0;
         do {
             entryValue = entry->value0;
             if (value >= entryValue && lower < entryValue) {

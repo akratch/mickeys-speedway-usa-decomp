@@ -2554,25 +2554,20 @@ void func_80041C50(s32 arg0, s32 arg1) {
         }
     }
 }
-#ifdef NON_MATCHING
 /*
- * Opcode-, size-, frame-, and relocation-exact plateau: 34 words differ from
- * +0x48. The target colors the outer count in a3 rather than a2 and places
- * the address-taken display-list local at sp+0x6C rather than sp+0x7C; the
- * resulting pool-register rotation continues through the two command words.
- * The flag lattice found no alternative, and the bounded permuter imported
- * the TU as inadmissible -mips1 and only improved its own score with a dummy
- * label.
- *
- * PROVENANCE: structure cross-checked against JFG's assembly-only
- * func_80063514 sibling; body reconstructed from Mickey evidence.
+ * Workbench: allocation/pool-position, 27 words, exact size/frame/relocations, first mismatch +0x48.
+ * Levers tried: stack-home order, intensity field, dead-web/read-count routing, 119 flags, and bounded permuter.
+ * Remains: target colors the outer count in a3 instead of a2; later pool webs rotate through both command words.
  */
+/* PROVENANCE: structure cross-checked against JFG's assembly-only
+ * func_80063514 sibling; body reconstructed from Mickey evidence. */
+#ifdef NON_MATCHING
 void func_80041CE4(void **dList, void **vertices) {
-    Gfx *displayList;
     Gfx *command;
     ParticleLineVertex *vertex;
     ParticleLineVertex *vertexStart;
     ParticleLinePoint *point;
+    Gfx *displayList;
     ParticleLineRenderEntry *line;
     s32 i;
     s32 j;
@@ -2604,14 +2599,16 @@ void func_80041CE4(void **dList, void **vertices) {
                                 vertex->red0 = point->red;
                                 vertex->green0 = point->green;
                                 vertex->blue0 = point->blue;
-                                vertex->alpha0 = point->alpha;
+                                vertex->alpha0 =
+                                    ((u8 *)&point->intensity)[0];
                                 vertex->x1 = point->x1;
                                 vertex->y1 = point->y1;
                                 vertex->z1 = point->z1;
                                 vertex->red1 = point->red;
                                 vertex->green1 = point->green;
                                 vertex->blue1 = point->blue;
-                                vertex->alpha1 = point->alpha;
+                                vertex->alpha1 =
+                                    ((u8 *)&point->intensity)[0];
                                 vertex++;
                             } while (j < line->pointCount);
                         }
