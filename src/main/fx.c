@@ -522,9 +522,9 @@ void func_8004A0F0(void) {
     D_800D6040 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
-/* Plateau (batch 29): exact 0x80 frame, two instructions short; 65 words
- * differ from +0x08 after 119 flags, nine shapes, and a 40-minute permuter.
- * IDO puts text at sp+0x50 in s2; target keeps index zero and uses sp+0x54. */
+/* Near-miss p2 plateau: workbench structure-mismatch; 74/76 words, 65 positional differences from +0x08.
+ * Levers tried: constant/context audit, delayed cursor construction, index dependency/address forms, and a dead-web probe.
+ * Remaining: IDO hoists text to s2 at sp+0x50; the target retains a zero index and temporary sp+0x54 bases. */
 #ifdef NON_MATCHING
 /* PROVENANCE: role adapted from JFG src/fx.c::func_8006DF90; both bodies are
  * assembly-only, so this reconstruction is Mickey-derived. */
