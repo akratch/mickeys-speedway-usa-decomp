@@ -19,8 +19,25 @@ extern s32 D_800D1CA0;
 extern MemoryPoolSlot *D_800D1C64;
 extern s32 D_800D21AC;
 extern s32 D_800D21B0;
+extern s32 D_800D21B4;
+extern s32 D_800D21A8;
+extern u8 D_800D8750[];
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/mmInit.s")
+MemoryPoolSlot *func_8002B1A0(MemoryPoolSlot *slots, s32 poolSize, s32 numSlots);
+
+/* PROVENANCE: adapted from JFG src/memory.c:mmInit. */
+void mmInit(void) {
+    D_800D1CA0 = -1;
+    if (D_8007A274) {
+        D_800D21B4 = 0x80600000;
+    } else {
+        D_800D21B4 = 0x80400000;
+    }
+    func_8002B1A0((MemoryPoolSlot *)D_800D8750,
+                  D_800D21B4 - (s32)D_800D8750, 0x640);
+    mmSetDelay(2);
+    D_800D21A8 = 0;
+}
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmExtended. */
 u8 mmExtended(void) {
@@ -29,7 +46,6 @@ u8 mmExtended(void) {
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocRegion. */
 void *func_8002B280(s32 size, u32 colourTag);
-MemoryPoolSlot *func_8002B1A0(MemoryPoolSlot *slots, s32 poolSize, s32 numSlots);
 
 MemoryPoolSlot *func_8002B154(s32 poolDataSize, s32 numSlots) {
     s32 size;

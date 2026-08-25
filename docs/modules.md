@@ -588,7 +588,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 
 | ROM | Mickey symbol | JFG correspondence | Tier and evidence |
 |---|---|---|---|
-| `0x2BCD0` | `mmInit` | `mmInit` | A: unique 30-word skeleton; 14 relocated words masked |
+| `0x2BCD0` | `mmInit` | `mmInit` | A: unique 30-word skeleton with 14 relocated words; linked C exact |
 | `0x2BD48` | `mmExtended` | `mmExtended` | B: returns the expansion-memory flag consumed by `mmInit`; matched C exact |
 | `0x2BD54` | `func_8002B154` | `mmAllocRegion` | B: allocates slot storage, then calls the pool initializer with it; linked C exact |
 | `0x2BDA0` | `func_8002B1A0` | `mempool_init` | B: shared callee of `mmInit` and the region allocator; initializes the 0x10-byte pool and 0x14-byte slot records; linked C exact |
@@ -669,6 +669,9 @@ uses the same padded stack-record spelling.
 `func_8002B154` is exact for all `0x4C` bytes with canonical flags. JFG's
 region-allocation size calculation and allocator/initializer call sequence
 reproduce Mickey's target and both call relocations.
+`mmInit` is exact for all `0x78` bytes with canonical flags. The JFG donor's
+extended-RAM choice, main-pool construction, deferred-free delay, and queue
+reset reproduce all 30 words and the linked global/call relocations.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a
