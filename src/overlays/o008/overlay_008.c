@@ -930,13 +930,9 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0003368_18610C0.s")
 #endif
 
-/*
- * NON_MATCHING plateau (2026-08-25): -O2 -mips2 -Wo,-loopunroll,0 is 0xC
- * over, with 807 of 898 masked words differing and first mismatch +0x0.
- * Reconstructing the terrain output/sentinel block as one typed object did
- * not collapse the candidate's 0x98 frame to the target 0x80; local ownership
- * and the resulting register schedule remain the blocker.
- */
+/* NON_MATCHING p2: workbench structure-mismatch; 805/898 positional words differ,
+ * first +0x0, with 901/898 instructions and 0xA0/0x80 frames. Levers 1, 6, 26:
+ * the frame is derived; register was inert; narrowing/coalescing leaves structure. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                                       O8P34A0State *state, f32 limit,
@@ -946,15 +942,14 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
     f32 blend;
     f32 result;
     f32 height;
-    f32 distance;
     f32 strength;
     f32 delta;
     f32 trigA;
     f32 trigB;
     f32 factor;
     f32 overrideValue;
-    s32 selectedMode;
-    s32 ownerMode;
+    s8 selectedMode;
+    s8 ownerMode;
     s32 sampleCount;
     s32 index;
     s32 start;
@@ -1076,9 +1071,8 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                              (index != sampleCount));
                     result = height;
                 }
-                distance = owner->y10 - result;
-                result = distance;
-                if (distance > 40.0f) {
+                result = owner->y10 - result;
+                if (result > 40.0f) {
                     gO8P34A0ScaleReloc *= D_210;
                     state->mode16C = 1;
                     selectedMode = 0xC;
