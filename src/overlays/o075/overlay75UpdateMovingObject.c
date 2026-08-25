@@ -100,31 +100,33 @@ typedef struct Overlay75UpdateLocals {
     f32 moveX;
     u32 pad18;
     f32 delta;
+    Overlay75Vector *position;
+    void *savedEntity;
+    Overlay75Model *model;
 } Overlay75UpdateLocals;
 
 /*
- * Plateau (9 structural attempts plus a bounded 10-minute permuter batch):
- * canonical MIPS-II is exact-size, improved from 55 differing words first at
- * +0x2C to 40 first at +0x2C by computing endpoint deltas before phase-state
- * stores and spelling the event choice as an explicit branch.  Scalar versus
- * aggregate locals, declaration scopes/order, delayed initializers, and
- * register qualifiers did not remove the extra stack home that leaves the
- * position, saved entity, and model slots four bytes above target.  The
- * permuter's separate state-pointer snapshot regressed to 71 words at +0x0 in
- * the real full-TU sweep.
+ * Plateau (this run: the flag lattice plus nine structural candidates;
+ * earlier work also ran a bounded 10-minute permuter batch): canonical
+ * MIPS-II is exact-size with 19 differing words, first at +0x54.  Extending
+ * the typed locals aggregate through the position, saved-entity, and model
+ * pointer homes removed the extra stack slot and improved the prior 40-word
+ * result; assigning the state pointer before the model moved the first
+ * mismatch later.  All MIPS-II flag groups tie.  Moving the three local
+ * initializations after the active-state test, either with a goto or a scoped
+ * branch, changes the CFG, adds four bytes, and regresses to 284+ words.  The
+ * remaining blocker is that prologue lifetime/scheduling boundary.
  */
 #ifdef NON_MATCHING
 void overlay75UpdateMovingObject(Overlay75Object *object,
                                        s32 updateRate) {
-    register Overlay75Model *model;
-    void *savedEntity;
-    Overlay75Vector *position;
     Overlay75State *state;
+    Overlay75UpdateLocals locals;
 
     object->eventFlags80 = 0;
-    model = object->models68[object->modelIndex3A];
     state = object->state64;
-    position = &model->header40->vector;
+    locals.model = object->models68[object->modelIndex3A];
+    locals.position = &locals.model->header40->vector;
 
     if (gOverlay75SlotFlags[state->slot00] != 0) {
         gOverlay75SlotFlags[state->slot00] = 0;
@@ -132,7 +134,6 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
     }
 
     {
-        Overlay75UpdateLocals locals;
         f32 tick;
         f32 moveZ;
 
@@ -144,7 +145,7 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
             goto cache_position;
         }
         tick = (f32)updateRate;
-        savedEntity = model->entity00;
+        locals.savedEntity = locals.model->entity00;
 
         if (state->phase04 == 0) {
             f32 limit;
@@ -216,33 +217,35 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
             overlay75MoveReloc(object, locals.moveX, 0.0f, moveZ);
         }
 
-        overlay75RefreshModelReloc(model, savedEntity, object);
-        overlay75BindModelReloc(object, model, object->renderResource50,
-                      model->table0C[model->tableIndex0A]);
-        model->field08 = 0;
+        overlay75RefreshModelReloc(locals.model, locals.savedEntity, object);
+        overlay75BindModelReloc(object, locals.model, object->renderResource50,
+                      locals.model->table0C[locals.model->tableIndex0A]);
+        locals.model->field08 = 0;
 
         if (locals.moved != 0 && state->effectHandle3C == 0) {
-            overlay75CreateHandleReloc(0x1BA, O75_FLOAT_BITS(position->x),
-                                       O75_FLOAT_BITS(position->y),
-                                       O75_FLOAT_BITS(position->z), 1,
+            overlay75CreateHandleReloc(0x1BA, O75_FLOAT_BITS(locals.position->x),
+                                       O75_FLOAT_BITS(locals.position->y),
+                                       O75_FLOAT_BITS(locals.position->z), 1,
                                        &state->effectHandle3C);
         } else if (locals.moved != 0 && state->effectHandle3C != 0) {
             overlay75UpdateHandleReloc(state->effectHandle3C,
-                          O75_FLOAT_BITS(position->x),
-                          O75_FLOAT_BITS(position->y),
-                          O75_FLOAT_BITS(position->z));
+                          O75_FLOAT_BITS(locals.position->x),
+                          O75_FLOAT_BITS(locals.position->y),
+                          O75_FLOAT_BITS(locals.position->z));
         } else if (locals.moved == 0 && state->effectHandle3C != 0) {
             overlay75ReleaseHandleReloc(state->effectHandle3C);
         }
 
         if (locals.eventId != -1) {
-            overlay75PlayEventReloc(locals.eventId, O75_FLOAT_BITS(position->x),
-                          O75_FLOAT_BITS(position->y),
-                          O75_FLOAT_BITS(position->z), 4, 0);
+            overlay75PlayEventReloc(locals.eventId,
+                          O75_FLOAT_BITS(locals.position->x),
+                          O75_FLOAT_BITS(locals.position->y),
+                          O75_FLOAT_BITS(locals.position->z), 4, 0);
         }
         if (locals.completed != 0) {
-            overlay75SpawnCompletionReloc(position->x, position->y,
-                                           position->z,
+            overlay75SpawnCompletionReloc(locals.position->x,
+                                           locals.position->y,
+                                           locals.position->z,
                                            600.0f, 20.0f);
             object->eventFlags80 |= 1;
             overlay75FinishUpdateReloc(object, updateRate);
@@ -250,9 +253,9 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
     }
 
 cache_position:
-    state->cachedX30 = position->x;
-    state->cachedY34 = position->y;
-    state->cachedZ38 = position->z;
+    state->cachedX30 = locals.position->x;
+    state->cachedY34 = locals.position->y;
+    state->cachedZ38 = locals.position->z;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o075/overlay75UpdateMovingObject/func_overlay_075_F0000214_18CC17C.s")
