@@ -11,10 +11,6 @@
 
 extern u16 D_8007A0C8;
 extern s32 D_8007A0C0;
-extern OSMesgQueue D_800CF340;
-extern OSMesg D_800CF358;
-extern OSMesg D_800CF35C;
-extern OSContStatus D_800CF360[];
 
 /* PROVENANCE: field roles adapted from JFG src/joy.c; Mickey layout is decisive. */
 typedef struct JoyPad {
@@ -25,18 +21,44 @@ typedef struct JoyPad {
     u8 unused;
 } JoyPad;
 
-extern JoyPad D_800CF370[];
-extern JoyPad D_800CF388[];
-extern s8 D_800CF372[];
-extern s8 D_800CF373[];
-extern u16 D_800CF3A0[];
-extern u16 D_800CF3A8[];
-typedef u8 JoyControllerMap[4];
-
-extern JoyControllerMap D_800CF3B0;
-extern u8 D_800CF3B4[];
-extern u8 D_800CF3B8[];
-extern s32 D_800CF3BC;
+/* The controller state is one original BSS owner, in address order. */
+OSMesgQueue D_800CF340;
+OSMesg D_800CF358;
+OSMesg D_800CF35C;
+OSContStatus D_800CF360[4];
+u16 D_800CF370[1];
+s8 D_800CF372[1];
+s8 D_800CF373[1];
+u8 joyCurrentPad0Errno;
+u8 joyCurrentPad0Unused;
+u16 joyCurrentPad1Button;
+s8 joyCurrentPad1StickX;
+s8 joyCurrentPad1StickY;
+u8 joyCurrentPad1Errno;
+u8 joyCurrentPad1Unused;
+u16 joyCurrentPad2Button;
+s8 joyCurrentPad2StickX;
+s8 joyCurrentPad2StickY;
+u8 joyCurrentPad2Errno;
+u8 joyCurrentPad2Unused;
+u16 joyCurrentPad3Button;
+s8 joyCurrentPad3StickX;
+s8 joyCurrentPad3StickY;
+u8 joyCurrentPad3Errno;
+u8 joyCurrentPad3Unused;
+JoyPad D_800CF388[4];
+u16 D_800CF3A0[4];
+u16 D_800CF3A8[4];
+u8 D_800CF3B0[1];
+u8 D_800CF3B1[1];
+u8 D_800CF3B2[1];
+u8 D_800CF3B3[1];
+u8 D_800CF3B4[1];
+u8 D_800CF3B5[1];
+u8 D_800CF3B6[1];
+u8 D_800CF3B7[1];
+u8 D_800CF3B8[4];
+s32 D_800CF3BC;
 extern s32 func_8003A550(void);
 extern void TrapDanglingJump();
 extern s32 osContInit(OSMesgQueue *, u8 *, OSContStatus *);
@@ -63,7 +85,7 @@ extern void joySaveActionF(void *);
 extern void joySaveActionG(void);
 extern void joySaveActionH(s32);
 
-#define joyCurrentPads D_800CF370
+#define joyCurrentPads ((JoyPad *) D_800CF370)
 #define joyPreviousPads D_800CF388
 #define joyButtonsPressed D_800CF3A0
 #define joyButtonsReleased D_800CF3A8
@@ -222,8 +244,8 @@ s32 joyRead(s32 saveDataFlags, s32 updateRate) {
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive.
- * Plateau: fixed stores improve to 10/9 words, first +0x0; the external map
- * needs an extra base materialization that the original TU-local BSS did not.
+ * Workbench: structure-mismatch, 10 versus 9 words, first mismatch +0x0.
+ * TU-owned BSS fixed the identities; next stabilize the expression tree (structure-buckets).
  */
 void joyResetMap(void) {
     D_800CF3B0[0] = 0;
@@ -272,7 +294,7 @@ u16 joyGetButtons(s32 player) {
     if (func_8003A550() != 0) {
         return 0;
     }
-    return D_800CF370[D_800CF3B0[player]].button;
+    return ((JoyPad *) D_800CF370)[D_800CF3B0[player]].button;
 }
 
 /* PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive. */
