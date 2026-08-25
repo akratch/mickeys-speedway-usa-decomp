@@ -164,6 +164,8 @@ extern MtxF D_800CF260;
 extern f32 D_800CF2A0;
 extern f32 D_800D2FB4;
 extern f32 D_80081A2C;
+extern f32 D_80081A40;
+extern f32 D_80081A44;
 extern Camera D_800CEA20[];
 extern CameraShake D_800CEC18[];
 extern s32 D_8007C854;
@@ -951,7 +953,55 @@ void camStopShakes(void) {
         shake->magnitude = 0; \
     }
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: role from JFG's public decomp, src/camera.c:camScreenShake;
+ * body reconstructed from Mickey-only evidence.
+ *
+ * Plateau: after the full flag lattice, ten coherent source/lifetime
+ * spellings and a bounded two-worker permuter batch, the closest configured
+ * candidate has the exact 296-byte size and differs in 15 positional words
+ * from first mismatch +0x60. IDO assigns the long-lived $f20 register to the
+ * Z delta instead of the target's X delta, cascading through the arithmetic
+ * temporaries; the permuter's best score is 125, not zero.
+ */
+void func_80024BA0(f32 x, f32 y, f32 z, f32 radius, f32 magnitude) {
+    Camera *cam;
+    f32 dx;
+    f32 distance;
+    f32 dz;
+    f32 dy;
+    f32 attack;
+    f32 sustain;
+    s32 i;
+
+    i = 0;
+    if (D_800CEC60 >= 0) {
+        sustain = D_80081A40;
+        attack = D_80081A44;
+        do {
+            cam = &D_800CEA20[i];
+            dx = x - cam->transform.x;
+            dy = y - cam->transform.y;
+            distance = z - cam->transform.z;
+            dz = distance;
+            dx = dx * dx;
+            dy = dy * dy;
+            dz = dz * dz;
+            distance = sqrtf((dx + dy) + dz);
+            if (distance < radius) {
+                camStartShake(i, attack, sustain, attack,
+                              (s32) (((radius - distance) * magnitude) /
+                                     radius));
+            }
+            i++;
+        } while (i <= D_800CEC60);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024BA0.s")
+#endif
+
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetZoom. */
 void camSetZoom(s32 camNo, f32 zoom) {
     if ((camNo >= 0) && (camNo < 6)) {
