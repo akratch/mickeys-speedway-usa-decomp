@@ -1985,10 +1985,9 @@ void overlay1ReadSelection(Overlay1Object *object, s32 index, f32 *outX,
 extern f32 overlay1SqrtReloc(f32 value);
 extern s32 overlay1AngleReloc(f32 y, f32 x);
 
-/* Plateau (2026-08-24): -O2 -mips2 -Wab,-r4300_mul is best, but remains
- * 0x8 bytes short with 69 of 139 words differing and first mismatch +0xA8.
- * The quadratic-candidate tail has missing expression/branch structure, not
- * an isolated multiply-codegen issue. */
+/* Plateau (2026-08-25): -O2 -mips2 -Wab,-r4300_mul remains 0x8 short; first mismatch +0xA8.
+ * Declaration order now gives the target array slot and the tail CFG is closer, but the loop
+ * preheader still lacks two instructions; loop, return, temporary, and qualifier spellings failed. */
 #ifdef NON_MATCHING
 s16 overlay1SolveAngleCandidates(
     f32 x0, f32 y0, f32 x1, f32 y1,
@@ -2002,8 +2001,8 @@ s16 overlay1SolveAngleCandidates(
     f32 denominator;
     f32 root;
     f32 angleX;
-    s16 solutions[2];
     s32 solutionCount;
+    s16 solutions[2];
     s32 sign;
 
     solutionCount = 0;
@@ -2040,16 +2039,16 @@ s16 overlay1SolveAngleCandidates(
         }
     }
 
-    if (solutionCount == 1) {
-        return solutions[0];
-    }
-    if (solutionCount == 2) {
-        if (solutions[0] < solutions[1]) {
-            return chooseHigh ? solutions[1] : solutions[0];
+    if (solutionCount != 1) {
+        if (solutionCount == 2) {
+            if (solutions[0] < solutions[1]) {
+                return chooseHigh ? solutions[1] : solutions[0];
+            }
+            return chooseHigh ? solutions[0] : solutions[1];
         }
-        return chooseHigh ? solutions[0] : solutions[1];
+        return 0x2000;
     }
-    return 0x2000;
+    return solutions[0];
 }
 
 s32 overlay1LoopControlCarrier(s32 value) {
