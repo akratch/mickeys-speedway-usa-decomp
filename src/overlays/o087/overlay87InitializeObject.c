@@ -46,15 +46,15 @@ extern s32 mathRnd(s32 lower, s32 upper);
 extern void func_8005AD64(Overlay87InitObject *object, s32 mode, s32 index,
                           f32 value);
 
-#ifdef NON_MATCHING
 void overlay87InitializeObject(Overlay87InitObject *object,
                                Overlay87InitConfig *config, void *unused) {
     Overlay87InitState *state;
     f32 value;
 
-    (void)unused;
     state = object->state;
-    object->value08 = config->scale * gOverlay87InitScaleReloc * *object->scale;
+    object->value08 =
+        *object->scale * (((void)unused, config->scale) *
+                          gOverlay87InitScaleReloc);
     state->value00 = config->value00;
     state->value08 = config->value08;
     state->field2A = 0;
@@ -72,6 +72,3 @@ void overlay87InitializeObject(Overlay87InitObject *object,
     object->angle = state->field2C + 0x4000;
     func_8005AD64(object, 2, -1, (f32)mathRnd(0, 0x63) / 100.0f);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o087/overlay87InitializeObject/func_overlay_087_F0000000_18D2F68.s")
-#endif

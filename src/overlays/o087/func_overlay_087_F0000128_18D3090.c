@@ -63,20 +63,22 @@ extern void func_8005AD64(Overlay87MotionObject *object, s32 mode, s32 index,
                           f32 value);
 
 /*
- * Plateau (2026-08-25, 10 attempts): -O2 -mips2 -Wab,-r4300_mul reaches
- * 93.62% at 0x750 bytes versus the 0x768-byte target. The first mismatch is
- * +0x28; the remaining gap is private FP/stack-home allocation and the phase
- * transition branch schedule, not the typed state layout or call topology.
+ * Plateau (2026-08-25): -O2 -mips2 -Wab,-r4300_mul is 0x750 bytes versus
+ * the 0x768-byte target, with 204 masked word differences and the first at
+ * +0x2C. Reordering the FP locals moved the private update save from sp+0x60
+ * to the target's sp+0x50 and improved the baseline from 220 differences.
+ * A bounded permuter run reached score 3220 only by widening a signed-angle
+ * prototype and duplicating a store, which was rejected as scaffolding.
  */
 #ifdef NON_MATCHING
 void func_overlay_087_F0000128_18D3090(Overlay87MotionObject *object,
                                        s32 updateRate) {
     Overlay87MotionState *state;
-    f32 update;
     f32 dx;
+    f32 verticalDelta;
     f32 dz;
     f32 distance;
-    f32 verticalDelta;
+    f32 update;
     f32 moveX;
     f32 moveZ;
     s32 nearby;
