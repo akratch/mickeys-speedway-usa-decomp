@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 77828,
-  "nonmatching_overlay_c_bytes": 215548,
+  "matched_overlay_c_bytes": 80456,
+  "nonmatching_overlay_c_bytes": 212920,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -1056,7 +1056,265 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 76
-   }
+   },
+   "mixed_tu_exact_c_ranges": [
+    {
+     "offset": "0x0",
+     "end_offset": "0x50",
+     "size": "0x50",
+     "label": "overlay1PointerWrap",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x80",
+     "end_offset": "0xA0",
+     "size": "0x20",
+     "label": "overlay1GetEntryIndex",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0xA0",
+     "end_offset": "0xC0",
+     "size": "0x20",
+     "label": "overlay1PreviousIndex",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0xC0",
+     "end_offset": "0xE4",
+     "size": "0x24",
+     "label": "overlay1NextIndex",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0xE4",
+     "end_offset": "0x154",
+     "size": "0x70",
+     "label": "overlay1WrapOffset",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x154",
+     "end_offset": "0x1AC",
+     "size": "0x58",
+     "label": "overlay1SignedOffset",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x2D4",
+     "end_offset": "0x330",
+     "size": "0x5C",
+     "label": "overlay1GetLinkedActive",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x330",
+     "end_offset": "0x378",
+     "size": "0x48",
+     "label": "overlay1GetRecord",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x758",
+     "end_offset": "0x7B0",
+     "size": "0x58",
+     "label": "overlay1TestDirection",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x10C0",
+     "end_offset": "0x10C8",
+     "size": "0x8",
+     "label": "overlay1Noop",
+     "source": "overlays/o001/overlay_001_head",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x19B8",
+     "end_offset": "0x1A54",
+     "size": "0x9C",
+     "label": "overlay1InitializeModeState",
+     "source": "overlays/o001/overlay_001_head",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x1CA4",
+     "end_offset": "0x1D58",
+     "size": "0xB4",
+     "label": "overlay1ReleaseRecords",
+     "source": "overlays/o001/overlay_001_head",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x1D58",
+     "end_offset": "0x1D78",
+     "size": "0x20",
+     "label": "overlay1CallReset",
+     "source": "overlays/o001/overlay_001_head",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x28D4",
+     "end_offset": "0x293C",
+     "size": "0x68",
+     "label": "overlay1RefreshMode",
+     "source": "overlays/o001/overlay_001_middle",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x293C",
+     "end_offset": "0x296C",
+     "size": "0x30",
+     "label": "overlay1CallGlobal",
+     "source": "overlays/o001/overlay_001_middle",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x3E48",
+     "end_offset": "0x3E74",
+     "size": "0x2C",
+     "label": "overlay1SubmitGlobals",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x3E74",
+     "end_offset": "0x3EB8",
+     "size": "0x44",
+     "label": "overlay1SubmitAll",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x3EB8",
+     "end_offset": "0x3F38",
+     "size": "0x80",
+     "label": "overlay1AngleBetweenSamples",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x3F38",
+     "end_offset": "0x3FD8",
+     "size": "0xA0",
+     "label": "overlay1RelativeAngles",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x5BA4",
+     "end_offset": "0x5BC0",
+     "size": "0x1C",
+     "label": "overlay1InitTimedState",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x5BC0",
+     "end_offset": "0x5BF4",
+     "size": "0x34",
+     "label": "overlay1ConsumeTimer",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x5ECC",
+     "end_offset": "0x5ED4",
+     "size": "0x8",
+     "label": "overlay1ReturnZero",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x63CC",
+     "end_offset": "0x6424",
+     "size": "0x58",
+     "label": "overlay1UpdateCountdown",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x6424",
+     "end_offset": "0x64F8",
+     "size": "0xD4",
+     "label": "overlay1ReadSelection",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x6724",
+     "end_offset": "0x6788",
+     "size": "0x64",
+     "label": "overlay1UpdateModeSound",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x6788",
+     "end_offset": "0x67C0",
+     "size": "0x38",
+     "label": "overlay1CopyBytes",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x69A0",
+     "end_offset": "0x6A14",
+     "size": "0x74",
+     "label": "overlay1InitMotion",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x6B28",
+     "end_offset": "0x6B6C",
+     "size": "0x44",
+     "label": "overlay1InitRange",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x6CE8",
+     "end_offset": "0x6D4C",
+     "size": "0x64",
+     "label": "overlay1SelectMaskedMode",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x7FCC",
+     "end_offset": "0x8008",
+     "size": "0x3C",
+     "label": "overlay1ModeChecks",
+     "source": "overlays/o001/overlay_001_end",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x8008",
+     "end_offset": "0x8048",
+     "size": "0x40",
+     "label": "overlay1DistanceFromCurrent",
+     "source": "overlays/o001/overlay_001_end",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x8048",
+     "end_offset": "0x80BC",
+     "size": "0x74",
+     "label": "overlay1DistanceFromSelected",
+     "source": "overlays/o001/overlay_001_end",
+     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    }
+   ]
   },
   {
    "overlay": 2,
