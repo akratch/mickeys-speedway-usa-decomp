@@ -697,6 +697,8 @@ $(BUILD_DIR)/$(SRC_DIR)/main/%.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # Both measured FP helpers in this TU require the R4300 multiply schedule.
 $(BUILD_DIR)/$(SRC_DIR)/main/lights.c.o: CFLAGS += -Wab,-r4300_mul
+# The camera projection-depth dot product requires the R4300 multiply schedule.
+$(BUILD_DIR)/$(SRC_DIR)/main/camera.c.o: CFLAGS += -Wab,-r4300_mul
 
 # The gsSnd flag lattice reproduces its debug-shaped epilogues only with bare -g.
 $(BUILD_DIR)/$(SRC_DIR)/main/gsSnd.c.o: OPT_FLAGS := -g

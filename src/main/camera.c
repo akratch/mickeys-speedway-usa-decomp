@@ -16,7 +16,8 @@
  * PROVENANCE note at the point of use; everything else in this split is
  * still GLOBAL_ASM.
  *
- * Flags: -O2 -mips2 -32, from the existing src/main/ compilation rule.
+ * Flags: -O2 -mips2 -32 -Wab,-r4300_mul; the projection-depth dot product
+ * fixes the TU's multiply scheduler mode.
  */
 
 #include "PR/ultratypes.h"
@@ -602,7 +603,21 @@ MtxF *camGetProjectionMtx(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800246B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024834.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024938.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetProjZ. */
+f32 camGetProjZ(f32 x, f32 y, f32 z) {
+    f32 temp;
+    f32 out;
+
+    temp = D_800CF1A0[3][2];
+    out = temp +
+          (z * D_800CF1A0[2][2] +
+           (y * D_800CF1A0[1][2] + D_800CF1A0[0][2] * (temp = x)));
+    temp = y * D_800CF1A0[1][2] + x * D_800CF1A0[0][2];
+    temp = z * D_800CF1A0[2][2] + temp;
+    out = D_800CF1A0[3][2] + temp;
+
+    return out;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024978.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024AC4.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStopShakes. */

@@ -883,7 +883,8 @@ This whole `0x3D40`-byte block is the resident camera TU: **69 functions,
 `0x3D3C` executable bytes and four bytes of terminal alignment**. Its ordered
 systems are camera/FOV state, user viewports, projection setup, sprite and
 model matrices, projection helpers, then screen shake. The split is
-`main/camera`; flags are the resident default `-O2 -mips2 -32`.
+`main/camera`; flags are `-O2 -mips2 -32 -Wab,-r4300_mul`, with the multiply
+scheduler mode fixed by the exact `camGetProjZ` projection-depth dot product.
 
 **PROVENANCE.** The TU identity, source order and borrowed names below come
 from Jet Force Gemini's public retail-derived decomp, `src/camera.c`, permitted
@@ -941,6 +942,7 @@ functions is classified as handwritten assembly under §6.2.
 | `func_8002468C` | `0x2528C` | D — retained Mickey auto-name; camera matrix dataflow only | 12 | Mickey standalone perspective-matrix getter; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `camGetRotationMtx` | `0x25298` | B — Mickey/JFG weather call-graph correspondence and camera matrix dataflow | 12 | JFG body and masked skeleton exact; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `camGetProjectionMtx` | `0x252A4` | D — JFG role and Mickey final projection-matrix dataflow | 12 | JFG body and masked skeleton exact; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
+| `camGetProjZ` | `0x25538` | D — JFG TU role/order and projection-depth dataflow | 64 | JFG body adapted to Mickey's rotation matrix; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 
 Bounded plateau:
 
