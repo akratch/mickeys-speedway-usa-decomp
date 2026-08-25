@@ -1145,10 +1145,10 @@ s32 packFileSize(s32 controllerIndex, s32 fileNum, s32 *fileSize) {
     }
     return 6;
 }
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:font_codes_to_string. */
 char *font_codes_to_string(u8 *inString, char *outString, s32 stringLength) {
+    s32 remainder;
     s32 index = *inString;
     s32 roundedLength;
     s32 peel;
@@ -1166,10 +1166,10 @@ char *font_codes_to_string(u8 *inString, char *outString, s32 stringLength) {
         stringLength--;
         index = *inString;
     }
+    remainder = stringLength & 3;
     if (stringLength != 0) {
-        peel = -(stringLength & 3);
-        roundedLength = peel + stringLength;
-        if (peel != 0) {
+        if ((peel = -remainder) != 0) {
+            roundedLength = peel + stringLength;
             do {
                 stringLength--;
                 *outString++ = 0;
@@ -1191,9 +1191,6 @@ done:
     *outString = 0;
     return ret;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/font_codes_to_string.s")
-#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:string_to_font_codes. */

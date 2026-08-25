@@ -1914,15 +1914,9 @@ target rematerialises it twice through `$at`; the missing word changes branch
 spans. Other signed, unsigned, additive, and bitwise spellings retain that CSE
 or emit OR. The assembly fallback remains canonical.
 
-`font_codes_to_string` retains a JFG-derived `NON_MATCHING` body after the
-flag lattice and ten source/type/coalescing shapes. With ordinary resident
-flags the donor loop is instruction-exact, but this TU's required
-`-Wo,-loopunroll,0` removes the target's four-byte padding expansion. Spelling
-that expansion explicitly restores the exact 44-instruction opcode and
-relocation shape, leaving five register-only words from one `$a0`/`$v0` web
-swap, first at function `+0x64`. The unavailable permuter import prevents a
-bounded automated declaration search; the assembly fallback remains
-canonical.
+| Function | Exact result |
+|---|---|
+| `font_codes_to_string` | 176 bytes under `-O2 -mips2 -Wo,-loopunroll,0`; JFG `src/saves.c` donor with a hoisted remainder lifetime, untouched IDO output byte-identical. |
 
 `string_to_font_codes` retains its paired JFG-derived `NON_MATCHING` body
 after the flag lattice and ten source, CFG, and type shapes. The donor loop is
