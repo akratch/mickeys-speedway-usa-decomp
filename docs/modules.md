@@ -985,6 +985,16 @@ The full 119-combination flag lattice keeps the resident defaults best; JFG
 has no C donor body for the nearest front-end routine. Canonical code remains
 assembly.
 
+The tier-B `frontDemoMessage` adds **0x108 bytes / 66 words** at ROM
+`0x39E78`. Its exact size, 16-tick blink gate, localized-language setup,
+shadow/main text pair, and position immediately after `frontUpdate` establish
+JFG's same-name role. JFG supplies the name and semantic comparison but keeps
+its body in assembly; Mickey supplies the C body and message-record field, as
+the point-of-use `PROVENANCE` note records. Spelling the byte timer as a direct
+compound assignment recovers the target's `v0` address lifetime and temporary
+register ring. The default flags, nine call relocations, three data-relocation
+pairs, object words, and linked ROM range are exact without post-processing.
+
 The tier-A `frontDrawRectangle` adds **0x50 bytes / 20 words** at ROM
 `0x3A184`. Its 19 unmasked words are byte-identical to JFG's uniquely
 identified same-named skeleton; the only masked word is the call to the paired

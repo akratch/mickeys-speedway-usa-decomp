@@ -2194,6 +2194,9 @@ frontSetMode = 0x80038DAC; // type:func size:0x64 tier-B ROM 0x399ac canonical C
 // the front-end mode accessor.
 frontGetMode = 0x80038E10; // type:func size:0xC tier-B ROM 0x39a10 canonical C, linked byte-identical
 func_80038E1C = 0x80038E1C; // type:func size:0x45C tier-D ROM 0x39a1c NON_MATCHING plateau 248/279 words differ, first +0x24
+// Tier B (JFG): the blinking localized message renderer has the same exact
+// size, call sequence, and position immediately after frontUpdate.
+frontDemoMessage = 0x80039278; // type:func size:0x108 tier-B ROM 0x39e78 canonical C, linked byte-identical
 // Tier A (JFG): 19 unmasked words match JFG's uniquely identified
 // frontDrawRectangle skeleton; the sole masked word is its draw call.
 frontDrawRectangle = 0x80039584; // type:func size:0x50 tier-A ROM 0x3a184 canonical C, linked byte-identical

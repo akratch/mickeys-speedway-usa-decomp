@@ -10,6 +10,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/font.h"
 #include "game/gameVi.h"
 #include "game/menu.h"
 
@@ -54,7 +55,7 @@ extern u16 D_800D312E;
 extern void amTuneStop(void);
 extern void amTuneSetGlobalVolume(s32 volume);
 extern void alSurround_OutputType(u8 mode);
-extern void func_80038750(void);
+extern void func_80038750();
 extern void func_800389CC(void);
 extern void func_80038BC4(void);
 extern void func_8003968C(void);
@@ -165,6 +166,7 @@ extern u8 D_8007C0A8;
 extern u8 D_8007C0AC;
 extern s32 D_8007C0B4;
 extern s32 D_8007C0BC;
+extern u8 D_8007C07C;
 extern s16 *D_8007C1B8;
 extern s16 D_8007C1C0;
 extern MenuCommand *D_800D3140;
@@ -173,6 +175,15 @@ extern void *D_800D3148;
 extern MenuFrontObject *D_800D31C8[];
 extern MenuCurrentObject D_8007C1C4[];
 extern MenuCurrentObject D_800D3550[];
+typedef struct MenuLanguageText {
+    u8 pad0[0x30];
+    char *demoMessage;
+} MenuLanguageText;
+extern MenuLanguageText *D_8007C0B8;
+extern void func_8004B0A4(s32 font);
+extern void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha);
+extern void func_8004B0F8(MenuCommand **displayList, s32 x, s32 y,
+                          char *text, s32 alignmentFlags);
 extern void func_80009E78(MenuCommand **commands, void **matrices,
                           void **vertices, void *object);
 extern void func_80023F84(MenuCommand **commands, void **matrices,
@@ -339,7 +350,27 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038E1C.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039278.s")
+/* PROVENANCE: name and ordered role compared with JFG's public decomp,
+ * src/menu.c::frontDemoMessage; the body is derived from Mickey. */
+void frontDemoMessage(MenuCommand **displayList, s32 updateRate) {
+    s32 x;
+    s32 y;
+
+    D_8007C07C += updateRate;
+    if (D_8007C07C & 0x10) {
+        x = 0xA0;
+        y = 0xD0;
+        viConvertXY(&x, &y);
+        func_80038750(frontGetLanguage());
+        func_8004B0A4(2);
+        func_8004B0DC(0, 0, 0, 0);
+        fontColour(0, 0, 0, 0xFF, 0xFF);
+        func_8004B0F8(displayList, x + 1, y + 1,
+                      D_8007C0B8->demoMessage, 0xC);
+        fontColour(0xFF, 0xFF, 0xFF, 0, 0xFF);
+        func_8004B0F8(displayList, x, y, D_8007C0B8->demoMessage, 0xC);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039380.s")
 /* PROVENANCE: name and order compared with JFG's public decomp,
  * src/menu.c::frontDrawRectangle; body and rectangle layout derived from Mickey. */

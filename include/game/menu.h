@@ -9,6 +9,7 @@ void frontSetMode(s32 mode);
 u8 frontGetMode(void);
 void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right, s32 bottom, u32 colour);
 void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *bottom);
+void frontDemoMessage(MenuCommand **displayList, s32 updateRate);
 void freeFrontEndList(s16 *assetGroup);
 void freeFrontEndItem(s32 assetId);
 void loadFrontEndList(s16 *assetGroup);
