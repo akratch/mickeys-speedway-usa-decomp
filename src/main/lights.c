@@ -104,6 +104,58 @@ typedef struct GlowObject {
     void *flare;
 } GlowObject;
 
+typedef struct ObjectLightState {
+    f32 directionX;
+    f32 directionY;
+    f32 directionZ;
+    s32 scaleStep;
+    s32 colourStep;
+    u8 shift;
+    u8 endValue;
+    u8 valueDelta;
+    u8 startValue;
+    void *table;
+    s16 yaw;
+    s16 pitch;
+} ObjectLightState;
+
+typedef struct LightInitHeader {
+    u8 pad0[0x1E];
+    s8 mode;
+    u8 pad1F[0x71];
+    f32 green;
+    f32 red;
+    u8 pad98[4];
+    s16 yaw;
+    s16 pitch;
+    s16 shift;
+} LightInitHeader;
+
+typedef struct LightLevelData {
+    u8 pad0[0xD8];
+    s16 pitch;
+    s16 yaw;
+    u8 padDC[3];
+    u8 green;
+    u8 red;
+    u8 padE1[2];
+    u8 useLevelLight;
+} LightLevelData;
+
+typedef struct LightInitState {
+    f32 intensity;
+    u8 unk4;
+    u8 unk5;
+    u8 unk6;
+    u8 unk7;
+    u8 unk8;
+    u8 unk9;
+    u8 unkA;
+    u8 padB[3];
+    s16 enabled;
+    ObjectLightState light;
+} LightInitState;
+
 typedef struct FlareHeader {
     u8 pad0[0x29];
     u8 flareCount;
@@ -120,10 +172,11 @@ struct FlareObject {
 
 extern LightingObject **func_8000572C(s32 *start, s32 *end);
 extern void func_8001953C(LightingObject *object, s32 objectLight);
-extern void func_80019DE8(void *state, s32 arg1, s32 arg2, s16 arg3, s16 arg4, s32 arg5);
+extern void func_80019DE8(ObjectLightState *state, s32 arg1, s32 arg2, s16 arg3, s16 arg4, s32 arg5);
+extern void mathOneFloatRPY(s16 *rotation, f32 *output);
 extern void *camlightAdd(void *object, FlareEntry *entry);
 extern void camlightDelete(void);
-extern u8 D_800CB298;
+extern ObjectLightState D_800CB298;
 
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 void freeLights(void) {
@@ -463,7 +516,41 @@ f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg
 void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4) {
     func_80019DE8(&D_800CB298, arg0, arg1, arg2, arg3, arg4);
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightSetObjectLight.s, with Mickey's globals. */
+void func_80019DE8(ObjectLightState *state, s32 arg1, s32 arg2, s16 pitch, s16 yaw, s32 shift) {
+    s16 rotation[3];
+    f32 direction[3];
+
+    arg1 &= 0xFF;
+    arg2 &= 0xFF;
+    shift &= 7;
+    if (arg2 < arg1) {
+        arg1 = arg2;
+    }
+    state->startValue = arg1;
+    state->endValue = arg2;
+    state->valueDelta = arg2 - arg1;
+    state->colourStep = (state->valueDelta & 0xFF) << (shift & 0xFF);
+    state->shift = shift;
+    state->scaleStep = (1 << (8 - shift)) << 6;
+    state->pitch = pitch;
+    state->yaw = yaw;
+    rotation[1] = pitch;
+    rotation[2] = 0;
+    rotation[0] = yaw;
+    direction[0] = 0.0f;
+    direction[1] = 0.0f;
+    direction[2] = 1.0f;
+    mathOneFloatRPY(rotation, direction);
+    state->directionX = direction[0];
+    state->directionY = direction[1];
+    state->directionZ = direction[2];
+    state->table = D_800CB290;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019DE8.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c, with Mickey offsets. */
 void lightSetupLightSources(LightSourceObject *object) {
     s32 i;
@@ -480,7 +567,51 @@ void lightSetupFlareSources(FlareObject *object) {
         object->flares[i] = camlightAdd(object, &object->header->flares[i]);
     }
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightInitObjectLighting.s, with Mickey's layout. */
+s32 func_8001A008(LightingObject *object, LightInitState *state) {
+    LightLevelData *level;
+    s32 result;
+    s32 mode;
+    LightInitHeader *header;
+
+    level = (LightLevelData *) levelGetLevel();
+    result = 0;
+    header = (LightInitHeader *) object->segmentData;
+    object->objectLight = (s32) state;
+    mode = header->mode;
+    if (mode == 0) {
+        state->enabled = 1;
+        result = 0x90;
+        if (level->useLevelLight != 0) {
+            func_80019DE8(&state->light, level->red, level->green, level->yaw,
+                          level->pitch + 0x8000, 0);
+        } else {
+            func_80019DE8(&state->light, (s32) (header->red * 255.0f),
+                          (s32) (header->green * 255.0f), header->yaw,
+                          header->pitch, header->shift);
+        }
+        state->unk4 = 0;
+        state->unk5 = 0xFF;
+        state->unk6 = 0xFF;
+        state->unk7 = 0xFF;
+        state->unk8 = 0xFF;
+        state->unk9 = 0xFF;
+        state->unkA = 0xFF;
+        state->intensity = 1.0f;
+    } else if ((mode == 1) || (mode == 2)) {
+        state->unk4 = 0;
+        state->unk5 = 0xFF;
+        state->unk6 = 0xFF;
+        state->unk7 = 0xFF;
+        result = 8;
+        state->intensity = 1.0f;
+    }
+    return (result & ~3) + 4;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A008.s")
+#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightAdjustGlowingLight.s, with Mickey's constants and offsets. */
 void func_8001A154(GlowObject *object) {

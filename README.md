@@ -11,7 +11,7 @@ from the original stub but have not been modernized or verified.
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-736_of_1460_(50.41%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-242636_of_947908_(25.60%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1086_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-736_of_1460_(50.41%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-242636_of_947908_(25.60%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1088_adopted-blue)](#progress)
 
 ```
 functions      736 / 1460    50.41%   matched to C, byte-identical
@@ -20,7 +20,7 @@ verified asm  17104 / 478644   3.57%   original hand-written assembly (83 functi
 overlay C    88056 / 469264  18.76%   matched C keyed by overlay and offset
 whole resolved 242636 / 947908  25.60%   resident C + verified asm + overlay C
 named          945 / 1460    64.73%   functions carrying an adopted name
-symbols       1086                    adopted in symbol_addrs.us.txt
+symbols       1088                    adopted in symbol_addrs.us.txt
 ```
 
 DKR-style report (docs/acceleration-survey.md sec.13.1: NON_MATCHING and NON_EQUIVALENT count as unmatched, exactly like extracted assembly):

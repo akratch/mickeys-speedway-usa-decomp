@@ -563,10 +563,10 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | unique nearest skeleton (0.432) and exact JFG size; comparison only |
 | `0x80019AB8` | `0x2E0` | `lightObject` | tier-B comparison: calls all three `lights2` pipelines |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | tier-B comparison: delegates to the following setter |
-| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | unique nearest skeleton (0.704) and transform call; comparison only |
+| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; `NON_MATCHING` plateau after the flag lattice, 10 source/type hypotheses, and a 10-minute permuter batch: exact `0x38` frame, 64 instructions versus 63, 46 positional words differ, first `+0x48` from byte-store/delta scheduling; JFG body is also assembly-only, so retain `func_` |
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | tier-B comparison: loop calls the adopted `addObjectLight` comparison |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | tier-B comparison: adjacent setup loop and flare helper |
-| `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison: calls the object-light setter twice |
+| `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison; `NON_MATCHING` plateau after the flag lattice and nine source/declaration forms: exact 83-word frame/opcode/register/FP/relocation shape, but 4 positional words differ, first `+0x70`, because the call-live result spills at `0x28(sp)` instead of `0x2C(sp)`; the permuter importer scores the isolated function zero, but the required full-TU build retains this mismatch |
 | `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison; `NON_MATCHING` plateau after flag sweep, 10 source/lifetime hypotheses, and a 10-minute permuter batch: exact 58-opcode/frame shape and call relocation, 45/58 words exact, first `+0x1C` from integer temp-FIFO phase |
 | `0x8001A23C` | `0x24` | `lightKillGlowingLight` | tier-B comparison: calls the paired delete helper and returns success |
 ### 3.6 The resident allocator (`main/memory`)
@@ -1247,7 +1247,7 @@ address-placeholder helper names are not imported.
 | `0x165DC` | `0x11C` | `getXZCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x166F8` | `0x98` | `getYCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x16790` | `0x300` | `trackLightAsm` | B; uses odd single-precision FP registers, stays `asm` |
-| `0x16A90` | `0x12C` | `shadowInitBuffers` | B |
+| `0x16A90` | `0x12C` | `shadowInitBuffers` | B; `NON_MATCHING` plateau after the flag lattice, eight source/loop forms, and a 10-minute permuter batch: exact 75-word frame/opcode/register shape, but 6 positional words differ and the two sentinel relocations at `+0xC4`/`+0xD4` bind `D_80079434 + 0xC` instead of `D_80079440` |
 | `0x16BBC` | `0x78` | `shadowFreeBuffers` | B name; JFG-adapted exact C, 30 words, 15 relocs under O2/mips2 |
 | `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
@@ -1752,10 +1752,10 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | Tier A: JFG C is compiler/link exact |
 | `0x80019AB8` | `0x2E0` | `lightObject` | tier-B comparison: calls all three `lights2` pipelines |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
-| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | unique nearest skeleton (0.704) and transform call; comparison only |
+| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; `NON_MATCHING` plateau after the flag lattice, 10 source/type hypotheses, and a 10-minute permuter batch: exact `0x38` frame, 64 instructions versus 63, 46 positional words differ, first `+0x48` from byte-store/delta scheduling; JFG body is also assembly-only, so retain `func_` |
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
-| `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison: calls the object-light setter twice |
+| `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison; `NON_MATCHING` plateau after the flag lattice and nine source/declaration forms: exact 83-word frame/opcode/register/FP/relocation shape, but 4 positional words differ, first `+0x70`, because the call-live result spills at `0x28(sp)` instead of `0x2C(sp)`; the permuter importer scores the isolated function zero, but the required full-TU build retains this mismatch |
 | `0x8001A154` | `0xE8` | `lightAdjustGlowingLight` | tier-B comparison; `NON_MATCHING` plateau after flag sweep, 10 source/lifetime hypotheses, and a 10-minute permuter batch: exact 58-opcode/frame shape and call relocation, 45/58 words exact, first `+0x1C` from integer temp-FIFO phase |
 | `0x8001A23C` | `0x24` | `lightKillGlowingLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact; Mickey uses a no-argument delete wrapper |
 

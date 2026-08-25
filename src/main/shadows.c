@@ -17,12 +17,51 @@
 #include "PR/ultratypes.h"
 
 extern s32 D_80079458;
-extern void *D_80079410[4];
-extern void *D_80079420[4];
-extern void *D_80079430[4];
+extern u8 *D_80079410[4];
+extern u8 *D_80079414[];
+extern u8 *D_80079420[4];
+extern u8 *D_80079424[];
+extern u8 *D_80079430[4];
+extern u8 *D_80079434[];
+extern u8 *D_80079440;
+extern s32 D_800CB278;
+extern s32 D_800CB27C;
+extern s32 D_800CB280;
+extern s32 D_800CB284;
+extern s32 D_800CB288;
+extern void *func_8002B280(s32 size, s32 tag);
 extern void mmFree(void *ptr);
 
+#ifdef NON_MATCHING
+/* PROVENANCE -- adapted from JFG's public asm/nonmatchings/shadows/shadowInitBuffers.s, with Mickey's globals. */
+void shadowInitBuffers(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    s32 i;
+    s32 stride0;
+    s32 stride1;
+    s32 stride2;
+
+    D_800CB284 = arg0;
+    D_800CB288 = arg1;
+    D_800CB278 = arg2;
+    D_800CB27C = arg3;
+    stride0 = arg2 * 10;
+    D_800CB280 = arg4;
+    D_80079410[0] = func_8002B280(stride0 * 4, 0x8D);
+    stride1 = arg3 * 16;
+    D_80079420[0] = func_8002B280(stride1 * 4, 0x8D);
+    stride2 = arg4 * 8;
+    D_80079430[0] = func_8002B280(stride2 * 4, 0x8D);
+
+    for (i = 1; i < 4; i++) {
+        D_80079414[i - 1] = D_80079414[i - 2] + stride0;
+        D_80079424[i - 1] = D_80079424[i - 2] + stride1;
+        D_80079434[i - 1] = D_80079434[i - 2] + stride2;
+    }
+    D_80079458 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowInitBuffers.s")
+#endif
 /* PROVENANCE -- adapted from JFG's public asm/nonmatchings/shadows/shadowFreeBuffers.s. */
 void shadowFreeBuffers(void) {
     if (D_80079410[0] != NULL) {
