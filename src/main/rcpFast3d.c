@@ -337,9 +337,9 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
 #endif
 #ifdef NON_MATCHING
-/* Workbench register-ring plateau: four residual words in two temp webs,
- * exact 107-instruction shape; first mismatch +0x74. Temp-FIFO levers 14-16
- * leave the paired mask results one slot early; the prior permuter found no zero. */
+/* Workbench: register-ring-only, 4/107 words, first +0x74.
+ * Levers: context parity confirmed the macro body; FIFO levers 14-16 and the bounded permuter were already exhausted.
+ * Remains: the two aligned-coordinate masks are one temp-ring slot earlier than the target. */
 /* PROVENANCE: command sequence adapted from DKR's public src/rcp_dkr.c:bgdraw_render. */
 void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
                      s32 arg4, s32 arg5, s32 arg6) {
