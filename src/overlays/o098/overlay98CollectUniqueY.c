@@ -41,6 +41,14 @@ extern s32 overlay98UniqueCountReloc;
 extern s16 overlay98UniqueYReloc[15];
 
 /* Exact DKR v77/v80 and JFG scans are negative for this routine. */
+/*
+ * Plateau (2026-08-25): ten source attempts plus one bounded permuter batch.
+ * The best safe C is exact-size with the retail frame and control flow; the
+ * flag lattice reports 32 of 81 words different, first at +0x68. IDO still
+ * coalesces the array-address roles and schedules the count/vertex loads
+ * differently. A lower-scoring permuter result relied on unsequenced
+ * evaluation and was rejected.
+ */
 #ifdef NON_MATCHING
 void overlay98CollectUniqueY(Overlay98Group *group) {
     Overlay98Block *block;
@@ -52,9 +60,10 @@ void overlay98CollectUniqueY(Overlay98Group *group) {
     s32 spanIndex;
     s32 oldUniqueCount;
     s32 nextUniqueCount;
-    s32 isNew;
     s32 pointRefIndex;
     register s32 vertexBase;
+    s32 isNew;
+    u8 destinationIndex;
 
     overlay98UniqueCountReloc = 0;
     for (blockIndex = 0; blockIndex < group->blockCount; blockIndex++) {
@@ -85,8 +94,9 @@ void overlay98CollectUniqueY(Overlay98Group *group) {
                     } while (unique < uniqueEnd);
                 }
 
+                destinationIndex = oldUniqueCount;
                 if (isNew) {
-                    overlay98UniqueYReloc[oldUniqueCount] = value;
+                    overlay98UniqueYReloc[destinationIndex] = value;
                     overlay98UniqueCountReloc = nextUniqueCount;
                     if (nextUniqueCount >= 15) {
                         spanIndex = block->spanCount;
