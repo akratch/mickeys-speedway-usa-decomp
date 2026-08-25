@@ -86,17 +86,18 @@ extern void overlay58BuildOrderReloc(void *state, s32 count, s32 gap);
 extern void overlay58FinalizePackedStatus(void);
 
 /* Every Reloc name is provisional; normalized assembly does not bind it. */
-/*
- * NON_MATCHING: the best coherent candidate is 351/368 instructions with
- * its first mismatch at +0x0: IDO uses a 0x78-byte frame instead of the
- * target's 0x60-byte frame.  The target retains or reloads its loop state
- * across the two value-splitting calls while this source spills additional
- * cursors and indices.  The flag lattice selected -Wo,-loopunroll,0; cursor,
- * count-reload, and declaration-lifetime variants did not recover the target
- * CFG.  The nearest permitted donor skeleton scored only 0.059.
- */
+/* Plateau (2026-08-25, near-miss pass): -O2 -mips2 -loopunroll0 emits 369/368
+ * instructions, 319 differing words, first mismatch +0x0; workbench: structure-mismatch.
+ * Count reloads/pointer loops helped; the 0x78/0x60 frame gap leaves local layout next. */
 #ifdef NON_MATCHING
 void func_overlay_058_F0000000_18AF1E8(void) {
+    register s32 i;
+    s32 left0;
+    s32 right0;
+    s32 left1;
+    s32 right1;
+    s32 left2;
+    s32 right2;
     Overlay58OrderState *state;
     Overlay58OrderEntry *entry;
     Overlay58OrderEntry *next;
@@ -104,16 +105,9 @@ void func_overlay_058_F0000000_18AF1E8(void) {
     register Overlay58OrderEntry **rankCursor;
     Overlay58TagSource *tagSource;
     s8 *tag;
-    s32 left0;
-    s32 left1;
-    s32 left2;
-    s32 right0;
-    s32 right1;
-    s32 right2;
     register s32 count;
     register s32 limit;
     register s32 swapped;
-    register s32 i;
     register s32 gap;
 
     state = overlay58GetOrderStateReloc();
@@ -151,33 +145,39 @@ void func_overlay_058_F0000000_18AF1E8(void) {
     if (state->mode == 5) {
         do {
             swapped = 0;
-            for (i = 0; i < limit; i++) {
-                entry = D_78[i];
-                next = D_78[i + 1];
+            orderCursor = D_78;
+            rankCursor = &D_78[limit];
+            while (orderCursor < rankCursor) {
+                entry = orderCursor[0];
+                next = orderCursor[1];
                 if (entry->value04 < next->value04) {
-                    D_78[i] = next;
-                    D_78[i + 1] = entry;
+                    orderCursor[0] = next;
+                    orderCursor[1] = entry;
                     swapped = 1;
                 }
+                orderCursor++;
             }
         } while (swapped != 0);
     } else {
         do {
             swapped = 0;
-            for (i = 0; i < limit; i++) {
-                entry = D_78[i];
-                next = D_78[i + 1];
+            orderCursor = D_78;
+            rankCursor = &D_78[limit];
+            while (orderCursor < rankCursor) {
+                entry = orderCursor[0];
+                next = orderCursor[1];
                 if (next->value04 < entry->value04) {
-                    D_78[i] = next;
-                    D_78[i + 1] = entry;
+                    orderCursor[0] = next;
+                    orderCursor[1] = entry;
                     swapped = 1;
                 }
+                orderCursor++;
             }
         } while (swapped != 0);
     }
 
     D_A8[0] = 0;
-    for (i = 1; i < count; i++) {
+    for (i = 1; i < gOverlay58EntryCountReloc; i++) {
         overlay58SplitOrderValueReloc(D_78[i - 1]->value04, &left0, &left1,
                                       &left2);
         overlay58SplitOrderValueReloc(D_78[i]->value04, &right0, &right1,
@@ -189,7 +189,7 @@ void func_overlay_058_F0000000_18AF1E8(void) {
         }
     }
 
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < gOverlay58EntryCountReloc; i++) {
         if (&state->entries[0] == D_78[i]) {
             D_74 = i;
             i = 6;
@@ -199,7 +199,7 @@ void func_overlay_058_F0000000_18AF1E8(void) {
 
     if (((D_74 < 4) || (gOverlay58UpdateGateReloc != 0)) &&
         (state->mode != 1)) {
-        for (i = 0; i < count; i++) {
+        for (i = 0; i < gOverlay58EntryCountReloc; i++) {
             entry = D_78[i];
             ((u8 *)entry)[D_A8[i] + 0x1C]++;
             entry->rank22 += D_108[D_A8[i]];
@@ -213,7 +213,7 @@ void func_overlay_058_F0000000_18AF1E8(void) {
         state->countdown--;
     }
 
-    limit = count - 1;
+    limit = gOverlay58EntryCountReloc - 1;
     do {
         swapped = 0;
         for (i = 0; i < limit; i++) {
@@ -228,17 +228,22 @@ void func_overlay_058_F0000000_18AF1E8(void) {
         i = 0;
     } while (swapped != 0);
 
-    for (i = 0; i < count; i++) {
-        entry = D_90[i];
-        gap = D_90[0]->rank22 - entry->rank22;
-        if (gap >= 101) {
-            gap = 100;
+    {
+        Overlay58OrderEntry **cursor;
+
+        cursor = D_90;
+        for (i = 0; i < gOverlay58EntryCountReloc; i++, cursor++) {
+            entry = *cursor;
+            gap = D_90[0]->rank22 - entry->rank22;
+            if (gap >= 101) {
+                gap = 100;
+            }
+            entry->gap03 = gap;
         }
-        entry->gap03 = gap;
     }
 
     D_C0[0] = 0;
-    for (i = 1; i < count; i++) {
+    for (i = 1; i < gOverlay58EntryCountReloc; i++) {
         entry = D_90[i - 1];
         next = D_90[i];
         if (entry->rank22 == next->rank22) {
