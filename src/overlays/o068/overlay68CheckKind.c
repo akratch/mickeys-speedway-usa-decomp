@@ -39,6 +39,10 @@ extern void overlay68FreeProbeReloc(void *probe);
  * 18/80 words with the first mismatch at +0x14. Reusing the loop index for
  * the zero cursor removed a required instruction, while ordering the four
  * homed locals by their target slots produced the wrong 0x38-byte frame.
+ * Current lane structural pass (2026-08-25): reusing the homed result as the
+ * zero cursor and reversing the sentinel comparison did not improve 18/80;
+ * typed values-array indexing grew the body by one word and differed in 35.
+ * The unresolved cause remains the local-home layout and cursor schedule.
  */
 #ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {
