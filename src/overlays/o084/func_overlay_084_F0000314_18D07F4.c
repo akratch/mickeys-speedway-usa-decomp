@@ -95,14 +95,9 @@ extern s16 overlay84VerticalAngle(f32, f32, f32);
 extern s32 overlay84Atan2(f32, f32);
 extern s16 overlay84BlendAngle(s16, s16, f32);
 
-/*
- * NON_MATCHING plateau (2026-08-25): the natural -O2 -mips2 -32 build
- * emits 468 target-owned instructions versus 464, with 449 masked words
- * differing. The 0x70 frame and first 15 instructions are exact; the first
- * mismatch is +0x3C, where IDO reloads the saved node before loading the
- * scale pointer, then chooses different stack homes and private registers.
- * No pinned DKR/JFG skeleton is close enough to provide a donor body.
- */
+/* Plateau (2026-08-25): 468/464 instructions; 449 positional words differ from +0x3C.
+ * Guard-scoped scale reached 376 but changed volatile-read semantics, so was rejected.
+ * Workbench: structure-mismatch; 16-bit angle and stack-home variants lost. */
 #ifdef NON_MATCHING
 void func_overlay_084_F0000314_18D07F4(Overlay84UpdateObject *object,
                                        Overlay84UpdateState *state,
