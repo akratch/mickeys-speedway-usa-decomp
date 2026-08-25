@@ -2084,7 +2084,7 @@ func_800038EC = 0x800038EC; // type:func size:0xF8 ROM 0x44ec tier-B matched C (
 // ---------------------------------------------------------------------------
 
 // donor-jfg-src/audio_manager_1050.c.o
-amTuneSetFadeScaled = 0x800006BC; // type:func size:0x74   ROM 0x12bc  src/audio_manager_1050.c.o  masked=5/29
+amTuneSetFadeScaled = 0x800006BC; // type:func size:0x74 tier-B role-order, ROM 0x12bc, matched C src/main/audio_manager_1050.c.o -O2 -mips2 -32, JFG src/audio_manager_1050.c name/order, linked exact=29/29
 amSndSetPan = 0x80001204; // type:func size:0x28   ROM 0x1e04  src/audio_manager_1050.c.o  masked=1/10
 forcelink = 0x80001698; // type:func size:0x30   ROM 0x2298  src/audio_manager_1050.c.o  masked=2/12
 // bk:us.v10/src/core1/code_1D00.c.o

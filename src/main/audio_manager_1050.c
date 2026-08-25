@@ -210,28 +210,19 @@ void func_800005CC(f32 fade, u8 volume) {
     }
 }
 
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c.
- *
- * Plateau: the best stock-flag candidate has the exact instruction count,
- * opcode schedule, frame, and relocation surface. Seven temporary-register
- * sites differ, beginning at function offset 0x1C. Ten source-shape attempts
- * and the flag lattice did not close IDO's temporary-FIFO phase difference.
  */
 void amTuneSetFadeScaled(f32 fade, u8 volume) {
-    s32 scaled;
+    u32 scaled;
 
     if (volume > 0x7F) {
         volume = 0x7F;
     }
     scaled =
         (s32)((u32)D_800BF7A4[D_800BF794].volume * volume) / 0x7F;
-    func_800005CC(fade, scaled & 0xFF);
+    func_800005CC(fade, scaled);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/amTuneSetFadeScaled.s")
-#endif
 /* PROVENANCE: body and name adapted from JFG src/audio_manager_1050.c. */
 void amTuneResetFade(void) {
     D_80078D7C = 0;
