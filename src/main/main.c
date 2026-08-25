@@ -1609,10 +1609,12 @@ u8 func_80029240(s32 index) {
 #ifdef NON_MATCHING
 /* PROVENANCE: structural comparison uses Jet Force Gemini
  * src/overlays/o3/overlay_3.c::GetSmoothAcceleration; JFG retains assembly,
- * so this body is reconstructed from Mickey-only control-flow evidence. */
-/* Plateau: canonical is size/frame exact at 87 words/-16 but differs in 39 words, first at +0x8; the full lattice has no exact flags.
- * Ten local-order, parameter-lifetime, and return-shape variants were neutral or regressed; -g3 reaches 38 words but lacks TU evidence.
- * The 40-minute permuter found no baseline improvement; blocker is the initial float-register web and negative-velocity return schedule. */
+ * so this body is reconstructed from Mickey-only control-flow evidence.
+ *
+ * Workbench: mixed(structural:11, register:21), 39 words, first mismatch +0x8.
+ * Levers tried: structure buckets and line assignment; accumulator association and an early-result local.
+ * Remains: the first-argument move/saved-register schedule cascades into two swapped floating-point webs.
+ */
 f32 func_80029274(s32 arg0, f32 arg1, f32 arg2) {
     f32 temp_f0;
     f32 temp_f16;
