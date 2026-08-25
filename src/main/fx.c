@@ -154,8 +154,8 @@ extern void TrapDanglingJump(void);
 extern void fxScreenEffect(s32 arg0, s32 type, s32 value4, s32 value6,
                            s32 value8, s32 valueA, s32 valueC, s32 valueE,
                            s32 value10);
-extern f32 func_8002A8BC(s16 angle);
-extern f32 func_8002A8C0(s16 angle);
+extern f32 func_8002A8BC(s32 angle);
+extern f32 func_8002A8C0(s32 angle);
 extern f32 D_80083DE8;
 extern void func_800349A4(FxGfx **dList, s32 texture, s32 flags, s32 arg3);
 extern void func_8004A10C(s32 screen, u8 glyph, s32 x, s32 y, s32 arg4);
@@ -192,6 +192,9 @@ void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047304.s")
+/* Plateau (2026-08-25): best -O2 -mips2 -Wo,-loopunroll,0 is 254/251
+ * instructions, 236 differing words from +0x0, with frame 0x100/0xF8.
+ * 40m permuter found no exact; its best moved a loop decrement across stores. */
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's corresponding fxMakeConeTextureCoords body is
  * also assembly-only and supplies no adaptable C source. */
@@ -200,10 +203,10 @@ void func_800475E8(FxConeCoords *cone, s16 angle) {
     s16 y[20];
     FxConeTextureInfo *textureInfo;
     FxConeVertex *vertex;
-    s16 width;
-    s16 height;
-    s16 currentAngle;
-    u8 segmentCount;
+    s32 width;
+    s32 height;
+    s32 currentAngle;
+    s32 segmentCount;
     s32 angleStep;
     s32 i;
 
@@ -252,54 +255,64 @@ void func_800475E8(FxConeCoords *cone, s16 angle) {
                 angleStep = 0x10000 / segmentCount;
             }
 
-            i = 0;
-            do {
-                y[i] = (s32)(func_8002A8C0(angle) * (f32)(width - 1)) +
-                       width;
-                x[i] = (s32)(func_8002A8BC(angle) * (f32)(height - 1)) +
-                       height;
-                angle += angleStep;
-                i++;
-            } while (i <= segmentCount);
+            {
+                s16 *yIt = y;
+                s16 *xIt = x;
+                s16 *xEnd = &x[segmentCount + 1];
+
+                if (segmentCount >= 0) {
+                    do {
+                        *yIt = (s32)(func_8002A8C0(angle) *
+                                     (f32)(width - 1)) + width;
+                        *xIt = (s32)(func_8002A8BC(angle) *
+                                     (f32)(height - 1)) + height;
+                        angle += angleStep;
+                        xIt++;
+                        yIt++;
+                    } while (xIt != xEnd);
+                }
+            }
 
             i = 0;
-            while (i < (segmentCount & 3)) {
-                vertex->s0 = y[i];
-                vertex->t0 = x[i];
-                vertex->s1 = y[i + 1];
-                vertex->t1 = x[i + 1];
-                vertex->s2 = width;
-                vertex->t2 = height;
-                vertex++;
-                i++;
-            }
-            while (i < segmentCount) {
-                vertex[0].s0 = y[i + 0];
-                vertex[0].t0 = x[i + 0];
-                vertex[0].s1 = y[i + 1];
-                vertex[0].t1 = x[i + 1];
-                vertex[0].s2 = width;
-                vertex[0].t2 = height;
-                vertex[1].s0 = y[i + 1];
-                vertex[1].t0 = x[i + 1];
-                vertex[1].s1 = y[i + 2];
-                vertex[1].t1 = x[i + 2];
-                vertex[1].s2 = width;
-                vertex[1].t2 = height;
-                vertex[2].s0 = y[i + 2];
-                vertex[2].t0 = x[i + 2];
-                vertex[2].s1 = y[i + 3];
-                vertex[2].t1 = x[i + 3];
-                vertex[2].s2 = width;
-                vertex[2].t2 = height;
-                vertex[3].s0 = y[i + 3];
-                vertex[3].t0 = x[i + 3];
-                vertex[3].s1 = y[i + 4];
-                vertex[3].t1 = x[i + 4];
-                vertex[3].s2 = width;
-                vertex[3].t2 = height;
-                vertex += 4;
-                i += 4;
+            if (segmentCount > 0) {
+                while (i != (segmentCount & 3)) {
+                    vertex->s0 = y[i];
+                    vertex->t0 = x[i];
+                    vertex->s1 = y[i + 1];
+                    vertex->t1 = x[i + 1];
+                    vertex->s2 = width;
+                    vertex->t2 = height;
+                    vertex++;
+                    i++;
+                }
+                while (i != segmentCount) {
+                    vertex[0].s0 = y[i + 0];
+                    vertex[0].t0 = x[i + 0];
+                    vertex[0].s1 = y[i + 1];
+                    vertex[0].t1 = x[i + 1];
+                    vertex[0].s2 = width;
+                    vertex[0].t2 = height;
+                    vertex[1].s0 = y[i + 1];
+                    vertex[1].t0 = x[i + 1];
+                    vertex[1].s1 = y[i + 2];
+                    vertex[1].t1 = x[i + 2];
+                    vertex[1].s2 = width;
+                    vertex[1].t2 = height;
+                    vertex[2].s0 = y[i + 2];
+                    vertex[2].t0 = x[i + 2];
+                    vertex[2].s1 = y[i + 3];
+                    vertex[2].t1 = x[i + 3];
+                    vertex[2].s2 = width;
+                    vertex[2].t2 = height;
+                    vertex[3].s0 = y[i + 3];
+                    vertex[3].t0 = x[i + 3];
+                    vertex[3].s1 = y[i + 4];
+                    vertex[3].t1 = x[i + 4];
+                    vertex[3].s2 = width;
+                    vertex[3].t2 = height;
+                    vertex += 4;
+                    i += 4;
+                }
             }
         }
     }
