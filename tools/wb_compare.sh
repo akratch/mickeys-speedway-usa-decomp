@@ -36,11 +36,11 @@ if [ "${1:-}" = "--rom" ]; then mode=rom; shift; fi
 if [ $# -lt 1 ]; then echo "usage: $0 [--rom] <symbol> [args...]" >&2; exit 2; fi
 sym=$1; shift
 
-# Where the symbol ended up, straight from the linker map.
+# Where the symbol ended up, straight from the linked ELF.
 # (BSD awk has no strtonum, so the hex-to-decimal step is the shell's.)
-read -r vram_hex size_hex < <(
+read -r vram_hex size_hex section < <(
     "$OBJDUMP" -t build/mickey.us.elf \
-    | awk -v s="$sym" '$NF == s && NF >= 5 { print $1, $(NF-1) }' \
+    | awk -v s="$sym" '$NF == s && NF >= 5 { print $1, $(NF-1), $(NF-2) }' \
     | head -1
 )
 vram=$(( 0x${vram_hex:-0} ))
@@ -49,7 +49,47 @@ if [ "$size" -eq 0 ]; then vram=""; fi
 if [ -z "${vram:-}" ]; then echo "$0: '$sym' not found in build/mickey.us.elf" >&2; exit 1; fi
 
 if [ "$mode" = rom ]; then
-    rom=$(( vram - 0x7FFFF400 ))
+    rom_build_dir=${WB_ROM_BUILD_DIR:-build}
+    candidate_elf=$rom_build_dir/mickey.us.elf
+    candidate_rom=$rom_build_dir/mickey.us.z64
+    if [ ! -f "$candidate_elf" ] || [ ! -f "$candidate_rom" ]; then
+        echo "$0: no ROM build under '$rom_build_dir' -- run gmake first." >&2
+        exit 1
+    fi
+
+    read -r candidate_vram_hex candidate_size_hex candidate_section < <(
+        "$OBJDUMP" -t "$candidate_elf" \
+        | awk -v s="$sym" '$NF == s && NF >= 5 { print $1, $(NF-1), $(NF-2) }' \
+        | head -1
+    )
+    candidate_vram=$(( 0x${candidate_vram_hex:-0} ))
+    candidate_size=$(( 0x${candidate_size_hex:-0} ))
+    if [ "$candidate_size" -eq 0 ]; then
+        echo "$0: '$sym' not found in $candidate_elf" >&2
+        exit 1
+    fi
+
+    # A section's LMA is its ROM position and its VMA is its runtime address.
+    # Their delta handles both resident code and overlays, whose shared load
+    # VMA cannot use the resident segment's fixed ROM bias.
+    symbol_rom() {
+        local elf=$1 symbol_vram=$2 symbol_section=$3
+        local section_vram_hex section_rom_hex section_vram section_rom
+        read -r section_vram_hex section_rom_hex < <(
+            "$OBJDUMP" -h "$elf" \
+            | awk -v s="$symbol_section" '$2 == s { print $4, $5; exit }'
+        )
+        if [ -z "${section_vram_hex:-}" ] || [ -z "${section_rom_hex:-}" ]; then
+            echo "$0: section '$symbol_section' not found in $elf" >&2
+            return 1
+        fi
+        section_vram=$(( 0x$section_vram_hex ))
+        section_rom=$(( 0x$section_rom_hex ))
+        echo $(( section_rom + symbol_vram - section_vram ))
+    }
+    target_rom=$(symbol_rom build/mickey.us.elf "$vram" "$section")
+    candidate_rom_offset=$(symbol_rom "$candidate_elf" "$candidate_vram" "$candidate_section")
+
     # The candidate's size comes from the ELF, but the *target's* must not:
     # if the candidate is the wrong length, using its size for both sides
     # truncates or overruns the target and the comparison silently answers a
@@ -61,17 +101,20 @@ if [ "$mode" = rom ]; then
     # `set --` here would eat the caller's extra workbench arguments, so the
     # two dumps are written by name rather than by looping over pairs.
     dump() {
+        local input=$1 output=$2 dump_vram=$3 dump_rom=$4 dump_size=$5
         "$OBJDUMP" -D -b binary -m mips:4300 -EB \
-            --adjust-vma=$(( vram - rom )) \
-            --start-address=$(printf 0x%x $vram) \
-            --stop-address=$(printf 0x%x $(( vram + $3 ))) \
-            "$1" > "$2"
+            --adjust-vma=$(( dump_vram - dump_rom )) \
+            --start-address=$(printf 0x%x "$dump_vram") \
+            --stop-address=$(printf 0x%x $(( dump_vram + dump_size ))) \
+            "$input" > "$output"
     }
     # --start/--stop-address are read in the *adjusted* space, so they are VRAM
     # addresses here, not ROM offsets. Passing ROM offsets silently produces an
     # empty dump, which the workbench then rejects for having no instructions.
-    dump baseroms/mickey.us.z64 "$OUT/$sym.target.objdump"    $tsize
-    dump build/mickey.us.z64    "$OUT/$sym.candidate.objdump" $size
+    dump baseroms/mickey.us.z64 "$OUT/$sym.target.objdump" \
+        "$vram" "$target_rom" "$tsize"
+    dump "$candidate_rom" "$OUT/$sym.candidate.objdump" \
+        "$candidate_vram" "$candidate_rom_offset" "$candidate_size"
     exec "$WB" compare-dumps "$OUT/$sym.target.objdump" "$OUT/$sym.candidate.objdump" "$@"
 fi
 
