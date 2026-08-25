@@ -172,7 +172,8 @@ typedef struct TrackData {
     TrackTextureEntry *textures;
     TrackSegment *segments;
     TrackBoundingBox *segmentBounds;
-    u8 pad0C[0x14 - 0x0C];
+    u8 pad0C[0x10 - 0x0C];
+    s32 *visibility;
     void *bspTree;
     s16 textureCount;
     s16 segmentCount;
@@ -315,6 +316,8 @@ extern void *D_800C9D20;
 extern void *D_800C9D2C;
 extern void *D_800C9D30;
 extern void *D_800C9D34;
+extern void *D_8007926C;
+extern s32 D_800C953C;
 extern TrackPlanePoints D_8007927C[3];
 extern TrackPlane D_800C9578[3];
 
@@ -344,7 +347,7 @@ s32 func_80013324(f32 coefficient, f32 numerator,
                   f32 *minimum, f32 *maximum);
 f32 func_8002A8C0(s32 angle);
 void func_8000F82C(s32 start, s32 count, s32 end);
-s32 func_80010178(s32 segmentIndex);
+s32 func_80010178(u32 segmentIndex);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
 void func_8000D820(void);
@@ -1116,7 +1119,76 @@ void func_8000FF2C(void) {
         plane[-1].distance = distance;
     } while (index != 3);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010178.s")
+s32 func_80010178(u32 segmentIndex) {
+    f32 pad0;
+    f32 pad1;
+    f32 pad2;
+    f32 pad3;
+    f32 pad4;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 pad5;
+    f32 y2;
+    f32 z2;
+    f32 x2;
+    f32 pad6;
+    f32 planeX;
+    f32 planeY;
+    f32 planeZ;
+    TrackPlane *plane;
+    TrackBoundingBox *bounds;
+    s32 planeCount;
+
+    if (D_8007926C != NULL) {
+        if (TrapDanglingJump(D_8007926C, segmentIndex) == 0) {
+            return FALSE;
+        }
+    } else {
+        if ((segmentIndex >= (u32) D_800792E8->segmentCount) ||
+            (D_800C953C == -1) ||
+            (D_800792E8->visibility[D_800C953C + segmentIndex] == 0)) {
+            return FALSE;
+        }
+    }
+
+    bounds = &D_800792E8->segmentBounds[segmentIndex];
+    plane = D_800C9578;
+    planeCount = 2;
+    x2 = bounds->x2;
+    y2 = bounds->y2;
+    z2 = bounds->z2;
+    x1 = bounds->x1;
+    y1 = bounds->y1;
+    z1 = bounds->z1;
+    do {
+        planeX = plane->x;
+        planeY = plane->y;
+        planeZ = plane->z;
+        if ((-plane->distance <
+             (((x2 * planeX) + (y2 * planeY)) + (z2 * planeZ))) ||
+            (-plane->distance <
+             (((x1 * planeX) + (y2 * planeY)) + (z2 * planeZ))) ||
+            (-plane->distance <
+             (((x2 * planeX) + (y1 * planeY)) + (z2 * planeZ))) ||
+            (-plane->distance <
+             (((x1 * planeX) + (y1 * planeY)) + (z2 * planeZ))) ||
+            (-plane->distance <
+             (((x2 * planeX) + (y2 * planeY)) + (z1 * planeZ))) ||
+            (-plane->distance <
+             (((x1 * planeX) + (y2 * planeY)) + (z1 * planeZ))) ||
+            (-plane->distance <
+             (((x2 * planeX) + (y1 * planeY)) + (z1 * planeZ))) ||
+            (-plane->distance <
+             (((x1 * planeX) + (y1 * planeY)) + (z1 * planeZ)))) {
+            goto next_plane;
+        }
+        return FALSE;
+next_plane:
+        plane++;
+    } while (planeCount--);
+    return TRUE;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800103D4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010654.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010900.s")
