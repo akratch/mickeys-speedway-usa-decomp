@@ -80,14 +80,9 @@ f32 overlay101ClockTrigBReloc(s32 angle);
         macroCommand->w1 = 0;                                               \
     }
 
-/*
- * DKR v77/v80 and JFG have no exact donor for this clock renderer.
- * Plateau (10 source-shape attempts): the best candidate retains the exact
- * 238 instructions and 152-byte frame but differs in 11 positional words;
- * the first mismatch is +0x208. The remaining blocker is the independent
- * loop-constant schedule, four-iteration count web, and one commutative FP
- * operand order.
- */
+/* Plateau (batch 14): exact 0x3B8 with -Wab,-r4300_mul; readable C has 3 words
+ * first at +0x208 (adjacent 0xFF/2 loads plus FP operand order); bounded
+ * permuter reached 1 word at +0x324, with no zero. DKR/JFG donor-negative. */
 #ifdef NON_MATCHING
 void overlay101DrawClock(Overlay101Gfx **displayList, Overlay101Panel *panel,
                          Overlay101Vertex **vertexCursor, s32 originX,
@@ -157,7 +152,7 @@ void overlay101DrawClock(Overlay101Gfx **displayList, Overlay101Panel *panel,
             angle = (((s32)phaseSpill.minor.read) << 16) / 60;
             scaledA = overlay101ClockTrigAReloc(angle) * 10.0f;
             scaledB = overlay101ClockTrigBReloc(angle) * 10.0f;
-            point = item + 4;
+            point = 4;
         }
 
         if (point--) {
