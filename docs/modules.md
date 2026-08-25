@@ -874,6 +874,7 @@ Matched C in this TU:
 | `trackSetFogOff` | `0x151A0` | 0x74 | `-O2 -mips2 -32` | JFG `src/track.c`; 29/29 instruction words and relocation layout exact, linked ROM exact |
 | `func_80014614` | `0x15214` | 0x190 | `-O2 -mips2 -32` | Mickey reconstruction of the fog-state updater; JFG same-position skeleton is the 0.733 top hit but its placeholder is not imported; 100/100 instruction words and relocation layout exact, linked ROM exact |
 | `func_800147A4` | `0x153A4` | 0x13C | `-O2 -mips2 -32` | Mickey reconstruction using the SDK fog-colour/position macros; JFG same-size top skeleton supplies structural context but its placeholder is not imported; 79/79 instruction words and relocation layout exact, linked ROM exact |
+| `func_80014BAC` | `0x157AC` | 0x238 | `-O2 -mips2 -32` | JFG `trackFadeFog` body at the established tier-D TU position; its public name is deliberately not adopted; 142/142 instruction words and both HI16/LO16 relocation pairs exact, linked ROM exact |
 | `func_80014DE4` | `0x159E4` | 0xC8 | `-O2 -mips2 -32` | Mickey reconstruction; JFG supplies only tier-D transform-role context and no public name is adopted; 50/50 instruction words and relocation layout exact, linked ROM exact |
 | `func_80014EAC` | `0x15AAC` | 0x20 | `-O2 -mips2 -32` | JFG `func_8001C550` is a tier-A 8/8-word TU donor, unique in the ROM; JFG placeholder not imported; linked ROM exact |
 

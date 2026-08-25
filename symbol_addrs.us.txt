@@ -1766,6 +1766,10 @@ asins = 0x8006A508; // type:func size:0x8C
 // identifies its role and position in the already-established `main/track` TU.
 // ---------------------------------------------------------------------------
 
+// No public name adopted: JFG's `trackFadeFog` supplies the exact body shape
+// at this established TU position, but Mickey has no independent named caller.
+func_80014BAC = 0x80014BAC; // type:func size:0x238 ROM 0x157ac tier-D (JFG src/track.c trackFadeFog, TU order, placeholder retained)
+
 // Tier B: the sole setter of the flag tested by the track sky-render path.
 // Tier D: occupies JFG `trackSkySet`'s position in the established TU order.
 trackSkySet = 0x8000C5E8; // type:func size:0xC ROM 0xd1e8

@@ -16,6 +16,7 @@
 #include "game/track.h"
 #include "game/math.h"
 #include "n_audio/mbi.h"
+#include "PR/os_internal.h"
 
 typedef struct TrackRotation {
     s16 x;
@@ -315,7 +316,61 @@ void func_800147A4(s32 playerID) {
     gSPFogPosition(D_800C9520++, near, far);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800148E0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80014BAC.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
+ * `trackFadeFog`. Mickey's argument width and direct fog-data path are
+ * authoritative where the revisions differ; JFG's name is not adopted.
+ */
+void func_80014BAC(s32 fogIndex, s32 red, s32 green, s32 blue, s32 near,
+                   s32 far, f32 timer) {
+    s32 temp;
+    s32 switchTimer;
+    TrackFog *fogData;
+
+    fogData = &D_800C99C0[fogIndex];
+
+    if (osTvType == 0) {
+        switchTimer = timer * 50.0f;
+    } else {
+        switchTimer = timer * 60.0f;
+    }
+
+    if (far < near) {
+        temp = near;
+        near = far;
+        far = temp;
+    }
+
+    if (far > 1023) {
+        far = 1023;
+    }
+    if (near >= far - 5) {
+        near = far - 5;
+    }
+
+    fogData->intendedFog.r = red;
+    fogData->intendedFog.g = green;
+    fogData->intendedFog.b = blue;
+    fogData->intendedFog.near = near;
+    fogData->intendedFog.far = far;
+
+    if (switchTimer > 0) {
+        fogData->switchTimer = switchTimer;
+        fogData->addFog.r = ((red << 16) - fogData->fog.r) / switchTimer;
+        fogData->addFog.g = ((green << 16) - fogData->fog.g) / switchTimer;
+        fogData->addFog.b = ((blue << 16) - fogData->fog.b) / switchTimer;
+        fogData->addFog.near = ((near << 16) - fogData->fog.near) / switchTimer;
+        fogData->addFog.far = ((far << 16) - fogData->fog.far) / switchTimer;
+    } else {
+        fogData->switchTimer = 0;
+        fogData->fog.r = red << 16;
+        fogData->fog.g = green << 16;
+        fogData->fog.b = blue << 16;
+        fogData->fog.near = near << 16;
+        fogData->fog.far = far << 16;
+    }
+    fogData->fogChanger = NULL;
+}
 /*
  * PROVENANCE: JFG's corresponding track.c position identifies the transform
  * role. This body and its local layout are reconstructed from Mickey's own
