@@ -29,17 +29,9 @@ extern void func_overlay_058_F0000000_18AF1E8(
     Overlay58LargePointGfx **displayList, void *resource, s32 mode, s32 arg3);
 
 /*
- * Plateau (2026-08-25): a fresh 119-combination lattice retains the exact
- * 104-instruction CFG, opcode schedule, size, and frame under -O2 -mips2,
- * but 70 register-allocation words differ and the first mismatch is +0x30.
- * Its register-lane signature is identical to overlay58DrawPointQuad, down
- * to the first vertex-cursor pool divergence.  The sibling's typed lifetime,
- * signedness, explicit-reference, and split-increment variants therefore
- * provide the same negative structural evidence here.  A typed access to the
- * distinct render-state field at 0x1E8 is allocation-neutral.  Binding the
- * payload to D_80000098 closes one relocation identity without moving the
- * allocator; the nearest external skeleton scores only 0.072 and offers no
- * usable donor structure.
+ * Plateau (2026-08-25): -O2/-mips2 is 104-instruction/frame-exact with 70 register-only words, first mismatch +0x30.
+ * Qualifier, order, pointer/array, signedness, literal, and color-lifetime variants are neutral or disturb size/schedule.
+ * A 40-minute one-worker permuter reached 2895 only via synthetic do/while coalescing; blocker is the long-lived a0/v0 web.
  */
 #ifdef NON_MATCHING
 void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
