@@ -668,18 +668,17 @@ void animseqFreeLevelData(void) {
 /*
  * PROVENANCE: adapted from JFG's public animseqLoadLevelData assembly.
  * Plateau: exact 43-word shape; two source-spill offsets differ, first +0x60.
- * The typed offset-span route fixes the prior FIFO rotation but homes at 0x18.
+ * A fresh word-bound m2c form and workbench lever 6 retain the 0x18 home.
  */
 void func_80050DF0(s32 levelId) {
-    AnimLevelRomEntry *entry;
+    s32 *bounds;
     s32 source;
 
     if (levelId != -1 && levelId != D_8007D688) {
         animseqFreeLevelData();
-        entry = (AnimLevelRomEntry *)
-            ((s32 *) D_800D6B04 + levelId);
-        source = entry->start;
-        D_8007D684 = entry->end - source;
+        bounds = (s32 *) D_800D6B04 + levelId;
+        source = bounds[0];
+        D_8007D684 = bounds[1] - source;
         if (D_8007D684 > 0) {
             D_8007D680 = func_8002B280(D_8007D684, 0x81);
             if (D_8007D680 != NULL) {
