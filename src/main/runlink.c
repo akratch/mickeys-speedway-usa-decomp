@@ -200,6 +200,9 @@ void PatchInstruction(MipsInstruction *instr, u32 address, u8 patchOp) {
     osWritebackDCache(instr, sizeof(MipsInstruction));
     osInvalICache(instr, sizeof(MipsInstruction));
 }
+/* Plateau (2026-08-25): -O2 -mips2 stays 0x4 long, with 126 differing words from +0x0.
+ * Splitting the pointer lifetime removes s1 and yields the a3 caller spill, but grows the frame;
+ * type, pool-order, volatile-home, result-reuse, and register-hint variants miss a1/a3 after the call. */
 #ifdef NON_MATCHING
 /*
  * ProcessRelocationEntry -- PARKED, not matched. ROM 0x32630-0x32878.
