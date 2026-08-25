@@ -10,13 +10,15 @@ Two independent sources feed the ranking:
    (discover_queue(): every `#ifdef NON_MATCHING` block, atlas-backed or
    source-scanned), this reuses that module's own machinery -- the same
    settings.toml + asm-processor + IDO invocation the permuter itself runs
-   -- to produce two small, function-scoped objects: target.o (the
+   -- to produce two function-comparable objects: target.o (the
    function's own asm/nonmatchings/**/<f>.s, assembled directly -- exactly
-   the ROM's bytes, splat's own disassembly of them) and base.o (the
-   `#ifdef NON_MATCHING` C body, compiled with this project's real flags
-   for that translation unit). Both are single-function objects, so a
-   straight word-for-word diff over their .text needs no linking, no
-   symbol resolution, and no whole-TU rebuild -- which matters because a
+   the ROM's bytes, splat's own disassembly of them) and base.o (normally
+   the `#ifdef NON_MATCHING` C body pruned to one function). If import
+   pruning cannot compile it, the tool selects only that candidate within
+   an untracked TU copy and reuses the Makefile-expanded raw compile command,
+   preserving static/rodata context and exact per-TU flags while skipping
+   POSTPROCESS. The comparison extracts only the named function's span and
+   normalizes its relocations, so it needs no linking -- which matters because a
    whole-tree `gmake NON_MATCHING=1` build fails outright on any
    POSTPROCESS-trimmed object whose queued function grew past the trimmed
    (matched-size) target (see docs/nm-ranking.md's "Two build paths").
@@ -53,6 +55,7 @@ import dataclasses
 import json
 import pathlib
 import re
+import shlex
 import struct
 import subprocess
 import sys
@@ -77,7 +80,8 @@ CATEGORY_RANK = {
 }
 
 SYM_RE = re.compile(
-    r"^[0-9a-f]{8}\s+\S+\s+\S+\s+(?P<sec>\S+)\s+(?P<size>[0-9a-f]{8})\s+(?P<name>\S+)\s*$"
+    r"^(?P<value>[0-9a-f]{8})\s+\S+\s+\S+\s+(?P<sec>\S+)\s+"
+    r"(?P<size>[0-9a-f]{8})\s+(?P<name>\S+)\s*$"
 )
 RELOC_RE = re.compile(
     r"^([0-9a-f]{8})\s+(\S+)\s+(\S+)\s*$"
@@ -90,19 +94,17 @@ def objdump_text(objfile: pathlib.Path) -> str:
     ).stdout
 
 
-def func_symbol_size(objfile: pathlib.Path, func: str) -> Optional[int]:
-    """Size (bytes) of `func`'s .text symbol in objfile, per objdump -t."""
+def func_symbol_span(objfile: pathlib.Path, func: str) -> Optional[tuple[int, int]]:
+    """Section-relative (offset, size) for ``func`` in an object's .text."""
     for line in objdump_text(objfile).splitlines():
         m = SYM_RE.match(line)
         if m and m.group("name") == func and m.group("sec") == ".text":
-            return int(m.group("size"), 16)
+            return int(m.group("value"), 16), int(m.group("size"), 16)
     return None
 
 
-def text_bytes(objfile: pathlib.Path, size: int) -> bytes:
-    """Raw .text section bytes, truncated to `size` (the function's own
-    length -- both target.o and base.o here hold exactly one function, so
-    the section may carry compiler alignment padding past it)."""
+def text_bytes(objfile: pathlib.Path, start: int, size: int) -> bytes:
+    """Raw bytes for one function's span within an object's .text."""
     tmp = objfile.with_suffix(".text.bin")
     subprocess.run(
         [str(OBJCOPY), "-O", "binary", "--only-section=.text", str(objfile), str(tmp)],
@@ -110,11 +112,13 @@ def text_bytes(objfile: pathlib.Path, size: int) -> bytes:
     )
     raw = tmp.read_bytes()
     tmp.unlink(missing_ok=True)
-    return raw[:size]
+    return raw[start:start + size]
 
 
-def relocations(objfile: pathlib.Path) -> dict[int, tuple[str, str]]:
-    """offset -> (type, value) for every relocation in .text."""
+def relocations(
+    objfile: pathlib.Path, start: int, size: int
+) -> dict[int, tuple[str, str]]:
+    """Function-relative offset -> (type, value) for .text relocations."""
     out = subprocess.run(
         [str(OBJDUMP), "-r", str(objfile)], capture_output=True, text=True, check=True
     ).stdout
@@ -132,8 +136,212 @@ def relocations(objfile: pathlib.Path) -> dict[int, tuple[str, str]]:
         m = RELOC_RE.match(line.strip())
         if m:
             offset, rtype, value = m.groups()
-            result[int(offset, 16)] = (rtype, value)
+            absolute = int(offset, 16)
+            if start <= absolute < start + size:
+                result[absolute - start] = (rtype, value)
     return result
+
+
+def assemble_target(target_asm: pathlib.Path, target_o: pathlib.Path) -> None:
+    """Assemble a prepared target when import.py did not leave target.o."""
+    standalone = target_o.with_suffix(".standalone.s")
+    prelude = ROOT / "tools" / "permuter" / "prelude.inc"
+    standalone.write_text(prelude.read_text() + target_asm.read_text())
+    command = shlex.split(pb.ASSEMBLER_COMMAND) + [
+        str(standalone), "-o", str(target_o)
+    ]
+    proc = subprocess.run(
+        command, cwd=ROOT, capture_output=True, text=True
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.strip() or "target assembly failed")
+
+
+def make_tu_compile_command(
+    item: "pb.QueueItem", output: pathlib.Path,
+    source_override: Optional[pathlib.Path] = None,
+) -> list[str]:
+    """Return the Makefile-expanded raw compile command for one C TU.
+
+    ``gmake NON_MATCHING=1`` normally follows compilation with metadata
+    post-processing whose fixed-size trim can reject a larger candidate.
+    A dry run supplies the exact asm-processor/IDO command, including every
+    TU-specific C/optimizer/ISA flag; only its output path is redirected.
+    """
+    rel_source = item.c_file.relative_to(ROOT).as_posix()
+    make_target = f"build_non_matching/{rel_source}.o"
+    proc = subprocess.run(
+        [
+            "gmake", "--no-print-directory", "-n", "-W", rel_source,
+            "NON_MATCHING=1", make_target,
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(
+            proc.stderr.strip() or "could not expand the TU compile command"
+        )
+    logical_lines = proc.stdout.replace("\\\n", " ").splitlines()
+    candidates = [
+        line.strip()
+        for line in logical_lines
+        if "tools/asm-processor/build.py" in line and rel_source in line
+    ]
+    if len(candidates) != 1:
+        raise RuntimeError(
+            f"expected one Makefile compile command, found {len(candidates)}"
+        )
+    command = shlex.split(candidates[0])
+    try:
+        out_index = command.index("-o") + 1
+    except ValueError as exc:
+        raise RuntimeError("Makefile compile command has no -o argument") from exc
+    command[out_index] = str(output)
+    if source_override is not None:
+        try:
+            source_index = command.index(rel_source)
+        except ValueError as exc:
+            raise RuntimeError(
+                "Makefile compile command has no source argument"
+            ) from exc
+        command[source_index] = str(source_override)
+    return command
+
+
+def run_tu_compile(
+    item: "pb.QueueItem", output: pathlib.Path, log_path: pathlib.Path,
+    source_override: Optional[pathlib.Path] = None,
+) -> bool:
+    """Run one raw TU compile, retaining diagnostics only under build/."""
+    command = make_tu_compile_command(item, output, source_override)
+    proc = subprocess.run(
+        command, cwd=ROOT, capture_output=True, text=True
+    )
+    log_path.write_text((proc.stdout or "") + (proc.stderr or ""))
+    return proc.returncode == 0 and output.is_file()
+
+
+def normalized_body(body: str) -> str:
+    """Whitespace-insensitive identity check for tracked candidate C."""
+    return re.sub(r"\s+", "", body)
+
+
+def selective_isolation_source(
+    item: "pb.QueueItem", out_dir: pathlib.Path
+) -> pathlib.Path:
+    """Select only this candidate body; retain every other ASM fallback."""
+    source_text = item.c_file.read_text(errors="replace")
+    blocks = list(pb.iter_nonmatching_blocks(source_text))
+    targets = [
+        block
+        for block in blocks
+        if pb.block_function_name(source_text, block) == item.func
+    ]
+    if len(targets) != 1:
+        raise RuntimeError(
+            f"expected one NON_MATCHING body for {item.func}, found {len(targets)}"
+        )
+    target = targets[0]
+    isolated = source_text
+    for block in reversed(blocks):
+        replacement = block.body if block is target else block.fallback
+        isolated = isolated[:block.start] + replacement + isolated[block.end:]
+    source = out_dir / "selective-context.c"
+    source.write_text(isolated)
+    return source
+
+
+def historical_isolation_source(
+    item: "pb.QueueItem", out_dir: pathlib.Path
+) -> Optional[pathlib.Path]:
+    """Recover declaration context lost by a tracked TU consolidation.
+
+    Consolidation retained some candidate bodies verbatim but replaced their
+    private typed externs with a shared opaque declaration. Search only
+    deleted tracked C files in this TU's directory, and accept one only when
+    its parsed candidate body is identical to the current body. This is source
+    provenance already in this repository, never an assembly/ROM fallback.
+    """
+    current_text = item.c_file.read_text(errors="replace")
+    current_blocks = [
+        block
+        for block in pb.iter_nonmatching_blocks(current_text)
+        if pb.block_function_name(current_text, block) == item.func
+    ]
+    if len(current_blocks) != 1:
+        return None
+
+    rel_dir = item.c_file.parent.relative_to(ROOT).as_posix()
+    history = subprocess.run(
+        [
+            "git", "log", "--all", "--format=%H", "--diff-filter=D",
+            "--", rel_dir,
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    wanted = normalized_body(current_blocks[0].body)
+    for commit in history:
+        deleted = subprocess.run(
+            [
+                "git", "diff-tree", "--no-commit-id", "--name-only", "-r",
+                "--diff-filter=D", commit, "--", rel_dir,
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.splitlines()
+        for rel_path in deleted:
+            shown = subprocess.run(
+                ["git", "show", f"{commit}^:{rel_path}"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+            )
+            if shown.returncode != 0:
+                continue
+            old_text = shown.stdout
+            for block in pb.iter_nonmatching_blocks(old_text):
+                if pb.block_function_name(old_text, block) != item.func:
+                    continue
+                if normalized_body(block.body) != wanted:
+                    continue
+                old_asm = pb.GLOBAL_ASM_RE.search(block.fallback)
+                current_asm = pb.GLOBAL_ASM_RE.search(current_blocks[0].fallback)
+                if old_asm is None or current_asm is None:
+                    continue
+                old_text = old_text.replace(
+                    old_asm.group("path"), current_asm.group("path"), 1
+                )
+                source = out_dir / "historical-context.c"
+                source.write_text(old_text)
+                return source
+    return None
+
+
+def compile_tu_fallback(
+    item: "pb.QueueItem", output: pathlib.Path, out_dir: pathlib.Path
+) -> None:
+    """Compile one selected body, then try verified historical context."""
+    selective = selective_isolation_source(item, out_dir)
+    if run_tu_compile(
+        item, output, out_dir / "selective-compile.log", selective
+    ):
+        return
+    output.unlink(missing_ok=True)
+    historical = historical_isolation_source(item, out_dir)
+    if historical is not None and run_tu_compile(
+        item, output, out_dir / "historical-compile.log", historical
+    ):
+        return
+    raise RuntimeError(
+        f"raw TU isolation failed (see {out_dir.relative_to(ROOT)}/*compile.log)"
+    )
 
 
 def words_of(data: bytes) -> list[int]:
@@ -240,26 +448,42 @@ def process_item(item: "pb.QueueItem") -> tuple[Optional[FuncResult], Optional[s
     settings_path = out_dir / "settings.toml"
     flags = pb.flag_group_for(item.c_file)
     pb.write_settings_toml(settings_path, flags)
+    import_error: Optional[str] = None
+    scratch: Optional[pathlib.Path] = None
     try:
         target_asm = pb.prepare_target_asm(item, out_dir)
         scratch = pb.run_import(item, out_dir, settings_path, target_asm)
     except Exception as e:  # noqa: BLE001 - reported per-function, not fatal
-        return None, f"{item.func} ({item.rel_c_file}): {e}"
+        import_error = str(e)
+        try:
+            target_asm = pb.prepare_target_asm(item, out_dir)
+        except Exception as target_error:  # noqa: BLE001
+            return None, f"{item.func} ({item.rel_c_file}): {target_error}"
 
-    base_o = scratch / "base.o"
-    target_o = scratch / "target.o"
-    if not base_o.is_file() or not target_o.is_file():
-        return None, f"{item.func} ({item.rel_c_file}): import.py did not produce base.o/target.o"
+    base_o = scratch / "base.o" if scratch is not None else out_dir / "base.o"
+    target_o = scratch / "target.o" if scratch is not None else out_dir / "target.o"
+    try:
+        if not target_o.is_file():
+            assemble_target(target_asm, target_o)
+        if not base_o.is_file():
+            base_o = out_dir / "base-tu.o"
+            base_o.unlink(missing_ok=True)
+            compile_tu_fallback(item, base_o, out_dir)
+    except Exception as e:  # noqa: BLE001 - reported per-function, not fatal
+        prefix = f"import failed ({import_error}); " if import_error else ""
+        return None, f"{item.func} ({item.rel_c_file}): {prefix}{e}"
 
-    target_size = func_symbol_size(target_o, item.func)
-    base_size = func_symbol_size(base_o, item.func)
-    if target_size is None or base_size is None:
+    target_span = func_symbol_span(target_o, item.func)
+    base_span = func_symbol_span(base_o, item.func)
+    if target_span is None or base_span is None:
         return None, f"{item.func} ({item.rel_c_file}): couldn't find .text symbol in base.o/target.o"
+    target_start, target_size = target_span
+    base_start, base_size = base_span
 
-    base_words = words_of(text_bytes(base_o, base_size))
-    target_words = words_of(text_bytes(target_o, target_size))
-    base_reloc = relocations(base_o)
-    target_reloc = relocations(target_o)
+    base_words = words_of(text_bytes(base_o, base_start, base_size))
+    target_words = words_of(text_bytes(target_o, target_start, target_size))
+    base_reloc = relocations(base_o, base_start, base_size)
+    target_reloc = relocations(target_o, target_start, target_size)
 
     category, differing_words, first_mismatch_offset = classify(
         base_size, target_size, base_words, target_words, base_reloc, target_reloc

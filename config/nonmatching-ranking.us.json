@@ -1,46 +1,10 @@
 {
-  "queue_size": 528,
-  "resolved": 426,
-  "unresolved": 102,
+  "queue_size": 456,
+  "resolved": 456,
+  "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
   "functions": [
-    {
-      "name": "setupLights",
-      "file": "src/main/lights.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 304,
-      "objdiff_match_pct": null,
-      "differing_words": 1,
-      "first_mismatch_offset": 152,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
-      "name": "partObjFreeTriggers",
-      "file": "src/main/particles.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 128,
-      "objdiff_match_pct": null,
-      "differing_words": 1,
-      "first_mismatch_offset": 92,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
-      "name": "overlay83SubmitAll",
-      "file": "src/overlays/o083/overlay83SubmitAll.c",
-      "overlay": 83,
-      "tu": "overlays/o083",
-      "size_bytes": 328,
-      "objdiff_match_pct": null,
-      "differing_words": 3,
-      "first_mismatch_offset": 220,
-      "size_delta": 0,
-      "category": "register-only"
-    },
     {
       "name": "overlay3FindClosestObject",
       "file": "src/overlays/o003/overlay3FindClosestObject.c",
@@ -74,6 +38,18 @@
       "objdiff_match_pct": null,
       "differing_words": 4,
       "first_mismatch_offset": 44,
+      "size_delta": 0,
+      "category": "register-only"
+    },
+    {
+      "name": "func_80038750",
+      "file": "src/main/menu.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 296,
+      "objdiff_match_pct": null,
+      "differing_words": 6,
+      "first_mismatch_offset": 220,
       "size_delta": 0,
       "category": "register-only"
     },
@@ -122,18 +98,6 @@
       "objdiff_match_pct": null,
       "differing_words": 9,
       "first_mismatch_offset": 204,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
-      "name": "mainCPUeffects",
-      "file": "src/main/main.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 340,
-      "objdiff_match_pct": null,
-      "differing_words": 10,
-      "first_mismatch_offset": 72,
       "size_delta": 0,
       "category": "register-only"
     },
@@ -318,6 +282,18 @@
       "category": "register-only"
     },
     {
+      "name": "overlay1CloneRecord",
+      "file": "src/overlays/o001/overlay_001_tail.c",
+      "overlay": 1,
+      "tu": "overlays/o001",
+      "size_bytes": 92,
+      "objdiff_match_pct": null,
+      "differing_words": 3,
+      "first_mismatch_offset": 32,
+      "size_delta": 0,
+      "category": "schedule-only"
+    },
+    {
       "name": "overlay61AddEntry",
       "file": "src/overlays/o061/overlay61AddEntry.c",
       "overlay": 61,
@@ -354,6 +330,18 @@
       "category": "schedule-only"
     },
     {
+      "name": "func_80034094",
+      "file": "src/main/gameVi.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 188,
+      "objdiff_match_pct": null,
+      "differing_words": 0,
+      "first_mismatch_offset": null,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "rcpFast3d",
       "file": "src/main/rcpFast3d.c",
       "overlay": null,
@@ -366,11 +354,11 @@
       "category": "other"
     },
     {
-      "name": "free_rain_memory",
-      "file": "src/main/weather.c",
+      "name": "osScGetTaskType",
+      "file": "src/main/sched.c",
       "overlay": null,
       "tu": "main",
-      "size_bytes": 132,
+      "size_bytes": 136,
       "objdiff_match_pct": null,
       "differing_words": 0,
       "first_mismatch_offset": null,
@@ -654,6 +642,18 @@
       "category": "other"
     },
     {
+      "name": "debug_text_character",
+      "file": "src/main/diprint.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 744,
+      "objdiff_match_pct": null,
+      "differing_words": 6,
+      "first_mismatch_offset": 16,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "runlinkResumeCode",
       "file": "src/main/runlink.c",
       "overlay": null,
@@ -662,6 +662,18 @@
       "objdiff_match_pct": null,
       "differing_words": 6,
       "first_mismatch_offset": 0,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "overlay7CommitSelection",
+      "file": "src/overlays/o007/overlay_007_tail.c",
+      "overlay": 7,
+      "tu": "overlays/o007",
+      "size_bytes": 288,
+      "objdiff_match_pct": null,
+      "differing_words": 6,
+      "first_mismatch_offset": 4,
       "size_delta": 0,
       "category": "other"
     },
@@ -918,6 +930,18 @@
       "category": "other"
     },
     {
+      "name": "debug_text_width",
+      "file": "src/main/diprint.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 264,
+      "objdiff_match_pct": null,
+      "differing_words": 10,
+      "first_mismatch_offset": 32,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "func_8003FB98",
       "file": "src/main/particles.c",
       "overlay": null,
@@ -954,6 +978,18 @@
       "category": "other"
     },
     {
+      "name": "overlay1ResolvePathPoint",
+      "file": "src/overlays/o001/overlay_001_end.c",
+      "overlay": 1,
+      "tu": "overlays/o001",
+      "size_bytes": 608,
+      "objdiff_match_pct": null,
+      "differing_words": 10,
+      "first_mismatch_offset": 144,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "overlay1AllocateRecord",
       "file": "src/overlays/o001/overlay_001_tail.c",
       "overlay": 1,
@@ -962,18 +998,6 @@
       "objdiff_match_pct": null,
       "differing_words": 10,
       "first_mismatch_offset": 80,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "overlay7CommitSelection",
-      "file": "src/overlays/o007/overlay_007_tail.c",
-      "overlay": 7,
-      "tu": "overlays/o007",
-      "size_bytes": 288,
-      "objdiff_match_pct": null,
-      "differing_words": 10,
-      "first_mismatch_offset": 4,
       "size_delta": 0,
       "category": "other"
     },
@@ -1058,6 +1082,18 @@
       "objdiff_match_pct": null,
       "differing_words": 12,
       "first_mismatch_offset": 20,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "overlay1ChooseModeObject",
+      "file": "src/overlays/o001/overlay_001_tail.c",
+      "overlay": 1,
+      "tu": "overlays/o001",
+      "size_bytes": 348,
+      "objdiff_match_pct": null,
+      "differing_words": 13,
+      "first_mismatch_offset": 12,
       "size_delta": 0,
       "category": "other"
     },
@@ -1154,6 +1190,18 @@
       "objdiff_match_pct": null,
       "differing_words": 15,
       "first_mismatch_offset": 96,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "func_overlay_029_F000042C_187D6DC",
+      "file": "src/overlays/o029/overlay29InitializeObject.c",
+      "overlay": 29,
+      "tu": "overlays/o029",
+      "size_bytes": 408,
+      "objdiff_match_pct": null,
+      "differing_words": 15,
+      "first_mismatch_offset": 20,
       "size_delta": 0,
       "category": "other"
     },
@@ -1326,6 +1374,18 @@
       "category": "other"
     },
     {
+      "name": "func_80040740",
+      "file": "src/main/particles.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 312,
+      "objdiff_match_pct": null,
+      "differing_words": 18,
+      "first_mismatch_offset": 28,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "func_8002C70C",
       "file": "src/main/saves.c",
       "overlay": null,
@@ -1410,6 +1470,18 @@
       "category": "other"
     },
     {
+      "name": "overlay1StartTimerCallbacks",
+      "file": "src/overlays/o001/overlay_001_tail.c",
+      "overlay": 1,
+      "tu": "overlays/o001",
+      "size_bytes": 224,
+      "objdiff_match_pct": null,
+      "differing_words": 20,
+      "first_mismatch_offset": 44,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "overlay31InitializeBuffers",
       "file": "src/overlays/o031/overlay31InitializeBuffers.c",
       "overlay": 31,
@@ -1446,6 +1518,18 @@
       "category": "other"
     },
     {
+      "name": "vsprintf",
+      "file": "src/main/diprint.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 4880,
+      "objdiff_match_pct": null,
+      "differing_words": 21,
+      "first_mismatch_offset": 304,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "overlay86SelectPosition",
       "file": "src/overlays/o086/overlay86SelectPosition.c",
       "overlay": 86,
@@ -1466,6 +1550,30 @@
       "objdiff_match_pct": null,
       "differing_words": 22,
       "first_mismatch_offset": 8,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "overlay1AppendPathPoint",
+      "file": "src/overlays/o001/overlay_001_tail.c",
+      "overlay": 1,
+      "tu": "overlays/o001",
+      "size_bytes": 432,
+      "objdiff_match_pct": null,
+      "differing_words": 22,
+      "first_mismatch_offset": 32,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "overlay5InitializeAudio",
+      "file": "src/overlays/o005/overlay_005.c",
+      "overlay": 5,
+      "tu": "overlays/o005",
+      "size_bytes": 932,
+      "objdiff_match_pct": null,
+      "differing_words": 22,
+      "first_mismatch_offset": 156,
       "size_delta": 0,
       "category": "other"
     },
@@ -1830,18 +1938,6 @@
       "category": "other"
     },
     {
-      "name": "func_overlay_029_F000042C_187D6DC",
-      "file": "src/overlays/o029/overlay29InitializeObject.c",
-      "overlay": 29,
-      "tu": "overlays/o029",
-      "size_bytes": 408,
-      "objdiff_match_pct": null,
-      "differing_words": 37,
-      "first_mismatch_offset": 0,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
       "name": "overlay34CreateRecord",
       "file": "src/overlays/o034/overlay34CreateRecord.c",
       "overlay": 34,
@@ -1898,6 +1994,18 @@
       "objdiff_match_pct": null,
       "differing_words": 39,
       "first_mismatch_offset": 52,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "overlay100InitializeMotion",
+      "file": "src/overlays/o100/overlay100InitializeMotion.c",
+      "overlay": 100,
+      "tu": "overlays/o100",
+      "size_bytes": 532,
+      "objdiff_match_pct": null,
+      "differing_words": 39,
+      "first_mismatch_offset": 100,
       "size_delta": 0,
       "category": "other"
     },
@@ -1982,6 +2090,18 @@
       "objdiff_match_pct": null,
       "differing_words": 47,
       "first_mismatch_offset": 0,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "func_overlay_014_F0001830_1871108",
+      "file": "src/overlays/o014/func_overlay_014_F0001830_1871108.c",
+      "overlay": 14,
+      "tu": "overlays/o014",
+      "size_bytes": 804,
+      "objdiff_match_pct": null,
+      "differing_words": 47,
+      "first_mismatch_offset": 56,
       "size_delta": 0,
       "category": "other"
     },
@@ -2162,6 +2282,18 @@
       "objdiff_match_pct": null,
       "differing_words": 62,
       "first_mismatch_offset": 124,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "overlay1UpdateAimedTransient",
+      "file": "src/overlays/o001/overlay_001_tail.c",
+      "overlay": 1,
+      "tu": "overlays/o001",
+      "size_bytes": 996,
+      "objdiff_match_pct": null,
+      "differing_words": 64,
+      "first_mismatch_offset": 0,
       "size_delta": 0,
       "category": "other"
     },
@@ -2353,6 +2485,18 @@
       "size_bytes": 556,
       "objdiff_match_pct": null,
       "differing_words": 81,
+      "first_mismatch_offset": 16,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "overlay1AdvancePath",
+      "file": "src/overlays/o001/overlay_001_tail.c",
+      "overlay": 1,
+      "tu": "overlays/o001",
+      "size_bytes": 648,
+      "objdiff_match_pct": null,
+      "differing_words": 85,
       "first_mismatch_offset": 16,
       "size_delta": 0,
       "category": "other"
@@ -2730,6 +2874,18 @@
       "category": "other"
     },
     {
+      "name": "func_80038E1C",
+      "file": "src/main/menu.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1116,
+      "objdiff_match_pct": null,
+      "differing_words": 248,
+      "first_mismatch_offset": 36,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "overlay2ChooseBoundary",
       "file": "src/overlays/o002/overlay2ChooseBoundary.c",
       "overlay": 2,
@@ -2850,6 +3006,42 @@
       "category": "other"
     },
     {
+      "name": "diRcpMoveWd",
+      "file": "src/main/diRcp.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 156,
+      "objdiff_match_pct": null,
+      "differing_words": 1,
+      "first_mismatch_offset": 44,
+      "size_delta": 0,
+      "category": "reloc-mismatch"
+    },
+    {
+      "name": "debug_text_parse",
+      "file": "src/main/diprint.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1052,
+      "objdiff_match_pct": null,
+      "differing_words": 1,
+      "first_mismatch_offset": 96,
+      "size_delta": 0,
+      "category": "reloc-mismatch"
+    },
+    {
+      "name": "func_80038BC4",
+      "file": "src/main/menu.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 488,
+      "objdiff_match_pct": null,
+      "differing_words": 1,
+      "first_mismatch_offset": 44,
+      "size_delta": 0,
+      "category": "reloc-mismatch"
+    },
+    {
       "name": "func_overlay_071_F0000000_18C9B20",
       "file": "src/overlays/o071/func_overlay_071_F0000000_18C9B20.c",
       "overlay": 71,
@@ -2858,6 +3050,18 @@
       "objdiff_match_pct": null,
       "differing_words": 1,
       "first_mismatch_offset": 272,
+      "size_delta": 0,
+      "category": "reloc-mismatch"
+    },
+    {
+      "name": "diPrintfAll",
+      "file": "src/main/diprint.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 576,
+      "objdiff_match_pct": null,
+      "differing_words": 2,
+      "first_mismatch_offset": 332,
       "size_delta": 0,
       "category": "reloc-mismatch"
     },
@@ -2918,6 +3122,18 @@
       "objdiff_match_pct": null,
       "differing_words": 3,
       "first_mismatch_offset": 148,
+      "size_delta": 0,
+      "category": "reloc-mismatch"
+    },
+    {
+      "name": "diRcpPrintDL",
+      "file": "src/main/diRcp.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1540,
+      "objdiff_match_pct": null,
+      "differing_words": 4,
+      "first_mismatch_offset": 60,
       "size_delta": 0,
       "category": "reloc-mismatch"
     },
@@ -2994,6 +3210,30 @@
       "category": "reloc-mismatch"
     },
     {
+      "name": "func_800389CC",
+      "file": "src/main/menu.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 504,
+      "objdiff_match_pct": null,
+      "differing_words": 13,
+      "first_mismatch_offset": 44,
+      "size_delta": 0,
+      "category": "reloc-mismatch"
+    },
+    {
+      "name": "__scSchedule",
+      "file": "src/main/sched.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 488,
+      "objdiff_match_pct": null,
+      "differing_words": 14,
+      "first_mismatch_offset": 84,
+      "size_delta": 0,
+      "category": "reloc-mismatch"
+    },
+    {
       "name": "overlay1GetEntry",
       "file": "src/overlays/o001/overlay_001.c",
       "overlay": 1,
@@ -3018,6 +3258,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "mainThread",
+      "file": "src/main/main.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 200,
+      "objdiff_match_pct": null,
+      "differing_words": 8,
+      "first_mismatch_offset": 24,
+      "size_delta": 8,
+      "category": "size-mismatch"
+    },
+    {
       "name": "__scYield",
       "file": "src/main/sched.c",
       "overlay": null,
@@ -3030,6 +3282,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "joyInit",
+      "file": "src/main/joy.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 332,
+      "objdiff_match_pct": null,
+      "differing_words": 14,
+      "first_mismatch_offset": 120,
+      "size_delta": 12,
+      "category": "size-mismatch"
+    },
+    {
       "name": "diCpuThread",
       "file": "src/main/diCpu.c",
       "overlay": null,
@@ -3039,6 +3303,18 @@
       "differing_words": 17,
       "first_mismatch_offset": 144,
       "size_delta": -12,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80019934",
+      "file": "src/main/lights.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 240,
+      "objdiff_match_pct": null,
+      "differing_words": 18,
+      "first_mismatch_offset": 40,
+      "size_delta": -8,
       "category": "size-mismatch"
     },
     {
@@ -3099,6 +3375,18 @@
       "differing_words": 32,
       "first_mismatch_offset": 4,
       "size_delta": -4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "overlay1HandleCachedMode",
+      "file": "src/overlays/o001/overlay_001_tail.c",
+      "overlay": 1,
+      "tu": "overlays/o001",
+      "size_bytes": 128,
+      "objdiff_match_pct": null,
+      "differing_words": 32,
+      "first_mismatch_offset": 4,
+      "size_delta": 16,
       "category": "size-mismatch"
     },
     {
@@ -3171,6 +3459,18 @@
       "differing_words": 44,
       "first_mismatch_offset": 8,
       "size_delta": 4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_overlay_014_F0000000_186F8D8",
+      "file": "src/overlays/o014/func_overlay_014_F0000000_186F8D8.c",
+      "overlay": 14,
+      "tu": "overlays/o014",
+      "size_bytes": 316,
+      "objdiff_match_pct": null,
+      "differing_words": 45,
+      "first_mismatch_offset": 36,
+      "size_delta": 12,
       "category": "size-mismatch"
     },
     {
@@ -3390,18 +3690,6 @@
       "category": "size-mismatch"
     },
     {
-      "name": "RevealReturnAddresses",
-      "file": "src/main/main.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 200,
-      "objdiff_match_pct": null,
-      "differing_words": 66,
-      "first_mismatch_offset": 0,
-      "size_delta": 64,
-      "category": "size-mismatch"
-    },
-    {
       "name": "func_8004A380",
       "file": "src/main/fx.c",
       "overlay": null,
@@ -3507,18 +3795,6 @@
       "differing_words": 78,
       "first_mismatch_offset": 0,
       "size_delta": 4,
-      "category": "size-mismatch"
-    },
-    {
-      "name": "joyMessageQ",
-      "file": "src/main/joy.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 332,
-      "objdiff_match_pct": null,
-      "differing_words": 83,
-      "first_mismatch_offset": 0,
-      "size_delta": -320,
       "category": "size-mismatch"
     },
     {
@@ -3750,6 +4026,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "overlay1BuildObjectMappings",
+      "file": "src/overlays/o001/overlay_001_head.c",
+      "overlay": 1,
+      "tu": "overlays/o001",
+      "size_bytes": 592,
+      "objdiff_match_pct": null,
+      "differing_words": 114,
+      "first_mismatch_offset": 0,
+      "size_delta": -16,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_overlay_009_F0000744_1866DBC",
       "file": "src/overlays/o009/overlay_009.c",
       "overlay": 9,
@@ -3866,6 +4154,18 @@
       "objdiff_match_pct": null,
       "differing_words": 132,
       "first_mismatch_offset": 0,
+      "size_delta": -4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_overlay_036_F0000A60_1883F18",
+      "file": "src/overlays/o036/overlay36ChooseWeightedState.c",
+      "overlay": 36,
+      "tu": "overlays/o036",
+      "size_bytes": 680,
+      "objdiff_match_pct": null,
+      "differing_words": 132,
+      "first_mismatch_offset": 44,
       "size_delta": -4,
       "category": "size-mismatch"
     },
@@ -4107,6 +4407,30 @@
       "differing_words": 173,
       "first_mismatch_offset": 0,
       "size_delta": -20,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "overlay20UpdateGrid",
+      "file": "src/overlays/o020/overlay20UpdateGrid.c",
+      "overlay": 20,
+      "tu": "overlays/o020",
+      "size_bytes": 860,
+      "objdiff_match_pct": null,
+      "differing_words": 177,
+      "first_mismatch_offset": 0,
+      "size_delta": -4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_overlay_038_F000047C_188618C",
+      "file": "src/overlays/o038/func_overlay_038_F000047C_188618C.c",
+      "overlay": 38,
+      "tu": "overlays/o038",
+      "size_bytes": 876,
+      "objdiff_match_pct": null,
+      "differing_words": 180,
+      "first_mismatch_offset": 0,
+      "size_delta": -4,
       "category": "size-mismatch"
     },
     {
@@ -4506,6 +4830,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_overlay_001_F0003750_184FB30",
+      "file": "src/overlays/o001/overlay_001_tail.c",
+      "overlay": 1,
+      "tu": "overlays/o001",
+      "size_bytes": 1784,
+      "objdiff_match_pct": null,
+      "differing_words": 364,
+      "first_mismatch_offset": 12,
+      "size_delta": 4,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_overlay_057_F0000000_18A3BF8",
       "file": "src/overlays/o057/func_overlay_057_F0000000_18A3BF8.c",
       "overlay": 57,
@@ -4635,6 +4971,18 @@
       "differing_words": 433,
       "first_mismatch_offset": 52,
       "size_delta": -8,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80045D34",
+      "file": "src/main/diCpu.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1836,
+      "objdiff_match_pct": null,
+      "differing_words": 438,
+      "first_mismatch_offset": 0,
+      "size_delta": -28,
       "category": "size-mismatch"
     },
     {
@@ -5058,6 +5406,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_8005BA40",
+      "file": "src/main/gsSnd.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 4860,
+      "objdiff_match_pct": null,
+      "differing_words": 1203,
+      "first_mismatch_offset": 0,
+      "size_delta": -1516,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_overlay_101_F0003A58_18DF278",
       "file": "src/overlays/o101/func_overlay_101_F0003A58_18DF278.c",
       "overlay": 101,
@@ -5118,108 +5478,5 @@
       "category": "size-mismatch"
     }
   ],
-  "unresolved_functions": [
-    "func_80045D34 (src/main/diCpu.c): asm/nonmatchings/main/diCpu/func_80045D34.s: expected exactly one label, found ['.L80046088', '.L800460A0', '.L80046154', 'func_80045D34']",
-    "diRcpMoveWd (src/main/diRcp.c): asm/nonmatchings/main/diRcp/diRcpMoveWd.s: expected exactly one label, found ['.L8004560C', '.L80045614', '.L8004561C', '.L80045624', '.L8004562C', '.L80045634', '.L8004563C', 'diRcpMoveWd']",
-    "diRcpPrintDL (src/main/diRcp.c): asm/nonmatchings/main/diRcp/diRcpPrintDL.s: expected exactly one label, found ['.L80044E54', '.L80044E64', '.L80044E74', '.L80044E8C', '.L80044E9C', '.L80044EB4', '.L80044EC4', '.L80044ED4', '.L80044EE4', '.L80044EFC', '.L80044F30', '.L80044F48', '.L80044F60', '.L80044F78', '.L80044F90', '.L80044FB0', '.L80044FC0', '.L80044FE0', '.L80045000', '.L80045020', '.L80045038', '.L80045050', '.L80045068', '.L80045080', '.L80045098', '.L800450B0', '.L800450C8', '.L800450E0', '.L800450F8', '.L80045110', '.L80045128', '.L80045140', '.L80045160', '.L80045180', '.L800451A0', '.L800451C0', '.L800451D8', '.L800451F0', '.L8004521C', '.L80045234', '.L8004524C', '.L80045264', '.L80045274', '.L8004528C', '.L800452A4', '.L800452BC', '.L800452D4', '.L800452F4', '.L80045314', '.L8004532C', '.L80045344', '.L8004535C', '.L80045374', 'diRcpPrintDL']",
-    "debug_text_character (src/main/diprint.c): import.py did not produce base.o/target.o",
-    "debug_text_parse (src/main/diprint.c): asm/nonmatchings/main/diprint/debug_text_parse.s: expected exactly one label, found ['.L800443B0', '.L800443D0', '.L800443F4', '.L80044468', '.L800444DC', 'debug_text_parse']",
-    "debug_text_width (src/main/diprint.c): import.py did not produce base.o/target.o",
-    "diPrintfAll (src/main/diprint.c): import.py did not produce base.o/target.o",
-    "vsprintf (src/main/diprint.c): no #pragma GLOBAL_ASM(...) found for vsprintf in src/main/diprint.c",
-    "func_80034094 (src/main/gameVi.c): asm/nonmatchings/main/gameVi/func_80034094.s: expected exactly one label, found ['.L800340B8', '.L800340C4', '.L800340D0', '.L800340DC', '.L800340E8', '.L800340F4', '.L80034100', '.L8003410C', '.L80034118', '.L80034124', '.L80034130', '.L8003413C', 'func_80034094']",
-    "func_8005BA40 (src/main/gsSnd.c): asm/nonmatchings/main/gsSnd/func_8005BA40.s: expected exactly one label, found ['.L8005BBDC', '.L8005C3B8', '.L8005C510', '.L8005C5B4', '.L8005C6E0', '.L8005CCB0', 'func_8005BA40']",
-    "func_80019934 (src/main/lights.c): asm/nonmatchings/main/lights/func_80019934.s: expected exactly one label, found ['.L80019978', '.L80019988', '.L800199A0', '.L800199C8', '.L800199F4', 'func_80019934']",
-    "func_80038750 (src/main/menu.c): asm/nonmatchings/main/menu/func_80038750.s: expected exactly one label, found ['.L800387B0', '.L800387B8', '.L800387C0', '.L800387C8', '.L800387D0', 'func_80038750']",
-    "func_800389CC (src/main/menu.c): asm/nonmatchings/main/menu/func_800389CC.s: expected exactly one label, found ['.L80038A14', '.L80038A24', '.L80038A34', '.L80038A44', '.L80038A54', '.L80038A64', '.L80038A74', '.L80038A84', '.L80038A94', '.L80038B54', '.L80038B64', '.L80038B74', '.L80038B84', '.L80038B8C', 'func_800389CC']",
-    "func_80038BC4 (src/main/menu.c): asm/nonmatchings/main/menu/func_80038BC4.s: expected exactly one label, found ['.L80038C0C', '.L80038C1C', '.L80038C2C', '.L80038C44', '.L80038C54', '.L80038C64', '.L80038C74', '.L80038C84', '.L80038D4C', '.L80038D5C', '.L80038D6C', '.L80038D7C', '.L80038D84', 'func_80038BC4']",
-    "func_80038E1C (src/main/menu.c): asm/nonmatchings/main/menu/func_80038E1C.s: expected exactly one label, found ['.L80039038', '.L80039048', '.L80039058', '.L80039068', '.L80039078', '.L80039088', '.L80039098', '.L800390A8', '.L80039178', '.L80039188', '.L80039198', '.L800391C0', '.L800391C8', 'func_80038E1C']",
-    "func_80040740 (src/main/particles.c): asm/nonmatchings/main/particles/func_80040740.s: expected exactly one label, found ['.L8004078C', '.L800407AC', '.L800407C8', 'func_80040740']",
-    "__scSchedule (src/main/sched.c): asm/nonmatchings/main/sched/__scSchedule.s: expected exactly one label, found ['.L80031698', '.L80031720', '.L80031778', '__scSchedule']",
-    "osScGetTaskType (src/main/sched.c): asm/nonmatchings/main/sched/osScGetTaskType.s: expected exactly one label, found ['.L800305A8', '.L800305B4', '.L800305C0', '.L800305CC', '.L800305D8', '.L800305E4', '.L800305F0', 'osScGetTaskType']",
-    "overlay_001 (src/overlays/o001/overlay_001.c): no #pragma GLOBAL_ASM(...) found for overlay_001 in src/overlays/o001/overlay_001.c",
-    "overlay1ResolvePathPoint (src/overlays/o001/overlay_001_end.c): import.py did not produce base.o/target.o",
-    "overlay_001_end (src/overlays/o001/overlay_001_end.c): no #pragma GLOBAL_ASM(...) found for overlay_001_end in src/overlays/o001/overlay_001_end.c",
-    "overlay1BuildObjectMappings (src/overlays/o001/overlay_001_head.c): import.py did not produce base.o/target.o",
-    "overlay_001_head (src/overlays/o001/overlay_001_head.c): no #pragma GLOBAL_ASM(...) found for overlay_001_head in src/overlays/o001/overlay_001_head.c",
-    "overlay_001_middle (src/overlays/o001/overlay_001_middle.c): no #pragma GLOBAL_ASM(...) found for overlay_001_middle in src/overlays/o001/overlay_001_middle.c",
-    "func_overlay_001_F0003750_184FB30 (src/overlays/o001/overlay_001_tail.c): import.py did not produce base.o/target.o",
-    "overlay1AdvancePath (src/overlays/o001/overlay_001_tail.c): import.py did not produce base.o/target.o",
-    "overlay1AppendPathPoint (src/overlays/o001/overlay_001_tail.c): import.py did not produce base.o/target.o",
-    "overlay1ChooseModeObject (src/overlays/o001/overlay_001_tail.c): import.py did not produce base.o/target.o",
-    "overlay1CloneRecord (src/overlays/o001/overlay_001_tail.c): import.py did not produce base.o/target.o",
-    "overlay1HandleCachedMode (src/overlays/o001/overlay_001_tail.c): import.py did not produce base.o/target.o",
-    "overlay1StartTimerCallbacks (src/overlays/o001/overlay_001_tail.c): import.py did not produce base.o/target.o",
-    "overlay1UpdateAimedTransient (src/overlays/o001/overlay_001_tail.c): import.py did not produce base.o/target.o",
-    "overlay_001_tail (src/overlays/o001/overlay_001_tail.c): no #pragma GLOBAL_ASM(...) found for overlay_001_tail in src/overlays/o001/overlay_001_tail.c",
-    "overlay_004 (src/overlays/o004/overlay_004.c): no #pragma GLOBAL_ASM(...) found for overlay_004 in src/overlays/o004/overlay_004.c",
-    "overlay5InitializeAudio (src/overlays/o005/overlay_005.c): import.py did not produce base.o/target.o",
-    "overlay_005 (src/overlays/o005/overlay_005.c): no #pragma GLOBAL_ASM(...) found for overlay_005 in src/overlays/o005/overlay_005.c",
-    "overlay_007 (src/overlays/o007/overlay_007.c): no #pragma GLOBAL_ASM(...) found for overlay_007 in src/overlays/o007/overlay_007.c",
-    "overlay_007_tail (src/overlays/o007/overlay_007_tail.c): no #pragma GLOBAL_ASM(...) found for overlay_007_tail in src/overlays/o007/overlay_007_tail.c",
-    "overlay_008 (src/overlays/o008/overlay_008.c): no #pragma GLOBAL_ASM(...) found for overlay_008 in src/overlays/o008/overlay_008.c",
-    "overlay_009 (src/overlays/o009/overlay_009.c): no #pragma GLOBAL_ASM(...) found for overlay_009 in src/overlays/o009/overlay_009.c",
-    "overlay13ProcessRecord (src/overlays/o013/overlay13ProcessRecord.c): no #pragma GLOBAL_ASM(...) found for overlay13ProcessRecord in src/overlays/o013/overlay13ProcessRecord.c",
-    "func_overlay_014_F0000000_186F8D8 (src/overlays/o014/func_overlay_014_F0000000_186F8D8.c): no #pragma GLOBAL_ASM(...) found for func_overlay_014_F0000000_186F8D8 in src/overlays/o014/func_overlay_014_F0000000_186F8D8.c",
-    "func_overlay_014_F000013C_186FA14 (src/overlays/o014/func_overlay_014_F000013C_186FA14.c): no #pragma GLOBAL_ASM(...) found for func_overlay_014_F000013C_186FA14 in src/overlays/o014/func_overlay_014_F000013C_186FA14.c",
-    "func_overlay_014_F0001830_1871108 (src/overlays/o014/func_overlay_014_F0001830_1871108.c): no #pragma GLOBAL_ASM(...) found for func_overlay_014_F0001830_1871108 in src/overlays/o014/func_overlay_014_F0001830_1871108.c",
-    "overlay_015 (src/overlays/o015/overlay_015.c): no #pragma GLOBAL_ASM(...) found for overlay_015 in src/overlays/o015/overlay_015.c",
-    "overlay_016 (src/overlays/o016/overlay_016.c): no #pragma GLOBAL_ASM(...) found for overlay_016 in src/overlays/o016/overlay_016.c",
-    "overlay20UpdateGrid (src/overlays/o020/overlay20UpdateGrid.c): no #pragma GLOBAL_ASM(...) found for overlay20UpdateGrid in src/overlays/o020/overlay20UpdateGrid.c",
-    "overlay22InitializeObject (src/overlays/o022/overlay22InitializeObject.c): no #pragma GLOBAL_ASM(...) found for overlay22InitializeObject in src/overlays/o022/overlay22InitializeObject.c",
-    "overlay22RemoveObject (src/overlays/o022/overlay22RemoveObject.c): no #pragma GLOBAL_ASM(...) found for overlay22RemoveObject in src/overlays/o022/overlay22RemoveObject.c",
-    "overlay22ResolvePlane (src/overlays/o022/overlay22ResolvePlane.c): no #pragma GLOBAL_ASM(...) found for overlay22ResolvePlane in src/overlays/o022/overlay22ResolvePlane.c",
-    "overlay_025 (src/overlays/o025/overlay_025.c): no #pragma GLOBAL_ASM(...) found for overlay_025 in src/overlays/o025/overlay_025.c",
-    "overlay26DrawGroups (src/overlays/o026/overlay26DrawGroups.c): no #pragma GLOBAL_ASM(...) found for overlay26DrawGroups in src/overlays/o026/overlay26DrawGroups.c",
-    "overlay26HandleEffects (src/overlays/o026/overlay26HandleEffects.c): no #pragma GLOBAL_ASM(...) found for overlay26HandleEffects in src/overlays/o026/overlay26HandleEffects.c",
-    "overlay_027 (src/overlays/o027/overlay_027.c): no #pragma GLOBAL_ASM(...) found for overlay_027 in src/overlays/o027/overlay_027.c",
-    "overlay_028 (src/overlays/o028/overlay_028.c): no #pragma GLOBAL_ASM(...) found for overlay_028 in src/overlays/o028/overlay_028.c",
-    "overlay29HandleEffects (src/overlays/o029/overlay29HandleEffects.c): no #pragma GLOBAL_ASM(...) found for overlay29HandleEffects in src/overlays/o029/overlay29HandleEffects.c",
-    "overlay29InitializeObject (src/overlays/o029/overlay29InitializeObject.c): no #pragma GLOBAL_ASM(...) found for overlay29InitializeObject in src/overlays/o029/overlay29InitializeObject.c",
-    "overlay29ProjectPoint (src/overlays/o029/overlay29ProjectPoint.c): no #pragma GLOBAL_ASM(...) found for overlay29ProjectPoint in src/overlays/o029/overlay29ProjectPoint.c",
-    "overlay31BuildLookupTables (src/overlays/o031/overlay31BuildLookupTables.c): no #pragma GLOBAL_ASM(...) found for overlay31BuildLookupTables in src/overlays/o031/overlay31BuildLookupTables.c",
-    "overlay31InitializeParticleAssets (src/overlays/o031/overlay31InitializeParticleAssets.c): no #pragma GLOBAL_ASM(...) found for overlay31InitializeParticleAssets in src/overlays/o031/overlay31InitializeParticleAssets.c",
-    "overlay35BuildGridMasks (src/overlays/o035/overlay35BuildGridMasks.c): no #pragma GLOBAL_ASM(...) found for overlay35BuildGridMasks in src/overlays/o035/overlay35BuildGridMasks.c",
-    "overlay35Initialize (src/overlays/o035/overlay35Initialize.c): no #pragma GLOBAL_ASM(...) found for overlay35Initialize in src/overlays/o035/overlay35Initialize.c",
-    "overlay36CheckNearbyHeight (src/overlays/o036/overlay36CheckNearbyHeight.c): no #pragma GLOBAL_ASM(...) found for overlay36CheckNearbyHeight in src/overlays/o036/overlay36CheckNearbyHeight.c",
-    "func_overlay_036_F0000A60_1883F18 (src/overlays/o036/overlay36ChooseWeightedState.c): no #pragma GLOBAL_ASM(...) found for func_overlay_036_F0000A60_1883F18 in src/overlays/o036/overlay36ChooseWeightedState.c",
-    "overlay36ChooseWeightedState (src/overlays/o036/overlay36ChooseWeightedState.c): no #pragma GLOBAL_ASM(...) found for overlay36ChooseWeightedState in src/overlays/o036/overlay36ChooseWeightedState.c",
-    "overlay37Render (src/overlays/o037/overlay37Render.c): no #pragma GLOBAL_ASM(...) found for overlay37Render in src/overlays/o037/overlay37Render.c",
-    "func_overlay_038_F000047C_188618C (src/overlays/o038/func_overlay_038_F000047C_188618C.c): no #pragma GLOBAL_ASM(...) found for func_overlay_038_F000047C_188618C in src/overlays/o038/func_overlay_038_F000047C_188618C.c",
-    "overlay38UpdateParticles (src/overlays/o038/overlay38UpdateParticles.c): no #pragma GLOBAL_ASM(...) found for overlay38UpdateParticles in src/overlays/o038/overlay38UpdateParticles.c",
-    "overlay41AddSlot (src/overlays/o041/overlay41AddSlot.c): no #pragma GLOBAL_ASM(...) found for overlay41AddSlot in src/overlays/o041/overlay41AddSlot.c",
-    "overlay41AdvanceStepRecords (src/overlays/o041/overlay41AdvanceStepRecords.c): no #pragma GLOBAL_ASM(...) found for overlay41AdvanceStepRecords in src/overlays/o041/overlay41AdvanceStepRecords.c",
-    "overlay41EnqueueTransition (src/overlays/o041/overlay41EnqueueTransition.c): no #pragma GLOBAL_ASM(...) found for overlay41EnqueueTransition in src/overlays/o041/overlay41EnqueueTransition.c",
-    "overlay41ProcessEntry (src/overlays/o041/overlay41ProcessEntry.c): no #pragma GLOBAL_ASM(...) found for overlay41ProcessEntry in src/overlays/o041/overlay41ProcessEntry.c",
-    "overlay41SampleCurve (src/overlays/o041/overlay41SampleCurve.c): no #pragma GLOBAL_ASM(...) found for overlay41SampleCurve in src/overlays/o041/overlay41SampleCurve.c",
-    "overlay41UpdateColorRecords (src/overlays/o041/overlay41UpdateColorRecords.c): no #pragma GLOBAL_ASM(...) found for overlay41UpdateColorRecords in src/overlays/o041/overlay41UpdateColorRecords.c",
-    "overlay41UpdateCurveObject (src/overlays/o041/overlay41UpdateCurveObject.c): no #pragma GLOBAL_ASM(...) found for overlay41UpdateCurveObject in src/overlays/o041/overlay41UpdateCurveObject.c",
-    "overlay41UpdateProgress (src/overlays/o041/overlay41UpdateProgress.c): no #pragma GLOBAL_ASM(...) found for overlay41UpdateProgress in src/overlays/o041/overlay41UpdateProgress.c",
-    "overlay43AllocateResources (src/overlays/o043/overlay43AllocateResources.c): no #pragma GLOBAL_ASM(...) found for overlay43AllocateResources in src/overlays/o043/overlay43AllocateResources.c",
-    "overlay43ComputeMotion (src/overlays/o043/overlay43ComputeMotion.c): no #pragma GLOBAL_ASM(...) found for overlay43ComputeMotion in src/overlays/o043/overlay43ComputeMotion.c",
-    "overlay43FlushPending (src/overlays/o043/overlay43FlushPending.c): no #pragma GLOBAL_ASM(...) found for overlay43FlushPending in src/overlays/o043/overlay43FlushPending.c",
-    "overlay43InitializeState (src/overlays/o043/overlay43InitializeState.c): no #pragma GLOBAL_ASM(...) found for overlay43InitializeState in src/overlays/o043/overlay43InitializeState.c",
-    "overlay46UpdateSequence (src/overlays/o046/overlay46UpdateSequence.c): no #pragma GLOBAL_ASM(...) found for overlay46UpdateSequence in src/overlays/o046/overlay46UpdateSequence.c",
-    "overlay47ReleaseResources (src/overlays/o047/overlay47ReleaseResources.c): no #pragma GLOBAL_ASM(...) found for overlay47ReleaseResources in src/overlays/o047/overlay47ReleaseResources.c",
-    "overlay_049 (src/overlays/o049/overlay_049.c): no #pragma GLOBAL_ASM(...) found for overlay_049 in src/overlays/o049/overlay_049.c",
-    "overlay50Initialize (src/overlays/o050/overlay50Initialize.c): no #pragma GLOBAL_ASM(...) found for overlay50Initialize in src/overlays/o050/overlay50Initialize.c",
-    "overlay52Initialize (src/overlays/o052/overlay52Initialize.c): no #pragma GLOBAL_ASM(...) found for overlay52Initialize in src/overlays/o052/overlay52Initialize.c",
-    "overlay54Initialize (src/overlays/o054/overlay54Initialize.c): no #pragma GLOBAL_ASM(...) found for overlay54Initialize in src/overlays/o054/overlay54Initialize.c",
-    "overlay60Initialize (src/overlays/o060/overlay60Initialize.c): no #pragma GLOBAL_ASM(...) found for overlay60Initialize in src/overlays/o060/overlay60Initialize.c",
-    "overlay64GenerateTexture (src/overlays/o064/overlay64GenerateTexture.c): no #pragma GLOBAL_ASM(...) found for overlay64GenerateTexture in src/overlays/o064/overlay64GenerateTexture.c",
-    "overlay66SmoothAndDraw (src/overlays/o066/overlay66SmoothAndDraw.c): no #pragma GLOBAL_ASM(...) found for overlay66SmoothAndDraw in src/overlays/o066/overlay66SmoothAndDraw.c",
-    "SHARED_DRAW_FUNCTION (src/overlays/o069/overlay69DrawSortedGeometry.c): import.py did not produce base.o/target.o",
-    "overlay69DrawSortedGeometry (src/overlays/o069/overlay69DrawSortedGeometry.c): no #pragma GLOBAL_ASM(...) found for overlay69DrawSortedGeometry in src/overlays/o069/overlay69DrawSortedGeometry.c",
-    "overlay73Draw (src/overlays/o073/overlay73Draw.c): no #pragma GLOBAL_ASM(...) found for overlay73Draw in src/overlays/o073/overlay73Draw.c",
-    "overlay73Initialize (src/overlays/o073/overlay73Initialize.c): no #pragma GLOBAL_ASM(...) found for overlay73Initialize in src/overlays/o073/overlay73Initialize.c",
-    "overlay88DrawSortedGeometry (src/overlays/o088/overlay88DrawSortedGeometry.c): no #pragma GLOBAL_ASM(...) found for overlay88DrawSortedGeometry in src/overlays/o088/overlay88DrawSortedGeometry.c",
-    "overlay_090 (src/overlays/o090/overlay_090.c): no #pragma GLOBAL_ASM(...) found for overlay_090 in src/overlays/o090/overlay_090.c",
-    "overlay92FindNearestCourse (src/overlays/o092/overlay92FindNearestCourse.c): no #pragma GLOBAL_ASM(...) found for overlay92FindNearestCourse in src/overlays/o092/overlay92FindNearestCourse.c",
-    "overlay100InitializeMotion (src/overlays/o100/overlay100InitializeMotion.c): import.py did not produce base.o/target.o",
-    "overlay101TailAB4C (src/overlays/o101/overlay101TailAB4C.c): no #pragma GLOBAL_ASM(...) found for overlay101TailAB4C in src/overlays/o101/overlay101TailAB4C.c",
-    "overlay101TailB544 (src/overlays/o101/overlay101TailB544.c): no #pragma GLOBAL_ASM(...) found for overlay101TailB544 in src/overlays/o101/overlay101TailB544.c",
-    "overlay101TailBA34 (src/overlays/o101/overlay101TailBA34.c): no #pragma GLOBAL_ASM(...) found for overlay101TailBA34 in src/overlays/o101/overlay101TailBA34.c",
-    "overlay101TailC144 (src/overlays/o101/overlay101TailC144.c): no #pragma GLOBAL_ASM(...) found for overlay101TailC144 in src/overlays/o101/overlay101TailC144.c",
-    "overlay101TailC6E8 (src/overlays/o101/overlay101TailC6E8.c): no #pragma GLOBAL_ASM(...) found for overlay101TailC6E8 in src/overlays/o101/overlay101TailC6E8.c"
-  ]
+  "unresolved_functions": []
 }
