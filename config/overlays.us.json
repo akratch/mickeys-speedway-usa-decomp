@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 88248,
-  "nonmatching_overlay_c_bytes": 285464,
+  "matched_overlay_c_bytes": 88532,
+  "nonmatching_overlay_c_bytes": 285180,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 64,
   "bss_bytes": 77680,
@@ -7726,7 +7726,7 @@
      "type": "c",
      "source": "overlays/o036/overlay36SpawnTransient",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x7B0",
