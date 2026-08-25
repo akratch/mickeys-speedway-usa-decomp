@@ -1494,7 +1494,16 @@ s32 func_800290A0(void) {
     return D_8007A1A8;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_800290AC.s")
+void func_800290AC(s32 arg0) {
+    register s32 *value = &D_8007A1A8;
+
+    *value = arg0;
+    if (*value == 0) {
+        func_80000450(0);
+        return;
+    }
+    func_80000450(1);
+}
 
 s32 func_800290EC(void) {
     return D_8007A148;

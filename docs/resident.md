@@ -2132,7 +2132,7 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Ninety-one functions / 7,776 bytes compile exactly
+**Matching progress.** Ninety-two functions / 7,840 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -2146,7 +2146,7 @@ linked ranges and the full ROM are exact.
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (57 / 5,456 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
+- `main/main` (58 / 5,520 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainSetGameWindow`, `mainSetAnimGroup`,
   `mainGetAnimGroup`,
   `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
@@ -2163,7 +2163,7 @@ linked ranges and the full ROM are exact.
   `func_80028FA8`,
   `func_80028FB8`,
   `func_80029038`, `func_8002904C`, `func_8002905C`, `func_80029084`,
-  `func_800290A0`,
+  `func_800290A0`, `func_800290AC`,
   `func_80029090`, `func_800290EC`, `func_800290F8`, `func_80029104`,
   `func_80029120`, `func_80029144`, `func_80029160`, `func_8002917C`,
   `func_80029198`,
@@ -2282,9 +2282,6 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `joyResetMap`, first mismatch `+0x0`: external storage emits 48 rather than
   36 bytes; TU-local storage is instruction-exact but wrongly claims 16 B of
   BSS and shifts the real symbol.
-- `func_800290AC`, six spellings, first mismatch `+0x0`: exact 64-byte size and
-  11-word tail, but five entry words differ because IDO frames before loading
-  the global into `$t6`; the target loads it into `$v0` first.
 - `func_80028FCC`, ten spellings, first mismatch `+0x1c`: its 108-byte skeleton
   identifies the tier-B `mainAnyoneHas` role (JFG: 108 B, similarity 0.357),
   but Mickey passes zero as every middle argument. The exact-sized candidate
