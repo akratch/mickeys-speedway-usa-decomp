@@ -556,9 +556,9 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Plateau: a fresh Mickey m2c single-cursor route has the exact 87-instruction
- * size/frame with 15 structural words left, first +0x34. Ten are paired LO16
- * scheduling sites; the clear loop remains li/bne instead of slti/bnez.
+ * Plateau: the flag winner stays exact-size with 15 words, first +0x34.
+ * Integer-address/comparison-order probes are neutral; endpoint lifetimes
+ * worsen to 40. Workbench: structure/structure-buckets.
  */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
