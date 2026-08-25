@@ -226,7 +226,10 @@ typedef struct CircularParticlePool {
     u8 pad00[0x14];
     CircularParticle *particles;
     s32 count;
-    u32 *freeBits;
+    s32 activeCount;
+    s32 *freeBits;
+    s32 lastBitWord;
+    s32 exhausted;
 } CircularParticlePool;
 
 typedef struct ParticlePosition {
@@ -787,7 +790,107 @@ void partModelObjEmitModelPart(ParticleModelObject *object, f32 velocityX, f32 v
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partModelObjEmitModelPart.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003FB98.s")
+#ifdef NON_MATCHING
+/*
+ * One-word-short plateau: the best 124-word candidate first differs at +0x4C
+ * and retains 43 aligned residuals. IDO folds the initial free-bit scan
+ * address to a move instead of the target shift/add pair, then assigns the
+ * scan and particle-index scratch registers differently. The full 119-entry
+ * flag lattice found no improvement; a bounded ten-minute permuter batch
+ * improved its internal score from 1065 to 705 without reaching an exact
+ * result.
+ * PROVENANCE: structure cross-checked against JFG
+ * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey
+ * evidence.
+ */
+CircularParticle *func_8004054C(s32 type, s32 direction) {
+    CircularParticlePool *pool;
+    CircularParticle *particle;
+    s32 *freeBits;
+    s32 *wordPtr;
+    s32 bits;
+    s32 particleIndex;
+    s32 wordIndex;
+    s32 bitIndex;
+
+    particle = NULL;
+    wordIndex = 0;
+    if (type >= 5) {
+        return NULL;
+    }
+    pool = D_800D4120[type];
+    if (pool != NULL) {
+        if (pool->activeCount >= pool->count) {
+            if (pool->exhausted == 0) {
+                pool->exhausted = 1;
+            }
+        } else {
+            if (direction == -1) {
+                freeBits = pool->freeBits;
+                if (*freeBits == 0) {
+                    wordPtr = (s32 *)((u8 *)freeBits + (wordIndex << 2));
+                    if (pool->lastBitWord >= wordIndex) {
+                        do {
+                            wordIndex++;
+                            wordPtr++;
+                        } while (*wordPtr == 0 && wordIndex <= pool->lastBitWord);
+                    }
+                }
+                wordPtr = freeBits + wordIndex;
+                if (pool->lastBitWord < wordIndex) {
+                    return NULL;
+                }
+                bits = *wordPtr;
+                bitIndex = 0;
+                particleIndex = wordIndex << 5;
+                if (!(bits & 1)) {
+                    do {
+                        bitIndex++;
+                    } while (!(bits & (1 << bitIndex)));
+                }
+                *wordPtr = bits & ~(1 << bitIndex);
+                particleIndex += bitIndex;
+            } else {
+                wordIndex = pool->lastBitWord;
+                if (wordIndex > 0) {
+                    wordPtr = pool->freeBits;
+                    wordPtr = wordPtr + wordIndex;
+                    if (*wordPtr == 0) {
+                        do {
+                            wordIndex--;
+                            wordPtr--;
+                        } while (wordIndex > 0 && *wordPtr == 0);
+                    }
+                }
+                freeBits = pool->freeBits;
+                wordPtr = freeBits + wordIndex;
+                bits = *wordPtr;
+                particleIndex = wordIndex << 5;
+                if (bits == 0) {
+                    return NULL;
+                }
+                bitIndex = 0x1F;
+                if (!(bits & 0x80000000)) {
+                    do {
+                        bitIndex--;
+                    } while (!(bits & (1 << bitIndex)));
+                }
+                *wordPtr = bits & ~(1 << bitIndex);
+                particleIndex += bitIndex;
+            }
+            if (particleIndex >= pool->count) {
+                return NULL;
+            }
+            particle = &pool->particles[particleIndex];
+            particle->type = type;
+            pool->activeCount++;
+        }
+    }
+    return particle;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8004054C.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * Text-exact plateau: the compiler emits a duplicate jump table rather than
@@ -826,11 +929,11 @@ void func_80040740(CircularParticle *particle) {
         particle->trigger->active = 0;
     }
     pool = D_800D4120[particle->type];
-    if (pool->count > 0) {
+    if (pool->activeCount > 0) {
         if (particle->resource != NULL) {
             func_800347A0(particle->resource);
         }
-        pool->count--;
+        pool->activeCount--;
         particle->type = 0x80;
         index = (particle - pool->particles);
         pool->freeBits[index >> 5] |= 1 << (index & 0x1F);

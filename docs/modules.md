@@ -1433,6 +1433,16 @@ lattice found no exact alternative; a ten-minute bounded permuter run
 improved its internal score from 1410 to 820, but the winning form invented
 an empty guard and was rejected. The original asm body remains canonical.
 
+`func_8004054C` reached a bounded one-word-short plateau under the default
+resident flags. The best compliant candidate has 124 words against the
+125-word target and 43 aligned residuals, first differing at function offset
+`0x4C`. IDO folds the initial free-bit scan address into a pointer move instead
+of the target shift/add pair and then allocates the scan and particle-index
+scratch registers differently. The full 119-entry flag lattice found no
+improvement. A bounded ten-minute permuter batch improved its internal score
+from 1065 to 705 without reaching an exact result. The original asm body
+remains canonical.
+
 `func_80040740` has a 78-word C candidate with the target text instruction
 schedule under the default resident flags, reconstructed from Mickey evidence
 with the JFG assembly sibling as a structural oracle. It cannot be promoted
