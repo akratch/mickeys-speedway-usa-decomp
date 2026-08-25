@@ -13,6 +13,12 @@ extern f32 gOverlay2BoundaryValue;
  * that allocation.
  * The permuter's lower score depended on dropping the axis-zero fallthrough
  * return, so that candidate was not semantically acceptable.
+ * Fresh lane recheck: the 119-combination flag lattice retained the canonical
+ * +4-byte, 61/79-word result and +0x14 first mismatch. Treating the axis as a
+ * literal address, making the boundary value volatile, and preserving its
+ * address through an explicit typed pointer all increased the structural
+ * distance (the latter two grew to 82 and 84 instructions). No type or CFG
+ * hypothesis remains beyond register-order guessing.
  */
 #ifdef NON_MATCHING
 s32 overlay2ClassifyBoundary(f32 x1, f32 y1, f32 x2, f32 y2, s32 *side1,
