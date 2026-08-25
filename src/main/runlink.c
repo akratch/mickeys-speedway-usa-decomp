@@ -60,8 +60,26 @@ extern u8 *D_800D2DB0;             /* base of the section type-3 records patch (
 extern PendingOverlayLoad D_800D2DC8[PENDING_OVERLAY_LOADS];
 extern LinkSlot *linkSlotTable;       /* the link-slot table */
 extern s32 overlayCount;           /* overlays, AND link slots: one each */
+extern RelocationEntry *mainRelocTable;
+extern s32 mainRelocTableCount;
+extern s32 D_8007A27C;
 extern void func_80032BF8(s32 overlayIndex);
 extern void func_80032338(s32 slot);
+extern void *func_8002B280(s32 size, s32 tag);
+extern void mmFree(void *address);
+extern s32 mmGetDelay(void);
+extern void mmSetDelay(s32 delay);
+extern void romCopy(u32 romAddress, u32 ramAddress, s32 size);
+
+typedef struct RunlinkRelocContext {
+    /* 0x00 */ u32 unk0;
+    /* 0x04 */ u8 *textBase;
+    /* 0x08 */ u8 *dataBase;
+    /* 0x0C */ u8 *bssBase;
+    /* 0x10 */ u8 *relocBase;
+} RunlinkRelocContext;
+
+extern RunlinkRelocContext D_800D2DA8;
 
 /* Linker-ish section anchors, referenced only to form differences. */
 extern u8 D_80078D60[]; /* start of .data  */
@@ -360,7 +378,168 @@ s32 ProcessRelocationEntry(RelocationEntry *relocEntry, s32 otIndex) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_80031A30.s")
 #endif
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's permitted published
+ * src/runLink.c:runlinkDownloadCode. Mickey's section layout, loop bounds,
+ * globals, and relocation rules determine every divergence here.
+ */
+s32 runlinkDownloadCode(s32 overlayIndex) {
+    OverlayHeader *overlay;
+    RelocationEntry *relocTable;
+    RelocationEntry *relocEntry;
+    s32 savedDelay;
+    PendingOverlayLoad *overlayLoad;
+    s32 relocCount;
+    s32 otherIndex;
+    s32 overlayNumber;
+
+    overlay = &overlayTable[overlayIndex];
+    overlayLoad = D_800D2DC8;
+    relocTable = NULL;
+
+    if (overlay->vramBase != 0) {
+        return 1;
+    }
+
+    relocCount = PENDING_OVERLAY_LOADS;
+    if (relocCount != 0) {
+        while (relocCount--) {
+            if (overlayIndex == overlayLoad->overlayIndex) {
+                return 0;
+            }
+            overlayLoad++;
+        }
+    }
+
+    D_8007A27C = overlayIndex;
+    overlay->vramBase = (s32) func_8002B280(
+        overlay->textSize + overlay->dataSize + overlay->bssSize +
+            (u16) overlay->relocTableSize,
+        0x83);
+    D_8007A27C = -1;
+
+    if (overlay->vramBase == 0) {
+        return 0;
+    }
+
+    if (overlay->relocTableSize2 != 0) {
+        relocTable = func_8002B280(overlay->relocTableSize2, 0x83);
+        if (relocTable == NULL) {
+            mmFree((void *) overlay->vramBase);
+            return 0;
+        }
+        romCopy(overlay->romAddress + overlay->textSize + overlay->dataSize +
+                    (u16) overlay->relocTableSize,
+                (u32) relocTable, overlay->relocTableSize2);
+    }
+
+    D_800D2DA8.textBase = (u8 *) overlay->vramBase;
+    D_800D2DA8.dataBase =
+        (u8 *) ((s32) D_800D2DA8.textBase + overlay->textSize);
+    D_800D2DA8.bssBase =
+        (u8 *) ((s32) D_800D2DA8.dataBase + overlay->dataSize);
+    D_800D2DA8.relocBase =
+        (u8 *) ((s32) D_800D2DA8.bssBase + overlay->bssSize);
+
+    if (overlay->bssSize == 0) {
+        romCopy(overlay->romAddress, (u32) overlay->vramBase,
+                overlay->textSize + overlay->dataSize +
+                    (u16) overlay->relocTableSize);
+    } else {
+        s32 *bss;
+
+        romCopy(overlay->romAddress, (u32) overlay->vramBase,
+                overlay->textSize + overlay->dataSize);
+        bss = (s32 *) D_800D2DA8.bssBase;
+        relocCount = (u32) overlay->bssSize >> 2;
+        while (relocCount--) {
+            *bss++ = 0;
+        }
+        romCopy(overlay->romAddress + overlay->textSize + overlay->dataSize,
+                (u32) D_800D2DA8.relocBase,
+                (u16) overlay->relocTableSize);
+    }
+
+    osInvalICache((void *) overlay->vramBase, overlay->textSize);
+
+    if (relocTable != NULL) {
+        savedDelay = mmGetDelay();
+        relocCount = (u32) overlay->relocTableSize2 >> 3;
+        relocEntry = relocTable;
+        while (relocCount-- > 0) {
+            if (ProcessRelocationEntry(relocEntry, overlayIndex) == 2) {
+                relocCount--;
+                relocEntry++;
+            }
+            relocEntry++;
+        }
+        mmSetDelay(0);
+        mmFree(relocTable);
+        mmSetDelay(savedDelay);
+    }
+
+    relocCount = (u32) (u16) overlay->relocTableSize >> 3;
+    relocEntry = (RelocationEntry *) D_800D2DA8.relocBase;
+    while (relocCount-- > 0) {
+        if (ProcessRelocationEntry(relocEntry, overlayIndex) == 2) {
+            relocCount--;
+            relocEntry++;
+        }
+        relocEntry++;
+    }
+
+    overlay = overlayTable;
+    for (otherIndex = 0; otherIndex < overlayCount; otherIndex++) {
+        if (overlay->vramBase != 0 && otherIndex != overlayIndex) {
+            if (otherIndex == 0) {
+                D_800D2DA8.textBase = (u8 *) func_80000450;
+                D_800D2DA8.dataBase = D_80078D60;
+                D_800D2DA8.bssBase = D_80085A40;
+                D_800D2DA8.relocBase = (u8 *) mainRelocTable;
+                relocEntry = mainRelocTable;
+                relocCount = mainRelocTableCount;
+            } else {
+                D_800D2DA8.textBase = (u8 *) overlay->vramBase;
+                D_800D2DA8.dataBase =
+                    (u8 *) ((s32) D_800D2DA8.textBase + overlay->textSize);
+                D_800D2DA8.bssBase =
+                    (u8 *) ((s32) D_800D2DA8.dataBase + overlay->dataSize);
+                D_800D2DA8.relocBase =
+                    (u8 *) ((s32) D_800D2DA8.bssBase + overlay->bssSize);
+                relocEntry = (RelocationEntry *) D_800D2DA8.relocBase;
+                relocCount = (u32) (u16) overlay->relocTableSize >> 3;
+            }
+
+            while (relocCount-- > 0) {
+                overlayNumber = overlayRomTable[relocEntry->symbolIndex].overlayNumber;
+                if (overlayNumber >= 0xFFC) {
+                    overlayNumber = 0;
+                }
+                if (overlayNumber == overlayIndex &&
+                    ((relocEntry->u.info & 0xF) == RELOC_OP_SYMBOL ||
+                     (relocEntry->u.info & 0xF) == RELOC_OP_DATA)) {
+                    if (ProcessRelocationEntry(relocEntry, otherIndex) == 2) {
+                        relocCount--;
+                        relocEntry++;
+                    }
+                }
+                relocEntry++;
+            }
+        }
+        overlay++;
+    }
+
+    overlay = &overlayTable[overlayIndex];
+    if (overlay->initFunction != -1) {
+        ((void (*)(void)) (overlay->vramBase + overlay->initFunction))();
+    }
+
+    return 1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkDownloadCode.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/func_800320F0.s")
 /*
  * Is this overlay resident? Returns its VRAM base, which is zero when it is
