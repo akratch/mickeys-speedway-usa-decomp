@@ -5849,8 +5849,7 @@
       "size": 312,
       "source": "src/overlays/o089/overlay89UpdateEffect.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {

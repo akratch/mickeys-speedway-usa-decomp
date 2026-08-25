@@ -33,22 +33,19 @@ extern void *overlay89CreateEffectReloc(f32 x, f32 y, f32 z, f32 scale,
 /*
  * DKR v77/v80 and JFG have no exact donor for this effect update. The
  * per-file R4300 multiply scheduling flag is required for the shipped hazard
- * nop; the guarded normalization selects the retail local-allocation web.
+ * nop.
  */
-#ifdef NON_MATCHING
 void overlay89UpdateEffect(const Overlay89Transform *transform,
                            Overlay89EffectState *effect) {
+    f32 x;
+    f32 y;
+    f32 z;
     f32 trigA0;
     f32 trigB0;
     f32 trigA1;
     f32 trigB1;
-    f32 radial;
-    f32 scaledSize;
     f32 scaleValue;
     volatile f32 scaleArg;
-    f32 x;
-    volatile f32 y;
-    f32 z;
 
     if (effect->enabled == 0) {
         return;
@@ -59,24 +56,25 @@ void overlay89UpdateEffect(const Overlay89Transform *transform,
     trigA1 = overlay89TrigAReloc(transform->angleB);
     trigB1 = overlay89TrigBReloc(transform->angleB);
 
-    scaleValue = effect->scale;
-    scaleArg = scaleValue;
-    scaledSize = scaleValue * gOverlay89EffectScale;
-    radial = effect->radius * trigB1;
-    x = transform->x - (radial * trigA0);
+    scaleValue = (scaleArg = effect->scale);
+    scaleValue *= gOverlay89EffectScale;
+    z = effect->radius;
+    trigB1 = z * trigB1;
+    x = transform->x - (trigB1 * trigA0);
     y = transform->y + (effect->radius * trigA1);
-    z = transform->z - (radial * trigB0);
+    z = transform->z - (trigB1 * trigB0);
 
     if (effect->handle != NULL) {
         overlay89MoveEffectReloc(effect->handle, x, y, z);
     } else {
         effect->handle = overlay89CreateEffectReloc(
-            x, y, z, scaleArg, scaledSize,
+            x,
+            y,
+            z,
+            scaleArg,
+            scaleValue,
             (effect->red * effect->intensity) >> 8,
             (effect->green * effect->intensity) >> 8,
             (effect->blue * effect->intensity) >> 8);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o089/overlay89UpdateEffect/func_overlay_089_F0000000_18D4230.s")
-#endif

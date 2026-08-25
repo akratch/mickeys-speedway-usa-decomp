@@ -1602,8 +1602,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o088/overlay88DrawSortedGeometry.c.o: POSTPROCE
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x59C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateEffect.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89UpdateEffect.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_089_F0000000_18D4230=overlay89UpdateEffect $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x138
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o089/overlay89Evaluate.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70
