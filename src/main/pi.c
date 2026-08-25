@@ -19,9 +19,33 @@ extern AssetLookupTable *D_800D2470;
 extern u8 D_86760[];
 
 void romCopy(u32 romOffset, u32 ramAddress, s32 numBytes);
+void *func_8002B280();
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/pi/piInit.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/pi/piRomLoad.s")
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/pi.c:piRomLoad. */
+u32 *piRomLoad(u32 assetIndex) {
+    u32 *index;
+    u32 *out;
+    s32 size;
+    u32 start;
+
+    if (assetIndex > D_800D2470->fileCount) {
+        return NULL;
+    }
+    assetIndex++;
+    index = assetIndex + D_800D2470->offsets - 1;
+    start = index[0];
+    size = index[1] - start;
+    if (size == 0) {
+        return NULL;
+    }
+    out = func_8002B280(size, 0x84);
+    if (out == NULL) {
+        return NULL;
+    }
+    romCopy((u32) (start + D_86760), (u32) out, size);
+    return out;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/pi/piRomLoadCompressed.s")
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/pi.c:piRomLoadSection. */
 s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size) {
