@@ -76,17 +76,12 @@ extern s32 func_overlay_043_F0001184_188B154(
 extern void func_overlay_043_F0001264_188B234(
     Overlay43Input *input, Overlay43State *state, s32 flags, s32 mode);
 
-/* Plateau (batch 14): exact 0x194, best 25 words first at +0x38.
- * byte12 ^ 0 fixes two; target hoists a2=0x800 before current/parent selection.
- * Flags, declarations, locals, grouping, and bounded permuter found no zero. */
-#ifdef NON_MATCHING
 s32 func_overlay_043_F0000000_1889FD0(Overlay43Input *input) {
     Overlay43Command *command;
     Overlay43State *state;
-    void **current;
+    void *selectedObject;
     void **selected;
     s8 linkIndex;
-    u8 byte12;
 
     state = input->source->state;
     if (func_overlay_043_F0001184_188B154(input, state) == 0) {
@@ -94,17 +89,17 @@ s32 func_overlay_043_F0000000_1889FD0(Overlay43Input *input) {
     }
 
     state->alpha = 1.0f;
-    current = input->entries[input->currentIndex];
-    state->current = current;
+    state->current = input->entries[input->currentIndex];
     linkIndex = input->parent->linkIndex;
     if (linkIndex >= 0) {
-        selected = current;
+        selected = state->current;
         state->parent = input->entries[linkIndex];
     } else {
         selected = state->current;
         state->parent = selected;
     }
-    if (((u8 *)*selected)[0x2F] != 0) {
+    selectedObject = *selected;
+    if (((u8 *)selectedObject)[0x2F] != 0) {
         state->enabled = 1;
     }
 
@@ -135,13 +130,9 @@ s32 func_overlay_043_F0000000_1889FD0(Overlay43Input *input) {
     state->y = input->source->y;
     state->flags = input->source->flags | 0x10;
     state->byte11 = input->source->byte11;
-    byte12 = input->source->byte12 ^ 0;
+    state->byte12 = input->source->byte12;
     state->byte13 = 0;
     state->short0C = 0;
     state->short0E = 0;
-    state->byte12 = byte12;
     return 1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/overlay43InitializeState/func_overlay_043_F0000000_1889FD0.s")
-#endif

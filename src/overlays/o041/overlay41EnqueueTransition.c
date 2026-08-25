@@ -25,12 +25,9 @@ extern u8 gOverlay41QueueEntries[];
 
 #define entry ((volatile u8 *)cursor)
 
-/*
- * Plateau (2026-08-25): 76/105 masked words exact with the default flags;
- * first mismatch +0x8. The exact-size integer cursor keeps current and next
- * entries in v1/v0, while the target reuses v0 with adjusted future offsets;
- * direct and typed volatile pointers grow beyond the 0x1A4-byte target.
- */
+/* Workbench: 105 instructions exact; 29 words from +0x8, mixed structural/register.
+ * Tried the flag lattice, cursor types/updates/placement, dead webs, and offsets.
+ * Remaining: current/next address web; target reuses one cursor and reorders a block. */
 #ifdef NON_MATCHING
 void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
                                        s32 value6, s32 value8, s32 value9,
