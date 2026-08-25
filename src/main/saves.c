@@ -483,7 +483,56 @@ done:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/font_codes_to_string.s")
 #endif
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:string_to_font_codes. */
+char *string_to_font_codes(char *inString, char *outString, s32 stringLength) {
+    s32 i;
+    char currentChar;
+    char *ret;
+    s32 peel;
+    s32 roundedLength;
+
+    ret = outString;
+    while (*inString != 0 && stringLength != 0) {
+        *outString = 0;
+        for (i = 0; i < 65; i++) {
+            currentChar = *inString;
+            if (currentChar == D_8007A284[i]) {
+                *outString = i;
+                outString++;
+                break;
+            }
+        }
+        inString++;
+        stringLength--;
+    }
+    if (stringLength != 0) {
+        peel = -(stringLength & 3);
+        roundedLength = peel + stringLength;
+        if (peel != 0) {
+            do {
+                stringLength--;
+                *outString++ = 0;
+            } while (roundedLength != stringLength);
+        }
+        if (stringLength != 0) {
+            do {
+                stringLength -= 4;
+                outString[0] = 0;
+                outString[1] = 0;
+                outString[2] = 0;
+                outString[3] = 0;
+                outString += 4;
+            } while (stringLength != 0);
+        }
+    }
+    *outString = 0;
+    return ret;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/string_to_font_codes.s")
+#endif
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:packGetFileType, while retaining Mickey's placeholder name. */
 s32 func_8002E020(s32 controllerIndex, s32 fileNum) {

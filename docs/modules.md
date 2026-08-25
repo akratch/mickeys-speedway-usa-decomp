@@ -1417,6 +1417,16 @@ swap, first at function `+0x64`. The unavailable permuter import prevents a
 bounded automated declaration search; the assembly fallback remains
 canonical.
 
+`string_to_font_codes` retains its paired JFG-derived `NON_MATCHING` body
+after the flag lattice and ten source, CFG, and type shapes. The donor loop is
+instruction-exact with ordinary resident flags, while this TU's required
+`-Wo,-loopunroll,0` removes the target's twelve-instruction four-byte padding
+expansion. Spelling the peel and four stores explicitly restores the exact
+47-instruction opcode and relocation shape, leaving five register-only words
+from one `$a0`/`$v0` web swap, first at function `+0x70`. The unavailable
+permuter import prevents a bounded automated declaration search; the assembly
+fallback remains canonical.
+
 ### 3.16 Particle and debug-print translation units
 
 ROM `0x3D5F0`–`0x45760` is now split into two aligned resident C
