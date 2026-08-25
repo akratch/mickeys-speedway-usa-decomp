@@ -425,6 +425,9 @@ s32 mmGetDelay(void) {
  * PROVENANCE: adapted from JFG src/memory.c:mempool_slot_assign. Mickey's
  * pool accounting, byte-sized slot fields, globals, and bytes are authoritative.
  */
+/* Plateau retry (2026-08-25): -O2/-mips2 stays exact-sized; a volatile
+ * colour-index read reduces 57 to 47 differing words, first +0x8. Donor-style
+ * arrays, widths, declaration order, and pointer lifetimes did not close it. */
 #ifdef NON_MATCHING
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
                    s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag) {
@@ -432,7 +435,7 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
     MemoryPoolSlot *slots;
     MemoryPoolSlot *slot;
     MemoryPoolSlot *newSlot;
-    s32 *colourTagIndex;
+    volatile s32 *colourTagIndex;
     s32 index;
     s32 nextIndex;
     s32 slotSize;
