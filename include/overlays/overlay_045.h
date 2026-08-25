@@ -16,7 +16,7 @@ typedef struct Overlay45ResourceDescriptor {
     /* 0x1C */ u8 count;
     /* 0x1D */ u8 mode;
     /* 0x1E */ u8 unk1E;
-    /* 0x1F */ u8 pad1F;
+    /* 0x1F */ s8 unk1F;
     /* 0x20 */ u8 unk20;
     /* 0x21 */ u8 unk21;
     /* 0x22 */ u8 unk22;
@@ -33,19 +33,19 @@ typedef struct Overlay45Element {
     f32 y;
     u8 pad08[2];
     s16 unk0A;
-    s16 unk0C;
-    s16 unk0E;
+    u16 unk0C;
+    u16 unk0E;
     s16 unk10;
-    u8 unk12;
-    u8 unk13;
+    s8 unk12;
+    s8 unk13;
     f32 scale;
     s16 drawX;
     s16 drawY;
     s8 offsetX;
     s8 offsetY;
-    u8 unk1E;
-    u8 unk1F;
-    s16 unk20;
+    s8 unk1E;
+    s8 unk1F;
+    u16 unk20;
     s16 unk22;
 } Overlay45Element;
 
