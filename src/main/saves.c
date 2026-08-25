@@ -322,6 +322,9 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C69C.s")
 #endif
 #ifdef NON_MATCHING
+/* Workbench: register-permutation residual; exact 31-word size, 14 positional differences, first +0x14.
+ * Levers: chained byte assignment and direct field test improved 18 to 14; corrected 30-minute permutation found no exact form.
+ * Remains: invariant-mask/next-bit web needs ring-only temporaries unavailable to the color lever; assembly fallback stays canonical. */
 void func_8002C70C(SavesBitWriter *reader, s32 *value, s32 bitCount) {
     u32 nextBit;
     u32 bit;
@@ -334,9 +337,8 @@ void func_8002C70C(SavesBitWriter *reader, s32 *value, s32 bitCount) {
         do {
             mask = reader->mask;
             nextBit = bit >> 1;
-            if (mask == 0) {
-                reader->mask = 0x80;
-                mask = 0x80U & 0xFF;
+            if (reader->mask == 0) {
+                mask = reader->mask = 0x80;
                 reader->cursor++;
             }
             shiftedMask = mask;

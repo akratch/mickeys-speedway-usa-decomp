@@ -1774,23 +1774,9 @@ canonical MIPS II permuter then led to a coherent value-bit/cursor-field
 lifetime rewrite: exact 28-word size, 18 differences from `+0x10` (17 register,
 one opcode); the remaining blocker is constant/next-bit register coloring.
 
-Its paired bit reader `func_8002C70C` likewise retains a Mickey-derived
-`NON_MATCHING` body. The 119-combination flag lattice and five local-width and
-expression shapes reach the target's exact 31-instruction control-flow shape,
-but 18 words differ from the first mismatch at `+0x14`: the loop-invariant
-`0x80` mask and subsequent temporaries allocate to different registers, with
-one remaining opcode difference and no relocation differences. Automated
-declaration permutation is blocked by the same absent permuter import. The
-assembly fallback remains canonical.
-
-A fresh local-width retry used byte-sized mask temporaries, matching the
-values' stored width rather than their promoted arithmetic width. It regressed
-to 32 instructions, 24 positional differences, and first mismatch `+0x0`.
-The promoted-width candidate remains best at the target's 31 instructions,
-18 differences, and first mismatch `+0x14`.
-This run's explicit cursor-field retry added one word; a bounded MIPS II
-permuter improved only by inventing a 64-bit mask seed, so the faithful
-31-word/18-difference candidate remains guarded with the same `+0x14` blocker.
+`func_8002C70C` is exact-size with 14/31 positional words differing, first `+0x14`; workbench verdict: register-permutation residual.
+Chained byte assignment and a direct field test improved 18 to 14; the corrected-flag 30-minute permutation found no faithful exact form.
+The invariant-mask/next-bit web still needs ring-only temporaries unavailable to the color lever; the assembly fallback stays canonical.
 
 The full-save-image builder `func_8002CF6C` also retains a Mickey-derived
 `NON_MATCHING` body after the 119-combination flag lattice and ten
