@@ -191,6 +191,9 @@ void func_800336A8(s32 videoMode) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_800336A8.s")
 #endif
+/* Plateau: the 50-word body is linked-exact but lacks framebuffer relocations, first at +0x1C.
+ * Scalar/array externs restore identity but add address formation and shift at least 43 words.
+ * Alignment and indexed variants did not preserve IDO's schedule; the literal remains best. */
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c:viReset. */
 void func_800339B4(void) {
