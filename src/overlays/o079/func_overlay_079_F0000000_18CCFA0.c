@@ -47,6 +47,9 @@ extern void func_8005AD64(Overlay79InitObject *object, s32 mode, s32 index,
  * The remaining delta begins with a commuted floating-point multiply and
  * propagates through the later floating-point register choices.  All source
  * associations and the complete flag lattice retain that allocation split.
+ * Revalidated on 2026-08-25: the full 119-combination lattice reproduced the
+ * same result, and a 10-minute two-worker permuter batch found no improvement
+ * over its base score of 105.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000000_18CCFA0(Overlay79InitObject *object,
