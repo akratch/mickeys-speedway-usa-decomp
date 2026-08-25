@@ -49,6 +49,8 @@ extern s32 D_800D5F40[];
 extern s16 *D_800D2FA8;
 void stop_all_threads_except_main(void);
 void diCpuThread(void *unused);
+void func_80045BBC();
+void func_80045D34();
 
 /* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuTraceInit. */
 void diCpuTraceInit(void) {
@@ -102,7 +104,23 @@ void stop_all_threads_except_main(void) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045BBC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045CAC.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066E14_67A14. */
+void func_80045CAC(void) {
+    OSThread *thread;
+
+    for (thread = __osGetActiveQueue(); thread->priority != -1;
+         thread = thread->tlnext) {
+        if (thread->priority > OS_PRIORITY_IDLE) {
+            if ((thread->flags & 2) || (thread->flags & 1)) {
+                break;
+            }
+        }
+    }
+    if (thread->priority != -1) {
+        func_80045BBC(thread);
+    }
+    func_80045D34(thread);
+}
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's closest peer, src/diCpu.c::func_80067880,
  * remains assembly-only and supplies no body. */

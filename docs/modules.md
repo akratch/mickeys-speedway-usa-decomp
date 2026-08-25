@@ -1732,7 +1732,7 @@ with the JFG identity and tier on the same row, until each function or its
 caller becomes C-owned; this avoids pretending that a source-level rename is
 already available to the stale generated caller assembly.
 
-Exact C closures in these splits begin with 240 bytes across four `diCpu`
+Exact C closures in these splits begin with 376 bytes across five `diCpu`
 functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
 60-byte `func_8004650C` (`diCpuTraceTick`). Their natural return-zero and
 60-tick counter bodies are identical under the resident `-O2 -mips2 -32`
@@ -1803,6 +1803,10 @@ The 88-byte `func_80046E00` screen-clear helper is also exact at the resident
 defaults. JFG's natural framebuffer pointer/countdown loop reproduces all 22
 owned instructions and the `viGetCurrentSize` plus framebuffer relocations;
 the two following target words are alignment padding outside the function.
+The 136-byte `func_80045CAC` active-thread scanner is exact as well. JFG's
+natural thread-list loop reproduces all 34 owned instructions, including both
+branch-likely paths, the 32-byte frame, the active-queue relocation, and both
+crash-handler call relocations at the resident defaults.
 The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
 handle locals reproduce the target's direct second argument register and
 branch-delay schedule, with both texture-free calls and the allocator call
