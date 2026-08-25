@@ -413,7 +413,34 @@ OSScTask *__scTaskReady(OSScTask *task) {
     }
     return NULL;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scTaskComplete.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scTaskComplete. */
+s32 __scTaskComplete(OSSched *sc, OSScTask *task) {
+    if ((task->state & 3) == 0) {
+        if (task->msgQ != NULL) {
+            if (task->flags & 0x20) {
+                if (sc->frameCount <= 1) {
+                    sc->unkTask = task;
+                    return 1;
+                }
+                if (task->unk68 != 0 || task->msg != NULL) {
+                    osSendMesg(task->msgQ, task->msg, OS_MESG_BLOCK);
+                } else {
+                    osSendMesg(task->msgQ, &D_8007A640, OS_MESG_BLOCK);
+                }
+                sc->frameCount = 0;
+                return 1;
+            }
+            if (task->unk68 != 0 || task->msg != NULL) {
+                osSendMesg(task->msgQ, task->msg, OS_MESG_BLOCK);
+                return 1;
+            }
+            osSendMesg(task->msgQ, &D_8007A640, OS_MESG_BLOCK);
+        }
+        return 1;
+    }
+    return 0;
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:__scAppendList. */
 void __scAppendList(OSSched *sc, OSScTask *task) {
