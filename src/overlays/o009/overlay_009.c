@@ -337,7 +337,7 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
     }
 }
 
-/* Workbench: mixed constant/relocation residual; 4/162 words differ, first +0xC8.
+/* Workbench: mixed constant/relocation; 4/162 object words differ from +0xC8, and the linked oracle reports five operands.
  * Constant-audit tried explicit local layouts, padding widths, and D_50 binding.
  * Angle home remains +0x32 vs +0x2A; the 0.65f pool addend is +0x4C vs +0x50. */
 #ifdef NON_MATCHING

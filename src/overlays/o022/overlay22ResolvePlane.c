@@ -29,11 +29,11 @@ typedef struct Overlay22Owner {
     Overlay22Result *result64;
 } Overlay22Owner;
 
-extern f32 D_10;
+extern f32 gOverlay22DataBase[];
 extern f32 func_overlay_022_F0000000_1878108(f32);
 
 /* Workbench: mixed constant/commutative; best differs 7/173 words, first linked +0x74.
- * Compound assignment, spill-padding widths, and a projected-vector aggregate were tried.
+ * Typed base indexing fixes the +0x10 relocation; compound, padding/aggregate, and address-mark levers regress or are neutral.
  * Three mul operand encodings and X/Z homes +0x50/+0x48 vs +0x54/+0x4C remain. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000A7C_1878B84(
@@ -56,7 +56,7 @@ void func_overlay_022_F0000A7C_1878B84(
     ny = plane->normal.y;
     nz = plane->normal.z;
 
-    if ((D_10 <= ny) || (((s32)plane->flags << 3) < 0)) {
+    if ((gOverlay22DataBase[4] <= ny) || (((s32)plane->flags << 3) < 0)) {
         crossX = (ny * direction->z) - (direction->y * nz);
         crossY = (nz * direction->x) - (direction->z * nx);
         crossZ = (nx * direction->y) - (direction->x * ny);
