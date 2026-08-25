@@ -28,6 +28,18 @@
     {
       "class": "metadata",
       "matched_c": null,
+      "object": "build/src/main/rcpFast3d.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/rcpFast3d.c",
+      "tools": [
+        "rebind_elf_relocations.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
       "object": "build/src/main/weather.c.o",
       "offset": null,
       "overlay": null,
@@ -7502,9 +7514,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 608
+      "metadata": 609
     },
     "matched_c_bytes_with_postprocess": 396792,
-    "objects_with_postprocess": 608
+    "objects_with_postprocess": 609
   }
 }

@@ -730,6 +730,14 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 # lattice otherwise expands four 0x20-byte records into each loop iteration.
 $(BUILD_DIR)/$(SRC_DIR)/main/saves.c.o: CFLAGS += -Wo,-loopunroll,0
 
+# Preserve the SDK end-label spelling that gives IDO the shipped address web,
+# then restore the target's equivalent Fast3D-start relocation identity.
+$(BUILD_DIR)/$(SRC_DIR)/main/rcpFast3d.c.o: \
+	config/normalizations/rcpFast3d.rebind.spec
+$(BUILD_DIR)/$(SRC_DIR)/main/rcpFast3d.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/rcpFast3d.rebind.spec
+
 # The charControl target carries the R4300 multiply scheduling nops around its
 # single-precision smoothing helpers; the flag lattice isolates this assembler
 # mode without changing the resident TU's O2/MIPS-II compiler output.
