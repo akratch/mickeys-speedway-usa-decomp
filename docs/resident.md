@@ -274,13 +274,9 @@ pointer-loop variants did not reproduce the target's four-word header-copy
 loop, so the remaining blocker is source shape and live ranges rather than
 semantics or constants.
 
-`func_8004D40C` has an exact-size, exact-frame, exact-relocation candidate
-under `NON_MATCHING`: 109 instructions with five differing words. The first
-mismatch is at function offset `+0x5C`, where the target preserves the loaded
-character with `move $t2,$a3` in a branch delay slot; IDO coalesces that copy
-out of the candidate and reverses four dependent comparison operands. The
-stock flag lattice found no exact result. The requested bounded permuter could
-not start because `tools/permuter` is absent from this lane.
+`func_8004D40C`: workbench mixed structural/register; 109 words, five differences, first `+0x5C`.
+Structure-buckets and distinct-initial-value forms compile identically under the stock flag lattice.
+A delay-slot copy and its dependent temporary web remain unrecovered, so assembly stays canonical.
 
 `func_8004BA8C` plateaus at the exact 46-word size and relocation surface under stock flags: 10 positional words differ, first at `+0x18`.
 A distinct default-width local closes 18 prior residuals; the target frame is `0x30` versus the candidate's `0x28`.
