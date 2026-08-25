@@ -165,7 +165,7 @@ TEXT_SUBSEGMENTS = {
     ],
     7: [
         (0x000, "c", "overlay_007"),
-        (0x324, "asm", "overlay_007_middle"),
+        (0x324, "c", "func_overlay_007_F0000324_185C1AC"),
         (0x894, "c", "overlay_007_tail"),
         (0xFB8, "asm", "overlay_007_padding"),
     ],
