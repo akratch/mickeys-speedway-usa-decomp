@@ -278,9 +278,9 @@ semantics or constants.
 Structure-buckets and distinct-initial-value forms compile identically under the stock flag lattice.
 A delay-slot copy and its dependent temporary web remain unrecovered, so assembly stays canonical.
 
-`func_8004BA8C` plateaus at the exact 46-word size and relocation surface under stock flags: 10 positional words differ, first at `+0x18`.
-A distinct default-width local closes 18 prior residuals; the target frame is `0x30` versus the candidate's `0x28`.
-The remaining blocker is the font-record pointer web and its two conversion-call spill slots (`+0x18`/`+0x20` target, `+0x1C`/`+0x24` candidate).
+`func_8004BA8C` is exact in 42/46 words with the target frame and relocations; four register-only words differ first at `+0x30`.
+Workbench reports one `v0`/`a3` font-data web; the restored width-hoist/u32-index body is the best retained candidate.
+Fresh explicit byte-offset and base-pointer forms regress the schedule, so assembly stays canonical.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
@@ -2075,21 +2075,10 @@ and leaves 110 differing positions. The blocker is register allocation around
 the conditional third-framebuffer allocation. The flag lattice found no exact
 variant, and the configured permuter checkout is absent in this lane.
 
-`func_80034094` has an instruction-exact 47-word `NON_MATCHING` switch body
-adapted from JFG's `viGetOsViMode`; a full 119-configuration flag sweep again
-found the resident flags exact. Strict object comparison, however, finds two
-relocation-identity differences at function offsets `+0x10` and `+0x18`: the
-target names `jtbl_8008249C`, while IDO names the candidate's anonymous
-`.rodata` table. It cannot be promoted within this TU's ownership because the
-separately extracted `jtbl_8008249C` still owns the 12 case-label references;
-replacing the asm body therefore leaves those labels undefined and also emits
-a duplicate 48-byte table. The canonical path remains the original asm pending
-coordinated rodata ownership.
-Retyping the mode argument and its `ResolutionSettings` field to JFG's
-`VideoModes` enum produced the same 47-word object and the same anonymous-table
-relocations. Strict comparison still reports only the two symbol-identity
-differences at `+0x10` and `+0x18`; the donor enum type cannot perform the
-required rodata ownership handoff.
+`func_80034094` reproduces all 47 instructions; strict comparison differs only in two relocation identities at `+0x10`/`+0x18`.
+Fresh JFG-source and enum rechecks still emit anonymous `.rodata`, while the target names separately owned `jtbl_8008249C`.
+That rodata handoff is outside this lane's ownership, so the switch remains `NON_MATCHING` and assembly stays canonical.
+
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
 **Why the rows do not establish new internal boundaries.** §1's "measured file
@@ -3027,23 +3016,9 @@ and receive no credit. Exact executable C in `main/vehicle_sounds` now totals
 `0xF4` bytes.
 
 The remaining vehicle functions plateau without exact credit.
-`func_80058250`'s best named-global initializer emits 26 instructions against
-22 and differs in 19 positional words from `+0x0`; a typed four-slot aggregate
-reaches the exact size but differs in 21 positions. The complete flag lattice
-does not produce the target's mixed global-address schedule. A new per-slot
-volatile aggregate spelling also reaches 22 words and improves that basin to
-20 positional differences from `+0x0`, but still hoists four full extern
-addresses and carries only 8 relocation records against the target assembly's
-20. Statement reordering, pointer-relative stores, one array aggregate, and
-volatile/non-volatile per-slot objects cover the coherent extern-layout
-families; reproducing the target now appears to require the original data
-ownership/layout context rather than another initializer ordering.
-A split-tail retry modeled each handle as a scalar and its adjacent float and
-object pointer as a two-field aggregate, preserving two source-level bases per
-slot. IDO materialised each tail pointer explicitly: the candidate remained 26
-words against 22, differed in all 22 target positions from `+0x8`, and carried
-16 relocation records rather than 20. The full 119-configuration lattice kept
-stock `-O2 -mips2 -32` best, so the original data-ownership blocker remains.
+`func_80058250` retains its 26-word named-global candidate against 22 target words, with 19 positional differences first at `+0x0`.
+A fresh m2c target-order retry regresses to 20 differences; aggregate and split-tail forms still miss the target's 20 relocations.
+The blocker remains original BSS ownership/layout and cross-symbol high-half reuse, so assembly stays canonical.
 `func_8005830C` now has a complete typed `NON_MATCHING` reconstruction adapted
 at the organization/terminology level from DKR's permitted published
 `src/audio_vehicle.c`, with Mickey's own field offsets and calls deciding the
