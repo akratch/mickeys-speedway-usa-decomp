@@ -1009,8 +1009,9 @@ typedef struct ModelCacheEntry {
 } ModelCacheEntry;
 
 /* Mickey-only reconstruction; JFG's modSuspendModelTextures remains assembly.
- * Plateau: 112/113 words, 77 differ, first +0x64; the exception-index scale
- * remains absent after type, assignment, induction, flag, and permuter sweeps. */
+ * Workbench: mixed structure/register, 25 words differ from +0xC with exact 113-word size.
+ * Lever: structure-buckets; explicit byte-scaled indexing improved 77 words to 25.
+ * Remains: pointer induction plus pool slot 1 and temp slot 3 diverge; asm stays canonical. */
 void func_80020E4C(s16 *exceptions) {
     SuspendedModelTexture *saved;
     s32 modelIndex;
@@ -1031,11 +1032,11 @@ void func_80020E4C(s16 *exceptions) {
 
                     if (*exceptions != -1) {
                         do {
-                            if (exceptions[exceptionIndex] == modelId) {
+                            if (*(s16 *)((u8 *)exceptions + (exceptionIndex << 1)) == modelId) {
                                 excluded = 1;
                             }
                             exceptionIndex++;
-                        } while (exceptions[exceptionIndex] != -1 && excluded == 0);
+                        } while (*(s16 *)((u8 *)exceptions + (exceptionIndex << 1)) != -1 && excluded == 0);
                     }
                     if (excluded == 0) {
                         s32 textureIndex = 0;

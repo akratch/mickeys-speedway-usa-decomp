@@ -552,9 +552,9 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Plateau: the flag winner stays exact-size with 15 words, first +0x34.
- * Integer-address/comparison-order probes are neutral; endpoint lifetimes
- * worsen to 40. Workbench: structure/structure-buckets.
+ * Workbench: structure plateau, exact 87-word/0x18-frame shape and 15 words from +0x34.
+ * Lever: structure-buckets; explicit end pointers, operand order, and bound spelling were neutral or worse.
+ * Remains: five paired LO16 schedules and the clear-loop branch form; asm stays canonical.
  */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
