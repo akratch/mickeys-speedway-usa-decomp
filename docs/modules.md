@@ -1406,6 +1406,8 @@ Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 `func_80041388` (ROM `0x41F88`, `0x1A8` bytes, default resident flags,
 Mickey reconstruction with the JFG assembly sibling as a structural oracle);
+`func_8003EF80` (ROM `0x3FB80`, `0x1D4` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 `func_8003EB08` (ROM `0x3F708`, `0x184` bytes, default resident flags,
 Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 `func_800421F4` (ROM `0x42DF4`, `0x148` bytes, default resident flags, DKR

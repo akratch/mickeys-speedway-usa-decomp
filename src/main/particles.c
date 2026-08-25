@@ -27,6 +27,7 @@ typedef struct ParticleConfig {
     s16 value26;
     u8 pad28[0x18];
     s16 value40;
+    s16 value42;
 } ParticleConfig;
 
 typedef struct ParticleTrigger {
@@ -189,6 +190,15 @@ typedef struct BasicParticle {
     s16 angularVelocityZ;
 } BasicParticle;
 
+typedef struct EmittedParticle {
+    u8 pad00[0x1C];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad28[0x28];
+    s32 flags;
+} EmittedParticle;
+
 typedef struct ParticleParent {
     u8 pad00[0x0C];
     f32 x;
@@ -251,7 +261,9 @@ extern CircularParticlePool *D_800D4124;
 extern CircularParticlePool *D_800D4128;
 extern CircularParticlePool *D_800D412C;
 extern CircularParticlePool *D_800D4130[];
-extern CircularParticlePool *D_800D4134[];
+extern f32 D_800D4134;
+extern f32 D_800D4138;
+extern f32 D_800D413C;
 extern void *D_8007CA60;
 extern void *D_8007CA98;
 
@@ -270,7 +282,9 @@ void func_8003D4FC(void **dList, void **vertices, void *pool);
 s32 func_8003CE10(void **dList, s32 arg1, void **vertices, void *pool, s32 mode);
 void func_8003D25C(void **dList, s32 arg1, void **vertices, void *pool);
 void func_80041CE4(void **dList, void **vertices);
+void func_80041F48(s32 arg0, ParticleTrigger *trigger);
 s32 func_80040878(CircularParticle *particle, s32 updateRate);
+void func_80040B88(void);
 void func_80041040(ParticleLineEntry *particle, s32 updateRate);
 void func_80041388(ParticleModelEntry *particle, s32 updateRate);
 void func_800367A4(void *texture, void *state, s16 speed, f32 *frame, s32 updateRate);
@@ -337,7 +351,7 @@ void func_8003CB3C(void) {
     ParticleModelEntry *model;
     s32 i;
 
-    pool = D_800D4120, poolEnd = D_800D4134;
+    pool = D_800D4120, poolEnd = (CircularParticlePool **)&D_800D4134;
     do {
         func_8003CD28((ParticleResourceList **)pool);
         pool++;
@@ -681,7 +695,48 @@ void partUpdateTriggers(ParticleObject *object, s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partUpdateTriggers.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EF80.s")
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8006020C.s; body reconstructed from Mickey evidence. */
+void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
+    ParticleConfig *config;
+    EmittedParticle *particle;
+    s32 i;
+
+    config = trigger->config;
+    if (trigger->flags & 0x4000) {
+        if (trigger->unk0C >= config->value40) {
+            trigger->unk0C -= config->value40;
+            func_80040B88();
+        }
+    } else if (trigger->flags & 0x400) {
+        if (trigger->unk0C >= config->value40) {
+            trigger->unk0C -= config->value40;
+            func_80041F48((s32)object, (ParticleTrigger *)trigger);
+        }
+    } else if (trigger->unk0C >= config->value40) {
+        do {
+            trigger->unk0C -= config->value40;
+            i = 0;
+            if (config->value42 > 0) {
+                do {
+                    particle = func_8003FB98((s32)object, (ParticleTrigger *)trigger, -1);
+                    if (particle != NULL) {
+                        if (trigger->unk0C != 0) {
+                            particle->x -= D_800D4134;
+                            particle->y -= D_800D4138;
+                            particle->z -= D_800D413C;
+                            func_80040878((CircularParticle *)particle, trigger->unk0C);
+                            particle->x += D_800D4134;
+                            particle->y += D_800D4138;
+                            particle->z += D_800D413C;
+                        }
+                        particle->flags |= 0x20000;
+                    }
+                    i++;
+                } while (i < config->value42);
+            }
+        } while (trigger->unk0C >= config->value40);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F154.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F5F8.s")
 #ifdef NON_MATCHING
@@ -1112,7 +1167,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
                 particle++;
             } while (i < pool->count);
         }
-    } while (poolPtr != D_800D4134);
+    } while (poolPtr != (CircularParticlePool **)&D_800D4134);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partNullifyCircularParticleParents.s")
