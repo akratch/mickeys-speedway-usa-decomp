@@ -22,8 +22,15 @@ for path in (list((ROOT / "src/main").rglob("*.c")) + list((ROOT / "src/libultra
     text = path.read_text()
     # Never touch GLOBAL_ASM pragma paths: splat names the .s after the
     # symbol file, and a C definition may already carry the adopted name.
-    new = "\n".join(l if l.lstrip().startswith("#pragma") else pat.sub(lambda m: names.get(m.group(1).upper(), m.group(0)), l)
-                    for l in text.split("\n"))
+    gpat = re.compile(r'(#pragma GLOBAL_ASM\("[^"]*/)func_([0-9A-Fa-f]{8})(\.s"\))')
+    def fix_line(l):
+        if l.lstrip().startswith("#pragma GLOBAL_ASM"):
+            # splat writes the .s under the adopted name, so the path follows it
+            return gpat.sub(lambda m: m.group(1) + names.get(m.group(2).upper(), "func_" + m.group(2)) + m.group(3), l)
+        if l.lstrip().startswith("#pragma"):
+            return l
+        return pat.sub(lambda m: names.get(m.group(1).upper(), m.group(0)), l)
+    new = "\n".join(fix_line(l) for l in text.split("\n"))
     if new != text:
         path.write_text(new); changed += 1
         for m in set(pat.findall(text)):
