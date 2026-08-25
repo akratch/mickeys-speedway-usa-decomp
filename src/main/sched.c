@@ -58,6 +58,7 @@ void osWritebackDCacheAll(void);
 void osSpTaskLoad(OSTask *task);
 void osSpTaskStartGo(OSTask *task);
 void osSpTaskYield(void);
+s32 osSpTaskYielded(OSTask *task);
 s32 osDpSetNextBuffer(void *buffer, u64 size);
 u64 osGetTime(void);
 OSIntMask osSetIntMask(OSIntMask mask);
@@ -384,7 +385,43 @@ void __scHandleRetrace(OSSched *sc) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRetrace.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRSP.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scHandleRSP. */
+void __scHandleRSP(OSSched *sc) {
+    OSScTask *task;
+    OSScTask *sp = NULL;
+    OSScTask *dp = NULL;
+    s32 state;
+
+    task = sc->curRSPTask;
+    sc->curRSPTask = NULL;
+    if (task->state & 0x10) {
+        if (osSpTaskYielded(&task->list) != 0) {
+            task->state |= 0x20;
+            if ((task->flags & 7) == 3) {
+                task->next = sc->gfxListHead;
+                sc->gfxListHead = task;
+                if (sc->gfxListTail == NULL) {
+                    sc->gfxListTail = task;
+                }
+            }
+        } else {
+            task->state &= ~2;
+            do {
+            } while (0);
+        }
+        if ((task->flags & 7) != 3) {
+        }
+    } else {
+        task->state &= ~2;
+        __scTaskComplete(sc, task);
+    }
+
+    state = ((sc->curRSPTask == NULL) << 1) | (sc->curRDPTask == NULL);
+    if (__scSchedule(sc, &sp, &dp, state) != state) {
+        __scExec(sc, sp, dp);
+    }
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:__scHandleRDP. */
 void __scHandleRDP(OSSched *sc) {

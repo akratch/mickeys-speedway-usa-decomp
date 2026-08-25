@@ -1347,8 +1347,9 @@ no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes), plus
 the still-unnamed scheduler helper `func_800304E0` (ROM `0x310E0`–
 `0x31180`, 160 bytes),
 `osScAddClient` (ROM `0x30E2C`–`0x30E88`, 92 bytes), `osScRemoveClient`
-(ROM `0x30E88`–`0x30F10`, 136 bytes), `__scHandleRDP` (ROM `0x31E74`–
-`0x31EFC`, 136 bytes), `__scTaskReady` (ROM `0x31EFC`–`0x31F4C`, 80 bytes),
+(ROM `0x30E88`–`0x30F10`, 136 bytes), `__scHandleRSP` (ROM `0x31D4C`–
+`0x31E74`, 296 bytes), `__scHandleRDP` (ROM `0x31E74`–`0x31EFC`, 136
+bytes), `__scTaskReady` (ROM `0x31EFC`–`0x31F4C`, 80 bytes),
 `__scTaskComplete` (ROM `0x31F4C`–`0x3204C`, 256 bytes),
 `__scAppendList` (ROM `0x3204C`–`0x320AC`, 96 bytes), and `__scExec` (ROM
 `0x320AC`–`0x3216C`, 192 bytes). All were compiled
