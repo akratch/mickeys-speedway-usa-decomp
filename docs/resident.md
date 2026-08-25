@@ -2397,7 +2397,7 @@ has 16,840 executable bytes and eight bytes of compiler alignment padding.
 |---|---|---:|---|---|
 | `0x45760`–`0x459C0` | `main/diRcpTrace` | 4 | B | JFG's `src/diRcpTrace.c` has the same four-function order and near-identical sizes. Mickey's scheduler/track callers and the trace-buffer consumer establish the roles. |
 | `0x459C0`–`0x465B0` | `main/diRcp` | 18 | B/C | The complete GBI opcode/mode string set identifies the disassembler (C); `diRcpPrintDL` calls the same ordered helper family as JFG's `src/diRcp.c` (B). |
-| `0x465B0`–`0x47A60` | `main/diCpu` | 14 | A/B/C | `diCpuTraceInit` is a 21-word Tier-A skeleton/object hit, the exception/watchpoint strings identify the monitor (C), and the OS-thread/debug call graph follows JFG's `src/diCpu.c` (B). The end is pinned by the measured `get_stack_pointer` TU at `0x47A60`. |
+| `0x465B0`–`0x47A60` | `main/diCpu` | 14 | A/B/C | `diCpuTraceInit` is a 21-word Tier-A skeleton/object hit; `diCpuThread` is linked exact for 340 bytes under the resident flags; the exception/watchpoint strings identify the monitor (C), and the OS-thread/debug call graph follows JFG's `src/diCpu.c` (B). The end is pinned by the measured `get_stack_pointer` TU at `0x47A60`. |
 | `0x47A70`–`0x4BC40` | `main/fx` | 39 | B/D | Mickey begins where JFG's `src/fx.c` reaches `fxFreeCone`: the cone and wake routines have the same allocator, texture, trigonometry and draw call graph in the same order (B). The later unresolved effects retain Mickey `func_` names (D). The next block contains JFG `font.c` hits, independently fixing the far end. |
 
 The strongest `fx` call-graph pairs are structural rather than merely
@@ -2572,14 +2572,6 @@ The callback/trap address web and counter schedule remain; the assembly fallback
 `func_8004AF68` remains a workbench `structure-mismatch`: 54/52 words and 48 positional differences from `+0x4`.
 Constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement did not remove the saved secondary-array base web.
 Its two extra boundary words remain; the coherent candidate stays `NON_MATCHING` and assembly remains canonical.
-
-`diCpuThread` reached a bounded `NON_MATCHING` plateau after the full flag
-lattice and ten source/lifetime hypotheses. The best candidate has the exact
-85-instruction size, 88-byte frame, saved-register set, control flow and
-relocation identities. Its first mismatch is function `+0x90`: IDO schedules
-the invariant `D_80083DBC` load before the low half of the `999999` loop
-constant, while the target emits those adjacent instructions in the opposite
-order. The target assembly remains canonical.
 
 The 240-byte `func_80045BBC` fault-state writer reaches a two-word allocation
 plateau after the full flag lattice, ten coherent declaration/lifetime forms,
