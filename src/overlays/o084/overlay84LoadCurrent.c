@@ -2,9 +2,7 @@
 
 /*
  * Overlay 84 text +0xC9C..+0xDBC. The source naturally reproduces the retail
- * frame, control flow, call order, memory effects, and complete FP schedule;
- * the scoped guarded normalization selects retail's equivalent private GPR
- * allocation and state-pointer spill slot.
+ * frame, control flow, call order, memory effects, and complete FP schedule.
  */
 
 typedef struct Overlay84Transform {
@@ -65,16 +63,22 @@ typedef struct Overlay84Object {
 } Overlay84Object;
 
 extern Overlay84Object *gOverlay84Object;
-extern Overlay84Resource *overlay84GetResource(u8 resource);
+extern Overlay84Resource *overlay84GetResource(
+    u8 resource, Overlay84Choice *choice, Overlay84Object *object);
 extern void overlay84PrepareResource(u8 resource);
 extern void overlay84ReleaseResource(u8 resource);
 
+/* NON_MATCHING plateau (2026-08-25): the complete flag lattice and ten
+ * structural source passes leave four of 72 words different, first at +0x98.
+ * All four are the same private state-pointer spill: natural C selects
+ * sp+0x20 while retail selects the otherwise-unused sp+0x24 slot. */
 #ifdef NON_MATCHING
 void overlay84LoadCurrent(s32 kind) {
     Overlay84Object *object;
     Overlay84State *state;
     Overlay84Choice *choice;
     Overlay84Resource *resource;
+    Overlay84Node *node;
     Overlay84Transform *transform;
 
     object = gOverlay84Object;
@@ -82,7 +86,8 @@ void overlay84LoadCurrent(s32 kind) {
         state = object->state;
         state->mode = 3;
         state->active = 0;
-        choice = state->nodes[state->current]->choice;
+        node = state->nodes[state->current];
+        choice = node->choice;
         switch (kind) {
         case 0:
             state->resource = choice->resource0;
@@ -97,7 +102,7 @@ void overlay84LoadCurrent(s32 kind) {
             state->resource = choice->resource3;
             break;
         }
-        resource = overlay84GetResource(state->resource);
+        resource = overlay84GetResource(state->resource, choice, object);
         if (resource != 0) {
             transform = resource->transform;
             transform->x = state->x;
