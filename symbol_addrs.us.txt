@@ -1092,7 +1092,7 @@ func_80049000 = 0x80049000;           // type:func size:0x254 tier B (JFG wakeUp
 wakeDraw = 0x80049254;                // type:func size:0x2C4 tier B (JFG call graph/order)
 func_80049518 = 0x80049518;           // type:func size:0x228 tier B (JFG wakeDrawRipple)
 fxInit = 0x80049740;                  // type:func size:0x4C tier A (exact C, JFG name)
-func_8004978C = 0x8004978C;           // type:func size:0x9C tier-D ROM 0x4A38C NON_MATCHING plateau, 2/39 frame words differ, first +0x4
+func_8004978C = 0x8004978C;           // type:func size:0x9C tier-D ROM 0x4A38C matched C src/main/fx.c.o -O2 -mips2 -32, linked exact=39/39
 func_80049828 = 0x80049828;           // type:func size:0x3C tier A (exact C)
 func_80049864 = 0x80049864;           // type:func size:0x38 tier A (exact C)
 func_8004989C = 0x8004989C;           // type:func size:0x60 tier A (exact C)
