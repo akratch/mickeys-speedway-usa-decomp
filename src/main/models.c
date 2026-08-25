@@ -833,15 +833,9 @@ typedef struct ModelTextureUsage {
     ModelTextureUsageEntry *entries;
 } ModelTextureUsage;
 
-/*
- * Mickey-only reconstruction; JFG's corresponding helper remains assembly.
- * Plateau: the full 119-combination flag lattice selects canonical
- * -O2 -mips2 -32. Pointer-induction and gSPMatrix variants reach 160 target
- * instructions versus 159, first differing at +0x0 with a 0x20-byte frame
- * and six saved registers versus the target's 0x10-byte frame and three.
- * A bounded ten-minute permutation improved its internal score but only via
- * invented guards or an uninitialized read, so those mutations were rejected.
- */
+/* Plateau: canonical -O2 -mips2 is 160 instructions versus retail 159, with 156 positional differences from +0x0.
+ * The 0x20-byte/six-save candidate misses retail's 0x10-byte/three-save shape after width, scope, gSP, and lifetime variants.
+ * A 40-minute permuter improved 4520 to 2815 only through synthetic temporaries and an empty loop; no result was imported. */
 #ifdef NON_MATCHING
 void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                    ModelTextureUsage *usage, s32 entryIndex, volatile u32 textureBase) {
