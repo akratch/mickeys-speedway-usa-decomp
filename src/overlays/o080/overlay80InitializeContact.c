@@ -56,6 +56,10 @@ extern void overlay80ResolveCandidateReloc(
  * allocation, while the permuter found no candidate below its base score.
  * Lane cx-ov-4-b-a-r3 reconfirmed all 119 flag combinations and also found
  * that reversing the outer source operands retains the same one-word delta.
+ * Lane cx-ov-4-b-a-r4 reconfirmed that result and tested volatile global and
+ * pointer qualifiers plus split assignment and local-intermediate forms. The
+ * unqualified single expression remains best: exact size, first and only
+ * mismatch +0x4C, blocked on IDO's outer multiply operand ordering.
  */
 #ifdef NON_MATCHING
 void overlay80InitializeContact(Overlay80Object *object,
