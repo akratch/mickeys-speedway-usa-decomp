@@ -2895,7 +2895,7 @@ segments:
       - [0x18DEF04, c, overlay101DrawChain]
       - [0x18DF034, c, overlay101UpdateChains]
       - [0x18DF1B8, c, overlay101DrawSlots]
-      - [0x18DF278, asm, overlay_101_post_draw_slots]
+      - [0x18DF278, c, func_overlay_101_F0003A58_18DF278]
       - [0x18E094C, c, func_overlay_101_F000512C_18E094C]
       - [0x18E0F3C, c, func_overlay_101_F000571C_18E0F3C]
       - [0x18E1628, c, func_overlay_101_F0005E08_18E1628]
