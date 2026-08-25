@@ -397,7 +397,11 @@ void RevealReturnAddresses(void) {
     } while (0);
 }
 
+#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+/* Workbench: relocation-layout-mismatch; linked 50 words and frame are exact.
+ * Lever: a symbolic indexed base restores D_803FFFFC but grows to 58 instructions.
+ * Remains: missing HI16/LO16 relocation identity at +0x18/+0x28. */
 void mainThread(void *unused) {
     s32 i;
 
@@ -421,6 +425,9 @@ void mainThread(void *unused) {
         func_80021290();
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainThread.s")
+#endif
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 s32 mainResetPressed(void) {
