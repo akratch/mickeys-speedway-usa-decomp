@@ -11,7 +11,13 @@ extern void overlay33FlushReloc(void);
 extern void overlay33SubmitReloc(void *commands, void *displayList, s32 mode,
                                  void *buffer);
 
-/* Exact overlay 33 body at +0x66C. */
+/*
+ * Plateau (10 source-shape attempts): the default flags retain the exact
+ * 39-instruction size and 24-byte frame, with 21 positional words differing
+ * and the first mismatch at +0x10.  Control flow and scheduling agree; the
+ * blocker is the complete private temporary-register web.  The strong JFG
+ * refractTick skeleton hit is assembly-only and supplies no donor C body.
+ */
 #ifdef NON_MATCHING
 void overlay33PresentAndSwap(void) {
     s32 index;
