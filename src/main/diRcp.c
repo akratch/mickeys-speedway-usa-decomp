@@ -31,7 +31,14 @@ void func_800453C4(Gfx *dList, s32 *w0_24_31, s32 *w0_16_23,
     *w0_0_15 = dList->words.w0 & 0xFFFF;
     *w0_16_23 = dList->words.w1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/func_80045400.s")
+/* PROVENANCE: body adapted from JFG src/diRcp.c::func_800665D8_671D8. */
+void func_80045400(Gfx *dList, s32 *w0_24_31, s32 *w0_8_23,
+                   s32 *w0_0_7, s32 *w1) {
+    *w0_24_31 = (dList->words.w0 >> 24) & 0xFF;
+    *w0_8_23 = (dList->words.w0 >> 8) & 0xFFFF;
+    *w0_0_7 = dList->words.w0 & 0xFF;
+    *w1 = dList->words.w1;
+}
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpVertex. */
 s32 diRcpVertex(Gfx *dList) {
     s32 w0_24_31;

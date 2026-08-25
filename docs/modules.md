@@ -1716,6 +1716,9 @@ the resident defaults.
 The 60-byte `func_800453C4` display-list unpacker is exact too: its four typed
 word extractions reproduce all 15 target instructions at the resident defaults
 and have no relocation surface.
+Its adjacent 60-byte `func_80045400` unpacker is likewise exact: the alternate
+24/16/8-bit field split retains all 15 target instructions and has no
+relocations under the same flags.
 The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
 handle locals reproduce the target's direct second argument register and
 branch-delay schedule, with both texture-free calls and the allocator call
