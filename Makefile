@@ -725,6 +725,10 @@ $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 # canonical setting otherwise expands the 0x40-byte light-record reset by four;
 # the flag lattice selects this setting before any source permutation.
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
+# Preserve the float argument ABI with a typed alias, then canonicalize only
+# that undefined symbol name; section contents and relocations are unchanged.
+$(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym animResetTrap=TrapDanglingJump $@
 
 # The saves slot-reset loop is scalar in the target; the 119-combination flag
 # lattice otherwise expands four 0x20-byte records into each loop iteration.

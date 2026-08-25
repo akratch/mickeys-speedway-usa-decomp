@@ -16,6 +16,18 @@
     {
       "class": "metadata",
       "matched_c": null,
+      "object": "build/src/main/anim.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/anim.c",
+      "tools": [
+        "objcopy"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
       "object": "build/src/main/main.c.o",
       "offset": null,
       "overlay": null,
@@ -7516,9 +7528,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 609
+      "metadata": 610
     },
     "matched_c_bytes_with_postprocess": 396792,
-    "objects_with_postprocess": 609
+    "objects_with_postprocess": 610
   }
 }
