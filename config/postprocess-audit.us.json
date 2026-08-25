@@ -844,36 +844,10 @@
     {
       "class": "metadata",
       "matched_c": true,
-      "object": "build/src/overlays/o012/func_overlay_012_F00000C4_186D344.c.o",
-      "offset": 196,
-      "overlay": 12,
-      "size": 240,
-      "source": "src/overlays/o012/func_overlay_012_F00000C4_186D344.c",
-      "tools": [
-        "trim_elf_section.py",
-        "objcopy"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
-      "object": "build/src/overlays/o012/func_overlay_012_F00002E4_186D564.c.o",
-      "offset": 740,
-      "overlay": 12,
-      "size": 196,
-      "source": "src/overlays/o012/func_overlay_012_F00002E4_186D564.c",
-      "tools": [
-        "trim_elf_section.py",
-        "objcopy"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
       "object": "build/src/overlays/o012/overlay_012.c.o",
       "offset": 0,
       "overlay": 12,
-      "size": 196,
+      "size": 436,
       "source": "src/overlays/o012/overlay_012.c",
       "tools": [
         "trim_elf_section.py"
@@ -885,7 +859,7 @@
       "object": "build/src/overlays/o012/overlay_012_tail.c.o",
       "offset": 436,
       "overlay": 12,
-      "size": 304,
+      "size": 500,
       "source": "src/overlays/o012/overlay_012_tail.c",
       "tools": [
         "trim_elf_section.py"
@@ -1866,18 +1840,6 @@
     {
       "class": "metadata",
       "matched_c": true,
-      "object": "build/src/overlays/o026/func_overlay_026_F0000B18_187AF10.c.o",
-      "offset": 2840,
-      "overlay": 26,
-      "size": 524,
-      "source": "src/overlays/o026/func_overlay_026_F0000B18_187AF10.c",
-      "tools": [
-        "trim_elf_section.py"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
       "object": "build/src/overlays/o026/overlay26DrawGroups.c.o",
       "offset": 4440,
       "overlay": 26,
@@ -2652,7 +2614,8 @@
       "size": 276,
       "source": "src/overlays/o037/overlay37Update.c",
       "tools": [
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -3170,18 +3133,6 @@
       "overlay": 45,
       "size": 60,
       "source": "src/overlays/o045/overlay_045_tail.c",
-      "tools": [
-        "trim_elf_section.py"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
-      "object": "build/src/overlays/o046/func_overlay_046_F0000874_188EC6C.c.o",
-      "offset": 2164,
-      "overlay": 46,
-      "size": 1800,
-      "source": "src/overlays/o046/func_overlay_046_F0000874_188EC6C.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -3862,42 +3813,6 @@
       "overlay": 57,
       "size": 496,
       "source": "src/overlays/o057/overlay57UpdateTransition.c",
-      "tools": [
-        "trim_elf_section.py"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
-      "object": "build/src/overlays/o058/func_overlay_058_F0000000_18AF1E8.c.o",
-      "offset": 0,
-      "overlay": 58,
-      "size": 1472,
-      "source": "src/overlays/o058/func_overlay_058_F0000000_18AF1E8.c",
-      "tools": [
-        "trim_elf_section.py"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
-      "object": "build/src/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c.o",
-      "offset": 1532,
-      "overlay": 58,
-      "size": 3316,
-      "source": "src/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c",
-      "tools": [
-        "trim_elf_section.py"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
-      "object": "build/src/overlays/o058/func_overlay_058_F000138C_18B0574.c.o",
-      "offset": 5004,
-      "overlay": 58,
-      "size": 14456,
-      "source": "src/overlays/o058/func_overlay_058_F000138C_18B0574.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -5833,6 +5748,32 @@
     {
       "class": "metadata",
       "matched_c": true,
+      "object": "build/src/overlays/o096/overlay96FindVolume.c.o",
+      "offset": 1212,
+      "overlay": 96,
+      "size": 192,
+      "source": "src/overlays/o096/overlay96FindVolume.c",
+      "tools": [
+        "trim_elf_section.py",
+        "objcopy"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o096/overlay96Register.c.o",
+      "offset": 0,
+      "overlay": 96,
+      "size": 112,
+      "source": "src/overlays/o096/overlay96Register.c",
+      "tools": [
+        "trim_elf_section.py",
+        "objcopy"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
       "object": "build/src/overlays/o096/overlay96TestBit.c.o",
       "offset": 1404,
       "overlay": 96,
@@ -6297,6 +6238,42 @@
       "overlay": 101,
       "size": 2100,
       "source": "src/overlays/o101/func_overlay_101_F00078F4_18E3114.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o101/func_overlay_101_F0008128_18E3948.c.o",
+      "offset": 33064,
+      "overlay": 101,
+      "size": 2100,
+      "source": "src/overlays/o101/func_overlay_101_F0008128_18E3948.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o101/func_overlay_101_F000895C_18E417C.c.o",
+      "offset": 35164,
+      "overlay": 101,
+      "size": 2100,
+      "source": "src/overlays/o101/func_overlay_101_F000895C_18E417C.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o101/func_overlay_101_F0009190_18E49B0.c.o",
+      "offset": 37264,
+      "overlay": 101,
+      "size": 2100,
+      "source": "src/overlays/o101/func_overlay_101_F0009190_18E49B0.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -7058,9 +7035,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 571
+      "metadata": 569
     },
-    "matched_c_bytes_with_postprocess": 314220,
-    "objects_with_postprocess": 571
+    "matched_c_bytes_with_postprocess": 299256,
+    "objects_with_postprocess": 569
   }
 }
