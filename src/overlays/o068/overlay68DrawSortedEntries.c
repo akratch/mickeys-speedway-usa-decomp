@@ -42,8 +42,8 @@ typedef struct Overlay68DrawObject {
 typedef struct Overlay68DrawDescriptor {
     s16 zero0;
     s16 zero2;
-    s16 mode4;
-    u8 pad06[2];
+    s16 pad4;
+    s16 mode6;
     f32 weight;
     f32 one;
     f32 x;
@@ -61,15 +61,24 @@ extern void overlay68SubmitEntryReloc(u32 **displayList, s32 arg1, s32 arg2,
                                       Overlay68DrawDescriptor *descriptor,
                                       s32 mode, s32 objectMode);
 
+/*
+ * PLATEAU: canonical -O2/-mips2 is the exact 0x354-byte size, with 148 of
+ * 213 owned words differing first at +0x0.  The best C frame is -0x128 while
+ * retail is -0x108; the saved-register surface is exact and the extra 0x20 is
+ * non-save local space.  Correcting the descriptor's mode field to +0x6 and
+ * separating the final vector web improved the residual, but typed aggregate,
+ * array-size, loop-bound, and bounded-permuter forms did not recover retail's
+ * stack allocation.
+ */
 #ifdef NON_MATCHING
 void overlay68DrawSortedEntries(u32 **displayList, s32 arg1, s32 arg2,
                                 Overlay68DrawObject *object) {
     Overlay68VectorOwner *owner;
     Overlay68DrawEntry *entry;
     Overlay68Vector *vector;
+    Overlay68Vector *nextVector;
     u32 *command;
     f32 inverseScale;
-    f32 value;
     s32 count;
     s32 i;
     s32 pass;
@@ -88,9 +97,6 @@ void overlay68DrawSortedEntries(u32 **displayList, s32 arg1, s32 arg2,
     command[1] = 0xFFFFFF00;
     command[0] = 0xFB000000;
 
-    /* Preserve the retail stack-object lifetime without emitting code. */
-    if (&order) {}
-
     entry = object->entries;
     count = 0;
     if ((entry != 0) && (object->entryCount > 0)) {
@@ -100,9 +106,8 @@ void overlay68DrawSortedEntries(u32 **displayList, s32 arg1, s32 arg2,
         limit = 4;
         do {
             vector = &owner->vectors[entry->vectorIndex];
-            value = overlay68MeasureVectorReloc(vector->x, vector->y,
-                                                vector->z);
-            distances[count] = value;
+            distances[count] = overlay68MeasureVectorReloc(
+                vector->x, vector->y, vector->z);
             entries[count] = entry;
             order[count] = count;
             i++;
@@ -125,17 +130,18 @@ void overlay68DrawSortedEntries(u32 **displayList, s32 arg1, s32 arg2,
         }
 
         overlay68PrepareDrawReloc(object);
-        descriptor.mode4 = 3;
+        descriptor.mode6 = 3;
         descriptor.angle = 0x3333;
-        inverseScale = 1.0f / *object->scale;
+        inverseScale = 1 / *object->scale;
 
         for (i = 0; i < count; i++) {
             entry = entries[order[i]];
             descriptor.zero0 = 0;
+            nextVector = &owner->vectors[entry->vectorIndex];
             descriptor.zero2 = 0;
             descriptor.one = 1;
             descriptor.weight = entry->weight * inverseScale;
-            vector = &owner->vectors[entry->vectorIndex];
+            vector = nextVector;
             descriptor.x = vector->x;
             descriptor.y = vector->y;
             descriptor.z = *(f32 *)&vector->z;

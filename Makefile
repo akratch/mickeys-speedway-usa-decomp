@@ -2328,9 +2328,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68PromoteSecondary.c.o: POSTPROCESS
 		func_overlay_068_F000051C_18C767C=overlay68PromoteSecondary $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x134
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68Interpolate.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_068_F0000650_18C77B0=overlay68Interpolate $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x290
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68Interpolate.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68InitializeObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68UpdateAnimation.c.o: POSTPROCESS = \

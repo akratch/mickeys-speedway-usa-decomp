@@ -70,6 +70,14 @@ extern void overlay68AdvanceObjectReloc(Overlay68Object *object, f32 scale,
 extern s32 gOverlay68GlobalFlagReloc;
 #define OVERLAY68_GLOBAL_FLAG gOverlay68GlobalFlagReloc
 
+/*
+ * PLATEAU: canonical -O2/-mips2 has the exact 0x590 size and -0x78 frame,
+ * but 208/356 positional instruction words differ, first at +0x1C.  Only
+ * 13 opcode sites differ; the residual is dominated by an integer register
+ * web beginning with retail t2 versus candidate t1 for the object state.
+ * The flag lattice was identical, while a bounded permuter run and safe
+ * shift reassociations worsened either positional words or function size.
+ */
 #ifdef NON_MATCHING
 void overlay68UpdateAnimation(Overlay68Object *object, s32 updateRate) {
     s32 atStart;
