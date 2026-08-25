@@ -70,7 +70,6 @@ extern u8 *func_80028F54(void);
 extern void func_80039A9C(s32 assetId);
 extern void func_80039BE4(s32 assetId);
 extern void func_80039720(s32 updateRate);
-extern void setupFrontEndObject(s32 objectId);
 extern void func_80044BC8(s32 arg0, u8 *source, s32 line);
 extern u32 joyGetButtons(s32 controller);
 extern u32 joyGetPressed(s32 controller);
@@ -118,7 +117,7 @@ typedef struct MenuCurrentObject {
     f32 unk10;
     f32 unk14;
     f32 unk18;
-    u8 pad1C[4];
+    s8 pad1C[4];
 } MenuCurrentObject;
 
 typedef struct MenuObjectResource {
@@ -163,6 +162,7 @@ extern MenuCommand *D_800D3140;
 extern void *D_800D3144;
 extern void *D_800D3148;
 extern MenuFrontObject *D_800D31C8[];
+extern MenuCurrentObject D_8007C1C4[];
 extern MenuCurrentObject D_800D3550[];
 extern void func_80009E78(MenuCommand **commands, void **matrices,
                           void **vertices, void *object);
@@ -466,7 +466,28 @@ void setupFrontEndList(s16 *objectGroup) {
         setupFrontEndObject(objectGroup[index++]);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/setupFrontEndObject.s")
+/* PROVENANCE: name and ordered role compared with JFG's public decomp,
+ * src/menu.c::setupFrontEndObject; record layout and body derived from Mickey. */
+void setupFrontEndObject(s32 objectId) {
+    MenuCurrentObject *destination;
+    MenuCurrentObject *source;
+
+    destination = &D_800D3550[objectId];
+    source = &D_8007C1C4[objectId];
+    destination->unk0 = source->unk0;
+    destination->unk2 = source->unk2;
+    destination->unk4 = source->unk4;
+    destination->index = source->index;
+    destination->unkC = source->unkC;
+    destination->unk10 = source->unk10;
+    destination->unk14 = source->unk14;
+    destination->unk8 = source->unk8;
+    destination->unk18 = source->unk18;
+    destination->pad1C[0] = source->pad1C[0];
+    destination->pad1C[1] = source->pad1C[1];
+    destination->pad1C[2] = source->pad1C[2];
+    destination->pad1C[3] = source->pad1C[3];
+}
 #ifdef NON_MATCHING
 /* Exact 0xB8 frame and local stack homes, but one word too long; 242/262
  * words differ, first at +0x14. IDO assigns the D_800D31C8 base/object pair

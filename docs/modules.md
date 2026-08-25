@@ -1028,6 +1028,15 @@ is adapted from DKR's public `menu_imagegroup_load` with point-of-use
 `PROVENANCE`; JFG supplies the name/order. The default flags, call relocation,
 object words, and linked ROM range are exact without post-processing.
 
+The tier-A `setupFrontEndObject` adds **0x88 bytes / 34 words** at ROM
+`0x3A9AC`. Its complete masked instruction skeleton is identical to JFG's
+same-name function, while the explicit typed record copy and signed trailing
+bytes are derived from Mickey. The point-of-use `PROVENANCE` note records that
+split. Computing the destination pointer before the source pointer recovers
+the target's `v1`/`a1` allocation. The default `-O2 -mips2 -32` flags, both
+data-relocation pairs, object words, and linked ROM range are exact without
+post-processing.
+
 `func_80039E34` retains a Mickey-derived `NON_MATCHING` draw candidate with
 the target's exact **0xB8-byte frame** and local homes from `0x7C` through
 `0xAC`. Its best object is one word longer than the target's **0x418 bytes /

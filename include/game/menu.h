@@ -11,6 +11,7 @@ void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right,
 void freeFrontEndList(s16 *assetGroup);
 void loadFrontEndList(s16 *assetGroup);
 void setupFrontEndList(s16 *objectGroup);
+void setupFrontEndObject(s32 objectId);
 s32 frontGetLanguage(void);
 void frontSetLanguage(s32 language);
 s32 frontGetScreenMode(void);

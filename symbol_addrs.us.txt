@@ -2208,7 +2208,9 @@ loadFrontEndList = 0x80039B88; // type:func size:0x5C tier-B ROM 0x3a788 canonic
 // Tier B (JFG): the exact sentinel-list loop, its call to the immediately
 // following object setup routine, and JFG's same ordered pair identify it.
 setupFrontEndList = 0x80039D50; // type:func size:0x5C tier-B ROM 0x3a950 canonical C, linked byte-identical
-setupFrontEndObject = 0x80039DAC; // type:func size:0x88   ROM 0x3a9ac  src/menu.c.o  masked=4/34
+// Tier A (JFG): the complete 34-word masked skeleton is identical, and the
+// function occupies the same ordered setupFrontEndObject position.
+setupFrontEndObject = 0x80039DAC; // type:func size:0x88 tier-A ROM 0x3a9ac canonical C, linked byte-identical
 func_80039E34 = 0x80039E34; // type:func size:0x418 tier-D ROM 0x3aa34 NON_MATCHING plateau +1 word, 242/262 differ, first +0x14
 // Tier B (JFG): exact packed-field getter, ordered position immediately before
 // the paired setter and screen-mode accessor family, and the resident caller's
