@@ -2015,57 +2015,52 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8004054C.s")
 #endif
-#ifdef NON_MATCHING
 /* PROVENANCE: structure cross-checked against JFG assembly function
  * func_80061B50; body reconstructed from Mickey evidence. */
-/* Exact size/frame: 9/78 executable words differ, first +0x1C; reversing the
- * empty guard fixes its branch but was rejected as a fake. Temp slot 5 cycles
- * t0/t9/t1; three switch/PC16 relocation identities also remain. */
 void func_80040740(CircularParticle *particle) {
     s32 index;
     CircularParticlePool *pool;
 
     if (particle->type >= 5) {
-        if (particle->type == 0x80) {}
-        return;
-    }
-    switch (particle->type) {
-        case 2:
-            if (particle->resource != NULL) {
-                func_800359D4(particle->resource);
-                particle->resource = NULL;
-            }
-            break;
-        case 3:
-            if (particle->resource != NULL) {
-                modFreeModel(particle->resource);
-                particle->resource = NULL;
-            }
-            break;
-        case 0:
-        case 1:
-        case 4:
-            break;
-        default:
+        if (particle->type != 0x80) {
             return;
-    }
-    if (particle->trigger != NULL) {
-        particle->trigger->active = 0;
-    }
-    pool = D_800D4120[particle->type];
-    if (pool->activeCount > 0) {
-        if (particle->resource != NULL) {
-            func_800347A0(particle->resource);
         }
-        index = (particle - pool->particles);
-        pool->activeCount--;
-        particle->type = 0x80;
-        pool->freeBits[index >> 5] |= 1 << (index & 0x1F);
+    } else {
+        switch (particle->type) {
+            case 2:
+                if (particle->resource != NULL) {
+                    func_800359D4(particle->resource);
+                    particle->resource = NULL;
+                }
+                break;
+            case 3:
+                if (particle->resource != NULL) {
+                    modFreeModel(particle->resource);
+                    particle->resource = NULL;
+                }
+                break;
+            case 0:
+            case 1:
+            case 4:
+                break;
+            default:
+                return;
+        }
+        if (particle->trigger != NULL) {
+            particle->trigger->active = 0;
+        }
+        pool = D_800D4120[particle->type];
+        if (pool->activeCount > 0) {
+            if (particle->resource != NULL) {
+                func_800347A0(particle->resource);
+            }
+            pool->activeCount--;
+            index = (particle - pool->particles);
+            particle->type = 0x80;
+            pool->freeBits[index >> 5] |= 1 << (index & 0x1F);
+        }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040740.s")
-#endif
 /*
  * PROVENANCE: body adapted from DKR src/particles.c:particle_update and
  * cross-checked against JFG asm/nonmatchings/particles/func_80061228_61E28.s.
