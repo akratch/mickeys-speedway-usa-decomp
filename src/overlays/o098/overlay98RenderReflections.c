@@ -67,6 +67,14 @@ extern s32 gO98Toggle;
 extern O98Globals gO98Globals;
 extern u8 gO98SpecialVertices[];
 
+/* Plateau: the canonical body has the exact 0x614 boundary, but 332/389
+ * positional words differ from +0x0 and its frame is 0x190 bytes versus the
+ * target's 0x1C8.  The 119-combination flag lattice found no improvement.
+ * A bounded source-only permuter batch improved its internal score from 8175
+ * to 6265 only by dropping the saved-state volatile home; that candidate had
+ * a 0x198 frame but shrank to 0x5F8.  Scope and declaration-order variants
+ * retained the exact size but not the target's non-reused cursor, transform,
+ * matrix, and saved-pointer stack layout, which remains the blocker. */
 #ifdef NON_MATCHING
 void overlay98RenderReflections(Gfx **dl, u8 **matrixHeap, s32 arg2) {
     O98Mtx matrixC;
