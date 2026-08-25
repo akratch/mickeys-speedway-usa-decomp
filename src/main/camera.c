@@ -93,11 +93,18 @@ typedef struct {
     u8 pad04[0x30];
 } CameraViewportFlags;
 
+typedef struct {
+    s8 state;
+    u8 pad01[0x53];
+} CameraState3D;
+
 extern u8 D_80079F94;
 extern s32 D_80079F8C;
 extern f32 D_80079F60;
 extern f32 D_80079F48;
 extern CameraViewportFlags D_80079C40[];
+extern s8 D_80079F98[];
+extern CameraState3D D_800CEA5D[];
 extern u8 D_80079FA0[];
 extern s32 D_800CEC84;
 extern s32 D_800CEC88;
@@ -159,7 +166,12 @@ extern void func_80022794(Gfx **dlist, Mtx **mtx);
 f32 func_80021438(void) {
     return D_800D2FB4;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021444.s")
+void func_80021444(s32 cameraIndex, s32 state) {
+    if ((cameraIndex >= 0) && (cameraIndex < 6)) {
+        D_80079F98[cameraIndex] = state;
+        D_800CEA5D[cameraIndex].state = state;
+    }
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camUseShake. */
 void camUseShake(void) {
     D_800CEC84 = 1;

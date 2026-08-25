@@ -2293,6 +2293,7 @@ _decodeChunk = 0x80069A34; // type:func size:0x1B8   ROM 0x6a634  src/libultra/n
 // ---------------------------------------------------------------------------
 camInit = 0x800212E0; // type:func size:0x158 ROM 0x21ee0 tier-B similar-jfg-camInit=0.3125
 func_80021438 = 0x80021438; // type:func size:0x0C ROM 0x22038 tier-D matched-C Mickey auto-name retained, camera TU position
+func_80021444 = 0x80021444; // type:func size:0x40 ROM 0x22044 tier-D matched-C Mickey auto-name retained, paired camera-state setter
 camUseShake = 0x80021484; // type:func size:0x10 ROM 0x22084 tier-B JFG role/order and state effect
 camIgnoreShake = 0x80021494; // type:func size:0x0C ROM 0x22094 tier-B matched-C JFG role/order and inverse state effect
 camGetFOV = 0x800214A0; // type:func size:0x0C ROM 0x220a0 tier-B matched-C JFG role/order and FOV state read
