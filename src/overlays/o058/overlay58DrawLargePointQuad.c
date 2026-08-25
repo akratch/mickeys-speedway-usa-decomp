@@ -16,9 +16,14 @@ typedef struct Overlay58LargePointGfx {
     u32 w1;
 } Overlay58LargePointGfx;
 
+typedef struct Overlay58LargePointRenderState {
+    u8 pad0[0x1E8];
+    void *resource;
+} Overlay58LargePointRenderState;
+
 extern Overlay58LargePointGfx *gOverlay58LargePointDisplayListReloc;
 extern Overlay58LargePointVertex *gOverlay58LargePointVertexCursorReloc;
-extern u8 gOverlay58LargePointRenderStateReloc[];
+extern Overlay58LargePointRenderState gOverlay58LargePointRenderStateReloc;
 extern u8 D_80000098[];
 extern void func_overlay_058_F0000000_18AF1E8(
     Overlay58LargePointGfx **displayList, void *resource, s32 mode, s32 arg3);
@@ -30,8 +35,11 @@ extern void func_overlay_058_F0000000_18AF1E8(
  * Its register-lane signature is identical to overlay58DrawPointQuad, down
  * to the first vertex-cursor pool divergence.  The sibling's typed lifetime,
  * signedness, explicit-reference, and split-increment variants therefore
- * provide the same negative structural evidence here.  Binding the payload
- * to D_80000098 closes one relocation identity without moving the allocator.
+ * provide the same negative structural evidence here.  A typed access to the
+ * distinct render-state field at 0x1E8 is allocation-neutral.  Binding the
+ * payload to D_80000098 closes one relocation identity without moving the
+ * allocator; the nearest external skeleton scores only 0.072 and offers no
+ * usable donor structure.
  */
 #ifdef NON_MATCHING
 void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
@@ -45,7 +53,7 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
     s32 zPlus;
 
     func_overlay_058_F0000000_18AF1E8(&gOverlay58LargePointDisplayListReloc,
-                                      *(void **)&gOverlay58LargePointRenderStateReloc[0x1E8],
+                                      gOverlay58LargePointRenderStateReloc.resource,
                                       5, 0);
 
     gfx = gOverlay58LargePointDisplayListReloc++;

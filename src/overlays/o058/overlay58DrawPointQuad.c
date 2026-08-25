@@ -16,9 +16,14 @@ typedef struct Overlay58PointGfx {
     u32 w1;
 } Overlay58PointGfx;
 
+typedef struct Overlay58PointRenderState {
+    u8 pad0[0x44];
+    void *resource;
+} Overlay58PointRenderState;
+
 extern Overlay58PointGfx *gOverlay58PointDisplayListReloc;
 extern Overlay58PointVertex *gOverlay58PointVertexCursorReloc;
-extern u8 gOverlay58PointRenderStateReloc[];
+extern Overlay58PointRenderState gOverlay58PointRenderStateReloc;
 extern u8 D_80000078[];
 extern void func_overlay_058_F0000000_18AF1E8(
     Overlay58PointGfx **displayList, void *resource, s32 mode, s32 arg3);
@@ -29,10 +34,11 @@ extern void func_overlay_058_F0000000_18AF1E8(
  * but 70 register-allocation words differ and the first mismatch is +0x30.
  * The first pool divergence colors the long-lived vertex-cursor address in
  * v0 instead of a0.  Declaration/storage ordering, signed physical-address
- * types, an explicit cursor reference, a named color lifetime, and split
- * post-increments were either allocation-neutral or changed the instruction
- * shape.  Binding the payload to D_80000078 closes one relocation identity,
- * but no tested structural spelling moved the web without adding code.
+ * types, an explicit cursor reference, cursor/state wrappers, an array-form
+ * position, a named color lifetime, and split post-increments were either
+ * allocation-neutral or changed the instruction shape.  Binding the payload
+ * to D_80000078 closes one relocation identity, but no tested structural
+ * spelling moved the web without adding code.
  */
 #ifdef NON_MATCHING
 void overlay58DrawPointQuad(s32 x, s32 y, s32 z) {
@@ -46,7 +52,7 @@ void overlay58DrawPointQuad(s32 x, s32 y, s32 z) {
     s32 zPlus;
 
     func_overlay_058_F0000000_18AF1E8(&gOverlay58PointDisplayListReloc,
-                                      *(void **)&gOverlay58PointRenderStateReloc[0x44],
+                                      gOverlay58PointRenderStateReloc.resource,
                                       5, 0);
 
     gfx = gOverlay58PointDisplayListReloc++;
