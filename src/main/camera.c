@@ -202,7 +202,9 @@ s32 camSetMode(s32 mode) {
 s32 camGetNo(void) {
     return D_800CEC64;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021970.s")
+Camera *func_80021970(s32 cameraIndex) {
+    return &D_800CEA20[cameraIndex];
+}
 /*
  * PROVENANCE: name and role from JFG's public decomp,
  * src/camera.c:camSetNo; body reconstructed from Mickey-only evidence.

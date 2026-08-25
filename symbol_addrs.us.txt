@@ -2306,6 +2306,7 @@ func_800217AC = 0x800217AC; // type:func size:0x0C ROM 0x223ac tier-D matched-C 
 camGetMode = 0x80021918; // type:func size:0x0C ROM 0x22518 tier-D matched-C JFG TU order, mode-state read
 camSetMode = 0x80021924; // type:func size:0x40 ROM 0x22524 tier-D matched-C JFG TU order, mode-state update
 camGetNo = 0x80021964; // type:func size:0x0C ROM 0x22564 tier-D matched-C JFG TU order, active-camera read
+func_80021970 = 0x80021970; // type:func size:0x24 ROM 0x22570 tier-D matched-C Mickey auto-name retained, indexed camera-array getter
 camSetNo = 0x80021994; // type:func size:0x0C ROM 0x22594 tier-D matched-C JFG TU order, Mickey raw active-camera update
 camGetWaterLine = 0x800219A0; // type:func size:0x10 ROM 0x225a0 tier-D matched-C JFG TU order, water-line state read
 func_800221E8 = 0x800221E8; // type:func size:0x41C ROM 0x22de8 tier-D matched-C, JFG camSetView body, Mickey auto-name retained
