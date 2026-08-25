@@ -1,6 +1,5 @@
 #include "PR/ultratypes.h"
 
-#ifdef NON_MATCHING
 f32 overlay68Interpolate(
     f32 weight,
     s32 previous,
@@ -13,7 +12,6 @@ f32 overlay68Interpolate(
     f32 fPrevious;
     f32 fCurrent;
     f32 fNext;
-    f32 first;
     f32 fFollowing;
     s32 difference;
     u32 period;
@@ -26,9 +24,9 @@ f32 overlay68Interpolate(
             next -= period;
             following -= period;
         } else if (difference < -0x8000) {
-            following += period;
             current += period;
             next += period;
+            following += period;
         }
 
         difference = next - current;
@@ -60,27 +58,22 @@ f32 overlay68Interpolate(
     if (derivative != NULL) {
         fPrevious = (f32)previous;
         fCurrent = (f32)current;
-        first = -0.5f * fPrevious;
         fNext = (f32)next;
         fFollowing = (f32)following;
-        *derivative = ((((first + (1.5f * fCurrent) + (-1.5f * fNext) +
+        *derivative = (((((-0.5f * fPrevious) + (1.5f * fCurrent) + (-1.5f * fNext) +
             (0.5f * fFollowing)) * 3.0f * weight) +
             (2.0f * (fPrevious + (-2.5f * fCurrent) + (2.0f * fNext) +
             (-0.5f * fFollowing)))) * weight) +
-            (first + (0.5f * fNext));
+            ((-0.5f * fPrevious) + (0.5f * fNext));
     }
 
     fPrevious = (f32)previous;
     fCurrent = (f32)current;
-    first = -0.5f * fPrevious;
     fNext = (f32)next;
     fFollowing = (f32)following;
-    return ((((((first + (1.5f * fCurrent) + (-1.5f * fNext) +
+    return (((((((-0.5f * fPrevious) + (1.5f * fCurrent) + (-1.5f * fNext) +
         (0.5f * fFollowing)) * weight) +
         (fPrevious + (-2.5f * fCurrent) + (2.0f * fNext) +
         (-0.5f * fFollowing))) * weight) +
-        (first + (0.5f * fNext))) * weight) + fCurrent;
+        ((-0.5f * fPrevious) + (0.5f * fNext))) * weight) + fCurrent;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68Interpolate/func_overlay_068_F0000650_18C77B0.s")
-#endif
