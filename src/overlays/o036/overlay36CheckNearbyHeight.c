@@ -41,7 +41,13 @@ extern Overlay36WorldState *gOverlay36WorldStateReloc;
  * Follow-up (2026-08-25): a nine-entry result array reached a 0x70 frame but
  * left the array and spill offsets +0x10 from target; direct bound expressions
  * retained the 0x80 frame and regressed FP scheduling. The first mismatch of
- * the best 50/63-word candidate remains +0x0. */
+ * the best 50/63-word candidate remains +0x0.
+ * Lane follow-up (2026-08-25): ten additional bound-expression, register-
+ * hint, aggregate-layout, lexical-scope, array-bound, declaration-order, and
+ * K&R-definition attempts did not produce a safe improvement. A ten-entry
+ * array reached 53/63 words and the 0x70 frame, but began at +0x48 rather
+ * than the target +0x3C and under-sized the thirteen-pointer target capacity,
+ * so it was rejected. The faithful best remains 50/63, first mismatch +0x0. */
 #ifdef NON_MATCHING
 void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
                                        s32 remaining) {
