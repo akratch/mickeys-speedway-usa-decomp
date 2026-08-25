@@ -9,8 +9,8 @@ extern void overlay18CommonReloc(void);
 extern void overlay18SetupWithPointerReloc(void *value);
 extern void overlay18SelectPhaseReloc(s32 phase);
 extern void overlay18Role02Reloc(void);
-extern void overlay18Role03Reloc(void);
-extern void *overlay18CreatePrefixHandleReloc(void);
+extern void *overlay18Role03Reloc(void);
+extern void overlay18CreatePrefixHandleReloc(void);
 extern void overlay18Role05Reloc(void);
 extern void overlay18Role06Reloc(void);
 extern void overlay30InitializeReloc(void);
@@ -41,9 +41,17 @@ extern s32 gOverlay18DisplayFlag;
 extern Overlay18Gfx *gOverlay18DisplaySource[];
 extern Overlay18Gfx *gOverlay18DisplayCursor;
 
-/* Pinned DKR v77/v80 and JFG searches found no exact donor. */
+/*
+ * Pinned DKR v77/v80 and JFG searches found no exact donor.
+ * Plateau (2026-08-25 rerun, 10 source attempts plus the bounded permuter):
+ * -O2 has exact 0x1F4 extent; best differs in 2 of 125 masked positional words,
+ * first +0x1B8. The remaining pair only materializes zero call arguments with
+ * move instead of addiu; prototype, signedness, literal, and expression probes
+ * plus the full flag lattice did not change them.
+ */
 #ifdef NON_MATCHING
 void overlay18Load(void) {
+    Overlay18Gfx *newDisplay;
     Overlay18Gfx *display;
 
     overlay18CommonReloc();
@@ -51,8 +59,8 @@ void overlay18Load(void) {
     overlay18SelectPhaseReloc(5);
     overlay18CommonReloc();
     overlay18Role02Reloc();
-    overlay18Role03Reloc();
-    gOverlay18PrefixHandle = overlay18CreatePrefixHandleReloc();
+    gOverlay18PrefixHandle = overlay18Role03Reloc();
+    overlay18CreatePrefixHandleReloc();
     overlay18CommonReloc();
     overlay18Role05Reloc();
     overlay18CommonReloc();
@@ -91,9 +99,10 @@ void overlay18Load(void) {
     overlay18CommonReloc();
 
     gOverlay18DisplayFlag = 0;
-    display = gOverlay18DisplaySource[gOverlay18DisplayFlag];
-    gOverlay18DisplayCursor = display;
-    display = gOverlay18DisplayCursor++;
+    gOverlay18DisplayCursor =
+        gOverlay18DisplaySource[gOverlay18DisplayFlag];
+    newDisplay = gOverlay18DisplayCursor++;
+    display = newDisplay;
     display->w0 = 0xE9000000;
     display->w1 = 0;
     display = gOverlay18DisplayCursor;
