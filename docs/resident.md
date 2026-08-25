@@ -557,9 +557,9 @@ but 17 register operands differ from first mismatch `+0x38`. IDO assigns the
 texture-table address temporaries later in the temporary FIFO and tests the
 copied loop count in `t1`, while the target uses the preceding registers and
 tests the original count in `t0`; target assembly remains canonical.
-`func_80020E4C` plateau: canonical C emits 112/113 words, with 77 differing
-from `+0x64`; the missing exception-index scale shifts later temporary
-allocation after type, assignment, induction, flag, and permuter sweeps.
+`func_80020E4C`: workbench mixed structure/register plateau, exact 113-word size, 25 words from `+0xC`.
+The structure-buckets lever and explicit byte-scaled indexing improved the prior 77-word residual.
+Pointer induction plus pool slot 1 and temp slot 3 still diverge; assembly stays canonical.
 **Why most rows have no new `mickey.us.yaml` split.** §1's "measured file
 boundary" tier requires a whole-`.text` match; this pass only matched
 **Why the original scan added no `mickey.us.yaml` splits.** §1's "measured
@@ -1665,15 +1665,9 @@ prologue onward. A bounded permuter import selected MIPS I and was rejected as
 non-canonical; its pack-expression lead also failed when recompiled with the
 resident MIPS II flags. The assembly fallback remains canonical.
 
-`__scHandleRetrace` has a preserved `NON_MATCHING` JFG-derived body after the
-119-combination flag lattice and ten source-shape hypotheses. The best
-candidate has the exact 232-byte frame and 408 instructions versus the
-target's 409; 84 positional words differ after relocation masking. Its first
-mismatch is at function `+0x3B4`, where the diagnostic Y-coordinate and two
-stack-byte writes schedule in a different order. The remaining tail also
-materialises the 64-bit retrace counter through one combined object while the
-target uses separate high/low symbol references. The assembly fallback
-remains canonical.
+`__scHandleRetrace`: workbench mixed structure/register plateau, 408/409 words and 84 residuals from `+0x3B4`.
+The structure-buckets lever, split-counter forms, and source-line grouping did not improve the baseline.
+Diagnostic/store scheduling and separate high/low counter materialisation remain; assembly stays canonical.
 
 The still-unnamed scheduler diagnostic `func_80030610` retains a Mickey-
 derived `NON_MATCHING` display-list bisection body after the 119-combination
@@ -2143,7 +2137,7 @@ placeholders are never imported.
 | `0x800508B4` | `0x20` | no unique candidate | D; placeholder retained. Matched C: exact 32 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800508D4` | `0x200` | `func_800772C4` | B; bit-reader call sequence, placeholder retained. Plateau after the flag lattice, nine source/lifetime variants, and a bounded permuter pass: the best candidate is exact-size at 128 instructions with the exact frame, loop, exits, and relocation surface; four preheader words remain from first mismatch `+0x40` because IDO loads `D_80083FA8` before the `0.5f`/`0.390625f` constants, while the target loads those constants first. The permuter imported with the wrong `-mips1` mode and its suggestion regressed the canonical `-mips2` comparison |
 | `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function. Matched C: exact 288 B and `D_800D6B00` relocation pair at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
-| `0x80050BF4` | `0x15C` | `animseqInit` | D; fresh Mickey m2c single-cursor reconstruction at the canonical winner of the 119-combination flag lattice has the exact 87-instruction/0x18-frame shape with 15 structural words left, first `+0x34`. Ten are paired LO16 scheduling sites; the clear loop remains `li/bne` versus target `slti/bnez` |
+| `0x80050BF4` | `0x15C` | `animseqInit` | D; workbench structure plateau, exact 87-word/0x18-frame shape, 15 words from `+0x34`; structure-buckets end-pointer/order/bound variants were neutral or worse; paired LO16 schedules and the clear-loop branch form remain |
 | `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained. Matched C: exact 88 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group, adopted name. Matched C: exact 72 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function, placeholder retained. Fresh word-bound m2c reconstruction is exact in all 43 opcodes/registers/relocations; workbench reports `operand-mismatch` and lever 6, with two source-spill operands remaining from first `+0x60` because IDO homes the source at `sp+0x18` rather than target `sp+0x1C` |

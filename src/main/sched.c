@@ -481,6 +481,9 @@ SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
 #endif
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scHandleRetrace. */
+/* Workbench: mixed structure/register, 408/409 words and 84 positional residuals from +0x3B4.
+ * Lever: structure-buckets; split-counter and source-line variants did not improve the baseline.
+ * Remains: diagnostic/store scheduling and separate high/low counter materialisation. */
 void __scHandleRetrace(OSSched *sc) {
     OSScTask *rspTask = NULL;
     OSScClient *client;
