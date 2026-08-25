@@ -20,16 +20,18 @@ typedef struct O11Object {
 extern s8 D_0[];
 extern s8 D_0_reload_success[];
 extern s8 D_0_reload_failure[];
+extern u8 D_INPUT[];
 extern u8 D_menuBase[];
-extern s16 D_1B8;
 extern s32 D_1BC;
-extern s32 D_1C4;
 extern void *D_1CC[5];
-extern s32 D_204;
 extern s32 D_state;
 extern u8 D_stateFlag;
 extern s8 D_cfgA;
 extern s8 D_cfgB;
+
+#define O11_SELECTION (*(s16 *)(D_menuBase + 0x1B8))
+#define O11_ARGUMENT (*(s32 *)(D_INPUT + 0x1C4))
+#define O11_COUNTER (*(s32 *)(D_menuBase + 0x204))
 
 extern O11StatusSlot *func_overlay_011_F0000000_1868848(void);
 extern void func_overlay_011_F0001058_18698A0(s32 arg0);
@@ -50,13 +52,9 @@ extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
 /*
- * Plateau (2026-08-25): the exact-size -O2 -g3 candidate has 113/295
- * instruction words identical and first differs at +0x8; canonical -O2 is
- * four bytes short but preserves the retail prefix through +0xD4. The main
- * blocker is a shifted v0/v1 register web beginning in the five-handle loop
- * and continuing through the switch. Declaration order, register and
- * volatile qualifiers, split versus for-loop spelling, and the full flag
- * lattice did not improve it; no close donor skeleton was found.
+ * Plateau (2026-08-25): Workbench structure-mismatch, 294/295 words and 189 raw differences; first raw mismatch +0x10, first aligned divergence +0x58.
+ * Constant-audit base-plus-offset macros cut constant sites from 13 to 3; choice aliasing, pointer types, and literal-index structure regressed.
+ * One word and a mixed 18-structural/18-schedule/55-register web remain; the earliest unresolved sites are overlay-local choice and jump-table bindings.
  */
 #ifdef NON_MATCHING
 void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
@@ -72,15 +70,15 @@ void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
     volatile s32 *menuInput;
 
     status = func_overlay_011_F0000000_1868848();
-    direction = D_0[D_1C4];
+    direction = D_0[O11_ARGUMENT];
     if (direction < -32) {
         if (D_1BC < 5) {
             D_1BC++;
             func_80000F94(0x32C, 0);
-            direction = D_0_reload_success[D_1C4];
+            direction = D_0_reload_success[O11_ARGUMENT];
         } else {
             func_80000F94(0x32D, 0);
-            direction = D_0_reload_failure[D_1C4];
+            direction = D_0_reload_failure[O11_ARGUMENT];
         }
     }
     if (direction >= 33) {
@@ -93,12 +91,12 @@ void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
     }
 
     for (handle = D_1CC, index = 1; index < 6; handle++, index++) {
-        value = (index == D_1BC) ? D_1B8 : 0;
+        value = (index == D_1BC) ? O11_SELECTION : 0;
         func_overlay_045_F0001BF4_188E04C(*handle, value);
     }
 
     menuInput = (volatile s32 *)(D_menuBase + 0x1C4);
-    if ((func_8002554C(D_1C4) & 0x8000) || *menuInput != 0) {
+    if ((func_8002554C(O11_ARGUMENT) & 0x8000) || *menuInput != 0) {
         switch (D_1BC) {
         case 1:
             func_overlay_066_F0000000(0);
@@ -106,7 +104,7 @@ void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
             func_800291D8(0x1E);
             func_800006BC(0.5f, 0x7F);
             func_overlay_011_F0002BF4_186B43C();
-            D_204 = 1;
+            O11_COUNTER = 1;
             break;
         case 2:
             action = *menuInput;
@@ -127,8 +125,8 @@ void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
                     D_cfgB = 0;
                     D_cfgA = state;
                 }
-                sub = func_80005820(D_1C4)->sub64;
-                D_204 = 1;
+                sub = func_80005820(O11_ARGUMENT)->sub64;
+                O11_COUNTER = 1;
                 if ((status->mode == 5) || (status->mode == 6)) {
                     status[0].field8 = 0;
                     status[1].field8 = 0;
@@ -155,7 +153,7 @@ void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
             if (action == 1) {
                 func_80028528(1);
                 func_80028374(0x1D, 0, 0, 0xB, 1, 0);
-                D_204 = 1;
+                O11_COUNTER = 1;
             }
             break;
         case 4:
@@ -169,7 +167,7 @@ void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
                 return;
             }
             if (action == 1) {
-                D_204 = 1;
+                O11_COUNTER = 1;
                 func_80028528(1);
                 if (status->mode == 5) {
                     func_80028374(0xC, 0, 0, 0x12, 1, 0);
@@ -189,7 +187,7 @@ void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
                 return;
             }
             if (action == 1) {
-                D_204 = 1;
+                O11_COUNTER = 1;
                 func_overlay_011_F0002A74_186B2BC();
                 func_80028528(1);
                 func_80028374(0xC, 0, 0, 0xC, 1, 0);

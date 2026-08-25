@@ -436,10 +436,9 @@ void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
 /*
- * Plateau: the R4300-multiply build is 4 bytes short and differs in 80/283
- * words, first at +0x88. Plain -O2 regresses to 209 words; the remaining gap
- * is a coupled frame/register web across the smoothing loops, and the bounded
- * permuter is unavailable.
+ * Plateau (2026-08-25): Workbench allocation-mismatch, 282/282 words with 79 masked and 86 raw differences; first unmasked code mismatch +0x88.
+ * Constant-audit and stack-home census found swapped pointer/step spills; explicit pointer, declaration move, and local-base alias variants regressed.
+ * The equal-frame residual is 67 GPR and 11 FPR sites plus 27 overlay-local relocation identities; no structural lever moved the paired spill homes.
  */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,

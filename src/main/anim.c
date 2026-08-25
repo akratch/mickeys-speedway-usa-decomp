@@ -1782,16 +1782,9 @@ f32 func_8002A8BC(s16 angle);
 f32 func_8002A8C0(s16 angle);
 
 /*
- * Mickey-led collision response reconstruction; the nearest external
- * skeleton is only 0.088 similar and supplies no usable donor body.
- *
- * Plateau after the flag lattice, focused expression/lifetime variants, and
- * an eight-minute canonical-flag permuter batch: the best semantic full-TU
- * candidate has 226 instructions against the target's 229 and a 0x80 frame
- * against 0x70. Its eight call/global relocation identities agree, but 214
- * positional words differ from +0x0 because the extra local/spill space
- * changes the floating-point schedule. The permuter's lower-score candidate
- * read a branch-local normal component before initialization and was rejected.
+ * Plateau (2026-08-25): Workbench structure-mismatch, 226/229 words and 214 raw differences from +0x0; candidate frame 0x80 versus target 0x70.
+ * Spill-slot census, three volatile-home declaration placements, and an exact-layout state type left the frame/count unchanged; no donor body was used.
+ * The 16-byte non-save-frame excess still shifts the FP pool/temp phase; allocator edits are premature until that extra live range is identified.
  */
 #ifdef NON_MATCHING
 void func_80056DD8(HitCopyState *first, HitCopyState *second,
