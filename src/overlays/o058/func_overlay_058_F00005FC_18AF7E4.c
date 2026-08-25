@@ -119,12 +119,9 @@ extern void overlay58EnsureResource(void);
  * Mickey-only reconstruction. The donor scan found no close permitted
  * skeleton, and skeleton_scan cannot yet address an assembly ownership range.
  *
- * Plateau (2026-08-25): the -O2 -g3 candidate is size-exact and has 99/829
- * instruction words identical, with its first mismatch at +0x0. IDO gives
- * the reconstruction a 0xA8-byte frame and saves s8, while retail uses a
- * 0x88-byte frame with s0-s7. Typed path geometry, signed table indices, and
- * explicit switch-state coverage did not recover retail's register lifetimes;
- * the full flag lattice otherwise tied.
+ * Plateau p2 (2026-08-25): workbench structure-mismatch; 724 positional words differ, first +0x0.
+ * Tried constant-audit branch order plus marker type/lifetime and direct geometry-access levers.
+ * The 0xA0 frame still has one extra saved web, and the best candidate is three instructions short.
  */
 #ifdef NON_MATCHING
 void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
@@ -132,11 +129,10 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
     Overlay58AnimPath *path;
     Overlay58PathGeometry *geometry;
     Overlay58Gfx *command;
-    Overlay58Vec3f *vertices;
     s16 *mapping;
     s16 start;
     s16 end;
-    s16 marker;
+    s32 marker;
     s16 selection;
     s32 stage;
     s32 advance;
@@ -403,7 +399,6 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
                 } while (mapping[0] != -1);
             }
 
-            vertices = geometry->vertices;
             if (stage == D_6C) {
                 increment = D_120 * (f32)updateRate;
                 advance = D_2C0 < 1.0f;
@@ -413,8 +408,9 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
                     }
                 }
                 overlay58DrawSegmentStrip(
-                    vertices[start].x, vertices[start].y, vertices[start].z,
-                    vertices[end].x, vertices[end].y, vertices[end].z,
+                    geometry->vertices[start].x, geometry->vertices[start].y,
+                    geometry->vertices[start].z, geometry->vertices[end].x,
+                    geometry->vertices[end].y, geometry->vertices[end].z,
                     D_2C0);
                 D_2C0 += increment;
                 if (D_2C0 > 1.0f) {
@@ -422,14 +418,16 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
                     if (D_2BC != 0) {
                         amSndStop(D_2BC);
                     }
-                    overlay58DrawPointQuad((s32)vertices[end].x,
-                                           (s32)vertices[end].y,
-                                           (s32)vertices[end].z);
+                    overlay58DrawPointQuad((s32)geometry->vertices[end].x,
+                                           (s32)geometry->vertices[end].y,
+                                           (s32)geometry->vertices[end].z);
                 }
             } else {
                 overlay58DrawSegmentStrip(
-                    vertices[start].x, vertices[start].y, vertices[start].z,
-                    vertices[end].x, vertices[end].y, vertices[end].z, 1.0f);
+                    geometry->vertices[start].x, geometry->vertices[start].y,
+                    geometry->vertices[start].z, geometry->vertices[end].x,
+                    geometry->vertices[end].y, geometry->vertices[end].z,
+                    1.0f);
             }
 
             marker = -1;
@@ -450,15 +448,15 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
                 if (marker != -1) {
                     overlay58DrawLargePointQuad(
                         (s32)((f32)D_B8[status->player][0] +
-                              vertices[marker].x),
-                        (s32)vertices[marker].y,
+                              geometry->vertices[marker].x),
+                        (s32)geometry->vertices[marker].y,
                         (s32)((f32)D_B8[status->player][1] +
-                              vertices[marker].z));
+                              geometry->vertices[marker].z));
                 }
             }
-            overlay58DrawPointQuad((s32)vertices[start].x,
-                                   (s32)vertices[start].y,
-                                   (s32)vertices[start].z);
+            overlay58DrawPointQuad((s32)geometry->vertices[start].x,
+                                   (s32)geometry->vertices[start].y,
+                                   (s32)geometry->vertices[start].z);
         }
     }
 }

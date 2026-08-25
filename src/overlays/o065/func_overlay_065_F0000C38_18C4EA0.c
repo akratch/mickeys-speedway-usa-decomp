@@ -55,9 +55,11 @@ extern void func_800349A4(Overlay65TrailCommand **commands, void *texture,
                           s32 flags, s32 parameter);
 extern void func_overlay_065_F0001A14_18C5C7C(f32 x, f32 y, f32 z);
 
-/* Workbench: structure-mismatch (mixed), 870/887 positional words differ; first mismatch +0x0.
- * Levers tried: explicit vertex-pair expansion and live-global pointer access reduced the size gap to 34 instructions.
- * Remaining: a 24-byte frame deficit, four missing saved registers, and structural/FP allocation drift. */
+/*
+ * Plateau p2 (2026-08-25): workbench structure-mismatch; 875/887 positional words differ, first +0x0.
+ * Tried explicit two-side output, an s32 conversion carrier, full expansion, and the MIPS-II flag lattice.
+ * The best positional candidate remains 392 instructions short, and the retail saved-register web is absent.
+ */
 #ifdef NON_MATCHING
 void func_overlay_065_F0000C38_18C4EA0(Overlay65TrailCommand **commandPtr,
                                        s32 **cursorPtr, s32 updateRate) {

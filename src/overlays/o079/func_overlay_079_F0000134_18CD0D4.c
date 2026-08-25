@@ -119,6 +119,7 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
     Overlay79Vector end;
     f32 update;
     f32 dx;
+    f32 dy;
     f32 dz;
     f32 distance;
     f32 verticalDistance;
@@ -199,9 +200,9 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
         }
         if (state->target != NULL) {
             dx = state->target->x - object->x;
-            distance = state->target->y - object->y;
+            dy = state->target->y - object->y;
             dz = state->target->z - object->z;
-            if (sqrtf((dx * dx) + (distance * distance) + (dz * dz)) < 30.0f) {
+            if (sqrtf((dx * dx) + (dy * dy) + (dz * dz)) < 30.0f) {
                 *(s32 *)state->target->state = 1;
             }
         }
