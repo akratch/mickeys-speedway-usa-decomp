@@ -11,11 +11,6 @@ typedef struct Overlay41QueueEntry {
     u8 active;
 } Overlay41QueueEntry;
 
-typedef union Overlay41QueueCursor {
-    volatile u8 *pointer;
-    u32 raw;
-} Overlay41QueueCursor;
-
 extern u8 gOverlay41QueueActive0Read[];
 extern u8 gOverlay41QueueTimer0Read[];
 extern u8 gOverlay41QueueTimer0Write[];
@@ -28,15 +23,21 @@ extern u8 gOverlay41QueueValueA_0[];
 extern u8 gOverlay41QueueActive0Write[];
 extern u8 gOverlay41QueueEntries[];
 
-#define entry cursor.pointer
+#define entry ((volatile u8 *)cursor)
 
+/*
+ * Plateau (2026-08-25): 76/105 masked words exact with the default flags;
+ * first mismatch +0x8. The exact-size integer cursor keeps current and next
+ * entries in v1/v0, while the target reuses v0 with adjusted future offsets;
+ * direct and typed volatile pointers grow beyond the 0x1A4-byte target.
+ */
 #ifdef NON_MATCHING
 void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
                                        s32 value6, s32 value8, s32 value9,
                                        s32 valueA) {
-    Overlay41QueueCursor cursor;
+    u32 cursor;
 
-    cursor.raw = (u32)gOverlay41QueueEntries;
+    cursor = (u32)gOverlay41QueueEntries;
     if (gOverlay41QueueActive0Read[11] == 0 &&
         *(s16 *)(gOverlay41QueueTimer0Read + 0) <= 0) {
         *(s16 *)(gOverlay41QueueValue2_0 + 2) = value2;
@@ -59,7 +60,7 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
         entry[10] = valueA;
         return;
     }
-    cursor.raw += 12;
+    cursor += 12;
     if (entry[11] == 0 && *(s16 *)(entry + 0) <= 0) {
         *(s16 *)(entry + 2) = value2;
         *(s16 *)(entry + 0) = timer;
@@ -71,7 +72,7 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
         entry[10] = valueA;
         return;
     }
-    cursor.raw += 12;
+    cursor += 12;
     if (entry[11] == 0 && *(s16 *)(entry + 0) <= 0) {
         *(s16 *)(entry + 2) = value2;
         *(s16 *)(entry + 0) = timer;
@@ -83,7 +84,7 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
         entry[10] = valueA;
         return;
     }
-    cursor.raw += 12;
+    cursor += 12;
     if (entry[11] == 0 && *(s16 *)(entry + 0) <= 0) {
         *(s16 *)(entry + 2) = value2;
         *(s16 *)(entry + 0) = timer;
