@@ -564,7 +564,18 @@ void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FBD8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FCA4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FD68.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FEB4.s")
+/*
+ * PROVENANCE: adapted from Diddy Kong Racing's public `src/tracks.c`,
+ * function `block_get`. Mickey's stricter upper bound, TrackData layout,
+ * function boundary, and bytes are authoritative.
+ */
+TrackSegment *func_8000FEB4(s32 segmentIndex) {
+    if ((segmentIndex < 0) ||
+        (segmentIndex >= D_800792E8->segmentCount)) {
+        return NULL;
+    }
+    return &D_800792E8->segments[segmentIndex];
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FEEC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FF2C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010178.s")
