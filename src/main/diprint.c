@@ -126,9 +126,9 @@ s32 sprintf(char *s, const char *format, ...) {
 #define isdigit(c) ((c >= '0') && (c <= '9'))
 
 /* PROVENANCE: body adapted from JFG src/diprint.c:vsprintf. */
-/* Size-exact plateau under -Wab,-r4300_mul: two adjacent words differ first
- * at +0xB08 because IDO reverses the final exponent digit loads. The body
- * also emits formatter rodata still owned by the resident asm data split. */
+/* Size/frame/register pools exact under -Wab,-r4300_mul: two scheduled words
+ * first +0xB08 load '-' before 10, while target order is 10 then '-'. The 28
+ * formatter table/data relocation identities remain owned by the asm split. */
 s32 vsprintf(char *s, const char *fmt, va_list args) {
     /* Pointer into the format string.  */
     const char *f;
@@ -925,16 +925,17 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* Size-exact plateau: 9/66 words differ, first at +0x20. Direct typed table
- * accesses fix one expression-order word; the local buffer remains eight
- * bytes above the target and seeds the remaining allocation difference. */
+/* Size/frame exact: 9/66 words differ, first +0x20; donor pad/current
+ * topology moves the buffer sp+44->sp+40, still four bytes high. Workbench:
+ * pool-slot-5 v0/v1 mismatch; donor for-loop, s64 and dead-web probes regressed. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;
     s32 charIndex;
+    s32 pad;
+    u8 value;
     char s[255];
     u8 *ch;
-    u8 value;
     va_list args;
 
     va_start(args, format);
@@ -947,19 +948,20 @@ s32 debug_text_width(const char *format, ...) {
     if (value != '\0') {
         do {
             if (value != '\n') {
+                pad = value;
                 if (value == ' ') {
                     stringLength += 6;
-                } else if (value >= 0x21 && value < 0x80) {
+                } else if (pad >= 0x21 && pad < 0x80) {
                     fontTexture = 0;
-                    if (value < 0x40) {
-                        charIndex = (value - 0x21) & 0xFF;
+                    if (pad < 0x40) {
+                        charIndex = (pad - 0x21) & 0xFF;
                     } else {
                         fontTexture = 2;
-                        if (value < 0x60) {
+                        if (pad < 0x60) {
                             fontTexture = 1;
-                            charIndex = (value - 0x40) & 0xFF;
+                            charIndex = (pad - 0x40) & 0xFF;
                         } else {
-                            charIndex = (value - 0x60) & 0xFF;
+                            charIndex = (pad - 0x60) & 0xFF;
                         }
                     }
                     stringLength = ((stringLength + D_8007CE98[fontTexture][charIndex].v) -
@@ -1089,7 +1091,6 @@ void debug_text_background(Gfx **dList, u32 ulx, u32 uly, u32 lrx, u32 lry) {
         gDPFillRectangle((*dList)++, ulx, uly, lrx, lry);
     }
 }
-#ifdef NON_MATCHING
 #define G_CC_DEBUG_TEXT 0, 0, 0, ENVIRONMENT, TEXEL0, 0, ENVIRONMENT, 0
 /*
  * PROVENANCE: body adapted from JFG src/diprint.c:debug_text_character;
@@ -1099,25 +1100,28 @@ void debug_text_background(Gfx **dList, u32 ulx, u32 uly, u32 lrx, u32 lry) {
 s32 debug_text_character(Gfx **dList, s32 asciiVal) {
     s32 fontCharWidth;
     s32 fontCharU;
+    union {
+        s32 value;
+        s64 align;
+    } fontTextureWidth;
     s32 fontTexture;
-    s32 fontTextureWidth;
     s32 textureIndex;
 
     textureIndex = D_800D4A7C;
     if (asciiVal < 0x40) {
         textureIndex = 0;
         fontTexture = (s32)D_800D4A50 + 0x20;
-        fontTextureWidth = 0xC0;
+        fontTextureWidth.value = 0xC0;
         asciiVal -= 0x21;
     } else if (asciiVal < 0x60) {
         textureIndex = 1;
         fontTexture = (s32)D_800D4A54 + 0x20;
-        fontTextureWidth = 0xF8;
+        fontTextureWidth.value = 0xF8;
         asciiVal -= 0x40;
     } else if (asciiVal < 0x80) {
         textureIndex = 2;
         fontTexture = (s32)D_800D4A58 + 0x20;
-        fontTextureWidth = 0xC0;
+        fontTextureWidth.value = 0xC0;
         asciiVal -= 0x60;
     }
     fontCharU = D_8007CE98[textureIndex][asciiVal].u;
@@ -1125,7 +1129,7 @@ s32 debug_text_character(Gfx **dList, s32 asciiVal) {
     if (D_800D4A68 != 0) {
         if (textureIndex != D_800D4A7C) {
             gDPLoadTextureBlockS((*dList)++, fontTexture + 0x80000000,
-                                 G_IM_FMT_IA, G_IM_SIZ_8b, fontTextureWidth,
+                                 G_IM_FMT_IA, G_IM_SIZ_8b, fontTextureWidth.value,
                                  11, 0, 2, 2, 0, 0, 0, 0);
             D_800D4A7C = textureIndex;
         }
@@ -1138,9 +1142,6 @@ s32 debug_text_character(Gfx **dList, s32 asciiVal) {
     return fontCharWidth;
 }
 #undef G_CC_DEBUG_TEXT
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_character.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_bounds. */
 void debug_text_bounds(void) {
     if (D_800D4A80 <= 320) {

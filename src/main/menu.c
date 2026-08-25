@@ -236,11 +236,9 @@ extern void camPushModelMtx(MenuCommand **commands, void **matrices,
 extern void camPopModelMtx(MenuCommand **commands);
 
 #ifdef NON_MATCHING
-/* Exact-size and exact-frame plateau: 6/74 words differ, first at +0xDC.
- * Word-table state typing and load order leave one a0/a1 pool-web swap.
- * The generated switch also binds its jump table to anonymous .rodata instead
- * of the target's named symbol, with relocation identity first differing at
- * +0x4C. */
+/* Exact size/frame: 5/74 words differ, first +0xDC; caching the element fixes
+ * the commutative row, but pool slot 18 keeps base/value a0/a1 crossed. Switch
+ * relocs +0x4C/+0x54 still bind .rodata, not jtbl_80082734. */
 void func_80038750(s32 language) {
     s32 *header;
     s32 *offsets;
@@ -284,10 +282,11 @@ void func_80038750(s32 language) {
         piRomLoadSection(6, destination, assetIndex, end);
         index = 0;
         while (index < D_8007C094[0]) {
-            if (D_8007C0B8[index] == -1) {
+            destination = D_8007C0B8[index];
+            if (destination == -1) {
                 D_8007C0B8[index] = 0;
             } else {
-                D_8007C0B8[index] = D_8007C0B8[index] + (s32) D_8007C0B8;
+                D_8007C0B8[index] = destination + (s32) D_8007C0B8;
             }
             index++;
         }
@@ -554,9 +553,9 @@ u8 frontGetMode(void) {
     return D_8007C0A0;
 }
 #ifdef NON_MATCHING
-/* Size- and frame-exact plateau: 248/279 words differ, first at +0x24.
- * IDO assigns the persistent fade-state address to a0 instead of v1, then
- * cascades into a different register and switch schedule. */
+/* Size/frame exact: 248/279 words differ, first +0x24; fade address a0, not v1.
+ * Workbench pool-slot 0 divergence cascades through the switch schedule; a
+ * named pointer loses one word and an empty fade web loses seven. */
 s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
     s32 sp24;
     u8 *sp20;

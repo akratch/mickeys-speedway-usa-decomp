@@ -273,6 +273,9 @@ void func_800304E0(OSSched *sc) {
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:osScGetTaskType, with Mickey's own string symbols. */
+/* All 34 instructions are exact; strict comparison leaves two table-symbol
+ * relocations at +0x14/+0x1C (.rodata versus jtbl_800823D8).
+ * Workbench verdict: relocation-symbol-mismatch; shared rodata owns the fix. */
 char *osScGetTaskType(s32 taskID) {
     switch (taskID) {
         case 1:

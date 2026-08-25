@@ -935,18 +935,9 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
-`func_80038750` remains a **tier-D NON_MATCHING plateau** over **0x128 bytes /
-74 words** at ROM `0x39350`. Its Mickey-derived candidate has the exact
-`0x18`-byte frame and reconstructs the language-specific resource selection,
-section load, and pointer-relocation loop. The best stock-flag object differs
-in **6/74 positional words**, first `+0xDC`. Word-table state typing and
-source load order recover the cached-header and destination schedules; the
-remaining executable residual is one swapped `a0`/`a1` pool web, including a
-commutative operand-order site. Its compiler-generated switch still binds two
-relocation sites, first `+0x4C`, to anonymous `.rodata` rather than the
-target's named jump-table symbol. The full flag lattice kept the resident
-defaults best. JFG's corresponding `setLanguage` routine remains assembly, so
-the Mickey placeholder name and canonical assembly are retained.
+`func_80038750` is size/frame exact; its best stock-flag object differs in **5/74 words**, first `+0xDC`.
+Caching the element fixes the commutative row, but pool slot 18 keeps the base/value `a0`/`a1` web crossed.
+Switch relocations `+0x4C`/`+0x54` bind anonymous `.rodata`, not `jtbl_80082734`; asm remains canonical.
 
 `func_80038878` remains a **tier-D NON_MATCHING plateau** over **0x154 bytes /
 85 words** at ROM `0x39478`. JFG's same-position `initFront` routine supplies
@@ -1951,9 +1942,9 @@ base locals disrupt both temporary-register rings; asm stays canonical.
 residuals from `+0x0`; implicit loop bounds seed both carrier pairs oppositely.
 An explicit end pointer changes the frame, so asm stays canonical.
 
-`debug_text_width` is size-exact with 9/66 residuals from `+0x20`; direct typed
-table access fixes one word, but its buffer remains eight stack bytes above the
-target and changes the value allocation. Asm stays canonical.
+`debug_text_width` is size/frame exact with 9/66 residuals, first `+0x20`.
+The donor pad/current topology moves its buffer from `sp+44` to `sp+40`, still four bytes above target.
+Workbench identifies a pool-slot-5 `v0`/`v1` mismatch; asm remains canonical.
 
 `func_8004054C` plateaued one word short (124/125), with 43 aligned residuals
 from `+0x4C`: IDO folds the free-bit scan into a pointer move, then colors the
@@ -1966,17 +1957,9 @@ schedule, but the whole TU emits a `0x30` frame versus `0x38`: 22 residuals
 did not improve it; a standalone permuter zero failed in the canonical TU and
 was rejected. Asm stays canonical.
 
-`func_80040740` has a 78-word C candidate with the target text instruction
-schedule under the default resident flags, reconstructed from Mickey evidence
-with the JFG assembly sibling as a structural oracle. It cannot be promoted
-within this TU's ownership: the first relocation mismatch is at function
-offset `0x38`, where IDO binds the generated switch to anonymous compiler
-rodata rather than the separately extracted `jtbl_80082A58`. That external
-table still owns five case-label references, so replacing the asm body also
-leaves those labels undefined and emits a duplicate 20-byte table. The flag
-lattice found no alternative relocation binding. The candidate remains under
-`NON_MATCHING` and the original asm body remains canonical pending coordinated
-resident-rodata ownership.
+`func_80040740` is size/frame exact with 9/78 executable words different, first `+0x1C`.
+Reversing its empty guard fixes one branch but was rejected as a fake; temp slot 5 still cycles `t0`/`t9`/`t1`.
+Three switch/PC16 relocation identities remain; the invalid `-mips1` permuter import was rejected and asm stays canonical.
 
 `partModelObjEmitModelPart` reached a bounded size-exact 84-word plateau under
 the default resident flags. The best compliant Mickey reconstruction differs
@@ -2023,13 +2006,9 @@ component lifetimes, and nested scopes converged either on this allocation
 basin or on structurally worse schedules. The candidate remains under
 `NON_MATCHING` and the original asm body remains canonical.
 
-`vsprintf` reached a bounded size-exact plateau under `-Wab,-r4300_mul`: its
-1,220-word candidate differs in two adjacent words, first at function offset
-`0xB08`, where IDO loads the final exponent digit constants in the reverse
-order. The flag lattice found no exact alternative, and the bounded permuter
-could not parse the formatter's `va_arg` macros. Promotion is additionally
-blocked because the C body emits formatter jump tables and static strings
-still owned by the resident asm-data split.
+`vsprintf` is size/frame/register-pool exact under `-Wab,-r4300_mul`; two scheduled words differ, first `+0xB08`.
+Target loads `10` before `'-'`; IDO reverses them, and the `va_arg` body remains unparseable by the permuter.
+Twenty-eight formatter table/data relocation identities remain owned by the asm-data split, so asm stays canonical.
 
 `diPrintfAll` reached an instruction-exact 144-word plateau under
 `-Wab,-r4300_mul`. Strict object comparison finds four relocation-identity
@@ -2049,18 +2028,9 @@ two switch-table references use compiler `.rodata` instead of
 `jtbl_80082CD8`. The generated switch table would also duplicate the resident
 asm-data owner, so the original asm body remains canonical.
 
-`debug_text_character` reached a bounded 186-instruction plateau under
-`-Wab,-r4300_mul` with the exact opcode schedule, register assignment, and
-relocation surface. The JFG-derived Mickey candidate differs in six stack
-operands, first at function offset `0x10`: IDO gives the candidate a `0x10`
-frame with the selected texture width at `sp+0`, while the target has a `0x18`
-frame and places that width at `sp+8`; the selected texture address is already
-at the target's `sp+4`. The full 119-entry flag lattice found no alternative,
-and scalar, aggregate, reserved-field, and physical-address source layouts did
-not reproduce the empty target slot without worsening the code. The bounded
-permuter importer selected inadmissible `-mips1` and then failed on this TU's
-expanded `va_arg` syntax. The candidate remains under `NON_MATCHING` and the
-original asm body remains canonical.
+| Function | Exact result |
+|---|---|
+| `debug_text_character` | **tier-A**, ROM `0x45398`, `0x2E8` bytes, `-Wab,-r4300_mul`; an aligned width union recovers the target `0x18` frame and all 186 instructions/relocations. JFG body donor. |
 
 `func_80040B88` reached a bounded 300-instruction plateau against the target's
 302 instructions under the canonical resident flags. Its `0x70` frame differs
