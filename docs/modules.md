@@ -1480,7 +1480,7 @@ placeholders are never imported.
 | `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; collision handler family |
 | `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | D; collision handler family |
 | `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family |
-| `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family |
+| `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 276 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
 | `0x80055F64` | `0x16C` | no unique `hit.c` candidate | D; collision handler family |
 | `0x800560D0` | `0x1A4` | no unique `hit.c` candidate | D; collision handler family |
 | `0x80056274` | `0x140` | no unique `hit.c` candidate | D; collision handler family |
