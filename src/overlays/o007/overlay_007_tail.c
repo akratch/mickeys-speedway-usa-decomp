@@ -145,9 +145,10 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #endif
 
 /*
- * Plateau: exact size with two differing words, first at +0x4. The low-ten-
- * bit mask fixes every downstream temp register, but IDO keeps the flag load
- * in t7 instead of coalescing it with the target's t6 address register.
+ * Plateau (2026-08-25 rerun): exact size with two differing words, first at
+ * +0x4. The 119-case flag lattice, volatile/signed/array global types, local
+ * flag and table-offset webs, and cast placement do not coalesce the initial
+ * flag load with the later table offset; typed web reuse widens the diff.
  */
 #ifdef NON_MATCHING
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
