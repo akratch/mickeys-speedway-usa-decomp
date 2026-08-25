@@ -1051,8 +1051,8 @@ algebraic reassociation. The default flags, three call relocations, data pair,
 object words, and linked ROM range are exact without post-processing.
 
 `func_8003968C`: best remains **37/37 instruction words exact** with **18 relocation identities differing**, first `+0x24`.
-The fresh typed `MenuControllerRepeatState` body is also 37/37 but consolidates the state base and differs at 22 relocation sites; JFG's exact skeleton remains assembly.
-Resident flags tie the full lattice, so symbol binding—not instruction codegen—blocks the canonical match.
+A fresh loop-time scalar-label dispatch grew to 49 instructions and a stack frame, so the array loop is retained under `NON_MATCHING`.
+Workbench reports `relocation-symbol-mismatch`; canonical O2 flags tie the lattice and assembly remains authoritative.
 
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and
@@ -1186,9 +1186,9 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8`: workbench allocation mismatch, **5/32 differing words** from `+0xC`.
-Pool-position/type variants stalled at 19; a 30-minute permuter remask reached 5.
-Size and the temp lane are exact; a pool inversion and one ring-only comparison remain.
+`func_8003A2C8`: the retained workbench allocation plateau is **5/32 differing words**, first `+0xC`.
+Fresh raw-byte m2c/JFG-shaped bodies kept the 32-word size but regressed to 26–27 differences and were rejected.
+All 119 flag combinations leave the default O2/mips2 result tied for best; assembly remains authoritative.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
@@ -1245,9 +1245,9 @@ carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
 live range; the default flags, both data relocations, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A520`: best remains **3/9 differing words**, first `+0x8`; the fresh
-typed raw-state m2c body landed under `NON_MATCHING` at 6/9, with an exact
-nine-word shape but a whole temporary-register-ring phase shift.
+`func_8003A520`: historical best remains **3/9 differing words**, first `+0x8`; the fresh BK bitfield donor shape lands at 6/9 under `NON_MATCHING`.
+Workbench reports a `phase-shift`, rotating temp slot zero immediately after the exact address pair with no preceding source block to perturb.
+All 119 flag combinations preserve the six-register plateau, so assembly remains authoritative.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no

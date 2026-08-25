@@ -797,22 +797,16 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
     viConvertXY(right, bottom);
 }
 #ifdef NON_MATCHING
-/* All 37 words are exact, but the typed view consolidates the state to one
- * base and leaves 22 relocation identities wrong; the array form remains
- * better at 18. PROVENANCE: JFG src/menu.c has the exact skeleton but retains
- * assembly; the body and field layout are Mickey-derived.
- * near-miss batch 25: All 37 words and linked bytes remain exact; 18 relocs differ from +0x24.
- * Scalar labels fix them but pool constants to 29 words; four one-trip loops
- * keep the target temp sequence but add 18 control words under all 119 flags. */
+/* All 37 instruction words are exact; 18 relocation identities still differ,
+ * first at +0x24. PROVENANCE: JFG's public src/menu.c has the exact skeleton
+ * but retains assembly; this array body is Mickey-derived. */
 void func_8003968C(void) {
     s32 controller;
-    MenuControllerRepeatState *state;
 
-    state = (MenuControllerRepeatState *)D_800D3198;
     for (controller = 0; controller < 4; controller++) {
-        state->previousButtons[controller] = -1;
-        state->repeatX[controller] = 0x14;
-        state->repeatY[controller] = 0xF;
+        D_800D31A0[controller] = -1;
+        D_800D3198[controller] = 0x14;
+        D_800D319C[controller] = 0xF;
     }
 }
 #else
@@ -1297,13 +1291,12 @@ s32 frontGet2PlayerSplit(void) {
     return split;
 }
 /* PROVENANCE: role and order compared with JFG's public decomp,
- * src/menu.c::frontSet2PlayerSplit; JFG retains assembly. This fresh
- * Mickey-derived m2c/raw-state body is size-exact but differs in six temporary
- * registers from +0x8; the resident flags tie the lattice's best result. */
+ * src/menu.c::frontSet2PlayerSplit; the direct bitfield-assignment source shape
+ * is adapted from Banjo-Kazooie's public src/core2/gc/dialog.c::func_80311714.
+ * Mickey supplies the field position and resident state. */
 #ifdef NON_MATCHING
 void func_8003A520(s32 split) {
-    D_800D3128.raw = ((split * 0x10) & 0x10) |
-                     (D_800D3128.raw & 0xFFEF);
+    D_800D3128.bits.twoPlayerSplit = split;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")
