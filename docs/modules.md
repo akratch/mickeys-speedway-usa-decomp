@@ -884,6 +884,12 @@ Matched C in this TU:
 | `func_80014EAC` | `0x15AAC` | 0x20 | `-O2 -mips2 -32` | JFG `func_8001C550` is a tier-A 8/8-word TU donor, unique in the ROM; JFG placeholder not imported; linked ROM exact |
 | `func_80014ECC` | `0x15ACC` | 0x668 | `-O2 -mips2 -32` | Mickey reconstruction using the SDK GBI display-list macros; JFG's assembly-only final `track.c.o` helper supplies tier-D TU-position and structural context, but its placeholder is deliberately not adopted; 410/410 instruction words and all 22 relocation records exact, linked ROM exact |
 
+Current matching plateau:
+
+| Function | Target | Best attempt | First mismatch and blocker |
+|---|---:|---|---|
+| `func_80010B4C` | 0xA98 / 678 words | Four serious source forms reconstructed the full JFG `trackGetPlayerIntersect` role from Mickey's m2c draft. The closest was 0xA60 / 664 words under `-O2 -mips2 -32`; the required flag sweep found no exact compiler mode. | `+0x0`: target frame is `0x148`, versus `0x128`; the target also retains two additional FP live ranges and uses a different pointer-variable ordering for its unrolled copy/initialization loops. JFG's public body is assembly-only, so another attempt needs new source/declaration evidence. The bounded permuter could not run because this lane has no `tools/permuter/import.py`. |
+
 ### 3.10 Resident camera: ROM `0x21EE0`–`0x25C20`
 
 This whole `0x3D40`-byte block is the resident camera TU: **69 functions,
