@@ -37,19 +37,19 @@ void overlay74HitReloc(Overlay74UpdateObject *object);
 void overlay74SoundReloc(s32 soundId, s32 arg1);
 void overlay74RewardReloc(s32 count);
 
-/* NON_MATCHING plateau (reconfirmed 2026-08-25): the nearest skeleton score is
- * 0.056 and all 119 flag combinations miss. The exact-size 100-word candidate
- * differs in 14 words, first at +0xC: IDO colors the result aggregate address
- * as v0 rather than retail's t3, reverses the later flags/mask web, and emits
- * one commutative OR encoding oppositely. Natural scalar loop locals reproduce
- * the retail loop registers but enlarge the 0x60 frame to 0x68. A bounded
- * two-worker permuter batch found no exact form; its cached-flags mutation
- * regressed to 18 differing words under the canonical -mips2 build. */
+/* NON_MATCHING plateau (retested 2026-08-25): the nearest skeleton score is
+ * 0.056 and all 119 flag combinations miss. Ten structural variants reduced
+ * the exact-size, 100-word candidate from 14 differing words to six while
+ * preserving the 0x60 frame. The first mismatch remains +0xC: five words swap
+ * the result aggregate's address/object register pair, and one later OR uses
+ * the opposite commutative encoding. A bounded two-worker permuter batch found
+ * no exact form. */
 #ifdef NON_MATCHING
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74QueryResult result;
     f32 delta;
     Overlay74UpdateState *state;
+    s32 mask;
 
     if (!(object->flags & 0x400)) {
         object->angle += amount << 8;
@@ -75,13 +75,14 @@ void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
                 object = (Overlay74UpdateObject *)5;
                 if (!object) {
                 }
-                state = (Overlay74UpdateState *)8;
+                state = (Overlay74UpdateState *)((gOverlay74Flags << 5) >> 28);
+                mask = 8;
                 do {
-                    if (((gOverlay74Flags << 5) >> 28) & (s32)state) {
+                    if ((s32)state & mask) {
                         object = (Overlay74UpdateObject *)((s32)object + 1);
                     }
-                    state = (Overlay74UpdateState *)((s32)state >> 1);
-                } while (state != 0);
+                    mask >>= 1;
+                } while (mask != 0);
                 if ((s32)object >= 6) {
                     overlay74RewardReloc((s32)object);
                 }
