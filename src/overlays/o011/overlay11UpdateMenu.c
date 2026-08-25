@@ -56,12 +56,24 @@ extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 11 as none. */
+/*
+ * Plateau (2026-08-25): canonical -O2 -mips2 is size-exact with 299/301
+ * instruction words identical; the first mismatch is +0x138. Three dead
+ * local arrays recover retail's exact 0x48-byte frame and every stack slot.
+ * The remaining pair only reverses the two live-value spill stores before
+ * the handle callback. Inlining the call arguments, reversing the increment
+ * and initialization order, and signed, register, and volatile qualifiers
+ * did not change that scheduler choice; the full flag lattice also tied.
+ */
 #ifdef NON_MATCHING
 void overlay11UpdateMenu(s32 updateRate) {
     s32 index;
+    s32 indexPadding[4];
     O11Status *status;
     s32 finish;
+    s32 finishPadding[1];
     void **handle;
+    s32 handlePadding[1];
     s8 direction;
     s16 value;
     s32 selection;
