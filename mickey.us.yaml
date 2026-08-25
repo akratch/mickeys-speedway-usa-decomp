@@ -781,7 +781,7 @@ segments:
       - [0x1857A88, asm, overlay_002_middle_a]
       - [0x1858014, c, overlay2Enable]
       - [0x1858034, c, overlay2ContainsPoint]
-      - [0x185815C, asm, overlay_002_middle_b0]
+      - [0x185815C, c, func_overlay_002_F0001364_185815C]
       - [0x1858450, c, overlay2AdjacentIndices]
       - [0x1858498, c, overlay2QueryNode]
       - [0x185888C, c, func_overlay_002_F0001A94_185888C]

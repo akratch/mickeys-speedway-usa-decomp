@@ -141,7 +141,7 @@ TEXT_SUBSEGMENTS = {
         (0x0C90, "asm", "overlay_002_middle_a"),
         (0x121C, "c", "overlay2Enable"),
         (0x123C, "c", "overlay2ContainsPoint"),
-        (0x1364, "asm", "overlay_002_middle_b0"),
+        (0x1364, "c", "func_overlay_002_F0001364_185815C"),
         (0x1658, "c", "overlay2AdjacentIndices"),
         (0x16A0, "c", "overlay2QueryNode"),
         (0x1A94, "c", "func_overlay_002_F0001A94_185888C"),
