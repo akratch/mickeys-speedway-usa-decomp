@@ -21,7 +21,229 @@ void *overlay8GetIndexed(Overlay8IndexedObject *object) {
     return result;
 }
 
+/*
+ * NON_MATCHING plateau (2026-08-25): the canonical -O2 -mips2
+ * -Wab,-r4300_mul candidate is 0x4C short, with 477 of 527 masked words
+ * differing and the first mismatch at +0x0. The flag lattice's closest raw
+ * result is -mips3 at 0xC over, but it introduces non-target 64-bit extension
+ * operations. The candidate's 0xB8 frame versus target 0xA0 leaves local
+ * array/spill ownership as the blocker.
+ */
+#ifdef NON_MATCHING
+void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
+                                       s32 updateRate) {
+    O8P0058State *state;
+    f32 vector[3];
+    s16 angles[3];
+    O8P0058Surface surfaces[8];
+    O8P0058Surface *surface;
+    f32 minimum;
+    f32 maximum;
+    f32 floorHeight;
+    f32 update;
+    f32 value;
+    s32 count;
+    s32 index;
+    s32 present;
+    O8P0058Query *query;
+
+    state = owner->state64;
+    gOverlay8Buffer = (s16 *)((u8 *)state + 0x1B8);
+    gOverlay8Value = 0;
+    D_14 = 0;
+    D_18 = 0;
+    owner->flags80 = 0;
+    D_10 = 25.0f;
+    state->value70 = 0.0f;
+
+    if ((state->disabled18D != 0) || (state->gate158 != 0) ||
+        (state->reset170 != 0) || (owner->mode3B == 0x18) ||
+        (state->gate3FA != 0)) {
+        o8P0058ResetReloc(state, 1);
+    }
+    o8P0058ModeReloc(state, state->mode0);
+
+    if (gO8P0058MirrorGateReloc != 0) {
+        state->signed428 = -state->signed428;
+        state->signed430 = -state->signed430;
+    }
+
+    query = o8P0058AcquireReloc(state);
+    present = gO8P0058PresentReloc;
+    gO8P0058ResultReloc = query->initial0;
+    if (present != 0) {
+        if (((state->modeFlags420 & 0x8000) != 0) &&
+            (state->active183 == 0x80)) {
+            state->active183 = (u8)gO8P0058ActiveReloc;
+        }
+        state->value42C = 0;
+        state->value434 = 0;
+        state->flags41C = (state->flags41C & 0x8008) | 0x4000;
+    } else {
+        if ((state->active183 & 0x80) != 0) {
+            if (state->active183 == 0x84) {
+                if (gO8P0058SpawnGateReloc != 0) {
+                    o8P0058SpawnReloc(owner, 0x18, -1, 0);
+                }
+            } else if (state->active183 != 0x80) {
+                state->alternate184 = 1;
+            }
+            state->active183 = 0;
+        }
+    }
+
+    minimum = D_B0;
+    maximum = D_B4;
+    if (state->lower4 < minimum) {
+        state->lower4 = minimum;
+    }
+    if (maximum < state->lower4) {
+        state->lower4 = maximum;
+    }
+    if (state->upper8 < minimum) {
+        state->upper8 = minimum;
+    }
+    if (maximum < state->upper8) {
+        state->upper8 = maximum;
+    }
+
+    o8P0058OrientReloc(owner, state);
+    angles[0] = -state->angleF0;
+    angles[1] = -owner->angle2;
+    angles[2] = -owner->angle4;
+    vector[0] = 0.0f;
+    vector[1] = -1.0f;
+    vector[2] = 0.0f;
+    o8P0058RotateReloc(angles, vector);
+    state->direction60 = vector[0];
+    state->direction64 = vector[1];
+    state->direction5C = vector[2];
+
+    count = o8P0058SurfaceReloc(owner->xC, owner->z14, 0, 0x08010000,
+                                surfaces);
+    floorHeight = -32768.0f;
+    state->surface68 = -32768.0f;
+    if (count != 0) {
+        index = count - 1;
+        surface = &surfaces[index];
+        do {
+            if ((surface->flags4 & 0x10000) != 0) {
+                state->surface68 = surface->height0;
+            }
+            if ((surface->flags4 & 0x08000000) != 0) {
+                floorHeight = surface->height0;
+            }
+            surface--;
+        } while (index-- != 0);
+    }
+
+    if (owner->y10 < state->surface68) {
+        state->surfaceActive2 = 1;
+        state->surface6C = state->surface68;
+        if ((state->surface68 - owner->y10) >= 25.0f) {
+            gO8P0058ResultReloc *= 0.125f;
+        }
+    } else {
+        state->surfaceActive2 = 0;
+        state->surface6C = 0.0f;
+    }
+
+    if (owner->y10 < floorHeight) {
+        state->reset170 = 1;
+        if ((state->surfaceActive2 != 0) && (state->surfaceMode3 != 1)) {
+            o8P0058CollisionReloc(owner, state);
+        }
+    }
+
+    if (state->active16A != 0) {
+        D_8 = 1.0f;
+        D_C = 1.0f;
+        o8P0058EffectReloc(state, 0x28, 0.15f, &D_C);
+    } else {
+        D_8 = 0.0f;
+        D_C = 0.0f;
+        index = state->selectors320[0] & 0xF;
+        D_8 += D_310[index];
+        D_C += query->heights148[D_350[index]];
+        index = state->selectors320[1] & 0xF;
+        D_8 += D_310[index];
+        D_C += query->heights148[D_350[index]];
+        index = state->selectors320[2] & 0xF;
+        D_8 += D_310[index];
+        D_C += query->heights148[D_350[index]];
+        index = state->selectors320[3] & 0xF;
+        D_8 += D_310[index];
+        D_C += query->heights148[D_350[index]];
+        D_8 *= 0.25f;
+        D_C *= 0.25f;
+
+        if (state->override172 != 0) {
+            D_C = state->override17C;
+        }
+        if (state->surfaceActive2 != 0) {
+            D_C = D_B8;
+        }
+        if ((state->peerD4 != 0) && (D_BC < D_8)) {
+            D_8 += (D_BC - D_8) * state->peerD4->state64->blend14;
+        }
+    }
+
+    if ((state->mode16C == 0) || (state->mode16C == 1)) {
+        update = (f32)updateRate;
+        func_overlay_008_F0001294_185EFEC(owner, state, update);
+    } else {
+        update = (f32)updateRate;
+    }
+    func_overlay_008_F000291C_1860674((O8P291CMotion *)owner,
+                                      (O8P291CState *)state, update);
+    state->value70 =
+        o8P0058SampleReloc(owner, state, D_10, update);
+
+    *gOverlay8Buffer = 0x2000;
+    gOverlay8Buffer++;
+    o8P0058UpdateReloc(owner, state, updateRate);
+
+    if (state->lowering349 != 0) {
+        if (state->mode16C == 1) {
+            state->mode16C = 0;
+            state->counter16E = 8;
+            if (state->resourceB8 != 0) {
+                o8P0058ReleaseReloc(state->resourceB8);
+            }
+            o8P0058CreateReloc(6, owner->xC, owner->y10, owner->z14, 4,
+                               &state->resourceB8);
+            value = D_C0;
+            state->bounceActive18C = 1;
+            state->bounce54 = value + 1.0f;
+            state->bounceVelocity3FC = value;
+            o8P0058BounceReloc(state, 0x32, 0.4f);
+        } else if (state->counter16E > 0) {
+            state->counter16E -= updateRate;
+        }
+    } else {
+        state->counter16E = 0;
+    }
+
+    if (state->disabled18D == 0) {
+        if ((state->bounceActive18C != 0) &&
+            (state->bounce54 == state->position50)) {
+            state->bounceVelocity3FC *= -0.5f;
+            value = state->bounceVelocity3FC;
+            if ((D_C4 < value) && (value < D_C8)) {
+                state->bounceActive18C = 0;
+                state->bounceVelocity3FC = 0.0f;
+                state->bounce54 = 1.0f;
+                return;
+            }
+            state->bounce54 = value + 1.0f;
+        }
+    } else {
+        state->bounceActive18C = 0;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0000058_185DDB0.s")
+#endif
 
 /* Plateau after 10 serious attempts: exact 0x5F4 size/frame/opcode shape,
  * 88 instruction-word register differences, first at +0x1FC. The remaining

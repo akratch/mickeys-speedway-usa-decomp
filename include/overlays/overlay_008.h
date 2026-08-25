@@ -412,6 +412,105 @@ typedef struct O8P42A8Owner {
     O8P42A8State *state64;
 } O8P42A8Owner;
 
+typedef struct O8P0058Owner O8P0058Owner;
+typedef struct O8P0058State O8P0058State;
+
+typedef struct O8P0058PeerState {
+    u8 pad00[0x14];
+    f32 blend14;
+} O8P0058PeerState;
+
+typedef struct O8P0058Peer {
+    u8 pad00[0x64];
+    O8P0058PeerState *state64;
+} O8P0058Peer;
+
+struct O8P0058Owner {
+    s16 angle0;
+    s16 angle2;
+    s16 angle4;
+    u8 pad06[6];
+    f32 xC;
+    f32 y10;
+    f32 z14;
+    u8 pad18[0x23];
+    s8 mode3B;
+    u8 pad3C[0x28];
+    O8P0058State *state64;
+    u8 pad68[0x18];
+    s32 flags80;
+};
+
+struct O8P0058State {
+    s8 mode0;
+    u8 pad001;
+    u8 surfaceActive2;
+    u8 surfaceMode3;
+    f32 lower4;
+    f32 upper8;
+    u8 pad00C[0x44];
+    f32 position50;
+    f32 bounce54;
+    u8 pad058[4];
+    f32 direction5C;
+    f32 direction60;
+    f32 direction64;
+    f32 surface68;
+    f32 surface6C;
+    f32 value70;
+    u8 pad074[0x44];
+    void *resourceB8;
+    u8 pad0BC[0x18];
+    O8P0058Peer *peerD4;
+    u8 pad0D8[0x18];
+    s16 angleF0;
+    u8 pad0F2[0x66];
+    s16 gate158;
+    u8 pad15A[0x10];
+    s16 active16A;
+    u8 mode16C;
+    u8 pad16D;
+    s8 counter16E;
+    u8 pad16F;
+    u8 reset170;
+    u8 pad171;
+    s8 override172;
+    u8 pad173[9];
+    f32 override17C;
+    u8 pad180[3];
+    u8 active183;
+    u8 alternate184;
+    u8 pad185[7];
+    u8 bounceActive18C;
+    s8 disabled18D;
+    u8 pad18E[0x192];
+    u8 selectors320[4];
+    u8 pad324[0x25];
+    u8 lowering349;
+    u8 pad34A[0xB0];
+    s16 gate3FA;
+    f32 bounceVelocity3FC;
+    u8 pad400[0x1C];
+    u32 flags41C;
+    u32 modeFlags420;
+    u8 pad424[4];
+    s32 signed428;
+    s32 value42C;
+    s32 signed430;
+    s32 value434;
+};
+
+typedef struct O8P0058Query {
+    f32 initial0;
+    u8 pad004[0x144];
+    f32 heights148[1];
+} O8P0058Query;
+
+typedef struct O8P0058Surface {
+    f32 height0;
+    u32 flags4;
+} O8P0058Surface;
+
 typedef struct Overlay8MotionRow {
     u8 firstSelector;
     u8 secondSelector;
@@ -664,6 +763,84 @@ extern s32 o8P42A8ApproachReloc(s32 current, s32 target);
 extern f32 o8P42A8TrigAReloc(s32 angle);
 
 extern f32 o8P42A8TrigBReloc(s32 angle);
+
+extern f32 D_8;
+
+extern f32 D_C;
+
+extern s32 D_14;
+
+extern s32 D_18;
+
+extern f32 D_B0;
+
+extern f32 D_B4;
+
+extern f32 D_B8;
+
+extern f32 D_BC;
+
+extern f32 D_C0;
+
+extern f32 D_C4;
+
+extern f32 D_C8;
+
+extern f32 D_310[];
+
+extern u8 D_350[];
+
+extern u8 gO8P0058MirrorGateReloc;
+
+extern s32 gO8P0058PresentReloc;
+
+extern f32 gO8P0058ResultReloc;
+
+extern s32 gO8P0058ActiveReloc;
+
+extern u8 gO8P0058SpawnGateReloc;
+
+extern void o8P0058ResetReloc(O8P0058State *state, s32 mode);
+
+extern void o8P0058ModeReloc(O8P0058State *state, s32 mode);
+
+extern O8P0058Query *o8P0058AcquireReloc(O8P0058State *state);
+
+extern void o8P0058SpawnReloc(O8P0058Owner *owner, s32 kind, s32 index,
+                              void *output);
+
+extern void o8P0058OrientReloc(O8P0058Owner *owner, O8P0058State *state);
+
+extern void o8P0058RotateReloc(s16 *angles, f32 *vector);
+
+extern s32 o8P0058SurfaceReloc(f32 x, f32 z, s32 unused, u32 flags,
+                               O8P0058Surface *surface);
+
+extern void o8P0058CollisionReloc(O8P0058Owner *owner,
+                                  O8P0058State *state);
+
+extern void o8P0058EffectReloc(O8P0058State *state, s32 kind, f32 scale,
+                               f32 *value);
+
+extern f32 o8P0058SampleReloc(O8P0058Owner *owner, O8P0058State *state,
+                              f32 limit, f32 update);
+
+extern void o8P0058UpdateReloc(O8P0058Owner *owner, O8P0058State *state,
+                               s32 updateRate);
+
+extern void o8P0058ReleaseReloc(void *resource);
+
+extern void o8P0058CreateReloc(s32 kind, f32 x, f32 y, f32 z, s32 mode,
+                               void **resource);
+
+extern void o8P0058BounceReloc(O8P0058State *state, s32 kind, f32 scale);
+
+extern void func_overlay_008_F0001294_185EFEC(void *owner, void *state,
+                                              f32 update);
+
+extern void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
+                                              O8P291CState *state,
+                                              f32 update);
 
 extern s16 *gOverlay8Buffer;
 
