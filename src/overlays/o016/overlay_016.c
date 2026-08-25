@@ -64,7 +64,10 @@ void overlay16ReleaseBuffer(void) {
  * candidate is four bytes larger and uses a smaller frame with one fewer
  * saved register; the remaining blocker is a whole-function allocation and
  * scheduling web plus two compiler-emitted unreachable ternary stores.  The
- * compiler flag lattice found no exact configuration.
+ * compiler flag lattice found no exact configuration. Reconfirmed 2026-08-25
+ * across all 119 flag combinations and seven typed/source-order hypotheses;
+ * the closest remains -O2 -g3 -mips2, four bytes over with the first mismatch
+ * at +0x0.
  */
 #ifdef NON_MATCHING
 void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
