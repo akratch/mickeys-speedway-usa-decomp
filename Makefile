@@ -1778,6 +1778,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateObjectResource.c.o: POSTPRO
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_020_F0000204_18767DC=overlay20UpdateObjectResource $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x188
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F000038C_1876964.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x438
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F000038C_1876964.c.o: OPT_FLAGS := -O2 -g3
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20BuildTileCommands.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_020_F00007C4_1876D9C=overlay20BuildTileCommands $@ && \
@@ -2899,6 +2902,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseHandle.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureResource.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateObjectResource.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o020/func_overlay_020_F000038C_1876964.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20BuildTileCommands.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20RemoveEntry.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureEntry.c.o \

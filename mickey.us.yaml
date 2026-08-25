@@ -1172,7 +1172,7 @@ segments:
       - [0x1876654, c, overlay20ReleaseHandle]
       - [0x1876680, c, overlay20ConfigureResource]
       - [0x18767DC, c, overlay20UpdateObjectResource]
-      - [0x1876964, asm, overlay_020_middle1]
+      - [0x1876964, c, func_overlay_020_F000038C_1876964]
       - [0x1876D9C, c, overlay20BuildTileCommands]
       - [0x1876FB4, c, overlay20DrawResource]
       - [0x1877040, c, overlay20UpdateGrid]

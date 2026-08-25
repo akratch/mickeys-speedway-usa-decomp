@@ -246,7 +246,7 @@ TEXT_SUBSEGMENTS = {
         (0x07C, "c", "overlay20ReleaseHandle"),
         (0x0A8, "c", "overlay20ConfigureResource"),
         (0x204, "c", "overlay20UpdateObjectResource"),
-        (0x38C, "asm", "overlay_020_middle1"),
+        (0x38C, "c", "func_overlay_020_F000038C_1876964"),
         (0x07C4, "c", "overlay20BuildTileCommands"),
         (0x09DC, "c", "overlay20DrawResource"),
         (0x0A68, "c", "overlay20UpdateGrid"),
