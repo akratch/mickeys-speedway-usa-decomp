@@ -13,29 +13,30 @@ extern void overlay13Prepare(s32, s32, s32, Overlay13Record *);
 
 /*
  * NON_MATCHING plateau (2026-08-25): the canonical -O2 -mips2 candidate
- * is exactly 0x284 bytes, with 63/161 words exact and the first mismatch at
- * +0x2C. The 119-flag lattice and seven return-type and float-order
- * hypotheses did not improve it. A bounded ten-minute permuter run reduced
- * its score from 5030 to 3815 only by splitting the output pointer and radius
- * temporaries and making y volatile; result/constant allocation and the
- * coupled float-loop schedule remain the blocker.
+ * is exactly 0x284 bytes, with 65/161 words exact and the first mismatch at
+ * +0x2C. A fresh ten-hypothesis pass in lane cx-ov-3-a-a-r3 merged the fade
+ * loop's duplicate index into its post-decrement tick counter (also fixing
+ * the zero/one-tick control shape) and merged the output/return pointer,
+ * improving the previous 63-word result by two words. The full 119-flag
+ * lattice found no exact configuration. An earlier bounded permuter reduced
+ * its score from 5030 to 3815; result/constant allocation and the coupled
+ * float-loop schedule remain the blocker.
  */
 #ifdef NON_MATCHING
-void *overlay13UpdateRecord(Overlay13Record *record, s32 ticks) {
+s16 *overlay13UpdateRecord(Overlay13Record *record, s32 ticks) {
     f32 radius;
     f32 gravity;
     f32 velocityZ;
     f32 targetZ;
-    void *result;
     s32 y;
     s32 index;
-    s16 *out;
     u8 state;
     u8 timer;
+    s16 *result;
 
     overlay13Prepare(13, 50, 10, record);
+    result = (s16 *)ticks;
     state = record->state;
-    result = (void *)ticks;
     if (state == 1) {
         ticks--;
         if (ticks != 0) {
@@ -63,8 +64,7 @@ loop_fall:
     }
 
     if (state == 2) {
-        index = ticks - 1;
-        if (ticks != 0) {
+        if (ticks-- != 0) {
             timer = record->timer;
 loop_fade:
             timer -= 2;
@@ -74,9 +74,8 @@ loop_fade:
                 record->state = 0;
                 gOverlay13ActiveCount--;
             } else {
-                result = (void *)index;
-                index--;
-                if (index != 0) {
+                result = (s16 *)ticks;
+                if (ticks-- != 0) {
                     goto loop_fade;
                 }
             }
@@ -85,22 +84,21 @@ loop_fade:
         if (state != 0) {
             index = 1 - record->vertexIndex;
             record->vertexIndex = index;
-            out = (s16 *)((u8 *)record + index * 0x28 + 0x30 + 0x1E);
-            result = out;
+            result = (s16 *)((u8 *)record + index * 0x28 + 0x30 + 0x1E);
             radius = record->scale * (24.0f - 0.1875f * (f32)record->timer);
             y = (s32)record->targetZ;
-            out[-14] = y;
-            out[-15] = (s32)(record->x - radius);
-            out[-13] = (s32)(record->y + radius);
-            out[-9] = y;
-            out[-10] = (s32)(record->x + radius);
-            out[-8] = (s32)(record->y + radius);
-            out[-4] = y;
-            out[-5] = (s32)(record->x - radius);
-            out[-3] = (s32)(record->y - radius);
-            out[1] = y;
-            out[0] = (s32)(record->x + radius);
-            out[2] = (s32)(record->y - radius);
+            result[-14] = y;
+            result[-15] = (s32)(record->x - radius);
+            result[-13] = (s32)(record->y + radius);
+            result[-9] = y;
+            result[-10] = (s32)(record->x + radius);
+            result[-8] = (s32)(record->y + radius);
+            result[-4] = y;
+            result[-5] = (s32)(record->x - radius);
+            result[-3] = (s32)(record->y - radius);
+            result[1] = y;
+            result[0] = (s32)(record->x + radius);
+            result[2] = (s32)(record->y - radius);
         }
     }
     return result;

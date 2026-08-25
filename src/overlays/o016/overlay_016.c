@@ -67,7 +67,11 @@ void overlay16ReleaseBuffer(void) {
  * compiler flag lattice found no exact configuration. Reconfirmed 2026-08-25
  * across all 119 flag combinations and seven typed/source-order hypotheses;
  * the closest remains -O2 -g3 -mips2, four bytes over with the first mismatch
- * at +0x0.
+ * at +0x0. A fresh ten-hypothesis pass in lane cx-ov-3-a-a-r3 improved the
+ * canonical -O2 -mips2 body to exact 0x244 size and 5/145 exact words by
+ * spelling the red maximum as an if/else while retaining green/blue ternaries.
+ * The first mismatch remains +0x0: the compiler still chooses a 0x18 frame
+ * with five saved registers instead of the target's 0x20/six-register web.
  */
 #ifdef NON_MATCHING
 void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
@@ -132,9 +136,17 @@ void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
                         inputRed = input[0];
                         inputGreen = input[1];
                         inputBlue = input[2];
-                        vertex->red = gradientColor[0] < inputRed ? inputRed : gradientColor[0];
-                        vertex->green = gradientColor[1] < inputGreen ? inputGreen : gradientColor[1];
-                        vertex->blue = gradientColor[2] < inputBlue ? inputBlue : gradientColor[2];
+                        if (gradientColor[0] < inputRed) {
+                            vertex->red = inputRed;
+                        } else {
+                            vertex->red = gradientColor[0];
+                        }
+                        vertex->green = gradientColor[1] < inputGreen
+                                            ? inputGreen
+                                            : gradientColor[1];
+                        vertex->blue = gradientColor[2] < inputBlue
+                                           ? inputBlue
+                                           : gradientColor[2];
                         input += 3;
                         vertex++;
                     }
