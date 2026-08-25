@@ -119,10 +119,8 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
  * Mickey-local reconstruction from this overlay's extracted function and
  * its typed node-builder siblings. The pinned DKR v77/v80 and JFG overlay
  * scans report no donor for overlay 101.
- * Plateau (10 bounded source-shape attempts): the best default-flag object
- * is 8 bytes larger than the 0x16D4-byte target, with 1,421 masked positional
- * words differing and the first mismatch at +0x34. The remaining blocker is
- * the saved-register and store schedule across the repeated node builders.
+ * NON_MATCHING plateau (2026-08-25): every -O2 -mips2 flag is +0x8 with 1,421/1,461 words different, first +0x34; workbench reports structure-mismatch.
+ * Pool/count aliases, typed D_340 access, direct count reads, declaration/register hints, store reordering, and a 34,000-best permuter run did not close the saved-register/store schedule.
  */
 #ifdef NON_MATCHING
 void func_overlay_101_F0003A58_18DF278(void) {

@@ -250,15 +250,8 @@ s32 func_8005B978(GsSndPlayer *playerArg) {
  * state layout, volume scaling, retrigger call and diagnostics reconstructed
  * from Mickey itself.
  *
- * Plateau: bare -g produces all 1,215 target instructions exactly, including
- * frame and register allocation, after restoring the inner switch's explicit
- * default and the signed group-volume loads. The remaining promotion blocker
- * is section ownership, not C code: the compiler emits the 16-entry switch
- * table in this TU's .rodata, while the current split still owns the same
- * table inside the shared 0x81590 rodata segment. That duplicate makes the
- * canonical link fail. Moving the measured 0x150-byte gsSnd rodata range into
- * this TU's YAML row is outside this lane's assigned files; until that handoff
- * lands, the target assembly remains canonical under ADR 0001.
+ * NON_MATCHING plateau (2026-08-25): bare -g -mips2 is text-exact at 1,215/1,215 words; workbench reports only local-label and anonymous .rodata relocations.
+ * Promotion remains blocked by the 0x40 switch table still owned by the shared rodata split; this lane does not own mickey.us.yaml.
  */
 #ifdef NON_MATCHING
 void func_8005BA40(GsSndEvent *event) {
