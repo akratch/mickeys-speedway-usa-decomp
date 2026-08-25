@@ -2449,20 +2449,11 @@ and have no relocation surface.
 Its adjacent 60-byte `func_80045400` unpacker is likewise exact: the alternate
 24/16/8-bit field split retains all 15 target instructions and has no
 relocations under the same flags.
-The 1,540-byte `diRcpPrintDL` dispatcher reaches an instruction-exact source
-plateau: JFG's natural nested switches reproduce all 385 target words, the
-32-byte frame, helper-call order, and every named diagnostic-string relocation
-under the resident defaults. Promotion is blocked by section ownership. IDO
-emits three switch tables into this TU's `.rodata`, but the same tables remain
-inside the shared `0x81590` rodata segment outside this lane's ownership; the
-result has six HI16/LO16 table-relocation identity mismatches beginning at
-function `+0x44` (plus two local PC16 assembler-metadata differences) and a
-duplicate linked table surface. The exact source remains behind
-`NON_MATCHING`, with the target assembly canonical until that rodata split is
-handed off.
-`diRcpMoveWd` plateau: workbench reports exact instructions and known relocation layout.
-Removing the wrapper fails the full link because `jtbl_80083950` references eleven assembly-local labels.
-The remaining lever is coordinated rodata ownership; assembly stays canonical.
+| Function | Exact result |
+|---|---|
+| `diRcpPrintDL` | 1,540 bytes under `-O2 -mips2 -32`; JFG `src/diRcp.c` body, all 385 instruction words exact, with three compiler-owned switch tables in `main/diRcp` `.rodata`. |
+| `diRcpMoveWd` | 156 bytes under `-O2 -mips2 -32`; JFG `src/diRcp.c` body, all 39 instruction words exact, with its compiler-owned switch table in `main/diRcp` `.rodata`. |
+
 The 268-byte `diRcpGeometryMode` helper is exact at the resident defaults.
 JFG's object-like `stubbed_printf` macro preserves the target's empty geometry-
 flag switch and its otherwise-unused saved registers, reproducing all 67 owned

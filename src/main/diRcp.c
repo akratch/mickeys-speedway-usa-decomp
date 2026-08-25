@@ -97,7 +97,6 @@ s32 diRcpStrName(Gfx *dList, char *name);
 s32 diRcpOtherMode(Gfx *dList, char *name);
 s32 diRcpGeometryMode(Gfx *dList, char *name, char *macroName);
 
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpPrintDL. */
 void diRcpPrintDL(Gfx *dList, s32 unused, s32 count) {
     u8 *gListIt;
@@ -288,9 +287,6 @@ void diRcpPrintDL(Gfx *dList, s32 unused, s32 count) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpPrintDL.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/diRcp.c::func_80066594_67194. */
 void func_800453C4(Gfx *dList, s32 *w0_24_31, s32 *w0_16_23,
                    s32 *w0_0_15, s32 *w1) {
@@ -395,14 +391,7 @@ s32 diRcpDmaOffsets(Gfx *dList, char *name) {
     }
     return 8;
 }
-/* Workbench verdict: exact instructions and known relocation-kind layout.
- * Lever tried: canonical wrapper removal followed by the full-link gate.
- * Remaining: jtbl_80083950 still owns eleven assembly-local case labels. */
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpMoveWd. */
-/* All 39 instructions/register lanes are exact; strict comparison leaves the
- * named table at +0x34/+0x3C plus target-only local PC16 metadata at +0x2C.
- * Workbench verdict: relocation-layout-mismatch; shared rodata owns the fix. */
 s32 diRcpMoveWd(Gfx *dList) {
     s32 w0_24_31;
     s32 w0_0_7;
@@ -433,9 +422,6 @@ s32 diRcpMoveWd(Gfx *dList) {
     }
     return 8;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpMoveWd.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpStrName. */
 s32 diRcpStrName(Gfx *dList, char *name) {
     char buffer[0x50];
