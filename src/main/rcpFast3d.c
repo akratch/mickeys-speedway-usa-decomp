@@ -19,6 +19,15 @@ typedef struct RcpCommand {
     u32 w1;
 } RcpCommand;
 
+#ifdef NON_MATCHING
+typedef struct RcpGradientColour {
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 interpolate;
+} RcpGradientColour;
+#endif
+
 #define RCP_DISPLAY_LIST(command, list) \
     { \
         RcpCommand *cmd = (command); \
@@ -46,6 +55,15 @@ typedef struct RcpCommand {
         cmd->w0 = 0xFE000000; \
         cmd->w1 = (address); \
     }
+
+#ifdef NON_MATCHING
+#define RCP_SET_FILL_CYCLE(command) \
+    { \
+        RcpCommand *cycleCmd = (command); \
+        cycleCmd->w0 = 0xEF30000F; \
+        cycleCmd->w1 = 0; \
+    }
+#endif
 
 extern u8 D_8007A3A0;
 extern u8 D_8007A3A4;
@@ -98,6 +116,10 @@ void osWritebackDCacheAll(void);
 s32 TrapDanglingJump(void);
 s32 func_80021C5C(s32 arg0);
 s32 func_80021EF0(s32 arg0, s32 *x1, s32 *y1, s32 *x2, s32 *y2);
+#ifdef NON_MATCHING
+s32 camGetMode(void);
+s32 frontGet2PlayerSplit(void);
+#endif
 void func_80022610(RcpCommand **dlist);
 void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height, u32 value);
 void rcpClearZBuffer(RcpCommand **dlist, u32 width, u32 height, s32 x1,
@@ -222,7 +244,101 @@ void bgdraw_fillcolour(s32 red, s32 green, s32 blue) {
 void func_8002EBD4(u32 value) {
     D_8007A3B0 = value;
 }
+#ifdef NON_MATCHING
+/* Mickey-derived eight-band gradient renderer. JFG has no counterpart in
+ * the ordered gap between rcpSetBorderColour and rcpClearZBuffer. */
+void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
+                   u32 colours) {
+    RcpCommand *cmd;
+    RcpGradientColour *entry;
+    s32 screens;
+    s32 screensLeft;
+    s32 screenHeight;
+    s32 bandIndex;
+    s32 bandStart;
+    s32 bandEnd;
+    s32 steps;
+    s32 stepsLeft;
+    s32 y;
+    s32 redOffset;
+    s32 greenOffset;
+    s32 blueOffset;
+    s32 redStep;
+    s32 greenStep;
+    s32 blueStep;
+    s32 colour;
+    s32 nextY;
+    s32 mode;
+
+    cmd = *dlist;
+    screens = 1;
+    mode = camGetMode();
+    if ((mode >= 2) ||
+        ((mode == 1) && (frontGet2PlayerSplit() == 0))) {
+        screens = 2;
+    }
+
+    gDPPipeSync(cmd++);
+    gDPSetScissor(cmd++, G_SC_NON_INTERLACE, 0, 0, width - 1, height - 1);
+    RCP_SET_FILL_CYCLE(cmd++);
+    screenHeight = height >> (screens - 1);
+    y = 0;
+
+    screensLeft = screens - 1;
+    if (screens != 0) {
+        do {
+            entry = (RcpGradientColour *) colours;
+            bandIndex = 0;
+            bandStart = 0;
+            do {
+                bandIndex++;
+                if (entry->interpolate != 0) {
+                    bandEnd = bandStart + screenHeight;
+                    steps = (bandEnd >> 4) - (bandStart >> 4);
+                    redStep = (((entry + 1)->red - entry->red) << 16) / steps;
+                    greenStep = (((entry + 1)->green - entry->green) << 16) / steps;
+                    blueStep = (((entry + 1)->blue - entry->blue) << 16) / steps;
+                    redOffset = 0;
+                    greenOffset = 0;
+                    blueOffset = 0;
+                    stepsLeft = steps - 1;
+                    if (steps != 0) {
+                        do {
+                            colour = GPACK_RGBA5551(
+                                entry->red + (redOffset >> 16),
+                                entry->green + (greenOffset >> 16),
+                                entry->blue + (blueOffset >> 16), 1);
+                            gDPSetFillColor(
+                                cmd++, (colour << 16) | colour);
+                            nextY = y + 2;
+                            gDPFillRectangle(cmd++, 0, y, width, nextY);
+                            redOffset += redStep;
+                            greenOffset += greenStep;
+                            blueOffset += blueStep;
+                            y = nextY;
+                        } while (stepsLeft-- != 0);
+                    }
+                } else {
+                    colour = GPACK_RGBA5551(entry->red, entry->green,
+                                           entry->blue, 1);
+                    gDPSetFillColor(cmd++, (colour << 16) | colour);
+                    bandEnd = bandStart + screenHeight;
+                    nextY = y + (((bandEnd >> 4) - (bandStart >> 4)) * 2);
+                    gDPFillRectangle(cmd++, 0, y, width, nextY);
+                    y = nextY;
+                }
+                bandStart = bandEnd;
+                entry++;
+            } while (bandIndex != 8);
+        } while (screensLeft-- != 0);
+    }
+
+    gDPPipeSync(cmd++);
+    *dlist = cmd;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
+#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: command sequence adapted from Diddy Kong Racing's public
  * decomp, src/rcp_dkr.c:bgdraw_render, with Mickey's enable flag and bounds. */

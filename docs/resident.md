@@ -1634,6 +1634,19 @@ cursor advances instead introduce a 24- or 32-byte spill frame absent from the
 target. The assembly fallback remains canonical pending a source spelling that
 homes the three register arguments without spilling the cursor.
 
+`func_8002EBE0` retains a Mickey-derived `NON_MATCHING` eight-band gradient
+renderer after the 119-combination flag lattice and ten source-shape
+hypotheses. The nearest skeleton is Diddy Kong Racing's `bgdraw_render` at only
+0.055 similarity; JFG has no function in the corresponding ordered gap. The
+best faithful MIPS II candidate has 249 instructions versus the target's 255
+and a 0x50-byte frame versus 0x88, with 242 positional word mismatches and the
+first at function `+0x0`. SDK scissor, fill-colour, fill-rectangle, and pipe
+macros close the body-size gap, but IDO retains 56 fewer bytes of non-save stack
+and assigns the display-list cursor and colour-step webs differently from the
+prologue onward. A bounded permuter import selected MIPS I and was rejected as
+non-canonical; its pack-expression lead also failed when recompiled with the
+resident MIPS II flags. The assembly fallback remains canonical.
+
 `__scHandleRetrace` has a preserved `NON_MATCHING` JFG-derived body after the
 119-combination flag lattice and ten source-shape hypotheses. The best
 candidate has the exact 232-byte frame and 408 instructions versus the
