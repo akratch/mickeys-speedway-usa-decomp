@@ -63,11 +63,14 @@ extern void overlay89MaintainReloc(Overlay89Object *object,
 
 /* DKR v77/v80 and JFG contain no exact donor for this state updater. */
 /*
- * Plateau (2026-08-25): -O2 -mips2 is 4 bytes long with 98 masked word
- * differences, first at +0x0. The compiler hoists &particle into a saved
- * register, adding another saved register and changing the frame. A bounded
- * permuter run reached score 1125 only by inserting an empty condition, which
- * was rejected as compiler-scheduling scaffolding.
+ * Plateau retry (2026-08-25): the full flag lattice still bottoms out at
+ * -O2 -mips2, 4 bytes long with 98 masked word differences, first at +0x0.
+ * Aggregate volatility/scope/array/prototype variants, register hints,
+ * field-local representations, and a direct-count loop did not remove the
+ * extra saved register holding &particle. The target rematerializes its stack
+ * address and uses an 0x88-byte frame; this body uses 0x90 bytes. A 10-minute
+ * bounded permuter batch improved score 2205 to 1115 only by adding an empty
+ * self-conjunction block, rejected as scheduling scaffolding.
  */
 #ifdef NON_MATCHING
 void overlay89UpdateStateAndParticles(Overlay89Object *object,
