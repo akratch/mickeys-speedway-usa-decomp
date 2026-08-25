@@ -30,7 +30,13 @@ extern s16 D_800D6C4C;
 extern s16 D_800D6C52;
 extern s16 D_800D6C54;
 extern f32 D_8007D6B4;
+extern f32 D_8007D6B8;
+extern s32 D_8007D6BC;
 extern f32 D_80083FA8;
+extern f32 D_80083FAC;
+extern f32 D_80083FB0;
+extern f32 D_80084210;
+extern f32 D_80084214;
 extern f32 D_80084218;
 extern u8 D_8007BF04;
 extern u8 D_8007BF20;
@@ -856,7 +862,150 @@ void func_800511C4(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800511C4.s")
 #endif
+
+typedef struct AnimUpdateCommand {
+    u16 duration;
+    u16 command;
+} AnimUpdateCommand;
+
+typedef struct AnimUpdateObject {
+    u8 pad0[0xC];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[4];
+    f32 velocityX;
+    f32 velocityY;
+    f32 velocityZ;
+    u8 pad28[0x5C];
+    void *soundHandle;
+} AnimUpdateObject;
+
+extern s32 osTvType;
+void func_800030B4(void *soundHandle, u8 pitch);
+void func_800031C0(void *soundHandle, f32 x, f32 y, f32 z);
+void func_800517E0(void);
+#pragma weak animUpdateTrap = TrapDanglingJump
+extern void animUpdateTrap(AnimPath *path, f32 delta, s32 updateRate,
+                           s32 originalRate);
+
+/*
+ * PROVENANCE: adapted from JFG's public
+ * asm/nonmatchings/anim/animseqUpdate.s. Mickey's command layout, resident
+ * globals, sound-object offset, and final compiler output are independently
+ * established from Mickey's ROM.
+ *
+ * Plateau after the flag lattice, focused type/lifetime variants, and a
+ * bounded canonical-flag permuter: correcting the command clock to u32 makes
+ * the best semantic candidate exact-size at 287 instructions. Its saved
+ * register slots match, but IDO reserves a 0x48 frame against the target's
+ * 0x40, leaving 192 positional words from first mismatch +0x0. The
+ * permuter's score-3205 sound-handle lifetime is incorporated below.
+ */
+#ifdef NON_MATCHING
+void func_80051364(s32 updateRate) {
+    AnimUpdateCommand *command;
+    AnimCameraSource **camera;
+    AnimPath *path;
+    AnimUpdateObject *object;
+    void *soundHandle;
+    s32 originalRate;
+    s32 offset;
+    s32 adjustedRate;
+    f32 timeScale;
+    f32 speed;
+
+    if ((D_8007D68C != NULL) && (D_8007D6A4 != 0)) {
+        if (osTvType == 0) {
+            timeScale = D_80083FAC;
+        } else {
+            timeScale = D_80083FB0;
+        }
+        originalRate = updateRate;
+        if (D_8007D6B0 > 0) {
+            TrapDanglingJump(updateRate);
+        }
+        command = (AnimUpdateCommand *) D_8007D69C;
+        if ((command != NULL) && (D_8007D6A4 == 1)) {
+            if ((command->command >> 8) == 0x7B) {
+                if (((f32) command->duration / 100.0f) <
+                    ((f32) (D_8007D6A8 + updateRate) * timeScale)) {
+                    if (osTvType == 0) {
+                        adjustedRate = command->duration >> 1;
+                    } else {
+                        adjustedRate = (command->duration * 6) / 10;
+                    }
+                    updateRate = adjustedRate - D_8007D6A8;
+                    D_8007D69C = command + 1;
+                    D_8007D6A4 = (s8) command->command;
+                    if ((s8) command->command == 0) {
+                        originalRate = updateRate;
+                    }
+                }
+            }
+        }
+        if (updateRate > 0) {
+            camera = D_800D6B08;
+            do {
+                *camera++ = NULL;
+            } while (camera < (AnimCameraSource **) D_800D6B18);
+            if (D_8007D6BC != 0) {
+                if (updateRate < D_8007D6BC) {
+                    D_8007D6BC -= updateRate;
+                    D_8007D6B4 += D_8007D6B8 * (f32) updateRate;
+                } else {
+                    D_8007D6B4 += D_8007D6B8 * (f32) D_8007D6BC;
+                    D_8007D6BC = 0;
+                }
+            }
+            D_8007D6A8 += updateRate;
+            D_8007D6AC = (f32) D_8007D6A8 * timeScale;
+            offset = 0;
+            do {
+                path = *(AnimPath **) ((u8 *) D_800D6B00 + offset);
+                if ((path != NULL) && (path->flags & 5)) {
+                    animUpdateTrap(path, (f32) updateRate * timeScale,
+                                   updateRate, originalRate);
+                }
+                offset += 4;
+            } while (offset < 0x400);
+            if (D_8007D6A4 == 1) {
+                func_800517E0();
+            }
+            TrapDanglingJump(updateRate);
+            TrapDanglingJump(updateRate);
+            TrapDanglingJump(updateRate);
+            offset = 0;
+            do {
+                path = *(AnimPath **) ((u8 *) D_800D6B00 + offset);
+                if (path != NULL) {
+                    object = (AnimUpdateObject *) path->unk8;
+                    if ((object != NULL) && (object->soundHandle != NULL)) {
+                        soundHandle = object->soundHandle;
+                        func_800031C0(soundHandle, object->x, object->y,
+                                      object->z);
+                        if ((path->unk28 != 0x64) || (path->unk29 != 0)) {
+                            speed = sqrtf((object->velocityX *
+                                           object->velocityX) +
+                                          (object->velocityY *
+                                           object->velocityY) +
+                                          (object->velocityZ *
+                                           object->velocityZ));
+                            func_800030B4(
+                                object->soundHandle,
+                                (u32) ((f32) path->unk28 +
+                                       ((f32) path->unk29 * speed)) & 0xFF);
+                        }
+                    }
+                }
+                offset += 4;
+            } while (offset != 0x400);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051364.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800517E0.s")
 /*
  * PROVENANCE: JFG's public src/anim.c supplies the ordered animseqCamera
@@ -1567,7 +1716,160 @@ void func_80056274(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 0xA);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800563B4.s")
+
+typedef struct HitImpulseTarget {
+    u8 pad0[4];
+    f32 unk4;
+    f32 unk8;
+    u8 padC[0x68];
+    AnimVec3f direction;
+    f32 magnitude80;
+    f32 magnitude84;
+    f32 unk88;
+    f32 unk8C;
+    f32 unk90;
+    AnimVec3f velocity;
+    u8 padA0[0xE1];
+    u8 unk181;
+} HitImpulseTarget;
+
+typedef struct HitImpulseSource {
+    u8 pad0[0x18];
+    AnimVec3f current;
+    AnimVec3f previous;
+    u8 pad30[0x32];
+    u8 unk62;
+    u8 unk63;
+    f32 unk64;
+    u8 pad68[4];
+    f32 unk6C;
+} HitImpulseSource;
+
+typedef struct HitImpulseMass {
+    u8 pad0[4];
+    f32 value;
+} HitImpulseMass;
+
+f32 func_8002A8BC(s16 angle);
+f32 func_8002A8C0(s16 angle);
+
+/*
+ * Mickey-led collision response reconstruction; the nearest external
+ * skeleton is only 0.088 similar and supplies no usable donor body.
+ *
+ * Plateau after the flag lattice, focused expression/lifetime variants, and
+ * an eight-minute canonical-flag permuter batch: the best semantic full-TU
+ * candidate has 226 instructions against the target's 229 and a 0x80 frame
+ * against 0x70. Its eight call/global relocation identities agree, but 214
+ * positional words differ from +0x0 because the extra local/spill space
+ * changes the floating-point schedule. The permuter's lower-score candidate
+ * read a branch-local normal component before initialization and was rejected.
+ */
+#ifdef NON_MATCHING
+void func_80056DD8(HitCopyState *first, HitCopyState *second,
+                   AnimVec3f *normal, f32 timeStep) {
+    HitImpulseTarget *target;
+    HitImpulseSource *firstSource;
+    HitImpulseSource *secondSource;
+    f32 velocityX;
+    f32 velocityY;
+    f32 velocityZ;
+    f32 magnitude;
+    f32 impulse;
+    f32 correction;
+    f32 cosine;
+    f32 sine;
+    f32 offsetX;
+    f32 offsetY;
+    f32 offsetZ;
+    f32 dot;
+    f32 previousX;
+    f32 previousY;
+    f32 previousZ;
+    f32 displacement;
+    volatile f32 retained;
+
+    target = (HitImpulseTarget *) first->target;
+    velocityX = target->velocity.x;
+    velocityY = target->velocity.y;
+    velocityZ = target->velocity.z;
+    firstSource = (HitImpulseSource *) first->source;
+    secondSource = (HitImpulseSource *) second->source;
+    if (((velocityZ * velocityZ) +
+         ((velocityX * velocityX) + (velocityY * velocityY))) > 25.0f) {
+        f32 mass;
+
+        mass = ((HitImpulseMass *) TrapDanglingJump(target))->value;
+        velocityX = target->velocity.x;
+        velocityY = target->velocity.y;
+        velocityZ = target->velocity.z;
+        impulse = ((secondSource->unk6C + 1.0f) *
+                   ((normal->z * velocityZ) +
+                    ((velocityX * normal->x) +
+                     (velocityY * normal->y)))) / (1.0f / mass);
+        correction = impulse / mass;
+        retained = impulse;
+        target->velocity.x = velocityX - (correction * normal->x);
+        target->velocity.y = velocityY - (correction * normal->y);
+        target->velocity.z = velocityZ - (correction * normal->z);
+        magnitude = sqrtf((target->velocity.z * target->velocity.z) +
+                          ((target->velocity.x * target->velocity.x) +
+                           (target->velocity.y * target->velocity.y)));
+        target->magnitude80 = magnitude;
+        target->magnitude84 = magnitude;
+        target->direction.x = target->velocity.x / magnitude;
+        target->direction.y = target->velocity.y / magnitude;
+        target->direction.z = target->velocity.z / magnitude;
+        target->unk181 = 1;
+        target->unk4 = 0.0f;
+        target->unk8 = 0.0f;
+        target->unk88 = D_80084210;
+        firstSource->unk63 = 1;
+        secondSource->unk63 = 1;
+        secondSource->unk64 = magnitude;
+        cosine = -func_8002A8C0(*(s16 *) first);
+        sine = -func_8002A8BC(*(s16 *) first);
+        target->unk90 = (normal->z * cosine) - (normal->x * sine);
+        target->unk8C = (normal->z * sine) + (cosine * normal->x);
+        offsetY = first->position.y - firstSource->previous.y;
+        offsetX = first->position.x - firstSource->previous.x;
+        offsetZ = first->position.z - firstSource->previous.z;
+        firstSource->previous.x =
+            (target->velocity.x * timeStep) + firstSource->current.x;
+        firstSource->previous.y =
+            (target->velocity.y * timeStep) + firstSource->current.y;
+        firstSource->previous.z =
+            (target->velocity.z * timeStep) + firstSource->current.z;
+        first->position.x = firstSource->previous.x + offsetX;
+        first->position.y = firstSource->previous.y + offsetY;
+        first->position.z = firstSource->previous.z + offsetZ;
+    } else {
+        dot = (normal->z * firstSource->current.z) +
+              ((firstSource->current.x * normal->x) +
+               (firstSource->current.y * normal->y));
+        retained = -dot;
+        previousZ = firstSource->previous.z;
+        previousY = firstSource->previous.y;
+        previousX = firstSource->previous.x;
+        displacement = D_80084214 -
+                       (((normal->z * previousZ) +
+                         ((normal->x * previousX) +
+                          (normal->y * previousY))) - dot);
+        offsetY = first->position.y - previousY;
+        offsetZ = first->position.z - previousZ;
+        offsetX = first->position.x - previousX;
+        firstSource->previous.x = previousX + (displacement * normal->x);
+        firstSource->previous.y = previousY + (displacement * normal->y);
+        firstSource->previous.z = previousZ + (displacement * normal->z);
+        first->position.x = firstSource->previous.x + offsetX;
+        first->position.y = firstSource->previous.y + offsetY;
+        first->position.z = firstSource->previous.z + offsetZ;
+        firstSource->unk62 = 1;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * JFG's hitGetInelasticVelocity is structurally unrelated to this reflection
@@ -1663,7 +1965,154 @@ void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
     target->unk24 = position->z;
     TrapDanglingJump(state, 0xE);
 }
+
+typedef struct HitOverlapVolume {
+    u8 pad0[8];
+    u8 shape;
+    u8 pad9[0x13];
+    f32 unk1C;
+    u8 pad20[4];
+    AnimVec3f position;
+    u8 pad30[0x28];
+    f32 radius;
+    f32 height;
+    u8 pad60;
+    u8 active;
+} HitOverlapVolume;
+
+typedef struct HitOverlapVehicle {
+    u8 pad0[0x54];
+    f32 overlap54;
+    u8 pad58[0x112];
+    s16 unk16A;
+    u8 pad16C[0x21];
+    u8 timer18D;
+    u8 pad18E[0x1AA];
+    void *target338;
+} HitOverlapVehicle;
+
+typedef struct HitOverlapState {
+    u8 pad0[0xC];
+    AnimVec3f position;
+    u8 pad18[0x2C];
+    s16 kind44;
+    u8 pad46[0x1E];
+    HitOverlapVehicle *vehicle;
+} HitOverlapState;
+
+/*
+ * Mickey-led overlap response reconstruction; the nearest external skeleton
+ * is only 0.085 similar and supplies no usable donor body.
+ *
+ * Plateau after the flag lattice, focused stack/loop shapes, and a bounded
+ * canonical-flag permuter: the best semantic candidate has 231 instructions
+ * against the target's 233, the exact 0x88 frame, and exact bounds-array
+ * offsets. The shared separation label reproduces the target loop CFG, but
+ * IDO still folds two target pointer-initialization instructions and changes
+ * the surrounding FP allocation; 203 positional words remain from +0x2C.
+ * The permuter's score-1980 expression split is incorporated below.
+ */
+#ifdef NON_MATCHING
+void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
+                   HitOverlapState *trigger, HitOverlapVolume *volume) {
+    volatile f32 stackPad;
+    f32 secondMin[3];
+    f32 secondMax[3];
+    f32 firstMin[3];
+    f32 firstMax[3];
+    f32 combinedRadius;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    s32 index;
+    s32 intersects;
+    HitOverlapVehicle *vehicle;
+
+    intersects = 0;
+    if (volume->shape == 0) {
+        combinedRadius = other->radius + volume->radius;
+        deltaX = other->position.x;
+        deltaX = volume->position.x - deltaX;
+        deltaY = volume->position.y - other->position.y;
+        deltaZ = volume->position.z - other->position.z;
+        if (((deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ)) <
+            (combinedRadius * combinedRadius)) {
+            intersects = 1;
+        }
+    } else if (volume->shape == 1) {
+        combinedRadius = other->radius + volume->radius;
+        deltaX = volume->position.x - other->position.x;
+        deltaY = (volume->position.y - volume->height) - other->position.y;
+        deltaZ = volume->position.z - other->position.z;
+        if (((deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ)) <
+            (combinedRadius * combinedRadius)) {
+            intersects = 1;
+        }
+    } else if (volume->shape == 2) {
+        index = 0;
+        intersects = 1;
+        firstMin[0] = other->position.x - other->radius;
+        firstMin[1] = other->position.y - other->height;
+        firstMin[2] = other->position.z - other->radius;
+        firstMax[0] = other->position.x + other->radius;
+        firstMax[1] = other->position.y + other->height;
+        firstMax[2] = other->position.z + other->radius;
+        secondMin[0] = volume->position.x - volume->radius;
+        secondMin[1] = volume->position.y - volume->height;
+        secondMin[2] = volume->position.z - volume->radius;
+        secondMax[0] = volume->position.x + volume->radius;
+        secondMax[1] = volume->position.y + volume->height;
+        secondMax[2] = volume->position.z + volume->radius;
+        do {
+            if ((firstMin[index] < secondMin[index]) &&
+                (firstMax[index] < secondMin[index])) {
+                goto no_intersection;
+            }
+            if ((secondMax[index] < firstMin[index]) &&
+                (secondMax[index] < firstMax[index])) {
+no_intersection:
+                intersects = 0;
+            }
+            index++;
+        } while ((index < 3) && (intersects != 0));
+    }
+    if (intersects != 0) {
+        if (state->kind44 == 1) {
+            vehicle = state->vehicle;
+            if (vehicle->unk16A != 0) {
+                vehicle->unk16A = 0;
+            }
+            if (volume->position.y < volume->unk1C) {
+                vehicle->overlap54 =
+                    ((volume->position.y - volume->height) -
+                     state->position.y) /
+                    ((other->position.y - state->position.y) +
+                     other->height);
+                if (vehicle->overlap54 < 0.0f) {
+                    vehicle->overlap54 = 0.0f;
+                }
+            }
+            if (trigger->kind44 == 0x52) {
+                if (vehicle->target338 == NULL) {
+                    vehicle->target338 = trigger;
+                    vehicle->timer18D = 0x1E;
+                }
+            } else {
+                vehicle->timer18D = 0x1E;
+            }
+            volume->active = 1;
+        } else if (state->kind44 == 0x40) {
+            TrapDanglingJump(state, 1);
+        } else if (state->kind44 == 0x39) {
+            TrapDanglingJump(state, 5);
+        } else if (state->kind44 == 0x3A) {
+            TrapDanglingJump(state, 5);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800573C8.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
