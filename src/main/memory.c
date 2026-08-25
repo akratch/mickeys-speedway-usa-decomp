@@ -39,8 +39,22 @@ u8 mmExtended(void) {
 /* JFG correspondence: mempool_slot_find (tier B; shared allocation worker). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B3A8.s")
 
-/* JFG correspondence: mmAllocR (tier B; pool-selecting allocation wrapper). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B4C0.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mmAllocR. */
+extern MemoryPool D_800D1C60[];
+extern s32 D_800D1CA0;
+
+void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag);
+
+void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
+    s32 i;
+
+    for (i = D_800D1CA0; i != 0; i--) {
+        if (slots == D_800D1C60[i].slots) {
+            return func_8002B3A8(i, size, 0);
+        }
+    }
+    return NULL;
+}
 
 /* JFG correspondence: mmAllocAtAddr (tier B; fixed-address allocation). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B524.s")

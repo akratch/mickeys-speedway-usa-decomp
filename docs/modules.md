@@ -595,7 +595,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2BE80` | `func_8002B280` | `mmAlloc` | B: main-pool wrapper that derives a caller colour tag and calls the slot finder |
 | `0x2BF14` | `func_8002B314` | `mmAlloc2` | B: second wrapper with the same calls and result role |
 | `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator |
-| `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker |
+| `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker; linked C exact |
 | `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments |
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
@@ -650,6 +650,9 @@ stride explicitly and retaining the linked list index at its 16-bit width.
 `func_8002B9D0` is exact for all `0x150` bytes with canonical flags. Its JFG
 coalescing body matches Mickey after preserving direct pool-table expressions
 and natural 20-byte indexing for the allocator's recycled-slot tail.
+`func_8002B4C0` is exact for all `0x64` bytes with canonical flags. The JFG
+`mmAllocR` reverse pool search and zero colour tag reproduce Mickey's target
+and its call relocation to the shared slot finder.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a
