@@ -55,6 +55,10 @@ extern void overlay68ReleaseReloc(void *resource);
  * as a direct typed probe access changed the wider register web instead of
  * selecting the target's temporary pointer, so the 0x40-frame home is still
  * not source-reproduced.
+ * Current lane structural pass (2026-08-25): a typed values-array base
+ * regressed to 51/122, an inline whole-probe cast changed size by one word,
+ * and a typed first access remained 9/122. The best exact-size candidate is
+ * still blocked by the private frame/home and probe-base schedule.
  */
 #ifdef NON_MATCHING
 void overlay68RebuildSecondaryEntry(s32 kind) {
