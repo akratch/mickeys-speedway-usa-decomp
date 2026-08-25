@@ -1903,11 +1903,9 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
 #endif
 #ifdef NON_MATCHING
-/*
- * Fresh m2c types and explicit normal/volatile-stack lifetimes did not beat
- * this 80-instruction candidate. Workbench leaves 18 FP register/schedule
- * words, first +0x54; the target spill is at sp+4 instead of sp+0.
- */
+/* Workbench: mixed structural/FP-register plateau, 18/80 words from +0x54; size and frame are exact.
+ * Levers: a dual-role normal carrier reduced the residual but lost size parity; spill-home forms grew the frame.
+ * Remaining: FP pool/ring phase and the volatile spill at sp+4 rather than sp+0. */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
     HitCopyTarget *target;

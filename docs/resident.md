@@ -1186,9 +1186,9 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8`: best remains **19/32 differing words**, first `+0xC`; the
-fresh typed m2c body lands size-exact under `NON_MATCHING` at 25/32, first
-`+0x0`, blocked by five opcode-schedule and two relocation-identity mismatches.
+`func_8003A2C8`: workbench allocation mismatch, **5/32 differing words** from `+0xC`.
+Pool-position/type variants stalled at 19; a 30-minute permuter remask reached 5.
+Size and the temp lane are exact; a pool inversion and one ring-only comparison remain.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
@@ -2172,7 +2172,7 @@ placeholders are never imported.
 | `0x80056274` | `0x140` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 320 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; the Mickey-led declaration order fixes the two target-pointer spill homes without importing a donor body |
 | `0x800563B4` | `0xA24` | `hitVectorCheck` | B; vector/cylinder/sphere-style callee pattern |
 | `0x80056DD8` | `0x394` | no unique `hit.c` candidate | D; collision/vector shape. Plateau after the flag lattice, focused expression/lifetime variants, and an eight-minute canonical-flag permuter batch: the best semantic full-TU candidate has 226 instructions against 229 and a `0x80` frame against `0x70`; all eight call/global relocation identities agree, but 214 positional words differ from first mismatch `+0x0` because the extra local/spill space changes the FP schedule. The nominal lower-score permutation read a branch-local normal component before initialization and was rejected |
-| `0x8005716C` | `0x140` | no unique `hit.c` candidate | D; fresh m2c types plus explicit normal and volatile-stack lifetimes did not improve the canonical-flag result. Workbench retains the exact 80-instruction/0x28-frame shape with 18 FP register/schedule words, first `+0x54`; target spill `sp+4` versus candidate `sp+0` |
+| `0x8005716C` | `0x140` | no unique `hit.c` candidate | D; workbench mixed structural/FP-register plateau: exact size/frame, 18/80 words from `+0x54`. A dual-role normal carrier lost size parity and spill-home forms grew the frame; FP pool/ring phase and the `sp+4` versus `sp+0` spill remain |
 | `0x800572AC` | `0xA4` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 164 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80057350` | `0x78` | no unique `hit.c` candidate | D; collision handler, placeholder retained. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800573C8` | `0x3A4` | no unique `hit.c` candidate | D; collision/vector shape. Plateau after the flag lattice, focused stack/loop shapes, and a bounded canonical-flag permuter: the best semantic candidate has 231 instructions against 233, the exact `0x88` frame and exact bounds-array offsets, with 203 positional words remaining from first mismatch `+0x2C`. A shared separation label reproduces the target loop CFG; IDO still folds two target pointer-initialization instructions and changes the surrounding FP allocation. The permuter's score-1980 expression split is incorporated |

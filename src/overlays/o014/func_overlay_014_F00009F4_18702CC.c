@@ -15,13 +15,18 @@ extern s32 gOverlay14DefaultB4;
 extern void *overlay14AssetCall();
 
 #ifdef NON_MATCHING
+/* Workbench: mixed schedule/register plateau, best 12/54 words; first +0x4 is overlay-local addressing.
+ * Levers: a stack-home pad improved 18 to 12; named carriers, dead reads, and materialization were inert.
+ * Remaining: v0/v1 iterator swap, two default-address schedule slots, and overlay relocation identities. */
 Overlay14Asset *func_overlay_014_F00009F4_18702CC(s32 index, s32 context) {
+    s32 pad;
     s32 start;
     s32 size;
     Overlay14Asset *asset;
     s32 i;
     Overlay14Asset *entry;
 
+    pad = index;
     start = gOverlay14Ranges[index];
     size = gOverlay14Ranges[index + 1] - start;
     asset = (Overlay14Asset *)overlay14AssetCall(size, 0x85, start);
