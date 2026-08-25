@@ -20,9 +20,24 @@ extern s32 D_80079458;
 extern void *D_80079410[4];
 extern void *D_80079420[4];
 extern void *D_80079430[4];
+extern void mmFree(void *ptr);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowInitBuffers.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowFreeBuffers.s")
+/* PROVENANCE -- adapted from JFG's public asm/nonmatchings/shadows/shadowFreeBuffers.s. */
+void shadowFreeBuffers(void) {
+    if (D_80079410[0] != NULL) {
+        mmFree(D_80079410[0]);
+        D_80079410[0] = NULL;
+    }
+    if (D_80079420[0] != NULL) {
+        mmFree(D_80079420[0]);
+        D_80079420[0] = NULL;
+    }
+    if (D_80079430[0] != NULL) {
+        mmFree(D_80079430[0]);
+        D_80079430[0] = NULL;
+    }
+}
 void shadowChangeBuffer(void) {
     D_80079458 ^= 1;
 }
