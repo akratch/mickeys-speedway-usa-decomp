@@ -424,7 +424,63 @@ void camDisableUserView(s32 camNo, s32 immediate) {
 s32 camIsUserView(s32 camNo) {
     return D_80079C40[camNo].flags & 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021C88.s")
+/*
+ * PROVENANCE: adapted from DKR's public decomp,
+ * src/camera.c:viewport_menu_set; JFG's public src/camera.c supplies the
+ * camSetUserView role while Mickey supplies the video-size call and layout.
+ */
+void func_80021C88(s32 camNo, s32 x1, s32 y1, s32 x2, s32 y2) {
+    s32 swap;
+    struct {
+        u32 height;
+        u32 width;
+    } videoSize;
+
+    viGetCurrentSize((s32 *) &videoSize.width, (s32 *) &videoSize.height);
+    if (x2 < x1) {
+        swap = x1;
+        x1 = x2;
+        x2 = swap;
+    }
+    if (y2 < y1) {
+        swap = y1;
+        y1 = y2;
+        y2 = swap;
+    }
+    if (((u32) x1 >= videoSize.width) || (x2 < 0) ||
+        ((u32) y1 >= videoSize.height) ||
+        (y2 < 0)) {
+        D_80079C10[camNo].scissorX1 = 0;
+        D_80079C10[camNo].scissorY1 = 0;
+        D_80079C10[camNo].scissorX2 = 0;
+        D_80079C10[camNo].scissorY2 = 0;
+    } else {
+        if (x1 < 0) {
+            D_80079C10[camNo].scissorX1 = 0;
+        } else {
+            D_80079C10[camNo].scissorX1 = x1;
+        }
+        if (y1 < 0) {
+            D_80079C10[camNo].scissorY1 = 0;
+        } else {
+            D_80079C10[camNo].scissorY1 = y1;
+        }
+        if ((u32) x2 >= videoSize.width) {
+            D_80079C10[camNo].scissorX2 = videoSize.width - 1;
+        } else {
+            D_80079C10[camNo].scissorX2 = x2;
+        }
+        if ((u32) y2 >= videoSize.height) {
+            D_80079C10[camNo].scissorY2 = videoSize.height - 1;
+        } else {
+            D_80079C10[camNo].scissorY2 = y2;
+        }
+    }
+    D_80079C10[camNo].x1 = x1;
+    D_80079C10[camNo].x2 = x2;
+    D_80079C10[camNo].y1 = y1;
+    D_80079C10[camNo].y2 = y2;
+}
 /*
  * PROVENANCE: adapted from JFG's public decomp,
  * src/camera.c:camSetUserViewSpecial.
