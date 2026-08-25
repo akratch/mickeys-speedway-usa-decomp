@@ -177,12 +177,9 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000000_1866678.s")
 #endif
-/*
- * Plateau: the best build differs in 8/129 words, first at +0x4C; the body,
- * size, and CFG agree, but retail swaps the callee-saved FPR web used for the
- * two limits and two thresholds. Declaration reordering did not move the web,
- * and the bounded permuter is unavailable.
- */
+/* Workbench: allocation-mismatch; 129 words/frame exact, 8 register words (9 raw) from +0x4C.
+ * Tried initializer/lifetime order, code-free priority reads, and a canonical 30-minute permuter.
+ * Four callee-saved FP pair swaps remain; the assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
                                        O9Motion *motion, s32 steps) {

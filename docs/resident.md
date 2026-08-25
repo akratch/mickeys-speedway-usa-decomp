@@ -1273,7 +1273,7 @@ address-placeholder helper names are not imported.
 | `0x165DC` | `0x11C` | `getXZCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x166F8` | `0x98` | `getYCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x16790` | `0x300` | `trackLightAsm` | B; uses odd single-precision FP registers, stays `asm` |
-| `0x16A90` | `0x12C` | `shadowInitBuffers` | tier-B; `NON_MATCHING` workbench `words-identical` plateau after a zero-based alias loop removed all six operand differences; first metadata mismatch `+0xC4`, where the remaining HI16/LO16 pair binds `D_80079434 + 0xC` instead of `D_80079440` |
+| `0x16A90` | `0x12C` | `shadowInitBuffers` | B; `NON_MATCHING`, all 75 words exact; sentinel relocations at `+0xC4`/`+0xD4` bind `D_80079434 + 0xC` instead of `D_80079440` |
 | `0x16BBC` | `0x78` | `shadowFreeBuffers` | B name; JFG-adapted exact C, 30 words, 15 relocs under O2/mips2 |
 | `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
@@ -1700,6 +1700,10 @@ The assembly fallback remains canonical.
 The save-window serializer `func_8002C94C` remains `NON_MATCHING`: workbench reports `schedule-mismatch` with the exact 115-word shape, `0x70` frame, and relocation surface.
 Local order/type, slot-count lifetime, and statement-grouping levers leave two scheduled rows/five raw positions from `+0x50`; a 30-minute permuter found no zero.
 Its score-580 isolated lead enlarged the canonical frame and regressed to 12 words, so the assembly fallback remains canonical.
+
+`func_8002C94C`: workbench `schedule-mismatch`; exact 115-word shape, `0x70` frame, and relocation surface.
+Local order/type, slot-count lifetime, statement grouping, context lint, and a bounded permuter leave five raw positions from `+0x50`.
+The source is already a `-g0` build and the isolated lead regresses canonically, so assembly remains canonical.
 
 | Function | ROM | Bytes | Flags | Verdict |
 |---|---:|---:|---|---|

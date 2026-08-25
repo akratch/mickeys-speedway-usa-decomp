@@ -52,28 +52,9 @@ extern void overlay79TriggerReloc(void);
 extern s32 gOverlay79CounterReloc;
 extern u8 gOverlay79FlagsReloc[];
 
-/*
- * Plateau (2026-08-25, 6 attempts): the canonical -O2 candidate has the
- * exact 123-word size, differs in 12 words, and first diverges at +0xC8.
- * The remaining differences are register choices in the two linked-state
- * stores and the counter/flag tail; direct, scoped, assignment-expression,
- * and declaration-order spellings all retained or worsened that register web.
- * Revalidated on 2026-08-25: the full 119-combination lattice retained the
- * 12-word result. Direct chained access worsened it to 18 words, a volatile
- * pointer changed size and 83 words, and a 10-minute two-worker permuter run
- * improved score 150 to 130 only by inserting an empty goto/label artifact;
- * no zero-score candidate was found, so the idiomatic source remains.
- * Lane cx-ov-4-b-a-r3 repeated the full lattice and reconfirmed the exact-size
- * 12-word result with first mismatch at +0xC8.
- * Lane cx-ov-4-b-a-r4 reconfirmed all 119 flag combinations and tested the
- * linked state as a distinct typed layout rather than the spawned return type;
- * the extra live pointer regressed to 30 words. The shared-type form remains
- * best at 12 words, first mismatch +0xC8, blocked on the linked-state register
- * choice and the counter/flag tail coloring.
- * Lane cx-ov-4-b-a-r5 reconfirmed all 119 flag combinations. The existing
- * direct/scoped/typed experiments already cover the visible struct hypothesis,
- * so the exact-size 12-word result at +0xC8 remains the plateau.
- */
+/* Workbench: register-only residual, 12 words from +0xC8 in an exact 123-word frame.
+ * A scoped flags-element hoist grew the frame by 8 bytes and regressed to 35 words.
+ * The linked-state pool choice and counter/flag temp ring remain after prior families. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
     Overlay79Node *node;
