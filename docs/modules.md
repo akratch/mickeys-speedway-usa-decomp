@@ -927,6 +927,7 @@ functions is classified as handwritten assembly under §6.2.
 | `func_800221E8` | `0x22DE8` | D — retained Mickey auto-name; JFG `camSetView` role/order | 1,052 | JFG body adapted for Mickey's region flag, half-resolution and zoom state; configured object, 19 text relocations, linked range and full ROM exact. |
 | `func_80022604` | `0x23204` | D — retained Mickey auto-name; camera TU position only | 12 | Mickey-only global setter; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `func_80022794` | `0x23394` | D — retained Mickey auto-name; JFG `camSetProjMtx` role/order | 676 | JFG body adapted for Mickey's extra camera-state FOV check; configured object, 40 text relocations, linked range and full ROM exact. |
+| `camOrthoYAspect` | `0x23638` | D — JFG TU role/order | 12 | JFG body and masked skeleton exact; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 
 Bounded plateau:
 
