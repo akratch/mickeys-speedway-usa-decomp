@@ -507,9 +507,10 @@ void mainInitGame(void) {
  * from Diddy Kong Racing's published src/thread3_main.c::main_game_loop and
  * cross-checked against JFG's published src/main.c TU ordering. Mickey's own
  * call graph, resident storage and instructions determine this body.
- * NON_MATCHING p2: workbench mixed(constant:1, structural:79, register:51),
- * 418 vs 413 instructions, first mismatch +0x48. Constant audit confirmed the
- * command literals; Olimit 108 changed frame/CFG. Five extra tail instructions remain.
+ *
+ * NON_MATCHING plateau: structure mismatch; 388 words differ, first at +0x48, and the candidate is five instructions long.
+ * Tried nine display spellings, flags, a permuter, the constant audit, and statement splicing; the splice grew frame/size.
+ * Both best frames are 0x28; the remaining structural excess is concentrated in the two end-of-frame commands.
  */
 void func_80026FB4(void) {
     s32 drawTransition;

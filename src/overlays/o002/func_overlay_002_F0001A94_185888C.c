@@ -64,6 +64,9 @@ extern u16 D_72;
 extern f32 gOverlay2QueryLimitReloc;
 extern f32 gOverlay2QueryResultReloc;
 
+/* NON_MATCHING plateau: allocation mismatch; 51 raw words differ (27 after relocation masking), first at +0x138.
+ * Tried 119 flags, pointY lifetimes/reuse, and a corrected 30-minute permuter (score 470 to 430).
+ * Size/frame/opcodes match; pool/temp allocation diverges at slots 16/12, with 55 relocation aliases. */
 #ifdef NON_MATCHING
 s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
                                       Overlay2Shape *shape, Overlay2Hit *hit,
@@ -140,7 +143,8 @@ s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
                         gOverlay2QueryY0Reloc,
                     shape) == 0) {
                 hit->x = (s16)gOverlay2QueryX0Reloc;
-                hit->y = (s16)gOverlay2QueryY0Reloc;
+                pointY = (s16)gOverlay2QueryY0Reloc;
+                hit->y = pointY;
                 hit->previous = hit->index;
                 hit->index = 0xFF;
                 hit->flags = 0;
