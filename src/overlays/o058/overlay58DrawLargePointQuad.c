@@ -19,15 +19,19 @@ typedef struct Overlay58LargePointGfx {
 extern Overlay58LargePointGfx *gOverlay58LargePointDisplayListReloc;
 extern Overlay58LargePointVertex *gOverlay58LargePointVertexCursorReloc;
 extern u8 gOverlay58LargePointRenderStateReloc[];
-extern u8 gOverlay58LargePointPayload98Reloc[];
+extern u8 D_80000098[];
 extern void func_overlay_058_F0000000_18AF1E8(
     Overlay58LargePointGfx **displayList, void *resource, s32 mode, s32 arg3);
 
 /*
- * Plateau (2026-08-25): the best -O2 -mips2 candidate has the exact
- * 104-instruction shape and frame, but 70 register-allocation words differ;
- * the first instruction mismatch is +0x30.  Flag sweeping and a bounded
- * permuter run did not produce a supported allocator-pool correction.
+ * Plateau (2026-08-25): a fresh 119-combination lattice retains the exact
+ * 104-instruction CFG, opcode schedule, size, and frame under -O2 -mips2,
+ * but 70 register-allocation words differ and the first mismatch is +0x30.
+ * Its register-lane signature is identical to overlay58DrawPointQuad, down
+ * to the first vertex-cursor pool divergence.  The sibling's typed lifetime,
+ * signedness, explicit-reference, and split-increment variants therefore
+ * provide the same negative structural evidence here.  Binding the payload
+ * to D_80000098 closes one relocation identity without moving the allocator.
  */
 #ifdef NON_MATCHING
 void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
@@ -56,7 +60,7 @@ void overlay58DrawLargePointQuad(s32 x, s32 y, s32 z) {
 
     gfx = gOverlay58LargePointDisplayListReloc++;
     gfx->w0 = 0x05110020U;
-    gfx->w1 = (u32)gOverlay58LargePointPayload98Reloc;
+    gfx->w1 = (u32)D_80000098;
 
     vertices = gOverlay58LargePointVertexCursorReloc;
     vertices[1].r = 0xFF;
