@@ -25,7 +25,11 @@ typedef struct ParticleConfig {
     s16 value22;
     s16 value24;
     s16 value26;
-    u8 pad28[0x18];
+    u8 pad28[8];
+    f32 value30;
+    f32 value34;
+    f32 value38;
+    f32 value3C;
     s16 value40;
     s16 value42;
     u8 pad44[0x14];
@@ -34,7 +38,15 @@ typedef struct ParticleConfig {
     s32 value60;
     s16 value64;
     s16 value66;
-    u8 pad68[0x2C];
+    u8 pad68[2];
+    s16 value6A;
+    s16 value6C;
+    u8 pad6E[2];
+    s32 value70;
+    s32 value74;
+    s32 value78;
+    s32 value7C;
+    u8 pad80[0x14];
     s32 value94;
 } ParticleConfig;
 
@@ -285,8 +297,15 @@ typedef struct BasicParticle {
     s16 angularVelocityZ;
 } BasicParticle;
 
+typedef struct ParticleEmitterTransformIndex {
+    u16 pad00;
+    u16 matrixIndex;
+} ParticleEmitterTransformIndex;
+
 typedef struct ParticleEmitterHeader {
-    u8 pad00[0x4E];
+    u8 pad00[0x30];
+    ParticleEmitterTransformIndex *transformIndices;
+    u8 pad34[0x1A];
     s8 transformedPoints;
 } ParticleEmitterHeader;
 
@@ -297,7 +316,10 @@ typedef struct ParticleEmitterPointSet {
 
 typedef struct ParticleEmitterResource {
     ParticleEmitterHeader *header;
-    u8 pad04[0x3C];
+    u8 pad04[4];
+    s16 disableTransform;
+    s16 matrixTableIndex;
+    void *matrices[13];
     f32 (*points)[3];
 } ParticleEmitterResource;
 
@@ -307,7 +329,11 @@ typedef struct ParticleEmitterObject {
     f32 x;
     f32 y;
     f32 z;
-    u8 pad18[0x22];
+    u8 pad18[4];
+    f32 velocityX;
+    f32 velocityY;
+    f32 velocityZ;
+    u8 pad28[0x12];
     s8 resourceIndex;
     u8 pad3B[5];
     u8 *header;
@@ -474,6 +500,8 @@ void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void *piRomLoad(s32 assetId);
 ParticleTexture *func_80034448(s16 resourceId);
 s32 mathRnd(s32 minimum, s32 maximum);
+f32 sqrtf(f32 value);
+void mtxf_transform_dir(void *matrix, f32 *input, f32 *output, ParticleEmitterHeader *header);
 void camSetNo(s32 camera);
 void func_800221E8(void **dList, s32 arg1);
 void func_800244EC(Gfx **dList, s32 renderContext, ParticleRenderTransform *transform, f32 scale, f32 extra);
@@ -486,6 +514,8 @@ void func_800349A4(Gfx **dList, void *texture, s32 mode, s32 flags);
 void func_8003D4FC(void **dList, void **vertices, void *pool);
 s32 func_8003CE10(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool, s32 mode);
 void func_8003D25C(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool);
+void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
+                   ParticleConfig *config);
 void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config);
 void func_80041CE4(void **dList, void **vertices);
@@ -1246,7 +1276,141 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
         } while (trigger->unk0C >= config->value40);
     }
 }
+#ifdef NON_MATCHING
+/*
+ * Frame-exact plateau: 294 instructions against the 297-instruction target,
+ * with 252 aligned rows matching. The first raw mismatch is the end-branch
+ * displacement at +0x204; the first substantive mismatch at +0x20C assigns
+ * the zero-vector web to f6 instead of f0. The remaining cluster is the
+ * resource-header copy/branch shape and FP normalization schedule. The full
+ * flag lattice, ten structural hypotheses, and a canonical-mips2 permuter
+ * found no exact spelling; asm remains canonical.
+ *
+ * PROVENANCE: structure cross-checked against JFG's assembly-only
+ * asm/nonmatchings/particles/func_80060400.s sibling; body reconstructed
+ * from Mickey evidence.
+ */
+void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
+                   ParticleConfig *config) {
+    s32 flags;
+    f32 offset[3];
+    ParticleEmitterResource *resource;
+    s16 rotation[2];
+    f32 magnitude;
+    f32 scale;
+    s32 randomRange;
+    f32 speed;
+    ParticleEmitterHeader *header;
+    s8 pointIndex;
+
+    if (config->flags & 0x70) {
+        particle->velocityX = config->value30;
+        particle->velocityY = config->value34;
+        particle->velocityZ = config->value38;
+    } else {
+        particle->velocityX = 0.0f;
+        particle->velocityY = 0.0f;
+        particle->velocityZ = 0.0f;
+    }
+
+    flags = config->flags5C & 0x700;
+    if (flags != 0) {
+        if (flags & 0x100) {
+            randomRange = config->value74;
+            particle->velocityX += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+        }
+        if (flags & 0x200) {
+            randomRange = config->value78;
+            particle->velocityY += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+        }
+        if (flags & 0x400) {
+            randomRange = config->value7C;
+            particle->velocityZ += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+        }
+    }
+
+    switch (config->flags & 0x70) {
+        case 0x10:
+            particle->velocityX += object->velocityX;
+            particle->velocityY += object->velocityY;
+            particle->velocityZ += object->velocityZ;
+            break;
+        case 0x40:
+            particle->velocityX *= object->velocityX;
+            particle->velocityY *= object->velocityY;
+            particle->velocityZ *= object->velocityZ;
+            break;
+    }
+
+    D_800D4134 = particle->velocityX;
+    D_800D4138 = particle->velocityY;
+    D_800D413C = particle->velocityZ;
+
+    if (config->flags & 4) {
+        offset[0] = (flags = config->flags5C, 0.0f);
+        offset[1] = offset[0];
+        speed = config->value3C;
+        offset[2] = -speed;
+        if (flags & 0x10) {
+            randomRange = config->value70;
+            offset[2] += mathRnd(-randomRange, randomRange) * 0.000015258789f;
+        }
+        speed = -offset[2];
+        if (flags & 0x60) {
+            rotation[0] = trigger->value14;
+            if (flags & 0x20) {
+                rotation[0] += mathRnd(-config->value6A, config->value6A);
+            }
+            rotation[1] = trigger->value16;
+            if (flags & 0x40) {
+                rotation[1] += mathRnd(-config->value6C, config->value6C);
+            }
+        } else {
+            rotation[0] = trigger->value14;
+            rotation[1] = trigger->value16;
+        }
+        mathOneFloatPY(rotation, offset);
+
+        if (((ParticleEmitterPointSet *)(object->header + object->pointSetIndex))->transformedPoints != 0) {
+            resource = object->resources[object->resourceIndex];
+        } else {
+            resource = NULL;
+        }
+        pointIndex = trigger->index;
+        if (pointIndex != -1 && resource != NULL &&
+            (header = resource->header, header->transformedPoints != 0)) {
+            if (resource->disableTransform != 0) {
+                offset[0] = 0.0f;
+                offset[1] = 0.0f;
+                offset[2] = 0.0f;
+            } else {
+                mtxf_transform_dir(
+                    (u8 *)resource->matrices[resource->matrixTableIndex] +
+                        (header->transformIndices[pointIndex].matrixIndex << 6),
+                    offset, offset, header);
+                magnitude = sqrtf((offset[2] * offset[2]) +
+                                  ((offset[0] * offset[0]) + (offset[1] * offset[1])));
+                if (magnitude == 0.0f) {
+                    scale = speed;
+                } else {
+                    scale = speed / magnitude;
+                }
+                offset[0] *= scale;
+                offset[1] *= scale;
+                offset[2] *= scale;
+            }
+        } else if (particle->parent != NULL) {
+            pointListRPY(1, particle->parent, offset, offset);
+        }
+
+        particle->velocityX += offset[0];
+        particle->velocityY += offset[1];
+        particle->velocityZ += offset[2];
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F154.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * One instruction short: 262 of 276 aligned target rows match. The target has

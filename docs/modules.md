@@ -1783,30 +1783,29 @@ redundant branch at `+0xA4`; 11 later words swap the flags spill (`sp+0x44`)
 with the rotation pair (`sp+0x30`). JFG `func_800608EC` is the assembly oracle;
 asm stays canonical.
 
+`func_8003F154` plateaued frame-exact at 294 instructions versus 297 after the
+flag lattice, ten structural hypotheses, and a canonical-`mips2` permuter.
+252 aligned rows match; the first raw mismatch is the end-branch displacement
+at `+0x204`, followed at `+0x20C` by the zero-vector `f0`/`f6` choice. The
+remaining cluster is header-copy/branch and FP normalization scheduling. JFG
+`func_80060400` is the assembly oracle; asm stays canonical.
+
 `func_8003EC8C` plateaued size-exact at 47 words, with 24 residuals from
 `+0x30`: the target hoists `D_8007C894`'s HI16 load before the count decrement.
 A branch-local pointer fixes that schedule but disrupts both branches' register
 allocation. The flag lattice and bounded permuter found no compliant exact
 form; asm stays canonical.
 
-`func_8004054C` reached a bounded one-word-short plateau under the default
-resident flags. The best compliant candidate has 124 words against the
-125-word target and 43 aligned residuals, first differing at function offset
-`0x4C`. IDO folds the initial free-bit scan address into a pointer move instead
-of the target shift/add pair and then allocates the scan and particle-index
-scratch registers differently. The full 119-entry flag lattice found no
-improvement. A bounded ten-minute permuter batch improved its internal score
-from 1065 to 705 without reaching an exact result. The original asm body
-remains canonical.
+`func_8004054C` plateaued one word short (124/125), with 43 aligned residuals
+from `+0x4C`: IDO folds the free-bit scan into a pointer move, then colors the
+scan/index scratch registers differently. The flag lattice and bounded
+permuter (score 1065 to 705) found no exact form; asm stays canonical.
 
-`func_8003E8D8` has an exact-size 140-word C candidate with the target opcode
-schedule under the default resident flags. The configured whole-TU build uses
-a `0x30` frame instead of the target `0x38` frame, leaving 22 aligned
-residuals (19 stack/frame constants, two register operands, and one branch
-target), first differing at function offset `0x8`. The full 119-entry flag
-lattice found no improvement. A bounded permuter found a standalone zero that
-did not reproduce when compiled in the canonical TU, so it was rejected. The
-original asm body remains canonical.
+`func_8003E8D8` plateaued size-exact at 140 words with the target opcode
+schedule, but the whole TU emits a `0x30` frame versus `0x38`: 22 residuals
+(19 stack/frame, two registers, one branch) begin at `+0x8`. The flag lattice
+did not improve it; a standalone permuter zero failed in the canonical TU and
+was rejected. Asm stays canonical.
 
 `func_80040740` has a 78-word C candidate with the target text instruction
 schedule under the default resident flags, reconstructed from Mickey evidence
