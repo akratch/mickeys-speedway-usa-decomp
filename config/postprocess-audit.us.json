@@ -531,6 +531,18 @@
     {
       "class": "metadata",
       "matched_c": true,
+      "object": "build/src/overlays/o011/func_overlay_011_F0000150_1868998.c.o",
+      "offset": 336,
+      "overlay": 11,
+      "size": 2248,
+      "source": "src/overlays/o011/func_overlay_011_F0000150_1868998.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
       "object": "build/src/overlays/o011/func_overlay_011_F0001E4C_186A694.c.o",
       "offset": 7756,
       "overlay": 11,
@@ -912,9 +924,7 @@
       "size": 304,
       "source": "src/overlays/o012/overlay_012_tail.c",
       "tools": [
-        "rebind_elf_relocations.py",
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -1799,6 +1809,18 @@
       "overlay": 21,
       "size": 268,
       "source": "src/overlays/o021/overlay21RegisterPlane.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o022/func_overlay_022_F00002B0_18783B8.c.o",
+      "offset": 688,
+      "overlay": 22,
+      "size": 1996,
+      "source": "src/overlays/o022/func_overlay_022_F00002B0_18783B8.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -3387,6 +3409,18 @@
     {
       "class": "metadata",
       "matched_c": true,
+      "object": "build/src/overlays/o047/func_overlay_047_F0000000_1890E18.c.o",
+      "offset": 0,
+      "overlay": 47,
+      "size": 2512,
+      "source": "src/overlays/o047/func_overlay_047_F0000000_1890E18.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
       "object": "build/src/overlays/o047/overlay47ReleaseResources.c.o",
       "offset": 2512,
       "overlay": 47,
@@ -3760,6 +3794,42 @@
     {
       "class": "metadata",
       "matched_c": true,
+      "object": "build/src/overlays/o057/func_overlay_057_F0000000_18A3BF8.c.o",
+      "offset": 0,
+      "overlay": 57,
+      "size": 2388,
+      "source": "src/overlays/o057/func_overlay_057_F0000000_18A3BF8.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o057/func_overlay_057_F0004460_18A8058.c.o",
+      "offset": 17504,
+      "overlay": 57,
+      "size": 1976,
+      "source": "src/overlays/o057/func_overlay_057_F0004460_18A8058.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o057/func_overlay_057_F00060F8_18A9CF0.c.o",
+      "offset": 24824,
+      "overlay": 57,
+      "size": 1764,
+      "source": "src/overlays/o057/func_overlay_057_F00060F8_18A9CF0.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
       "object": "build/src/overlays/o057/overlay57ApplyTable.c.o",
       "offset": 26744,
       "overlay": 57,
@@ -3974,6 +4044,30 @@
       "overlay": 58,
       "size": 1472,
       "source": "src/overlays/o058/func_overlay_058_F0000000_18AF1E8.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c.o",
+      "offset": 1532,
+      "overlay": 58,
+      "size": 3316,
+      "source": "src/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o058/func_overlay_058_F000138C_18B0574.c.o",
+      "offset": 5004,
+      "overlay": 58,
+      "size": 14456,
+      "source": "src/overlays/o058/func_overlay_058_F000138C_18B0574.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -4480,6 +4574,18 @@
       "tools": [
         "trim_elf_section.py",
         "objcopy"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o065/func_overlay_065_F0000C38_18C4EA0.c.o",
+      "offset": 3128,
+      "overlay": 65,
+      "size": 3548,
+      "source": "src/overlays/o065/func_overlay_065_F0000C38_18C4EA0.c",
+      "tools": [
+        "trim_elf_section.py"
       ]
     },
     {
@@ -5054,6 +5160,18 @@
       "overlay": 79,
       "size": 308,
       "source": "src/overlays/o079/func_overlay_079_F0000000_18CCFA0.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c.o",
+      "offset": 308,
+      "overlay": 79,
+      "size": 3528,
+      "source": "src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -5655,6 +5773,18 @@
       "source": "src/overlays/o086/overlay86SelectPosition.c",
       "tools": [
         "objcopy"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o087/func_overlay_087_F0000128_18D3090.c.o",
+      "offset": 296,
+      "overlay": 87,
+      "size": 1896,
+      "source": "src/overlays/o087/func_overlay_087_F0000128_18D3090.c",
+      "tools": [
+        "trim_elf_section.py"
       ]
     },
     {
@@ -6398,6 +6528,42 @@
       "overlay": 101,
       "size": 2100,
       "source": "src/overlays/o101/func_overlay_101_F00078F4_18E3114.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o101/func_overlay_101_F0008128_18E3948.c.o",
+      "offset": 33064,
+      "overlay": 101,
+      "size": 2100,
+      "source": "src/overlays/o101/func_overlay_101_F0008128_18E3948.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o101/func_overlay_101_F000895C_18E417C.c.o",
+      "offset": 35164,
+      "overlay": 101,
+      "size": 2100,
+      "source": "src/overlays/o101/func_overlay_101_F000895C_18E417C.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o101/func_overlay_101_F0009190_18E49B0.c.o",
+      "offset": 37264,
+      "overlay": 101,
+      "size": 2100,
+      "source": "src/overlays/o101/func_overlay_101_F0009190_18E49B0.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -7159,9 +7325,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 579
+      "metadata": 593
     },
-    "matched_c_bytes_with_postprocess": 312600,
-    "objects_with_postprocess": 579
+    "matched_c_bytes_with_postprocess": 358528,
+    "objects_with_postprocess": 593
   }
 }
