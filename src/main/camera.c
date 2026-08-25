@@ -208,6 +208,7 @@ void func_80024978(MtxF matrix);
 void func_80034E54(Gfx **dlist, u8 *spriteData, s32 flags,
                    f32 frame, s32 alpha);
 f32 sqrtf(f32 value);
+s32 mathRnd(s32 minimum, s32 maximum);
 extern s32 levelInitRegionFlags(void);
 extern void func_80021504(f32 fov, s32 force);
 void func_80021838(s32 x, s32 y, s32 z, s32 zRotation, s32 xRotation,
@@ -1336,7 +1337,43 @@ void camSetZoom(s32 camNo, f32 zoom) {
         D_80079FB0[camNo] = zoom;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024D00.s")
+/*
+ * PROVENANCE: JFG's public src/camera.c identifies the camTick role/order;
+ * the body is reconstructed from Mickey-only camera and shake-envelope data.
+ */
+void func_80024D00(s32 updateRate) {
+    Camera *camera;
+    CameraShake *shake;
+    s32 magnitude;
+    s32 i;
+
+    camera = D_800CEA20;
+    shake = D_800CEC18;
+    D_800CEC84 = 0;
+    for (i = 6; i--; camera++, shake++) {
+        D_80079FA0[i] = 0;
+        D_80079FA8[i] = 1;
+        camera->shakeX = 0.0f;
+        camera->shakeY = 0.0f;
+        camera->shakeZ = 0.0f;
+        if (shake->magnitude != 0) {
+            shake->timer += updateRate;
+            if (shake->timer >= shake->totalEnd) {
+                shake->magnitude = 0;
+            } else {
+                D_800CEC84 = 1;
+                magnitude = shake->magnitude;
+                if (shake->sustainEnd < shake->timer) {
+                    magnitude = ((shake->totalEnd - shake->timer) * magnitude) /
+                                (shake->totalEnd - shake->sustainEnd);
+                } else if (shake->timer < shake->attackEnd) {
+                    magnitude = (shake->timer * magnitude) / shake->attackEnd;
+                }
+                camera->shakeY = mathRnd(0, magnitude);
+            }
+        }
+    }
+}
 /* Mickey-only fixed-distance camera-transform reconstruction. */
 void func_80024ED8(CameraTransform *source, s32 unused, Camera *dest) {
     f32 targetX;

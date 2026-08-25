@@ -965,6 +965,7 @@ functions is classified as handwritten assembly under §6.2.
 | `camGetProjectionMtx` | `0x252A4` | D — JFG role and Mickey final projection-matrix dataflow | 12 | JFG body and masked skeleton exact; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `func_800246B0` | `0x252B0` | D — retained Mickey auto-name; JFG `camProjectPoint` role/order | 388 | Mickey matrix/viewport reconstruction; configured object, 13 text relocations, linked range and full ROM exact. |
 | `camGetProjZ` | `0x25538` | D — JFG TU role/order and projection-depth dataflow | 64 | JFG body adapted to Mickey's rotation matrix; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
+| `func_80024D00` | `0x25900` | D — retained Mickey auto-name; JFG `camTick` role/order | 472 | Mickey shake-envelope tick reconstruction for six cameras; configured object, 11 text relocations, linked range and full ROM exact. |
 
 Bounded plateau:
 
