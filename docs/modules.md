@@ -1937,6 +1937,22 @@ forms, and the bounded permutations do not change that coloring without
 disturbing otherwise-exact code. The candidate remains behind `NON_MATCHING`
 and the target assembly stays canonical.
 
+The 292-byte `func_80046AA8` packed-glyph renderer reaches a loop-form plateau
+after the full flag lattice, nine coherent counter/type/source forms, and one
+bounded canonical MIPS II permuter batch. Mickey's caller supplies an `(x, y)`
+pixel position and a five-word two-bit glyph; JFG's 288-byte
+`func_800680B0_68CB0` is assembly-only but confirms the same framebuffer,
+palette, row, line, and packed-pixel loops. The best coherent candidate has
+the exact 72-byte frame, argument homes, `s0` glyph lifetime, framebuffer
+association, palette branches, and relocation identities, but emits 70 words
+against 73 in the target, with 49 positional differences beginning at
+function `+0x54`. IDO folds the target's constant five-row pretest and one
+narrowed-bit temporary move, then allocates the packed bits and pixel cursor
+to `v0`/`v1` instead of `v1`/`a0`. Lower permuter scores inserted empty guards
+only to perturb allocation and were discarded as semantically unsupported.
+The coherent candidate remains behind `NON_MATCHING` and the target assembly
+stays canonical.
+
 The 1,836-byte `func_80045D34` crash-screen controller also remains
 `NON_MATCHING`. Supplying its jump table recovered a complete Mickey-derived
 draft, but JFG's closest 1,888-byte peer (`func_80067880`) is assembly-only and
