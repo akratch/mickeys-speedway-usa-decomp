@@ -3,6 +3,7 @@
 #include "game/gameVi.h"
 #include "game/menu.h"
 #include "game/sched_internal.h"
+#include "n_audio/mbi.h"
 
 /*
  * Resident main state and frame control, ROM 0x27760-0x2A250.
@@ -45,6 +46,8 @@ extern s32 D_8007A12C;
 extern s32 D_8007A130;
 extern s32 D_8007A134;
 extern s32 D_8007A138;
+extern s32 D_8007A120;
+extern s32 D_8007A124;
 extern s32 D_8007A1A4;
 extern s32 D_8007A1A8;
 extern s32 D_8007A194;
@@ -54,6 +57,7 @@ extern s32 D_8007A1D4;
 extern s32 D_8007A1EC;
 extern s32 D_8007A1B4;
 extern s32 D_8007A1D8;
+extern s32 D_8007A1B8;
 extern s32 D_8007A200;
 extern void *D_8007A204;
 extern s32 D_8007A24C;
@@ -75,7 +79,22 @@ extern char D_80081BC0[];
 extern char D_80081BC4[];
 extern char D_80081BC8[];
 extern f32 D_80081BD0;
-extern void *D_800CF518;
+extern Gfx *D_800CF510[];
+extern Gfx *D_800CF518;
+extern s32 D_800CF51C;
+extern s32 D_800CF520;
+extern s32 D_800CF524;
+extern Mtx *D_800CF528[];
+extern Mtx *D_800CF530;
+extern s32 D_800CF534;
+extern s32 D_800CF578;
+extern s32 D_800CF57C;
+extern s32 D_800CF58C;
+extern s32 D_800CF590;
+extern s32 D_800CF594;
+extern s32 D_800CF5A4;
+extern s32 D_800CF5A8;
+extern s32 D_800CF5AC;
 
 typedef struct MainGameEntry {
     u8 pad0[4];
@@ -111,6 +130,19 @@ typedef struct MainDebugMemory {
     f32 value14;
 } MainDebugMemory;
 
+typedef struct MainVertex {
+    u8 bytes[10];
+} MainVertex;
+
+typedef struct MainTriangle {
+    u8 bytes[16];
+} MainTriangle;
+
+extern MainVertex *D_800CF580[];
+extern MainVertex *D_800CF588;
+extern MainTriangle *D_800CF598[];
+extern MainTriangle *D_800CF5A0;
+
 extern MainGameEntry *D_800D18E0;
 extern void *D_800D18E4;
 extern u8 D_800D1928[];
@@ -129,6 +161,8 @@ extern s32 D_800D18D8;
 extern s32 D_800D18DC;
 extern MainZBCheck D_800CF538[];
 extern u16 *D_800D2FAC;
+extern s32 *D_800D2FA0;
+extern s32 *D_800D2FA8;
 extern s32 osTvType;
 extern s32 levelNGetType(s32 level);
 extern void func_80028EFC(MainCharacterState *, s32, s32);
@@ -187,9 +221,9 @@ extern s32 levelGetTune(s32);
 extern void rumbleRumbles(s32);
 extern void func_8004B0A4(s32);
 extern void func_8004B0DC(s32, s32, s32, s32);
-extern void func_8004B0F8(void **, s32, s32, char *, s32);
+extern void func_8004B0F8(Gfx **, s32, s32, char *, s32);
 extern MainDebugMemory *func_80005820(s32);
-extern void frontDrawRectangle(void **, s32, s32, s32, s32, s32);
+extern void frontDrawRectangle(Gfx **, s32, s32, s32, s32, s32);
 extern s32 sprintf(char *, const char *, ...);
 
 #ifdef NON_MATCHING
@@ -356,7 +390,83 @@ void mainInitGame(void) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80026FB4.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80027628.s")
+/*
+ * PROVENANCE: the display-list, matrix, vertex and triangle roles are adapted
+ * from Diddy Kong Racing's published src/thread3_main.c::main_game_loop and
+ * JFG's main-TU ordering. Mickey's own instructions determine this body.
+ */
+void func_80027628(s32 updateRate) {
+    s32 displayListCount;
+    s32 matrixCount;
+    s32 vertexCount;
+    s32 triangleCount;
+    s32 copyCount;
+    s32 *source;
+    s32 *destination;
+    s32 width;
+    s32 height;
+
+    displayListCount = D_800CF518 - D_800CF510[D_8007A1B8];
+    matrixCount = D_800CF530 - D_800CF528[D_8007A1B8];
+    vertexCount = D_800CF588 - D_800CF580[D_8007A1B8];
+    triangleCount = D_800CF5A0 - D_800CF598[D_8007A1B8];
+
+    if (D_800CF524 < displayListCount) {
+        D_800CF524 = displayListCount;
+    }
+    if (D_800CF57C < matrixCount) {
+        D_800CF57C = matrixCount;
+    }
+    if (D_800CF594 < vertexCount) {
+        D_800CF594 = vertexCount;
+    }
+    if (D_800CF5AC < triangleCount) {
+        D_800CF5AC = triangleCount;
+    }
+
+    if (D_800CF51C < displayListCount) {
+        D_800CF520 = 1;
+    }
+    if (D_800CF534 < matrixCount) {
+        D_800CF578 = 1;
+    }
+    if (D_800CF58C < vertexCount) {
+        D_800CF590 = 1;
+    }
+    if (D_800CF5A4 < triangleCount) {
+        D_800CF5A8 = 1;
+    }
+
+    if (D_8007A120 != 0) {
+        viGetCurrentSize(&width, &height);
+        source = D_800D2FA0;
+        destination = D_800D2FA8;
+        copyCount = ((u32) (width * height) >> 1) - 1;
+        if (((u32) (width * height) >> 1) != 0) {
+            do {
+                *destination++ = *source++;
+            } while (copyCount--);
+        }
+    }
+
+    D_8007A124 -= updateRate;
+    if (D_8007A124 < 0) {
+        D_8007A124 = 0;
+    }
+    D_8007A120 = 0;
+    if ((D_800CF520 != 0) || (D_800CF578 != 0) ||
+        (D_800CF590 != 0) || (D_800CF5A8 != 0)) {
+        D_800CF518 = D_800CF510[D_8007A1B8];
+        gDPFullSync(D_800CF518++);
+        gSPEndDisplayList(D_800CF518++);
+        D_8007A124 = 60;
+        D_8007A120 = 1;
+    }
+    D_800CF520 = 0;
+    D_800CF578 = 0;
+    D_800CF590 = 0;
+    D_800CF5A8 = 0;
+}
 
 s32 mainAddZBCheck(s32 x, s32 y, s32 radius) {
     s32 result;
