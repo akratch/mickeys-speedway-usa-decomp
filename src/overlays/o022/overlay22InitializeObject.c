@@ -21,14 +21,16 @@ extern s16 func_8000F690(f32, f32, f32);
 extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
 /*
- * Plateau (2026-08-25, 10-attempt cap): the best -O2 -mips2
+ * Plateau (2026-08-25, renewed 10-attempt cap): the canonical -O2 -mips2
  * -Wab,-r4300_mul candidate has the exact 172-word size, differs in 5 words,
- * and first diverges at +0xCC.  Moving the contact carrier ahead of the vector
- * locals, removing two artificial pointer temporaries, and restoring retail
- * statement order recovered the 0x58-byte frame.  The remaining differences
- * are three uses of one object-position spill slot and the order of two
- * equivalent D_A7C stores.  The bounded permuter is unavailable because its
- * import.py is absent from this checkout.
+ * and first diverges at +0xCC.  A complete 119-combination flag sweep found no
+ * improvement.  Volatile/const/register carriers, declaration and assignment
+ * order, direct object-position expressions, aliases, and nested call-argument
+ * assignments either retained the five-word diff or disturbed the frame and
+ * register web.  The blocker is IDO's coupled spill allocation: retail uses
+ * object-position at sp+0x30 and the plane carrier at sp+0x2C, then stores the
+ * identical D_A7C value to outgoing sp+0x10 before sp+0x2C; the best C uses
+ * sp+0x28 and reverses those two stores.
  */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
