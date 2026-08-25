@@ -13,17 +13,18 @@ extern u32 gOverlay20ActiveBits;
 
 /* DKR v77/v80 and JFG have no exact donor; only generic list compaction. */
 /*
- * Plateau (2026-08-25, 4 attempts): the best -O2 candidate is one word long,
- * differs in 43 of 53 words, and first diverges at +0xC.  The shipped search
- * loop uses a signed less-than backedge, while the goto and structured-loop
- * spellings retain an equality exit plus an extra branch; the downstream
- * list-compaction and active-bit operations are structurally aligned.
+ * Plateau (2026-08-25, 10 attempts plus a bounded permuter batch): the
+ * natural -O2 candidate is one word short and first diverges at +0xC because
+ * IDO folds the search backedge's signed comparison into equality.  The best
+ * scratch candidate restores the exact size, agrees through +0x48, and
+ * differs in 17 of 53 words from +0x4C; its redundant boolean no-op is not a
+ * source-level explanation, and the remaining gap is the list-compaction
+ * temporary/register layout.  The full flag lattice found no better group.
  */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;
     s32 i;
-    s32 more;
     void **cursor;
     void **end;
 
@@ -34,16 +35,12 @@ void overlay20RemoveEntry(s32 owner) {
     owner = gOverlay20EntryCount;
     i = 0;
     cursor = gOverlay20Entries;
-    if (owner > 0) {
-searchLoop:
-        if (entry != *cursor) {
-            i++;
-            more = i < owner;
-            if (more) {
-                cursor++;
-                goto searchLoop;
-            }
+    while (i < owner) {
+        if (entry == *cursor) {
+            break;
         }
+        i++;
+        cursor++;
     }
     if (i >= owner) {
         return;
