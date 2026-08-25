@@ -21,18 +21,31 @@ typedef struct ParticleConfig {
     s16 value14;
     s16 value16;
     s16 value18;
-    u8 pad1A[8];
+    s16 value1A;
+    s16 value1C;
+    s16 value1E;
+    u8 pad20[2];
     s16 value22;
     s16 value24;
     s16 value26;
-    u8 pad28[8];
+    s16 value28;
+    s16 value2A;
+    s16 value2C;
+    s16 value2E;
     f32 value30;
     f32 value34;
     f32 value38;
     f32 value3C;
     s16 value40;
     s16 value42;
-    u8 pad44[0x14];
+    s16 value44;
+    s16 value46;
+    s16 value48;
+    s16 value4A;
+    s16 value4C;
+    s16 value4E;
+    f32 value50;
+    f32 value54;
     f32 value58;
     s32 flags5C;
     s32 value60;
@@ -46,14 +59,31 @@ typedef struct ParticleConfig {
     s32 value74;
     s32 value78;
     s32 value7C;
-    u8 pad80[0x14];
+    s16 value80;
+    s16 value82;
+    s16 value84;
+    s16 value86;
+    s16 value88;
+    s16 value8A;
+    s32 value8C;
+    s32 value90;
     s32 value94;
+    u8 value98;
+    u8 value99;
+    u8 value9A;
+    u8 pad9B;
 } ParticleConfig;
 
 typedef struct ParticleTrigger {
     ParticleConfig *config;
     s32 flags;
-    s16 unk08;
+    union {
+        s16 unk08;
+        struct {
+            u8 sourceRotationCounter;
+            u8 directionRotationCounter;
+        };
+    };
     s16 value;
     s16 unk0C;
     s16 value0E;
@@ -123,10 +153,17 @@ typedef struct ParticleResourceList {
     s32 count;
 } ParticleResourceList;
 
+typedef struct ParticleVec3f {
+    f32 x;
+    f32 y;
+    f32 z;
+} ParticleVec3f;
+
 typedef struct ParticleModelEntry {
     void *particles[15];
     s32 particleCount;
-    u8 pad40[0x64];
+    s32 vertexCount;
+    ParticleVec3f points[8];
     u8 active;
     u8 padA5[3];
     s32 animationState;
@@ -137,6 +174,16 @@ typedef struct ParticleModelEntry {
     void *resource;
     ParticleTriggerSlot *trigger;
 } ParticleModelEntry;
+
+typedef struct ParticleVertex {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} ParticleVertex;
 
 typedef struct ParticlePointStreamEntry {
     u8 pad00[0x40];
@@ -178,9 +225,17 @@ typedef struct ParticleLineEntry {
 } ParticleLineEntry;
 
 struct ParticleTexture {
-    u8 pad00[0x10];
+    u8 pad00[4];
+    s16 flags;
+    u8 pad06[0x0A];
     u16 frameCount;
 };
+
+typedef struct ParticleSprite {
+    u8 frameCount;
+    u8 pad01[0x0F];
+    ParticleTexture **textures;
+} ParticleSprite;
 
 struct ParticleLinePoint {
     s16 x0;
@@ -266,13 +321,30 @@ typedef struct ParticleTypeDescriptor {
         };
     };
     s16 animationSpeed;
+    s16 lifetime;
+    s16 lifetimeRange;
+    u8 intensity;
+    u8 targetIntensity;
+    s16 intensityTimer;
+    s16 colorTimer;
+    f32 scale;
+    u8 colorMode;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 pad1C[3];
+    u8 colorCount;
+    u32 *colorTable;
+    u8 pad24[2];
+    u8 triggerValue;
+    u8 triggerType;
 } ParticleTypeDescriptor;
 
 typedef struct BasicParticle {
     s16 rotationY;
     s16 rotationX;
     s16 rotationZ;
-    u8 pad06[2];
+    s16 transformFlags;
     f32 scale;
     f32 x;
     f32 y;
@@ -324,7 +396,10 @@ typedef struct ParticleEmitterResource {
 } ParticleEmitterResource;
 
 typedef struct ParticleEmitterObject {
-    u8 pad00[8];
+    s16 rotationY;
+    s16 rotationX;
+    s16 rotationZ;
+    u8 pad06[2];
     f32 scale;
     f32 x;
     f32 y;
@@ -337,9 +412,12 @@ typedef struct ParticleEmitterObject {
     s8 resourceIndex;
     u8 pad3B[5];
     u8 *header;
-    u8 pad44[0x24];
+    u8 pad44[0x0C];
+    f32 *shading;
+    u8 pad54[0x14];
     ParticleEmitterResource **resources;
-    u8 pad6C[0x27];
+    u8 pad6C[0x26];
+    u8 hasMovingParticle;
     u8 pointSetIndex;
 } ParticleEmitterObject;
 
@@ -363,28 +441,34 @@ typedef struct CircularParticle {
     s16 rotationY;
     s16 rotationX;
     s16 rotationZ;
-    u8 pad06[2];
+    s16 transformFlags;
     f32 scale;
     f32 renderX;
     f32 renderY;
     f32 renderZ;
-    u8 pad18[0x10];
+    f32 scaleVelocity;
+    f32 velocityX;
+    f32 velocityY;
+    f32 velocityZ;
     f32 textureFrame;
     s16 type;
     u8 kind;
-    u8 pad2F;
+    u8 state;
     f32 x;
     f32 y;
     f32 z;
-    u8 pad3C[8];
+    f32 movementValue;
+    f32 gravity;
     u8 *colorTable;
     void *parent;
     void *resource;
     s32 flags;
-    u8 pad54[4];
+    s32 value54;
     ParticleTrigger *trigger;
     s16 lifetime;
-    u8 pad5E[6];
+    s16 angularVelocityY;
+    s16 angularVelocityX;
+    s16 angularVelocityZ;
     s16 intensity;
     s16 intensityVelocity;
     s16 intensityTimer;
@@ -462,6 +546,11 @@ extern s32 D_8007C854;
 extern s32 D_8007C85C;
 extern f32 D_80082A48;
 extern f32 D_80082A4C;
+extern f32 D_80082A50;
+extern f32 D_80082A54;
+extern f32 D_80082A6C;
+extern f32 D_80082A70;
+extern f32 D_8007C8C8[];
 extern void **D_8007C884;
 extern s32 D_8007C888;
 extern s32 D_8007C88C;
@@ -498,7 +587,9 @@ void func_80036544(void *texture, void *state, s32 speed, f32 *frame, s32 update
 void mathOneFloatPY(void *rotation, void *vector);
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void *piRomLoad(s32 assetId);
-ParticleTexture *func_80034448(s16 resourceId);
+ParticleTexture *func_80034448(s32 resourceId);
+ParticleSprite *func_800355A0(s32 resourceId, s32 arg1);
+void *func_8001F520(s32 resourceId, s32 arg1);
 s32 mathRnd(s32 minimum, s32 maximum);
 f32 sqrtf(f32 value);
 void mtxf_transform_dir(void *matrix, f32 *input, f32 *output, ParticleEmitterHeader *header);
@@ -521,7 +612,8 @@ void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, Parti
 void func_80041CE4(void **dList, void **vertices);
 void func_80041F48(s32 arg0, ParticleTrigger *trigger);
 s32 func_80040878(CircularParticle *particle, s32 updateRate);
-void func_80040B88(void);
+CircularParticle *func_8004054C(s32 type, s32 direction);
+void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger);
 void func_80041040(ParticleLineEntry *particle, s32 updateRate);
 void func_80041388(ParticleModelEntry *particle, s32 updateRate);
 void func_800367A4(void *texture, void *state, s16 speed, f32 *frame, s32 updateRate);
@@ -535,9 +627,10 @@ void func_8003CA20(void);
 void func_8003CB3C(void);
 void func_8003CD28(ParticleResourceList **listPtr);
 void func_8003CCE4(void);
-void *func_8003FB98(s32 arg0, ParticleTrigger *trigger, s32 arg2);
+CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *trigger, s32 resourceId);
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry);
 void func_80041FEC(BasicParticle *particle);
+void func_80040740(CircularParticle *particle);
 void func_800420E0(BasicParticle *particle);
 void func_800421F4(BasicParticle *particle);
 void func_8004233C(BasicParticle *particle);
@@ -1244,7 +1337,7 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
     if (trigger->flags & 0x4000) {
         if (trigger->unk0C >= config->value40) {
             trigger->unk0C -= config->value40;
-            func_80040B88();
+            func_80040B88((ParticleEmitterObject *)object, trigger);
         }
     } else if (trigger->flags & 0x400) {
         if (trigger->unk0C >= config->value40) {
@@ -1257,7 +1350,8 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
             i = 0;
             if (config->value42 > 0) {
                 do {
-                    particle = func_8003FB98((s32)object, (ParticleTrigger *)trigger, -1);
+                    particle = (EmittedParticle *)func_8003FB98(
+                        (ParticleEmitterObject *)object, (ParticleTrigger *)trigger, -1);
                     if (particle != NULL) {
                         if (trigger->unk0C != 0) {
                             particle->x -= D_800D4134;
@@ -1550,7 +1644,7 @@ void partModelObjEmitModelPart(ParticleModelObject *object, f32 velocityX, f32 v
         *(s8 *)(trigger + 0x23) = -1;
         *(s16 *)(trigger + 0x18) = config->value26;
         particle = (BasicParticle *)func_8003FB98(
-            (s32)object, (ParticleTrigger *)trigger,
+            (ParticleEmitterObject *)object, (ParticleTrigger *)trigger,
             ((ParticleModelPartConfig *)((u8 *)object->header->parts + offset))->particleType);
         if (particle != NULL && (velocityX != 0.0f || velocityY != 0.0f || velocityZ != 0.0f)) {
             particle->velocityX = velocityX;
@@ -1562,7 +1656,253 @@ void partModelObjEmitModelPart(ParticleModelObject *object, f32 velocityX, f32 v
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partModelObjEmitModelPart.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * Near-exact FP-schedule plateau: the best canonical-mips2 candidate has the
+ * target's 621 instructions, 0x38 frame, and relocation surface. Ten words
+ * remain, first at +0x10C: six operands use the scale home at sp+0x20 rather
+ * than sp+0x24, and two adjacent instruction pairs multiply the Z component
+ * before the target's X/Y partial sum. The full flag lattice and ten source,
+ * type, and expression-shape attempts found no exact form. A bounded permuter
+ * imported the TU as inadmissible mips1 and improved only its internal score.
+ *
+ * PROVENANCE: body adapted from DKR src/particles.c:create_general_particle
+ * and cross-checked against JFG
+ * asm/nonmatchings/particles/func_80060ED4.s. Mickey-specific resource,
+ * colour, trigger, and floating-point paths are reconstructed from Mickey
+ * evidence.
+ */
+CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *trigger, s32 resourceId) {
+    s32 randomizationFlags;
+    ParticleTypeDescriptor *descriptor;
+    CircularParticle *particle;
+    void *resource;
+    ParticleConfig *config;
+    f32 scale;
+    s32 kind;
+
+    descriptor = D_8007C8AC[trigger->value];
+    kind = (u32)descriptor->flags >> 28;
+    if (kind == 5) {
+        return NULL;
+    }
+    if (resourceId == -1) {
+        resourceId = descriptor->resourceId;
+    }
+    config = trigger->config;
+    particle = func_8004054C(kind, resourceId);
+    if (particle == NULL) {
+        return particle;
+    }
+
+    particle->kind = descriptor->pad04 & 0xF;
+    particle->flags = descriptor->descriptorWord;
+    particle->state = 0;
+    particle->parent = object;
+    particle->colorTable = (u8 *)descriptor->colorTable;
+    particle->colorCount = descriptor->colorCount;
+    if ((particle->flags & 0x800) && object->shading != NULL) {
+        particle->alpha = (s32)(*object->shading * D_8007C8F4);
+    } else {
+        particle->alpha = 0xFF;
+    }
+
+    scale = config->value50;
+    if (config->flags5C & 0x20000) {
+        scale += mathRnd(-config->value8C, config->value8C) * 0.000015258789f;
+    }
+    particle->scale = descriptor->scale * scale;
+
+    scale = config->value54;
+    if (config->flags5C & 0x40000) {
+        scale += mathRnd(-config->value90, config->value90) * 0.000015258789f;
+    }
+    if (config->flags & 0x1000) {
+        particle->scaleVelocity =
+            sqrtf((object->velocityX * object->velocityX) +
+                  (object->velocityY * object->velocityY) +
+                  (object->velocityZ * object->velocityZ)) *
+            scale * D_80082A50;
+    } else {
+        particle->scaleVelocity = descriptor->scale * scale;
+    }
+    if (D_8007C8F0 != 0.0f) {
+        particle->scale *= D_8007C8F0;
+        particle->scaleVelocity *= D_8007C8F0;
+    }
+
+    particle->lifetime =
+        mathRnd(-descriptor->lifetimeRange, descriptor->lifetimeRange) + descriptor->lifetime;
+    particle->colorMode = descriptor->colorMode;
+    if (particle->flags & 0x400) {
+        particle->red = (*(u32 *)particle->colorTable & 0xFF000000) >> 24;
+        particle->green = (*(u32 *)particle->colorTable & 0xFF0000) >> 16;
+        particle->blue = (*(u32 *)particle->colorTable & 0xFF00) >> 8;
+    } else {
+        particle->red = descriptor->red;
+        particle->green = descriptor->green;
+        particle->blue = descriptor->blue;
+    }
+    particle->alternateRed = descriptor->pad1C[0];
+    particle->alternateGreen = descriptor->pad1C[1];
+    particle->alternateBlue = descriptor->pad1C[2];
+
+    randomizationFlags = config->flags5C & 0xF00000;
+    if (randomizationFlags != 0) {
+        if (randomizationFlags & 0x100000) {
+            particle->red += mathRnd(-config->value98, config->value98);
+        }
+        if (randomizationFlags & 0x200000) {
+            particle->green += mathRnd(-config->value99, config->value99);
+        }
+        if (randomizationFlags & 0x400000) {
+            particle->blue += mathRnd(-config->value9A, config->value9A);
+        }
+    }
+
+    particle->intensityTimer = descriptor->intensityTimer;
+    particle->colorTimer = descriptor->colorTimer;
+    particle->colorIndex = 0;
+    particle->intensity = descriptor->intensity << 8;
+    if (particle->intensityTimer < particle->lifetime) {
+        particle->intensityVelocity =
+            ((descriptor->targetIntensity - descriptor->intensity) << 8) /
+            (particle->lifetime - particle->intensityTimer);
+    } else {
+        particle->intensityVelocity = 0;
+    }
+    particle->updateTexture = descriptor->animationSpeed;
+
+    if (particle->type == 2) {
+        particle->resource = func_800355A0(resourceId, 0);
+        if (particle->resource != NULL) {
+            if ((*((ParticleSprite *)particle->resource)->textures)->flags & 4) {
+                if (particle->flags & 0x1000) {
+                    particle->transformFlags |= 8;
+                } else {
+                    particle->transformFlags |= 4;
+                }
+            }
+            if (config->flags & 0x800) {
+                particle->textureFrame =
+                    mathRnd(0, ((ParticleSprite *)particle->resource)->frameCount - 1);
+            } else if ((particle->flags & 1) == 2) {
+                particle->textureFrame =
+                    (f32)((ParticleSprite *)particle->resource)->frameCount - D_80082A54;
+            } else {
+                particle->textureFrame = 0.0f;
+            }
+        }
+    } else if (particle->type == 1 || particle->type == 0) {
+        if (resourceId < 0) {
+            particle->resource = NULL;
+        } else {
+            resource = func_80034448(resourceId);
+            if (((ParticleTexture *)resource)->flags & 4) {
+                if (particle->flags & 0x1000) {
+                    particle->transformFlags |= 8;
+                } else {
+                    particle->transformFlags |= 4;
+                }
+            }
+            particle->textureFrame = 0.0f;
+            particle->resource = resource;
+        }
+    } else if (particle->type == 3) {
+        resource = func_8001F520(resourceId, 0);
+        particle->resource = resource;
+    }
+
+    func_8003F5F8((BasicParticle *)particle, object, (ParticleTriggerSlot *)trigger, config);
+    if (config->flags & 0x80) {
+        particle->rotationY = config->value44;
+        particle->rotationX = config->value46;
+        particle->rotationZ = config->value48;
+    } else {
+        particle->rotationY = object->rotationY + config->value44;
+        particle->rotationX = object->rotationX + config->value46;
+        particle->rotationZ = object->rotationZ + config->value48;
+    }
+
+    randomizationFlags = config->flags5C & 0x3800;
+    if (randomizationFlags != 0) {
+        if (randomizationFlags & 0x800) {
+            particle->rotationY += mathRnd(-config->value80, config->value80);
+        }
+        if (randomizationFlags & 0x1000) {
+            particle->rotationX += mathRnd(-config->value82, config->value82);
+        }
+        if (randomizationFlags & 0x2000) {
+            particle->rotationZ += mathRnd(-config->value84, config->value84);
+        }
+    }
+
+    particle->angularVelocityY = config->value4A;
+    particle->angularVelocityX = config->value4C;
+    particle->angularVelocityZ = config->value4E;
+    randomizationFlags = config->flags5C & 0x1C000;
+    if (randomizationFlags != 0) {
+        if (randomizationFlags & 0x4000) {
+            particle->angularVelocityY += mathRnd(-config->value86, config->value86);
+        }
+        if (randomizationFlags & 0x8000) {
+            particle->angularVelocityX += mathRnd(-config->value88, config->value88);
+        }
+        if (randomizationFlags & 0x10000) {
+            particle->angularVelocityZ += mathRnd(-config->value8A, config->value8A);
+        }
+    }
+
+    func_8003F154((BasicParticle *)particle, object, (ParticleTriggerSlot *)trigger, config);
+    particle->gravity = D_8007C8C8[(particle->flags >> 4) & 7];
+    if (particle->flags & 0x80) {
+        particle->gravity = -particle->gravity;
+    }
+    if (particle->kind == 5) {
+        particle->movementValue =
+            sqrtf((particle->velocityX * particle->velocityX) +
+                  (particle->velocityY * particle->velocityY) +
+                  (particle->velocityZ * particle->velocityZ));
+    }
+    if (descriptor->descriptorWord & 0x10000) {
+        particle->trigger = func_8003E730(descriptor->triggerType, descriptor->triggerValue);
+    } else {
+        particle->trigger = NULL;
+    }
+    if (config->flags & 2) {
+        trigger->sourceRotationCounter++;
+        if (trigger->sourceRotationCounter >= config->value1A) {
+            trigger->value0E += config->value1C;
+            trigger->value10 += config->value1E;
+            trigger->value12 += config->value18;
+            trigger->sourceRotationCounter -= config->value1A;
+        }
+    }
+    if (config->flags & 8) {
+        trigger->directionRotationCounter++;
+        if (trigger->directionRotationCounter >= config->value28) {
+            trigger->value14 += config->value2A;
+            trigger->value16 += config->value2C;
+            trigger->value18 += config->value2E;
+            trigger->directionRotationCounter -= config->value28;
+        }
+    }
+    if (particle->resource == NULL && particle->type != 4) {
+        func_80040740(particle);
+        return NULL;
+    }
+    particle->value54 = 8;
+    if (config->flags & 0x10000) {
+        particle->flags |= 0x80000;
+    }
+    if (particle->kind == 3) {
+        object->hasMovingParticle = 1;
+    }
+    return particle;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003FB98.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * One-word-short plateau: the best 124-word candidate first differs at +0x4C
@@ -1808,7 +2148,143 @@ s32 func_80040878(CircularParticle *particle, s32 updateRate) {
 done:
     return 0;
 }
+#ifdef NON_MATCHING
+/*
+ * Frame-shape plateau: the best canonical-mips2 candidate emits 300 of the
+ * target's 302 instructions with an 0x70 frame instead of 0x68. Alignment
+ * needs seven insertions and nine deletions (no replacements); the first
+ * substantive divergence preserves the trigger in t7 where the target
+ * spills and reloads it, rotating the remaining temporary lanes. The full
+ * flag lattice and a bounded permuter found no exact spelling.
+ *
+ * PROVENANCE: orientation and velocity-normalization structure adapted from
+ * DKR src/particles.c:update_line_particle and cross-checked against JFG's
+ * assembly-only particles sibling; point allocation and initialization are
+ * reconstructed from Mickey evidence.
+ */
+void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) {
+    ParticleTypeDescriptor *descriptor;
+    ParticleLineEntry *entry;
+    ParticleLinePoint *point;
+    u32 *colorTable;
+    f32 scale;
+    ParticleVec3f position;
+    ParticleVec3f offset;
+    register f32 temp;
+    s32 orientation;
+    s32 pointCount;
+    u8 entryIndex;
+
+    descriptor = D_8007C8AC[trigger->type];
+    if ((u32)descriptor->flags >> 28 == 5) {
+        entryIndex = trigger->result;
+        if (entryIndex != 0xFF) {
+            entry = &D_8007C894[entryIndex];
+            pointCount = entry->pointCount;
+            if (pointCount != 9) {
+                point = entry->points[pointCount];
+                scale = descriptor->scale * trigger->config->value50;
+                entry->pointCount = pointCount + 1;
+                point->lifetime = descriptor->lifetime;
+                if (descriptor->descriptorWord & 0x400) {
+                    colorTable = entry->colorTable;
+                    if (colorTable == NULL) {
+                        entry->colorCount = descriptor->colorCount;
+                        colorTable = descriptor->colorTable;
+                        entry->colorTable = colorTable;
+                    }
+                    point->red = (*colorTable & 0xFF000000) >> 24;
+                    point->green = (*entry->colorTable & 0xFF0000) >> 16;
+                    point->blue = (*entry->colorTable & 0xFF00) >> 8;
+                } else {
+                    point->red = descriptor->red;
+                    point->green = descriptor->green;
+                    point->blue = descriptor->blue;
+                }
+                point->intensityTimer = descriptor->intensityTimer;
+                point->colorIndex = 0;
+                point->colorTimer = descriptor->colorTimer;
+                point->intensity = descriptor->intensity << 8;
+                if (point->intensityTimer < point->lifetime) {
+                    point->intensityVelocity =
+                        ((descriptor->targetIntensity - descriptor->intensity) << 8) /
+                        (point->lifetime - point->intensityTimer);
+                } else {
+                    point->intensityVelocity = 0;
+                }
+
+                position.x = trigger->value1A;
+                position.y = trigger->value1C;
+                position.z = trigger->value1E;
+                pointListRPY(1, (s16 *)object, &position.x, &position.x);
+                position.x += object->x;
+                position.y += object->y;
+                position.z += object->z;
+                if (trigger->config->flags & 0x1000) {
+                    scale *= sqrtf((object->velocityX * object->velocityX) +
+                                   (object->velocityY * object->velocityY) +
+                                   (object->velocityZ * object->velocityZ)) *
+                             D_80082A6C;
+                }
+
+                orientation = *(u16 *)&descriptor->flags & 0xF;
+                if (!(descriptor->descriptorWord & 0x4000)) {
+                    offset.x = 0.0f;
+                    offset.y = 0.0f;
+                    offset.z = 0.0f;
+                    switch (orientation) {
+                        default:
+                            offset.x = scale;
+                            break;
+                        case 2:
+                            offset.z = scale;
+                            break;
+                        case 1:
+                            offset.y = scale;
+                            break;
+                    }
+                    pointListRPY(1, (s16 *)object, &offset.x, &offset.x);
+                } else {
+                    offset.x = object->velocityX;
+                    offset.y = object->velocityY;
+                    offset.z = object->velocityZ;
+                    temp = (offset.z * offset.z) +
+                           ((offset.x * offset.x) + (offset.y * offset.y));
+                    if (temp < D_80082A70) {
+                        temp = 1.0f;
+                    } else {
+                        temp = scale / sqrtf(temp);
+                    }
+                    offset.x *= temp;
+                    offset.y *= temp;
+                    offset.z *= temp;
+                    switch (orientation) {
+                        case 0:
+                            temp = offset.x;
+                            offset.x = -offset.z;
+                            offset.z = temp;
+                            break;
+                        case 1:
+                            temp = offset.y;
+                            offset.y = -offset.z;
+                            offset.z = temp;
+                            break;
+                    }
+                }
+
+                point->x0 = position.x + offset.x;
+                point->y0 = position.y + offset.y;
+                point->z0 = position.z + offset.z;
+                point->x1 = position.x - offset.x;
+                point->y1 = position.y - offset.y;
+                point->z1 = position.z - offset.z;
+            }
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80040B88.s")
+#endif
 /*
  * PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/func_80061C30_62830.s and DKR
@@ -1963,7 +2439,126 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
         }
     }
 }
+#ifdef NON_MATCHING
+/*
+ * Frame/pipeline plateau: the best canonical-mips2 candidate emits 386 of the
+ * target's 456 instructions with a 0x160 frame instead of 0x168. Alignment
+ * needs ten insertions, 21 deletions, and 64 replacements; the first word is
+ * the frame size, and the substantive blocker is the target's software-
+ * pipelined input-vector construction. The full flag lattice found no exact
+ * alternative. A bounded permuter imported the TU as inadmissible mips1 and
+ * found no usable structural lead.
+ *
+ * PROVENANCE: structure cross-checked against JFG
+ * asm/nonmatchings/particles/func_80062BFC.s; body reconstructed from Mickey
+ * evidence.
+ */
+void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
+    Gfx *displayList;
+    ParticleVertex *vertices;
+    ParticleVertex *vertexStart;
+    ParticleVec3f *outputPtr;
+    CircularParticle *particle;
+    ParticleVec3f output[8];
+    ParticleVec3f input[8];
+    void *triangleLists[2];
+    void **particlePtr;
+    Gfx *command;
+    s32 vertexCount;
+    s32 triangleCount;
+    s32 triangleListIndex;
+    s32 vertexIndex;
+    volatile s32 vertexCommandCount;
+    volatile s32 vertexCommandLength;
+    s32 particleIndex;
+    s32 i;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+
+    if (entry->particleCount >= 2) {
+        displayList = *(Gfx **)arg0;
+        vertexCount = entry->vertexCount;
+        vertices = *(ParticleVertex **)arg1;
+        triangleLists[0] = ((void **)((u8 *)&D_8007CA60 + (vertexCount * 8)))[-4];
+        triangleLists[1] = ((void **)((u8 *)&D_8007CA60 + (vertexCount * 8)))[-3];
+        if (entry->vertexCount == 2) {
+            triangleCount = 2;
+        } else {
+            triangleCount = entry->vertexCount * 2;
+        }
+        vertexIndex = 0;
+        triangleListIndex = 0;
+        func_800349A4(&displayList, entry->resource, 0x12,
+                      (s32)(entry->textureFrame * 65536.0f));
+
+        particleIndex = 0;
+        particlePtr = entry->particles;
+        if (entry->particleCount > 0) {
+            vertexCommandLength = (vertexCount * 10) + 8;
+            vertexCommandCount = vertexCount * 8;
+            do {
+                particle = *particlePtr;
+                vertexStart = vertices;
+                outputPtr = output;
+                i = 0;
+                while (i < vertexCount) {
+                    input[i].x = entry->points[i].x * particle->scale;
+                    input[i].y = entry->points[i].y * particle->scale;
+                    input[i].z = entry->points[i].z * particle->scale;
+                    i++;
+                }
+
+                red = particle->red;
+                green = particle->green;
+                blue = particle->blue;
+                alpha = (particle->intensity >> 8) & 0xFF;
+                pointListRPY(vertexCount, (s16 *)particle, &input[0].x, &output[0].x);
+                i = 0;
+                if (vertexCount > 0) {
+                    do {
+                        vertices->x = outputPtr->x + particle->renderX;
+                        vertices->y = outputPtr->y + particle->renderY;
+                        vertices->z = outputPtr->z + particle->renderZ;
+                        vertices->red = red;
+                        vertices->green = green;
+                        vertices->blue = blue;
+                        vertices->alpha = alpha;
+                        vertices++;
+                        outputPtr++;
+                        i++;
+                    } while (i < vertexCount);
+                }
+
+                command = displayList++;
+                command->words.w0 =
+                    (((vertexCommandCount | (((s32)vertexStart + 0x80000000) & 6)) & 0xFF) << 16) |
+                    0x04000000 | ((vertexCommandLength | (vertexIndex << 9)) & 0xFFFF);
+                command->words.w1 = (s32)vertexStart + 0x80000000;
+                if (particleIndex > 0) {
+                    command = displayList++;
+                    command->words.w0 = ((((((triangleCount - 1) * 16) | 1) & 0xFF) << 16) |
+                                         0x05000000 | ((triangleCount * 16) & 0xFFFF));
+                    command->words.w1 = (s32)triangleLists[triangleListIndex] + 0x80000000;
+                    triangleListIndex ^= 1;
+                }
+                if (vertexIndex == 0) {
+                    vertexIndex = vertexCount;
+                } else {
+                    vertexIndex = 0;
+                }
+                particleIndex++;
+                particlePtr++;
+            } while (particleIndex < entry->particleCount);
+        }
+        *(Gfx **)arg0 = displayList;
+        *(ParticleVertex **)arg1 = vertices;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041530.s")
+#endif
 void func_80041C50(s32 arg0, s32 arg1) {
     ParticleModelEntry *entry;
     s32 i;
@@ -2082,7 +2677,7 @@ void func_80041F48(s32 arg0, ParticleTrigger *trigger) {
     if (index != 0xFF && ((u32)descriptor->flags >> 28) == 4) {
         entry = &D_8007C898[index];
         if (entry->particleCount != 15) {
-            particle = func_8003FB98(arg0, trigger, -1);
+            particle = func_8003FB98((ParticleEmitterObject *)arg0, trigger, -1);
             if (particle != NULL) {
                 entry->particles[entry->particleCount] = particle;
                 entry->particleCount++;
