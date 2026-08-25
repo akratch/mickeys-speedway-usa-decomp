@@ -1580,6 +1580,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC144.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC6E8.c.o: CFLAGS += -woff 835
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101TailC6E8.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4F4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawClock.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o101/overlay101DrawClock.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_101_F000332C_18DEB4C=overlay101DrawClock $@ && \

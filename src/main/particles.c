@@ -2882,36 +2882,30 @@ void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     func_8003D25C(dList, arg1, &vertices, D_800D412C);
     D_8007C8E8 ^= 1;
 }
-#ifdef NON_MATCHING
-/* Opcode- and size-exact plateau: 25/42 positional words differ, first at
- * +0x0, all in the two nested-loop carrier pairs. An explicit end pointer
- * changes the frame; the implicit end/start schedule seeds opposite colors. */
 void partNullifyCircularParticleParents(ParticlePosition *position) {
     CircularParticle *particle;
     CircularParticlePool *pool;
     s32 i;
     CircularParticlePool **poolPtr;
 
-    poolPtr = D_800D4120;
+    pool = NULL;
     do {
-        pool = *poolPtr;
-        poolPtr++;
-        i = 0;
-        particle = pool->particles;
-        if (pool->count > 0) {
-            do {
-                i++;
-                if (particle->type != 0x80 && particle->kind == 3) {
-                    particle->x += position->x;
-                    particle->y += position->y;
-                    particle->z += position->z;
-                    particle->parent = NULL;
-                }
-                particle++;
-            } while (i < pool->count);
-        }
-    } while (poolPtr != (CircularParticlePool **)&D_800D4134);
+        poolPtr = D_800D4120; do {
+            pool = *poolPtr++;
+            particle = pool->particles;
+            i = 0;
+            if (pool->count > 0) {
+                do {
+                    i++;
+                    if (particle->type != 0x80 && particle->kind == 3) {
+                        particle->x += position->x;
+                        particle->y += position->y;
+                        particle->z += position->z;
+                        particle->parent = NULL;
+                    }
+                    particle++;
+                } while (i <= pool->count - 1);
+            }
+        } while (poolPtr != (CircularParticlePool **)&D_800D4134);
+    } while (0);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partNullifyCircularParticleParents.s")
-#endif

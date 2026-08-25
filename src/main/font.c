@@ -428,6 +428,9 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #endif
+/* Plateau (batch 14): exact 0xB8, best 4 words first at +0x30.
+ * Width hoist and u32 glyph index fix the schedule/homes; fontData remains a3 vs v0.
+ * Flags, types, declarations, expression forms, and bounded permuter found no zero. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's
@@ -461,8 +464,9 @@ s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
             glyphWidth = defaultWidth;
             if (current & 0x80) {
                 current = *text++;
-                if (current != 0 && current != 0xF) {
-                    glyphWidth = spacing[current];
+                glyphIndex = current;
+                if (current != 0 && glyphIndex != 0xF) {
+                    glyphWidth = spacing[glyphIndex];
                 }
             }
             current = *text;

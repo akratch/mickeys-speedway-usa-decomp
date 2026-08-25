@@ -142,6 +142,9 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1ScanLimit;
 extern f32 gOverlay1PhaseScale;
 
+/* Plateau (batch 14): diagnostic -Wab,-r4300_mul is exact-size with 10 words, first at +0x08.
+ * Dead-array reuse fixed 17 words; start a0/v1 and angle/scale f22/f24 webs remain.
+ * Canonical flags are worse; the bounded 40-minute permuter found no zero. */
 #ifdef NON_MATCHING
 Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     s32 start;
@@ -160,13 +163,14 @@ Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     best = NULL;
     index = start;
     if (start < end) {
-        scale = gOverlay1PhaseScale;
-        cursor = objects + start;
+        cursor = (Overlay1ScanObject **)((s32)objects + (start << 2)); scale = gOverlay1PhaseScale;
         do {
             object = *cursor;
             if (object->type == 0x2F) {
+                objects = (Overlay1ScanObject **)object->data;
                 difference = overlay1WrapOffset(
-                    (f32)object->data->phase * scale, angle);
+                    (f32)((Overlay1ScanData *)objects)->phase * scale,
+                    angle);
                 if ((difference > 0.0f) && (difference < bestDifference)) {
                     bestDifference = difference;
                     best = object;
