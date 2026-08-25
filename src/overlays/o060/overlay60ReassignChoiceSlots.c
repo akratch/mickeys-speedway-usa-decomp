@@ -15,16 +15,21 @@ extern Overlay60Choice gOverlay60ChoicesPass1End[];
 extern Overlay60Choice gOverlay60ChoicesPass2End[];
 
 /* The pinned DKR v77/v80 and JFG object scans have no donor for this owner. */
+/*
+ * Plateau: exact 0xD4 size, 35 of 53 words differ, first mismatch +0x4.
+ * The CFG and accesses align, but the local-array base stays live too early
+ * and IDO assigns the two loop pointers in the opposite register order.
+ */
 #ifdef NON_MATCHING
 void overlay60ReassignChoiceSlots(void) {
-    u8 available[20];
-    u8 *availableCursor;
+    u8 available[18];
     Overlay60Choice *choice;
 
-    availableCursor = available;
+    choice = (Overlay60Choice *)available;
     do {
-        *availableCursor++ = 1;
-    } while (availableCursor < available + 10);
+        *(u8 *)choice = 1;
+        choice = (Overlay60Choice *)((u8 *)choice + 1);
+    } while ((u8 *)choice < available + 10);
 
     choice = gOverlay60ChoicesPass1;
     do {
