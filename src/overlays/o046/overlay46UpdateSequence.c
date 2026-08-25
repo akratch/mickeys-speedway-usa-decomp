@@ -73,7 +73,9 @@ extern s32 func_overlay_046_F0000874_188EC6C();
         O46_SHIFTL(alpha, 0, 8); \
 }
 
-/* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+/* Workbench: allocation/pool-position; best 61/317 register-only, first +0x78.
+ * Levers: constant audit healed 17; FIFO grouping, hoists, liveness/type probes tried.
+ * Remaining: temp 7/pool 58 diverge; 30m permuter produced no improved scored form. */
 #ifdef NON_MATCHING
 void func_overlay_046_F0000120_188E518(s32 amount) {
     s32 matched;

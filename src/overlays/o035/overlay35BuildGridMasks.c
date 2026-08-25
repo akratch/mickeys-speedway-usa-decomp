@@ -27,6 +27,9 @@ typedef struct O35GridSource {
     s16 groupCount;
 } O35GridSource;
 
+/* Workbench: mixed(constant:11, structural:22, register:50); best 91/244, first +0x0.
+ * Levers: five-home census; explicit-stack, phantom-home ablation, register and selector probes.
+ * Remaining: non-save frame -0x90/-0x80; pool slot 5 and temp slot 47 diverge. */
 #ifdef NON_MATCHING
 void func_overlay_035_F0000770_1882450(O35GridSource *source,
                                         O35GridBounds *bounds) {
