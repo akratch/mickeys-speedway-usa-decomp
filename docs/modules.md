@@ -1319,7 +1319,8 @@ the still-unnamed `func_8002E020` (ROM `0x2EC20`–`0x2ECA0`, 128 bytes),
 `rcpSetScreenColour` (ROM `0x2F76C`–`0x2F794`, 40 bytes),
 `bgdraw_fillcolour` (ROM `0x2F794`–`0x2F7D4`, 64 bytes), and the still-
 unnamed global setter `func_8002EBD4` (ROM `0x2F7D4`–`0x2F7E0`, 12 bytes),
-plus `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes) and
+plus `rcpInitDp` (ROM `0x30068`–`0x30118`, 176 bytes),
+`rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes), and
 `rcpInitSp` (ROM `0x3013C`–`0x30160`, 36 bytes), and
 `osScGetAudioSPStats` (ROM `0x30F20`–
 `0x30F38`, 24 bytes), `osScGetCmdQ` (ROM `0x30F10`–`0x30F18`, 8 bytes),
@@ -1341,8 +1342,9 @@ still-unnamed leading rumble gate also adapts its JFG body while retaining
 Mickey's placeholder name. `bgdraw_fillcolour` adapts Diddy Kong Racing's
 public `src/rcp_dkr.c` body. The anonymous setter, dual-global reset,
 record-field accessors, allocation wrapper, and no-op are reconstructed from
-Mickey's own bodies. All configured object ranges and the final linked ROM are
-byte-exact.
+Mickey's own bodies. `rcpInitDp` is likewise reconstructed from Mickey's own
+display-list command flow; JFG supplies its name and ordered TU position, not
+its C body. All configured object ranges and the final linked ROM are byte-exact.
 
 `__scHandleRetrace` has a preserved `NON_MATCHING` JFG-derived body after the
 119-combination flag lattice and ten source-shape hypotheses. The best

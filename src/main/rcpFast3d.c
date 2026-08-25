@@ -9,6 +9,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/gameVi.h"
 
 typedef struct RcpCommand {
     u32 w0;
@@ -20,6 +21,27 @@ typedef struct RcpCommand {
         RcpCommand *cmd = (command); \
         cmd->w0 = 0x06000000; \
         cmd->w1 = (u32) (list); \
+    }
+
+#define RCP_PIPE_SYNC(command) \
+    { \
+        RcpCommand *cmd = (command); \
+        cmd->w0 = 0xE7000000; \
+        cmd->w1 = 0; \
+    }
+
+#define RCP_SET_COLOR_IMAGE(command, width, address) \
+    { \
+        RcpCommand *cmd = (command); \
+        cmd->w0 = 0xFF100000 | (((width) - 1) & 0xFFF); \
+        cmd->w1 = (address); \
+    }
+
+#define RCP_SET_DEPTH_IMAGE(command, address) \
+    { \
+        RcpCommand *cmd = (command); \
+        cmd->w0 = 0xFE000000; \
+        cmd->w1 = (address); \
     }
 
 extern u8 D_8007A3A0;
@@ -49,7 +71,16 @@ void func_8002EBD4(u32 value) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearZBuffer.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearScreen.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpInitDp.s")
+void rcpInitDp(RcpCommand **dlist) {
+    s32 width;
+    s32 height;
+
+    viGetCurrentSize(&width, &height);
+    RCP_PIPE_SYNC((*dlist)++);
+    RCP_SET_COLOR_IMAGE((*dlist)++, width, 0x01000000);
+    RCP_SET_DEPTH_IMAGE((*dlist)++, 0x02000000);
+    RCP_DISPLAY_LIST((*dlist)++, D_8007A438);
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/rcpFast3d.c:rcpInitDpNoSize. */
 void rcpInitDpNoSize(RcpCommand **dlist) {
     RCP_DISPLAY_LIST((*dlist)++, D_8007A438);
