@@ -245,11 +245,13 @@ void func_8002EBD4(u32 value) {
     D_8007A3B0 = value;
 }
 #ifdef NON_MATCHING
-/* Mickey-derived eight-band gradient renderer. JFG has no counterpart in
- * the ordered gap between rcpSetBorderColour and rcpClearZBuffer. */
+/* Plateau (2026-08-25, batch 36): canonical MIPS II is exact-size at 255 words,
+ * with 218 differences from +0x0; target frame 0x88 versus 0x58. Hoisted reset
+ * lifetimes cut 242 to 218; lattice, playbook, and 40m permuter found no exact. */
 void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
                    u32 colours) {
     RcpCommand *cmd;
+    s32 y;
     RcpGradientColour *entry;
     s32 screens;
     s32 screensLeft;
@@ -259,7 +261,6 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
     s32 bandEnd;
     s32 steps;
     s32 stepsLeft;
-    s32 y;
     s32 redOffset;
     s32 greenOffset;
     s32 blueOffset;
@@ -271,6 +272,9 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
     s32 mode;
 
     cmd = *dlist;
+    y = 0;
+    bandStart = 0;
+    bandIndex = 0;
     screens = 1;
     mode = camGetMode();
     if ((mode >= 2) ||
@@ -282,14 +286,11 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
     gDPSetScissor(cmd++, G_SC_NON_INTERLACE, 0, 0, width - 1, height - 1);
     RCP_SET_FILL_CYCLE(cmd++);
     screenHeight = height >> (screens - 1);
-    y = 0;
 
     screensLeft = screens - 1;
     if (screens != 0) {
         do {
             entry = (RcpGradientColour *) colours;
-            bandIndex = 0;
-            bandStart = 0;
             do {
                 bandIndex++;
                 if (entry->interpolate != 0) {
@@ -330,6 +331,8 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
                 bandStart = bandEnd;
                 entry++;
             } while (bandIndex != 8);
+            bandStart = 0;
+            bandIndex = 0;
         } while (screensLeft-- != 0);
     }
 
