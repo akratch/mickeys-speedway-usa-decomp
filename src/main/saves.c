@@ -1165,8 +1165,9 @@ char *font_codes_to_string(u8 *inString, char *outString, s32 stringLength) {
     s32 peel;
     char *ret = outString;
 
+    roundedLength = 66;
     while (index != 0 && stringLength != 0) {
-        if (index < 66) {
+        if (index < roundedLength) {
             *outString = D_8007A284[index];
             outString++;
         } else {
@@ -1208,6 +1209,7 @@ char *string_to_font_codes(char *inString, char *outString, s32 stringLength) {
     s32 remainder;
     s32 i;
     char currentChar;
+    s32 paddingLength;
     char *ret;
     s32 peel;
     s32 roundedLength;

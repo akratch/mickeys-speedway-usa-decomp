@@ -499,8 +499,8 @@ packOpenFile = 0x8002DA20; // type:func size:0x12C ROM 0x2e620 tier-B donor-jfg-
 packReadFile = 0x8002DB4C; // type:func size:0xC4 ROM 0x2e74c tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
 packWriteFile = 0x8002DC10; // type:func size:0x240 ROM 0x2e810 tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
 packFileSize = 0x8002DE50; // type:func size:0x64 ROM 0x2ea50 tier-B donor-jfg-src/saves.c pfs-callgraph+order matched-C
-font_codes_to_string = 0x8002DEB4; // type:func size:0xB0 ROM 0x2eab4 tier-B donor-jfg-src/saves.c role+order
-string_to_font_codes = 0x8002DF64; // type:func size:0xBC ROM 0x2eb64 tier-B donor-jfg-src/saves.c role+order
+font_codes_to_string = 0x8002DEB4; // type:func size:0xB0 ROM 0x2eab4 src/saves.c.o masked=2/44 tier-B donor-jfg-src/saves.c role+order matched-C
+string_to_font_codes = 0x8002DF64; // type:func size:0xBC ROM 0x2eb64 src/saves.c.o masked=2/47 tier-B donor-jfg-src/saves.c role+order matched-C
 func_8002E020 = 0x8002E020; // type:func size:0x80 ROM 0x2ec20 tier-D boundary-extracted matched-C donor-jfg-src/saves.c
 
 // pi.c -- ROM 0x2ECA0-0x2F0D0.
@@ -2488,6 +2488,7 @@ func_80050DF0 = 0x80050DF0; // type:func size:0xAC ROM 0x519f0 tier-D JFG ordere
 func_80051004 = 0x80051004; // type:func size:0xE4   ROM 0x51c04  tier-B JFG group-setup calls and CFG, matched C
 animseqInitGroup = 0x800510E8; // type:func size:0x40   ROM 0x51ce8  src/anim.c.o  masked=1/16 tier-A matched-C
 animseqResetGroup = 0x80051128; // type:func size:0x9C   ROM 0x51d28  tier-B JFG reset-path call family, matched C
+func_800511C4 = 0x800511C4; // type:func size:0x1A0  ROM 0x51dc4  src/anim.c.o  masked=11/104 tier-A matched-C
 func_80053420 = 0x80053420; // type:func size:0x90 ROM 0x54020 tier-D JFG ordered animseqCamera candidate, matched C
 animseqPlay = 0x800534B0; // type:func size:0x10   ROM 0x540b0  tier-D JFG ordered Play store, matched C
 func_800534C0 = 0x800534C0; // type:func size:0x2C   ROM 0x540c0  tier-D JFG ordered animseqPause candidate, matched C
