@@ -911,7 +911,7 @@ TEXT_SUBSEGMENTS = {
         (0x120, "c", "overlay46UpdateSequence"),
         (0x614, "c", "overlay46ReleaseState"),
         (0x69C, "c", "overlay46InitializeParticles"),
-        (0x874, "asm", "overlay_046_prefix1"),
+        (0x874, "c", "func_overlay_046_F0000874_188EC6C"),
         (0xF7C, "c", "overlay46InitState"),
         (0xFD0, "c", "overlay46UpdateTransition"),
         (0x112C, "c", "overlay46Submit"),

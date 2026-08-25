@@ -1706,7 +1706,7 @@ segments:
       - [0x188E518, c, overlay46UpdateSequence]
       - [0x188EA0C, c, overlay46ReleaseState]
       - [0x188EA94, c, overlay46InitializeParticles]
-      - [0x188EC6C, asm, overlay_046_prefix1]
+      - [0x188EC6C, c, func_overlay_046_F0000874_188EC6C]
       - [0x188F374, c, overlay46InitState]
       - [0x188F3C8, c, overlay46UpdateTransition]
       - [0x188F524, c, overlay46Submit]
