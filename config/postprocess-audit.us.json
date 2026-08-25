@@ -1585,8 +1585,7 @@
       "size": 348,
       "source": "src/overlays/o020/overlay20ConfigureResource.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {

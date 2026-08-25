@@ -1746,9 +1746,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseHandle.c.o: POSTPROCESS = 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ReleaseTree.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x7C
+# The typed resource initializer is exact; discard only compiler alignment.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20ConfigureResource.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_020_F00000A8_1876680=overlay20ConfigureResource $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x15C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o020/overlay20UpdateObjectResource.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \

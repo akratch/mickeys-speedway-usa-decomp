@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 74436,
-  "nonmatching_overlay_c_bytes": 218940,
+  "matched_overlay_c_bytes": 74784,
+  "nonmatching_overlay_c_bytes": 218592,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -4441,7 +4441,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20ConfigureResource",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x204",
