@@ -558,13 +558,9 @@ target's exact 342-instruction size but 257 positional words differ from
 and stack-home allocation. The permuter's lower-scoring candidate reused the
 last texture parameter as a command-word temporary and would corrupt the next
 part's cache comparison, so it was rejected.
-`func_80020D8C` plateaus after the 119-combination flag lattice and ten
-source/type/lifetime spellings. Its best `NON_MATCHING` candidate has the
-target's exact 48-instruction opcode schedule, frame, and relocation surface,
-but 17 register operands differ from first mismatch `+0x38`. IDO assigns the
-texture-table address temporaries later in the temporary FIFO and tests the
-copied loop count in `t1`, while the target uses the preceding registers and
-tests the original count in `t0`; target assembly remains canonical.
+`func_80020D8C` is exact-size with 13/48 positional words differing, first `+0x38`; workbench verdict: register-ring-only residual.
+Assembler-folded narrowing masks improved 17 to 13; combinations regressed, and the corrected-flag 30-minute permutation found no exact form.
+The remaining temp-FIFO web requires ring-only registers; the assembly fallback stays canonical.
 `func_80020E4C` plateaus after the full flag lattice and ten coherent
 source/type/control-flow spellings. Its best Mickey-only `NON_MATCHING`
 candidate has the target's `0x40` frame and emits 112 instructions versus

@@ -971,6 +971,9 @@ typedef struct ModelFrameInstance {
 } ModelFrameInstance;
 
 /* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
+/* Workbench: register-ring-only residual; exact 48-word size, 13 positional differences, first +0x38.
+ * Levers: narrowed masks improved 17 to 13; combinations regressed, and a corrected 30-minute permutation found no exact form.
+ * Remains: the temp-FIFO web requires ring-only registers; assembly fallback stays canonical. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;
     ModelFrameEntry *entry;
@@ -993,7 +996,7 @@ void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
             u16 frameScale;
 
             if (index == textureIndex && frame < texture->frameCount) {
-                entry->frame = frame;
+                entry->frame = frame & 0xFFFF;
             }
             frameScale = texture->frameScale;
             nextFrame = entry->nextFrame;
