@@ -52,12 +52,13 @@ extern void *overlay20ConfigureResourceReloc();
 extern f32 overlay20SqrtReloc(f32 value);
 
 /*
- * Plateau (2026-08-25, 5 attempts): the best canonical -O2 candidate has
- * the exact 98-word size, differs in 25 words, and agrees through +0xA8
- * before first diverging at +0xAC.  Removing the artificial context copy and
- * restoring declaration order recovered the frame and spill layout; the
- * remaining tail uses a different temporary-register web for entry selection
- * and the long configure call.
+ * Plateau (2026-08-25, 10 source attempts plus a bounded permuter batch):
+ * the best -O2 candidate has the exact 98-word size, differs in 8 words, and
+ * agrees through +0xAC before first diverging at +0xB0.  A block-scoped s16
+ * count recovers the fallback pointer, index scaling, address calculation,
+ * and long-call argument web; IDO still colors that count and the entries
+ * pointer one register apart from the target.  The full flag lattice found no
+ * better group, and hoisting the count assignment loses both size and CFG.
  */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
@@ -87,11 +88,15 @@ void overlay20UpdateObjectResource(Overlay20Object *object,
         height = config->height;
     }
 
-    if ((config->entryIndex >= 0) &&
-        (config->entryIndex < context->count)) {
-        owner = context->entries[config->entryIndex * 2];
-    } else {
-        owner = *object->fallbackEntry;
+    {
+        s16 count;
+
+        if ((config->entryIndex >= 0) &&
+            (config->entryIndex < (count = context->count))) {
+            owner = context->entries[config->entryIndex * 2];
+        } else {
+            owner = *object->fallbackEntry;
+        }
     }
 
     object->resource = overlay20ConfigureResourceReloc(
