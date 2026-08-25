@@ -382,24 +382,19 @@ void func_overlay_027_F0000624_187BFFC(O27Command **commands, void *arg1,
 #endif
 
 /* DKR v77/v80 and JFG contain no exact donor for this table transform. */
-/*
- * Plateau: -O2/-mips2 has exact size with 55 differing words and first
- * mismatch +0x0. The target and candidate have the same instruction/CFG
- * shape, but IDO assigns a1/a2 and the loop temporaries in a different order;
- * the flag lattice, bounded permuter, and expression/local variants plateau.
- */
+/* Plateau retry (2026-08-25): -O2/-mips2 is exact-sized; spelling the scale
+ * as amount * -12 and eliminating xDelta reduce 55 to 19 register-only words,
+ * first +0x0; ten source/lifetime variants leave the a1/a2 phase unresolved. */
 #ifdef NON_MATCHING
 void overlay27UpdateCoordinates(s32 amount) {
     Overlay27CoordinateRecord *record;
     s32 xOffset;
     s32 remaining;
-    s32 xDelta;
 
-    xDelta = -amount * 12;
     xOffset = gOverlay27XOffset =
-        (gOverlay27XOffset + xDelta) & 0x3FF;
+        ((amount * -12) + gOverlay27XOffset) & 0x3FF;
     amount = gOverlay27YOffset =
-        (gOverlay27YOffset + (amount * 48)) & 0x3FF;
+        ((amount * 48) + gOverlay27YOffset) & 0x3FF;
 
     record = gOverlay27CoordinateRecords;
     remaining = 9;
