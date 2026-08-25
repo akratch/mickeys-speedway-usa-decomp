@@ -1014,6 +1014,13 @@ per-item load routine, matching JFG's ordered `loadFrontEndList`/
 and name. The default flags, call relocation, object words, and linked ROM
 range are exact without post-processing.
 
+The third tier-B sentinel wrapper, `setupFrontEndList`, adds **0x5C bytes /
+23 words** at ROM `0x3A950`. Its call to the immediately following
+`setupFrontEndObject` and JFG's same ordered pair establish the role. The body
+is adapted from DKR's public `menu_imagegroup_load` with point-of-use
+`PROVENANCE`; JFG supplies the name/order. The default flags, call relocation,
+object words, and linked ROM range are exact without post-processing.
+
 `func_80039E34` retains a Mickey-derived `NON_MATCHING` draw candidate with
 the target's exact **0xB8-byte frame** and local homes from `0x7C` through
 `0xAC`. Its best object is one word longer than the target's **0x418 bytes /

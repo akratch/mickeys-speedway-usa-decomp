@@ -63,6 +63,7 @@ extern u8 *func_80028F54(void);
 extern void func_80039A9C(s32 assetId);
 extern void func_80039BE4(s32 assetId);
 extern void func_80039720(s32 updateRate);
+extern void setupFrontEndObject(s32 objectId);
 extern void func_80044BC8(s32 arg0, u8 *source, s32 line);
 extern u32 joyGetButtons(s32 controller);
 extern u32 joyGetPressed(s32 controller);
@@ -436,7 +437,15 @@ void loadFrontEndList(s16 *assetGroup) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039BE4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039D50.s")
+/* PROVENANCE: body adapted from DKR's public src/menu.c::menu_imagegroup_load;
+ * JFG's public src/menu.c supplies the setupFrontEndList role and order. */
+void setupFrontEndList(s16 *objectGroup) {
+    s32 index = 0;
+
+    while (objectGroup[index] != -1) {
+        setupFrontEndObject(objectGroup[index++]);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/setupFrontEndObject.s")
 #ifdef NON_MATCHING
 /* Exact 0xB8 frame and local stack homes, but one word too long; 242/262
