@@ -123,9 +123,9 @@ f32 sqrtf(f32 value);
 f32 func_80058EF4(f32 value);
 
 #ifdef NON_MATCHING
-/* Plateau (2026-08-25, cx-nm-near-26): 26 words vs 22, first mismatch +0x0;
- * the 40-minute permuter improved 930 to 590 but not to exact. Four shared
- * address bases require same-TU aggregate/BSS ownership. */
+/* Workbench: structure-buckets; 26 vs 22 instructions, 19 words differ at +0x0.
+ * Store reordering and the prior bounded permuter did not remove four bases.
+ * Exact codegen still requires same-TU aggregate/BSS ownership. */
 void func_80058250(void) {
     D_800D78B0 = 0;
     D_800D78B8 = 0.0f;

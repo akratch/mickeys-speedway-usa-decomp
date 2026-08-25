@@ -1167,9 +1167,10 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Fresh typed m2c plateau: 25/32 positional words differ, first +0x0, with
- * five opcode-schedule and two relocation-identity mismatches; resident flags
- * remain best. PROVENANCE: role/order compared with JFG's public
+/* Workbench: structure-buckets plateau, 25/32 words and first mismatch +0x0.
+ * Pointer lifetime, register locals, raw-u8 access, widths, and flags tied.
+ * The opening global-address lifetime still cascades through the register web. */
+/* PROVENANCE: role/order compared with JFG's public
  * src/menu.c::frontSetScreenMode; JFG retains assembly. */
 void func_8003A2C8(s32 screenMode) {
     s32 mode;
