@@ -59,6 +59,17 @@ typedef struct AudioBankFile {
     AudioBank *bankArray[1];
 } AudioBankFile;
 
+typedef struct AudioSequenceRomEntry {
+    u32 unk0;
+    u8 *romAddress;
+} AudioSequenceRomEntry;
+
+typedef struct AudioMusicData {
+    u8 volume;
+    u8 tempo;
+    u8 reverb;
+} AudioMusicData;
+
 extern s32 D_80078D7C;
 extern s32 D_80078D80;
 extern s32 D_80078D78;
@@ -76,7 +87,9 @@ extern u8 D_80078D98;
 extern s8 D_80078DA0;
 extern u8 D_80078DA8;
 extern u8 D_80078DB0;
+extern s8 D_80078DB4;
 extern u8 D_80078DAC;
+extern AudioSequenceRomEntry *D_800BF790;
 extern u8 D_800BF794;
 extern u8 D_800BF795;
 extern u32 *D_800BF798;
@@ -92,7 +105,7 @@ extern s32 D_800BFA00;
 extern s32 D_800BFA04;
 extern u8 D_800BFA08;
 extern OSMesgQueue D_800BFA10;
-extern u8 *D_800BF7A4;
+extern AudioMusicData *D_800BF7A4;
 extern s32 osTvType;
 extern void gsSndpSetParam();
 extern void gsSndpSetMasterVolume(u8 group, u16 volume);
@@ -104,13 +117,21 @@ extern void n_alCSPNew(void *player, void *config);
 extern void n_alCSPSetMessageQ(void *player, void *queue);
 extern void n_alCSPStop(void *player);
 extern void n_alCSPVoiceLimit(void *player, u8 value);
+extern s32 n_alCSPGetState(void *player);
+extern void n_alCSeqNew(void *sequence, u8 *data);
+extern void n_alCSPSetSeq(void *player, void *sequence);
+extern void n_alCSPPlay(void *player);
 extern void mainPreNMI(void);
+extern u8 *piRomGetSectionPtr(u32 assetIndex, u32 assetOffset);
+extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size);
 extern s32 amDittyPlaying(void);
 extern void func_80001308(u8 value, void *player);
 extern void stop_ALSeqp(void *player);
 extern u16 amGetSfxCount(void);
 void amTuneStop(void);
 void amTuneSetVolume(u8 volume);
+void amAmbientSetVolume(u8 volume);
+void amTuneSetReverbOnOff(s32 enabled);
 void amTuneMuteChl(s32 channel);
 void amTuneUnmuteChl(s32 channel);
 extern void *ad_sndp_play(void *bank, s16 soundBite, u16 volume, u8 pan,
@@ -188,7 +209,7 @@ void amTuneSetFadeScaled(f32 fade, u8 volume) {
         volume = 0x7F;
     }
     scaled =
-        (s32)((u32)*(D_800BF7A4 + (D_800BF794 * 3)) * volume) / 0x7F;
+        (s32)((u32)D_800BF7A4[D_800BF794].volume * volume) / 0x7F;
     func_800005CC(fade, scaled & 0xFF);
 }
 #else
@@ -504,7 +525,48 @@ u8 amSoundIsLooped(u16 soundId) {
                           ->envelope->decayTime) == 0);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80001308.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_8000137C.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
+ * music_sequence_init; body uses Mickey-only evidence.
+ */
+void func_8000137C(void *player, u8 *sequenceData, u8 *sequenceId, void *sequence) {
+    s32 channel;
+
+    if (n_alCSPGetState(player) == 0 && *sequenceId != 0) {
+        piRomLoadSection(0x32, (u32)sequenceData,
+                         D_800BF790[*sequenceId].romAddress - piRomGetSectionPtr(0x32, 0),
+                         D_800BF798[*sequenceId]);
+        n_alCSeqNew(sequence, sequenceData);
+        n_alCSPSetSeq(player, sequence);
+        n_alCSPPlay(player);
+        if (player == D_80078D60) {
+            D_800BF794 = *sequenceId;
+            D_80078D84 = 1;
+            if (D_80078DB0 != 0) {
+                amTuneSetVolume(D_80078D68);
+            } else {
+                amTuneSetVolume(D_800BF7A4[*sequenceId].volume);
+            }
+            amTuneSetReverbOnOff(D_800BF7A4[*sequenceId].reverb);
+            if (D_800BFA00 != -1) {
+                for (channel = 0; channel < 16; channel++) {
+                    if ((1 << channel) & D_800BFA00) {
+                        amTuneUnmuteChl(channel & 0xFF);
+                    } else {
+                        amTuneMuteChl(channel & 0xFF);
+                    }
+                }
+            }
+        } else {
+            amAmbientSetVolume(D_800BF7A4[*sequenceId].volume);
+            D_800BF795 = *sequenceId;
+        }
+        *sequenceId = 0;
+    }
+    D_80078DB0 = 0;
+    D_80078DB4 = 0;
+}
+
 /* PROVENANCE: body and name adapted from JFG stop_ALSeqp assembly. */
 void stop_ALSeqp(void *player) {
     if (player == D_80078D60 && D_80078D84 != 0) {
