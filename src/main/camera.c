@@ -187,6 +187,7 @@ s16 Arctanf(f32 x, f32 y);
 void func_8002AA50(CameraScaledTransform *transform, MtxF matrix);
 void func_8002AB78(CameraTransform *transform, MtxF matrix);
 void func_8002AE10(CameraTransform *transform, MtxF matrix);
+void func_80024978(MtxF matrix);
 void func_80034E54(Gfx **dlist, u8 *spriteData, s32 flags,
                    f32 frame, s32 alpha);
 f32 sqrtf(f32 value);
@@ -568,7 +569,31 @@ void camOrthoYAspect(f32 aspect) {
 void func_80022A44(f32 arg0) {
     D_80079F48 = arg0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022A50.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStandardOrtho. */
+void camStandardOrtho(Gfx **dlist, Mtx **mtx) {
+    u32 width;
+    u32 height;
+    Vp *viewport;
+
+    viGetCurrentSize((s32 *) &width, (s32 *) &height);
+    if (D_80079F8C != 0) {
+        width >>= 1;
+        height >>= 1;
+        viewport = &D_80079E98[(D_800CEC64 & 3) | 4];
+    } else {
+        viewport = &D_80079D58[D_800CEC64 + 5];
+    }
+    viewport->vp.vscale[0] = width * 2;
+    viewport->vp.vscale[1] = width * 2;
+    viewport->vp.vtrans[0] = width * 2;
+    viewport->vp.vtrans[1] = height * 2;
+    gSPViewport((*dlist)++, (u32) viewport + 0x80000000);
+    func_80024978(D_800CED18);
+    mtxf_to_mtx(D_800CED18, *mtx);
+    gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 0);
+    (*mtx)++;
+}
+
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camStandardPersp. */
 void camStandardPersp(Gfx **dlist, Mtx **mtx) {
     gSPPerspNormalize((*dlist)++, D_800CEC94);
