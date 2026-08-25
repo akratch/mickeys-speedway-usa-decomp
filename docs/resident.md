@@ -2398,7 +2398,7 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Ninety-four functions / 8,444 bytes compile exactly
+**Matching progress.** Ninety-five functions / 8,508 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -2412,7 +2412,7 @@ linked ranges and the full ROM are exact.
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (60 / 6,044 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
+- `main/main` (61 / 6,108 bytes): `RevealReturnAddresses`, `mainGetZBCheck`,
   `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainCPUeffects`, `mainSetGameWindow`, `mainSetAnimGroup`,
   `mainGetAnimGroup`,
@@ -2424,7 +2424,8 @@ linked ranges and the full ROM are exact.
   `mainGetMode`, `mainSetMode`,
   `mainTitlePageInit`,
   `mainFrontInit`, `mainStartGame`,
-  `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`, `func_80028F3C`,
+  `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`,
+  `func_80028EFC`, `func_80028F3C`,
   `func_80028F44`, `func_80028F4C`, `func_80028F54`,
   `func_80028F60`, `func_80028F98`,
   `func_80028FA8`,
@@ -2553,13 +2554,6 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   did not improve that result.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
-- `func_80028EFC`, fifteen control/typing spellings, first mismatch `+0x1c`:
-  exact 64-byte size
-  and 14/16 words; the correct loop predicate is allocated to `$t6`, while the
-  target uses `$at`. Fresh byte-pointer, `void *` cursor, explicit-goto and
-  post-increment-bound probes either unrolled or entered a three-word
-  strength-reduced basin; the repeated flag lattice did not improve the
-  two-register residual.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime
   hypotheses and the full flag lattice: the best canonical candidate has the
   exact 348-byte, 87-instruction boundary and `-0x10` frame, but differs in 39

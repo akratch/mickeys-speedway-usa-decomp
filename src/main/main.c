@@ -125,7 +125,13 @@ typedef struct MainGameEntry {
 } MainGameEntry;
 
 typedef struct MainCharacterState {
-    u8 bytes[40];
+    u8 character;
+    u8 variant;
+    u8 variantCopy;
+    u8 pad03[0x19];
+    u8 counters[6];
+    u16 value22;
+    u8 flags[4];
 } MainCharacterState;
 
 typedef struct MainGameState {
@@ -1443,7 +1449,30 @@ void func_80028EA0(MainGameState *state) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028EFC.s")
+void func_80028EFC(MainCharacterState *state, s32 character, s32 variant) {
+    s32 i;
+    u8 *cursor;
+
+    state->character = character;
+    state->variant = variant;
+    state->variantCopy = variant;
+    state->value22 = 0;
+    i = 0;
+    cursor = state;
+    while (TRUE) {
+        i++;
+        cursor++;
+        cursor[0x1B] = 0;
+        if (i < 6) {
+            continue;
+        }
+        break;
+    }
+    state->flags[1] = 0;
+    state->flags[2] = 0;
+    state->flags[3] = 0;
+    state->flags[0] = 0;
+}
 
 void func_80028F3C(void) {
 }
