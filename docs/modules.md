@@ -1292,7 +1292,8 @@ membership and order, is tier D. `symbol_addrs.us.txt` carries the resulting
 per-symbol tier token for each of the 86 functions; this table is the
 TU-level summary, not a substitute for it.
 
-Exact C reconstructions in this census currently include `rumbleRumbles`
+Exact C reconstructions in this census currently include the still-unnamed
+`func_8002BCC0` (ROM `0x2C8C0`–`0x2C8FC`, 60 bytes), `rumbleRumbles`
 (ROM `0x2C8FC`–`0x2C908`, 12 bytes), `rumbleKill` (ROM `0x2CB00`–
 `0x2CB44`, 68 bytes), `rumbleUpdate` (ROM `0x2CB44`–`0x2CB54`, 16 bytes),
 `packCalculateGameChecksum` (ROM `0x2D3BC`–
@@ -1315,10 +1316,12 @@ plus `rcpInitDpNoSize` (ROM `0x30118`–`0x3013C`, 36 bytes) and
 `osScGetInterruptQ` (ROM `0x30F18`–`0x30F20`, 8 bytes), and the still-unnamed
 no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes). All were compiled
 with the resident `-O2 -mips2 -32` flags. The named bodies are adapted from
-JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the anonymous
-setter, dual-global reset, record-field accessors, allocation wrapper, and
-no-op are reconstructed from Mickey's own bodies. All configured object
-ranges and the final linked ROM are byte-exact.
+JFG's `src/saves.c`, `src/pi.c`, `src/rcpFast3d.c`, and `src/sched.c`; the
+still-unnamed leading rumble gate also adapts its JFG body while retaining
+Mickey's placeholder name. The anonymous setter, dual-global reset,
+record-field accessors, allocation wrapper, and no-op are reconstructed from
+Mickey's own bodies. All configured object ranges and the final linked ROM
+are byte-exact.
 
 `__scHandleRetrace` has a preserved `NON_MATCHING` JFG-derived body after the
 119-combination flag lattice and ten source-shape hypotheses. The best

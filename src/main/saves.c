@@ -27,8 +27,17 @@ typedef struct SavesRecord {
 void mmFree(void *address);
 s32 osContStartReadData(OSMesgQueue *messageQueue);
 void rumbleStop(s32 controllerIndex, s32 arg1);
+s32 func_800290A0(void);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002BCC0.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/saves.c:func_8004B070_4BC70. */
+s32 func_8002BCC0(void) {
+    s32 result;
+
+    result = D_8007A2F8 != 0;
+    if (result != 0) {
+        return func_800290A0() == 0;
+    }
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:rumbleRumbles. */
 void rumbleRumbles(s32 value) {
     D_8007A2F8 = value;

@@ -461,7 +461,7 @@ align4 = 0x8002BC98; // type:func size:0x1C   ROM 0x2c898  matched C main/memory
 
 // saves.c -- ROM 0x2C8C0-0x2ECA0. The pre-existing Tier A rumbleKill anchor is
 // also in this TU and remains in the cross-title block below.
-func_8002BCC0 = 0x8002BCC0; // type:func size:0x3C ROM 0x2c8c0 tier-D boundary-extracted
+func_8002BCC0 = 0x8002BCC0; // type:func size:0x3C ROM 0x2c8c0 tier-D boundary-extracted matched-C donor-jfg-src/saves.c
 rumbleRumbles = 0x8002BCFC; // type:func size:0xC ROM 0x2c8fc tier-B donor-jfg-src/saves.c role-callgraph+order matched-C
 rumbleProcessing = 0x8002BD08; // type:func size:0x50 ROM 0x2c908 tier-B donor-jfg-src/saves.c callgraph+order
 rumbleStart = 0x8002BD58; // type:func size:0x11C ROM 0x2c958 tier-B donor-jfg-src/saves.c callgraph+order
