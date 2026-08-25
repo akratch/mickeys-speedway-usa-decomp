@@ -1730,6 +1730,16 @@ function `+0x44` (plus two local PC16 assembler-metadata differences) and a
 duplicate linked table surface. The exact source remains behind
 `NON_MATCHING`, with the target assembly canonical until that rodata split is
 handed off.
+The 1,004-byte `func_800475E8` (`fxMakeConeTextureCoords`) reaches a structural
+plateau from Mickey's recovered coordinate-generation loops. JFG confirms the
+identity but its peer is also assembly-only. After the full flag lattice and
+four coherent loop/lifetime variants, the closest relevant candidate needs
+`-Wo,-loopunroll,0`, is six instructions long (257 versus 251), and uses a
+256-byte frame instead of 248 bytes; all 257 positional words differ beginning
+at function `+0x0` because the extra scalar homes shift the complete GPR/FPR
+allocation. The typed candidate remains behind `NON_MATCHING`; the TU-wide
+unroll override is not adopted without an exact result and an impact proof for
+the existing matches.
 The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
 handle locals reproduce the target's direct second argument register and
 branch-delay schedule, with both texture-free calls and the allocator call
