@@ -1185,11 +1185,12 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 /*
  * Mickey-only sprite-orientation wrapper reconstruction.
  *
- * Plateau: the full flag lattice and ten coherent control-flow, type,
- * lifetime and parameter-homing variants leave a best configured candidate
- * with 286 instructions against 284 and 275 positional words different from
- * first mismatch +0x0. IDO keeps the display-list argument in $s1 and emits
- * a 0xA0 frame; the target spills that argument and uses a 0x90 frame.
+ * Plateau: the flag lattice and bounded structural retries leave a best
+ * configured candidate with 286 instructions against 284 and 263 positional
+ * words different from first mismatch +0x0. Constraining the scale-table
+ * load fixes its early relocation schedule, but IDO still keeps the
+ * display-list argument in $s1 and emits a 0xA0 frame; the target homes that
+ * argument and uses a 0x90 frame.
  */
 void func_80023598(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
                    CameraSpriteActor *actor, u8 *spriteData, s32 alpha) {
@@ -1224,7 +1225,8 @@ void func_80023598(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
             spriteTypeIndex++;
         }
         baseScale = *actor->baseScale;
-        scale = D_80079FD8[D_80079FF0[spriteTypeIndex].scaleIndex] *
+        scale = *(volatile f32 *)&D_80079FD8
+                    [D_80079FF0[spriteTypeIndex].scaleIndex] *
                 baseScale;
         matrixScale = player->unk50;
         xRotation = player->xRotation;
