@@ -5143,6 +5143,7 @@
       "size": 632,
       "source": "src/overlays/o071/func_overlay_071_F0000000_18C9B20.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "trim_elf_section.py"
       ]
     },
