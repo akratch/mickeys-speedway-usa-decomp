@@ -111,18 +111,9 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s32 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/*
- * Mickey-local structural sibling: func_overlay_101_F000512C_18E094C.
- * The two 380-word targets have identical normalized instruction, register,
- * FP, frame, and instruction-count shapes; only ten constant operands and
- * four asset/finalizer relocation names differ.  Reusing that sibling's ten
- * bounded source-shape attempts gives the same plateau: a size-exact 0x5F0
- * candidate with the target's 56-byte frame, but 299 positional instruction
- * words differ and the first mismatch is +0x2C.  The remaining blocker is
- * the register and store schedule across the chained node construction.  The
- * casted integer one below retains the four explicit FP multiplies.  The flag
- * lattice favored the default -O2/-mips2/-32 configuration.
- */
+/* Workbench: structure-mismatch, mixed constant/structure/register residual; best is size-exact at 298 positional words, first relocation divergence +0x8.
+ * Lever 1 reordered the initial constant stores to kind/width/height, improving one word; sibling-equivalent asset/root variants were already regressive.
+ * Remaining: 37 relocation-symbol differences and the same early temp/pool divergence as the F000512C structural twin. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0005E08_18E1628(void) {
     s32 index;
@@ -132,9 +123,9 @@ void func_overlay_101_F0005E08_18E1628(void) {
     Node24 *node24;
     Node32 *node32;
 
-    D_0.height30 = 0xF0;
-    D_0.width2E = 0x140;
     D_0.kind = 4;
+    D_0.width2E = 0x140;
+    D_0.height30 = 0xF0;
     D_0.asset34 = &D_CA0;
     D_0.color32 = 0xFF;
     D_0.color33 = 0xFF;

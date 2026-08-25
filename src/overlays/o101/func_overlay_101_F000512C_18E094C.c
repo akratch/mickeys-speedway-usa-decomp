@@ -111,17 +111,9 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s32 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/*
- * Mickey-local structural sibling: overlay101TailB544.c.
- * Plateau (10 source-shape attempts): the best candidate is size-exact at
- * 0x5F0 with the target's 56-byte frame, but 299 positional instruction
- * words still differ.  The first non-relocation mismatch is +0x2C in the
- * initial constant/materialization schedule; the remaining blocker is the
- * register and store schedule across the chained node construction.  The
- * casted integer one below is required to retain the target's four explicit
- * floating-point multiplies.  The flag lattice favored the default
- * -O2/-mips2/-32 configuration.
- */
+/* Workbench: structure-mismatch, mixed constant/structure/register residual; best is size-exact at 298 positional words, first relocation divergence +0x8.
+ * Lever 1 tried initial constant/store ordering and contiguous-root modeling; kind/width/height ordering improved one word while the other variants regressed.
+ * Remaining: 37 relocation-symbol differences and early temp/pool divergence across the chained-node construction. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000512C_18E094C(void) {
     s32 index;
@@ -131,9 +123,9 @@ void func_overlay_101_F000512C_18E094C(void) {
     Node24 *node24;
     Node32 *node32;
 
-    D_0.height30 = 0xF0;
-    D_0.width2E = 0x140;
     D_0.kind = 4;
+    D_0.width2E = 0x140;
+    D_0.height30 = 0xF0;
     D_0.asset34 = &D_C78;
     D_0.color32 = 0xFF;
     D_0.color33 = 0xFF;
