@@ -35,6 +35,10 @@ extern void overlay68FinishEntryPromoteReloc(void);
  * first at +0x8. The remaining differences are the 0x30-byte private frame
  * and secondary-entry home at +0x20 versus IDO's 0x20-byte frame/+0x18 home;
  * the flag lattice and bounded permuter found no source-level stack-home form.
+ * Fresh lane revisit (2026-08-25): the full lattice again bottoms out at
+ * 6/77 words with the first mismatch at +0x8. A volatile pad optimized away;
+ * preserving a 16-byte address-taken stack object instead produced a 0x48
+ * frame and moved both homes above it, so the faithful 0x20-frame body stays.
  */
 #ifdef NON_MATCHING
 void overlay68PromoteSecondary(void) {

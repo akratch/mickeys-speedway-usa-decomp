@@ -50,6 +50,11 @@ extern void overlay68ReleaseReloc(void *resource);
  * at +0x3c; this candidate uses 0x38/+0x34. The remaining differences are
  * the sentinel comparison operand order and probe-pointer register choice.
  * The flag lattice and a bounded permuter run found no faithful exact form.
+ * Fresh lane revisit (2026-08-25): the full lattice again bottoms out at
+ * 9/122 words with the first mismatch at +0x0. Spelling the later value test
+ * as a direct typed probe access changed the wider register web instead of
+ * selecting the target's temporary pointer, so the 0x40-frame home is still
+ * not source-reproduced.
  */
 #ifdef NON_MATCHING
 void overlay68RebuildSecondaryEntry(s32 kind) {
