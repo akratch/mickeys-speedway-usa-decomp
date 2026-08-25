@@ -100,9 +100,10 @@ s32 packOpen(s32 controllerIndex);
 s32 joyMessageQ(void);
 s32 func_80070170(s32 messageQueue);
 s32 mainResetPressed(void);
-void func_8006FEF0(s32 arg0, s32 type, void *data, s32 size);
+s32 func_8006FEF0(s32 arg0, u8 type, void *data, s32 size);
 void func_80070030(s32 arg0, u8 arg1, void *arg2, s32 arg3);
 s32 func_8002C7EC(s32 arg0, s32 arg1, void *arg2, s32 arg3);
+void mainPreNMI(void);
 
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/saves.c:func_8004B070_4BC70. */
 s32 func_8002BCC0(void) {
@@ -269,7 +270,30 @@ s32 packCalculateGameChecksum(u8 *buffer, s32 count) {
     }
     return checksum;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C7EC.s")
+/* Mickey-derived chunked save-device transfer. */
+s32 func_8002C7EC(s32 arg0, s32 arg1, void *arg2, s32 arg3) {
+    s32 result;
+    u8 type;
+
+    D_8007A31C = arg1 & 1;
+    result = 0;
+    if (arg3 > 0) {
+        do {
+            type = arg1;
+            mainPreNMI();
+            if (arg3 >= 0x21) {
+                result = func_8006FEF0(arg0, type, arg2, 0x20);
+                arg2 = (u8 *) arg2 + 0x20;
+                arg3 -= 0x20;
+                arg1 += 4;
+            } else {
+                result = func_8006FEF0(arg0, type, arg2, arg3);
+                arg3 = 0;
+            }
+        } while (arg3 > 0 && result == 0);
+    }
+    return result;
+}
 void func_8002C8B4(s32 arg0, s32 arg1, void *arg2, s32 arg3) {
     u8 data[16];
 
