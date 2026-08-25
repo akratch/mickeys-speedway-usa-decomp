@@ -1834,6 +1834,10 @@ func_8000D768 = 0x8000D768; // type:func size:0x90 ROM 0xe368 tier-D (JFG src/tr
 // words are exact and the function has no relocation records.
 func_8000D7F8 = 0x8000D7F8; // type:func size:0x28 ROM 0xe3f8
 
+// No public name adopted: JFG's assembly-only `trackUpdateLighting` supplies
+// tier-D role/TU context; Mickey proves the revised module path and exact C.
+func_8000D978 = 0x8000D978; // type:func size:0x1BC ROM 0xe578 tier-D (JFG src/track.c trackUpdateLighting role, placeholder retained)
+
 // No public name adopted: Mickey's accesses establish the camera/BSP setup
 // wrapper, while the reference scan found no credible named body donor.
 func_8000FA2C = 0x8000FA2C; // type:func size:0xB4 ROM 0x1062c tier-D (Mickey reconstruction, placeholder retained)

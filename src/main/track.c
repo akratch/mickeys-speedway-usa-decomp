@@ -108,11 +108,14 @@ typedef struct TrackBatch {
 } TrackBatch;
 
 typedef struct TrackSegment {
-    u8 pad00[0xC];
+    void *lightData;
+    u8 pad04[0xC - 0x04];
     TrackBatch *batches;
     u8 pad10[0x24 - 0x10];
     s16 batchCount;
-    u8 pad26[0x40 - 0x26];
+    u8 pad26[0x2E - 0x26];
+    s8 lightingMode;
+    u8 pad2F[0x40 - 0x2F];
 } TrackSegment;
 
 /*
@@ -262,11 +265,15 @@ extern s32 D_800C9564;
 extern s32 D_800C956C;
 extern void *D_800C9574;
 extern TrackLight *D_80079300;
+extern s32 D_80079304;
 extern TrackLightAllocation *D_80079308;
 extern s32 D_800792F8;
 extern s32 D_80079350;
 extern s32 D_80079354;
 extern f32 D_80081690;
+extern u8 D_800C95B4;
+extern s16 D_800D6C4C;
+extern s16 D_800D6C54;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -275,7 +282,7 @@ ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
                    s32 updateRate);
 s32 runlinkIsModuleLoaded(s32 module);
-void TrapDanglingJump(s32 updateRate);
+void TrapDanglingJump();
 void func_80022A50(Gfx **displayList, Mtx **matrix);
 void func_80034920(Gfx **displayList);
 void func_800349A4(Gfx **displayList, void *texture, s32 mode, s32 flags);
@@ -287,6 +294,8 @@ void func_80021FB0(s32 mode, s32 camera, s32 *left, s32 *bottom,
 void viGetCurrentSize(s32 *width, s32 *height);
 void *func_800348D4(TrackTextureHeader *texture, s32 frame);
 TrackCamera *func_8002462C(void);
+TrackLight *trackLightAsm(TrackData *track, TrackLight *light, void *state);
+s32 mainGetNumberOfCameras(void);
 f32 func_8002A8BC(s32 angle);
 s32 func_80013324(f32 coefficient, f32 numerator,
                   f32 *minimum, f32 *maximum);
@@ -294,6 +303,7 @@ f32 func_8002A8C0(s32 angle);
 void func_8000F82C(s32 start, s32 count, s32 end);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
+void func_8000D820(void);
 void func_80007E40(TrackSkyObject *object, s32 updateRate,
                    TrackLevelData **levelData);
 void func_80009E78(Gfx **displayList, Mtx **matrix, TrackVertex **vertices,
@@ -765,7 +775,53 @@ void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D820.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D978.s")
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c` and
+ * assembly-only `trackUpdateLighting`. Mickey's module path, segment layout,
+ * globals, and bytes are authoritative; the public name is not adopted.
+ */
+void func_8000D978(s32 copySegmentData, s32 updateRate) {
+    s32 segmentCount;
+    s8 mode;
+    TrackSegment *segment;
+    TrackLightAllocation *allocation;
+    TrackLight *light;
+
+    if ((D_800792E8 != NULL) && (mainGetNumberOfCameras() < 2) &&
+        ((copySegmentData == 0) || (D_80079308 == NULL)) &&
+        ((copySegmentData != 0) || (D_80079308 != NULL))) {
+        allocation = D_80079308;
+        if (allocation != NULL) {
+            D_80079304 ^= 1;
+            segmentCount = D_800792E8->segmentCount;
+            segment = D_800792E8->segments;
+            while (segmentCount--) {
+                mode = segment->lightingMode;
+                segment->lightData =
+                    ((void **) allocation)[D_80079304];
+                segment->lightingMode =
+                    ((mode << 1) & 2) | ((mode >> 1) & 1);
+                segment++;
+                allocation++;
+            }
+        }
+        if (runlinkIsModuleLoaded(16) != 0) {
+            TrapDanglingJump(&D_800C95B4, D_800792E8, updateRate);
+        } else if ((D_800D6C54 != 0xFF) || (D_800D6C4C != 0)) {
+            TrapDanglingJump(&D_800C95B4, D_800792E8, updateRate);
+        } else {
+            func_8000D820();
+        }
+        segmentCount = D_800792F8;
+        light = D_80079300;
+        while (segmentCount--) {
+            if (light->radius != 0.0f) {
+                trackLightAsm(D_800792E8, light, &D_800C95B4);
+            }
+            light++;
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DDE4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DFBC.s")
