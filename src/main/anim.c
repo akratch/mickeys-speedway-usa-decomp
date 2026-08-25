@@ -798,26 +798,25 @@ void func_800508D4();
  * PROVENANCE: adapted from JFG's func_80077468_78068 assembly. Mickey's
  * resident globals, packed fields, call identities, and output are checked
  * independently against Mickey's ROM.
- *
- * Plateau after 10 source/lifetime shapes and a bounded canonical-flag
- * permuter: the best semantic candidate has the exact 104-instruction size,
- * 0x48 frame, and five call relocations, but 58 allocation/schedule words
- * remain from first mismatch +0x34. The target copies the header count through
- * v0/s0 and reuses one scaled path offset; IDO instead keeps the count in s4
- * and rematerializes that offset. The 490-score permutation is one word long.
  */
+/* Plateau retry (2026-08-25): the typed NON_MATCHING build is exact at 104
+ * words, but canonical declaration mode differs in one normalization word at
+ * +0x138 and fails whole-ROM verification; changing the shared prototype regresses a neighbor. */
 #ifdef NON_MATCHING
 void func_800511C4(void) {
     u32 *entryCursor;
+    u32 headerWord;
     s32 remaining;
     u32 entryWord;
+    s32 pathIndex;
     AnimGroupPathHeader *source;
     AnimPath *path;
     s32 highBit;
 
     entryCursor = (u32 *) D_8007D68C;
-    remaining = (*entryCursor >> 24) & 0xFF;
+    headerWord = *entryCursor;
     entryCursor++;
+    remaining = (headerWord >> 24) & 0xFF;
     func_8005027C();
     if (remaining > 0) {
         highBit = 0x80;
@@ -825,12 +824,12 @@ void func_800511C4(void) {
             entryWord = *entryCursor++;
             source = (AnimGroupPathHeader *)
                 ((u8 *) D_8007D68C + (entryWord & 0xFFFFFF));
-            D_800D6B00[(entryWord >> 24) & 0xFF] =
+            pathIndex = (entryWord >> 24) & 0xFF;
+            D_800D6B00[pathIndex] =
                 func_8002B280((source->nodeCount * sizeof(AnimPathNode)) +
                                   sizeof(AnimPath),
                               0x81);
-            entryWord >>= 24;
-            path = D_800D6B00[entryWord & 0xFF];
+            path = D_800D6B00[pathIndex];
             if (path != NULL) {
                 if (source->nodeCount > 0) {
                     path->nodes = (AnimPathNode *)((u8 *)path +
@@ -850,10 +849,10 @@ void func_800511C4(void) {
                     path->unk7 &= 0x7F;
                 }
                 path->nodeCount = source->nodeCount;
-                func_8005055C(entryWord & 0xFF);
+                func_8005055C(pathIndex & 0xFF);
                 func_800508D4(path->nodeCount, path->nodes, source->nodeData,
                               0, 0);
-                func_80050AD4(entryWord & 0xFF);
+                func_80050AD4(pathIndex & 0xFF);
             }
             remaining--;
         } while (remaining > 0);
