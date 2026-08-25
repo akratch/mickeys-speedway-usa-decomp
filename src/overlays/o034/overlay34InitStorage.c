@@ -10,6 +10,13 @@ extern s32 gOverlay34Count;
 extern void *func_8002B280(s32 size, s32 tag);
 
 /* Pinned DKR v77/v80 and JFG scans found no exact donor. */
+/*
+ * Plateau: exact 0xC8 size, 46/50 instruction words, first mismatch +0x24.
+ * The target assigns the reused size spill to sp+0x1C; IDO assigns this body
+ * to sp+0x18. Declaration, lifetime, expression, and type variants either
+ * preserve those four differences or grow the frame. A 10-minute, two-worker
+ * permuter run found no candidate below its baseline score of 40.
+ */
 #ifdef NON_MATCHING
 void overlay34InitStorage(s32 count) {
     s32 *word;

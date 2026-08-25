@@ -12,21 +12,26 @@ extern Overlay34Record **gOverlay34Pointers;
 extern s32 gOverlay34ActiveCount;
 extern void *func_80034448();
 
+/*
+ * NON_MATCHING: the best coherent candidate is size-exact at 0xB0 and
+ * matches 32/44 instruction words with the default flags. Its first mismatch
+ * is +0x14: IDO schedules the shadow count into a1 before saving ra and keeps
+ * that color through both countdown loops. A two-worker, ten-minute permuter
+ * run plateaued at score 165 without resolving the remaining 12 words.
+ */
 #ifdef NON_MATCHING
 void overlay34RemoveRecord(Overlay34Record *record) {
-    Overlay34Record **slot;
-    s32 remaining;
     s32 shadow;
+    s32 remaining;
+    Overlay34Record **slot;
 
-    remaining = gOverlay34ActiveCount;
     slot = gOverlay34Pointers;
+    remaining = gOverlay34ActiveCount;
     shadow = remaining;
     if (remaining != 0) {
         remaining--;
         do {
-            shadow = remaining;
             if (*slot == record) {
-                shadow = remaining;
                 if (remaining != 0) {
                     remaining--;
                     do {
@@ -47,6 +52,8 @@ void overlay34RemoveRecord(Overlay34Record *record) {
                 return;
             }
             slot++;
+            slot++;
+            slot--;
         } while (remaining--);
     }
 }

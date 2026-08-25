@@ -154,18 +154,6 @@
     {
       "class": "metadata",
       "matched_c": true,
-      "object": "build/src/overlays/o002/func_overlay_002_F0001DF8_1858BF0.c.o",
-      "offset": 7672,
-      "overlay": 2,
-      "size": 1840,
-      "source": "src/overlays/o002/func_overlay_002_F0001DF8_1858BF0.c",
-      "tools": [
-        "trim_elf_section.py"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
       "object": "build/src/overlays/o002/overlay2AdjacentIndices.c.o",
       "offset": 5720,
       "overlay": 2,
@@ -2069,6 +2057,18 @@
       "tools": [
         "filter_elf_relocations.py",
         "rebind_elf_relocations.py",
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": true,
+      "object": "build/src/overlays/o029/func_overlay_029_F00005C4_187D874.c.o",
+      "offset": 1476,
+      "overlay": 29,
+      "size": 2332,
+      "source": "src/overlays/o029/func_overlay_029_F00005C4_187D874.c",
+      "tools": [
         "trim_elf_section.py"
       ]
     },
@@ -7457,7 +7457,7 @@
     "by_class": {
       "metadata": 604
     },
-    "matched_c_bytes_with_postprocess": 386600,
+    "matched_c_bytes_with_postprocess": 387092,
     "objects_with_postprocess": 604
   }
 }
