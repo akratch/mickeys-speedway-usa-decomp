@@ -72,10 +72,10 @@ extern f32 sqrtf(f32 value);
     command->w1 = (u32)(triangles); \
 } while (0)
 #define EMIT_SYNC(commands) do { \
-    O38Command *command = *(commands); \
-    *(commands) = command + 1; \
-    command->w0 = 0xE7000000U; \
+    volatile O38Command *command = *(commands); \
+    *(commands) = (O38Command *)(command + 1); \
     command->w1 = 0; \
+    command->w0 = 0xE7000000U; \
 } while (0)
 #define EMIT_FINAL_COLOR(commands) do { \
     volatile O38Command *command = *(commands); \
@@ -90,6 +90,9 @@ extern f32 sqrtf(f32 value);
     ((volatile s32 *)command)[0] = -100663296; \
 } while (0)
 
+/* Workbench plateau: structure-mismatch; 219/219 instructions, 0xE8 frame, 95 positional words, first instruction mismatch +0xC0.
+ * Levers tried: packet/field AST, signedness, pool cursor, declaration/register weighting, and sync ordering; volatile sync fixed two words.
+ * Remaining: 16 opcode-order sites and the integer register web; FP lanes are exact and 18 relocation placeholders remain unbound. */
 #ifdef NON_MATCHING
 void func_overlay_038_F000047C_188618C(O38Command **commands, void *context,
                                        O38Object *object)
