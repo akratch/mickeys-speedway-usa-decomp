@@ -586,7 +586,30 @@ void func_800420E0(BasicParticle *particle) {
         particle->z += parent->z;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800421F4.s")
+/* PROVENANCE: body adapted from DKR src/particles.c:move_particle_with_acceleration. */
+void func_800421F4(BasicParticle *particle) {
+    s32 i = 0;
+    f32 acceleration[3];
+
+    while (i++ < D_800D4140) {
+        particle->x += particle->velocityX;
+        particle->y += particle->velocityY;
+        particle->z += particle->velocityZ;
+        particle->scale += particle->scaleVelocity;
+        particle->rotationY += particle->angularVelocityY;
+        particle->rotationX += particle->angularVelocityX;
+        particle->rotationZ += particle->angularVelocityZ;
+
+        acceleration[0] = 0.0f;
+        acceleration[1] = -particle->movementValue;
+        acceleration[2] = 0.0f;
+        pointListRPY(1, (s16 *)particle, acceleration, acceleration);
+        particle->velocityX += acceleration[0];
+        particle->velocityY += acceleration[1];
+        particle->velocityY -= particle->gravity;
+        particle->velocityZ += acceleration[2];
+    }
+}
 /* PROVENANCE: body adapted from DKR src/particles.c:move_particle_basic. */
 void func_8004233C(BasicParticle *particle) {
     s32 i = 0;
