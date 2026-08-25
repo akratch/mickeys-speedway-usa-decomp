@@ -18,7 +18,7 @@ root=$(git rev-parse --show-toplevel)
 dest=$(dirname "$root")/mickey-lane-$name
 if [ -e "$dest" ]; then echo "lane exists: $dest" >&2; exit 2; fi
 git -C "$root" worktree add -q -b "lane/$name" "$dest" "$base"
-for p in baseroms tools/ido tools/binutils .venv; do
+for p in baseroms tools/ido tools/binutils .venv tools/objdiff; do
   [ -e "$root/$p" ] && ln -s "$root/$p" "$dest/$p"
 done
 # Submodules: clone from this repository's own module store (no network),
@@ -29,6 +29,9 @@ for p in tools/asm-processor tools/asm-differ tools/m2c; do
     submodule update --init --quiet "$p" 2>/dev/null \
     || { rm -rf "$dest/$p"; ln -s "$root/$p" "$dest/$p"; }
 done
+# The permuter checkout is outside the repository; tools/permute.sh expects
+# tools/permuter to point at it (git-ignored, machine-specific).
+[ -e "$root/tools/permuter" ] && ln -s "$(readlink "$root/tools/permuter" || echo "$root/tools/permuter")" "$dest/tools/permuter"
 if [ "$extract" = 1 ]; then
   (cd "$dest" && gmake extract >"$dest/.lane-extract.log" 2>&1) || {
     echo "extract failed, see $dest/.lane-extract.log" >&2; exit 1; }
