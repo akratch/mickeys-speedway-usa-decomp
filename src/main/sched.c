@@ -64,6 +64,7 @@ void func_80030608(OSScTask *task);
 SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
                         s32 *arg4, s32 *arg5, s32 *arg6);
 void __scAppendList(OSSched *sc, OSScTask *task);
+s32 __scTaskComplete(OSSched *sc, OSScTask *task);
 s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 state);
 void __scExec(OSSched *sc, OSScTask *sp, OSScTask *dp);
 s8 func_80001BE8(void);
@@ -331,7 +332,23 @@ void __scHandleRetrace(OSSched *sc) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRetrace.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRSP.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRDP.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scHandleRDP. */
+void __scHandleRDP(OSSched *sc) {
+    OSScTask *task;
+    OSScTask *sp = NULL;
+    OSScTask *dp = NULL;
+    s32 state;
+
+    task = sc->curRDPTask;
+    sc->curRDPTask = NULL;
+    task->state &= ~1;
+    __scTaskComplete(sc, task);
+    state = ((sc->curRSPTask == NULL) << 1) | (sc->curRDPTask == NULL);
+    if (__scSchedule(sc, &sp, &dp, state) != state) {
+        __scExec(sc, sp, dp);
+    }
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:__scTaskReady. */
 OSScTask *__scTaskReady(OSScTask *task) {
