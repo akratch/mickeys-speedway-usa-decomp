@@ -37,7 +37,14 @@ void overlay74HitReloc(Overlay74UpdateObject *object);
 void overlay74SoundReloc(s32 soundId, s32 arg1);
 void overlay74RewardReloc(s32 count);
 
-/* DKR v77/v80 and JFG have no exact donor for this collision response. */
+/* NON_MATCHING plateau (reconfirmed 2026-08-25): the nearest skeleton score is
+ * 0.056 and all 119 flag combinations miss. The exact-size 100-word candidate
+ * differs in 14 words, first at +0xC: IDO colors the result aggregate address
+ * as v0 rather than retail's t3, reverses the later flags/mask web, and emits
+ * one commutative OR encoding oppositely. Natural scalar loop locals reproduce
+ * the retail loop registers but enlarge the 0x60 frame to 0x68. A bounded
+ * two-worker permuter batch found no exact form; its cached-flags mutation
+ * regressed to 18 differing words under the canonical -mips2 build. */
 #ifdef NON_MATCHING
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74QueryResult result;
