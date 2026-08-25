@@ -108,6 +108,14 @@ typedef struct FxScreenEffect {
     s32 value10;
 } FxScreenEffect;
 
+typedef struct FxSpdRecord {
+    s16 value0;
+    s16 value2;
+    s16 value4;
+    u8 value6;
+    u8 value7;
+} FxSpdRecord;
+
 typedef struct FxRecord {
     u8 state;
     u8 status;
@@ -123,7 +131,7 @@ typedef void (*FxTextureCallback)(s32 index, s32 value, s32 arg2);
 
 extern void func_800347A0(s32 linked);
 extern void func_800320F0(s32 callback);
-extern void func_8004ACC4(s32 index);
+extern void func_8004ACC4();
 extern void mmFree(void *ptr);
 extern FxFlags D_800D5F5A[];
 extern FxStatus D_800D5F59[];
@@ -131,11 +139,18 @@ extern FxRecord D_800D5F58[];
 extern s32 D_800D5F50;
 extern s32 D_800D6038[];
 extern s32 D_800D6040;
+extern FxSpdRecord D_800D5FF8[][4];
 extern s32 D_8007D47C[];
+extern s32 D_8007D488;
 extern s32 D_800D6098[];
 extern s32 D_800D60A8;
+extern s32 D_800D60BC;
+extern s32 D_800D60C0[];
+extern s32 D_800D60CC;
+extern u8 D_800D60D3;
 extern s32 D_8007D478;
 extern FxScreenEffect D_800D6048[];
+extern void TrapDanglingJump(void);
 extern void fxScreenEffect(s32 arg0, s32 type, s32 value4, s32 value6,
                            s32 value8, s32 valueA, s32 valueC, s32 valueE,
                            s32 value10);
@@ -143,6 +158,11 @@ extern f32 func_8002A8BC(s16 angle);
 extern f32 func_8002A8C0(s16 angle);
 extern f32 D_80083DE8;
 extern void func_800349A4(FxGfx **dList, s32 texture, s32 flags, s32 arg3);
+extern void func_8004A10C(s32 screen, u8 glyph, s32 x, s32 y, s32 arg4);
+extern s32 sprintf(char *buffer, const char *format, ...);
+extern u8 D_8007D364[];
+extern char D_80083DE0[];
+extern s32 D_800D2FA0;
 
 void func_80046E70(FxCone *cone) {
     s32 texture;
@@ -420,7 +440,38 @@ void fxInit(void) {
     D_800D5F50 = 0;
     func_8004ACC4(i);
 }
+#ifdef NON_MATCHING
+/* Mickey-derived body; JFG's corresponding fx.c routine is assembly-only. */
+void func_8004978C(s32 index, s32 mask, s32 enable) {
+    FxRecord *record;
+    s32 count = 0;
+    s32 andMask;
+    s32 orMask;
+
+    if (index == -1) {
+        record = D_800D5F58;
+        count = 5;
+    } else if (index >= 0 && index < 5) {
+        record = &D_800D5F58[index];
+        count = 1;
+    }
+    if (count != 0) {
+        andMask = ~mask;
+        if (enable != 0) {
+            andMask = -1;
+            orMask = mask;
+        } else {
+            orMask = 0;
+        }
+        while (count--) {
+            record->flags = (record->flags & andMask) | orMask;
+            record++;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004978C.s")
+#endif
 s32 func_80049828(s32 index, s32 mask) {
     if (index >= 0 && index < 5 && (D_800D5F5A[index].value & mask) != 0) {
         return 1;
@@ -474,9 +525,87 @@ void func_8004A0F0(void) {
     D_800D6040 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: role adapted from JFG src/fx.c::func_8006DF90; both bodies are
+ * assembly-only, so this reconstruction is Mickey-derived. */
+void func_8004A380(s32 x, s32 y, s32 value, s32 minimumWidth, s32 arg4) {
+    char text[32];
+    s32 length;
+    s32 index;
+    char *cursor;
+    char *scan;
+    u8 next;
+    u8 glyph;
+    u8 character;
+
+    length = 0;
+    index = 0;
+    sprintf(text, D_80083DE0, value);
+    scan = text + length;
+    if (text[length] != '\0') {
+        do {
+            next = scan[1];
+            length++;
+            scan++;
+        } while (next != '\0');
+    }
+    cursor = text + index;
+    if (minimumWidth >= length) {
+        do {
+            glyph = D_8007D364[11];
+            if (length < minimumWidth) {
+                length++;
+            } else {
+                character = *cursor++;
+                if (character == '-') {
+                    glyph = D_8007D364[10];
+                } else if (character >= '0' && character < ':') {
+                    glyph = D_8007D364[character - '0'];
+                }
+            }
+            func_8004A10C(D_800D2FA0, glyph, x, y, arg4);
+            x += 10;
+        } while (*cursor != '\0');
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A380.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A4B0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A51C.s")
+#endif
+/* Mickey-derived body; JFG's corresponding fx.c function is assembly-only. */
+void func_8004A4B0(s32 value0, s32 value2, s32 value4, s32 value6,
+                   s32 value7) {
+    s32 group;
+    s32 *countPtr;
+    FxSpdRecord *record;
+
+    group = D_800D6040;
+    countPtr = &D_800D6038[group];
+    if (*countPtr < 4) {
+        record = &D_800D5FF8[group][(*countPtr)++];
+        record->value0 = value0;
+        record->value2 = value2;
+        record->value4 = value4;
+        record->value6 = value6;
+        record->value7 = value7;
+    }
+}
+/* Mickey-derived body; JFG's corresponding fx.c function is assembly-only. */
+void func_8004A51C(void) {
+    s32 group;
+    s32 count;
+    FxSpdRecord *record;
+
+    group = D_800D6040;
+    count = D_800D6038[group];
+    record = D_800D5FF8[group];
+    D_800D6040 = group ^ 1;
+    D_800D6038[D_800D6040] = 0;
+    while (count--) {
+        func_8004A380(record->value0, record->value2, record->value4,
+                      record->value6, record->value7);
+        record++;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxSPDPRipple.s")
 void fxQueueScreenEffect(s32 type, s32 value4, s32 value6, s32 value8,
                          s32 valueA, s32 valueC, s32 valueE, s32 value10) {
@@ -512,7 +641,42 @@ void func_8004A9CC(s32 arg0) {
     D_8007D478 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: the descending four-slot loop skeleton is adapted from Jet
+ * Force Gemini asm/nonmatchings/fx/func_8006FFF8.s. Mickey's own symbols and
+ * instruction schedule establish the assignment order below.
+ */
+void func_8004ACC4(void) {
+    s32 *callback;
+    s32 *value0;
+    s32 *value1;
+    u8 *available;
+    s32 i;
+    s32 trap;
+    s32 trapValue;
+
+    D_800D60A8 = 0;
+    i = 3;
+    trapValue = (s32) TrapDanglingJump;
+    value0 = &D_800D60BC;
+    value1 = &D_800D60CC;
+    available = &D_800D60D3;
+    trap = trapValue;
+    callback = &D_8007D488;
+    do {
+        *value0 = 0;
+        *value1 = 0;
+        *available = trap == *callback;
+        value0--;
+        value1--;
+        available--;
+        callback--;
+    } while (i--);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ACC4.s")
+#endif
 s32 func_8004AD34(void) {
     FxTextureCallback callback;
     s32 index;
@@ -530,4 +694,38 @@ s32 func_8004AD34(void) {
     D_800D60A8 = 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
+#ifdef NON_MATCHING
+/* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
+void func_8004AF68(void) {
+    register s32 offset;
+    register s32 *value0;
+    register s32 i;
+    register u8 *available;
+    s32 *value1;
+    void *allocation;
+
+    offset = 12;
+    value0 = &D_800D60BC;
+    i = 3;
+    available = &D_800D60D3;
+    do {
+        allocation = (void *)*value0;
+        if (allocation != 0) {
+            value1 = (s32 *)(offset + (s32)D_800D60C0);
+            mmFree(allocation);
+            mmFree((void *)*value1);
+            *value0 = 0;
+            *value1 = 0;
+        }
+        if (*available != 0) {
+            *(s32 *)((u8 *)D_8007D47C + offset) = (s32)TrapDanglingJump;
+        }
+        value0--;
+        available--;
+        offset -= 4;
+    } while (i--);
+    D_800D60A8 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AF68.s")
+#endif

@@ -12,9 +12,12 @@
 #include "PR/os_internal.h"
 #include "PR/os_message.h"
 #include "game/memory.h"
+#include "libc/stdarg.h"
 
 extern s32 D_8007CFD8;
 extern s32 D_8007CFDC;
+extern OSThread diCpuOSThread;
+extern u64 diCpuThreadStack[];
 extern f32 D_80083DBC;
 extern OSMesgQueue D_800D5CD0;
 extern OSMesg D_800D5CE8[8];
@@ -28,24 +31,47 @@ extern s32 joyGetPressed(s32 controller);
 extern void joyRead(s32 updateRate, s32 controllers);
 extern void osWritebackDCacheAll(void);
 extern s32 viGetVideoMode(void);
-extern s32 runlinkGetAddressInfo(u32 address, u32 *moduleId,
-                                 s32 *moduleOffset, s32 *size);
+extern void viGetCurrentSize(s32 *width, s32 *height);
+extern s32 runlinkGetAddressInfo(u32 address, s32 *moduleId,
+                                 s32 *moduleAddress, u32 **outputAddress);
 extern void render_epc_lock_up_display(s32 arg0, s32 buttons);
 extern void cpuXYPrintf(s32 x, s32 y, const char *format, ...);
 extern void func_80046E00(void);
+extern void func_80046BCC(s32 x, s32 y, char *text);
+extern s32 vsprintf(char *text, const char *format, va_list args);
 extern s32 D_80000310;
 extern s32 D_8007A1E0;
 extern s32 D_8007A200;
+extern s32 D_8007CFE0;
 extern s32 D_8007CFE4;
 extern s32 D_8007CFE8;
 extern s32 D_8007D02C;
 extern s32 D_8007D030;
+extern u16 D_8007D2F0[];
+extern u16 D_8007D2F8[];
+extern u16 D_8007D300[];
+extern char D_80083A80;
+extern char D_80083A88;
+extern char D_80083B2C[];
+extern char D_80083B48[];
+extern void *D_800D5D40;
+extern u8 D_800D5D48[];
 extern s32 D_800D5DF0[];
 extern s32 D_800D5E98[];
 extern s32 D_800D5F40[];
+extern s16 *D_800D2FA8;
+extern s32 packWriteFile(s32 controllerIndex, s32 fileNumber, char *fileName,
+                         char *fileExt, u8 *dataToWrite, s32 fileSize);
 void stop_all_threads_except_main(void);
+void diCpuThread(void *unused);
+void func_80045BBC(void *thread);
+void func_80045D34();
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuTraceInit.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuTraceInit. */
+void diCpuTraceInit(void) {
+    osCreateThread(&diCpuOSThread, 0, diCpuThread, 0, diCpuThreadStack, 0xFF);
+    osStartThread(&diCpuOSThread);
+}
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuThread; Mickey's own
  * draft supplies its extra VI delay loop and exact event handling. */
@@ -92,8 +118,54 @@ void stop_all_threads_except_main(void) {
         thread = thread->tlnext;
     }
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066D28_67928;
+ * Mickey's target fixes the dump-size calculation to use the copied range. */
+void func_80045BBC(void *thread) {
+    s32 copySize;
+    void *source;
+    register u8 *destination;
+    s32 writeSize;
+
+    *(s32 *)0x80705014 = D_8007CFE8;
+    *(s32 *)0x80705018 = D_8007CFE0;
+    *(s32 *)0x8070501C = D_8007CFE4;
+    destination = (u8 *)0x80705094;
+    _bcopy(thread, destination, 0x230);
+    destination += 0x200;
+    source = *(void **)((u8 *)thread + 0xF4);
+    copySize = 0x200;
+    _bcopy(source, destination, copySize);
+    D_800D5D40 = source;
+    _bcopy(source, D_800D5D48, copySize);
+    destination += 0x200;
+    writeSize = (s32)destination + 0x7F900000;
+    if (writeSize & 0x1F) {
+        writeSize = (writeSize & ~0x1F) + 0x20;
+    }
+    packWriteFile(0, -1, &D_80083A80, &D_80083A88, (u8 *)0x80700000,
+                  writeSize);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045BBC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045CAC.s")
+#endif
+/* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066E14_67A14. */
+void func_80045CAC(void) {
+    OSThread *thread;
+
+    for (thread = __osGetActiveQueue(); thread->priority != -1;
+         thread = thread->tlnext) {
+        if (thread->priority > OS_PRIORITY_IDLE) {
+            if ((thread->flags & 2) || (thread->flags & 1)) {
+                break;
+            }
+        }
+    }
+    if (thread->priority != -1) {
+        func_80045BBC(thread);
+    }
+    func_80045D34(thread);
+}
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's closest peer, src/diCpu.c::func_80067880,
  * remains assembly-only and supplies no body. */
@@ -356,7 +428,22 @@ void func_80045D34(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045D34.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuReportWatchpoint.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuReportWatchpoint. */
+void diCpuReportWatchpoint(u32 address) {
+    s32 moduleAddress;
+    s32 moduleId;
+    s32 i;
+
+    for (i = 0; i < 100; i++) {
+        func_80046E00();
+    }
+    cpuXYPrintf(30, 80, D_80083B2C, address);
+    if (runlinkGetAddressInfo(address, &moduleId, &moduleAddress, 0)) {
+        cpuXYPrintf(30, 100, D_80083B48, moduleId, moduleAddress);
+    }
+    while (1) {
+    }
+}
 /* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuTraceGetFault. */
 s32 func_80046504(void) {
     return 0;
@@ -372,7 +459,86 @@ void func_8004650C(s32 ticks) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/render_epc_lock_up_display.s")
+#ifdef NON_MATCHING
+/* Mickey-derived body; JFG's corresponding func_800680B0_68CB0 is
+ * assembly-only and confirms the packed-glyph loop structure. */
+void func_80046AA8(s32 x, s32 y, u16 *glyph) {
+    s16 *destination;
+    s16 *pixel;
+    u16 *palette;
+    u16 bits;
+    s32 lines;
+    s32 rows;
+    s32 width;
+    s32 height;
+
+    viGetCurrentSize(&width, &height);
+    destination = D_800D2FA8 + ((y * width) + x);
+    if (D_8007D030 == 2) {
+        palette = D_8007D300;
+    } else if (D_8007D030 != 0) {
+        palette = D_8007D2F8;
+    } else {
+        palette = D_8007D2F0;
+    }
+    rows = 5;
+    while (rows--) {
+        lines = 1;
+        if (D_8007D02C != 0) {
+            lines = 2;
+        }
+        while (lines--) {
+            bits = *glyph;
+            pixel = destination;
+            while (bits != 0) {
+                *pixel++ = palette[bits & 3];
+                bits >>= 2;
+            }
+            destination += width;
+        }
+        glyph++;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046AA8.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046BCC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/cpuXYPrintf.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046E00.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::cpuXYPrintf. */
+void cpuXYPrintf(s32 x, s32 y, const char *format, ...) {
+    va_list args;
+    char text[255];
+
+    va_start(args, format);
+    vsprintf(text, format, args);
+    va_end(args);
+
+    if (D_8007D02C != 0) {
+        if (D_8007D02C == 1) {
+            y -= 8;
+        } else {
+            y -= 104;
+        }
+        if (y >= 0 && y < 116) {
+            y *= 2;
+            goto draw;
+        }
+    } else {
+draw:
+        func_80046BCC(x, y, text);
+    }
+}
+/* PROVENANCE: body adapted from JFG src/diCpu.c::func_8006837C_68F7C. */
+void func_80046E00(void) {
+    s32 pad;
+    s32 height;
+    s32 width;
+    s32 screenSize;
+    s16 *screen;
+
+    viGetCurrentSize(&height, &width);
+    screenSize = height * width;
+    screen = D_800D2FA8;
+    while (screenSize--) {
+        *screen++ = 0;
+    }
+}

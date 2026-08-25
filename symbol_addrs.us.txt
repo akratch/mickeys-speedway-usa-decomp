@@ -977,8 +977,8 @@ vsprintf = 0x800429D0; // type:func size:0x1310 ROM 0x435d0 tier-C `(null)`/`(ni
 // precedes diRcp.c in both games.
 diRcpTraceInit = 0x80044B60;    // type:func size:0x3C tier A (exact C, JFG diRcpTraceInit)
 func_80044B9C = 0x80044B9C;     // type:func size:0x2C tier A (exact C, JFG diRcpTraceReset)
-func_80044BC8 = 0x80044BC8;     // type:func size:0xCC tier B (JFG diRcpTrace)
-func_80044C94 = 0x80044C94;     // type:func size:0x12C tier B (JFG diRcpTraceGetInfo)
+func_80044BC8 = 0x80044BC8;     // type:func size:0xCC tier-A (exact C, JFG diRcpTrace)
+func_80044C94 = 0x80044C94;     // type:func size:0x12C tier-B ROM 0x45894 NON_MATCHING plateau, 75/75 words, 35 positional differences, first +0xC
 
 // diRcp.c -- the display-list disassembler. `diRcpPrintDL` is the only
 // function referencing the whole G_* opcode name table and "UNKNOWN COMMAND";
@@ -1035,10 +1035,15 @@ diRcpStrNameMacro = 0x80045584;  // type:func size:0x14 tier A (exact C, JFG diR
 diRcpPrimColor = 0x80045598;     // type:func size:0xC tier A (exact C, JFG diRcpPrimColor)
 diRcpColor = 0x800455A4;         // type:func size:0x14 tier A (exact C, JFG diRcpColor)
 diRcpDmaOffsets = 0x800455B8;    // type:func size:0xC tier A (exact C, JFG diRcpDmaOffsets)
-diRcpMoveWd = 0x800455C4;        // type:func size:0x9C tier B/C (JFG call graph/strings)
+diRcpMoveWd = 0x800455C4;        // type:func size:0x9C tier-C ROM 0x461C4 NON_MATCHING rodata-table plateau, first reloc +0x34
 diRcpStrName = 0x80045660;       // type:func size:0x34 tier A (exact C, JFG diRcpStrName)
 diRcpOtherMode = 0x80045694;     // type:func size:0x208 tier C (render-mode strings)
-diRcpGeometryMode = 0x8004589C;  // type:func size:0x114 tier C (geometry strings)
+diRcpGeometryMode = 0x8004589C;  // type:func size:0x10C tier-A ROM 0x4649C exact C, JFG body, followed by 0x8 TU padding
+
+// PROVENANCE: names adapted from JFG src/diCpu.{c,h}. Mickey links the
+// thread control block and the stack-top operand at the same address.
+diCpuOSThread = 0x800D5AA0;      // type:OSThread allow_duplicated:True tier-B (JFG diCpuTraceInit operand roles)
+diCpuThreadStack = 0x800D5AA0;   // type:u64 allow_duplicated:True tier-B (JFG diCpuTraceInit operand roles)
 
 // diCpu.c. Owns "Watchpoint exception at %x\n" and, right after it, "Module %d
 // at %08x" -- and Mickey's function calls runlinkGetAddressInfo (below)
@@ -1052,17 +1057,17 @@ diRcpGeometryMode = 0x8004589C;  // type:func size:0x114 tier C (geometry string
 // adds the resident exception strings. JFG address placeholders are not used.
 diCpuThread = 0x80045A04;                  // type:func size:0x154 tier-B ROM 0x46604 NON_MATCHING plateau, first +0x90
 stop_all_threads_except_main = 0x80045B58; // type:func size:0x64 tier-A ROM 0x46758 exact C, JFG call graph/order
-func_80045BBC = 0x80045BBC;                // type:func size:0xF0 tier D (Mickey boundary)
-func_80045CAC = 0x80045CAC;                // type:func size:0x88 tier D (Mickey boundary)
+func_80045BBC = 0x80045BBC;                // type:func size:0xF0 tier-D ROM 0x467BC NON_MATCHING plateau, exact size 58/60 positions, first +0xBC
+func_80045CAC = 0x80045CAC;                // type:func size:0x88 tier-A (exact C, JFG active-thread scan)
 func_80045D34 = 0x80045D34;                // type:func size:0x72C tier-D ROM 0x46934 NON_MATCHING plateau, first +0x0
-diCpuReportWatchpoint = 0x80046460;         // type:func size:0xA4 tier C (watchpoint strings)
+diCpuReportWatchpoint = 0x80046460;         // type:func size:0xA4 tier-A (exact C, JFG body)
 func_80046504 = 0x80046504;                 // type:func size:0x8 tier A (exact C, JFG diCpuTraceGetFault)
 func_8004650C = 0x8004650C;                 // type:func size:0x3C tier A (exact C, JFG diCpuTraceTick)
 render_epc_lock_up_display = 0x80046548;    // type:func size:0x560 tier B/C (crash display)
-func_80046AA8 = 0x80046AA8;                // type:func size:0x124 tier D (Mickey boundary)
+func_80046AA8 = 0x80046AA8;                // type:func size:0x124 tier-D ROM 0x476A8 NON_MATCHING plateau, 70 emitted/73 target words, first +0x54
 func_80046BCC = 0x80046BCC;                // type:func size:0x1A8 tier D (Mickey boundary)
-cpuXYPrintf = 0x80046D74;                  // type:func size:0x8C tier B (JFG call graph/order)
-func_80046E00 = 0x80046E00;                // type:func size:0x58 tier D (Mickey boundary)
+cpuXYPrintf = 0x80046D74;                  // type:func size:0x8C tier-A (exact C, JFG body)
+func_80046E00 = 0x80046E00;                // type:func size:0x58 tier-A (exact C, JFG screen-clear body)
 
 // fx.c, ROM 0x47A70-0x4BC40. PROVENANCE: descriptive names adapted from JFG
 // src/fx.c. Tier B is the ordered cone/wake call graph: the allocator, texture,
@@ -1087,7 +1092,7 @@ func_80049000 = 0x80049000;           // type:func size:0x254 tier B (JFG wakeUp
 wakeDraw = 0x80049254;                // type:func size:0x2C4 tier B (JFG call graph/order)
 func_80049518 = 0x80049518;           // type:func size:0x228 tier B (JFG wakeDrawRipple)
 fxInit = 0x80049740;                  // type:func size:0x4C tier A (exact C, JFG name)
-func_8004978C = 0x8004978C;           // type:func size:0x9C tier D (Mickey boundary)
+func_8004978C = 0x8004978C;           // type:func size:0x9C tier-D ROM 0x4A38C NON_MATCHING plateau, 2/39 frame words differ, first +0x4
 func_80049828 = 0x80049828;           // type:func size:0x3C tier A (exact C)
 func_80049864 = 0x80049864;           // type:func size:0x38 tier A (exact C)
 func_8004989C = 0x8004989C;           // type:func size:0x60 tier A (exact C)
@@ -1097,17 +1102,17 @@ func_80049B14 = 0x80049B14;           // type:func size:0x338 tier D (Mickey bou
 func_80049E4C = 0x80049E4C;           // type:func size:0x2A4 tier D (Mickey boundary)
 func_8004A0F0 = 0x8004A0F0;           // type:func size:0x1C tier A (exact C)
 func_8004A10C = 0x8004A10C;           // type:func size:0x274 tier D (Mickey boundary)
-func_8004A380 = 0x8004A380;           // type:func size:0x130 tier D (Mickey boundary)
-func_8004A4B0 = 0x8004A4B0;           // type:func size:0x6C tier D (Mickey boundary)
-func_8004A51C = 0x8004A51C;           // type:func size:0xA4 tier D (Mickey boundary)
+func_8004A380 = 0x8004A380;           // type:func size:0x130 tier-D ROM 0x4AF80 NON_MATCHING plateau, 74 emitted/76 target words, first +0x10
+func_8004A4B0 = 0x8004A4B0;           // type:func size:0x6C tier-A (exact C)
+func_8004A51C = 0x8004A51C;           // type:func size:0xA4 tier-A (exact C)
 fxSPDPRipple = 0x8004A5C0;             // type:func size:0x3A0 tier B (JFG skeleton/calls)
 fxQueueScreenEffect = 0x8004A960;      // type:func size:0x6C tier A (exact C, JFG name)
 func_8004A9CC = 0x8004A9CC;           // type:func size:0xAC tier A (exact C, JFG fxUnQueueScreenEffect)
 fxScreenEffect = 0x8004AA78;           // type:func size:0x24C tier B (JFG order/calls)
-func_8004ACC4 = 0x8004ACC4;           // type:func size:0x70 tier D (Mickey boundary)
+func_8004ACC4 = 0x8004ACC4;           // type:func size:0x70 tier-D ROM 0x4B8C4 NON_MATCHING plateau, first +0x14
 func_8004AD34 = 0x8004AD34;            // type:func size:0xB4 tier A (exact C, JFG fxGenerateTextures)
 func_8004ADE8 = 0x8004ADE8;            // type:func size:0x180 tier B (JFG fxCpuTextureRequired)
-func_8004AF68 = 0x8004AF68;            // type:func size:0xD0 tier B (JFG fxCpuTextureFlush)
+func_8004AF68 = 0x8004AF68;            // type:func size:0xD0 tier-B ROM 0x4BB68 NON_MATCHING plateau, 54 emitted/52 owned words, first +0x4
 
 // gsSnd.c. One distinctive literal each, and the literal states the contract:
 // 0x8005D6E4 owns "WARNING: Attempt to stop NULL sound aborted", 0x8005D898
@@ -2310,7 +2315,7 @@ func_8003A550 = 0x8003A550; // type:func size:0xC tier-D ROM 0x3b150 canonical C
 func_8003A55C = 0x8003A55C; // type:func size:0x34 tier-D ROM 0x3b15c canonical C, linked byte-identical
 func_8003A590 = 0x8003A590; // type:func size:0x10 tier-D ROM 0x3b190 canonical C, linked byte-identical
 // jfg:src/diCpu.c.o
-diCpuTraceInit = 0x800459B0; // type:func size:0x54   ROM 0x465b0  src/diCpu.c.o  masked=10/21
+diCpuTraceInit = 0x800459B0; // type:func size:0x54 ROM 0x465b0 tier-A exact C, JFG diCpuTraceInit
 // jfg:src/font.c.o
 fontSetWindow0 = 0x8004B040; // type:func size:0x24   ROM 0x4bc40  src/font.c.o  masked=2/9
 fontSetWindowNoise = 0x8004B070; // type:func size:0x34   ROM 0x4bc70  src/font.c.o  masked=6/13

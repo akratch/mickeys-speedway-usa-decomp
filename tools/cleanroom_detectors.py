@@ -326,6 +326,10 @@ CONTENT_EXEMPTIONS: "dict[tuple[str, str], str]" = {
         "docs/overlays.md",
         "word-table",
     ): "section 5 of the module ledger, split out of docs/modules.md on 2026-08-24 for the size limit; same content class (ROM/VRAM ranges, byte counts, object hashes)",
+    (
+        "docs/resident.md",
+        "word-table",
+    ): "section 3 of the module ledger, split out of docs/modules.md on 2026-08-25 for the size limit; same content class (ROM/VRAM ranges, byte counts, object hashes)",
 }
 
 # 8. (The aggregate budget now lives with rule 4 -- it is measured on the

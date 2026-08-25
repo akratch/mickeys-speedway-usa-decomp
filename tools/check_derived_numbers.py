@@ -676,7 +676,7 @@ claims = {
 for pattern, expected in claims.items():
     hits = 0
     rx = re.compile(pattern)
-    for path in ("docs/modules.md", "docs/overlays.md", "include/game/runlink.h"):
+    for path in ("docs/modules.md", "docs/resident.md", "docs/overlays.md", "include/game/runlink.h"):
         for i, line in enumerate(read(path), 1):
             for match in rx.finditer(line):
                 hits += 1
