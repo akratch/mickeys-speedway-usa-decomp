@@ -442,13 +442,9 @@ void func_800389CC(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800389CC.s")
 #endif
-#ifdef NON_MATCHING
 /* PROVENANCE: role and switch ordering compared with JFG's public
  * src/menu.c::frontInitMode; JFG retains assembly, and this body is derived
  * from Mickey's state and call surface. */
-/* Workbench: relocation-layout-mismatch with all 122 executable words exact.
- * Lever: audited the structural branch and anonymous-table ownership surface.
- * Remains: PC16 at +0x2C and named-table HI16/LO16 at +0x34/+0x3C. */
 void func_80038BC4(void) {
     u8 *selection;
     u8 value;
@@ -532,9 +528,6 @@ void func_80038BC4(void) {
         D_8007BF70 = -1;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038BC4.s")
-#endif
 /* PROVENANCE: name, role, call order, and state resets compared with JFG's
  * public src/menu.c::frontSetMode; Mickey supplies the exact state surface. */
 void frontSetMode(s32 mode) {
