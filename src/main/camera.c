@@ -548,7 +548,10 @@ Mtx *camGetProjOrgMtx(void) {
 MtxF *func_8002468C(void) {
     return &D_800CEC98;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024698.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetRotationMtx. */
+MtxF *camGetRotationMtx(void) {
+    return &D_800CF1A0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800246A4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800246B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024834.s")
