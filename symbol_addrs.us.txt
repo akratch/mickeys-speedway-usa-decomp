@@ -504,7 +504,7 @@ string_to_font_codes = 0x8002DF64; // type:func size:0xBC ROM 0x2eb64 tier-B don
 func_8002E020 = 0x8002E020; // type:func size:0x80 ROM 0x2ec20 tier-D boundary-extracted matched-C donor-jfg-src/saves.c
 
 // pi.c -- ROM 0x2ECA0-0x2F0D0.
-piInit = 0x8002E0A0; // type:func size:0xA8 ROM 0x2eca0 tier-B donor-jfg-src/pi.c dma-callgraph+order
+piInit = 0x8002E0A0; // type:func size:0xA8 ROM 0x2eca0 tier-B donor-jfg-src/pi.c dma-callgraph+order matched-C
 piRomLoad = 0x8002E148; // type:func size:0x9C ROM 0x2ed48 tier-B donor-jfg-src/pi.c dma-callgraph+order matched-C
 piRomLoadCompressed = 0x8002E1E4; // type:func size:0xFC ROM 0x2ede4 tier-B donor-jfg-src/pi.c dma-callgraph+order
 piRomLoadSection = 0x8002E2E0; // type:func size:0x7C ROM 0x2eee0 tier-B donor-jfg-src/pi.c role-callgraph+order matched-C

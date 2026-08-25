@@ -8,6 +8,8 @@
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os_internal.h"
+#include "PR/os_message.h"
 #include "game/pi.h"
 
 typedef struct AssetLookupTable {
@@ -16,12 +18,29 @@ typedef struct AssetLookupTable {
 } AssetLookupTable;
 
 extern AssetLookupTable *D_800D2470;
+extern OSMesg D_800D23B8;
+extern OSMesgQueue D_800D23C0;
+extern OSMesg D_800D23D8[];
+extern OSMesgQueue D_800D2458;
+extern u8 D_86640[];
 extern u8 D_86760[];
 
 void romCopy(u32 romOffset, u32 ramAddress, s32 numBytes);
 void *func_8002B280();
+void func_8004D5E0(OSPri priority, OSMesgQueue *queue, OSMesg *messages,
+                   s32 count);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/pi/piInit.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/pi.c:piInit. */
+void piInit(void) {
+    u32 assetTableSize;
+
+    osCreateMesgQueue(&D_800D2458, D_800D23D8, 0x20);
+    osCreateMesgQueue(&D_800D23C0, &D_800D23B8, 1);
+    func_8004D5E0(0x96, &D_800D2458, D_800D23D8, 0x20);
+    assetTableSize = D_86760 - D_86640;
+    D_800D2470 = func_8002B280(assetTableSize, 0x84);
+    romCopy((u32) D_86640, (u32) D_800D2470, assetTableSize);
+}
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/pi.c:piRomLoad. */
 u32 *piRomLoad(u32 assetIndex) {
     u32 *index;
