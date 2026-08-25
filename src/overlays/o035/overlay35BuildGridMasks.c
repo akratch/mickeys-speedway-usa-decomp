@@ -27,6 +27,9 @@ typedef struct O35GridSource {
     s16 groupCount;
 } O35GridSource;
 
+/* Plateau (batch 20): exact 0x3D0; 91 words remain, first +0x0 (frame -0x90/-0x80).
+ * Load/setup order, scope, typed groups, DKR declaration order, and 119 flags failed.
+ * The 40-minute permuter's 1350 form rebuilt canonically at score 2235; others changed semantics. */
 #ifdef NON_MATCHING
 void func_overlay_035_F0000770_1882450(O35GridSource *source,
                                         O35GridBounds *bounds) {
