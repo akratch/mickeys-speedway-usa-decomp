@@ -1916,18 +1916,11 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     return particle;
 }
 #ifdef NON_MATCHING
-/*
- * One-word-short plateau: the best 124-word candidate first differs at +0x4C
- * and retains 43 aligned residuals. IDO folds the initial free-bit scan
- * address to a move instead of the target shift/add pair, then assigns the
- * scan and particle-index scratch registers differently. The full 119-entry
- * flag lattice found no improvement; a bounded ten-minute permuter batch
- * improved its internal score from 1065 to 705 without reaching an exact
- * result.
- * PROVENANCE: structure cross-checked against JFG
- * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey
- * evidence.
- */
+/* Workbench mixed plateau: 33 aligned residuals (4 structural, 1 commutative,
+ * 28 register), 124/125 instructions; first mismatch +0x4C. AST/lifetime
+ * levers leave the initial scale/add folded and the temp ring one slot late. */
+/* PROVENANCE: structure cross-checked against JFG
+ * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey evidence. */
 CircularParticle *func_8004054C(s32 type, s32 direction) {
     CircularParticlePool *pool;
     CircularParticle *particle;
@@ -2000,7 +1993,8 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
                         bitIndex--;
                     } while (!(bits & (1 << bitIndex)));
                 }
-                *wordPtr = bits & ~(1 << bitIndex);
+                bits &= ~(1 << bitIndex);
+                *wordPtr = bits;
                 particleIndex += bitIndex;
             }
             if (particleIndex >= pool->count) {

@@ -726,6 +726,10 @@ $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 # the flag lattice selects this setting before any source permutation.
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 
+# The menu initialization loops are scalar in the target; the flag lattice
+# selects the non-unrolled 85-instruction form for func_80038878.
+$(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: CFLAGS += -Wo,-loopunroll,0
+
 # The saves slot-reset loop is scalar in the target; the 119-combination flag
 # lattice otherwise expands four 0x20-byte records into each loop iteration.
 $(BUILD_DIR)/$(SRC_DIR)/main/saves.c.o: CFLAGS += -Wo,-loopunroll,0
