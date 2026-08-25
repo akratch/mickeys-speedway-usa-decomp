@@ -40,18 +40,6 @@
     {
       "class": "metadata",
       "matched_c": null,
-      "object": "build/src/main/particles.c.o",
-      "offset": null,
-      "overlay": null,
-      "size": null,
-      "source": "src/main/particles.c",
-      "tools": [
-        "trim_elf_section.py"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": null,
       "object": "build/src/main/rcpFast3d.c.o",
       "offset": null,
       "overlay": null,
@@ -2137,8 +2125,7 @@
       "tools": [
         "filter_elf_relocations.py",
         "rebind_elf_relocations.py",
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -7551,9 +7538,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 611
+      "metadata": 610
     },
     "matched_c_bytes_with_postprocess": 396792,
-    "objects_with_postprocess": 611
+    "objects_with_postprocess": 610
   }
 }
