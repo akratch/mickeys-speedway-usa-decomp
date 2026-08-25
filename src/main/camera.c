@@ -690,7 +690,29 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023A08.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023CCC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80023F84.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024204.s")
+/*
+ * PROVENANCE: adapted from JFG's public decomp,
+ * src/camera.c:camPushFloatModelMtx.
+ */
+void camPushFloatModelMtx(Gfx **dlist, Mtx **mtx, MtxF matrix) {
+    s32 i;
+    s32 j;
+
+    i = 0;
+    do {
+        j = 0;
+        do {
+            D_800CECD8[i][j] = matrix[i][j];
+            j++;
+        } while (j < 4);
+        i++;
+    } while (i < 4);
+    mtxf_mul(matrix, D_800CED18, D_800CF260);
+    mtxf_to_mtx(D_800CF260, *mtx);
+    D_800CED58 = *mtx;
+    gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 1);
+    (*mtx)++;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800242E0.s")
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camScaleModelMtx. */
 void camScaleModelMtx(Gfx **dlist, Mtx **mtx, f32 scale) {
