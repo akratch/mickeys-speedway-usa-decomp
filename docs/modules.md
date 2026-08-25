@@ -1891,6 +1891,12 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `func_80028EFC`, ten spellings, first mismatch `+0x1c`: exact 64-byte size
   and 14/16 words; the correct loop predicate is allocated to `$t6`, while the
   target uses `$at`.
+- `func_80029274`, nine control-flow/parameter/register-lifetime hypotheses
+  and the full flag lattice, first mismatch `+0x8`: the best Mickey-derived
+  candidate has the exact 348-byte, 87-instruction boundary and `-0x10` frame,
+  but differs in 42 words. IDO moves the first float argument before the saved
+  register store, colors the long-lived float webs differently and reshapes
+  the negative-velocity return path.
 
 The full flag lattice did not change any of these allocation plateaus.
 

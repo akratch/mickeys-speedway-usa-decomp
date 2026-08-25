@@ -722,6 +722,82 @@ u8 func_80029240(s32 index) {
     return D_800D18E0[index].character;
 }
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: structural comparison uses Jet Force Gemini
+ * src/overlays/o3/overlay_3.c::GetSmoothAcceleration; JFG retains assembly,
+ * so this body is reconstructed from Mickey-only control-flow evidence.
+ *
+ * Plateau: nine control-flow, parameter and register-lifetime hypotheses
+ * reproduce the target's 87-instruction boundary and -0x10 frame. The best
+ * differs in 42 words, first at +0x8: IDO moves the first float argument
+ * before the saved-register store, colors the long-lived float webs
+ * differently and reshapes the negative-velocity return path. The complete
+ * resident flag lattice leaves this result unchanged.
+ */
+f32 func_80029274(s32 arg0, f32 arg1, f32 arg2) {
+    f32 temp_f0;
+    f32 temp_f16;
+    f32 temp_f12;
+    f32 temp_f16_2;
+    f32 var_f0;
+    f32 var_f12;
+    f32 var_f2;
+    register f32 var_f14;
+    s32 temp_v0;
+
+    var_f14 = arg1;
+    temp_v0 = arg0 < 0;
+    var_f0 = 0.0f;
+    var_f2 = 0.0f;
+    if (temp_v0 != 0) {
+        arg0 = -arg0;
+        var_f14 = -var_f14;
+    }
+    if (var_f14 < 0.0f) {
+        if (temp_v0 != 0) {
+            return -arg2;
+        }
+        return arg2;
+    }
+    temp_f12 = (f32) arg0;
+    do {
+        var_f2 += arg2;
+        var_f0 += var_f2;
+    } while ((var_f0 + var_f2) < temp_f12);
+    if ((temp_f12 <= arg2) && (var_f14 <= arg2) &&
+        (((arg0 >= 0) && (var_f14 >= 0.0f)) ||
+         ((arg0 <= 0) && (var_f14 <= 0.0f)))) {
+        var_f12 = 0.0f;
+    } else {
+        temp_f0 = var_f2 - arg2;
+        temp_f16 = var_f14 + arg2;
+        if (temp_f16 <= temp_f0) {
+            var_f12 = temp_f16;
+        } else {
+            temp_f16_2 = var_f14 - arg2;
+            if (temp_f16_2 < var_f2) {
+                var_f12 = temp_f0;
+                if (var_f2 == arg2) {
+                    goto useAcceleration;
+                }
+            } else {
+                var_f12 = temp_f16_2;
+                if (temp_f16_2 == 0.0f) {
+useAcceleration:
+                    var_f12 = arg2;
+                }
+            }
+        }
+    }
+    if (temp_v0 != 0) {
+        var_f12 = -var_f12;
+        var_f14 = -var_f14;
+    }
+    return var_f12 - var_f14;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80029274.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_800293D0.s")
