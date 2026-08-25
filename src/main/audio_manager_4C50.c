@@ -46,8 +46,25 @@ extern f32 D_80080BA0;
 extern f32 D_80080BA4;
 extern f32 D_80080BA8;
 extern AudioOscillatorState *D_800C9300;
+extern AudioOscillatorState D_800C9308[16];
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_4C50/amVibratoInit.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_4C50.c
+ * amVibratoInit; free-list body adapted from BK src/core1/code_1D00.c
+ * audioManager_setupSeqp. Mickey's 16-state pool remains authoritative.
+ */
+void amVibratoInit(void) {
+    AudioOscillatorState *state;
+    s32 i;
+
+    D_800C9300 = &D_800C9308[0];
+    state = &D_800C9308[0];
+    for (i = 0; i < 15; i++) {
+        state->next = &D_800C9308[i + 1];
+        state = state->next;
+    }
+    state->next = NULL;
+}
 /*
  * PROVENANCE: body adapted from Perfect Dark src/lib/naudio/osc.c osc_init
  * and compared with JFG src/audio_manager_4C50.c amInitOsc; Mickey's state

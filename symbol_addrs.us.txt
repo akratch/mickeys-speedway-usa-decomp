@@ -2030,7 +2030,9 @@ func_80001668 = 0x80001668; // type:func size:0x30 ROM 0x2268 tier D (sound-volu
 scalevol = 0x800016C8; // type:func size:0x24 ROM 0x22c8 tier B (JFG body/order role)
 func_800016EC = 0x800016EC; // type:func size:0x1C ROM 0x22ec tier B (overlay caller and mode writes, name unproved)
 func_80001708 = 0x80001708; // type:func size:0x38 ROM 0x2308 tier B (resident caller and master-volume reset, name unproved)
+func_80002500 = 0x80002500; // type:func size:0xC4 ROM 0x3100 tier-B matched C (JFG initializer role/order, Mickey-only body)
 amAmbientRestart = 0x800025EC; // type:func size:0xC ROM 0x31ec tier-B (JFG body/order role)
+amResetAudioMap = 0x800025F8; // type:func size:0x170 ROM 0x31f8 tier-B matched C (JFG name/reset role/order, Mickey pool body)
 amPlayAudioMap = 0x80002768; // type:func size:0x720 ROM 0x3368 tier-B (JFG name/order, DKR point-update body)
 amCalcSfxStereo = 0x80002E88; // type:func size:0x158 ROM 0x3a88 tier-B (JFG complete body and audio-manager order)
 func_80002FE0 = 0x80002FE0; // type:func size:0xBC ROM 0x3be0 tier-B (JFG amSndPlayXYZ body/order, name unproved)
@@ -2040,6 +2042,10 @@ func_800030CC = 0x800030CC; // type:func size:0xF4 ROM 0x3ccc tier-B (JFG amSndP
 func_800031C0 = 0x800031C0; // type:func size:0x28 ROM 0x3dc0 tier-B (JFG amSndSetXYZ body/order, external Mickey placeholder retained)
 func_800031E8 = 0x800031E8; // type:func size:0x68 ROM 0x3de8 tier-B (JFG amSndStopXYZ body/order, external Mickey placeholder retained)
 amSndUnlinkHandleXYZ = 0x80003250; // type:func size:0x4C ROM 0x3e50 tier-B (JFG name/order, Mickey-only body)
+func_8000329C = 0x8000329C; // type:func size:0x114 ROM 0x3e9c tier-B matched C (JFG audio-point constructor role/order, Mickey-only body)
+func_800035F8 = 0x800035F8; // type:func size:0x168 ROM 0x41f8 tier-B matched C (JFG positional-update role/order, Mickey-only body)
+func_800037C4 = 0x800037C4; // type:func size:0x128 ROM 0x43c4 tier-B matched C (Mickey pool-removal call graph, JFG TU order)
+func_800038EC = 0x800038EC; // type:func size:0xF8 ROM 0x44ec tier-B matched C (JFG volume-query role/order, Mickey-only body)
 
 // ---------------------------------------------------------------------------
 // Resident-segment skeleton donors: JFG/BK, per-function byte matches below
@@ -2079,7 +2085,7 @@ forcelink = 0x80001698; // type:func size:0x30   ROM 0x2298  src/audio_manager_1
 // bk:us.v10/src/core1/code_1D00.c.o
 audioManager_DMAInitProc = 0x80002354; // type:func size:0x38   ROM 0x2f54  us.v10/src/core1/code_1D00.c.o  masked=6/14
 // donor-jfg-src/audio_manager_4C50.c.o
-amVibratoInit = 0x800039F0; // type:func size:0x90   ROM 0x45f0  src/audio_manager_4C50.c.o  masked=22/36
+amVibratoInit = 0x800039F0; // type:func size:0x90 ROM 0x45f0 tier-A src/audio_manager_4C50.c.o masked=22/36
 amInitOsc = 0x80003A80; // type:func size:0x2D8 ROM 0x4680 tier-B (JFG name/order, PD oscillator-init body)
 amUpdateOsc = 0x80003D58; // type:func size:0x574 ROM 0x4958 tier-B (JFG name/order, PD oscillator-case body)
 amStopOsc = 0x800042CC; // type:func size:0x18 ROM 0x4ecc tier-B (JFG name/order, Mickey-only body)

@@ -56,12 +56,50 @@ typedef struct AudioSoundData {
     u8 unk9;
 } AudioSoundData;
 
+typedef struct AudioEchoSurface {
+    f32 height;
+    u8 pad04[4];
+    u32 flags;
+} AudioEchoSurface;
+
+typedef struct AudioVector3 {
+    f32 x;
+    f32 y;
+    f32 z;
+} AudioVector3;
+
+typedef struct AudioUpdateEntry {
+    AudioPoint *point;
+    f32 pitch;
+    u8 volume;
+    u8 effects;
+    u8 pad0A[2];
+    s32 pan;
+} AudioUpdateEntry;
+
 extern AudioSoundData *D_800C91E0;
 extern AudioPoint **D_800C91E4;
+extern AudioPoint *D_800C91E8;
+extern AudioPoint **D_800C91F0;
+extern u8 D_800C91EC;
 extern s8 D_800C91F4;
 extern MtxF D_800C91F8;
 extern u16 D_80078F00;
+extern s32 D_80078F14;
+extern s32 D_80078F04[];
 extern f32 D_80080B58;
+extern AudioUpdateEntry D_800C9238[][3];
+extern AudioUpdateEntry D_800C9248;
+extern AudioUpdateEntry D_800C9258;
+extern AudioUpdateEntry D_800C9268;
+extern AudioUpdateEntry D_800C9278;
+extern AudioUpdateEntry D_800C9288;
+extern AudioUpdateEntry D_800C9298;
+extern AudioUpdateEntry D_800C92A8;
+extern AudioUpdateEntry D_800C92B8;
+extern AudioUpdateEntry D_800C92C8;
+extern AudioUpdateEntry D_800C92D8;
+extern AudioUpdateEntry D_800C92E8;
 void amAmbientStop(void);
 void amSndPlayDirect(u16 soundId, u8 volume, u8 pan, f32 pitch, u8 effects,
                      void **handle);
@@ -73,13 +111,18 @@ void gsSndpSetPriority(void *sound, u8 priority);
 s32 runlinkIsModuleLoaded(s32 moduleId);
 s32 scalevol(s32 volume);
 f32 sqrtf(f32 value);
-void TrapDanglingJump(AudioCamera *cameras, s32 cameraCount);
+void TrapDanglingJump();
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z, f32 *outX, f32 *outY, f32 *outZ);
 s32 Arctanf(f32 x, f32 z);
 s32 mainGetNumberOfCameras(void);
+void amGetSfxSettings(AudioSoundData **table, s32 *size, s32 *count);
+void *func_8002B280(s32 size, s32 tag);
+void amResetAudioMap(void);
+s32 func_8001398C(f32 x, f32 z, s32 range,
+                  AudioEchoSurface ***surfaces);
 s32 amCalcSfxStereo(f32 x, f32 y, f32 z);
 void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5, u8 volume, u16 distance, u8 arg8,
-                   u8 pitch, u8 argA, u8 argB, AudioPoint **point);
+                   u8 pitch, u8 argA, s32 argB, AudioPoint **point);
 void func_800037C4(s32 index);
 u8 func_800033B0(void *sound, f32 x, f32 y, f32 z);
 void func_80003480(AudioPoint *point, s32 volume, f32 pitch, s32 pan,
@@ -87,7 +130,23 @@ void func_80003480(AudioPoint *point, s32 volume, f32 pitch, s32 pan,
 void func_800035F8(s32 index);
 void func_80003760(AudioPoint *point);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80002500.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * amInitAudioMap; body and pool layout use Mickey-only evidence.
+ */
+void func_80002500(void) {
+    s32 i;
+
+    amGetSfxSettings(&D_800C91E0, NULL, NULL);
+    D_800C91E8 = func_8002B280(sizeof(AudioPoint) * 40, 0x82);
+    D_800C91F0 = func_8002B280(sizeof(AudioPoint *) * 40, 0x82);
+    D_800C91E4 = func_8002B280(sizeof(AudioPoint *) * 40, 0x82);
+    D_80078F00 = 0;
+    for (i = 0; i < 40; i++) {
+        D_800C91E8[i].soundHandle = NULL;
+    }
+    amResetAudioMap();
+}
 /* PROVENANCE: body adapted from JFG src/audio_manager_36D0.c amAmbientPause. */
 void audspat_jingle_off(void) {
     amAmbientStop();
@@ -99,7 +158,52 @@ void amAmbientRestart(void) {
     D_800C91F4 = 0;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800025F8.s")
+/*
+ * PROVENANCE: role, order, and source shape compared with JFG
+ * src/audio_manager_36D0.c amResetAudioMap; Mickey's pool layout, module ID,
+ * and body remain authoritative.
+ */
+void amResetAudioMap(void) {
+    AudioPoint *freePoint;
+    AudioPoint *point;
+    s32 i;
+
+    freePoint = D_800C91E8;
+    D_800C91EC = 0;
+    while (D_800C91EC < 40) {
+        D_800C91F0[D_800C91EC] = freePoint;
+        freePoint++;
+        D_800C91EC++;
+    }
+    D_800C91EC--;
+
+    for (i = 0; i < D_80078F00; i++) {
+        point = D_800C91E4[i];
+        point->inRange = 0;
+        if (point->soundHandle != NULL) {
+            amSndStop(point->soundHandle);
+        }
+    }
+
+    D_80078F00 = 0;
+    D_800C91F4 = 0;
+    D_800C9238[0][0].point = NULL;
+    D_800C9248.point = NULL;
+    D_800C9258.point = NULL;
+    D_800C9268.point = NULL;
+    D_800C9278.point = NULL;
+    D_800C9288.point = NULL;
+    D_800C9298.point = NULL;
+    D_800C92A8.point = NULL;
+    D_800C92B8.point = NULL;
+    D_800C92C8.point = NULL;
+    D_800C92D8.point = NULL;
+    D_800C92E8.point = NULL;
+
+    if (runlinkIsModuleLoaded(6) != 0) {
+        TrapDanglingJump();
+    }
+}
 /*
  * PROVENANCE: body shape adapted from DKR src/audio_spatial.c
  * audspat_update_all and compared with JFG src/audio_manager_36D0.c
@@ -372,10 +476,187 @@ void amSndUnlinkHandleXYZ(AudioPoint *point) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_8000329C.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * amCreateAudioPoint; body and pool layout use Mickey-only evidence.
+ */
+void func_8000329C(u16 soundId, f32 x, f32 y, f32 z, u8 arg4, u8 arg5,
+                   u8 volume, u16 distance, u8 arg8, u8 pitch, u8 argA,
+                   s32 argB, AudioPoint **pointHandle) {
+    AudioPoint *point;
+
+    if (D_80078F14 < D_80078F00) {
+        D_80078F14 = D_80078F00;
+    }
+    if (D_80078F00 == 40) {
+        if (pointHandle != NULL) {
+            *pointHandle = NULL;
+        }
+        return;
+    }
+    point = D_800C91F0[D_800C91EC];
+    D_800C91EC--;
+    point->x = x;
+    point->y = y;
+    point->z = z;
+    point->soundId = soundId;
+    point->flags = arg4;
+    point->minVolume = arg5;
+    point->volume = volume;
+    point->pitch = pitch;
+    point->range = distance;
+    point->fastFalloff = arg8;
+    point->priority = argA;
+    point->triggeredOnce = 0;
+    point->unk23 = argB;
+    point->handle = pointHandle;
+    D_800C91E4[D_80078F00] = point;
+    D_80078F00++;
+    if (pointHandle != NULL) {
+        *pointHandle = point;
+    }
+}
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * amSndSetEcho; body and surface layout use Mickey-only evidence.
+ *
+ * Plateau: the best stock-flag candidate has the exact 52-word length,
+ * frame, and relocation surface. Ten words differ from function offset
+ * 0x20 because IDO homes closestDistance at sp+0x34 instead of sp+0x2C
+ * and schedules the pre-loop loads and pointer formation differently.
+ * The flag lattice, ten source/layout attempts, and a ten-minute permuter
+ * batch did not close the stack-allocation difference.
+ */
+u8 func_800033B0(void *sound, f32 x, f32 y, f32 z) {
+    AudioEchoSurface **surfaces;
+    AudioEchoSurface *closest = NULL;
+    s32 closestDistance = 0;
+    AudioEchoSurface *surface;
+    s32 count;
+    s32 i;
+    s32 distance;
+
+    count = func_8001398C(x, z, 0x1800, &surfaces);
+    if (count != 0) {
+        i = count - 1;
+        do {
+            surface = surfaces[i];
+            distance = (s32)((y + 10.0f) - surface->height);
+            if ((distance < closestDistance || closest == NULL) &&
+                distance > 0) {
+                closestDistance = distance;
+                closest = surface;
+            }
+        } while (i--);
+    }
+    if (closest != NULL && (closest->flags & 0x20000000)) {
+        return 0x3C;
+    }
+    return 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800033B0.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003480.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800035F8.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * func_80003994_4594; body and update-entry layout use Mickey-only evidence.
+ */
+void func_800035F8(s32 group) {
+    AudioUpdateEntry *entry;
+    AudioPoint *point;
+    s32 *count;
+    s32 countValue;
+    s32 index;
+
+    count = &D_80078F04[group];
+    entry = &D_800C9238[group][0];
+    index = 0;
+    countValue = *count;
+    if (countValue > 0) {
+        do {
+            if (entry->point != NULL) {
+                point = entry->point;
+                if (point->soundHandle == NULL &&
+                    (!(point->flags & 4) || point->triggeredOnce == 0)) {
+                    amSndPlayDirect(point->soundId, entry->volume,
+                                    entry->pan, entry->pitch, entry->effects,
+                                    &point->soundHandle);
+                }
+                if (point->soundHandle != NULL) {
+                    gsSndpSetParam(point->soundHandle, 8,
+                                   scalevol(entry->volume << 8));
+                    gsSndpSetParam(point->soundHandle, 0x10,
+                                   *(u32 *)&entry->pitch);
+                    gsSndpSetParam(point->soundHandle, 4, entry->pan);
+                    gsSndpSetPriority(point->soundHandle, point->priority);
+                    gsSndpSetParam(
+                        point->soundHandle, 0x100,
+                        func_800033B0(point->soundHandle, point->x, point->y,
+                                      point->z) |
+                            entry->effects);
+                }
+                point->triggeredOnce = 1;
+            }
+            index++;
+            entry++;
+            countValue = *count;
+        } while (index < countValue);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003760.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800037C4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_800038EC.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * func_80003B74_4774; body and pool layout use Mickey-only evidence.
+ */
+void func_800037C4(s32 index) {
+    AudioPoint *point;
+
+    if (D_80078F00 != 0) {
+        point = D_800C91E4[index];
+        if (point->soundHandle != NULL) {
+            amSndStop(point->soundHandle);
+        }
+        if (point->handle != NULL) {
+            *point->handle = NULL;
+        }
+        if (point->unk23 != 0) {
+            func_80003760(point);
+        }
+        D_800C91EC++;
+        D_800C91F0[D_800C91EC] = D_800C91E4[index];
+        D_800C91E4[index] = D_800C91E4[D_80078F00 - 1];
+        D_80078F00--;
+        D_800C91E4[D_80078F00] = NULL;
+    }
+}
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
+ * amSndGetXYZVolume; body and settings layout use Mickey-only evidence.
+ */
+s32 func_800038EC(u16 soundId, AudioVector3 *position,
+                  AudioVector3 *listener) {
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    f32 distance;
+    f32 range;
+    s32 volume;
+    s32 attenuated;
+
+    dx = position->x - listener->x;
+    dy = position->y - listener->y;
+    dz = position->z - listener->z;
+    distance = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+    volume = D_800C91E0[soundId].minVolume;
+    range = D_800C91E0[soundId].range;
+    if (distance < range) {
+        attenuated = (s32)(D_800C91E0[soundId].volume *
+                           (1.0f - (distance / range)));
+        if (volume < attenuated) {
+            volume = attenuated;
+        }
+    }
+    return volume;
+}
