@@ -66,16 +66,18 @@ extern void func_8000309C(void *handle, u8 volume);
 extern void func_80036544(void *entry, s32 *mode, s32 animationId,
                           void *state, s32 updateRate);
 
-/* NON_MATCHING plateau (2026-08-25): six structural attempts plus the full
- * flag lattice did not recover the retail local-lifetime schedule. The best
- * link-compatible candidate uses -O2 -mips2 -32 -Wab,-r4300_mul, differs in
- * 480 of 499 words, and first diverges at +0x4: its 0xB0-byte frame is larger
- * than the target's 0x90-byte frame. The remaining blocker is the original
- * vector expression/scoping shape, not a flag-only mismatch. */
+/* NON_MATCHING plateau (2026-08-25, renewed 10-attempt cap): the complete
+ * 119-combination flag lattice and structural probes leave the best canonical
+ * -O2 -mips2 -32 -Wab,-r4300_mul candidate at 501 versus 499 target words,
+ * with 430 differing and the first mismatch at +0x4. Removing the cached
+ * model pointer recovers retail's reload/branch-likely sequence; retaining the
+ * target-observed multiply-by-negative-one identities improves the previous
+ * 480-word diff by another 40. Hoisted velocity carriers, FP carrier
+ * declaration orders, and alternate expression scopes did not recover the
+ * remaining 0xE0 versus 0x90 frame/lifetime schedule. */
 #ifdef NON_MATCHING
 void func_overlay_022_F00002B0_18783B8(O22Object *object, s32 updateRate) {
     O22State *state;
-    O22Model *model;
     f32 deltaTime;
     f32 step;
     f32 distance;
@@ -90,12 +92,12 @@ void func_overlay_022_F00002B0_18783B8(O22Object *object, s32 updateRate) {
     deltaTime = (f32)updateRate;
     step = (f32)updateRate;
     distance = D_4;
-    model = object->model;
     object->flags80 = 0;
 
-    if (model->flags06 & 2) {
-        model->owner70 = 0;
-        model->flags06 &= ~2;
+    if (((O22Model *)object->model)->flags06 & 2) {
+        ((O22Model *)object->model)->owner70 = 0;
+        ((O22Model *)object->model)->flags06 =
+            ((O22Model *)object->model)->flags06 & ~2;
     }
 
     if (state->mode == 2) {
@@ -108,10 +110,10 @@ void func_overlay_022_F00002B0_18783B8(O22Object *object, s32 updateRate) {
         f32 crossZ;
         f32 horizontal;
 
-        crossX = 0.0f - ((-state->up.x) * state->up.y);
-        crossY = state->up.y * state->up.z;
-        crossZ = (state->up.x * -state->up.x) -
-                 (state->up.z * state->up.z);
+        crossX = 0.0f - ((state->up.x * -1.0f) * state->up.y);
+        crossY = state->up.y * -(state->up.z * -1.0f);
+        crossZ = (state->up.x * (state->up.x * -1.0f)) -
+                 (-(state->up.z * -1.0f) * state->up.z);
         angle = Arctanf(crossX, crossY);
         horizontal = sqrtf((crossX * crossX) + (crossY * crossY));
         accelerationY = -func_8002A8C0(Arctanf(crossZ, horizontal));
