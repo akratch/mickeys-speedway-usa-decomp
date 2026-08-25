@@ -460,9 +460,9 @@ AnimPath *func_800508B4(u8 pathIndex) {
  * asm/nonmatchings/anim/func_800772C4.s. Mickey's bit-reader calls, field
  * layout, constants, and final compiler output are independently established
  * from Mickey's ROM.
- * Workbench: schedule; equal 128-word multiset and register lanes, first +0x3C.
- * Tried levers 23/24: four line-grouping forms were inert; context lint clean.
- * Remains: the global scale load precedes two immediate scales in the candidate.
+ * Workbench: schedule-only; 4/128 positional words remain, first +0x3C.
+ * Tried retained-listing, qualifier, lifetime, aggregate, and direct-use forms.
+ * Remains: ugen emits the global load before the target's two immediate scales.
  */
 #ifdef NON_MATCHING
 void func_800508D4(s32 count, AnimPathNode *node, s32 stream,

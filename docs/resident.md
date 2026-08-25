@@ -1891,16 +1891,9 @@ selected `-mips1` instead of this TU's configured `-mips2`, so its output was
 inadmissible and discarded. The candidate remains under `NON_MATCHING` and the
 original asm body remains canonical.
 
-`partUpdateTriggers` reached a bounded instruction-count and opcode-exact
-101-word plateau under the default resident flags. Six register-only words
-remain, first at function offset `0xE4`: the target colors the late trigger
-array base/current pointer pair as `$v1`/`$v0`, while IDO colors the candidate
-as `$a2`/`$v1`; the final `bne` also emits the two commutative operands in the
-opposite order. Pointer and integer base types plus declaration/lifetime
-variants all canonicalized to this basin, and the full flag lattice found no
-alternative. The bounded permuter imported the TU as `-mips1`; its only lead
-made the signed trigger count unsigned and was rejected. The candidate remains
-under `NON_MATCHING` and the original asm body remains canonical.
+`partUpdateTriggers` is an exact 101-word match under `-Wab,-r4300_mul`; JFG
+supplies the body donor and a bounded canonical-flag permuter found the final
+loop-condition web coalescing.
 
 `func_80041CE4` reached a bounded 153-instruction plateau under the default
 resident flags with the exact opcode schedule, `0x80` frame, and relocation
@@ -2041,12 +2034,12 @@ placeholders are never imported.
 | `0x80050844` | `0x38` | `animseqLockPath` | B; paired process-command calls, adopted name. Matched C: exact 56 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005087C` | `0x38` | `animseqUnLockPath` | B; paired process-command calls, adopted name. Matched C: exact 56 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800508B4` | `0x20` | no unique candidate | D; placeholder retained. Matched C: exact 32 B and relocation surface at `-O2 -mips2 -32` |
-| `0x800508D4` | `0x200` | `func_800772C4` | B; bit-reader call sequence, placeholder retained. Plateau after the flag lattice, nine source/lifetime variants, and a bounded permuter pass: the best candidate is exact-size at 128 instructions with the exact frame, loop, exits, and relocation surface; four preheader words remain from first mismatch `+0x40` because IDO loads `D_80083FA8` before the `0.5f`/`0.390625f` constants, while the target loads those constants first. The permuter imported with the wrong `-mips1` mode and its suggestion regressed the canonical `-mips2` comparison |
+| `0x800508D4` | `0x200` | `func_800772C4` | B; bit-reader call sequence, placeholder retained. Plateau: schedule-only, 4/128 positional words from `+0x3C`; retained-listing and source-topology probes leave ugen's global load before the target's two immediate scales |
 | `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function. Matched C: exact 288 B and `D_800D6B00` relocation pair at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
 | `0x80050BF4` | `0x15C` | `animseqInit` | D; workbench structure plateau, exact 87-word/0x18-frame shape, 15 words from `+0x34`; structure-buckets end-pointer/order/bound variants were neutral or worse; paired LO16 schedules and the clear-loop branch form remain |
 | `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained. Matched C: exact 88 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group, adopted name. Matched C: exact 72 B and relocation surface at `-O2 -mips2 -32` |
-| `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function, placeholder retained. Fresh Mickey m2c allocator argument and two-word local layout give exact 172 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
+| `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; exact 43-word compiler output under `-Wo,-loopunroll,0`; JFG assembly donor, placeholder retained |
 | `0x80050E9C` | `0x168` | `animseqFreeGroup` | B; same member-cleanup call graph. Fresh m2c/JFG reconstruction with separate camera, scroll, and lockon types plus the 119-combination flag lattice retains the canonical 89/90-instruction candidate; first word `+0x1C` is the displaced exit branch, first intrinsic mismatch `+0x64`, and IDO still carries the scroll boundary instead of rematerializing the target's lockon-base HI/LO pair |
 | `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family. Matched C: exact 228 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; explicit four-byte directory and signed level-header types resolve the scan allocation |
 | `0x800510E8` | `0x40` | `animseqInitGroup` | A; exact 64 B, masked `1/16`, adopted name. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |

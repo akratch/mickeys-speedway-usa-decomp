@@ -1231,7 +1231,6 @@ void ReleaseUnusedLinkSlots(void) {
         }
     }
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
  * asm/nonmatchings/runLink/runlinkGetAddressInfo.s and its public prototype.
@@ -1265,8 +1264,8 @@ s32 runlinkGetAddressInfo(u32 address, s32 *moduleId, s32 *moduleAddress,
 
     if (symbolName != NULL) {
         count = D_8007A678;
-        overlayBase = overlayTable;
         while (count--) {
+            overlayBase = overlayTable;
             overlay = &overlayBase[romEntry->overlayNumber];
             overlayVram = overlay->vramBase;
             if (overlayVram != 0) {
@@ -1299,6 +1298,3 @@ s32 runlinkGetAddressInfo(u32 address, s32 *moduleId, s32 *moduleAddress,
     }
     return 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkGetAddressInfo.s")
-#endif

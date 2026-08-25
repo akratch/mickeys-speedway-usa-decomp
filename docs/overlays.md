@@ -146,17 +146,9 @@ bounded ten-minute, two-thread permuter batch improved its internal score from
 230 to 125 but did not reach zero; its best result added a constant-true block
 and was retained only as an ignored diagnostic artifact, not canonical source.
 
-`runlinkGetAddressInfo` (`0x800331E4`) remains `NON_MATCHING` after its own
-bounded pass. The best adapted C has the exact `0x38` frame and 108-word
-executable boundary under `-O2 -mips2 -32`; the following three nop
-words are alignment padding before the separately split trap TU. Seven masked
-words still differ, first at `+0x88`: IDO loads `overlayTable` before the first
-ROM-table countdown check, while the target schedules that load after the
-branch. The full 119-combination flag lattice did not change this. A bounded
-ten-minute, two-thread permuter batch improved its internal score from 700 to
-60 by caching the current overlay's VRAM base; that coherent improvement is
-preserved in the guarded source, but the result did not reach zero and was not
-promoted.
+`runlinkGetAddressInfo` (`0x800331E4`) is an exact 108-word match under
+`-O2 -mips2 -32`; its three following nop words are alignment padding before
+the separately split trap TU. The body donor is JFG's public runlink assembly.
 
 ### 5.2 The tables
 
