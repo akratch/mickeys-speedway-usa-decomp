@@ -924,8 +924,9 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* Size-exact plateau: 10 words differ, first at +0x20; local-buffer stack
- * placement and the resulting register allocation remain unresolved. */
+/* Size-exact plateau: 9/66 words differ, first at +0x20. Direct typed table
+ * accesses fix one expression-order word; the local buffer remains eight
+ * bytes above the target and seeds the remaining allocation difference. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;
@@ -933,7 +934,6 @@ s32 debug_text_width(const char *format, ...) {
     char s[255];
     u8 *ch;
     u8 value;
-    DebugFontCoords *coords;
     va_list args;
 
     va_start(args, format);
@@ -961,8 +961,8 @@ s32 debug_text_width(const char *format, ...) {
                             charIndex = (value - 0x60) & 0xFF;
                         }
                     }
-                    coords = &D_8007CE98[fontTexture][charIndex];
-                    stringLength = ((stringLength + coords->v) - coords->u) + 1;
+                    stringLength = ((stringLength + D_8007CE98[fontTexture][charIndex].v) -
+                                    D_8007CE98[fontTexture][charIndex].u) + 1;
                 }
             }
             value = *ch;
