@@ -2900,7 +2900,7 @@ segments:
       - [0x18E0F3C, c, func_overlay_101_F000571C_18E0F3C]
       - [0x18E1628, c, func_overlay_101_F0005E08_18E1628]
       - [0x18E1C18, c, func_overlay_101_F00063F8_18E1C18]
-      - [0x18E2208, asm, overlay_101_tail_69e8]
+      - [0x18E2208, c, func_overlay_101_F00069E8_18E2208]
       - [0x18E3114, c, func_overlay_101_F00078F4_18E3114]
       - [0x18E3948, c, func_overlay_101_F0008128_18E3948]
       - [0x18E417C, c, func_overlay_101_F000895C_18E417C]
