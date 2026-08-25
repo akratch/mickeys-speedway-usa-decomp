@@ -333,7 +333,12 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
  * reorder improved the bounded ten-minute permuter score from 2160 to 1890.
  * Pairwise and whole-state typed views either retain the seven extra address
  * instructions or over-collapse the allocation. The blocker is the target's
- * high-half reuse across adjacent overlay-local scalar symbols.
+ * high-half reuse across adjacent overlay-local scalar symbols. The
+ * cx-ov-2-a-a-r2 follow-up reconfirmed the flat 119-combination lattice and
+ * tested isolated pair views, shared anchors, camera arrays, whole camera
+ * state, and volatile bounds arrays. A nine-bound array reaches the exact
+ * 0x19C size and 63 differing words, but collapses the required relocation
+ * identities and load groups; it is diagnostic only, not promotable.
  */
 #ifdef NON_MATCHING
 void overlay15UpdateMovingStars(f32 positionX, f32 positionY, f32 positionZ,
