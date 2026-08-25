@@ -1841,6 +1841,14 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   distinct LO16 relocations. Alternative scalar and aggregate declarations
   disrupt the otherwise exact loop. The permuter found no improvement from
   its base score of 325.
+- `joyRead`, six loop/storage/type hypotheses, the full flag lattice and a
+  bounded two-worker permuter batch, first mismatch `+0x18`: the JFG-shaped
+  candidate has the exact 636-byte size, 159-instruction schedule and `-0x38`
+  frame, but differs in 48 words. Original TU-local adjacency lets IDO name
+  `D_800CF388`, `D_800CF3BC` and `D_800CF3B0` as three loop endpoints; the
+  split extern layout materializes the preceding bases plus their array sizes,
+  leaving six relocation-identity mismatches. The permuter's 5,795-to-5,305
+  improvement required an invented do-while guard and was rejected.
 - `mainThread`, five source/address hypotheses plus the full flag lattice,
   first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
   the exact 200-byte linked instruction stream, frame and control flow, but
