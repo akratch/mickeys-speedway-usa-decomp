@@ -14,6 +14,7 @@
 extern u8 D_8007A2F8;
 extern u8 D_8007A2F0;
 extern u8 D_8007A2F4;
+extern u8 D_8007A2E4;
 extern s32 D_8007A2E8;
 extern s32 D_8007A2FC;
 extern s32 D_8007A31C;
@@ -75,6 +76,7 @@ extern s32 packReadFile(s32 controllerIndex, s32 fileNum, u8 *data,
                         s32 dataLength);
 void rumbleStop(s32 controllerIndex, s32 arg1);
 s32 func_800290A0(void);
+s32 packOpen(s32 controllerIndex);
 void func_8006FEF0(s32 arg0, s32 type, void *data, s32 size);
 void func_80070030(s32 arg0, u8 arg1, s32 arg2, s32 arg3);
 
@@ -314,7 +316,18 @@ s32 packClose(s32 controllerIndex) {
     return 0;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packInit.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packIsPresent.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packIsPresent. */
+s32 packIsPresent(s32 controllerIndex) {
+    s32 ret;
+
+    ret = packOpen(controllerIndex);
+    packClose(controllerIndex);
+    if (ret == 8) {
+        D_8007A2E4 |= 1 << controllerIndex;
+    }
+    return ret;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packDirectory.s")
 /* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packDirectoryFree. */
 void packDirectoryFree(void) {

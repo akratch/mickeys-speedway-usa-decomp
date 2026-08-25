@@ -1301,6 +1301,7 @@ Exact C reconstructions in this census currently include the still-unnamed
 `packCalculateGameChecksum` (ROM `0x2D3BC`–
 `0x2D3EC`, 48 bytes), `packCalculateGlobalFlagsChecksum` (ROM `0x2DA2C`–
 `0x2DA54`, 40 bytes), `packClose` (ROM `0x2DED4`–`0x2DF00`, 44 bytes),
+`packIsPresent` (ROM `0x2E0CC`–`0x2E128`, 92 bytes),
 `packDirectoryFree` (ROM `0x2E424`–`0x2E458`, 52 bytes),
 the still-unnamed `func_8002C5F4` (ROM `0x2D1F4`–`0x2D20C`, 24 bytes),
 the still-unnamed bitstream allocator `func_8002C60C` (ROM `0x2D20C`–
