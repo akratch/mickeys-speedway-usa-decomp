@@ -59,6 +59,11 @@ typedef struct TrackLight {
     TrackLightColourEntry colours[32];
 } TrackLight;
 
+typedef struct TrackLightAllocation {
+    u32 pad00;
+    void *data;
+} TrackLightAllocation;
+
 typedef struct TrackTextureHeader {
     u8 pad00[6];
     u16 width;
@@ -222,6 +227,9 @@ extern s32 D_800C955C;
 extern s32 D_800C9564;
 extern s32 D_800C956C;
 extern void *D_800C9574;
+extern void *D_80079300;
+extern TrackLightAllocation *D_80079308;
+extern s32 D_800792F8;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -570,7 +578,31 @@ void func_8000D16C(s32 arg0, s32 arg1, s32 arg2) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D1B8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D3B8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D570.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public `src/track.c` and built
+ * `trackLightFreeMem` establish this function's role and control-flow
+ * skeleton. Mickey's own globals, types, and bytes determine this body.
+ */
+void func_8000D570(void) {
+    s32 lightIndex;
+
+    if (D_80079308 != NULL) {
+        lightIndex = D_800792E8->segmentCount;
+        while (lightIndex--) {
+            if (D_80079308[lightIndex].data != NULL) {
+                mmFree(D_80079308[lightIndex].data);
+            }
+        }
+        mmFree(D_80079308);
+        D_80079308 = NULL;
+    }
+    if (D_80079300 != 0) {
+        mmFree(D_80079300);
+        D_80079300 = NULL;
+    }
+    D_800792FC = 0;
+    D_800792F8 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D62C.s")
 void func_8000D728(TrackFloatRecord *arg0) {
     if ((arg0 != NULL) && (arg0->unkC != 0.0f)) {
