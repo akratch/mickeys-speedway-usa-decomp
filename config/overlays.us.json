@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 101124,
-  "nonmatching_overlay_c_bytes": 322740,
+  "matched_overlay_c_bytes": 101912,
+  "nonmatching_overlay_c_bytes": 321952,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 64,
   "bss_bytes": 77680,
@@ -6397,7 +6397,7 @@
      "type": "c",
      "source": "overlays/o028/overlay_028",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x7EC",
@@ -6480,41 +6480,7 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 48
-   },
-   "mixed_tu_exact_c_ranges": [
-    {
-     "offset": "0x0",
-     "end_offset": "0x70",
-     "size": "0x70",
-     "label": "overlay28ResetBuffer",
-     "source": "overlays/o028/overlay_028",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
-     "offset": "0x70",
-     "end_offset": "0x1B8",
-     "size": "0x148",
-     "label": "overlay28UpdateVertices",
-     "source": "overlays/o028/overlay_028",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
-     "offset": "0x1B8",
-     "end_offset": "0x318",
-     "size": "0x160",
-     "label": "overlay28InitializeWork",
-     "source": "overlays/o028/overlay_028",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
-     "offset": "0x318",
-     "end_offset": "0x4D8",
-     "size": "0x1C0",
-     "label": "overlay28UpdateWork",
-     "source": "overlays/o028/overlay_028",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    }
-   ]
+   }
   },
   {
    "overlay": 29,
