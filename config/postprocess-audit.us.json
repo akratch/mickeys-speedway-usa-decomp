@@ -833,6 +833,8 @@
       "size": 560,
       "source": "src/overlays/o011/overlay11UpdateTwoOptionMenu.c",
       "tools": [
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
         "objcopy"
       ]
     },
