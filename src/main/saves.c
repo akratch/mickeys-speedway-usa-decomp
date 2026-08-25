@@ -358,7 +358,28 @@ void packDirectoryFree(void) {
     D_8007A280 = NULL;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packFreeSpace.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packDeleteFile.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:packDeleteFile. */
+s32 packDeleteFile(s32 controllerIndex, s32 fileNum) {
+    OSPfsState state;
+    s32 ret;
+
+    ret = packOpen(controllerIndex);
+    if (ret != 0) {
+        packClose(controllerIndex);
+        return ret;
+    }
+    ret = 6;
+    if (osPfsFileState(&D_800D21C8[controllerIndex], fileNum, &state) == 0) {
+        if (osPfsDeleteFile(&D_800D21C8[controllerIndex], state.company_code,
+                            state.game_code, (u8 *) state.game_name,
+                            (u8 *) state.ext_name) == 0) {
+            ret = 0;
+        }
+    }
+    packClose(controllerIndex);
+    return ret;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packOpenFile.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packReadFile.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/packWriteFile.s")
