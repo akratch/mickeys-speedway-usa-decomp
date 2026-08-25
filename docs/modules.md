@@ -1396,6 +1396,8 @@ Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 `move_particle_basic_parent` body donor);
 `func_800423EC` (ROM `0x42FEC`, `0x108` bytes, default resident flags, DKR
 `move_particle_forward` body donor);
+`func_800420E0` (ROM `0x42CE0`, `0x114` bytes, default resident flags, DKR
+`move_particle_attached_to_parent` body donor);
 `partInitTriggerSPPos`
 (ROM `0x3F224`, `0x4C` bytes, default resident flags, JFG-named Mickey
 reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default

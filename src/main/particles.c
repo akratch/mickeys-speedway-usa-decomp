@@ -114,7 +114,7 @@ typedef struct BasicParticle {
     f32 localX;
     f32 localY;
     f32 localZ;
-    f32 forwardVelocity;
+    f32 movementValue;
     f32 gravity;
     u8 pad44[4];
     void *parent;
@@ -177,6 +177,7 @@ void func_800347A0(void *resource);
 void func_800359D4(void *resource);
 void modFreeModel(void *resource);
 void mathOneFloatPY(void *rotation, void *vector);
+void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void func_8003EC8C(ParticleObject *object, s32 index);
 void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
 void func_8003CA20(void);
@@ -418,7 +419,33 @@ void func_80041FEC(BasicParticle *particle) {
         particle->z += parent->z;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800420E0.s")
+/* PROVENANCE: body adapted from DKR src/particles.c:move_particle_attached_to_parent. */
+void func_800420E0(BasicParticle *particle) {
+    s32 i = D_800D4140;
+    ParticleParent *parent;
+
+    while (i-- > 0) {
+        particle->rotationY += particle->angularVelocityY;
+        particle->rotationX += particle->angularVelocityX;
+        particle->rotationZ += particle->angularVelocityZ;
+        particle->scale += particle->scaleVelocity;
+    }
+
+    particle->x = 0.0f;
+    particle->y = -particle->movementValue;
+    particle->z = 0.0f;
+    pointListRPY(1, (s16 *)particle, &particle->x, &particle->x);
+    particle->x += particle->localX;
+    particle->y += particle->localY;
+    particle->z += particle->localZ;
+
+    parent = particle->parent;
+    if (parent != NULL) {
+        particle->x += parent->x;
+        particle->y += parent->y;
+        particle->z += parent->z;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_800421F4.s")
 /* PROVENANCE: body adapted from DKR src/particles.c:move_particle_basic. */
 void func_8004233C(BasicParticle *particle) {
@@ -442,7 +469,7 @@ void func_800423EC(BasicParticle *particle) {
     while (i++ < D_800D4140) {
         particle->velocityX = 0.0f;
         particle->velocityY = 0.0f;
-        particle->velocityZ = -particle->forwardVelocity;
+        particle->velocityZ = -particle->movementValue;
         mathOneFloatPY(particle, &particle->velocityX);
         particle->x += particle->velocityX;
         particle->y += particle->velocityY - particle->gravity;
