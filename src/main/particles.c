@@ -51,7 +51,9 @@ typedef struct ParticleTrigger {
 typedef struct ParticleTriggerSlot {
     u8 pad00[4];
     s32 flags;
-    u8 pad08[0x1C];
+    u8 pad08[0x1A];
+    u8 resourceIndex;
+    u8 pad23;
 } ParticleTriggerSlot;
 
 typedef struct ParticleObjectHeader {
@@ -60,7 +62,9 @@ typedef struct ParticleObjectHeader {
 } ParticleObjectHeader;
 
 typedef struct ParticleObject {
-    u8 pad00[0x40];
+    u8 pad00[0x1A];
+    s16 activeTriggerCount;
+    u8 pad1C[0x24];
     ParticleObjectHeader *header;
     u8 pad44[0x28];
     ParticleTriggerSlot *triggers;
@@ -183,7 +187,40 @@ void partInitTriggerSPPos(ParticleTrigger *trigger, s32 type, s32 value, s32 ind
         trigger->index = index;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partInitTriggerPos.s")
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/partInitTriggerPos.s; body reconstructed from Mickey evidence. */
+void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z) {
+    s32 flags;
+    ParticleConfig *config;
+
+    config = D_8007C8B8[type];
+    trigger->value = value;
+    trigger->unk0C = 0;
+    trigger->x = x;
+    trigger->config = config;
+    trigger->y = y;
+    trigger->z = z;
+    trigger->unk20 = 0;
+    trigger->index = -1;
+    flags = config->flags;
+    if (flags & 0x4000) {
+        trigger->flags = 0x4000;
+        trigger->alpha = 0xFF;
+        return;
+    }
+    if (flags & 0x400) {
+        trigger->flags = 0x400;
+        trigger->alpha = 0xFF;
+        return;
+    }
+    trigger->flags = 0;
+    trigger->value0E = config->value14;
+    trigger->value10 = config->value16;
+    trigger->value12 = config->value18;
+    trigger->value14 = config->value22;
+    trigger->value16 = config->value24;
+    trigger->value18 = config->value26;
+    trigger->alpha = 0;
+}
 ParticleTrigger *func_8003E730(s32 type, s32 value) {
     ParticleTrigger *trigger;
     s32 i;

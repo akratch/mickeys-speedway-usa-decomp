@@ -1388,12 +1388,24 @@ Mickey-only reconstruction);
 Mickey-only reconstruction);
 `func_8004233C` (ROM `0x42F3C`, `0xB0` bytes, default resident flags, DKR
 `move_particle_basic` body donor);
+`partInitTriggerPos` (ROM `0x3F270`, `0xC0` bytes, default resident flags,
+Mickey reconstruction with the JFG assembly sibling as a structural oracle);
 `partInitTriggerSPPos`
 (ROM `0x3F224`, `0x4C` bytes, default resident flags, JFG-named Mickey
 reconstruction); `partInitTrigger` (ROM `0x3F1AC`, `0x78` bytes, default
 resident flags, JFG-named Mickey reconstruction); `debug_text_background`
 (ROM `0x452F8`, `0xA0` bytes, resident flags plus `-Wab,-r4300_mul`, JFG body
 donor).
+
+`func_8003EC8C` reached a bounded size-exact 47-word plateau under the
+default resident flags. Its best compliant candidate differs in 24
+relocation-masked words, first at function offset `0x30`, where the target
+hoists the `D_8007C894` HI16 load ahead of the object-count decrement. A
+branch-local pool pointer fixes that relocation schedule but changes the
+register assignment throughout both resource-release branches. The flag
+lattice found no exact alternative; a ten-minute bounded permuter run
+improved its internal score from 1410 to 820, but the winning form invented
+an empty guard and was rejected. The original asm body remains canonical.
 
 `vsprintf` reached a bounded size-exact plateau under `-Wab,-r4300_mul`: its
 1,220-word candidate differs in two adjacent words, first at function offset
