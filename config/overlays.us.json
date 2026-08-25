@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 73424,
-  "nonmatching_overlay_c_bytes": 219952,
+  "matched_overlay_c_bytes": 73700,
+  "nonmatching_overlay_c_bytes": 219676,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -7456,7 +7456,7 @@
      "type": "c",
      "source": "overlays/o037/overlay37Update",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x19C",
