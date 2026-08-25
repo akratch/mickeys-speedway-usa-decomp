@@ -198,10 +198,8 @@ s32 func_800501AC(AnimStreamEntry *entry) {
 
 /*
  * PROVENANCE: JFG asm/nonmatchings/anim/func_80076968.s corroborates the CFG;
- * this typed body is reconstructed from Mickey's target and fresh m2c draft.
- * Plateau: exact opcode/relocation shape; the s2/s3 web swap starts at +0x5C.
+ * this exact typed body is reconstructed from Mickey's target and m2c draft.
  */
-#ifdef NON_MATCHING
 s32 func_800501C8() {
     s32 step;
     s32 done;
@@ -210,34 +208,32 @@ s32 func_800501C8() {
     AnimStreamEntry *cursor;
 
     cursor = D_8007D698;
-    total = 0;
-    done = 0;
     entryCount = 0;
+    done = 0;
+    total = 0;
     if (cursor != NULL) {
         do {
             if (((cursor->command >> 8) & 0xFF) == 0x7F) {
                 done = 1;
             }
             step = func_800501AC(cursor);
+            total += step;
             if (step != 0) {
-                total += step;
                 cursor = (AnimStreamEntry *)
                     ((u8 *) cursor + (step >> 1) * 2);
                 entryCount++;
                 if (entryCount >= 0x2001) {
-                    done = 1;
+                    goto end;
                 }
             } else {
                 total = 0;
+end:
                 done = 1;
             }
         } while (done == 0);
     }
     return total;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800501C8.s")
-#endif
 
 /* Exact JFG donor assembly corroborates this setup shape; C is Mickey-led. */
 void func_8005027C(void) {

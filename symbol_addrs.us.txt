@@ -2458,6 +2458,7 @@ func_800500A4 = 0x800500A4; // type:func size:0x98   ROM 0x50ca4  tier-D JFG sig
 func_8005013C = 0x8005013C; // type:func size:0x40   ROM 0x50d3c  tier-D JFG stream-finalizer structure, matched C
 func_8005017C = 0x8005017C; // type:func size:0x30   ROM 0x50d7c  src/anim.c.o  masked=6/12 tier-A matched-C
 func_800501AC = 0x800501AC; // type:func size:0x1C   ROM 0x50dac  tier-D JFG signed-table-lookup structure, matched C
+func_800501C8 = 0x800501C8; // type:func size:0xB4 ROM 0x50dc8 tier-D JFG CFG, matched C src/main/anim.c.o, linked exact=45/45
 func_8005027C = 0x8005027C; // type:func size:0x50   ROM 0x50e7c  src/anim.c.o  masked=9/20 tier-A matched-C
 func_800502CC = 0x800502CC; // type:func size:0x7C   ROM 0x50ecc  tier-B JFG cleanup callees and position, matched C
 animseqStartPath = 0x80050688; // type:func size:0x7C   ROM 0x51288  tier-B JFG process-command call position, matched C
