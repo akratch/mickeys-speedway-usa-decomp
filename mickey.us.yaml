@@ -731,8 +731,8 @@ segments:
   # The common synthetic VMA preserves J-type target bits. Splat's
   # shared exclusive_ram_id marks every module as the same mutually
   # exclusive RAM class; ROM ranges and segment-qualified names keep
-  # offsets distinct. Initialized bytes remain data_rodata until evidence
-  # establishes a finer section boundary.
+  # offsets distinct. Initialized bytes remain raw data_rodata except
+  # where the manifest records explicit compiled-C ownership evidence.
 
   - name: overlay_001
     type: code
@@ -1623,7 +1623,6 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x18896C0, c, overlay_042]
-      - [0x1889DC0, bin, overlay_042_data_rodata]
       - [0x1889DD0, bin, overlay_042_reloc1]
       - [0x1889EA0, bin, overlay_042_reloc2]
 

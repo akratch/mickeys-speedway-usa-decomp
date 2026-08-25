@@ -101,6 +101,20 @@
 #define gO42ImageAlphaReloc (gO42ImageStateReloc[12])
 #define gO42PublishedEndReloc (*(Gfx **)(gO42PublishedEndBaseReloc + 4))
 
+/* The shipped LOCAL relocations select this initialized block by section
+ * base. The linker-proxy externs above remain the text relocation carriers. */
+typedef struct Overlay42InitializedData {
+    void *buffers[2];
+    s32 bufferIndex;
+    u8 imageAlpha;
+} Overlay42InitializedData;
+
+Overlay42InitializedData gOverlay42InitializedData = {
+    { 0, 0 },
+    0,
+    100,
+};
+
 /* DKR thread3_main has the semantic double-display-list lifecycle, not this exact allocator sequence. */
 void overlay42Init(void) {
     overlay42PrepareReloc();
