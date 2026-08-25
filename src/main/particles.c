@@ -49,10 +49,20 @@ typedef struct ParticleTrigger {
 } ParticleTrigger;
 
 typedef struct ParticleTriggerSlot {
-    u8 pad00[4];
+    ParticleConfig *config;
     s32 flags;
-    u8 pad08[0x1A];
-    u8 resourceIndex;
+    u8 unk08;
+    u8 unk09;
+    s16 type;
+    s16 unk0C;
+    s16 value0E;
+    s16 value10;
+    s16 value12;
+    s16 value14;
+    s16 value16;
+    s16 value18;
+    u8 pad1A[8];
+    s8 result;
     u8 pad23;
 } ParticleTriggerSlot;
 
@@ -182,6 +192,9 @@ void mathOneFloatPY(void *rotation, void *vector);
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void *piRomLoad(s32 assetId);
 void func_8003EC8C(ParticleObject *object, s32 index);
+void func_8003E7B8(ParticleObject *object, s32 index);
+s8 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger);
+s8 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger);
 void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
 void func_8003CA20(void);
 void func_8003CB3C(void);
@@ -342,7 +355,41 @@ ParticleTrigger *func_8003E730(s32 type, s32 value) {
     }
     return NULL;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E7B8.s")
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005F99C.s; body reconstructed from Mickey evidence. */
+void func_8003E7B8(ParticleObject *object, s32 index) {
+    ParticleConfig *config;
+    ParticleTriggerSlot *trigger;
+    ParticleTypeDescriptor *descriptor;
+    s32 flags;
+
+    trigger = &object->triggers[index];
+    descriptor = D_8007C8AC[trigger->type];
+    trigger->unk0C = 0;
+    config = trigger->config;
+    if (trigger->flags & 0x4000) {
+        trigger->result = func_8003EB08(descriptor, config, trigger);
+    } else {
+        if (config->flags & 1) {
+            trigger->unk08 = 0;
+            trigger->value0E = config->value14;
+            trigger->value10 = config->value16;
+            trigger->value12 = config->value18;
+        }
+        if (config->flags & 4) {
+            trigger->unk09 = 0;
+            trigger->value14 = config->value22;
+            trigger->value16 = config->value24;
+            trigger->value18 = config->value26;
+        }
+    }
+    flags = trigger->flags;
+    if (flags & 0x400) {
+        trigger->result = func_8003E8D8(descriptor, config, trigger);
+        flags = trigger->flags;
+    }
+    trigger->flags = flags | 0x8000;
+    object->activeTriggerCount++;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E8D8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EB08.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003EC8C.s")
