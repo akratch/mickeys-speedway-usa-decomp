@@ -1912,6 +1912,16 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   The resident flag lattice was unchanged; a bounded two-worker MIPS II
   permuter batch improved its internal score from 45 to 25 but did not change
   these object-level residuals.
+- `levelInit`, ten structural, storage, type and register-lifetime hypotheses,
+  the full 119-combination flag lattice and a bounded two-worker permuter
+  batch, first mismatch `+0x238`: the JFG-adapted, Mickey-specific candidate
+  reproduces all 516 target opcodes, the 2,064-byte boundary, `-0x80` frame,
+  stack homes and relocation identities, but 122 register operands differ.
+  The first residual is a temp-FIFO allocation (`$t4` rather than `$t7`) in
+  the fog-load delay slot; the following resource-table address starts a pool
+  allocation divergence (`$a2` rather than `$a3`). The permuter improved its
+  MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
+  canonical MIPS II recompilation added two instructions, so it was rejected.
 - `joyResetMap`, first mismatch `+0x0`: external storage emits 48 rather than
   36 bytes; TU-local storage is instruction-exact but wrongly claims 16 B of
   BSS and shifts the real symbol.
