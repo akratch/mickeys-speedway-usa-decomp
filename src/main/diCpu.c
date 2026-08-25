@@ -30,6 +30,7 @@ extern s32 joyGetPressed(s32 controller);
 extern void joyRead(s32 updateRate, s32 controllers);
 extern void osWritebackDCacheAll(void);
 extern s32 viGetVideoMode(void);
+extern void viGetCurrentSize(s32 *width, s32 *height);
 extern s32 runlinkGetAddressInfo(u32 address, u32 *moduleId,
                                  s32 *moduleOffset, s32 *size);
 extern void render_epc_lock_up_display(s32 arg0, s32 buttons);
@@ -45,6 +46,7 @@ extern s32 D_8007D030;
 extern s32 D_800D5DF0[];
 extern s32 D_800D5E98[];
 extern s32 D_800D5F40[];
+extern s16 *D_800D2FA8;
 void stop_all_threads_except_main(void);
 void diCpuThread(void *unused);
 
@@ -382,4 +384,18 @@ void func_8004650C(s32 ticks) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046AA8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046BCC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/cpuXYPrintf.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046E00.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::func_8006837C_68F7C. */
+void func_80046E00(void) {
+    s32 pad;
+    s32 height;
+    s32 width;
+    s32 screenSize;
+    s16 *screen;
+
+    viGetCurrentSize(&height, &width);
+    screenSize = height * width;
+    screen = D_800D2FA8;
+    while (screenSize--) {
+        *screen++ = 0;
+    }
+}

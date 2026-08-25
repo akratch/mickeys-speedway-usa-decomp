@@ -1059,7 +1059,7 @@ render_epc_lock_up_display = 0x80046548;    // type:func size:0x560 tier B/C (cr
 func_80046AA8 = 0x80046AA8;                // type:func size:0x124 tier D (Mickey boundary)
 func_80046BCC = 0x80046BCC;                // type:func size:0x1A8 tier D (Mickey boundary)
 cpuXYPrintf = 0x80046D74;                  // type:func size:0x8C tier B (JFG call graph/order)
-func_80046E00 = 0x80046E00;                // type:func size:0x58 tier D (Mickey boundary)
+func_80046E00 = 0x80046E00;                // type:func size:0x58 tier-A (exact C, JFG screen-clear body)
 
 // fx.c, ROM 0x47A70-0x4BC40. PROVENANCE: descriptive names adapted from JFG
 // src/fx.c. Tier B is the ordered cone/wake call graph: the allocator, texture,
