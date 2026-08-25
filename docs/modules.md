@@ -978,6 +978,15 @@ The full 119-combination flag lattice keeps the resident defaults best; JFG
 has no C donor body for the nearest front-end routine. Canonical code remains
 assembly.
 
+The tier-A `frontDrawRectangle` adds **0x50 bytes / 20 words** at ROM
+`0x3A184`. Its 19 unmasked words are byte-identical to JFG's uniquely
+identified same-named skeleton; the only masked word is the call to the paired
+rectangle-list renderer. The name/order carry point-of-use `PROVENANCE`, while
+the body and 12-byte rectangle record are Mickey-derived. Full-width coordinate
+parameters narrowed into that record recover the exact target schedule. The
+default flags, call relocation, object words, and linked ROM range are exact
+without post-processing.
+
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and
 repeat state, then aggregates the enabled controllers. Direct array indexing

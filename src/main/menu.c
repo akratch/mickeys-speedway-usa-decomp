@@ -83,10 +83,20 @@ extern s16 D_800D31BE;
 extern s16 D_800D31C0;
 extern s16 D_800D31C2;
 
-typedef struct MenuCommand {
+struct MenuCommand {
     u32 w0;
     u32 w1;
-} MenuCommand;
+};
+
+typedef struct MenuRectangle {
+    s16 left;
+    s16 top;
+    s16 right;
+    s16 bottom;
+    u32 colour;
+} MenuRectangle;
+
+extern void func_80039380(MenuCommand **displayList, s32 count, MenuRectangle *rectangles, s32 arg3);
 
 typedef struct MenuCurrentObject {
     s16 unk0;
@@ -299,7 +309,18 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039278.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80039380.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/frontDrawRectangle.s")
+/* PROVENANCE: name and order compared with JFG's public decomp,
+ * src/menu.c::frontDrawRectangle; body and rectangle layout derived from Mickey. */
+void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right, s32 bottom, u32 colour) {
+    MenuRectangle rectangle;
+
+    rectangle.left = left;
+    rectangle.top = top;
+    rectangle.right = right;
+    rectangle.bottom = bottom;
+    rectangle.colour = colour;
+    func_80039380(displayList, 1, &rectangle, 1);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_800395D4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003968C.s")
 void func_80039720(s32 updateRate) {

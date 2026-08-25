@@ -3,7 +3,10 @@
 
 #include "PR/ultratypes.h"
 
+typedef struct MenuCommand MenuCommand;
+
 u8 frontGetMode(void);
+void frontDrawRectangle(MenuCommand **displayList, s32 left, s32 top, s32 right, s32 bottom, u32 colour);
 s32 frontGetLanguage(void);
 void frontSetLanguage(s32 language);
 s32 frontGetScreenMode(void);
