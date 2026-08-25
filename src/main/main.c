@@ -44,6 +44,9 @@ extern s8 D_8007A1A0;
 extern u32 D_8007A1CC;
 extern s32 D_8007A1D4;
 extern s32 D_8007A1EC;
+extern s32 D_8007A1B4;
+extern s32 D_8007A1D8;
+extern s32 D_8007A200;
 extern s16 D_8007A250[];
 extern s32 D_8007A258;
 extern u8 D_8007BEF4;
@@ -80,6 +83,7 @@ extern s32 D_800D18D0;
 extern s32 D_800D18D4;
 extern s32 D_800D18D8;
 extern s32 D_800D18DC;
+extern s32 osTvType;
 extern s32 levelNGetType(s32 level);
 extern void func_80028EFC(MainCharacterState *, s32, s32);
 extern void mainChangeLevel(s32, s32, s32, s32, s32, s32);
@@ -90,10 +94,51 @@ extern void joyResetMap(void);
 extern void func_8004978C(s32, s32, s32);
 extern s32 func_80049864(s32);
 extern void func_800498FC(s32, u32, u32, s32, s32, s32, s32);
+extern void TrapDanglingJump(void);
+extern s32 joyRead(s32, s32);
+extern void mainInitGame(void);
+extern void mainPreNMI(void);
+extern void func_80026FB4(void);
+extern void func_80021290(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive.
+ *
+ * Plateau: the JFG RAM_END spelling reproduces all 50 linked instruction
+ * words and the 0xC8 boundary, but omits the target assembly's D_803FFFFC
+ * HI16/LO16 pair at +0x18/+0x28. Symbolic pointer and array spellings emit an
+ * extra address instruction, which moves the aligned epilogue and adds eight
+ * words. The complete resident flag lattice leaves this result unchanged.
+ */
+void mainThread(void *unused) {
+    s32 i;
+
+    mainInitGame();
+    if (osTvType == 0) {
+        i = 0;
+        while (1) {
+            ((volatile u32 *) 0x80400000)[--i] = 0;
+        }
+    }
+    D_8007A200 = 1;
+    TrapDanglingJump();
+    D_8007A1CC = joyRead(D_8007A1CC, 0);
+    D_8007A1B4 = 1;
+    D_8007A1D8 = 0;
+    D_8007A1BC = 6;
+    mainChangeLevel(0, D_8007A154, 0, 0, 1, 0);
+    while (1) {
+        mainPreNMI();
+        func_80026FB4();
+        func_80021290();
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainThread.s")
+#endif
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 s32 mainResetPressed(void) {

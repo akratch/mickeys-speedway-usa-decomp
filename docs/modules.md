@@ -1660,6 +1660,13 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 
 **Bounded plateaus (all remain assembly):**
 
+- `mainThread`, five source/address hypotheses plus the full flag lattice,
+  first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
+  the exact 200-byte linked instruction stream, frame and control flow, but
+  its literal RAM-end address omits the target assembly's `D_803FFFFC`
+  HI16/LO16 pair at `+0x18`/`+0x28`. Every symbolic spelling adds an address
+  instruction and moves the aligned epilogue, growing the function by eight
+  words.
 - `levelGetCounts`, ten source/type/loop hypotheses, first mismatch `+0x13c`:
   the best candidate has the target's 1,036-byte size, 259-instruction opcode
   schedule and `-0x58` frame, but three register operands use `$v0` where the
