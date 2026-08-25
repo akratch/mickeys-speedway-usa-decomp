@@ -561,16 +561,9 @@ void func_80050AD4(u8 pathIndex) {
         }
     }
 }
-/*
- * PROVENANCE: adapted from JFG's src/anim.c animseqInit assembly. Mickey's
- * globals, allocator call, data boundaries, and compiler output are
- * independently established from Mickey's ROM.
- *
- * Plateau after 10 source/type shapes and a bounded canonical-flag permuter
- * run: the best semantic candidate has 84 of the target's 87 instructions,
- * first mismatch +0x34. IDO folds three repeated array-base HI/LO pairs into
- * carried registers; the lower-scoring permuter result made a loop invariant.
- */
+/* PROVENANCE: compared with JFG's public src/anim.c::animseqInit, which retains assembly.
+ * Plateau: the coherent exact 87-word form differs 15 words, first +0x34.
+ * Unsigned bounds recover size; the 40-minute permuter had no zero (best 120). */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
     s32 emptyIndex;
@@ -593,13 +586,13 @@ void func_80050BF4(void) {
     do {
         *camera = NULL;
         camera++;
-    } while (camera < (AnimCameraSource **) D_800D6B18);
+    } while ((u32) camera < (u32) D_800D6B18);
 
     sound = D_800D6B18;
     do {
         *sound = NULL;
         sound++;
-    } while (sound < D_800D6B58);
+    } while ((u32) sound < (u32) D_800D6B58);
 
     scroll = (AnimScrollReset *) D_800D6B58;
     do {
@@ -607,14 +600,14 @@ void func_80050BF4(void) {
         scroll->unk4 = 0;
         scroll->unkC = 0;
         scroll++;
-    } while (scroll < (AnimScrollReset *) D_800D6BF8);
+    } while ((u32) scroll < (u32) D_800D6BF8);
 
     emptyIndex = -1;
     lockon = (AnimLockonReset *) D_800D6BF8;
     do {
         lockon->unk0 = emptyIndex;
         lockon++;
-    } while (lockon < (AnimLockonReset *) D_800D6C38);
+    } while ((u32) lockon < (u32) D_800D6C38);
 
     D_8007D6B0 = 0;
     light = D_800D6C58;
