@@ -104,6 +104,21 @@ typedef struct GlowObject {
     void *flare;
 } GlowObject;
 
+typedef struct ObjectLightState {
+    f32 directionX;
+    f32 directionY;
+    f32 directionZ;
+    s32 scaleStep;
+    s32 colourStep;
+    u8 shift;
+    u8 endValue;
+    u8 valueDelta;
+    u8 startValue;
+    void *table;
+    s16 yaw;
+    s16 pitch;
+} ObjectLightState;
+
 typedef struct FlareHeader {
     u8 pad0[0x29];
     u8 flareCount;
@@ -120,10 +135,11 @@ struct FlareObject {
 
 extern LightingObject **func_8000572C(s32 *start, s32 *end);
 extern void func_8001953C(LightingObject *object, s32 objectLight);
-extern void func_80019DE8(void *state, s32 arg1, s32 arg2, s16 arg3, s16 arg4, s32 arg5);
+extern void func_80019DE8(ObjectLightState *state, s32 arg1, s32 arg2, s16 arg3, s16 arg4, s32 arg5);
+extern void mathOneFloatRPY(s16 *rotation, f32 *output);
 extern void *camlightAdd(void *object, FlareEntry *entry);
 extern void camlightDelete(void);
-extern u8 D_800CB298;
+extern ObjectLightState D_800CB298;
 
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 void freeLights(void) {
@@ -463,7 +479,41 @@ f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg
 void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4) {
     func_80019DE8(&D_800CB298, arg0, arg1, arg2, arg3, arg4);
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightSetObjectLight.s, with Mickey's globals. */
+void func_80019DE8(ObjectLightState *state, s32 arg1, s32 arg2, s16 pitch, s16 yaw, s32 shift) {
+    s16 rotation[3];
+    f32 direction[3];
+
+    arg1 &= 0xFF;
+    arg2 &= 0xFF;
+    shift &= 7;
+    if (arg2 < arg1) {
+        arg1 = arg2;
+    }
+    state->startValue = arg1;
+    state->endValue = arg2;
+    state->valueDelta = arg2 - arg1;
+    state->colourStep = (state->valueDelta & 0xFF) << (shift & 0xFF);
+    state->shift = shift;
+    state->scaleStep = (1 << (8 - shift)) << 6;
+    state->pitch = pitch;
+    state->yaw = yaw;
+    rotation[1] = pitch;
+    rotation[2] = 0;
+    rotation[0] = yaw;
+    direction[0] = 0.0f;
+    direction[1] = 0.0f;
+    direction[2] = 1.0f;
+    mathOneFloatRPY(rotation, direction);
+    state->directionX = direction[0];
+    state->directionY = direction[1];
+    state->directionZ = direction[2];
+    state->table = D_800CB290;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019DE8.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c, with Mickey offsets. */
 void lightSetupLightSources(LightSourceObject *object) {
     s32 i;
