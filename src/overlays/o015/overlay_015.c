@@ -135,7 +135,11 @@ typedef struct Overlay15StarPointerView {
  * mismatch is +0x30. Typed proxy views recover the retail +0x30 movement and
  * +0x4 star-pointer accesses, but IDO still emits one address pair per scalar
  * bound instead of the retail pairwise base reuse, accounting for the four
- * extra instructions.
+ * extra instructions. The cx-ov-2-a-a-r2 follow-up tested contiguous aggregate,
+ * pair-array, explicit same-TU BSS, and volatile-pair layouts. The aggregate
+ * over-collapses by three instructions; pair layouts materialize full addresses
+ * and remain four or five instructions long. Correct full BSS ownership is the
+ * remaining structural hypothesis.
  */
 #ifdef NON_MATCHING
 void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
@@ -329,7 +333,12 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
  * reorder improved the bounded ten-minute permuter score from 2160 to 1890.
  * Pairwise and whole-state typed views either retain the seven extra address
  * instructions or over-collapse the allocation. The blocker is the target's
- * high-half reuse across adjacent overlay-local scalar symbols.
+ * high-half reuse across adjacent overlay-local scalar symbols. The
+ * cx-ov-2-a-a-r2 follow-up reconfirmed the flat 119-combination lattice and
+ * tested isolated pair views, shared anchors, camera arrays, whole camera
+ * state, and volatile bounds arrays. A nine-bound array reaches the exact
+ * 0x19C size and 63 differing words, but collapses the required relocation
+ * identities and load groups; it is diagnostic only, not promotable.
  */
 #ifdef NON_MATCHING
 void overlay15UpdateMovingStars(f32 positionX, f32 positionY, f32 positionZ,
@@ -403,7 +412,11 @@ extern Overlay15RainOffsets gOverlay15RainOffsets;
  * Plateau (2026-08-25): the typed-offset candidate is exactly 0xD8 bytes
  * and first diverges at +0x74 with 13 differing words. A 10-minute
  * permuter run reached score 185, but its valid pointer spelling regressed
- * to 0xDC and 22 differing words. The blocker is post-call load scheduling.
+ * to 0xDC and 22 differing words. The cx-ov-2-a-a-r2 follow-up found the full
+ * 119-combination flag lattice flat and tested explicit angle temporaries,
+ * scalar, split XY/Z, same-TU, volatile, and whole-state BSS views. Scalar
+ * and split views add an instruction; the whole-state view removes two. The
+ * blocker remains the retail BSS grouping and post-call load scheduling.
  */
 #ifdef NON_MATCHING
 void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
