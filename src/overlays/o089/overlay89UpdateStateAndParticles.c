@@ -62,9 +62,16 @@ extern void overlay89MaintainReloc(Overlay89Object *object,
                                    Overlay89EffectState *state);
 
 /* DKR v77/v80 and JFG contain no exact donor for this state updater. */
+/*
+ * Plateau (2026-08-25): -O2 -mips2 is 4 bytes long with 98 masked word
+ * differences, first at +0x0. The compiler hoists &particle into a saved
+ * register, adding another saved register and changing the frame. A bounded
+ * permuter run reached score 1125 only by inserting an empty condition, which
+ * was rejected as compiler-scheduling scaffolding.
+ */
 #ifdef NON_MATCHING
 void overlay89UpdateStateAndParticles(Overlay89Object *object,
-                                      s32 updateRate) {
+                                      volatile s32 updateRate) {
     Overlay89Particle particle;
     Overlay89EffectState *state;
     void *primaryHandle;
