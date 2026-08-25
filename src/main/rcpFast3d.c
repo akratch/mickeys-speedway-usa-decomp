@@ -128,7 +128,9 @@ void rcpClearZBuffer(RcpCommand **dlist, u32 width, u32 height, s32 x1,
 #ifdef NON_MATCHING
 /* Mickey-derived task construction. JFG supplies the function name and the
  * OSScTask field correspondence, while its public C file retains assembly;
- * JFG's SDK ucode header supplies the official rspbootTextEnd symbol name. */
+ * JFG's SDK ucode header supplies the official rspbootTextEnd symbol name.
+ * Plateau: all 168 instruction words are exact; only the HI16/LO16 identity at
+ * +0x204 differs. Direct D_80077AD0 forms let IDO CSE the later address load. */
 s32 rcpFast3d(u64 *dataStart, u64 *dataEnd, s32 taskType,
               void *framebuffer) {
     OSScTask *task;
