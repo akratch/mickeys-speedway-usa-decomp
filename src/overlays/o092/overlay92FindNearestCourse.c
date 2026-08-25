@@ -37,29 +37,31 @@ extern f32 gOverlay92Interpolation;
 extern O92Object **overlay92GetObjectRange(s32 *start, s32 *end);
 extern f32 sqrtf(f32 value);
 
-/* Size-exact plateau under -Wab,-r4300_mul: 41 of 168 words differ, first at
- * +0x4. Aggregate, declaration-order, and explicit-register lifetime variants
- * did not reproduce retail's private GPR/FP/stack allocation web. */
+/* Size-exact plateau under -Wab,-r4300_mul after ten structural/lifetime
+ * forms: 26 of 168 words differ, first at +0x4. Declaration ordering now
+ * reproduces the start/end, retained-course, and FP spill homes exactly; the
+ * residual is an s1/s2 allocation swap, one two-instruction schedule swap,
+ * and the first distance calculation's private FP register coloring. */
 #ifdef NON_MATCHING
 s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
                                       f32 *outY, f32 *outZ, s32 *outValue) {
     O92Object **objects;
+    s32 start;
+    s32 end;
     O92Object **cursor;
     O92Object *object;
     O92Object *nearest;
-    O92CourseEntry *course;
     O92VehicleState *vehicle;
-    s32 start;
-    s32 end;
     s32 index;
     s32 limit;
     s32 valid;
+    O92CourseEntry *course;
     f32 nearestDistance;
+    f32 distance;
+    f32 scale;
     f32 dx;
     f32 dy;
     f32 dz;
-    f32 distance;
-    f32 scale;
 
     vehicle = racer->vehicle;
     objects = overlay92GetObjectRange(&start, &end);
