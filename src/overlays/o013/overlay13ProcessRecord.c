@@ -11,6 +11,15 @@ extern f32 gOverlay13Gravity;
 extern s32 gOverlay13ActiveCount;
 extern void overlay13Prepare(s32, s32, s32, Overlay13Record *);
 
+/*
+ * NON_MATCHING plateau (2026-08-25): the canonical -O2 -mips2 candidate
+ * is exactly 0x284 bytes, with 63/161 words exact and the first mismatch at
+ * +0x2C. The 119-flag lattice and seven return-type and float-order
+ * hypotheses did not improve it. A bounded ten-minute permuter run reduced
+ * its score from 5030 to 3815 only by splitting the output pointer and radius
+ * temporaries and making y volatile; result/constant allocation and the
+ * coupled float-loop schedule remain the blocker.
+ */
 #ifdef NON_MATCHING
 void *overlay13UpdateRecord(Overlay13Record *record, s32 ticks) {
     f32 radius;
