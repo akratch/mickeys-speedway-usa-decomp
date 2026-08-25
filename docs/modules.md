@@ -1462,13 +1462,13 @@ placeholders are never imported.
 | `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group, adopted name. Matched C: exact 72 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function, placeholder retained. Plateau after 10 variants: exact size, opcode schedule, and relocations; 7 operand/register words remain from a three-temporary FIFO rotation and the source stack home at candidate `+0x18` versus target `+0x1C`, first mismatch `+0x28` |
 | `0x80050E9C` | `0x168` | `animseqFreeGroup` | B; same member-cleanup call graph. Plateau after 10 variants: best candidate has the exact `0x20` frame and first 25 instructions, then differs at `+0x64` on the `slti` destination and is one instruction short because IDO reuses the preceding `D_800D6BF8` address where the target rematerializes it; `-Wo,-loopunroll,0` is required to avoid a 25-instruction unroll expansion |
-| `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family |
+| `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family. Plateau after 10 source variants: the best candidate has the exact 57-instruction size and relocation identities but 41 positional words differ, first at `+0x2C`, because removing the extra call-argument rematerialization changes the loop's argument-register allocation |
 | `0x800510E8` | `0x40` | `animseqInitGroup` | A; exact 64 B, masked `1/16`, adopted name. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80051128` | `0x9C` | `animseqResetGroup` | B; calls reset-path family, adopted name. Matched C: exact 156 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800511C4` | `0x1A0` | `func_80077BE8` | D; 0.321 skeleton similarity, placeholder retained |
 | `0x80051364` | `0x47C` | `animseqUpdate` | D; nearest ordered `anim.c` function |
 | `0x800517E0` | `0x1C40` | `animseqProcessCommandList` | B; command dispatcher calls the path family in JFG order |
-| `0x80053420` | `0x90` | `animseqCamera` | D; ordered tail and nearest same-family shape |
+| `0x80053420` | `0x90` | `animseqCamera` | D; ordered tail and nearest same-family shape. Matched C: exact 144 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800534B0` | `0x10` | `animseqPlay` | D adoption; ordered JFG tail and the `playing = 1` store. Matched C: exact 16 B and relocation surface at `-O2 -mips2 -32`; skeleton remains too short for tier A |
 | `0x800534C0` | `0x2C` | `animseqPause` | D; ordered `anim.c` tail only, so the placeholder remains. Matched C: exact 44 B and relocation surface at `-O2 -mips2 -32`; the overwritten formal counter is required for IDO's target `$a0` allocation and has no static Mickey caller |
 | `0x800534EC` | `0x64` | no unique `hit.c` candidate | D; placeholder retained at the start of collision-shaped code. Matched C: exact 100 B and relocation surface at `-O2 -mips2 -32` |
