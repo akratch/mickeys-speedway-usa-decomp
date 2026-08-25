@@ -320,8 +320,9 @@ u8 pathIndex;
 #ifdef NON_MATCHING
 /*
  * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
- * Plateau: exact 75-instruction shape; first mismatch +0x40. Fresh m2c
- * typing leaves six temp-register words and one trap relocation identity.
+ * Plateau: the 75-word weak-alias body is best; first mismatch +0x40.
+ * Workbench allocation-mismatch/g0-schedule-probe: direct strict-float typing
+ * conflicts with old-style calls; a cast emits an indirect call.
  */
 #pragma weak animResetTrap = TrapDanglingJump
 extern s32 animResetTrap(AnimPath *, f32, s32, s32);
