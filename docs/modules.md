@@ -909,6 +909,7 @@ functions is classified as handwritten assembly under §6.2.
 
 | Matched C function | ROM | Tier | Exact executable bytes | Proof |
 |---|---:|---|---:|---|
+| `camInit` | `0x21EE0` | B — JFG role/call graph and nearest camera skeleton | 344 | JFG body adapted to Mickey's six-camera array, reset routine and projection globals; configured object, 25 text relocations, linked range and full ROM exact. |
 | `func_80021438` | `0x22038` | D — retained Mickey auto-name; camera TU position only | 12 | Mickey-only global read; configured object, HI16/LO16 relocation pair, linked range and full ROM exact. |
 | `camUseShake` | `0x22084` | B — role/order | 16 | Configured object, relocation pair, linked range and full ROM exact. |
 | `camOverrideProjScales` | `0x220E4` | B — role/order (named above) | 32 | Configured object, six relocations, linked range and full ROM exact. |

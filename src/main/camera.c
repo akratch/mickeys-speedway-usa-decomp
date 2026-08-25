@@ -21,6 +21,7 @@
  */
 
 #include "PR/ultratypes.h"
+#include "PR/os_internal.h"
 #include "game/gameVi.h"
 #include "game/math.h"
 #include "n_audio/mbi.h"
@@ -163,6 +164,7 @@ extern Mtx *D_800CED58;
 extern Mtx D_800CF160;
 extern s32 D_800CEC60;
 extern s32 D_800CEC64;
+extern s8 D_800CEC80;
 extern MtxF D_800CF1A0;
 extern MtxF D_800CF1E0;
 extern MtxF D_800CF220;
@@ -175,6 +177,7 @@ extern MtxF D_800CF2F8;
 extern MtxF D_800CF260;
 extern f32 D_800CF2A0;
 extern f32 D_800D2FB4;
+extern f32 D_80081A1C;
 extern f32 D_80081A2C;
 extern f32 D_80081A40;
 extern f32 D_80081A44;
@@ -206,13 +209,35 @@ void func_80034E54(Gfx **dlist, u8 *spriteData, s32 flags,
 f32 sqrtf(f32 value);
 extern s32 levelInitRegionFlags(void);
 extern void func_80021504(f32 fov, s32 force);
+void func_80021838(s32 x, s32 y, s32 z, s32 zRotation, s32 xRotation,
+                   s32 yRotation);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
                           u32 *x2, u32 *y2);
 extern void camSetViewport(Gfx **dlist, s32 halfWidth, s32 halfHeight,
                            s32 centerX, s32 centerY, s32 regionFlags);
 extern void func_80022794(Gfx **dlist, Mtx **mtx);
+void camStopShakes(void);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/camInit.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camInit. */
+void camInit(void) {
+    s32 i;
+
+    D_800CEC64 = 0;
+    D_800CEC60 = 0;
+    D_800CEC80 = 0;
+    _bzero(D_800CEA20, sizeof(Camera) * 6);
+    for (i = 0; i < 6; i++) {
+        D_800CEC64 = i;
+        func_80021838(200, 200, 200, 0, 0, 180);
+        D_800CEA20[D_800CEC64].fov = 60.0f;
+    }
+    camStopShakes();
+    D_800CF2A0 = 60.0f;
+    func_8004FAD0(D_800CEC98, &D_800CEC94, D_800CF2A0, 1.3333334f,
+                  10.0f, D_80081A1C, 1.0f);
+    D_80079F94 = (D_80079F94 + 1) & 0xF;
+    mtxf_to_mtx(D_800CEC98, &D_800CED60[D_80079F94]);
+}
 f32 func_80021438(void) {
     return D_800D2FB4;
 }
