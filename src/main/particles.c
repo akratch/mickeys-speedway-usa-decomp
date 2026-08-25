@@ -1651,16 +1651,7 @@ void partModelObjEmitModelPart(ParticleModelObject *object, f32 velocityX, f32 v
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/partModelObjEmitModelPart.s")
 #endif
-#ifdef NON_MATCHING
 /*
- * Near-exact FP-schedule plateau: the best canonical-mips2 candidate has the
- * target's 621 instructions, 0x38 frame, and relocation surface. Ten words
- * remain, first at +0x10C: six operands use the scale home at sp+0x20 rather
- * than sp+0x24, and two adjacent instruction pairs multiply the Z component
- * before the target's X/Y partial sum. The full flag lattice and ten source,
- * type, and expression-shape attempts found no exact form. A bounded permuter
- * imported the TU as inadmissible mips1 and improved only its internal score.
- *
  * PROVENANCE: body adapted from DKR src/particles.c:create_general_particle
  * and cross-checked against JFG
  * asm/nonmatchings/particles/func_80060ED4.s. Mickey-specific resource,
@@ -1672,8 +1663,8 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     ParticleTypeDescriptor *descriptor;
     CircularParticle *particle;
     void *resource;
-    ParticleConfig *config;
     f32 scale;
+    ParticleConfig *config;
     s32 kind;
 
     descriptor = D_8007C8AC[trigger->value];
@@ -1895,9 +1886,6 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     }
     return particle;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003FB98.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * One-word-short plateau: the best 124-word candidate first differs at +0x4C
