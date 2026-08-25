@@ -1202,6 +1202,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c.o: CFL
 # relocation surface; discard only compiler section alignment.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000000_18CCFA0.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x134
+# This Phase-B body retains its assembly fallback until the source is exact.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000134_18CD0D4.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC8
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000134_18CD0D4.c.o: CFLAGS += -Wab,-r4300_mul
 # The second assembly fallback likewise needs only boundary trimming.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0001290_18CE230.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1EC
@@ -2919,6 +2923,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34CreateRecord.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87InitializeObject.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/func_overlay_087_F0000128_18D3090.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000134_18CD0D4.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045_tail.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o \

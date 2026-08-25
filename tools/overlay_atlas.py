@@ -560,7 +560,7 @@ TEXT_SUBSEGMENTS = {
     ],
     79: [
         (0x0000, "c", "func_overlay_079_F0000000_18CCFA0"),
-        (0x0134, "asm", "overlay_079_prefix"),
+        (0x0134, "c", "func_overlay_079_F0000134_18CD0D4"),
         (0x0EFC, "c", "overlay79FindNearby"),
         (0x0FA0, "c", "func_overlay_079_F0000FA0_18CDF40"),
         (0x1280, "c", "overlay79SetLink"),

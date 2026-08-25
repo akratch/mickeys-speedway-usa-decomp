@@ -2394,7 +2394,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x18CCFA0, c, func_overlay_079_F0000000_18CCFA0]
-      - [0x18CD0D4, asm, overlay_079_prefix]
+      - [0x18CD0D4, c, func_overlay_079_F0000134_18CD0D4]
       - [0x18CDE9C, c, overlay79FindNearby]
       - [0x18CDF40, c, func_overlay_079_F0000FA0_18CDF40]
       - [0x18CE220, c, overlay79SetLink]
