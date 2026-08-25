@@ -55,7 +55,14 @@ typedef struct TrackLightColourEntry {
 } TrackLightColourEntry;
 
 typedef struct TrackLight {
-    u8 pad00[0x20];
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 radius;
+    f32 secondaryRadius;
+    f32 radiusSquared;
+    f32 secondaryRadiusSquared;
+    f32 falloff;
     TrackLightColourEntry colours[32];
 } TrackLight;
 
@@ -232,11 +239,12 @@ extern s32 D_800C955C;
 extern s32 D_800C9564;
 extern s32 D_800C956C;
 extern void *D_800C9574;
-extern void *D_80079300;
+extern TrackLight *D_80079300;
 extern TrackLightAllocation *D_80079308;
 extern s32 D_800792F8;
 extern s32 D_80079350;
 extern s32 D_80079354;
+extern f32 D_80081690;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -260,6 +268,8 @@ TrackCamera *func_8002462C(void);
 f32 func_8002A8BC(s32 angle);
 f32 func_8002A8C0(s32 angle);
 void func_8000F82C(s32 start, s32 count, s32 end);
+void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
+                   s32 intensity);
 
 /*
  * PROVENANCE: Jet Force Gemini's public `src/track.c`, function
@@ -610,7 +620,43 @@ void func_8000D570(void) {
     D_800792FC = 0;
     D_800792F8 = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D62C.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public `src/track.c`, assembly-only
+ * `trackLightAdd`, supplies the role and 0x80-byte pool stride. Mickey's own
+ * stores establish the record fields and body; the public name is not adopted.
+ */
+TrackLight *func_8000D62C(f32 x, f32 y, f32 z, f32 radius,
+                          f32 secondaryRadius, s32 red, s32 green, s32 blue) {
+    s32 lightIndex;
+    TrackLight *light;
+
+    if (radius <= 0.0f) {
+        return NULL;
+    }
+    light = D_80079300;
+    lightIndex = D_800792F8;
+    if (lightIndex--) {
+        do {
+            if (light->radius == 0.0f) {
+                light->x = x;
+                light->y = y;
+                light->z = z;
+                light->radius = radius;
+                light->secondaryRadius = secondaryRadius;
+                light->radiusSquared = radius * radius;
+                light->secondaryRadiusSquared =
+                    secondaryRadius * secondaryRadius;
+                light->falloff =
+                    D_80081690 / (radius - secondaryRadius);
+                func_8000D768(light, red, green, blue, 0xFF);
+                D_800792FC++;
+                return light;
+            }
+            light++;
+        } while (lightIndex--);
+    }
+    return NULL;
+}
 void func_8000D728(TrackFloatRecord *arg0) {
     if ((arg0 != NULL) && (arg0->unkC != 0.0f)) {
         arg0->unkC = 0.0f;
