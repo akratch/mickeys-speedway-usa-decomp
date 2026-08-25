@@ -190,18 +190,22 @@ void func_8005017C(void) {
     }
 }
 
-s32 func_800501AC(u16 *entry) {
-    return D_8007D6C0[(entry[1] >> 8) & 0xFF];
+s32 func_800501AC(AnimStreamEntry *entry) {
+    return D_8007D6C0[(entry->command >> 8) & 0xFF];
 }
 
-/* JFG corroborates this scan's CFG; the C expression choices are Mickey-led. */
+/*
+ * PROVENANCE: JFG asm/nonmatchings/anim/func_80076968.s corroborates the CFG;
+ * this typed body is reconstructed from Mickey's target and fresh m2c draft.
+ * Plateau: exact opcode/relocation shape; the s2/s3 web swap starts at +0x5C.
+ */
 #ifdef NON_MATCHING
 s32 func_800501C8() {
     s32 step;
     s32 done;
     s32 entryCount;
     s32 total;
-    u8 *cursor;
+    AnimStreamEntry *cursor;
 
     cursor = D_8007D698;
     total = 0;
@@ -209,13 +213,14 @@ s32 func_800501C8() {
     entryCount = 0;
     if (cursor != NULL) {
         do {
-            if (((((u16 *) cursor)[1] >> 8) & 0xFF) == 0x7F) {
+            if (((cursor->command >> 8) & 0xFF) == 0x7F) {
                 done = 1;
             }
-            step = func_800501AC((u16 *) cursor);
+            step = func_800501AC(cursor);
             if (step != 0) {
                 total += step;
-                cursor += (step >> 1) * 2;
+                cursor = (AnimStreamEntry *)
+                    ((u8 *) cursor + (step >> 1) * 2);
                 entryCount++;
                 if (entryCount >= 0x2001) {
                     done = 1;

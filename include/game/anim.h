@@ -18,6 +18,11 @@ extern u32 osRomBase;
 extern void *D_8007D680;
 extern s32 D_8007D688;
 
+typedef struct AnimStreamEntry {
+    u16 unk0;
+    u16 command;
+} AnimStreamEntry;
+
 typedef struct AnimLevelRomEntry {
     s32 start;
     s32 end;
@@ -155,7 +160,7 @@ s32 func_80050024(u32 bitCount);
 s32 func_800500A4(u32 bitCount);
 void func_8005013C(void);
 void func_8005017C(void);
-s32 func_800501AC(u16 *entry);
+s32 func_800501AC(AnimStreamEntry *entry);
 s32 func_800501C8();
 void func_8005027C(void);
 void func_800502CC(u8 pathIndex);
