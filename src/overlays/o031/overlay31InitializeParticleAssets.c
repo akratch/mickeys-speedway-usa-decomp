@@ -25,25 +25,15 @@ static void *const overlay31RuntimeCarrier =
 
 /* PROVENANCE: Diddy Kong Racing, src/particles.c (init_particle_assets);
  * semantic source-shape analogue only. Mickey's ROM decides every detail. */
-/*
- * Plateau (2026-08-25, independently rechecked in the overlay 31/38/46 lane):
- * the natural -O2 -mips2 body emits 129 words for the 132-word target, first
- * differing at +0x4. Retail retains the initial state index in s1, forms one
- * indexed base, and reuses it for four stores; IDO folds the same value into
- * constant offsets. The 119-point flag lattice had no exact result (-O2
- * -mips1 was only the least-bad ranking at 129 differing words). A typed base,
- * chained initialization, preincrement/embedded-assignment forms, and source
- * line regrouping were codegen-inert; a volatile index enlarged the frame and
- * worsened the ABI shape. The bounded two-thread permuter improved score 1030
- * to 320 in 601 seconds but found no zero. The nearest permitted skeleton is
- * JFG partInitLib at 0.433, itself GLOBAL_ASM with no usable C lifetime proof.
- */
+/* Workbench: structure mismatch; best is 133 words for 132 with the exact 0x30 frame and the first residual at +0xC.
+ * Levers: DKR source-shape check plus initializer, signedness, fixed-loop, and global-count/index data-flow variants.
+ * Remaining: direct count stores fold the index; retaining the indexed base adds one count-address materialization. */
 #ifdef NON_MATCHING
 void func_overlay_031_F00002E8_187F808(void) {
     s32 i;
 
-    i = 1;
     gOverlay31AssetStateCount = 0;
+    i = gOverlay31AssetStateCount + 1;
     gOverlay31AssetStates[i + 1] = 0;
     gOverlay31AssetStates[i + 2] = 0;
     gOverlay31AssetStates[i + 3] = 0;
