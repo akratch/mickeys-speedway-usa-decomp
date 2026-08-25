@@ -100,6 +100,12 @@ extern void mainInitGame(void);
 extern void mainPreNMI(void);
 extern void func_80026FB4(void);
 extern void func_80021290(void);
+extern void func_80001BC4(void);
+extern void func_800339B4(void);
+extern void rumbleKill(s32);
+extern void rumbleTick(s32);
+extern void osSetTime(OSTime);
+extern OSTime osGetTime(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/RevealReturnAddresses.s")
 
@@ -148,7 +154,30 @@ s32 mainResetPressed(void) {
     return D_800D1910;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainPreNMI.s")
+/* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
+void mainPreNMI(void) {
+    OSTime time;
+
+    if (mainResetPressed()) {
+        if (D_8007A1B4 != 0) {
+            func_80001BC4();
+            osSetTime(0);
+            time = osGetTime();
+            while (time < 2300000) {
+                time = osGetTime();
+            }
+            __osSpSetStatus(0xAAAA82);
+            osDpSetStatus(0x1D6);
+            func_800339B4();
+            rumbleKill(1);
+            rumbleTick(2);
+            rumbleTick(2);
+            rumbleTick(2);
+        }
+        while (1) {
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainInitGame.s")
 

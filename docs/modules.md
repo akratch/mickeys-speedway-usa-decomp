@@ -1605,7 +1605,7 @@ structural boundaries: it consists of three consecutive independent
 return/delay-slot islands at `0x80028F3C`, `0x80028F44`, and `0x80028F4C`.
 Their placeholder names remain because JFG role attribution is not unique.
 
-**Matching progress.** Eighty-three functions / 4,136 bytes compile exactly
+**Matching progress.** Eighty-four functions / 4,336 bytes compile exactly
 under the resident `-O2 -mips2 -32` flags. Owned bytes, relocation identity,
 linked ranges and the full ROM are exact.
 
@@ -1619,12 +1619,12 @@ linked ranges and the full ROM are exact.
   `levelGetNumber`, `levelGetLevel`, `levelGetType`, `levelGetCamera`,
   `levelTunePlay`, `levelUpdateColourCycling`, `levelGetName`,
   `levelGetNextOfWorld`, `levelGetPrevOfWorld`, and `levelInitRegionFlags`.
-- `main/main` (49 / 1,816 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
+- `main/main` (50 / 2,016 bytes): `mainGetZBCheck`, `mainGameWindowChanging`,
   `mainGameWindowSize`, `mainSetGameWindow`, `mainSetAnimGroup`,
   `mainGetAnimGroup`,
   `mainChangeCameras`, `mainGetNextCharacter`, `mainGetNextLevel`,
   `func_800282C8`,
-  `mainResetPressed`, `mainSyncNextLevel`, `mainGetMode`, `mainSetMode`,
+  `mainResetPressed`, `mainPreNMI`, `mainSyncNextLevel`, `mainGetMode`, `mainSetMode`,
   `mainTitlePageInit`,
   `mainFrontInit`, `mainStartGame`,
   `mainGetNumberOfCameras`, `func_80028DE4`, `func_80028EA0`, `func_80028F3C`,
