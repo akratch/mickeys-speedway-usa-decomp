@@ -588,26 +588,26 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 
 | ROM | Mickey symbol | JFG correspondence | Tier and evidence |
 |---|---|---|---|
-| `0x2BCD0` | `mmInit` | `mmInit` | A: unique 30-word skeleton; 14 relocated words masked |
+| `0x2BCD0` | `mmInit` | `mmInit` | A: unique 30-word skeleton with 14 relocated words; linked C exact |
 | `0x2BD48` | `mmExtended` | `mmExtended` | B: returns the expansion-memory flag consumed by `mmInit`; matched C exact |
-| `0x2BD54` | `func_8002B154` | `mmAllocRegion` | B: allocates slot storage, then calls the pool initializer with it |
-| `0x2BDA0` | `func_8002B1A0` | `mempool_init` | B: shared callee of `mmInit` and the region allocator; initializes the 0x10-byte pool and 0x14-byte slot records |
-| `0x2BE80` | `func_8002B280` | `mmAlloc` | B: main-pool wrapper that derives a caller colour tag and calls the slot finder |
-| `0x2BF14` | `func_8002B314` | `mmAlloc2` | B: second wrapper with the same calls and result role |
-| `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator |
-| `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker |
-| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments |
+| `0x2BD54` | `func_8002B154` | `mmAllocRegion` | B: allocates slot storage, then calls the pool initializer with it; linked C exact |
+| `0x2BDA0` | `func_8002B1A0` | `mempool_init` | B: shared callee of `mmInit` and the region allocator; initializes the 0x10-byte pool and 0x14-byte slot records; linked C exact |
+| `0x2BE80` | `func_8002B280` | `mmAlloc` | B: main-pool wrapper that derives a caller colour tag and calls the slot finder; linked C exact |
+| `0x2BF14` | `func_8002B314` | `mmAlloc2` | B: second wrapper with the same calls and result role; linked C exact |
+| `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator; linked C exact |
+| `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker; linked C exact |
+| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments; plateau, exact size, 14/116 words differ, first `+0xE0` |
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
-| `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker |
-| `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton; four relocated words masked |
-| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots` |
-| `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot |
-| `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays |
-| `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range |
-| `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records |
+| `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
+| `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
+| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; Mickey additionally calls `ReleaseUnusedLinkSlots`; plateau, canonical C is one word short, first `+0x4` |
+| `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot; linked C exact |
+| `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
+| `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
+| `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records; linked C exact |
 | `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
 | `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
-| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder |
+| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; plateau, exact size, 57/72 words differ, first `+0x4` |
 | `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
@@ -632,6 +632,64 @@ slot-pointer anchor at `D_800D1C64`. The 0x10-byte stride and neighboring
 allocator accesses establish Mickey's 16-bit counts at `+0/+2`, slot pointer
 at `+4`, size at `+8`, and free-size field at `+0xC`; these differ from JFG's
 starting declaration and are reflected in `include/game/memory.h`.
+`mmFree` is exact for all `0x44` bytes with canonical flags. Its branch and
+two call relocations reproduce the target's immediate-free/deferred-free
+selection, using the body adapted from JFG `src/memory.c`.
+`func_8002B93C` is exact for all `0x3C` bytes with canonical flags; its queue
+address, delay, and count accesses reproduce the JFG `mempool_free_queue`
+role without the donor's diagnostic overflow branch.
+`func_8002B978` is exact for all `0x58` bytes with canonical flags. Its reverse
+pool-table scan is adapted from JFG `mempool_get_pool` and preserves Mickey's
+pool count and 16-byte record layout.
+`func_8002B700` is exact for all `0x68` bytes with canonical flags. The JFG
+`mmFlushFreeStack` loop reproduces Mickey's LIFO queue drain and its call
+relocation to the immediate-free worker.
+`func_8002B8A8` is exact for all `0x94` bytes with canonical flags. The JFG
+`mempool_free_addr` search matches after expressing Mickey's 20-byte slot
+stride explicitly and retaining the linked list index at its 16-bit width.
+`func_8002B9D0` is exact for all `0x150` bytes with canonical flags. Its JFG
+coalescing body matches Mickey after preserving direct pool-table expressions
+and natural 20-byte indexing for the allocator's recycled-slot tail.
+`func_8002B4C0` is exact for all `0x64` bytes with canonical flags. The JFG
+`mmAllocR` reverse pool search and zero colour tag reproduce Mickey's target
+and its call relocation to the shared slot finder.
+`func_8002B3A8` is exact for all `0x118` bytes with canonical flags. Its JFG
+best-fit search matches with Mickey's 16-bit traversal index, retained stack
+pad, and natural 20-byte slot indexing at the selected-address return.
+`func_8002B1A0` is exact for all `0xE0` bytes with canonical flags. JFG's
+pool initializer reproduces the pool/slot setup after applying Mickey's
+byte-sized slot flags and colour index and retaining the repeated pool-table
+expressions that determine IDO's schedule.
+`func_8002B280` is exact for all `0x94` bytes with canonical flags. Its JFG
+allocation wrapper matches after retaining Mickey's caller-colour global and
+expressing the address/module scratch area as a padded stack record.
+`func_8002B314` is exact for all `0x94` bytes with canonical flags. It is the
+instruction-identical duplicate of the preceding JFG allocation wrapper and
+uses the same padded stack-record spelling.
+`func_8002B154` is exact for all `0x4C` bytes with canonical flags. JFG's
+region-allocation size calculation and allocator/initializer call sequence
+reproduce Mickey's target and both call relocations.
+`mmInit` is exact for all `0x78` bytes with canonical flags. The JFG donor's
+extended-RAM choice, main-pool construction, deferred-free delay, and queue
+reset reproduce all 30 words and the linked global/call relocations.
+
+Three JFG-derived bodies remain assembly-backed `NON_MATCHING` plateaus after
+bounded source trials and the full 119-combination flag lattice. The best
+`func_8002B524` candidate has the target's 116-word size with 14 positional
+differences, first at `+0xE0`; the remaining mismatch is the slot/data pointer
+allocation, branch-likely schedule, and one stack home (`0x38` versus target
+`0x3C`). Reusing the exact wrappers' padded stack record was a new hypothesis,
+but regressed to 20 differences from `+0x34`, so the prior body is retained.
+The bounded permuter could not run because `tools/permuter/import.py` is absent
+from this lane.
+
+Canonical `func_8002B7AC` C emits 62 words against 63 in the target and first
+diverges at `+0x4`: IDO folds the initial `D_800D21B0` address/load while the
+target retains the address in a saved register, shifting the otherwise-close
+queue loop. `-O2 -g3` reaches the target size with 15 differences but is not a
+valid TU-wide replacement for the canonical flags. `func_8002BB40` reaches the
+target's 72-word size but differs in 57 words from `+0x4`; pool/slot pointer
+allocation and split-record scheduling remain structurally different.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a
@@ -667,7 +725,7 @@ never imported as names, and uncertain rows retain Mickey's `func_` spelling.
 | `0x20D84` | `modFreeModel`, `0xF4` | `modFreeModel` | B: instance free followed by model-reference/resource release; linked C match |
 | `0x20E78` | `func_80020278`, `0x168` | JFG placeholder resource-free helper | B: texture free plus the same family of owned allocations; linked C match |
 | `0x20FE0` | `func_800203E0`, `0xD8` | no adoptable name | D: model helper calls only; linked C match, placeholder retained |
-| `0x210B8` | `func_800204B8`, `0xAC` | no adoptable name | D: texture/allocation release structure only |
+| `0x210B8` | `func_800204B8`, `0xAC` | no adoptable name | D: texture/allocation release structure only; linked C exact |
 | `0x21164` | `modelSetModelFlags`, `0xC` | `modelSetModelFlags` | B: paired global setter and observed callers; linked C match |
 | `0x21170` | `modelGetModelFlags`, `0xC` | `modelGetModelFlags` | B: paired global getter; linked C match |
 | `0x2117C` | `func_8002057C`, `0x558` | `makeModelGfx` | B: texture/display-list construction call graph and TU order |
@@ -683,6 +741,25 @@ never imported as names, and uncertain rows retain Mickey's `func_` spelling.
 the correspondence vocabulary above. The three tier-A rows are measurements
 against Mickey's ROM; every other row is explicitly an argument. No JFG body
 is present in the initial all-`GLOBAL_ASM` split.
+`func_800204B8` is a Mickey-only exact reconstruction for all `0xAC` bytes
+under canonical `-O2 -mips2 -32`. Directly reloading the model's byte-sized
+texture count reproduces the target register allocation; its texture releases,
+two allocation frees, call relocations, and nulling stores are linked exact.
+`func_80020D8C` plateaus after the 119-combination flag lattice and ten
+source/type/lifetime spellings. Its best `NON_MATCHING` candidate has the
+target's exact 48-instruction opcode schedule, frame, and relocation surface,
+but 17 register operands differ from first mismatch `+0x38`. IDO assigns the
+texture-table address temporaries later in the temporary FIFO and tests the
+copied loop count in `t1`, while the target uses the preceding registers and
+tests the original count in `t0`; target assembly remains canonical.
+`func_80020E4C` plateaus after the full flag lattice and ten coherent
+source/type/control-flow spellings. Its best Mickey-only `NON_MATCHING`
+candidate has the target's `0x40` frame and emits 112 instructions versus
+113, with 83 differing positional words from first mismatch `+0x48`. The
+candidate collapses the exception scan's zero-index scale-and-add pointer
+setup into one move where the target retains both instructions; the following
+temporary allocation and schedule remain shifted. Target assembly remains
+canonical and no exact bytes are claimed.
 **Why most rows have no new `mickey.us.yaml` split.** §1's "measured file
 boundary" tier requires a whole-`.text` match; this pass only matched
 **Why the original scan added no `mickey.us.yaml` splits.** §1's "measured

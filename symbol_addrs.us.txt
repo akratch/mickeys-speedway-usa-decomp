@@ -2094,6 +2094,7 @@ func_8001FB64 = 0x8001FB64; // type:func size:0x68   ROM 0x20764  src/models.c.o
 modFreeModel = 0x80020184; // type:func size:0xF4   ROM 0x20D84  src/models.c.o  tier-B JFG cache-release body and TU position  C-match -O2 -mips2
 func_80020278 = 0x80020278; // type:func size:0x168   ROM 0x20E78  src/models.c.o  tier-B JFG model-resource destructor  C-match -O2 -mips2
 func_800203E0 = 0x800203E0; // type:func size:0xD8   ROM 0x20FE0  src/models.c.o  tier-D model texture/resource initializer  C-match -O2 -mips2
+func_800204B8 = 0x800204B8; // type:func size:0xAC   ROM 0x210B8  tier-D matched C main/models -O2 -mips2 -32 Mickey-only reconstruction
 modelSetModelFlags = 0x80020564; // type:func size:0xC   ROM 0x21164  src/models.c.o  tier-B same JFG TU position and model-flag access  C-match -O2 -mips2
 modelGetModelFlags = 0x80020570; // type:func size:0xC   ROM 0x21170  src/models.c.o  tier-B paired JFG model-flag accessor  C-match -O2 -mips2
 func_80020AD4 = 0x80020AD4; // type:func size:0x3C   ROM 0x216d4  src/models.c.o  masked=6/15  C-match -O2 -mips2
@@ -2118,10 +2119,21 @@ Powerf = 0x8002A878; // type:func size:0x44   ROM 0x2b478  src/hasm/ido/math_uti
 Arctanf = 0x8002A910; // type:func size:0xFC   ROM 0x2b510  src/hasm/ido/math_util.s.o  masked=5/63
 mathDiffAngle = 0x8002AA0C; // type:func size:0x38   ROM 0x2b60c  src/hasm/ido/math_util.s.o  masked=0/14
 // donor-jfg-src/memory.c.o
-mmInit = 0x8002B0D0; // type:func size:0x78   ROM 0x2bcd0  src/memory.c.o  masked=14/30
+mmInit = 0x8002B0D0; // type:func size:0x78   ROM 0x2bcd0  tier-A matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmInit masked=14/30
 mmExtended = 0x8002B148; // type:func size:0xC   ROM 0x2bd48  tier-B donor-jfg role-callgraph matched C main/memory -O2 -mips2 -32
 mmSetDelay = 0x8002B6F4; // type:func size:0xC   ROM 0x2c2f4  tier-B donor-jfg role-callgraph matched C main/memory -O2 -mips2 -32
-mmFree = 0x8002B768; // type:func size:0x44   ROM 0x2c368  src/memory.c.o  masked=4/17
+func_8002B1A0 = 0x8002B1A0; // type:func size:0xE0   ROM 0x2bda0  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_init
+func_8002B154 = 0x8002B154; // type:func size:0x4C   ROM 0x2bd54  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmAllocRegion
+func_8002B280 = 0x8002B280; // type:func size:0x94   ROM 0x2be80  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmAlloc
+func_8002B314 = 0x8002B314; // type:func size:0x94   ROM 0x2bf14  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmAlloc2
+func_8002B3A8 = 0x8002B3A8; // type:func size:0x118  ROM 0x2bfa8  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_slot_find
+func_8002B4C0 = 0x8002B4C0; // type:func size:0x64   ROM 0x2c0c0  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmAllocR
+func_8002B700 = 0x8002B700; // type:func size:0x68   ROM 0x2c300  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmFlushFreeStack
+mmFree = 0x8002B768; // type:func size:0x44   ROM 0x2c368  tier-A matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmFree masked=4/17
+func_8002B8A8 = 0x8002B8A8; // type:func size:0x94   ROM 0x2c4a8  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_free_addr
+func_8002B93C = 0x8002B93C; // type:func size:0x3C   ROM 0x2c53c  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_free_queue
+func_8002B978 = 0x8002B978; // type:func size:0x58   ROM 0x2c578  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_get_pool
+func_8002B9D0 = 0x8002B9D0; // type:func size:0x150  ROM 0x2c5d0  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_slot_clear
 mmGetSlotPtr = 0x8002BB20; // type:func size:0x14   ROM 0x2c720  tier-B donor-jfg role-callgraph matched C main/memory -O2 -mips2 -32
 mmGetDelay = 0x8002BB34; // type:func size:0xC   ROM 0x2c734  tier-B donor-jfg role-callgraph matched C main/memory -O2 -mips2 -32
 // jfg:src/saves.c.o

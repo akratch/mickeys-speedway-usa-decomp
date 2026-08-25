@@ -22,7 +22,11 @@
 #include "game/models.h"
 
 extern s32 D_80079C00;
+#ifdef NON_MATCHING
+extern void *volatile D_80079C04;
+#else
 extern void *D_80079C04;
+#endif
 extern s16 D_80079C08;
 extern s32 *D_800CB480;
 extern s32 *D_800CB484;
@@ -40,6 +44,7 @@ void *func_8002B314(s32 size, s32 tag);
 s32 *piRomLoad(s32 assetId);
 void *func_80034448(s16 textureId);
 void func_800347A0(void *texture);
+s32 func_8003484C(void *texture);
 void func_800348A0(s32 id, s32 value);
 void func_8005AAC0(void *animation);
 u8 func_8002057C(void **out, ObjectModel *model, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
@@ -248,7 +253,32 @@ void func_800203E0(ObjectModel *model) {
         func_8002057C(&model->unk6C, model, 4, 0, 0, 0xFF, 0);
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_800204B8.s")
+/* Mickey-only reconstruction; JFG supplied no adoptable helper name or body. */
+void func_800204B8(ObjectModel *model) {
+    s32 offset;
+    s32 i;
+
+    offset = 0;
+    i = 0;
+    if (model->numberOfTextures > 0) {
+        do {
+            if (((ModelTexture *)((u8 *)model->textures + offset))->texture != NULL) {
+                func_800347A0(((ModelTexture *)((u8 *)model->textures + offset))->texture);
+                ((ModelTexture *)((u8 *)model->textures + offset))->texture = NULL;
+            }
+            i++;
+            offset += sizeof(ModelTexture);
+        } while (i < model->numberOfTextures);
+    }
+    if (model->unk68 != NULL) {
+        mmFree(model->unk68);
+        model->unk68 = NULL;
+    }
+    if (model->unk6C != NULL) {
+        mmFree(model->unk6C);
+        model->unk6C = NULL;
+    }
+}
 /*
  * PROVENANCE -- name follows JFG's public models.c symbol at the same TU
  * position. The body is reconstructed from Mickey's three instructions.
@@ -280,8 +310,137 @@ void func_80020AD4(void) {
     } while (D_800CB4A2 != &D_800CB49C[i]);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020B10.s")
+#ifdef NON_MATCHING
+typedef struct ModelFrameEntry {
+    s16 frame;
+    s16 nextFrame;
+    u32 textureIndex;
+} ModelFrameEntry;
+
+typedef struct ModelTextureHeader {
+    u8 pad0[0xE];
+    u16 frameScale;
+    u16 frameCount;
+} ModelTextureHeader;
+
+typedef struct ModelFrameInstance {
+    ObjectModel *model;
+    u8 pad4[6];
+    s16 outputIndex;
+    u8 padC[0x40];
+    ModelFrameEntry *entries;
+    u16 *outputs[1];
+} ModelFrameInstance;
+
+/* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
+void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
+    ObjectModel *model;
+    ModelFrameEntry *entry;
+    u16 *output;
+    s32 remaining;
+    s32 remainingCopy;
+
+    model = instance->model;
+    entry = instance->entries;
+    output = instance->outputs[instance->outputIndex];
+    remaining = *((u8 *)model + 0x2C);
+    remainingCopy = remaining;
+    remaining--;
+    if (remainingCopy != 0) {
+        do {
+            s32 index = entry->textureIndex & 0xFF;
+            ModelTextureHeader *texture = model->textures[index].texture;
+            s16 nextFrame;
+            s16 outputValue;
+            u16 frameScale;
+
+            if (index == textureIndex && frame < texture->frameCount) {
+                entry->frame = frame;
+            }
+            frameScale = texture->frameScale;
+            nextFrame = entry->nextFrame;
+            outputValue = (entry->frame >> 8) * frameScale;
+            output++;
+            remainingCopy = remaining;
+            entry++;
+            output[-1] = outputValue;
+            if (nextFrame >= 0) {
+                output++;
+                output[-1] = (nextFrame >> 8) * frameScale;
+            }
+            remaining--;
+        } while (remainingCopy != 0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020D8C.s")
+#endif
+#ifdef NON_MATCHING
+typedef struct ModelCacheEntry {
+    s32 id;
+    ObjectModel *model;
+} ModelCacheEntry;
+
+/* Mickey-only reconstruction; JFG's modSuspendModelTextures remains assembly. */
+void func_80020E4C(s16 *exceptions) {
+    SuspendedModelTexture *saved;
+    s32 modelIndex;
+
+    D_80079C08 = 0;
+    saved = func_8002B280(0x3E8, 0x8A);
+    D_80079C04 = saved;
+    modelIndex = 0;
+    if (D_800CB48C > 0) {
+        if (D_80079C08 < 0x7D) {
+            do {
+                ModelCacheEntry *cache = (ModelCacheEntry *)((u8 *)D_800CB484 + (modelIndex << 3));
+                s32 modelId = cache->id;
+
+                if (modelId != -1) {
+                    ObjectModel *model = cache->model;
+                    s32 excluded = 0;
+                    s32 exceptionIndex = 0;
+
+                    if (*exceptions != -1) {
+                        s16 *exception = &exceptions[exceptionIndex];
+                        s16 exceptionId = *exception;
+
+                        do {
+                            if (exceptionId == modelId) {
+                                excluded = 1;
+                            }
+                            exceptionId = exception[1];
+                            exception++;
+                        } while (exceptionId != -1 && excluded == 0);
+                    }
+                    if (excluded == 0) {
+                        s32 textureIndex = 0;
+
+                        if (model->numberOfTextures > 0) {
+                            s32 offset = 0;
+
+                            if (D_80079C08 < 0x7D) {
+                                do {
+                                    saved->value = (s32)((ModelTexture *)((u8 *)model->textures + offset))->texture;
+                                    saved->id = func_8003484C(((ModelTexture *)((u8 *)model->textures + offset))->texture);
+                                    func_800347A0(((ModelTexture *)((u8 *)model->textures + offset))->texture);
+                                    textureIndex++;
+                                    offset += sizeof(ModelTexture);
+                                    D_80079C08++;
+                                    saved++;
+                                } while (textureIndex < model->numberOfTextures && D_80079C08 < 0x7D);
+                            }
+                        }
+                    }
+                }
+                modelIndex++;
+            } while (modelIndex < D_800CB48C && D_80079C08 < 0x7D);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020E4C.s")
+#endif
 /*
  * PROVENANCE -- name and TU position follow JFG's public
  * modResumeModelTextures symbol. JFG has no public C body; Mickey is the body
