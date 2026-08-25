@@ -1814,15 +1814,9 @@ instead drops the footer-magic stores, and aggregate layouts grow the frame.
 The unavailable permuter import prevents a bounded automated declaration
 search; the assembly fallback remains canonical.
 
-The paired save-window loader `func_8002CB18` retains a Mickey-derived
-`NON_MATCHING` body after the 119-combination flag lattice and ten local-order,
-scope, and aggregate-layout hypotheses. Its best candidate has the exact 115
-instructions, 112-byte frame, and relocations; ten words differ, first at
-`+0x30`. Nine are stack homes: the footer is exact, but the queue lands at
-candidate `sp+0x64` versus target `sp+0x5C`, and the decoded value at `sp+0x5C`
-versus `sp+0x60`. The last reuses `$s5` where the target rematerialises four.
-Aggregates grow the frame and narrower scopes move both homes together. With
-the permuter import unavailable, the assembly fallback remains canonical.
+| Function | ROM | Bytes | Flags | Verdict |
+|---|---:|---:|---|---|
+| `func_8002CB18` | `0x2D718` | `0x1CC` | `-O2 -mips2 -32 -Wo,-loopunroll,0` | Mickey-derived save-window loader; exact 115 instruction words, frame, relocations, and linked ROM bytes after the stack-home census and unsigned width rematerialization |
 
 `packInit` retains a `NON_MATCHING` body adapted from Diddy Kong Racing's
 public `src/save_data.c:init_controller_paks` after the 119-combination flag
