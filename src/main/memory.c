@@ -73,8 +73,16 @@ void mmFree(void *data) {
 /* JFG correspondence: mempool_free_addr (tier B; locates and clears a slot). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B8A8.s")
 
-/* JFG correspondence: mempool_free_queue (tier B; enqueues a delayed free). */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B93C.s")
+/* PROVENANCE: adapted from JFG src/memory.c:mempool_free_queue. */
+extern void *D_800D1CA8[];
+extern s8 D_800D20A8[];
+extern s32 D_800D21A8;
+
+void func_8002B93C(void *dataAddress) {
+    D_800D1CA8[D_800D21A8] = dataAddress;
+    D_800D20A8[D_800D21A8] = D_800D21AC;
+    D_800D21A8++;
+}
 
 /* JFG correspondence: mempool_get_pool (tier B; address-to-pool search). */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B978.s")
