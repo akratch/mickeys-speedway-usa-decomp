@@ -875,7 +875,9 @@ void func_overlay_008_F0003278_1860FD0(void *unused0,
  * disturb the loop. Reconfirmed 2026-08-25 with the full 119-combination
  * flag lattice, three additional qualifier/order spellings, and a bounded
  * ten-minute permuter batch under the real overlay flags; score 30 did not
- * improve. */
+ * improve. A fresh ten-hypothesis pass in lane cx-ov-3-a-a-r3 (statement and
+ * declaration order, comma association, aggregate access, direct globals,
+ * and const/register qualifiers) retained the same +0x34 two-word plateau. */
 #ifdef NON_MATCHING
 void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
                           Overlay8ScaleContext *context,
