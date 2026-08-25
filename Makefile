@@ -1174,7 +1174,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14DispatchCommand.c.o: POSTPROCESS 
 	$(OBJCOPY) --redefine-sym func_overlay_014_F0001040_1870918=overlay14DispatchCommand $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x124
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14BuildRects.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_014_F00012D8_1870BB0=overlay14BuildRects $@ && \
+	$(OBJCOPY) --redefine-sym \
+		overlay14SubmitRectsReloc=func_overlay_014_F0000000_186F8D8 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36CallGlobal.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x30
