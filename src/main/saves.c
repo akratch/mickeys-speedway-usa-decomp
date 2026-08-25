@@ -19,6 +19,7 @@ extern u8 D_8007A2E4;
 extern s32 D_8007A2E8;
 extern s32 D_8007A2FC;
 extern s32 D_8007A31C;
+extern u8 D_8007A284[];
 extern void *D_8007A280;
 extern OSMesgQueue *D_800D21C0;
 extern OSPfs D_800D21C8[];
@@ -373,7 +374,55 @@ s32 packFileSize(s32 controllerIndex, s32 fileNum, s32 *fileSize) {
     }
     return 6;
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/saves.c:font_codes_to_string. */
+char *font_codes_to_string(u8 *inString, char *outString, s32 stringLength) {
+    s32 index = *inString;
+    s32 roundedLength;
+    s32 peel;
+    char *ret = outString;
+
+    while (index != 0 && stringLength != 0) {
+        if (index < 66) {
+            *outString = D_8007A284[index];
+            outString++;
+        } else {
+            *outString = '-';
+            outString++;
+        }
+        inString++;
+        stringLength--;
+        index = *inString;
+    }
+    if (stringLength != 0) {
+        peel = -(stringLength & 3);
+        roundedLength = peel + stringLength;
+        if (peel != 0) {
+            do {
+                stringLength--;
+                *outString++ = 0;
+            } while (roundedLength != stringLength);
+            if (stringLength == 0) {
+                goto done;
+            }
+        }
+        do {
+            stringLength -= 4;
+            outString[0] = 0;
+            outString[1] = 0;
+            outString[2] = 0;
+            outString[3] = 0;
+            outString += 4;
+        } while (stringLength != 0);
+    }
+done:
+    *outString = 0;
+    return ret;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/font_codes_to_string.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/string_to_font_codes.s")
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/saves.c:packGetFileType, while retaining Mickey's placeholder name. */

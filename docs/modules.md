@@ -1398,6 +1398,16 @@ one remaining opcode difference and no relocation differences. Automated
 declaration permutation is blocked by the same absent permuter import. The
 assembly fallback remains canonical.
 
+`font_codes_to_string` retains a JFG-derived `NON_MATCHING` body after the
+flag lattice and ten source/type/coalescing shapes. With ordinary resident
+flags the donor loop is instruction-exact, but this TU's required
+`-Wo,-loopunroll,0` removes the target's four-byte padding expansion. Spelling
+that expansion explicitly restores the exact 44-instruction opcode and
+relocation shape, leaving five register-only words from one `$a0`/`$v0` web
+swap, first at function `+0x64`. The unavailable permuter import prevents a
+bounded automated declaration search; the assembly fallback remains
+canonical.
+
 ### 3.16 Particle and debug-print translation units
 
 ROM `0x3D5F0`–`0x45760` is now split into two aligned resident C
