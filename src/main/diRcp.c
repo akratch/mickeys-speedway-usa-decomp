@@ -10,7 +10,12 @@
 
 #include "PR/ultratypes.h"
 
-typedef void Gfx;
+typedef struct Gfx {
+    struct {
+        u32 w0;
+        u32 w1;
+    } words;
+} Gfx;
 
 extern void func_800453C4(Gfx *dList, s32 *w0_24_31, s32 *w0_16_23,
                           s32 *w0_0_15, s32 *w1);
@@ -18,7 +23,14 @@ extern s32 sprintf(char *buffer, const char *format, ...);
 extern char D_80083388[];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpPrintDL.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/func_800453C4.s")
+/* PROVENANCE: body adapted from JFG src/diRcp.c::func_80066594_67194. */
+void func_800453C4(Gfx *dList, s32 *w0_24_31, s32 *w0_16_23,
+                   s32 *w0_0_15, s32 *w1) {
+    *w0_24_31 = (dList->words.w0 >> 24) & 0xFF;
+    *w1 = (dList->words.w0 >> 16) & 0xFF;
+    *w0_0_15 = dList->words.w0 & 0xFFFF;
+    *w0_16_23 = dList->words.w1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/func_80045400.s")
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpVertex. */
 s32 diRcpVertex(Gfx *dList) {

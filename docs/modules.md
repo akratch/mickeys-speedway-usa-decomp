@@ -1713,6 +1713,9 @@ The 100-byte `stop_all_threads_except_main` is exact on Mickey's active-thread
 walk: it filters priorities 1 through 127, passes the thread itself to
 `osStopThread`, and retains the exact call relocation and 32-byte frame under
 the resident defaults.
+The 60-byte `func_800453C4` display-list unpacker is exact too: its four typed
+word extractions reproduce all 15 target instructions at the resident defaults
+and have no relocation surface.
 The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
 handle locals reproduce the target's direct second argument register and
 branch-delay schedule, with both texture-free calls and the allocator call
