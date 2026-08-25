@@ -997,6 +997,15 @@ relocations match the target's offsets, kinds, and symbol identities, and the
 configured object and linked ROM range are byte-identical without
 post-processing.
 
+The tier-B `freeFrontEndList` adds **0x5C bytes / 23 words** at ROM `0x3A640`.
+Its exact sentinel-list loop calls the immediately following per-item routine,
+matching JFG's ordered `freeFrontEndList`/`freeFrontEndItem` pair. The body is
+adapted from DKR's public `menu_assetgroup_free` with point-of-use
+`PROVENANCE`; JFG supplies the role and name. The default flags, call
+relocation, object words, and linked ROM range are exact without
+post-processing. A zero-byte weak alias preserves the anonymous name used by
+the overlay caller.
+
 `func_80039E34` retains a Mickey-derived `NON_MATCHING` draw candidate with
 the target's exact **0xB8-byte frame** and local homes from `0x7C` through
 `0xAC`. Its best object is one word longer than the target's **0x418 bytes /

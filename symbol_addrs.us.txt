@@ -2196,6 +2196,9 @@ func_80038E1C = 0x80038E1C; // type:func size:0x45C tier-D ROM 0x39a1c NON_MATCH
 frontDrawRectangle = 0x80039584; // type:func size:0x50 tier-A ROM 0x3a184 canonical C, linked byte-identical
 func_8003968C = 0x8003968C; // type:func size:0x94   ROM 0x3a28c  src/menu.c.o  masked=24/37
 func_80039720 = 0x80039720; // type:func size:0x320 tier-D ROM 0x3a320 canonical C, linked byte-identical
+// Tier B (JFG): the exact sentinel-list loop, its call to the immediately
+// following per-item free routine, and JFG's same ordered pair identify it.
+freeFrontEndList = 0x80039A40; // type:func size:0x5C tier-B ROM 0x3a640 canonical C, linked byte-identical
 setupFrontEndObject = 0x80039DAC; // type:func size:0x88   ROM 0x3a9ac  src/menu.c.o  masked=4/34
 func_80039E34 = 0x80039E34; // type:func size:0x418 tier-D ROM 0x3aa34 NON_MATCHING plateau +1 word, 242/262 differ, first +0x14
 // Tier B (JFG): exact packed-field getter, ordered position immediately before
