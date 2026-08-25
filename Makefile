@@ -911,11 +911,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3SelectScoredObject.c.o: POSTPROCES
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_003_F00003B0_185A0E0=overlay3SelectScoredObject $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1D8
-# The natural source has the exact 34-word operation/CFG topology. Select the
-# complete caller-saved allocation web with register-field-only guards.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o003/overlay3TouchObject.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym func_overlay_003_F00006D8_185A408=overlay3TouchObject $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x88
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o019/overlay19Dispatch.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xAC
@@ -1241,6 +1237,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o029/overlay29DrawGroups.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_029_F00014C8_187E778=overlay29DrawGroups $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x204
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26InitializeObject.c.o: \
+	config/normalizations/overlay26InitializeObject.rebind.spec
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26InitializeObject.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/overlay26InitializeObject.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o051/overlay_051.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x8AC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ResetFlags.c.o: POSTPROCESS = \

@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 90188,
-  "nonmatching_overlay_c_bytes": 316988,
+  "matched_overlay_c_bytes": 90740,
+  "nonmatching_overlay_c_bytes": 316436,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 64,
   "bss_bytes": 77680,
@@ -1679,7 +1679,7 @@
      "type": "c",
      "source": "overlays/o003/overlay3TouchObject",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x760",
@@ -5996,7 +5996,7 @@
      "type": "c",
      "source": "overlays/o026/overlay26InitializeObject",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x1A0",

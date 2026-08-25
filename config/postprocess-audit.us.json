@@ -360,8 +360,7 @@
       "size": 136,
       "source": "src/overlays/o003/overlay3TouchObject.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {

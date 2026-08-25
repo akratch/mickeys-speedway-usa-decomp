@@ -6,11 +6,22 @@ extern Overlay3Object **overlay3GetSearchObjectsReloc(s32 *count);
 extern s32 overlay3ContainsValueReloc(Overlay3Object *anchor, Overlay3Object *object);
 extern s32 overlay3RandomRangeReloc(s32 low, s32 high);
 extern f32 overlay3SqrtReloc(f32 value);
+/*
+ * Plateau (2026-08-25): reordering the real temporaries reproduces the
+ * target's 118-word size, 0x80-byte frame, result slot at sp+0x70, and best
+ * index slot at sp+0x5C. The best candidate has 22 differing words beginning
+ * at +0x44; its timer, cached index, object-list base, and count use a
+ * different four-register allocation through the early cached-result path.
+ * Code from the loop body at +0xA0 onward is otherwise exact. The flag lattice
+ * confirms -Wab,-r4300_mul and all type, declaration-order, and loop-entry
+ * variants plateaued here. The permuter cannot import the friendly C name
+ * against the auto-named target. Stopped at the attempt cap.
+ */
 #ifdef NON_MATCHING
 Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Search *search, s32 elapsed) {
-    s32 count; Overlay3Object *result; s32 bestIndex; Overlay3Object **objects;
-    Overlay3Object **cursor; Overlay3Object *object; Overlay3State *state;
-    s32 index; s32 bestScore; s32 score; f32 dx; f32 dz; u16 timer; u8 cachedIndex;
+    s32 count; Overlay3Object **objects; Overlay3Object **cursor; Overlay3Object *result;
+    Overlay3Object *object; Overlay3State *state; s32 index; s32 bestScore;
+    s32 bestIndex; s32 score; f32 dx; f32 dz; u16 timer; u8 cachedIndex;
     objects = overlay3GetSearchObjectsReloc(&count);
     result = 0;
     timer = search->timer;
