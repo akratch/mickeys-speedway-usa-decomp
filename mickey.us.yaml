@@ -947,7 +947,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x1868848, c, overlay11Initialize]
-      - [0x1868998, asm, overlay_011_prefix]
+      - [0x1868998, c, func_overlay_011_F0000150_1868998]
       - [0x1869260, c, overlay11CreateHandles]
       - [0x186933C, c, overlay11InitializeFour]
       - [0x18694D0, c, overlay11InitializeSixB]

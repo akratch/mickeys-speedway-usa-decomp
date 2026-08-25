@@ -829,7 +829,7 @@ TEXT_SUBSEGMENTS = {
     ],
     11: [
         (0x000, "c", "overlay11Initialize"),
-        (0x150, "asm", "overlay_011_prefix"),
+        (0x150, "c", "func_overlay_011_F0000150_1868998"),
         (0xA18, "c", "overlay11CreateHandles"),
         (0xAF4, "c", "overlay11InitializeFour"),
         (0xC88, "c", "overlay11InitializeSixB"),

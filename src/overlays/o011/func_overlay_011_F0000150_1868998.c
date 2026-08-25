@@ -1,0 +1,247 @@
+#include "PR/ultratypes.h"
+
+typedef struct O11Gfx {
+    u32 w0;
+    u32 w1;
+} O11Gfx;
+
+typedef struct O11Vertex {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+} O11Vertex;
+
+typedef struct O11Status {
+    u8 mode;
+    u8 value1;
+    u8 value2;
+    u8 value3;
+} O11Status;
+
+extern s16 gO11GridPhases[13][17];
+extern u8 gO11GridTriangles[];
+extern O11Gfx *gO11DisplayListReloc;
+extern void *gO11MatrixReloc;
+extern O11Vertex *gO11VertexReloc;
+
+extern f32 D_1B0;
+extern f32 D_20;
+extern f32 D_24;
+extern s16 D_1B8;
+extern s16 D_1BC;
+extern s32 D_1C0;
+extern s32 D_1C4;
+extern s32 D_200;
+extern s32 D_204;
+
+extern s32 func_800290A0(void);
+extern s32 func_8002997C(s32 minimum, s32 maximum);
+extern void func_80033CBC(u32 *width, u32 *height);
+extern void func_80022A50(O11Gfx **displayList, void **matrix);
+extern void func_800349A4(O11Gfx **displayList, void *texture, s32 flags,
+                          s16 parameter);
+extern f32 func_8002A8C0(s32 angle);
+extern u32 func_8002554C(s32 controller);
+extern void overlay66Select(s32 selection);
+extern void func_800290AC(s32 mode);
+extern void func_800291D8(s32 value);
+extern void func_800006BC(f32 value, s32 volume);
+extern void func_8003A754(void);
+extern O11Status *func_80028F54(void);
+
+extern void func_overlay_011_F00011D0_1869A18(s32 updateRate);
+extern void func_overlay_011_F0001398_1869BE0(s32 updateRate);
+extern void func_overlay_011_F000184C_186A094(s32 updateRate);
+extern void func_overlay_011_F0001A7C_186A2C4(s32 updateRate);
+extern void func_overlay_011_F0001E4C_186A694(s32 updateRate);
+extern void func_overlay_011_F00022E8_186AB30(s32 updateRate);
+extern void func_overlay_011_F0002714_186AF5C(s32 updateRate);
+
+#define O11_WRITE_VERTEX(vertexX, vertexY, vertexAlpha) \
+    do { \
+        gO11VertexReloc->x = (vertexX); \
+        gO11VertexReloc->y = (vertexY); \
+        gO11VertexReloc->z = 0; \
+        gO11VertexReloc->r = 0; \
+        gO11VertexReloc->g = 0; \
+        gO11VertexReloc->b = 0; \
+        gO11VertexReloc->a = (vertexAlpha); \
+        gO11VertexReloc++; \
+    } while (0)
+
+/* DKR v77/v80 and JFG contain no matching Overlay 11 grid renderer donor. */
+/* NON_MATCHING plateau (2026-08-25): after reconstructing the jump-table
+ * dispatch, a full flag lattice and five structural variants, the compact
+ * vertex loop reached 487/562 differing words with a first mismatch at +0x4C
+ * but was 0x220 bytes short and contradicted the target's unrolled stores.
+ * This retained unrolled form is 0x78 bytes short and differs in 535/562 words
+ * from +0x0; its 0x190-byte frame is 0x18 larger than retail. The remaining
+ * blocker is the original cursor/global reload and local-stack schedule. */
+#ifdef NON_MATCHING
+void func_overlay_011_F0000150_1868998(O11Gfx **displayList, void **matrix,
+                                        O11Vertex **vertices,
+                                        s32 updateRate) {
+    u8 alpha[13][17];
+    u32 width;
+    u32 height;
+    s32 row;
+    s32 column;
+    s32 block;
+
+    if (func_800290A0() != 0) {
+        if (D_1B0 == 0.0f) {
+            for (row = 0; row < 13; row++) {
+                for (column = 0; column < 17; column++) {
+                    gO11GridPhases[row][column] =
+                        func_8002997C(-0x8000, 0x7FFF);
+                }
+            }
+        }
+        D_1B0 += D_20 * (f32)updateRate;
+        if (D_1B0 > 1.0f) {
+            D_1B0 = 1.0f;
+        }
+    } else {
+        D_1B0 -= D_24 * (f32)updateRate;
+        if (D_1B0 <= 0.0f) {
+            D_1B0 = 0.0f;
+            return;
+        }
+    }
+
+    gO11DisplayListReloc = *displayList;
+    gO11MatrixReloc = *matrix;
+    gO11VertexReloc = *vertices;
+
+    func_80033CBC(&width, &height);
+    gO11DisplayListReloc->w0 = 0xED000000;
+    gO11DisplayListReloc->w1 =
+        ((((u32)(width - 1) * 4) & 0xFFF) << 12) |
+        (((u32)(height - 1) * 4) & 0xFFF);
+    gO11DisplayListReloc++;
+    func_80022A50(&gO11DisplayListReloc, &gO11MatrixReloc);
+    func_800349A4(&gO11DisplayListReloc, 0, 4, 0);
+    gO11DisplayListReloc->w0 = 0xFCFFFFFF;
+    gO11DisplayListReloc->w1 = 0xFFFE793C;
+    gO11DisplayListReloc++;
+
+    for (row = 0; row < 13; row++) {
+        for (column = 0; column < 17; column++) {
+            gO11GridPhases[row][column] += updateRate << 8;
+            alpha[row][column] =
+                (u8)((func_8002A8C0(gO11GridPhases[row][column]) * 32.0f +
+                      96.0f) *
+                     D_1B0);
+        }
+    }
+
+    for (block = 0; block < 2; block++) {
+        s16 x;
+        s16 top;
+        s16 y;
+
+        x = -160;
+        top = 120 - (block * 120);
+        y = 100 - (block * 120);
+        for (column = 0; column < 17; column++) {
+            O11Gfx *command;
+            s32 gridRow;
+            s32 parity;
+
+            command = gO11DisplayListReloc++;
+            parity = column & 1;
+            command->w0 = 0x04000000 |
+                          (((((u32)gO11VertexReloc | 0x80000000) & 6) |
+                            0x38) <<
+                           16) |
+                          (((parity * 0xE00) | 0x4E) & 0xFFFF);
+            command->w1 = (u32)gO11VertexReloc | 0x80000000;
+            if (column != 0) {
+                command = gO11DisplayListReloc++;
+                command->w0 = 0x05B100C0;
+                command->w1 =
+                    (u32)(gO11GridTriangles + (parity * 0xC0)) | 0x80000000;
+            }
+
+            gridRow = block * 6;
+            O11_WRITE_VERTEX(x, top, alpha[gridRow][column]);
+            O11_WRITE_VERTEX(x, y, alpha[gridRow + 1][column]);
+            O11_WRITE_VERTEX(x, y - 20, alpha[gridRow + 2][column]);
+            O11_WRITE_VERTEX(x, y - 40, alpha[gridRow + 3][column]);
+            O11_WRITE_VERTEX(x, y - 60, alpha[gridRow + 4][column]);
+            O11_WRITE_VERTEX(x, y - 80, alpha[gridRow + 5][column]);
+            O11_WRITE_VERTEX(x, y - 100, alpha[gridRow + 6][column]);
+            x += 20;
+        }
+    }
+
+    if ((D_200 == 0) && (D_204 == 0)) {
+        if ((D_1C0 == 0) && (D_1C4 == 0) &&
+            (func_8002554C(D_1C4) & 0x5000)) {
+            overlay66Select(0);
+            func_800290AC(0);
+            func_800291D8(0x1E);
+            func_800006BC(0.5f, 0x7F);
+            func_8003A754();
+            D_204 = 1;
+        } else {
+            O11Status *status;
+
+            D_1B8 += D_1BC * updateRate;
+            if (D_1B8 >= 0x100) {
+                D_1B8 = 0x1FF - D_1B8;
+                D_1BC = -D_1BC;
+            } else if (D_1B8 < 0) {
+                D_1B8 = -D_1B8;
+                D_1BC = -D_1BC;
+            }
+            if (D_1C0 != 0) {
+                func_overlay_011_F00011D0_1869A18(updateRate);
+            } else {
+                status = func_80028F54();
+                switch (status->mode) {
+                case 0:
+                    func_overlay_011_F0001398_1869BE0(updateRate);
+                    break;
+                case 1:
+                    func_overlay_011_F0001A7C_186A2C4(updateRate);
+                    break;
+                case 2:
+                    func_overlay_011_F0002714_186AF5C(updateRate);
+                    break;
+                case 3:
+                    func_overlay_011_F000184C_186A094(updateRate);
+                    break;
+                case 4:
+                case 5:
+                    if (D_1C4 == 1) {
+                        func_overlay_011_F00022E8_186AB30(updateRate);
+                    } else {
+                        func_overlay_011_F0001E4C_186A694(updateRate);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    if (D_200 != 0) {
+        D_200 -= updateRate;
+        if (D_200 < 0) {
+            D_200 = 0;
+        }
+    }
+
+    *displayList = gO11DisplayListReloc;
+    *matrix = gO11MatrixReloc;
+    *vertices = gO11VertexReloc;
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o011/func_overlay_011_F0000150_1868998/func_overlay_011_F0000150_1868998.s")
+#endif
+
+#undef O11_WRITE_VERTEX
