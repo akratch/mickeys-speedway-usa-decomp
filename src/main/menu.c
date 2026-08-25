@@ -1168,28 +1168,27 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Size-exact plateau: 19/32 words differ from +0xC, all in register operands;
- * IDO does not retain the mode-state address and normalized mode in a1/v0/v1.
- * PROVENANCE: mask, state-change guard, and order compared with JFG's public
- * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
+/* Fresh typed m2c plateau: 25/32 positional words differ, first +0x0, with
+ * five opcode-schedule and two relocation-identity mismatches; resident flags
+ * remain best. PROVENANCE: role/order compared with JFG's public
+ * src/menu.c::frontSetScreenMode; JFG retains assembly. */
 void func_8003A2C8(s32 screenMode) {
-    u8 *modeState;
     s32 mode;
     u8 modeBits;
 
-    modeState = &D_8007C090;
-    mode = (modeBits = screenMode & 3);
-    if (*modeState != mode) {
-        D_8007C090 = screenMode & 3;
-        if (modeBits & (1 ^ 0)) {
-            D_800D3128.bits.modeBit0 = 1;
+    modeBits = screenMode & 3;
+    mode = modeBits & 0xFF;
+    if (D_8007C090 != modeBits) {
+        D_8007C090 = modeBits;
+        if (mode & 1) {
+            D_800D3128.raw |= 0x40;
         } else {
-            D_800D3128.bits.modeBit0 = 0 & 0xFFFFFFFFFFFFFFFFu;
+            D_800D3128.raw &= 0xFFBF;
         }
-        if (modeBits & 2) {
-            D_800D3128.bits.modeBit1 = 1;
+        if (mode & 2) {
+            D_800D3128.raw |= 0x20;
         } else {
-            D_800D3128.bits.modeBit1 = 0;
+            D_800D3128.raw &= 0xFFDF;
         }
     }
 }
