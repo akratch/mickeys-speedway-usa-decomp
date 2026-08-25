@@ -1171,8 +1171,19 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0000000_186F8D8.c.o: POS
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x13C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F000013C_186FA14.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1E0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ApplyValues.c.o: \
+	config/normalizations/overlay14ApplyValues.filter.spec \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ApplyValues.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_014_F0000328_186FC00=overlay14ApplyValues $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		@config/normalizations/overlay14ApplyValues.filter.spec && \
+	$(OBJCOPY) \
+		--redefine-sym gOverlay14StateC8=D_C8 \
+		--redefine-sym gOverlay14CommandCountEC=D_EC \
+		--redefine-sym overlay14CreateValue=func_overlay_014_F00006FC_186FFD4 \
+		--redefine-sym overlay14MoveCommandCursor=func_overlay_014_F0000578_186FE50 \
+		--redefine-sym gOverlay14ResultF8=D_F8 \
+		--redefine-sym gOverlay14QueuedCommands128=D_128 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x170
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14MoveCommandCursor.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_014_F0000578_186FE50=overlay14MoveCommandCursor $@ && \

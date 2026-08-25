@@ -1162,6 +1162,7 @@ and the cumulative full ROM is exact.
 | Overlay | Range | Function | Bytes | Exactness | Donor |
 |---:|---|---|---:|---|---|
 | 1 | `+0x0050..+0x0080` | `overlay1GetEntry` | 48 | canonical object and linked ROM exact | pinned DKR/JFG scans negative |
+| 14 | `+0x0328..+0x0498` | `overlay14ApplyValues` | 368 | canonical object and linked ROM exact | Mickey-only |
 | 14 | `+0x0F64..+0x1028` | `overlay14StepCommand` | 196 | canonical object and linked ROM exact | Mickey-only |
 | 14 | `+0x13F4..+0x1540` | `func_overlay_014_F00013F4_1870CCC` | 332 | canonical object and linked ROM exact | Mickey-only |
 | 43 | `+0x0194..+0x0280` | `func_overlay_043_F0000194_188A164` | 236 | canonical object and linked ROM exact | Mickey-only |
