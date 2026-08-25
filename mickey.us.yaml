@@ -606,8 +606,8 @@ segments:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
       #      covered 35 functions and forty-four tables. After devmgr's table
-      #      moved into its exact C object, the 33 jump tables still emitted in
-      #      asm/ belong to 33 functions whose ROM and table addresses are both
+      #      moved into its exact C object, the 32 jump tables still emitted in
+      #      asm/ belong to 32 functions whose ROM and table addresses are both
       #      monotonically increasing -- ZERO INVERSIONS. First pair (ROM
       #      0x7D18 -> jtbl_80080D2C), last (ROM 0x75120 -> jtbl_800849C4).
       #      So .rodata can be carved TU by TU in text order.
@@ -637,6 +637,9 @@ segments:
       # func_80034094's 12-entry switch table.
       - [0x8309C, .rodata, main/gameVi]
       - [0x830CC, rodata]
+      # diRcpMoveWd's eleven-entry switch table.
+      - [0x84550, .rodata, main/diRcp]
+      - [0x8457C, rodata]
       # func_8004C8D8's eight-entry texture-format switch table. The following
       # two zero words are output-section alignment, not owned object bytes.
       - [0x849F8, .rodata, main/font]

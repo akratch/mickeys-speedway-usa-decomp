@@ -705,6 +705,9 @@ $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # object-section alignment and the following scheduler table begins immediately.
 $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x1C
+# diRcpMoveWd owns eleven table words; the following zero is shared padding.
+$(BUILD_DIR)/$(SRC_DIR)/main/diRcp.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x2C
 # Both measured FP helpers in this TU require the R4300 multiply schedule.
 $(BUILD_DIR)/$(SRC_DIR)/main/lights.c.o: CFLAGS += -Wab,-r4300_mul
 # The camera projection-depth dot product requires the R4300 multiply schedule.
