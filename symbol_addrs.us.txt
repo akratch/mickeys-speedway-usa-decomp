@@ -598,7 +598,7 @@ snow_vertices = 0x8003C574; // type:func size:0x1FC tier-D, ROM 0x3d174
 // imported as names. reset_particles remains DKR's tier-A name because its 12
 // words were independently byte-identified (3 relocation-masked).
 reset_particles = 0x8003C9F0; // type:func size:0x30 ROM 0x3d5f0 tier-A IDO C exact, dkr/reset_particles
-func_8003CA20 = 0x8003CA20; // type:func size:0x11C ROM 0x3d620 tier-B TU, donor placeholder jfg/func_8005D930
+func_8003CA20 = 0x8003CA20; // type:func size:0x11C ROM 0x3d620 tier-A IDO C exact, Mickey reconstruction with jfg/func_8005D930 structural oracle
 func_8003CB3C = 0x8003CB3C; // type:func size:0x1A8 ROM 0x3d73c tier-B TU, donor placeholder jfg/func_8005DA70
 func_8003CCE4 = 0x8003CCE4; // type:func size:0x44 ROM 0x3d8e4 tier-A IDO C exact, Mickey-only reconstruction
 func_8003CD28 = 0x8003CD28; // type:func size:0xE8 ROM 0x3d928 tier-A IDO C exact, Mickey reconstruction with jfg/func_8005DC7C structural oracle

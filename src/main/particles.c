@@ -160,6 +160,8 @@ typedef struct ParticlePosition {
 extern f32 D_8007C8F8;
 extern f32 D_8007C8F0;
 extern f32 D_8007C8F4;
+extern void **D_8007C884;
+extern s32 D_8007C888;
 extern void *D_8007C89C[2];
 extern s32 D_8007C8B0;
 extern ParticleConfig **D_8007C8B8;
@@ -178,6 +180,7 @@ void func_800359D4(void *resource);
 void modFreeModel(void *resource);
 void mathOneFloatPY(void *rotation, void *vector);
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
+void *piRomLoad(s32 assetId);
 void func_8003EC8C(ParticleObject *object, s32 index);
 void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s16 y, s16 z);
 void func_8003CA20(void);
@@ -192,7 +195,42 @@ void reset_particles(void) {
     func_8003CCE4();
     func_8003CA20();
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CA20.s")
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005D930.s; body reconstructed from Mickey evidence. */
+void func_8003CA20(void) {
+    s32 pad;
+    s16 *types;
+    s16 *typePtr;
+    s32 i;
+    s32 count;
+
+    if (D_8007C884 != NULL) {
+        types = piRomLoad(0x3A);
+        count = D_8007C888;
+        i = 0;
+        typePtr = types;
+        if (count > 0) {
+            do {
+                switch (*typePtr & 0xC000) {
+                    case 0x8000:
+                        func_800359D4(D_8007C884[i]);
+                        break;
+                    case 0xC000:
+                        func_800347A0(D_8007C884[i]);
+                        break;
+                    case 0:
+                        modFreeModel(D_8007C884[i]);
+                        break;
+                }
+                i++;
+                typePtr++;
+                count = D_8007C888;
+            } while (i < count);
+        }
+        mmFree(types);
+        mmFree(D_8007C884);
+        D_8007C884 = NULL;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CB3C.s")
 void func_8003CCE4(void) {
     if (D_8007C89C[0] != NULL) {
