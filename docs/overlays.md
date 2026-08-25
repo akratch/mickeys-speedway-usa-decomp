@@ -1715,7 +1715,11 @@ Overlay 34 `+0x608..+0x900` — final 760 bytes / 190 words. NON_MATCHING: retir
 
 `overlay 1 +0x19B8..+0x1CA4` — 748 bytes / 187 words, covering mode-state initialization and object-mapping construction. The first function is naturally exact apart from a trimmed alignment word. NON_MATCHING (second function): retired 2026-08-24 per ADR 0002 (was made to match via a representation-web rewrite selecting the retail schedule); source kept as decomp-permuter input. All 28 runtime text records were confirmed exact. The stretch checkpoint becomes **53,512 / 45,775 campaign bytes (116.90%)**, **154,764 / 469,264 Overlay C (32.98%)**, and **197,804 / 950,332 resolved text (20.81%)**.
 
-`overlay 1 +0x296C..+0x2B4C` and `+0x3578..+0x3750` — 952 bytes / 238 words across four gauge and variable-record functions. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via representation-web rewrites, with two identity copies removed under whole-function edits); source kept as decomp-permuter input. All 17 runtime records were confirmed exact. The checkpoint becomes **54,464 / 45,775 campaign bytes (118.98%)**, **155,716 / 469,264 Overlay C (33.18%)**, and **198,756 / 950,332 resolved text (20.91%)**.
+| Overlay | Range | Function | Bytes | Exactness | Donor |
+|---:|---|---|---:|---|---|
+| 1 | `+0x296C..+0x2AA4` | `overlay1AdvanceObjectGauges` | 312 | canonical object and linked ROM exact | Mickey-only |
+
+`overlay 1 +0x2AA4..+0x2B4C` and `+0x3578..+0x3750` — 640 bytes / 160 words across three gauge and variable-record functions. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via representation-web rewrites, with two identity copies removed under whole-function edits); source kept as decomp-permuter input. All remaining runtime records were confirmed exact. The checkpoint becomes **54,464 / 45,775 campaign bytes (118.98%)**, **155,716 / 469,264 Overlay C (33.18%)**, and **198,756 / 950,332 resolved text (20.91%)**.
 
 `overlay 1 +0x61F0..+0x6270` — 128 bytes / 32 words, cached-mode handling. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via redundant-branch/identity-copy removal plus a register/schedule rewrite); source kept as decomp-permuter input. The 13 runtime records comprise three calls, five HI16, and five LO16 sites. The checkpoint becomes **54,592 / 45,775 campaign bytes (119.26%)**, **155,844 / 469,264 Overlay C (33.21%)**, and **198,884 / 950,332 resolved text (20.93%)**.
 

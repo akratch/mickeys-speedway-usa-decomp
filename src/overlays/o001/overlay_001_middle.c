@@ -144,8 +144,7 @@ extern s32 D_0;
 extern s32 overlay1GetGaugeObjectsRaw(s32 *count);
 extern s32 overlay1GetGaugeLimit(O1GaugeObject *object);
 
-#ifdef NON_MATCHING
-s32 overlay1AdvanceObjectGauges(O1GaugeOwner *owner, s32 amount) {
+void overlay1AdvanceObjectGauges(O1GaugeOwner *owner, s32 amount) {
     O1GaugeObject **objects;
     O1GaugeObject *object;
     O1GaugeState *state;
@@ -153,14 +152,11 @@ s32 overlay1AdvanceObjectGauges(O1GaugeOwner *owner, s32 amount) {
     s32 index;
     s32 delta;
     s32 limit;
-    s32 result;
+    s32 loopValue;
 
-    result = overlay1GetGaugeObjectsRaw(&count);
+    objects = (O1GaugeObject **)overlay1GetGaugeObjectsRaw(&count);
     if (count != 0) {
-        index = count - 1;
-        objects = (O1GaugeObject **)result + index;
-        do {
-            object = *objects;
+        index = count - 1; objects += index; do { object = *objects;
             state = object->state;
             if ((D_0 == 0) && (state->level < owner->levelLimit)) {
                 delta = amount * 5;
@@ -172,17 +168,12 @@ s32 overlay1AdvanceObjectGauges(O1GaugeOwner *owner, s32 amount) {
                     state->levelValues[state->level] = 180000;
                 }
             }
-            result = index;
+            loopValue = index;
             objects--;
             index--;
-        } while (result != 0);
+        } while (loopValue != 0);
     }
-    return result;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_middle/func_overlay_001_F000296C_184ED4C.s")
-#endif
 
 /* ---- overlay1AdvanceGauge ---- */
 

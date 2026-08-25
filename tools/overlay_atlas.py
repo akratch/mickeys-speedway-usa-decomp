@@ -1059,6 +1059,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x1D58, 0x1D78, "overlay1CallReset"),
         (0x28D4, 0x293C, "overlay1RefreshMode"),
         (0x293C, 0x296C, "overlay1CallGlobal"),
+        (
+            0x296C,
+            0x2AA4,
+            "overlay1AdvanceObjectGauges",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x3E48, 0x3E74, "overlay1SubmitGlobals"),
         (0x3E74, 0x3EB8, "overlay1SubmitAll"),
         (0x3EB8, 0x3F38, "overlay1AngleBetweenSamples"),
