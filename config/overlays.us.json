@@ -23,7 +23,7 @@
   "nonempty_modules": 106,
   "text_bytes": 469264,
   "matched_overlay_c_bytes": 87040,
-  "nonmatching_overlay_c_bytes": 215404,
+  "nonmatching_overlay_c_bytes": 220796,
   "data_rodata_bytes": 61312,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
@@ -19183,10 +19183,10 @@
      "offset": "0x571C",
      "end_offset": "0x5E08",
      "size": "0x6EC",
-     "type": "asm",
-     "source": "overlays/o101/overlay_101_tail_571c",
-     "matched": false,
-     "nonmatching": false
+     "type": "c",
+     "source": "overlays/o101/func_overlay_101_F000571C_18E0F3C",
+     "matched": true,
+     "nonmatching": true
     },
     {
      "offset": "0x5E08",
@@ -19199,10 +19199,37 @@
     },
     {
      "offset": "0x63F8",
-     "end_offset": "0x99C4",
-     "size": "0x35CC",
+     "end_offset": "0x69E8",
+     "size": "0x5F0",
+     "type": "c",
+     "source": "overlays/o101/func_overlay_101_F00063F8_18E1C18",
+     "matched": true,
+     "nonmatching": true
+    },
+    {
+     "offset": "0x69E8",
+     "end_offset": "0x78F4",
+     "size": "0xF0C",
      "type": "asm",
-     "source": "overlays/o101/overlay_101_tail_63f8",
+     "source": "overlays/o101/overlay_101_tail_69e8",
+     "matched": false,
+     "nonmatching": false
+    },
+    {
+     "offset": "0x78F4",
+     "end_offset": "0x8128",
+     "size": "0x834",
+     "type": "c",
+     "source": "overlays/o101/func_overlay_101_F00078F4_18E3114",
+     "matched": true,
+     "nonmatching": true
+    },
+    {
+     "offset": "0x8128",
+     "end_offset": "0x99C4",
+     "size": "0x189C",
+     "type": "asm",
+     "source": "overlays/o101/overlay_101_tail_8128",
      "matched": false,
      "nonmatching": false
     },
