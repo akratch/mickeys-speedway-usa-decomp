@@ -416,17 +416,20 @@ void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateContro
 #endif
 
 /*
- * Plateau: the best -O2/-mips2 build differs in 2/78 words, first at +0x28;
- * both differences place the hit-list slot at +0x44 instead of retail +0x30.
- * Array and explicit-workspace source forms perturb the frame, and the local
- * permuter is unavailable because tools/permuter/import.py is absent.
+ * Plateau (2026-08-25): the best -O2/-mips2 build differs in 2/78 words,
+ * first at +0x28; both differences place the hit-list slot at +0x44 instead
+ * of retail +0x30. Moving the address-taken declaration behind all promoted
+ * scalars did not move the slot under any of the 119 flag combinations.
+ * Array and explicit-workspace forms perturb the otherwise exact frame; no
+ * register-order permutation was run because this stack-home-only case is
+ * already assigned to the parallel permuter farm.
  */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
                                        s32 steps) {
-    O9Hit **hits;
     f32 current, result, distance, candidate;
     s32 count, i;
+    O9Hit **hits;
 
     count = ext_o0_1353c(point->x, point->z, 0x1000, &hits);
     current = point->y;
