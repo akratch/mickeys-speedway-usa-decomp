@@ -70,7 +70,9 @@ extern s32 func_overlay_092_F0000068_18D5F88(void *owner, f32 *x, f32 *y,
  * but 157 positional words and four opcodes still differ; first mismatch is
  * +0x94. One four-instruction block is ordered differently, after which the
  * residual is chiefly FP/register allocation. The permuter found no exact
- * source, and its lower scores relied on compiler-shaping syntax. */
+ * source, and its lower scores relied on compiler-shaping syntax. A fresh
+ * flag-lattice run in this lane reproduced that result; field-width and CFG
+ * inspection found no new structural alternative beyond the attempt cap. */
 #ifdef NON_MATCHING
 void func_overlay_092_F0000308_18D6228(Overlay92Owner *owner,
                                        Overlay92UpdateConfig *config,

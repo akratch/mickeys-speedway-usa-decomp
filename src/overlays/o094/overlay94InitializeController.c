@@ -40,10 +40,15 @@ typedef struct Overlay94Init {
     f32 scale;
 } Overlay94Init;
 
+typedef struct Overlay94SavedValue {
+    s32 unused[2];
+    s32 value;
+} Overlay94SavedValue;
+
 extern void overlay94SetupReloc(Overlay94Object *object, s32 arg1, s32 arg2,
                                 f32 arg3);
 extern void overlay94SetCurrentReloc(Overlay94Object *object, f32 value,
-                                     s32 mode);
+                                     f32 rate);
 extern void overlay94InstallReloc(Overlay94Entity *entity, s32 savedValue,
                                   Overlay94Object *object);
 extern void overlay94RenderReloc(Overlay94Object *object,
@@ -55,12 +60,11 @@ extern void overlay94QueryReloc(void *queryState, f32 arg1, f32 arg2, f32 arg3,
 extern s32 overlay94AngleReloc(f32 value0, f32 value1);
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
-#ifdef NON_MATCHING
 void overlay94InitializeController(Overlay94Object *object,
                                    const Overlay94Init *init) {
     Overlay94State *state = object->state;
     Overlay94Entity *entity;
-    s32 savedValue;
+    Overlay94SavedValue saved;
     f32 out0;
     f32 out1;
     f32 out2;
@@ -74,9 +78,9 @@ void overlay94InitializeController(Overlay94Object *object,
     state->command = 0x2000;
 
     entity = *object->entityRef;
-    savedValue = entity->savedValue;
-    overlay94SetCurrentReloc(object, state->currentValue, 0);
-    overlay94InstallReloc(entity, savedValue, object);
+    saved.value = entity->savedValue;
+    overlay94SetCurrentReloc(object, state->currentValue, 0.0f);
+    overlay94InstallReloc(entity, saved.value, object);
 
     overlay94RenderReloc(object, entity, object->renderResource,
                          entity->records[entity->recordIndex]);
@@ -86,6 +90,3 @@ void overlay94InitializeController(Overlay94Object *object,
                         0.0f, 0.0f, -1.0f, &out0, &out1, &out2);
     state->angle = overlay94AngleReloc(out2, out0);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o094/overlay94InitializeController/func_overlay_094_F0000000_18D6BA0.s")
-#endif

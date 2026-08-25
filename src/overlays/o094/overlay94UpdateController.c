@@ -57,6 +57,10 @@ extern void func_8002B040(void *queryState, f32 x, f32 y, f32 z,
                           f32 *out0, f32 *out1, f32 *out2);
 extern s32 func_8002A910(f32 z, f32 x);
 
+/* Size-exact plateau at 0x44C bytes: the ordinary -O2/-mips2 build differs in
+ * 115 of 275 words, first at +0x24. The initializer's aggregate saved-value
+ * shape regressed this body; retail instead retains a distinct command-stack
+ * slot and a broad private GPR/FP allocation web. */
 #ifdef NON_MATCHING
 void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     Overlay94State *state;
