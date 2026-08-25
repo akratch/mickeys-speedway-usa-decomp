@@ -1723,14 +1723,9 @@ This run's explicit timestamp-struct retry also emitted 28 words from `+0x0`;
 the guarded external-`u64` body remains best at 20/19 words, eight differences
 from `+0x14`, blocked by the separate low-word BSS relocation identity.
 
-`osScGetTaskType` retains its JFG-derived switch under `NON_MATCHING`. The
-canonical candidate emits all 34 target text instructions and all eight
-string relocation identities exactly, but its two jump-table relocations at
-function `+0x14` and `+0x1C` name the compiler's anonymous 0x20-byte
-`.rodata` section rather than Mickey's existing `jtbl_800823D8`. The flag
-lattice cannot change section ownership, and promoting the table requires a
-measured `mickey.us.yaml` rodata-boundary handoff outside this lane's assigned
-files. The assembly fallback therefore remains canonical.
+`osScGetTaskType` plateau: workbench reports exact instructions and known relocation layout.
+Removing the wrapper fails the full link because `jtbl_800823D8` references seven assembly-local labels.
+The remaining lever is coordinated rodata ownership; assembly stays canonical.
 
 The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
 `NON_MATCHING` body after the 119-combination flag lattice and seven
@@ -2513,9 +2508,9 @@ function `+0x44` (plus two local PC16 assembler-metadata differences) and a
 duplicate linked table surface. The exact source remains behind
 `NON_MATCHING`, with the target assembly canonical until that rodata split is
 handed off.
-The 156-byte `diRcpMoveWd` remains 39/39 instruction-exact after a fresh m2c/table check and flag sweep.
-Its first mismatch is the table relocation at `+0x34`: IDO binds the switch to this TU's `.rodata`, not shared `jtbl_80083950`.
-Hypothesis/blocker: promotion requires the shared-rodata split outside this lane's ownership; the exact body remains `NON_MATCHING`.
+`diRcpMoveWd` plateau: workbench reports exact instructions and known relocation layout.
+Removing the wrapper fails the full link because `jtbl_80083950` references eleven assembly-local labels.
+The remaining lever is coordinated rodata ownership; assembly stays canonical.
 The 268-byte `diRcpGeometryMode` helper is exact at the resident defaults.
 JFG's object-like `stubbed_printf` macro preserves the target's empty geometry-
 flag switch and its otherwise-unused saved registers, reproducing all 67 owned
