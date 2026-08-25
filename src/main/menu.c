@@ -615,7 +615,35 @@ s32 frontGetScreenMode(void) {
     }
     return mode;
 }
+#ifdef NON_MATCHING
+/* Size-exact plateau: 19/32 words differ from +0xC, all in register operands;
+ * IDO does not retain the mode-state address and normalized mode in a1/v0/v1.
+ * PROVENANCE: mask, state-change guard, and order compared with JFG's public
+ * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
+void func_8003A2C8(s32 screenMode) {
+    u8 *modeState;
+    s32 mode;
+    u8 modeBits;
+
+    modeState = &D_8007C090;
+    mode = (modeBits = screenMode & 3);
+    if (*modeState != mode) {
+        D_8007C090 = screenMode & 3;
+        if (modeBits & (1 ^ 0)) {
+            D_800D3128.modeBit0 = 1;
+        } else {
+            D_800D3128.modeBit0 = 0 & 0xFFFFFFFFFFFFFFFFu;
+        }
+        if (modeBits & 2) {
+            D_800D3128.modeBit1 = 1;
+        } else {
+            D_800D3128.modeBit1 = 0;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A2C8.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontStoreScreenMode. */
 void frontStoreScreenMode(void) {
     D_8007C08C = D_8007C090;

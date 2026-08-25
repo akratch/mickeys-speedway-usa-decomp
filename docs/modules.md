@@ -1093,6 +1093,16 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
+`func_8003A2C8` remains a **tier-D NON_MATCHING plateau** over **0x80 bytes /
+32 words** at ROM `0x3AEC8`. Mickey-derived packed-field writes correspond to
+JFG's `frontSetScreenMode`, with the comparison recorded in a point-of-use
+`PROVENANCE` note but no public name adopted. The best size-exact candidate
+differs in 19 register operands, first at `+0xC`: the target retains the state
+address and normalized mode in `a1`/`v0`/`v1`, while IDO assigns a different
+temporary chain. The 119-combination flag lattice and a bounded ten-minute
+permuter run did not reach exactness, so the original assembly remains
+canonical.
+
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
 derived from Mickey's own draft and control flow rather than borrowed. The
