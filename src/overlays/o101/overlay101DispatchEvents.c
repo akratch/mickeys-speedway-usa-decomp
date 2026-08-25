@@ -47,7 +47,6 @@ extern void overlay101ScheduleFrames(s32, s32, f32, f32, f32, s32);
 extern void overlay101ScheduleGlobalPair();
 
 /* Pinned DKR v77/v80 and JFG scans classify overlay 101 as no donor. */
-#ifdef NON_MATCHING
 void overlay101DispatchEvents(s32 step) {
     Overlay101Event *events;
     Overlay101Event *event;
@@ -151,6 +150,3 @@ void overlay101DispatchEvents(s32 step) {
         }
     } while (finished == 0);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101DispatchEvents/func_overlay_101_F0001BD0_18DD3F0.s")
-#endif

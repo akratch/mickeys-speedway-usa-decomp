@@ -6277,6 +6277,8 @@
       "size": 380,
       "source": "src/overlays/o101/overlay101DispatchActive.c",
       "tools": [
+        "rebind_elf_relocations.py",
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -6290,6 +6292,7 @@
       "size": 944,
       "source": "src/overlays/o101/overlay101DispatchEvents.c",
       "tools": [
+        "rebind_elf_relocations.py",
         "objcopy"
       ]
     },

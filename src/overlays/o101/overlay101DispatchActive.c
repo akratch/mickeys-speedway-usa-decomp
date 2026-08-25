@@ -24,7 +24,6 @@ extern void overlay101UpdateFrames(Overlay101DispatchEntry *entry, void *value);
 extern void overlay101UpdateGlobalPair(Overlay101DispatchEntry *entry, void *value);
 
 /* Pinned DKR v77/v80 and JFG scans classify overlay 101 as no donor. */
-#ifdef NON_MATCHING
 void overlay101DispatchActive(void *value) {
     Overlay101DispatchEntry *entry;
     s32 remaining;
@@ -82,6 +81,3 @@ void overlay101DispatchActive(void *value) {
         } while (remaining--);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101DispatchActive/func_overlay_101_F0001A38_18DD258.s")
-#endif
