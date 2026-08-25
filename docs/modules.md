@@ -1916,6 +1916,20 @@ the invariant `D_80083DBC` load before the low half of the `999999` loop
 constant, while the target emits those adjacent instructions in the opposite
 order. The target assembly remains canonical.
 
+The 240-byte `func_80045BBC` fault-state writer reaches a two-word allocation
+plateau after the full flag lattice, ten coherent declaration/lifetime forms,
+and one bounded canonical MIPS II permuter batch. JFG's `func_80066D28_67928`
+supplies the copy-and-write structure, while Mickey's fixed diagnostic-buffer
+addresses establish the dynamic aligned dump-size calculation. The best
+candidate is exact in size, frame, saved registers, control flow, stack homes,
+call order, and relocation identities, with 58 of 60 instruction positions
+exact. At the first mismatch, function `+0xBC`, IDO loads the fifth
+`packWriteFile` argument into `t4`; the target uses `t6`, affecting only that
+load and its stack store. Casts, explicit call-argument locals, prototype
+forms, and the bounded permutations do not change that coloring without
+disturbing otherwise-exact code. The candidate remains behind `NON_MATCHING`
+and the target assembly stays canonical.
+
 The 1,836-byte `func_80045D34` crash-screen controller also remains
 `NON_MATCHING`. Supplying its jump table recovered a complete Mickey-derived
 draft, but JFG's closest 1,888-byte peer (`func_80067880`) is assembly-only and

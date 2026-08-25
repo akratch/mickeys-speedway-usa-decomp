@@ -42,19 +42,26 @@ extern s32 vsprintf(char *text, const char *format, va_list args);
 extern s32 D_80000310;
 extern s32 D_8007A1E0;
 extern s32 D_8007A200;
+extern s32 D_8007CFE0;
 extern s32 D_8007CFE4;
 extern s32 D_8007CFE8;
 extern s32 D_8007D02C;
 extern s32 D_8007D030;
+extern char D_80083A80;
+extern char D_80083A88;
 extern char D_80083B2C[];
 extern char D_80083B48[];
+extern void *D_800D5D40;
+extern u8 D_800D5D48[];
 extern s32 D_800D5DF0[];
 extern s32 D_800D5E98[];
 extern s32 D_800D5F40[];
 extern s16 *D_800D2FA8;
+extern s32 packWriteFile(s32 controllerIndex, s32 fileNumber, char *fileName,
+                         char *fileExt, u8 *dataToWrite, s32 fileSize);
 void stop_all_threads_except_main(void);
 void diCpuThread(void *unused);
-void func_80045BBC();
+void func_80045BBC(void *thread);
 void func_80045D34();
 
 /* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuTraceInit. */
@@ -108,7 +115,37 @@ void stop_all_threads_except_main(void) {
         thread = thread->tlnext;
     }
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066D28_67928;
+ * Mickey's target fixes the dump-size calculation to use the copied range. */
+void func_80045BBC(void *thread) {
+    s32 copySize;
+    void *source;
+    register u8 *destination;
+    s32 writeSize;
+
+    *(s32 *)0x80705014 = D_8007CFE8;
+    *(s32 *)0x80705018 = D_8007CFE0;
+    *(s32 *)0x8070501C = D_8007CFE4;
+    destination = (u8 *)0x80705094;
+    _bcopy(thread, destination, 0x230);
+    destination += 0x200;
+    source = *(void **)((u8 *)thread + 0xF4);
+    copySize = 0x200;
+    _bcopy(source, destination, copySize);
+    D_800D5D40 = source;
+    _bcopy(source, D_800D5D48, copySize);
+    destination += 0x200;
+    writeSize = (s32)destination + 0x7F900000;
+    if (writeSize & 0x1F) {
+        writeSize = (writeSize & ~0x1F) + 0x20;
+    }
+    packWriteFile(0, -1, &D_80083A80, &D_80083A88, (u8 *)0x80700000,
+                  writeSize);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045BBC.s")
+#endif
 /* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066E14_67A14. */
 void func_80045CAC(void) {
     OSThread *thread;

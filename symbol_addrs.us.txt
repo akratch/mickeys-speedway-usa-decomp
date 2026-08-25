@@ -1049,7 +1049,7 @@ diCpuThreadStack = 0x800D5AA0;   // type:u64 allow_duplicated:True tier-B (JFG d
 // adds the resident exception strings. JFG address placeholders are not used.
 diCpuThread = 0x80045A04;                  // type:func size:0x154 tier-B ROM 0x46604 NON_MATCHING plateau, first +0x90
 stop_all_threads_except_main = 0x80045B58; // type:func size:0x64 tier-A ROM 0x46758 exact C, JFG call graph/order
-func_80045BBC = 0x80045BBC;                // type:func size:0xF0 tier D (Mickey boundary)
+func_80045BBC = 0x80045BBC;                // type:func size:0xF0 tier-D ROM 0x467BC NON_MATCHING plateau, exact size 58/60 positions, first +0xBC
 func_80045CAC = 0x80045CAC;                // type:func size:0x88 tier-A (exact C, JFG active-thread scan)
 func_80045D34 = 0x80045D34;                // type:func size:0x72C tier-D ROM 0x46934 NON_MATCHING plateau, first +0x0
 diCpuReportWatchpoint = 0x80046460;         // type:func size:0xA4 tier-A (exact C, JFG body)
