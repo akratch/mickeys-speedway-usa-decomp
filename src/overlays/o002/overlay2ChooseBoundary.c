@@ -39,8 +39,8 @@ extern s32 gOverlay2SelectedBoundary;
 extern s32 func_overlay_002_F0000000_1856DF8(Overlay2Region *range);
 extern s32 overlay2ClassifyBoundary(f32 x1, f32 y1, f32 x2, f32 y2,
                                     s32 *side1, s32 *side2);
-extern s32 overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
-                             s32 wantedSide);
+extern void overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
+                              s32 wantedSide);
 
 #define CANDIDATE_COUNT gOverlay2BoundaryCandidateCount[0]
 
