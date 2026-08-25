@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 101124,
-  "nonmatching_overlay_c_bytes": 322740,
+  "matched_overlay_c_bytes": 103028,
+  "nonmatching_overlay_c_bytes": 320836,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 64,
   "bss_bytes": 77680,
@@ -1066,6 +1066,14 @@
      "label": "overlay1PointerWrap",
      "source": "overlays/o001/overlay_001",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x50",
+     "end_offset": "0x80",
+     "size": "0x30",
+     "label": "overlay1GetEntry",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
     },
     {
      "offset": "0x80",
@@ -3842,7 +3850,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14ApplyValues",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x498",
@@ -3959,7 +3967,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14AdvanceCommand",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0xF64",
@@ -3968,7 +3976,7 @@
      "type": "c",
      "source": "overlays/o014/overlay14StepCommand",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x1028",
@@ -4022,7 +4030,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F00013F4_1870CCC",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x1540",
@@ -9209,7 +9217,7 @@
      "type": "c",
      "source": "overlays/o043/overlay43FlushPending",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x280",
@@ -14054,7 +14062,7 @@
      "type": "c",
      "source": "overlays/o070/func_overlay_070_F0000000_18C91C8",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0xD8",

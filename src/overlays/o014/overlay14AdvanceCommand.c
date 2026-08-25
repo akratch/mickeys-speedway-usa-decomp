@@ -1,21 +1,56 @@
 #include "PR/ultratypes.h"
 
+typedef struct O14StateCCRef {
+    u8 pad00[0xCC];
+    s32 value;
+} O14StateCCRef;
+
+typedef struct O14TransitionD8Ref {
+    u8 pad00[0xD8];
+    s32 value;
+} O14TransitionD8Ref;
+
+typedef struct O14PointerE0Ref {
+    u8 pad00[0xE0];
+    s32 value;
+} O14PointerE0Ref;
+
+typedef struct O14ModeE4Ref {
+    u8 pad00[0xE4];
+    s32 value;
+} O14ModeE4Ref;
+
+typedef struct O14ValueECRef {
+    u8 pad00[0xEC];
+    s32 value;
+} O14ValueECRef;
+
+typedef struct O14Value110Ref {
+    u8 pad00[0x110];
+    s32 value;
+} O14Value110Ref;
+
+typedef struct O14Value114Ref {
+    u8 pad00[0x114];
+    s32 value;
+} O14Value114Ref;
+
 extern s32 gOverlay14Transition;
 extern s32 gOverlay14Cursor;
-extern s32 gOverlay14PointerE0;
+extern O14TransitionD8Ref gOverlay14TransitionD8;
+extern O14PointerE0Ref gOverlay14PointerE0;
 extern s32 gOverlay14Flag0;
-extern s32 gOverlay14Flag4;
-extern s32 gOverlay14ModeE4;
-extern s32 gOverlay14ValueEC;
-extern s32 gOverlay14StateCC;
-extern s32 gOverlay14Value110;
-extern s32 gOverlay14Value114;
+extern s32 gOverlay14Flag4[];
+extern O14ModeE4Ref gOverlay14ModeE4;
+extern O14ValueECRef gOverlay14ValueEC;
+extern O14StateCCRef gOverlay14StateCC;
+extern O14Value110Ref gOverlay14Value110;
+extern O14Value114Ref gOverlay14Value114;
 
 extern s32 overlay14InitializeMode(s32 mode);
 extern void overlay14ResetMode(void);
 extern void overlay14ApplyValues(s32 value, s32 extra);
 
-#ifdef NON_MATCHING
 void overlay14AdvanceCommand(s32 context) {
     s32 divisor;
     s32 limit;
@@ -30,34 +65,31 @@ void overlay14AdvanceCommand(s32 context) {
             gOverlay14Transition -= 1;
             gOverlay14Cursor += 1;
         }
-    } else if ((gOverlay14PointerE0 != 0) && (gOverlay14Flag0 != 0)) {
-        gOverlay14Transition = (0x58 / divisor) - 1;
+    } else if ((gOverlay14PointerE0.value != 0) && (gOverlay14Flag0 != 0)) {
+        gOverlay14TransitionD8.value = (0x58 / divisor) - 1;
     } else {
         limit = (0x58 / divisor) - 1;
-        if ((gOverlay14Cursor >= limit) && (gOverlay14Flag4 != 0)) {
-            gOverlay14Transition = -limit;
+        if ((gOverlay14Cursor >= limit) && (gOverlay14Flag4[1] != 0)) {
+            gOverlay14TransitionD8.value = -limit;
         }
     }
 
-    if ((gOverlay14PointerE0 == 0) && (gOverlay14Flag0 != 0)) {
-        if ((gOverlay14ModeE4 == 4) && (gOverlay14ValueEC >= 2)) {
+    if ((gOverlay14PointerE0.value == 0) && (gOverlay14Flag0 != 0)) {
+        if ((gOverlay14ModeE4.value == 4) && (gOverlay14ValueEC.value >= 2)) {
             overlay14ResetMode();
             return;
         }
-        if (gOverlay14ModeE4 == 3) {
-            extra = gOverlay14Value114;
+        if (gOverlay14ModeE4.value == 3) {
+            extra = gOverlay14Value114.value;
             if (extra != 0) {
-                overlay14ApplyValues(gOverlay14Value110, extra);
+                overlay14ApplyValues(gOverlay14Value110.value, extra);
                 return;
             }
         }
-        gOverlay14StateCC = 1;
+        gOverlay14StateCC.value = 1;
         return;
     }
-    if ((gOverlay14Flag4 != 0) && (gOverlay14ValueEC >= 2)) {
+    if ((gOverlay14Flag4[1] != 0) && (gOverlay14ValueEC.value >= 2)) {
         overlay14ResetMode();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14AdvanceCommand/func_overlay_014_F0000D68_1870640.s")
-#endif

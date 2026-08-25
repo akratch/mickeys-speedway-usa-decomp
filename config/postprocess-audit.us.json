@@ -1156,6 +1156,7 @@
       "size": 332,
       "source": "src/overlays/o014/func_overlay_014_F00013F4_1870CCC.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py"
       ]
     },
@@ -1192,6 +1193,7 @@
       "size": 508,
       "source": "src/overlays/o014/overlay14AdvanceCommand.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -1205,6 +1207,7 @@
       "size": 368,
       "source": "src/overlays/o014/overlay14ApplyValues.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -1442,6 +1445,7 @@
       "size": 196,
       "source": "src/overlays/o014/overlay14StepCommand.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -3276,6 +3280,8 @@
       "size": 236,
       "source": "src/overlays/o043/overlay43FlushPending.c",
       "tools": [
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
         "trim_elf_section.py"
       ]
     },
@@ -5121,6 +5127,8 @@
       "size": 216,
       "source": "src/overlays/o070/func_overlay_070_F0000000_18C91C8.c",
       "tools": [
+        "filter_elf_relocations.py",
+        "rebind_elf_relocations.py",
         "trim_elf_section.py"
       ]
     },

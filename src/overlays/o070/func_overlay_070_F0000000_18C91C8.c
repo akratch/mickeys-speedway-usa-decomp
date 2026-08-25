@@ -30,12 +30,26 @@ typedef struct O70Input {
     void *related;
 } O70Input;
 
-extern f32 gOverlay70FloatTableReloc[];
-extern s8 gOverlay70VerticalStepReloc[];
-extern s16 gOverlay70AngleReloc[];
+typedef struct O70FloatTable {
+    u8 pad00[0x20];
+    f32 values[1];
+} O70FloatTable;
+
+typedef struct O70VerticalStepTable {
+    u8 pad00[0xC];
+    s8 values[1];
+} O70VerticalStepTable;
+
+typedef struct O70AngleTable {
+    u8 pad00[0x10];
+    s16 values[1];
+} O70AngleTable;
+
+extern O70FloatTable gOverlay70FloatTableReloc;
+extern O70VerticalStepTable gOverlay70VerticalStepReloc;
+extern O70AngleTable gOverlay70AngleReloc;
 extern s32 overlay70RandomRange(s32 lower, s32 upper);
 
-#ifdef NON_MATCHING
 void func_overlay_070_F0000000_18C91C8(O70Object *object, O70Input *input) {
     O70State *state;
     u8 type;
@@ -53,11 +67,8 @@ void func_overlay_070_F0000000_18C91C8(O70Object *object, O70Input *input) {
     state->active = 0;
     state->timer = 0xBE;
     state->flags = 0xD;
-    object->value28 = gOverlay70FloatTableReloc[state->type];
+    object->value28 = gOverlay70FloatTableReloc.values[state->type];
     type = state->type;
-    state->verticalStep = gOverlay70VerticalStepReloc[type];
-    object->angle = gOverlay70AngleReloc[type];
+    state->verticalStep = gOverlay70VerticalStepReloc.values[type];
+    object->angle = gOverlay70AngleReloc.values[type];
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o070/func_overlay_070_F0000000_18C91C8/func_overlay_070_F0000000_18C91C8.s")
-#endif

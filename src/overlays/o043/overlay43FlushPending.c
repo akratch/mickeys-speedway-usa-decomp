@@ -13,14 +13,18 @@ typedef struct Overlay43PendingEntry {
     u8 pending;
 } Overlay43PendingEntry;
 
-extern s8 D_C8;
+typedef struct Overlay43State {
+    u8 pad00[0xC8];
+    s8 pendingCount;
+} Overlay43State;
+
+extern Overlay43State D_C8;
 extern Overlay43PendingEntry *D_120[];
 extern u8 ext_4d258[];
 extern void func_8002E800(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void osRecvMesg(void *queue, s32 *message, s32 flags);
 extern void func_overlay_043_F0001378_188B348(void *entry);
 
-#ifdef NON_MATCHING
 void func_overlay_043_F0000194_188A164(void) {
     Overlay43PendingEntry *entry;
     Overlay43PendingEntry *previous;
@@ -28,7 +32,7 @@ void func_overlay_043_F0000194_188A164(void) {
     s32 index;
 
     message = 0;
-    for (index = 0; index < D_C8; index++) {
+    for (index = 0; index < D_C8.pendingCount; index++) {
         entry = D_120[index];
         if (index > 0) {
             previous = D_120[index - 1];
@@ -45,8 +49,5 @@ void func_overlay_043_F0000194_188A164(void) {
         }
     }
     func_overlay_043_F0001378_188B348(entry);
-    D_C8 = 0;
+    D_C8.pendingCount = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/overlay43FlushPending/func_overlay_043_F0000194_188A164.s")
-#endif

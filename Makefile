@@ -1159,13 +1159,42 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14CallUpdate.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14PrepareInputState.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_014_F0000B5C_1870434=overlay14PrepareInputState $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14AdvanceCommand.c.o: \
+	config/normalizations/overlay14AdvanceCommand.filter.spec \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14AdvanceCommand.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_014_F0000D68_1870640=overlay14AdvanceCommand $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		@config/normalizations/overlay14AdvanceCommand.filter.spec && \
+	$(OBJCOPY) \
+		--redefine-sym overlay14InitializeMode=func_overlay_014_F0000000_186F8D8 \
+		--redefine-sym gOverlay14Transition=D_D8 \
+		--redefine-sym gOverlay14Cursor=D_DC \
+		--redefine-sym overlay14ResetMode=func_overlay_014_F0000498_186FD70 \
+		--redefine-sym overlay14ApplyValues=func_overlay_014_F0000328_186FC00 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1FC
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14StepCommand.c.o: \
+	config/normalizations/overlay14StepCommand.filter.spec \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14StepCommand.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_014_F0000F64_187083C=overlay14StepCommand $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		@config/normalizations/overlay14StepCommand.filter.spec && \
+	$(OBJCOPY) \
+		--redefine-sym overlay14ResetMode=func_overlay_014_F0000498_186FD70 \
+		--redefine-sym overlay14DispatchCommand=func_overlay_014_F0001040_1870918 \
+		--redefine-sym overlay14MoveCommandCursor=func_overlay_014_F0000578_186FE50 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F00013F4_1870CCC.c.o: \
+	config/normalizations/func_overlay_014_F00013F4_1870CCC.filter.spec \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F00013F4_1870CCC.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		@config/normalizations/func_overlay_014_F00013F4_1870CCC.filter.spec && \
+	$(OBJCOPY) \
+		--redefine-sym overlay14BuildPanel=func_overlay_014_F00012D8_1870BB0 \
+		--redefine-sym overlay14CreateHandle=func_overlay_014_F0001830_1871108 \
+		--redefine-sym overlay14DrawPrimitive=func_overlay_014_F0000000_186F8D8 \
+		--redefine-sym gOverlay14Args2C=D_2C \
+		--redefine-sym gOverlay14Args30=D_30 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0001830_1871108.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324
@@ -1180,8 +1209,19 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0000000_186F8D8.c.o: POS
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x13C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F000013C_186FA14.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1E0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ApplyValues.c.o: \
+	config/normalizations/overlay14ApplyValues.filter.spec \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ApplyValues.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_014_F0000328_186FC00=overlay14ApplyValues $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		@config/normalizations/overlay14ApplyValues.filter.spec && \
+	$(OBJCOPY) \
+		--redefine-sym gOverlay14StateC8=D_C8 \
+		--redefine-sym gOverlay14CommandCountEC=D_EC \
+		--redefine-sym overlay14CreateValue=func_overlay_014_F00006FC_186FFD4 \
+		--redefine-sym overlay14MoveCommandCursor=func_overlay_014_F0000578_186FE50 \
+		--redefine-sym gOverlay14ResultF8=D_F8 \
+		--redefine-sym gOverlay14QueuedCommands128=D_128 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x170
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14MoveCommandCursor.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_014_F0000578_186FE50=overlay14MoveCommandCursor $@ && \
@@ -1648,7 +1688,23 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o042/overlay_042.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x700
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43InitializeState.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FlushPending.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43FlushPending.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x004:5:D_C8 \
+		0x008:6:D_C8 \
+		0x038:5:ext_4d258 \
+		0x03c:6:ext_4d258 \
+		0x09c:5:D_C8 \
+		0x0a0:6:D_C8 \
+		0x0c4:5:D_C8 \
+		0x0e0:6:D_C8 && \
+	$(OBJCOPY) --redefine-sym \
+		func_8002E800=func_overlay_043_F0000000_1889FD0 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x094:osRecvMesg:func_overlay_043_F0000000_1889FD0 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xEC
 # Six resident release roles are stored through one overlay carrier. The source
 # is otherwise instruction-natural; rebind the exceptional release site and
@@ -2215,7 +2271,23 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: CFL
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o038/func_overlay_038_F000047C_188618C.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x36C
 
+
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000000_18C91C8.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000000_18C91C8.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x078:5:gOverlay70FloatTableReloc \
+		0x094:6:gOverlay70FloatTableReloc \
+		0x098:5:gOverlay70VerticalStepReloc \
+		0x0ac:6:gOverlay70VerticalStepReloc \
+		0x09c:5:gOverlay70AngleReloc \
+		0x0bc:6:gOverlay70AngleReloc && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x028:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
+		0x038:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
+		0x04c:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
+		0x05c:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: CFLAGS += -Wab,-r4300_mul

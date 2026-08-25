@@ -1159,12 +1159,15 @@ slices at file offset `0x184C758` share SHA256
 `daeb9395211c01871e6c40bafdf49a8187ac111a96855d1ed62d05ca5e80271d`,
 and the cumulative full ROM is exact.
 
-Overlay 1's entry lookup at decimal offsets `+80..+128` — 48 bytes / 12
-words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via
-three guarded words selecting the duplicate retail return site); source kept
-as decomp-permuter input. Direct ROM slices at file offset `0x184C430` share
-SHA256
-`698f9adbf65e2128e034071353e438b9fa2c3a346ee401752148a970cc652875`.
+| Overlay | Range | Function | Bytes | Exactness | Donor |
+|---:|---|---|---:|---|---|
+| 1 | `+0x0050..+0x0080` | `overlay1GetEntry` | 48 | canonical object and linked ROM exact | pinned DKR/JFG scans negative |
+| 14 | `+0x0328..+0x0498` | `overlay14ApplyValues` | 368 | canonical object and linked ROM exact | Mickey-only |
+| 14 | `+0x0D68..+0x0F64` | `overlay14AdvanceCommand` | 508 | canonical object and linked ROM exact | Mickey-only |
+| 14 | `+0x0F64..+0x1028` | `overlay14StepCommand` | 196 | canonical object and linked ROM exact | Mickey-only |
+| 14 | `+0x13F4..+0x1540` | `func_overlay_014_F00013F4_1870CCC` | 332 | canonical object and linked ROM exact | Mickey-only |
+| 43 | `+0x0194..+0x0280` | `func_overlay_043_F0000194_188A164` | 236 | canonical object and linked ROM exact | Mickey-only |
+| 70 | `+0x0000..+0x00D8` | `func_overlay_070_F0000000_18C91C8` | 216 | canonical object and linked ROM exact | Mickey-only |
 
 Overlay 1's backward usable-record search at decimal offsets `+1,044..+1,204`
 — 160 bytes / 40 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was
