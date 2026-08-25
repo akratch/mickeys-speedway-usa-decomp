@@ -364,7 +364,6 @@ typedef struct Overlay1Sample {
     s8 enabled;
 } Overlay1Sample;
 
-extern Overlay1OwnerState *D_1DA0Read;
 extern void *D_1D58;
 extern Overlay1Sample *D_1D60;
 extern Overlay1Sample *volatile D_1D68;
@@ -383,16 +382,14 @@ extern void *overlay1Chain40Reloc(void *source);
 extern f32 overlay1InterpolateReloc(f32 first, f32 second, s32 third,
                                    s32 fourth, f32 weight);
 
-/* Plateau (2026-08-24): all 119 flag combinations are exact-sized but tie
- * at 49 of 88 differing words with the first mismatch at +0x0.  The whole
- * entry ABI/register assignment differs, so this requires a typed owner/global
- * representation change rather than local statement reordering. */
+/* Plateau retry (2026-08-25): -O2/-mips2 is exact-sized at 47/88 differing
+ * words, first +0x0; direct-global, typed/volatile, pointer-local, declaration,
+ * and clear-order forms leave the D_1DA0 v1/v0 allocation phase unresolved. */
 #ifdef NON_MATCHING
 s32 overlay1ActivateObject(Overlay1Owner *owner) {
-    Overlay1OwnerState *state;
-    Overlay1Sample *record;
-    register Overlay1Sample *volatile *recordSlot;
     s32 index;
+    Overlay1Sample *record;
+    Overlay1OwnerState *state;
 
     D_1D9C = 0;
     D_1DA0 = 0;
@@ -406,23 +403,25 @@ s32 overlay1ActivateObject(Overlay1Owner *owner) {
     }
     D_1DA0 = state;
     if (D_0 == 1) {
-        state = *(Overlay1OwnerState *volatile *)&D_1DA0;
-        index = state->recordIndex;
+        index = (*(Overlay1OwnerState *volatile *)&D_1DA0)->recordIndex;
         record = (Overlay1Sample *)((u8 *)D_1D58 + index * 0x94);
-        recordSlot = &D_1D68;
-        *recordSlot = record;
+        D_1D68 = record;
         D_1D64 = overlay1Chain0ContextReloc(record, &D_1D9C);
         D_1D60 = overlay1Chain0Reloc(D_1D64);
         D_1D6C = overlay1Chain40Reloc(D_1D68Read);
-        state = D_1DA0Read;
+        state = D_1DA0;
         D_0208 =
-            (Overlay1Sample *)((u8 *)D_1D60 + state->selector * 0x10 + 0x14);
+            (Overlay1Sample *)((u8 *)D_1D60 +
+                state->selector * 0x10 + 0x14);
         D_020C =
-            (Overlay1Sample *)((u8 *)D_1D64 + state->selector * 0x10 + 0x14);
+            (Overlay1Sample *)((u8 *)D_1D64 +
+                state->selector * 0x10 + 0x14);
         D_0210 =
-            (Overlay1Sample *)((u8 *)D_1D68Read + state->selector * 0x10 + 0x14);
+            (Overlay1Sample *)((u8 *)D_1D68Read +
+                state->selector * 0x10 + 0x14);
         D_0214 =
-            (Overlay1Sample *)((u8 *)D_1D6C + state->selector * 0x10 + 0x14);
+            (Overlay1Sample *)((u8 *)D_1D6C +
+                state->selector * 0x10 + 0x14);
     }
     return 1;
 }

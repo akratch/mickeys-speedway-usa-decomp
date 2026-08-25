@@ -861,26 +861,25 @@ void func_800508D4();
  * PROVENANCE: adapted from JFG's func_80077468_78068 assembly. Mickey's
  * resident globals, packed fields, call identities, and output are checked
  * independently against Mickey's ROM.
- *
- * Plateau after 10 source/lifetime shapes and a bounded canonical-flag
- * permuter: the best semantic candidate has the exact 104-instruction size,
- * 0x48 frame, and five call relocations, but 58 allocation/schedule words
- * remain from first mismatch +0x34. The target copies the header count through
- * v0/s0 and reuses one scaled path offset; IDO instead keeps the count in s4
- * and rematerializes that offset. The 490-score permutation is one word long.
  */
+/* Plateau retry (2026-08-25): the typed NON_MATCHING build is exact at 104
+ * words, but canonical declaration mode differs in one normalization word at
+ * +0x138 and fails whole-ROM verification; changing the shared prototype regresses a neighbor. */
 #ifdef NON_MATCHING
 void func_800511C4(void) {
     u32 *entryCursor;
+    u32 headerWord;
     s32 remaining;
     u32 entryWord;
+    s32 pathIndex;
     AnimGroupPathHeader *source;
     AnimPath *path;
     s32 highBit;
 
     entryCursor = (u32 *) D_8007D68C;
-    remaining = (*entryCursor >> 24) & 0xFF;
+    headerWord = *entryCursor;
     entryCursor++;
+    remaining = (headerWord >> 24) & 0xFF;
     func_8005027C();
     if (remaining > 0) {
         highBit = 0x80;
@@ -888,12 +887,12 @@ void func_800511C4(void) {
             entryWord = *entryCursor++;
             source = (AnimGroupPathHeader *)
                 ((u8 *) D_8007D68C + (entryWord & 0xFFFFFF));
-            D_800D6B00[(entryWord >> 24) & 0xFF] =
+            pathIndex = (entryWord >> 24) & 0xFF;
+            D_800D6B00[pathIndex] =
                 func_8002B280((source->nodeCount * sizeof(AnimPathNode)) +
                                   sizeof(AnimPath),
                               0x81);
-            entryWord >>= 24;
-            path = D_800D6B00[entryWord & 0xFF];
+            path = D_800D6B00[pathIndex];
             if (path != NULL) {
                 if (source->nodeCount > 0) {
                     path->nodes = (AnimPathNode *)((u8 *)path +
@@ -913,10 +912,10 @@ void func_800511C4(void) {
                     path->unk7 &= 0x7F;
                 }
                 path->nodeCount = source->nodeCount;
-                func_8005055C(entryWord & 0xFF);
+                func_8005055C(pathIndex & 0xFF);
                 func_800508D4(path->nodeCount, path->nodes, source->nodeData,
                               0, 0);
-                func_80050AD4(entryWord & 0xFF);
+                func_80050AD4(pathIndex & 0xFF);
             }
             remaining--;
         } while (remaining > 0);
@@ -2174,26 +2173,20 @@ no_intersection:
 /*
  * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
  * establishes the entity cutoff, resident structures, and final code here.
- * Plateau after the flag lattice, 10 source/workspace shapes, and a bounded
- * canonical-flag permuter: the best full-TU candidate has the exact 105
- * instructions and 0xC0 frame, but 53 words remain from first mismatch +0x24.
- * The target rotates the saved players/result/count registers and places the
- * count/distances workspace at sp+0x7C/sp+0xA0. A nominal score-545 permutation
- * failed to reset the distance cursor on each sort pass and was rejected.
  */
+/* Plateau retry (2026-08-25): exact-sized at 51/105 words, first +0x24;
+ * scoped deltas recover sp+0x7C, but distances stay at sp+0x94; no permuter zero.
+ * Its 520-score hoist broke cursor reset, leaving the layout/register phase. */
 s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
                   HitCopyState **nearby) {
+    f32 distances[8];
     HitCopyState **players;
     HitCopyState *player;
     HitCopyState **nearbyEntry;
-    f32 distances[8];
     f32 *distance;
     f32 *lastDistance;
-    f32 deltaX;
     f32 deltaY;
-    f32 deltaZ;
     f32 distanceSquared;
-    f32 nextDistance;
     f32 currentDistance;
     s32 playerCount;
     s32 found;
@@ -2208,6 +2201,9 @@ s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
             player = *players++;
             if ((*(s8 *) player->target >= 0) &&
                 (*(s8 *) player->target < 6)) {
+                f32 deltaX;
+                f32 deltaZ;
+
                 deltaX = player->position.x - x;
                 deltaZ = player->position.z - z;
                 distanceSquared = (deltaX * deltaX) + (deltaZ * deltaZ);
@@ -2231,13 +2227,12 @@ s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
                 lastDistance = &distance[remaining];
                 nearbyOffset = 0;
                 do {
-                    nextDistance = distance[1];
                     currentDistance = distance[0];
                     nearbyEntry = (HitCopyState **)
                         ((u8 *) nearby + nearbyOffset);
-                    if (nextDistance < currentDistance) {
+                    if (distance[1] < currentDistance) {
                         player = nearbyEntry[0];
-                        distance[0] = nextDistance;
+                        distance[0] = distance[1];
                         nearbyEntry[0] = nearbyEntry[1];
                         distance[1] = currentDistance;
                         nearbyEntry[1] = player;

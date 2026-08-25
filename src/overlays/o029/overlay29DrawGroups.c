@@ -45,7 +45,9 @@ extern void overlay29FlushReloc(Gfx **);
 extern void overlay29FinishReloc(Gfx **);
 
 #ifdef NON_MATCHING
-/* Exact at +0x14C8; DKR v77/v80 and JFG have no exact overlay-29 donor. */
+/* Plateau retry (2026-08-25): -O2/-mips2 is exact-sized at 48/129 words,
+ * first +0x50; sinking groupIndex improves the preheader. Ten CFG/offset forms
+ * and a 40-minute permuter (1370 to 880, no zero) leave the phase unresolved. */
 void overlay29DrawGroups(Gfx **dl, s32 drawContext,
                          Overlay29Context *context) {
     Overlay29RenderState *render;
@@ -67,7 +69,6 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
     alphaMask = -0x100;
     fillCommand = 0xFB000000;
     if (render->enabled != 0) {
-        groupIndex = 3;
         gfx = *dl;
         *dl = gfx + 1;
         gfx->w0 = 0xE7000000;
@@ -80,6 +81,7 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
         triangleCommand = 0xBF000000;
         gfx->w0 = fillCommand;
         gfx->w1 = alphaMask;
+        groupIndex = 3;
 
         do {
             if (groupIndex == 3) {
