@@ -737,10 +737,11 @@ $(BUILD_DIR)/$(SRC_DIR)/main/audio_manager_4C50.c.o: CFLAGS += -Wab,-r4300_mul
 # rule; MIPS I inserts load-delay nops in several of them.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/%.c.o: MIPSISET := -mips2 -32
 
-# The overlay 66 framebuffer renderer's natural display-list source is closest
-# and exact-size-adjacent only in IDO's -g3 codegen group; the full flag lattice
-# ranks every non-g3 overlay combination below it.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o066/func_overlay_066_F00004E0_18C6948.c.o: OPT_FLAGS := -O2 -g3
+# The overlay 66 framebuffer renderer remains NON_MATCHING, but its complete
+# flag sweep is closest under the MIPS I codegen group (12 bytes short versus
+# 36 under the former -O2 -g3 MIPS II override).
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o066/func_overlay_066_F00004E0_18C6948.c.o: OPT_FLAGS := -O2
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o066/func_overlay_066_F00004E0_18C6948.c.o: MIPSISET := -mips1 -32
 
 # Rare's audio-bank patcher is an -O3 object in DKR and Mickey. Mickey keeps
 # six source boundaries that preserve calls the whole-file DKR build inlines;
