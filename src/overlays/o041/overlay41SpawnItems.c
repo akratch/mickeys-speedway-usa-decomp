@@ -34,7 +34,6 @@ extern void overlay41ConvertPair(Overlay41ShortPair *input,
 extern void overlay41Emit(f32 x, f32 y, s32 kind, f32 outX, f32 outY,
                           f32 z, s32 opacity, s32 mode, f32 scale);
 
-#ifdef NON_MATCHING
 void overlay41SpawnItems(s32 rootIndex, s32 count, s32 mode, s32 centerX,
                          s32 centerY, s32 radiusX, s32 radiusY, s32 centerZ,
                          s32 radiusZ) {
@@ -94,6 +93,3 @@ void overlay41SpawnItems(s32 rootIndex, s32 count, s32 mode, s32 centerX,
                       opacity, mode, scale);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41SpawnItems/func_overlay_041_F0001740_1888A78.s")
-#endif
