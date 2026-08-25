@@ -1732,7 +1732,7 @@ with the JFG identity and tier on the same row, until each function or its
 caller becomes C-owned; this avoids pretending that a source-level rename is
 already available to the stale generated caller assembly.
 
-Exact C closures in these splits begin with 68 bytes across two `diCpu`
+Exact C closures in these splits begin with 152 bytes across three `diCpu`
 functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
 60-byte `func_8004650C` (`diCpuTraceTick`). Their natural return-zero and
 60-tick counter bodies are identical under the resident `-O2 -mips2 -32`
@@ -1795,6 +1795,10 @@ target, affecting eight words while leaving the command arithmetic and all
 surrounding instructions exact. Explicit locals fix those eight uses only by
 perturbing the frame or earlier allocation, so the typed macro reconstruction
 remains behind `NON_MATCHING` and the target assembly stays canonical.
+The 84-byte `diCpuTraceInit` is exact at the resident defaults. Keeping JFG's
+distinct thread-control-block and stack-top declarations reproduces the target
+evaluation schedule; Mickey resolves both operands to the same address, so the
+linked function and its three call/data relocation pairs are exact.
 The 84-byte `func_80046E70` (`fxFreeCone`) is exact too: two distinct texture
 handle locals reproduce the target's direct second argument register and
 branch-delay schedule, with both texture-free calls and the allocator call

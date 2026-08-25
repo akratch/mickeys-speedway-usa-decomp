@@ -1032,6 +1032,11 @@ diRcpStrName = 0x80045660;       // type:func size:0x34 tier A (exact C, JFG diR
 diRcpOtherMode = 0x80045694;     // type:func size:0x208 tier C (render-mode strings)
 diRcpGeometryMode = 0x8004589C;  // type:func size:0x114 tier C (geometry strings)
 
+// PROVENANCE: names adapted from JFG src/diCpu.{c,h}. Mickey links the
+// thread control block and the stack-top operand at the same address.
+diCpuOSThread = 0x800D5AA0;      // type:OSThread allow_duplicated:True tier-B (JFG diCpuTraceInit operand roles)
+diCpuThreadStack = 0x800D5AA0;   // type:u64 allow_duplicated:True tier-B (JFG diCpuTraceInit operand roles)
+
 // diCpu.c. Owns "Watchpoint exception at %x\n" and, right after it, "Module %d
 // at %08x" -- and Mickey's function calls runlinkGetAddressInfo (below)
 // between the two, which is precisely what JFG's diCpuReportWatchpoint does.
@@ -2214,7 +2219,7 @@ frontGetBgmVolume = 0x8003A4C4; // type:func size:0xC  ROM 0x3b0c4
 // identify the BGM-volume operation.
 frontSetBgmVolume = 0x8003A4D0; // type:func size:0x3C  ROM 0x3b0d0
 // jfg:src/diCpu.c.o
-diCpuTraceInit = 0x800459B0; // type:func size:0x54   ROM 0x465b0  src/diCpu.c.o  masked=10/21
+diCpuTraceInit = 0x800459B0; // type:func size:0x54 ROM 0x465b0 tier-A exact C, JFG diCpuTraceInit
 // jfg:src/font.c.o
 fontSetWindow0 = 0x8004B040; // type:func size:0x24   ROM 0x4bc40  src/font.c.o  masked=2/9
 fontSetWindowNoise = 0x8004B070; // type:func size:0x34   ROM 0x4bc70  src/font.c.o  masked=6/13

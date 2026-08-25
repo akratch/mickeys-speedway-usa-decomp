@@ -15,6 +15,8 @@
 
 extern s32 D_8007CFD8;
 extern s32 D_8007CFDC;
+extern OSThread diCpuOSThread;
+extern u64 diCpuThreadStack[];
 extern f32 D_80083DBC;
 extern OSMesgQueue D_800D5CD0;
 extern OSMesg D_800D5CE8[8];
@@ -44,8 +46,13 @@ extern s32 D_800D5DF0[];
 extern s32 D_800D5E98[];
 extern s32 D_800D5F40[];
 void stop_all_threads_except_main(void);
+void diCpuThread(void *unused);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/diCpuTraceInit.s")
+/* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuTraceInit. */
+void diCpuTraceInit(void) {
+    osCreateThread(&diCpuOSThread, 0, diCpuThread, 0, diCpuThreadStack, 0xFF);
+    osStartThread(&diCpuOSThread);
+}
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuThread; Mickey's own
  * draft supplies its extra VI delay loop and exact event handling. */
