@@ -346,10 +346,8 @@ extern void func_80049A8C(s32);
 extern void func_80037414(s32, f32, f32, s32, s32, s32, s32);
 extern void amWaitForMidiSync(void);
 
-#ifdef NON_MATCHING
 #pragma weak mainCPUeffectsRainDraw = TrapDanglingJump
 extern void mainCPUeffectsRainDraw(void *, s32, s32, f32, f32);
-#endif
 
 /*
  * PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is
@@ -844,20 +842,10 @@ s8 mainGetZBCheck(s32 arg0) {
     return D_800CF53F[arg0 * 8];
 }
 
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: function role adapted from JFG src/main.c::mainCPUeffects. JFG
  * retains assembly, so the body is reconstructed from Mickey-only control-flow
  * and call evidence; Mickey byte identity is decisive.
- *
- * Plateau: seventeen type, expression, storage and statement-grouping hypotheses
- * preserve all 85 target opcodes, the 0x154 boundary and the -0x40 frame. The
- * best differs in ten temp-FIFO register operands, first at +0x48, and its
- * typed overlay-call alias retains a different relocation identity at +0xD8.
- * Function-pointer casting preserves that type but emits an indirect call;
- * raw-integer framebuffer and zero-code FIFO/line probes normalize back to
- * the same object. The complete resident flag lattice does not improve either
- * residual.
  */
 void mainCPUeffects(u16 *framebuffer, s32 unused) {
     s32 screenWidth;
@@ -870,8 +858,8 @@ void mainCPUeffects(u16 *framebuffer, s32 unused) {
     viGetCurrentSize(&screenWidth, (s32 *) &screenHeight);
     if (func_80021C5C(0) != 0) {
         func_80021F68(0, &x1, &y1, &x2, &y2);
+        framebuffer = (y1 * screenWidth) + framebuffer;
         screenHeight = (y2 - y1) + 1;
-        framebuffer += y1 * screenWidth;
     }
     if ((func_80049864(4) == 0) &&
         (runlinkIsModuleLoaded(0xF) != 0) &&
@@ -893,9 +881,6 @@ void mainCPUeffects(u16 *framebuffer, s32 unused) {
         func_8004A0F0();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainCPUeffects.s")
-#endif
 
 void mainSetGameWindow(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                        s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
