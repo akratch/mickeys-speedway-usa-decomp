@@ -28,16 +28,9 @@ extern s8 D_flagC6;
 
 extern void func_overlay_047_F0000000_1890E18(void *arg);
 
-/*
- * Plateau (2026-08-25, renewed cap): the canonical -O2 -mips2 candidate is
- * size-exact with a 10-word masked instruction residual, first at +0x54. An
- * explicit boolean second-loop bound improved the prior 24-word residual, but
- * the first/second boundary low halves and the overlay-relative data addends
- * still need the original same-TU address model; the object has 30 relocation
- * metadata mismatches. All 119 flag variants and a bounded 10-minute permuter
- * batch were exhausted. Static calls use the extracted offset-zero carrier;
- * the shipped overlay relocation ledger retains their runtime identities.
- */
+/* Plateau (near-miss batch 13): -O2 -mips2 is size-exact; 10/88 masked words
+ * differ, first +0x54; 30 relocation mismatches retain the address blocker.
+ * End-pointer/boolean forms regressed; the 40-minute permuter stopped at 185. */
 #ifdef NON_MATCHING
 void func_overlay_047_F00009D0_18917E8(void) {
     Overlay47Entry *entry;

@@ -24,12 +24,9 @@ extern u8 D_8000003A[];
 extern u8 D_8000003B[];
 extern void func_overlay_041_F0000000_1887338(void);
 
-/*
- * Plateau (2026-08-25): 83/98 masked words exact with the default flags;
- * first mismatch +0x40. Loading the working colors before copying their
- * initial values fixes five words, but IDO retains a five-way register-color
- * rotation between the remaining count and the four initial color values.
- */
+/* Plateau (near-miss batch 13): -O2 -mips2 is size-exact; 15/98 words differ,
+ * first +0x40. Declaration/first-use/width forms tied or regressed; the
+ * 40-minute permuter stopped at artificial score 125, leaving the color web. */
 #ifdef NON_MATCHING
 /* Preserve runtime-only relocation identities in a removable private island. */
 static void *const overlay41RuntimeSymbols[] = {

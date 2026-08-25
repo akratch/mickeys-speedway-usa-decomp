@@ -3,15 +3,9 @@
 extern s32 gO96EntryCountReloc;
 extern s32 gO96EntriesReloc[16];
 
-/*
- * Plateau (2026-08-25, refreshed in this lane): the nearest skeleton is only
- * a semantic fixed-list removal relative; this body is reconstructed from
- * Mickey's reverse walk. A fresh 119-combination flag sweep selects
- * -O2 -g3 -mips2 and reaches the exact 0x88-byte extent with 24 of 34 masked
- * words different, first at +0x0 (the ordinary overlay flags differ in 25).
- * Prefix/post-decrement, pointer, integer-address, volatile, and explicit-end
- * loop forms do not reproduce the target's cached count-base/index lifetime.
- */
+/* Plateau (near-miss batch 13): -O2 -g3 -mips2 is size-exact; 24/34 words
+ * differ, first +0x0. Pointer/index/lifetime forms tied or regressed; the
+ * 40-minute permuter retained nonzero score 1150, leaving the cached web. */
 #ifdef NON_MATCHING
 void overlay96Unregister(s32 value) {
     s32 count;
