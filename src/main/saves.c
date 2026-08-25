@@ -463,14 +463,13 @@ void func_8002C94C(s32 saveIndex) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C94C.s")
 #endif
-#ifdef NON_MATCHING
 /* Mickey-derived reconstruction of the serialized save-window loader. */
 void func_8002CB18(void) {
     s32 checksum;
     s32 inner;
-    s32 messageQueue;
     s32 outer;
     s32 value;
+    s32 messageQueue;
     SavesBitWriter *reader;
     SavesSlot *slot;
     SavesPackedEntry *entry;
@@ -498,7 +497,7 @@ void func_8002CB18(void) {
             entry->unk06 = value;
             func_8002C70C(reader, &value, 0x12);
             entry->unk00 = value * 3;
-            func_8002C70C(reader, &value, 4);
+            func_8002C70C(reader, &value, 4U);
             entry->unk07 = value;
             inner++;
             entry++;
@@ -519,9 +518,6 @@ void func_8002CB18(void) {
     }
     func_8002C79C(reader);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002CB18.s")
-#endif
 void func_8002CCE4(void) {
     s32 i;
     s32 limit;
