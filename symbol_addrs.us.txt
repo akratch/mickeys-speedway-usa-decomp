@@ -2082,6 +2082,7 @@ lightDefaultObjectLight = 0x80019D98; // type:func size:0x50   ROM 0x1a998  src/
 func_80019DE8 = 0x80019DE8; // type:func size:0xFC tier-D ROM 0x1a9e8 NON_MATCHING plateau, 64 versus 63 words, first +0x48
 lightSetupLightSources = 0x80019EE4; // type:func size:0x98   ROM 0x1aae4  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 lightSetupFlareSources = 0x80019F7C; // type:func size:0x8C   ROM 0x1ab7c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
+func_8001A008 = 0x8001A008; // type:func size:0x14C tier-B ROM 0x1ac08 NON_MATCHING plateau, exact 83-word shape, first +0x70, four result-spill offsets differ
 func_8001A154 = 0x8001A154; // type:func size:0xE8 tier-B, ROM 0x1ad54, NON_MATCHING plateau 45/58 words exact, first +0x1C
 lightKillGlowingLight = 0x8001A23C; // type:func size:0x24   ROM 0x1ae3c  src/lights.c.o  Mickey/JFG-adapted body compiler-exact
 // jfg:src/charControl.c.o

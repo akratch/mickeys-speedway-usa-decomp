@@ -119,6 +119,43 @@ typedef struct ObjectLightState {
     s16 pitch;
 } ObjectLightState;
 
+typedef struct LightInitHeader {
+    u8 pad0[0x1E];
+    s8 mode;
+    u8 pad1F[0x71];
+    f32 green;
+    f32 red;
+    u8 pad98[4];
+    s16 yaw;
+    s16 pitch;
+    s16 shift;
+} LightInitHeader;
+
+typedef struct LightLevelData {
+    u8 pad0[0xD8];
+    s16 pitch;
+    s16 yaw;
+    u8 padDC[3];
+    u8 green;
+    u8 red;
+    u8 padE1[2];
+    u8 useLevelLight;
+} LightLevelData;
+
+typedef struct LightInitState {
+    f32 intensity;
+    u8 unk4;
+    u8 unk5;
+    u8 unk6;
+    u8 unk7;
+    u8 unk8;
+    u8 unk9;
+    u8 unkA;
+    u8 padB[3];
+    s16 enabled;
+    ObjectLightState light;
+} LightInitState;
+
 typedef struct FlareHeader {
     u8 pad0[0x29];
     u8 flareCount;
@@ -530,7 +567,51 @@ void lightSetupFlareSources(FlareObject *object) {
         object->flares[i] = camlightAdd(object, &object->header->flares[i]);
     }
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightInitObjectLighting.s, with Mickey's layout. */
+s32 func_8001A008(LightingObject *object, LightInitState *state) {
+    LightLevelData *level;
+    s32 result;
+    s32 mode;
+    LightInitHeader *header;
+
+    level = (LightLevelData *) levelGetLevel();
+    result = 0;
+    header = (LightInitHeader *) object->segmentData;
+    object->objectLight = (s32) state;
+    mode = header->mode;
+    if (mode == 0) {
+        state->enabled = 1;
+        result = 0x90;
+        if (level->useLevelLight != 0) {
+            func_80019DE8(&state->light, level->red, level->green, level->yaw,
+                          level->pitch + 0x8000, 0);
+        } else {
+            func_80019DE8(&state->light, (s32) (header->red * 255.0f),
+                          (s32) (header->green * 255.0f), header->yaw,
+                          header->pitch, header->shift);
+        }
+        state->unk4 = 0;
+        state->unk5 = 0xFF;
+        state->unk6 = 0xFF;
+        state->unk7 = 0xFF;
+        state->unk8 = 0xFF;
+        state->unk9 = 0xFF;
+        state->unkA = 0xFF;
+        state->intensity = 1.0f;
+    } else if ((mode == 1) || (mode == 2)) {
+        state->unk4 = 0;
+        state->unk5 = 0xFF;
+        state->unk6 = 0xFF;
+        state->unk7 = 0xFF;
+        result = 8;
+        state->intensity = 1.0f;
+    }
+    return (result & ~3) + 4;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A008.s")
+#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightAdjustGlowingLight.s, with Mickey's constants and offsets. */
 void func_8001A154(GlowObject *object) {
