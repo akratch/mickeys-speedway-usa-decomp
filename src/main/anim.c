@@ -331,18 +331,18 @@ void func_80050348(s32 pathIndex) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050348.s")
 #endif
-#ifdef NON_MATCHING
 /*
  * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
- * Plateau: exact 75-instruction size; first mismatch +0x40. Pointer-typed
- * sound state leaves one trap relocation identity and the allocator cycle.
+ * The typed alias preserves the float ABI; the build canonicalizes its
+ * undefined symbol name to the shared TrapDanglingJump target.
  */
 #pragma weak animResetTrap = TrapDanglingJump
 extern s32 animResetTrap(AnimPath *, f32, s32, s32);
-void func_8005055C(u8 pathIndex) {
+void func_8005055C(pathIndex)
+u8 pathIndex;
+{
     AnimPath *path;
     AnimPathObject *object;
-    void *soundHandle;
     u8 flags;
 
     path = D_800D6B00[pathIndex];
@@ -350,14 +350,14 @@ void func_8005055C(u8 pathIndex) {
         flags = path->flags;
         if (!(flags & 8)) {
             object = path->unk8;
-            path->flags = flags & 0x80;
             path->unk10 = 1.0f;
             path->unk1 = path->unk0;
+            path->unkC = path->unk4 / 16384.0f;
             path->unk1C = 0.0f;
             path->unk14 = path->unk6;
             path->unk15 = path->unk7;
             path->currentNode = path->nodes;
-            path->unkC = path->unk4 / 16384.0f;
+            path->flags = flags & 0x80;
             if (object != NULL) {
                 object->unk6 |= 0x400;
                 path->unk24 = 0xFF;
@@ -371,18 +371,14 @@ void func_8005055C(u8 pathIndex) {
                     path->unk8->unk58->unk132 = 0;
                 }
                 animResetTrap(path, 0.0f, 0, 0);
-                soundHandle = object->soundHandle;
-                if (soundHandle != 0) {
-                    func_800031E8(soundHandle);
-                    object->soundHandle = 0;
+                if (*(s32 *) &object->soundHandle != 0) {
+                    func_800031E8(*(s32 *) &object->soundHandle);
+                    *(s32 *) &object->soundHandle = 0;
                 }
             }
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005055C.s")
-#endif
 void animseqStartPath(u8 pathIndex) {
     AnimPath *path;
     AnimPathObject *object;
