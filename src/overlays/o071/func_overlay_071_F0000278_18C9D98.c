@@ -49,6 +49,9 @@ extern u8 gOverlay71GlobalFlagReloc;
 extern void func_80032BF0(void *resource, s32 mode, s32 flags);
 extern f32 sqrtf(f32 value);
 
+/* P2 plateau: workbench mixed(constant:28, structural:4, schedule:3), 32 positional words; first owned mismatch +0xA8.
+ * The flag lattice selected -O2/-mips2/-Wab,-r4300_mul; declaration, scope, aggregate, register, and call-result levers were inert or regressed.
+ * A complete private stack-home permutation, two loop scheduler swaps, and six unresolved relocation identities remain. */
 #ifdef NON_MATCHING
 void func_overlay_071_F0000278_18C9D98(O71Object *object) {
     O71Vec3 points[8];

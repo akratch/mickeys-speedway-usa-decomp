@@ -101,6 +101,9 @@ extern void o101TailC6E8TailFinalReloc();
  * distinct opaque call identities even though the split object uses one raw
  * static carrier for all calls.
  */
+/* P2 plateau: workbench mixed(constant:7, structural:48, schedule:33, register:81), 125 positional words; first owned mismatch +0x8 relocation.
+ * The flag lattice and decrement-lifetime/root-initialization levers reduced 302 words to 125; mips2 retains exact size and frame.
+ * Ninety-four opaque relocation identities and 31 downstream initialization/register-web opcode differences remain. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000C6E8_18E7F08(void) {
     s32 count;
@@ -124,11 +127,10 @@ void func_overlay_101_F000C6E8_18E7F08(void) {
     selector = gO101TailC6E8Selector;
     count = gO101TailC6E8QueueCount;
     if (count > 0) {
-        count--;
-        gO101TailC6E8QueueCount = count;
-        if (count > 0) {
+        gO101TailC6E8QueueCount--;
+        if (gO101TailC6E8QueueCount > 0) {
             cursor = gO101TailC6E8QueueBytes;
-            end = cursor + count;
+            end = cursor + gO101TailC6E8QueueCount;
             do {
                 *cursor = cursor[1];
                 cursor++;
@@ -167,18 +169,18 @@ void func_overlay_101_F000C6E8_18E7F08(void) {
 
     if (gO101TailC6E8PresentationActive != 0) {
         orderIndex = gO101TailC6E8OrderCount;
-        gO101TailC6E8Root.chainType = 0;
-        gO101TailC6E8Root.chain = NULL;
-        gO101TailC6E8Root.kind = 2;
-        gO101TailC6E8Root.value0A = 0;
-        gO101TailC6E8Root.value0C = 0;
-        gO101TailC6E8Root.x = -0x20;
-        gO101TailC6E8Root.y = -0x18;
-        gO101TailC6E8Root.width = 0x180;
         gO101TailC6E8Root.height = 0x120;
+        gO101TailC6E8Root.width = 0x180;
+        gO101TailC6E8Root.y = -0x18;
+        gO101TailC6E8Root.x = -0x20;
+        gO101TailC6E8Root.kind = 2;
+        gO101TailC6E8Root.asset = &gO101TailC6E8AssetDF0;
         gO101TailC6E8Root.color0 = 0xFF;
         gO101TailC6E8Root.color1 = 0xFF;
-        gO101TailC6E8Root.asset = &gO101TailC6E8AssetDF0;
+        gO101TailC6E8Root.value0A = 0;
+        gO101TailC6E8Root.value0C = 0;
+        gO101TailC6E8Root.chainType = 0;
+        gO101TailC6E8Root.chain = NULL;
         gO101TailC6E8OrderSlots[orderIndex] = &gO101TailC6E8Root;
         gO101TailC6E8OrderCount = orderIndex + 1;
 
