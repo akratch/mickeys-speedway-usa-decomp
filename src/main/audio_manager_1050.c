@@ -237,7 +237,14 @@ void amWaitForMidiSync(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_1050/func_80000B3C.s")
+/*
+ * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
+ * amResetMidiSync; body uses Mickey-only evidence.
+ */
+void amResetMidiSync(void) {
+    D_800BFA04 = 0;
+}
+
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_1050.c
  * amTuneSetChlMask; body uses Mickey-only evidence.
