@@ -68,6 +68,20 @@ typedef struct AnimLightReset {
     u8 pad34[0xC];
 } AnimLightReset;
 
+typedef struct AnimScrollReset {
+    u8 unk0;
+    u8 pad1[3];
+    s32 unk4;
+    u8 pad8[4];
+    s32 unkC;
+    u8 pad10[4];
+} AnimScrollReset;
+
+typedef struct AnimLockonReset {
+    s8 unk0;
+    u8 pad1[7];
+} AnimLockonReset;
+
 extern AnimLightReset D_800D6C58[];
 
 void *func_8002B280();
@@ -402,7 +416,82 @@ void func_80050AD4(u8 pathIndex) {
         }
     }
 }
+/*
+ * PROVENANCE: adapted from JFG's src/anim.c animseqInit assembly. Mickey's
+ * globals, allocator call, data boundaries, and compiler output are
+ * independently established from Mickey's ROM.
+ *
+ * Plateau after 10 source/type shapes and a bounded canonical-flag permuter
+ * run: the best semantic candidate has 84 of the target's 87 instructions,
+ * first mismatch +0x34. IDO folds three repeated array-base HI/LO pairs into
+ * carried registers; the lower-scoring permuter result made a loop invariant.
+ */
+#ifdef NON_MATCHING
+void func_80050BF4(void) {
+    s32 emptyIndex;
+    s32 offset;
+    AnimCameraSource **camera;
+    void **sound;
+    AnimScrollReset *scroll;
+    AnimLockonReset *lockon;
+    AnimLightReset *light;
+
+    D_800D6B04 = piRomLoad(0x3D);
+    D_800D6B00 = func_8002B280(0x400, 0x81);
+    offset = 0;
+    do {
+        *(s32 *) ((u8 *) D_800D6B00 + offset) = 0;
+        offset += 4;
+    } while (offset < 0x400);
+
+    camera = D_800D6B08;
+    do {
+        *camera = NULL;
+        camera++;
+    } while (camera < (AnimCameraSource **) D_800D6B18);
+
+    sound = D_800D6B18;
+    do {
+        *sound = NULL;
+        sound++;
+    } while (sound < D_800D6B58);
+
+    scroll = (AnimScrollReset *) D_800D6B58;
+    do {
+        scroll->unk0 = 0xFF;
+        scroll->unk4 = 0;
+        scroll->unkC = 0;
+        scroll++;
+    } while (scroll < (AnimScrollReset *) D_800D6BF8);
+
+    emptyIndex = -1;
+    lockon = (AnimLockonReset *) D_800D6BF8;
+    do {
+        lockon->unk0 = emptyIndex;
+        lockon++;
+    } while (lockon < (AnimLockonReset *) D_800D6C38);
+
+    D_8007D6B0 = 0;
+    light = D_800D6C58;
+    do {
+        light->unk0 = 0;
+        light->unk10 = 0;
+        light->unk20 = 0;
+        light->unk30 = 0;
+        light++;
+    } while (light != (AnimLightReset *) D_800D6D18);
+
+    D_800D6C3E = 0;
+    D_800D6C44 = 0;
+    D_800D6C48 = 0;
+    D_800D6C52 = 0xFF;
+    D_800D6C54 = D_800D6C52;
+    D_800D6C4C = 0;
+    func_800534C0();
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050BF4.s")
+#endif
 void func_80050D50(void) {
     void **entry = D_800D6B18, **end = D_800D6B58;
     do {

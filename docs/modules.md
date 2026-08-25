@@ -1457,7 +1457,7 @@ placeholders are never imported.
 | `0x800508B4` | `0x20` | no unique candidate | D; placeholder retained. Matched C: exact 32 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800508D4` | `0x200` | `func_800772C4` | B; bit-reader call sequence, placeholder retained |
 | `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function. Matched C: exact 288 B and `D_800D6B00` relocation pair at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
-| `0x80050BF4` | `0x15C` | `animseqInit` | D; 0.753 skeleton similarity |
+| `0x80050BF4` | `0x15C` | `animseqInit` | D; 0.753 skeleton similarity. Plateau after 10 source/type shapes and a bounded canonical-flag permuter run: best semantic candidate is 84 instructions versus 87, first mismatch `+0x34`; IDO folds three repeated array-base HI/LO relocation pairs into carried registers. A nominal 1090-score permutation was rejected because it made the scroll-loop condition invariant |
 | `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained. Matched C: exact 88 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DA8` | `0x48` | `animseqFreeLevelData` | B; frees storage then the group, adopted name. Matched C: exact 72 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050DF0` | `0xAC` | `animseqLoadLevelData` | D; nearest ordered `anim.c` function, placeholder retained. Plateau after 10 variants: exact size, opcode schedule, and relocations; 7 operand/register words remain from a three-temporary FIFO rotation and the source stack home at candidate `+0x18` versus target `+0x1C`, first mismatch `+0x28` |
