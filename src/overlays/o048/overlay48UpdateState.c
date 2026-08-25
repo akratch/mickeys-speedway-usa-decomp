@@ -28,10 +28,11 @@ extern void overlay48ContinueTransition(void);
 extern void overlay48FinishTransition(f32 value, s32 mode);
 
 /*
- * Overlay 48 text +0x144..+0x40C. The natural source reproduces the exact
- * boundary, frame, opcodes, register allocation, relocations, and CFG. A
- * fail-loud schedule ledger moves one side-effect-free argument load to the
- * retail slot and updates the five induced branch displacements.
+ * Plateau (2026-08-25): a word-sized control value plus repeated script
+ * expressions reproduces the exact 178-instruction shape, frame, opcodes,
+ * schedule, and CFG.  Four register-allocation words differ starting at
+ * +0x150: the control web uses a0 instead of retail's v1.  The flag lattice
+ * and a bounded permuter run did not correct the remaining pool color.
  */
 #ifdef NON_MATCHING
 void overlay48UpdateState(s32 updateRate) {
@@ -39,7 +40,7 @@ void overlay48UpdateState(s32 updateRate) {
     s32 index;
     s32 allSettled;
     s32 maximum;
-    s16 control;
+    u32 control;
 
     allSettled = 1;
     overlay48SelectMode(3);
@@ -79,8 +80,8 @@ void overlay48UpdateState(s32 updateRate) {
         ((gOverlay48Timer -= updateRate) <= 0)) {
         control = *gOverlay48Script;
         if (control != -4) {
-            if (control != -3) {
-                if (control == -1 && allSettled != 0) {
+            if (*gOverlay48Script != -3) {
+                if (*gOverlay48Script == -1 && allSettled != 0) {
                     gOverlay48Script++;
                     index = *gOverlay48Script;
                     gOverlay48Script++;

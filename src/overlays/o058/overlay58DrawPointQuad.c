@@ -23,11 +23,16 @@ extern u8 gOverlay58PointPayload78Reloc[];
 extern void func_overlay_058_F0000000_18AF1E8(
     Overlay58PointGfx **displayList, void *resource, s32 mode, s32 arg3);
 
+/*
+ * Plateau (2026-08-25): the best -O2 -mips2 candidate has the exact
+ * 104-instruction shape and frame, but 70 register-allocation words differ;
+ * the first instruction mismatch is +0x30.  Flag sweeping and a bounded
+ * permuter run did not move the allocator pool into the retail ordering.
+ */
 #ifdef NON_MATCHING
 void overlay58DrawPointQuad(s32 x, s32 y, s32 z) {
-    Overlay58PointVertex *vertices;
     Overlay58PointGfx *gfx;
-    void *resource;
+    Overlay58PointVertex *vertices;
     u32 physicalVertices;
     s32 physicalBase;
     s32 xPlus;
@@ -35,22 +40,23 @@ void overlay58DrawPointQuad(s32 x, s32 y, s32 z) {
     s32 zMinus;
     s32 zPlus;
 
-    resource = *(void **)&gOverlay58PointRenderStateReloc[0x44];
     func_overlay_058_F0000000_18AF1E8(&gOverlay58PointDisplayListReloc,
-                                      resource, 5, 0);
+                                      *(void **)&gOverlay58PointRenderStateReloc[0x44],
+                                      5, 0);
 
-    vertices = gOverlay58PointVertexCursorReloc;
     gfx = gOverlay58PointDisplayListReloc++;
+    vertices = gOverlay58PointVertexCursorReloc;
     physicalBase = 0x80000000U;
     physicalVertices = (u32)vertices + physicalBase;
 
     gfx->w0 = 0x04000000U |
-              ((((physicalVertices & 6U) | 0x20U) & 0xFFU) << 16) | 0x30U;
+              ((((u8)((physicalVertices & 6U) | 0x20U)) & 0xFFU) << 16) |
+              0x30U;
     gfx->w1 = (u32)gOverlay58PointVertexCursorReloc + physicalBase;
 
     gfx = gOverlay58PointDisplayListReloc++;
-    gfx->w1 = (u32)gOverlay58PointPayload78Reloc;
     gfx->w0 = 0x05110020U;
+    gfx->w1 = (u32)gOverlay58PointPayload78Reloc;
 
     vertices = gOverlay58PointVertexCursorReloc;
     vertices[1].r = 0xFF;
