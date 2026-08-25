@@ -358,24 +358,14 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
     D_800CEC90 = scaleY;
     D_800CEC88 = 1;
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetFOV,
  * with Mickey's camera-state mirror and region-specific projection scaling.
- *
- * Plateau: the full flag lattice, nine coherent source/type/lifetime
- * variants, and a bounded two-worker permuter batch leave an exact-size
- * 133-instruction candidate with 11 positional words different from first
- * mismatch +0x1D4. The first 117 instructions are exact; only temporary
- * registers in the final projection-matrix ring update differ. The permuter's
- * lower score moved the mandatory perspective rebuild inside the state-mirror
- * branch and was rejected as semantically invalid.
  */
 void func_80021504(f32 fov, s32 force) {
     Camera *camera;
     s32 videoMode;
     s32 type;
-    u8 index;
 
     camera = &D_800CEA20[D_800CEC64];
     camera->fov = fov;
@@ -404,14 +394,10 @@ void func_80021504(f32 fov, s32 force) {
                 D_800CEC98[0][0] *= 0.75f;
             }
         }
-        index = (D_80079F94 + 1) & 0xF;
-        D_80079F94 = index;
-        mtxf_to_mtx(D_800CEC98, &D_800CED60[index & 0xFF]);
+        D_80079F94 = (D_80079F94 + 1) & 0xF;
+        mtxf_to_mtx(D_800CEC98, &D_800CED60[D_80079F94]);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80021504.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from DKR's public decomp,
