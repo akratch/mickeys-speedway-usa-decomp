@@ -66,6 +66,12 @@ typedef struct ParticleObject {
     ParticleTriggerSlot *triggers;
 } ParticleObject;
 
+typedef struct ParticleModelEntry {
+    u8 pad00[0xA4];
+    u8 active;
+    u8 padA5[0x1B];
+} ParticleModelEntry;
+
 typedef struct CircularParticle {
     u8 pad00[0x2C];
     s16 type;
@@ -100,6 +106,8 @@ extern s32 D_8007C8B0;
 extern ParticleConfig **D_8007C8B8;
 extern ParticleTrigger *D_8007C8BC;
 extern s32 D_8007C8C0;
+extern s32 D_8007C890;
+extern ParticleModelEntry *D_8007C898;
 extern CircularParticlePool *D_800D4120[];
 extern CircularParticlePool *D_800D4134[];
 
@@ -109,6 +117,7 @@ void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s1
 void func_8003CA20(void);
 void func_8003CB3C(void);
 void func_8003CCE4(void);
+void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry);
 
 /* PROVENANCE: body adapted from DKR src/particles.c:reset_particles. */
 void reset_particles(void) {
@@ -215,7 +224,24 @@ void func_8003EDE0(f32 value) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041040.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041388.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041530.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041C50.s")
+void func_80041C50(s32 arg0, s32 arg1) {
+    ParticleModelEntry *entry;
+    s32 i;
+
+    if (D_8007C898 != NULL) {
+        entry = D_8007C898;
+        i = 0;
+        if (D_8007C890 > 0) {
+            do {
+                if (entry->active != 0) {
+                    func_80041530(arg0, arg1, entry);
+                }
+                i++;
+                entry++;
+            } while (i < D_8007C890);
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041CE4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041F48.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041FEC.s")
