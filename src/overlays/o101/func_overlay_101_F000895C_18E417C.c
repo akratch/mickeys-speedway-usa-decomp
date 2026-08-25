@@ -80,17 +80,9 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/*
- * Mickey-local structural siblings: the builders at +0x78F4 and +0x8128.
- * Plateau (flag lattice, transferred source-shape attempts, 10-minute
- * permuter): the best semantically valid candidate is 0x830 bytes against
- * the 0x834-byte target, with 461 masked positional words differing and the
- * first mismatch at +0x4. Default -O2/-mips2/-32 wins the flag lattice. The
- * blocker is the same extra saved node register and shifted root/node register
- * coloring as +0x8128. The corrected -mips2 permuter moved from 16200 to
- * 14850 with an empty do/while. Direct comparison regressed from the imported
- * base's -4 bytes/469 words to -8 bytes/507 words, so it was rejected.
- */
+/* Workbench p3: structure-mismatch; 524/525 candidate/target instructions, 461 words from +0x4.
+ * Lever: constant audit plus retained-node forms across the initial allocator call.
+ * Remains: the saved-node web and root/node relocation schedule; the frame is exact. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000895C_18E417C(void) {
     register volatile Node32 *node32;
