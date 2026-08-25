@@ -51,24 +51,29 @@ extern Overlay20LookupResult *overlay20LookupReloc(s16 index);
 extern void *overlay20ConfigureResourceReloc();
 extern f32 overlay20SqrtReloc(f32 value);
 
+/*
+ * Plateau (2026-08-25, 5 attempts): the best canonical -O2 candidate has
+ * the exact 98-word size, differs in 25 words, and agrees through +0xA8
+ * before first diverging at +0xAC.  Removing the artificial context copy and
+ * restoring declaration order recovered the frame and spill layout; the
+ * remaining tail uses a different temporary-register web for entry selection
+ * and the long configure call.
+ */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
                                    Overlay20Config *config) {
-    Overlay20Context *context;
-    Overlay20Context *savedContext;
-    Overlay20LookupResult *lookup;
     s32 baseX;
-    s32 width;
-    s32 height;
     s32 baseY;
     s32 objectY;
+    s32 width;
+    s32 height;
     void *owner;
+    Overlay20LookupResult *lookup;
+    Overlay20Context *context;
 
     context = overlay20GetContextReloc();
     if ((config->useLookup != 0) &&
-        ((savedContext = context),
-         (lookup = overlay20LookupReloc(object->lookupIndex)),
-         (context = savedContext), (lookup != 0))) {
+        ((lookup = overlay20LookupReloc(object->lookupIndex)), lookup != 0)) {
         baseX = lookup->x0;
         objectY = (s32)object->y;
         baseY = lookup->y0;
