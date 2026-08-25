@@ -50,6 +50,8 @@ extern void func_8005AD64(Overlay79InitObject *object, s32 mode, s32 index,
  * Revalidated on 2026-08-25: the full 119-combination lattice reproduced the
  * same result, and a 10-minute two-worker permuter batch found no improvement
  * over its base score of 105.
+ * Lane cx-ov-4-b-a-r3 repeated the full lattice and reconfirmed the exact-size
+ * 10-word result with first mismatch at +0x48.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000000_18CCFA0(Overlay79InitObject *object,

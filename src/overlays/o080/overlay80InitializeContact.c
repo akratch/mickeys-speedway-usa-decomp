@@ -54,6 +54,8 @@ extern void overlay80ResolveCandidateReloc(
  * one word at +0x4C. IDO commutes the outer floating-point multiply; explicit
  * temporaries and a volatile-qualified access disturb the surrounding
  * allocation, while the permuter found no candidate below its base score.
+ * Lane cx-ov-4-b-a-r3 reconfirmed all 119 flag combinations and also found
+ * that reversing the outer source operands retains the same one-word delta.
  */
 #ifdef NON_MATCHING
 void overlay80InitializeContact(Overlay80Object *object,
