@@ -56,6 +56,9 @@ extern void func_8005AD64(Overlay79InitObject *object, s32 mode, s32 index,
  * target's immediate scaled08 reload as a volatile-field type clue; that
  * regressed to 33 words. The unqualified form remains best at 10 words, first
  * mismatch +0x48, blocked on the initial multiply and downstream FPR coloring.
+ * Lane cx-ov-4-b-a-r5 reconfirmed all 119 flag combinations and tested both
+ * inner-result and loaded-scale local temporaries. They regressed to 41 and 44
+ * words; the exact-size 10-word result at +0x48 remains the plateau.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000000_18CCFA0(Overlay79InitObject *object,
