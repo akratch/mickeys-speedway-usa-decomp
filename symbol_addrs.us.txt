@@ -2252,6 +2252,7 @@ animseqPlay = 0x800534B0; // type:func size:0x10   ROM 0x540b0  tier-D JFG order
 func_800534C0 = 0x800534C0; // type:func size:0x2C   ROM 0x540c0  tier-D JFG ordered animseqPause candidate, matched C
 func_800534EC = 0x800534EC; // type:func size:0x64   ROM 0x540ec  tier-D collision-shaped slot dispatcher, matched C
 func_80055E50 = 0x80055E50; // type:func size:0x114  ROM 0x56a50  tier-D collision state-normalization helper, matched C
+func_80056274 = 0x80056274; // type:func size:0x140  ROM 0x56e74  tier-D collision bidirectional-normal helper, matched C
 func_800572AC = 0x800572AC; // type:func size:0xA4   ROM 0x57eac  tier-D collision state-delta helper, matched C
 func_80057350 = 0x80057350; // type:func size:0x78   ROM 0x57f50  tier-D collision state-copy helper, matched C
 fmvInit = 0x80057910; // type:func size:0x5C   ROM 0x58510  src/fmvInit.c.o exact masked tier-A, matched C

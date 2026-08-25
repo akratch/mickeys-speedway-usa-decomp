@@ -649,7 +649,49 @@ void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055F64.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800560D0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056274.s")
+void func_80056274(HitCopyState *first, HitCopyState *second, f32 unused) {
+    HitCopyTarget *firstTarget;
+    HitCopyTarget *secondTarget;
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 distance;
+
+    firstSource = first->source;
+    secondTarget = second->target;
+    secondSource = second->source;
+    firstTarget = first->target;
+    first->position.x = firstSource->current.x;
+    first->position.y = firstSource->current.y;
+    first->position.z = firstSource->current.z;
+    firstSource->previous.x = firstSource->current.x;
+    firstSource->previous.y = firstSource->current.y;
+    firstSource->previous.z = firstSource->current.z;
+
+    second->position.x = secondSource->current.x;
+    second->position.y = secondSource->current.y;
+    second->position.z = secondSource->current.z;
+    secondSource->previous.x = secondSource->current.x;
+    secondSource->previous.y = secondSource->current.y;
+    secondSource->previous.z = secondSource->current.z;
+
+    deltaX = secondSource->current.x - firstSource->current.x;
+    deltaY = secondSource->current.y - firstSource->current.y;
+    deltaZ = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((deltaX * deltaX) + (deltaY * deltaY) +
+                     (deltaZ * deltaZ));
+
+    firstTarget->unk1C = deltaX / distance;
+    firstTarget->unk20 = deltaY / distance;
+    firstTarget->unk24 = deltaZ / distance;
+    secondTarget->unk1C = -firstTarget->unk1C;
+    secondTarget->unk20 = -firstTarget->unk20;
+    secondTarget->unk24 = -firstTarget->unk24;
+    TrapDanglingJump(first, 6, firstTarget);
+    TrapDanglingJump(second, 0xA);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800563B4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_8005716C.s")
