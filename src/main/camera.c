@@ -36,6 +36,12 @@ typedef struct {
 } CameraTransform;
 
 typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+} CameraPoint;
+
+typedef struct {
     CameraTransform transform;
     f32 unk18;
     f32 unk1C;
@@ -822,7 +828,39 @@ void camPushFloatModelMtx(Gfx **dlist, Mtx **mtx, MtxF matrix) {
     gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 1);
     (*mtx)++;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_800242E0.s")
+/* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camPushMuzzleMtx. */
+void camPushMuzzleMtx(Gfx **dlist, Mtx **mtx, CameraPoint *point, MtxF matrix) {
+    f32 outZ;
+    f32 outY;
+    f32 outX;
+    MtxF temp;
+    s32 i;
+    s32 j;
+
+    D_800CECD8[3][0] = 0.0f;
+    D_800CECD8[3][1] = 0.0f;
+    D_800CECD8[3][2] = 0.0f;
+    mtxf_mul(matrix, D_800CECD8, temp);
+    i = 0;
+    do {
+        j = 0;
+        do {
+            D_800CECD8[i][j] = temp[i][j];
+            j++;
+        } while (j < 4);
+        i++;
+    } while (i < 4);
+    mtxf_transform_point(D_800CECD8, point->x, point->y, point->z,
+                         &outX, &outY, &outZ);
+    D_800CECD8[3][0] = point->x;
+    D_800CECD8[3][1] = point->y;
+    D_800CECD8[3][2] = point->z;
+    mtxf_mul(D_800CECD8, D_800CED18, D_800CF260);
+    mtxf_to_mtx(D_800CF260, *mtx);
+    D_800CED58 = *mtx;
+    gSPMatrix((*dlist)++, (u32) *mtx + 0x80000000, 1);
+    (*mtx)++;
+}
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camScaleModelMtx. */
 void camScaleModelMtx(Gfx **dlist, Mtx **mtx, f32 scale) {
     if (scale != 1.0f) {
