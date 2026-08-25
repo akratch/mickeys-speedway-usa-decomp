@@ -449,10 +449,10 @@ void func_800389CC(void) {
 #ifdef NON_MATCHING
 /* PROVENANCE: role and switch ordering compared with JFG's public
  * src/menu.c::frontInitMode; JFG retains assembly, and this body is derived
- * from Mickey's state and call surface. All 122 executable words are exact.
- * Promotion is blocked by the shared 0x81590 rodata slice: IDO emits an
- * anonymous 0x4C-byte table while the target's named copy remains canonical;
- * relocation metadata first differs at function +0x2C. */
+ * from Mickey's state and call surface. */
+/* Workbench relocation-layout plateau: all 122 words are exact; three identities
+ * remain, first +0x2C (PC16 label), followed by the anonymous switch table.
+ * Guard/case regrouping cannot change assembler label scope or shared-rodata ownership. */
 void func_80038BC4(void) {
     u8 *selection;
     u8 value;
