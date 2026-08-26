@@ -16,86 +16,6 @@
 #include "game/anim.h"
 #include "game/charControl.h"
 
-extern s32 D_8007D690;
-extern void *D_8007D694;
-extern s32 D_8007D6B0;
-extern s32 D_8007D684;
-extern u8 D_800D6BF8[];
-extern u8 D_800D6C38[];
-extern s16 D_800D6C3E;
-extern s16 D_800D6C44;
-extern s32 D_800D6C48;
-extern s16 D_800D6C4C;
-extern s16 D_800D6C52;
-extern s16 D_800D6C54;
-extern f32 D_8007D6B4;
-extern f32 D_8007D6B8;
-extern s32 D_8007D6BC;
-extern f32 D_80083FA8;
-extern f32 D_80083FAC;
-extern f32 D_80083FB0;
-extern f32 D_80084210;
-extern f32 D_80084214;
-extern f32 D_80084218;
-extern u8 D_8007BF04;
-extern u8 D_8007BF20;
-extern u8 D_8007BF24;
-extern u8 D_8007BF28;
-extern s16 *D_8007D780[];
-
-typedef struct AnimCameraSource {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 pad6[6];
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    u8 pad18[0x16];
-    s16 unk2E;
-} AnimCameraSource;
-
-typedef struct AnimCameraTarget {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 pad6[6];
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    u8 pad18[0x26];
-    s16 unk3E;
-} AnimCameraTarget;
-
-extern AnimCameraSource *D_800D6B08[];
-
-typedef struct AnimLightReset {
-    s32 unk0;
-    u8 pad4[0xC];
-    s32 unk10;
-    u8 pad14[0xC];
-    s32 unk20;
-    u8 pad24[0xC];
-    s32 unk30;
-    u8 pad34[0xC];
-} AnimLightReset;
-
-typedef struct AnimScrollReset {
-    u8 unk0;
-    u8 pad1[3];
-    s32 unk4;
-    u8 pad8[4];
-    s32 unkC;
-    u8 pad10[4];
-} AnimScrollReset;
-
-typedef struct AnimLockonReset {
-    s8 unk0;
-    u8 pad1[7];
-} AnimLockonReset;
-
-extern AnimLightReset D_800D6C58[];
-
 void *func_8002B280();
 AnimPathObject *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 void func_80005768(AnimPathObject *object);
@@ -547,7 +467,8 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Workbench structure-mismatch: 87/87 instructions, 15 normalized words; first +0x34.
+ * Type pass: shared aggregate boundaries are neutral; structure-mismatch,
+ * 87/87 instructions, 15 normalized words; first +0x34.
  * s16, for-loop, while/bound, and pointer-order forms were neutral or worse.
  * The target clear-loop branch shape and repeated global-address schedules remain.
  */
@@ -664,17 +585,15 @@ void func_80050DF0(s32 levelId) {
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
- * Workbench: structure-mismatch, 89/90 instructions/frame -32; 46 words from +0x64.
- * Levers: direct predicate/address forms, scoped pointer locals, structure buckets, and context lint; no improvement.
- * Remains: IDO reuses the scroll boundary instead of rematerializing the lockon base; asm stays canonical.
+ * Type pass: shared aggregate boundaries plus raw cursor traversal improve the
+ * candidate from structure-mismatch (46 words) to allocation-mismatch (14
+ * words), with the exact 90-instruction shape; target end/base address order
+ * and three register webs remain.
  */
 #ifdef NON_MATCHING
 void func_80050E9C(void) {
     s32 emptyIndex;
-    AnimCameraSource **camera;
-    AnimScrollReset *scroll;
-    AnimLockonReset *lockon;
-    AnimLightReset *light;
+    u8 *cursor;
     s32 pathIndex;
 
     if (D_8007D68C != NULL) {
@@ -693,35 +612,35 @@ void func_80050E9C(void) {
             pathIndex++;
         } while ((pathIndex < 0x100) != 0);
 
-        camera = D_800D6B08;
+        cursor = (u8 *) D_800D6B08;
         do {
-            *camera = NULL;
-            camera++;
-        } while (camera < (AnimCameraSource **) D_800D6B18);
+            cursor += 4;
+            *(void **) (cursor - 4) = NULL;
+        } while ((u32) cursor < (u32) D_800D6B18);
 
-        scroll = (AnimScrollReset *) D_800D6B58;
+        cursor = (u8 *) D_800D6B58;
         do {
-            scroll->unk0 = 0xFF;
-            scroll->unk4 = 0;
-            scroll->unkC = 0;
-            scroll++;
-        } while (scroll < (AnimScrollReset *) D_800D6BF8);
+            cursor += 0x14;
+            cursor[-0x14] = 0xFF;
+            *(s32 *) (cursor - 0x10) = 0;
+            *(s32 *) (cursor - 8) = 0;
+        } while ((u32) cursor < (u32) D_800D6BF8);
 
-        lockon = (AnimLockonReset *) D_800D6BF8;
+        cursor = D_800D6BF8;
         do {
-            lockon->unk0 = emptyIndex;
-            lockon++;
-        } while (lockon < (AnimLockonReset *) D_800D6C38);
+            cursor += 8;
+            *(s8 *) (cursor - 8) = emptyIndex;
+        } while ((u32) cursor < (u32) D_800D6C38);
 
         D_8007D6B0 = 0;
-        light = D_800D6C58;
+        cursor = (u8 *) D_800D6C58;
         do {
-            light->unk0 = 0;
-            light->unk10 = 0;
-            light->unk20 = 0;
-            light->unk30 = 0;
-            light++;
-        } while (light != (AnimLightReset *) D_800D6D18);
+            cursor += 0x40;
+            *(s32 *) (cursor - 0x40) = 0;
+            *(s32 *) (cursor - 0x30) = 0;
+            *(s32 *) (cursor - 0x20) = 0;
+            *(s32 *) (cursor - 0x10) = 0;
+        } while (cursor != (u8 *) D_800D6D18);
 
         D_800D6C3E = 0;
         D_800D6C44 = 0;
@@ -887,24 +806,6 @@ void func_800511C4(void) {
     }
 }
 
-typedef struct AnimUpdateCommand {
-    u16 duration;
-    u16 command;
-} AnimUpdateCommand;
-
-typedef struct AnimUpdateObject {
-    u8 pad0[0xC];
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad18[4];
-    f32 velocityX;
-    f32 velocityY;
-    f32 velocityZ;
-    u8 pad28[0x5C];
-    void *soundHandle;
-} AnimUpdateObject;
-
 extern s32 osTvType;
 void func_800030B4(void *soundHandle, u8 pitch);
 void func_800031C0(void *soundHandle, f32 x, f32 y, f32 z);
@@ -926,10 +827,10 @@ extern void animUpdateTrap(AnimPath *path, f32 delta, s32 updateRate,
  */
 #ifdef NON_MATCHING
 void func_80051364(s32 updateRate) {
-    AnimUpdateCommand *command;
+    AnimStreamEntry *command;
     AnimCameraSource **camera;
     AnimPath *path;
-    AnimUpdateObject *object;
+    AnimPathObject *object;
     void *soundHandle;
     s32 originalRate;
     s32 offset;
@@ -947,7 +848,7 @@ void func_80051364(s32 updateRate) {
         if (D_8007D6B0 > 0) {
             TrapDanglingJump(updateRate);
         }
-        command = (AnimUpdateCommand *) D_8007D69C;
+        command = D_8007D69C;
         if ((command != NULL) && (D_8007D6A4 == 1)) {
             if ((command->command >> 8) == 0x7B) {
                 if (((f32) command->duration / 100.0f) <
@@ -1001,7 +902,7 @@ void func_80051364(s32 updateRate) {
             do {
                 path = *(AnimPath **) ((u8 *) D_800D6B00 + offset);
                 if (path != NULL) {
-                    object = (AnimUpdateObject *) path->unk8;
+                    object = path->unk8;
                     if ((object != NULL) && (object->soundHandle != NULL)) {
                         soundHandle = object->soundHandle;
                         func_800031C0(soundHandle, object->x, object->y,
@@ -1080,112 +981,6 @@ void func_800534EC(s32 arg0) {
         slot++;
     } while (i--);
 }
-
-typedef struct HitCollisionVehicle {
-    s8 playerIndex;
-    u8 pad1[0xC3];
-    s32 soundHandle;
-    u8 padC8[0x88];
-    f32 unk150;
-    u8 pad154[4];
-    s16 unk158;
-    s16 unk15A;
-    s16 unk15C;
-    u8 pad15E[0xA];
-    s16 unk168;
-    s16 unk16A;
-    u8 pad16C[0x19];
-    u8 unk185;
-    u8 pad186[2];
-    f32 unk188;
-    u8 pad18C[0x1C];
-    u16 flags1A8;
-    u8 pad1AA[0x20C];
-    s16 unk3B6;
-    s16 unk3B8;
-} HitCollisionVehicle;
-
-typedef struct HitCollisionLink {
-    u8 pad0[0x38];
-    HitCopyState *state;
-} HitCollisionLink;
-
-typedef struct HitCollisionNormalLink {
-    HitCopyState *state;
-    u8 pad4[0x10];
-    f32 unk14;
-    f32 unk18;
-    f32 unk1C;
-    f32 unk20;
-    f32 unk24;
-} HitCollisionNormalLink;
-
-typedef struct HitInitEntry {
-    u8 pad0[0x18];
-    AnimVec3f position;
-    f32 scaleX;
-    f32 scaleY;
-    u8 pad2C[8];
-} HitInitEntry;
-
-typedef struct HitInitRecord {
-    s16 rotationX;
-    s16 rotationY;
-    s16 rotationZ;
-    u16 flags;
-    u8 kind;
-    u8 mode;
-    s16 entryCount;
-    AnimVec3f localOffset;
-    AnimVec3f position;
-    AnimVec3f basePosition;
-    u8 pad30[0xC];
-    f32 minX;
-    f32 minY;
-    f32 minZ;
-    f32 maxX;
-    f32 maxY;
-    f32 maxZ;
-    u8 pad54[4];
-    f32 radius;
-    f32 height;
-    s8 collisionType;
-    u8 pad61[7];
-    f32 unk68;
-    f32 unk6C;
-    u8 pad70[4];
-    HitInitEntry *entries;
-} HitInitRecord;
-
-typedef struct HitInitDescriptor {
-    u16 vertexIndex;
-    u8 pad2[6];
-    f32 scale;
-} HitInitDescriptor;
-
-typedef struct HitInitHeader {
-    u8 pad0[0x38];
-    HitInitDescriptor *descriptors;
-    u8 pad3C[0x12];
-    s8 useFloatPositions;
-} HitInitHeader;
-
-typedef struct HitInitModel {
-    HitInitHeader *header;
-    s16 *vertices;
-    u8 pad8[0x40];
-    f32 *floatPositions;
-} HitInitModel;
-
-typedef struct HitInitSource {
-    u8 pad0[8];
-    f32 scale;
-    AnimVec3f position;
-    u8 pad18[0x30];
-    HitInitRecord *hit;
-    u8 pad4C[0x1C];
-    HitInitModel **model;
-} HitInitSource;
 
 void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
                    void **handle);
@@ -1562,7 +1357,7 @@ void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 0xA);
 }
 
-/* Workbench: operand-mismatch, exact 91-instruction/-72 frame; 3 words, first +0xA0.
+/* Type pass: the shared collision overlays are neutral. Workbench: operand-mismatch, exact 91-instruction/-72 frame; 3 words, first +0xA0.
  * Levers tried: flag lattice, scalar/aggregate/array carriers, stack-slot probes.
  * Remains: volatile secondZ uses sp+0x18; target uses sp+0x1C with no other shape change. */
 #ifdef NON_MATCHING
@@ -1717,39 +1512,6 @@ void func_80056274(HitCopyState *first, HitCopyState *second, f32 unused) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800563B4.s")
 
-typedef struct HitImpulseTarget {
-    u8 pad0[4];
-    f32 unk4;
-    f32 unk8;
-    u8 padC[0x68];
-    AnimVec3f direction;
-    f32 magnitude80;
-    f32 magnitude84;
-    f32 unk88;
-    f32 unk8C;
-    f32 unk90;
-    AnimVec3f velocity;
-    u8 padA0[0xE1];
-    u8 unk181;
-} HitImpulseTarget;
-
-typedef struct HitImpulseSource {
-    u8 pad0[0x18];
-    AnimVec3f current;
-    AnimVec3f previous;
-    u8 pad30[0x32];
-    u8 unk62;
-    u8 unk63;
-    f32 unk64;
-    u8 pad68[4];
-    f32 unk6C;
-} HitImpulseSource;
-
-typedef struct HitImpulseMass {
-    u8 pad0[4];
-    f32 value;
-} HitImpulseMass;
-
 f32 func_8002A8BC(s16 angle);
 f32 func_8002A8C0(s16 angle);
 
@@ -1764,9 +1526,9 @@ f32 func_8002A8C0(s16 angle);
 #ifdef NON_MATCHING
 void func_80056DD8(HitCopyState *first, HitCopyState *second,
                    AnimVec3f *normal, f32 timeStep) {
-    HitImpulseTarget *target;
-    HitImpulseSource *firstSource;
-    HitImpulseSource *secondSource;
+    HitCopyTarget *target;
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
     f32 velocityX;
     f32 velocityY;
     f32 velocityZ;
@@ -1785,17 +1547,17 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
     f32 displacement;
     volatile f32 retained;
 
-    target = (HitImpulseTarget *) first->target;
+    target = first->target;
     velocityX = target->velocity.x;
     velocityY = target->velocity.y;
     velocityZ = target->velocity.z;
-    firstSource = (HitImpulseSource *) first->source;
-    secondSource = (HitImpulseSource *) second->source;
+    firstSource = first->source;
+    secondSource = second->source;
     if (((velocityZ * velocityZ) +
          ((velocityX * velocityX) + (velocityY * velocityY))) > 25.0f) {
         f32 mass;
 
-        mass = ((HitImpulseMass *) TrapDanglingJump(target))->value;
+        mass = ((HitCopyTarget *) TrapDanglingJump(target))->unk4;
         velocityX = target->velocity.x;
         velocityY = target->velocity.y;
         velocityZ = target->velocity.z;
@@ -1867,7 +1629,7 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
 #endif
 #ifdef NON_MATCHING
-/* Plateau (near-miss p5): workbench mixed(constant:2, structural:2, register:15), 18 words at 80 instructions/frame -0x28.
+/* Type pass: the shared collision overlays are neutral. Plateau (near-miss p5): workbench mixed(constant:2, structural:2, register:15), 18 words at 80 instructions/frame -0x28.
  * Levers: scalar/vector aliases, stack-spill/aggregate forms, expression spelling, and flag lattice; all regressed or inert.
  * Remains: FP pool/temp phase and two constant sites; assembly fallback stays canonical. */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
@@ -1959,40 +1721,6 @@ void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
     target->unk24 = position->z;
     TrapDanglingJump(state, 0xE);
 }
-
-typedef struct HitOverlapVolume {
-    u8 pad0[8];
-    u8 shape;
-    u8 pad9[0x13];
-    f32 unk1C;
-    u8 pad20[4];
-    AnimVec3f position;
-    u8 pad30[0x28];
-    f32 radius;
-    f32 height;
-    u8 pad60;
-    u8 active;
-} HitOverlapVolume;
-
-typedef struct HitOverlapVehicle {
-    u8 pad0[0x54];
-    f32 overlap54;
-    u8 pad58[0x112];
-    s16 unk16A;
-    u8 pad16C[0x21];
-    u8 timer18D;
-    u8 pad18E[0x1AA];
-    void *target338;
-} HitOverlapVehicle;
-
-typedef struct HitOverlapState {
-    u8 pad0[0xC];
-    AnimVec3f position;
-    u8 pad18[0x2C];
-    s16 kind44;
-    u8 pad46[0x1E];
-    HitOverlapVehicle *vehicle;
-} HitOverlapState;
 
 /*
  * Mickey-led overlap response reconstruction; the nearest external skeleton
@@ -2107,7 +1835,7 @@ no_intersection:
  * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
  * establishes the entity cutoff, resident structures, and final code here.
  */
-/* Plateau: workbench mixed structural/register, 105/105 instructions and 51 words, first divergence +0x24.
+/* Type pass: the shared collision-state overlay is neutral. Plateau: workbench mixed structural/register, 105/105 instructions and 51 words, first divergence +0x24.
  * Levers tried: prior radius/delay-slot, squared-radius lifetime, statement-order/tie, sort-cursor, flag, and context probes.
  * Remaining: IDO's radius/call schedule and register web stay displaced; the target/candidate sqrtf relocation identities also differ. */
 s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
