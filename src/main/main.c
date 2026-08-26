@@ -508,9 +508,9 @@ void mainInitGame(void) {
  * cross-checked against JFG's published src/main.c TU ordering. Mickey's own
  * call graph, resident storage and instructions determine this body.
  *
- * NON_MATCHING plateau: structure mismatch; 388 words differ, first at +0x48, and the candidate is five instructions long.
- * Tried nine display spellings, flags, a permuter, the constant audit, and statement splicing; the splice grew frame/size.
- * Both best frames are 0x28; the remaining structural excess is concentrated in the two end-of-frame commands.
+ * Workbench structure-mismatch: scoped-index candidate is 419 vs 413 instructions, 207 positional words, first +0x48; frame remains -0x28.
+ * Lever: a block-local pointer for the D_8007A1B8 toggle cut the prior 388-word floor to 207; display, flag, permuter, constant, and splice variants were regressive.
+ * Remains: 52 structural and 55 register words, six extra instructions, and the final display-command schedule prevent exactness.
  */
 void func_80026FB4(void) {
     s32 drawTransition;
@@ -531,7 +531,12 @@ void func_80026FB4(void) {
         TrapDanglingJump();
     }
 
-    D_8007A1B8 ^= 1;
+    {
+        s32 *bufferIndex;
+
+        bufferIndex = &D_8007A1B8;
+        *bufferIndex ^= 1;
+    }
     func_80044B9C();
     D_800CF518 = D_800CF510[D_8007A1B8];
     D_800CF530 = D_800CF528[D_8007A1B8];
