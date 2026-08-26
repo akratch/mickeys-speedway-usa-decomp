@@ -175,8 +175,9 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000000_1866678.s")
 #endif
 /* PROVENANCE: Mickey-derived from the assigned overlay assembly range; no donor body was imported.
- * Workbench: mixed(constant:1, schedule:2, register:8), 8/129 masked words (9 raw) first +0x4C; frame exact.
- * Levers: Phase-B range audit, initializer/lifetime order, code-free reads, and bounded permuter leave FP-pool swaps and relocation names. */
+ * Workbench p6: mixed constant/schedule/register; 8/129 masked words (9 raw) remain, first +0x4C; frame exact.
+ * Rechecked Phase-B range, initializer/lifetime, and code-free-read levers; FP pool remains cyclically colored.
+ * Remains: four FP-pool placements and standalone overlay relocation identities. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
                                        O9Motion *motion, s32 steps) {

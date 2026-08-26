@@ -399,9 +399,9 @@ void RevealReturnAddresses(void) {
 
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
-/* Workbench: relocation-layout-mismatch; 50/50 words and the -0x20 frame are exact, with target HI16/LO16 at +0x18/+0x28.
- * Lever: direct symbolic lvalue and indexed-base forms add eight words; the literal address preserves the target schedule.
- * Remains: the special RAM-end relocation identity without changing the 50-word control-flow shape. */
+/* Workbench p6: relocation-layout mismatch; 50/50 words and -0x20 frame exact, first +0x18.
+ * Rechecked symbolic/indexed RAM-end forms; each adds eight words, while the literal preserves the target schedule.
+ * Remains: D_803FFFFC HI16/LO16 identity in untouched compiler output. */
 void mainThread(void *unused) {
     s32 i;
 

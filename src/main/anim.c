@@ -1417,16 +1417,9 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055970.s")
 #endif
 #ifdef NON_MATCHING
-/*
- * Mickey-local composition of the resident response and normal helpers.
- * Plateau after the flag lattice, 10 source/lifetime shapes, and a bounded
- * canonical-flag permuter: the candidate is exact for 113/121 instructions,
- * all calls, the 0x50 frame, and FP schedule. Eight words remain from +0x20:
- * five initial pointer-load/move scheduling words and the three-use 0x258
- * temporary in v1 rather than v0. The isolated score-15 assignment reorder
- * does not change full-TU output; score 85 adds an observable store and was
- * rejected.
- */
+/* Workbench p6: mixed schedule/register; 8/121 words remain, first +0x20; frame, calls, and FP lanes exact.
+ * Tried statement-line grouping and 0x258 timer register/direct-literal forms after the inherited lifetime/flag sweep; no improvement.
+ * Remains: initial pointer-load schedule and target v0 versus candidate v1 timer web. */
 void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;
