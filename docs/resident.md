@@ -1691,9 +1691,7 @@ canonical MIPS II permuter then led to a coherent value-bit/cursor-field
 lifetime rewrite: exact 28-word size, 18 differences from `+0x10` (17 register,
 one opcode); the remaining blocker is constant/next-bit register coloring.
 
-`func_8002C70C` is exact-size with 14/31 positional words differing, first `+0x14`; workbench verdict: register-permutation residual.
-Chained byte assignment and a direct field test improved 18 to 14; the corrected-flag 30-minute permutation found no faithful exact form.
-The invariant-mask/next-bit web still needs ring-only temporaries unavailable to the color lever; the assembly fallback stays canonical.
+The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 
 `func_8002CF6C` remains Mickey-derived `NON_MATCHING`: all 88 instructions, the 72-byte frame, and relocations agree; workbench reports `register-ring-only`, 9 sites from `+0xCC`.
 Hoisted-argument, folded-mask, and addressable-scalar levers leave `savedFlag` target FIFO-temp versus candidate colored-web; the 30-minute permuter produced only invented no-op identities.
