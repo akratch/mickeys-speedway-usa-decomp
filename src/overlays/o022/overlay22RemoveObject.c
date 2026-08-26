@@ -23,14 +23,9 @@ extern void func_overlay_022_F0000000_1878108();
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
 /*
- * Plateau (2026-08-25, renewed cap): the best canonical -O2 -mips2 candidate
- * is size-exact at 91 words, differs in 43 instruction words, and first
- * diverges at +0x10. Its opcode and branch topology is exact; the residual is
- * a pool-position shift across the model pointer, node count, found index,
- * loop index, and compaction tail, plus six same-TU relocation-identity
- * mismatches. All 119 flag variants, direct-global, declaration-order, and
- * typed/raw-field hypotheses were exhausted. A bounded 10-minute permuter
- * found only an invented empty guard, which is not an admissible source match.
+ * Workbench: allocation-mismatch, exact 91-instruction/-40 frame; 43 words, first +0x10.
+ * Levers tried: flag lattice, declaration/type/global forms, 30-minute permuter; no valid exact candidate.
+ * Remains: pool/temp FIFO placement across pointer/count/index webs; relocation identity also differs diagnostically.
  */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000D30_1878E38(Overlay22Object *object, s32 flags) {
