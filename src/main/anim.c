@@ -1999,9 +1999,9 @@ typedef struct HitOverlapState {
  * Mickey-led overlap response reconstruction; the nearest external skeleton
  * is only 0.085 similar and supplies no usable donor body.
  */
-/* Workbench structure/FP-register mismatch: 231/233 words, exact 0x88 frame; 203 differ from +0x2C.
- * Levers tried: byte-offset AABB loop, context lint, and the full 119-combination flag lattice.
- * Remaining: pointer folding/FP phase; exact-size -g3/r4300 is 180 words off plus 400-byte TU collateral. */
+/* Workbench structure-mismatch: candidate 231 vs target 233 instructions, exact 0x88 frame; 203 words remain from +0x2C.
+ * Levers tried: pointer-base stack/register/cursor forms, radius expression-tree ownership, and a scaled-zero seed; all were neutral or worse.
+ * Remains: target AABB pointer initialisation is folded differently, then the FP pool/temp phase and tail integer ring diverge. */
 #ifdef NON_MATCHING
 void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
                    HitOverlapState *trigger, HitOverlapVolume *volume) {
