@@ -26,9 +26,12 @@ extern Overlay9YawScaleReloc gOverlay9YawScaleReloc;
  * the intervening empty overlay9Ignore function does not change its bytes.
  */
 
-/* Workbench: mixed structural/register, 338 vs 336 words; 235 raw differ, first +0x0.
- * ABI prototype correction and lever 26 scope/aggregate variants remove seven excess words.
- * Remaining: 0x88 vs 0x78 frame and two excess words; private temp and FPR webs still diverge. */
+extern void func_overlay_009_F00010A4_186771C(void *object, void *state,
+                                               f32 steps);
+
+/* PLATEAU (2026-08-26): workbench structure-mismatch; best 133 masked/139 raw of 336, first +0x0.
+ * Typed F00010A4 f32 ABI and initializer order fixed the size excess; the flag lattice found no further gain.
+ * Frame remains 0x88 vs 0x78; private temporary/GPR webs and relocation identities remain. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     f32 vector[3];
@@ -70,8 +73,8 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     ext_o0_1d4c0(object, state);
     angles[0] = -M2C_FIELD(state, s16 *, 0xF0);
     angles[1] = -M2C_FIELD(object, s16 *, 2);
-    vector[2] = 0.0f;
     angles[2] = -M2C_FIELD(object, s16 *, 4);
+    vector[2] = 0.0f;
     vector[0] = 0.0f;
     vector[1] = -1.0f;
     ext_o0_29adc(angles, vector);
