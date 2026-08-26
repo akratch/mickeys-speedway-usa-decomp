@@ -60,10 +60,6 @@ typedef struct O70Record {
     u8 pad0C[0x1C];
 } O70Record;
 
-extern O70Object **overlay70GetRange(s32 *start, s32 *end);
-extern O70Record *overlay70GetRecords(void);
-extern O70Object **overlay70GetAll(s32 *count);
-extern void overlay70EmitEvent(s32 event, s32 metric);
 extern s32 gOverlay70SharedCounterReloc;
 
 /* Plateau: workbench mixed constant/structure/register, 235 versus 233 instructions and 59 words, first +0x10.
@@ -71,23 +67,23 @@ extern s32 gOverlay70SharedCounterReloc;
  * Remaining: target stack homes/object-list register web and two-word event CFG excess; canonical/filtered relocations are not clean-C output. */
 #ifdef NON_MATCHING
 void func_overlay_070_F0000384_18C954C(O70Object *object) {
-    s32 start;
-    s32 end;
-    s32 count;
     O70Object **objects;
     O70Object **allObjects;
     O70Object *entry;
+    s32 start;
+    s32 end;
     O70State *state;
     O70State *best;
-    O70ManagerState *manager;
+    s32 count;
     O70ManagerState *entryState;
     O70Record *records;
     s32 bestType;
     s32 i;
+    O70ManagerState *manager;
     s32 maximum;
     s32 inactiveCount;
 
-    objects = overlay70GetRange(&start, &end);
+    objects = func_overlay_070_F0000000_18C91C8(&start, &end);
     bestType = 0x80;
     best = 0;
     manager = (O70ManagerState *)object->state;
@@ -109,7 +105,7 @@ void func_overlay_070_F0000384_18C954C(O70Object *object) {
     }
 
     if (manager->mode3B8 == 3) {
-        records = overlay70GetRecords();
+        records = func_overlay_070_F0000000_18C91C8();
         manager->registered3FA = 1;
         object->control->flags &= ~1;
         records[manager->index].metric = manager->metric400;
@@ -117,7 +113,7 @@ void func_overlay_070_F0000384_18C954C(O70Object *object) {
             gOverlay70SharedCounterReloc--;
         }
 
-        allObjects = overlay70GetAll(&count);
+        allObjects = func_overlay_070_F0000000_18C91C8(&count);
         maximum = 0;
         inactiveCount = 0;
         i = count - 1;
@@ -138,9 +134,9 @@ void func_overlay_070_F0000384_18C954C(O70Object *object) {
         if (((gOverlay70SharedCounterReloc == 0) &&
              (manager->flags1A8 & 1)) || inactiveCount == 1) {
             if (gOverlay70SharedCounterReloc == 0) {
-                overlay70EmitEvent(6, maximum);
+                func_overlay_070_F0000000_18C91C8(6);
             } else {
-                overlay70EmitEvent(5, maximum);
+                func_overlay_070_F0000000_18C91C8(5);
             }
 
             i = count - 1;
