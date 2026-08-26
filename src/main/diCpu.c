@@ -116,9 +116,9 @@ void stop_all_threads_except_main(void) {
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066D28_67928;
  * Mickey's target fixes the dump-size calculation to use the copied range. */
-/* Workbench: mixed constant/register allocation, exact 60-word size, first +0x18.
- * Symbolic-address, argument-hoist, phantom-pop, and subtraction levers were tried.
- * Remaining: six relocation identities and two final call-argument temp words. */
+/* Workbench: mixed constant/register allocation; 2 instruction words plus 6 relocation sites remain, first +0x18.
+ * Tried symbolic-address, argument-hoist, phantom-pop, subtraction, flag-lattice, and bounded permutation levers.
+ * Remains: D_80705014/18/1C relocation identities and the final packWriteFile argument temp coloring. */
 void func_80045BBC(void *thread) {
     s32 copySize;
     void *source;

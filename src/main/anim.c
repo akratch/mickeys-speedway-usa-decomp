@@ -455,9 +455,9 @@ AnimPath *func_800508B4(u8 pathIndex) {
  * asm/nonmatchings/anim/func_800772C4.s. Mickey's bit-reader calls, field
  * layout, constants, and final compiler output are independently established
  * from Mickey's ROM.
- * Workbench: schedule-only; 4/128 positional words remain, first +0x3C.
- * Tried retained-listing, qualifier, lifetime, aggregate, and direct-use forms.
- * Remains: ugen emits the global load before the target's two immediate scales.
+ * Workbench: schedule-mismatch/g0-schedule-probe; 4/128 positional words remain, first +0x3C.
+ * Tried -g0/flag parity, statement grouping, retained-listing, qualifier, lifetime, aggregate, and direct-use forms.
+ * Remains: ugen emits the D_80083FA8 load before the target's two immediate scales; frame and register lanes are exact.
  */
 #ifdef NON_MATCHING
 void func_800508D4(s32 count, AnimPathNode *node, s32 stream,
@@ -1413,14 +1413,9 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
 #endif
 #ifdef NON_MATCHING
 /*
- * Mickey-local composition of the resident response and normal helpers.
- * Plateau after the flag lattice, 10 source/lifetime shapes, and a bounded
- * canonical-flag permuter: the candidate is exact for 113/121 instructions,
- * all calls, the 0x50 frame, and FP schedule. Eight words remain from +0x20:
- * five initial pointer-load/move scheduling words and the three-use 0x258
- * temporary in v1 rather than v0. The isolated score-15 assignment reorder
- * does not change full-TU output; score 85 adds an observable store and was
- * rejected.
+ * Workbench: mixed structure/register residual; 8/121 positional words remain, first +0x20, with frame, calls, and FP lanes exact.
+ * Tried line-boundary grouping, the flag lattice, ten source/lifetime shapes, bounded permutation, and the rejected score-15 reorder.
+ * Remains: initial pointer-load scheduling and the three-use 0x258 temporary stays in v1 rather than the target's v0 web.
  */
 void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;

@@ -161,12 +161,9 @@ extern void func_80001708(void);
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive.
- *
- * Plateau: the candidate has the target's 259 instructions, -0x58 frame and
- * opcode schedule, but three register operands differ, first at +0x13C. The
- * zero-count loop also binds D_800CF3E0 where the target object names
- * D_800CF420 at its HI16/LO16 relocation pair. The resident flag lattice and
- * a bounded MIPS II permuter batch did not close either residual.
+ * Workbench: allocation-mismatch/forced-color residual; 3 masked words remain, first +0x13C, with the target instruction count, frame, and schedule.
+ * Tried D_800CF420 pointer-bounded zero-loop forms, source/type/loop variants, the resident flag lattice, and bounded permutation.
+ * Remains: the v0/a0 register web and BSS ownership keeps the zero-loop relocation on D_800CF3E0 instead of D_800CF420.
  */
 void levelGetCounts(void) {
     s32 i;

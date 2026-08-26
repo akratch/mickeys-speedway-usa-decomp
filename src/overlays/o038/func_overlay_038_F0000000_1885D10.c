@@ -42,9 +42,9 @@ typedef struct O38DirectionInput {
 extern s32 o38RandomRange(s32 minimum, s32 maximum);
 extern void o38MakeDirection(s16 *source, s16 *destination);
 
-/* Workbench: mixed structural/schedule; 7/85 words remain, first +0x48.
- * Tried levers 4/23/24/25/33 plus chain, qualifier, and declaration variants.
- * Remains: two pointer addresses schedule late and direction folds to pool. */
+/* Workbench: structure/schedule residual; 7/85 words remain, first +0x48.
+ * Tried levers 4/23/24/25/33, pointer/address declaration forms, chain, and qualifier variants.
+ * Remains: particle/direction addresses schedule after the pool stores and the direction web folds to the pool base. */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000000_1885D10(O38Object *object,
                                        O38Descriptor *descriptor)
