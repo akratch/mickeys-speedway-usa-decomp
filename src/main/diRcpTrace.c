@@ -56,9 +56,9 @@ void func_80044BC8(Gfx *value0, char *value4, s32 value8) {
     }
 }
 /*
- * Workbench: mixed(schedule:2, register:30), 32 words, exact size/frame, first mismatch +0xC.
- * Levers tried: statement order/lines, pool-vs-temp routing, dead-read formation, and all 119 flag variants.
- * Remains: target colors buffer in v1 without the two instructions added by admissible dead reads; temp phase follows.
+ * Workbench: mixed(schedule:2, register:30), exact size/frame/75 instructions/32 words, first mismatch +0xC.
+ * Levers: statement order/lines, pool-vs-temp routing, dead reads, and all 119 flag variants; no exact result.
+ * Remains: target buffer-in-v1 coloring without extra dead-read instructions; the temporary phase follows.
  */
 #ifdef NON_MATCHING
 /* PROVENANCE: parameter and entry roles adapted from JFG src/sched.c and

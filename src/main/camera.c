@@ -1727,9 +1727,9 @@ s32 func_800246B0(f32 x, f32 y, f32 z, f32 *outX, f32 *outY,
  * PROVENANCE: name and role from JFG's public decomp,
  * src/camera.c:camReversePoint; body reconstructed from Mickey-only evidence.
  *
- * Workbench: mixed structure/allocation; 33 words (25 normalized), first +0x0.
- * Declaration order was inert; staged scale and viewport-first forms regressed.
- * Frame remains 0x40 vs 0x38, with transX/scaleX FP-pool webs reversed.
+ * Workbench: mixed(constant:7, structural:22, register:4), 33 words (25 normalized), first +0x0; frame 0x40 vs 0x38.
+ * Levers: direct fields/raw m2c pointer, array transY, and scale/viewport association; all regressed.
+ * Remains: viewport materialization/frame and transX/scaleX FP-pool coloring.
  */
 #ifdef NON_MATCHING
 void func_80024834(f32 screenX, f32 screenY, f32 *x, f32 *y, f32 *z,
