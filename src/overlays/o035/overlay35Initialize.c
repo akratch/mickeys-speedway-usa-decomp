@@ -39,20 +39,15 @@ extern void *call_o0_0_33FF8(s16);
 extern void call_o98_0_0(void *);
 extern void func_overlay_035_F00001E0_1881EC0(s32);
 
-/* Workbench: allocation-mismatch; exact 120 words/-0x20 frame, 14 words, first +0x30.
- * g0/3/4/23 scheduling, same-line, volatile-slot, and JFG-skeleton probes found no improvement.
- * Remaining: target early volatile-slot web uses a2 versus candidate t6; assembly fallback stays canonical. */
-#ifdef NON_MATCHING
 void func_overlay_035_F0000000_1881CE0(s32 arg0, s32 arg1, s32 arg2,
                                         s32 arg3, s32 arg4, s32 arg5) {
     O35System *system;
 
     D_o35_alloc = call_o0_0_2AE30(0x800, 0x8F);
-    system = call_o0_0_2634C();
-    *(O35System * volatile *)&D_o35_system = system;
+    D_o35_system = call_o0_0_2634C();
     D_4 = 0;
-    if ((system->flagF6 == 0) &&
-        ((system->mode83 == 1) || (system->mode83 == 2))) {
+    if ((D_o35_system->flagF6 == 0) &&
+        ((D_o35_system->mode83 == 1) || (D_o35_system->mode83 == 2))) {
         D_4 = 1;
     }
 
@@ -73,27 +68,21 @@ void func_overlay_035_F0000000_1881CE0(s32 arg0, s32 arg1, s32 arg2,
     call_o0_0_15C48(1, 0);
     call_o0_0_15BE4();
 
-    system = D_o35_system;
-    if (system->flag82 == 0) {
+    if (D_o35_system->flag82 == 0) {
         call_o0_0_20114(0);
     }
     call_o0_0_C0F0(arg1);
-    system = D_o35_system;
-    if (system->flag82 == 0) {
+    if (D_o35_system->flag82 == 0) {
         call_o0_0_20114(8);
-        system = D_o35_system;
     }
 
     D_o35_reset3 = 0;
     D_o35_mask = 0x100000;
-    if (system->handle92 != -1) {
-        D_o35_handle = call_o0_0_33FF8(system->handle92);
-        D_o35_zero = 0; system = D_o35_system; }
+    if (D_o35_system->handle92 != -1) {
+        D_o35_handle = call_o0_0_33FF8(D_o35_system->handle92);
+        D_o35_zero = 0; }
     D_o35_byte = 0;
-    if (system->flagF6 != 0) {
+    if (D_o35_system->flagF6 != 0) {
         call_o98_0_0(D_o35_paramA);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o035/overlay35Initialize/func_overlay_035_F0000000_1881CE0.s")
-#endif

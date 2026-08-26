@@ -1813,3 +1813,7 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 |---:|---|---|---|
 | 15 | data/rodata `+0x0..+0x50`; BSS `+0x0..+0xA0` | `overlay_015.c` | configured object and linked ROM exact |
 | 101 | BSS `+0x0..+0xFD0` (shared builder owner) | `func_overlay_101_F000571C_18E0F3C.c` (consumer `func_overlay_101_F00078F4_18E3114.c`) | linked BSS placement exact; both C bodies remain structure-mismatch |
+
+| Overlay | Range | Function | Bytes | Exactness | Donor |
+|---:|---|---|---:|---|---|
+| 35 | `+0x000..+0x1E0` | `func_overlay_035_F0000000_1881CE0` | 480 | canonical object and linked ROM exact | Mickey-only |
