@@ -39,12 +39,9 @@ extern s32 o50UnresolvedS32TableReloc[];
 
 /* Exact donor scans are negative; this is a Mickey-only m2c control-flow
  * reconstruction pending relocation-name and type recovery. */
-/* NON_MATCHING plateau: the full flag lattice favors -O2 -g3 -mips2 with
- * loop unrolling disabled. That form is 0x1890 bytes versus the target's
- * 0x189C and has 1,544 positional word differences; the first mismatch is
- * +0x0 because the reconstructed locals grow the frame from 0x118 to 0x1A0.
- * The closest reference skeleton is only 0.064 Jaccard, and the unresolved
- * overlay relocation identities prevent reliable signature/type recovery. */
+/* Workbench plateau (2026-08-26): structure-mismatch; the best candidate has 1,544 differing comparison words, 1,572 versus 1,575 instructions, and a -416 versus -280 frame.
+ * Levers tried: constant-audit and recovered first-call identity; neither changed the candidate codegen or blocking class.
+ * Remains: non-save frame surplus and collapsed overlay relocation/type structure. */
 #ifdef NON_MATCHING
 void func_overlay_050_F0000334_1896CA4(void *arg0, s32 arg1) {
     s32 sp114;
