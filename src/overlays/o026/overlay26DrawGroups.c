@@ -45,9 +45,9 @@ extern void o26DrawReloc(Gfx **, s32, Overlay26Group *, f32, f32);
 extern void o26FlushReloc(Gfx **);
 extern void o26FinishReloc(Gfx **);
 
-/* Workbench structure-mismatch: 133/134 instructions, 88 normalized words;
- * 58 aligned residuals (17 structural, 2 schedule, 39 register), first +0x4C.
- * Store order and delayed group initialization improved alignment; constants/negation remain. */
+/* Workbench mixed structure/register residual: exact 134-word/-0x58 shape, 65 positional words, first +0x3C.
+ * A negative-offset dead read restored the missing instruction and cut opcodes 61->9; constant reads and split pointer addition regressed.
+ * Remains: pool slot 1/temp slot 3 rotation and 25 structural/51 register aligned sites; asm stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
                                        Overlay26Context *context) {
@@ -98,6 +98,7 @@ void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
             }
 
             negativeNodeOffset = -nodeOffset;
+            if (negativeNodeOffset) {}
             nodeEntry = context->nodeTable + negativeNodeOffset;
             node = *(Overlay26Node **)(nodeEntry + 0x10);
             choice = (Overlay26ResourceChoice *)node->resource;
