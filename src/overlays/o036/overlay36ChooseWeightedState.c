@@ -42,9 +42,9 @@ extern void func_overlay_036_F0000914_1883DCC(Overlay36Object *object,
                                               s32 arg1, s32 state,
                                               s32 enabled);
 
-/* Workbench plateau: structure-mismatch; 170/170 instructions, 0x38 frame, 155 positional words, first structural mismatch +0x3C.
- * Levers tried: constant audit, line assignment, and spill-slot census; declaration order fixed the 0x20/0x24 local homes.
- * Remaining: mode-branch scheduling and downstream FP register webs; relocation placeholders also remain unbound. */
+/* Workbench: structure-mismatch; 170 instructions/frame -56, 155-word
+ * relocation-masked floor, first structural mismatch at +0x3C. Mode-branch,
+ * spill, and constant levers remain blocked; returned-record +0xA8 regressed, leaving FP webs and relocations. */
 #ifdef NON_MATCHING
 void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
                                        volatile s32 arg2,

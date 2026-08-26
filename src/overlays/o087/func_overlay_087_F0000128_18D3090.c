@@ -62,18 +62,9 @@ extern s32 func_8005ABA8(Overlay87MotionObject *object, void *update,
 extern void func_8005AD64(Overlay87MotionObject *object, s32 mode, s32 index,
                           f32 value);
 
-/*
- * Plateau retry (2026-08-25): -O2 -mips2 -Wab,-r4300_mul is 0x758 bytes
- * versus the 0x768-byte target, with 193 masked word differences and the first
- * at +0x2C. Negating the squared numerator before division recovered two
- * target operations, and spelling the second crossing test as else-if reduced
- * the prior 204-word result. The remaining size deficit follows verticalDelta:
- * the target keeps it in an FP register and spills it across calls, while this
- * candidate passes its stack bits directly. Register and nested-scope lifetime
- * variants did not change or regressed codegen. A fresh 10-minute permuter
- * batch improved score 3350 to 2920 only by duplicating the later angle store,
- * rejected as scheduling scaffolding.
- */
+/* Workbench: structure-mismatch; 0x760 candidate vs 0x768 target, frame -104,
+ * 193 masked words differ first at +0x2C. Numerator/crossing, lifetime,
+ * nested-scope, and bounded permutation levers are exhausted; verticalDelta's FP spill schedule and opcode order block closure. */
 #ifdef NON_MATCHING
 void func_overlay_087_F0000128_18D3090(Overlay87MotionObject *object,
                                        s32 updateRate) {

@@ -1464,11 +1464,11 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 #ifdef NON_MATCHING
-/*
- * Plateau: JFG mainAnyoneHas is the nearest equal-size skeleton, but its
- * result-web adaptations collapse to 25 words. This 27-word body remains best
- * at ten positional differences from +0x1c (workbench: structure-mismatch).
- */
+/* PROVENANCE: the nearest equal-size role skeleton was compared with JFG's
+ * permitted mainAnyoneHas; this body is reconstructed from Mickey evidence. */
+/* Workbench: structure-mismatch; 27 instructions/frame -24, 10 words differ
+ * first at +0x1c. Boolean/OR/common-epilogue and m2c result-web forms collapse
+ * to 25 or worsen; the early-return body remains best. */
 s32 func_80028FCC(s32 arg0) {
     if (func_80028FB8(0, 0, arg0)) {
         return TRUE;

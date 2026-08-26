@@ -1277,9 +1277,9 @@ s32 frontGet2PlayerSplit(void) {
     return split;
 }
 /* PROVENANCE: role and order compared with JFG src/menu.c::frontSet2PlayerSplit. */
-/* Plateau: exact nine-word shape, three register-only words differ first +0x8.
- * Workbench reports temp-FIFO phase; ten source forms, the flag lattice, and a
- * 40-minute permuter leave the retained byte-lvalue expression best. */
+/* Workbench: register-ring-only; 3/9 words differ first at +0x8, target t0/t1
+ * versus candidate t6/t7. Levers 14/15/16, the flag lattice, ten source forms,
+ * and a 40-minute permutation batch are exhausted; this byte-lvalue form is best. */
 #ifdef NON_MATCHING
 void func_8003A520(s32 split) {
     *(u8 *)&D_800D3128 = (s16)(((split << 4) & 0x10) |

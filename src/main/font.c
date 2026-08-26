@@ -428,21 +428,15 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #endif
-/* Plateau (batch 14): exact 0xB8, best 4 words first at +0x30.
- * Width hoist and u32 glyph index fix the schedule/homes; fontData remains a3 vs v0.
- * Flags, types, declarations, expression forms, and bounded permuter found no zero. */
+/* Workbench: allocation-mismatch; 8/46 words differ first at +0x30, frame -48
+ * exact; fontData is v0 in the target and a3 in the candidate. Flags, hoists,
+ * declaration/stack-pad/alias forms, bounded permutation, and add-order lever leave this typed body best. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's
  * permitted published fontStringWidth assembly and DKR's Japanese
  * get_text_width body. Mickey's own m2c draft and data layout are authority.
- * Plateau: exact 46-word size, frame, and relocations, with four register-only
- * words differing first at +0x30. Workbench identifies one v0-to-a3 font-data
- * web; explicit byte-offset and base-pointer forms regress the exact schedule.
  */
-/* Workbench: 46 instructions/opcodes and 0x30 frame exact; 8 words from +0x30.
- * Tried the flag lattice, formation order, stack-pad placement, and aliasing.
- * Remaining: fontData v0/a3 web, two spill homes, and one add operand reversal. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     u8 stackPad[1];
     FontSpacingData *fontData;
@@ -450,11 +444,6 @@ s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     s32 width;
     u8 current;
     u8 defaultWidth;
-    s32 width;
-    u32 glyphIndex;
-    u8 *spacing;
-    FontSpacingData *fontData;
-    u8 current;
     u8 glyphWidth;
 
     if (&stackPad);
@@ -474,9 +463,8 @@ s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
             glyphWidth = defaultWidth;
             if (current & 0x80) {
                 current = *text++;
-                glyphIndex = current;
-                if (current != 0 && glyphIndex != 0xF) {
-                    glyphWidth = spacing[glyphIndex];
+                if (current != 0 && current != 0xF) {
+                    glyphWidth = spacing[current];
                 }
             }
             current = *text;
