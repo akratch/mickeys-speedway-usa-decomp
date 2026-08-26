@@ -2078,7 +2078,23 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x764
 ifeq ($(NON_MATCHING),0)
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/func_overlay_045_F0000764_188CBBC.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F4
+	$(OBJCOPY) \
+		--redefine-sym overlay45DisplayCallReloc=func_overlay_045_F0000000_188C458 $@ && \
+	$(OBJCOPY) \
+		--redefine-sym overlay45FontCallReloc=func_overlay_045_F0000000_188C458 $@ && \
+	$(OBJCOPY) \
+		--redefine-sym overlay45MatrixCallReloc=func_overlay_045_F0000000_188C458 $@ && \
+	$(OBJCOPY) \
+		--redefine-sym overlay45ColorCallReloc=func_overlay_045_F0000000_188C458 $@ && \
+	$(OBJCOPY) \
+		--redefine-sym overlay45RandomRangeReloc=func_overlay_045_F0000000_188C458 $@ && \
+	$(OBJCOPY) \
+		--redefine-sym overlay45FloatCallReloc=func_overlay_045_F0000000_188C458 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F4 && \
+	$(OBJCOPY) --redefine-sym D_800D64E8=overlay45ScissorReloc $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		3d4ccccd3b449ba63d99999a00000000 0x24 && \
+	$(OBJCOPY) --remove-section .rel.rodata $@
 endif
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/func_overlay_045_F0000764_188CBBC.c.o: CFLAGS += -Wab,-r4300_mul
 ifeq ($(NON_MATCHING),0)
