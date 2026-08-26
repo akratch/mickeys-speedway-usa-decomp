@@ -931,9 +931,16 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
-`func_80038750`: the menu ownership probe measured its five-entry language table at `.rodata` `0x83334`–`0x833E0` (`0xAC` bytes), but the C body remains nonexact.
-Workbench verdict `allocation-mismatch`, first `+0xDC`, 5/74 register words; the `pool-position` web crosses the base/value `a0`/`a1` pair.
-The probe is reverted so the canonical ASM wrapper preserves the verified shared-rodata layout.
+`func_80038750` adds **0x128 bytes / 74 words** at ROM `0x39350`. Matched C:
+exact object words, jump table, and linked ROM range at `-O2 -mips2 -32
+-Wo,-loopunroll,0`. The CDX allocator trace showed `destination` carries the
+`piRomLoadSection` `a1`-argument affinity, so the relocation loop re-caches the
+table base into it each iteration (base rides `a1`, the element stays a junior
+temp on `a0`), and the `-1 ==` spelling keeps the hoisted constant first. The
+TU now owns its five-entry language jump table (`.rodata` carve moved to
+`0x83334`, trim `0xAC`); the table bytes also corrected the language mapping to
+`assetIndex = language + 1` in descending case order, which the old
+JFG-adapted reversal got wrong while matching `.text` by coincidence.
 
 `func_80038878` remains tier-D `NON_MATCHING`: 66/85 words differ, first `+0x14`; frame and instruction count are exact.
 Levers covered first-loop pointer/cache, globals/volatile, type/order, flags, and the bounded permuter; JFG remains the structural lead.
