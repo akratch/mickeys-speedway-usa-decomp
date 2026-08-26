@@ -191,10 +191,6 @@ void func_800336A8(s32 videoMode) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_800336A8.s")
 #endif
-/* Workbench: relocation-layout-mismatch; all 50 words are exact, first site +0x1C.
- * Lever tried: constant audit retained the literal; named externs add materialization.
- * Remains: three target-only D_80380000/D_80380004 identities; wrapper retained. */
-#ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c:viReset. */
 void func_800339B4(void) {
     s32 *screen;
@@ -222,9 +218,6 @@ void func_800339B4(void) {
         viSetTiming();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gameVi/func_800339B4.s")
-#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c:viAllocateZBuffer. */
 void viAllocateZBuffer(s32 width, s32 height) {
     D_800D2F90 = (width * height * 2) + 0x30;
