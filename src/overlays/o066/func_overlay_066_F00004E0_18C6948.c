@@ -15,9 +15,9 @@ extern void viGetCurrentSize(u32 *width, u32 *height);
  * nearest structural oracle for this display-list command family. Mickey's
  * own function supplies the body, resident bindings, and framebuffer loop.
  */
-/* Workbench verdict=structure-mismatch/size-mismatch; target 204 vs candidate 201 instructions, 181 raw words, first mismatch +0x0.
- * Levers tried: constant/frame audit and the full MIPS-I/MIPS-II/-g3 flag lattice; no opcode schedule is stable enough for allocator tuning.
- * Remains: -0x78 versus -0xA8 frame, s0-s2 versus s0-s4 saves, and three missing candidate instructions. */
+/* Workbench p7: structure/size mismatch, 204/201 instructions, frame -168 vs -120, 181 raw words from +0x0.
+ * Full MIPS-I/MIPS-II/-g3 and prior alias/type/declaration/loop/macro/register levers leave target’s extra s3/s4 saves and three instructions.
+ * Context is clean; no source-backed schedule is stable for another allocation attempt; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_066_F00004E0_18C6948(register Gfx **displayList,
                                        register u16 *framebuffer,
