@@ -14,7 +14,7 @@ root=$(git rev-parse --show-toplevel)
 lane=$(dirname "$root")/mickey-lane-$name
 branch=lane/$name
 echo "== lane gates ($lane)"
-lane_out=$(cd "$lane" && gmake clean >/dev/null && gmake -j12 verify 2>&1 | tail -1); echo "$lane_out"
+lane_out=$(cd "$lane" && gmake clean >/dev/null && gmake -j12 >/dev/null 2>&1; gmake -j12 >/dev/null 2>&1; gmake -j12 verify 2>&1 | tail -1); echo "$lane_out"
 case "$lane_out" in OK*) ;; *) echo "lane $name does not verify from a clean build; not merging" >&2; exit 1 ;; esac
 (cd "$lane" && gmake check-docs 2>&1 | tail -1)
 tools/cleanroom_check.sh --range "HEAD..$branch" 2>&1 | tail -1
