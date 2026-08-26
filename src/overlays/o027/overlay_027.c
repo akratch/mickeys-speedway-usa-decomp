@@ -237,9 +237,9 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
 #endif
 
 /* Mickey-local rendering reconstruction; donor scans are exact-negative. */
-/* Plateau: -O2/-mips2 is exact-size with 195 masked (196 raw) words, first +0x8.
- * Ten register/lifetime shapes did not swap the object/child allocation;
- * a 40-minute MIPS2 permuter reached 3385, nonzero and artificial. */
+/* Workbench p5: mixed (structural:46, schedule:3, register:145), 254/254 instructions/frame -152, 195 masked (196 raw) words, first +0x8.
+ * Context lint is clean; prior allocation/lifetime probes remain unrecovered and no new safe structural lever surfaced.
+ * Remaining: coupled object/child pool homes and the downstream temp/register web. */
 #ifdef NON_MATCHING
 void func_overlay_027_F0000624_187BFFC(O27Command **commands, void *arg1,
                                        s16 *arg2, O27Object *object) {
