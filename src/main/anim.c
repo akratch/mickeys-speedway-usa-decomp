@@ -375,11 +375,14 @@ AnimPath *func_800508B4(u8 pathIndex) {
  * asm/nonmatchings/anim/func_800772C4.s. Mickey's bit-reader calls, field
  * layout, constants, and final compiler output are independently established
  * from Mickey's ROM.
- * Workbench: schedule-mismatch/g0-schedule-probe; 4/128 positional words remain, first +0x3C.
- * Tried -g0/flag parity, statement grouping, retained-listing, qualifier, lifetime, aggregate, and direct-use forms.
- * Remains: ugen emits the D_80083FA8 load before the target's two immediate scales; frame and register lanes are exact.
+ * The unsigned scale is the literal 0.01f: 0x3C23D70A needs its low halfword,
+ * so IDO materializes it with lwc1 from the TU's own literal pool, which
+ * places it third in the invariant group (f26,f24,f22,f20) exactly as the
+ * ROM orders it. An extern read (the old D_80083FA8 spelling) stays a
+ * statement-position load and surfaces four schedule words early
+ * (as1 -Wa,-R trace: the constant pairs chain on $at and carry the loop-head
+ * line; only a pool literal joins that group).
  */
-#ifdef NON_MATCHING
 void func_800508D4(s32 count, AnimPathNode *node, s32 stream,
                    AnimPathNode **nodeEnd, s32 *streamEnd) {
     f32 valueFloat;
@@ -389,7 +392,7 @@ void func_800508D4(s32 count, AnimPathNode *node, s32 stream,
     if (count > 0) {
         f32 halfScale = 0.5f;
         f32 wideScale = 0.390625f;
-        f32 unsignedScale = D_80083FA8;
+        f32 unsignedScale = 0.01f;
         f32 signedScale = 0.125f;
 
         do {
@@ -426,9 +429,6 @@ void func_800508D4(s32 count, AnimPathNode *node, s32 stream,
         *streamEnd = stream;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800508D4.s")
-#endif
 /* JFG's animseqLinkNodes assembly corroborates this Mickey-led body. */
 void func_80050AD4(u8 pathIndex) {
     AnimPath *path;
@@ -1149,15 +1149,16 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     source->previous.z = source->current.z;
     TrapDanglingJump(second, 1);
 }
-#ifdef NON_MATCHING
-/* Workbench: operand-mismatch/constant-audit; 4/109 words remain, first +0x3C, with frame, register, and schedule lanes exact.
- * Levers: stack-home carrier plus prior flag, lifetime/type, and declaration-order probes; no source layout moved it.
- * Remains: target compiler-temp home sp+0x48 versus candidate sp+0x40; canonical assembly stays. */
+/* Declaration order is load-bearing: uopt homes declared locals at descending
+ * stack offsets in declaration order, and only firstVehicle (sp+0x48, the
+ * call-crossing spill) and firstSource (sp+0x3C) surface in the object, so
+ * firstVehicle must be the second declaration and firstSource the fifth
+ * (uoptlist frame-ladder-guided; the volatile pad holds the 0x40 slot). */
 void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
+    HitCollisionVehicle *firstVehicle;
     HitCopySource *secondSource;
     volatile s32 stackPad;
-    HitCollisionVehicle *firstVehicle;
     HitCopySource *firstSource;
     f32 deltaX;
     f32 deltaY;
@@ -1202,9 +1203,6 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     secondTarget->unk1C = deltaZ / distance;
     TrapDanglingJump(second, 0xE);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055970.s")
-#endif
 #ifdef NON_MATCHING
 /* Workbench p6: mixed schedule/register; 8/121 words remain, first +0x20; frame, calls, and FP lanes exact.
  * Tried statement-line grouping and 0x258 timer register/direct-literal forms after the inherited lifetime/flag sweep; no improvement.

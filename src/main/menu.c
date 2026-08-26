@@ -255,11 +255,13 @@ extern void camPushModelMtx(MenuCommand **commands, void **matrices,
                           void *transform, f32 scale, f32 extra);
 extern void camPopModelMtx(MenuCommand **commands);
 
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/menu.c; Mickey byte identity is decisive. */
-/* Exact size/frame: 5/74 words differ, first +0xDC; caching the element fixes
- * the commutative row, but pool slot 18 keeps base/value a0/a1 crossed. Switch
- * relocs +0x4C/+0x54 still bind .rodata, not jtbl_80082734. */
+/* The relocation loop re-caches the table base into `destination` each
+ * iteration: the CDX trace showed `destination` carries the piRomLoadSection
+ * a1-argument affinity, so the base web rides a1 while the element stays a
+ * junior expression temp on a0, and the `-1 ==` spelling keeps the hoisted
+ * constant first in the compare (allocator-trace-guided). The jump table is
+ * the TU's own first rodata entry, carved at ROM 0x83334. */
 void func_80038750(s32 language) {
     s32 *header;
     s32 *offsets;
@@ -275,19 +277,19 @@ void func_80038750(s32 language) {
     }
     assetIndex = 1;
     switch (language) {
-        case 1:
+        case 5:
             assetIndex = 6;
             break;
-        case 2:
+        case 4:
             assetIndex = 5;
             break;
         case 3:
             assetIndex = 4;
             break;
-        case 4:
+        case 2:
             assetIndex = 3;
             break;
-        case 5:
+        case 1:
             assetIndex = 2;
             break;
         default:
@@ -303,19 +305,17 @@ void func_80038750(s32 language) {
         piRomLoadSection(6, destination, assetIndex, end);
         index = 0;
         while (index < D_8007C094[0]) {
-            destination = D_8007C0B8[index];
-            if (destination == -1) {
-                D_8007C0B8[index] = 0;
+            destination = (s32) D_8007C0B8;
+            if (-1 == ((s32 *) destination)[index]) {
+                ((s32 *) destination)[index] = 0;
             } else {
-                D_8007C0B8[index] = destination + (s32) D_8007C0B8;
+                ((s32 *) destination)[index] =
+                    ((s32 *) destination)[index] + destination;
             }
             index++;
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
-#endif
 #ifdef NON_MATCHING
 /* Workbench plateau: structure-mismatch, 54 words; 85/86 instructions, frame -24, first +0x14.
  * Lever: an address-alias mark improved the initial global web but added one instruction; a call-result local was inert.
@@ -1303,18 +1303,13 @@ s32 frontGet2PlayerSplit(void) {
     split = D_800D3128.bits.twoPlayerSplit;
     return split;
 }
-/* PROVENANCE: role and order compared with JFG src/menu.c::frontSet2PlayerSplit. */
-/* Workbench: allocation-mismatch/temp-FIFO; 3/9 positional words remain, first +0x8.
- * Levers tried: 14/15/16, ten source forms, flag lattice, and bounded permutation batch.
- * Remains: the lbu/andi/or temp web crosses allocator classes; the byte-lvalue form is best. */
-#ifdef NON_MATCHING
+/* PROVENANCE: role and order compared with JFG src/menu.c::frontSet2PlayerSplit.
+ * The `& 1` is load-bearing: it is folded into the 1-bit field insert but still
+ * consumes one ugen temp-ring slot, which rotates the FIFO into the ROM's
+ * t0/t8/t9/t1/t2 assignment (allocator-trace-guided, field-guide lever 16). */
 void func_8003A520(s32 split) {
-    *(u8 *)&D_800D3128 = (s16)(((split << 4) & 0x10) |
-                               ((s16)*(u8 *)&D_800D3128 & 0xFFEF));
+    D_800D3128.bits.twoPlayerSplit = split & 1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")
-#endif
 void func_8003A544(s32 value) {
     D_8007C098 = value;
 }

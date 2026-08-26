@@ -269,9 +269,11 @@ ranges across the scissor and glyph loops, not a compiler-flag mismatch.
 Levers covered flags, widths/qualifiers, direct-global/font-index, copy AST/volatile, and block/pad homes.
 Remaining: initial pool setup and saved-header copy schedule.
 
-`func_8004D40C`: workbench mixed structural/register; 109 words, five differences, first `+0x5C`.
-Structure-buckets and distinct-initial-value forms compile identically under the stock flag lattice.
-A delay-slot copy and its dependent temporary web remain unrecovered, so assembly stays canonical.
+`func_8004D40C`: workbench structure-mismatch; 109 words, two differences (down from five), rows 24/41.
+The CDX allocator trace fixed every branch-operand order (a copy-propagated variable prints before a
+constant, so the scans must be expression-direct on `*text`), and a `CDX_FORCE` swap proved the earlier
+residual was one variable web the target splits. What remains is the target's `move t2,a3` carrier for
+the third test -- a non-variable temp no C spelling reached -- so assembly stays canonical.
 
 `func_8004BA8C` is exact in 42/46 words with the target frame and relocations; four register-only words differ first at `+0x30`.
 Workbench reports one `v0`/`a3` font-data web; the restored width-hoist/u32-index body is the best retained candidate.
@@ -924,9 +926,16 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
-`func_80038750`: the menu ownership probe measured its five-entry language table at `.rodata` `0x83334`–`0x833E0` (`0xAC` bytes), but the C body remains nonexact.
-Workbench verdict `allocation-mismatch`, first `+0xDC`, 5/74 register words; the `pool-position` web crosses the base/value `a0`/`a1` pair.
-The probe is reverted so the canonical ASM wrapper preserves the verified shared-rodata layout.
+`func_80038750` adds **0x128 bytes / 74 words** at ROM `0x39350`. Matched C:
+exact object words, jump table, and linked ROM range at `-O2 -mips2 -32
+-Wo,-loopunroll,0`. The CDX allocator trace showed `destination` carries the
+`piRomLoadSection` `a1`-argument affinity, so the relocation loop re-caches the
+table base into it each iteration (base rides `a1`, the element stays a junior
+temp on `a0`), and the `-1 ==` spelling keeps the hoisted constant first. The
+TU now owns its five-entry language jump table (`.rodata` carve moved to
+`0x83334`, trim `0xAC`); the table bytes also corrected the language mapping to
+`assetIndex = language + 1` in descending case order, which the old
+JFG-adapted reversal got wrong while matching `.text` by coincidence.
 
 `func_80038878` remains tier-D `NON_MATCHING`: 66/85 words differ, first `+0x14`; frame and instruction count are exact.
 Levers covered first-loop pointer/cache, globals/volatile, type/order, flags, and the bounded permuter; JFG remains the structural lead.
@@ -1194,9 +1203,12 @@ carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
 live range; the default flags, both data relocations, object words, and linked
 ROM range are exact without post-processing.
 
-`tier-D func_8003A520`: 3/9 positional words remain, first `+0x8`; size and instruction shape are exact.
-Workbench temp-FIFO; levers 14/15/16, ten source forms, flag lattice, and the 30-minute permutation found no improvement.
-The retained byte-lvalue candidate remains best; the temp web crosses allocator classes.
+`func_8003A520` adds **0x24 bytes / 9 words** at ROM `0x3B120`. Mickey's code
+is the byte-preserving `twoPlayerSplit` setter paired with the preceding
+getter. The instrumented-ugen free-list trace showed the target's temp ring
+rotated one pop past the plain bitfield assignment; a `& 1` redundant with the
+1-bit field insert supplies that pop (field-guide lever 16) and the object
+words, relocations, and linked ROM range are exact without post-processing.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no
@@ -1939,7 +1951,7 @@ placeholders are never imported.
 | `0x80050844` | `0x38` | `animseqLockPath` | B; paired process-command calls, adopted name. Matched C: exact 56 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005087C` | `0x38` | `animseqUnLockPath` | B; paired process-command calls, adopted name. Matched C: exact 56 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800508B4` | `0x20` | no unique candidate | D; placeholder retained. Matched C: exact 32 B and relocation surface at `-O2 -mips2 -32` |
-| `0x800508D4` | `0x200` | `func_800772C4` | tier-B; type pass unchanged: schedule-only, 4/128 positional words from `+0x3C`; lever global-load/constant order, residual ugen load before the target's two immediate scales |
+| `0x800508D4` | `0x200` | `func_800772C4` | B; JFG structural oracle. Matched C: exact 512 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; the unsigned scale is the TU's own 0.01f literal (ROM `0x84BA8`), whose lwc1 joins the invariant group in the ROM's f26/f24/f22/f20 order |
 | `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function. Matched C: exact 288 B and `D_800D6B00` relocation pair at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
 | `0x80050BF4` | `0x15C` | `animseqInit` | tier-D; type pass unchanged: structure-mismatch, 15 words at the exact 87-instruction/0x18-frame shape; lever earliest clear-loop branch, residual `li/bne` versus target `slti/bnez` plus address schedule |
 | `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained. Matched C: exact 88 B and relocation surface at `-O2 -mips2 -32` |
@@ -1961,7 +1973,7 @@ placeholders are never imported.
 | `0x80054B3C` | `0x5C8` | no unique `hit.c` candidate | tier-D; GLOBAL_ASM-only, shared type pass not applicable; residual collision/vector assembly |
 | `0x80055104` | `0x6F4` | no unique `hit.c` candidate | tier-D; GLOBAL_ASM-only, shared type pass not applicable; residual collision/vector assembly |
 | `0x800557F8` | `0x178` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 376 B and eight-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; reconstructed from Mickey's resident state/counter/audio ABI after no external skeleton exceeded 0.070 similarity |
-| `0x80055970` | `0x1B4` | no unique `hit.c` candidate | tier-D; before/after type pass: operand-mismatch, 4 stack-home words at exact 109 instructions/`0x50` frame; lever stack home, residual candidate `sp+0x40` versus target `sp+0x48` |
+| `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; placeholder retained. Matched C: exact 436 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; uopt homes declared locals at descending offsets in declaration order, so firstVehicle declared second lands its call-crossing spill at the target `sp+0x48` |
 | `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | tier-D; before/after type pass: structure-mismatch, 8 words at exact 121 instructions/`0x50` frame; lever pointer/temp web, residual three-use `0x258` temporary in `v1` versus target `v0` |
 | `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 328 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; composed from Mickey-local exact state-update and normalization patterns |
 | `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 276 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0` |

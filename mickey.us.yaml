@@ -614,7 +614,7 @@ segments:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
       #      covered 35 functions and forty-four tables. After devmgr's table
-      #      moved into its exact C object, the 20 jump tables still emitted in
+      #      moved into its exact C object, the 19 jump tables still emitted in
       #      asm/ belong to 34 functions whose ROM and table addresses are both
       #      monotonically increasing -- ZERO INVERSIONS. First pair (ROM
       #      0x7D18 -> jtbl_80080D2C), last (ROM 0x75120 -> jtbl_800849C4).
@@ -650,7 +650,7 @@ segments:
       - [0x8309C, .rodata, main/gameVi]
       - [0x830CC, rodata]
       # func_800389CC and func_80038BC4's consecutive nineteen-entry tables.
-      - [0x83348, .rodata, main/menu]
+      - [0x83334, .rodata, main/menu]
       - [0x833E0, rodata]
       # func_80040740's switch table.
       - [0x83658, .rodata, main/particles]
@@ -666,6 +666,13 @@ segments:
       # two zero words are output-section alignment, not owned object bytes.
       - [0x849F8, .rodata, main/font]
       - [0x84A18, rodata]
+      # anim's literal pool begins with func_800508D4's 0.01f scale
+      # (0x3C23D70A needs its low halfword, so IDO takes it from .rodata
+      # instead of a lui/mtc1 pair). Only the first word is owned by matched
+      # C so far; 0x84BAC onward (0.02f and the rest) stays anonymous until
+      # the anim functions that use it match.
+      - [0x84BA8, .rodata, main/anim]
+      - [0x84BAC, rodata]
       # gsSnd diagnostics followed by func_8005BA40's 16-entry switch table.
       - [0x84F20, .rodata, main/gsSnd]
       # Five n_csplayer jump tables, in the same order and with the same

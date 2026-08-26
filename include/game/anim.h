@@ -29,7 +29,6 @@ extern s32 D_8007D6B0;
 extern f32 D_8007D6B4;
 extern f32 D_8007D6B8;
 extern s32 D_8007D6BC;
-extern f32 D_80083FA8;
 extern f32 D_80083FAC;
 extern f32 D_80083FB0;
 extern f32 D_80084210;

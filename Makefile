@@ -765,14 +765,19 @@ $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 # The path reset trap needs a typed alias to preserve its f32 argument.
 # Canonicalize only the undefined symbol name; section contents are unchanged.
+# func_800508D4's 0.01f literal owns one word of the anim literal pool; the
+# rest of IDO's 0x10-byte input section is alignment padding, and the still
+# anonymous pool (0.02f onward) begins immediately after it.
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym animResetTrap=TrapDanglingJump $@
+	$(OBJCOPY) --redefine-sym animResetTrap=TrapDanglingJump $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x4
 
 # The menu initialization loops are scalar in the target; the flag lattice
 # selects the non-unrolled 85-instruction form for func_80038878.
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: CFLAGS += -Wo,-loopunroll,0
-# IDO rounds the two consecutive 0x4C-byte switch tables from 0x98 to 0xA0;
-# discard only the trailing input-section padding before linking the next
+# func_80038750's five-entry language jump table (0x14) precedes the two
+# consecutive 0x4C-byte switch tables; IDO rounds the 0xAC input section up,
+# so discard only the trailing input-section padding before linking the next
 # shared resident rodata table.  The array-shaped aliases stay external to
 # IDO so func_80039720 retains its target induction-pointer allocation; bind
 # their metadata back to the individually owned BSS labels before linking.
@@ -780,7 +785,7 @@ $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym menuRepeatX=D_800D3198 \
 	--redefine-sym menuRepeatY=D_800D319C \
 	--redefine-sym menuPreviousButtons=D_800D31A0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x98
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0xAC
 
 # The saves slot-reset loop is scalar in the target; the 119-combination flag
 # lattice otherwise expands four 0x20-byte records into each loop iteration.

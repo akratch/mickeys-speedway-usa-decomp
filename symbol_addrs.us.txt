@@ -2411,7 +2411,7 @@ fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  ma
 // jfg:src/textures.c.o
 initColourCycle = 0x80036A50; // type:func size:0x30   ROM 0x37650  src/textures.c.o  masked=2/12
 // donor-jfg-src/menu.c.o
-func_80038750 = 0x80038750; // type:func size:0x128 tier-D ROM 0x39350 NON_MATCHING plateau 6/74 words differ, first +0xDC, jump-table relocation first +0x4C
+func_80038750 = 0x80038750; // type:func size:0x128 tier-A ROM 0x39350 IDO C exact, JFG src/menu.c structural oracle, allocator-trace-guided, owns jtbl at 0x83334
 func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING plateau 66/85 words differ, first +0x14
 func_800389CC = 0x800389CC; // type:func size:0x1F8 tier-D ROM 0x395CC exact C, JFG-adapted body and compiler-owned switch table
 func_80038BC4 = 0x80038BC4; // type:func size:0x1E8 tier-D ROM 0x397C4 exact C, JFG-comparison body and compiler-owned switch table
@@ -2520,7 +2520,7 @@ frontSetBgmVolume = 0x8003A4D0; // type:func size:0x3C  ROM 0x3b0d0
 // Tier B (JFG): exact split-bit getter, paired setter, and ordered menu
 // position establish the two-player split-screen role.
 frontGet2PlayerSplit = 0x8003A50C; // type:func size:0x14 tier-B ROM 0x3b10c canonical C, linked byte-identical
-func_8003A520 = 0x8003A520; // type:func size:0x24 tier-D ROM 0x3b120 NON_MATCHING 3/9 register-only words, first +0x8, temp-FIFO plateau
+func_8003A520 = 0x8003A520; // type:func size:0x24 tier-A ROM 0x3b120 IDO C exact, Mickey-only reconstruction, allocator-trace-guided bitfield setter
 func_8003A544 = 0x8003A544; // type:func size:0xC tier-D ROM 0x3b144 canonical C, linked byte-identical
 func_8003A550 = 0x8003A550; // type:func size:0xC tier-D ROM 0x3b150 canonical C, linked byte-identical
 func_8003A55C = 0x8003A55C; // type:func size:0x34 tier-D ROM 0x3b15c canonical C, linked byte-identical
