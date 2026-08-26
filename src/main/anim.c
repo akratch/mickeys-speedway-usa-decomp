@@ -1868,8 +1868,8 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
 #endif
 #ifdef NON_MATCHING
-/* Plateau (near-miss p5): workbench mixed(constant:2, structural:2, register:15), 18 words at 80 instructions/frame -0x28.
- * Levers: scalar/vector aliases, stack-spill/aggregate forms, expression spelling, and flag lattice; all regressed or inert.
+/* Plateau (near-miss p6): workbench mixed(constant:2, structural:2, register:15), 18 words at 80 instructions/frame -0x28; first +0x54.
+ * Lever: constant audit and context lint confirmed no new target-grounded source change.
  * Remains: FP pool/temp phase and two constant sites; assembly fallback stays canonical. */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {

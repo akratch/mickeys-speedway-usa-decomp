@@ -957,9 +957,9 @@ typedef struct ModelFrameInstance {
 } ModelFrameInstance;
 
 /* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
-/* Workbench: register-ring-only; exact 48 words/-0x8 frame, 13 words, first +0x38.
- * Target-order and decrement probes were worse; the prior mask lattice and corrected 30-minute permutation found no exact form.
- * Remaining: class-crossing ugen temp web; assembly fallback stays canonical. */
+/* Plateau (near-miss p6): workbench register-ring-only, 13 register words at 48 instructions/frame -0x8; first +0x38.
+ * Levers: intermediate-read and normalized-condition probes plus the bounded permutation found no source-stable closure.
+ * Remains: class-crossing ugen temp web; assembly fallback stays canonical. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;
     ModelFrameEntry *entry;

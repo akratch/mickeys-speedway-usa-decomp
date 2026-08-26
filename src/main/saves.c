@@ -283,8 +283,8 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
     return writer;
 }
 #ifdef NON_MATCHING
-/* Plateau (near-miss p5): workbench allocation-mismatch, 18 register-only words at 28 instructions.
- * Levers: corrected flag lattice, next-bit spelling, and chained-byte forms; no structural change.
+/* Plateau (near-miss p6): workbench allocation-mismatch, 18 register-only words at 28 instructions; first +0x10.
+ * Lever: target-variable spelling/type probe regressed to 29 instructions; the canonical schedule was restored.
  * Remains: pool/temp ring allocation has no consistent permutation; assembly fallback stays canonical. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
