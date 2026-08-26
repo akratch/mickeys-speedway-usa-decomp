@@ -317,9 +317,9 @@ void func_80038750(s32 language) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_80038750.s")
 #endif
 #ifdef NON_MATCHING
-/* Workbench plateau: structure-mismatch, 66 words; 85/85 instructions, frame -24, first +0x14.
- * Levers: first-loop pointer/cache, globals/volatile, type/order, flags, and permuter variants.
- * Remains: initial global-address allocation, later loop webs, and relocation bindings. */
+/* Workbench plateau: structure-mismatch, 54 words; 85/86 instructions, frame -24, first +0x14.
+ * Lever: an address-alias mark improved the initial global web but added one instruction; a call-result local was inert.
+ * Remains: separate initial store/base materialization, later loop webs, and relocation bindings. */
 /* PROVENANCE: compared with JFG's public src/menu.c::initFront, which retains assembly. */
 void func_80038878(void) {
     s32 *buffer;
@@ -330,6 +330,7 @@ void func_80038878(void) {
     u8 *loadedEnd;
 
     D_800D3150[0] = (s32) func_8002B280(0x5B8, 0x8F);
+    if (&D_800D3150[0]);
     buffer = D_800D3150;
     bufferEnd = D_800D3168;
     value = buffer[-1];
