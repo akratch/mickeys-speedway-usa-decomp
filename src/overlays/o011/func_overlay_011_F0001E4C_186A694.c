@@ -51,9 +51,9 @@ extern void func_800006BC(f32 arg0, s32 arg1);
 extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
-/* Plateau (2026-08-26, p5): workbench mixed, 295/294 instructions and 189 raw (186 masked) differing words; first raw +0x10, aligned +0x58; both frames are 0x40.
- * Base-offset constant audit and prior choice-alias, pointer, literal-index, loop, and declaration probes leave 18 structural, 18 schedule, and 55 register rows.
- * Relocation-normalized overlay-local choice and jump-table bindings remain; retain NON_MATCHING. */
+/* Workbench p7: structure-mismatch, 295/294 instructions/frame -64, 186 masked (189 raw) words; first raw +0x10, aligned +0x58.
+ * Context is clean; prior base-offset, choice-alias, pointer/index, loop, declaration, and flag levers remain best.
+ * Residual is the overlay-local choice/jump-table relocation binding plus mixed register/schedule web; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
     s32 index;
