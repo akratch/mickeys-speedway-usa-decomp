@@ -1775,13 +1775,10 @@ f32 camGetProjZ(f32 x, f32 y, f32 z) {
  * PROVENANCE: adapted from JFG's public decomp,
  * src/camera.c:camCopyOrthoMatrix.
  *
- * Plateau: the full flag lattice, eight coherent source/type/indexing
- * variants, and a bounded two-worker permuter batch leave an 84-instruction
- * configured candidate against the 83-instruction target, with 59 positional
- * words different from first mismatch +0x5C. IDO emits one extra address
- * materialization for the third peeled coefficient; the likely blocker is
- * original same-TU data-definition knowledge versus this extern array.
- * The permuter's base score was 135 and it found no improvement.
+ * Plateau: workbench structure-mismatch, 84 candidate instructions versus 83
+ * target instructions, first mismatch +0x5C.
+ * Levers tried: data-aggregate struct plus split-symbol/end-pointer and peeled-loop variants; none improved stock.
+ * Remaining: target same-TU data layout and relocation identities; extern-array source retains one extra address materialization.
  */
 void func_80024978(MtxF matrix) {
     s32 i;

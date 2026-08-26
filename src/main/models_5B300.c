@@ -88,9 +88,9 @@ void func_8005A770(void) {
     D_800D7CF0 = 0;
 }
 /*
- * Workbench: mixed constant/structure/register, exact 106-word length; 10 words differ, first +0x0.
- * Levers tried: frame audit, register storage, parameter/local coalescing, and compound-and shape.
- * Remaining: the 0x50/0x38 frame and alignment v1/s0 web shift the second load-call spill schedule.
+ * Plateau: workbench mixed constant/structure/register, 106/106 instructions, candidate frame -0x50 vs target -0x38, first +0x0.
+ * Levers tried: frame/register storage, parameter-local coalescing, compound-and shape, and a scoped model-index lifetime; none improved.
+ * Remaining: alignment stays in v1/sp+0x30 instead of target s0/sp+0x34, shifting the second load-call schedule.
  */
 #ifdef NON_MATCHING
 s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {

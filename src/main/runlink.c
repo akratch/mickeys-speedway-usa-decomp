@@ -897,6 +897,9 @@ void runlinkFlushModules(void) {
  * section anchors, packed header layout, and pending-load count determine the
  * final body.
  */
+/* Plateau: workbench structure-mismatch, 142/146 instructions, candidate frame -0x40 vs target -0x38, first +0x8.
+ * Lever tried: reordered overlayCount/mainRelocTable and the 119-combination flag lattice; the reorder worsened to 65 words.
+ * Remaining: target's table-count/materialization schedule and relocation identities add four instructions under these semantics. */
 void runlinkInit(void) {
     u32 overlayTableSize;
     u32 tableSize;

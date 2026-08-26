@@ -66,6 +66,9 @@ extern O70Object **overlay70GetAll(s32 *count);
 extern void overlay70EmitEvent(s32 event, s32 metric);
 extern s32 gOverlay70SharedCounterReloc;
 
+/* Plateau: workbench mixed constant/structure/register, 235 versus 233 instructions and 59 words, first +0x10.
+ * Levers tried: prior stack/declaration/scope/order and pointer-reuse probes; this run's counter lifetime probe and 119-variant flag lattice.
+ * Remaining: target stack homes/object-list register web and two-word event CFG excess; canonical/filtered relocations are not clean-C output. */
 #ifdef NON_MATCHING
 void func_overlay_070_F0000384_18C954C(O70Object *object) {
     s32 start;

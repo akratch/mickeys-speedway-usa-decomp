@@ -15,11 +15,9 @@ void overlay27Init(O27Object *object, Overlay27InitData *init) {
     state->scaleTarget = 96.0f; state->fadeFloat = 0.0f; state->source = init->target;
 }
 
-/*
- * Plateau: workbench mixed/structure-mismatch, exact 368-word length and 0x60 frame; 66 words differ, first +0x18.
- * Levers tried: stack-home census/reordering, pulse-local ablation/reuse, and pool-position no-code reads.
- * Remaining: source/argument homes differ and the persistent float is f12 versus f16, cascading through the FP FIFO.
- */
+/* Plateau: workbench mixed constant/structure/schedule/register, exact 368-instruction length; 66 masked words, first +0x18.
+ * Levers tried: prior flag/local/pulse probes plus pass-5 constant audit and target-home/FP review; no new C lever improved it.
+ * Remaining: source homes and the persistent f12/f16 FP pool stay displaced; filtered table/canonical-call relocations are not clean-C output. */
 #ifdef NON_MATCHING
 void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
     O27State *state;

@@ -2132,9 +2132,9 @@ no_intersection:
  * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
  * establishes the entity cutoff, resident structures, and final code here.
  */
-/* Workbench: mixed structure/register, exact 105-word length and 0xC0 frame; 51 words differ, first +0x24.
- * Levers tried: structure buckets, squared-radius lifetime, statement order/ties, and context lint.
- * Remaining: radius/call delay-slot order and the outer sort-cursor reset keep the allocator lanes displaced. */
+/* Plateau: workbench mixed structural/register, 105/105 instructions and 51 words, first divergence +0x24.
+ * Levers tried: prior radius/delay-slot, squared-radius lifetime, statement-order/tie, sort-cursor, flag, and context probes.
+ * Remaining: IDO's radius/call schedule and register web stay displaced; the target/candidate sqrtf relocation identities also differ. */
 s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
                   HitCopyState **nearby) {
     f32 distances[8];
