@@ -1572,9 +1572,9 @@ void overlay8UpdateMotionOutput(Overlay8MotionAnchor *anchor,
     gOverlay8Buffer++;
 }
 
-/* Workbench: allocation-mismatch; exact 270-instruction schedule/frame, 43 masked words (57 diff sites), first +0x178.
- * Levers: constant audit, frame-home pads, wider/volatile normal layouts, local exchange, and relocation-aware source comparison.
- * Remains: normal home is four bytes high, then FP pool/temp phase diverges; GLOBAL_ASM stays canonical. */
+/* Workbench p7: allocation-mismatch; 270/270 instructions, 43 masked words (57 diff sites), first +0x178, exact -0x90 frame.
+ * Levers: context/view, constant audit, register and array forms, and a pool dead-read probe; prior frame-home, normal-layout, local-exchange, and relocation probes stayed negative.
+ * Remains: FP pool diverges at slot 2 (f2 versus f16), FP temp at slot 14, and relocation identities; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
                                        O8P4CF0State *state,
