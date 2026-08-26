@@ -49,9 +49,9 @@ extern u8 gOverlay71GlobalFlagReloc;
 extern void func_80032BF0(void *resource, s32 mode, s32 flags);
 extern f32 sqrtf(f32 value);
 
-/* P2 plateau: workbench mixed(constant:28, structural:4, schedule:3), 32 positional words; first owned mismatch +0xA8.
- * The flag lattice selected -O2/-mips2/-Wab,-r4300_mul; declaration, scope, aggregate, register, and call-result levers were inert or regressed.
- * A complete private stack-home permutation, two loop scheduler swaps, and six unresolved relocation identities remain. */
+/* P5 plateau: workbench operand-mismatch, 28 positional words; normalized instructions, frame, registers, and schedule exact, first +0xA8.
+ * Levers: while-loop control plus output pointer-increment order reached the stable shape; scalar/volatile types, scopes, and separate counters regressed.
+ * Remains: 26 stack-offset operands and six relocation identities; no exact C path found within the attempt cap. */
 #ifdef NON_MATCHING
 void func_overlay_071_F0000278_18C9D98(O71Object *object) {
     O71Vec3 points[8];
@@ -101,7 +101,9 @@ void func_overlay_071_F0000278_18C9D98(O71Object *object) {
                     factor = 1.0f;
                 }
                 radius = state->radius * factor;
-                for (i = 0, point = points; i < 4; i++) {
+                i = 0;
+                point = points;
+                while (i < 4) {
                     dx = point->x - state->centerX;
                     dy = point->y - state->centerY;
                     dz = point->z - state->centerZ;
@@ -114,6 +116,7 @@ void func_overlay_071_F0000278_18C9D98(O71Object *object) {
                     point[4].y = point->y + (dy * factor);
                     point[4].z = point->z + (dz * factor);
                     point++;
+                    i++;
                 }
                 state->status |= state->flags & 6;
             }
@@ -124,7 +127,9 @@ void func_overlay_071_F0000278_18C9D98(O71Object *object) {
             count = 8;
         }
         vertex = state->vertices[state->bank];
-        for (i = 0, point = points; i < count; i++) {
+        i = 0;
+        point = points;
+        while (i < count) {
             vertex->x = point->x;
             vertex->y = point->y;
             vertex->z = point->z;
@@ -137,8 +142,9 @@ void func_overlay_071_F0000278_18C9D98(O71Object *object) {
                     vertex->alpha = state->alpha;
                 }
             }
-            point++;
             vertex++;
+            point++;
+            i++;
         }
     }
     object->active = 0;
