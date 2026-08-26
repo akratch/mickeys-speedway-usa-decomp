@@ -127,9 +127,9 @@ f32 sqrtf(f32 value);
 f32 func_80058EF4(f32 value);
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 26/22 instructions and 19 raw words from +0x0.
- * Lever: BSS-record, store-order, line-grouping, pointer-tail, aggregate, and flag probes; stock globals remain best.
- * Remaining: four target high-half reuses require the original BSS ownership/layout. */
+/* Workbench: structure-mismatch, 26 candidate/22 target instructions, 19 raw words from +0x0.
+ * Lever: aggregate and target-order store probes confirmed the stock named globals remain best; target high-half reuse is not source-reached.
+ * Remains: original BSS ownership and relocation layout; assembly fallback stays canonical. */
 void func_80058250(void) {
     D_800D78B0 = 0;
     D_800D78B8 = 0.0f;

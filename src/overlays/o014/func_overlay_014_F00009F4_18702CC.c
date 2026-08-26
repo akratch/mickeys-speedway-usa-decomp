@@ -20,9 +20,9 @@ extern s32 gOverlay14DefaultB4;
 extern void *overlay14AssetCall();
 
 #ifdef NON_MATCHING
-/* Workbench: mixed schedule/register, exact 54/-40 shape, 12-word floor after the +0xF4 state anchor.
- * Lever: overlay-state field anchor fixed the leading constant; iterator and schedule probes did not move the late web.
- * Remaining: six schedule, ten register, and nine overlay-relocation residuals. */
+/* Workbench: structure-mismatch, exact 54/-40 shape, 12-word floor after the +0xF4 state anchor.
+ * Lever: state-field anchor plus iterator/schedule probes left the late web unchanged.
+ * Remains: six schedule, ten register, and nine overlay-relocation residuals; assembly fallback stays canonical. */
 Overlay14Asset *func_overlay_014_F00009F4_18702CC(s32 index, s32 context) {
     s32 pad;
     s32 start;

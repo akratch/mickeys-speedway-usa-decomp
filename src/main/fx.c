@@ -370,9 +370,9 @@ void func_800475E8(FxConeCoords *cone, s16 angle) {
 }
 
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, exact 234/-104 shape, 8 register words from +0x298.
- * Lever: forced-color diagnosis plus the bounded 30-minute permuter (best synthetic score 2445; no exact) left the register web.
- * Remaining: one callee-saved pool-color cascade; no structural or schedule residual. */
+/* Workbench: allocation-mismatch, exact 234/-104 shape, eight register words from +0x298.
+ * Lever: pool-position/forced-color diagnosis and the bounded permutation batch exhausted the register search.
+ * Remains: one callee-saved pool-color cascade; assembly fallback stays canonical. */
 /* Mickey-derived draft; JFG's corresponding fxDrawCone body is assembly-only. */
 void func_80047CD8(FxGfx **dList, FxDrawCone *cone, s32 flags, u8 alpha) {
     s32 hasTexture;

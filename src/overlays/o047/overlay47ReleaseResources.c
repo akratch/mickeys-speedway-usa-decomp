@@ -181,8 +181,8 @@ extern s8 D_flagC6;
 
 extern void func_overlay_047_F0000000_1890E18(void *arg);
 
-/* Plateau (near-miss p5): workbench mixed(constant:9, schedule:2, register:7), 10-word masked floor (18 raw) at 88 instructions/frame -0x20.
- * Levers: end-pointer/boolean forms and constant audit; data aggregate and relocation identities remain.
+/* Workbench: allocation-mismatch, 88/-32 shape, 10 masked (18 raw) words from +0x54; 33 relocation sites differ.
+ * Lever: constant audit after end-pointer/boolean and aggregate probes left the executable schedule unattained.
  * Remains: overlay aggregate ownership and relocation binding; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_047_F00009D0_18917E8(void) {

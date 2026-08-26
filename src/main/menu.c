@@ -1149,9 +1149,9 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, exact 32-instruction shape, 5 register words from +0xC.
- * Lever: pool-position diagnosis plus the bounded 30-minute permuter (best synthetic score 720; no exact) left the remaining web.
- * Remaining: v0/v1 inversion, t6 target-only substitution, and the packed mode-field web. */
+/* Workbench: allocation-mismatch, exact 32-instruction shape, five register words from +0xC.
+ * Lever: pool-position/forced-color diagnosis, declaration-order probe, and bounded permutation exhausted the mode web.
+ * Remains: v0/v1 inversion, ring-only t6 substitution, and packed mode-field allocation; assembly fallback stays canonical. */
 /* PROVENANCE: mask, state guard, and order compared with JFG's public
  * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
 void func_8003A2C8(s32 screenMode) {

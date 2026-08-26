@@ -24,9 +24,9 @@ extern u8 D_8000003A[];
 extern u8 D_8000003B[];
 extern void func_overlay_041_F0000000_1887338(void);
 
-/* Workbench: mixed constant/schedule/register, exact 98/-48 shape, 15-word floor from +0x40.
- * Lever: relocation-backed direct-field spelling regressed to 114 instructions; the retained source leaves the color web.
- * Remaining: 15 allocation, 5 constant, 2 schedule, and 9 overlay-relocation residuals. */
+/* Workbench: allocation-mismatch, exact 98/-48 shape, 15-word floor from +0x40.
+ * Lever: constant/relocation audit after the direct-field spelling left the source schedule intact but not the color web.
+ * Remains: 15 allocation, 5 constant, 2 schedule, and nine overlay-relocation residuals; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 /* Preserve runtime-only relocation identities in a removable private island. */
 static void *const overlay41RuntimeSymbols[] = {
