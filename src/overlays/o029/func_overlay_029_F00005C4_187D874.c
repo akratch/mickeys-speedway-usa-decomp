@@ -140,13 +140,9 @@ extern void func_overlay_037_F00004F4_1885B14(s32 index, f32 distance);
         } \
     } while (0)
 
-/*
- * NON_MATCHING: the best typed reconstruction is 0x918/0x91C bytes with
- * -Wab,-r4300_mul. It matches 145/583 instruction words and first differs at
- * +0x4: IDO uses a 0xC8-byte frame and a different long-lived FP temporary
- * schedule. The remaining mismatch is concentrated in the four unrolled
- * record updates and the later target/collision stack layout.
- */
+/* Workbench p4: structure-mismatch; 438 positional/438 raw words differ,
+ * 582/583 instructions, first +0x4, frame -192 versus -200. Levers: linked-
+ * entity lifetime, initialization placement, and explicit CFG; remains FP web. */
 #ifdef NON_MATCHING
 void func_overlay_029_F00005C4_187D874(Overlay29TailObject *object,
                                         s32 updateRate) {
