@@ -37,9 +37,9 @@ extern f32 sqrtf(f32 value);
 extern f32 gOverlay20TailXLimit;
 extern f32 gOverlay20TailYLimit;
 
-/* Plateau (2026-08-25, batch 35): -O2 -mips3 -Wab,-r4300_mul emits 205/207 executable words.
- * It differs in 178 executable words, first +0x20; the frame/save set and arithmetic topology agree.
- * Init-order, type, comparison, volatile, neighbor-hoist, and 40-minute permutation probes found no exact form. */
+/* Plateau (2026-08-26, p5): workbench mixed, 207/205 instructions and 180 raw (178 masked) differing words from +0x20; both frames are 0x90.
+ * The mips3/r4300-mul flag sweep and init/type/comparison/volatile/neighbor/lifetime/permuter probes leave 17 structural and 114 register rows.
+ * No untried source-backed lever remains; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 f32 func_overlay_020_F0001148_1877720(Overlay20TailGrid *grid, f32 x, f32 y,
     Overlay20TailVector *normal) {

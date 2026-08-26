@@ -47,20 +47,9 @@ extern void o38ReleaseObject(O38Object *object);
     (particle).dy += (velocity); \
 } while (0)
 
-/*
- * Plateau (2026-08-25, independently rechecked in the overlay 31/38/46 lane):
- * -O2 -mips2 with -Wab,-r4300_mul is exact-size at 202 words, with 159
- * differing words and the first mismatch at +0x20. The 119-point lattice
- * independently confirmed that flag boundary as best; omitting r4300_mul is
- * eight bytes short. Collapsing dt/loopDt into one lifetime was also eight
- * bytes short and worsened the result to 199 words, first at +0x0, so the
- * split delta and deferred stores remain the source-backed best candidate.
- * Direct typed updates, update-order changes, and carrying the next vertical
- * delta had previously worsened it as well. A two-thread bounded permuter
- * improved 11810 to 7405 in 602 seconds without reaching zero. No permitted
- * skeleton exceeds 0.067, leaving the target FP allocation and pipelined store
- * schedule without another supported structural lever.
- */
+/* Plateau (2026-08-26, p5): workbench mixed, 202/202 instructions and 160 raw (159 masked) differing words from +0x20; both frames are 0x38.
+ * The r4300-mul flag sweep remains best; typed/update-order/delta/lifetime probes and the bounded permuter leave 109 structural and 92 register rows.
+ * No permitted skeleton or source-backed lever remains; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000154_1885E64(O38Object *object, s32 ticks)
 {
