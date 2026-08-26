@@ -446,11 +446,9 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
-/*
- * Plateau (2026-08-25): Workbench allocation-mismatch, 282/282 words with 79 masked and 86 raw differences; first unmasked code mismatch +0x88.
- * Constant-audit and stack-home census found swapped pointer/step spills; explicit pointer, declaration move, and local-base alias variants regressed.
- * The equal-frame residual is 67 GPR and 11 FPR sites plus 27 overlay-local relocation identities; no structural lever moved the paired spill homes.
- */
+/* Plateau (2026-08-26, p5): workbench mixed, 282/282 instructions and 86 raw (79 masked) differing words; first unmasked code +0x88; both frames are 0x98.
+ * The 119-point sweep confirms -O2 -mips2 -Wab,-r4300_mul, but its isolated candidate is 4 bytes short; prior constant, stack-home, pointer, and alias probes leave 6 structural, 5 schedule, and 67 register rows.
+ * The residual is not register-web-only, so no permitted permutation route remains; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {

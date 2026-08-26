@@ -919,12 +919,10 @@ extern void animUpdateTrap(AnimPath *path, f32 delta, s32 updateRate,
  * globals, sound-object offset, and final compiler output are independently
  * established from Mickey's ROM.
  *
- * Plateau after the flag lattice, focused type/lifetime variants, and a
- * bounded canonical-flag permuter: correcting the command clock to u32 makes
- * the best semantic candidate exact-size at 287 instructions. Its saved
- * register slots match, but IDO reserves a 0x48 frame against the target's
- * 0x40, leaving 192 positional words from first mismatch +0x0. The
- * permuter's score-3205 sound-handle lifetime is incorporated below.
+ * Plateau (2026-08-26, p5): workbench mixed, 287/287 instructions and 192 raw
+ * differing words from +0x0; frames are 0x40/0x48, with 44 structural, 1
+ * schedule, and 53 register rows. The flag lattice, u32 clock, type/lifetime,
+ * and canonical-flag permuter probes are exhausted; retain NON_MATCHING.
  */
 #ifdef NON_MATCHING
 void func_80051364(s32 updateRate) {
@@ -1758,9 +1756,12 @@ f32 func_8002A8BC(s16 angle);
 f32 func_8002A8C0(s16 angle);
 
 /*
- * Plateau (2026-08-25): Workbench structure-mismatch, 226/229 words and 214 raw differences from +0x0; candidate frame 0x80 versus target 0x70.
- * Spill-slot census, three volatile-home declaration placements, and an exact-layout state type left the frame/count unchanged; no donor body was used.
- * The 16-byte non-save-frame excess still shifts the FP pool/temp phase; allocator edits are premature until that extra live range is identified.
+ * Plateau (2026-08-26, p5): workbench mixed, 229/226 instructions and 214 raw
+ * differing words from +0x0; frames are 0x70/0x80, with 233 structural and 54
+ * register rows. Prior flag, lifetime, spill, volatile, state-layout, and
+ * permuter probes were exhausted; the compound-assignment operand-order probe
+ * grew the candidate to 227 instructions and a 0x88 frame, then was reverted.
+ * No frame-recovery lever with source evidence remains; retain NON_MATCHING.
  */
 #ifdef NON_MATCHING
 void func_80056DD8(HitCopyState *first, HitCopyState *second,

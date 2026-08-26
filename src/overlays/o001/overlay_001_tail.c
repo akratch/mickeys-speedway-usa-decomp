@@ -524,9 +524,9 @@ extern void ext_o0_5a914(Transform *, s32, s32, s32);
 extern Spawned *local_414(s16, Spawned **);
 extern s16 local_c0(Spawned *);
 
-/* Plateau (2026-08-25, near-miss p3): workbench structure mismatch; best is 160 words, first +0x20.
- * Type/constant audit fixed pathId at +0x37C; copy ownership and register hints were tried.
- * The candidate remains three instructions short with mixed structural and register residuals. */
+/* Plateau (2026-08-26, p5): workbench mixed, 237/234 instructions and 162 raw differing words from +0x20; both frames are 0x50.
+ * The flag/constant audit and prior phase-width, stack-home, pointer/index, and copy-hint probes leave 40 structural, 3 schedule, and 82 register rows.
+ * No untried source-backed lever remains; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateRate) {
     Spawned *sp3C;

@@ -1,8 +1,8 @@
 #include "PR/ultratypes.h"
 
-/* Workbench: structure-mismatch; canonical is 189/189 words, 123 differences, first +0x8.
- * Tried spill census, truth-check spelling, coefficient/result lifetime splits, and declaration order.
- * Frame and size are exact; temp-ring slot 0 leaves 37 structural and 79 register rows. */
+/* Plateau (2026-08-26, p5): workbench mixed, 189/189 instructions and 125 raw differing words from +0x8; both frames are 0x60.
+ * The flag lattice and prior spill, truth-check, coefficient-lifetime, declaration-order, and permuter probes leave 38 structural and 76 register rows.
+ * The FP temp phase diverges at its first site; no untried source-backed lever remains; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 s32 func_overlay_002_F0001364_185815C(f32 x1, f32 y1, f32 x2, f32 y2,
                                       f32 x3, f32 y3, f32 x4, f32 y4,
