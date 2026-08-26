@@ -10,13 +10,14 @@
  */
 
 extern s32 D_800CF3C4;
-extern u8 D_800CF420[];
 typedef struct LevelHeaderSummarySource LevelHeaderSummarySource;
 extern LevelHeaderSummarySource *D_800CF3C8;
 extern s32 *D_800CF3C0;
 extern s32 D_800CF3D4;
 extern s32 D_800CF3D8;
-extern s32 D_800CF3E0[16];
+/* The level TU owns the adjacent count and colour-cycle BSS ranges. */
+s32 D_800CF3E0[16];
+u8 D_800CF420[0x70];
 extern u8 **D_800CF3D0;
 extern u8 *D_8007A0D0;
 extern u8 D_8007BF08;
@@ -162,11 +163,9 @@ extern void func_80001708(void);
 /*
  * PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive.
  *
- * Plateau: the candidate has the target's 259 instructions, -0x58 frame and
- * opcode schedule, but three register operands differ, first at +0x13C. The
- * zero-count loop also binds D_800CF3E0 where the target object names
- * D_800CF420 at its HI16/LO16 relocation pair. The resident flag lattice and
- * a bounded MIPS II permuter batch did not close either residual.
+ * Workbench: allocation-mismatch, first +0x13C; three register words remain
+ * after the level TU owns the adjacent D_800CF3E0/D_800CF420 BSS ranges. The
+ * zero-count loop's D_800CF420 relocation identity is also still distinct.
  */
 void levelGetCounts(void) {
     s32 i;

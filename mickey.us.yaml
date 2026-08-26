@@ -685,6 +685,8 @@ segments:
       # reset loop only recovers the target address materialization here.
       - { type: .bss, vram: 0x800CF3B0, name: main/joy }
       - { type: bss, vram: 0x800CF3C0, name: bss_gap_D800CF3C0 }
+      - { type: .bss, vram: 0x800CF3E0, name: main/level }
+      - { type: bss, vram: 0x800CF490, name: bss_gap_D800CF490 }
       # Allocator pools, deferred-free queues, and accounting state.
       - { type: .bss, vram: 0x800D1C60, name: main/memory }
       - { type: bss, vram: 0x800D21C0, name: bss_gap_D800D21C0 }

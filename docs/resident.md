@@ -2261,14 +2261,9 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
   removes three dead-looking countdown-loop register copies retained by the
   target.
-- `levelGetCounts`, ten source/type/loop hypotheses, first mismatch `+0x13c`:
-  the best candidate has the target's 1,036-byte size, 259-instruction opcode
-  schedule and `-0x58` frame, but three register operands use `$v0` where the
-  target uses `$a0`. Its initial count-table loop also relocates against
-  `D_800CF3E0`, while the target object's HI16/LO16 pair names `D_800CF420`.
-  The resident flag lattice was unchanged; a bounded two-worker MIPS II
-  permuter batch improved its internal score from 45 to 25 but did not change
-  these object-level residuals.
+- `levelGetCounts`: workbench `allocation-mismatch`, first `+0x13c`; the level
+  TU now owns the linked `0x40`-byte `D_800CF3E0` count table and `0x70`-byte
+  `D_800CF420` state, but three register words and the end-label relocation remain.
 - `levelInit`, ten structural, storage, type and register-lifetime hypotheses,
   the full 119-combination flag lattice and a bounded two-worker permuter
   batch, first mismatch `+0x238`: the JFG-adapted, Mickey-specific candidate
