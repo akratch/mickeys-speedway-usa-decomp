@@ -2251,13 +2251,9 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `func_80028564`: p2 workbench structure-mismatch, 492/489 instructions and 426 differing positional words.
   First mismatch `+0x4`; the exact frame still carries one unused saved-register web.
   Lever 1 and volatile/address-alias probes were byte-identical, leaving that web unresolved.
-- `mainThread`, five source/address hypotheses plus the full flag lattice,
-  first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
-  the exact 200-byte linked instruction stream, frame and control flow, but
-  its literal RAM-end address omits the target assembly's `D_803FFFFC`
-  HI16/LO16 pair at `+0x18`/`+0x28`. Every symbolic spelling adds an address
-  instruction and moves the aligned epilogue, growing the function by eight
-  words.
+- `mainThread`: exact **0xC8 bytes / 50 words** under `-Wo,-Olimit,100`; the
+  literal RAM-end loop is compiled untouched, and a digest-guarded metadata
+  pass restores `D_803FFFFC` HI16/LO16 at `+0x18`/`+0x28`.
 - `mainUpdateZBCheck`, five loop/type hypotheses, the full flag lattice and a
   bounded two-worker permuter batch, first mismatch `+0x24`: the best
   Mickey-derived candidate has the exact `-0x48` frame and screen-size stack
