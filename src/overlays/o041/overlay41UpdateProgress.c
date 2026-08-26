@@ -35,9 +35,9 @@ typedef struct Overlay41Input {
 extern Overlay41State *gOverlay41CurrentState;
 extern void overlay41ApplyAmount(Overlay41State *state, f32 amount, f32 step);
 
-/* Workbench: mixed structural/schedule/allocation; 34/115 words, first +0xE8.
- * u8-limit/direct-reload forms regressed; divisor timing/register was inert.
- * Remaining: target moves limit to a0, then reuses v1 for the start value. */
+/* Workbench: mixed(structural:2, schedule:2, register:25), exact 115 instructions/34 words, first +0xE8.
+ * Levers: direct, u8, s32, block-local, and declaration-order forms for start; all regressed.
+ * Remains: limit-to-a0/start-to-v1 pool routing and the tail temporary phase. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
                                         Overlay41State *state, s32 step) {
