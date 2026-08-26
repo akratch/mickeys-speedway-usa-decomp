@@ -24,9 +24,9 @@ extern u8 D_8000003A[];
 extern u8 D_8000003B[];
 extern void func_overlay_041_F0000000_1887338(void);
 
-/* Plateau (near-miss batch 13): -O2 -mips2 is size-exact; 15/98 words differ,
- * first +0x40. Declaration/first-use/width forms tied or regressed; the
- * 40-minute permuter stopped at artificial score 125, leaving the color web. */
+/* Workbench: mixed constant/schedule/register, exact 98/-48 shape, 15-word floor from +0x40.
+ * Lever: relocation-backed direct-field spelling regressed to 114 instructions; the retained source leaves the color web.
+ * Remaining: 15 allocation, 5 constant, 2 schedule, and 9 overlay-relocation residuals. */
 #ifdef NON_MATCHING
 /* Preserve runtime-only relocation identities in a removable private island. */
 static void *const overlay41RuntimeSymbols[] = {

@@ -130,8 +130,9 @@ s32 sprintf(char *s, const char *format, ...) {
 #define isdigit(c) ((c >= '0') && (c <= '9'))
 
 /* PROVENANCE: body adapted from JFG src/diprint.c:vsprintf. */
-/* Workbench: instruction words exact; formatter data is now TU-owned.
- * The linked ROM oracle is exact under -Wab,-r4300_mul. */
+/* Workbench: relocation-layout mismatch, exact 1220/-408 instruction shape and 0 word floor; first +0x130.
+ * Lever: flag lattice and exponent-sign line assignment left the C body instruction-identical.
+ * Remaining: 28 formatter jump-table/data relocation identities require the canonical split. */
 s32 vsprintf(char *s, const char *fmt, va_list args) {
     /* Pointer into the format string.  */
     const char *f;

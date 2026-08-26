@@ -1093,16 +1093,10 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     object->activeTriggerCount++;
 }
 #ifdef NON_MATCHING
-/*
- * Exact-size plateau: the configured TU emits all 140 target opcodes but a
- * 0x30 frame instead of 0x38, leaving 22 aligned residuals (19 stack/frame,
- * two register, one branch-target) from +0x8. The 119-entry flag lattice did
- * not improve the default flags. A bounded permuter found a standalone zero
- * that did not reproduce in the configured TU and was not promoted.
- * PROVENANCE: structure cross-checked against JFG
- * asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey
- * evidence.
- */
+/* Workbench: mixed constant/structural/register, exact 140-instruction shape but 0x30 vs 0x38 frame; 22 raw words from +0x8.
+ * Levers: flag lattice, bounded permuter, local-order/pad, and ABI-call probes left the configured full-TU body unchanged or worse.
+ * Remaining: target stack-home layout, two pool substitutions, and one branch-target displacement. */
+/* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
     ParticlePointStreamEntry *entry;
     f32 *pointData;
