@@ -20,9 +20,9 @@ extern f32 D_290;
  * close donor: the nearest masked skeleton is DKR results_render at 0.064.
  * The extracted assembly does not retain external relocation identities, so
  * overlay53ExternalReloc represents multiple calls and makes no naming claim.
- * Workbench p4: structure-mismatch; 619 words differ, 623 versus 636 instructions, first mismatch +0x0.
- * Lever: retained the best flag-lattice preset (-O2 -mips3 -32 -Wo,-loopunroll,0); source-order changes remain blocked by unresolved calls/data.
- * Remains: restore callee/data relocation identities and concrete structure types before further codegen iteration.
+ * Workbench p5: structure-mismatch; 713/636 candidate/target instructions, 709 differing words from +0x0, frame -0x178 vs -0xD8.
+ * No new safe lever: all 119 flags are exhausted; unresolved call/data relocation identities block structural iteration.
+ * Remains: concrete callee/data types and relocation ownership.
  */
 #ifdef NON_MATCHING
 void func_overlay_053_F0000240_189DBE8(s32 arg0) {

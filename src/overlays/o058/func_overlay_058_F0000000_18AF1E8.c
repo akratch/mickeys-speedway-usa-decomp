@@ -90,9 +90,9 @@ extern void overlay58BuildOrderReloc(void *state, s32 count, s32 gap);
 extern void overlay58FinalizePackedStatus(void);
 
 /* Every Reloc name is provisional; normalized assembly does not bind it. */
-/* Workbench p4: structure-mismatch; 296 words differ, 368 versus 368 instructions, first mismatch +0x0.
- * Lever: target-shaped guarded do-loops and D_7C/D_AC/D_94/D_C4 pointer cursors fixed instruction count; frame stayed 24 bytes large.
- * Remains: C/control-flow first; register and relocation-layout residuals remain with frame -0x78 versus -0x60. */
+/* Workbench p5: structure-mismatch; 369/368 candidate/target instructions, 319 differing words from +0x0, frame -0x78 vs -0x60.
+ * Levers: explicit sort guard and target-width gap both regressed to 371 instructions; prior split/cursor forms remain best.
+ * Remains: 24-byte non-save frame surplus and loop/relocation structure. */
 #ifdef NON_MATCHING
 void func_overlay_058_F0000000_18AF1E8(void) {
     register s32 i;
