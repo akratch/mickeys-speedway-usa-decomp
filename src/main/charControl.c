@@ -438,9 +438,9 @@ s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
     }
     return (s16) (arg0 + (s32) ((f32) var_v1 * arg2));
 }
-/* Workbench: mixed structure/allocation, exact 36 instructions; 29 words, first +0x4.
- * Naming the 10.0f carrier was inert; inlining base added one instruction and five words.
- * FP pool/temp coloring remains after the prior flag and source-shape sweep. */
+/* Workbench: mixed(structural:2, register:28), exact 36 instructions/29 words, first +0x4.
+ * Levers: pointer aliasing and final-expression forms; the prior flag/source-shape sweep remains exhausted.
+ * Remains: divisor-load scheduling and FP/int pool coloring. */
 /* PROVENANCE -- adapted from JFG's charControl controlMakeV implementation. */
 #ifdef NON_MATCHING
 f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {
