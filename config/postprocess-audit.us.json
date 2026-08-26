@@ -58,6 +58,7 @@
       "size": null,
       "source": "src/main/main.c",
       "tools": [
+        "add_elf_relocations.py",
         "objcopy"
       ]
     },
@@ -70,7 +71,8 @@
       "size": null,
       "source": "src/main/menu.c",
       "tools": [
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -3458,7 +3460,9 @@
       "size": 2548,
       "source": "src/overlays/o045/func_overlay_045_F0000764_188CBBC.c",
       "tools": [
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "externalize_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -5229,6 +5233,7 @@
       "size": 932,
       "source": "src/overlays/o070/func_overlay_070_F0000384_18C954C.c",
       "tools": [
+        "filter_elf_relocations.py",
         "trim_elf_section.py"
       ]
     },
