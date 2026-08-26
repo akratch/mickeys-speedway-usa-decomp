@@ -237,9 +237,9 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
 #endif
 
 /* Mickey-local rendering reconstruction; donor scans are exact-negative. */
-/* Workbench p5: mixed (structural:46, schedule:3, register:145), 254/254 instructions/frame -152, 195 masked (196 raw) words, first +0x8.
- * Context lint is clean; prior allocation/lifetime probes remain unrecovered and no new safe structural lever surfaced.
- * Remaining: coupled object/child pool homes and the downstream temp/register web. */
+/* Workbench p7: structure-mismatch, 254/254 instructions/frame -152, 195 masked (196 raw) words, first +0x8.
+ * Stack-home “constants” are the candidate’s 88-vs-target-100(sp) carrier; context/flag and prior allocation/lifetime/order probes remain exhausted.
+ * Coupled object/child/register web and 19 overlay-local relocation identities remain; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_027_F0000624_187BFFC(O27Command **commands, void *arg1,
                                        s16 *arg2, O27Object *object) {

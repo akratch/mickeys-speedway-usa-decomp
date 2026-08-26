@@ -64,7 +64,8 @@ extern f32 sqrtf(f32 value);
 #define EMIT_GEOMETRY(commands, vertices, triangles) do { \
     O38Command *command = *(commands); \
     *(commands) = command + 1; \
-    command->w0 = 0x04000030U | ((((((u32)(vertices) & 6U) | 0x20U) & 0xFFU) << 16)); \
+    command->w0 = (((((((u32)(vertices) & 6U) | 0x20U) & 0xFFU) << 16) | \
+                    0x04000000U) | 0x30U); \
     command->w1 = (u32)(vertices); \
     command = *(commands); \
     *(commands) = command + 1; \
@@ -90,9 +91,9 @@ extern f32 sqrtf(f32 value);
     ((volatile s32 *)command)[0] = -100663296; \
 } while (0)
 
-/* Workbench p5: mixed (structural:21, schedule:6, register:86), 219/219 instructions/frame -232, 95 masked words, first +0xC0.
- * Context lint is clean; packet/field, pool-cursor, signedness/declaration, sync, and flag levers remain exhausted.
- * Remaining: integer command-web ordering; FP lanes are exact. */
+/* Workbench p7: structure-mismatch, 219/219 instructions/frame -232, 93 masked words, first +0xC0.
+ * Geometry-word expression association improves structural residual 21->9; command-pointer postincrement regresses.
+ * Context/flag and prior packet, pool-cursor, signedness, declaration, and sync levers remain exhausted; FP lanes exact. */
 #ifdef NON_MATCHING
 void func_overlay_038_F000047C_188618C(O38Command **commands, void *context,
                                        O38Object *object)

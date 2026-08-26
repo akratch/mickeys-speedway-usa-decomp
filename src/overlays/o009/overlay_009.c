@@ -447,9 +447,9 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
-/* Plateau (2026-08-26, p5): workbench mixed, 282/282 instructions and 86 raw (79 masked) differing words; first unmasked code +0x88; both frames are 0x98.
- * The 119-point sweep confirms -O2 -mips2 -Wab,-r4300_mul, but its isolated candidate is 4 bytes short; prior constant, stack-home, pointer, and alias probes leave 6 structural, 5 schedule, and 67 register rows.
- * The residual is not register-web-only, so no permitted permutation route remains; retain NON_MATCHING. */
+/* Workbench p7: mixed, 282/282 instructions/frame -152, 79 masked (86 raw) words; first code divergence +0x88.
+ * Full-TU candidate restores the target length; context/flag, constant/home, pointer, alias, and initializer probes remain exhausted.
+ * Residual is 6 structural/5 schedule/67 register rows plus 27 overlay-local relocation identities; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {

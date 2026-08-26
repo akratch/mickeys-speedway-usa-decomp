@@ -476,7 +476,7 @@ void func_80050AD4(u8 pathIndex) {
 void func_80050BF4(void) {
     s32 emptyIndex;
     s32 offset;
-    AnimCameraSource **camera;
+    u8 *cursor;
 
     D_800D6B04 = piRomLoad(0x3D);
     D_800D6B00 = func_8002B280(0x400, 0x81);
@@ -823,11 +823,9 @@ extern void animUpdateTrap(AnimPath *path, f32 delta, s32 updateRate,
  * globals, sound-object offset, and final compiler output are independently
  * established from Mickey's ROM.
  *
- * Plateau (2026-08-26, p5): workbench mixed, 287/287 instructions and 192 raw
- * differing words from +0x0; frames are 0x40/0x48, with 44 structural, 1
- * schedule, and 53 register rows. The flag lattice, u32 clock, type/lifetime,
- * and canonical-flag permuter probes are exhausted; retain NON_MATCHING.
- */
+ * Workbench p7: structure-mismatch, 287/287 instructions, frame -72 vs target -64, 192 raw words from +0x0.
+ * Save slots agree but the candidate has 8 extra non-save bytes; command-state and direct-global probes regress.
+ * Prior flag, clock/type/lifetime, and canonical-permuter levers remain exhausted; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_80051364(s32 updateRate) {
     AnimStreamEntry *command;
@@ -1729,9 +1727,9 @@ void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
  * Mickey-led overlap response reconstruction; the nearest external skeleton
  * is only 0.085 similar and supplies no usable donor body.
  */
-/* Workbench structure-mismatch: candidate 231 vs target 233 instructions, exact 0x88 frame; 203 words remain from +0x2C.
- * Levers tried: pointer-base stack/register/cursor forms, radius expression-tree ownership, and a scaled-zero seed; all were neutral or worse.
- * Remains: target AABB pointer initialisation is folded differently, then the FP pool/temp phase and tail integer ring diverge. */
+/* Workbench p7: structure/size mismatch, 233/231 instructions/frame -136, 203 raw words from +0x2C.
+ * Context is clean; prior pointer-base, radius-tree, scaled-zero, and flag probes leave target’s folded AABB initialization as the first structural split.
+ * FP pool/temp and tail integer webs remain; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
                    HitOverlapState *trigger, HitOverlapVolume *volume) {
