@@ -200,23 +200,23 @@ void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047304.s")
-/* Workbench p3: structure-mismatch; 254/251 candidate/target instructions, 236 words from +0x0.
- * Lever: constant audit plus array order, lifetime, and combined-buffer forms.
- * Remains: candidate +3 instructions and +16-byte frame with a register/CFG cascade. */
+/* Workbench p5: mixed structure/register mismatch; 247/251 candidate/target instructions, 178 words from +0x0.
+ * Lever: constant-audit and array declaration/loop spelling; loopunroll=0 won the flag sweep, while pointer and width/lifetime variants regressed.
+ * Remains: candidate frame is 8 bytes larger and four instructions shorter, with a register/CFG cascade. */
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's corresponding fxMakeConeTextureCoords body is
  * also assembly-only and supplies no adaptable C source. */
 void func_800475E8(FxConeCoords *cone, s16 angle) {
-    s16 x[20];
-    s16 y[20];
     FxConeTextureInfo *textureInfo;
     FxConeVertex *vertex;
     s32 width;
     s32 height;
     s32 currentAngle;
-    s32 segmentCount;
     s32 angleStep;
+    s32 segmentCount;
     s32 i;
+    s16 y[20];
+    s16 x[20];
 
     currentAngle = angle;
     if (cone != 0) {
@@ -224,27 +224,23 @@ void func_800475E8(FxConeCoords *cone, s16 angle) {
         if (textureInfo != 0) {
             width = textureInfo->width * 16;
             height = textureInfo->height * 16;
-            segmentCount = cone->segmentCount;
             vertex = cone->vertices;
-            if (segmentCount == 0) {
+            if (cone->segmentCount == 0) {
                 f32 widthEdge = (f32)(width - 1);
                 f32 scale = D_80083DE8;
                 f32 heightEdge = (f32)(height - 1);
-                s16 *xIt = x;
-                s16 *yIt = y;
-
+                i = 0;
                 do {
                     f32 sine = func_8002A8C0(currentAngle);
                     f32 cosine = func_8002A8BC(currentAngle);
 
-                    xIt++;
-                    yIt++;
                     currentAngle += 0x2000;
-                    *yIt = (s32)(scale * sine) + width;
-                    *xIt = (s32)(scale * cosine) + height;
-                    yIt[8] = (s32)(widthEdge * sine) + width;
-                    xIt[8] = (s32)(heightEdge * cosine) + height;
-                } while (xIt != &x[8]);
+                    y[i + 1] = (s32)(scale * sine) + width;
+                    x[i + 1] = (s32)(scale * cosine) + height;
+                    y[i + 9] = (s32)(widthEdge * sine) + width;
+                    x[i + 9] = (s32)(heightEdge * cosine) + height;
+                    i++;
+                } while (i != 8);
 
                 i = 31;
                 do {
@@ -260,6 +256,7 @@ void func_800475E8(FxConeCoords *cone, s16 angle) {
                 segmentCount = 8;
                 angleStep = 0x2000;
             } else {
+                segmentCount = cone->segmentCount;
                 angleStep = 0x10000 / segmentCount;
             }
 

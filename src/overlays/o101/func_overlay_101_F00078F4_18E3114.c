@@ -82,15 +82,14 @@ extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
 /* Ownership: the shared builder BSS (+0x0..+0xFD0) is defined by the F571C
  * TU; this consumer uses that owner for the root and node pools. */
-/* Workbench p3: structure-mismatch; 524/525 candidate/target instructions, 469 words from +0x4.
- * Lever: constant audit and retained-node forms; target evidence requires post-call recompute.
- * Remains: the saved-node web plus root/node register and relocation schedule; frame exact. */
+/* Workbench p5: mixed structure/register mismatch; 524/525 candidate/target instructions, 469 words from +0x4.
+ * Lever: constant-audit, retained-node ownership, and bounded permutation; no valid exact source candidate emerged.
+ * Remains: one missing instruction plus root/node register and relocation schedule cascades; frame exact. */
 #ifdef NON_MATCHING
 void func_overlay_101_F00078F4_18E3114(void) {
     Node32 *node32;
     Node24 *node24;
     void *handle;
-    s32 *ownerCount;
     s32 length;
     s32 nodeIndex;
     s32 ownerIndex;
@@ -108,10 +107,9 @@ void func_overlay_101_F00078F4_18E3114(void) {
     D_0.value2C = 0;
     D_0.chainType = 0;
     D_0.chain = 0;
-    ownerCount = &D_1C4;
-    ownerIndex = *ownerCount;
+    ownerIndex = D_1C4;
     D_1C0[ownerIndex] = &D_1C;
-    *ownerCount = ownerIndex + 1;
+    D_1C4 = ownerIndex + 1;
 
     node32 = &D_340[D_1CC];
     node32->x = 0x4E;
@@ -144,10 +142,9 @@ void func_overlay_101_F00078F4_18E3114(void) {
     D_0.childType = 0;
     D_0.child = 0;
     D_0.data50 = D_F8;
-    ownerCount = &D_1C4;
-    ownerIndex = *ownerCount;
+    ownerIndex = D_1C4;
     D_1C0[ownerIndex] = &D_38;
-    *ownerCount = ownerIndex + 1;
+    D_1C4 = ownerIndex + 1;
 
 #define ADD_IMAGE_NODE(nodeX, nodeY, imageId)                                \
     node32 = &D_340[D_1CC];                                                  \
@@ -166,7 +163,7 @@ void func_overlay_101_F00078F4_18E3114(void) {
     node32->previousType = D_0.childType;                                    \
     node32->previous = D_0.child;                                            \
     D_0.childType = 2;                                                       \
-    D_0.child = node32;                                                      \
+    D_0.child = node32;                                                       \
     D_1CC = nodeIndex + 1
 
     if (((D_F4 << 5) >> 28) & 1) {
@@ -213,7 +210,7 @@ void func_overlay_101_F00078F4_18E3114(void) {
     node24->previousType = D_0.childType;                                    \
     node24->previous = D_0.child;                                            \
     D_0.childType = 3;                                                       \
-    D_0.child = node24;                                                      \
+    D_0.child = node24;                                                       \
     D_1D0 = textIndex + 1
 
     ADD_TEXT_ROW(D_FC, 0x92);
