@@ -1212,14 +1212,9 @@ void mathOneFloatRPY(ControlTransform *transform, f32 *output);
  * the structural comparison. Mickey's ABI, field offsets, branches, and
  * generated code remain independently established from Mickey's ROM.
  *
- * Plateau after the flag lattice, approximately 10 type/lifetime/workspace
- * shapes, and a bounded canonical-flag permuter: the best candidate has the
- * exact 198-instruction opcode/register schedule, 0x78 frame, and two call
- * relocations. Its 16 differing words begin at +0xA4 and are stack offsets
- * only: IDO places offset[3] at sp+0x54 and the call-live hit pointer at
- * sp+0x74, while the target places them at sp+0x6C and sp+0x64. The permuter
- * normalizes those offsets, reports its base as score zero, and exits without
- * producing an object-exact alternative.
+ * Workbench: operand-mismatch; exact 198 words/-0x78 frame, 16 operands, first +0xA4.
+ * Saved-pointer carrier worsened structurally; prior flag/type/lifetime/workspace variants and bounded permutation found no exact form.
+ * Remaining: target stack homes differ for offset vector and call-live pointer; assembly fallback stays canonical.
  */
 #ifdef NON_MATCHING
 void func_80053550(HitInitSource *source, s32 kind, s32 mode, s16 rotationX,
