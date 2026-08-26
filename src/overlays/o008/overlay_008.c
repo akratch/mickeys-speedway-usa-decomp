@@ -427,9 +427,9 @@ void func_overlay_008_F0000F1C_185EC74(Overlay8ActivationOwner *owner,
     overlay8FinalizeActivationReloc(owner, 0x17);
 }
 
-/* Workbench: structure-mismatch; 164 candidate vs 165 target instructions, 159 raw words, first +0x8, exact frame.
- * Levers: constant audit plus prior signature, alias/first-use, control-flow, volatile, register, result-local, and bounded-store-order probes.
- * Remains: unused-a0 home, a3 state lifetime, and rollover join; GLOBAL_ASM stays canonical. */
+/* Workbench p7: structure-mismatch; 164/165 instructions, 159 words, first +0x8, exact -0x18 frame.
+ * Levers: context lint, flag lattice, parameter/register forms, local-data address forms, and prior control-flow/alias probes.
+ * Remains: retail omits the unused-a0 home and keeps state in a3; the rollover join differs, so GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F0001000_185ED58(void *unused, O8PhaseState *state, f32 input) {
     s32 nextCountdown;
