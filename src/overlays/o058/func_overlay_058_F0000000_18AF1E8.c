@@ -63,8 +63,12 @@ extern s32 D_6C;
 extern s32 D_74;
 extern Overlay58OrderEntry *D_78[6];
 extern Overlay58OrderEntry *D_90[6];
+extern Overlay58OrderEntry *D_7C[];
+extern Overlay58OrderEntry *D_94[];
 extern s32 D_A8[6];
 extern s32 D_C0[6];
+extern s32 D_AC[];
+extern s32 D_C4[];
 extern u8 D_C8[];
 extern s8 D_F8[6];
 extern s32 D_108[];
@@ -86,9 +90,9 @@ extern void overlay58BuildOrderReloc(void *state, s32 count, s32 gap);
 extern void overlay58FinalizePackedStatus(void);
 
 /* Every Reloc name is provisional; normalized assembly does not bind it. */
-/* Workbench: structure-mismatch; 333 words differ, 351 versus 368 instructions, first mismatch +0x0.
- * Lever: constant-audit found only frame offsets; scalar, array, and aggregate split-results compile equivalently.
- * Remains: 24-byte non-save frame surplus and missing 17-instruction loop/relocation structure. */
+/* Workbench p4: structure-mismatch; 296 words differ, 368 versus 368 instructions, first mismatch +0x0.
+ * Lever: target-shaped guarded do-loops and D_7C/D_AC/D_94/D_C4 pointer cursors fixed instruction count; frame stayed 24 bytes large.
+ * Remains: C/control-flow first; register and relocation-layout residuals remain with frame -0x78 versus -0x60. */
 #ifdef NON_MATCHING
 void func_overlay_058_F0000000_18AF1E8(void) {
     register s32 i;
@@ -105,6 +109,7 @@ void func_overlay_058_F0000000_18AF1E8(void) {
     register Overlay58OrderEntry **rankCursor;
     Overlay58TagSource *tagSource;
     s8 *tag;
+    s32 *classCursor;
     register s32 count;
     register s32 limit;
     register s32 swapped;
@@ -143,69 +148,96 @@ void func_overlay_058_F0000000_18AF1E8(void) {
 
     limit = count - 1;
     if (state->mode == 5) {
-        do {
-            swapped = 0;
-            orderCursor = D_78;
-            rankCursor = &D_78[limit];
-            while (orderCursor < rankCursor) {
-                entry = orderCursor[0];
-                next = orderCursor[1];
-                if (entry->value04 < next->value04) {
-                    orderCursor[0] = next;
-                    orderCursor[1] = entry;
-                    swapped = 1;
-                }
-                orderCursor++;
-            }
-        } while (swapped != 0);
+        if (limit > 0) {
+            do {
+                swapped = 0;
+                orderCursor = D_78;
+                rankCursor = &D_78[limit];
+                do {
+                    entry = orderCursor[0];
+                    next = orderCursor[1];
+                    if (entry->value04 < next->value04) {
+                        orderCursor[0] = next;
+                        orderCursor[1] = entry;
+                        swapped = 1;
+                    }
+                    orderCursor++;
+                } while (orderCursor < rankCursor);
+            } while (swapped != 0);
+        }
     } else {
-        do {
-            swapped = 0;
-            orderCursor = D_78;
-            rankCursor = &D_78[limit];
-            while (orderCursor < rankCursor) {
-                entry = orderCursor[0];
-                next = orderCursor[1];
-                if (next->value04 < entry->value04) {
-                    orderCursor[0] = next;
-                    orderCursor[1] = entry;
-                    swapped = 1;
-                }
-                orderCursor++;
-            }
-        } while (swapped != 0);
+        if (limit > 0) {
+            do {
+                swapped = 0;
+                orderCursor = D_78;
+                rankCursor = &D_78[limit];
+                do {
+                    entry = orderCursor[0];
+                    next = orderCursor[1];
+                    if (next->value04 < entry->value04) {
+                        orderCursor[0] = next;
+                        orderCursor[1] = entry;
+                        swapped = 1;
+                    }
+                    orderCursor++;
+                } while (orderCursor < rankCursor);
+            } while (swapped != 0);
+        }
     }
 
     D_A8[0] = 0;
-    for (i = 1; i < gOverlay58EntryCountReloc; i++) {
-        overlay58SplitOrderValueReloc(D_78[i - 1]->value04, &left0, &left1,
-                                      &left2);
-        overlay58SplitOrderValueReloc(D_78[i]->value04, &right0, &right1,
-                                      &right2);
-        if ((left0 == right0) && (left1 == right1) && (left2 == right2)) {
-            D_A8[i] = D_A8[i - 1];
-        } else {
-            D_A8[i] = i;
-        }
+    i = 1;
+    if (i < gOverlay58EntryCountReloc) {
+        orderCursor = D_7C;
+        classCursor = D_AC;
+        do {
+            overlay58SplitOrderValueReloc(orderCursor[-1]->value04, &left0,
+                                          &left1, &left2);
+            overlay58SplitOrderValueReloc(orderCursor[0]->value04, &right0,
+                                          &right1, &right2);
+            if ((left0 == right0) && (left1 == right1) &&
+                (left2 == right2)) {
+                classCursor[0] = classCursor[-1];
+            } else {
+                classCursor[0] = i;
+            }
+            i++;
+            orderCursor++;
+            classCursor++;
+        } while (i < gOverlay58EntryCountReloc);
     }
 
-    for (i = 0; i < gOverlay58EntryCountReloc; i++) {
-        if (&state->entries[0] == D_78[i]) {
-            D_74 = i;
-            i = 6;
-        }
-    }
     i = 0;
-
+    if (i < gOverlay58EntryCountReloc) {
+        do {
+            if (&state->entries[0] == D_78[i]) {
+                D_74 = i;
+                i = 6;
+            }
+            i++;
+        } while (i < gOverlay58EntryCountReloc);
+        i = 0;
+    }
     if (((D_74 < 4) || (gOverlay58UpdateGateReloc != 0)) &&
         (state->mode != 1)) {
-        for (i = 0; i < gOverlay58EntryCountReloc; i++) {
-            entry = D_78[i];
-            ((u8 *)entry)[D_A8[i] + 0x1C]++;
-            entry->rank22 += D_108[D_A8[i]];
-            if (entry->rank22 >= 10000) {
-                entry->rank22 = 9999;
-            }
+        if (i < gOverlay58EntryCountReloc) {
+            orderCursor = D_78;
+            classCursor = D_A8;
+            do {
+                entry = (Overlay58OrderEntry *)((u8 *)*orderCursor +
+                                                *classCursor);
+                ((u8 *)entry)[0x1C]++;
+                entry = *orderCursor;
+                entry->rank22 += D_108[*classCursor];
+                entry = *orderCursor;
+                if (entry->rank22 >= 10000) {
+                    entry->rank22 = 9999;
+                }
+                count = gOverlay58EntryCountReloc;
+                i++;
+                orderCursor++;
+                classCursor++;
+            } while (i < count);
         }
         i = 0;
     } else if ((state->active != 0) &&
@@ -216,41 +248,56 @@ void func_overlay_058_F0000000_18AF1E8(void) {
     limit = gOverlay58EntryCountReloc - 1;
     do {
         swapped = 0;
-        for (i = 0; i < limit; i++) {
-            entry = D_90[i];
-            next = D_90[i + 1];
-            if (entry->rank22 < next->rank22) {
-                D_90[i] = next;
-                D_90[i + 1] = entry;
-                swapped = 1;
-            }
+        if (limit > 0) {
+            orderCursor = D_90;
+            rankCursor = &D_90[limit];
+            do {
+                entry = orderCursor[0];
+                next = orderCursor[1];
+                if (entry->rank22 < next->rank22) {
+                    orderCursor[0] = next;
+                    orderCursor[1] = entry;
+                    swapped = 1;
+                }
+                orderCursor++;
+            } while (orderCursor < rankCursor);
+            i = 0;
         }
-        i = 0;
     } while (swapped != 0);
 
-    {
-        Overlay58OrderEntry **cursor;
-
-        cursor = D_90;
-        for (i = 0; i < gOverlay58EntryCountReloc; i++, cursor++) {
-            entry = *cursor;
+    i = 0;
+    if (i < gOverlay58EntryCountReloc) {
+        orderCursor = D_90;
+        do {
+            entry = *orderCursor;
             gap = D_90[0]->rank22 - entry->rank22;
             if (gap >= 101) {
                 gap = 100;
             }
             entry->gap03 = gap;
-        }
+            count = gOverlay58EntryCountReloc;
+            i++;
+            orderCursor++;
+        } while (i < count);
     }
 
     D_C0[0] = 0;
-    for (i = 1; i < gOverlay58EntryCountReloc; i++) {
-        entry = D_90[i - 1];
-        next = D_90[i];
-        if (entry->rank22 == next->rank22) {
-            D_C0[i] = D_C0[i - 1];
-        } else {
-            D_C0[i] = i;
-        }
+    i = 1;
+    if (i < gOverlay58EntryCountReloc) {
+        orderCursor = D_94;
+        classCursor = D_C4;
+        do {
+            entry = orderCursor[-1];
+            next = orderCursor[0];
+            if (entry->rank22 == next->rank22) {
+                classCursor[0] = classCursor[-1];
+            } else {
+                classCursor[0] = i;
+            }
+            i++;
+            orderCursor++;
+            classCursor++;
+        } while (i < gOverlay58EntryCountReloc);
     }
 
     D_D8 = 0;
