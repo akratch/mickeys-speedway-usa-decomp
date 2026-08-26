@@ -266,9 +266,9 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
 /*
- * Workbench: structure-mismatch, 96/95 instructions, 40 words, first +0xE0.
- * Levers tried: volatile/old-style/comma/result forms and flag/context checks.
- * Remains: CSE of the global camera base adds one instruction before the camera-count call.
+ * Workbench: structure-mismatch, best 96/95 instructions, 3 masked words, first +0xE0.
+ * Levers tried: commutative base add (best), volatile/old-style/comma/result forms, and flags/context.
+ * Remains: candidate CSE hoists the global base address before the camera-count call; target keeps it split.
  */
 #ifdef NON_MATCHING
 void func_8001D2A0(ControlActor *actor, s32 arg1) {
@@ -300,7 +300,7 @@ void func_8001D2A0(ControlActor *actor, s32 arg1) {
     if (player->playerIndex < cameraIndex) {
         cameraIndex = player->playerIndex;
     }
-    D_800CB300 += cameraIndex * 0x54;
+    D_800CB300 = cameraIndex * 0x54 + D_800CB300;
     camSetNo(player->playerIndex, cameraIndex, &D_800CB300);
     if ((player->unk190 != 0) || (player->unk3FA == 0)) {
         func_8001BBB4(actor, player, (f32) arg1);
