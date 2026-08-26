@@ -317,12 +317,7 @@ u8 pathIndex;
         path->unk29 = 0;
     }
 }
-/*
- * JFG's animseqResetPath assembly corroborates this Mickey-led reset.
- * Plateau: the 75-word weak-alias body is best; first mismatch +0x40.
- * Workbench allocation-mismatch/g0-schedule-probe: direct strict-float typing
- * conflicts with old-style calls; a cast emits an indirect call.
- */
+/* JFG's animseqResetPath assembly corroborates this Mickey-led reset. */
 #pragma weak animResetTrap = TrapDanglingJump
 extern s32 animResetTrap(AnimPath *, f32, s32, s32);
 void func_8005055C(pathIndex)
@@ -836,23 +831,19 @@ void func_800508D4();
  * resident globals, packed fields, call identities, and output are checked
  * independently against Mickey's ROM.
  */
-/* Plateau retry (2026-08-25): the typed NON_MATCHING build is exact at 104
- * words, but canonical declaration mode differs in one normalization word at
- * +0x138 and fails whole-ROM verification; changing the shared prototype regresses a neighbor. */
-#ifdef NON_MATCHING
 void func_800511C4(void) {
     u32 *entryCursor;
-    u32 headerWord;
     s32 remaining;
+    u32 headerWord;
     u32 entryWord;
     s32 pathIndex;
     AnimGroupPathHeader *source;
     AnimPath *path;
     s32 highBit;
+    void func_8005055C(u8 pathIndex);
 
     entryCursor = (u32 *) D_8007D68C;
-    headerWord = *entryCursor;
-    entryCursor++;
+    headerWord = *entryCursor++;
     remaining = (headerWord >> 24) & 0xFF;
     func_8005027C();
     if (remaining > 0) {
@@ -861,11 +852,11 @@ void func_800511C4(void) {
             entryWord = *entryCursor++;
             source = (AnimGroupPathHeader *)
                 ((u8 *) D_8007D68C + (entryWord & 0xFFFFFF));
+            path = func_8002B280((source->nodeCount * sizeof(AnimPathNode)) +
+                                 sizeof(AnimPath),
+                                 0x81);
             pathIndex = (entryWord >> 24) & 0xFF;
-            D_800D6B00[pathIndex] =
-                func_8002B280((source->nodeCount * sizeof(AnimPathNode)) +
-                                  sizeof(AnimPath),
-                              0x81);
+            D_800D6B00[pathIndex] = path;
             path = D_800D6B00[pathIndex];
             if (path != NULL) {
                 if (source->nodeCount > 0) {
@@ -886,18 +877,15 @@ void func_800511C4(void) {
                     path->unk7 &= 0x7F;
                 }
                 path->nodeCount = source->nodeCount;
-                func_8005055C(pathIndex & 0xFF);
+                func_8005055C(pathIndex);
                 func_800508D4(path->nodeCount, path->nodes, source->nodeData,
                               0, 0);
-                func_80050AD4(pathIndex & 0xFF);
+                func_80050AD4(pathIndex);
             }
             remaining--;
         } while (remaining > 0);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800511C4.s")
-#endif
 
 typedef struct AnimUpdateCommand {
     u16 duration;
