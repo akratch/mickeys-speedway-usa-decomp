@@ -508,4 +508,3 @@ void func_overlay_057_F0000000_18A3BF8(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/func_overlay_057_F0000000_18A3BF8/func_overlay_057_F0000000_18A3BF8.s")
 #endif
-
