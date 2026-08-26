@@ -1024,9 +1024,9 @@ assembly; Mickey supplies this C body and table indexing, as the point-of-use
 algebraic reassociation. The default flags, three call relocations, data pair,
 object words, and linked ROM range are exact without post-processing.
 
-`func_8003968C`: TU-owned repeat state regresses to **16/37 words**, first
-`+0x0`; the exact 200-word consumer gains 16 operand differences. Next preserve
-the consumer immediates while restoring expression multiplicity.
+`func_8003968C`: workbench `structure-mismatch`, **28/37 words**, first `+0x0`;
+the menu TU now owns the measured `0x30`-byte repeat-state BSS carve and its
+individual labels, while external array aliases keep `func_80039720` exact.
 
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and

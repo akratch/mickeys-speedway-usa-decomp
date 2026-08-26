@@ -84,16 +84,36 @@ extern u32 D_800D3170[4];
 extern u32 D_800D3180[4];
 extern s8 D_800D3190[4];
 extern s8 D_800D3194[4];
-extern s8 D_800D3198[4];
-extern s8 D_800D319C[4];
-extern u32 D_800D31A0[4];
-extern u8 D_800D31B0;
-extern s32 D_800D31B4;
-extern s32 D_800D31B8;
-extern s16 D_800D31BC;
-extern s16 D_800D31BE;
-extern s16 D_800D31C0;
-extern s16 D_800D31C2;
+/* The repeat-state carve is owned here in target address order. */
+s8 D_800D3198;
+s8 D_800D3199;
+s8 D_800D319A;
+s8 D_800D319B;
+s8 D_800D319C;
+s8 D_800D319D;
+s8 D_800D319E;
+s8 D_800D319F;
+u32 D_800D31A0;
+u32 D_800D31A4;
+u32 D_800D31A8;
+u32 D_800D31AC;
+u8 D_800D31B0;
+s32 D_800D31B4;
+s32 D_800D31B8;
+s16 D_800D31BC;
+s16 D_800D31BE;
+s16 D_800D31C0;
+s16 D_800D31C2;
+extern s8 menuRepeatX[4];
+extern s8 menuRepeatY[4];
+extern u32 menuPreviousButtons[4];
+#pragma weak menuRepeatX = D_800D3198
+#pragma weak menuRepeatY = D_800D319C
+#pragma weak menuPreviousButtons = D_800D31A0
+#define MENU_REPEAT_X menuRepeatX
+#define MENU_REPEAT_Y menuRepeatY
+#define MENU_PREVIOUS_BUTTONS menuPreviousButtons
+#define MENU_STICK_Y_TOTAL D_800D31C2
 extern u8 D_800D3044;
 extern u8 D_800D3045;
 extern u8 D_800D3046;
@@ -784,17 +804,23 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
     viConvertXY(right, bottom);
 }
 #ifdef NON_MATCHING
-/* PROVENANCE: JFG src/menu.c supplies the assembly skeleton; this body is Mickey-derived.
- * Workbench: relocation-symbol-mismatch; the unrolled candidate has all 37 words exact.
- * Scalar labels shrink to 29 words; 18 array-base identities remain from +0x24. */
+/* PROVENANCE: JFG src/menu.c supplies the reset role; Mickey supplies the
+ * individual BSS layout and four-controller order. */
+/* Workbench: structure-mismatch, 28 versus 37 words, first +0x0; IDO pools
+ * the reset constants once the individually owned objects become TU-local. */
 void func_8003968C(void) {
-    s32 controller;
-
-    for (controller = 0; controller < 4; controller++) {
-        D_800D31A0[controller] = -1;
-        D_800D3198[controller] = 0x14;
-        D_800D319C[controller] = 0xF;
-    }
+    D_800D31A0 = -1;
+    D_800D3198 = 0x14;
+    D_800D319C = 0xF;
+    D_800D31A4 = -1;
+    D_800D3199 = 0x14;
+    D_800D319D = 0xF;
+    D_800D31A8 = -1;
+    D_800D319A = 0x14;
+    D_800D319E = 0xF;
+    D_800D31AC = -1;
+    D_800D319B = 0x14;
+    D_800D319F = 0xF;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003968C.s")
@@ -811,79 +837,79 @@ void func_80039720(s32 updateRate) {
     D_800D31B8 = 0;
     D_800D31B4 = 0;
     D_800D31C0 = 0;
-    D_800D31C2 = 0;
+    MENU_STICK_Y_TOTAL = 0;
     D_800D31BC = 0;
     D_800D31BE = 0;
     for (controller = 0; controller != 4; controller++) {
         D_800D3170[controller] = joyGetButtons(controller);
         D_800D3180[controller] =
-            D_800D3170[controller] & ~D_800D31A0[controller];
-        D_800D31A0[controller] = D_800D3170[controller];
+            D_800D3170[controller] & ~MENU_PREVIOUS_BUTTONS[controller];
+        MENU_PREVIOUS_BUTTONS[controller] = D_800D3170[controller];
         D_800D3190[controller] = joyGetStickX(controller);
         axisX = D_800D3190[controller];
         if (axisX < -0x23) {
-            repeatXNegative = D_800D3198[controller];
+            repeatXNegative = MENU_REPEAT_X[controller];
             if (repeatXNegative < 0) {
-                D_800D3198[controller] = repeatXNegative + updateRate;
-                if (D_800D3198[controller] >= 0) {
-                    D_800D3198[controller] = -0xF;
+                MENU_REPEAT_X[controller] = repeatXNegative + updateRate;
+                if (MENU_REPEAT_X[controller] >= 0) {
+                    MENU_REPEAT_X[controller] = -0xF;
                 } else {
                     D_800D3190[controller] = 0;
                 }
             } else {
-                D_800D3198[controller] = -0x14;
+                MENU_REPEAT_X[controller] = -0x14;
             }
         } else if (axisX >= 0x24) {
-            repeatXPositive = D_800D3198[controller];
+            repeatXPositive = MENU_REPEAT_X[controller];
             if (repeatXPositive > 0) {
-                D_800D3198[controller] = repeatXPositive - updateRate;
-                if (D_800D3198[controller] <= 0) {
-                    D_800D3198[controller] = 0xF;
+                MENU_REPEAT_X[controller] = repeatXPositive - updateRate;
+                if (MENU_REPEAT_X[controller] <= 0) {
+                    MENU_REPEAT_X[controller] = 0xF;
                 } else {
                     D_800D3190[controller] = 0;
                 }
             } else {
-                D_800D3198[controller] = 0x14;
+                MENU_REPEAT_X[controller] = 0x14;
             }
         } else {
             D_800D3190[controller] = 0;
-            D_800D3198[controller] = 0;
+            MENU_REPEAT_X[controller] = 0;
         }
         D_800D3194[controller] = joyGetStickY(controller);
         axisY = D_800D3194[controller];
         if (axisY < -0x23) {
-            repeatYNegative = D_800D319C[controller];
+            repeatYNegative = MENU_REPEAT_Y[controller];
             if (repeatYNegative < 0) {
-                D_800D319C[controller] = repeatYNegative + updateRate;
-                if (D_800D319C[controller] >= 0) {
-                    D_800D319C[controller] = -0xF;
+                MENU_REPEAT_Y[controller] = repeatYNegative + updateRate;
+                if (MENU_REPEAT_Y[controller] >= 0) {
+                    MENU_REPEAT_Y[controller] = -0xF;
                 } else {
                     D_800D3194[controller] = 0;
                 }
             } else {
-                D_800D319C[controller] = -0x14;
+                MENU_REPEAT_Y[controller] = -0x14;
             }
         } else if (axisY >= 0x24) {
-            repeatYPositive = D_800D319C[controller];
+            repeatYPositive = MENU_REPEAT_Y[controller];
             if (repeatYPositive > 0) {
-                D_800D319C[controller] = repeatYPositive - updateRate;
-                if (D_800D319C[controller] <= 0) {
-                    D_800D319C[controller] = 0xF;
+                MENU_REPEAT_Y[controller] = repeatYPositive - updateRate;
+                if (MENU_REPEAT_Y[controller] <= 0) {
+                    MENU_REPEAT_Y[controller] = 0xF;
                 } else {
                     D_800D3194[controller] = 0;
                 }
             } else {
-                D_800D319C[controller] = 0x14;
+                MENU_REPEAT_Y[controller] = 0x14;
             }
         } else {
             D_800D3194[controller] = 0;
-            D_800D319C[controller] = 0;
+            MENU_REPEAT_Y[controller] = 0;
         }
         if (D_800D31B0 & (1 << controller)) {
             D_800D31B8 |= joyGetPressed(controller);
             D_800D31B4 |= joyGetButtons(controller);
             D_800D31C0 += joyGetStickX(controller);
-            D_800D31C2 += joyGetStickY(controller);
+            MENU_STICK_Y_TOTAL += joyGetStickY(controller);
             D_800D31BC += D_800D3190[controller];
             D_800D31BE += D_800D3194[controller];
         }

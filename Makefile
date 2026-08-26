@@ -754,8 +754,13 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: CFLAGS += -Wo,-loopunroll,0
 # IDO rounds the two consecutive 0x4C-byte switch tables from 0x98 to 0xA0;
 # discard only the trailing input-section padding before linking the next
-# shared resident rodata table.
+# shared resident rodata table.  The array-shaped aliases stay external to
+# IDO so func_80039720 retains its target induction-pointer allocation; bind
+# their metadata back to the individually owned BSS labels before linking.
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym menuRepeatX=D_800D3198 \
+	--redefine-sym menuRepeatY=D_800D319C \
+	--redefine-sym menuPreviousButtons=D_800D31A0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x98
 
 # The saves slot-reset loop is scalar in the target; the 119-combination flag

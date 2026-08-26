@@ -2365,6 +2365,26 @@ func_800389CC = 0x800389CC; // type:func size:0x1F8 tier-D ROM 0x395CC exact C, 
 func_80038BC4 = 0x80038BC4; // type:func size:0x1E8 tier-D ROM 0x397C4 exact C, JFG-comparison body and compiler-owned switch table
 jtbl_80082748 = 0x80082748; // type:jtbl size:0x4C tier-A compiler-owned menu switch table
 jtbl_80082794 = 0x80082794; // type:jtbl size:0x4C tier-A compiler-owned menu switch table
+// Compiler-owned menu repeat-state labels occupy one measured 0x30-byte BSS input section.
+D_800D3198 = 0x800D3198; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D3199 = 0x800D3199; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319A = 0x800D319A; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319B = 0x800D319B; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319C = 0x800D319C; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319D = 0x800D319D; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319E = 0x800D319E; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319F = 0x800D319F; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D31A0 = 0x800D31A0; // type:u32 size:0x4 tier-D menu BSS owner
+D_800D31A4 = 0x800D31A4; // type:u32 size:0x4 tier-D menu BSS owner
+D_800D31A8 = 0x800D31A8; // type:u32 size:0x4 tier-D menu BSS owner
+D_800D31AC = 0x800D31AC; // type:u32 size:0x4 tier-D menu BSS owner
+D_800D31B0 = 0x800D31B0; // type:u8 size:0x1 tier-D menu BSS owner
+D_800D31B4 = 0x800D31B4; // type:s32 size:0x4 tier-D menu BSS owner
+D_800D31B8 = 0x800D31B8; // type:s32 size:0x4 tier-D menu BSS owner
+D_800D31BC = 0x800D31BC; // type:s16 size:0x2 tier-D menu BSS owner
+D_800D31BE = 0x800D31BE; // type:s16 size:0x2 tier-D menu BSS owner
+D_800D31C0 = 0x800D31C0; // type:s16 size:0x2 tier-D menu BSS owner
+D_800D31C2 = 0x800D31C2; // type:s16 size:0x2 tier-D menu BSS owner
 // Tier B (JFG): exact free/init/reset call sequence, stored mode state, and
 // ordered pairing with frontGetMode identify the front-end mode setter.
 frontSetMode = 0x80038DAC; // type:func size:0x64 tier-B ROM 0x399ac canonical C, linked byte-identical

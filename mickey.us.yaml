@@ -691,6 +691,10 @@ segments:
       # Scheduler-owned counters and the two halves of its yield timestamp.
       - { type: .bss, vram: 0x800D2D40, name: main/sched }
       - { type: bss, vram: 0x800D2D50, name: bss_gap_D800D2D50 }
+      # Menu controller state is emitted as individually named objects in target
+      # address order; IDO's input section occupies 0x30 bytes through 0x31C8.
+      - { type: .bss, vram: 0x800D3198, name: main/menu }
+      - { type: bss, vram: 0x800D31C8, name: bss_gap_D800D31C8 }
       # Four 0x10-byte positional vehicle-sound slots.
       - { type: .bss, vram: 0x800D78B0, name: main/vehicle_sounds }
       - { type: bss, vram: 0x800D78F0, name: bss_gap_D800D78F0 }
