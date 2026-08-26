@@ -542,6 +542,9 @@ segments:
       # not plain resident text. Kept as raw bin until it is identified.
       - [0x76D10, bin]
       - [0x76E60, data]
+      # Shadows owns IDO's measured 0x50-byte data input through D_8007945C.
+      - [0x7A010, .data, main/shadows]
+      - [0x7A060, data]
       # Camera's four-float scale/leading-matrix range is compiler-owned; IDO
       # emits the 0x10-byte .data input section, so the raw tail starts at F58.
       - [0x7AB48, .data, main/camera]

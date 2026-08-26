@@ -16,14 +16,23 @@
 
 #include "PR/ultratypes.h"
 
-extern s32 D_80079458;
-extern u8 *D_80079410[4];
-extern u8 *D_80079414[];
-extern u8 *D_80079420[4];
-extern u8 *D_80079424[];
-extern u8 *D_80079430[4];
-extern u8 *D_80079434[];
-extern u8 *D_80079440;
+/* Shadow buffer state occupies one contiguous compiler-owned .data input
+ * section. Keep the retail labels at their measured offsets for all users;
+ * the terminal halfword pair is part of IDO's measured 0x50-byte section. */
+u8 *D_80079410[1] = { 0 };
+u8 *D_80079414[3] = { 0 };
+u8 *D_80079420[1] = { 0 };
+u8 *D_80079424[3] = { 0 };
+u8 *D_80079430[1] = { 0 };
+u8 *D_80079434[3] = { 0 };
+u8 *D_80079440 = 0;
+u8 *D_80079444 = 0;
+u8 *D_80079448 = 0;
+u8 *D_8007944C = 0;
+u8 *D_80079450 = 0;
+u8 *D_80079454 = 0;
+s32 D_80079458 = 0;
+u16 D_8007945C[2] = { 0, 0x4000 };
 extern s32 D_800CB278;
 extern s32 D_800CB27C;
 extern s32 D_800CB280;
@@ -32,10 +41,9 @@ extern s32 D_800CB288;
 extern void *func_8002B280(s32 size, s32 tag);
 extern void mmFree(void *ptr);
 
-#ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/shadows/shadowInitBuffers.s; Mickey globals are authoritative.
- * Workbench: relocation-symbol-mismatch; 75/75 instructions and frame exact, with two endpoint sites naming D_80079440.
- * Levers: array extent and typed sentinel forms; the latter changes schedule/addend, so D_80079434+0xC remains the blocker. */
+ * The owning .data section gives the compiler's relocation names and the linked
+ * C body is now instruction- and relocation-identical to the ROM. */
 void shadowInitBuffers(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 i;
     s32 stride0;
@@ -61,9 +69,6 @@ void shadowInitBuffers(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     }
     D_80079458 = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowInitBuffers.s")
-#endif
 /* PROVENANCE -- adapted from JFG's public asm/nonmatchings/shadows/shadowFreeBuffers.s. */
 void shadowFreeBuffers(void) {
     if (D_80079410[0] != NULL) {
