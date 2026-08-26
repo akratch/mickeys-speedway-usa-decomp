@@ -26,8 +26,8 @@ extern u8 gOverlay41QueueEntries[];
 #define entry ((volatile u8 *)cursor)
 
 /* Workbench: mixed(structural:13, register:12, constant:3), exact 105 instructions/29 words, first +0x8.
- * Levers: current/next pointer forms, raw fixed offsets, and one-next-pointer routing; all regressed.
- * Remains: the target's delayed one-cursor address web and block order. */
+ * Levers: cursor/+12 pointer and offset rewrites; all regressed, with the target's delayed cursor web intact.
+ * Remains: target block order and one-cursor address routing. */
 #ifdef NON_MATCHING
 void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
                                        s32 value6, s32 value8, s32 value9,

@@ -440,7 +440,7 @@ s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
     return (s16) (arg0 + (s32) ((f32) var_v1 * arg2));
 }
 /* Workbench: mixed(structural:2, register:28), exact 36 instructions/29 words, first +0x4.
- * Levers: pointer aliasing and final-expression forms; the prior flag/source-shape sweep remains exhausted.
+ * Levers: table type, pointer aliasing, final-expression forms, and flag/source-shape sweep; none matched.
  * Remains: divisor-load scheduling and FP/int pool coloring. */
 /* PROVENANCE -- adapted from JFG's charControl controlMakeV implementation. */
 #ifdef NON_MATCHING

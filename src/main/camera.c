@@ -1728,7 +1728,7 @@ s32 func_800246B0(f32 x, f32 y, f32 z, f32 *outX, f32 *outY,
  * src/camera.c:camReversePoint; body reconstructed from Mickey-only evidence.
  *
  * Workbench: mixed(constant:7, structural:22, register:4), 33 words (25 normalized), first +0x0; frame 0x40 vs 0x38.
- * Levers: direct fields/raw m2c pointer, array transY, and scale/viewport association; all regressed.
+ * Levers: direct fields/raw pointer, array transY, scale/viewport association, and flag/permuter sweeps; regressed.
  * Remains: viewport materialization/frame and transX/scaleX FP-pool coloring.
  */
 #ifdef NON_MATCHING
