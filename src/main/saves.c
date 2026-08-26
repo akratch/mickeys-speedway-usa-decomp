@@ -771,9 +771,9 @@ s32 packClose(s32 controllerIndex) {
     osContStartReadData(D_800D21C0);
     return 0;
 }
-/* Workbench: mixed structural/allocation; exact 115/0x60, 34 words, first +0xA0.
- * Rechecked PFS-base lifetime: explicit pointer forms lose a word or grow frame.
- * Remaining: delayed base low half rotates temps and serializes success stores. */
+/* Workbench: mixed(structural/allocation), exact 115 instructions/34 words, first +0xA0.
+ * Levers: controller-loop form/order plus the PFS-base pointer lifetime; no exact candidate survived.
+ * Remains: delayed base-low-half materialization, temporary rotation, and serialized success stores. */
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Diddy Kong Racing's public decomp,
  * src/save_data.c:init_controller_paks, with Mickey's globals and helpers. */
