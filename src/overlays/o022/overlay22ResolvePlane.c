@@ -33,7 +33,7 @@ extern f32 gOverlay22DataBase[];
 extern f32 func_overlay_022_F0000000_1878108(f32);
 
 /* Workbench: allocation-mismatch; exact 173-instruction schedule, 7 raw words plus 2 relocation sites, first +0x74.
- * Levers: typed base indexing fixed the relocation binding; compound, padding/aggregate, address-mark, and multiply-order probes did not.
+ * Levers: typed indexing fixed relocation; compound/padding/address/multiply probes and an amount-web split regressed.
  * Remains: three commutative FP encodings and two four-byte spill-home offsets; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000A7C_1878B84(
