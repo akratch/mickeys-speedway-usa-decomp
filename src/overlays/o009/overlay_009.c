@@ -349,9 +349,9 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
     }
 }
 
-/* Workbench p5 batch 14: mixed operand/constant; exact 162 instructions/-0x50 frame, first residual +0xC8.
- * Levers: constant audit and the unused-home type probe; prior padding/order/permuter variants remained inferior.
- * Remains: angle home +0x32 versus +0x2A and the 0.65f pool addend +0x4C versus +0x50. */
+/* Workbench: operand-mismatch; exact 162 instructions/-0x50 frame, four object words plus one linked addend, first +0xC8.
+ * Levers: constant/home-type, padding/order/permuter, and a shared union; the union produced -0x48/-0x58 frames.
+ * Remains: angle home +0x32 vs +0x2A and 0.65f pool +0x4C vs +0x50; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,
                                        void *unused, f32 step) {
