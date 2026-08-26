@@ -83,9 +83,9 @@ extern void *o50CreateC(void *value);
 extern void *o50CreateD(void *value, s32 x, s32 y, s32 count);
 extern void o50FinalizeReloc(void *value, void *arg);
 
-/* Workbench: mixed structure/schedule/register residual; best 108/185 words, first linked mismatch +0xC0.
- * A named config-base local improved one word; register, placement, and empty-read pool levers did not close.
- * Config-base coloring and the record-copy schedule remain divergent. */
+/* Workbench plateau: structure-mismatch, 108 words; 185/185 instructions, frame -32, first +0x8.
+ * Levers: config-base, record initialization/copy order, flags, register/placement, and empty-read variants.
+ * Remains: config-base coloring, record-copy schedule, and overlay relocation identity. */
 #ifdef NON_MATCHING
 void func_overlay_050_F0000000_1896970(void) {
     volatile O50Locals locals;

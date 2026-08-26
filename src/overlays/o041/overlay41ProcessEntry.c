@@ -52,9 +52,9 @@ extern void overlay41ApplyEntry(Overlay41Context *, Overlay41Entry *, void *,
 extern void overlay41FinishEntry(Overlay41Context *, Overlay41Child *,
                                  Overlay41Entry *, s32);
 
-/* Plateau (2026-08-25): -O2 -mips2 remains 0x14 long; first mismatch +0x10.
- * mode/child now use target sp+0x40/sp+0x38, but input is still spilled instead of kept in a3;
- * the flag lattice plus type, alias, declaration-order, and scope variants did not change it. */
+/* Workbench plateau: structure-mismatch, 120 words; 123/128 instructions, frame -72, first +0x10.
+ * Levers: input alias/register, declaration/scope/type order, flags, and context-lint checks.
+ * Remains: incoming-input register lifetime, call/control-flow schedule, and relocation identities. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001464_188879C(Overlay41Input *input,
                                        Overlay41Context *context,
