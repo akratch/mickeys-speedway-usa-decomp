@@ -797,11 +797,9 @@ typedef struct HitRecord {
     u32 flags;
 } HitRecord;
 
-/* Plateau (2026-08-24): the complete flag lattice favored
- * -O2 -mips2 -Wo,-loopunroll,0, but the candidate was 0x38 bytes short,
- * differed in 1462 of 1542 words, and first diverged at +0x0.  This m2c
- * draft needs a typed ABI/frame rewrite; local expression permutation is
- * not a credible route to the retail register and control-flow shape. */
+/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 1596 vs 1542 instructions, 1522 raw words different, frames -0x238/-0x138, first +0x0.
+ * Levers: exact flag/context parity and constant audit; the earliest loop is still unrolled and the typed ABI/frame shape remains divergent.
+ * Remains: m2c field/ABI recovery plus 272 relocation-symbol differences; GLOBAL_ASM remains canonical. */
 #ifdef NON_MATCHING
 void func_overlay_001_F000438C_185076C(f32 *arg0, s32 arg1) {
     f32 *sp130;
