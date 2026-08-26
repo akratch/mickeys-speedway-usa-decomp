@@ -605,9 +605,9 @@ void func_overlay_008_F0002640_1860398(
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0002640_1860398.s")
 #endif
 
-/* PLATEAU (2026-08-25): canonical r4300_mul is exact-size with 56 differing words, first +0x0.
- * The 0x70 vs 0x68 frame leaves angle/contact at +0x6E/+0x58 vs +0x36/+0x30, shifting the FP pool.
- * Declaration blocks/order, volatility, and scalar/aggregate angle forms did not close it; no donor used. */
+/* P5 plateau: workbench allocation-mismatch, 56 positional words, first +0x0; the opcode schedule is aligned.
+ * Levers: constant audit plus declaration, volatility, and scalar/aggregate probes left the canonical candidate unchanged or worse.
+ * Remains: target 0x68-frame allocation versus the candidate's 0x70 frame and its register/allocation shape; no donor used. */
 #ifdef NON_MATCHING
 void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
                                        O8P291CState *state,
