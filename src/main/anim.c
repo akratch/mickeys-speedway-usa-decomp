@@ -1890,11 +1890,9 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
 #endif
 #ifdef NON_MATCHING
-/*
- * Skeleton similarity peaks at 0.156; the exact-sibling vector-alias route
- * worsens to 82 words. Plateau: this 80-word body remains best at 18 words,
- * first +0x54; workbench mixed/constant-audit sees sp+4 versus sp+0.
- */
+/* Plateau (near-miss p5): workbench mixed(constant:2, structural:2, register:15), 18 words at 80 instructions/frame -0x28.
+ * Levers: scalar/vector aliases, stack-spill/aggregate forms, expression spelling, and flag lattice; all regressed or inert.
+ * Remains: FP pool/temp phase and two constant sites; assembly fallback stays canonical. */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
     HitCopyTarget *target;

@@ -283,9 +283,9 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
     return writer;
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, exact 28-word opcode shape; 18 register-only differences, first at +0x10.
- * Lever: pool/temp routing; chained byte assignment removed the sole opcode mismatch, while reset/alias locals were inert.
- * Remains: seven desired targets are ring-only; the permuter imported MIPS I flags, so its batch was invalid. */
+/* Plateau (near-miss p5): workbench allocation-mismatch, 18 register-only words at 28 instructions.
+ * Levers: corrected flag lattice, next-bit spelling, and chained-byte forms; no structural change.
+ * Remains: pool/temp ring allocation has no consistent permutation; assembly fallback stays canonical. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
     u32 nextBit;
@@ -324,9 +324,9 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C69C.s")
 #endif
 #ifdef NON_MATCHING
-/* Workbench: register-permutation residual; exact 31-word size, 14 positional differences, first +0x14.
- * Levers: chained byte assignment and direct field test improved 18 to 14; corrected 30-minute permutation found no exact form.
- * Remains: invariant-mask/next-bit web needs ring-only temporaries unavailable to the color lever; assembly fallback stays canonical. */
+/* Plateau (near-miss p5): workbench register-permutation, 14 register-only words at 31 instructions.
+ * Levers: chained-byte/direct-field forms and the corrected 30-minute permutation; no exact coloring.
+ * Remains: invariant-mask/next-bit ring allocation; assembly fallback stays canonical. */
 void func_8002C70C(SavesBitWriter *reader, s32 *value, s32 bitCount) {
     u32 nextBit;
     u32 bit;

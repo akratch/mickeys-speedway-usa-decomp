@@ -28,9 +28,9 @@ extern s8 D_flagC6;
 
 extern void func_overlay_047_F0000000_1890E18(void *arg);
 
-/* Plateau (near-miss batch 13): -O2 -mips2 is size-exact; 10/88 masked words
- * differ, first +0x54; 30 relocation mismatches retain the address blocker.
- * End-pointer/boolean forms regressed; the 40-minute permuter stopped at 185. */
+/* Plateau (near-miss p5): workbench mixed(constant:9, schedule:2, register:7), 10-word masked floor (18 raw) at 88 instructions/frame -0x20.
+ * Levers: end-pointer/boolean forms and constant audit; data aggregate and relocation identities remain.
+ * Remains: overlay aggregate ownership and relocation binding; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_047_F00009D0_18917E8(void) {
     Overlay47Entry *entry;
