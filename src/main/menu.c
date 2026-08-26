@@ -1002,9 +1002,9 @@ void setupFrontEndObject(s32 objectId) {
     destination->pad1C[3] = source->pad1C[3];
 }
 #ifdef NON_MATCHING
-/* Workbench: mixed structural/register, 264 vs 262 words; best 190 differ, first +0x14.
- * Levers 1, 11, 12, 16, and 18 tried; the constant audit found reordered identical offsets.
- * Remaining: base temp t2 vs t5; inlining fixes the selected object to t0 but adds two words. */
+/* Workbench: structure-mismatch, target 262 vs candidate 264 instructions; 190 words differ, first +0x14, frame exact.
+ * Constant audit, base/caching, pointer-scope, and inline forms left the candidate's two extra words or regressed.
+ * Remains: D_800D31C8 base temp t2 versus target t5 and the unresolved switch schedule. */
 void func_80039E34(s32 index) {
     MenuDrawStack stack;
     s16 flags;
