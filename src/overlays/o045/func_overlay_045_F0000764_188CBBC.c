@@ -19,29 +19,18 @@ extern void func_overlay_045_F0001158_188D5B0(
 
 /* Mickey-local reconstruction. The closest permitted donor skeleton scores
  * 0.047 and does not contain this descriptor/element update shape. */
-/*
- * Plateau (2026-08-25, 10 attempts): -O2 -mips2 with
- * -Wab,-r4300_mul produces the target's 637 instructions with identical
- * opcode order and register allocation, but reserves a 0x90-byte frame
- * instead of retail's 0x88-byte frame. The resulting 20 positional word
- * differences begin at +0x0 and are frame/incoming-argument offsets; the
- * separate-TU constants and resident/local references also still need their
- * retail relocation bindings. Correcting element signedness, using the SDK
- * display-list macros, splitting the sequencing boolean from its delay, and
- * preserving the natural in-place updates closed all opcode and allocator
- * residuals. A two-worker ten-minute permuter run improved only the fade
- * expression; the equivalent in-place spelling is retained here. Register
- * storage hints did not change the remaining frame, so assembly stays active.
- */
+/* Plateau p3: workbench operand-mismatch; frame/register/schedule match, with two spill-offset words remaining. */
+/* Levers tried: gDPFullSync, declaration order, scoped locals, constant audit, and loader relocation normalization. */
+/* Remains: IDO chooses v1 at 124(sp) instead of 120(sp); retain NON_MATCHING/GLOBAL_ASM. */
 #ifdef NON_MATCHING
 void func_overlay_045_F0000764_188CBBC(
     Gfx **displayList, void *matrix, s32 arg2, s32 arg3,
     s32 mode, s32 updateRate) {
     Overlay45ResourceDescriptor *descriptor;
     Overlay45Element *element;
-    s32 anyVisible;
-    s32 remaining;
     s32 i;
+    s32 remaining;
+    s32 anyVisible;
 
     anyVisible = 0;
     func_80034920(displayList);
@@ -207,7 +196,7 @@ void func_overlay_045_F0000764_188CBBC(
     }
 
     if (mode == 2) {
-        gDPPipeSync((*displayList)++);
+        gDPFullSync((*displayList)++);
         gSPEndDisplayList((*displayList)++);
     }
 }
