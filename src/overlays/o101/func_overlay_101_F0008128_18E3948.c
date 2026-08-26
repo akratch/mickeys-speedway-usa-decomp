@@ -80,9 +80,9 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/* Workbench p4: structure-mismatch; 524/525 candidate/target instructions, 461 words from +0x4, frame -64.
- * Lever: sibling-style direct index/local lifetime reached 523 instructions but worsened to 498 words and frame -72; reverted.
- * Remains: saved-node web and root/node relocation schedule; prior flag/volatile/index forms are exhausted. */
+/* Workbench p5: mixed structure/register mismatch; 524/525 candidate/target instructions, 461 words from +0x4.
+ * Lever: constant-audit plus node lifetime, recompute, and root/register forms; absolute and pointer-owner variants regressed.
+ * Remains: one missing instruction plus root/node register and relocation schedule cascades; frame exact. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0008128_18E3948(void) {
     register volatile Node32 *node32;
