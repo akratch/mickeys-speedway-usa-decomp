@@ -112,9 +112,9 @@ void func_8001C088(CameraTrackedObject *value) {
         D_80079BCC--;
     }
 }
-/* Type pass: before=register-permutation, 9 register-only words; after=same, 108/108, frame -24.
- * Lever: reconciled CameraOverrideSlot/CameraTrackedObject/CameraBounds widths; no schedule change.
- * Remains: one v1/a2 loop web from the pool-position/forced-color tie-break. */
+/* Workbench plateau: register-permutation, 9 register words; 108/108 instructions, frame -24, first +0x100.
+ * Lever: a code-free index split-web probe was inert after earlier type, alias, flag, and permuter variants.
+ * Remains: one v1/a2 pool bijection from the forced-color tie-break. */
 #ifdef NON_MATCHING
 void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
     CameraOverrideSlot *slot;
