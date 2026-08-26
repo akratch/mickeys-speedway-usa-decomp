@@ -16,9 +16,9 @@ typedef struct Overlay41Slot {
 
 extern Overlay41Slot gOverlay41Slots[];
 
-/* Workbench: allocation/register-web; 55 words, four register-only differences, first +0x10.
- * Constant audit confirms the scalar literal; prior allocation forms and the bounded permuter found no exact.
- * The counter/temp a1/v1 web remains reversed; canonical assembly stays. */
+/* Workbench: allocation-mismatch; 55 words, five raw differences (four register, one constant/reloc), first +0x10.
+ * Levers tried: constant-anchor audit, prior allocation/order/type forms, and bounded permuter; a1/v1 stayed reversed.
+ * Remains: counter/temp web and local-data anchor at +0x54; canonical assembly stays. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,

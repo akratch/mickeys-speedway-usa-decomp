@@ -554,10 +554,6 @@ void fontWindowFontBackground(s32 windowId, s32 red, s32 green, s32 blue,
     }
 }
 
-/* Workbench: relocation-only; all 168 words, the frame, and the relocation sites are exact.
- * The alias lever and prior direct-alias/pointer/stride forms cannot preserve both raw addends and schedule.
- * Four HI16/LO16 identities remain linked-equivalent but object-distinct at +0x34 and +0x98. */
-#ifdef NON_MATCHING
 void *func_8004BCC4(s32 windowId, s32 posX, s32 posY, char *text, s32 number,
                     s32 flags) {
     s32 i;
@@ -638,9 +634,6 @@ void *func_8004BCC4(s32 windowId, s32 posX, s32 posY, char *text, s32 number,
 
     return result;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BCC4.s")
-#endif
 
 void func_8004BF64(s32 windowId) {
     DialogueBoxBackground *window;
@@ -1102,9 +1095,9 @@ void func_8004D39C(char *input, char *output) {
     } while (currentChar);
 }
 
-/* Workbench: mixed structural/register; 109 words, five differences, first +0x5C.
- * Structure-buckets and distinct-initial-value levers preserve the same optimized object.
- * A delay-slot copy and its dependent temporary web remain unrecovered; canonical assembly stays. */
+/* Workbench: structure-mismatch; 109 words, five instruction differences, first +0x5C.
+ * Levers tried: comparison/branch shape and current-value assignment placement; the delay-slot copy did not move.
+ * Remains: target move t2,a3 and its t3/a3 web; canonical assembly stays. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's

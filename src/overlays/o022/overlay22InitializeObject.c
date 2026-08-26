@@ -20,9 +20,9 @@ extern void func_80006A50(void *);
 extern s16 func_8000F690(f32, f32, f32);
 extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
-/* Workbench: mixed constant/schedule; 172 words, five instruction-word differences, first +0xCC.
- * Constant audit found coupled stack homes; prior declaration/volatile/nested forms and the permuter stay eliminated.
- * Volatile keep is codegen-neutral; the missing original lifetime must move objectPosition sp+0x28 to target sp+0x30. */
+/* Workbench: mixed constant/schedule; 172 words, five instruction differences, first +0xCC.
+ * Levers tried: constant audit, flag lattice, lifetime/declaration/volatile/nested forms, and bounded permuter.
+ * Remains: objectPosition home sp+0x28 versus target sp+0x30 and reversed D_A7C stores; canonical assembly stays. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     void *contact;

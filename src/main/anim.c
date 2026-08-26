@@ -1373,9 +1373,9 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 1);
 }
 #ifdef NON_MATCHING
-/* Workbench: constant-audit; four stack-home operands differ, first +0x3C.
- * Tried a code-free web, formal type/qualifier, and stack-home carrier reuse.
- * Frame/register/schedule stay exact; second remains at sp+0x40, target sp+0x48. */
+/* Workbench: operand-mismatch/constant-audit; 109 words, four stack-home operands, first +0x3C.
+ * Levers tried: flag lattice, lifetime/type, declaration-order, and stack-home carrier probes; frame/register/schedule stayed exact.
+ * Remains: target compiler-temp home sp+0x48 versus candidate sp+0x40; canonical assembly stays. */
 void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;
