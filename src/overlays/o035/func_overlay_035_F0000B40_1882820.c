@@ -53,9 +53,9 @@ extern void call_o0_0_2B318(void *value);
 extern f32 sqrtf(f32 value);
 
 /*
- * NON_MATCHING plateau: 516/528 instructions, exact 0x130 frame, and 486
- * masked words from +0x4; workbench reports mixed structural/allocation drift.
- * The full flag lattice and width, volatility, expression probes did not help.
+ * Workbench plateau: structure-mismatch; 516/528 instructions, exact 0x130
+ * frame, 486 positional words, first +0x4. Flags, widths, volatility, and
+ * expression probes regressed; coordinate spill variants were not productive.
  *
  * PROVENANCE: adapted from Diddy Kong Racing,
  * src/object_models.c (model_init_collision).
