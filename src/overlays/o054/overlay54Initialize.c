@@ -69,9 +69,9 @@ extern void overlay54CopyOffsetRecords(void *src, void *dst, s32 mode, s32 index
 #define BSS_PTR(off) ((void *)(gOverlay54Bss + (off)))
 
 /* Independently reconstructed from Mickey-local evidence; no DKR/JFG donor. */
-/* Workbench: structure-mismatch; 244 candidate vs 243 target instructions, 144 raw words/150 sites, first +0x28, frame exact.
- * Levers: constant/structure/predicate/order/binding/pointer/post-loop probes plus a nested-call split; split was unchanged.
- * Remains: 61 alignment gaps, 71 structural rows, and one extra instruction; GLOBAL_ASM stays canonical. */
+/* Workbench p7: structure-mismatch; 244/243 instructions, -0x78 frame, 127 masked/144 raw words, first +0x28.
+ * Levers: Mickey-local structure/predicate/order/binding/pointer/post-loop probes and a nested-call split; split was unchanged.
+ * Remains: 61 alignment gaps, 71 structural rows, one extra instruction, and relocation identities; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_054_F0000000_189ECA0(void) {
     volatile O54Locals locals;
