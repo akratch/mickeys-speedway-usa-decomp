@@ -19,9 +19,9 @@ gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/check_match_regression.py HEAD || { echo "a function matched at HEAD carries GLOBAL_ASM again; merge left uncommitted (resolve hunks, never whole files)" >&2; exit 1; }
 # Fresh extraction and build: stale objects and stale asm/ have masked real failures twice.
 gmake distclean >/dev/null 2>&1; gmake extract 2>&1 | tail -1
-gmake -j12 >/dev/null 2>&1 || true   # warm-up: the first parallel build after a re-split can race
-out=$(tools/with_verify_lock.sh gmake -j12 verify 2>&1 | tail -1); echo "$out"
-case "$out" in OK*) ;; *) echo "verify FAILED; not committing" >&2; gmake -j12 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
+gmake -j6 >/dev/null 2>&1 || true   # warm-up: the first parallel build after a re-split can race
+out=$(tools/with_verify_lock.sh gmake -j6 verify 2>&1 | tail -1); echo "$out"
+case "$out" in OK*) ;; *) echo "verify FAILED; not committing" >&2; gmake -j6 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
 .venv/bin/python tools/fix_jumptable_claim.py | tail -1
 gmake check-docs 2>&1 | tail -1
 gmake scoreboard 2>&1 | tail -1
