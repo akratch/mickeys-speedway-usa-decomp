@@ -103,12 +103,9 @@ extern void overlay37RecordMinimum(s32 index, f32 value);
 extern f32 Powerf(f32 value, s32 exponent);
 extern s16 dAngle(s16 first, s16 second, f32 amount);
 
-/* The masked-skeleton scan found no related donor: all candidates scored
- * below 0.04. Plateau: -O2 -mips2 -Wab,-r4300_mul emits 602 instructions for
- * the 606-instruction target, with 510 normalized word mismatches beginning
- * at +0x9C. The first 39 words are exact; the unrolled motion records retain
- * different FP lifetimes and the final two zero comparisons are not
- * rematerialized. Stopped at the attempt cap. */
+/* Plateau p3: workbench structure-mismatch, 602/606 instructions, 510 word differences after +0x9C, frame -152. */
+/* Levers tried: constant audit, volatile FP spill/home ordering, and one-element array storage; best flags remain -O2 -mips2 -Wab,-r4300_mul. */
+/* Remains: target unrolled motion-record FP web/materialisation adds four instructions and changes the later allocator/schedule; retain GLOBAL_ASM. */
 #ifdef NON_MATCHING
 void func_overlay_026_F00001A0_187A598(O26ObjectUpdate *object,
                                         s32 updateRate) {

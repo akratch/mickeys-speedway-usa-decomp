@@ -53,17 +53,18 @@ extern void func_overlay_045_F0001158_188D5B0(
 
 /* Mickey-local reconstruction. The closest permitted donor skeleton scores
  * 0.047 and does not contain this descriptor/element update shape. */
-/* Plateau: 637 instructions and opcode/register shape match, but the frame is
- * 0x90 instead of 0x88; separate-TU local references remain unresolved. */
+/* Plateau p3: workbench operand-mismatch; frame/register/schedule match, with two spill-offset words remaining. */
+/* Levers tried: gDPFullSync, declaration order, scoped locals, constant audit, and loader relocation normalization. */
+/* Remains: IDO chooses v1 at 124(sp) instead of 120(sp); retain NON_MATCHING/GLOBAL_ASM. */
 #ifdef NON_MATCHING
 void func_overlay_045_F0000764_188CBBC(
     Gfx **displayList, void *matrix, s32 arg2, s32 arg3,
     s32 mode, s32 updateRate) {
     Overlay45ResourceDescriptor *descriptor;
     Overlay45Element *element;
-    s32 anyVisible;
-    s32 remaining;
     s32 i;
+    s32 remaining;
+    s32 anyVisible;
 
     anyVisible = 0;
     func_80034920(displayList);
@@ -229,7 +230,7 @@ void func_overlay_045_F0000764_188CBBC(
     }
 
     if (mode == 2) {
-        gDPPipeSync((*displayList)++);
+        gDPFullSync((*displayList)++);
         gSPEndDisplayList((*displayList)++);
     }
 }
