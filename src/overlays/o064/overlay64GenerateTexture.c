@@ -16,16 +16,16 @@ extern u8 *gO64BuffersA[];
 extern u8 *gO64BuffersB[];
 extern s32 o64RandomRange(s32 minimum, s32 maximum);
 
-/* Workbench: structure-mismatch; 419/420 instructions, 405 words, first +0x0.
- * Levers: spelling displacement as an if removed five instructions and nine words.
- * Remains: the 0xC0/0x70 frame and unrolled-loop local stack allocation. */
+/* Workbench p4: structure-mismatch; 420/420 instructions, 401 positional words, first +0x0; frame 0x78 vs target 0x70.
+ * Levers: restored the even-row temporaries and moved the buffer-flag read ahead of dimension/table selection; this is the best source candidate.
+ * Remains: raw overlay relocation identities, the 8-byte frame excess, and the residual pointer/local schedule. */
 #ifdef NON_MATCHING
 void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
                                         u8 *unused)
 {
     register s32 width;
     register s32 height;
-    u8 * volatile selected;
+    u8 *selected;
     register u8 *source;
     register u8 *dest;
     register u8 *write;
@@ -42,14 +42,15 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
 
     (void)unused;
 
-    if (gO64BufferSelect != 0) {
+    newSelect = gO64BufferSelect;
+    width = image->width;
+    height = image->height;
+    if (newSelect != 0) {
         selected = gO64BuffersA[index];
     } else {
         selected = gO64BuffersB[index];
     }
 
-    width = image->width;
-    height = image->height;
     innerWidth = width - 6;
     innerHeight = height - 6;
     write = selected + innerHeight * width + 3;
@@ -190,16 +191,13 @@ void func_overlay_064_F0000000_18C3B28(s32 index, O64Image *image,
                 x = 0;
                 if (width > 0) {
                     do {
-                        s32 displacement = 2;
-                        s32 value = *source++;
-                        s32 low = value;
-                        s32 high = value + 0x34;
-                        s32 scale = value >> 4;
-                        if (x & 2) {
-                            displacement = -2;
-                        }
-                        if (scale != 0) {
-                            low = value * scale;
+                        innerWidth = (x & 2) ? -2 : 2;
+                        value = *source++;
+                        distance = value;
+                        maximum = value + 0x34;
+                        innerHeight = value >> 4;
+                        if (innerHeight != 0) {
+                            distance = value * innerHeight;
                         }
                         if (maximum >= 0x100) {
                             maximum = 0xFF;

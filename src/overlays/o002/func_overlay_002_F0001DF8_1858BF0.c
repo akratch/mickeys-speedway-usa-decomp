@@ -38,9 +38,9 @@ extern u32 joyGetButtons(s32 controller);
 
 /* Mickey-only reconstruction. The closest permitted reference skeleton is
  * too weak to establish a donor body (masked 4-gram Jaccard 0.077). */
-/* NON_MATCHING p2: workbench mixed(constant:3, structural:56, schedule:2,
- * register:268); best 386 positional words, first +0x28, frame/count exact.
- * Spill census fixed route's home; lastCandidate ablation regressed. Phase remains. */
+/* NON_MATCHING p4: workbench mixed(constant:3, structural:56, schedule:2,
+ * register:268); 386 positional words, first +0x28, frame/count exact.
+ * Prior flags/permutation/spill-counter audits remain the best result; target phase and overlay-local call aliases remain. */
 #ifdef NON_MATCHING
 void func_overlay_002_F0001DF8_1858BF0(Overlay2RouteObject *object,
                                         Overlay2RouteInput *input) {
