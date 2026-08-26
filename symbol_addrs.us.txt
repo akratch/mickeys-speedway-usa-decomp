@@ -2605,6 +2605,10 @@ camGetRotationMtx = 0x80024698; // type:func size:0x0C ROM 0x25298 tier-B matche
 camGetProjectionMtx = 0x800246A4; // type:func size:0x0C ROM 0x252A4 tier-D matched-C JFG role and Mickey final projection-matrix dataflow
 func_800246B0 = 0x800246B0; // type:func size:0x184 ROM 0x252B0 tier-D matched-C JFG camProjectPoint role/order, Mickey auto-name retained
 camGetProjZ = 0x80024938; // type:func size:0x40 ROM 0x25538 tier-D matched-C JFG TU role/order and projection-depth dataflow
+D_80079F48 = 0x80079F48; // type:f32 size:0x4 tier-A compiler-owned camera .data projection scale
+D_80079F4C = 0x80079F4C; // type:f32 size:0x4 tier-A compiler-owned camera .data matrix coefficient
+D_80079F50 = 0x80079F50; // type:f32 size:0x4 tier-A compiler-owned camera .data leading-matrix coefficient
+D_80079F54 = 0x80079F54; // type:f32 size:0x4 tier-A compiler-owned camera .data leading-matrix coefficient
 camStartShake = 0x80024AC4; // type:func size:0x90 ROM 0x256C4 tier-D matched-C JFG TU role/order and shake-record dataflow
 camStopShakes = 0x80024B54; // type:func size:0x4C ROM 0x25754 tier-B matched-C similar-jfg-camStopShakes=1.000
 func_80024BA0 = 0x80024BA0; // type:func size:0x128 ROM 0x257A0 tier-D matched-C Mickey distance-based shake body, JFG camScreenShake role/order

@@ -203,7 +203,10 @@ extern s32 D_80079F8C;
 extern s32 D_80079D48;
 extern f32 D_80079F60;
 extern f32 D_80079F48;
-extern f32 D_80079F4C[16];
+extern f32 D_80079F4C;
+extern f32 D_80079F50;
+extern f32 D_80079F54;
+extern f32 D_80079F58[];
 extern f32 D_80079F90;
 extern CameraViewport D_80079C10[];
 extern CameraViewportFlags D_80079C40[];
@@ -1789,8 +1792,11 @@ void func_80024978(MtxF matrix) {
     s32 height;
 
     viGetCurrentSize(&width, &height);
-    for (i = 0; i < 15; i++) {
-        ((f32 *) matrix)[i] = D_80079F4C[i] * D_80079F48;
+    ((f32 *) matrix)[0] = D_80079F4C * D_80079F48;
+    ((f32 *) matrix)[1] = D_80079F50 * D_80079F48;
+    ((f32 *) matrix)[2] = D_80079F54 * D_80079F48;
+    for (i = 0; i < 12; i++) {
+        (((f32 *) matrix) + 3)[i] = D_80079F58[i] * D_80079F48;
     }
     matrix[3][3] = (u32) width >> 1;
 }
@@ -1941,3 +1947,9 @@ void func_80024ED8(CameraTransform *source, s32 unused, Camera *dest) {
         Arctanf(deltaY, sqrtf((deltaX * deltaX) + (deltaZ * deltaZ)));
     dest->transform.zRotation = 0;
 }
+
+/* The projection scale and matrix constants are owned by this TU. */
+f32 D_80079F48 = 1.0f;
+f32 D_80079F4C = 1.0f;
+f32 D_80079F50 = 0.0f;
+f32 D_80079F54 = 0.0f;

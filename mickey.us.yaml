@@ -542,6 +542,10 @@ segments:
       # not plain resident text. Kept as raw bin until it is identified.
       - [0x76D10, bin]
       - [0x76E60, data]
+      # Camera's four-float scale/leading-matrix range is compiler-owned; IDO
+      # emits the 0x10-byte .data input section, so the raw tail starts at F58.
+      - [0x7AB48, .data, main/camera]
+      - [0x7AB58, data]
       # n_csplayer's 127-entry timing table followed by its zero flag. The
       # 0x200-byte object section and first address are fixed by the compiled
       # candidate and Mickey's own relocations.
