@@ -1085,15 +1085,23 @@ void func_8004D39C(char *input, char *output) {
     } while (currentChar);
 }
 
-/* Workbench: structure-mismatch; 5/109 words remain, first +0x5C.
- * Levers: structure-bucket branch/value probes plus outer-conditional and scan-local rewrites; later exact code regressed.
- * Remains: target move t2,a3 and its t3/a3 branch web; canonical assembly stays. */
-#ifdef NON_MATCHING
+/* Workbench: structure-mismatch; 2/109 words remain (down from 5), rows 24/41.
+ * Allocator-trace findings (instrumented uopt CDX, proc 34): comparison
+ * operands print in itable order -- a copy-propagated variable prints first,
+ * so every branch-order word demands the expression-direct spelling below.
+ * CDX_FORCE p2:w23=c9,p2:w26=c6 proved the earlier 8-word state was one
+ * variable web (scan1 copy + scan2 entry) that the target splits.
+ * Remains: the target carries *text into the third test through a separate
+ * ugen/uopt temp (move t2,a3 in test1's block, beql t3,t2 -- a non-variable
+ * web, since a variable would print before the constant); every C carrier
+ * tried is either senior (colored a3/t2 mirror), locally propagated away,
+ * or lands the copy in the else block (words=3). */
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's
  * permitted published fontGetLine assembly. Mickey's own m2c draft,
  * constants, branch structure, and font-record layout determine this body.
  */
+#ifdef NON_MATCHING
 u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart,
                   s32 *outWidth) {
     s32 totalWidth;
@@ -1103,7 +1111,6 @@ u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart,
     s32 delimiter;
     s32 segmentWidth;
     char *segmentStart;
-    s32 current;
     u8 code;
 
     totalWidth = 0;
@@ -1116,15 +1123,14 @@ u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart,
         segmentWidth = 0;
         segmentStart = text;
         do {
-            current = *text;
-            if (0x80 == current && text[1] == 0xF) {
+            if (0x80 == *text && text[1] == 0xF) {
                 text += 2;
                 if (firstLine == 0) {
                     segmentWidth += D_800D60E4[font].characterWidth;
                 }
-            } else if (current == 0) {
+            } else if (*text == 0) {
                 end = 1;
-            } else if (0x80 != current) {
+            } else if (0x80 != *text) {
                 text++;
             } else {
                 delimiter = 1;
@@ -1140,15 +1146,13 @@ u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart,
             *lineStart = text;
         }
 
-        current = *text;
-        if (0x80 == current) {
+        if (0x80 == *text) {
             code = text[1];
             if (code != 0xF) {
                 for (;;) {
-                    current = text[2];
                     text += 2;
                     segmentWidth += D_800D6628[font][code];
-                    if (0x80 == current) {
+                    if (0x80 == *text) {
                         code = text[1];
                         if (code != 0xF) {
                             continue;
@@ -1164,9 +1168,8 @@ u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart,
             overflow = 1;
             totalWidth -= segmentWidth;
             text = segmentStart;
-            current = *segmentStart;
         }
-        if (current == 0) {
+        if (*text == 0) {
             end = 1;
         }
     } while (overflow == 0 && end == 0);

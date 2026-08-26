@@ -269,9 +269,11 @@ ranges across the scissor and glyph loops, not a compiler-flag mismatch.
 Levers covered flags, widths/qualifiers, direct-global/font-index, copy AST/volatile, and block/pad homes.
 Remaining: initial pool setup and saved-header copy schedule.
 
-`func_8004D40C`: workbench mixed structural/register; 109 words, five differences, first `+0x5C`.
-Structure-buckets and distinct-initial-value forms compile identically under the stock flag lattice.
-A delay-slot copy and its dependent temporary web remain unrecovered, so assembly stays canonical.
+`func_8004D40C`: workbench structure-mismatch; 109 words, two differences (down from five), rows 24/41.
+The CDX allocator trace fixed every branch-operand order (a copy-propagated variable prints before a
+constant, so the scans must be expression-direct on `*text`), and a `CDX_FORCE` swap proved the earlier
+residual was one variable web the target splits. What remains is the target's `move t2,a3` carrier for
+the third test -- a non-variable temp no C spelling reached -- so assembly stays canonical.
 
 `func_8004BA8C` is exact in 42/46 words with the target frame and relocations; four register-only words differ first at `+0x30`.
 Workbench reports one `v0`/`a3` font-data web; the restored width-hoist/u32-index body is the best retained candidate.
