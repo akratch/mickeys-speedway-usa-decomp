@@ -6,6 +6,34 @@ typedef struct Overlay79Vector {
     f32 z;
 } Overlay79Vector;
 
+typedef struct Overlay79BaseValues {
+    f32 activeAcceleration;
+    f32 inactiveAcceleration;
+    f32 turnPower;
+    f32 forwardAcceleration;
+    f32 targetDot;
+    f32 reserved14;
+} Overlay79BaseValues;
+
+typedef union Overlay79DataBase {
+    Overlay79BaseValues values;
+    f32 modeFactors[6];
+} Overlay79DataBase;
+
+typedef struct Overlay79InitializedData {
+    Overlay79DataBase base;
+    f32 reserved18[2];
+    f32 launchHeight;
+    f32 approachPower;
+    f32 gravityHalf;
+    f32 gravity;
+    f32 collisionMinimumY;
+    f32 collisionEpsilon;
+    f32 collisionLift;
+    f32 collisionProjection;
+    f32 modeSpeeds[8];
+} Overlay79InitializedData;
+
 typedef struct Overlay79Object Overlay79Object;
 
 typedef struct Overlay79MotionState {
@@ -63,18 +91,34 @@ typedef struct Overlay79SpawnDesc {
     f32 scale;
 } Overlay79SpawnDesc;
 
-extern u32 gOverlay79RaceFlags;
-extern f32 gOverlay79ActiveAcceleration;
-extern f32 gOverlay79InactiveAcceleration;
-extern f32 gOverlay79TurnPower;
-extern f32 gOverlay79ForwardAcceleration;
-extern f32 gOverlay79TargetDot;
-extern f32 gOverlay79LaunchHeight;
-extern f32 gOverlay79ApproachPower;
-extern f32 gOverlay79GravityHalf;
-extern f32 gOverlay79Gravity;
-extern f32 gOverlay79ModeFactors[];
-extern f32 gOverlay79ModeSpeeds[];
+Overlay79InitializedData gOverlay79RaceFlags = {
+    {{0.04f, 0.01f, 0.02f, 0.1f, 0.01f, 0.0f}},
+    {0.0f, 0.0f},
+    0.05f,
+    -0.2f,
+    0.2f,
+    0.9f,
+    -0.1f,
+    0.707f,
+    0.1f,
+    0.9f,
+    {0.46f, 0.9f, -0.1f, -0.2f, 0.707f, 0.1f, 0.01f, 0.01f},
+};
+
+#define gOverlay79ActiveAcceleration \
+    (gOverlay79RaceFlags.base.values.activeAcceleration)
+#define gOverlay79InactiveAcceleration \
+    (gOverlay79RaceFlags.base.values.inactiveAcceleration)
+#define gOverlay79TurnPower (gOverlay79RaceFlags.base.values.turnPower)
+#define gOverlay79ForwardAcceleration \
+    (gOverlay79RaceFlags.base.values.forwardAcceleration)
+#define gOverlay79TargetDot (gOverlay79RaceFlags.base.values.targetDot)
+#define gOverlay79LaunchHeight (gOverlay79RaceFlags.launchHeight)
+#define gOverlay79ApproachPower (gOverlay79RaceFlags.approachPower)
+#define gOverlay79GravityHalf (gOverlay79RaceFlags.gravityHalf)
+#define gOverlay79Gravity (gOverlay79RaceFlags.gravity)
+#define gOverlay79ModeFactors (gOverlay79RaceFlags.base.modeFactors)
+#define gOverlay79ModeSpeeds (gOverlay79RaceFlags.modeSpeeds)
 extern void *gOverlay79CollisionData;
 
 extern Overlay79Object *overlay79FindNearby(Overlay79Vector *position,
@@ -103,9 +147,9 @@ extern void trackMakePolylist(s32 mode, Overlay79Vector *start,
 extern s32 func_80010900(Overlay79Vector *start, Overlay79Vector *end,
                          f32 height, Overlay79Object *object, void *collision);
 
-/* Workbench: structure-mismatch (mixed), 848/882 positional words differ; first mismatch +0x4.
- * Levers tried: constant audit and shared-base aliases; a named base narrowed the frame deficit by 8 bytes.
- * Remaining: 15 missing instructions, an 8-byte frame deficit, and structural/FP allocation drift. */
+/* Workbench: structure-mismatch, 833/882 positional words differ; target frame
+ * is -0xB8 versus the candidate's -0xB0. Ownership: this TU emits the exact
+ * initialized +0x0..+0x60 aggregate; code generation remains NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                                        s32 updateRate) {

@@ -30,12 +30,9 @@ extern s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex,
                                  s32 itemIndex);
 extern void overlay59Release(Overlay59Entry *entry);
 
-/*
- * Overlay 59 text +0x36C..+0x784. Natural source reproduces the exact body,
- * frame, CFG, loops, calls, integer/FP allocation, and effects. A bounded
- * prologue permutation plus asserted local relocation addends selects the
- * retail schedule while the original overlay relocation assets stay retained.
- */
+/* Workbench: structure-mismatch, 19 positional words remain, first +0x4;
+ * the target and candidate both use the -0x58 frame and identical register
+ * webs. Ownership: the candidate switch table is rebound to retained +0x76C; the prologue schedule remains NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay59Advance(s32 steps) {
     Overlay59Entry *entry;

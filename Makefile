@@ -1465,9 +1465,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000000_18CCFA0.c.o: POS
 		--redefine-sym func_8002A8BC=ext_o0_2a46c \
 		--redefine-sym func_8005AD64=ext_o0_5a914 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x134
+ifeq ($(NON_MATCHING),0)
 # This Phase-B body retains its assembly fallback until the source is exact.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000134_18CD0D4.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC8
+endif
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000134_18CD0D4.c.o: CFLAGS += -Wab,-r4300_mul
 # The second assembly fallback likewise needs only boundary trimming.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0001290_18CE230.c.o: POSTPROCESS = \
@@ -2836,10 +2838,26 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99InitializeEntries.c.o: POSTPROCES
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1B8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99ProjectVector.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x84
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99ApplySegment.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
+ifeq ($(NON_MATCHING),1)
+# The compiler's private constants duplicate the retained overlay table at +0xB0.
+# Rebind only those text relocations; the linked default path remains GLOBAL_ASM.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99ApplySegment.c.o: POSTPROCESS = \
+	$(OBJCOPY) --add-symbol overlay99ApplySegmentPrivateTable=0xB0,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0xBC:.rodata:overlay99ApplySegmentPrivateTable \
+		0xE4:.rodata:overlay99ApplySegmentPrivateTable && \
+	$(OBJCOPY) --remove-section=.rodata $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_099_F00002A0_18D9850=overlay99ApplySegment $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x398
+else
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99ApplySegment.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_099_F00002A0_18D9850=overlay99ApplySegment $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x398
+endif
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99BuildHeightGrid.c.o: CFLAGS += -Wo,-loopunroll,0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99BuildHeightGrid.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
@@ -3229,10 +3247,27 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
+ifeq ($(NON_MATCHING),1)
+# The compiler's six-entry table is the same table retained at module +0x76C.
+# Rebind only its text references and discard the duplicate private section;
+# the linked default path remains the GLOBAL_ASM body while this source is a plateau.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
+	$(OBJCOPY) --add-symbol overlay59AdvanceSwitchTable=0x76C,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x84:.rodata:overlay59AdvanceSwitchTable \
+		0x8C:.rodata:overlay59AdvanceSwitchTable && \
+	$(OBJCOPY) --remove-section=.rodata $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
+else
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
+endif
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59BuildList.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59AppendValue.c.o: POSTPROCESS = \
