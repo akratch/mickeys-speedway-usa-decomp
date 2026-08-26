@@ -96,6 +96,7 @@ EXACT_DONOR_OVERLAYS = {
 DATA_RODATA_OWNERSHIP = {
     22: [(0x0, 0x60, "overlay22RemoveObject")],
     45: [(0x0, 0x80, "func_overlay_045_F0000764_188CBBC")],
+    47: [(0x0, 0x5A0, "overlay47ReleaseResources")],
     # Offsets are relative to data_rodata. The source must already own a C text
     # row: its compiled .data is linked before any remaining raw initialized
     # tail, so no duplicate C subsegment is emitted at the section boundary.
@@ -111,6 +112,13 @@ COMPILER_TEXT_ALIGNMENT_PADDING = {
     22: "overlay_022_padding",
     45: "overlay_045_padding",
     15: "overlay_015_padding",
+}
+
+# Overlay 47's final text address is already 8-byte aligned, but the ROM has
+# an explicit eight-byte gap before initialized data. Emit a bounded asm row
+# for that gap rather than letting the old row absorb the data block.
+EXPLICIT_TEXT_PADDING = {
+    47: "overlay_047_padding",
 }
 
 TEXT_SUBSEGMENTS = {
@@ -1649,16 +1657,30 @@ def render_yaml_block(atlas):
         text_start = int(row["sections"]["text"]["start"], 16)
         owned_data = row.get("data_rodata_ownership", [])
         compiler_padding = COMPILER_TEXT_ALIGNMENT_PADDING.get(ov)
+        explicit_padding = EXPLICIT_TEXT_PADDING.get(ov)
         for part in row["text_ownership"]:
-            if part["source"].rsplit("/", 1)[1] == compiler_padding:
+            source_name = part["source"].rsplit("/", 1)[1]
+            if source_name == compiler_padding:
                 if not owned_data:
                     raise ValueError(
                         f"overlay {ov} compiler padding needs C-owned data"
                     )
                 continue
+            if source_name == explicit_padding:
+                if part["type"] != "asm" or not owned_data:
+                    raise ValueError(
+                        f"overlay {ov} explicit padding has invalid ownership"
+                    )
+                pad_start = text_start + int(part["offset"], 16)
+                pad_end = text_start + int(part["end_offset"], 16)
+                lines.append(
+                    f"      - [{hx(pad_start)}, asm, {source_name}]"
+                )
+                lines.append(f"      - [{hx(pad_end)}]")
+                continue
             lines.append(
                 f"      - [{hx(text_start + int(part['offset'], 16))}, "
-                f"{part['type']}, {part['source'].rsplit('/', 1)[1]}]"
+                f"{part['type']}, {source_name}]"
             )
         data_row = row["sections"]["data_rodata"]
         owned_end = (
