@@ -10,17 +10,15 @@ typedef s32 M2C_UNK;
  * close donor: the nearest masked skeleton is JFG frontKeyboard at 0.057.
  * The extracted assembly does not retain external relocation identities, so
  * overlay47ExternalReloc represents multiple calls and makes no naming claim.
- * Plateau (2026-08-25): all 119 flag-lattice variants miss at +0x0. The best,
- * -O2 -mips3 -32 -Wo,-loopunroll,0, is 576 bytes longer and has 2,294 differing
- * comparison words against the 2,168-word target. The first prerequisite is
- * reconstructing the many collapsed call/data relocations and object types.
+ * Workbench plateau (2026-08-26): structure-mismatch; typed-null and entry-lifetime variants still have 2,218 differing comparison words, 2,238 versus 2,168 instructions, and a -776 versus -640 frame.
+ * Levers tried: constant-audit, removal of the artificial static NULL base, and entry float-temporary collapse; the null-base change reduced the residual but did not match.
+ * Remains: frame surplus and unresolved call/data relocation plus aggregate-type structure.
  */
 #ifdef NON_MATCHING
 s16 overlay47ExternalReloc(); /* extern; the scaffold collapses several callees */
 M2C_UNK func_overlay_047_F0002D10_1893B28(void *);  /* extern */
-static M2C_UNK *overlay47UnknownAddress;
 #undef NULL
-#define NULL overlay47UnknownAddress
+#define NULL ((M2C_UNK *)0)
 extern M2C_UNK *D_1C0;
 extern M2C_UNK D_210;
 extern M2C_UNK D_280;
@@ -220,8 +218,7 @@ void func_overlay_047_F0000B30_1891948(s32 arg0) {
     s8 *var_fp_3;
     s8 *var_s0;
 
-    temp_f24 = (f32) arg0;
-    sp1FC = temp_f24;
+    sp1FC = (f32) arg0;
     *(s8 *)0x30B = 0;
     sp21C = 0;
     var_a1 = 1;
