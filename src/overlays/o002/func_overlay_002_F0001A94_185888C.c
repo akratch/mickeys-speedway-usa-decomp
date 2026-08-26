@@ -64,9 +64,9 @@ extern u16 D_72;
 extern f32 gOverlay2QueryLimitReloc;
 extern f32 gOverlay2QueryResultReloc;
 
-/* Workbench p5 batch 14: allocation-mismatch; exact 217 instructions/-0x40 frame, 27-word masked floor, pool/temp drift.
- * Levers: constant audit, pointY lifetime/reuse, and the corrected bounded permuter; no allocator carrier closed.
- * Remains: integer pool/temp divergence after relocation-heavy global accesses, with 55 relocation aliases. */
+/* Workbench p7 batch 12: allocation-mismatch; exact 217 instructions/-0x40 frame, 27 masked/51 raw words, first stack-home +0x138.
+ * Lever: previous/next pointer homes regressed to -0x48; inherited constant, pointY, and bounded-permutation probes remain negative.
+ * Remains: integer pool/temp web after relocation-heavy globals and 55 relocation aliases; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 s32 func_overlay_002_F0001A94_185888C(f32 x0, f32 y0, f32 x1, f32 y1,
                                       Overlay2Shape *shape, Overlay2Hit *hit,
