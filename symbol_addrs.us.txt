@@ -647,20 +647,20 @@ partNullifyCircularParticleParents = 0x800427C4; // type:func size:0xA8 ROM 0x43
 // unused_string helpers to the formatting/debug-text sequence shared by JFG's
 // diprint.c and DKR's printf.c; their internal reference boundaries are not
 // 16-byte aligned. PROVENANCE: real names below are adapted from those public
-// decomps. Tier A is byte identity, tier B is call graph/order, and tier C is
-// the digit alphabets plus the `(null)` and `(nil)` formatter strings.
+// decomps. Tier A is byte identity or measured compiler-owned data, tier B is
+// call graph/order, and tier D is remaining structural attribution.
 strcpy = 0x80042870; // type:func size:0x34 ROM 0x43470 tier-A IDO C exact, dkr/unused_string.c
 memset = 0x800428A4; // type:func size:0x34 ROM 0x434a4 tier-A IDO C exact, dkr/unused_string.c
 sprintfSetSpacingCodes = 0x80042998; // type:func size:0xC ROM 0x43598 tier-A IDO C exact, jfg/sprintfSetSpacingCodes
 sprintf = 0x800429A4; // type:func size:0x2C ROM 0x435a4 tier-A IDO C exact, dkr/printf.c
 diPrintfInit = 0x80043CE0; // type:func size:0x54 ROM 0x448e0 tier-A IDO C exact, jfg/diPrintfInit
 diPrintf = 0x80043D34; // type:func size:0x9C ROM 0x44934 tier-A IDO C exact, jfg/diPrintf
-diPrintfAll = 0x80043DD0; // type:func size:0x240 ROM 0x449d0 tier-B debug-text call graph/order, jfg/diPrintfAll
+diPrintfAll = 0x80043DD0; // type:func size:0x240 ROM 0x449d0 tier-B NON_MATCHING relocation plateau, diprint-owned BSS, jfg/diPrintfAll
 diPrintfSetCol = 0x80044010; // type:func size:0x9C ROM 0x44c10 tier-A IDO C exact, jfg/diPrintfSetCol
 diPrintfSetBG = 0x800440AC; // type:func size:0x9C ROM 0x44cac tier-A IDO C exact, jfg/diPrintfSetBG
 diPrintfSetXY = 0x80044148; // type:func size:0x8C ROM 0x44d48 tier-A IDO C exact, jfg/diPrintfSetXY
 debug_text_width = 0x800441D4; // type:func size:0x108 ROM 0x44dd4 tier-B NON_MATCHING size-exact plateau, 9/66 words differ from +0x20, dkr/debug_text_width
-debug_text_parse = 0x800442DC; // type:func size:0x41C ROM 0x44edc tier-B diPrintfAll call graph/order, jfg/debug_text_parse
+debug_text_parse = 0x800442DC; // type:func size:0x41C ROM 0x44edc tier-A compiler/link exact, diprint-owned BSS/rodata, jfg/debug_text_parse
 debug_text_background = 0x800446F8; // type:func size:0xA0 ROM 0x452f8 tier-A IDO C exact, jfg/debug_text_background
 debug_text_character = 0x80044798; // type:func size:0x2E8 ROM 0x45398 tier-A IDO C exact, -Wab,-r4300_mul, jfg/debug_text_character
 debug_text_bounds = 0x80044A80; // type:func size:0x90 ROM 0x45680 tier-A IDO C exact, jfg/debug_text_bounds
@@ -968,7 +968,29 @@ osScGetTaskType = 0x80030580; // type:func size:0x88
 // owns "(null)" and "(nil)" and is what `sprintf` (byte-identical to DKR's,
 // above) tail-calls at 0x800429A4.
 _itoa = 0x800428D8; // type:func size:0xC0 ROM 0x434d8 tier-A IDO C exact, jfg/dkr/_itoa
-vsprintf = 0x800429D0; // type:func size:0x1310 ROM 0x435d0 tier-C `(null)`/`(nil)` and sprintf call graph, jfg/vsprintf
+vsprintf = 0x800429D0; // type:func size:0x1310 ROM 0x435d0 tier-A compiler/link exact, diprint-owned formatter data, jfg/vsprintf
+
+D_80082A80 = 0x80082A80; // type:char size:0x28 tier-A compiler-owned diprint lowercase formatter alphabet
+D_80082AA8 = 0x80082AA8; // type:char size:0x28 tier-A compiler-owned diprint uppercase formatter alphabet
+D_80082AD0 = 0x80082AD0; // type:char size:0x4 tier-A compiler-owned diprint empty-string slot
+D_80082AD4 = 0x80082AD4; // type:char size:0x8 tier-A compiler-owned diprint null-string slot
+D_80082ADC = 0x80082ADC; // type:char size:0x50 tier-A compiler-owned diprint formatter diagnostic strings
+jtbl_80082B2C = 0x80082B2C; // type:jtbl size:0x44 tier-A compiler-owned diprint formatter switch table
+jtbl_80082B70 = 0x80082B70; // type:jtbl size:0x98 tier-A compiler-owned diprint formatter switch table
+jtbl_80082C08 = 0x80082C08; // type:jtbl size:0xD0 tier-A compiler-owned diprint formatter switch table
+jtbl_80082CD8 = 0x80082CD8; // type:jtbl size:0x18 tier-A compiler-owned diprint debug-text switch table
+
+D_800D4A60 = 0x800D4A60; // type:u16 size:0x2 tier-A compiler-owned diprint BSS text x
+D_800D4A62 = 0x800D4A62; // type:u16 size:0x2 tier-A compiler-owned diprint BSS text y
+D_800D4A64 = 0x800D4A64; // type:s32 size:0x4 tier-A compiler-owned diprint BSS state
+D_800D4A68 = 0x800D4A68; // type:s32 size:0x4 tier-A compiler-owned diprint BSS state
+D_800D4A6C = 0x800D4A6C; // type:s32 size:0x4 tier-A compiler-owned diprint BSS state
+D_800D4A70 = 0x800D4A70; // type:s32 size:0x4 tier-A compiler-owned diprint BSS state
+D_800D4A74 = 0x800D4A74; // type:s32 size:0x4 tier-A compiler-owned diprint BSS state
+D_800D4A78 = 0x800D4A78; // type:s32 size:0x4 tier-A compiler-owned diprint BSS state
+D_800D4A7C = 0x800D4A7C; // type:s32 size:0x4 tier-A compiler-owned diprint BSS state
+D_800D4A80 = 0x800D4A80; // type:u16 size:0x2 tier-A compiler-owned diprint BSS text width
+D_800D4A82 = 0x800D4A82; // type:u16 size:0x2 tier-A compiler-owned diprint BSS text height
 
 // diRcpTrace.c. PROVENANCE: names adapted from JFG src/diRcpTrace.c. Tier B:
 // the four routines have JFG's order and near-identical sizes, the first is

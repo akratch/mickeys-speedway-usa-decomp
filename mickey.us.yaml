@@ -651,7 +651,10 @@ segments:
       - [0x833E0, rodata]
       # func_80040740's switch table.
       - [0x83658, .rodata, main/particles]
-      - [0x83680, rodata]
+      # Diprint owns the formatter alphabets, strings, and compiler-generated
+      # switch tables through the measured 0x838F0 boundary.
+      - [0x83680, .rodata, main/diprint]
+      - [0x838F0, rodata]
       # diRcpPrintDL's three switch tables followed by diRcpMoveWd's table.
       # The word at 0x8457C is output-section padding, not owned object bytes.
       - [0x8447C, .rodata, main/diRcp]
@@ -695,6 +698,10 @@ segments:
       # Scheduler-owned counters and the two halves of its yield timestamp.
       - { type: .bss, vram: 0x800D2D40, name: main/sched }
       - { type: bss, vram: 0x800D2D50, name: bss_gap_D800D2D50 }
+      # Diprint's text-position/state block is one 0x30-byte IDO BSS input
+      # section; the raw gap resumes after its measured section padding.
+      - { type: .bss, vram: 0x800D4A60, name: main/diprint }
+      - { type: bss, vram: 0x800D4A90, name: bss_gap_D800D4A90 }
       # Four 0x10-byte positional vehicle-sound slots.
       - { type: .bss, vram: 0x800D78B0, name: main/vehicle_sounds }
       - { type: bss, vram: 0x800D78F0, name: bss_gap_D800D78F0 }

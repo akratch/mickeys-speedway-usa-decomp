@@ -1745,7 +1745,7 @@ Unresolved functions remain `GLOBAL_ASM`, so the split claims no matched bytes.
 | Mickey TU | ROM / VRAM | Functions | Evidence |
 |---|---|---:|---|
 | `main/particles` | `0x3D5F0`–`0x43470` / `0x8003C9F0` | 44 | **A:** DKR's built `particles.c.o` identifies `reset_particles` byte-for-byte. **B:** the internal call graph and external particle callers. **D:** the full function order and masked-skeleton sequence track JFG's 42-function `particles.c.o` from `partFreeLib` through `partNullifyCircularParticleParents`; Mickey inserts two extra 12-byte state setters before `partUpdateTriggers`, after which the sequences reconverge. |
-| `main/diprint` | `0x43470`–`0x45760` / `0x80042870` | 19 | **A:** DKR objects identify `strcpy`, `memset`, and `sprintf` exactly. **B:** `diPrintf` brackets `vsprintf` with `sprintfSetSpacingCodes`, `diPrintfAll` drives the parse/background/character/bounds/origin helpers, and later `diRcp*` routines call `sprintf`. **C:** `_itoa` owns both digit alphabets and `vsprintf` owns `(null)` and `(nil)`. The order matches JFG's `diprint.c.o`, with DKR's `debug_text_width` inserted between `diPrintfSetXY` and `debug_text_parse`. |
+| `main/diprint` | `0x43470`–`0x45760` / `0x80042870` | 19 | **A:** DKR objects identify `strcpy`, `memset`, and `sprintf`; diprint's formatter data/tables and the linked `vsprintf`/`debug_text_parse` are exact. **B:** `diPrintf` brackets `vsprintf` with `sprintfSetSpacingCodes`, `diPrintfAll` drives the parse/background/character/bounds/origin helpers, and later `diRcp*` routines call `sprintf`. The order matches JFG's `diprint.c.o`, with DKR's `debug_text_width` inserted between `diPrintfSetXY` and `debug_text_parse`. |
 
 **PROVENANCE.** Names/TU attribution use JFG's public `src/particles.c`,
 `src/diprint.c`, and objects; DKR's `src/printf.c` supplies
@@ -1753,10 +1753,10 @@ Unresolved functions remain `GLOBAL_ASM`, so the split claims no matched bytes.
 `particles.c.o` supply the stated tier-A rows. Donor placeholders stay
 excluded; Mickey's bytes/call graph decide disagreements.
 
-The table tiers are TU-level. Per symbol, donor-object matches are tier A;
-named call-graph functions are tier B; `_itoa`/`vsprintf` string evidence is
-tier C; remaining JFG/DKR order/skeleton attributions are tier D. Each of the
-63 `symbol_addrs.us.txt` rows carries its tier token.
+The table tiers are TU-level. Per symbol, byte-identical functions and
+compiler-owned formatter data are tier A; named call-graph functions are tier
+B; remaining JFG/DKR order/skeleton attributions are tier D. Each of the 82
+`symbol_addrs.us.txt` rows in this block carries its tier token.
 
 Exact C matches banked in these TUs: `partAdjustScaling` (ROM `0x3F9C8`,
 `0xC` bytes, default resident flags, JFG body donor) and `func_8003EDD4`
@@ -1907,20 +1907,11 @@ component lifetimes, and nested scopes converged either on this allocation
 basin or on structurally worse schedules. The candidate remains under
 `NON_MATCHING` and the original asm body remains canonical.
 
-`vsprintf` is size/frame/register-pool exact under `-Wab,-r4300_mul`; two scheduled words differ, first `+0xB08`.
-Target loads `10` before `'-'`; IDO reverses them, and the `va_arg` body remains unparseable by the permuter.
-Twenty-eight formatter table/data relocation identities remain owned by the asm-data split, so asm stays canonical.
-
-`diPrintfAll` remains `NON_MATCHING`: all 144 instructions are exact under `-Wab,-r4300_mul`; workbench reports `relocation-symbol-mismatch`.
-Alias/rebind analysis leaves four identities from `+0x144`: `D_800D4A62` versus `D_800D4A60+2`; rebinding alone loses the encoded `+2` addend.
-The prior source spellings and flag lattice remain exhausted, so the JFG-derived candidate retains canonical asm.
-
-`debug_text_parse` reached an instruction-exact 263-word plateau. Strict
-object comparison still finds four relocation-identity differences: two
-accesses use the separately named `D_800D4A62` instead of `D_800D4A60+2`, and
-two switch-table references use compiler `.rodata` instead of
-`jtbl_80082CD8`. The generated switch table would also duplicate the resident
-asm-data owner, so the original asm body remains canonical.
+| Function | Result |
+|---|---|
+| `vsprintf` | **tier-A**, ROM `0x435D0`, `0x1310` bytes, `-Wab,-r4300_mul`; JFG body and formatter data/tables are compiler-owned by `main/diprint`, linked exact. |
+| `debug_text_parse` | **tier-A**, ROM `0x44EDC`, `0x41C` bytes, `-Wab,-r4300_mul`; JFG body with diprint BSS/rodata ownership, linked exact; asm-object aliases remain compiler-local. |
+| `diPrintfAll` | `NON_MATCHING`: 144 instructions/frame `0x58` exact; diprint owns BSS `0x800D4A60–0x800D4A90`, but four strict relocations remain (`D_800D4A62` vs `D_800D4A60+2`), asm retained. |
 
 | Function | Exact result |
 |---|---|
