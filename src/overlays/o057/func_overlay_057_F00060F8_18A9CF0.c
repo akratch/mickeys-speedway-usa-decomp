@@ -74,9 +74,9 @@ extern s16 gOverlay57MenuHalf2;
 extern s8 gOverlay57MenuSourcesStart[];
 extern s8 gOverlay57MenuSourcesEnd[];
 
-/* Workbench p4: structure-mismatch; 263 positional/278 raw words differ,
- * 437/441 instructions, first +0x0, frame -104 versus -96. Levers: direct
- * globals, literal audit, unsigned array, declaration/loop/store shapes; remains web. */
+/* Workbench p5: structure-mismatch; 414/441 instructions, 424 words, first +0x0.
+ * Levers: short-lived selection scopes improved the count only to 416 and expanded the frame; constant/CFG probes remain ruled out.
+ * Remains: target -96 frame, array lifetime, and register web; no exact candidate within the attempt cap. */
 #ifdef NON_MATCHING
 void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
     Overlay57MenuSource *source;
