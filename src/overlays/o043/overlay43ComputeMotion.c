@@ -28,6 +28,9 @@ extern u8 D_0[];
 extern void func_80029FE4(Overlay43RotationInput *input, Vec3f *direction);
 extern void func_8002A82C(Overlay43MotionOutput *output);
 
+/* Workbench: mixed constants/structure/register; exact 55 words/-0x38 frame, 16 words, first +0x74.
+ * Levers 1/4/24/5/6, scalar/array/lifetime variants, and the full flag sweep found no improvement.
+ * Remaining: target FP pool/order and overlay-local call/literal relocation topology; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
                                       s32 owner,
