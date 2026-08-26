@@ -38,7 +38,9 @@ extern f32 overlay99AngleWave(s32 angle);
 extern f32 overlay99AngleWavePhaseReloc(s32 angle);
 extern f32 overlay99ProjectVector(f32 x, f32 y, f32 z, f32 dx, f32 dy);
 
-/* Pinned DKR v77/v80 and JFG donor scans classify overlay 99 as none. */
+/* Workbench: structure-mismatch, 205/230 positional words differ; the first
+ * hunk is the frame-size instruction (target -0xD0, candidate -0xE8).
+ * Ownership: private constants rebind to retained +0xB0; representation/prologue schedule remains NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay99ApplySegment(Overlay99Influence *arg0, f32 arg1) {
     f32 spA0;
