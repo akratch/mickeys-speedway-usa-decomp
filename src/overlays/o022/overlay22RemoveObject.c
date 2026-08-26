@@ -27,9 +27,9 @@ extern void func_overlay_022_F0000000_1878108();
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
 /*
- * Workbench: allocation-mismatch, exact 91-instruction/-40 frame; 43 words, first +0x10.
- * Levers tried: flag lattice, declaration/type/global forms, 30-minute permuter; no valid exact candidate.
- * Remains: pool/temp FIFO placement across pointer/count/index webs; relocation identity also differs diagnostically.
+ * Workbench: allocation-mismatch, exact 91/-40 frame; 43 words, first +0x10; lane choices are ring-only.
+ * Levers tried: flag lattice, declaration/type/global forms, 30-minute permuter, and a dead model read (reverted).
+ * Remains: pool/temp FIFO placement across pointer/count/index webs; relocation identity differs diagnostically.
  */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000D30_1878E38(Overlay22Object *object, s32 flags) {
