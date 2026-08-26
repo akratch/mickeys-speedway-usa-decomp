@@ -127,9 +127,9 @@ f32 sqrtf(f32 value);
 f32 func_80058EF4(f32 value);
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 26 versus 22 words, 19 positional differences from +0x0.
- * The TU now owns four measured 0x10-byte records; one aggregate collapses to 16 words, while volatile slots differ in 21/22.
- * Lever: source structure; stock -O2/mips2 remains best after the 119-configuration flag lattice. */
+/* Workbench: structure-mismatch, 26/22 instructions and 19 raw words from +0x0.
+ * Lever: BSS-record, store-order, line-grouping, pointer-tail, aggregate, and flag probes; stock globals remain best.
+ * Remaining: four target high-half reuses require the original BSS ownership/layout. */
 void func_80058250(void) {
     D_800D78B0 = 0;
     D_800D78B8 = 0.0f;
