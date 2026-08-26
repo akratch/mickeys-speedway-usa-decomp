@@ -240,9 +240,9 @@ void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0000058_185DDB0.s")
 #endif
 
-/* Workbench: allocation-mismatch, 48 masked/57 raw words; first register +0x428.
- * Flag lattice, arm ordering, widened mask, and a bounded -mips2 permuter tried.
- * Both FP lanes are exact; GPR temp slot 54 and pool slot 64 still diverge. */
+/* Workbench verdict=allocation-mismatch; 48 masked/57 raw words differ in the exact 381-word/-0x70 frame, first register mismatch +0x428.
+ * Flag lattice, arm ordering, widened mask, and the bounded -mips2 permuter were tried; context lint found no undefined guard.
+ * Remains: exact FP lanes but GPR temp slot 54/pool slot 64 allocation and 46 overlay relocation identities. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
                                        s32 updateRate) {
@@ -1305,6 +1305,7 @@ void func_overlay_008_F00042A8_1862000(O8P42A8Actor *actor,
     s32 steps;
     s32 remaining;
     s16 savedAngle;
+    s32 mode;
 
     state = owner->state64;
     mode = state->mode0 & 3;
