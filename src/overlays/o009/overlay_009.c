@@ -345,9 +345,9 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
     }
 }
 
-/* Workbench: mixed constant/relocation; 4/162 object words differ from +0xC8, and the linked oracle reports five operands.
- * Constant-audit tried explicit local layouts, padding widths, and D_50 binding.
- * Angle home remains +0x32 vs +0x2A; the 0.65f pool addend is +0x4C vs +0x50. */
+/* Workbench p5 batch 14: mixed operand/constant; exact 162 instructions/-0x50 frame, first residual +0xC8.
+ * Levers: constant audit and the unused-home type probe; prior padding/order/permuter variants remained inferior.
+ * Remains: angle home +0x32 versus +0x2A and the 0.65f pool addend +0x4C versus +0x50. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,
                                        void *unused, f32 step) {

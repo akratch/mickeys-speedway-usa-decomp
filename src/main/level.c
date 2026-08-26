@@ -289,19 +289,10 @@ u32 levelGetGfxIndex(s32 arg0) {
 }
 
 #ifdef NON_MATCHING
-/*
- * PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive.
- *
- * Plateau: ten structural, storage and lifetime hypotheses reproduce all 516
- * target opcodes, the -0x80 frame, stack homes and relocation identities, but
- * 122 register operands differ. The first mismatch at +0x238 is a temp-FIFO
- * allocation ($t4 rather than $t7) in the fog-load delay slot; the following
- * resource-table address begins a pool-allocation divergence ($a2 rather than
- * $a3). The full resident flag lattice was unchanged. A bounded permuter batch
- * improved its MIPS I import only by adding a redundant fog-width mask; under
- * the canonical MIPS II flags that spelling adds two instructions and was
- * rejected.
- */
+/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
+/* Workbench p5 batch 14: allocation-mismatch; exact 516 instructions/-0x80 frame, 122 register-only words, first +0x238.
+ * Levers: resident flag lattice, storage/lifetime variants, and bounded permuter; no consistent pool/temp permutation.
+ * Remains: temp-FIFO and pool decisions around the resource-table loop; target colors are unavailable to this web shape. */
 void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     s32 lvlStart;
     u32 lvlSize;
