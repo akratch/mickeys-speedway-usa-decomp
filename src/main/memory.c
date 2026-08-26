@@ -296,9 +296,9 @@ void mmFree(void *data) {
  */
 void ReleaseUnusedLinkSlots(void);
 
-/* Workbench: mixed structure/register, 62/63 words, first +0x4; the target
- * keeps &D_800D21B0 in s0. Lever: structure-buckets; owned BSS leaves the
- * candidate's folded t6 base unchanged. */
+/* Plateau: workbench structure-mismatch, stock -O2 is 62/63 instructions and
+ * diverges at +0x4; explicit and register-qualified BSS pointers fold away.
+ * The 119-combination lattice's -O2 -g3 score is structurally worse; target keeps the BSS address in s0. */
 #ifdef NON_MATCHING
 void func_8002B7AC(void) {
     s32 i;
