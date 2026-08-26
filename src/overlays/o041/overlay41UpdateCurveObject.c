@@ -87,11 +87,9 @@ extern f32 sqrtf(f32);
 extern s32 func_8002A910(f32, f32);
 extern f32 func_8002A878(f32, s32);
 
-/*
- * NON_MATCHING p2: workbench structure-mismatch with an exact 638-instruction,
- * -224-byte frame; lever 26 reduced differing words from 300 to 222, first +0x80.
- * Address-taken homes now align, but two early FP spill homes remain four bytes low.
- */
+/* Workbench p4: structure-mismatch; 222 positional/225 raw words differ,
+ * 638/638 instructions, first +0x80, frame exact -224. Levers: absolute-
+ * constant audit and frameAmount declaration; both regressed; remains FP homes. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
                                         s32 updateRate, s32 argument) {
