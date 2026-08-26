@@ -87,15 +87,9 @@ extern void o57MenuApplyCameraReloc(s32 camera);
 extern void o57MenuClearUnlockReloc(void);
 extern void o57MenuCommitUnlockReloc(s32 value);
 
-/*
- * Plateau (2026-08-25): canonical -O2 -mips2 has 45/494 instruction words
- * identical, first differs at +0x4, and is 144 bytes short. The candidate
- * has the exact 0x58-byte frame and matching four-way unroll shape, but the
- * target saves s0/s1 while this spelling spills the update count and saves
- * only ra. The full flag lattice plus bounded parameter-width, expression-
- * order, typed-local-block, pointer/index-loop, and temporary-consolidation
- * variants did not reproduce that saved-register web.
- */
+/* Workbench p4: structure-mismatch; 449 positional/450 raw words differ,
+ * 458/494 instructions, first +0x4, frame exact -88. Levers: selection/output
+ * pointer lifetime and declaration order; remains saved-register web. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0004460_18A8058(s32 updateRate) {
     s8 activePlayers[10];
