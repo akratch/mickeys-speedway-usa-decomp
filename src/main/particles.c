@@ -11,573 +11,7 @@
 
 #include "PR/ultratypes.h"
 #include "n_audio/mbi.h"
-
-typedef struct ParticleConfig {
-    s32 flags;
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 value10;
-    s16 value14;
-    s16 value16;
-    s16 value18;
-    s16 value1A;
-    s16 value1C;
-    s16 value1E;
-    u8 pad20[2];
-    s16 value22;
-    s16 value24;
-    s16 value26;
-    s16 value28;
-    s16 value2A;
-    s16 value2C;
-    s16 value2E;
-    f32 value30;
-    f32 value34;
-    f32 value38;
-    f32 value3C;
-    s16 value40;
-    s16 value42;
-    s16 value44;
-    s16 value46;
-    s16 value48;
-    s16 value4A;
-    s16 value4C;
-    s16 value4E;
-    f32 value50;
-    f32 value54;
-    f32 value58;
-    s32 flags5C;
-    s32 value60;
-    s16 value64;
-    s16 value66;
-    u8 pad68[2];
-    s16 value6A;
-    s16 value6C;
-    u8 pad6E[2];
-    s32 value70;
-    s32 value74;
-    s32 value78;
-    s32 value7C;
-    s16 value80;
-    s16 value82;
-    s16 value84;
-    s16 value86;
-    s16 value88;
-    s16 value8A;
-    s32 value8C;
-    s32 value90;
-    s32 value94;
-    u8 value98;
-    u8 value99;
-    u8 value9A;
-    u8 pad9B;
-} ParticleConfig;
-
-typedef struct ParticleTrigger {
-    ParticleConfig *config;
-    s32 flags;
-    union {
-        s16 unk08;
-        struct {
-            u8 sourceRotationCounter;
-            u8 directionRotationCounter;
-        };
-    };
-    s16 value;
-    s16 unk0C;
-    s16 value0E;
-    s16 value10;
-    s16 value12;
-    s16 value14;
-    s16 value16;
-    s16 value18;
-    s16 x;
-    s16 y;
-    s16 z;
-    s16 unk20;
-    u8 alpha;
-    s8 index;
-    u8 active;
-    u8 pad25[3];
-} ParticleTrigger;
-
-typedef struct ParticleTriggerSlot {
-    ParticleConfig *config;
-    s32 flags;
-    u8 unk08;
-    u8 unk09;
-    s16 type;
-    s16 unk0C;
-    s16 value0E;
-    s16 value10;
-    s16 value12;
-    s16 value14;
-    s16 value16;
-    s16 value18;
-    s16 value1A;
-    s16 value1C;
-    s16 value1E;
-    s16 value20;
-    u8 result;
-    s8 index;
-} ParticleTriggerSlot;
-
-typedef struct ParticleObjectHeader {
-    u8 pad00[0x25];
-    s8 triggerCount;
-} ParticleObjectHeader;
-
-typedef struct ParticleObject {
-    u8 pad00[0x1A];
-    s16 activeTriggerCount;
-    u8 pad1C[0x24];
-    ParticleObjectHeader *header;
-    u8 pad44[0x28];
-    ParticleTriggerSlot *triggers;
-    u8 pad70[0x10];
-    u32 triggerBits;
-} ParticleObject;
-
-typedef struct ParticleResourceEntry {
-    u8 pad00[0x2C];
-    s16 type;
-    u8 pad2E[0x1E];
-    void *resource;
-    u8 pad50[0x28];
-} ParticleResourceEntry;
-
-typedef struct ParticleResourceList {
-    u8 pad00[0x14];
-    ParticleResourceEntry *entries;
-    s32 count;
-} ParticleResourceList;
-
-typedef struct ParticleVec3f {
-    f32 x;
-    f32 y;
-    f32 z;
-} ParticleVec3f;
-
-typedef struct ParticleModelEntry {
-    void *particles[15];
-    s32 particleCount;
-    s32 vertexCount;
-    ParticleVec3f points[8];
-    u8 active;
-    u8 padA5[3];
-    s32 animationState;
-    s32 configFlags;
-    f32 textureFrame;
-    s16 animationSpeed;
-    u8 padB6[2];
-    void *resource;
-    volatile ParticleTriggerSlot *trigger;
-} ParticleModelEntry;
-
-typedef struct ParticleVertex {
-    s16 x;
-    s16 y;
-    s16 z;
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-} ParticleVertex;
-
-typedef struct ParticlePointStreamEntry {
-    u8 pad00[0x40];
-    s32 pointCount;
-    f32 points[8][3];
-    u8 active;
-    u8 padA5[3];
-    s32 animationState;
-    s32 configFlags;
-    f32 textureFrame;
-    s16 animationSpeed;
-    u8 padB6[2];
-    void *resource;
-    ParticleTriggerSlot *trigger;
-} ParticlePointStreamEntry;
-
-typedef struct ParticleLinePoint ParticleLinePoint;
-typedef struct ParticleTexture ParticleTexture;
-
-typedef struct ParticleLineEntry {
-    s32 pointCount;
-    ParticleLinePoint *points[15];
-    u8 pad40[0xE4];
-    u8 active;
-    u8 pad125[3];
-    ParticleTexture *texture;
-    ParticleConfig *config;
-    union {
-        u32 *colorTable;
-        s32 unk130;
-    };
-    s16 colorCount;
-    u8 pad136[2];
-    s32 descriptorWord;
-    s32 configFlags;
-    f32 textureFrame;
-    s16 value144;
-    u8 pad146[2];
-} ParticleLineEntry;
-
-struct ParticleTexture {
-    u8 pad00[4];
-    s16 flags;
-    u8 pad06[0x0A];
-    u16 frameCount;
-};
-
-typedef struct ParticleSprite {
-    u8 frameCount;
-    u8 pad01[0x0F];
-    ParticleTexture **textures;
-} ParticleSprite;
-
-struct ParticleLinePoint {
-    s16 x0;
-    s16 y0;
-    s16 z0;
-    s16 x1;
-    s16 y1;
-    s16 z1;
-    s16 intensityTimer;
-    s16 intensity;
-    s16 colorTimer;
-    s16 colorIndex;
-    s16 lifetime;
-    s16 intensityVelocity;
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-};
-
-typedef struct ParticleLineVertex {
-    s16 x0;
-    s16 y0;
-    s16 z0;
-    u8 red0;
-    u8 green0;
-    u8 blue0;
-    u8 alpha0;
-    s16 x1;
-    s16 y1;
-    s16 z1;
-    u8 red1;
-    u8 green1;
-    u8 blue1;
-    u8 alpha1;
-} ParticleLineVertex;
-
-typedef struct ParticleLineRenderEntry {
-    s32 pointCount;
-    ParticleLinePoint *points[15];
-    u8 pad40[0xE4];
-    u8 active;
-    u8 pad125[3];
-    void *texture;
-    ParticleConfig *config;
-    s32 unk130;
-    u8 pad134[4];
-    s32 descriptorWord;
-    s32 configFlags;
-    f32 textureFrame;
-    s16 value144;
-    u8 pad146[2];
-} ParticleLineRenderEntry;
-
-typedef struct ParticleModelPartConfig {
-    s16 type;
-    s16 triggerType;
-    s16 particleType;
-} ParticleModelPartConfig;
-
-typedef struct ParticleModelObjectHeader {
-    u8 pad00[0xB0];
-    ParticleModelPartConfig *parts;
-} ParticleModelObjectHeader;
-
-typedef struct ParticleModelObject {
-    u8 pad00[0x40];
-    ParticleModelObjectHeader *header;
-    u8 pad44[0x38];
-    ParticleTriggerSlot *triggers;
-    u8 pad80[0x0D];
-    u8 triggerCount;
-} ParticleModelObject;
-
-typedef struct ParticleTypeDescriptor {
-    s32 descriptorWord;
-    union {
-        s32 flags;
-        struct {
-            u8 pad04;
-            u8 pointCount;
-            s16 resourceId;
-        };
-    };
-    s16 animationSpeed;
-    s16 lifetime;
-    s16 lifetimeRange;
-    u8 intensity;
-    u8 targetIntensity;
-    s16 intensityTimer;
-    s16 colorTimer;
-    f32 scale;
-    u8 colorMode;
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 pad1C[3];
-    u8 colorCount;
-    u32 *colorTable;
-    u8 pad24[2];
-    u8 triggerValue;
-    u8 triggerType;
-} ParticleTypeDescriptor;
-
-typedef struct BasicParticle {
-    s16 rotationY;
-    s16 rotationX;
-    s16 rotationZ;
-    s16 transformFlags;
-    f32 scale;
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 scaleVelocity;
-    f32 velocityX;
-    f32 velocityY;
-    f32 velocityZ;
-    u8 pad28[6];
-    u8 type;
-    u8 pad2F;
-    f32 localX;
-    f32 localY;
-    f32 localZ;
-    f32 movementValue;
-    f32 gravity;
-    u8 pad44[4];
-    void *parent;
-    u8 pad4C[0x12];
-    s16 angularVelocityY;
-    s16 angularVelocityX;
-    s16 angularVelocityZ;
-} BasicParticle;
-
-typedef struct ParticleEmitterTransformIndex {
-    u16 pad00;
-    u16 matrixIndex;
-} ParticleEmitterTransformIndex;
-
-typedef struct ParticleEmitterHeader {
-    u8 pad00[0x30];
-    ParticleEmitterTransformIndex *transformIndices;
-    u8 pad34[0x1A];
-    s8 transformedPoints;
-} ParticleEmitterHeader;
-
-typedef struct ParticleEmitterPointSet {
-    u8 pad00[0x1E];
-    s8 transformedPoints;
-} ParticleEmitterPointSet;
-
-typedef struct ParticleEmitterResource {
-    ParticleEmitterHeader *header;
-    u8 pad04[4];
-    s16 disableTransform;
-    s16 matrixTableIndex;
-    void *matrices[13];
-    f32 (*points)[3];
-} ParticleEmitterResource;
-
-typedef struct ParticleEmitterObject {
-    s16 rotationY;
-    s16 rotationX;
-    s16 rotationZ;
-    u8 pad06[2];
-    f32 scale;
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad18[4];
-    f32 velocityX;
-    f32 velocityY;
-    f32 velocityZ;
-    u8 pad28[0x12];
-    s8 resourceIndex;
-    u8 pad3B[5];
-    u8 *header;
-    u8 pad44[0x0C];
-    f32 *shading;
-    u8 pad54[0x14];
-    ParticleEmitterResource **resources;
-    u8 pad6C[0x26];
-    u8 hasMovingParticle;
-    u8 pointSetIndex;
-} ParticleEmitterObject;
-
-typedef struct EmittedParticle {
-    u8 pad00[0x1C];
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad28[0x28];
-    s32 flags;
-} EmittedParticle;
-
-typedef struct ParticleParent {
-    u8 pad00[0x0C];
-    f32 x;
-    f32 y;
-    f32 z;
-} ParticleParent;
-
-typedef struct CircularParticle {
-    s16 rotationY;
-    s16 rotationX;
-    s16 rotationZ;
-    s16 transformFlags;
-    f32 scale;
-    f32 renderX;
-    f32 renderY;
-    f32 renderZ;
-    f32 scaleVelocity;
-    f32 velocityX;
-    f32 velocityY;
-    f32 velocityZ;
-    f32 textureFrame;
-    s16 type;
-    u8 kind;
-    u8 state;
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 movementValue;
-    f32 gravity;
-    u8 *colorTable;
-    void *parent;
-    void *resource;
-    s32 flags;
-    s32 value54;
-    ParticleTrigger *trigger;
-    s16 lifetime;
-    s16 angularVelocityY;
-    s16 angularVelocityX;
-    s16 angularVelocityZ;
-    s16 intensity;
-    s16 intensityVelocity;
-    s16 intensityTimer;
-    s16 colorIndex;
-    s16 colorTimer;
-    u8 colorCount;
-    u8 alpha;
-    u8 colorMode;
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alternateRed;
-    u8 alternateGreen;
-    u8 alternateBlue;
-    u8 updateTexture;
-} CircularParticle;
-
-typedef struct ParticleRenderTransform {
-    s16 rotationY;
-    s16 rotationX;
-    s16 rotationZ;
-    s16 flags;
-    f32 scale;
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad18[8];
-} ParticleRenderTransform;
-
-typedef struct ParticleRenderResourceHeader {
-    u8 pad00[0x68];
-    void *displayList;
-} ParticleRenderResourceHeader;
-
-typedef struct ParticleRenderResource {
-    ParticleRenderResourceHeader *header;
-    void *vertices;
-    u8 pad08[2];
-    s16 triangleIndex;
-    void *triangles[1];
-} ParticleRenderResource;
-
-typedef struct ParticleSpriteResource {
-    u8 pad00[6];
-    s16 flags;
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alternateRed;
-    u8 alternateGreen;
-    u8 alternateBlue;
-} ParticleSpriteResource;
-
-typedef struct CircularParticlePool {
-    u8 pad00[0x14];
-    CircularParticle *particles;
-    s32 count;
-    s32 activeCount;
-    s32 *freeBits;
-    s32 lastBitWord;
-    s32 exhausted;
-} CircularParticlePool;
-
-typedef struct ParticlePosition {
-    u8 pad00[0x0C];
-    f32 x;
-    f32 y;
-    f32 z;
-} ParticlePosition;
-
-extern f32 D_8007C8F8;
-extern f32 D_8007C8F0;
-extern f32 D_8007C8F4;
-extern s32 D_8007C854;
-extern s32 D_8007C85C;
-extern f32 D_80082A48;
-extern f32 D_80082A4C;
-extern f32 D_80082A50;
-extern f32 D_80082A54;
-extern f32 D_80082A6C;
-extern f32 D_80082A70;
-extern f32 D_8007C8C8[];
-extern void **D_8007C884;
-extern s32 D_8007C888;
-extern s32 D_8007C88C;
-extern ParticleLineEntry *D_8007C894;
-extern void *D_8007C89C[2];
-extern s32 D_8007C8B0;
-extern ParticleConfig **D_8007C8B8;
-extern ParticleTrigger *D_8007C8BC;
-extern s32 D_8007C8C0;
-extern s32 D_8007C8C4;
-extern s32 D_8007C890;
-extern s32 D_8007C8E8;
-extern s32 D_8007C8EC;
-extern ParticleModelEntry *D_8007C898;
-extern ParticleTypeDescriptor **D_8007C8AC;
-extern s32 D_800D4140;
-extern CircularParticlePool *D_800D4120[];
-extern CircularParticlePool *D_800D4124;
-extern CircularParticlePool *D_800D4128;
-extern CircularParticlePool *D_800D412C;
-extern CircularParticlePool *D_800D4130[];
-extern f32 D_800D4134;
-extern f32 D_800D4138;
-extern f32 D_800D413C;
-extern void *D_8007CA60;
-extern f32 *D_8007CA90[];
-extern void *D_8007CA98;
+#include "game/particles.h"
 
 void mmFree(void *ptr);
 void func_800347A0(void *resource);
@@ -635,7 +69,6 @@ void func_800420E0(BasicParticle *particle);
 void func_800421F4(BasicParticle *particle);
 void func_8004233C(BasicParticle *particle);
 void func_800423EC(BasicParticle *particle);
-extern u8 D_7C900[];
 
 /* PROVENANCE: body adapted from DKR src/particles.c:reset_particles. */
 void reset_particles(void) {
@@ -983,13 +416,17 @@ void func_8003D25C(Gfx **dList, s32 renderContext, void **vertices, CircularPart
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D25C.s")
 #endif
+/* Before -> after: no C candidate for the 0x10B0-byte TU range -> unchanged.
+ * Type lever: shared particle globals/types were reconciled without a C body.
+ * Remains: GLOBAL_ASM is canonical. */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D4FC.s")
 void partInitTrigger(ParticleTrigger *trigger, s32 type, s32 value) {
     ParticleConfig *config;
 
     if (type < D_8007C8B0) {
         config = D_8007C8B8[type];
-        partInitTriggerPos(trigger, type, value, config->x, config->y, config->z);
+        partInitTriggerPos(trigger, type, value, config->emitterPosition.x, config->emitterPosition.y,
+                           config->emitterPosition.z);
     }
 }
 void partInitTriggerSPPos(ParticleTrigger *trigger, s32 type, s32 value, s32 index) {
@@ -1024,12 +461,12 @@ void partInitTriggerPos(ParticleTrigger *trigger, s32 type, s32 value, s16 x, s1
         return;
     }
     trigger->flags = 0;
-    trigger->value0E = config->value14;
-    trigger->value10 = config->value16;
-    trigger->value12 = config->value18;
-    trigger->value14 = config->value22;
-    trigger->value16 = config->value24;
-    trigger->value18 = config->value26;
+    trigger->value0E = config->sourceRotation.x;
+    trigger->value10 = config->sourceRotation.y;
+    trigger->value12 = config->sourceRotation.z;
+    trigger->value14 = config->emissionDirection.x;
+    trigger->value16 = config->emissionDirection.y;
+    trigger->value18 = config->emissionDirection.z;
     trigger->alpha = 0;
 }
 ParticleTrigger *func_8003E730(s32 type, s32 value) {
@@ -1068,15 +505,15 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     } else {
         if (config->flags & 1) {
             trigger->unk08 = 0;
-            trigger->value0E = config->value14;
-            trigger->value10 = config->value16;
-            trigger->value12 = config->value18;
+            trigger->value0E = config->sourceRotation.x;
+            trigger->value10 = config->sourceRotation.y;
+            trigger->value12 = config->sourceRotation.z;
         }
         if (config->flags & 4) {
             trigger->unk09 = 0;
-            trigger->value14 = config->value22;
-            trigger->value16 = config->value24;
-            trigger->value18 = config->value26;
+            trigger->value14 = config->emissionDirection.x;
+            trigger->value16 = config->emissionDirection.y;
+            trigger->value18 = config->emissionDirection.z;
         }
     }
     flags = trigger->flags;
@@ -1379,15 +816,10 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
     }
 }
 #ifdef NON_MATCHING
-/*
- * Workbench: mixed structure/register/commutative residual, exact 297 instructions/frame -88; 39 raw words, first +0x204.
- * Levers: structure buckets and both FP reassociations for the commutative add; each worsened the baseline, so no edit was kept.
- * Remains: +0x20C zero-vector web, header-copy branch shape, and FP normalization; asm stays canonical.
- *
- * PROVENANCE: structure cross-checked against JFG's assembly-only
- * asm/nonmatchings/particles/func_80060400.s sibling; body reconstructed
- * from Mickey evidence.
- */
+/* Before -> after: structure-mismatch, 39 raw words, 297 instructions -> unchanged; first +0x204.
+ * Type lever: Basic/emitter and vector aggregates; structure buckets remained unchanged.
+ * Remains: zero-vector/header-copy/FP normalization; asm stays canonical.
+ * PROVENANCE: structure cross-checked against JFG's assembly-only asm/nonmatchings/particles/func_80060400.s sibling; body reconstructed from Mickey evidence. */
 void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config) {
     s32 flags;
@@ -1402,9 +834,9 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
     s8 pointIndex;
 
     if (config->flags & 0x70) {
-        particle->velocityX = config->value30;
-        particle->velocityY = config->value34;
-        particle->velocityZ = config->value38;
+        particle->velocityX = config->velocityModifier.x;
+        particle->velocityY = config->velocityModifier.y;
+        particle->velocityZ = config->velocityModifier.z;
     } else {
         particle->velocityX = 0.0f;
         particle->velocityY = 0.0f;
@@ -1414,15 +846,15 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
     flags = config->flags5C & 0x700;
     if (flags != 0) {
         if (flags & 0x100) {
-            randomRange = config->value74;
+            randomRange = config->velocityModifierRange.x;
             particle->velocityX += mathRnd(-randomRange, randomRange) * 0.000015258789f;
         }
         if (flags & 0x200) {
-            randomRange = config->value78;
+            randomRange = config->velocityModifierRange.y;
             particle->velocityY += mathRnd(-randomRange, randomRange) * 0.000015258789f;
         }
         if (flags & 0x400) {
-            randomRange = config->value7C;
+            randomRange = config->velocityModifierRange.z;
             particle->velocityZ += mathRnd(-randomRange, randomRange) * 0.000015258789f;
         }
     }
@@ -1457,11 +889,11 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
         if (flags & 0x60) {
             rotation[0] = trigger->value14;
             if (flags & 0x20) {
-                rotation[0] += mathRnd(-config->value6A, config->value6A);
+                rotation[0] += mathRnd(-config->emissionDirectionRange.x, config->emissionDirectionRange.x);
             }
             rotation[1] = trigger->value16;
             if (flags & 0x40) {
-                rotation[1] += mathRnd(-config->value6C, config->value6C);
+                rotation[1] += mathRnd(-config->emissionDirectionRange.y, config->emissionDirectionRange.y);
             }
         } else {
             rotation[0] = trigger->value14;
@@ -1576,11 +1008,11 @@ void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, Parti
         if (flags & 6) {
             rotation[0] = trigger->value0E;
             if (flags & 2) {
-                rotation[0] += mathRnd(-config->value64, config->value64);
+                rotation[0] += mathRnd(-config->sourceDirectionRange.x, config->sourceDirectionRange.x);
             }
             rotation[1] = trigger->value10;
             if (flags & 4) {
-                rotation[1] += mathRnd(-config->value66, config->value66);
+                rotation[1] += mathRnd(-config->sourceDirectionRange.y, config->sourceDirectionRange.y);
             }
             mathOneFloatPY(rotation, offset);
         } else {
@@ -1635,12 +1067,12 @@ void partModelObjEmitModelPart(ParticleModelObject *object, f32 velocityX, f32 v
         trigger->value1C = 0;
         trigger->value1E = 0;
         trigger->value20 = 0;
-        trigger->value0E = config->value14;
-        trigger->value10 = config->value16;
-        trigger->value12 = config->value18;
-        trigger->value14 = config->value22;
-        trigger->value16 = config->value24;
-        trigger->value18 = config->value26;
+        trigger->value0E = config->sourceRotation.x;
+        trigger->value10 = config->sourceRotation.y;
+        trigger->value12 = config->sourceRotation.z;
+        trigger->value14 = config->emissionDirection.x;
+        trigger->value16 = config->emissionDirection.y;
+        trigger->value18 = config->emissionDirection.z;
         trigger->index = -1;
         particle = (BasicParticle *)func_8003FB98(
             (ParticleEmitterObject *)object, (ParticleTrigger *)trigger,
@@ -1802,41 +1234,41 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
 
     func_8003F5F8((BasicParticle *)particle, object, (ParticleTriggerSlot *)trigger, config);
     if (config->flags & 0x80) {
-        particle->rotationY = config->value44;
-        particle->rotationX = config->value46;
-        particle->rotationZ = config->value48;
+        particle->rotationY = config->rotation.x;
+        particle->rotationX = config->rotation.y;
+        particle->rotationZ = config->rotation.z;
     } else {
-        particle->rotationY = object->rotationY + config->value44;
-        particle->rotationX = object->rotationX + config->value46;
-        particle->rotationZ = object->rotationZ + config->value48;
+        particle->rotationY = object->rotationY + config->rotation.x;
+        particle->rotationX = object->rotationX + config->rotation.y;
+        particle->rotationZ = object->rotationZ + config->rotation.z;
     }
 
     randomizationFlags = config->flags5C & 0x3800;
     if (randomizationFlags != 0) {
         if (randomizationFlags & 0x800) {
-            particle->rotationY += mathRnd(-config->value80, config->value80);
+            particle->rotationY += mathRnd(-config->rotationRange.x, config->rotationRange.x);
         }
         if (randomizationFlags & 0x1000) {
-            particle->rotationX += mathRnd(-config->value82, config->value82);
+            particle->rotationX += mathRnd(-config->rotationRange.y, config->rotationRange.y);
         }
         if (randomizationFlags & 0x2000) {
-            particle->rotationZ += mathRnd(-config->value84, config->value84);
+            particle->rotationZ += mathRnd(-config->rotationRange.z, config->rotationRange.z);
         }
     }
 
-    particle->angularVelocityY = config->value4A;
-    particle->angularVelocityX = config->value4C;
-    particle->angularVelocityZ = config->value4E;
+    particle->angularVelocityY = config->angularVelocity.x;
+    particle->angularVelocityX = config->angularVelocity.y;
+    particle->angularVelocityZ = config->angularVelocity.z;
     randomizationFlags = config->flags5C & 0x1C000;
     if (randomizationFlags != 0) {
         if (randomizationFlags & 0x4000) {
-            particle->angularVelocityY += mathRnd(-config->value86, config->value86);
+            particle->angularVelocityY += mathRnd(-config->angularVelocityRange.x, config->angularVelocityRange.x);
         }
         if (randomizationFlags & 0x8000) {
-            particle->angularVelocityX += mathRnd(-config->value88, config->value88);
+            particle->angularVelocityX += mathRnd(-config->angularVelocityRange.y, config->angularVelocityRange.y);
         }
         if (randomizationFlags & 0x10000) {
-            particle->angularVelocityZ += mathRnd(-config->value8A, config->value8A);
+            particle->angularVelocityZ += mathRnd(-config->angularVelocityRange.z, config->angularVelocityRange.z);
         }
     }
 
@@ -1859,18 +1291,18 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     if (config->flags & 2) {
         trigger->sourceRotationCounter++;
         if (trigger->sourceRotationCounter >= config->value1A) {
-            trigger->value0E += config->value1C;
-            trigger->value10 += config->value1E;
-            trigger->value12 += config->value18;
+            trigger->value0E += config->sourceAngularVelocity.x;
+            trigger->value10 += config->sourceAngularVelocity.y;
+            trigger->value12 += config->sourceRotation.z;
             trigger->sourceRotationCounter -= config->value1A;
         }
     }
     if (config->flags & 8) {
         trigger->directionRotationCounter++;
         if (trigger->directionRotationCounter >= config->value28) {
-            trigger->value14 += config->value2A;
-            trigger->value16 += config->value2C;
-            trigger->value18 += config->value2E;
+            trigger->value14 += config->emissionDirectionAngularVelocity.x;
+            trigger->value16 += config->emissionDirectionAngularVelocity.y;
+            trigger->value18 += config->emissionDirectionAngularVelocity.z;
             trigger->directionRotationCounter -= config->value28;
         }
     }
@@ -1888,16 +1320,16 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     return particle;
 }
 #ifdef NON_MATCHING
-/* Workbench structure-mismatch: 124/125 instructions, 101 normalized words; first +0x4C.
- * 33 aligned residuals (4 structural, 1 commutative, 28 register); pointer-order probe worsened.
- * The initial address shift and temp/pool register webs remain. */
+/* Before -> after: structure-mismatch, 124/125 instructions, 33 aligned words -> unchanged; first +0x4C.
+ * Type lever: unsigned free-bit pointer and pool aggregate; no scan-shape movement.
+ * Remains: initial address shift, pool/temporary web, and one missing instruction. */
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey evidence. */
 CircularParticle *func_8004054C(s32 type, s32 direction) {
     CircularParticlePool *pool;
     CircularParticle *particle;
-    s32 *freeBits;
-    s32 *wordPtr;
+    u32 *freeBits;
+    u32 *wordPtr;
     s32 bits;
     s32 particleIndex;
     s32 wordIndex;
@@ -1918,7 +1350,7 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
             if (direction == -1) {
                 freeBits = pool->freeBits;
                 if (*freeBits == 0) {
-                    wordPtr = (s32 *)((u8 *)freeBits + (wordIndex << 2));
+                    wordPtr = (u32 *)((u8 *)freeBits + (wordIndex << 2));
                     if (pool->lastBitWord >= wordIndex) {
                         do {
                             wordIndex++;
@@ -2341,7 +1773,7 @@ void func_80041040(ParticleLineEntry *entry, s32 updateRate) {
 }
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_80062A4C.s; body reconstructed from Mickey evidence. */
 void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
-    void **particle;
+    CircularParticle **particle;
     s32 changed;
     s32 found;
     s32 i;
@@ -2425,7 +1857,7 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
     s32 i;
     s32 triangleListIndex;
     void *triangleLists[2];
-    void **particlePtr;
+    CircularParticle **particlePtr;
     Gfx *command;
     s32 vertexCount;
     s32 triangleCount;
@@ -2551,7 +1983,7 @@ void func_80041CE4(void **dList, void **vertices) {
     ParticleLineVertex *vertexStart;
     ParticleLinePoint *point;
     Gfx *displayList;
-    ParticleLineRenderEntry *line;
+    ParticleLineEntry *line;
     s32 i;
     s32 j;
     s32 pointCount;
@@ -2561,7 +1993,7 @@ void func_80041CE4(void **dList, void **vertices) {
     if (D_8007C894 != NULL) {
         displayList = *dList;
         vertex = *vertices;
-        line = (ParticleLineRenderEntry *)D_8007C894;
+        line = D_8007C894;
         i = 0;
         if (D_8007C88C > 0) {
             do {

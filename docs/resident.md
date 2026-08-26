@@ -1807,21 +1807,17 @@ resident flags, JFG-named Mickey reconstruction); `debug_text_background`
 donor); `func_8003EC8C` (ROM `0x3F88C`, `0xBC` bytes, default resident flags,
 Mickey pointer-first reconstruction with the JFG assembly sibling as oracle).
 
-`func_8003CE10` plateaued after the flag lattice, ten hypotheses, and a
-canonical-`mips2` permuter: its 275-instruction C has exact opcodes/relocations,
-but 154 words differ from `+0x0` because IDO emits a `0x98` frame versus
-`0x90`. JFG `func_8005DD88` is the assembly oracle; asm stays canonical.
+`func_8003CE10`: before/after allocation mismatch, 275 instructions and 154 words; frame remains `0x98` vs target `0x90`.
+Type lever: shared pool/render aggregates and vector aliases; no codegen movement. Remains the frame/register web; JFG `func_8005DD88` is the oracle.
 
-`func_8003F5F8` plateaued one instruction short after the flag lattice, ten
-hypotheses, and a canonical-`mips2` permuter. Its `0x48` frame and all register
-lanes match; 262/276 aligned rows match. The first mismatch is the target's
-redundant branch at `+0xA4`; 11 later words swap the flags spill (`sp+0x44`)
-with the rotation pair (`sp+0x30`). JFG `func_800608EC` is the assembly oracle;
-asm stays canonical.
+`func_8003D4FC`: before/after no C candidate for the `0x10B0`-byte range; shared aggregate types do not change the asm-only body.
+Type lever: global and resource declarations; no C promotion is possible. Remains canonical `GLOBAL_ASM`; JFG `func_8005E3DC` is the donor label.
 
-`func_8003F154`: workbench mixed structure/register/commutative residual, exact 297 instructions/frame -88; 39 raw words from `+0x204`.
-Structure buckets and both FP reassociations for the commutative add worsened the baseline; no edit was kept.
-The `+0x20C` zero-vector web, header-copy branch, and FP normalization remain; JFG `func_80060400` is the oracle.
+`func_8003F5F8`: before/after one instruction short (target 276, C 275), first mismatch `+0xA4`.
+Type lever: Basic/emitter/config aggregates; branch and stack schedule are unchanged. Remains the redundant branch and flags/rotation homes; JFG `func_800608EC` is the oracle.
+
+`func_8003F154`: before/after structure mismatch, 297 instructions and 39 raw words, first `+0x204`.
+Type lever: Basic/emitter/vector aggregates; no structure movement. Remains the zero-vector/header-copy/FP-normalization cluster; JFG `func_80060400` is the oracle.
 
 `partNullifyCircularParticleParents` is opcode/size-exact with 25/42 positional
 residuals from `+0x0`; implicit loop bounds seed both carrier pairs oppositely.
@@ -1831,15 +1827,11 @@ An explicit end pointer changes the frame, so asm stays canonical.
 The donor pad/current topology moves its buffer from `sp+44` to `sp+40`, still four bytes above target.
 Workbench identifies a pool-slot-5 `v0`/`v1` mismatch; asm remains canonical.
 
-`func_8004054C` plateaued one word short (124/125), with 33 aligned residuals
-from `+0x4C`; pointer-order probing worsened the initial address shift and temp/pool
-web. The workbench verdict remains structure-mismatch; asm stays canonical.
+`func_8004054C`: before/after structure mismatch, 124/125 instructions and 33 words, first `+0x4C`.
+Type lever: unsigned free-bit pointer and pool aggregate; no scan-shape movement. Remains the pool/temporary web and missing instruction; asm stays canonical.
 
-`func_8003E8D8` plateaued size-exact at 140 words with the target opcode
-schedule, but the whole TU emits a `0x30` frame versus `0x38`: 22 residuals
-(19 stack/frame, two registers, one branch) begin at `+0x8`. The flag lattice
-did not improve it; a standalone permuter zero failed in the canonical TU and
-was rejected. Asm stays canonical.
+`func_8003E8D8`: before/after allocation mismatch, 140 instructions and 22 words; frame remains `0x30` vs target `0x38`.
+Type lever: point-stream/model distinction and vector aliases; opcode schedule stayed exact. Remains stack homes, two registers, and one branch target; asm stays canonical.
 
 | Newly matched function | ROM / size | Match evidence |
 |---|---:|---|
@@ -1860,21 +1852,11 @@ original asm body remains canonical.
 supplies the body donor and a bounded canonical-flag permuter found the final
 loop-condition web coalescing.
 
-`func_80041CE4` reached a bounded 153-instruction plateau under the default
-resident flags with the exact opcode schedule, `0x80` frame, and relocation
-surface. Its best Mickey-derived candidate differs in 34 words, first at
-function offset `0x48`: the target colors the outer entry-count web in `$a3`
-rather than `$a2` and places the address-taken display-list local at
-`sp+0x6C` rather than `sp+0x7C`; the same pool-register rotation continues
-through the two generated command words. Declaration, lifetime, pointer-loop,
-and expression-tree variants converged on that allocation basin after the full
-flag lattice. The bounded permuter imported the TU as inadmissible `-mips1`
-and only improved its internal score with a dummy label, so the typed candidate
-remains under `NON_MATCHING` and the original asm body remains canonical.
+`func_80041CE4`: before/after allocation mismatch, 153 instructions and 27 words, exact size/frame/relocations; first `+0x48`.
+Type lever: canonical line-entry alias; the pool/register web did not move. Remains the outer count, display-list home, and pool rotation; asm stays canonical.
 
-`func_8003D25C`: workbench allocation mismatch, exact 168 instructions/frame -184; 70 register-only words, first `+0x50`.
-Temp-FIFO/pool-web scopes, direct fields, color-web removal, and a bounded 30-minute permutation found no exact.
-Temp slot 0 plus pool substitutions at slots 37/41 remain; the candidate stays under `NON_MATCHING` and asm is canonical.
+`func_8003D25C`: before/after allocation mismatch, 168 instructions and 70 register-only words, first `+0x50`.
+Type lever: pool/render-resource aggregates and vector aliases; no allocation movement. Remains temp slot 0 and pool substitutions; asm stays canonical.
 
 | Function | Result |
 |---|---|
@@ -1886,25 +1868,11 @@ Temp slot 0 plus pool substitutions at slots 37/41 remain; the candidate stays u
 |---|---|
 | `debug_text_character` | **tier-A**, ROM `0x45398`, `0x2E8` bytes, `-Wab,-r4300_mul`; an aligned width union recovers the target `0x18` frame and all 186 instructions/relocations. JFG body donor. |
 
-`func_80040B88` reached a bounded 300-instruction plateau against the target's
-302 instructions under the canonical resident flags. Its `0x70` frame differs
-from the target's `0x68` frame at function offset zero; shift-tolerant alignment
-needs seven insertions and nine deletions, with 141 paired residuals. The first
-substantive divergence preserves the trigger pointer in `$t7` where the target
-spills and reloads it, rotating the later temporary lanes. The full flag
-lattice and bounded permuter found no exact form. The DKR
-`update_line_particle` body and JFG assembly sibling are the structural oracles;
-the candidate remains under `NON_MATCHING` and asm remains canonical.
+`func_80040B88`: before/after structure mismatch, 302 instructions and 160 words; frame remains `0x70` vs target `0x68`.
+Type lever: line-entry/config/vector aggregates; trigger spill and temporary lanes did not move. Remains the pool web; DKR `update_line_particle` and JFG are the oracles.
 
-`func_80041530` reached a bounded 386-instruction plateau against the target's
-456 instructions. The candidate has a `0x160` frame instead of the target's
-`0x168`, first differing at function offset zero; alignment needs ten
-insertions, 21 deletions, and 64 replacements. The unresolved structural gap is
-the target's software-pipelined input-vector construction. The full flag
-lattice found no exact alternative, and the bounded permuter imported this
-resident TU as inadmissible `-mips1`. JFG `func_80062BFC` is the assembly
-oracle; the typed candidate remains under `NON_MATCHING` and asm remains
-canonical.
+`func_80041530`: before/after structure mismatch, target 456/C 457 instructions and 280 words; frame remains `0x160` vs `0x168`.
+Type lever: model particle pointers and vector arrays; the software pipeline did not change. Remains the input-vector construction gap; JFG `func_80062BFC` is the oracle.
 
 `func_8003FB98` reached a bounded near-exact plateau at the target's full 621
 instructions, `0x38` frame, and relocation surface. Ten words remain, first at
