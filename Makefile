@@ -3229,10 +3229,27 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
+ifeq ($(NON_MATCHING),1)
+# The compiler's six-entry table is the same table retained at module +0x76C.
+# Rebind only its text references and discard the duplicate private section;
+# the linked default path remains the GLOBAL_ASM body while this source is a plateau.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
+	$(OBJCOPY) --add-symbol overlay59AdvanceSwitchTable=0x76C,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x84:.rodata:overlay59AdvanceSwitchTable \
+		0x8C:.rodata:overlay59AdvanceSwitchTable && \
+	$(OBJCOPY) --remove-section=.rodata $@ && \
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
+else
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
+endif
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59BuildList.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59AppendValue.c.o: POSTPROCESS = \
