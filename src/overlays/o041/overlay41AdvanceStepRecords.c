@@ -13,9 +13,9 @@ typedef struct Overlay41StepRecord {
 extern Overlay41StepRecord gOverlay41StepRecords[8];
 extern void overlay41EmitStep(s32 id, s32 x, s32 y);
 
-/* Workbench: mixed structural/register, exact 73/-48 shape, 26 register words from +0x54; temp phase +1.
- * Lever: temp-FIFO diagnosis confirms the prior condition, lifetime, width, and scope probes do not change topology.
- * Remaining: one temp-ring pop/death and three overlay relocation identities. */
+/* Workbench: allocation-mismatch, exact 73/-48 shape, 26 register words from +0x54; temp phase +1.
+ * Lever: temp-FIFO structure/lifetime/width/scope probes left the ring topology unchanged.
+ * Remains: one temp-ring pop/death and three overlay relocation identities; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0000000_1887338(s32 amount) {
     Overlay41StepRecord *record;

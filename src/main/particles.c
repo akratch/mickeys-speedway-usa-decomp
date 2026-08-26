@@ -1088,9 +1088,9 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     object->activeTriggerCount++;
 }
 #ifdef NON_MATCHING
-/* Workbench: mixed constant/structural/register, exact 140-instruction shape but 0x30 vs 0x38 frame; 22 raw words from +0x8.
- * Levers: flag lattice, bounded permuter, local-order/pad, and ABI-call probes left the configured full-TU body unchanged or worse.
- * Remaining: target stack-home layout, two pool substitutions, and one branch-target displacement. */
+/* Workbench: allocation-mismatch, exact 140-instruction shape, target frame 0x38 versus candidate 0x30; 22 raw words from +0x8.
+ * Lever: stack-frame recovery, local/pad, ABI-call, flag, and bounded permutation probes left the full-TU topology unchanged.
+ * Remains: target stack-home layout, two pool substitutions, and one branch displacement; assembly fallback stays canonical. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
     ParticlePointStreamEntry *entry;
