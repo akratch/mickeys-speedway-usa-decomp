@@ -9,15 +9,20 @@ typedef struct Overlay14Asset {
     s16 padE;
 } Overlay14Asset;
 
-extern s32 *gOverlay14Ranges;
+typedef struct Overlay14State {
+    u8 pad00[0xF4];
+    s32 *ranges;
+} Overlay14State;
+
+extern Overlay14State gOverlay14State;
 extern s32 gOverlay14DefaultA4;
 extern s32 gOverlay14DefaultB4;
 extern void *overlay14AssetCall();
 
 #ifdef NON_MATCHING
-/* Workbench: mixed schedule/register plateau, best 12/54 words; first +0x4 is overlay-local addressing.
- * Levers: a stack-home pad improved 18 to 12; named carriers, dead reads, and materialization were inert.
- * Remaining: v0/v1 iterator swap, two default-address schedule slots, and overlay relocation identities. */
+/* Workbench: mixed schedule/register, exact 54/-40 shape, 12-word floor after the +0xF4 state anchor.
+ * Lever: overlay-state field anchor fixed the leading constant; iterator and schedule probes did not move the late web.
+ * Remaining: six schedule, ten register, and nine overlay-relocation residuals. */
 Overlay14Asset *func_overlay_014_F00009F4_18702CC(s32 index, s32 context) {
     s32 pad;
     s32 start;
@@ -27,8 +32,8 @@ Overlay14Asset *func_overlay_014_F00009F4_18702CC(s32 index, s32 context) {
     Overlay14Asset *entry;
 
     pad = index;
-    start = gOverlay14Ranges[index];
-    size = gOverlay14Ranges[index + 1] - start;
+    start = gOverlay14State.ranges[index];
+    size = gOverlay14State.ranges[index + 1] - start;
     asset = (Overlay14Asset *)overlay14AssetCall(size, 0x85, start);
     if (asset != 0) {
         overlay14AssetCall(context, asset, start, size);
