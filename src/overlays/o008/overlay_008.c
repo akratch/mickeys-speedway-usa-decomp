@@ -925,8 +925,9 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0003368_18610C0.s")
 #endif
 
-/* NON_MATCHING plateau (2026-08-25): owner-mode first-use and block-scoped FP temps give -O2 -mips2 -Wo,-loopunroll,0 at +0x20, 749/898 words different, first +0x0.
- * Workbench: structure-mismatch, frame 0xB0 vs 0x80; split/field-backed query, terrain-temp reuse, declaration order, register hints, and a 13,385-best permuter run did not close it. */
+/* NON_MATCHING plateau (2026-08-26): workbench structure-mismatch; -O2 -mips2 -Wo,-loopunroll,0 gives 906/898 instructions, 751 positional words different, frame -192 vs -128, first +0x0.
+ * Levers: flag lattice, query/base typing, selectedMode word storage, and register-web variants; none reached exact output.
+ * Remains: the 0x40-byte frame reduction and its persistent register/control-flow cascade; GLOBAL_ASM retained. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                                       O8P34A0State *state, f32 limit,
