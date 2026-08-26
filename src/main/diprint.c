@@ -126,9 +126,9 @@ s32 sprintf(char *s, const char *format, ...) {
 #define isdigit(c) ((c >= '0') && (c <= '9'))
 
 /* PROVENANCE: body adapted from JFG src/diprint.c:vsprintf. */
-/* Workbench: instruction words exact; first relocation mismatch is +0x130.
- * The canonical flag lattice and exponent-sign line-assignment lever were tried.
- * All 28 formatter table/data relocation identities still require the asm split. */
+/* Workbench verdict=relocation-layout-mismatch; all 1220 instruction words and allocator lanes are exact, first real mismatch +0x130.
+ * Flag lattice and exponent-sign line-assignment levers were tried; the C body links with 28 different formatter-table/data relocation identities.
+ * Remains: preserve the asm split for those local table/data bindings; no instruction-code hypothesis remains. */
 s32 vsprintf(char *s, const char *fmt, va_list args) {
     /* Pointer into the format string.  */
     const char *f;
