@@ -654,8 +654,8 @@ s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
         command->words.w1 = 0;
         command->words.w0 = 0xE7000000;
         command = displayList++;
-        command->words.w1 = 0x10001;
         command->words.w0 = 0xB7000000;
+        command->words.w1 = 0x10001;
     }
 
     partIndex = 0;
