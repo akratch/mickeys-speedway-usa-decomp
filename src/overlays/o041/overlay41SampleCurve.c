@@ -19,9 +19,9 @@ typedef struct Overlay41CurveNode {
  * (cubic_spline_interpolation), and Jet Force Gemini,
  * src/hasm/ido/math_util.s (splinePos); declaration and constant-family
  * source-shape analogues only. Mickey's ROM decides every detail. */
-/* Plateau (near-miss p5): workbench mixed(structural:4, commutative:2, register:10),
- * 17 masked words at 340 instructions; the late cubic FP block remains divergent.
- * Levers: both operand-order swaps plus structure/flag checks; FP temp allocation remains. */
+/* Plateau (near-miss p6): workbench mixed(structural:4, commutative:2, register:10),
+ * 17 words at 340 instructions; first +0x49C in the late cubic FP block.
+ * Lever: structure-bucket/context audit left the prior operand-order/flag levers closed; FP temp allocation remains. */
 #ifdef NON_MATCHING
 void func_overlay_041_F00002AC_18875E4(Overlay41CurveNode *node, f32 t,
                                         f32 *valueOut, f32 *tangentOut,

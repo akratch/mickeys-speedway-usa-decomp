@@ -1795,8 +1795,18 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/func_overlay_043_F0000BE4_188ABB4.c.o: \
 	MIPSISET := -mips1 -32
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/func_overlay_043_F0000BE4_188ABB4.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C4
+ifneq ($(NON_MATCHING),0)
+# Retail overlay43 stores this local D_0 reference without reloc records.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ComputeMotion.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ComputeMotion.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x090:5:D_0 0x094:6:D_0 && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
+else
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43ComputeMotion.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
+endif
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43AllocateResources.c.o: \
 	config/normalizations/overlay43AllocateResources.calls.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o043/overlay43AllocateResources.c.o: POSTPROCESS = \
@@ -2380,9 +2390,34 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000000_18C91C8.c.o: POS
 		0x05c:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 
+# Retail overlay70 routes this carrier's local calls through offset zero and
+# stores its two local table references without reloc records.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: CFLAGS += -Wab,-r4300_mul
+ifneq ($(NON_MATCHING),0)
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x168:5:gOverlay70PairTableReloc \
+		0x16C:6:gOverlay70PairTableReloc \
+		0x194:5:gOverlay70HeightTableReloc \
+		0x1CC:6:gOverlay70HeightTableReloc && \
+	$(OBJCOPY) --redefine-sym \
+		overlay70Reset=func_overlay_070_F0000000_18C91C8 $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x0F0:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
+		0x100:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
+		0x124:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
+		0x134:overlay70RandomRange:func_overlay_070_F0000000_18C91C8 \
+		0x14C:overlay70Sin:func_overlay_070_F0000000_18C91C8 \
+		0x15C:overlay70Cos:func_overlay_070_F0000000_18C91C8 \
+		0x28C:overlay70Apply:func_overlay_070_F0000000_18C91C8 && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2AC
+else
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2AC
+endif
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: POSTPROCESS = \

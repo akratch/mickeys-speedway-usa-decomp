@@ -25,12 +25,11 @@ typedef struct Vec3f {
 
 extern u8 D_0[];
 #define D_24 (*(f32 *)(D_0 + 0x24))
-extern void func_80029FE4(Overlay43RotationInput *input, Vec3f *direction);
-extern void func_8002A82C(Overlay43MotionOutput *output);
+extern s32 func_overlay_043_F0000000_1889FD0();
 
-/* Workbench: mixed constants/structure/register; exact 55 words/-0x38 frame, 16 words, first +0x74.
- * Levers 1/4/24/5/6, scalar/array/lifetime variants, and the full flag sweep found no improvement.
- * Remaining: target FP pool/order and overlay-local call/literal relocation topology; assembly fallback stays canonical. */
+/* Plateau (near-miss p6): workbench mixed(structural:4, register:11), 16 words at 55 instructions/frame -0x38; first +0x74.
+ * Levers: overlay-local call binding and target-local D_0 relocation filtering made integer lanes exact; FP probes did not.
+ * Remains: FP pool/temp phase and four structural words; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
                                       s32 owner,
@@ -51,12 +50,12 @@ void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
     direction.x = 0.0f;
     direction.y = 0.0f;
     direction.z = -1.0f;
-    func_80029FE4(input, &direction);
+    func_overlay_043_F0000000_1889FD0(input, &direction);
     sp24 = direction.x;
     sp1C = direction.z;
     sp20 = direction.y;
     output->owner = owner;
-    func_8002A82C(output);
+    func_overlay_043_F0000000_1889FD0(output);
 
     temp_f2 = D_24;
     output->unk00 = temp_f2;

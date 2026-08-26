@@ -52,9 +52,9 @@ extern f32 overlay70Cos(s32 angle);
 extern void overlay70Apply(void *target, s32 *flags, s32 mode,
                            f32 *coordinates, s32 ticks);
 
-/* Plateau (near-miss p5): workbench allocation-mismatch, mixed(structural:1, schedule:7,
- * register:15), 15 words at 171 instructions/frame -0x48.
- * Levers: s16 angle, phase-local split, and flags; register ring and two relocations remain. */
+/* Plateau (near-miss p6): workbench allocation-mismatch, 15 register-only words at 171 instructions/frame -0x48; first +0xC4.
+ * Levers: target-local call/table relocation normalization and an intermediate-value read; only the former reduced residuals.
+ * Remains: pool/temp class crossing with four ring-only target substitutions; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
     O70State *state;
