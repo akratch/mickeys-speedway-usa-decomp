@@ -162,10 +162,9 @@ extern void func_80001708(void);
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive.
- *
- * Workbench: allocation-mismatch, first +0x13C; three register words remain
- * after the level TU owns the adjacent D_800CF3E0/D_800CF420 BSS ranges. The
- * zero-count loop's D_800CF420 relocation identity is also still distinct.
+ * Workbench p6: register-permutation; 3 masked code words plus one relocation-controlled word, 259 instructions/-0x58 frame exact, first +0x13C.
+ * Tried target endpoint relocation spelling; it destabilized the zero loop; inherited type/flag/permutation sweeps remain negative.
+ * Remains: a0 versus v0 world allocation and D_800CF420 endpoint identity.
  */
 void levelGetCounts(void) {
     s32 i;

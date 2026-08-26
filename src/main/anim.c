@@ -1410,11 +1410,9 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055970.s")
 #endif
 #ifdef NON_MATCHING
-/*
- * Workbench: mixed structure/register residual; 8/121 positional words remain, first +0x20, with frame, calls, and FP lanes exact.
- * Tried line-boundary grouping, the flag lattice, ten source/lifetime shapes, bounded permutation, and the rejected score-15 reorder.
- * Remains: initial pointer-load scheduling and the three-use 0x258 temporary stays in v1 rather than the target's v0 web.
- */
+/* Workbench p6: mixed schedule/register; 8/121 words remain, first +0x20; frame, calls, and FP lanes exact.
+ * Tried statement-line grouping and 0x258 timer register/direct-literal forms after the inherited lifetime/flag sweep; no improvement.
+ * Remains: initial pointer-load schedule and target v0 versus candidate v1 timer web. */
 void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;

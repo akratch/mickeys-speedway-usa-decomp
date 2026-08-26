@@ -398,9 +398,9 @@ void RevealReturnAddresses(void) {
 }
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
-/* The literal RAM-end expression is instruction-exact. The configured
- * metadata-only postprocess restores D_803FFFFC at the two existing address
- * instructions without changing their words. */
+/* Workbench p6: relocation-layout mismatch; 50/50 words and -0x20 frame exact, first +0x18.
+ * Rechecked symbolic/indexed RAM-end forms; each adds eight words, while the literal preserves the target schedule.
+ * Remains: D_803FFFFC HI16/LO16 identity in untouched compiler output. */
 void mainThread(void *unused) {
     s32 i;
 

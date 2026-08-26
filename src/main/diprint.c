@@ -912,9 +912,9 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* Workbench: mixed(structural:2, register:5), 7/66 words first +0x38; frame and relocations exact.
- * Levers: s32/u8 current type, inverted/goto newline CFG, and the prior buffer/frame/flag probes were unchanged.
- * Remains: target current-byte web v1 versus candidate v0; the newline branch-likely schedule follows it. */
+/* Workbench p6: mixed structural/register; 7/66 words remain, first +0x38; frame/relocations exact.
+ * Tried current-byte pointer topology, declaration/register/K&R return-category probes; no frame-safe improvement.
+ * Remains: target v1 versus candidate v0 current-byte web and dependent newline branch schedule. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;

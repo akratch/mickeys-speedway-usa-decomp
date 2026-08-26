@@ -634,9 +634,9 @@ void func_8002CF0C(void *globalFlags) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench: register-ring-only, 9/88 words first +0xCC; frame and relocations exact.
- * Levers: hoisted arguments, folded masks, addressable scalars, flag probes, and the bounded permuter did not cross allocator classes.
- * Remains: savedFlag is a target FIFO temp but a candidate colored web after the checksum call. */
+/* Workbench p6: register-ring-only, 9/88 words remain, first +0xCC; frame/relocations exact.
+ * Tried hoisted arguments, folded masks, addressable scalars, flag probes, two phantom-pop placements; the 30-minute permuter's score-260 empty guard was rejected.
+ * Remains: savedFlag crossing from the candidate pool web to the target FIFO temp ring. */
 void func_8002CF6C(u8 *globalFlags) {
     SavesFullWriteState state;
     s32 messageQueue;
