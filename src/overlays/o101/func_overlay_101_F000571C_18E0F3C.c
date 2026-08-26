@@ -73,7 +73,14 @@ typedef struct Node24 {
     void *text;
 } Node24;
 
-extern Root D_0;
+/* The builder root and node pools occupy one overlay-local BSS owner.  The
+ * relocation table uses the overlay BSS base for these three ranges; keep the
+ * measured gaps explicit so the aliases retain their original offsets. */
+Root D_0;
+u8 o101BuilderBssPad70[0x2D0];
+Node32 D_340[0x10];
+Node24 D_540[0x70];
+u8 o101BuilderBssTail[0x10];
 extern void *D_1C;
 extern void *D_38;
 extern void *D_54;
@@ -92,9 +99,6 @@ extern s32 D_1D0;
 extern f32 D_EA0;
 extern f32 D_EA4;
 extern f32 D_EA8;
-extern Node32 D_340[];
-extern Node24 D_540[];
-
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
