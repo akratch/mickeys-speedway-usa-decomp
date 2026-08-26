@@ -72,9 +72,9 @@ extern void func_overlay_036_F0000914_1883DCC(Overlay36Object *object,
                                               s32 arg1, s32 state,
                                               s32 enabled);
 
-/* Workbench p6 batch 13: structure-mismatch; 170 instructions/-0x38 frame, 71-word masked floor, first +0x3C.
- * Lever: swapping the final blend operands preserved shape and reduced the prior 155-word floor by 84 words.
- * Remains: early mode-branch call staging, FP-pool webs, and 34 relocation identities. */
+/* Workbench p7: structure-mismatch; 170/170 instructions, -0x38 frame, 71 masked words, first +0x3C.
+ * Lever: context lint removed undefined BLEND_SHAPE branches; shape 1 was identical and shape 2 added one instruction.
+ * Remains: mode-branch staging, FP-pool web, ten alignment gaps, and relocation identities; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
                                        volatile s32 arg2,
@@ -86,11 +86,6 @@ void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
     s32 i;
     f32 value;
     f32 blend;
-#if BLEND_SHAPE == 1
-    f32 blendedBase;
-#elif BLEND_SHAPE == 2
-    f32 blendedRemainder;
-#endif
 
     inner = object->inner;
     total = 0;
@@ -113,15 +108,7 @@ void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
                     blend = (f32)choice->value;
                 }
                 blend *= 0.015625f;
-#if BLEND_SHAPE == 1
-                blendedBase = blend * 10.0f;
-                value = blendedBase + ((1.0f - blend) * value);
-#elif BLEND_SHAPE == 2
-                blendedRemainder = (1.0f - blend) * value;
-                value = (blend * 10.0f) + blendedRemainder;
-#else
                 value = ((1.0f - blend) * value) + (blend * 10.0f);
-#endif
             }
 
             state = -1;

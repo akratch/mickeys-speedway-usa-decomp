@@ -295,9 +295,9 @@ char *osScGetTaskType(s32 taskID) {
 void func_80030608(OSScTask *arg0) {
 }
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch; 194 candidate vs 192 target instructions, 148 raw words, first +0x0, frame -0x90 vs -0x98.
- * Levers: constant audit and prior scalar, s64-backup, macro, explicit-pointer, layout, flag-lattice, and bounded-permutation probes.
- * Remains: message/command homes and the scheduler temp web; GLOBAL_ASM stays canonical. */
+/* Workbench p7: structure-mismatch; 194/192 instructions, target/candidate frames -0x98/-0x90, 148 raw words, first +0x0.
+ * Lever: the home census confirms message +0x70/+0x78 and next-command +0x4C/+0x48; prior layout/permutation probes remain eliminated.
+ * Remains: the 8-byte non-save frame gap and scheduler temp web; GLOBAL_ASM stays canonical. */
 SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
                         SchedGfx *displayList, OSMesgQueue *queue,
                         u64 *dataStart) {

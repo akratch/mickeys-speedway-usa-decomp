@@ -34,9 +34,9 @@ extern f32 D_18;
 extern f32 D_1C;
 extern f32 sqrtf(f32 value);
 
-/* Workbench p6 batch 13: allocation-mismatch; exact 131 instructions/-0x78 frame, three instruction-bit residuals, first +0x78.
- * Levers: operand commute was canonicalized; pad homes changed the frame, and local reuse added structure.
- * Remains: one FP operand order and the sqrt-preserved FP spill at +0x44 versus +0x40. */
+/* Workbench p7: allocation-mismatch; 131/131 instructions, -0x78 frame, 3 masked/6 raw words, first +0x78.
+ * Lever: an explicit source operand commute was compiler-canonicalized; prior spill-home/local-reuse forms remain eliminated.
+ * Remains: one FP multiply encoding and the sqrt spill home +0x44 versus +0x40; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_026_F0000B18_187AF10(
     s32 unused, O26ProjectionVec3f *out, O26ProjectionVec3f *direction,
