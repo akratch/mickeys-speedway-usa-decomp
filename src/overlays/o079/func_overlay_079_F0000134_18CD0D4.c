@@ -7,12 +7,12 @@ typedef struct Overlay79Vector {
 } Overlay79Vector;
 
 typedef struct Overlay79BaseValues {
+    f32 modeFactor0;
     f32 activeAcceleration;
     f32 inactiveAcceleration;
     f32 turnPower;
     f32 forwardAcceleration;
     f32 targetDot;
-    f32 reserved14;
 } Overlay79BaseValues;
 
 typedef union Overlay79DataBase {
@@ -22,9 +22,10 @@ typedef union Overlay79DataBase {
 
 typedef struct Overlay79InitializedData {
     Overlay79DataBase base;
-    f32 reserved18[2];
-    f32 launchHeight;
+    f32 mode1Acceleration;
     f32 approachPower;
+    f32 launchHeight;
+    f32 mode4ApproachPower;
     f32 gravityHalf;
     f32 gravity;
     f32 collisionMinimumY;
@@ -93,7 +94,8 @@ typedef struct Overlay79SpawnDesc {
 
 Overlay79InitializedData gOverlay79RaceFlags = {
     {{0.04f, 0.01f, 0.02f, 0.1f, 0.01f, 0.0f}},
-    {0.0f, 0.0f},
+    0.0f,
+    0.0f,
     0.05f,
     -0.2f,
     0.2f,
@@ -109,12 +111,16 @@ Overlay79InitializedData gOverlay79RaceFlags = {
     (gOverlay79RaceFlags.base.values.activeAcceleration)
 #define gOverlay79InactiveAcceleration \
     (gOverlay79RaceFlags.base.values.inactiveAcceleration)
+#define gOverlay79Mode1Acceleration \
+    (gOverlay79RaceFlags.mode1Acceleration)
 #define gOverlay79TurnPower (gOverlay79RaceFlags.base.values.turnPower)
 #define gOverlay79ForwardAcceleration \
     (gOverlay79RaceFlags.base.values.forwardAcceleration)
 #define gOverlay79TargetDot (gOverlay79RaceFlags.base.values.targetDot)
 #define gOverlay79LaunchHeight (gOverlay79RaceFlags.launchHeight)
 #define gOverlay79ApproachPower (gOverlay79RaceFlags.approachPower)
+#define gOverlay79Mode4ApproachPower \
+    (gOverlay79RaceFlags.mode4ApproachPower)
 #define gOverlay79GravityHalf (gOverlay79RaceFlags.gravityHalf)
 #define gOverlay79Gravity (gOverlay79RaceFlags.gravity)
 #define gOverlay79ModeFactors (gOverlay79RaceFlags.base.modeFactors)
@@ -171,6 +177,7 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
     f32 range;
     s32 raceActive;
     s32 delta;
+    s8 mode;
 
     update = updateRate;
     dataBase = (u8 *)&gOverlay79RaceFlags;
@@ -257,13 +264,14 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
             }
         }
         if ((state->effect == NULL) && (state->effectTimer == 0)) {
-            func_80002FE0(mathRnd(0x227, 0x22E), object->x, object->y,
+            func_80002FE0(mathRnd(0x227, 0x229), object->x, object->y,
                           object->z, 4, &state->effect);
             state->effectTimer = mathRnd(0x78, 0xF0);
         }
     } else {
-        switch (state->mode) {
-            case 0:
+        mode = state->mode;
+        switch (mode) {
+        case 0:
                 state->acceleration =
                     (state->speed > -1.0f) ? gOverlay79ForwardAcceleration
                                            : 0.0f;
@@ -299,14 +307,14 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                     }
                 }
                 if ((state->effect == NULL) && (state->effectTimer == 0)) {
-                    func_80002FE0(mathRnd(0x21F, 0x226), object->x, object->y,
+                    func_80002FE0(mathRnd(0x21B, 0x21E), object->x, object->y,
                                   object->z, 4, &state->effect);
                     state->effectTimer = mathRnd(0x78, 0xF0);
                 }
-                break;
-            case 1:
+            break;
+        case 1:
                 if (state->speed < 0.0f) {
-                    state->acceleration = gOverlay79InactiveAcceleration;
+                    state->acceleration = gOverlay79Mode1Acceleration;
                 } else {
                     state->acceleration = 0.0f;
                     state->speed = 0.0f;
@@ -314,17 +322,17 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                                       ? 3
                                       : 2;
                 }
-                break;
-            case 2:
+            break;
+        case 2:
                 if (state->step == 0) {
                     func_8005AD64(object, 1, -1, 0.0f);
                     state->step++;
                 } else if ((state->step == 1) && (state->event != 0)) {
                     if (state->effect == NULL) {
-                        func_80002FE0(mathRnd(0x218, 0x21F), object->x,
+                        func_80002FE0(mathRnd(0x218, 0x21A), object->x,
                                       object->y, object->z, 4, &state->effect);
                     }
-                    func_8005AD64(object, 3, -1, 0.0f);
+                    func_8005AD64(object, 2, -1, 0.0f);
                     state->step++;
                 } else if ((state->step == 2) && (state->event != 0)) {
                     func_8005AD64(object, 1, -1, 0.0f);
@@ -343,8 +351,8 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                                 object->z - state->targetZ);
                     state->mode = 4;
                 }
-                break;
-            case 3:
+            break;
+        case 3:
                 if (state->step == 0) {
                     delta = mathRnd(-0x7FFF, 0x8000);
                     range = mathRnd(0, state->travelDistance);
@@ -372,9 +380,9 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                         state->step = 2;
                     }
                 } else if (state->step == 2) {
-                    func_8005AD64(object, 6, -1, 0.0f);
+                    func_8005AD64(object, 4, -1, 0.0f);
                     if (state->effect == NULL) {
-                        func_80002FE0(mathRnd(0x270, 0x277), object->x,
+                        func_80002FE0(mathRnd(0x270, 0x272), object->x,
                                       object->y, object->z, 4, &state->effect);
                     }
                     state->step = 3;
@@ -402,11 +410,13 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                     state->step = 0;
                     state->mode = 0;
                 }
-                break;
-            case 4:
+            break;
+        case 4:
                 object->angle =
                     dAngle(object->angle, state->targetAngle,
-                           1.0f - Powerf(gOverlay79ApproachPower, updateRate));
+                               1.0f -
+                                   Powerf(gOverlay79Mode4ApproachPower,
+                                          updateRate));
                 delta = (object->angle - state->targetAngle) & 0xFFFF;
                 if (((state->targetAngle - object->angle) & 0xFFFF) < delta) {
                     delta = -((state->targetAngle - object->angle) & 0xFFFF);
@@ -415,7 +425,7 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                     object->angle = state->targetAngle;
                     state->mode = 0;
                 }
-                break;
+            break;
         }
     }
 
