@@ -2420,7 +2420,18 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F00000D8_18C92A0.c.o: POS
 endif
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: \
+	$(TOOLS_DIR)/filter_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o070/func_overlay_070_F0000384_18C954C.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x264:5:gOverlay70SharedCounterReloc \
+		0x274:6:gOverlay70SharedCounterReloc \
+		0x278:5:gOverlay70SharedCounterReloc \
+		0x280:6:gOverlay70SharedCounterReloc \
+		0x2F0:5:gOverlay70SharedCounterReloc \
+		0x2F4:6:gOverlay70SharedCounterReloc \
+		0x340:5:gOverlay70SharedCounterReloc \
+		0x388:6:gOverlay70SharedCounterReloc && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4
 # NON_MATCHING/GLOBAL_ASM: restore the friendly update symbol; the aligned
 # extracted function requires no trailing-section trim.
