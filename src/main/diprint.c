@@ -28,8 +28,13 @@ void debug_text_newline(void);
 
 extern char D_800D4150[];
 extern Gfx D_8007CF58[];
-extern const char D_80082A80[];
-extern const char D_80082AA8[];
+/* PROVENANCE: formatter constants adapted from JFG src/diprint.c. */
+const char D_80082A80[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+const char D_80082AA8[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const char D_80082AD0[] = "";
+const char D_80082AD4[] = "(null)";
+const char D_80082ADC[] =
+    "(nil)\0\0\0*** diPrintf Error *** ---> Out of string space. (Print less text!)\n";
 extern DebugFontCoords D_8007CE98[3][32];
 extern char *D_8007CE94;
 extern u16 D_800D4A5C;
@@ -38,17 +43,17 @@ extern s32 D_8007CE90;
 extern void *D_800D4A50;
 extern void *D_800D4A54;
 extern void *D_800D4A58;
-extern s32 D_800D4A6C;
-extern s32 D_800D4A70;
-extern s32 D_800D4A74;
-extern s32 D_800D4A78;
-extern s32 D_800D4A7C;
-extern u16 D_800D4A60;
-extern u16 D_800D4A62;
-extern s32 D_800D4A64;
-extern s32 D_800D4A68;
-extern u16 D_800D4A80;
-extern u16 D_800D4A82;
+u16 D_800D4A60;
+u16 D_800D4A62;
+s32 D_800D4A64;
+s32 D_800D4A68;
+s32 D_800D4A6C;
+s32 D_800D4A70;
+s32 D_800D4A74;
+s32 D_800D4A78;
+s32 D_800D4A7C;
+u16 D_800D4A80;
+u16 D_800D4A82;
 
 void rcpInitDp(Gfx **dList);
 void viGetCurrentSize(s32 *width, s32 *height);
@@ -99,7 +104,6 @@ s32 sprintf(char *s, const char *format, ...) {
 
     return done;
 }
-#ifdef NON_MATCHING
 #define outchar(x)  \
     do {            \
         done++;     \
@@ -126,9 +130,8 @@ s32 sprintf(char *s, const char *format, ...) {
 #define isdigit(c) ((c >= '0') && (c <= '9'))
 
 /* PROVENANCE: body adapted from JFG src/diprint.c:vsprintf. */
-/* Workbench: instruction words exact; first relocation mismatch is +0x130.
- * The canonical flag lattice and exponent-sign line-assignment lever were tried.
- * All 28 formatter table/data relocation identities still require the asm split. */
+/* Workbench: instruction words exact; formatter data is now TU-owned.
+ * The linked ROM oracle is exact under -Wab,-r4300_mul. */
 s32 vsprintf(char *s, const char *fmt, va_list args) {
     /* Pointer into the format string.  */
     const char *f;
@@ -701,17 +704,16 @@ s32 vsprintf(char *s, const char *fmt, va_list args) {
                 break;
 
             case 's': {
-                static const char null[] = "(null)";
                 s32 len;
 
                 nextarg(str, char *);
                 if (str == NULL) {
                     /* Write "(null)" if there's space.  */
-                    if (prec == -1 || prec >= (int) sizeof(null) - 1) {
-                        str = null;
-                        len = sizeof(null) - 1;
+                    if (prec == -1 || prec >= 6) {
+                        str = D_80082AD4;
+                        len = 6;
                     } else {
-                        str = "";
+                        str = D_80082AD0;
                         len = 0;
                     }
                 } else {
@@ -750,14 +752,13 @@ s32 vsprintf(char *s, const char *fmt, va_list args) {
                         goto number;
                     } else {
                         /* Write "(nil)" for a nil pointer.  */
-                        static const char nil[] = "(nil)";
                         register const char *p;
 
-                        width -= sizeof(nil) - 1;
+                        width -= 5;
                         if (!left) {
                             PAD(' ');
                         }
-                        grouping = nil;
+                        grouping = D_80082ADC;
                         while (*grouping != '\0') {
                             outchar(*grouping++);
                         }
@@ -799,9 +800,6 @@ s32 vsprintf(char *s, const char *fmt, va_list args) {
     *s = '\0';
     return done;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/vsprintf.s")
-#endif
 
 /* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfInit. */
 void diPrintfInit(void) {
@@ -971,7 +969,6 @@ s32 debug_text_width(const char *format, ...) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_width.s")
 #endif
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_parse. */
 /* Workbench: relocation-symbol-mismatch; words-identical, four reloc sites, first +0x44.
  * Levers tried: paired-struct and bounded address-alias spellings; codegen regressed or retained separate D_800D4A62.
@@ -1069,9 +1066,6 @@ s32 debug_text_parse(Gfx **dList, char *buffer) {
 
     return buffer - bufferCopy;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/debug_text_parse.s")
-#endif
 
 /* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_background. */
 void debug_text_background(Gfx **dList, u32 ulx, u32 uly, u32 lrx, u32 lry) {
