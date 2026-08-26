@@ -79,9 +79,9 @@ extern s16 ext_resident_result;
 extern s32 ext_resident_word_190;
 
 /* Independently reconstructed from Mickey-local evidence; no DKR/JFG donor. */
-/* Workbench: structure-mismatch, best 115/316 positional words; first structural mismatch +0x17C.
- * Single-line pointer declarations improved six words; loop-condition and resident-staging levers did not close.
- * The loop compare, record-copy allocation, and later constant-store schedules remain divergent. */
+/* Workbench p5 batch 14: structure-mismatch; exact 316 instructions/-0x40 frame, 115-word masked floor, first +0x17C.
+ * Levers: earliest initialization/loop buckets and record-copy staging; pointer and resident-order variants did not close.
+ * Remains: record-copy schedule plus pool/temp divergence across the resident-field staging block. */
 #ifdef NON_MATCHING
 void func_overlay_052_F0000000_189A670(void) {
     u8 *state;

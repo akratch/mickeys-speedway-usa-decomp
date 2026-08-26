@@ -34,9 +34,9 @@ extern f32 D_18;
 extern f32 D_1C;
 extern f32 sqrtf(f32 value);
 
-/* Workbench: mixed constant/structure/commutative; exact 131 words/0x78 frame, three instruction-bit residuals, first +0x78.
- * Levers: constant audit found only overlay-local addends; operand swap and sqrt-result reuse were codegen-inert.
- * Remaining: one FP commutative order and the sqrt call-preservation home at +0x44 versus +0x40. */
+/* Workbench p5 batch 14: allocation-mismatch; exact 131 instructions/-0x78 frame, three instruction-bit residuals, first +0x78.
+ * Levers: constant audit, call-home carrier, compound multiply, and register qualifier; only baseline preserved the allocator.
+ * Remains: one FP operand order and the sqrt call-preservation home at +0x44 versus +0x40. */
 #ifdef NON_MATCHING
 void func_overlay_026_F0000B18_187AF10(
     s32 unused, O26ProjectionVec3f *out, O26ProjectionVec3f *direction,

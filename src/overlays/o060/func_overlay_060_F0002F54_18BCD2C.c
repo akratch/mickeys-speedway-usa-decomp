@@ -27,9 +27,9 @@ extern void func_80036660(Overlay60Color *color, s32 amount);
 #define OVERLAY60_SHIFTL(value, shift, width) \
     (((u32)(value) & ((1U << (width)) - 1U)) << (shift))
 
-/* Workbench: mixed(structural:10, register:76), exact 222-word size and 0xC0 frame; first mismatch +0x64.
- * Levers tried: first-use placement, declaration/initialization order, and register-qualified command/x webs.
- * Remains: the display-list/x pool swap and its downstream temp-allocation cascade. */
+/* Workbench p5 batch 14: structure-mismatch; exact 222 instructions/-0xC0 frame, first residual +0x64.
+ * Levers: structure buckets, first-use/declaration order, and command/x register webs; no stable schedule emerged.
+ * Remains: display-list/x pool swap with its downstream temporary-allocation cascade. */
 #ifdef NON_MATCHING
 s32 func_overlay_060_F0002F54_18BCD2C(s32 left, s32 bottom, s32 width,
                                        s32 height, s32 progress, s32 alpha,

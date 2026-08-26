@@ -515,9 +515,9 @@ f32 func_overlay_008_F0001000_185ED58(void *unused, O8PhaseState *state, f32 inp
 
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0001294_185EFEC.s")
 
-/* Workbench: mixed constant/structure/schedule/register; exact 183 words/0xD0 frame, 62 positional words, first +0xB8.
- * Lever: constant audit isolates the 36-byte record/home inversion; register-qualifying baseValue was codegen-inert.
- * Remaining: retail homes record/base value at +0x78/+0xCC versus +0x9C/+0x80; prior aggregate/order variants remain eliminated. */
+/* Workbench p5 batch 14: structure-mismatch; exact 183 instructions/-0xD0 frame, first residual +0xB8.
+ * Levers: constant/stack census and tuning-base placement; register-qualified baseValue and aggregate/order forms regressed.
+ * Remains: retail homes record/base at +0x78/+0xCC; the candidate reverses those homes and the downstream webs. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0002640_1860398(
     O8P2640Anchor *anchor, O8P2640Config *config, s32 orientation,
