@@ -86,7 +86,7 @@ typedef struct TrackLight {
 } TrackLight;
 
 typedef struct TrackLightAllocation {
-    u32 pad00;
+    void *source;
     void *data;
 } TrackLightAllocation;
 
@@ -130,7 +130,9 @@ typedef struct TrackSegment {
     void *lightData;
     u8 pad04[0xC - 0x04];
     TrackBatch *batches;
-    u8 pad10[0x24 - 0x10];
+    u8 pad10[0x20 - 0x10];
+    s16 lightBatchCount;
+    u8 pad22[0x24 - 0x22];
     s16 batchCount;
     u8 pad26[0x2C - 0x26];
     s16 unk2C;
@@ -141,6 +143,11 @@ typedef struct TrackSegment {
     void *unk38;
     u8 pad3C[0x40 - 0x3C];
 } TrackSegment;
+
+typedef struct TrackLightSource {
+    u8 *source;
+    u16 *dirtyMasks;
+} TrackLightSource;
 
 /*
  * PROVENANCE: field order comes from Diddy Kong Racing's public
@@ -354,7 +361,7 @@ extern s32 D_800792F8;
 extern s32 D_80079350;
 extern s32 D_80079354;
 extern f32 D_80081690;
-extern u8 D_800C95B4;
+extern s32 D_800C95B4[];
 extern s16 D_800D6C4C;
 extern s16 D_800D6C54;
 extern s8 D_80079274;
@@ -406,6 +413,8 @@ void func_8000F82C(s32 start, s32 count, s32 end);
 s32 func_80010178(u32 segmentIndex);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
+void *func_8002B280(s32 size, s32 tag);
+void func_8000D570(void);
 void func_8000D820(void);
 void func_8000439C(void);
 void func_80006EA0(void *handle);
@@ -813,7 +822,93 @@ void func_8000D16C(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D1B8.s")
+/*
+ * PROVENANCE: Jet Force Gemini's public assembly-only `trackLightAllocate`
+ * establishes the pool/segment allocation role. Mickey's +0x20 lighting
+ * count and two-pointer allocation record are reconstructed from the target
+ * accesses; the donor placeholder name is not adopted.
+ */
+#ifdef NON_MATCHING
+void func_8000D3B8(s32 lightCount, s32 copyData) {
+    s32 temp_lo;
+    s32 var_s2;
+    s32 var_s2_2;
+    s32 var_s7;
+    s32 var_v1;
+    s32 var_s0;
+    u8 *var_s1;
+    u8 temp_t5;
+    void *var_v0;
+    u8 *var_s3;
+    u8 *var_s4;
+    u8 *var_v1_2;
+
+    D_800792FC = 0;
+    D_800792F8 = lightCount;
+    var_s7 = 1;
+    var_v0 = func_8002B280(lightCount << 7, 0x91);
+    D_80079300 = var_v0;
+    if (var_v0 != NULL) {
+        var_v0 = (void *) D_800792F8;
+        var_s2 = D_800792F8 - 1;
+        if (D_800792F8 != 0) {
+            var_v1 = var_s2 << 7;
+            do {
+                var_v0 = (void *) var_s2;
+                *(f32 *) ((u8 *) D_80079300 + var_v1 + 0xC) = 0.0f;
+                var_v1 -= 0x80;
+                var_s2--;
+            } while (var_s2 != 0);
+        }
+        var_s7 = copyData;
+        if (copyData != 0) {
+            var_v0 = func_8002B280(D_800792E8->segmentCount * 8, 0x91);
+            var_s3 = var_v0;
+            if (var_v0 != NULL) {
+                var_s4 = (u8 *) D_800792E8->segments;
+                D_80079304 = 1;
+                D_80079308 = var_v0;
+                var_s2_2 = 0;
+                var_s7 = 0;
+                if (D_800792E8->segmentCount > 0) {
+                    do {
+                        var_s1 = *(u8 **) var_s4;
+                        temp_lo = (*(s16 *) (var_s4 + 0x20)) * 10;
+                        *(u8 **) var_s3 = var_s1;
+                        var_v0 = func_8002B280(temp_lo, 0x91);
+                        *(void **) (var_s3 + 4) = var_v0;
+                        var_v1_2 = var_v0;
+                        if (var_v0 != NULL) {
+                            var_v0 = (void *) temp_lo;
+                            var_s0 = temp_lo - 1;
+                            if (temp_lo != 0) {
+                                do {
+                                    temp_t5 = *var_s1;
+                                    var_v0 = (void *) var_s0;
+                                    var_v1_2++;
+                                    var_s1++;
+                                    var_v1_2[-1] = temp_t5;
+                                    var_s0--;
+                                } while (var_s0 != 0);
+                            }
+                        } else {
+                            var_s7 = 1;
+                        }
+                        var_s2_2++;
+                        var_s3 += 8;
+                        var_s4 += 0x40;
+                    } while (var_s2_2 < D_800792E8->segmentCount);
+                }
+            }
+        }
+    }
+    if (var_s7 != 0) {
+        func_8000D570();
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D3B8.s")
+#endif
 /*
  * PROVENANCE: Jet Force Gemini's public `src/track.c` and built
  * `trackLightFreeMem` establish this function's role and control-flow
@@ -924,7 +1019,99 @@ void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
         arg0->z = arg3;
     }
 }
+/*
+ * PROVENANCE: Jet Force Gemini's public `src/track.c` lighting-update
+ * skeleton supplies the alternating packed-colour copy. Mickey's separate
+ * lighting count at `TrackSegment +0x20`, source record, and dirty-mask
+ * fields are established by the resident accesses above.
+ */
+#ifdef NON_MATCHING
+void func_8000D820(void) {
+    s16 segmentCount;
+    s16 lightCount;
+    s32 *segmentFlags;
+    s32 dirty;
+    s32 copyMode;
+    s32 maskCount;
+    u16 *dirtyMasks;
+    u16 mask;
+    u32 shiftedMask;
+    u8 colour;
+    TrackLightSource *sourceRecord;
+    u8 *sourceBase;
+    u8 *lightData;
+    u8 *source;
+    u8 *destination;
+    TrackSegment *segment;
+
+    segmentFlags = D_800C95B4;
+    segment = D_800792E8->segments;
+    segmentCount = D_800792E8->segmentCount;
+    copyMode = (D_80079308 != NULL) ? 1 : -1;
+    if (segmentCount != 0) {
+        do {
+            dirty = *segmentFlags++;
+            if ((dirty != 0) && ((segment->lightingMode & copyMode) != 0)) {
+                sourceRecord = (TrackLightSource *) segment->unk30;
+                if (sourceRecord != NULL) {
+                    sourceBase = sourceRecord->source;
+                    lightData = (u8 *) segment->lightData;
+                    lightCount = segment->lightBatchCount;
+                    if (copyMode > 0) {
+                        source = sourceBase;
+                        destination = lightData;
+                        if (lightCount != 0) {
+                            do {
+                                destination += 10;
+                                destination[-4] = source[0];
+                                colour = source[1];
+                                source += 3;
+                                destination[-3] = colour;
+                                destination[-2] = source[-1];
+                                lightCount--;
+                            } while (lightCount != 0);
+                        }
+                        segment->lightingMode ^= 1;
+                    } else {
+                        maskCount = (lightCount + 15) >> 4;
+                        dirtyMasks = sourceRecord->dirtyMasks;
+                        if (maskCount != 0) {
+                            do {
+                                mask = *dirtyMasks;
+                                destination = lightData;
+                                source = sourceBase;
+                                *dirtyMasks = 0;
+                                if (mask != 0) {
+                                    do {
+                                        shiftedMask = mask >> 1;
+                                        if ((mask & 1) != 0) {
+                                            destination[6] = source[0];
+                                            destination[7] = source[1];
+                                            destination[8] = source[2];
+                                        }
+                                        destination += 10;
+                                        source += 3;
+                                        mask = (u16) shiftedMask;
+                                    } while (shiftedMask != 0);
+                                }
+                                destination += 0xA0;
+                                source += 0x30;
+                                dirtyMasks += 2;
+                                maskCount--;
+                            } while (maskCount != 0);
+                        }
+                        segment->lightingMode = 0;
+                    }
+                }
+            }
+            segment++;
+            segmentCount--;
+        } while (segmentCount != 0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D820.s")
+#endif
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c` and
  * assembly-only `trackUpdateLighting`. Mickey's module path, segment layout,
