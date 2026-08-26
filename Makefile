@@ -765,8 +765,12 @@ $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 # The path reset trap needs a typed alias to preserve its f32 argument.
 # Canonicalize only the undefined symbol name; section contents are unchanged.
+# func_800508D4's 0.01f literal owns one word of the anim literal pool; the
+# rest of IDO's 0x10-byte input section is alignment padding, and the still
+# anonymous pool (0.02f onward) begins immediately after it.
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym animResetTrap=TrapDanglingJump $@
+	$(OBJCOPY) --redefine-sym animResetTrap=TrapDanglingJump $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x4
 
 # The menu initialization loops are scalar in the target; the flag lattice
 # selects the non-unrolled 85-instruction form for func_80038878.

@@ -1949,7 +1949,7 @@ placeholders are never imported.
 | `0x80050844` | `0x38` | `animseqLockPath` | B; paired process-command calls, adopted name. Matched C: exact 56 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005087C` | `0x38` | `animseqUnLockPath` | B; paired process-command calls, adopted name. Matched C: exact 56 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800508B4` | `0x20` | no unique candidate | D; placeholder retained. Matched C: exact 32 B and relocation surface at `-O2 -mips2 -32` |
-| `0x800508D4` | `0x200` | `func_800772C4` | tier-B; type pass unchanged: schedule-only, 4/128 positional words from `+0x3C`; lever global-load/constant order, residual ugen load before the target's two immediate scales |
+| `0x800508D4` | `0x200` | `func_800772C4` | B; JFG structural oracle. Matched C: exact 512 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; the unsigned scale is the TU's own 0.01f literal (ROM `0x84BA8`), whose lwc1 joins the invariant group in the ROM's f26/f24/f22/f20 order |
 | `0x80050AD4` | `0x120` | `animseqLinkNodes` | D; nearest ordered `anim.c` function. Matched C: exact 288 B and `D_800D6B00` relocation pair at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
 | `0x80050BF4` | `0x15C` | `animseqInit` | tier-D; type pass unchanged: structure-mismatch, 15 words at the exact 87-instruction/0x18-frame shape; lever earliest clear-loop branch, residual `li/bne` versus target `slti/bnez` plus address schedule |
 | `0x80050D50` | `0x58` | `func_80077784` | D; nearest `anim.c` skeleton, placeholder retained. Matched C: exact 88 B and relocation surface at `-O2 -mips2 -32` |
