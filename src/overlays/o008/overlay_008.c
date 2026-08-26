@@ -21,9 +21,9 @@ void *overlay8GetIndexed(Overlay8IndexedObject *object) {
     return result;
 }
 
-/* Workbench p3: structure-mismatch; 508/527 candidate/target instructions, 477 words from +0x0.
- * Lever: constant audit plus array scopes, query declaration order, and a register hint.
- * Remains: query call-spill ownership leaves the candidate frame 24 bytes too large. */
+/* Workbench p4: structure-mismatch; 508/527 candidate/target instructions, 477 words, frames -184/-160.
+ * Lever: constant audit and query pointer/spill shapes left the same 24-byte call-spill ownership gap.
+ * Remains: query temporary layout and the mixed constant/structure cascade. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
                                        s32 updateRate) {
