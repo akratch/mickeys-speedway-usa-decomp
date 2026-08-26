@@ -119,9 +119,9 @@ extern void overlay58EnsureResource(void);
  * Mickey-only reconstruction. The donor scan found no close permitted
  * skeleton, and skeleton_scan cannot yet address an assembly ownership range.
  *
- * Plateau p2 (2026-08-25): workbench structure-mismatch; 724 positional words differ, first +0x0.
- * Tried constant-audit branch order plus marker type/lifetime and direct geometry-access levers.
- * The 0xA0 frame still has one extra saved web, and the best candidate is three instructions short.
+ * Workbench p4: structure-mismatch; 724 words differ, 826 versus 829 instructions, first mismatch +0x0.
+ * Lever: prologue/switch ABI audit confirmed the typed body still carries one extra saved web and a 24-byte frame surplus.
+ * Remains: target switch-call register/lifetime schedule and relocation layout (candidate -0xA0, target -0x88).
  */
 #ifdef NON_MATCHING
 void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
