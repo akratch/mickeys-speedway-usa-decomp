@@ -212,33 +212,29 @@ void func_8003CD28(ParticleResourceList **listPtr) {
         *listPtr = NULL;
     }
 }
-#ifdef NON_MATCHING
-/* Workbench: allocation-mismatch; exact 275-instruction schedule, 47 raw words, first +0x0, frame -0x98 vs -0x90.
- * Lever: removing redundant pool-count reloads reduced the residual from 154 to 47; integer first-vertex and local-order probes were neutral/regressive.
- * Remains: eight-byte frame/home displacement and v0/a0 pool web; GLOBAL_ASM stays canonical. */
 /* PROVENANCE: structure cross-checked against JFG's assembly-only
  * asm/nonmatchings/particles/func_8005DD88.s sibling; body reconstructed
  * from Mickey evidence. */
 s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParticlePool *pool, s32 mode) {
-    CircularParticle *particle;
-    ParticleSpriteResource *resource;
-    Gfx *command;
-    void *firstVertex;
-    s32 requiredFlags;
-    s32 excludedFlags;
-    s32 count;
     s32 i;
-    s32 flags;
-    s32 fade;
-    s32 renderFlags;
-    s32 intensity;
-    s32 red;
-    s32 green;
     s32 blue;
+    s32 green;
+    s32 red;
     s32 alternateRed;
     s32 alternateGreen;
     s32 alternateBlue;
-    u8 colorMode;
+    s32 intensity;
+    s32 renderFlags;
+    s32 fade;
+    s32 flags;
+    s32 count;
+    s32 requiredFlags;
+    s32 excludedFlags;
+    void *firstVertex;
+    s32 colorMode;
+    CircularParticle *particle;
+    ParticleSpriteResource *resource;
+    Gfx *command;
 
     if (pool == NULL) {
         return 0;
@@ -336,9 +332,6 @@ s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParti
     gDPSetEnvColor((*dList)++, 0xFF, 0xFF, 0xFF, 0);
     return ((u8 *)*vertices - (u8 *)firstVertex) / 10;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CE10.s")
-#endif
 /*
  * Workbench: allocation-mismatch, exact 153 instructions/frame -128/27 words, first +0x48.
  * Levers: temp-FIFO/pool-web scopes, direct fields, color-web removal, flags, and bounded permutation; no exact.

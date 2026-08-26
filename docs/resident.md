@@ -1807,9 +1807,6 @@ resident flags, JFG-named Mickey reconstruction); `debug_text_background`
 donor); `func_8003EC8C` (ROM `0x3F88C`, `0xBC` bytes, default resident flags,
 Mickey pointer-first reconstruction with the JFG assembly sibling as oracle).
 
-`func_8003CE10`: before/after allocation mismatch, 275 instructions and 154 words; frame remains `0x98` vs target `0x90`.
-Type lever: shared pool/render aggregates and vector aliases; no codegen movement. Remains the frame/register web; JFG `func_8005DD88` is the oracle.
-
 `func_8003D4FC`: before/after no C candidate for the `0x10B0`-byte range; shared aggregate types do not change the asm-only body.
 Type lever: global and resource declarations; no C promotion is possible. Remains canonical `GLOBAL_ASM`; JFG `func_8005E3DC` is the donor label.
 
@@ -1835,6 +1832,7 @@ Type lever: point-stream/model distinction and vector aliases; opcode schedule s
 
 | Newly matched function | ROM / size | Match evidence |
 |---|---:|---|
+| `func_8003CE10` | ROM `0x3DA10`, `0x44C` B | IDO 5.3 exact under resident `-O2 -mips2 -32`; Mickey reconstruction with JFG assembly sibling as structural oracle |
 | `func_80040740` | ROM `0x41340`, `0x138` B | IDO 5.3 exact under resident `-O2 -mips2 -32`; Mickey reconstruction with JFG structural oracle |
 
 `partModelObjEmitModelPart` reached a bounded size-exact 84-word plateau under
