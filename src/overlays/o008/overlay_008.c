@@ -1273,16 +1273,15 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F00034A0_18611F8.s")
 #endif
 
-/*
- * NON_MATCHING p2: workbench structure-mismatch; the best home-pressure variant
- * has 433/447 instructions and 425 differing positional words, first +0x0.
- * Lever 26 leaves an eight-byte non-save frame deficit and 14 missing instructions.
- */
+/* Workbench p4: structure-mismatch; 384 positional/384 raw words differ,
+ * 430/447 instructions, first +0x0, frame exact -160. Levers: mode home and
+ * targetMotion volatility; remains FP/register web. */
 #ifdef NON_MATCHING
 void func_overlay_008_F00042A8_1862000(O8P42A8Actor *actor,
                                        O8P42A8Owner *owner, f32 update) {
     O8P42A8State *state;
-    volatile f32 targetMotion;
+    s32 mode;
+    f32 targetMotion;
     f32 targetHeight;
     f32 phase;
     f32 smoothing;

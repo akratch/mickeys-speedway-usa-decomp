@@ -2408,9 +2408,9 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch; 280/456 words differ from +0x0, frame 0x160 versus 0x168.
- * Levers: declaration order matched triangle-table homes; preload and ternary forms did not improve.
- * Remains: one extra instruction and mixed structure/register fallout from array lifetime reconstruction. */
+/* Workbench p4: structure-mismatch; 280 positional/280 raw words differ,
+ * 457/456 instructions, first +0x0, frame -352 versus -360. Levers: commutative
+ * audit, triangle-count order/volatility, and array order; remains stack web. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/
  * func_80062BFC.s; body reconstructed from Mickey evidence. */
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {

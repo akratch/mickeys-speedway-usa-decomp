@@ -167,6 +167,9 @@ void func_80045CAC(void) {
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's closest peer, src/diCpu.c::func_80067880,
  * remains assembly-only and supplies no body. */
+/* Workbench p4: structure-mismatch; 432 positional/438 raw words differ,
+ * 451/459 instructions, first +0x0, frame -176 versus -168. Levers: oldPage
+ * volatility and address-take; exact-size variants retained no frame fix. */
 void func_80045D34(s32 arg0) {
     u32 oldPage;
     s32 pageCount;
