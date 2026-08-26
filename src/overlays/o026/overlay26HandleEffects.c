@@ -63,6 +63,9 @@ extern void func_8003EDEC(O26ObjectD24 *object, s32 mode);
 extern void func_80002FE0(s32 id, f32 x, f32 y, f32 z,
                           s32 priority, s32 unused);
 
+/* PLATEAU (2026-08-26): workbench allocation-mismatch; 39/269 words differ, first +0x50.
+ * Flag lattice, local declaration/order, aggregate/array, and scope probes left the 4-byte allocation web unchanged.
+ * Exact size/frame remain; target locals sit one 4-byte slot higher and 23 relocation identities differ. */
 #ifdef NON_MATCHING
 void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
     O26ObjectD24 *object;

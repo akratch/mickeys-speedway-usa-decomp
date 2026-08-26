@@ -46,9 +46,9 @@ do {                                                                    \
     blue1 = blue2;                                                      \
 } while (0)
 
-/* Plateau (2026-08-25, near-miss p2 batch 23): structure-mismatch, 249 masked words (251 raw), first +0x7C.
- * Tried constant/identifier repair, exact call bindings, flag lattice, D_F8 identity, pointer/carrier, and register forms.
- * The exact 296-word/frame candidate remains 73 structural/209 register; pointer induction and filter order diverge. */
+/* PLATEAU (2026-08-26): workbench structure-mismatch; 249 masked/251 raw of 296 words, first +0x84.
+ * Flag lattice confirmed the retained exact-size candidate; pointer/filter and register-form hypotheses remain eliminated.
+ * Exact size/frame remain with 73 structural and 209 register differences. */
 #ifdef NON_MATCHING
 void func_overlay_066_F0000040_18C64A8(Overlay66Gfx **commands) {
     u16 *pixels;

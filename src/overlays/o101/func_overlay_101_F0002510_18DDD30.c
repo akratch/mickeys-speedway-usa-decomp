@@ -34,9 +34,9 @@ typedef struct Overlay101TextureElement {
 extern u32 D_230[];
 void func_overlay_101_F0000000_18DB820();
 
-/* PLATEAU (2026-08-25): workbench structure-mismatch; best remains 276/293 words, first +0x0.
- * Constant audit, dimension-lifetime, and targeted stack-layout levers did not improve the retained body.
- * It remains 13 instructions short with a 0xD0 frame versus 0xE8 and 22 relocation-symbol mismatches. */
+/* PLATEAU (2026-08-26): workbench structure-mismatch; best 276/293 words, first +0x0.
+ * Flag lattice and a combined clip-condition rewrite regressed; prior dimension/lifetime and stack levers remain closed.
+ * Candidate remains 13 instructions short with a 0xD0 frame versus 0xE8. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0002510_18DDD30(Overlay101Gfx **displayList,
                                       Overlay101ClipNode *node,

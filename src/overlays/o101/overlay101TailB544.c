@@ -91,9 +91,9 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s32 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/* PLATEAU (2026-08-25): workbench structure-mismatch; 222/316 words differ, first non-reloc +0x48.
- * Constant audit, a unified index web, and tied/reversed initializers were tried; the improved shape is retained.
- * Exact size/frame remain; node construction has structural/temp-pool drift and 23 relocation-symbol mismatches. */
+/* PLATEAU (2026-08-26): workbench structure-mismatch; 222/316 words differ, first non-reloc +0x48.
+ * Flag lattice confirmed the retained exact-size/frame shape; node-field ordering and temp-pool hypotheses remain eliminated.
+ * Node construction structure and 23 relocation identities remain. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000B544_18E6D64(void) {
     s32 index;
