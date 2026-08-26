@@ -1824,6 +1824,10 @@ func_8000C5F4 = 0x8000C5F4; // type:func size:0x684 ROM 0xd1f4 tier-D (JFG src/t
 // position argument. Mickey's address placeholder is retained for the exact C.
 func_8000D00C = 0x8000D00C; // type:func size:0xC ROM 0xdc0c
 
+// No public name adopted: JFG's assembly-only `func_800135E0` supplies the
+// camera/update role and TU position; the placeholder is retained.
+func_8000D018 = 0x8000D018; // type:func size:0x154 ROM 0xdc18 tier-D (JFG src/track.c func_800135E0, placeholder retained)
+
 // No public name adopted: JFG's corresponding `trackAddTextureScroll` is a
 // tier-D TU-position identification only. Mickey's placeholder is retained;
 // all 19 words and the two HI16/LO16 relocation pairs are exact.
@@ -1867,6 +1871,10 @@ func_8000F82C = 0x8000F82C; // type:func size:0x200 ROM 0x1042c tier-D (DKR src/
 // wrapper, while the reference scan found no credible named body donor.
 func_8000FA2C = 0x8000FA2C; // type:func size:0xB4 ROM 0x1062c tier-D (Mickey reconstruction, placeholder retained)
 
+// No public name adopted: JFG's `trackGetBlock` and DKR's segment-index helper
+// supply only tier-D spatial-query context; the placeholder is retained.
+func_8000FAE0 = 0x8000FAE0; // type:func size:0xF8 ROM 0x106e0 tier-D (JFG src/track.c and DKR src/tracks.c structure, placeholder retained)
+
 // No public name adopted: DKR's `check_if_inside_segment` supplies the
 // containment structure; Mickey proves the direct-coordinate inclusive form.
 func_8000FBD8 = 0x8000FBD8; // type:func size:0xCC ROM 0x107d8 tier-D (DKR src/tracks.c structure adapted, placeholder retained)
@@ -1894,6 +1902,10 @@ func_8000FF2C = 0x8000FF2C; // type:func size:0x24C ROM 0x10b2c tier-D (JFG src/
 // No public name adopted: Mickey's callers and exact three-plane AABB test
 // establish the role; the reference scan found no credible donor.
 func_80010178 = 0x80010178; // type:func size:0x25C ROM 0x10d78 tier-D (Mickey reconstruction, placeholder retained)
+
+// No public name adopted: JFG's assembly-only `trackSphereIntersect` supplies
+// the tier-D collision role and TU position; the placeholder is retained.
+func_80012574 = 0x80012574; // type:func size:0xE4 ROM 0x13174 tier-D (JFG src/track.c trackSphereIntersect, placeholder retained)
 
 // JFG's `trackClip3D` supplies tier-D structure for the preceding caller,
 // while Mickey proves its shorter boundary and exact six-call body.

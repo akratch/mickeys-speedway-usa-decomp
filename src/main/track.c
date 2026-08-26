@@ -132,7 +132,8 @@ typedef struct TrackSegment {
     TrackBatch *batches;
     u8 pad10[0x24 - 0x10];
     s16 batchCount;
-    u8 pad26[0x2E - 0x26];
+    u8 pad26[0x2C - 0x26];
+    s16 unk2C;
     s8 lightingMode;
     u8 pad2F[0x30 - 0x2F];
     void *unk30;
@@ -180,7 +181,9 @@ typedef struct TrackData {
 } TrackData;
 
 typedef struct TrackLevelData {
-    u8 pad00[0x52];
+    u8 pad00[0x22];
+    s8 unk22;
+    u8 pad23[0x52 - 0x23];
     s8 skyMode;
     u8 skyRotationSpeed;
     u8 pad54[0xB2 - 0x54];
@@ -276,6 +279,8 @@ typedef struct TrackCamera {
     f32 offsetX;
     f32 offsetY;
     f32 offsetZ;
+    u8 pad3C[0x3E - 0x3C];
+    s16 segmentIndex;
 } TrackCamera;
 
 typedef struct TrackSkyMaterial {
@@ -320,6 +325,10 @@ extern u8 D_8007BEF4;
 extern s16 D_800C9570;
 extern TrackData *D_800792E8;
 extern TrackLevelData *D_800792EC;
+extern s32 D_80078F84;
+extern f32 D_800C99B0;
+extern f32 D_800C99B4;
+extern f32 D_800C99B8;
 extern Mtx *D_800C9524;
 extern TrackVertex *D_800C9528;
 extern TrackTriangle *D_800C952C;
@@ -372,6 +381,10 @@ void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
                    s32 updateRate);
 s32 runlinkIsModuleLoaded(s32 module);
 s32 TrapDanglingJump();
+void func_8000A62C(f32 x, f32 y, f32 z);
+void func_8000E5EC(s32 arg0, s32 arg1);
+void func_8000E920(s32 arg0, s32 arg1);
+void func_80014DE4(void);
 void camStandardOrtho(Gfx **displayList, Mtx **matrix);
 void func_80034920(Gfx **displayList);
 void func_800349A4(Gfx **displayList, void *texture, s32 mode, s32 flags);
@@ -754,7 +767,44 @@ void func_8000CED0(s32 updateRate) {
 void *func_8000D00C(void) {
     return D_800C9550;
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: the camera/update structure is adapted from Jet Force Gemini's
+ * public src/track.c TU position (`func_800135E0`); Mickey's fields, globals,
+ * call graph, and instruction boundary remain authoritative. */
+void func_8000D018(s32 arg0, s32 arg1) {
+    TrackData *track;
+    s16 segmentIndex;
+
+    D_800C9530 = camGetPtr();
+    func_80014DE4();
+    func_8000A62C((f32) D_800C9B40.x / 65536.0f,
+                  (f32) D_800C9B40.y / 65536.0f,
+                  (f32) D_800C9B40.z / 65536.0f);
+    segmentIndex = D_800C9530->segmentIndex;
+    if ((segmentIndex >= 0) &&
+        ((track = D_800792E8), segmentIndex < track->segmentCount)) {
+        D_800C953C = track->segments[segmentIndex].unk2C;
+    } else {
+        D_800C953C = -1;
+    }
+    D_800C99B0 = D_800C9530->x;
+    D_800C99B4 = D_800C9530->y;
+    D_800C99B8 = D_800C9530->z;
+    if (D_80078F84 > 0) {
+        D_8007926C = TrapDanglingJump(D_800C9530->x, D_800C9530->y,
+                                      D_800C9530->z);
+    } else {
+        D_8007926C = 0;
+    }
+    if (D_800792EC->unk22 != 0) {
+        func_8000E5EC(arg0, arg1);
+        return;
+    }
+    func_8000E920(arg0, arg1);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D018.s")
+#endif
 void func_8000D16C(s32 arg0, s32 arg1, s32 arg2) {
     if (D_80079314 < 16) {
         D_800C9B50[D_80079314] =
@@ -1075,7 +1125,77 @@ void func_8000FA2C(s32 *result, s32 arg1) {
     func_8000F82C(0, 0, D_800792E8->segmentCount - 1);
     *result = D_800C9564;
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Diddy Kong Racing's public `src/tracks.c`,
+ * `get_level_segment_index_from_position`, supplies the segment scan and
+ * nearest-height selection structure. Mickey's bounds are inclusive and its
+ * TrackData layout, function boundary, and bytes remain authoritative.
+ */
+s32 func_8000FAE0(f32 x, f32 y, f32 z) {
+    s16 segmentCount;
+    s16 yLower;
+    s16 yUpper;
+    s32 xInt;
+    s32 zInt;
+    s32 yInt;
+    s32 minVal;
+    s32 i;
+    s32 heightDiff;
+    s32 result;
+    TrackBoundingBox *bounds;
+
+    result = -1;
+    if (D_800792E8 != NULL) {
+        segmentCount = D_800792E8->segmentCount;
+        minVal = 0x7FFF;
+        bounds = D_800792E8->segmentBounds;
+        i = 0;
+        if (segmentCount > 0) {
+            xInt = x;
+loop_3:
+            if (bounds->x2 < xInt) {
+                goto block_14;
+            }
+            if (xInt < bounds->x1) {
+                goto block_14;
+            }
+            zInt = z;
+            if (bounds->z2 < zInt) {
+                goto block_14;
+            }
+            if (zInt < bounds->z1) {
+                goto block_14;
+            }
+            yInt = y;
+            yLower = bounds->y1;
+            yUpper = bounds->y2;
+            if ((yInt >= yLower) && (yUpper >= yInt)) {
+                result = i;
+                goto done;
+            }
+            heightDiff = yInt - yUpper;
+            if (yInt < yLower) {
+                heightDiff = yLower - yInt;
+            }
+            if (heightDiff < minVal) {
+                minVal = heightDiff;
+                result = i;
+            }
+block_14:
+            i++;
+            bounds++;
+            if (i < segmentCount) {
+                goto loop_3;
+            }
+        }
+    }
+done:
+    return result;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000FAE0.s")
+#endif
 /*
  * PROVENANCE: Diddy Kong Racing's public `src/tracks.c`,
  * `check_if_inside_segment`, supplies the bounding-box containment structure.
@@ -1326,7 +1446,58 @@ next_plane:
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011980.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011CDC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012234.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Jet Force Gemini's public `src/track.c` retains
+ * `trackSphereIntersect` as assembly; its signature and collision role
+ * supply structural context only. Mickey's vector layout, arithmetic, and
+ * output pointers are reconstructed from the resident call sites and bytes.
+ */
+/* Workbench plateau: register-permutation, 57 instructions, first +0x50.
+ * The exact frame, schedule, and sqrtf relocation remain; IDO swaps the f14/f18
+ * projection webs. Declaration, lifetime, volatile, and ABI probes did not move it. */
+s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
+                  TrackVec3f *center, f32 radius, f32 *minimum,
+                  f32 *maximum) {
+    f32 sp38;
+    s32 sp1C;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f12;
+    f32 temp_f14;
+    f32 temp_f16;
+    f32 temp_f18;
+    f32 temp_f2;
+    f32 temp_f2_2;
+    s32 var_v1;
+
+    temp_f0 = origin->f[0] - center->f[0];
+    temp_f2 = origin->f[1] - center->f[1];
+    var_v1 = FALSE;
+    temp_f12 = origin->f[2] - center->f[2];
+    temp_f14 = ((temp_f0 * direction->f[0]) +
+                (temp_f2 * direction->f[1])) +
+               (temp_f12 * direction->f[2]);
+    temp_f18 = temp_f14 * temp_f14;
+    temp_f16 = (((temp_f0 * temp_f0) + (temp_f2 * temp_f2)) +
+                (temp_f12 * temp_f12)) -
+               (radius * radius);
+    if (temp_f16 <= temp_f18) {
+        var_v1 = TRUE;
+    }
+    if (var_v1 != FALSE) {
+        sp1C = var_v1;
+        sp38 = temp_f14;
+        temp_f0_2 = sqrtf(temp_f18 - temp_f16);
+        temp_f2_2 = -temp_f14;
+        *minimum = temp_f2_2 - temp_f0_2;
+        *maximum = temp_f2_2 + temp_f0_2;
+    }
+    return var_v1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012574.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012658.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001291C.s")
 /*
