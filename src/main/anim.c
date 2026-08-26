@@ -669,9 +669,9 @@ void func_80050DF0(s32 levelId) {
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
- * Workbench: mixed structure/register, 89/90 instructions and exact 0x20 frame; 46 words differ, first +0x64.
- * Levers tried: direct loop predicate, redundant address expression, structure buckets, and context lint.
- * Remaining: IDO reuses the scroll boundary instead of rematerializing the lockon base, shifting later relocations.
+ * Workbench: structure-mismatch, 89/90 instructions/frame -32; 46 words from +0x64.
+ * Levers: direct predicate/address forms, scoped pointer locals, structure buckets, and context lint; no improvement.
+ * Remains: IDO reuses the scroll boundary instead of rematerializing the lockon base; asm stays canonical.
  */
 #ifdef NON_MATCHING
 void func_80050E9C(void) {

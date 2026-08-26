@@ -554,9 +554,9 @@ part's cache comparison, so it was rejected.
 `func_80020D8C` is exact-size with 13/48 positional words differing, first `+0x38`; workbench verdict: register-ring-only residual.
 Assembler-folded narrowing masks improved 17 to 13; combinations regressed, and the corrected-flag 30-minute permutation found no exact form.
 The remaining temp-FIFO web requires ring-only registers; the assembly fallback stays canonical.
-`func_80020E4C`: workbench mixed structure/register plateau, exact 113-word size, 25 words from `+0xC`.
-The structure-buckets lever and explicit byte-scaled indexing improved the prior 77-word residual.
-Pointer induction plus pool slot 1 and temp slot 3 still diverge; assembly stays canonical.
+`func_80020E4C`: workbench structure mismatch, exact 113 instructions/frame -64; 25 words differ, first `+0xC`.
+Explicit byte-scaled indexing is best; pointer-cursor and declaration-order probes did not improve it.
+Exception-loop/pool-slot 1 and temp-slot 3 allocation remains; assembly stays canonical.
 **Why most rows have no new `mickey.us.yaml` split.** §1's "measured file
 boundary" tier requires a whole-`.text` match; this pass only matched
 **Why the original scan added no `mickey.us.yaml` splits.** §1's "measured
@@ -1636,9 +1636,9 @@ prologue onward. A bounded permuter import selected MIPS I and was rejected as
 non-canonical; its pack-expression lead also failed when recompiled with the
 resident MIPS II flags. The assembly fallback remains canonical.
 
-`__scHandleRetrace`: workbench mixed structure/register plateau, 408/409 words and 84 residuals from `+0x3B4`.
-The structure-buckets lever, split-counter forms, and source-line grouping did not improve the baseline.
-Diagnostic/store scheduling and separate high/low counter materialisation remain; assembly stays canonical.
+`__scHandleRetrace`: workbench structure mismatch, 408/409 instructions/frame -232; 84 words differ from `+0x3B4`.
+Diagnostic counter/store scheduling, source-line grouping, and explicit narrowing did not improve the baseline.
+ClearRDPTask scheduling and u64 retrace-counter materialisation remain; assembly stays canonical.
 
 The still-unnamed scheduler diagnostic `func_80030610` retains a Mickey-
 derived `NON_MATCHING` display-list bisection body after the 119-combination
@@ -1839,12 +1839,9 @@ redundant branch at `+0xA4`; 11 later words swap the flags spill (`sp+0x44`)
 with the rotation pair (`sp+0x30`). JFG `func_800608EC` is the assembly oracle;
 asm stays canonical.
 
-`func_8003F154` plateaued frame-exact at 294 instructions versus 297 after the
-flag lattice, ten structural hypotheses, and a canonical-`mips2` permuter.
-252 aligned rows match; the first raw mismatch is the end-branch displacement
-at `+0x204`, followed at `+0x20C` by the zero-vector `f0`/`f6` choice. The
-remaining cluster is header-copy/branch and FP normalization scheduling. JFG
-`func_80060400` is the assembly oracle; asm stays canonical.
+`func_8003F154`: workbench mixed structure/register/commutative residual, exact 297 instructions/frame -88; 39 raw words from `+0x204`.
+Structure buckets and both FP reassociations for the commutative add worsened the baseline; no edit was kept.
+The `+0x20C` zero-vector web, header-copy branch, and FP normalization remain; JFG `func_80060400` is the oracle.
 
 `partNullifyCircularParticleParents` is opcode/size-exact with 25/42 positional
 residuals from `+0x0`; implicit loop bounds seed both carrier pairs oppositely.
@@ -1896,16 +1893,9 @@ flag lattice. The bounded permuter imported the TU as inadmissible `-mips1`
 and only improved its internal score with a dummy label, so the typed candidate
 remains under `NON_MATCHING` and the original asm body remains canonical.
 
-`func_8003D25C` reached a bounded 168-instruction plateau under the default
-resident flags with the exact opcode schedule, `0xB8` frame, and relocation
-surface. Its best typed Mickey reconstruction differs in 70 register-only
-words, first at function offset `0x50`: the target begins the command-temporary
-ring with `$t0` while the candidate begins with `$t1`, and the color-component
-webs occupy different pool positions. The full 119-entry flag lattice found no
-exact alternative. Expression ordering, explicit and macro command forms,
-component lifetimes, and nested scopes converged either on this allocation
-basin or on structurally worse schedules. The candidate remains under
-`NON_MATCHING` and the original asm body remains canonical.
+`func_8003D25C`: workbench allocation mismatch, exact 168 instructions/frame -184; 70 register-only words, first `+0x50`.
+Temp-FIFO/pool-web scopes, direct fields, color-web removal, and a bounded 30-minute permutation found no exact.
+Temp slot 0 plus pool substitutions at slots 37/41 remain; the candidate stays under `NON_MATCHING` and asm is canonical.
 
 `vsprintf` is size/frame/register-pool exact under `-Wab,-r4300_mul`; two scheduled words differ, first `+0xB08`.
 Target loads `10` before `'-'`; IDO reverses them, and the `va_arg` body remains unparseable by the permuter.
@@ -1960,14 +1950,9 @@ remains under `NON_MATCHING` and asm remains canonical.
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's
 criterion.
-`func_800336A8` reached a bounded `NON_MATCHING` plateau from JFG's
-`viChangeMode` body. The best 195-word candidate has the exact target length
-but differs at 79 relocation-masked positions, first at function offset zero;
-its local requested-buffer value expands the non-save frame from 40 to 48
-bytes. Removing that home restores the target frame but adds one instruction
-and leaves 110 differing positions. The blocker is register allocation around
-the conditional third-framebuffer allocation. The flag lattice found no exact
-variant, and the configured permuter checkout is absent in this lane.
+`func_800336A8`: workbench structure mismatch, exact 195 instructions/frame -40; 71 raw words with 42 alignment gaps.
+Pointer carriers, a fake source boundary, and the existing flag lattice did not improve the JFG-derived candidate.
+Early global-carrier allocation around conditional third-framebuffer setup remains; the candidate stays under `NON_MATCHING`.
 
 | Function | Exact result |
 |---|---|
