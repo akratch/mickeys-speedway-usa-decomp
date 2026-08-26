@@ -36,8 +36,8 @@ extern f32 gOverlay92DistanceParameters[2];
 extern O92Object **overlay92GetObjectRange(s32 *start, s32 *end);
 extern f32 sqrtf(f32 value);
 
-/* Workbench: mixed(structural:2, schedule:4, register:24), 26-word baseline (best 16-word prior candidate), first +0x48.
- * Levers: course-position cache, racer alias, and index declaration order; all regressed or were inert.
+/* Workbench: mixed(structural:2, schedule:4, register:24), exact 168 instructions/26 words, first +0x48.
+ * Levers: course-position cache, racer alias, index order, and valid-branch initialization; inert or regressed.
  * Remains: index/cursor pool swap, one schedule pair, and first-distance FP coloring. */
 #ifdef NON_MATCHING
 s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,

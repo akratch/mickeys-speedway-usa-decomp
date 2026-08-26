@@ -441,9 +441,9 @@ s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
     }
     return (s16) (arg0 + (s32) ((f32) var_v1 * arg2));
 }
-/* Type pass: before=mixed(structural:2, register:28), 36/36 instructions; after=same, first +0x4.
- * Lever: scalar table access is already a 4-byte record stride; no aggregate-type change applies.
- * Remains: FP/int pool coloring after the prior flag and source-shape sweep. */
+/* Workbench: mixed(structural:2, register:28), exact 36 instructions/29 words, first +0x4.
+ * Levers: table type, pointer aliasing, final-expression forms, and flag/source-shape sweep; none matched.
+ * Remains: divisor-load scheduling and FP/int pool coloring. */
 /* PROVENANCE -- adapted from JFG's charControl controlMakeV implementation. */
 #ifdef NON_MATCHING
 f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {

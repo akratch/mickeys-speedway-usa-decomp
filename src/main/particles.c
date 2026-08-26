@@ -907,9 +907,9 @@ s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParti
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CE10.s")
 #endif
 /*
- * Workbench: allocation-mismatch, exact 168 instructions/frame -184; 70 register-only words, first +0x50.
- * Levers: temp-FIFO/pool-web scopes, direct fields, color-web removal, and a bounded 30-minute permutation; no exact.
- * Remains: temp slot 0 plus pool substitutions at slots 37/41; asm stays canonical.
+ * Workbench: allocation-mismatch, exact 153 instructions/frame -128/27 words, first +0x48.
+ * Levers: temp-FIFO/pool-web scopes, direct fields, color-web removal, flags, and bounded permutation; no exact.
+ * Remains: outer-count pool color and later command-word web rotations; asm stays canonical.
  */
 #ifdef NON_MATCHING
 /*
