@@ -33,10 +33,9 @@ extern void *func_8002B280(s32 size, s32 tag);
 extern void mmFree(void *ptr);
 
 #ifdef NON_MATCHING
-/* PROVENANCE -- adapted from JFG's public asm/nonmatchings/shadows/shadowInitBuffers.s, with Mickey's globals.
- * Workbench: words-identical with only two D_80079440 relocation-symbol mismatches.
- * Lever: a zero-based alias loop removed six operand differences; explicit sentinel/pointer forms regressed.
- * Remains: the candidate binds D_80079434+0xC where the target metadata names D_80079440. */
+/* PROVENANCE: adapted from JFG's public asm/nonmatchings/shadows/shadowInitBuffers.s; Mickey globals are authoritative.
+ * Workbench: relocation-symbol-mismatch; 75/75 instructions and frame exact, with two D_80079440 sites differing.
+ * Lever: the typed address-sentinel form expands to 77 instructions; the three-iteration loop remains best. */
 void shadowInitBuffers(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 i;
     s32 stride0;

@@ -639,9 +639,9 @@ void func_8002CF0C(void *globalFlags) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench: register-ring-only, 9/88 words, first +0xCC.
- * Levers: volatile-field and alias-separated reload types changed structure and added code.
- * Remains: savedFlag crosses from a target FIFO temp to a candidate colored web after the checksum call. */
+/* Workbench: register-ring-only, 9/88 words first +0xCC; frame and relocations exact.
+ * Levers: hoisted arguments, folded masks, addressable scalars, flag probes, and the bounded permuter did not cross allocator classes.
+ * Remains: savedFlag is a target FIFO temp but a candidate colored web after the checksum call. */
 void func_8002CF6C(u8 *globalFlags) {
     SavesFullWriteState state;
     s32 messageQueue;
