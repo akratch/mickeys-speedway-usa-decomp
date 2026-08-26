@@ -69,15 +69,14 @@ extern void overlay29EmitReloc(s32 id, f32 x, f32 y, f32 z, s32 type, s32 arg);
         *(volatile s16 *) &record->value = 0xFF;                           \
     } while (0)
 
-/* Plateau (2026-08-25, batch 36): exact-size at 257 words; 38 differ, first +0x50.
- * Unsigned-angle and volatile-store ordering cut 100 to 38; residuals are four-byte
- * angle/record stack homes after the lattice, playbook, and 40m canonical permuter. */
+/* Workbench: allocation-mismatch, exact-size at 257 words; 33 differ, first +0x50.
+ * Moving the angle pair into the guarded block cut five words; declaration, alias,
+ * aggregate, and array-size variants left angle/record homes and register webs. */
 #ifdef NON_MATCHING
 void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
     Overlay29Object *object;
     Overlay29Record *record;
     Overlay29State *state;
-    s16 angles[2];
     s16 baseAngle;
     s16 verticalAngle;
 
@@ -86,6 +85,8 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
     if ((mode & 1) != 0) {
         overlay29ResetReloc();
     } else if ((mode & 2) != 0) {
+        s16 angles[2];
+
         baseAngle = overlay29AngleReloc(state->direction.x, state->direction.z);
         verticalAngle = overlay29AngleReloc(
             overlay29SqrtReloc((state->direction.z * state->direction.z) +

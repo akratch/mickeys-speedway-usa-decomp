@@ -52,9 +52,9 @@ extern void func_800006BC(f32 arg0, s32 arg1);
 extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
-/* Plateau: -O2/-mips2 is exact-size, 227 masked (231 raw) words, first +0x4.
- * Case scoping saved two raw words, but the handle remains in s0; spill shapes miss size.
- * The full lattice and 40m MIPS2 permuter found no zero; best 1470 used dead/no-op syntax. */
+/* Workbench: structure-mismatch, exact 267 instructions/frame; 227 masked/231 raw words differ, first +0x4.
+ * Indexed D_1CC access left the same saved-s0 cursor allocation; case scoping, lattice, and bounded permuter remain eliminated.
+ * Remains: target keeps the cursor in a stack home without s0; candidate register/schedule webs still diverge. */
 #ifdef NON_MATCHING
 void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
     void **handle;
