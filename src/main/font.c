@@ -554,10 +554,6 @@ void fontWindowFontBackground(s32 windowId, s32 red, s32 green, s32 blue,
     }
 }
 
-/* Workbench: relocation-only; all 168 words, the frame, and the relocation sites are exact.
- * The alias lever and prior direct-alias/pointer/stride forms cannot preserve both raw addends and schedule.
- * Four HI16/LO16 identities remain linked-equivalent but object-distinct at +0x34 and +0x98. */
-#ifdef NON_MATCHING
 void *func_8004BCC4(s32 windowId, s32 posX, s32 posY, char *text, s32 number,
                     s32 flags) {
     s32 i;
@@ -638,9 +634,6 @@ void *func_8004BCC4(s32 windowId, s32 posX, s32 posY, char *text, s32 number,
 
     return result;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004BCC4.s")
-#endif
 
 void func_8004BF64(s32 windowId) {
     DialogueBoxBackground *window;
