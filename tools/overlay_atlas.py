@@ -94,6 +94,7 @@ EXACT_DONOR_OVERLAYS = {
 # deliberately explicit so the manifest, splat YAML, and progress metric share
 # one collision-free `(overlay, offset)` source of truth.
 DATA_RODATA_OWNERSHIP = {
+    22: [(0x0, 0x60, "overlay22RemoveObject")],
     # Offsets are relative to data_rodata. The source must already own a C text
     # row: its compiled .data is linked before any remaining raw initialized
     # tail, so no duplicate C subsegment is emitted at the section boundary.
@@ -106,6 +107,7 @@ DATA_RODATA_OWNERSHIP = {
 # alignment can emit the intervening zero padding without a separate asm row.
 # Keep the row in the atlas so padding is never counted as executable C credit.
 COMPILER_TEXT_ALIGNMENT_PADDING = {
+    22: "overlay_022_padding",
     15: "overlay_015_padding",
 }
 

@@ -1256,8 +1256,6 @@ segments:
       - [0x18783B8, c, func_overlay_022_F00002B0_18783B8]
       - [0x1878B84, c, overlay22ResolvePlane]
       - [0x1878E38, c, overlay22RemoveObject]
-      - [0x1878FA4, asm, overlay_022_padding]
-      - [0x1878FA8, bin, overlay_022_data_rodata]
       - [0x1879008, bin, overlay_022_reloc1]
       - [0x1879110, bin, overlay_022_reloc2]
 
