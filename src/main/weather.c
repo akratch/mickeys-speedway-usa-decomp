@@ -451,18 +451,12 @@ void changeWeather(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
         rain_set(arg3 + 1, arg4 + 1, (f32) arg5 / 60.0f);
     }
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
  * src/weather.c::doWeather. Mickey's split vertex/render calls and globals
  * are authoritative here.
  */
-/* Workbench: structure-buckets; 89 positional words differ, first +0x7C.
- * Compound updates cleared constant/commutative classes; return/line probes were inert.
- * Candidate is 168/169 instructions; transition structure/temp allocation remain. */
 void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **arg3, s32 updateRate) {
-    WeatherVertex *temp_t3;
-
     D_800D40CC = *arg0;
     D_800D40D0 = *arg1;
     D_800D40D4 = *arg2;
@@ -477,9 +471,9 @@ void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **a
                 D_800D4078.intensity += D_800D4078.intensityStep * updateRate;
                 D_800D4078.velX += D_800D4078.velXStep * updateRate;
                 D_800D4078.velY += D_800D4078.velYStep * updateRate;
-                D_800D4078.shiftTime -= updateRate;
                 D_800D4078.velZ += D_800D4078.velZStep * updateRate;
                 D_800D4078.opacity += D_800D4078.opacityStep * updateRate;
+                D_800D4078.shiftTime -= updateRate;
             } else {
                 D_800D4078.shiftTime = 0;
                 D_800D4078.intensity = D_800D4078.intensityTarget;
@@ -494,10 +488,9 @@ void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **a
             (D_800D40B8.near + ((D_800D40B8.far - D_800D40B8.near) * D_800D4078.opacity)) >> 16;
         snow_update(&D_800D4078, &D_8007C398, D_800D4070, D_8007C394, updateRate);
         if (D_800D4074 > 0 && D_800D40B8.current < D_800D40B8.near) {
-            temp_t3 = D_8007C3D4[D_800D40C8];
-            D_8007C3C4 = temp_t3;
+            D_8007C3C4 = D_8007C3D4[D_800D40C8];
             D_8007C3C8 = snow_vertices(D_800D40DC, &D_8007C398, D_800D4074, D_8007C394,
-                                       D_800D40E0, temp_t3);
+                                       D_800D40E0, D_8007C3C4);
             snow_render();
             D_800D40C8 = 1 - D_800D40C8;
         }
@@ -507,9 +500,6 @@ void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **a
     *arg2 = D_800D40D4;
     *arg3 = D_800D40D8;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/weather/doWeather.s")
-#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/snow_render.s")
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
