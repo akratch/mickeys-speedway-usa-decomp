@@ -32,9 +32,9 @@ extern Overlay36WorldState *gOverlay36WorldStateReloc;
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 are negative and JFG's
  * Overlay 36 hits occur only at the unrelated +0x1470/+0x1490 wrappers. */
-/* Workbench verdict: mixed constant/structure/schedule/register; 13 words, first +0x0.
- * Levers 1/26/31: declaration, local, expression, and nine-slot frame probes did not improve 13 words.
- * Remaining: the faithful 13-slot array keeps a 0x80 frame versus the target's 0x70 frame. */
+/* Workbench: mixed constant/structure/schedule/register; 13 words, first +0x0; frames -0x70/-0x80.
+ * Levers 1/26/31 plus 9/10/12-slot array, bound, declaration, and expression probes found no better basin.
+ * Remaining: faithful 13-slot capacity preserves the wrong frame; assembly fallback stays canonical. */
 
 
 
