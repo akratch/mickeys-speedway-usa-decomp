@@ -37,9 +37,9 @@ extern f32 sqrtf(f32 value);
 extern f32 gOverlay20TailXLimit;
 extern f32 gOverlay20TailYLimit;
 
-/* Plateau (2026-08-26, p5): workbench mixed, 207/205 instructions and 180 raw (178 masked) differing words from +0x20; both frames are 0x90.
- * The mips3/r4300-mul flag sweep and init/type/comparison/volatile/neighbor/lifetime/permuter probes leave 17 structural and 114 register rows.
- * No untried source-backed lever remains; retain NON_MATCHING. */
+/* Workbench p7: structure-mismatch, 207/205 instructions/frame -144, 178 masked (180 raw) words from +0x20.
+ * Target-derived initialization reorder regresses to 203 instructions; prior mips3/r4300-mul and init/type/comparison/volatile/neighbor/lifetime/permuter levers remain best.
+ * Register-class divergence begins in the grid-field load web; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 f32 func_overlay_020_F0001148_1877720(Overlay20TailGrid *grid, f32 x, f32 y,
     Overlay20TailVector *normal) {
