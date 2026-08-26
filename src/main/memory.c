@@ -207,9 +207,9 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
  * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative. */
-/* Workbench verdict: mixed structure/register; 14/116 words from +0xE0, exact frame.
- * Levers tried: flag lattice, donor casts/conditions, pointer lifetime/layout, and shift-versus-array indexing.
- * Remains: target normal-branch/data-pointer web and +0x3C spill; no source-stable closure. */
+/* Workbench verdict: mixed(constant:2, structural:2, register:10); 14/116 words, exact frame.
+ * Lever: volatile padding fixed two stack-home words; prior pointer/condition and declaration probes left the slot register web.
+ * Remaining: target branch/data-pointer shape; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 slotIndex;
@@ -218,7 +218,7 @@ void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 moduleId;
     s32 moduleAddress;
     volatile s32 callerAddress = 0x666;
-    s32 pad;
+    volatile s32 pad;
 
     D_8007A270 = colourTag;
     if (D_8007A278 != -1) {

@@ -32,9 +32,9 @@ extern Overlay36WorldState *gOverlay36WorldStateReloc;
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 are negative and JFG's
  * Overlay 36 hits occur only at the unrelated +0x1470/+0x1490 wrappers. */
-/* Workbench: mixed constant/structure/schedule/register; 13 words, first +0x0; frames -0x70/-0x80.
- * Levers 1/26/31 plus 9/10/12-slot array, bound, declaration, and expression probes found no better basin.
- * Remaining: faithful 13-slot capacity preserves the wrong frame; assembly fallback stays canonical. */
+/* Workbench verdict: mixed(constant:6, structural:5, schedule:1, register:3); 13/63 words, frame -0x80 vs -0x70.
+ * Lever: removing the redundant inner remaining guard worsened the residual to 25 words and was reverted; context lint is clean.
+ * Remaining: 16-byte non-save frame/FP phase and relocation aliases; assembly fallback stays canonical. */
 
 
 
