@@ -82,14 +82,9 @@ typedef struct O58Unknown {
  * overlay58ExternalReloc calls below therefore represent multiple unresolved
  * call targets and make no symbol-identity claim.
  *
- * NON_MATCHING plateau (2026-08-25): after repairing the complete 13-way
- * control-flow draft and sweeping all 119 flag combinations, -O2 -mips1 is
- * best at 69/3614 identical instruction words (3545 differ), 472 bytes short,
- * with the first mismatch at +0x0. The candidate uses a 0x2F0-byte frame while
- * retail uses 0x138. Correcting the update-rate ABI, known opening calls,
- * scalar menu state, table cursors, and indexed structure access did not
- * recover the target register lifetimes; the unresolved relocation types and
- * oversized compiler-managed stack state are the remaining blockers.
+ * Workbench plateau (2026-08-26): structure-mismatch; a literal audit (0xD2 to 0x28) leaves 3,544 differing comparison words, 3,496 versus 3,614 instructions, and a -752 versus -312 frame.
+ * Lever tried: constant-audit and context lint; the corrected literal removes one residual word but does not change the structural class.
+ * Remains: frame surplus and unresolved relocation plus aggregate-type structure.
  */
 #ifdef NON_MATCHING
 extern O58Unknown *func_80028F54(void);
@@ -595,7 +590,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + 0x71, sp100, ((O58Unknown *)((*(s32 *)0) + ((*var_s4)->unk0 * 4)))->unk68, NULL);
                 overlay58ExternalReloc(&spC0, &D_70, (O58Unknown *) (*var_s4)->unk22);
                 overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + 0xD2, sp100, &spC0, NULL);
+                overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + 0x28, sp100, &spC0, NULL);
                 if ((*var_s4)->unk22 == 1) {
                     overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + 0x104, sp100, &D_74, NULL);
                 } else {
