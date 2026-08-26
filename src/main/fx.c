@@ -663,9 +663,9 @@ void func_8004A9CC(s32 arg0) {
  * Force Gemini asm/nonmatchings/fx/func_8006FFF8.s. Mickey's own symbols and
  * instruction schedule establish the assignment order below.
  */
-/* Workbench: mixed structure/register residual; exact 28-word size, 14 positional differences, first +0x14.
- * Levers: line assignment improved 18 to 14; aggregate lifetime, assignment order, and direct trap address did not.
- * Remains: callback/trap address allocation and counter scheduling; assembly fallback stays canonical. */
+/* Plateau (near-miss p5): workbench mixed(structural:10, register:5), 14 words at 28 instructions.
+ * Levers: typed return/result, direct trap, and address/declaration/assignment order; each changed structure or allocation.
+ * Remains: callback/trap pool mapping and loop-counter schedule; assembly fallback stays canonical. */
 void func_8004ACC4(void) {
     s32 *callback;
     s32 *value0;

@@ -151,9 +151,9 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Workbench: allocation, 15 register-only words, first +0x40; temp slot 4 and pool slot 30 diverge.
- * Frame-home declaration/assignment splitting helped; temp-FIFO boolean and lifetime levers regressed or were inert.
- * Remaining: cache-index temp t7/t8 phase and final emptyIndex pool/temp class crossing. */
+/* Plateau (near-miss p5): workbench allocation-mismatch, 15 register-only words at 94 instructions/frame -0x38.
+ * Levers: frame-home/index-offset and entry declaration splitting, temp-FIFO/lifetime forms; no allocation change.
+ * Remains: cache-index temp phase and final empty-index pool/temp crossing; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;
