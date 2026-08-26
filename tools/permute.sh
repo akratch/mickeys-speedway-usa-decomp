@@ -165,9 +165,24 @@ fi
 mv "$imported" "$OUT/scratch"
 echo "Scratch: $OUT/scratch"
 
+# --- Correct the scratch compile flags to the project's real per-file flags ---
+# decomp-permuter's import.py infers a default (-mips1, no per-file overrides);
+# the real build uses -mips2 plus per-file CFLAGS. Compiling the search at the
+# wrong ISA searches the wrong instruction space, so rewrite compile.sh's cc
+# flags to exactly what `gmake` uses for this object.
+obj="build/${c_file}.o"
+realflags=$(gmake -n "$obj" 2>/dev/null | grep -oE '\-mips[0-9]|\-O[0-9]|\-Wo,[^ ]*|\-Wab,[^ ]*|\-g[0-9]?' | sort -u | tr '\n' ' ')
+if printf '%s' "$realflags" | grep -q mips; then
+  csh="$OUT/scratch/compile.sh"
+  # drop the importer's -O/-mips/-Wo/-Wab flags, splice in the real ones before the input
+  sed -i '' -E 's/ -O[0-9]//g; s/ -mips[0-9]//g; s/ -Wo,[^ ]*//g; s/ -Wab,[^ ]*//g' "$csh"
+  sed -i '' -E "s#(tools/ido/cc )#\1$realflags #" "$csh"
+  echo "Corrected compile flags -> $realflags"
+fi
+
 # --- Run the permuter, capped, non-interactive --------------------------
 ncpu=$(sysctl -n hw.ncpu 2>/dev/null || nproc)
-jobs=$(( ncpu > 2 ? ncpu - 2 : 1 ))
+jobs=$(( ncpu > 6 ? 4 : (ncpu > 2 ? ncpu - 2 : 1) ))  # cap at 4: many -j workers freeze the machine
 
 has_j=0
 for a in "$@"; do [ "$a" = "-j" ] && has_j=1; done
@@ -178,7 +193,7 @@ args+=("$@")
 
 echo "Running permuter.py ${args[*]} for up to ${MINUTES} minutes..."
 set +e
-timeout "${MINUTES}m" "$PYTHON" "$PERMUTER" "${args[@]}" "$OUT/scratch" \
+nice -n 15 timeout "${MINUTES}m" "$PYTHON" "$PERMUTER" "${args[@]}" "$OUT/scratch" \
     2>&1 | tee "$OUT/permuter.log"
 status=$?
 set -e
