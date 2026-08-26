@@ -772,8 +772,8 @@ s32 mainAddZBCheck(s32 x, s32 y, s32 radius) {
 
 #ifdef NON_MATCHING
 /* Workbench: schedule-mismatch, exact 63-instruction/-72 frame; 2 words, first +0x9C.
- * Levers tried: flag lattice, probe-lines/ties, inner-loop expression/dead-read forms.
- * Remains: one inner pointer decrement is scheduled on the opposite side of the countdown copy. */
+ * Levers tried: g0/flag lattice, probe-lines/ties, and inner-loop expression/dead-read forms.
+ * Remains: one inner pointer/countdown statement is scheduled on the opposite side of the copy. */
 void mainUpdateZBCheck(void) {
     MainZBCheck *check;
     s32 i;
@@ -1465,9 +1465,9 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 #ifdef NON_MATCHING
-/* Workbench: mixed(structural:8, register:4), 10/27 positional words differ, first +0x1c; frame exact.
- * Levers: context lint, the flag lattice, explicit relational/boolean forms, and a goto result web.
- * Remains: the natural if form branches directly; boolean short-circuit forms collapse to 25 words. */
+/* Workbench: mixed(structural:8, register:4), 10/27 positional words differ, first +0x1c; frame -24.
+ * Levers tried: context lint, flag lattice, relational/boolean forms, result web, and typed result probe.
+ * Remains: IDO's boolean materialization before each branch; short-circuit forms collapse to 25 words. */
 s32 func_80028FCC(s32 arg0) {
     if (func_80028FB8(0, 0, arg0)) {
         return TRUE;
@@ -1587,8 +1587,8 @@ u8 func_80029240(s32 index) {
 }
 
 /*
- * Workbench: mixed(structural:11, register:21), canonical 39 words at +0x8; TU-wide -g3 reaches 38 at +0x14.
- * Levers tried: structure/line/association/result, declaration and comma shapes, separate arg0 web, and 119 flags.
+ * Workbench: mixed(structural:11, register:21), 39 words, first +0x8; 87 instructions/frame -16.
+ * Levers tried: structure/line/association/result, declaration/comma shapes, arg0 web, 119 flags, and arg order.
  * Remains: the arg1-to-FP move schedule cascades into swapped FP webs; no TU-wide flag promotion is justified.
  */
 #ifdef NON_MATCHING

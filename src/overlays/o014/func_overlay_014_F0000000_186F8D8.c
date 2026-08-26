@@ -14,8 +14,8 @@ extern s32 gOverlay14Current104, gOverlay14Next108, gOverlay14Context10C, gOverl
 extern void overlay14InitializeReloc(void);
 extern void overlay14FreeReloc(void *ptr);
 
-/* Workbench: allocation-mismatch, 79 instructions/frame -40; 4 words, first +0x70.
- * Levers tried: direct-global count, comma setup, late invalid reassertion, flags and line probe.
+/* Workbench: mixed(constant:19, structural:1, schedule:7), exact 79/-40 frame; 4 words, first +0x70.
+ * Levers tried: direct-global count, comma setup, invalid reassertion, constant audit, flags and line probe.
  * Remains: target address setup orders slot/count/end differently; relocation identities remain diagnostic. */
 #ifdef NON_MATCHING
 void func_overlay_014_F0000000_186F8D8(void) {

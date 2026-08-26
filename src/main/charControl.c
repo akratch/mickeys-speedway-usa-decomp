@@ -268,9 +268,11 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
     func_8001EFFC(transform, player, &player->unk2C0[12]);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
-/* Type pass: before=mixed(structural:1, register:8), 96/95 instructions; after=same, first +0xE0.
- * Lever: typed the 0x54-byte ControlCameraState and preserved the target pointer stride; no schedule change.
- * Remains: IDO CSE of D_800CB300 adds one instruction before the camera-count call. */
+/*
+ * Workbench: structure-mismatch, best 96/95 instructions, 3 masked words, first +0xE0.
+ * Levers tried: commutative base add (best), volatile/old-style/comma/result forms, and flags/context.
+ * Remains: candidate CSE hoists the global base address before the camera-count call; target keeps it split.
+ */
 #ifdef NON_MATCHING
 void func_8001D2A0(ControlActor *actor, s32 arg1) {
     ControlPlayer *player;
