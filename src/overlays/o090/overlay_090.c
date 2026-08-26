@@ -102,19 +102,9 @@ extern void func_800031C0(void *handle, f32 x, f32 y, f32 z);
 extern void func_8000309C(void *handle, u8 volume);
 extern void func_800030B4(void *handle, u8 pitch);
 
-/*
- * Phase-B reconstruction from Mickey's own overlay and relocation metadata.
- * The nearest five-project skeleton score is only 0.067, so no donor body is
- * used here.
- *
- * Plateau (2026-08-25): a fresh 119-variant flag lattice and ten coherent
- * source attempts selected -O2 -mips2 -Wab,-r4300_mul. Typed access to the
- * contiguous overlay data and post-decrement loop conditions align the two
- * opening easing loops. The best body is 640 target words against 648, with
- * 574 positional differences and the first at +0x0. IDO still selects a 0xE0
- * frame instead of 0xC8; the remaining state-machine CFG and local lifetimes
- * keep the allocation globally different.
- */
+/* Plateau p5: workbench structure-mismatch; 639/648 instructions, 575 positional words, first +0x0; frame -224 vs -200. */
+/* Levers tried: zero/local ablations, vector array form, register sound pitch, cached-loop inlining, and scoped animation values. */
+/* Remains: two cache ablations shrink the frame by 8 but worsen structure; the other homes and state-machine CFG remain unresolved. */
 #ifdef NON_MATCHING
 void func_overlay_090_F00000FC_18D4BF4(Overlay90Owner *owner,
                                         s32 updateRate) {

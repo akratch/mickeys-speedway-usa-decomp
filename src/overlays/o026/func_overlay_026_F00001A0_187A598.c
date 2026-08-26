@@ -103,9 +103,9 @@ extern void overlay37RecordMinimum(s32 index, f32 value);
 extern f32 Powerf(f32 value, s32 exponent);
 extern s16 dAngle(s16 first, s16 second, f32 amount);
 
-/* Plateau p3: workbench structure-mismatch, 602/606 instructions, 510 word differences after +0x9C, frame -152. */
-/* Levers tried: constant audit, volatile FP spill/home ordering, and one-element array storage; best flags remain -O2 -mips2 -Wab,-r4300_mul. */
-/* Remains: target unrolled motion-record FP web/materialisation adds four instructions and changes the later allocator/schedule; retain GLOBAL_ASM. */
+/* Plateau p5: workbench structure-mismatch; 602/606 instructions, 510 positional words, first +0x9C; frame exact. */
+/* Levers tried: per-record scalar scopes, nested/commuted zero tests, and compound velocity updates; baseline remains best. */
+/* Remains: IDO hoists the velocity-step load and reuses zero materialisation across records, shifting the FP web; retain GLOBAL_ASM. */
 #ifdef NON_MATCHING
 void func_overlay_026_F00001A0_187A598(O26ObjectUpdate *object,
                                         s32 updateRate) {
