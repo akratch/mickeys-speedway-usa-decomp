@@ -32,9 +32,9 @@ extern void func_800241BC(Overlay71Command **commands);
 
 /* DKR v77/v80 and JFG contain no exact donor for this renderer. */
 /*
- * Workbench: mixed(structural:3, schedule:27, register:9), 33 words, exact size/frame, first mismatch +0x50.
- * Levers tried: spill-slot census/declaration order and a scoped flag web; reversed command-word ordering regressed.
- * Remains: statement scheduling plus split a2-to-a1/a0 pool webs; nine relocation identities also differ diagnostically.
+ * Workbench: mixed(structural:3, schedule:27, register:9), exact 182-instruction/-48 frame; 33 words, first +0x50.
+ * Levers tried: workbench buckets, flag lattice, spill/declaration and command-order forms.
+ * Remains: statement scheduling and a2-to-a1/a0 pool split; relocation identities remain diagnostic.
  */
 #ifdef NON_MATCHING
 void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,

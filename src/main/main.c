@@ -770,9 +770,9 @@ s32 mainAddZBCheck(s32 x, s32 y, s32 radius) {
 }
 
 #ifdef NON_MATCHING
-/* Workbench: schedule-only, 63/63 words, two positional differences, first +0x9C.
- * Levers tried: post-decrement truth form, operand association, line grouping, value-temp and dead-read variants.
- * Remains: one pointer decrement schedules before, rather than after, the inner countdown copy. */
+/* Workbench: schedule-mismatch, exact 63-instruction/-72 frame; 2 words, first +0x9C.
+ * Levers tried: flag lattice, probe-lines/ties, inner-loop expression/dead-read forms.
+ * Remains: one inner pointer decrement is scheduled on the opposite side of the countdown copy. */
 void mainUpdateZBCheck(void) {
     MainZBCheck *check;
     s32 i;

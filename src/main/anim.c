@@ -1588,9 +1588,9 @@ void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 0xA);
 }
 
-/* Workbench: constant-only, exact size/opcodes/registers/frame; 3 words, first +0xA0.
- * Tried pool/temp crossing, statement scheduling, and stack layout/alignment.
- * Remains the volatile secondZ spill at target +0x1C versus candidate +0x18. */
+/* Workbench: operand-mismatch, exact 91-instruction/-72 frame; 3 words, first +0xA0.
+ * Levers tried: flag lattice, scalar/aggregate/array carriers, stack-slot probes.
+ * Remains: volatile secondZ uses sp+0x18; target uses sp+0x1C with no other shape change. */
 #ifdef NON_MATCHING
 void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopySource *firstSource;

@@ -14,11 +14,13 @@ extern s32 gOverlay14Current104, gOverlay14Next108, gOverlay14Context10C, gOverl
 extern void overlay14InitializeReloc(void);
 extern void overlay14FreeReloc(void *ptr);
 
+/* Workbench: allocation-mismatch, 79 instructions/frame -40; 4 words, first +0x70.
+ * Levers tried: direct-global count, comma setup, late invalid reassertion, flags and line probe.
+ * Remains: target address setup orders slot/count/end differently; relocation identities remain diagnostic. */
 #ifdef NON_MATCHING
 void func_overlay_014_F0000000_186F8D8(void) {
     Slot *slot;
     Slot *end;
-    volatile s32 *count;
     INVALID_STORAGE s32 invalid;
     overlay14InitializeReloc();
     invalid = -1;
@@ -26,11 +28,9 @@ void func_overlay_014_F0000000_186F8D8(void) {
     gOverlay14Context10C = 0; gOverlay14Field114 = 0;
     if (gOverlay14AssetF0) overlay14FreeReloc(gOverlay14AssetF0);
     if (gOverlay14OffsetsF4) overlay14FreeReloc(gOverlay14OffsetsF4);
-    slot = gOverlay14ValueSlots28;
-    count = &gOverlay14ValueCountE8;
-    end = gOverlay14ValueSlotsEnd128;
+    slot = gOverlay14ValueSlots28, end = gOverlay14ValueSlotsEnd128;
     do {
-        if ((*count != 0) && slot->value) overlay14FreeReloc(slot->value);
+        if ((gOverlay14ValueCountE8 != 0) && slot->value) overlay14FreeReloc(slot->value);
         slot++;
         slot[-1].value = 0;
         slot[-1].key = invalid;
@@ -39,13 +39,14 @@ void func_overlay_014_F0000000_186F8D8(void) {
     gOverlay14PendingValueD0 = invalid; gOverlay14PendingModeD4 = invalid;
 #endif
 #ifndef COUNT_CLEAR
-    *count = 0;
+    gOverlay14ValueCountE8 = 0;
 #else
     COUNT_CLEAR
 #endif
     gOverlay14CommandCountEC = 0;
     gOverlay14StateC0 = 0; gOverlay14StateC4 = 0; gOverlay14StateC8 = 0;
 #ifndef EARLY_PENDING
+    invalid = -1;
     gOverlay14PendingValueD0 = invalid; gOverlay14PendingModeD4 = invalid;
 #endif
     gOverlay14TransitionD8 = 0; gOverlay14CursorDC = 0; gOverlay14PointerE0 = 0;
