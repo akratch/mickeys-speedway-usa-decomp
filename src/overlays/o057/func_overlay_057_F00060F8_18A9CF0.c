@@ -74,16 +74,15 @@ extern s16 gOverlay57MenuHalf2;
 extern s8 gOverlay57MenuSourcesStart[];
 extern s8 gOverlay57MenuSourcesEnd[];
 
-/* Workbench: structure-mismatch; 414/441 instructions, 424 words, first +0x0.
- * Levers: constant audit verified movement-call arguments; prior CFG shapes stand.
- * Remains: the 27-instruction deficit, 0x68/0x60 frame, and array allocation. */
+/* Workbench p4: structure-mismatch; 263 positional/278 raw words differ,
+ * 437/441 instructions, first +0x0, frame -104 versus -96. Levers: direct
+ * globals, literal audit, unsigned array, declaration/loop/store shapes; remains web. */
 #ifdef NON_MATCHING
 void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
-    s8 activePlayers[10];
-    s8 playerOrder[4];
     Overlay57MenuSource *source;
-    Overlay57MenuEntry *entry;
     Overlay57IndexLink *link;
+    s8 playerOrder[4];
+    u8 activePlayers[10];
     s32 selection;
     s32 index;
     s32 count;
@@ -95,52 +94,47 @@ void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
     }
 
     gOverlay57State = 6;
-    selection = gOverlay57Selection;
-    if (gOverlay57MenuInputX < -16 && selection > 0 &&
+    if (gOverlay57MenuInputX < -16 && gOverlay57Selection > 0 &&
         gOverlay57DistanceState == 0) {
         gOverlay57LayoutBusy = 1;
-        overlay45ConfigureLayout(gOverlay57Layouts[selection], 0xA0, 0x104,
+        overlay45ConfigureLayout(gOverlay57Layouts[gOverlay57Selection], 0xA0, 0x104,
                                  0x104);
-        gOverlay57PreviousSelection = selection;
-        selection--;
-        gOverlay57Selection = selection;
-        overlay45ConfigureLayout(gOverlay57Layouts[selection], -0xA0, 0xBE,
+        gOverlay57PreviousSelection = gOverlay57Selection;
+        gOverlay57Selection--;
+        overlay45ConfigureLayout(gOverlay57Layouts[gOverlay57Selection], -0xA0, 0xBE,
                                  4);
         gOverlay57PreviousLayoutValue = gOverlay57LayoutValue;
         gOverlay57LayoutValue = 0xFF;
-    } else if (gOverlay57MenuInputX >= 17 && selection < 3 &&
+    } else if (gOverlay57MenuInputX >= 17 && gOverlay57Selection < 3 &&
                gOverlay57DistanceState == 0) {
         gOverlay57LayoutBusy = 1;
-        overlay45ConfigureLayout(gOverlay57Layouts[selection], 0xA0, 0x104,
+        overlay45ConfigureLayout(gOverlay57Layouts[gOverlay57Selection], 0xA0, 0x104,
                                  0x104);
-        gOverlay57PreviousSelection = selection;
-        selection++;
-        gOverlay57Selection = selection;
-        overlay45ConfigureLayout(gOverlay57Layouts[selection], 0x1E0, 0xBE,
+        gOverlay57PreviousSelection = gOverlay57Selection;
+        gOverlay57Selection++;
+        overlay45ConfigureLayout(gOverlay57Layouts[gOverlay57Selection], 0x1E0, 0xBE,
                                  4);
         gOverlay57PreviousLayoutValue = gOverlay57LayoutValue;
         gOverlay57LayoutValue = 0xFF;
-    } else if (gOverlay57MenuInputY < -16 && selection < 2 &&
+    } else if (gOverlay57MenuInputY < -16 && gOverlay57Selection < 2 &&
                gOverlay57DistanceState == 0) {
         gOverlay57LayoutBusy = 1;
-        overlay45ConfigureLayout(gOverlay57Layouts[selection], 0xA0, 0x104,
+        overlay45ConfigureLayout(gOverlay57Layouts[gOverlay57Selection], 0xA0, 0x104,
                                  0x104);
-        gOverlay57PreviousSelection = selection;
-        selection += 2;
-        gOverlay57Selection = selection;
-        overlay45ConfigureLayout(gOverlay57Layouts[selection], 0xA0, 0x104,
-                                 4);
+        gOverlay57PreviousSelection = gOverlay57Selection;
+        gOverlay57Selection += 2;
+        overlay45ConfigureLayout(gOverlay57Layouts[gOverlay57Selection], 0xA0, 0x104,
+                                 0x104);
         gOverlay57PreviousLayoutValue = gOverlay57LayoutValue;
         gOverlay57LayoutValue = 0xFF;
-    } else if (gOverlay57MenuInputY >= 17 && selection >= 2 &&
+    } else if (gOverlay57MenuInputY >= 17 && gOverlay57Selection >= 2 &&
                gOverlay57DistanceState == 0) {
         gOverlay57LayoutBusy = 1;
-        overlay45ConfigureLayout(gOverlay57Layouts[selection], 0xA0, 0x104,
+        overlay45ConfigureLayout(gOverlay57Layouts[gOverlay57Selection], 0xA0, 0x104,
                                  0x104);
-        gOverlay57PreviousSelection = selection;
-        selection -= 2;
-        gOverlay57Selection = selection;
-        overlay45ConfigureLayout(gOverlay57Layouts[selection], 0xA0, 0x104,
+        gOverlay57PreviousSelection = gOverlay57Selection;
+        gOverlay57Selection -= 2;
+        overlay45ConfigureLayout(gOverlay57Layouts[gOverlay57Selection], 0xA0, 0x104,
                                  4);
         gOverlay57PreviousLayoutValue = gOverlay57LayoutValue;
         gOverlay57LayoutValue = 0xFF;
@@ -189,23 +183,20 @@ void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
         while ((s8 *)source < gOverlay57MenuSourcesEnd) {
             playerOrder[index++] = source->active;
             if (source->active != 0) {
-                entry = &gOverlay57MenuEntries[count++];
                 controller = gOverlay57ControllerMap[source->index];
-                entry->controller = controller;
+                gOverlay57MenuEntries[count++].controller = controller;
                 activePlayers[controller] = 0;
             }
             source++;
         }
 
         controller = 0;
-        entry = gOverlay57MenuEntries;
         offset = gOverlay57MenuCount * sizeof(Overlay57MenuEntry);
         while (offset < 6 * (s32)sizeof(Overlay57MenuEntry)) {
             while (activePlayers[controller] == 0) {
                 controller++;
             }
-            entry = (Overlay57MenuEntry *)((u8 *)gOverlay57MenuEntries + offset);
-            entry->controller = controller++;
+            ((Overlay57MenuEntry *)((u8 *)gOverlay57MenuEntries + offset))->controller = controller++;
             offset += sizeof(Overlay57MenuEntry);
         }
 
