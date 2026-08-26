@@ -399,9 +399,9 @@ void RevealReturnAddresses(void) {
 
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
-/* Workbench: relocation-layout-mismatch; linked 50 words and frame are exact.
- * Lever: a symbolic indexed base restores D_803FFFFC but grows to 58 instructions.
- * Remains: missing HI16/LO16 relocation identity at +0x18/+0x28. */
+/* Workbench: relocation-layout-mismatch; 50/50 words and the -0x20 frame are exact, with target HI16/LO16 at +0x18/+0x28.
+ * Lever: direct symbolic lvalue and indexed-base forms add eight words; the literal address preserves the target schedule.
+ * Remains: the special RAM-end relocation identity without changing the 50-word control-flow shape. */
 void mainThread(void *unused) {
     s32 i;
 
@@ -1464,11 +1464,9 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 #ifdef NON_MATCHING
-/*
- * Plateau: JFG mainAnyoneHas is the nearest equal-size skeleton, but its
- * result-web adaptations collapse to 25 words. This 27-word body remains best
- * at ten positional differences from +0x1c (workbench: structure-mismatch).
- */
+/* Workbench: mixed(structural:8, register:4), 10/27 positional words differ, first +0x1c; frame exact.
+ * Levers: context lint, the flag lattice, explicit relational/boolean forms, and a goto result web.
+ * Remains: the natural if form branches directly; boolean short-circuit forms collapse to 25 words. */
 s32 func_80028FCC(s32 arg0) {
     if (func_80028FB8(0, 0, arg0)) {
         return TRUE;

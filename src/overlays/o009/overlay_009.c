@@ -174,9 +174,9 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000000_1866678.s")
 #endif
-/* Workbench: allocation-mismatch; 129 words/frame exact, 8 register words (9 raw) from +0x4C.
- * Tried initializer/lifetime order, code-free priority reads, and a canonical 30-minute permuter.
- * Four callee-saved FP pair swaps remain; the assembly fallback stays canonical. */
+/* PROVENANCE: Mickey-derived from the assigned overlay assembly range; no donor body was imported.
+ * Workbench: mixed(constant:1, schedule:2, register:8), 8/129 masked words (9 raw) first +0x4C; frame exact.
+ * Levers: Phase-B range audit, initializer/lifetime order, code-free reads, and bounded permuter leave FP-pool swaps and relocation names. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
                                        O9Motion *motion, s32 steps) {

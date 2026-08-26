@@ -785,8 +785,8 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
 }
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG src/menu.c supplies the assembly skeleton; this body is Mickey-derived.
- * Workbench: relocation-symbol-mismatch; the unrolled candidate has all 37 words exact.
- * Scalar labels shrink to 29 words; 18 array-base identities remain from +0x24. */
+ * Workbench: the canonical TU flag set yields 20/37 words; the flag sweep's non-loop-unrolled candidate is word-exact but has 18 relocation identities differing.
+ * Levers: flag lattice and per-offset BSS symbol bindings; the TU-wide loop-unroll override serves the neighboring menu initializer. */
 void func_8003968C(void) {
     s32 controller;
 

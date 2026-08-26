@@ -920,9 +920,9 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* Workbench: register-first mixed residual, 7/66 words, first +0x38.
- * Levers: buffer/frame census improved 9->7; current-value and return-category probes did not close.
- * Remains: pool slot 5 assigns the current byte v0 instead of v1, cascading into two branch forms. */
+/* Workbench: mixed(structural:2, register:5), 7/66 words first +0x38; frame and relocations exact.
+ * Levers: s32/u8 current type, inverted/goto newline CFG, and the prior buffer/frame/flag probes were unchanged.
+ * Remains: target current-byte web v1 versus candidate v0; the newline branch-likely schedule follows it. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;
