@@ -125,6 +125,9 @@ void viInit(void *scheduler) {
 }
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public decomp, src/gameVi.c:viChangeMode. */
+/* Workbench: structure-mismatch, exact 195 instructions/frame -40; 71 words with 42 alignment gaps.
+ * Levers: pointer carriers, a fake source boundary, and the existing flag lattice; no improvement.
+ * Remains: early global-carrier allocation around conditional third-framebuffer setup; asm stays canonical. */
 void func_800336A8(s32 videoMode) {
     s32 bufferSize;
     s8 tripleBufferRequested;

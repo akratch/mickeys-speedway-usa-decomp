@@ -912,9 +912,9 @@ s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParti
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003CE10.s")
 #endif
 /*
- * Plateau: workbench allocation-mismatch, exact 168-word length and 0xB8 frame; 70 register-only words differ, first +0x50.
- * Levers tried: temp-FIFO command forms, pool-web scopes/aliases, direct fields, and color-web removal.
- * Remaining: temp queue diverges at slot 0 and 37/41 substitutions use target-only registers; bounded permutation did not resolve it.
+ * Workbench: allocation-mismatch, exact 168 instructions/frame -184; 70 register-only words, first +0x50.
+ * Levers: temp-FIFO/pool-web scopes, direct fields, color-web removal, and a bounded 30-minute permutation; no exact.
+ * Remains: temp slot 0 plus pool substitutions at slots 37/41; asm stays canonical.
  */
 #ifdef NON_MATCHING
 /*
@@ -1391,13 +1391,9 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
 }
 #ifdef NON_MATCHING
 /*
- * Frame-exact plateau: 294 instructions against the 297-instruction target,
- * with 252 aligned rows matching. The first raw mismatch is the end-branch
- * displacement at +0x204; the first substantive mismatch at +0x20C assigns
- * the zero-vector web to f6 instead of f0. The remaining cluster is the
- * resource-header copy/branch shape and FP normalization schedule. The full
- * flag lattice, ten structural hypotheses, and a canonical-mips2 permuter
- * found no exact spelling; asm remains canonical.
+ * Workbench: mixed structure/register/commutative residual, exact 297 instructions/frame -88; 39 raw words, first +0x204.
+ * Levers: structure buckets and both FP reassociations for the commutative add; each worsened the baseline, so no edit was kept.
+ * Remains: +0x20C zero-vector web, header-copy branch shape, and FP normalization; asm stays canonical.
  *
  * PROVENANCE: structure cross-checked against JFG's assembly-only
  * asm/nonmatchings/particles/func_80060400.s sibling; body reconstructed
@@ -2444,8 +2440,6 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
     Gfx *command;
     s32 vertexCount;
     s32 triangleCount;
-    void *triangleLists[2];
-    s32 triangleListIndex;
     s32 vertexIndex;
     volatile s32 vertexCommandCount;
     volatile s32 vertexCommandLength;

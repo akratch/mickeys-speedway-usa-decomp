@@ -1008,10 +1008,9 @@ typedef struct ModelCacheEntry {
     ObjectModel *model;
 } ModelCacheEntry;
 
-/* Mickey-only reconstruction; JFG's modSuspendModelTextures remains assembly.
- * Workbench: mixed structure/register, 25 words differ from +0xC with exact 113-word size.
- * Lever: structure-buckets; explicit byte-scaled indexing improved 77 words to 25.
- * Remains: pointer induction plus pool slot 1 and temp slot 3 diverge; asm stays canonical. */
+/* Workbench: structure-mismatch, exact 113 instructions/frame -64; 25 words from +0xC.
+ * Levers: explicit byte-scaled indexing is best; declaration/order and pointer-cursor probes did not improve it.
+ * Remains: exception-loop shape plus pool slot 1/temp slot 3; asm stays canonical. */
 void func_80020E4C(s16 *exceptions) {
     SuspendedModelTexture *saved;
     s32 modelIndex;
