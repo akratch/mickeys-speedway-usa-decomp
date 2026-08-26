@@ -323,12 +323,11 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C69C.s")
 #endif
-#ifdef NON_MATCHING
-/* Plateau (near-miss p5): workbench register-permutation, 14 register-only words at 31 instructions.
- * Levers: chained-byte/direct-field forms and the corrected 30-minute permutation; no exact coloring.
- * Remains: invariant-mask/next-bit ring allocation; assembly fallback stays canonical. */
-void func_8002C70C(SavesBitWriter *reader, s32 *value, s32 bitCount) {
-    u32 nextBit;
+void func_8002C70C(reader, value, bitCount)
+SavesBitWriter *reader;
+s32 *value;
+s32 bitCount;
+{
     u32 bit;
     u32 shiftedMask;
     u32 mask;
@@ -338,8 +337,7 @@ void func_8002C70C(SavesBitWriter *reader, s32 *value, s32 bitCount) {
         bit = 1 << (bitCount + 0x1F);
         do {
             mask = reader->mask;
-            nextBit = bit >> 1;
-            if (reader->mask == 0) {
+            if (mask == 0) {
                 mask = reader->mask = 0x80;
                 reader->cursor++;
             }
@@ -348,14 +346,11 @@ void func_8002C70C(SavesBitWriter *reader, s32 *value, s32 bitCount) {
                 *value |= bit;
                 shiftedMask = reader->mask;
             }
-            bit = nextBit;
+            bit >>= 1;
             reader->mask = (u8) (shiftedMask >> 1);
-        } while (nextBit != 0);
+        } while (bit != 0);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C70C.s")
-#endif
 s32 func_8002C788(SavesRecord *record) {
     return record->unk10;
 }

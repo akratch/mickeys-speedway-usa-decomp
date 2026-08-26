@@ -1671,9 +1671,7 @@ canonical MIPS II permuter then led to a coherent value-bit/cursor-field
 lifetime rewrite: exact 28-word size, 18 differences from `+0x10` (17 register,
 one opcode); the remaining blocker is constant/next-bit register coloring.
 
-`func_8002C70C` is exact-size with 14/31 positional words differing, first `+0x14`; workbench verdict: register-permutation residual.
-Chained byte assignment and a direct field test improved 18 to 14; the corrected-flag 30-minute permutation found no faithful exact form.
-The invariant-mask/next-bit web still needs ring-only temporaries unavailable to the color lever; the assembly fallback stays canonical.
+The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 
 `func_8002CF6C` remains Mickey-derived `NON_MATCHING`: all 88 instructions, the 72-byte frame, and relocations agree; workbench reports `register-ring-only`, 9 sites from `+0xCC`.
 Hoisted-argument, folded-mask, and addressable-scalar levers leave `savedFlag` target FIFO-temp versus candidate colored-web; the 30-minute permuter produced only invented no-op identities.
@@ -1970,7 +1968,7 @@ placeholders are never imported.
 | `0x8005027C` | `0x50` | `func_80076A20` | A; exact 80 B, masked `9/20`, placeholder retained. Matched C: exact 80 B and relocation surface at `-O2 -mips2 -32` |
 | `0x800502CC` | `0x7C` | `func_80076A70` | B; same cleanup callees and position, placeholder retained. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050348` | `0x214` | `animseqInitPath` | B; exact `animseqInitGroup` calls this function. Matched C: exact 532 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; the canonical symbol records object and linked-ROM byte identity |
-| `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape. Fresh direct-ABI probes leave the 75-word weak-alias body best, with 6 temporary-register words remaining and first mismatch `+0x40`; workbench reports `allocation-mismatch`/`g0-schedule-probe`, while direct strict-float typing conflicts with old-style calls and a cast emits an indirect call |
+| `0x8005055C` | `0x12C` | `animseqResetPath` | B; reset/process callers and trap/audio call shape. Matched C: exact 300 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
 | `0x80050688` | `0x7C` | `animseqStartPath` | B; process-command call position, adopted name. Matched C: exact 124 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80050704` | `0x78` | `animseqStopPath` | B; process-command call position, adopted name. Matched C: exact 120 B and relocation surface at `-O2 -mips2 -32` |
 | `0x8005077C` | `0x40` | no unique candidate | D; placeholder retained. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
@@ -1988,7 +1986,7 @@ placeholders are never imported.
 | `0x80051004` | `0xE4` | `animseqSetupGroup` | B; calls free/init/reset group family. Matched C: exact 228 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; explicit four-byte directory and signed level-header types resolve the scan allocation |
 | `0x800510E8` | `0x40` | `animseqInitGroup` | A; exact 64 B, masked `1/16`, adopted name. Matched C: exact 64 B and relocation surface at `-O2 -mips2 -32` |
 | `0x80051128` | `0x9C` | `animseqResetGroup` | B; calls reset-path family, adopted name. Matched C: exact 156 B and relocation surface at `-O2 -mips2 -32` |
-| `0x800511C4` | `0x1A0` | `func_80077BE8` | A; exact 416 B and 11 relocation sites at `-O2 -mips2 -32 -Wo,-loopunroll,0`; placeholder retained |
+| `0x800511C4` | `0x1A0` | `func_80077BE8` | A; exact 416 B and 11 relocation sites at `-O2 -mips2 -32 -Wo,-loopunroll,0`; matched C and linked ROM, comparison placeholder retained |
 | `0x80051364` | `0x47C` | `animseqUpdate` | D; nearest ordered `anim.c` function. Plateau after the flag lattice, focused type/lifetime variants, and a bounded canonical-flag permuter: the corrected unsigned command clock makes the best semantic candidate exact-size at 287 instructions. Its saved-register slots match, but IDO reserves a `0x48` frame against the target's `0x40`, leaving 192 positional words from first mismatch `+0x0`. The permuter's score-3205 sound-handle lifetime is incorporated |
 | `0x800517E0` | `0x1C40` | `animseqProcessCommandList` | B; command dispatcher calls the path family in JFG order |
 | `0x80053420` | `0x90` | `animseqCamera` | D; ordered tail and nearest same-family shape. Matched C: exact 144 B and relocation surface at `-O2 -mips2 -32` |
