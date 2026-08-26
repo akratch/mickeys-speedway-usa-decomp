@@ -26,8 +26,8 @@
 extern u8 D_80079BF8;
 extern u16 D_80079A0C[];
 extern u16 D_80079A20[][4];
-extern ControlVector3 D_800799EC;
-extern ControlVector3 D_800799FC;
+extern ControlGravityVector D_800799EC;
+extern ControlGravityVector D_800799FC;
 extern u16 D_8007BF1C;
 extern f32 D_80081894;
 extern f32 D_80081898;
@@ -41,7 +41,8 @@ extern s16 D_800CB470;
 extern s16 D_800CB472;
 extern s16 D_800CB474;
 extern s16 D_800CB476;
-extern u8 *D_800CB300;
+extern ControlCollisionState D_800CB2C0;
+extern ControlCameraState *D_800CB300;
 
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void func_8001EFFC(ControlTransform *transform, ControlPlayer *player, f32 *output);
@@ -59,8 +60,10 @@ s32 func_8000FAE0(f32 x, f32 y, f32 z);
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode);
 s32 TrapDanglingJump();
 void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2);
-void camSetNo(s8 playerIndex, s32 cameraIndex, u8 **cameraState);
-u8 *camGetListPtr(void);
+void camSetNo(s8 playerIndex, s32 cameraIndex, ControlCameraState **cameraState);
+ControlCameraState *camGetListPtr(void);
+ControlTrackState *trackGetTrack(void);
+ControlLevelState *levelGetLevel(void);
 s32 mainGetNumberOfCameras(void);
 s32 func_800299E8(s32 minimum, s32 maximum);
 ControlActor **func_8000572C(s32 *start, s32 *end);
@@ -109,8 +112,8 @@ void func_8001C088(CameraTrackedObject *value) {
         D_80079BCC--;
     }
 }
-/* Workbench plateau: allocation-mismatch, 9 register words; 108/108 instructions, frame -24.
- * Lever: in-place radius squares; flags, aliases, declaration forms, and a 30-minute permuter found no exact color.
+/* Type pass: before=register-permutation, 9 register-only words; after=same, 108/108, frame -24.
+ * Lever: reconciled CameraOverrideSlot/CameraTrackedObject/CameraBounds widths; no schedule change.
  * Remains: one v1/a2 loop web from the pool-position/forced-color tie-break. */
 #ifdef NON_MATCHING
 void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
@@ -265,11 +268,9 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
     func_8001EFFC(transform, player, &player->unk2C0[12]);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
-/*
- * Workbench: structure-mismatch, 96/95 instructions, 40 words, first +0xE0.
- * Levers tried: volatile/old-style/comma/result forms and flag/context checks.
- * Remains: CSE of the global camera base adds one instruction before the camera-count call.
- */
+/* Type pass: before=mixed(structural:1, register:8), 96/95 instructions; after=same, first +0xE0.
+ * Lever: typed the 0x54-byte ControlCameraState and preserved the target pointer stride; no schedule change.
+ * Remains: IDO CSE of D_800CB300 adds one instruction before the camera-count call. */
 #ifdef NON_MATCHING
 void func_8001D2A0(ControlActor *actor, s32 arg1) {
     ControlPlayer *player;
@@ -300,7 +301,8 @@ void func_8001D2A0(ControlActor *actor, s32 arg1) {
     if (player->playerIndex < cameraIndex) {
         cameraIndex = player->playerIndex;
     }
-    D_800CB300 += cameraIndex * 0x54;
+    D_800CB300 = (ControlCameraState *)
+        ((u8 *) D_800CB300 + (cameraIndex * sizeof(ControlCameraState)));
     camSetNo(player->playerIndex, cameraIndex, &D_800CB300);
     if ((player->unk190 != 0) || (player->unk3FA == 0)) {
         func_8001BBB4(actor, player, (f32) arg1);
@@ -439,9 +441,9 @@ s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
     }
     return (s16) (arg0 + (s32) ((f32) var_v1 * arg2));
 }
-/* Workbench: mixed structure/allocation, exact 36 instructions; 29 words, first +0x4.
- * Naming the 10.0f carrier was inert; inlining base added one instruction and five words.
- * FP pool/temp coloring remains after the prior flag and source-shape sweep. */
+/* Type pass: before=mixed(structural:2, register:28), 36/36 instructions; after=same, first +0x4.
+ * Lever: scalar table access is already a 4-byte record stride; no aggregate-type change applies.
+ * Remains: FP/int pool coloring after the prior flag and source-shape sweep. */
 /* PROVENANCE -- adapted from JFG's charControl controlMakeV implementation. */
 #ifdef NON_MATCHING
 f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {
