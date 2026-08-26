@@ -1151,15 +1151,16 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     source->previous.z = source->current.z;
     TrapDanglingJump(second, 1);
 }
-#ifdef NON_MATCHING
-/* Workbench: operand-mismatch/constant-audit; 4/109 words remain, first +0x3C, with frame, register, and schedule lanes exact.
- * Levers: stack-home carrier plus prior flag, lifetime/type, and declaration-order probes; no source layout moved it.
- * Remains: target compiler-temp home sp+0x48 versus candidate sp+0x40; canonical assembly stays. */
+/* Declaration order is load-bearing: uopt homes declared locals at descending
+ * stack offsets in declaration order, and only firstVehicle (sp+0x48, the
+ * call-crossing spill) and firstSource (sp+0x3C) surface in the object, so
+ * firstVehicle must be the second declaration and firstSource the fifth
+ * (uoptlist frame-ladder-guided; the volatile pad holds the 0x40 slot). */
 void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
+    HitCollisionVehicle *firstVehicle;
     HitCopySource *secondSource;
     volatile s32 stackPad;
-    HitCollisionVehicle *firstVehicle;
     HitCopySource *firstSource;
     f32 deltaX;
     f32 deltaY;
@@ -1204,9 +1205,6 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     secondTarget->unk1C = deltaZ / distance;
     TrapDanglingJump(second, 0xE);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055970.s")
-#endif
 #ifdef NON_MATCHING
 /* Workbench p6: mixed schedule/register; 8/121 words remain, first +0x20; frame, calls, and FP lanes exact.
  * Tried statement-line grouping and 0x258 timer register/direct-literal forms after the inherited lifetime/flag sweep; no improvement.
