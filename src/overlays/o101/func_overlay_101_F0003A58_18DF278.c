@@ -115,14 +115,9 @@ extern O101Node24_3A58 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/*
- * Mickey-local reconstruction from this overlay's extracted function and
- * its typed node-builder siblings. The pinned DKR v77/v80 and JFG overlay
- * scans report no donor for overlay 101.
- * NON_MATCHING p2: workbench structure-mismatch; best line-assignment variant
- * is 1,386/1,461 positional words, first +0x34, at 1,463/1,461 instructions.
- * Levers 1, 4, 23: constants/flags are exact; macro/register cascade remains.
- */
+/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 1463 vs 1461 instructions, 1421 raw words different, exact -0x50 frame, first structural divergence +0x34.
+ * Levers: exact flag/context parity and constant audit (5 sites), then macro line-assignment variants; context lint is clean.
+ * Remains: node-builder macro structure/register cascade and 330 relocation-symbol differences; GLOBAL_ASM remains canonical. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0003A58_18DF278(void) {
     s32 index;
