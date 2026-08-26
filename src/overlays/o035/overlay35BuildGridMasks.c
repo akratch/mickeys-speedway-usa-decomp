@@ -27,9 +27,9 @@ typedef struct O35GridSource {
     s16 groupCount;
 } O35GridSource;
 
-/* Workbench verdict=structure-mismatch; best 61 raw/195 matched words, exact 244-word body, first real mismatch +0x0.
- * Flag lattice, spill-home/liveness reuse, merged x/counter, and third-axis field-order levers were tried; the last aligns that loop.
- * Remains: -0x88 versus -0x80 frame, early group-home/pool slot 5, and first/second-axis loop structure. */
+/* Workbench mixed constant/structure/register residual: 59 positional words in the exact 244-word body, first +0x0.
+ * Early group-field and declaration-order levers cut 61->59 words; outer-local and pointer-add order were neutral.
+ * Remains: -0x88 versus -0x80 frame, pool slot 5/temp slot 47, and first/second-axis loop structure; asm stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_035_F0000770_1882450(O35GridSource *source,
                                         O35GridBounds *bounds) {
@@ -42,15 +42,15 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
         do {
             u8 *group;
             s32 vertex;
-            s32 end;
             s32 flags;
-            s16 baseIndex;
+            s32 end;
             s16 startVertex;
+            s16 baseIndex;
 
             group = source->groups + groupOffset;
             startVertex = *(s16 *)(group + 8);
-            end = *(s16 *)(group + 0x18);
             baseIndex = *(s16 *)(group + 6);
+            end = *(s16 *)(group + 0x18);
             flags = *(s32 *)(group + 0xC);
             vertex = startVertex;
             if (vertex < end) {
