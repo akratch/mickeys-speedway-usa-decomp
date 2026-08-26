@@ -73,6 +73,16 @@ typedef struct Node24 {
     void *text;
 } Node24;
 
+typedef struct Inputs {
+    u8 pad00[0x80];
+    void *data80;
+    void *data84;
+    void *text88;
+    void *text8C;
+    void *text90;
+    void *text94;
+} Inputs;
+
 /* The builder root and node pools occupy one overlay-local BSS owner.  The
  * relocation table uses the overlay BSS base for these three ranges; keep the
  * measured gaps explicit so the aliases retain their original offsets. */
@@ -84,12 +94,7 @@ u8 o101BuilderBssTail[0x10];
 extern void *D_1C;
 extern void *D_38;
 extern void *D_54;
-extern void *D_80;
-extern void *D_84;
-extern void *D_88;
-extern void *D_8C;
-extern void *D_90;
-extern void *D_94;
+extern Inputs D_INPUT;
 extern void *D_C8C;
 extern void *D_10EC;
 extern void *D_1C0[];
@@ -103,9 +108,9 @@ extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
 /* Mickey-local structural sibling: func_overlay_101_F00063F8_18E1C18. */
-/* Workbench p4: structure-mismatch; size-exact 326/326 positional words, exact 0x40 frame; first drift +0x2C.
- * Levers: prior counter/store-order forms plus this run's literal/base-alias ownership variants; all were inert or shorter.
- * Remains: assembler-side overlay-local alias relocations and the target's divergent pool/temp web. */
+/* Workbench structure-mismatch: input-struct candidate is size-exact at 263 words, with 62 opcode mismatches and first +0x2C.
+ * Lever: modeling D_80..D_94 as one overlay input struct cut the prior 326-word residual; counter/index, store-order, and root-order variants were regressive.
+ * Remains: 123 structural and 160 register words rooted in early pool/register scheduling; no exact C output. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000571C_18E0F3C(void) {
     s32 index;
@@ -160,7 +165,7 @@ void func_overlay_101_F000571C_18E0F3C(void) {
     D_0.color4F = 0xFF;
     D_0.childType = 0;
     D_0.child = 0;
-    D_0.data50 = D_80;
+    D_0.data50 = D_INPUT.data80;
     D_1C0[D_1C4] = &D_38;
     D_1C4 += 1;
 
@@ -202,7 +207,7 @@ void func_overlay_101_F000571C_18E0F3C(void) {
     D_0.color6B = 0xFF;
     D_0.secondChildType = 0;
     D_0.secondChild = 0;
-    D_0.data6C = D_84;
+    D_0.data6C = D_INPUT.data84;
     D_1C0[D_1C4] = &D_54;
     D_1C4 += 1;
 
@@ -230,10 +235,10 @@ void func_overlay_101_F000571C_18E0F3C(void) {
     D_0.secondChild = node24;                                                \
     D_1D0 = index + 1
 
-    ADD_TEXT_ROW(D_88, 0x10);
-    ADD_TEXT_ROW(D_8C, 0x1E);
-    ADD_TEXT_ROW(D_90, 0x28);
-    ADD_TEXT_ROW(D_94, 0x36);
+    ADD_TEXT_ROW(D_INPUT.text88, 0x10);
+    ADD_TEXT_ROW(D_INPUT.text8C, 0x1E);
+    ADD_TEXT_ROW(D_INPUT.text90, 0x28);
+    ADD_TEXT_ROW(D_INPUT.text94, 0x36);
 
 #undef ADD_TEXT_ROW
 

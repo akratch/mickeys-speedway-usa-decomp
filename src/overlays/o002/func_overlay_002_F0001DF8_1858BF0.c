@@ -75,13 +75,13 @@ void func_overlay_002_F0001DF8_1858BF0(Overlay2RouteObject *object,
 
     if (input->group < 2) {
         for (index = start; index < end; index++) {
-            candidate = objects[index];
-            lastCandidate = candidate;
-            if ((candidate->disabled == 0) && (candidate != object) &&
-                (candidate->type == 0x2B)) {
+            lastCandidate = objects[index];
+            if ((lastCandidate->disabled == 0) &&
+                (lastCandidate != object) &&
+                (lastCandidate->type == 0x2B)) {
                 distance = (u32)func_8000BCB0(
-                    object->x, object->y, object->z, candidate->x,
-                    candidate->y, candidate->z);
+                    object->x, object->y, object->z, lastCandidate->x,
+                    lastCandidate->y, lastCandidate->z);
                 if (distance < bestDistance) {
                     bestDistance = distance;
                     closestIndex = index;

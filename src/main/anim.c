@@ -1726,9 +1726,9 @@ void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
  * Mickey-led overlap response reconstruction; the nearest external skeleton
  * is only 0.085 similar and supplies no usable donor body.
  */
-/* Workbench structure-mismatch: 231/233 instructions, exact 0x88 frame; 203 words differ from +0x2C.
- * Levers tried: prior byte-offset AABB loop/context/flag lattice; direct-x, volatile-radius, K&R, and line-group variants were inert or worse.
- * Remains: target AABB pointer initialisation is folded, then the FP/pool web and tail temp ring diverge. */
+/* Workbench structure-mismatch: candidate 231 vs target 233 instructions, exact 0x88 frame; 203 words remain from +0x2C.
+ * Levers tried: pointer-base stack/register/cursor forms, radius expression-tree ownership, and a scaled-zero seed; all were neutral or worse.
+ * Remains: target AABB pointer initialisation is folded differently, then the FP pool/temp phase and tail integer ring diverge. */
 #ifdef NON_MATCHING
 void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
                    HitOverlapState *trigger, HitOverlapVolume *volume) {
