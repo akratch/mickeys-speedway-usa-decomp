@@ -1832,3 +1832,4 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 | Overlay | C-owned non-text | Translation unit | Proof |
 |---:|---|---|---|
 | 15 | data/rodata `+0x0..+0x50`; BSS `+0x0..+0xA0` | `overlay_015.c` | configured object and linked ROM exact |
+| 101 | BSS `+0x0..+0xFD0` (shared builder owner) | `func_overlay_101_F000571C_18E0F3C.c` | linked BSS placement exact; C body structure mismatch remains |
