@@ -256,6 +256,7 @@ extern void camPushModelMtx(MenuCommand **commands, void **matrices,
 extern void camPopModelMtx(MenuCommand **commands);
 
 #ifdef NON_MATCHING
+/* PROVENANCE: body adapted from JFG src/menu.c; Mickey byte identity is decisive. */
 /* Exact size/frame: 5/74 words differ, first +0xDC; caching the element fixes
  * the commutative row, but pool slot 18 keeps base/value a0/a1 crossed. Switch
  * relocs +0x4C/+0x54 still bind .rodata, not jtbl_80082734. */

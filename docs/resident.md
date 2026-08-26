@@ -934,9 +934,9 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
-`func_80038750` is size/frame exact; its best stock-flag object differs in **5/74 words**, first `+0xDC`.
-Caching the element fixes the commutative row, but pool slot 18 keeps the base/value `a0`/`a1` web crossed.
-Switch relocations `+0x4C`/`+0x54` bind anonymous `.rodata`, not `jtbl_80082734`; asm remains canonical.
+`func_80038750`: the menu ownership probe measured its five-entry language table at `.rodata` `0x83334`–`0x833E0` (`0xAC` bytes), but the C body remains nonexact.
+Workbench verdict `allocation-mismatch`, first `+0xDC`, 5/74 register words; the `pool-position` web crosses the base/value `a0`/`a1` pair.
+The probe is reverted so the canonical ASM wrapper preserves the verified shared-rodata layout.
 
 `func_80038878` remains a **tier-D NON_MATCHING plateau** over **0x154 bytes /
 85 words** at ROM `0x39478`. JFG's same-position `initFront` routine supplies
