@@ -9,6 +9,11 @@ typedef struct Overlay48Record {
     u8 pad0B[5];
 } Overlay48Record;
 
+/* Overlay 48's BSS is one six-record owner: a header at +0x0 followed by
+ * five runtime entries at +0x10..+0x5F. Historical D_* aliases and the
+ * indexed timer/script tail resolve within this block at load time. */
+Overlay48Record gOverlay48Entries[6];
+
 extern volatile Overlay48Record D_10[4];
 extern s16 D_274[];
 extern u8 D_174[];
@@ -22,18 +27,9 @@ extern s16 gOverlay48ScriptIndex;
 extern s16 gOverlay48Finished;
 extern void func_overlay_048_F0000000_1895408();
 
-/* DKR v77/v80 and JFG contain no exact donor for this initializer. */
-/*
- * Plateau (2026-08-25, lane cx-ov-6-b-a-r4): a fresh 119-combination lattice
- * and ten typed header/seed/record variants improved the best masked result to
- * 47/57 differing words at 212/228 bytes; under -O2 -mips2 the first mismatch
- * is +0x0.  Direct seed loads reduce the register-color mismatch, but IDO then
- * folds the literal tail index and omits four address-formation words.  Sparse
- * header views, same-address seed aliases, and local BSS definitions either
- * materialize an extra base or move the frame setup.  The remaining blocker
- * is preserving the target's distinct first-seed and indexed-tail bases in
- * the 0x18-byte frame without spilling the index.
- */
+/* Workbench: structure-mismatch (instruction shape), 47/57 masked words differ
+ * from +0x0; next lever is structure-buckets. Ownership: this TU emits the
+ * measured BSS +0x0..+0x60; initializer remains NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay48InitializeState(void) {
     register volatile s16 *initial;
