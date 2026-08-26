@@ -1095,9 +1095,9 @@ void func_8004D39C(char *input, char *output) {
     } while (currentChar);
 }
 
-/* Workbench: mixed structural/register; 109 words, five differences, first +0x5C.
- * Structure-buckets and distinct-initial-value levers preserve the same optimized object.
- * A delay-slot copy and its dependent temporary web remain unrecovered; canonical assembly stays. */
+/* Workbench: structure-mismatch; 109 words, five instruction differences, first +0x5C.
+ * Levers tried: comparison/branch shape and current-value assignment placement; the delay-slot copy did not move.
+ * Remains: target move t2,a3 and its t3/a3 web; canonical assembly stays. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's

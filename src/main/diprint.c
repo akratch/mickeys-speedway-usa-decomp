@@ -829,8 +829,8 @@ s32 diPrintf(const char *format, ...) {
 }
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfAll. */
-/* Workbench: words-identical; four relocation identities remain, first +0x144.
- * Lever tried: a D_800D4A60 array-field spelling eliminated two instructions.
+/* Workbench: relocation-symbol-mismatch; words-identical, four reloc sites, first +0x144.
+ * Levers tried: address-alias, array-field, pointer/cast, and weak-alias forms; binding stayed unresolved.
  * Remains: D_800D4A62 versus D_800D4A60+2 identity; wrapper retained. */
 void diPrintfAll(Gfx **dList) {
     s32 width;
@@ -973,9 +973,9 @@ s32 debug_text_width(const char *format, ...) {
 #endif
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diprint.c:debug_text_parse. */
-/* Workbench: words-identical; four relocation identities remain, first +0x44.
- * Lever tried: paired-struct field views shortened the function by ten instructions.
- * Remains: D_800D4A60+2 identity and jtbl_80082CD8 ownership; wrapper retained. */
+/* Workbench: relocation-symbol-mismatch; words-identical, four reloc sites, first +0x44.
+ * Levers tried: paired-struct and bounded address-alias spellings; codegen regressed or retained separate D_800D4A62.
+ * Remains: linkable D_800D4A60+2 and jtbl_80082CD8 ownership; wrapper retained. */
 s32 debug_text_parse(Gfx **dList, char *buffer) {
     char *bufferCopy;
     s32 xOffset;
