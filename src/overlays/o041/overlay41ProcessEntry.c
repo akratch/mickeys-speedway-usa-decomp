@@ -52,9 +52,9 @@ extern void overlay41ApplyEntry(Overlay41Context *, Overlay41Entry *, void *,
 extern void overlay41FinishEntry(Overlay41Context *, Overlay41Child *,
                                  Overlay41Entry *, s32);
 
-/* Workbench plateau: structure-mismatch, 120 words; 123/128 instructions, frame -72, first +0x10.
- * Lever: an explicit early-return split compiled identically after prior input, type, scope, flag, and context probes.
- * Remains: the incoming-input stack home, five-instruction size excess, temp schedule, and relocation identities. */
+/* Workbench p7 batch 12: structure-mismatch; 123/128 instructions, exact -0x48 frame, 120 masked/raw words, first +0x10.
+ * Lever: selected=0 followed by selector!=0 regressed; inherited input/type/scope/flag/context probes remain negative.
+ * Remains: incoming-input home, five-instruction excess, temp schedule, and relocation identities; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001464_188879C(Overlay41Input *input,
                                        Overlay41Context *context,
