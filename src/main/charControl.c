@@ -265,9 +265,9 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
 /*
- * Workbench: mixed(structural:1, register:8), 40 words, +1 instruction, first mismatch +0xE0.
- * Levers tried: structure/type/AST association via volatile storage, old-style prototype, comma sequencing, and a result local.
- * Remains: global-address materialisation adds one instruction before the call and shifts the later integer temp web.
+ * Workbench: structure-mismatch, 96/95 instructions, 40 words, first +0xE0.
+ * Levers tried: volatile/old-style/comma/result forms and flag/context checks.
+ * Remains: CSE of the global camera base adds one instruction before the camera-count call.
  */
 #ifdef NON_MATCHING
 void func_8001D2A0(ControlActor *actor, s32 arg1) {
