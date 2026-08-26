@@ -7,7 +7,7 @@ Split out of `docs/modules.md` on 2026-08-24; evidence tiers and naming rules ar
 ### 5.1 What runs it
 
 The resident segment carries a complete Rare/DKR-lineage runtime linker at ROM
-`0x323E0`–`0x33FA0`, plus its trampoline at `0x33FA0`. Thirteen of its functions are
+`0x323E0`–`0x33FA0`, plus its trampoline at `0x33FA0`. Fourteen of its functions are
 decompiled and byte-matched; four more are named from Mickey's call graph. The
 mechanism, entirely from Mickey's own disassembly:
 
@@ -91,20 +91,10 @@ or branch-shape permutation.
 Levers covered cached base, declaration/register, relocation lifetime, flags, and bounded permutation variants.
 Remaining: frame/home excess, relocation bindings, and patch-loop schedule.
 
-`runlinkResumeCode` (`0x80032BF8`) remains `NON_MATCHING` after ten coherent
-source variants, the 119-combination flag lattice, and a bounded MIPS2
-permuter pass. The best JFG-guided candidate has the exact 250-instruction
-boundary, opcode schedule, register allocation, and relocation identities;
-six frame operands remain different, first at `+0x0`. Mickey reserves a
-`0x50` frame and homes the pending-load pointer at `sp+0x44`, while IDO gives
-the candidate a `0x48` frame and `sp+0x40` home with the same 40 bytes of saved
-registers. Splitting the two delay-preservation lifetimes and spelling the
-secondary-size test as a truth test closed the other sixteen masked word
-differences. The corrected permuter reported an internal zero score because
-its metric ignores these frame-offset operands; the full-TU object comparison
-still proves the six-word mismatch. Meaningful allocation-size and
-secondary-size locals did not alter the frame, and artificial padding probes
-were rejected rather than retained.
+`runlinkResumeCode` (`0x80032BF8`, `0x3E8` bytes) is an exact C match under
+`-O2 -mips2 -32`, including its relocation surface and linked ROM range.
+The JFG-adapted body uses a two-word pending-load carrier to reproduce
+Mickey's `0x50` frame and `sp+0x44` home.
 
 `runlinkInit` remains `NON_MATCHING` after seven coherent source variants, the
 119-combination flag lattice, and a bounded permuter pass. The best adapted
