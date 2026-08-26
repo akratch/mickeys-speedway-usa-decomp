@@ -455,9 +455,9 @@ AnimPath *func_800508B4(u8 pathIndex) {
  * asm/nonmatchings/anim/func_800772C4.s. Mickey's bit-reader calls, field
  * layout, constants, and final compiler output are independently established
  * from Mickey's ROM.
- * Workbench: schedule-only; 4/128 positional words remain, first +0x3C.
- * Tried retained-listing, qualifier, lifetime, aggregate, and direct-use forms.
- * Remains: ugen emits the global load before the target's two immediate scales.
+ * Workbench: schedule-mismatch; 4/128 words remain, first +0x3C, with frame and register lanes exact.
+ * Levers: g0 schedule probe plus prior flag, retained-listing, qualifier, lifetime, aggregate, and direct-use forms; materialization order held.
+ * Remains: ugen emits D_80083FA8 before the target's two immediate scales; canonical assembly stays.
  */
 #ifdef NON_MATCHING
 void func_800508D4(s32 count, AnimPathNode *node, s32 stream,
@@ -1361,8 +1361,8 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 1);
 }
 #ifdef NON_MATCHING
-/* Workbench: operand-mismatch/constant-audit; 109 words, four stack-home operands, first +0x3C.
- * Levers tried: flag lattice, lifetime/type, declaration-order, and stack-home carrier probes; frame/register/schedule stayed exact.
+/* Workbench: operand-mismatch/constant-audit; 4/109 words remain, first +0x3C, with frame, register, and schedule lanes exact.
+ * Levers: stack-home carrier plus prior flag, lifetime/type, and declaration-order probes; no source layout moved it.
  * Remains: target compiler-temp home sp+0x48 versus candidate sp+0x40; canonical assembly stays. */
 void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
