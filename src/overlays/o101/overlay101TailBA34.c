@@ -110,9 +110,9 @@ extern void o101TailBA34FinalizerReloc(void *object);
 extern s32 overlay101ByteLength(u8 *text);
 
 /* Exact typed owner for overlay 101 +0xBA34..+0xC144. */
-/* Workbench: structure-mismatch; size-exact, 393 words, first +0x0.
- * Levers: unifying the order counter changed size and worsened to 420 words.
- * Remains: the 0x60/0x40 frame and packet-local counter relocation aliases. */
+/* Workbench p4: structure-mismatch; 452/452 instructions, 393 positional words, first +0x0; frame 0x60 vs target 0x40.
+ * Levers: prior counter unification plus this run's scale-lifetime probe; the typed owner remains frame-heavy.
+ * Remains: packet-local relocation aliases and the target's tighter frame/register schedule. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000BA34_18E7254(s32 variant) {
     s32 orderIndex;

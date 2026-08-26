@@ -508,9 +508,9 @@ void mainInitGame(void) {
  * cross-checked against JFG's published src/main.c TU ordering. Mickey's own
  * call graph, resident storage and instructions determine this body.
  *
- * NON_MATCHING plateau: structure mismatch; 388 words differ, first at +0x48, and the candidate is five instructions long.
- * Tried nine display spellings, flags, a permuter, the constant audit, and statement splicing; the splice grew frame/size.
- * Both best frames are 0x28; the remaining structural excess is concentrated in the two end-of-frame commands.
+ * Workbench p4: structure-mismatch; 413/418 instructions, 388 positional words, first +0x48; exact 0x28 frame.
+ * Levers: prior display/flag/permutation/statement variants plus call-prototype and local-pointer probes; none reduced the end-command excess.
+ * Remains: target's folded display-list relocation/store schedule and five-instruction tail excess.
  */
 void func_80026FB4(void) {
     s32 drawTransition;

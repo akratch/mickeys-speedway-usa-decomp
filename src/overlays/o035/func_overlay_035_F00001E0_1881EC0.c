@@ -93,9 +93,9 @@ extern void func_overlay_035_F0000770_1882450(O35Segment *, O35Bounds *,
 extern s32 func_overlay_035_F0000B40_1882820(O35Segment *);
 extern void func_overlay_035_F0001380_1883060(O35Segment *);
 
-/* Workbench: structure-mismatch; 353/356 instructions, 284 words, first +0x0.
- * Levers: typed pointer scaling and return cursors cut structural sites 47 to 42.
- * Remains: the 0x50/0x40 frame and the whole-function saved-register web.
+/* Workbench p4: structure-mismatch; 356/353 instructions, 283 positional words, first +0x0; exact 0x40 frame.
+ * Levers: prior typed-pointer/return-cursor forms; workbench still shows 39 structural/12 schedule and 193 register sites.
+ * Remains: whole-function saved-register web and adapted overlay call identities.
  * PROVENANCE: adapted from Diddy Kong Racing, src/tracks.c (generate_track). */
 #ifdef NON_MATCHING
 void func_overlay_035_F00001E0_1881EC0(s32 modelId) {

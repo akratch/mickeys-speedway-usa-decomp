@@ -71,9 +71,9 @@ extern void overlay46DrawParticleReloc(void *data, void *model,
                                        void *resource, s32 flags, s32 alpha);
 
 /* Pinned DKR v77/v80 and JFG skeleton scans found no close donor. */
-/* Workbench: structure-mismatch; 453/450 instructions, 363 words, first +0x0.
- * Levers: constant audit and a case-1 particle-base preload worsened to 404 words.
- * Remains: the 0xE0/0xC0 frame and switch-local FP/result stack allocation. */
+/* Workbench p4: structure-mismatch; 453/450 instructions, 363 positional words, first +0x0; frame 0xE0 vs target 0xC0.
+ * Levers: prior constant/particle-base forms plus this run's step-lifetime/register probes; all retained the 32-byte frame excess or worsened structure.
+ * Remains: switch-local FP/result stack allocation and overlay relocation identities. */
 #ifdef NON_MATCHING
 s32 func_overlay_046_F0000874_188EC6C(s32 updateRate) {
     s32 result;
