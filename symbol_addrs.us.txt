@@ -655,7 +655,7 @@ sprintfSetSpacingCodes = 0x80042998; // type:func size:0xC ROM 0x43598 tier-A ID
 sprintf = 0x800429A4; // type:func size:0x2C ROM 0x435a4 tier-A IDO C exact, dkr/printf.c
 diPrintfInit = 0x80043CE0; // type:func size:0x54 ROM 0x448e0 tier-A IDO C exact, jfg/diPrintfInit
 diPrintf = 0x80043D34; // type:func size:0x9C ROM 0x44934 tier-A IDO C exact, jfg/diPrintf
-diPrintfAll = 0x80043DD0; // type:func size:0x240 ROM 0x449d0 tier-B NON_MATCHING relocation plateau, diprint-owned BSS, jfg/diPrintfAll
+diPrintfAll = 0x80043DD0; // type:func size:0x240 ROM 0x449d0 tier-A IDO C exact, diprint-owned BSS, jfg/diPrintfAll
 diPrintfSetCol = 0x80044010; // type:func size:0x9C ROM 0x44c10 tier-A IDO C exact, jfg/diPrintfSetCol
 diPrintfSetBG = 0x800440AC; // type:func size:0x9C ROM 0x44cac tier-A IDO C exact, jfg/diPrintfSetBG
 diPrintfSetXY = 0x80044148; // type:func size:0x8C ROM 0x44d48 tier-A IDO C exact, jfg/diPrintfSetXY
@@ -795,7 +795,7 @@ runlinkFreeCode = 0x80032338; // type:func size:0x2E0 ROM 0x32F38 tier-B donor-j
 runlinkUnloadOverlay = 0x80032618; // type:func size:0x208 ROM 0x33218 tier-B donor-jfg-src/runLink.c role+CFG C-object+linked-ROM-exact
 runlinkFlushModules = 0x80032820; // type:func size:0xAC ROM 0x33420 tier-B donor-jfg-asm/runLink/runlinkFlushModules.s role+CFG C-object+linked-ROM-exact
 runlinkSuspendCode = 0x80032B14; // type:func size:0xE4 ROM 0x33714 tier-B donor-jfg-asm/runLink/runlinkSuspendCode.s role+CFG C-object+linked-ROM-exact
-runlinkResumeCode = 0x80032BF8; // type:func size:0x3E8 ROM 0x337F8 tier-B donor-jfg-asm/runLink/runlinkResumeCode.s role+CFG
+runlinkResumeCode = 0x80032BF8; // type:func size:0x3E8 ROM 0x337F8 tier-B donor-jfg-asm/runLink/runlinkResumeCode.s role+CFG C-object+linked-ROM-exact
 runlinkResumeAll = 0x80032FE0; // type:func size:0x60 ROM 0x33BE0 tier-B donor-jfg-asm/runLink/runlinkResumeAll.s role+CFG C-object+linked-ROM-exact
 // tier D -- invented: writes overlayIndex's halfword entry in linkSlotTable.
 SetLinkSlot = 0x80033040; // type:func size:0x50  tier-D invented

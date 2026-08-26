@@ -1082,9 +1082,9 @@ void func_8004D39C(char *input, char *output) {
     } while (currentChar);
 }
 
-/* Workbench: structure-mismatch; 109 words, five instruction differences, first +0x5C.
- * Levers tried: comparison/branch shape and current-value assignment placement; the delay-slot copy did not move.
- * Remains: target move t2,a3 and its t3/a3 web; canonical assembly stays. */
+/* Workbench: structure-mismatch; 5/109 words remain, first +0x5C.
+ * Levers: structure-bucket branch/value probes plus outer-conditional and scan-local rewrites; later exact code regressed.
+ * Remains: target move t2,a3 and its t3/a3 branch web; canonical assembly stays. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's

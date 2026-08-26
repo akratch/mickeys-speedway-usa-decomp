@@ -826,11 +826,7 @@ s32 diPrintf(const char *format, ...) {
     }
     return 0;
 }
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfAll. */
-/* Workbench: relocation-symbol-mismatch; words-identical, four reloc sites, first +0x144.
- * Levers tried: address-alias, array-field, pointer/cast, and weak-alias forms; binding stayed unresolved.
- * Remains: D_800D4A62 versus D_800D4A60+2 identity; wrapper retained. */
 void diPrintfAll(Gfx **dList) {
     s32 width;
     s32 height;
@@ -864,9 +860,6 @@ void diPrintfAll(Gfx **dList) {
     }
     D_8007CE94 = D_800D4150;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diprint/diPrintfAll.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/diprint.c:diPrintfSetCol. */
 void diPrintfSetCol(u8 red, u8 green, u8 blue, u8 alpha) {
     *D_8007CE94 = 0x81;

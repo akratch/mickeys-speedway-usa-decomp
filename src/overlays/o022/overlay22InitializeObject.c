@@ -20,8 +20,8 @@ extern void func_80006A50(void *);
 extern s16 func_8000F690(f32, f32, f32);
 extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
-/* Workbench: mixed constant/schedule; 172 words, five instruction differences, first +0xCC.
- * Levers tried: constant audit, flag lattice, lifetime/declaration/volatile/nested forms, and bounded permuter.
+/* Workbench: mixed(constant:3,schedule:11); 5/172 words remain, first +0xCC, with frame and register lanes exact.
+ * Lever: aggregate/array-tail carrier probes after prior flag, lifetime, declaration, volatile, nested, and permuter work; each grew or disturbed the frame.
  * Remains: objectPosition home sp+0x28 versus target sp+0x30 and reversed D_A7C stores; canonical assembly stays. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {

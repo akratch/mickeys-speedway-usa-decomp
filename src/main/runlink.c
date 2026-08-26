@@ -987,7 +987,6 @@ void runlinkSuspendCode(s32 overlayIndex) {
         } while (remaining--);
     }
 }
-#ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
  * asm/nonmatchings/runLink/runlinkResumeCode.s and its documented role in
@@ -999,7 +998,10 @@ void runlinkSuspendCode(s32 overlayIndex) {
  */
 void runlinkResumeCode(s32 overlayIndex) {
     OverlayHeader *overlay;
-    PendingOverlayLoad *pendingLoad;
+    struct {
+        PendingOverlayLoad *value;
+        s32 pad;
+    } pendingLoad;
     s32 savedDelay;
     s32 relocSavedDelay;
     RelocationEntry *relocTable;
@@ -1010,28 +1012,28 @@ void runlinkResumeCode(s32 overlayIndex) {
     s32 found;
 
     overlay = &overlayTable[overlayIndex];
-    pendingLoad = D_800D2DC8;
+    pendingLoad.value = D_800D2DC8;
     found = FALSE;
     relocTable = NULL;
     relocCount = PENDING_OVERLAY_LOADS - 1;
     do {
-        if (overlayIndex == pendingLoad->overlayIndex) {
+        if (overlayIndex == pendingLoad.value->overlayIndex) {
             found = TRUE;
             break;
         }
-        pendingLoad++;
+        pendingLoad.value++;
     } while (relocCount--);
 
     if (found) {
         savedDelay = mmGetDelay();
         mmSetDelay(0);
-        mmFree((void *) (pendingLoad->unk0 + overlay->textSize));
+        mmFree((void *) (pendingLoad.value->unk0 + overlay->textSize));
         mmSetDelay(savedDelay);
 
         overlay->vramBase = (s32) func_8002B524(
             overlay->textSize + overlay->dataSize + overlay->bssSize +
                 (u16) overlay->relocTableSize,
-            (void *) pendingLoad->unk0, 0x83);
+            (void *) pendingLoad.value->unk0, 0x83);
         if (overlay->vramBase == 0) {
             return;
         }
@@ -1127,12 +1129,9 @@ void runlinkResumeCode(s32 overlayIndex) {
             overlay++;
         }
 
-        pendingLoad->overlayIndex = 0xFFB;
+        pendingLoad.value->overlayIndex = 0xFFB;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/runlink/runlinkResumeCode.s")
-#endif
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
  * asm/nonmatchings/runLink/runlinkResumeAll.s and the corresponding

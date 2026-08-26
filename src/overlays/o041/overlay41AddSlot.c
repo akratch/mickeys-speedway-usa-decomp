@@ -15,10 +15,11 @@ typedef struct Overlay41Slot {
 } Overlay41Slot;
 
 extern Overlay41Slot gOverlay41Slots[];
+extern f32 D_0[];
 
-/* Workbench: allocation-mismatch; 55 words, five raw differences (four register, one constant/reloc), first +0x10.
- * Levers tried: constant-anchor audit, prior allocation/order/type forms, and bounded permuter; a1/v1 stayed reversed.
- * Remains: counter/temp web and local-data anchor at +0x54; canonical assembly stays. */
+/* Workbench: register-permutation; 6/55 words remain, first +0x10.
+ * Lever: D_0[0x15] constant-anchor audit and bounded 30m permutation; its best winner was semantically invalid, and a1/v1 plus at/sp stayed crossed.
+ * Remains: one downstream forced-color allocation outcome; canonical assembly stays. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,
@@ -53,7 +54,7 @@ void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
             slot->value3 = value3;
             slot->value5 = value5;
             slot->value7 = value7;
-            slot->amount = amount * 0.59999996f;
+            slot->amount = D_0[0x15] * amount;
             slot->previousAmount = slot->amount;
             return;
         }

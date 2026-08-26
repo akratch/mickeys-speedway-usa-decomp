@@ -1723,7 +1723,7 @@ Unresolved functions remain `GLOBAL_ASM`, so the split claims no matched bytes.
 | Mickey TU | ROM / VRAM | Functions | Evidence |
 |---|---|---:|---|
 | `main/particles` | `0x3D5F0`–`0x43470` / `0x8003C9F0` | 44 | **A:** DKR's built `particles.c.o` identifies `reset_particles` byte-for-byte. **B:** the internal call graph and external particle callers. **D:** the full function order and masked-skeleton sequence track JFG's 42-function `particles.c.o` from `partFreeLib` through `partNullifyCircularParticleParents`; Mickey inserts two extra 12-byte state setters before `partUpdateTriggers`, after which the sequences reconverge. |
-| `main/diprint` | `0x43470`–`0x45760` / `0x80042870` | 19 | **A:** DKR objects identify `strcpy`, `memset`, and `sprintf`; diprint's formatter data/tables and the linked `vsprintf`/`debug_text_parse` are exact. **B:** `diPrintf` brackets `vsprintf` with `sprintfSetSpacingCodes`, `diPrintfAll` drives the parse/background/character/bounds/origin helpers, and later `diRcp*` routines call `sprintf`. The order matches JFG's `diprint.c.o`, with DKR's `debug_text_width` inserted between `diPrintfSetXY` and `debug_text_parse`. |
+| `main/diprint` | `0x43470`–`0x45760` / `0x80042870` | 19 | **A:** DKR objects identify `strcpy`, `memset`, and `sprintf`; diprint's formatter data/tables and the linked `vsprintf`/`diPrintfAll`/`debug_text_parse` are exact. **B:** `diPrintf` brackets `vsprintf` with `sprintfSetSpacingCodes`, `diPrintfAll` drives the parse/background/character/bounds/origin helpers, and later `diRcp*` routines call `sprintf`. The order matches JFG's `diprint.c.o`, with DKR's `debug_text_width` inserted between `diPrintfSetXY` and `debug_text_parse`. |
 
 **PROVENANCE.** Names/TU attribution use JFG's public `src/particles.c`,
 `src/diprint.c`, and objects; DKR's `src/printf.c` supplies
@@ -1757,6 +1757,8 @@ donor); `diPrintfSetCol` (ROM `0x44C10`, `0x9C` bytes, default resident flags,
 JFG body donor); `diPrintfSetBG` (ROM `0x44CAC`, `0x9C` bytes, default resident
 flags, JFG body donor); `diPrintf` (ROM `0x44934`, `0x9C` bytes, default
 resident flags, JFG body donor with its stubbed diagnostic call omitted);
+`diPrintfAll` (ROM `0x449D0`, `0x240` bytes, default resident flags, JFG body
+donor with diprint-owned BSS, linked exact);
 `_itoa` (ROM `0x434D8`, `0xC0` bytes, default resident flags, identical JFG and
 DKR glibc-derived body donor); `func_8003CCE4` (ROM `0x3D8E4`, `0x44` bytes,
 default resident flags, Mickey-only reconstruction); `func_8003E730` (ROM
@@ -1878,7 +1880,7 @@ Temp slot 0 plus pool substitutions at slots 37/41 remain; the candidate stays u
 |---|---|
 | `vsprintf` | **tier-A**, ROM `0x435D0`, `0x1310` bytes, `-Wab,-r4300_mul`; JFG body and formatter data/tables are compiler-owned by `main/diprint`, linked exact. |
 | `debug_text_parse` | **tier-A**, ROM `0x44EDC`, `0x41C` bytes, `-Wab,-r4300_mul`; JFG body with diprint BSS/rodata ownership, linked exact; asm-object aliases remain compiler-local. |
-| `diPrintfAll` | `NON_MATCHING`: 144 instructions/frame `0x58` exact; diprint owns BSS `0x800D4A60–0x800D4A90`, but four strict relocations remain (`D_800D4A62` vs `D_800D4A60+2`), asm retained. |
+| `diPrintfAll` | **tier-A**, ROM `0x449D0`, `0x240` bytes, default resident flags; JFG body with diprint-owned BSS, linked exact. |
 
 | Function | Exact result |
 |---|---|
