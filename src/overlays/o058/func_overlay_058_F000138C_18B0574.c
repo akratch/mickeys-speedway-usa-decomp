@@ -82,9 +82,9 @@ typedef struct O58Unknown {
  * overlay58ExternalReloc calls below therefore represent multiple unresolved
  * call targets and make no symbol-identity claim.
  *
- * Workbench plateau (2026-08-26): structure-mismatch; a literal audit (0xD2 to 0x28) leaves 3,544 differing comparison words, 3,496 versus 3,614 instructions, and a -752 versus -312 frame.
- * Lever tried: constant-audit and context lint; the corrected literal removes one residual word but does not change the structural class.
- * Remains: frame surplus and unresolved relocation plus aggregate-type structure.
+ * NON_MATCHING plateau (2026-08-26): workbench verdict structure-mismatch; best diff 3545 differing words, first mismatch +0x0.
+ * Tried constant/global materialization, scalar-width, and target-relocation-symbol levers; no exact candidate.
+ * Remaining blockers are the 118-instruction deficit, 440-byte frame excess, and unresolved CFG/liveness/type shape.
  */
 #ifdef NON_MATCHING
 extern O58Unknown *func_80028F54(void);
