@@ -806,10 +806,9 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
     viConvertXY(right, bottom);
 }
 #ifdef NON_MATCHING
-/* PROVENANCE: JFG src/menu.c supplies the reset role; Mickey supplies the
- * individual BSS layout and four-controller order. */
-/* Workbench: structure-mismatch, 28 versus 37 words, first +0x0; IDO pools
- * the reset constants once the individually owned objects become TU-local. */
+/* PROVENANCE: JFG src/menu.c supplies the assembly skeleton; this body is Mickey-derived.
+ * Workbench: canonical TU is 20/37 words; a no-loop-unroll sweep is word-exact but has 18 relocation identities differing.
+ * Levers: flag lattice, scalar/unrolled labels, and BSS bindings; the needed TU-wide flag damages neighboring func_80038878. */
 void func_8003968C(void) {
     D_800D31A0 = -1;
     D_800D3198 = 0x14;

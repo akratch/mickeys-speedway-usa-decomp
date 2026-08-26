@@ -34,8 +34,8 @@ extern void mmFree(void *ptr);
 
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/shadows/shadowInitBuffers.s; Mickey globals are authoritative.
- * Workbench: relocation-symbol-mismatch; 75/75 instructions and frame exact, with two D_80079440 sites differing.
- * Lever: the typed address-sentinel form expands to 77 instructions; the three-iteration loop remains best. */
+ * Workbench: relocation-symbol-mismatch; 75/75 instructions and frame exact, with two endpoint sites naming D_80079440.
+ * Levers: array extent and typed sentinel forms; the latter changes schedule/addend, so D_80079434+0xC remains the blocker. */
 void shadowInitBuffers(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 i;
     s32 stride0;

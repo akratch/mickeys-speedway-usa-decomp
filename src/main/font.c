@@ -437,7 +437,7 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's permitted fontStringWidth assembly and DKR's Japanese get_text_width body informed organization; Mickey data and m2c remain authoritative.
  * Workbench: allocation-mismatch, 8/46 words differ first at +0x30; frame and relocations are exact, with a v0/a3 font-data web.
- * Levers: flag lattice, width/index hoists, declaration/stack-pad/alias forms, and spacing-plus-index order; register allocation remains. */
+ * Levers: flag lattice, width/index hoists, declaration/stack-pad/alias, address/type, and spacing-order forms; the web and spill homes remain. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     u8 stackPad[1];
     FontSpacingData *fontData;
