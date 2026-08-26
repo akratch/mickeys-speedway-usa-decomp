@@ -212,16 +212,9 @@ typedef struct ModelConstructedInstance {
     s16 *stateB;
 } ModelConstructedInstance;
 
-/*
- * Mickey-only reconstruction; JFG retains the corresponding instance helper
- * as GLOBAL_ASM, so no donor body is adapted here.
- * Plateau: ten coherent layout/loop/lifetime attempts and a bounded permuter
- * leave the best canonical candidate at 330 instructions versus 333, with 300
- * differing positional words and the first mismatch at +0x0. Its 0x88 frame
- * retains four more non-save words than the target's 0x78 frame. The flag
- * lattice's function-local -Wo,-loopunroll,2 diagnostic is not exact and
- * cannot justify changing this TU's already-proven canonical flag group.
- */
+/* P5 plateau: workbench structure-mismatch, 300 positional words, 330 versus 333 instructions, frame -136 versus -120, first +0x0.
+ * Lever: scalar mode-size storage worsened the result to 323 words and frame -144; the prior compact layout remains best.
+ * Remains: target 0x78-frame allocation and register/control-flow shape; the canonical 0x88-frame C stays NON_MATCHING. */
 #ifdef NON_MATCHING
 ModelConstructedInstance *func_8001FC50(ModelInstanceSource *source, s32 pointCopies) {
     ModelConstructedInstance *instance;
