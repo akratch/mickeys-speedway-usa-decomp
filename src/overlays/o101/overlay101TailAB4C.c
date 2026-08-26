@@ -94,9 +94,9 @@ extern void *o101TailAB4CCreator3Reloc();
 extern void o101TailAB4CFinalizerReloc(void *object);
 extern s32 overlay101ByteLength(u8 *text);
 
-/* Workbench: structure-mismatch; 636 words differ, 665 versus 638 instructions, first mismatch +0x4.
- * Lever: FP constant-order swap was byte-neutral; volatile scale regressed to 663 words and an 88-byte frame.
- * Remains: 27-instruction surplus and broad repeated-builder structure; baseline 72-byte frame is retained. */
+/* Workbench p4: structure-mismatch; 636 words differ, 665 versus 638 instructions, first mismatch +0x4.
+ * Lever: delayed scale/helper-call placement preserved the baseline frame but did not collapse the repeated-builder surplus.
+ * Remains: 27 extra instructions and broad Node32/Node24 register structure; target FP scale lifetime is unresolved. */
 #ifdef NON_MATCHING
 void func_overlay_101_F000AB4C_18E636C(void) {
     s32 orderIndex;

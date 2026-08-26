@@ -66,9 +66,9 @@ extern void func_8000309C(void *handle, u8 volume);
 extern void func_80036544(void *entry, s32 *mode, s32 animationId,
                           void *state, s32 updateRate);
 
-/* Workbench p3: structure-mismatch; 501/499 candidate/target instructions, 430 words from +0x4.
- * Lever: constant audit plus vector-typed acceleration and shared-timestep dataflow forms.
- * Remains: FP slot reuse across CFG regions leaves the candidate frame 80 bytes too large. */
+/* Workbench p4: structure-mismatch; 484 words differ, 497 versus 499 instructions, first mismatch +0x4.
+ * Lever: squared-speed-before-sqrt collision branch restored target control-flow shape; FP carrier probes left the frame 40 bytes large.
+ * Remains: outgoing/local lifetime and FP slot reuse (candidate -0xB8, target -0x90); no exact C schedule. */
 #ifdef NON_MATCHING
 void func_overlay_022_F00002B0_18783B8(O22Object *object, s32 updateRate) {
     O22State *state;

@@ -169,9 +169,9 @@ void func_800582A8(void) {
  * offsets, tables, control flow, constants and positional-audio calls decide
  * this body.
  *
- * Workbench: mixed constant/structure/register mismatch, 758 versus 762 words,
- * 699 positional differences from +0x0, and a 0x110 versus 0x118 frame.
- * Lever: constant-audit; the assembly fallback remains canonical.
+ * Workbench p4: structure-mismatch; 699 words differ, 758 versus 762 instructions, first mismatch +0x0.
+ * Lever: constant/structure audit with stock -O2 -mips2 -32 -Wab,-r4300_mul; the DKR-shaped source remains four instructions short.
+ * Remains: broad control-flow/register residual and 8-byte frame deficit (candidate -0x110, target -0x118).
  */
 void func_8005830C(s32 updateRate) {
     s32 racerCount;
