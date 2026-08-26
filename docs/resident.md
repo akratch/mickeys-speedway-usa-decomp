@@ -524,13 +524,8 @@ uses a four-byte point-index record to select ten-byte signed-coordinate
 records, transforms each point into a three-float output, and preserves both
 call relocation identities. JFG's neighboring model helpers remain assembly,
 so the body and tier-D role are reconstructed from Mickey alone.
-`func_80020B10` plateaus after the complete 119-combination flag lattice,
-pointer- and index-induction spellings, the measured `gSPMatrix` command macro,
-and a bounded ten-minute permutation. The best coherent candidate is 160
-instructions against 159 and differs first at `+0x0`: it uses a `0x20` frame
-and six saved registers where the target uses `0x10` and three. The permuter's
-lower-scoring mutations depended on invented guards or a potentially
-uninitialized read and were rejected.
+`func_80020B10` p7 verdict: structure-mismatch, 160/159 instructions, first `+0x0`, frame `0x20` versus `0x10`.
+Tried constant audit/context lint, scoped-cache/loop-local, direct-array, register-hint, and Gfx command forms; the six-save web keeps `GLOBAL_ASM` canonical.
 `func_8001FC50` plateaus after ten coherent allocation-layout, stack-home,
 zeroing-loop, and copy-loop spellings plus a bounded ten-minute permutation.
 The best canonical candidate is 330 instructions against 333, has 300
@@ -1807,9 +1802,6 @@ resident flags, JFG-named Mickey reconstruction); `debug_text_background`
 donor); `func_8003EC8C` (ROM `0x3F88C`, `0xBC` bytes, default resident flags,
 Mickey pointer-first reconstruction with the JFG assembly sibling as oracle).
 
-`func_8003CE10`: before/after allocation mismatch, 275 instructions and 154 words; frame remains `0x98` vs target `0x90`.
-Type lever: shared pool/render aggregates and vector aliases; no codegen movement. Remains the frame/register web; JFG `func_8005DD88` is the oracle.
-
 `func_8003D4FC`: before/after no C candidate for the `0x10B0`-byte range; shared aggregate types do not change the asm-only body.
 Type lever: global and resource declarations; no C promotion is possible. Remains canonical `GLOBAL_ASM`; JFG `func_8005E3DC` is the donor label.
 
@@ -1835,6 +1827,7 @@ Type lever: point-stream/model distinction and vector aliases; opcode schedule s
 
 | Newly matched function | ROM / size | Match evidence |
 |---|---:|---|
+| `func_8003CE10` | ROM `0x3DA10`, `0x44C` B | IDO 5.3 exact under resident `-O2 -mips2 -32`; Mickey reconstruction with JFG assembly sibling as structural oracle |
 | `func_80040740` | ROM `0x41340`, `0x138` B | IDO 5.3 exact under resident `-O2 -mips2 -32`; Mickey reconstruction with JFG structural oracle |
 
 `partModelObjEmitModelPart` reached a bounded size-exact 84-word plateau under

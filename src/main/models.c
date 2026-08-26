@@ -818,9 +818,9 @@ typedef struct ModelTextureUsage {
     ModelTextureUsageEntry *entries;
 } ModelTextureUsage;
 
-/* Workbench: structure-mismatch; 160 candidate vs 159 target instructions, 156 raw words, first +0x0, frame -0x20 vs -0x10.
- * Levers: constant audit and prior width/scope/gSP/lifetime/permutation sweeps; a nonvolatile texture-base probe regressed to 163 instructions.
- * Remains: six-save candidate versus retail three-save register/stack shape; GLOBAL_ASM stays canonical. */
+/* Workbench p7: structure-mismatch; 160/159 instructions, 156 words, first +0x0, frame -0x20 vs -0x10.
+ * Levers: constant audit, context lint, scoped-cache/loop-local, direct-array, register-hint, and Gfx command forms; none changed the canonical shape.
+ * Remains: retail three-save register/stack web versus the candidate six-save frame; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                    ModelTextureUsage *usage, s32 entryIndex, volatile u32 textureBase) {
