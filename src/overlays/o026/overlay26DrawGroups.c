@@ -45,9 +45,9 @@ extern void o26DrawReloc(Gfx **, s32, Overlay26Group *, f32, f32);
 extern void o26FlushReloc(Gfx **);
 extern void o26FinishReloc(Gfx **);
 
-/* Workbench mixed plateau: 61 aligned residuals (22 structural, 2 schedule,
- * 37 register), 133/134 instructions; first mismatch +0x48. Structure regrouping
- * and equivalent negations leave IDO fusing the target negation/address-add pair. */
+/* Workbench structure-mismatch: 133/134 instructions, 88 normalized words;
+ * 58 aligned residuals (17 structural, 2 schedule, 39 register), first +0x4C.
+ * Store order and delayed group initialization improved alignment; constants/negation remain. */
 #ifdef NON_MATCHING
 void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
                                        Overlay26Context *context) {
@@ -70,19 +70,19 @@ void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
     alphaMask = -0x100;
     fillCommand = 0xFB000000;
     if (render->enabled != 0) {
-        groupIndex = 3;
         gfx = *dl;
         *dl = gfx + 1;
-        gfx->w0 = 0xE7000000;
         gfx->w1 = 0;
+        gfx->w0 = 0xE7000000;
 
         gfx = *dl;
+        groupIndex = 3;
         nodeOffset = 0xC;
         *dl = gfx + 1;
         segmentBase = 0x80000000;
         triangleCommand = 0xBF000000;
-        gfx->w0 = fillCommand;
         gfx->w1 = alphaMask;
+        gfx->w0 = fillCommand;
 
         do {
             if (groupIndex == 3) {

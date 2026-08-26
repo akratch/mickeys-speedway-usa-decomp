@@ -240,9 +240,9 @@ void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0000058_185DDB0.s")
 #endif
 
-/* Workbench: allocation-mismatch, 48 masked/57 raw words; first register +0x428.
- * Flag lattice, arm ordering, widened mask, and a bounded -mips2 permuter tried.
- * Both FP lanes are exact; GPR temp slot 54 and pool slot 64 still diverge. */
+/* Workbench allocation-mismatch: 381/381 instructions, 48 masked/57 raw words; first +0x428.
+ * Split flag lifetimes was neutral after prior flag/mask/arm/permuter probes.
+ * FP lanes are exact; late GPR pool/temp allocation and relocation-name differences remain. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
                                        s32 updateRate) {

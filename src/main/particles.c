@@ -1901,9 +1901,9 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     return particle;
 }
 #ifdef NON_MATCHING
-/* Workbench mixed plateau: 33 aligned residuals (4 structural, 1 commutative,
- * 28 register), 124/125 instructions; first mismatch +0x4C. AST/lifetime
- * levers leave the initial scale/add folded and the temp ring one slot late. */
+/* Workbench structure-mismatch: 124/125 instructions, 101 normalized words; first +0x4C.
+ * 33 aligned residuals (4 structural, 1 commutative, 28 register); pointer-order probe worsened.
+ * The initial address shift and temp/pool register webs remain. */
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey evidence. */
 CircularParticle *func_8004054C(s32 type, s32 direction) {

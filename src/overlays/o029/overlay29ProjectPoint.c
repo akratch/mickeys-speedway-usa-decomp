@@ -29,9 +29,9 @@ typedef struct Overlay29Owner {
 extern f32 gOverlay29MinimumYReloc;
 extern f32 overlay29SqrtReloc(f32 value);
 
-/* Workbench mixed plateau: 31 aligned residuals (17 constant, 1 structural,
- * 3 commutative, 10 register), exact 121 instructions; first +0x0. Expression,
- * dead-web, and flag levers leave an 8-byte frame and FP-pool divergence. */
+/* Workbench allocation-mismatch: 121/121 instructions, 29 normalized/30 raw words;
+ * frame -0x70 versus -0x68, with 31 aligned residuals (17 constant, 10 register).
+ * Delta lifetime/register-hint probes were neutral; FP-pool slot 10 remains. */
 #ifdef NON_MATCHING
 void func_overlay_029_F0000EE0_187E190(
     s32 unused, Vec3f *output, Vec3f *axis, f32 height,

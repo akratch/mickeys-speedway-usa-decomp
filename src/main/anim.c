@@ -552,9 +552,9 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Workbench: structure plateau, exact 87-word/0x18-frame shape and 15 words from +0x34.
- * Lever: structure-buckets; explicit end pointers, operand order, and bound spelling were neutral or worse.
- * Remains: five paired LO16 schedules and the clear-loop branch form; asm stays canonical.
+ * Workbench structure-mismatch: 87/87 instructions, 15 normalized words; first +0x34.
+ * s16, for-loop, while/bound, and pointer-order forms were neutral or worse.
+ * The target clear-loop branch shape and repeated global-address schedules remain.
  */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
