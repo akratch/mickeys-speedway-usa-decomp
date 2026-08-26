@@ -295,8 +295,9 @@ char *osScGetTaskType(s32 taskID) {
 void func_80030608(OSScTask *arg0) {
 }
 #ifdef NON_MATCHING
-/* Mickey-derived crash-diagnostic display-list bisection. JFG supplies the
- * exact assembly skeleton and ordered scheduler position, not a C body. */
+/* Workbench: structure-mismatch; 194 candidate vs 192 target instructions, 148 raw words, first +0x0, frame -0x90 vs -0x98.
+ * Levers: constant audit and prior scalar, s64-backup, macro, explicit-pointer, layout, flag-lattice, and bounded-permutation probes.
+ * Remains: message/command homes and the scheduler temp web; GLOBAL_ASM stays canonical. */
 SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
                         SchedGfx *displayList, OSMesgQueue *queue,
                         u64 *dataStart) {

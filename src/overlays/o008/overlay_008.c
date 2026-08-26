@@ -427,9 +427,9 @@ void func_overlay_008_F0000F1C_185EC74(Overlay8ActivationOwner *owner,
     overlay8FinalizeActivationReloc(owner, 0x17);
 }
 
-/* Plateau: canonical -O2 -mips2 -r4300_mul is 164/165 words with 159 positional differences, first +0x8 (unused a0 home).
- * Signature, alias/first-use, control-flow/goto, volatile, register, and result-local variants did not reproduce retail a3 lifetime or rollover join.
- * A 40-minute permuter's best score was 1000 by reordering independent phase-2 stores; no exact result. */
+/* Workbench: structure-mismatch; 164 candidate vs 165 target instructions, 159 raw words, first +0x8, exact frame.
+ * Levers: constant audit plus prior signature, alias/first-use, control-flow, volatile, register, result-local, and bounded-store-order probes.
+ * Remains: unused-a0 home, a3 state lifetime, and rollover join; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F0001000_185ED58(void *unused, O8PhaseState *state, f32 input) {
     s32 nextCountdown;
@@ -1572,9 +1572,9 @@ void overlay8UpdateMotionOutput(Overlay8MotionAnchor *anchor,
     gOverlay8Buffer++;
 }
 
-/* Plateau (2026-08-25, near-miss p3): workbench mixed residual; best remains 43 words, first +0x178.
- * Tried constant audit and stack-frame home reshaping with pads, a wider normal, and local exchange.
- * The normal home remains four bytes high, leaving the target FP pool and temp phase unresolved. */
+/* Workbench: allocation-mismatch; exact 270-instruction schedule/frame, 43 masked words (57 diff sites), first +0x178.
+ * Levers: constant audit, frame-home pads, wider/volatile normal layouts, local exchange, and relocation-aware source comparison.
+ * Remains: normal home is four bytes high, then FP pool/temp phase diverges; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
                                        O8P4CF0State *state,

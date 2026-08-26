@@ -69,9 +69,9 @@ extern void overlay54CopyOffsetRecords(void *src, void *dst, s32 mode, s32 index
 #define BSS_PTR(off) ((void *)(gOverlay54Bss + (off)))
 
 /* Independently reconstructed from Mickey-local evidence; no DKR/JFG donor. */
-/* Workbench: structure-mismatch; 243 target vs 244 candidate instructions, 127 positional words, first +0xF0.
- * Constant-audit, structure-buckets, loop predicates, local order, and address bindings were tried.
- * Shift-tolerant distance is 83 instructions; pointer-init and post-loop schedules still drive register-web drift. */
+/* Workbench: structure-mismatch; 244 candidate vs 243 target instructions, 144 raw words/150 diff sites, first +0x0, frame exact.
+ * Levers: constant audit, structure buckets, loop predicates, local order, address bindings, pointer-init, and post-loop schedules.
+ * Remains: 61 alignment gaps and 71 structural rows; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_054_F0000000_189ECA0(void) {
     volatile O54Locals locals;

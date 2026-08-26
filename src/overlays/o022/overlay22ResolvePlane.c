@@ -32,9 +32,9 @@ typedef struct Overlay22Owner {
 extern f32 gOverlay22DataBase[];
 extern f32 func_overlay_022_F0000000_1878108(f32);
 
-/* Workbench: mixed constant/commutative; best differs 7/173 words, first linked +0x74.
- * Typed base indexing fixes the +0x10 relocation; compound, padding/aggregate, and address-mark levers regress or are neutral.
- * Three mul operand encodings and X/Z homes +0x50/+0x48 vs +0x54/+0x4C remain. */
+/* Workbench: allocation-mismatch; exact 173-instruction schedule, 7 raw words plus 2 relocation sites, first +0x74.
+ * Levers: typed base indexing fixed the relocation binding; compound, padding/aggregate, address-mark, and multiply-order probes did not.
+ * Remains: three commutative FP encodings and two four-byte spill-home offsets; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000A7C_1878B84(
     void *unused, Vec3f *out, Vec3f *direction, f32 distance,

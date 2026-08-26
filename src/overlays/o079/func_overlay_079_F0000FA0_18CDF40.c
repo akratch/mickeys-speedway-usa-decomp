@@ -32,9 +32,9 @@ extern f32 gOverlay79CollisionEpsilon;
 extern f32 gOverlay79CollisionLift;
 extern f32 gOverlay79CollisionProjection;
 
-/* Workbench: structure-mismatch; best is 184/184 words, 143 differences, first +0x38.
- * Tried exact-frame/spill census, volatile homes, declaration scopes, and expression association.
- * The 0x98 frame is exact; 29 structural and 95 register rows remain after the FP pool split. */
+/* Workbench: structure-mismatch; exact 184-instruction schedule/frame, 146 diff sites/143 raw words, first +0x38.
+ * Lever: removing the volatile f64 frame pad fixed the frame and improved the residual; normal-component register probes were inert.
+ * Remains: 29 structural, 1 schedule, and 95 register rows after the FP pool split; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000FA0_18CDF40(
     void *unused, Overlay79Vector *position, Overlay79Vector *axis,
@@ -53,7 +53,6 @@ void func_overlay_079_F0000FA0_18CDF40(
     f32 length;
     f32 amount;
     volatile f32 planeConstant;
-    volatile f64 framePad;
 
     (void)unused;
     ny = plane->normal.y;
