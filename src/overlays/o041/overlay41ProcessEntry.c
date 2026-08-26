@@ -53,8 +53,8 @@ extern void overlay41FinishEntry(Overlay41Context *, Overlay41Child *,
                                  Overlay41Entry *, s32);
 
 /* Workbench plateau: structure-mismatch, 120 words; 123/128 instructions, frame -72, first +0x10.
- * Levers: input alias/register, declaration/scope/type order, flags, and context-lint checks.
- * Remains: incoming-input register lifetime, call/control-flow schedule, and relocation identities. */
+ * Lever: an explicit early-return split compiled identically after prior input, type, scope, flag, and context probes.
+ * Remains: the incoming-input stack home, five-instruction size excess, temp schedule, and relocation identities. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001464_188879C(Overlay41Input *input,
                                        Overlay41Context *context,
