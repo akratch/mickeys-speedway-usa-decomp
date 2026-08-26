@@ -68,7 +68,7 @@ extern s32 gOverlay1TransitionStateReloc;
 
 extern u8 *func_80028F54(void);
 extern void func_80022A50();
-extern Overlay55Object **func_80005750();
+extern Overlay55Object **func_80005750(s32 *count);
 extern void viGetCurrentSize();
 extern void camSetNo();
 extern void func_80022610();
@@ -91,11 +91,9 @@ extern void mainChangeLevel();
 extern void func_800005CC(f32, s32);
 
 #ifdef NON_MATCHING
-/* NON_MATCHING plateau (2026-08-25): after the full flag lattice and six
- * structural passes, -O2 -mips2 -32 -Wab,-r4300_mul is 0x18 bytes short
- * and differs in 445/581 relocation-masked words; the first mismatch is
- * +0x3C. The opening fade CFG and frame agree, but the address-taken object
- * context and later display/transition lifetimes still do not. */
+/* Workbench plateau: mixed structure/schedule/register, 575/581 instructions, exact 0xE0
+ * frame, 445 positional words, first +0x2C. Typed func_80005750(s32 *count)/objectCount
+ * ABI probe emitted no change; the display/transition lifetime web remains. */
 /* Mickey-local reconstruction. The display-list and transition call roles
  * are established by this overlay's relocation records; the object layout is
  * shared with the resident player-control code. */
@@ -120,7 +118,7 @@ void func_overlay_055_F000031C_18A1E34(s32 updateRate) {
     Overlay55Digit *source;
     Overlay55MenuPlacement *placement;
     Overlay55DisplayCommand *command;
-    void *objectContext[1];
+    s32 objectCount;
     u8 *gameState;
     u8 *level;
     s8 *icon;
@@ -128,7 +126,7 @@ void func_overlay_055_F000031C_18A1E34(s32 updateRate) {
 
     gameState = func_80028F54();
     func_80022A50(&D_800D3140, &D_800D3144);
-    objects = func_80005750(objectContext);
+    objects = func_80005750(&objectCount);
 
     if (D_800C947C == 0) {
         s32 fadeIndex;
