@@ -42,9 +42,9 @@ extern u8 D_0[];
 extern u8 D_28[];
 extern void func_overlay_044_F0000000_188B860();
 
-/* Workbench: structure-mismatch; 347/349 instructions, 330 words, first +0x0.
- * Levers: constant audit, OR association, and a register macro temp were inert.
- * Remains: the 0x138/0x100 frame and display-list macro stack-home topology. */
+/* Workbench plateau (2026-08-26): structure-mismatch; 347/349 instructions,
+ * 330 masked words, frame -0x130/-0x100, and first divergence +0x0.
+ * Levers: constant/OR/macro, direct carriers, narrow widths, and helper arity; display-list stack homes remain. */
 /* No external donor body was used. */
 #ifdef NON_MATCHING
 void func_overlay_044_F0000580_188BDE0(
@@ -78,25 +78,23 @@ void func_overlay_044_F0000580_188BDE0(
     s32 var_a3_2;
     s32 var_t5;
     u8 temp_t7;
-    Overlay44AnimationState *state;
     Overlay44FrameSource *source;
 
-    state = arg0;
-    if (state != 0) {
-        if (state->sourceIndex != -1) {
-            source = &gOverlay44FrameSources[state->sourceIndex];
-            var_s0 = state->handles[state->protectedSlot0];
+    if (arg0 != 0) {
+        if (arg0->sourceIndex != -1) {
+            source = &gOverlay44FrameSources[arg0->sourceIndex];
+            var_s0 = arg0->handles[arg0->protectedSlot0];
             temp_t4 = source->dimension0;
             var_t3 = source->dimension1;
-            var_s1 = state->handles[state->protectedSlot1];
+            var_s1 = arg0->handles[arg0->protectedSlot1];
             if (arg2 == 1.0f) {
                 OVERLAY44_CMD((*arg1)++, 0x06000000, D_0);
             } else {
                 OVERLAY44_CMD((*arg1)++, 0x06000000, D_28);
             }
 
-            temp_t7 = state->subtype;
-            temp_v1 = state->phase & 0xFF;
+            temp_t7 = arg0->subtype;
+            temp_v1 = arg0->phase & 0xFF;
             OVERLAY44_CMD((*arg1)++, 0xFA000000,
                 (temp_t7 << 24) | (temp_t7 << 16) |
                 (temp_t7 << 8) | 0xFF);
@@ -104,9 +102,9 @@ void func_overlay_044_F0000580_188BDE0(
                 (temp_v1 << 24) | (temp_v1 << 16) |
                 (temp_v1 << 8) | temp_v1);
 
-            temp_t6 = state->value8 * 4;
+            temp_t6 = arg0->value8 * 4;
             var_a3 = (s32)(1024.0f / arg2);
-            var_t5 = state->valueA << 16;
+            var_t5 = arg0->valueA << 16;
             temp_f12 = arg2 * 65536.0f;
             spE4 = var_t5;
             spFC = temp_t4;

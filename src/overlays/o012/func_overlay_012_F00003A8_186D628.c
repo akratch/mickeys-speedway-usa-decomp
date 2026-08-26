@@ -23,11 +23,9 @@ extern s32 func_80036544(void *entry, s32 *mode, s32 animationId,
  * JFG's bloodSpurtUpdateAll is the closest masked-skeleton sibling, but its
  * public source is GLOBAL_ASM. This body is reconstructed from Mickey only.
  *
- * NON_MATCHING plateau (2026-08-25): -O2 -mips2 -Wab,-r4300_mul produces
- * 0x574 bytes versus the 0x568-byte target, with the first mismatch at +0x10.
- * The target frame size is exact (0x110), but this spelling keeps a redundant
- * floating-point copy of updateRate alive, adding a move and a spill/restore;
- * collision-buffer placement and later register allocation remain displaced.
+ * Workbench plateau (2026-08-26): structure-mismatch; 349/346 instructions,
+ * exact frame -0x110, first divergence +0x10, and 340 masked words differ.
+ * Levers: FP-copy removal, initialization/order, and struct-carrier variants; mixed drift remains.
  */
 #ifdef NON_MATCHING
 void func_overlay_012_F00003A8_186D628(s32 updateRate) {
