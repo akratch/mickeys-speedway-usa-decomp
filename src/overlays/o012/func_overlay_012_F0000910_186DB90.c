@@ -48,9 +48,9 @@ extern void func_80034E48(void);
  * JFG's bloodSpurtsDraw is the closest masked-skeleton sibling, but its
  * public source is GLOBAL_ASM. This body is reconstructed from Mickey only.
  */
-/* Plateau p3: workbench structure-mismatch, 606/611 instructions and 581 word differences at +0x0; frame -312 vs -328. */
-/* Levers tried: constant audit plus two/max declaration, register, literal, initialized, and volatile saved-FPR variants; best remains -O2 -mips2 -Wab,-r4300_mul. */
-/* Remains: IDO rematerializes 2.0f and omits target f30, shifting the 16-byte frame and later register web; retain GLOBAL_ASM. */
+/* Plateau p5: workbench structure-mismatch; 606/611 instructions, 581 positional words, first +0x0; frame -312 vs -328. */
+/* Levers tried: two-web dead reads at four priorities/placements and a same-expression read-count dial; baseline remains best. */
+/* Remains: an in-branch read forces f30 and a -320 frame but emits 614 instructions, overshooting the target; retain GLOBAL_ASM. */
 #ifdef NON_MATCHING
 void func_overlay_012_F0000910_186DB90(Overlay12Gfx **displayListPtr,
                                        s32 *matrixPtr,
