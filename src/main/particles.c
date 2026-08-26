@@ -780,15 +780,12 @@ void func_8003CD28(ParticleResourceList **listPtr) {
     }
 }
 #ifdef NON_MATCHING
-/*
- * Exact opcode schedule, instruction count, and relocation identities; 154
- * allocation/stack-operand words remain from +0x0 because IDO emits a 0x98
- * frame instead of the target's 0x90 frame.
- *
- * PROVENANCE: structure cross-checked against JFG's assembly-only
+/* Workbench: allocation-mismatch; exact 275-instruction schedule, 47 raw words, first +0x0, frame -0x98 vs -0x90.
+ * Lever: removing redundant pool-count reloads reduced the residual from 154 to 47; integer first-vertex and local-order probes were neutral/regressive.
+ * Remains: eight-byte frame/home displacement and v0/a0 pool web; GLOBAL_ASM stays canonical. */
+/* PROVENANCE: structure cross-checked against JFG's assembly-only
  * asm/nonmatchings/particles/func_8005DD88.s sibling; body reconstructed
- * from Mickey evidence.
- */
+ * from Mickey evidence. */
 s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParticlePool *pool, s32 mode) {
     CircularParticle *particle;
     ParticleSpriteResource *resource;
@@ -827,8 +824,7 @@ s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParti
         excludedFlags = 0;
     }
     firstVertex = *vertices;
-    count = pool->count;
-    if (count > 0) {
+    if (pool->count > 0) {
         do {
             if (particle->type == 2) {
                 flags = particle->flags;
@@ -900,8 +896,7 @@ s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParti
             }
             i++;
             particle++;
-            count = pool->count;
-        } while (i < count);
+        } while (i < pool->count);
     }
     gDPPipeSync((*dList)++);
     gDPSetPrimColor((*dList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);

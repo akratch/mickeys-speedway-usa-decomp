@@ -825,9 +825,9 @@ typedef struct ModelTextureUsage {
     ModelTextureUsageEntry *entries;
 } ModelTextureUsage;
 
-/* Plateau: canonical -O2 -mips2 is 160 instructions versus retail 159, with 156 positional differences from +0x0.
- * The 0x20-byte/six-save candidate misses retail's 0x10-byte/three-save shape after width, scope, gSP, and lifetime variants.
- * A 40-minute permuter improved 4520 to 2815 only through synthetic temporaries and an empty loop; no result was imported. */
+/* Workbench: structure-mismatch; 160 candidate vs 159 target instructions, 156 raw words, first +0x0, frame -0x20 vs -0x10.
+ * Levers: constant audit and prior width/scope/gSP/lifetime/permutation sweeps; a nonvolatile texture-base probe regressed to 163 instructions.
+ * Remains: six-save candidate versus retail three-save register/stack shape; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                    ModelTextureUsage *usage, s32 entryIndex, volatile u32 textureBase) {
