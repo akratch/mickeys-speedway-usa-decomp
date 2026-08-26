@@ -75,17 +75,9 @@ typedef struct O58Unknown {
 #undef NULL
 #define NULL 0
 
-/*
- * Mickey-only mips_to_c scaffold. The nearest permitted donor skeleton is
- * JFG frontKeyboard at only 0.081 masked similarity. Normalized assembly
- * preserves the control flow but collapses most external relocations; the
- * overlay58ExternalReloc calls below therefore represent multiple unresolved
- * call targets and make no symbol-identity claim.
- *
- * NON_MATCHING plateau (2026-08-26): workbench verdict structure-mismatch; best diff 3545 differing words, first mismatch +0x0.
- * Tried constant/global materialization, scalar-width, and target-relocation-symbol levers; no exact candidate.
- * Remaining blockers are the 118-instruction deficit, 440-byte frame excess, and unresolved CFG/liveness/type shape.
- */
+/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 3496 vs 3614 instructions, 3548 raw words different, frames -0x2F0/-0x138, first +0x0.
+ * Levers: exact flag/context parity and constant audit; context lint is clean, but 2106 alignment gaps and 1123 relocation-symbol differences persist.
+ * Remains: collapsed external relocation/type recovery and oversized local frame; GLOBAL_ASM remains canonical. */
 #ifdef NON_MATCHING
 extern O58Unknown *func_80028F54(void);
 extern void func_80036AB0(O58Unknown *state, s32 updateRate);

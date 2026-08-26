@@ -37,11 +37,9 @@ extern s32 o50UnresolvedGlobalReloc;
 extern s16 o50UnresolvedS16TableReloc[];
 extern s32 o50UnresolvedS32TableReloc[];
 
-/* Exact donor scans are negative; this is a Mickey-only m2c control-flow
- * reconstruction pending relocation-name and type recovery. */
-/* Workbench plateau (2026-08-26): structure-mismatch; the best candidate has 1,544 differing comparison words, 1,572 versus 1,575 instructions, and a -416 versus -280 frame.
- * Levers tried: constant-audit and recovered first-call identity; neither changed the candidate codegen or blocking class.
- * Remains: non-save frame surplus and collapsed overlay relocation/type structure. */
+/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 1572 vs 1575 instructions, 1544 raw words different, frames -0x1A0/-0x118, first +0x0.
+ * Levers: exact flag/context parity and constant audit; 501 alignment gaps and 337 relocation-symbol differences persist despite near-exact size.
+ * Remains: unresolved call/data relocation identities and compiler-managed local ownership; GLOBAL_ASM remains canonical. */
 #ifdef NON_MATCHING
 void func_overlay_050_F0000334_1896CA4(void *arg0, s32 arg1) {
     s32 sp114;

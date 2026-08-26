@@ -797,9 +797,9 @@ typedef struct HitRecord {
     u32 flags;
 } HitRecord;
 
-/* NON_MATCHING plateau (2026-08-26): workbench mixed/structure-mismatch; -O2 -mips2 -Wo,-loopunroll,0 gives 1,528/1,542 instructions, 1,462 positional words different, frame -568 vs -312, first +0x0.
- * Levers: flag lattice, inferred stack-layout probe, and typed state-pointer arithmetic; the frame/register/control-flow mismatch remains.
- * Remains: a full typed ABI/frame rewrite; GLOBAL_ASM retained. */
+/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 1596 vs 1542 instructions, 1522 raw words different, frames -0x238/-0x138, first +0x0.
+ * Levers: exact flag/context parity and constant audit; the earliest loop is still unrolled and the typed ABI/frame shape remains divergent.
+ * Remains: m2c field/ABI recovery plus 272 relocation-symbol differences; GLOBAL_ASM remains canonical. */
 #ifdef NON_MATCHING
 void func_overlay_001_F000438C_185076C(f32 *arg0, s32 arg1) {
     f32 *sp130;

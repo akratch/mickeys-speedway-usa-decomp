@@ -115,9 +115,9 @@ extern O101Node24_3A58 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/* NON_MATCHING plateau (2026-08-26): workbench structure-mismatch; -O2 -mips2 -Wo,-loopunroll,0 gives 1,463/1,461 instructions, 1,421 positional words different, frame -80/-80, first +0x34.
- * Levers: flag lattice, typed D_1CC/D_340 bases and array, declaration order, and register hints; no exact output.
- * Remains: the pool/temp register-web cascade and two extra instructions; GLOBAL_ASM retained. */
+/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 1463 vs 1461 instructions, 1421 raw words different, exact -0x50 frame, first structural divergence +0x34.
+ * Levers: exact flag/context parity and constant audit (5 sites), then macro line-assignment variants; context lint is clean.
+ * Remains: node-builder macro structure/register cascade and 330 relocation-symbol differences; GLOBAL_ASM remains canonical. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0003A58_18DF278(void) {
     s32 index;

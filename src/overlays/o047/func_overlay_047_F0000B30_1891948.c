@@ -5,15 +5,9 @@ typedef s32 M2C_UNK;
     (*(type_ptr)((s8 *)(expr) + (offset)))
 #define M2C_BITWISE(type, expr) ((type)(expr))
 
-/*
- * Mickey-only mips_to_c scaffold. The permitted reference scan found no
- * close donor: the nearest masked skeleton is JFG frontKeyboard at 0.057.
- * The extracted assembly does not retain external relocation identities, so
- * overlay47ExternalReloc represents multiple calls and makes no naming claim.
- * Workbench plateau (2026-08-26): structure-mismatch; typed-null and entry-lifetime variants still have 2,218 differing comparison words, 2,238 versus 2,168 instructions, and a -776 versus -640 frame.
- * Levers tried: constant-audit, removal of the artificial static NULL base, and entry float-temporary collapse; the null-base change reduced the residual but did not match.
- * Remains: frame surplus and unresolved call/data relocation plus aggregate-type structure.
- */
+/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 2845 vs 2168 instructions, 2833 raw words different, frames -0x320/-0x280, first +0x0.
+ * Levers: exact flag/context parity, constant audit, and context lint; 1653 alignment gaps and 981 relocation-symbol differences leave a real size/shape mismatch.
+ * Remains: collapsed external call/data relocations and unknown object types; GLOBAL_ASM remains canonical. */
 #ifdef NON_MATCHING
 s16 overlay47ExternalReloc(); /* extern; the scaffold collapses several callees */
 M2C_UNK func_overlay_047_F0002D10_1893B28(void *);  /* extern */
