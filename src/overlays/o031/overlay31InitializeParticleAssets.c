@@ -25,9 +25,9 @@ static void *const overlay31RuntimeCarrier =
 
 /* PROVENANCE: Diddy Kong Racing, src/particles.c (init_particle_assets);
  * semantic source-shape analogue only. Mickey's ROM decides every detail. */
-/* Workbench p5 batch 14: structure-mismatch; exact 0x30 frame, 133/132 instructions, first residual +0xC.
- * Levers: earliest structure bucket and DKR source shape; index/count carriers and fixed-loop forms regressed.
- * Remains: retail stages the count reset before the indexed state base; the candidate stages it afterward. */
+/* Workbench p6 batch 13: structure-mismatch; target/candidate 132/133 instructions, -0x30 frame, first residual +0xC.
+ * Levers: chained assignment canonicalized; a direct index/count split removed the required saved-register web.
+ * Remains: one extra count-address instruction; retail stages a direct count store before the indexed state base. */
 #ifdef NON_MATCHING
 void func_overlay_031_F00002E8_187F808(void) {
     s32 i;
