@@ -1521,12 +1521,9 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F154.s")
 #endif
 #ifdef NON_MATCHING
-/*
- * One instruction short: 262 of 276 aligned target rows match. The target has
- * an otherwise redundant branch at +0xA4; IDO also places the flags spill at
- * sp+0x44 and the rotation pair at sp+0x30, while this spelling swaps them.
- * The full flag lattice and a bounded canonical-mips2 permuter found no exact
- * alternative; the 0x48 frame and all integer/FP register lanes match.
+/* Workbench: operand-mismatch, exact 276 instructions/frame; 11 stack-offset words differ, first +0x254.
+ * Explicit resource if/else restored the target branch; declaration, aggregate, lifetime, volatile, and scoped-flags variants did not move homes.
+ * Remains: target flags home at sp+0x44 and rotation pair at sp+0x30; this spelling swaps them.
  *
  * PROVENANCE: structure cross-checked against JFG's assembly-only
  * asm/nonmatchings/particles/func_800608EC.s sibling; body reconstructed
@@ -1547,9 +1544,10 @@ void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, Parti
         particle->localY = trigger->value1C;
         particle->localZ = trigger->value1E;
     } else {
-        resource = NULL;
         if (((ParticleEmitterPointSet *)(object->header + object->pointSetIndex))->transformedPoints == 0) {
             resource = object->resources[object->resourceIndex];
+        } else {
+            resource = NULL;
         }
         if (resource != NULL && resource->points != NULL) {
             particle->localX = resource->points[pointIndex][0];
@@ -2137,9 +2135,11 @@ s32 func_80040878(CircularParticle *particle, s32 updateRate) {
 done:
     return 0;
 }
-/* Workbench: structure-mismatch, exact 302-word count but 0x70/0x68 frames; 160 words differ, first +0x0.
- * Levers 11 and 26 tried local width/ablation, register hints, and short/long config carriers; none improved baseline.
- * The 8-byte non-save excess and missing pool web still rotate temp lanes; PROVENANCE: adapted from DKR src/particles.c:update_line_particle and cross-checked against JFG's assembly-only sibling. */
+/* Workbench: structure-mismatch, exact 302 instructions; 160 words differ, first +0x0, frames 0x70/0x68.
+ * Volatile trigger homing fixed the frame but added four instructions; width, register, and carrier levers remain eliminated.
+ * Remains: target uses the entry-stack trigger home without a register carrier; temp/fp webs and local homes still diverge. */
+/* PROVENANCE: adapted from DKR src/particles.c:update_line_particle and
+ * cross-checked against JFG's assembly-only sibling. */
 #ifdef NON_MATCHING
 void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) {
     ParticleTypeDescriptor *descriptor;
