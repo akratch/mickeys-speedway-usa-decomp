@@ -100,6 +100,7 @@ DATA_RODATA_OWNERSHIP = {
     15: [(0x0, 0x50, "overlay_015")],
     42: [(0x0, 0x10, "overlay_042")],
     77: [(0x0, 0x30, "overlay_077")],
+    79: [(0x0, 0x60, "func_overlay_079_F0000134_18CD0D4")],
 }
 
 # When a C owner's initialized input follows its text, IDO's measured .text

@@ -2437,7 +2437,6 @@ segments:
       - [0x18CE230, c, func_overlay_079_F0001290_18CE230]
       - [0x18CE41C, c, overlay79InitState]
       - [0x18CE43C, c, overlay79UpdateTimers]
-      - [0x18CE480, bin, overlay_079_data_rodata]
       - [0x18CE4E0, bin, overlay_079_reloc1]
       - [0x18CE778, bin, overlay_079_reloc2]
 

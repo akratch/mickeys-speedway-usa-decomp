@@ -1834,4 +1834,5 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 | 15 | data/rodata `+0x0..+0x50`; BSS `+0x0..+0xA0` | `overlay_015.c` | configured object and linked ROM exact |
 | 57 | BSS `+0x0..+0x1C0` | `overlay57UpdateModeTrigger.c` | configured BSS exact; updater text plateau retained |
 | 59 | retained switch table `+0x76C..+0x784` | `overlay59Advance.c` | candidate relocations exact to raw table; text plateau retained |
+| 79 | data/rodata `+0x0..+0x60` | `func_overlay_079_F0000134_18CD0D4.c` | configured initialized aggregate exact; function plateau retained |
 | 99 | retained private table `+0xB0..+0xC0` | `overlay99ApplySegment.c` | candidate relocations exact to raw table; text plateau retained |
