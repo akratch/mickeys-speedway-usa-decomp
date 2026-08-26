@@ -152,6 +152,9 @@ void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
     }
 }
 
+/* Workbench plateau: structure-mismatch, 528/556 instructions, exact 0x80 frame,
+ * 509 positional words, first target divergence +0x54. Command-store, statement-order,
+ * u8-spacing, and stack-home probes did not close the setup web; register/CFG drift remains. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source-level organization was adapted from Diddy Kong

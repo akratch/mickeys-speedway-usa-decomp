@@ -73,10 +73,9 @@ extern void func_overlay_011_F0002714_186AF5C(s32 updateRate);
         gO11VertexReloc++; \
     } while (0)
 
-/* DKR v77/v80 and JFG contain no matching Overlay 11 grid renderer donor. */
-/* Workbench plateau: structure-mismatch; 532/562 instructions, 0x190 vs 0x178
- * frame, 535 positional words, first +0x0. updateRate register qualification
- * was neutral; flattened grid/alpha topology and table ownership remain. */
+/* Workbench plateau: structure-mismatch, 532/562 instructions, target/candidate frames
+ * 0x178/0x190, 535 positional words, first +0x0. Call/ABI and stack-home inspection
+ * left the 0x78-byte grid/table schedule deficit unresolved. */
 #ifdef NON_MATCHING
 void func_overlay_011_F0000150_1868998(O11Gfx **displayList, void **matrix,
                                         O11Vertex **vertices,

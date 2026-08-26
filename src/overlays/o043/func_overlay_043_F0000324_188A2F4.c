@@ -112,7 +112,8 @@ extern s32 D_ACTIVE;
 extern Overlay43SortRecord D_FALLBACK;
 extern Overlay43SortRecord D_D8[];
 extern f32 D_20;
-extern Overlay43CloneState *overlay43GetCloneState(Overlay43State *state);
+extern Overlay43CloneState *func_overlay_043_F0000000_1889FD0(
+    Overlay43Input *input);
 extern s16 overlay43Atan2(f32 x, f32 y);
 extern f32 overlay43Sqrt(f32 value);
 extern s16 overlay43InterpolateWeighted(s16 from, s16 to, f32 fraction,
@@ -132,11 +133,9 @@ extern void overlay43ScaleMatrix(s16 *angles, f32 *matrix,
 extern void func_overlay_043_F0000BE4_188ABB4(
     Overlay43Input *input, Overlay43SortRecord **records, s32 recordCount);
 
-/*
- * Workbench plateau: structure-mismatch; 558/560 instructions, exact 0x178
- * frame, 511 positional words, first +0x60. Definition and record-count
- * register lifetimes were neutral; saved-web and loop allocation still drift.
- */
+/* NON_MATCHING plateau: direct Mickey clone-initializer call gives 529 positional
+ * words, 557/560 instructions, exact 0x178 frame; workbench first diverges at +0x40.
+ * Register/stack count webs and the record-loop CFG remain structurally different. */
 #ifdef NON_MATCHING
 s32 func_overlay_043_F0000324_188A2F4(
     Overlay43Input *input,
@@ -178,7 +177,7 @@ s32 func_overlay_043_F0000324_188A2F4(
         return 1;
     }
     definition = model->definition;
-    clone = overlay43GetCloneState(state);
+    clone = func_overlay_043_F0000000_1889FD0(input);
     recordCount = 0;
 
     if (useNodes != 0) {
