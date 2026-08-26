@@ -785,8 +785,8 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
 }
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG src/menu.c supplies the assembly skeleton; this body is Mickey-derived.
- * Workbench: the canonical TU flag set yields 20/37 words; the flag sweep's non-loop-unrolled candidate is word-exact but has 18 relocation identities differing.
- * Levers: flag lattice and per-offset BSS symbol bindings; the TU-wide loop-unroll override serves the neighboring menu initializer. */
+ * Workbench: canonical TU is 20/37 words; a no-loop-unroll sweep is word-exact but has 18 relocation identities differing.
+ * Levers: flag lattice, scalar/unrolled labels, and BSS bindings; the needed TU-wide flag damages neighboring func_80038878. */
 void func_8003968C(void) {
     s32 controller;
 

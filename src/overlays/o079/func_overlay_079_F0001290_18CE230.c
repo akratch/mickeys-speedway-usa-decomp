@@ -52,9 +52,9 @@ extern void overlay79TriggerReloc(void);
 extern s32 gOverlay79CounterReloc;
 extern u8 gOverlay79FlagsReloc[];
 
-/* Workbench verdict: allocation mismatch; 12 aligned register words from +0xC8 in an exact 123-instruction frame.
- * Levers tried: scoped flags lifetime, linked-state type/direct use, declaration/assignment forms, flag lattice, and bounded permutation.
- * Remains: linked-state v0/v1 pool coloring and the independent counter/flag temp FIFO; shared-overlay relocations are contextual. */
+/* Workbench: mixed structure/schedule/register; 12 source register words from +0xC8 in an exact 123-instruction frame.
+ * Levers: scoped lifetimes, linked-state types/use, declaration forms, full flag lattice, and bounded permutation.
+ * Remains: linked-state v0/v1 pool coloring, counter/flag temp FIFO, and shared-overlay relocation layout. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
     Overlay79Node *node;

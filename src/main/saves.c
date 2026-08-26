@@ -408,8 +408,8 @@ void func_8002C8B4(s32 arg0, s32 arg1, void *arg2, s32 arg3) {
     func_80070030(arg0, (u8) arg1, arg2, arg3);
 }
 #ifdef NON_MATCHING
-/* Workbench verdict: allocation mismatch, register-permutation; 6/115 words from +0x50, exact frame.
- * Levers tried: local order/type, slot-count lifetime, statement grouping, and 30-minute bounded permutation.
+/* Workbench: register-permutation; 6/115 words differ first at +0x4C, with frame and relocations exact.
+ * Levers: local order/type, slot-count lifetime, statement grouping, full flag lattice, and bounded permutation.
  * Remains: the slot/counter callee-saved tie-break; forced-color probing found no source-stable closure. */
 /* Mickey-derived serialization of one 0x94-byte save window. */
 void func_8002C94C(s32 saveIndex) {
