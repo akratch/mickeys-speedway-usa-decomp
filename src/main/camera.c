@@ -1023,9 +1023,9 @@ void func_80022E80(CameraScaledTransform *transform) {
  * PROVENANCE: JFG's public src/camera.c identifies the camDoSprite role;
  * this substantially different body is reconstructed from Mickey-only data.
  *
- * Workbench plateau: structure-mismatch, 365/369 instructions, exact 0xB0 frame, 217 positional words, first +0x2C.
- * Levers tried: constant audit, spill census, declaration/aggregate alignment, and angle-product lifetime; volatile cut 80 words.
- * Remaining: twelve-byte coordinate-home shift, four-instruction deficit, final Gfx schedule; ten relocations misalign downstream.
+ * Workbench plateau: structure-mismatch; 365/369 instructions, exact 0xB0 frame, 216 positional words, first +0x2C.
+ * Levers: matrix-scale lifetime split corrected the FP pool; phase, mask, tail-idiom, and stack variants regressed.
+ * Remaining: twelve-byte coordinate-home shift, four-instruction deficit, final Gfx schedule, and ten relocation shifts.
  */
 void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
                    CameraSpriteAnchor *anchor, f32 *opacity,
@@ -1042,6 +1042,7 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
     f32 rotatedX;
     f32 rotatedZ;
     f32 cosine;
+    f32 matrixScale;
     f32 horizontal;
     CameraScaledTransform transform;
     f32 sine;
@@ -1118,9 +1119,9 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
         D_800CF220[0][1] = -D_800CF220[0][1];
         D_800CF220[0][2] = -D_800CF220[0][2];
     }
-    cosine = sprite->matrixScale;
-    if (cosine != 1.0f) {
-        func_80029AB8(D_800CF220, cosine);
+    matrixScale = sprite->matrixScale;
+    if (matrixScale != 1.0f) {
+        func_80029AB8(D_800CF220, matrixScale);
     }
     mtxf_mul(D_800CF220, D_800CF2B8, D_800CECD8);
     mtxf_mul(D_800CECD8, D_800CED18, D_800CF220);

@@ -91,11 +91,9 @@ extern void mainChangeLevel();
 extern void func_800005CC(f32, s32);
 
 #ifdef NON_MATCHING
-/* NON_MATCHING plateau (2026-08-25): after the full flag lattice and six
- * structural passes, -O2 -mips2 -32 -Wab,-r4300_mul is 0x18 bytes short
- * and differs in 445/581 relocation-masked words; the first mismatch is
- * +0x3C. The opening fade CFG and frame agree, but the address-taken object
- * context and later display/transition lifetimes still do not. */
+/* Workbench plateau: structure-mismatch; 575/581 instructions, exact 0xE0
+ * frame, 445 positional words, first +0x3C. Scalar address-taken context was
+ * frame-neutral; display/transition allocation and relocation binding remain. */
 /* Mickey-local reconstruction. The display-list and transition call roles
  * are established by this overlay's relocation records; the object layout is
  * shared with the resident player-control code. */

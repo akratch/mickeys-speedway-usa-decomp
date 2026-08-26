@@ -192,14 +192,9 @@ extern void func_8003A754(void);
 extern void func_8005AD64(O57Spawned *spawned, s32 mode, s32 index,
                           s32 valueBits);
 
-/*
- * Plateau (2026-08-25): canonical -O2 -mips2 is 8 bytes short and has
- * 252/595 shared candidate words identical, first differing at +0x8. The
- * full flag lattice and ten bounded structural variants reproduced the
- * resource loops, five-case switch, and two descriptor lifetimes, but not
- * the target's 0x78-byte stack frame. IDO retains a larger local-allocation
- * region, shifting the saved-register and whole-function schedule.
- */
+/* Workbench plateau: structure-mismatch; 594/597 instructions, 0xA0 vs 0x78
+ * frame, 345 aligned words, first +0x8. Packet lifetime/scope was frame-neutral;
+ * removing the target-unmatched final-packet flag store is the best variant. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0000000_18A3BF8(void) {
     u8 choiceMask;
@@ -494,7 +489,6 @@ void func_overlay_057_F0000000_18A3BF8(void) {
         finalPacket.byte0A = 0;
         finalPacket.state = 0;
         finalPacket.byte0B = 0x80;
-        finalPacket.flags = 0;
         finalPacket.x = gO57SpawnPairs3E8Reloc[i].first;
         finalPacket.y = gO57SpawnPairs3E8Reloc[i].second;
         spawned = func_8000590C(&finalPacket, 0);
@@ -508,4 +502,3 @@ void func_overlay_057_F0000000_18A3BF8(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/func_overlay_057_F0000000_18A3BF8/func_overlay_057_F0000000_18A3BF8.s")
 #endif
-

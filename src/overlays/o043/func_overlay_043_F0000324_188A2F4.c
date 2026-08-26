@@ -133,11 +133,9 @@ extern void func_overlay_043_F0000BE4_188ABB4(
     Overlay43Input *input, Overlay43SortRecord **records, s32 recordCount);
 
 /*
- * NON_MATCHING plateau: the default -O2/-mips2 candidate has the exact 0x178
- * frame and first differs at +0x60, but is 8 bytes short with 511/560
- * positional words different. The definition pointer is stack-homed instead
- * of held in $fp; the record loops and synthetic fallback aliases then produce
- * different register lifetimes. The nearest JFG skeleton is assembly-only.
+ * Workbench plateau: structure-mismatch; 558/560 instructions, exact 0x178
+ * frame, 511 positional words, first +0x60. Definition and record-count
+ * register lifetimes were neutral; saved-web and loop allocation still drift.
  */
 #ifdef NON_MATCHING
 s32 func_overlay_043_F0000324_188A2F4(

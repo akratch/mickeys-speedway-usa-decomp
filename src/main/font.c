@@ -159,6 +159,9 @@ void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
  * instructions, m2c draft, fields, control bytes, and display-list words
  * determine this candidate.
  */
+/* Workbench blocked: the full-TU candidate stops on duplicate locals in adjacent func_8004BA8C, so no valid object was produced.
+ * Levers: no function edit; repairing that unrelated translation-unit error is outside this assignment.
+ * Remaining: compile the intact TU, then diagnose this function against its target object. */
 void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
                    char *text, s32 alignmentFlags) {
     s32 savedFont;

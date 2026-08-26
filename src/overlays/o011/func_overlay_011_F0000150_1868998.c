@@ -74,9 +74,9 @@ extern void func_overlay_011_F0002714_186AF5C(s32 updateRate);
     } while (0)
 
 /* DKR v77/v80 and JFG contain no matching Overlay 11 grid renderer donor. */
-/* Plateau (2026-08-25): -O2/-mips2 is 0x78 short; 535/562 words differ, first +0x0.
- * Workbench: structure-mismatch; target/candidate frames are 0x178/0x190.
- * The table at data +0x238..+0x250 awaits a natural exact C body/rodata owner. */
+/* Workbench plateau: structure-mismatch; 532/562 instructions, 0x190 vs 0x178
+ * frame, 535 positional words, first +0x0. updateRate register qualification
+ * was neutral; flattened grid/alpha topology and table ownership remain. */
 #ifdef NON_MATCHING
 void func_overlay_011_F0000150_1868998(O11Gfx **displayList, void **matrix,
                                         O11Vertex **vertices,

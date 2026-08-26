@@ -194,9 +194,9 @@ extern f32 overlay1MeasureChoice(f32 first, f32 second);
 
 #define CHOICE_WORLD ((O1ChoiceState *)D_1DA0)
 
-/* Workbench plateau: structure-mismatch; 447/446 instructions, exact 0x90 frame, 360 positional words, first +0xC.
- * Levers tried: constant audit, typed world/table access, count lifetime, declaration order, path width, and loop spelling.
- * Remaining: one extra instruction, 85 structural and 147 register-class rows; 64 relocation symbols remain unbound. */
+/* Workbench plateau: structure-mismatch; prior best 447/446 instructions, exact 0x90 frame, first +0xC; current target aliases overlay1ChoosePath.
+ * Levers: constants, typed world/table access, count lifetime, declaration order, path width, and loop spelling; full-TU rebuild is separately blocked.
+ * Remaining: establish the unique F0003750 symbol, repair unrelated tail-TU declarations, then rerun the valid candidate comparison. */
 #ifdef NON_MATCHING
 void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
     O1ChoiceState *otherState;
