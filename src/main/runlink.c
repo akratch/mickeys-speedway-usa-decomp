@@ -672,9 +672,9 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
         ((void (*)(void)) (overlay->vramBase + overlay->resumeFunction))();
     }
 }
-/* Plateau (2026-08-25, batch 35): -O2 -mips2 emits 183/184 words; 117 differ, first +0x0.
- * The candidate frame is 0x68 versus 0x58; overlay reuse and the direct patch ternary are best.
- * Declaration, alias, relocation-lifetime, and 40-minute permutation probes found no exact form. */
+/* Workbench plateau: structure-mismatch, 117 words; 183/184 instructions, frame -104 vs -88, first +0x0.
+ * Levers: cached base, declaration/register, relocation lifetime, flags, and bounded permutation variants.
+ * Remains: 16-byte frame/home excess, relocation bindings, and patch-loop schedule. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published

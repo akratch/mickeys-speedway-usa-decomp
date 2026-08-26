@@ -87,18 +87,9 @@ save/restore pair, while the target caller-saves that value around
 untried family is the documented pool-position levers 8-13, not another flag
 or branch-shape permutation.
 
-`runlinkFreeCode` (`0x80032338`) remains `NON_MATCHING` after ten coherent
-source variants, the 119-combination flag lattice, and a bounded MIPS2
-permuter pass. The best JFG-guided candidate has the exact 184-instruction
-boundary but 137 masked positional differences, beginning with its `0x68`
-frame allocation at `+0x0` against the target's `0x58`. The high-level control
-flow and relocation semantics agree; the remaining blocker is IDO's local-home
-and saved-register allocation. In particular, the candidate assigns separate
-stack homes to the selected and scanned overlay pointers where the target
-reuses one home, while source spellings that force that reuse add memory
-traffic or lose instructions. The stock `-O2 -mips2 -32` flags remained best;
-permuter variants with lower internal scores either regressed the full-TU
-comparison or changed relocation identities and were rejected.
+`runlinkFreeCode` remains `NON_MATCHING`: 117 words differ, 183/184 instructions, frame -104 versus -88, first `+0x0`.
+Levers covered cached base, declaration/register, relocation lifetime, flags, and bounded permutation variants.
+Remaining: frame/home excess, relocation bindings, and patch-loop schedule.
 
 `runlinkResumeCode` (`0x80032BF8`) remains `NON_MATCHING` after ten coherent
 source variants, the 119-combination flag lattice, and a bounded MIPS2

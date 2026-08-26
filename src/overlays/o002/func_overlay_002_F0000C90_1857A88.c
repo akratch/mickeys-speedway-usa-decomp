@@ -67,9 +67,9 @@ extern void overlay2BuildPhaseReloc(void *state);
 extern void overlay2BuildReleaseReloc(void *memory);
 extern void overlay2BuildResizeReloc(s32 size, void *memory, s32 tag);
 
-/* Deferred near-miss (2026-08-25): exact 0x58C, improved 127 to 115 words
- * from +0x0 by delaying linked truncation and matching copy post-decrement.
- * The flag lattice was neutral; a 6/40-minute permuter reached score 975. */
+/* Workbench plateau: structure-mismatch, 98 words; 355/355 instructions, frame -96 vs -104.
+ * Lever: reversed the leaf-line pointer addition; flags, lifetime/scoping, copy, and permuter levers did not close.
+ * Remains: 8-byte home/frame, overlay relocation identities, and allocator/schedule residual. */
 /*
  * PROVENANCE: Jet Force Gemini src/overlays/o142/overlay_142.c identifies the
  * close assembly-backed sibling as CreateBSP. No donor C body exists there;
@@ -208,8 +208,8 @@ void func_overlay_002_F0000C90_1857A88(Overlay2BuildObject *object,
                         ((s32)outputLine - (s32)object->lines) / stride;
                     node->data.leaf.count = region->count;
                     line = (Overlay2BuildLine *)(
-                        (s32)gOverlay2BuildLinesReloc +
-                        (region->start * stride));
+                        (region->start * stride) +
+                        (s32)gOverlay2BuildLinesReloc);
                     lineRemaining = region->count;
                     if (lineRemaining--) {
                         do {

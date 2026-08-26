@@ -818,9 +818,9 @@ void func_8004C5A4(char *input, char *output, s32 number) {
     } while (currentChar);
 }
 
-/* NON_MATCHING plateau: mixed structure/register verdict; 105/146 words differ from +0x0, C is 8 bytes short.
- * Tried the 119-flag lattice, allocation widths/qualifiers, copy AST/volatile, and block/pad homes.
- * The 0x70 frame matches; the saved-header copy schedule and initial pool allocation remain. */
+/* Workbench plateau: structure-mismatch, 105 words; 144/146 instructions, frame -112, first +0x0.
+ * Levers: 119 flags, widths/qualifiers, direct-global/font-index, copy AST/volatile, and block/pad homes.
+ * Remains: initial pool setup and saved-header copy schedule. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's

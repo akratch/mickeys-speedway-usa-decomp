@@ -109,9 +109,9 @@ void func_8001C088(CameraTrackedObject *value) {
         D_80079BCC--;
     }
 }
-/* Workbench: mixed frame/allocation residual, 106/108 instructions; first mismatch +0x0.
- * Tried register-qualified parameters/locals, named aliases, and empty-read pool levers.
- * The second FP callee-save web remains absent, leaving a 0x10 rather than 0x18 frame. */
+/* Workbench plateau: allocation-mismatch, 9 register words; 108/108 instructions, frame -24.
+ * Lever: in-place radius squares; flags, aliases, declaration forms, and a 30-minute permuter found no exact color.
+ * Remains: one v1/a2 loop web from the pool-position/forced-color tie-break. */
 #ifdef NON_MATCHING
 void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
     CameraOverrideSlot *slot;
@@ -120,8 +120,8 @@ void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
     CameraBounds *bounds;
     f32 deltaX;
     f32 deltaZ;
-    f32 trackedRadiusSquared;
-    f32 radiusSquared;
+    f32 trackedRadius;
+    f32 radius;
     s32 index;
 
     if (slotIndex >= 0 && slotIndex < 4) {
@@ -130,10 +130,11 @@ void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
         if (object != 0) {
             bounds = slot->bounds;
             if (bounds != 0) {
+                trackedRadius = bounds->trackedRadius;
                 deltaX = object->x - x;
                 deltaZ = object->z - z;
-                trackedRadiusSquared = bounds->trackedRadius * bounds->trackedRadius;
-                if (trackedRadiusSquared <
+                trackedRadius *= trackedRadius;
+                if (trackedRadius <
                     ((deltaX * deltaX) + (deltaZ * deltaZ))) {
                     slot->object = 0;
                     object = 0;
@@ -151,11 +152,11 @@ void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
                 do {
                     object = *current;
                     bounds = object->bounds;
-                    radiusSquared = bounds->radius * bounds->radius;
+                    radius = bounds->radius;
                     deltaX = object->x - x;
                     deltaZ = object->z - z;
-                    if (((deltaX * deltaX) + (deltaZ * deltaZ)) <
-                        radiusSquared) {
+                    radius *= radius;
+                    if (((deltaX * deltaX) + (deltaZ * deltaZ)) < radius) {
                         slot->object = object;
                         slot->bounds = bounds;
                         if ((bounds->flags & 0x4000) &&

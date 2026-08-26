@@ -265,14 +265,9 @@ broad control-flow divergence after the initial null check. The flag lattice
 kept `-O2 -mips2` best; the unresolved issue is source organization and live
 ranges across the scissor and glyph loops, not a compiler-flag mismatch.
 
-`func_8004C690` has a readable JFG-derived cache-allocation candidate under
-`NON_MATCHING`. Its best stock-flag build has the target's 112-byte frame and
-is one instruction longer (147 versus 146); the first mismatch is at function
-offset `+0x0`. The candidate keeps the character in saved register `$s0`,
-adding a save slot and broadly changing allocation. Struct-copy and explicit
-pointer-loop variants did not reproduce the target's four-word header-copy
-loop, so the remaining blocker is source shape and live ranges rather than
-semantics or constants.
+`func_8004C690` remains tier-D `NON_MATCHING`: 105/146 words differ, 144/146 instructions, frame -112, first `+0x0`.
+Levers covered flags, widths/qualifiers, direct-global/font-index, copy AST/volatile, and block/pad homes.
+Remaining: initial pool setup and saved-header copy schedule.
 
 `func_8004D40C`: workbench mixed structural/register; 109 words, five differences, first `+0x5C`.
 Structure-buckets and distinct-initial-value forms compile identically under the stock flag lattice.
@@ -938,24 +933,9 @@ per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 Caching the element fixes the commutative row, but pool slot 18 keeps the base/value `a0`/`a1` web crossed.
 Switch relocations `+0x4C`/`+0x54` bind anonymous `.rodata`, not `jtbl_80082734`; asm remains canonical.
 
-`func_80038878` remains a **tier-D NON_MATCHING plateau** over **0x154 bytes /
-85 words** at ROM `0x39478`. JFG's same-position `initFront` routine supplies
-the role and structural comparison but remains assembly, so the candidate is
-Mickey-derived and retains its placeholder name. Under
-`-Wo,-loopunroll,0`, the best candidate has the exact `0x18`-byte frame and
-instruction count, but differs in **66/85 positional words**, first `+0x14`.
-IDO reuses the address formed for the initial `D_800D3150` allocation store,
-where the target rematerializes it before walking the pointer table; that
-early lifetime difference cascades into the later clear and sentinel-loop
-address schedule. The target also forms one shared high address for four
-descending control-mode stores, while scalar declarations emit four address
-pairs and an array declaration loses three required constant loads. The stock
-flags expand the reset loops; the full flag lattice makes the no-unroll form
-the only exact-size result. Ten coherent type, expression-tree, pointer-reuse,
-scalar/array, and volatile variants did not satisfy the word and relocation
-gates. A later chained-assignment retry made the function three instructions
-longer and was rejected. Canonical code remains assembly and no TU flag
-override is adopted.
+`func_80038878` remains tier-D `NON_MATCHING`: 66/85 words differ, first `+0x14`; frame and instruction count are exact.
+Levers covered first-loop pointer/cache, globals/volatile, type/order, flags, and the bounded permuter; JFG remains the structural lead.
+Remaining: initial global-address allocation, later loop webs, and relocation bindings.
 
 | Function | Exact result |
 |---|---|
@@ -1414,9 +1394,9 @@ The tier-B/D `rain_sound` adds **0xC0 bytes / 48 words** at ROM `0x3CF70`.
 JFG's camera-relative sound positioning compiles instruction-exact at canonical
 `-O2 -mips2 -32`, with all 13 relocations and the linked ROM range agreeing.
 
-`doWeather`: workbench `structure-buckets`, 89 positional words differ, first
-`+0x7C`; compound updates cleared constant/commutative classes, while explicit
-return and line-assignment probes were inert. Candidate remains 168/169 words.
+The tier-B/D `doWeather` adds **0x2A4 bytes / 169 words** at ROM `0x3BE1C`.
+JFG's weather transition and render dispatch compile instruction-exact at
+canonical `-O2 -mips2 -32`, with all 61 relocations and the linked ROM range agreeing.
 
 `rain_init` and `free_rain_memory` share a synthetic static
 `TrapDanglingJump` binding with `rain_update`, but require incompatible integer,
@@ -1454,7 +1434,7 @@ the candidates remain preserved behind `NON_MATCHING`.
 | `0x3B6F0` | `0x420` | `setupWeather` | B/D name; exact C, 264 words, 41 relocs |
 | `0x3BB10` | `0x120` | `snow_init` | B/D name; exact C, 72 words, 8 relocs |
 | `0x3BC30` | `0x1EC` | `changeWeather` | B/D name; exact C, 123 words, 5 relocs |
-| `0x3BE1C` | `0x2A4` | `doWeather` | B/D; workbench `structure-buckets`, 89 positional words differ, first `+0x7C`; candidate 168/169 words |
+| `0x3BE1C` | `0x2A4` | `doWeather` | B/D name; exact C, 169 words, 61 relocs |
 | `0x3C0C0` | `0x238` | `snow_render` | B/D |
 | `0x3C2F8` | `0xEC` | `rain_init` | B/D; plateau, 59 words exact, one reloc identity at `+0xA0` |
 | `0x3C3E4` | `0x84` | `free_rain_memory` | B/D; plateau, 33 words exact, one reloc identity at `+0x68` |
@@ -2577,7 +2557,7 @@ call graph isolates one namesake.
 | `0x8001BE0C` | `0x248` | `func_8002EDA0` | B: camera-pointer lookup then the preceding routine; JFG placeholder, retain `func_` |
 | `0x8001C054` | `0x34` | `cameraAddOverrideObject` | D + matched C: exact 24-entry append under O2/mips2; JFG comparison remains structural, so retain `func_` |
 | `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D + matched C: exact 24-entry search-and-delete under O2/mips2; JFG comparison remains structural, so retain `func_` |
-| `0x8001C114` | `0x1B0` | `func_8002F0E8` | Workbench plateau: structure mismatch, aligned residual 39, 106/108 instructions, first mismatch `+0x0`. Else-if duplication and radius-square temporaries restored target operation order; the frame and FP/GPR register web remain after a 30-minute permuter. JFG has only a placeholder body; retain `func_` |
+| `0x8001C114` | `0x1B0` | `func_8002F0E8` | Workbench plateau: allocation mismatch, 9 register-only words, 108/108 instructions, frame -24; retain `func_` |
 | `0x8001C2C4` | `0x8` | — | Matched C: exact empty routine under O2/mips2; retain `func_` |
 | `0x8001C2CC` | `0x8` | — | Matched C: exact empty routine under O2/mips2; retain `func_` |
 | `0x8001C2D4` | `0x4C` | `func_80031F60` | A + matched C: 19/19 unmasked JFG words and independently reconstructed byte-clear C are exact; placeholder rule retains Mickey's `func_` |
