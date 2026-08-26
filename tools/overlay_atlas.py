@@ -95,6 +95,7 @@ EXACT_DONOR_OVERLAYS = {
 # one collision-free `(overlay, offset)` source of truth.
 DATA_RODATA_OWNERSHIP = {
     22: [(0x0, 0x60, "overlay22RemoveObject")],
+    45: [(0x0, 0x80, "func_overlay_045_F0000764_188CBBC")],
     # Offsets are relative to data_rodata. The source must already own a C text
     # row: its compiled .data is linked before any remaining raw initialized
     # tail, so no duplicate C subsegment is emitted at the section boundary.
@@ -108,6 +109,7 @@ DATA_RODATA_OWNERSHIP = {
 # Keep the row in the atlas so padding is never counted as executable C credit.
 COMPILER_TEXT_ALIGNMENT_PADDING = {
     22: "overlay_022_padding",
+    45: "overlay_045_padding",
     15: "overlay_015_padding",
 }
 
