@@ -73,9 +73,9 @@ extern s32 func_overlay_046_F0000874_188EC6C();
         O46_SHIFTL(alpha, 0, 8); \
 }
 
-/* Workbench: allocation-mismatch, 54 masked/70 raw words; first +0x78.
- * Flag lattice, temp/materialization variants, and a bounded -mips2 permuter tried.
- * The packet carrier is best; temp slot 7 and pool slot 58 still diverge. */
+/* Workbench verdict=allocation-mismatch; 54 masked/70 raw words differ in the exact 317-word frame, first real mismatch +0x78.
+ * Flag lattice, temp/materialization variants, and the bounded -mips2 permuter were tried; mixed residual is schedule/register allocation.
+ * Remains: packet-carrier lifetime at temp slot 7 and pool slot 58, with overlay relocation aliases. */
 #ifdef NON_MATCHING
 void func_overlay_046_F0000120_188E518(s32 amount) {
     s32 matched;
