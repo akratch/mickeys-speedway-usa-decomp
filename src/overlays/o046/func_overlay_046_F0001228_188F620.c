@@ -86,9 +86,9 @@ extern void func_800349A4(Overlay46DisplayCommand **commands, void *texture,
         O46_SHIFTL(alpha, 0, 8); \
 }
 
-/* Workbench p3: structure-mismatch; 437/461 candidate/target instructions, 415 words.
- * Lever: constant audit, split update-rate lifetime, and D_494 alias; both forms regressed.
- * Remains: exact frame/prefix to +0x5C, then emitter CFG and pool/temp divergence. */
+/* Workbench p4: structure-mismatch; 437/461 candidate/target instructions, 415 words, frame -240.
+ * Lever: unsuffixed D_494/D_1450/D_1458/D_498 lifetime reached 439-442 instructions and 450-452 words; reverted.
+ * Remains: update-rate register web, emitter CFG, and pool/temp relocation divergence. */
 #ifdef NON_MATCHING
 void func_overlay_046_F0001228_188F620(s32 updateRate) {
     s32 i;

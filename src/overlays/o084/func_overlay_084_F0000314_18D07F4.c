@@ -95,9 +95,9 @@ extern s16 overlay84VerticalAngle(f32, f32, f32);
 extern s32 overlay84Atan2(f32, f32);
 extern s16 overlay84BlendAngle(s16, s16, f32);
 
-/* Plateau (2026-08-25): 468/464 instructions; 449 positional words differ from +0x3C.
- * Guard-scoped scale reached 376 but changed volatile-read semantics, so was rejected.
- * Workbench: structure-mismatch; 16-bit angle and stack-home variants lost. */
+/* Workbench p4: structure-mismatch; 468/464 candidate/target instructions, 449 positional words from +0x3C.
+ * Lever: scale declaration/lifetime reorder changed the frame to -96; 16-bit angle and stack-home forms remain rejected.
+ * Remains: node reload/scale materialisation prefix and downstream register/constant cascade. */
 #ifdef NON_MATCHING
 void func_overlay_084_F0000314_18D07F4(Overlay84UpdateObject *object,
                                        Overlay84UpdateState *state,

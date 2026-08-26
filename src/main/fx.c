@@ -200,9 +200,9 @@ void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047304.s")
-/* Workbench p3: structure-mismatch; 254/251 candidate/target instructions, 236 words from +0x0.
- * Lever: constant audit plus array order, lifetime, and combined-buffer forms.
- * Remains: candidate +3 instructions and +16-byte frame with a register/CFG cascade. */
+/* Workbench p4: structure-mismatch; 456/251 candidate/target instructions, 440 raw words, frames -272/-248.
+ * Lever: target loop/type spelling and signed-angle/local-type variants retained the compiler's three-vertex unroll; m2c shape was worse.
+ * Remains: vertex-loop CFG and 24-byte frame/register cascade; the JFG sibling is assembly-only. */
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's corresponding fxMakeConeTextureCoords body is
  * also assembly-only and supplies no adaptable C source. */

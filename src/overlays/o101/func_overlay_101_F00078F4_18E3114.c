@@ -80,11 +80,9 @@ extern Node24 D_540[];
 extern void *func_overlay_101_F0000000_18DB820();
 extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
 
-/* Ownership: the shared builder BSS (+0x0..+0xFD0) is defined by the F571C
- * TU; this consumer uses that owner for the root and node pools. */
-/* Workbench p3: structure-mismatch; 524/525 candidate/target instructions, 469 words from +0x4.
- * Lever: constant audit and retained-node forms; target evidence requires post-call recompute.
- * Remains: the saved-node web plus root/node register and relocation schedule; frame exact. */
+/* Workbench p4: structure-mismatch; 524/525 candidate/target instructions, 469 words from +0x4, frame -64.
+ * Lever: retained-node/local-lifetime forms were checked against the target saved-register map; no exact source form emerged.
+ * Remains: saved-node web plus root/node register and relocation schedule. */
 #ifdef NON_MATCHING
 void func_overlay_101_F00078F4_18E3114(void) {
     Node32 *node32;
