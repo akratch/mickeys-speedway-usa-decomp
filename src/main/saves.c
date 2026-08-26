@@ -413,9 +413,9 @@ void func_8002C8B4(s32 arg0, s32 arg1, void *arg2, s32 arg3) {
     func_80070030(arg0, (u8) arg1, arg2, arg3);
 }
 #ifdef NON_MATCHING
-/* Workbench verdict: schedule-mismatch; the candidate has the exact 115-word shape and 0x70 frame.
- * Levers tried: local order/type, slot-count lifetime, statement grouping, and a 30-minute permuter batch.
- * Remains: two scheduled rows/five raw positions from +0x50; the isolated score-580 lead regressed canonically. */
+/* Workbench verdict: allocation mismatch, register-permutation; 6/115 words from +0x50, exact frame.
+ * Levers tried: local order/type, slot-count lifetime, statement grouping, and 30-minute bounded permutation.
+ * Remains: the slot/counter callee-saved tie-break; forced-color probing found no source-stable closure. */
 /* Mickey-derived serialization of one 0x94-byte save window. */
 void func_8002C94C(s32 saveIndex) {
     SavesBitWriter *writer;
@@ -433,8 +433,8 @@ void func_8002C94C(s32 saveIndex) {
     messageQueue = joyMessageQ();
     if (func_80070170(messageQueue) != 0) {
         slot = func_800291C4();
-        outer = 0;
         writer = func_8002C60C(0x1C0, 1);
+        outer = 0;
         slotCount = 0x18;
         do {
             inner = 0;

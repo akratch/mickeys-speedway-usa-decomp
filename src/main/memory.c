@@ -205,13 +205,11 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
     return NULL;
 }
 
-/*
- * PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
- * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative.
- * Workbench: mixed constant/structure/register, 116/116 words, 14 differences
- * from +0xE0 with the exact frame. Lever: constant-audit; owned BSS did not
- * alter the remaining slot/data-pointer allocation.
- */
+/* PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
+ * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative. */
+/* Workbench verdict: mixed structure/register; 14/116 words from +0xE0, exact frame.
+ * Levers tried: flag lattice, donor casts/conditions, pointer lifetime/layout, and shift-versus-array indexing.
+ * Remains: target normal-branch/data-pointer web and +0x3C spill; no source-stable closure. */
 #ifdef NON_MATCHING
 void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 slotIndex;

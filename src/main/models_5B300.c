@@ -208,11 +208,8 @@ u8 *func_8005A948(s16 animationId) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A948.s")
 #endif
 
-/* Mickey-only; JFG retains modFreeAnim as assembly. Workbench: temp-FIFO phase
- * shift, exact 46-word size, 12 words from +0x40. Declaration order fixed the
- * stack home; named-local/array levers left one invisible temp pop unresolved. */
-
-#ifdef NON_MATCHING
+/* PROVENANCE: adapted from Jet Force Gemini's public src/models.c:modFreeAnim;
+ * Mickey's cache entry layout and teardown call establish this exact body. */
 void func_8005AAC0(u8 *animation) {
     s32 i;
     s32 index;
@@ -226,7 +223,7 @@ void func_8005AAC0(u8 *animation) {
         if (D_800D7D04 > 0) {
             i = 0;
             do {
-                if (animation == ((AnimationCacheEntry *)((u8 *)D_800D7CF4 + (i << 3)))->animation) {
+                if (animation == ((u8 **)D_800D7CF4)[(i << 1) + 1]) {
                     index = i;
                 }
                 i++;
@@ -239,9 +236,6 @@ void func_8005AAC0(u8 *animation) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AAC0.s")
-#endif
 /* PROVENANCE: adapted from JFG src/camera.c (camConvertMatrixList). */
 void camConvertMatrixList(Matrix *mtx, s32 count) {
     s32 index = D_800D7CF0;

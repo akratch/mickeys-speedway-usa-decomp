@@ -826,6 +826,9 @@ void __scYield(OSSched *sc) {
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:__scSchedule. */
+/* Workbench verdict: relocation-layout mismatch; exact 122-instruction/frame -40 code shape, 0 masked words, 15 raw reloc words.
+ * Lever tried: structure-buckets exposed shared jtbl_800823F4 and local-branch relocation ownership; source shape is already exact.
+ * Remains: shared scheduler rodata and local-label relocation identity; asm stays canonical. */
 s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
     s32 avail = availRCP;
     OSScTask *gfx = sc->gfxListHead;

@@ -604,9 +604,9 @@ s32 func_8001A008(LightingObject *object, LightInitState *state) {
     return (result & ~3) + 4;
 }
 #ifdef NON_MATCHING
-/* Workbench verdict: register-ring-only; the target and candidate have the same 58-word shape.
- * Levers tried: lifetime, mask-width, scaled-size, and a 30-minute bounded permuter batch.
- * Remains: 13 register-only words from +0x1C; the isolated permuter lead regressed in the full TU. */
+/* Workbench verdict: allocation mismatch, register-ring-only; 13/58 words from +0x1C, exact frame.
+ * Levers tried: lifetime, mask-width, scaled-size, flag lattice, and 30-minute bounded permutation.
+ * Remains: the temp-FIFO ring is one phase from target; the isolated permuter lead regressed in the full TU. */
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightAdjustGlowingLight.s, with Mickey's constants and offsets. */
 void func_8001A154(GlowObject *object) {
     FlareEntry flare;
