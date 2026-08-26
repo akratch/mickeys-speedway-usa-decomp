@@ -74,9 +74,9 @@ extern s16 gOverlay57MenuHalf2;
 extern s8 gOverlay57MenuSourcesStart[];
 extern s8 gOverlay57MenuSourcesEnd[];
 
-/* Workbench: structure-mismatch; 414/441 instructions, 424 words, first +0x0.
- * Levers: constant audit verified movement-call arguments; prior CFG shapes stand.
- * Remains: the 27-instruction deficit, 0x68/0x60 frame, and array allocation. */
+/* Workbench p5: structure-mismatch; 414/441 instructions, 424 words, first +0x0.
+ * Levers: short-lived selection scopes improved the count only to 416 and expanded the frame; constant/CFG probes remain ruled out.
+ * Remains: target -96 frame, array lifetime, and register web; no exact candidate within the attempt cap. */
 #ifdef NON_MATCHING
 void func_overlay_057_F00060F8_18A9CF0(s32 updateRate) {
     s8 activePlayers[10];
