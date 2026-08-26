@@ -147,9 +147,9 @@ extern void trackMakePolylist(s32 mode, Overlay79Vector *start,
 extern s32 func_80010900(Overlay79Vector *start, Overlay79Vector *end,
                          f32 height, Overlay79Object *object, void *collision);
 
-/* Workbench: structure-mismatch, 833/882 positional words differ; target frame
- * is -0xB8 versus the candidate's -0xB0. Ownership: this TU emits the exact
- * initialized +0x0..+0x60 aggregate; code generation remains NON_MATCHING. */
+/* Workbench: structure-mismatch (mixed), 850/882 positional words differ; first mismatch +0x4; frame deficit 8 bytes.
+ * Levers: MIPS-II lattice, target flag-preserving branch, and target-assembly effect-range audit (four ranges corrected).
+ * Remaining: 12 missing instructions plus shared-base/prologue, linear dispatch, relocation, and FP/register allocation drift. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                                        s32 updateRate) {
@@ -192,7 +192,8 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
             if (object->mode != 0) {
                 func_8005AD64(object, 0, -1, 0.0f);
             }
-        } else if (object->mode != 3) {
+        } else if (((state->collisionFlags & 2) == 0) &&
+                   (object->mode != 3)) {
             func_8005AD64(object, 3, -1, 0.0f);
         }
 
@@ -257,7 +258,7 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
             }
         }
         if ((state->effect == NULL) && (state->effectTimer == 0)) {
-            func_80002FE0(mathRnd(0x227, 0x22E), object->x, object->y,
+            func_80002FE0(mathRnd(0x227, 0x229), object->x, object->y,
                           object->z, 4, &state->effect);
             state->effectTimer = mathRnd(0x78, 0xF0);
         }
@@ -299,7 +300,7 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                     }
                 }
                 if ((state->effect == NULL) && (state->effectTimer == 0)) {
-                    func_80002FE0(mathRnd(0x21F, 0x226), object->x, object->y,
+                    func_80002FE0(mathRnd(0x21B, 0x21E), object->x, object->y,
                                   object->z, 4, &state->effect);
                     state->effectTimer = mathRnd(0x78, 0xF0);
                 }
@@ -321,7 +322,7 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                     state->step++;
                 } else if ((state->step == 1) && (state->event != 0)) {
                     if (state->effect == NULL) {
-                        func_80002FE0(mathRnd(0x218, 0x21F), object->x,
+                        func_80002FE0(mathRnd(0x218, 0x21A), object->x,
                                       object->y, object->z, 4, &state->effect);
                     }
                     func_8005AD64(object, 3, -1, 0.0f);
@@ -374,7 +375,7 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                 } else if (state->step == 2) {
                     func_8005AD64(object, 6, -1, 0.0f);
                     if (state->effect == NULL) {
-                        func_80002FE0(mathRnd(0x270, 0x277), object->x,
+                        func_80002FE0(mathRnd(0x270, 0x272), object->x,
                                       object->y, object->z, 4, &state->effect);
                     }
                     state->step = 3;
