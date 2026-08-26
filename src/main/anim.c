@@ -476,7 +476,7 @@ void func_80050AD4(u8 pathIndex) {
 void func_80050BF4(void) {
     s32 emptyIndex;
     s32 offset;
-    u8 *cursor;
+    AnimCameraSource **camera;
 
     D_800D6B04 = piRomLoad(0x3D);
     D_800D6B00 = func_8002B280(0x400, 0x81);
@@ -594,6 +594,9 @@ void func_80050DF0(s32 levelId) {
 void func_80050E9C(void) {
     s32 emptyIndex;
     u8 *cursor;
+    AnimScrollReset *scroll;
+    AnimLockonReset *lockon;
+    AnimLightReset *light;
     s32 pathIndex;
 
     if (D_8007D68C != NULL) {
