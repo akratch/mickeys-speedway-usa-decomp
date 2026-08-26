@@ -1183,9 +1183,9 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80022FD4.s")
 #endif
 #ifdef NON_MATCHING
-/* Plateau (2026-08-25, near-miss p2 batch 23): structure-mismatch, 263 words, first +0x0; 286/284 instructions.
- * Spill census, volatile homing, and declaration order were tried; homing removes s1 but retains the 0xA0 frame.
- * The target remains a 0x90 frame with two fewer instructions; prior flag/type/control/lifetime levers stay eliminated. */
+/* Workbench: structure-mismatch, target 284 vs candidate 286 instructions; 263 words differ, first +0x0, frames 0x90/0xA0.
+ * Constant audit plus prior spill, volatile, declaration, type, control, and lifetime levers left the candidate's s1 save.
+ * Remains: target stack-homed dlist without s1, candidate's extra save, and the final Gfx schedule. */
 void func_80023598(Gfx **dlist, Mtx **mtx, CameraVertex **vertices,
                    CameraSpriteActor *actor, u8 *spriteData, s32 alpha) {
     CameraSpritePlayer *player;

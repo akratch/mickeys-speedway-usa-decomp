@@ -56,9 +56,9 @@ extern s32 overlay7RuntimeChanceReloc(s32 minimum, s32 maximum);
 extern void overlay7SetRuntimeModeReloc(Overlay7RuntimeObject *object,
                                         s32 mode);
 
-/* Workbench: mixed structure/schedule/register, 348 words exact-size; 242 raw differ, first +0x0.
- * Levers 1 and 26 tried after the prior lattice: count aggregate and disjoint local reuses did not shrink the frame.
- * Remaining: identical save bytes but 0x80 vs 0x78 frame; private relocation scheduling drives the temp homes. */
+/* Workbench: structure-mismatch, exact 348 instructions; 238 masked/242 raw words differ, first +0x0, frames 0x80/0x78.
+ * Constant audit found no semantic literal discrepancy; loop/count/local-scope and flag-lattice levers left frame and relocation scheduling unchanged.
+ * Remains: target stack homes and private relocation/register scheduling differ. */
 #ifdef NON_MATCHING
 void func_overlay_007_F0000324_185C1AC(s32 arg0, s32 elapsed) {
     s32 count;

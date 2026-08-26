@@ -239,9 +239,9 @@ void func_8002EBD4(u32 value) {
     D_8007A3B0 = value;
 }
 #ifdef NON_MATCHING
-/* Plateau (2026-08-25, batch 36): canonical MIPS II is exact-size at 255 words,
- * with 218 differences from +0x0; target frame 0x88 versus 0x58. Hoisted reset
- * lifetimes cut 242 to 218; lattice, playbook, and 40m permuter found no exact. */
+/* Workbench: structure-mismatch, exact 255 instructions; 218 words differ, first +0x0, frames 0x88/0x58.
+ * Reset-lifetime/ABI spellings, flag lattice, constant audit, and bounded permuter left the canonical candidate unchanged.
+ * Remains: target's larger save/non-save frame and early command/local register structure are unresolved. */
 void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
                    u32 colours) {
     RcpCommand *cmd;
