@@ -35,9 +35,9 @@ M2C_UNK ext_o0_5a914(void *, M2C_UNK, s32, f32);   /* extern */
 s16 ext_o0_f690(f32, f32, f32);                    /* extern */
 M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
 
-/* Workbench verdict=structure-mismatch; 73 raw words differ in the exact 662-word/-0xA8 frame, first real mismatch +0x70.
- * Levers: local-order stack census, statement order, full flag lattice, and direct mode-field predicate; the latter regressed to 75 words.
- * Remains: early temp_a0/control-flow schedule and pool slot 6/temp slot 16; 22 opcode and 50 register sites are coupled. */
+/* Workbench mixed structure/schedule/register residual: 73 positional words in the exact 662-word/-0xA8 frame, first +0x70.
+ * Split mode web worsened to 89 words/-0xB0; a register hint was codegen-neutral after the prior flag/statement/predicate levers.
+ * Remains: coupled pool slot 6/temp slot 16 and 38 diagnostic relocation identities; asm stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
     s16 *var_a1;
@@ -47,7 +47,6 @@ void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
     f32 sp94;
     f32 temp_f20;
     f32 temp_f20_2;
-    f32 temp_f20;
     s32 temp_a0;
     void *temp_s0;
     void *temp_s4;
