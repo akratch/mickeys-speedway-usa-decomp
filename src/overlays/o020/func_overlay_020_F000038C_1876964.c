@@ -61,9 +61,9 @@ typedef struct Overlay20InitGrid {
 
 extern void *func_overlay_020_F0000000_18765D8();
 
-/* PLATEAU (2026-08-25): workbench structure-mismatch; best is 256/270 words, first +0x0.
- * Constant audit, texture lifetime, cursor, and command/store ordering levers did not close it.
- * Six instructions and one saved-register slot remain (0x38 frame versus target 0x40). */
+/* PLATEAU (2026-08-26): workbench structure-mismatch; best 256/270 words, first +0x0.
+ * Flag lattice, top-level texture lifetime, cursor, command/store, and saved-register probes did not close it.
+ * Candidate remains 6 instructions short with a 0x38 frame versus target 0x40. */
 #ifdef NON_MATCHING
 Overlay20InitGrid *func_overlay_020_F000038C_1876964(Overlay20InitGrid *grid) {
     Overlay20InitVertex *vertex;

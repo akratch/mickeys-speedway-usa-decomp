@@ -540,9 +540,9 @@ u8 frontGetMode(void) {
     return D_8007C0A0;
 }
 #ifdef NON_MATCHING
-/* Size/frame exact: 248/279 words differ, first +0x24; fade address a0, not v1.
- * Workbench pool-slot 0 divergence cascades through the switch schedule; a
- * named pointer loses one word and an empty fade web loses seven. */
+/* PLATEAU (2026-08-26): workbench structure-mismatch; best 248/279 words, first +0x24.
+ * Flag lattice, dense 0-18 switch coverage, and branch-shape variants did not improve the retained candidate.
+ * Fade pool/register web and switch relocation identities remain. */
 s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
     s32 sp24;
     u8 *sp20;

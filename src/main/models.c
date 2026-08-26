@@ -610,9 +610,9 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                    volatile u32 textureBase);
 
 /* Mickey-only reconstruction; JFG supplies the tier-B makeModelGfx role and TU position, but retains assembly. */
-/* Plateau (2026-08-25, near-miss p2 batch 23): structure-mismatch, 254 words, first +0x0; exact 342 instructions.
- * Slot placement fixes target +0x90 and displayList-before-cache improves relocations; the frame stays 0xC8 vs 0xD0.
- * A 12-byte tail reached 234 words/exact frame but conflicts with target cacheCount at +0x94; eight bytes/webs remain. */
+/* PLATEAU (2026-08-26): workbench structure-mismatch; 254/342 words differ, first +0x0.
+ * Flag lattice confirmed the exact instruction count; slot, tail, and lifetime probes did not close the frame/web drift.
+ * Frame remains 0xC8 vs 0xD0, with 118 register and 2 relocation-identity differences. */
 #ifdef NON_MATCHING
 s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
                   s32 lowerGroup, s32 upperGroup, s32 forceSimple) {
