@@ -2006,6 +2006,9 @@ joySetSecurity = 0x80025758; // type:func size:0xC ROM 0x26358 tier B (JFG src/c
 arithmeticFunction = 0x80025764; // type:func size:0x84 ROM 0x26364 tier B (JFG src/controller.c.o arithmeticFunction, call graph)
 joyCharVal = 0x800257E8; // type:func size:0x8 ROM 0x263E8 tier B (JFG src/controller.c.o joyCharVal, call graph)
 levelGetCounts = 0x800257F0; // type:func size:0x40C ROM 0x263F0 tier B (JFG src/level.c.o levelGetCounts, ordered call graph)
+// The level TU emits the adjacent 0x40-byte count table and 0x70-byte colour-cycle state.
+D_800CF3E0 = 0x800CF3E0; // type:s32 size:0x40 tier-D main/level BSS owner
+D_800CF420 = 0x800CF420; // type:u8 size:0x70 tier-D main/level BSS owner
 levelNGetType = 0x80025BFC; // type:func size:0x44 ROM 0x267FC tier B (JFG src/level.c.o levelNGetType, ordered call graph)
 levelGetTune = 0x80025C40; // type:func size:0x44 ROM 0x26840 tier B (JFG src/level.c.o levelGetTune, ordered call graph)
 levelGetWorld = 0x80025C84; // type:func size:0x44 ROM 0x26884 tier B (JFG src/level.c.o levelGetWorld, ordered call graph)
@@ -2027,7 +2030,7 @@ levelGetNextOfWorld = 0x80026A0C; // type:func size:0x88 ROM 0x2760C tier B (JFG
 levelGetPrevOfWorld = 0x80026A94; // type:func size:0x90 ROM 0x27694 tier B (JFG src/level.c.o levelGetPrevOfWorld, ordered call graph)
 levelInitRegionFlags = 0x80026B24; // type:func size:0x38 ROM 0x27724 tier B (JFG src/level.c.o levelInitRegionFlags, ordered call graph)
 RevealReturnAddresses = 0x80026B60; // type:func size:0x108 ROM 0x27760 tier-A (exact C, JFG src/main.c RevealReturnAddresses donor)
-mainThread = 0x80026C68; // type:func size:0xC8 ROM 0x27868 tier-B NON_MATCHING plateau, linked 50 words exact, relocation-layout first +0x18
+mainThread = 0x80026C68; // type:func size:0xC8 ROM 0x27868 tier-A (exact C, JFG src/main.c mainThread donor, digest-guarded D_803FFFFC HI16/LO16 metadata at +0x18/+0x28)
 mainResetPressed = 0x80026D30; // type:func size:0x54 ROM 0x27930 tier B (JFG src/main.c.o mainResetPressed, call graph)
 mainPreNMI = 0x80026D84; // type:func size:0xC8 ROM 0x27984 tier-A (compiler/link exact)
 mainInitGame = 0x80026E4C; // type:func size:0x168 ROM 0x27A4C tier-A (compiler/link exact, JFG src/main.c mainInitGame donor)
@@ -2399,6 +2402,26 @@ func_800389CC = 0x800389CC; // type:func size:0x1F8 tier-D ROM 0x395CC exact C, 
 func_80038BC4 = 0x80038BC4; // type:func size:0x1E8 tier-D ROM 0x397C4 exact C, JFG-comparison body and compiler-owned switch table
 jtbl_80082748 = 0x80082748; // type:jtbl size:0x4C tier-A compiler-owned menu switch table
 jtbl_80082794 = 0x80082794; // type:jtbl size:0x4C tier-A compiler-owned menu switch table
+// Compiler-owned menu repeat-state labels occupy one measured 0x30-byte BSS input section.
+D_800D3198 = 0x800D3198; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D3199 = 0x800D3199; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319A = 0x800D319A; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319B = 0x800D319B; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319C = 0x800D319C; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319D = 0x800D319D; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319E = 0x800D319E; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D319F = 0x800D319F; // type:s8 size:0x1 tier-D menu BSS owner
+D_800D31A0 = 0x800D31A0; // type:u32 size:0x4 tier-D menu BSS owner
+D_800D31A4 = 0x800D31A4; // type:u32 size:0x4 tier-D menu BSS owner
+D_800D31A8 = 0x800D31A8; // type:u32 size:0x4 tier-D menu BSS owner
+D_800D31AC = 0x800D31AC; // type:u32 size:0x4 tier-D menu BSS owner
+D_800D31B0 = 0x800D31B0; // type:u8 size:0x1 tier-D menu BSS owner
+D_800D31B4 = 0x800D31B4; // type:s32 size:0x4 tier-D menu BSS owner
+D_800D31B8 = 0x800D31B8; // type:s32 size:0x4 tier-D menu BSS owner
+D_800D31BC = 0x800D31BC; // type:s16 size:0x2 tier-D menu BSS owner
+D_800D31BE = 0x800D31BE; // type:s16 size:0x2 tier-D menu BSS owner
+D_800D31C0 = 0x800D31C0; // type:s16 size:0x2 tier-D menu BSS owner
+D_800D31C2 = 0x800D31C2; // type:s16 size:0x2 tier-D menu BSS owner
 // Tier B (JFG): exact free/init/reset call sequence, stored mode state, and
 // ordered pairing with frontGetMode identify the front-end mode setter.
 frontSetMode = 0x80038DAC; // type:func size:0x64 tier-B ROM 0x399ac canonical C, linked byte-identical

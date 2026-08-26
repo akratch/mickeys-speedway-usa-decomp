@@ -692,12 +692,18 @@ segments:
       # reset loop only recovers the target address materialization here.
       - { type: .bss, vram: 0x800CF3B0, name: main/joy }
       - { type: bss, vram: 0x800CF3C0, name: bss_gap_D800CF3C0 }
+      - { type: .bss, vram: 0x800CF3E0, name: main/level }
+      - { type: bss, vram: 0x800CF490, name: bss_gap_D800CF490 }
       # Allocator pools, deferred-free queues, and accounting state.
       - { type: .bss, vram: 0x800D1C60, name: main/memory }
       - { type: bss, vram: 0x800D21C0, name: bss_gap_D800D21C0 }
       # Scheduler-owned counters and the two halves of its yield timestamp.
       - { type: .bss, vram: 0x800D2D40, name: main/sched }
       - { type: bss, vram: 0x800D2D50, name: bss_gap_D800D2D50 }
+      # Menu controller state is emitted as individually named objects in target
+      # address order; IDO's input section occupies 0x30 bytes through 0x31C8.
+      - { type: .bss, vram: 0x800D3198, name: main/menu }
+      - { type: bss, vram: 0x800D31C8, name: bss_gap_D800D31C8 }
       # Diprint's text-position/state block is one 0x30-byte IDO BSS input
       # section; the raw gap resumes after its measured section padding.
       - { type: .bss, vram: 0x800D4A60, name: main/diprint }

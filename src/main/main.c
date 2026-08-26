@@ -397,11 +397,10 @@ void RevealReturnAddresses(void) {
     } while (0);
 }
 
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
-/* Workbench: relocation-layout-mismatch; 50/50 words and the -0x20 frame are exact, with target HI16/LO16 at +0x18/+0x28.
- * Lever: direct symbolic lvalue and indexed-base forms add eight words; the literal address preserves the target schedule.
- * Remains: the special RAM-end relocation identity without changing the 50-word control-flow shape. */
+/* The literal RAM-end expression is instruction-exact. The configured
+ * metadata-only postprocess restores D_803FFFFC at the two existing address
+ * instructions without changing their words. */
 void mainThread(void *unused) {
     s32 i;
 
@@ -425,9 +424,6 @@ void mainThread(void *unused) {
         func_80021290();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainThread.s")
-#endif
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 s32 mainResetPressed(void) {

@@ -695,10 +695,28 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ldiv.c.o: CFLAGS += -Xphase,cfe,-O3 \
 $(BUILD_DIR)/$(SRC_DIR)/main/%.c.o: MIPSISET := -mips2 -32
 # The reconstructed resident main loop reproduces its target frame with uopt capped.
 $(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: CFLAGS += -Wo,-Olimit,100
-# The rain callback needs a typed alias to preserve its two f32 arguments.
-# Fold that alias back to the shipped dangling-jump carrier in symbol metadata.
+ifeq ($(NON_MATCHING),1)
+MAIN_THREAD_TEXT_SIZE := 0x2B10
+MAIN_THREAD_TEXT_SHA256 := ba62e894f3b04c9359aea1b9806045208745c9321dd76e52dd59283234d88c3c
+else
+MAIN_THREAD_TEXT_SIZE := 0x2AF0
+MAIN_THREAD_TEXT_SHA256 := d6a4eb4e0e95dfbbf5944ed336e6dda98f930939d0f0dbf69d2e07537cb2c306
+endif
+# Keep the literal RAM-end expression's instruction words intact, then add
+# the two target relocation records using a digest-guarded metadata pass. The
+# source already carries the linked HI16/LO16 addends, so the temporary
+# relocation carrier is zero-valued; the linker script retains the final
+# D_803FFFFC absolute symbol value. Rename it only after the pass, before
+# folding the rain callback's typed alias back to the shipped carrier.
+$(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: $(TOOLS_DIR)/add_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym mainCPUeffectsRainDraw=TrapDanglingJump $@
+	$(OBJCOPY) --add-symbol mainThreadRamEndAnchor=0x0,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text \
+		$(MAIN_THREAD_TEXT_SIZE) $(MAIN_THREAD_TEXT_SHA256) \
+		0x120:HI16:mainThreadRamEndAnchor:0x8040 \
+		0x130:LO16:mainThreadRamEndAnchor:0xFFFC && \
+	$(OBJCOPY) --redefine-sym mainThreadRamEndAnchor=D_803FFFFC \
+		--redefine-sym mainCPUeffectsRainDraw=TrapDanglingJump $@
 # The resident formatter's integer multiply/divide schedule uses R4300 timing.
 $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # osScGetTaskType owns seven table words; IDO's trailing four zero bytes are
@@ -755,8 +773,13 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: CFLAGS += -Wo,-loopunroll,0
 # IDO rounds the two consecutive 0x4C-byte switch tables from 0x98 to 0xA0;
 # discard only the trailing input-section padding before linking the next
-# shared resident rodata table.
+# shared resident rodata table.  The array-shaped aliases stay external to
+# IDO so func_80039720 retains its target induction-pointer allocation; bind
+# their metadata back to the individually owned BSS labels before linking.
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym menuRepeatX=D_800D3198 \
+	--redefine-sym menuRepeatY=D_800D319C \
+	--redefine-sym menuPreviousButtons=D_800D31A0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x98
 
 # The saves slot-reset loop is scalar in the target; the 119-combination flag

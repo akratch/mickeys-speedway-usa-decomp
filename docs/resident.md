@@ -929,9 +929,9 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
-`tier-D func_80038750`: 5/74 positional words remain, first `+0xDC`; size and frame are exact.
-Workbench pool-position; table-base, cached-element, flag-lattice, and bounded permutation levers leave the base/value web crossed.
-Switch relocations `+0x4C`/`+0x54` still bind anonymous `.rodata`, not `jtbl_80082734`; assembly remains canonical.
+`func_80038750`: the menu ownership probe measured its five-entry language table at `.rodata` `0x83334`–`0x833E0` (`0xAC` bytes), but the C body remains nonexact.
+Workbench verdict `allocation-mismatch`, first `+0xDC`, 5/74 register words; the `pool-position` web crosses the base/value `a0`/`a1` pair.
+The probe is reverted so the canonical ASM wrapper preserves the verified shared-rodata layout.
 
 `func_80038878` remains tier-D `NON_MATCHING`: 66/85 words differ, first `+0x14`; frame and instruction count are exact.
 Levers covered first-loop pointer/cache, globals/volatile, type/order, flags, and the bounded permuter; JFG remains the structural lead.
@@ -1004,9 +1004,9 @@ assembly; Mickey supplies this C body and table indexing, as the point-of-use
 algebraic reassociation. The default flags, three call relocations, data pair,
 object words, and linked ROM range are exact without post-processing.
 
-`func_8003968C`: TU-owned repeat state regresses to **16/37 words**, first
-`+0x0`; the exact 200-word consumer gains 16 operand differences. Next preserve
-the consumer immediates while restoring expression multiplicity.
+`func_8003968C`: workbench `structure-mismatch`, **28/37 words**, first `+0x0`;
+the menu TU now owns the measured `0x30`-byte repeat-state BSS carve and its
+individual labels, while external array aliases keep `func_80039720` exact.
 
 The tier-D `func_80039720` adds **0x320 bytes / 200 words** at ROM `0x3A320`.
 Its Mickey-derived body updates four controllers' held, pressed, stick, and
@@ -2204,13 +2204,9 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `func_80028564`: p2 workbench structure-mismatch, 492/489 instructions and 426 differing positional words.
   First mismatch `+0x4`; the exact frame still carries one unused saved-register web.
   Lever 1 and volatile/address-alias probes were byte-identical, leaving that web unresolved.
-- `mainThread`, five source/address hypotheses plus the full flag lattice,
-  first object mismatch at relocation `+0x18`: the JFG-shaped candidate has
-  the exact 200-byte linked instruction stream, frame and control flow, but
-  its literal RAM-end address omits the target assembly's `D_803FFFFC`
-  HI16/LO16 pair at `+0x18`/`+0x28`. Every symbolic spelling adds an address
-  instruction and moves the aligned epilogue, growing the function by eight
-  words.
+- `mainThread`: exact **0xC8 bytes / 50 words** under `-Wo,-Olimit,100`; the
+  literal RAM-end loop is compiled untouched, and a digest-guarded metadata
+  pass restores `D_803FFFFC` HI16/LO16 at `+0x18`/`+0x28`.
 - `mainUpdateZBCheck`, five loop/type hypotheses, the full flag lattice and a
   bounded two-worker permuter batch, first mismatch `+0x24`: the best
   Mickey-derived candidate has the exact `-0x48` frame and screen-size stack
@@ -2218,9 +2214,9 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
   removes three dead-looking countdown-loop register copies retained by the
   target.
-- `tier-D levelGetCounts`: 3 masked words remain, first `+0x13c`; size, frame, and opcode schedule are exact.
-  Workbench forced-color; pointer-bounded `D_800CF420` loops, source/type/loop forms, flag lattice, and permutation did not close it.
-  The v0/a0 web and BSS ownership keep the zero-loop relocation on `D_800CF3E0` instead of `D_800CF420`.
+- `levelGetCounts`: workbench `allocation-mismatch`, first `+0x13c`; the level
+  TU now owns the linked `0x40`-byte `D_800CF3E0` count table and `0x70`-byte
+  `D_800CF420` state, but three register words and the end-label relocation remain.
 - `levelInit`, ten structural, storage, type and register-lifetime hypotheses,
   the full 119-combination flag lattice and a bounded two-worker permuter
   batch, first mismatch `+0x238`: the JFG-adapted, Mickey-specific candidate
