@@ -27,9 +27,9 @@ typedef struct O35GridSource {
     s16 groupCount;
 } O35GridSource;
 
-/* Workbench: mixed constant/structural/register residual, 70 words; first +0x0.
- * Flag lattice and spill-home/liveness reuse tried; merged x/counter is best.
- * Frame remains -0x88 versus -0x80, with the pool first diverging at slot 5. */
+/* Workbench structure-mismatch: 244/244 instructions, 70 normalized words; first +0x0.
+ * Typed group, signed zMask, scope, and base-reload probes were neutral or worse.
+ * Remains: -0x88 versus -0x80 frame/home layout and pool/temp divergence. */
 #ifdef NON_MATCHING
 void func_overlay_035_F0000770_1882450(O35GridSource *source,
                                         O35GridBounds *bounds) {

@@ -1854,10 +1854,9 @@ An explicit end pointer changes the frame, so asm stays canonical.
 The donor pad/current topology moves its buffer from `sp+44` to `sp+40`, still four bytes above target.
 Workbench identifies a pool-slot-5 `v0`/`v1` mismatch; asm remains canonical.
 
-`func_8004054C` plateaued one word short (124/125), with 43 aligned residuals
-from `+0x4C`: IDO folds the free-bit scan into a pointer move, then colors the
-scan/index scratch registers differently. The flag lattice and bounded
-permuter (score 1065 to 705) found no exact form; asm stays canonical.
+`func_8004054C` plateaued one word short (124/125), with 33 aligned residuals
+from `+0x4C`; pointer-order probing worsened the initial address shift and temp/pool
+web. The workbench verdict remains structure-mismatch; asm stays canonical.
 
 `func_8003E8D8` plateaued size-exact at 140 words with the target opcode
 schedule, but the whole TU emits a `0x30` frame versus `0x38`: 22 residuals

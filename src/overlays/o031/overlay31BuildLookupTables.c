@@ -38,9 +38,9 @@
     (record)->d16 = 0;        \
     (record)->d14 = 0
 
-/* Workbench mixed plateau: 71 aligned residuals (19 structural, 4 schedule,
- * 47 register, 1 constant), exact 186-instruction/0x40-frame shape; first +0x2C.
- * Flag, store-order, dead-web, and neighbor-inline levers leave two pool swaps. */
+/* Workbench structure-mismatch: 186/186 instructions, 94 normalized words; first +0x2C.
+ * 71 aligned residuals (19 structural, 4 schedule, 47 register); signed counter/field probes worsened.
+ * Target cursor/global layout versus meaningful array source leaves pool/temp divergence. */
 #ifdef NON_MATCHING
 void func_overlay_031_F0000000_187F520(void) {
     Overlay31IndexRecord *first;
