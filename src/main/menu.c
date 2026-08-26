@@ -1305,8 +1305,8 @@ s32 frontGet2PlayerSplit(void) {
 }
 /* PROVENANCE: role and order compared with JFG src/menu.c::frontSet2PlayerSplit. */
 /* Workbench: allocation-mismatch/temp-FIFO; 3/9 positional words remain, first +0x8.
- * Tried levers 14/15/16, ten source forms, the flag lattice, and the bounded permutation batch.
- * Remains: the lbu/andi/or temp web crosses allocator classes; the retained byte-lvalue expression is best. */
+ * Levers tried: 14/15/16, ten source forms, flag lattice, and bounded permutation batch.
+ * Remains: the lbu/andi/or temp web crosses allocator classes; the byte-lvalue form is best. */
 #ifdef NON_MATCHING
 void func_8003A520(s32 split) {
     *(u8 *)&D_800D3128 = (s16)(((split << 4) & 0x10) |
