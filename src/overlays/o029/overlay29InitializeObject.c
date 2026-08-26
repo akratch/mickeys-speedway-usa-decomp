@@ -64,9 +64,9 @@ extern void func_overlay_029_F00010C4_187E374(void *, s32);
 extern void func_overlay_029_F00001C4_187D474(void *);
 extern void func_overlay_029_F000023C_187D4EC(void *, void *);
 
-/* Plateau: typed access is size/frame exact at 102 words/-88 but differs in 15 words, first at +0x14; the full lattice has no exact flags.
- * Nine source-load, declaration, register-hint, and vector-init variants regress to 18--65 words or enlarge the frame to -96.
- * The 40-minute permuter found no baseline improvement; blocker is the early volatile source load and vector-initialization schedule. */
+/* Workbench: mixed structure/schedule/register; exact 102 words/-0x58 frame, 15 words, first +0x14.
+ * Levers 1/4/5/6 plus typed/volatile/load/declaration/vector probes and 40-minute permutation found no improvement.
+ * Remaining: target early init/source-contact load ordering; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_029_F000042C_187D6DC(Overlay29Object *object,
                                        Overlay29Init *init) {

@@ -39,13 +39,9 @@ extern void *call_o0_0_33FF8(s16);
 extern void call_o98_0_0(void *);
 extern void func_overlay_035_F00001E0_1881EC0(s32);
 
-/*
- * Plateau (2026-08-25): 106/120 masked words exact with the default flags;
- * first mismatch +0x30. Same-line grouping fixes the two-word tail cluster,
- * but the target's early volatile-slot address uses a2 where this candidate
- * uses t6, shifting temporary registers in three later clusters. The closest
- * JFG skeleton, trackInit, is assembly-only at the pinned reference commit.
- */
+/* Workbench: allocation-mismatch; exact 120 words/-0x20 frame, 14 words, first +0x30.
+ * g0/3/4/23 scheduling, same-line, volatile-slot, and JFG-skeleton probes found no improvement.
+ * Remaining: target early volatile-slot web uses a2 versus candidate t6; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_035_F0000000_1881CE0(s32 arg0, s32 arg1, s32 arg2,
                                         s32 arg3, s32 arg4, s32 arg5) {

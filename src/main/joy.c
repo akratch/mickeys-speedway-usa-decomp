@@ -89,9 +89,9 @@ OSMesgQueue *joyMessageQ(void) {
 /*
  * PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive.
  *
- * Workbench verdict: structure/count; 86 versus 83 instructions, first structural +0x128.
- * Levers 6/23: prior scalar, aggregate, pointer, expression, and line variants did not improve it.
- * Remaining: final clears need one shared HI16 with four LO16 identities.
+ * Workbench: structure/count; candidate 86 versus target 83 words, first +0x128.
+ * Levers 6/23 plus storage spellings, flag lattice, explicit-byte stores, and bounded permutation found no exact form.
+ * Remaining: target shared HI16/four-LO16 final-clear relocation topology; assembly fallback stays canonical.
  */
 
 

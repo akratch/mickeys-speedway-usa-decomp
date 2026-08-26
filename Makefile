@@ -705,9 +705,10 @@ $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # object-section alignment and the following scheduler table begins immediately.
 $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x1C
-# diRcpMoveWd owns eleven table words; the following zero is shared padding.
+# diRcpPrintDL and diRcpMoveWd own the complete 0x100-byte switch-table span;
+# the following zero is shared padding.
 $(BUILD_DIR)/$(SRC_DIR)/main/diRcp.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x2C
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x100
 # func_80038BC4 owns nineteen table words; the next menu table starts immediately.
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x4C
