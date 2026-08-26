@@ -9,9 +9,9 @@ extern s32 func_overlay_014_F0000000_186F8D8();
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/overlays/o7/overlay_7/func_overlay_7_007023D4_1EFD4FC.s;
  * body reconstructed from Mickey evidence. */
-/* Workbench mixed: 2 structural/3 register, five positional words, first +0x1F4.
- * Levers tried: constant audit, stack order, flag lattice, case-7 line/postincrement forms.
- * Remaining: case-7 load/increment schedule; postincrement variants compile one word short. */
+/* Workbench verdict=structure-mismatch; 5 masked/8 raw words differ in the exact 201-word frame, first real mismatch +0x1F4.
+ * Levers tried: constant audit, stack order, flag lattice, and case-7 load-before-increment/postincrement spellings; the latter is one word short.
+ * Remains: case-7 load/increment schedule plus overlay relocation identities; no further structural lever is evidenced. */
 s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
     s32 remaining;
     s32 y;
