@@ -1199,9 +1199,12 @@ carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
 live range; the default flags, both data relocations, object words, and linked
 ROM range are exact without post-processing.
 
-`tier-D func_8003A520`: 3/9 positional words remain, first `+0x8`; size and instruction shape are exact.
-Workbench temp-FIFO; levers 14/15/16, ten source forms, flag lattice, and the 30-minute permutation found no improvement.
-The retained byte-lvalue candidate remains best; the temp web crosses allocator classes.
+`func_8003A520` adds **0x24 bytes / 9 words** at ROM `0x3B120`. Mickey's code
+is the byte-preserving `twoPlayerSplit` setter paired with the preceding
+getter. The instrumented-ugen free-list trace showed the target's temp ring
+rotated one pop past the plain bitfield assignment; a `& 1` redundant with the
+1-bit field insert supplies that pop (field-guide lever 16) and the object
+words, relocations, and linked ROM range are exact without post-processing.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no

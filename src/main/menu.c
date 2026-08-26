@@ -1303,18 +1303,13 @@ s32 frontGet2PlayerSplit(void) {
     split = D_800D3128.bits.twoPlayerSplit;
     return split;
 }
-/* PROVENANCE: role and order compared with JFG src/menu.c::frontSet2PlayerSplit. */
-/* Workbench: allocation-mismatch/temp-FIFO; 3/9 positional words remain, first +0x8.
- * Levers tried: 14/15/16, ten source forms, flag lattice, and bounded permutation batch.
- * Remains: the lbu/andi/or temp web crosses allocator classes; the byte-lvalue form is best. */
-#ifdef NON_MATCHING
+/* PROVENANCE: role and order compared with JFG src/menu.c::frontSet2PlayerSplit.
+ * The `& 1` is load-bearing: it is folded into the 1-bit field insert but still
+ * consumes one ugen temp-ring slot, which rotates the FIFO into the ROM's
+ * t0/t8/t9/t1/t2 assignment (allocator-trace-guided, field-guide lever 16). */
 void func_8003A520(s32 split) {
-    *(u8 *)&D_800D3128 = (s16)(((split << 4) & 0x10) |
-                               ((s16)*(u8 *)&D_800D3128 & 0xFFEF));
+    D_800D3128.bits.twoPlayerSplit = split & 1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A520.s")
-#endif
 void func_8003A544(s32 value) {
     D_8007C098 = value;
 }

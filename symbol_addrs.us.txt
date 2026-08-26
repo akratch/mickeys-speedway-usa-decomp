@@ -2520,7 +2520,7 @@ frontSetBgmVolume = 0x8003A4D0; // type:func size:0x3C  ROM 0x3b0d0
 // Tier B (JFG): exact split-bit getter, paired setter, and ordered menu
 // position establish the two-player split-screen role.
 frontGet2PlayerSplit = 0x8003A50C; // type:func size:0x14 tier-B ROM 0x3b10c canonical C, linked byte-identical
-func_8003A520 = 0x8003A520; // type:func size:0x24 tier-D ROM 0x3b120 NON_MATCHING 3/9 register-only words, first +0x8, temp-FIFO plateau
+func_8003A520 = 0x8003A520; // type:func size:0x24 tier-A ROM 0x3b120 IDO C exact, Mickey-only reconstruction, allocator-trace-guided bitfield setter
 func_8003A544 = 0x8003A544; // type:func size:0xC tier-D ROM 0x3b144 canonical C, linked byte-identical
 func_8003A550 = 0x8003A550; // type:func size:0xC tier-D ROM 0x3b150 canonical C, linked byte-identical
 func_8003A55C = 0x8003A55C; // type:func size:0x34 tier-D ROM 0x3b15c canonical C, linked byte-identical
