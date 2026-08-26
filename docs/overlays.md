@@ -100,20 +100,9 @@ traffic or lose instructions. The stock `-O2 -mips2 -32` flags remained best;
 permuter variants with lower internal scores either regressed the full-TU
 comparison or changed relocation identities and were rejected.
 
-`runlinkResumeCode` (`0x80032BF8`) remains `NON_MATCHING` after ten coherent
-source variants, the 119-combination flag lattice, and a bounded MIPS2
-permuter pass. The best JFG-guided candidate has the exact 250-instruction
-boundary, opcode schedule, register allocation, and relocation identities;
-six frame operands remain different, first at `+0x0`. Mickey reserves a
-`0x50` frame and homes the pending-load pointer at `sp+0x44`, while IDO gives
-the candidate a `0x48` frame and `sp+0x40` home with the same 40 bytes of saved
-registers. Splitting the two delay-preservation lifetimes and spelling the
-secondary-size test as a truth test closed the other sixteen masked word
-differences. The corrected permuter reported an internal zero score because
-its metric ignores these frame-offset operands; the full-TU object comparison
-still proves the six-word mismatch. Meaningful allocation-size and
-secondary-size locals did not alter the frame, and artificial padding probes
-were rejected rather than retained.
+`tier-B runlinkResumeCode`: 6 stack operands remain, first `+0x0`; 250 instructions, opcode schedule, registers, and relocations are exact.
+Workbench frame-layout; stack-home levers 26/32, frame-local variants, flag lattice, and bounded permutation did not alter the frame.
+The target reserves `0x50` with pendingLoad at `sp+0x44`; the candidate reserves `0x48` with the home at `sp+0x40`.
 
 `runlinkInit` remains `NON_MATCHING` after seven coherent source variants, the
 119-combination flag lattice, and a bounded permuter pass. The best adapted

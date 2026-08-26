@@ -934,9 +934,9 @@ in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
 per §1.5. Flags are the resident game-code defaults: `-O2 -mips2 -32`.
 
-`func_80038750` is size/frame exact; its best stock-flag object differs in **5/74 words**, first `+0xDC`.
-Caching the element fixes the commutative row, but pool slot 18 keeps the base/value `a0`/`a1` web crossed.
-Switch relocations `+0x4C`/`+0x54` bind anonymous `.rodata`, not `jtbl_80082734`; asm remains canonical.
+`tier-D func_80038750`: 5/74 positional words remain, first `+0xDC`; size and frame are exact.
+Workbench pool-position; table-base, cached-element, flag-lattice, and bounded permutation levers leave the base/value web crossed.
+Switch relocations `+0x4C`/`+0x54` still bind anonymous `.rodata`, not `jtbl_80082734`; assembly remains canonical.
 
 `func_80038878` remains a **tier-D NON_MATCHING plateau** over **0x154 bytes /
 85 words** at ROM `0x39478`. JFG's same-position `initFront` routine supplies
@@ -1219,9 +1219,9 @@ carries point-of-use `PROVENANCE`. A local result recovers IDO's target `v1`
 live range; the default flags, both data relocations, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A520`: exact nine-word shape, **3/9 register-only words** differ first
-`+0x8`. Workbench reports temp-FIFO phase; ten source forms, the flag lattice,
-and a 40-minute permuter leave the byte-lvalue candidate best.
+`tier-D func_8003A520`: 3/9 positional words remain, first `+0x8`; size and instruction shape are exact.
+Workbench temp-FIFO; levers 14/15/16, ten source forms, flag lattice, and the 30-minute permutation found no improvement.
+The retained byte-lvalue candidate remains best; the temp web crosses allocator classes.
 
 The tier-D `func_8003A544` adds **0xC bytes / 3 words** at ROM `0x3B144`.
 Mickey's code is the single-word setter paired with the following getter; no
@@ -2265,14 +2265,9 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
   removes three dead-looking countdown-loop register copies retained by the
   target.
-- `levelGetCounts`, ten source/type/loop hypotheses, first mismatch `+0x13c`:
-  the best candidate has the target's 1,036-byte size, 259-instruction opcode
-  schedule and `-0x58` frame, but three register operands use `$v0` where the
-  target uses `$a0`. Its initial count-table loop also relocates against
-  `D_800CF3E0`, while the target object's HI16/LO16 pair names `D_800CF420`.
-  The resident flag lattice was unchanged; a bounded two-worker MIPS II
-  permuter batch improved its internal score from 45 to 25 but did not change
-  these object-level residuals.
+- `tier-D levelGetCounts`: 3 masked words remain, first `+0x13c`; size, frame, and opcode schedule are exact.
+  Workbench forced-color; pointer-bounded `D_800CF420` loops, source/type/loop forms, flag lattice, and permutation did not close it.
+  The v0/a0 web and BSS ownership keep the zero-loop relocation on `D_800CF3E0` instead of `D_800CF420`.
 - `levelInit`, ten structural, storage, type and register-lifetime hypotheses,
   the full 119-combination flag lattice and a bounded two-worker permuter
   batch, first mismatch `+0x238`: the JFG-adapted, Mickey-specific candidate
@@ -2497,19 +2492,9 @@ The callback/trap address web and counter schedule remain; the assembly fallback
 Constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement did not remove the saved secondary-array base web.
 Its two extra boundary words remain; the coherent candidate stays `NON_MATCHING` and assembly remains canonical.
 
-The 240-byte `func_80045BBC` fault-state writer reaches a two-word allocation
-plateau after the full flag lattice, ten coherent declaration/lifetime forms,
-and one bounded canonical MIPS II permuter batch. JFG's `func_80066D28_67928`
-supplies the copy-and-write structure, while Mickey's fixed diagnostic-buffer
-addresses establish the dynamic aligned dump-size calculation. The best
-candidate is exact in size, frame, saved registers, control flow, stack homes,
-call order, and relocation identities, with 58 of 60 instruction positions
-exact. At the first mismatch, function `+0xBC`, IDO loads the fifth
-`packWriteFile` argument into `t4`; the target uses `t6`, affecting only that
-load and its stack store. Casts, explicit call-argument locals, prototype
-forms, and the bounded permutations do not change that coloring without
-disturbing otherwise-exact code. The candidate remains behind `NON_MATCHING`
-and the target assembly stays canonical.
+`tier-D func_80045BBC`: 2 instruction words plus 6 relocation sites remain, first `+0x18`; size, frame, calls, and copy structure are exact.
+Workbench constant/allocation; symbolic-address, argument-hoist, phantom-pop, subtraction, flag-lattice, and bounded permutation levers did not close it.
+Fixed-buffer relocation identities and final `packWriteFile` argument coloring remain; assembly stays canonical.
 
 The 292-byte `func_80046AA8` packed-glyph renderer reaches a loop-form plateau
 after the full flag lattice, nine coherent counter/type/source forms, and one

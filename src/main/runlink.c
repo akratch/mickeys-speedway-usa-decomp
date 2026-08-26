@@ -990,9 +990,9 @@ void runlinkSuspendCode(s32 overlayIndex) {
  * asm/nonmatchings/runLink/runlinkResumeCode.s and its documented role in
  * src/runLink.c. Mickey's allocation tag, packed relocation records, and
  * resident section anchors determine the C body.
- * Workbench: constant/frame-layout; 250 words and all lanes exact, first +0x0.
- * Tried levers 26/32 plus the 119-flag lattice; the best frame stays 0x48.
- * Remains: one missing temp home; a source pad over-allocates the frame to 0x78.
+ * Workbench: frame-layout/constant residual; six stack operands differ first +0x0, with opcode, register, and relocation surfaces exact.
+ * Tried stack-home levers 26/32, frame-local variants, and the 119-combination flag lattice.
+ * Remains: target reserves 0x50 and homes pendingLoad at sp+0x44; the candidate reserves 0x48 and uses sp+0x40.
  */
 void runlinkResumeCode(s32 overlayIndex) {
     OverlayHeader *overlay;

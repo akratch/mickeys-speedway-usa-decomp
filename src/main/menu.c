@@ -236,9 +236,9 @@ extern void camPushModelMtx(MenuCommand **commands, void **matrices,
 extern void camPopModelMtx(MenuCommand **commands);
 
 #ifdef NON_MATCHING
-/* Exact size/frame: 5/74 words differ, first +0xDC; caching the element fixes
- * the commutative row, but pool slot 18 keeps base/value a0/a1 crossed. Switch
- * relocs +0x4C/+0x54 still bind .rodata, not jtbl_80082734. */
+/* Workbench: allocation-mismatch/pool-position; 5/74 positional words remain, first +0xDC, with size and frame exact.
+ * Tried explicit table-base local, cached-element/commutative forms, flag lattice, and a 30m permutation (best score 995 was semantically invalid: destination became uninitialized).
+ * Remains: pool slot 18 crosses the base/value a0/a1 web, and switch relocs +0x4C/+0x54 bind .rodata rather than jtbl_80082734. */
 void func_80038750(s32 language) {
     s32 *header;
     s32 *offsets;
@@ -1277,9 +1277,9 @@ s32 frontGet2PlayerSplit(void) {
     return split;
 }
 /* PROVENANCE: role and order compared with JFG src/menu.c::frontSet2PlayerSplit. */
-/* Plateau: exact nine-word shape, three register-only words differ first +0x8.
- * Workbench reports temp-FIFO phase; ten source forms, the flag lattice, and a
- * 40-minute permuter leave the retained byte-lvalue expression best. */
+/* Workbench: allocation-mismatch/temp-FIFO; 3/9 positional words remain, first +0x8.
+ * Tried levers 14/15/16, ten source forms, the flag lattice, and the bounded permutation batch.
+ * Remains: the lbu/andi/or temp web crosses allocator classes; the retained byte-lvalue expression is best. */
 #ifdef NON_MATCHING
 void func_8003A520(s32 split) {
     *(u8 *)&D_800D3128 = (s16)(((split << 4) & 0x10) |
