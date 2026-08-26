@@ -42,9 +42,9 @@ extern void func_overlay_036_F0000914_1883DCC(Overlay36Object *object,
                                               s32 arg1, s32 state,
                                               s32 enabled);
 
-/* Workbench: structure-mismatch; 170 instructions/frame -56, 155-word
- * relocation-masked floor, first structural mismatch at +0x3C. Mode-branch,
- * spill, and constant levers remain blocked; returned-record +0xA8 regressed, leaving FP webs and relocations. */
+/* Workbench p6 batch 13: structure-mismatch; 170 instructions/-0x38 frame, 71-word masked floor, first +0x3C.
+ * Lever: swapping the final blend operands preserved shape and reduced the prior 155-word floor by 84 words.
+ * Remains: early mode-branch call staging, FP-pool webs, and 34 relocation identities. */
 #ifdef NON_MATCHING
 void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
                                        volatile s32 arg2,
@@ -89,7 +89,7 @@ void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
                 blendedRemainder = (1.0f - blend) * value;
                 value = (blend * 10.0f) + blendedRemainder;
 #else
-                value = (blend * 10.0f) + ((1.0f - blend) * value);
+                value = ((1.0f - blend) * value) + (blend * 10.0f);
 #endif
             }
 
