@@ -10,177 +10,17 @@
  * extracted assembly.
  */
 
-#include "PR/ultratypes.h"
-
-typedef struct Wake {
-    u8 pad0[0x30];
-    s32 linked;
-} Wake;
-
-typedef struct FxCone {
-    s32 texture;
-    s32 alternateTexture;
-    u8 pad8[0x24];
-    s8 value2C;
-    s8 value2D;
-    s8 value2E;
-    u8 pad2F;
-    s8 value30;
-    s8 value31;
-    s8 value32;
-} FxCone;
-
-typedef struct FxConeTextureInfo {
-    u8 pad0[6];
-    u16 width;
-    u16 height;
-} FxConeTextureInfo;
-
-typedef struct FxConeVertex {
-    u8 pad0;
-    u8 index0;
-    u8 index1;
-    u8 index2;
-    s16 s0;
-    s16 t0;
-    s16 s1;
-    s16 t1;
-    s16 s2;
-    s16 t2;
-} FxConeVertex;
-
-typedef struct FxConeCoords {
-    FxConeTextureInfo *textureInfo;
-    u8 pad4[0xC];
-    FxConeVertex *vertices;
-    u8 pad14;
-    u8 segmentCount;
-} FxConeCoords;
-
-typedef struct FxGfx {
-    u32 w0;
-    u32 w1;
-} FxGfx;
-
-typedef struct FxDrawCone {
-    s32 texture0;
-    s32 texture1;
-    s32 addresses[2];
-    s32 vertices;
-    u8 mode;
-    u8 vertexCount;
-    u8 addressIndex;
-    u8 pad17[0x15];
-    u8 primRed;
-    u8 primGreen;
-    u8 primBlue;
-    u8 pad2F;
-    u8 envRed;
-    u8 envGreen;
-    u8 envBlue;
-} FxDrawCone;
-
-typedef struct WakeRipple {
-    u8 pad0[0x70];
-    s32 linked;
-    u8 pad74[0x10];
-    Wake *wake;
-} WakeRipple;
-
-typedef struct FxFlags {
-    u16 value;
-    u8 pad2[0x1E];
-} FxFlags;
-
-typedef struct FxStatus {
-    u8 value;
-    u8 pad1[0x1F];
-} FxStatus;
-
-typedef struct FxScreenEffect {
-    s32 type;
-    s16 value4;
-    s16 value6;
-    s16 value8;
-    s16 valueA;
-    s16 valueC;
-    s16 valueE;
-    s32 value10;
-} FxScreenEffect;
-
-typedef struct FxSpdRecord {
-    s16 value0;
-    s16 value2;
-    s16 value4;
-    u8 value6;
-    u8 value7;
-} FxSpdRecord;
-
-typedef struct FxRecord {
-    u8 state;
-    u8 status;
-    u16 flags;
-    s32 value4;
-    s32 value8;
-    s32 valueC;
-    s32 value10;
-    s16 value14;
-    s16 value16;
-    s16 value18;
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 value1D;
-    u8 value1E;
-    u8 value1F;
-} FxRecord;
-
-typedef void (*FxTextureCallback)(s32 index, s32 value, s32 arg2);
-
-extern void func_800347A0(s32 linked);
-extern void func_800320F0(s32 callback);
-extern void func_8004ACC4();
-extern void mmFree(void *ptr);
-extern FxFlags D_800D5F5A[];
-extern FxStatus D_800D5F59[];
-extern FxRecord D_800D5F58[];
-extern s32 D_800D5F50;
-extern s32 D_800D6038[];
-extern s32 D_800D6040;
-extern FxSpdRecord D_800D5FF8[][4];
-extern s32 D_8007D47C[];
-extern s32 D_8007D488;
-extern s32 D_800D6098[];
-extern s32 D_800D60A8;
-extern s32 D_800D60BC;
-extern s32 D_800D60C0[];
-extern s32 D_800D60CC;
-extern u8 D_800D60D3;
-extern s32 D_8007D478;
-extern FxScreenEffect D_800D6048[];
-extern void TrapDanglingJump(void);
-extern void fxScreenEffect(s32 arg0, s32 type, s32 value4, s32 value6,
-                           s32 value8, s32 valueA, s32 valueC, s32 valueE,
-                           s32 value10);
-extern f32 func_8002A8BC(s32 angle);
-extern f32 func_8002A8C0(s32 angle);
-extern f32 D_80083DE8;
-extern void func_800349A4(FxGfx **dList, s32 texture, s32 flags, s32 arg3);
-extern void func_8004A10C(s32 screen, u8 glyph, s32 x, s32 y, s32 arg4);
-extern s32 sprintf(char *buffer, const char *format, ...);
-extern u8 D_8007D364[];
-extern char D_80083DE0[];
-extern s32 D_800D2FA0;
+#include "game/fx.h"
 
 void func_80046E70(FxCone *cone) {
-    s32 texture;
-    s32 alternateTexture;
+    FxConeTextureInfo *texture;
+    FxConeTextureInfo *alternateTexture;
 
-    texture = cone->texture;
+    texture = cone->texture.pointer;
     if (texture != 0) {
         func_800347A0(texture);
     }
-    alternateTexture = cone->alternateTexture;
+    alternateTexture = cone->alternateTexture.pointer;
     if (alternateTexture != 0) {
         func_800347A0(alternateTexture);
     }
@@ -190,23 +30,22 @@ void func_80046E70(FxCone *cone) {
 void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
                    s32 value30, s32 value31, s32 value32) {
     if (cone != 0) {
-        cone->value2C = value2C;
-        cone->value2D = value2D;
-        cone->value2E = value2E;
-        cone->value30 = value30;
-        cone->value31 = value31;
-        cone->value32 = value32;
+        cone->primRed = value2C;
+        cone->primGreen = value2D;
+        cone->primBlue = value2E;
+        cone->envRed = value30;
+        cone->envGreen = value31;
+        cone->envBlue = value32;
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047304.s")
-/* Workbench p3: structure-mismatch; 254/251 candidate/target instructions, 236 words from +0x0.
- * Lever: constant audit plus array order, lifetime, and combined-buffer forms.
- * Remains: candidate +3 instructions and +16-byte frame with a register/CFG cascade. */
+/* Workbench: structure-mismatch; 456/251 candidate/target instructions, 440 raw
+ * words from +0x0; the 24-byte non-save frame surplus remains structural. */
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's corresponding fxMakeConeTextureCoords body is
  * also assembly-only and supplies no adaptable C source. */
-void func_800475E8(FxConeCoords *cone, s16 angle) {
+void func_800475E8(FxCone *cone, s16 angle) {
     s16 x[20];
     s16 y[20];
     FxConeTextureInfo *textureInfo;
@@ -220,12 +59,12 @@ void func_800475E8(FxConeCoords *cone, s16 angle) {
 
     currentAngle = angle;
     if (cone != 0) {
-        textureInfo = cone->textureInfo;
+        textureInfo = cone->texture.pointer;
         if (textureInfo != 0) {
             width = textureInfo->width * 16;
             height = textureInfo->height * 16;
             segmentCount = cone->segmentCount;
-            vertex = cone->vertices;
+            vertex = (FxConeVertex *)cone->vertices;
             if (segmentCount == 0) {
                 f32 widthEdge = (f32)(width - 1);
                 f32 scale = D_80083DE8;
@@ -371,7 +210,7 @@ void func_800475E8(FxConeCoords *cone, s16 angle) {
 
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's corresponding fxDrawCone body is assembly-only. */
-void func_80047CD8(FxGfx **dList, FxDrawCone *cone, s32 flags, u8 alpha) {
+void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
     s32 hasTexture;
 
     if (cone != 0) {
@@ -386,31 +225,31 @@ void func_80047CD8(FxGfx **dList, FxDrawCone *cone, s32 flags, u8 alpha) {
             FX_SET_ENV((*dList)++, 0xFF, 0xFF, 0xFF, 0);
         }
 
-        if (cone->texture0 != 0) {
+        if (cone->texture.value != 0) {
             hasTexture = 1;
         } else {
             hasTexture = 0;
         }
-        if (cone->vertexCount == 0) {
+        if (cone->segmentCount == 0) {
             FX_VERTEX_JFG((*dList)++,
                           cone->addresses[cone->addressIndex] + 0x80000000,
                           17, 0);
-            func_800349A4(dList, cone->texture1, flags, 0);
+            func_800349A4(dList, cone->alternateTexture.value, flags, 0);
             FX_POLYGON((*dList)++, cone->vertices + 0x80000000, 16,
                        hasTexture);
-            func_800349A4(dList, cone->texture0, flags, 0);
+            func_800349A4(dList, cone->texture.value, flags, 0);
             FX_POLYGON((*dList)++, cone->vertices + 0x80000200, 8,
                        hasTexture);
-            func_800349A4(dList, cone->texture1, flags, 0);
+            func_800349A4(dList, cone->alternateTexture.value, flags, 0);
             FX_POLYGON((*dList)++, cone->vertices + 0x80000100, 16,
                        hasTexture);
         } else {
-            func_800349A4(dList, cone->texture0, flags, 0);
+            func_800349A4(dList, cone->texture.value, flags, 0);
             FX_VERTEX_JFG((*dList)++,
                           cone->addresses[cone->addressIndex] + 0x80000000,
                           cone->mode, 0);
             FX_POLYGON((*dList)++, cone->vertices + 0x80000000,
-                       cone->vertexCount, hasTexture);
+                       cone->segmentCount, hasTexture);
         }
 
         FX_PIPE_SYNC((*dList)++);
@@ -425,7 +264,7 @@ void func_80047CD8(FxGfx **dList, FxDrawCone *cone, s32 flags, u8 alpha) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048760.s")
 void wakeFree(Wake *wake) {
-    s32 linked = wake->linked;
+    void *linked = wake->linked;
 
     if (linked != 0) {
         func_800347A0(linked);
@@ -433,7 +272,7 @@ void wakeFree(Wake *wake) {
     mmFree(wake);
 }
 void func_80048980(WakeRipple *ripple) {
-    s32 linked = ripple->linked;
+    void *linked = ripple->linked;
 
     if (linked != 0) {
         func_800347A0(linked);
@@ -459,7 +298,7 @@ void fxInit(void) {
         record++;
     }
     D_800D5F50 = 0;
-    func_8004ACC4(i);
+    func_8004ACC4();
 }
 /* Mickey-derived body; JFG's corresponding fx.c routine is assembly-only. */
 void func_8004978C(s32 index, s32 mask, s32 enable) {
@@ -639,7 +478,7 @@ void fxQueueScreenEffect(s32 type, s32 value4, s32 value6, s32 value8,
         effect->value10 = value10;
     }
 }
-void func_8004A9CC(s32 arg0) {
+void func_8004A9CC(FxGfx **dList) {
     FxScreenEffect *effect;
     s32 index;
 
@@ -647,7 +486,7 @@ void func_8004A9CC(s32 arg0) {
     index = 0;
     if (D_8007D478 > 0) {
         do {
-            fxScreenEffect(arg0, effect->type, effect->value4,
+            fxScreenEffect(dList, effect->type, effect->value4,
                            effect->value6, effect->value8, effect->valueA,
                            effect->valueC, effect->valueE, effect->value10);
             index++;
@@ -663,25 +502,22 @@ void func_8004A9CC(s32 arg0) {
  * Force Gemini asm/nonmatchings/fx/func_8006FFF8.s. Mickey's own symbols and
  * instruction schedule establish the assignment order below.
  */
-/* Plateau (near-miss p5): workbench mixed(structural:10, register:5), 14 words at 28 instructions.
- * Levers: typed return/result, direct trap, and address/declaration/assignment order; each changed structure or allocation.
- * Remains: callback/trap pool mapping and loop-counter schedule; assembly fallback stays canonical. */
+/* Plateau: workbench structure-mismatch, 18 raw words at 28 instructions, first
+ * relocation/assignment residual at +0x10; callback/trap address web remains. */
 void func_8004ACC4(void) {
-    s32 *callback;
-    s32 *value0;
-    s32 *value1;
+    FxTextureCallback *callback;
+    void **value0;
+    void **value1;
     u8 *available;
     s32 i;
-    s32 trap;
-    s32 trapValue;
+    FxTextureCallback trap;
 
     D_800D60A8 = 0;
     i = 3;
-    trapValue = (s32) TrapDanglingJump; \
-    value0 = &D_800D60BC; \
-    value1 = &D_800D60CC; \
-    available = &D_800D60D3; \
-    trap = trapValue; \
+    trap = (FxTextureCallback)TrapDanglingJump;
+    value0 = &D_800D60BC;
+    value1 = &D_800D60CC;
+    available = &D_800D60D3;
     callback = &D_8007D488;
     do {
         *value0 = 0;
@@ -727,7 +563,7 @@ void func_8004AF68(void) {
     void *allocation;
 
     offset = 12;
-    value0 = &D_800D60BC;
+    value0 = (s32 *)&D_800D60BC;
     i = 3;
     available = &D_800D60D3;
     do {
@@ -740,7 +576,8 @@ void func_8004AF68(void) {
             *value1 = 0;
         }
         if (*available != 0) {
-            *(s32 *)((u8 *)D_8007D47C + offset) = (s32)TrapDanglingJump;
+            *(FxTextureCallback *)((u8 *)D_8007D47C + offset) =
+                (FxTextureCallback)TrapDanglingJump;
         }
         value0--;
         available--;

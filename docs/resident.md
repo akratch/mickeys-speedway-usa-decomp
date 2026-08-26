@@ -2291,6 +2291,34 @@ with the JFG identity and tier on the same row, until each function or its
 caller becomes C-owned; this avoids pretending that a source-level rename is
 already available to the stale generated caller assembly.
 
+FX type-pass inventory (target widths/offsets; no source-body promotion):
+
+| Function | Target-derived aggregate/global surface | Before → after; lever; remaining |
+|---|---|---|
+| `func_80046EC4` | `FxCone`: pointer words `+0,+4,+8,+C,+10`; bytes `+14..17`; floats `+18,+1C`; halfwords `+20..2A`; colors `+2C..32`. | GLOBAL_ASM → GLOBAL_ASM; cone aggregate; allocator/body not re-derived. |
+| `func_800470B0` | `FxCone` bytes `+14..17`, pointer/output words `+8,+C,+10,+15`; generated vertex records; `func_8002A8BC/C0`. | GLOBAL_ASM → GLOBAL_ASM; cone aggregate; loop schedule remains. |
+| `func_80047304` | `FxCone` `+10,+14,+15`; generated vertex records; `D_80083DE4`; trig helpers. | GLOBAL_ASM → GLOBAL_ASM; cone aggregate; vertex-fill CFG remains. |
+| `func_800475E8` | `FxCone.texture +0`, `segmentCount +15`, `vertices +10`; `FxConeTextureInfo` `+6/+8`; `FxConeVertex` byte `+0/+1..3`, halfwords `+4..E`; `D_80083DE8`. | structure plateau → structure plateau (`440` raw words, first `+0`); structure-buckets; frame/code shape remains. |
+| `func_800479D4` | `FxCone` `+8,+15..17,+18,+1C,+20..2A`; generated vertex records; trig helpers. | GLOBAL_ASM → GLOBAL_ASM; cone aggregate; long mixed FP/vertex CFG remains. |
+| `func_80047CD8` | `FxGfx **`; `FxCone` words `+0..10`, bytes `+14..17,+2C..32`; `func_800349A4`. | structure → allocation (`8` words, first `+298`); forced-color oracle; eight register words remain. |
+| `func_80048080` | Output vertex records: bytes `+6..9`, halfwords `-A,-8,-6`; trig helpers. | GLOBAL_ASM → GLOBAL_ASM; output-record widths; 65 positional words remain. |
+| `wakeAllocate` | `Wake`: bytes `+0..3,+38..3B`; float `+4,+C`; halfwords `+8`; pointers `+10,+14,+18..2C,+30`; halfwords `+34,+36`; word `+3C`. | GLOBAL_ASM → GLOBAL_ASM; `Wake` layout; allocation/initialization CFG remains. |
+| `func_80048760` | `WakeRipple` 0x88-byte setup; texture/link `+70`; bytes `+74,+75`; halfwords `+76,+78,+7A`; floats `+7C,+80`; nested `Wake *+84`; source fields `+40,+54`. | GLOBAL_ASM → GLOBAL_ASM; ripple aggregate; setup loop remains. |
+| `wakeUpdate` | `Wake` `+0..14,+30,+34..3C`; `WakeRipple` texture/config `+70..84`; generated display records. | GLOBAL_ASM → GLOBAL_ASM; wake aggregate; update/draw scheduling remains. |
+| `func_80049000` | `WakeRipple` `+54` link, `+70,+74..84`; `Wake` `+80,+84`; `Arctanf`, `wakeUpdate`. | GLOBAL_ASM → GLOBAL_ASM; ripple aggregate; trigonometric CFG remains. |
+| `wakeDraw` | `Wake` `+30,+34,+38`; `FxGfx **`; `func_800349A4`. | GLOBAL_ASM → GLOBAL_ASM; wake/dlist types; command schedule remains. |
+| `func_80049518` | `WakeRipple` `+70,+74,+76,+78,+84`; nested `Wake +3C`; `FxGfx **`; draw helpers. | GLOBAL_ASM → GLOBAL_ASM; ripple aggregate; display-list schedule remains. |
+| `func_800498FC` | `FxRecord` `+0,+1,+2,+14,+16,+18,+1A..1F`; `D_800D5F58[5]`; camera helpers. | GLOBAL_ASM → GLOBAL_ASM; record widths; branch/FP shape remains. |
+| `func_80049B14` | `D_800D5F50`; `FxRecord` `+0,+1,+2,+14,+16,+18,+1E,+1F`; five-record stride `0x20`. | GLOBAL_ASM → GLOBAL_ASM; record aggregate; clear/update CFG remains. |
+| `func_80049E4C` | `D_800D5F50`, `D_800D5F58`, `D_800D5FD8`; `FxRecord` bytes/halfwords; `FxGfx`; VI/scissor helpers. | GLOBAL_ASM → GLOBAL_ASM; record/dlist aggregates; rendering CFG remains. |
+| `func_8004A10C` | `D_8007D320` u32 table, `D_8007D364` u8 glyph table; VI size; `FxGfx` command words. | GLOBAL_ASM → GLOBAL_ASM; table widths; glyph command CFG remains. |
+| `func_8004A380` | `D_8007D364[12]` bytes, `D_80083DE0` text, `D_800D2FA0` screen pointer; local text buffer. | structure plateau → structure plateau (`65` words, first `+8`); structure-buckets; target `sp+54`/register web remains. |
+| `fxSPDPRipple` | `D_8007D370[2]`, `D_8007D374[2]`, `D_8007D378[4]`; `FxGfx **`; level/draw helpers. | GLOBAL_ASM → GLOBAL_ASM; global table widths; ripple display CFG remains. |
+| `fxScreenEffect` | `D_8007D380[10]`, `D_8007D3D0[7]`, `D_8007D408[14]` `FxGfx`; VI video mode and display helpers. | GLOBAL_ASM → GLOBAL_ASM; dlist aggregate; effect command CFG remains. |
+| `func_8004ACC4` | `D_800D60A8` word; `D_800D60BC/CC` pointer words; `D_800D60D3` byte; `D_8007D488` callback word; `TrapDanglingJump`. | mixed plateau → structure plateau (`18/28` words); structure-buckets; callback/trap web remains. |
+| `func_8004ADE8` | `D_800D60A8`, `D_800D6098[4]`, `D_800D60B0[4]`, `D_800D60C0[4]`, `D_8007D47C[4]`; texture info `+6/+8`. | GLOBAL_ASM → GLOBAL_ASM; pool aggregate; saved-index/unroll shape remains. |
+| `func_8004AF68` | `D_800D60BC/CC`, `D_800D60C0[4]`, `D_800D60D3`, `D_8007D47C[4]`, `D_800D60A8`, `TrapDanglingJump`; `mmFree`. | structure plateau → structure plateau (`48` words, first `+4`); structure-buckets; secondary-pool base web remains. |
+
 Exact C closures in these splits begin with 680 bytes across seven `diCpu`
 functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
 60-byte `func_8004650C` (`diCpuTraceTick`). Their natural return-zero and
@@ -2338,36 +2366,6 @@ instructions plus the `sprintf` call and format-symbol relocations. The two
 following target words are end-of-TU alignment padding outside the function;
 IDO supplies them through normal section alignment, and the linked range is
 byte-identical without post-compile editing.
-The 1,004-byte `func_800475E8` (`fxMakeConeTextureCoords`) reaches a structural
-plateau from Mickey's recovered coordinate-generation loops. JFG confirms the
-identity but its peer is also assembly-only. After the full flag lattice and
-four coherent loop/lifetime variants, the closest relevant candidate needs
-`-Wo,-loopunroll,0`, is six instructions long (257 versus 251), and uses a
-256-byte frame instead of 248 bytes; all 257 positional words differ beginning
-at function `+0x0` because the extra scalar homes shift the complete GPR/FPR
-allocation. The typed candidate remains behind `NON_MATCHING`; the TU-wide
-unroll override is not adopted without an exact result and an impact proof for
-the existing matches.
-The 936-byte `func_80047CD8` (`fxDrawCone`) reaches an eight-word allocation
-plateau after the full flag lattice and ten source-shape hypotheses. Recasting
-its opaque words as JFG-style `gSPVertexJFG` and `gSPPolygon` macros reproduces
-the target's exact 234-instruction size, 104-byte frame, saved-register set,
-control flow and helper-call relocations under the resident defaults. The
-first mismatch is function `+0x298`: in the variable-count path IDO assigns
-the cone mode and triangle count to different argument registers than the
-target, affecting eight words while leaving the command arithmetic and all
-surrounding instructions exact. Explicit locals fix those eight uses only by
-perturbing the frame or earlier allocation, so the typed macro reconstruction
-remains behind `NON_MATCHING` and the target assembly stays canonical.
-The 356-byte `func_80048080` fresh typed m2c route bottoms out at 83/89 words with 65 positional differences, first at `+0x0`.
-Workbench reports structure-mismatch: suppressing IDO's two-way unroll changes the frame from 64 to 80 bytes; the target uses 72.
-Hypothesis: the original packed-pointer loop retains the saved count while blocking unroll; no flag-lattice entry was exact.
-The 384-byte `func_8004ADE8` typed Mickey m2c/JFG-assembly route bottoms out at 92 differing words, first at `+0x0`.
-Workbench reports structure-mismatch: target frame 64 bytes with saved `s0`; the closest flag form emits 95/96 instructions with 92 differing words.
-Hypothesis: the original pointer spelling both pins the slot index in `s0` and blocks four-way unrolling of the byte-clear loop.
-The 400-byte `func_800498FC` explicit-`FxRecord` m2c route emits 101/100 instructions with 89 differing words, first at `+0x0`.
-Workbench reports structure-mismatch: an explicit record spill removes the false saved `s0`, but leaves a 40-byte frame against the target's 48.
-Hypothesis: the original call expression homes the record at `sp+0x24` and drives the target's post-call flag/store schedule; all 119 flags agree.
 The 84-byte `diCpuTraceInit` is exact at the resident defaults. Keeping JFG's
 distinct thread-control-block and stack-top declarations reproduces the target
 evaluation schedule; Mickey resolves both operands to the same address, so the
@@ -2424,9 +2422,6 @@ unsigned and spelling the queue toggle as a global assignment followed by a
 global-indexed clear reproduces all 41 target words, the 40-byte frame, the
 five-argument helper call, and all data/call relocations at the resident
 defaults.
-The 304-byte `func_8004A380` workbench verdict remains structure-mismatch: the best coherent candidate emits 74/76 words with 65 positional differences from `+0x08`.
-Constant/context audit, delayed cursor construction, index dependency/address forms, and a dead-web probe did not reach a new exact basin.
-IDO still hoists the text base into `s2` at `sp+0x50`; the target retains a zero index and forms temporary bases for the buffer at `sp+0x54`.
 The 76-byte JFG-identified `fxInit` is exact as well: its post-decrement loop
 clears all five 32-byte records, resets the global state, and preserves the
 callee plus two data relocation pairs without normalization.
@@ -2441,14 +2436,6 @@ four-entry descending callback loop, flag test, callback-table refresh, and
 indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
-
-`func_8004ACC4` remains exact-size with 14/28 positional words differing, first `+0x14`; workbench verdict: mixed structure/register residual.
-Logical-line grouping improved 18 to 14; aggregate lifetime, assignment order, and direct trap-address forms did not.
-The callback/trap address web and counter schedule remain; the assembly fallback stays canonical.
-
-`func_8004AF68` remains a workbench `structure-mismatch`: 54/52 words and 48 positional differences from `+0x4`.
-Constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement did not remove the saved secondary-array base web.
-Its two extra boundary words remain; the coherent candidate stays `NON_MATCHING` and assembly remains canonical.
 
 The 240-byte `func_80045BBC` fault-state writer reaches a two-word allocation
 plateau after the full flag lattice, ten coherent declaration/lifetime forms,
