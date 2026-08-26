@@ -1267,8 +1267,6 @@ segments:
       - [0x18783B8, c, func_overlay_022_F00002B0_18783B8]
       - [0x1878B84, c, overlay22ResolvePlane]
       - [0x1878E38, c, overlay22RemoveObject]
-      - [0x1878FA4, asm, overlay_022_padding]
-      - [0x1878FA8, bin, overlay_022_data_rodata]
       - [0x1879008, bin, overlay_022_reloc1]
       - [0x1879110, bin, overlay_022_reloc2]
 
@@ -1734,8 +1732,6 @@ segments:
       - [0x188CBBC, c, func_overlay_045_F0000764_188CBBC]
       - [0x188D5B0, c, func_overlay_045_F0001158_188D5B0]
       - [0x188E038, c, overlay_045_tail]
-      - [0x188E074, asm, overlay_045_padding]
-      - [0x188E078, bin, overlay_045_data_rodata]
       - [0x188E0F8, bin, overlay_045_reloc1]
       - [0x188E348, bin, overlay_045_reloc2]
 
@@ -1780,7 +1776,7 @@ segments:
       - [0x1891948, c, func_overlay_047_F0000B30_1891948]
       - [0x1893B28, c, overlay47SpawnObject]
       - [0x1893C00, asm, overlay_047_padding]
-      - [0x1893C08, bin, overlay_047_data_rodata]
+      - [0x1893C08]
       - [0x18941A8, bin, overlay_047_reloc1]
       - [0x1894930, bin, overlay_047_reloc2]
 

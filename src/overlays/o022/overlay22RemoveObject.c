@@ -16,9 +16,13 @@ typedef struct Overlay22Object {
     u32 flags80;
 } Overlay22Object;
 
-extern Overlay22Object *gOverlay22Nodes[];
+Overlay22Object *gOverlay22Nodes[12] = { 0 };
+volatile s32 D_30 = 0;
+static u8 overlay22DataPad34[0xC] = { 0 };
+static f32 overlay22Constants[5] = { 14.4F, 14.4F, 0.8F, 0.03F, 0.707F };
+static u8 overlay22DataTail[0xC] = { 0 };
+
 extern Overlay22Object *gOverlay22NodesEnd[];
-extern volatile s32 D_30;
 extern void func_overlay_022_F0000000_1878108();
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */

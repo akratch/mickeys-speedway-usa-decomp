@@ -2,6 +2,40 @@
 #include "game/font.h"
 #include "n_audio/mbi.h"
 
+/* The overlay's initialized owner is a display-list setup followed by the
+ * allocator diagnostic and the three motion constants used by this range. */
+typedef struct Overlay45InitializedData {
+    Gfx setup[10];
+    char allocationFailure[0x20];
+    char format[4];
+    f32 bounceReset;
+    f32 bounceStep;
+    f32 positionBlend;
+} Overlay45InitializedData;
+
+Overlay45InitializedData gOverlay45InitializedData = {
+    {
+        gsDPPipeSync(),
+        gsDPSetTextureLOD(G_TL_TILE),
+        gsDPSetTextureLUT(G_TT_NONE),
+        gsDPSetAlphaCompare(G_AC_NONE),
+        gsSPClearGeometryMode(G_ZBUFFER | G_FOG),
+        gsDPPipeSync(),
+        gsSPEndDisplayList(),
+        gsDPSetCombineLERP(K4, K5, PRIMITIVE, ENVIRONMENT,
+                           0, 0, 0, ENVIRONMENT,
+                           K4, K5, PRIMITIVE, ENVIRONMENT,
+                           0, 0, 0, ENVIRONMENT),
+        {{ 0xEF082C0F, 0x00504240 }},
+        {{ 0, 0 }},
+    },
+    "polyFontCreate: mmAlloc failed\n",
+    "%s",
+    0.05F,
+    0.003F,
+    0.075F,
+};
+
 extern DialogueBoxBackground D_800D64E8[];
 
 extern void func_80034920(Gfx **displayList);
@@ -19,20 +53,8 @@ extern void func_overlay_045_F0001158_188D5B0(
 
 /* Mickey-local reconstruction. The closest permitted donor skeleton scores
  * 0.047 and does not contain this descriptor/element update shape. */
-/*
- * Plateau (2026-08-25, 10 attempts): -O2 -mips2 with
- * -Wab,-r4300_mul produces the target's 637 instructions with identical
- * opcode order and register allocation, but reserves a 0x90-byte frame
- * instead of retail's 0x88-byte frame. The resulting 20 positional word
- * differences begin at +0x0 and are frame/incoming-argument offsets; the
- * separate-TU constants and resident/local references also still need their
- * retail relocation bindings. Correcting element signedness, using the SDK
- * display-list macros, splitting the sequencing boolean from its delay, and
- * preserving the natural in-place updates closed all opcode and allocator
- * residuals. A two-worker ten-minute permuter run improved only the fade
- * expression; the equivalent in-place spelling is retained here. Register
- * storage hints did not change the remaining frame, so assembly stays active.
- */
+/* Plateau: 637 instructions and opcode/register shape match, but the frame is
+ * 0x90 instead of 0x88; separate-TU local references remain unresolved. */
 #ifdef NON_MATCHING
 void func_overlay_045_F0000764_188CBBC(
     Gfx **displayList, void *matrix, s32 arg2, s32 arg3,
