@@ -237,9 +237,9 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
 #endif
 
 /* Mickey-local rendering reconstruction; donor scans are exact-negative. */
-/* Plateau: -O2/-mips2 is exact-size with 195 masked (196 raw) words, first +0x8.
- * Ten register/lifetime shapes did not swap the object/child allocation;
- * a 40-minute MIPS2 permuter reached 3385, nonzero and artificial. */
+/* Workbench verdict=structure-mismatch; exact 254-word/-0x98 frame with 195 masked/196 raw differences, first real mismatch +0x8.
+ * Stack/lifetime shapes, pulse-local ablation/reuse, and the bounded MIPS2 permuter did not swap the object/child allocation.
+ * Remains: pool slot 1/temp slot 0 and the coupled object/child argument homes; permuter output was nonzero and artificial. */
 #ifdef NON_MATCHING
 void func_overlay_027_F0000624_187BFFC(O27Command **commands, void *arg1,
                                        s16 *arg2, O27Object *object) {
