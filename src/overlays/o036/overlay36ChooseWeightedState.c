@@ -24,16 +24,46 @@ typedef struct Overlay36Node {
     s16 flags6;
 } Overlay36Node;
 
+typedef struct Overlay36AltTable {
+    u8 pad0[0xA8];
+    u8 values[1];
+} Overlay36AltTable;
+
+typedef struct Overlay36ScaleDivisorData {
+    u8 pad0[0x28];
+    f32 value;
+} Overlay36ScaleDivisorData;
+
+typedef struct Overlay36ScaleMultiplierData {
+    u8 pad0[0x2C];
+    f32 value;
+} Overlay36ScaleMultiplierData;
+
+typedef struct Overlay36StrengthMultiplierData {
+    u8 pad0[0x30];
+    f32 value;
+} Overlay36StrengthMultiplierData;
+
+typedef struct Overlay36NodeDataA {
+    u8 pad0[0x150];
+    Overlay36Node *node;
+} Overlay36NodeDataA;
+
+typedef struct Overlay36NodeDataB {
+    u8 pad0[0x14C];
+    Overlay36Node *node;
+} Overlay36NodeDataB;
+
 extern s32 gOverlay36Mode;
 extern u8 gOverlay36AdjustEnabled;
 extern u16 gOverlay36EnabledMask;
 extern u8 gOverlay36Weights[14][10];
-extern u8 gOverlay36AltTable[];
-extern f32 gOverlay36ScaleDivisor;
-extern f32 gOverlay36ScaleMultiplier;
-extern f32 gOverlay36StrengthMultiplier;
-extern Overlay36Node *gOverlay36NodeA;
-extern Overlay36Node *gOverlay36NodeB;
+extern Overlay36AltTable gOverlay36AltTable;
+extern Overlay36ScaleDivisorData gOverlay36ScaleDivisor;
+extern Overlay36ScaleMultiplierData gOverlay36ScaleMultiplier;
+extern Overlay36StrengthMultiplierData gOverlay36StrengthMultiplier;
+extern Overlay36NodeDataA gOverlay36NodeA;
+extern Overlay36NodeDataB gOverlay36NodeB;
 
 extern u32 overlay36ChooseReloc();
 extern f32 overlay36MeasureReloc(Overlay36Object *object, s32 mode);
@@ -42,9 +72,9 @@ extern void func_overlay_036_F0000914_1883DCC(Overlay36Object *object,
                                               s32 arg1, s32 state,
                                               s32 enabled);
 
-/* Workbench: structure-mismatch; 170 instructions/frame -56, 155-word
- * relocation-masked floor, first structural mismatch at +0x3C. Mode-branch,
- * spill, and constant levers remain blocked; returned-record +0xA8 regressed, leaving FP webs and relocations. */
+/* Workbench p5: mixed (constant:2, structural:14, schedule:2), 170/170 instructions/frame -56, 155 masked words, first +0x3C.
+ * Aggregate data layouts fixed the table, scalar, and node addends; combined FP association fixed the prior FP-web residual.
+ * Remaining: mode-branch and loop scheduling, with relocation identities still unresolved. */
 #ifdef NON_MATCHING
 void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
                                        volatile s32 arg2,
@@ -66,11 +96,12 @@ void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
     total = 0;
     if (inner->countdown == 0) {
         if (gOverlay36Mode == 3) {
-            state = gOverlay36AltTable[overlay36ChooseReloc(0, 5)];
+            state = gOverlay36AltTable.values[overlay36ChooseReloc(0, 5)];
         } else {
-            value = (overlay36MeasureReloc(object, 5) /
-                     gOverlay36ScaleDivisor) * gOverlay36ScaleMultiplier;
-            value += (f32)inner->strength * gOverlay36StrengthMultiplier;
+            value = ((overlay36MeasureReloc(object, 5) /
+                      gOverlay36ScaleDivisor.value) *
+                         gOverlay36ScaleMultiplier.value) +
+                    ((f32)inner->strength * gOverlay36StrengthMultiplier.value);
 
             if (gOverlay36AdjustEnabled != 0) {
                 Overlay36Choice *choice;
@@ -129,11 +160,11 @@ void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
     }
 
     if (gOverlay36Mode == 3) {
-        gOverlay36NodeA->value4 = 0xF0;
+        gOverlay36NodeA.node->value4 = 0xF0;
     } else {
-        gOverlay36NodeA->value4 = 0x3C;
+        gOverlay36NodeA.node->value4 = 0x3C;
     }
-    gOverlay36NodeB->flags6 |= 0x400;
+    gOverlay36NodeB.node->flags6 |= 0x400;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36ChooseWeightedState/func_overlay_036_F0000A60_1883F18.s")

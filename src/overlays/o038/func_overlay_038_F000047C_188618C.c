@@ -90,9 +90,9 @@ extern f32 sqrtf(f32 value);
     ((volatile s32 *)command)[0] = -100663296; \
 } while (0)
 
-/* Workbench: structure-mismatch; 219 instructions/frame -232, 95 masked words,
- * first mismatch +0xC0 (16 opcode-order, 86 register rows). Packet/field,
- * pool-cursor, signedness/declaration, sync, and flag levers are exhausted; FP lanes match, integer command web remains. */
+/* Workbench p5: mixed (structural:21, schedule:6, register:86), 219/219 instructions/frame -232, 95 masked words, first +0xC0.
+ * Context lint is clean; packet/field, pool-cursor, signedness/declaration, sync, and flag levers remain exhausted.
+ * Remaining: integer command-web ordering; FP lanes are exact. */
 #ifdef NON_MATCHING
 void func_overlay_038_F000047C_188618C(O38Command **commands, void *context,
                                        O38Object *object)
