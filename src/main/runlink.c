@@ -672,9 +672,9 @@ void runlinkCallResumeFunction(s32 overlayIndex) {
         ((void (*)(void)) (overlay->vramBase + overlay->resumeFunction))();
     }
 }
-/* Workbench plateau: structure-mismatch, 117 words; 183/184 instructions, frame -104 vs -88, first +0x0.
- * Levers: cached base, declaration/register, relocation lifetime, flags, and bounded permutation variants.
- * Remains: 16-byte frame/home excess, relocation bindings, and patch-loop schedule. */
+/* Workbench p7 batch 12: structure-mismatch; 183/184 instructions, -0x68 vs -0x58 frame, 117 masked/raw words, first +0x0.
+ * Levers: constant-audit, cached-base/declaration/lifetime/flag variants, and the inherited bounded permutation; no exact carrier emerged.
+ * Remains: 16-byte frame/home excess, relocation bindings, and patch-loop schedule; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published

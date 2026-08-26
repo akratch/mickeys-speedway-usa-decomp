@@ -79,9 +79,9 @@ extern s16 ext_resident_result;
 extern s32 ext_resident_word_190;
 
 /* Independently reconstructed from Mickey-local evidence; no DKR/JFG donor. */
-/* Workbench p5 batch 14: structure-mismatch; exact 316 instructions/-0x40 frame, 115-word masked floor, first +0x17C.
- * Levers: earliest initialization/loop buckets and record-copy staging; pointer and resident-order variants did not close.
- * Remains: record-copy schedule plus pool/temp divergence across the resident-field staging block. */
+/* Workbench p7 batch 12: structure-mismatch; exact 316 instructions/-0x40 frame, 115 masked/119 raw words, first non-relocation +0x17C.
+ * Levers: constant-audit plus earliest-loop and record-copy staging; inherited pointer/resident-order probes remain negative.
+ * Remains: record-copy temp/pool allocation and resident-field scheduling; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_052_F0000000_189A670(void) {
     u8 *state;

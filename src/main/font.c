@@ -824,9 +824,9 @@ void func_8004C5A4(char *input, char *output, s32 number) {
     } while (currentChar);
 }
 
-/* Workbench plateau: structure-mismatch, 105 words; 144/146 instructions, frame -112, first +0x0.
- * Levers: 119 flags, widths/qualifiers, direct-global/font-index, copy AST/volatile, and block/pad homes.
- * Remains: initial pool setup and saved-header copy schedule. */
+/* Workbench p7 batch 12: structure-mismatch; 144/146 instructions, exact -0x70 frame, 105 masked/raw words, first +0x0.
+ * Lever: forced incoming-character home regressed; inherited flag/width/address/copy/stack-home variants remain negative.
+ * Remains: initial pool allocation and saved-header copy schedule; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's

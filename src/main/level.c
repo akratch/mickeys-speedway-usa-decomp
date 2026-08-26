@@ -288,9 +288,9 @@ u32 levelGetGfxIndex(s32 arg0) {
 
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
-/* Workbench p5 batch 14: allocation-mismatch; exact 516 instructions/-0x80 frame, 122 register-only words, first +0x238.
- * Levers: resident flag lattice, storage/lifetime variants, and bounded permuter; no consistent pool/temp permutation.
- * Remains: temp-FIFO and pool decisions around the resource-table loop; target colors are unavailable to this web shape. */
+/* Workbench p7 batch 12: allocation-mismatch; exact 516 instructions/-0x80 frame, 122 register-only words, first +0x238.
+ * Levers: pool-position/temp-FIFO audit plus inherited flag/storage/lifetime/permuter sweeps; no consistent local-color carrier.
+ * Remains: resource-table temp/pool allocation; GLOBAL_ASM stays canonical. */
 void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     s32 lvlStart;
     u32 lvlSize;

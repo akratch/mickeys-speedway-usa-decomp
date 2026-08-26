@@ -83,9 +83,9 @@ extern void *o50CreateC(void *value);
 extern void *o50CreateD(void *value, s32 x, s32 y, s32 count);
 extern void o50FinalizeReloc(void *value, void *arg);
 
-/* Workbench plateau: structure-mismatch, 108 words; 185/185 instructions, frame -32, first +0x8.
- * Levers: config-base, record initialization/copy order, flags, register/placement, and empty-read variants.
- * Remains: config-base coloring, record-copy schedule, and overlay relocation identity. */
+/* Workbench p7 batch 12: structure-mismatch; exact 185 instructions/-0x20 frame, 104 masked/112 raw words, first non-relocation +0x104.
+ * Levers: config/value28/fill ordering improved the inherited 108-word floor; an end-pointer variant shortened output, while prior config/copy/flag probes stayed negative.
+ * Remains: config-base coloring, record-copy schedule, and relocation identities; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_050_F0000000_1896970(void) {
     volatile O50Locals locals;
@@ -119,9 +119,9 @@ void func_overlay_050_F0000000_1896970(void) {
     D_A8 = 120.0f;
     config->value8C = 42.0f;
     config->value2C = -78.0f;
-    config->value04 = 0x4000;
     config->value28 = gO50FloatSource;
     fill = D_B0;
+    config->value04 = 0x4000;
     do {
         *fill++ = 0xA0;
     } while (fill < (s32 *)&D_BC);
