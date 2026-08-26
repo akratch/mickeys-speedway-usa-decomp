@@ -140,12 +140,9 @@ extern void o47ConfigureObjectReloc(s32 selector, s32 mode);
     } while (0)
 
 /* DKR v77/v80 and JFG contain no matching donor for this initializer. */
-/* NON_MATCHING plateau (2026-08-25): a full flag lattice and eight
- * structural attempts recover the exact 0x68-byte frame and the first 0xC8
- * bytes. With -O2 -mips2 -32 -Wo,-loopunroll,0 the retained candidate is
- * 0x10 bytes too long and differs in 548/628 words, first at +0xC8. The
- * blocker is the retail path-copy addressing split (three direct destinations
- * plus a runtime-indexed tail), followed by overlay-local BSS alias scheduling. */
+/* Workbench p5: structure-mismatch; 632/628 candidate/target instructions, 548 differing words from +0x0, frame -0x68 exact.
+ * No new safe lever: flag lattice and path-copy/addressing probes are exhausted.
+ * Remains: retail path-copy split and overlay-local BSS alias scheduling. */
 #ifdef NON_MATCHING
 void func_overlay_047_F0000000_1890E18(void) {
     O47SpawnPacket packet;
