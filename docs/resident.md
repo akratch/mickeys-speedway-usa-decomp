@@ -30,6 +30,7 @@ the stable source map and the evidence behind its main boundaries.
 | `0x04FC30`–`0x0505E0` | `libultra/exceptasm` | Exception and thread dispatch | Whole-object identity |
 | `0x050C00`–`0x058570` | animation, camera, model, and object code | Shared game systems | Call graph, strings, and reference functions |
 | `0x058E50`–`0x059B90` | `main/vehicle_sounds` | Positional vehicle audio | Call graph and data flow |
+| `0x059B90`–`0x059BF0` | `main/osBootRamTest` | CIC 6105 RAM checks | Complete 96-byte object is byte-identical to the target |
 | `0x05B300`–`0x05C310` | `main/models_5B300` | Model and animation storage | Call graph and one exact camera function |
 | `0x05C310`–`0x05E6B0` | `main/gsSnd` | Sound player | Whole-object identity |
 | `0x05E6B0`–`0x06AF90` | `libultra/n_*` | `n_audio` synthesis | Consecutive reference object matches |

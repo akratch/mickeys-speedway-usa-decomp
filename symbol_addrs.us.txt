@@ -1743,8 +1743,8 @@ rainFastDraw = 0x8001B058; // type:func size:0x1EC
 // main/refractOutputAssembler  ROM 0x50820  (jfg/game: src/refractOutputAssembler.c.o)  whole .text 0x3e0, masked=16, romocc=1
 refractOutputAssembler = 0x8004FC20; // type:func size:0x3E0
 // main/osBootRamTest  ROM 0x59b90  (jfg/game: src/osBootRamTest.c.o)  whole .text 0x60, masked=0, romocc=1
-osBootRamTest1_6105 = 0x80058F90; // type:func size:0x2C
-osBootRamTest2_6105 = 0x80058FBC; // type:func size:0x2C
+osBootRamTest1_6105 = 0x80058F90; // type:func size:0x2C tier-A ROM 0x59B90 exact C, JFG source body
+osBootRamTest2_6105 = 0x80058FBC; // type:func size:0x2C tier-A ROM 0x59BBC exact C, JFG source body
 // main/gsSnd  ROM 0x5c310  (jfg/game: src/gsSnd.c.o)  whole .text 0x23a0, masked=282, romocc=1
 gsSndpNew = 0x8005B710; // type:func size:0x268 tier-A whole-TU-match matched-C name-from-jfg-object body-Mickey-derived
 getSoundStateCounts = 0x8005CF2C; // type:func size:0x104

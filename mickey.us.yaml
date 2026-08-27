@@ -306,7 +306,7 @@ segments:
       - [0x58570, asm]
       - [0x58C10, asm]
       - [0x58E50, c, main/vehicle_sounds]
-      - [0x59B90, asm, main/osBootRamTest]
+      - [0x59B90, c, main/osBootRamTest]
       - [0x59BF0, asm]
       - [0x59DB0, asm]
       - [0x5B300, c, main/models_5B300]
