@@ -747,10 +747,11 @@ $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # object-section alignment and the following scheduler table begins immediately.
 $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x1C
-# diRcpPrintDL and diRcpMoveWd own the complete 0x100-byte switch-table span;
-# the following zero is shared padding.
+# JFG's source-level string migration reproduces diRcp's complete diagnostic
+# string block followed by the 0x100-byte switch-table span. The following
+# four zero bytes are output-section padding.
 $(BUILD_DIR)/$(SRC_DIR)/main/diRcp.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x100
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0xC3C
 # func_80038BC4 owns nineteen table words; the next menu table starts immediately.
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x4C

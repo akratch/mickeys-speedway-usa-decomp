@@ -97,7 +97,22 @@ Do not copy a flag from a nearby function without checking the target object.
 Run the documented flag sweep when a natural candidate has the wrong frame,
 instruction scheduling, or floating-point form.
 
-### 3.6 Remaining work
+### 3.6 Display-list diagnostics
+
+[Ryan Myers' JFG update](https://github.com/Ryan-Myers/Jet-Force-Gemini/commit/db755880dff180591a2b8d3e22dcb7f0722d6645)
+supplied the source form for `diRcpOtherMode` and clearer names for six nearby
+helpers. Mickey's configured compiler reproduces all 520 bytes of
+`diRcpOtherMode`, including its `sprintf` relocation and 128-byte stack frame.
+The same source expressions reproduce the 2,876-byte diagnostic string block
+at ROM `0x83940`–`0x8447C`. The four following switch tables and the linked ROM
+also remain byte-identical.
+
+The adopted names are `Decode_gDma1p`, `Decode_gMoveWd`, `diRcpPolygon`,
+`diRcpTexDma`, `diRcpDPBlock`, and `diRcpViewport`. Their exact bodies and GBI
+field use support the names. The source file carries point-of-use provenance
+for every adapted function.
+
+### 3.7 Remaining work
 
 The main resident tasks are:
 

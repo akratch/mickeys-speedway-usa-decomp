@@ -1053,20 +1053,21 @@ func_80044C94 = 0x80044C94;     // type:func size:0x12C tier-B ROM 0x45894 NON_M
 // therefore why a jump table with 11 entries has six distinct arms -- all six
 // EMPTY, a default that sprintf()s the same literal, and `return 8`. The empty
 // arms are not a Mickey peculiarity; they are in both.
-// PROVENANCE for the helper names: adapted from JFG src/diRcp.c. Tier B/C:
+// PROVENANCE for the helper names: adapted from JFG src/diRcp.c, including
+// Ryan Myers' naming pass at commit db755880d. Tier B/C:
 // diRcpPrintDL's direct-call sequence is the same ordered helper sequence,
 // and the distinctive G_* names and format strings independently state each
-// helper's role. JFG's two address-placeholder unpackers remain Mickey func_
-// names.
+// helper's role. The decoder names describe the bitfields both exact bodies
+// write to their four output pointers.
 diRcpPrintDL = 0x80044DC0;       // type:func size:0x604 tier-C ROM 0x459C0 exact C, JFG body and compiler-owned switch tables
-func_800453C4 = 0x800453C4;      // type:func size:0x3C tier-A ROM 0x45FC4 exact C, JFG func_80066594_67194
-func_80045400 = 0x80045400;      // type:func size:0x3C tier-A ROM 0x46000 exact C, JFG func_800665D8_671D8
+Decode_gDma1p = 0x800453C4;      // type:func size:0x3C tier-A ROM 0x45FC4 exact C, JFG Decode_gDma1p
+Decode_gMoveWd = 0x80045400;     // type:func size:0x3C tier-A ROM 0x46000 exact C, JFG Decode_gMoveWd
 diRcpVertex = 0x8004543C;        // type:func size:0x34 tier A (exact C, JFG diRcpVertex)
-diRcpReserved1 = 0x80045470;     // type:func size:0x34 tier A (exact C, JFG diRcpReserved1)
+diRcpPolygon = 0x80045470;       // type:func size:0x34 tier A (exact C, JFG diRcpPolygon)
 diRcpMatrix = 0x800454A4;        // type:func size:0x34 tier A (exact C, JFG diRcpMatrix)
-diRcpReserved0 = 0x800454D8;     // type:func size:0x10 tier A (exact C, JFG diRcpReserved0)
-diRcpReserved2 = 0x800454E8;     // type:func size:0x34 tier A (exact C, JFG diRcpReserved2)
-diRcpMoveMem = 0x8004551C;       // type:func size:0x34 tier A (exact C, JFG diRcpMoveMem)
+diRcpTexDma = 0x800454D8;        // type:func size:0x10 tier A (exact C, JFG diRcpTexDma)
+diRcpDPBlock = 0x800454E8;       // type:func size:0x34 tier A (exact C, JFG diRcpDPBlock)
+diRcpViewport = 0x8004551C;      // type:func size:0x34 tier A (exact C, JFG diRcpViewport)
 diRcpDisplayList = 0x80045550;   // type:func size:0x34 tier A (exact C, JFG diRcpDisplayList)
 diRcpStrNameMacro = 0x80045584;  // type:func size:0x14 tier A (exact C, JFG diRcpStrNameMacro)
 diRcpPrimColor = 0x80045598;     // type:func size:0xC tier A (exact C, JFG diRcpPrimColor)
@@ -1074,7 +1075,7 @@ diRcpColor = 0x800455A4;         // type:func size:0x14 tier A (exact C, JFG diR
 diRcpDmaOffsets = 0x800455B8;    // type:func size:0xC tier A (exact C, JFG diRcpDmaOffsets)
 diRcpMoveWd = 0x800455C4;        // type:func size:0x9C tier-C ROM 0x461C4 exact C, JFG body and compiler-owned switch table
 diRcpStrName = 0x80045660;       // type:func size:0x34 tier A (exact C, JFG diRcpStrName)
-diRcpOtherMode = 0x80045694;     // type:func size:0x208 tier C (render-mode strings)
+diRcpOtherMode = 0x80045694;     // type:func size:0x208 tier-A ROM 0x46294 exact C, JFG body and render-mode strings
 diRcpGeometryMode = 0x8004589C;  // type:func size:0x10C tier-A ROM 0x4649C exact C, JFG body, followed by 0x8 TU padding
 jtbl_8008387C = 0x8008387C;      // type:jtbl size:0x70 tier-A compiler-owned diRcpPrintDL switch table
 jtbl_800838EC = 0x800838EC;      // type:jtbl size:0x28 tier-A compiler-owned diRcpPrintDL switch table

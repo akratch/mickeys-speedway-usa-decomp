@@ -658,9 +658,11 @@ segments:
       # switch tables through the measured 0x838F0 boundary.
       - [0x83680, .rodata, main/diprint]
       - [0x838F0, rodata]
-      # diRcpPrintDL's three switch tables followed by diRcpMoveWd's table.
-      # The word at 0x8457C is output-section padding, not owned object bytes.
-      - [0x8447C, .rodata, main/diRcp]
+      # The two diRcpTrace diagnostics end at 0x83940. JFG's source-level
+      # string layout reproduces diRcp's full diagnostic block, followed by
+      # diRcpPrintDL's three switch tables and diRcpMoveWd's table. The word
+      # at 0x8457C is output-section padding, not owned object bytes.
+      - [0x83940, .rodata, main/diRcp]
       - [0x8457C, rodata]
       # func_8004C8D8's eight-entry texture-format switch table. The following
       # two zero words are output-section alignment, not owned object bytes.

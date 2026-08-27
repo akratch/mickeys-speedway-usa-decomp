@@ -1,496 +1,677 @@
 /*
  * Display-list disassembler -- ROM 0x459C0-0x465B0 (VRAM 0x80044DC0).
  *
- * PROVENANCE: the translation-unit identity and descriptive function names
- * are adapted from Jet Force Gemini's public decompilation, src/diRcp.c.
- * Mickey's opcode-name strings, helper call graph and source-order-equivalent
- * function sequence establish the correspondence. The two unnamed unpackers
- * retain Mickey address names. The bodies remain extracted assembly.
+ * PROVENANCE: adapted from Jet Force Gemini's public src/diRcp.c at
+ * commit db755880dff180591a2b8d3e22dcb7f0722d6645. Mickey's command
+ * strings, helper order, exact compiled bodies, and linked ROM bytes decide
+ * every local name and source expression.
  */
 
 #include "PR/ultratypes.h"
+#include "n_audio/gbi.h"
 
-typedef struct Gfx {
-    struct {
-        u32 w0;
-        u32 w1;
-    } words;
-} Gfx;
+#define GBL_c0(m1a, m1b, m2a, m2b) 0
+#define G_DMAOFFSETS (G_IMMFIRST - 0)
+#define G_POL 5
+#define G_TEXDMA 2
+#define G_DP_BLOCK 7
+#define G_MW_SPRITEMODE 0x02
+#define G_MW_MTXOFFSET 0x0A
 
-extern void func_800453C4(Gfx *dList, s32 *w0_24_31, s32 *w0_16_23,
-                          s32 *w0_0_15, s32 *w1);
+#define stubbed_printf
+
 extern s32 sprintf(char *buffer, const char *format, ...);
-extern char D_80083340[];
-extern char D_80083388[];
-extern char D_800837C4[];
-extern char D_80082D58[];
-extern char D_80082D64[];
-extern char D_80082D70[];
-extern char D_80082D7C[];
-extern char D_80082D88[];
-extern char D_80082D90[];
-extern char D_80082D98[];
-extern char D_80082DA4[];
-extern char D_80082DB0[];
-extern char D_80082DBC[];
-extern char D_80082DCC[];
-extern char D_80082DDC[];
-extern char D_80082DEC[];
-extern char D_80082DFC[];
-extern char D_80082E10[];
-extern char D_80082E20[];
-extern char D_80082E30[];
-extern char D_80082E40[];
-extern char D_80082E50[];
-extern char D_80082E5C[];
-extern char D_80082E68[];
-extern char D_80082E74[];
-extern char D_80082E80[];
-extern char D_80082E90[];
-extern char D_80082E9C[];
-extern char D_80082EB0[];
-extern char D_80082EC0[];
-extern char D_80082ED0[];
-extern char D_80082EE0[];
-extern char D_80082EEC[];
-extern char D_80082EF8[];
-extern char D_80082F08[];
-extern char D_80082F14[];
-extern char D_80082F24[];
-extern char D_80082F30[];
-extern char D_80082F40[];
-extern char D_80082F4C[];
-extern char D_80082F5C[];
-extern char D_80082F68[];
-extern char D_80082F78[];
-extern char D_80082F84[];
-extern char D_80082F94[];
-extern char D_80082FA0[];
-extern char D_80082FAC[];
-extern char D_80082FB8[];
-extern char D_80082FCC[];
-extern char D_80082FE0[];
-extern char D_80082FE8[];
-extern char D_80082FFC[];
-extern char D_80083010[];
-extern char D_80083024[];
-extern char D_8008303C[];
-extern char D_80083048[];
-extern char D_8008305C[];
-extern char D_80083068[];
-extern char D_80083074[];
-extern char D_80083084[];
 
+// forward declarations
 s32 diRcpVertex(Gfx *dList);
-s32 diRcpReserved1(Gfx *dList);
+s32 diRcpPolygon(Gfx *dList);
 s32 diRcpMatrix(Gfx *dList);
-s32 diRcpReserved0(Gfx *dList, char *name);
-s32 diRcpReserved2(Gfx *dList);
-s32 diRcpMoveMem(Gfx *dList);
+s32 diRcpTexDma(Gfx *dList, char *dmaCommand);
+s32 diRcpDPBlock(Gfx *dList);
+s32 diRcpViewport(Gfx *dList);
 s32 diRcpDisplayList(Gfx *dList);
-s32 diRcpStrNameMacro(Gfx *dList, char *name, char *macroName);
+s32 diRcpStrNameMacro(Gfx *dList, char *command, char *macro);
 s32 diRcpPrimColor(Gfx *dList);
-s32 diRcpColor(Gfx *dList, char *name, char *macroName);
-s32 diRcpDmaOffsets(Gfx *dList, char *name);
+s32 diRcpColor(Gfx *dList, char *command, char *macro);
+s32 diRcpDmaOffsets(Gfx *dList, char *command);
 s32 diRcpMoveWd(Gfx *dList);
-s32 diRcpStrName(Gfx *dList, char *name);
-s32 diRcpOtherMode(Gfx *dList, char *name);
-s32 diRcpGeometryMode(Gfx *dList, char *name, char *macroName);
+s32 diRcpStrName(Gfx *dList, char *command);
+s32 diRcpOtherMode(Gfx *dList, char *command);
+s32 diRcpGeometryMode(Gfx *dList, char *command, char *macro);
 
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpPrintDL. */
-void diRcpPrintDL(Gfx *dList, s32 unused, s32 count) {
+void diRcpPrintDL(Gfx *dList, Gfx *dList2, s32 count) {
     u8 *gListIt;
     s32 i;
 
-    gListIt = (u8 *)dList;
+    stubbed_printf(">>>> %x: ", dList);
+    stubbed_printf("     %x: ", dList2);
+
+    gListIt = (u8 *) dList;
     for (i = 0; i < count; i++) {
         switch (gListIt[0]) {
-            case 0x04:
-                gListIt += diRcpVertex((Gfx *)gListIt);
+            case G_VTX:
+                gListIt += diRcpVertex((Gfx *) gListIt);
                 break;
-            case 0x05:
-                gListIt += diRcpReserved1((Gfx *)gListIt);
+            case G_POL:
+                gListIt += diRcpPolygon((Gfx *) gListIt);
                 break;
-            case 0x00:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082D58);
+            case G_SPNOOP:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SPNOOP");
                 break;
-            case 0x01:
-                gListIt += diRcpMatrix((Gfx *)gListIt);
+            case G_MTX:
+                gListIt += diRcpMatrix((Gfx *) gListIt);
                 break;
-            case 0x02:
-                gListIt += diRcpReserved0((Gfx *)gListIt, D_80082D64);
+            case G_TEXDMA:
+                gListIt += diRcpTexDma((Gfx *) gListIt, "G_TEXDMA");
                 break;
-            case 0x03:
-                gListIt += diRcpMoveMem((Gfx *)gListIt);
+            case G_MOVEMEM:
+                gListIt += diRcpViewport((Gfx *) gListIt);
                 break;
-            case 0x06:
-                gListIt += diRcpDisplayList((Gfx *)gListIt);
+            case G_DL:
+                gListIt += diRcpDisplayList((Gfx *) gListIt);
                 break;
-            case 0x07:
-                gListIt += diRcpReserved2((Gfx *)gListIt);
+            case G_DP_BLOCK:
+                gListIt += diRcpDPBlock((Gfx *) gListIt);
                 break;
-            case 0x08:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082D70);
+            case G_RESERVED3:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_RESERVED3");
                 break;
-            case 0x09:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082D7C);
+            case G_RESERVED4:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_RESERVED4");
                 break;
-            case 0xC0:
-                gListIt += diRcpStrNameMacro((Gfx *)gListIt, D_80082D88,
-                                             D_80082D90);
+            case G_NOOP:
+                gListIt += diRcpStrNameMacro((Gfx *) gListIt, "G_NOOP", "gDPNoOp");
                 break;
-            case 0xFF:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082D98);
+            case G_SETCIMG:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETCIMG");
                 break;
-            case 0xFE:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082DA4);
+            case G_SETZIMG:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETZIMG");
                 break;
-            case 0xFD:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082DB0);
+            case G_SETTIMG:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETTIMG");
                 break;
-            case 0xFC:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082DBC);
+            case G_SETCOMBINE:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETCOMBINE");
                 break;
-            case 0xFB:
-                gListIt += diRcpColor((Gfx *)gListIt, D_80082DCC,
-                                      D_80082DDC);
+            case G_SETENVCOLOR:
+                gListIt += diRcpColor((Gfx *) gListIt, "G_SETENVCOLOR", "gDPSetEnvColor");
                 break;
-            case 0xFA:
-                gListIt += diRcpPrimColor((Gfx *)gListIt);
+            case G_SETPRIMCOLOR:
+                gListIt += diRcpPrimColor((Gfx *) gListIt);
                 break;
-            case 0xF9:
-                gListIt += diRcpColor((Gfx *)gListIt, D_80082DEC,
-                                      D_80082DFC);
+            case G_SETBLENDCOLOR:
+                gListIt += diRcpColor((Gfx *) gListIt, "G_SETBLENDCOLOR", "gDPSetBlendColor");
                 break;
-            case 0xF8:
-                gListIt += diRcpColor((Gfx *)gListIt, D_80082E10,
-                                      D_80082E20);
+            case G_SETFOGCOLOR:
+                gListIt += diRcpColor((Gfx *) gListIt, "G_SETFOGCOLOR", "gDPSetFogColor");
                 break;
-            case 0xF7:
-                gListIt += diRcpColor((Gfx *)gListIt, D_80082E30,
-                                      D_80082E40);
+            case G_SETFILLCOLOR:
+                gListIt += diRcpColor((Gfx *) gListIt, "G_SETFILLCOLOR", "gDPSetFillColor");
                 break;
-            case 0xF6:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082E50);
+            case G_FILLRECT:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_FILLRECT");
                 break;
-            case 0xF5:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082E5C);
+            case G_SETTILE:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETTILE");
                 break;
-            case 0xF4:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082E68);
+            case G_LOADTILE:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_LOADTILE");
                 break;
-            case 0xF3:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082E74);
+            case G_LOADBLOCK:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_LOADBLOCK");
                 break;
-            case 0xF2:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082E80);
+            case G_SETTILESIZE:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETTILESIZE");
                 break;
-            case 0xF0:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082E90);
+            case G_LOADTLUT:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_LOADTLUT");
                 break;
-            case 0xEF:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082E9C);
+            case G_RDPSETOTHERMODE:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_RDPSETOTHERMODE");
                 break;
-            case 0xEE:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082EB0);
+            case G_SETPRIMDEPTH:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETPRIMDEPTH");
                 break;
-            case 0xED:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082EC0);
+            case G_SETSCISSOR:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETSCISSOR");
                 break;
-            case 0xEC:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082ED0);
+            case G_SETCONVERT:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETCONVERT");
                 break;
-            case 0xEB:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082EE0);
+            case G_SETKEYR:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETKEYR");
                 break;
-            case 0xEA:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082EEC);
+            case G_SETKEYGB:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_SETKEYGB");
                 break;
-            case 0xE9:
-                gListIt += diRcpStrNameMacro((Gfx *)gListIt, D_80082EF8,
-                                             D_80082F08);
+            case G_RDPFULLSYNC:
+                gListIt += diRcpStrNameMacro((Gfx *) gListIt, "G_RDPFULLSYNC", "gDPFullSync");
                 break;
-            case 0xE8:
-                gListIt += diRcpStrNameMacro((Gfx *)gListIt, D_80082F14,
-                                             D_80082F24);
+            case G_RDPTILESYNC:
+                gListIt += diRcpStrNameMacro((Gfx *) gListIt, "G_RDPTILESYNC", "gDPTileSync");
                 break;
-            case 0xE7:
-                gListIt += diRcpStrNameMacro((Gfx *)gListIt, D_80082F30,
-                                             D_80082F40);
+            case G_RDPPIPESYNC:
+                gListIt += diRcpStrNameMacro((Gfx *) gListIt, "G_RDPPIPESYNC", "gDPPipeSync");
                 break;
-            case 0xE6:
-                gListIt += diRcpStrNameMacro((Gfx *)gListIt, D_80082F4C,
-                                             D_80082F5C);
+            case G_RDPLOADSYNC:
+                gListIt += diRcpStrNameMacro((Gfx *) gListIt, "G_RDPLoadSYNC", "gDPLoadSync");
                 break;
-            case 0xE5:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082F68);
+            case G_TEXRECTFLIP:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_TEXRECTFLIP");
                 break;
-            case 0xE4:
-                gListIt += diRcpStrName((Gfx *)gListIt, D_80082F78);
+            case G_TEXRECT:
+                gListIt += diRcpStrName((Gfx *) gListIt, "G_TEXRECT");
                 break;
-            case 0xF1:
+            case 0xF1: // Right between G_SETTILESIZE and G_LOADTLUT. Custom command for JFG, not in DKR?
             default:
-                switch ((s8)gListIt[0]) {
-                    case -65:
-                        gListIt += diRcpDmaOffsets((Gfx *)gListIt,
-                                                  D_80082F84);
+                switch ((s8) gListIt[0]) {
+                    case G_DMAOFFSETS:
+                        gListIt += diRcpDmaOffsets((Gfx *) gListIt, "G_DMAOFFSETS");
                         break;
-                    case -66:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_80082F94);
+                    case G_CULLDL:
+                        gListIt += diRcpStrName((Gfx *) gListIt, "G_CULLDL");
                         break;
-                    case -67:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_80082FA0);
+                    case G_POPMTX:
+                        gListIt += diRcpStrName((Gfx *) gListIt, "G_POPMTX");
                         break;
-                    case -68:
-                        gListIt += diRcpMoveWd((Gfx *)gListIt);
+                    case G_MOVEWORD:
+                        gListIt += diRcpMoveWd((Gfx *) gListIt);
                         break;
-                    case -69:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_80082FAC);
+                    case G_TEXTURE:
+                        gListIt += diRcpStrName((Gfx *) gListIt, "G_TEXTURE");
                         break;
-                    case -70:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_80082FB8);
+                    case G_SETOTHERMODE_H:
+                        gListIt += diRcpStrName((Gfx *) gListIt, "G_SETOTHERMODE_H");
                         break;
-                    case -71:
-                        gListIt += diRcpOtherMode((Gfx *)gListIt, D_80082FCC);
+                    case G_SETOTHERMODE_L:
+                        gListIt += diRcpOtherMode((Gfx *) gListIt, "G_SETOTHERMODE_L");
                         break;
-                    case -72:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_80082FE0);
+                    case G_ENDDL:
+                        gListIt += diRcpStrName((Gfx *) gListIt, "G_ENDDL");
                         break;
-                    case -73:
-                        gListIt += diRcpGeometryMode(
-                            (Gfx *)gListIt, D_80082FE8, D_80082FFC);
+                    case G_SETGEOMETRYMODE:
+                        gListIt += diRcpGeometryMode((Gfx *) gListIt, "G_SETGEOMETRYMODE", "gSPSetGeometryMode");
                         break;
-                    case -74:
-                        gListIt += diRcpGeometryMode(
-                            (Gfx *)gListIt, D_80083010, D_80083024);
+                    case G_CLEARGEOMETRYMODE:
+                        gListIt += diRcpGeometryMode((Gfx *) gListIt, "G_CLEARGEOMETRYMODE", "gSPClearGeometryMode");
                         break;
-                    case -75:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_8008303C);
+                    case G_LINE3D:
+                        gListIt += diRcpStrName((Gfx *) gListIt, "G_LINE3D");
                         break;
-                    case -76:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_80083048);
+                    case G_PERSPNORMALIZE:
+                        gListIt += diRcpStrName((Gfx *) gListIt, "G_PERSPNORMALIZE");
                         break;
-                    case -77:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_8008305C);
+                    case G_RDPHALF_1:
+                        gListIt += diRcpStrName((Gfx *) gListIt, "G_RDPHALF_1");
                         break;
-                    case -78:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_80083068);
+                    case G_RDPHALF_2:
+                        gListIt += diRcpStrName((Gfx *) gListIt, "G_RDPHALF_2");
                         break;
-                    case -79:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_80083074);
+                    case G_RDPHALF_CONT:
+                        gListIt += diRcpStrName((Gfx *) gListIt, "G_RDPHALF_CONT");
                         break;
                     default:
-                        gListIt += diRcpStrName((Gfx *)gListIt, D_80083084);
+                        gListIt += diRcpStrName((Gfx *) gListIt, "UNKNOWN COMMAND");
                         break;
                 }
                 break;
         }
     }
 }
-/* PROVENANCE: body adapted from JFG src/diRcp.c::func_80066594_67194. */
-void func_800453C4(Gfx *dList, s32 *w0_24_31, s32 *w0_16_23,
-                   s32 *w0_0_15, s32 *w1) {
-    *w0_24_31 = (dList->words.w0 >> 24) & 0xFF;
-    *w1 = (dList->words.w0 >> 16) & 0xFF;
-    *w0_0_15 = dList->words.w0 & 0xFFFF;
-    *w0_16_23 = dList->words.w1;
+
+/**
+ * Decode a gDma1p macro, which is basically just a Gdma struct.
+ * This is used for gSPVertex and gSPMatrix, among others.
+ */
+/* PROVENANCE: name/body adapted from JFG src/diRcp.c::Decode_gDma1p. */
+void Decode_gDma1p(Gfx *pkt, s32 *command, s32 *addr, s32 *length, s32 *parameter) {
+    *command = (pkt->words.w0 >> 24) & 0xFF;
+    *parameter = (pkt->words.w0 >> 16) & 0xFF;
+    *length = pkt->words.w0 & 0xFFFF;
+    *addr = pkt->words.w1;
 }
-/* PROVENANCE: body adapted from JFG src/diRcp.c::func_800665D8_671D8. */
-void func_80045400(Gfx *dList, s32 *w0_24_31, s32 *w0_8_23,
-                   s32 *w0_0_7, s32 *w1) {
-    *w0_24_31 = (dList->words.w0 >> 24) & 0xFF;
-    *w0_8_23 = (dList->words.w0 >> 8) & 0xFFFF;
-    *w0_0_7 = dList->words.w0 & 0xFF;
-    *w1 = dList->words.w1;
+
+/**
+ * Decode a gImmp21, which is basically just used by the gMoveWd macro.
+ */
+/* PROVENANCE: name/body adapted from JFG src/diRcp.c::Decode_gMoveWd. */
+void Decode_gMoveWd(Gfx *pkt, s32 *command, s32 *offset, s32 *index, s32 *data) {
+    *command = (pkt->words.w0 >> 24) & 0xFF;
+    *offset = (pkt->words.w0 >> 8) & 0xFFFF;
+    *index = pkt->words.w0 & 0xFF;
+    *data = pkt->words.w1;
 }
+
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpVertex. */
 s32 diRcpVertex(Gfx *dList) {
-    s32 w0_24_31;
-    s32 w0_16_23;
-    s32 w0_0_15;
-    s32 w1;
-    s32 pad[4];
+    s32 command;
+    s32 addr;
+    s32 length;
+    s32 parameter;
+    s32 pad[3];
 
-    func_800453C4(dList, &w0_24_31, &w0_16_23, &w0_0_15, &w1);
-    return 8;
-}
-/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpReserved1. */
-s32 diRcpReserved1(Gfx *dList) {
-    s32 w0_24_31;
-    s32 w0_16_23;
-    s32 w0_0_15;
-    s32 w1;
-    s32 pad[4];
+    Decode_gDma1p(dList, &command, &addr, &length, &parameter);
 
-    func_800453C4(dList, &w0_24_31, &w0_16_23, &w0_0_15, &w1);
-    return 8;
+    stubbed_printf("%20s: gSPVertex(0x%x, 0x%x, %d, %d);\n", "G_VTX", dList, addr, length, command);
+
+    return sizeof(Gfx);
 }
+
+/* PROVENANCE: name/body adapted from JFG src/diRcp.c::diRcpPolygon. */
+s32 diRcpPolygon(Gfx *dList) {
+    s32 command;
+    s32 addr;
+    s32 length;
+    s32 parameter;
+    s32 pad[3];
+
+    Decode_gDma1p(dList, &command, &addr, &length, &parameter);
+
+    stubbed_printf("%20s: gSPPolygon(0x%x, 0x%x, %d, %d);\n", "G_POL", dList, addr, length, command);
+
+    return sizeof(Gfx);
+}
+
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpMatrix. */
 s32 diRcpMatrix(Gfx *dList) {
-    s32 w0_24_31;
-    s32 w0_16_23;
-    s32 w0_0_15;
-    s32 w1;
-    s32 pad[8];
+    s32 command;
+    s32 addr;
+    s32 length;
+    s32 parameter;
+    s32 pad[4];
+    char *type1 = "GARBAGE";
+    char *type2 = "NOMTXMULT";
+    char *type3 = "MTXMULT";
 
-    func_800453C4(dList, &w0_24_31, &w0_16_23, &w0_0_15, &w1);
-    return 8;
-}
-/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpReserved0. */
-s32 diRcpReserved0(Gfx *dList, char *name) {
-    return 8;
-}
-/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpReserved2. */
-s32 diRcpReserved2(Gfx *dList) {
-    s32 w0_24_31;
-    s32 w0_16_23;
-    s32 w0_0_15;
-    s32 w1;
-    s32 pad[2];
+    Decode_gDma1p(dList, &command, &addr, &length, &parameter);
 
-    func_800453C4(dList, &w0_24_31, &w0_16_23, &w0_0_15, &w1);
-    return 8;
+    stubbed_printf("%20s: gSPMatrix2(0x%x, 0x%x, %d, %s, %d);\n", "G_MTX", dList, addr, length, type1, command);
+    return sizeof(Gfx);
 }
-/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpMoveMem. */
-s32 diRcpMoveMem(Gfx *dList) {
-    s32 w0_24_31;
-    s32 w0_16_23;
-    s32 w0_0_15;
-    s32 w1;
-    s32 pad[2];
 
-    func_800453C4(dList, &w0_24_31, &w0_16_23, &w0_0_15, &w1);
-    return 8;
+/* PROVENANCE: name/body adapted from JFG src/diRcp.c::diRcpTexDma. */
+s32 diRcpTexDma(Gfx *dList, char *dmaCommand) {
+    stubbed_printf("%20s: gSPLoadTextureOffsets(%d, %08x);\n", dmaCommand, dList, dList->words.w1);
+    return sizeof(Gfx);
 }
+
+/* PROVENANCE: name/body adapted from JFG src/diRcp.c::diRcpDPBlock. */
+s32 diRcpDPBlock(Gfx *dList) {
+    s32 command;
+    s32 addr;
+    s32 length;
+    s32 parameter;
+    s32 pad;
+
+    Decode_gDma1p(dList, &command, &addr, &length, &parameter);
+
+    stubbed_printf("%20s: gSPDPBlock(0x%x, 0x%x, %d);\n", "G_DP_BLOCK", dList, addr, length);
+
+    return sizeof(Gfx);
+}
+
+/* PROVENANCE: name/body adapted from JFG src/diRcp.c::diRcpViewport. */
+s32 diRcpViewport(Gfx *dList) {
+    s32 command;
+    s32 addr;
+    s32 length;
+    s32 parameter;
+    s32 pad;
+
+    Decode_gDma1p(dList, &command, &addr, &length, &parameter);
+
+    stubbed_printf("%20s: gSPViewport(0x%x, 0x%x);\n", "G_MOVEMEM", dList, addr);
+
+    return sizeof(Gfx);
+}
+
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpDisplayList. */
 s32 diRcpDisplayList(Gfx *dList) {
-    s32 w0_24_31;
-    s32 w0_16_23;
-    s32 w0_0_15;
-    s32 w1;
-    s32 pad[2];
+    s32 command;
+    s32 addr;
+    s32 length;
+    s32 parameter;
+    s32 pad;
 
-    func_800453C4(dList, &w0_24_31, &w0_16_23, &w0_0_15, &w1);
-    return 8;
+    Decode_gDma1p(dList, &command, &addr, &length, &parameter);
+
+    if (parameter == G_DL_PUSH) {
+        stubbed_printf("%20s: gSPDisplayList(0x%x, 0x%x);\n", "G_DL", dList, addr);
+    } else if (parameter == G_DL_NOPUSH) {
+        stubbed_printf("%20s: gSPBranchList(0x%x, 0x%x);\n", "G_DL", dList, addr);
+    } else {
+        stubbed_printf("%20s: Unknown G_DL command\n", "G_DL");
+    }
+
+    return sizeof(Gfx);
 }
+
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpStrNameMacro. */
-s32 diRcpStrNameMacro(Gfx *dList, char *name, char *macroName) {
-    return 8;
+s32 diRcpStrNameMacro(Gfx *dList, char *command, char *macro) {
+    stubbed_printf("%20s: %s(0x%08x);\n", command, macro, dList);
+    return sizeof(Gfx);
 }
+
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpPrimColor. */
 s32 diRcpPrimColor(Gfx *dList) {
-    return 8;
+    stubbed_printf("%20s: gDPSetPrimColor(0x%08x, %d, %d, %d, %d, %d, %d);\n", "G_SETPRIMCOLOR", dList,
+                   dList->words.w0 >> 8 & 0xFF, dList->words.w0 & 0xFF, (dList->words.w1 >> 24) & 0xFF,
+                   (dList->words.w1 >> 16) & 0xFF, (dList->words.w1 >> 8) & 0xFF, dList->words.w1 & 0xFF);
+
+    return sizeof(Gfx);
 }
+
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpColor. */
-s32 diRcpColor(Gfx *dList, char *name, char *macroName) {
-    return 8;
+s32 diRcpColor(Gfx *dList, char *command, char *macro) {
+    stubbed_printf("%20s: %s(0x%08x, %2d, %2d, %2d, %2d);\n", command, macro, dList, (dList->words.w1 >> 24) & 0xFF,
+                   (dList->words.w1 >> 16) & 0xFF, (dList->words.w1 >> 8) & 0xFF, dList->words.w1 & 0xFF);
+    return sizeof(Gfx);
 }
+
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpDmaOffsets. */
-s32 diRcpDmaOffsets(Gfx *dList, char *name) {
-    if (dList) {
-    }
-    return 8;
+s32 diRcpDmaOffsets(Gfx *dList, char *command) {
+    if (dList) {}
+    stubbed_printf("%20s: gSPSetDMAOffsets(%08x, %08x)\n", command, dList, dList);
+    return sizeof(Gfx);
 }
+
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpMoveWd. */
 s32 diRcpMoveWd(Gfx *dList) {
-    s32 w0_24_31;
-    s32 w0_0_7;
-    s32 w0_8_23;
-    s32 w1;
-    char buffer[0x2C];
+    s32 command;
+    s32 index;
+    s32 offset;
+    s32 data;
+    char str[0x2C];
 
-    func_80045400(dList, &w0_24_31, &w0_8_23, &w0_0_7, &w1);
-    switch (w0_0_7) {
-        case 6:
+    Decode_gMoveWd(dList, &command, &offset, &index, &data);
+    switch (index) {
+        case G_MW_SEGMENT:
+            stubbed_printf("G_MW_SEGMENT");
             break;
-        case 4:
+        case G_MW_CLIP:
+            stubbed_printf("G_MW_CLIP");
             break;
-        case 10:
+        case G_MW_MTXOFFSET:
+            stubbed_printf("G_MW_MTXOFFSET");
             break;
-        case 12:
+        case G_MW_POINTS:
+            stubbed_printf("G_MW_POINTS");
             break;
-        case 2:
+        case G_MW_SPRITEMODE:
+            stubbed_printf("G_MW_SPRITEMODE");
             break;
-        case 8:
-            w0_24_31 = w0_0_7;
+        case G_MW_FOG:
+            stubbed_printf("G_MW_FOG");
+            command = index; // fakematch
             break;
         default:
-            sprintf(buffer, D_80083340, w0_0_7);
+            sprintf(str, "UNKNOWN INDEX %d", index);
             break;
     }
-    if (w0_24_31 && w0_24_31) {
-    }
-    return 8;
+    if (command && command) {} // fakematch
+    stubbed_printf("%20s: %s offset = %d, data = 0x%08x\n", "G_MOVEWORD", dList, offset, data);
+    return sizeof(Gfx);
 }
+
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpStrName. */
-s32 diRcpStrName(Gfx *dList, char *name) {
-    char buffer[0x50];
+s32 diRcpStrName(Gfx *dList, char *command) {
+    char print[0x50];
     s32 pad[2];
 
-    sprintf(buffer, D_80083388, name);
-    return 8;
+    sprintf(print, "%20s", command);
+    return sizeof(Gfx);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcp/diRcpOtherMode.s")
+
+/* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpOtherMode. */
+s32 diRcpOtherMode(Gfx *dList, char *command) {
+    char sp30[0x50];
+    s32 bits;
+    s32 shiftValue;
+    s32 data;
+
+    shiftValue = (dList->words.w0 >> 8) & 0xFF;
+    data = dList->words.w1;
+
+    stubbed_printf("%s: 0x%08x  0x%08x\n", command, dList, data);
+
+    sprintf(sp30, "%20s", command);
+
+    switch (shiftValue) {
+        case G_MDSFT_ALPHACOMPARE:
+            stubbed_printf("%20s: gSetAlphaCompare(%x)\n", command, data);
+            break;
+        case G_MDSFT_ZSRCSEL:
+            stubbed_printf("%20s: gSetDepthSource(%x)\n", command, data);
+            break;
+        case G_MDSFT_RENDERMODE:
+            data &= 0xFFFF;
+
+            stubbed_printf("%20s: gSetRenderMode(", command);
+
+            if (data == (RM_AA_ZB_OPA_SURF(0))) {
+                stubbed_printf("RM_AA_ZB_OPA_SURF");
+            } else if (data == (RM_RA_ZB_OPA_SURF(0))) {
+                stubbed_printf("RM_RA_ZB_OPA_SURF");
+            } else if (data == (RM_AA_ZB_XLU_SURF(0))) {
+                stubbed_printf("RM_AA_ZB_XLU_SURF");
+            } else if (data == (RM_AA_ZB_OPA_DECAL(0))) {
+                stubbed_printf("RM_AA_ZB_OPA_DECAL");
+            } else if (data == (RM_RA_ZB_OPA_DECAL(0))) {
+                stubbed_printf("RM_RA_ZB_OPA_DECAL");
+            } else if (data == (RM_AA_ZB_XLU_DECAL(0))) {
+                stubbed_printf("RM_AA_ZB_XLU_DECAL");
+            } else if (data == (RM_AA_ZB_OPA_INTER(0))) {
+                stubbed_printf("RM_AA_ZB_OPA_INTER");
+                // } else if (data == (RM_RA_ZB_OPA_INTER(0))) {
+                //     stubbed_printf("RM_RA_ZB_OPA_INTER");
+            } else if (data == (RM_AA_ZB_XLU_INTER(0))) {
+                stubbed_printf("RM_AA_ZB_XLU_INTER");
+            } else if (data == (RM_AA_ZB_XLU_LINE(0))) {
+                stubbed_printf("RM_AA_ZB_XLU_LINE");
+            } else if (data == (RM_AA_ZB_DEC_LINE(0))) {
+                stubbed_printf("RM_AA_ZB_DEC_LINE");
+            } else if (data == (RM_AA_ZB_TEX_EDGE(0))) {
+                stubbed_printf("RM_AA_ZB_TEX_EDGE");
+            } else if (data == (RM_AA_ZB_TEX_INTER(0))) {
+                stubbed_printf("RM_AA_ZB_TEX_INTER");
+            } else if (data == (RM_AA_ZB_SUB_SURF(0))) {
+                stubbed_printf("RM_AA_ZB_SUB_SURF");
+            } else if (data == (RM_AA_ZB_PCL_SURF(0))) {
+                stubbed_printf("RM_AA_ZB_PCL_SURF");
+            } else if (data == (RM_AA_ZB_OPA_TERR(0))) {
+                stubbed_printf("RM_AA_ZB_OPA_TERR");
+            } else if (data == (RM_AA_ZB_TEX_TERR(0))) {
+                stubbed_printf("RM_AA_ZB_TEX_TERR");
+            } else if (data == (RM_AA_ZB_SUB_TERR(0))) {
+                stubbed_printf("RM_AA_ZB_SUB_TERR");
+            } else if (data == (RM_AA_OPA_SURF(0))) {
+                stubbed_printf("RM_AA_OPA_SURF");
+            } else if (data == (RM_RA_OPA_SURF(0))) {
+                stubbed_printf("RM_RA_OPA_SURF");
+            } else if (data == (RM_AA_XLU_SURF(0))) {
+                stubbed_printf("RM_AA_XLU_SURF");
+            } else if (data == (RM_AA_XLU_LINE(0))) {
+                stubbed_printf("RM_AA_XLU_LINE");
+            } else if (data == (RM_AA_DEC_LINE(0))) {
+                stubbed_printf("RM_AA_DEC_LINE");
+            } else if (data == (RM_AA_TEX_EDGE(0))) {
+                stubbed_printf("RM_AA_TEX_EDGE");
+            } else if (data == (RM_AA_SUB_SURF(0))) {
+                stubbed_printf("RM_AA_SUB_SURF");
+            } else if (data == (RM_AA_PCL_SURF(0))) {
+                stubbed_printf("RM_AA_PCL_SURF");
+            } else if (data == (RM_AA_OPA_TERR(0))) {
+                stubbed_printf("RM_AA_OPA_TERR");
+            } else if (data == (RM_AA_TEX_TERR(0))) {
+                stubbed_printf("RM_AA_TEX_TERR");
+            } else if (data == (RM_AA_SUB_TERR(0))) {
+                stubbed_printf("RM_AA_SUB_TERR");
+            } else if (data == (RM_ZB_OPA_SURF(0))) {
+                stubbed_printf("RM_ZB_OPA_SURF");
+            } else if (data == (RM_ZB_XLU_SURF(0))) {
+                stubbed_printf("RM_ZB_XLU_SURF");
+            } else if (data == (RM_ZB_OPA_DECAL(0))) {
+                stubbed_printf("RM_ZB_OPA_DECAL");
+            } else if (data == (RM_ZB_XLU_DECAL(0))) {
+                stubbed_printf("RM_ZB_XLU_DECAL");
+            } else if (data == (RM_ZB_CLD_SURF(0))) {
+                stubbed_printf("RM_ZB_CLD_SURF");
+            } else if (data == (RM_ZB_OVL_SURF(0))) {
+                stubbed_printf("RM_ZB_OVL_SURF");
+            } else if (data == (RM_ZB_PCL_SURF(0))) {
+                stubbed_printf("RM_ZB_PCL_SURF");
+            } else if (data == (RM_OPA_SURF(0))) {
+                stubbed_printf("RM_OPA_SURF");
+            } else if (data == (RM_XLU_SURF(0))) {
+                stubbed_printf("RM_XLU_SURF");
+            } else if (data == (RM_TEX_EDGE(0))) {
+                stubbed_printf("RM_TEX_EDGE");
+            } else if (data == (RM_CLD_SURF(0))) {
+                stubbed_printf("RM_CLD_SURF");
+            } else if (data == (RM_PCL_SURF(0))) {
+                stubbed_printf("RM_PCL_SURF");
+            } else if (data == (RM_ADD(0))) {
+                stubbed_printf("RM_ADD");
+            } else if (data == (RM_NOOP(0))) {
+                stubbed_printf("RM_NOOP");
+            } else if (data == (RM_VISCVG(0))) {
+                stubbed_printf("RM_VISCVG");
+            } else if (data == (RM_OPA_CI(0))) {
+                stubbed_printf("RM_OPA_CI");
+            } else {
+                if (data & AA_EN) {
+                    stubbed_printf("AA | ");
+                }
+                if (data & Z_CMP) {
+                    stubbed_printf("Z_CMP | ");
+                }
+                if (data & Z_UPD) {
+                    stubbed_printf("Z_UPD | ");
+                }
+                if (data & IM_RD) {
+                    stubbed_printf("IM_RD | ");
+                }
+                if (data & CLR_ON_CVG) {
+                    stubbed_printf("CLR_ON_CVG | ");
+                }
+
+                bits = (data >> 8) & 3;
+                switch (bits) {
+                    case 0:
+                        stubbed_printf("CVG_CLAMP | ");
+                        break;
+                    case 1:
+                        stubbed_printf("CVG_WRAP | ");
+                        break;
+                    case 2:
+                        stubbed_printf("CVG_FULL | ");
+                        break;
+                    case 3:
+                        stubbed_printf("CVG_SAVE | ");
+                        break;
+                }
+
+                bits = (data >> 10) & 3;
+                switch (bits) {
+                    case 0:
+                        stubbed_printf("OPA | ");
+                        break;
+                    case 1:
+                        stubbed_printf("INTER | ");
+                        break;
+                    case 2:
+                        stubbed_printf("XLU | ");
+                        break;
+                    case 3:
+                        stubbed_printf("DECAL | ");
+                        break;
+                }
+
+                if (data & CVG_X_ALPHA) {
+                    stubbed_printf("CVG_X_ALPHA | ");
+                }
+                if (data & ALPHA_CVG_SEL) {
+                    stubbed_printf("ALPHA_CVG_SEL | ");
+                }
+                if (data & FORCE_BL) {
+                    stubbed_printf("FORCE_BL | ");
+                }
+
+                stubbed_printf(");\n");
+                break;
+            }
+            break;
+        case G_MDSFT_BLENDER:
+            stubbed_printf("%20s: gSetBlender() - UNSUPPORTED\n", command);
+            break;
+    }
+
+    return sizeof(Gfx);
+}
+
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpGeometryMode. */
-#define stubbed_printf
-s32 diRcpGeometryMode(Gfx *dList, char *name, char *macroName) {
-    char buffer[0x50];
+s32 diRcpGeometryMode(Gfx *dList, char *command, char *macro) {
+    char s[0x50];
     s32 pad;
     s32 word1;
     s32 bitMask;
-    s32 first;
+    s32 addPipe;
 
     bitMask = 1;
-    first = 1;
+    addPipe = TRUE;
     word1 = dList->words.w1;
-    sprintf(buffer, D_800837C4, name);
+    sprintf(s, "%20s", command);
     do {
-        stubbed_printf(buffer, D_800837C4 + 0x08);
-        stubbed_printf(buffer, D_800837C4 + 0x14);
+        stubbed_printf("%20s: %s(", command, macro);
         if (word1 & bitMask) {
-            if (first) {
-                first = 0;
+            if (addPipe) {
+                stubbed_printf("|");
+                addPipe = FALSE;
             }
             switch (bitMask) {
-                case 0x00000001:
-                    stubbed_printf(buffer, D_800837C4 + 0x18);
+                case G_ZBUFFER:
+                    stubbed_printf("G_ZBUFFER");
                     break;
-                case 0x00000002:
-                    stubbed_printf(buffer, D_800837C4 + 0x24);
+                case G_TEXTURE_ENABLE:
+                    stubbed_printf("G_TEXTURE_ENABLE");
                     break;
-                case 0x00000004:
-                    stubbed_printf(buffer, D_800837C4 + 0x38);
+                case G_SHADE:
+                    stubbed_printf("G_SHADE");
                     break;
-                case 0x00000200:
-                    stubbed_printf(buffer, D_800837C4 + 0x40);
+                case G_SHADING_SMOOTH:
+                    stubbed_printf("G_SHADING_SMOOTH");
                     break;
-                case 0x00001000:
-                    stubbed_printf(buffer, D_800837C4 + 0x54);
+                case G_CULL_FRONT:
+                    stubbed_printf("G_CULL_FRONT");
                     break;
-                case 0x00002000:
-                    stubbed_printf(buffer, D_800837C4 + 0x64);
+                case G_CULL_BACK:
+                    stubbed_printf("G_CULL_BACK");
                     break;
-                case 0x00010000:
-                    stubbed_printf(buffer, D_800837C4 + 0x70);
+                case G_FOG:
+                    stubbed_printf("G_FOG");
                     break;
-                case 0x00020000:
-                    stubbed_printf(buffer, D_800837C4 + 0x78);
+                case G_LIGHTING:
+                    stubbed_printf("G_LIGHTING");
                     break;
-                case 0x00040000:
-                    stubbed_printf(buffer, D_800837C4 + 0x84);
+                case G_TEXTURE_GEN:
+                    stubbed_printf("G_TEXTURE_GEN");
                     break;
-                case 0x00080000:
-                    stubbed_printf(buffer, D_800837C4 + 0x94);
+                case G_TEXTURE_GEN_LINEAR:
+                    stubbed_printf("G_TEXTURE_GEN_LINEAR");
                     break;
-                case 0x00100000:
-                    stubbed_printf(buffer, D_800837C4 + 0xAC);
+                case G_LOD:
+                    stubbed_printf("G_LOD");
                     break;
             }
         } else {
+            stubbed_printf(");\n");
         }
-        stubbed_printf(buffer, D_800837C4 + 0xB4);
         bitMask <<= 1;
     } while (bitMask <= 0x100000);
-    return 8;
+
+    return sizeof(Gfx);
 }
+
 #undef stubbed_printf
