@@ -171,6 +171,11 @@ echo "Scratch: $OUT/scratch"
 # wrong ISA searches the wrong instruction space, so rewrite compile.sh's cc
 # flags to exactly what `gmake` uses for this object.
 obj="build/${c_file}.o"
+# `gmake -n "$obj"` prints nothing when the object is already up to date, which
+# would silently leave the scratch at the importer's wrong -mips1 (the search
+# then explores the wrong instruction space and never matches). Touch the source
+# so the object is always stale and gmake emits its real compile command.
+touch "$c_file" 2>/dev/null || true
 realflags=$(gmake -n "$obj" 2>/dev/null | grep -oE '\-mips[0-9]|\-O[0-9]|\-Wo,[^ ]*|\-Wab,[^ ]*|\-g[0-9]?' | sort -u | tr '\n' ' ')
 if printf '%s' "$realflags" | grep -q mips; then
   csh="$OUT/scratch/compile.sh"
@@ -178,6 +183,8 @@ if printf '%s' "$realflags" | grep -q mips; then
   sed -i '' -E 's/ -O[0-9]//g; s/ -mips[0-9]//g; s/ -Wo,[^ ]*//g; s/ -Wab,[^ ]*//g' "$csh"
   sed -i '' -E "s#(tools/ido/cc )#\1$realflags #" "$csh"
   echo "Corrected compile flags -> $realflags"
+else
+  echo "WARNING: could not recover real compile flags for $obj; scratch stays at import defaults (-mips1). The search may explore the wrong ISA." >&2
 fi
 
 # --- Run the permuter, capped, non-interactive --------------------------
