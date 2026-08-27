@@ -5,7 +5,7 @@ Date: 2026-08-24
 
 ## Context
 
-`docs/acceleration-survey.md` §3 and §4 found the tree had accumulated a
+A review found the tree had accumulated a
 parallel, hand-rolled toolchain in place of standard decomp tooling:
 per-function brute-forcers
 (`nonmatchings/*/search_{shapes,loops,stack,locals,layouts,body_lines}.py`,
@@ -22,34 +22,32 @@ is every function in a differently-revised source tree; against the
 overlays it returned "none" for 104 of 107 against DKR and 96 of 107
 against JFG.
 
-§3 identified three tools built for exactly this gap, none in use: coddog
-(exact/opcode+operand/opcode-only hashing, bounded Levenshtein over opcode
-sequences, a cross-project index), objdiff 3.8.0 (per-object match
-percentage, "find similar functions," a JSON one-shot CLI), and the
-survey's own `scratchpad/fingerprint.py`, a 60-line masked-skeleton scanner
-that already produced the ADR 0005 donor numbers.
+Three tools built for exactly this gap were in the ecosystem, none in use:
+coddog (exact/opcode+operand/opcode-only hashing, bounded Levenshtein over
+opcode sequences, a cross-project index), objdiff 3.8.0 (per-object match
+percentage, "find similar functions," a JSON one-shot CLI), and a 60-line
+masked-skeleton scanner (`scratchpad/fingerprint.py`) that already produced
+the ADR 0005 donor numbers.
 
-§4 recorded a caution from a comparable project (Snowboard Kids 2, 100% in
-2026-05): the permuter was removed from the *agent* reasoning loop because
-agents mistook permuter artifacts (`do{}while(0)`, nested assignments) for
-genuine signal. The pattern that worked there: agent proposes a typed,
-structurally plausible candidate; the permuter runs as a bounded batch job
-against it; a human-readable diff of the winning mutation comes back to the
-agent, which rewrites it idiomatically rather than keeping the mutation
-verbatim.
+A comparable project (Snowboard Kids 2, 100% in 2026-05) recorded a caution:
+the permuter is best kept out of the interactive matching loop, because its
+artifacts (`do{}while(0)`, nested assignments) are easy to mistake for genuine
+signal. The pattern that worked there: propose a typed, structurally plausible
+candidate; run the permuter as a bounded batch job against it; read back a
+human-readable diff of the winning mutation and rewrite it idiomatically rather
+than keeping the mutation verbatim.
 
 ## Decision
 
 - **decomp-permuter**, installed into `.venv` (not left as an unreferenced
-  checkout), run only as a **bounded batch job**, never inside an agent's
-  own reasoning loop. An agent may hand it one candidate and a time/attempt
-  budget and read back a diff; it may not run it as a tool it iterates on
-  turn-by-turn.
+  checkout), run only as a **bounded batch job**, never inside the interactive
+  matching loop. Hand it one candidate and a time/attempt budget and read back
+  a diff; do not iterate on it turn-by-turn.
 - **objdiff-cli** is the per-object oracle: the source of match percentage
   and first-mismatch information that `tools/progress.py` and per-function
   work both read, replacing ad hoc scoring.
-- **coddog** and (until it's indexed) `skeleton_scan.py` (the survey's
-  `fingerprint.py`, promoted with `--emit-symbols`) are the near-match
+- **coddog** and (until it's indexed) `skeleton_scan.py` (the
+  `fingerprint.py` prototype, promoted with `--emit-symbols`) are the near-match
   oracle: what finds a donor whose bytes changed but whose structure
   didn't, which `find_known_objects.py` cannot do.
 - A **flag-lattice sweep** (compile one natural candidate under the full

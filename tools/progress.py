@@ -386,7 +386,7 @@ def render_markdown(st):
     L.append("```")
     L.append("")
     L.append(
-        "DKR-style report (docs/acceleration-survey.md sec.13.1: NON_MATCHING "
+        "DKR-style report (docs/reference-findings.md sec.1: NON_MATCHING "
         "and NON_EQUIVALENT count as unmatched, exactly like extracted "
         "assembly):"
     )
@@ -751,7 +751,7 @@ def main(args):
     resolved_bytes = matched_bytes + verified_asm_bytes + overlay_matched_bytes
     resolved_pct = resolved_bytes / whole_text_bytes * 100 if whole_text_bytes else 0.0
 
-    # DKR's five-line report (docs/acceleration-survey.md sec.13.1):
+    # DKR's five-line report (docs/reference-findings.md sec.1):
     # tools/python/score.py there rewrites any `#ifdef NON_MATCHING ... #else
     # GLOBAL_ASM ... #endif` block back to a bare GLOBAL_ASM before counting,
     # so a NON_MATCHING function counts as unmatched, same as extracted
@@ -954,7 +954,7 @@ def main(args):
     print(f"symbols:   {n_named} named")
 
     print()
-    print("DKR-style report (docs/acceleration-survey.md sec.13.1):")
+    print("DKR-style report (docs/reference-findings.md sec.1):")
     for label, value in (
         ("decompiled", dkr_decompiled_bytes),
         ("handwritten asm", dkr_handwritten_asm_bytes),

@@ -1,8 +1,8 @@
 # Architecture Decision Records
 
 This directory records the decisions the project owner made on 2026-08-24,
-reviewing `docs/acceleration-survey.md`, particularly §13's survey of what
-the published N64 decomps (DKR, JFG, BK, PD, dp64) actually do. These
+drawing on `docs/reference-findings.md`, the survey of what the published N64
+decomps (DKR, JFG, BK, PD, dp64) actually do. These
 files are the durable record of *what was decided and why*; they are not
 re-opened to relitigate a decision, only superseded by a new ADR when the
 decision changes.
@@ -52,5 +52,4 @@ the ordinary way (a commit, a campaign entry), not by leaving the ADR
 | [0006](0006-overlay-source-layout.md) | Overlay source layout |
 | [0007](0007-matching-tools.md) | Matching tools |
 | [0008](0008-provenance.md) | Provenance |
-| [0009](0009-model-routing-and-agent-operation.md) | Model routing and agent operation |
 | [0010](0010-commit-discipline.md) | Commit discipline |

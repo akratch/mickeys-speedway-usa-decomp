@@ -18,15 +18,15 @@ Full build instructions are in [`README.md`](../README.md).
 
 Policy questions that have already been settled (what counts as matched,
 what post-compile object editing is permitted, build parallelism, work
-prioritisation, source layout, matching tools, provenance, model routing,
-and commit discipline) are recorded as ADRs in [`docs/adr/`](adr/README.md).
+prioritisation, source layout, matching tools, provenance, and commit
+discipline) are recorded as ADRs in [`docs/adr/`](adr/README.md).
 Read the index before assuming a policy question is open; if you think an
 ADR's decision should change, write a new ADR rather than acting against it.
 
 ## Lane workflow
 
-Each worker (human or agent) works in its own isolated worktree, a "lane,"
-created with `tools/new_lane.sh <name>`. This creates
+Each contributor works in an isolated worktree, a "lane," created with
+`tools/new_lane.sh <name>`. This creates
 `../mickey-lane-<name>` on branch `lane/<name>`, sharing the untracked
 toolchain, baserom, venv and vendored tool checkouts with the main
 checkout by symlink, with its own `build/` and `asm/` so lanes never
@@ -217,7 +217,7 @@ object carrying a `POSTPROCESS` override, its class, tool list, and
 that the ADR 0002 conversion reached every object in the tree, not just the
 functions this lane's prose describes.
 
-### Lane helpers: `new_lane.sh`, `merge_lane.sh`, `codex_lane.sh`
+### Lane helpers: `new_lane.sh` and `merge_lane.sh`
 
 - **`tools/new_lane.sh <name> [--no-extract] [base-branch]`** creates
   `../mickey-lane-<name>` on branch `lane/<name>` from `base-branch`
@@ -234,13 +234,6 @@ functions this lane's prose describes.
   `verify`/`check-docs`/`overlay-atlas`/`check-scoreboard` on the merged
   result. It exits non-zero and leaves the merge in progress if anything else
   conflicts or a gate fails, rather than guessing a resolution.
-- **`tools/codex_lane.sh <name> <prompt-file> [--no-extract]`** creates a lane
-  with `new_lane.sh` and launches a detached, non-interactive `codex exec`
-  worker inside it; the worker commits on `lane/<name>` like any other
-  worker. Progress, final message and exit status land in
-  `<lane>/.codex-run.log`, `<lane>/.codex-last.md`, `<lane>/.codex-status`
-  (all gitignored).
-
 ### Integration housekeeping: `fix_stale_externs.py`, `refresh_atlas_digest.py`
 
 - **`tools/fix_stale_externs.py`** rewrites `func_<VRAM>` references in

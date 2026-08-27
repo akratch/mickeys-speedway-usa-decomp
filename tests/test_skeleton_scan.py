@@ -2,7 +2,7 @@
 """Unit tests for tools/skeleton_scan.py's masking function.
 
 Uses only synthetic, hand-built instruction words -- nothing derived from the
-baserom or any reference build. See CLAUDE.md: nothing ROM-derived is ever
+baserom or any reference build. See docs/CLEANROOM.md: nothing ROM-derived is ever
 tracked in git, including in test fixtures.
 
 Run: python3 -m unittest tests/test_skeleton_scan.py -v

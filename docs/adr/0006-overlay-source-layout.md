@@ -5,7 +5,7 @@ Date: 2026-08-24
 
 ## Context
 
-`docs/acceleration-survey.md` §9 measured the current overlay layout: 747
+A review measured the overlay layout as it stood: 747
 files, one per function, each with its own private struct typedefs (e.g.
 `Overlay1OwnerState { u8 pad000[0x37C]; s16 recordIndex; u8 selector; }`),
 its own externs; 107 use a `volatile` cast purely to force a reload, and
@@ -18,12 +18,13 @@ only, the overlay's 61,312 initialised and 77,680 BSS bytes have no owning
 object at all, and the relocation model needs filter/rebind spec files
 because addends can't otherwise be expressed against a per-function object.
 
-§9 also measured where consolidation pays: overlays 50, 52, and 54 share
+The same review measured where consolidation pays: overlays 50, 52, and 54 share
 about 40% of their code shapes with each other (a shared record/offset
 family), and overlay 101's unmatched remainder shares 26% with code already
 matched elsewhere.
 
-§13.5 confirmed the target layout by surveying the reference projects: DKR
+`docs/reference-findings.md` §4 confirmed the target layout by surveying the
+reference projects: DKR
 is one `.c` per original translation unit; JFG's overlays are one
 `src/overlays/oN/overlay_N.c` each over shared
 `include/{common,functions,structs,variables}.h`; dp64 is one directory per

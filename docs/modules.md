@@ -321,7 +321,7 @@ hold against the evidence now:
 
 ### 4.4 n_audio: matching progress
 
-Per docs/acceleration-survey.md §13.3's ruling, `n_audio` is unblocked:
+Per `docs/reference-findings.md` §3 and ADR 0008, `n_audio` is unblocked:
 JFG's fully-matched naudio tree (`libultra/src/naudio/`, commit
 `c75c270`, "Finish matching libultra naudio files") supplies matched C
 bodies with `PROVENANCE` notes, using JFG's headers (imported under

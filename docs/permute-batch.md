@@ -1,7 +1,7 @@
 # tools/permute_batch.py: batch-running the permuter over the NON_MATCHING queue
 
 `docs/adr/0007-matching-tools.md` requires decomp-permuter to run only as a
-**bounded batch job**, never inside an agent's own reasoning loop. This tool
+**bounded batch job**, separate from the interactive matching loop. This tool
 is that job runner: it enumerates every queued `NON_MATCHING` function,
 imports and permutes each one under a wall-clock cap, and reports what came
 back -- score, whether a zero-diff candidate turned up, and (opt-in) whether
@@ -218,8 +218,65 @@ all was not guaranteed going in. Re-run this section's numbers once a
 meaningful slice of the real queue has gone through
 (`tools/permute_batch.py --limit 20 --jobs 4 --minutes 15 --apply` against
 this lane's own merged queue is a reasonable next batch) and replace this
-table rather than layering a second one on top of it, per `CLAUDE.md`'s
-"derived numbers are recomputed, never remembered.""
+table rather than layering a second one on top of it, per
+`docs/CONTRIBUTING.md`'s
+"derived numbers are recomputed, never remembered."
+
+## Scratch fidelity: when a permuter zero is not a match
+
+A permuter score of 0 is only trustworthy if the scratch object it searches is
+bit-identical to the real per-TU object *and* the scorer counts every byte
+`gmake verify` counts. Two false-ceiling causes are handled in
+`tools/permute.sh`; a third is documented but not yet fixed. Rule of thumb: **a
+permuter 0 that has not passed `gmake verify` is a hypothesis, not a match.**
+
+1. **Post-compile `objcopy` not replicated (handled).** Some TUs apply an
+   `objcopy --redefine-sym A=B` after `cc` via the Makefile's per-file
+   `POSTPROCESS` (e.g. `src/main/track.c`: `trackCamPosTrap=TrapDanglingJump`).
+   The importer's scratch runs `cc` only. `permute.sh` recovers that step from
+   the same `gmake -n <obj>` dry-run it already uses for flags and appends it to
+   the scratch `compile.sh`, retargeted to the scratch output.
+   Digest-guarded ELF surgery (`add_elf_relocations.py`, `trim_elf_section.py`)
+   is deliberately *not* replicated — it is tied to the matched bytes and would
+   abort on a permuted object — so such TUs get a warning instead.
+2. **Scorer normalizes stack offsets (handled).** decomp-permuter's scorer
+   defaults to `stack_differences=False`, which strips every `sp`-relative
+   offset before diffing. A candidate whose only residual is a spill or local at
+   the wrong `sp` offset (`sw v1,0x18(sp)` vs `0x1C(sp)`) then scores 0 while
+   its bytes still differ and `gmake verify` fails. `permute.sh` always passes
+   `--stack-diffs` so the score reflects real bytes.
+3. **Injected gfx-macro expansion (documented, not fixed).** The importer keeps
+   a TU's `g[DS]P*`/`_SHIFTL`/`gDma*` macros as preserved-macro entries and
+   restores them at candidate-compile time. The bodies are correct, but for a
+   display-list function the pruned/round-tripped scratch can still reproduce a
+   different frame than the full TU (a preserved macro expanding to a sub-macro
+   outside the preserve set, or an AST round-trip of the macro-call arguments).
+   Until this is closed, treat any gfx-heavy permuter 0 as unverified: byte-diff
+   the function between the scratch object and its real `build/` object before
+   trusting it.
+
+## Routing a walled function to the right tool
+
+Not every unmatched function is a permuter job. Sending one to the wrong tool
+burns effort — a permuter cannot fix a structural gap, and hand analysis cannot
+out-search the register allocator. The useful wall classes:
+
+- **Permuter-tractable** — opcode multiset and frame already exact; only which
+  register or stack slot differs. The winning spelling exists but is not
+  derivable by reasoning, so the batch search finds it. Frame-exact with a small
+  register/schedule word-diff is the signature.
+- **Permuter-stuck** — same shape, but the search plateaus above 0 within the
+  cap. Re-seed, extend the cap, or hand-write a scratch variant before escalating.
+- **Import-blocked** — the candidate does not isolate cleanly or does not compile
+  under `-DNON_MATCHING` in-TU; fix the base first, since the search never
+  actually runs until it compiles standalone. A "finds nothing instantly" result
+  is almost always a setup or flag fault, not a hard function.
+- **Structural** — genuinely wrong shape (missing or extra code, wrong control
+  flow or types). Not an allocation problem; needs real decompilation, guided by
+  `mips_to_c` and reference donors with `PROVENANCE` notes.
+- **Hard wall** — a list-scheduler slot-fill or interference-forbidden colour
+  with no source lever. The permuter is the last resort; if it cannot move it,
+  record the wall.
 
 ## Recommended default cap
 

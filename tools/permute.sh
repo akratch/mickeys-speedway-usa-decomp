@@ -10,7 +10,7 @@
 # SCRATCH FIDELITY: the scratch object must be bit-identical to the real
 # per-TU object, or a score-0 in the scratch is a "false ceiling" that does
 # not transfer to `gmake verify`. Two corrections are applied to the importer's
-# scratch (see docs/matching-triage.md and the workbench improvement-backlog #9):
+# scratch (see docs/permute-batch.md "Scratch fidelity"):
 #   - Real per-file compile flags (-mips2, -Wab,-r4300_mul, ...) recovered from
 #     `gmake -n <obj>` replace the importer's -mips1 default.
 #   - Any post-compile `objcopy --redefine-sym/--add-symbol` the Makefile's
@@ -24,7 +24,7 @@
 #     a spill/local at the wrong sp offset -- bytes that still fail verify.
 #   NOT yet corrected: gfx-macro TUs whose real headers expand gDP*/gSP*/_SHIFTL
 #   differently from the importer's latedefine stubs (see the block near the end
-#   of this file's flag-correction logic and docs/matching-triage.md).
+#   of this file's flag-correction logic and docs/permute-batch.md).
 #
 # MACHINE SAFETY: the permuter is niced (-n 15), wall-clock capped (timeout),
 # and its worker count is capped at 4 (many -j workers freeze the machine).

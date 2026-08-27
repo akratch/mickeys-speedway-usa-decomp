@@ -1,13 +1,13 @@
 # Structural overlay-to-module matching against Jet Force Gemini
 
 Byte identity between Mickey's 107 overlays and JFG's 157 modules found only
-three shared symbols (`docs/acceleration-survey.md` section 6): `alSeqFileNew`,
+three shared symbols (`docs/reference-findings.md` section 5): `alSeqFileNew`,
 `refractOutput`, and `osRamTest4_6105`/`osRamTest3_6105`. JFG's overlay code
 was recompiled from a different source revision, so byte comparison mostly
 returns nothing. What the two games share instead is *structure*: they are
 built from the same runtime linker (`include/game/runlink.h`), the same
-overlay header and relocation-table layout, and, per the acceleration survey's
-n-gram measurement, a resident engine that is 31.7% kin. This report asks
+overlay header and relocation-table layout, and, per the reference-decomp
+comparison, a resident engine that is 31.7% kin. This report asks
 whether that shared structure is enough to line up modules by their shape --
 size, function count, cross-overlay call graph, and (as of this pass) *which
 resident engine functions each overlay calls*.

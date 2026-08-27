@@ -8,14 +8,15 @@ Date: 2026-08-24
 The tree had no written definition of "matched." In its absence, functions
 whose object was edited after compilation to force byte-identity were being
 counted the same as functions the compiler produced byte-identically on its
-own. `docs/acceleration-survey.md` §1 measured the effect: 63.5% of the
+own. A review measured the effect: 63.5% of the
 "overlay C" byte total came from 274 objects that had instruction words
 added, reordered, dropped, or commuted by `normalize_elf_instructions.py`
 and related tools after `tools/ido/cc` ran (13,889 instruction-level
 operations, of them 13,332 field edits, 250 reorders, 31 deletions). Only
 10.3% of that total was untouched compiler output.
 
-§13.1 surveyed how the five reference decomps define "matched." DKR's
+`docs/reference-findings.md` §1 surveyed how the five reference decomps define
+"matched." DKR's
 `tools/python/score.py` is textual: it parses `src/**.c`, weights each
 function by its map-file size, and subtracts every `GLOBAL_ASM`. Its
 `WIP_REGEX` specifically rewrites `#ifdef NON_MATCHING … GLOBAL_ASM … #endif`

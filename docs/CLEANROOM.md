@@ -161,22 +161,12 @@ current detectors.
   `ledger_redaction._sweep`: it covers target-naming keys in any case at any
   depth in any container, but it does not read string *contents*, so target
   code under an innocuous key name or as a bare list element survives).
-- **Absolute filesystem paths in the workbench manifests**, which are a
-  publication problem rather than a clean-room one, and are *known and
-  deliberately not scrubbed*. Both tracked manifests under
-  `.decomp-workbench/campaigns/` record `/Users/<name>/…` in
-  `identity_inputs`, and the manifest schema check permits them: `_m_path`
-  requires a path, not a relative one. They are not quietly fixed because the
-  quiet fix would be worse. `identity` is
-  `sha256(json.dumps(identity_inputs, sort_keys=True, separators=(",",":")))`
-  (verified, both manifests reproduce their recorded digest exactly), and the
-  campaign directory name embeds its first twelve hex characters
-  (`SetLinkSlot-ee19dab3a5b2`). Rewriting the paths to relative ones
-  invalidates the digest and the directory name together, and re-deriving both
-  would produce a record of a campaign that was never run under those inputs.
-  **The fix at publication time is to drop `.decomp-workbench/` from the
-  published tree, or to re-run the two campaigns from a neutral root and commit
-  the manifests they genuinely produce**, not to edit these.
+- **Absolute filesystem paths in workbench manifests.** A campaign manifest
+  may record absolute paths in `identity_inputs`. Such a manifest is a
+  publication problem even when it passes the clean-room schema check. Do not
+  edit those paths, because they participate in the manifest identity; omit
+  the manifest or rerun the campaign from a neutral root instead. No campaign
+  manifests are shipped in this repository.
 
 The pattern across all of these: **content detection here is calibrated for
 accidents, and the accident case is well covered. Against someone trying, the
@@ -204,9 +194,8 @@ The guarantees that do not depend on out-guessing an encoding are structural:
    `4 + 2×64 = 132` digest-typed leaves) and force every other leaf into a
    shape with no room. **Residual capacity: about 4.2 KB, and only for someone
    deliberately writing ROM bytes into fields that are supposed to be hashes.**
-   The two real manifests carry 34 and 16 digests. Everything outside those
-   leaves is also measured statistically, with the schema-validated digests
-   blanked first, so the file answers to both layers.
+   Everything outside those leaves is also measured statistically, with the
+   schema-validated digests blanked first, so the file answers to both layers.
 2. **The `asm/`, `assets/`, `baseroms/`, `expected/` path rules**, and the
    binary and oversize rules, which do not care about encoding at all.
 3. **The tool-level fix**: the workbench ledger writer strips every
@@ -215,7 +204,7 @@ The guarantees that do not depend on out-guessing an encoding are structural:
    so it is not a guarantee that no instruction text can reach a ledger; it is
    a guarantee that the *schema no longer asks for it*, which is what made the
    original incident automatic. Ledgers stay gitignored regardless.
-4. **Policy and review**: `CLAUDE.md`, `docs/CONTRIBUTING.md`, and a human
+4. **Policy and review**: `docs/CLEANROOM.md`, `docs/CONTRIBUTING.md`, and a human
    reading the diff. The gates exist so a mistake is caught, not so review can
    be skipped.
 5. **A server-side ruleset on the remote.** Every layer above is client-side

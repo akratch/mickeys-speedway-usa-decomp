@@ -5,7 +5,7 @@ Date: 2026-08-24
 
 ## Context
 
-`docs/acceleration-survey.md` §13.2 enumerated every object-level
+`docs/reference-findings.md` §2 enumerated every object-level
 post-processing step in the five reference decomps (DKR, JFG, BK, PD, dp64):
 
 | Project | Step | Touches |

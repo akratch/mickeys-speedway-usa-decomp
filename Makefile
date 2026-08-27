@@ -31,7 +31,7 @@ VERSION  := us
 # ---------------------------------------------------------------------------
 
 # Compile-only escape hatch for the NON_MATCHING/GLOBAL_ASM functions (see
-# docs/acceleration-survey.md sec.13.2): `gmake NON_MATCHING=1` takes every
+# docs/reference-findings.md sec.2): `gmake NON_MATCHING=1` takes every
 # converted TU's real C body instead of its GLOBAL_ASM fallback, so the
 # functions queued for source restructuring keep compiling under IDO without
 # being claimed as matched. It never produces a byte-identical ROM -- `verify`
@@ -612,7 +612,7 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ll.c.o: POSTPROCESS = $(HOST_PYTHON) \
 # The n_audio synthesis library (ROM 0x5E6B0-0x6ACF0, docs/modules.md 4.2) was
 # built unoptimised with debug codegen: bare `OPT_FLAGS := -g` (no -O at all,
 # distinct from -O0), `-mips2 -32`. Verified byte-exact per TU as each is
-# matched; see docs/acceleration-survey.md 13.3 for the ruling that adopted
+# matched; see docs/reference-findings.md sec.3 for the ruling that adopted
 # JFG's n_audio bodies. Add a TU's object name to this list only once its
 # compiled bytes have been checked against the ROM.
 LIBULTRA_NAUDIO_BARE_TUS := n_cspsetvol n_csplayer n_cspgetstate n_cspmessage slHeap sl \
@@ -2202,7 +2202,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/func_overlay_061_F0001648_18C0A10.c.o: POS
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x29C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o: CFLAGS += -Wab,-r4300_mul
-# NON_MATCHING/GLOBAL_ASM per docs/acceleration-survey.md sec.13.2: this
+# NON_MATCHING/GLOBAL_ASM per docs/reference-findings.md sec.2: this
 # object's instructions used to be reached by rewriting three fields after
 # compilation (normalize_elf_instructions.py), which no gold-standard N64
 # decomp does. The .c now GLOBAL_ASMs the extracted retail bytes instead;

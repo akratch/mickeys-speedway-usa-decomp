@@ -2,7 +2,7 @@
  * PROVENANCE: adapted from Jet Force Gemini's public decompilation
  * (github.com/Ryan-Myers/Jet-Force-Gemini), a permitted source under
  * docs/CLEANROOM.md; see docs/modules.md section 4.4 and
- * docs/acceleration-survey.md section 13.3.
+ * docs/reference-findings.md section 3.
  * JFG source: libultra/src/naudio/n_csplayer.c at c75c270.
  */
 

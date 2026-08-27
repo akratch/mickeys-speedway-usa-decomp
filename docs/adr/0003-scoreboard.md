@@ -9,7 +9,7 @@ The README's Progress block and `tools/progress.py` reported a single
 matched-bytes figure that did not distinguish untouched compiler output from
 objects reached via the instruction-editing steps ADR 0002 retires, and did
 not separately track hand-written assembly, `NON_MATCHING`, or
-`NON_EQUIVALENT` functions. `docs/acceleration-survey.md` §13.1 found DKR's
+`NON_EQUIVALENT` functions. `docs/reference-findings.md` §1 records that DKR's
 `score.py` reports five distinct lines, generated from `src/**.c` and the
 map file, with `GLOBAL_ASM` (including `WIP_REGEX`-unwrapped
 `NON_MATCHING`/`NON_EQUIVALENT` blocks) always subtracted from the
@@ -44,8 +44,8 @@ or the offending function is split out.
 
 Every count is derived mechanically from the tree at the moment it's asked
 for (`gmake scoreboard`, `tools/progress.py --verbose`), consistent with the
-"Derived numbers are recomputed, never remembered" rule already in
-`CLAUDE.md`.
+"Derived numbers are recomputed, never remembered" rule in
+`docs/CONTRIBUTING.md`.
 
 ## Consequences
 

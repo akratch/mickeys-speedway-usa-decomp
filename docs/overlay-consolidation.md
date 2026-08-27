@@ -3,12 +3,12 @@
 Status: pilot complete for overlays 39, 77, 85, 95; post-consolidation
 match-loss audit complete for the 13 affected mixed translation units;
 initialized-data ownership wired for overlay 77.
-Written for whoever (human or agent) applies ADR 0006 to other overlays.
+Written for whoever applies ADR 0006 to other overlays.
 
 ## Scope of the pilot
 
 ADR 0006 picked overlays 50, 52, 54, and 101 to go first because they share
-code shapes (the n-gram measurement in `docs/acceleration-survey.md` §9).
+code shapes (see ADR 0006's context).
 This pilot instead took the four smallest fully-matched, no-instruction-editing
 overlays -- 39, 77, 85, 95 -- to prove the mechanical recipe cheaply before
 spending it on the harder, larger targets. Selection criteria, checked

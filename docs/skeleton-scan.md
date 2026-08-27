@@ -1,9 +1,8 @@
 # skeleton_scan
 
-`tools/skeleton_scan.py` is the project-tool version of the review's scratch
-prototypes (`scratchpad/fingerprint.py`, `kinship.py`, `resident.py`,
-`selfsim.py` -- see `docs/acceleration-survey.md` sections 2-3 for the
-methodology and the original numbers). It finds masked-instruction-shape
+`tools/skeleton_scan.py` is the project-tool version of earlier scratch
+prototypes (`fingerprint.py`, `kinship.py`, `resident.py`, and `selfsim.py`;
+see `docs/reference-findings.md` section 5 for the methodology). It finds masked-instruction-shape
 ("skeleton") matches between the five permitted reference decomps and
 Mickey's ROM, and prints offsets, sizes and donor candidates. It never writes
 ROM bytes, disassembly text, or hexdumps to any file -- it reads the baserom
@@ -32,7 +31,7 @@ itself clean-room-safe to track.
 Stdlib only. Reads:
 
 - `baseroms/mickey.us.z64` (gitignored, must exist -- see the build
-  quickstart in `CLAUDE.md`)
+  instructions in `README.md`)
 - `config/overlays.us.json` (the generated overlay atlas)
 - `symbol_addrs.us.txt` (for the "already named" checks)
 - the five reference decomps' built `.o` files, default location
@@ -106,7 +105,7 @@ For each region (resident text, all overlay text, and each overlay
 n-gram set, plus a reference-vs-reference calibration block computed the
 same way. High kinship to one project with the calibration rows as a
 baseline is what makes "Mickey's resident segment is JFG's engine, not
-DKR's" (`docs/acceleration-survey.md` section 2.1) a measured claim rather
+DKR's" (`docs/reference-findings.md` section 5) a measured claim rather
 than an impression.
 
 ### Calibration numbers measured on this tree (8-gram, `--min-words 10`)
@@ -131,8 +130,8 @@ Mickey regions vs each reference project (`any` = union of all five):
 The resident segment sits well above every reference-vs-reference baseline
 against JFG (34.2% vs. the 11-17% DKR/JFG cross-family baseline); the
 overlays sit inside the unrelated-engine range. This matches
-`docs/acceleration-survey.md` section 2.1's finding with Conker added as a
-fifth project (the survey's original run used four).
+`docs/reference-findings.md` section 5's finding with Conker added as a fifth
+project (the original run used four).
 
 ## `similar`
 
@@ -142,8 +141,8 @@ python3 tools/skeleton_scan.py similar --target "49:+0x354" --top 10
 ```
 
 Finds the nearest reference functions to one target Mickey function, for use
-as in-context examples when hand-matching it (m2c prompt, permuter seed,
-manual comparison). `--target` is either:
+as worked examples when hand-matching it (m2c draft, permuter seed, or manual
+comparison). `--target` is either:
 
 - `0xVRAM` -- a resident function. It must already have a `size:0x..`
   comment in `symbol_addrs.us.txt` (the tool has no other way to bound it).
@@ -159,8 +158,8 @@ looking for an example to match against.
 
 ## Not yet done
 
-`docs/acceleration-survey.md` section 3 names three real tools for this job
-(coddog, objdiff, and this prototype). `skeleton_scan.py` is the
+ADR 0007 names three tools for this job (coddog, objdiff, and this prototype).
+`skeleton_scan.py` is the
 `fingerprint.py` promotion; coddog setup and findings are covered separately
 (`tools/setup_coddog.sh`, section below).
 
@@ -217,7 +216,7 @@ was given. This reads as a real bug in coddog's PD/`objdiff`-based map
 ingestion, not a Mickey-side or reference-side data problem (the file sizes
 and map are exactly what PD's own build produced), and fixing it is out of
 scope for this task. **PD was dropped from the `compare-raw` runs below**;
-everywhere else in this repo (`docs/acceleration-survey.md`'s counts,
+everywhere else in this repo (`docs/reference-findings.md`'s counts,
 `tools/find_known_objects.py`, `skeleton_scan.py` itself) PD is indexed
 successfully from its per-object `.o` files instead, which don't hit this
 map-parsing path.
@@ -250,7 +249,7 @@ EOF
 - **Overlay 101 (52,960 B) and overlay 49 (896 B), same four projects**:
   **zero hits**, both. Matches `skeleton_scan.py kinship`'s finding that
   overlay text carries almost no reference-project skeleton content (0.3%
-  region coverage, `docs/acceleration-survey.md` section 2.1) -- overlay 49
+  region coverage, `docs/reference-findings.md` section 5) -- overlay 49
   is the one place `skeleton_scan.py scan --region overlays` finds anything
   at all in the whole atlas (a 44-byte, 6-way-ambiguous hit at `+0x354`),
   and even that is invisible to `compare-raw`, for a structural reason (see

@@ -1,17 +1,16 @@
 # `tools/flag_sweep.py`: sweep the flag lattice before hand permutation
 
-`docs/acceleration-survey.md`'s appendix put it plainly: three compiler-flag
-families were found in this tree by hand (`-Wab,-r4300_mul` on 69 TUs, `-O1`
-on 7, `tools/ido-phases.py` phase overrides on 7, `-O2 -g3` on 3, overlay 5's
-`-O3 -mips2`), with no systematic sweep behind any of them, and "a script
-that compiles a natural candidate under the whole lattice and ranks by
-[a match] score belongs before any hand permutation." This is that script.
+Several compiler-flag families were found in this tree by hand:
+`-Wab,-r4300_mul` on 69 TUs, `-O1` on 7, `tools/ido-phases.py` phase overrides
+on 7, `-O2 -g3` on 3, and overlay 5's `-O3 -mips2`. Because there was no
+systematic sweep behind those discoveries, the flag lattice should be ranked
+before any hand permutation. This tool does that ranking.
 
 Run it against a translation unit and a function name; it compiles that TU
 under every flag combination this project has ever needed (plus a few
 adjacent ones), scores each candidate against the real target bytes, and
-prints a ranked table plus the winning flags in Makefile-paste form. An
-agent's job is then to *confirm* the winner with `tools/wb_compare.sh` (and
+prints a ranked table plus the winning flags in Makefile-paste form. The
+maintainer must then *confirm* the winner with `tools/wb_compare.sh` (and
 land it under `tools/wb_compare.sh --rom` once it's actually matched), not to
 grope through `-O1` vs `-O2` vs `-mips2` combinations one at a time.
 

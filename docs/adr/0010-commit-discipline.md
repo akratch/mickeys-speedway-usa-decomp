@@ -5,16 +5,13 @@ Date: 2026-08-24
 
 ## Context
 
-`docs/acceleration-survey.md` §7 found, on 2026-08-24: last commit
-2026-08-22 (a documentation change), before that 2026-07-31; `git status`
-showing 23 modified tracked files (+13,583/-284) and 704 untracked paths;
-`git log -S` on the object-editing tool names returning nothing, meaning
-the entire apparatus ADR 0002 retires: `config/normalizations/` (491
-files), `docs/campaigns.md` (5,091 lines at the time), 747 overlay C files,
-46 new libultra TUs, existed **only** in the working directory. The old
-`AGENTS.md` explicitly forbade agents from committing. Given the risk at
-the time, the survey's own verdict was: "which is correct, but nothing
-has replaced it."
+A review on 2026-08-24 found a month of work living only in the working
+directory: last commit 2026-08-22 (a documentation change), before that
+2026-07-31; 23 modified tracked files (+13,583/-284) and 704 untracked paths;
+the entire object-editing apparatus ADR 0002 retires — `config/normalizations/`
+(491 files), `docs/campaigns.md` (5,091 lines at the time), 747 overlay C files,
+46 new libultra TUs — never committed. Prior policy had discouraged committing
+mid-campaign, and nothing had replaced it.
 
 The consequences were concrete, not hypothetical: no clean-room sweep had
 run on any of it, because the pre-commit hook scans the index, not the
@@ -37,8 +34,8 @@ dump. Concretely:
 
 - Every worker operates in its own lane worktree (`tools/new_lane.sh`,
   branch `lane/<name>`, ADR 0004) with hooks always active, never
-  `--no-verify` (this is already `CLAUDE.md` policy; this ADR does not
-  weaken it, it just says agents *do* commit, on their own lane).
+  `--no-verify` (this is already `docs/CONTRIBUTING.md` policy; this ADR does not
+  weaken it, it just says workers *do* commit, on their own lane).
 - Commits are function-sized: one exact function, its symbol-table line,
   and its atlas row land together. This is also the granularity objdiff
   and the permuter (ADR 0007) report on, so it's not an arbitrary size
@@ -52,19 +49,18 @@ dump. Concretely:
   outgrows that is **split**: a short tracked summary (goals, exits,
   results, no hex tables, no per-function byte ledgers) stays in git;
   detailed per-epoch ledgers move outside git entirely, the same place
-  `.decomp-workbench/` ledgers already live per `CLAUDE.md`.
+  `.decomp-workbench/` ledgers already live per `docs/CLEANROOM.md`.
 
 ## Consequences
 
 - `docs/campaigns.md` as it stood (321 KB, gate-failing) is split: a
   summary under 60 KB stays tracked; the detailed per-epoch ledgers are
   retained outside git, with a note in the summary saying so.
-- Each agent's handoff report states files changed and commit hashes on
+- Each worker's handoff report states files changed and commit hashes on
   its own lane branch, matching the existing evidence-discipline
-  requirement in `CLAUDE.md`/`AGENTS.md`.
-- `AGENTS.md`'s flat prohibition on agents committing is replaced with:
-  commit on your own lane branch, in small commits, hooks always on, never
-  touch another lane's worktree or branch.
+  requirement in `docs/CONTRIBUTING.md`.
+- The rule is: commit on your own lane branch, in small commits, hooks always
+  on, never touch another lane's worktree or branch.
 - This does not relax any clean-room gate; it makes the gates actually run,
   by making commits, where the pre-commit hook fires, the normal unit of
   work instead of something deferred indefinitely.

@@ -5,9 +5,9 @@ Date: 2026-08-24
 
 ## Context
 
-The standing rule (`CLAUDE.md`, `docs/CLEANROOM.md`) is that this project
+The standing rule (`docs/CLEANROOM.md`) is that this project
 follows the same provenance practice as the existing published N64 matching
-decomps. `docs/acceleration-survey.md` §13.3 and §13.4 checked what that
+decomps. `docs/reference-findings.md` §3 checked what that
 practice actually is, across DKR, JFG, BK, PD, and dp64.
 
 **SDK library source.** DKR ships 108 files carrying the "Copyright …
@@ -45,9 +45,9 @@ debug-build symbols from a dumped build are exactly how OoT, Majora's
 Mask, and Paper Mario were named elsewhere in the community. That would
 make dp64's 2,291 names, and the `sfadebug` (Star Fox Adventures debug
 build) symbol set, admissible on the same terms as DKR/JFG/BK/PD. But
-`docs/CLEANROOM.md` currently prohibits both by name, and §13.4 is explicit
-that changing that is a policy choice for the project owner to make in
-writing, not something decided mid-campaign by an agent reading the survey.
+`docs/CLEANROOM.md` currently prohibits both by name, and `docs/reference-findings.md`
+§3 is explicit that changing that is a policy choice for the project owner to
+make in writing, not something to be decided mid-campaign.
 
 ## Decision
 
@@ -58,8 +58,8 @@ writing, not something decided mid-campaign by an agent reading the survey.
 2. `PROVENANCE` notes remain required at the point of use for any adapted
    name or function body, exactly as `docs/CLEANROOM.md` already states.
 3. decomp.me is acceptable to use per the project owner, but unnecessary
-   in an agent-driven loop, since the permuter, coddog, and objdiff all run
-   locally against `tools/ido/cc` (ADR 0007).
+   here, since the permuter, coddog, and objdiff all run locally against
+   `tools/ido/cc` (ADR 0007).
 4. `docs/CLEANROOM.md`'s dp64 exception is corrected on its **factual
    premise only**: dp64 is built from the 2000-12-01 development-cartridge
    dump released by Forest of Illusion on 2021-02-20, not from a retail
@@ -68,8 +68,8 @@ writing, not something decided mid-campaign by an agent reading the survey.
 5. **dp64 names and `sfadebug` symbols remain prohibited** until the
    project owner rewrites `docs/CLEANROOM.md` to say otherwise, in writing.
    This ADR records the open question and the argument on both sides; it
-   does not resolve it. No agent may treat this ADR, or the survey it
-   summarizes, as authorization to adopt a dp64 or `sfadebug` name.
+   does not resolve it. Neither this ADR nor the survey it summarizes is
+   authorization to adopt a dp64 or `sfadebug` name.
 
 ## Consequences
 

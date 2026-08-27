@@ -35,8 +35,7 @@ Corrections this script encodes over a naive reading of runlink.h:
 This script re-derives and *asserts* the claims above against the live ROM
 image rather than trusting them, so a future misreading of the layout fails
 loudly instead of silently reproducing the same phase error. See
-`.superpowers/sdd/final/overlay-tool-report.md` for the full validation
-writeup.
+`docs/overlays.md` section 5.3 for the validation writeup.
 
 Usage:
     tools/overlay_tables.py                  # human-readable table + verify

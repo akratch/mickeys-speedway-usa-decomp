@@ -3,7 +3,7 @@
 # commit would record -- and refuses the commit on any finding.
 #
 # Active once `git config core.hooksPath .githooks` has been run; `gmake setup`
-# does that.  See CLAUDE.md.  Do not pass --no-verify.
+# does that.  See docs/CONTRIBUTING.md.  Do not pass --no-verify.
 
 set -u
 

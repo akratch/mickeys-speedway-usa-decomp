@@ -2,7 +2,7 @@
 """Batch decomp-permuter runner over the NON_MATCHING queue.
 
 docs/adr/0007-matching-tools.md: decomp-permuter runs only as a *bounded
-batch job*, never inside an agent's own reasoning loop. This is that job
+batch job*, separate from the interactive matching loop. This is that job
 runner. It does not reason about candidates; it imports each queued
 function, runs permuter.py under a wall-clock cap, and reports what came
 back. See docs/permute-batch.md for the day-to-day usage writeup.

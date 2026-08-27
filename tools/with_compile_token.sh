@@ -1,7 +1,7 @@
 #!/bin/sh
 # Run one compiler/build command while holding one of N shared compile
-# slots. All decomp agents share build/wb, so this keeps the agent pool from
-# oversubscribing the machine's cores without capping it below what the
+# slots. Concurrent builds may share build/wb, so this keeps them from
+# oversubscribing the machine's cores without capping the pool below what the
 # hardware can actually do.
 #
 # Slot count defaults to `sysctl -n hw.ncpu` minus 2 (leaving headroom for

@@ -2,13 +2,13 @@
 
 ~300 KB of code across ~90 overlays and several `src/main` TUs sits behind
 `#ifdef NON_MATCHING` (the compile-only escape hatch documented in the
-Makefile and `docs/acceleration-survey.md` sec.13.2): a real C body compiled
+Makefile and `docs/reference-findings.md` sec.2): a real C body compiled
 under `gmake NON_MATCHING=1`, but not yet byte-identical, so the tree still
 ships the `#pragma GLOBAL_ASM` fallback under normal `gmake`. Some of those
 candidates are one register swap from matching; others are structurally
 wrong. This tool ranks every queued function by how close its candidate
-already is, so a fleet of workers can spend its time on near-misses first
-instead of triaging the whole queue by hand.
+already is, so maintainers can start with near-misses instead of triaging the
+whole queue by hand.
 
 ## Method
 
@@ -159,8 +159,8 @@ each side's own symbol size:
      carries a relocation entry (`objdump -r .text`) on the base or the
      target side.
   6. **`other`** -- equal size, everything else. This is the largest
-     bucket in this run and is exactly the "needs a human/model
-     look, no cheap mechanical explanation available" category.
+     bucket in this run and is exactly the "needs manual review, with no cheap
+     mechanical explanation available" category.
 
 Sort order for the table and the JSON: category rank (`register-only` <
 `schedule-only` < `other` < `reloc-mismatch` < `size-mismatch`), then
@@ -203,7 +203,7 @@ tools/objdiff/objdiff-cli report generate -p . -o /tmp/nm_report.json -f json -d
     --out config/nonmatching-ranking.us.json --no-table
 # Optional linked/whole-TU context:
 .venv/bin/python tools/nm_ranking.py --objdiff-report /tmp/nm_report.json --jobs 12
-.venv/bin/python tools/nm_ranking.py --top 20 --markdown --no-table  # fleet-prompt excerpt
+.venv/bin/python tools/nm_ranking.py --top 20 --markdown --no-table  # concise review excerpt
 ```
 
 ## Distribution (this run)
@@ -232,7 +232,7 @@ Differing-word thresholds (resolved functions, any category):
 `objdiff_match_pct` is `null` for this refresh because no supplementary
 objdiff report was supplied.
 
-## Recommended batching for the fleet
+## Recommended batching
 
 1. **`register-only` and `schedule-only` first (27 functions)** -- the
    cheapest category by construction: the candidate already has the right
@@ -255,10 +255,10 @@ objdiff report was supplied.
    `other` candidates, but the category itself signals a structural
    rewrite (an inlined helper, a duplicated/dropped instruction, a
    different loop shape) rather than a tweak -- expect these to need more
-   than one attempt, and route them to workers/models with more budget per
-   function (`docs/adr/0009` model-routing).
+   than one attempt; give each one a larger, separately recorded attempt
+   budget.
 5. **No isolation backlog remains.** All discovered functions participate
-   in the same sorted fleet queue.
+   in the same sorted queue.
 
 ## Top 20 near-misses (this run)
 

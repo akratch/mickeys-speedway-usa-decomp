@@ -23,7 +23,7 @@ named         1128 / 1464    77.05%   functions carrying an adopted name
 symbols       1272                    adopted in symbol_addrs.us.txt
 ```
 
-DKR-style report (docs/acceleration-survey.md sec.13.1: NON_MATCHING and NON_EQUIVALENT count as unmatched, exactly like extracted assembly):
+DKR-style report (docs/reference-findings.md sec.1: NON_MATCHING and NON_EQUIVALENT count as unmatched, exactly like extracted assembly):
 
 ```
 decompiled              331764 / 947796  (35.00%)

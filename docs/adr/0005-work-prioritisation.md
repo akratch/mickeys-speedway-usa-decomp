@@ -8,8 +8,8 @@ Date: 2026-08-24
 The campaign queue (`docs/campaigns.md` Epochs 3-12) ranked overlay
 campaigns by "expected exact bytes per unit time" and sent essentially all
 of August's effort into overlays, while the resident segment's matched-count
-grew by seven functions over the same period. `docs/acceleration-survey.md`
-§2.1 measured why that was backwards: a masked-skeleton fingerprint scan
+grew by seven functions over the same period. `docs/reference-findings.md`
+§5 measured why that was backwards: a masked-skeleton fingerprint scan
 (opcode/funct/fmt kept, registers/immediates/jump-targets masked) against
 the five reference builds found
 

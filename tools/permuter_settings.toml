@@ -78,7 +78,7 @@ assembler_command = "tools/binutils/mips64-elf-as -march=vr4300 -32 -mabi=32 -G0
 
 # Maps compiler_command's argv[0] to a decomp.me compiler ID, only consulted
 # by `import.py --decompme`. tools/ido-static-recomp was never built here
-# (see docs/acceleration-survey.md section 10); this project's actual IDO is
+# (see docs/reference-findings.md section 6); this project's actual IDO is
 # tools/ido/cc (gitignored, fetched by tools/setup_toolchain.sh).
 [decompme.compilers]
 "tools/ido/cc" = "ido5.3"
