@@ -128,4 +128,27 @@ s32 __osPfsReleasePages(OSPfs *pfs, __OSInode *inode, u8 start_page, u16 *sum, u
     *last_page = next_page;
     return 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/pfsdeletefile/__osBlockSum.s")
+// PROVENANCE: adapted from banjo-kazooie lib/ultralib/src/io/pfsdeletefile.c:__osBlockSum
+s32 __osBlockSum(OSPfs *pfs, u8 page_no, u16 *sum, u8 bank)
+{
+    int i;
+    s32 ret;
+    u8 data[32];
+    ret = 0;
+    pfs->activebank = bank;
+    ERRCK(__osPfsSelectBank(pfs));
+    for (i = 0; i < PFS_ONE_PAGE; i++)
+    {
+        ret = __osContRamRead(pfs->queue, pfs->channel, page_no * PFS_ONE_PAGE + i, data);
+        if (ret != 0)
+        {
+            pfs->activebank = 0;
+            __osPfsSelectBank(pfs);
+            return ret;
+        }
+        *sum = *sum + __osSumcalc(data, sizeof(data));
+    }
+    pfs->activebank = 0;
+    ret = __osPfsSelectBank(pfs);
+    return ret;
+}
