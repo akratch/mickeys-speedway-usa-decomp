@@ -460,7 +460,6 @@ void func_8004650C(s32 ticks) {
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/render_epc_lock_up_display.s")
-#ifdef NON_MATCHING
 /* Mickey-derived body; JFG's corresponding func_800680B0_68CB0 is
  * assembly-only and confirms the packed-glyph loop structure. */
 void func_80046AA8(s32 x, s32 y, u16 *glyph) {
@@ -474,15 +473,20 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
     s32 height;
 
     viGetCurrentSize(&width, &height);
-    destination = D_800D2FA8 + ((y * width) + x);
-    if (D_8007D030 == 2) {
-        palette = D_8007D300;
-    } else if (D_8007D030 != 0) {
-        palette = D_8007D2F8;
-    } else {
-        palette = D_8007D2F0;
-    }
-    rows = 5;
+    /* The do/while(0) closes the setup as its own basic block before the row
+     * loop; without that boundary IDO schedules the blit loop's registers
+     * differently and the function does not match. */
+    do {
+        destination = D_800D2FA8 + ((y * width) + x);
+        if (D_8007D030 == 2) {
+            palette = D_8007D300;
+        } else if (D_8007D030 != 0) {
+            palette = D_8007D2F8;
+        } else {
+            palette = D_8007D2F0;
+        }
+        rows = 5;
+    } while (0);
     while (rows--) {
         lines = 1;
         if (D_8007D02C != 0) {
@@ -491,7 +495,7 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
         while (lines--) {
             bits = *glyph;
             pixel = destination;
-            while (bits != 0) {
+            while (bits) {
                 *pixel++ = palette[bits & 3];
                 bits >>= 2;
             }
@@ -500,9 +504,6 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
         glyph++;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046AA8.s")
-#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046BCC.s")
 /* PROVENANCE: body adapted from JFG src/diCpu.c::cpuXYPrintf. */
 void cpuXYPrintf(s32 x, s32 y, const char *format, ...) {
