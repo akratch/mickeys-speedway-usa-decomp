@@ -603,10 +603,6 @@ s32 func_8001A008(LightingObject *object, LightInitState *state) {
     }
     return (result & ~3) + 4;
 }
-#ifdef NON_MATCHING
-/* Workbench: register-ring-only; 13/58 words differ first at +0x1C, with frame and relocations exact.
- * Levers: lifetime, mask-width, scaled-size, full flag lattice, and bounded permutation.
- * Remains: the temp-FIFO ring is one phase from target; the isolated permuter lead regressed in the full TU. */
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightAdjustGlowingLight.s, with Mickey's constants and offsets. */
 void func_8001A154(GlowObject *object) {
     FlareEntry flare;
@@ -621,19 +617,15 @@ void func_8001A154(GlowObject *object) {
     flare.z = entry->z;
     flare.red = entry->red;
     flare.green = entry->green;
-    flare.blue = entry->blue & 0xFFFFU;
+    flare.blue = entry->blue;
     flare.alpha = entry->alpha;
     flare.kind = 0x2B;
     flare.size = entry->size;
-    scaledSize = (entry->size * entry->scale) / 100;
+    scaledSize = flare.scaledSize = (entry->size * entry->scale) / 100;
     flare.index = -1;
     flare.enabled = 0;
-    flare.scaledSize = scaledSize;
     object->flare = camlightAdd(NULL, &flare);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001A154.s")
-#endif
 /* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
 s32 lightKillGlowingLight(void) {
     camlightDelete();
