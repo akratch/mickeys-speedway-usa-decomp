@@ -56,6 +56,25 @@ the `#pragma GLOBAL_ASM` fallback. Do not count it as matched. After a bounded
 set of attempts, record the best result and the remaining mismatch instead of
 making speculative source changes.
 
+### Report-only m2c sweep
+
+`tools/m2c_sweep.py` inventories every `GLOBAL_ASM` fallback and attempts only
+bare fallbacks that do not already have a `NON_MATCHING` or `NON_EQUIVALENT`
+C candidate. It gives m2c the owning translation unit as context, inserts each
+draft into a scratch copy of that complete unit, compiles with the effective
+Makefile flags, and compares function bytes and relocations. It runs one
+low-priority compiler process at a time.
+
+```sh
+nice -n 15 .venv/bin/python tools/m2c_sweep.py --inventory-only --fresh
+nice -n 15 .venv/bin/python tools/m2c_sweep.py --fresh
+```
+
+Output stays under the ignored `build/m2c_sweep/` directory. The tool does not
+edit source or promote a result. A scratch exact result still needs the normal
+configured object, linked range, relocation, and full-ROM checks before it can
+be counted as matched.
+
 ## Overlay work
 
 Overlay virtual addresses are reused. Identify a function by `(overlay,
