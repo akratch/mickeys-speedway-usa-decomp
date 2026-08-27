@@ -1,202 +1,165 @@
 # Mickey's Speedway USA
 
-This repo contains a decompilation of *Mickey's Speedway USA* for the N64. You
-need your own legally dumped copy of the ROM; nothing ROM-derived is committed
-here.
+This project decompiles the US release of *Mickey's Speedway USA* for Nintendo
+64. The current source rebuilds the target ROM byte for byte.
 
-The US ROM (SHA1 `507341c0a40ca3e9a7cee969b396ee53facfb548`) is the matching
-target and rebuilds byte-identically today. PAL and JPN splat configs exist
-from the original stub but have not been modernized or verified.
+You must provide your own legally obtained ROM. This repository does not
+contain ROM data, extracted assets, or compiler binaries.
+
+Target ROM SHA-1: `507341c0a40ca3e9a7cee969b396ee53facfb548`
+
+The PAL and Japanese configuration files come from the original repository.
+They have not been updated or verified.
 
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-1001_of_1464_(68.37%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-348376_of_947796_(36.76%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1272_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-1001_of_1464_(68.37%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/C_bytes_matched-331764_of_947796_(35.00%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1272_adopted-blue)](#progress)
 
-```
-functions     1001 / 1464    68.37%   matched to C, byte-identical
-.text bytes 222188 / 478532  46.43%   matched C in the resident segment
-verified asm  16612 / 478532   3.47%   original hand-written assembly (82 functions)
-overlay C   109576 / 469264  23.35%   matched C keyed by overlay and offset
-whole resolved 348376 / 947796  36.76%   resident C + verified asm + overlay C
-named         1128 / 1464    77.05%   functions carrying an adopted name
-symbols       1272                    adopted in symbol_addrs.us.txt
-```
+| Scope | Complete | Total | Progress |
+|---|---:|---:|---:|
+| Resident functions | 1001 | 1464 | 68.37% |
+| Resident C bytes | 222188 | 478532 | 46.43% |
+| Overlay C bytes | 109576 | 469264 | 23.35% |
+| Whole-game C bytes | 331764 | 947796 | 35.00% |
+| Whole-game resolved bytes | 348376 | 947796 | 36.76% |
+| Named resident functions | 1128 | 1464 | 77.05% |
 
-DKR-style report (docs/reference-findings.md sec.1: NON_MATCHING and NON_EQUIVALENT count as unmatched, exactly like extracted assembly):
+Resolved bytes include matched C and 16612 bytes in 82 verified hand-written assembly functions. The symbol file contains 1272 adopted names.
 
-```
-decompiled              331764 / 947796  (35.00%)
-handwritten asm          16612 / 947796  ( 1.75%)
-GLOBAL_ASM remaining    285132 / 947796  (30.08%)
-NON_MATCHING            314288 / 947796  (33.16%)
-NON_EQUIVALENT               0 / 947796  ( 0.00%)
-```
+#### Resident progress by area
 
-| Area | Functions | Matched to C | Named, still asm | Unnamed | Identified |
-| :--- | ---: | ---: | ---: | ---: | :--- |
-| libultra corridor | 289 | 252 | 34 | 3 | `█████████████████▓▓▓` 99.0% |
-| game code, TU identified | 991 | 749 | 84 | 158 | `███████████████▓▓░░░` 84.1% |
-| game code, not yet split | 184 | 0 | 9 | 175 | `▓░░░░░░░░░░░░░░░░░░░` 4.9% |
-| **total** | 1464 | 1001 | 127 | 336 | `██████████████▓░░░░░` 77.0% |
+| Area | Matched functions | Total functions | Function progress | Matched C bytes | Text bytes | Byte progress |
+|---|---:|---:|---:|---:|---:|---:|
+| libultra | 252 | 289 | 87.20% | 79800 | 92204 | 86.55% |
+| game code in named translation units | 749 | 991 | 75.58% | 142388 | 315292 | 45.16% |
+| game code not split into translation units | 0 | 184 | 0.00% | 0 | 71036 | 0.00% |
+| **total** | 1001 | 1464 | 68.37% | 222188 | 478532 | 46.43% |
 
-`█` matched to C · `▓` named but still assembly · `░` neither. Naming runs ahead of matching: a function is decompiled against an already-identified translation unit.
+Resident function counts exclude overlays because complete overlay function boundaries are not yet available. Overlay progress is therefore reported by byte count in the summary table.
 
-**Source organization**: 536 fully-C translation units and 271 C scaffolds that still include assembly. 134 under `src/libultra/`; 37 under `src/main/`, including `matrix.c` (matrix/vector maths) and `runlink.c` (the runtime overlay linker core); 8 under `src/overlays/o001/`; 17 under `src/overlays/o002/`; 9 under `src/overlays/o003/`; 1 under `src/overlays/o004/`; 7 under `src/overlays/o005/`; 1 under `src/overlays/o006/`; 3 under `src/overlays/o007/`; 1 under `src/overlays/o008/`; 1 under `src/overlays/o009/`; 1 under `src/overlays/o010/`; 26 under `src/overlays/o011/`; 6 under `src/overlays/o012/`; 8 under `src/overlays/o013/`; 28 under `src/overlays/o014/`; 1 under `src/overlays/o015/`; 1 under `src/overlays/o016/`; 5 under `src/overlays/o017/`; 4 under `src/overlays/o018/`; 7 under `src/overlays/o019/`; 16 under `src/overlays/o020/`; 2 under `src/overlays/o021/`; 4 under `src/overlays/o022/`; 4 under `src/overlays/o023/`; 1 under `src/overlays/o024/`; 1 under `src/overlays/o025/`; 5 under `src/overlays/o026/`; 1 under `src/overlays/o027/`; 1 under `src/overlays/o028/`; 11 under `src/overlays/o029/`; 2 under `src/overlays/o030/`; 7 under `src/overlays/o031/`; 7 under `src/overlays/o033/`; 8 under `src/overlays/o034/`; 5 under `src/overlays/o035/`; 21 under `src/overlays/o036/`; 5 under `src/overlays/o037/`; 3 under `src/overlays/o038/`; 1 under `src/overlays/o039/`; 9 under `src/overlays/o040/`; 14 under `src/overlays/o041/`; 1 under `src/overlays/o042/`; 9 under `src/overlays/o043/`; 5 under `src/overlays/o044/`; 4 under `src/overlays/o045/`; 11 under `src/overlays/o046/`; 4 under `src/overlays/o047/`; 4 under `src/overlays/o048/`; 1 under `src/overlays/o049/`; 5 under `src/overlays/o050/`; 1 under `src/overlays/o051/`; 4 under `src/overlays/o052/`; 5 under `src/overlays/o053/`; 5 under `src/overlays/o054/`; 6 under `src/overlays/o055/`; 1 under `src/overlays/o056/`; 22 under `src/overlays/o057/`; 11 under `src/overlays/o058/`; 10 under `src/overlays/o059/`; 6 under `src/overlays/o060/`; 12 under `src/overlays/o061/`; 3 under `src/overlays/o062/`; 4 under `src/overlays/o063/`; 1 under `src/overlays/o064/`; 6 under `src/overlays/o065/`; 4 under `src/overlays/o066/`; 1 under `src/overlays/o067/`; 18 under `src/overlays/o068/`; 3 under `src/overlays/o069/`; 3 under `src/overlays/o070/`; 4 under `src/overlays/o071/`; 1 under `src/overlays/o072/`; 2 under `src/overlays/o073/`; 2 under `src/overlays/o074/`; 3 under `src/overlays/o075/`; 1 under `src/overlays/o076/`; 2 under `src/overlays/o077/`; 1 under `src/overlays/o078/`; 8 under `src/overlays/o079/`; 2 under `src/overlays/o080/`; 1 under `src/overlays/o081/`; 2 under `src/overlays/o082/`; 9 under `src/overlays/o083/`; 22 under `src/overlays/o084/`; 1 under `src/overlays/o085/`; 6 under `src/overlays/o086/`; 4 under `src/overlays/o087/`; 3 under `src/overlays/o088/`; 5 under `src/overlays/o089/`; 1 under `src/overlays/o090/`; 2 under `src/overlays/o091/`; 3 under `src/overlays/o092/`; 1 under `src/overlays/o093/`; 3 under `src/overlays/o094/`; 1 under `src/overlays/o095/`; 6 under `src/overlays/o096/`; 11 under `src/overlays/o097/`; 4 under `src/overlays/o098/`; 8 under `src/overlays/o099/`; 7 under `src/overlays/o100/`; 71 under `src/overlays/o101/`; 1 under `src/overlays/o102/`; 1 under `src/overlays/o103/`; 1 under `src/overlays/o104/`; 1 under `src/overlays/o105/`; 1 under `src/overlays/o106/`; 1 under `src/overlays/o107/`.
+#### Whole-game code status
 
-Generated by `gmake scoreboard` from the built ELF, the splat config, the `asm/` tree and `symbol_addrs.us.txt`; `gmake check-scoreboard` fails if it has drifted. [`docs/modules.md`](docs/modules.md) records what each run of code was identified as and on what evidence; [`docs/references.md`](docs/references.md) records the reference builds it was measured against.
+| Status | Bytes | Share of text |
+|---|---:|---:|
+| Matched C | 331764 | 35.00% |
+| Verified hand-written assembly | 16612 | 1.75% |
+| Extracted assembly | 285132 | 30.08% |
+| C under `NON_MATCHING` | 314288 | 33.16% |
+| C under `NON_EQUIVALENT` | 0 | 0.00% |
+
+Source files: 807 translation units; 536 contain only C and 271 still include assembly. Directory totals: `src/libultra` 134, `src/main` 37, and `src/overlays` 636.
+
+Run `gmake scoreboard` after a matching change. `gmake check-scoreboard` checks this section against the current build.
 <!-- SCOREBOARD_END -->
 
-## Setup
+## Requirements
 
-### Dependencies (macOS)
-
-```sh
-brew install make python3
-```
-
-Use `gmake`, Homebrew's GNU make: macOS's built-in `make` is too old.
-
-`splat` (the disassembler/splitter) comes from `requirements.txt` via pip; no
-submodule is needed for the build itself.
-
-`tools/setup_toolchain.sh` copies the MIPS binutils + IDO 5.3 toolchain from a
-local Diddy Kong Racing decomp checkout (`DKR_PATH`, default
-`~/Desktop/dev/Diddy-Kong-Racing`). Without one: `brew install
-mips64-elf-binutils`, and take IDO 5.3 from the macOS build on
-[decompals/ido-static-recomp](https://github.com/decompals/ido-static-recomp)'s
-Releases page. The script documents both routes.
-
-### Baserom
-
-Place your own legally dumped ROM at `baseroms/mickey.us.z64`. Expected SHA1s
-for all three regions are in `mickey.*.sha1` and `tools/verify_baseroms.sh`.
-
-### Build
+On macOS:
 
 ```sh
-gmake setup   # venv, deps, toolchain, baserom SHA1 check, splat, git hooks
-gmake -j2     # builds build/mickey.us.z64
-gmake verify  # byte-compares it against the baserom SHA1
+brew install make python3 mips64-elf-binutils
 ```
 
-### Checks
+Use GNU Make as `gmake`. The build also needs IDO 5.3. If a local
+[Diddy Kong Racing](https://github.com/DavidSM64/Diddy-Kong-Racing) checkout is
+available, `tools/setup_toolchain.sh` copies its compatible binutils and IDO
+files. Otherwise, install the macOS build from
+[decompals/ido-static-recomp](https://github.com/decompals/ido-static-recomp/releases)
+under `tools/ido/` and place the prefixed binutils under `tools/binutils/`.
 
-| Command | Checks |
+## Build
+
+1. Place the US ROM at `baseroms/mickey.us.z64`.
+2. Run the setup target once.
+3. Build and verify the ROM.
+
+```sh
+gmake setup
+gmake -j$(sysctl -n hw.ncpu)
+gmake verify
+```
+
+`gmake setup` checks the ROM hash, creates the Python environment, initializes
+the required submodules, splits the ROM, and enables the repository hooks.
+
+## Project checks
+
+| Command | Purpose |
 |---|---|
-| `gmake verify` | the ROM rebuilds byte-identically |
-| `gmake cleanroom` | no ROM-derived content (also run by the git hooks and CI) |
-| `gmake check-docs` | derived numbers in the docs match the tree |
-| `gmake check-scoreboard` | the Progress block matches the tree |
-| `gmake audit-decoders` | the clean-room detectors aren't inventing words |
-| `gmake check-fixtures` | the detectors still catch real ROM in every encoding |
-| `gmake overlay-atlas` | the 107-module manifest and generated yaml segments have not drifted |
-| `gmake overlay-donors` | DKR v77/v80 and JFG have a complete recorded result for every overlay |
-| `gmake check-reference-builds` | the out-of-tree reference builds are the ones the names were mined from |
-| `gmake progress` | matched functions/bytes/symbols |
+| `gmake verify` | Rebuild the US ROM and compare it with the target hash |
+| `gmake cleanroom` | Reject tracked ROM data and prohibited file types |
+| `gmake check-docs` | Recompute numeric claims in the documentation |
+| `gmake check-scoreboard` | Compare this progress section with the current build |
+| `gmake overlay-atlas` | Check the overlay map and generated YAML segments |
+| `gmake overlay-donors` | Check the recorded overlay reference results |
+| `gmake check-reference-builds` | Check local reference objects against the lock file |
 
-[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md#checks) has the full table,
-including which are enforced and which need a build. `check-scoreboard` needs a
-linked ELF, which needs a baserom, so CI runs
-[`scoreboard.yml`](.github/workflows/scoreboard.yml)'s `--check-partial`
-instead: the non-ELF-derived figures and the block's own arithmetic.
+Some checks need a local ROM or reference checkout and therefore do not run in
+public CI. See [Contributing](docs/CONTRIBUTING.md#checks) for the full list.
 
-## Decompiling
+## Decompilation workflow
 
-`tools/asm-processor` is required to build; it is what makes
-`#pragma GLOBAL_ASM(...)` work with IDO. `tools/asm-differ` (`diff.sh`) and
-`tools/m2c` (`mips_to_c.sh`, `generate_ctx.sh`) are the matching workflow and
-are not needed for `gmake verify`. `tools/ido-static-recomp` is left
-uninitialised; `tools/setup_toolchain.sh` installs a prebuilt IDO 5.3.
+Functions that have not matched remain as `#pragma GLOBAL_ASM` includes. Replace
+one function at a time, build its translation unit, compare the object, and run
+`gmake verify` before recording it as matched.
+
+Useful commands:
 
 ```sh
-git submodule update --init tools/asm-processor tools/asm-differ tools/m2c
+./diff.sh <symbol>          # compare target and current assembly
+./diff.sh -mw <symbol>      # rebuild and watch the comparison
+./generate_ctx.sh           # generate ctx.c for m2c
+./mips_to_c.sh <symbol>     # create an initial C translation
+gmake verify                # verify the complete ROM
 ```
 
-`gmake setup` runs that for you.
+Overlay addresses are reused at runtime. Identify overlay code by overlay,
+section, and offset, using `config/overlays.us.json`; a virtual address alone
+is not sufficient.
 
-To add a translation unit: add it to `mickey.*.yaml` as a `c` subsegment,
-re-split (`gmake` does it automatically), and fill in `src/`. Every function
-starts as `#pragma GLOBAL_ASM("asm/nonmatchings/<dir>/<func>.s")`, which
-already builds byte-identically, and is replaced by C one function at a time.
+The default compiler flags are `-O2 -mips1 -32`. Per-file differences are
+listed in the Makefile and summarized in [The module map](docs/modules.md).
 
-```sh
-./diff.sh <symbol>          # target vs. current disassembly; matched == no diffs
-./diff.sh -mw <symbol>      # rebuild first, then re-diff on every file save
-./generate_ctx.sh           # optional: ctx.c, so m2c knows project types
-./mips_to_c.sh <symbol>     # m2c first draft into m2cfiles/<symbol>.c
-gmake verify                # byte-identical or it does not count
-```
+## Documentation
 
-For overlay work, begin with `config/overlays.us.json` rather than a synthetic
-VMA: an overlay function's canonical identity is `(overlay, section, offset)`.
-Before adopting a name or body, run `gmake overlay-donors-scan-check`; it checks
-the complete DKR v77/v80 and JFG object surfaces and catches a stale donor
-ledger. DKR is the first semantic cross-reference for game code, but a similar
-system is not an exact match and Mickey's own bytes and call graph decide.
-
-C compiles with `-O2 -mips1 -32` by default. Anything else is a per-file
-override in the Makefile's "Per-file compiler flags" block, justified in the
-source file's header comment. Measured per-file flags are in
-[`docs/modules.md`](docs/modules.md) §6.1.
-
-## Roadmap
-
-The measurable epoch definitions and exit criteria live in
-[`docs/campaigns.md`](docs/campaigns.md).
-
-| Phase | Scope | State |
-|---|---|---|
-| 0 | Split the US ROM with splat; rebuild it byte-identically from disassembly | done |
-| 1 | First matched C, libultra corridor, symbol/struct ontology | in progress |
-| 2 | Clean-room gates; mine the published Rare decomps for matching objects | in progress |
-| 3 | Overlay system: 107-module atlas, relocation graph, 106 buildable segments, DKR/JFG donor ledger | done |
-| 4 | Overlay frontier tranche A: exact-match seeds, four structural pilots, one dependency neighborhood | done |
-| 5 | Overlay semantic spine: 45/61/68 APIs, cohort closure, and hub API maps | done |
-| 6 | Exact-leaf recovery: close narrow compiler blockers and add 1 KiB matched overlay C | done |
-| 7 | Exact leaf and wrapper retirement across ten overlays (508 bytes) | done |
-| 8 | Overlay 84 accessor closure plus resource wrappers (436 bytes) | done |
-| 9 | Overlay 68 lifecycle/allocation semantic cluster (524 bytes) | done |
-| 10 | Double-digit breakthrough: reach 10.00% whole-program resolved and close four Epoch 5 cohort modules | done |
-| 11 | Fifteen-percent offensive: reach 15.00% whole-program resolved and close eight more overlays | active |
-| 12 | Assets: `1172`/`1173` decompress/recompress with matching output | not started |
-
-## Clean room
-
-- No ROMs or extracted assets are committed.
-- Names and adapted function bodies may come from the five named published
-  retail-derived decomps, with a `PROVENANCE` note at the point of use.
-  Leaked material is forbidden outright.
-- [`docs/CLEANROOM.md`](docs/CLEANROOM.md) is the policy, including what the
-  automated gates do and do not catch.
-- [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) covers the commit/push gates
-  that enforce it; `gmake setup` activates them.
+- [Contributing](docs/CONTRIBUTING.md) describes the development and review
+  process.
+- [Clean-room policy](docs/CLEANROOM.md) lists permitted sources and prohibited
+  tracked content.
+- [Module map](docs/modules.md) defines the address map and evidence levels.
+- [Resident code](docs/resident.md) and [overlays](docs/overlays.md) describe
+  the two code regions.
+- [Reference builds](docs/references.md) records the external builds used for
+  symbol comparison.
+- [Architecture decisions](docs/adr/README.md) records project policy.
 
 ## Contributing
 
-Read [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) first, then
-[`docs/CLEANROOM.md`](docs/CLEANROOM.md).
-[`docs/modules.md`](docs/modules.md) is the module map and the evidence-tier
-convention every name follows; [`docs/references.md`](docs/references.md)
-records the reference builds.
+Read [Contributing](docs/CONTRIBUTING.md) and the
+[clean-room policy](docs/CLEANROOM.md) before changing source. Do not bypass
+the git hooks. A function counts as matched only when the unmodified compiler
+output links to the correct location and matches every owned byte.
 
 ## Credits
 
-- [Ryan-Myers](https://github.com/Ryan-Myers/Mickeys-Speedway-USA), the
-  original repository this project builds on, and the
-  [Jet Force Gemini](https://github.com/Ryan-Myers/Jet-Force-Gemini) decomp
-  that most of the tier-A names here come from.
-- The [Diddy Kong Racing](https://github.com/DavidSM64/Diddy-Kong-Racing),
+- [Ryan Myers](https://github.com/Ryan-Myers/Mickeys-Speedway-USA), who created
+  the original repository, and the
+  [Jet Force Gemini](https://github.com/Ryan-Myers/Jet-Force-Gemini)
+  decompilation used as a documented reference.
+- The
+  [Diddy Kong Racing](https://github.com/DavidSM64/Diddy-Kong-Racing),
   [Perfect Dark](https://github.com/n64decomp/perfect_dark),
-  [Banjo-Kazooie](https://github.com/n64decomp/banjo-kazooie) and
-  [Conker's Bad Fur Day](https://github.com/mkst/conker) decomps.
+  [Banjo-Kazooie](https://github.com/n64decomp/banjo-kazooie), and
+  [Conker's Bad Fur Day](https://github.com/mkst/conker) projects.
 - [splat](https://github.com/ethteck/splat),
   [asm-differ](https://github.com/simonlindholm/asm-differ),
   [asm-processor](https://github.com/simonlindholm/asm-processor),
-  [m2c](https://github.com/matt-kempster/m2c) and
+  [m2c](https://github.com/matt-kempster/m2c), and
   [ido-static-recomp](https://github.com/decompals/ido-static-recomp).
 
 ## License
 
-[CC0 1.0 Universal](LICENSE), covering this repository's own work only, not
-Rare's original code or any asset in the ROM.
+The original work in this repository is released under
+[CC0 1.0 Universal](LICENSE). This license does not cover Rare's original code
+or any data in the ROM.

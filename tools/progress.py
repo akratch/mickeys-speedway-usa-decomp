@@ -1,26 +1,10 @@
 #!/usr/bin/env python3
-"""Progress metric for the decompilation.
+"""Compute decompilation progress from the current build and source tree.
 
-Prints the resident function/C-match counts, whole-program resolved text bytes,
-and symbols named, with the derivation shown alongside each
-one. This is deliberate: Phase 1 found more than one summary count that had
-silently drifted from the tree it was supposed to describe (see
-docs/workbench-improvement-log.md), and a progress metric that hides its own
-method is exactly the kind of number that drifts. Nothing here is hardcoded;
-every count is read from build/, asm/, symbol_addrs.*.txt, and the canonical
-generated overlay atlas as they stand.
-
-Method, in one paragraph: the built ELF's symbol table is the ground truth
-for "what splat thinks is a function, and how big". A function counts as
-*matched* when its name does not appear as a `glabel`/`alabel` anywhere under
-asm/ -- i.e. no .s file anywhere in the tree still defines it, so whatever
-produced its bytes in the link was C. That is a tree-wide name search rather
-than "does a same-named .s file exist", because several asm/ subsegments
-(asm/main/*.s, asm/libultra/*.s, the un-carved asm/<ADDR>.s files) are still
-whole-file dumps holding many functions under one filename that does not
-match any one of them -- matching by filename alone silently mis-scores
-every function in those files. See the "why not X" note below the report for
-the two failure modes this ruled out.
+Resident function sizes come from the linked ELF. A resident function is
+matched when no label with its name remains under ``asm/``. Overlay byte counts
+come from the canonical overlay map. Symbol and source-file counts come from
+the corresponding tracked files. No progress value is stored in this script.
 """
 
 import argparse
@@ -222,9 +206,9 @@ AUTO_NAME_RE = re.compile(r"^(?:func|D|L|jtbl|RO)_[0-9A-Fa-f]{8}$")
 # over the *subsegment name* the function's address falls inside -- which is
 # where the project records what a run of code has been identified as.
 AREAS = [
-    ("libultra corridor", lambda n: n.startswith("libultra/")),
-    ("game code, TU identified", lambda n: bool(n)),
-    ("game code, not yet split", lambda n: True),
+    ("libultra", lambda n: n.startswith("libultra/")),
+    ("game code in named translation units", lambda n: bool(n)),
+    ("game code not split into translation units", lambda n: True),
 ]
 
 # Short descriptions for matched translation units, keyed by their path under
@@ -287,24 +271,6 @@ def subsegment_of(addr, index):
     return index[i][1] if i >= 0 else ""
 
 
-def bar(matched, named, total, width=20):
-    """A three-state text bar: matched to C, named but still asm, unnamed.
-
-    This project's shape is a large naming lead over a small matching lead, and
-    a single-value bar would hide exactly that. Any nonzero tier is rounded up
-    to at least one cell so it is visible rather than rounded out of existence.
-    """
-    if total <= 0:
-        return "░" * width
-    m = min(round(matched / total * width), width)
-    if matched > 0:
-        m = max(m, 1)
-    mn = min(round((matched + named) / total * width), width)
-    if matched + named > 0:
-        mn = max(mn, m, 1)
-    return "█" * m + "▓" * (mn - m) + "░" * (width - mn)
-
-
 def badge(label, message, color):
     """A shields.io static badge URL carrying generated numbers.
 
@@ -334,127 +300,91 @@ def source_tus(src_dir):
 
 
 def render_markdown(st):
-    """The scoreboard block: everything between the README's markers.
-
-    Deliberately decimal-only -- counts and percentages, no hex words and no
-    address columns. The clean-room content detectors treat dense machine-word
-    and hex-token tables as a ROM leak signature, and a scoreboard has no need
-    of either, so the block is written to stay far from that line by
-    construction rather than by exemption.
-    """
+    """Return the generated README progress section."""
     L = []
     L.append("### Progress")
     L.append("")
     L.append(
         f"[![functions]({badge('functions matched', st['func_msg'], 'blue')})]"
         f"(#progress) "
-        f"[![bytes]({badge('code bytes resolved', st['byte_msg'], 'blue')})]"
+        f"[![bytes]({badge('C bytes matched', st['c_byte_msg'], 'blue')})]"
         f"(#progress) "
         f"[![names]({badge('symbols named', st['name_msg'], 'blue')})](#progress)"
     )
     L.append("")
-    L.append("```")
-    L.append(
-        f"functions   {st['n_matched']:>6} / {st['n_total']:<6}  "
-        f"{st['func_pct']:5.2f}%   matched to C, byte-identical"
+    L.append("| Scope | Complete | Total | Progress |")
+    L.append("|---|---:|---:|---:|")
+    summary_rows = (
+        ("Resident functions", st["n_matched"], st["n_total"], st["func_pct"]),
+        ("Resident C bytes", st["matched_bytes"], st["total_bytes"], st["byte_pct"]),
+        ("Overlay C bytes", st["overlay_matched_bytes"], st["overlay_text_bytes"], st["overlay_byte_pct"]),
+        ("Whole-game C bytes", st["dkr_decompiled_bytes"], st["whole_text_bytes"], st["c_byte_pct"]),
+        ("Whole-game resolved bytes", st["resolved_bytes"], st["whole_text_bytes"], st["resolved_pct"]),
+        ("Named resident functions", st["n_named_funcs"], st["n_total"], st["named_pct"]),
     )
-    L.append(
-        f".text bytes {st['matched_bytes']:>6} / {st['total_bytes']:<6}  "
-        f"{st['byte_pct']:5.2f}%   matched C in the resident segment"
-    )
-    L.append(
-        f"verified asm {st['verified_asm_bytes']:>6} / {st['total_bytes']:<6}  "
-        f"{st['verified_asm_pct']:5.2f}%   original hand-written assembly "
-        f"({st['n_verified_asm']} functions)"
-    )
-    L.append(
-        f"overlay C   {st['overlay_matched_bytes']:>6} / {st['overlay_text_bytes']:<6}  "
-        f"{st['overlay_byte_pct']:5.2f}%   matched C keyed by overlay and offset"
-    )
-    L.append(
-        f"whole resolved {st['resolved_bytes']:>6} / {st['whole_text_bytes']:<6}  "
-        f"{st['resolved_pct']:5.2f}%   resident C + verified asm + overlay C"
-    )
-    L.append(
-        f"named       {st['n_named_funcs']:>6} / {st['n_total']:<6}  "
-        f"{st['named_pct']:5.2f}%   functions carrying an adopted name"
-    )
-    L.append(
-        f"symbols     {st['n_named']:>6}            "
-        f"        adopted in symbol_addrs.{st['version']}.txt"
-    )
-    L.append("```")
+    for label, complete, total, pct in summary_rows:
+        L.append(f"| {label} | {complete} | {total} | {pct:.2f}% |")
     L.append("")
     L.append(
-        "DKR-style report (docs/reference-findings.md sec.1: NON_MATCHING "
-        "and NON_EQUIVALENT count as unmatched, exactly like extracted "
-        "assembly):"
+        f"Resolved bytes include matched C and {st['verified_asm_bytes']} bytes "
+        f"in {st['n_verified_asm']} verified hand-written assembly functions. "
+        f"The symbol file contains {st['n_named']} adopted names."
     )
     L.append("")
-    L.append("```")
-    w = st["dkr_whole_bytes"]
-    for label, key in (
-        ("decompiled", "dkr_decompiled_bytes"),
-        ("handwritten asm", "dkr_handwritten_asm_bytes"),
-        ("GLOBAL_ASM remaining", "dkr_global_asm_bytes"),
-        ("NON_MATCHING", "dkr_non_matching_bytes"),
-        ("NON_EQUIVALENT", "dkr_non_equivalent_bytes"),
-    ):
-        value = st[key]
-        pct = value / w * 100 if w else 0.0
-        L.append(f"{label:<22} {value:>7} / {w:<7} ({pct:5.2f}%)")
-    L.append("```")
+    L.append("#### Resident progress by area")
     L.append("")
     L.append(
-        "| Area | Functions | Matched to C | Named, still asm | Unnamed | "
-        "Identified |"
+        "| Area | Matched functions | Total functions | Function progress | "
+        "Matched C bytes | Text bytes | Byte progress |"
     )
-    L.append("| :--- | ---: | ---: | ---: | ---: | :--- |")
+    L.append("|---|---:|---:|---:|---:|---:|---:|")
     for label in [a[0] for a in AREAS] + ["**total**"]:
         r = st["areas"][label]
-        pct = (r["matched"] + r["named"]) / r["funcs"] * 100 if r["funcs"] else 0.0
+        func_pct = r["matched"] / r["funcs"] * 100 if r["funcs"] else 0.0
+        byte_pct = r["matched_bytes"] / r["bytes"] * 100 if r["bytes"] else 0.0
         L.append(
-            f"| {label} | {r['funcs']} | {r['matched']} | {r['named']} | "
-            f"{r['unnamed']} | `{bar(r['matched'], r['named'], r['funcs'])}` "
-            f"{pct:.1f}% |"
+            f"| {label} | {r['matched']} | {r['funcs']} | {func_pct:.2f}% | "
+            f"{r['matched_bytes']} | {r['bytes']} | {byte_pct:.2f}% |"
         )
     L.append("")
     L.append(
-        "`█` matched to C · `▓` named but still assembly · "
-        "`░` neither. Naming runs ahead of matching: a function is "
-        "decompiled against an already-identified translation unit."
+        "Resident function counts exclude overlays because complete overlay "
+        "function boundaries are not yet available. Overlay progress is "
+        "therefore reported by byte count in the summary table."
     )
+    L.append("")
+    L.append("#### Whole-game code status")
+    L.append("")
+    L.append("| Status | Bytes | Share of text |")
+    L.append("|---|---:|---:|")
+    w = st["dkr_whole_bytes"]
+    for label, key in (
+        ("Matched C", "dkr_decompiled_bytes"),
+        ("Verified hand-written assembly", "dkr_handwritten_asm_bytes"),
+        ("Extracted assembly", "dkr_global_asm_bytes"),
+        ("C under `NON_MATCHING`", "dkr_non_matching_bytes"),
+        ("C under `NON_EQUIVALENT`", "dkr_non_equivalent_bytes"),
+    ):
+        value = st[key]
+        pct = value / w * 100 if w else 0.0
+        L.append(f"| {label} | {value} | {pct:.2f}% |")
     L.append("")
     tus = st["tus"]
-    by_dir = {}
-    for rel, note, fully_c in tus:
-        by_dir.setdefault(os.path.dirname(rel) or ".", []).append((rel, note, fully_c))
-    parts = []
-    for d in sorted(by_dir):
-        items = by_dir[d]
-        noted = [f"`{os.path.basename(r)}` ({n})" for r, n, _ in items if n]
-        if noted:
-            parts.append(
-                f"{len(items)} under `src/{d}/`, including "
-                + " and ".join(noted)
-            )
-        else:
-            parts.append(f"{len(items)} under `src/{d}/`")
+    groups = {"libultra": 0, "main": 0, "overlays": 0, "other": 0}
+    for rel, _note, _fully_c in tus:
+        group = rel.split(os.sep, 1)[0]
+        groups[group if group in groups else "other"] += 1
     n_fully_c = sum(fully_c for _, _, fully_c in tus)
     L.append(
-        f"**Source organization**: {n_fully_c} fully-C translation units and "
-        f"{len(tus) - n_fully_c} C scaffolds that still include assembly. "
-        + "; ".join(parts) + "."
+        f"Source files: {len(tus)} translation units; {n_fully_c} contain only "
+        f"C and {len(tus) - n_fully_c} still include assembly. Directory totals: "
+        f"`src/libultra` {groups['libultra']}, `src/main` {groups['main']}, "
+        f"and `src/overlays` {groups['overlays']}."
     )
     L.append("")
     L.append(
-        "Generated by `gmake scoreboard` from the built ELF, the splat "
-        f"config, the `asm/` tree and `symbol_addrs.{st['version']}.txt`; "
-        "`gmake check-scoreboard` fails if it has drifted. "
-        "[`docs/modules.md`](docs/modules.md) records what each run of code "
-        "was identified as and on what evidence; "
-        "[`docs/references.md`](docs/references.md) records the reference "
-        "builds it was measured against."
+        "Run `gmake scoreboard` after a matching change. "
+        "`gmake check-scoreboard` checks this section against the current build."
     )
     return "\n".join(L)
 
@@ -549,7 +479,8 @@ def check_partial(args):
         areas=zero_areas,
         tus=tus,
         func_msg="0 of 0 (0.00%)",
-        byte_msg="0 of 0 (0.00%)",
+        c_byte_msg="0 of 0 (0.00%)",
+        c_byte_pct=0.0,
         name_msg=f"{n_named} adopted",
         dkr_decompiled_bytes=0,
         dkr_handwritten_asm_bytes=0,
@@ -566,25 +497,23 @@ def check_partial(args):
                 return line
         return None
 
-    exp_symbols = find_line(rendered, "symbols")
-    cur_symbols = find_line(current, "symbols")
+    exp_symbols = find_line(rendered, "Resolved bytes include")
+    cur_symbols = find_line(current, "Resolved bytes include")
     if exp_symbols is None:
-        problems.append("could not find a 'symbols' line in the generated block")
-    elif exp_symbols != cur_symbols:
+        problems.append("could not find the generated resolved-bytes note")
+    elif not cur_symbols or f"contains {n_named} adopted names." not in cur_symbols:
         problems.append(
-            "'symbols' line is stale against symbol_addrs."
-            f"{args.version}.txt:\n"
-            f"    committed: {cur_symbols!r}\n"
-            f"    tree says: {exp_symbols!r}"
+            f"adopted-name count is stale against symbol_addrs.{args.version}.txt: "
+            f"expected {n_named}"
         )
 
-    exp_matched = find_line(rendered, "**Source organization**")
-    cur_matched = find_line(current, "**Source organization**")
+    exp_matched = find_line(rendered, "Source files:")
+    cur_matched = find_line(current, "Source files:")
     if exp_matched is None:
-        problems.append("could not find a 'Source organization' line in the generated block")
+        problems.append("could not find the generated source-file line")
     elif exp_matched != cur_matched:
         problems.append(
-            "'Source organization' line is stale against the src/ tree "
+            "source-file line is stale against the src/ tree "
             f"({len(tus)} .c files found):\n"
             f"    committed: {cur_matched!r}\n"
             f"    tree says: {exp_matched!r}"
@@ -621,12 +550,12 @@ def check_partial(args):
                 f"numbers ({num}/{den} = {expected_pct:.2f}%)"
             )
 
-    check_ratio("functions", r"^functions\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
-    check_ratio(".text bytes", r"^\.text bytes\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
-    check_ratio("verified asm", r"^verified asm\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
-    check_ratio("overlay C", r"^overlay C\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
-    check_ratio("whole resolved", r"^whole resolved\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
-    check_ratio("named", r"^named\s+(\d+)\s*/\s*(\d+)\s+(\d+\.\d+)%")
+    check_ratio("functions", r"^\| Resident functions \| (\d+) \| (\d+) \| (\d+\.\d+)% \|")
+    check_ratio("resident C", r"^\| Resident C bytes \| (\d+) \| (\d+) \| (\d+\.\d+)% \|")
+    check_ratio("overlay C", r"^\| Overlay C bytes \| (\d+) \| (\d+) \| (\d+\.\d+)% \|")
+    check_ratio("whole C", r"^\| Whole-game C bytes \| (\d+) \| (\d+) \| (\d+\.\d+)% \|")
+    check_ratio("whole resolved", r"^\| Whole-game resolved bytes \| (\d+) \| (\d+) \| (\d+\.\d+)% \|")
+    check_ratio("named", r"^\| Named resident functions \| (\d+) \| (\d+) \| (\d+\.\d+)% \|")
 
     if "functions" in ratios and "named" in ratios:
         func_total = ratios["functions"][1]
@@ -638,7 +567,10 @@ def check_partial(args):
             )
 
     row_re = re.compile(
-        r"^\| (.+?) \| (\d+) \| (\d+) \| (\d+) \| (\d+) \| `[^`]*` (\d+\.\d+)% \|",
+        r"^\| (libultra|game code in named translation units|"
+        r"game code not split into translation units|\*\*total\*\*) "
+        r"\| (\d+) \| (\d+) \| (\d+\.\d+)% \| (\d+) \| (\d+) "
+        r"\| (\d+\.\d+)% \|",
         re.MULTILINE,
     )
     rows = row_re.findall(block)
@@ -648,43 +580,46 @@ def check_partial(args):
             f"total), found {len(rows)}"
         )
     else:
-        for label, funcs, matched, named, unnamed, pct in rows:
-            funcs, matched, named, unnamed, pct = (
-                int(funcs), int(matched), int(named), int(unnamed), float(pct)
+        for label, matched, funcs, func_pct, matched_bytes, total_bytes, byte_pct in rows:
+            matched, funcs, func_pct = int(matched), int(funcs), float(func_pct)
+            matched_bytes, total_bytes, byte_pct = (
+                int(matched_bytes), int(total_bytes), float(byte_pct)
             )
-            if funcs != matched + named + unnamed:
-                problems.append(
-                    f"area '{label}': funcs ({funcs}) != matched + named + "
-                    f"unnamed ({matched}+{named}+{unnamed}={matched + named + unnamed})"
-                )
             if funcs:
-                expected_pct = (matched + named) / funcs * 100
-                if abs(expected_pct - pct) > 0.05:
+                expected_pct = matched / funcs * 100
+                if abs(expected_pct - func_pct) > 0.01:
                     problems.append(
-                        f"area '{label}': identified% ({pct}%) does not "
-                        f"match its own numbers ({expected_pct:.1f}%)"
+                        f"area '{label}': function percentage ({func_pct}%) does not "
+                        f"match its own numbers ({expected_pct:.2f}%)"
+                    )
+            if total_bytes:
+                expected_pct = matched_bytes / total_bytes * 100
+                if abs(expected_pct - byte_pct) > 0.01:
+                    problems.append(
+                        f"area '{label}': byte percentage ({byte_pct}%) does not "
+                        f"match its own numbers ({expected_pct:.2f}%)"
                     )
         total_row = rows[-1]
-        summed = [sum(int(r[i]) for r in rows[:-1]) for i in range(1, 5)]
-        total_vals = [int(v) for v in total_row[1:5]]
+        summed = [sum(int(r[i]) for r in rows[:-1]) for i in (1, 2, 4, 5)]
+        total_vals = [int(total_row[i]) for i in (1, 2, 4, 5)]
         if summed != total_vals:
             problems.append(
                 f"area rows do not sum to the '**total**' row: areas sum to "
                 f"{summed}, total row says {total_vals} "
-                "(funcs, matched, named, unnamed)"
+                "(matched functions, functions, matched bytes, text bytes)"
             )
-        if "functions" in ratios and total_vals[0] != ratios["functions"][1]:
+        if "functions" in ratios and total_vals[1] != ratios["functions"][1]:
             problems.append(
                 "area table's total function count "
-                f"({total_vals[0]}) disagrees with the 'functions' line's "
+                f"({total_vals[1]}) disagrees with the summary row's "
                 f"total ({ratios['functions'][1]})"
             )
 
     print("scoreboard --check-partial: CI-safe subset (no linked ELF used)")
     print(
-        "  checked: adopted-symbol count and badge, matched-TU list, "
+        "  checked: adopted-symbol count and badge, source-file totals, "
         "internal arithmetic\n"
-        "           (ratios' own percentages, area-table row sums, "
+        "           (percentages, area-table row sums, "
         "cross-line total agreement)"
     )
     print(
@@ -776,6 +711,9 @@ def main(args):
     )
     dkr_non_equivalent_bytes = 0
     dkr_whole_bytes = whole_text_bytes
+    c_byte_pct = (
+        dkr_decompiled_bytes / dkr_whole_bytes * 100 if dkr_whole_bytes else 0.0
+    )
     if dkr_whole_bytes and (
         dkr_decompiled_bytes
         + dkr_handwritten_asm_bytes
@@ -843,7 +781,10 @@ def main(args):
             areas=areas,
             tus=source_tus(os.path.join(ROOT_DIR, "src")),
             func_msg=f"{n_matched} of {n_total} ({func_pct:.2f}%)",
-            byte_msg=f"{resolved_bytes} of {whole_text_bytes} ({resolved_pct:.2f}%)",
+            c_byte_msg=(
+                f"{dkr_decompiled_bytes} of {whole_text_bytes} ({c_byte_pct:.2f}%)"
+            ),
+            c_byte_pct=c_byte_pct,
             name_msg=f"{n_named} adopted",
             dkr_decompiled_bytes=dkr_decompiled_bytes,
             dkr_handwritten_asm_bytes=dkr_handwritten_asm_bytes,
@@ -954,7 +895,7 @@ def main(args):
     print(f"symbols:   {n_named} named")
 
     print()
-    print("DKR-style report (docs/reference-findings.md sec.1):")
+    print("whole-game code status:")
     for label, value in (
         ("decompiled", dkr_decompiled_bytes),
         ("handwritten asm", dkr_handwritten_asm_bytes),
