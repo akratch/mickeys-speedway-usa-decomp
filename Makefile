@@ -487,10 +487,10 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/string.c.o: MIPSISET := -mips2 -32
 # list sorted.
 LIBULTRA_O1_TUS := ai aigetlen aisetfreq aisetnextbuf controller contreaddata crc createmesgqueue destroythread \
                    dp dpsetnextbuf dpsetstat getactivequeue getthreadpri \
-                   gettime jammesg recvmesg resetglobalintmask sendmesg \
+                   gettime jammesg pfsdeletefile recvmesg resetglobalintmask sendmesg \
                    seteventmesg setthreadpri settimer settime si siacs \
                    sirawdma sirawread sirawwrite sp sprawdma spgetstat \
-                   spsetstat sptask sptaskyield \
+                   spsetpc spsetstat sptask sptaskyield \
                    sptaskyielded startthread stopthread thread timerintr vi viblack \
                    vigetcurrcontext vigetcurrframebuf vigetnextframebuf \
                    visetevent visetmode visetspecial viswapbuf \
@@ -536,7 +536,7 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/destroythread.c.o: CFLAGS += -D__GNUC__
 # Every TU in the list below was measured before it was added, one at a time.
 # The list is not "libultra's io/ and pfs/ trees"; it is the set that has been
 # measured, and nothing joins it on a neighbour's evidence.
-LIBULTRA_O2_G3_TUS := contpfs devmgr epidma epilinkhandle epirawdma epirawread \
+LIBULTRA_O2_G3_TUS := contpfs contramread contramwrite devmgr epidma epilinkhandle epirawdma epirawread \
                       epirawwrite epiread epiwrite pfsallocatefile pfschecker \
                       initialize motor pfsfilestate pfsfreeblocks pfsgetstatus pfsinit \
                       pfsisplug pfsnumfiles pfsreadwritefile pfssearchfile \
@@ -551,6 +551,9 @@ $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
 $(BUILD_DIR)/$(SRC_DIR)/libultra/initialize.c.o: CFLAGS += -DBUILD_VERSION=7 -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/controller.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/contreaddata.c.o: CFLAGS += -DRAREDIFFS
+$(BUILD_DIR)/$(SRC_DIR)/libultra/contramread.c.o: CFLAGS += -DBUILD_VERSION=7
+$(BUILD_DIR)/$(SRC_DIR)/libultra/contramwrite.c.o: CFLAGS += -DBUILD_VERSION=7
+$(BUILD_DIR)/$(SRC_DIR)/libultra/pfsdeletefile.c.o: CFLAGS += -DBUILD_VERSION=6 -DMICKEY_PFS_OLD_SIGNATURE -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/motor.c.o: CFLAGS += -DBUILD_VERSION=7 -DJFGDIFFS
 
 # The Transfer Pak bank-fill loop remains rolled only with the explicit uopt
@@ -717,6 +720,26 @@ $(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: POSTPROCESS = \
 		0x130:LO16:mainThreadRamEndAnchor:0xFFFC && \
 	$(OBJCOPY) --redefine-sym mainThreadRamEndAnchor=D_803FFFFC \
 		--redefine-sym mainCPUeffectsRainDraw=TrapDanglingJump $@
+# joyInit's enabled-pad bytes are one contiguous array for IDO's exact loop
+# schedule, while the retail relocation table names the adjacent byte labels.
+# Add global aliases at their actual .bss offsets and local relocation carriers
+# at the compiler's array base. Rebind existing records to the carriers, then
+# rename them to the retail labels; no instruction or data byte is changed.
+$(BUILD_DIR)/$(SRC_DIR)/main/joy.c.o: config/normalizations/joyInit.rebind.spec
+$(BUILD_DIR)/$(SRC_DIR)/main/joy.c.o: POSTPROCESS = \
+	$(OBJCOPY) --add-symbol D_800CF3B5=.bss:0x5,global,object \
+		--add-symbol D_800CF3B6=.bss:0x6,global,object \
+		--add-symbol D_800CF3B7=.bss:0x7,global,object \
+		--add-symbol joyInitRelocBC=.bss:0x8,local,object \
+		--add-symbol joyInitRelocB5=.bss:0x4,local,object \
+		--add-symbol joyInitRelocB6=.bss:0x4,local,object \
+		--add-symbol joyInitRelocB7=.bss:0x4,local,object $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/joyInit.rebind.spec && \
+	$(OBJCOPY) --redefine-sym joyInitRelocBC=D_800CF3BC \
+		--redefine-sym joyInitRelocB5=D_800CF3B5 \
+		--redefine-sym joyInitRelocB6=D_800CF3B6 \
+		--redefine-sym joyInitRelocB7=D_800CF3B7 $@
 # The resident formatter's integer multiply/divide schedule uses R4300 timing.
 $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # osScGetTaskType owns seven table words; IDO's trailing four zero bytes are

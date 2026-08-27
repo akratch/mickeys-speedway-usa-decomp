@@ -33,6 +33,7 @@
 #define SP_RD_LEN_REG    (SP_BASE_REG + 0x08)
 #define SP_WR_LEN_REG    (SP_BASE_REG + 0x0C)
 #define SP_STATUS_REG  (SP_BASE_REG + 0x10)
+#define SP_PC_REG      0x04080000
 
 #define SP_STATUS_HALT       0x0001
 #define SP_STATUS_BROKE      0x0002
