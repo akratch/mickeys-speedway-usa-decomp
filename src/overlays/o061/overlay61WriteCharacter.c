@@ -7,25 +7,23 @@ extern s32 overlay61WriteRecordReloc(
 extern void overlay61FreeReloc(void *data);
 extern u8 gOverlay61RecordFormatReloc[];
 
-#ifdef NON_MATCHING
 s32 overlay61WriteCharacter(s32 *source, s32 destination, s32 arg2) {
     s32 size;
-    s32 remainder;
     s32 words;
-    s32 count;
-    s32 *src;
-    s32 *dst;
     s32 result;
     s32 *buffer;
 
     size = overlay61RecordSizeReloc() + 4;
-    remainder = size % 32;
-    if (remainder != 0) {
-        size = (size - remainder) + 32;
+    if (size % 32 != 0) {
+        size = (size - (size % 32)) + 32;
     }
 
     buffer = overlay61AllocReloc(size, 0x85);
     if (buffer != 0) {
+        s32 count;
+        s32 *src;
+        s32 *dst;
+
         buffer[0] = 0x43484152;
         words = (size - 1) >> 2;
         src = source;
@@ -44,6 +42,3 @@ s32 overlay61WriteCharacter(s32 *source, s32 destination, s32 arg2) {
     }
     return result;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o061/overlay61WriteCharacter/func_overlay_061_F00017B8_18C0B80.s")
-#endif
