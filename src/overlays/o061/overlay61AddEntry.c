@@ -19,7 +19,6 @@ extern u8 gOverlay61Text0Reloc[];
 extern u8 gOverlay61Text1Reloc[];
 extern void overlay61CopyTextReloc(u8 *, u8 *, s32);
 
-#ifdef NON_MATCHING
 void overlay61AddEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                        s32 arg5, s32 arg6, s32 arg7) {
     s32 hours;
@@ -28,8 +27,7 @@ void overlay61AddEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
     Overlay61Entry *entry;
 
     if (gOverlay61EntryCountReloc < 20) {
-        entry = &gOverlay61EntriesReloc[gOverlay61EntryCountReloc << 0];
-        gOverlay61EntryCountReloc++;
+        entry = &gOverlay61EntriesReloc[gOverlay61EntryCountReloc++];
 
         if (arg7 != -1) {
             hours = arg7 / 3600;
@@ -54,8 +52,8 @@ void overlay61AddEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
         }
 
         entry->field0 = arg0;
-        entry->field3 = arg5;
         entry->field2 = arg1;
+        entry->field3 = arg5;
         entry->field4 = arg6;
         entry->field5 = hours;
         entry->field6 = minutes;
@@ -63,6 +61,3 @@ void overlay61AddEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
         entry->field3C = arg4;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o061/overlay61AddEntry/func_overlay_061_F00001DC_18BF5A4.s")
-#endif
