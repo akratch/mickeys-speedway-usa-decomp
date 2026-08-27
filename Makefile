@@ -553,7 +553,7 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/controller.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/contreaddata.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/contramread.c.o: CFLAGS += -DBUILD_VERSION=7
 $(BUILD_DIR)/$(SRC_DIR)/libultra/contramwrite.c.o: CFLAGS += -DBUILD_VERSION=7
-$(BUILD_DIR)/$(SRC_DIR)/libultra/pfsdeletefile.c.o: CFLAGS += -DBUILD_VERSION=6 -DMICKEY_PFS_OLD_SIGNATURE
+$(BUILD_DIR)/$(SRC_DIR)/libultra/pfsdeletefile.c.o: CFLAGS += -DBUILD_VERSION=6 -DMICKEY_PFS_OLD_SIGNATURE -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/motor.c.o: CFLAGS += -DBUILD_VERSION=7 -DJFGDIFFS
 
 # The Transfer Pak bank-fill loop remains rolled only with the explicit uopt
