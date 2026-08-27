@@ -58,8 +58,8 @@ tools/ido/cc -c -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
 -I . -I include -I include/libc -I include/PR -I assets -O2 -mips1 -32
 """
 #
-# assembler_command deliberately omits Makefile's ASM_PROC_ASFLAGS addition
-# of include/asm_processor_prelude.inc: that prelude defines glabel/dlabel/
+# assembler_command deliberately omits the project asm-processor prelude:
+# include/asm_processor_prelude.inc defines glabel/dlabel/
 # alabel/... as .macro, and so does decomp-permuter's own prelude.inc, which
 # import.py always prepends to target.s. Passing both to `as` in one
 # invocation is a duplicate-.macro-definition error ("Macro `endlabel' was

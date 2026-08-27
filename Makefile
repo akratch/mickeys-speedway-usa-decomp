@@ -104,9 +104,11 @@ POSTPROCESS := @:
 # the referenced .s files with $(AS), and splices the result back into the
 # object so hand-written asm and compiled C share one translation unit in the
 # right order. Invocation shape is
-#   build.py <compiler...> -- <assembler...> -- <compile args...> <input.c>
+#   build.py [processor options] <compiler...> -- <assembler...> -- \
+#     <compile args...> <input.c>
 # i.e. the compiler and assembler command lines are passed through verbatim.
-ASM_PROCESSOR := $(PYTHON) $(TOOLS_DIR)/asm-processor/build.py
+ASM_PROCESSOR := $(PYTHON) $(TOOLS_DIR)/asm-processor/build.py \
+	--asm-prelude include/asm_processor_prelude.inc
 
 CRC := $(TOOLS_DIR)/n64crc
 
@@ -117,10 +119,9 @@ CRC := $(TOOLS_DIR)/n64crc
 # Verified working assembler invocation (Task 4).
 ASFLAGS := -march=vr4300 -32 -mabi=32 -G0 -I include
 
-# asm-processor's GLOBAL_ASM path needs a couple of macros that its own prelude
-# doesn't define; gas takes several input files, so the extra prelude is simply
-# handed to it ahead of asm-processor's temporary .s. See the file's comment.
-ASM_PROC_ASFLAGS := $(ASFLAGS) include/asm_processor_prelude.inc
+# The project prelude is supplied to asm-processor above. Keep the assembler
+# command itself free of a second prelude, which would redefine its macros.
+ASM_PROC_ASFLAGS := $(ASFLAGS)
 
 # splat's ld script names every input object explicitly, so nothing is passed
 # on the command line; --no-check-sections because segments deliberately share

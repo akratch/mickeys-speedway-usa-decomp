@@ -89,7 +89,8 @@ BASE_CFLAGS = (
     + INCLUDE_CFLAGS
 )
 ASFLAGS = ["-march=vr4300", "-32", "-mabi=32", "-G0", "-I", "include"]
-ASM_PROC_ASFLAGS = ASFLAGS + ["include/asm_processor_prelude.inc"]
+ASM_PROCESSOR_FLAGS = ["--asm-prelude", "include/asm_processor_prelude.inc"]
+ASM_PROC_ASFLAGS = ASFLAGS
 
 # ---------------------------------------------------------------------------
 # The lattice. Extend by adding rows -- everything downstream (pruning,
@@ -226,6 +227,7 @@ def compile_combo(
     )
     cmd = (
         [sys.executable, str(ASM_PROCESSOR_BUILD)]
+        + ASM_PROCESSOR_FLAGS
         + cc_tokens
         + ["--", str(AS)]
         + ASM_PROC_ASFLAGS
