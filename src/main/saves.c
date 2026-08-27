@@ -407,11 +407,9 @@ void func_8002C8B4(s32 arg0, s32 arg1, void *arg2, s32 arg3) {
     }
     func_80070030(arg0, (u8) arg1, arg2, arg3);
 }
-#ifdef NON_MATCHING
-/* Workbench: register-permutation; 6/115 words differ first at +0x4C, with frame and relocations exact.
- * Levers: local order/type, slot-count lifetime, statement grouping, full flag lattice, and bounded permutation.
- * Remains: the slot/counter callee-saved tie-break; forced-color probing found no source-stable closure. */
 /* Mickey-derived serialization of one 0x94-byte save window. */
+/* The `if (1)` block around the entry init is a register-scheduling nudge
+ * needed to match the callee-saved slot/counter tie-break (permuter). */
 void func_8002C94C(s32 saveIndex) {
     SavesBitWriter *writer;
     s32 inner;
@@ -433,7 +431,9 @@ void func_8002C94C(s32 saveIndex) {
         slotCount = 0x18;
         do {
             inner = 0;
-            entry = (SavesPackedEntry *) slot;
+            if (1) {
+                entry = (SavesPackedEntry *) slot;
+            }
             do {
                 func_8002C69C(writer, entry->unk04, 5);
                 func_8002C69C(writer, entry->unk05, 5);
@@ -462,9 +462,6 @@ void func_8002C94C(s32 saveIndex) {
         func_8002C79C(writer);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/func_8002C94C.s")
-#endif
 /* Mickey-derived reconstruction of the serialized save-window loader. */
 void func_8002CB18(void) {
     s32 checksum;

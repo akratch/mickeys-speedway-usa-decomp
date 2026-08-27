@@ -1684,13 +1684,8 @@ The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mi
 Hoisted-argument, folded-mask, and addressable-scalar levers leave `savedFlag` target FIFO-temp versus candidate colored-web; the 30-minute permuter produced only invented no-op identities.
 The assembly fallback remains canonical.
 
-The save-window serializer `func_8002C94C` remains `NON_MATCHING`: workbench reports `schedule-mismatch` with the exact 115-word shape, `0x70` frame, and relocation surface.
-Local order/type, slot-count lifetime, and statement-grouping levers leave two scheduled rows/five raw positions from `+0x50`; a 30-minute permuter found no zero.
-Its score-580 isolated lead enlarged the canonical frame and regressed to 12 words, so the assembly fallback remains canonical.
-
-`func_8002C94C`: workbench `schedule-mismatch`; exact 115-word shape, `0x70` frame, and relocation surface.
-Local order/type, slot-count lifetime, statement grouping, context lint, and a bounded permuter leave five raw positions from `+0x50`.
-The source is already a `-g0` build and the isolated lead regresses canonically, so assembly remains canonical.
+The save-window serializer `func_8002C94C` is now **matched** (tier-A byte-identity).
+The residual was a pure `schedule-mismatch` (exact 115-word shape, `0x70` frame, relocations already agreeing); the decomp-permuter closed it, finding an `if (1) { ... }` grouping around the entry initialization that resolves the callee-saved slot/counter scheduling tie-break. The C in `src/main/saves.c` now compiles byte-identical to the ROM; no assembly fallback remains.
 
 | Function | ROM | Bytes | Flags | Verdict |
 |---|---:|---:|---|---|
