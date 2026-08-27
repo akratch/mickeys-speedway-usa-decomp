@@ -776,6 +776,13 @@ $(BUILD_DIR)/$(SRC_DIR)/main/vehicle_sounds.c.o: CFLAGS += -Wab,-r4300_mul
 # The track plane builder proves the resident TU's R4300 FP hazard schedule.
 $(BUILD_DIR)/$(SRC_DIR)/main/track.c.o: CFLAGS += -Wab,-r4300_mul
 
+# func_8000D018's camera-position dangling call needs a typed alias to pass its
+# three f32 args single-precision (the unprototyped TrapDanglingJump promotes
+# them to double). Canonicalize only the undefined symbol name to the shared
+# TrapDanglingJump target (0x800333A0); section contents are unchanged.
+$(BUILD_DIR)/$(SRC_DIR)/main/track.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym trackCamPosTrap=TrapDanglingJump $@
+
 # The gsSnd flag lattice reproduces its debug-shaped epilogues only with bare -g.
 $(BUILD_DIR)/$(SRC_DIR)/main/gsSnd.c.o: OPT_FLAGS := -g
 
