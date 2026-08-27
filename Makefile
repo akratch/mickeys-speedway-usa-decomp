@@ -536,7 +536,7 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/destroythread.c.o: CFLAGS += -D__GNUC__
 # Every TU in the list below was measured before it was added, one at a time.
 # The list is not "libultra's io/ and pfs/ trees"; it is the set that has been
 # measured, and nothing joins it on a neighbour's evidence.
-LIBULTRA_O2_G3_TUS := contpfs devmgr epidma epilinkhandle epirawdma epirawread \
+LIBULTRA_O2_G3_TUS := contpfs contramread devmgr epidma epilinkhandle epirawdma epirawread \
                       epirawwrite epiread epiwrite pfsallocatefile pfschecker \
                       initialize motor pfsfilestate pfsfreeblocks pfsgetstatus pfsinit \
                       pfsisplug pfsnumfiles pfsreadwritefile pfssearchfile \
@@ -551,6 +551,7 @@ $(foreach f,$(LIBULTRA_O2_G3_TUS),$(eval \
 $(BUILD_DIR)/$(SRC_DIR)/libultra/initialize.c.o: CFLAGS += -DBUILD_VERSION=7 -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/controller.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/contreaddata.c.o: CFLAGS += -DRAREDIFFS
+$(BUILD_DIR)/$(SRC_DIR)/libultra/contramread.c.o: CFLAGS += -DBUILD_VERSION=7
 $(BUILD_DIR)/$(SRC_DIR)/libultra/motor.c.o: CFLAGS += -DBUILD_VERSION=7 -DJFGDIFFS
 
 # The Transfer Pak bank-fill loop remains rolled only with the explicit uopt
