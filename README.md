@@ -14,15 +14,15 @@ They have not been updated or verified.
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-1001_of_1464_(68.37%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/C_bytes_matched-331764_of_947796_(35.00%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1272_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-1001_of_1464_(68.37%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/C_bytes_matched-332040_of_947796_(35.03%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1272_adopted-blue)](#progress)
 
 | Scope | Complete | Total | Progress |
 |---|---:|---:|---:|
 | Resident functions | 1001 | 1464 | 68.37% |
 | Resident C bytes | 222188 | 478532 | 46.43% |
-| Overlay C bytes | 109576 | 469264 | 23.35% |
-| Whole-game C bytes | 331764 | 947796 | 35.00% |
-| Whole-game resolved bytes | 348376 | 947796 | 36.76% |
+| Overlay C bytes | 109852 | 469264 | 23.41% |
+| Whole-game C bytes | 332040 | 947796 | 35.03% |
+| Whole-game resolved bytes | 348652 | 947796 | 36.79% |
 | Named resident functions | 1128 | 1464 | 77.05% |
 
 Resolved bytes include matched C and 16612 bytes in 82 verified hand-written assembly functions. The symbol file contains 1272 adopted names.
@@ -42,13 +42,13 @@ Resident function counts exclude overlays because complete overlay function boun
 
 | Status | Bytes | Share of text |
 |---|---:|---:|
-| Matched C | 331764 | 35.00% |
+| Matched C | 332040 | 35.03% |
 | Verified hand-written assembly | 16612 | 1.75% |
 | Extracted assembly | 285132 | 30.08% |
-| C under `NON_MATCHING` | 314288 | 33.16% |
+| C under `NON_MATCHING` | 314012 | 33.13% |
 | C under `NON_EQUIVALENT` | 0 | 0.00% |
 
-Source files: 807 translation units; 536 contain only C and 271 still include assembly. Directory totals: `src/libultra` 134, `src/main` 37, and `src/overlays` 636.
+Source files: 807 translation units; 537 contain only C and 270 still include assembly. Directory totals: `src/libultra` 134, `src/main` 37, and `src/overlays` 636.
 
 Run `gmake scoreboard` after a matching change. `gmake check-scoreboard` checks this section against the current build.
 <!-- SCOREBOARD_END -->

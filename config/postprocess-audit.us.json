@@ -22,6 +22,7 @@
       "size": null,
       "source": "src/main/anim.c",
       "tools": [
+        "trim_elf_section.py",
         "objcopy"
       ]
     },
@@ -35,6 +36,19 @@
       "source": "src/main/diRcp.c",
       "tools": [
         "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
+      "object": "build/src/main/joy.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/joy.c",
+      "tools": [
+        "rebind_elf_relocations.py",
+        "objcopy"
       ]
     },
     {
@@ -109,6 +123,18 @@
       "source": "src/main/sched.c",
       "tools": [
         "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
+      "object": "build/src/main/track.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/track.c",
+      "tools": [
+        "objcopy"
       ]
     },
     {
@@ -3398,8 +3424,7 @@
       "size": 276,
       "source": "src/overlays/o043/overlay43SubmitChildren.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -7605,9 +7630,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 615
+      "metadata": 617
     },
     "matched_c_bytes_with_postprocess": 396792,
-    "objects_with_postprocess": 615
+    "objects_with_postprocess": 617
   }
 }
