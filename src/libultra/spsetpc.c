@@ -1,26 +1,18 @@
 /*
- * libultra __osSpSetPc -- ROM 0x74C20-0x74C60 (VRAM 0x80074020).
- *
- * DELIBERATELY NOT DECOMPILED. This file's job is to keep the asm-processor
- * `#pragma GLOBAL_ASM` path exercised by every `gmake verify`.
- *
- * Without it that path has no coverage at all: src/libultra/string.c is now
- * fully C, so nothing would assemble a nonmatchings .s, nothing would need
- * include/asm_processor_prelude.inc, and the GLOBAL_ASM half of the build
- * could rot silently until the next task hit it -- at which point it would be
- * debugged at the same time as that task's first relocations, i.e. two
- * untested variables at once.
- *
- * The TU was chosen for being the smallest thing that does the job: one
- * function, 0x40 bytes, a boundary splat had already isolated on its own, and
- * a .text byte-identical to DKR's built spsetpc.c object.
- *
- * If you decompile this, scaffold another all-GLOBAL_ASM TU in the same
- * commit. There are plenty of candidates left in the libultra corridor.
- *
- * PROVENANCE: no C body to disclose -- this TU is `#pragma GLOBAL_ASM` over
- * the project's own disassembly of Mickey's ROM. The name is tier A against
- * DKR's built object; see docs/modules.md section 1.3.
+ * PROVENANCE: body adapted from Banjo-Kazooie's public libultra
+ * lib/ultralib/src/io/spsetpc.c, a permitted retail-derived decompilation
+ * under docs/CLEANROOM.md. Mickey's bytes decide the adapted spelling.
  */
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/spsetpc/__osSpSetPc.s")
+#include "PR/rcp.h"
+
+s32 __osSpSetPc(u32 pc) {
+    register u32 status = IO_READ(SP_STATUS_REG);
+
+    if (!(status & SP_STATUS_HALT)) {
+        return -1;
+    }
+    IO_WRITE(SP_PC_REG, pc);
+
+    return 0;
+}

@@ -490,7 +490,7 @@ LIBULTRA_O1_TUS := ai aigetlen aisetfreq aisetnextbuf controller contreaddata cr
                    gettime jammesg recvmesg resetglobalintmask sendmesg \
                    seteventmesg setthreadpri settimer settime si siacs \
                    sirawdma sirawread sirawwrite sp sprawdma spgetstat \
-                   spsetstat sptask sptaskyield \
+                   spsetpc spsetstat sptask sptaskyield \
                    sptaskyielded startthread stopthread thread timerintr vi viblack \
                    vigetcurrcontext vigetcurrframebuf vigetnextframebuf \
                    visetevent visetmode visetspecial viswapbuf \
