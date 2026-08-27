@@ -175,11 +175,21 @@ s32 __osCheckPackId(OSPfs *pfs, __OSPackId *temp);
 s32 __osGetId(OSPfs *pfs);
 s32 __osCheckId(OSPfs *pfs);
 s32 __osPfsRWInode(OSPfs *pfs, __OSInode *inode, u8 flag, u8 bank);
+#ifdef MICKEY_PFS_OLD_SIGNATURE
+s32 __osPfsSelectBank(OSPfs *pfs);
+#else
 s32 __osPfsSelectBank(OSPfs *pfs, u8 bank);
+#endif
 s32 __osPfsDeclearPage(OSPfs *pfs, __OSInode *inode, int file_size_in_pages,
                        int *first_page, u8 bank, int *decleared, int *last_page);
+#ifdef MICKEY_PFS_OLD_SIGNATURE
+s32 __osPfsReleasePages(OSPfs *pfs, __OSInode *inode, u8 start_page,
+                        u16 *sum, u8 bank, __OSInodeUnit *last_page,
+                        int flag);
+#else
 s32 __osPfsReleasePages(OSPfs *pfs, __OSInode *inode, u8 start_page, u8 bank,
                         __OSInodeUnit *last_page);
+#endif
 s32 __osBlockSum(OSPfs *pfs, u8 page_no, u16 *sum, u8 bank);
 s32 __osContRamRead(OSMesgQueue *mq, int channel, u16 address, u8 *buffer);
 s32 __osContRamWrite(OSMesgQueue *mq, int channel, u16 address, u8 *buffer, int force);
@@ -198,13 +208,26 @@ s32 __osPfsGetStatus(OSMesgQueue *queue, int channel);
     if (ret != 0) \
     return ret
 
+#ifdef MICKEY_PFS_OLD_SIGNATURE
+#define SELECT_BANK(pfs, bank) __osPfsSelectBank((pfs))
+#else
 #define SELECT_BANK(pfs, bank) __osPfsSelectBank((pfs), (bank))
+#endif
 
+#ifdef MICKEY_PFS_OLD_SIGNATURE
+#define SET_ACTIVEBANK_TO_ZERO()          \
+    if (pfs->activebank != 0) {            \
+        pfs->activebank = 0;               \
+        ERRCK(__osPfsSelectBank(pfs));     \
+    }                                     \
+    (void)0
+#else
 #define SET_ACTIVEBANK_TO_ZERO()          \
     if (pfs->activebank != 0) {            \
         ERRCK(__osPfsSelectBank(pfs, 0)); \
     }                                     \
     (void)0
+#endif
 
 #define PFS_CHECK_ID()                        \
     if (__osCheckId(pfs) == PFS_ERR_NEW_PACK) \

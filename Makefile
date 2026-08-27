@@ -487,7 +487,7 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/string.c.o: MIPSISET := -mips2 -32
 # list sorted.
 LIBULTRA_O1_TUS := ai aigetlen aisetfreq aisetnextbuf controller contreaddata crc createmesgqueue destroythread \
                    dp dpsetnextbuf dpsetstat getactivequeue getthreadpri \
-                   gettime jammesg recvmesg resetglobalintmask sendmesg \
+                   gettime jammesg pfsdeletefile recvmesg resetglobalintmask sendmesg \
                    seteventmesg setthreadpri settimer settime si siacs \
                    sirawdma sirawread sirawwrite sp sprawdma spgetstat \
                    spsetpc spsetstat sptask sptaskyield \
@@ -553,6 +553,7 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/controller.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/contreaddata.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/contramread.c.o: CFLAGS += -DBUILD_VERSION=7
 $(BUILD_DIR)/$(SRC_DIR)/libultra/contramwrite.c.o: CFLAGS += -DBUILD_VERSION=7
+$(BUILD_DIR)/$(SRC_DIR)/libultra/pfsdeletefile.c.o: CFLAGS += -DBUILD_VERSION=6 -DMICKEY_PFS_OLD_SIGNATURE
 $(BUILD_DIR)/$(SRC_DIR)/libultra/motor.c.o: CFLAGS += -DBUILD_VERSION=7 -DJFGDIFFS
 
 # The Transfer Pak bank-fill loop remains rolled only with the explicit uopt
