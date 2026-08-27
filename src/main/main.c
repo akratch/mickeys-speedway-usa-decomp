@@ -770,10 +770,6 @@ s32 mainAddZBCheck(s32 x, s32 y, s32 radius) {
     return result;
 }
 
-#ifdef NON_MATCHING
-/* Workbench: schedule-mismatch, exact 63-instruction/-72 frame; 2 words, first +0x9C.
- * Levers tried: g0/flag lattice, probe-lines/ties, and inner-loop expression/dead-read forms.
- * Remains: one inner pointer/countdown statement is scheduled on the opposite side of the copy. */
 void mainUpdateZBCheck(void) {
     MainZBCheck *check;
     s32 i;
@@ -783,7 +779,6 @@ void mainUpdateZBCheck(void) {
     s32 screenHeight;
     s32 columns;
     u8 *row;
-    u16 *pixel;
 
     viGetCurrentSize(&screenWidth, &screenHeight);
     check = D_800CF538;
@@ -798,13 +793,12 @@ void mainUpdateZBCheck(void) {
                 do {
                     columns = check->width;
                     if (columns--) {
-                        pixel = (u16 *) row + columns;
                         do {
-                            if ((*pixel & 0xFFFC) == 0xFFFC) {
+                            if ((*((u16 *) row + columns) & 0xFFFC) == 0xFFFC) {
                                 enabled = 0;
                                 goto nextCheck;
                             }
-                            pixel--; } while (columns--);
+                        } while (columns--);
                     }
                     row += screenWidth * 2;
                 } while (rows--);
@@ -815,9 +809,6 @@ nextCheck:
         check++;
     } while (i--);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/main/mainUpdateZBCheck.s")
-#endif
 
 /* PROVENANCE: body adapted from JFG src/main.c; Mickey byte identity is decisive. */
 s8 mainGetZBCheck(s32 arg0) {
