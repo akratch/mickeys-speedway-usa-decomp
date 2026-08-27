@@ -7,6 +7,29 @@
 # directory under build/permuter/<function>/ (gitignored: build/ is never
 # tracked), then runs permuter.py against it with a wall-clock cap.
 #
+# SCRATCH FIDELITY: the scratch object must be bit-identical to the real
+# per-TU object, or a score-0 in the scratch is a "false ceiling" that does
+# not transfer to `gmake verify`. Two corrections are applied to the importer's
+# scratch (see docs/matching-triage.md and the workbench improvement-backlog #9):
+#   - Real per-file compile flags (-mips2, -Wab,-r4300_mul, ...) recovered from
+#     `gmake -n <obj>` replace the importer's -mips1 default.
+#   - Any post-compile `objcopy --redefine-sym/--add-symbol` the Makefile's
+#     POSTPROCESS applies to that .o (e.g. src/main/track.c) is appended to the
+#     scratch's compile.sh after cc, so the scratch object gets the same symbol
+#     rewrite. Digest-guarded ELF surgery (add_elf_relocations/trim_elf_section)
+#     is NOT replicated -- it is tied to the matched bytes and would abort on a
+#     permuted object; such TUs are flagged with a warning instead.
+#   - --stack-diffs is forced on: the permuter's scorer otherwise normalizes
+#     stack-relative offsets and reports a false 0 for a candidate that is only
+#     a spill/local at the wrong sp offset -- bytes that still fail verify.
+#   NOT yet corrected: gfx-macro TUs whose real headers expand gDP*/gSP*/_SHIFTL
+#   differently from the importer's latedefine stubs (see the block near the end
+#   of this file's flag-correction logic and docs/matching-triage.md).
+#
+# MACHINE SAFETY: the permuter is niced (-n 15), wall-clock capped (timeout),
+# and its worker count is capped at 4 (many -j workers freeze the machine).
+# Keep those three intact.
+#
 #   PERMUTE_MINUTES=20 ./tools/permute.sh <function>   # default cap: 20 min
 #   ./tools/permute.sh <function> -j 4                 # override -j
 #
@@ -171,14 +194,15 @@ echo "Scratch: $OUT/scratch"
 # wrong ISA searches the wrong instruction space, so rewrite compile.sh's cc
 # flags to exactly what `gmake` uses for this object.
 obj="build/${c_file}.o"
+csh="$OUT/scratch/compile.sh"
 # `gmake -n "$obj"` prints nothing when the object is already up to date, which
 # would silently leave the scratch at the importer's wrong -mips1 (the search
 # then explores the wrong instruction space and never matches). Touch the source
 # so the object is always stale and gmake emits its real compile command.
 touch "$c_file" 2>/dev/null || true
-realflags=$(gmake -n "$obj" 2>/dev/null | grep -oE '\-mips[0-9]|\-O[0-9]|\-Wo,[^ ]*|\-Wab,[^ ]*|\-g[0-9]?' | sort -u | tr '\n' ' ')
+dryrun=$(gmake -n "$obj" 2>/dev/null)
+realflags=$(printf '%s\n' "$dryrun" | grep -oE '\-mips[0-9]|\-O[0-9]|\-Wo,[^ ]*|\-Wab,[^ ]*|\-g[0-9]?' | sort -u | tr '\n' ' ')
 if printf '%s' "$realflags" | grep -q mips; then
-  csh="$OUT/scratch/compile.sh"
   # drop the importer's -O/-mips/-Wo/-Wab flags, splice in the real ones before the input
   sed -i '' -E 's/ -O[0-9]//g; s/ -mips[0-9]//g; s/ -Wo,[^ ]*//g; s/ -Wab,[^ ]*//g' "$csh"
   sed -i '' -E "s#(tools/ido/cc )#\1$realflags #" "$csh"
@@ -187,14 +211,63 @@ else
   echo "WARNING: could not recover real compile flags for $obj; scratch stays at import defaults (-mips1). The search may explore the wrong ISA." >&2
 fi
 
+# --- Replicate the TU's post-compile objcopy steps ----------------------
+# Some TUs apply an `objcopy --redefine-sym A=B` (or --add-symbol) to the object
+# AFTER cc, via the Makefile's per-file POSTPROCESS -- e.g. src/main/track.c gets
+#   objcopy --redefine-sym trackCamPosTrap=TrapDanglingJump build/src/main/track.c.o
+# (the func_8000D018 TrapDanglingJump fix). import.py's scratch runs cc only, so
+# the scratch object differs from the real per-TU object and a score-0 in the
+# scratch does NOT transfer to the real build -- a "false ceiling" that wastes
+# ~an hour per function (func_80012574 in track.c scored 0 in scratch yet was
+# 2-4 words off in the real build). Recover the same post-compile step from the
+# `gmake -n` output already captured above and append it to compile.sh, after
+# cc, retargeted from the real object path to the scratch's "$OUTPUT".
+#
+# The compile line names $obj but invokes cc/as (never objcopy), so selecting
+# the dry-run lines that reference $obj AND invoke objcopy isolates the
+# POSTPROCESS recipe. (Note $obj is a superstring of $c_file, so the source name
+# cannot be used to exclude the compile line.) gmake prints the whole (possibly
+# `&&`-chained) POSTPROCESS on one physical line. Only pure objcopy chains are
+# safe to replicate: symbol renames survive permutation, whereas digest-guarded
+# ELF surgery (add_elf_relocations.py's text-size/SHA guard, trim_elf_section.py)
+# is tied to the *matched* bytes and would abort on a permuted object. If such a
+# step is present we skip it and warn the scratch may not be bit-identical.
+postproc=$(printf '%s\n' "$dryrun" | grep -F "$obj" | grep -i objcopy || true)
+if [ -n "$postproc" ]; then
+  if printf '%s\n' "$postproc" | grep -qE 'add_elf_relocations|trim_elf_section|rebind_elf_relocations|\.py\b'; then
+    echo "WARNING: $obj has a digest-guarded post-compile ELF pass (not objcopy-only)." \
+         "The scratch object may differ from the real object; a score-0 might not transfer." >&2
+  else
+    # Retarget every occurrence of the real object path to the scratch's $OUTPUT.
+    remapped=$(printf '%s\n' "$postproc" | sed "s#${obj}#\"\$OUTPUT\"#g")
+    # compile.sh's final cc line has no trailing newline; prepend one.
+    printf '\n%s\n' "$remapped" >> "$csh"
+    echo "Replicated post-compile objcopy -> $remapped"
+  fi
+fi
+
 # --- Run the permuter, capped, non-interactive --------------------------
 ncpu=$(sysctl -n hw.ncpu 2>/dev/null || nproc)
 jobs=$(( ncpu > 6 ? 4 : (ncpu > 2 ? ncpu - 2 : 1) ))  # cap at 4: many -j workers freeze the machine
 
 has_j=0
-for a in "$@"; do [ "$a" = "-j" ] && has_j=1; done
+has_stackdiffs=0
+for a in "$@"; do
+    [ "$a" = "-j" ] && has_j=1
+    [ "$a" = "--stack-diffs" ] && has_stackdiffs=1
+done
 
+# --stack-diffs is ESSENTIAL for exact-match decomp. decomp-permuter's scorer
+# defaults to stack_differences=False (src/scorer.py / src/objdump.py), which
+# NORMALIZES stack-relative offsets before diffing -- so a candidate whose only
+# residual is a spill/local at the wrong sp offset (e.g. sw v1,0x18(sp) vs
+# 0x1C(sp)) scores 0 even though those bytes differ and `gmake verify` fails.
+# That is a false ceiling: the permuter reports a match that does not transfer
+# (observed on track.c func_80012574 -- its winning candidate was 4 stack-home
+# words off yet scored 0 without this flag). For a byte-identical rebuild the
+# stack offsets ARE part of the match, so always score them.
 args=(--stop-on-zero --quiet)
+[ "$has_stackdiffs" -eq 0 ] && args+=(--stack-diffs)
 [ "$has_j" -eq 0 ] && args+=(-j "$jobs")
 args+=("$@")
 
