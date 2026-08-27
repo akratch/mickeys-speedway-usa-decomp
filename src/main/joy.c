@@ -32,12 +32,8 @@ extern s8 D_800CF373[];
 extern u16 D_800CF3A0[];
 extern u16 D_800CF3A8[];
 typedef u8 JoyControllerMap[4];
-
 JoyControllerMap D_800CF3B0;
-u8 D_800CF3B4[1];
-u8 D_800CF3B5;
-u8 D_800CF3B6;
-u8 D_800CF3B7;
+u8 D_800CF3B4[4];
 u8 D_800CF3B8[4];
 s32 D_800CF3BC;
 extern s32 func_8003A550(void);
@@ -85,22 +81,12 @@ OSMesgQueue *joyMessageQ(void) {
     return &D_800CF340;
 }
 
-#ifdef NON_MATCHING
+// PROVENANCE: adapted from jfg src/joy.c:joyInit.
 /*
- * PROVENANCE: body adapted from JFG src/joy.c; Mickey byte identity is decisive.
- *
- * Workbench: structure/count; candidate 86 versus target 83 words, first +0x128.
- * Levers 6/23 plus storage spellings, flag lattice, explicit-byte stores, and bounded permutation found no exact form.
- * Remaining: target shared HI16/four-LO16 final-clear relocation topology; assembly fallback stays canonical.
+ * The contiguous enabled-pad view and do-loop reproduce the target's 83
+ * instructions and -0x28 frame. The Makefile's metadata-only normalization
+ * preserves the retail endpoint and interior-byte relocation identities.
  */
-
-
-
-
-
-
-
-
 s32 joyInit(void) {
     s32 i;
     u8 bitpattern;
@@ -127,15 +113,14 @@ s32 joyInit(void) {
     if (D_800CF3B8[0] != 0) {
         return 0;
     }
-    for (i = 0; i < 4; i++) {
+    i = 0;
+    do {
         D_800CF3B4[i] = FALSE;
-    }
+        i++;
+    } while (i < 4);
     D_8007A0C0 = 1;
     return -1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/joy/joyInit.s")
-#endif
 
 #ifdef NON_MATCHING
 /*
