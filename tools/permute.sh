@@ -19,6 +19,9 @@
 #     rewrite. Digest-guarded ELF surgery (add_elf_relocations/trim_elf_section)
 #     is NOT replicated -- it is tied to the matched bytes and would abort on a
 #     permuted object; such TUs are flagged with a warning instead.
+#   - --stack-diffs is forced on: the permuter's scorer otherwise normalizes
+#     stack-relative offsets and reports a false 0 for a candidate that is only
+#     a spill/local at the wrong sp offset -- bytes that still fail verify.
 #   NOT yet corrected: gfx-macro TUs whose real headers expand gDP*/gSP*/_SHIFTL
 #   differently from the importer's latedefine stubs (see the block near the end
 #   of this file's flag-correction logic and docs/matching-triage.md).
@@ -248,9 +251,23 @@ ncpu=$(sysctl -n hw.ncpu 2>/dev/null || nproc)
 jobs=$(( ncpu > 6 ? 4 : (ncpu > 2 ? ncpu - 2 : 1) ))  # cap at 4: many -j workers freeze the machine
 
 has_j=0
-for a in "$@"; do [ "$a" = "-j" ] && has_j=1; done
+has_stackdiffs=0
+for a in "$@"; do
+    [ "$a" = "-j" ] && has_j=1
+    [ "$a" = "--stack-diffs" ] && has_stackdiffs=1
+done
 
+# --stack-diffs is ESSENTIAL for exact-match decomp. decomp-permuter's scorer
+# defaults to stack_differences=False (src/scorer.py / src/objdump.py), which
+# NORMALIZES stack-relative offsets before diffing -- so a candidate whose only
+# residual is a spill/local at the wrong sp offset (e.g. sw v1,0x18(sp) vs
+# 0x1C(sp)) scores 0 even though those bytes differ and `gmake verify` fails.
+# That is a false ceiling: the permuter reports a match that does not transfer
+# (observed on track.c func_80012574 -- its winning candidate was 4 stack-home
+# words off yet scored 0 without this flag). For a byte-identical rebuild the
+# stack offsets ARE part of the match, so always score them.
 args=(--stop-on-zero --quiet)
+[ "$has_stackdiffs" -eq 0 ] && args+=(--stack-diffs)
 [ "$has_j" -eq 0 ] && args+=(-j "$jobs")
 args+=("$@")
 
