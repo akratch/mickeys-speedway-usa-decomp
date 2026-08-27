@@ -776,7 +776,14 @@ void func_8000CED0(s32 updateRate) {
 void *func_8000D00C(void) {
     return D_800C9550;
 }
-#ifdef NON_MATCHING
+/* Dangling overlay call taking the camera world position (three f32 args in
+ * f12/f14/a2-raw) and returning a pointer. Typed weak alias so this call site
+ * passes single-precision floats without the default-argument double promotion
+ * that the unprototyped `s32 TrapDanglingJump()` forces; the build canonicalizes
+ * the undefined symbol to the shared TrapDanglingJump target (0x800333A0)
+ * without changing section contents. */
+#pragma weak trackCamPosTrap = TrapDanglingJump
+extern void *trackCamPosTrap(f32, f32, f32);
 /* PROVENANCE: the camera/update structure is adapted from Jet Force Gemini's
  * public src/track.c TU position (`func_800135E0`); Mickey's fields, globals,
  * call graph, and instruction boundary remain authoritative. */
@@ -800,8 +807,8 @@ void func_8000D018(s32 arg0, s32 arg1) {
     D_800C99B4 = D_800C9530->y;
     D_800C99B8 = D_800C9530->z;
     if (D_80078F84 > 0) {
-        D_8007926C = TrapDanglingJump(D_800C9530->x, D_800C9530->y,
-                                      D_800C9530->z);
+        D_8007926C = trackCamPosTrap(D_800C9530->x, D_800C9530->y,
+                                     D_800C9530->z);
     } else {
         D_8007926C = 0;
     }
@@ -811,9 +818,6 @@ void func_8000D018(s32 arg0, s32 arg1) {
     }
     func_8000E920(arg0, arg1);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D018.s")
-#endif
 void func_8000D16C(s32 arg0, s32 arg1, s32 arg2) {
     if (D_80079314 < 16) {
         D_800C9B50[D_80079314] =

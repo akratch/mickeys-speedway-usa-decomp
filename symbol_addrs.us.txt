@@ -1862,8 +1862,11 @@ func_8000C5F4 = 0x8000C5F4; // type:func size:0x684 ROM 0xd1f4 tier-D (JFG src/t
 func_8000D00C = 0x8000D00C; // type:func size:0xC ROM 0xdc0c
 
 // No public name adopted: JFG's assembly-only `func_800135E0` supplies the
-// camera/update role and TU position; the placeholder is retained.
-func_8000D018 = 0x8000D018; // type:func size:0x154 ROM 0xdc18 tier-D (JFG src/track.c func_800135E0, placeholder retained)
+// camera/update role and TU position. Now matched in C (tier A byte-identity):
+// the camera-position dangling call uses the typed `trackCamPosTrap` alias so
+// its three f32 args pass single-precision instead of being double-promoted by
+// the unprototyped shared TrapDanglingJump.
+func_8000D018 = 0x8000D018; // type:func size:0x154 ROM 0xdc18 tier-A byte-identity (JFG src/track.c func_800135E0 role)
 
 // No public name adopted: JFG's corresponding `trackAddTextureScroll` is a
 // tier-D TU-position identification only. Mickey's placeholder is retained;
