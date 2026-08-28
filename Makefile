@@ -13,6 +13,8 @@
 #   gmake overlay-tables  decode the four overlay ROM blocks and check the layout
 #   gmake overlay-atlas   check the generated overlay manifest and yaml block
 #   gmake overlay-atlas-write  refresh those two tracked generated artifacts
+#   gmake overlay-syms    regenerate the overlay relocation surface
+#   gmake check-overlay-syms   fail if that generated block has drifted
 #   gmake overlay-donors  validate the exhaustive DKR/JFG donor ledger
 #   gmake overlay-donors-write  rescan the out-of-tree donor builds
 #   gmake prune-asm  delete asm/ files splat orphaned (also run by every split)
@@ -98,6 +100,16 @@ INCLUDE_CFLAGS := -I . -I include -I include/libc -I include/PR -I assets
 CFLAGS  := -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
            $(DEFINES) $(INCLUDE_CFLAGS)
 POSTPROCESS := @:
+
+# Report-and-skip for the digest-guarded POSTPROCESS passes, for
+# tools/promotion_trial.py only. Unset (the default) every guard aborts the
+# build as it always has; set, a guard prints a `PROMOTION-TRIAL: ...` marker
+# and skips its pass, so a candidate whose codegen is the wrong *size* yields
+# `text-size-differs (+N bytes)` and a linked ROM to diff instead of a bare
+# build failure. The resulting ROM is not a valid build and is never verified.
+# Exported so it reaches the tools; see tools/postprocess_guard.py.
+PROMOTION_TRIAL ?=
+export PROMOTION_TRIAL
 
 # Every per-file POSTPROCESS below is a post-compile ELF normalization -- a
 # section trim, a relocation rebind or filter, an added relocation guarded by a
@@ -323,6 +335,30 @@ overlay-atlas:
 
 overlay-atlas-write:
 	$(HOST_PYTHON) $(TOOLS_DIR)/overlay_atlas.py --write
+
+# overlay_undefined_syms.$(VERSION).txt is generated, not maintained. Every one
+# of its lines is derivable: a value line is the stored relocation addend read
+# from the baserom at the site the module's own relocation table names, and an
+# alias line is the generated splat identity for a module offset pointed at the
+# friendly name the adopted C defines there. Both come from
+# config/overlays.$(VERSION).json's text_ownership rows plus the compiled
+# objects, so the surface regenerates on every promotion instead of being
+# hand-derived per function. See docs/reloc-surface.md.
+#
+# It needs the overlay objects compiled (not linked -- the link is exactly what
+# is missing when a promotion fails to resolve), so both targets build them
+# first. `check-overlay-syms` fails on drift and is what `check-docs` calls.
+OVERLAY_SYM_OBJECTS := $(filter $(BUILD_DIR)/$(SRC_DIR)/overlays/%,$(O_FILES))
+
+overlay-syms:
+	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
+	@$(MAKE) --no-print-directory $(OVERLAY_SYM_OBJECTS)
+	$(HOST_PYTHON) $(TOOLS_DIR)/reloc_surface.py generate --write
+
+check-overlay-syms:
+	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
+	@$(MAKE) --no-print-directory $(OVERLAY_SYM_OBJECTS)
+	$(HOST_PYTHON) $(TOOLS_DIR)/reloc_surface.py generate --check
 
 # Every overlay decomp pass starts with the DKR v77/v80 and JFG object scans in
 # this ledger. The ordinary target validates the committed 107-row-per-donor
@@ -3945,7 +3981,7 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract prune-asm verify cleanroom audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract prune-asm verify cleanroom audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
 

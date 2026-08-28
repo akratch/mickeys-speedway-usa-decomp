@@ -19,6 +19,7 @@ extern u8 D_8007A2E4;
 extern u8 D_8007A2C8;
 extern u8 D_8007A300;
 extern s32 D_8007A2E8;
+extern s32 D_8007A2EC;
 extern s32 D_8007A2FC;
 extern s32 D_8007A31C;
 extern f32 D_80082088;
@@ -28,6 +29,12 @@ extern u8 D_8007A304[];
 extern void *D_8007A280;
 extern OSMesgQueue *D_800D21C0;
 extern OSPfs D_800D21C8[];
+#ifdef NON_MATCHING
+extern u8 D_800CF3B8[];
+extern f32 D_8008208C;
+s32 osMotorStart(OSPfs *pfs);
+s32 osMotorStop(OSPfs *pfs);
+#endif
 
 typedef struct SavesRecord {
     u8 pad00[0xC];
@@ -257,7 +264,168 @@ void func_8002BF54(s32 clearMask, s32 initMask) {
         rumble++;
     } while (i != 4);
 }
+#ifdef NON_MATCHING
+/* PROVENANCE -- the state-machine organization follows Jet Force Gemini's
+ * public src/saves.c:rumbleTick; Mickey's fields, helper calls, and retry
+ * protocol are taken from its own target assembly and globals. */
+/* Workbench verdict: structure-mismatch; 64 differing words, first mismatch +0xF4. */
+/* Target 343 instructions/frame -88; candidate 343 instructions/frame -88. */
+/* Remaining gap is retry-mask branch layout; 14 structural words remain, so it is not shape-exact. */
+void rumbleTick(s32 updateRate) {
+    RumbleState *rumble;
+    s32 pfsStatus;
+    s32 i;
+    s32 controllerMask;
+    s32 previousState;
+    s32 retryMask;
+    s32 bit;
+    u8 decrementedFlag;
+
+    if (D_8007A2FC != 0) {
+        osPfsIsPlug(D_800D21C0, &D_8007A300);
+        func_8002BF54(0xF, 0xF);
+        if (D_8007A2E4 != 0) {
+            D_8007A2E8 = D_8007A2E4;
+            D_8007A2F4 = 1;
+            D_8007A2F0 = 0;
+            D_8007A2EC = 0;
+        }
+        D_8007A2FC = 0;
+    }
+    if (D_8007A2F4 != 0) {
+        if (D_8007A2F0 != 0) {
+            D_8007A2EC = 0;
+            D_8007A2F0 = 0;
+            osPfsIsPlug(D_800D21C0, &D_8007A300);
+            func_8002BF54(0xF, 0xF);
+        }
+        i = 0;
+        retryMask = 0;
+        controllerMask = 1;
+        rumble = D_800D2368;
+        do {
+            if (rumble->status & 2) {
+                pfsStatus = 0;
+                previousState = rumble->state;
+                switch (rumble->state) {
+                    case 1:
+                        rumble->rumbleTime -= updateRate;
+                        rumble->timer += updateRate;
+                        if (func_8002BCC0() == 0) {
+                            rumble->rumbleTime = 0;
+                        }
+                        if (rumble->rumbleTime <= 0) {
+                            rumble->state = 3;
+                            rumble->flag = 1;
+                        } else if (rumble->timer >= 0x78) {
+                            rumble->state = 2;
+                            rumble->timer = 0x78;
+                            rumble->flag = 1;
+                        } else if ((f32)rumble->strength > 490.0f) {
+                            if (rumble->pad01 == 0) {
+                                pfsStatus = osMotorStart(&D_800D21C8[i]);
+                                rumble->pad01 = 1;
+                            }
+                        } else if ((f32)rumble->strength < D_8008208C) {
+                            if (rumble->pad01 != 0) {
+                                pfsStatus = osMotorStop(&D_800D21C8[i]);
+                                rumble->pad01 = 0;
+                            }
+                        } else if (rumble->unk6 >= 0x100) {
+                            if (rumble->pad01 == 0) {
+                                pfsStatus = osMotorStart(&D_800D21C8[i]);
+                                rumble->pad01 = 1;
+                            }
+                            rumble->unk6 -= 0x100;
+                        } else {
+                            if (rumble->pad01 != 0) {
+                                pfsStatus = osMotorStop(&D_800D21C8[i]);
+                                rumble->pad01 = 0;
+                            }
+                            rumble->unk6 += rumble->strength + 4;
+                        }
+                        break;
+                    case 2:
+                        if (rumble->flag != 0) {
+                            osMotorInit(D_800D21C0, &D_800D21C8[i], i);
+                            osMotorStop(&D_800D21C8[i]);
+                            osMotorStop(&D_800D21C8[i]);
+                            osMotorStop(&D_800D21C8[i]);
+                            rumble->rumbleTime = 0;
+                            rumble->pad01 = 0;
+                            rumble->flag--;
+                        }
+                        rumble->timer -= updateRate;
+                        if (rumble->timer <= 0) {
+                            rumble->state = 0;
+                            rumble->timer = 0;
+                        }
+                        break;
+                    case 3:
+                        osMotorInit(D_800D21C0, &D_800D21C8[i], i);
+                        osMotorStop(&D_800D21C8[i]);
+                        osMotorStop(&D_800D21C8[i]);
+                        osMotorStop(&D_800D21C8[i]);
+                        rumble->rumbleTime = 0;
+                        rumble->timer = 0;
+                        decrementedFlag = rumble->flag - 1;
+                        rumble->pad01 = 0;
+                        rumble->flag = decrementedFlag;
+                        if ((decrementedFlag & 0xFF) == 0) {
+                            rumble->state = 0;
+                        }
+                        break;
+                    default:
+                        if (rumble->unkC != 0) {
+                            rumble->unkC -= updateRate;
+                            if (rumble->unkC <= 0) {
+                                osMotorInit(D_800D21C0, &D_800D21C8[i], i);
+                                osMotorStop(&D_800D21C8[i]);
+                                osMotorStop(&D_800D21C8[i]);
+                                osMotorStop(&D_800D21C8[i]);
+                                rumble->unkC = 0;
+                                rumble->pad01 = 0;
+                            }
+                        }
+                        break;
+                }
+                if ((rumble->state == 0) && (previousState != 0)) {
+                    rumble->unkC = 0x1E;
+                }
+                if (pfsStatus != 0) {
+                    rumble->status &= ~2;
+                    D_8007A2E4 &= ~controllerMask;
+                }
+            } else if (D_800CF3B8[i] != 0) {
+                retryMask |= controllerMask;
+            }
+            controllerMask *= 2;
+            i++;
+            rumble++;
+        } while (i != 4);
+        retryMask &= D_8007A2E8;
+        if (retryMask != 0) {
+            bit = D_8007A2EC;
+            controllerMask = 1 << (bit + 0x1F);
+            if (bit == 0) {
+                osPfsIsPlug(D_800D21C0, &D_8007A300);
+                bit = D_8007A2EC;
+            } else {
+                if (retryMask & controllerMask) {
+                    func_8002BF54(controllerMask, controllerMask);
+                    bit = D_8007A2EC;
+                }
+            }
+            D_8007A2EC = bit + 1;
+        }
+        if ((retryMask == 0) || (D_8007A2EC >= 5)) {
+            D_8007A2EC = 0;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleTick.s")
+#endif
 void func_8002C5F4(void) {
     D_8007A2E8 = 0;
     D_8007A2FC = 1;

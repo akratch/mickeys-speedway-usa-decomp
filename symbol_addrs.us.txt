@@ -692,6 +692,7 @@ func_8004D750 = 0x8004D750; // type:func size:0x28 ROM 0x4e350 tier-A IDO C exac
 byteswap32 = 0x8004D778; // type:func size:0x30 ROM 0x4e378 tier-A IDO C exact, DKR src/gzip.c donor, masked=0/12
 func_8004D7A8 = 0x8004D7A8; // type:func size:0x38 ROM 0x4e3a8 tier-A IDO C exact, Mickey-only reconstruction
 func_8004D7E0 = 0x8004D7E0; // type:func size:0x60 ROM 0x4e3e0 tier-A IDO C exact, Mickey-only reconstruction
+func_8004D840 = 0x8004D840; // type:func size:0x620 ROM 0x4e440 tier-B NON_MATCHING shape-exact, DKR src/gzip.c huft_build donor
 gzip_inflate_block = 0x8004DE60; // type:func size:0x104   ROM 0x4ea60  hasm/gzip_asm.s.o  masked=19/65
 gzip_inflate_dynamic = 0x8004DF64; // type:func size:0x418   ROM 0x4eb64  hasm/gzip_asm.s.o  masked=32/262
 gzip_inflate_fixed = 0x8004E37C; // type:func size:0x158   ROM 0x4ef7c  hasm/gzip_asm.s.o  masked=11/86

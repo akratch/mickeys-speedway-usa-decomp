@@ -29,6 +29,9 @@ void overlay51PatchIndices(OverlayPatchIndexEntry *entry) {
     }
 }
 
+/* Workbench: structure-mismatch; 476 words differ, first mismatch +0x0. */
+/* Candidate is not shape-exact: 481/482 instructions and frame -184/-208 bytes. */
+/* Remaining gap is raw-address/relocation modeling; this is not a matched function. */
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o051/overlay_051/func_overlay_051_F00000D0_18999D0.s")
 
 void overlay51ReleaseState(void) {

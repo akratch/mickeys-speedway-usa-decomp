@@ -41,6 +41,13 @@ extern s16 D_800CB49C[];
 extern s16 D_800CB4A2[];
 extern Gfx *D_800CB4A4;
 
+typedef struct ModelCopySource ModelCopySource;
+typedef struct ModelInstanceSource ModelInstanceSource;
+typedef struct ModelConstructedInstance ModelConstructedInstance;
+extern void *func_8001FBCC(ModelCopySource *source);
+extern ModelConstructedInstance *func_8001FC50(ModelInstanceSource *source,
+                                                s32 pointCopies);
+
 void *func_8002B280(s32 size, s32 tag);
 void *func_8002B314(s32 size, s32 tag);
 s32 *piRomLoad(s32 assetId);
@@ -53,6 +60,10 @@ void func_80034920(Gfx **displayList);
 void func_800349A4(Gfx **displayList, void *texture, s32 flags, s16 parameter);
 void func_80020AD4(void);
 void func_8005AAC0(void *animation);
+extern s32 func_8004D7A8(s32 assetId, s32 assetOffset);
+extern u8 *func_8004D7E0(u8 *compressed, u8 *output);
+extern s32 func_8005A7A0(void *model, s32 modelId);
+extern s32 piRomLoadSection(u32 assetId, u32 address, s32 offset, s32 size);
 #ifdef NON_MATCHING
 struct ModelGfxSource;
 s32 func_8002057C(Gfx **out, struct ModelGfxSource *model, s32 arg2, s32 arg3,
@@ -92,7 +103,226 @@ void modInitModels(void) {
     }
     D_800CB490--;
 }
+#ifdef NON_MATCHING
+/* PROVENANCE: JFG's public models.c supplies the cache/asset-loader role;
+ * Mickey's cache tables, model offsets and loader call sequence are used. */
+/* Workbench verdict: structure-mismatch, 394 differing words; first mismatch is at +0x0. */
+/* Target is 401 instructions/frame -120; candidate is 344 instructions/frame -168. */
+/* Remaining gap is structural: cache rollback and texture/animation setup CFG differ; not permuter-ready. */
+s32 func_8001F520(s32 arg0, s32 arg1) {
+    u8 *entry;
+    u8 *model;
+    u8 *source;
+    u8 *table;
+    u8 *cursor;
+    u8 *animation;
+    u8 *animationEntry;
+    u8 *end;
+    s32 highBit;
+    s32 modelId;
+    s32 cacheIndex;
+    s32 cacheCount;
+    s32 freeIndex;
+    s32 fromFree;
+    s32 newSlot;
+    s32 sourceStart;
+    s32 sourceSize;
+    s32 allocationSize;
+    s32 count;
+    s32 loaded;
+    s32 i;
+    s32 j;
+    s32 value;
+    s32 start;
+    s32 last;
+    s32 result;
+    s16 animationCount;
+    u8 textureCount;
+
+    highBit = arg0 & 0x8000;
+    modelId = arg0 ^ highBit;
+    if (modelId >= D_800CB490) {
+        modelId = 0;
+    }
+    cacheIndex = 0;
+    cacheCount = D_800CB48C;
+    if (cacheCount > 0) {
+        do {
+            entry = (u8 *) D_800CB484 + (cacheIndex * 8);
+            if (modelId == *(s32 *) entry) {
+                model = *(u8 **) (entry + 4);
+                if (highBit != 0) {
+                    result = (s32) func_8001FBCC((void *) model);
+                } else {
+                    result = (s32) func_8001FC50((void *) model, arg1 & 3);
+                }
+                if (result != 0) {
+                    *(s16 *) (model + 0x4C) += 1;
+                }
+                return result;
+            }
+            cacheIndex++;
+        } while (cacheIndex < cacheCount);
+    }
+    fromFree = 0;
+    newSlot = 0;
+    if (D_800CB494 > 0) {
+        D_800CB494--;
+        fromFree = 1;
+        freeIndex = *(s32 *) ((u8 *) D_800CB488 +
+                              (D_800CB494 * 4));
+    } else {
+        freeIndex = D_800CB48C;
+        newSlot = 1;
+        D_800CB48C++;
+    }
+    source = (u8 *) D_800CB480 + (modelId * 8);
+    sourceStart = *(s32 *) source;
+    sourceSize = *(s32 *) (source + 4) - sourceStart;
+    allocationSize = func_8004D7A8(0x27, sourceStart) + 0x80;
+    model = (u8 *) func_8002B314(allocationSize, 0x8A);
+    if (model == NULL) {
+        goto load_fail;
+    }
+    end = model + allocationSize - sourceSize;
+    piRomLoadSection(0x27, (u32) end, sourceStart, sourceSize);
+    func_8004D7E0(end, model);
+    count = *(s32 *) (model + 0x70);
+    if (count != 0) {
+        *(void **) (model + 0x78) =
+            func_8002B314((count * 4) + 4, 0x8A);
+        if (*(void **) (model + 0x78) == NULL) {
+            goto load_fail;
+        }
+    } else {
+        *(void **) (model + 0x78) = NULL;
+    }
+    *(void **) (model + 0x18) =
+        (u8 *) *(void **) (model + 0x18) + (u32) model;
+    *(void **) (model + 0x1C) =
+        (u8 *) *(void **) (model + 0x1C) + (u32) model;
+    *(void **) (model + 0x20) =
+        (u8 *) *(void **) (model + 0x20) + (u32) model;
+    *(void **) (model + 0x24) =
+        (u8 *) *(void **) (model + 0x24) + (u32) model;
+    *(void **) (model + 0x74) =
+        (u8 *) *(void **) (model + 0x74) + (u32) model;
+    *(void **) (model + 0x30) =
+        (u8 *) *(void **) (model + 0x30) + (u32) model;
+    *(void **) (model + 0x34) =
+        (u8 *) *(void **) (model + 0x34) + (u32) model;
+    *(void **) (model + 0x38) =
+        (u8 *) *(void **) (model + 0x38) + (u32) model;
+    *(void **) (model + 0x60) =
+        (u8 *) *(void **) (model + 0x60) + (u32) model;
+    if (*(void **) (model + 0x64) != NULL) {
+        *(void **) (model + 0x64) =
+            (u8 *) *(void **) (model + 0x64) + (u32) model;
+    }
+    *(void **) (model + 0x5C) =
+        (u8 *) *(void **) (model + 0x5C) + (u32) model;
+    if (*(void **) (model + 0x54) != NULL) {
+        *(void **) (model + 0x54) =
+            (u8 *) *(void **) (model + 0x54) + (u32) model;
+    }
+    *(s16 *) (model + 0x4C) = 1;
+    *(s8 *) (model + 0x4E) = 0;
+    *(s32 *) (model + 0x58) = 0;
+    *(s32 *) (model + 0x50) = 0;
+    *(void **) (model + 0x28) = NULL;
+    *(s32 *) (model + 0x68) = 0;
+    *(s32 *) (model + 0x6C) = 0;
+    textureCount = *(u8 *) (model + 0x10);
+    loaded = 0;
+    if (textureCount > 0) {
+        table = *(u8 **) (model + 0x18);
+        cursor = table;
+        do {
+            *(void **) cursor =
+                func_80034448(*(s16 *) (cursor + 6));
+            if (*(void **) cursor == NULL) {
+                j = 0;
+                while (j < loaded) {
+                    func_800347A0(*(void **) (table + (j * 8)));
+                    *(void **) (table + (j * 8)) = NULL;
+                    j++;
+                }
+                while (j < textureCount) {
+                    *(void **) (table + (j * 8)) = NULL;
+                    j++;
+                }
+                goto load_fail;
+            }
+            loaded++;
+            cursor += 8;
+        } while (loaded < textureCount);
+    }
+    animationCount = *(s16 *) (model + 0x16);
+    cursor = *(u8 **) (model + 0x24);
+    i = 0;
+    while ((i < animationCount) &&
+           ((cursor[0] == 0xFF) || (cursor[0] < textureCount))) {
+        cursor += 0x10;
+        i++;
+    }
+    if (i != animationCount) {
+        goto load_fail;
+    }
+    result = func_8005A7A0(model, modelId);
+    if ((result == 0) ||
+        ((*(u8 *) (model + 0x11) != 0) &&
+         ((*(void **) (model + 0x28) =
+             func_8002B314(textureCount * 8, 0x8A)) == NULL))) {
+        goto load_fail;
+    }
+    if (count != 0) {
+        start = 0;
+        i = 0;
+        while (i < count) {
+            last = *(s32 *) (*(u8 **) (model + 0x74) + (i * 4)) - 1;
+            func_8002057C((Gfx **) (*(u8 **) (model + 0x78) + (i * 4)),
+                          (ObjectModel *) model, 0, 0,
+                          start, last, 0);
+            start = last + 1;
+            i++;
+        }
+        func_8002057C((Gfx **) (*(u8 **) (model + 0x78) + (i * 4)),
+                      (ObjectModel *) model, 0, 0,
+                      start, 0xFF, 0);
+    } else {
+        *(s32 *) (model + 0x2C) =
+            func_8002057C((Gfx **) (model + 0x68),
+                          (ObjectModel *) model, 0, 0,
+                          0, 0xFF, 0);
+        if (*(s32 *) (model + 0x68) != 0) {
+            *(s32 *) (model + 0x6C) =
+                func_8002057C((Gfx **) (model + 0x6C),
+                              (ObjectModel *) model, 4, 0,
+                              0, 0xFF, 0);
+            if (*(s32 *) (model + 0x6C) == 0) {
+                goto load_fail;
+            }
+        }
+    }
+    entry = (u8 *) D_800CB484 + (freeIndex * 8);
+    *(s32 *) entry = modelId;
+    *(void **) (entry + 4) = model;
+    if (D_800CB48C < 0x55) {
+        return result;
+    }
+load_fail:
+    if (newSlot != 0) {
+        D_800CB48C--;
+    }
+    if (fromFree != 0) {
+        D_800CB494++;
+    }
+    func_80020278((ObjectModel *) model);
+    return 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_8001F520.s")
+#endif
 /*
  * PROVENANCE -- JFG's built models.c object supplies the exact corresponding
  * skeleton at func_8003BE68, but no public C body. This body is reconstructed
@@ -120,12 +350,12 @@ void func_8001FB64(s32 count, MtxF *matrices) {
         matrices++;
     }
 }
-typedef struct ModelCopySource {
+struct ModelCopySource {
     u8 pad0[0x12];
     s16 count;
     u8 pad14[8];
     u16 *data;
-} ModelCopySource;
+};
 
 typedef struct ModelCopyAllocation {
     ModelCopySource *source;
@@ -173,7 +403,7 @@ typedef struct ModelInstancePointIndex {
     u16 pad2;
 } ModelInstancePointIndex;
 
-typedef struct ModelInstanceSource {
+struct ModelInstanceSource {
     u8 pad0[0x10];
     u8 copyCount;
     u8 hasCopies;
@@ -190,9 +420,9 @@ typedef struct ModelInstanceSource {
     u8 pad34[0x1A];
     s8 mode;
     s8 matrixCount;
-} ModelInstanceSource;
+};
 
-typedef struct ModelConstructedInstance {
+struct ModelConstructedInstance {
     ModelInstanceSource *source;
     ModelInstancePoint *points;
     s16 status;
@@ -210,7 +440,7 @@ typedef struct ModelConstructedInstance {
     ModelInstanceCopy *copies;
     s16 *stateA;
     s16 *stateB;
-} ModelConstructedInstance;
+};
 
 /* P5 plateau: workbench structure-mismatch, 300 positional words, 330 versus 333 instructions, frame -136 versus -120, first +0x0.
  * Lever: scalar mode-size storage worsened the result to 323 words and frame -144; the prior compact layout remains best.

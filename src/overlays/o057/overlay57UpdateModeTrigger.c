@@ -45,9 +45,9 @@ extern Overlay57ModeResult *overlay57TailFindObjectReloc(u8 id);
 extern void overlay57SetNodeValue(s32 id, s32 argument, f32 value);
 extern void overlay57AdvanceReloc(s32 updateRate);
 
-/* Workbench: structure-mismatch, 25/94 words differ, first +0x18; target
- * frame is -0x28 versus the candidate's -0x20. Ownership: this TU emits the
- * measured overlay-local BSS block at +0x0..+0x1C0; the updater text remains NON_MATCHING. */
+/* Workbench: structure-mismatch, 36 raw differing words, first gap +0x18.
+ * Both are 94 instructions; target frame is -0x28 versus candidate -0x20.
+ * Structural gap: setup-array carrier shape and frame reservation remain. */
 #ifdef NON_MATCHING
 void overlay57UpdateModeTrigger(s32 updateRate) {
     s32 trigger;

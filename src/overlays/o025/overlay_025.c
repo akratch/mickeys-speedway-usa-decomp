@@ -1,10 +1,8 @@
 #include "overlays/overlay_025.h"
 
-/* Pinned DKR v77/v80 and JFG scans found no exact initializer donor. */
-
-/* Plateau (batch 29): all 119 flags plus ten shapes leave canonical MIPS2
- * four bytes short; best exact-size MIPS3/r4300 is 37 words from +0x14.
- * Its s0/s1 allocation and signed flags load differ; a 40m permuter found no exact. */
+/* Workbench: structure-mismatch, 70 raw differing words, first mismatch +0x14.
+ * Frame/CFG/five calls and FP operation shape are exact; target retains one pipeline nop.
+ * Structural gap: s0/s1 carrier allocation and that one target nop remain. */
 #ifdef NON_MATCHING
 void overlay25InitializeEffect(Overlay25Object *object,
                                const Overlay25Init *init) {

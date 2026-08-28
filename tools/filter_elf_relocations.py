@@ -12,13 +12,18 @@ import pathlib
 import struct
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import postprocess_guard as guard
+
 
 SHT_SYMTAB = 2
 SHT_REL = 9
 
 
 def fail(message):
-    raise SystemExit(message)
+    # Under PROMOTION_TRIAL the guard reports and skips instead of
+    # aborting the build; see tools/postprocess_guard.py.
+    guard.fail(message)
 
 
 def c_string(data, offset, context):

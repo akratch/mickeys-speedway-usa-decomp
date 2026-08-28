@@ -41,19 +41,16 @@ extern u8 D_80000000[];
     cmd->w1 = (u32)(triangles); \
 }
 
-/*
- * Plateau (2026-08-25): -O2/-mips2 is size-exact with 73 words from +0x4; D_80000000 makes both relocations exact.
- * Alias, type/width, first-use, expression, and hoist variants did not retain the display-list alias or packet schedule.
- * A 40-minute two-worker permuter improved 3795 to 1510 only with synthetic expression/control temporaries.
- */
 #ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 73 differing words, first mismatch +0x04.
+ * Exact 77-instruction size and four-command CFG; packet arithmetic is reordered.
+ * Structural gap: saved-list alias plus macro scheduling/register web remain. */
 void overlay83DrawStrip(Overlay83Command **displayList, Overlay83Strip *strip) {
-    Overlay83Command **savedDisplayList;
+    register Overlay83Command **savedDisplayList = displayList;
     s32 count;
     s32 doubledCount;
     s32 vertexCount;
 
-    savedDisplayList = displayList;
     count = strip->count;
     if (count != 0) {
         SET_PRIM((*displayList)++, 255, 255, 255, 255);

@@ -22,15 +22,15 @@ typedef struct Overlay40Object {
 extern Overlay40Entry gOverlay40Entries[8];
 extern Overlay40Object **gOverlay40Objects;
 
-/* Current-run plateau (2026-08-25): 119 flags, 10 typed/allocation forms, and
- * a 40-minute permuter (best 255) leave 0xBC vs target 0xB8, 44 words, first
- * +0x08; IDO moves live amount a0->a2 before coloring state/node temporaries. */
+/* Workbench: structure-mismatch, 43 differing words, first mismatch +0x08.
+ * Size is target-sized; the remaining gap is an early amount copy and register web.
+ * This is not shape-exact: four alignment gaps remain before allocation cleanup. */
 #ifdef NON_MATCHING
 void overlay40UpdateEntries(s32 amount, s32 remaining) {
     Overlay40Entry *entry;
     Overlay40Object *object;
-    s32 previous;
-    s32 older;
+    s8 previous;
+    s8 older;
 
     entry = gOverlay40Entries;
     remaining = 7;

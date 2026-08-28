@@ -167,9 +167,9 @@ typedef struct Overlay15StarPointerView {
     Overlay15Star *stars;
 } Overlay15StarPointerView;
 
-/* Plateau (2026-08-25, ownership): full 0xA0 C-owned BSS retains 0xE8 vs 0xD8,
- * 30 differing words, first +0x30; a single aggregate shrinks to 0xBC.
- * Workbench: structure-mismatch; expression-tree grouping leaves four HIs. */
+/* Workbench: size-mismatch, +16 bytes (58 vs 54 instructions), first +0x30.
+ * Target CFG/FP/call shape is recovered; four redundant BSS address producers remain.
+ * Not shape-exact: contiguous bound-address reuse is unresolved. */
 #ifdef NON_MATCHING
 void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
                         s32 rate) {

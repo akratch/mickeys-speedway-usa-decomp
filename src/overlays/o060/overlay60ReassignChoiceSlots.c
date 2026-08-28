@@ -15,11 +15,9 @@ extern Overlay60Choice gOverlay60ChoicesPass1End[];
 extern Overlay60Choice gOverlay60ChoicesPass2End[];
 
 /* The pinned DKR v77/v80 and JFG object scans have no donor for this owner. */
-/*
- * Plateau: exact 0xD4 size, 35 of 53 words differ, first mismatch +0x4.
- * The CFG and accesses align, but the local-array base stays live too early
- * and IDO assigns the two loop pointers in the opposite register order.
- */
+/* Workbench: structure-mismatch, 35 differing words, first mismatch +0x04.
+ * Target-sized 53-instruction CFG/field access shape; register web and relocations remain.
+ * Shape-exact for the permuter; no structural rewrite remains. */
 #ifdef NON_MATCHING
 void overlay60ReassignChoiceSlots(void) {
     u8 available[18];

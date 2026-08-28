@@ -13,6 +13,9 @@ import pathlib
 import struct
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import postprocess_guard as guard
+
 
 if len(sys.argv) not in (4, 5):
     raise SystemExit(
@@ -48,18 +51,33 @@ for index in range(section_count):
     name = strings[name_offset:end].decode("ascii")
     if name != section_name:
         continue
+    # The requested size is the ownership row's extent: what the module says
+    # this translation unit occupies. A candidate whose codegen is a different
+    # size therefore trips one of the three guards below, and the delta is the
+    # measurement the promotion trial wants -- not a build failure with no
+    # number in it. `text-size-differs (+N)` means the candidate's section is N
+    # bytes longer than the module owns; negative, N bytes shorter.
+    delta = old_size - new_size
     if new_size > old_size:
-        raise SystemExit(f"{path}: cannot grow {name} from {old_size:#x} to {new_size:#x}")
+        guard.fail(
+            f"{path}: cannot grow {name} from {old_size:#x} to {new_size:#x}",
+            kind=f"{name.lstrip('.')}-size-differs ({delta:+d} bytes)",
+        )
     discarded = data[file_offset + new_size : file_offset + old_size]
     if expected_discarded is not None and discarded != expected_discarded:
-        raise SystemExit(
+        guard.fail(
             f"{path}: discarded {name} payload changed: expected "
-            f"{expected_discarded.hex()}, got {discarded.hex()}"
+            f"{expected_discarded.hex()}, got {discarded.hex()}",
+            kind=f"{name.lstrip('.')}-payload-differs ({delta:+d} bytes)",
         )
     if expected_discarded is None and any(discarded):
-        raise SystemExit(f"{path}: refusing to trim nonzero bytes from {name}")
+        guard.fail(
+            f"{path}: refusing to trim nonzero bytes from {name}",
+            kind=f"{name.lstrip('.')}-size-differs ({delta:+d} bytes)",
+        )
     struct.pack_into(">I", data, header_offset + 0x14, new_size)
     path.write_bytes(data)
     break
 else:
-    raise SystemExit(f"{path}: section {section_name!r} not found")
+    guard.fail(f"{path}: section {section_name!r} not found",
+               kind="section-missing")

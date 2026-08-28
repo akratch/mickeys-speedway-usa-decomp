@@ -29,6 +29,12 @@ extern u16 D_80079A20[][4];
 extern ControlGravityVector D_800799EC;
 extern ControlGravityVector D_800799FC;
 extern u16 D_8007BF1C;
+extern f32 D_8008187C;
+extern f32 D_80081880;
+extern f32 D_80081884;
+extern f32 D_80081888;
+extern f32 D_8008188C;
+extern f32 D_80081890;
 extern f32 D_80081894;
 extern f32 D_80081898;
 extern s32 D_80079BCC;
@@ -43,12 +49,27 @@ extern s16 D_800CB474;
 extern s16 D_800CB476;
 extern ControlCollisionState D_800CB2C0;
 extern ControlCameraState *D_800CB300;
+extern u8 D_8007BF10;
+extern f32 D_80081840;
+
+typedef struct ControlCollisionNormal {
+    f32 x;
+    f32 y;
+    f32 z;
+} ControlCollisionNormal;
+extern ControlCollisionNormal D_800CB2C4;
+extern ControlCollisionNormal D_800CB2D0;
+extern ControlCollisionNormal D_800CB2DC;
+extern s32 D_800CB2F8;
+extern u8 D_800CB2FC;
+extern u8 D_800CB2FD;
 
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void func_8001EFFC(ControlTransform *transform, ControlPlayer *player, f32 *output);
 f32 func_8002A8BC(s32 angle);
 f32 func_8002A8C0(s32 angle);
 s16 Arctanf(f32 x, f32 y);
+f32 sqrtf(f32 value);
 void mathOneFloatRPY(ControlTransform *transform, f32 *output);
 s32 mathRnd(s32 minimum, s32 maximum);
 ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
@@ -60,6 +81,16 @@ s32 func_8000FAE0(f32 x, f32 y, f32 z);
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode);
 s32 TrapDanglingJump();
 void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2);
+void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z);
+void *func_80053420(s32 index, void *target);
+void func_80024ED8();
+s32 func_8003A550(void);
+s32 func_8000FBD8(s32 segmentIndex, f32 x, f32 y, f32 z);
+void func_800475E8(void *cone, s16 angle);
+void func_800479D4(void *cone, s16 angle, f32 x, f32 y, s32 length);
+void partUpdateTriggers(void *object, s32 updateRate);
+void changeLightIntensity(void *light, u8 intensity);
+s32 func_8002A204(s16 angle);
 void camSetNo(s8 playerIndex, s32 cameraIndex, ControlCameraState **cameraState);
 ControlCameraState *camGetListPtr(void);
 ControlTrackState *trackGetTrack(void);
@@ -83,7 +114,76 @@ void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
 f32 func_8001BB90(s32 cameraIndex) {
     return D_800CB380[cameraIndex].blend;
 }
+/* Workbench verdict: structure-mismatch, 38 differing words, first mismatch +0x0. */
+/* Candidate: 150/150 instructions with exact relocation identities; frame is -0x30 versus target -0x38, so it is not shape-exact. */
+/* Shape status: instruction count and call/branch surface are exact; stack-frame constants and allocator residuals remain. */
+/* PROVENANCE: JFG's corresponding character-control routine supplied the control-flow role;
+ * all field offsets, calls, and the body below are reconstructed from Mickey. */
+#ifdef NON_MATCHING
+void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2) {
+    ControlTrackState *track;
+    ControlLevelState *level;
+    void *cameraSource;
+    s32 surfaceIndex;
+    s32 surfaceValid;
+    s32 i;
+    s32 mask;
+    s16 angle;
+    u8 *surface;
+    if (player->playerIndex < mainGetNumberOfCameras()) {
+        func_8001C114(player->playerIndex, actor->x, actor->y, actor->z);
+        cameraSource = func_80053420(0, D_800CB300);
+        if (cameraSource == NULL) {
+            if ((player->flags1A8 & 1) && (func_8003A550() == 0)) {
+                TrapDanglingJump(actor, player, D_800CB300, (s32) arg2);
+            } else if (player->controlKeys & 4) {
+                func_80024ED8(actor, player, D_800CB300);
+            } else if (D_8007BF10 != 0) {
+                TrapDanglingJump(D_800CB300, actor, *(s32 *) &arg2);
+            } else {
+                TrapDanglingJump(D_800CB300, actor, *(s32 *) &arg2);
+            }
+        }
+        track = trackGetTrack();
+        if (track != NULL) {
+            if (D_800CB300->y < ((f32) track->unk24 - 100.0f)) {
+                D_800CB300->y += (((f32) track->unk24 - 100.0f) - D_800CB300->y) * D_80081840;
+            }
+        }
+        level = levelGetLevel();
+        surfaceIndex = func_8000FAE0(D_800CB300->x, D_800CB300->y, D_800CB300->z);
+        if (surfaceIndex != -1) {
+            surfaceValid = 1;
+            i = 7;
+            surface = (u8 *) level + 0xE;
+            do {
+                angle = *(s16 *) (surface + 0x112);
+                surface -= 2;
+                if (surfaceIndex == angle) {
+                    surfaceValid = func_8000FBD8(surfaceIndex, D_800CB300->x,
+                                                 D_800CB300->y, D_800CB300->z);
+                    break;
+                } else {
+                    i--;
+                    if (i == 0) {
+                        break;
+                    }
+                }
+            } while (1);
+            if (surfaceValid != 0) {
+                D_800CB300->unk3E = (s16) surfaceIndex;
+            }
+        }
+        if (*(void **)((u8 *) actor + 0x50) != NULL && level->unk0E3 == 0) {
+            *(f32 *) ((u8 *) *(void **)((u8 *) actor + 0x50) + 0x10) = D_800CB300->x - actor->x;
+            *(f32 *) ((u8 *) *(void **)((u8 *) actor + 0x50) + 0x14) = D_800CB300->y - actor->y;
+            *(f32 *) ((u8 *) *(void **)((u8 *) actor + 0x50) + 0x18) = D_800CB300->z - actor->z;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BE0C.s")
 void func_8001C054(CameraTrackedObject *value) {
     if (D_80079BCC < 24) {
@@ -482,7 +582,163 @@ void controlFSUvels(s16 *rotation, ControlPlayer *player) {
     sp18[2] = 0;
     pointListRPY(3, sp18, D_80079BD4, player->unk14);
 }
+typedef struct ControlFlameSlot {
+    u8 state;
+    u8 mode;
+    u8 pad02[2];
+    u8 intensity;
+    u8 pad05;
+    s16 phase;
+    void *particle;
+} ControlFlameSlot;
+
+typedef struct ControlFlameParticle {
+    u8 pad00[0x18];
+    f32 value18;
+    f32 value1C;
+    s16 value20;
+    s16 value22;
+    s16 value24;
+} ControlFlameParticle;
+
+/* Workbench verdict: structure-mismatch, 208 differing words, first mismatch +0x0. */
+/* Candidate: 221/220 instructions with a -0x70 frame versus target -0x60; three instruction/stack and state-machine residuals remain. */
+/* Shape status: four-slot state machine, signed phase/intensity arithmetic, and cone calls are reconstructed, but it is not shape-exact. */
+/* PROVENANCE: JFG's public controlUpdateJetFlames role and Mickey's m2c/assembly establish
+ * the state-machine order; no external body is copied into this reconstruction. */
+#ifdef NON_MATCHING
+void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg3,
+                   s32 arg4) {
+    s32 sp5C;
+    f32 var_f20;
+    f32 var_f22;
+    s16 temp_v1;
+    s16 var_s3;
+    s16 var_s6;
+    s32 *temp_v0;
+    s32 temp_a0;
+    s32 temp_s2;
+    s32 temp_t7;
+    s32 temp_t9;
+    s32 var_s5;
+    s32 var_v0;
+    s32 var_s0;
+    u8 temp_v0_2;
+    ControlFlameSlot *var_s1;
+    void *temp_s7;
+
+    var_v0 = 0;
+    var_s5 = 1;
+    var_s1 = (ControlFlameSlot *) ((u8 *) player + 0x34C);
+    do {
+        temp_s7 = var_s1->particle;
+        sp5C = var_v0;
+        if (temp_s7 != NULL) {
+            temp_v1 = *(s16 *) ((u8 *) temp_s7 + 0x24);
+            var_s0 = var_s1->intensity;
+            var_s3 = var_s1->phase;
+            var_f20 = *(f32 *) ((u8 *) temp_s7 + 0x18);
+            var_f22 = *(f32 *) ((u8 *) temp_s7 + 0x1C);
+            var_s6 = temp_v1;
+            if (var_s1->state == 2) {
+                temp_t7 = arg4 << 5;
+                if (var_s1->mode == 0) {
+                    var_s0 -= temp_t7;
+                    if (var_s0 < 0) {
+                        var_s0 = 0;
+                    }
+                    var_s3 = actor->rotationX;
+                    if (player->unk186 & var_s5) {
+                        var_s1->mode = 2;
+                    }
+                } else {
+                    var_s0 += temp_t7;
+                    if (var_s0 >= 0x100) {
+                        var_s0 = 0xFF;
+                    }
+                    var_s3 = actor->rotationX;
+                    if (!(player->unk186 & var_s5)) {
+                        var_s1->mode = 0;
+                    }
+                }
+                var_f20 *= (f32) var_s0 / 255.0f;
+                var_f22 *= (f32) var_s0 / 255.0f;
+                temp_v0 = actor->unk70;
+                if (temp_v0 != NULL) {
+                    temp_a0 = *temp_v0;
+                    if (temp_a0 != 0) {
+                        changeLightIntensity((void *) temp_a0, var_s0);
+                    }
+                }
+            } else {
+                temp_v0_2 = var_s1->mode;
+                switch (temp_v0_2) {
+                case 0:
+                    var_s0 = 0;
+                    if (player->unk186 & var_s5) {
+                        temp_s2 = actor->unk80;
+                        actor->unk80 = arg3;
+                        partUpdateTriggers(actor, 2);
+                        actor->unk80 = temp_s2;
+                        var_s1->mode = 1;
+                    }
+                    break;
+                case 1:
+                    var_s0 += arg4 << 5;
+                    var_s6 = (s16) ((s32) (temp_v1 * var_s0) >> 7);
+                    if (var_s0 >= 0x100) {
+                        var_s0 = 0xFF;
+                        if (player->unk186 & var_s5) {
+                            var_s1->mode = 2;
+                        } else {
+                            var_s1->mode = 3;
+                        }
+                    }
+                    break;
+                case 2:
+                    var_s0 += arg4 * 0x10;
+                    if (var_s0 >= 0x100) {
+                        var_s0 = 0xFF;
+                    }
+                    var_s3 += arg4 << 0xC;
+                    temp_t9 = func_8002A204((s16) (var_s3 << 8)) + 0x18000;
+                    actor->unk80 |= arg2;
+                    var_s6 = (s16) ((s32) (temp_t9 * ((s32) (var_s6 * var_s0) >> 8)) >> 0x10);
+                    if (!(player->unk186 & var_s5)) {
+                        var_s1->mode = 3;
+                    }
+                    break;
+                case 3:
+                    var_s0 -= arg4 * 8;
+                    if (var_s0 <= 0) {
+                        var_s0 = 0;
+                        var_s1->mode = 0;
+                    } else {
+                        var_s3 += arg4 << 0xC;
+                        var_s6 = (s16) ((s32) ((func_8002A204((s16) (var_s3 << 8)) + 0x18000) *
+                                              ((s32) (var_s6 * var_s0) >> 8)) >> 0x10);
+                        if (player->unk186 & var_s5) {
+                            var_s1->mode = 2;
+                        }
+                    }
+                    break;
+                }
+            }
+            var_s1->intensity = var_s0;
+            var_s1->phase = var_s3;
+            if (var_s0 != 0) {
+                func_800475E8(temp_s7, var_s1->phase);
+                func_800479D4(temp_s7, var_s6, var_f20, var_f22, var_s1->intensity);
+            }
+        }
+        var_v0 = sp5C + 1;
+        var_s5 *= 2;
+        var_s1++;
+    } while (var_v0 != 4);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D960.s")
+#endif
 void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
     f32 cosine;
     f32 pitchX;
@@ -501,7 +757,132 @@ void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001DD70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001E5C4.s")
+/* PROVENANCE -- JFG's public charControl.c identifies the corresponding
+ * controlSquashCheckPrior routine, but publishes assembly only; this body is
+ * reconstructed from Mickey's fields, calls, branch conditions, and stores. */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch; 236 differing words, first mismatch +0x0. */
+/* Target 238 instructions/frame -160; candidate 240 instructions/frame -208. */
+/* Remaining gap is FP spill/branch scheduling and a 48-byte frame excess; not shape-exact. */
+void func_8001EC44(s32 arg0, ControlVector3 *arg1, ControlVector3 *arg2,
+                   f32 arg3, ControlCollisionPlane *arg4) {
+    f32 sp94;
+    f32 sp8C;
+    f32 sp70;
+    f32 sp6C;
+    f32 sp5C;
+    f32 sp58;
+    f32 sp54;
+    f32 sp50;
+    f32 sp4C;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 planeDistance;
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    f32 crossX;
+    f32 crossY;
+    f32 crossZ;
+    f32 value;
+    f32 distance;
+    f32 delta;
+    f32 vectorZ;
+    f32 vectorX;
+    f32 crossBase;
+    f32 crossMiddle;
+    f32 crossOther;
+
+    planeDistance = arg4->distance;
+    normalX = arg4->x;
+    normalY = arg4->y;
+    normalZ = arg4->z;
+    sp70 = planeDistance;
+    pointZ = arg1->z;
+    sp58 = pointZ * normalZ;
+    pointX = arg1->x;
+    sp50 = normalX * pointX;
+    pointY = arg1->y;
+    value = sp58 + (sp50 + (normalY * pointY)) + planeDistance;
+    if ((D_8008187C <= normalY) || (arg4->flags & 0x10000000)) {
+        vectorZ = arg2->z;
+        vectorX = arg2->x;
+        crossBase = vectorZ * normalY;
+        crossMiddle = (normalZ * vectorX) -
+                      (vectorZ * normalX);
+        crossOther = -(vectorX * normalY);
+
+        crossX = (crossMiddle * normalZ) -
+                 (crossOther * normalY);
+        crossY = (crossOther * normalX) -
+                 (crossBase * normalZ);
+        crossZ = (crossBase * normalY) -
+                 (crossMiddle * normalX);
+        sp54 = crossY;
+        sp4C = crossZ;
+        distance = (crossX * crossX) + (crossY * crossY) +
+                   (crossZ * crossZ);
+        if (D_80081880 < distance) {
+            sp5C = crossX;
+            distance = sqrtf(distance);
+            delta = arg3 - arg4->unk1C;
+            arg1->x = arg4->unk10 + (delta * (crossX / distance));
+            arg1->y = arg4->unk14 + (delta * (crossY / distance));
+            arg1->z = arg4->unk18 + (delta * (crossZ / distance));
+        } else {
+            arg1->y = (-(sp58 + sp50 + sp70) / normalY) + D_80081884;
+        }
+        D_800CB2C4.x = normalX;
+        D_800CB2C4.y = normalY;
+        D_800CB2C4.z = normalZ;
+        D_800CB2FD |= 2;
+    } else if (normalY <= D_80081888) {
+        delta = D_8008188C - value;
+        arg1->x = pointX + (delta * normalX);
+        arg1->y = pointY + (delta * normalY);
+        arg1->z = pointZ + (delta * normalZ);
+        D_800CB2DC.x = normalX;
+        D_800CB2DC.y = normalY;
+        D_800CB2DC.z = normalZ;
+        D_800CB2FD |= 8;
+    } else {
+        sp54 = pointX;
+        delta = D_80081890 - value;
+        sp4C = pointY;
+        sp8C = delta;
+        crossX = sp54 + (delta * normalX);
+        crossY = sp4C + (delta * normalY);
+        crossZ = pointZ + (delta * normalZ);
+        normalX = sp54 - crossX;
+        normalZ = pointZ - crossZ;
+        sp94 = sp4C - crossY;
+        value = func_8002A8BC(Arctanf(sp94,
+                                      sqrtf((normalX * normalX) +
+                                            (normalZ * normalZ))));
+        if (value != 0.0f) {
+            delta = sp8C / value;
+            sp6C = delta;
+            distance = sqrtf((normalY * normalY) +
+                             (arg4->z * arg4->z));
+            arg1->x += delta * (normalY / distance);
+            arg1->z += delta * (arg4->z / distance);
+        } else {
+            arg1->x = crossX;
+            arg1->y = crossY;
+            arg1->z = crossZ;
+        }
+        D_800CB2D0.x = normalY;
+        D_800CB2D0.y = arg4->y;
+        D_800CB2D0.z = arg4->z;
+        D_800CB2FD |= 4;
+    }
+    D_800CB2F8 = arg4->flags;
+    D_800CB2FC = arg4->kind;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001EC44.s")
+#endif
 void func_8001EFFC(ControlTransform *transform, ControlPlayer *player, f32 *output) {
     f32 *current;
     s32 index;

@@ -2321,6 +2321,9 @@ typedef struct Overlay1NearbyObject {
 } Overlay1NearbyObject;
 
 #ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 51 differing words, first structural gap +0x4C.
+ * Reverse countdown, branch-likely guards, and floating-point CFG are target-shaped.
+ * Structural gap: one extra move plus register-lane differences; candidate is +1 word. */
 void overlay1ConsumeNearbyPending(void *objectArg, void *listArg) {
     Overlay1NearbyState *state;
     f32 radiusSquared;

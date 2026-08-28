@@ -14,8 +14,16 @@
 #include "game/memory.h"
 #include "libc/stdarg.h"
 
+typedef struct {
+    u8 pad0[0x14];
+    s32 unk14;
+    u8 pad18[4];
+    u32 words[68];
+} MickeyEpcInfo;
+
 extern s32 D_8007CFD8;
 extern s32 D_8007CFDC;
+extern u32 D_8007CFD0;
 extern OSThread diCpuOSThread;
 extern u64 diCpuThreadStack[];
 extern f32 D_80083DBC;
@@ -34,18 +42,25 @@ extern s32 viGetVideoMode(void);
 extern void viGetCurrentSize(s32 *width, s32 *height);
 extern s32 runlinkGetAddressInfo(u32 address, s32 *moduleId,
                                  s32 *moduleAddress, u32 **outputAddress);
-extern void render_epc_lock_up_display(s32 arg0, s32 buttons);
+extern void render_epc_lock_up_display(MickeyEpcInfo *arg0);
 extern void cpuXYPrintf(s32 x, s32 y, const char *format, ...);
 extern void func_80046E00(void);
 extern void func_80046BCC(s32 x, s32 y, char *text);
 extern s32 vsprintf(char *text, const char *format, va_list args);
 extern u16 D_8007D034[];
+extern s32 func_80005820(s32 arg0);
+extern s32 levelGetLevel(void);
 extern s32 D_80000310;
+extern s32 D_8007A210;
+extern s32 D_8007A218;
+extern s32 D_8007A21C;
+extern s32 D_8007A220[];
 extern s32 D_8007A1E0;
 extern s32 D_8007A200;
 extern s32 D_8007CFE0;
 extern s32 D_8007CFE4;
 extern s32 D_8007CFE8;
+extern s32 D_8007CFEC[];
 extern s32 D_8007D02C;
 extern s32 D_8007D030;
 extern u16 D_8007D2F0[];
@@ -55,14 +70,57 @@ extern char D_80083A80;
 extern char D_80083A88;
 extern char D_80083B2C[];
 extern char D_80083B48[];
+extern char D_80083B5C[];
+extern char D_80083B78[];
+extern char D_80083B84[];
+extern char D_80083B90[];
+extern char D_80083BA0[];
+extern char D_80083BAC[];
+extern char D_80083BB8[];
+extern char D_80083BC8[];
+extern char D_80083BE4[];
+extern char D_80083BF4[];
+extern char D_80083C04[];
+extern char D_80083C0C[];
+extern char D_80083C14[];
+extern char D_80083C1C[];
+extern char D_80083C28[];
+extern char D_80083C38[];
+extern char D_80083C48[];
+extern char D_80083C58[];
+extern char D_80083C68[];
+extern char D_80083C7C[];
+extern char D_80083C90[];
+extern char D_80083CA4[];
+extern char D_80083CB8[];
+extern char D_80083CCC[];
+extern char D_80083CE0[];
+extern char D_80083CF4[];
+extern char D_80083D08[];
+extern char D_80083D1C[];
+extern char D_80083D30[];
+extern char D_80083D44[];
+extern char D_80083D58[];
+extern char D_80083D6C[];
+extern char D_80083D80[];
+extern char D_80083D8C[];
+extern char D_80083D9C[];
 extern void *D_800D5D40;
 extern u8 D_800D5D48[];
 extern s32 D_800D5DF0[];
 extern s32 D_800D5E98[];
 extern s32 D_800D5F40[];
+extern s32 D_800D21B0;
 extern s16 *D_800D2FA8;
 extern s32 packWriteFile(s32 controllerIndex, s32 fileNumber, char *fileName,
                          char *fileExt, u8 *dataToWrite, s32 fileSize);
+
+typedef struct {
+    u8 pad0[0x44];
+    s16 unk44;
+} EpcDebugObject;
+
+extern EpcDebugObject *D_8007A214;
 void stop_all_threads_except_main(void);
 void diCpuThread(void *unused);
 void func_80045BBC(void *thread);
@@ -317,7 +375,7 @@ void func_80045D34(s32 arg0) {
                 case 0:
                     oldPage = currentPage;
                     redraw = 0;
-                    render_epc_lock_up_display(arg0, buttons);
+                    render_epc_lock_up_display((MickeyEpcInfo *)(u32)arg0);
                     break;
                 case 1:
                 case 2:
@@ -464,7 +522,102 @@ void func_8004650C(s32 ticks) {
     }
 }
 
+#ifdef NON_MATCHING
+/* PROVENANCE: adapted from the SDK-style crash-display control flow in JFG
+ * src/diCpu.c; Mickey's own m2c control flow, globals, and ABI are authoritative. */
+/* Workbench verdict: structure-mismatch; 328 differing words, first mismatch +0x3c.
+ * Target 344 instructions/frame -80; candidate 346 instructions/frame -80.
+ * Remaining gap is branch-local pointer setup; not shape-exact or permuter-ready. */
+void render_epc_lock_up_display(MickeyEpcInfo *arg0) {
+    u32 sp4c;
+    u32 sp48;
+    u32 sp44;
+    char *region;
+    u32 value;
+    u32 *regs;
+
+    func_80046E00();
+    cpuXYPrintf(0x20, 0x18, D_80083B5C, arg0->unk14, D_8007CFD0);
+    regs = (u32 *)((u8 *)arg0 + 0x20);
+    value = regs[0xFC / 4];
+    if (value == 0) {
+        cpuXYPrintf(0x20, 0x22, D_80083B78);
+    } else if (runlinkGetAddressInfo(value, (s32 *)&sp4c, (s32 *)&sp48,
+                                     (u32 **)&sp44) != 0) {
+        cpuXYPrintf(0x20, 0x22, D_80083B84, sp4c, sp48);
+    } else {
+        cpuXYPrintf(0x20, 0x22, D_80083B90, regs[0xFC / 4]);
+    }
+    if (regs[0xE4 / 4] == 0) {
+        cpuXYPrintf(0x20, 0x28, D_80083BA0);
+    } else if (runlinkGetAddressInfo(regs[0xE4 / 4], (s32 *)&sp4c, (s32 *)&sp48,
+                                     (u32 **)&sp44) != 0) {
+        cpuXYPrintf(0x20, 0x28, D_80083BAC, sp4c, sp48);
+    } else {
+        cpuXYPrintf(0x20, 0x28, D_80083BB8, regs[0xE4 / 4]);
+    }
+    if (regs[0x100 / 4] == -1U) {
+        cpuXYPrintf(0x20, 0x2E, D_80083BC8, regs[0x1C / 4], regs[0x24 / 4]);
+    } else {
+        if ((((regs[0x100 / 4]) >> 2) & 0x1F) < 0x10) {
+            cpuXYPrintf(0x20, 0x2E, D_80083BE4,
+                        D_8007CFEC[(regs[0x100 / 4] >> 2) & 0x1F]);
+        } else {
+            cpuXYPrintf(0x20, 0x2E, D_80083BF4, regs[0x100 / 4]);
+        }
+    }
+    if ((D_8007A21C != 4) && (D_8007A210 != 0)) {
+        if ((D_8007A21C == 1) || (D_8007A21C == 3) || (D_8007A21C == 2)) {
+            if (D_8007A21C == 1) {
+                region = D_80083C04;
+            } else if (D_8007A21C == 3) {
+                region = D_80083C0C;
+            } else {
+                region = D_80083C14;
+            }
+            if (D_8007A218 != 0) {
+                cpuXYPrintf(0x20, 0x34, D_80083C1C, region,
+                            D_8007A220[D_8007A210], D_8007A218);
+            } else if (D_8007A214 != NULL) {
+                cpuXYPrintf(0x20, 0x34, D_80083C28, region,
+                            D_8007A220[D_8007A210], D_8007A214->unk44);
+            } else {
+                cpuXYPrintf(0x20, 0x34, D_80083C38, region,
+                            D_8007A220[D_8007A210]);
+            }
+        }
+    } else {
+        cpuXYPrintf(0x20, 0x34, D_80083C48, regs[0x104 / 4]);
+    }
+    cpuXYPrintf(0x20, 0x3A, D_80083C58, D_800D21B0);
+    cpuXYPrintf(0x20, 0x44, D_80083C68, regs[0x4 / 4], regs[0xC / 4]);
+    cpuXYPrintf(0x20, 0x4A, D_80083C7C, regs[0x14 / 4], regs[0x1C / 4]);
+    cpuXYPrintf(0x20, 0x50, D_80083C90, regs[0x24 / 4], regs[0x2C / 4]);
+    cpuXYPrintf(0x20, 0x56, D_80083CA4, regs[0x34 / 4], regs[0x3C / 4]);
+    cpuXYPrintf(0x20, 0x5C, D_80083CB8, regs[0x44 / 4], regs[0x4C / 4]);
+    cpuXYPrintf(0x20, 0x62, D_80083CCC, regs[0x54 / 4], regs[0x5C / 4]);
+    cpuXYPrintf(0x20, 0x68, D_80083CE0, regs[0x64 / 4], regs[0x6C / 4]);
+    cpuXYPrintf(0x20, 0x6E, D_80083CF4, regs[0x74 / 4], regs[0x7C / 4]);
+    cpuXYPrintf(0x20, 0x74, D_80083D08, regs[0x84 / 4], regs[0x8C / 4]);
+    cpuXYPrintf(0x20, 0x7A, D_80083D1C, regs[0x94 / 4], regs[0x9C / 4]);
+    cpuXYPrintf(0x20, 0x80, D_80083D30, regs[0xA4 / 4], regs[0xAC / 4]);
+    cpuXYPrintf(0x20, 0x86, D_80083D44, regs[0xB4 / 4], regs[0xBC / 4]);
+    cpuXYPrintf(0x20, 0x8C, D_80083D58, regs[0xC4 / 4], regs[0xCC / 4]);
+    cpuXYPrintf(0x20, 0x92, D_80083D6C, regs[0xD4 / 4], regs[0xDC / 4]);
+    cpuXYPrintf(0x20, 0x98, D_80083D80, regs[0xF8 / 4]);
+    value = levelGetLevel();
+    if ((value != 0) && (value & 0x80000000)) {
+        cpuXYPrintf(0x20, 0xA4, D_80083D8C, value);
+    }
+    value = func_80005820(0);
+    if ((value != 0) && (value & 0x80000000)) {
+        cpuXYPrintf(0x20, 0xAA, D_80083D9C, value + 0xC,
+                    value + 0x10, value + 0x14);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/render_epc_lock_up_display.s")
+#endif
 /* Mickey-derived body; JFG's corresponding func_800680B0_68CB0 is
  * assembly-only and confirms the packed-glyph loop structure. */
 void func_80046AA8(s32 x, s32 y, u16 *glyph) {

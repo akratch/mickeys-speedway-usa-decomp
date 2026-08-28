@@ -364,9 +364,9 @@ extern void *overlay1Chain40Reloc(void *source);
 extern f32 overlay1InterpolateReloc(f32 first, f32 second, s32 third,
                                    s32 fourth, f32 weight);
 
-/* Plateau retry (2026-08-25): -O2/-mips2 is exact-sized at 47/88 differing
- * words, first +0x0; direct-global, typed/volatile, pointer-local, declaration,
- * and clear-order forms leave the D_1DA0 v1/v0 allocation phase unresolved. */
+/* Workbench: allocation-mismatch, 50 differing words, first mismatch +0x00.
+ * Exact 88-instruction frame/CFG and relocation roles; residuals are GPR lanes.
+ * Shape-exact and permuter-ready; no structural gap remains. */
 #ifdef NON_MATCHING
 s32 overlay1ActivateObject(Overlay1Owner *owner) {
     s32 index;

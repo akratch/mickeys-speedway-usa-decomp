@@ -64,6 +64,9 @@ import pathlib
 import struct
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import postprocess_guard as guard
+
 
 REGISTERS = {
     "zero": 0,
@@ -113,7 +116,9 @@ FIELDS = {
 
 
 def fail(message):
-    raise SystemExit(message)
+    # Under PROMOTION_TRIAL the guard reports and skips instead of
+    # aborting the build; see tools/postprocess_guard.py.
+    guard.fail(message)
 
 
 def parse_value(field, value):

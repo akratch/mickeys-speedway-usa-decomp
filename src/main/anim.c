@@ -1094,7 +1094,177 @@ void func_80053550(HitInitSource *source, s32 kind, s32 mode, s16 rotationX,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053550.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053868.s")
+typedef struct AnimCollisionShape {
+    u8 pad0[6];
+    u16 flags;
+    u8 pad8[0x10];
+    AnimVec3f position;
+    AnimVec3f edge;
+    AnimVec3f vector;
+    u8 pad3C[0x1C];
+    f32 radius;
+} AnimCollisionShape;
+
+typedef struct AnimCollisionResult {
+    s32 object;
+    s32 value;
+    f32 fraction;
+} AnimCollisionResult;
+
+#ifdef NON_MATCHING
+/* PROVENANCE: JFG's public hit/collision code supplies the capsule and
+ * endpoint-overlap role; Mickey's collision-shape offsets are authoritative. */
+/* Workbench verdict: structure-mismatch, 368 differing words; first mismatch is at +0x0. */
+/* Target is 370 instructions/frame -216; candidate is 342 instructions/frame -184. */
+/* Remaining gap is structural: capsule discriminant expression and fallback CFG differ; not permuter-ready. */
+s32 func_80054B3C(s32 arg0, AnimCollisionShape *arg1,
+                  s32 arg2, AnimCollisionShape *arg3,
+                  AnimCollisionResult *arg4) {
+    f32 radius;
+    f32 radiusSquared;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    f32 aX;
+    f32 aY;
+    f32 aZ;
+    f32 bX;
+    f32 bY;
+    f32 bZ;
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    f32 dot;
+    f32 lengthSquared;
+    f32 discriminant;
+    f32 root;
+    f32 denominator;
+    f32 fraction;
+    f32 secondFraction;
+    s32 result;
+
+    radius = arg1->radius + arg3->radius;
+    result = 0;
+    radiusSquared = radius * radius;
+    if ((arg1->flags & 2) || (arg3->flags & 2)) {
+        dx = arg3->position.x - arg1->position.x;
+        dy = arg3->position.y - arg1->position.y;
+        dz = arg3->position.z - arg1->position.z;
+        if (((dx * dx) + (dy * dy) + (dz * dz)) <= radiusSquared) {
+            arg4->object = arg0;
+            arg4->value = arg2;
+            arg4->fraction = 0.0f;
+            return 1;
+        }
+    }
+    aX = arg1->vector.x;
+    aY = arg1->vector.y;
+    aZ = arg1->vector.z;
+    bX = arg3->vector.x;
+    bY = arg3->vector.y;
+    bZ = arg3->vector.z;
+    lengthSquared = ((bX * bX) + (aX * aX) - (2.0f * aX * bX)) +
+                    ((aY * aY) - (2.0f * aY * bY) + (bY * bY)) +
+                    ((aZ * aZ) - (2.0f * aZ * bZ) + (bZ * bZ));
+    pointX = arg1->position.x;
+    pointY = arg1->position.y;
+    pointZ = arg1->position.z;
+    dot = 2.0f * pointZ;
+    denominator = 2.0f * pointX;
+    aX = 2.0f * pointX;
+    bX = arg3->position.x;
+    bY = arg3->position.y;
+    bZ = arg3->position.z;
+    dx = 2.0f * bX;
+    dy = 2.0f * pointY;
+    dz = 2.0f * bY;
+    aY = bY + pointY;
+    aZ = bZ + pointZ;
+    bY = 2.0f * bZ;
+    bZ = arg3->position.z;
+    aX = ((arg3->vector.z * denominator) +
+          (((aX * arg1->vector.x) - (aX * arg3->vector.x)) -
+           (denominator * arg1->vector.z)));
+    dot = aX +
+          (((aY * arg1->vector.y) - (aY * arg3->vector.y)) -
+           ((2.0f * pointX) * arg1->vector.y) +
+           ((2.0f * pointX) * arg3->vector.y) +
+           (((2.0f * pointY) * arg1->vector.z) -
+            ((2.0f * pointY) * arg3->vector.z)) -
+           (aY * arg1->vector.z) + (aY * arg3->vector.z));
+    lengthSquared = ((arg3->position.z * arg3->position.z) +
+                     ((2.0f * arg3->position.z * arg1->position.z) * -1.0f) +
+                     (arg1->position.z * arg1->position.z)) +
+                    ((arg1->position.x * arg1->position.x) -
+                     ((2.0f * arg1->position.x) * arg3->position.x) +
+                     (arg3->position.x * arg3->position.x)) +
+                    ((arg1->position.y * arg1->position.y) -
+                     ((2.0f * arg1->position.y) * arg3->position.y) +
+                     (arg3->position.y * arg3->position.y));
+    if (lengthSquared != 0.0f) {
+        discriminant = 4.0f * radiusSquared;
+        root = discriminant * (lengthSquared - radiusSquared);
+        dot = dot * dot;
+        if (root < dot) {
+            denominator = 2.0f * radiusSquared;
+            root = sqrtf(dot - root);
+            fraction = (-dot - root) / denominator;
+            if ((fraction >= 0.0f) && (fraction <= 1.0f)) {
+                discriminant = radiusSquared *
+                               (lengthSquared - (radiusSquared + 83.0f));
+                if (discriminant < dot) {
+                    secondFraction = (-dot - sqrtf(dot - discriminant)) /
+                                     denominator;
+                    result = 1;
+                    if (secondFraction > 1.0f) {
+                        secondFraction = 1.0f;
+                    } else if (secondFraction < 0.0f) {
+                        secondFraction = 0.0f;
+                    }
+                    arg4->object = arg0;
+                    arg4->value = arg2;
+                    arg4->fraction = secondFraction;
+                }
+            } else {
+                dx = arg3->edge.x - arg1->edge.x;
+                dy = arg3->edge.y - arg1->edge.y;
+                dz = arg3->edge.z - arg1->edge.z;
+                if (((dx * dx) + (dy * dy) + (dz * dz)) <= radiusSquared) {
+                    discriminant = radiusSquared *
+                                   (lengthSquared - (radiusSquared + 83.0f));
+                    if (discriminant < dot) {
+                        secondFraction = (-dot - sqrtf(dot - discriminant)) /
+                                         denominator;
+                        result = 1;
+                        if (secondFraction > 1.0f) {
+                            secondFraction = 1.0f;
+                        } else if (secondFraction < 0.0f) {
+                            secondFraction = 0.0f;
+                        }
+                        arg4->object = arg0;
+                        arg4->value = arg2;
+                        arg4->fraction = secondFraction;
+                    }
+                }
+            }
+        }
+    }
+    if (result == 0) {
+        dx = arg3->edge.x - arg1->edge.x;
+        dy = arg3->edge.y - arg1->edge.y;
+        dz = arg3->edge.z - arg1->edge.z;
+        if (((dx * dx) + (dy * dy) + (dz * dz)) <= radiusSquared) {
+            arg4->object = arg0;
+            arg4->value = arg2;
+            result = 1;
+            arg4->fraction = 0.0f;
+        }
+    }
+    return result;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80054B3C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055104.s")
 /* Mickey-local collision response reconstructed from its resident ABI. */
 void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {

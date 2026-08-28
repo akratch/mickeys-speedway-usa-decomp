@@ -101,18 +101,67 @@ def raw_asm_promotions(base):
     return names
 
 
+NM_BLOCK = re.compile(r"^\s*#\s*ifdef\s+NON_MATCHING\b", re.MULTILINE)
+
+
+def credited_overlay_sources(base):
+    """Overlay source files whose ownership row was credited at `base`
+    (matched and not nonmatching in config/overlays.us.json)."""
+    import json
+    try:
+        blob = subprocess.run(["git", "show", f"{base}:config/overlays.us.json"],
+                              capture_output=True, text=True, check=True).stdout
+        atlas = json.loads(blob)
+    except (subprocess.CalledProcessError, ValueError):
+        return set()
+    out = set()
+    for module in atlas.get("modules", []):
+        for row in module.get("text_ownership", []):
+            if row.get("type") == "c" and row.get("matched") and not row.get("nonmatching"):
+                out.add(f"src/{row['source']}.c")
+    return out
+
+
+def overlay_credit_regressions(base):
+    """Credited overlay TUs that now carry a NON_MATCHING block they did not
+    have at `base`. The atlas credits ownership per source file, so one
+    candidate inside a matched TU silently un-credits every function in it
+    (overlays 51 and 56 lost 5,024 bytes this way on 2026-08-28)."""
+    bad = []
+    for f in sorted(credited_overlay_sources(base)):
+        try:
+            now = open(f, encoding="utf-8", errors="ignore").read()
+        except FileNotFoundError:
+            continue
+        if not NM_BLOCK.search(now):
+            continue
+        then = subprocess.run(["git", "show", f"{base}:{f}"], capture_output=True, text=True).stdout
+        if not NM_BLOCK.search(then):
+            bad.append(f)
+    return bad
+
+
 def main():
     base = sys.argv[1] if len(sys.argv) > 1 else "HEAD"
     before = names_at(base)
     after = names_in_worktree()
     regressed = sorted(after - before - raw_asm_promotions(base))
+    status = 0
     if regressed:
         print(f"check_match_regression: {len(regressed)} function(s) matched at {base} carry GLOBAL_ASM again:",
               file=sys.stderr)
         for n in regressed:
             print(f"  {n}", file=sys.stderr)
-        return 1
-    return 0
+        status = 1
+    uncredited = overlay_credit_regressions(base)
+    if uncredited:
+        print(f"check_match_regression: {len(uncredited)} credited overlay TU(s) gained a NON_MATCHING block "
+              "(the whole TU loses credit; put the candidate in its own file or leave the pragma):",
+              file=sys.stderr)
+        for f in uncredited:
+            print(f"  {f}", file=sys.stderr)
+        status = 1
+    return status
 
 
 if __name__ == "__main__":

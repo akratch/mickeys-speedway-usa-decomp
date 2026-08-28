@@ -47,31 +47,10 @@ extern s32 overlay80QueryNearbyReloc(
 extern void overlay80ResolveCandidateReloc(
     s16 key, s32 selectedValue, s16 *outputA, s16 *outputB);
 
-/*
- * Pinned DKR v77/v80 and JFG object scans found no exact donor.
- * Plateau (2026-08-25, 5 source forms plus a bounded permuter batch):
- * -O2 -mips2 -Wab,-r4300_mul has the exact 71-word size and differs in
- * one word at +0x4C. IDO commutes the outer floating-point multiply; explicit
- * temporaries and a volatile-qualified access disturb the surrounding
- * allocation, while the permuter found no candidate below its base score.
- * Lane cx-ov-4-b-a-r3 reconfirmed all 119 flag combinations and also found
- * that reversing the outer source operands retains the same one-word delta.
- * Lane cx-ov-4-b-a-r4 reconfirmed that result and tested volatile global and
- * pointer qualifiers plus split assignment and local-intermediate forms. The
- * unqualified single expression remains best: exact size, first and only
- * mismatch +0x4C, blocked on IDO's outer multiply operand ordering.
- * Lane cx-ov-4-b-a-r5 reconfirmed all 119 flag combinations and tested local
- * and field compound-assignment forms. Both regressed; the same one-word
- * +0x4C outer-multiply operand-order mismatch remains the plateau.
- * Lane agent-o80-initcontact captured the stock pass boundary on 2026-08-28.
- * Ucode evaluates the object scale before the already-exact paired product;
- * UGEN preserves that stack order, and stock as1 receives the mismatching
- * outer multiply unchanged. A typed cast barrier around the paired product
- * and an equivalent scale[0] access both reproduce the retained 70/71 object,
- * exact 0x40 frame, and exact four-relocation surface. The remaining operand
- * commute is therefore fixed at or before uopt's Ucode boundary.
- */
 #ifdef NON_MATCHING
+/* Workbench: allocation-mismatch, 1 differing word, first mismatch +0x4C.
+ * Exact 71-instruction frame/CFG/relocation shape; only multiply order/scheduling remain.
+ * Shape-exact and permuter-ready; no structural gap remains. */
 void overlay80InitializeContact(Overlay80Object *object,
                                 const Overlay80Init *init) {
     Overlay80State *state;

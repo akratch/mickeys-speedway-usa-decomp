@@ -946,6 +946,9 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--overlay", type=int, help="restrict to one overlay number")
+    p.add_argument("--resident-only", action="store_true",
+                   help="skip overlay functions (their scratch cannot score zero across the "
+                   "relocation table; use tools/promotion_trial.py for them)")
     p.add_argument("--function", help="restrict to one function name")
     p.add_argument("--limit", type=int, help="cap the number of functions processed")
     p.add_argument("--minutes", type=int, default=20, help="per-function wall-clock cap (default: 20)")
@@ -1010,6 +1013,13 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="on a zero-score result, splice the winning candidate into the C file, "
         "rebuild, and verify byte-identity before reporting it matched",
     )
+    p.add_argument(
+        "--deep",
+        action="store_true",
+        help="second pass: run only functions whose previous summary row was descending but "
+        "not zero (0 < best < base), ignoring --resume for them; pair with a long --minutes "
+        "and --extend-minutes",
+    )
     p.add_argument("--list", action="store_true", help="print the discovered queue and exit")
     p.add_argument(
         "permuter_args",
@@ -1032,6 +1042,8 @@ def main(argv: list[str]) -> int:
     queue = discover_queue()
     if args.overlay is not None:
         queue = [it for it in queue if it.overlay == args.overlay]
+    if args.resident_only:
+        queue = [it for it in queue if it.overlay is None]
     if args.function is not None:
         queue = [it for it in queue if it.func == args.function]
     if args.order == "ranking":
@@ -1045,10 +1057,17 @@ def main(argv: list[str]) -> int:
         unranked = sum(1 for it in queue if it.func not in rank)
         if unranked:
             print(f"note: {unranked} queued function(s) have no ranking row; they run last")
-    if args.resume and SUMMARY_JSON.is_file():
+    prior = json.loads(SUMMARY_JSON.read_text()).get("results", []) if SUMMARY_JSON.is_file() else []
+    if args.deep:
+        descending = {r["func"] for r in prior
+                      if r.get("base_score") is not None and r.get("best_score") is not None
+                      and 0 < r["best_score"] < r["base_score"]}
+        queue = [it for it in queue if it.func in descending]
+        print(f"--deep: {len(queue)} descending-but-stuck function(s) selected from the summary")
+    elif args.resume and prior:
         # A row that errored or never got a base score (import/compile fault)
         # is not "done": the fault may have been fixed since.
-        done = {r["func"] for r in json.loads(SUMMARY_JSON.read_text()).get("results", [])
+        done = {r["func"] for r in prior
                 if not r.get("error") and r.get("base_score") is not None}
         before = len(queue)
         queue = [it for it in queue if it.func not in done]
@@ -1078,12 +1097,14 @@ def main(argv: list[str]) -> int:
 
     BUILD_PERMUTER.mkdir(parents=True, exist_ok=True)
     results: list[RunResult] = []
-    if args.resume and SUMMARY_JSON.is_file():
+    if (args.resume or args.deep) and prior:
         # Carry the earlier results forward so summary.json stays the whole
-        # sweep's record, not just this invocation's slice.
+        # sweep's record; a function about to be re-run keeps only its new row.
         known = {f.name for f in dataclasses.fields(RunResult)}
-        for row in json.loads(SUMMARY_JSON.read_text()).get("results", []):
-            results.append(RunResult(**{k: v for k, v in row.items() if k in known}))
+        rerun = {it.func for it in queue}
+        for row in prior:
+            if row.get("func") not in rerun:
+                results.append(RunResult(**{k: v for k, v in row.items() if k in known}))
 
     print(
         f"Running {len(queue)} function(s), {jobs} concurrent, "

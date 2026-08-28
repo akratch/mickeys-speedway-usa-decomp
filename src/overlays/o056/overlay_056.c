@@ -56,6 +56,9 @@ void overlay56ReleaseResource(void) {
     }
 }
 
+/* Workbench: structure-mismatch; 578 words differ, first mismatch +0x0. */
+/* Candidate is not shape-exact: 584/581 instructions; frame -504/-504 bytes. */
+/* Remaining gap is structural CFG/type lowering plus relocation identity. */
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o056/overlay_056/func_overlay_056_F00001A0_18A2F18.s")
 
 void overlay56UnpackColor(s32 index, u32 *red, s32 *green, s32 *blue) {

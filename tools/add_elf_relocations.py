@@ -22,6 +22,9 @@ import pathlib
 import struct
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import postprocess_guard as guard
+
 
 SHT_NOBITS = 8
 SHT_REL = 9
@@ -30,7 +33,9 @@ RELOCATION_TYPES = {"R26": 4, "4": 4, "HI16": 5, "LO16": 6, "5": 5, "6": 6}
 
 
 def fail(message):
-    raise SystemExit(message)
+    # Under PROMOTION_TRIAL the guard reports and skips instead of
+    # aborting the build; see tools/postprocess_guard.py.
+    guard.fail(message)
 
 
 def c_string(data, offset, context):

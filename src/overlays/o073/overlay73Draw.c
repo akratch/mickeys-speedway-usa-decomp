@@ -25,7 +25,9 @@ extern void func_80034554(Overlay73Command **commands, void *resource,
                          s32 mode, s32 flags);
 extern void func_800241BC(Overlay73Command **commands);
 
-/* DKR v77/v80 and JFG contain no exact donor for this renderer. */
+/* Workbench: structure-mismatch, 47 differing words, first mismatch +0x04.
+ * Exact 78-instruction frame/CFG; packet arithmetic is reordered by IDO.
+ * Structural gap: saved-list/address scheduling and register web remain. */
 #ifdef NON_MATCHING
 void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
                                        s32 context,

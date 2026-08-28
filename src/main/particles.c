@@ -934,21 +934,16 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F154.s")
 #endif
-#ifdef NON_MATCHING
-/* Workbench: operand-mismatch, exact 276 instructions/frame; 11 stack-offset words differ, first +0x254.
- * Explicit resource if/else restored the target branch; declaration, aggregate, lifetime, volatile, and scoped-flags variants did not move homes.
- * Remains: target flags home at sp+0x44 and rotation pair at sp+0x30; this spelling swaps them.
- *
- * PROVENANCE: structure cross-checked against JFG's assembly-only
+/* PROVENANCE: structure cross-checked against JFG's assembly-only
  * asm/nonmatchings/particles/func_800608EC.s sibling; body reconstructed
  * from Mickey evidence.
  */
 void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config) {
-    s16 rotation[2];
+    s32 flags;
     f32 offset[3];
     ParticleEmitterResource *resource;
-    s32 flags;
+    s16 rotation[2];
     s32 randomRange;
     s8 pointIndex;
 
@@ -1033,9 +1028,6 @@ void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, Parti
     particle->y += object->y;
     particle->z += object->z;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003F5F8.s")
-#endif
 /*
  * PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/partModelObjEmitModelPart.s; body reconstructed

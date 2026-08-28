@@ -28,6 +28,7 @@ extern void func_8000D728(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_8000D62C(f32 x, f32 y, f32 z, f32 radius, f32 radius2, s32 red, s32 green, s32 blue);
 extern void func_800188CC(UnkLight *light);
 extern void func_80018F08(UnkLight *light, s32 updateRate);
+extern f32 func_80019934(f32 arg0, f32 arg1, f32 arg2, s32 arg3);
 extern u8 *levelGetLevel(void);
 extern s32 D_80079490;
 extern s32 D_80079494;
@@ -35,6 +36,9 @@ extern void **D_80079498;
 extern void *D_8007949C;
 extern void *D_800794A0;
 extern f32 D_800817B0;
+extern s32 D_8007C854;
+extern s32 D_8007C85C;
+extern f32 D_800817C8;
 extern void *D_800CB290;
 
 /* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
@@ -119,6 +123,108 @@ typedef struct ObjectLightState {
     s16 pitch;
 } ObjectLightState;
 
+typedef struct LightUpdateHeader {
+    u8 pad0[0x2D];
+    u8 count2D;
+} LightUpdateHeader;
+
+typedef struct LightUpdateSegment {
+    LightUpdateHeader *header0;
+    u8 pad4[0x3C];
+    f32 *coordinates40;
+} LightUpdateSegment;
+
+typedef struct LightUpdateOwner {
+    u8 pad0[0xC];
+    f32 offsetX0C;
+    f32 offsetY10;
+    f32 offsetZ14;
+    u8 pad18[0x22];
+    s8 segmentIndex3A;
+    u8 pad3B[0x2D];
+    LightUpdateSegment **segments68;
+    u8 pad6C[0x25];
+    u8 disabled91;
+} LightUpdateOwner;
+
+typedef struct LightUpdateState {
+    u8 mode0;
+    u8 pad1;
+    u8 flags2;
+    u8 pad3;
+    u8 pad4[2];
+    s16 index6;
+    f32 inputX08;
+    f32 inputY0C;
+    f32 inputZ10;
+    LightUpdateOwner *owner14;
+    f32 x18;
+    f32 y1C;
+    f32 z20;
+    u8 pad24[0x14];
+    f32 lower38;
+    f32 upper3C;
+    u8 red40;
+    u8 green41;
+    u8 blue42;
+    u8 intensity43;
+    f32 intensity44;
+    u8 pad48[0xC];
+    s32 colourCycle54;
+    s16 value58;
+    s16 value5A;
+    s16 step5C;
+    s16 step5E;
+    f32 directionX60;
+    f32 directionY64;
+    f32 directionZ68;
+    u8 pad6C[4];
+    void *table70;
+} LightUpdateState;
+
+typedef struct LightObjectContext {
+    void *state0;
+    s32 objectId4;
+} LightObjectContext;
+
+typedef struct LightObjectState {
+    u8 pad0[0x20];
+    s32 environment20;
+    u8 pad24[0x2B];
+    u8 mode4F;
+    u8 pad50[0xC];
+    s32 value5C;
+    s32 value60;
+    s32 environment64;
+} LightObjectState;
+
+typedef struct LightDescription {
+    f32 scale0;
+    u8 pad4[0xA];
+    s16 jointCountE;
+    u32 packed10;
+    u8 shift14;
+    u8 red15;
+    u8 green16;
+    u8 blue17;
+    u8 pad18[0x18];
+    void *twoLightData30;
+} LightDescription;
+
+typedef struct LightPosition {
+    u8 pad0[0xC];
+    f32 x0C;
+    f32 y10;
+    f32 z14;
+} LightPosition;
+
+typedef struct LightCameraPosition {
+    u8 pad0[0xC];
+    f32 x0C;
+    f32 y10;
+    f32 z14;
+} LightCameraPosition;
+
 typedef struct LightInitHeader {
     u8 pad0[0x1E];
     s8 mode;
@@ -177,6 +283,22 @@ extern void mathOneFloatRPY(s16 *rotation, f32 *output);
 extern void *camlightAdd(void *object, FlareEntry *entry);
 extern void camlightDelete(void);
 extern ObjectLightState D_800CB298;
+extern void func_8000D768(s32 light, s32 red, s32 green, s32 blue, s32 intensity);
+extern void func_8000D7F8(s32 light, f32 x, f32 y, f32 z);
+extern void func_80036AB0(void *cycle, s32 updateRate);
+extern void mathOneFloatPY(s16 *rotation, f32 *vector);
+extern void pointListRPY(s32 count, void *rotation, f32 *input, f32 *output);
+extern void *camGetPtr(void);
+extern void func_8002AA50(void *source, void *matrix);
+extern void lightMakeJointPositions(s16 count, f32 *positions, s32 value,
+                                    void *matrix, void *table);
+extern void lightSingleLight(s32 objectId, s32 value, f32 *positions,
+                             void *table, s32 value2);
+extern void lightTwoLights(s32 objectId, s32 value, s32 table, s32 count,
+                           f32 *positions, void *lightData, s32 value2);
+extern void lightMultiLight(s32 objectId, s32 value, f32 *positions, s32 value2,
+                            s32 table, s32 count, s32 jointCount);
+extern void lightEnviroMap(s32 value0, s32 value1, s32 value2, s32 table);
 
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c. */
 void freeLights(void) {
@@ -373,7 +495,98 @@ void lightUpdateLights(s32 updateRate) {
         func_80018F08(D_80079498[i], updateRate);
     }
 }
+/* Workbench verdict: structure-mismatch, 166 differing words, first mismatch +0x0. */
+/* Candidate: 199/205 instructions with a -0x60 frame versus target -0x48; six instruction and relocation-position residuals remain. */
+/* Shape status: segment lookup, three dirty-bit paths, and direction rebuild are preserved, but the candidate is not shape-exact. */
+/* PROVENANCE: JFG's corresponding light-update role supplies the control-flow idiom; all Mickey offsets, globals, and calls below are reconstructed locally. */
+#ifdef NON_MATCHING
+void func_80018F08(UnkLight *light, s32 updateRate) {
+    LightUpdateState *state;
+    LightUpdateOwner *owner;
+    s16 rotation[3];
+    f32 *direction;
+    u8 value;
+    s32 index;
+    LightUpdateSegment *segment;
+    LightUpdateHeader *header;
+    f32 unsignedValue;
+
+    state = (LightUpdateState *) light;
+    owner = state->owner14;
+    if ((owner != NULL) && (owner->disabled91 == 0)) {
+        if (state->index6 >= 0) {
+            segment = owner->segments68[(s32) owner->segmentIndex3A];
+            if ((segment != NULL) &&
+                (state->index6 < (s32) segment->header0->count2D)) {
+                index = state->index6 * 3;
+                state->x18 = segment->coordinates40[index];
+                state->y1C = segment->coordinates40[index + 1];
+                state->flags2 |= 1;
+                state->z20 = segment->coordinates40[index + 2];
+            }
+        } else {
+            pointListRPY(1, owner, &state->inputX08, &state->x18);
+            state->x18 += owner->offsetX0C;
+            state->y1C += owner->offsetY10;
+            state->flags2 |= 1;
+            state->z20 += owner->offsetZ14;
+        }
+        state->flags2 |= 4;
+        if (state->colourCycle54 != 0) {
+            func_8000D7F8(state->colourCycle54, state->x18, state->y1C, state->z20);
+        }
+    }
+    if (state->colourCycle54 != 0) {
+        func_80036AB0((u8 *) state + 0x48, updateRate);
+        state->red40 = *(u8 *) ((u8 *) state + 0x50);
+        state->green41 = *(u8 *) ((u8 *) state + 0x51);
+        state->blue42 = *(u8 *) ((u8 *) state + 0x52);
+        if (!(state->mode0 & 0x10)) {
+            value = *(u8 *) ((u8 *) state + 0x53);
+            state->intensity43 = value;
+            unsignedValue = (f32) (s32) value;
+            state->intensity44 = unsignedValue;
+        }
+        state->flags2 |= 2;
+    }
+    if (state->step5C != 0) {
+        state->flags2 |= 4;
+        state->value58 = (s16) (state->value58 + (state->step5C * updateRate));
+    }
+    if (state->step5E != 0) {
+        state->flags2 |= 4;
+        state->value5A = (s16) (state->value5A + (state->step5E * updateRate));
+    }
+    if ((state->flags2 & 1) || ((owner != NULL) && (owner->disabled91 == 0))) {
+        state->lower38 = state->y1C - *(f32 *) ((u8 *) state + 0x28);
+        state->upper3C = state->y1C + *(f32 *) ((u8 *) state + 0x28);
+    }
+    if (state->flags2 & 2) {
+        lightCreateLightTable(state->red40, state->green41, state->blue42, state->table70);
+        if (state->colourCycle54 != 0) {
+            func_8000D768(state->colourCycle54, state->red40, state->green41,
+                          state->blue42, state->intensity43);
+        }
+    }
+    if ((state->flags2 & 4) && ((state->mode0 == 3) || (state->mode0 == 0))) {
+        direction = &state->directionX60;
+        state->directionZ68 = -1.0f;
+        rotation[0] = state->value58;
+        rotation[1] = 0;
+        rotation[2] = state->value5A;
+        mathOneFloatPY(rotation, direction);
+        if ((owner != NULL) && (owner->disabled91 == 0)) {
+            pointListRPY(1, owner, direction, direction);
+        }
+        state->directionX60 = -state->directionX60;
+        state->directionY64 = -state->directionY64;
+        state->directionZ68 = -state->directionZ68;
+    }
+    state->flags2 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80018F08.s")
+#endif
 /* PROVENANCE: adapted from DKR's public decomp, src/lights.c, and Mickey's own assembly. */
 void killLight(UnkLight *light) {
     s32 i;
@@ -460,7 +673,180 @@ void lightUpdateObjects(void) {
         } while (start < end);
     }
 }
+/*
+ * PROVENANCE: JFG's public `lightObject` assembly-only entry supplies the
+ * role and TU context; Mickey's target bytes and resident object/light
+ * layouts supply this source reconstruction.
+ */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch; 266 differing words, first mismatch +0x0. */
+/* Target 254 instructions/frame -160; candidate 301 instructions/frame -128. */
+/* Remaining gap is light-slot selection/control-flow expansion and a 32-byte frame deficit; not shape-exact. */
+void func_8001953C(LightingObject *arg0, s32 arg1) {
+    f32 sp74;
+    u8 *level;
+    f32 distanceXZ;
+    f32 distance;
+    f32 directionEffect;
+    f32 distanceEffect;
+    f32 xDifference;
+    f32 yDifference;
+    f32 zDifference;
+    s16 lightCount;
+    s32 totalLightCount;
+    s32 lightOffset;
+    s32 slotOffset;
+    s32 maximumIntensity;
+    s32 candidateIntensity;
+    s32 type;
+    s32 index;
+    s32 endOffset;
+    u8 intensity;
+    u8 minimumIntensity;
+    u8 *object;
+    u8 *state;
+    u8 *slot;
+    u8 *nextSlot;
+    UnkLight *light;
+
+    object = (u8 *) arg0;
+    state = (u8 *) (u32) arg1;
+    *(s16 *) (state + 0xE) = 1;
+    maximumIntensity = 0;
+    level = levelGetLevel();
+    totalLightCount = 0;
+    lightOffset = 0;
+    if (D_80079494 > 0) {
+        do {
+            light = *(UnkLight **) ((u8 *) D_80079498 + lightOffset);
+            if (light->unk3 & 1) {
+                intensity = light->unk43;
+                if (intensity != 0) {
+                    type = light->unk0;
+                    candidateIntensity = intensity;
+                    if (type != 0) {
+                        xDifference = light->x - *(f32 *) (object + 0xC);
+                        distance = *(f32 *) (object + 0x10);
+                        zDifference = light->z - *(f32 *) (object + 0x14);
+                        candidateIntensity = 0;
+                        yDifference = light->y - distance;
+                        distanceXZ = (xDifference * xDifference) +
+                                     (zDifference * zDifference);
+                        switch (type) {
+                        case 2:
+                            if ((distanceXZ < light->radiusSquare) &&
+                                (light->radius2 < distance) &&
+                                (distance <= light->radius3)) {
+                                candidateIntensity = (s32) func_80019934(
+                                    light->unk44, sqrtf(distanceXZ),
+                                    *(f32 *) ((u8 *) light + 0x34), light->unk1);
+                            }
+                            break;
+                        case 3:
+                            distance = distanceXZ +
+                                       (yDifference * yDifference);
+                            if (distance < light->radiusSquare) {
+                                distanceEffect = sqrtf(distance);
+                                directionEffect = lightDirectionCalc(
+                                    *(f32 *) ((u8 *) light + 0x60),
+                                    *(f32 *) ((u8 *) light + 0x64),
+                                    *(f32 *) ((u8 *) light + 0x68),
+                                    xDifference, yDifference, zDifference,
+                                    distanceEffect);
+                                if (directionEffect > 0.0f) {
+                                    sp74 = directionEffect;
+                                    candidateIntensity = (s32) (
+                                        func_80019934(
+                                            light->unk44, distanceEffect,
+                                            *(f32 *) ((u8 *) light + 0x34),
+                                            light->unk1) * directionEffect);
+                                }
+                            }
+                            break;
+                        default:
+                            distance = distanceXZ +
+                                       (yDifference * yDifference);
+                            if (distance < light->radiusSquare) {
+                                candidateIntensity = (s32) func_80019934(
+                                    light->unk44, sqrtf(distance),
+                                    *(f32 *) ((u8 *) light + 0x34), light->unk1);
+                            }
+                            break;
+                        }
+                    } else {
+                        xDifference = *(f32 *) ((u8 *) light + 0x60);
+                        yDifference = *(f32 *) ((u8 *) light + 0x64);
+                        zDifference = *(f32 *) ((u8 *) light + 0x68);
+                    }
+                    if (candidateIntensity != 0) {
+                        lightCount = *(s16 *) (state + 0xE);
+                        slot = state + 0x30;
+                        if ((light->unk3 & 0x20) &&
+                            (maximumIntensity < candidateIntensity)) {
+                            maximumIntensity = candidateIntensity;
+                        }
+                        slotOffset = 0x40;
+                        if (lightCount < 4) {
+                            slot = state + (lightCount << 5) + 0x10;
+                            *(s16 *) (state + 0xE) = lightCount + 1;
+                        } else {
+                            minimumIntensity = *(u8 *) (state + 0x45);
+                            nextSlot = state + 0x40;
+                            do {
+                                intensity = *(u8 *) (nextSlot + 0x25);
+                                slotOffset += 0x20;
+                                if (intensity < minimumIntensity) {
+                                    slot = nextSlot + 0x10;
+                                    minimumIntensity = intensity;
+                                }
+                                nextSlot += 0x20;
+                            } while (slotOffset != 0x80);
+                            if (*(u8 *) (slot + 0x15) >= candidateIntensity) {
+                                slot = NULL;
+                            }
+                        }
+                        if (slot != NULL) {
+                            *(f32 *) (slot + 0x0) = xDifference;
+                            *(f32 *) (slot + 0x4) = yDifference;
+                            *(f32 *) (slot + 0x8) = zDifference;
+                            *(u8 *) (slot + 0x14) = 0;
+                            *(u8 *) (slot + 0x15) = candidateIntensity;
+                            *(s32 *) (slot + 0xC) =
+                                (1 << (8 - *(u8 *) (state + 0x24))) << 6;
+                            *(u8 *) (slot + 0x17) = 0;
+                            *(u8 *) (slot + 0x16) = candidateIntensity;
+                            *(s32 *) (slot + 0x10) =
+                                candidateIntensity << *(u8 *) (state + 0x24);
+                            *(s32 *) (slot + 0x18) =
+                                *(s32 *) ((u8 *) light + 0x70);
+                        }
+                    }
+                }
+            }
+            totalLightCount++;
+            lightOffset += 4;
+        } while (totalLightCount < D_80079494);
+    }
+    index = 0x13F - maximumIntensity;
+    if (*(u8 *) (level + 0xE3) != 0) {
+        intensity = *(u8 *) (level + 0xE0);
+        endOffset = *(u8 *) (level + 0xDF) - intensity;
+    } else {
+        intensity = *(u8 *) (state + 0xD);
+        endOffset = *(u8 *) (state + 0xC) - intensity;
+    }
+    if (maximumIntensity >= 0x40) {
+        intensity = (u8) ((index * intensity) >> 8);
+        endOffset = (index * endOffset) >> 8;
+    }
+    *(s8 *) (state + 0x25) = intensity + endOffset;
+    *(s8 *) (state + 0x26) = endOffset;
+    *(s8 *) (state + 0x27) = intensity;
+    *(s32 *) (state + 0x20) = endOffset << *(u8 *) (state + 0x24);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_8001953C.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/lights.c, with Mickey's trigonometry helper. */
 f32 func_80019934(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     f32 temp;
@@ -503,7 +889,97 @@ f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg
     }
     return var_f2;
 }
+/* Workbench verdict: structure-mismatch, 178 differing words, first mismatch +0x0. */
+/* Candidate: 191/184 instructions with a -0xD0 frame versus target -0xC8; seven instruction and relocation-position residuals remain. */
+/* Shape status: light-count dispatch, colour restore path, environment pass, and call order are preserved, but it is not shape-exact. */
+/* PROVENANCE: JFG's corresponding object-light routine supplies the role and dispatch idiom; Mickey's fields, globals, and calls are authoritative below. */
+#ifdef NON_MATCHING
+void func_80019AB8(LightPosition *position, LightObjectContext *object,
+                   LightDescription *description, f32 *matrix) {
+    LightObjectState *state;
+    s32 count;
+    u8 *lightData;
+    u8 savedRed;
+    u8 savedGreen;
+    u8 savedBlue;
+    s32 savedPacked;
+    s32 changed;
+    f32 scale;
+    f32 factor;
+    s32 value;
+    u8 *localMatrix;
+    f32 cameraDelta[3];
+    f32 local[0x16];
+
+    state = object->state0;
+    if ((description != NULL) || (state->environment64 != 0)) {
+        count = state->mode4F;
+        if (count <= 0) {
+            if (matrix == NULL) {
+                func_8002AA50(position, local);
+                matrix = local;
+            }
+            count = 1;
+        }
+        if (description != NULL) {
+            changed = 0;
+            scale = description->scale0;
+            if ((scale != 1.0f) ||
+                ((D_8007C854 != 0) && (D_8007C85C != 0xFF))) {
+                lightData = (u8 *) description + 0x10;
+                savedRed = lightData[5];
+                savedGreen = lightData[7];
+                savedBlue = lightData[6];
+                savedPacked = *(s32 *) (lightData + 0);
+                factor = scale * ((f32) D_8007C85C * D_800817C8);
+                lightData[5] = (u8) ((s32) ((f32) lightData[5] * factor));
+                value = (s32) ((f32) lightData[7] * factor);
+                lightData[6] = (u8) (lightData[5] - value);
+                *(s32 *) lightData = (lightData[6] & 0xFF) << lightData[4];
+                lightData[7] = (u8) value;
+                changed = 1;
+            }
+            lightData = (u8 *) description + 0x10;
+            if (description->jointCountE > 0) {
+                lightMakeJointPositions(description->jointCountE, (f32 *) lightData,
+                                        count, matrix, D_800794A0);
+                if (description->jointCountE == 1) {
+                    lightSingleLight(object->objectId4, state->value60,
+                                     (f32 *) lightData, D_800794A0, state->value5C);
+                } else if (description->jointCountE == 2) {
+                    lightTwoLights(object->objectId4, state->value60,
+                                   (s32) D_800794A0, count, (f32 *) lightData,
+                                   (u8 *) description + 0x30, state->value5C);
+                } else {
+                    lightMultiLight(object->objectId4, state->value60,
+                                    (f32 *) lightData, state->value5C,
+                                    (s32) D_800794A0, count,
+                                    description->jointCountE);
+                }
+            }
+            if (changed != 0) {
+                lightData[5] = savedRed;
+                lightData[7] = savedGreen;
+                lightData[6] = savedBlue;
+                *(s32 *) lightData = savedPacked;
+            }
+        }
+        if (state->environment64 != 0) {
+            LightCameraPosition *camera;
+
+            camera = camGetPtr();
+            cameraDelta[0] = camera->x0C - position->x0C;
+            cameraDelta[1] = camera->y10 - position->y10;
+            cameraDelta[2] = camera->z14 - position->z14;
+            lightMakeJointPositions(1, cameraDelta, count, matrix, D_800794A0);
+            lightEnviroMap(state->environment20, state->environment64,
+                           state->value5C, (s32) D_800794A0);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/lights/func_80019AB8.s")
+#endif
 /* PROVENANCE: adapted from JFG's public decomp comparison and Mickey's own assembly. */
 void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4) {
     func_80019DE8(&D_800CB298, arg0, arg1, arg2, arg3, arg4);

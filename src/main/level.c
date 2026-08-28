@@ -28,6 +28,8 @@ extern u8 D_8007BF0C;
 extern s16 *D_800C94E0;
 extern void *D_800CF490[];
 extern s32 D_800CF508;
+extern s32 D_800C947C;
+extern s32 D_80078DF0;
 
 /* PROVENANCE: field roles adapted from JFG src/level.c; Mickey layout is decisive. */
 typedef struct LevelSummary {
@@ -158,6 +160,16 @@ extern void runlinkFreeCode(s32);
 extern void amSndStop(void *);
 extern void amSndPlay(u16, void **);
 extern void func_80001708(void);
+extern void amAmbientStop(void);
+extern void camlightFlush(void);
+extern void amResetAudioMap(void);
+extern void func_800582A8(void);
+extern void freeWeather(void);
+extern void func_800347A0(void *);
+extern void func_800359D4(void *);
+extern void func_80004B04(s16);
+extern void modFreeModel(void *);
+extern void runlinkFlushModules(void);
 
 #ifdef NON_MATCHING
 /*
@@ -579,7 +591,69 @@ u8 *levelGetName(s32 arg0) {
     return D_8007A0D0;
 }
 
+/* Workbench: structure-mismatch; 19 words differ, first mismatch +0xE0. */
+/* Candidate is not shape-exact: 117/117 instructions, frame -40/-40 bytes. */
+/* PROVENANCE: structure adapted from JFG src/level.c:levelFreeAll; remaining gap is branch-delay placement plus register allocation. */
+#ifdef NON_MATCHING
+void levelFreeAll(void) {
+    s16 temp_v0_2;
+    s32 *var_s0;
+    s32 var_s1;
+    s32 var_s2;
+    s8 temp_v1;
+    void *temp_v0;
+
+    rcpSetScreenColour(0, 0, 0);
+    mmFree(D_800CF3C8);
+    amAmbientStop();
+    freeLights();
+    camlightFlush();
+    func_80013EC0();
+    amResetAudioMap();
+    func_800582A8();
+    temp_v0 = D_800CF3C8;
+    if (*(s16 *) ((u8 *) temp_v0 + 0xA2) > 0) {
+        freeWeather();
+    }
+    temp_v1 = *(s8 *) ((u8 *) D_800CF3C8 + 0x52);
+    if (temp_v1 == 3) {
+        func_800347A0(*(void **) ((u8 *) D_800CF3C8 + 0xB8));
+    } else if ((temp_v1 == 4) || (temp_v1 == 5)) {
+        func_8002EBD4(0);
+    }
+    if (D_8007A0F4 != NULL) {
+        var_s2 = 0;
+        var_s1 = 0;
+        if (D_800CF508 > 0) {
+            var_s0 = (s32 *) D_800CF490;
+            do {
+                temp_v0_2 = *(s16 *) ((u8 *) D_8007A0F4 + var_s1);
+                if ((temp_v0_2 & 0xC000) == 0xC000) {
+                    func_800347A0((void *) *var_s0);
+                } else if (temp_v0_2 & 0x8000) {
+                    func_800359D4((void *) *var_s0);
+                } else if (temp_v0_2 & 0x4000) {
+                    func_80004B04(*(D_800C94E0 + (temp_v0_2 & 0x3FFF)));
+                } else {
+                    modFreeModel((void *) *var_s0);
+                }
+                *var_s0 = 0;
+                var_s2 += 1;
+                var_s1 += 2;
+                var_s0 += 1;
+            } while (var_s2 < D_800CF508);
+        }
+        mmFree(D_8007A0F4);
+        D_8007A0F4 = NULL;
+    }
+    runlinkFlushModules();
+    func_8004AF68();
+    D_800C947C = 0;
+    D_80078DF0 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/level/levelFreeAll.s")
+#endif
 
 /* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
 s32 levelGetNextOfWorld(s32 arg0, s8 arg1) {
