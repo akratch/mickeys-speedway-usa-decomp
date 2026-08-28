@@ -59,6 +59,9 @@ extern void func_overlay_020_F0000000_18765D8(Overlay20Command **commands,
  * not retained without independent capacity proof.  Direct macro pointers and
  * a separate inner index both regress the allocation shape.
  */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 134-instruction, frame -144 shape is exact and permuter-ready.
+ * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay20BuildTileCommands(Overlay20Command **commands,
                                 Overlay20TileSource *source, s32 arg2) {

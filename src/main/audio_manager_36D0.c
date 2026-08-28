@@ -548,19 +548,21 @@ u8 func_800033B0(void *sound, f32 x, f32 y, f32 z) {
     }
     return 0;
 }
-/* Workbench: structure-mismatch, 62 differing words, first mismatch +0x0.
- * Structural gap: 93/94 instructions and -0x40/-0x30 frame; CFG/relocations still differ.
+/* Workbench: structure-mismatch, 53 differing words, first mismatch +0x0; 94 instructions.
+ * Structural gap: frame -0x48/-0x30 and four structural words; relocation identities remain.
  */
 #ifdef NON_MATCHING
 void func_80003480(AudioPoint *point, s32 volume, f32 pitch, s32 pan,
                    s32 effects) {
     AudioUpdateEntry *base;
     AudioUpdateEntry *entry;
+    AudioUpdateEntry *selected;
     s32 index;
     s32 bestIndex;
     u8 group;
     s32 bestVolume;
     s32 entryVolume;
+    void *soundHandle;
 
     group = point->unk23;
     base = D_800C9238[group - 1];
@@ -597,15 +599,17 @@ void func_80003480(AudioPoint *point, s32 volume, f32 pitch, s32 pan,
     }
 
     if (bestVolume < volume) {
-        entry = D_800C9238[group] + bestIndex;
-        if (entry[-3].point->soundHandle != NULL) {
-            amSndStop(entry[-3].point->soundHandle);
+        selected = D_800C9238[group] + bestIndex;
+        soundHandle = selected[-3].point->soundHandle;
+        selected -= 3;
+        if (soundHandle != NULL) {
+            amSndStop(soundHandle);
         }
-        entry[-3].point = point;
-        entry[-3].volume = volume;
-        entry[-3].pitch = pitch;
-        entry[-3].pan = pan;
-        entry[-3].effects = effects;
+        selected->point = point;
+        selected->volume = volume;
+        selected->pitch = pitch;
+        selected->pan = pan;
+        selected->effects = effects;
     }
 }
 #else

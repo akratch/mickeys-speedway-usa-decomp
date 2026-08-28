@@ -5,8 +5,8 @@ Implemented. Tool: `tools/reloc_surface.py`. Generated artifact:
 `gmake check-overlay-syms` fails on drift.
 
 Sections 1-4 are the model and the feasibility evidence (lane
-`lane/reloc-synth`); section 5 is what the full implementation turned out to
-need and what it measured (lane `lane/reloc-synth2`).
+a feasibility spike); section 5 is what the full implementation turned out to
+need and what it measured (the full implementation).
 
 **Question.** Every matched overlay function today carries a hand-derived
 `POSTPROCESS` rule and/or a hand-written line in `overlay_undefined_syms.us.txt`.
@@ -281,10 +281,161 @@ the link resolves it -- a window a plain `gmake` does not offer.
 second pass relinks only. Both the source file and the surface are restored
 afterwards.
 
+### 5.6 A resident call is an ordinary addend with a name that is not free
+
+`tools/promotion_trial.py` reported 15 candidates as `resident-symbol-missing`
+and 4 as `relocation-truncated (R_MIPS_26)`. Both classes have one cause, and
+it is not the addend model.
+
+**What the ROM stores.** Section 5.2's census says a module's `SYMBOL`
+`R_MIPS_26` record stores immediate zero, and it makes no distinction between a
+target in another module and a target in the resident segment. Measured at the
+sites themselves, that holds: overlay 49's three resident calls -- the ones the
+Makefile rebinds by hand to `overlay65UpdateReloc` -- are `SYMBOL` `R_MIPS_26`
+records at module offsets `0x218`, `0x2c0` and `0x314`, and each stores
+immediate zero. The shipped word is `jal 0`; the runtime patches it, exactly as
+it patches a cross-module call. The trampoline encoding `0C00CCE8` that 370 of
+the 375 *`mainRelocTable`* entries carry (§5.3) belongs to the **resident**
+segment's calls *into* overlays, not to a module's calls out of one, and does
+not appear at these sites. A resident **data** reference is the other measured
+case and needs no patch at all: its `HI16`/`LO16` pair stores the real resident
+address, which is why the surface already carries lines like
+`D_80000040 = 0x80000040` and why they are correct as they stand.
+
+So a resident call wants the same value every other cross-module call wants,
+`0xF0000000`. Nothing about the addend is special.
+
+**What is special is the name.** Adopted C spells the call with splat's
+resident auto-name, `func_80029FE4`. That name is global and shared with the
+resident segment. A value line for it does not give the overlay an addend, it
+*moves the resident function for every resident caller*: assigning
+`func_80034448 = 0xf0000000` turns `models.c`, `level.c`, `menu.c`,
+`texLoadTextureAddr.c` and four asm objects into `relocation truncated to fit:
+R_MIPS_26`. That is the whole of the `relocation-truncated` class, and it is
+also why the earlier attempt to rename these placeholders to the *real*
+resident symbols failed the other way round: a `jal` from the module's
+synthetic `0xF0000000` VMA cannot reach a `0x8…` address either. Neither the
+overlay's name nor the resident's name can carry both meanings.
+
+The auto-name shape is not the defining property, either. `overlay5InitializeAudio` calls `alHeapDBAlloc`, `osCreateMesgQueue` and `n_alCSPSetMessageQ` --
+ordinary libultra globals -- and valuing those breaks `audio_manager_1050.c`
+and the whole libultra link the same way. What the two shapes have in common is
+that the **resident side of the link owns the name**, so that is what the
+generator measures: `resident_defined_names()` collects the global symbols
+defined by every non-overlay object `mickey.us.ld` names, plus the names
+`undefined_funcs_auto`, `undefined_syms_auto` and `libultra_undefined_syms`
+assign -- 4,886 of them, available before the link and without it. A call to
+another *module's* function is deliberately excluded: that is the
+generated-identity alias case of §5.3 and must keep its own name.
+
+**The fix is the rebind the tree already does by hand.** Overlay 49's
+POSTPROCESS rule rebinds the relocation at `0x218` from `func_800254FC` to
+`overlay65UpdateReloc`, a per-module placeholder, and values *that*. The
+generator now derives the same thing: `reloc_surface.py generate` renames every
+undefined `R_MIPS_26` relocation against a resident-owned name to
+`<name>_o<NNN>Reloc` in the object, then values the alias from the site like
+any other placeholder. The resident name keeps its real address; the overlay
+keeps its stored addend.
+
+Three properties make it safe to run inside `generate`:
+
+- **It is a no-op on the matching tree.** No overlay object in the current
+  build carries an `R_MIPS_26` against a resident auto-name -- every matched
+  resident call is already rebound by a hand-written rule -- so the generated
+  block is byte-for-byte what it was, `--audit` stays at 100%, and
+  `check-overlay-syms` reports no drift.
+- **It is idempotent.** The alias no longer matches the resident-name pattern,
+  so a second pass renames nothing and values the alias from the same site.
+  `generate --check` therefore produces the same block whether or not the
+  objects have already been rebound. (`--compare` does not rebind: it is a
+  read-only report.)
+- **It names what it cannot read, and a refusal is total.** Only `R_MIPS_26`
+  sites are aliased. A resident symbol reached by *both* a call and a data
+  reference is refused -- one placeholder cannot carry two different addends --
+  as is a call in an object with no `text_ownership` row, which has no module
+  offset. A refused name must then get **no value line under its global name
+  either**, and that is the trap that made the first cut of this change worse
+  than the problem it fixed: `synthesize()` still reads an addend for the
+  refused symbol from its corroborated sites, and emitting
+  `func_8002A8C0 = 0xf0000000` to help one overlay produced thirty-odd
+  `relocation truncated to fit` errors in `shadows.c`, `camera.c`,
+  `charControl.c` and `track.c`. `generate()` now drops a refused resident name
+  from every object's values, the reason is reported once, and the trial
+  classes the candidate `resident-call-unreadable`.
+
+  **Corroboration is a note, not a refusal.** A call site the module's table
+  does not name is where the candidate's schedule has diverged. Under the
+  alias, an addend read there can only produce a differing word *inside* the
+  promoted function -- which is the measurement the trial exists to take -- so
+  the generator emits the value and a `/* NOTE … */` line naming the offsets
+  rather than throwing the symbol away. This was measured, not assumed: the
+  strict version cost `overlay34SortAndDraw` its 168-word reading and returned
+  it to a bare build failure. Notes are printed under their own marker so a
+  caller matching `UNRESOLVED` does not read a measurable candidate as a
+  failure.
+
+
+#### What it measured
+
+Re-trialled: the 56 overlay candidates whose `NON_MATCHING` body names a
+resident target (splat auto-name or `D_8…`), which is a superset of the 15
+`resident-symbol-missing` and every `relocation-truncated` case among them.
+**`resident-symbol-missing` and `resident-call-unreadable` are now zero.** The
+15 the lane was pointed at:
+
+| candidate | before | after |
+|---|---|---|
+| `overlay1UpdateAimedTransient` | `resident-symbol-missing` | `text-differs` 59 words (2 out of range) |
+| `overlay4UpdateObjectMotion` | `resident-symbol-missing` | `text-differs` 15 |
+| `overlay5InitializeAudio` | `resident-symbol-missing` | `text-differs` 22 |
+| `func_overlay_011_F0001E4C_186A694` | `resident-symbol-missing` | `schedule-divergence-at-site` |
+| `func_overlay_011_F00022E8_186AB30` | `resident-symbol-missing` | `schedule-divergence-at-site` |
+| `overlay11UpdateMenu` | `resident-symbol-missing` | `text-differs` 4 |
+| `func_overlay_026_F0000D24_187B11C` | `resident-symbol-missing` | `text-differs` 39 |
+| `func_overlay_027_F0000064_187BA3C` | `resident-symbol-missing` | `schedule-divergence-at-site` |
+| `func_overlay_029_F00005C4_187D874` | `resident-symbol-missing` | `schedule-divergence-at-site` |
+| `overlay34CreateRecord` | `resident-symbol-missing` | `text-differs` 36 (4 out of range) |
+| `overlay37RenderEffect` | `resident-symbol-missing` | `text-differs` 138 |
+| `func_overlay_041_F0000854_1887B8C` | `resident-symbol-missing` | `rom-size` |
+| `func_overlay_046_F0000120_188E518` | `resident-symbol-missing` | `rom-size` |
+| `func_overlay_071_F0000278_18C9D98` | `resident-symbol-missing` | `text-differs` 28 |
+| `overlay94UpdateController` | `resident-symbol-missing` | `text-differs` 13 |
+
+Nine now carry an in-range word count and a linked-ROM oracle. Four are
+`schedule-divergence-at-site`, which is the honest answer and a codegen problem:
+`func_overlay_029`'s two remaining refusals are `ext_o0_2a4c0` and
+`ext_o0_6ec00`, each demanding two and three different addends from sites that
+disagree. Two moved to `rom-size`, which is a different scaffolding question.
+
+`relocation-truncated (R_MIPS_26)` also disappears: the one case in this set,
+`func_overlay_066_F00004E0_18C6948`, is now `text-differs` at 181 words. The
+class is closed by construction -- it existed only because a resident-owned
+name was being assigned -- but only the candidates whose source names a
+resident target were re-trialled here, so a full `--overlays-only` sweep is what
+would confirm the other three.
+
+Two side effects worth recording. `overlay34SortAndDraw`, which is *not* one of
+the 15, went from `text-differs` 168 to `resident-call-unreadable` and back to
+168 across the two refusal policies -- it is the measurement that settled §5.6's
+note-versus-refusal question. And `func_overlay_057_*`'s divergence report now
+names `func_800508B4_o057Reloc` rather than a bare placeholder, which is the
+aliasing showing its working.
+
+#### A stale log is a wrong class
+
+Six of the candidates above stayed in `resident-symbol-missing` after the
+surface had already valued them, because `promotion_trial.py` classified from
+`log1 + log2`. The first pass links against the *stale* surface -- that is the
+whole point of the two-pass integration (§5.5) -- so its `undefined reference`
+lines survive into the concatenation and `UNDEF_RE` reported symbols the second
+link resolved perfectly well. Markers still come from both passes, since a
+POSTPROCESS marker is printed by the compile; every *link* diagnostic now comes
+from the second pass alone.
+
 ## 6. What the trial measures now
 
 `tools/promotion_trial.py --overlays-only`, all 279 overlay candidates, lane
-`lane/reloc-synth2`:
+the full implementation:
 
 | class | before | after |
 |---|---:|---:|

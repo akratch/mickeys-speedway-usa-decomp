@@ -49,6 +49,9 @@ extern s16 gOverlay40BlendOutput;
  * the residual to 13 words; chained, comma-expression, and timer-separated
  * copy formation widened it to 16, 16, and 41 words. The opcode schedule and
  * temp ring stayed exact, so this three-word allocation basin remains best. */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 101-instruction, frame -8 shape is exact and permuter-ready.
+ * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {

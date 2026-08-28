@@ -23,6 +23,9 @@ extern f32 gOverlay1NextAngleLimit;
  * mixed(constant:1, schedule:6), with structure-buckets/constant-audit as
  * the next levers; the limit's low-overlay relocation presentation remains
  * unresolved. */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 50-instruction, frame -104 shape is exact and permuter-ready.
+ * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 Overlay1AngleObject *overlay1FindNextAngle(f32 angle) {
     s32 count;
@@ -73,6 +76,9 @@ extern f32 gOverlay1PreviousAngleLimit;
  * schedule-order pairs account for four. The runtime table confirms all four
  * relocation type/offset/roles. UGEN traced the pairs to the best/guard and
  * loop-tail statement boundaries; the natural probes were code-neutral. */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 50-instruction, frame -104 shape is exact and permuter-ready.
+ * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 Overlay1PreviousAngleObject *overlay1FindPreviousAngle(f32 angle) {
     s32 count;

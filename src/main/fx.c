@@ -86,9 +86,9 @@ void func_80046E70(FxCone *cone) {
     }
     mmFree(cone);
 }
-/* Workbench: structure-mismatch; 70 words differ, first mismatch +0x0. */
-/* Candidate is not shape-exact: 112/110 instructions; frame -72/-72 bytes. */
-/* Remaining gap is stack-slot/field ordering and register allocation. */
+/* Workbench: structure-mismatch, 61 differing words, first mismatch +0x2c. */
+/* Candidate shape: 111/110 instructions, frame -0x48/-0x48; one address-base instruction remains. */
+/* Remaining gap: target preserves the stored cone-end base for address construction; registers remain. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_80034448(s32 resourceId);
@@ -106,7 +106,6 @@ void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
     s32 sp38;
     s32 temp_a0;
     FxCone *cone;
-    u8 *temp_v0_2;
     u8 *temp_v1;
 
     sp38 = arg8 & 0x80;
@@ -130,12 +129,13 @@ void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
         } else {
             cone->alternateTexture.value = 0;
         }
-        temp_v0_2 = (u8 *) cone + 0x38;
-        cone->vertices = temp_v0_2;
+        cone->vertices = (u8 *) ((s32) cone + 0x38);
         temp_a0 = arg8 + 1;
-        temp_v1 = temp_v0_2 + sp44;
-        cone->addresses[0] = temp_v1;
-        cone->addresses[1] = temp_v1 + sp40;
+        temp_v1 = cone->vertices;
+        temp_v1 += sp44;
+        cone->addresses[0] = (u8 *) temp_v1;
+        temp_v1 += sp40;
+        cone->addresses[1] = (u8 *) temp_v1;
         cone->mode = temp_a0;
         cone->segmentCount = arg8;
         cone->addressIndex = 0;
@@ -143,8 +143,8 @@ void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
         cone->value22 = arg4;
         cone->value20 = arg3;
         cone->value24 = (s16) (s32) arg7;
-        cone->value1C = arg6;
         cone->value18 = arg5;
+        cone->value1C = arg6;
         cone->value2A = arg2;
         cone->value28 = arg1;
         cone->value26 = arg0;
@@ -623,15 +623,9 @@ void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
 }
 
 #ifdef NON_MATCHING
-/* Workbench diagnostic full-TU copy: allocation-mismatch, 226/234 rows exact,
- * exact 234/-104 shape, eight register words from +0x298, and zero relocation
- * differences. The temp lane is identical; the pool first diverges at slot 28
- * as v1->a0, a0->a1, and a2->v0. There is no move/copy site for a source
- * coalescing lever, and no instrumented IDO is available for the forced-color
- * oracle. The configured TU still fails before this function on the adjacent
- * func_800475E8 block-local C99 declarations; that function is outside this
- * target's ownership. Remains: one callee-saved pool-color cascade; assembly
- * fallback stays canonical. */
+/* Workbench: allocation-mismatch, 8 differing words, first mismatch +0x298. */
+/* Candidate shape: 234 instructions/frame -0x68; CFG and relocations exact, permuter-ready. */
+/* Remaining gap: one callee-saved pool-color cascade (v1->a0, a0->a1, a2->v0). */
 /* Mickey-derived draft; JFG's corresponding fxDrawCone body is assembly-only. */
 void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
     s32 hasTexture;
@@ -1535,9 +1529,9 @@ s32 func_8004989C(s32 index) {
     color |= color << 16;
     return color;
 }
-/* Workbench: structure-mismatch, 42 differing words, first mismatch +0x0. */
-/* Candidate shape: 100 instructions/frame -0x30/relocations match; opcode schedule is not shape-exact. */
-/* Remaining structural gap: camera-join and FxRecord flag/field scheduling. */
+/* Workbench: structure-mismatch, 33 differing words, first mismatch +0xD0. */
+/* Candidate shape: 98/100 instructions/frame -0x30; camera join and field stores are aligned. */
+/* Remaining gap: flag/state tail has four structural words; register residuals remain. */
 #ifdef NON_MATCHING
 extern s32 camGetMode(void);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
@@ -1546,8 +1540,6 @@ extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
 void func_800498FC(s32 index, f32 value16, f32 value18, s32 red, s32 green,
                    s32 blue, s32 flags) {
     FxRecord *record;
-    u8 flag80;
-    u8 flag40;
 
     if (index < 0 || index >= 5) {
         return;
@@ -1566,23 +1558,25 @@ void func_800498FC(s32 index, f32 value16, f32 value18, s32 red, s32 green,
     }
     record->flags = 0;
     record->value14 = 0;
-    flag80 = flags & 0x80;
     record->value16 = (s16)(value16 * 60.0f);
-    flag40 = flags & 0x40;
     record->value18 = (s16)(value18 * 60.0f);
     record->red = red;
     record->green = green;
-    record->value1D = flags & 0xFF3F;
-    record->value1E = flag80;
-    record->value1F = flag40;
     record->blue = blue;
-    if (flag80 != 0) {
-        record->state = flag40 != 0 ? 3 : 2;
+    record->value1D = flags & 0xFF3F;
+    record->value1E = flags & 0x80;
+    record->value1F = flags & 0x40;
+    if ((flags & 0x80) != 0) {
+        if ((flags & 0x40) != 0) {
+            record->state = 3;
+        } else {
+            record->state = 2;
+        }
         record->status = 0xFF;
-    } else {
-        record->state = 1;
-        record->status = 0;
+        return;
     }
+    record->state = 1;
+    record->status = 0;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800498FC.s")
@@ -1965,23 +1959,18 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
 #endif
-/* Plateau: workbench mixed constant/structure/register, stock -O2 is 74/76
- * instructions and 65 words from +0x8; buffer size and declaration order did not move the sp+0x50 text home.
- * Remaining: target's sp+0x54 cursor base and zero-index/glyph register web; prior flag and bounded-permuter passes found no exact. */
-#ifdef NON_MATCHING
 /* PROVENANCE: role adapted from JFG src/fx.c::func_8006DF90; both bodies are
  * assembly-only, so this reconstruction is Mickey-derived. */
+/* Workbench: instruction-words-identical, 0 differing words; 76 instructions/frame -0x80. */
 void func_8004A380(s32 x, s32 y, s32 value, s32 minimumWidth, s32 arg4) {
     s32 length;
     s32 index;
-    char *cursor;
     u8 glyph;
     u8 character;
     char text[32];
 
     length = 0;
     index = 0;
-    cursor = text + index;
     sprintf(text, D_80083DE0, value);
     if (text[length] != '\0') {
         do {
@@ -1994,7 +1983,7 @@ void func_8004A380(s32 x, s32 y, s32 value, s32 minimumWidth, s32 arg4) {
             if (length < minimumWidth) {
                 length++;
             } else {
-                character = *cursor++;
+                character = text[index++];
                 if (character == '-') {
                     glyph = D_8007D364[10];
                 } else if (character >= '0' && character < ':') {
@@ -2003,12 +1992,9 @@ void func_8004A380(s32 x, s32 y, s32 value, s32 minimumWidth, s32 arg4) {
             }
             func_8004A10C(D_800D2FA0, glyph, x, y, arg4);
             x += 10;
-        } while (*cursor != '\0');
+        } while (text[index] != '\0');
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A380.s")
-#endif
 /* Mickey-derived body; JFG's corresponding fx.c function is assembly-only. */
 void func_8004A4B0(s32 value0, s32 value2, s32 value4, s32 value6,
                    s32 value7) {
@@ -2203,32 +2189,33 @@ void func_8004A9CC(FxGfx **dList) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
 #ifdef NON_MATCHING
 /*
- * PROVENANCE: the descending four-slot loop skeleton is adapted from Jet
- * Force Gemini asm/nonmatchings/fx/func_8006FFF8.s. Mickey's own symbols and
- * instruction schedule establish the assignment order below.
+ * PROVENANCE: the descending loop skeleton is adapted from Jet Force
+ * Gemini's public fx.c context; Mickey's target establishes the expressions.
  */
-/* Plateau (near-miss p6): workbench mixed(structural:10, register:5), 14 words at 28 instructions; first +0x10.
- * Lever: structure-bucket/context audit found no new source-stable schedule beyond the closed typing/order probes.
- * Remains: callback/trap pool mapping and loop-counter schedule; assembly fallback stays canonical. */
+/* Workbench: structure-mismatch, 16 differing words, first mismatch +0x10. */
+/* Candidate shape: 28 instructions with no frame delta; improved, not exact. */
+/* Remaining gap: callback/trap and loop-counter register webs plus schedule. */
 void func_8004ACC4(void) {
-    FxTextureCallback *callback;
     void **value0;
     void **value1;
     u8 *available;
-    s32 i;
     FxTextureCallback trap;
+    FxTextureCallback *callback;
+    s32 i;
+    s32 matches;
 
     D_800D60A8 = 0;
     i = 3;
-    trap = (FxTextureCallback)TrapDanglingJump;
+    trap = (FxTextureCallback) TrapDanglingJump;
     value0 = &D_800D60BC;
     value1 = &D_800D60CC;
     available = &D_800D60D3;
     callback = &D_8007D488;
     do {
+        matches = trap == *callback;
         *value0 = 0;
         *value1 = 0;
-        *available = trap == *callback;
+        *available = matches;
         value0--;
         value1--;
         available--;
@@ -2254,18 +2241,17 @@ s32 func_8004AD34(void) {
     }
     D_800D60A8 = 0;
 }
-/* Workbench: structure-mismatch, 30 differing words, first mismatch +0x0. */
-/* Candidate shape: 96 instructions/relocations match; frame -0x48 vs target -0x40, not shape-exact. */
-/* Remaining structural gap: the allocator/clear-loop web and the 8-byte frame home. */
+/* Workbench verdict: structure-mismatch, 19 differing words, first mismatch +0x60. */
+/* Candidate shape: 96 instructions/frame -0x40; three store/branch structural words remain, not shape-exact. */
+/* Remaining gap: second-allocation store scheduling and stack homes; five register residuals remain. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 
 void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
     s32 offset;
-    register s32 i;
-    u8 *first;
-    u8 *second;
-    FxTextureCallback callback;
+    s32 i;
+    s8 *first;
+    s8 *second;
 
     index--;
     offset = index * 4;
@@ -2276,33 +2262,30 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
         D_800D60B0[index] = first;
         second = func_8002B280(texture->width * texture->height, 0x87);
         D_800D60C0[index] = second;
-        if (D_800D60B0[index] == 0 || second == 0) {
+        if (D_800D60B0[index] == 0 || D_800D60C0[index] == 0) {
             D_800D60B0[index] = 0;
             D_800D60C0[index] = 0;
             return;
         }
-        i = (texture->width * texture->height) - 1;
-        if ((texture->width * texture->height) != 0) {
-            do {
-                *first = 0;
-                first++;
-                *second = 0;
-                second++;
-            } while (i-- != 0);
+        i = texture->width * texture->height;
+        while (i--) {
+            *first = 0;
+            first++;
+            *second = 0;
+            second++;
         }
         func_800320F0((s32)&D_8007D47C[index]);
-        callback = D_8007D47C[index];
-        if (callback != 0) {
-            callback(index, D_800D6098[index], 1);
+        if (D_8007D47C[index] != 0) {
+            D_8007D47C[index](index, D_800D6098[index], 1);
         }
     }
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
 #endif
-/* Workbench: structure-mismatch, 54/52 words, 48 positional differences from +0x04.
- * Tried constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement.
- * The D_800D60C0 base remains a saved web, adding s7 and two boundary words. */
+/* Workbench: structure-mismatch, 26 differing words, first mismatch +0x10. */
+/* Candidate shape: 52 instructions/frame -0x38; D_800D60C0 is per-iteration, not exact. */
+/* Remaining gap: saved-register order and loop-delay schedule; 18 structural words remain. */
 #ifdef NON_MATCHING
 /* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
 void func_8004AF68(void) {
@@ -2320,7 +2303,7 @@ void func_8004AF68(void) {
     do {
         allocation = (void *)*value0;
         if (allocation != 0) {
-            value1 = (s32 *)(offset + (s32)D_800D60C0);
+            value1 = &D_800D60C0[i];
             mmFree(allocation);
             mmFree((void *)*value1);
             *value0 = 0;

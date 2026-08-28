@@ -80,6 +80,9 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
  * 294-instruction shape and 0x88-byte frame, but leave four register/opcode
  * differences. The configured C baseline emits 71 relocations versus the
  * target's 29; no instrumented globalcolor/UGEN trace is available. */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 294-instruction, frame -136 shape is exact and permuter-ready.
+ * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;

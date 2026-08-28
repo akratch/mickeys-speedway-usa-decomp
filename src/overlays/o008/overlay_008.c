@@ -872,6 +872,9 @@ void func_overlay_008_F0003278_1860FD0(void *unused0,
 /* Plateau: exact 0x138 size and 76/78 words; first mismatch +0x34 swaps
  * independent lower/upper threshold loads. The 119-flag lattice, ten source
  * shapes, and 2,401-second permuter pass retained the two-word plateau. */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 78-instruction, frame -8 shape is exact and permuter-ready.
+ * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
                           Overlay8ScaleContext *context,

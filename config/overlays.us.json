@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 112344,
-  "nonmatching_overlay_c_bytes": 311520,
+  "matched_overlay_c_bytes": 113908,
+  "nonmatching_overlay_c_bytes": 309956,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 1904,
   "bss_bytes": 77680,
@@ -15459,7 +15459,7 @@
      "type": "c",
      "source": "overlays/o080/overlay80InitializeContact",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x11C",
@@ -16100,7 +16100,7 @@
      "type": "c",
      "source": "overlays/o084/overlay84AdvanceCurrent",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0xF18",
@@ -19240,7 +19240,7 @@
      "type": "c",
      "source": "overlays/o101/overlay101DrawClock",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x36E4",

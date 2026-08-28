@@ -49,6 +49,9 @@ extern Overlay18Gfx *gOverlay18DisplayCursor;
  * move instead of addiu; prototype, signedness, literal, and expression probes
  * plus the full flag lattice did not change them.
  */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 125-instruction, frame -24 shape is exact and permuter-ready.
+ * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay18Load(void) {
     Overlay18Gfx *newDisplay;

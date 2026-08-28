@@ -33,6 +33,10 @@ tools/permute_batch.py --limit 20 --jobs 4 --minutes 15 --apply
 
 # extra permuter.py flags go after --
 tools/permute_batch.py --function overlay1GetEntry -- --best-only
+
+# overlay functions only, with the relocation-annotated target that makes
+# their score mean something (see "Overlay targets carry no relocations")
+tools/permute_batch.py --overlays-only --order ranking --minutes 15 --apply
 ```
 
 `--jobs` is concurrent *functions*; each function's own `permuter.py`
@@ -77,7 +81,7 @@ window); `--load-threshold L` (default 9) waits for headroom before every
 permuter launch and promotion build; `--commit` (with `--apply`) commits each
 verified promotion as `Match <fn> (permuter)`, staging only that C file. The
 permuter is niced. `tools/permute_sweep.sh` wraps all of it: resync a lane to
-the integration branch, extract, warm build, verify, sweep, extract again so the
+`master`, extract, warm build, verify, sweep, extract again so the
 scoreboard counts the promotions.
 
 ## Queue discovery
@@ -132,6 +136,153 @@ carrying its auto name as the *friendly* name too (no human name assigned
 yet), so the rename is a no-op there. The script handles both uniformly --
 it always renames to whatever the `#ifdef NON_MATCHING` branch's own
 function name is, whether or not that differs from the `.s` label.
+
+## Overlay targets carry no relocations, and what to do about it (2026-08-28)
+
+Until this section was written the runner shipped `--resident-only`, because
+for an overlay function the permuter's score was not a measurement of
+anything. `overlay18Load` differs from the shipped ROM by **two words** and
+scored **700**.
+
+### Why
+
+`docs/reloc-surface.md` §1: an overlay module ships *unrelocated*. What the
+ROM stores at a relocation site is the record's **stored addend**, and every
+`SYMBOL` `R_MIPS_26` record stores immediate zero. So splat's disassembly of
+an overlay function assembles into a target object with **no relocations at
+all**: each cross-module call reads back as a `jal` at the module's own
+synthetic base (i.e. against whatever symbol happens to sit at module offset
+0 -- often the function itself), and each address materialization as a bare
+`lui`/`addiu` pair carrying the stored addend as a literal.
+
+The candidate object, compiled from C, carries the honest thing: an
+`R_MIPS_26` against `overlayNNCommonReloc`, a `%hi`/`%lo` pair against
+`gOverlayNNSomething`.
+
+decomp-permuter's scorer ignores a symbol-name difference only when the
+candidate's field looks like a symbol **and the target line also carries a
+relocation** (`scorer.py`: `field_matches_any_symbol(nf) and
+old_line.has_symbol`). The target line carries none, so every relocation site
+in the function was scored as a mnemonic-level `replace` -- one insertion and
+one deletion penalty, 200 points a site. The score measured the *number of
+relocation sites*, not the distance to the ROM.
+
+### The fix: annotate the target with the module's own relocation table
+
+`tools/reloc_surface.py`'s `permuter_annotation()` gives the scratch target
+the relocations the shipped module says are there, and renames the
+candidate's placeholders to match, so both sides render **identically** at
+every corroborated site. `permute_batch.py` calls it from
+`annotate_overlay_scratch()` right after `import.py`, for overlay functions
+only.
+
+For each relocation the candidate's own base object carries inside the
+function, the site's object offset maps to a module offset; a site the
+module's `reloc1`/`reloc2` tables do **not** name is not a relocation site in
+the shipped image and is left alone (`docs/reloc-surface.md` §2). A site the
+tables do name gets a canonical, ROM-derived identity:
+
+| site | canonical name | why |
+|---|---|---|
+| `HI16`+`LO16` pair | `__ovval_<link value>` | the value `synthesize()` derives at that site -- the ROM's stored words minus the object's own addend. Two placeholders the surface values identically produce the same linked words, so they are the same symbol as far as the link is concerned |
+| `R_MIPS_26`, `SYMBOL` record | `__ovcall_o<overlay>_<offset>` | the stored immediate is always zero and carries no identity, so the record's own `overlayRomTable` entry -- the callee's overlay and offset -- names it |
+| `R_MIPS_26`, `JUMP` record | `__ovjump_<module offset>` | an intra-module call; the stored immediate *is* the target's offset |
+
+The target `.s` copy is rewritten to spell those names symbolically
+(`jal __ovcall_o0_26934`, `lui $t0,%hi(__ovval_00000080)`,
+`addiu $t0,$t0,%lo(__ovval_00000080)`), which makes the assembler emit real
+relocations; the candidate's placeholder symbols are renamed to the same
+names by `objcopy --redefine-sym` steps appended to the scratch's
+`compile.sh`, alongside the ones `replicate_objcopy` already writes there.
+
+Three properties are worth stating because they are what make this a
+measurement rather than a fudge:
+
+- **It is not a relaxed scorer.** The canonical name comes from the ROM's
+  own record, not from the candidate's symbol table, so a candidate that
+  calls the *wrong* placeholder at a site still scores a penalty.
+- **A symbol whose sites disagree is left alone entirely.** If one site wants
+  `__ovval_...` and another `__ovcall_...`, the symbol has no canonical
+  identity; annotating half its sites would make the target disagree with the
+  candidate at the other half, silently. Those are reported in
+  `build/permuter/<fn>/annotation.txt`.
+- **Any failure falls back to the previous behaviour.** If the annotated `.s`
+  does not assemble, the unannotated target is restored and reassembled; the
+  run continues with the old, pessimistic score. `--no-overlay-annotate`
+  forces that path for before/after measurement.
+
+Nothing ROM-derived is written anywhere tracked: the rewritten `.s` lives in
+the gitignored permuter scratch, exactly like the label rename above.
+
+### Measured (2026-08-28)
+
+Base score before and after annotation, against
+`tools/promotion_trial.py`'s in-range word count for the same function:
+
+| function | ov | trial words | base before | base after | differing rows |
+|---|---:|---:|---:|---:|---|
+| `overlay18Load` | 18 | 2 | 700 | **400** | 62 -> 2 |
+| `overlay7DispatchSelection` | 7 | 2 | 75 | **10** | 14 -> 2 |
+| `overlay97InitScale` | 97 | 1 | 10 | 10 | 1 -> 1 |
+| `overlay84AdvanceCurrent` | 84 | 2 | 41 | **16** | 7 -> 2 |
+| `overlay40FadeRecords` | 40 | 3 | 75 | **25** | 11 -> 3 |
+
+`overlay97InitScale` has no site the module's table names inside it, so
+nothing is annotated and nothing changes -- which is the honest answer, and
+it already scored its one real word.
+
+The scores that remain are ordinary permuter penalties over the rows that
+actually differ (`overlay18Load`'s 400 is one `li`/`move` pair scored as a
+replace; `overlay84AdvanceCurrent`'s 16 is a stack-offset difference). What
+changed is that they are now *about the function's codegen*.
+
+**Zero means zero.** The check that matters is the other direction: a
+candidate whose C is already exact must score 0. `overlay62Initialize`
+(o062, matched, 15 placeholder symbols, 30 relocation sites) was temporarily
+re-wrapped as a `NON_MATCHING` candidate around its own exact C and
+re-split. Unannotated it scored **150** over 30 differing rows; annotated it
+scored **0** over 0. The wrapper was reverted afterwards.
+
+### Promotion is still the linked ROM
+
+A score of 0 on the annotated scratch says the candidate's instruction
+schedule matches the target. For an overlay that is necessary and not
+sufficient, and `--apply` does not treat it as sufficient. The promotion path
+splices, rebuilds the object, regenerates the relocation surface
+(`gmake overlay-syms`, since a promoted body may reference placeholders whose
+values are synthesized from the objects), rebuilds, and accepts only on
+`gmake verify` -- byte-identical ROM -- followed by
+`tools/wb_compare.sh --rom`.
+
+The splice also regenerates `config/overlays.us.json`: a spliced candidate
+flips that TU's mechanically-derived `nonmatching` flag, and
+`overlay_atlas.py --check` is a prerequisite of `build/.splat-stamp` and so of
+everything, which means a stale atlas kills the promotion build before it
+compiles anything. A rejected candidate has both the atlas and
+`overlay_undefined_syms.us.txt` restored along with its `.c` file.
+
+A score-0 overlay candidate can still fail `verify`. The module's data is
+placed by the runtime, not by this link, so a promotion can move a word the
+scratch never modelled: a datum landing at a different module offset, an
+alias the surface now resolves elsewhere, a digest-guarded POSTPROCESS pass
+the scratch could not replicate. When that happens the C file is reverted and
+the function stays a **candidate**, and the reported reason carries
+`tools/promotion_trial.py`'s own class for it
+(`text-differs` / `text-size-differs` / a named `build-error` cause) read
+from `build/promotion-trial.json`, or the command to produce it. "Scored 0
+but did not verify" is a trial result to route, not a failure to hide.
+
+### Running the overlay pool
+
+```sh
+# overlay functions only, closest first, one at a time, machine-safe
+tools/permute_batch.py --overlays-only --order ranking --jobs 1 \
+    --permuter-threads 4 --minutes 15 --flat-minutes 5 \
+    --load-threshold 12 --limit 25 --apply --commit
+```
+
+`--overlays-only` is the complement of the older `--resident-only`, which
+existed only because overlay scores were meaningless. It no longer is.
 
 ## The `-DNON_MATCHING` define, not source surgery
 
@@ -212,7 +363,7 @@ if -- and only if -- the whole line was that one now-redundant rename.
 |---|---|---|---|---|---|
 | `overlay1GetEntry` | 330 | 190 (-42%) | no | no | 721s (ran to the cap) |
 
-**Cross-lane sample**, three functions from one earlier batch.s overlay 2
+**Cross-lane sample**, three functions from an earlier overlay 2 worker's
 conversion (not yet merged into this lane's own queue -- checked out onto a
 throwaway branch reset to that lane's `HEAD`, tested, then discarded; no
 commit of theirs was kept), 8-minute cap, `-j 4`, report-only (`--apply`

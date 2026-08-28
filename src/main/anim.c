@@ -994,21 +994,20 @@ void mathOneFloatRPY(ControlTransform *transform, f32 *output);
  * the structural comparison. Mickey's ABI, field offsets, branches, and
  * generated code remain independently established from Mickey's ROM.
  *
- * Workbench: operand-mismatch; exact 198 words/-0x78 frame, 16 operands, first +0xA4.
- * Saved-pointer carrier worsened structurally; prior flag/type/lifetime/workspace variants and bounded permutation found no exact form.
- * Remaining: target stack homes differ for offset vector and call-live pointer; assembly fallback stays canonical.
+ * Workbench: exact; 198 instructions, -0x78 frame, zero differing words.
+ * The local offset vector precedes the model locals, and the live hit pointer
+ * follows the model declaration, reproducing the target stack homes.
  */
-#ifdef NON_MATCHING
 void func_80053550(HitInitSource *source, s32 kind, s32 mode, s16 rotationX,
                    s16 rotationY, s16 rotationZ, f32 radius, f32 height,
                    f32 arg8, f32 arg9, s32 collisionType, u16 flags) {
-    HitInitRecord *hit;
+    f32 offset[3];
     HitInitModel *model;
+    HitInitRecord *hit;
     HitInitHeader *header;
     HitInitDescriptor *descriptor;
     HitInitEntry *entry;
     f32 *floatPosition;
-    f32 offset[3];
     s16 *vertex;
     s32 entryCount;
     s32 remaining;
@@ -1090,9 +1089,6 @@ void func_80053550(HitInitSource *source, s32 kind, s32 mode, s16 rotationX,
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053550.s")
-#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80053868.s")
 typedef struct AnimCollisionShape {
     u8 pad0[6];

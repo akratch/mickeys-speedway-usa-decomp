@@ -332,11 +332,9 @@ s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParti
     gDPSetEnvColor((*dList)++, 0xFF, 0xFF, 0xFF, 0);
     return ((u8 *)*vertices - (u8 *)firstVertex) / 10;
 }
-/*
- * Workbench: allocation-mismatch, exact 153 instructions/frame -128/27 words, first +0x48.
- * Levers: temp-FIFO/pool-web scopes, direct fields, color-web removal, flags, and bounded permutation; no exact.
- * Remains: outer-count pool color and later command-word web rotations; asm stays canonical.
- */
+/* Workbench: allocation-mismatch, 70 differing words, size_delta 0; first mismatch +0x50.
+ * Shape-exact/permuter-ready: target and candidate are 168 instructions with the exact frame; residual is register allocation.
+ * Remaining allocation is for the permuter; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: structure cross-checked against JFG's assembly-only
@@ -518,26 +516,24 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     object->activeTriggerCount++;
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, exact 140-instruction shape, target frame 0x38 versus candidate 0x30; 22 raw words from +0x8.
- * Lever: stack-frame recovery, local/pad, ABI-call, flag, and bounded permutation probes left the full-TU topology unchanged.
- * Remains: target stack-home layout, two pool substitutions, and one branch displacement; assembly fallback stays canonical. */
+/* Workbench: operand-mismatch, 9 differing words, size_delta 0; first mismatch +0x38 (branch displacement).
+ * Lever: model-entry type and scalar declaration order recover the target frame and register topology.
+ * Remains: 8 stack-home operands and one branch displacement; not shape-exact, assembly fallback stays canonical. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
-    ParticlePointStreamEntry *entry;
+    ParticleModelEntry *entry;
     f32 *pointData;
     f32 *point;
-    s32 result;
-    s32 i;
-    ParticleModelEntry *modelEntries;
     s32 pointIndex;
+    s32 i;
+    s32 result;
     s32 frameCount;
 
     if (D_8007C898 == NULL) {
         return 0xFF;
     }
 
-    modelEntries = D_8007C898;
-    entry = (ParticlePointStreamEntry *)modelEntries;
+    entry = D_8007C898;
     result = 0xFF;
     i = 0;
     if (D_8007C890 > 0) {
@@ -551,9 +547,9 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
         } while (i < D_8007C890);
     }
 
-    entry = (ParticlePointStreamEntry *)D_8007C898;
-    i = 0;
+    entry = D_8007C898;
     if (D_8007C890 > 0) {
+        i = 0;
         do {
             if (entry->active == 0) {
                 result = i;
@@ -567,11 +563,11 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
 
     if (result != 0xFF) {
         entry->active = 2;
-        point = &entry->points[0][0];
+        point = &((ParticlePointStreamEntry *)entry)->points[0][0];
         pointIndex = 0;
-        entry->pointCount = (u32)descriptor->pointCount >> 4;
+        ((ParticlePointStreamEntry *)entry)->pointCount = (u32)descriptor->pointCount >> 4;
         pointData = D_8007CA90[(u32)descriptor->pointCount >> 4];
-        if (entry->pointCount > 0) {
+        if (((ParticlePointStreamEntry *)entry)->pointCount > 0) {
             do {
                 point[0] = pointData[0];
                 point[1] = pointData[1];
@@ -579,7 +575,7 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
                 pointIndex++;
                 pointData += 2;
                 point += 3;
-            } while (pointIndex < entry->pointCount);
+            } while (pointIndex < ((ParticlePointStreamEntry *)entry)->pointCount);
         }
         entry->animationState = descriptor->descriptorWord;
         entry->configFlags = config->flags;
@@ -809,9 +805,9 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
     }
 }
 #ifdef NON_MATCHING
-/* Before -> after: structure-mismatch, 39 raw words, 297 instructions -> unchanged; first +0x204.
- * Type lever: Basic/emitter and vector aggregates; structure buckets remained unchanged.
- * Remains: zero-vector/header-copy/FP normalization; asm stays canonical.
+/* Workbench: allocation-mismatch, 30 differing words, size_delta 0; first mismatch +0x20C.
+ * Shape-exact/permuter-ready: target and candidate are 297 instructions with the exact frame and structural schedule.
+ * Remaining residual is register allocation; assembly fallback stays canonical.
  * PROVENANCE: structure cross-checked against JFG's assembly-only asm/nonmatchings/particles/func_80060400.s sibling; body reconstructed from Mickey evidence. */
 void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config) {
@@ -900,8 +896,8 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
             resource = NULL;
         }
         pointIndex = trigger->index;
-        if (pointIndex != -1 && resource != NULL &&
-            (header = resource->header, header->transformedPoints != 0)) {
+        if (pointIndex != -1 && resource != NULL && resource->header->transformedPoints != 0) {
+            header = resource->header;
             if (resource->disableTransform != 0) {
                 offset[0] = 0.0f;
                 offset[1] = 0.0f;
@@ -911,8 +907,8 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
                     (u8 *)resource->matrices[resource->matrixTableIndex] +
                         (header->transformIndices[pointIndex].matrixIndex << 6),
                     offset, offset, header);
-                magnitude = sqrtf((offset[2] * offset[2]) +
-                                  ((offset[0] * offset[0]) + (offset[1] * offset[1])));
+                magnitude = sqrtf(((offset[0] * offset[0]) + (offset[1] * offset[1])) +
+                                  (offset[2] * offset[2]));
                 if (magnitude == 0.0f) {
                     scale = speed;
                 } else {

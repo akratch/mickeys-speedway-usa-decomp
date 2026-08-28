@@ -77,6 +77,7 @@ class Trial:
     seconds: float = 0.0
     error: Optional[str] = None
     cause: Optional[str] = None
+    diffs: Optional[list] = None  # [(fn_offset, target_word, built_word, reloc)] for in-range words
 
 
 def overlay_ranges() -> dict[str, tuple[int, int]]:
@@ -138,6 +139,48 @@ def splice(item: pb.QueueItem) -> Optional[str]:
     return original
 
 
+def explain_in_range(item: pb.QueueItem, rng: tuple[int, int], tu_text_offset: int,
+                     inside: list[int]) -> list:
+    """For each differing in-range word: the target word, the built word and,
+    if the promoted object carries a relocation at that site, its symbol and
+    addend. Must run before the source is restored (the object is the
+    candidate's)."""
+    rom = ROM.read_bytes()
+    base = BASEROM.read_bytes()
+    rel = item.c_file.relative_to(ROOT)
+    obj = ROOT / "build" / rel.parent / (rel.name + ".o")
+    relocs: dict[int, str] = {}
+    if obj.is_file():
+        try:
+            elf = rs.Elf(obj)
+            syms = elf.symbols()
+            for sec, off, typ, si in elf.relocations(target=r".*"):
+                if sec == ".text":
+                    name = syms[si][0] if si < len(syms) else "?"
+                    relocs[off] = f"{typ} {name}"
+        except Exception:  # noqa: BLE001
+            pass
+    out = []
+    for w in sorted({d & ~3 for d in inside})[:16]:
+        fn_off = w - rng[0]
+        site = fn_off + tu_text_offset
+        out.append((fn_off, base[w:w + 4].hex(), rom[w:w + 4].hex(), relocs.get(site)))
+    return out
+
+
+def tu_text_offset(item: pb.QueueItem) -> int:
+    """Offset of this TU's .text within its module (its lowest ownership row)."""
+    atlas = json.loads((ROOT / "config" / "overlays.us.json").read_text())
+    stem = str(item.c_file.relative_to(ROOT / "src")).removesuffix(".c")
+    for module in atlas["modules"]:
+        if module["overlay"] != item.overlay:
+            continue
+        offs = [int(r["offset"], 16) for r in module["text_ownership"] if r.get("source") == stem]
+        if offs:
+            return min(offs)
+    return 0
+
+
 def build(jobs: int, full_log: bool = False) -> tuple[bool, str]:
     """One `gmake` pass with the POSTPROCESS guards in report-and-skip mode.
 
@@ -189,12 +232,21 @@ def undefined_sites(c_file: Path, symbol: str) -> set[str]:
     return out
 
 
-def classify_failure(log: str, item, surface_log: str) -> tuple[str, str]:
+def classify_failure(log: str, item, surface_log: str,
+                     link_log: Optional[str] = None) -> tuple[str, str]:
     """(class, cause) for a build that did not produce a ROM.
 
     The four classes the relocation surface cannot close are named explicitly,
     because each needs different work and lumping them as `build-error` is what
     made the previous run's 169 failures unreadable.
+
+    `log` is both passes concatenated, because a POSTPROCESS marker is printed
+    by the *compile* pass. `link_log` is the pass that ran after the surface was
+    regenerated, and every link diagnostic must be read from it alone: the first
+    pass links against the stale surface and its "undefined reference" lines
+    survive into `log`, so scanning `log` reports symbols the second link
+    resolved perfectly well. That misread is what kept six candidates in
+    `resident-symbol-missing` after the surface had already valued them.
     """
     markers = MARKER_RE.findall(log)
     for kind, message in markers:
@@ -203,11 +255,21 @@ def classify_failure(log: str, item, surface_log: str) -> tuple[str, str]:
     if markers:
         return "text-size-differs", markers[0][0]
 
-    undef = UNDEF_RE.findall(log)
+    link = log if link_log is None else link_log
+    undef = UNDEF_RE.findall(link)
     if undef:
         # Not a relocation-surface problem at all: a resident symbol the tree
         # does not define yet. Its own address is what the reference wants;
         # there is no addend to synthesize.
+        # The surface refuses a resident call it cannot read an addend for,
+        # and says why. That refusal is the honest class, so it is tested
+        # before the bare "the name is a resident auto-name" fallback below.
+        refused = {m for m in undef
+                   if re.search(r"\b%s\b: resident " % re.escape(m),
+                                surface_log)}
+        if refused:
+            return "build-error", "resident-call-unreadable (%s)" % \
+                ", ".join(sorted(refused)[:3])
         resident = [m for m in undef if RESIDENT_RE.match(m)]
         if resident:
             return "build-error", "resident-symbol-missing (%s)" % \
@@ -241,7 +303,7 @@ def classify_failure(log: str, item, surface_log: str) -> tuple[str, str]:
         return "build-error", "unresolved-placeholder (%s)" % \
             ", ".join(sorted(set(undef))[:3])
 
-    trunc = TRUNC_RE.findall(log)
+    trunc = TRUNC_RE.findall(link)
     if trunc:
         return "build-error", "relocation-truncated (%s)" % \
             ", ".join(sorted(set(trunc))[:3])
@@ -267,6 +329,7 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
         return t
     surface = LINK_SYMS.read_text()
     surface_log = ""
+    link_log = None
     try:
         ok, log = build(jobs)
         if item.overlay is not None:
@@ -275,9 +338,11 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
             # linked is unaffected when the surface does not change.
             _sok, surface_log = synthesize_surface()
             ok, log2 = build(jobs)
+            link_log = log2
             log = log + log2
         if not ok:
-            t.klass, t.cause = classify_failure(log, item, surface_log)
+            t.klass, t.cause = classify_failure(log, item, surface_log,
+                                                link_log)
             t.error = log[-1500:]
         else:
             diffs = rom_diff_offsets()
@@ -298,6 +363,8 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
                 inside = [d for d in diffs if rng and rng[0] <= d < rng[1]]
                 outside = [d for d in diffs if not (rng and rng[0] <= d < rng[1])]
                 t.in_range_words = len({d & ~3 for d in inside})
+                if inside and rng is not None:
+                    t.diffs = explain_in_range(item, rng, tu_text_offset(item), inside)
                 t.out_of_range_bytes = len(outside)
                 t.first_in_range = inside[0] if inside else None
                 t.first_out_of_range = outside[0] if outside else None

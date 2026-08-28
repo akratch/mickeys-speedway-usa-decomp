@@ -91,6 +91,7 @@ gOverlay1TimerStep = 0x00001d94;
 gOverlay1TransientScale = 0x00000198;
 gOverlay1TransientThreshold = 0x0000019c;
 gOverlay1TransientVelocityY = 0x000001a0;
+overlay1AllocateRecordReloc = 0xf00072a4;
 overlay1AngleReloc = 0xf0000000;
 overlay1CountdownReloc = 0xf0000000;
 overlay1GetObjectListReloc = 0xf0000000;
@@ -1903,6 +1904,11 @@ overlay79GetEntriesReloc = 0xf0000000;
 /* overlay 79: overlay79UpdateTimers.c.o */
 overlay79FinishReloc = 0xf0000000;
 
+/* overlay 80: overlay80InitializeContact.c.o */
+gOverlay80Scale0 = 0x00000000;
+overlay80QueryNearbyReloc = 0xf0000000;
+overlay80ResolveCandidateReloc = 0xf0000000;
+
 /* overlay 81: overlay_081.c.o */
 gOverlay81Mask = 0x00000000;
 gOverlay81Scale = 0x00000000;
@@ -1955,7 +1961,9 @@ overlay84ConfigureResource = 0xf0000000;
 overlay84GetResource = 0xf0000000;
 overlay84ReleaseResource = 0xf0000000;
 
-/* overlay 84: overlay84SelectCurrent.c.o */
+/* overlay 84: overlay84AdvanceCurrent.c.o */
+gOverlay84ObjectRead = 0x00000000;
+gOverlay84ObjectWrite = 0x00000000;
 overlay84Atan2 = 0xf0000000;
 
 /* overlay 84: overlay84InitializeCurrent.c.o */
@@ -2195,6 +2203,13 @@ D_1F4 = 0x000001f4;
 
 /* overlay 101: overlay101DrawClock.c.o */
 D_800002D8 = 0x800002d8;
+D_E98 = 0x00000e98;
+D_E9C = 0x00000e9c;
+overlay101ClockTrigAReloc = 0xf0000000;
+overlay101ClockTrigBReloc = 0xf0000000;
+overlay101DrawPanelReloc = 0xf0000000;
+overlay101PrepareClockMaterialReloc = 0xf0000000;
+overlay101SetClockScaleReloc = 0xf0000000;
 
 /* overlay 101: overlay101DrawChain.c.o */
 overlay101BeginChainReloc = 0xf0000000;
@@ -2395,6 +2410,7 @@ func_overlay_001_F0006B28_1852F08 = overlay1InitRange;
 func_overlay_001_F0006B6C_1852F4C = overlay1SearchNearby;
 func_overlay_001_F0006CE8_18530C8 = overlay1SelectMaskedMode;
 func_overlay_001_F0007130_1853510 = overlay1UpdateTransient;
+func_overlay_001_F0007344_1853724 = overlay1CloneRecord;
 func_overlay_001_F0003578_184F958 = overlay1InitializeGaugeObjects;
 func_overlay_001_F00036A0_184FA80 = overlay1AssignRecordIndex;
 func_overlay_001_F0003750_184FB30 = overlay1ChoosePath;
@@ -2409,7 +2425,6 @@ func_overlay_001_F00067C0_1852BA0 = overlay1UpdateRangeFlags;
 func_overlay_001_F0006A14_1852DF4 = overlay1ConsumeNearbyPending;
 func_overlay_001_F0006D4C_185312C = overlay1UpdateAimedTransient;
 func_overlay_001_F00072A4_1853684 = overlay1AllocateRecord;
-func_overlay_001_F0007344_1853724 = overlay1CloneRecord;
 func_overlay_001_F00073A0_1853780 = overlay1UpdateValueCache;
 func_overlay_001_F0007580_1853960 = overlay1AppendPathPoint;
 func_overlay_001_F0007730_1853B10 = overlay1BendPathPoint;

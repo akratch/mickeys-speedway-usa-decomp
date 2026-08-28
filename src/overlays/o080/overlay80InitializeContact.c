@@ -47,46 +47,35 @@ extern s32 overlay80QueryNearbyReloc(
 extern void overlay80ResolveCandidateReloc(
     s16 key, s32 selectedValue, s16 *outputA, s16 *outputB);
 
-#ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, 1 differing word, first mismatch +0x4C.
- * Exact 71-instruction frame/CFG/relocation shape; only multiply order/scheduling remain.
- * Shape-exact and permuter-ready; no structural gap remains. */
-void overlay80InitializeContact(Overlay80Object *object,
-                                const Overlay80Init *init) {
-    Overlay80State *state;
-    Overlay80Candidate **candidates;
-    s32 count;
-    s32 index;
-    s32 selected;
-
-    state = object->state;
-    object->scaledValue =
-        (f32)init->scale * gOverlay80Scale0 * *object->scale;
-    object->key = init->key;
-
-    count = overlay80QueryNearbyReloc(object->position0, object->position1,
-                                      0x1800, &candidates);
-    if (count != 0) {
-        selected = -1;
-        for (index = 0; index < count; index++) {
-            if (candidates[index]->threshold <= object->limit) {
-                selected = index;
-                break;
-            }
-        }
-
-        if (selected != -1) {
-            overlay80ResolveCandidateReloc(
-                object->key, candidates[index]->value, &object->outputA,
-                &object->outputB);
-        }
+void overlay80InitializeContact(Overlay80Object *object, const Overlay80Init *init)
+{
+  Overlay80State *state;
+  Overlay80Candidate **candidates;
+  s32 count;
+  s32 index;
+  s32 selected;
+  state = object->state;
+  object->scaledValue = (*object->scale) * (((f32) ((0, init->scale))) * gOverlay80Scale0);
+  object->key = init->key;
+  count = overlay80QueryNearbyReloc(object->position0, object->position1, 0x1800, &candidates);
+  if (count != ((0, 0)))
+  {
+    selected = -1;
+    for (index = 0; index < count; index++)
+    {
+      if (candidates[index]->threshold <= object->limit)
+      {
+        selected = index;
+        break;
+      }
+ } if (selected != (-1)) {
+      overlay80ResolveCandidateReloc(object->key, candidates[index]->value, &object->outputA, &object->outputB);
     }
-
-    state->initializedValue = (f32)init->initialValue;
-    if (object->notice != 0) {
-        object->notice->state = 2;
-    }
+  }
+  state->initializedValue = (f32) init->initialValue;
+  if (object->notice != 0)
+  {
+    object->notice->state = 2;
+  }
+ ;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o080/overlay80InitializeContact/func_overlay_080_F0000000_18CE8C8.s")
-#endif

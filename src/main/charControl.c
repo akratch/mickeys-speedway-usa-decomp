@@ -92,6 +92,8 @@ void partUpdateTriggers(void *object, s32 updateRate);
 void changeLightIntensity(void *light, u8 intensity);
 s32 func_8002A204(s16 angle);
 void camSetNo(s8 playerIndex, s32 cameraIndex, ControlCameraState **cameraState);
+ControlCameraState *camGetPtr(void);
+s32 camGetMode(void);
 ControlCameraState *camGetListPtr(void);
 ControlTrackState *trackGetTrack(void);
 ControlLevelState *levelGetLevel(void);
@@ -184,7 +186,50 @@ void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BE0C.s")
+/* PROVENANCE: JFG's corresponding character-control routine supplied the control-flow role; fields and body are reconstructed from Mickey. */
+void func_8001BE0C(ControlActor *actor, ControlPlayer *player) {
+    s32 i;
+
+    D_800CB300 = camGetPtr();
+    D_800CB300->unk4 = 0;
+    D_800CB300->unk2 = 0;
+    D_800CB300->unk0 = 0;
+    D_800CB300->unk24 = 600.0f;
+    D_800CB300->unk28 = 150.0f;
+    D_800CB300->unk3D = 0;
+    D_800CB300->unk44 = 0xFF;
+    D_800CB300->unk45 = 0xFF;
+    D_800CB300->unk46 = 0xFF;
+    D_800CB300->unk47 = 0xFF;
+    D_800CB300->unk40 = 0.0f;
+    D_800CB300->y = actor->y + 80.0f;
+    D_800CB300->unk18 = D_800CB300->x;
+    D_800CB300->unk1C = D_800CB300->y;
+    D_800CB300->unk20 = D_800CB300->z;
+    D_800CB300->unk49 = 1;
+    if (camGetMode() >= 2) {
+        D_800CB300->unk24 = 400.0f;
+    }
+    if ((player->playerIndex >= 0) && (player->playerIndex < 4)) {
+        D_800CB368[player->playerIndex].object = 0;
+        D_800CB368[player->playerIndex].unk08 = 0.0f;
+        D_800CB368[player->playerIndex].unk0C = 0.0f;
+        D_800CB368[player->playerIndex].unk10 = 1.0f;
+        D_800CB368[player->playerIndex].unk14 = 1.0f;
+        D_800CB368[player->playerIndex].unk18 = 0.0f;
+        D_800CB368[player->playerIndex].unk1C = 0.0f;
+        D_800CB368[player->playerIndex].unk20 = 0.0f;
+        D_800CB368[player->playerIndex].unk24 = 1.0f;
+        D_800CB368[player->playerIndex].unk28 = 0.0f;
+    }
+    player->unk16F = 0;
+    i = 0;
+    do {
+        func_8001BBB4(actor, player, 1.0f);
+        i++;
+    } while (i != 8);
+    player->unk16F = 1;
+}
 void func_8001C054(CameraTrackedObject *value) {
     if (D_80079BCC < 24) {
         D_800CB308[D_80079BCC] = value;

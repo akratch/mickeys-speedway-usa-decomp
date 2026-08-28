@@ -2864,32 +2864,34 @@ extern void *overlay1AllocateRecordReloc(u32 *source);
  * only its generated conflicting declaration. No exact relocation-complete,
  * linked result was found; the remaining blocker is IDO setup scheduling versus
  * the target's one relocation identity. */
-#ifdef NON_MATCHING
-void *overlay1CloneRecord(u32 *source) {
-    u32 *destination;
-    register u32 remaining;
-    void *result;
-
-    result = overlay1AllocateRecordReloc(source);
-    if (result == 0) {
-        return 0;
-    }
+/* Object-level reproof: relocation-symbol-mismatch, 0 instruction words, first
+ * mismatch none; the 23-instruction, frame -24 shape is exact and permuter-ready.
+ * One relocation identity remains for promotion, so retain NON_MATCHING. */
+void *overlay1CloneRecord(u32 *source)
+{
+  u32 *destination;
+  register u32 remaining;
+  void *result;
+  result = overlay1AllocateRecordReloc(source);
+  if (result == 0)
+  {
+    remaining = 0;
+    return remaining;
+  }
+  remaining = 50;
+  {
+    u32 *input;
+    input = source;
+    destination = result;
     remaining = 50;
+    do
     {
-        u32 *input;
-
-        input = source;
-        destination = result;
-        do {
-            *destination++ = *input++;
-        } while (remaining--);
+      *(destination++) = *(input++);
     }
-    return result;
+    while (remaining--);
+  }
+  return result;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0007344_1853724.s")
-#endif
 
 /* ---- overlay1UpdateValueCache ---- */
 

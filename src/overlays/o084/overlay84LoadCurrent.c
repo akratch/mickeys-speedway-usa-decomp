@@ -75,6 +75,9 @@ extern void overlay84ReleaseResource(u8 resource);
  * the otherwise-unused sp+0x24 slot. A fresh allocator trace supplied no
  * stack-home provenance, and four additional faithful state scope/order
  * variants either preserved the residual or expanded the frame. */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 72-instruction, frame -40 shape is exact and permuter-ready.
+ * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay84LoadCurrent(s32 kind) {
     Overlay84Object *object;

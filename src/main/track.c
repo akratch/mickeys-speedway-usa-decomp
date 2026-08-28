@@ -461,7 +461,7 @@ f32 camDistance(f32 x, f32 y, f32 z);
 u8 *levelGetLevel(void);
 void partDraw(Gfx **displayList, s32 arg1, s32 mode);
 void func_8000DFBC(u8 segment, s32 arg1, s32 arg2, s32 arg3);
-s32 func_8000DDE4(u8 segment, s32 arg1, s32 arg2, s32 arg3);
+s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records, TrackKeyRecord **matches);
 void func_8000F57C(s32 *resultCount, u8 *resultSegments);
 void func_8000FA2C(s32 *result, s32 arg1);
 void shadowGetBuffers(u8 mode, s32 *a, s32 *b, s32 *c);
@@ -512,7 +512,270 @@ void func_8000BD50(s32 updateRate) {
         TrapDanglingJump(updateRate);
     }
 }
+/*
+ * PROVENANCE: Mickey's m2c control-flow draft and the resident display-list,
+ * camera, level, and weather declarations reconstruct this update routine;
+ * no external function body is adapted.
+ */
+#ifdef NON_MATCHING
+typedef struct TrackFrameTexture {
+    u8 pad00[0x10];
+    u16 unk10;
+    u16 unk12;
+} TrackFrameTexture;
+
+typedef struct TrackFrameLevel {
+    u8 pad00[0x52];
+    s8 unk52;
+    u8 pad53[0x30];
+    u8 unk83;
+    u8 pad84[0x1E];
+    s16 unkA2;
+    u8 padA4[0x10];
+    s8 unkB4;
+    s8 unkB5;
+    u8 padB6[2];
+    TrackTextureHeader *unkB8;
+    s16 unkBC;
+    s16 unkBE;
+    u8 padC0[0x11];
+    s8 unkD1;
+} TrackFrameLevel;
+
+extern u8 D_80081540[];
+extern u8 D_80081550[];
+extern s32 D_800C9534;
+extern s32 D_800C9538;
+extern s32 D_800C9568;
+extern u8 D_8007A128;
+extern s32 D_8007D6B0;
+extern s16 D_800D6C3E;
+extern void func_8000C400(s32);
+extern void func_8000C5F4(void);
+extern void func_8000CC78(void);
+extern void func_8000CED0(s32);
+extern void func_8000D018(s32, s32);
+extern void func_8000FF2C(void);
+extern void func_80014614(s32, s32);
+extern void func_800147A4(s32);
+extern s32 func_800290A0(void);
+extern s32 levelInitRegionFlags(void);
+extern void camDisableUserView();
+extern void camEnableUserView();
+extern void camSetNo();
+extern void doWeather();
+extern void func_800219D0();
+extern void func_80022D20();
+extern void func_80036CAC();
+extern void func_80044BC8();
+extern void func_800534EC();
+extern void levelUpdateColourCycling();
+extern void rainSetFog();
+extern void shadowChangeBuffer();
+extern void shadowGenerate();
+extern void weather_clip_planes();
+
+/* Workbench verdict: structure-mismatch, 342 differing words, first mismatch +0x0. */
+/* Candidate is 393/403 instructions with the target -0x38 frame; it is not shape-exact. */
+/* Remaining gap: ten missing instructions plus unresolved command/global scheduling. */
+void func_8000BDB4(Gfx **arg0, Mtx **arg1, TrackVertex **arg2,
+                   TrackTriangle **arg3, s32 arg4) {
+    TrackFrameTexture *texture;
+    TrackFrameLevel *level;
+    Gfx *command;
+    s32 temp_a0;
+    s32 temp_s2;
+    s32 var_a0;
+    s32 var_s4;
+    s32 var_v0;
+    s8 temp_v0;
+    u16 temp_v1;
+
+    temp_s2 = mainGetNumberOfCameras();
+    camSetNo(0);
+    if (TrapDanglingJump() != 0) {
+        TrapDanglingJump(arg0);
+        return;
+    }
+    D_800C9520 = *arg0;
+    D_800C9524 = *arg1;
+    D_800C9528 = *arg2;
+    D_800C952C = *arg3;
+    func_80044BC8(D_800C9520, (char *) D_80081540, 0x1CC);
+    D_800C9558 = 1;
+    D_800C9538 = 0;
+    if (func_800290A0() != 0) {
+        var_s4 = 0;
+    } else {
+        var_s4 = arg4;
+    }
+    if (D_800792F0 != NULL) {
+        texture = (TrackFrameTexture *) D_800792F0;
+        temp_v1 = texture->unk10;
+        var_v0 = D_800792F4 + (texture->unk12 * var_s4);
+        if (var_v0 >= (s32) temp_v1) {
+            do {
+                var_v0 -= temp_v1;
+            } while (var_v0 >= (s32) temp_v1);
+        }
+        D_800792F4 = var_v0;
+    }
+    shadowGenerate(1, arg4);
+    levelUpdateColourCycling(var_s4);
+    level = (TrackFrameLevel *) D_800792EC;
+    temp_a0 = *(s32 *) ((u8 *) level + 0xC0);
+    if (temp_a0 != -1) {
+        func_80036CAC(temp_a0, var_s4);
+    }
+    if (level->unk83 == 2) {
+        D_80079260 = 0;
+    } else {
+        D_80079260 = 1;
+    }
+    temp_v0 = level->unk83;
+    if ((temp_v0 == 1) || (temp_v0 == 2) || (level->unkD1 != 0)) {
+        D_800C9544 = 1;
+    }
+    if (level->unk52 == 3) {
+        level->unkBC = (level->unkBC + (level->unkB4 * var_s4)) &
+                       ((level->unkB8->width << 9) - 1);
+        *(s16 *) ((u8 *) level + 0xBE) =
+            (*(s16 *) ((u8 *) level + 0xBE) +
+             (*(s8 *) ((u8 *) level + 0xB5) * var_s4)) &
+            ((level->unkB8->height << 9) - 1);
+        func_800367E8(level->unkB8, (u32 *) &D_800C9568,
+                      &D_800C9560, var_s4);
+    }
+    func_80034920(&D_800C9520);
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = 0;
+    command->words.w0 = 0xBC000002;
+    if (levelInitRegionFlags() != 0) {
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x2000;
+        command->words.w0 = 0xB6000000;
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x1000;
+        command->words.w0 = 0xB7000000;
+    } else {
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x1000;
+        command->words.w0 = 0xB6000000;
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x2000;
+        command->words.w0 = 0xB7000000;
+    }
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = 0x64;
+    command->words.w0 = 0xF9000000;
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = -1;
+    command->words.w0 = 0xFA000000;
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = -0x100;
+    command->words.w0 = 0xFB000000;
+    rainSetFog();
+    func_80014614(temp_s2, var_s4);
+    if (*(s16 *) ((u8 *) D_800792E8 + 0x1E) > 0) {
+        func_8000C400(var_s4);
+    }
+    if (D_80079274 != 0) {
+        TrapDanglingJump((void **) (s32) var_s4);
+    }
+    if ((D_8007A128 != 0) && (temp_s2 == 1)) {
+        camEnableUserView(0, 1);
+        func_800219D0();
+    }
+    D_800C9534 = 0;
+    var_a0 = 0;
+    if (temp_s2 > 0) {
+        do {
+            func_800147A4(var_a0);
+            command = D_800C9520;
+            D_800C9520 = command + 1;
+            command->words.w1 = 0;
+            command->words.w0 = 0xE7000000;
+            camSetNo(D_800C9534);
+            func_800221E8(&D_800C9520, &D_800C9524);
+            func_8000FF2C();
+            if (temp_s2 < 3) {
+                if (level->unk52 == 3) {
+                    func_8000C5F4();
+                } else if (D_800C9550 != 0) {
+                    func_8000CED0(arg4);
+                }
+                if (D_80079278 > 0) {
+                    if (D_800C9534 == 0) {
+                        TrapDanglingJump((void **) (s32) var_s4);
+                    }
+                    TrapDanglingJump(&D_800C9520);
+                }
+            } else {
+                temp_v0 = level->unk52;
+                if ((temp_v0 != 4) && (temp_v0 != 5)) {
+                    func_8000CC78();
+                }
+            }
+            func_80044BC8(D_800C9520, (char *) D_80081550, 0x26A);
+            command = D_800C9520;
+            D_800C9520 = command + 1;
+            command->words.w1 = 0;
+            command->words.w0 = 0xE7000000;
+            func_8000D018(temp_s2, arg4);
+            weather_clip_planes(-1, -0x200);
+            if ((level->unkA2 > 0) && (temp_s2 < 2)) {
+                doWeather(&D_800C9520, &D_800C9524,
+                          (void *) &D_800C9528, (void *) &D_800C952C,
+                          var_s4);
+            }
+            var_a0 = D_800C9534 + 1;
+            D_800C9534 = var_a0;
+        } while (var_a0 < temp_s2);
+    }
+    if (D_8007D6B0 > 0) {
+        TrapDanglingJump(&D_800C9520);
+    }
+    func_800534EC((s32) &D_800C9520);
+    if (D_800D6C3E != 0) {
+        TrapDanglingJump(&D_800C9520);
+    }
+    if (levelInitRegionFlags() != 0) {
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x1000;
+        command->words.w0 = 0xB6000000;
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x2000;
+        command->words.w0 = 0xB7000000;
+    }
+    func_80022D20(&D_800C9520);
+    camDisableUserView(0, 1);
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = 0;
+    command->words.w0 = 0xE7000000;
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = 0;
+    command->words.w0 = 0xBC000002;
+    shadowChangeBuffer();
+    *arg0 = D_800C9520;
+    *arg1 = D_800C9524;
+    *arg2 = D_800C9528;
+    *arg3 = D_800C952C;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BDB4.s")
+#endif
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
  * `func_800129AC_135AC`. Mickey proves the revised segment and texture layouts
@@ -1484,11 +1747,8 @@ build_routes:
 /* Candidate is shape-exact: 118 instructions, frame -40/-40 bytes, and both call relocations match. */
 /* Remaining gap is register allocation only; this candidate is permuter-ready. */
 #ifdef NON_MATCHING
-s32 func_8000DDE4(u8 keyArg, s32 recordCount, s32 recordsArg, s32 matchesArg) {
-    /* Parameter types follow the top-level prototype the matched callers use. */
-    s32 key = keyArg;
-    TrackKeyRecord *records = (TrackKeyRecord *) recordsArg;
-    TrackKeyRecord **matches = (TrackKeyRecord **) matchesArg;
+s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
+                  TrackKeyRecord **matches) {
     s32 recordIndex;
     s32 matchCount;
     s32 passCount;
@@ -1861,7 +2121,249 @@ void func_8000E5EC(s32 updateRate, s32 arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E5EC.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c control-flow draft and the resident track
+ * declarations reconstruct this display-list pipeline; no external function
+ * body is adapted. The raw offsets retain fields absent from the local types.
+ */
+/* Workbench verdict: structure-mismatch, 536 differing words, first mismatch +0x0. */
+/* Candidate is 554/542 instructions with the target -0xF8 frame; it is not shape-exact. */
+/* Remaining gap: twelve excess instructions and unresolved command/object relocation scheduling. */
+extern u8 D_80081560[];
+extern u8 D_80081570[];
+extern u8 D_80081580[];
+extern u8 D_80081590[];
+extern u8 D_800815A0[];
+extern u8 D_800815B0[];
+extern u8 D_800815C0[];
+extern u8 D_800815D0[];
+extern u8 D_800815E0[];
+extern u8 D_800815F0[];
+extern u8 D_80081600[];
+extern u8 D_80081610[];
+extern void func_8000F198(s32 segment, s32 record, s32 mode);
+
+#define E920_U8(base, offset) (*(u8 *) ((u8 *) (base) + (offset)))
+#define E920_S16(base, offset) (*(s16 *) ((u8 *) (base) + (offset)))
+#define E920_S32(base, offset) (*(s32 *) ((u8 *) (base) + (offset)))
+#define E920_PTR(base, offset) (*(void **) ((u8 *) (base) + (offset)))
+#define E920_RECORD(segment) \
+    (*(s32 *) ((u8 *) D_800C95B0 + ((segment) * 0x10) + 4))
+
+void func_8000E920(s32 arg0, s32 arg1) {
+    s32 segmentCount;
+    s32 segmentEnd;
+    s32 selectedCount;
+    s32 index;
+    s32 reverseIndex;
+    s16 modeCount;
+    s16 segment;
+    u8 segmentIds[0x70];
+    void **selectedObjects;
+    void *object;
+    void *surface;
+    void *childSurface;
+    u8 *level;
+    s32 record;
+
+    segmentCount = func_8000A244(&segmentEnd);
+    selectedObjects = (void **) D_800C9548;
+    level = levelGetLevel();
+    if (E920_S16(D_800792E8, 0x1A) >= 2) {
+        if (E920_U8(level, 0x106) == 0) {
+            func_8000FA2C(&arg0, (s32) &segmentIds[0]);
+        } else {
+            func_8000F57C(&arg0, &segmentIds[0]);
+        }
+    } else {
+        arg0 = 1;
+        segmentIds[0] = 0;
+    }
+    func_8000A39C(segmentCount, segmentEnd - 1);
+    func_80034920(&D_800C9520);
+    func_80044BC8(D_800C9520, D_80081560, 0x58D);
+    D_800C95B0[0] = -1;
+    modeCount = E920_S16(D_800792E8, 0x1A);
+    for (index = 1; index < modeCount; index++) {
+        D_800C95B4[index * 4] = 0;
+    }
+    if ((D_80079260 != 0) || (D_80079264 != 0)) {
+        for (reverseIndex = arg0 - 1; reverseIndex >= 0; reverseIndex--) {
+            segment = segmentIds[reverseIndex];
+            E920_RECORD(segment) = -1;
+            func_8000F198(segment, -1, 0x4000);
+        }
+        modeCount = E920_S16(D_800792E8, 0x1A);
+    }
+    if (modeCount < 2) {
+        E920_RECORD(1) = -1;
+    }
+    func_8000D978(0, arg1);
+    func_80044BC8(D_800C9520, D_80081570, 0x5A1);
+    if (D_80079260 != 0) {
+        for (index = 0; index < arg0; index++) {
+            segment = segmentIds[index];
+            func_8000F198(segment, E920_RECORD(segment), 0);
+        }
+    }
+    if (D_80079268 == 0) {
+        segmentCount = segmentEnd;
+    }
+    selectedCount = 0;
+    for (index = segmentCount; index < segmentEnd; index++) {
+        object = func_800056F0(index);
+        if ((object != NULL) &&
+            (E920_RECORD(E920_S16(object, 0x2E)) != 0) &&
+            (func_800103D4(object) != 0)) {
+            selectedObjects[selectedCount++] = object;
+        }
+    }
+    if (E920_U8(D_800792EC, 0xF6) != 0) {
+        TrapDanglingJump(selectedCount, selectedObjects);
+    }
+    func_80044BC8(D_800C9520, D_80081580, 0x5D7);
+    for (index = 0; index < selectedCount; index++) {
+        object = selectedObjects[index];
+        if ((E920_U8(object, 0x58) != 0) &&
+            ((E920_U8(object, 6) & 0xC) == 0) &&
+            (E920_U8(object, 0x39) == 0xFF)) {
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          (TrackSkyObject *) object);
+        }
+    }
+    func_80044BC8(D_800C9520, D_80081590, 0x5E3);
+    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
+         reverseIndex--) {
+        object = selectedObjects[reverseIndex];
+        surface = E920_PTR(object, 0x4C);
+        if ((surface != NULL) && (E920_S16(object, 0x8E) == 0)) {
+            if ((E920_S32(surface, 0x10) & 8) != 0) {
+                childSurface = E920_PTR(surface, 0x1C);
+                if (childSurface != NULL) {
+                    func_800140CC((struct TrackShadowObject *) object,
+                                  (struct TrackShadowInstance *) childSurface);
+                }
+            }
+            func_800140CC((struct TrackShadowObject *) object,
+                          (struct TrackShadowInstance *) surface);
+        }
+    }
+    func_80044BC8(D_800C9520, D_800815A0, 0x5F7);
+    for (index = 0; index < selectedCount; index++) {
+        object = selectedObjects[index];
+        if (((E920_U8(object, 6) & 0xC) == 0) &&
+            (E920_U8(object, 0x39) == 0xFF) &&
+            (E920_U8(object, 0x58) == 0)) {
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          (TrackSkyObject *) object);
+        }
+    }
+    func_80044BC8(D_800C9520, D_800815B0, 0x603);
+    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
+         reverseIndex--) {
+        object = selectedObjects[reverseIndex];
+        if ((E920_U8(object, 6) & 8) != 0) {
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          (TrackSkyObject *) object);
+        }
+    }
+    if (runlinkIsModuleLoaded(0xC) != 0) {
+        TrapDanglingJump((s32) &D_800C9520, &D_800C9524, &D_800C9528);
+    }
+    if (E920_U8(D_800792EC, 0xF6) != 0) {
+        func_80044BC8(D_800C9520, D_800815C0, 0x61A);
+        TrapDanglingJump((s32) &D_800C9520, &D_800C9524, &D_800C9528);
+        if (D_80079260 != 0) {
+            for (reverseIndex = arg0 - 1; reverseIndex >= 0;
+                 reverseIndex--) {
+                segment = segmentIds[reverseIndex];
+                func_8000F198(segment, E920_RECORD(segment), 0x8000);
+            }
+            for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
+                 reverseIndex--) {
+                object = selectedObjects[reverseIndex];
+                surface = E920_PTR(object, 0x4C);
+                if ((surface != NULL) && (E920_S16(object, 0x8E) != 0)) {
+                    if ((E920_S32(surface, 0x10) & 8) != 0) {
+                        childSurface = E920_PTR(surface, 0x1C);
+                        if (childSurface != NULL) {
+                            func_800140CC(
+                                (struct TrackShadowObject *) object,
+                                (struct TrackShadowInstance *) childSurface);
+                        }
+                    }
+                    func_800140CC((struct TrackShadowObject *) object,
+                                  (struct TrackShadowInstance *) surface);
+                }
+            }
+        }
+    }
+    func_80044BC8(D_800C9520, D_800815D0, 0x634);
+    if (D_80079260 != 0) {
+        for (reverseIndex = arg0 - 1; reverseIndex >= 0; reverseIndex--) {
+            segment = segmentIds[reverseIndex];
+            func_8000F198(segment, E920_RECORD(segment), 4);
+        }
+    }
+    func_80044BC8(D_800C9520, D_800815E0, 0x63B);
+    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
+         reverseIndex--) {
+        object = selectedObjects[reverseIndex];
+        record = E920_S32(object, 0x54);
+        if (record != 0) {
+            func_80049518(record, &D_800C9520);
+        }
+    }
+    if (runlinkIsModuleLoaded(0xD) != 0) {
+        TrapDanglingJump((s32) &D_800C9520, &D_800C9524, &D_800C9528);
+    }
+    if (runlinkIsModuleLoaded(0x22) != 0) {
+        TrapDanglingJump((s32) &D_800C9520, &D_800C9528);
+    }
+    func_80044BC8(D_800C9520, D_800815F0, 0x64E);
+    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
+         reverseIndex--) {
+        object = selectedObjects[reverseIndex];
+        if (((E920_U8(object, 6) & 4) != 0) ||
+            ((s32) E920_U8(object, 0x39) < 0xFF)) {
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          (TrackSkyObject *) object);
+        }
+        if ((E920_U8(object, 6) & 0x200) != 0) {
+            switch (E920_S16(object, 0x44)) {
+            case 1:
+                func_80009414(&D_800C9520, &D_800C9524, &D_800C9528,
+                              (TrackSkyObject *) object);
+                break;
+            case 0x1D:
+            case 0x49:
+            case 0x3F:
+                TrapDanglingJump((s32) &D_800C9520, &D_800C9524,
+                                 &D_800C9528, object);
+                break;
+            case 0x39:
+            case 0x3A:
+                TrapDanglingJump((s32) &D_800C9520, &D_800C9524, object);
+                break;
+            }
+        }
+    }
+    func_80044BC8(D_800C9520, D_80081600, 0x678);
+    if ((D_8007A124 == 0) && (camGetMode() == 0)) {
+        partDraw(&D_800C9520, (s32) &D_800C9524, -1);
+    }
+    D_800C9544 = 0;
+    func_80044BC8(D_800C9520, D_80081610, 0x680);
+}
+#undef E920_U8
+#undef E920_S16
+#undef E920_S32
+#undef E920_PTR
+#undef E920_RECORD
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E920.s")
+#endif
 /* PROVENANCE -- JFG's public track.c supplies the surrounding display-list
  * routine and texture vocabulary, while this Mickey body follows its own
  * fields, call sites, and assembly-only command schedule. */
@@ -2130,6 +2632,9 @@ void func_8000FA2C(s32 *result, s32 arg1) {
  * nearest-height selection structure. Mickey's bounds are inclusive and its
  * TrackData layout, function boundary, and bytes remain authoritative.
  */
+/* Workbench verdict: structure-mismatch, 43 differing words, first mismatch +0x1c. */
+/* Candidate: target/candidate 62/62 instructions with matching -0x10 frames; the residual begins in the x/z predicate. */
+/* Shape status: boundary-load and non-likely branch scheduling remain structural; this is not permuter-ready. */
 s32 func_8000FAE0(f32 x, f32 y, f32 z) {
     s16 segmentCount;
     s16 yLower;
@@ -2723,8 +3228,319 @@ s32 func_80010654(TrackRayPoint *start, TrackRayPoint *end,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010654.s")
 #endif
+/*
+ * PROVENANCE: Mickey's m2c control-flow draft and resident collision
+ * records reconstruct this wrapper; no external function body is adapted.
+ */
+#ifdef NON_MATCHING
+typedef struct TrackRayHit {
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 distance;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 ratio;
+    s32 faceData;
+    u8 material;
+} TrackRayHit;
+
+typedef struct TrackRayScratch {
+    TrackRayPoint direction;
+    u8 result[0x1C];
+    f32 length;
+} TrackRayScratch;
+
+extern s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
+                         TrackRayPoint *offset, f32 scale, f32 planeOffset,
+                         f32 threshold, TrackRayHit *hit);
+extern s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3);
+
+/* Workbench verdict: structure-mismatch, 143 differing words, first mismatch +0x0. */
+/* Candidate is 145/147 instructions with the target -0xB8 frame; it is not shape-exact. */
+/* Remaining gap: structural FP/local-home scheduling; all five call sites are present. */
+s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
+                  void (*arg4)(void *, void *, f32 *, f32, void *, s32)) {
+    TrackRayScratch scratch;
+    s32 sp6C;
+    s32 sp68;
+    f32 temp_f0;
+    f32 temp_f18;
+    f32 temp_f20;
+    f32 temp_f8;
+    s32 var_s2;
+    s32 var_s4;
+    s32 var_s7;
+    s32 var_v0;
+    sp6C = 0;
+    sp68 = 0;
+    var_s7 = 0;
+    do {
+        var_s2 = 0;
+        var_s4 = 0;
+        scratch.direction.x = arg1->f[0] - arg0->f[0];
+        temp_f18 = arg1->f[1] - arg0->f[1];
+        scratch.direction.y = temp_f18;
+        temp_f8 = arg1->f[2] - arg0->f[2];
+        scratch.direction.z = temp_f8;
+        temp_f20 = (temp_f8 * temp_f8) +
+                   ((scratch.direction.x * scratch.direction.x) +
+                    (temp_f18 * temp_f18));
+        if (temp_f20 > 0.0f) {
+            temp_f0 = sqrtf(temp_f20);
+            scratch.length = temp_f0;
+            scratch.direction.x /= scratch.length;
+            scratch.direction.y /= scratch.length;
+            scratch.direction.z /= scratch.length;
+            if (D_800C9D28 != 0) {
+                var_v0 = func_80011980(arg0, arg1, &scratch.direction,
+                                       scratch.length, arg2, 0.0f,
+                                       (TrackRayHit *) scratch.result);
+            } else {
+                var_v0 = func_80011980(arg0, arg1, &scratch.direction,
+                                       scratch.length, arg2, arg2,
+                                       (TrackRayHit *) scratch.result);
+            }
+            if (D_800C9D28 != 0) {
+                var_s4 = func_80011CDC((u8 *) arg0,
+                                       (u8 *) &scratch.direction, arg2,
+                                       scratch.result);
+            }
+            if ((var_v0 | var_s4) != 0) {
+                sp68 = 1;
+                arg4(arg0, arg1, (f32 *) &scratch.direction, scratch.length,
+                     scratch.result, arg3);
+                var_s2 = 1;
+            }
+            if (var_s2 != 0) {
+                var_s7 += 1;
+                if (var_s7 >= 6) {
+                    sp68 = 0;
+                    sp6C |= 0x40000000;
+                    var_s2 = 0;
+                    arg1->f[0] = arg0->f[0];
+                    arg1->f[1] = arg0->f[1];
+                    arg1->f[2] = arg0->f[2];
+                }
+            }
+        }
+    } while (var_s2 != 0);
+    return sp68 | sp6C;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010900.s")
+#endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c collision-response draft and the resident ray
+ * helper declarations reconstruct this player-intersection loop; no external
+ * function body is adapted. The record writes retain the assembly offsets.
+ */
+/* Workbench verdict: structure-mismatch, 677 differing words, first mismatch +0x0. */
+/* Candidate is 644/678 instructions with the target -0x148 frame; it is not shape-exact. */
+/* Remaining gap: 34 missing instructions and unresolved unrolled-copy/record-call scheduling. */
+struct TrackCollisionSurface;
+struct TrackCollisionRecord;
+extern void func_800115E4(
+    s32 mode, TrackVec3f *position, TrackVec3f *offset, f32 scale,
+    struct TrackCollisionSurface *surface,
+    struct TrackCollisionRecord *record);
+
+#define B4C_U8(base, offset) (*(u8 *) ((u8 *) (base) + (offset)))
+#define B4C_S32(base, offset) (*(s32 *) ((u8 *) (base) + (offset)))
+#define B4C_F32(base, offset) (*(f32 *) ((u8 *) (base) + (offset)))
+
+s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
+                  s32 arg4, void *arg5) {
+    f32 relative[16];
+    TrackRayPoint direction;
+    TrackRayHit intersection;
+    u8 *start;
+    u8 *end;
+    u8 *record;
+    f32 lengthSquared;
+    f32 length;
+    f32 offsetX;
+    f32 offsetY;
+    f32 offsetZ;
+    f32 minimumLength;
+    s32 minimumIndex;
+    s32 count;
+    s32 index;
+    s32 attempt;
+    s32 bit;
+    s32 collisionMask;
+    s32 resultMask;
+    s32 collision;
+    s32 queryResult;
+    s32 auxiliaryResult;
+
+    if (arg5 != NULL) {
+        offsetX = B4C_F32(arg5, 0);
+        offsetY = B4C_F32(arg5, 4);
+        offsetZ = B4C_F32(arg5, 8);
+        for (index = 0; index < arg0; index++) {
+            relative[index * 3] =
+                ((f32 *) arg2)[index * 3] - offsetX;
+            relative[(index * 3) + 1] =
+                ((f32 *) arg2)[(index * 3) + 1] - offsetY;
+            relative[(index * 3) + 2] =
+                ((f32 *) arg2)[(index * 3) + 2] - offsetZ;
+        }
+    }
+    count = 0;
+    if (arg0 > 0) {
+        for (index = 0; index < arg0; index++) {
+            record = (u8 *) ((u32) arg4 + (index * 0x40));
+            B4C_U8(record, 0) = 0;
+            B4C_U8(record, 0x3D) = 0;
+            B4C_F32(record, 4) = 0.0f;
+            B4C_F32(record, 8) = 0.0f;
+            B4C_F32(record, 0xC) = 0.0f;
+            B4C_F32(record, 0x10) = 0.0f;
+            B4C_F32(record, 0x14) = 0.0f;
+            B4C_F32(record, 0x18) = 0.0f;
+            B4C_F32(record, 0x1C) = 0.0f;
+            B4C_F32(record, 0x20) = 0.0f;
+            B4C_F32(record, 0x24) = 0.0f;
+            B4C_F32(record, 0x28) = 0.0f;
+            B4C_F32(record, 0x2C) = 0.0f;
+            B4C_F32(record, 0x30) = 0.0f;
+            B4C_F32(record, 0x34) = 32000.0f;
+            B4C_S32(record, 0x38) = 0;
+            B4C_U8(record, 0x3C) = 0;
+        }
+    }
+    resultMask = 0;
+    attempt = 0;
+    collisionMask = 0;
+    do {
+        collisionMask = 0;
+        bit = 1;
+        for (index = 0; index < arg0; index++) {
+            start = (u8 *) arg1 + (index * 0xC);
+            end = (u8 *) arg2 + (index * 0xC);
+            direction.x = B4C_F32(end, 0) - B4C_F32(start, 0);
+            direction.y = B4C_F32(end, 4) - B4C_F32(start, 4);
+            direction.z = B4C_F32(end, 8) - B4C_F32(start, 8);
+            lengthSquared = (direction.z * direction.z) +
+                            ((direction.x * direction.x) +
+                             (direction.y * direction.y));
+            collision = 0;
+            if (lengthSquared > 0.0f) {
+                length = sqrtf(lengthSquared);
+                direction.x /= length;
+                direction.y /= length;
+                direction.z /= length;
+                if (D_800C9D28 != 0) {
+                    queryResult = func_80011980(
+                        (TrackRayPoint *) start, (TrackRayPoint *) end,
+                        &direction, length, arg3[index], 0.0f,
+                        &intersection);
+                } else {
+                    queryResult = func_80011980(
+                        (TrackRayPoint *) start, (TrackRayPoint *) end,
+                        &direction, length, arg3[index], arg3[index],
+                        &intersection);
+                }
+                auxiliaryResult = 0;
+                if (D_800C9D28 != 0) {
+                    auxiliaryResult = func_80011CDC(
+                        start, (u8 *) &direction, arg3[index],
+                        (u8 *) &intersection);
+                }
+                if ((queryResult | auxiliaryResult) != 0) {
+                    record = (u8 *) ((u32) arg4 + (index * 0x40));
+                    func_800115E4(
+                        (s32) start, (TrackVec3f *) end, &direction, length,
+                        (struct TrackCollisionSurface *) &intersection,
+                        (struct TrackCollisionRecord *) record);
+                    B4C_F32(record, 0x34) = length;
+                    collision = 1;
+                    collisionMask |= bit;
+                }
+            }
+            if (collision != 0) {
+                count++;
+                if (count >= 0xB) {
+                    collisionMask = 0;
+                    collision = 0;
+                    resultMask |= 0x40000000;
+                    for (index = index; index < arg0; index++) {
+                        ((f32 *) arg2)[index * 3] =
+                            ((f32 *) arg1)[index * 3];
+                        ((f32 *) arg2)[(index * 3) + 1] =
+                            ((f32 *) arg1)[(index * 3) + 1];
+                        ((f32 *) arg2)[(index * 3) + 2] =
+                            ((f32 *) arg1)[(index * 3) + 2];
+                    }
+                    break;
+                }
+            }
+            bit <<= 1;
+        }
+        if (((collisionMask != 0) && (attempt >= 0xB)) ||
+            (resultMask != 0)) {
+            for (index = 0; index < arg0; index++) {
+                ((f32 *) arg2)[index * 3] =
+                    ((f32 *) arg1)[index * 3];
+                ((f32 *) arg2)[(index * 3) + 1] =
+                    ((f32 *) arg1)[(index * 3) + 1];
+                ((f32 *) arg2)[(index * 3) + 2] =
+                    ((f32 *) arg1)[(index * 3) + 2];
+            }
+            collisionMask = 0;
+            if (attempt >= 0xB) {
+                resultMask |= 0x80000000;
+            }
+        } else if (collisionMask != 0) {
+            minimumLength = 32000.0f;
+            minimumIndex = 0;
+            if (arg5 != NULL) {
+                bit = 1;
+                for (index = 0; index < arg0; index++) {
+                    if ((collisionMask & bit) != 0) {
+                        record = (u8 *) ((u32) arg4 + (index * 0x40));
+                        if (B4C_F32(record, 0x34) < minimumLength) {
+                            minimumIndex = index;
+                            minimumLength = B4C_F32(record, 0x34);
+                        }
+                    }
+                    bit <<= 1;
+                }
+                record = (u8 *) ((u32) arg4 + (minimumIndex * 0x40));
+                B4C_U8(record, 0x3D) |= 1;
+                offsetX = B4C_F32(arg2, minimumIndex * 0xC) -
+                          relative[minimumIndex * 3];
+                offsetY = B4C_F32(arg2, (minimumIndex * 0xC) + 4) -
+                          relative[(minimumIndex * 3) + 1];
+                offsetZ = B4C_F32(arg2, (minimumIndex * 0xC) + 8) -
+                          relative[(minimumIndex * 3) + 2];
+                B4C_F32(arg5, 0) = offsetX;
+                B4C_F32(arg5, 4) = offsetY;
+                B4C_F32(arg5, 8) = offsetZ;
+                for (index = 0; index < arg0; index++) {
+                    B4C_F32(arg2, index * 0xC) =
+                        relative[index * 3] + offsetX;
+                    B4C_F32(arg2, (index * 0xC) + 4) =
+                        relative[(index * 3) + 1] + offsetY;
+                    B4C_F32(arg2, (index * 0xC) + 8) =
+                        relative[(index * 3) + 2] + offsetZ;
+                }
+                resultMask |= collisionMask;
+            }
+        }
+        attempt++;
+    } while ((collisionMask != 0) && ((resultMask & 0xC0000000) == 0));
+    return resultMask;
+}
+#undef B4C_U8
+#undef B4C_S32
+#undef B4C_F32
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010B4C.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: Mickey's m2c collision-response draft and resident plane and
@@ -2903,19 +3719,6 @@ typedef struct TrackRayNodeExtended {
     u8 pad10[0x0C];
     TrackRayFace *planes;
 } TrackRayNodeExtended;
-
-typedef struct TrackRayHit {
-    f32 normalX;
-    f32 normalY;
-    f32 normalZ;
-    f32 distance;
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 ratio;
-    s32 faceData;
-    u8 material;
-} TrackRayHit;
 
 /* Workbench verdict: structure-mismatch, 208 differing words, first mismatch +0x0. */
 /* Candidate: 214/215 instructions with a -0xD8 frame versus target -0xC8; one instruction/frame residual and FP schedule remain. */
@@ -3480,7 +4283,271 @@ void func_80012658(s32 flags) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012658.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c collision trace and the resident vector/track
+ * declarations reconstruct this query; no external function body is adapted.
+ * Raw offsets retain the compact segment and polygon records.
+ */
+/* Workbench verdict: structure-mismatch, 545 differing words, first mismatch +0x0. */
+/* Candidate is 517/548 instructions with frame -0x2A8 versus target -0x288; it is not shape-exact. */
+/* Remaining gap: 31 missing instructions, 32 excess frame bytes, and unresolved polygon/relocation scheduling. */
+extern s32 func_800131AC(TrackVec3f *origin, TrackVec3f *direction,
+                         TrackVec3f *minimum, TrackVec3f *maximum,
+                         f32 *nearClip, f32 *farClip);
+extern u8 getYCompareMask(void *bounds, s32 y0, s32 y1);
+
+#define E129_U8(base, offset) (*(u8 *) ((u8 *) (base) + (offset)))
+#define E129_S16(base, offset) (*(s16 *) ((u8 *) (base) + (offset)))
+#define E129_U16(base, offset) (*(u16 *) ((u8 *) (base) + (offset)))
+#define E129_S32(base, offset) (*(s32 *) ((u8 *) (base) + (offset)))
+#define E129_F32(base, offset) (*(f32 *) ((u8 *) (base) + (offset)))
+#define E129_PTR(base, offset) (*(void **) ((u8 *) (base) + (offset)))
+
+s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
+    void *segments[20];
+    f32 entryTimes[20];
+    s32 xzMasks[20];
+    u8 yMasks[20];
+    TrackVec3f direction;
+    TrackVec3f minimum;
+    TrackVec3f maximum;
+    TrackBoundingBox *bounds;
+    TrackData *track;
+    void *segment;
+    void *batch;
+    void *batchRecord;
+    void *surfaceBase;
+    void *plane;
+    void *bestPlane;
+    u16 *polygon;
+    f32 nearClip;
+    f32 farClip;
+    f32 bestDistance;
+    f32 side0;
+    f32 side1;
+    f32 fraction;
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 planeDistance;
+    f32 edgeValue;
+    s32 segmentCount;
+    s32 segmentIndex;
+    s32 hitCount;
+    s32 insertIndex;
+    s32 batchCount;
+    s32 batchIndex;
+    s32 triangleIndex;
+    s32 firstTriangle;
+    s32 lastTriangle;
+    s32 edgeIndex;
+    s32 inside;
+    s32 hit;
+    s32 bestFlags;
+    s32 bestTexture;
+    s32 x0;
+    s32 y0;
+    s32 z0;
+    s32 x1;
+    s32 y1;
+    s32 z1;
+    s32 edgeNumber;
+    u16 edge;
+    u16 edgeSign;
+    u8 *segmentBytes;
+    u8 *surfaceBytes;
+
+    track = D_800792E8;
+    direction.f[0] = arg1[0] - arg0[0];
+    direction.f[1] = arg1[1] - arg0[1];
+    direction.f[2] = arg1[2] - arg0[2];
+    hitCount = 0;
+    segmentCount = E129_S16(track, 0x1A);
+    if ((direction.f[0] != 0.0f) || (direction.f[1] != 0.0f) ||
+        (direction.f[2] != 0.0f)) {
+        for (segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
+            bounds = track->segmentBounds + segmentIndex;
+            minimum.f[0] = (f32) bounds->x1;
+            minimum.f[1] = (f32) bounds->y1;
+            minimum.f[2] = (f32) bounds->z1;
+            maximum.f[0] = (f32) bounds->x2;
+            maximum.f[1] = (f32) bounds->y2;
+            maximum.f[2] = (f32) bounds->z2;
+            if ((func_800131AC((TrackVec3f *) arg0, &direction,
+                               &minimum, &maximum, &nearClip, &farClip) != 0) &&
+                (((nearClip <= 0.0f) && (farClip >= 0.0f)) ||
+                 ((nearClip >= 0.0f) && (nearClip <= 1.0f)))) {
+                if (nearClip < 0.0f) {
+                    nearClip = 0.0f;
+                }
+                if (farClip > 1.0f) {
+                    farClip = 1.0f;
+                }
+                x0 = (s32) ((direction.f[0] * nearClip) + arg0[0]);
+                y0 = (s32) ((direction.f[1] * nearClip) + arg0[1]);
+                z0 = (s32) ((direction.f[2] * nearClip) + arg0[2]);
+                x1 = (s32) ((direction.f[0] * farClip) + arg0[0]);
+                y1 = (s32) ((direction.f[1] * farClip) + arg0[1]);
+                z1 = (s32) ((direction.f[2] * farClip) + arg0[2]);
+                if (x1 < x0) {
+                    s32 temporary = x1;
+                    x1 = x0;
+                    x0 = temporary;
+                }
+                if (y1 < y0) {
+                    s32 temporary = y1;
+                    y1 = y0;
+                    y0 = temporary;
+                }
+                if (z1 < z0) {
+                    s32 temporary = z1;
+                    z1 = z0;
+                    z0 = temporary;
+                }
+                if (hitCount < 20) {
+                    insertIndex = hitCount;
+                    while ((insertIndex > 0) &&
+                           (nearClip < entryTimes[insertIndex - 1])) {
+                        entryTimes[insertIndex] = entryTimes[insertIndex - 1];
+                        segments[insertIndex] = segments[insertIndex - 1];
+                        xzMasks[insertIndex] = xzMasks[insertIndex - 1];
+                        yMasks[insertIndex] = yMasks[insertIndex - 1];
+                        insertIndex--;
+                    }
+                    entryTimes[insertIndex] = nearClip;
+                    segments[insertIndex] =
+                        (u8 *) track->segments + (segmentIndex * 0x40);
+                    xzMasks[insertIndex] = getXZCompareMask(
+                        bounds, x0, z0, x1, z1);
+                    yMasks[insertIndex] = getYCompareMask(bounds, y0, y1);
+                    hitCount++;
+                }
+            }
+        }
+    }
+    hit = 0;
+    bestDistance = 1.0f;
+    pointX = arg1[0];
+    pointY = arg1[1];
+    pointZ = arg1[2];
+    arg3 |= 0x1080;
+    bestPlane = NULL;
+    bestFlags = 0;
+    bestTexture = 0;
+    for (segmentIndex = 0; segmentIndex < hitCount; segmentIndex++) {
+        segmentBytes = (u8 *) segments[segmentIndex];
+        segment = segments[segmentIndex];
+        surfaceBase = E129_PTR(segment, 0x1C);
+        batch = E129_PTR(segment, 0x0C);
+        batchCount = E129_S16(segment, 0x24);
+        for (batchIndex = 0; batchIndex < batchCount; batchIndex++) {
+            batchRecord = (u8 *) batch + (batchIndex * 0x10);
+            firstTriangle = E129_S16(batchRecord, 8);
+            lastTriangle = E129_S16(batchRecord, 0x18);
+            bestFlags = E129_S32(batchRecord, 0x0C);
+            if ((bestFlags & arg3) ||
+                ((arg4 != 0) && ((bestFlags & arg4) == 0))) {
+                firstTriangle = lastTriangle;
+            }
+            for (triangleIndex = firstTriangle;
+                 triangleIndex < lastTriangle; triangleIndex++) {
+                s32 visibility = E129_S32(
+                    E129_PTR(segment, 0x10), triangleIndex * 4);
+                visibility &= xzMasks[segmentIndex];
+                if (((visibility & 0xFFFF) != 0) &&
+                    ((visibility & 0xFFFF0000) != 0) &&
+                    ((E129_U8(E129_PTR(segment, 0x14), triangleIndex) &
+                      yMasks[segmentIndex]) != 0)) {
+                    polygon = (u16 *) ((u8 *) E129_PTR(segment, 0x18) +
+                                      (triangleIndex * 8));
+                    plane = (u8 *) surfaceBase + (E129_U16(polygon, 0) * 0x10);
+                    normalX = E129_F32(plane, 0);
+                    normalY = E129_F32(plane, 4);
+                    normalZ = E129_F32(plane, 8);
+                    planeDistance = E129_F32(plane, 0xC);
+                    side1 = (((arg1[0] * normalX) +
+                              ((arg1[1] * normalY) + (arg1[2] * normalZ))) +
+                             planeDistance);
+                    if (side1 < 0.0f) {
+                        side0 = (((arg0[0] * normalX) +
+                                  ((arg0[1] * normalY) +
+                                   (arg0[2] * normalZ))) + planeDistance);
+                        if (side0 >= 0.0f) {
+                            fraction = side0 / (side0 - side1);
+                            pointX = (direction.f[0] * fraction) + arg0[0];
+                            pointY = (direction.f[1] * fraction) + arg0[1];
+                            pointZ = (direction.f[2] * fraction) + arg0[2];
+                            inside = 1;
+                            for (edgeIndex = 0; edgeIndex < 3; edgeIndex++) {
+                                edge = E129_U16(polygon, (edgeIndex + 1) * 2);
+                                edgeSign = edge & 0x8000;
+                                edgeNumber = edge ^ edgeSign;
+                                surfaceBytes = (u8 *) surfaceBase +
+                                               (edgeNumber * 0x10);
+                                edgeValue =
+                                    (E129_F32(surfaceBytes, 0) * pointX) +
+                                    (E129_F32(surfaceBytes, 4) * pointY) +
+                                    (E129_F32(surfaceBytes, 8) * pointZ) +
+                                    E129_F32(surfaceBytes, 0xC);
+                                if (edgeSign != 0) {
+                                    edgeValue = -edgeValue;
+                                }
+                                if (edgeValue > 0.0f) {
+                                    inside = 0;
+                                }
+                            }
+                            if ((inside != 0) && (fraction < bestDistance)) {
+                                bestDistance = fraction;
+                                bestPlane = plane;
+                                bestFlags = E129_S32(batchRecord, 0x0C);
+                                bestTexture = E129_U8(
+                                    track->textures,
+                                    (E129_U8(batchRecord, 0) * 8) + 7);
+                                hit = 1;
+                            }
+                        }
+                    }
+                }
+            }
+            batch = (u8 *) batch + 0x10;
+        }
+    }
+    if (hit != 0) {
+        E129_S32(arg2, 0) = 0;
+        E129_F32(arg2, 4) = pointX;
+        E129_F32(arg2, 8) = pointY;
+        E129_F32(arg2, 0xC) = pointZ;
+        E129_F32(arg2, 0x10) = E129_F32(bestPlane, 0);
+        E129_F32(arg2, 0x14) = E129_F32(bestPlane, 4);
+        E129_F32(arg2, 0x18) = E129_F32(bestPlane, 8);
+        E129_F32(arg2, 0x1C) = E129_F32(bestPlane, 0xC);
+        E129_F32(arg2, 0x20) = sqrtf(
+            (direction.f[2] * direction.f[2]) +
+            ((direction.f[0] * direction.f[0]) +
+             (direction.f[1] * direction.f[1]))) * bestDistance;
+        E129_S32(arg2, 0x24) = bestFlags;
+        E129_S32(arg2, 0x28) = bestTexture;
+    } else {
+        E129_F32(arg2, 0x20) = sqrtf(
+            (direction.f[2] * direction.f[2]) +
+            ((direction.f[0] * direction.f[0]) +
+             (direction.f[1] * direction.f[1])));
+    }
+    return hit;
+}
+#undef E129_U8
+#undef E129_S16
+#undef E129_U16
+#undef E129_S32
+#undef E129_F32
+#undef E129_PTR
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001291C.s")
+#endif
 /*
  * PROVENANCE: Jet Force Gemini's public assembly-only `trackClip3D` in
  * `src/track.c` supplies the six-plane clipping structure and paired helper

@@ -84,6 +84,7 @@ import dataclasses
 import json
 import os
 import re
+import shlex
 import shutil
 import signal
 import subprocess
@@ -94,6 +95,8 @@ from pathlib import Path
 from typing import Optional
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import reloc_surface  # noqa: E402
 ATLAS_PATH = ROOT / "config" / "overlays.us.json"
 PERMUTER_DIR = ROOT / "tools" / "permuter"
 IMPORT_PY = PERMUTER_DIR / "import.py"
@@ -103,6 +106,9 @@ BUILD_PERMUTER = ROOT / "build" / "permuter"
 SUMMARY_JSON = BUILD_PERMUTER / "summary.json"
 SUMMARY_TXT = BUILD_PERMUTER / "summary.txt"
 RANKING_PATH = ROOT / "config" / "nonmatching-ranking.us.json"
+BASEROM = ROOT / "baseroms" / f"mickey.us.z64"
+OBJCOPY = ROOT / "tools" / "binutils" / "mips64-elf-objcopy"
+
 
 # Flags that shape codegen and therefore must match the real per-file build
 # exactly (the same set tools/permute.sh recovers). Anything else in the cc
@@ -501,6 +507,7 @@ class RunResult:
     extended: bool = False  # score-trend extension run happened
     stopped_flat: bool = False  # stopped early: no improvement by --flat-minutes
     commit_error: Optional[str] = None
+    annotated_relocs: int = 0  # overlay target sites given symbolic relocations
 
 
 def write_settings_toml(out_path: Path, flags: tuple[str, ...]) -> None:
@@ -561,6 +568,94 @@ def prepare_target_asm(item: QueueItem, out_dir: Path) -> Path:
     target = out_dir / "target.s"
     target.write_text(text)
     return target
+
+
+def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path) -> int:
+    """Give an overlay function's permuter target the relocations the shipped
+    module says are there, and rename the candidate's placeholders to match.
+
+    Without this the target .s assembles with no relocations at all -- the
+    module ships unrelocated, so splat's disassembly carries stored addends,
+    not addresses -- while the candidate object carries honest `R_MIPS_26` and
+    `%hi`/`%lo` references to placeholder externs.  decomp-permuter's scorer
+    ignores a symbol-name difference only when the *target* line also carries
+    a relocation, so every relocation site in an overlay function was scored
+    as a full insertion+deletion pair and an overlay candidate two words from
+    the ROM scored in the hundreds.  See tools/reloc_surface.py's
+    `permuter_annotation` for the derivation and docs/reloc-surface.md for the
+    model it rests on.
+
+    Returns the number of placeholder symbols renamed (0 = nothing to do).
+    Any failure leaves the scratch exactly as import.py wrote it: an
+    unannotated overlay run is the previous behaviour, not a broken one.
+    """
+    if item.overlay is None or not BASEROM.is_file():
+        return 0
+    target_s = scratch / "target.s"
+    base_o = scratch / "base.o"
+    if not target_s.is_file() or not base_o.is_file():
+        return 0
+    asm_rel = find_asm_target(item)
+    names = [item.func]
+    if asm_rel:
+        names.append(Path(asm_rel).stem)
+    original = target_s.read_text(errors="replace")
+    try:
+        text, renames, notes = reloc_surface.permuter_annotation(
+            original, base_o, names, item.overlay, BASEROM.read_bytes())
+    except Exception as e:  # noqa: BLE001 -- annotation is best-effort
+        (out_dir / "annotation.txt").write_text(f"not annotated: {e}\n")
+        return 0
+    if not renames:
+        (out_dir / "annotation.txt").write_text(
+            "not annotated: no site the module relocation table names\n"
+            + "\n".join(notes) + "\n")
+        return 0
+    target_s.write_text(text)
+    # The annotated target must still assemble -- that is the check that the
+    # rewritten operands are real assembler syntax, not just plausible text.
+    proc = subprocess.run(
+        shlex.split(ASSEMBLER_COMMAND) + [str(target_s), "-o", str(scratch / "target.o")],
+        cwd=ROOT, capture_output=True, text=True)
+    if proc.returncode != 0:
+        target_s.write_text(original)
+        subprocess.run(
+            shlex.split(ASSEMBLER_COMMAND) + [str(target_s), "-o", str(scratch / "target.o")],
+            cwd=ROOT, capture_output=True, text=True)
+        (out_dir / "annotation.txt").write_text(
+            "not annotated: annotated target did not assemble\n" + proc.stderr)
+        return 0
+    csh = scratch / "compile.sh"
+    if csh.is_file():
+        # objcopy refuses two --redefine-sym arguments that share a target
+        # name, so aliases of one link value (two externs the surface values
+        # identically) go in successive invocations rather than one.
+        rounds: list[dict[str, str]] = []
+        for old_name, new_name in sorted(renames.items()):
+            for group in rounds:
+                if new_name not in group.values():
+                    group[old_name] = new_name
+                    break
+            else:
+                rounds.append({old_name: new_name})
+        with open(csh, "a") as f:
+            # replicate_objcopy only terminates its last line when it wrote
+            # one at all; a TU whose POSTPROCESS is unreplicable leaves
+            # compile.sh ending mid-line, and an appended command would be
+            # swallowed by the compiler invocation above it.
+            if not csh.read_text().endswith("\n"):
+                f.write("\n")
+            for group in rounds:
+                args = " ".join(f"--redefine-sym {o}={n}"
+                                for o, n in sorted(group.items()))
+                f.write(f'{OBJCOPY} {args} "$OUTPUT"\n')
+        # Refresh base.o through the amended recipe so the scratch's own base
+        # object carries the canonical names too.
+        subprocess.run(["bash", str(csh), str(scratch / "base.c"), "-o",
+                        str(base_o)], cwd=ROOT, capture_output=True, text=True)
+    (out_dir / "annotation.txt").write_text(
+        "\n".join(notes + [f"{k} -> {v}" for k, v in sorted(renames.items())]) + "\n")
+    return len(renames)
 
 
 def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: Path) -> Path:
@@ -765,6 +860,41 @@ def promote(item: QueueItem, winning_source: Path, jobs: int) -> tuple[bool, Opt
         return _promote_locked(item, winning_source, jobs)
 
 
+TRIAL_JSON = ROOT / "build" / "promotion-trial.json"
+
+
+def trial_explanation(func: str) -> Optional[str]:
+    """`tools/promotion_trial.py`'s verdict for one function, if it has run.
+
+    A permuter score of 0 says the candidate's *instruction schedule* matches
+    the target the scratch was built from. For an overlay that is necessary
+    and not sufficient: the module's data is placed by the runtime, so a
+    promotion can still move a word the scratch never modelled -- a datum
+    landing at a different module offset, a POSTPROCESS normalization the
+    scratch could not replicate -- and `gmake verify` is the only thing that
+    sees it. When that happens the function stays a candidate, and the trial's
+    class is the explanation to carry forward rather than "promotion failed".
+    """
+    if not TRIAL_JSON.is_file():
+        return None
+    try:
+        rows = json.loads(TRIAL_JSON.read_text()).get("results", [])
+    except (OSError, ValueError):
+        return None
+    for row in rows:
+        if row.get("func") != func:
+            continue
+        parts = [f"promotion-trial class: {row.get('klass')}"]
+        if row.get("in_range_words") is not None:
+            parts.append(f"{row['in_range_words']} word(s) differ in range")
+        if row.get("out_of_range_bytes"):
+            parts.append(f"{row['out_of_range_bytes']} byte(s) out of range")
+        if row.get("cause"):
+            parts.append(str(row["cause"]))
+        return "; ".join(parts)
+    return None
+
+
 def _promote_locked(item: QueueItem, winning_source: Path, jobs: int) -> tuple[bool, Optional[str]]:
     original = item.c_file.read_text()
     candidate_text = winning_source.read_text()
@@ -784,9 +914,31 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int) -> tuple[b
         return False, f"could not locate {item.func}'s NON_MATCHING block to replace"
 
     item.c_file.write_text(new_text)
+    # Both are tracked generated artifacts a promotion regenerates; a reverted
+    # promotion must leave neither rewritten, or the next function's run starts
+    # from a dirty tree it did not cause.
+    regenerated = [ATLAS_PATH, ROOT / "overlay_undefined_syms.us.txt"]
+    before = {p: p.read_text() for p in regenerated if p.is_file()}
+    if item.overlay is not None:
+        # `gmake`'s own prerequisite chain runs `overlay_atlas.py --check`, and
+        # splicing a candidate flips that TU's mechanically-derived
+        # `nonmatching` flag -- so the atlas goes STALE and the build dies
+        # before it compiles anything. commit_match() already regenerates it
+        # after a promotion; a promotion cannot get that far without it.
+        subprocess.run(["gmake", "overlay-atlas-write"], cwd=ROOT,
+                       capture_output=True, timeout=900)
+        # A promoted overlay body may reference placeholder symbols whose
+        # values are generated from the objects (tools/reloc_surface.py);
+        # regenerate the block after compiling so the link can resolve them.
+        subprocess.run(["gmake", f"-j{jobs}", f"build/{item.rel_c_file}.o"], cwd=ROOT,
+                       capture_output=True, timeout=600)
+        subprocess.run(["gmake", "overlay-syms"], cwd=ROOT, capture_output=True, timeout=900)
 
     def revert(reason: str) -> tuple[bool, str]:
         item.c_file.write_text(original)
+        for path, text in before.items():
+            if path.is_file() and path.read_text() != text:
+                path.write_text(text)
         # Best-effort: rebuild the tree back to the pre-splice state so a
         # failed promotion doesn't leave build/ out of sync with the source
         # for whatever runs next (another function's promotion, or the
@@ -826,7 +978,19 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int) -> tuple[b
             timeout=600,
         )
         if verify.returncode != 0:
-            return revert("gmake verify failed:\n" + verify.stdout[-4000:])
+            # The linked ROM is the oracle, for overlays especially: a
+            # score-0 overlay candidate can still fail here for reasons the
+            # permuter scratch cannot see (data placement, an unreplicable
+            # POSTPROCESS pass). It stays a candidate, carrying the trial's
+            # own explanation rather than a bare build log.
+            reason = "gmake verify failed:\n" + verify.stdout[-4000:]
+            if item.overlay is not None:
+                trial = trial_explanation(item.func)
+                reason += ("\n(overlay candidate left queued; "
+                           + (trial or "run tools/promotion_trial.py --function "
+                                       f"{item.func} for the linked-ROM class")
+                           + ")")
+            return revert(reason)
 
         wb = subprocess.run(
             ["tools/wb_compare.sh", "--rom", item.func],
@@ -859,6 +1023,7 @@ def commit_match(item: QueueItem) -> Optional[str]:
     with PROMOTE_LOCK:
         paths = [item.rel_c_file]
         if item.overlay is not None:
+            paths.append("overlay_undefined_syms.us.txt")
             # An overlay promotion changes the module's ownership rows; the
             # atlas (and its digest) must be regenerated or `gmake
             # overlay-atlas` fails and the overlay bytes are never credited.
@@ -886,7 +1051,8 @@ def commit_match(item: QueueItem) -> Optional[str]:
 
 def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: int, apply: bool,
             extra_args: list[str], load_threshold: float = 0.0, extend_minutes: int = 0,
-            commit: bool = False, flat_minutes: int = 0) -> RunResult:
+            commit: bool = False, flat_minutes: int = 0,
+            annotate_overlays: bool = True) -> RunResult:
     out_dir = BUILD_PERMUTER / item.func
     out_dir.mkdir(parents=True, exist_ok=True)
     result = RunResult(func=item.func, c_file=item.rel_c_file, overlay=item.overlay, ok=False)
@@ -900,6 +1066,8 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         target_asm = prepare_target_asm(item, out_dir)
         scratch = run_import(item, out_dir, settings_path, target_asm)
         replicate_objcopy(scratch, recipe, item.c_file, out_dir)
+        if annotate_overlays:
+            result.annotated_relocs = annotate_overlay_scratch(item, scratch, out_dir)
         wait_for_headroom(load_threshold, f"before permuting {item.func}")
         base_score, elapsed, stopped_flat = run_permuter(
             scratch, out_dir, minutes, permuter_threads, extra_args, flat_minutes=flat_minutes)
@@ -922,6 +1090,12 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                 wait_for_headroom(load_threshold, f"before extending {item.func}")
                 run_permuter(scratch, out_dir, extend_minutes, permuter_threads, extra_args, "permuter-extend.log")
                 best_dir, best_score = _best(scratch)
+        # A base score of zero means the candidate already scores exact in the
+        # scratch (only ownership/relocation can still fail verify): promote
+        # it as-is instead of reporting "no improvement".
+        if base_score == 0 and best_dir is None:
+            best_dir, best_score = scratch, 0
+            (scratch / "source.c").write_text((scratch / "base.c").read_text())
         result.best_score = best_score
         if best_score == 0 and best_dir is not None:
             result.zero_found = True
@@ -947,8 +1121,15 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--overlay", type=int, help="restrict to one overlay number")
     p.add_argument("--resident-only", action="store_true",
-                   help="skip overlay functions (their scratch cannot score zero across the "
-                   "relocation table; use tools/promotion_trial.py for them)")
+                   help="skip overlay functions")
+    p.add_argument("--overlays-only", action="store_true",
+                   help="run only overlay functions (the relocation-annotated "
+                        "scratch makes their score meaningful; see "
+                        "docs/permute-batch.md)")
+    p.add_argument("--no-overlay-annotate", action="store_true",
+                   help="do not give an overlay target the module's own "
+                        "relocation sites (the pre-annotation behaviour, kept "
+                        "as an escape hatch and for before/after measurement)")
     p.add_argument("--function", help="restrict to one function name")
     p.add_argument("--limit", type=int, help="cap the number of functions processed")
     p.add_argument("--minutes", type=int, default=20, help="per-function wall-clock cap (default: 20)")
@@ -967,10 +1148,13 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     p.add_argument(
         "--order",
-        choices=["ranking", "queue"],
+        choices=["ranking", "trial", "queue"],
         default="ranking",
         help="ranking: closest first by config/nonmatching-ranking.us.json differing_words "
-        "(unranked last, then by name); queue: discovery order (default: ranking)",
+        "(unranked last, then by name); trial: closest first by "
+        "build/promotion-trial.json's in-range word count, which is the linked-ROM "
+        "measurement and the right order for overlays (a candidate the trial could not "
+        "link runs last); queue: discovery order (default: ranking)",
     )
     p.add_argument(
         "--resume",
@@ -1044,9 +1228,28 @@ def main(argv: list[str]) -> int:
         queue = [it for it in queue if it.overlay == args.overlay]
     if args.resident_only:
         queue = [it for it in queue if it.overlay is None]
+    if args.overlays_only:
+        queue = [it for it in queue if it.overlay is not None]
     if args.function is not None:
         queue = [it for it in queue if it.func == args.function]
-    if args.order == "ranking":
+    if args.order == "trial":
+        # The trial's in-range word count is the linked-ROM distance, which is
+        # what "closest" means for an overlay; the static ranking is derived
+        # from the object and does not see the link.
+        trial: dict[str, tuple[int, int]] = {}
+        if TRIAL_JSON.is_file():
+            for row in json.loads(TRIAL_JSON.read_text()).get("results", []):
+                words = row.get("in_range_words")
+                if isinstance(words, int) and not row.get("error"):
+                    trial[row["func"]] = (words, row.get("out_of_range_bytes") or 0)
+        else:
+            print(f"note: {TRIAL_JSON.relative_to(ROOT)} does not exist; "
+                  "--order trial degenerates to name order")
+        queue.sort(key=lambda it: (trial.get(it.func, (10**9, 0)), it.func))
+        unmeasured = sum(1 for it in queue if it.func not in trial)
+        if unmeasured:
+            print(f"note: {unmeasured} queued function(s) have no trial row; they run last")
+    elif args.order == "ranking":
         rank: dict[str, tuple[int, int]] = {}
         if RANKING_PATH.is_file():
             for row in json.loads(RANKING_PATH.read_text()).get("functions", []):
@@ -1115,7 +1318,8 @@ def main(argv: list[str]) -> int:
     if jobs == 1:
         for it in queue:
             r = run_one(it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
-                        args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes)
+                        args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes,
+                        not args.no_overlay_annotate)
             results.append(r)
             print_result(r)
             write_summary(results)
@@ -1125,6 +1329,7 @@ def main(argv: list[str]) -> int:
                 pool.submit(
                     run_one, it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
                     args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes,
+                    not args.no_overlay_annotate,
                 ): it
                 for it in queue
             }
@@ -1152,9 +1357,11 @@ def print_result(r: RunResult) -> None:
         status = "flat" if r.stopped_flat else "no improvement"
     else:
         status = f"improved{' (extended)' if r.extended else ''}"
+    annotated = (f" reloc-annotated={r.annotated_relocs}"
+                 if r.annotated_relocs else "")
     print(
         f"[{r.func}] base={r.base_score} best={r.best_score} "
-        f"{status} ({r.seconds:.0f}s)"
+        f"{status}{annotated} ({r.seconds:.0f}s)"
     )
 
 

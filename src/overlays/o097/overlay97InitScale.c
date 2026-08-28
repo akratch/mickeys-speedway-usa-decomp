@@ -86,6 +86,9 @@ typedef struct Overlay97ScaleEntry {
  * broad-volatile, single-array, and bounded-permuter sweeps found no exact
  * source form; the required multiply-hazard flag and best candidate remain.
  */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 144-instruction frameless shape is exact and promotion
+ * remains deferred to the overlay relocation lane, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
     f32 radius;

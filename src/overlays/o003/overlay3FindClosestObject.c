@@ -17,6 +17,9 @@ extern f32 gOverlay3SearchMaxDistance[];
  * reproduced this object or worsened it. The likely missing structure is an original local/live range that makes
  * IDO load the start index into a0 instead of v1.
  */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 77-instruction, frame -120 shape is exact and permuter-ready.
+ * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 Object *overlay3FindClosestObject(Object *anchor, void *unused) {
     s32 pad;
