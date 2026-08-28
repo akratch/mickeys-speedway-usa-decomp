@@ -1203,10 +1203,14 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     secondTarget->unk1C = deltaZ / distance;
     TrapDanglingJump(second, 0xE);
 }
+
 #ifdef NON_MATCHING
-/* Workbench p6: mixed schedule/register; 8/121 words remain, first +0x20; frame, calls, and FP lanes exact.
- * Tried statement-line grouping and 0x258 timer register/direct-literal forms after the inherited lifetime/flag sweep; no improvement.
- * Remains: initial pointer-load schedule and target v0 versus candidate v1 timer web. */
+/* Bounded workbench closeout retained the source as NON_MATCHING; the best
+ * source-faithful follow-up reordered the initial pointer assignments and
+ * reached 118/121 instructions with the exact 0x50 frame, nine calls, and FP
+ * schedule. The remaining three words are one v0->v1 allocator web at the
+ * 0x258 stores; timer lifetime/width forms and the alias probe did not move it.
+ * See the function's plateau entry in docs/resident.md for the evidence. */
 void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;
@@ -1356,10 +1360,8 @@ void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 0xA);
 }
 
-/* Type pass: the shared collision overlays are neutral. Workbench: operand-mismatch, exact 91-instruction/-72 frame; 3 words, first +0xA0.
- * Levers tried: flag lattice, scalar/aggregate/array carriers, stack-slot probes.
- * Remains: volatile secondZ uses sp+0x18; target uses sp+0x1C with no other shape change. */
-#ifdef NON_MATCHING
+/* IDO's local allocation follows declaration order here; retain secondZ before
+ * secondY so the volatile value keeps its exact stack home. */
 void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopySource *firstSource;
     HitCopySource *secondSource;
@@ -1371,8 +1373,8 @@ void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
     f32 distance;
     f32 firstX;
     f32 secondX;
-    f32 secondY;
     volatile f32 secondZ;
+    f32 secondY;
 
     firstSource = first->source;
     firstX = firstSource->current.x;
@@ -1414,9 +1416,6 @@ void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(first, 0x12, second);
     TrapDanglingJump(second, 6);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055F64.s")
-#endif
 void func_800560D0(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopyTarget *firstTarget;
     HitCopyTarget *secondTarget;

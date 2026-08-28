@@ -47,7 +47,7 @@ s32 *piRomLoad(s32 assetId);
 void *func_80034448(s16 textureId);
 void func_800347A0(void *texture);
 s32 func_8003484C(void *texture);
-void func_800348A0(s32 id, s32 value);
+void texLoadTextureAddr(s32 id, s32 value);
 void func_80034424(s32 enabled);
 void func_80034920(Gfx **displayList);
 void func_800349A4(Gfx **displayList, void *texture, s32 flags, s16 parameter);
@@ -950,9 +950,14 @@ typedef struct ModelFrameInstance {
 } ModelFrameInstance;
 
 /* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
-/* Plateau (near-miss p6): workbench register-ring-only, 13 register words at 48 instructions/frame -0x8; first +0x38.
- * Levers: intermediate-read and normalized-condition probes plus the bounded permutation found no source-stable closure.
- * Remains: class-crossing ugen temp web; assembly fallback stays canonical. */
+/* Plateau (2026-08-27): workbench
+ * register-ring-only, 13 register words at 48 instructions/frame -0x8; first
+ * +0x38. The prior intermediate-read, normalized-condition, and bounded
+ * permutation probes were followed by ten focused ABI, scope, declaration,
+ * loop-condition, load-order, liveness, and register-hint variants; none
+ * closed the temp-FIFO web. The four-argument definition widened the frame,
+ * while count-ownership and no-copy forms unrolled the loop. Remains:
+ * class-crossing ugen temp web; assembly fallback stays canonical. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;
     ModelFrameEntry *entry;
@@ -1069,7 +1074,7 @@ void modResumeModelTextures(void) {
         if (D_80079C08 > 0) {
             do {
                 if (entry->value != 0) {
-                    func_800348A0(entry->id, entry->value);
+                    texLoadTextureAddr(entry->id, entry->value);
                 }
                 i++;
                 entry++;

@@ -10,11 +10,15 @@ typedef struct Overlay34Record {
 
 extern Overlay34Record **gOverlay34Pointers;
 extern s32 gOverlay34ActiveCount;
-extern void *func_80034448();
+extern void *func_overlay_034_F0000000_18811A8();
 
-/* Plateau: 32/44 words exact; 12 schedule/register words remain, first +0x14.
- * Shadow assignment, post-decrement, declaration, and four-argument call
- * shapes either retained the residual or introduced an s0 spill/larger frame. */
+/* Plateau (2026-08-28): the size-exact 44-word body matches 32 words, with
+ * the first schedule/register residual at +0x14.  The target has one helper
+ * call and two repeated active-count HI16/LO16 pairs; its pointer load is
+ * encoded without a relocation, while the source-preserving candidate keeps
+ * both pointer relocations.  Shadow, post-decrement, declaration, indexed
+ * compaction, cursor, and scoped-call variants either retained the residual
+ * or introduced a size/schedule regression. */
 #ifdef NON_MATCHING
 void overlay34RemoveRecord(Overlay34Record *record) {
     s32 shadow;
@@ -37,11 +41,11 @@ void overlay34RemoveRecord(Overlay34Record *record) {
                     } while (remaining--);
                 }
                 /*
-                 * The resident loader consumes only resourceId; retail keeps
-                 * this logically-zero second argument live in a1.
+                 * The target helper consumes resourceId; retail keeps this
+                 * logically-zero second argument live in a1.
                  */
                 if (record->resourceId != 0) {
-                    func_80034448(record->resourceId, shadow);
+                    func_overlay_034_F0000000_18811A8(record->resourceId, shadow);
                 }
                 record->active = 0;
                 gOverlay34ActiveCount--;

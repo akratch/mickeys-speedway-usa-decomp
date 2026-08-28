@@ -1725,40 +1725,34 @@ s32 func_800246B0(f32 x, f32 y, f32 z, f32 *outX, f32 *outY,
 }
 
 /*
- * PROVENANCE: name and role from JFG's public decomp,
- * src/camera.c:camReversePoint; body reconstructed from Mickey-only evidence.
- *
- * Workbench: mixed(constant:7, structural:22, register:4), 33 words (25 normalized), first +0x0; frame 0x40 vs 0x38.
- * Levers: direct fields/raw pointer, array transY, scale/viewport association, and flag/permuter sweeps; regressed.
- * Remains: viewport materialization/frame and transX/scaleX FP-pool coloring.
+ * PROVENANCE: body adapted from JFG's public src/camera.c:camReversePoint
+ * after that source was matched upstream in commit 24d61fe. Its repeated
+ * transX load is material to IDO's allocation. With Mickey's symbols and ABI,
+ * all 65 instructions and nine relocations are exact.
  */
-#ifdef NON_MATCHING
 void func_80024834(f32 screenX, f32 screenY, f32 *x, f32 *y, f32 *z,
                    u8 transform) {
-    Vp *viewport;
-    f32 scale;
     f32 transX;
     f32 scaleY;
     f32 scaleX;
     f32 transY;
+    f32 clipZ;
+    Vp *viewport;
 
-    scale = (*z * D_800CEC98[2][2]) * D_800CEC98[2][3];
-    viewport = &D_80079D58[D_800CEC64];
-    transX = (f32) (viewport->vp.vtrans[0] >> 2);
-    scaleY = (f32) (viewport->vp.vscale[1] >> 2);
-    scaleX = (f32) (viewport->vp.vscale[0] >> 2);
-    transY = (f32) (viewport->vp.vtrans[1] >> 2);
-    *x = ((transX - screenX) * scale) /
+    clipZ = (*z * D_800CEC98[2][2]) * D_800CEC98[2][3];
+    transX = D_80079D58[D_800CEC64].vp.vtrans[0] >> 2;
+    scaleX = D_80079D58[D_800CEC64].vp.vscale[0] >> 2;
+    scaleY = D_80079D58[D_800CEC64].vp.vscale[1] >> 2;
+    transX = D_80079D58[D_800CEC64].vp.vtrans[0] >> 2;
+    transY = D_80079D58[D_800CEC64].vp.vtrans[1] >> 2;
+    *x = ((transX - screenX) * clipZ) /
          (D_800CEC98[0][0] * scaleX);
-    *y = ((screenY - transY) * scale) /
+    *y = ((screenY - transY) * clipZ) /
          (D_800CEC98[1][1] * scaleY);
     if (transform != 0) {
         mtxf_transform_point(D_800CF1E0, *x, *y, *z, x, y, z);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/camera/func_80024834.s")
-#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/camera.c:camGetProjZ. */
 f32 camGetProjZ(f32 x, f32 y, f32 z) {
     f32 temp;

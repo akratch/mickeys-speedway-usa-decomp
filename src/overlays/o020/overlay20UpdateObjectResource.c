@@ -61,12 +61,12 @@ extern f32 overlay20SqrtReloc(f32 value);
  * better group, and hoisting the count assignment loses both size and CFG.
  */
 /*
- * Current-run plateau (2026-08-25): the 119-group sweep again selected
- * -O2 -mips2 at exact size, with eight masked words different from +0xB0.
- * Direct field access regressed to 25 words; moving the count or pointer
- * declarations broke the earlier exact prefix.  A two-worker, ten-minute
- * permuter batch found no improvement over base score 60.  The remaining
- * blocker is the count/entries temporary coloring only.
+ * Trace-guided plateau (2026-08-28): untouched IDO output is 98 words with
+ * a 0x70 frame and four calls; the raw code residual is eight register words.
+ * Paired globalcolor traces isolate the count web that naturally takes v1.
+ * Direct-count forms remove it but enter a 25-word UGEN temp-ring basin; a
+ * forced split grows to 100 words and a 0x78 frame.  No natural block or
+ * condition lifetime spelling closed that pool-to-temp transition.
  */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,

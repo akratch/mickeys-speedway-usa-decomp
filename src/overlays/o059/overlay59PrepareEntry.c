@@ -1,9 +1,15 @@
 #include "PR/ultratypes.h"
 
 /*
- * Overlay 59 text +0x070..+0x168. The source naturally reproduces the exact
- * boundary, frame, CFG, calls, and memory effects. A scoped guarded ledger
- * selects retail's equivalent descriptor-value and call-argument register web.
+ * Plateau (2026-08-28): both bodies are 0xF8 bytes (62 words) with a 0x28
+ * frame. Ten words differ first at +0x10; after separating the table-address
+ * relocation, nine instruction words remain in the descriptor/call-argument
+ * register web. The candidate has the table HI/LO pair plus four call relocs;
+ * the synthetic target object exposes only the four collapsed call relocs.
+ * Six natural lookup, handle, descriptor, and result-scope forms either
+ * reproduced this baseline or regressed/gained two words. A bounded permuter
+ * import could not join the address-derived assembly label to the friendly C
+ * name, so it produced no additional candidate.
  */
 
 typedef struct Overlay59Descriptor {

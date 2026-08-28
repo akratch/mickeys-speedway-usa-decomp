@@ -9,6 +9,15 @@
  * remaining reversed-coordinate block splits queryStartX's target $t3 live
  * range into $v1; explicit coordinate temporaries disturb the full register
  * web instead of preserving that allocation.
+ * Follow-up plateau (2026-08-27): the configured
+ * object compare is still allocation-mismatch (schedule: 4, register: 6),
+ * with 110/120 aligned instructions exact, 480-byte exact size, and the
+ * first mismatch at +0x138. A `-g0` compile is unchanged; context lint has
+ * no findings. The overlay-aware ten-minute single-thread batch reports
+ * best permuter score 50 (zero is exact), with no zero-score candidate and
+ * no promotion. Its retained scratch contains no candidate source suitable
+ * for a real-TU rebuild, so the six-site `$t3` to `$v1` web and four final
+ * schedule sites remain unresolved.
  */
 #ifdef NON_MATCHING
 s32 overlay19ClassifyEdge(

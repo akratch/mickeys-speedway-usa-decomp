@@ -51,13 +51,12 @@ extern void overlay86TransformVectorReloc(s32 mode,
                                           Overlay86Vec3f *output);
 extern s16 overlay86AngleFromVectorReloc(f32 x, f32 y, f32 z);
 
-#ifdef NON_MATCHING
 void overlay86BuildTransform(Overlay86Object *object,
                              Overlay86Transform *transform) {
-    Overlay86Current *current;
+    s32 index;
     volatile Overlay86Vec3f target;
     Overlay86Vec3f vector;
-    s32 index;
+    Overlay86Current *current;
     s16 angle;
 
     index = transform->state->vectorIndex;
@@ -93,6 +92,3 @@ void overlay86BuildTransform(Overlay86Object *object,
         transform->resultAngle = angle;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o086/overlay86BuildTransform/func_overlay_086_F0000158_18D1F90.s")
-#endif

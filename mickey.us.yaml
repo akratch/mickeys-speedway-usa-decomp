@@ -122,12 +122,11 @@ segments:
     start: 0x1000
     vram: 0x80000400
     subsegments:
-      # `asm`, not `hasm`: nothing here is hand-written. `hasm` exists so splat
-      # will leave a human-maintained file alone, but asm/ is generated,
-      # gitignored, and wiped by `gmake distclean`, so any hand edit would be
-      # unrecoverable regardless -- while splat's refusal to rewrite the file
-      # meant a macro.inc change could silently leave it stale until the next
-      # clean build. With `asm`, splat owns it and every re-split refreshes it.
+      # `asm`, not `hasm`: verified_asm.us.txt records that the original is
+      # hand-written (DKR's whole tracked hasm/entrypoint.s.o is Tier-A exact),
+      # while `asm` keeps this generated file owned by splat. `hasm` would make
+      # splat leave a human-maintained file alone, but asm/ is gitignored and
+      # wiped by `gmake distclean`; with `asm`, every re-split refreshes it.
       - [0x1000, asm, entrypoint]
 
   # Resident static segment. The subsegment split points below were
@@ -147,6 +146,8 @@ segments:
     subsegments:
       - [0x1050, c, main/audio_manager_1050]
       - [0x2340, asm]
+      - [0x30BC, c, main/amAudioMgrSetScheduleMode]
+      - [0x30E0, asm]
       - [0x3100, c, main/audio_manager_36D0]
       - [0x45F0, c, main/audio_manager_4C50]
       - [0x4F40, asm]
@@ -185,7 +186,10 @@ segments:
       # whole-object byte match, so docs/modules.md 3.4 keeps the distinction
       # between the working split and a measured original-file boundary.
       - [0x20020, c, main/models]
-      - [0x21DA0, asm]
+      # Boot/thread source unit. DKR's src/main.c supplies byte-exact bodies
+      # for mainproc and thread1_main; Mickey's stack-check variant remains
+      # assembly and the next measured source boundary is camera at 0x21EE0.
+      - [0x21DA0, c, main/boot]
       # Resident camera state, viewport/projection setup, sprite/model matrices,
       # projection helpers and screen shake. JFG's src/camera.c supplies the
       # ordered role map: camInit is the nearest skeleton at the first function,
@@ -228,7 +232,7 @@ segments:
       # second occurrence anywhere in the 32MB image. Its end lands exactly on
       # the runtime linker's start below. Everything above it in this segment
       # is still splat's heuristic.
-      - [0x323A0, asm, main/rsp_segment]
+      - [0x323A0, c, main/rsp_segment]
       # The runtime overlay linker. Identified by the error strings it prints
       # ("ERROR:MIPS_HI16 without matching MIPS_LO16", "WARNING: Unimplemented
       # linkage operation %d") -- byte-identical to Jet Force Gemini's, whose
@@ -241,6 +245,12 @@ segments:
       # that starts JFG's following textures.c TU at 0x34E60.
       - [0x34180, c, main/gameVi]
       - [0x34E60, asm]
+      - [0x35008, c, main/texEnableModes]
+      - [0x35024, asm]
+      - [0x354A0, c, main/texLoadTextureAddr]
+      - [0x354C8, asm]
+      - [0x37650, c, main/initColourCycle]
+      - [0x37680, asm]
       - [0x37D50, asm]
       # JFG's menu.c / Mickey's resident front-end menu code. The start is
       # setLanguage followed by initFront; the end is the function after
@@ -270,7 +280,7 @@ segments:
       # Measured boundary: the whole 0x10 .text of DKR's built
       # `src/get_stack_pointer.c.o` matches here with zero masked words, and
       # splat's own split points already agreed on both ends.
-      - [0x47A60, asm, main/get_stack_pointer]
+      - [0x47A60, c, main/get_stack_pointer]
       # JFG fx.c lineage: Mickey starts at fxFreeCone (the earlier JFG level-
       # effect routines are absent), carries the cone/wake/effect call graph,
       # and ends where the following font.c block begins.
@@ -284,7 +294,11 @@ segments:
       # an ordered-function and two-sided-boundary claim, not a whole-.text
       # claim.
       - [0x4BC40, c, main/font]
-      - [0x4E1E0, asm]
+      # The PI-manager/rzip prefix and huft builder form the C half of the
+      # inflate subsystem. DKR's src/gzip.c identifies the source unit; only
+      # byteswap32 is compiler-exact so far, and the other five functions stay
+      # as GLOBAL_ASM until independently matched.
+      - [0x4E1E0, c, main/gzip]
       # Measured boundary. The whole 0xA74-byte .text of DKR's built
       # `src/hasm/gzip_asm.s.o` -- the hand-written inflate core the asset
       # loader runs -- matched here in one piece, 98 of 669 words masked, no
@@ -304,6 +318,8 @@ segments:
       # source subsegment until stronger section evidence appears.
       - [0x50C00, c, main/anim]
       - [0x58570, asm]
+      - [0x58810, c, libultra/osFlashClearStatus]
+      - [0x5885C, asm]
       - [0x58C10, asm]
       - [0x58E50, c, main/vehicle_sounds]
       - [0x59B90, c, main/osBootRamTest]
@@ -351,14 +367,14 @@ segments:
       - [0x681B0, c, libultra/n_env]
       - [0x691A0, c, libultra/n_cspsendmidi]
       - [0x69220, c, libultra/n_synsetpriority]
-      - [0x69240, asm, main/math_atan]
+      - [0x69240, c, main/math_atan]
       - [0x69440, c, libultra/n_auxbus]
       - [0x69930, c, libultra/n_mainbus]
       - [0x69CA0, c, libultra/n_load]
       - [0x6A7F0, c, libultra/n_alLPFilter]
-      - [0x6AC10, asm, main/math_acosf]
+      - [0x6AC10, c, main/math_acosf]
       - [0x6ACF0, c, libultra/n_resample]
-      - [0x6AF90, asm, main/math_arc]
+      - [0x6AF90, c, main/math_arc]
       - [0x6B1A0, asm]
       - [0x6B3D0, asm, libultra/gbpakcheckconnector]
       - [0x6B860, asm]
@@ -493,7 +509,7 @@ segments:
       - [0x730A0, c, libultra/epiwrite]
       - [0x730F0, c, libultra/epiread]
       - [0x73140, c, libultra/epidma]
-      - [0x731E0, asm, libultra/rmonprintf]
+      - [0x731E0, c, libultra/rmonprintf]
       - [0x73240, c, libultra/settimer]
       - [0x73320, asm, libultra/bcmp]
       - [0x73440, c, libultra/siacs]
@@ -516,7 +532,9 @@ segments:
       - [0x73C90, c, libultra/timerintr]
       - [0x74090, asm]
       - [0x743A0, asm]
-      - [0x74680, asm]
+      # Exact __osEepStatus tail carved from the larger SDK conteepwrite TU;
+      # the preceding non-identical functions do not gain a boundary claim.
+      - [0x74680, c, libultra/eepstatus]
       - [0x748B0, c, libultra/vigetcurrcontext]
       - [0x748C0, c, libultra/viswapcontext]
       # Deliberately kept as pure `#pragma GLOBAL_ASM` so the asm-processor
@@ -532,11 +550,11 @@ segments:
       - [0x74F20, c, libultra/epirawread]
       - [0x75080, c, libultra/setglobalintmask]
       - [0x750D0, c, libultra/yieldthread]
-      - [0x75120, asm, libultra/xprintf]
+      - [0x75120, c, libultra/xprintf]
       - [0x75DE0, c, libultra/si]
       - [0x75E10, asm, libultra/setcompare]
       - [0x75E20, c, libultra/xlitob]
-      - [0x760C0, asm, libultra/xldtob]
+      - [0x760C0, c, libultra/xldtob]
       - [0x76B80, c, libultra/ldiv]
       # Not `hasm`: this disassembles into a call to func_840010E0, i.e. it is
       # not plain resident text. Kept as raw bin until it is identified.
@@ -580,7 +598,7 @@ segments:
       - [0x81480, .data, libultra/siacs]
       - [0x81490, .data, libultra/vi]
       - [0x81500, .data, libultra/timerintr]
-      - [0x81510, data, libultra/xprintf]
+      - [0x81510, .data, libultra/xprintf]
       - [0x81560, .data, libultra/xlitob]
       # The conservative rodata tail remains mostly anonymous. Selected SDK
       # slices below are attached TU by TU only where reference-object size,
@@ -614,11 +632,10 @@ segments:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
       #      covered 35 functions and forty-four tables. After devmgr's table
-      #      moved into its exact C object, the 19 jump tables still emitted in
-      #      asm/ belong to 34 functions whose ROM and table addresses are both
-      #      monotonically increasing -- ZERO INVERSIONS. First pair (ROM
-      #      0x7D18 -> jtbl_80080D2C), last (ROM 0x75120 -> jtbl_800849C4).
-      #      So .rodata can be carved TU by TU in text order.
+      #      moved into C objects, the 19 jump tables still emitted in asm/
+      #      remain monotonically increasing in text and table address -- ZERO
+      #      INVERSIONS. They run from jtbl_80080D2C through jtbl_800841F4, so
+      #      .rodata can continue to be carved TU by TU in text order.
       #
       #   2. THE REFERENCED-FROM-CODE BOUND: 0x80080D24 (ROM 0x81924). That is
       #      a float constant (7f7fffff, i.e. FLT_MAX) loaded by the function
@@ -686,17 +703,17 @@ segments:
       - [0x853B0, .rodata, libultra/n_synsetfxparam]
       - [0x853C0, .rodata, libultra/n_reverb]
       - [0x853F0, .rodata, libultra/n_env]
-      - [0x85440, rodata]
+      - [0x85440, .rodata, main/math_atan]
       - [0x85460, .rodata, libultra/n_auxbus]
       - [0x85470, .rodata, libultra/n_alLPFilter]
-      - [0x85480, rodata]
+      - [0x85480, .rodata, main/math_acosf]
       - [0x85490, .rodata, libultra/n_resample]
       - [0x854A0, .rodata, libultra/sinf]
       - [0x854F0, rodata]
       - [0x85570, .rodata, libultra/devmgr]
       - [0x85590, rodata]
-      - [0x855A0, rodata, libultra/xprintf]
-      - [0x856A0, rodata, libultra/xldtob]
+      - [0x855A0, .rodata, libultra/xprintf]
+      - [0x856A0, .rodata, libultra/xldtob]
       - [0x85700, rodata]
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }

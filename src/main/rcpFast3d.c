@@ -339,7 +339,8 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
 #ifdef NON_MATCHING
 /* Workbench: register-ring-only; 4/107 words differ first at +0x74, with frame and relocations exact.
  * Levers: context parity, direct masks, full flag lattice, FIFO 14-16, and bounded permutation.
- * Remains: the two aligned-coordinate masks are one temp-ring slot earlier than the target. */
+ * Six source-faithful declaration/mask/lifetime probes preserve this residual;
+ * no instrumented globalcolor/UGEN trace is available in this lane. */
 /* PROVENANCE: command sequence adapted from DKR's public src/rcp_dkr.c:bgdraw_render. */
 void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
                      s32 arg4, s32 arg5, s32 arg6) {

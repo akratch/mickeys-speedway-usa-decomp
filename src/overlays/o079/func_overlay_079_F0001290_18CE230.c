@@ -52,9 +52,19 @@ extern void overlay79TriggerReloc(void);
 extern s32 gOverlay79CounterReloc;
 extern u8 gOverlay79FlagsReloc[];
 
-/* Workbench: mixed structure/schedule/register; 12 source register words from +0xC8 in an exact 123-instruction frame.
- * Levers: scoped lifetimes, linked-state types/use, declaration forms, full flag lattice, and bounded permutation.
- * Remains: linked-state v0/v1 pool coloring, counter/flag temp FIFO, and shared-overlay relocation layout. */
+/* Workbench plateau (2026-08-28, 10 directed variants after baseline):
+ * the best source-faithful candidate remains an exact 123-instruction, 492-byte
+ * frame (-72) with 12 differing words and first mismatch at +0xC8. The
+ * residual is allocation-only in the linked-state and counter/flag webs, with
+ * shared-overlay relocation identity still requiring linked proof. Scoped
+ * linked-state lifetimes, explicit next-node declarations, branch-local
+ * spawned declarations, direct chained stores, flag-base pointers, explicit
+ * byte stores, and counter-result locals either remained at 12 or worsened to
+ * 18-59 words; every lifetime-local form that changed code also grew the frame
+ * to -80. The counter assignment spelling was byte-identical to baseline.
+ * The remaining blocker is the target's v0/v1 linked-state pool coloring and
+ * t2/t3 counter/flag temp FIFO; no exact, relocation-complete, linked result
+ * was found within the bounded campaign. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
     Overlay79Node *node;

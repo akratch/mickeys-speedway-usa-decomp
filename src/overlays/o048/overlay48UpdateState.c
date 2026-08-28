@@ -27,14 +27,8 @@ extern void overlay48BeginTransition(s32 mode);
 extern void overlay48ContinueTransition(void);
 extern void overlay48FinishTransition(f32 value, s32 mode);
 
-/*
- * Plateau (2026-08-25): a word-sized control value plus repeated script
- * expressions reproduces the exact 178-instruction shape, frame, opcodes,
- * schedule, and CFG.  Four register-allocation words differ starting at
- * +0x150: the control web uses a0 instead of retail's v1.  The flag lattice
- * and a bounded permuter run did not correct the remaining pool color.
- */
-#ifdef NON_MATCHING
+/* A source-level switch preserves the script operation order while giving
+ * IDO the retail control web and register allocation. */
 void overlay48UpdateState(s32 updateRate) {
     Overlay48Entry *entry;
     s32 index;
@@ -79,9 +73,9 @@ void overlay48UpdateState(s32 updateRate) {
     if (gOverlay48Finished == 0 &&
         ((gOverlay48Timer -= updateRate) <= 0)) {
         control = *gOverlay48Script;
-        if (control != -4) {
-            if (*gOverlay48Script != -3) {
-                if (*gOverlay48Script == -1 && allSettled != 0) {
+        switch ((s32) control) {
+            case -1:
+                if (allSettled != 0) {
                     gOverlay48Script++;
                     index = *gOverlay48Script;
                     gOverlay48Script++;
@@ -110,20 +104,19 @@ void overlay48UpdateState(s32 updateRate) {
                         gOverlay48Script++;
                     }
                 }
-            } else {
+                break;
+            case -3:
                 gOverlay48Script++;
                 gOverlay48Entries[*gOverlay48Script].active = 0;
                 gOverlay48Entries[*gOverlay48Script].lifetime = 0;
                 gOverlay48Script++;
-            }
-        } else {
-            gOverlay48Finished = 1;
-            overlay48BeginTransition(1);
-            overlay48ContinueTransition();
-            overlay48FinishTransition(gOverlay48TransitionValue, 0);
+                break;
+            case -4:
+                gOverlay48Finished = 1;
+                overlay48BeginTransition(1);
+                overlay48ContinueTransition();
+                overlay48FinishTransition(gOverlay48TransitionValue, 0);
+                break;
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o048/overlay48UpdateState/func_overlay_048_F0000144_189554C.s")
-#endif

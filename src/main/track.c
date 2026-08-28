@@ -1644,9 +1644,13 @@ next_plane:
  * supply structural context only. Mickey's vector layout, arithmetic, and
  * output pointers are reconstructed from the resident call sites and bytes.
  */
-/* Workbench plateau: register-permutation, 57 instructions, first +0x50.
- * The exact frame, schedule, and sqrtf relocation remain; IDO swaps the f14/f18
- * projection webs. Declaration, lifetime, volatile, and ABI probes did not move it. */
+/* Workbench plateau: allocation-mismatch, 57 instructions, first +0x50.
+ * The exact 0x48 frame, opcode schedule, and sqrtf relocation remain; IDO
+ * exchanges the projection and projection-square FP webs. A bounded lifetime
+ * revisit found that negative-projection and named-discriminant forms are
+ * byte-identical, while fresh or reused named dot terms grow the body to 63
+ * words (the fresh-local form also grows the frame to 0x58).
+ */
 s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
                   TrackVec3f *center, f32 radius, f32 *minimum,
                   f32 *maximum) {

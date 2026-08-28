@@ -2,7 +2,7 @@
 """Structurally match Mickey's 107 overlays to Jet Force Gemini's 157 modules.
 
 Byte-identity between the two games' overlay code found only three shared
-functions (docs/reference-findings.md section 5): `alSeqFileNew`,
+functions (docs/acceleration-survey.md section 6): `alSeqFileNew`,
 `refractOutput`, and `osRamTest4_6105`/`osRamTest3_6105`. JFG's overlay code
 was compiled from a different revision, so bytes mostly do not match. What
 does transfer is *structure*: each overlay's text/data/bss footprint,
@@ -64,8 +64,8 @@ JFG_REFS = os.path.join(JFG_ROOT, "overly_refs.txt")
 JFG_MAP = os.path.join(JFG_ROOT, "build", "jfg.us.map")
 JFG_ROM = os.path.join(JFG_ROOT, "build", "jfg.us.z64")
 
-# The three byte-identical cross-game anchors (docs/reference-findings.md
-# section 5). Only two land inside a JFG *overlay module* -- alSeqFileNew is
+# The three byte-identical cross-game anchors (docs/acceleration-survey.md
+# section 6). Only two land inside a JFG *overlay module* -- alSeqFileNew is
 # resident code on BOTH sides (JFG's Main Code section; Mickey's own overlay
 # 5 copy is a per-overlay DKR donor object, not resident, per
 # docs/modules.md sec. "5.3"/649-669 -- so even though Mickey placed the
@@ -988,7 +988,7 @@ def build_report():
         "source": {
             "mickey_atlas": os.path.relpath(ATLAS, REPO),
             "mickey_rom_available": mickey_rom is not None,
-            "jfg_root": "$JFG_ROOT",
+            "jfg_root": JFG_ROOT,
             "jfg_root_available": jfg_available,
             "jfg_rom_available": jfg_rom is not None,
         },

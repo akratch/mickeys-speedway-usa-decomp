@@ -248,7 +248,11 @@ typedef struct Overlay1SearchRecord {
 
 extern Overlay1SearchRecord **overlay1SearchRangeReloc(s32 *start, s32 *end);
 
-/* The pinned DKR v77/v80 and JFG object scans contain no exact donor. */
+/* The pinned DKR v77/v80 and JFG object scans contain no exact donor.
+ * Workbench p1 plateau: allocation mismatch. Six source-faithful lifetime,
+ * traversal, and key-spelling forms were neutral or regressed; one bounded
+ * report-only permuter pass had no comparable base or zero. GLOBAL_ASM remains
+ * canonical. */
 #ifdef NON_MATCHING
 Overlay1SearchRecord *overlay1FindType5ByKey(const s8 *key) {
     s32 start;

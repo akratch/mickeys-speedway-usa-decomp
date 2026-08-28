@@ -52,7 +52,7 @@ AS = ROOT / "tools" / "binutils" / "mips64-elf-as"
 OBJDUMP = ROOT / "tools" / "binutils" / "mips64-elf-objdump"
 OBJCOPY = ROOT / "tools" / "binutils" / "mips64-elf-objcopy"
 ASM_FLAGS = ["-march=vr4300", "-32", "-mabi=32", "-G0", "-I", "include"]
-ASM_PROC_FLAGS = ASM_FLAGS
+ASM_PROC_FLAGS = ASM_FLAGS + ["include/asm_processor_prelude.inc"]
 ASM_HEADER = '.set noat\n.set noreorder\n.include "macro.inc"\n.section .text, "ax"\n'
 
 PRAGMA_RE = re.compile(
@@ -343,7 +343,7 @@ def compile_candidate(
 ) -> tuple[bool, str, str]:
     cc = shlex.split(flags["CC"])
     cmd = (
-        [PYTHON, ASM_PROCESSOR, "--asm-prelude", "include/asm_processor_prelude.inc"]
+        [PYTHON, ASM_PROCESSOR]
         + cc
         + ["--", AS]
         + ASM_PROC_FLAGS

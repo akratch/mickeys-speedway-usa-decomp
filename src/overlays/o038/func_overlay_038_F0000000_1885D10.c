@@ -42,9 +42,10 @@ typedef struct O38DirectionInput {
 extern s32 o38RandomRange(s32 minimum, s32 maximum);
 extern void o38MakeDirection(s16 *source, s16 *destination);
 
-/* Workbench p6: mixed structural/schedule; 7/85 words remain, first +0x48; frame exact.
- * Tried pointer-chain and initialization-order probes after the inherited flag/line/declaration sweep; no closure.
- * Remains: late s0/s3 pointer materialization, direction pool coloring, and seven symbol identities. */
+/* Workbench (2026-08-28): 340 B/85 words, exact 0x60 frame, seven raw words first +0x48.
+ * Candidate has seven R_MIPS_26 roles, whose target identities remain unresolved; they are not masked match credit.
+ * Particle/direction declaration initializers regress to 11 words and swap s2/s3; inherited pointer-chain and init sweeps were exhausted.
+ * Remains: late s0/s3 materialization, direction-pool coloring, and seven symbol identities; canonical assembly stays. */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000000_1885D10(O38Object *object,
                                        O38Descriptor *descriptor)

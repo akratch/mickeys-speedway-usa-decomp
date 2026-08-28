@@ -1457,8 +1457,9 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 
 #ifdef NON_MATCHING
 /* Workbench: mixed(structural:8, register:4), 10/27 positional words differ, first +0x1c; frame -24.
- * Levers tried: context lint, flag lattice, relational/boolean forms, result web, and typed result probe.
- * Remains: IDO's boolean materialization before each branch; short-circuit forms collapse to 25 words. */
+ * The three call relocations are exact at +0x14/+0x30/+0x4c. Six additional
+ * raw/boolean result webs tied this body or grew to 29 words; retained boolean
+ * materialization before each branch remains the unresolved source mechanism. */
 s32 func_80028FCC(s32 arg0) {
     if (func_80028FB8(0, 0, arg0)) {
         return TRUE;

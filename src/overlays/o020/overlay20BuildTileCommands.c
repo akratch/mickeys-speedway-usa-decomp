@@ -17,8 +17,9 @@ typedef struct Overlay20TileSource {
     void *resource;
 } Overlay20TileSource;
 
-extern void overlay20TileSetupReloc(Overlay20Command **commands,
-                                    void *resource, s32 arg2, s32 arg3);
+extern void func_overlay_020_F0000000_18765D8(Overlay20Command **commands,
+                                               void *resource, s32 arg2,
+                                               s32 arg3);
 
 #define OVERLAY20_SHIFTL(value, shift, width)                              \
     ((u32)(((u32)(value) & ((1U << (width)) - 1)) << (shift)))
@@ -51,12 +52,12 @@ extern void overlay20TileSetupReloc(Overlay20Command **commands,
     }
 
 /*
- * Plateau (2026-08-25, 6 attempts): the closest exact-size -O2 experiment
- * differs in 5 of 134 words and first diverges at +0x48.  A seven-element
- * chunk array recovers the retail frame but is not retained because the
- * source cannot prove that reduced capacity; the 13-element body instead
- * differs in 7 words.  The unresolved shape is the stack allocation for the
- * three command-macro temporaries plus one doubled-width register choice.
+ * Plateau (2026-08-28, bounded closeout): the capacity-preserving 13-element
+ * body is exact in 130 of 134 aligned instructions; the four residual words
+ * are stack-frame constants, with the helper relocation and register/schedule
+ * shape exact.  A seven-element diagnostic recovers the retail frame but is
+ * not retained without independent capacity proof.  Direct macro pointers and
+ * a separate inner index both regress the allocation shape.
  */
 #ifdef NON_MATCHING
 void overlay20BuildTileCommands(Overlay20Command **commands,
@@ -70,8 +71,9 @@ void overlay20BuildTileCommands(Overlay20Command **commands,
     s32 textureOffset;
     s32 outputOffset;
     s32 chunkWidth;
+    s32 doubledWidth;
 
-    overlay20TileSetupReloc(commands, source->resource, arg2, 0);
+    func_overlay_020_F0000000_18765D8(commands, source->resource, arg2, 0);
     width = source->width;
     chunkCount = 0;
     writeCursor = chunks;
@@ -109,11 +111,12 @@ void overlay20BuildTileCommands(Overlay20Command **commands,
                     (*commands)++,
                     textureOffset + source->width * 10 + (s32)0x8000000A,
                     chunkWidth + 1, 0x1200);
+                doubledWidth = chunkWidth << 1;
                 OVERLAY20_POLYGON((*commands)++,
                                   outputOffset + (s32)0x80000000,
-                                  chunkWidth << 1, 1);
+                                  doubledWidth, 1);
                 textureOffset += chunkWidth * 10;
-                outputOffset += (chunkWidth << 1) << 4;
+                outputOffset += doubledWidth << 4;
             } while (width != chunkCount);
         }
         textureOffset += 10;

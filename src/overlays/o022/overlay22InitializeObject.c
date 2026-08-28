@@ -22,7 +22,13 @@ extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
 /* Workbench: mixed(constant:3,schedule:11); 5/172 words remain, first +0xCC, with frame and register lanes exact.
  * Lever: aggregate/array-tail carrier probes after prior flag, lifetime, declaration, volatile, nested, and permuter work; each grew or disturbed the frame.
- * Remains: objectPosition home sp+0x28 versus target sp+0x30 and reversed D_A7C stores; canonical assembly stays. */
+ * Remains: objectPosition home sp+0x28 versus target sp+0x30 and reversed D_A7C stores; canonical assembly stays.
+ * Tier-2 trace revisit (2026-08-28): proc 0 retained 17 allocator webs, but
+ * trace-stack-homes and trace-frame reported no producer-emitted virtual/final
+ * home fields. A scoped objectPosition lifetime variant kept frame -0x58 but
+ * worsened the operand residual to 6/172 words by moving the planes carrier to
+ * sp+0x30; the target home pair remained unreachable. The grounded family is
+ * parked pending calibrated stack-home producer evidence. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     void *contact;

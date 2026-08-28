@@ -294,9 +294,12 @@ void mmFree(void *data) {
  */
 void ReleaseUnusedLinkSlots(void);
 
-/* Plateau: workbench structure-mismatch, stock -O2 is 62/63 instructions and
- * diverges at +0x4; explicit and register-qualified BSS pointers fold away.
- * The 119-combination lattice's -O2 -g3 score is structurally worse; target keeps the BSS address in s0. */
+/* Plateau (2026-08-28): stock -O2 remains best at 62/63 words, an exact 0x30
+ * frame, the same 12 relocation identities, and 11 workbench rows away; first
+ * mismatch is +0x4. Predecrement is object-identical; an inverted branch (21
+ * rows), a reused BSS cursor (63 rows/10 relocations), and a block-local last
+ * count (61/63 words, 26 rows) regress. The target alone keeps &D_800D21B0 in
+ * s0; the 119-flag lattice and pointer forms remain exhausted. */
 #ifdef NON_MATCHING
 void func_8002B7AC(void) {
     s32 i;

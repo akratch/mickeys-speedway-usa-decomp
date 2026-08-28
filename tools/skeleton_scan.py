@@ -4,9 +4,9 @@ against Mickey's resident text and overlay text by opcode/funct/fmt shape,
 with registers, immediates and jump targets masked out. Two functions compare
 equal here when they are the same source built by the same compiler,
 regardless of register allocation, addresses or constants -- the same
-"skeleton" idea `docs/reference-findings.md` section 5 measures with.
+"skeleton" idea `docs/acceleration-survey.md` section 2-3 measures with.
 
-This is a project tool grown out of an earlier scratch prototype
+This is a project tool grown out of that review's scratch prototype
 (`scratchpad/fingerprint.py` / `kinship.py` / `resident.py` / `selfsim.py`).
 It reads the baserom and reference *built object* files at runtime and prints
 derived counts and offsets; it never writes ROM bytes, disassembly text, or
@@ -20,7 +20,7 @@ Subcommands
   kinship   -- 8-gram kinship of a region against each reference project,
                plus reference-vs-reference calibration rows.
   similar   -- nearest reference functions to one target function, for use
-               as worked examples when hand-matching it.
+               as in-context examples when hand-matching it.
 
 See docs/skeleton-scan.md for usage and the calibration numbers measured
 against this tree.
@@ -232,7 +232,7 @@ def skel_index(refs):
 
 def load_rom():
     if not BASEROM.is_file():
-        sys.exit(f"error: baserom not found at {BASEROM} (see README.md build instructions)")
+        sys.exit(f"error: baserom not found at {BASEROM} (see CLAUDE.md build quickstart)")
     return BASEROM.read_bytes()
 
 

@@ -2,7 +2,7 @@
  * PROVENANCE: adapted from Jet Force Gemini's public decompilation
  * (github.com/Ryan-Myers/Jet-Force-Gemini), a permitted source under
  * docs/CLEANROOM.md; see docs/modules.md section 4.4 and
- * docs/reference-findings.md section 3.
+ * docs/acceleration-survey.md section 13.3.
  * JFG sources: libultra/src/naudio/n_reverb.c and n_save.c at c75c270.
  * Mickey links those two adjacent JFG objects as one measured TU.
  */

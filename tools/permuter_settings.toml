@@ -58,8 +58,8 @@ tools/ido/cc -c -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
 -I . -I include -I include/libc -I include/PR -I assets -O2 -mips1 -32
 """
 #
-# assembler_command deliberately omits the project asm-processor prelude:
-# include/asm_processor_prelude.inc defines glabel/dlabel/
+# assembler_command deliberately omits Makefile's ASM_PROC_ASFLAGS addition
+# of include/asm_processor_prelude.inc: that prelude defines glabel/dlabel/
 # alabel/... as .macro, and so does decomp-permuter's own prelude.inc, which
 # import.py always prepends to target.s. Passing both to `as` in one
 # invocation is a duplicate-.macro-definition error ("Macro `endlabel' was
@@ -78,7 +78,7 @@ assembler_command = "tools/binutils/mips64-elf-as -march=vr4300 -32 -mabi=32 -G0
 
 # Maps compiler_command's argv[0] to a decomp.me compiler ID, only consulted
 # by `import.py --decompme`. tools/ido-static-recomp was never built here
-# (see docs/reference-findings.md section 6); this project's actual IDO is
+# (see docs/acceleration-survey.md section 10); this project's actual IDO is
 # tools/ido/cc (gitignored, fetched by tools/setup_toolchain.sh).
 [decompme.compilers]
 "tools/ido/cc" = "ido5.3"

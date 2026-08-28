@@ -2,7 +2,7 @@
 """Batch decomp-permuter runner over the NON_MATCHING queue.
 
 docs/adr/0007-matching-tools.md: decomp-permuter runs only as a *bounded
-batch job*, separate from the interactive matching loop. This is that job
+batch job*, never inside an agent's own reasoning loop. This is that job
 runner. It does not reason about candidates; it imports each queued
 function, runs permuter.py under a wall-clock cap, and reports what came
 back. See docs/permute-batch.md for the day-to-day usage writeup.
@@ -101,6 +101,19 @@ PYTHON = ROOT / ".venv" / "bin" / "python"
 BUILD_PERMUTER = ROOT / "build" / "permuter"
 SUMMARY_JSON = BUILD_PERMUTER / "summary.json"
 SUMMARY_TXT = BUILD_PERMUTER / "summary.txt"
+RANKING_PATH = ROOT / "config" / "nonmatching-ranking.us.json"
+
+# Flags that shape codegen and therefore must match the real per-file build
+# exactly (the same set tools/permute.sh recovers). Anything else in the cc
+# line (-I, -D, -c, -o ...) is reproduced by BASE_CC_ARGS/INCLUDES already.
+CODEGEN_FLAG_RE = re.compile(
+    r"-mips[0-9]|-O[0-9]|-Wo,[^ ]*|-Wab,[^ ]*|-g[0-9]?(?= |$)|-(?:32|n32|64)(?= |$)"
+)
+# Post-compile ELF passes the scratch cannot replicate: they are digest-guarded
+# against the *matched* bytes and would abort (or lie) on a permuted object.
+# trim_elf_section only trims section padding and never touches a function's
+# words, so it is harmless to skip.
+UNREPLICABLE_POSTPROC_RE = re.compile(r"\.py\b")
 
 NON_MATCHING_BLOCK_RE = re.compile(
     r"#ifdef NON_MATCHING\b(?P<body>.*?)#else\b(?P<else_>.*?)#endif\b",
@@ -270,6 +283,95 @@ def _libultra_o2_g3_tus() -> set[str]:
 _O2_G3_TUS = None
 
 
+@dataclasses.dataclass(frozen=True)
+class BuildRecipe:
+    """What the project's real build does to one TU's object: the codegen
+    flags on its cc line and any post-compile objcopy chain. Recovered from
+    `gmake -n <obj>` (the source is touched first: gmake prints nothing for
+    an up-to-date object, which is exactly the silent -mips1 false floor
+    docs/matching-triage.md records)."""
+
+    flags: tuple[str, ...]
+    objcopy_steps: tuple[str, ...]  # shell fragments, real object path intact
+    skipped_postproc: tuple[str, ...]  # digest-guarded passes not replicated
+    from_dry_run: bool
+
+
+_RECIPE_CACHE: dict[Path, BuildRecipe] = {}
+_RECIPE_LOCK = threading.Lock()
+
+
+def build_recipe_for(c_file: Path) -> BuildRecipe:
+    with _RECIPE_LOCK:
+        if c_file in _RECIPE_CACHE:
+            return _RECIPE_CACHE[c_file]
+    obj = f"build/{c_file.relative_to(ROOT).as_posix()}.o"
+    try:
+        os.utime(c_file, None)
+    except OSError:
+        pass
+    dry = subprocess.run(
+        ["gmake", "-n", obj], cwd=ROOT, stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL, text=True, timeout=120,
+    ).stdout
+    flags: tuple[str, ...] = ()
+    objcopy_steps: list[str] = []
+    skipped: list[str] = []
+    # gmake echoes the recipe verbatim, so the cc command arrives as
+    # "... tools/ido/cc -- <as> -- \" + a continuation line carrying the
+    # flags and the object path. Join continuations before parsing.
+    dry = dry.replace("\\\n", " ")
+    for line in dry.splitlines():
+        if obj not in line:
+            continue
+        if "objcopy" in line and "tools/ido/cc" not in line:
+            for seg in (s.strip() for s in line.split("&&")):
+                if not seg:
+                    continue
+                if UNREPLICABLE_POSTPROC_RE.search(seg):
+                    skipped.append(seg)
+                elif "objcopy" in seg:
+                    objcopy_steps.append(seg)
+                else:
+                    skipped.append(seg)
+        elif "tools/ido/cc" in line and not flags:
+            found = CODEGEN_FLAG_RE.findall(line)
+            if any(f.startswith("-mips") for f in found):
+                flags = tuple(dict.fromkeys(found))
+    if flags:
+        recipe = BuildRecipe(flags, tuple(objcopy_steps), tuple(skipped), True)
+    else:
+        print(
+            f"WARNING: could not recover real compile flags for {obj}; "
+            f"falling back to the static flag group (may search the wrong ISA)",
+            file=sys.stderr,
+        )
+        recipe = BuildRecipe(flag_group_for(c_file), tuple(objcopy_steps), tuple(skipped), False)
+    with _RECIPE_LOCK:
+        _RECIPE_CACHE[c_file] = recipe
+    return recipe
+
+
+def replicate_objcopy(scratch: Path, recipe: BuildRecipe, c_file: Path, out_dir: Path) -> None:
+    """Append the TU's post-compile objcopy chain to the scratch's compile.sh,
+    retargeted at the scratch object, so the scratch object == the real
+    per-TU object (workbench improvement-backlog #9). Records what was and
+    was not replicated in <out_dir>/recipe.txt."""
+    obj = f"build/{c_file.relative_to(ROOT).as_posix()}.o"
+    csh = scratch / "compile.sh"
+    lines = [f"flags: {' '.join(recipe.flags)} ({'gmake -n' if recipe.from_dry_run else 'static group'})"]
+    if recipe.objcopy_steps and csh.is_file():
+        with open(csh, "a") as f:
+            f.write("\n")
+            for step in recipe.objcopy_steps:
+                remapped = step.replace(obj, '"$OUTPUT"')
+                f.write(remapped + "\n")
+                lines.append(f"replicated: {remapped}")
+    for s in recipe.skipped_postproc:
+        lines.append(f"skipped (not replicable): {s}")
+    (out_dir / "recipe.txt").write_text("\n".join(lines) + "\n")
+
+
 def flag_group_for(c_file: Path) -> tuple[str, ...]:
     global _O2_G3_TUS
     rel = c_file.relative_to(ROOT / "src").as_posix()
@@ -385,6 +487,10 @@ class RunResult:
     promote_error: Optional[str] = None
     error: Optional[str] = None
     seconds: float = 0.0
+    flags: Optional[str] = None  # real codegen flags the scratch compiled with
+    replicated_objcopy: int = 0  # post-compile objcopy steps appended to compile.sh
+    extended: bool = False  # score-trend extension run happened
+    commit_error: Optional[str] = None
 
 
 def write_settings_toml(out_path: Path, flags: tuple[str, ...]) -> None:
@@ -481,18 +587,44 @@ def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: 
     return scratch
 
 
-def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra_args: list[str]) -> tuple[Optional[int], float]:
-    log_path = out_dir / "permuter.log"
+def wait_for_headroom(threshold: float, label: str = "") -> None:
+    """Block until the 1-minute load average is under `threshold`. The
+    machine froze under an unthrottled fleet (load ~20 on 14 cores); every
+    compile-heavy launch here gates on headroom first."""
+    if threshold <= 0:
+        return
+    waited = 0
+    while True:
+        try:
+            load = os.getloadavg()[0]
+        except OSError:
+            return
+        if load < threshold:
+            return
+        if waited == 0:
+            print(f"[headroom] load {load:.1f} >= {threshold:.1f}; waiting {label}".rstrip())
+        time.sleep(15)
+        waited += 15
+
+
+def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra_args: list[str], log_name: str = "permuter.log") -> tuple[Optional[int], float]:
+    log_path = out_dir / log_name
+    # --stack-diffs is essential for a byte-identical rebuild: without it the
+    # scorer normalizes sp-relative offsets and reports a false 0 for a spill
+    # at the wrong slot (docs/matching-triage.md, func_80012574). nice keeps
+    # the search from starving integration builds.
     args = [
+        "nice", "-n", "15",
         str(PYTHON),
         str(PERMUTER_PY),
         "--stop-on-zero",
         "--quiet",
         "-j",
         str(threads),
-        *extra_args,
-        str(scratch),
     ]
+    if "--stack-diffs" not in extra_args:
+        args.append("--stack-diffs")
+    args += [*extra_args, str(scratch)]
     start = time.monotonic()
     with open(log_path, "w") as log_f:
         try:
@@ -650,32 +782,80 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int) -> tuple[b
         return revert(f"timed out: {e}")
 
 
-def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: int, apply: bool, extra_args: list[str]) -> RunResult:
+def _best(scratch: Path) -> tuple[Optional[Path], Optional[int]]:
+    best_dir = best_output_dir(scratch)
+    if best_dir is None:
+        return None, None
+    score_file = best_dir / "score.txt"
+    return best_dir, int(score_file.read_text().strip()) if score_file.is_file() else None
+
+
+def commit_match(item: QueueItem) -> Optional[str]:
+    """Commit a verified promotion on the current branch. Returns an error
+    string, or None. Only the function's own C file is staged, so a batch
+    never sweeps unrelated working-tree changes into a match commit."""
+    with PROMOTE_LOCK:
+        add = subprocess.run(["git", "add", "--", item.rel_c_file], cwd=ROOT, capture_output=True, text=True)
+        if add.returncode != 0:
+            return "git add failed: " + add.stderr[-2000:]
+        msg = (
+            f"Match {item.func} (permuter)\n\n"
+            f"Found by tools/permute_batch.py (real per-file flags, replicated objcopy,\n"
+            f"--stack-diffs); promoted only after gmake verify on the project build path.\n"
+            f"Form may be permuter-shaped; see docs/cleanup-queue.md policy."
+        )
+        c = subprocess.run(["git", "commit", "-q", "-m", msg], cwd=ROOT, capture_output=True, text=True)
+        if c.returncode != 0:
+            return "git commit failed: " + (c.stdout + c.stderr)[-3000:]
+    return None
+
+
+def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: int, apply: bool,
+            extra_args: list[str], load_threshold: float = 0.0, extend_minutes: int = 0,
+            commit: bool = False) -> RunResult:
     out_dir = BUILD_PERMUTER / item.func
     out_dir.mkdir(parents=True, exist_ok=True)
     result = RunResult(func=item.func, c_file=item.rel_c_file, overlay=item.overlay, ok=False)
     start = time.monotonic()
     try:
-        flags = flag_group_for(item.c_file)
+        recipe = build_recipe_for(item.c_file)
+        result.flags = " ".join(recipe.flags)
+        result.replicated_objcopy = len(recipe.objcopy_steps)
         settings_path = out_dir / "permuter_settings.toml"
-        write_settings_toml(settings_path, flags)
+        write_settings_toml(settings_path, recipe.flags)
         target_asm = prepare_target_asm(item, out_dir)
         scratch = run_import(item, out_dir, settings_path, target_asm)
-        base_score, _elapsed = run_permuter(scratch, out_dir, minutes, permuter_threads, extra_args)
+        replicate_objcopy(scratch, recipe, item.c_file, out_dir)
+        wait_for_headroom(load_threshold, f"before permuting {item.func}")
+        base_score, elapsed = run_permuter(scratch, out_dir, minutes, permuter_threads, extra_args)
         result.base_score = base_score
         result.ok = True
 
-        best_dir = best_output_dir(scratch)
-        if best_dir is not None:
-            score_file = best_dir / "score.txt"
-            best_score = int(score_file.read_text().strip()) if score_file.is_file() else None
-            result.best_score = best_score
-            if best_score == 0:
-                result.zero_found = True
-                if apply:
-                    promoted, err = promote(item, best_dir / "source.c", build_jobs)
-                    result.promoted = promoted
-                    result.promote_error = err
+        best_dir, best_score = _best(scratch)
+        # Score-trend extension: if the run hit the cap and its best result
+        # landed in the final third of the window, the search was still
+        # descending -- re-seed from the best candidate and run once more.
+        # A search that found its best early and then sat is not extended
+        # (docs/permute-batch.md: search time is not the fix for a plateau).
+        if (extend_minutes > 0 and best_dir is not None and best_score not in (None, 0)
+                and elapsed >= minutes * 60 * 0.95):
+            age = time.time() - best_dir.stat().st_mtime
+            if age < minutes * 60 / 3:
+                result.extended = True
+                shutil.copy(best_dir / "source.c", scratch / "base.c")
+                wait_for_headroom(load_threshold, f"before extending {item.func}")
+                run_permuter(scratch, out_dir, extend_minutes, permuter_threads, extra_args, "permuter-extend.log")
+                best_dir, best_score = _best(scratch)
+        result.best_score = best_score
+        if best_score == 0 and best_dir is not None:
+            result.zero_found = True
+            if apply:
+                wait_for_headroom(load_threshold, f"before promoting {item.func}")
+                promoted, err = promote(item, best_dir / "source.c", build_jobs)
+                result.promoted = promoted
+                result.promote_error = err
+                if promoted and commit:
+                    result.commit_error = commit_match(item)
     except Exception as e:  # noqa: BLE001 -- report, don't crash the batch
         result.error = str(e)
     result.seconds = time.monotonic() - start
@@ -702,8 +882,43 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument(
         "--build-jobs",
         type=int,
-        default=max(os.cpu_count() or 4, 1),
-        help="gmake -jN to use when promoting a zero-score match (default: ncpu)",
+        default=6,
+        help="gmake -jN to use when promoting a zero-score match (default: 6, the "
+        "integration-build cap that keeps the workstation responsive)",
+    )
+    p.add_argument(
+        "--order",
+        choices=["ranking", "queue"],
+        default="ranking",
+        help="ranking: closest first by config/nonmatching-ranking.us.json differing_words "
+        "(unranked last, then by name); queue: discovery order (default: ranking)",
+    )
+    p.add_argument(
+        "--resume",
+        action="store_true",
+        help="skip functions already present in build/permuter/summary.json (re-run only "
+        "what a previous batch did not reach)",
+    )
+    p.add_argument(
+        "--extend-minutes",
+        type=int,
+        default=0,
+        help="if a run hits its cap while its score was still descending (best result in "
+        "the last third of the window), re-seed from the best candidate and run this many "
+        "more minutes once (default: 0 = off)",
+    )
+    p.add_argument(
+        "--load-threshold",
+        type=float,
+        default=9.0,
+        help="wait until the 1-min load average is below this before each permuter launch "
+        "and each promotion build (default: 9.0; 0 disables)",
+    )
+    p.add_argument(
+        "--commit",
+        action="store_true",
+        help="with --apply: git-commit each verified promotion (only the function's C file "
+        "is staged) as 'Match <fn> (permuter)'",
     )
     p.add_argument(
         "--apply",
@@ -735,8 +950,27 @@ def main(argv: list[str]) -> int:
         queue = [it for it in queue if it.overlay == args.overlay]
     if args.function is not None:
         queue = [it for it in queue if it.func == args.function]
+    if args.order == "ranking":
+        rank: dict[str, tuple[int, int]] = {}
+        if RANKING_PATH.is_file():
+            for row in json.loads(RANKING_PATH.read_text()).get("functions", []):
+                words = row.get("differing_words")
+                if isinstance(words, int):
+                    rank[row["name"]] = (words, row.get("size_bytes") or 0)
+        queue.sort(key=lambda it: (rank.get(it.func, (10**9, 0)), it.func))
+        unranked = sum(1 for it in queue if it.func not in rank)
+        if unranked:
+            print(f"note: {unranked} queued function(s) have no ranking row; they run last")
+    if args.resume and SUMMARY_JSON.is_file():
+        done = {r["func"] for r in json.loads(SUMMARY_JSON.read_text()).get("results", [])}
+        before = len(queue)
+        queue = [it for it in queue if it.func not in done]
+        print(f"--resume: skipping {before - len(queue)} already-run function(s)")
     if args.limit is not None:
         queue = queue[: args.limit]
+    if args.commit and not args.apply:
+        print("--commit requires --apply", file=sys.stderr)
+        return 2
 
     if args.list or not queue:
         print(f"{len(queue)} queued function(s):")
@@ -757,6 +991,12 @@ def main(argv: list[str]) -> int:
 
     BUILD_PERMUTER.mkdir(parents=True, exist_ok=True)
     results: list[RunResult] = []
+    if args.resume and SUMMARY_JSON.is_file():
+        # Carry the earlier results forward so summary.json stays the whole
+        # sweep's record, not just this invocation's slice.
+        known = {f.name for f in dataclasses.fields(RunResult)}
+        for row in json.loads(SUMMARY_JSON.read_text()).get("results", []):
+            results.append(RunResult(**{k: v for k, v in row.items() if k in known}))
 
     print(
         f"Running {len(queue)} function(s), {jobs} concurrent, "
@@ -766,7 +1006,8 @@ def main(argv: list[str]) -> int:
 
     if jobs == 1:
         for it in queue:
-            r = run_one(it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args)
+            r = run_one(it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
+                        args.load_threshold, args.extend_minutes, args.commit)
             results.append(r)
             print_result(r)
             write_summary(results)
@@ -774,7 +1015,8 @@ def main(argv: list[str]) -> int:
         with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
             futures = {
                 pool.submit(
-                    run_one, it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args
+                    run_one, it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
+                    args.load_threshold, args.extend_minutes, args.commit,
                 ): it
                 for it in queue
             }

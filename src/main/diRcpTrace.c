@@ -56,55 +56,39 @@ void func_80044BC8(Gfx *value0, char *value4, s32 value8) {
     }
 }
 /*
- * Workbench: mixed(schedule:2, register:30), exact size/frame/75 instructions/32 words, first mismatch +0xC.
- * Levers: explicit end-offset bound made the opcode schedule exact but left 51 allocation words; source reverted.
- * Remains: target buffer-in-v1 coloring and the following temporary phase.
+ * PROVENANCE: loop and entry-selection spelling adapted from JFG's public
+ * src/diRcpTrace.c:diRcpTraceGetInfo after that source was matched upstream
+ * in commit 2f49ab3. Mickey's buffer sizes, symbols, ABI, and target bytes
+ * remain authoritative. The resulting 0x12C-byte function and its six
+ * relocation pairs are byte-identical to Mickey's ROM.
  */
-#ifdef NON_MATCHING
-/* PROVENANCE: parameter and entry roles adapted from JFG src/sched.c and
- * src/diRcpTrace.c; the body is Mickey-derived and JFG's peer is assembly-only. */
 void func_80044C94(Gfx *value, char **lowerValue4, s32 *lowerValue8,
                    Gfx **lowerValue0, char **upperValue4, s32 *upperValue8,
                    Gfx **upperValue0) {
+    s32 i;
     s32 buffer;
-    s32 lowerOffset;
-    s32 count;
-    s32 offset;
-    DiRcpTraceEntry *entries;
-    DiRcpTraceEntry *entry;
     Gfx *entryValue;
     Gfx *lower;
     Gfx *upper;
     DiRcpTraceEntry *lowerEntry;
-    s32 entrySize;
     DiRcpTraceEntry *upperEntry;
 
-    entrySize = sizeof(DiRcpTraceEntry);
     buffer = 1 - D_8007CFC8;
-    count = D_800D4A90[buffer];
     lower = 0;
     upper = (Gfx *)-1;
     lowerEntry = NULL;
     upperEntry = NULL;
-    if (count > 0) {
-        entries = DI_RCP_TRACE_BUFFERS[buffer];
-        entry = entries;
-        offset = 0;
-        do {
-            entryValue = entry->value0;
-            if (value >= entryValue && lower < entryValue) {
-                lower = entryValue;
-                lowerOffset = offset;
-                lowerEntry =
-                    (DiRcpTraceEntry *)((u8 *)entries + lowerOffset);
-            }
-            if (value < entryValue && entryValue < upper) {
-                upper = entryValue;
-                upperEntry = (DiRcpTraceEntry *)((u8 *)entries + offset);
-            }
-            offset += sizeof(DiRcpTraceEntry);
-            entry++;
-        } while (offset < count * entrySize);
+
+    for (i = 0; i < D_800D4A90[buffer]; i++) {
+        entryValue = DI_RCP_TRACE_BUFFERS[buffer][i].value0;
+        if (value >= entryValue && lower < entryValue) {
+            lower = entryValue;
+            lowerEntry = DI_RCP_TRACE_BUFFERS[buffer] + i;
+        }
+        if (value < entryValue && entryValue < upper) {
+            upper = entryValue;
+            upperEntry = DI_RCP_TRACE_BUFFERS[buffer] + i;
+        }
     }
     if (lowerEntry != NULL) {
         *lowerValue4 = lowerEntry->value4;
@@ -121,6 +105,3 @@ void func_80044C94(Gfx *value, char **lowerValue4, s32 *lowerValue8,
         *upperValue4 = 0;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diRcpTrace/func_80044C94.s")
-#endif

@@ -61,9 +61,10 @@ extern f32 D_4;
 extern f32 D_8;
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
-/* Workbench: allocation-mismatch; 8/100 instruction words plus overlay D_0/D_4/D_8 relocation layout, frame exact.
- * Levers: loop/index lifetime and forms, full flag lattice, global-layout probes, and constant audit.
- * Remains: target a3 versus candidate a2 pool coloring and the local overlay constant relocation surface. */
+/* Workbench (2026-08-28): 400 B/100 words, exact 0x8 frame; 8 register words remain, first +0x40.
+ * Candidate has 8 relocation roles; D_0/D_4/D_8 have six unresolved local binding sites, not masked match credit.
+ * Index declaration, state initializer, and reset-block vertex/source scope are baseline-equivalent; split indices regress to 11.
+ * Remains: target a3 versus candidate a2 pool coloring and the local constant surface; canonical assembly stays. */
 #ifdef NON_MATCHING
 void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object,
                                        Overlay73Header *header,

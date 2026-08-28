@@ -116,9 +116,13 @@ void stop_all_threads_except_main(void) {
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066D28_67928;
  * Mickey's target fixes the dump-size calculation to use the copied range. */
-/* Workbench p6: mixed constant/register allocation; 2 masked code words plus six relocation identities, 60 instructions/frame exact, first +0x18.
- * Rechecked symbolic-address, argument-hoist, phantom-pop, subtraction, flag-lattice, and bounded permutation levers; no source-stable closure.
- * Remains: D_80705014/18/1C bindings and final packWriteFile temporary color. */
+/* Workbench plateau (retested 2026-08-28): two masked code words plus six
+ * relocation identities, 60 instructions/frame exact, first +0x18. Earlier
+ * symbolic-address, argument-hoist, phantom-pop, subtraction, flag-lattice,
+ * and bounded-permutation levers remain closed. A scoped-local variant grew
+ * the frame to -56; copy-size order/initializer and register-source variants
+ * were baseline-equivalent. Remains: D_80705014/18/1C bindings and the final
+ * packWriteFile temporary color. */
 void func_80045BBC(void *thread) {
     s32 copySize;
     void *source;

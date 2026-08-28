@@ -68,11 +68,13 @@ extern Overlay84Resource *overlay84GetResource(
 extern void overlay84PrepareResource(u8 resource);
 extern void overlay84ReleaseResource(u8 resource);
 
-/* NON_MATCHING plateau (retested 2026-08-25): all 119 flag combinations and
+/* NON_MATCHING plateau (retested 2026-08-28): all 119 flag combinations and
  * ten focused declaration-scope/order, lifetime, padding, and ABI variants
  * leave four of 72 words different, first at +0x98. All four are the same
  * private state-pointer spill: natural C selects sp+0x20 while retail selects
- * the otherwise-unused sp+0x24 slot. */
+ * the otherwise-unused sp+0x24 slot. A fresh allocator trace supplied no
+ * stack-home provenance, and four additional faithful state scope/order
+ * variants either preserved the residual or expanded the frame. */
 #ifdef NON_MATCHING
 void overlay84LoadCurrent(s32 kind) {
     Overlay84Object *object;

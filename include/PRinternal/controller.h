@@ -125,6 +125,7 @@ typedef struct {
 #define CONT_CMD_READ_BUTTON    1
 #define CONT_CMD_READ_PAK       2
 #define CONT_CMD_WRITE_PAK      3
+#define CONT_CMD_WRITE_EEPROM   5
 #define CONT_CMD_RESET          0xFF
 
 #define CONT_CMD_REQUEST_STATUS_TX 1

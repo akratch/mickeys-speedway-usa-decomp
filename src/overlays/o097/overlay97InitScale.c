@@ -76,15 +76,15 @@ typedef struct Overlay97ScaleEntry {
  * Mickey's model-bound scan tail. The local header-sized pointer step is
  * intentional: it preserves the original traversal base through the scan.
  *
- * Plateau (2026-08-25): -O2/-mips2 with -Wab,-r4300_mul is size-exact and
- * differs in 1 of 144 words, first at +0xD0. The target derives the values
- * cursor from the bounds base; IDO instead derives the equivalent address
- * directly from the model base. Typed common-base forms disturb the scan
- * schedule, and the bounded permuter found no lower-scoring source form.
- * Current lane structural pass (2026-08-25): bounds-derived and single-array
- * cursors made the candidate one word short and changed 69/144 words, while
- * typed-member and volatile-qualifier variants remained at 1/144. The best
- * candidate and required multiply-hazard flag are unchanged.
+ * Plateau reproof (2026-08-28): -O2/-mips2 with -Wab,-r4300_mul emits a
+ * frameless 0x240-byte body with no relocations and differs in 1 of 144 words,
+ * first at +0xD0. The target derives the values cursor from the bounds base;
+ * IDO derives the equivalent address directly from the model base. Adjacent
+ * header, byte-member, and bounds-derived narrow-volatile forms collapsed to
+ * a 143-instruction body with 69 positional differences. Narrowing only the
+ * model lifetime reproduced the one-word baseline. Earlier flag, typed-base,
+ * broad-volatile, single-array, and bounded-permuter sweeps found no exact
+ * source form; the required multiply-hazard flag and best candidate remain.
  */
 #ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {

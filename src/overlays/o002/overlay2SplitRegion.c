@@ -32,6 +32,12 @@ extern void overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
  * lines, spelling the m2c compound condition directly, and compiling through
  * the raw D_4/D_24 symbols all produced the same residual. This remains a
  * late prologue-scheduling plateau with no remaining structural lead.
+ * Tier-2 trace revisit (2026-08-28): proc 0 retained five natural allocator
+ * webs (s0-s4), but trace-stack-homes reported no producer-emitted virtual or
+ * final-home fields. A same-line tail-state reassignment probe preserved the
+ * exact 0x120-byte/frame-0x30 body and reproduced 7/72 words with first
+ * mismatch +0xC and the identical prologue reorder. The grounded family is
+ * parked pending new scheduler evidence.
  */
 #ifdef NON_MATCHING
 void overlay2SplitRegion(Overlay2Region *previous, Overlay2Region *region) {

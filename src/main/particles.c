@@ -1965,6 +1965,10 @@ void func_80041C50(s32 arg0, s32 arg1) {
 /*
  * Workbench: allocation/pool-position, 27 words, exact size/frame/relocations, first mismatch +0x48.
  * Levers: stack-home order, intensity field, dead-web/read-count routing, 119 flags, and bounded permuter; exhausted.
+ * Follow-up (2026-08-28): ten source-faithful full-TU probes covered cursor
+ * lifetime, pointer declaration/scoping, initialization order, and loop-local
+ * order. None improved the exact-size baseline; some introduced structural or
+ * constant differences. The best remains 126/153 rows with frame -0x80.
  * Remains: target colors the outer count in a3 instead of a2; later pool webs rotate through both command words.
  */
 /* PROVENANCE: structure cross-checked against JFG's assembly-only

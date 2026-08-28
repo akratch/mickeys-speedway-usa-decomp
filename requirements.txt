@@ -1,6 +1,7 @@
 # Splitting the ROM (gmake setup / gmake extract).
-# Extraction and a byte-identical build were verified before this version was
-# pinned.
+# See docs/splat-upgrade.md for the 0.35.2 -> 0.50.0 evaluation: extraction
+# and the build are byte-identical either way, so this bump is informational
+# until the shared .venv used by other running lanes is actually upgraded.
 splat64[mips]==0.50.0
 spimdisasm==1.42.4
 

@@ -75,6 +75,22 @@ extern s32 D_1D8CRead;
 extern void overlay1GetVariableRecords(O1VariableRecord **records, s32 *length,
                                        s32 enabled, O1RecordOwner *owner);
 
+/*
+ * Plateau (2026-08-28): the target and selective-context candidate are both
+ * 0xB0 bytes (44 words) with a 0x38 frame; eight instruction words differ,
+ * first at +0x1C. Five sites are the two call-output homes: target records and
+ * length use sp+0x34/sp+0x20, while the candidate uses sp+0x30/sp+0x28. The
+ * other three sites are one conditional-store branch/address schedule. Target
+ * and candidate each have five relocs at the same offsets and of the same
+ * types (one call and two data HI/LO pairs), but the candidate's friendly call
+ * and D_1D8CRead identities remain unresolved. Removing the unused volatile
+ * local shrank the frame and regressed to 13 words; a typed store pointer,
+ * byte cursor, block-local record size, and scoped call outputs retained the
+ * eight-word baseline. Direct D_1D8C access fixed the four data-reloc names but
+ * regressed to 16 words. The consolidated NON_MATCHING TU is independently
+ * blocked by unrelated candidate declarations, so no linked exact claim is
+ * possible from the selective diagnostic.
+ */
 #ifdef NON_MATCHING
 void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
     volatile s32 private;
@@ -2824,13 +2840,21 @@ Overlay1PoolRecord *overlay1AllocateRecord(void) {
 extern void *overlay1AllocateRecordReloc(u32 *source);
 
 /* DKR v77/v80 and JFG have generic copy loops, but no exact donor. */
-/* Plateau (2026-08-25): the isolated 119-combination flag lattice finds
- * -O2/-mips1 exact-sized with 2 differing words, first at +0x24; -mips2 is
- * one word worse. Retail schedules the destination setup before the loop
- * count, while IDO reverses that adjacent pair. Declaration/assignment order,
- * register hints, comma association, block lifetimes, initialized locals, and
- * a typed whole-record copy either retain the pair or disturb the exact loop.
- * The bounded permuter cannot import this internal consolidated-TU boundary. */
+/* Plateau (2026-08-28, 8 directed variants after baseline): the isolated
+ * source-faithful -O2/-mips1 baseline is exact-sized at 23 instructions / 92
+ * bytes with frame -24 and 2 differing words, first at +0x24. Retail places
+ * destination setup before the loop count; IDO reverses that adjacent pair.
+ * Moving the assignment fixes order but rotates 10 pool registers; direct
+ * source input changes 4 schedule/displacement sites; initialized locals and
+ * comma association repeat the 10-register rotation; split increments adds
+ * structural sites; and line grouping or function-scope input is byte-identical
+ * to baseline. The -mips2 baseline is 3 words worse and -g3 changes the frame
+ * to -32. Full-TU NON_MATCHING compilation is blocked by pre-existing
+ * unrelated incomplete-type and duplicate-prototype errors in this consolidated
+ * tail TU, so the documented isolated scratch fallback was used after removing
+ * only its generated conflicting declaration. No exact relocation-complete,
+ * linked result was found; the remaining blocker is IDO setup scheduling versus
+ * the target's one relocation identity. */
 #ifdef NON_MATCHING
 void *overlay1CloneRecord(u32 *source) {
     u32 *destination;

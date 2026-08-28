@@ -32,9 +32,11 @@ typedef struct Overlay22Owner {
 extern f32 gOverlay22DataBase[];
 extern f32 func_overlay_022_F0000000_1878108(f32);
 
-/* Workbench p7: allocation-mismatch; 173/173 instructions, -0x88 frame, 7 masked/raw words, first +0x74.
- * Lever: three cross-product commutes and a compound form; the compound form regressed to 175 instructions, prior home/address probes remain eliminated.
- * Remains: three FP operand encodings and the f2/f18 spill homes four bytes apart; GLOBAL_ASM stays canonical. */
+/* Workbench p8 plateau: allocation mismatch. Target inspection leaves three
+ * source-order encodings and call-stack homes; the documented source-faithful
+ * lifetime/commutative forms and flag lattice were neutral or regressions. A
+ * bounded permuter pass produced no comparable base score or zero, so
+ * GLOBAL_ASM remains canonical. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000A7C_1878B84(
     void *unused, Vec3f *out, Vec3f *direction, f32 distance,

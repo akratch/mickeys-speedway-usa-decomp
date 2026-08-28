@@ -14,10 +14,6 @@ extern void overlay61DrawScrollReloc(s32, s32, s32, void *, s32);
 extern void func_overlay_061_F00003C0_18BF788(
     s32 context, s32 y, void *item, s32 selected);
 
-/* Plateau: exact 0x1A4 and 102/105 words; first mismatch +0x94 schedules the
- * loop-limit li before two address addends. The 119-flag/access-shape pass
- * failed; a 2,401s permuter fixed that window but swapped initial v0/v1. */
-#ifdef NON_MATCHING
 void overlay61DrawList(s32 context) {
     s32 index;
     s32 y;
@@ -35,10 +31,9 @@ void overlay61DrawList(s32 context) {
 
     index = gOverlay61TopIndexReloc;
     y = 0x32;
-    remaining = 6;
-    do {
-        if (index >= gOverlay61ItemCountReloc) {
-            func_overlay_061_F00003C0_18BF788(context, y, 0, 0);
+    /* IDO schedules both relocated bases before the counter on this line. */
+    remaining = 6; do { if (index >= gOverlay61ItemCountReloc) {
+        func_overlay_061_F00003C0_18BF788(context, y, 0, 0);
         } else {
             func_overlay_061_F00003C0_18BF788(
                 context, y, &gOverlay61ItemsReloc[index << 6],
@@ -57,6 +52,3 @@ void overlay61DrawList(s32 context) {
             context, 0xA0, 0xD8, gOverlay61DownLabelReloc, 4);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o061/overlay61DrawList/func_overlay_061_F00007C4_18BFB8C.s")
-#endif

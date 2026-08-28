@@ -76,6 +76,10 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
 } while (0)
 
 #ifdef NON_MATCHING
+/* Workbench plateau: seven bounded source-faithful probes preserve the target
+ * 294-instruction shape and 0x88-byte frame, but leave four register/opcode
+ * differences. The configured C baseline emits 71 relocations versus the
+ * target's 29; no instrumented globalcolor/UGEN trace is available. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;

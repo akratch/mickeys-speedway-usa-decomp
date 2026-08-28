@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Integrate one lane branch into the current branch (campaign/unchain).
+# Integrate one lane branch into the current branch (master).
 #
 #   tools/merge_lane.sh <lane-name>
 #
@@ -13,8 +13,13 @@ name=${1:?lane name}
 root=$(git rev-parse --show-toplevel)
 lane=$(dirname "$root")/mickey-lane-$name
 branch=lane/$name
+build_jobs=${MICKEY_BUILD_JOBS:-6}
+build_nice=${MICKEY_BUILD_NICE:-15}
+case "$build_jobs" in ''|*[!0-9]*|0) echo "invalid MICKEY_BUILD_JOBS: $build_jobs" >&2; exit 2 ;; esac
+case "$build_nice" in ''|*[!0-9]*) echo "invalid MICKEY_BUILD_NICE: $build_nice" >&2; exit 2 ;; esac
+low_gmake() { nice -n "$build_nice" gmake -j"$build_jobs" "$@"; }
 echo "== lane gates ($lane)"
-lane_out=$(cd "$lane" && gmake clean >/dev/null && gmake -j6 >/dev/null 2>&1; gmake -j6 >/dev/null 2>&1; gmake -j6 verify 2>&1 | tail -1); echo "$lane_out"
+lane_out=$(cd "$lane" && gmake clean >/dev/null && low_gmake >/dev/null 2>&1; low_gmake >/dev/null 2>&1; low_gmake verify 2>&1 | tail -1); echo "$lane_out"
 case "$lane_out" in OK*) ;; *) echo "lane $name does not verify from a clean build; not merging" >&2; exit 1 ;; esac
 (cd "$lane" && gmake check-docs 2>&1 | tail -1)
 tools/cleanroom_check.sh --range "HEAD..$branch" 2>&1 | tail -1
@@ -42,9 +47,9 @@ gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/check_match_regression.py HEAD || { echo "a function matched at HEAD carries GLOBAL_ASM again; merge left uncommitted (resolve hunks, never whole files)" >&2; exit 1; }
 # Fresh extraction and build: stale objects and stale asm/ have masked real failures twice.
 gmake distclean >/dev/null 2>&1; gmake extract 2>&1 | tail -1
-gmake -j6 >/dev/null 2>&1 || true   # warm-up: the first parallel build after a re-split can race
-out=$(tools/with_verify_lock.sh gmake -j6 verify 2>&1 | tail -1); echo "$out"
-case "$out" in OK*) ;; *) echo "verify FAILED after merging $branch; merge left uncommitted (git merge --abort to drop it)" >&2; gmake -j6 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
+low_gmake >/dev/null 2>&1 || true   # warm-up: the first parallel build after a re-split can race
+out=$(tools/with_verify_lock.sh nice -n "$build_nice" gmake -j"$build_jobs" verify 2>&1 | tail -1); echo "$out"
+case "$out" in OK*) ;; *) echo "verify FAILED after merging $branch; merge left uncommitted (git merge --abort to drop it)" >&2; low_gmake 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
 gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
 .venv/bin/python tools/fix_jumptable_claim.py >/dev/null 2>&1 || true

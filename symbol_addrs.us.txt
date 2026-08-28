@@ -242,7 +242,7 @@ osDestroyThread = 0x80072350; // type:func size:0xF8
 // bytes here are identical, so docs/modules.md 1.2's "exactly one candidate
 // name" clause fails. The name below is retained because it was already here,
 // not because the bytes chose it.
-rmonPrintf = 0x800725F4; // type:func size:0x40
+rmonPrintf = 0x800725F4; // type:func size:0x40 tier-A IDO C exact, DKR src/libc/rmonPrintf.c donor, whole-TU text exact
 // libultra/settimer  ROM 0x73240  (src/os/settimer.c.o)
 osSetTimer = 0x80072640; // type:func size:0xD4
 // libultra/bcmp  ROM 0x73320  (src/libc/bcmp.s.o)
@@ -289,7 +289,7 @@ __osSetTimerIntr = 0x80073294; // type:func size:0x74
 __osInsertTimer = 0x80073308; // type:func size:0x188
 // io/conteepwrite.c: only __osEepStatus is byte-identical, the rest of the
 // TU is not, so the file boundary is not claimed and no other name is taken.
-__osEepStatus = 0x80073A80; // type:func size:0x224
+__osEepStatus = 0x80073A80; // type:func size:0x224 tier-A IDO C exact, DKR src/io/conteepwrite.c donor, exact function-tail carve
 // libultra/vigetcurrcontext  ROM 0x748b0  (src/io/vigetcurrcontext.c.o)
 __osViGetCurrentContext = 0x80073CB0; // type:func size:0xC
 // libultra/viswapcontext  ROM 0x748c0  (src/io/viswapcontext.c.o)
@@ -309,7 +309,7 @@ __osResetGlobalIntMask = 0x80074160; // type:func size:0x58
 // libultra/yieldthread  ROM 0x750d0  (src/os/yieldthread.c.o)
 osYieldThread = 0x800744D0; // type:func size:0x4C
 // libultra/xprintf  ROM 0x75120  (src/libc/xprintf.c.o)
-_Printf = 0x80074B90; // type:func size:0x644
+_Printf = 0x80074B90; // type:func size:0x644 tier-A IDO C exact, DKR src/libc/xprintf.c donor, whole text/data/rodata object exact
 // libultra/si  ROM 0x75de0  (src/io/si.c.o)
 __osSiDeviceBusy = 0x800751E0; // type:func size:0x2C
 // libultra/setcompare  ROM 0x75e10  (src/os/setcompare.s.o)
@@ -317,7 +317,7 @@ __osSetCompare = 0x80075210; // type:func size:0xC
 // libultra/xlitob  ROM 0x75e20  (src/libc/xlitob.c.o)
 _Litob = 0x80075220; // type:func size:0x298
 // libultra/xldtob  ROM 0x760c0  (src/libc/xldtob.c.o)
-_Ldtob = 0x80075A30; // type:func size:0x54C
+_Ldtob = 0x80075A30; // type:func size:0x54C tier-A IDO C exact, DKR src/libc/xldtob.c donor, whole text/rodata object exact
 // libultra/ldiv  ROM 0x76b80  (src/libc/ldiv.c.o)
 lldiv = 0x80075F80; // type:func size:0x100
 ldiv = 0x80076080; // type:func size:0x84
@@ -374,8 +374,8 @@ entrypoint = 0x80000400; // type:func size:0x50   ROM 0x01000  hasm/entrypoint.s
 
 // main.c -- and 0x800211A0 is exactly the address the entrypoint jumps to
 // (`lui t2,0x8002 / addiu t2,t2,0x11a0 / jr t2`), so position and bytes agree.
-mainproc = 0x800211A0; // type:func size:0x58   ROM 0x21da0  main.c.o  masked=11/22
-thread1_main = 0x800211F8; // type:func size:0x98   ROM 0x21df8  main.c.o  masked=14/38
+mainproc = 0x800211A0; // type:func size:0x58 ROM 0x21da0 tier-A IDO C exact, DKR src/main.c donor, masked=11/22
+thread1_main = 0x800211F8; // type:func size:0x98 ROM 0x21df8 tier-A IDO C exact, DKR src/main.c donor, masked=14/38
 
 // math_util.s -- 13 routines matched, 11 named in this block; most have ZERO
 // masked words, and this is the strongest evidence in the block. (Of the other
@@ -573,7 +573,7 @@ bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40 ROM 0x2f794 tier-A rcp_dk
 // set_rsp_segment.c -- WHOLE .text matched (0x40 bytes, 0 masked, unique), so
 // this one is a measured FILE boundary and gets a named subsegment in the yaml.
 // It ends at exactly 0x323E0, where the runtime linker begins.
-rsp_segment = 0x800317A0; // type:func size:0x38   ROM 0x323a0  set_rsp_segment.c.o  masked=0/14
+rsp_segment = 0x800317A0; // type:func size:0x38 ROM 0x323a0 tier-A IDO C exact, DKR src/set_rsp_segment.c donor, whole-TU masked=0/14
 
 // weather.c -- DKR's name for DKR's module. What is proven is that the code is
 // the same 21 words; what it clips for Mickey is not established here.
@@ -686,7 +686,7 @@ debug_text_newline = 0x80044B34; // type:func size:0x28 ROM 0x45734 tier-A IDO C
 // DKR's `hasm/gzip_asm.s.o` matched in ONE PIECE at ROM 0x4EA60 (98 of 669
 // words masked, unique), so this is a measured FILE boundary as well as five
 // function names, and the yaml names the subsegment.
-byteswap32 = 0x8004D778; // type:func size:0x30   ROM 0x4e378  gzip.c.o  masked=0/12
+byteswap32 = 0x8004D778; // type:func size:0x30 ROM 0x4e378 tier-A IDO C exact, DKR src/gzip.c donor, masked=0/12
 gzip_inflate_block = 0x8004DE60; // type:func size:0x104   ROM 0x4ea60  hasm/gzip_asm.s.o  masked=19/65
 gzip_inflate_dynamic = 0x8004DF64; // type:func size:0x418   ROM 0x4eb64  hasm/gzip_asm.s.o  masked=32/262
 gzip_inflate_fixed = 0x8004E37C; // type:func size:0x158   ROM 0x4ef7c  hasm/gzip_asm.s.o  masked=11/86
@@ -712,7 +712,7 @@ audspat_jingle_off = 0x800025C4; // type:func size:0x28 ROM 0x031c4 tier-A audio
 // enumerates all SIX sub-threshold adoptions -- six symbols resting on four
 // distinct arguments, since osScGetCmdQ and osScGetInterruptQ share one, as do
 // stack_pointer and __osGetCause.
-stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  get_stack_pointer.c.o  masked=0/2
+stack_pointer = 0x80046E60; // type:func size:0x8   ROM 0x47a60  tier-A exact C, JFG diCpuTraceCurrentStack, zero relocations
 
 // ---------------------------------------------------------------------------
 // libultra OUTSIDE THE CORRIDOR
@@ -1015,7 +1015,7 @@ D_800D4A82 = 0x800D4A82; // type:u16 size:0x2 tier-A compiler-owned diprint BSS 
 diRcpTraceInit = 0x80044B60;    // type:func size:0x3C tier A (exact C, JFG diRcpTraceInit)
 func_80044B9C = 0x80044B9C;     // type:func size:0x2C tier A (exact C, JFG diRcpTraceReset)
 func_80044BC8 = 0x80044BC8;     // type:func size:0xCC tier-A (exact C, JFG diRcpTrace)
-func_80044C94 = 0x80044C94;     // type:func size:0x12C tier-B ROM 0x45894 NON_MATCHING plateau, 75/75 words, 35 positional differences, first +0xC
+func_80044C94 = 0x80044C94;     // type:func size:0x12C tier A exact C (JFG diRcpTraceGetInfo), ROM 0x45894
 
 // diRcp.c -- the display-list disassembler. `diRcpPrintDL` is the only
 // function referencing the whole G_* opcode name table and "UNKNOWN COMMAND";
@@ -1613,7 +1613,7 @@ n_alCSPSendMidi = 0x800685A0; // type:func size:0x80
 //   same bytes in: jfg,perfect_dark
 n_alSynSetPriority = 0x80068620; // type:func size:0x14
 // main/math_atan  ROM 0x69240  (jfg/game: src/math/math_atan.c.o)  whole .text 0x200, masked=17, romocc=1
-atan2f = 0x80068640; // type:func size:0x1F4
+atan2f = 0x80068640; // type:func size:0x1F4 tier-A exact C, JFG source body
 // libultra/n_auxbus  ROM 0x69440  (jfg/libultra: src/libultra/n_auxbus.c.o)  whole .text 0x4f0, masked=7, romocc=1
 //   same bytes in: jfg,perfect_dark
 n_alAuxBusPull = 0x80068840; // type:func size:0x4F0
@@ -1626,7 +1626,7 @@ n_alLoadParam = 0x8006974C; // type:func size:0x2E8
 n_alLPFilterPull = 0x80069BF0; // type:func size:0x2F8
 n_alLPFilterParam = 0x80069EE8; // type:func size:0x124
 // main/math_acosf  ROM 0x6ac10  (jfg/game: src/math/math_acosf.c.o)  whole .text 0xe0, masked=7, romocc=1
-acosf = 0x8006A010; // type:func size:0xDC
+acosf = 0x8006A010; // type:func size:0xDC tier-A exact C, JFG source body
 // libultra/n_resample  ROM 0x6acf0  (jfg/libultra: src/libultra/n_resample.c.o)  whole .text 0x2a0, masked=8, romocc=1
 n_alResamplePull = 0x8006A0F0; // type:func size:0x244
 n_alResampleParam = 0x8006A334; // type:func size:0x5C
@@ -1730,6 +1730,12 @@ corrupted = 0x8006E644; // type:func size:0x19C
 // non-matching raw assembly there too -- what matched is the extracted bytes,
 // which is all this tier ever compares.
 // ---------------------------------------------------------------------------
+// Individual JFG game function, ROM 0x30BC, 4/9 words relocated, romocc=1.
+amAudioMgrSetScheduleMode = 0x800024BC; // type:func size:0x24 tier-A exact C, JFG src/audiomgr.c body
+// Individual JFG game function, ROM 0x35008, 2/7 words relocated, romocc=1.
+texEnableModes = 0x80034408; // type:func size:0x1C tier-A exact C, JFG src/textures.c body
+// Individual JFG game function, ROM 0x354A0, 5/10 words relocated, romocc=1.
+texLoadTextureAddr = 0x800348A0; // type:func size:0x28 tier-A exact C, JFG src/textures.c body
 // main/lights2  ROM 0x1ae60  (jfg/game: asm/hasm/lights2.s.o)  whole .text 0xff0, masked=12, romocc=1
 lightSingleLight = 0x8001A260; // type:func size:0x1E4
 lightTwoLights = 0x8001A444; // type:func size:0x2D4
@@ -1761,9 +1767,9 @@ gsSndpSetGlobalVolume = 0x8005DA20; // type:func size:0x28
 gsSndpGetGlobalVolume = 0x8005DA48; // type:func size:0x1C
 gsSndpLimitVoices = 0x8005DA64; // type:func size:0x48
 // main/math_arc  ROM 0x6af90  (jfg/game: src/math/math_arc.c.o)  whole .text 0x210, masked=8, romocc=1
-tableval = 0x8006A390; // type:func size:0x100
-acoss = 0x8006A490; // type:func size:0x78
-asins = 0x8006A508; // type:func size:0x8C
+tableval = 0x8006A390; // type:func size:0x100 tier-A exact C, JFG source body
+acoss = 0x8006A490; // type:func size:0x78 tier-A exact C, JFG source body
+asins = 0x8006A508; // type:func size:0x8C tier-A exact C, JFG source body
 
 // ---------------------------------------------------------------------------
 // 6. WHERE TWO REFERENCE BUILDS DISAGREE ABOUT THE SAME BYTES
@@ -2269,7 +2275,7 @@ lightKillGlowingLight = 0x8001A23C; // type:func size:0x24   ROM 0x1ae3c  src/li
 // exact-C (ADR 0001), no external name adopted: func_8001BB90, ROM 0x1c790, size 0x24
 // exact-C (ADR 0001), tier-D name not adopted: func_8001C054, ROM 0x1cc54, size 0x34
 // exact-C (ADR 0001), tier-D name not adopted: func_8001C088, ROM 0x1cc88, size 0x8c
-// NON_MATCHING workbench plateau: func_8001C114, ROM 0x1cd14, size 0x1b0; 9 register-only words, 108/108 instructions, frame -24
+// NON_MATCHING workbench plateau: func_8001C114, ROM 0x1cd14, size 0x1b0; 8 register-only words, 108/108 instructions, frame -24, first +0xf4
 func_8001C2C4 = 0x8001C2C4; // type:func size:0x8 tier-D, ROM 0x1cec4  src/main/charControl.c.o exact C (ADR 0001)
 func_8001C2CC = 0x8001C2CC; // type:func size:0x8 tier-D, ROM 0x1cecc  src/main/charControl.c.o exact C (ADR 0001)
 func_8001C2D4 = 0x8001C2D4; // type:func size:0x4C   ROM 0x1ced4  src/charControl.c.o  masked=0/19  exact C (ADR 0001)
@@ -2413,7 +2419,7 @@ jtbl_8008249C = 0x8008249C; // type:jtbl size:0x30 tier-A compiler-owned gameVi 
 fb_swap = 0x80034150; // type:func size:0xE0 ROM 0x34D50 canonical C, linked byte-identical
 fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12, canonical C is linked byte-identical
 // jfg:src/textures.c.o
-initColourCycle = 0x80036A50; // type:func size:0x30   ROM 0x37650  src/textures.c.o  masked=2/12
+initColourCycle = 0x80036A50; // type:func size:0x30 tier-A exact C, JFG src/textures.c body
 // donor-jfg-src/menu.c.o
 func_80038750 = 0x80038750; // type:func size:0x128 tier-A ROM 0x39350 IDO C exact, JFG src/menu.c structural oracle, allocator-trace-guided, owns jtbl at 0x83334
 func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING plateau 66/85 words differ, first +0x14
@@ -2577,13 +2583,14 @@ func_800534EC = 0x800534EC; // type:func size:0x64   ROM 0x540ec  tier-D collisi
 func_800557F8 = 0x800557F8; // type:func size:0x178  ROM 0x563f8  tier-D collision response helper, matched C
 func_80055D08 = 0x80055D08; // type:func size:0x148  ROM 0x56908  tier-D collision motion-normal helper, matched C
 func_80055E50 = 0x80055E50; // type:func size:0x114  ROM 0x56a50  tier-D collision state-normalization helper, matched C
+func_80055F64 = 0x80055F64; // type:func size:0x16C  ROM 0x56b64  tier-D collision handler family, C-object+linked-ROM exact matched C
 func_800560D0 = 0x800560D0; // type:func size:0x1a4  ROM 0x56cd0  tier-D collision dual-advance normal helper, matched C
 func_80056274 = 0x80056274; // type:func size:0x140  ROM 0x56e74  tier-D collision bidirectional-normal helper, matched C
 func_800572AC = 0x800572AC; // type:func size:0xA4   ROM 0x57eac  tier-D collision state-delta helper, matched C
 func_80057350 = 0x80057350; // type:func size:0x78   ROM 0x57f50  tier-D collision state-copy helper, matched C
 fmvInit = 0x80057910; // type:func size:0x5C   ROM 0x58510  src/fmvInit.c.o exact masked tier-A, matched C
 // jfg:libultra/src/flash/flashreadid.c.o
-osFlashClearStatus = 0x80057C10; // type:func size:0x4C   ROM 0x58810  libultra/src/flash/flashreadid.c.o  masked=6/19
+osFlashClearStatus = 0x80057C10; // type:func size:0x4C tier-A exact C, JFG libultra/src/flash/flashreadid.c body
 func_80058EF4 = 0x80058EF4; // type:func size:0x90   ROM 0x59af4  tier-D logarithm-series helper, matched C
 // donor-jfg-src/camera.c.o
 camConvertMatrixList = 0x8005AB78; // type:func size:0x30   ROM 0x5b778  src/camera.c.o  masked=4/12
@@ -2680,6 +2687,7 @@ func_8002468C = 0x8002468C; // type:func size:0x0C ROM 0x2528C tier-D matched-C 
 camGetRotationMtx = 0x80024698; // type:func size:0x0C ROM 0x25298 tier-B matched-C Mickey/JFG weather call graph and matrix dataflow
 camGetProjectionMtx = 0x800246A4; // type:func size:0x0C ROM 0x252A4 tier-D matched-C JFG role and Mickey final projection-matrix dataflow
 func_800246B0 = 0x800246B0; // type:func size:0x184 ROM 0x252B0 tier-D matched-C JFG camProjectPoint role/order, Mickey auto-name retained
+func_80024834 = 0x80024834; // type:func size:0x104 ROM 0x25434 tier-A matched-C JFG camReversePoint source, 65/65 instructions and nine relocations exact
 camGetProjZ = 0x80024938; // type:func size:0x40 ROM 0x25538 tier-D matched-C JFG TU role/order and projection-depth dataflow
 D_80079F48 = 0x80079F48; // type:f32 size:0x4 tier-A compiler-owned camera .data projection scale
 D_80079F4C = 0x80079F4C; // type:f32 size:0x4 tier-A compiler-owned camera .data matrix coefficient

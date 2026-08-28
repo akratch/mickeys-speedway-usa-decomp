@@ -47,7 +47,7 @@ NON_MATCHING_RE = re.compile(r"^\s*#\s*ifdef\s+NON_MATCHING\b", re.MULTILINE)
 
 def is_nonmatching_source(overlay, source_name):
     """Whether overlays/oNNN/<source_name>.c wraps its definition in
-    `#ifdef NON_MATCHING` -- the DKR/docs/reference-findings.md sec.2
+    `#ifdef NON_MATCHING` -- the DKR/docs/acceleration-survey.md sec.13.2
     convention this project adopted for objects whose compiled instructions
     used to be edited after the fact. Mechanically derived from the C source
     every run, never hand-maintained, so it cannot drift from the tree.
@@ -1442,8 +1442,8 @@ def build_atlas(rom):
                     # matching: a NON_MATCHING C file still owns its range
                     # (it is not raw "asm" ownership) but is not counted as
                     # matched by tools/progress.py's scoreboard, which reads
-                    # "nonmatching" below. See docs/reference-findings.md
-                    # sec.1-2.
+                    # "nonmatching" below. See docs/acceleration-survey.md
+                    # sec.13.
                     "matched": kind == "c",
                     "nonmatching": nonmatching,
                 }

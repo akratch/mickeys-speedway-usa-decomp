@@ -7,6 +7,7 @@
 # per-object evidence lives beside its boundary in mickey.us.yaml and
 # symbol_addrs.us.txt.
 
+entrypoint
 main/math_util
 main/lights2
 main/trapDanglingJump

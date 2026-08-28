@@ -2,7 +2,7 @@
  * PROVENANCE: adapted from Jet Force Gemini's public decompilation
  * (github.com/Ryan-Myers/Jet-Force-Gemini), whose source credits the
  * Perfect Dark decompilation; both are permitted sources under
- * docs/CLEANROOM.md. See docs/reference-findings.md section 3.
+ * docs/CLEANROOM.md. See docs/acceleration-survey.md section 13.3.
  */
 
 #include "n_audio/n_synthInternals.h"

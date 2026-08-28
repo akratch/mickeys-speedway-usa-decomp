@@ -15,14 +15,15 @@ typedef struct Overlay14State {
 } Overlay14State;
 
 extern Overlay14State gOverlay14State;
-extern s32 gOverlay14DefaultA4;
-extern s32 gOverlay14DefaultB4;
-extern void *overlay14AssetCall();
+extern s32 D_A4;
+extern s32 D_B4;
+extern void *func_overlay_014_F0000000_186F8D8();
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, exact 54/-40 shape, 12-word floor after the +0xF4 state anchor.
- * Lever: state-field anchor plus iterator/schedule probes left the late web unchanged.
- * Remains: six schedule, ten register, and nine overlay-relocation residuals; assembly fallback stays canonical. */
+/* Workbench: allocation-mismatch, exact 54/-40 shape.
+ * Lever: target identities and count-reloading traversal removed the schedule residual.
+ * Remains: one pool-position allocation web and the structured state-anchor relocations;
+ * assembly fallback stays canonical. */
 Overlay14Asset *func_overlay_014_F00009F4_18702CC(s32 index, s32 context) {
     s32 pad;
     s32 start;
@@ -30,29 +31,25 @@ Overlay14Asset *func_overlay_014_F00009F4_18702CC(s32 index, s32 context) {
     Overlay14Asset *asset;
     s32 i;
     Overlay14Asset *entry;
+    void *pointer;
 
     pad = index;
     start = gOverlay14State.ranges[index];
     size = gOverlay14State.ranges[index + 1] - start;
-    asset = (Overlay14Asset *)overlay14AssetCall(size, 0x85, start);
+    asset = (Overlay14Asset *)func_overlay_014_F0000000_186F8D8(size, 0x85, start);
     if (asset != 0) {
-        overlay14AssetCall(context, asset, start, size);
-        i = 0;
-        entry = asset;
-        if (asset->count > 0) {
-            do {
-                if (entry->pointer == 0) {
-                    if (entry->marker == 0x4000) {
-                        entry->pointer = &gOverlay14DefaultA4;
-                    } else {
-                        entry->pointer = &gOverlay14DefaultB4;
-                    }
+        func_overlay_014_F0000000_186F8D8(context, asset, start, size);
+        for (i = 0, entry = asset; i < asset->count; i++, entry++) {
+            pointer = entry->pointer;
+            if (pointer == 0) {
+                if (entry->marker == 0x4000) {
+                    entry->pointer = &D_A4;
                 } else {
-                    entry->pointer = (u8 *)asset + (s32)entry->pointer;
+                    entry->pointer = &D_B4;
                 }
-                i++;
-                entry++;
-            } while (i < asset->count);
+            } else {
+                entry->pointer = (u8 *)asset + (s32)pointer;
+            }
         }
     }
     return asset;

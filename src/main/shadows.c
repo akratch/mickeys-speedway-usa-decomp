@@ -42,8 +42,10 @@ extern void *func_8002B280(s32 size, s32 tag);
 extern void mmFree(void *ptr);
 
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/shadows/shadowInitBuffers.s; Mickey globals are authoritative.
- * The owning .data section gives the compiler's relocation names and the linked
- * C body is now instruction- and relocation-identical to the ROM. */
+ * The C body emits all 75 linked instruction words and the owning 0x50-byte
+ * .data section exactly. Its sentinel pair still binds D_80079434 + 0xC where
+ * the target relocation metadata names D_80079440, so relocation identity is
+ * not exact. */
 void shadowInitBuffers(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 i;
     s32 stride0;

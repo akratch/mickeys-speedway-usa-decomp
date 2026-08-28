@@ -151,9 +151,9 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Plateau (near-miss p6): workbench allocation-mismatch, 15 register-only words at 94 instructions/frame -0x38; first +0x40.
- * Lever: pool-position/temp-FIFO audit found only ring-only target substitutions; no source-stable allocation change.
- * Remains: cache-index temp phase and final empty-index pool/temp crossing; assembly fallback stays canonical. */
+/* Plateau (near-miss p8): workbench register-permutation, 11 register-only words at 94 instructions/frame -0x38.
+ * Separate indices, pointer traversal, scoped/direct existing-entry forms, and final-entry materialization were rechecked.
+ * They were inert or changed the target shape; the cache-index temp phase and final empty-index allocation stay unresolved. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;
@@ -189,9 +189,10 @@ u8 *func_8005A948(s16 animationId) {
         D_800D7D04++;
     }
 
+    i = (animationId & 1) * 4;
     piRomLoadSection(0x2A, (u8 *)D_800D7CF8, (animationId & ~1) * 4, 0x10);
-    offset = *(s32 *)(D_800D7CF8 + ((animationId & 1) * 4));
-    size = *(s32 *)(D_800D7CF8 + ((animationId & 1) * 4) + 4) - offset;
+    offset = *(s32 *)(D_800D7CF8 + i);
+    size = *(s32 *)(D_800D7CF8 + i + 4) - offset;
     animation = (LoadedAnimation *)func_8002B314(size, 0x80);
     if (animation == NULL) {
         return NULL;

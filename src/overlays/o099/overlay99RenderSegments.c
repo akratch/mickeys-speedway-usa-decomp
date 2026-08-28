@@ -30,7 +30,7 @@ typedef struct Overlay99Segment {
 extern s32 gOverlay99SegmentCount;
 extern Overlay99Segment gOverlay99Segments[];
 extern void *gOverlay99Texture;
-extern void overlay99Begin(void **outA, s32 *outB);
+extern int overlay99Begin(void **outA, s32 *outB);
 extern void overlay99Setup(Overlay99Gfx **displayList, void *a, s32 b,
                            void *zero0, s32 zero1, void *a2, s32 b2);
 extern void overlay99End(Overlay99Gfx **displayList);
@@ -42,14 +42,15 @@ extern void func_overlay_099_F0000800_18D9DB0(
     Overlay99Gfx **displayList, void *arg1, s32 arg2,
     Overlay99RenderObject *object, f32 scale);
 
-/* Plateau (2026-08-25): the configured -O2/-mips2/-Wab,-r4300_mul build and
- * the best of all 119 flag combinations are exact-sized with 6 differing
- * words, first at +0x7c. The addressed setup result places its second word at
- * sp+0xa0 instead of retail's sp+0x98, while the display-list temporary uses
- * v0 instead of v1. Reordered, split, and explicitly aligned setup storage and
- * a register-qualified command pointer either tie or disturb the exact frame.
- * The configured tools/permuter checkout is absent; work stopped after the
- * campaign's no-closures window elapsed. */
+/* Bounded workbench closeout (2026-08-28): the configured candidate is
+ * exact-sized at 142 words with the exact 0xa8 frame and all 15 runtime
+ * relocation roles. Stock-gated CFE/Ucode and ugen/as1 captures traced the
+ * addressed setup result; three natural layout/scope variants either moved
+ * its homes or grew the frame. A five-minute, one-thread permuter found the
+ * non-void begin ABI, which the real full-TU build confirmed by selecting the
+ * retail display-list register. The retained candidate is 140/142 words after
+ * masking relocation addends; its only residual is setup.b at sp+0xa0 rather
+ * than retail's sp+0x98, first visible at +0x7c. */
 #ifdef NON_MATCHING
 void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
                              f32 scale) {

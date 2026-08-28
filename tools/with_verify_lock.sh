@@ -1,7 +1,7 @@
 #!/bin/sh
 # Run one command while holding a single global lock, for the two-phase
 # `gmake verify` (and other full-tree builds) in a worktree/build directory
-# shared by multiple processes. Unlike tools/with_compile_token.sh (N parallel
+# shared by multiple agents. Unlike tools/with_compile_token.sh (N parallel
 # compile slots), this is a strict mutex: only one holder at a time, because
 # a concurrent second `verify`/full build against the same build/ directory
 # would race the same output files.

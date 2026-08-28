@@ -162,9 +162,12 @@ extern void func_80001708(void);
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive.
- * Workbench p6: register-permutation; 3 masked code words plus one relocation-controlled word, 259 instructions/-0x58 frame exact, first +0x13C.
- * Tried target endpoint relocation spelling; it destabilized the zero loop; inherited type/flag/permutation sweeps remain negative.
- * Remains: a0 versus v0 world allocation and D_800CF420 endpoint identity.
+ * Workbench successor: allocation-mismatch; 3 masked code words plus one
+ * relocation-controlled word, 259 instructions/-0x58 frame exact, first +0x13C.
+ * Eight bounded lifetime, zeroing, endpoint, name-association, and relational
+ * variants either collapsed here or regressed the frame/structure. The trace
+ * confirms one downstream pool-web difference: a0 versus v0 for world, plus
+ * the unresolved D_800CF420 zero-loop endpoint identity.
  */
 void levelGetCounts(void) {
     s32 i;

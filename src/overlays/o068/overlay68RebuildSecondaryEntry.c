@@ -45,24 +45,20 @@ extern void overlay68FreeProbeReloc(void *probe);
 extern void overlay68ReleaseReloc(void *resource);
 
 /*
- * NON_MATCHING plateau: -O2 -mips2 is exact-size with 9/122 differing
- * words, first at +0x0. The target uses a 0x40-byte frame and homes amount
- * at +0x3c; this candidate uses 0x38/+0x34. The remaining differences are
- * the sentinel comparison operand order and probe-pointer register choice.
- * The flag lattice and a bounded permuter run found no faithful exact form.
- * Fresh lane revisit (2026-08-25): the full lattice again bottoms out at
- * 9/122 words with the first mismatch at +0x0. Spelling the later value test
- * as a direct typed probe access changed the wider register web instead of
- * selecting the target's temporary pointer, so the 0x40-frame home is still
- * not source-reproduced.
- * Current lane structural pass (2026-08-25): a typed values-array base
- * regressed to 51/122, an inline whole-probe cast changed size by one word,
- * and a typed first access remained 9/122. The best exact-size candidate is
- * still blocked by the private frame/home and probe-base schedule.
+ * NON_MATCHING plateau: -O2 -mips2 is 488 bytes with 9/122 differing
+ * words, first at +0x58. This immutable mapping base plus mutable cursor
+ * reaches the target's 0x40-byte frame and amount home at +0x3c, but moves
+ * the entry and resident-entry homes four bytes high. The residual is one
+ * sentinel operand order, six home offsets, and two probe-base choices; all
+ * 19 relocation records retain the target's types, offsets, and identities.
+ * Two full flag lattices, a bounded permuter run, typed value-array forms,
+ * whole-probe casts, natural sentinel reversal, split amount lifetimes, and
+ * block-scoped mapping lifetimes found no faithful exact form.
  */
 #ifdef NON_MATCHING
 void overlay68RebuildSecondaryEntry(s32 kind) {
     s32 amount;
+    const Overlay68KindPair *mappingStart;
     const Overlay68KindPair *mapping;
     volatile const s8 *loopMapping;
     Overlay68EntryHeader *entry;
@@ -75,9 +71,10 @@ void overlay68RebuildSecondaryEntry(s32 kind) {
 
     gOverlay68SecondaryEntry = 0;
     amount = -1;
-    mapping = gOverlay68KindMapInitial;
+    mappingStart = gOverlay68KindMapInitial;
+    mapping = mappingStart;
 
-    if (mapping->kind != -1) {
+    if (mappingStart->kind != -1) {
         loopMapping = &gOverlay68KindMapLoop;
         currentKind = *loopMapping;
         do {

@@ -16,10 +16,13 @@ typedef struct Overlay7SelectionRow {
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
 /*
- * Plateau: exact size with two differing words, first at +0x44. A redundant
- * low-ten-bit mask fixes the downstream temp-FIFO rotation, but IDO loads the
- * flag value into t4 rather than the target's reused t3; the O2 flag lattice
- * is otherwise identical.
+ * Plateau (trace-retested 2026-08-28): exact 131-word size with two differing
+ * words, first at +0x44. UGEN allocates t3 for the global address, frees it,
+ * then takes t4 for the value and t5 for the masked shift. The stock as1 trace
+ * receives that allocation unchanged, and uopt records no copy decision, so a
+ * zero-code copy-fact barrier has no applicable site. Function- and block-
+ * scoped value carriers regress to 112/131; a pointer carrier canonicalizes
+ * to this retained 129/131 candidate.
  */
 #ifdef NON_MATCHING
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
@@ -149,10 +152,13 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #endif
 
 /*
- * Plateau (2026-08-25 rerun): exact size with two differing words, first at
- * +0x4. The 119-case flag lattice, volatile/signed/array global types, local
- * flag and table-offset webs, and cast placement do not coalesce the initial
- * flag load with the later table offset; typed web reuse widens the diff.
+ * Plateau (retested 2026-08-28): exact 60-word size with two differing words,
+ * first at +0x4. The 119-case flag lattice, volatile/signed/array global
+ * types, local flag and table-offset webs, and cast placement do not coalesce
+ * the initial flag load with the later table offset; typed web reuse widens
+ * the diff. A fresh Tier-2 trace preserves the stock text but records no UGEN
+ * FIFO events, only five already-aligned global-color webs, so it cannot
+ * diagnose or promote a force for the remaining t6-to-t7 temp web.
  */
 #ifdef NON_MATCHING
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {

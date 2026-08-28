@@ -349,9 +349,10 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
     }
 }
 
-/* Workbench p7: operand-mismatch; 162/162 instructions, -0x50 frame, 4 masked/5 raw words, first +0xC8.
- * Lever: a localized home/pool census confirms prior declaration/order/union/permuter probes; registers and opcodes otherwise hold.
- * Remains: angle home +0x32 versus +0x2A and 0.65f pool +0x4C versus +0x50; GLOBAL_ASM stays canonical. */
+/* Workbench: operand-mismatch, exact instruction count and frame.
+ * Lever: retained-float placement, scoped fractions, and block-local scale forms were rechecked.
+ * Remains: the angle stack home and the local 0.65f constant-pool placement;
+ * GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,
                                        void *unused, f32 step) {

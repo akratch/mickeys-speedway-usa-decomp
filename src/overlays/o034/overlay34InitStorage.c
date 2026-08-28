@@ -18,6 +18,14 @@ extern void *func_8002B280(s32 size, s32 tag);
  * permuter run found no candidate below its baseline score of 40. This run's
  * full 119-combination flag lattice and typed scalar/aggregate layout checks
  * preserved the same four-word residual and +0x24 first mismatch.
+ * A stock-gated pass capture on 2026-08-28 found that cfe assigns both size
+ * definitions one virtual home and uopt/UGEN reproduce one call-live spill
+ * topology in both halves. Reusing remaining as the byte carrier reaches the
+ * target spill home but removes two required copies and shrinks to 48 words.
+ * Giving each post-call region its own remaining local keeps all 50 words and
+ * reaches the target spill home, but grows the frame from 0x30 to 0x38; one
+ * shared region-local returns exactly to this baseline. The exact-frame body
+ * therefore remains best at 46/50 relocation-masked words.
  */
 #ifdef NON_MATCHING
 void overlay34InitStorage(s32 count) {

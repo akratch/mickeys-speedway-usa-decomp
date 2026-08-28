@@ -63,6 +63,13 @@ extern void overlay80ResolveCandidateReloc(
  * Lane cx-ov-4-b-a-r5 reconfirmed all 119 flag combinations and tested local
  * and field compound-assignment forms. Both regressed; the same one-word
  * +0x4C outer-multiply operand-order mismatch remains the plateau.
+ * Lane agent-o80-initcontact captured the stock pass boundary on 2026-08-28.
+ * Ucode evaluates the object scale before the already-exact paired product;
+ * UGEN preserves that stack order, and stock as1 receives the mismatching
+ * outer multiply unchanged. A typed cast barrier around the paired product
+ * and an equivalent scale[0] access both reproduce the retained 70/71 object,
+ * exact 0x40 frame, and exact four-relocation surface. The remaining operand
+ * commute is therefore fixed at or before uopt's Ucode boundary.
  */
 #ifdef NON_MATCHING
 void overlay80InitializeContact(Overlay80Object *object,

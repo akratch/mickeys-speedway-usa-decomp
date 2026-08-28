@@ -112,20 +112,22 @@ void func_8001C088(CameraTrackedObject *value) {
         D_80079BCC--;
     }
 }
-/* Workbench plateau: register-permutation, 9 register words; 108/108 instructions, frame -24, first +0x100.
- * Lever: a code-free index split-web probe was inert after earlier type, alias, flag, and permuter variants.
- * Remains: one v1/a2 pool bijection from the forced-color tie-break. */
+/* Workbench plateau (2026-08-28): the separate search-local candidate is
+ * size-exact at 108/108 instructions and matches 100/108 words; its frame is
+ * -24 and the first residual is the register-only pool swap at +0xF4.
+ * Target and candidate relocation identities remain exact. Cursor/end,
+ * index-only, cached-count, and positive-count lifetime probes either caused
+ * structural regressions or returned to the 99/108 baseline. */
 #ifdef NON_MATCHING
 void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
     CameraOverrideSlot *slot;
     CameraTrackedObject *object;
-    CameraTrackedObject **current;
+    CameraTrackedObject *searchObject;
     CameraBounds *bounds;
     f32 deltaX;
     f32 deltaZ;
     f32 trackedRadius;
     f32 radius;
-    s32 index;
 
     if (slotIndex >= 0 && slotIndex < 4) {
         slot = &D_800CB368[slotIndex];
@@ -149,18 +151,21 @@ void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
             }
         }
         if (object == 0) {
-            current = D_800CB308;
-            index = 0;
             if (D_80079BCC > 0) {
+                CameraTrackedObject **current;
+                s32 index;
+
+                current = D_800CB308;
+                index = 0;
                 do {
-                    object = *current;
-                    bounds = object->bounds;
+                    searchObject = *current;
+                    bounds = searchObject->bounds;
                     radius = bounds->radius;
-                    deltaX = object->x - x;
-                    deltaZ = object->z - z;
+                    deltaX = searchObject->x - x;
+                    deltaZ = searchObject->z - z;
                     radius *= radius;
                     if (((deltaX * deltaX) + (deltaZ * deltaZ)) < radius) {
-                        slot->object = object;
+                        slot->object = searchObject;
                         slot->bounds = bounds;
                         if ((bounds->flags & 0x4000) &&
                             ((y < bounds->upper) || (bounds->lower < y))) {

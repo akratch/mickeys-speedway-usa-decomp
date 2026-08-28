@@ -57,13 +57,13 @@ extern void func_overlay_066_F0000000(void *arg0);
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 11 as none. */
 /*
- * Plateau (2026-08-25): canonical -O2 -mips2 is size-exact with 299/301
- * instruction words identical; the first mismatch is +0x138. Three dead
- * local arrays recover retail's exact 0x48-byte frame and every stack slot.
- * The remaining pair only reverses the two live-value spill stores before
- * the handle callback. Inlining the call arguments, reversing the increment
- * and initialization order, and signed, register, and volatile qualifiers
- * did not change that scheduler choice; the full flag lattice also tied.
+ * Plateau (2026-08-28): canonical -O2 -mips2 is size-exact (1204 B/301 words),
+ * with a 0x48-byte frame, 102 relocation roles, and 299/301 words identical;
+ * the first mismatch is the reversed live index/handle spill pair at +0x138.
+ * A scoped handle after the ternary and a block-scoped callback value are
+ * baseline-equivalent; moving the handle before it swaps the pair but hoists
+ * the zero-value setup and changes schedule. The prohibited frame/spill rewrite
+ * remains non-promotable; canonical assembly stays.
  */
 #ifdef NON_MATCHING
 void overlay11UpdateMenu(s32 updateRate) {

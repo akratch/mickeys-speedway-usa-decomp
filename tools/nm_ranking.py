@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Ranks every `#ifdef NON_MATCHING` function by how close its candidate C
-is to the ROM target, so maintainers can attack the near-misses first instead
-of triaging ~300 KB of queued functions by hand.
+is to the ROM target, so a fleet of workers can attack the near-misses
+first instead of triaging ~300 KB of queued functions by hand.
 
 Two independent sources feed the ranking:
 
@@ -44,7 +44,7 @@ Usage:
     .venv/bin/python tools/nm_ranking.py \\
         --objdiff-report /path/to/objdiff-report.json
 
-    # top 20 as a markdown table for a concise review excerpt:
+    # top 20 as a markdown table, for pasting into a fleet prompt:
     .venv/bin/python tools/nm_ranking.py --top 20 --markdown
 """
 from __future__ import annotations

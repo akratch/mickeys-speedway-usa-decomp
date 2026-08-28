@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Audit every object's POSTPROCESS step against docs/reference-findings.md
-sec.2's finding: no gold-standard N64 decomp edits an instruction word
-after compilation to reach a match (see also docs/adr/0002-no-post-compile-instruction-editing.md).
+"""Audit every object's POSTPROCESS step against docs/acceleration-survey.md
+sec.13.2's ruling: no gold-standard N64 decomp edits an instruction word
+after compilation to reach a match.
 
 This tool does not parse Makefile text by hand -- line continuations, the
 `$(FOO_OBJ)` indirection a handful of overlays use as a target list, and

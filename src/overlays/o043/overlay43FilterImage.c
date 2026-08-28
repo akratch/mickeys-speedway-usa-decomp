@@ -7,9 +7,15 @@ typedef struct Overlay43Image {
 
 /* DKR v77/v80 and JFG contain no exact donor for this image filter. */
 /*
- * Plateau: correct 0xAC-byte shape at -O2 -mips2, with four register-only
- * differences starting at +0x0C. The flag lattice and bounded permuter did
- * not close the pixel[0]/pixel[1] web-existence and coalescing difference.
+ * Plateau (2026-08-27): correct 0xAC-byte shape at
+ * -O2 -mips2, with four register-only differences beginning at +0x0C. The
+ * prior flag lattice and bounded permuter did not close the pixel[0]/pixel[1]
+ * web-existence/coalescing difference. Nine additional source-faithful Tier-2
+ * variants (sum association/comma, guard placement/order/read form, sum width,
+ * and declaration order) left this baseline allocation as the best result;
+ * workbench diagnosis is pool-position with a temp-FIFO divergence and no
+ * consistent permutation. No instrumented global-color trace is configured
+ * for the remaining source-only lever.
  */
 #ifdef NON_MATCHING
 void overlay43FilterImage(Overlay43Image *image) {

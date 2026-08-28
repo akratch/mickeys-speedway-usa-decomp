@@ -1095,96 +1095,120 @@ void func_8004D39C(char *input, char *output) {
  * ugen/uopt temp (move t2,a3 in test1's block, beql t3,t2 -- a non-variable
  * web, since a variable would print before the constant); every C carrier
  * tried is either senior (colored a3/t2 mirror), locally propagated away,
- * or lands the copy in the else block (words=3). */
+ * or lands the copy in the else block (words=3).
+ * A bounded follow-up exhausted four source-faithful lifetime/CFG forms:
+ * a segment-local const-u8 scan grew to 110 words, a block-local lead grew
+ * the frame to 0x20 and the body to 112 words, a third-test-only u8 scope
+ * grew to 110 words, and a switch on the unsigned byte collapsed to 106.
+ * This 109-word, 0x18-frame body remains best at 107/109 exact words; its
+ * four HI/LO relocations match the target's offsets and symbol identities. */
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's
  * permitted published fontGetLine assembly. Mickey's own m2c draft,
  * constants, branch structure, and font-record layout determine this body.
  */
-#ifdef NON_MATCHING
-u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart,
-                  s32 *outWidth) {
-    s32 totalWidth;
-    s32 firstLine;
-    s32 overflow;
-    s32 end;
-    s32 delimiter;
-    s32 segmentWidth;
-    char *segmentStart;
-    u8 code;
-
-    totalWidth = 0;
-    firstLine = 1;
-    overflow = 0;
-    end = 0;
-
-    do {
-        delimiter = 0;
-        segmentWidth = 0;
-        segmentStart = text;
-        do {
-            if (0x80 == *text && text[1] == 0xF) {
-                text += 2;
-                if (firstLine == 0) {
-                    segmentWidth += D_800D60E4[font].characterWidth;
-                }
-            } else if (*text == 0) {
-                end = 1;
-            } else if (0x80 != *text) {
-                text++;
-            } else {
-                delimiter = 1;
-            }
-        } while (delimiter == 0 && end == 0);
-
-        if (firstLine != 0) {
-            firstLine = 0;
-            if (end != 0) {
-                *outWidth = totalWidth;
-                return NULL;
-            }
-            *lineStart = text;
+u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart, s32 *outWidth)
+{
+  s32 totalWidth;
+  unsigned int new_var;
+  s32 overflow;
+  s32 firstLine;
+  s32 end;
+  s32 delimiter;
+  s32 segmentWidth;
+  char *segmentStart;
+  u8 code;
+  totalWidth = 0;
+  firstLine = 1;
+  overflow = 0;
+  end = 0;
+  do
+  {
+    new_var = 0x80;
+    delimiter = 0;
+    segmentWidth = 0;
+    segmentStart = text;
+    do
+    {
+      if ((new_var == (*text)) && (text[1] == 0xF))
+      {
+        text += 2;
+        if (firstLine == 0)
+        {
+          segmentWidth += D_800D60E4[font].characterWidth;
         }
-
-        if (0x80 == *text) {
-            code = text[1];
-            if (code != 0xF) {
-                for (;;) {
-                    text += 2;
-                    segmentWidth += D_800D6628[font][code];
-                    if (0x80 == *text) {
-                        code = text[1];
-                        if (code != 0xF) {
-                            continue;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-
-        totalWidth += segmentWidth;
-        if (maxWidth < totalWidth) {
-            overflow = 1;
-            totalWidth -= segmentWidth;
-            text = segmentStart;
-        }
-        if (*text == 0) {
-            end = 1;
-        }
-    } while (overflow == 0 && end == 0);
-
-    if (outWidth != NULL) {
+      }
+      else
+        if ((*text) == 0)
+      {
+        end = 1;
+      }
+      else
+        if (new_var != (*text))
+      {
+        text++;
+      }
+      else
+      {
+        delimiter = 1;
+      }
+    }
+    while ((delimiter == 0) && (end == 0));
+    if (firstLine != 0)
+    {
+      firstLine = 0;
+      if (end != 0)
+      {
         *outWidth = totalWidth;
+        return (void *) 0;
+      }
+      *lineStart = text;
     }
-    if (text == *lineStart) {
-        return NULL;
+    if (new_var == (*text))
+    {
+      code = text[1];
+      if (code != 0xF)
+      {
+        for (;;)
+        {
+          text += 2;
+          segmentWidth += D_800D6628[font][code];
+          if (new_var == (*text))
+          {
+            code = text[1];
+            if (code != 0xF)
+            {
+              continue;
+            }
+          }
+          break;
+        }
+
+      }
     }
-    return text;
+    totalWidth += segmentWidth;
+    if (maxWidth < totalWidth)
+    {
+      overflow = 1;
+      totalWidth -= segmentWidth;
+      text = segmentStart;
+    }
+    if ((*text) == 0)
+    {
+      end = 1;
+    }
+  }
+  while ((overflow == 0) && (end == 0));
+  if (outWidth != ((void *) 0))
+  {
+    *outWidth = totalWidth;
+  }
+  if (text == (*lineStart))
+  {
+    return (void *) 0;
+  }
+  return text;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004D40C.s")
-#endif
 u8 func_8004D5C0(s32 font) {
     return D_800D60E4[font].height;
 }

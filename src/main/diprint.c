@@ -912,8 +912,8 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* Workbench p6: mixed structural/register; 7/66 words remain, first +0x38; frame/relocations exact.
- * Tried current-byte pointer topology, declaration/register/K&R return-category probes; no frame-safe improvement.
+/* Workbench p7: mixed structural/register; 7/66 words remain, first +0x38; frame/relocations exact.
+ * Unsigned/current-byte, bottom-read, and newline-first forms were inert; scopes and a named glyph regressed.
  * Remains: target v1 versus candidate v0 current-byte web and dependent newline branch schedule. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;

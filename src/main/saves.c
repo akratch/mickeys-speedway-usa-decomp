@@ -631,9 +631,9 @@ void func_8002CF0C(void *globalFlags) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench p6: register-ring-only, 9/88 words remain, first +0xCC; frame/relocations exact.
- * Tried hoisted arguments, folded masks, addressable scalars, flag probes, two phantom-pop placements; the 30-minute permuter's score-260 empty guard was rejected.
- * Remains: savedFlag crossing from the candidate pool web to the target FIFO temp ring. */
+/* Workbench p7: register-ring-only, 9/88 words remain, first +0xCC; frame/relocations exact.
+ * A lexical post-call savedFlag reload is codegen-inert; target needs a FIFO temp where this body keeps a colored web.
+ * Hoisted arguments, folded masks, addressable scalars, flag probes, and two phantom-pop placements remain exhausted. */
 void func_8002CF6C(u8 *globalFlags) {
     SavesFullWriteState state;
     s32 messageQueue;

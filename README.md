@@ -14,43 +14,40 @@ They have not been updated or verified.
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-1386_of_1846_(75.08%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/C_bytes_matched-332648_of_947796_(35.10%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1272_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-1022_of_1460_(70.00%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-357016_of_944368_(37.80%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1277_adopted-blue)](#progress)
 
-| Scope | Complete | Total | Progress |
-|---|---:|---:|---:|
-| Resident functions | 1386 | 1846 | 75.08% |
-| Resident C bytes | 222796 | 478532 | 46.56% |
-| Overlay C bytes | 109852 | 469264 | 23.41% |
-| Whole-game C bytes | 332648 | 947796 | 35.10% |
-| Whole-game resolved bytes | 349260 | 947796 | 36.85% |
-| Named resident functions | 1510 | 1846 | 81.80% |
+```
+functions     1022 / 1460    70.00%   matched to C, byte-identical
+.text bytes 228320 / 475104  48.06%   matched C in the resident segment
+verified asm  17184 / 475104   3.62%   original hand-written assembly (84 functions)
+overlay C   111512 / 469264  23.76%   matched C keyed by overlay and offset
+whole resolved 357016 / 944368  37.80%   resident C + verified asm + overlay C
+named         1134 / 1460    77.67%   functions carrying an adopted name
+symbols       1277                    adopted in symbol_addrs.us.txt
+```
 
-Resolved bytes include matched C and 16612 bytes in 82 verified hand-written assembly functions. The symbol file contains 1272 adopted names.
+DKR-style report (docs/acceleration-survey.md sec.13.1: NON_MATCHING and NON_EQUIVALENT count as unmatched, exactly like extracted assembly):
 
-#### Resident progress by area
+```
+decompiled              339832 / 944368  (35.99%)
+handwritten asm          17184 / 944368  ( 1.82%)
+GLOBAL_ASM remaining    275000 / 944368  (29.12%)
+NON_MATCHING            312352 / 944368  (33.08%)
+NON_EQUIVALENT               0 / 944368  ( 0.00%)
+```
 
-| Area | Matched functions | Total functions | Function progress | Matched C bytes | Text bytes | Byte progress |
-|---|---:|---:|---:|---:|---:|---:|
-| libultra | 269 | 306 | 87.91% | 79800 | 92204 | 86.55% |
-| game code in named translation units | 851 | 1090 | 78.07% | 142996 | 315292 | 45.35% |
-| game code not split into translation units | 266 | 450 | 59.11% | 0 | 71036 | 0.00% |
-| **total** | 1386 | 1846 | 75.08% | 222796 | 478532 | 46.56% |
+| Area | Functions | Matched to C | Named, still asm | Unnamed | Identified |
+| :--- | ---: | ---: | ---: | ---: | :--- |
+| libultra corridor | 288 | 256 | 32 | 0 | `██████████████████▓▓` 100.0% |
+| game code, TU identified | 1003 | 766 | 77 | 160 | `███████████████▓▓░░░` 84.0% |
+| game code, not yet split | 169 | 0 | 3 | 166 | `▓░░░░░░░░░░░░░░░░░░░` 1.8% |
+| **total** | 1460 | 1022 | 112 | 326 | `██████████████▓▓░░░░` 77.7% |
 
-Resident function counts exclude overlays because complete overlay function boundaries are not yet available. Overlay progress is therefore reported by byte count in the summary table.
+`█` matched to C · `▓` named but still assembly · `░` neither. Naming runs ahead of matching: a function is decompiled against an already-identified translation unit.
 
-#### Whole-game code status
+**Source organization**: 558 fully-C translation units and 266 C scaffolds that still include assembly. 139 under `src/libultra/`; 49 under `src/main/`, including `matrix.c` (matrix/vector maths) and `runlink.c` (the runtime overlay linker core); 8 under `src/overlays/o001/`; 17 under `src/overlays/o002/`; 9 under `src/overlays/o003/`; 1 under `src/overlays/o004/`; 7 under `src/overlays/o005/`; 1 under `src/overlays/o006/`; 3 under `src/overlays/o007/`; 1 under `src/overlays/o008/`; 1 under `src/overlays/o009/`; 1 under `src/overlays/o010/`; 26 under `src/overlays/o011/`; 6 under `src/overlays/o012/`; 8 under `src/overlays/o013/`; 28 under `src/overlays/o014/`; 1 under `src/overlays/o015/`; 1 under `src/overlays/o016/`; 5 under `src/overlays/o017/`; 4 under `src/overlays/o018/`; 7 under `src/overlays/o019/`; 16 under `src/overlays/o020/`; 2 under `src/overlays/o021/`; 4 under `src/overlays/o022/`; 4 under `src/overlays/o023/`; 1 under `src/overlays/o024/`; 1 under `src/overlays/o025/`; 5 under `src/overlays/o026/`; 1 under `src/overlays/o027/`; 1 under `src/overlays/o028/`; 11 under `src/overlays/o029/`; 2 under `src/overlays/o030/`; 7 under `src/overlays/o031/`; 7 under `src/overlays/o033/`; 8 under `src/overlays/o034/`; 5 under `src/overlays/o035/`; 21 under `src/overlays/o036/`; 5 under `src/overlays/o037/`; 3 under `src/overlays/o038/`; 1 under `src/overlays/o039/`; 9 under `src/overlays/o040/`; 14 under `src/overlays/o041/`; 1 under `src/overlays/o042/`; 9 under `src/overlays/o043/`; 5 under `src/overlays/o044/`; 4 under `src/overlays/o045/`; 11 under `src/overlays/o046/`; 4 under `src/overlays/o047/`; 4 under `src/overlays/o048/`; 1 under `src/overlays/o049/`; 5 under `src/overlays/o050/`; 1 under `src/overlays/o051/`; 4 under `src/overlays/o052/`; 5 under `src/overlays/o053/`; 5 under `src/overlays/o054/`; 6 under `src/overlays/o055/`; 1 under `src/overlays/o056/`; 22 under `src/overlays/o057/`; 11 under `src/overlays/o058/`; 10 under `src/overlays/o059/`; 6 under `src/overlays/o060/`; 12 under `src/overlays/o061/`; 3 under `src/overlays/o062/`; 4 under `src/overlays/o063/`; 1 under `src/overlays/o064/`; 6 under `src/overlays/o065/`; 4 under `src/overlays/o066/`; 1 under `src/overlays/o067/`; 18 under `src/overlays/o068/`; 3 under `src/overlays/o069/`; 3 under `src/overlays/o070/`; 4 under `src/overlays/o071/`; 1 under `src/overlays/o072/`; 2 under `src/overlays/o073/`; 2 under `src/overlays/o074/`; 3 under `src/overlays/o075/`; 1 under `src/overlays/o076/`; 2 under `src/overlays/o077/`; 1 under `src/overlays/o078/`; 8 under `src/overlays/o079/`; 2 under `src/overlays/o080/`; 1 under `src/overlays/o081/`; 2 under `src/overlays/o082/`; 9 under `src/overlays/o083/`; 22 under `src/overlays/o084/`; 1 under `src/overlays/o085/`; 6 under `src/overlays/o086/`; 4 under `src/overlays/o087/`; 3 under `src/overlays/o088/`; 5 under `src/overlays/o089/`; 1 under `src/overlays/o090/`; 2 under `src/overlays/o091/`; 3 under `src/overlays/o092/`; 1 under `src/overlays/o093/`; 3 under `src/overlays/o094/`; 1 under `src/overlays/o095/`; 6 under `src/overlays/o096/`; 11 under `src/overlays/o097/`; 4 under `src/overlays/o098/`; 8 under `src/overlays/o099/`; 7 under `src/overlays/o100/`; 71 under `src/overlays/o101/`; 1 under `src/overlays/o102/`; 1 under `src/overlays/o103/`; 1 under `src/overlays/o104/`; 1 under `src/overlays/o105/`; 1 under `src/overlays/o106/`; 1 under `src/overlays/o107/`.
 
-| Status | Bytes | Share of text |
-|---|---:|---:|
-| Matched C | 332648 | 35.10% |
-| Verified hand-written assembly | 16612 | 1.75% |
-| Extracted assembly | 284524 | 30.02% |
-| C under `NON_MATCHING` | 314012 | 33.13% |
-| C under `NON_EQUIVALENT` | 0 | 0.00% |
-
-Source files: 808 translation units; 539 contain only C and 269 still include assembly. Directory totals: `src/libultra` 134, `src/main` 38, and `src/overlays` 636.
-
-Run `gmake scoreboard` after a matching change. `gmake check-scoreboard` checks this section against the current build.
+Generated by `gmake scoreboard` from the built ELF, the splat config, the `asm/` tree and `symbol_addrs.us.txt`; `gmake check-scoreboard` fails if it has drifted. [`docs/modules.md`](docs/modules.md) records what each run of code was identified as and on what evidence; [`docs/references.md`](docs/references.md) records the reference builds it was measured against.
 <!-- SCOREBOARD_END -->
 
 ## Requirements

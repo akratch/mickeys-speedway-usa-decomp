@@ -39,6 +39,12 @@ extern void overlay68FinishEntryPromoteReloc(void);
  * 6/77 words with the first mismatch at +0x8. A volatile pad optimized away;
  * preserving a 16-byte address-taken stack object instead produced a 0x48
  * frame and moved both homes above it, so the faithful 0x20-frame body stays.
+ * Tier-2 trace revisit (2026-08-28): proc 0 retained eight natural allocator
+ * webs, but trace-stack-homes reported no producer-emitted virtual/final-home
+ * fields. Static slot census confirms target secondary sp+0x20/frame 0x30
+ * versus candidate sp+0x18/frame 0x20. Eight declaration/lifetime variants
+ * exhausted the grounded family; the best frame-accurate body was 64/77
+ * words with primary sp+0x1C but secondary sp+0x2C, so the natural body stays.
  */
 #ifdef NON_MATCHING
 void overlay68PromoteSecondary(void) {

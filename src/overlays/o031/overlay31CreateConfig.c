@@ -32,9 +32,9 @@ Overlay31Config *overlay31CreateConfig(s32 arg0, void *source,
                                                    s32 arg2, s32 arg3,
                                                    s32 count) {
     Overlay31Config *config;
+    s32 maskCount;
     s32 recordBytes;
     s32 rawRecordBytes;
-    s32 maskCount;
     s32 remainder;
     s32 i;
     s32 width;
@@ -47,7 +47,9 @@ Overlay31Config *overlay31CreateConfig(s32 arg0, void *source,
     }
     rawRecordBytes = count * 0x78 + 0x38;
     recordBytes = rawRecordBytes - ((u32)rawRecordBytes % 4U) + 4;
-    config = func_overlay_031_F0000000_187F520(maskCount * 4 + recordBytes,
+    rawRecordBytes = recordBytes;
+    rawRecordBytes += maskCount * 4;
+    config = func_overlay_031_F0000000_187F520(rawRecordBytes,
                                                0x8C, recordBytes);
     config->count = count;
     config->masks = (u32 *)((u8 *)config + recordBytes);

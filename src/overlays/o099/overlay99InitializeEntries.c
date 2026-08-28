@@ -50,12 +50,13 @@ extern Overlay99Object *overlay99SpawnEntryReloc(
     Overlay99SpawnDescriptor *descriptor, s32 one);
 extern void overlay99CommitEntriesReloc(void);
 
-/* Plateau (2026-08-25): all 119 flag combinations are exact-sized with 9
- * differing words, first at +0x70. Every difference is the address-taken
- * descriptor's stack offset (+0x58 from sp instead of retail's +0x54).
- * Seven array-size/order, aggregate, typed-storage, and promoted-local layouts
- * either preserve that offset or grow/change the otherwise exact 0x70 frame.
- * The configured tools/permuter checkout is absent. */
+/* Bounded workbench closeout (2026-08-28): the untouched C candidate is
+ * exact-sized at 110 words with the exact 0x70 frame, opcode/register/FP
+ * schedule, and seven runtime relocation roles. Its nine differing words,
+ * first at +0x70, are the address-taken descriptor's stack home (+0x58 from
+ * sp instead of retail's +0x54). Eight source-faithful declaration, storage,
+ * and lexical-lifetime variants preserved that basin; no captured ugen/uopt
+ * stack-home trace is available in the stock toolchain. */
 #ifdef NON_MATCHING
 void overlay99InitializeEntries(s32 count, Overlay99Entry *source,
                                        f32 x, f32 y) {
