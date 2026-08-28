@@ -104,7 +104,9 @@ extern void overlay101BuilderCreateFinalReloc(void *text, s32 index,
                                                s32 color, s32 *count);
 extern s32 overlay101ByteLength(u8 *text);
 
-/* Exact overlay 101 body at +0x99C4. */
+/* Workbench: structure-mismatch; 169 raw/168 aligned words differ, with 208
+ * target versus 209 candidate instructions and first structural divergence at
+ * +0x20. The exact frame/CFG body still has one late dim-color materialization. */
 #ifdef NON_MATCHING
 void overlay101BuildPresentationA(void) {
     s32 orderIndex;

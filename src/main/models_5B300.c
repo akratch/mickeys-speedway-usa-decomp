@@ -51,6 +51,49 @@ typedef struct ModelAnimationTable {
     u8 **animations;
 } ModelAnimationTable;
 
+typedef struct ModelAnimationFrame {
+    u8 pad0;
+    u8 flags;
+    s16 offset;
+    u8 pad4[2];
+    u8 loop;
+    u8 pad7;
+    u8 count;
+} ModelAnimationFrame;
+
+typedef struct ModelAnimationInfo {
+    u8 pad0[0x4E];
+    s8 frameCount;
+    u8 pad4F;
+    ModelAnimationFrame **frames;
+} ModelAnimationInfo;
+
+typedef struct ModelAnimationState {
+    ModelAnimationInfo *info;
+    u8 pad4[0x18];
+    ModelAnimationFrame *frame;
+    void *frameData;
+    u8 pad24[4];
+    f32 frameValue;
+    f32 pad2C;
+    f32 blendStart;
+    f32 blendEnd;
+    f32 blendValue;
+    s16 frameIndex;
+    s8 transition;
+    u8 hasNext;
+} ModelAnimationState;
+
+typedef struct ModelAnimationInstance {
+    u8 pad0[0x28];
+    f32 frameValue;
+    u8 pad2C[0xE];
+    s8 animationIndex;
+    s8 frame;
+    u8 pad3C[0x2C];
+    ModelAnimationState **states;
+} ModelAnimationInstance;
+
 extern s32 D_800D7CF0;
 extern s32 D_800D7CF4;
 extern s32 D_800D7CF8;
@@ -247,6 +290,158 @@ void camConvertMatrixList(Matrix *mtx, s32 count) {
     entry->count = count;
 }
 
+/* Keep the original TU order: func_8005ABA8 precedes func_8005AD64. */
+/* Workbench: structure-mismatch, 97 differing words, first mismatch +0x38. */
+/* Candidate shape: 110 instructions/no frame vs target 111/no frame; not permuter-ready. */
+/* Remaining structural gap: preserve the validated frame pointer in a2 before the split. */
+/* PROVENANCE: Mickey-only reconstruction from func_8005ABA8.s and the
+ * existing models TU layouts; no external function body is copied. */
+#ifdef NON_MATCHING
+s32 func_8005ABA8(ModelAnimationInstance *instance, f32 arg1, f32 arg2) {
+    s32 var_v1;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f2;
+    f32 temp_f2_2;
+    void *temp_a1;
+    ModelAnimationState *temp_v0;
+
+    temp_v0 = instance->states[(s32)instance->animationIndex];
+    var_v1 = 0;
+    temp_a1 = temp_v0->frame;
+    if (temp_a1 == NULL) {
+        return 0;
+    }
+    if (temp_v0->transition != 0) {
+        if (temp_v0->hasNext != 0) {
+            temp_f2 = temp_v0->blendEnd;
+            temp_f0 = temp_v0->blendValue + arg2;
+            temp_v0->blendValue = 0.0f;
+            temp_v0->blendEnd = temp_f2 - temp_f0;
+            temp_v0->blendStart = temp_f0 / temp_f2;
+        } else {
+            temp_v0->blendValue = temp_v0->blendValue + arg2;
+        }
+        temp_f2_2 = temp_v0->blendEnd;
+        if ((temp_f2_2 <= 0.0f) || (temp_f2_2 <= temp_v0->blendValue)) {
+            temp_v0->transition = 0;
+            temp_v0->blendStart = 0.0f;
+            temp_v0->blendValue = 0.0f;
+            instance->frameValue = (f32)temp_v0->frameIndex /
+                                   temp_v0->frameValue;
+        }
+    } else {
+        instance->frameValue += arg1 * arg2;
+        temp_f0_2 = instance->frameValue;
+        if (temp_f0_2 >= 1.0f) {
+            if (((ModelAnimationFrame *)temp_a1)->loop != 0) {
+                if (temp_f0_2 >= 1.0f) {
+                    do {
+                        instance->frameValue -= 1.0f;
+                    } while (instance->frameValue >= 1.0f);
+                    var_v1 = 1;
+                } else {
+                    goto animation_done;
+                }
+            } else {
+                instance->frameValue = 1.0f;
+animation_done:
+                var_v1 = 1;
+            }
+        } else if (temp_f0_2 < 0.0f) {
+            var_v1 = 1;
+            if (((ModelAnimationFrame *)temp_a1)->loop != 0) {
+                if (temp_f0_2 < 0.0f) {
+                    do {
+                        instance->frameValue += 1.0f;
+                    } while (instance->frameValue < 0.0f);
+                }
+            } else {
+                instance->frameValue = 0.0f;
+            }
+        }
+    }
+    return var_v1;
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005ABA8.s")
+#endif
+/* Workbench: structure-mismatch, 74 differing words, first mismatch +0x0. */
+/* Candidate shape: 111 instructions/no frame vs target 108/no frame; not permuter-ready. */
+/* Remaining structural gap: argument reloads and unsigned-count conversion add 3 instructions. */
+/* PROVENANCE: Mickey-only reconstruction from func_8005AD64.s and the
+ * existing models TU layouts; no external function body is copied. */
+#ifdef NON_MATCHING
+void func_8005AD64(ModelAnimationInstance *instance, s32 frame, s32 arg2,
+                   f32 value) {
+    f32 temp_f0;
+    f32 var_f6;
+    s32 temp_f6;
+    s32 var_a1;
+    s32 temp_a1;
+    s32 var_a3;
+    s32 temp_t9;
+    s32 var_v1;
+    ModelAnimationFrame *temp_a0;
+    ModelAnimationState *temp_v0;
+    ModelAnimationInfo *temp_v1;
+
+    temp_v0 = instance->states[(s32)instance->animationIndex];
+    var_a3 = frame;
+    temp_v1 = temp_v0->info;
+    if (temp_v1->frameCount != 0) {
+        if (value > 1.0f) {
+            value = 1.0f;
+        } else if (value < 0.0f) {
+            value = 0.0f;
+        }
+        instance->frameValue = value;
+        temp_a1 = temp_v1->frameCount;
+        if (var_a3 >= temp_a1) {
+            var_a3 = temp_a1 - 1;
+        } else if (var_a3 < 0) {
+            var_a3 = 0;
+        }
+        instance->frame = var_a3;
+        var_a1 = 0;
+        if ((temp_v0->frame != NULL) && (temp_v0->hasNext != 0)) {
+            var_a1 = 1;
+        }
+        temp_a0 = temp_v1->frames[var_a3];
+        temp_v0->frame = temp_a0;
+        temp_v0->frameData = (u8 *)temp_a0 + temp_a0->offset + 0x14;
+        temp_t9 = temp_a0->count;
+        var_f6 = (f32)temp_t9;
+        if (temp_t9 < 0) {
+            var_f6 += 4294967296.0f;
+        }
+        temp_v0->frameValue = var_f6;
+        if (temp_a0->loop == 0) {
+            temp_v0->frameValue = temp_v0->frameValue - 1.0f;
+        }
+        if (arg2 != -1) {
+            var_v1 = arg2;
+        } else {
+            var_v1 = temp_a0->flags;
+        }
+        if ((var_a1 != 0) && (var_v1 != 0)) {
+            temp_f0 = temp_v0->frameValue * value;
+            temp_v0->transition = 1;
+            temp_v0->blendStart = 0.0f;
+            temp_f6 = (s32)temp_f0;
+            temp_v0->blendEnd = (f32)var_v1;
+            if ((temp_f0 - (f32)temp_f6) >= 0.5f) {
+                temp_v0->frameIndex = temp_f6 + 1;
+                return;
+            }
+            temp_v0->frameIndex = temp_f6;
+        }
+    }
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AD64.s")
+#endif
+
 /*
  * Plateau: the animation-frame update's closest reconstruction emits 110
  * instructions against 111 and follows the broad target CFG, but diverges at
@@ -254,9 +449,6 @@ void camConvertMatrixList(Matrix *mtx, s32 count) {
  * lattice found no exact result; its closest alternate still differs in 59
  * words and would also perturb this TU's already-exact functions.
  */
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005ABA8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AD64.s")
-
 /*
  * Plateau: this 0x730-byte matrix/attachment builder remains blocked on
  * unknown model-node and attachment layouts. The permitted JFG peer is also

@@ -61,7 +61,7 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
 
     record = func_overlay_001_F0007BDC_1853FBC(x0, y0, x1, y1);
     if (record == 0) {
-        overlay1ErrorReloc(D_1DA0->sound);
+        overlay1ErrorReloc(((Overlay1ErrorOwner *)D_1DA0)->sound);
         *outX = x0;
         *outY = y0;
         return -1;

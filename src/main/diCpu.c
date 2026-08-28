@@ -39,6 +39,7 @@ extern void cpuXYPrintf(s32 x, s32 y, const char *format, ...);
 extern void func_80046E00(void);
 extern void func_80046BCC(s32 x, s32 y, char *text);
 extern s32 vsprintf(char *text, const char *format, va_list args);
+extern u16 D_8007D034[];
 extern s32 D_80000310;
 extern s32 D_8007A1E0;
 extern s32 D_8007A200;
@@ -508,7 +509,72 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
         glyph++;
     }
 }
+/* Workbench: structure-mismatch, 89 differing words, first mismatch +0x2C. */
+/* Candidate shape: 107 instructions/frame -0x40 vs target 106/-0x40; not permuter-ready. */
+/* Remaining structural gap: one extra loop move shifts the glyph-call relocations. */
+/* PROVENANCE: adapted from Jet Force Gemini's public
+ * asm/nonmatchings/diCpu/func_800681D0_68DD0.s; Mickey's glyph table,
+ * helper symbol, and target bytes determine the final bindings. */
+#ifdef NON_MATCHING
+void func_80046BCC(s32 x, s32 y, char *text) {
+    s32 temp_s6;
+    s32 var_s0;
+    s32 var_s1;
+    s32 var_s2;
+    s32 var_s3;
+    s32 var_s5;
+    u8 *var_s4;
+    s32 var_v0;
+
+    var_v0 = *(u8 *)text;
+    var_s1 = x;
+    var_s4 = (u8 *)text;
+    var_s5 = y;
+    var_s3 = 0;
+    var_s2 = 0;
+    if (var_v0 != 0) {
+        do {
+            temp_s6 = var_s2 & 0xFF;
+            var_s2 = var_v0 & 0xFF;
+            var_s4 += 1;
+            if (var_s3 != 0) {
+                var_s0 = var_s2;
+                if ((var_s2 >= 0x41) && (var_s0 < 0x47)) {
+                    var_s0 = (var_s0 + 0x20) & 0xFF;
+                    var_s2 = var_s0;
+                }
+            } else {
+                var_s0 = var_s2;
+                if ((var_s2 >= 0x61) && (var_s0 < 0x7B)) {
+                    var_s0 = (var_s0 - 0x20) & 0xFF;
+                    var_s2 = var_s0;
+                }
+            }
+            if (var_s0 == 0xA) {
+                var_s5 += 6;
+                var_s1 = 0x20;
+            } else if (var_s0 == 9) {
+                var_s1 = (var_s1 - (var_s1 & 0xF)) + 0x10;
+            } else if (var_s0 == 0x20) {
+                var_s1 += 4;
+            } else if ((var_s0 >= 0x21) && (var_s0 < 0x67)) {
+                func_80046AA8(var_s1, var_s5, &D_8007D034[(var_s0 * 5) - 0xA5]);
+                var_s1 += 8;
+            }
+            if ((var_s3 != 0) && ((var_s0 < 0x30) || (var_s0 >= 0x3A)) &&
+                ((var_s0 < 0x61) || (var_s0 >= 0x67))) {
+                var_s3 = 0;
+            }
+            if ((temp_s6 == 0x30) && ((var_s0 == 0x78) || (var_s0 == 0x58))) {
+                var_s3 = 1;
+            }
+            var_v0 = *var_s4;
+        } while (var_v0 != 0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80046BCC.s")
+#endif
 /* PROVENANCE: body adapted from JFG src/diCpu.c::cpuXYPrintf. */
 void cpuXYPrintf(s32 x, s32 y, const char *format, ...) {
     va_list args;

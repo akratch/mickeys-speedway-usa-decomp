@@ -1305,7 +1305,6 @@ void func_overlay_008_F00042A8_1862000(O8P42A8Actor *actor,
     s32 steps;
     s32 remaining;
     s16 savedAngle;
-    s32 mode;
 
     state = owner->state64;
     mode = state->mode0 & 3;

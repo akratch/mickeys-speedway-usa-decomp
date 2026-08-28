@@ -376,6 +376,7 @@ entrypoint = 0x80000400; // type:func size:0x50   ROM 0x01000  hasm/entrypoint.s
 // (`lui t2,0x8002 / addiu t2,t2,0x11a0 / jr t2`), so position and bytes agree.
 mainproc = 0x800211A0; // type:func size:0x58 ROM 0x21da0 tier-A IDO C exact, DKR src/main.c donor, masked=11/22
 thread1_main = 0x800211F8; // type:func size:0x98 ROM 0x21df8 tier-A IDO C exact, DKR src/main.c donor, masked=14/38
+func_80021290 = 0x80021290; // type:func size:0x50 ROM 0x21e90 tier-A IDO C exact, Mickey-only u64 counter reconstruction
 
 // math_util.s -- 13 routines matched, 11 named in this block; most have ZERO
 // masked words, and this is the strongest evidence in the block. (Of the other
@@ -686,7 +687,11 @@ debug_text_newline = 0x80044B34; // type:func size:0x28 ROM 0x45734 tier-A IDO C
 // DKR's `hasm/gzip_asm.s.o` matched in ONE PIECE at ROM 0x4EA60 (98 of 669
 // words masked, unique), so this is a measured FILE boundary as well as five
 // function names, and the yaml names the subsegment.
+func_8004D5E0 = 0x8004D5E0; // type:func size:0x170 ROM 0x4e1e0 tier-A IDO C exact, DKR libultra osCreatePiManager donor
+func_8004D750 = 0x8004D750; // type:func size:0x28 ROM 0x4e350 tier-A IDO C exact, Mickey-only reconstruction
 byteswap32 = 0x8004D778; // type:func size:0x30 ROM 0x4e378 tier-A IDO C exact, DKR src/gzip.c donor, masked=0/12
+func_8004D7A8 = 0x8004D7A8; // type:func size:0x38 ROM 0x4e3a8 tier-A IDO C exact, Mickey-only reconstruction
+func_8004D7E0 = 0x8004D7E0; // type:func size:0x60 ROM 0x4e3e0 tier-A IDO C exact, Mickey-only reconstruction
 gzip_inflate_block = 0x8004DE60; // type:func size:0x104   ROM 0x4ea60  hasm/gzip_asm.s.o  masked=19/65
 gzip_inflate_dynamic = 0x8004DF64; // type:func size:0x418   ROM 0x4eb64  hasm/gzip_asm.s.o  masked=32/262
 gzip_inflate_fixed = 0x8004E37C; // type:func size:0x158   ROM 0x4ef7c  hasm/gzip_asm.s.o  masked=11/86

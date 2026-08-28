@@ -85,6 +85,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -360,11 +361,19 @@ def replicate_objcopy(scratch: Path, recipe: BuildRecipe, c_file: Path, out_dir:
     obj = f"build/{c_file.relative_to(ROOT).as_posix()}.o"
     csh = scratch / "compile.sh"
     lines = [f"flags: {' '.join(recipe.flags)} ({'gmake -n' if recipe.from_dry_run else 'static group'})"]
+    # Whole-token match only: a plain substring replace would also rewrite
+    # `build/x.c.o.syms`-style arguments into nonexistent paths, and a step
+    # that does not mention the object at all cannot be retargeted (it would
+    # reach the scratch still pointing at the real build tree).
+    mention = re.compile(r"(?<![\w./-])(?:\./)?" + re.escape(obj) + r"(?![\w.-])")
     if recipe.objcopy_steps and csh.is_file():
         with open(csh, "a") as f:
             f.write("\n")
             for step in recipe.objcopy_steps:
-                remapped = step.replace(obj, '"$OUTPUT"')
+                if not mention.search(step):
+                    lines.append(f"skipped (does not name the object): {step}")
+                    continue
+                remapped = mention.sub('"$OUTPUT"', step)
                 f.write(remapped + "\n")
                 lines.append(f"replicated: {remapped}")
     for s in recipe.skipped_postproc:
@@ -490,6 +499,7 @@ class RunResult:
     flags: Optional[str] = None  # real codegen flags the scratch compiled with
     replicated_objcopy: int = 0  # post-compile objcopy steps appended to compile.sh
     extended: bool = False  # score-trend extension run happened
+    stopped_flat: bool = False  # stopped early: no improvement by --flat-minutes
     commit_error: Optional[str] = None
 
 
@@ -587,6 +597,23 @@ def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: 
     return scratch
 
 
+def _improved_over_base(scratch: Path, log_path: Path) -> bool:
+    """True if some output-*/score.txt is strictly below the base score.
+    The permuter also writes equal-score outputs, which are not progress."""
+    text = log_path.read_text(errors="replace") if log_path.is_file() else ""
+    m = re.search(r"base score = (\d+)", text)
+    base = int(m.group(1)) if m else None
+    for d in scratch.glob("output-*"):
+        f = d / "score.txt"
+        try:
+            score = int(f.read_text().strip())
+        except (OSError, ValueError):
+            continue
+        if base is None or score < base:
+            return True
+    return False
+
+
 def wait_for_headroom(threshold: float, label: str = "") -> None:
     """Block until the 1-minute load average is under `threshold`. The
     machine froze under an unthrottled fleet (load ~20 on 14 cores); every
@@ -607,7 +634,9 @@ def wait_for_headroom(threshold: float, label: str = "") -> None:
         waited += 15
 
 
-def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra_args: list[str], log_name: str = "permuter.log") -> tuple[Optional[int], float]:
+def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra_args: list[str],
+                 log_name: str = "permuter.log", flat_minutes: int = 0) -> tuple[Optional[int], float, bool]:
+    """Run one permuter search. Returns (base_score, elapsed_seconds, stopped_flat)."""
     log_path = out_dir / log_name
     # --stack-diffs is essential for a byte-identical rebuild: without it the
     # scorer normalizes sp-relative offsets and reports a false 0 for a spill
@@ -627,22 +656,55 @@ def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra
     args += [*extra_args, str(scratch)]
     start = time.monotonic()
     with open(log_path, "w") as log_f:
-        try:
-            proc = subprocess.run(
-                args,
-                cwd=ROOT,
-                stdout=log_f,
-                stderr=subprocess.STDOUT,
-                timeout=minutes * 60,
-            )
-            returncode = proc.returncode
-        except subprocess.TimeoutExpired:
-            returncode = 124
+        # permuter.py -j N forks worker processes; killing only the parent on
+        # timeout reparents the idle workers to PID 1 (observed: three batches
+        # of orphans after one morning of sweeping). Run the search in its own
+        # session and kill the whole process group at the cap.
+        proc = subprocess.Popen(
+            args,
+            cwd=ROOT,
+            stdout=log_f,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+        )
+        # Early stop when flat: a search that has produced no improvement at
+        # all after `flat_minutes` almost never does later (measured on the
+        # first sweep day: every 20-minute run that was flat at 6 minutes was
+        # still flat at 20). Improvements appear as output-* dirs, so poll
+        # for one; the extension heuristic covers the descending case.
+        deadline = time.monotonic() + minutes * 60
+        flat_deadline = time.monotonic() + flat_minutes * 60 if flat_minutes > 0 else None
+        returncode = None
+        while True:
+            try:
+                returncode = proc.wait(timeout=20)
+                break
+            except subprocess.TimeoutExpired:
+                pass
+            now = time.monotonic()
+            if now >= deadline:
+                returncode = 124
+                break
+            if flat_deadline is not None and now >= flat_deadline:
+                if not _improved_over_base(scratch, out_dir / log_name):
+                    returncode = 125  # stopped flat
+                    break
+                flat_deadline = None
+        if returncode in (124, 125):
+            try:
+                os.killpg(proc.pid, signal.SIGTERM)
+                proc.wait(timeout=15)
+            except (ProcessLookupError, subprocess.TimeoutExpired):
+                try:
+                    os.killpg(proc.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                proc.wait()
     elapsed = time.monotonic() - start
     text = log_path.read_text(errors="replace")
     m = re.search(r"base score = (\d+)", text)
     base_score = int(m.group(1)) if m else None
-    return base_score, elapsed
+    return base_score, elapsed, returncode == 125
 
 
 def best_output_dir(scratch: Path) -> Optional[Path]:
@@ -795,7 +857,19 @@ def commit_match(item: QueueItem) -> Optional[str]:
     string, or None. Only the function's own C file is staged, so a batch
     never sweeps unrelated working-tree changes into a match commit."""
     with PROMOTE_LOCK:
-        add = subprocess.run(["git", "add", "--", item.rel_c_file], cwd=ROOT, capture_output=True, text=True)
+        paths = [item.rel_c_file]
+        if item.overlay is not None:
+            # An overlay promotion changes the module's ownership rows; the
+            # atlas (and its digest) must be regenerated or `gmake
+            # overlay-atlas` fails and the overlay bytes are never credited.
+            for cmd in (["gmake", "overlay-atlas-write"],
+                        [str(PYTHON), "tools/refresh_atlas_digest.py"]):
+                r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=600)
+                if r.returncode != 0:
+                    return f"{' '.join(cmd)} failed: " + (r.stdout + r.stderr)[-2000:]
+            paths += ["config/overlays.us.json", "config/overlay-donors.us.json", "mickey.us.yaml"]
+            paths = [p for p in paths if (ROOT / p).exists()]
+        add = subprocess.run(["git", "add", "--", *paths], cwd=ROOT, capture_output=True, text=True)
         if add.returncode != 0:
             return "git add failed: " + add.stderr[-2000:]
         msg = (
@@ -812,7 +886,7 @@ def commit_match(item: QueueItem) -> Optional[str]:
 
 def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: int, apply: bool,
             extra_args: list[str], load_threshold: float = 0.0, extend_minutes: int = 0,
-            commit: bool = False) -> RunResult:
+            commit: bool = False, flat_minutes: int = 0) -> RunResult:
     out_dir = BUILD_PERMUTER / item.func
     out_dir.mkdir(parents=True, exist_ok=True)
     result = RunResult(func=item.func, c_file=item.rel_c_file, overlay=item.overlay, ok=False)
@@ -827,8 +901,10 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         scratch = run_import(item, out_dir, settings_path, target_asm)
         replicate_objcopy(scratch, recipe, item.c_file, out_dir)
         wait_for_headroom(load_threshold, f"before permuting {item.func}")
-        base_score, elapsed = run_permuter(scratch, out_dir, minutes, permuter_threads, extra_args)
+        base_score, elapsed, stopped_flat = run_permuter(
+            scratch, out_dir, minutes, permuter_threads, extra_args, flat_minutes=flat_minutes)
         result.base_score = base_score
+        result.stopped_flat = stopped_flat
         result.ok = True
 
         best_dir, best_score = _best(scratch)
@@ -908,6 +984,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "more minutes once (default: 0 = off)",
     )
     p.add_argument(
+        "--flat-minutes",
+        type=int,
+        default=6,
+        help="stop a search early when it has produced no improvement at all by this "
+        "many minutes (default: 6; 0 disables). Flat-at-six searches were flat-at-twenty "
+        "on every measured run",
+    )
+    p.add_argument(
         "--load-threshold",
         type=float,
         default=9.0,
@@ -962,7 +1046,10 @@ def main(argv: list[str]) -> int:
         if unranked:
             print(f"note: {unranked} queued function(s) have no ranking row; they run last")
     if args.resume and SUMMARY_JSON.is_file():
-        done = {r["func"] for r in json.loads(SUMMARY_JSON.read_text()).get("results", [])}
+        # A row that errored or never got a base score (import/compile fault)
+        # is not "done": the fault may have been fixed since.
+        done = {r["func"] for r in json.loads(SUMMARY_JSON.read_text()).get("results", [])
+                if not r.get("error") and r.get("base_score") is not None}
         before = len(queue)
         queue = [it for it in queue if it.func not in done]
         print(f"--resume: skipping {before - len(queue)} already-run function(s)")
@@ -1007,7 +1094,7 @@ def main(argv: list[str]) -> int:
     if jobs == 1:
         for it in queue:
             r = run_one(it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
-                        args.load_threshold, args.extend_minutes, args.commit)
+                        args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes)
             results.append(r)
             print_result(r)
             write_summary(results)
@@ -1016,7 +1103,7 @@ def main(argv: list[str]) -> int:
             futures = {
                 pool.submit(
                     run_one, it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
-                    args.load_threshold, args.extend_minutes, args.commit,
+                    args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes,
                 ): it
                 for it in queue
             }
@@ -1036,7 +1123,14 @@ def print_result(r: RunResult) -> None:
     if r.error:
         print(f"[{r.func}] ERROR: {r.error}")
         return
-    status = "MATCHED" if r.promoted else ("zero-found" if r.zero_found else "no improvement" if r.best_score is None else "improved")
+    if r.promoted:
+        status = "MATCHED"
+    elif r.zero_found:
+        status = "zero-found"
+    elif r.best_score is None or (r.base_score is not None and r.best_score >= r.base_score):
+        status = "flat" if r.stopped_flat else "no improvement"
+    else:
+        status = f"improved{' (extended)' if r.extended else ''}"
     print(
         f"[{r.func}] base={r.base_score} best={r.best_score} "
         f"{status} ({r.seconds:.0f}s)"

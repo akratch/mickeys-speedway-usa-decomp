@@ -187,8 +187,8 @@ segments:
       # between the working split and a measured original-file boundary.
       - [0x20020, c, main/models]
       # Boot/thread source unit. DKR's src/main.c supplies byte-exact bodies
-      # for mainproc and thread1_main; Mickey's stack-check variant remains
-      # assembly and the next measured source boundary is camera at 0x21EE0.
+      # for mainproc and thread1_main; Mickey's stack-check variant is now C,
+      # and the next measured source boundary is camera at 0x21EE0.
       - [0x21DA0, c, main/boot]
       # Resident camera state, viewport/projection setup, sprite/model matrices,
       # projection helpers and screen shake. JFG's src/camera.c supplies the

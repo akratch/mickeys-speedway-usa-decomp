@@ -548,7 +548,69 @@ u8 func_800033B0(void *sound, f32 x, f32 y, f32 z) {
     }
     return 0;
 }
+/* Workbench: structure-mismatch, 62 differing words, first mismatch +0x0.
+ * Structural gap: 93/94 instructions and -0x40/-0x30 frame; CFG/relocations still differ.
+ */
+#ifdef NON_MATCHING
+void func_80003480(AudioPoint *point, s32 volume, f32 pitch, s32 pan,
+                   s32 effects) {
+    AudioUpdateEntry *base;
+    AudioUpdateEntry *entry;
+    s32 index;
+    s32 bestIndex;
+    u8 group;
+    s32 bestVolume;
+    s32 entryVolume;
+
+    group = point->unk23;
+    base = D_800C9238[group - 1];
+    entry = base;
+    for (index = 0; index < ((s32 *) &D_80078F00)[group]; index++) {
+        if (point == entry->point) {
+            entry->volume = volume;
+            entry->pitch = pitch;
+            entry->pan = pan;
+            entry->effects = effects;
+            return;
+        }
+        entry++;
+    }
+
+    entry = base;
+    index = 0;
+    bestVolume = entry->volume;
+    for (; index < ((s32 *) &D_80078F00)[group]; index++) {
+        if (entry->point == NULL) {
+            entry->point = point;
+            entry->volume = volume;
+            entry->pitch = pitch;
+            entry->pan = pan;
+            entry->effects = effects;
+            return;
+        }
+        entryVolume = entry->volume;
+        if (bestVolume >= entryVolume) {
+            bestVolume = entryVolume;
+            bestIndex = index;
+        }
+        entry++;
+    }
+
+    if (bestVolume < volume) {
+        entry = D_800C9238[group] + bestIndex;
+        if (entry[-3].point->soundHandle != NULL) {
+            amSndStop(entry[-3].point->soundHandle);
+        }
+        entry[-3].point = point;
+        entry[-3].volume = volume;
+        entry[-3].pitch = pitch;
+        entry[-3].pan = pan;
+        entry[-3].effects = effects;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003480.s")
+#endif
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
  * func_80003994_4594; body and update-entry layout use Mickey-only evidence.
@@ -595,7 +657,28 @@ void func_800035F8(s32 group) {
         } while (index < countValue);
     }
 }
+/* Workbench: allocation-mismatch, 8 differing words, first mismatch +0x0.
+ * Shape-exact: 25 instructions/opcodes, frame, and relocations match; permuter-ready.
+ */
+#ifdef NON_MATCHING
+void func_80003760(AudioPoint *point) {
+    AudioUpdateEntry *entry;
+    s32 index;
+    u8 group;
+
+    group = point->unk23;
+    entry = D_800C9238[group - 1];
+    for (index = 0; index < ((s32 *) &D_80078F00)[group]; index++) {
+        if (point == entry->point) {
+            entry->point = NULL;
+            return;
+        }
+        entry++;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003760.s")
+#endif
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
  * func_80003B74_4774; body and pool layout use Mickey-only evidence.

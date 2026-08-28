@@ -2,7 +2,8 @@
  * Resident boot/thread setup -- ROM 0x21DA0-0x21EE0.
  *
  * DKR's published src/main.c identifies this source unit and supplies the
- * first two bodies. Mickey's shorter stack-check variant remains assembly.
+ * first two bodies. Mickey's shorter stack-check variant is reconstructed
+ * from its native u64 stack counters below.
  */
 
 #include "ultra64.h"
@@ -42,4 +43,7 @@ void thread1_main(void *unused) {
     while (1) {}
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/boot/func_80021290.s")
+void func_80021290(void) {
+    D_800CB5B8[0x400]++;
+    D_800CB5B8[0]++;
+}

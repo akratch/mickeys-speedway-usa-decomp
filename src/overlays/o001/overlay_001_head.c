@@ -720,12 +720,12 @@ void overlay1BuildObjectMappings(volatile s32 unused) {
                     data->flags |= 0x20;
                 }
                 func_overlay_001_F00004B4_184C894(object);
-                D_1DA0->scale = 1.0f;
-                D_1DA0->byte381 = 0;
-                D_1DA0->byte382 = 0;
-                D_1DA0->byte383 = -1;
-                D_1DA0->byte384 = 0;
-                D_1DA0->word400 = 0;
+                ((Overlay1BuildState *)D_1DA0)->scale = 1.0f;
+                ((Overlay1BuildState *)D_1DA0)->byte381 = 0;
+                ((Overlay1BuildState *)D_1DA0)->byte382 = 0;
+                ((Overlay1BuildState *)D_1DA0)->byte383 = -1;
+                ((Overlay1BuildState *)D_1DA0)->byte384 = 0;
+                ((Overlay1BuildState *)D_1DA0)->word400 = 0;
                 *(s16 *)((u8 *)D_1DA0 + 0x3BA) = 0xFF;
                 *(f32 *)((u8 *)D_1DA0 + 0x3D0) = object->x;
                 *(f32 *)((u8 *)D_1DA0 + 0x3D4) = object->y;
@@ -733,7 +733,7 @@ void overlay1BuildObjectMappings(volatile s32 unused) {
                 *(f32 *)((u8 *)D_1DA0 + 0x3DC) = object->y;
                 if (gOverlay1BuildGate == 1) {
                     func_overlay_001_F00019B8_184DD98(0);
-                    D_1DA0->word404 = 0;
+                    ((Overlay1BuildState *)D_1DA0)->word404 = 0;
                     ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word404 = 0;
                     ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word408 = 0;
                     ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word40C = 0;

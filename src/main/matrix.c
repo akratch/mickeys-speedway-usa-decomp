@@ -15,10 +15,245 @@
 #include "PR/ultratypes.h"
 #include "game/math.h"
 
+typedef struct MatrixTransform {
+    s16 rotation0;
+    s16 rotation1;
+    s16 rotation2;
+    u8 pad06[2];
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+} MatrixTransform;
+
+extern f32 func_8002A8BC(s32 angle);
+extern f32 func_8002A8C0(s32 angle);
+
+#ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 92 differing words, first mismatch +0x0.
+ * Structural gap: 93 instructions/frame -0x48 versus target 74/-0x8; 29 relocation sites also differ.
+ * Not shape-exact or permuter-ready; the scaled rotation body retains ABI-induced spills. */
+/* PROVENANCE: adapted from Jet Force Gemini's public math_matrix implementation;
+ * Mickey's own field offsets and call targets remain authoritative here. */
+void func_8002AA50(MatrixTransform *trans, MtxF dest) {
+    f32 cosX;
+    f32 sinX;
+    f32 cosY;
+    f32 sinY;
+    f32 cosZ;
+    f32 sinZ;
+    f32 scale;
+
+    cosX = func_8002A8C0(trans->rotation0);
+    sinX = func_8002A8BC(trans->rotation0);
+    cosY = func_8002A8C0(trans->rotation1);
+    sinY = func_8002A8BC(trans->rotation1);
+    cosZ = func_8002A8C0(trans->rotation2);
+    sinZ = func_8002A8BC(trans->rotation2);
+    scale = trans->scale;
+
+    dest[0][3] = 0.0f;
+    dest[1][3] = 0.0f;
+    dest[2][3] = 0.0f;
+    dest[3][0] = trans->x;
+    dest[3][1] = trans->y;
+    dest[3][2] = trans->z;
+    dest[3][3] = 1.0f;
+    dest[0][0] = (((sinZ * sinX) + ((cosZ * cosX) * cosY)) * scale);
+    dest[0][1] = (cosZ * sinY) * scale;
+    dest[0][2] = (((sinX * cosZ) * cosY) - (sinZ * cosX)) * scale;
+    dest[1][0] = (((sinZ * cosX) * cosY) - (sinX * cosZ)) * scale;
+    dest[1][1] = (sinZ * sinY) * scale;
+    dest[1][2] = (((sinZ * sinX) * cosY) + (cosZ * cosX)) * scale;
+    dest[2][0] = (sinY * cosX) * scale;
+    dest[2][1] = -cosY * scale;
+    dest[2][2] = (sinY * sinX) * scale;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AA50.s")
+#endif
+#ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 83 differing words, first mismatch +0x0.
+ * Structural gap: 84 instructions/frame -0x48 versus target 67/-0x8; 27 relocation sites also differ.
+ * Not shape-exact or permuter-ready; the six-call rotation body is retained for later structural work. */
+/* PROVENANCE: adapted from Jet Force Gemini's public math_matrix implementation;
+ * Mickey's own field offsets and call targets remain authoritative here. */
+void func_8002AB78(MatrixTransform *trans, MtxF dest) {
+    f32 cosX;
+    f32 sinX;
+    f32 cosY;
+    f32 sinY;
+    f32 cosZ;
+    f32 sinZ;
+
+    cosX = func_8002A8C0(trans->rotation0);
+    sinX = func_8002A8BC(trans->rotation0);
+    cosY = func_8002A8C0(trans->rotation1);
+    sinY = func_8002A8BC(trans->rotation1);
+    cosZ = func_8002A8C0(trans->rotation2);
+    sinZ = func_8002A8BC(trans->rotation2);
+
+    dest[0][3] = 0.0f;
+    dest[1][3] = 0.0f;
+    dest[2][3] = 0.0f;
+    dest[3][0] = trans->x;
+    dest[3][1] = trans->y;
+    dest[3][2] = trans->z;
+    dest[0][0] = ((cosZ * cosX) * cosY) + (sinZ * sinX);
+    dest[0][1] = cosZ * sinY;
+    dest[0][2] = ((cosZ * sinX) * cosY) - (cosX * sinZ);
+    dest[1][0] = ((cosX * sinZ) * cosY) - (cosZ * sinX);
+    dest[1][1] = sinZ * sinY;
+    dest[1][2] = ((sinZ * sinX) * cosY) + (cosZ * cosX);
+    dest[2][0] = cosX * sinY;
+    dest[2][1] = -cosY;
+    dest[2][2] = sinY * sinX;
+    dest[3][3] = 1.0f;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AB78.s")
+#endif
+#ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 118 differing words, first mismatch +0x0. */
+/* Candidate shape: 119 instructions/frame -0x80 vs target 99/-0x8; not permuter-ready. */
+/* Remaining structural gap: IDO FP-register spills and saved argument pointers add 20 instructions. */
+/* PROVENANCE: adapted from Jet Force Gemini's public
+ * asm/hasm/math_matrix.s matrix_XYZ_YPR_SCL; Mickey's field offsets and
+ * helper call targets remain authoritative here. */
+void func_8002AC84(MatrixTransform *trans, MtxF dest) {
+    register f32 cosX;
+    register f32 sinX;
+    register f32 cosY;
+    register f32 sinY;
+    register f32 cosZ;
+    register f32 sinZ;
+    register f32 scale;
+
+    cosX = func_8002A8C0(trans->rotation0);
+    sinX = func_8002A8BC(trans->rotation0);
+    cosY = func_8002A8C0(trans->rotation1);
+    sinY = func_8002A8BC(trans->rotation1);
+    cosZ = func_8002A8C0(trans->rotation2);
+    sinZ = func_8002A8BC(trans->rotation2);
+
+    scale = trans->scale;
+
+    dest[0][3] = 0.0f;
+    dest[1][3] = 0.0f;
+    dest[2][3] = 0.0f;
+    dest[3][3] = 1.0f;
+    {
+        register f32 col0_0;
+        register f32 col0_1;
+        register f32 col0_2;
+
+        col0_0 = (sinX * sinZ - ((cosX * cosY) * cosZ)) * scale;
+        col0_1 = ((-sinY) * cosZ) * scale;
+        col0_2 = (cosX * sinZ + ((sinX * cosY) * cosZ)) * scale;
+        dest[0][0] = col0_0;
+        dest[1][0] = col0_1;
+        dest[2][0] = col0_2;
+        dest[3][0] = (trans->x * col0_0) + (trans->y * col0_1) + (trans->z * col0_2);
+    }
+    {
+        register f32 col1_0;
+        register f32 col1_1;
+        register f32 col1_2;
+
+        col1_0 = (sinX * cosZ + ((cosX * cosY) * sinZ)) * scale;
+        col1_1 = (sinY * sinZ) * scale;
+        col1_2 = (cosX * cosZ - ((sinX * cosY) * sinZ)) * scale;
+        dest[0][1] = col1_0;
+        dest[1][1] = col1_1;
+        dest[2][1] = col1_2;
+        dest[3][1] = (trans->x * col1_0) + (trans->y * col1_1) + (trans->z * col1_2);
+    }
+    {
+        register f32 col2_0;
+        register f32 col2_1;
+        register f32 col2_2;
+
+        col2_0 = (cosX * -sinY) * scale;
+        col2_1 = cosY * scale;
+        col2_2 = (sinX * sinY) * scale;
+        dest[0][2] = col2_0;
+        dest[1][2] = col2_1;
+        dest[2][2] = col2_2;
+        dest[3][2] = (trans->x * col2_0) + (trans->y * col2_1) + (trans->z * col2_2);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AC84.s")
+#endif
+#ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 138 differing words, first mismatch +0x0.
+ * Structural gap: 139 instructions/frame -0xa0 versus target 87/-0x8; 63 relocation sites also differ.
+ * Not shape-exact or permuter-ready; the typed XYZ/YPR arithmetic remains a structural plateau. */
+/* PROVENANCE: adapted from Jet Force Gemini's public math_matrix implementation;
+ * Mickey's own field offsets and call targets remain authoritative here. */
+void func_8002AE10(MatrixTransform *trans, MtxF dest) {
+    f32 cosX;
+    f32 sinX;
+    f32 cosY;
+    f32 sinY;
+    f32 cosZ;
+    f32 sinZ;
+    f32 temp0;
+    f32 temp1;
+    f32 temp2;
+    f32 temp3;
+    f32 temp4;
+    f32 temp5;
+    f32 temp6;
+    f32 temp7;
+    f32 temp8;
+    f32 temp9;
+    f32 temp10;
+
+    cosX = func_8002A8C0(trans->rotation0);
+    sinX = func_8002A8BC(trans->rotation0);
+    cosY = func_8002A8C0(trans->rotation1);
+    sinY = func_8002A8BC(trans->rotation1);
+    cosZ = func_8002A8C0(trans->rotation2);
+    sinZ = func_8002A8BC(trans->rotation2);
+
+    temp0 = sinX * sinZ;
+    temp1 = sinX * cosZ;
+    temp2 = sinY * sinZ;
+    temp3 = cosX * sinZ;
+    temp4 = cosX * cosZ;
+    temp5 = sinX * sinY;
+    temp6 = cosX * cosY;
+    temp7 = sinX * cosY;
+    temp8 = -sinY;
+    temp9 = cosX * temp8;
+    temp10 = temp8 * cosZ;
+
+    temp0 -= temp6 * cosZ;
+    temp1 += temp6 * sinZ;
+    temp3 += temp7 * cosZ;
+    temp4 -= temp7 * sinZ;
+
+    dest[0][3] = 0.0f;
+    dest[1][3] = 0.0f;
+    dest[2][3] = 0.0f;
+    dest[0][0] = temp0;
+    dest[0][1] = temp1;
+    dest[0][2] = temp9;
+    dest[1][0] = temp10;
+    dest[1][1] = temp2;
+    dest[1][2] = cosY;
+    dest[2][0] = temp3;
+    dest[2][1] = temp4;
+    dest[2][2] = temp5;
+    dest[3][3] = 1.0f;
+    dest[3][0] = (trans->x * temp0) + (trans->y * temp10) + (trans->z * temp3);
+    dest[3][1] = (trans->x * temp1) + (trans->y * temp2) + (trans->z * temp4);
+    dest[3][2] = (trans->x * temp9) + (trans->y * cosY) + (trans->z * temp5);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AE10.s")
+#endif
 /*
  * NONMATCHING-notes for this whole file: the toolchain cannot emit the ROM's
  * floating-point register allocation.

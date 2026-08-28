@@ -99,6 +99,21 @@ CFLAGS  := -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
            $(DEFINES) $(INCLUDE_CFLAGS)
 POSTPROCESS := @:
 
+# Every per-file POSTPROCESS below is a post-compile ELF normalization -- a
+# section trim, a relocation rebind or filter, an added relocation guarded by a
+# .text prefix hash. All of them encode the *matching* object's exact layout,
+# so none of them can succeed against an object compiled with -DNON_MATCHING:
+# the text is a different size and the relocations sit at different offsets.
+# The escape hatch is compile-only by design (see NON_MATCHING above), so the
+# normalizations are simply skipped in the build_non_matching tree. Recursive
+# assignment on purpose: it has to expand in each target's context so the
+# target-specific POSTPROCESS override is the one that runs.
+ifeq ($(NON_MATCHING),0)
+RUN_POSTPROCESS = $(POSTPROCESS)
+else
+RUN_POSTPROCESS = @:
+endif
+
 # asm-processor (simonlindholm) is what makes `#pragma GLOBAL_ASM("...")` work
 # with IDO: it strips the pragmas out, compiles the remaining real C, assembles
 # the referenced .s files with $(AS), and splices the result back into the
@@ -456,32 +471,32 @@ $(BUILD_DIR)/%.bin.o: %.bin | $(ALL_DIRS) $(SPLAT_STAMP)
 $(BUILD_DIR)/%.c.o: %.c $(H_FILES) $(TOOLS_DIR)/normalize_elf_instructions.py $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(ASM_PROCESSOR) $(CC) -- $(AS) $(ASM_PROC_ASFLAGS) -- \
 		-c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # The DKR-exact rmonprintf source has no GLOBAL_ASM. Sending it through
 # asm-processor changes IDO's line metadata and produces a seven-word schedule
 # residual; direct IDO compilation reproduces the whole source object.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/rmonprintf.c.o: $(SRC_DIR)/libultra/rmonprintf.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # __osEepStatus is the exact tail of DKR's SDK conteepwrite source. Like the
 # direct rmonprintf object above, it has no GLOBAL_ASM and retains the donor's
 # direct-IDO line schedule.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: $(SRC_DIR)/libultra/eepstatus.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # DKR's whole xprintf object is exact, including its anonymous static helper,
 # data and rodata. Compile the pragma-free donor directly at its SDK preset.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/xprintf.c.o: $(SRC_DIR)/libultra/xprintf.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # Same whole-object result for DKR's xldtob conversion source and constants.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: $(SRC_DIR)/libultra/xldtob.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # ---------------------------------------------------------------------------
 # Per-file compiler flags
@@ -914,6 +929,11 @@ $(BUILD_DIR)/$(SRC_DIR)/main/charControl.c.o: CFLAGS += -Wab,-r4300_mul
 # The positional-audio distance loops retain the R4300 multiply schedule;
 # the full flag lattice selects this mode for amPlayAudioMap.
 $(BUILD_DIR)/$(SRC_DIR)/main/audio_manager_36D0.c.o: CFLAGS += -Wab,-r4300_mul
+ifeq ($(NON_MATCHING),1)
+# The candidate's update-entry scan is scalar in the target; retain IDO's
+# rolled loop without changing the verified canonical TU flags.
+$(BUILD_DIR)/$(SRC_DIR)/main/audio_manager_36D0.c.o: CFLAGS += -Wo,-loopunroll,0
+endif
 
 # The oscillator TU uses the VR4300 multiply scheduling mode. The exact BK
 # depth2Cents body reaches Mickey's instruction schedule only with this flag;
@@ -941,7 +961,7 @@ OVERLAY5_O3_OBJECTS := $(addprefix $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/, \
 $(OVERLAY5_O3_OBJECTS): $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/%.c.o: \
                         $(SRC_DIR)/overlays/o005/%.c $(H_FILES) | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(CC) -c $(CFLAGS) -O3 -mips2 -32 -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # IDO aligns standalone .text sections to 16 bytes, while these reviewed
 # overlay functions continue at four-byte boundaries inside a larger module.
@@ -3928,3 +3948,12 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 .PHONY: default all setup hooks extract prune-asm verify cleanroom audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
+
+# Every candidate-bearing TU must still compile with -DNON_MATCHING, or its
+# candidates silently drop out of the permuter sweep (fx.c, overlay 1 and
+# overlay 8 were locked out this way for days). Compile-only: the
+# build_non_matching tree skips the matching-only ELF normalizations.
+check-nonmatching-builds:
+	@fail=0; for f in $$(grep -l '#ifdef NON_MATCHING' -r src --include='*.c'); do \
+	  if ! $(MAKE) -s NON_MATCHING=1 build_non_matching/$$f.o >/dev/null 2>&1; then echo "FAIL $$f"; fail=1; fi; \
+	done; [ $$fail -eq 0 ] && echo "check-nonmatching-builds: OK ($$(grep -l '#ifdef NON_MATCHING' -r src --include='*.c' | wc -l | tr -d ' ') TUs)" || exit 1

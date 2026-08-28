@@ -1585,7 +1585,7 @@ void overlay1StartTimerCallbacks(Overlay1CallbackObject *object, s32 amount) {
         gOverlay1CallbackStepFloat = amount;
         entry = gOverlay1CallbackDescriptor;
         for (index = 5; index != 6; index++, entry++) {
-            mode = gOverlay1TimerState->mode;
+            mode = ((Overlay1CallbackState *)gOverlay1TimerState)->mode;
             if (index != mode) {
                 callback = entry->callback;
                 if (callback != NULL) {
@@ -1595,7 +1595,7 @@ void overlay1StartTimerCallbacks(Overlay1CallbackObject *object, s32 amount) {
                 }
             }
         }
-        mode = gOverlay1TimerState->mode;
+        mode = ((Overlay1CallbackState *)gOverlay1TimerState)->mode;
         callback = gOverlay1ModeCallbacks[mode].callback;
         if (callback != NULL) {
             callback();
@@ -1824,15 +1824,15 @@ extern s32 overlay3RunCachedModeAction(void *, W *);
 extern s32 overlay1DispatchMode(void);
 #ifdef NON_MATCHING
 s32 overlay1HandleCachedMode(void) {
-    W *world = D_1DA0[0];
+    W *world = (W *)D_1DA0;
     s32 result = 0;
     if (world->enabled == 0) goto clear;
     if (overlay27CanUse(world->object) != 0) goto clear;
-    if (D_83E4 == 3) result = overlay3RunCachedModeAction(D_1D9C[0], D_1DA0[0]);
+    if (D_83E4 == 3) result = overlay3RunCachedModeAction(D_1D9C, (W *)D_1DA0);
     else result = overlay1DispatchMode();
     return result;
 clear:
-    D_1DA0[0]->state = 0;
+    ((W *)D_1DA0)->state = 0;
     return result;
 }
 
@@ -1880,7 +1880,9 @@ s32 overlay1ChooseModeObject(void) {
         {
             O1SelectState *state = object->state;
             if (object != D_1D9C) {
-                if (D_1BA8[D_1DA0->row].entries[state->tableIndex].value < 600.0f) {
+                if (D_1BA8[((O1SelectWorld *)D_1DA0)->row]
+                        .entries[state->tableIndex]
+                        .value < 600.0f) {
                     choices[choiceCount++] = object;
                 }
             }
@@ -1890,11 +1892,11 @@ s32 overlay1ChooseModeObject(void) {
     if (choiceCount != 0) {
         count = overlay1SelectRandom(1, choiceCount) - 1;
         object = choices[count];
-        selection = &D_1DA0->selection;
+        selection = &((O1SelectWorld *)D_1DA0)->selection;
         selection->object = object;
         selection->value = overlay1SelectValue(0x5A, 0x84);
-        D_1DA0->mode = 5;
-        D_1DA0->selected = object;
+        ((O1SelectWorld *)D_1DA0)->mode = 5;
+        ((O1SelectWorld *)D_1DA0)->selected = object;
         return 1;
     }
     return 0;
@@ -2604,7 +2606,7 @@ void overlay1UpdateAimedTransient(void) {
     s16 sourceAngle;
     s16 objectAngle;
 
-    worldRef = &D_1DA0;
+    worldRef = (Overlay1TransientWorld **)&D_1DA0;
     world = *worldRef;
     object = world->object;
     source = world->source;
@@ -2630,7 +2632,7 @@ void overlay1UpdateAimedTransient(void) {
     }
 
     if ((world->mode == 0xD) && state->active &&
-        (D_18C <= D_1D9C->distance)) {
+        (D_18C <= ((Overlay1TransientOwner *)D_1D9C)->distance)) {
         state->active = 0;
         state->mode = 0xC;
         if (source != 0) {
@@ -2668,9 +2670,13 @@ void overlay1UpdateAimedTransient(void) {
         } else {
             state->linkedIndex = -1;
             trig = D_190;
-            object->velocityX = func_8002A8C0(D_1D9C->angle) * trig * -30.0f;
+            object->velocityX =
+                func_8002A8C0(((Overlay1TransientOwner *)D_1D9C)->angle) * trig *
+                -30.0f;
             object->velocityY = D_194;
-            object->velocityZ = func_8002A8BC(D_1D9C->angle) * trig * -30.0f;
+            object->velocityZ =
+                func_8002A8BC(((Overlay1TransientOwner *)D_1D9C)->angle) * trig *
+                -30.0f;
         }
         *object->flags &= ~2;
         world = D_1DA0;
@@ -3086,8 +3092,8 @@ extern s32 overlay2TracePath(f32 x, f32 y, f32 anchorX, f32 anchorY,
                              void *arg5, Overlay1TraceResult *result,
                              u8 primary, u8 secondary);
 extern Overlay1PathEntry *overlay1GetEntry(u16 index);
-extern Overlay1PathState *overlay1CloneRecord(Overlay1PathState *source);
-extern void overlay1AppendPathPoint(Overlay1PathState *state, s32 x, s32 y,
+extern void *overlay1CloneRecord(u32 *source);
+extern void overlay1AppendPathPoint(Overlay1PathState *state, s16 x, s16 y,
                                     u8 primary, u8 secondary);
 extern s16 overlay1AnchorX;
 extern s16 overlay1AnchorY;
@@ -3139,7 +3145,7 @@ s32 overlay1AdvancePath(Overlay1PathState *state) {
     }
 
     if ((result.base != result.first) && (gOverlay1PoolExhausted == 0)) {
-        child = overlay1CloneRecord(state);
+        child = overlay1CloneRecord((u32 *)state);
         if (child != NULL) {
             overlay1AppendPathPoint(child, entry->points[result.first].x,
                                     entry->points[result.first].y,
@@ -3150,7 +3156,7 @@ s32 overlay1AdvancePath(Overlay1PathState *state) {
     }
 
     if ((result.base != result.second) && (gOverlay1PoolExhausted == 0)) {
-        child = overlay1CloneRecord(state);
+        child = overlay1CloneRecord((u32 *)state);
         if (child != NULL) {
             overlay1AppendPathPoint(child, entry->points[result.second].x,
                                     entry->points[result.second].y,

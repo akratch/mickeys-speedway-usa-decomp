@@ -1757,7 +1757,81 @@ s32 func_80013324(f32 coefficient, f32 numerator,
     }
     return TRUE;
 }
+/* Workbench: structure-mismatch, 98 differing words, first mismatch +0x0. */
+/* Candidate shape: 99 instructions/frame -0x98 vs target 96/-0xA0; sqrtf call present. */
+/* Remaining structural gap: coordinate-load ordering, FP spill homes, and saved-FP frame. */
+#ifdef NON_MATCHING
+void func_800133FC(TrackVertex *arg0, TrackVertex *arg1,
+                   TrackVertex *arg2, f32 *arg3, f32 *arg4,
+                   f32 *arg5, f32 *arg6) {
+    s32 sp9C;
+    s32 sp98;
+    s32 sp94;
+    f32 sp54;
+    f32 sp50;
+    f32 sp4C;
+    f32 sp34;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f14;
+    f32 temp_f16;
+    f32 temp_f18;
+    register f32 temp_f20;
+    register f32 temp_f22;
+    register f32 temp_f24;
+    f32 temp_f2;
+    f32 temp_f8;
+    f32 var_f12;
+    f32 var_f14;
+    f32 var_f2;
+    s32 temp_t0;
+    s32 temp_t1;
+    s32 temp_t2;
+    s32 temp_t3;
+    s32 temp_v0;
+    s32 temp_v1;
+
+    temp_v1 = arg0->y;
+    temp_t2 = arg1->y;
+    temp_t3 = arg1->z;
+    temp_t0 = arg0->z;
+    temp_f14 = (f32) (temp_t2 - temp_v1);
+    temp_f8 = (f32) (arg2->z - temp_t3);
+    temp_t1 = arg1->x;
+    temp_v0 = arg0->x;
+    sp98 = (s32) temp_v1;
+    temp_f16 = (f32) (arg2->y - temp_t2);
+    sp34 = temp_f8;
+    sp94 = (s32) temp_t0;
+    temp_f18 = (f32) (temp_t3 - temp_t0);
+    sp9C = (s32) temp_v0;
+    temp_f2 = (f32) (arg2->x - temp_t1);
+    temp_f20 = (temp_f14 * temp_f8) - (temp_f18 * temp_f16);
+    sp54 = temp_f20;
+    temp_f0 = (f32) (temp_t1 - temp_v0);
+    temp_f22 = (temp_f18 * temp_f2) - (temp_f0 * temp_f8);
+    sp50 = temp_f22;
+    temp_f24 = (temp_f0 * temp_f16) - (temp_f14 * temp_f2);
+    sp4C = temp_f24;
+    temp_f0_2 = sqrtf((temp_f20 * temp_f20) + (temp_f22 * temp_f22) +
+                       (temp_f24 * temp_f24));
+    var_f2 = sp54;
+    var_f12 = sp50;
+    var_f14 = sp4C;
+    if (temp_f0_2 > 0.0f) {
+        var_f2 = temp_f20 / temp_f0_2;
+        var_f12 = temp_f22 / temp_f0_2;
+        var_f14 = temp_f24 / temp_f0_2;
+    }
+    *arg3 = var_f2;
+    *arg4 = var_f12;
+    *arg5 = var_f14;
+    *arg6 = -(((f32) temp_v0 * var_f2) + ((f32) temp_v1 * var_f12) +
+              ((f32) temp_t0 * var_f14));
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800133FC.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001357C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001398C.s")
 /*

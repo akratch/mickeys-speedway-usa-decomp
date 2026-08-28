@@ -559,13 +559,16 @@ s32 runlinkDownloadCode(s32 overlayIndex) {
 
     return 1;
 }
+/* Workbench: allocation-mismatch, 35 differing words, first mismatch +0x20. */
+/* Candidate shape: 101 instructions/frame -0x20, opcodes and relocations match; permuter-ready. */
+/* Remaining structural gap: register allocation only; canonical fallback remains active. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
  * asm/nonmatchings/runLink/runlinkEnsureJumpIsValid.s. Mickey's relocation
- * layout and resident section anchors determine the final body.
+ * layout and resident section anchors determine this func_800320F0 body.
  */
-s32 runlinkEnsureJumpIsValid(void **jumpAddress) {
+s32 func_800320F0(void **jumpAddress) {
     register void **address;
     OverlayHeader *overlay;
     RelocationEntry *relocEntry;

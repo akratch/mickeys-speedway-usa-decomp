@@ -21,7 +21,7 @@ the segment, carrying 194 function names.
 | `0x1AE60`–`0x1BE50` | `0x8001A260` | `main/lights2` | A | **Measured file boundary**: JFG's whole 0xFF0 `hasm/lights2.s`, 9 routines: the lighting pipeline, a starfield mover, a CPU line rasteriser, a rain draw. The first anchor anywhere in `0x16140`–`0x1C790` |
 | `0x31C4` | `0x800025C4` | `audspat_jingle_off` | A | Spatial audio, and the thinnest row adopted |
 | `0xC9B4`, `0xF520` | — | `"track/track.c"` asserts | — | **`track` code is partly resident** |
-| `0x21DA0` | `0x800211A0` | `mainproc`, `thread1_main` | A | Compiler/link-exact DKR-adapted C in the boot source unit |
+| `0x21DA0` | `0x800211A0` | `mainproc`, `thread1_main`, `func_80021290` | A | Compiler/link-exact C in the boot source unit |
 | `0x25C20`-`0x263F0` | `0x80025020` | `main/joy` | B | Controller setup, polling, mapping, accessors and CIC helper; §3.4 |
 | `0x263F0`-`0x27760` | `0x800257F0` | `main/level` | B | Level lifecycle and metadata accessors; §3.4 |
 | `0x27760`-`0x2A250` | `0x80026B60` | `main/main` | B + C | Main state/frame control, identified by call graph and six file-string references; §3.4 |
@@ -254,11 +254,11 @@ overlay callers/callees outside the range were observed.
 | `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, matched C | leaf; in-range callers |
 | `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D, plateau | leaf |
 | `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |
-| `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | D | SDK calls; ext callers |
-| `0x4E350` | `0x28` | `func_8004D750` | `rzipInit` | D | allocator call; ext caller |
+| `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | A, matched C | IDO C exact; SDK calls; ext callers |
+| `0x4E350` | `0x28` | `func_8004D750` | `rzipInit` | A, matched C | IDO C exact; allocator call; ext caller |
 | `0x4E378` | `0x30` | `byteswap32` | DKR `byteswap32`; JFG `rzipUncompressSize` | A, matched C | leaf; ext callers |
-| `0x4E3A8` | `0x38` | `func_8004D7A8` | `rzipUncompressSizeROM` | B | calls `byteswap32`, ext |
-| `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | B | calls `gzip_inflate_block`; ext callers |
+| `0x4E3A8` | `0x38` | `func_8004D7A8` | `rzipUncompressSizeROM` | A, matched C | IDO C exact; calls `byteswap32`, ext |
+| `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | A, matched C | IDO C exact; calls `gzip_inflate_block`; ext callers |
 | `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B | calls `_bzero`; called by `main/gzip_asm` |
 
 `func_8004B1DC` has a readable DKR-JP-derived candidate under
@@ -2624,7 +2624,7 @@ Measured plateau:
 | Mickey routine | Best result | First mismatch | Remaining hypothesis |
 |---|---|---:|---|
 | `amTuneSetFadeScaled` | Exact 29-word instruction/opcode schedule, frame, and relocation surface; 7 register-only differences after the flag lattice and 10 source-shape attempts | function `+0x1C` | IDO 5.3 temporary-FIFO phase: the target and candidate assign the three initial address/index temporaries from different positions in the same ring. The candidate remains under `NON_MATCHING`; canonical output is still assembly-backed |
-| `func_80003480` | Exact 94-word length in the best per-lane entry-update candidate after the 119-combination flag sweep and 10 typed/raw, loop, and array-layout hypotheses; 74 words still differ, with the candidate using a `0x40` frame instead of the target's `0x30` | function `+0x0` | IDO 5.3 web formation and spill placement: the target recomputes the lane base and spills the replacement index at `sp+0x24`, while the candidate retains the scaled lane and spills at `sp+0x38`. JFG's ordered peer is assembly-only and retains a placeholder name; canonical output remains assembly-backed |
+| `func_80003480` | Best typed entry-update candidate is 93 instructions versus 94, with 62 differing words; its `0x40` frame remains larger than the target's `0x30` | function `+0x0` | IDO 5.3 web formation and spill placement remain unresolved in the final replacement path; JFG's ordered peer is assembly-only and retains a placeholder name; canonical output remains assembly-backed |
 | `func_80003760` | Exact 25-word opcode schedule, relocation surface, and temp-FIFO lane under `-Wo,-loopunroll,0`; 8 register-only words remain after the flag lattice and 10 source/web hypotheses | function `+0x4` | IDO 5.3 pool ordering: the target assigns the lane count/index to `a2`/`a1` and emits the comparison through `at`, while every coherent candidate basin assigns `a1`/`a2` and a final temp. The donor peer is assembly-only; canonical output remains assembly-backed and the TU's verified flags are unchanged |
 
 PROVENANCE: TU labels, order, and semantic roles derive from JFG's permitted
