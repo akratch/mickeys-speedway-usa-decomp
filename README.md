@@ -14,16 +14,16 @@ They have not been updated or verified.
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-1004_of_1464_(68.58%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/C_bytes_matched-332648_of_947796_(35.10%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1272_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-1386_of_1846_(75.08%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/C_bytes_matched-332648_of_947796_(35.10%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1272_adopted-blue)](#progress)
 
 | Scope | Complete | Total | Progress |
 |---|---:|---:|---:|
-| Resident functions | 1004 | 1464 | 68.58% |
+| Resident functions | 1386 | 1846 | 75.08% |
 | Resident C bytes | 222796 | 478532 | 46.56% |
 | Overlay C bytes | 109852 | 469264 | 23.41% |
 | Whole-game C bytes | 332648 | 947796 | 35.10% |
 | Whole-game resolved bytes | 349260 | 947796 | 36.85% |
-| Named resident functions | 1128 | 1464 | 77.05% |
+| Named resident functions | 1510 | 1846 | 81.80% |
 
 Resolved bytes include matched C and 16612 bytes in 82 verified hand-written assembly functions. The symbol file contains 1272 adopted names.
 
@@ -31,10 +31,10 @@ Resolved bytes include matched C and 16612 bytes in 82 verified hand-written ass
 
 | Area | Matched functions | Total functions | Function progress | Matched C bytes | Text bytes | Byte progress |
 |---|---:|---:|---:|---:|---:|---:|
-| libultra | 252 | 289 | 87.20% | 79800 | 92204 | 86.55% |
-| game code in named translation units | 752 | 991 | 75.88% | 142996 | 315292 | 45.35% |
-| game code not split into translation units | 0 | 184 | 0.00% | 0 | 71036 | 0.00% |
-| **total** | 1004 | 1464 | 68.58% | 222796 | 478532 | 46.56% |
+| libultra | 269 | 306 | 87.91% | 79800 | 92204 | 86.55% |
+| game code in named translation units | 851 | 1090 | 78.07% | 142996 | 315292 | 45.35% |
+| game code not split into translation units | 266 | 450 | 59.11% | 0 | 71036 | 0.00% |
+| **total** | 1386 | 1846 | 75.08% | 222796 | 478532 | 46.56% |
 
 Resident function counts exclude overlays because complete overlay function boundaries are not yet available. Overlay progress is therefore reported by byte count in the summary table.
 
@@ -132,6 +132,8 @@ listed in the Makefile and summarized in [The module map](docs/modules.md).
   the two code regions.
 - [Reference builds](docs/references.md) records the external builds used for
   symbol comparison.
+- [JFG code mining guide](docs/jfg-code-mining.md) points Jet Force Gemini
+  contributors to matching shared-engine C in this repository.
 - [Architecture decisions](docs/adr/README.md) records project policy.
 
 ## Contributing
