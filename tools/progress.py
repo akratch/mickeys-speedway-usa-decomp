@@ -373,7 +373,7 @@ def render_markdown(st):
     construction rather than by exemption.
     """
     L = []
-    L.append("### Progress")
+    L.append("## Progress")
     L.append("")
     L.append(
         f"[![functions]({badge('functions matched', st['func_msg'], 'blue')})]"
@@ -416,9 +416,9 @@ def render_markdown(st):
     L.append("```")
     L.append("")
     L.append(
-        "DKR-style report (docs/acceleration-survey.md sec.13.1: NON_MATCHING "
-        "and NON_EQUIVALENT count as unmatched, exactly like extracted "
-        "assembly):"
+        "Five-line report in the Diddy Kong Racing convention, where "
+        "`NON_MATCHING` and `NON_EQUIVALENT` bodies count as unmatched, "
+        "exactly like extracted assembly:"
     )
     L.append("")
     L.append("```")
@@ -460,8 +460,12 @@ def render_markdown(st):
     for rel, note, fully_c in tus:
         by_dir.setdefault(os.path.dirname(rel) or ".", []).append((rel, note, fully_c))
     parts = []
+    overlay_dirs = {}
     for d in sorted(by_dir):
         items = by_dir[d]
+        if d.startswith("overlays/"):
+            overlay_dirs[d] = len(items)
+            continue
         noted = [f"`{os.path.basename(r)}` ({n})" for r, n, _ in items if n]
         if noted:
             parts.append(
@@ -470,10 +474,21 @@ def render_markdown(st):
             )
         else:
             parts.append(f"{len(items)} under `src/{d}/`")
+    if overlay_dirs:
+        # One clause for the overlay tree instead of one per directory: the
+        # per-directory list ran to 107 entries and said nothing a reader
+        # could act on. The five largest directories still get named.
+        largest = sorted(overlay_dirs.items(), key=lambda kv: (-kv[1], kv[0]))[:5]
+        parts.append(
+            f"{sum(overlay_dirs.values())} across {len(overlay_dirs)} "
+            "`src/overlays/oNNN/` directories (largest: "
+            + ", ".join(f"`{os.path.basename(d)}` {n}" for d, n in largest)
+            + ")"
+        )
     n_fully_c = sum(fully_c for _, _, fully_c in tus)
     L.append(
         f"**Source organization**: {n_fully_c} fully-C translation units and "
-        f"{len(tus) - n_fully_c} C scaffolds that still include assembly. "
+        f"{len(tus) - n_fully_c} C scaffolds that still include assembly: "
         + "; ".join(parts) + "."
     )
     L.append("")
