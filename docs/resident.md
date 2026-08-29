@@ -1841,9 +1841,11 @@ Type lever: Basic/emitter/vector aggregates; no structure movement. Remains the 
 residuals from `+0x0`; implicit loop bounds seed both carrier pairs oppositely.
 An explicit end pointer changes the frame, so asm stays canonical.
 
-`debug_text_width` is size/frame exact with 9/66 residuals, first `+0x20`.
-The donor pad/current topology moves its buffer from `sp+44` to `sp+40`, still four bytes above target.
-Workbench identifies a pool-slot-5 `v0`/`v1` mismatch; asm remains canonical.
+`debug_text_width` is 59/66 words with exact size, frame `0x138`, all five
+relocations, and first mismatch `+0x38`. All 119 flag rows were nonexact. One
+trace isolates a five-site current-byte `v1`/`v0` web plus newline lowering; a
+classification scalar regressed and an explicit newline tail was flat, so asm
+remains canonical.
 
 `func_8004054C`: before/after structure mismatch, 124/125 instructions and 33 words, first `+0x4C`.
 Type lever: unsigned free-bit pointer and pool aggregate; no scan-shape movement. Remains the pool/temporary web and missing instruction; asm stays canonical.

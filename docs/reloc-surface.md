@@ -524,6 +524,14 @@ integer allocation. ORT 1285 exports the owned `+0xB8..+0x248` range; the sole
 authenticated inbound is `func_8000AEEC+0x34C`. Following padding is separately
 assembly-owned, and linked equality proves fallback only.
 
+Resident `debug_text_width` owns five exact records: calls at `+0x18/+0x30` to
+`sprintfSetSpacingCodes`, `+0x28` to `vsprintf`, and a HI16/LO16 pair at
+`+0x4C/+0x50` to `D_8007CE98`. Fresh configured full-TU C emits all five at
+59/66 words under canonical flags; all 119 flag rows were nonexact. ORT 862
+exports it, but exhaustive relocation, direct-call, pointer, and source scans
+find no caller. There is no target padding; linked equality proves fallback
+only.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
