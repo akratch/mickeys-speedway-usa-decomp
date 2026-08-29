@@ -899,9 +899,6 @@ D_8000003B = 0x0000003b;
 /* overlay 41: overlay41IsUnitScale.c.o */
 gOverlay41Objects = 0x00000000;
 
-/* overlay 41: overlay41SpawnItems.c.o */
-gOverlay41Roots = 0x00000000;
-
 /* overlay 41: overlay41TickTransitions.c.o */
 gOverlay41Transitions = 0x00000000;
 
@@ -977,9 +974,6 @@ overlay45GetGlyph = 0xf0000000;
 overlay45MeasureStream = 0xf0000000;
 overlay45RandomRangeReloc = 0xf0000000;
 overlay45StringLengthReloc = 0xf0000000;
-
-/* overlay 45: func_overlay_045_F0000764_188CBBC.c.o */
-overlay45ScissorReloc = 0x00000000;
 
 /* overlay 46: overlay46InitializeState.c.o */
 gOverlay46Group54 = 0x00000054;
