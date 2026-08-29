@@ -515,6 +515,15 @@ but exhaustive relocation, direct-call, and pointer scans authenticate no
 caller. The shared-result probe regressed to 25 words and moved the latter two
 calls; linked equality remains fallback-only.
 
+Overlay 74 `+0xB8` (`overlay74Update`) owns eight runtime-authenticated records:
+four calls at `+0x70/+0x128/+0x134/+0x178` and two HI16/LO16 pairs at
+`+0xE8/+0xEC` and `+0x13C/+0x140`. Policy-clean configured C emits all eight at
+those exact offsets and types. It remains nonexact at 39 relocation-masked
+words because its frame is `0x70` versus target `0x60`, cascading through the
+integer allocation. ORT 1285 exports the owned `+0xB8..+0x248` range; the sole
+authenticated inbound is `func_8000AEEC+0x34C`. Following padding is separately
+assembly-owned, and linked equality proves fallback only.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 

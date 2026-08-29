@@ -274,7 +274,6 @@ table from a fresh run):
 | overlay43SubmitChildren | o043 | 4 | 44 | 276 | 0 | register-only |
 | func_80038750 | main | 6 | 220 | 296 | 0 | register-only |
 | partUpdateTriggers | main | 6 | 228 | 404 | 0 | register-only |
-| overlay74Update | o074 | 6 | 12 | 400 | 0 | register-only |
 | overlay20UpdateObjectResource | o020 | 8 | 176 | 392 | 0 | register-only |
 | func_8002CF6C | main | 9 | 204 | 352 | 0 | register-only |
 | overlay19ClassifyEdge | o019 | 10 | 312 | 480 | 0 | register-only |
