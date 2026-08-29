@@ -16,6 +16,30 @@
     {
       "class": "metadata",
       "matched_c": null,
+      "object": "build/src/libultra/osFlashClearStatus.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/libultra/osFlashClearStatus.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
+      "object": "build/src/main/amAudioMgrSetScheduleMode.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/amAudioMgrSetScheduleMode.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
       "object": "build/src/main/anim.c.o",
       "offset": null,
       "overlay": null,
@@ -121,6 +145,30 @@
       "overlay": null,
       "size": null,
       "source": "src/main/sched.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
+      "object": "build/src/main/texEnableModes.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/texEnableModes.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "class": "metadata",
+      "matched_c": null,
+      "object": "build/src/main/texLoadTextureAddr.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/texLoadTextureAddr.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -7630,9 +7678,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 617
+      "metadata": 621
     },
     "matched_c_bytes_with_postprocess": 396792,
-    "objects_with_postprocess": 617
+    "objects_with_postprocess": 621
   }
 }

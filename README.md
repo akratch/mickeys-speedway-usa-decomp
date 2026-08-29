@@ -113,7 +113,10 @@ Two things that catch newcomers:
   address alone is ambiguous.
 - **Compiler flags vary per file.** The default is `-O2 -mips1 -32`; the
   per-file differences are listed in the Makefile and summarised in the
-  [module map](docs/modules.md).
+  [module map](docs/modules.md). The large overlay rule block is build metadata
+  for matching function-sized objects; it is not the runtime overlay system.
+  Runtime loading is implemented in `src/main/runlink.c` and documented in
+  [the overlay architecture guide](docs/overlays.md#51-what-runs-it).
 
 When a candidate compiles to the right shape but the register or stack
 allocation still differs, `tools/permute_batch.py` runs

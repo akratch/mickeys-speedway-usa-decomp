@@ -102,11 +102,10 @@ must pass `gmake verify`.
 | `gmake cleanroom` | no | Reject prohibited tracked content |
 | `gmake check-docs` | no | Recompute documented numeric claims |
 | `gmake check-scoreboard` | yes | Recompute the README progress section |
-| `gmake check-scoreboard-partial` | no | Check source counts and table arithmetic |
 | `gmake overlay-atlas` | no | Check the overlay manifest and YAML projection |
 | `gmake overlay-donors` | no | Check the recorded reference-result table |
 | `gmake overlay-donors-scan-check` | no | Repeat the object scan against local references |
-| `gmake postprocess-audit` | no | Check the recorded post-compile operations |
+| `tools/postprocess_audit.py --check` | no | Check the recorded post-compile operations |
 | `gmake check-reference-builds` | no | Compare local reference objects with their lock |
 
 Public CI cannot run checks that require a retail ROM or local reference ROMs.

@@ -143,7 +143,7 @@ CRC := $(TOOLS_DIR)/n64crc
 # Flags
 # ---------------------------------------------------------------------------
 
-# Verified working assembler invocation (Task 4).
+# Verified assembler invocation.
 ASFLAGS := -march=vr4300 -32 -mabi=32 -G0 -I include
 
 # The project prelude is supplied to asm-processor above. Keep the assembler
@@ -214,7 +214,7 @@ default: all
 # order-only prereq's recipe first. Net effect, verified empirically: within
 # one invocation, order-only alone does NOT retrigger .o rebuilds after a
 # same-invocation re-split -- `gmake` would silently link against
-# pre-re-split objects. (Minimal repro kept in the Task 2 fix notes.)
+# pre-re-split objects.
 #
 # The reliable fix is the classic two-pass recursive-make idiom: run the
 # split to completion as its own `make` invocation (phase 1), then start a
@@ -347,7 +347,8 @@ overlay-atlas-write:
 #
 # It needs the overlay objects compiled (not linked -- the link is exactly what
 # is missing when a promotion fails to resolve), so both targets build them
-# first. `check-overlay-syms` fails on drift and is what `check-docs` calls.
+# first. `check-overlay-syms` is the explicit build-backed drift check;
+# `check-docs` remains source-only and does not invoke it.
 OVERLAY_SYM_OBJECTS := $(filter $(BUILD_DIR)/$(SRC_DIR)/overlays/%,$(O_FILES))
 
 overlay-syms:
@@ -498,9 +499,9 @@ $(BUILD_DIR)/%.bin.o: %.bin | $(ALL_DIRS) $(SPLAT_STAMP)
 # (splat re-numbers auto names, or a friendly name changes) leaves an
 # already-built .c.o holding a stale reference and an incremental build can
 # link a mismatched object, or fail outright, while a clean build passes --
-# this happened for real (overlay1GetEntry's pilot conversion sits right next
-# to this comment; runlink.c.o hit exactly this when another lane's re-split
-# renamed func_8002B768). Depending on the stamp for real means *every*
+# this happened for real when a re-split renamed an assembly symbol while an
+# existing object still referenced the old name. Depending on the stamp for
+# real means *every*
 # .c.o rebuilds after any re-split, not just the ones that reference a moved
 # name -- coarser than necessary, but a full rebuild is ~17s and correctness
 # beats precision here.
@@ -581,7 +582,7 @@ $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 # compiles it. JFG's matching object defines it for this TU only.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/destroythread.c.o: CFLAGS += -D__GNUC__
 
-# -g3 -mips2: a THIRD libultra flag group, found in Phase 2 Task 3.
+# -g3 -mips2: a third, separately verified libultra flag group.
 #
 # WHAT IS MEASURED AND WHAT IS NOT -- read the two apart, because they are not
 # the same strength of claim.
@@ -685,7 +686,7 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ll.c.o: MIPSISET := -mips3 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/ll.c.o: POSTPROCESS = $(HOST_PYTHON) \
 	$(TOOLS_DIR)/set_elf_flags.py $@ 0x10000000
 
-# --- n_audio flag group (lane/naudio) -------------------------------------
+# --- n_audio flag group ----------------------------------------------------
 # The n_audio synthesis library (ROM 0x5E6B0-0x6ACF0, docs/modules.md 4.2) was
 # built unoptimised with debug codegen: bare `OPT_FLAGS := -g` (no -O at all,
 # distinct from -O0), `-mips2 -32`. Verified byte-exact per TU as each is
@@ -976,10 +977,18 @@ endif
 # the flag lattice leaves canonical -O2/-mips2 otherwise unchanged.
 $(BUILD_DIR)/$(SRC_DIR)/main/audio_manager_4C50.c.o: CFLAGS += -Wab,-r4300_mul
 
-# Overlay game code is likewise MIPS II. Every adopted tranche-A object was
-# compared instruction-for-instruction at this ISA level before joining this
-# rule; MIPS I inserts load-delay nops in several of them.
+# Overlay game code is likewise MIPS II. Every adopted object was compared
+# instruction-for-instruction at this ISA level before joining this rule;
+# MIPS I inserts load-delay nops in several of them.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/%.c.o: MIPSISET := -mips2 -32
+
+# Build architecture note: this section does not implement Mickey's runtime
+# overlay loader. Runtime loading and relocation live in src/main/runlink.c and
+# are explained in docs/overlays.md sections 5.1-5.4. mickey.us.yaml and
+# config/overlays.$(VERSION).json are the layout authorities. The rules below
+# only record object-specific compiler flags, symbol/relocation metadata, and
+# section-boundary handling needed to reproduce the original ROM from
+# function-sized translation units.
 
 # The overlay 66 framebuffer renderer remains NON_MATCHING, but its complete
 # flag sweep is closest under the MIPS I codegen group (12 bytes short versus
@@ -1658,7 +1667,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000000_18CCFA0.c.o: POS
 		--redefine-sym func_8005AD64=ext_o0_5a914 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x134
 ifeq ($(NON_MATCHING),0)
-# This Phase-B body retains its assembly fallback until the source is exact.
+# This candidate retains its assembly fallback until the source is exact.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o079/func_overlay_079_F0000134_18CD0D4.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC8
 endif
