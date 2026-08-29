@@ -394,6 +394,7 @@ def linked_overlay_objects():
     ld = (REPO / f"mickey.{VERSION}.ld").read_text()
     seen = set()
     out = []
+    missing = []
     for m in re.finditer(r"build/src/overlays/o(\d{3})/(\S+?\.o)\(", ld):
         rel = f"build/src/overlays/o{m.group(1)}/{m.group(2)}"
         if rel in seen:
@@ -402,6 +403,17 @@ def linked_overlay_objects():
         path = REPO / rel
         if path.is_file():
             out.append((int(m.group(1)), path))
+        else:
+            missing.append(rel)
+    if missing:
+        preview = "\n".join("  " + rel for rel in missing[:20])
+        if len(missing) > 20:
+            preview += "\n  ... and %d more" % (len(missing) - 20)
+        raise SystemExit(
+            "overlay relocation surface requires the complete linker object "
+            "set; %d object(s) are missing:\n%s\n"
+            "Build the overlay objects before generating or checking the "
+            "surface." % (len(missing), preview))
     return out
 
 
@@ -558,16 +570,16 @@ def resident_call_aliases(obj_path, overlay, atlas_rows, records,
 
 def rebind_resident_calls(objects, rom, rows, mods, rom_table,
                           objcopy=None, records_cache=None,
-                          refused_names=None):
-    """Rename every resident-call placeholder in place; return the refusals.
+                          refused_names=None, apply=True):
+    """Plan resident-call placeholder renames and optionally apply them.
 
     Idempotent: the alias no longer matches `RESIDENT_NAME_RE`, so a second
     pass finds nothing to rename and `generate()` values the alias from the
-    same corroborated site.  `generate --check` therefore reproduces the same
-    block whether or not the objects have already been rebound.
+    same corroborated site. Read-only callers use ``apply=False`` so checking a
+    generated file can never modify the objects it is validating.
     """
     objcopy = objcopy or (REPO / "tools" / "binutils" / "mips64-elf-objcopy")
-    refusals, notes = [], []
+    refusals, notes, planned = [], [], []
     refused_names = set() if refused_names is None else refused_names
     resident_names = resident_defined_names()
     for ov, obj in objects:
@@ -586,16 +598,20 @@ def rebind_resident_calls(objects, rom, rows, mods, rom_table,
         refused_names.update(n for n, _why in refused)
         if not renames:
             continue
+        planned += [(obj.name, old, renames[old]) for old in sorted(renames)]
+        if not apply:
+            continue
         import subprocess
         cmd = [str(objcopy)]
         for old in sorted(renames):
             cmd += ["--redefine-sym", "%s=%s" % (old, renames[old])]
         cmd.append(str(obj))
         subprocess.run(cmd, check=True)
-    return refusals, notes
+    return refusals, notes, planned
 
 
-def generate(rom, atlas, objects=None, quiet=False, rebind_resident=True):
+def generate(rom, atlas, objects=None, quiet=False, rebind_resident=True,
+             mutate_objects=True):
     """Return the whole linker-script block as text, plus a diagnostics dict."""
     rows = {m["overlay"]: m["text_ownership"] for m in atlas["modules"]}
     rom_starts = {m["overlay"]: int(m["rom"]["start"], 16) for m in atlas["modules"]}
@@ -619,11 +635,14 @@ def generate(rom, atlas, objects=None, quiet=False, rebind_resident=True):
     # unchanged; it fires only for a promoted candidate.
     refused_resident = set()
     resident_notes = []
+    pending_rebinds = []
     if rebind_resident:
-        refused, resident_notes = rebind_resident_calls(
+        refused, resident_notes, planned = rebind_resident_calls(
             objects, rom, rows, mods, rom_table, records_cache=records,
-            refused_names=refused_resident)
+            refused_names=refused_resident, apply=mutate_objects)
         conflicts += refused
+        if not mutate_objects:
+            pending_rebinds = planned
     for ov, obj in objects:
         if ov not in local:
             local[ov] = module_text_defs(objects, ov, rows.get(ov, []))
@@ -701,6 +720,7 @@ def generate(rom, atlas, objects=None, quiet=False, rebind_resident=True):
     diag = {"values": len(values), "aliases": len(alias_pairs),
             "objects": len(objects), "conflicts": conflicts,
             "resident_notes": resident_notes, "shadowed": sorted(shadowed)}
+    diag["pending_rebinds"] = pending_rebinds
     return text, diag
 
 
@@ -723,7 +743,20 @@ def cmd_generate(argv):
     import json
     rom = args.rom.read_bytes()
     atlas = json.loads((REPO / "config" / "overlays.us.json").read_text())
-    text, diag = generate(rom, atlas, rebind_resident=not args.compare)
+    text, diag = generate(rom, atlas, rebind_resident=not args.compare,
+                          mutate_objects=args.write)
+
+    if diag.get("pending_rebinds"):
+        print("overlay objects require resident-call symbol rebinding; "
+              "read-only generation will not modify them:", file=sys.stderr)
+        for obj, old, new in diag["pending_rebinds"][:20]:
+            print("  %s: %s -> %s" % (obj, old, new), file=sys.stderr)
+        if len(diag["pending_rebinds"]) > 20:
+            print("  ... and %d more" % (len(diag["pending_rebinds"]) - 20),
+                  file=sys.stderr)
+        print("Declare the rebind in that object's POSTPROCESS rule, rebuild, "
+              "and rerun the check.", file=sys.stderr)
+        return 1
 
     if args.compare:
         old = args.out.read_text().splitlines()

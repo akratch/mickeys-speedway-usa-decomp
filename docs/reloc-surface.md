@@ -215,6 +215,11 @@ objects, not 609. Replaying the historic hand-maintained file against the
 complete list scores **1,840/1,840 values agree, 0 disagree**, up from the
 spike's 1,773 on the incomplete one.
 
+Completeness is now enforced rather than assumed. Generation and audit stop
+with the missing linker paths if any of those 630 objects is absent; a partial
+build can no longer silently produce a plausible but incomplete tracked
+surface.
+
 ### 5.2 A value line is also needed for symbols this build *defines*
 
 The spike only valued **undefined** symbols. The hand-maintained file also
@@ -337,18 +342,18 @@ undefined `R_MIPS_26` relocation against a resident-owned name to
 any other placeholder. The resident name keeps its real address; the overlay
 keeps its stored addend.
 
-Three properties make it safe to run inside `generate`:
+Three properties make it safe to run inside `generate --write`:
 
 - **It is a no-op on the matching tree.** No overlay object in the current
   build carries an `R_MIPS_26` against a resident auto-name -- every matched
   resident call is already rebound by a hand-written rule -- so the generated
   block is byte-for-byte what it was, `--audit` stays at 100%, and
   `check-overlay-syms` reports no drift.
-- **It is idempotent.** The alias no longer matches the resident-name pattern,
-  so a second pass renames nothing and values the alias from the same site.
-  `generate --check` therefore produces the same block whether or not the
-  objects have already been rebound. (`--compare` does not rebind: it is a
-  read-only report.)
+- **Checks are read-only.** The alias no longer matches the resident-name
+  pattern, so a second write pass renames nothing and values the alias from the
+  same site. `generate --check` never invokes `objcopy`; if an object still
+  needs a resident-call rebind, the check names the object and required
+  `POSTPROCESS` mapping and fails. `--compare` is also read-only.
 - **It names what it cannot read, and a refusal is total.** Only `R_MIPS_26`
   sites are aliased. A resident symbol reached by *both* a call and a data
   reference is refused -- one placeholder cannot carry two different addends --

@@ -347,8 +347,9 @@ overlay-atlas-write:
 #
 # It needs the overlay objects compiled (not linked -- the link is exactly what
 # is missing when a promotion fails to resolve), so both targets build them
-# first. `check-overlay-syms` is the explicit build-backed drift check;
-# `check-docs` remains source-only and does not invoke it.
+# first. `check-overlay-syms` is the explicit build-backed drift check and
+# requires the complete compiled overlay set; `check-docs` remains source-only
+# and does not invoke it.
 OVERLAY_SYM_OBJECTS := $(filter $(BUILD_DIR)/$(SRC_DIR)/overlays/%,$(O_FILES))
 
 overlay-syms:
@@ -2915,8 +2916,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateSelection.c.o: POSTPROCESS 
 		--redefine-sym func_8002554C=overlay11ReadInputReloc \
 		--redefine-sym func_overlay_045_F0001BF4_188E04C=overlay11SetValue $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C8
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
+# These one-to-one proxies describe the thirteen runtime-authenticated call
+# roles required by a future C promotion. The current NON_MATCHING fallback
+# does not emit the friendly names, so its ordinary object leaves these
+# mappings inert until the candidate body becomes canonical.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateMenu.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_011_F0001398_1869BE0=overlay11UpdateMenu $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4B4
