@@ -49,6 +49,14 @@ mode=asm
 if [ "${1:-}" = "--rom" ]; then mode=rom; shift; fi
 if [ $# -lt 1 ]; then echo "usage: $0 [--rom] <symbol> [args...]" >&2; exit 2; fi
 sym=$1; shift
+candidate_sym=${WB_CANDIDATE_SYMBOL:-$sym}
+
+# In asm mode, splat's extracted fallback can retain an auto-name while the
+# linked TU exports the friendly C name.  The auto-name may survive only as a
+# zero-size alias, so use the actual candidate symbol for linked ELF geometry.
+# The target assembly lookup below must continue to use the requested auto-name.
+linked_sym=$sym
+if [ "$mode" = asm ]; then linked_sym=$candidate_sym; fi
 
 proof_manifest="$OUT/$sym.provenance.json"
 
@@ -76,13 +84,13 @@ wb_extra_args=("$@")
 # (BSD awk has no strtonum, so the hex-to-decimal step is the shell's.)
 read -r vram_hex size_hex section < <(
     "$OBJDUMP" -t build/mickey.us.elf \
-    | awk -v s="$sym" '$NF == s && NF >= 5 { print $1, $(NF-1), $(NF-2) }' \
+    | awk -v s="$linked_sym" '$NF == s && NF >= 5 { print $1, $(NF-1), $(NF-2) }' \
     | head -1
 )
 vram=$(( 0x${vram_hex:-0} ))
 size=$(( 0x${size_hex:-0} ))
 if [ "$size" -eq 0 ]; then vram=""; fi
-if [ -z "${vram:-}" ]; then echo "$0: '$sym' not found in build/mickey.us.elf" >&2; exit 1; fi
+if [ -z "${vram:-}" ]; then echo "$0: '$linked_sym' not found in build/mickey.us.elf" >&2; exit 1; fi
 
 if [ "$mode" = rom ]; then
     rom_build_dir=${WB_ROM_BUILD_DIR:-build}
@@ -172,7 +180,6 @@ fi
 # The TU object is the one whose subsegment owns the asm file.
 tu=$(dirname "${asmfile#asm/nonmatchings/}")
 cand_build_dir=${WB_CANDIDATE_BUILD_DIR:-build}
-candidate_sym=${WB_CANDIDATE_SYMBOL:-$sym}
 cand=$cand_build_dir/src/$tu.c.o
 if [ ! -f "$cand" ]; then echo "$0: no candidate object $cand -- run gmake first." >&2; exit 1; fi
 
