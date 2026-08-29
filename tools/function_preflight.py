@@ -21,6 +21,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import Iterable
 
 
 REPO = Path(__file__).resolve().parent.parent
@@ -188,20 +189,113 @@ def _run(argv: list[str], *, capture: bool = False) -> subprocess.CompletedProce
     )
 
 
-def _build(resolution: Resolution) -> None:
-    base = _run(
-        ["nice", "-n", "10", "gmake", "-j2", "build/mickey.us.elf"],
-        capture=True,
+def _build_logic_inputs(root: Path = REPO) -> tuple[Path, ...]:
+    """Return build recipes whose edits Make cannot age against an object.
+
+    Normal prerequisites (the source, every header, the splat inputs and the
+    generated linker inputs) are covered by ``gmake -q`` below.  GNU Make does
+    not rebuild a target merely because the recipe that produced it changed,
+    so the root Makefile and its checked-in normalization fragments need an
+    explicit timestamp check.
+    """
+
+    inputs = [root / "Makefile"]
+    inputs.extend(sorted((root / "config" / "normalizations").glob("*.mk")))
+    return tuple(path for path in inputs if path.is_file())
+
+
+def _newer_inputs(artifact: Path, inputs: Iterable[Path]) -> tuple[Path, ...]:
+    if not artifact.is_file():
+        return ()
+    artifact_mtime = artifact.stat().st_mtime_ns
+    return tuple(
+        path for path in inputs if path.is_file() and path.stat().st_mtime_ns > artifact_mtime
     )
-    if base.returncode:
-        raise PreflightError(f"canonical build failed with exit {base.returncode}")
-    command = ["nice", "-n", "10", "gmake", "-j2"]
-    if resolution.candidate_build_dir == "build_non_matching":
+
+
+def _make_freshness_command(target: Path, *, non_matching: bool) -> list[str]:
+    command = ["gmake", "--no-print-directory", "-q"]
+    if non_matching:
         command.append("NON_MATCHING=1")
-    command.append(_relative(resolution.candidate_object))
-    candidate = _run(command, capture=True)
-    if candidate.returncode:
-        raise PreflightError(f"candidate build failed with exit {candidate.returncode}")
+    command.append(_relative(target))
+    return command
+
+
+def _require_fresh_target(
+    target: Path,
+    *,
+    label: str,
+    non_matching: bool,
+    build_logic_inputs: Iterable[Path],
+) -> None:
+    if not target.is_file():
+        raise PreflightError(f"missing {label}: {_relative(target)}")
+
+    newer = _newer_inputs(target, build_logic_inputs)
+    if newer:
+        rendered = ", ".join(_relative(path) for path in newer[:3])
+        suffix = "" if len(newer) <= 3 else f" (+{len(newer) - 3} more)"
+        raise PreflightError(
+            f"stale {label} {_relative(target)}: newer build recipe/config input "
+            f"{rendered}{suffix}"
+        )
+
+    query = _run(_make_freshness_command(target, non_matching=non_matching), capture=True)
+    if query.returncode == 0:
+        return
+    if query.returncode == 1:
+        mode = " NON_MATCHING=1" if non_matching else ""
+        raise PreflightError(
+            f"stale {label} {_relative(target)} according to the Make dependency graph; "
+            f"run `nice -n 10 gmake -j2{mode} {_relative(target)}`"
+        )
+    detail = (query.stderr or query.stdout or "gmake -q failed").strip().splitlines()
+    raise PreflightError(
+        f"could not prove {label} freshness for {_relative(target)}: "
+        f"{detail[-1] if detail else f'gmake -q exited {query.returncode}'}"
+    )
+
+
+def require_fresh_evidence(resolution: Resolution) -> None:
+    """Fail before comparison unless both linked and full-TU artifacts are current."""
+
+    build_logic = _build_logic_inputs()
+    _require_fresh_target(
+        TARGET_ELF,
+        label="canonical linked ELF",
+        non_matching=False,
+        build_logic_inputs=build_logic,
+    )
+    _require_fresh_target(
+        resolution.candidate_object,
+        label="candidate object",
+        non_matching=resolution.candidate_build_dir == "build_non_matching",
+        build_logic_inputs=build_logic,
+    )
+
+
+def _build_target(target: Path, *, non_matching: bool, label: str) -> None:
+    """Run the Makefile's required split phase before one evidence target."""
+
+    command = ["nice", "-n", "10", "gmake", "-j2"]
+    if non_matching:
+        command.append("NON_MATCHING=1")
+    build_dir = "build_non_matching" if non_matching else "build"
+    split = _run([*command, f"{build_dir}/.splat-stamp"], capture=True)
+    if split.returncode:
+        raise PreflightError(f"{label} split phase failed with exit {split.returncode}")
+    result = _run([*command, _relative(target)], capture=True)
+    if result.returncode:
+        raise PreflightError(f"{label} build failed with exit {result.returncode}")
+
+
+def _build(resolution: Resolution) -> None:
+    _build_target(TARGET_ELF, non_matching=False, label="canonical")
+    _build_target(
+        resolution.candidate_object,
+        non_matching=resolution.candidate_build_dir == "build_non_matching",
+        label="candidate",
+    )
 
 
 def _symbol_geometry(elf: rs.Elf, names: tuple[str, ...]) -> tuple[str, int, int, str]:
@@ -655,6 +749,7 @@ def main(argv: list[str]) -> int:
     try:
         resolution = resolve(args.symbol)
         if args.resolve_wb:
+            require_fresh_evidence(resolution)
             fields = (
                 resolution.target_symbol,
                 resolution.candidate_symbol,
@@ -669,6 +764,7 @@ def main(argv: list[str]) -> int:
             return 0
         if not args.no_build:
             _build(resolution)
+        require_fresh_evidence(resolution)
         report = collect(resolution)
     except (OSError, ValueError, rs.SurfaceComparisonError, PreflightError) as error:
         parser.error(str(error))

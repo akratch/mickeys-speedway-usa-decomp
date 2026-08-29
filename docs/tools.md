@@ -46,13 +46,17 @@ tools/function_preflight.py func_overlay_016_F00001E0_1873678 --json
 Either the friendly C name or splat's generated overlay name resolves to the
 same identity. The command incrementally builds the canonical linked ELF and
 the correct full-TU candidate object, automatically selecting
-`build_non_matching/` for a guarded candidate. It reports the owned range and
-next ownership or padding boundary, exports, inbound call sites, candidate ABI
-and frame, every authenticated relocation tuple and stable identity,
-relocation-surface agreement, and the current word score and first mismatch.
-`--no-build` makes existing artifacts a hard requirement. Ambiguous aliases,
-sources, ranges, or relocation identities are errors. Output excludes
-instruction listings, words, and hexdumps.
+`build_non_matching/` for a guarded candidate. Split and target builds run as
+separate phases. Before comparison, both the full-TU object and canonical ELF
+must be current according to Make's dependency graph; the Makefile and checked
+normalization fragments receive an explicit timestamp check because recipe
+changes do not automatically age outputs. `--no-build` and `wb_compare.sh`
+fail closed with a rebuild diagnosis when evidence is stale. The report covers
+the owned range, next ownership or padding boundary, exports, inbound call
+sites, candidate ABI and frame, every authenticated relocation tuple and
+stable identity, relocation-surface agreement, and the current word score and
+first mismatch. Ambiguous aliases, sources, ranges, or relocation identities
+are errors. Output excludes instruction listings, words, and hexdumps.
 
 `tools/wb_compare.sh` uses the same resolver, so manual candidate-symbol and
 build-directory settings are unnecessary for normal guarded functions:

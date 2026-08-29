@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -135,6 +136,111 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         self.assertEqual(report["matched_words"], 7)
         self.assertEqual(report["first_mismatch"], "+0x8")
         self.assertNotIn("diff_sites", report)
+
+
+class FreshnessTests(unittest.TestCase):
+    def resolution(self, root: Path) -> fp.Resolution:
+        source = root / "src/example.c"
+        source.parent.mkdir(parents=True)
+        source.write_text("void friendly(void) {}\n", encoding="utf-8")
+        candidate = root / "build_non_matching/src/example.c.o"
+        candidate.parent.mkdir(parents=True)
+        candidate.write_bytes(b"object")
+        return fp.Resolution(
+            "friendly",
+            "generated",
+            "friendly",
+            source,
+            "example",
+            "build_non_matching",
+            candidate,
+            root / "asm/generated.s",
+            "guarded",
+        )
+
+    def test_make_graph_staleness_fails_before_comparison(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            completed = subprocess.CompletedProcess([], 1, stdout="", stderr="")
+            with mock.patch.object(fp, "_run", return_value=completed):
+                with self.assertRaisesRegex(fp.PreflightError, "according to the Make"):
+                    fp._require_fresh_target(
+                        resolution.candidate_object,
+                        label="candidate object",
+                        non_matching=True,
+                        build_logic_inputs=(),
+                    )
+
+    def test_newer_recipe_or_config_fails_even_when_make_would_not(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            config = root / "config/normalizations/example.mk"
+            config.parent.mkdir(parents=True)
+            config.write_text("# flags changed\n", encoding="utf-8")
+            object_time = resolution.candidate_object.stat().st_mtime_ns
+            os.utime(config, ns=(object_time + 1_000_000, object_time + 1_000_000))
+
+            with self.assertRaisesRegex(fp.PreflightError, "newer build recipe/config"):
+                fp._require_fresh_target(
+                    resolution.candidate_object,
+                    label="candidate object",
+                    non_matching=True,
+                    build_logic_inputs=(config,),
+                )
+
+    def test_fresh_nonmatching_object_queries_its_actual_build_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            completed = subprocess.CompletedProcess([], 0, stdout="", stderr="")
+            with mock.patch.object(fp, "_run", return_value=completed) as run:
+                fp._require_fresh_target(
+                    resolution.candidate_object,
+                    label="candidate object",
+                    non_matching=True,
+                    build_logic_inputs=(),
+                )
+
+            command = run.call_args.args[0]
+            self.assertIn("NON_MATCHING=1", command)
+            self.assertEqual(command[-1], fp._relative(resolution.candidate_object))
+
+    def test_make_query_error_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            completed = subprocess.CompletedProcess(
+                [], 2, stdout="", stderr="dependency parse failed\n"
+            )
+            with mock.patch.object(fp, "_run", return_value=completed):
+                with self.assertRaisesRegex(fp.PreflightError, "could not prove"):
+                    fp._require_fresh_target(
+                        resolution.candidate_object,
+                        label="candidate object",
+                        non_matching=True,
+                        build_logic_inputs=(),
+                    )
+
+    def test_build_runs_split_and_target_as_separate_make_invocations(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            completed = subprocess.CompletedProcess([], 0, stdout="", stderr="")
+            with mock.patch.object(fp, "_run", return_value=completed) as run:
+                fp._build_target(
+                    resolution.candidate_object,
+                    non_matching=True,
+                    label="candidate",
+                )
+
+            commands = [call.args[0] for call in run.call_args_list]
+            self.assertEqual(len(commands), 2)
+            self.assertEqual(commands[0][-1], "build_non_matching/.splat-stamp")
+            self.assertEqual(commands[1][-1], fp._relative(resolution.candidate_object))
+            self.assertIn("NON_MATCHING=1", commands[0])
+            self.assertIn("NON_MATCHING=1", commands[1])
 
 
 if __name__ == "__main__":

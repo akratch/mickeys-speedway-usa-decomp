@@ -131,6 +131,34 @@ class WrapperRoutingTests(unittest.TestCase):
                 tail, ["--trace", "trace.log", "--trace-proc", "3", "--terse"]
             )
 
+    def test_preflight_freshness_failure_stops_before_workbench(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = pathlib.Path(directory)
+            WrapperFixture(fixture)
+            (fixture / "tools/function_preflight.py").write_text(
+                "import sys\n"
+                "print('stale candidate object', file=sys.stderr)\n"
+                "raise SystemExit(2)\n",
+                encoding="utf-8",
+            )
+            args_out = fixture / "args.txt"
+            env = os.environ.copy()
+            env["WB_ARGS_OUT"] = str(args_out)
+
+            result = subprocess.run(
+                [str(fixture / "tools/wb_compare.sh"), "friendly", "--json"],
+                cwd=fixture,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("stale candidate object", result.stderr)
+            self.assertFalse(args_out.exists())
+
 
 if __name__ == "__main__":
     unittest.main()
