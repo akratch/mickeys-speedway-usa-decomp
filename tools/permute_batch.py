@@ -506,6 +506,7 @@ class RunResult:
     replicated_objcopy: int = 0  # post-compile objcopy steps appended to compile.sh
     extended: bool = False  # score-trend extension run happened
     stopped_flat: bool = False  # stopped early: no improvement by --flat-minutes
+    stopped_batch: bool = False  # whole-batch deadline ended this search
     commit_error: Optional[str] = None
     annotated_relocs: int = 0  # overlay target sites given symbolic relocations
 
@@ -709,14 +710,22 @@ def _improved_over_base(scratch: Path, log_path: Path) -> bool:
     return False
 
 
-def wait_for_headroom(threshold: float, label: str = "") -> None:
+def wait_for_headroom(
+    threshold: float,
+    label: str = "",
+    batch_deadline: Optional[float] = None,
+) -> None:
     """Block until the 1-minute load average is under `threshold`. The
     machine froze under an unthrottled fleet (load ~20 on 14 cores); every
     compile-heavy launch here gates on headroom first."""
+    if batch_deadline is not None and time.monotonic() >= batch_deadline:
+        raise TimeoutError("whole-batch deadline reached before launch")
     if threshold <= 0:
         return
     waited = 0
     while True:
+        if batch_deadline is not None and time.monotonic() >= batch_deadline:
+            raise TimeoutError("whole-batch deadline reached while waiting for headroom")
         try:
             load = os.getloadavg()[0]
         except OSError:
@@ -729,9 +738,23 @@ def wait_for_headroom(threshold: float, label: str = "") -> None:
         waited += 15
 
 
-def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra_args: list[str],
-                 log_name: str = "permuter.log", flat_minutes: int = 0) -> tuple[Optional[int], float, bool]:
-    """Run one permuter search. Returns (base_score, elapsed_seconds, stopped_flat)."""
+def run_permuter(
+    scratch: Path,
+    out_dir: Path,
+    minutes: int,
+    threads: int,
+    extra_args: list[str],
+    log_name: str = "permuter.log",
+    flat_minutes: int = 0,
+    batch_deadline: Optional[float] = None,
+) -> tuple[Optional[int], float, bool, bool]:
+    """Run one search; return score, elapsed, flat-stop, batch-stop.
+
+    The per-function deadline remains the normal stopping condition.  The
+    optional absolute batch deadline is the outer safety bound: every active
+    process group observes it, so a long queue cannot turn a bounded search
+    into an unbounded campaign.
+    """
     log_path = out_dir / log_name
     # --stack-diffs is essential for a byte-identical rebuild: without it the
     # scorer normalizes sp-relative offsets and reports a false 0 for a spill
@@ -768,24 +791,31 @@ def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra
         # still flat at 20). Improvements appear as output-* dirs, so poll
         # for one; the extension heuristic covers the descending case.
         deadline = time.monotonic() + minutes * 60
+        if batch_deadline is not None:
+            deadline = min(deadline, batch_deadline)
         flat_deadline = time.monotonic() + flat_minutes * 60 if flat_minutes > 0 else None
         returncode = None
         while True:
+            now = time.monotonic()
+            wake_at = deadline
+            if flat_deadline is not None:
+                wake_at = min(wake_at, flat_deadline)
+            poll_seconds = max(0.05, min(20.0, wake_at - now))
             try:
-                returncode = proc.wait(timeout=20)
+                returncode = proc.wait(timeout=poll_seconds)
                 break
             except subprocess.TimeoutExpired:
                 pass
             now = time.monotonic()
             if now >= deadline:
-                returncode = 124
+                returncode = 126 if batch_deadline is not None and now >= batch_deadline else 124
                 break
             if flat_deadline is not None and now >= flat_deadline:
                 if not _improved_over_base(scratch, out_dir / log_name):
                     returncode = 125  # stopped flat
                     break
                 flat_deadline = None
-        if returncode in (124, 125):
+        if returncode in (124, 125, 126):
             try:
                 os.killpg(proc.pid, signal.SIGTERM)
                 proc.wait(timeout=15)
@@ -799,7 +829,7 @@ def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra
     text = log_path.read_text(errors="replace")
     m = re.search(r"base score = (\d+)", text)
     base_score = int(m.group(1)) if m else None
-    return base_score, elapsed, returncode == 125
+    return base_score, elapsed, returncode == 125, returncode == 126
 
 
 def best_output_dir(scratch: Path) -> Optional[Path]:
@@ -1052,7 +1082,8 @@ def commit_match(item: QueueItem) -> Optional[str]:
 def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: int, apply: bool,
             extra_args: list[str], load_threshold: float = 0.0, extend_minutes: int = 0,
             commit: bool = False, flat_minutes: int = 0,
-            annotate_overlays: bool = True) -> RunResult:
+            annotate_overlays: bool = True,
+            batch_deadline: Optional[float] = None) -> RunResult:
     out_dir = BUILD_PERMUTER / item.func
     out_dir.mkdir(parents=True, exist_ok=True)
     result = RunResult(func=item.func, c_file=item.rel_c_file, overlay=item.overlay, ok=False)
@@ -1068,11 +1099,13 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         replicate_objcopy(scratch, recipe, item.c_file, out_dir)
         if annotate_overlays:
             result.annotated_relocs = annotate_overlay_scratch(item, scratch, out_dir)
-        wait_for_headroom(load_threshold, f"before permuting {item.func}")
-        base_score, elapsed, stopped_flat = run_permuter(
-            scratch, out_dir, minutes, permuter_threads, extra_args, flat_minutes=flat_minutes)
+        wait_for_headroom(load_threshold, f"before permuting {item.func}", batch_deadline)
+        base_score, elapsed, stopped_flat, stopped_batch = run_permuter(
+            scratch, out_dir, minutes, permuter_threads, extra_args,
+            flat_minutes=flat_minutes, batch_deadline=batch_deadline)
         result.base_score = base_score
         result.stopped_flat = stopped_flat
+        result.stopped_batch = stopped_batch
         result.ok = True
 
         best_dir, best_score = _best(scratch)
@@ -1081,14 +1114,20 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         # descending -- re-seed from the best candidate and run once more.
         # A search that found its best early and then sat is not extended
         # (docs/permute-batch.md: search time is not the fix for a plateau).
-        if (extend_minutes > 0 and best_dir is not None and best_score not in (None, 0)
+        if (not stopped_batch
+                and (batch_deadline is None or time.monotonic() < batch_deadline)
+                and extend_minutes > 0 and best_dir is not None
+                and best_score not in (None, 0)
                 and elapsed >= minutes * 60 * 0.95):
             age = time.time() - best_dir.stat().st_mtime
             if age < minutes * 60 / 3:
                 result.extended = True
                 shutil.copy(best_dir / "source.c", scratch / "base.c")
-                wait_for_headroom(load_threshold, f"before extending {item.func}")
-                run_permuter(scratch, out_dir, extend_minutes, permuter_threads, extra_args, "permuter-extend.log")
+                wait_for_headroom(load_threshold, f"before extending {item.func}", batch_deadline)
+                _, _, _, extension_stopped_batch = run_permuter(
+                    scratch, out_dir, extend_minutes, permuter_threads, extra_args,
+                    "permuter-extend.log", batch_deadline=batch_deadline)
+                result.stopped_batch = extension_stopped_batch
                 best_dir, best_score = _best(scratch)
         # A base score of zero means the candidate already scores exact in the
         # scratch (only ownership/relocation can still fail verify): promote
@@ -1099,13 +1138,17 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         result.best_score = best_score
         if best_score == 0 and best_dir is not None:
             result.zero_found = True
-            if apply:
-                wait_for_headroom(load_threshold, f"before promoting {item.func}")
-                promoted, err = promote(item, best_dir / "source.c", build_jobs)
-                result.promoted = promoted
-                result.promote_error = err
-                if promoted and commit:
-                    result.commit_error = commit_match(item)
+            if apply and not result.stopped_batch:
+                if batch_deadline is not None and time.monotonic() >= batch_deadline:
+                    result.stopped_batch = True
+                else:
+                    wait_for_headroom(
+                        load_threshold, f"before promoting {item.func}", batch_deadline)
+                    promoted, err = promote(item, best_dir / "source.c", build_jobs)
+                    result.promoted = promoted
+                    result.promote_error = err
+                    if promoted and commit:
+                        result.commit_error = commit_match(item)
     except Exception as e:  # noqa: BLE001 -- report, don't crash the batch
         result.error = str(e)
     result.seconds = time.monotonic() - start
@@ -1133,6 +1176,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--function", help="restrict to one function name")
     p.add_argument("--limit", type=int, help="cap the number of functions processed")
     p.add_argument("--minutes", type=int, default=20, help="per-function wall-clock cap (default: 20)")
+    p.add_argument(
+        "--max-total-minutes",
+        type=int,
+        default=120,
+        help="whole-batch wall-clock cap across the queue (default: 120; must be positive)",
+    )
     p.add_argument("--jobs", type=int, default=1, help="concurrent functions (default: 1)")
     p.add_argument(
         "--permuter-threads",
@@ -1280,6 +1329,9 @@ def main(argv: list[str]) -> int:
     if args.commit and not args.apply:
         print("--commit requires --apply", file=sys.stderr)
         return 2
+    if args.max_total_minutes <= 0:
+        print("--max-total-minutes must be positive", file=sys.stderr)
+        return 2
 
     if args.list or not queue:
         print(f"{len(queue)} queued function(s):")
@@ -1311,33 +1363,66 @@ def main(argv: list[str]) -> int:
 
     print(
         f"Running {len(queue)} function(s), {jobs} concurrent, "
-        f"{permuter_threads} permuter thread(s) each, {args.minutes} min cap each"
+        f"{permuter_threads} permuter thread(s) each, {args.minutes} min cap each, "
+        f"{args.max_total_minutes} min whole-batch cap"
         + (", apply=on" if args.apply else ", apply=off (report only)")
     )
 
+    batch_deadline = time.monotonic() + args.max_total_minutes * 60
+    scheduled = 0
+
     if jobs == 1:
         for it in queue:
+            if time.monotonic() >= batch_deadline:
+                break
+            scheduled += 1
             r = run_one(it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
                         args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes,
-                        not args.no_overlay_annotate)
+                        not args.no_overlay_annotate, batch_deadline)
             results.append(r)
             print_result(r)
             write_summary(results)
     else:
         with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
-            futures = {
-                pool.submit(
-                    run_one, it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
+            queue_iter = iter(queue)
+            futures: dict[concurrent.futures.Future[RunResult], QueueItem] = {}
+
+            def submit_next() -> bool:
+                nonlocal scheduled
+                if time.monotonic() >= batch_deadline:
+                    return False
+                try:
+                    item = next(queue_iter)
+                except StopIteration:
+                    return False
+                future = pool.submit(
+                    run_one, item, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
                     args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes,
-                    not args.no_overlay_annotate,
-                ): it
-                for it in queue
-            }
-            for fut in concurrent.futures.as_completed(futures):
-                r = fut.result()
-                results.append(r)
-                print_result(r)
-                write_summary(results)
+                    not args.no_overlay_annotate, batch_deadline,
+                )
+                futures[future] = item
+                scheduled += 1
+                return True
+
+            for _ in range(min(jobs, len(queue))):
+                if not submit_next():
+                    break
+            while futures:
+                done, _ = concurrent.futures.wait(
+                    futures, return_when=concurrent.futures.FIRST_COMPLETED)
+                for fut in done:
+                    futures.pop(fut)
+                    r = fut.result()
+                    results.append(r)
+                    print_result(r)
+                    write_summary(results)
+                    submit_next()
+
+    if scheduled < len(queue):
+        print(
+            f"batch cap: stopped after scheduling {scheduled}/{len(queue)} function(s); "
+            "use --resume for the remainder"
+        )
 
     write_summary(results, final=True)
     print(f"\nSummary written to {SUMMARY_JSON.relative_to(ROOT)} and {SUMMARY_TXT.relative_to(ROOT)}")
@@ -1353,6 +1438,8 @@ def print_result(r: RunResult) -> None:
         status = "MATCHED"
     elif r.zero_found:
         status = "zero-found"
+    elif r.stopped_batch:
+        status = "stopped by batch cap"
     elif r.best_score is None or (r.base_score is not None and r.best_score >= r.base_score):
         status = "flat" if r.stopped_flat else "no improvement"
     else:

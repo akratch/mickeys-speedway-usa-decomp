@@ -55,6 +55,16 @@ Every run (even a `--list`-free normal run) writes `build/permuter/summary.json`
 and `build/permuter/summary.txt` incrementally, one function at a time, so a
 killed batch still leaves a readable partial result.
 
+The queue also has a mandatory outer wall-clock bound: `--max-total-minutes`
+defaults to 120 minutes. At that deadline every active permuter process group
+is terminated through the same TERM/KILL cleanup used by the per-function
+cap, and no further queue entries are scheduled. Parallel mode only keeps
+`--jobs` entries in flight instead of submitting the entire queue up front.
+The summary marks interrupted searches with `stopped_batch`, and `--resume`
+continues with entries the bounded pass did not reach. Set a larger positive
+outer cap deliberately for a longer attended pass; zero and negative values
+are rejected because this runner's purpose is bounded search.
+
 ## Scratch fidelity (2026-08-28)
 
 A permuter score-0 is only a match if the scratch object it was scored
