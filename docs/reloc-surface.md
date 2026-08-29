@@ -501,6 +501,12 @@ generator owns the alias block (§5.3).
                                                   8  overlay1ResolvePathPoint           o1
                                                   8  overlay20UpdateObjectResource      o20
 
+Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five HI16/LO16 pairs for
+timer, current, target, duration, and output. The bounded output-origin C emits
+all ten records and measures 98/101 words with an exact `0x8` frame. Its three
+residual words are one `v0`/`v1` globalcolor outcome; 119 flag configurations
+were nonexact, so current linked equality remains fallback-only.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 

@@ -43,15 +43,15 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
-/* Plateau re-proved 2026-08-28: canonical output is exact-size at 101 words
- * with an 0x8 frame and only the v0/v1 operands at +0xC/+0x10/+0x24 wrong.
- * An instrumented guide-19 oracle moved 16 rows across 11 runs and worsened
- * the residual to 13 words; chained, comma-expression, and timer-separated
- * copy formation widened it to 16, 16, and 41 words. The opcode schedule and
- * temp ring stayed exact, so this three-word allocation basin remains best. */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 101-instruction, frame -8 shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
+/* Bounded reproof: the output-origin spelling below is the best stock object
+ * at 98/101 words, first +0xC, frame 0x8. The three differences at
+ * +0xC/+0x10/+0x24 are one v0/v1 globalcolor outcome; the temporary-register
+ * lane is exact. One allocator trace and the complete 119-flag lattice found
+ * no exact object, with canonical -O2 -mips2 tied for best. The object emits
+ * all ten runtime HI16/LO16 roles: D_800D6C4C(timer), D_800D6C52(current),
+ * D_800D6C50(target), D_800D6C4E(duration), and D_800D6C54(output). Owned
+ * Overlay 40 +0x690..+0x824 / ROM 0x1886F40..0x18870D4 excludes separate
+ * +0x824..+0x830 padding. Linked equality remains fallback-only. */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
@@ -67,8 +67,8 @@ void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
     s32 groupRemaining;
     s32 vertexRemaining;
 
-    current = gOverlay40BlendCurrent;
-    output = current;
+    output = gOverlay40BlendCurrent;
+    current = output;
     timer = gOverlay40BlendTimer;
     if (timer != 0) {
         if (amount < timer) {

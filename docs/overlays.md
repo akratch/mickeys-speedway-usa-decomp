@@ -944,6 +944,14 @@ NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
 four-word loop-counter register reassignment between equal `v1`/`a0` copies);
 source kept as decomp-permuter input.
 
+Overlay 40's fade-record owner at `+0x690..+0x824` remains `NON_MATCHING` at
+404 bytes / 101 words; `+0x824..+0x830` is separate padding. Its bounded best
+C object is 98/101 words with the exact `0x8` frame and all ten runtime BSS
+records. Only `+0xC/+0x10/+0x24` differ, as one `v0`/`v1` globalcolor outcome.
+An allocator trace and all 119 flag combinations found no exact object;
+canonical `-O2 -mips2` ties for best. Linked range/module/full-ROM equality
+continues to prove the assembly fallback only.
+
 Overlay 36's final-effect callback at `+0x1688..+0x1748` — 192 bytes / 48
 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
 two-word private stack-tail shrink, eight bytes); source kept as
