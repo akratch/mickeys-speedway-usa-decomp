@@ -56,6 +56,31 @@ the `#pragma GLOBAL_ASM` fallback. Do not count it as matched. After a bounded
 set of attempts, record the best result and the remaining mismatch instead of
 making speculative source changes.
 
+### Safe plateau finalization
+
+`tools/finalize_plateau.py` preserves one bounded attempt without weakening
+its assembly fallback:
+
+```sh
+tools/finalize_plateau.py overlay40FadeRecords \
+  src/overlays/o040/overlay40FadeRecords.c \
+  --score "98/101 words" --frame 0x8 --relocations 10 \
+  --first-mismatch +0xC --summary "one allocator web remains"
+```
+
+The function must be C under `#ifdef NON_MATCHING` followed by exactly one
+`#else` / `#pragma GLOBAL_ASM(...)` fallback. The fallback filename must match
+the C symbol or use splat's generated overlay-function form
+(`func_overlay_NNN_F...s`). The command refuses ambiguous guards, unrelated
+worktree or index changes, untracked inputs, and unsupported fallback names.
+It writes only fixed evidence fields—score, frame, relocation count, first
+mismatch, and an optional one-line next lever—then runs `cleanroom` and
+`check-docs`. It does not claim exactness or record instruction rows.
+
+The result remains uncommitted by default. After reviewing the diff, pass
+`--commit` to stage and commit only the named source and optional tracked
+`--handoff-doc docs/<file>.md`.
+
 ### Report-only m2c sweep
 
 `tools/m2c_sweep.py` inventories every `GLOBAL_ASM` fallback and attempts only
