@@ -5,29 +5,36 @@ typedef struct Overlay34Record {
 } Overlay34Record;
 
 extern Overlay34Record *gOverlay34Records;
-extern s32 **gOverlay34Pointers;
+extern Overlay34Record **gOverlay34Pointers;
 extern s32 gOverlay34Count;
-extern void *func_8002B280(s32 size, s32 tag);
+extern void *func_8002B280(s32 size, u32 colourTag);
 
-/* Pinned DKR v77/v80 and JFG scans found no exact donor. */
+/* Pinned exact-overlay scans found no exact DKR v77/v80 or JFG donor;
+ * structural or semantic donors remain unqualified. */
 /*
- * Plateau: exact 0xC8 size, 46/50 instruction words, first mismatch +0x24.
- * The target assigns the reused size spill to sp+0x1C; IDO assigns this body
- * to sp+0x18. Declaration, lifetime, expression, and type variants either
- * preserve those four differences or grow the frame. A 10-minute, two-worker
- * permuter run found no candidate below its baseline score of 40. This run's
- * full 119-combination flag lattice and typed scalar/aggregate layout checks
- * preserved the same four-word residual and +0x24 first mismatch.
- * A stock-gated pass capture on 2026-08-28 found that cfe assigns both size
- * definitions one virtual home and uopt/UGEN reproduce one call-live spill
- * topology in both halves. Reusing remaining as the byte carrier reaches the
- * target spill home but removes two required copies and shrinks to 48 words.
- * Giving each post-call region its own remaining local keeps all 50 words and
- * reaches the target spill home, but grows the frame from 0x30 to 0x38; one
- * shared region-local returns exactly to this baseline. The exact-frame body
- * therefore remains best at 46/50 relocation-masked words.
+ * Bounded reproof: the repaired configured and isolated V0 objects are
+ * byte-identical and retain the exact 0xC8 function symbol and 0x30 frame at
+ * 45/50 raw and 46/50 relocation-normalized words, first mismatch +0x24.
+ * The fifth raw difference at +0xC4 is the standalone target object's baked
+ * local-data +8 addend; V0 emits all eight authoritative runtime identities.
+ * All 119 flag recipes were nonexact, with the configured -O2 -mips2 family
+ * tied for best. The target assigns the reused size spill to sp+0x1C while IDO
+ * assigns this body to sp+0x18 at four sites. The single stack-home trace saw
+ * 11 allocator webs but no producer-emitted virtual or final home evidence, so
+ * it exposed no source-visible lever and did not justify the one optional
+ * natural declaration/scope/lifetime form. The trailing eight section-
+ * alignment bytes remain outside target ownership. Park as W without dummy
+ * volatile state, forced registers, or generic permutation.
  */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay34InitStorage
+ * score: 45/50 words
+ * frame: 0x30
+ * relocations: 8
+ * first-mismatch: +0x24
+ * summary: All 119 configs were nonexact; one stack-home trace exposed no producer-emitted home evidence, so no natural declaration/scope/lifetime form was justified.
+ */
 void overlay34InitStorage(s32 count) {
     s32 *word;
     s32 countdown;
