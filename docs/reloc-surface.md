@@ -4,6 +4,35 @@ Implemented. Tool: `tools/reloc_surface.py`. Generated artifact:
 `overlay_undefined_syms.us.txt`. Gates: `gmake overlay-syms` writes it,
 `gmake check-overlay-syms` fails on drift.
 
+## Function-sized relocation comparison
+
+Matching lanes can compare a full-TU candidate object's static relocations
+with the shipped runtime records without rebuilding a second relocation
+decoder:
+
+```sh
+tools/reloc_surface.py compare overlay7DispatchSelection \
+  --candidate-object build_non_matching/src/overlays/o007/overlay_007_tail.c.o
+```
+
+The default target context is `build/mickey.us.elf`; `--target-elf`,
+`--candidate-symbol`, and `--target-symbol` cover scratch builds and the case
+where extracted assembly keeps a generated name while C uses a friendly one.
+Use `--json` for a compact machine-readable record and `--check` when a caller
+needs non-exactness to return status 1.
+
+The report gives the target runtime count, candidate static count, exact
+function-relative offset/type alignments, and exact stable-identity alignments.
+Stable identities are runtime `(overlay, byte offset)` addresses, not source
+names or the shared `0xF0000000` synthetic VMA. The command reuses
+`overlay_tables.py` for both overlay and resident runtime records and this
+module's existing ELF reader. It refuses duplicate/missing overlay ownership,
+an overlay assertion that disagrees with the atlas, a target span outside its
+owner, and incomplete or inconsistent runtime HI16/LO16 pairs. A copied
+scratch object whose path has lost `build*/src/...` context must pass its
+canonical atlas key with `--source`; `--overlay` is only an assertion and
+never selects between ambiguous owners.
+
 Sections 1-4 are the model and the feasibility evidence (lane
 a feasibility spike); section 5 is what the full implementation turned out to
 need and what it measured (the full implementation).

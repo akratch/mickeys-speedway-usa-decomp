@@ -40,12 +40,15 @@ emitted.
 Usage:
     tools/reloc_surface.py OBJECT [--overlay N] [--rom PATH] [--makefile]
     tools/reloc_surface.py --audit           # replay the whole tracked surface
+    tools/reloc_surface.py compare SYMBOL --candidate-object OBJECT
 """
 
 from __future__ import annotations
 
 import argparse
 import collections
+import dataclasses
+import json
 import re
 import struct
 import sys
@@ -1048,9 +1051,492 @@ def overlay_of(path: Path):
     return int(m.group(1)) if m else None
 
 
+# ------------------------------------------------------- function comparison
+
+class SurfaceComparisonError(Exception):
+    """A function's target relocation ownership is not uniquely provable."""
+
+
+@dataclasses.dataclass(frozen=True)
+class SurfaceRecord:
+    """One function-relative relocation and its stable runtime identity."""
+
+    offset: int
+    rtype: int
+    identity: tuple[int, int] | None = None
+    link_addend: int | None = dataclasses.field(default=None, compare=False)
+
+
+def compare_record_sets(target, candidate):
+    """Compact exactness census for two relocation-record collections."""
+    target_shape = collections.Counter((r.offset, r.rtype) for r in target)
+    candidate_shape = collections.Counter((r.offset, r.rtype) for r in candidate)
+    target_identity = collections.Counter(
+        (r.offset, r.rtype, r.identity) for r in target if r.identity is not None
+    )
+    candidate_identity = collections.Counter(
+        (r.offset, r.rtype, r.identity)
+        for r in candidate if r.identity is not None
+    )
+    shape_matches = sum((target_shape & candidate_shape).values())
+    identity_matches = sum((target_identity & candidate_identity).values())
+    return {
+        "target_runtime_record_count": len(target),
+        "candidate_record_count": len(candidate),
+        "offset_type_alignment_count": shape_matches,
+        "stable_identity_alignment_count": identity_matches,
+        "candidate_identity_resolved_count": sum(
+            r.identity is not None for r in candidate
+        ),
+        "offset_type_exact": target_shape == candidate_shape,
+        "stable_identity_exact": (
+            target_shape == candidate_shape
+            and len(target_identity) == len(target)
+            and target_identity == candidate_identity
+        ),
+    }
+
+
+def _source_from_object(path: Path):
+    """Best-effort atlas source key from build*/src/<source>.c.o."""
+    parts = path.as_posix().split("/")
+    indexes = [i for i, part in enumerate(parts) if part == "src"]
+    if not indexes:
+        return None
+    rel = "/".join(parts[indexes[-1] + 1:])
+    for suffix in (".c.o", ".o", ".c"):
+        if rel.endswith(suffix):
+            rel = rel[:-len(suffix)]
+            break
+    return rel or None
+
+
+def resolve_overlay_ownership(obj_path, atlas, overlay_hint=None, source=None):
+    """Return the unique ``(module, ownership row)`` or ``None`` for resident.
+
+    A hint is an assertion, never a way to choose between duplicate rows.
+    Scratch objects may supply ``source`` explicitly when their path no longer
+    contains the original ``build*/src`` context.
+    """
+    source = source or _source_from_object(obj_path)
+    path_says_overlay = bool(source and source.startswith("overlays/"))
+    rows = []
+    if source:
+        for module in atlas.get("modules", []):
+            for row in module.get("text_ownership", []):
+                if row.get("type") == "c" and row.get("source") == source:
+                    rows.append((module, row))
+    if not rows and overlay_hint is not None:
+        stem = Path(source or obj_path.name).name
+        for module in atlas.get("modules", []):
+            if module.get("overlay") != overlay_hint:
+                continue
+            for row in module.get("text_ownership", []):
+                if (row.get("type") == "c"
+                        and Path(row.get("source", "")).name == stem):
+                    rows.append((module, row))
+    if len(rows) > 1:
+        raise SurfaceComparisonError(
+            "%s has %d overlay text owners; supply a unique canonical source"
+            % (source or obj_path, len(rows)))
+    if not rows:
+        if overlay_hint is not None or path_says_overlay:
+            raise SurfaceComparisonError(
+                "%s has no overlay text_ownership row" % (source or obj_path))
+        return None
+    module, row = rows[0]
+    if overlay_hint is not None and module["overlay"] != overlay_hint:
+        raise SurfaceComparisonError(
+            "overlay hint %d disagrees with atlas owner %d"
+            % (overlay_hint, module["overlay"]))
+    return module, row
+
+
+def _unique_symbol(elf, name, *, require_text=False):
+    found = []
+    for symbol, value, size, _info, shndx in elf.symbols():
+        if symbol != name or shndx == SHN_UNDEF or size == 0:
+            continue
+        section = elf.names[shndx] if shndx < len(elf.names) else ""
+        if require_text and section != ".text":
+            continue
+        found.append((value, size, section))
+    if len(found) != 1:
+        raise SurfaceComparisonError(
+            "%s: expected one nonzero definition of %s, found %d"
+            % (elf.path, name, len(found)))
+    return found[0]
+
+
+def _identity_add(identity, addend):
+    return (identity[0], identity[1] + addend)
+
+
+def _numeric_assignments(path):
+    values = {}
+    if not path.is_file():
+        return values
+    for line in path.read_text().splitlines():
+        m = re.match(
+            r"^\s*([A-Za-z_]\w*)\s*=\s*(0x[0-9A-Fa-f]+|\d+)\s*;", line)
+        if m:
+            values[m.group(1)] = int(m.group(2), 0)
+    return values
+
+
+def _stable_symbol_identities(path, candidate_elf, overlay, tu_base_offset,
+                              target_elf):
+    """Map names to unambiguous ``(overlay, offset)`` runtime identities."""
+    proposed = collections.defaultdict(set)
+
+    def propose(name, identity):
+        if name:
+            proposed[name].add(identity)
+
+    # Generated overlay identities and their friendly aliases are stable even
+    # though every module shares the same synthetic VMA.
+    if path.is_file():
+        for line in path.read_text().splitlines():
+            m = re.match(r"^\s*(\w+)\s*=\s*(\w+)\s*;", line)
+            if not m:
+                continue
+            generated, friendly = m.groups()
+            gm = GEN_NAME_RE.match(generated)
+            if gm:
+                propose(generated, (int(gm.group(1)), int(gm.group(2), 16)))
+                propose(friendly, (int(gm.group(1)), int(gm.group(2), 16)))
+
+    # Resident auto-names and every resident address exported by the linked
+    # build have a unique address space. Overlay-valued ELF symbols are not
+    # admitted here: F0000000 is deliberately shared by 107 modules.
+    for elf in (candidate_elf, target_elf):
+        for name, value, _size, _info, shndx in elf.symbols():
+            if not name or shndx == SHN_UNDEF:
+                continue
+            if 0x80000000 <= value < 0x90000000:
+                propose(name, (0, value - ot.RESIDENT_VRAM_BASE))
+    for elf in (candidate_elf, target_elf):
+        for name, _value, _size, _info, _shndx in elf.symbols():
+            m = RESIDENT_NAME_RE.match(name)
+            if m:
+                propose(name, (0, int(name[-8:], 16) - ot.RESIDENT_VRAM_BASE))
+
+    # Definitions in the candidate TU are uniquely placed by its atlas owner.
+    # This covers intra-overlay JUMPs without consulting the shared linked VMA.
+    if overlay is not None:
+        text_idx, _ = candidate_elf.section(".text")
+        for name, value, _size, _info, shndx in candidate_elf.symbols():
+            if name and shndx == text_idx:
+                propose(name, (overlay, tu_base_offset + value))
+
+    resolved = {name: next(iter(identities))
+                for name, identities in proposed.items() if len(identities) == 1}
+    ambiguous = {name for name, identities in proposed.items()
+                 if len(identities) > 1}
+    return resolved, ambiguous
+
+
+def _runtime_base(record, source_overlay, rom_table):
+    op = record["op"]
+    if op in (0, 3):
+        index = record["symbol_index"]
+        if index >= len(rom_table):
+            raise SurfaceComparisonError(
+                "runtime relocation uses out-of-range ROM-table index %d" % index)
+        target = rom_table[index]
+        return (target["overlay"], target["offset"])
+    if op == 1:
+        return (source_overlay, record["symbol_index"])
+    if op == 2:
+        return None
+    raise SurfaceComparisonError("unknown runtime relocation operation %d" % op)
+
+
+def _attach_runtime_identities(records, rom, source_overlay, rom_table,
+                               site_rom):
+    """Return SurfaceRecords; fail if a target HI16 pair crosses ownership."""
+    out = []
+    index = 0
+    while index < len(records):
+        record = records[index]
+        rtype = record["mode"]
+        base = _runtime_base(record, source_overlay, rom_table)
+        if rtype == R_MIPS_HI16:
+            if index + 1 >= len(records):
+                raise SurfaceComparisonError("runtime HI16 has no owned LO16")
+            low = records[index + 1]
+            if (low["mode"] != R_MIPS_LO16
+                    or low["op"] != record["op"]
+                    or low["symbol_index"] != record["symbol_index"]):
+                raise SurfaceComparisonError("runtime HI16/LO16 identity is ambiguous")
+            addend = ((stored_field(rom, site_rom(record), R_MIPS_HI16) << 16)
+                      + sext16(stored_field(rom, site_rom(low), R_MIPS_LO16)))
+            identity = _identity_add(base, addend) if base is not None else None
+            out.append(SurfaceRecord(
+                record["relative_offset"], rtype, identity, addend))
+            out.append(SurfaceRecord(
+                low["relative_offset"], low["mode"], identity, addend))
+            index += 2
+            continue
+        stored = stored_field(rom, site_rom(record), rtype)
+        if rtype == R_MIPS_26 and record["op"] == 2:
+            identity = (source_overlay, stored << 2)
+        elif base is None:
+            identity = None
+        elif rtype == R_MIPS_LO16:
+            identity = _identity_add(base, sext16(stored))
+        elif rtype == R_MIPS_32 and record["op"] == 1:
+            identity = _identity_add(base, stored)
+        else:
+            identity = base
+        link_addend = 0
+        if rtype == R_MIPS_LO16:
+            link_addend = sext16(stored)
+        elif rtype == R_MIPS_32 and record["op"] == 1:
+            link_addend = stored
+        out.append(SurfaceRecord(
+            record["relative_offset"], rtype, identity, link_addend))
+        index += 1
+    return out
+
+
+def _target_runtime_records(rom, context, start, size):
+    rom_table = ot.read_rom_table(rom)
+    if context["kind"] == "overlay":
+        overlay = context["overlay"]
+        module = context["module"]
+        all_records = ot.read_module_relocations(rom, module, rom_table)
+        selected = [dict(r, relative_offset=r["target_offset"] - start)
+                    for r in all_records
+                    if start <= r["target_offset"] < start + size]
+        selected.sort(key=lambda r: (r["table"], r["index"]))
+        return _attach_runtime_identities(
+            selected, rom, overlay, rom_table,
+            lambda r: module["rom_start"] + r["target_offset"])
+
+    count, all_records = ot.read_reloc_table(rom)
+    if count != len(all_records):
+        raise SurfaceComparisonError("resident relocation table count disagrees")
+    selected = []
+    for r in all_records:
+        if not start <= r["call_site_offset"] < start + size:
+            continue
+        selected.append(dict(
+            r,
+            mode=r["flags"] >> 4,
+            op=r["flags"] & 0xF,
+            symbol_index=r["rom_table_index"],
+            relative_offset=r["call_site_offset"] - start,
+        ))
+    return _attach_runtime_identities(
+        selected, rom, 0, rom_table,
+        lambda r: (ot.RESIDENT_VRAM_BASE + r["call_site_offset"]
+                   - ot.VRAM_ROM_DELTA))
+
+
+def _candidate_surface_records(elf, start, size, target, identities,
+                               numeric_values, ambiguous_identities, overlay):
+    syms = elf.symbols()
+    target_by_shape = {(r.offset, r.rtype): r for r in target}
+    raw = []
+    for _section, offset, rtype, symbol_index in elf.relocations():
+        if not start <= offset < start + size:
+            continue
+        name = syms[symbol_index][0] if symbol_index < len(syms) else ""
+        raw.append({"offset": offset, "relative_offset": offset - start,
+                    "type": rtype, "symbol": name})
+
+    obj_text = elf.section_bytes(".text")
+    output = []
+    used = set()
+    for i, record in enumerate(raw):
+        if i in used:
+            continue
+        rtype = record["type"]
+        name = record["symbol"]
+        if name in ambiguous_identities:
+            raise SurfaceComparisonError(
+                "candidate relocation symbol %s has ambiguous runtime identity"
+                % name)
+        target_record = target_by_shape.get((record["relative_offset"], rtype))
+        identity = None
+        if rtype == R_MIPS_HI16:
+            low_i = next((j for j in range(i + 1, len(raw))
+                          if j not in used and raw[j]["symbol"] == name
+                          and raw[j]["type"] == R_MIPS_LO16), None)
+            if low_i is not None:
+                low = raw[low_i]
+                high_value = stored_field(obj_text, record["offset"], rtype)
+                low_value = stored_field(obj_text, low["offset"], R_MIPS_LO16)
+                addend = (high_value << 16) + sext16(low_value)
+                if name in identities:
+                    identity = _identity_add(identities[name], addend)
+                elif name in numeric_values and target_record is not None:
+                    target_identity = target_record.identity
+                    if target_identity is not None:
+                        # Numeric overlay placeholders carry the link-time
+                        # addend. Apply their delta from the target's shipped
+                        # addend in the same stable runtime address space.
+                        candidate_addend = numeric_values[name] + addend
+                        identity = _identity_add(
+                            target_identity,
+                            candidate_addend - target_record.link_addend)
+                output.append(SurfaceRecord(
+                    record["relative_offset"], rtype, identity))
+                low_target = target_by_shape.get(
+                    (low["relative_offset"], R_MIPS_LO16))
+                low_identity = identity if low_target is not None else None
+                output.append(SurfaceRecord(
+                    low["relative_offset"], R_MIPS_LO16, low_identity))
+                used.add(low_i)
+                continue
+        addend = stored_field(obj_text, record["offset"], rtype)
+        if rtype == R_MIPS_LO16:
+            addend = sext16(addend)
+        elif rtype == R_MIPS_26:
+            addend <<= 2
+        if name in identities:
+            identity = _identity_add(identities[name], addend)
+        elif (rtype != R_MIPS_26 and name in numeric_values
+              and target_record is not None and target_record.identity is not None):
+            candidate_addend = numeric_values[name] + addend
+            identity = _identity_add(
+                target_record.identity,
+                candidate_addend - target_record.link_addend)
+        output.append(SurfaceRecord(record["relative_offset"], rtype, identity))
+    return output
+
+
+def function_surface_comparison(symbol, candidate_object, target_elf_path,
+                                rom_path=DEFAULT_ROM, atlas_path=None,
+                                values_path=LINK_SYMS, candidate_symbol=None,
+                                target_symbol=None, overlay_hint=None, source=None):
+    candidate_symbol = candidate_symbol or symbol
+    target_symbol = target_symbol or symbol
+    atlas_path = atlas_path or (REPO / "config" / "overlays.us.json")
+    atlas = json.loads(atlas_path.read_text())
+    candidate_elf = Elf(candidate_object)
+    target_elf = Elf(target_elf_path)
+    owner = resolve_overlay_ownership(
+        candidate_object, atlas, overlay_hint=overlay_hint, source=source)
+    candidate_start, candidate_size, _ = _unique_symbol(
+        candidate_elf, candidate_symbol, require_text=True)
+    target_value, target_size, _ = _unique_symbol(target_elf, target_symbol)
+
+    if owner is not None:
+        module_row, row = owner
+        overlay = module_row["overlay"]
+        generated = GEN_NAME_RE.match(target_symbol)
+        if generated and int(generated.group(1)) != overlay:
+            raise SurfaceComparisonError(
+                "target symbol names overlay %s but owner is overlay %d"
+                % (generated.group(1), overlay))
+        if target_value < SYNTHETIC_VMA:
+            raise SurfaceComparisonError("overlay target is not at synthetic VMA")
+        target_start = target_value - SYNTHETIC_VMA
+        if generated and int(generated.group(2), 16) != target_start:
+            raise SurfaceComparisonError(
+                "target symbol offset %#x disagrees with linked value %#x"
+                % (int(generated.group(2), 16), target_start))
+        row_start = int(row["offset"], 16)
+        row_end = int(row["end_offset"], 16)
+        if not (row_start <= target_start
+                and target_start + target_size <= row_end):
+            raise SurfaceComparisonError(
+                "target range %#x..%#x escapes atlas owner %#x..%#x"
+                % (target_start, target_start + target_size, row_start, row_end))
+        if candidate_start + candidate_size > int(row["size"], 16):
+            raise SurfaceComparisonError("candidate function escapes TU ownership")
+        context = {"kind": "overlay", "overlay": overlay,
+                   "module": ot.build_modules(ot.read_headers(
+                       rom_path.read_bytes()))[overlay - 1]}
+        tu_base_offset = row_start
+    else:
+        overlay = None
+        if not (ot.RESIDENT_VRAM_BASE <= target_value < 0x90000000):
+            raise SurfaceComparisonError("resident target address is out of range")
+        target_start = target_value - ot.RESIDENT_VRAM_BASE
+        context = {"kind": "resident"}
+        tu_base_offset = 0
+
+    rom = rom_path.read_bytes()
+    if context["kind"] == "overlay":
+        # Reuse the module objects decoded from the exact same ROM bytes.
+        context["module"] = ot.build_modules(ot.read_headers(rom))[overlay - 1]
+    target_records = _target_runtime_records(
+        rom, context, target_start, target_size)
+    identities, ambiguous_identities = _stable_symbol_identities(
+        values_path, candidate_elf, overlay, tu_base_offset, target_elf)
+    numeric_values = _numeric_assignments(values_path)
+    candidate_records = _candidate_surface_records(
+        candidate_elf, candidate_start, candidate_size, target_records,
+        identities, numeric_values, ambiguous_identities, overlay)
+    result = compare_record_sets(target_records, candidate_records)
+    result.update({
+        "symbol": symbol,
+        "candidate_symbol": candidate_symbol,
+        "target_symbol": target_symbol,
+        "context": "overlay:%d" % overlay if overlay is not None else "resident",
+        "target_offset": "0x%X" % target_start,
+        "target_size": "0x%X" % target_size,
+    })
+    return result
+
+
+def cmd_compare(argv):
+    parser = argparse.ArgumentParser(
+        prog="reloc_surface.py compare",
+        description="Compare one candidate function's static relocations "
+                    "with its shipped runtime relocation tuples.")
+    parser.add_argument("symbol")
+    parser.add_argument("--candidate-object", type=Path, required=True)
+    parser.add_argument("--candidate-symbol")
+    parser.add_argument("--target-symbol")
+    parser.add_argument("--target-elf", type=Path,
+                        default=REPO / "build" / "mickey.us.elf")
+    parser.add_argument("--overlay", type=int,
+                        help="assert the atlas-derived overlay number")
+    parser.add_argument("--source",
+                        help="canonical atlas source for a copied scratch object")
+    parser.add_argument("--rom", type=Path, default=DEFAULT_ROM)
+    parser.add_argument("--atlas", type=Path,
+                        default=REPO / "config" / "overlays.us.json")
+    parser.add_argument("--values", type=Path, default=LINK_SYMS)
+    parser.add_argument("--json", action="store_true")
+    parser.add_argument("--check", action="store_true",
+                        help="exit 1 unless both surfaces are exactly equal")
+    args = parser.parse_args(argv)
+    try:
+        result = function_surface_comparison(
+            args.symbol, args.candidate_object, args.target_elf,
+            rom_path=args.rom, atlas_path=args.atlas, values_path=args.values,
+            candidate_symbol=args.candidate_symbol,
+            target_symbol=args.target_symbol, overlay_hint=args.overlay,
+            source=args.source)
+    except (OSError, ValueError, SurfaceComparisonError) as error:
+        parser.error(str(error))
+    if args.json:
+        print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+    else:
+        print(
+            "{symbol}: {context} target={target_runtime_record_count} "
+            "candidate={candidate_record_count} "
+            "offset/type={offset_type_alignment_count}/"
+            "{target_runtime_record_count} "
+            "identity={stable_identity_alignment_count}/"
+            "{target_runtime_record_count} "
+            "resolved={candidate_identity_resolved_count}".format(**result))
+    if args.check and not (
+            result["offset_type_exact"] and result["stable_identity_exact"]):
+        return 1
+    return 0
+
+
 def main(argv):
     if argv and argv[0] == "generate":
         return cmd_generate(argv[1:])
+    if argv and argv[0] == "compare":
+        return cmd_compare(argv[1:])
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("object", nargs="*", type=Path)

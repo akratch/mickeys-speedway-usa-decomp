@@ -112,5 +112,64 @@ class ResidentRebindSafetyTests(unittest.TestCase):
             self.assertIn("read-only generation will not modify", stderr.getvalue())
 
 
+class FunctionSurfaceComparisonTests(unittest.TestCase):
+    def test_exact_surface_counts_shape_and_identity(self):
+        target = [
+            rs.SurfaceRecord(0x10, rs.R_MIPS_26, (0, 0x1234)),
+            rs.SurfaceRecord(0x28, rs.R_MIPS_HI16, (7, 0x1BA8)),
+            rs.SurfaceRecord(0x2C, rs.R_MIPS_LO16, (7, 0x1BA8)),
+        ]
+        result = rs.compare_record_sets(target, list(target))
+
+        self.assertEqual(3, result["target_runtime_record_count"])
+        self.assertEqual(3, result["candidate_record_count"])
+        self.assertEqual(3, result["offset_type_alignment_count"])
+        self.assertEqual(3, result["stable_identity_alignment_count"])
+        self.assertTrue(result["offset_type_exact"])
+        self.assertTrue(result["stable_identity_exact"])
+
+    def test_shifted_surface_does_not_count_as_aligned(self):
+        target = [rs.SurfaceRecord(0x10, rs.R_MIPS_26, (0, 0x1234))]
+        candidate = [rs.SurfaceRecord(0x14, rs.R_MIPS_26, (0, 0x1234))]
+
+        result = rs.compare_record_sets(target, candidate)
+
+        self.assertEqual(0, result["offset_type_alignment_count"])
+        self.assertEqual(0, result["stable_identity_alignment_count"])
+        self.assertFalse(result["offset_type_exact"])
+        self.assertFalse(result["stable_identity_exact"])
+
+    def test_wrong_identity_preserves_shape_but_not_identity(self):
+        target = [rs.SurfaceRecord(0x10, rs.R_MIPS_26, (7, 0xCCC))]
+        candidate = [rs.SurfaceRecord(0x10, rs.R_MIPS_26, (59, 0x70))]
+
+        result = rs.compare_record_sets(target, candidate)
+
+        self.assertEqual(1, result["offset_type_alignment_count"])
+        self.assertEqual(0, result["stable_identity_alignment_count"])
+        self.assertTrue(result["offset_type_exact"])
+        self.assertFalse(result["stable_identity_exact"])
+
+    def test_ambiguous_overlay_owner_fails_closed(self):
+        row = {
+            "type": "c",
+            "source": "overlays/o007/example",
+            "offset": "0x0",
+            "end_offset": "0x20",
+            "size": "0x20",
+        }
+        atlas = {
+            "modules": [
+                {"overlay": 7, "text_ownership": [dict(row)]},
+                {"overlay": 8, "text_ownership": [dict(row)]},
+            ]
+        }
+
+        with self.assertRaisesRegex(rs.SurfaceComparisonError,
+                                    "2 overlay text owners"):
+            rs.resolve_overlay_ownership(
+                Path("build/src/overlays/o007/example.c.o"), atlas)
+
+
 if __name__ == "__main__":
     unittest.main()
