@@ -920,6 +920,12 @@ settles the compiler's 0x70-byte stack layout and reproduces all 110 words,
 three calls, and three address pairs without post-compilation correction; the
 same pinned donor scans are exact-negative.
 
+Overlay 31's buffer initializer at `+0x6B0..+0xA84` adds **980 bytes / 245
+words**. Keeping `assetBuffer` after the three integer locals preserves IDO's
+0x48-byte frame without changing the DKR-derived control flow. The compiled C
+reproduces all 16 calls and 19 HI16/LO16 pairs (54 records total), the linked
+overlay range, and the whole-ROM hash. The owned range has no padding.
+
 Overlay 37's object updater at `+0x088..+0x19C` — 276 bytes / 69 words.
 NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
 sixteen-word parameter-home/resource-register web normalization and an

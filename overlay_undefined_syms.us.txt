@@ -696,6 +696,29 @@ overlay30SetupReloc = 0xf0000000;
 /* overlay 31: overlay31BuildPalettes.c.o */
 overlay31AllocateReloc = 0xf0000000;
 
+/* overlay 31: overlay31InitializeBuffers.c.o */
+gOverlay31Configs = 0x00000000;
+gOverlay31DummyAssets = 0x00000000;
+gOverlay31DummyCount = 0x00000000;
+gOverlay31EffectCount = 0x00000000;
+gOverlay31EffectRecords = 0x00000000;
+gOverlay31LineRecords = 0x00000000;
+gOverlay31MaxLine = 0x00000000;
+gOverlay31MaxPoint = 0x00000000;
+gOverlay31PointPool = 0x00000000;
+gOverlay31RectangleSourceA = 0x00000000;
+gOverlay31RectangleSourceB = 0x00000000;
+gOverlay31TriangleSourceA = 0x00000000;
+gOverlay31TriangleSourceB = 0x00000000;
+gOverlay31VertexBuffers = 0x00000000;
+overlay31FreeAsset = 0xf0000000;
+overlay31LoadAsset = 0xf0000000;
+overlay31LoadType0000 = 0xf0000000;
+overlay31LoadType8000 = 0xf0000000;
+overlay31LoadTypeC000 = 0xf0000000;
+overlay31ResetLocal = 0xf0000000;
+overlay31ResetReloc = 0xf0000000;
+
 /* overlay 33: overlay33ReleaseGlobal.c.o */
 gOverlay33Handle = 0x00000000;
 overlay33ReleaseReloc = 0xf0000000;

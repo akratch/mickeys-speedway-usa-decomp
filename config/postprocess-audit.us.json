@@ -2496,8 +2496,7 @@
       "size": 980,
       "source": "src/overlays/o031/overlay31InitializeBuffers.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
