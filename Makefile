@@ -28,6 +28,7 @@
 #   gmake system-health     read-only build load/memory/process summary
 #   gmake check-tooling     focused safety/provenance/tooling regressions
 #   gmake release-gate      serial, niced release checks with compact output
+#   gmake public-release    dry-run reconciliation/preflight; never pushes
 #   gmake clean      remove build/
 #   gmake distclean  also remove splat's generated output
 
@@ -308,6 +309,7 @@ system-health:
 
 check-tooling:
 	$(HOST_PYTHON) tests/test_flag_sweep.py
+	$(HOST_PYTHON) tests/test_overlay_atlas.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_preflight.py
@@ -317,9 +319,20 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_batch_deadline.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_finalize_plateau.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
 
 release-gate:
 	$(HOST_PYTHON) $(TOOLS_DIR)/release_gate.py $(RELEASE_GATE_ARGS)
+
+# Public release reconciliation has no push operation. It checks exact release
+# deltas, every outgoing tree/message, and the ordinary release gates against
+# the explicitly named remote-tracking branch. --write-derived invokes only
+# documented generators and leaves their output unstaged for review.
+#
+#   gmake public-release \
+#     PUBLIC_RELEASE_ARGS="--remote public --branch master"
+public-release:
+	$(HOST_PYTHON) $(TOOLS_DIR)/public_release.py $(PUBLIC_RELEASE_ARGS)
 
 # Asserts that no clean-room decoder is inventing words -- that every stage
 # which exists to DECODE something contributes nothing to a tree whose content
@@ -446,6 +459,7 @@ check-reference-builds:
 check-docs:
 	$(PYTHON) $(TOOLS_DIR)/check_derived_numbers.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/overlay_donor_scan.py --check
+	$(HOST_PYTHON) $(TOOLS_DIR)/nm_ranking.py --check-doc
 
 # Builds just far enough to have a linked ELF (no crc/z64 round-trip needed --
 # tools/progress.py only reads the ELF's symbol table plus the current asm/
@@ -3989,7 +4003,7 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health check-tooling release-gate audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health check-tooling release-gate public-release audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
 

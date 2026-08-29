@@ -61,6 +61,18 @@ agreement plus the current word score and first mismatch. Ambiguous aliases,
 sources, ranges, or relocation identities are errors. Output excludes
 instruction listings, words, and hexdumps.
 
+Promotion does not make the preflight unusable when splat removes the
+function's extracted fallback. With no fallback present, the resolver enters
+`post_promotion` mode only for one unconditional requested C definition with
+no matching `GLOBAL_ASM`. It requires tracked exact ownership in the overlay
+atlas or resident symbol table, and that evidence must agree with the unique
+definition plus the linked ELF's value and size. A missing fallback cannot
+promote a guarded `NON_MATCHING` body. Post-promotion uses the ordinary
+`build/` object and the fully relocated ROM as its byte oracle; it also
+requires the candidate and target relocation counts, offsets, and types to
+agree. JSON reports distinguish this route with `resolution_mode` and
+`workbench.comparison_mode`.
+
 `tools/wb_compare.sh` uses the same resolver, so manual candidate-symbol and
 build-directory settings are unnecessary for normal guarded functions:
 
@@ -72,6 +84,9 @@ tools/wb_compare.sh --diagnose overlay16ApplyGradient --trace trace.log --trace-
 Wrapper options precede the symbol. Arguments after the symbol pass unchanged
 to `decomp-workbench compare` or, with `--diagnose`, to
 `decomp-workbench diagnose`. `--rom` retains the linked-ROM final oracle.
+Invoke `wb_compare.sh --rom <linked-C-name>` directly after promotion;
+`function_preflight.py` selects it automatically after its tracked
+post-promotion checks pass.
 
 ## Overlay tools
 
@@ -82,6 +97,46 @@ to `decomp-workbench compare` or, with `--diagnose`, to
 | `tools/overlay_donor_scan.py` | Compare all overlays with locked reference objects | [Reference builds](references.md) |
 | `tools/overlay_graph_match.py` | Rank structural JFG module correspondences | [Overlay graph](overlay-graph.md) |
 | consolidation helpers | Maintain grouped overlay source ownership | [Overlay consolidation](overlay-consolidation.md) |
+
+### Overlay atlas release deltas
+
+`python3 tools/overlay_atlas.py --delta` compares exact-C overlay ownership
+without rebuilding or checking out an old tree:
+
+```sh
+python3 tools/overlay_atlas.py --delta HEAD^
+python3 tools/overlay_atlas.py --delta release-base release-candidate
+python3 tools/overlay_atlas.py --delta old-atlas.json ../candidate-checkout
+python3 tools/overlay_atlas.py --delta release-base release-candidate --format json
+```
+
+A state may be a Git tree-ish, atlas JSON file, or checkout containing
+`config/overlays.us.json`. The report lists promotions and retractions,
+individual ranges, gross byte totals, and net exact-C change. Identity is
+always `(overlay, text, offset)`, never a shared synthetic VMA or filename.
+Duplicate or overlapping identities, inconsistent extents/totals, and
+same-key extent changes fail closed.
+
+## Deterministic public-release reconciliation
+
+`tools/public_release.py` is a push-incapable final preflight for a checked-out
+publication branch. The branch and remote are explicit:
+
+```sh
+gmake public-release \
+  PUBLIC_RELEASE_ARGS="--remote public --branch master"
+```
+
+It confirms fast-forward ancestry, checks derived artifacts, computes exact
+scoreboard and overlay-atlas deltas, runs the serial release gates, and scans
+the resulting tree plus every outgoing commit tree and message. This catches
+operator-only paths or private text even if a later outgoing commit deletes
+them. It never fetches, merges, copies between checkouts, or pushes.
+
+When generated files need refreshing, add `--write-derived`. Write mode calls
+only the documented overlay-atlas, atlas-digest, post-process, overlay-symbol,
+and scoreboard generators and leaves their output unstaged. Review and commit
+those changes, then rerun the clean default dry run.
 
 ## objdiff
 
