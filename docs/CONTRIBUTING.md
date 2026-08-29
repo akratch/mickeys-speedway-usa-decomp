@@ -116,6 +116,28 @@ gmake overlay-donors-scan-check   # requires the local reference builds
 A generated placeholder name is not evidence. State whether a name comes from
 byte identity, a call graph, a string correspondence, or structural analysis.
 
+### Overlay build flow
+
+Mickey uses a runtime overlay linker from the same Rare engine lineage as JFG,
+but it does not copy a JFG host-side overlay build. There is one build graph and
+one final linker invocation:
+
+1. `config/overlays.us.json` records each module's measured ROM ranges and
+   ownership. `tools/overlay_atlas.py` checks it against the generated overlay
+   block in `mickey.us.yaml`.
+2. Splat produces ordinary inputs under `src/overlays/oNNN/`,
+   `asm/overlays/oNNN/`, and `assets/overlays/oNNN/`, plus `mickey.us.ld`.
+3. The normal C, assembly, and binary-wrapper rules produce objects. The long
+   overlay block in the Makefile contains measured compiler flags and reviewed
+   ELF normalization; it is not another linker.
+4. `build/mickey.us.elf` links all objects once. Splat's script places each
+   module's text, data, and original relocation-table blobs in its ROM range.
+
+`src/main/runlink.c` is game code that loads and relocates modules on the
+console. JFG is disclosed evidence for parts of that runtime lineage; Mickey's
+tables, atlas, generated linker script, and exact ROM comparison define this
+repository's host build.
+
 ## Checks
 
 Run the checks that apply to the change. Source changes that affect matching

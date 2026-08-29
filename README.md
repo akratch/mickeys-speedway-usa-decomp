@@ -118,6 +118,11 @@ Two things that catch newcomers:
   Runtime loading is implemented in `src/main/runlink.c` and documented in
   [the overlay architecture guide](docs/overlays.md#51-what-runs-it).
 
+The host build has one object graph and one final linker invocation; splat
+generates overlay inputs and their `mickey.us.ld` placement. The
+[contributor guide](docs/CONTRIBUTING.md#overlay-build-flow) traces that path
+and separates it from the Rare-lineage runtime loader.
+
 When a candidate compiles to the right shape but the register or stack
 allocation still differs, `tools/permute_batch.py` runs
 [decomp-permuter](https://github.com/simonlindholm/decomp-permuter) against

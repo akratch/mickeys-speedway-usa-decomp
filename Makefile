@@ -173,6 +173,11 @@ OBJCOPYFLAGS := -O binary --pad-to=$(ROM_SIZE) --gap-fill=0xFF
 # Files
 # ---------------------------------------------------------------------------
 
+# There is no second, JFG-derived overlay build hidden below. Splat classifies
+# every generated input into the same three ordinary lists: C, assembly, or
+# binary. Overlay paths are simply members under */overlays/oNNN/. The
+# generated linker script places those objects back into each module's
+# [.text][.data][reloc1][reloc2] ROM range during the single final link.
 S_FILES   := $(foreach dir,$(ASM_DIRS),$(wildcard $(dir)/*.s))
 BIN_FILES := $(foreach dir,$(BIN_DIRS),$(wildcard $(dir)/*.bin))
 C_FILES   := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
@@ -994,6 +999,15 @@ endif
 # depth2Cents body reaches Mickey's instruction schedule only with this flag;
 # the flag lattice leaves canonical -O2/-mips2 otherwise unchanged.
 $(BUILD_DIR)/$(SRC_DIR)/main/audio_manager_4C50.c.o: CFLAGS += -Wab,-r4300_mul
+
+# ---------------------------------------------------------------------------
+# Overlay compile and object-normalization policy
+# ---------------------------------------------------------------------------
+#
+# These are target-specific settings on objects in the ordinary O_FILES graph,
+# not rules for loading or separately linking overlays. Flags affect IDO
+# codegen. POSTPROCESS entries below are reviewed section trims or ELF
+# symbol/relocation normalization; tools/postprocess_audit.py classifies them.
 
 # Overlay game code is likewise MIPS II. Every adopted object was compared
 # instruction-for-instruction at this ISA level before joining this rule;
@@ -3969,6 +3983,11 @@ OVERLAY_TRIMMED_OBJECTS += \
 
 $(OVERLAY_TRIMMED_OBJECTS): $(TOOLS_DIR)/trim_elf_section.py
 
+# One final link builds the complete ROM image. Overlay dependencies flow from
+# config/overlays.us.json through splat's generated C/asm/bin inputs and
+# mickey.us.ld, then through the ordinary O_FILES rules into this target.
+# src/main/runlink.c is the console's runtime loader; it is game code, not part
+# of this host-side graph. JFG is evidence for runtime lineage, not build logic.
 $(TARGET).elf: $(O_FILES) $(LD_SCRIPT) overlay_undefined_syms.$(VERSION).txt | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(LD) $(LDFLAGS) -o $@
 
