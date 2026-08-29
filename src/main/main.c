@@ -1456,10 +1456,26 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 #ifdef NON_MATCHING
-/* Workbench: mixed(structural:8, register:4), 10/27 positional words differ, first +0x1c; frame -24.
- * The three call relocations are exact at +0x14/+0x30/+0x4c. Six additional
- * raw/boolean result webs tied this body or grew to 29 words; retained boolean
- * materialization before each branch remains the unresolved source mechanism. */
+/* PLATEAU-HANDOFF
+ * symbol: func_80028FCC
+ * score: 17/27 words
+ * frame: 0x18
+ * relocations: 3
+ * first-mismatch: +0x1C
+ * summary: shared-result form regressed to 25 words; target Boolean materialization remains structural
+ */
+/*
+ * PROVENANCE: JFG's pinned src/main.c::mainAnyoneHas remains GLOBAL_ASM and
+ * supplies only an assembly/object structural analogue and TU-role comparison;
+ * no C body was adapted. Mickey establishes this boundary, ABI, calls, Boolean
+ * normalization, and candidate body.
+ *
+ * The shared-result/shared-epilogue probe regressed to 25 words and moved the
+ * second and third calls, so it did not unlock another flag lattice or trace.
+ * This retained early-return spelling is the best source-faithful form: exact
+ * 108-byte size/frame 0x18 and calls at +0x14/+0x30/+0x4C. ORT 663 has no
+ * authenticated caller.
+ */
 s32 func_80028FCC(s32 arg0) {
     if (func_80028FB8(0, 0, arg0)) {
         return TRUE;

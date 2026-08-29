@@ -507,6 +507,14 @@ all ten records and measures 98/101 words with an exact `0x8` frame. Its three
 residual words are one `v0`/`v1` globalcolor outcome; 119 flag configurations
 were nonexact, so current linked equality remains fallback-only.
 
+Resident `func_80028FCC` owns three `R_MIPS_26` records to `func_80028FB8` at
+`+0x14/+0x30/+0x4C`, all exact in fresh configured full-TU C under
+`-Wo,-Olimit,100`. The retained spelling is 17/27 words with exact `0x6C`
+boundary/frame `0x18` and first mismatch `+0x1C`. ORT 663 exports the function,
+but exhaustive relocation, direct-call, and pointer scans authenticate no
+caller. The shared-result probe regressed to 25 words and moved the latter two
+calls; linked equality remains fallback-only.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
