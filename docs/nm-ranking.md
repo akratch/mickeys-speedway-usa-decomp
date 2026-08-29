@@ -287,8 +287,7 @@ table from a fresh run):
 | func_80020D8C | main | 17 | 56 | 192 | 0 | register-only |
 | overlay1FindType5ByKey | o001 | 17 | 28 | 156 | 0 | register-only |
 | func_8003A2C8 | main | 19 | 12 | 128 | 0 | register-only |
-| func_overlay_041_F0000000_1887338 | o041 | 26 | 84 | 292 | 0 | register-only |
 | runlinkEnsureJumpIsValid | main | 35 | 32 | 404 | 0 | register-only |
 
-All 20 are `register-only` and size-exact -- the cheapest tier the queue
+All 19 are `register-only` and size-exact -- the cheapest tier the queue
 has to offer right now.

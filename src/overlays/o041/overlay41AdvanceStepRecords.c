@@ -10,13 +10,15 @@ typedef struct Overlay41StepRecord {
     s32 dy;
 } Overlay41StepRecord;
 
-extern Overlay41StepRecord gOverlay41StepRecords[8];
-extern void overlay41EmitStep(s32 id, s32 x, s32 y);
+extern Overlay41StepRecord overlay41StepRecordsReloc[8];
+extern void overlay41EmitStepReloc(s32 id, s32 x, s32 y);
 
-/* Workbench: allocation-mismatch, exact 73/-48 shape, 26 register words from +0x54; temp phase +1.
- * Lever: temp-FIFO structure/lifetime/width/scope probes left the ring topology unchanged.
- * Remains: one temp-ring pop/death and three overlay relocation identities; assembly fallback stays canonical. */
-#ifdef NON_MATCHING
+#define gOverlay41StepRecords overlay41StepRecordsReloc
+#define overlay41EmitStep overlay41EmitStepReloc
+
+/* Updating both accumulators before decrementing the independent remaining
+ * field preserves the source semantics and reproduces IDO's retail schedule.
+ * Pinned exact-overlay scans found no exact DKR/JFG donor. */
 void func_overlay_041_F0000000_1887338(s32 amount) {
     Overlay41StepRecord *record;
     s32 i;
@@ -33,9 +35,9 @@ void func_overlay_041_F0000000_1887338(s32 amount) {
                 if (amount < step) {
                     step = amount;
                 }
-                record->remaining -= step;
                 record->x += record->dx * step;
                 record->y += record->dy * step;
+                record->remaining -= step;
             }
             x = ((record->x * amount) >> 8) + (record->residual & 0xF);
             y = ((record->y * amount) >> 8) + (record->residual >> 4);
@@ -46,6 +48,3 @@ void func_overlay_041_F0000000_1887338(s32 amount) {
         record++;
     } while (i--);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41AdvanceStepRecords/func_overlay_041_F0000000_1887338.s")
-#endif

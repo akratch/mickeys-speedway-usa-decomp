@@ -210,18 +210,6 @@
       "category": "register-only"
     },
     {
-      "name": "func_overlay_041_F0000000_1887338",
-      "file": "src/overlays/o041/overlay41AdvanceStepRecords.c",
-      "overlay": 41,
-      "tu": "overlays/o041",
-      "size_bytes": 292,
-      "objdiff_match_pct": null,
-      "differing_words": 26,
-      "first_mismatch_offset": 84,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
       "name": "func_80041CE4",
       "file": "src/main/particles.c",
       "overlay": null,

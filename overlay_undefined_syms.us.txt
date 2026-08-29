@@ -860,6 +860,10 @@ gO40TintGreenReloc = 0x00000000;
 gO40TintRedReloc = 0x00000000;
 o40TintCallReloc = 0xf0000000;
 
+/* overlay 41: overlay41AdvanceStepRecords.c.o */
+overlay41EmitStepReloc = 0xf0000000;
+overlay41StepRecordsReloc = 0x00000000;
+
 /* overlay 41: overlay41UpdateColorRecords.c.o */
 D_80000038 = 0x80000038;
 D_80000039 = 0x00000039;
