@@ -70,14 +70,22 @@ tools/finalize_plateau.py overlay40FadeRecords \
   --first-mismatch +0xC --summary "one allocator web remains"
 ```
 
-The function must be C under `#ifdef NON_MATCHING` followed by exactly one
-`#else` / `#pragma GLOBAL_ASM(...)` fallback. The fallback filename must match
-the C symbol or use splat's generated overlay-function form
-(`func_overlay_NNN_F...s`). The command refuses ambiguous guards, unrelated
-worktree or index changes, untracked inputs, and unsupported fallback names.
-It writes only fixed evidence fields—score, frame, relocation count, first
-mismatch, and an optional one-line next lever—then runs `cleanroom` and
-`check-docs`. It does not claim exactness or record instruction rows.
+The exact function must already be C under `#ifdef NON_MATCHING`, followed by
+one `#else` / `#pragma GLOBAL_ASM(...)` fallback. The fallback filename must
+either match the C symbol or use splat's canonical generated overlay-function
+form (`func_overlay_NNN_F...s`), which is how friendly overlay names retain
+their original assembly identity. The command refuses an unguarded or
+ambiguous body, any other mismatched fallback, an untracked source, or
+worktree/index dirt outside that source and an optional `--handoff-doc
+docs/<file>.md`. It records only the supplied score, frame, relocation count,
+first mismatch, and one-line summary in a symbol-keyed metadata comment at
+the end of the source file (and, when requested, a bounded Markdown block).
+Appending the source metadata preserves every pre-existing byte and physical
+source line, including the measured guarded function. Re-running the command
+updates only that symbol's EOF block, and multiple symbols may share a source
+file. The command refuses legacy inline handoff comments because moving one
+would itself require a fresh compile and byte-comparison proof. It never
+records instruction rows or claims exactness.
 
 The result remains uncommitted by default. After reviewing the diff, pass
 `--commit` to stage and commit only the named source and optional tracked

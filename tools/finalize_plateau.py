@@ -21,10 +21,16 @@ SCORE_RE = re.compile(r"^(?:\d+/\d+ (?:words|instructions|bytes)|\d+ differing w
 FRAME_RE = re.compile(r"^(?:-?0x[0-9A-Fa-f]+|frameless|unknown)$")
 MISMATCH_RE = re.compile(r"^(?:\+?0x[0-9A-Fa-f]+|none|unknown)$")
 DIRECTIVE_RE = re.compile(r"^\s*#\s*(if|ifdef|ifndef|elif|else|endif)\b(.*)$")
-HANDOFF_RE = re.compile(
+LEGACY_HANDOFF_RE = re.compile(
     r"/\* PLATEAU-HANDOFF\n"
     r"(?: \* [^\n]*\n)*?"
     r" \*/\n",
+)
+KEYED_HANDOFF_RE = re.compile(
+    r"/\* PLATEAU-HANDOFF:(?P<symbol>[A-Za-z_][A-Za-z0-9_]*):start\n"
+    r"(?: \* [^\n]*\n)*?"
+    r" \* PLATEAU-HANDOFF:(?P=symbol):end\n"
+    r" \*/\n?",
 )
 GENERATED_OVERLAY_FALLBACK_RE = re.compile(
     r"^func_overlay_[0-9]{3}_F[0-9A-Fa-f]{7}_[0-9A-Fa-f]+\.s$"
@@ -173,16 +179,45 @@ def source_handoff(symbol: str, metrics: Metrics) -> str:
     ]
     if metrics.summary:
         fields.append(f"summary: {metrics.summary}")
-    return "/* PLATEAU-HANDOFF\n" + "".join(f" * {field}\n" for field in fields) + " */\n"
-
-
-def update_source(text: str, candidate: GuardedCandidate, handoff: str) -> str:
-    lines = text.splitlines(keepends=True)
-    body = "".join(lines[candidate.ifdef_line + 1:candidate.else_line])
-    body = HANDOFF_RE.sub("", body, count=1)
-    return "".join(lines[:candidate.ifdef_line + 1]) + handoff + body + "".join(
-        lines[candidate.else_line:]
+    return (
+        f"/* PLATEAU-HANDOFF:{symbol}:start\n"
+        + "".join(f" * {field}\n" for field in fields)
+        + f" * PLATEAU-HANDOFF:{symbol}:end\n"
+        + " */\n"
     )
+
+
+def update_source(text: str, symbol: str, handoff: str) -> str:
+    if LEGACY_HANDOFF_RE.search(text):
+        raise PlateauError(
+            "legacy inline PLATEAU-HANDOFF would move measured source lines; "
+            "migrate it manually and re-prove the candidate"
+        )
+
+    blocks = list(KEYED_HANDOFF_RE.finditer(text))
+    marker_count = text.count("PLATEAU-HANDOFF:")
+    if marker_count != 2 * len(blocks):
+        raise PlateauError("malformed symbol-keyed PLATEAU-HANDOFF metadata")
+    if blocks:
+        metadata_start = blocks[0].start()
+        remainder = KEYED_HANDOFF_RE.sub("", text[metadata_start:])
+        if remainder.strip():
+            raise PlateauError("PLATEAU-HANDOFF metadata must be a contiguous EOF suffix")
+
+    owned = [block for block in blocks if block.group("symbol") == symbol]
+    if len(owned) > 1:
+        raise PlateauError(f"duplicate PLATEAU-HANDOFF metadata for {symbol}")
+    if owned:
+        block = owned[0]
+        return text[:block.start()] + handoff + text[block.end():]
+
+    if not text or text.endswith("\n\n"):
+        separator = ""
+    elif text.endswith("\n"):
+        separator = "\n"
+    else:
+        separator = "\n\n"
+    return text + separator + handoff
 
 
 def markdown_handoff(symbol: str, source: str, metrics: Metrics) -> str:
@@ -294,7 +329,7 @@ def main() -> int:
         source_text = source_path.read_text(encoding="utf-8")
         candidate = require_guarded_candidate(source_text, args.symbol)
         source_path.write_text(
-            update_source(source_text, candidate, source_handoff(args.symbol, metrics)),
+            update_source(source_text, args.symbol, source_handoff(args.symbol, metrics)),
             encoding="utf-8", newline="\n",
         )
         if doc_path is not None and doc_rel is not None:

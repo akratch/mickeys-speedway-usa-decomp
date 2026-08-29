@@ -60,18 +60,70 @@ class GuardValidationTests(unittest.TestCase):
 
     def test_handoff_is_fixed_field_and_idempotent(self) -> None:
         metrics = plateau.Metrics("98/101 words", "0x8", 10, "+0xC", "allocator mismatch")
-        candidate = plateau.require_guarded_candidate(VALID_SOURCE, "demo_symbol")
+        plateau.require_guarded_candidate(VALID_SOURCE, "demo_symbol")
         once = plateau.update_source(
-            VALID_SOURCE, candidate, plateau.source_handoff("demo_symbol", metrics)
+            VALID_SOURCE, "demo_symbol", plateau.source_handoff("demo_symbol", metrics)
         )
-        twice_candidate = plateau.require_guarded_candidate(once, "demo_symbol")
+        plateau.require_guarded_candidate(once, "demo_symbol")
         twice = plateau.update_source(
-            once, twice_candidate, plateau.source_handoff("demo_symbol", metrics)
+            once, "demo_symbol", plateau.source_handoff("demo_symbol", metrics)
         )
         self.assertEqual(once, twice)
-        self.assertEqual(once.count("PLATEAU-HANDOFF"), 1)
+        self.assertEqual(once.count("PLATEAU-HANDOFF"), 2)
         self.assertIn(" * relocations: 10\n", once)
         self.assertNotIn("|", once)
+
+    def test_handoff_appends_without_changing_existing_bytes_or_lines(self) -> None:
+        metrics = plateau.Metrics("98/101 words", "0x8", 10, "+0xC")
+        plateau.require_guarded_candidate(VALID_SOURCE, "demo_symbol")
+        updated = plateau.update_source(
+            VALID_SOURCE, "demo_symbol", plateau.source_handoff("demo_symbol", metrics)
+        )
+        self.assertTrue(updated.startswith(VALID_SOURCE))
+        self.assertEqual(
+            updated.splitlines()[:len(VALID_SOURCE.splitlines())],
+            VALID_SOURCE.splitlines(),
+        )
+        self.assertGreater(updated.index("PLATEAU-HANDOFF"), updated.index("#endif"))
+
+    def test_updates_one_symbol_in_a_multi_symbol_eof_suffix(self) -> None:
+        first = plateau.Metrics("98/101 words", "0x8", 10, "+0xC")
+        second = plateau.Metrics("7/8 words", "frameless", 0, "+0x4")
+        plateau.require_guarded_candidate(VALID_SOURCE, "demo_symbol")
+        with_first = plateau.update_source(
+            VALID_SOURCE, "demo_symbol", plateau.source_handoff("demo_symbol", first)
+        )
+        with_both = plateau.update_source(
+            with_first, "other_symbol", plateau.source_handoff("other_symbol", second)
+        )
+        revised = plateau.update_source(
+            with_both,
+            "demo_symbol",
+            plateau.source_handoff(
+                "demo_symbol", plateau.Metrics("99/101 words", "0x8", 10, "+0x10")
+            ),
+        )
+        self.assertTrue(revised.startswith(VALID_SOURCE))
+        self.assertIn("99/101 words", revised)
+        self.assertNotIn("98/101 words", revised)
+        self.assertIn("7/8 words", revised)
+        self.assertEqual(revised.count("PLATEAU-HANDOFF:demo_symbol:start"), 1)
+        self.assertEqual(revised.count("PLATEAU-HANDOFF:other_symbol:start"), 1)
+
+    def test_refuses_legacy_inline_handoff_instead_of_moving_source(self) -> None:
+        legacy = VALID_SOURCE.replace(
+            "#ifdef NON_MATCHING\n",
+            "#ifdef NON_MATCHING\n/* PLATEAU-HANDOFF\n * symbol: demo_symbol\n */\n",
+        )
+        plateau.require_guarded_candidate(legacy, "demo_symbol")
+        with self.assertRaisesRegex(plateau.PlateauError, "move measured source lines"):
+            plateau.update_source(
+                legacy,
+                "demo_symbol",
+                plateau.source_handoff(
+                    "demo_symbol", plateau.Metrics("98/101 words", "0x8", 10, "+0xC")
+                ),
+            )
 
     def test_markdown_handoff_replaces_its_own_block(self) -> None:
         first = plateau.Metrics("98/101 words", "0x8", 10, "+0xC")
@@ -149,6 +201,7 @@ class FinalizeCommandTests(unittest.TestCase):
         self.assertEqual(before, after)
         self.assertIn("commit: not requested", result.stdout)
         self.assertIn("PLATEAU-HANDOFF", (self.repo / "src" / "demo.c").read_text())
+        self.assertTrue((self.repo / "src" / "demo.c").read_text().startswith(VALID_SOURCE))
         self.assertEqual(self.gate_log.read_text().splitlines(), ["cleanroom", "check-docs"])
 
     def test_explicit_commit_contains_only_named_source_and_doc(self) -> None:
@@ -179,6 +232,18 @@ class FinalizeCommandTests(unittest.TestCase):
         result = self.finalize()
         self.assertEqual(result.returncode, 2)
         self.assertIn("not an unambiguous", result.stderr)
+        self.assertFalse(self.gate_log.exists())
+
+    def test_refuses_legacy_inline_handoff_before_gates(self) -> None:
+        legacy = VALID_SOURCE.replace(
+            "#ifdef NON_MATCHING\n",
+            "#ifdef NON_MATCHING\n/* PLATEAU-HANDOFF\n * symbol: demo_symbol\n */\n",
+        )
+        (self.repo / "src" / "demo.c").write_text(legacy, encoding="utf-8")
+        result = self.finalize()
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("move measured source lines", result.stderr)
+        self.assertEqual((self.repo / "src" / "demo.c").read_text(), legacy)
         self.assertFalse(self.gate_log.exists())
 
 
