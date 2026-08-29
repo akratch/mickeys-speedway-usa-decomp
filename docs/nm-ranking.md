@@ -204,13 +204,23 @@ tools/objdiff/objdiff-cli report generate -p . -o /tmp/nm_report.json -f json -d
 # Optional linked/whole-TU context:
 .venv/bin/python tools/nm_ranking.py --objdiff-report /tmp/nm_report.json --jobs 12
 .venv/bin/python tools/nm_ranking.py --top 20 --markdown --no-table  # fleet-prompt excerpt
+
+# Fast maintenance between full compile passes: remove snapshot rows whose
+# exact source/symbol identity is no longer guarded by NON_MATCHING.
+.venv/bin/python tools/nm_ranking.py --prune-stale
 ```
+
+`--prune-stale` does not invoke the compiler or decomp-permuter. It keys rows
+by exact `(source file, symbol)` identity, rejects malformed or duplicate
+identities, writes atomically, and reports newly queued functions that still
+need a full ranking pass. Full runs also serialize unresolved rows with that
+same stable identity and discard functions promoted while the run was active.
 
 ## Distribution (this run)
 
-403 queued functions (`tools/permute_batch.py discover_queue()`, validated
-atlas + depth-aware source-scan union); 403 resolved, zero unresolved. Total
-resolved size: 407,860 bytes (398.3 KiB) across 74 distinct overlays plus
+400 queued functions (`tools/permute_batch.py discover_queue()`, validated
+atlas + depth-aware source-scan union); 400 resolved, zero unresolved. Total
+resolved size: 406,808 bytes (397.3 KiB) across 74 distinct overlays plus
 `src/main` TUs.
 
 | Category | Count | Share of resolved |

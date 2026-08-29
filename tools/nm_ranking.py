@@ -46,6 +46,9 @@ Usage:
 
     # top 20 as a markdown table, for pasting into a fleet prompt:
     .venv/bin/python tools/nm_ranking.py --top 20 --markdown
+
+    # remove now-matched rows from the retained snapshot without compiling:
+    .venv/bin/python tools/nm_ranking.py --prune-stale
 """
 from __future__ import annotations
 
@@ -56,9 +59,11 @@ import json
 import pathlib
 import re
 import shlex
+import stat
 import struct
 import subprocess
 import sys
+import tempfile
 from collections import Counter
 from typing import Optional
 
@@ -382,6 +387,106 @@ class FuncResult:
     objdiff_match_pct: Optional[float] = None
 
 
+class RankingDocumentError(ValueError):
+    """The retained ranking cannot be filtered without guessing identity."""
+
+
+def _function_row_key(row: object) -> tuple[str, str]:
+    if not isinstance(row, dict):
+        raise RankingDocumentError("function row is not an object")
+    file_name = row.get("file")
+    symbol = row.get("name")
+    if not isinstance(file_name, str) or not isinstance(symbol, str):
+        raise RankingDocumentError("function row needs string file/name fields")
+    return file_name, symbol
+
+
+def _unresolved_row_key(row: object) -> tuple[str, str]:
+    if not isinstance(row, list) or len(row) != 2:
+        raise RankingDocumentError(
+            "unresolved row needs [[file, name], diagnostic] identity"
+        )
+    key, diagnostic = row
+    if (
+        not isinstance(key, list)
+        or len(key) != 2
+        or not all(isinstance(part, str) for part in key)
+        or not isinstance(diagnostic, str)
+    ):
+        raise RankingDocumentError(
+            "unresolved row needs [[file, name], diagnostic] identity"
+        )
+    return key[0], key[1]
+
+
+def prune_stale_document(
+    document: object, live_keys: set[tuple[str, str]]
+) -> tuple[dict[str, object], list[tuple[str, str]], list[tuple[str, str]]]:
+    """Drop rows whose exact source/symbol identity is no longer queued."""
+    if not isinstance(document, dict):
+        raise RankingDocumentError("ranking root is not an object")
+    functions = document.get("functions")
+    unresolved = document.get("unresolved_functions")
+    if not isinstance(functions, list) or not isinstance(unresolved, list):
+        raise RankingDocumentError(
+            "ranking needs functions and unresolved_functions lists"
+        )
+
+    function_keys = [_function_row_key(row) for row in functions]
+    unresolved_keys = [_unresolved_row_key(row) for row in unresolved]
+    all_keys = function_keys + unresolved_keys
+    if len(set(all_keys)) != len(all_keys):
+        raise RankingDocumentError("ranking contains duplicate function identities")
+
+    retained_functions = [
+        row for row, key in zip(functions, function_keys) if key in live_keys
+    ]
+    retained_unresolved = [
+        row for row, key in zip(unresolved, unresolved_keys) if key in live_keys
+    ]
+    retained_keys = {key for key in all_keys if key in live_keys}
+    removed = sorted(set(all_keys) - live_keys)
+    unranked = sorted(live_keys - retained_keys)
+
+    pruned = dict(document)
+    pruned["functions"] = retained_functions
+    pruned["unresolved_functions"] = retained_unresolved
+    pruned["resolved"] = len(retained_functions)
+    pruned["unresolved"] = len(retained_unresolved)
+    pruned["queue_size"] = len(retained_functions) + len(retained_unresolved)
+    pruned["objdiff_match_pct_coverage"] = sum(
+        1
+        for row in retained_functions
+        if isinstance(row, dict) and row.get("objdiff_match_pct") is not None
+    )
+    return pruned, removed, unranked
+
+
+def write_json_atomic(path: pathlib.Path, document: dict[str, object]) -> None:
+    """Replace one JSON document only after its temp file is complete."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    output_mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o644
+    temporary: Optional[pathlib.Path] = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as stream:
+            temporary = pathlib.Path(stream.name)
+            json.dump(document, stream, indent=2)
+            stream.write("\n")
+            stream.flush()
+        temporary.chmod(output_mode)
+        temporary.replace(path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
 def tu_category(rel_c_file: str) -> str:
     parts = pathlib.PurePosixPath(rel_c_file).parts
     # src/overlays/oNNN/... -> overlays/oNNN ; src/main/... -> main ; src/libultra/... -> libultra
@@ -579,7 +684,54 @@ def main() -> int:
     ap.add_argument("--no-table", action="store_true", help="skip printing the table")
     ap.add_argument("--limit", type=int, default=None,
                      help="only process the first N queue items (debugging)")
+    ap.add_argument(
+        "--prune-stale",
+        action="store_true",
+        help="without compiling, remove rows from --out whose exact file/symbol "
+             "identity is no longer in the current NON_MATCHING queue; validates "
+             "the retained document and reports newly queued unranked functions",
+    )
     args = ap.parse_args()
+
+    if args.prune_stale:
+        incompatible = []
+        if args.objdiff_report is not None:
+            incompatible.append("--objdiff-report")
+        if args.limit is not None:
+            incompatible.append("--limit")
+        if args.top is not None:
+            incompatible.append("--top")
+        if args.markdown:
+            incompatible.append("--markdown")
+        if incompatible:
+            print(
+                "error: --prune-stale cannot be combined with "
+                + ", ".join(incompatible),
+                file=sys.stderr,
+            )
+            return 2
+        try:
+            document = json.loads(args.out.read_text(encoding="utf-8"))
+            live_keys = {
+                (item.rel_c_file, item.func) for item in pb.discover_queue()
+            }
+            pruned, removed, unranked = prune_stale_document(document, live_keys)
+            write_json_atomic(args.out, pruned)
+        except (OSError, json.JSONDecodeError, RankingDocumentError) as exc:
+            print(f"error: refusing to prune {args.out}: {exc}", file=sys.stderr)
+            return 2
+        print(
+            f"pruned {len(removed)} stale row(s); "
+            f"retained {pruned['queue_size']} ranked/unresolved row(s)",
+            file=sys.stderr,
+        )
+        if unranked:
+            print(
+                f"note: {len(unranked)} live queue item(s) are absent from the "
+                "snapshot and remain unranked; run a full ranking pass to add them",
+                file=sys.stderr,
+            )
+        return 0
 
     # The permuter is intentionally installed separately from this repository.
     # Fail before touching the committed queue when that dependency is absent;
@@ -612,13 +764,27 @@ def main() -> int:
         queue = queue[: args.limit]
 
     results: list[FuncResult] = []
-    errors: list[str] = []
+    errors: list[tuple[tuple[str, str], str]] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        for result, error in pool.map(process_item, queue):
+        for item, (result, error) in zip(queue, pool.map(process_item, queue)):
             if result is not None:
                 results.append(result)
             if error is not None:
-                errors.append(error)
+                errors.append(((item.rel_c_file, item.func), error))
+
+    live_keys = {
+        (item.rel_c_file, item.func)
+        for item in pb.discover_queue_from_source_scan()
+    }
+    queue = [
+        item for item in queue
+        if (item.rel_c_file, item.func) in live_keys
+    ]
+    results = [
+        result for result in results
+        if (result.file, result.name) in live_keys
+    ]
+    errors = [(key, error) for key, error in errors if key in live_keys]
 
     pct_by_name = load_objdiff_pct(args.objdiff_report)
     for r in results:
@@ -633,7 +799,7 @@ def main() -> int:
             file=sys.stderr,
         )
         if errors:
-            print(f"first failure: {errors[0]}", file=sys.stderr)
+            print(f"first failure: {errors[0][1]}", file=sys.stderr)
         return 2
 
     with_pct = sum(1 for r in results if r.objdiff_match_pct is not None)
@@ -661,7 +827,7 @@ def main() -> int:
             }
             for r in results
         ],
-        "unresolved_functions": errors,
+        "unresolved_functions": [[list(key), error] for key, error in errors],
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(out_doc, indent=2) + "\n")
