@@ -43,7 +43,7 @@ SECRET_MARKERS = (
     re.compile(r"\bgh[oprsu]_[A-Za-z0-9]{30,}\b"),
     re.compile("-----BEGIN " + r"[A-Z ]+" + "PRIVATE KEY-----"),
     re.compile(
-        r"(?i)\b(?:password|passwd|secret|token)\s*=\s*[^\s$<{][^\s]{7,}"
+        r'''(?i)\b(?:password|passwd|secret|token)\s*=\s*["'][^"'\r\n]{8,}["']'''
     ),
 )
 

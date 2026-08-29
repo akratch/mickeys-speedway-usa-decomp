@@ -63,6 +63,12 @@ class PublicPreflightTests(unittest.TestCase):
         with self.assertRaisesRegex(release_gate.PreflightError, "tracked worktree"):
             release_gate._public_preflight(self.repo, "master", "public")
 
+    def test_secret_assignment_scan_distinguishes_code_from_credentials(self) -> None:
+        self.assertFalse(release_gate._scan_text("code.c", "token = poll_next(0);"))
+        self.assertTrue(
+            release_gate._scan_text("config", 'password = "not-a-real-password"')
+        )
+
 
 class GateExecutionTests(unittest.TestCase):
     def test_fake_gate_failure_is_reported(self) -> None:
