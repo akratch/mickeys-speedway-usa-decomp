@@ -68,61 +68,65 @@ extern Overlay84Resource *overlay84GetResource(
 extern void overlay84PrepareResource(u8 resource);
 extern void overlay84ReleaseResource(u8 resource);
 
-/* NON_MATCHING plateau (retested 2026-08-28): all 119 flag combinations and
- * ten focused declaration-scope/order, lifetime, padding, and ABI variants
- * leave four of 72 words different, first at +0x98. All four are the same
- * private state-pointer spill: natural C selects sp+0x20 while retail selects
- * the otherwise-unused sp+0x24 slot. A fresh allocator trace supplied no
- * stack-home provenance, and four additional faithful state scope/order
- * variants either preserved the residual or expanded the frame. */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 72-instruction, frame -40 shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
-#ifdef NON_MATCHING
-void overlay84LoadCurrent(s32 kind) {
-    Overlay84Object *object;
-    Overlay84State *state;
-    Overlay84Choice *choice;
-    Overlay84Resource *resource;
-    Overlay84Node *node;
-    Overlay84Transform *transform;
+/* Runtime relocation identities are animation-path operations:
+ * overlay84GetResource -> func_800508B4, overlay84PrepareResource ->
+ * func_8005055C, and overlay84ReleaseResource -> animseqStartPath. The getter
+ * consumes only the path index; this widened prototype deliberately preserves
+ * choice/object in a1/a2 for the exact allocator topology. */
+/* Matched 2026-08-28 by a bounded decomp-permuter pass after the prior hand
+ * and flag probes plateaued on the state-pointer spill home. The untouched
+ * IDO output preserves the 72-word body, 0x28 frame, and five relocation
+ * sites. Evidence re-reviewed 2026-08-29: the owned range, complete Overlay 84
+ * image, and preserved full ROM are byte-identical to retail. */
+void overlay84LoadCurrent(s32 kind)
+{
+  Overlay84State *state;
+  Overlay84Choice *choice;
+  Overlay84Object *object;
+  Overlay84Resource *resource;
+  Overlay84Node *node;
+  Overlay84Transform *transform;
+  object = gOverlay84Object;
+  if (object != 0)
+  {
+    state = object->state;
+    state->mode = 3;
+    state->active = 0;
+    node = state->nodes[state->current];
+    choice = node->choice;
+    switch (kind)
+    {
+      case 0:
+        state->resource = choice->resource0;
+        break;
 
-    object = gOverlay84Object;
-    if (object != 0) {
-        state = object->state;
-        state->mode = 3;
-        state->active = 0;
-        node = state->nodes[state->current];
-        choice = node->choice;
-        switch (kind) {
-        case 0:
-            state->resource = choice->resource0;
-            break;
-        case 1:
-            state->resource = choice->resource1;
-            break;
-        case 2:
-            state->resource = choice->resource2;
-            break;
-        case 3:
-            state->resource = choice->resource3;
-            break;
-        }
-        resource = overlay84GetResource(state->resource, choice, object);
-        if (resource != 0) {
-            transform = resource->transform;
-            transform->x = state->x;
-            transform->y = state->y;
-            transform->z = state->z;
-            transform->angle0 = 0x8000 - state->angle;
-            transform->angle2 = -state->tilt;
-            transform->angle4 = 0;
-            overlay84PrepareResource(state->resource);
-            overlay84ReleaseResource(state->resource);
-            resource->flags |= 2;
-        }
+      case 1:
+        state->resource = choice->resource1;
+        break;
+
+      case 2:
+        state->resource = choice->resource2;
+        break;
+
+      case 3:
+        state->resource = choice->resource3;
+        break;
+
     }
+
+    resource = overlay84GetResource(state->resource, choice, object);
+    if (resource != 0)
+    {
+      transform = resource->transform;
+      transform->x = state->x;
+      transform->y = state->y;
+      transform->z = state->z;
+      transform->angle0 = 0x8000 - state->angle;
+      transform->angle2 = -state->tilt;
+      transform->angle4 = 0;
+      overlay84PrepareResource(state->resource);
+      overlay84ReleaseResource(state->resource);
+      resource->flags |= 2;
+    }
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o084/overlay84LoadCurrent/func_overlay_084_F0000C9C_18D117C.s")
-#endif

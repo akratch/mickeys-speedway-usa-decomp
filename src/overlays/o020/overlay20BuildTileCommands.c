@@ -17,6 +17,8 @@ typedef struct Overlay20TileSource {
     void *resource;
 } Overlay20TileSource;
 
+/* This source symbol is a zero-valued carrier. Overlay 20 table-1 record 13
+ * resolves the call at function +0x38 through ORT 206 to func_80034554. */
 extern void func_overlay_020_F0000000_18765D8(Overlay20Command **commands,
                                                void *resource, s32 arg2,
                                                s32 arg3);
@@ -24,10 +26,10 @@ extern void func_overlay_020_F0000000_18765D8(Overlay20Command **commands,
 #define OVERLAY20_SHIFTL(value, shift, width)                              \
     ((u32)(((u32)(value) & ((1U << (width)) - 1)) << (shift)))
 
-/* Source-shape crosswalk: Diddy Kong Racing include/PR/gbi.h:gDma1p and
- * include/f3ddkr.h:gSPPolygon. Mickey's ten-byte vertex records decide the
- * length expression here; the published DKR macros only supply the command
- * construction idiom. */
+/* PROVENANCE: source-shape crosswalk from Diddy Kong Racing
+ * include/PR/gbi.h:gDma1p and include/f3ddkr.h:gSPPolygon. Mickey's ten-byte
+ * vertex records decide the length expression here; the published DKR macros
+ * only supply the command construction idiom. */
 #define OVERLAY20_VERTEX(packet, address, count, lengthFlags)               \
     {                                                                       \
         Overlay20Command *_g = (Overlay20Command *)(packet);                \
@@ -51,27 +53,18 @@ extern void func_overlay_020_F0000000_18765D8(Overlay20Command **commands,
         _g->w1 = (u32)(address);                                            \
     }
 
-/*
- * Plateau (2026-08-28, bounded closeout): the capacity-preserving 13-element
- * body is exact in 130 of 134 aligned instructions; the four residual words
- * are stack-frame constants, with the helper relocation and register/schedule
- * shape exact.  A seven-element diagnostic recovers the retail frame but is
- * not retained without independent capacity proof.  Direct macro pointers and
- * a separate inner index both regress the allocation shape.
- */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 134-instruction, frame -144 shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
-#ifdef NON_MATCHING
+/* Mickey's 0x90-byte frame proves a seven-entry chunk array. Keeping it after
+ * the six preceding scalar/cursor declarations gives the retail sp+0x5C home;
+ * all 134 instruction words and the helper relocation are exact. */
 void overlay20BuildTileCommands(Overlay20Command **commands,
                                 Overlay20TileSource *source, s32 arg2) {
-    s32 chunks[13];
     s32 width;
     s32 remainingRows;
     s32 chunkCount;
     s32 *writeCursor;
     s32 *readCursor;
     s32 textureOffset;
+    s32 chunks[7];
     s32 outputOffset;
     s32 chunkWidth;
     s32 doubledWidth;
@@ -125,6 +118,3 @@ void overlay20BuildTileCommands(Overlay20Command **commands,
         textureOffset += 10;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20BuildTileCommands/func_overlay_020_F00007C4_1876D9C.s")
-#endif

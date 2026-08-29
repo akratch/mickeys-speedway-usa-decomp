@@ -171,6 +171,12 @@ gOverlay3Entries = 0x00000028;
 /* overlay 3: overlay3ResetObjects.c.o */
 overlay3GetObjectsReloc = 0xf0000000;
 
+/* overlay 3: overlay3FindClosestObject.c.o */
+gOverlay3SearchMaxDistance = 0x00000000;
+overlay3ContainsValueReloc = 0xf0000000;
+overlay3DistanceSquaredReloc = 0xf0000000;
+overlay3GetObjectRangeReloc = 0xf0000000;
+
 /* overlay 3: overlay3SelectTarget.c.o */
 gOverlay3Objects = 0x00000000;
 overlay3TouchObjectReloc = 0xf0000000;
@@ -426,6 +432,7 @@ gOverlay14CommandHeader = 0x000000fc;
 /* overlay 14: func_overlay_014_F00009F4_18702CC.c.o */
 D_A4 = 0x000000a4;
 D_B4 = 0x000000b4;
+gOverlay14State = 0x00000000;
 
 /* overlay 14: overlay14ResetFlags.c.o */
 gOverlay14FlagC4 = 0x000000c4;
@@ -487,7 +494,38 @@ overlay16ReleaseReloc = 0xf0000000;
 overlay17ReleaseReloc = 0xf0000000;
 
 /* overlay 18: overlay18Load.c.o */
-D_80 = 0x00000080;
+gOverlay18DisplayCursor = 0x00000000;
+gOverlay18DisplayFlag = 0x00000000;
+gOverlay18DisplaySource = 0x00000000;
+gOverlay18ExternalData = 0x00000000;
+gOverlay18LocalData80 = 0x00000080;
+gOverlay18PrefixHandle = 0x00000000;
+gOverlay18SetupPointer = 0x00000000;
+overlay10InitializeReloc = 0xf0000000;
+overlay18BindDataReloc = 0xf0000000;
+overlay18CommonReloc = 0xf0000000;
+overlay18CreatePrefixHandleReloc = 0xf0000000;
+overlay18Role02Reloc = 0xf0000000;
+overlay18Role03Reloc = 0xf0000000;
+overlay18Role05Reloc = 0xf0000000;
+overlay18Role06Reloc = 0xf0000000;
+overlay18Role08Reloc = 0xf0000000;
+overlay18Role09Reloc = 0xf0000000;
+overlay18Role10Reloc = 0xf0000000;
+overlay18Role11Reloc = 0xf0000000;
+overlay18Role12Reloc = 0xf0000000;
+overlay18Role13Reloc = 0xf0000000;
+overlay18Role14Reloc = 0xf0000000;
+overlay18Role15Reloc = 0xf0000000;
+overlay18Role16Reloc = 0xf0000000;
+overlay18Role17Reloc = 0xf0000000;
+overlay18Role18Reloc = 0xf0000000;
+overlay18Role19Reloc = 0xf0000000;
+overlay18Role20Reloc = 0xf0000000;
+overlay18SelectPhaseReloc = 0xf0000000;
+overlay18SetupWithPointerReloc = 0xf0000000;
+overlay30InitializeReloc = 0xf0000000;
+overlay31PrepareReloc = 0xf0000000;
 
 /* overlay 18: overlay18Initialize.c.o */
 gOverlay18Handle = 0x00000000;
@@ -558,6 +596,9 @@ overlay20ReleaseReloc = 0xf0000000;
 
 /* overlay 20: overlay20DrawResource.c.o */
 overlay20DrawResourceReloc = 0xf0000000;
+
+/* overlay 20: overlay20ConfigureEntry.c.o */
+D_80 = 0x00000080;
 
 /* overlay 20: overlay20CreateEntry.c.o */
 gOverlay20Scale = 0x00000028;
@@ -1843,11 +1884,13 @@ overlay68TrailEventReloc = 0xf0000000;
 /* overlay 68: overlay68StartTimer.c.o */
 gOverlay68TimerEntry = 0x00000000;
 
+/* overlay 68: overlay68PromoteSecondary.c.o */
+gOverlay68Tertiary = 0x00000000;
+overlay68ClearNestedFlagPromoteReloc = 0xf0000000;
+overlay68FinishEntryPromoteReloc = 0xf0000000;
+
 /* overlay 68: overlay68InitializeObject.c.o */
 overlay68ConfigureReloc = 0xf0000000;
-
-/* overlay 68: overlay68ReleaseTertiary.c.o */
-gOverlay68Tertiary = 0x00000000;
 
 /* overlay 71: func_overlay_071_F0000000_18C9B20.c.o */
 gOverlay71Scale0 = 0x00000000;
@@ -2000,10 +2043,18 @@ overlay84ConfigureResource = 0xf0000000;
 overlay84GetResource = 0xf0000000;
 overlay84ReleaseResource = 0xf0000000;
 
+/* overlay 84: overlay84LoadCurrent.c.o */
+overlay84PrepareResource = 0xf0000000;
+
 /* overlay 84: overlay84AdvanceCurrent.c.o */
 gOverlay84ObjectRead = 0x00000000;
 gOverlay84ObjectWrite = 0x00000000;
 overlay84Atan2 = 0xf0000000;
+
+/* overlay 84: overlay84ActivateCurrent.c.o */
+overlay84LookupReloc = 0xf0000000;
+overlay84PrepareReloc = 0xf0000000;
+overlay84ReleaseReloc = 0xf0000000;
 
 /* overlay 84: overlay84InitializeCurrent.c.o */
 gOverlay84CurrentObject = 0x00000000;
@@ -2132,6 +2183,12 @@ gOverlay99Entries = 0x00000000;
 
 /* overlay 99: overlay99ReleaseEntries.c.o */
 overlay99ReleaseReloc = 0xf0000000;
+
+/* overlay 99: overlay99InitializeEntries.c.o */
+gOverlay99Storage = 0x00000000;
+overlay99CommitEntriesReloc = 0xf0000000;
+overlay99PrepareEntriesReloc = 0xf0000000;
+overlay99SpawnEntryReloc = 0xf0000000;
 
 /* overlay 99: overlay99ProjectVector.c.o */
 overlay99SqrtReloc = 0xf0000000;

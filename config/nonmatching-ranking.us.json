@@ -1,22 +1,10 @@
 {
-  "queue_size": 412,
-  "resolved": 412,
+  "queue_size": 404,
+  "resolved": 404,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
   "functions": [
-    {
-      "name": "overlay3FindClosestObject",
-      "file": "src/overlays/o003/overlay3FindClosestObject.c",
-      "overlay": 3,
-      "tu": "overlays/o003",
-      "size_bytes": 308,
-      "objdiff_match_pct": null,
-      "differing_words": 4,
-      "first_mismatch_offset": 64,
-      "size_delta": 0,
-      "category": "register-only"
-    },
     {
       "name": "func_8003A2C8",
       "file": "src/main/menu.c",
@@ -38,18 +26,6 @@
       "objdiff_match_pct": null,
       "differing_words": 8,
       "first_mismatch_offset": 176,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
-      "name": "func_overlay_014_F00009F4_18702CC",
-      "file": "src/overlays/o014/func_overlay_014_F00009F4_18702CC.c",
-      "overlay": 14,
-      "tu": "overlays/o014",
-      "size_bytes": 216,
-      "objdiff_match_pct": null,
-      "differing_words": 10,
-      "first_mismatch_offset": 116,
       "size_delta": 0,
       "category": "register-only"
     },
@@ -234,18 +210,6 @@
       "category": "register-only"
     },
     {
-      "name": "overlay18Load",
-      "file": "src/overlays/o018/overlay18Load.c",
-      "overlay": 18,
-      "tu": "overlays/o018",
-      "size_bytes": 500,
-      "objdiff_match_pct": null,
-      "differing_words": 2,
-      "first_mismatch_offset": 440,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
       "name": "overlay7DispatchModes",
       "file": "src/overlays/o007/overlay_007_tail.c",
       "overlay": 7,
@@ -266,18 +230,6 @@
       "objdiff_match_pct": null,
       "differing_words": 3,
       "first_mismatch_offset": 36,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "overlay84LoadCurrent",
-      "file": "src/overlays/o084/overlay84LoadCurrent.c",
-      "overlay": 84,
-      "tu": "overlays/o084",
-      "size_bytes": 288,
-      "objdiff_match_pct": null,
-      "differing_words": 4,
-      "first_mismatch_offset": 152,
       "size_delta": 0,
       "category": "other"
     },
@@ -342,18 +294,6 @@
       "category": "other"
     },
     {
-      "name": "overlay20BuildTileCommands",
-      "file": "src/overlays/o020/overlay20BuildTileCommands.c",
-      "overlay": 20,
-      "tu": "overlays/o020",
-      "size_bytes": 536,
-      "objdiff_match_pct": null,
-      "differing_words": 6,
-      "first_mismatch_offset": 0,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
       "name": "func_overlay_041_F0001650_1888988",
       "file": "src/overlays/o041/overlay41AddSlot.c",
       "overlay": 41,
@@ -362,18 +302,6 @@
       "objdiff_match_pct": null,
       "differing_words": 6,
       "first_mismatch_offset": 16,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "overlay68PromoteSecondary",
-      "file": "src/overlays/o068/overlay68PromoteSecondary.c",
-      "overlay": 68,
-      "tu": "overlays/o068",
-      "size_bytes": 308,
-      "objdiff_match_pct": null,
-      "differing_words": 6,
-      "first_mismatch_offset": 8,
       "size_delta": 0,
       "category": "other"
     },
@@ -482,30 +410,6 @@
       "objdiff_match_pct": null,
       "differing_words": 9,
       "first_mismatch_offset": 76,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "overlay84ActivateCurrent",
-      "file": "src/overlays/o084/overlay84ActivateCurrent.c",
-      "overlay": 84,
-      "tu": "overlays/o084",
-      "size_bytes": 404,
-      "objdiff_match_pct": null,
-      "differing_words": 9,
-      "first_mismatch_offset": 8,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "overlay99InitializeEntries",
-      "file": "src/overlays/o099/overlay99InitializeEntries.c",
-      "overlay": 99,
-      "tu": "overlays/o099",
-      "size_bytes": 440,
-      "objdiff_match_pct": null,
-      "differing_words": 9,
-      "first_mismatch_offset": 112,
       "size_delta": 0,
       "category": "other"
     },

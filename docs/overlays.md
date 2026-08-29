@@ -1581,7 +1581,7 @@ Overlay 44's `overlay44UpdateFrameCache` — 748 bytes / 187 words, offset `0x02
 
 Overlay 83's `overlay83BuildBatch` adds **672 exact C bytes / 168 words** starting at offset `0x053C`, ending at `0x07DC`. It allocates a batch, scales source records, transforms world coordinates, and conditionally creates linked children, with the natural runtime relocation set intact.
 
-Overlay 3's `overlay3FindClosestObject` — 308 bytes / 77 words, offset `0x027C..0x03B0`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a four-use temporary-allocation web reassignment); source kept as decomp-permuter input. The r5 baseline retains four register-only words from `+0x40` (`a0` target versus `v1` candidate); an index-centric entry spelling was inert. The normal permuter importer cannot join this overlay's C name to its address-derived ASM label, so it produced no new candidate. Its typed scan rejects ineligible and already-related objects, orders candidates by the resident six-float distance helper, and returns the closest eligible object; the operation stream, CFG, frame, and five relocation sites are otherwise natural.
+Overlay 3's `overlay3FindClosestObject` contributes **308 exact C bytes / 77 words** at `+0x027C..+0x03B0`. A bounded permutation reproduces the exact `0x78` frame, instruction stream, relocation surface, linked owned range, and full ROM. The retained inert allocation blocks are documented in the source for later readability cleanup without weakening the exact claim.
 
 Epoch 12 reaches **17,148 / 45,775 bytes (37.46%)**, overlay C reaches **118,400 / 469,264 (25.23%)**, resolved text reaches **161,440 / 950,332 (16.99%)**, and the closure gate remains **5 / 8**.
 
@@ -1807,7 +1807,7 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 
 `overlay 41 +0x1C84..+0x1DE0` (`overlay41DrawItem`) contributes **348 naturally exact bytes / 87 words**. Ordinary `-O2 -mips2 -32` codegen is exact; only the independent trailing alignment word is trimmed. The object retains all 14 runtime relocation roles. The checkpoint becomes **75,680 / 45,775 campaign bytes (165.33%)**, **176,932 / 469,264 Overlay C (37.70%)**, and **219,972 / 950,332 resolved text (23.15%)**.
 
-`overlay 99 +0x0064..+0x021C` (`overlay99InitializeEntries`) — 440 bytes / 110 words. NON_MATCHING: bounded 2026-08-28 workbench closeout retained the source after eight source-faithful descriptor, reserved-stack, declaration-order, narrow-storage, and lexical-lifetime probes; every candidate stayed exact-sized with the exact `0x70` frame and opcode/register/FP schedule, while nine stack-home words remained different from the retail descriptor home, first at `+0x70` (`sp+0x58` versus `sp+0x54`). The object retains all 7 runtime relocation roles, including both local storage pairs and the exact `+0x90` addend; no stock ugen/uopt stack-home trace was available for a further target-backed probe. The checkpoint becomes **76,120 / 45,775 campaign bytes (166.29%)**, **177,372 / 469,264 Overlay C (37.80%)**, and **220,412 / 950,332 resolved text (23.19%)**.
+`overlay 99 +0x0064..+0x021C` (`overlay99InitializeEntries`) contributes **440 exact C bytes / 110 words**. Declaring the address-taken descriptor after the entry cursor reproduces the retail `sp+0x54` home and exact `0x70` frame. The configured object, all seven runtime relocation roles, linked owned range, overlay, and full ROM are exact.
 
 `overlay 11 +0x0AF4..+0x0C88` (`overlay11InitializeFour`) contributes **404 naturally exact bytes / 101 words**. Ordinary `-O2 -mips2 -32` codegen is exact; only independent section alignment is trimmed, and the link resolves three proved local addends. The object retains all 22 runtime relocation roles. The checkpoint becomes **76,524 / 45,775 campaign bytes (167.17%)**, **177,776 / 469,264 Overlay C (37.88%)**, and **220,816 / 950,332 resolved text (23.24%)**.
 
@@ -1866,7 +1866,7 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 |---:|---|---|---:|---|---|
 | 35 | `+0x000..+0x1E0` | `func_overlay_035_F0000000_1881CE0` | 480 | canonical object and linked ROM exact | Mickey-only |
 
-`overlay 20 +0x07C4..+0x09DC` (`overlay20BuildTileCommands`) — 536 bytes / 134 words. NON_MATCHING: bounded 2026-08-28 closeout retained the capacity-preserving 13-element source after direct macro-pointer, doubled-width, and inner-index probes. The best candidate matches 130/134 aligned instructions with the exact register and schedule profiles and one exact helper relocation; the four residual words are stack-frame constants (`0x90` target versus `0xA8` candidate), first at `+0x0`. A seven-element diagnostic recovered the retail frame but is not retained without independent capacity proof. No C credit is claimed.
+`overlay 20 +0x07C4..+0x09DC` (`overlay20BuildTileCommands`) contributes **536 exact C bytes / 134 words**. Mickey's `0x90` frame proves the seven-entry chunk array; its declaration order reproduces the retail stack home. The configured object, helper relocation, linked owned range, overlay, and full ROM are exact.
 `overlay 34 +0x02C8..+0x0378` (`overlay34RemoveRecord`) — 176 bytes / 44 words. NON_MATCHING: bounded 2026-08-28 closeout retained the size-exact source after indexed-compaction, pointer-cursor, separated-count, and scoped-call probes. The best candidate matches 32/44 words with the first schedule/register residual at `+0x14`; it preserves one helper relocation and two repeated active-count HI16/LO16 pairs, while the target encodes its pointer load without relocation. Removing those source pointer relocations is prohibited, so no C credit is claimed.
 
 `overlay 2 +0x0B70..+0x0C90` (`overlay2SplitRegion`) contributes **288 exact C
@@ -1878,3 +1878,17 @@ The exact `0x30` frame and all nine runtime relocation tuples and identities
 agree: local data at `+0x4/+0x24`, calls to `+0/+0x6E0/+0x49C` twice, and the
 recursive `+0xB70` call. The linked owned range, complete overlay, and full ROM
 are byte-identical.
+
+### Exact public backlog mirrors
+
+The following previously proven owners were independently rebuilt in this
+tree. Each configured object, linked owned range, complete overlay, and full
+ROM is byte-identical to the US target:
+
+| Overlay | Range | Function | Exact bytes | Object evidence |
+|---:|---|---|---:|---|
+| 14 | `+0x09F4..+0x0ACC` | `func_overlay_014_F00009F4_18702CC` | 216 | 54 words; exact runtime relocation surface |
+| 18 | `+0x0000..+0x01F4` | `overlay18Load` | 500 | 125 words; the runtime identity resolves the 64-bit `osSetTime` argument ABI |
+| 68 | `+0x051C..+0x0650` | `overlay68PromoteSecondary` | 308 | 77 words; `0x30` frame; nine relocation sites |
+| 84 | `+0x0C9C..+0x0DBC` | `overlay84LoadCurrent` | 288 | 72 words; `0x28` frame; five relocation sites |
+| 84 | `+0x1060..+0x11F4` | `overlay84ActivateCurrent` | 404 | 101 words; `0x30` frame; five relocation sites |

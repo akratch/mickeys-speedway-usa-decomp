@@ -78,51 +78,39 @@ extern Overlay84Resource *overlay84LookupReloc(u8 resource);
 extern void overlay84PrepareReloc(u8 resource);
 extern void overlay84ReleaseReloc(u8 resource);
 
-/* NON_MATCHING plateau (reconfirmed 2026-08-28): the nearest skeleton score is
- * 0.051 and all 119 flag combinations miss. The exact-size candidate differs
- * in nine of 101 words, first at +0x8: retail keeps the selected resource as a
- * full word in a2, uses a 0x30 frame, and spills it at sp+0x30, while natural
- * C truncates the u8 at entry, uses a 0x40 frame, and spills a byte at sp+0x27.
- * Fresh workbench diagnosis found identical register lanes and only the
- * selector width plus three shifted homes. Word-valued, initialized, and split
- * post-call lifetimes converge on a 0x50 frame and 69-word residual; block
- * scope reaches 72 words, and a masked lookup overgrows the owned range. */
-#ifdef NON_MATCHING
+/* Reusing the word-sized selector parameter preserves the retail register
+ * lifetime and stack frame while the selected byte is stored in state. */
 void overlay84ActivateCurrent(s32 kind) {
-    Overlay84Object *object;
     Overlay84State *state;
     Overlay84Node *node;
     Overlay84Choice *choice;
     Overlay84Resource *resource;
     Overlay84ResourceRecord *record;
-    u8 selected;
     s16 tilt;
     f32 height;
 
-    selected = kind;
-    object = gOverlay84Object;
-    if (object != NULL) {
-        state = object->state;
+    if (gOverlay84Object != NULL) {
+        state = gOverlay84Object->state;
         node = state->nodes[state->current];
         state->active = 0;
         choice = node->choice;
 
         switch (kind) {
         case 0:
-            selected = choice->resource0;
+            kind = choice->resource0;
             break;
         case 1:
-            selected = choice->resource1;
+            kind = choice->resource1;
             break;
         case 2:
-            selected = choice->resource2;
+            kind = choice->resource2;
             break;
         case 3:
-            selected = choice->resource3;
+            kind = choice->resource3;
             break;
         }
 
-        resource = overlay84LookupReloc(selected);
+        resource = overlay84LookupReloc(kind);
         if (resource != NULL) {
             record = &resource->records[resource->recordIndex - 1];
             record->x = node->x;
@@ -132,7 +120,7 @@ void overlay84ActivateCurrent(s32 kind) {
             record->tilt = node->tilt;
             record->roll = node->roll;
 
-            state->selectedResource = selected;
+            state->selectedResource = kind;
             state->phase = 0;
             state->timer = 20;
             state->scale = 1.0f;
@@ -148,13 +136,10 @@ void overlay84ActivateCurrent(s32 kind) {
             state->y = node->y;
             state->z = node->z;
 
-            overlay84PrepareReloc(selected);
+            overlay84PrepareReloc(state->selectedResource);
             overlay84ReleaseReloc(state->selectedResource);
             resource->flags |= 2;
         }
         state->mode = 1;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o084/overlay84ActivateCurrent/func_overlay_084_F0001060_18D1540.s")
-#endif

@@ -1,4 +1,4 @@
-#include "PR/ultratypes.h"
+#include "PR/os_internal.h"
 
 typedef struct Overlay18Gfx {
     u32 w0;
@@ -29,7 +29,8 @@ extern void overlay18Role15Reloc(void);
 extern void overlay18Role16Reloc(void);
 extern void overlay18Role17Reloc(void);
 extern void overlay18InitializeBuffers(void);
-extern void overlay18Role18Reloc(s32, s32);
+/* Runtime relocation metadata resolves this role to osSetTime(OSTime). */
+extern void overlay18Role18Reloc(OSTime);
 extern void overlay18Role19Reloc(u32);
 extern void overlay18Role20Reloc(void);
 
@@ -42,17 +43,10 @@ extern Overlay18Gfx *gOverlay18DisplaySource[];
 extern Overlay18Gfx *gOverlay18DisplayCursor;
 
 /*
- * Pinned DKR v77/v80 and JFG searches found no exact donor.
- * Plateau (2026-08-25 rerun, 10 source attempts plus the bounded permuter):
- * -O2 has exact 0x1F4 extent; best differs in 2 of 125 masked positional words,
- * first +0x1B8. The remaining pair only materializes zero call arguments with
- * move instead of addiu; prototype, signedness, literal, and expression probes
- * plus the full flag lattice did not change them.
+ * Pinned DKR v77/v80 and JFG searches found no exact donor. The module's own
+ * relocation table identifies overlay18Role18Reloc as resident osSetTime;
+ * its OSTime-width argument accounts for the retail a0/a1 zero pair.
  */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 125-instruction, frame -24 shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
-#ifdef NON_MATCHING
 void overlay18Load(void) {
     Overlay18Gfx *newDisplay;
     Overlay18Gfx *display;
@@ -113,10 +107,7 @@ void overlay18Load(void) {
     display->w1 = 0;
     display->w0 = 0xB8000000;
 
-    overlay18Role18Reloc(0, 0);
+    overlay18Role18Reloc(0);
     overlay18Role19Reloc(0xD43E);
     overlay18Role20Reloc();
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o018/overlay18Load/func_overlay_018_F0000000_18745B8.s")
-#endif

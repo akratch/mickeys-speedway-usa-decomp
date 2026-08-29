@@ -50,19 +50,14 @@ extern Overlay99Object *overlay99SpawnEntryReloc(
     Overlay99SpawnDescriptor *descriptor, s32 one);
 extern void overlay99CommitEntriesReloc(void);
 
-/* Bounded workbench closeout (2026-08-28): the untouched C candidate is
- * exact-sized at 110 words with the exact 0x70 frame, opcode/register/FP
- * schedule, and seven runtime relocation roles. Its nine differing words,
- * first at +0x70, are the address-taken descriptor's stack home (+0x58 from
- * sp instead of retail's +0x54). Eight source-faithful declaration, storage,
- * and lexical-lifetime variants preserved that basin; no captured ugen/uopt
- * stack-home trace is available in the stock toolchain. */
-#ifdef NON_MATCHING
+/* Declaring the address-taken descriptor after the entry cursor gives it the
+ * retail sp+0x54 home. The resulting 110 words and all seven linked runtime
+ * relocation roles are exact. */
 void overlay99InitializeEntries(s32 count, Overlay99Entry *source,
                                        f32 x, f32 y) {
     u16 reservedStack[3];
-    Overlay99SpawnDescriptor descriptor;
     Overlay99Entry *entry;
+    Overlay99SpawnDescriptor descriptor;
     s32 created;
     s32 i;
 
@@ -111,6 +106,3 @@ void overlay99InitializeEntries(s32 count, Overlay99Entry *source,
         overlay99CommitEntriesReloc();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/overlay99InitializeEntries/func_overlay_099_F0000064_18D9614.s")
-#endif

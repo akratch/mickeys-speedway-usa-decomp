@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 112932,
-  "nonmatching_overlay_c_bytes": 310932,
+  "matched_overlay_c_bytes": 115932,
+  "nonmatching_overlay_c_bytes": 307932,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 1904,
   "bss_bytes": 77680,
@@ -1668,7 +1668,7 @@
      "type": "c",
      "source": "overlays/o003/overlay3FindClosestObject",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x3B0",
@@ -3895,7 +3895,7 @@
      "type": "c",
      "source": "overlays/o014/func_overlay_014_F00009F4_18702CC",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0xACC",
@@ -4709,7 +4709,7 @@
      "type": "c",
      "source": "overlays/o018/overlay18Load",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x1F4",
@@ -5049,7 +5049,7 @@
      "type": "c",
      "source": "overlays/o020/overlay20BuildTileCommands",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x9DC",
@@ -13606,7 +13606,7 @@
      "type": "c",
      "source": "overlays/o068/overlay68PromoteSecondary",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x650",
@@ -16082,7 +16082,7 @@
      "type": "c",
      "source": "overlays/o084/overlay84LoadCurrent",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0xDBC",
@@ -16145,7 +16145,7 @@
      "type": "c",
      "source": "overlays/o084/overlay84ActivateCurrent",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x11F4",
@@ -18465,7 +18465,7 @@
      "type": "c",
      "source": "overlays/o099/overlay99InitializeEntries",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x21C",
