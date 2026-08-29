@@ -115,14 +115,14 @@ in [`sched.c`](../src/main/sched.c),
 [`runlink.c`](../src/main/runlink.c), and [`menu.c`](../src/main/menu.c).
 Treat these as source references, not matching implementations.
 
-Seven more Mickey functions have become exact C since this guide was first
+Eight more Mickey functions have become exact C since this guide was first
 published, while their JFG counterparts still use `GLOBAL_ASM` at `fd910f6b`.
 They implement the same broad jobs, but their sizes or instruction streams
 differ, so they do not change the 33-function / 9,648-byte exact-cross-title
 tally.
 
 The “JFG insertion point” links go directly to the unresolved pragma that the
-Mickey source can help replace. These seven are source references rather than
+Mickey source can help replace. These eight are source references rather than
 drop-in matches: copy the algorithm into that JFG location, translate the
 listed engine types and globals, and prove it against JFG's own function bytes
 and relocations.
@@ -136,6 +136,28 @@ and relocations.
 | [`src/hit.c`: `hitInitObjectHit`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/hit.c#L13) | [`func_80053550`](../src/main/anim.c#L1001) | Use the object-hit allocation and complete field-initialization order. Reconcile JFG's hit-owner, rotation, radius/height, collision-type, and flag fields. |
 | [`src/charControl.c`: `func_8002ED94_2F994`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/charControl.c#L45) | [`func_8001BE0C`](../src/main/charControl.c#L190) | Use the character/player and camera-state initialization block. Confirm every JFG actor, player, and camera offset before adopting the stores. |
 | [`src/runLink.c`: `runlinkEnsureJumpIsValid`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/runLink.c#L545) | [`func_800320F0`](../src/main/runlink.c#L565) | Use the relocation scan, jump validation, and lazy-overlay-load flow. Map JFG's overlay table, module identifiers, relocation records, and jump-address type; this is the most directly relevant overlay-system reference. |
+| [`src/overlays/o26/overlay_26.c`: `partSetupLib`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/overlays/o26/overlay_26.c#L9) and the [kiosk counterpart](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/overlays_kiosk/o26/overlay_26.c#L9) | [`overlay31InitializeBuffers`](../src/overlays/o031/overlay31InitializeBuffers.c#L44) | Use this in JFG's particle-library setup path: capacity defaults, vertex-buffer sizing, four renderer configurations, point/line pools, typed dummy-asset loading, and effect-record initialization. **Evidence: strong structural lead.** Mickey's 245-word C is compiler- and ROM-exact; JFG's 259-word `partSetupLib` has the same `0x48` frame and is the uniquely close JFG function by masked four-instruction shape (0.415 similarity; the next candidate is 0.061). **Limits:** this is not cross-title exact. JFG has a 56-byte-longer body, different tail initialization, and project-specific globals, callees, and record layouts. Port it phase by phase into overlay 26 and verify JFG's own relocations and ROM. |
+
+### Latest-pass exclusions
+
+The same 29 August audit did not find another release-grade JFG source lead:
+
+- `overlay43FilterImage` has a strong structural counterpart in JFG overlay 4
+  (`func_overlay_4_000015A8_1EF7898`, 0.574 masked-shape similarity), and
+  Mickey's `func_8003A2C8` has the expected front-end role beside JFG's
+  `frontSetScreenMode`. Both Mickey bodies still remain guarded
+  `NON_MATCHING` plateaus, however, so this guide does not recommend either as
+  contribution source yet.
+- `overlay97InitScale`, `overlay34InitStorage`, and `overlay40FadeRecords` have
+  no qualified JFG counterpart. Their best masked-shape scores are 0.090,
+  0.065, and 0.054 respectively, with no corroborating subsystem or call-role
+  evidence.
+- The new exact C for `overlay41AdvanceStepRecords`, `overlay80UpdateContact`,
+  `overlay21ApplyPriorities`, and
+  `func_overlay_061_F0001648_18C0A10` also has no concrete JFG integration
+  point. Their best JFG scores range from 0.052 to 0.113 and the pinned exact
+  donor scan is negative. Those values are treated as generic instruction
+  overlap, not reusable code evidence.
 
 JFG has since implemented `runlinkFlushModules`, so it is no longer included
 among the open source-reference targets above.
