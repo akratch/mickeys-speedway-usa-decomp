@@ -631,7 +631,7 @@ segments:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
       #      covered 35 functions and forty-four tables. After devmgr's table
-      #      moved into C objects, the 17 jump tables still emitted in asm/
+      #      moved into C objects, the 19 jump tables still emitted in asm/
       #      remain monotonically increasing in text and table address -- ZERO
       #      INVERSIONS. They run from jtbl_80080D2C through jtbl_800841F4, so
       #      .rodata can continue to be carved TU by TU in text order.

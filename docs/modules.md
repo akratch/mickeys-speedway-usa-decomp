@@ -721,7 +721,7 @@ Where the boundary comes from:
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
 - **rodata order follows text order exactly.** The pre-carve inventory held
-  forty-four jump tables. The 17 tables still emitted in `asm/`, from
+  forty-four jump tables. The 19 tables still emitted in `asm/`, from
   `jtbl_80080D2C` through `jtbl_800841F4`, remain monotonic in text and rodata
   order with **zero inversions**. The other 27 are now owned by C, including
   five in `n_csplayer`, one in `n_reverb`, one in `main/font`, and the table
