@@ -900,16 +900,13 @@ to the US baserom with SHA1
 ### 5.15 Epoch 11 execution checkpoint
 
 Epoch 11 opens with three exact bodies. Overlay 21's remaining plane-side
-priority routine at `+0x10C..+0x2D4` — 456 bytes / 114 words. NON_MATCHING:
-retired 2026-08-24 per ADR 0002 (was made to match via a ten-word caller-saved
-register reassignment, the overlay-local object count moved from `v1` to the
-shipped `a0` across three reload/branch groups); source kept as decomp-permuter
-input. Pinned DKR v77/v80 and JFG scans are exact-negative for the body; the
-measured `-Wab,-r4300_mul` flag reproduces its FP schedule, and natural IDO
-output otherwise agreed at 104 of 114 words. The following `+0x2D4..+0x2E0` is
-12 bytes of alignment padding and receives no C credit. Together with the
-existing registration routine this had supplied **1 / 8** Epoch 11 closures
-under the retired scheme.
+priority routine at `+0x10C..+0x2D4` contributes **456 bytes / 114 words**.
+The measured `-Wab,-r4300_mul` flag reproduces its FP schedule, while a
+redundant comparison temporary preserves IDO's shipped caller-saved allocation.
+The resulting object has the exact 0x28-byte frame, all nine relocation records,
+the linked overlay bytes, and the whole-ROM hash. Pinned DKR v77/v80 and JFG
+scans remain exact-negative for the body. The following `+0x2D4..+0x2E0` is 12
+bytes of alignment padding and receives no C credit.
 
 Overlay 30's initializer at `+0x000..+0x2B4` contributes **692 bytes**. Its
 natural source reproduces all 173 words and all 61 resident/local relocation

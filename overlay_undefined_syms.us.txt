@@ -576,6 +576,9 @@ gOverlay21Objects = 0x00000004;
 overlay21CosReloc = 0xf0000000;
 overlay21SinReloc = 0xf0000000;
 
+/* overlay 21: overlay21ApplyPriorities.c.o */
+overlay21GetReferenceReloc = 0xf0000000;
+
 /* overlay 22: overlay22InitializeObject.c.o */
 D_A7C = 0x00000a7c;
 

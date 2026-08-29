@@ -2038,8 +2038,7 @@
       "size": 456,
       "source": "src/overlays/o021/overlay21ApplyPriorities.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
