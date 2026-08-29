@@ -21,11 +21,13 @@ offset)`` throughout the atlas; the synthetic VMA is never reported as if it
 were a loaded address.
 
 Usage:
-    tools/overlay_atlas.py                 # concise summary
-    tools/overlay_atlas.py --write         # refresh manifest and YAML block
-    tools/overlay_atlas.py --check         # fail if either artifact is stale
-    tools/overlay_atlas.py --overlay 61    # one detailed module row
-    tools/overlay_atlas.py --relocations 61  # decoded records for one module
+    python3 tools/overlay_atlas.py                 # concise summary
+    python3 tools/overlay_atlas.py --write         # refresh manifest and YAML block
+    python3 tools/overlay_atlas.py --check         # fail if either artifact is stale
+    python3 tools/overlay_atlas.py --delta HEAD^    # ref versus worktree
+    python3 tools/overlay_atlas.py --delta A B --format json
+    python3 tools/overlay_atlas.py --overlay 61    # one detailed module row
+    python3 tools/overlay_atlas.py --relocations 61  # one module's records
 """
 
 import argparse
@@ -34,6 +36,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -59,6 +62,7 @@ def is_nonmatching_source(overlay, source_name):
         return bool(NON_MATCHING_RE.search(fh.read()))
 DEFAULT_MANIFEST = REPO / "config" / "overlays.us.json"
 DEFAULT_YAML = REPO / "mickey.us.yaml"
+MANIFEST_REPO_PATH = "config/overlays.us.json"
 
 YAML_BEGIN = "  # BEGIN GENERATED OVERLAY SEGMENTS -- tools/overlay_atlas.py"
 YAML_END = "  # END GENERATED OVERLAY SEGMENTS -- tools/overlay_atlas.py"
@@ -104,6 +108,31 @@ DATA_RODATA_OWNERSHIP = {
     42: [(0x0, 0x10, "overlay_042")],
     77: [(0x0, 0x30, "overlay_077")],
     79: [(0x0, 0x60, "func_overlay_079_F0000134_18CD0D4")],
+}
+
+# Reviewed initialized subranges emitted by a C owner's non-.data section.
+# Offsets are relative to the module's combined initialized data range.  Unlike
+# DATA_RODATA_OWNERSHIP, these ranges may be interior to the raw range; the
+# YAML projection therefore emits the raw fragments on either side and a
+# typed subsegment for the owning TU.  The four-byte subalignment below is
+# required for IDO's literal-pool and jump-table placement.
+FIXED_DATA_RODATA_OWNERSHIP = {
+    1: [(0x274, 0x294, "overlay_001_tail", ".rodata")],
+    7: [(0x934, 0x950, "overlay_007_tail", ".rodata")],
+    8: [(0x27C, 0x2AC, "overlay_008", ".rodata")],
+    9: [(0x390, 0x3E0, "overlay_009", ".rodata")],
+    14: [
+        (0x158, 0x174, "overlay14LoadRelocatedValue", ".rodata"),
+        (0x174, 0x190, "func_overlay_014_F0001830_1871108", ".rodata"),
+    ],
+    25: [(0x20, 0x40, "overlay_025", ".rodata")],
+    41: [
+        (0x0, 0x3C, "overlay41SampleCurve", ".rodata"),
+        (0x3C, 0x54, "overlay41UpdateCurveObject", ".rodata"),
+    ],
+    46: [(0x364, 0x378, "overlay46UpdateSequence", ".rodata")],
+    59: [(0x76C, 0x78C, "overlay59Advance", ".rodata")],
+    86: [(0x80, 0xA0, "func_overlay_086_F0000474_18D22AC", ".rodata")],
 }
 
 # When a C owner's initialized input follows its text, IDO's measured .text
@@ -1240,8 +1269,295 @@ def range_row(start, end):
     return {"start": hx(start), "end": hx(end), "size": hx(end - start)}
 
 
+class AtlasDeltaError(ValueError):
+    """An atlas state cannot be compared without guessing at ownership."""
+
+
+def _atlas_int(value, field, state):
+    if isinstance(value, bool):
+        raise AtlasDeltaError(f"{state}: {field} is not an integer")
+    try:
+        if isinstance(value, str):
+            parsed = int(value, 0)
+        elif isinstance(value, int):
+            parsed = value
+        else:
+            raise TypeError
+    except (TypeError, ValueError) as exc:
+        raise AtlasDeltaError(f"{state}: invalid {field} {value!r}") from exc
+    if parsed < 0:
+        raise AtlasDeltaError(f"{state}: negative {field} {value!r}")
+    return parsed
+
+
+def _exact_c_row(overlay, row, state, mixed=False):
+    try:
+        start = _atlas_int(row["offset"], "offset", state)
+        end = _atlas_int(row["end_offset"], "end_offset", state)
+        size = _atlas_int(row["size"], "size", state)
+    except KeyError as exc:
+        raise AtlasDeltaError(
+            f"{state}: overlay {overlay} exact-C row lacks {exc.args[0]}"
+        ) from exc
+    if start >= end or size != end - start:
+        raise AtlasDeltaError(
+            f"{state}: overlay {overlay} exact-C range {hx(start)}..{hx(end)} "
+            f"has inconsistent size {hx(size)}"
+        )
+    source = row.get("source")
+    if not isinstance(source, str) or not source:
+        raise AtlasDeltaError(
+            f"{state}: overlay {overlay} exact-C range at {hx(start)} "
+            "has no source"
+        )
+    label = row.get("label") if mixed else source.rsplit("/", 1)[-1]
+    if not isinstance(label, str) or not label:
+        raise AtlasDeltaError(
+            f"{state}: overlay {overlay} exact-C range at {hx(start)} "
+            "has no label"
+        )
+    return {
+        "key": f"overlay:{overlay}:text:{hx(start)}",
+        "overlay": overlay,
+        "section": "text",
+        "offset": start,
+        "end_offset": end,
+        "size": size,
+        "label": label,
+        "source": source,
+        "kind": "mixed_tu_range" if mixed else "ownership_row",
+    }
+
+
+def exact_c_index(atlas, state="atlas"):
+    """Return exact C ranges keyed by canonical overlay/text offset.
+
+    Release deltas must not infer identity from a synthetic VMA, source name,
+    or row order. Duplicate modules, duplicate starts, overlapping exact-C
+    ranges, inconsistent extents, and a total that disagrees with the atlas
+    all fail closed.
+    """
+    modules = atlas.get("modules")
+    if not isinstance(modules, list):
+        raise AtlasDeltaError(f"{state}: modules is not a list")
+    index = {}
+    seen_overlays = set()
+    by_overlay = collections.defaultdict(list)
+    for module in modules:
+        if not isinstance(module, dict) or "overlay" not in module:
+            raise AtlasDeltaError(f"{state}: malformed module row")
+        overlay = _atlas_int(module["overlay"], "overlay", state)
+        if not 1 <= overlay <= overlay_tables.HEADER_COUNT:
+            raise AtlasDeltaError(f"{state}: overlay {overlay} is out of range")
+        if overlay in seen_overlays:
+            raise AtlasDeltaError(f"{state}: duplicate overlay {overlay} module")
+        seen_overlays.add(overlay)
+        ownership = module.get("text_ownership", [])
+        mixed_ranges = module.get("mixed_tu_exact_c_ranges", [])
+        if not isinstance(ownership, list) or not isinstance(mixed_ranges, list):
+            raise AtlasDeltaError(
+                f"{state}: overlay {overlay} ownership rows are not lists"
+            )
+        candidates = []
+        parsed_ownership = []
+        for row in ownership:
+            if not isinstance(row, dict):
+                raise AtlasDeltaError(
+                    f"{state}: overlay {overlay} has a malformed ownership row"
+                )
+            if row.get("type") != "c":
+                continue
+            if row.get("matched") is not True or not isinstance(
+                row.get("nonmatching"), bool
+            ):
+                raise AtlasDeltaError(
+                    f"{state}: overlay {overlay} C ownership row at "
+                    f"{row.get('offset')!r} has ambiguous matching status"
+                )
+            parsed = _exact_c_row(overlay, row, state)
+            parsed_ownership.append((parsed, row["nonmatching"]))
+            if not row["nonmatching"]:
+                candidates.append(parsed)
+        for row in mixed_ranges:
+            if not isinstance(row, dict):
+                raise AtlasDeltaError(
+                    f"{state}: overlay {overlay} has a malformed mixed-TU row"
+                )
+            candidate = _exact_c_row(overlay, row, state, mixed=True)
+            containers = [
+                owner
+                for owner, nonmatching in parsed_ownership
+                if nonmatching
+                and owner["offset"] <= candidate["offset"]
+                and candidate["end_offset"] <= owner["end_offset"]
+            ]
+            if len(containers) != 1:
+                raise AtlasDeltaError(
+                    f"{state}: overlay {overlay} mixed-TU exact range "
+                    f"text+{hx(candidate['offset'])} is not inside exactly "
+                    "one nonmatching C owner"
+                )
+            candidates.append(candidate)
+        for candidate in candidates:
+            key = (candidate["overlay"], candidate["offset"])
+            if key in index:
+                raise AtlasDeltaError(
+                    f"{state}: ambiguous exact-C identity overlay {overlay} "
+                    f"text+{hx(candidate['offset'])}"
+                )
+            index[key] = candidate
+            by_overlay[overlay].append(candidate)
+
+    for overlay, rows in by_overlay.items():
+        previous = None
+        for row in sorted(rows, key=lambda item: item["offset"]):
+            if previous is not None and row["offset"] < previous["end_offset"]:
+                raise AtlasDeltaError(
+                    f"{state}: overlapping exact-C identities in overlay {overlay}: "
+                    f"text+{hx(previous['offset'])}..{hx(previous['end_offset'])} "
+                    f"and text+{hx(row['offset'])}..{hx(row['end_offset'])}"
+                )
+            previous = row
+
+    extracted_total = sum(row["size"] for row in index.values())
+    totals = atlas.get("totals")
+    if not isinstance(totals, dict) or "matched_overlay_c_bytes" not in totals:
+        raise AtlasDeltaError(f"{state}: atlas lacks an exact-C byte total")
+    declared_total = _atlas_int(
+        totals["matched_overlay_c_bytes"],
+        "totals.matched_overlay_c_bytes",
+        state,
+    )
+    if declared_total != extracted_total:
+        raise AtlasDeltaError(
+            f"{state}: exact-C rows total {extracted_total} bytes, "
+            f"atlas declares {declared_total}"
+        )
+    return index
+
+
+def compare_exact_c_atlases(
+    base_atlas, target_atlas, base_name="base", target_name="target"
+):
+    """Compute an auditable exact-C ownership transition between atlases."""
+    base = exact_c_index(base_atlas, base_name)
+    target = exact_c_index(target_atlas, target_name)
+    for key in sorted(base.keys() & target.keys()):
+        before = base[key]
+        after = target[key]
+        if before["end_offset"] != after["end_offset"]:
+            raise AtlasDeltaError(
+                f"ambiguous identity overlay {key[0]} text+{hx(key[1])} has "
+                f"extent {hx(before['end_offset'])} in {base_name} and "
+                f"{hx(after['end_offset'])} in {target_name}"
+            )
+    promotions = [target[key] for key in sorted(target.keys() - base.keys())]
+    retractions = [base[key] for key in sorted(base.keys() - target.keys())]
+    promoted_bytes = sum(row["size"] for row in promotions)
+    retracted_bytes = sum(row["size"] for row in retractions)
+    return {
+        "schema_version": 1,
+        "promotions": promotions,
+        "retractions": retractions,
+        "totals": {
+            "base_exact_c_bytes": sum(row["size"] for row in base.values()),
+            "target_exact_c_bytes": sum(row["size"] for row in target.values()),
+            "promotion_count": len(promotions),
+            "promotion_bytes": promoted_bytes,
+            "retraction_count": len(retractions),
+            "retraction_bytes": retracted_bytes,
+            "net_exact_c_bytes": promoted_bytes - retracted_bytes,
+        },
+    }
+
+
+def _decode_atlas(payload, state):
+    try:
+        atlas = json.loads(payload)
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise AtlasDeltaError(f"{state}: invalid atlas JSON: {exc}") from exc
+    if not isinstance(atlas, dict):
+        raise AtlasDeltaError(f"{state}: atlas root is not an object")
+    return atlas
+
+
+def load_atlas_state(spec, repo=REPO):
+    """Load an atlas file/tree path or a Git tree-ish without checking it out."""
+    path = Path(spec)
+    if path.exists():
+        atlas_path = path / MANIFEST_REPO_PATH if path.is_dir() else path
+        if not atlas_path.is_file():
+            raise AtlasDeltaError(f"{spec}: tree has no {MANIFEST_REPO_PATH}")
+        payload = atlas_path.read_text(encoding="utf-8")
+        digest = hashlib.sha256(payload.encode()).hexdigest()
+        return _decode_atlas(payload, spec), {
+            "input": spec,
+            "kind": "tree" if path.is_dir() else "manifest",
+            "resolved": f"sha256:{digest}",
+        }
+
+    try:
+        tree = subprocess.run(
+            ["git", "rev-parse", "--verify", f"{spec}^{{tree}}"],
+            cwd=repo,
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout.strip()
+        payload = subprocess.run(
+            ["git", "show", f"{spec}:{MANIFEST_REPO_PATH}"],
+            cwd=repo,
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout
+    except subprocess.CalledProcessError as exc:
+        detail = exc.stderr.strip() or "not a path or Git tree-ish"
+        raise AtlasDeltaError(f"{spec}: {detail}") from exc
+    return _decode_atlas(payload, spec), {
+        "input": spec,
+        "kind": "git",
+        "resolved": tree,
+    }
+
+
+def load_worktree_atlas(path=DEFAULT_MANIFEST):
+    payload = path.read_text(encoding="utf-8")
+    digest = hashlib.sha256(payload.encode()).hexdigest()
+    return _decode_atlas(payload, "WORKTREE"), {
+        "input": "WORKTREE",
+        "kind": "worktree",
+        "resolved": f"sha256:{digest}",
+    }
+
+
+def render_exact_c_delta(delta):
+    lines = [
+        f"base:   {delta['base']['input']} ({delta['base']['resolved']})",
+        f"target: {delta['target']['input']} ({delta['target']['resolved']})",
+    ]
+    for heading, marker, rows, byte_key in (
+        ("promotions", "+", delta["promotions"], "promotion_bytes"),
+        ("retractions", "-", delta["retractions"], "retraction_bytes"),
+    ):
+        lines.append(
+            f"{heading}: {len(rows)} ranges, {delta['totals'][byte_key]} bytes"
+        )
+        for row in rows:
+            lines.append(
+                f"  {marker} overlay {row['overlay']:03d} "
+                f"text+{hx(row['offset'])}..{hx(row['end_offset'])} "
+                f"{row['size']} bytes {row['label']}"
+            )
+    net = delta["totals"]["net_exact_c_bytes"]
+    lines.append(f"net exact C: {net:+d} bytes")
+    return "\n".join(lines)
+
+
 def data_rodata_ownership_rows(overlay, data_size, text_ownership):
-    """Reviewed leading initialized ranges emitted by existing C objects."""
+    """Reviewed initialized ranges emitted by existing C objects."""
     rows = []
     previous_end = 0
     previous_text_index = -1
@@ -1277,6 +1593,35 @@ def data_rodata_ownership_rows(overlay, data_size, text_ownership):
         )
         previous_end = end
         previous_text_index = text_index
+    for start, end, source_name, section in FIXED_DATA_RODATA_OWNERSHIP.get(
+        overlay, []
+    ):
+        if (
+            start < 0
+            or start >= end
+            or end > data_size
+            or start % 4
+            or end % 4
+            or section not in (".data", ".rodata")
+        ):
+            raise ValueError(
+                f"invalid overlay {overlay} fixed data/rodata ownership range"
+            )
+        if source_name not in text_sources:
+            raise ValueError(
+                f"overlay {overlay} fixed data/rodata owner {source_name} "
+                "does not own a C text row"
+            )
+        rows.append(
+            {
+                "offset": hx(start),
+                "end_offset": hx(end),
+                "size": hx(end - start),
+                "type": "c",
+                "section": section,
+                "source": f"overlays/o{overlay:03d}/{source_name}",
+            }
+        )
     return rows
 
 
@@ -1654,7 +1999,7 @@ def render_manifest(atlas):
     return json.dumps(atlas, indent=1) + "\n"
 
 
-def render_yaml_block(atlas):
+def render_yaml_block(atlas, trial_ownership=False):
     lines = [YAML_BEGIN]
     lines += [
         "  #",
@@ -1684,7 +2029,7 @@ def render_yaml_block(atlas):
             f"    vram: {hx(SYNTHETIC_VMA)}",
             f"    bss_size: {row['bss_size']}",
             "    align: 0x8",
-            "    subalign: 0x1",
+            f"    subalign: {'0x4' if trial_ownership and ov in FIXED_DATA_RODATA_OWNERSHIP else '0x1'}",
             f"    dir: overlays/o{ov:03d}",
             f"    exclusive_ram_id: {OVERLAY_RAM_CLASS}",
             "    symbol_name_format: $SEG_$VRAM_$ROM",
@@ -1719,11 +2064,40 @@ def render_yaml_block(atlas):
                 f"{part['type']}, {source_name}]"
             )
         data_row = row["sections"]["data_rodata"]
-        owned_end = (
-            int(owned_data[-1]["end_offset"], 16) if owned_data else 0
-        )
         data_size = int(data_row["size"], 16)
-        if owned_end < data_size:
+        fixed_data = [part for part in owned_data if "section" in part]
+        if not trial_ownership:
+            fixed_data = []
+        leading_data = [part for part in owned_data if "section" not in part]
+        owned_end = (
+            int(leading_data[-1]["end_offset"], 16) if leading_data else 0
+        )
+        if fixed_data:
+            cursor = owned_end
+            for part in sorted(fixed_data, key=lambda item: int(item["offset"], 16)):
+                fixed_start = int(part["offset"], 16)
+                fixed_end = int(part["end_offset"], 16)
+                if fixed_start < cursor:
+                    raise ValueError(
+                        f"overlay {ov} fixed data/rodata ownership overlaps "
+                        "a leading C-owned range or another fixed range"
+                    )
+                if cursor < fixed_start:
+                    lines.append(
+                        f"      - [{hx(int(data_row['start'], 16) + cursor)}, "
+                        f"bin, {name}_data_rodata]"
+                    )
+                lines.append(
+                    f"      - [{hx(int(data_row['start'], 16) + fixed_start)}, "
+                    f"{part['section']}, {part['source'].rsplit('/', 1)[1]}]"
+                )
+                cursor = fixed_end
+            if cursor < data_size:
+                lines.append(
+                    f"      - [{hx(int(data_row['start'], 16) + cursor)}, "
+                    f"bin, {name}_data_rodata]"
+                )
+        elif owned_end < data_size:
             lines.append(
                 f"      - [{hx(int(data_row['start'], 16) + owned_end)}, "
                 f"bin, {name}_data_rodata]"
@@ -1820,15 +2194,91 @@ def main():
     action = parser.add_mutually_exclusive_group()
     action.add_argument("--write", action="store_true")
     action.add_argument("--check", action="store_true")
+    action.add_argument(
+        "--trial-yaml",
+        action="store_true",
+        help="write only the temporary fixed-data projection used by promotion trials",
+    )
+    action.add_argument(
+        "--trial-projection",
+        action="store_true",
+        help="write the temporary manifest and fixed-data YAML projection used by promotion trials",
+    )
+    action.add_argument(
+        "--delta",
+        nargs="+",
+        metavar="STATE",
+        help=(
+            "compare exact C ownership in BASE [TARGET]; a state is an atlas "
+            "JSON path, a checkout path, or a Git tree-ish, and TARGET "
+            "defaults to the current worktree atlas"
+        ),
+    )
     action.add_argument("--overlay", type=int)
     action.add_argument("--relocations", type=int, metavar="OVERLAY")
+    parser.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="output format for --delta (default: text)",
+    )
     args = parser.parse_args()
+
+    if args.delta:
+        if len(args.delta) not in (1, 2):
+            parser.error("--delta requires BASE or BASE TARGET")
+        try:
+            base_atlas, base_state = load_atlas_state(args.delta[0])
+            if len(args.delta) == 2:
+                target_atlas, target_state = load_atlas_state(args.delta[1])
+            else:
+                target_atlas, target_state = load_worktree_atlas(args.manifest)
+            delta = compare_exact_c_atlases(
+                base_atlas,
+                target_atlas,
+                base_state["input"],
+                target_state["input"],
+            )
+            delta["base"] = base_state
+            delta["target"] = target_state
+        except (AtlasDeltaError, OSError) as exc:
+            parser.exit(2, f"error: {exc}\n")
+        if args.format == "json":
+            print(json.dumps(delta, indent=2, sort_keys=True))
+        else:
+            print(render_exact_c_delta(delta))
+        return
+
+    if args.format != "text":
+        parser.error("--format is only valid with --delta")
 
     rom = args.rom.read_bytes()
     atlas, records_by_overlay = build_atlas(rom)
     manifest = render_manifest(atlas)
     yaml_text = args.yaml.read_text()
-    generated_yaml = splice_yaml(yaml_text, render_yaml_block(atlas))
+    trial_ownership = args.trial_yaml or args.trial_projection or (
+        os.environ.get("PROMOTION_TRIAL", "") not in ("", "0")
+    )
+    generated_yaml = splice_yaml(
+        yaml_text, render_yaml_block(atlas, trial_ownership=trial_ownership)
+    )
+
+    if args.trial_yaml:
+        if write_if_changed(args.yaml, generated_yaml):
+            print(f"updated temporary {args.yaml.relative_to(REPO)}")
+        else:
+            print("temporary ownership projection current")
+        return
+
+    if args.trial_projection:
+        changed = []
+        if write_if_changed(args.manifest, manifest):
+            changed.append(str(args.manifest.relative_to(REPO)))
+        if write_if_changed(args.yaml, generated_yaml):
+            changed.append(str(args.yaml.relative_to(REPO)))
+        print("updated temporary " + ", ".join(changed)
+              if changed else "temporary ownership projection current")
+        return
 
     if args.write:
         changed = []

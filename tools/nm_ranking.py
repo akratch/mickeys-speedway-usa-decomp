@@ -55,7 +55,9 @@ from __future__ import annotations
 import argparse
 import concurrent.futures
 import dataclasses
+import difflib
 import json
+import math
 import pathlib
 import re
 import shlex
@@ -75,6 +77,9 @@ OBJDUMP = ROOT / "tools" / "binutils" / "mips64-elf-objdump"
 OBJCOPY = ROOT / "tools" / "binutils" / "mips64-elf-objcopy"
 WORK_DIR = ROOT / "build" / "nm_ranking"
 DEFAULT_OUT = ROOT / "config" / "nonmatching-ranking.us.json"
+DEFAULT_DOC = ROOT / "docs" / "nm-ranking.md"
+DOC_BEGIN = "<!-- NM_RANKING_GENERATED_BEGIN -->"
+DOC_END = "<!-- NM_RANKING_GENERATED_END -->"
 
 CATEGORY_RANK = {
     "register-only": 0,
@@ -388,17 +393,51 @@ class FuncResult:
 
 
 class RankingDocumentError(ValueError):
-    """The retained ranking cannot be filtered without guessing identity."""
+    """The retained ranking cannot be consumed without guessing."""
+
+
+def _plain_int(value: object, field: str, *, minimum: Optional[int] = None) -> int:
+    if type(value) is not int:
+        raise RankingDocumentError(f"{field} must be an integer")
+    if minimum is not None and value < minimum:
+        raise RankingDocumentError(f"{field} must be >= {minimum}")
+    return value
+
+
+def _plain_string(value: object, field: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise RankingDocumentError(f"{field} must be a non-empty string")
+    if any(ord(character) < 0x20 or ord(character) == 0x7F for character in value):
+        raise RankingDocumentError(f"{field} must not contain control characters")
+    return value
+
+
+def _source_symbol_identity(
+    file_name: object, symbol: object, field: str
+) -> tuple[str, str]:
+    source = _plain_string(file_name, f"{field}.file")
+    name = _plain_string(symbol, f"{field}.symbol")
+    path = pathlib.PurePosixPath(source)
+    if (
+        path.is_absolute()
+        or ".." in path.parts
+        or path.suffix != ".c"
+        or source != path.as_posix()
+        or not path.parts
+        or path.parts[0] != "src"
+    ):
+        raise RankingDocumentError(
+            f"{field}.file must be a relative C source path"
+        )
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+        raise RankingDocumentError(f"{field}.symbol is not a C identifier")
+    return source, name
 
 
 def _function_row_key(row: object) -> tuple[str, str]:
     if not isinstance(row, dict):
         raise RankingDocumentError("function row is not an object")
-    file_name = row.get("file")
-    symbol = row.get("name")
-    if not isinstance(file_name, str) or not isinstance(symbol, str):
-        raise RankingDocumentError("function row needs string file/name fields")
-    return file_name, symbol
+    return _source_symbol_identity(row.get("file"), row.get("name"), "function")
 
 
 def _unresolved_row_key(row: object) -> tuple[str, str]:
@@ -410,21 +449,41 @@ def _unresolved_row_key(row: object) -> tuple[str, str]:
     if (
         not isinstance(key, list)
         or len(key) != 2
-        or not all(isinstance(part, str) for part in key)
         or not isinstance(diagnostic, str)
     ):
         raise RankingDocumentError(
             "unresolved row needs [[file, name], diagnostic] identity"
         )
-    return key[0], key[1]
+    identity = _source_symbol_identity(key[0], key[1], "unresolved")
+    _plain_string(diagnostic, "unresolved diagnostic")
+    return identity
 
 
-def prune_stale_document(
-    document: object, live_keys: set[tuple[str, str]]
-) -> tuple[dict[str, object], list[tuple[str, str]], list[tuple[str, str]]]:
-    """Drop rows whose exact source/symbol identity is no longer queued."""
+def validate_ranking_document(
+    document: object, *, require_consistent_counts: bool = True
+) -> dict[str, object]:
+    """Validate the complete persisted schema and exact row identities.
+
+    Pruning may deliberately repair stale derived counts, so its input opts out
+    of count consistency while retaining every structural/type/identity check.
+    Documentation generation and checking always require full consistency.
+    """
     if not isinstance(document, dict):
         raise RankingDocumentError("ranking root is not an object")
+
+    queue_size = _plain_int(document.get("queue_size"), "queue_size", minimum=0)
+    resolved = _plain_int(document.get("resolved"), "resolved", minimum=0)
+    unresolved_count = _plain_int(
+        document.get("unresolved"), "unresolved", minimum=0
+    )
+    coverage = _plain_int(
+        document.get("objdiff_match_pct_coverage"),
+        "objdiff_match_pct_coverage",
+        minimum=0,
+    )
+    if type(document.get("objdiff_report_used")) is not bool:
+        raise RankingDocumentError("objdiff_report_used must be a boolean")
+
     functions = document.get("functions")
     unresolved = document.get("unresolved_functions")
     if not isinstance(functions, list) or not isinstance(unresolved, list):
@@ -432,11 +491,111 @@ def prune_stale_document(
             "ranking needs functions and unresolved_functions lists"
         )
 
-    function_keys = [_function_row_key(row) for row in functions]
+    function_keys: list[tuple[str, str]] = []
+    measured_coverage = 0
+    for index, row in enumerate(functions):
+        key = _function_row_key(row)
+        assert isinstance(row, dict)
+        function_keys.append(key)
+        prefix = f"functions[{index}]"
+        overlay = row.get("overlay")
+        tu = _plain_string(row.get("tu"), f"{prefix}.tu")
+        source_parts = pathlib.PurePosixPath(key[0]).parts
+        if overlay is not None:
+            overlay = _plain_int(overlay, f"{prefix}.overlay", minimum=0)
+            expected_tu = f"overlays/o{overlay:03d}"
+            if len(source_parts) < 3 or "/".join(source_parts[1:3]) != expected_tu:
+                raise RankingDocumentError(
+                    f"{prefix}.overlay does not match its source path"
+                )
+        else:
+            expected_tu = source_parts[1] if len(source_parts) >= 2 else ""
+        if tu != expected_tu:
+            raise RankingDocumentError(
+                f"{prefix}.tu is {tu!r}, expected {expected_tu!r} from identity"
+            )
+        size = _plain_int(row.get("size_bytes"), f"{prefix}.size_bytes", minimum=0)
+        if size % 4:
+            raise RankingDocumentError(f"{prefix}.size_bytes must be word-aligned")
+        _plain_int(
+            row.get("differing_words"), f"{prefix}.differing_words", minimum=0
+        )
+        first = row.get("first_mismatch_offset")
+        if first is not None:
+            first = _plain_int(first, f"{prefix}.first_mismatch_offset", minimum=0)
+            if first % 4:
+                raise RankingDocumentError(
+                    f"{prefix}.first_mismatch_offset must be word-aligned"
+                )
+        delta = _plain_int(row.get("size_delta"), f"{prefix}.size_delta")
+        if delta % 4:
+            raise RankingDocumentError(f"{prefix}.size_delta must be word-aligned")
+        if size + delta < 0:
+            raise RankingDocumentError(f"{prefix}.size_delta makes base size negative")
+        differing = int(row["differing_words"])
+        if (differing == 0) != (first is None):
+            raise RankingDocumentError(
+                f"{prefix}.first_mismatch_offset disagrees with differing_words"
+            )
+        _plain_string(row.get("category"), f"{prefix}.category")
+        pct = row.get("objdiff_match_pct")
+        if pct is not None:
+            if isinstance(pct, bool) or not isinstance(pct, (int, float)):
+                raise RankingDocumentError(
+                    f"{prefix}.objdiff_match_pct must be a number or null"
+                )
+            if not math.isfinite(pct) or not 0 <= pct <= 100:
+                raise RankingDocumentError(
+                    f"{prefix}.objdiff_match_pct must be between 0 and 100"
+                )
+            measured_coverage += 1
+
     unresolved_keys = [_unresolved_row_key(row) for row in unresolved]
     all_keys = function_keys + unresolved_keys
     if len(set(all_keys)) != len(all_keys):
         raise RankingDocumentError("ranking contains duplicate function identities")
+
+    if require_consistent_counts:
+        expected = {
+            "resolved": len(functions),
+            "unresolved": len(unresolved),
+            "queue_size": len(functions) + len(unresolved),
+            "objdiff_match_pct_coverage": measured_coverage,
+        }
+        actual = {
+            "resolved": resolved,
+            "unresolved": unresolved_count,
+            "queue_size": queue_size,
+            "objdiff_match_pct_coverage": coverage,
+        }
+        for field, expected_value in expected.items():
+            if actual[field] != expected_value:
+                raise RankingDocumentError(
+                    f"{field} is {actual[field]}, expected {expected_value} from rows"
+                )
+    return document
+
+
+def prune_stale_document(
+    document: object, live_keys: set[tuple[str, str]]
+) -> tuple[dict[str, object], list[tuple[str, str]], list[tuple[str, str]]]:
+    """Drop retained rows whose exact source/symbol identity is no longer queued.
+
+    This deliberately does not invent measurements for newly queued functions.
+    Their identities are returned as ``unranked`` so the caller can report that
+    a full regeneration is still needed.
+    """
+    document = validate_ranking_document(
+        document, require_consistent_counts=False
+    )
+    functions = document.get("functions")
+    unresolved = document.get("unresolved_functions")
+    assert isinstance(functions, list)
+    assert isinstance(unresolved, list)
+
+    function_keys = [_function_row_key(row) for row in functions]
+    unresolved_keys = [_unresolved_row_key(row) for row in unresolved]
+    all_keys = function_keys + unresolved_keys
 
     retained_functions = [
         row for row, key in zip(functions, function_keys) if key in live_keys
@@ -459,11 +618,12 @@ def prune_stale_document(
         for row in retained_functions
         if isinstance(row, dict) and row.get("objdiff_match_pct") is not None
     )
+    validate_ranking_document(pruned)
     return pruned, removed, unranked
 
 
-def write_json_atomic(path: pathlib.Path, document: dict[str, object]) -> None:
-    """Replace one JSON document only after its temp file is complete."""
+def write_text_atomic(path: pathlib.Path, content: str) -> None:
+    """Replace one text file only after its complete temp file is written."""
     path.parent.mkdir(parents=True, exist_ok=True)
     output_mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o644
     temporary: Optional[pathlib.Path] = None
@@ -477,14 +637,187 @@ def write_json_atomic(path: pathlib.Path, document: dict[str, object]) -> None:
             delete=False,
         ) as stream:
             temporary = pathlib.Path(stream.name)
-            json.dump(document, stream, indent=2)
-            stream.write("\n")
+            stream.write(content)
             stream.flush()
         temporary.chmod(output_mode)
         temporary.replace(path)
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
+
+
+def write_json_atomic(path: pathlib.Path, document: dict[str, object]) -> None:
+    """Validate and atomically replace one persisted ranking document."""
+    validate_ranking_document(document)
+    write_text_atomic(path, json.dumps(document, indent=2) + "\n")
+
+
+def _markdown_code(value: object) -> str:
+    text = str(value).replace("\\", "\\\\").replace("|", "\\|")
+    text = text.replace("`", "\\`")
+    return f"`{text}`"
+
+
+def _markdown_text(value: object) -> str:
+    return str(value).replace("\\", "\\\\").replace("|", "\\|")
+
+
+def render_ranking_markdown(document: object) -> str:
+    """Render the authoritative human-readable snapshot from validated JSON."""
+    document = validate_ranking_document(document)
+    functions = document["functions"]
+    unresolved = document["unresolved_functions"]
+    assert isinstance(functions, list)
+    assert isinstance(unresolved, list)
+
+    queue_size = int(document["queue_size"])
+    resolved = int(document["resolved"])
+    unresolved_count = int(document["unresolved"])
+    coverage = int(document["objdiff_match_pct_coverage"])
+    total_size = sum(int(row["size_bytes"]) for row in functions)
+    overlays = sorted(
+        {int(row["overlay"]) for row in functions if row["overlay"] is not None}
+    )
+    resident_tus = sorted(
+        {str(row["tu"]) for row in functions if row["overlay"] is None}
+    )
+
+    lines = [
+        "## Current generated ranking snapshot",
+        "",
+        "> Generated by `tools/nm_ranking.py --write-doc` from",
+        "> `config/nonmatching-ranking.us.json`. Do not edit this region by hand;",
+        "> `--check-doc` and `gmake check-docs` fail on any drift.",
+        "",
+        f"The snapshot contains **{queue_size:,} queued identities**: "
+        f"**{resolved:,} resolved measurements** and **{unresolved_count:,} "
+        f"unresolved identities**. Resolved target size totals **{total_size:,} "
+        f"bytes ({total_size / 1024:.1f} KiB)**.",
+        "",
+        f"Resolved rows span **{len(overlays):,} overlays** and "
+        f"**{len(resident_tus):,} resident TU "
+        f"{'group' if len(resident_tus) == 1 else 'groups'}**"
+        + (f" ({', '.join(_markdown_code(tu) for tu in resident_tus)})" if resident_tus else "")
+        + ".",
+        "",
+        "A supplementary objdiff report "
+        + ("was supplied" if document["objdiff_report_used"] else "was not supplied")
+        + f"; `objdiff_match_pct` covers **{coverage:,} / {resolved:,}** resolved rows.",
+        "",
+        "### Category distribution",
+        "",
+        "| Category | Count | Share of resolved |",
+        "|---|---:|---:|",
+    ]
+
+    category_counts = Counter(str(row["category"]) for row in functions)
+    category_order: list[str] = []
+    for row in functions:
+        category = str(row["category"])
+        if category not in category_order:
+            category_order.append(category)
+    for category in category_order:
+        count = category_counts[category]
+        share = count * 100 / resolved if resolved else 0.0
+        lines.append(f"| {_markdown_code(category)} | {count:,} | {share:.1f}% |")
+
+    lines.extend([
+        "",
+        "### Differing-word thresholds",
+        "",
+        "| Threshold | Count |",
+        "|---|---:|",
+    ])
+    for threshold in (5, 10, 20):
+        count = sum(int(row["differing_words"]) <= threshold for row in functions)
+        lines.append(f"| `differing_words <= {threshold}` | {count:,} |")
+
+    lines.extend([
+        "",
+        "### Complete ranked queue",
+        "",
+        "Rank is the persisted `functions` array order. The exact identity is",
+        "(`file`, `symbol`), so repeated symbol spellings in different translation",
+        "units remain distinct.",
+        "",
+        "| Rank | File | Symbol | Overlay/TU | Category | Target bytes | Diff words | First mismatch | Size delta | Objdiff% |",
+        "|---:|---|---|---|---|---:|---:|---:|---:|---:|",
+    ])
+    for rank, row in enumerate(functions, 1):
+        location = (
+            f"o{int(row['overlay']):03d}"
+            if row["overlay"] is not None
+            else str(row["tu"])
+        )
+        first = row["first_mismatch_offset"]
+        pct = row["objdiff_match_pct"]
+        lines.append(
+            "| "
+            + " | ".join([
+                str(rank),
+                _markdown_code(row["file"]),
+                _markdown_code(row["name"]),
+                _markdown_code(location),
+                _markdown_code(row["category"]),
+                f"{int(row['size_bytes']):,}",
+                f"{int(row['differing_words']):,}",
+                "—" if first is None else f"{int(first):,}",
+                f"{int(row['size_delta']):,}",
+                "—" if pct is None else json.dumps(pct, allow_nan=False),
+            ])
+            + " |"
+        )
+
+    lines.extend([
+        "",
+        "### Unresolved identities",
+        "",
+    ])
+    if unresolved:
+        lines.extend([
+            "| File | Symbol | Diagnostic |",
+            "|---|---|---|",
+        ])
+        for key, diagnostic in sorted(
+            unresolved, key=lambda row: (row[0][0], row[0][1])
+        ):
+            lines.append(
+                f"| {_markdown_code(key[0])} | {_markdown_code(key[1])} | "
+                f"{_markdown_text(diagnostic)} |"
+            )
+    else:
+        lines.append("None.")
+    return "\n".join(lines) + "\n"
+
+
+def replace_generated_markdown(document_text: str, generated: str) -> str:
+    """Replace exactly one marked region while preserving authored text."""
+    if document_text.count(DOC_BEGIN) != 1 or document_text.count(DOC_END) != 1:
+        raise RankingDocumentError(
+            "documentation needs exactly one generated begin/end marker"
+        )
+    begin = document_text.index(DOC_BEGIN)
+    end = document_text.index(DOC_END)
+    if begin >= end:
+        raise RankingDocumentError("documentation generated markers are reversed")
+    begin_content = begin + len(DOC_BEGIN)
+    return (
+        document_text[:begin_content]
+        + "\n"
+        + generated
+        + DOC_END
+        + document_text[end + len(DOC_END):]
+    )
+
+
+def expected_document_text(
+    ranking_document: object, documentation_path: pathlib.Path
+) -> tuple[str, str]:
+    current = documentation_path.read_text(encoding="utf-8")
+    expected = replace_generated_markdown(
+        current, render_ranking_markdown(ranking_document)
+    )
+    return current, expected
 
 
 def tu_category(rel_c_file: str) -> str:
@@ -551,8 +884,12 @@ def process_item(item: "pb.QueueItem") -> tuple[Optional[FuncResult], Optional[s
     out_dir = WORK_DIR / safe
     out_dir.mkdir(parents=True, exist_ok=True)
     settings_path = out_dir / "settings.toml"
-    flags = pb.flag_group_for(item.c_file)
-    pb.write_settings_toml(settings_path, flags)
+    # Successful isolated imports must use the same Makefile-expanded recipe
+    # as the real TU. The static path-only flag group misses per-file
+    # overrides such as track.c's -Wab,-r4300_mul and can rank the wrong ISA
+    # result even though the fallback path below preserves the real command.
+    recipe = pb.build_recipe_for(item.c_file)
+    pb.write_settings_toml(settings_path, recipe.flags)
     import_error: Optional[str] = None
     scratch: Optional[pathlib.Path] = None
     try:
@@ -679,6 +1016,23 @@ def main() -> int:
                      help="parallel isolated compiles (default 8)")
     ap.add_argument("--out", type=pathlib.Path, default=DEFAULT_OUT,
                      help=f"where to write the ranking JSON (default {DEFAULT_OUT})")
+    ap.add_argument(
+        "--doc",
+        type=pathlib.Path,
+        default=DEFAULT_DOC,
+        help=f"generated Markdown document (default {DEFAULT_DOC})",
+    )
+    doc_mode = ap.add_mutually_exclusive_group()
+    doc_mode.add_argument(
+        "--write-doc",
+        action="store_true",
+        help="validate --out and update only the marked region in --doc",
+    )
+    doc_mode.add_argument(
+        "--check-doc",
+        action="store_true",
+        help="validate --out and fail if the marked region in --doc has drifted",
+    )
     ap.add_argument("--top", type=int, default=None, help="only print the top N rows")
     ap.add_argument("--markdown", action="store_true", help="print the table as markdown")
     ap.add_argument("--no-table", action="store_true", help="skip printing the table")
@@ -692,6 +1046,57 @@ def main() -> int:
              "the retained document and reports newly queued unranked functions",
     )
     args = ap.parse_args()
+
+    if args.write_doc or args.check_doc:
+        incompatible = []
+        if args.objdiff_report is not None:
+            incompatible.append("--objdiff-report")
+        if args.limit is not None:
+            incompatible.append("--limit")
+        if args.top is not None:
+            incompatible.append("--top")
+        if args.markdown:
+            incompatible.append("--markdown")
+        if args.no_table:
+            incompatible.append("--no-table")
+        if args.prune_stale:
+            incompatible.append("--prune-stale")
+        if incompatible:
+            print(
+                "error: documentation mode cannot be combined with "
+                + ", ".join(incompatible),
+                file=sys.stderr,
+            )
+            return 2
+        try:
+            document = json.loads(args.out.read_text(encoding="utf-8"))
+            current_doc, expected_doc = expected_document_text(document, args.doc)
+        except (OSError, json.JSONDecodeError, RankingDocumentError) as exc:
+            print(
+                f"error: refusing to process ranking documentation: {exc}",
+                file=sys.stderr,
+            )
+            return 2
+        if args.write_doc:
+            write_text_atomic(args.doc, expected_doc)
+            print(f"updated generated ranking in {args.doc}", file=sys.stderr)
+            return 0
+        if current_doc != expected_doc:
+            print(
+                f"error: generated ranking documentation is stale: {args.doc}",
+                file=sys.stderr,
+            )
+            sys.stderr.writelines(
+                difflib.unified_diff(
+                    current_doc.splitlines(keepends=True),
+                    expected_doc.splitlines(keepends=True),
+                    fromfile=str(args.doc),
+                    tofile=f"{args.doc} (generated)",
+                )
+            )
+            return 1
+        print(f"generated ranking documentation is current: {args.doc}")
+        return 0
 
     if args.prune_stale:
         incompatible = []
@@ -716,9 +1121,16 @@ def main() -> int:
                 (item.rel_c_file, item.func) for item in pb.discover_queue()
             }
             pruned, removed, unranked = prune_stale_document(document, live_keys)
+            expected_doc: Optional[str] = None
+            if args.out.resolve() == DEFAULT_OUT.resolve():
+                _, expected_doc = expected_document_text(pruned, args.doc)
             write_json_atomic(args.out, pruned)
+            if expected_doc is not None:
+                write_text_atomic(args.doc, expected_doc)
         except (OSError, json.JSONDecodeError, RankingDocumentError) as exc:
-            print(f"error: refusing to prune {args.out}: {exc}", file=sys.stderr)
+            print(
+                f"error: refusing to prune {args.out}: {exc}", file=sys.stderr
+            )
             return 2
         print(
             f"pruned {len(removed)} stale row(s); "
@@ -772,6 +1184,11 @@ def main() -> int:
             if error is not None:
                 errors.append(((item.rel_c_file, item.func), error))
 
+    # A full ranking pass can overlap matching work for hours. Re-scan the
+    # canonical source immediately before publishing so functions promoted
+    # while this process was compiling do not survive as stale ranking rows.
+    # Filter the original queue too, preserving --limit and the reported
+    # queue/resolution counts for the exact set this invocation processed.
     live_keys = {
         (item.rel_c_file, item.func)
         for item in pb.discover_queue_from_source_scan()
@@ -829,8 +1246,12 @@ def main() -> int:
         ],
         "unresolved_functions": [[list(key), error] for key, error in errors],
     }
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(out_doc, indent=2) + "\n")
+    expected_doc = None
+    if args.out.resolve() == DEFAULT_OUT.resolve():
+        _, expected_doc = expected_document_text(out_doc, args.doc)
+    write_json_atomic(args.out, out_doc)
+    if expected_doc is not None:
+        write_text_atomic(args.doc, expected_doc)
 
     print(f"{len(results)}/{len(queue)} queued functions resolved "
           f"({len(errors)} could not be isolated-compiled)", file=sys.stderr)
