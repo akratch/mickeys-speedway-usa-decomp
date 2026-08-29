@@ -51,23 +51,30 @@ extern Overlay20LookupResult *overlay20LookupReloc(s16 index);
 extern void *overlay20ConfigureResourceReloc();
 extern f32 overlay20SqrtReloc(f32 value);
 
-/*
- * Plateau (2026-08-25, 10 source attempts plus a bounded permuter batch):
- * the best -O2 candidate has the exact 98-word size, differs in 8 words, and
- * agrees through +0xAC before first diverging at +0xB0.  A block-scoped s16
- * count recovers the fallback pointer, index scaling, address calculation,
- * and long-call argument web; IDO still colors that count and the entries
- * pointer one register apart from the target.  The full flag lattice found no
- * better group, and hoisting the count assignment loses both size and CFG.
- */
-/*
- * Trace-guided plateau (2026-08-28): untouched IDO output is 98 words with
- * a 0x70 frame and four calls; the raw code residual is eight register words.
- * Paired globalcolor traces isolate the count web that naturally takes v1.
- * Direct-count forms remove it but enter a 25-word UGEN temp-ring basin; a
- * forced split grows to 100 words and a 0x78 frame.  No natural block or
- * condition lifetime spelling closed that pool-to-temp transition.
- */
+/* Bounded reproof (2026-08-29): configured full-TU C is exact-sized at 98
+ * words with frame 0x70 and matches 90/98 raw/normalized, first +0xB0.
+ * All four candidate R_MIPS_26 records are exact by offset/type at +0x14,
+ * +0x30, +0x134, and +0x168. Runtime tables authenticate their identities as
+ * trackGetTrack, func_8000FEEC, local overlay20ConfigureResource, and sqrtf;
+ * the assembly target's zero-valued carrier does not encode those identities.
+ * The owned +0x204..+0x38C / ROM 0x18767DC..0x1876964 range has no target
+ * padding; IDO's trailing eight-byte section alignment is outside the function.
+ * ORT 1226 and the sole resident inbound are authenticated independently.
+ *
+ * The complete 119-configuration lattice is nonexact; canonical -O2 -mips2
+ * and six equivalent rows tie for best. One stock-fidelity instrumented compile
+ * emitted text identical to the normal compiler while retaining both allocator
+ * and UGEN FIFO traces. The trace shows one pool-to-temp transition: the scoped
+ * count carrier colors v1, while the target routes that load through t6. The
+ * later value0F/start t6/t7 exchange is the downstream free-list consequence,
+ * not an independent web with a separate source lever.
+ * Direct field access removes the colored count but regresses to 73/98; prior
+ * forced splitting is also known to grow the function to 100 words and frame
+ * 0x78. With no natural strict gain, combination and the gain-gated permutation
+ * batch are ineligible. Preserve this body and fallback until a new legal IDO
+ * pool-to-temp web-formation mechanism exists. Linked equality and the exact
+ * full ROM continue to prove the assembly fallback only. Pinned DKR v77/v80/JFG
+ * and function-specific structural scans remain negative. */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
                                    Overlay20Config *config) {
