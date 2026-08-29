@@ -68,6 +68,13 @@ workbench score and first mismatch without printing instruction text or ROM
 bytes. Sparse resident startup-table records are reported separately and may
 legitimately be absent. See [`tools.md`](tools.md) for details.
 
+After an exact promotion removes the extracted fallback, preflight admits a
+separate `post_promotion` route only when one unconditional C definition, its
+tracked symbol or overlay-atlas ownership, and the linked value and size all
+agree. It uses the ordinary object and fully relocated ROM comparison, while
+requiring exact relocation count/offset/type shape. A missing fallback never
+promotes guarded `NON_MATCHING` C.
+
 For allocator investigations, use the fail-closed procedure mapping and
 fidelity receipt in
 [`allocator-trace-receipts.md`](allocator-trace-receipts.md). Raw traces and
@@ -182,6 +189,7 @@ must pass `gmake verify`.
 | `gmake overlay-donors-scan-check` | no | Repeat the object scan against local references |
 | `tools/postprocess_audit.py --check` | no | Check the recorded post-compile operations |
 | `gmake check-reference-builds` | no | Compare local reference objects with their lock |
+| `gmake public-release PUBLIC_RELEASE_ARGS="--remote public --branch master"` | yes | Dry-run exact deltas, outgoing-tree scans, and all public release gates; never pushes |
 
 Public CI cannot run checks that require a retail ROM or local reference ROMs.
 Run those checks locally before submitting a matching change.

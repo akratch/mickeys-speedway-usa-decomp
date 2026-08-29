@@ -302,7 +302,7 @@ def classify_source_selection(
     # fallback keeps splat's auto-name.  A single opposite NON_MATCHING branch
     # in the same one-function TU is the selected function even though the two
     # labels differ.
-    if definitions and not pragmas:
+    if definitions and not pragmas and candidate_symbol != target_symbol:
         opposite = [
             pragma
             for pragma in _all_pragmas(text)

@@ -29,6 +29,7 @@ TOOLS = REPO / "tools"
 ROM = REPO / "baseroms" / "mickey.us.z64"
 ATLAS = REPO / "config" / "overlays.us.json"
 ALIASES = REPO / "overlay_undefined_syms.us.txt"
+SYMBOLS = REPO / "symbol_addrs.us.txt"
 TARGET_ELF = REPO / "build" / "mickey.us.elf"
 WB_COMPARE = TOOLS / "wb_compare.sh"
 TYPE_NAMES = {2: "R_MIPS_32", 4: "R_MIPS_26", 5: "R_MIPS_HI16", 6: "R_MIPS_LO16"}
@@ -52,8 +53,12 @@ class Resolution:
     translation_unit: str
     candidate_build_dir: str
     candidate_object: Path
-    target_asm: Path
+    target_asm: Path | None
     selection: str
+    resolution_mode: str = "fallback"
+    identity_evidence: str = "GLOBAL_ASM fallback"
+    expected_value: int | None = None
+    expected_size: int | None = None
 
 
 def _relative(path: Path) -> str:
@@ -111,11 +116,13 @@ def _unique(paths: list[Path], description: str) -> Path:
     return paths[0]
 
 
-def _source_for(target_symbol: str, candidate_symbol: str, root: Path = REPO) -> tuple[Path, Path]:
+def _fallback_source_for(
+    target_symbol: str,
+    candidate_symbol: str,
+    target_asm: Path,
+    root: Path = REPO,
+) -> Path:
     root = root.resolve()
-    asm_matches = list((root / "asm" / "nonmatchings").rglob(f"{target_symbol}.s"))
-    target_asm = _unique(asm_matches, f"fallback assembly for {target_symbol}")
-
     relative_parent = target_asm.parent.relative_to(root / "asm" / "nonmatchings")
     direct = root / "src" / relative_parent.with_suffix(".c")
     candidates: list[Path] = []
@@ -130,13 +137,200 @@ def _source_for(target_symbol: str, candidate_symbol: str, root: Path = REPO) ->
                 target_facts.pragmas or target_symbol == candidate_symbol
             ):
                 candidates.append(source)
-    return _unique(candidates, f"canonical source for {candidate_symbol}"), target_asm
+    return _unique(candidates, f"canonical source for {candidate_symbol}")
 
 
-def resolve(symbol: str, root: Path = REPO, alias_path: Path = ALIASES) -> Resolution:
+def _definition_source(candidate_symbol: str, root: Path) -> Path:
+    candidates: list[Path] = []
+    for source in (root / "src").rglob("*.c"):
+        text = source.read_text(encoding="utf-8", errors="replace")
+        if pp.source_facts(text, candidate_symbol).definitions:
+            candidates.append(source)
+    return _unique(candidates, f"C definition source for {candidate_symbol}")
+
+
+def _hex_field(row: dict[str, object], field: str, description: str) -> int:
+    value = row.get(field)
+    if not isinstance(value, str) or not re.fullmatch(r"0x[0-9A-Fa-f]+", value):
+        raise PreflightError(f"{description} has invalid {field}: {value!r}")
+    return int(value, 16)
+
+
+def _overlay_promotion_evidence(
+    target_symbol: str,
+    candidate_symbol: str,
+    source: Path,
+    root: Path,
+    atlas_path: Path,
+) -> tuple[int, int, str]:
+    generated = rs.GEN_NAME_RE.match(target_symbol)
+    if not generated:
+        raise PreflightError(
+            f"post-promotion overlay identity requires a generated symbol, got {target_symbol}"
+        )
+    overlay = int(generated.group(1))
+    offset = int(generated.group(2), 16)
+    if not atlas_path.is_file():
+        raise PreflightError(f"missing overlay atlas: {_relative(atlas_path)}")
+    try:
+        atlas = json.loads(atlas_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as error:
+        raise PreflightError(f"cannot read overlay atlas: {error}") from error
+    modules = [row for row in atlas.get("modules", []) if row.get("overlay") == overlay]
+    if len(modules) != 1:
+        raise PreflightError(f"atlas has {len(modules)} rows for overlay {overlay}")
+
+    source_key = source.relative_to(root / "src").with_suffix("").as_posix()
+    evidence: list[tuple[int, int, str, str]] = []
+    module = modules[0]
+    for row in module.get("text_ownership", []):
+        if (
+            row.get("type") == "c"
+            and row.get("matched") is True
+            and row.get("nonmatching") is False
+            and row.get("source") == source_key
+            and _hex_field(row, "offset", "text ownership row") == offset
+        ):
+            start = offset
+            end = _hex_field(row, "end_offset", "text ownership row")
+            size = _hex_field(row, "size", "text ownership row")
+            evidence.append((start, end, source_key, "exact text_ownership"))
+            if end - start != size:
+                raise PreflightError("exact text ownership size/end fields disagree")
+    for row in module.get("mixed_tu_exact_c_ranges", []):
+        if (
+            row.get("label") == candidate_symbol
+            and row.get("source") == source_key
+            and _hex_field(row, "offset", "mixed-TU exact row") == offset
+        ):
+            start = offset
+            end = _hex_field(row, "end_offset", "mixed-TU exact row")
+            size = _hex_field(row, "size", "mixed-TU exact row")
+            if end - start != size:
+                raise PreflightError("mixed-TU exact size/end fields disagree")
+            evidence.append((start, end, source_key, "mixed_tu_exact_c_ranges"))
+
+    geometries = {(start, end, owner) for start, end, owner, _kind in evidence}
+    if len(geometries) != 1:
+        rendered = ", ".join(
+            f"{owner}:+0x{start:X}..+0x{end:X}"
+            for start, end, owner in sorted(geometries)
+        ) or "none"
+        raise PreflightError(
+            f"expected one tracked exact atlas range for {candidate_symbol}, "
+            f"found {len(geometries)} ({rendered})"
+        )
+    start, end, _owner = next(iter(geometries))
+    kinds = "+".join(sorted({kind for *_rest, kind in evidence}))
+    return rs.SYNTHETIC_VMA + start, end - start, f"overlay atlas {kinds}"
+
+
+def _resident_promotion_evidence(
+    symbol: str,
+    symbol_path: Path,
+) -> tuple[int, int, str]:
+    if not symbol_path.is_file():
+        raise PreflightError(f"missing tracked symbol table: {_relative(symbol_path)}")
+    pattern = re.compile(
+        rf"^\s*{re.escape(symbol)}\s*=\s*(0x[0-9A-Fa-f]+)\s*;\s*//(?P<comment>.*)$"
+    )
+    rows = []
+    for line in symbol_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        match = pattern.match(line)
+        if match:
+            rows.append((int(match.group(1), 16), match.group("comment")))
+    if len(rows) != 1:
+        raise PreflightError(
+            f"expected one tracked symbol row for promoted {symbol}, found {len(rows)}"
+        )
+    value, comment = rows[0]
+    sizes = re.findall(r"\bsize:0x([0-9A-Fa-f]+)\b", comment)
+    if "type:func" not in comment or len(sizes) != 1 or not re.search(
+        r"\bmatched\s+C\b", comment
+    ):
+        raise PreflightError(
+            f"tracked symbol row for {symbol} is not one unambiguous matched-C function"
+        )
+    return value, int(sizes[0], 16), "symbol_addrs matched-C function row"
+
+
+def _post_promotion_resolution(
+    symbol: str,
+    target_symbol: str,
+    candidate_symbol: str,
+    root: Path,
+    atlas_path: Path,
+    symbol_path: Path,
+) -> Resolution:
+    source = _definition_source(candidate_symbol, root)
+    text = source.read_text(encoding="utf-8", errors="replace")
+    facts = pp.source_facts(text, candidate_symbol)
+    target_facts = pp.source_facts(text, target_symbol)
+    if (
+        len(facts.definitions) != 1
+        or facts.definitions[0].non_matching_state is not None
+        or facts.pragmas
+        or target_facts.pragmas
+    ):
+        raise PreflightError(
+            f"no fallback assembly exists for {target_symbol}, and {_relative(source)} "
+            "is not one unconditional promoted C definition with no matching GLOBAL_ASM"
+        )
+    ordinary_reason = "the selected symbol has one unconditional ordinary C definition"
+
+    generated = rs.GEN_NAME_RE.match(target_symbol)
+    if generated:
+        expected_value, expected_size, evidence = _overlay_promotion_evidence(
+            target_symbol, candidate_symbol, source, root, atlas_path
+        )
+    else:
+        if target_symbol != candidate_symbol:
+            raise PreflightError(
+                "resident post-promotion identity cannot use different target/candidate names"
+            )
+        expected_value, expected_size, evidence = _resident_promotion_evidence(
+            target_symbol, symbol_path
+        )
+
+    rel_source = source.relative_to(root).as_posix()
+    return Resolution(
+        requested_symbol=symbol,
+        target_symbol=target_symbol,
+        candidate_symbol=candidate_symbol,
+        source=source,
+        translation_unit=rel_source.removeprefix("src/").removesuffix(".c"),
+        candidate_build_dir="build",
+        candidate_object=root / "build" / f"{rel_source}.o",
+        target_asm=None,
+        selection=f"{ordinary_reason}; promoted identity proved by {evidence}",
+        resolution_mode="post_promotion",
+        identity_evidence=evidence,
+        expected_value=expected_value,
+        expected_size=expected_size,
+    )
+
+
+def resolve(
+    symbol: str,
+    root: Path = REPO,
+    alias_path: Path = ALIASES,
+    atlas_path: Path = ATLAS,
+    symbol_path: Path = SYMBOLS,
+) -> Resolution:
     root = root.resolve()
     target_symbol, candidate_symbol = _resolve_names(symbol, alias_path)
-    source, target_asm = _source_for(target_symbol, candidate_symbol, root)
+    asm_matches = list((root / "asm" / "nonmatchings").rglob(f"{target_symbol}.s"))
+    if not asm_matches:
+        return _post_promotion_resolution(
+            symbol,
+            target_symbol,
+            candidate_symbol,
+            root,
+            atlas_path,
+            symbol_path,
+        )
+    target_asm = _unique(asm_matches, f"fallback assembly for {target_symbol}")
+    source = _fallback_source_for(target_symbol, candidate_symbol, target_asm, root)
     text = source.read_text(encoding="utf-8", errors="replace")
 
     ordinary, ordinary_reason = pp.classify_source_selection(
@@ -582,7 +776,25 @@ def _inbound_references(
 
 
 def _workbench(resolution: Resolution) -> dict[str, object]:
-    command = [str(WB_COMPARE), resolution.requested_symbol, "--json", "--color", "never"]
+    if resolution.resolution_mode == "post_promotion":
+        command = [
+            str(WB_COMPARE),
+            "--rom",
+            resolution.candidate_symbol,
+            "--json",
+            "--color",
+            "never",
+        ]
+        comparison_mode = "rom"
+    else:
+        command = [
+            str(WB_COMPARE),
+            resolution.requested_symbol,
+            "--json",
+            "--color",
+            "never",
+        ]
+        comparison_mode = "asm"
     result = _run(command, capture=True)
     if result.returncode:
         raise PreflightError(f"wb_compare failed with exit {result.returncode}")
@@ -597,6 +809,7 @@ def _workbench(resolution: Resolution) -> dict[str, object]:
     if missing:
         raise PreflightError("workbench report lacks: " + ", ".join(missing))
     return {
+        "comparison_mode": comparison_mode,
         "differing_words": payload["words"],
         "target_words": payload["target_instructions"],
         "candidate_words": payload["candidate_instructions"],
@@ -624,6 +837,55 @@ def _workbench(resolution: Resolution) -> dict[str, object]:
     }
 
 
+def _require_tracked_geometry(
+    resolution: Resolution, target_value: int, target_size: int
+) -> None:
+    if resolution.resolution_mode != "post_promotion":
+        return
+    if resolution.expected_value is None or resolution.expected_size is None:
+        raise PreflightError("post-promotion resolution lacks tracked geometry")
+    if (target_value, target_size) != (
+        resolution.expected_value,
+        resolution.expected_size,
+    ):
+        raise PreflightError(
+            "linked geometry disagrees with tracked post-promotion evidence: "
+            f"linked={target_value:#x}+{target_size:#x}, "
+            f"tracked={resolution.expected_value:#x}+{resolution.expected_size:#x}"
+        )
+
+
+def _require_static_relocation_evidence(
+    resolution: Resolution, comparison: dict[str, object]
+) -> None:
+    """Apply the relocation proof available in each resolution mode.
+
+    A fallback candidate must resolve every static identity before it can be
+    compared with the extracted target. After promotion, the fallback no
+    longer exists and overlay proxy names need not all resolve; the canonical
+    object can still prove the complete relocation shape while the relocated
+    ROM oracle proves the final bytes. This is the same limitation reported by
+    the post-promotion human/JSON output, not permission for a candidate lane.
+    """
+    candidate_count = int(comparison["candidate_record_count"])
+    resolved_count = int(comparison["candidate_identity_resolved_count"])
+    if resolution.resolution_mode != "post_promotion":
+        if resolved_count != candidate_count:
+            raise PreflightError(
+                "candidate static relocation identity is unresolved at "
+                f"{candidate_count - resolved_count} site(s)"
+            )
+        return
+
+    target_count = int(comparison["target_record_count"])
+    if candidate_count != target_count or comparison.get("offset_type_exact") is not True:
+        raise PreflightError(
+            "post-promotion static relocation shape disagrees with the tracked target: "
+            f"candidate={candidate_count}, target={target_count}, "
+            f"offset/type exact={comparison.get('offset_type_exact')!r}"
+        )
+
+
 def collect(resolution: Resolution) -> dict[str, object]:
     for path, label in (
         (TARGET_ELF, "canonical linked ELF"),
@@ -638,6 +900,7 @@ def collect(resolution: Resolution) -> dict[str, object]:
     linked_name, target_value, target_size, section = _symbol_geometry(
         target_elf, (resolution.candidate_symbol, resolution.target_symbol)
     )
+    _require_tracked_geometry(resolution, target_value, target_size)
     atlas = json.loads(ATLAS.read_text(encoding="utf-8"))
     rom = ROM.read_bytes()
     context, runtime_records = _target_context(
@@ -668,12 +931,7 @@ def collect(resolution: Resolution) -> dict[str, object]:
         target_size,
         section,
     )
-    if comparison["candidate_identity_resolved_count"] != comparison["candidate_record_count"]:
-        raise PreflightError(
-            "candidate static relocation identity is unresolved at "
-            f"{comparison['candidate_record_count'] - comparison['candidate_identity_resolved_count']} "
-            "site(s)"
-        )
+    _require_static_relocation_evidence(resolution, comparison)
     inbound = _inbound_references(context, rom)
     result: dict[str, object] = {
         "schema": "mickey-function-evidence-preflight-v1",
@@ -685,6 +943,8 @@ def collect(resolution: Resolution) -> dict[str, object]:
         "candidate_build_dir": resolution.candidate_build_dir,
         "candidate_object": _relative(resolution.candidate_object),
         "candidate_selection": resolution.selection,
+        "resolution_mode": resolution.resolution_mode,
+        "identity_evidence": resolution.identity_evidence,
         "candidate_signature": _source_signature(
             resolution.source, resolution.candidate_symbol
         ),
@@ -716,6 +976,10 @@ def _render_human(report: dict[str, object]) -> None:
 
     context = report["context"]
     print(f"identity: {report['target_symbol']} -> {report['candidate_symbol']}")
+    print(
+        f"resolution: {report['resolution_mode']} "
+        f"({report['identity_evidence']})"
+    )
     print(
         f"candidate: {report['source']} [{report['candidate_build_dir']}] "
         f"{report['candidate_signature']}"
@@ -792,7 +1056,8 @@ def _render_human(report: dict[str, object]) -> None:
         "n/a" if wb["candidate_frame"] is None else f"0x{wb['candidate_frame']:X}"
     )
     print(
-        f"workbench: matched={matched} differing={wb['differing_words']} "
+        f"workbench [{wb['comparison_mode']}]: matched={matched} "
+        f"differing={wb['differing_words']} "
         f"target={wb['target_words']} candidate={wb['candidate_words']} "
         f"first={wb['first_mismatch'] or 'none'} verdict={wb['verdict']} "
         f"frame={target_frame}/{candidate_frame}"
@@ -817,6 +1082,12 @@ def main(argv: list[str]) -> int:
     try:
         resolution = resolve(args.symbol)
         if args.resolve_wb:
+            if resolution.target_asm is None:
+                raise PreflightError(
+                    f"{resolution.candidate_symbol} is already promoted and has no "
+                    "GLOBAL_ASM target; use `tools/wb_compare.sh --rom "
+                    f"{resolution.candidate_symbol}`"
+                )
             require_fresh_evidence(resolution)
             fields = (
                 resolution.target_symbol,

@@ -60,6 +60,23 @@ class SourceClassificationTests(unittest.TestCase):
         """
         self.assertEqual(self.classify(text)[0], provenance.GLOBAL_ASM)
 
+    def test_promoted_symbol_ignores_another_functions_mixed_tu_fallback(self) -> None:
+        text = """
+        void promoted(void) { }
+        #ifdef NON_MATCHING
+        void another(void) { }
+        #else
+        #pragma GLOBAL_ASM("asm/nonmatchings/x/another_auto_name.s")
+        #endif
+        """
+        kind, _reason = provenance.classify_source_selection(
+            text,
+            candidate_symbol="promoted",
+            target_symbol="promoted",
+            defines=(),
+        )
+        self.assertEqual(kind, provenance.ORDINARY_C)
+
     def test_bare_global_asm_is_fallback(self) -> None:
         text = '#pragma GLOBAL_ASM("asm/nonmatchings/x/func_1234.s")\n'
         self.assertEqual(self.classify(text)[0], provenance.GLOBAL_ASM)

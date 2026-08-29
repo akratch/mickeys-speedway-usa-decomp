@@ -73,6 +73,210 @@ class SymbolResolutionTests(unittest.TestCase):
         with self.assertRaisesRegex(fp.PreflightError, "ambiguous"):
             fp._identity_text(None)
 
+    def test_promoted_overlay_resolves_from_exact_atlas_owner_without_asm(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            alias = root / "aliases.txt"
+            alias.write_text(
+                "func_overlay_016_F00001E0_1873678 = friendly;\n",
+                encoding="utf-8",
+            )
+            source = root / "src/overlays/o016/friendly.c"
+            source.parent.mkdir(parents=True)
+            source.write_text("void friendly(void) {}\n", encoding="utf-8")
+            atlas = root / "atlas.json"
+            atlas.write_text(
+                json.dumps(
+                    {
+                        "modules": [
+                            {
+                                "overlay": 16,
+                                "text_ownership": [
+                                    {
+                                        "offset": "0x1E0",
+                                        "end_offset": "0x220",
+                                        "size": "0x40",
+                                        "type": "c",
+                                        "source": "overlays/o016/friendly",
+                                        "matched": True,
+                                        "nonmatching": False,
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            symbols = root / "symbols.txt"
+            symbols.write_text("", encoding="utf-8")
+
+            friendly = fp.resolve(
+                "friendly",
+                root=root,
+                alias_path=alias,
+                atlas_path=atlas,
+                symbol_path=symbols,
+            )
+            generated = fp.resolve(
+                "func_overlay_016_F00001E0_1873678",
+                root=root,
+                alias_path=alias,
+                atlas_path=atlas,
+                symbol_path=symbols,
+            )
+
+        self.assertEqual("post_promotion", friendly.resolution_mode)
+        self.assertIsNone(friendly.target_asm)
+        self.assertEqual("build", friendly.candidate_build_dir)
+        self.assertEqual(0xF00001E0, friendly.expected_value)
+        self.assertEqual(0x40, friendly.expected_size)
+        self.assertEqual(friendly.target_symbol, generated.target_symbol)
+        self.assertEqual(friendly.candidate_symbol, generated.candidate_symbol)
+
+    def test_promoted_mixed_tu_overlay_uses_function_sized_exact_range(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            alias = root / "aliases.txt"
+            alias.write_text(
+                "func_overlay_025_F0000000_1879C88 = friendly;\n",
+                encoding="utf-8",
+            )
+            source = root / "src/overlays/o025/overlay_025.c"
+            source.parent.mkdir(parents=True)
+            source.write_text(
+                "void friendly(void) {}\n"
+                "#ifdef NON_MATCHING\n"
+                "void another(void) {}\n"
+                "#else\n"
+                '#pragma GLOBAL_ASM("asm/nonmatchings/x/another.s")\n'
+                "#endif\n",
+                encoding="utf-8",
+            )
+            atlas = root / "atlas.json"
+            atlas.write_text(
+                json.dumps(
+                    {
+                        "modules": [
+                            {
+                                "overlay": 25,
+                                "text_ownership": [
+                                    {
+                                        "offset": "0x0",
+                                        "end_offset": "0x608",
+                                        "size": "0x608",
+                                        "type": "c",
+                                        "source": "overlays/o025/overlay_025",
+                                        "matched": True,
+                                        "nonmatching": True,
+                                    }
+                                ],
+                                "mixed_tu_exact_c_ranges": [
+                                    {
+                                        "offset": "0x0",
+                                        "end_offset": "0x17C",
+                                        "size": "0x17C",
+                                        "label": "friendly",
+                                        "source": "overlays/o025/overlay_025",
+                                        "evidence": "linked exact",
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            resolution = fp.resolve(
+                "friendly",
+                root=root,
+                alias_path=alias,
+                atlas_path=atlas,
+                symbol_path=root / "unused-symbols.txt",
+            )
+
+        self.assertEqual(0x17C, resolution.expected_size)
+        self.assertIn("mixed_tu_exact_c_ranges", resolution.identity_evidence)
+
+    def test_promoted_resident_requires_matched_c_symbol_geometry(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            alias = root / "aliases.txt"
+            alias.write_text("", encoding="utf-8")
+            source = root / "src/main/memory.c"
+            source.parent.mkdir(parents=True)
+            source.write_text("void func_8002BB40(void) {}\n", encoding="utf-8")
+            symbols = root / "symbols.txt"
+            symbols.write_text(
+                "func_8002BB40 = 0x8002BB40; // type:func size:0x120 matched C\n",
+                encoding="utf-8",
+            )
+
+            resolution = fp.resolve(
+                "func_8002BB40",
+                root=root,
+                alias_path=alias,
+                atlas_path=root / "unused-atlas.json",
+                symbol_path=symbols,
+            )
+
+        self.assertEqual("post_promotion", resolution.resolution_mode)
+        self.assertEqual(0x8002BB40, resolution.expected_value)
+        self.assertEqual(0x120, resolution.expected_size)
+
+    def test_missing_fallback_does_not_promote_guarded_nonmatching_source(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            alias = root / "aliases.txt"
+            alias.write_text(
+                "func_overlay_016_F00001E0_1873678 = friendly;\n",
+                encoding="utf-8",
+            )
+            source = root / "src/overlays/o016/friendly.c"
+            source.parent.mkdir(parents=True)
+            source.write_text(
+                "#ifdef NON_MATCHING\n"
+                "void friendly(void) {}\n"
+                "#else\n"
+                '#pragma GLOBAL_ASM("asm/nonmatchings/x/'
+                'func_overlay_016_F00001E0_1873678.s")\n'
+                "#endif\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(fp.PreflightError, "not one unconditional"):
+                fp.resolve(
+                    "friendly",
+                    root=root,
+                    alias_path=alias,
+                    atlas_path=root / "unused-atlas.json",
+                    symbol_path=root / "unused-symbols.txt",
+                )
+
+    def test_untracked_ordinary_c_is_not_assumed_promoted(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            alias = root / "aliases.txt"
+            alias.write_text("", encoding="utf-8")
+            source = root / "src/main/example.c"
+            source.parent.mkdir(parents=True)
+            source.write_text("void example(void) {}\n", encoding="utf-8")
+            symbols = root / "symbols.txt"
+            symbols.write_text(
+                "example = 0x80001000; // type:func size:0x20 tier-D\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(fp.PreflightError, "matched-C"):
+                fp.resolve(
+                    "example",
+                    root=root,
+                    alias_path=alias,
+                    atlas_path=root / "unused-atlas.json",
+                    symbol_path=symbols,
+                )
+
 
 class GeometryAndWorkbenchTests(unittest.TestCase):
     def test_equal_alias_geometries_are_one_unambiguous_range(self) -> None:
@@ -138,6 +342,102 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         self.assertEqual(report["matched_words"], 7)
         self.assertEqual(report["first_mismatch"], "+0x8")
         self.assertNotIn("diff_sites", report)
+
+    def test_promoted_workbench_uses_friendly_symbol_and_rom_oracle(self) -> None:
+        resolution = fp.Resolution(
+            "generated",
+            "generated",
+            "friendly",
+            Path("src/example.c"),
+            "example",
+            "build",
+            Path("build/src/example.c.o"),
+            None,
+            "promoted",
+            resolution_mode="post_promotion",
+            expected_value=0xF0000020,
+            expected_size=0x20,
+        )
+        payload = {
+            "schema": "decomp-workbench-comparison-v1",
+            "words": 0,
+            "target_instructions": 8,
+            "candidate_instructions": 8,
+            "first_divergent_row": None,
+            "verdict": "exact",
+        }
+        completed = subprocess.CompletedProcess(
+            [], 0, stdout=json.dumps(payload), stderr=""
+        )
+        with mock.patch.object(fp, "_run", return_value=completed) as run:
+            report = fp._workbench(resolution)
+
+        command = run.call_args.args[0]
+        self.assertEqual(command[1:3], ["--rom", "friendly"])
+        self.assertEqual("rom", report["comparison_mode"])
+
+    def test_promoted_geometry_must_equal_tracked_range(self) -> None:
+        resolution = fp.Resolution(
+            "friendly",
+            "generated",
+            "friendly",
+            Path("src/example.c"),
+            "example",
+            "build",
+            Path("build/src/example.c.o"),
+            None,
+            "promoted",
+            resolution_mode="post_promotion",
+            expected_value=0xF0000020,
+            expected_size=0x20,
+        )
+        with self.assertRaisesRegex(fp.PreflightError, "linked geometry disagrees"):
+            fp._require_tracked_geometry(resolution, 0xF0000020, 0x24)
+
+    def test_promoted_mode_accepts_exact_relocation_shape_with_proxy_identities(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build", Path("build/src/example.c.o"), None,
+            "promoted", resolution_mode="post_promotion",
+        )
+        comparison = {
+            "candidate_record_count": 9,
+            "candidate_identity_resolved_count": 4,
+            "target_record_count": 9,
+            "offset_type_exact": True,
+        }
+        fp._require_static_relocation_evidence(resolution, comparison)
+
+    def test_fallback_mode_still_rejects_unresolved_relocation_identity(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build_non_matching",
+            Path("build_non_matching/src/example.c.o"), Path("target.s"),
+            "guarded fallback",
+        )
+        comparison = {
+            "candidate_record_count": 3,
+            "candidate_identity_resolved_count": 2,
+            "target_record_count": 3,
+            "offset_type_exact": True,
+        }
+        with self.assertRaisesRegex(fp.PreflightError, "unresolved at 1"):
+            fp._require_static_relocation_evidence(resolution, comparison)
+
+    def test_promoted_mode_rejects_relocation_shape_drift(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build", Path("build/src/example.c.o"), None,
+            "promoted", resolution_mode="post_promotion",
+        )
+        comparison = {
+            "candidate_record_count": 9,
+            "candidate_identity_resolved_count": 9,
+            "target_record_count": 8,
+            "offset_type_exact": False,
+        }
+        with self.assertRaisesRegex(fp.PreflightError, "shape disagrees"):
+            fp._require_static_relocation_evidence(resolution, comparison)
 
 
 class FreshnessTests(unittest.TestCase):
@@ -305,6 +605,8 @@ class RelocationEvidenceTests(unittest.TestCase):
         report = {
             "target_symbol": "func_8002BB40",
             "candidate_symbol": "func_8002BB40",
+            "resolution_mode": "post_promotion",
+            "identity_evidence": "symbol_addrs matched-C function row",
             "source": "src/main/memory.c",
             "candidate_build_dir": "build",
             "candidate_signature": "s32 func_8002BB40(void)",
@@ -328,6 +630,7 @@ class RelocationEvidenceTests(unittest.TestCase):
                 "stable_identity_alignment_count": 8,
             },
             "workbench": {
+                "comparison_mode": "rom",
                 "matched_words": 72,
                 "target_words": 72,
                 "candidate_words": 72,
