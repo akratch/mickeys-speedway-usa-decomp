@@ -215,9 +215,9 @@ The guarantees that do not depend on out-guessing an encoding are structural:
    so it is not a guarantee that no instruction text can reach a ledger; it is
    a guarantee that the *schema no longer asks for it*, which is what made the
    original incident automatic. Ledgers stay gitignored regardless.
-4. **Policy and review**: `CLAUDE.md`, `docs/CONTRIBUTING.md`, and a human
-   reading the diff. The gates exist so a mistake is caught, not so review can
-   be skipped.
+4. **Policy and review**: `docs/CLEANROOM.md`, `docs/CONTRIBUTING.md`, and a
+   human reading the diff. The gates exist so a mistake is caught, not so
+   review can be skipped.
 5. **A server-side ruleset on the remote.** Every layer above is client-side
    and skippable with `--no-verify`, and CI reports after publication rather
    than preventing it. `protect-master` (GitHub ruleset id `20111399`, active

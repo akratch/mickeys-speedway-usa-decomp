@@ -232,7 +232,10 @@ def skel_index(refs):
 
 def load_rom():
     if not BASEROM.is_file():
-        sys.exit(f"error: baserom not found at {BASEROM} (see CLAUDE.md build quickstart)")
+        sys.exit(
+            f"error: baserom not found at {BASEROM} "
+            "(see docs/CONTRIBUTING.md setup)"
+        )
     return BASEROM.read_bytes()
 
 

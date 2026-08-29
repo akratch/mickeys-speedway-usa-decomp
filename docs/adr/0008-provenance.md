@@ -5,7 +5,7 @@ Date: 2026-08-24
 
 ## Context
 
-The standing rule (`CLAUDE.md`, `docs/CLEANROOM.md`) is that this project
+The standing rule (`docs/CONTRIBUTING.md`, `docs/CLEANROOM.md`) is that this project
 follows the same provenance practice as the existing published N64 matching
 decomps. `docs/acceleration-survey.md` §13.3 and §13.4 checked what that
 practice actually is, across DKR, JFG, BK, PD, and dp64.

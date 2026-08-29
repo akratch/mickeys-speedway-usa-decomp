@@ -44,8 +44,8 @@ or the offending function is split out.
 
 Every count is derived mechanically from the tree at the moment it's asked
 for (`gmake scoreboard`, `tools/progress.py --verbose`), consistent with the
-"Derived numbers are recomputed, never remembered" rule already in
-`CLAUDE.md`.
+"Derived numbers are recomputed, never remembered" rule in
+`docs/CONTRIBUTING.md`.
 
 ## Consequences
 
