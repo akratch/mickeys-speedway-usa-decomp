@@ -33,6 +33,10 @@ extern s32 overlay98CheckCandidateReloc(void *, Vec3f *, Vec3f *, s32, s32);
 extern s32 overlay98UniqueCountReloc;
 extern s16 overlay98UniqueYReloc[];
 
+/* Reproof of the former public claim: natural C requires frame, CFG, schedule,
+ * and register-field instruction edits to reproduce retail. Assembly remains
+ * canonical. */
+#ifdef NON_MATCHING
 s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
     Vec3f output;
     Vec3f input;
@@ -71,3 +75,6 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
     }
     return accepted;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o098/overlay98CheckObject/func_overlay_098_F0000848_18D9208.s")
+#endif

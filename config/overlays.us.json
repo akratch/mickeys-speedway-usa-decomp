@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 116724,
-  "nonmatching_overlay_c_bytes": 307140,
+  "matched_overlay_c_bytes": 112644,
+  "nonmatching_overlay_c_bytes": 311220,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 1904,
   "bss_bytes": 77680,
@@ -7392,7 +7392,7 @@
      "type": "c",
      "source": "overlays/o034/overlay34UpdateRecords",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x540",
@@ -8823,7 +8823,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41SpawnItems",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x195C",
@@ -9541,7 +9541,7 @@
      "type": "c",
      "source": "overlays/o045/func_overlay_045_F0000764_188CBBC",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x1158",
@@ -18315,7 +18315,7 @@
      "type": "c",
      "source": "overlays/o098/overlay98CollectAccepted",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x234",
@@ -18333,7 +18333,7 @@
      "type": "c",
      "source": "overlays/o098/overlay98CheckObject",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xA04",

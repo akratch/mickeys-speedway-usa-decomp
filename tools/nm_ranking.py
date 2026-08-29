@@ -581,6 +581,30 @@ def main() -> int:
                      help="only process the first N queue items (debugging)")
     args = ap.parse_args()
 
+    # The permuter is intentionally installed separately from this repository.
+    # Fail before touching the committed queue when that dependency is absent;
+    # otherwise every item reports the same import error and a successful exit
+    # silently replaces a useful ranking with an empty one.
+    permuter_required = [
+        ROOT / "tools" / "permuter" / "import.py",
+        ROOT / "tools" / "permuter" / "prelude.inc",
+    ]
+    missing = [path for path in permuter_required if not path.is_file()]
+    if missing:
+        print(
+            "error: decomp-permuter is not installed; refusing to overwrite "
+            f"{args.out}",
+            file=sys.stderr,
+        )
+        for path in missing:
+            print(f"  missing: {path.relative_to(ROOT)}", file=sys.stderr)
+        print(
+            "install decomp-permuter under tools/permuter as described in "
+            "README.md, then rerun this command",
+            file=sys.stderr,
+        )
+        return 2
+
     WORK_DIR.mkdir(parents=True, exist_ok=True)
 
     queue = pb.discover_queue()
@@ -601,6 +625,16 @@ def main() -> int:
         r.objdiff_match_pct = pct_by_name.get(r.name)
 
     results.sort(key=sort_key)
+
+    if queue and not results:
+        print(
+            f"error: 0/{len(queue)} candidates resolved; refusing to overwrite "
+            f"{args.out}",
+            file=sys.stderr,
+        )
+        if errors:
+            print(f"first failure: {errors[0]}", file=sys.stderr)
+        return 2
 
     with_pct = sum(1 for r in results if r.objdiff_match_pct is not None)
     out_doc = {

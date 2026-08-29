@@ -295,9 +295,8 @@ segments:
       # claim.
       - [0x4BC40, c, main/font]
       # The PI-manager/rzip prefix and huft builder form the C half of the
-      # inflate subsystem. DKR's src/gzip.c identifies the source unit; only
-      # byteswap32 is compiler-exact so far, and the other five functions stay
-      # as GLOBAL_ASM until independently matched.
+      # inflate subsystem. DKR's src/gzip.c identifies the source unit. The
+      # PI-manager/front-end functions and Huffman builder are compiler-exact.
       - [0x4E1E0, c, main/gzip]
       # Measured boundary. The whole 0xA74-byte .text of DKR's built
       # `src/hasm/gzip_asm.s.o` -- the hand-written inflate core the asset
@@ -659,9 +658,10 @@ segments:
       # func_80019934's five-entry distance-mode switch table.
       - [0x823B4, .rodata, main/lights]
       - [0x823C8, rodata]
-      # osScGetTaskType's seven-entry switch table.
+      # osScGetTaskType's seven-entry switch table and __scSchedule's
+      # seven-entry switch table share this sched-owned rodata input section.
       - [0x82FD8, .rodata, main/sched]
-      - [0x82FF4, rodata]
+      - [0x83010, rodata]
       # func_80034094's twelve-entry video-mode switch table. The following
       # zero word is output-section padding, not owned object bytes.
       - [0x8309C, .rodata, main/gameVi]

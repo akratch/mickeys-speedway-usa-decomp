@@ -1370,13 +1370,11 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 0xE);
 }
 
-#ifdef NON_MATCHING
-/* Bounded workbench closeout retained the source as NON_MATCHING; the best
- * source-faithful follow-up reordered the initial pointer assignments and
- * reached 118/121 instructions with the exact 0x50 frame, nine calls, and FP
- * schedule. The remaining three words are one v0->v1 allocator web at the
- * 0x258 stores; timer lifetime/width forms and the alias probe did not move it.
- * See the function's plateau entry in docs/resident.md for the evidence. */
+/* The first collision callback returns no value. Its typed weak alias removes
+ * the generic trap placeholder's phantom s32 return web; the build restores
+ * the measured TrapDanglingJump relocation identity without changing bytes. */
+#pragma weak hitCopyFirstTrap = TrapDanglingJump
+extern void hitCopyFirstTrap(HitCopyState *state, HitCollisionVehicle *vehicle);
 void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;
@@ -1388,12 +1386,12 @@ void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     f32 deltaZ;
     f32 distance;
 
-    firstSource = first->source;
     secondTarget = (HitCollisionNormalLink *) second->target;
     secondSource = second->source;
+    firstSource = first->source;
     firstVehicle = (HitCollisionVehicle *) first->target;
     if ((firstVehicle->unk16A == 0) && (firstVehicle->unk168 == 0)) {
-        TrapDanglingJump(first, firstVehicle);
+        hitCopyFirstTrap(first, firstVehicle);
         {
             s32 timer;
 
@@ -1404,6 +1402,7 @@ void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
         }
         firstVehicle->unk150 = 10.0f;
         TrapDanglingJump(secondTarget->state, first);
+        /* Inert allocation aid retained by exact C. */
         if (1) {
         }
         ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
@@ -1443,9 +1442,6 @@ void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     secondTarget->unk24 = deltaZ / distance;
     TrapDanglingJump(second, 6);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055B24.s")
-#endif
 void func_80055D08(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopySource *firstSource;
     HitCopySource *secondSource;

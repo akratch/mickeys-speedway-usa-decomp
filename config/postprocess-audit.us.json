@@ -2682,7 +2682,8 @@
       "size": 308,
       "source": "src/overlays/o034/overlay34UpdateRecords.c",
       "tools": [
-        "overlay34UpdateRecords.postprocess.py"
+        "trim_elf_section.py",
+        "objcopy"
       ]
     },
     {
@@ -3291,9 +3292,7 @@
       "size": 540,
       "source": "src/overlays/o041/overlay41SpawnItems.c",
       "tools": [
-        "rebind_elf_relocations.py",
         "trim_elf_section.py",
-        "externalize_elf_section.py",
         "objcopy"
       ]
     },
@@ -3531,9 +3530,7 @@
       "size": 2548,
       "source": "src/overlays/o045/func_overlay_045_F0000764_188CBBC.c",
       "tools": [
-        "trim_elf_section.py",
-        "externalize_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -6554,8 +6551,6 @@
       "size": 444,
       "source": "src/overlays/o098/overlay98CheckObject.c",
       "tools": [
-        "overlay98CheckObject.prepare.py",
-        "rebind_elf_relocations.py",
         "trim_elf_section.py",
         "objcopy"
       ]
@@ -6569,8 +6564,6 @@
       "size": 240,
       "source": "src/overlays/o098/overlay98CollectAccepted.c",
       "tools": [
-        "overlay98CollectAccepted.prepare.py",
-        "trim_elf_section.py",
         "objcopy"
       ]
     },

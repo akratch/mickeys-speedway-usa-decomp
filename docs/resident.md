@@ -259,7 +259,7 @@ overlay callers/callees outside the range were observed.
 | `0x4E378` | `0x30` | `byteswap32` | DKR `byteswap32`; JFG `rzipUncompressSize` | A, matched C | leaf; ext callers |
 | `0x4E3A8` | `0x38` | `func_8004D7A8` | `rzipUncompressSizeROM` | A, matched C | IDO C exact; calls `byteswap32`, ext |
 | `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | A, matched C | IDO C exact; calls `gzip_inflate_block`; ext callers |
-| `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B, NON_MATCHING shape-exact | DKR `src/gzip.c`; 2 register words remain; called by `main/gzip_asm` |
+| `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B, exact C | DKR `src/gzip.c`; index-plus-base spelling selects the exact 390-instruction temporary order; called by `main/gzip_asm` |
 
 `func_8004B1DC` has a readable DKR-JP-derived candidate under
 `NON_MATCHING`. Its best stock-flag build has the target's 128-byte frame and
@@ -1657,17 +1657,9 @@ more instructions. JFG supplies the exact assembly skeleton and scheduler
 position but no C body. The assembly fallback remains canonical pending a
 source spelling that reproduces both stack homes without synthetic padding.
 
-`__scSchedule` retains a JFG-derived `NON_MATCHING` body whose 122 instruction
-words and 0x28-byte frame are exact under the resident flags and the full
-119-combination lattice. Perfect Dark's compiled scheduler is the closest
-independent skeleton at 0.857 similarity, while Mickey's two independent RCP
-state checks select JFG's source spelling. Promotion is blocked by rodata
-ownership rather than C: both switch relocations bind the compiler's anonymous
-late-rodata section, while Mickey's existing seven-entry `jtbl_800823F4`
-remains in the shared `0x81590` rodata object and names assembly-local case
-labels. Removing the fallback therefore leaves those seven entries undefined.
-Moving the table requires a measured YAML/shared-rodata boundary handoff
-outside this lane's assigned files, so the assembly fallback remains canonical.
+`__scSchedule` is exact at **488 bytes / 122 instruction words** under the
+resident flags. Its JFG-derived body and compiler-owned switch table are now
+owned by `main/sched` and link with the exact ROM range and relocation surface.
 
 `__scYield` is exact for all 19 instruction words after assigning scheduler's
 `0x800D2D40`–`0x800D2D50` BSS to this TU. The owned `u64` at `0x800D2D48`
@@ -1986,7 +1978,7 @@ placeholders are never imported.
 | `0x80055104` | `0x6F4` | no unique `hit.c` candidate | tier-D; GLOBAL_ASM-only, shared type pass not applicable; residual collision/vector assembly |
 | `0x800557F8` | `0x178` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 376 B and eight-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; reconstructed from Mickey's resident state/counter/audio ABI after no external skeleton exceeded 0.070 similarity |
 | `0x80055970` | `0x1B4` | no unique `hit.c` candidate | D; placeholder retained. Matched C: exact 436 B and relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; uopt homes declared locals at descending offsets in declaration order, so firstVehicle declared second lands its call-crossing spill at the target `sp+0x48` |
-| `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | tier-D; bounded `structure-mismatch` plateau: canonical source remains NON_MATCHING; the best source-faithful pointer-assignment order reaches 118/121 instructions at the exact `0x50` frame, nine executable call relocations, and exact FP/opcode schedule, with three register-only words remaining (first `+0x60`, target `v0` versus candidate `v1` for `0x258`). Function-scope, alias, width, initializer/direct-store, register-qualified, and wrapper-compatible `-g0` probes were inert or regressed the frame; no exact promotion. |
+| `0x80055B24` | `0x1E4` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 484 B and nine-call relocation surface; a typed `void` callback alias removes the placeholder's phantom return web while postprocessing restores the measured call identity |
 | `0x80055D08` | `0x148` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 328 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; composed from Mickey-local exact state-update and normalization patterns |
 | `0x80055E50` | `0x114` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 276 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0` |
 | `0x80055F64` | `0x16C` | no unique `hit.c` candidate | D; collision handler family. Matched C: exact 364 B and three-call relocation surface at `-O2 -mips2 -32 -Wo,-loopunroll,0`; declare volatile `secondZ` before `secondY` to retain the target stack home |

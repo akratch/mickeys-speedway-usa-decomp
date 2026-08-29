@@ -121,9 +121,8 @@ u8 *func_8004D7E0(u8 *compressed, u8 *output) {
 /* PROVENANCE: adapted from Diddy Kong Racing's published src/gzip.c,
  * gzip_huft_build. Mickey's globals, ABI, and instruction comparison remain
  * authoritative; the donor body is only the clean-room starting point. */
-#ifdef NON_MATCHING
-/* Workbench verdict: allocation-mismatch; 2 differing words, first at +0x400.
- * Shape-exact (permuter-ready): 390 instructions, frame, and relocations match; residual is register allocation only. */
+/* Spelling the table address as index-plus-base selects retail's temporary
+ * evaluation order. All 390 instructions, the frame, and relocations match. */
 void func_8004D840(u32 *b, u32 n, u32 s, u16 *d, u16 *e,
                    MickeyHuft **t, s32 *m) {
     u32 a;
@@ -231,7 +230,7 @@ void func_8004D840(u32 *b, u32 n, u32 s, u16 *d, u16 *e,
                 }
                 z = 1 << j;
 
-                q = &((MickeyHuft *) D_8007D630)[D_800D6AA8];
+                q = D_800D6AA8 + (MickeyHuft *) D_8007D630;
                 D_800D6AA8 += z + 1;
 
                 *t = q + 1;
@@ -277,6 +276,3 @@ void func_8004D840(u32 *b, u32 n, u32 s, u16 *d, u16 *e,
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gzip/func_8004D840.s")
-#endif

@@ -27,13 +27,19 @@ typedef struct Overlay41FloatVector {
 } Overlay41FloatVector;
 
 /* Fresh pinned DKR v77/v80 and JFG scans found no exact donor. */
-extern Overlay41Root **gOverlay41Roots;
-extern s32 overlay41RandomRange(s32 lower, s32 upper);
-extern void overlay41ConvertPair(Overlay41ShortPair *input,
-                                 Overlay41FloatVector *output);
-extern void overlay41Emit(f32 x, f32 y, s32 kind, f32 outX, f32 outY,
-                          f32 z, s32 opacity, s32 mode, f32 scale);
+extern Overlay41Root **D_800D6B00;
+extern s32 mathRnd(s32 lower, s32 upper);
+extern void mathOneFloatPY(Overlay41ShortPair *input,
+                           Overlay41FloatVector *output);
+extern void func_overlay_012_F00001B4_186D434(
+    f32 x, f32 y, s32 kind, f32 outX, f32 outY, f32 z, s32 opacity, s32 mode,
+    f32 scale);
 
+/* Public commit 4e01327b5 unwrapped this same body, but its postprocess moved
+ * the two retained-rodata LO16 addends at +0x80/+0x12C. Canonical IDO emits
+ * all 135 instructions and all 11 runtime relocation sites/types; preserve
+ * the natural C as a candidate and keep assembly canonical. */
+#ifdef NON_MATCHING
 void overlay41SpawnItems(s32 rootIndex, s32 count, s32 mode, s32 centerX,
                          s32 centerY, s32 radiusX, s32 radiusY, s32 centerZ,
                          s32 radiusZ) {
@@ -44,7 +50,7 @@ void overlay41SpawnItems(s32 rootIndex, s32 count, s32 mode, s32 centerX,
     Overlay41Item *item;
     f32 scale;
 
-    root = gOverlay41Roots[rootIndex];
+    root = D_800D6B00[rootIndex];
     scale = 1.0f;
     if (root == 0) {
         return;
@@ -84,12 +90,16 @@ void overlay41SpawnItems(s32 rootIndex, s32 count, s32 mode, s32 centerX,
     }
 
     while (count--) {
-        input.x = overlay41RandomRange(-radiusX, radiusX) + centerX;
-        input.y = overlay41RandomRange(-radiusY, radiusY) + centerY;
+        input.x = mathRnd(-radiusX, radiusX) + centerX;
+        input.y = mathRnd(-radiusY, radiusY) + centerY;
         output.z =
-            (f32)(overlay41RandomRange(-radiusZ, radiusZ) + centerZ) * -0.01f;
-        overlay41ConvertPair(&input, &output);
-        overlay41Emit(item->x, item->y, item->kind, output.x, output.y, output.z,
-                      opacity, mode, scale);
+            (f32)(mathRnd(-radiusZ, radiusZ) + centerZ) * -0.01f;
+        mathOneFloatPY(&input, &output);
+        func_overlay_012_F00001B4_186D434(
+            item->x, item->y, item->kind, output.x, output.y, output.z, opacity,
+            mode, scale);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41SpawnItems/func_overlay_041_F0001740_1888A78.s")
+#endif

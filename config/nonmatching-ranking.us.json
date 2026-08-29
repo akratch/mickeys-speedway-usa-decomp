@@ -1,22 +1,10 @@
 {
-  "queue_size": 376,
-  "resolved": 376,
+  "queue_size": 413,
+  "resolved": 413,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
   "functions": [
-    {
-      "name": "overlay40FadeRecords",
-      "file": "src/overlays/o040/overlay40FadeRecords.c",
-      "overlay": 40,
-      "tu": "overlays/o040",
-      "size_bytes": 404,
-      "objdiff_match_pct": null,
-      "differing_words": 3,
-      "first_mismatch_offset": 12,
-      "size_delta": 0,
-      "category": "register-only"
-    },
     {
       "name": "overlay3FindClosestObject",
       "file": "src/overlays/o003/overlay3FindClosestObject.c",
@@ -42,30 +30,6 @@
       "category": "register-only"
     },
     {
-      "name": "overlay74Update",
-      "file": "src/overlays/o074/overlay74Update.c",
-      "overlay": 74,
-      "tu": "overlays/o074",
-      "size_bytes": 400,
-      "objdiff_match_pct": null,
-      "differing_words": 6,
-      "first_mismatch_offset": 12,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
-      "name": "func_80003760",
-      "file": "src/main/audio_manager_36D0.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 100,
-      "objdiff_match_pct": null,
-      "differing_words": 8,
-      "first_mismatch_offset": 0,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
       "name": "overlay20UpdateObjectResource",
       "file": "src/overlays/o020/overlay20UpdateObjectResource.c",
       "overlay": 20,
@@ -76,18 +40,6 @@
       "first_mismatch_offset": 176,
       "size_delta": 0,
       "category": "register-only"
-    },
-    {
-      "name": "func_8002CF6C",
-      "file": "src/main/saves.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 352,
-      "objdiff_match_pct": null,
-      "differing_words": 77,
-      "first_mismatch_offset": 8,
-      "size_delta": -12,
-      "category": "structure-mismatch"
     },
     {
       "name": "func_overlay_014_F00009F4_18702CC",
@@ -138,18 +90,6 @@
       "category": "register-only"
     },
     {
-      "name": "func_80020D8C",
-      "file": "src/main/models.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 192,
-      "objdiff_match_pct": null,
-      "differing_words": 17,
-      "first_mismatch_offset": 56,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
       "name": "overlay1UpdateValueCache",
       "file": "src/overlays/o001/overlay_001_tail.c",
       "overlay": 1,
@@ -158,6 +98,30 @@
       "objdiff_match_pct": null,
       "differing_words": 15,
       "first_mismatch_offset": 40,
+      "size_delta": 0,
+      "category": "register-only"
+    },
+    {
+      "name": "overlay40FadeRecords",
+      "file": "src/overlays/o040/overlay40FadeRecords.c",
+      "overlay": 40,
+      "tu": "overlays/o040",
+      "size_bytes": 404,
+      "objdiff_match_pct": null,
+      "differing_words": 16,
+      "first_mismatch_offset": 12,
+      "size_delta": 0,
+      "category": "register-only"
+    },
+    {
+      "name": "func_80020D8C",
+      "file": "src/main/models.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 192,
+      "objdiff_match_pct": null,
+      "differing_words": 17,
+      "first_mismatch_offset": 56,
       "size_delta": 0,
       "category": "register-only"
     },
@@ -222,18 +186,6 @@
       "category": "register-only"
     },
     {
-      "name": "func_800320F0",
-      "file": "src/main/runlink.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 404,
-      "objdiff_match_pct": null,
-      "differing_words": 35,
-      "first_mismatch_offset": 32,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
       "name": "func_overlay_022_F0000D30_1878E38",
       "file": "src/overlays/o022/overlay22RemoveObject.c",
       "overlay": 22,
@@ -282,18 +234,6 @@
       "category": "register-only"
     },
     {
-      "name": "overlay1CloneRecord",
-      "file": "src/overlays/o001/overlay_001_tail.c",
-      "overlay": 1,
-      "tu": "overlays/o001",
-      "size_bytes": 92,
-      "objdiff_match_pct": null,
-      "differing_words": 3,
-      "first_mismatch_offset": 32,
-      "size_delta": 0,
-      "category": "schedule-only"
-    },
-    {
       "name": "overlay2SplitRegion",
       "file": "src/overlays/o002/overlay2SplitRegion.c",
       "overlay": 2,
@@ -318,28 +258,16 @@
       "category": "other"
     },
     {
-      "name": "overlay84AdvanceCurrent",
-      "file": "src/overlays/o084/overlay84AdvanceCurrent.c",
-      "overlay": 84,
-      "tu": "overlays/o084",
-      "size_bytes": 328,
-      "objdiff_match_pct": null,
-      "differing_words": 2,
-      "first_mismatch_offset": 236,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
       "name": "overlay7DispatchModes",
       "file": "src/overlays/o007/overlay_007_tail.c",
       "overlay": 7,
       "tu": "overlays/o007",
       "size_bytes": 524,
       "objdiff_match_pct": null,
-      "differing_words": 2,
+      "differing_words": 3,
       "first_mismatch_offset": 68,
       "size_delta": 0,
-      "category": "register-only"
+      "category": "other"
     },
     {
       "name": "overlay97InitScale",
@@ -396,10 +324,10 @@
       "tu": "overlays/o007",
       "size_bytes": 240,
       "objdiff_match_pct": null,
-      "differing_words": 2,
+      "differing_words": 5,
       "first_mismatch_offset": 4,
       "size_delta": 0,
-      "category": "register-only"
+      "category": "other"
     },
     {
       "name": "func_overlay_022_F0000000_1878108",
@@ -426,18 +354,6 @@
       "category": "other"
     },
     {
-      "name": "overlay7CommitSelection",
-      "file": "src/overlays/o007/overlay_007_tail.c",
-      "overlay": 7,
-      "tu": "overlays/o007",
-      "size_bytes": 288,
-      "objdiff_match_pct": null,
-      "differing_words": 3,
-      "first_mismatch_offset": 188,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
       "name": "overlay20BuildTileCommands",
       "file": "src/overlays/o020/overlay20BuildTileCommands.c",
       "overlay": 20,
@@ -458,18 +374,6 @@
       "objdiff_match_pct": null,
       "differing_words": 6,
       "first_mismatch_offset": 16,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "overlay43FilterImage",
-      "file": "src/overlays/o043/overlay43FilterImage.c",
-      "overlay": 43,
-      "tu": "overlays/o043",
-      "size_bytes": 172,
-      "objdiff_match_pct": null,
-      "differing_words": 6,
-      "first_mismatch_offset": 12,
       "size_delta": 0,
       "category": "other"
     },
@@ -506,18 +410,6 @@
       "objdiff_match_pct": null,
       "differing_words": 7,
       "first_mismatch_offset": 72,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "func_80055B24",
-      "file": "src/main/anim.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 484,
-      "objdiff_match_pct": null,
-      "differing_words": 8,
-      "first_mismatch_offset": 32,
       "size_delta": 0,
       "category": "other"
     },
@@ -582,6 +474,18 @@
       "category": "other"
     },
     {
+      "name": "func_8003E8D8",
+      "file": "src/main/particles.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 560,
+      "objdiff_match_pct": null,
+      "differing_words": 9,
+      "first_mismatch_offset": 56,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "func_overlay_009_F0000540_1866BB8",
       "file": "src/overlays/o009/overlay_009.c",
       "overlay": 9,
@@ -590,18 +494,6 @@
       "objdiff_match_pct": null,
       "differing_words": 9,
       "first_mismatch_offset": 76,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "overlay68RebuildSecondaryEntry",
-      "file": "src/overlays/o068/overlay68RebuildSecondaryEntry.c",
-      "overlay": 68,
-      "tu": "overlays/o068",
-      "size_bytes": 488,
-      "objdiff_match_pct": null,
-      "differing_words": 9,
-      "first_mismatch_offset": 88,
       "size_delta": 0,
       "category": "other"
     },
@@ -702,18 +594,6 @@
       "category": "other"
     },
     {
-      "name": "func_8003F5F8",
-      "file": "src/main/particles.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 1104,
-      "objdiff_match_pct": null,
-      "differing_words": 11,
-      "first_mismatch_offset": 596,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
       "name": "rcpClearZBuffer",
       "file": "src/main/rcpFast3d.c",
       "overlay": null,
@@ -770,6 +650,18 @@
       "objdiff_match_pct": null,
       "differing_words": 12,
       "first_mismatch_offset": 20,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "overlay98CollectAccepted",
+      "file": "src/overlays/o098/overlay98CollectAccepted.c",
+      "overlay": 98,
+      "tu": "overlays/o098",
+      "size_bytes": 240,
+      "objdiff_match_pct": null,
+      "differing_words": 12,
+      "first_mismatch_offset": 0,
       "size_delta": 0,
       "category": "other"
     },
@@ -834,18 +726,6 @@
       "category": "other"
     },
     {
-      "name": "func_overlay_061_F0001648_18C0A10",
-      "file": "src/overlays/o061/func_overlay_061_F0001648_18C0A10.c",
-      "overlay": 61,
-      "tu": "overlays/o061",
-      "size_bytes": 368,
-      "objdiff_match_pct": null,
-      "differing_words": 14,
-      "first_mismatch_offset": 200,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
       "name": "func_overlay_029_F000042C_187D6DC",
       "file": "src/overlays/o029/overlay29InitializeObject.c",
       "overlay": 29,
@@ -858,26 +738,14 @@
       "category": "other"
     },
     {
-      "name": "overlay99BuildHeightGrid",
-      "file": "src/overlays/o099/overlay99BuildHeightGrid.c",
-      "overlay": 99,
-      "tu": "overlays/o099",
-      "size_bytes": 456,
-      "objdiff_match_pct": null,
-      "differing_words": 15,
-      "first_mismatch_offset": 88,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "func_80053550",
-      "file": "src/main/anim.c",
+      "name": "func_8004ACC4",
+      "file": "src/main/fx.c",
       "overlay": null,
       "tu": "main",
-      "size_bytes": 792,
+      "size_bytes": 112,
       "objdiff_match_pct": null,
       "differing_words": 16,
-      "first_mismatch_offset": 164,
+      "first_mismatch_offset": 20,
       "size_delta": 0,
       "category": "other"
     },
@@ -1014,18 +882,6 @@
       "category": "other"
     },
     {
-      "name": "func_8004ACC4",
-      "file": "src/main/fx.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 112,
-      "objdiff_match_pct": null,
-      "differing_words": 18,
-      "first_mismatch_offset": 20,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
       "name": "overlay1InitializeGaugeObjects",
       "file": "src/overlays/o001/overlay_001_tail.c",
       "overlay": 1,
@@ -1070,6 +926,18 @@
       "objdiff_match_pct": null,
       "differing_words": 18,
       "first_mismatch_offset": 20,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "func_8004ADE8",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 384,
+      "objdiff_match_pct": null,
+      "differing_words": 19,
+      "first_mismatch_offset": 96,
       "size_delta": 0,
       "category": "other"
     },
@@ -1134,18 +1002,6 @@
       "category": "other"
     },
     {
-      "name": "overlay31InitializeBuffers",
-      "file": "src/overlays/o031/overlay31InitializeBuffers.c",
-      "overlay": 31,
-      "tu": "overlays/o031",
-      "size_bytes": 980,
-      "objdiff_match_pct": null,
-      "differing_words": 20,
-      "first_mismatch_offset": 0,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
       "name": "func_overlay_041_F0000124_188745C",
       "file": "src/overlays/o041/overlay41UpdateColorRecords.c",
       "overlay": 41,
@@ -1166,18 +1022,6 @@
       "objdiff_match_pct": null,
       "differing_words": 20,
       "first_mismatch_offset": 84,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "func_8003E8D8",
-      "file": "src/main/particles.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 560,
-      "objdiff_match_pct": null,
-      "differing_words": 22,
-      "first_mismatch_offset": 8,
       "size_delta": 0,
       "category": "other"
     },
@@ -1290,6 +1134,18 @@
       "category": "other"
     },
     {
+      "name": "func_8004AF68",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 208,
+      "objdiff_match_pct": null,
+      "differing_words": 26,
+      "first_mismatch_offset": 16,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "overlay1AdvanceGauge",
       "file": "src/overlays/o001/overlay_001_middle.c",
       "overlay": 1,
@@ -1322,18 +1178,6 @@
       "objdiff_match_pct": null,
       "differing_words": 29,
       "first_mismatch_offset": 8,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "func_8004ADE8",
-      "file": "src/main/fx.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 384,
-      "objdiff_match_pct": null,
-      "differing_words": 30,
-      "first_mismatch_offset": 0,
       "size_delta": 0,
       "category": "other"
     },
@@ -1410,6 +1254,18 @@
       "category": "other"
     },
     {
+      "name": "overlay43FilterImage",
+      "file": "src/overlays/o043/overlay43FilterImage.c",
+      "overlay": 43,
+      "tu": "overlays/o043",
+      "size_bytes": 172,
+      "objdiff_match_pct": null,
+      "differing_words": 35,
+      "first_mismatch_offset": 4,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "overlay60ReassignChoiceSlots",
       "file": "src/overlays/o060/overlay60ReassignChoiceSlots.c",
       "overlay": 60,
@@ -1441,6 +1297,18 @@
       "size_bytes": 688,
       "objdiff_match_pct": null,
       "differing_words": 37,
+      "first_mismatch_offset": 0,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "func_8001BBB4",
+      "file": "src/main/charControl.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 600,
+      "objdiff_match_pct": null,
+      "differing_words": 38,
       "first_mismatch_offset": 0,
       "size_delta": 0,
       "category": "other"
@@ -1494,6 +1362,18 @@
       "category": "other"
     },
     {
+      "name": "overlay74Update",
+      "file": "src/overlays/o074/overlay74Update.c",
+      "overlay": 74,
+      "tu": "overlays/o074",
+      "size_bytes": 400,
+      "objdiff_match_pct": null,
+      "differing_words": 39,
+      "first_mismatch_offset": 0,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "overlay100InitializeMotion",
       "file": "src/overlays/o100/overlay100InitializeMotion.c",
       "overlay": 100,
@@ -1514,18 +1394,6 @@
       "objdiff_match_pct": null,
       "differing_words": 41,
       "first_mismatch_offset": 124,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "func_800498FC",
-      "file": "src/main/fx.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 400,
-      "objdiff_match_pct": null,
-      "differing_words": 42,
-      "first_mismatch_offset": 140,
       "size_delta": 0,
       "category": "other"
     },
@@ -1662,6 +1530,18 @@
       "category": "other"
     },
     {
+      "name": "func_80003480",
+      "file": "src/main/audio_manager_36D0.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 376,
+      "objdiff_match_pct": null,
+      "differing_words": 53,
+      "first_mismatch_offset": 0,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "overlay14LoadRelocatedValue",
       "file": "src/overlays/o014/overlay14LoadRelocatedValue.c",
       "overlay": 14,
@@ -1741,6 +1621,30 @@
       "size_bytes": 832,
       "objdiff_match_pct": null,
       "differing_words": 63,
+      "first_mismatch_offset": 0,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "rumbleTick",
+      "file": "src/main/saves.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1372,
+      "objdiff_match_pct": null,
+      "differing_words": 64,
+      "first_mismatch_offset": 244,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
+      "name": "effectboxControl",
+      "file": "src/main/spranim.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 772,
+      "objdiff_match_pct": null,
+      "differing_words": 65,
       "first_mismatch_offset": 0,
       "size_delta": 0,
       "category": "other"
@@ -2214,6 +2118,18 @@
       "category": "other"
     },
     {
+      "name": "func_800140CC",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 868,
+      "objdiff_match_pct": null,
+      "differing_words": 195,
+      "first_mismatch_offset": 0,
+      "size_delta": 0,
+      "category": "other"
+    },
+    {
       "name": "func_overlay_027_F0000624_187BFFC",
       "file": "src/overlays/o027/overlay_027.c",
       "overlay": 27,
@@ -2478,14 +2394,14 @@
       "category": "reloc-mismatch"
     },
     {
-      "name": "__scSchedule",
-      "file": "src/main/sched.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 488,
+      "name": "overlay41SpawnItems",
+      "file": "src/overlays/o041/overlay41SpawnItems.c",
+      "overlay": 41,
+      "tu": "overlays/o041",
+      "size_bytes": 540,
       "objdiff_match_pct": null,
-      "differing_words": 14,
-      "first_mismatch_offset": 84,
+      "differing_words": 2,
+      "first_mismatch_offset": 128,
       "size_delta": 0,
       "category": "reloc-mismatch"
     },
@@ -2538,6 +2454,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_800498FC",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 400,
+      "objdiff_match_pct": null,
+      "differing_words": 33,
+      "first_mismatch_offset": 24,
+      "size_delta": -8,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_8003968C",
       "file": "src/main/menu.c",
       "overlay": null,
@@ -2571,6 +2499,18 @@
       "differing_words": 36,
       "first_mismatch_offset": 80,
       "size_delta": -8,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "overlay7CommitSelection",
+      "file": "src/overlays/o007/overlay_007_tail.c",
+      "overlay": 7,
+      "tu": "overlays/o007",
+      "size_bytes": 288,
+      "objdiff_match_pct": null,
+      "differing_words": 37,
+      "first_mismatch_offset": 4,
+      "size_delta": -4,
       "category": "size-mismatch"
     },
     {
@@ -2622,18 +2562,6 @@
       "category": "size-mismatch"
     },
     {
-      "name": "func_8004AF68",
-      "file": "src/main/fx.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 208,
-      "objdiff_match_pct": null,
-      "differing_words": 48,
-      "first_mismatch_offset": 4,
-      "size_delta": 8,
-      "category": "size-mismatch"
-    },
-    {
       "name": "overlay1ConsumeNearbyPending",
       "file": "src/overlays/o001/overlay_001_tail.c",
       "overlay": 1,
@@ -2670,27 +2598,15 @@
       "category": "size-mismatch"
     },
     {
-      "name": "overlay80InitializeContact",
-      "file": "src/overlays/o080/overlay80InitializeContact.c",
-      "overlay": 80,
-      "tu": "overlays/o080",
-      "size_bytes": 284,
-      "objdiff_match_pct": null,
-      "differing_words": 53,
-      "first_mismatch_offset": 72,
-      "size_delta": -4,
-      "category": "size-mismatch"
-    },
-    {
-      "name": "func_80003480",
-      "file": "src/main/audio_manager_36D0.c",
+      "name": "func_80046EC4",
+      "file": "src/main/fx.c",
       "overlay": null,
       "tu": "main",
-      "size_bytes": 376,
+      "size_bytes": 440,
       "objdiff_match_pct": null,
-      "differing_words": 62,
-      "first_mismatch_offset": 0,
-      "size_delta": -4,
+      "differing_words": 61,
+      "first_mismatch_offset": 44,
+      "size_delta": 4,
       "category": "size-mismatch"
     },
     {
@@ -2730,18 +2646,6 @@
       "category": "size-mismatch"
     },
     {
-      "name": "func_80046EC4",
-      "file": "src/main/fx.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 440,
-      "objdiff_match_pct": null,
-      "differing_words": 64,
-      "first_mismatch_offset": 44,
-      "size_delta": 8,
-      "category": "size-mismatch"
-    },
-    {
       "name": "runlinkInit",
       "file": "src/main/runlink.c",
       "overlay": null,
@@ -2751,18 +2655,6 @@
       "differing_words": 64,
       "first_mismatch_offset": 8,
       "size_delta": -16,
-      "category": "size-mismatch"
-    },
-    {
-      "name": "func_8004A380",
-      "file": "src/main/fx.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 304,
-      "objdiff_match_pct": null,
-      "differing_words": 65,
-      "first_mismatch_offset": 8,
-      "size_delta": -8,
       "category": "size-mismatch"
     },
     {
@@ -2787,6 +2679,18 @@
       "differing_words": 66,
       "first_mismatch_offset": 8,
       "size_delta": -80,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8003F154",
+      "file": "src/main/particles.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1188,
+      "objdiff_match_pct": null,
+      "differing_words": 66,
+      "first_mismatch_offset": 516,
+      "size_delta": -12,
       "category": "size-mismatch"
     },
     {
@@ -2826,18 +2730,6 @@
       "category": "size-mismatch"
     },
     {
-      "name": "overlay21ApplyPriorities",
-      "file": "src/overlays/o021/overlay21ApplyPriorities.c",
-      "overlay": 21,
-      "tu": "overlays/o021",
-      "size_bytes": 456,
-      "objdiff_match_pct": null,
-      "differing_words": 71,
-      "first_mismatch_offset": 36,
-      "size_delta": -8,
-      "category": "size-mismatch"
-    },
-    {
       "name": "func_8005AD64",
       "file": "src/main/models_5B300.c",
       "overlay": null,
@@ -2850,14 +2742,14 @@
       "category": "size-mismatch"
     },
     {
-      "name": "func_8003F154",
-      "file": "src/main/particles.c",
+      "name": "func_8002CF6C",
+      "file": "src/main/saves.c",
       "overlay": null,
       "tu": "main",
-      "size_bytes": 1188,
+      "size_bytes": 352,
       "objdiff_match_pct": null,
-      "differing_words": 75,
-      "first_mismatch_offset": 516,
+      "differing_words": 77,
+      "first_mismatch_offset": 8,
       "size_delta": -12,
       "category": "size-mismatch"
     },
@@ -2883,6 +2775,18 @@
       "differing_words": 79,
       "first_mismatch_offset": 24,
       "size_delta": -8,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "overlay34UpdateRecords",
+      "file": "src/overlays/o034/overlay34UpdateRecords.c",
+      "overlay": 34,
+      "tu": "overlays/o034",
+      "size_bytes": 308,
+      "objdiff_match_pct": null,
+      "differing_words": 79,
+      "first_mismatch_offset": 0,
+      "size_delta": 12,
       "category": "size-mismatch"
     },
     {
@@ -2940,9 +2844,21 @@
       "tu": "main",
       "size_bytes": 356,
       "objdiff_match_pct": null,
-      "differing_words": 87,
+      "differing_words": 85,
       "first_mismatch_offset": 0,
-      "size_delta": -28,
+      "size_delta": -20,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "overlay98CheckObject",
+      "file": "src/overlays/o098/overlay98CheckObject.c",
+      "overlay": 98,
+      "tu": "overlays/o098",
+      "size_bytes": 444,
+      "objdiff_match_pct": null,
+      "differing_words": 86,
+      "first_mismatch_offset": 0,
+      "size_delta": -4,
       "category": "size-mismatch"
     },
     {
@@ -3102,11 +3018,35 @@
       "category": "size-mismatch"
     },
     {
+      "name": "overlay99BuildHeightGrid",
+      "file": "src/overlays/o099/overlay99BuildHeightGrid.c",
+      "overlay": 99,
+      "tu": "overlays/o099",
+      "size_bytes": 456,
+      "objdiff_match_pct": null,
+      "differing_words": 104,
+      "first_mismatch_offset": 44,
+      "size_delta": 4,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_8004C690",
       "file": "src/main/font.c",
       "overlay": null,
       "tu": "main",
       "size_bytes": 584,
+      "objdiff_match_pct": null,
+      "differing_words": 105,
+      "first_mismatch_offset": 0,
+      "size_delta": -8,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "overlay68RebuildSecondaryEntry",
+      "file": "src/overlays/o068/overlay68RebuildSecondaryEntry.c",
+      "overlay": 68,
+      "tu": "overlays/o068",
+      "size_bytes": 488,
       "objdiff_match_pct": null,
       "differing_words": 105,
       "first_mismatch_offset": 0,
@@ -3123,18 +3063,6 @@
       "differing_words": 106,
       "first_mismatch_offset": 16,
       "size_delta": -4,
-      "category": "size-mismatch"
-    },
-    {
-      "name": "overlay101DrawClock",
-      "file": "src/overlays/o101/overlay101DrawClock.c",
-      "overlay": 101,
-      "tu": "overlays/o101",
-      "size_bytes": 952,
-      "objdiff_match_pct": null,
-      "differing_words": 107,
-      "first_mismatch_offset": 112,
-      "size_delta": -12,
       "category": "size-mismatch"
     },
     {
@@ -3210,6 +3138,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_800470B0",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 596,
+      "objdiff_match_pct": null,
+      "differing_words": 121,
+      "first_mismatch_offset": 68,
+      "size_delta": 4,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_8000D1B8",
       "file": "src/main/track.c",
       "overlay": null,
@@ -3258,6 +3198,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_80049000",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 596,
+      "objdiff_match_pct": null,
+      "differing_words": 125,
+      "first_mismatch_offset": 0,
+      "size_delta": 4,
+      "category": "size-mismatch"
+    },
+    {
       "name": "ProcessRelocationEntry",
       "file": "src/main/runlink.c",
       "overlay": null,
@@ -3279,6 +3231,18 @@
       "differing_words": 127,
       "first_mismatch_offset": 76,
       "size_delta": -4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8001B798",
+      "file": "src/main/spranim.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 700,
+      "objdiff_match_pct": null,
+      "differing_words": 131,
+      "first_mismatch_offset": 0,
+      "size_delta": -16,
       "category": "size-mismatch"
     },
     {
@@ -3342,6 +3306,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_80010900",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 588,
+      "objdiff_match_pct": null,
+      "differing_words": 143,
+      "first_mismatch_offset": 4,
+      "size_delta": -8,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_overlay_022_F0000A7C_1878B84",
       "file": "src/overlays/o022/overlay22ResolvePlane.c",
       "overlay": 22,
@@ -3402,6 +3378,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_8004A10C",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 628,
+      "objdiff_match_pct": null,
+      "differing_words": 155,
+      "first_mismatch_offset": 0,
+      "size_delta": -4,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_80020B10",
       "file": "src/main/models.c",
       "overlay": null,
@@ -3411,6 +3399,30 @@
       "differing_words": 156,
       "first_mismatch_offset": 0,
       "size_delta": 4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80012658",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 708,
+      "objdiff_match_pct": null,
+      "differing_words": 157,
+      "first_mismatch_offset": 0,
+      "size_delta": -12,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80049E4C",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 676,
+      "objdiff_match_pct": null,
+      "differing_words": 159,
+      "first_mismatch_offset": 8,
+      "size_delta": -8,
       "category": "size-mismatch"
     },
     {
@@ -3462,6 +3474,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_80010654",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 684,
+      "objdiff_match_pct": null,
+      "differing_words": 163,
+      "first_mismatch_offset": 0,
+      "size_delta": 4,
+      "category": "size-mismatch"
+    },
+    {
       "name": "overlay13DrawActive",
       "file": "src/overlays/o013/overlay13DrawActive.c",
       "overlay": 13,
@@ -3471,6 +3495,18 @@
       "differing_words": 163,
       "first_mismatch_offset": 0,
       "size_delta": -4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80018F08",
+      "file": "src/main/lights.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 820,
+      "objdiff_match_pct": null,
+      "differing_words": 166,
+      "first_mismatch_offset": 0,
+      "size_delta": -24,
       "category": "size-mismatch"
     },
     {
@@ -3534,6 +3570,54 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_80047304",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 740,
+      "objdiff_match_pct": null,
+      "differing_words": 176,
+      "first_mismatch_offset": 4,
+      "size_delta": -8,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_800479D4",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 772,
+      "objdiff_match_pct": null,
+      "differing_words": 176,
+      "first_mismatch_offset": 56,
+      "size_delta": -56,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "wakeDraw",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 708,
+      "objdiff_match_pct": null,
+      "differing_words": 177,
+      "first_mismatch_offset": 0,
+      "size_delta": -56,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_800103D4",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 640,
+      "objdiff_match_pct": null,
+      "differing_words": 177,
+      "first_mismatch_offset": 0,
+      "size_delta": 68,
+      "category": "size-mismatch"
+    },
+    {
       "name": "overlay20UpdateGrid",
       "file": "src/overlays/o020/overlay20UpdateGrid.c",
       "overlay": 20,
@@ -3546,6 +3630,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_80019AB8",
+      "file": "src/main/lights.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 736,
+      "objdiff_match_pct": null,
+      "differing_words": 178,
+      "first_mismatch_offset": 0,
+      "size_delta": 28,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_overlay_038_F000047C_188618C",
       "file": "src/overlays/o038/func_overlay_038_F000047C_188618C.c",
       "overlay": 38,
@@ -3555,6 +3651,18 @@
       "differing_words": 178,
       "first_mismatch_offset": 0,
       "size_delta": -4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_800180B4",
+      "file": "src/main/shadows.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 824,
+      "objdiff_match_pct": null,
+      "differing_words": 179,
+      "first_mismatch_offset": 52,
+      "size_delta": -8,
       "category": "size-mismatch"
     },
     {
@@ -3642,6 +3750,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_8001D960",
+      "file": "src/main/charControl.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 880,
+      "objdiff_match_pct": null,
+      "differing_words": 205,
+      "first_mismatch_offset": 0,
+      "size_delta": -4,
+      "category": "size-mismatch"
+    },
+    {
       "name": "overlay99ApplySegment",
       "file": "src/overlays/o099/overlay99ApplySegment.c",
       "overlay": 99,
@@ -3651,6 +3771,30 @@
       "differing_words": 206,
       "first_mismatch_offset": 0,
       "size_delta": -4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80012234",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 832,
+      "objdiff_match_pct": null,
+      "differing_words": 208,
+      "first_mismatch_offset": 0,
+      "size_delta": -176,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80011980",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 860,
+      "objdiff_match_pct": null,
+      "differing_words": 209,
+      "first_mismatch_offset": 0,
+      "size_delta": -12,
       "category": "size-mismatch"
     },
     {
@@ -3678,6 +3822,42 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_80049B14",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 824,
+      "objdiff_match_pct": null,
+      "differing_words": 216,
+      "first_mismatch_offset": 8,
+      "size_delta": 52,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "fxSPDPRipple",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 928,
+      "objdiff_match_pct": null,
+      "differing_words": 226,
+      "first_mismatch_offset": 8,
+      "size_delta": 16,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8000F198",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 996,
+      "objdiff_match_pct": null,
+      "differing_words": 228,
+      "first_mismatch_offset": 0,
+      "size_delta": -8,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_80040B88",
       "file": "src/main/particles.c",
       "overlay": null,
@@ -3690,6 +3870,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_800115E4",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 924,
+      "objdiff_match_pct": null,
+      "differing_words": 231,
+      "first_mismatch_offset": 0,
+      "size_delta": -12,
+      "category": "size-mismatch"
+    },
+    {
       "name": "overlay15InitStarsAndPalette",
       "file": "src/overlays/o015/overlay_015.c",
       "overlay": 15,
@@ -3699,6 +3891,18 @@
       "differing_words": 231,
       "first_mismatch_offset": 4,
       "size_delta": -4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8001EC44",
+      "file": "src/main/charControl.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 952,
+      "objdiff_match_pct": null,
+      "differing_words": 233,
+      "first_mismatch_offset": 0,
+      "size_delta": -28,
       "category": "size-mismatch"
     },
     {
@@ -3750,6 +3954,30 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_8001953C",
+      "file": "src/main/lights.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1016,
+      "objdiff_match_pct": null,
+      "differing_words": 264,
+      "first_mismatch_offset": 0,
+      "size_delta": 180,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8000DB34",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 688,
+      "objdiff_match_pct": null,
+      "differing_words": 267,
+      "first_mismatch_offset": 0,
+      "size_delta": 380,
+      "category": "size-mismatch"
+    },
+    {
       "name": "overlay101TailA6BC",
       "file": "src/overlays/o101/overlay101TailA6BC.c",
       "overlay": 101,
@@ -3783,6 +4011,18 @@
       "differing_words": 278,
       "first_mismatch_offset": 0,
       "size_delta": -16,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8000E5EC",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 820,
+      "objdiff_match_pct": null,
+      "differing_words": 283,
+      "first_mismatch_offset": 0,
+      "size_delta": 312,
       "category": "size-mismatch"
     },
     {
@@ -3834,6 +4074,42 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_8002F618",
+      "file": "src/main/rcpFast3d.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1308,
+      "objdiff_match_pct": null,
+      "differing_words": 312,
+      "first_mismatch_offset": 52,
+      "size_delta": -156,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80017BCC",
+      "file": "src/main/shadows.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1256,
+      "objdiff_match_pct": null,
+      "differing_words": 313,
+      "first_mismatch_offset": 0,
+      "size_delta": 48,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8001357C",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1040,
+      "objdiff_match_pct": null,
+      "differing_words": 314,
+      "first_mismatch_offset": 0,
+      "size_delta": 276,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_overlay_012_F00003A8_186D628",
       "file": "src/overlays/o012/func_overlay_012_F00003A8_186D628.c",
       "overlay": 12,
@@ -3843,6 +4119,18 @@
       "differing_words": 318,
       "first_mismatch_offset": 16,
       "size_delta": -32,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "render_epc_lock_up_display",
+      "file": "src/main/diCpu.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1376,
+      "objdiff_match_pct": null,
+      "differing_words": 321,
+      "first_mismatch_offset": 60,
+      "size_delta": 12,
       "category": "size-mismatch"
     },
     {
@@ -3882,6 +4170,30 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_80011CDC",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1368,
+      "objdiff_match_pct": null,
+      "differing_words": 335,
+      "first_mismatch_offset": 0,
+      "size_delta": -64,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80017140",
+      "file": "src/main/shadows.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1312,
+      "objdiff_match_pct": null,
+      "differing_words": 337,
+      "first_mismatch_offset": 0,
+      "size_delta": 64,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_80022FD4",
       "file": "src/main/camera.c",
       "overlay": null,
@@ -3894,6 +4206,54 @@
       "category": "size-mismatch"
     },
     {
+      "name": "wakeAllocate",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1404,
+      "objdiff_match_pct": null,
+      "differing_words": 340,
+      "first_mismatch_offset": 12,
+      "size_delta": -232,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8000BDB4",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1612,
+      "objdiff_match_pct": null,
+      "differing_words": 342,
+      "first_mismatch_offset": 48,
+      "size_delta": -40,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8002FB34",
+      "file": "src/main/rcpFast3d.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1436,
+      "objdiff_match_pct": null,
+      "differing_words": 358,
+      "first_mismatch_offset": 0,
+      "size_delta": -16,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8001398C",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1320,
+      "objdiff_match_pct": null,
+      "differing_words": 365,
+      "first_mismatch_offset": 0,
+      "size_delta": 156,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_overlay_001_F0003750_184FB30",
       "file": "src/overlays/o001/overlay_001_tail.c",
       "overlay": 1,
@@ -3903,6 +4263,30 @@
       "differing_words": 366,
       "first_mismatch_offset": 12,
       "size_delta": 4,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80054B3C",
+      "file": "src/main/anim.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1480,
+      "objdiff_match_pct": null,
+      "differing_words": 368,
+      "first_mismatch_offset": 0,
+      "size_delta": -112,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80017660",
+      "file": "src/main/shadows.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1388,
+      "objdiff_match_pct": null,
+      "differing_words": 368,
+      "first_mismatch_offset": 0,
+      "size_delta": 92,
       "category": "size-mismatch"
     },
     {
@@ -3927,6 +4311,30 @@
       "differing_words": 375,
       "first_mismatch_offset": 8,
       "size_delta": -76,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8000DFBC",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1584,
+      "objdiff_match_pct": null,
+      "differing_words": 380,
+      "first_mismatch_offset": 0,
+      "size_delta": -164,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "wakeUpdate",
+      "file": "src/main/fx.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1592,
+      "objdiff_match_pct": null,
+      "differing_words": 386,
+      "first_mismatch_offset": 0,
+      "size_delta": -72,
       "category": "size-mismatch"
     },
     {
@@ -3978,6 +4386,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_8001F520",
+      "file": "src/main/models.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 1604,
+      "objdiff_match_pct": null,
+      "differing_words": 394,
+      "first_mismatch_offset": 8,
+      "size_delta": -228,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_overlay_041_F0000854_1887B8C",
       "file": "src/overlays/o041/overlay41UpdateCurveObject.c",
       "overlay": 41,
@@ -4020,7 +4440,7 @@
       "tu": "main",
       "size_bytes": 1836,
       "objdiff_match_pct": null,
-      "differing_words": 438,
+      "differing_words": 440,
       "first_mismatch_offset": 0,
       "size_delta": -28,
       "category": "size-mismatch"
@@ -4110,18 +4530,6 @@
       "category": "size-mismatch"
     },
     {
-      "name": "func_overlay_051_F00000D0_18999D0",
-      "file": "src/overlays/o051/overlay_051.c",
-      "overlay": 51,
-      "tu": "overlays/o051",
-      "size_bytes": 1928,
-      "objdiff_match_pct": null,
-      "differing_words": 476,
-      "first_mismatch_offset": 0,
-      "size_delta": -4,
-      "category": "size-mismatch"
-    },
-    {
       "name": "func_overlay_046_F0001228_188F620",
       "file": "src/overlays/o046/func_overlay_046_F0001228_188F620.c",
       "overlay": 46,
@@ -4155,6 +4563,18 @@
       "differing_words": 482,
       "first_mismatch_offset": 0,
       "size_delta": -76,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "shadowGenerate",
+      "file": "src/main/shadows.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 2040,
+      "objdiff_match_pct": null,
+      "differing_words": 490,
+      "first_mismatch_offset": 12,
+      "size_delta": -220,
       "category": "size-mismatch"
     },
     {
@@ -4230,6 +4650,18 @@
       "category": "size-mismatch"
     },
     {
+      "name": "func_8000E920",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 2168,
+      "objdiff_match_pct": null,
+      "differing_words": 536,
+      "first_mismatch_offset": 56,
+      "size_delta": 48,
+      "category": "size-mismatch"
+    },
+    {
       "name": "func_overlay_011_F0000150_1868998",
       "file": "src/overlays/o011/func_overlay_011_F0000150_1868998.c",
       "overlay": 11,
@@ -4251,6 +4683,30 @@
       "differing_words": 540,
       "first_mismatch_offset": 60,
       "size_delta": -156,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_8001291C",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 2192,
+      "objdiff_match_pct": null,
+      "differing_words": 543,
+      "first_mismatch_offset": 0,
+      "size_delta": -136,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80016890",
+      "file": "src/main/shadows.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 2224,
+      "objdiff_match_pct": null,
+      "differing_words": 556,
+      "first_mismatch_offset": 0,
+      "size_delta": -188,
       "category": "size-mismatch"
     },
     {
@@ -4278,15 +4734,15 @@
       "category": "size-mismatch"
     },
     {
-      "name": "func_overlay_056_F00001A0_18A2F18",
-      "file": "src/overlays/o056/overlay_056.c",
-      "overlay": 56,
-      "tu": "overlays/o056",
-      "size_bytes": 2324,
+      "name": "func_overlay_045_F0000764_188CBBC",
+      "file": "src/overlays/o045/func_overlay_045_F0000764_188CBBC.c",
+      "overlay": 45,
+      "tu": "overlays/o045",
+      "size_bytes": 2548,
       "objdiff_match_pct": null,
-      "differing_words": 578,
-      "first_mismatch_offset": 4,
-      "size_delta": 12,
+      "differing_words": 580,
+      "first_mismatch_offset": 208,
+      "size_delta": -20,
       "category": "size-mismatch"
     },
     {
@@ -4335,6 +4791,18 @@
       "differing_words": 636,
       "first_mismatch_offset": 4,
       "size_delta": 108,
+      "category": "size-mismatch"
+    },
+    {
+      "name": "func_80010B4C",
+      "file": "src/main/track.c",
+      "overlay": null,
+      "tu": "main",
+      "size_bytes": 2712,
+      "objdiff_match_pct": null,
+      "differing_words": 677,
+      "first_mismatch_offset": 4,
+      "size_delta": -136,
       "category": "size-mismatch"
     },
     {

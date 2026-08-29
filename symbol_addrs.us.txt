@@ -566,7 +566,8 @@ __scTaskComplete = 0x8003134C; // type:func size:0x100 ROM 0x31f4c tier-B donor-
 __scAppendList = 0x8003144C; // type:func size:0x60 ROM 0x3204c tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 __scExec = 0x800314AC; // type:func size:0xC0 ROM 0x320ac tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 __scYield = 0x8003156C; // type:func size:0x4C ROM 0x3216c tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
-__scSchedule = 0x800315B8; // type:func size:0x1E8 ROM 0x321b8 tier-B NON_MATCHING exact-text plateau, shared jtbl_800823F4 ownership
+__scSchedule = 0x800315B8; // type:func size:0x1E8 ROM 0x321b8 tier-B exact C, JFG body and compiler-owned switch table
+jtbl_800823F4 = 0x800823F4; // type:jtbl size:0x1C tier-A compiler-owned sched switch table
 
 // rcp_dkr.c
 bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40 ROM 0x2f794 tier-A rcp_dkr.c.o masked=2/16 matched-C
@@ -692,7 +693,7 @@ func_8004D750 = 0x8004D750; // type:func size:0x28 ROM 0x4e350 tier-A IDO C exac
 byteswap32 = 0x8004D778; // type:func size:0x30 ROM 0x4e378 tier-A IDO C exact, DKR src/gzip.c donor, masked=0/12
 func_8004D7A8 = 0x8004D7A8; // type:func size:0x38 ROM 0x4e3a8 tier-A IDO C exact, Mickey-only reconstruction
 func_8004D7E0 = 0x8004D7E0; // type:func size:0x60 ROM 0x4e3e0 tier-A IDO C exact, Mickey-only reconstruction
-func_8004D840 = 0x8004D840; // type:func size:0x620 ROM 0x4e440 tier-B NON_MATCHING shape-exact, DKR src/gzip.c huft_build donor
+func_8004D840 = 0x8004D840; // type:func size:0x620 ROM 0x4e440 tier-B exact C, DKR src/gzip.c huft_build donor
 gzip_inflate_block = 0x8004DE60; // type:func size:0x104   ROM 0x4ea60  hasm/gzip_asm.s.o  masked=19/65
 gzip_inflate_dynamic = 0x8004DF64; // type:func size:0x418   ROM 0x4eb64  hasm/gzip_asm.s.o  masked=32/262
 gzip_inflate_fixed = 0x8004E37C; // type:func size:0x158   ROM 0x4ef7c  hasm/gzip_asm.s.o  masked=11/86
@@ -2591,6 +2592,7 @@ animseqPlay = 0x800534B0; // type:func size:0x10   ROM 0x540b0  tier-D JFG order
 func_800534C0 = 0x800534C0; // type:func size:0x2C   ROM 0x540c0  tier-D JFG ordered animseqPause candidate, matched C
 func_800534EC = 0x800534EC; // type:func size:0x64   ROM 0x540ec  tier-D collision-shaped slot dispatcher, matched C
 func_800557F8 = 0x800557F8; // type:func size:0x178  ROM 0x563f8  tier-D collision response helper, matched C
+func_80055B24 = 0x80055B24; // type:func size:0x1E4  ROM 0x56724  tier-D collision handler, typed void callback alias, C-object+linked-ROM exact matched C
 func_80055D08 = 0x80055D08; // type:func size:0x148  ROM 0x56908  tier-D collision motion-normal helper, matched C
 func_80055E50 = 0x80055E50; // type:func size:0x114  ROM 0x56a50  tier-D collision state-normalization helper, matched C
 func_80055F64 = 0x80055F64; // type:func size:0x16C  ROM 0x56b64  tier-D collision handler family, C-object+linked-ROM exact matched C

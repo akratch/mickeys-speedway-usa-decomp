@@ -409,6 +409,34 @@ each routine's constants, structure effects, and control shape. The known JFG
 overlay 5 placeholder at `+0x2E4` remains assembly: its shared instructions do
 not reproduce Mickey's stack frame from plausible C.
 
+#### Retracted postcompile overlay promotions
+
+Two additional public exact claims fail canonical reproof. Overlay 34
+`+0x40C..+0x540` compiles to 80 instructions / `0x140` with frame `0x38`,
+versus the 77-instruction / `0x134` retail owner with frame `0x30`; the former
+wrapper deleted three instructions, reordered another, and edited fields.
+Overlay 41 `+0x1740..+0x195C` is exact-sized at 135 instructions and matches
+133/135, but its former postprocess changed retained-rodata LO16 fields at
+`+0x80` and `+0x12C`. Both now retain their natural C under `NON_MATCHING` and
+use byte-exact assembly fallbacks.
+
+Overlay 98's `+0x144..+0x234` collector and `+0x848..+0xA04` checker were
+reproved the same way. The collector is exact-sized but 48/60 linked words
+with frame `0x58` versus `0x50`; the checker is exact-sized but 78/111 linked
+words with frame `0x80` versus `0xA8`. Their former normalizers rewrote frames,
+control flow, registers, and instruction sequences. Both claims are withdrawn,
+their corrected pointer ABI remains in candidate C, and assembly is canonical.
+
+The `+0x764..+0x1158` renderer remains `NON_MATCHING`. Its identity-correct
+candidate is exact-sized at 637 words, matches 634/637 positional words, keeps
+the retail `0x88` frame, and emits all 24 runtime relocation offsets and types.
+The three residuals are retained-constant LO16 sites at `+0x160`, `+0x168`,
+and `+0x174`; direct, cached, and split-object source forms regress. An earlier
+public promotion reached equality by externalizing those instruction fields
+and collapsing distinct call identities, so it has been withdrawn. The
+assembly fallback is canonical until ordinary source reproduces the bytes and
+all local identities/addends can be proved.
+
 #### Overlay 61's overlay 45/68 API surface
 
 Relocation decoding accounts for all 56 cross-overlay records, with no

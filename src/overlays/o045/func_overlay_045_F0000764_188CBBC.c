@@ -38,19 +38,26 @@ Overlay45InitializedData gOverlay45InitializedData = {
 
 extern DialogueBoxBackground D_800D64E8[];
 
-extern void overlay45DisplayCallReloc(Gfx **displayList);
-extern void overlay45FontCallReloc(s32 font);
-extern void overlay45MatrixCallReloc(Gfx **displayList, void *matrix);
-extern void overlay45ColorCallReloc(s32 red, s32 green, s32 blue, s32 alpha,
-                                    s32 opacity);
-extern s32 overlay45RandomRangeReloc(s32 minimum, s32 maximum);
-extern f32 overlay45FloatCallReloc(s32 angle);
+extern void func_80034920(Gfx **displayList);
+extern void func_8004B0A4(s32 font);
+extern void func_800221E8(Gfx **displayList, void *matrix);
+extern void func_80022A50(Gfx **displayList, void *matrix);
+extern void func_8004B0B8(s32 red, s32 green, s32 blue, s32 alpha,
+                          s32 opacity);
+extern s32 func_8002997C(s32 minimum, s32 maximum);
+extern f32 func_8002A8C0(s32 angle);
 
 extern void func_overlay_045_F0001158_188D5B0(
     Gfx **displayList, s32 arg1, s32 arg2,
     Overlay45ResourceDescriptor *descriptor);
 
-/* Mickey-local reconstruction; exact under IDO -O2 -mips2 -Wab,-r4300_mul. */
+/* Mickey-local reconstruction. The identity-correct V0 is 634/637 positional
+ * words with the retail 0x88 frame and all 24 relocation offsets/types. Its
+ * first mismatch is the first of three retained-constant LO16 sites. Direct,
+ * cached, and split-object accesses to the owned constants all regress, while
+ * prior equality rewrote those instruction fields. The assembly fallback
+ * therefore remains canonical. */
+#ifdef NON_MATCHING
 void func_overlay_045_F0000764_188CBBC(
     Gfx **displayList, void *matrix, s32 arg2, s32 arg3,
     s32 mode, s32 updateRate) {
@@ -61,18 +68,18 @@ void func_overlay_045_F0000764_188CBBC(
     s32 anyVisible;
 
     anyVisible = 0;
-    overlay45DisplayCallReloc(displayList);
-    overlay45FontCallReloc(3);
+    func_80034920(displayList);
+    func_8004B0A4(3);
     descriptor = gOverlay45ResourceHead;
-    overlay45MatrixCallReloc(displayList, NULL);
-    overlay45MatrixCallReloc(displayList, matrix);
+    func_800221E8(displayList, NULL);
+    func_80022A50(displayList, matrix);
 
     gDPSetScissor((*displayList)++, G_SC_NON_INTERLACE,
                   D_800D64E8[0].x1, D_800D64E8[0].y1,
                   D_800D64E8[0].x2, D_800D64E8[0].y2);
 
     while (descriptor != NULL) {
-        overlay45ColorCallReloc(0xFF, 0xFF, 0xFF, descriptor->unk22, 0xFF);
+        func_8004B0B8(0xFF, 0xFF, 0xFF, descriptor->unk22, 0xFF);
         if ((descriptor->mode > 0) && (mode == descriptor->unk20)) {
             remaining = descriptor->count;
             element = descriptor->elements;
@@ -121,16 +128,16 @@ void func_overlay_045_F0000764_188CBBC(
                 element->unk0C += element->unk0E * updateRate;
                 if (element->unk0C >= 0x8001) {
                     element->unk0C -= 0x8000;
-                    element->unk0E = overlay45RandomRangeReloc(0x600, 0xA00);
+                    element->unk0E = func_8002997C(0x600, 0xA00);
                 }
 
                 element->unk0A += element->unk10 * updateRate;
                 if (element->unk0A < -0x1000) {
                     element->unk0A = -0x1000;
-                    element->unk10 = overlay45RandomRangeReloc(0x100, 0x200);
+                    element->unk10 = func_8002997C(0x100, 0x200);
                 } else if (element->unk0A >= 0x1001) {
                     element->unk0A = 0x1000;
-                    element->unk10 = -overlay45RandomRangeReloc(0x100, 0x200);
+                    element->unk10 = -func_8002997C(0x100, 0x200);
                 }
 
                 if ((element->x > -16.0f) && (element->x < 336.0f) &&
@@ -147,7 +154,7 @@ void func_overlay_045_F0000764_188CBBC(
                             }
                         }
                         if ((element->unk13 == 0) &&
-                            ((overlay45RandomRangeReloc(0, 0x3E8) >= 0x3E7) ||
+                            ((func_8002997C(0, 0x3E8) >= 0x3E7) ||
                              expired)) {
                             element->unk13 = 1;
                             descriptor->unk1E++;
@@ -156,7 +163,7 @@ void func_overlay_045_F0000764_188CBBC(
                     }
                 }
 
-                element->unk12 = (s32)(overlay45FloatCallReloc(element->unk0C) * 5.0f);
+                element->unk12 = (s32)(func_8002A8C0(element->unk0C) * 5.0f);
                 remaining--;
                 element++;
             }
@@ -179,7 +186,7 @@ void func_overlay_045_F0000764_188CBBC(
                         } else if (descriptor->unk1F < 0) {
                             forward = 0;
                         } else {
-                            forward = overlay45RandomRangeReloc(0, 1);
+                            forward = func_8002997C(0, 1);
                         }
                         descriptor->unk1F = 0;
                         if (forward != 0) {
@@ -194,12 +201,12 @@ void func_overlay_045_F0000764_188CBBC(
                             delay += direction;
                             element++;
                         }
-                        if (overlay45RandomRangeReloc(0, 3) == 0) {
+                        if (func_8002997C(0, 3) == 0) {
                             descriptor->optionalValue = 8;
                             descriptor->unk1F = -direction;
                         } else {
                             descriptor->optionalValue =
-                                overlay45RandomRangeReloc(0x78, 0x258);
+                                func_8002997C(0x78, 0x258);
                         }
                     }
                 }
@@ -229,3 +236,6 @@ void func_overlay_045_F0000764_188CBBC(
         gSPEndDisplayList((*displayList)++);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o045/func_overlay_045_F0000764_188CBBC/func_overlay_045_F0000764_188CBBC.s")
+#endif

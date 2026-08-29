@@ -1,6 +1,0 @@
-0x4:5:gOverlay41Roots
-0x8:6:gOverlay41Roots
-0x78:5:.rodata
-0x80:6:.rodata
-0x128:5:.rodata
-0x12c:6:.rodata
