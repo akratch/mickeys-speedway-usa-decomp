@@ -1470,18 +1470,6 @@
       "category": "other"
     },
     {
-      "name": "overlay80UpdateContact",
-      "file": "src/overlays/o080/overlay80UpdateContact.c",
-      "overlay": 80,
-      "tu": "overlays/o080",
-      "size_bytes": 720,
-      "objdiff_match_pct": null,
-      "differing_words": 38,
-      "first_mismatch_offset": 0,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
       "name": "overlay101BuildBorder",
       "file": "src/overlays/o101/overlay101BuildBorder.c",
       "overlay": 101,

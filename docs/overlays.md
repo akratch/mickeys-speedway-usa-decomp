@@ -994,14 +994,14 @@ naturally inserts the shipped FP hazard no-op and places both call relocations
 at their exact offsets.
 
 Overlay 80's contact updater at `+0x11C..+0x3EC` — 720 bytes / 180 words.
-NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
-28-word private-frame immediate-field rewrite, IDO's compact 0x78-byte frame
-to the shipped 0x80-byte layout); source kept as decomp-permuter input. The
-measured `-Wab,-r4300_mul` mode reproduces its exact 720-byte instruction and
-relocation schedule. Together the two contact bodies had covered all
-**1,004 executable bytes** in overlay 80, previously credited as **2 / 8**
-Epoch 11 closures; the final `+0x3EC..+0x3F0` remains four bytes of explicit
-padding.
+Exact C: a bounded annotated-target permutation found three redundant pointer
+and float aliases that naturally give IDO the shipped `0x80` frame and register
+allocation. Under `-Wab,-r4300_mul`, the final source reproduces all 180 words,
+all 20 relocation records, the linked module, and the full ROM. The aliases are
+disclosed in source for a future readability pass. Together the two contact
+bodies cover all **1,004 executable bytes** in overlay 80; the final
+`+0x3EC..+0x3F0` remains four bytes of explicit padding and receives no C
+credit.
 
 Overlay 10's sole initializer at `+0x000..+0x2B0` — 688 bytes / 172 words.
 NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via

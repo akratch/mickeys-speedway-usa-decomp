@@ -52,77 +52,83 @@ extern s32 overlay80AdvanceContactReloc(Overlay80Object *object, f32 rate,
                                         f32 ticks);
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
-#ifdef NON_MATCHING
-void overlay80UpdateContact(Overlay80Object *object, s32 ticks) {
-    Overlay80State *state;
-    Overlay80Object *contact;
-    Overlay80State *contactState;
-    Overlay80Object *contacts[9];
-    f32 dx;
-    f32 dy;
-    f32 dz;
-    f32 distance;
-    f32 magnitude;
-    f32 ratio;
-    f32 impact;
-    s32 kind;
-
-    state = object->state;
-    if (overlay80FindContactReloc(object->positionX, object->positionY,
-                                  object->positionZ, state->scale, 0,
-                                  contacts) != 0) {
-        contact = contacts[0];
-        dx = object->positionX - contact->positionX;
-        dy = object->positionY - contact->positionY;
-        dz = object->positionZ - contact->positionZ;
-        contactState = contact->state;
-        distance = (contact->normalX * dx) + (dy * contact->normalY) +
-                   (dz * contact->normalZ);
-
-        if (((distance < 0.0f) && (state->previousDistance > 0.0f)) ||
-            ((state->previousDistance < 0.0f) && (distance > 0.0f))) {
-            ratio = 1.0f -
-                    (overlay80SqrtReloc((dx * dx) + (dy * dy) + (dz * dz)) /
-                     state->scale);
-            magnitude = contactState->scale;
-            if (magnitude < 0.0f) {
-                magnitude = -magnitude;
-            }
-
-            kind = -1;
-            impact = (magnitude / gOverlay80MagnitudeScale) * ratio;
-            if ((gOverlay80Band0Lower < impact) &&
-                (impact <= gOverlay80Band0Upper)) {
-                kind = 0;
-            } else if ((gOverlay80Band1Lower < impact) &&
-                       (impact <= gOverlay80Band1Upper)) {
-                kind = 1;
-            } else if ((gOverlay80Band2Lower < impact) &&
-                       (impact <= gOverlay80Band2Upper)) {
-                kind = 2;
-            } else if (gOverlay80Band3Lower < impact) {
-                kind = 3;
-            }
-
-            if ((state->active == 0) && (kind != -1)) {
-                state->active = 1;
-                overlay80EmitContactReloc(object, kind, -1, 0.0f);
-            }
-        }
-        state->previousDistance = distance;
-    } else {
-        state->previousDistance = 0.0f;
+/* new_var/new_var2/new_var3 are inert allocation aids retained for byte exactness. */
+void overlay80UpdateContact(Overlay80Object *object, s32 ticks)
+{
+  Overlay80State *state;
+  Overlay80State *contactState;
+  Overlay80Object *contacts[9];
+  Overlay80Object **new_var3;
+  f32 impact;
+  f32 new_var2;
+  f32 dx;
+  f32 dy;
+  f32 dz;
+  f32 magnitude;
+  Overlay80Object *contact;
+  f32 distance;
+  f32 ratio;
+  s32 kind;
+  Overlay80State *new_var;
+  state = object->state;
+  if (overlay80FindContactReloc(object->positionX, object->positionY, object->positionZ, state->scale, 0, contacts) != 0)
+  {
+    new_var3 = contacts;
+    contact = new_var3[0];
+    dx = object->positionX - contact->positionX;
+    dy = object->positionY - contact->positionY;
+    dz = object->positionZ - contact->positionZ;
+    contactState = contact->state;
+    distance = ((contact->normalX * dx) + (dy * contact->normalY)) + (dz * contact->normalZ);
+    if (((distance < 0.0f) && (state->previousDistance > 0.0f)) || ((state->previousDistance < 0.0f) && (distance > 0.0f)))
+    {
+      new_var = contactState;
+      ratio = 1.0f - (overlay80SqrtReloc(((dx * dx) + (dy * dy)) + (dz * dz)) / state->scale);
+      magnitude = new_var->scale;
+      if (magnitude < 0.0f)
+      {
+        magnitude = -magnitude;
+      }
+      new_var2 = magnitude;
+      kind = -1;
+      impact = (new_var2 / gOverlay80MagnitudeScale) * ratio;
+      if ((gOverlay80Band0Lower < impact) && (impact <= gOverlay80Band0Upper))
+      {
+        kind = 0;
+      }
+      else
+        if ((gOverlay80Band1Lower < impact) && (impact <= gOverlay80Band1Upper))
+      {
+        kind = 1;
+      }
+      else
+        if ((gOverlay80Band2Lower < impact) && (impact <= gOverlay80Band2Upper))
+      {
+        kind = 2;
+      }
+      else
+        if (gOverlay80Band3Lower < impact)
+      {
+        kind = 3;
+      }
+      if ((state->active == 0) && (kind != (-1)))
+      {
+        state->active = 1;
+        overlay80EmitContactReloc(object, kind, -1, 0.0f);
+      }
     }
-
-    if ((state->active != 0) &&
-        (overlay80AdvanceContactReloc(object, 0.0075f, (f32)ticks) != 0)) {
-        state->active = 0;
-    }
-
-    if (object->notice != 0) {
-        object->notice->state = 1;
-    }
+    state->previousDistance = distance;
+  }
+  else
+  {
+    state->previousDistance = 0.0f;
+  }
+  if ((state->active != 0) && (overlay80AdvanceContactReloc(object, 0.0075f, (f32) ticks) != 0))
+  {
+    state->active = 0;
+  }
+  if (object->notice != 0)
+  {
+    object->notice->state = 1;
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o080/overlay80UpdateContact/func_overlay_080_F000011C_18CE9E4.s")
-#endif
