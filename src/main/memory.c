@@ -428,27 +428,18 @@ s32 mmGetDelay(void) {
 /*
  * PROVENANCE: adapted from JFG src/memory.c:mempool_slot_assign. Mickey's
  * pool accounting, byte-sized slot fields, globals, and bytes are authoritative.
- * Workbench: allocation-mismatch, exact 72 words, 30 register differences from +0x8C.
- * Lever: pool-position/temp-FIFO; owned BSS leaves the allocator web split unchanged.
- * Assembly fallback remains canonical.
+ * Canonical -O2/-mips2 C is exact for all 72 frameless words and all eight
+ * relocation tuples. Reusing dead incoming/local carriers preserves the
+ * allocator's slot-count and remainder-link webs without artificial code.
  */
-/* Workbench: allocation mismatch; exact 72-word size/opcode schedule, first +0x6C.
- * Levers: early colour scalar and scoped data local; 30-minute MIPS2 permuter scored 175.
- * Remaining: 26 register-only words from a pool/temp web-existence split. */
-#ifdef NON_MATCHING
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
                    s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag) {
     MemoryPool *pool;
     MemoryPoolSlot *slots;
     MemoryPoolSlot *slot;
-    MemoryPoolSlot *newSlot;
-    volatile s32 *colourTagIndex;
     s32 index;
-    s32 nextIndex;
     s32 slotSize;
-    s32 colourIndex;
 
-    colourTagIndex = &D_8007A270;
     if (slotIsTaken == TRUE) {
         if (poolIndex == MEMORY_POOL_MAIN) {
             D_800D21B0 -= size;
@@ -461,14 +452,15 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
     slots = pool->slots;
     slot = (MemoryPoolSlot *)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
     slot->flags = slotIsTaken;
-    slot->colourTagIndex = *colourTagIndex;
+    slot->colourTagIndex = D_8007A270;
     slotSize = slot->size;
     slot->size = size;
     slot->colourTag = colourTag;
     if (size < slotSize) {
-        index = ((MemoryPoolSlot *)((u8 *)slots +
-                                    (((pool->curNumSlots << 2) + pool->curNumSlots) << 2)))->index;
-        pool->curNumSlots++;
+        slotIsTaken = pool->curNumSlots;
+        index = ((MemoryPoolSlot *)((slotIsTaken * sizeof(MemoryPoolSlot)) +
+                                    (u8 *)slots))->index;
+        pool->curNumSlots = slotIsTaken + 1;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->data =
             slot->data + size;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->size =
@@ -476,24 +468,24 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->flags =
             newSlotIsTaken;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) +
-                            (index << 2)))->colourTagIndex = *colourTagIndex;
-        nextIndex = slot->nextIndex;
-        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->prevIndex =
-            slotIndex;
-        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->nextIndex =
-            nextIndex;
-        slot->nextIndex = index;
-        if (nextIndex != -1) {
-            ((MemoryPoolSlot *)((u8 *)slots + (nextIndex << 4) +
-                                (nextIndex << 2)))->prevIndex = index;
+                            (index << 2)))->colourTagIndex = D_8007A270;
+        {
+            slotSize = slot->nextIndex;
+
+            ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->prevIndex =
+                slotIndex;
+            ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->nextIndex =
+                slotSize;
+            slot->nextIndex = index;
+            if (slotSize != -1) {
+                ((MemoryPoolSlot *)((u8 *)slots + (slotSize << 4) +
+                                    (slotSize << 2)))->prevIndex = index;
+            }
         }
         return index;
     }
     return slotIndex;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002BB40.s")
-#endif
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAlign16. */
 u8 *align16(u8 *address) {

@@ -391,7 +391,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records; linked C exact |
 | `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
 | `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
-| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; allocation plateau, exact size, 30/72 register-only words differ, first `+0x8C` |
+| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: JFG role/call-graph donor; canonical C is exact for all 72 frameless words, all eight relocation tuples, and the linked resident range. |
 | `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
@@ -461,9 +461,13 @@ reset reproduce all 30 words and the linked global/call relocations.
 with an exact frame. Workbench reports mixed constant/structure/register;
 the `constant-audit` lever did not close the slot/data-pointer allocation.
 
-`func_8002BB40`: 72/72 words, 30 register differences, first `+0x8C`.
-Workbench reports allocation mismatch; `pool-position`/temp-FIFO trials did
-not close the allocator web split.
+`func_8002BB40` is exact canonical C for all 72 frameless words. Its eight
+HI16/LO16 tuples bind `D_8007A270`, `D_800D21B0`, and two references to
+`D_800D1C60` at the target offsets. The linked owned resident range and full
+ROM are byte-identical. JFG's `mempool_slot_assign` is a structural donor, not
+a drop-in match: Mickey's source is most useful there for its 20-byte slot
+indexing and for the dead-local lifetimes that reproduce IDO's slot-count and
+remainder-link register webs.
 
 `func_8002B7AC`: 62/63 words, first `+0x4`; the target preserves the initial
 `D_800D21B0` base in `s0` while the candidate folds it through `t6`. Workbench
