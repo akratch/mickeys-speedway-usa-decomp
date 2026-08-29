@@ -1147,9 +1147,25 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8`: the retained workbench allocation plateau is **5/32 differing words**, first `+0xC`.
-Fresh pool-position/shape-preserving probes and a four-variant campaign basin census left the default object best (3 object basins); the target v1/v0 pool order versus candidate v0/v1 order and one ring-only t6 web remain.
-All 119 flag combinations leave the default O2/mips2 result tied for best; no instrumented IDO is configured in the lane, so assembly remains authoritative.
+`func_8003A2C8` remains guarded and exact-sized. Provenance-tied configured
+full-TU and generated isolated clean V0 are byte-identical at 24/32 raw and
+relocation-normalized words, first `+0x0`, with no frame or padding. Both carry
+the target's six HI16/LO16 records at `+0x00/+0x04`, `+0x24/+0x28`, and
+`+0x3C/+0x40` for `D_8007C090` and `D_800D3128`. All eight differences are
+register-only sites in the address, normalized-mode, and narrowed-byte carrier
+webs; no opcode or relocation mismatch remains.
+
+Exactly 119 configurations were retained. Thirteen O2/MIPS-II rows tie clean
+V0 and every other viable family regresses. A codegen-faithful allocator trace
+reproduces the candidate text and confirms the carrier-coloring wall. The
+independent split-web form regressed to 31 instructions with relocation drift;
+reversing the comparison was flat. Because neither form gained, the improving-
+only combination and batch were not authorized. ORT 606 exports the function;
+authenticated callers remain `func_80027EC0+0x80`,
+`overlay46ReleaseState+0x70`, and
+`func_overlay_060_F0000334_18BA10C+0x1238`. Exact ordinary-object, linked-
+function, complete-menu-TU, and ROM evidence continues to prove assembly
+fallback only.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was

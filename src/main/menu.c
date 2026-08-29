@@ -1176,12 +1176,26 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, exact 32-instruction shape, five register words from +0xC.
- * Fresh pool-position probes and a four-variant basin census kept 5/32 best; the target's
- * v1/v0 pool order versus the candidate's v0/v1 order remains, with one ring-only t6 web.
- * No instrumented IDO is configured in this lane, so the assembly fallback stays canonical. */
-/* PROVENANCE: mask, state guard, and order compared with JFG's public
- * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
+/* PLATEAU-HANDOFF
+ * symbol: func_8003A2C8
+ * score: 24/32 words
+ * frame: frameless
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: eight register-only sites remain after 119 flags; split-web regressed and reversed comparison was flat
+ */
+/* Allocation plateau (measured 2026-08-29): provenance-tied configured full-TU
+ * and generated isolated C agree at 24/32 raw and relocation-normalized words,
+ * first +0x0, exact 0x80-byte frameless shape without padding, and six exact
+ * relocations. Thirteen O2/MIPS-II rows tie in the 119-configuration lattice;
+ * every other viable family regresses. A codegen-faithful allocator trace
+ * confirms address, normalized-mode, and narrowed-byte carrier coloring as the
+ * wall. The split-web form regressed to 31 instructions with relocation drift;
+ * reversed comparison was flat, so no combination or batch was authorized.
+ * ORT 606 and its three callers remain authenticated. Linked equality proves
+ * fallback only; JFG's ordered peer is role evidence, not donor C. */
+/* PROVENANCE: ordered accessor-family role compared with JFG's assembly-backed
+ * src/menu.c::frontSetScreenMode; mask, guard, and packed fields are Mickey-derived. */
 void func_8003A2C8(s32 screenMode) {
     u8 *modeState;
     s32 mode;

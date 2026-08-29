@@ -286,7 +286,7 @@ table from a fresh run):
 | func_800219D0 | main | 17 | 152 | 416 | 0 | register-only |
 | func_80020D8C | main | 17 | 56 | 192 | 0 | register-only |
 | overlay1FindType5ByKey | o001 | 17 | 28 | 156 | 0 | register-only |
-| func_8003A2C8 | main | 19 | 12 | 128 | 0 | register-only |
+| func_8003A2C8 | main | 8 | 0 | 128 | 0 | register-only |
 | runlinkEnsureJumpIsValid | main | 35 | 32 | 404 | 0 | register-only |
 
 All 19 are `register-only` and size-exact -- the cheapest tier the queue
