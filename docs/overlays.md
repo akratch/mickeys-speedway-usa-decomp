@@ -324,8 +324,8 @@ The four required pilot reviews are:
   records: 160 `SYMBOL`, 373 `LOCAL`, 16 `JUMP`, with 19 `R_MIPS_32`, 158
   `R_MIPS_26`, and 186 each `HI16`/`LO16`. Fifty-four imports target overlay
   45 and two target overlay 68. The `0x2A0` initialized range and `0x5E0` BSS
-  remain raw. Exact C now owns the contiguous `+0x000..+0xB84` prefix,
-  `+0x1578..+0x1648`, and `+0x17B8..+0x1A84`; the
+  remain raw. Exact C now owns the contiguous `+0x000..+0xB84` prefix and
+  `+0x1578..+0x1A84`; the
   intervening ranges remain assembly, followed by twelve bytes of padding.
   DKR's `save_data.c`,
   `racer.c`, and `menu.c` are a semantic navigation crosswalk only: the ghost
@@ -1808,7 +1808,7 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 
 `overlay 15 +0x004C..+0x0428` (`overlay15InitStarsAndPalette`) — 988 bytes / 247 words, closing every non-padding executable byte in the module. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a relocation-anchored carrier rewrite); source kept as decomp-permuter input. All 14 shipped runtime roles reduce to an exact six-record split surface. The checkpoint becomes **96,176 / 45,775 campaign bytes (210.11%)**, **197,428 / 469,264 Overlay C (42.07%)**, and **240,468 / 950,332 resolved text (25.30%)**.
 
-`overlay 61 +0x1648..+0x17B8` (`func_overlay_061_F0001648_18C0A10`) — 368 bytes / 92 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a private copy-size/loop carrier rewrite); source kept as decomp-permuter input. The object retains all nine call relocations and the local path-address pair. The checkpoint becomes **96,544 / 45,775 campaign bytes (210.91%)**, **197,796 / 469,264 Overlay C (42.15%)**, and **240,836 / 950,332 resolved text (25.34%)**.
+`overlay 61 +0x1648..+0x17B8` (`func_overlay_061_F0001648_18C0A10`) contributes **368 exact C bytes / 92 words**. A disclosed one-iteration grouping preserves IDO's exact 0x38-byte frame and instruction allocation. The object retains all nine calls plus the local path-address pair, and the linked overlay and whole ROM are byte-identical.
 
 `overlay 11 +0x1E4C..+0x22E8` (`func_overlay_011_F0001E4C_186A694`) — 1,180 bytes / 295 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete carrier-schedule rewrite); source kept as decomp-permuter input. The retained split text surface is 41 records; the five-entry runtime switch table and its five relocations remain in their original data/rodata owner. The checkpoint becomes **97,724 / 45,775 campaign bytes (213.49%)**, **198,976 / 469,264 Overlay C (42.40%)**, and **242,016 / 950,332 resolved text (25.47%)**.
 

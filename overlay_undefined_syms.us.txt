@@ -1725,22 +1725,23 @@ overlay61ReleaseResourceReloc = 0xf0000000;
 overlay61SetReleaseModeReloc = 0xf0000000;
 
 /* overlay 61: func_overlay_061_F0001648_18C0A10.c.o */
-D_164 = 0x00000164;
+gOverlay61SavePathReloc = 0x00000164;
+overlay61AllocReloc = 0xf0000000;
+overlay61CloseReloc = 0xf0000000;
+overlay61FreeReloc = 0xf0000000;
+overlay61GetSizeReloc = 0xf0000000;
+overlay61OpenReloc = 0xf0000000;
+overlay61ReadReloc = 0xf0000000;
+overlay61StorageReadyReloc = 0xf0000000;
+overlay68RecordSizeReloc = 0xf0000000;
 
 /* overlay 61: overlay61WriteCharacter.c.o */
 gOverlay61RecordFormatReloc = 0x00000170;
-overlay61AllocReloc = 0xf0000000;
-overlay61FreeReloc = 0xf0000000;
 overlay61RecordSizeReloc = 0xf0001a6c;
 overlay61WriteRecordReloc = 0xf0000000;
 
 /* overlay 61: overlay61ReadCharacter.c.o */
 gOverlay61RecordPathReloc = 0x0000017c;
-overlay61CloseReloc = 0xf0000000;
-overlay61GetSizeReloc = 0xf0000000;
-overlay61OpenReloc = 0xf0000000;
-overlay61ReadReloc = 0xf0000000;
-overlay61StorageReadyReloc = 0xf0000000;
 
 /* overlay 61: overlay61ChooseFileExtension.c.o */
 gOverlay61FileNames = 0x00000040;
