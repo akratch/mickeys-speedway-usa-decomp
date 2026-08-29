@@ -26,7 +26,26 @@ extern s32 gOverlay99Arg4;
 extern s32 gOverlay99Arg5;
 extern void overlay99ApplySegment(Overlay99Segment *segment, f32 scale);
 
+/*
+ * Bounded clean-source plateau (reviewed 2026-08-29): the owned target is
+ * 114 words with a 0x28 frame. Configured -O2 -mips2 -32
+ * -Wo,-loopunroll,0 emits 115 words, with 104 differing positions and first
+ * mismatch +0x2C. It carries 29 static relocations, but only 8 of their
+ * offset/type pairs align with the 29 shipped runtime records. All 119 flag
+ * rows were attempted; the compilable O2/MIPS-II rows tie this result. A
+ * codegen-faithful allocator trace colors the negative-magnitude web into v0
+ * while target t4 is eligible at equal cost. Giving that magnitude a natural
+ * block-local carrier regresses to 107 differing positions and swaps the main
+ * v0/v1 pool. The assembly fallback remains the only exact linked output. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay99BuildHeightGrid
+ * score: 104 differing words
+ * frame: 0x28
+ * relocations: 29
+ * first-mismatch: +0x2C
+ * summary: clean V0 is 115/114 words; only 8/29 runtime offset/type pairs align; trace-led magnitude split regresses
+ */
 void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
                               s32 heightMinusOne, s32 arg4, s32 arg5) {
     Overlay99GridPoint *point;
@@ -34,10 +53,6 @@ void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
     s32 *heightPtr;
     s32 i;
     s32 value;
-
-    /* Preserve the physical mixed-ABI slot without emitting an a1 home. */
-    if (unused) {
-    }
 
     point = gOverlay99Grids[gOverlay99CurrentGrid];
     if (point == 0) {
@@ -66,8 +81,8 @@ void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
 
     widthPtr = &gOverlay99GridWidth;
     heightPtr = &gOverlay99GridHeight;
-    point = gOverlay99Grids[gOverlay99CurrentGrid];
     i = *heightPtr * *widthPtr;
+    point = gOverlay99Grids[gOverlay99CurrentGrid];
     while (i--) {
         value = point->height - 5;
         if (value < 0) {

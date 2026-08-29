@@ -1577,7 +1577,12 @@ Overlay 4's `overlay4FindSearchPosition` — 952 bytes / 238 words, offset `0x08
 
 Overlay 4's final three unresolved bodies add **1,552 exact executable bytes**: `overlay4InitializeObjectMotion` at `0x0000..0x0138`, `overlay4UpdateObjectMotion` at `0x0138..0x04D0`, and `overlay4UpdateGroupSpacing` at `0x05D0..0x0710`. All natural exact, closing every non-padding executable interval in the module and advancing the Epoch 12 closure gate to **8 / 8**.
 
-Overlay 99's `overlay99BuildHeightGrid` at `0x0638..0x0800` adds **456 bytes**, and `overlay99RenderSortedEntries` at `0x0800..0x0BA4` adds **932 bytes**. The grid body preserves its mixed ABI, three loops, and private runtime-relocated state; the renderer preserves its ordered float sort, temporary transform mutation, record layout, six-call ledger, and exact `0x148` frame — both natural.
+Overlay 99's `overlay99BuildHeightGrid` at `0x0638..0x0800` remains guarded
+`NON_MATCHING`: clean configured C emits 115 words for a 114-word target, with
+104 differing positions and only 8/29 runtime offset/type pairs aligned. All
+119 flags and one trace-led magnitude carrier are exhausted. The adjacent
+`overlay99RenderSortedEntries` is also guarded; neither range contributes exact
+C credit, and linked equality comes from their assembly fallbacks.
 
 Overlay 5's `overlay5InitializeAudio` at `0x031C..0x06C0` — 932 bytes, closes that module's executable text.
 
