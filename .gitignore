@@ -97,3 +97,4 @@ nonmatchings/
 
 # Lane extraction state
 .lane-extract.log
+.metadata_never_index

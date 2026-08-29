@@ -28,7 +28,9 @@ tools/new_lane.sh <name>
 The command creates a `lane/<name>` branch with its own `build/` and `asm/`
 directories. Do not edit another contributor's worktree. Commit small,
 coherent changes as they are completed. `tools/merge_lane.sh` checks and merges
-a completed branch.
+a completed branch. On macOS, the helper also adds a git-ignored
+`.metadata_never_index` marker before extraction so several new lanes do not
+trigger simultaneous Spotlight indexing of duplicate build trees.
 
 ## Matching a function
 

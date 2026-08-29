@@ -27,6 +27,10 @@ root=$(dirname "$common")
 dest=$(dirname "$root")/mickey-lane-$name
 if [ -e "$dest" ]; then echo "lane exists: $dest" >&2; exit 2; fi
 git -C "$root" worktree add -q -b "lane/$name" "$dest" "$base"
+# Creating several full worktrees can make macOS Spotlight index every copied
+# source/build path at once. Mark the lane before extraction and compilation;
+# other platforms harmlessly ignore this git-ignored empty file.
+: > "$dest/.metadata_never_index"
 for p in baseroms tools/ido tools/binutils .venv tools/objdiff; do
   [ -e "$root/$p" ] && ln -s "$root/$p" "$dest/$p"
 done
