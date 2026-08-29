@@ -1158,6 +1158,14 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020B10.s")
 #endif
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: func_80020D8C
+ * score: 31/48 words
+ * frame: 0x8
+ * relocations: 0
+ * first-mismatch: +0x38
+ * summary: ugen temp-FIFO phase; flags and four natural web-family forms exhausted without gain
+ */
 typedef struct ModelFrameEntry {
     s16 frame;
     s16 nextFrame;
@@ -1180,14 +1188,17 @@ typedef struct ModelFrameInstance {
 } ModelFrameInstance;
 
 /* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
-/* Plateau (2026-08-27): workbench
- * register-ring-only, 13 register words at 48 instructions/frame -0x8; first
- * +0x38. The prior intermediate-read, normalized-condition, and bounded
- * permutation probes were followed by ten focused ABI, scope, declaration,
- * loop-condition, load-order, liveness, and register-hint variants; none
- * closed the temp-FIFO web. The four-argument definition widened the frame,
- * while count-ownership and no-copy forms unrolled the loop. Remains:
- * class-crossing ugen temp web; assembly fallback stays canonical. */
+/* Policy-clean configured full-TU C has the exact 48-word body, 0x8 frame,
+ * and zero relocations, with 31/48 words matching and first mismatch +0x38.
+ * All seventeen residuals are ugen temp-FIFO register assignments. All 119
+ * flag combinations were attempted; canonical -O2 -mips2 ties for best. A
+ * fidelity-clean ugen trace confirms the temporary allocation sequence.
+ * Natural texture-table, frame-count, single-loop-count, and staged-multiply
+ * forms regressed to 51, 51, 122, and 50 instructions, so no combination or
+ * batch was authorized. ORT 374 authenticates eight overlay calls across
+ * overlays 57, 60, and 82; resident func_8001BB10 passes an unused fourth
+ * owner/context argument that this callee overwrites. Linked equality proves
+ * fallback only; the guarded C remains a bounded plateau. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;
     ModelFrameEntry *entry;
@@ -1210,7 +1221,7 @@ void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
             u16 frameScale;
 
             if (index == textureIndex && frame < texture->frameCount) {
-                entry->frame = frame & 0xFFFF;
+                entry->frame = frame;
             }
             frameScale = texture->frameScale;
             nextFrame = entry->nextFrame;

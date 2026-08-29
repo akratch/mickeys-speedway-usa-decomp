@@ -546,9 +546,7 @@ target's exact 342-instruction size but 257 positional words differ from
 and stack-home allocation. The permuter's lower-scoring candidate reused the
 last texture parameter as a command-word temporary and would corrupt the next
 part's cache comparison, so it was rejected.
-`func_80020D8C` is exact-size with 13/48 positional words differing, first `+0x38`; workbench verdict: register-ring-only residual.
-Assembler-folded narrowing masks improved 17 to 13; combinations regressed, and the corrected-flag 30-minute permutation found no exact form.
-The remaining temp-FIFO web requires ring-only registers; the assembly fallback stays canonical.
+`func_80020D8C` owns an exact 48-word body with frame `0x8` and no relocations. Policy-clean configured C matches 31/48 positional words, first `+0x38`; all seventeen residuals are ugen temp-FIFO register assignments. All 119 flag combinations were nonexact, and natural texture-table, frame-count, single-loop-count, and staged-multiply forms all regressed. ORT 374 authenticates nine calls across resident code and overlays 57, 60, and 82. The assembly fallback remains canonical; revisit only with a new source-faithful temp-FIFO mechanism.
 `func_80020E4C`: workbench structure mismatch, exact 113 instructions/frame -64; 25 words differ, first `+0xC`.
 Explicit byte-scaled indexing is best; pointer-cursor and declaration-order probes did not improve it.
 Exception-loop/pool-slot 1 and temp-slot 3 allocation remains; assembly stays canonical.
