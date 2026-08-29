@@ -90,6 +90,14 @@ typedef struct Overlay97ScaleEntry {
  * mismatch none; the 144-instruction frameless shape is exact and promotion
  * remains deferred to the overlay relocation lane, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay97InitScale
+ * score: 143/144 words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0xD0
+ * summary: Forced-color oracle or bounded permuter sweep; both bounds-derived carrier spellings regressed structurally.
+ */
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
     f32 radius;
     f32 maximum;
