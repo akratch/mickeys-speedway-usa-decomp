@@ -12,11 +12,64 @@ Run with:  .venv/bin/python -m pytest tests/test_flag_sweep.py -q
 """
 import sys
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from io import StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 
+import flag_sweep  # noqa: E402
 from flag_sweep import Score, rank_key, score_words  # noqa: E402
+
+
+class TestCliPaths(unittest.TestCase):
+    def test_relative_path_is_normalized_against_repository_root(self):
+        relative = Path("build/synthetic-flag-sweep/target.s")
+
+        self.assertEqual(
+            flag_sweep.repo_cli_path(relative),
+            (flag_sweep.REPO_ROOT / relative).resolve(),
+        )
+
+    def test_main_reports_relative_target_asm_after_lattice(self):
+        relative = Path("build/synthetic-flag-sweep/target.s")
+        synthetic_words = [0x11111111, 0x22222222]
+        combo = flag_sweep.Combo("synthetic", (), ("-mips2", "-32"), ())
+        failed_compile = flag_sweep.CompileResult(
+            combo, False, None, "synthetic compile skipped", 0.0
+        )
+        stdout = StringIO()
+        stderr = StringIO()
+
+        with (
+            patch.object(flag_sweep, "build_lattice", return_value=[combo]),
+            patch.object(flag_sweep, "compile_combo", return_value=failed_compile),
+            patch.object(
+                flag_sweep,
+                "assemble_target_asm",
+                return_value=(synthetic_words, {}),
+            ) as assemble,
+            redirect_stdout(stdout),
+            redirect_stderr(stderr),
+        ):
+            status = flag_sweep.main(
+                [
+                    "tools/flag_sweep.py",
+                    "--function",
+                    "synthetic_target",
+                    "--target-asm",
+                    str(relative),
+                    "--jobs",
+                    "1",
+                ]
+            )
+
+        self.assertEqual(status, 0, stderr.getvalue())
+        self.assertIn("target = asm:build/synthetic-flag-sweep/target.s", stdout.getvalue())
+        assembled_path = assemble.call_args.args[0]
+        self.assertTrue(assembled_path.is_absolute())
+        self.assertEqual(assembled_path, (flag_sweep.REPO_ROOT / relative).resolve())
 
 
 class TestScoreWords(unittest.TestCase):

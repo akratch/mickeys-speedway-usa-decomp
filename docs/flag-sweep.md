@@ -56,6 +56,9 @@ Compiles run in parallel (`ncpu - 2` workers by default, `--jobs` to
 override) into `build/flag_sweep/<tu-stem>/<combo-id>/`, which is gitignored
 by the tree's blanket `build/` rule.
 
+Relative translation-unit, `--target-asm`, and `--elf` paths are resolved
+against the repository root, independent of the caller's current directory.
+
 ## Target resolution
 
 Pass `--function NAME` (the symbol as it appears in the *compiled candidate*
@@ -138,6 +141,11 @@ them at exit, still under `build/`. The ranked table prints only counts and
 byte offsets — never a mnemonic, an opcode, or a raw word — so a terminal
 transcript of a run is not itself ROM-derived content under
 `docs/CLEANROOM.md`'s rules, the same way `gmake progress`'s output isn't.
+
+`--keep` is inspection-only: a later invocation always recompiles before it
+scores. Safe reuse needs a manifest binding every retained object to the input
+source, flags, compiler and support-tool hashes; directory names or mtimes are
+not sufficient provenance, so stale objects are deliberately not reused.
 
 ## Three worked rankings
 

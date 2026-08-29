@@ -304,6 +304,7 @@ system-health:
 	$(HOST_PYTHON) $(TOOLS_DIR)/system_health.py $(SYSTEM_HEALTH_ARGS)
 
 check-tooling:
+	$(HOST_PYTHON) tests/test_flag_sweep.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_wb_compare.py

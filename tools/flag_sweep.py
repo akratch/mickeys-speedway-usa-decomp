@@ -59,6 +59,21 @@ IDO_PHASES = TOOLS_DIR / "ido-phases.py"
 ASM_PROCESSOR_BUILD = TOOLS_DIR / "asm-processor" / "build.py"
 OBJDIFF_CLI = TOOLS_DIR / "objdiff" / "objdiff-cli"
 
+
+def repo_cli_path(path: Path) -> Path:
+    """Resolve a CLI path against the repository root, not the caller's CWD."""
+    if path.is_absolute():
+        return path.resolve()
+    return (REPO_ROOT / path).resolve()
+
+
+def display_path(path: Path) -> str:
+    """Prefer a repository-relative path, while allowing external inputs."""
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
+
 # The project's default C flags -- Makefile ~75-105. Kept in sync by hand;
 # if the Makefile's CFLAGS/ASFLAGS/DEFINES/INCLUDE_CFLAGS lines change, this
 # block needs the same edit. There is no included-Makefile trick available
@@ -447,7 +462,7 @@ def resolve_target(
     """(target words, function-local reloc mask, mode description)."""
     if target_asm is not None:
         words, relocs = assemble_target_asm(target_asm, workdir)
-        return words, relocs, f"asm:{target_asm.relative_to(REPO_ROOT)}"
+        return words, relocs, f"asm:{display_path(target_asm)}"
 
     found = find_nonmatching_asm(target_symbol)
     if found is not None:
@@ -464,7 +479,7 @@ def resolve_target(
     raise LookupError(
         f"could not resolve target bytes for {target_symbol!r}: no "
         f"asm/nonmatchings/**/{target_symbol}.s, and it is not a symbol in "
-        f"{elf_path.relative_to(REPO_ROOT) if elf_path.exists() else elf_path}. "
+        f"{display_path(elf_path)}. "
         "Pass --target-asm explicitly."
     )
 
@@ -589,10 +604,13 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
 
 def main(argv: Sequence[str]) -> int:
     args = parse_args(argv)
-    tu = args.tu if args.tu.is_absolute() else (REPO_ROOT / args.tu)
+    tu = repo_cli_path(args.tu)
     if not tu.exists():
         print(f"flag_sweep: no such file: {tu}", file=sys.stderr)
         return 2
+
+    target_asm = repo_cli_path(args.target_asm) if args.target_asm is not None else None
+    elf_path = repo_cli_path(args.elf)
 
     target_symbol = args.target_symbol or args.function
 
@@ -627,7 +645,7 @@ def main(argv: Sequence[str]) -> int:
     target_dir.mkdir(parents=True, exist_ok=True)
     try:
         target_words, target_relocs, target_mode = resolve_target(
-            target_symbol, args.target_asm, target_dir, args.elf
+            target_symbol, target_asm, target_dir, elf_path
         )
     except LookupError as e:
         print(f"flag_sweep: {e}", file=sys.stderr)
