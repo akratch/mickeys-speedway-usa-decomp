@@ -1,6 +1,6 @@
 {
-  "queue_size": 401,
-  "resolved": 401,
+  "queue_size": 400,
+  "resolved": 400,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
@@ -2559,18 +2559,6 @@
       "differing_words": 68,
       "first_mismatch_offset": 28,
       "size_delta": 96,
-      "category": "size-mismatch"
-    },
-    {
-      "name": "overlay25InitializeEffect",
-      "file": "src/overlays/o025/overlay_025.c",
-      "overlay": 25,
-      "tu": "overlays/o025",
-      "size_bytes": 380,
-      "objdiff_match_pct": null,
-      "differing_words": 70,
-      "first_mismatch_offset": 20,
-      "size_delta": -4,
       "category": "size-mismatch"
     },
     {

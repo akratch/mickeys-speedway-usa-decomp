@@ -1,15 +1,11 @@
 #include "overlays/overlay_025.h"
 
-/* Workbench: structure-mismatch, 70 raw differing words, first mismatch +0x14.
- * Frame/CFG/five calls and FP operation shape are exact; target retains one pipeline nop.
- * Structural gap: s0/s1 carrier allocation and that one target nop remain. */
-#ifdef NON_MATCHING
+/* Exact 95-word match. Reading the retained owner through state reproduces the
+ * shipped s0/s1 carrier allocation; -Wab,-r4300_mul supplies its FP hazard nop. */
 void overlay25InitializeEffect(Overlay25Object *object,
                                const Overlay25Init *init) {
-    Overlay25OwnerState *ownerState;
-    s32 combinedAngle;
     Overlay25InitState *state;
-    Overlay25Owner *owner;
+    s32 combinedAngle;
     s32 paletteIndex;
 
     state = &object->state->init;
@@ -17,28 +13,29 @@ void overlay25InitializeEffect(Overlay25Object *object,
     state->duration = 60;
     state->currentValue = 0.0f;
 
-    owner = init->owner;
-    state->owner = owner;
+    state->owner = init->owner;
 
-    if (init->useOwner != 0 && owner != NULL) {
-        ownerState = owner->state;
+    if (init->useOwner != 0 && state->owner != NULL) {
+        Overlay25OwnerState *ownerState;
+
+        ownerState = state->owner->state;
         combinedAngle = ownerState->baseAngle + ownerState->relativeAngle;
 
         state->activeDuration = 60;
         state->velocityX =
-            (overlay25SinReloc(combinedAngle) * ownerState->scale) +
-            (overlay25SinReloc(ownerState->baseAngle) * -32.0f);
+            (func_8002A8C0(combinedAngle) * ownerState->scale) +
+            (func_8002A8C0(ownerState->baseAngle) * -32.0f);
         state->lift = 16.0f;
         state->velocityZ =
-            (overlay25CosReloc(combinedAngle) * ownerState->scale) +
-            (overlay25CosReloc(ownerState->baseAngle) * -32.0f);
+            (func_8002A8BC(combinedAngle) * ownerState->scale) +
+            (func_8002A8BC(ownerState->baseAngle) * -32.0f);
     } else {
         state->activeDuration = 0;
         object->flags |= 0x0800;
     }
 
     if (gOverlay25GlobalFlagsReloc & 0x10) {
-        paletteIndex = overlay25RandomReloc(0, 7) * 3;
+        paletteIndex = func_800299E8(0, 7) * 3;
     } else {
         paletteIndex = 9;
     }
@@ -51,9 +48,6 @@ void overlay25InitializeEffect(Overlay25Object *object,
         object->vector->y = 0.0f;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o025/overlay_025/func_overlay_025_F0000000_1879C88.s")
-#endif
 
 /*
  * Plateau (2026-08-25): -O2 -mips2 emits the exact 0x40C-byte size. Naming

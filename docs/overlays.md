@@ -1904,6 +1904,15 @@ agree: local data at `+0x4/+0x24`, calls to `+0/+0x6E0/+0x49C` twice, and the
 recursive `+0xB70` call. The linked owned range, complete overlay, and full ROM
 are byte-identical.
 
+`overlay 25 +0x000..+0x17C` (`overlay25InitializeEffect`) contributes **380
+exact C bytes / 95 words**. Reading the retained owner through `state->owner`
+reproduces the shipped `s0`/`s1` carrier allocation, while
+`-Wab,-r4300_mul` supplies the required FP multiply-hazard nop. The exact
+`0x40` frame and all nine runtime relocation offsets, types, and identities
+agree. The linked owner, complete 1,904-byte overlay, and full ROM are
+byte-identical. Pinned DKR and JFG donor rows for Overlay 25 remain empty, so
+this is Mickey-derived source and does not support a JFG module mapping.
+
 ### Exact public backlog mirrors
 
 The following previously proven owners were independently rebuilt in this

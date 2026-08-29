@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 118220,
-  "nonmatching_overlay_c_bytes": 305644,
+  "matched_overlay_c_bytes": 118600,
+  "nonmatching_overlay_c_bytes": 305264,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 1904,
   "bss_bytes": 77680,
@@ -6020,6 +6020,14 @@
     "priority_rank": 56
    },
    "mixed_tu_exact_c_ranges": [
+    {
+     "offset": "0x0",
+     "end_offset": "0x17C",
+     "size": "0x17C",
+     "label": "overlay25InitializeEffect",
+     "source": "overlays/o025/overlay_025",
+     "evidence": "canonical mixed-TU object, nine runtime relocations, and linked bytes exact"
+    },
     {
      "offset": "0x588",
      "end_offset": "0x608",

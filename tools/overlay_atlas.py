@@ -1194,6 +1194,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x1A8, 0x1E0, "overlay16ReleaseBuffer"),
     ],
     25: [
+        (
+            0x000,
+            0x17C,
+            "overlay25InitializeEffect",
+            "canonical mixed-TU object, nine runtime relocations, and linked bytes exact",
+        ),
         (0x588, 0x608, "overlay25SetVectorFlags"),
     ],
     27: [

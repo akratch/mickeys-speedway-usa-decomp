@@ -1905,12 +1905,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o024/overlay_024.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x414 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
 		3e99999a000000000000000000000000
-# NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration and
-# trailing-section trimming metadata for these extracted functions.
-
+# The exact initializer needs the measured R4300 multiply-hazard schedule.
+# Its resident call names carry the stable runtime identities until objcopy
+# restores the overlay's stored-zero link aliases. The updater remains asm.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay_025.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o025/overlay_025.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
-		--redefine-sym func_overlay_025_F0000000_1879C88=overlay25InitializeEffect \
+		--redefine-sym func_8002A8C0=overlay25SinReloc \
+		--redefine-sym func_8002A8BC=overlay25CosReloc \
+		--redefine-sym func_800299E8=overlay25RandomReloc \
 		--redefine-sym func_overlay_025_F000017C_1879E04=overlay25UpdateEffect $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x608
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o056/overlay_056.c.o: POSTPROCESS = \

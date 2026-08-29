@@ -123,9 +123,9 @@ extern u16 gOverlay25GlobalFlagsReloc;
 extern const u8 gOverlay25ColorsReloc[];
 extern f32 gOverlay25Threshold;
 
-extern f32 overlay25SinReloc(s32 angle);
-extern f32 overlay25CosReloc(s32 angle);
-extern s32 overlay25RandomReloc(s32 lower, s32 upper);
+extern f32 func_8002A8C0(s32 angle);
+extern f32 func_8002A8BC(s32 angle);
+extern s32 func_800299E8(s32 lower, s32 upper);
 extern void overlay25SetVectorFlagsReloc(void);
 extern void overlay25DestroyReloc(Overlay25Object *object);
 extern void overlay25MoveReloc(Overlay25Object *object, f32 x, f32 y, f32 z);
