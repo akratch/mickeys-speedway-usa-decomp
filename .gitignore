@@ -14,8 +14,8 @@ build/
 build_*/
 
 # Proprietary toolchain binaries (fetched/copied locally, never committed)
-tools/ido/
-tools/binutils/
+/tools/ido
+/tools/binutils
 
 # objdiff-cli binary (tools/setup_objdiff.sh); objdiff.json is generated too
 # but committed (paths/names only, no ROM content -- the project's objdiff
