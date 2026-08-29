@@ -2204,6 +2204,10 @@ overlay100FinalizeReloc = 0xf0000000;
 /* overlay 100: overlay100ApplyValue.c.o */
 overlay100ApplyValueReloc = 0xf0000000;
 
+/* overlay 100: overlay100UpdateMotion.c.o */
+gOverlay100GravityReloc = 0x00000000;
+overlay100RemoveEntryReloc = 0xf0000000;
+
 /* overlay 100: overlay100ApplyToValue.c.o */
 overlay100ApplyToValueReloc = 0xf0000000;
 

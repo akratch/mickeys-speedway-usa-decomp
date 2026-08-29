@@ -1,23 +1,19 @@
 #include "overlays/o100/motion.h"
 
-/* The runtime relocation table supplies the release routine. It is not the
- * incompatible overlay-local initializer whose unloaded JAL bits are also 0. */
-extern void overlay100ReleaseMotionReloc(Overlay100Motion *motion);
+/* The unloaded JAL field stays zero; the runtime table binds this call to
+ * overlay100RemoveEntry at module offset 0x278. */
+extern void overlay100RemoveEntryReloc(Overlay100Motion *motion);
 extern f32 gOverlay100GravityReloc[];
 
-/* Workbench: structure-mismatch, 51 raw differing words, first mismatch +0x3C.
- * Exact 95/96-instruction loop shape and FP schedule; the candidate is one word short.
- * Structural gap: target's countdown-carrier move at +0xC0; rest is allocation/relocation. */
-#ifdef NON_MATCHING
 Overlay100Motion *overlay100UpdateMotion(Overlay100Motion *motion, s32 step) {
-    s32 oldPhase, nextPhase, remaining, count;
+    s32 oldPhase, nextPhase, count;
     Overlay100Vec3 *velocity, *oldFrame, *newFrame;
     f32 timeStep, blendScale, gravityStep, verticalBias;
 
     if (motion == 0) return 0;
     motion->remaining -= step;
     if (motion->remaining <= 0) {
-        overlay100ReleaseMotionReloc(motion);
+        overlay100RemoveEntryReloc(motion);
         return 0;
     }
     blendScale = step;
@@ -35,8 +31,7 @@ Overlay100Motion *overlay100UpdateMotion(Overlay100Motion *motion, s32 step) {
     velocity = motion->velocity;
     oldFrame = motion->frames[oldPhase];
     newFrame = motion->frames[nextPhase];
-    remaining = count - 1;
-    if (count != 0) {
+    if (count--) {
         gravityStep = -(gOverlay100GravityReloc[1] * timeStep);
         verticalBias = ((f32)(step + 1) * gravityStep) * 0.5f;
         do {
@@ -47,10 +42,7 @@ Overlay100Motion *overlay100UpdateMotion(Overlay100Motion *motion, s32 step) {
             velocity++;
             oldFrame++;
             newFrame++;
-        } while (remaining--);
+        } while (count--);
     }
     return motion;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o100/overlay100UpdateMotion/func_overlay_100_F000038C_18DB0B4.s")
-#endif

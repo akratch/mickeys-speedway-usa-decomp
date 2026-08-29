@@ -1,6 +1,6 @@
 {
-  "queue_size": 403,
-  "resolved": 403,
+  "queue_size": 402,
+  "resolved": 402,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
@@ -2463,18 +2463,6 @@
       "differing_words": 51,
       "first_mismatch_offset": 12,
       "size_delta": -4,
-      "category": "size-mismatch"
-    },
-    {
-      "name": "overlay100UpdateMotion",
-      "file": "src/overlays/o100/overlay100UpdateMotion.c",
-      "overlay": 100,
-      "tu": "overlays/o100",
-      "size_bytes": 384,
-      "objdiff_match_pct": null,
-      "differing_words": 51,
-      "first_mismatch_offset": 20,
-      "size_delta": -12,
       "category": "size-mismatch"
     },
     {
