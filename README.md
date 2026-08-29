@@ -19,14 +19,14 @@ The source in this repository rebuilds the retail ROM byte for byte.
 <!-- SCOREBOARD_BEGIN -->
 ## Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-1041_of_1460_(71.30%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-369192_of_944348_(39.09%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1286_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-1041_of_1460_(71.30%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-371096_of_944348_(39.30%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1286_adopted-blue)](#progress)
 
 ```
 functions     1041 / 1460    71.30%   matched to C, byte-identical
 .text bytes 236076 / 475084  49.69%   matched C in the resident segment
 verified asm  17184 / 475084   3.62%   original hand-written assembly (84 functions)
-overlay C   115932 / 469264  24.71%   matched C keyed by overlay and offset
-whole resolved 369192 / 944348  39.09%   resident C + verified asm + overlay C
+overlay C   117836 / 469264  25.11%   matched C keyed by overlay and offset
+whole resolved 371096 / 944348  39.30%   resident C + verified asm + overlay C
 named         1148 / 1460    78.63%   functions carrying an adopted name
 symbols       1286                    adopted in symbol_addrs.us.txt
 ```
@@ -34,10 +34,10 @@ symbols       1286                    adopted in symbol_addrs.us.txt
 Five-line report in the Diddy Kong Racing convention, where `NON_MATCHING` and `NON_EQUIVALENT` bodies count as unmatched, exactly like extracted assembly:
 
 ```
-decompiled              352008 / 944348  (37.28%)
+decompiled              353912 / 944348  (37.48%)
 handwritten asm          17184 / 944348  ( 1.82%)
 GLOBAL_ASM remaining    267224 / 944348  (28.30%)
-NON_MATCHING            307932 / 944348  (32.61%)
+NON_MATCHING            306028 / 944348  (32.41%)
 NON_EQUIVALENT               0 / 944348  ( 0.00%)
 ```
 

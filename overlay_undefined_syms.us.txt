@@ -224,7 +224,6 @@ D_8F4 = 0x000008f4;
 gOverlay7ValuesEnd = 0x000002aa;
 
 /* overlay 8: overlay_008.c.o */
-.rodata = 0x00000000;
 D_10 = 0x00000010;
 D_2110 = 0x00002110;
 D_2210 = 0x00002210;
@@ -232,14 +231,15 @@ D_2230 = 0x00002230;
 D_310 = 0x00000310;
 D_350 = 0x00000350;
 D_4E0 = 0x000004e0;
+D_520 = 0x00000520;
 D_C = 0x0000000c;
 gOverlay8ActivationGateTimerReloc = 0x00000000;
 gOverlay8Buffer = 0x00000000;
 gOverlay8IndexMode = 0x00000000;
-gOverlay8PhaseScales = 0x00000560;
 gOverlay8Primary = 0x00000000;
+gOverlay8ScaleLowerReloc = 0x000001d0;
+gOverlay8ScaleUpperReloc = 0x000001d4;
 gOverlay8Secondary = 0x00000000;
-gOverlay8SelectorScales = 0x00000520;
 gOverlay8UpdateDecayReloc = 0x000001b8;
 gOverlay8UpdateLowerReloc = 0x000001b0;
 gOverlay8UpdateUpperReloc = 0x000001b4;
@@ -247,14 +247,13 @@ gOverlay8Value = 0x00000004;
 overlay8ApproachMotionReloc = 0xf0000000;
 overlay8ConvertDirectionReloc = 0xf0000000;
 overlay8CreateResourceReloc = 0xf0000000;
-overlay8EmitChannel = 0xf0000000;
 overlay8FinalizeActivationReloc = 0xf0000000;
 overlay8FinishUpdateReloc = 0xf0000000;
 overlay8MeasureDirectionReloc = 0xf0000000;
 overlay8ReleaseResourceReloc = 0xf0000000;
-overlay8SampleChannel = 0xf0000000;
 
 /* overlay 9: overlay_009.c.o */
+.rodata = 0x00000000;
 D_2D0 = 0x000002d0;
 D_388 = 0x00000388;
 D_4C = 0x0000004c;
@@ -2507,6 +2506,7 @@ func_overlay_001_F0006B6C_1852F4C = overlay1SearchNearby;
 func_overlay_001_F0006CE8_18530C8 = overlay1SelectMaskedMode;
 func_overlay_001_F0007130_1853510 = overlay1UpdateTransient;
 func_overlay_001_F0007344_1853724 = overlay1CloneRecord;
+func_overlay_001_F00073A0_1853780 = overlay1UpdateValueCache;
 func_overlay_001_F0003578_184F958 = overlay1InitializeGaugeObjects;
 func_overlay_001_F00036A0_184FA80 = overlay1AssignRecordIndex;
 func_overlay_001_F0003750_184FB30 = overlay1ChoosePath;
@@ -2521,7 +2521,6 @@ func_overlay_001_F00067C0_1852BA0 = overlay1UpdateRangeFlags;
 func_overlay_001_F0006A14_1852DF4 = overlay1ConsumeNearbyPending;
 func_overlay_001_F0006D4C_185312C = overlay1UpdateAimedTransient;
 func_overlay_001_F00072A4_1853684 = overlay1AllocateRecord;
-func_overlay_001_F00073A0_1853780 = overlay1UpdateValueCache;
 func_overlay_001_F0007580_1853960 = overlay1AppendPathPoint;
 func_overlay_001_F0007730_1853B10 = overlay1BendPathPoint;
 func_overlay_001_F00078DC_1853CBC = overlay1AdvancePath;
@@ -2656,12 +2655,12 @@ func_overlay_007_F0000DBC_185CC44 = overlay7CommitSelection;
 /* overlay 8: overlay_008.c.o */
 func_overlay_008_F0000000_185DD58 = overlay8Ignore;
 func_overlay_008_F0000008_185DD60 = overlay8GetIndexed;
-func_overlay_008_F0003018_1860D70 = overlay8UpdateChannels;
+func_overlay_008_F0003368_18610C0 = overlay8ScaleOutputs;
 func_overlay_008_F00049A4_18626FC = overlay8SetBuffer;
 func_overlay_008_F00049B4_186270C = overlay8WriteCommand;
 func_overlay_008_F00049DC_1862734 = overlay8SetValue;
 func_overlay_008_F00049E8_1862740 = overlay8UpdateMotionOutput;
-func_overlay_008_F0003368_18610C0 = overlay8ScaleOutputs;
+func_overlay_008_F0003018_1860D70 = overlay8UpdateChannels;
 
 /* overlay 9: overlay_009.c.o */
 func_overlay_009_F00010A4_186771C = overlay9Ignore;

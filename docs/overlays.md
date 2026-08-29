@@ -1103,10 +1103,17 @@ existing anchor to avoid a duplicate 32-byte literal pool at overlay-local
 `+0x1BC`); source kept as decomp-permuter input. All 16 retail relocation
 identities were otherwise preserved through the exact linked image.
 
-Overlay 8's scale-output body beginning at `+0x3368` — 312 bytes / 78 words.
-NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
-four-word allocation choice across two independent threshold FPR webs,
-overlay-local `+0x1D0/+0x1D4`); source kept as decomp-permuter input.
+Overlay 8's scale-output body at `+0x3368..+0x34A0` contributes **312 exact C
+bytes / 78 words**. Loading the lower threshold through the upper local before
+overwriting it preserves IDO's retail copy-coalescing order. All four local
+relocation tuples, the linked owned range, the complete overlay, and the US ROM
+are byte-identical.
+
+Overlay 8's `overlay8UpdateChannels` at `+0x3018..+0x3278` remains guarded
+`NON_MATCHING` and contributes no C credit. Its stale public-only exact claim
+depended on rewriting five LO16 instruction fields after compilation, which is
+prohibited by ADR 0002; the canonical build therefore uses the assembly
+fallback until untouched compiler output proves all 608 bytes.
 
 The motion-output body at decimal overlay offsets `+18,920..+19,696` adds
 **776 bytes / 194 words**. The measured `-Wab,-r4300_mul` object naturally
@@ -1597,13 +1604,24 @@ Overlay 3's `overlay3RunCachedModeAction` — final 452 bytes / 113 words, offse
 
 Epoch 12 reaches **19,008 / 45,775 bytes (41.53%)**, overlay C reaches **120,260 / 469,264 (25.63%)**, resolved text reaches **163,300 / 950,332 (17.18%)**, and the closure gate advances to **7 / 8**.
 
-Overlay 4's `overlay4FindCategory2Object` — 448 bytes / 112 words, offset `0x0734..0x08F4`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via register web reassignment); source kept as decomp-permuter input. Walks the resident-provided object range and returns the first type-`0x30` payload in category 2 with the requested byte identifier; the natural source has the exact four-way unrolled control flow, frame, call placement, and full positional operation inventory. Epoch 12 reaches **19,456 / 45,775 bytes (42.50%)**, overlay C reaches **120,708 / 469,264 (25.72%)**, and resolved text reaches **163,748 / 950,332 (17.23%)**.
+Overlay 4's `overlay4FindCategory2Object` at `+0x0734..+0x08F4` contributes
+**448 exact C bytes / 112 words**. It walks the resident-provided object range
+and returns the first type-`0x30` payload in category 2 with the requested byte
+identifier. The configured mixed-TU object, relocations, linked range, complete
+overlay, and US ROM are byte-identical.
 
 Overlay 7's `overlay7EntryPool` — 552 bytes / 138 words, offset `0x0000..0x0228`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via return-tail schedule reassignment); source kept as decomp-permuter input. Its two functions unlink released entries into a free list and acquire entries after duplicate, owner/type, and priority checks; the acquire body has a distinct static symbol so later matched callers retain their runtime-relocated zero-address placeholder. The module still has executable assembly at `0x0324..0x0EDC` and `0x0F08..0x0FC0`, so this is not a module closure and the closure gate remains **7 / 8**. Epoch 12 reaches **20,008 / 45,775 bytes (43.71%)**, overlay C reaches **121,260 / 469,264 (25.84%)**, and resolved text reaches **164,300 / 950,332 (17.29%)**.
 
-Overlay 4's `overlay4FindSearchPosition` — 952 bytes / 238 words, offset `0x08F4..0x0CAC` padding boundary. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a six-use stack-home web reassignment); source kept as decomp-permuter input. Mode one performs a four-way unrolled nearest type-`0x21` search in the X/Z plane; the other mode calls the preceding category-2 identifier search. The measured multiply-hazard flag naturally produces all target FP spacing. Epoch 12 reaches **20,960 / 45,775 bytes (45.79%)**, overlay C reaches **122,212 / 469,264 (26.04%)**, and resolved text reaches **165,252 / 950,332 (17.39%)**.
+Overlay 4's `overlay4FindSearchPosition` at `+0x08F4..+0x0CAC` contributes
+**952 exact C bytes / 238 words**. Mode one performs a four-way unrolled nearest
+type-`0x21` search in the X/Z plane; the other mode calls the preceding
+category-2 identifier search. The measured multiply-hazard flag supplies the
+retail FP spacing, and the configured object through full ROM is byte-identical.
 
-Overlay 4's final three unresolved bodies add **1,552 exact executable bytes**: `overlay4InitializeObjectMotion` at `0x0000..0x0138`, `overlay4UpdateObjectMotion` at `0x0138..0x04D0`, and `overlay4UpdateGroupSpacing` at `0x05D0..0x0710`. All natural exact, closing every non-padding executable interval in the module and advancing the Epoch 12 closure gate to **8 / 8**.
+Overlay 4's `overlay4UpdateGroupSpacing` at `+0x05D0..+0x0710` contributes
+**320 exact C bytes / 80 words**. Together these three newly reconciled Overlay
+4 owners add 1,720 exact bytes. The separate `+0x0138..+0x04D0` body remains
+outside this exact set, so this reconciliation does not claim module closure.
 
 Overlay 99's `overlay99BuildHeightGrid` at `0x0638..0x0800` remains guarded
 `NON_MATCHING`: clean configured C emits 115 words for a 114-word target, with
@@ -1684,7 +1702,12 @@ Overlay 1 `+0x72A4..+0x7344` — 160 bytes / 40 words, pool-record allocation. N
 
 Overlay 87 `+0x000..+0x128` — 296 bytes / 74 words, object initialization. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via an FP-temporary web reassignment, nine sites); source kept as decomp-permuter input. The target-proven `-Wab,-r4300_mul` flag naturally supplies the exact multiply hazards; natural source otherwise recovers the 32-byte frame, complete opcode schedule, stores, and two resident calls. The configured object retains the runtime local HI/LO pair and preserves the separately decoded `mathRnd` and `func_8005AD64` identities before folding them to the pre-loader carrier. Epoch 12 reaches **40,892 / 45,775 bytes (89.33%)**, overlay C reaches **142,144 / 469,264 (30.29%)**, and resolved text reaches **185,184 / 950,332 (19.49%)**.
 
-Overlay 1 `+0x7130..+0x72A4` and `+0x73A0..+0x7580` — 852 bytes / 213 words combined, transient-object state and a 64-entry value cache. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule/temporary-web reassignment for the updater and register-coloring reassignment for the cache manager); source kept as decomp-permuter input. Natural source otherwise recovers both complete CFGs, conversions, memory effects, and boundaries; the configured objects retain all 25 updater relocations and the cache's local HI/LO pair. Epoch 12 reaches **41,744 / 45,775 bytes (91.19%)**, overlay C reaches **142,996 / 469,264 (30.47%)**, and resolved text reaches **186,036 / 950,332 (19.58%)**.
+Overlay 1's `overlay1UpdateValueCache` at `+0x73A0..+0x7580` contributes **480
+exact C bytes / 120 words**. A bounded source permutation found an algebraically
+zero counter expression that naturally preserves the retail caller-saved web;
+the configured mixed-TU object, both local relocations, linked range, complete
+overlay, and US ROM are byte-identical. The adjacent `+0x7130..+0x72A4`
+updater remains outside this exact claim.
 
 Overlay 34 `+0x000..+0x0C8` — 200 bytes / 50 words, storage allocation and zero-initialization. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a call-surviving size-home reassignment, four sites); source kept as decomp-permuter input. The runtime relocation table fixes both calls as the two-argument resident allocator `func_8002B280`; with that interface corrected, natural source supplies retail's full opcode schedule, register allocation, frame, and two clear loops. The configured object retains the exact two call records and three local HI/LO pairs. Epoch 12 reaches **41,944 / 45,775 bytes (91.63%)**, overlay C reaches **143,196 / 469,264 (30.52%)**, and resolved text reaches **186,236 / 950,332 (19.60%)**.
 

@@ -2904,7 +2904,9 @@ typedef struct Overlay1CacheValueEntry {
 
 extern Overlay1CacheValueEntry gOverlay1ValueCache[64];
 
-#ifdef NON_MATCHING
+/* A bounded permutation found the algebraically zero counter read that
+ * preserves IDO's target caller-saved web order. The configured mixed-TU
+ * object is exact for all 120 words and both local relocations. */
 s32 overlay1UpdateValueCache(s16 keyA, s16 keyB, f32 value) {
     register s32 searchKeyA = keyA;
     register s32 searchKeyB = keyB;
@@ -2920,7 +2922,7 @@ s32 overlay1UpdateValueCache(s16 keyA, s16 keyB, f32 value) {
                 entry->value = (u32)value;
                 return 1;
             }
-            return 0;
+            return remaining * 0;
         }
         entry++;
     } while (remaining--);
@@ -2939,10 +2941,6 @@ s32 overlay1UpdateValueCache(s16 keyA, s16 keyB, f32 value) {
 
     return 0;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F00073A0_1853780.s")
-#endif
 
 /* ---- overlay1AppendPathPoint ---- */
 

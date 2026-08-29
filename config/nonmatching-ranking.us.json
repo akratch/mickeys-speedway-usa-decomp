@@ -1,6 +1,6 @@
 {
-  "queue_size": 404,
-  "resolved": 404,
+  "queue_size": 403,
+  "resolved": 403,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
@@ -62,18 +62,6 @@
       "objdiff_match_pct": null,
       "differing_words": 12,
       "first_mismatch_offset": 200,
-      "size_delta": 0,
-      "category": "register-only"
-    },
-    {
-      "name": "overlay1UpdateValueCache",
-      "file": "src/overlays/o001/overlay_001_tail.c",
-      "overlay": 1,
-      "tu": "overlays/o001",
-      "size_bytes": 480,
-      "objdiff_match_pct": null,
-      "differing_words": 15,
-      "first_mismatch_offset": 40,
       "size_delta": 0,
       "category": "register-only"
     },
@@ -2274,18 +2262,6 @@
       "category": "other"
     },
     {
-      "name": "overlay8ScaleOutputs",
-      "file": "src/overlays/o008/overlay_008.c",
-      "overlay": 8,
-      "tu": "overlays/o008",
-      "size_bytes": 312,
-      "objdiff_match_pct": null,
-      "differing_words": 2,
-      "first_mismatch_offset": 52,
-      "size_delta": 0,
-      "category": "reloc-mismatch"
-    },
-    {
       "name": "overlay41SpawnItems",
       "file": "src/overlays/o041/overlay41SpawnItems.c",
       "overlay": 41,
@@ -2294,6 +2270,18 @@
       "objdiff_match_pct": null,
       "differing_words": 2,
       "first_mismatch_offset": 128,
+      "size_delta": 0,
+      "category": "reloc-mismatch"
+    },
+    {
+      "name": "overlay8UpdateChannels",
+      "file": "src/overlays/o008/overlay_008.c",
+      "overlay": 8,
+      "tu": "overlays/o008",
+      "size_bytes": 608,
+      "objdiff_match_pct": null,
+      "differing_words": 6,
+      "first_mismatch_offset": 12,
       "size_delta": 0,
       "category": "reloc-mismatch"
     },

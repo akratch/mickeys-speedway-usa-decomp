@@ -208,33 +208,33 @@ tools/objdiff/objdiff-cli report generate -p . -o /tmp/nm_report.json -f json -d
 
 ## Distribution (this run)
 
-456 queued functions (`tools/permute_batch.py discover_queue()`, validated
-atlas + depth-aware source-scan union); 456 resolved, zero unresolved. Total
-resolved size: 405,632 bytes (396.1 KiB) across 80
-distinct overlays plus `src/main`/`src/libultra` TUs.
+403 queued functions (`tools/permute_batch.py discover_queue()`, validated
+atlas + depth-aware source-scan union); 403 resolved, zero unresolved. Total
+resolved size: 407,860 bytes (398.3 KiB) across 74 distinct overlays plus
+`src/main` TUs.
 
 | Category | Count | Share of resolved |
 |---|---:|---:|
-| `register-only` | 23 | 5.0% |
-| `schedule-only` | 4 | 0.9% |
-| `other` | 223 | 48.9% |
-| `reloc-mismatch` | 19 | 4.2% |
-| `size-mismatch` | 187 | 41.0% |
+| `register-only` | 16 | 4.0% |
+| `schedule-only` | 0 | 0.0% |
+| `other` | 172 | 42.7% |
+| `reloc-mismatch` | 3 | 0.7% |
+| `size-mismatch` | 212 | 52.6% |
 
 Differing-word thresholds (resolved functions, any category):
 
 | Threshold | Count |
 |---|---:|
-| `differing_words <= 5` | 43 |
-| `differing_words <= 10` | 90 |
-| `differing_words <= 20` | 150 |
+| `differing_words <= 5` | 9 |
+| `differing_words <= 10` | 28 |
+| `differing_words <= 20` | 72 |
 
 `objdiff_match_pct` is `null` for this refresh because no supplementary
 objdiff report was supplied.
 
 ## Recommended batching for the fleet
 
-1. **`register-only` and `schedule-only` first (27 functions)** -- the
+1. **`register-only` and `schedule-only` first (16 functions)** -- the
    cheapest category by construction: the candidate already has the right
    instructions, just the wrong register allocation or schedule. These are
    flag-lattice/`mips_to_c` tweaks, not rewrites, and most are also small
@@ -245,7 +245,7 @@ objdiff report was supplied.
    that a worker can read the whole diff by hand quickly. Batch by overlay
    where more than one queued function shares a TU, since the worker
    already has that file's context loaded.
-3. **`reloc-mismatch` (19 functions).** Usually a symbol/addend binding
+3. **`reloc-mismatch` (3 functions).** Usually a symbol/addend binding
    question (wrong `%hi`/`%lo` target, or a static vs. extern reference) --
    narrow enough to hand off as its own small batch, distinct skill from
    the register/schedule fixes.
@@ -269,24 +269,27 @@ table from a fresh run):
 
 | name | overlay/TU | differing_words | first_mismatch_offset | size | size_delta | category |
 |---|---|---:|---:|---:|---:|---|
-| overlay3FindClosestObject | o003 | 4 | 64 | 308 | 0 | register-only |
-| overlay40AddEntry | o040 | 4 | 32 | 132 | 0 | register-only |
-| overlay43SubmitChildren | o043 | 4 | 44 | 276 | 0 | register-only |
-| func_80038750 | main | 6 | 220 | 296 | 0 | register-only |
-| partUpdateTriggers | main | 6 | 228 | 404 | 0 | register-only |
+| func_8003A2C8 | main | 5 | 12 | 128 | 0 | register-only |
 | overlay20UpdateObjectResource | o020 | 8 | 176 | 392 | 0 | register-only |
-| func_8002CF6C | main | 77 | 8 | 352 | -12 | structure-mismatch |
 | overlay19ClassifyEdge | o019 | 10 | 312 | 480 | 0 | register-only |
-| func_80021504 | main | 11 | 468 | 532 | 0 | register-only |
-| func_80021718 | main | 11 | 76 | 148 | 0 | register-only |
+| func_8005A948 | main | 11 | 64 | 376 | 0 | register-only |
 | func_overlay_079_F0001290_18CE230 | o079 | 12 | 200 | 492 | 0 | register-only |
-| func_8001A154 | main | 13 | 28 | 232 | 0 | register-only |
-| overlay1UpdateValueCache | o001 | 15 | 40 | 480 | 0 | register-only |
-| func_800219D0 | main | 17 | 152 | 416 | 0 | register-only |
+| overlay40FadeRecords | o040 | 16 | 12 | 404 | 0 | register-only |
 | func_80020D8C | main | 17 | 56 | 192 | 0 | register-only |
 | overlay1FindType5ByKey | o001 | 17 | 28 | 156 | 0 | register-only |
-| func_8003A2C8 | main | 8 | 0 | 128 | 0 | register-only |
-| runlinkEnsureJumpIsValid | main | 35 | 32 | 404 | 0 | register-only |
+| func_8002C69C | main | 18 | 16 | 112 | 0 | register-only |
+| overlay20RemoveEntry | o020 | 18 | 76 | 212 | 0 | register-only |
+| func_80041CE4 | main | 27 | 72 | 612 | 0 | register-only |
+| func_8002BB40 | main | 30 | 140 | 288 | 0 | register-only |
+| func_overlay_022_F0000D30_1878E38 | o022 | 43 | 16 | 364 | 0 | register-only |
+| overlay16ApplyGradient | o016 | 64 | 60 | 580 | 0 | register-only |
+| overlay57UpdateModeState | o057 | 87 | 220 | 1416 | 0 | register-only |
+| levelInit | main | 122 | 568 | 2064 | 0 | register-only |
+| overlay7DispatchModes | o007 | 3 | 68 | 524 | 0 | other |
+| overlay97InitScale | o097 | 3 | 36 | 576 | 0 | other |
+| overlay1FindNextAngle | o001 | 5 | 56 | 200 | 0 | other |
+| overlay1FindPreviousAngle | o001 | 5 | 56 | 200 | 0 | other |
 
-All listed rows except `func_8002CF6C` are `register-only` and size-exact;
-that function is now classified as a policy-clean structural plateau.
+The first sixteen rows are size-exact `register-only` candidates. The final
+four are size-exact `other` candidates whose remaining differences are not a
+pure register bijection under the conservative classifier.

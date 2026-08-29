@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 115932,
-  "nonmatching_overlay_c_bytes": 307932,
+  "matched_overlay_c_bytes": 117836,
+  "nonmatching_overlay_c_bytes": 306028,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 1904,
   "bss_bytes": 77680,
@@ -1308,6 +1308,14 @@
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
     },
     {
+     "offset": "0x73A0",
+     "end_offset": "0x7580",
+     "size": "0x1E0",
+     "label": "overlay1UpdateValueCache",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
      "offset": "0x7FCC",
      "end_offset": "0x8008",
      "size": "0x3C",
@@ -1950,12 +1958,36 @@
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
     },
     {
+     "offset": "0x5D0",
+     "end_offset": "0x710",
+     "size": "0x140",
+     "label": "overlay4UpdateGroupSpacing",
+     "source": "overlays/o004/overlay_004",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
      "offset": "0x710",
      "end_offset": "0x734",
      "size": "0x24",
      "label": "overlay4GroupCount",
      "source": "overlays/o004/overlay_004",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x734",
+     "end_offset": "0x8F4",
+     "size": "0x1C0",
+     "label": "overlay4FindCategory2Object",
+     "source": "overlays/o004/overlay_004",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0x8F4",
+     "end_offset": "0xCAC",
+     "size": "0x3B8",
+     "label": "overlay4FindSearchPosition",
+     "source": "overlays/o004/overlay_004",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
     }
    ]
   },
@@ -2832,20 +2864,20 @@
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
     },
     {
-     "offset": "0x3018",
-     "end_offset": "0x3278",
-     "size": "0x260",
-     "label": "overlay8UpdateChannels",
-     "source": "overlays/o008/overlay_008",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
      "offset": "0x3278",
      "end_offset": "0x3368",
      "size": "0xF0",
      "label": "overlay8ApplyColors",
      "source": "overlays/o008/overlay_008",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x3368",
+     "end_offset": "0x34A0",
+     "size": "0x138",
+     "label": "overlay8ScaleOutputs",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
     },
     {
      "offset": "0x49A4",

@@ -1176,7 +1176,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_001_F0007130_1853510=overlay1UpdateTransient \
 		--redefine-sym func_overlay_001_F00072A4_1853684=overlay1AllocateRecord \
 		--redefine-sym func_overlay_001_F0007344_1853724=overlay1CloneRecord \
-		--redefine-sym func_overlay_001_F00073A0_1853780=overlay1UpdateValueCache \
+		--redefine-sym gOverlay1ValueCache=D_8 \
 		--redefine-sym func_overlay_001_F0007580_1853960=overlay1AppendPathPoint \
 		--redefine-sym func_overlay_001_F0007730_1853B10=overlay1BendPathPoint \
 		--redefine-sym func_overlay_001_F00078DC_1853CBC=overlay1AdvancePath \
@@ -1344,11 +1344,8 @@ $(O8_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		o8Surface291CReloc=func_overlay_008_F0004CF0_1862A48 $@ && \
 	$(OBJCOPY) --redefine-sym \
-		func_overlay_008_F0003368_18610C0=overlay8ScaleOutputs $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5128 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-		3dcccccdbdcccccdbf2b851f3f7333333d4ccccd000000000000000000000000 \
-		0x1BC
+		func_overlay_008_F0003018_1860D70=overlay8UpdateChannels $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5128
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: \
