@@ -23,6 +23,7 @@ toolchain, extraction, and hooks.
 | `diff.sh` / asm-differ | Compare target and current functions | Upstream asm-differ help |
 | `mips_to_c.sh` | Produce an initial C translation | Upstream m2c help |
 | `tools/wb_compare.sh` | Build a target object and diagnose the current candidate | Script help and workbench guide |
+| `tools/function_preflight.py` | Prove one function's ownership and evidence surface | Function evidence preflight below |
 | `tools/flag_sweep.py` | Rank known compiler flag groups | [Flag sweep](flag-sweep.md) |
 | `tools/skeleton_scan.py` | Find structural reference candidates | [Skeleton search](skeleton-scan.md) |
 | `tools/nm_ranking.py` | Rank guarded non-matching functions | [Non-matching ranking](nm-ranking.md) |
@@ -31,6 +32,38 @@ toolchain, extraction, and hooks.
 Use the standard order: find a plausible reference, compile a natural C
 candidate, test known flags, diagnose the mismatch, and use bounded permutation
 only for a narrow remaining compiler difference.
+
+## Function evidence preflight
+
+Run the evidence preflight before a flag sweep or allocator experiment:
+
+```sh
+tools/function_preflight.py overlay16ApplyGradient
+tools/function_preflight.py func_overlay_016_F00001E0_1873678 --json
+```
+
+Either the friendly C name or splat's generated overlay name resolves to the
+same identity. The command incrementally builds the canonical linked ELF and
+the correct full-TU candidate object, automatically selecting
+`build_non_matching/` for a guarded candidate. It reports the owned range and
+next ownership or padding boundary, exports, inbound call sites, candidate ABI
+and frame, every authenticated relocation tuple and stable identity,
+relocation-surface agreement, and the current word score and first mismatch.
+`--no-build` makes existing artifacts a hard requirement. Ambiguous aliases,
+sources, ranges, or relocation identities are errors. Output excludes
+instruction listings, words, and hexdumps.
+
+`tools/wb_compare.sh` uses the same resolver, so manual candidate-symbol and
+build-directory settings are unnecessary for normal guarded functions:
+
+```sh
+tools/wb_compare.sh overlay16ApplyGradient --json
+tools/wb_compare.sh --diagnose overlay16ApplyGradient --trace trace.log --trace-proc 0
+```
+
+Wrapper options precede the symbol. Arguments after the symbol pass unchanged
+to `decomp-workbench compare` or, with `--diagnose`, to
+`decomp-workbench diagnose`. `--rom` retains the linked-ROM final oracle.
 
 ## Overlay tools
 

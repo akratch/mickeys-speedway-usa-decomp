@@ -1,18 +1,13 @@
 #!/usr/bin/env bash
 # One decomp-workbench comparison for one function.
 #
-#   ./tools/wb_compare.sh <symbol> [extra decomp-workbench args...]
+#   ./tools/wb_compare.sh [--diagnose] <symbol> [extra workbench args...]
 #
-# A guarded C body built through the compile-only NON_MATCHING tree can be
-# selected without copying it over the ordinary fallback object:
-#
-#   WB_CANDIDATE_BUILD_DIR=build_non_matching \
-#   WB_CANDIDATE_SYMBOL=overlay80UpdateContact \
-#     ./tools/wb_compare.sh func_overlay_080_F000011C_18CE9E4
-#
-# WB_CANDIDATE_SYMBOL is needed only when the extracted target retains a splat
-# auto-name but the C body already has its friendly name. The assembled target
-# is renamed in the disposable build/wb object before comparison.
+# Friendly/generated aliases, the owning TU, and the canonical versus
+# NON_MATCHING candidate tree are resolved automatically by
+# function_preflight.py. The WB_CANDIDATE_BUILD_DIR and WB_CANDIDATE_SYMBOL
+# environment overrides remain available for deliberately copied scratch
+# objects; ordinary use should not need them.
 #
 # The target object is the project's own disassembly of the function
 # (asm/nonmatchings/**/<symbol>.s) assembled with the project's assembler; the
@@ -44,12 +39,41 @@ OUT=build/wb
 mkdir -p "$OUT"
 PROVENANCE=.venv/bin/python
 PROVENANCE_TOOL=tools/proof_provenance.py
+PREFLIGHT_TOOL=tools/function_preflight.py
 
 mode=asm
-if [ "${1:-}" = "--rom" ]; then mode=rom; shift; fi
-if [ $# -lt 1 ]; then echo "usage: $0 [--rom] <symbol> [args...]" >&2; exit 2; fi
+wb_command=compare
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --rom) mode=rom; shift ;;
+        --diagnose) wb_command=diagnose; shift ;;
+        --) shift; break ;;
+        *) break ;;
+    esac
+done
+if [ $# -lt 1 ]; then
+    echo "usage: $0 [--rom] [--diagnose] <symbol> [workbench args...]" >&2
+    exit 2
+fi
 sym=$1; shift
+target_sym=$sym
 candidate_sym=${WB_CANDIDATE_SYMBOL:-$sym}
+source_path=
+tu=
+cand_build_dir=${WB_CANDIDATE_BUILD_DIR:-build}
+asmfile=
+
+if [ "$mode" = asm ]; then
+    resolution=$($PROVENANCE "$PREFLIGHT_TOOL" "$sym" --resolve-wb) || exit $?
+    IFS=$'\t' read -r resolved_target resolved_candidate resolved_source \
+        resolved_tu resolved_build_dir resolved_asm <<< "$resolution"
+    target_sym=$resolved_target
+    candidate_sym=${WB_CANDIDATE_SYMBOL:-$resolved_candidate}
+    source_path=$resolved_source
+    tu=$resolved_tu
+    cand_build_dir=${WB_CANDIDATE_BUILD_DIR:-$resolved_build_dir}
+    asmfile=$resolved_asm
+fi
 
 # In asm mode, splat's extracted fallback can retain an auto-name while the
 # linked TU exports the friendly C name.  The auto-name may survive only as a
@@ -167,39 +191,37 @@ if [ "$mode" = rom ]; then
         --candidate-artifact "$OUT/$sym.candidate.objdump" \
         --target-artifact "$OUT/$sym.target.objdump" \
         --objdump "$OBJDUMP"
-    exec "$WB" compare-dumps "$OUT/$sym.target.objdump" \
+    rom_command=compare-dumps
+    if [ "$wb_command" = diagnose ]; then rom_command=diagnose-dumps; fi
+    exec "$WB" "$rom_command" "$OUT/$sym.target.objdump" \
         "$OUT/$sym.candidate.objdump" "${wb_extra_args[@]}"
 fi
 
-asmfile=$(find asm/nonmatchings -type f -name "$sym.s" | head -1)
-if [ -z "$asmfile" ]; then
-    echo "$0: no asm/nonmatchings/**/$sym.s." >&2
+if [ -z "$asmfile" ] || [ ! -f "$asmfile" ]; then
+    echo "$0: no unique asm/nonmatchings fallback for '$target_sym'." >&2
     echo "  splat drops it once the C implements the function; try --rom." >&2
     exit 1
 fi
-# The TU object is the one whose subsegment owns the asm file.
-tu=$(dirname "${asmfile#asm/nonmatchings/}")
-cand_build_dir=${WB_CANDIDATE_BUILD_DIR:-build}
 cand=$cand_build_dir/src/$tu.c.o
 if [ ! -f "$cand" ]; then echo "$0: no candidate object $cand -- run gmake first." >&2; exit 1; fi
 
 printf '.set noat\n.set noreorder\n.include "macro.inc"\n.section .text, "ax"\n' > "$OUT/$sym.target.s"
 cat "$asmfile" >> "$OUT/$sym.target.s"
 $AS $ASFLAGS -o "$OUT/$sym.target.o" "$OUT/$sym.target.s"
-if [ "$candidate_sym" != "$sym" ]; then
-    $OBJCOPY --redefine-sym "$sym=$candidate_sym" "$OUT/$sym.target.o"
+if [ "$candidate_sym" != "$target_sym" ]; then
+    $OBJCOPY --redefine-sym "$target_sym=$candidate_sym" "$OUT/$sym.target.o"
 fi
 
 run_provenance \
     --mode asm \
-    --symbol "$sym" \
+    --symbol "$target_sym" \
     --candidate-symbol "$candidate_sym" \
-    --source "src/$tu.c" \
+    --source "$source_path" \
     --candidate-build-dir "$cand_build_dir" \
     --candidate-object "$cand" \
     --target-object "$OUT/$sym.target.o" \
     --candidate-artifact "$cand" \
     --target-artifact "$OUT/$sym.target.o" \
     --objdump "$OBJDUMP"
-exec "$WB" compare "$OUT/$sym.target.o" "$cand" \
+exec "$WB" "$wb_command" "$OUT/$sym.target.o" "$cand" \
     --function "$candidate_sym" --objdump "$OBJDUMP" "${wb_extra_args[@]}"

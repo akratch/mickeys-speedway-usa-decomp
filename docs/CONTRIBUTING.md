@@ -58,6 +58,14 @@ the `#pragma GLOBAL_ASM` fallback. Do not count it as matched. After a bounded
 set of attempts, record the best result and the remaining mismatch instead of
 making speculative source changes.
 
+Before sweeping flags, run `tools/function_preflight.py <symbol>`. It accepts
+either a friendly or generated overlay name and fails closed unless it can
+prove one source, one owned range, one padding boundary, and stable relocation
+identities. It automatically selects the ordinary or `NON_MATCHING` full-TU
+build and reports callers, exports, the candidate ABI context, relocation
+tuples, and the current workbench score and first mismatch without printing
+instruction text or ROM bytes. See [`tools.md`](tools.md) for details.
+
 ### Safe plateau finalization
 
 `tools/finalize_plateau.py` preserves one bounded attempt without weakening
