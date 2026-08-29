@@ -348,10 +348,10 @@
       "tu": "overlays/o007",
       "size_bytes": 524,
       "objdiff_match_pct": null,
-      "differing_words": 3,
+      "differing_words": 2,
       "first_mismatch_offset": 68,
       "size_delta": 0,
-      "category": "other"
+      "category": "register-only"
     },
     {
       "name": "overlay97InitScale",
@@ -408,10 +408,10 @@
       "tu": "overlays/o007",
       "size_bytes": 240,
       "objdiff_match_pct": null,
-      "differing_words": 5,
+      "differing_words": 2,
       "first_mismatch_offset": 4,
       "size_delta": 0,
-      "category": "other"
+      "category": "register-only"
     },
     {
       "name": "func_overlay_022_F0000000_1878108",
@@ -444,10 +444,10 @@
       "tu": "overlays/o007",
       "size_bytes": 288,
       "objdiff_match_pct": null,
-      "differing_words": 6,
-      "first_mismatch_offset": 4,
+      "differing_words": 3,
+      "first_mismatch_offset": 188,
       "size_delta": 0,
-      "category": "other"
+      "category": "register-only"
     },
     {
       "name": "overlay20BuildTileCommands",

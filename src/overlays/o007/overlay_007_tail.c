@@ -15,16 +15,29 @@ typedef struct Overlay7SelectionRow {
 
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
-/*
- * Plateau (trace-retested 2026-08-28): exact 131-word size with two differing
- * words, first at +0x44. UGEN allocates t3 for the global address, frees it,
- * then takes t4 for the value and t5 for the masked shift. The stock as1 trace
- * receives that allocation unchanged, and uopt records no copy decision, so a
- * zero-code copy-fact barrier has no applicable site. Function- and block-
- * scoped value carriers regress to 112/131; a pointer carrier canonicalizes
- * to this retained 129/131 candidate.
- */
+/* Bounded reproof 2026-08-29: the identity-correct masked spelling is 128/131
+ * raw and 129/131 after runtime relocation normalization, with exact 0x20C
+ * size, 0x20 frame, and first substantive mismatch +0x44. The two residual
+ * sites at +0x44/+0x64 are one t4-versus-target-t3 flags carrier; the raw
+ * +0xA4 switch-table LO16 addend normalizes away. Runtime metadata proves all
+ * 23 text plus seven table offsets, types, and identities, including mathRnd
+ * at +0x124/+0x1BC. Clean unmasked V0 regressed to 121/131. All 119 flag rows
+ * were nonexact; a proc-0 trace found every uopt pool assignment exact and the
+ * temp FIFO diverging only at slot 4. Two natural scalar/scope forms regressed
+ * to 112/131 and shifted a relocation. ORT 1471 and all six callers are
+ * authenticated. The TU's +0x934..+0x950 rodata ownership clears module
+ * growth; the function owns +0x894..+0xAA0 with no padding. The fallback
+ * remains canonical; retry only after a new natural temp-FIFO phase/reuse
+ * spelling, not more flags, explicit carriers, or a generic batch. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay7DispatchModes
+ * score: 129/131 words
+ * frame: 0x20
+ * relocations: 30
+ * first-mismatch: +0x44
+ * summary: One flags-carrier temp uses t4 instead of target t3 at two sites; 119 flags and two trace-selected scalar/scope forms are exhausted.
+ */
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
     Overlay7ModeState *firstState;
     Overlay7ModeState *secondState;
@@ -53,7 +66,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
             overlay7AppendEntry(first, record->first, 3);
             break;
         case 4:
-            if (overlay7LookupReloc(1, 2) == 1) {
+            if (mathRnd(1, 2) == 1) {
                 overlay7CreateEntry(first, record->first, 3);
                 overlay7AppendEntry(second, record->second, 3);
             } else {
@@ -67,7 +80,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
             overlay7CreateEntry(second, record->second, 3);
             break;
         case 6:
-            if (overlay7LookupReloc(1, 2) == 1) {
+            if (mathRnd(1, 2) == 1) {
                 overlay7CreateEntry(first, record->first, 3);
                 break;
             }
@@ -151,19 +164,26 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000AA0_185C928.s")
 #endif
 
-/*
- * Plateau (retested 2026-08-28): exact 60-word size with two differing words,
- * first at +0x4. The 119-case flag lattice, volatile/signed/array global
- * types, local flag and table-offset webs, and cast placement do not coalesce
- * the initial flag load with the later table offset; typed web reuse widens
- * the diff. A fresh Tier-2 trace preserves the stock text but records no UGEN
- * FIFO events, only five already-aligned global-color webs, so it cannot
- * diagnose or promote a force for the remaining t6-to-t7 temp web.
- */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 60-instruction, frame -32 shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
+/* Bounded reproof 2026-08-29: current configured full-TU C is 55/60 raw and
+ * 58/60 after runtime relocation normalization, with exact 0xF0 size, 0x20
+ * frame, and first substantive mismatch +0x4. The two residual sites at
+ * +0x4/+0x10 are one t7-versus-t6 unnamed flags/selection-offset temp web.
+ * Runtime metadata proves all 13 emitted offsets, types, and identities,
+ * including camGetModeReloc at +0xA4 and overlay59AppendValueReloc at +0xD8.
+ * All 119 flag rows were nonexact; the proc-2 allocator trace found the named
+ * webs already clean, and two trace-selected scalar/scope forms regressed to
+ * 39/60. The fallback remains canonical. A later attempt needs a new UGEN
+ * temp-coalescing mechanism, not more flags, explicit locals, or a generic
+ * permutation batch. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay7DispatchSelection
+ * score: 58/60 words
+ * frame: 0x20
+ * relocations: 13
+ * first-mismatch: +0x4
+ * summary: Unnamed flags-load temp does not coalesce with the later selection-offset temp; 119 flags and two trace-selected scalar/scope forms are exhausted.
+ */
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     Overlay7DispatchState *state;
     u16 *override;
@@ -186,10 +206,11 @@ create:
         }
     } else {
 query:
-        if (overlay7QueryReloc() == 0) {
+        if (camGetModeReloc() == 0) {
             mapped = gOverlay7DispatchMap[selection];
             if (mapped != -1) {
-                overlay7ApplyReloc(0, state->index, mapped, state->field45D);
+                overlay59AppendValueReloc(0, state->index, mapped,
+                                          state->field45D);
             }
         }
     }
@@ -198,13 +219,27 @@ query:
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000CCC_185CB54.s")
 #endif
 
-/*
- * Plateau (2026-08-25 rerun): exact size with three differing words, first at
- * +0xBC. A typed six-byte selection row fixes the default table-index temp
- * rotation. The 119-case flag lattice and explicit/cast/temporary narrowing
- * forms still keep the post-call u16 result in a2 instead of target a3/t2.
+/* Bounded reproof 2026-08-29: current configured full-TU C is 67/72 raw and
+ * 69/72 after runtime relocation normalization, with exact 0x120 size, 0x30
+ * frame, and first substantive mismatch +0xBC. The three residual sites at
+ * +0xBC/+0xC4/+0xD4 are one post-mathRnd u16 conversion carrier. Runtime
+ * metadata proves all 17 emitted offsets, types, and identities, including
+ * the local JUMP at +0xF4 and four authenticated external calls. ORT 1345 and
+ * all 17 resident/cross-overlay callers are authenticated. All 119 flag rows
+ * were nonexact; the proc-3 trace places the candidate conversion in uopt pool
+ * slot 20 while the target uses temp-FIFO slot 9. Explicit assignment and a
+ * scoped u16 carrier both regressed to 68/72 normalized. The fallback remains
+ * canonical; retry only after a new source route for this pool/temp decision.
  */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay7CommitSelection
+ * score: 69/72 words
+ * frame: 0x30
+ * relocations: 17
+ * first-mismatch: +0xBC
+ * summary: Unnamed post-mathRnd u16 conversion remains in the uopt pool instead of the target temp FIFO; flags and two natural forms are exhausted.
+ */
 void overlay7CommitSelection(s32 selection) {
     u16 value;
     Overlay7Pair *pair;
@@ -224,24 +259,24 @@ void overlay7CommitSelection(s32 selection) {
         default:
             value = ((Overlay7SelectionRow *)&gOverlay7DispatchData[0x754])
                         [selection]
-                            .values[overlay7LookupReloc(0, 2)];
+                            .values[mathRnd(0, 2)];
             break;
         }
         pair = (Overlay7Pair *)&gOverlay7DispatchData[0x8F4];
         remaining = 11;
         do {
             if (pair->key == value) {
-                value += overlay7LookupReloc(0, pair->value);
+                value += mathRnd(0, pair->value);
                 break;
             }
             pair++;
         } while (remaining--);
         if (value != 0) {
             if (gOverlay7DispatchObject != 0) {
-                overlay7ObjectReloc(gOverlay7DispatchObject);
-                func_overlay_007_F0000CCC_185CB54(gOverlay7Selected);
+                func_800031E8(gOverlay7DispatchObject);
+                overlay7ReleaseEntry(gOverlay7Selected);
             }
-            overlay7CommitReloc(value, &gOverlay7CommitArgument);
+            amSndPlay(value, &gOverlay7CommitArgument);
         }
     }
 }
@@ -249,11 +284,13 @@ void overlay7CommitSelection(s32 selection) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000DBC_185CC44.s")
 #endif
 
-/* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+/* Pinned DKR v77/v80 and JFG object scans found no exact donor. Exact but
+ * non-natural: the empty condition and dummy comma-expression operand are
+ * semantically inert allocation aids preserving IDO's 11-word coloring.
+ * Tracked in docs/cleanup-queue.md. */
 s32 overlay7FillValues(s16 *value) {
     s32 remaining;
 
-    /* Preserves the original IDO register coloring without emitted code. */
     if (((!value) & 0xFFFFU) && (!value)) {
     }
     value = &gOverlay7ValuesEnd;
