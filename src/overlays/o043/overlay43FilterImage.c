@@ -57,7 +57,11 @@ void overlay43FilterImage(Overlay43Image *image) {
             pixel++;
         } while (column--);
         pixel += 2;
-    } while (row--); word = (u32 *)image->pixels; row = 0x3FF; do {
+    } while (row--);
+
+    word = (u32 *)image->pixels;
+    row = 0x3FF;
+    do {
         *word = (*word & 0xF0F0F0F0) >> 4;
         word++;
     } while (row--);
