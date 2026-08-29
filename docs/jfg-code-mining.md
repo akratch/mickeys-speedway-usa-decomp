@@ -4,9 +4,11 @@ Mickey's Speedway USA and Jet Force Gemini share parts of the same engine.
 This page lists JFG functions that may be able to use C source from this
 repository.
 
-The comparison used JFG `master` at
-[`2f49ab3f`](https://github.com/Ryan-Myers/Jet-Force-Gemini/commit/2f49ab3f7437f0b7ea8ed8da83e9f765b95fe4ff).
-At that revision, the JFG functions below still use `GLOBAL_ASM`.
+The comparison originally used JFG `master` at `2f49ab3f`. It was rechecked
+against
+[`fd910f6b`](https://github.com/Ryan-Myers/Jet-Force-Gemini/commit/fd910f6bd61e4033e0d0208d763addd32fbb6118)
+on 29 August 2026. At the newer revision, all 33 JFG functions in the exact
+list below still use `GLOBAL_ASM`.
 
 ## What the exact list means
 
@@ -25,7 +27,7 @@ JFG versions. The result must then be compiled and verified in JFG.
 Nine JFG sound-player functions have exact candidates in
 [`src/main/gsSnd.c`](../src/main/gsSnd.c). Together they cover 7,800 bytes.
 JFG's missing functions are at the top of its
-[`src/gsSnd.c`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/2f49ab3f7437f0b7ea8ed8da83e9f765b95fe4ff/src/gsSnd.c).
+[`src/gsSnd.c`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/gsSnd.c).
 
 | JFG function | Mickey function | Bytes |
 |---|---|---:|
@@ -106,12 +108,37 @@ for those functions.
 Several same-name functions are close between the two games but are not byte
 matches. Useful starting points include `osScGetTaskType`,
 `amWaitForMidiSync`, `texscrollControl`, `spranimControl`, `mainCPUeffects`,
-`mainUpdateZBCheck`, `runlinkFlushModules`, and `frontSetMode`. Their source is
+`mainUpdateZBCheck`, and `frontSetMode`. Their source is
 in [`sched.c`](../src/main/sched.c),
 [`audio_manager_1050.c`](../src/main/audio_manager_1050.c),
 [`spranim.c`](../src/main/spranim.c), [`main.c`](../src/main/main.c),
 [`runlink.c`](../src/main/runlink.c), and [`menu.c`](../src/main/menu.c).
 Treat these as source references, not matching implementations.
+
+Seven more Mickey functions have become exact C since this guide was first
+published, while their JFG counterparts still use `GLOBAL_ASM` at `fd910f6b`.
+They implement the same broad jobs, but their sizes or instruction streams
+differ, so they do not change the 33-function / 9,648-byte exact-cross-title
+tally.
+
+The “JFG insertion point” links go directly to the unresolved pragma that the
+Mickey source can help replace. These seven are source references rather than
+drop-in matches: copy the algorithm into that JFG location, translate the
+listed engine types and globals, and prove it against JFG's own function bytes
+and relocations.
+
+| JFG insertion point | Exact Mickey source | Where the source is useful |
+|---|---|---|
+| [`src/font.c`: `fontGetLine`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/font.c#L547) | [`func_8004D40C`](../src/main/font.c#L1110) | Use the line-scanning, glyph-width, wrapping, and output-cursor control flow. JFG's four-argument declaration differs from Mickey's five-argument ABI, so reconcile its width/result handling rather than copying the signature. |
+| [`src/audio_manager_36D0.c`: `func_80003B14_4714`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/audio_manager_36D0.c#L123) | [`func_80003760`](../src/main/audio_manager_36D0.c#L667) | Use the audio-point queue unlink and free-list update. Map JFG's queue head, entry links, and point ownership fields. |
+| [`src/particles.c`: `func_8005FE4C_60A4C`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/particles.c#L61) (`func_800608EC` in kiosk) | [`func_8003F5F8`](../src/main/particles.c#L937) | Use the particle-emitter initialization sequence and flag-dependent field setup. Translate the particle, emitter, trigger-slot, and config layouts before matching. |
+| [`src/fx.c`: `func_8006DF90_6EB90`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/fx.c#L126) | [`func_8004A380`](../src/main/fx.c#L1965) | Use the integer-to-digits conversion, minimum-width handling, and digital-glyph render loop. Replace Mickey's screen, texture, and display-list globals with JFG's equivalents. |
+| [`src/hit.c`: `hitInitObjectHit`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/hit.c#L13) | [`func_80053550`](../src/main/anim.c#L1001) | Use the object-hit allocation and complete field-initialization order. Reconcile JFG's hit-owner, rotation, radius/height, collision-type, and flag fields. |
+| [`src/charControl.c`: `func_8002ED94_2F994`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/charControl.c#L45) | [`func_8001BE0C`](../src/main/charControl.c#L190) | Use the character/player and camera-state initialization block. Confirm every JFG actor, player, and camera offset before adopting the stores. |
+| [`src/runLink.c`: `runlinkEnsureJumpIsValid`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/runLink.c#L545) | [`func_800320F0`](../src/main/runlink.c#L565) | Use the relocation scan, jump validation, and lazy-overlay-load flow. Map JFG's overlay table, module identifiers, relocation records, and jump-address type; this is the most directly relevant overlay-system reference. |
+
+JFG has since implemented `runlinkFlushModules`, so it is no longer included
+among the open source-reference targets above.
 
 ## Suggested porting order
 
