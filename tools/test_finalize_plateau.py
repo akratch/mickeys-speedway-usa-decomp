@@ -30,11 +30,69 @@ void demo_symbol(int value) {
 #endif
 """
 
+SOURCE_WITH_UNRELATED_DECLARATION_GUARD = """#include \"common.h\"
+
+#ifdef NON_MATCHING
+extern int helper_only_needed_by_candidates(void);
+#ifdef DECLARATION_DETAIL
+extern int another_candidate_helper(void);
+#endif
+#endif
+
+""" + VALID_SOURCE
+
 
 class GuardValidationTests(unittest.TestCase):
     def test_requires_exact_guarded_candidate_and_fallback(self) -> None:
         candidate = plateau.require_guarded_candidate(VALID_SOURCE, "demo_symbol")
         self.assertEqual(candidate.fallback, "asm/nonmatchings/main/demo/demo_symbol.s")
+
+    def test_ignores_balanced_unrelated_guard_without_else(self) -> None:
+        candidate = plateau.require_guarded_candidate(
+            SOURCE_WITH_UNRELATED_DECLARATION_GUARD, "demo_symbol"
+        )
+        self.assertEqual(candidate.fallback, "asm/nonmatchings/main/demo/demo_symbol.s")
+
+    def test_rejects_target_guard_without_else(self) -> None:
+        source = """#ifdef NON_MATCHING
+void demo_symbol(void) {}
+#endif
+"""
+        with self.assertRaisesRegex(plateau.PlateauError, "exactly one top-level #else"):
+            plateau.require_guarded_candidate(source, "demo_symbol")
+
+    def test_rejects_unterminated_target_guard(self) -> None:
+        source = """#ifdef NON_MATCHING
+void demo_symbol(void) {}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/demo/demo_symbol.s")
+"""
+        with self.assertRaisesRegex(plateau.PlateauError, "unterminated target"):
+            plateau.require_guarded_candidate(source, "demo_symbol")
+
+    def test_rejects_nested_target_guard(self) -> None:
+        source = """#ifdef OUTER_FEATURE
+#ifdef NON_MATCHING
+void demo_symbol(void) {}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/demo/demo_symbol.s")
+#endif
+#endif
+"""
+        with self.assertRaisesRegex(plateau.PlateauError, "nested target"):
+            plateau.require_guarded_candidate(source, "demo_symbol")
+
+    def test_rejects_ambiguous_target_branches(self) -> None:
+        source = """#ifdef NON_MATCHING
+void demo_symbol(void) {}
+#elif defined(ANOTHER_CANDIDATE)
+void demo_symbol(void) {}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/demo/demo_symbol.s")
+#endif
+"""
+        with self.assertRaisesRegex(plateau.PlateauError, "ambiguous target"):
+            plateau.require_guarded_candidate(source, "demo_symbol")
 
     def test_rejects_unguarded_candidate(self) -> None:
         source = "void demo_symbol(void) {}\n"
@@ -203,6 +261,16 @@ class FinalizeCommandTests(unittest.TestCase):
         self.assertIn("PLATEAU-HANDOFF", (self.repo / "src" / "demo.c").read_text())
         self.assertTrue((self.repo / "src" / "demo.c").read_text().startswith(VALID_SOURCE))
         self.assertEqual(self.gate_log.read_text().splitlines(), ["cleanroom", "check-docs"])
+
+    def test_command_accepts_unrelated_declaration_only_guard(self) -> None:
+        (self.repo / "src" / "demo.c").write_text(
+            SOURCE_WITH_UNRELATED_DECLARATION_GUARD, encoding="utf-8"
+        )
+        result = self.finalize()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        updated = (self.repo / "src" / "demo.c").read_text(encoding="utf-8")
+        self.assertTrue(updated.startswith(SOURCE_WITH_UNRELATED_DECLARATION_GUARD))
+        self.assertIn("PLATEAU-HANDOFF:demo_symbol:start", updated)
 
     def test_explicit_commit_contains_only_named_source_and_doc(self) -> None:
         result = self.finalize(

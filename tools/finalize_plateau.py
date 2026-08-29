@@ -114,12 +114,25 @@ def guarded_candidates(text: str, symbol: str) -> list[GuardedCandidate]:
     definition = re.compile(rf"\b{re.escape(symbol)}\s*\([^;{{}}]*\)\s*\{{", re.DOTALL)
     fallback_re = re.compile(r'#\s*pragma\s+GLOBAL_ASM\s*\(\s*"([^"]+)"\s*\)')
 
+    depth_before: list[int] = []
+    file_depth = 0
+    for line in lines:
+        depth_before.append(file_depth)
+        parsed = directive(line)
+        if not parsed:
+            continue
+        kind, _ = parsed
+        if kind in ("if", "ifdef", "ifndef"):
+            file_depth += 1
+        elif kind == "endif" and file_depth > 0:
+            file_depth -= 1
+
     for start, line in enumerate(lines):
         parsed = directive(line)
         if parsed != ("ifdef", "NON_MATCHING"):
             continue
         depth = 1
-        else_line: int | None = None
+        branch_lines: list[tuple[str, int]] = []
         end_line: int | None = None
         for index in range(start + 1, len(lines)):
             nested = directive(lines[index])
@@ -133,15 +146,29 @@ def guarded_candidates(text: str, symbol: str) -> list[GuardedCandidate]:
                 if depth == 0:
                     end_line = index
                     break
-            elif kind == "else" and depth == 1:
-                if else_line is not None:
-                    raise PlateauError(f"multiple top-level #else directives after line {start + 1}")
-                else_line = index
-        if else_line is None or end_line is None:
-            raise PlateauError(f"unterminated NON_MATCHING guard after line {start + 1}")
-        candidate_text = "".join(lines[start + 1:else_line])
+            elif kind in ("elif", "else") and depth == 1:
+                branch_lines.append((kind, index))
+
+        first_branch = branch_lines[0][1] if branch_lines else end_line
+        candidate_end = first_branch if first_branch is not None else len(lines)
+        candidate_text = "".join(lines[start + 1:candidate_end])
         if not definition.search(candidate_text):
             continue
+
+        if end_line is None:
+            raise PlateauError(
+                f"unterminated target NON_MATCHING guard for {symbol} after line {start + 1}"
+            )
+        if depth_before[start] != 0:
+            raise PlateauError(f"nested target NON_MATCHING guard for {symbol} at line {start + 1}")
+        if any(kind == "elif" for kind, _ in branch_lines):
+            raise PlateauError(f"ambiguous target NON_MATCHING branches for {symbol}")
+        else_lines = [index for kind, index in branch_lines if kind == "else"]
+        if len(else_lines) != 1:
+            raise PlateauError(
+                f"{symbol} target NON_MATCHING guard must have exactly one top-level #else"
+            )
+        else_line = else_lines[0]
         fallback_text = "".join(lines[else_line + 1:end_line])
         fallbacks = fallback_re.findall(fallback_text)
         valid = [

@@ -74,8 +74,11 @@ The exact function must already be C under `#ifdef NON_MATCHING`, followed by
 one `#else` / `#pragma GLOBAL_ASM(...)` fallback. The fallback filename must
 either match the C symbol or use splat's canonical generated overlay-function
 form (`func_overlay_NNN_F...s`), which is how friendly overlay names retain
-their original assembly identity. The command refuses an unguarded or
-ambiguous body, any other mismatched fallback, an untracked source, or
+their original assembly identity. Balanced declaration-only `NON_MATCHING`
+guards elsewhere in the same translation unit are ignored; validation is tied
+to the requested symbol's own top-level guard and fallback. The command refuses
+an unguarded, nested, unterminated, or ambiguous target body, any other
+mismatched fallback, an untracked source, or
 worktree/index dirt outside that source and an optional `--handoff-doc
 docs/<file>.md`. It records only the supplied score, frame, relocation count,
 first mismatch, and one-line summary in a symbol-keyed metadata comment at
