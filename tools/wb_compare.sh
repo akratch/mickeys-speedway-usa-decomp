@@ -3,6 +3,17 @@
 #
 #   ./tools/wb_compare.sh <symbol> [extra decomp-workbench args...]
 #
+# A guarded C body built through the compile-only NON_MATCHING tree can be
+# selected without copying it over the ordinary fallback object:
+#
+#   WB_CANDIDATE_BUILD_DIR=build_non_matching \
+#   WB_CANDIDATE_SYMBOL=overlay80UpdateContact \
+#     ./tools/wb_compare.sh func_overlay_080_F000011C_18CE9E4
+#
+# WB_CANDIDATE_SYMBOL is needed only when the extracted target retains a splat
+# auto-name but the C body already has its friendly name. The assembled target
+# is renamed in the disposable build/wb object before comparison.
+#
 # The target object is the project's own disassembly of the function
 # (asm/nonmatchings/**/<symbol>.s) assembled with the project's assembler; the
 # candidate is the function as it came out of the normal, full-translation-unit
@@ -26,15 +37,40 @@ cd "$(dirname "$0")/.."
 
 WB=.venv/bin/decomp-workbench
 OBJDUMP=tools/binutils/mips64-elf-objdump
+OBJCOPY=tools/binutils/mips64-elf-objcopy
 AS=tools/binutils/mips64-elf-as
 ASFLAGS="-march=vr4300 -32 -mabi=32 -G0 -I include"
 OUT=build/wb
 mkdir -p "$OUT"
+PROVENANCE=.venv/bin/python
+PROVENANCE_TOOL=tools/proof_provenance.py
 
 mode=asm
 if [ "${1:-}" = "--rom" ]; then mode=rom; shift; fi
 if [ $# -lt 1 ]; then echo "usage: $0 [--rom] <symbol> [args...]" >&2; exit 2; fi
 sym=$1; shift
+
+proof_manifest="$OUT/$sym.provenance.json"
+
+run_provenance() {
+    local result=0
+    "$PROVENANCE" "$PROVENANCE_TOOL" "$@" --manifest "$proof_manifest" || result=$?
+    case "$result" in
+        0) return 0 ;;
+        3)
+            # Keep fallback/unknown comparisons useful as diagnostics, but
+            # make the comparator itself reject an exact result.  The census
+            # is part of decomp-workbench's public CLI and composes with any
+            # caller-provided assertions.
+            set -- "${wb_extra_args[@]}" --census exact=false
+            wb_extra_args=("$@")
+            return 0
+            ;;
+        *) return "$result" ;;
+    esac
+}
+
+wb_extra_args=("$@")
 
 # Where the symbol ended up, straight from the linked ELF.
 # (BSD awk has no strtonum, so the hex-to-decimal step is the shell's.)
@@ -115,7 +151,16 @@ if [ "$mode" = rom ]; then
         "$vram" "$target_rom" "$tsize"
     dump "$candidate_rom" "$OUT/$sym.candidate.objdump" \
         "$candidate_vram" "$candidate_rom_offset" "$candidate_size"
-    exec "$WB" compare-dumps "$OUT/$sym.target.objdump" "$OUT/$sym.candidate.objdump" "$@"
+    run_provenance \
+        --mode rom \
+        --symbol "$sym" \
+        --candidate-symbol "$sym" \
+        --candidate-build-dir "$rom_build_dir" \
+        --candidate-artifact "$OUT/$sym.candidate.objdump" \
+        --target-artifact "$OUT/$sym.target.objdump" \
+        --objdump "$OBJDUMP"
+    exec "$WB" compare-dumps "$OUT/$sym.target.objdump" \
+        "$OUT/$sym.candidate.objdump" "${wb_extra_args[@]}"
 fi
 
 asmfile=$(find asm/nonmatchings -type f -name "$sym.s" | head -1)
@@ -126,11 +171,28 @@ if [ -z "$asmfile" ]; then
 fi
 # The TU object is the one whose subsegment owns the asm file.
 tu=$(dirname "${asmfile#asm/nonmatchings/}")
-cand=build/src/$tu.c.o
+cand_build_dir=${WB_CANDIDATE_BUILD_DIR:-build}
+candidate_sym=${WB_CANDIDATE_SYMBOL:-$sym}
+cand=$cand_build_dir/src/$tu.c.o
 if [ ! -f "$cand" ]; then echo "$0: no candidate object $cand -- run gmake first." >&2; exit 1; fi
 
 printf '.set noat\n.set noreorder\n.include "macro.inc"\n.section .text, "ax"\n' > "$OUT/$sym.target.s"
 cat "$asmfile" >> "$OUT/$sym.target.s"
 $AS $ASFLAGS -o "$OUT/$sym.target.o" "$OUT/$sym.target.s"
+if [ "$candidate_sym" != "$sym" ]; then
+    $OBJCOPY --redefine-sym "$sym=$candidate_sym" "$OUT/$sym.target.o"
+fi
 
-exec "$WB" compare "$OUT/$sym.target.o" "$cand" --function "$sym" --objdump "$OBJDUMP" "$@"
+run_provenance \
+    --mode asm \
+    --symbol "$sym" \
+    --candidate-symbol "$candidate_sym" \
+    --source "src/$tu.c" \
+    --candidate-build-dir "$cand_build_dir" \
+    --candidate-object "$cand" \
+    --target-object "$OUT/$sym.target.o" \
+    --candidate-artifact "$cand" \
+    --target-artifact "$OUT/$sym.target.o" \
+    --objdump "$OBJDUMP"
+exec "$WB" compare "$OUT/$sym.target.o" "$cand" \
+    --function "$candidate_sym" --objdump "$OBJDUMP" "${wb_extra_args[@]}"
