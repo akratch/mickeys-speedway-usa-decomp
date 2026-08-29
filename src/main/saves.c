@@ -98,16 +98,6 @@ typedef struct SavesGameWriteState {
     s32 messageQueue;
 } SavesGameWriteState;
 
-typedef struct SavesFullWriteState {
-    s32 messageQueue;
-    s32 unused;
-    u8 *volatile buffer;
-    u8 pad0C[0xC];
-    s32 savedByte;
-    u32 savedFlag;
-    u8 pad20[8];
-} SavesFullWriteState;
-
 typedef struct RumbleState {
     u8 state;
     u8 pad01;
@@ -799,11 +789,29 @@ void func_8002CF0C(void *globalFlags) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench p7: register-ring-only, 9/88 words remain, first +0xCC; frame/relocations exact.
- * A lexical post-call savedFlag reload is codegen-inert; target needs a FIFO temp where this body keeps a colored web.
- * Hoisted arguments, folded masks, addressable scalars, flag probes, and two phantom-pop placements remain exhausted. */
+/* PLATEAU-HANDOFF
+ * symbol: func_8002CF6C
+ * score: 11/88 words
+ * frame: 0x48
+ * relocations: 11
+ * first-mismatch: +0x8
+ * summary: lexical saved-state scope restores the frame, but buffer coloring leaves an 85-word structural mismatch and shifted relocation offsets
+ */
+/* Policy-clean configured V0 is 85/88 instructions, 10/88 positional words,
+ * frame 0x30, first +0x0. All 11 relocation identities are present, but their
+ * offsets drift with the shorter body. The complete 119-configuration lattice
+ * is nonexact; -O2 -g3 reaches 86 instructions but not the target structure.
+ * One allocator trace maps the function to procedure 26: globalFlags/stateBuffer
+ * occupy s0/s1 while the saved-byte/flag webs occupy a2/a3. Moving those two
+ * saved scalars into their natural lexical scope restores frame 0x48 and gives
+ * the retained 85-instruction, 11/88-word result. A saved-header lifetime
+ * regresses to 83 instructions, so no combination or generic batch is allowed.
+ * ORT 505 and sole caller joyRead+0x130 remain authenticated. Assembly fallback
+ * is canonical; no padded state, false checksum arguments, dead carrier, or
+ * volatile allocation scaffold is retained. */
 void func_8002CF6C(u8 *globalFlags) {
-    SavesFullWriteState state;
+    s32 stateMessageQueue;
+    u8 *stateBuffer;
     s32 messageQueue;
     u8 *allocatedBuffer;
     u8 *footerBuffer;
@@ -812,26 +820,26 @@ void func_8002CF6C(u8 *globalFlags) {
     s32 count;
 
     messageQueue = joyMessageQ();
-    state.messageQueue = messageQueue;
+    stateMessageQueue = messageQueue;
     if (func_80070170(messageQueue) != 0) {
         allocatedBuffer = func_8002B280(0x200, 0x85);
-        state.buffer = allocatedBuffer;
+        stateBuffer = allocatedBuffer;
         if (allocatedBuffer != NULL) {
+            s32 savedByte;
+            u32 savedFlag;
+
             dst = allocatedBuffer;
             count = 0x1FF;
             do {
                 *dst++ = 0;
             } while (count--);
             func_8002CCE4();
-            count = packCalculateGameChecksum(state.buffer, 0x1C0);
-            footerBuffer = state.buffer;
+            count = packCalculateGameChecksum(stateBuffer, 0x1C0);
+            footerBuffer = stateBuffer;
             *(u32 *) (footerBuffer + 0x1C0) = count;
             *(u32 *) (footerBuffer + 0x1C4) = 0x12345678;
-            footerBuffer += 0x1C0;
-
-            state.savedByte = (s8) globalFlags[3];
-            state.savedFlag =
-                (u32) (*(u16 *) globalFlags << 17) >> 31;
+            savedByte = (s8) globalFlags[3];
+            savedFlag = (u32) (*(u16 *) globalFlags << 17) >> 31;
             src = D_8007A304;
             dst = globalFlags;
             count = 0x17;
@@ -839,24 +847,22 @@ void func_8002CF6C(u8 *globalFlags) {
                 *dst++ = *src++;
             } while (count--);
             *(u16 *) (globalFlags + 0x16) =
-                packCalculateGlobalFlagsChecksum(globalFlags, src,
-                                                  footerBuffer,
-                                                  state.savedFlag);
+                packCalculateGlobalFlagsChecksum(globalFlags);
             globalFlags[0] =
-                ((state.savedFlag << 6) & 0x40) |
+                ((savedFlag << 6) & 0x40) |
                 (globalFlags[0] & ~0x40);
-            globalFlags[3] = state.savedByte;
+            globalFlags[3] = savedByte;
 
             src = globalFlags;
-            dst = state.buffer + 0x1C8;
+            dst = stateBuffer + 0x1C8;
             count = 0x17;
             do {
                 *dst++ = *src++;
             } while (count--);
             count = mainResetPressed();
-            allocatedBuffer = state.buffer;
+            allocatedBuffer = stateBuffer;
             if (count == 0) {
-                func_8002C8B4(state.messageQueue, 0, allocatedBuffer, 0x200);
+                func_8002C8B4(stateMessageQueue, 0, allocatedBuffer, 0x200);
             }
             mmFree(allocatedBuffer);
         }

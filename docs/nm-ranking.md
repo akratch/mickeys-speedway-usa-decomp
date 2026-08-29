@@ -275,7 +275,7 @@ table from a fresh run):
 | func_80038750 | main | 6 | 220 | 296 | 0 | register-only |
 | partUpdateTriggers | main | 6 | 228 | 404 | 0 | register-only |
 | overlay20UpdateObjectResource | o020 | 8 | 176 | 392 | 0 | register-only |
-| func_8002CF6C | main | 9 | 204 | 352 | 0 | register-only |
+| func_8002CF6C | main | 77 | 8 | 352 | -12 | structure-mismatch |
 | overlay19ClassifyEdge | o019 | 10 | 312 | 480 | 0 | register-only |
 | func_80021504 | main | 11 | 468 | 532 | 0 | register-only |
 | func_80021718 | main | 11 | 76 | 148 | 0 | register-only |
@@ -288,5 +288,5 @@ table from a fresh run):
 | func_8003A2C8 | main | 8 | 0 | 128 | 0 | register-only |
 | runlinkEnsureJumpIsValid | main | 35 | 32 | 404 | 0 | register-only |
 
-All 19 are `register-only` and size-exact -- the cheapest tier the queue
-has to offer right now.
+All listed rows except `func_8002CF6C` are `register-only` and size-exact;
+that function is now classified as a policy-clean structural plateau.

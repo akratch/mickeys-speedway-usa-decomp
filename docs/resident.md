@@ -1697,9 +1697,7 @@ one opcode); the remaining blocker is constant/next-bit register coloring.
 
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 
-`func_8002CF6C` remains Mickey-derived `NON_MATCHING`: all 88 instructions, the 72-byte frame, and relocations agree; workbench reports `register-ring-only`, 9 sites from `+0xCC`.
-The p7 pipeline retry scoped a `savedFlag` reload to after the checksum call, matching the target's lifetime boundary, but it was codegen-inert: the candidate still uses a colored web where the target uses the FIFO temp ring.
-Hoisted-argument, folded-mask, and addressable-scalar levers remain exhausted; the 30-minute permuter produced only invented no-op identities. The remaining trace route requires an instrumented compiler source not configured in this lane, so the assembly fallback remains canonical.
+`func_8002CF6C` owns 88 words with no padding before `packOpen`. Policy-clean configured V0 emits 85 instructions with frame `0x30`, 10/88 positional matches, and all 11 relocation identities at shifted offsets. The complete 119-configuration lattice is nonexact. One allocator trace shows the allocated-buffer and saved-state webs driving the mismatch; moving the saved scalars into their natural lexical scope restores frame `0x48` and improves the retained candidate to 11/88, first `+0x8`, while a saved-header lifetime regresses. ORT 505 and sole caller `joyRead+0x130` remain authenticated. The assembly fallback is canonical; revisit only when a natural source model explains the target's stack-homed buffer without padding or allocation scaffolds.
 
 The save-window serializer `func_8002C94C` is now **matched** (tier-A byte-identity).
 The residual was a pure `schedule-mismatch` (exact 115-word shape, `0x70` frame, relocations already agreeing); the decomp-permuter closed it, finding an `if (1) { ... }` grouping around the entry initialization that resolves the callee-saved slot/counter scheduling tie-break. The C in `src/main/saves.c` now compiles byte-identical to the ROM; no assembly fallback remains.

@@ -84,10 +84,10 @@
       "tu": "main",
       "size_bytes": 352,
       "objdiff_match_pct": null,
-      "differing_words": 9,
-      "first_mismatch_offset": 204,
-      "size_delta": 0,
-      "category": "register-only"
+      "differing_words": 77,
+      "first_mismatch_offset": 8,
+      "size_delta": -12,
+      "category": "structure-mismatch"
     },
     {
       "name": "func_overlay_014_F00009F4_18702CC",
