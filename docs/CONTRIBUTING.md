@@ -62,9 +62,11 @@ Before sweeping flags, run `tools/function_preflight.py <symbol>`. It accepts
 either a friendly or generated overlay name and fails closed unless it can
 prove one source, one owned range, one padding boundary, and stable relocation
 identities. It automatically selects the ordinary or `NON_MATCHING` full-TU
-build and reports callers, exports, the candidate ABI context, relocation
-tuples, and the current workbench score and first mismatch without printing
-instruction text or ROM bytes. See [`tools.md`](tools.md) for details.
+build and reports callers, exports, the candidate ABI context, overlay runtime
+records or authenticated resident static relocation tuples, and the current
+workbench score and first mismatch without printing instruction text or ROM
+bytes. Sparse resident startup-table records are reported separately and may
+legitimately be absent. See [`tools.md`](tools.md) for details.
 
 For allocator investigations, use the fail-closed procedure mapping and
 fidelity receipt in

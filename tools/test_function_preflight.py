@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import os
 import subprocess
@@ -243,5 +245,123 @@ class FreshnessTests(unittest.TestCase):
             self.assertIn("NON_MATCHING=1", commands[1])
 
 
+class RelocationEvidenceTests(unittest.TestCase):
+    def test_resident_reports_eight_static_tuples_and_zero_runtime_records(self) -> None:
+        resolution = fp.Resolution(
+            "func_8002BB40",
+            "func_8002BB40",
+            "func_8002BB40",
+            Path("src/main/memory.c"),
+            "main/memory",
+            "build",
+            Path("build/src/main/memory.c.o"),
+            Path("asm/unused.s"),
+            "ordinary C",
+        )
+        static_records = [
+            fp.rs.SurfaceRecord(0x14, fp.rs.R_MIPS_HI16, (0, 0xD1D60)),
+            fp.rs.SurfaceRecord(0x18, fp.rs.R_MIPS_LO16, (0, 0xD1D60)),
+            fp.rs.SurfaceRecord(0x28, fp.rs.R_MIPS_HI16, (0, 0xD1810)),
+            fp.rs.SurfaceRecord(0x2C, fp.rs.R_MIPS_LO16, (0, 0xD1810)),
+            fp.rs.SurfaceRecord(0x08, fp.rs.R_MIPS_HI16, (0, 0x79E20)),
+            fp.rs.SurfaceRecord(0x64, fp.rs.R_MIPS_LO16, (0, 0x79E20)),
+            fp.rs.SurfaceRecord(0x40, fp.rs.R_MIPS_HI16, (0, 0xD1810)),
+            fp.rs.SurfaceRecord(0x44, fp.rs.R_MIPS_LO16, (0, 0xD1810)),
+        ]
+
+        with mock.patch.object(
+            fp.rs, "_resident_target_records", return_value=static_records
+        ) as authenticate:
+            evidence = fp._relocation_evidence(
+                resolution,
+                {"kind": "resident"},
+                [],
+                mock.sentinel.target_elf,
+                "func_8002BB40",
+                0x8002BB40,
+                0x120,
+                ".main",
+            )
+
+        self.assertEqual(8, len(evidence["target_static_relocations"]))
+        self.assertEqual([], evidence["resident_runtime_records"])
+        self.assertEqual([], evidence["runtime_overlay_records"])
+        self.assertEqual(
+            ["+0x14", "+0x18", "+0x28", "+0x2C", "+0x8", "+0x64", "+0x40", "+0x44"],
+            [row["offset"] for row in evidence["target_static_relocations"]],
+        )
+        authenticate.assert_called_once_with(
+            resolution.candidate_object,
+            "main/memory",
+            mock.sentinel.target_elf,
+            "func_8002BB40",
+            0x8002BB40,
+            0x120,
+            ".main",
+            fp.ALIASES,
+            [],
+        )
+
+        report = {
+            "target_symbol": "func_8002BB40",
+            "candidate_symbol": "func_8002BB40",
+            "source": "src/main/memory.c",
+            "candidate_build_dir": "build",
+            "candidate_signature": "s32 func_8002BB40(void)",
+            "owned_size": 0x120,
+            "context": {
+                "kind": "resident",
+                "vram_start": 0x8002BB40,
+                "vram_end": 0x8002BC60,
+                "rom_start": 0x2C740,
+                "rom_end": 0x2C860,
+                "next_symbol": None,
+            },
+            "exports": [],
+            "callers": [],
+            "inbound_references": [],
+            **evidence,
+            "relocation_comparison": {
+                "target_surface_source": "resident-canonical-static-object",
+                "target_record_count": 8,
+                "offset_type_alignment_count": 8,
+                "stable_identity_alignment_count": 8,
+            },
+            "workbench": {
+                "matched_words": 72,
+                "target_words": 72,
+                "candidate_words": 72,
+                "differing_words": 0,
+                "first_mismatch": None,
+                "verdict": "exact",
+                "target_frame": 0,
+                "candidate_frame": 0,
+            },
+        }
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            fp._render_human(report)
+        rendered = output.getvalue()
+        self.assertIn("target static relocations: 8", rendered)
+        self.assertIn("resident runtime records: 0", rendered)
+        self.assertIn("runtime overlay records: not applicable", rendered)
+        self.assertIn("offset/type=8/8 identity=8/8", rendered)
+
+    def test_overlay_runtime_records_are_not_called_static_target_records(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build_non_matching", Path("build/example.o"),
+            Path("asm/generated.s"), "guarded",
+        )
+        runtime = [fp.rs.SurfaceRecord(0x10, fp.rs.R_MIPS_26, (7, 0x20), 0)]
+
+        evidence = fp._relocation_evidence(
+            resolution, {"kind": "overlay"}, runtime,
+            mock.sentinel.target_elf, "generated", 0xF0000020, 0x40, ".ovl",
+        )
+
+        self.assertEqual([], evidence["target_static_relocations"])
+        self.assertEqual(1, len(evidence["runtime_overlay_records"]))
+        self.assertEqual([], evidence["resident_runtime_records"])
 if __name__ == "__main__":
     unittest.main()

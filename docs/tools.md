@@ -53,10 +53,13 @@ normalization fragments receive an explicit timestamp check because recipe
 changes do not automatically age outputs. `--no-build` and `wb_compare.sh`
 fail closed with a rebuild diagnosis when evidence is stale. The report covers
 the owned range, next ownership or padding boundary, exports, inbound call
-sites, candidate ABI and frame, every authenticated relocation tuple and
-stable identity, relocation-surface agreement, and the current word score and
-first mismatch. Ambiguous aliases, sources, ranges, or relocation identities
-are errors. Output excludes instruction listings, words, and hexdumps.
+sites, and candidate ABI and frame. For overlays it reports shipped runtime
+relocation records. For resident functions it reports authenticated static
+relocation tuples separately from sparse startup-table records, where zero
+runtime records can be valid. It then reports candidate static-surface
+agreement plus the current word score and first mismatch. Ambiguous aliases,
+sources, ranges, or relocation identities are errors. Output excludes
+instruction listings, words, and hexdumps.
 
 `tools/wb_compare.sh` uses the same resolver, so manual candidate-symbol and
 build-directory settings are unnecessary for normal guarded functions:

@@ -363,6 +363,54 @@ def _identity_text(identity: tuple[int, int] | None) -> str:
     return f"resident:+0x{offset:X}" if overlay == 0 else f"overlay:{overlay}:+0x{offset:X}"
 
 
+def _relocation_rows(records: list[rs.SurfaceRecord]) -> list[dict[str, object]]:
+    return [
+        {
+            "offset": f"+0x{record.offset:X}",
+            "type": TYPE_NAMES.get(record.rtype, str(record.rtype)),
+            "identity": _identity_text(record.identity),
+            "addend": record.link_addend,
+        }
+        for record in records
+    ]
+
+
+def _relocation_evidence(
+    resolution: Resolution,
+    context: dict[str, object],
+    runtime_records: list[rs.SurfaceRecord],
+    target_elf: rs.Elf,
+    linked_name: str,
+    target_value: int,
+    target_size: int,
+    target_section: str,
+) -> dict[str, list[dict[str, object]]]:
+    """Keep overlay runtime records distinct from resident static tuples."""
+    if context["kind"] == "overlay":
+        return {
+            "target_static_relocations": [],
+            "runtime_overlay_records": _relocation_rows(runtime_records),
+            "resident_runtime_records": [],
+        }
+
+    static_records = rs._resident_target_records(
+        resolution.candidate_object,
+        resolution.translation_unit,
+        target_elf,
+        linked_name,
+        target_value,
+        target_size,
+        target_section,
+        ALIASES,
+        runtime_records,
+    )
+    return {
+        "target_static_relocations": _relocation_rows(static_records),
+        "runtime_overlay_records": [],
+        "resident_runtime_records": _relocation_rows(runtime_records),
+    }
+
+
 def _target_context(
     resolution: Resolution,
     target_value: int,
@@ -592,24 +640,13 @@ def collect(resolution: Resolution) -> dict[str, object]:
     )
     atlas = json.loads(ATLAS.read_text(encoding="utf-8"))
     rom = ROM.read_bytes()
-    context, target_records = _target_context(
+    context, runtime_records = _target_context(
         resolution, target_value, target_size, atlas, rom
     )
     if context["kind"] == "resident":
         context.update(
             _resident_boundary(target_elf, target_value, target_size, section)
         )
-    tuples = []
-    for record in target_records:
-        tuples.append(
-            {
-                "offset": f"+0x{record.offset:X}",
-                "type": TYPE_NAMES.get(record.rtype, str(record.rtype)),
-                "identity": _identity_text(record.identity),
-                "addend": record.link_addend,
-            }
-        )
-
     comparison = rs.function_surface_comparison(
         resolution.requested_symbol,
         resolution.candidate_object,
@@ -621,9 +658,19 @@ def collect(resolution: Resolution) -> dict[str, object]:
         target_symbol=linked_name,
         source=resolution.translation_unit,
     )
+    relocation_evidence = _relocation_evidence(
+        resolution,
+        context,
+        runtime_records,
+        target_elf,
+        linked_name,
+        target_value,
+        target_size,
+        section,
+    )
     if comparison["candidate_identity_resolved_count"] != comparison["candidate_record_count"]:
         raise PreflightError(
-            "candidate runtime relocation identity is unresolved at "
+            "candidate static relocation identity is unresolved at "
             f"{comparison['candidate_record_count'] - comparison['candidate_identity_resolved_count']} "
             "site(s)"
         )
@@ -648,7 +695,10 @@ def collect(resolution: Resolution) -> dict[str, object]:
         "exports": context["exports"],
         "callers": [row for row in inbound if row["type"] == "R_MIPS_26"],
         "inbound_references": inbound,
-        "runtime_relocations": tuples,
+        # Compatibility for existing JSON consumers. New consumers should use
+        # the explicitly named static/runtime fields below.
+        "runtime_relocations": _relocation_rows(runtime_records),
+        **relocation_evidence,
         "relocation_comparison": comparison,
         "workbench": _workbench(resolution),
     }
@@ -656,6 +706,14 @@ def collect(resolution: Resolution) -> dict[str, object]:
 
 
 def _render_human(report: dict[str, object]) -> None:
+    def print_relocation(row: dict[str, object]) -> None:
+        addend = row["addend"]
+        suffix = "" if addend is None else f" addend={addend:+#x}"
+        print(
+            f"  {row['offset']} {row['type']} identity={row['identity']}"
+            f"{suffix}"
+        )
+
     context = report["context"]
     print(f"identity: {report['target_symbol']} -> {report['candidate_symbol']}")
     print(
@@ -702,20 +760,30 @@ def _render_human(report: dict[str, object]) -> None:
         print(f"other inbound references: {len(noncall)}")
         for row in noncall:
             print(f"  {row['source']} {row['site']} {row['type']}")
-    tuples = report["runtime_relocations"]
-    print(f"runtime relocations: {len(tuples)}")
-    for row in tuples:
+    if context["kind"] == "overlay":
+        tuples = report["runtime_overlay_records"]
+        print(f"runtime overlay records: {len(tuples)}")
+        for row in tuples:
+            print_relocation(row)
+    else:
+        tuples = report["target_static_relocations"]
+        print(f"target static relocations: {len(tuples)}")
+        for row in tuples:
+            print_relocation(row)
+        resident_runtime = report["resident_runtime_records"]
         print(
-            f"  {row['offset']} {row['type']} identity={row['identity']} "
-            f"addend={row['addend']:+#x}"
+            f"resident runtime records: {len(resident_runtime)} "
+            "(sparse startup table; zero is valid)"
         )
+        print("runtime overlay records: not applicable (resident function)")
     reloc = report["relocation_comparison"]
     print(
-        "candidate relocation surface: "
+        "candidate static relocation surface: "
+        f"target={reloc['target_surface_source']} "
         f"offset/type={reloc['offset_type_alignment_count']}/"
-        f"{reloc['target_runtime_record_count']} identity="
+        f"{reloc['target_record_count']} identity="
         f"{reloc['stable_identity_alignment_count']}/"
-        f"{reloc['target_runtime_record_count']}"
+        f"{reloc['target_record_count']}"
     )
     wb = report["workbench"]
     matched = "n/a" if wb["matched_words"] is None else f"{wb['matched_words']}/{wb['target_words']}"
