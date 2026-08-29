@@ -11,6 +11,8 @@ Run with:  .venv/bin/python -m pytest tests/test_flag_sweep.py -q
        or: .venv/bin/python tests/test_flag_sweep.py
 """
 import sys
+import struct
+import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
@@ -47,6 +49,13 @@ class TestCliPaths(unittest.TestCase):
             patch.object(flag_sweep, "compile_combo", return_value=failed_compile),
             patch.object(
                 flag_sweep,
+                "resolve_canonical_ownership",
+                return_value=flag_sweep.CanonicalOwnership(
+                    "resident", "synthetic owner", 0x80000000, 8
+                ),
+            ),
+            patch.object(
+                flag_sweep,
                 "assemble_target_asm",
                 return_value=(synthetic_words, {}),
             ) as assemble,
@@ -70,6 +79,109 @@ class TestCliPaths(unittest.TestCase):
         assembled_path = assemble.call_args.args[0]
         self.assertTrue(assembled_path.is_absolute())
         self.assertEqual(assembled_path, (flag_sweep.REPO_ROOT / relative).resolve())
+
+
+class TestOwnedTargetRange(unittest.TestCase):
+    def test_target_symbol_excludes_post_function_zero_words(self):
+        """Regression: O22's section has 17 zero words after endlabel."""
+        section = struct.pack(">4I", 0x11111111, 0x22222222, 0, 0)
+        owner = flag_sweep.CanonicalOwnership(
+            kind="overlay",
+            description="synthetic atlas row",
+            target_start=0xD30,
+            overlay=22,
+            row_start=0xD30,
+            row_end=0xD38,
+            synthetic_vma=0xF0000000,
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            workdir = Path(temporary)
+            asm_path = workdir / "target_input.s"
+            asm_path.write_text("glabel target\nendlabel target\n")
+            with (
+                patch.object(flag_sweep.subprocess, "run"),
+                patch.object(
+                    flag_sweep, "elf_symbol", return_value=(0, 8, ".text")
+                ),
+                patch.object(flag_sweep, "dump_section", return_value=section),
+                patch.object(flag_sweep, "section_relocs", return_value={}),
+            ):
+                words, relocs = flag_sweep.assemble_target_asm(
+                    asm_path, "target", owner, workdir
+                )
+
+        self.assertEqual(words, [0x11111111, 0x22222222])
+        self.assertEqual(relocs, {})
+
+    def test_ambiguous_atlas_ownership_fails_closed(self):
+        atlas = {
+            "modules": [
+                {
+                    "overlay": 22,
+                    "synthetic_vma": "0xF0000000",
+                    "text_ownership": [
+                        {
+                            "offset": "0xD00",
+                            "end_offset": "0xE00",
+                            "source": "overlays/o022/example",
+                        },
+                        {
+                            "offset": "0xD30",
+                            "end_offset": "0xE30",
+                            "source": "overlays/o022/example",
+                        },
+                    ],
+                }
+            ]
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            atlas_path = Path(temporary) / "atlas.json"
+            import json
+
+            atlas_path.write_text(json.dumps(atlas))
+            with self.assertRaisesRegex(flag_sweep.OwnershipError, "2 canonical"):
+                flag_sweep.resolve_canonical_ownership(
+                    flag_sweep.REPO_ROOT / "src/overlays/o022/example.c",
+                    "func_overlay_022_F00000D30_1234567",
+                    flag_sweep.REPO_ROOT / "build/mickey.us.elf",
+                    atlas_path,
+                )
+
+
+class TestCompileCache(unittest.TestCase):
+    def test_rescore_reuses_complete_cache_without_compiling(self):
+        combo = flag_sweep.Combo("cached", ("-O2",), ("-mips2", "-32"), ())
+        with tempfile.TemporaryDirectory() as temporary:
+            cache = Path(temporary)
+            outdir = cache / combo.id
+            outdir.mkdir()
+            (outdir / "out.o").write_bytes(b"synthetic object")
+            flag_sweep.write_cached_result(
+                flag_sweep.CompileResult(combo, True, outdir / "out.o", "", 1.0),
+                outdir,
+            )
+            with patch.object(
+                flag_sweep, "compile_combo", side_effect=AssertionError("compiled")
+            ):
+                results, compiled = flag_sweep.collect_compile_results(
+                    Path("unused.c"), [combo], cache, [], 1, rescore=True
+                )
+
+        self.assertEqual(compiled, 0)
+        self.assertEqual(len(results), 1)
+        self.assertTrue(results[0].ok)
+
+    def test_rescore_fails_closed_on_incomplete_cache(self):
+        combo = flag_sweep.Combo("missing", (), ("-mips2", "-32"), ())
+        with tempfile.TemporaryDirectory() as temporary:
+            with patch.object(
+                flag_sweep, "compile_combo", side_effect=AssertionError("compiled")
+            ):
+                with self.assertRaisesRegex(LookupError, "cache is incomplete"):
+                    flag_sweep.collect_compile_results(
+                        Path("unused.c"), [combo], Path(temporary), [], 1,
+                        rescore=True,
+                    )
 
 
 class TestScoreWords(unittest.TestCase):
