@@ -102,6 +102,28 @@ class ReleaseContextTests(GitRepoCase):
         findings = pr._scan_release(ctx, include_worktree=False)
         self.assertTrue(any("forbidden tracked path" in row for row in findings))
 
+    def test_uninitialized_gitlink_is_not_a_missing_tracked_file(self) -> None:
+        commit = self.git("rev-parse", "HEAD").strip()
+        self.git(
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            f"160000,{commit},vendor/tool",
+        )
+        ctx = pr._release_context(
+            self.repo, "master", "public", require_clean=False
+        )
+        findings = pr._scan_release(ctx, include_worktree=True)
+        self.assertFalse(any("vendor/tool" in row for row in findings))
+
+    def test_missing_regular_tracked_file_still_fails(self) -> None:
+        (self.repo / "code.c").unlink()
+        ctx = pr._release_context(
+            self.repo, "master", "public", require_clean=False
+        )
+        findings = pr._scan_release(ctx, include_worktree=True)
+        self.assertIn("worktree: tracked path is missing: code.c", findings)
+
 
 class DeltaTests(unittest.TestCase):
     def test_scoreboard_metric_deltas_are_exact(self) -> None:

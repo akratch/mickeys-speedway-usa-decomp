@@ -227,6 +227,18 @@ def _blob(repo: Path, oid: str) -> bytes:
     return bytes(_git(repo, "cat-file", "blob", oid, binary=True))
 
 
+def _index_entries(repo: Path) -> Iterable[tuple[str, str]]:
+    raw = bytes(_git(repo, "ls-files", "--stage", "-z", binary=True))
+    for record in raw.split(b"\0"):
+        if not record:
+            continue
+        header, raw_path = record.split(b"\t", 1)
+        mode, _oid, stage = header.decode("ascii").split()
+        if stage != "0":
+            raise PublicReleaseError("index contains unmerged entries")
+        yield mode, raw_path.decode("utf-8", errors="surrogateescape")
+
+
 def _scan_payload(label: str, payload: bytes) -> list[str]:
     if b"\0" in payload:
         return []
@@ -257,10 +269,14 @@ def _scan_release(ctx: ReleaseContext, *, include_worktree: bool) -> list[str]:
             findings.extend(_scan_payload(f"commit {short}:{path}", _blob(ctx.repo, oid)))
 
     if include_worktree:
-        names = str(_git(ctx.repo, "ls-files", "-z")).split("\0")
-        for path in (name for name in names if name):
+        for mode, path in _index_entries(ctx.repo):
             if _forbidden_path(path):
                 findings.append(f"worktree: forbidden tracked path {path}")
+            if mode == "160000":
+                # A gitlink's tracked payload is its commit ID, already covered
+                # by the outgoing tree scan. An uninitialized submodule is a
+                # valid public checkout and has no worktree file to inspect.
+                continue
             full = ctx.repo / path
             if full.is_symlink():
                 payload = os.readlink(full).encode("utf-8", errors="surrogateescape")
