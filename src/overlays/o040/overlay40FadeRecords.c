@@ -53,6 +53,14 @@ extern s16 gOverlay40BlendOutput;
  * Overlay 40 +0x690..+0x824 / ROM 0x1886F40..0x18870D4 excludes separate
  * +0x824..+0x830 padding. Linked equality remains fallback-only. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay40FadeRecords
+ * score: 98/101 words
+ * frame: 0x8
+ * relocations: 10
+ * first-mismatch: +0xC
+ * summary: declaration-order and lexical-scope probes were flat; one v0/v1 globalcolor web remains
+ */
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
     Overlay40FadeRecord *record;
