@@ -311,6 +311,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_preflight.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_allocator_trace_receipt.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_wb_compare.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_batch_deadline.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_finalize_plateau.py

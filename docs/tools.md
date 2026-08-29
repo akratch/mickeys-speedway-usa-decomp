@@ -24,6 +24,7 @@ toolchain, extraction, and hooks.
 | `mips_to_c.sh` | Produce an initial C translation | Upstream m2c help |
 | `tools/wb_compare.sh` | Build a target object and diagnose the current candidate | Script help and workbench guide |
 | `tools/function_preflight.py` | Prove one function's ownership and evidence surface | Function evidence preflight below |
+| `tools/allocator_trace_receipt.py` | Map and summarize faithful IDO allocator traces | [Allocator trace receipts](allocator-trace-receipts.md) |
 | `tools/flag_sweep.py` | Rank known compiler flag groups | [Flag sweep](flag-sweep.md) |
 | `tools/skeleton_scan.py` | Find structural reference candidates | [Skeleton search](skeleton-scan.md) |
 | `tools/nm_ranking.py` | Rank guarded non-matching functions | [Non-matching ranking](nm-ranking.md) |

@@ -66,6 +66,11 @@ build and reports callers, exports, the candidate ABI context, relocation
 tuples, and the current workbench score and first mismatch without printing
 instruction text or ROM bytes. See [`tools.md`](tools.md) for details.
 
+For allocator investigations, use the fail-closed procedure mapping and
+fidelity receipt in
+[`allocator-trace-receipts.md`](allocator-trace-receipts.md). Raw traces and
+objects remain untracked evidence; only compact findings belong in ledgers.
+
 ### Safe plateau finalization
 
 `tools/finalize_plateau.py` preserves one bounded attempt without weakening
