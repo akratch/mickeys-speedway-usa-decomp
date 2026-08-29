@@ -6,9 +6,9 @@ Implemented. Tool: `tools/reloc_surface.py`. Generated artifact:
 
 ## Function-sized relocation comparison
 
-Matching lanes can compare a full-TU candidate object's static relocations
-with the shipped runtime records without rebuilding a second relocation
-decoder:
+Contributors can compare a full-TU candidate object's static relocations with
+the target function's authenticated relocation surface without rebuilding a
+second relocation decoder:
 
 ```sh
 tools/reloc_surface.py compare overlay7DispatchSelection \
@@ -21,21 +21,31 @@ where extracted assembly keeps a generated name while C uses a friendly one.
 Use `--json` for a compact machine-readable record and `--check` when a caller
 needs non-exactness to return status 1.
 
-The report gives the target runtime count, candidate static count, exact
+The report gives the target count, candidate static count, exact
 function-relative offset/type alignments, and exact stable-identity alignments.
 Stable identities are runtime `(overlay, byte offset)` addresses, not source
-names or the shared `0xF0000000` synthetic VMA. The command reuses
-`overlay_tables.py` for both overlay and resident runtime records and this
-module's existing ELF reader. It refuses duplicate/missing overlay ownership,
-an overlay assertion that disagrees with the atlas, a target span outside its
-owner, and incomplete or inconsistent runtime HI16/LO16 pairs. A copied
+names or the shared `0xF0000000` synthetic VMA. Overlay targets come from their
+shipped module runtime tables. Resident targets instead come from the ordinary
+canonical object's static `.rel.text`, because the resident runtime patch
+table is sparse rather than a complete static-link surface. Before trusting
+those tuples, the tool requires one canonical `build/src` object, exact
+linked/object symbol size, and byte identity across the linked range after
+masking only that object's relocation words. Each tuple must resolve to one
+stable runtime identity, and its masked word is checked independently against
+the resolved static-link value. JSON reports the selected path in
+`target_surface_source`.
+
+The command refuses duplicate or missing ownership, an overlay assertion that
+disagrees with the atlas, a target span outside its owner, incomplete or
+inconsistent runtime HI16/LO16 pairs, conflicting resident identities, a
+missing canonical resident object, object/link disagreement outside relocation
+words, and unresolved or duplicate resident tuples. A copied
 scratch object whose path has lost `build*/src/...` context must pass its
 canonical atlas key with `--source`; `--overlay` is only an assertion and
 never selects between ambiguous owners.
 
-Sections 1-4 are the model and the feasibility evidence (lane
-a feasibility spike); section 5 is what the full implementation turned out to
-need and what it measured (the full implementation).
+Sections 1-4 describe the model and feasibility evidence; section 5 records
+the requirements and measurements from the complete implementation.
 
 **Question.** Every matched overlay function today carries a hand-derived
 `POSTPROCESS` rule and/or a hand-written line in `overlay_undefined_syms.us.txt`.

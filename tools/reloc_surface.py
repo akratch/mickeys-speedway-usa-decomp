@@ -1081,6 +1081,10 @@ def compare_record_sets(target, candidate):
     shape_matches = sum((target_shape & candidate_shape).values())
     identity_matches = sum((target_identity & candidate_identity).values())
     return {
+        "target_record_count": len(target),
+        # Compatibility for existing workbench/preflight consumers. Overlay
+        # targets are runtime records; resident targets are canonical static
+        # object records authenticated against the linked range.
         "target_runtime_record_count": len(target),
         "candidate_record_count": len(candidate),
         "offset_type_alignment_count": shape_matches,
@@ -1109,6 +1113,51 @@ def _source_from_object(path: Path):
             rel = rel[:-len(suffix)]
             break
     return rel or None
+
+
+def _canonical_source_key(source):
+    """Normalize a source/object spelling to the linker object's source key."""
+    if source is None:
+        return None
+    key = Path(source).as_posix()
+    if key.startswith("src/"):
+        key = key[4:]
+    for suffix in (".c.o", ".o", ".c"):
+        if key.endswith(suffix):
+            key = key[:-len(suffix)]
+            break
+    return key or None
+
+
+def resolve_resident_target_object(candidate_object, source=None):
+    """Return the unique canonical object carrying a resident target body.
+
+    Resident target relocations are static linker relocations, not entries in
+    the game's resident runtime patch table.  The ordinary ``build`` object
+    retains the fallback assembly's exact relocation surface, while a
+    ``build_non_matching`` or scratch object carries the candidate C surface.
+    Require those two objects to name the same canonical translation unit;
+    never guess from a basename.
+    """
+    inferred = _canonical_source_key(_source_from_object(Path(candidate_object)))
+    asserted = _canonical_source_key(source)
+    if inferred and asserted and inferred != asserted:
+        raise SurfaceComparisonError(
+            "resident source is ambiguous: candidate path implies %s but "
+            "--source asserts %s" % (inferred, asserted))
+    key = asserted or inferred
+    if not key:
+        raise SurfaceComparisonError(
+            "resident candidate has no canonical build*/src source; supply "
+            "--source")
+    if key.startswith("overlays/"):
+        raise SurfaceComparisonError(
+            "%s is an overlay source, not a resident translation unit" % key)
+    target = REPO / "build" / "src" / (key + ".c.o")
+    if not target.is_file():
+        raise SurfaceComparisonError(
+            "missing canonical resident target object %s" % target)
+    return target
 
 
 def resolve_overlay_ownership(obj_path, atlas, overlay_hint=None, source=None):
@@ -1407,6 +1456,139 @@ def _candidate_surface_records(elf, start, size, target, identities,
     return output
 
 
+def _resident_target_records(candidate_object, source, target_elf,
+                             target_symbol, target_value, target_size,
+                             target_section, values_path,
+                             runtime_records=()):
+    """Read one resident function's authoritative static relocation surface.
+
+    The resident runtime relocation table is a sparse table used by the game
+    at startup; it is not the linker's complete static relocation table.  The
+    canonical ordinary object still contains the fallback assembly and its
+    ``.rel.text`` entries.  Authenticate that object's symbol range against
+    the linked ELF bytes before trusting its tuples, then resolve every tuple
+    in the resident address space.
+    """
+    target_object_path = resolve_resident_target_object(candidate_object, source)
+    target_object = Elf(target_object_path)
+    object_start, object_size, object_section = _unique_symbol(
+        target_object, target_symbol, require_text=True)
+    if object_size != target_size:
+        raise SurfaceComparisonError(
+            "resident target size disagrees between canonical object and "
+            "linked ELF: %#x vs %#x" % (object_size, target_size))
+
+    object_text = target_object.section_bytes(object_section)
+    if object_start + object_size > len(object_text):
+        raise SurfaceComparisonError(
+            "resident target range escapes canonical object .text")
+
+    symbols = target_object.symbols()
+    shape = []
+    seen_shape = collections.Counter()
+    for _section, offset, rtype, symbol_index in target_object.relocations():
+        if not object_start <= offset < object_start + object_size:
+            continue
+        if offset + 4 > object_start + object_size:
+            raise SurfaceComparisonError(
+                "resident target relocation crosses the function boundary")
+        if symbol_index >= len(symbols) or not symbols[symbol_index][0]:
+            raise SurfaceComparisonError(
+                "resident target relocation has no symbol identity")
+        relative = offset - object_start
+        seen_shape[(relative, rtype)] += 1
+        shape.append(SurfaceRecord(relative, rtype))
+    duplicates = [key for key, count in seen_shape.items() if count > 1]
+    if duplicates:
+        raise SurfaceComparisonError(
+            "resident target has ambiguous duplicate relocation tuples: %s"
+            % ", ".join("+%#x/type%d" % key for key in sorted(duplicates)))
+
+    _linked_index, linked_header = target_elf.section(target_section)
+    if linked_header is None:
+        raise SurfaceComparisonError(
+            "linked resident target section %s is missing" % target_section)
+    linked_start = linked_header[3]
+    linked_text = target_elf.section_bytes(target_section)
+    linked_offset = target_value - linked_start
+    if (linked_offset < 0
+            or linked_offset + target_size > len(linked_text)):
+        raise SurfaceComparisonError(
+            "resident linked range %#x..%#x escapes section %s %#x..%#x"
+            % (target_value, target_value + target_size, target_section,
+               linked_start, linked_start + len(linked_text)))
+    object_bytes = object_text[object_start:object_start + object_size]
+    linked_bytes = linked_text[linked_offset:linked_offset + target_size]
+    relocated_bytes = {
+        byte
+        for record in shape
+        for byte in range(record.offset, record.offset + 4)
+    }
+    if any(object_bytes[index] != linked_bytes[index]
+           for index in range(target_size) if index not in relocated_bytes):
+        raise SurfaceComparisonError(
+            "canonical resident object bytes disagree with linked target "
+            "outside relocation words")
+
+    identities, ambiguous = _stable_symbol_identities(
+        values_path, target_object, None, 0, target_elf)
+    records = _candidate_surface_records(
+        target_object, object_start, object_size, shape, identities,
+        _numeric_assignments(values_path), ambiguous, None)
+    if len(records) != len(shape):
+        raise SurfaceComparisonError(
+            "resident target relocation pairing changed the tuple count")
+    unresolved = sum(record.identity is None for record in records)
+    if unresolved:
+        raise SurfaceComparisonError(
+            "resident target has %d relocation tuple(s) with unresolved "
+            "runtime identity" % unresolved)
+
+    # Authenticate the bytes hidden by the object/link comparison mask too.
+    # These are the ordinary static-link values from the canonical object;
+    # sparse runtime-table identities are merged only after this proof.
+    for record in records:
+        if record.identity[0] != 0:
+            raise SurfaceComparisonError(
+                "resident static relocation resolves outside the resident "
+                "address space")
+        address = ot.RESIDENT_VRAM_BASE + record.identity[1]
+        actual = stored_field(linked_bytes, record.offset, record.rtype)
+        if record.rtype == R_MIPS_26:
+            expected = (address >> 2) & 0x03FFFFFF
+        elif record.rtype == R_MIPS_HI16:
+            expected = ((address + 0x8000) >> 16) & 0xFFFF
+        elif record.rtype == R_MIPS_LO16:
+            expected = address & 0xFFFF
+        elif record.rtype == R_MIPS_32:
+            expected = address & 0xFFFFFFFF
+        else:
+            raise SurfaceComparisonError(
+                "resident target uses unsupported static relocation type %d"
+                % record.rtype)
+        if actual != expected:
+            raise SurfaceComparisonError(
+                "canonical resident relocation at +%#x does not reproduce "
+                "the linked target word" % record.offset)
+
+    runtime_by_shape = {}
+    for record in runtime_records:
+        key = (record.offset, record.rtype)
+        if key in runtime_by_shape:
+            raise SurfaceComparisonError(
+                "resident runtime table has an ambiguous duplicate tuple at "
+                "+%#x/type%d" % key)
+        runtime_by_shape[key] = record
+    static_shapes = {(record.offset, record.rtype) for record in records}
+    missing_runtime = sorted(set(runtime_by_shape) - static_shapes)
+    if missing_runtime:
+        raise SurfaceComparisonError(
+            "resident runtime tuple has no canonical static relocation: %s"
+            % ", ".join("+%#x/type%d" % key for key in missing_runtime))
+    return [runtime_by_shape.get((record.offset, record.rtype), record)
+            for record in records]
+
+
 def function_surface_comparison(symbol, candidate_object, target_elf_path,
                                 rom_path=DEFAULT_ROM, atlas_path=None,
                                 values_path=LINK_SYMS, candidate_symbol=None,
@@ -1421,7 +1603,8 @@ def function_surface_comparison(symbol, candidate_object, target_elf_path,
         candidate_object, atlas, overlay_hint=overlay_hint, source=source)
     candidate_start, candidate_size, _ = _unique_symbol(
         candidate_elf, candidate_symbol, require_text=True)
-    target_value, target_size, _ = _unique_symbol(target_elf, target_symbol)
+    target_value, target_size, target_section = _unique_symbol(
+        target_elf, target_symbol)
 
     if owner is not None:
         module_row, row = owner
@@ -1463,8 +1646,16 @@ def function_surface_comparison(symbol, candidate_object, target_elf_path,
     if context["kind"] == "overlay":
         # Reuse the module objects decoded from the exact same ROM bytes.
         context["module"] = ot.build_modules(ot.read_headers(rom))[overlay - 1]
-    target_records = _target_runtime_records(
-        rom, context, target_start, target_size)
+    if context["kind"] == "overlay":
+        target_records = _target_runtime_records(
+            rom, context, target_start, target_size)
+    else:
+        resident_runtime_records = _target_runtime_records(
+            rom, context, target_start, target_size)
+        target_records = _resident_target_records(
+            candidate_object, source, target_elf, target_symbol,
+            target_value, target_size, target_section, values_path,
+            resident_runtime_records)
     identities, ambiguous_identities = _stable_symbol_identities(
         values_path, candidate_elf, overlay, tu_base_offset, target_elf)
     numeric_values = _numeric_assignments(values_path)
@@ -1477,6 +1668,9 @@ def function_surface_comparison(symbol, candidate_object, target_elf_path,
         "candidate_symbol": candidate_symbol,
         "target_symbol": target_symbol,
         "context": "overlay:%d" % overlay if overlay is not None else "resident",
+        "target_surface_source": (
+            "overlay-runtime-table" if overlay is not None
+            else "resident-canonical-static-object"),
         "target_offset": "0x%X" % target_start,
         "target_size": "0x%X" % target_size,
     })
