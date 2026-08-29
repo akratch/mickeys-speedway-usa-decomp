@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 112644,
-  "nonmatching_overlay_c_bytes": 311220,
+  "matched_overlay_c_bytes": 112932,
+  "nonmatching_overlay_c_bytes": 310932,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 1904,
   "bss_bytes": 77680,
@@ -1427,7 +1427,7 @@
      "type": "c",
      "source": "overlays/o002/overlay2SplitRegion",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0xC90",

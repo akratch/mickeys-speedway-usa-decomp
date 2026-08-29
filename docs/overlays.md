@@ -1868,3 +1868,13 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 
 `overlay 20 +0x07C4..+0x09DC` (`overlay20BuildTileCommands`) — 536 bytes / 134 words. NON_MATCHING: bounded 2026-08-28 closeout retained the capacity-preserving 13-element source after direct macro-pointer, doubled-width, and inner-index probes. The best candidate matches 130/134 aligned instructions with the exact register and schedule profiles and one exact helper relocation; the four residual words are stack-frame constants (`0x90` target versus `0xA8` candidate), first at `+0x0`. A seven-element diagnostic recovered the retail frame but is not retained without independent capacity proof. No C credit is claimed.
 `overlay 34 +0x02C8..+0x0378` (`overlay34RemoveRecord`) — 176 bytes / 44 words. NON_MATCHING: bounded 2026-08-28 closeout retained the size-exact source after indexed-compaction, pointer-cursor, separated-count, and scoped-call probes. The best candidate matches 32/44 words with the first schedule/register residual at `+0x14`; it preserves one helper relocation and two repeated active-count HI16/LO16 pairs, while the target encodes its pointer load without relocation. Removing those source pointer relocations is prohibited, so no C credit is claimed.
+
+`overlay 2 +0x0B70..+0x0C90` (`overlay2SplitRegion`) contributes **288 exact C
+bytes / 72 words**. All 119 compiler configurations leave the configured
+seven-word prologue schedule residual. A fidelity-clean IDO 5.3 `as1 -R`
+trace identifies a physical-line tie between the function and loop headers;
+placing those token-equivalent headers on one line produces the retail order.
+The exact `0x30` frame and all nine runtime relocation tuples and identities
+agree: local data at `+0x4/+0x24`, calls to `+0/+0x6E0/+0x49C` twice, and the
+recursive `+0xB70` call. The linked owned range, complete overlay, and full ROM
+are byte-identical.

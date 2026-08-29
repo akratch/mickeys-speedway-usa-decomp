@@ -1,6 +1,6 @@
 {
-  "queue_size": 413,
-  "resolved": 413,
+  "queue_size": 412,
+  "resolved": 412,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
@@ -232,18 +232,6 @@
       "first_mismatch_offset": 568,
       "size_delta": 0,
       "category": "register-only"
-    },
-    {
-      "name": "overlay2SplitRegion",
-      "file": "src/overlays/o002/overlay2SplitRegion.c",
-      "overlay": 2,
-      "tu": "overlays/o002",
-      "size_bytes": 288,
-      "objdiff_match_pct": null,
-      "differing_words": 7,
-      "first_mismatch_offset": 12,
-      "size_delta": 0,
-      "category": "schedule-only"
     },
     {
       "name": "overlay18Load",
