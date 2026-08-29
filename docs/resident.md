@@ -1621,15 +1621,18 @@ configured object ranges and the final linked ROM are byte-exact.
 |---|---:|---:|---|---|
 | `rcpFast3d` | `0x2F400` | 0x2A0 | `-O2 -mips2 -32` | Mickey/JFG task construction; 168/168 instruction words and all relocations exact after metadata-only weak-alias rebinding, linked ROM exact |
 
-`rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body after
-the 119-combination flag lattice, nine source-shape hypotheses, and six bounded
-source-faithful aligned-coordinate declaration, mask, and lifetime probes. The
-best no-frame full-TU candidate has the target's 107 instructions and exact
-relocations, with only four register-allocation words differing; the first
-divergence is function `+0x74`, where the two aligned-coordinate masks use the
-preceding temporary-ring slots. No instrumented globalcolor/UGEN trace is
-available in this lane, so the remaining allocation choice is unresolved. The
-assembly fallback remains canonical.
+`rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body. Fresh
+configured full-TU C is exact-sized and frameless at 103/107 raw and normalized
+words, first `+0x74`. The four residual fields are one temporary-phase
+difference: target `t8/t9` versus candidate `t7/t8` at temporary slots 9-10.
+Its HI16/LO16 pair at `+0x00/+0x04` exactly names resident BSS `D_800D2FAC`.
+All 119 flag identities are nonexact; seven O2/MIPS-II variants tie the current
+source. A compiler-allocation trace maps the function to procedure 6 with 29
+integer and one FP decision, and source-line stamps locate the two candidate
+pops at the aligned-coordinate assignments. Pointer-truth and staged-`alignedX1`
+forms are byte-identical, so no gain-qualified combination or broad batch is
+warranted. The assembly fallback remains canonical pending a natural preceding
+phantom-pop or web-existence mechanism.
 
 `func_8002EBE0` retains a Mickey-derived `NON_MATCHING` eight-band gradient
 renderer after the 119-combination flag lattice and ten source-shape

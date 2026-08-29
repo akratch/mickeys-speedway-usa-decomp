@@ -368,10 +368,16 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
 #endif
 #ifdef NON_MATCHING
-/* Workbench: register-ring-only; 4/107 words differ first at +0x74, with frame and relocations exact.
- * Levers: context parity, direct masks, full flag lattice, FIFO 14-16, and bounded permutation.
- * Six source-faithful declaration/mask/lifetime probes preserve this residual;
- * no instrumented globalcolor/UGEN trace is available in this lane. */
+/* Fresh configured full-TU C is exact-sized and frameless at 103/107 words,
+ * first +0x74. The four residual fields are one temporary-phase difference:
+ * target t8/t9 versus candidate t7/t8 at temporary slots 9-10. Both
+ * D_800D2FAC relocation records are exact. All 119 flag identities are
+ * nonexact; seven O2/MIPS-II variants tie this source. A compiler-allocation
+ * trace maps the function to procedure 6 with 29 integer and one FP decision;
+ * source-line stamps locate the two candidate pops at the aligned-coordinate
+ * assignments. Pointer-truth and staged-alignedX1 forms are byte-identical.
+ * Preserve this source and fallback until a natural preceding phantom-pop or
+ * web-existence mechanism is found. */
 /* PROVENANCE: command sequence adapted from DKR's public src/rcp_dkr.c:bgdraw_render. */
 void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
                      s32 arg4, s32 arg5, s32 arg6) {

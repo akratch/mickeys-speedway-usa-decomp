@@ -253,8 +253,8 @@ A supplementary objdiff report was not supplied; `objdiff_match_pct` covers **0 
 
 | Category | Count | Share of resolved |
 |---|---:|---:|
-| `register-only` | 15 | 3.8% |
-| `other` | 172 | 43.0% |
+| `register-only` | 16 | 4.0% |
+| `other` | 171 | 42.8% |
 | `reloc-mismatch` | 3 | 0.8% |
 | `size-mismatch` | 210 | 52.5% |
 
@@ -262,8 +262,8 @@ A supplementary objdiff report was not supplied; `objdiff_match_pct` covers **0 
 
 | Threshold | Count |
 |---|---:|
-| `differing_words <= 5` | 9 |
-| `differing_words <= 10` | 28 |
+| `differing_words <= 5` | 10 |
+| `differing_words <= 10` | 29 |
 | `differing_words <= 20` | 72 |
 
 ### Complete ranked queue
@@ -312,7 +312,7 @@ units remain distinct.
 | 36 | `src/overlays/o001/overlay_001_tail.c` | `overlay1AllocateRecord` | `o001` | `other` | 160 | 10 | 80 | 0 | — |
 | 37 | `src/overlays/o059/overlay59PrepareEntry.c` | `overlay59PrepareEntry` | `o059` | `other` | 248 | 10 | 16 | 0 | — |
 | 38 | `src/overlays/o073/overlay73Initialize.c` | `func_overlay_073_F0000000_18CAAC0` | `o073` | `other` | 400 | 10 | 64 | 0 | — |
-| 39 | `src/main/rcpFast3d.c` | `rcpClearZBuffer` | `main` | `other` | 428 | 11 | 116 | 0 | — |
+| 39 | `src/main/rcpFast3d.c` | `rcpClearZBuffer` | `main` | `register-only` | 428 | 4 | 116 | 0 | — |
 | 40 | `src/overlays/o014/overlay14ResetMode.c` | `overlay14ResetMode` | `o014` | `other` | 224 | 11 | 20 | 0 | — |
 | 41 | `src/overlays/o062/overlay62Update.c` | `overlay62Update` | `o062` | `other` | 1,176 | 11 | 68 | 0 | — |
 | 42 | `src/overlays/o001/overlay_001_tail.c` | `overlay1FindBestRecord` | `o001` | `other` | 120 | 12 | 4 | 0 | — |
