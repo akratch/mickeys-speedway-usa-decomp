@@ -1912,6 +1912,10 @@ func_8000D7F8 = 0x8000D7F8; // type:func size:0x28 ROM 0xe3f8
 // tier-D role/TU context; Mickey proves the revised module path and exact C.
 func_8000D978 = 0x8000D978; // type:func size:0x1BC ROM 0xe578 tier-D (JFG src/track.c trackUpdateLighting role, placeholder retained)
 
+// No public name adopted: Mickey's extracted boundary and sole track caller
+// establish this priority-sort helper; the placeholder is retained.
+func_8000DDE4 = 0x8000DDE4; // type:func size:0x1D8 ROM 0xe9e4 tier-D matched-C boundary/call-graph evidence
+
 // No public name adopted: JFG's assembly-only `trackGetBlockList` supplies
 // tier-D TU-position and role context; Mickey proves the exact body.
 func_8000F57C = 0x8000F57C; // type:func size:0x2B0 ROM 0x1017c tier-D (Mickey reconstruction, placeholder retained)

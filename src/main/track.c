@@ -1743,15 +1743,15 @@ build_routes:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
 #endif
-/* Workbench: allocation-mismatch; 24 words differ, first mismatch +0x24. */
-/* Candidate is shape-exact: 118 instructions, frame -40/-40 bytes, and both call relocations match. */
-/* Remaining gap is register allocation only; this candidate is permuter-ready. */
-#ifdef NON_MATCHING
+/* Exact 118-word C: reusing the dead recordIndex carrier for the later sort
+ * passes closes the 24-site allocator bijection while preserving the 0x28
+ * frame and both R_MIPS_26 call identities. The complete flag lattice was
+ * nonexact and one codegen-faithful allocator trace selected this lifetime
+ * merge; the reference skeleton scan found no credible donor. */
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
                   TrackKeyRecord **matches) {
     s32 recordIndex;
     s32 matchCount;
-    s32 passCount;
     s32 compareCount;
     s32 sorted;
     TrackKeyRecord **match;
@@ -1770,15 +1770,15 @@ s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
         TrapDanglingJump(key, matchCount, matches);
     }
     if (matchCount >= 2) {
-        passCount = matchCount - 1;
+        recordIndex = matchCount - 1;
         if (matchCount != 0) {
             do {
                 current = matches[0];
                 match = matches;
                 sorted = TRUE;
-                compareCount = passCount - 1;
+                compareCount = recordIndex - 1;
                 currentValue = current->sortValue;
-                if (passCount != 0) {
+                if (recordIndex != 0) {
                     do {
                         next = match[1];
                         nextValue = next->sortValue;
@@ -1796,16 +1796,13 @@ s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
                 }
                 match[0] = current;
                 if (sorted) {
-                    passCount = 0;
+                    recordIndex = 0;
                 }
-            } while (passCount--);
+            } while (recordIndex--);
         }
     }
     return matchCount;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DDE4.s")
-#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public track.c supplies the resident track draw-loop
  * organization; Mickey's segment and display-list accesses are authoritative. */
