@@ -20,6 +20,21 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/%.c.o: MIPSISET := -mips2 -32
 # section-boundary handling needed to reproduce the original ROM from
 # function-sized translation units.
 
+# Standalone objcopy symbol aliases are declared in a strict JSON manifest and
+# rendered deterministically. Mixed trim/filter/rebind chains remain beside
+# their measured object policy below.
+include mk/overlay_aliases.generated.mk
+
+.PHONY: check-overlay-aliases test-overlay-aliases
+check-overlay-aliases:
+	$(HOST_PYTHON) $(TOOLS_DIR)/render_overlay_aliases.py --check
+
+test-overlay-aliases:
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_render_overlay_aliases.py
+
+check-docs: check-overlay-aliases
+check-tooling: test-overlay-aliases
+
 # The overlay 66 framebuffer renderer remains NON_MATCHING, but its complete
 # flag sweep is closest under the MIPS I codegen group (12 bytes short versus
 # 36 under the former -O2 -g3 MIPS II override).
@@ -1268,10 +1283,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o100/overlay100RemoveEntry.c.o: POSTPROCESS = \
 # onto their shipped pre-loader carriers.
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34RemoveRecord.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_034_F00002C8_1881470=overlay34RemoveRecord $@
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87InitializeObject.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o087/overlay87InitializeObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
@@ -2204,12 +2215,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/func_overlay_058_F000138C_18B0574.c.o: MIP
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawSegmentStrip.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_058_F0004C04_18B3DEC=overlay58DrawSegmentStrip $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawPointQuad.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_058_F0004F28_18B4110=overlay58DrawPointQuad $@
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58DrawLargePointQuad.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_058_F00050C8_18B42B0=overlay58DrawLargePointQuad $@
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o058/overlay58FinalizePackedStatus.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_058_F0005554_18B473C=overlay58FinalizePackedStatus $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17CalculateEndpoints.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_017_F0000000_18739B8=overlay17CalculateEndpoints $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x318

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "rules": [
+    {
+      "object": "overlays/o034/overlay34RemoveRecord.c.o",
+      "aliases": [
+        {
+          "from": "func_overlay_034_F00002C8_1881470",
+          "to": "overlay34RemoveRecord"
+        }
+      ]
+    },
+    {
+      "object": "overlays/o058/overlay58DrawLargePointQuad.c.o",
+      "aliases": [
+        {
+          "from": "func_overlay_058_F00050C8_18B42B0",
+          "to": "overlay58DrawLargePointQuad"
+        }
+      ]
+    },
+    {
+      "object": "overlays/o058/overlay58DrawPointQuad.c.o",
+      "aliases": [
+        {
+          "from": "func_overlay_058_F0004F28_18B4110",
+          "to": "overlay58DrawPointQuad"
+        }
+      ]
+    },
+    {
+      "object": "overlays/o058/overlay58FinalizePackedStatus.c.o",
+      "aliases": [
+        {
+          "from": "func_overlay_058_F0005554_18B473C",
+          "to": "overlay58FinalizePackedStatus"
+        }
+      ]
+    }
+  ]
+}
