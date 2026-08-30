@@ -3815,6 +3815,22 @@
       "class": "metadata",
       "matched_c": true,
       "nonmatching": false,
+      "object": "build/src/overlays/o041/overlay41SampleCurve.c.o",
+      "offset": 684,
+      "overlay": 41,
+      "size": 1360,
+      "source": "src/overlays/o041/overlay41SampleCurve.c",
+      "tools": [
+        "rebind_elf_relocations.py",
+        "externalize_elf_section.py",
+        "objcopy"
+      ]
+    },
+    {
+      "c_owned": true,
+      "class": "metadata",
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o041/overlay41SpawnItems.c.o",
       "offset": 5952,
       "overlay": 41,
@@ -7751,8 +7767,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o099/overlay99RenderSegments.c.o",
       "offset": 2980,
       "overlay": 99,
@@ -8913,9 +8929,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 621
+      "metadata": 622
     },
-    "matched_c_bytes_with_postprocess": 109736,
-    "objects_with_postprocess": 621
+    "matched_c_bytes_with_postprocess": 111664,
+    "objects_with_postprocess": 622
   }
 }

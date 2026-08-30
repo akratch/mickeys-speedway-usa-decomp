@@ -2233,6 +2233,16 @@ overlay99SpawnEntryReloc = 0xf0000000;
 /* overlay 99: overlay99ProjectVector.c.o */
 overlay99SqrtReloc = 0xf0000000;
 
+/* overlay 99: overlay99RenderSegments.c.o */
+gOverlay99SegmentCount = 0x00000090;
+gOverlay99Segments = 0x00000000;
+gOverlay99Texture = 0x00000000;
+overlay99ArctanfReloc = 0xf0000000;
+overlay99ClearZBufferReloc = 0xf0000000;
+overlay99Func80009E78Reloc = 0xf0000000;
+overlay99Func80034920Reloc = 0xf0000000;
+overlay99GetCurrentSizeReloc = 0xf0000000;
+
 /* overlay 100: overlay100InitializeMotion.c.o */
 gOverlay100CountReloc = 0x00000000;
 gOverlay100EntriesReloc = 0x00000000;
