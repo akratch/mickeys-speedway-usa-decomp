@@ -302,17 +302,53 @@ automatic two-phase refresh as ordinary preflight. Use wrapper-level
 already fresh without compiling.
 
 `--summary-json` emits the concise `mickey-wb-summary-v1` checkpoint input.
-For assembly comparisons, it also emits an optional top-level `relocations`
-object when the proof manifest's source, full-TU candidate object, and isolated
-target object still match their recorded hashes and the canonical relocation
-surface can authenticate them. Its scalar fields are `candidate_relocations`,
-`target_relocations`, and `exact_relocation_identities`; the last counts exact
-candidate-to-target runtime identity alignments, not merely candidate records
-whose identities were resolved. Missing static proof inputs (including the
-current ROM-dump mode) omit the entire object. Malformed, stale, conflicting,
-or ownership-inconsistent declared evidence fails closed instead of supplying
-or inferring counts. These summary scalars are checkpoint evidence only and do
-not relax relocation-exact promotion requirements.
+When its proof manifest's source, full-TU candidate object, and target artifact
+still match their recorded hashes, the report carries one explicitly named
+`relocation_surfaces` member:
+
+- `fallback_static` for an assembly-fallback comparison; or
+- `promoted_linked` for a ROM comparison whose promoted source/object owner,
+  canonical linked ELF, and retail runtime surface can all be authenticated.
+
+Each surface records its `evidence_mode`, candidate and target counts,
+offset/type count, resolved candidate identities, exact candidate-to-target
+identities, and computed `complete` state. Completeness means the whole
+candidate/target shape is aligned and every candidate identity is resolved; it
+does not mean every identity is equal. No field from one mode is inferred for
+the other. Friendly requested names are valid artifact owners: the artifact
+filename uses that requested spelling, while its object contents remain
+authenticated against the generated target symbol.
+
+The existing top-level `relocations` object remains unchanged for single-state
+consumers. Its scalars are `candidate_relocations`, `target_relocations`, and
+`exact_relocation_identities`; the last counts exact candidate-to-target
+runtime identity alignments, not merely resolved candidate records. Missing
+proof inputs omit all relocation fields. Malformed, stale, conflicting, or
+ownership-inconsistent evidence fails closed.
+
+Capture the two modes before committing the promotion, while the lane's HEAD
+and branch still identify the same assignment base, then compose them without
+transcribing counts:
+
+```sh
+tools/wb_compare.sh --summary-json symbol > build/wb/symbol.fallback.json
+# Promote and rebuild the same C body, but do not commit or change branches yet.
+tools/wb_compare.sh --rom --summary-json symbol > build/wb/symbol.promoted.json
+tools/function_preflight.py --compose-relocation-summaries \
+  build/wb/symbol.fallback.json build/wb/symbol.promoted.json
+tools/function_preflight.py --compose-relocation-summaries \
+  build/wb/symbol.fallback.json build/wb/symbol.promoted.json --json \
+  > build/wb/symbol.paired.json
+```
+
+Composition accepts only fresh regular files under `build/`, requires distinct
+fallback-static and promoted-linked modes, verifies each receipt's
+source/object/target hashes, symbol identity, assignment base, branch, source
+owner, and boundary, and rejects duplicate surfaces. Human output prints both
+surfaces side by side. In paired JSON, the compatibility `relocations` object
+deliberately remains the fallback-static view, so linked evidence cannot create
+a false object-exact checkpoint. This is evidence reporting only; promotion
+policy and the canonical ROM/relocation gates are unchanged.
 
 ## tools/check_tools.sh
 

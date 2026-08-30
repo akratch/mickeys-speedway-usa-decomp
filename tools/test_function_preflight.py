@@ -448,6 +448,34 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
 
 
 class GeometryAndWorkbenchSummaryTests(unittest.TestCase):
+    @staticmethod
+    def proof_context() -> dict[str, object]:
+        digest = "a" * 64
+        return {
+            "base": "b" * 40,
+            "branch": "lane/test",
+            "owner": "src/example.c",
+            "manifest_sha256": "c" * 64,
+            "created_unix_ns": 1,
+            "artifacts": {
+                "source": {
+                    "path": "src/example.c",
+                    "sha256": digest,
+                    "size": 1,
+                },
+                "candidate_object": {
+                    "path": "build/src/example.c.o",
+                    "sha256": digest,
+                    "size": 1,
+                },
+                "target_object": {
+                    "path": "build/wb/generated.target.o",
+                    "sha256": digest,
+                    "size": 1,
+                },
+            },
+        }
+
     def inputs(self, root: Path, *, exact: bool = False) -> tuple[Path, Path]:
         payload = {
             "schema": "decomp-workbench-comparison-v1",
@@ -547,6 +575,12 @@ class GeometryAndWorkbenchSummaryTests(unittest.TestCase):
                 fp,
                 "_authenticated_summary_relocation_comparison",
                 return_value=comparison,
+            ), mock.patch.object(
+                fp,
+                "_canonical_summary_symbols",
+                return_value=("generated", "friendly"),
+            ), mock.patch.object(
+                fp, "_summary_proof_context", return_value=self.proof_context()
             ):
                 report = self.summarize(Path(directory))
 
@@ -557,6 +591,68 @@ class GeometryAndWorkbenchSummaryTests(unittest.TestCase):
                 "exact_relocation_identities": 11,
             },
             report["relocations"],
+        )
+        self.assertEqual(
+            {
+                "candidate_relocations": 21,
+                "target_relocations": 21,
+                "offset_type_relocations": 21,
+                "resolved_candidate_identities": 21,
+                "exact_relocation_identities": 11,
+                "evidence_mode": "fallback-static",
+                "complete": True,
+            },
+            report["relocation_surfaces"]["fallback_static"],
+        )
+
+    def test_promoted_summary_keeps_its_own_linked_surface(self) -> None:
+        comparison = {
+            "candidate_record_count": 46,
+            "target_record_count": 46,
+            "offset_type_alignment_count": 46,
+            "stable_identity_alignment_count": 34,
+            "candidate_identity_resolved_count": 46,
+            "candidate_identity_unresolved_records": [],
+            "offset_type_exact": True,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            raw, manifest = self.inputs(root)
+            with mock.patch.object(
+                fp,
+                "_authenticated_summary_relocation_comparison",
+                return_value=comparison,
+            ), mock.patch.object(
+                fp,
+                "_canonical_summary_symbols",
+                return_value=("generated", "friendly"),
+            ), mock.patch.object(
+                fp, "_summary_proof_context", return_value=self.proof_context()
+            ):
+                report = fp.workbench_summary(
+                    raw,
+                    manifest,
+                    requested_symbol="friendly",
+                    target_symbol="generated",
+                    candidate_symbol="friendly",
+                    comparison_mode="rom",
+                    boundary_evidence="preflight-owned-boundary",
+                    boundary_size=32,
+                )
+
+        self.assertEqual(
+            "promoted-linked",
+            report["relocation_surfaces"]["promoted_linked"]["evidence_mode"],
+        )
+        self.assertEqual("generated", report["symbol"]["target"])
+        self.assertEqual(
+            34,
+            report["relocation_surfaces"]["promoted_linked"][
+                "exact_relocation_identities"
+            ],
+        )
+        self.assertTrue(
+            report["relocation_surfaces"]["promoted_linked"]["complete"]
         )
 
     def test_summary_rejects_inconsistent_relocation_counts(self) -> None:
@@ -605,6 +701,172 @@ class GeometryAndWorkbenchSummaryTests(unittest.TestCase):
                     manifest, "candidate_object", root=Path(directory)
                 )
             )
+
+    def test_friendly_requested_name_authenticates_generated_target_object(self) -> None:
+        source = fp.REPO / "src/overlays/o001/example.c"
+        candidate = fp.REPO / "build_non_matching/src/overlays/o001/example.c.o"
+        friendly_target = fp.REPO / "build/wb/overlay1AllocateRecord.target.o"
+        artifacts = {
+            "source": source,
+            "candidate_object": candidate,
+            "target_object": friendly_target,
+        }
+        comparison = {"candidate_record_count": 0}
+
+        with mock.patch.object(
+            fp,
+            "_verified_summary_artifact",
+            side_effect=lambda _manifest, name: artifacts[name],
+        ), mock.patch.object(Path, "is_file", return_value=True), mock.patch.object(
+            fp.rs, "Elf", return_value=mock.sentinel.target_elf
+        ), mock.patch.object(
+            fp,
+            "_symbol_geometry",
+            return_value=("overlay1AllocateRecord", fp.rs.SYNTHETIC_VMA, 0xA0, ".text"),
+        ), mock.patch.object(
+            fp, "_candidate_redefine_aliases", return_value={}
+        ), mock.patch.object(
+            fp.rs, "function_surface_comparison", return_value=comparison
+        ) as compare:
+            result = fp._authenticated_summary_relocation_comparison(
+                {
+                    "mode": "asm",
+                    "symbol": "func_overlay_001_F0000000_0000000",
+                    "candidate_symbol": "overlay1AllocateRecord",
+                },
+                requested_symbol="overlay1AllocateRecord",
+                target_symbol="func_overlay_001_F0000000_0000000",
+                candidate_symbol="overlay1AllocateRecord",
+                comparison_mode="asm",
+            )
+
+        self.assertIs(result, comparison)
+        self.assertEqual(
+            "overlay1AllocateRecord",
+            compare.call_args.kwargs["target_symbol"],
+        )
+
+    def test_friendly_requested_name_rejects_other_target_artifact(self) -> None:
+        artifacts = {
+            "source": fp.REPO / "src/overlays/o001/example.c",
+            "candidate_object": fp.REPO
+            / "build_non_matching/src/overlays/o001/example.c.o",
+            "target_object": fp.REPO / "build/wb/otherAlias.target.o",
+        }
+        with mock.patch.object(
+            fp,
+            "_verified_summary_artifact",
+            side_effect=lambda _manifest, name: artifacts[name],
+        ):
+            with self.assertRaisesRegex(
+                fp.PreflightError, "target object disagrees with requested symbol"
+            ):
+                fp._authenticated_summary_relocation_comparison(
+                    {
+                        "mode": "asm",
+                        "symbol": "func_overlay_001_F0000000_0000000",
+                        "candidate_symbol": "overlay1AllocateRecord",
+                    },
+                    requested_symbol="overlay1AllocateRecord",
+                    target_symbol="func_overlay_001_F0000000_0000000",
+                    candidate_symbol="overlay1AllocateRecord",
+                    comparison_mode="asm",
+                )
+
+    def test_friendly_alias_still_authenticates_generated_target_offset(self) -> None:
+        artifacts = {
+            "source": fp.REPO / "src/overlays/o001/example.c",
+            "candidate_object": fp.REPO
+            / "build_non_matching/src/overlays/o001/example.c.o",
+            "target_object": fp.REPO / "build/wb/overlay1AllocateRecord.target.o",
+        }
+        with mock.patch.object(
+            fp,
+            "_verified_summary_artifact",
+            side_effect=lambda _manifest, name: artifacts[name],
+        ), mock.patch.object(Path, "is_file", return_value=True), mock.patch.object(
+            fp.rs, "Elf", return_value=mock.sentinel.target_elf
+        ), mock.patch.object(
+            fp,
+            "_symbol_geometry",
+            return_value=("overlay1AllocateRecord", fp.rs.SYNTHETIC_VMA, 0xA0, ".text"),
+        ):
+            with self.assertRaisesRegex(
+                fp.PreflightError, "generated target symbol offset disagrees"
+            ):
+                fp._authenticated_summary_relocation_comparison(
+                    {
+                        "mode": "asm",
+                        "symbol": "func_overlay_001_F0000004_0000000",
+                        "candidate_symbol": "overlay1AllocateRecord",
+                    },
+                    requested_symbol="overlay1AllocateRecord",
+                    target_symbol="func_overlay_001_F0000004_0000000",
+                    candidate_symbol="overlay1AllocateRecord",
+                    comparison_mode="asm",
+                )
+
+    def test_promoted_friendly_summary_authenticates_linked_surface(self) -> None:
+        source = fp.REPO / "src/overlays/o047/example.c"
+        candidate = fp.REPO / "build/src/overlays/o047/example.c.o"
+        artifacts = {
+            "source": source,
+            "candidate_object": candidate,
+            "target_object": fp.REPO / "build/wb/friendly.target.objdump",
+        }
+        resolution = fp.Resolution(
+            "friendly",
+            "func_overlay_047_F00009D0_18917E8",
+            "friendly",
+            source,
+            "overlays/o047/example",
+            "build",
+            candidate,
+            None,
+            "promoted",
+            resolution_mode="post_promotion",
+            expected_value=fp.rs.SYNTHETIC_VMA + 0x9D0,
+            expected_size=0x160,
+        )
+        comparison = {"candidate_record_count": 46}
+        with mock.patch.object(
+            fp,
+            "_verified_summary_artifact",
+            side_effect=lambda _manifest, name: artifacts[name],
+        ), mock.patch.object(fp, "resolve", return_value=resolution), mock.patch.object(
+            Path, "is_file", return_value=True
+        ), mock.patch.object(
+            fp, "_require_fresh_target"
+        ), mock.patch.object(
+            fp, "_require_fresh_linked_boundary"
+        ), mock.patch.object(
+            fp.rs, "Elf", return_value=mock.sentinel.target_elf
+        ), mock.patch.object(
+            fp,
+            "_symbol_geometry",
+            return_value=("friendly", fp.rs.SYNTHETIC_VMA + 0x9D0, 0x160, ".text"),
+        ), mock.patch.object(
+            fp, "_require_tracked_geometry"
+        ), mock.patch.object(
+            Path, "read_text", return_value='{"modules": []}'
+        ), mock.patch.object(
+            Path, "read_bytes", return_value=b""
+        ), mock.patch.object(
+            fp, "_target_context", return_value=({}, [])
+        ), mock.patch.object(
+            fp, "_candidate_redefine_aliases", return_value={}
+        ), mock.patch.object(
+            fp.rs, "function_surface_comparison", return_value=comparison
+        ) as compare:
+            result = fp._authenticated_promoted_summary_relocation_comparison(
+                {},
+                requested_symbol="friendly",
+                target_symbol="func_overlay_047_F00009D0_18917E8",
+                candidate_symbol="friendly",
+            )
+
+        self.assertIs(result, comparison)
+        self.assertEqual("friendly", compare.call_args.kwargs["target_symbol"])
 
     def test_exact_summary_accepts_null_optional_metrics(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -1380,6 +1642,250 @@ class FreshnessTests(unittest.TestCase):
                 output.getvalue(),
             )
 
+
+class PairedRelocationSummaryTests(unittest.TestCase):
+    NOW_NS = 2_000_000_000_000
+    BASE = "b" * 40
+    BRANCH = "lane/wave10-reloc-dual"
+    OWNER = "src/overlays/o047/overlay47ReleaseResources.c"
+
+    def summary(
+        self,
+        surface_name: str,
+        *,
+        exact_identities: int,
+        resolved_identities: int,
+        base: str | None = None,
+        symbol: str = "func_overlay_047_F00009D0_18917E8",
+        created_ns: int | None = None,
+    ) -> dict[str, object]:
+        mode = "asm" if surface_name == "fallback_static" else "rom"
+        evidence_mode = fp.WB_RELOCATION_SURFACE_MODES[surface_name]
+        digest_prefix = "a" if surface_name == "fallback_static" else "d"
+        digest = digest_prefix * 64
+        surface = {
+            "candidate_relocations": 46,
+            "target_relocations": 46,
+            "offset_type_relocations": 46,
+            "resolved_candidate_identities": resolved_identities,
+            "exact_relocation_identities": exact_identities,
+            "evidence_mode": evidence_mode,
+            "complete": resolved_identities == 46,
+        }
+        artifacts = {
+            "source": {
+                "path": self.OWNER,
+                "sha256": digest,
+                "size": 100,
+            },
+            "candidate_object": {
+                "path": f"build/{surface_name}.candidate.o",
+                "sha256": digest,
+                "size": 200,
+            },
+            "target_object": {
+                "path": f"build/wb/{surface_name}.target.o",
+                "sha256": digest,
+                "size": 300,
+            },
+        }
+        return {
+            "schema": fp.WB_SUMMARY_SCHEMA,
+            "symbol": {
+                "requested": symbol,
+                "target": symbol,
+                "candidate": symbol,
+            },
+            "mode": mode,
+            "boundary": {
+                "bytes": 352,
+                "evidence": (
+                    "extracted-fallback-symbol"
+                    if mode == "asm"
+                    else "preflight-owned-boundary"
+                ),
+            },
+            "comparison": {
+                "exact": True,
+                "accepted": True,
+                "target_words": 88,
+                "candidate_words": 88,
+                "matched_words": 88,
+                "differing_words": 0,
+                "raw_differing_words": 0,
+            },
+            "provenance": {
+                "classification": "non_matching_candidate",
+                "exact_claim_allowed": True,
+                "verdict": "c_evidence",
+                "source_sha256": digest,
+                "candidate_object_sha256": digest,
+                "target_object_sha256": digest,
+            },
+            "evidence": {
+                "admissible_exact_comparison": True,
+                "promotion_proof_included": False,
+                "scope": "workbench-comparison-not-canonical-promotion-proof",
+                "raw_report_sha256": ("e" if mode == "asm" else "f") * 64,
+            },
+            "relocations": fp._summary_relocations(surface),
+            "relocation_surfaces": {surface_name: surface},
+            "proof_context": {
+                "base": self.BASE if base is None else base,
+                "branch": self.BRANCH,
+                "owner": self.OWNER,
+                "manifest_sha256": ("1" if mode == "asm" else "2") * 64,
+                "created_unix_ns": (
+                    self.NOW_NS if created_ns is None else created_ns
+                ),
+                "artifacts": artifacts,
+            },
+        }
+
+    def write_pair(
+        self,
+        root: Path,
+        *,
+        fallback: dict[str, object] | None = None,
+        promoted: dict[str, object] | None = None,
+    ) -> tuple[Path, Path]:
+        build = root / "build"
+        build.mkdir()
+        fallback_path = build / "fallback.json"
+        promoted_path = build / "promoted.json"
+        fallback_path.write_text(
+            json.dumps(
+                self.summary(
+                    "fallback_static", exact_identities=9, resolved_identities=20
+                )
+                if fallback is None
+                else fallback
+            ),
+            encoding="utf-8",
+        )
+        promoted_path.write_text(
+            json.dumps(
+                self.summary(
+                    "promoted_linked", exact_identities=34, resolved_identities=46
+                )
+                if promoted is None
+                else promoted
+            ),
+            encoding="utf-8",
+        )
+        os.utime(
+            fallback_path,
+            ns=(self.NOW_NS, self.NOW_NS),
+        )
+        os.utime(
+            promoted_path,
+            ns=(self.NOW_NS, self.NOW_NS),
+        )
+        return fallback_path, promoted_path
+
+    def compose(
+        self,
+        root: Path,
+        fallback: Path,
+        promoted: Path,
+    ) -> dict[str, object]:
+        return fp.compose_relocation_summaries(
+            fallback,
+            promoted,
+            root=root,
+            now_ns=self.NOW_NS,
+            repository_context={"base": self.BASE, "branch": self.BRANCH},
+        )
+
+    def test_pairs_nine_static_with_thirty_four_promoted_without_inference(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root)
+            report = self.compose(root, fallback, promoted)
+
+        surfaces = report["relocation_surfaces"]
+        self.assertEqual(9, surfaces["fallback_static"]["exact_relocation_identities"])
+        self.assertFalse(surfaces["fallback_static"]["complete"])
+        self.assertEqual(34, surfaces["promoted_linked"]["exact_relocation_identities"])
+        self.assertTrue(surfaces["promoted_linked"]["complete"])
+        self.assertEqual(9, report["relocations"]["exact_relocation_identities"])
+        self.assertEqual("fallback_static", report["relocation_pair"]["legacy_surface"])
+
+    def test_human_rendering_shows_both_surfaces(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root)
+            report = self.compose(root, fallback, promoted)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            fp._render_workbench_summary_human(report)
+        rendered = output.getvalue()
+        self.assertIn("fallback-static", rendered)
+        self.assertIn("exact identities=9", rendered)
+        self.assertIn("promoted-linked", rendered)
+        self.assertIn("exact identities=34", rendered)
+
+    def test_stale_input_fails_closed(self) -> None:
+        stale = self.summary(
+            "fallback_static",
+            exact_identities=9,
+            resolved_identities=20,
+            created_ns=self.NOW_NS - (fp.WB_SUMMARY_MAX_AGE_SECONDS + 1) * 1_000_000_000,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root, fallback=stale)
+            with self.assertRaisesRegex(fp.PreflightError, "summary is stale"):
+                self.compose(root, fallback, promoted)
+
+    def test_malformed_surface_fails_closed(self) -> None:
+        malformed = self.summary(
+            "fallback_static", exact_identities=9, resolved_identities=20
+        )
+        malformed["relocation_surfaces"]["fallback_static"][
+            "exact_relocation_identities"
+        ] = 47
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root, fallback=malformed)
+            with self.assertRaisesRegex(fp.PreflightError, "exceed"):
+                self.compose(root, fallback, promoted)
+
+    def test_cross_symbol_fails_closed(self) -> None:
+        promoted_payload = self.summary(
+            "promoted_linked",
+            exact_identities=34,
+            resolved_identities=46,
+            symbol="other_symbol",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root, promoted=promoted_payload)
+            with self.assertRaisesRegex(fp.PreflightError, "cross-symbol"):
+                self.compose(root, fallback, promoted)
+
+    def test_cross_base_fails_closed(self) -> None:
+        promoted_payload = self.summary(
+            "promoted_linked",
+            exact_identities=34,
+            resolved_identities=46,
+            base="c" * 40,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root, promoted=promoted_payload)
+            with self.assertRaisesRegex(fp.PreflightError, "cross-base"):
+                self.compose(root, fallback, promoted)
+
+    def test_duplicate_surface_inputs_fail_closed(self) -> None:
+        duplicate = self.summary(
+            "fallback_static", exact_identities=9, resolved_identities=20
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root, promoted=duplicate)
+            with self.assertRaisesRegex(fp.PreflightError, "wrong comparison mode"):
+                self.compose(root, fallback, promoted)
 
 class PartialEvidenceCliTests(unittest.TestCase):
     def report(self) -> dict[str, object]:

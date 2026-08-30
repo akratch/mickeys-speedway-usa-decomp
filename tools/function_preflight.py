@@ -16,12 +16,14 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import copy
 import dataclasses
 import hashlib
 import json
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Iterable
 
@@ -37,6 +39,12 @@ VENV_PYTHON_TARGET = ".venv/bin/python"
 WB_COMPARE = TOOLS / "wb_compare.sh"
 TYPE_NAMES = {2: "R_MIPS_32", 4: "R_MIPS_26", 5: "R_MIPS_HI16", 6: "R_MIPS_LO16"}
 PARTIAL_EVIDENCE_EXIT = 1
+WB_SUMMARY_SCHEMA = "mickey-wb-summary-v1"
+WB_RELOCATION_SURFACE_MODES = {
+    "fallback_static": "fallback-static",
+    "promoted_linked": "promoted-linked",
+}
+WB_SUMMARY_MAX_AGE_SECONDS = 15 * 60
 
 sys.path.insert(0, str(TOOLS))
 import overlay_tables as ot  # noqa: E402
@@ -1149,6 +1157,66 @@ def _verified_summary_artifact(
     return path
 
 
+def _repository_summary_context() -> dict[str, str]:
+    """Bind one transient summary to the lane state that produced it."""
+
+    head = _run(["git", "rev-parse", "--verify", "HEAD"], capture=True)
+    branch = _run(["git", "branch", "--show-current"], capture=True)
+    if head.returncode or branch.returncode:
+        raise PreflightError("cannot authenticate workbench summary repository state")
+    base = head.stdout.strip()
+    branch_name = branch.stdout.strip()
+    if not re.fullmatch(r"[0-9a-f]{40}", base) or not branch_name:
+        raise PreflightError(
+            "workbench summary requires one attached branch and full base commit"
+        )
+    return {"base": base, "branch": branch_name}
+
+
+def _summary_proof_context(
+    manifest: dict[str, object], *, manifest_sha256: str
+) -> dict[str, object] | None:
+    """Authenticate and retain the scalar provenance needed for later pairing.
+
+    Pairing deliberately retains hashes and repository-relative paths, not the
+    objects themselves. Each path is re-read here, while the proof is being
+    produced. The short freshness window and base/branch checks in the pairing
+    command prevent an old receipt from being relabelled as current evidence.
+    """
+
+    paths: dict[str, Path] = {}
+    records: dict[str, dict[str, object]] = {}
+    for name in ("source", "candidate_object", "target_object"):
+        path = _verified_summary_artifact(manifest, name)
+        if path is None:
+            return None
+        record = manifest.get(name)
+        assert isinstance(record, dict)
+        digest = record.get("sha256")
+        assert isinstance(digest, str)
+        paths[name] = path
+        records[name] = {
+            "path": _relative(path),
+            "sha256": digest,
+            "size": path.stat().st_size,
+        }
+    source = paths["source"]
+    try:
+        source.relative_to(REPO / "src")
+    except ValueError as error:
+        raise PreflightError(
+            "workbench summary source owner escapes the canonical source tree"
+        ) from error
+    repository = _repository_summary_context()
+    return {
+        **repository,
+        "owner": _relative(source),
+        "manifest_sha256": manifest_sha256,
+        "artifacts": records,
+        "created_unix_ns": time.time_ns(),
+    }
+
+
 def _authenticated_summary_relocation_comparison(
     manifest: dict[str, object],
     *,
@@ -1159,10 +1227,10 @@ def _authenticated_summary_relocation_comparison(
 ) -> dict[str, object] | None:
     """Reproduce canonical relocation evidence from one workbench manifest.
 
-    Assembly-mode provenance identifies the exact full-TU candidate and target
-    objects. ROM-mode manifests contain comparison dumps rather than a static
-    candidate object, so their relocation block remains absent unless a future
-    proof input supplies the missing static surface.
+    Assembly mode authenticates the guarded fallback/static object pairing.
+    ROM mode authenticates the promoted full-TU object against the linked
+    target/runtime surface. These are intentionally separate evidence modes;
+    neither count is copied into or inferred from the other.
     """
 
     manifest_mode = manifest.get("mode")
@@ -1172,15 +1240,32 @@ def _authenticated_summary_relocation_comparison(
         raise PreflightError(
             "workbench provenance mode disagrees with summary mode"
         )
-    if comparison_mode != "asm":
-        return None
     manifest_target = manifest.get("symbol")
     manifest_candidate = manifest.get("candidate_symbol")
     if manifest_target is None or manifest_candidate is None:
         return None
+
+    if comparison_mode == "rom":
+        if (
+            manifest_target != requested_symbol
+            or manifest_candidate not in {requested_symbol, candidate_symbol}
+        ):
+            raise PreflightError(
+                "ROM workbench provenance symbols disagree with requested identity"
+            )
+        return _authenticated_promoted_summary_relocation_comparison(
+            manifest,
+            requested_symbol=requested_symbol,
+            target_symbol=target_symbol,
+            candidate_symbol=candidate_symbol,
+        )
     if manifest_target != target_symbol or manifest_candidate != candidate_symbol:
         raise PreflightError(
             "workbench provenance symbols disagree with summary identity"
+        )
+    if comparison_mode != "asm":
+        raise PreflightError(
+            f"unsupported workbench relocation evidence mode {comparison_mode!r}"
         )
 
     source = _verified_summary_artifact(manifest, "source")
@@ -1205,14 +1290,32 @@ def _authenticated_summary_relocation_comparison(
         raise PreflightError(
             "workbench provenance candidate object disagrees with source"
         )
-    expected_target = REPO / "build/wb" / f"{target_symbol}.target.o"
+    if not re.fullmatch(r"[A-Za-z_]\w*", requested_symbol):
+        raise PreflightError("requested workbench symbol cannot name a proof artifact")
+    # wb_compare.sh names the isolated artifact after the spelling requested
+    # on its command line. Its internal symbol remains ``target_symbol`` and
+    # is authenticated by function_surface_comparison below. Requiring the
+    # generated spelling in both places incorrectly rejected friendly aliases.
+    expected_target = REPO / "build/wb" / f"{requested_symbol}.target.o"
     if target_object != expected_target:
         raise PreflightError(
-            "workbench provenance target object disagrees with target symbol"
+            "workbench provenance target object disagrees with requested symbol"
         )
     for path in (TARGET_ELF, ROM, ATLAS, ALIASES):
         if not path.is_file():
             return None
+
+    target_elf = rs.Elf(TARGET_ELF)
+    linked_name, linked_value, _linked_size, _linked_section = _symbol_geometry(
+        target_elf, (candidate_symbol, target_symbol)
+    )
+    generated = rs.GEN_NAME_RE.match(target_symbol)
+    if generated is not None:
+        expected_value = rs.SYNTHETIC_VMA + int(generated.group(2), 16)
+        if linked_value != expected_value:
+            raise PreflightError(
+                "generated target symbol offset disagrees with linked friendly identity"
+            )
 
     redefine_aliases = _candidate_redefine_aliases(candidate_object)
     try:
@@ -1224,7 +1327,7 @@ def _authenticated_summary_relocation_comparison(
             atlas_path=ATLAS,
             values_path=ALIASES,
             candidate_symbol=candidate_symbol,
-            target_symbol=target_symbol,
+            target_symbol=linked_name,
             source=translation_unit,
             candidate_redefine_aliases=redefine_aliases,
         )
@@ -1234,8 +1337,125 @@ def _authenticated_summary_relocation_comparison(
         ) from error
 
 
-def _summary_relocations(comparison: dict[str, object]) -> dict[str, int]:
-    """Validate and reduce canonical relocation evidence to three scalars."""
+def _authenticated_promoted_summary_relocation_comparison(
+    manifest: dict[str, object],
+    *,
+    requested_symbol: str,
+    target_symbol: str,
+    candidate_symbol: str,
+) -> dict[str, object] | None:
+    """Reproduce the promoted linked/static identity surface from ROM proof.
+
+    The ROM comparison itself contains no relocations. Its provenance does,
+    however, identify the promoted source and full-TU object. The canonical
+    linked ELF and retail runtime table then provide a distinct, authenticated
+    relocation surface. Absence is reported as absence; no fallback surface is
+    substituted.
+    """
+
+    source = _verified_summary_artifact(manifest, "source")
+    candidate_object = _verified_summary_artifact(manifest, "candidate_object")
+    target_artifact = _verified_summary_artifact(manifest, "target_object")
+    if source is None or candidate_object is None or target_artifact is None:
+        return None
+    if not re.fullmatch(r"[A-Za-z_]\w*", requested_symbol):
+        raise PreflightError("requested workbench symbol cannot name a proof artifact")
+    expected_target = REPO / "build/wb" / f"{requested_symbol}.target.objdump"
+    if target_artifact != expected_target:
+        raise PreflightError(
+            "promoted workbench target artifact disagrees with requested symbol"
+        )
+    resolution = resolve(requested_symbol)
+    if resolution.resolution_mode != "post_promotion":
+        raise PreflightError(
+            "ROM relocation summary requires one authenticated promoted definition"
+        )
+    if (
+        resolution.target_symbol != target_symbol
+        or resolution.candidate_symbol != candidate_symbol
+    ):
+        raise PreflightError(
+            "promoted resolution symbols disagree with workbench summary identity"
+        )
+    if source != resolution.source or candidate_object != resolution.candidate_object:
+        raise PreflightError(
+            "promoted workbench provenance disagrees with canonical source/object owner"
+        )
+    for path, label in (
+        (TARGET_ELF, "canonical linked ELF"),
+        (ROM, "baserom"),
+        (ATLAS, "overlay atlas"),
+        (ALIASES, "overlay identity table"),
+    ):
+        if not path.is_file():
+            return None
+    _require_fresh_target(
+        resolution.candidate_object,
+        label="promoted candidate object",
+        non_matching=False,
+        build_logic_inputs=_build_logic_inputs(),
+    )
+    _require_fresh_linked_boundary()
+    target_elf = rs.Elf(TARGET_ELF)
+    linked_name, value, size, section = _symbol_geometry(
+        target_elf, (candidate_symbol, target_symbol)
+    )
+    _require_tracked_geometry(resolution, value, size)
+    try:
+        atlas = json.loads(ATLAS.read_text(encoding="utf-8"))
+        rom = ROM.read_bytes()
+        _target_context(resolution, value, size, atlas, rom)
+        comparison = rs.function_surface_comparison(
+            requested_symbol,
+            candidate_object,
+            TARGET_ELF,
+            rom_path=ROM,
+            atlas_path=ATLAS,
+            values_path=ALIASES,
+            candidate_symbol=candidate_symbol,
+            target_symbol=linked_name,
+            source=resolution.translation_unit,
+            candidate_redefine_aliases=_candidate_redefine_aliases(candidate_object),
+        )
+    except (json.JSONDecodeError, OSError, rs.SurfaceComparisonError) as error:
+        raise PreflightError(
+            f"cannot authenticate promoted linked relocation summary: {error}"
+        ) from error
+    return comparison
+
+
+def _canonical_summary_symbols(
+    requested_symbol: str,
+    target_symbol: str,
+    candidate_symbol: str,
+    comparison_mode: str,
+) -> tuple[str, str]:
+    """Normalize ROM-mode friendly spellings to the canonical target identity."""
+
+    if comparison_mode != "rom":
+        return target_symbol, candidate_symbol
+    resolution = resolve(requested_symbol)
+    if resolution.resolution_mode != "post_promotion":
+        raise PreflightError(
+            "ROM workbench summary requires one authenticated promoted definition"
+        )
+    if target_symbol != requested_symbol or candidate_symbol not in {
+        requested_symbol,
+        resolution.candidate_symbol,
+    }:
+        raise PreflightError(
+            "ROM workbench invocation symbols disagree with promoted resolution"
+        )
+    return resolution.target_symbol, resolution.candidate_symbol
+
+
+def _summary_relocation_surface(
+    comparison: dict[str, object], *, evidence_mode: str
+) -> dict[str, object]:
+    """Validate and reduce one named relocation surface without inference."""
+
+    if evidence_mode not in WB_RELOCATION_SURFACE_MODES.values():
+        raise PreflightError(f"invalid relocation evidence mode {evidence_mode!r}")
 
     required = (
         "candidate_record_count",
@@ -1263,9 +1483,19 @@ def _summary_relocations(comparison: dict[str, object]) -> dict[str, int]:
         raise PreflightError(
             "authenticated exact relocation identities exceed their surface"
         )
+    if values["stable_identity_alignment_count"] > values["offset_type_alignment_count"]:
+        raise PreflightError(
+            "authenticated exact relocation identities exceed offset/type alignment"
+        )
     if values["candidate_identity_resolved_count"] > candidate:
         raise PreflightError(
             "authenticated resolved relocation identities exceed candidate count"
+        )
+    if values["stable_identity_alignment_count"] > values[
+        "candidate_identity_resolved_count"
+    ]:
+        raise PreflightError(
+            "authenticated exact relocation identities exceed resolved identities"
         )
     unresolved = comparison.get("candidate_identity_unresolved_records")
     if not isinstance(unresolved, list) or (
@@ -1276,10 +1506,33 @@ def _summary_relocations(comparison: dict[str, object]) -> dict[str, int]:
         )
 
     exact_identities = values["stable_identity_alignment_count"]
+    complete = (
+        candidate == target == values["offset_type_alignment_count"]
+        and values["candidate_identity_resolved_count"] == candidate
+    )
     return {
         "candidate_relocations": candidate,
         "target_relocations": target,
+        "offset_type_relocations": values["offset_type_alignment_count"],
+        "resolved_candidate_identities": values[
+            "candidate_identity_resolved_count"
+        ],
         "exact_relocation_identities": exact_identities,
+        "evidence_mode": evidence_mode,
+        "complete": complete,
+    }
+
+
+def _summary_relocations(surface: dict[str, object]) -> dict[str, int]:
+    """Retain the legacy single-surface scalar view for existing consumers."""
+
+    return {
+        name: int(surface[name])
+        for name in (
+            "candidate_relocations",
+            "target_relocations",
+            "exact_relocation_identities",
+        )
     }
 
 
@@ -1299,7 +1552,8 @@ def workbench_summary(
     try:
         raw_bytes = raw_path.read_bytes()
         payload = json.loads(raw_bytes)
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest_bytes = manifest_path.read_bytes()
+        manifest = json.loads(manifest_bytes)
     except (OSError, json.JSONDecodeError) as error:
         raise PreflightError(f"cannot read workbench summary inputs: {error}") from error
     if not isinstance(payload, dict) or payload.get("schema") != "decomp-workbench-comparison-v1":
@@ -1343,6 +1597,13 @@ def workbench_summary(
             f"boundary={proved_boundary_size}, target={target_words * 4}"
         )
 
+    target_symbol, candidate_symbol = _canonical_summary_symbols(
+        requested_symbol,
+        target_symbol,
+        candidate_symbol,
+        comparison_mode,
+    )
+
     relocation_comparison = _authenticated_summary_relocation_comparison(
         manifest,
         requested_symbol=requested_symbol,
@@ -1351,11 +1612,29 @@ def workbench_summary(
         comparison_mode=comparison_mode,
     )
     relocations = None
+    relocation_surfaces = None
+    proof_context = None
     if relocation_comparison is not None:
-        relocations = _summary_relocations(relocation_comparison)
+        surface_name = (
+            "fallback_static" if comparison_mode == "asm" else "promoted_linked"
+        )
+        surface = _summary_relocation_surface(
+            relocation_comparison,
+            evidence_mode=WB_RELOCATION_SURFACE_MODES[surface_name],
+        )
+        relocations = _summary_relocations(surface)
+        proof_context = _summary_proof_context(
+            manifest,
+            manifest_sha256=hashlib.sha256(manifest_bytes).hexdigest(),
+        )
+        if proof_context is None:
+            raise PreflightError(
+                "authenticated relocation surface lacks complete proof artifacts"
+            )
+        relocation_surfaces = {surface_name: surface}
 
     result = {
-        "schema": "mickey-wb-summary-v1",
+        "schema": WB_SUMMARY_SCHEMA,
         "symbol": {
             "requested": requested_symbol,
             "target": target_symbol,
@@ -1435,7 +1714,320 @@ def workbench_summary(
     }
     if relocations is not None:
         result["relocations"] = relocations
+        result["relocation_surfaces"] = relocation_surfaces
+        result["proof_context"] = proof_context
     return result
+
+
+def _validated_summary_surface(
+    payload: dict[str, object], surface_name: str
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Validate one unpaired summary and return its surface and proof context."""
+
+    if payload.get("schema") != WB_SUMMARY_SCHEMA:
+        raise PreflightError("relocation pair input has unsupported summary schema")
+    expected_mode = "asm" if surface_name == "fallback_static" else "rom"
+    if payload.get("mode") != expected_mode:
+        raise PreflightError(
+            f"{surface_name} input has wrong comparison mode {payload.get('mode')!r}"
+        )
+    surfaces = payload.get("relocation_surfaces")
+    if not isinstance(surfaces, dict) or set(surfaces) != {surface_name}:
+        raise PreflightError(
+            f"{surface_name} input must contain exactly its one named surface"
+        )
+    surface = surfaces[surface_name]
+    if not isinstance(surface, dict):
+        raise PreflightError(f"{surface_name} relocation surface is malformed")
+    expected_evidence_mode = WB_RELOCATION_SURFACE_MODES[surface_name]
+    if surface.get("evidence_mode") != expected_evidence_mode:
+        raise PreflightError(
+            f"{surface_name} relocation evidence mode is inconsistent"
+        )
+    numeric_names = (
+        "candidate_relocations",
+        "target_relocations",
+        "offset_type_relocations",
+        "resolved_candidate_identities",
+        "exact_relocation_identities",
+    )
+    numbers: dict[str, int] = {}
+    for name in numeric_names:
+        value = surface.get(name)
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            raise PreflightError(f"{surface_name} has invalid {name}")
+        numbers[name] = value
+    candidate = numbers["candidate_relocations"]
+    target = numbers["target_relocations"]
+    if numbers["offset_type_relocations"] > min(candidate, target):
+        raise PreflightError(f"{surface_name} offset/type count exceeds its surface")
+    if numbers["resolved_candidate_identities"] > candidate:
+        raise PreflightError(
+            f"{surface_name} resolved identities exceed candidate count"
+        )
+    if numbers["exact_relocation_identities"] > min(candidate, target):
+        raise PreflightError(f"{surface_name} exact identities exceed its surface")
+    if numbers["exact_relocation_identities"] > numbers["offset_type_relocations"]:
+        raise PreflightError(
+            f"{surface_name} exact identities exceed offset/type alignment"
+        )
+    if numbers["exact_relocation_identities"] > numbers[
+        "resolved_candidate_identities"
+    ]:
+        raise PreflightError(
+            f"{surface_name} exact identities exceed resolved identities"
+        )
+    complete = surface.get("complete")
+    expected_complete = (
+        candidate == target == numbers["offset_type_relocations"]
+        and numbers["resolved_candidate_identities"] == candidate
+    )
+    if not isinstance(complete, bool) or complete != expected_complete:
+        raise PreflightError(f"{surface_name} completeness is inconsistent")
+
+    legacy = payload.get("relocations")
+    if not isinstance(legacy, dict) or legacy != _summary_relocations(surface):
+        raise PreflightError(
+            f"{surface_name} legacy relocation view disagrees with named surface"
+        )
+    context = payload.get("proof_context")
+    if not isinstance(context, dict):
+        raise PreflightError(f"{surface_name} lacks authenticated proof context")
+    base = context.get("base")
+    branch = context.get("branch")
+    owner = context.get("owner")
+    created = context.get("created_unix_ns")
+    manifest_digest = context.get("manifest_sha256")
+    if not isinstance(base, str) or not re.fullmatch(r"[0-9a-f]{40}", base):
+        raise PreflightError(f"{surface_name} proof base is malformed")
+    if not isinstance(branch, str) or not branch or "\n" in branch:
+        raise PreflightError(f"{surface_name} proof branch is malformed")
+    if (
+        not isinstance(owner, str)
+        or not owner.startswith("src/")
+        or Path(owner).is_absolute()
+        or ".." in Path(owner).parts
+    ):
+        raise PreflightError(f"{surface_name} proof owner is malformed")
+    if not isinstance(created, int) or isinstance(created, bool) or created < 0:
+        raise PreflightError(f"{surface_name} proof timestamp is malformed")
+    if not isinstance(manifest_digest, str) or not re.fullmatch(
+        r"[0-9a-f]{64}", manifest_digest
+    ):
+        raise PreflightError(f"{surface_name} proof manifest digest is malformed")
+
+    artifacts = context.get("artifacts")
+    provenance = payload.get("provenance")
+    if not isinstance(artifacts, dict) or not isinstance(provenance, dict):
+        raise PreflightError(f"{surface_name} proof artifacts are malformed")
+    provenance_names = {
+        "source": "source_sha256",
+        "candidate_object": "candidate_object_sha256",
+        "target_object": "target_object_sha256",
+    }
+    for artifact_name, provenance_name in provenance_names.items():
+        record = artifacts.get(artifact_name)
+        if not isinstance(record, dict):
+            raise PreflightError(
+                f"{surface_name} proof lacks {artifact_name} artifact"
+            )
+        path = record.get("path")
+        digest = record.get("sha256")
+        size = record.get("size")
+        if (
+            not isinstance(path, str)
+            or not path
+            or Path(path).is_absolute()
+            or ".." in Path(path).parts
+            or not isinstance(digest, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", digest)
+            or not isinstance(size, int)
+            or isinstance(size, bool)
+            or size < 0
+        ):
+            raise PreflightError(
+                f"{surface_name} proof {artifact_name} artifact is malformed"
+            )
+        if provenance.get(provenance_name) != digest:
+            raise PreflightError(
+                f"{surface_name} proof {artifact_name} hash disagrees with provenance"
+            )
+        if artifact_name == "source" and path != owner:
+            raise PreflightError(
+                f"{surface_name} source artifact disagrees with proof owner"
+            )
+    symbols = payload.get("symbol")
+    if not isinstance(symbols, dict) or any(
+        not isinstance(symbols.get(name), str)
+        for name in ("requested", "target", "candidate")
+    ):
+        raise PreflightError(f"{surface_name} symbol identity is malformed")
+    evidence = payload.get("evidence")
+    if not isinstance(evidence, dict) or evidence.get("promotion_proof_included") is not False:
+        raise PreflightError(
+            f"{surface_name} summary cannot claim canonical promotion proof"
+        )
+    return surface, context
+
+
+def _read_fresh_relocation_summary(
+    path: Path,
+    *,
+    surface_name: str,
+    root: Path,
+    now_ns: int,
+    max_age_seconds: int,
+) -> tuple[dict[str, object], dict[str, object], bytes]:
+    try:
+        resolved = path.resolve(strict=True)
+        resolved.relative_to((root / "build").resolve())
+    except (OSError, ValueError) as error:
+        raise PreflightError(
+            f"{surface_name} summary must be one existing file under build/"
+        ) from error
+    if path.is_symlink() or not resolved.is_file():
+        raise PreflightError(f"{surface_name} summary cannot be a symlink")
+    raw = resolved.read_bytes()
+    if len(raw) > 1024 * 1024:
+        raise PreflightError(f"{surface_name} summary is unexpectedly large")
+    try:
+        payload = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise PreflightError(f"{surface_name} summary is malformed JSON") from error
+    if not isinstance(payload, dict):
+        raise PreflightError(f"{surface_name} summary is not one JSON object")
+    surface, context = _validated_summary_surface(payload, surface_name)
+    created = int(context["created_unix_ns"])
+    age = now_ns - created
+    if age < 0 or age > max_age_seconds * 1_000_000_000:
+        raise PreflightError(f"{surface_name} summary is stale")
+    mtime_age = now_ns - resolved.stat().st_mtime_ns
+    if mtime_age < 0 or mtime_age > max_age_seconds * 1_000_000_000:
+        raise PreflightError(f"{surface_name} summary file is stale")
+    return payload, context, raw
+
+
+def compose_relocation_summaries(
+    fallback_path: Path,
+    promoted_path: Path,
+    *,
+    root: Path = REPO,
+    now_ns: int | None = None,
+    max_age_seconds: int = WB_SUMMARY_MAX_AGE_SECONDS,
+    repository_context: dict[str, str] | None = None,
+) -> dict[str, object]:
+    """Compose fresh fallback-static and promoted-linked proof receipts."""
+
+    if fallback_path.resolve() == promoted_path.resolve():
+        raise PreflightError("relocation pair inputs are duplicates")
+    current_ns = time.time_ns() if now_ns is None else now_ns
+    fallback, fallback_context, fallback_raw = _read_fresh_relocation_summary(
+        fallback_path,
+        surface_name="fallback_static",
+        root=root,
+        now_ns=current_ns,
+        max_age_seconds=max_age_seconds,
+    )
+    promoted, promoted_context, promoted_raw = _read_fresh_relocation_summary(
+        promoted_path,
+        surface_name="promoted_linked",
+        root=root,
+        now_ns=current_ns,
+        max_age_seconds=max_age_seconds,
+    )
+    if hashlib.sha256(fallback_raw).digest() == hashlib.sha256(promoted_raw).digest():
+        raise PreflightError("relocation pair inputs have duplicate contents")
+    for field in ("base", "branch", "owner"):
+        if fallback_context[field] != promoted_context[field]:
+            raise PreflightError(f"relocation pair has cross-{field} evidence")
+    if fallback.get("symbol") != promoted.get("symbol"):
+        raise PreflightError("relocation pair has cross-symbol evidence")
+    fallback_boundary = fallback.get("boundary")
+    promoted_boundary = promoted.get("boundary")
+    if (
+        not isinstance(fallback_boundary, dict)
+        or not isinstance(promoted_boundary, dict)
+        or fallback_boundary.get("bytes") != promoted_boundary.get("bytes")
+    ):
+        raise PreflightError("relocation pair has inconsistent owned boundary")
+    current_repository = (
+        _repository_summary_context()
+        if repository_context is None
+        else repository_context
+    )
+    for field in ("base", "branch"):
+        if fallback_context[field] != current_repository.get(field):
+            raise PreflightError(
+                f"relocation pair {field} is stale for the current lane"
+            )
+    fallback_surface = fallback["relocation_surfaces"]["fallback_static"]
+    promoted_surface = promoted["relocation_surfaces"]["promoted_linked"]
+    assert isinstance(fallback_surface, dict)
+    assert isinstance(promoted_surface, dict)
+    if (
+        fallback_surface["candidate_relocations"]
+        != promoted_surface["candidate_relocations"]
+        or fallback_surface["target_relocations"]
+        != promoted_surface["target_relocations"]
+    ):
+        raise PreflightError(
+            "relocation pair candidate/target surfaces have inconsistent geometry"
+        )
+
+    result = copy.deepcopy(fallback)
+    result["relocation_surfaces"] = {
+        "fallback_static": copy.deepcopy(fallback_surface),
+        "promoted_linked": copy.deepcopy(promoted_surface),
+    }
+    # Preserve the fallback-static scalar view for old checkpoint consumers.
+    # A promoted linked result must never upgrade an inexact static object into
+    # an object-exact claim through the compatibility field.
+    result["relocations"] = _summary_relocations(fallback_surface)
+    result["proof_context"] = {
+        "base": fallback_context["base"],
+        "branch": fallback_context["branch"],
+        "owner": fallback_context["owner"],
+        "created_unix_ns": current_ns,
+        "surface_proofs": {
+            "fallback_static": copy.deepcopy(fallback_context),
+            "promoted_linked": copy.deepcopy(promoted_context),
+        },
+    }
+    result["relocation_pair"] = {
+        "fallback_summary_sha256": hashlib.sha256(fallback_raw).hexdigest(),
+        "promoted_summary_sha256": hashlib.sha256(promoted_raw).hexdigest(),
+        "legacy_surface": "fallback_static",
+        "promotion_policy": "unchanged",
+    }
+    return result
+
+
+def _render_workbench_summary_human(report: dict[str, object]) -> None:
+    symbols = report["symbol"]
+    assert isinstance(symbols, dict)
+    print(
+        "identity: "
+        f"{symbols['requested']} ({symbols['target']} -> {symbols['candidate']})"
+    )
+    surfaces = report.get("relocation_surfaces")
+    if not isinstance(surfaces, dict):
+        print("relocation surfaces: unavailable")
+        return
+    print("relocation surfaces:")
+    for name in ("fallback_static", "promoted_linked"):
+        surface = surfaces.get(name)
+        if not isinstance(surface, dict):
+            continue
+        state = "complete" if surface["complete"] else "partial"
+        print(
+            f"  {surface['evidence_mode']}: "
+            f"candidate={surface['candidate_relocations']} "
+            f"target={surface['target_relocations']} "
+            f"offset/type={surface['offset_type_relocations']} "
+            f"resolved={surface['resolved_candidate_identities']} "
+            f"exact identities={surface['exact_relocation_identities']} "
+            f"completeness={state}"
+        )
 
 
 def _workbench(resolution: Resolution) -> dict[str, object]:
@@ -2083,8 +2675,18 @@ def _render_human(report: dict[str, object]) -> None:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("symbol")
+    parser.add_argument("symbol", nargs="?")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument(
+        "--compose-relocation-summaries",
+        nargs=2,
+        type=Path,
+        metavar=("FALLBACK_JSON", "PROMOTED_JSON"),
+        help=(
+            "compose fresh fallback-static and promoted-linked summary proofs; "
+            "both inputs must be under build/"
+        ),
+    )
     parser.add_argument(
         "--no-build",
         action="store_true",
@@ -2111,6 +2713,25 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv)
     try:
+        if args.compose_relocation_summaries is not None:
+            if args.symbol is not None or args.no_build or args.analysis_only:
+                raise PreflightError(
+                    "relocation-summary composition does not accept a symbol, "
+                    "--no-build, or --analysis-only"
+                )
+            report = compose_relocation_summaries(
+                args.compose_relocation_summaries[0],
+                args.compose_relocation_summaries[1],
+            )
+            if args.json:
+                print(json.dumps(report, indent=2, sort_keys=True))
+            else:
+                _render_workbench_summary_human(report)
+            return 0
+        if args.symbol is None:
+            raise PreflightError(
+                "provide one symbol or --compose-relocation-summaries"
+            )
         if (args.resolve_wb or args.resolve_rom) and args.analysis_only:
             raise PreflightError(
                 "--analysis-only is not valid with an internal resolution mode"
