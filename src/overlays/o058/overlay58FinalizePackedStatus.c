@@ -78,7 +78,7 @@ void overlay58FinalizePackedStatus(void) {
     if (records[0].rank == 0x24) {
         desired = 4;
     } else {
-        for (i = 1; (i != 6) && (desired > 0); i++) {
+        for (i = 1; (desired > 0) && (i != 6); i++) {
             if (records[0].rank < records[i].rank) {
                 desired--;
             }
@@ -264,3 +264,13 @@ void overlay58FinalizePackedStatus(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/overlay58FinalizePackedStatus/func_overlay_058_F0005554_18B473C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay58FinalizePackedStatus:start
+ * symbol: overlay58FinalizePackedStatus
+ * score: 127/304 words
+ * frame: 0x48
+ * relocations: 48
+ * first-mismatch: +0x18
+ * summary: Exact geometry remains blocked by mixed control-flow and register allocation after the full flag lattice.
+ * PLATEAU-HANDOFF:overlay58FinalizePackedStatus:end
+ */
