@@ -54,7 +54,7 @@ gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
 .venv/bin/python tools/fix_jumptable_claim.py >/dev/null 2>&1 || true
 gmake check-docs 2>&1 | tail -1
-git add -A README.md config/ docs/modules.md docs/overlays.md mickey.us.yaml symbol_addrs.us.txt src include Makefile 2>/dev/null || true
+git add -A README.md config/ docs/modules.md docs/overlays.md mickey.us.yaml symbol_addrs.us.txt src include Makefile mk 2>/dev/null || true
 git commit -q -m "Merge $branch into $(git rev-parse --abbrev-ref HEAD)
 
 Gates at merge time: verify byte-identical, check-docs, overlay-atlas,

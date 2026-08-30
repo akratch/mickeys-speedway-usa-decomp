@@ -26,7 +26,7 @@ case "$out" in OK*) ;; *) echo "verify FAILED; not committing" >&2; gmake -j6 2>
 gmake check-docs 2>&1 | tail -1
 gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
-git add -A README.md config/ mickey.us.yaml docs/modules.md docs/overlays.md symbol_addrs.us.txt src include Makefile
+git add -A README.md config/ mickey.us.yaml docs/modules.md docs/overlays.md symbol_addrs.us.txt src include Makefile mk
 git commit -q --no-edit 2>&1 | grep -v exempt || true
 git log --oneline -1
 timeout 240 gmake progress 2>&1 | grep -E '^functions|decompiled|NON_MATCH'

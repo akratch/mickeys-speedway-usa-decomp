@@ -32,10 +32,9 @@
 # tools/ido/cc directly, with the same flags asm-processor would have handed
 # it, is equivalent for a plain C candidate.
 #
-# THE FOUR FLAG GROUPS (Makefile's OPT_FLAGS / MIPSISET, per file/directory --
-# see the Makefile's "Per-file compiler flags" section for the full list of
-# per-TU exceptions, e.g. -g3, -Wab,-r4300_mul, the IDO_PHASES wrapper for
-# uopt-only overrides):
+# THE FOUR FLAG GROUPS (Makefile/mk/overlays.mk OPT_FLAGS and MIPSISET -- see
+# those policy blocks for the full list of per-TU exceptions, e.g. -g3,
+# -Wab,-r4300_mul, and the IDO_PHASES wrapper for uopt-only overrides):
 #
 #   libultra (project default, most of src/libultra/):  -O2 -mips1 -32
 #   libultra -O1 -mips2 group (io/, some os/; see LIBULTRA_O1_MIPS2_TUS):
@@ -50,7 +49,7 @@
 # src/main/permuter_settings.toml / src/overlays/permuter_settings.toml --
 # import.py searches upward from the .c file's own directory first). A
 # libultra function from one of the O1/O2-g3 groups: swap OPT_FLAGS/MIPSISET
-# to match the Makefile rule for that specific file.
+# to match the Make policy rule for that specific file.
 compiler_type = "ido"
 compiler_command = """
 tools/ido/cc -c -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \

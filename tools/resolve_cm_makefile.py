@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Resolve Makefile conflicts between overlay-consolidation lanes.
+"""Resolve overlay-policy conflicts between consolidation lanes.
 
 Each lane rewrote the per-object rules of its own overlays; two lanes'
 hunks overlap because their overlays' rules sit next to each other. Within
@@ -8,11 +8,14 @@ target line, and its backslash-continued recipe lines). Blocks about overlays
 already consolidated on this branch come from ours; every other block comes
 from the lane (theirs).
 
-Usage: resolve_cm_makefile.py <comma list of overlay numbers consolidated on HEAD> [Makefile]
+Usage: resolve_cm_makefile.py <comma list of overlay numbers consolidated on HEAD> [mk/overlays.mk]
 """
-import re, sys
+import pathlib, re, sys
 ours_ovs = {int(x) for x in sys.argv[1].split(',') if x}
-path = sys.argv[2] if len(sys.argv) > 2 else 'Makefile'
+path = sys.argv[2] if len(sys.argv) > 2 else (
+    'mk/overlays.mk' if pathlib.Path('mk/overlays.mk').is_file()
+    else 'Makefile'
+)
 s = open(path).read()
 pat = re.compile(r'<<<<<<< [^\n]*\n(.*?)=======\n(.*?)>>>>>>> [^\n]*\n', re.S)
 ovre = re.compile(r'overlays/o(\d{3})/')

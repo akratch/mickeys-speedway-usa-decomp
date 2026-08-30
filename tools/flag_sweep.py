@@ -1130,7 +1130,7 @@ def main(argv: Sequence[str]) -> int:
     if scored:
         best = scored[0][0]
         print()
-        print("Best flags (paste into the Makefile per-file override block):")
+        print("Best flags (paste into the applicable Make policy override block):")
         cc_line = "CC := $(IDO_PHASES)" if best.use_ido_phases else ""
         if cc_line:
             print(f"  {cc_line}")

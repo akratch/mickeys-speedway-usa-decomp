@@ -112,16 +112,19 @@ Two things that catch newcomers:
   overlay, section and offset through `config/overlays.us.json`; a virtual
   address alone is ambiguous.
 - **Compiler flags vary per file.** The default is `-O2 -mips1 -32`; the
-  per-file differences are listed in the Makefile and summarised in the
-  [module map](docs/modules.md). The large overlay rule block is build metadata
-  for matching function-sized objects; it is not the runtime overlay system.
+  per-file differences are listed in the root Makefile for resident code and
+  [`mk/overlays.mk`](mk/overlays.mk) for overlay code, then summarised in the
+  [module map](docs/modules.md). The overlay policy file is build metadata for
+  matching function-sized objects; it is not the runtime overlay system.
   Runtime loading is implemented in `src/main/runlink.c` and documented in
   [the overlay architecture guide](docs/overlays.md#51-what-runs-it).
 
 The host build has one object graph and one final linker invocation; splat
 generates overlay inputs and their `mickey.us.ld` placement. The
 [contributor guide](docs/CONTRIBUTING.md#overlay-build-flow) traces that path
-and separates it from the Rare-lineage runtime loader.
+and separates it from the Rare-lineage runtime loader. Keeping measured
+per-overlay-object policy in `mk/overlays.mk` makes that one-build/one-link
+graph visible in the root Makefile without changing its behavior.
 
 When a candidate compiles to the right shape but the register or stack
 allocation still differs, `tools/permute_batch.py` runs

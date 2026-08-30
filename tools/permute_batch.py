@@ -141,8 +141,8 @@ GLABEL_RE = re.compile(r"^\s*(glabel|endlabel|jlabel|dlabel)\s+(\S+)", re.MULTIL
 
 # Flag groups this script knows about, keyed by a classifier over the
 # source path relative to src/. Mirrors tools/permuter_settings.toml's own
-# header comment and Makefile's OPT_FLAGS/MIPSISET defaults (line ~90) and
-# per-directory overrides (main/%, overlays/%, ~line 661/666).
+# header comment and the root Makefile's OPT_FLAGS/MIPSISET defaults plus the
+# per-directory overrides in Makefile (main/%) and mk/overlays.mk (overlays/%).
 FLAG_GROUP_DEFAULT = ("-O2", "-mips1", "-32")  # libultra project default
 FLAG_GROUP_OVERLAY = ("-O2", "-mips2", "-32")  # src/main/**, src/overlays/**
 FLAG_GROUP_O2_G3 = ("-O2", "-g3", "-mips2", "-32")  # LIBULTRA_O2_G3_TUS

@@ -29,8 +29,8 @@ are correct when the target object layout requires two flag groups.
    ordering.
 5. Assign section ownership in `tools/overlay_atlas.py`; preserve real assembly
    padding and binary tails.
-6. Replace per-function Makefile rules with one rule per surviving translation
-   unit.
+6. Replace per-function `mk/overlays.mk` rules with one rule per surviving
+   translation unit.
 7. Regenerate the atlas and YAML projection.
 8. Compare every formerly matched range and every relocation.
 9. Verify the linked overlay and complete ROM.
@@ -70,5 +70,5 @@ content appearance alone.
 BSS has no ROM bytes. Establish it from loader sizes, relocations, and adjacent
 symbols. A successful ROM comparison does not by itself prove BSS layout.
 
-Commit one overlay at a time with its atlas, YAML, Makefile, headers, and source
-changes together.
+Commit one overlay at a time with its atlas, YAML, build policy, headers, and
+source changes together.

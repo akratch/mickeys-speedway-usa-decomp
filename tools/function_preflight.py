@@ -389,11 +389,12 @@ def _build_logic_inputs(root: Path = REPO) -> tuple[Path, ...]:
     Normal prerequisites (the source, every header, the splat inputs and the
     generated linker inputs) are covered by ``gmake -q`` below.  GNU Make does
     not rebuild a target merely because the recipe that produced it changed,
-    so the root Makefile and its checked-in normalization fragments need an
-    explicit timestamp check.
+    so the root Makefile, its included policy files, and its checked-in
+    normalization fragments need an explicit timestamp check.
     """
 
     inputs = [root / "Makefile"]
+    inputs.extend(sorted((root / "mk").glob("**/*.mk")))
     inputs.extend(sorted((root / "config" / "normalizations").glob("*.mk")))
     return tuple(path for path in inputs if path.is_file())
 

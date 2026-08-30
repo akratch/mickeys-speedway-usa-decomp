@@ -492,6 +492,21 @@ class FreshnessTests(unittest.TestCase):
                     build_logic_inputs=(config,),
                 )
 
+    def test_build_logic_inputs_include_make_policy_fragments(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            makefile = root / "Makefile"
+            overlay_policy = root / "mk/overlays.mk"
+            normalization = root / "config/normalizations/example.mk"
+            for path in (makefile, overlay_policy, normalization):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("# build logic\n", encoding="utf-8")
+
+            self.assertEqual(
+                (makefile, overlay_policy, normalization),
+                fp._build_logic_inputs(root),
+            )
+
     def test_fresh_nonmatching_object_queries_its_actual_build_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

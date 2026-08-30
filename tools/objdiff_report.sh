@@ -44,7 +44,8 @@ fi
 # ("Section symbol without section", or for some, an unattributed "Symbol
 # data out of bounds" with no file name at all to key a targeted exclusion
 # off of). 686 of this project's ~832 C objects carry a POSTPROCESS override
-# (`grep -c ': POSTPROCESS' Makefile`), which is most of the overlay tree.
+# (`grep -h -c ': POSTPROCESS' Makefile mk/*.mk`), which is most of the overlay
+# tree.
 #
 # tools/objdiff_exclude.txt is derived (a grep over the Makefile, nothing
 # ROM-derived) but gitignored rather than committed: it's ~700 lines of
@@ -54,8 +55,8 @@ fi
 # docs/CLEANROOM.md). Regenerated fresh on every run instead, before
 # objdiff.json (which reads it).
 EXCLUDE_FILE=tools/objdiff_exclude.txt
-grep -oE '^\$\(BUILD_DIR\)/\$\(SRC_DIR\)/[A-Za-z0-9_/]+\.c\.o: POSTPROCESS' \
-    Makefile | sed -E 's#\$\(BUILD_DIR\)/\$\(SRC_DIR\)/#src/#; s/: POSTPROCESS$//' \
+grep -h -oE '^\$\(BUILD_DIR\)/\$\(SRC_DIR\)/[A-Za-z0-9_/]+\.c\.o: POSTPROCESS' \
+    Makefile mk/*.mk | sed -E 's#\$\(BUILD_DIR\)/\$\(SRC_DIR\)/#src/#; s/: POSTPROCESS$//' \
     | sort -u > "$EXCLUDE_FILE"
 # This is a known scope limit (docs/tools.md): objdiff currently reports on
 # the un-postprocessed objects only, which is still the large majority of

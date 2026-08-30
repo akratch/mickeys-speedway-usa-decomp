@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Mechanically migrate Makefile raw-word patches to semantic ELF operations.
+"""Mechanically migrate build-policy raw-word patches to semantic ELF operations.
 
 This is a one-way maintenance helper. It reads each existing
 ``patch_elf_words.py`` rule, derives typed instruction-field changes, and
 anchors the configured executable prefix with SHA-256. It never copies a full
-instruction value into the replacement Makefile.
+instruction value into the replacement build-policy file.
 """
 
 import argparse
@@ -15,7 +15,7 @@ import struct
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-MAKEFILE = ROOT / "Makefile"
+DEFAULT_POLICY = ROOT / "mk" / "overlays.mk"
 PATCH = re.compile(
     r"^\s*(0x[0-9A-Fa-f]+)\s+"
     r"(0x[0-9A-Fa-f]{8})\s+"
@@ -179,16 +179,23 @@ def migrate(text):
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--makefile",
+    type=pathlib.Path,
+    default=DEFAULT_POLICY if DEFAULT_POLICY.is_file() else ROOT / "Makefile",
+    help="make policy file to inspect (default: mk/overlays.mk when present)",
+)
 parser.add_argument("--write", action="store_true")
 args = parser.parse_args()
 
-original = MAKEFILE.read_text()
+makefile = args.makefile if args.makefile.is_absolute() else ROOT / args.makefile
+original = makefile.read_text()
 rewritten, count, operation_count = migrate(original)
 if count == 0:
     print("no patch_elf_words.py rules found")
     raise SystemExit(0)
 if args.write:
-    MAKEFILE.write_text(rewritten)
+    makefile.write_text(rewritten)
     print(f"migrated {count} rules to {operation_count} semantic field operations")
 else:
     print(f"would migrate {count} rules to {operation_count} semantic field operations")
