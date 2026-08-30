@@ -44,6 +44,24 @@ scratch object whose path has lost `build*/src/...` context must pass its
 canonical atlas key with `--source`; `--overlay` is only an assertion and
 never selects between ambiguous owners.
 
+### Shared identity normalization
+
+`tools/reloc_identity.py` is the common identity layer used by both
+`reloc_surface.py` and `function_preflight.py`. It parses GNU objdump relocation
+rows into `(section, offset, type, symbol, addend)` tuples, parses successive
+`objcopy --redefine-sym` operations, collapses transitive rename chains, and
+applies relocation addends to stable `(overlay, byte offset)` identities.
+Linker-script identifier aliases and postprocessed object names therefore use
+one canonicalization path in both reports.
+
+The layer fails closed: a rename cycle, conflicting original sources for one
+destination, conflicting linker identities, malformed relocation rows, or
+conflicting numeric assignments never receives a guessed identity. Exact
+duplicate rename pairs are idempotent. The public comparison fields and human
+report remain unchanged; `stable_identity_*` continues to describe identities
+proved statically, while `effective_identity_*` may additionally include an
+exact linked-ROM/runtime-table proof after canonical promotion.
+
 Sections 1-4 describe the model and feasibility evidence; section 5 records
 the requirements and measurements from the complete implementation.
 

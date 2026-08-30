@@ -100,6 +100,42 @@ class SymbolResolutionTests(unittest.TestCase):
             },
         )
 
+    def test_candidate_redefine_aliases_collapse_transitive_chain(self) -> None:
+        command = (
+            "tools/binutils/mips64-elf-objcopy --redefine-sym original=proxy "
+            "build/src/example.c.o && "
+            "tools/binutils/mips64-elf-objcopy --redefine-sym proxy=final "
+            "build/src/example.c.o"
+        )
+        with mock.patch.object(
+            fp.pa, "run_make_database", return_value="database"
+        ), mock.patch.object(
+            fp.pa, "postprocess_commands",
+            return_value={"build/src/example.c.o": command},
+        ):
+            aliases = fp._candidate_redefine_aliases(
+                fp.REPO / "build/src/example.c.o"
+            )
+        self.assertEqual(
+            {"proxy": "original", "final": "original"}, aliases
+        )
+
+    def test_candidate_redefine_alias_cycle_fails_closed(self) -> None:
+        command = (
+            "$(OBJCOPY) --redefine-sym first=second build/src/example.c.o && "
+            "$(OBJCOPY) --redefine-sym second=first build/src/example.c.o"
+        )
+        with mock.patch.object(
+            fp.pa, "run_make_database", return_value="database"
+        ), mock.patch.object(
+            fp.pa, "postprocess_commands",
+            return_value={"build/src/example.c.o": command},
+        ):
+            with self.assertRaisesRegex(fp.PreflightError, "contain a cycle"):
+                fp._candidate_redefine_aliases(
+                    fp.REPO / "build/src/example.c.o"
+                )
+
     def test_promoted_overlay_resolves_from_exact_atlas_owner_without_asm(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

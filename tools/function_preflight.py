@@ -40,6 +40,7 @@ import overlay_tables as ot  # noqa: E402
 import function_history as fh  # noqa: E402
 import proof_provenance as pp  # noqa: E402
 import postprocess_audit as pa  # noqa: E402
+import reloc_identity as ri  # noqa: E402
 import reloc_surface as rs  # noqa: E402
 
 
@@ -73,24 +74,22 @@ def _relative(path: Path) -> str:
 
 def _aliases(path: Path = ALIASES) -> tuple[dict[str, str], dict[str, list[str]]]:
     forward: dict[str, str] = {}
-    reverse: dict[str, list[str]] = {}
+    reverse_sets: dict[str, set[str]] = {}
     if not path.is_file():
         raise PreflightError(f"missing generated alias surface: {_relative(path)}")
-    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
-        match = re.match(
-            r"^\s*(func_overlay_\d{3}_F[0-9A-Fa-f]{7}_[0-9A-Fa-f]+)\s*=\s*"
-            r"([A-Za-z_]\w*)\s*;",
-            line,
-        )
-        if not match:
+    text = path.read_text(encoding="utf-8", errors="replace")
+    for generated, friendly in ri.parse_linker_aliases(text):
+        if not re.fullmatch(
+            r"func_overlay_\d{3}_F[0-9A-Fa-f]{7}_[0-9A-Fa-f]+", generated
+        ):
             continue
-        generated, friendly = match.groups()
         old = forward.setdefault(generated, friendly)
         if old != friendly:
             raise PreflightError(
                 f"generated symbol {generated} has conflicting aliases {old} and {friendly}"
             )
-        reverse.setdefault(friendly, []).append(generated)
+        reverse_sets.setdefault(friendly, set()).add(generated)
+    reverse = {name: sorted(generated) for name, generated in reverse_sets.items()}
     return forward, reverse
 
 
@@ -594,10 +593,10 @@ def _source_signature(source: Path, symbol: str) -> str:
 
 
 def _identity_text(identity: tuple[int, int] | None) -> str:
-    if identity is None or len(identity) != 2:
-        raise PreflightError(f"runtime relocation identity is ambiguous: {identity!r}")
-    overlay, offset = identity
-    return f"resident:+0x{offset:X}" if overlay == 0 else f"overlay:{overlay}:+0x{offset:X}"
+    try:
+        return ri.format_identity(identity)
+    except ri.RelocationIdentityError as error:
+        raise PreflightError(str(error)) from error
 
 
 def _relocation_rows(records: list[rs.SurfaceRecord]) -> list[dict[str, object]]:
@@ -945,33 +944,15 @@ def _augment_runtime_identity_evidence(
     resolution instead of either under-counting the proof or pretending the
     object names were more informative than they are.
     """
-    result = dict(comparison)
-    target_count = int(result["target_record_count"])
-    static_count = int(result["stable_identity_alignment_count"])
+    target_count = int(comparison["target_record_count"])
     linked_exact = (
         resolution.resolution_mode == "post_promotion"
-        and result.get("offset_type_exact") is True
-        and int(result["candidate_record_count"]) == target_count
+        and comparison.get("offset_type_exact") is True
+        and int(comparison["candidate_record_count"]) == target_count
         and workbench.get("differing_words") == 0
         and workbench.get("target_words") == workbench.get("candidate_words")
     )
-    linked_count = target_count - static_count if linked_exact else 0
-    effective_count = static_count + linked_count
-    result.update(
-        {
-            "linked_runtime_identity_alignment_count": linked_count,
-            "effective_identity_alignment_count": effective_count,
-            "effective_identity_exact": effective_count == target_count,
-            "identity_proof_mode": (
-                "static"
-                if result.get("stable_identity_exact") is True
-                else "static-plus-runtime-table-and-linked-rom"
-                if linked_exact
-                else "partial-static"
-            ),
-        }
-    )
-    return result
+    return ri.augment_effective_identity(comparison, linked_exact=linked_exact)
 
 
 def _candidate_redefine_aliases(candidate_object: Path) -> dict[str, str]:
@@ -980,16 +961,22 @@ def _candidate_redefine_aliases(candidate_object: Path) -> dict[str, str]:
     command = pa.postprocess_commands(pa.run_make_database()).get(target)
     if command is None:
         return {}
-    proposed: dict[str, set[str]] = {}
-    for source, destination in pa.objcopy_redefine_pairs(command):
-        proposed.setdefault(destination, set()).add(source)
-    # A destination reused by separate metadata passes does not identify one
-    # compile-time source. Leave it unresolved rather than guessing; unique
-    # destinations retain exact provenance.
-    return {
-        destination: next(iter(sources))
-        for destination, sources in proposed.items() if len(sources) == 1
-    }
+    try:
+        pairs = ri.parse_objcopy_redefine_pairs(command)
+        closure = ri.canonicalize_redefine_aliases(pairs)
+    except ri.RelocationIdentityError as error:
+        raise PreflightError(
+            f"cannot parse candidate objcopy aliases for {target}: {error}"
+        ) from error
+    if closure.cycles:
+        rendered = ", ".join(" -> ".join(cycle) for cycle in closure.cycles)
+        raise PreflightError(
+            f"candidate objcopy aliases for {target} contain a cycle: {rendered}"
+        )
+    # Conflicting-source destinations are deliberately absent. Cycles are
+    # rejected above; conflicts reach the ordinary unresolved-identity gate
+    # below instead of being assigned guessed provenance.
+    return closure.resolved
 
 
 def _signed_hex(value: int) -> str:
