@@ -464,7 +464,7 @@ void func_8000DFBC(u8 segment, s32 arg1, s32 arg2, s32 arg3);
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records, TrackKeyRecord **matches);
 void func_8000F57C(s32 *resultCount, u8 *resultSegments);
 void func_8000FA2C(s32 *result, s32 arg1);
-void shadowGetBuffers(u8 mode, s32 *a, s32 *b, s32 *c);
+void shadowGetBuffers(s32 mode, s32 *a, s32 *b, s32 *c);
 void func_800343F0(s32 mode, s32 segmentIndex);
 void texEnableModes(s32 mode);
 s32 getXZCompareMask(TrackBoundingBox *bounds, s32 x0, s32 z0, s32 x1,
@@ -5165,32 +5165,33 @@ typedef struct TrackShadowMaterial {
     u8 blue;
 } TrackShadowMaterial;
 
-/* Workbench verdict: structure-mismatch, 195 differing words, first mismatch +0x0. */
-/* Candidate: 217/217 instructions with a -0x90 frame versus target -0xA8; command-field and frame structure remain unresolved. */
+/* Workbench verdict: structure-mismatch, 187 differing words, first mismatch +0x0. */
+/* Candidate: 217/217 instructions with a -0x90 frame versus target -0xA8; 3/4 relocation placements align. */
 /* Shape status: alpha branches, 8-byte shadow stepping, geometry commands, and FA/FB cleanup writes are preserved, but it is not shape-exact. */
 void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
-    s32 vertexBuffer;
-    s32 indexBuffer;
-    s32 commandBuffer;
     s32 loopIndex;
+    s32 closeTexture;
+    s32 closeCombiner;
+    s32 commandBuffer;
+    s32 indexBuffer;
+    s32 vertexBuffer;
     s32 shadowCount;
     s32 alphaValue;
     s32 commandMode;
-    s32 closeTexture;
-    s32 closeCombiner;
     s32 textureSpan;
     s32 indexSpan;
     s32 vertexAddress;
     s32 indexAddress;
     s16 shadowIndex;
-    s16 endIndex;
     TrackShadowInstance *current;
     u8 *shadow;
+    u8 active;
     TrackShadowMaterial *material;
     Gfx *command;
 
-    if (object->alpha != 0) {
-        shadowGetBuffers(instance->active, &vertexBuffer, &indexBuffer,
+    active = instance->active;
+    if (active != 0) {
+        shadowGetBuffers(active, &vertexBuffer, &indexBuffer,
                          &commandBuffer);
         loopIndex = 0;
         current = instance;
@@ -5207,13 +5208,14 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
                         commandMode = 0x0E;
                         if (object->kind == 0x3C) {
                             command = D_800C9520;
+                            material = object->material;
                             D_800C9520 = command + 1;
                             command->words.w1 = (shadowCount & 0xFF) | ~0xFF;
                             command->words.w0 = 0xFA000000;
                             command = D_800C9520;
+                            commandMode = 0x20E;
                             D_800C9520 = command + 1;
                             command->words.w0 = 0xFB000000;
-                            material = object->material;
                             command->words.w1 = (material->red << 24) |
                                                 (material->green << 16) |
                                                 (material->blue << 8);
@@ -5237,8 +5239,7 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
                             }
                         }
                         shadowIndex = current->shadowIndex;
-                        endIndex = current->endIndex;
-                        while (shadowIndex < endIndex) {
+                        while (shadowIndex < current->endIndex) {
                             func_800349A4(&D_800C9520, *(void **) shadow,
                                           commandMode,
                                           instance->textureScale << 8);
@@ -5734,3 +5735,13 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
     intensity = (frame >> 8) & 0xFF;
     gDPSetEnvColor(D_800C9520++, intensity, intensity, intensity, intensity);
 }
+
+/* PLATEAU-HANDOFF:func_800140CC:start
+ * symbol: func_800140CC
+ * score: 187 differing words
+ * frame: 0x90
+ * relocations: 4
+ * first-mismatch: +0x0
+ * summary: Frame and local layout remain the primary blocker; retry explicit value lifetimes before allocator work
+ * PLATEAU-HANDOFF:func_800140CC:end
+ */
