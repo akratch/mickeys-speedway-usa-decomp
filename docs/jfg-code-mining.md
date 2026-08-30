@@ -140,6 +140,23 @@ and relocations.
 | [`src/overlays/o10/overlay_10.c`: `sparkUpdate`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/overlays/o10/overlay_10.c#L11) | [`overlay34UpdateRecords`](../src/overlays/o034/overlay34UpdateRecords.c#L30) | Use this directly at JFG overlay 10's unresolved `sparkUpdate` pragma as the update/remove scaffold: advance timers, preserve prior XYZ, integrate velocity and gravity for each update tick, and remove expired records without skipping the compacted entry. **Limits:** JFG has extra fade/lifetime behavior and a different record layout; translate those fields and verify JFG's own relocations and ROM. |
 | [`src/overlays/o26/overlay_26.c`: `partSetupLib`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/overlays/o26/overlay_26.c#L9) and the [kiosk counterpart](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/overlays_kiosk/o26/overlay_26.c#L9) | [`overlay31InitializeBuffers`](../src/overlays/o031/overlay31InitializeBuffers.c#L44) | Use this in JFG's particle-library setup path: capacity defaults, vertex-buffer sizing, four renderer configurations, point/line pools, typed dummy-asset loading, and effect-record initialization. **Evidence: strong structural lead.** Mickey's 245-word C is compiler- and ROM-exact; JFG's 259-word `partSetupLib` has the same `0x48` frame and is the uniquely close JFG function by masked four-instruction shape (0.415 similarity; the next candidate is 0.061). **Limits:** this is not cross-title exact. JFG has a 56-byte-longer body, different tail initialization, and project-specific globals, callees, and record layouts. Port it phase by phase into overlay 26 and verify JFG's own relocations and ROM. |
 
+### Qualified guarded scaffold
+
+[`func_80051364`](../src/main/anim.c#L835) is useful specifically at JFG's
+unresolved [`animseqUpdate` pragma](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/anim.c#L118).
+Use its animation-stream command handling, television-rate scaling, camera-slot
+clear, interpolation update, path traversal, and positional-sound update as a
+phase-by-phase semantic scaffold.
+
+**Evidence:** this is the closest same-subsystem JFG function by masked
+four-instruction shape (0.2931 Jaccard similarity). **Limits:** neither body is
+release-grade C yet. JFG remains assembly-only and is `0x4A8` bytes, while
+Mickey's guarded `NON_MATCHING` candidate targets `0x47C` bytes and still has
+192/287 differing words, a larger frame, and four extra relocations. Do not
+copy it as a drop-in implementation. Translate JFG's command, path, camera,
+sound, and global layouts first, then prove each phase against JFG's own bytes
+and relocations.
+
 ### Latest-pass exclusions
 
 The 29–30 August audit did not find another release-grade JFG source lead:
@@ -175,6 +192,11 @@ The 29–30 August audit did not find another release-grade JFG source lead:
   similarity CLI cannot yet query. These are useful Mickey implementations,
   but the available evidence is not strong enough to recommend them to JFG
   maintainers.
+- The latest bounded pass on `overlay58FinalizePackedStatus`,
+  `overlay101BuildPresentationA`, and `func_800140CC` found no additional
+  release-grade JFG source. Their nearest counterparts are absent or weak,
+  assembly-only structural context rather than actionable insertion-point
+  code.
 
 JFG has since implemented `runlinkFlushModules`, so it is no longer included
 among the open source-reference targets above.
