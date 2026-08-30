@@ -355,6 +355,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_finalize_plateau.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_run_logged.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_experiment_ledger.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_skeleton_scan.py
 
