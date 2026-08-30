@@ -31,6 +31,7 @@ overlay1PointComponent0Reloc = 0xf0000000;
 overlay1PointComponent1Reloc = 0xf0000000;
 
 /* overlay 1: overlay_001_head.c.o */
+D_0 = 0x00000000;
 D_1BA0 = 0x00001ba0;
 D_1D58 = 0x00001d58;
 D_1D70 = 0x00001d70;
@@ -42,6 +43,10 @@ D_20C = 0x0000020c;
 D_210 = 0x00000210;
 D_5 = 0x00000005;
 D_8 = 0x00000008;
+D_B4 = 0x000000b4;
+D_B8 = 0x000000b8;
+func_8002A8BC_o001Reloc = 0xf0000000;
+func_8002A8C0_o001Reloc = 0xf0000000;
 gOverlay1ReleaseFinal = 0x00001d58;
 gOverlay1ReleaseRecordCount = 0x00001d80;
 gOverlay1ReleaseRecords = 0x00001ba0;
@@ -49,9 +54,9 @@ gOverlay1ReleaseSecondary = 0x00001d70;
 overlay1ModeResolverReloc = 0xf0000000;
 overlay1ReleaseReloc = 0xf0000000;
 overlay1ResetReloc = 0xf0000000;
+sqrtf_o001Reloc = 0xf0000000;
 
 /* overlay 1: overlay_001_middle.c.o */
-D_0 = 0x00000000;
 gOverlay1ModeObject = 0x00001da0;
 gOverlay1ModeSource = 0x00001d9c;
 gOverlay1SubmitArg4 = 0x00001d94;
@@ -436,7 +441,6 @@ gOverlay14CommandHeader = 0x000000fc;
 
 /* overlay 14: func_overlay_014_F00009F4_18702CC.c.o */
 D_A4 = 0x000000a4;
-D_B4 = 0x000000b4;
 gOverlay14State = 0x00000000;
 
 /* overlay 14: overlay14ResetFlags.c.o */
@@ -886,7 +890,6 @@ overlay37UpdateObjectReloc = 0xf0000000;
 
 /* overlay 37: overlay37Render.c.o */
 D_80000078 = 0x80000078;
-D_B8 = 0x000000b8;
 
 /* overlay 37: overlay37RecordMinimum.c.o */
 gOverlay37Records = 0x000000b8;
@@ -2518,12 +2521,12 @@ func_overlay_001_F00007B0_184CB90 = overlay1BuildPointRecord;
 
 /* overlay 1: overlay_001_head.c.o */
 func_overlay_001_F0000BD4_184CFB4 = overlay1InitMotionScale;
+func_overlay_001_F0000DF4_184D1D4 = overlay1ResolveMotionPoint;
 func_overlay_001_F00010C0_184D4A0 = overlay1Noop;
 func_overlay_001_F00019B8_184DD98 = overlay1InitializeModeState;
 func_overlay_001_F0001CA4_184E084 = overlay1ReleaseRecords;
 func_overlay_001_F0001D58_184E138 = overlay1CallReset;
 func_overlay_001_F0000CA8_184D088 = overlay1InterpolatePath;
-func_overlay_001_F0000DF4_184D1D4 = overlay1ResolveMotionPoint;
 func_overlay_001_F0000F84_184D364 = overlay1MeasureCurves;
 func_overlay_001_F00010C8_184D4A8 = overlay1LoadBuildRecords;
 func_overlay_001_F0001A54_184DE34 = overlay1BuildObjectMappings;

@@ -91,22 +91,20 @@ typedef struct O1PathOwner { s16 angle; u8 pad02[0xA]; f32 x; f32 y; f32 z; } O1
 extern s32 D_0;
 extern f32 D_B4;
 extern f32 D_B8;
-extern s32 overlay1HasPathData(void);
+extern s32 overlay1ActivateObject(void *owner);
 extern void overlay1InterpolatePath(f32 *x, f32 *z, s32 path, f32 offset);
-extern f32 overlay1SinAngle(s16 angle);
-extern f32 overlay1CosAngle(s16 angle);
-extern f32 overlay1SquareRoot(f32 value);
-/* Workbench: structure-mismatch, 37 raw differing words, first mismatch +0x1C.
- * Exact 100-row frame/CFG and call structure; one z-scale scheduling hunk remains.
- * Structural gap: target schedules z scaling after the x store; other residuals are FP allocation/relocations. */
-#ifdef NON_MATCHING
+extern f32 func_8002A8BC(s32 angle);
+extern f32 func_8002A8C0(s32 angle);
+extern f32 sqrtf(f32 value);
+/* Assigning the measured distance through scale preserves the original FP
+ * carrier web; the configured build emits all 100 instruction words exactly. */
 void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
                                 f32 *outY, f32 *outZ) {
     f32 dx;
     f32 dz;
     f32 distance;
     f32 scale;
-    if (overlay1HasPathData() == 0) {
+    if (overlay1ActivateObject(owner) == 0) {
         *outX = 0.0f;
         *outY = 0.0f;
         *outZ = 0.0f;
@@ -116,9 +114,10 @@ void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
         overlay1InterpolatePath(outX, outZ, path, 1.0f);
         dx = *outX - owner->x;
         dz = *outZ - owner->z;
-        distance = overlay1SquareRoot((dx * dx) + (dz * dz));
-        if (distance > 0.0f) {
-            scale = 1.0f / distance;
+        distance = sqrtf((dx * dx) + (dz * dz));
+        scale = distance;
+        if (scale > 0.0f) {
+            scale = 1.0f / scale;
             dx *= scale;
             dz *= scale;
         }
@@ -126,15 +125,11 @@ void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
         *outY = owner->y + D_B4;
         *outZ = owner->z + (dz * 150.0f);
     } else {
-        *outX = owner->x + (overlay1SinAngle(owner->angle) * 150.0f);
+        *outX = owner->x + (func_8002A8C0(owner->angle) * 150.0f);
         *outY = owner->y + D_B8;
-        *outZ = owner->z + (overlay1CosAngle(owner->angle) * 150.0f);
+        *outZ = owner->z + (func_8002A8BC(owner->angle) * 150.0f);
     }
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_head/func_overlay_001_F0000DF4_184D1D4.s")
-#endif
 
 /* ---- overlay1MeasureCurves ---- */
 

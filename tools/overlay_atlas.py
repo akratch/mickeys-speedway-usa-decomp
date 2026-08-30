@@ -1109,6 +1109,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x02D4, 0x0330, "overlay1GetLinkedActive"),
         (0x0330, 0x0378, "overlay1GetRecord"),
         (0x0758, 0x07B0, "overlay1TestDirection"),
+        (
+            0x0DF4,
+            0x0F84,
+            "overlay1ResolveMotionPoint",
+            "canonical mixed-TU object, 11 runtime relocations, and linked bytes exact",
+        ),
         (0x10C0, 0x10C8, "overlay1Noop"),
         (0x19B8, 0x1A54, "overlay1InitializeModeState"),
         (0x1CA4, 0x1D58, "overlay1ReleaseRecords"),

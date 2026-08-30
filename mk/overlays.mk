@@ -148,7 +148,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_head.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_001_F0000F84_184D364=overlay1MeasureCurves \
 		--redefine-sym func_overlay_001_F00010C8_184D4A8=overlay1LoadBuildRecords \
 		--redefine-sym func_overlay_001_F0000614_184C9F4=overlay1ModeResolverReloc \
-		--redefine-sym func_overlay_001_F0001A54_184DE34=overlay1BuildObjectMappings $@ && \
+		--redefine-sym func_overlay_001_F0001A54_184DE34=overlay1BuildObjectMappings \
+		--redefine-sym sqrtf=sqrtf_o001Reloc \
+		--redefine-sym func_8002A8BC=func_8002A8BC_o001Reloc \
+		--redefine-sym func_8002A8C0=func_8002A8C0_o001Reloc $@ && \
 	$(OBJCOPY) --redefine-sym overlay1SquareRoot=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(OBJCOPY) --redefine-sym overlay1AngleFromIndex=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11A4
