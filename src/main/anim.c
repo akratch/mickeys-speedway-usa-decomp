@@ -2106,3 +2106,13 @@ void fmvInit(void) {
  * summary: Target is frame 0x40 with 47 relocations. Next isolate one source-authentic playback-state carrier lifetime without expanding the frame.
  * PLATEAU-HANDOFF:func_80051364:end
  */
+
+/* PLATEAU-HANDOFF:func_80050E9C:start
+ * symbol: func_80050E9C
+ * score: 84/90 words
+ * frame: 0x20
+ * relocations: 41
+ * first-mismatch: +0x64
+ * summary: Fidelity-clean UGEN trace locates one extra temp pop at the path-loop increment and comparison, while direct-control forms regress to 92 words and frame 0x28.
+ * PLATEAU-HANDOFF:func_80050E9C:end
+ */
