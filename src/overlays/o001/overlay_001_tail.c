@@ -1858,21 +1858,19 @@ typedef struct O1SelectWorld {
     O1SelectObject *selected;
 } O1SelectWorld;
 
-extern O1SelectObject **overlay1GetSelectObjects(s32 *count);
-extern s32 overlay1SelectRandom(s32 minimum, s32 maximum);
-extern s16 overlay1SelectValue(s32 minimum, s32 maximum);
+extern O1SelectObject **func_80005750(s32 *count);
+extern s32 mathRnd(s32 minimum, s32 maximum);
 
-#ifdef NON_MATCHING
 s32 overlay1ChooseModeObject(void) {
-    O1SelectObject **objects;
-    O1SelectObject *object;
     s32 count;
     s32 remaining;
+    O1SelectObject *object;
     s32 choiceCount;
-    O1SelectObject *choices[5];
     O1Selection *selection;
+    O1SelectObject *choices[5];
+    O1SelectObject **objects;
 
-    objects = overlay1GetSelectObjects(&count);
+    objects = func_80005750(&count);
     choiceCount = 0;
     remaining = count--;
     while (remaining != 0) {
@@ -1890,21 +1888,17 @@ s32 overlay1ChooseModeObject(void) {
         remaining = count--;
     }
     if (choiceCount != 0) {
-        count = overlay1SelectRandom(1, choiceCount) - 1;
+        count = mathRnd(1, choiceCount) - 1;
         object = choices[count];
         selection = &((O1SelectWorld *)D_1DA0)->selection;
         selection->object = object;
-        selection->value = overlay1SelectValue(0x5A, 0x84);
+        selection->value = mathRnd(0x5A, 0x84);
         ((O1SelectWorld *)D_1DA0)->mode = 5;
         ((O1SelectWorld *)D_1DA0)->selected = object;
         return 1;
     }
     return 0;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0006270_1852650.s")
-#endif
 
 /* ---- overlay1UpdateCountdown ---- */
 

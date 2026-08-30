@@ -1128,6 +1128,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x5BA4, 0x5BC0, "overlay1InitTimedState"),
         (0x5BC0, 0x5BF4, "overlay1ConsumeTimer"),
         (0x5ECC, 0x5ED4, "overlay1ReturnZero"),
+        (
+            0x6270,
+            0x63CC,
+            "overlay1ChooseModeObject",
+            "canonical mixed-TU object, 13 runtime relocations, and linked bytes exact",
+        ),
         (0x63CC, 0x6424, "overlay1UpdateCountdown"),
         (0x6424, 0x64F8, "overlay1ReadSelection"),
         (0x6724, 0x6788, "overlay1UpdateModeSound"),
