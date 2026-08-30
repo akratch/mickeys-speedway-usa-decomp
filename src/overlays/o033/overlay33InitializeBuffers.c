@@ -16,10 +16,12 @@ extern s32 overlay33InitializeBufferReloc(s32 *context, s32 *status, s32 mode);
 extern void overlay33AllocationFailedReloc(void);
 
 /*
- * Plateau (10 source-shape attempts): the best candidate has the exact
- * 81-instruction size and 56-byte frame, with 14 positional words differing
- * and the first mismatch at +0x74.  The remaining blocker is the allocation
- * alignment delay-slot schedule and its v0/v1 temporary register web.
+ * Plateau (2026-08-30): using the preserved pre-alignment value for both the
+ * test and mask improves the exact-sized 81-word, 0x38-frame body from 14 to
+ * 6 relocation-masked differences. The first codegen mismatch is +0x74; the
+ * remaining blocker is a store/branch/copy scheduling cluster and one
+ * commutative addition order. All 25 fallback relocation sites align by
+ * offset/type, but their LOCAL/data identities remain unauthenticated.
  */
 #ifdef NON_MATCHING
 void overlay33InitializeBuffers(void) {
@@ -42,8 +44,8 @@ void overlay33InitializeBuffers(void) {
         gOverlay33Allocation = allocation;
         if (allocation != 0) {
             original = allocation;
-            if (allocation & 0x3F) {
-                allocation = (allocation & ~0x3F) + 0x40;
+            if (original & 0x3F) {
+                allocation = (original & ~0x3F) + 0x40;
             } else {
                 allocation = original;
             }
@@ -66,3 +68,13 @@ void overlay33InitializeBuffers(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o033/overlay33InitializeBuffers/func_overlay_033_F0000000_18807E8.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay33InitializeBuffers:start
+ * symbol: overlay33InitializeBuffers
+ * score: 75/81 words
+ * frame: 0x38
+ * relocations: 25
+ * first-mismatch: +0x74
+ * summary: Exact allocator lanes; six positional differences remain: store/branch/copy at +0x74 and one add order. Fallback has 25 sites, zero identities.
+ * PLATEAU-HANDOFF:overlay33InitializeBuffers:end
+ */
