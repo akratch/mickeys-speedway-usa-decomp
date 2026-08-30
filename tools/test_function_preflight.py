@@ -226,6 +226,58 @@ class SymbolResolutionTests(unittest.TestCase):
         self.assertEqual(0x17C, resolution.expected_size)
         self.assertIn("mixed_tu_exact_c_ranges", resolution.identity_evidence)
 
+    def test_promoted_exact_tu_uses_next_export_as_function_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            alias = root / "aliases.txt"
+            alias.write_text(
+                "func_overlay_049_F0000000_1896410 = friendly;\n",
+                encoding="utf-8",
+            )
+            source = root / "src/overlays/o049/overlay_049.c"
+            source.parent.mkdir(parents=True)
+            source.write_text("void friendly(void) {}\n", encoding="utf-8")
+            atlas = root / "atlas.json"
+            atlas.write_text(
+                json.dumps(
+                    {
+                        "modules": [
+                            {
+                                "overlay": 49,
+                                "text_ownership": [
+                                    {
+                                        "offset": "0x0",
+                                        "end_offset": "0x374",
+                                        "size": "0x374",
+                                        "type": "c",
+                                        "source": "overlays/o049/overlay_049",
+                                        "matched": True,
+                                        "nonmatching": False,
+                                    }
+                                ],
+                                "exports": [
+                                    {"rom_table_index": 1415, "offset": "0x0"},
+                                    {"rom_table_index": 1433, "offset": "0x1F4"},
+                                    {"rom_table_index": 1397, "offset": "0x354"},
+                                ],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            resolution = fp.resolve(
+                "friendly",
+                root=root,
+                alias_path=alias,
+                atlas_path=atlas,
+                symbol_path=root / "unused-symbols.txt",
+            )
+
+        self.assertEqual(0x1F4, resolution.expected_size)
+        self.assertIn("export boundary", resolution.identity_evidence)
+
     def test_promoted_resident_requires_matched_c_symbol_geometry(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

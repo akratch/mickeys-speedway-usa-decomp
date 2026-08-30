@@ -225,6 +225,19 @@ def _overlay_promotion_evidence(
         )
     start, end, _owner = next(iter(geometries))
     kinds = "+".join(sorted({kind for *_rest, kind in evidence}))
+    if kinds == "exact text_ownership":
+        export_offsets = sorted(
+            {
+                _hex_field(row, "offset", "overlay export row")
+                for row in module.get("exports", [])
+                if isinstance(row, dict) and "offset" in row
+            }
+        )
+        if offset in export_offsets:
+            following = [value for value in export_offsets if offset < value <= end]
+            if following:
+                end = following[0]
+                kinds += "+export boundary"
     return rs.SYNTHETIC_VMA + start, end - start, f"overlay atlas {kinds}"
 
 
