@@ -58,6 +58,13 @@ the `#pragma GLOBAL_ASM` fallback. Do not count it as matched. After a bounded
 set of attempts, record the best result and the remaining mismatch instead of
 making speculative source changes.
 
+`NON_MATCHING=1` compiles guarded candidates into the separate
+`build_non_matching/` tree. As a second defense against a manual full-TU probe
+that writes directly into `build/`, every successful verification receipts the
+canonical hashes of candidate-bearing objects. The next `gmake verify`
+forcibly rebuilds only objects that changed since that receipt; a missing or
+malformed receipt safely rebuilds the complete candidate-bearing set once.
+
 Before sweeping flags, run `tools/function_preflight.py <symbol>`. It accepts
 either a friendly or generated overlay name and fails closed unless it can
 prove one source, one owned range, one padding boundary, and stable relocation

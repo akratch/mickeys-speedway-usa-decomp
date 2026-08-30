@@ -187,6 +187,16 @@ S_FILES   := $(foreach dir,$(ASM_DIRS),$(wildcard $(dir)/*.s))
 BIN_FILES := $(foreach dir,$(BIN_DIRS),$(wildcard $(dir)/*.bin))
 C_FILES   := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
 
+# Matching tools deliberately compile the guarded C bodies in files that
+# contain NON_MATCHING candidates.  They normally use build_non_matching/ or
+# build/wb/, but a manual full-TU probe can still leave one of those objects in
+# build/.  Timestamps cannot tell that its preprocessor mode was wrong.  The
+# successful-verify receipt lets the guard force only objects whose content
+# changed since the last byte-identical ROM proof.
+NONMATCHING_C_FILES := $(shell grep -l '#ifdef NON_MATCHING' $(C_FILES) 2>/dev/null)
+CANONICAL_CANDIDATE_O_FILES := $(addprefix build/,$(addsuffix .o,$(NONMATCHING_C_FILES)))
+CANONICAL_CANDIDATE_RECEIPT := build/.canonical-candidate-objects.json
+
 # Every header, as a blunt prerequisite for every object: there are only a
 # handful of them and IDO's dependency output is awkward to wire in, so
 # "recompile all C when any header changes" is the cheap correct answer.
@@ -278,11 +288,23 @@ ifneq ($(NON_MATCHING),0)
 	$(error verify does not run under NON_MATCHING=1 -- it never produces a byte-identical ROM; unset NON_MATCHING and rebuild)
 endif
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
+	@stale="$$($(HOST_PYTHON) $(TOOLS_DIR)/canonical_candidate_guard.py \
+		--manifest $(CANONICAL_CANDIDATE_RECEIPT) dirty \
+		$(CANONICAL_CANDIDATE_O_FILES))"; \
+	if [ -n "$$stale" ]; then \
+		count=$$(printf '%s\n' $$stale | wc -w | tr -d ' '); \
+		echo "canonical candidate guard: rebuilding $$count changed/unproven object(s)"; \
+		$(MAKE) --no-print-directory --always-make \
+			--assume-old=$(PYTHON) --assume-old=$(SPLAT_STAMP) $$stale; \
+	fi
 	@$(MAKE) --no-print-directory $(TARGET).z64
 	@got=$$($(SHA1) $(TARGET).z64 | cut -d' ' -f1); \
 	echo "expected $(EXPECTED_SHA1)"; \
 	echo "built    $$got"; \
 	if [ "$$got" = "$(EXPECTED_SHA1)" ]; then \
+		$(HOST_PYTHON) $(TOOLS_DIR)/canonical_candidate_guard.py \
+			--manifest $(CANONICAL_CANDIDATE_RECEIPT) write \
+			$(CANONICAL_CANDIDATE_O_FILES); \
 		echo "OK  $(TARGET).z64 matches the expected US ROM hash"; \
 	else \
 		echo "FAIL $(TARGET).z64 does not match the expected US ROM hash"; \
@@ -315,6 +337,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_preflight.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_canonical_candidate_guard.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_promotion_proof.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_allocator_trace_receipt.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_wb_compare.py
