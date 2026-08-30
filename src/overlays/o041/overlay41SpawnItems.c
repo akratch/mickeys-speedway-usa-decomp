@@ -27,7 +27,7 @@ typedef struct Overlay41FloatVector {
 } Overlay41FloatVector;
 
 /* Fresh pinned DKR v77/v80 and JFG scans found no exact donor. */
-extern Overlay41Root **D_800D6B00;
+extern Overlay41Root **gOverlay41RootsReloc;
 extern s32 mathRnd(s32 lower, s32 upper);
 extern void mathOneFloatPY(Overlay41ShortPair *input,
                            Overlay41FloatVector *output);
@@ -35,11 +35,9 @@ extern void func_overlay_012_F00001B4_186D434(
     f32 x, f32 y, s32 kind, f32 outX, f32 outY, f32 z, s32 opacity, s32 mode,
     f32 scale);
 
-/* Public commit 4e01327b5 unwrapped this same body, but its postprocess moved
- * the two retained-rodata LO16 addends at +0x80/+0x12C. Canonical IDO emits
- * all 135 instructions and all 11 runtime relocation sites/types; preserve
- * the natural C as a candidate and keep assembly canonical. */
-#ifdef NON_MATCHING
+/* The compiler-generated switch table and scalar constant are linked against
+ * the overlay's retained data through an ABS symbol. Their duplicate payload
+ * is discarded after a digest check; no instruction word is changed. */
 void overlay41SpawnItems(s32 rootIndex, s32 count, s32 mode, s32 centerX,
                          s32 centerY, s32 radiusX, s32 radiusY, s32 centerZ,
                          s32 radiusZ) {
@@ -50,7 +48,7 @@ void overlay41SpawnItems(s32 rootIndex, s32 count, s32 mode, s32 centerX,
     Overlay41Item *item;
     f32 scale;
 
-    root = D_800D6B00[rootIndex];
+    root = gOverlay41RootsReloc[rootIndex];
     scale = 1.0f;
     if (root == 0) {
         return;
@@ -100,6 +98,3 @@ void overlay41SpawnItems(s32 rootIndex, s32 count, s32 mode, s32 centerX,
             mode, scale);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41SpawnItems/func_overlay_041_F0001740_1888A78.s")
-#endif

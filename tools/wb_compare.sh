@@ -93,7 +93,10 @@ proof_manifest="$OUT/$sym.provenance.json"
 
 run_provenance() {
     local result=0
-    "$PROVENANCE" "$PROVENANCE_TOOL" "$@" --manifest "$proof_manifest" || result=$?
+    # The comparator owns stdout. Keep provenance receipts visible on stderr
+    # so callers requesting --json receive exactly one parseable JSON value.
+    "$PROVENANCE" "$PROVENANCE_TOOL" "$@" \
+        --manifest "$proof_manifest" >&2 || result=$?
     case "$result" in
         0) return 0 ;;
         3)
@@ -136,8 +139,10 @@ if [ "$mode" = rom ]; then
         # same filesystem timestamp tick.  --what-if marks only the linked ELF
         # as newly changed, forcing the cheap ELF -> BIN -> ROM derivation
         # without recompiling or relinking the project.
+        # Build diagnostics are not comparator output; in particular they
+        # must not prefix decomp-workbench's JSON response.
         nice -n 10 gmake -j2 --no-print-directory \
-            -W "$candidate_elf" "$candidate_rom"
+            -W "$candidate_elf" "$candidate_rom" >&2
     elif [ ! -f "$candidate_rom" ] || [ ! "$candidate_rom" -nt "$candidate_elf" ]; then
         echo "$0: '$candidate_rom' is not strictly newer than '$candidate_elf';" >&2
         echo "  omit --no-build to refresh the ROM proof artifact." >&2

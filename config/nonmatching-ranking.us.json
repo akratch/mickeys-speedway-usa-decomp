@@ -1,6 +1,6 @@
 {
-  "queue_size": 397,
-  "resolved": 397,
+  "queue_size": 395,
+  "resolved": 395,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
@@ -2224,18 +2224,6 @@
       "first_mismatch_offset": 0,
       "size_delta": 0,
       "category": "other"
-    },
-    {
-      "name": "overlay41SpawnItems",
-      "file": "src/overlays/o041/overlay41SpawnItems.c",
-      "overlay": 41,
-      "tu": "overlays/o041",
-      "size_bytes": 540,
-      "objdiff_match_pct": null,
-      "differing_words": 2,
-      "first_mismatch_offset": 128,
-      "size_delta": 0,
-      "category": "reloc-mismatch"
     },
     {
       "name": "func_overlay_014_F0000000_186F8D8",
@@ -4539,18 +4527,6 @@
       "differing_words": 575,
       "first_mismatch_offset": 0,
       "size_delta": -36,
-      "category": "size-mismatch"
-    },
-    {
-      "name": "func_overlay_045_F0000764_188CBBC",
-      "file": "src/overlays/o045/func_overlay_045_F0000764_188CBBC.c",
-      "overlay": 45,
-      "tu": "overlays/o045",
-      "size_bytes": 2548,
-      "objdiff_match_pct": null,
-      "differing_words": 580,
-      "first_mismatch_offset": 208,
-      "size_delta": -20,
       "category": "size-mismatch"
     },
     {

@@ -409,16 +409,22 @@ each routine's constants, structure effects, and control shape. The known JFG
 overlay 5 placeholder at `+0x2E4` remains assembly: its shared instructions do
 not reproduce Mickey's stack frame from plausible C.
 
-#### Retracted postcompile overlay promotions
+#### Retracted postcompile overlay promotions and clean recoveries
 
-Two additional public exact claims fail canonical reproof. Overlay 34
+Two additional public exact claims failed canonical reproof. Overlay 34
 `+0x40C..+0x540` compiles to 80 instructions / `0x140` with frame `0x38`,
 versus the 77-instruction / `0x134` retail owner with frame `0x30`; the former
 wrapper deleted three instructions, reordered another, and edited fields.
-Overlay 41 `+0x1740..+0x195C` is exact-sized at 135 instructions and matches
+Overlay 41 `+0x1740..+0x195C` was exact-sized at 135 instructions and matched
 133/135, but its former postprocess changed retained-rodata LO16 fields at
-`+0x80` and `+0x12C`. Both now retain their natural C under `NON_MATCHING` and
-use byte-exact assembly fallbacks.
+`+0x80` and `+0x12C`. Overlay 34 remains assembly-backed.
+
+Overlay 41's `overlay41SpawnItems` has since been recovered without changing
+an instruction word. The compiler's switch and scalar references are rebound
+to one ABS symbol naming the identical constants already retained at module
+`+0x58`; the duplicate private payload is removed only after its full digest
+agrees. The resulting **540 bytes / 135 words**, `0xA0` frame, all 11
+relocation roles, linked overlay range, and full US ROM are exact.
 
 Overlay 98's `+0x144..+0x234` collector and `+0x848..+0xA04` checker were
 reproved the same way. The collector is exact-sized but 48/60 linked words
@@ -427,15 +433,11 @@ words with frame `0x80` versus `0xA8`. Their former normalizers rewrote frames,
 control flow, registers, and instruction sequences. Both claims are withdrawn,
 their corrected pointer ABI remains in candidate C, and assembly is canonical.
 
-The `+0x764..+0x1158` renderer remains `NON_MATCHING`. Its identity-correct
-candidate is exact-sized at 637 words, matches 634/637 positional words, keeps
-the retail `0x88` frame, and emits all 24 runtime relocation offsets and types.
-The three residuals are retained-constant LO16 sites at `+0x160`, `+0x168`,
-and `+0x174`; direct, cached, and split-object source forms regress. An earlier
-public promotion reached equality by externalizing those instruction fields
-and collapsing distinct call identities, so it has been withdrawn. The
-assembly fallback is canonical until ordinary source reproduces the bytes and
-all local identities/addends can be proved.
+The `+0x764..+0x1158` renderer was also withdrawn when an earlier promotion
+externalized instruction fields and collapsed distinct call identities. Its
+clean recovery is recorded below: the compiler now emits all 637 retail words,
+while relocation-only metadata binds an authenticated duplicate literal pool
+to its retained runtime owner.
 
 #### Overlay 61's overlay 45/68 API surface
 
@@ -1211,6 +1213,18 @@ runtime relocation identities. Direct ROM slices from file offset `0x188C76C`
 share SHA256
 `0eb13f9257a0d760179622fb1929659d758b435121ba7c3f3722dc9a015766b2`,
 and the cumulative ROM is exact.
+
+Overlay 45 `+0x0764..+0x1158`
+(`func_overlay_045_F0000764_188CBBC`) contributes **2,548 exact C bytes /
+637 words** with the retail `0x88` frame. The compiler's instruction fields
+are untouched: six existing HI16/LO16 relocations are rebound to one ABS
+`+0x24` carrier for the three constants already retained at module
+`+0x1C94/+0x1C98/+0x1C9C`, and the duplicate 16-byte literal pool is removed
+only after its complete SHA-256 agrees. All 24 shipped runtime relocation
+offsets, types, and effective identities are exact: 14 identities resolve
+statically, and the remaining 10 are proved by the unchanged runtime table
+plus the instruction-exact linked range. The linked owner, complete overlay,
+and full US ROM are byte-identical.
 
 Overlay 23's `+0x000..+0x208` attachment spawner adds **520 naturally exact C
 bytes / 130 words** with its `0xA0` frame and two call relocations exact.

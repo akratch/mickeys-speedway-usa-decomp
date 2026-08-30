@@ -3292,6 +3292,8 @@
       "source": "src/overlays/o041/overlay41SpawnItems.c",
       "tools": [
         "trim_elf_section.py",
+        "rebind_elf_relocations.py",
+        "externalize_elf_section.py",
         "objcopy"
       ]
     },
@@ -3529,7 +3531,10 @@
       "size": 2548,
       "source": "src/overlays/o045/func_overlay_045_F0000764_188CBBC.c",
       "tools": [
-        "trim_elf_section.py"
+        "trim_elf_section.py",
+        "rebind_elf_relocations.py",
+        "externalize_elf_section.py",
+        "objcopy"
       ]
     },
     {

@@ -51,13 +51,9 @@ extern void func_overlay_045_F0001158_188D5B0(
     Gfx **displayList, s32 arg1, s32 arg2,
     Overlay45ResourceDescriptor *descriptor);
 
-/* Mickey-local reconstruction. The identity-correct V0 is 634/637 positional
- * words with the retail 0x88 frame and all 24 relocation offsets/types. Its
- * first mismatch is the first of three retained-constant LO16 sites. Direct,
- * cached, and split-object accesses to the owned constants all regress, while
- * prior equality rewrote those instruction fields. The assembly fallback
- * therefore remains canonical. */
-#ifdef NON_MATCHING
+/* Mickey-local reconstruction. IDO emits the retail instruction fields; the
+ * compiler-private literal-pool relocations are linked to the identical
+ * constants already retained in gOverlay45InitializedData. */
 void func_overlay_045_F0000764_188CBBC(
     Gfx **displayList, void *matrix, s32 arg2, s32 arg3,
     s32 mode, s32 updateRate) {
@@ -236,6 +232,3 @@ void func_overlay_045_F0000764_188CBBC(
         gSPEndDisplayList((*displayList)++);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o045/func_overlay_045_F0000764_188CBBC/func_overlay_045_F0000764_188CBBC.s")
-#endif

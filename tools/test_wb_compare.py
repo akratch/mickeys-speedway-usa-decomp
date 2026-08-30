@@ -72,6 +72,34 @@ class WrapperFixture:
 
 
 class WrapperRoutingTests(unittest.TestCase):
+    def test_json_stdout_is_not_prefixed_by_provenance_receipts(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = pathlib.Path(directory)
+            WrapperFixture(fixture)
+            (fixture / "tools/proof_provenance.py").write_text(
+                "print('proof receipt')\n", encoding="utf-8"
+            )
+            WrapperFixture._executable(
+                fixture / ".venv/bin/decomp-workbench",
+                "#!/bin/sh\nprintf '%s\\n' '{\"schema\":\"comparison\"}'\n",
+            )
+            env = os.environ.copy()
+            env["WB_ARGS_OUT"] = str(fixture / "args.txt")
+
+            result = subprocess.run(
+                [str(fixture / "tools/wb_compare.sh"), "friendly", "--json"],
+                cwd=fixture,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout, '{"schema":"comparison"}\n')
+            self.assertIn("proof receipt", result.stderr)
+
     def test_resolves_friendly_symbol_and_nonmatching_tree_automatically(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             fixture = pathlib.Path(directory)

@@ -44,20 +44,26 @@ Usage:
     .venv/bin/python tools/nm_ranking.py \\
         --objdiff-report /path/to/objdiff-report.json
 
-    # top 20 as a markdown table, for pasting into a fleet prompt:
-    .venv/bin/python tools/nm_ranking.py --top 20 --markdown
+    # top 20 retained rows as a markdown table, with no compilation:
+    .venv/bin/python tools/nm_ranking.py --show-retained --top 20 --markdown
 
     # remove now-matched rows from the retained snapshot without compiling:
     .venv/bin/python tools/nm_ranking.py --prune-stale
+
+    # compile and merge only stale/new/unresolved rows:
+    .venv/bin/python tools/nm_ranking.py --refresh-stale --jobs 2
 """
 from __future__ import annotations
 
 import argparse
+import base64
 import concurrent.futures
 import dataclasses
 import difflib
+import hashlib
 import json
 import math
+import os
 import pathlib
 import re
 import shlex
@@ -80,6 +86,15 @@ DEFAULT_OUT = ROOT / "config" / "nonmatching-ranking.us.json"
 DEFAULT_DOC = ROOT / "docs" / "nm-ranking.md"
 DOC_BEGIN = "<!-- NM_RANKING_GENERATED_BEGIN -->"
 DOC_END = "<!-- NM_RANKING_GENERATED_END -->"
+SCHEMA_VERSION = 2
+SOURCE_CONTEXT_VERSION = 3
+SOURCE_CONTEXT_FIELD = "source_context_sha256"
+HEX_SHA256_RE = re.compile(r"[0-9a-f]{64}")
+BASE64URL_SHA256_RE = re.compile(r"[A-Za-z0-9_-]{43}")
+GROUPED_BASE64URL_SHA256_RE = re.compile(
+    r"(?:[A-Za-z0-9_-]{4}\.){10}[A-Za-z0-9_-]{3}"
+)
+BLAME_HEADER_RE = re.compile(r"^\^?([0-9a-f]{40})\s+\d+\s+\d+")
 
 CATEGORY_RANK = {
     "register-only": 0,
@@ -392,8 +407,266 @@ class FuncResult:
     objdiff_match_pct: Optional[float] = None
 
 
+@dataclasses.dataclass
+class RefreshPlan:
+    """One immutable decision about which live identities need compilation."""
+
+    live_by_key: dict[tuple[str, str], "pb.QueueItem"]
+    current_contexts: dict[tuple[str, str], str]
+    fresh_rows: dict[tuple[str, str], dict[str, object]]
+    deferred_rows: dict[tuple[str, str], dict[str, object]]
+    deferred_unresolved: dict[tuple[str, str], str]
+    selected: list["pb.QueueItem"]
+    removed: list[tuple[str, str]]
+    stale_count: int
+    new_count: int
+
+
 class RankingDocumentError(ValueError):
     """The retained ranking cannot be consumed without guessing."""
+
+
+def strip_c_comments(text: str) -> str:
+    """Remove comments while preserving strings and preprocessing structure."""
+    output: list[str] = []
+    index = 0
+    state = "code"
+    quote = ""
+    while index < len(text):
+        char = text[index]
+        following = text[index + 1] if index + 1 < len(text) else ""
+        if state == "code":
+            if char == "/" and following == "*":
+                state = "block"
+                output.extend("  ")
+                index += 2
+                continue
+            if char == "/" and following == "/":
+                state = "line"
+                output.extend("  ")
+                index += 2
+                continue
+            if char in {'"', "'"}:
+                state = "quote"
+                quote = char
+            output.append(char)
+        elif state == "block":
+            if char == "*" and following == "/":
+                output.extend("  ")
+                state = "code"
+                index += 2
+                continue
+            output.append("\n" if char == "\n" else " ")
+        elif state == "line":
+            if char == "\n":
+                output.append(char)
+                state = "code"
+            else:
+                output.append(" ")
+        else:
+            output.append(char)
+            if char == "\\" and following:
+                output.append(following)
+                index += 2
+                continue
+            if char == quote:
+                state = "code"
+        index += 1
+    stripped = "".join(output)
+    return "\n".join(
+        line.rstrip() for line in stripped.splitlines() if line.strip()
+    ) + "\n"
+
+
+def source_context_digest(source_text: Optional[str], symbol: str) -> Optional[str]:
+    """Digest the exact selective-TU source that ``process_item`` compiles.
+
+    The selected candidate stays as C and every other queued body becomes its
+    assembly fallback. Comments are deliberately ignored; declarations,
+    macros, local data, and the selected body remain load-bearing evidence.
+    """
+    if source_text is None:
+        return None
+    blocks = list(pb.iter_nonmatching_blocks(source_text))
+    targets = [
+        block
+        for block in blocks
+        if pb.block_function_name(source_text, block) == symbol
+    ]
+    if len(targets) != 1:
+        return None
+    target = targets[0]
+    selected = source_text
+    for block in reversed(blocks):
+        replacement = block.body if block is target else block.fallback
+        selected = selected[:block.start] + replacement + selected[block.end:]
+    normalized = strip_c_comments(selected)
+    digest = hashlib.sha256(normalized.encode("utf-8")).digest()
+    encoded = base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
+    return group_source_context(encoded)
+
+
+def group_source_context(encoded: str) -> str:
+    """Break base64url evidence into non-word-sized clean-room-safe groups."""
+    if BASE64URL_SHA256_RE.fullmatch(encoded) is None:
+        raise RankingDocumentError("source context is not one SHA-256 base64url value")
+    return ".".join(encoded[index:index + 4] for index in range(0, len(encoded), 4))
+
+
+def normalize_source_context_digest(value: object) -> Optional[str]:
+    """Return canonical unpadded base64url, accepting legacy hex evidence."""
+    if not isinstance(value, str):
+        return None
+    if GROUPED_BASE64URL_SHA256_RE.fullmatch(value):
+        return value
+    if BASE64URL_SHA256_RE.fullmatch(value):
+        return group_source_context(value)
+    if HEX_SHA256_RE.fullmatch(value):
+        encoded = base64.urlsafe_b64encode(bytes.fromhex(value)).rstrip(b"=").decode("ascii")
+        return group_source_context(encoded)
+    return None
+
+
+def current_source_contexts(
+    items: list["pb.QueueItem"],
+) -> dict[tuple[str, str], str]:
+    """Compute current worktree evidence for an exact, duplicate-free queue."""
+    source_cache: dict[str, str] = {}
+    contexts: dict[tuple[str, str], str] = {}
+    for item in items:
+        key = (item.rel_c_file, item.func)
+        if key in contexts:
+            raise RankingDocumentError(
+                f"live queue contains duplicate identity {key[0]}:{key[1]}"
+            )
+        if item.rel_c_file not in source_cache:
+            try:
+                source_cache[item.rel_c_file] = item.c_file.read_text(
+                    encoding="utf-8"
+                )
+            except OSError as exc:
+                raise RankingDocumentError(
+                    f"cannot read live source {item.rel_c_file}: {exc}"
+                ) from exc
+        digest = source_context_digest(source_cache[item.rel_c_file], item.func)
+        if digest is None:
+            raise RankingDocumentError(
+                f"cannot isolate one NON_MATCHING body for {key[0]}:{key[1]}"
+            )
+        contexts[key] = digest
+    return contexts
+
+
+def blamed_source_lines(ref: str, path: str) -> list[tuple[str, str]]:
+    """Return each tracked ranking line with its porcelain-blame commit."""
+    proc = subprocess.run(
+        ["git", "blame", "--line-porcelain", ref, "--", path],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        raise RankingDocumentError(
+            proc.stderr.strip() or f"cannot blame ranking evidence at {ref}:{path}"
+        )
+    result: list[tuple[str, str]] = []
+    commit: Optional[str] = None
+    for line in proc.stdout.splitlines():
+        header = BLAME_HEADER_RE.match(line)
+        if header:
+            commit = header.group(1)
+        elif line.startswith("\t"):
+            if commit is None:
+                raise RankingDocumentError(
+                    f"blame source line lacks a commit in {path}"
+                )
+            result.append((commit, line[1:]))
+            commit = None
+    return result
+
+
+def ranking_evidence_commits(
+    ref: str, path: str
+) -> dict[tuple[str, str], str]:
+    """Map each metric row to embedded-context or legacy measurement blame."""
+    differing_commits: dict[tuple[str, str], str] = {}
+    context_commits: dict[tuple[str, str], str] = {}
+    symbol: Optional[str] = None
+    file_name: Optional[str] = None
+    for commit, line in blamed_source_lines(ref, path):
+        stripped = line.strip()
+        if stripped.startswith('"name":'):
+            symbol = str(json.loads(stripped.split(":", 1)[1].rstrip(",")))
+            file_name = None
+        elif stripped.startswith('"file":'):
+            file_name = str(json.loads(stripped.split(":", 1)[1].rstrip(",")))
+        elif stripped.startswith('"differing_words":'):
+            if symbol is None or file_name is None:
+                raise RankingDocumentError(
+                    f"ranking measurement lacks file/symbol context in {path}"
+                )
+            key = (file_name, symbol)
+            if key in differing_commits:
+                raise RankingDocumentError(
+                    f"duplicate blamed ranking identity {file_name}:{symbol}"
+                )
+            differing_commits[key] = commit
+        elif stripped.startswith(f'"{SOURCE_CONTEXT_FIELD}":'):
+            if symbol is None or file_name is None:
+                raise RankingDocumentError(
+                    f"ranking context lacks file/symbol identity in {path}"
+                )
+            context_commits[(file_name, symbol)] = commit
+    return {
+        key: context_commits.get(key, commit)
+        for key, commit in differing_commits.items()
+    }
+
+
+def git_source(ref: str, path: str) -> Optional[str]:
+    proc = subprocess.run(
+        ["git", "show", f"{ref}:{path}"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    return proc.stdout if proc.returncode == 0 else None
+
+
+def legacy_source_contexts(
+    ref: str, ranking_path: pathlib.Path, document: object
+) -> dict[tuple[str, str], str]:
+    """Recover source evidence for schema-1 rows without trusting their age.
+
+    Git blame identifies the commit that introduced each retained measurement.
+    A digest from that commit can prove a legacy row still describes the exact
+    current selective-TU source. Missing/ambiguous evidence simply leaves the
+    row stale; it never becomes an optimistic cache hit.
+    """
+    validated = validate_ranking_document(document)
+    try:
+        relative = ranking_path.resolve().relative_to(ROOT.resolve()).as_posix()
+        commits = ranking_evidence_commits(ref, relative)
+    except (ValueError, RankingDocumentError):
+        return {}
+    functions = validated["functions"]
+    assert isinstance(functions, list)
+    contexts: dict[tuple[str, str], str] = {}
+    source_cache: dict[tuple[str, str], Optional[str]] = {}
+    for row in functions:
+        key = _function_row_key(row)
+        if isinstance(row, dict) and row.get(SOURCE_CONTEXT_FIELD) is not None:
+            continue
+        commit = commits.get(key)
+        if commit is None:
+            continue
+        source_key = (commit, key[0])
+        if source_key not in source_cache:
+            source_cache[source_key] = git_source(commit, key[0])
+        digest = source_context_digest(source_cache[source_key], key[1])
+        if digest is not None:
+            contexts[key] = digest
+    return contexts
 
 
 def _plain_int(value: object, field: str, *, minimum: Optional[int] = None) -> int:
@@ -471,6 +744,30 @@ def validate_ranking_document(
     if not isinstance(document, dict):
         raise RankingDocumentError("ranking root is not an object")
 
+    schema_version = document.get("schema_version", 1)
+    schema_version = _plain_int(schema_version, "schema_version", minimum=1)
+    if schema_version not in (1, SCHEMA_VERSION):
+        raise RankingDocumentError(
+            f"schema_version {schema_version} is unsupported"
+        )
+    if schema_version >= 2:
+        context_version = _plain_int(
+            document.get("source_context_version"),
+            "source_context_version",
+            minimum=1,
+        )
+        if context_version not in (1, 2, SOURCE_CONTEXT_VERSION):
+            raise RankingDocumentError(
+                f"source_context_version {context_version} is unsupported"
+            )
+        context_coverage = _plain_int(
+            document.get("source_context_coverage"),
+            "source_context_coverage",
+            minimum=0,
+        )
+    else:
+        context_coverage = 0
+
     queue_size = _plain_int(document.get("queue_size"), "queue_size", minimum=0)
     resolved = _plain_int(document.get("resolved"), "resolved", minimum=0)
     unresolved_count = _plain_int(
@@ -493,6 +790,7 @@ def validate_ranking_document(
 
     function_keys: list[tuple[str, str]] = []
     measured_coverage = 0
+    measured_context_coverage = 0
     for index, row in enumerate(functions):
         key = _function_row_key(row)
         assert isinstance(row, dict)
@@ -549,6 +847,23 @@ def validate_ranking_document(
                     f"{prefix}.objdiff_match_pct must be between 0 and 100"
                 )
             measured_coverage += 1
+        context_digest = row.get(SOURCE_CONTEXT_FIELD)
+        if context_digest is not None:
+            valid_context = (
+                isinstance(context_digest, str)
+                and (
+                    HEX_SHA256_RE.fullmatch(context_digest)
+                    if schema_version >= 2 and context_version == 1
+                    else BASE64URL_SHA256_RE.fullmatch(context_digest)
+                    if schema_version >= 2 and context_version == 2
+                    else GROUPED_BASE64URL_SHA256_RE.fullmatch(context_digest)
+                )
+            )
+            if not valid_context:
+                raise RankingDocumentError(
+                    f"{prefix}.{SOURCE_CONTEXT_FIELD} must use the schema's SHA-256 encoding"
+                )
+            measured_context_coverage += 1
 
     unresolved_keys = [_unresolved_row_key(row) for row in unresolved]
     all_keys = function_keys + unresolved_keys
@@ -573,7 +888,210 @@ def validate_ranking_document(
                 raise RankingDocumentError(
                     f"{field} is {actual[field]}, expected {expected_value} from rows"
                 )
+        if schema_version >= 2 and context_coverage != measured_context_coverage:
+            raise RankingDocumentError(
+                f"source_context_coverage is {context_coverage}, expected "
+                f"{measured_context_coverage} from rows"
+            )
     return document
+
+
+def row_from_result(result: FuncResult, context_digest: str) -> dict[str, object]:
+    return {
+        "name": result.name,
+        "file": result.file,
+        "overlay": result.overlay,
+        "tu": result.tu,
+        "size_bytes": result.size_bytes,
+        "objdiff_match_pct": result.objdiff_match_pct,
+        "differing_words": result.differing_words,
+        "first_mismatch_offset": result.first_mismatch_offset,
+        "size_delta": result.size_delta,
+        "category": result.category,
+        SOURCE_CONTEXT_FIELD: context_digest,
+    }
+
+
+def row_sort_key(row: dict[str, object]) -> tuple[int, int, str, str]:
+    return (
+        CATEGORY_RANK.get(str(row["category"]), 99),
+        int(row["differing_words"]),
+        str(row["file"]),
+        str(row["name"]),
+    )
+
+
+def make_ranking_document(
+    functions: list[dict[str, object]],
+    unresolved: list[list[object]],
+    *,
+    objdiff_report_used: bool,
+) -> dict[str, object]:
+    functions = sorted(functions, key=row_sort_key)
+    unresolved = sorted(
+        unresolved,
+        key=lambda row: (str(row[0][0]), str(row[0][1])),
+    )
+    document: dict[str, object] = {
+        "schema_version": SCHEMA_VERSION,
+        "source_context_version": SOURCE_CONTEXT_VERSION,
+        "queue_size": len(functions) + len(unresolved),
+        "resolved": len(functions),
+        "unresolved": len(unresolved),
+        "objdiff_report_used": objdiff_report_used,
+        "objdiff_match_pct_coverage": sum(
+            row.get("objdiff_match_pct") is not None for row in functions
+        ),
+        "source_context_coverage": sum(
+            row.get(SOURCE_CONTEXT_FIELD) is not None for row in functions
+        ),
+        "functions": functions,
+        "unresolved_functions": unresolved,
+    }
+    validate_ranking_document(document)
+    return document
+
+
+def plan_incremental_refresh(
+    document: object,
+    live_items: list["pb.QueueItem"],
+    current_contexts: dict[tuple[str, str], str],
+    legacy_contexts: dict[tuple[str, str], str],
+    *,
+    limit: Optional[int] = None,
+) -> RefreshPlan:
+    """Classify retained rows and select only stale/new identities to build."""
+    validated = validate_ranking_document(document)
+    functions = validated["functions"]
+    unresolved = validated["unresolved_functions"]
+    assert isinstance(functions, list)
+    assert isinstance(unresolved, list)
+
+    live_by_key: dict[tuple[str, str], pb.QueueItem] = {}
+    for item in live_items:
+        key = (item.rel_c_file, item.func)
+        if key in live_by_key:
+            raise RankingDocumentError(
+                f"live queue contains duplicate identity {key[0]}:{key[1]}"
+            )
+        live_by_key[key] = item
+    if set(live_by_key) != set(current_contexts):
+        raise RankingDocumentError(
+            "live queue and current source-context identities disagree"
+        )
+
+    fresh_rows: dict[tuple[str, str], dict[str, object]] = {}
+    stale_function_rows: dict[tuple[str, str], dict[str, object]] = {}
+    stale_order: list[tuple[str, str]] = []
+    all_retained_keys: set[tuple[str, str]] = set()
+    for raw in functions:
+        assert isinstance(raw, dict)
+        key = _function_row_key(raw)
+        all_retained_keys.add(key)
+        if key not in live_by_key:
+            continue
+        embedded = normalize_source_context_digest(raw.get(SOURCE_CONTEXT_FIELD))
+        measured = embedded or normalize_source_context_digest(legacy_contexts.get(key))
+        if measured == current_contexts[key]:
+            migrated = dict(raw)
+            migrated[SOURCE_CONTEXT_FIELD] = current_contexts[key]
+            fresh_rows[key] = migrated
+        else:
+            stale = dict(raw)
+            stale.pop(SOURCE_CONTEXT_FIELD, None)
+            stale_function_rows[key] = stale
+            stale_order.append(key)
+
+    stale_unresolved: dict[tuple[str, str], str] = {}
+    for raw in unresolved:
+        key = _unresolved_row_key(raw)
+        all_retained_keys.add(key)
+        if key not in live_by_key:
+            continue
+        stale_unresolved[key] = str(raw[1])
+        stale_order.append(key)
+
+    new_keys = [
+        key for key in live_by_key if key not in all_retained_keys
+    ]
+    stale_order.extend(new_keys)
+    selected_keys = stale_order[:limit] if limit is not None else stale_order
+    selected_set = set(selected_keys)
+
+    deferred_rows = {
+        key: row
+        for key, row in stale_function_rows.items()
+        if key not in selected_set
+    }
+    deferred_unresolved = {
+        key: diagnostic
+        for key, diagnostic in stale_unresolved.items()
+        if key not in selected_set
+    }
+    for key in new_keys:
+        if key not in selected_set:
+            deferred_unresolved[key] = (
+                "incremental refresh pending: bounded --limit deferred this "
+                "new queue identity"
+            )
+
+    return RefreshPlan(
+        live_by_key=live_by_key,
+        current_contexts=current_contexts,
+        fresh_rows=fresh_rows,
+        deferred_rows=deferred_rows,
+        deferred_unresolved=deferred_unresolved,
+        selected=[live_by_key[key] for key in selected_keys],
+        removed=sorted(all_retained_keys - set(live_by_key)),
+        stale_count=len(stale_order) - len(new_keys),
+        new_count=len(new_keys),
+    )
+
+
+def merge_incremental_results(
+    document: object,
+    plan: RefreshPlan,
+    results: list[FuncResult],
+    *,
+    objdiff_report_used: bool,
+) -> dict[str, object]:
+    """Merge a successful selected batch; every live identity remains visible."""
+    selected_keys = {
+        (item.rel_c_file, item.func) for item in plan.selected
+    }
+    result_by_key = {(result.file, result.name): result for result in results}
+    if set(result_by_key) != selected_keys:
+        raise RankingDocumentError(
+            "incremental result identities disagree with the selected refresh batch"
+        )
+
+    rows = list(plan.fresh_rows.values()) + list(plan.deferred_rows.values())
+    rows.extend(
+        row_from_result(result_by_key[key], plan.current_contexts[key])
+        for key in selected_keys
+    )
+    unresolved = [
+        [[key[0], key[1]], diagnostic]
+        for key, diagnostic in plan.deferred_unresolved.items()
+    ]
+    merged = make_ranking_document(
+        rows,
+        unresolved,
+        objdiff_report_used=(
+            objdiff_report_used
+            or bool(validate_ranking_document(document)["objdiff_report_used"])
+        ),
+    )
+    merged_keys = {
+        _function_row_key(row) for row in merged["functions"]
+    } | {
+        _unresolved_row_key(row) for row in merged["unresolved_functions"]
+    }
+    if merged_keys != set(plan.live_by_key):
+        raise RankingDocumentError(
+            "incremental merge does not cover the exact live queue"
+        )
+    return merged
 
 
 def prune_stale_document(
@@ -618,6 +1136,12 @@ def prune_stale_document(
         for row in retained_functions
         if isinstance(row, dict) and row.get("objdiff_match_pct") is not None
     )
+    if int(pruned.get("schema_version", 1)) >= 2:
+        pruned["source_context_coverage"] = sum(
+            1
+            for row in retained_functions
+            if isinstance(row, dict) and row.get(SOURCE_CONTEXT_FIELD) is not None
+        )
     validate_ranking_document(pruned)
     return pruned, removed, unranked
 
@@ -652,6 +1176,116 @@ def write_json_atomic(path: pathlib.Path, document: dict[str, object]) -> None:
     write_text_atomic(path, json.dumps(document, indent=2) + "\n")
 
 
+def write_texts_transactionally(entries: list[tuple[pathlib.Path, str]]) -> None:
+    """Stage every text output, then replace all with rollback on an error."""
+    staged: list[tuple[pathlib.Path, pathlib.Path]] = []
+    originals: dict[pathlib.Path, Optional[tuple[str, int]]] = {}
+    replaced: list[pathlib.Path] = []
+    try:
+        for path, content in entries:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if path.exists():
+                originals[path] = (
+                    path.read_text(encoding="utf-8"),
+                    stat.S_IMODE(path.stat().st_mode),
+                )
+                output_mode = originals[path][1]
+            else:
+                originals[path] = None
+                output_mode = 0o644
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                dir=path.parent,
+                prefix=f".{path.name}.",
+                suffix=".tmp",
+                delete=False,
+            ) as stream:
+                temporary = pathlib.Path(stream.name)
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+            temporary.chmod(output_mode)
+            staged.append((path, temporary))
+
+        for path, temporary in staged:
+            temporary.replace(path)
+            replaced.append(path)
+    except Exception:
+        for path in reversed(replaced):
+            original = originals[path]
+            if original is None:
+                path.unlink(missing_ok=True)
+            else:
+                content, mode = original
+                write_text_atomic(path, content)
+                path.chmod(mode)
+        raise
+    finally:
+        for _path, temporary in staged:
+            temporary.unlink(missing_ok=True)
+
+
+def publish_ranking_document(
+    path: pathlib.Path,
+    document: dict[str, object],
+    documentation_path: pathlib.Path,
+) -> None:
+    """Validate and publish JSON plus its canonical generated documentation.
+
+    All validation/rendering happens before either destination changes. Each
+    replacement is atomic; the documentation is coupled only for the canonical
+    ranking path, matching the existing command contract.
+    """
+    validate_ranking_document(document)
+    expected_doc: Optional[str] = None
+    if path.resolve() == DEFAULT_OUT.resolve():
+        _, expected_doc = expected_document_text(document, documentation_path)
+    json_text = json.dumps(document, indent=2) + "\n"
+    entries = [(path, json_text)]
+    if expected_doc is not None:
+        entries.append((documentation_path, expected_doc))
+    write_texts_transactionally(entries)
+
+
+def missing_permuter_inputs() -> list[pathlib.Path]:
+    required = [
+        ROOT / "tools" / "permuter" / "import.py",
+        ROOT / "tools" / "permuter" / "prelude.inc",
+    ]
+    return [path for path in required if not path.is_file()]
+
+
+def report_missing_permuter(missing: list[pathlib.Path], out: pathlib.Path) -> int:
+    print(
+        "error: decomp-permuter is not installed; refusing to overwrite "
+        f"{out}",
+        file=sys.stderr,
+    )
+    for path in missing:
+        print(f"  missing: {path.relative_to(ROOT)}", file=sys.stderr)
+    print(
+        "install decomp-permuter under tools/permuter as described in "
+        "README.md, then rerun this command",
+        file=sys.stderr,
+    )
+    return 2
+
+
+def process_items(
+    queue: list["pb.QueueItem"], jobs: int
+) -> tuple[list[FuncResult], list[tuple[tuple[str, str], str]]]:
+    results: list[FuncResult] = []
+    errors: list[tuple[tuple[str, str], str]] = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+        for item, (result, error) in zip(queue, pool.map(process_item, queue)):
+            if result is not None:
+                results.append(result)
+            if error is not None:
+                errors.append(((item.rel_c_file, item.func), error))
+    return results, errors
+
+
 def _markdown_code(value: object) -> str:
     text = str(value).replace("\\", "\\\\").replace("|", "\\|")
     text = text.replace("`", "\\`")
@@ -674,6 +1308,10 @@ def render_ranking_markdown(document: object) -> str:
     resolved = int(document["resolved"])
     unresolved_count = int(document["unresolved"])
     coverage = int(document["objdiff_match_pct_coverage"])
+    context_coverage = sum(
+        isinstance(row, dict) and row.get(SOURCE_CONTEXT_FIELD) is not None
+        for row in functions
+    )
     total_size = sum(int(row["size_bytes"]) for row in functions)
     overlays = sorted(
         {int(row["overlay"]) for row in functions if row["overlay"] is not None}
@@ -703,6 +1341,10 @@ def render_ranking_markdown(document: object) -> str:
         "A supplementary objdiff report "
         + ("was supplied" if document["objdiff_report_used"] else "was not supplied")
         + f"; `objdiff_match_pct` covers **{coverage:,} / {resolved:,}** resolved rows.",
+        "",
+        f"Persisted selective-TU source evidence covers **{context_coverage:,} / "
+        f"{resolved:,}** resolved rows. Rows without it are retained legacy or "
+        "bounded-refresh measurements and must be treated as requiring reproof.",
         "",
         "### Category distribution",
         "",
@@ -1006,6 +1648,37 @@ def print_table(results: list[FuncResult], top: Optional[int], markdown: bool) -
         print(line(row))
 
 
+def retained_results(document: object) -> list[FuncResult]:
+    """Recover display-only rows from a validated retained snapshot."""
+    validated = validate_ranking_document(document)
+    functions = validated["functions"]
+    assert isinstance(functions, list)
+    return [
+        FuncResult(
+            name=str(row["name"]),
+            file=str(row["file"]),
+            overlay=row["overlay"] if isinstance(row["overlay"], int) else None,
+            tu=str(row["tu"]),
+            size_bytes=int(row["size_bytes"]),
+            differing_words=int(row["differing_words"]),
+            first_mismatch_offset=(
+                int(row["first_mismatch_offset"])
+                if isinstance(row["first_mismatch_offset"], int)
+                else None
+            ),
+            size_delta=int(row["size_delta"]),
+            category=str(row["category"]),
+            objdiff_match_pct=(
+                float(row["objdiff_match_pct"])
+                if isinstance(row["objdiff_match_pct"], (int, float))
+                else None
+            ),
+        )
+        for row in functions
+        if isinstance(row, dict)
+    ]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--objdiff-report", type=pathlib.Path, default=None,
@@ -1033,19 +1706,102 @@ def main() -> int:
         action="store_true",
         help="validate --out and fail if the marked region in --doc has drifted",
     )
-    ap.add_argument("--top", type=int, default=None, help="only print the top N rows")
-    ap.add_argument("--markdown", action="store_true", help="print the table as markdown")
-    ap.add_argument("--no-table", action="store_true", help="skip printing the table")
-    ap.add_argument("--limit", type=int, default=None,
-                     help="only process the first N queue items (debugging)")
     ap.add_argument(
+        "--top",
+        type=int,
+        default=None,
+        help="only print the top N rows (requires --show-retained or --refresh-stale)",
+    )
+    ap.add_argument(
+        "--markdown",
+        action="store_true",
+        help="print the table as markdown (requires --show-retained or --refresh-stale)",
+    )
+    ap.add_argument("--no-table", action="store_true", help="skip printing the table")
+    ap.add_argument(
+        "--show-retained",
+        action="store_true",
+        help="display the validated --out snapshot without compiling candidates",
+    )
+    ap.add_argument("--limit", type=int, default=None,
+                     help="process at most N queue items; with --refresh-stale, "
+                          "deferred rows remain explicitly unproven")
+    maintenance_mode = ap.add_mutually_exclusive_group()
+    maintenance_mode.add_argument(
         "--prune-stale",
         action="store_true",
         help="without compiling, remove rows from --out whose exact file/symbol "
              "identity is no longer in the current NON_MATCHING queue; validates "
              "the retained document and reports newly queued unranked functions",
     )
+    maintenance_mode.add_argument(
+        "--refresh-stale",
+        action="store_true",
+        help="validate and merge only changed, newly queued, and previously "
+             "unresolved identities; retain proven-fresh measurements",
+    )
+    ap.add_argument(
+        "--evidence-ref",
+        default="HEAD",
+        help="Git ref used only to migrate legacy rows without embedded source "
+             "evidence (default HEAD)",
+    )
     args = ap.parse_args()
+
+    if args.jobs < 1:
+        print("error: --jobs must be at least 1", file=sys.stderr)
+        return 2
+    if args.limit is not None and args.limit < 1:
+        print("error: --limit must be at least 1", file=sys.stderr)
+        return 2
+    if (
+        (args.top is not None or args.markdown)
+        and not args.show_retained
+        and not args.refresh_stale
+    ):
+        print(
+            "error: --top/--markdown require --show-retained for a "
+            "compile-free snapshot view (or --refresh-stale)",
+            file=sys.stderr,
+        )
+        return 2
+
+    if args.show_retained:
+        incompatible = []
+        if args.objdiff_report is not None:
+            incompatible.append("--objdiff-report")
+        if args.limit is not None:
+            incompatible.append("--limit")
+        if args.no_table:
+            incompatible.append("--no-table")
+        if args.write_doc:
+            incompatible.append("--write-doc")
+        if args.check_doc:
+            incompatible.append("--check-doc")
+        if args.prune_stale:
+            incompatible.append("--prune-stale")
+        if args.refresh_stale:
+            incompatible.append("--refresh-stale")
+        if args.evidence_ref != "HEAD":
+            incompatible.append("--evidence-ref")
+        if incompatible:
+            print(
+                "error: --show-retained cannot be combined with "
+                + ", ".join(incompatible),
+                file=sys.stderr,
+            )
+            return 2
+        try:
+            document = json.loads(args.out.read_text(encoding="utf-8"))
+            results = retained_results(document)
+        except (OSError, json.JSONDecodeError, RankingDocumentError) as exc:
+            print(
+                f"error: refusing to display retained ranking: {exc}",
+                file=sys.stderr,
+            )
+            return 2
+        print_table(results, args.top, args.markdown)
+        return 0
 
     if args.write_doc or args.check_doc:
         incompatible = []
@@ -1061,6 +1817,10 @@ def main() -> int:
             incompatible.append("--no-table")
         if args.prune_stale:
             incompatible.append("--prune-stale")
+        if args.refresh_stale:
+            incompatible.append("--refresh-stale")
+        if args.evidence_ref != "HEAD":
+            incompatible.append("--evidence-ref")
         if incompatible:
             print(
                 "error: documentation mode cannot be combined with "
@@ -1096,6 +1856,96 @@ def main() -> int:
             )
             return 1
         print(f"generated ranking documentation is current: {args.doc}")
+        return 0
+
+    if args.refresh_stale:
+        try:
+            document = json.loads(args.out.read_text(encoding="utf-8"))
+            validate_ranking_document(document)
+            live_items = pb.discover_queue()
+            initial_contexts = current_source_contexts(live_items)
+            legacy_context = legacy_source_contexts(
+                args.evidence_ref, args.out, document
+            )
+            plan = plan_incremental_refresh(
+                document,
+                live_items,
+                initial_contexts,
+                legacy_context,
+                limit=args.limit,
+            )
+        except (OSError, json.JSONDecodeError, RankingDocumentError) as exc:
+            print(
+                f"error: refusing to refresh {args.out}: {exc}",
+                file=sys.stderr,
+            )
+            return 2
+
+        if plan.selected:
+            missing = missing_permuter_inputs()
+            if missing:
+                return report_missing_permuter(missing, args.out)
+            WORK_DIR.mkdir(parents=True, exist_ok=True)
+            results, errors = process_items(plan.selected, args.jobs)
+            if errors:
+                print(
+                    f"error: {len(errors)}/{len(plan.selected)} incremental "
+                    f"item(s) failed; refusing to overwrite {args.out}",
+                    file=sys.stderr,
+                )
+                for _key, error in errors[:5]:
+                    print(f"  {error}", file=sys.stderr)
+                return 2
+        else:
+            results = []
+
+        # A refresh may overlap source edits. Re-discover the complete queue,
+        # not only the selected subset, and reject any membership or context
+        # movement so no measurement is attached to a different source state.
+        try:
+            final_items = pb.discover_queue()
+            final_contexts = current_source_contexts(final_items)
+            final_keys = {(item.rel_c_file, item.func) for item in final_items}
+            if final_keys != set(plan.live_by_key):
+                raise RankingDocumentError(
+                    "live NON_MATCHING queue changed during incremental refresh"
+                )
+            if final_contexts != plan.current_contexts:
+                raise RankingDocumentError(
+                    "source context changed during incremental refresh"
+                )
+            pct_by_name = load_objdiff_pct(args.objdiff_report)
+            for result in results:
+                result.objdiff_match_pct = pct_by_name.get(result.name)
+            merged = merge_incremental_results(
+                document,
+                plan,
+                results,
+                objdiff_report_used=args.objdiff_report is not None,
+            )
+            publish_ranking_document(args.out, merged, args.doc)
+        except (OSError, json.JSONDecodeError, RankingDocumentError) as exc:
+            print(
+                f"error: refusing to publish incremental refresh: {exc}",
+                file=sys.stderr,
+            )
+            return 2
+
+        deferred = len(plan.deferred_rows) + len(plan.deferred_unresolved)
+        print(
+            f"incremental refresh: selected={len(plan.selected)} "
+            f"fresh-retained={len(plan.fresh_rows)} deferred={deferred} "
+            f"removed={len(plan.removed)} new={plan.new_count}",
+            file=sys.stderr,
+        )
+        if deferred:
+            print(
+                "note: bounded refresh left deferred identities explicitly "
+                "unproven; rerun without --limit to finish",
+                file=sys.stderr,
+            )
+        if not args.no_table:
+            print_table(results, args.top, args.markdown)
         return 0
 
     if args.prune_stale:
@@ -1149,25 +1999,9 @@ def main() -> int:
     # Fail before touching the committed queue when that dependency is absent;
     # otherwise every item reports the same import error and a successful exit
     # silently replaces a useful ranking with an empty one.
-    permuter_required = [
-        ROOT / "tools" / "permuter" / "import.py",
-        ROOT / "tools" / "permuter" / "prelude.inc",
-    ]
-    missing = [path for path in permuter_required if not path.is_file()]
+    missing = missing_permuter_inputs()
     if missing:
-        print(
-            "error: decomp-permuter is not installed; refusing to overwrite "
-            f"{args.out}",
-            file=sys.stderr,
-        )
-        for path in missing:
-            print(f"  missing: {path.relative_to(ROOT)}", file=sys.stderr)
-        print(
-            "install decomp-permuter under tools/permuter as described in "
-            "README.md, then rerun this command",
-            file=sys.stderr,
-        )
-        return 2
+        return report_missing_permuter(missing, args.out)
 
     WORK_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -1175,14 +2009,8 @@ def main() -> int:
     if args.limit:
         queue = queue[: args.limit]
 
-    results: list[FuncResult] = []
-    errors: list[tuple[tuple[str, str], str]] = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        for item, (result, error) in zip(queue, pool.map(process_item, queue)):
-            if result is not None:
-                results.append(result)
-            if error is not None:
-                errors.append(((item.rel_c_file, item.func), error))
+    initial_contexts = current_source_contexts(queue)
+    results, errors = process_items(queue, args.jobs)
 
     # A full ranking pass can overlap matching work for hours. Re-scan the
     # canonical source immediately before publishing so functions promoted
@@ -1219,39 +2047,23 @@ def main() -> int:
             print(f"first failure: {errors[0][1]}", file=sys.stderr)
         return 2
 
-    with_pct = sum(1 for r in results if r.objdiff_match_pct is not None)
-    out_doc = {
-        "queue_size": len(queue),
-        "resolved": len(results),
-        "unresolved": len(errors),
-        # Not the report's path (machine-local, not portable/reproducible
-        # content): just whether one was supplied and how many resolved
-        # functions it actually covered.
-        "objdiff_report_used": args.objdiff_report is not None,
-        "objdiff_match_pct_coverage": with_pct,
-        "functions": [
-            {
-                "name": r.name,
-                "file": r.file,
-                "overlay": r.overlay,
-                "tu": r.tu,
-                "size_bytes": r.size_bytes,
-                "objdiff_match_pct": r.objdiff_match_pct,
-                "differing_words": r.differing_words,
-                "first_mismatch_offset": r.first_mismatch_offset,
-                "size_delta": r.size_delta,
-                "category": r.category,
-            }
+    final_contexts = current_source_contexts(queue)
+    if final_contexts != initial_contexts:
+        print(
+            "error: source context changed during full ranking; refusing to "
+            f"overwrite {args.out}",
+            file=sys.stderr,
+        )
+        return 2
+    out_doc = make_ranking_document(
+        [
+            row_from_result(r, final_contexts[(r.file, r.name)])
             for r in results
         ],
-        "unresolved_functions": [[list(key), error] for key, error in errors],
-    }
-    expected_doc = None
-    if args.out.resolve() == DEFAULT_OUT.resolve():
-        _, expected_doc = expected_document_text(out_doc, args.doc)
-    write_json_atomic(args.out, out_doc)
-    if expected_doc is not None:
-        write_text_atomic(args.doc, expected_doc)
+        [[list(key), error] for key, error in errors],
+        objdiff_report_used=args.objdiff_report is not None,
+    )
+    publish_ranking_document(args.out, out_doc, args.doc)
 
     print(f"{len(results)}/{len(queue)} queued functions resolved "
           f"({len(errors)} could not be isolated-compiled)", file=sys.stderr)

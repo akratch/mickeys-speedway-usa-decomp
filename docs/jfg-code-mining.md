@@ -158,6 +158,16 @@ The same 29 August audit did not find another release-grade JFG source lead:
   point. Their best JFG scores range from 0.052 to 0.113 and the pinned exact
   donor scan is negative. Those values are treated as generic instruction
   overlap, not reusable code evidence.
+- The newly recovered exact C for `overlay8UpdateChannels`,
+  `overlay41SpawnItems`, and
+  `func_overlay_045_F0000764_188CBBC` likewise has no concrete JFG insertion
+  point. The pinned overlay donor scan is negative for all three. The two
+  queryable large bodies score only 0.074 and 0.047 against their nearest
+  masked-shape candidates, with no JFG function among either top-five result;
+  `overlay8UpdateChannels` is a mixed-TU matched range that the current
+  similarity CLI cannot yet query. These are useful Mickey implementations,
+  but the available evidence is not strong enough to recommend them to JFG
+  maintainers.
 
 JFG has since implemented `runlinkFlushModules`, so it is no longer included
 among the open source-reference targets above.

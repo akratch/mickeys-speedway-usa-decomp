@@ -1218,6 +1218,14 @@ MIXED_TU_EXACT_C_RANGES = {
     9: [
         (0x10A4, 0x10B4, "overlay9Ignore"),
     ],
+    45: [
+        (
+            0x764,
+            0x1158,
+            "func_overlay_045_F0000764_188CBBC",
+            "canonical object, 24 runtime relocations, and linked bytes exact",
+        ),
+    ],
     12: [
         (0x000, 0x0C4, "overlay12Initialize"),
     ],
