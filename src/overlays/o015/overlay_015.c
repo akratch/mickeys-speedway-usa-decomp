@@ -201,13 +201,13 @@ void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
 #endif
 
 /*
- * Plateau (2026-08-25, cx-ov-2-a-r4): -O2 -mips2 with
- * -Wab,-r4300_mul is exact-size at 0x1A4 executable bytes, with 13 differing
- * words and the first mismatch at +0x38. The bounded ten-minute permuter
- * improves score 935 to 580 only by aliasing inverseDepth and fadeScale,
- * which changes the shade calculation; its best simple temporary regresses
- * the full-TU oracle. The blocker is initial command/fade-load scheduling and
- * the final packed-command expression order.
+ * Plateau (2026-08-30): configured -O2 -mips2 with -Wab,-r4300_mul remains
+ * exact-size at 105 words with the exact 0x58 frame, 13 relocation-masked
+ * differences (14 raw), and first mismatch +0x18. Ten fresh command,
+ * fade-lifetime, and packed-expression forms were neutral or worse. Preserve
+ * this semantic baseline; the remaining blockers are the entry setup/fade-load
+ * schedule, final packed-command association, and the unauthenticated
+ * LOCAL/data relocation identities.
  */
 #ifdef NON_MATCHING
 void overlay15DrawScreenStars(Overlay15Gfx **displayList, f32 projectionScale) {
@@ -449,3 +449,13 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o015/overlay_015/func_overlay_015_F0000B94_1872F2C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay15DrawScreenStars:start
+ * symbol: overlay15DrawScreenStars
+ * score: 92/105 words
+ * frame: 0x58
+ * relocations: 10
+ * first-mismatch: +0x18
+ * summary: Ten source-authentic command, fade-lifetime, and packed-expression forms found no gain; entry scheduling and local-data identity proof remain.
+ * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
+ */
