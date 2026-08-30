@@ -172,8 +172,8 @@ one final linker invocation:
 3. The root Makefile's normal C, assembly, and binary-wrapper rules produce
    objects. `mk/overlays.mk` contains measured per-overlay-object compiler
    flags and reviewed ELF normalization; it is an included policy table, not
-   another build graph or linker. Pure `objcopy --redefine-sym`-only rules may
-   instead be declared in
+   another build graph or linker. Every non-idempotent overlay rule consisting
+   only of `objcopy --redefine-sym` is declared in
    `config/normalizations/overlay-symbol-aliases.us.json`; the checked-in
    `mk/overlay_aliases.generated.mk` include is its deterministic projection.
    Rules that also trim sections or filter/rebind relocations remain explicit
