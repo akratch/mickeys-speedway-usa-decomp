@@ -2607,6 +2607,7 @@ osFlashClearStatus = 0x80057C10; // type:func size:0x4C tier-A exact C, JFG libu
 func_80058EF4 = 0x80058EF4; // type:func size:0x90   ROM 0x59af4  tier-D logarithm-series helper, matched C
 // donor-jfg-src/camera.c.o
 camConvertMatrixList = 0x8005AB78; // type:func size:0x30   ROM 0x5b778  src/camera.c.o  masked=4/12
+func_8005AD64 = 0x8005AD64; // type:func size:0x1B0 ROM 0x5b964 tier-D animation selection/blend state, matched C main/models_5B300 -O2 -mips2 -32, 108/108 words, 0 relocs
 // Tier D: Mickey-derived parented matrix-list builder, exact linked C.
 func_8005B644 = 0x8005B644; // type:func size:0xCC  ROM 0x5c244
 // jfg:src/gsSnd.c.o

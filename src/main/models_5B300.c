@@ -366,28 +366,22 @@ animation_done:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005ABA8.s")
 #endif
-/* Workbench: structure-mismatch, 74 differing words, first mismatch +0x0. */
-/* Candidate shape: 111 instructions/no frame vs target 108/no frame; not permuter-ready. */
-/* Remaining structural gap: argument reloads and unsigned-count conversion add 3 instructions. */
 /* PROVENANCE: Mickey-only reconstruction from func_8005AD64.s and the
  * existing models TU layouts; no external function body is copied. */
-#ifdef NON_MATCHING
+/* Exact configured C: 108 words, no stack frame or relocations. The canonical
+ * linked resident range and full ROM are byte-identical. */
 void func_8005AD64(ModelAnimationInstance *instance, s32 frame, s32 arg2,
                    f32 value) {
     f32 temp_f0;
-    f32 var_f6;
     s32 temp_f6;
     s32 var_a1;
     s32 temp_a1;
-    s32 var_a3;
-    s32 temp_t9;
     s32 var_v1;
     ModelAnimationFrame *temp_a0;
     ModelAnimationState *temp_v0;
     ModelAnimationInfo *temp_v1;
 
     temp_v0 = instance->states[(s32)instance->animationIndex];
-    var_a3 = frame;
     temp_v1 = temp_v0->info;
     if (temp_v1->frameCount != 0) {
         if (value > 1.0f) {
@@ -397,25 +391,20 @@ void func_8005AD64(ModelAnimationInstance *instance, s32 frame, s32 arg2,
         }
         instance->frameValue = value;
         temp_a1 = temp_v1->frameCount;
-        if (var_a3 >= temp_a1) {
-            var_a3 = temp_a1 - 1;
-        } else if (var_a3 < 0) {
-            var_a3 = 0;
+        if (frame >= temp_a1) {
+            frame = temp_a1 - 1;
+        } else if (frame < 0) {
+            frame = 0;
         }
-        instance->frame = var_a3;
+        instance->frame = frame;
         var_a1 = 0;
         if ((temp_v0->frame != NULL) && (temp_v0->hasNext != 0)) {
             var_a1 = 1;
         }
-        temp_a0 = temp_v1->frames[var_a3];
+        temp_a0 = temp_v1->frames[frame];
         temp_v0->frame = temp_a0;
         temp_v0->frameData = (u8 *)temp_a0 + temp_a0->offset + 0x14;
-        temp_t9 = temp_a0->count;
-        var_f6 = (f32)temp_t9;
-        if (temp_t9 < 0) {
-            var_f6 += 4294967296.0f;
-        }
-        temp_v0->frameValue = var_f6;
+        temp_v0->frameValue = (f32)temp_a0->count;
         if (temp_a0->loop == 0) {
             temp_v0->frameValue = temp_v0->frameValue - 1.0f;
         }
@@ -425,11 +414,11 @@ void func_8005AD64(ModelAnimationInstance *instance, s32 frame, s32 arg2,
             var_v1 = temp_a0->flags;
         }
         if ((var_a1 != 0) && (var_v1 != 0)) {
+            temp_v0->blendEnd = (f32)var_v1;
             temp_f0 = temp_v0->frameValue * value;
             temp_v0->transition = 1;
             temp_v0->blendStart = 0.0f;
             temp_f6 = (s32)temp_f0;
-            temp_v0->blendEnd = (f32)var_v1;
             if ((temp_f0 - (f32)temp_f6) >= 0.5f) {
                 temp_v0->frameIndex = temp_f6 + 1;
                 return;
@@ -438,9 +427,6 @@ void func_8005AD64(ModelAnimationInstance *instance, s32 frame, s32 arg2,
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AD64.s")
-#endif
 
 /*
  * Plateau: the animation-frame update's closest reconstruction emits 110
