@@ -2802,12 +2802,14 @@ extern Overlay1PoolRecord gOverlay1PoolEnd[];
 extern s32 gOverlay1PoolGroup;
 extern s32 gOverlay1PoolExhausted;
 
-/* Plateau (2026-08-25): the isolated 119-combination flag lattice and eight
- * source variants are exact-sized but retain 9 differing words, first at
- * +0x6C. The prefix and relocation surface are exact; only the post-predicate
- * temporary FIFO web differs. Explicit temporaries, typed union/byte access,
- * operand association, pointer aliases, and register/volatile hints all keep
- * the same coloring. The configured tools/permuter checkout is absent. */
+/* Plateau (2026-08-30): the configured full-TU body is exact-sized at 40
+ * words and frameless, with 9 relocation-masked differences from +0x6C (10
+ * raw from +0x50). All 10 fallback-static relocation offset/type sites align,
+ * but none of the same-overlay LOCAL/data identities authenticate. Ten fresh
+ * semantic loop, predicate, declaration, and cursor-lifetime forms produced
+ * no strict gain; the remaining code residual is the post-predicate ugen
+ * temporary FIFO/register web. This candidate has no promoted-linked or
+ * linked-ROM exact proof and remains behind NON_MATCHING. */
 #ifdef NON_MATCHING
 Overlay1PoolRecord *overlay1AllocateRecord(void) {
     Overlay1PoolRecord *cursor;
@@ -3221,3 +3223,13 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0007B64_1853F44.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay1AllocateRecord:start
+ * symbol: overlay1AllocateRecord
+ * score: 31/40 words
+ * frame: frameless
+ * relocations: 10
+ * first-mismatch: +0x50
+ * summary: Masked residual 9 from +0x6C; fallback sites 10/10, LOCAL identities 0/10; ten semantic forms gave no strict gain
+ * PLATEAU-HANDOFF:overlay1AllocateRecord:end
+ */
