@@ -31,6 +31,7 @@ ATLAS = REPO / "config" / "overlays.us.json"
 ALIASES = REPO / "overlay_undefined_syms.us.txt"
 SYMBOLS = REPO / "symbol_addrs.us.txt"
 TARGET_ELF = REPO / "build" / "mickey.us.elf"
+VENV_PYTHON_TARGET = ".venv/bin/python"
 WB_COMPARE = TOOLS / "wb_compare.sh"
 TYPE_NAMES = {2: "R_MIPS_32", 4: "R_MIPS_26", 5: "R_MIPS_HI16", 6: "R_MIPS_LO16"}
 
@@ -476,21 +477,33 @@ def _build_target(target: Path, *, non_matching: bool, label: str) -> None:
     if non_matching:
         command.append("NON_MATCHING=1")
     build_dir = "build_non_matching" if non_matching else "build"
+    force = bool(_newer_inputs(target, _build_logic_inputs()))
     split = _run([*command, f"{build_dir}/.splat-stamp"], capture=True)
     if split.returncode:
         raise PreflightError(f"{label} split phase failed with exit {split.returncode}")
-    result = _run([*command, _relative(target)], capture=True)
+    target_command = [*command]
+    if force:
+        # Linked worktrees may share the primary checkout's virtualenv through
+        # a symlink. Force the evidence graph after recipe edits while keeping
+        # that immutable host-tool prerequisite out of the rebuild.
+        target_command.extend(
+            ["--always-make", f"--assume-old={VENV_PYTHON_TARGET}"]
+        )
+    result = _run([*target_command, _relative(target)], capture=True)
     if result.returncode:
         raise PreflightError(f"{label} build failed with exit {result.returncode}")
 
 
 def _build(resolution: Resolution) -> None:
+    candidate_is_nonmatching = resolution.candidate_build_dir == "build_non_matching"
+    if candidate_is_nonmatching:
+        _build_target(
+            resolution.candidate_object,
+            non_matching=True,
+            label="candidate",
+        )
+    # The canonical link is built last because both trees share extracted asm.
     _build_target(TARGET_ELF, non_matching=False, label="canonical")
-    _build_target(
-        resolution.candidate_object,
-        non_matching=resolution.candidate_build_dir == "build_non_matching",
-        label="candidate",
-    )
 
 
 def _symbol_geometry(elf: rs.Elf, names: tuple[str, ...]) -> tuple[str, int, int, str]:
@@ -887,6 +900,41 @@ def _require_static_relocation_evidence(
         )
 
 
+def _augment_runtime_identity_evidence(
+    resolution: Resolution,
+    comparison: dict[str, object],
+    workbench: dict[str, object],
+) -> dict[str, object]:
+    """Keep static names distinct from identities proved after promotion."""
+    result = dict(comparison)
+    target_count = int(result["target_record_count"])
+    static_count = int(result["stable_identity_alignment_count"])
+    linked_exact = (
+        resolution.resolution_mode == "post_promotion"
+        and result.get("offset_type_exact") is True
+        and int(result["candidate_record_count"]) == target_count
+        and workbench.get("differing_words") == 0
+        and workbench.get("target_words") == workbench.get("candidate_words")
+    )
+    linked_count = target_count - static_count if linked_exact else 0
+    effective_count = static_count + linked_count
+    result.update(
+        {
+            "linked_runtime_identity_alignment_count": linked_count,
+            "effective_identity_alignment_count": effective_count,
+            "effective_identity_exact": effective_count == target_count,
+            "identity_proof_mode": (
+                "static"
+                if result.get("stable_identity_exact") is True
+                else "static-plus-runtime-table-and-linked-rom"
+                if linked_exact
+                else "partial-static"
+            ),
+        }
+    )
+    return result
+
+
 def collect(resolution: Resolution) -> dict[str, object]:
     for path, label in (
         (TARGET_ELF, "canonical linked ELF"),
@@ -934,6 +982,10 @@ def collect(resolution: Resolution) -> dict[str, object]:
     )
     _require_static_relocation_evidence(resolution, comparison)
     inbound = _inbound_references(context, rom)
+    workbench = _workbench(resolution)
+    comparison = _augment_runtime_identity_evidence(
+        resolution, comparison, workbench
+    )
     result: dict[str, object] = {
         "schema": "mickey-function-evidence-preflight-v1",
         "requested_symbol": resolution.requested_symbol,
@@ -961,7 +1013,7 @@ def collect(resolution: Resolution) -> dict[str, object]:
         "runtime_relocations": _relocation_rows(runtime_records),
         **relocation_evidence,
         "relocation_comparison": comparison,
-        "workbench": _workbench(resolution),
+        "workbench": workbench,
     }
     return result
 

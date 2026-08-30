@@ -59,7 +59,9 @@ class ReleaseContextTests(GitRepoCase):
         self.assertEqual(ctx.remote, "public")
         self.assertEqual(len(ctx.outgoing_commits), 1)
         self.assertFalse(pr._scan_release(ctx, include_worktree=False))
-        commands = pr._reconciliation_commands(ctx, write_derived=False)
+        commands = pr._reconciliation_commands(
+            ctx, write_derived=False, check_reference_builds=False
+        )
         self.assertEqual(commands[0][0], "outgoing-cleanroom")
         self.assertIn("refs/remotes/public/master..HEAD", commands[0])
 
@@ -217,6 +219,45 @@ class CommandPlanTests(unittest.TestCase):
         for forbidden in ("push", "merge", "fetch", "cp", "rsync"):
             self.assertNotIn(forbidden, dry_targets)
             self.assertNotIn(forbidden, write_targets)
+
+    def test_reference_build_preflight_is_explicit_and_runs_first(self) -> None:
+        parser = pr._parser()
+        default = parser.parse_args(["--remote", "public", "--branch", "master"])
+        opted_in = parser.parse_args(
+            [
+                "--remote",
+                "public",
+                "--branch",
+                "master",
+                "--check-reference-builds",
+            ]
+        )
+        self.assertFalse(default.check_reference_builds)
+        self.assertTrue(opted_in.check_reference_builds)
+
+        ctx = pr.ReleaseContext(
+            repo=Path("."),
+            branch="master",
+            remote="public",
+            base_ref="refs/remotes/public/master",
+            base_oid="0" * 40,
+            head_oid="1" * 40,
+            fetch_url="https://example.invalid/project.git",
+            push_url="https://example.invalid/project.git",
+            outgoing_commits=("1" * 40,),
+        )
+        default_plan = pr._reconciliation_commands(
+            ctx, write_derived=True, check_reference_builds=False
+        )
+        preflight_plan = pr._reconciliation_commands(
+            ctx, write_derived=True, check_reference_builds=True
+        )
+        self.assertNotIn("verify_reference_builds.sh", str(default_plan))
+        self.assertEqual(
+            preflight_plan[0],
+            ("reference-builds", "bash", "tools/verify_reference_builds.sh"),
+        )
+        self.assertEqual(preflight_plan[1:], default_plan)
 
     def test_new_public_files_do_not_trigger_their_own_text_scan(self) -> None:
         root = TOOLS.parent

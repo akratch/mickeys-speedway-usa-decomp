@@ -46,7 +46,10 @@ regions, but does not establish individual function identity.
 ```
 
 A resident target needs a known size in `symbol_addrs.us.txt`. An overlay
-target uses `N:+0xOFFSET` and must begin at a recorded text-ownership range.
+target uses `N:+0xOFFSET` and must begin at an exact function-sized
+`mixed_tu_exact_c_ranges` row or a recorded text-ownership range. An exact
+mixed-TU row takes precedence over a coarser ownership container at the same
+offset; malformed or ambiguous identities fail closed.
 
 The similarity score ranks candidates by shared masked n-grams. Inspect the
 highest result's types, callers, and control flow before using it as a source

@@ -499,19 +499,28 @@ def _release_gate_command(
 
 
 def _reconciliation_commands(
-    ctx: ReleaseContext, *, write_derived: bool
+    ctx: ReleaseContext, *, write_derived: bool, check_reference_builds: bool
 ) -> tuple[tuple[str, ...], ...]:
     commands = WRITE_GENERATORS if write_derived else READ_ONLY_GENERATORS
     if not ctx.outgoing_commits:
-        return commands
-    range_check = (
-        "outgoing-cleanroom",
-        "bash",
-        "tools/cleanroom_check.sh",
-        "--range",
-        f"{ctx.base_ref}..HEAD",
-    )
-    return (range_check, *commands)
+        planned = commands
+    else:
+        range_check = (
+            "outgoing-cleanroom",
+            "bash",
+            "tools/cleanroom_check.sh",
+            "--range",
+            f"{ctx.base_ref}..HEAD",
+        )
+        planned = (range_check, *commands)
+    if check_reference_builds:
+        reference_preflight = (
+            "reference-builds",
+            "bash",
+            "tools/verify_reference_builds.sh",
+        )
+        return (reference_preflight, *planned)
+    return planned
 
 
 def _tracked_dirt(repo: Path) -> str:
@@ -552,6 +561,14 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="run the explicit derived-artifact writers; still never push",
     )
+    parser.add_argument(
+        "--check-reference-builds",
+        action="store_true",
+        help=(
+            "fail early unless the out-of-tree reference farm matches "
+            "tools/reference-builds.lock"
+        ),
+    )
     parser.add_argument("--nice", type=int, default=15)
     parser.add_argument("--timeout", type=float, default=3600.0, metavar="SECONDS")
     return parser
@@ -578,7 +595,9 @@ def main(argv: list[str] | None = None) -> int:
     mode = "WRITE-DERIVED" if args.write_derived else "DRY-RUN"
     print(f"mode: {mode}; network mutation=disabled; push=disabled")
     generators = _reconciliation_commands(
-        ctx, write_derived=args.write_derived
+        ctx,
+        write_derived=args.write_derived,
+        check_reference_builds=args.check_reference_builds,
     )
     if not _run_commands(repo, generators, niceness=args.nice, timeout=args.timeout):
         print("PUBLIC RELEASE PREFLIGHT FAIL: reconciliation command failed", file=sys.stderr)

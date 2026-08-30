@@ -559,8 +559,62 @@ class FreshnessTests(unittest.TestCase):
             self.assertIn("NON_MATCHING=1", commands[0])
             self.assertIn("NON_MATCHING=1", commands[1])
 
+    def test_newer_build_policy_forces_graph_without_recreating_venv(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            policy = root / "mk/flags.mk"
+            policy.parent.mkdir(parents=True)
+            policy.write_text("# changed flags\n", encoding="utf-8")
+            object_time = resolution.candidate_object.stat().st_mtime_ns
+            os.utime(policy, ns=(object_time + 1_000_000, object_time + 1_000_000))
+            completed = subprocess.CompletedProcess([], 0, stdout="", stderr="")
+            with mock.patch.object(
+                fp, "_build_logic_inputs", return_value=(policy,)
+            ), mock.patch.object(fp, "_run", return_value=completed) as run:
+                fp._build_target(
+                    resolution.candidate_object,
+                    non_matching=True,
+                    label="candidate",
+                )
+
+            commands = [call.args[0] for call in run.call_args_list]
+            self.assertNotIn("--always-make", commands[0])
+            self.assertIn("--always-make", commands[1])
+            self.assertIn("--assume-old=.venv/bin/python", commands[1])
+
 
 class RelocationEvidenceTests(unittest.TestCase):
+    def test_post_promotion_exact_rom_completes_runtime_identity_proof(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build", Path("build/src/example.c.o"), None,
+            "promoted", resolution_mode="post_promotion",
+        )
+        comparison = {
+            "target_record_count": 3,
+            "candidate_record_count": 3,
+            "stable_identity_alignment_count": 2,
+            "stable_identity_exact": False,
+            "offset_type_exact": True,
+        }
+        workbench = {
+            "differing_words": 0,
+            "target_words": 10,
+            "candidate_words": 10,
+        }
+
+        result = fp._augment_runtime_identity_evidence(
+            resolution, comparison, workbench
+        )
+        self.assertEqual(1, result["linked_runtime_identity_alignment_count"])
+        self.assertEqual(3, result["effective_identity_alignment_count"])
+        self.assertTrue(result["effective_identity_exact"])
+        self.assertEqual(
+            "static-plus-runtime-table-and-linked-rom",
+            result["identity_proof_mode"],
+        )
+
     def test_resident_reports_eight_static_tuples_and_zero_runtime_records(self) -> None:
         resolution = fp.Resolution(
             "func_8002BB40",

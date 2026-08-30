@@ -464,6 +464,58 @@ def cmd_kinship(args):
 # similar
 # ---------------------------------------------------------------------------
 
+def _atlas_range_int(row, field, *, overlay, kind):
+    value = row.get(field)
+    try:
+        if isinstance(value, bool):
+            raise ValueError
+        if isinstance(value, int):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = int(value, 0)
+        else:
+            raise ValueError
+    except ValueError:
+        sys.exit(
+            f"error: overlay {overlay} has invalid {kind} {field} {value!r}"
+        )
+    return parsed
+
+
+def _function_sized_mixed_range(row, *, overlay, text_size):
+    """Validate one mixed-TU exact-C row and return its half-open extent."""
+    if not isinstance(row, dict):
+        sys.exit(f"error: overlay {overlay} has a malformed mixed-TU exact row")
+    start = _atlas_range_int(
+        row, "offset", overlay=overlay, kind="mixed-TU exact row"
+    )
+    end = _atlas_range_int(
+        row, "end_offset", overlay=overlay, kind="mixed-TU exact row"
+    )
+    size = _atlas_range_int(
+        row, "size", overlay=overlay, kind="mixed-TU exact row"
+    )
+    label = row.get("label")
+    source = row.get("source")
+    if (
+        start < 0
+        or start >= end
+        or size != end - start
+        or start % 4
+        or end % 4
+        or end > text_size
+        or not isinstance(label, str)
+        or not label
+        or not isinstance(source, str)
+        or not source
+    ):
+        sys.exit(
+            f"error: overlay {overlay} mixed-TU exact row at +0x{start:X} "
+            "is not one unambiguous function-sized range"
+        )
+    return start, end
+
+
 def resolve_target_bytes(target, atlas_cache):
     """target: 'vram:0x8000abcd' style resident vram, or 'N:+0xOFF' overlay
     spec. -> (label, bytes) or None if boundaries can't be determined."""
@@ -472,13 +524,45 @@ def resolve_target_bytes(target, atlas_cache):
         ov_num, off_s = int(m.group(1)), int(m.group(2), 16)
         off = off_s
         atlas = atlas_cache.setdefault("atlas", load_atlas())
-        for ov in overlay_regions(atlas, overlay_filter={ov_num}):
-            for a, b in ov["matched"]:
-                if a == off:
-                    return f"o{ov_num:03d}+0x{off:X}", ov["body"][a:b]
-            sys.exit(f"error: o{ov_num:03d}+0x{off:X} is not a known function start in "
-                      "text_ownership; pass a resident vram instead, or extend text_ownership")
-        sys.exit(f"error: overlay {ov_num} not found in atlas")
+        modules = [row for row in atlas.get("modules", []) if row.get("overlay") == ov_num]
+        if not modules:
+            sys.exit(f"error: overlay {ov_num} not found in atlas")
+        if len(modules) != 1:
+            sys.exit(f"error: overlay {ov_num} has ambiguous module identity in atlas")
+        regions = overlay_regions(atlas, overlay_filter={ov_num})
+        if len(regions) != 1:
+            sys.exit(f"error: overlay {ov_num} has no unique non-empty text region")
+        module = modules[0]
+        body = regions[0]["body"]
+
+        mixed = []
+        for row in module.get("mixed_tu_exact_c_ranges", []):
+            start, end = _function_sized_mixed_range(
+                row, overlay=ov_num, text_size=len(body)
+            )
+            if start == off:
+                mixed.append((start, end))
+        if len(mixed) > 1:
+            sys.exit(
+                f"error: o{ov_num:03d}+0x{off:X} has ambiguous mixed-TU exact identity"
+            )
+        if mixed:
+            start, end = mixed[0]
+            return f"o{ov_num:03d}+0x{off:X}", body[start:end]
+
+        ownership = [(a, b) for a, b in regions[0]["matched"] if a == off]
+        if len(ownership) > 1:
+            sys.exit(
+                f"error: o{ov_num:03d}+0x{off:X} has ambiguous text_ownership identity"
+            )
+        if ownership:
+            start, end = ownership[0]
+            return f"o{ov_num:03d}+0x{off:X}", body[start:end]
+        sys.exit(
+            f"error: o{ov_num:03d}+0x{off:X} is not a known function start in "
+            "mixed_tu_exact_c_ranges or text_ownership; pass a resident vram instead, "
+            "or extend the overlay atlas"
+        )
     m = re.match(r"^(?:vram:)?0x([0-9A-Fa-f]+)$", target)
     if m:
         vram = int(m.group(1), 16)
@@ -578,7 +662,8 @@ def build_parser():
     add_common(p_sim)
     p_sim.add_argument("--target", required=True,
                         help="'N:+0xOFF' for overlay N at text offset OFF (must be a known "
-                             "text_ownership function start), or '0xVRAM' for a resident "
+                             "exact mixed-TU or text_ownership function start), or '0xVRAM' "
+                             "for a resident "
                              "function (must have a size:0x.. entry in symbol_addrs.us.txt)")
     p_sim.add_argument("--top", type=int, default=10)
     p_sim.add_argument("--ngram", type=int, default=4, help="n-gram length in words (default 4)")

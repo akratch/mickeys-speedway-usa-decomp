@@ -88,6 +88,19 @@ Invoke `wb_compare.sh --rom <linked-C-name>` directly after promotion;
 `function_preflight.py` selects it automatically after its tracked
 post-promotion checks pass.
 
+For a compact post-promotion receipt, run:
+
+```sh
+gmake promotion-proof SYMBOL=overlay41SpawnItems
+```
+
+`tools/promotion_proof.py` consumes the preflight JSON rather than duplicating
+its resolver. It requires post-promotion mode, linked-ROM comparison, exact
+words and frame, and exact relocation shape and effective identities. Add
+`PROMOTION_PROOF_ARGS=--canonical` to also run the bounded full-ROM and overlay
+relocation-surface proofs. `--no-build` is available when the evidence graph is
+already fresh.
+
 ## Overlay tools
 
 | Tool | Purpose | Documentation |
@@ -137,6 +150,13 @@ When generated files need refreshing, add `--write-derived`. Write mode calls
 only the documented overlay-atlas, atlas-digest, post-process, overlay-symbol,
 and scoreboard generators and leaves their output unstaged. Review and commit
 those changes, then rerun the clean default dry run.
+
+Maintainers with the out-of-tree reference farm can add
+`--check-reference-builds`. This opt-in check runs the lock-pinned reference
+verifier before reconciliation generators, failing early on a missing, stale,
+or divergent DKR/JFG farm. It is off by default because ordinary contributors
+do not need the external farm, and it honors the verifier's `REFS_ROOT`
+override.
 
 ## objdiff
 
