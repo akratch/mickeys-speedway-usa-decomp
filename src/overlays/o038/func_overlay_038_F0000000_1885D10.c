@@ -42,10 +42,13 @@ typedef struct O38DirectionInput {
 extern s32 o38RandomRange(s32 minimum, s32 maximum);
 extern void o38MakeDirection(s16 *source, s16 *destination);
 
-/* Workbench (2026-08-28): 340 B/85 words, exact 0x60 frame, seven raw words first +0x48.
- * Candidate has seven R_MIPS_26 roles, whose target identities remain unresolved; they are not masked match credit.
- * Particle/direction declaration initializers regress to 11 words and swap s2/s3; inherited pointer-chain and init sweeps were exhausted.
- * Remains: late s0/s3 materialization, direction-pool coloring, and seven symbol identities; canonical assembly stays. */
+/* Workbench (2026-08-28): 340 B/85 words, exact 0x60 frame, seven raw words
+ * first +0x48. The six random-range calls and final direction call have exact
+ * R_MIPS_26 offsets, types, and identities; they are not masked match credit.
+ * Particle/direction declaration initializers regress to 11 words and swap
+ * s2/s3. A fresh bounded two-worker permutation batch found setup boundaries,
+ * but the real full-TU build regressed their frame to 0x68; the natural 0x60
+ * source remains best. Canonical assembly stays absent a new scheduler lever. */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000000_1885D10(O38Object *object,
                                        O38Descriptor *descriptor)
@@ -78,3 +81,13 @@ void func_overlay_038_F0000000_1885D10(O38Object *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o038/func_overlay_038_F0000000_1885D10/func_overlay_038_F0000000_1885D10.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_038_F0000000_1885D10:start
+ * symbol: func_overlay_038_F0000000_1885D10
+ * score: 78/85 words
+ * frame: 0x60
+ * relocations: 7
+ * first-mismatch: +0x48
+ * summary: Natural full-TU source stays exact-sized; bounded setup-boundary permutations regress the frame to 0x68, leaving an early scheduler wall.
+ * PLATEAU-HANDOFF:func_overlay_038_F0000000_1885D10:end
+ */
