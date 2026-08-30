@@ -103,3 +103,13 @@ void func_overlay_026_F0000B18_187AF10(
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o026/func_overlay_026_F0000B18_187AF10/func_overlay_026_F0000B18_187AF10.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_026_F0000B18_187AF10:start
+ * symbol: func_overlay_026_F0000B18_187AF10
+ * score: 128/131 words
+ * frame: 0x78
+ * relocations: 7
+ * first-mismatch: +0x2C
+ * summary: FP multiply carrier and caller-spill home remain after bounded lifetime and temp-birth probes
+ * PLATEAU-HANDOFF:func_overlay_026_F0000B18_187AF10:end
+ */
