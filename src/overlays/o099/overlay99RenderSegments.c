@@ -1,20 +1,4 @@
-#include "PR/ultratypes.h"
-
-typedef struct Overlay99Gfx {
-    u32 w0;
-    u32 w1;
-} Overlay99Gfx;
-
-typedef struct Overlay99RenderObject {
-    s16 zero0;
-    s16 zero2;
-    s16 heading;
-    s16 flags;
-    u8 pad08[4];
-    f32 x;
-    f32 z;
-    f32 y;
-} Overlay99RenderObject;
+#include "overlays/overlay_099.h"
 
 typedef struct Overlay99Segment {
     f32 x0;
@@ -24,47 +8,37 @@ typedef struct Overlay99Segment {
     u8 pad10[0x1A];
     s8 headingOffset;
     u8 pad2B;
-    Overlay99RenderObject *object;
+    Overlay99RenderState *object;
 } Overlay99Segment;
 
 extern s32 gOverlay99SegmentCount;
 extern Overlay99Segment gOverlay99Segments[];
 extern void *gOverlay99Texture;
-extern int overlay99Begin(void **outA, s32 *outB);
-extern void overlay99Setup(Overlay99Gfx **displayList, void *a, s32 b,
-                           void *zero0, s32 zero1, void *a2, s32 b2);
-extern void overlay99End(Overlay99Gfx **displayList);
-extern s16 overlay99Angle(f32 x, f32 z);
-extern f32 overlay99Sqrt(f32 squared);
-extern void overlay99DrawObject(Overlay99Gfx **displayList, void *arg1,
-                                s32 arg2, Overlay99RenderObject *object);
-extern void func_overlay_099_F0000800_18D9DB0(
-    Overlay99Gfx **displayList, void *arg1, s32 arg2,
-    Overlay99RenderObject *object, f32 scale);
+extern void overlay99GetCurrentSizeReloc(s32 *width, s32 *height);
+extern void overlay99ClearZBufferReloc(Gfx **displayList, u32 width,
+                                       u32 height, s32 x1, s32 y1, s32 x2,
+                                       s32 y2);
+extern void overlay99Func80034920Reloc(Gfx **displayList);
+extern s16 overlay99ArctanfReloc(f32 x, f32 z);
+extern f32 overlay99SqrtReloc(f32 squared);
+extern void overlay99Func80009E78Reloc(Gfx **displayList, Mtx **matrices,
+                                       void *vertices,
+                                       Overlay99RenderState *object);
 
-/* Bounded workbench closeout (2026-08-28): the configured candidate is
- * exact-sized at 142 words with the exact 0xa8 frame and all 15 runtime
- * relocation roles. Stock-gated CFE/Ucode and ugen/as1 captures traced the
- * addressed setup result; three natural layout/scope variants either moved
- * its homes or grew the frame. A five-minute, one-thread permuter found the
- * non-void begin ABI, which the real full-TU build confirmed by selecting the
- * retail display-list register. The retained candidate is 140/142 words after
- * masking relocation addends; its only residual is setup.b at sp+0xa0 rather
- * than retail's sp+0x98, first visible at +0x7c. */
-#ifdef NON_MATCHING
-void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
+/* Overlay 99 +0xBA4..+0xDDC, 142 words with no target padding. The shipped
+ * relocation tables authenticate viGetCurrentSize, rcpClearZBuffer,
+ * func_80034920, Arctanf, sqrtf, func_80009E78, and the local sorted-entry
+ * renderer. */
+void overlay99RenderSegments(Gfx **displayList, Mtx **matrices, void *vertices,
                              f32 scale) {
-    struct {
-        void *a;
-        s32 b;
-        u32 reserved;
-    } setup;
     f32 dx;
     f32 dz;
+    s32 width;
+    s32 height;
     f32 length;
     Overlay99Segment *segment;
-    Overlay99RenderObject *object;
-    Overlay99Gfx *command;
+    Overlay99RenderState *object;
+    Gfx *command;
     s32 initialized;
     s32 i;
 
@@ -76,43 +50,40 @@ void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
             object = segment->object;
             if (object != 0) {
                 if (initialized == 0) {
-                    overlay99Begin(&setup.a, &setup.b);
+                    overlay99GetCurrentSizeReloc(&width, &height);
                     initialized = 1;
-                    command = *displayList;
-                    *displayList = command + 1;
-                    command->w0 = 0xBC000806;
-                    command->w1 = (u32)gOverlay99Texture + 0x80000000;
-                    overlay99Setup(displayList, setup.a, setup.b, 0, 0,
-                                   setup.a, setup.b);
-                    overlay99End(displayList);
+                    command = (*displayList)++;
+                    command->words.w0 = 0xBC000806;
+                    command->words.w1 = (u32)gOverlay99Texture + 0x80000000;
+                    overlay99ClearZBufferReloc(displayList, width, height, 0,
+                                               0, width, height);
+                    overlay99Func80034920Reloc(displayList);
                 }
 
                 dx = segment->x1 - segment->x0;
                 dz = segment->z1 - segment->z0;
-                object->zero0 = 0;
-                object->zero2 = 0;
-                object->heading = overlay99Angle(-dx, dz);
+                object->rotation0 = 0;
+                object->rotation1 = 0;
+                object->heading = overlay99ArctanfReloc(-dx, dz);
                 dx *= scale;
                 dz *= scale;
                 object->x = segment->x0 + dx;
-                object->z = segment->z0 + dz;
-                object->y = 5.0f;
-                length = overlay99Sqrt((dx * dx) + (dz * dz));
+                object->y = segment->z0 + dz;
+                object->z = 5.0f;
+                length = overlay99SqrtReloc((dx * dx) + (dz * dz));
                 if (segment->headingOffset != 0) {
                     object->heading += (s32)((f32)segment->headingOffset *
                                              65536.0f * scale);
                 }
-                object->flags &= ~0x400;
-                overlay99DrawObject(displayList, arg1, arg2, object);
-                object->flags |= 0x400;
-                func_overlay_099_F0000800_18D9DB0(displayList, arg1, arg2,
-                                                   object, length);
+                object->flags = (s16)object->flags & ~0x400;
+                overlay99Func80009E78Reloc(displayList, matrices, vertices,
+                                           object);
+                object->flags = (s16)object->flags | 0x400;
+                overlay99RenderSortedEntries(displayList, matrices, vertices,
+                                             object, length);
             }
             i++;
             segment++;
         } while (i < gOverlay99SegmentCount);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/overlay99RenderSegments/func_overlay_099_F0000BA4_18DA154.s")
-#endif
