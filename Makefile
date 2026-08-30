@@ -503,6 +503,13 @@ check-docs:
 	$(HOST_PYTHON) $(TOOLS_DIR)/overlay_donor_scan.py --check
 	$(HOST_PYTHON) $(TOOLS_DIR)/nm_ranking.py --check-doc
 
+# Keep the shared linked-ELF prerequisite quiet for progress consumers while
+# retaining complete compiler/linker diagnostics on disk.
+QUIET_ELF_BUILD = $(HOST_PYTHON) $(TOOLS_DIR)/run_logged.py \
+	--repo . --log build/progress/elf-build.log \
+	--label "linked ELF build" -- \
+	$(MAKE) --no-print-directory $(TARGET).elf
+
 # Builds just far enough to have a linked ELF (no crc/z64 round-trip needed --
 # tools/progress.py only reads the ELF's symbol table plus the current asm/
 # and symbol_addrs.$(VERSION).txt state), then reports the derived progress
@@ -510,7 +517,7 @@ check-docs:
 # same reason (see the big comment on `all` above).
 progress:
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
-	@$(MAKE) --no-print-directory $(TARGET).elf
+	@$(QUIET_ELF_BUILD)
 	$(PYTHON) $(TOOLS_DIR)/progress.py --version $(VERSION)
 
 # Rewrites README.md's scoreboard block, between its SCOREBOARD_BEGIN /
@@ -522,7 +529,7 @@ progress:
 # generated, and `check-scoreboard` below proves it stayed generated.
 scoreboard:
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
-	@$(MAKE) --no-print-directory $(TARGET).elf
+	@$(QUIET_ELF_BUILD)
 	$(PYTHON) $(TOOLS_DIR)/progress.py --version $(VERSION) --update-readme
 
 # Fails if README.md's scoreboard block is not what the tree generates right
@@ -533,7 +540,7 @@ scoreboard:
 # nothing to do with one.
 check-scoreboard:
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
-	@$(MAKE) --no-print-directory $(TARGET).elf
+	@$(QUIET_ELF_BUILD)
 	$(PYTHON) $(TOOLS_DIR)/progress.py --version $(VERSION) --check-readme
 
 clean:
