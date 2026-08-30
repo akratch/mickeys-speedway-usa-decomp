@@ -1101,6 +1101,188 @@ def _summary_digest(payload: dict[str, object], name: str) -> str | None:
     return value
 
 
+def _verified_summary_artifact(
+    manifest: dict[str, object], name: str, *, root: Path = REPO
+) -> Path | None:
+    """Return one manifest artifact only when its declared bytes still agree."""
+
+    record = manifest.get(name)
+    if record is None:
+        return None
+    if not isinstance(record, dict):
+        raise PreflightError(f"workbench provenance {name} record is malformed")
+    raw_path = record.get("path")
+    digest = record.get("sha256")
+    size = record.get("size")
+    # Older/minimal manifests carry a digest but no path. That is unavailable
+    # relocation evidence, not permission to guess a canonical artifact.
+    if raw_path is None or digest is None:
+        return None
+    if (
+        not isinstance(raw_path, str)
+        or not raw_path
+        or Path(raw_path).is_absolute()
+        or ".." in Path(raw_path).parts
+    ):
+        raise PreflightError(f"workbench provenance {name} path is unsafe")
+    if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+        raise PreflightError(f"workbench provenance {name} digest is malformed")
+    if size is not None and (
+        not isinstance(size, int) or isinstance(size, bool) or size < 0
+    ):
+        raise PreflightError(f"workbench provenance {name} size is malformed")
+    path = root / raw_path
+    try:
+        path.resolve().relative_to(root.resolve())
+    except ValueError as error:
+        raise PreflightError(
+            f"workbench provenance {name} artifact escapes its proof root"
+        ) from error
+    if not path.is_file():
+        return None
+    if path.is_symlink():
+        raise PreflightError(f"workbench provenance {name} artifact is a symlink")
+    if size is not None and path.stat().st_size != size:
+        raise PreflightError(f"workbench provenance {name} size no longer agrees")
+    if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+        raise PreflightError(f"workbench provenance {name} digest no longer agrees")
+    return path
+
+
+def _authenticated_summary_relocation_comparison(
+    manifest: dict[str, object],
+    *,
+    requested_symbol: str,
+    target_symbol: str,
+    candidate_symbol: str,
+    comparison_mode: str,
+) -> dict[str, object] | None:
+    """Reproduce canonical relocation evidence from one workbench manifest.
+
+    Assembly-mode provenance identifies the exact full-TU candidate and target
+    objects. ROM-mode manifests contain comparison dumps rather than a static
+    candidate object, so their relocation block remains absent unless a future
+    proof input supplies the missing static surface.
+    """
+
+    manifest_mode = manifest.get("mode")
+    if manifest_mode is None:
+        return None
+    if manifest_mode != comparison_mode:
+        raise PreflightError(
+            "workbench provenance mode disagrees with summary mode"
+        )
+    if comparison_mode != "asm":
+        return None
+    manifest_target = manifest.get("symbol")
+    manifest_candidate = manifest.get("candidate_symbol")
+    if manifest_target is None or manifest_candidate is None:
+        return None
+    if manifest_target != target_symbol or manifest_candidate != candidate_symbol:
+        raise PreflightError(
+            "workbench provenance symbols disagree with summary identity"
+        )
+
+    source = _verified_summary_artifact(manifest, "source")
+    candidate_object = _verified_summary_artifact(manifest, "candidate_object")
+    target_object = _verified_summary_artifact(manifest, "target_object")
+    if source is None or candidate_object is None or target_object is None:
+        return None
+    try:
+        source_relative = source.relative_to(REPO / "src")
+        candidate_relative = candidate_object.relative_to(REPO)
+    except ValueError as error:
+        raise PreflightError(
+            "workbench provenance relocation inputs escape canonical roots"
+        ) from error
+    translation_unit = source_relative.with_suffix("").as_posix()
+    candidate_build = candidate_relative.parts[0]
+    expected_candidate = Path(candidate_build) / "src" / f"{translation_unit}.c.o"
+    if (
+        candidate_build not in {"build", "build_non_matching"}
+        or candidate_relative != expected_candidate
+    ):
+        raise PreflightError(
+            "workbench provenance candidate object disagrees with source"
+        )
+    expected_target = REPO / "build/wb" / f"{target_symbol}.target.o"
+    if target_object != expected_target:
+        raise PreflightError(
+            "workbench provenance target object disagrees with target symbol"
+        )
+    for path in (TARGET_ELF, ROM, ATLAS, ALIASES):
+        if not path.is_file():
+            return None
+
+    redefine_aliases = _candidate_redefine_aliases(candidate_object)
+    try:
+        return rs.function_surface_comparison(
+            requested_symbol,
+            candidate_object,
+            TARGET_ELF,
+            rom_path=ROM,
+            atlas_path=ATLAS,
+            values_path=ALIASES,
+            candidate_symbol=candidate_symbol,
+            target_symbol=target_symbol,
+            source=translation_unit,
+            candidate_redefine_aliases=redefine_aliases,
+        )
+    except rs.SurfaceComparisonError as error:
+        raise PreflightError(
+            f"cannot authenticate workbench relocation summary: {error}"
+        ) from error
+
+
+def _summary_relocations(comparison: dict[str, object]) -> dict[str, int]:
+    """Validate and reduce canonical relocation evidence to three scalars."""
+
+    required = (
+        "candidate_record_count",
+        "target_record_count",
+        "offset_type_alignment_count",
+        "stable_identity_alignment_count",
+        "candidate_identity_resolved_count",
+    )
+    values: dict[str, int] = {}
+    for name in required:
+        value = comparison.get(name)
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            raise PreflightError(
+                f"authenticated relocation comparison has invalid {name}"
+            )
+        values[name] = value
+    candidate = values["candidate_record_count"]
+    target = values["target_record_count"]
+    surface = min(candidate, target)
+    if values["offset_type_alignment_count"] > surface:
+        raise PreflightError(
+            "authenticated relocation offset/type count exceeds its surface"
+        )
+    if values["stable_identity_alignment_count"] > surface:
+        raise PreflightError(
+            "authenticated exact relocation identities exceed their surface"
+        )
+    if values["candidate_identity_resolved_count"] > candidate:
+        raise PreflightError(
+            "authenticated resolved relocation identities exceed candidate count"
+        )
+    unresolved = comparison.get("candidate_identity_unresolved_records")
+    if not isinstance(unresolved, list) or (
+        values["candidate_identity_resolved_count"] + len(unresolved) != candidate
+    ):
+        raise PreflightError(
+            "authenticated relocation unresolved diagnostics disagree with counts"
+        )
+
+    exact_identities = values["stable_identity_alignment_count"]
+    return {
+        "candidate_relocations": candidate,
+        "target_relocations": target,
+        "exact_relocation_identities": exact_identities,
+    }
+
+
 def workbench_summary(
     raw_path: Path,
     manifest_path: Path,
@@ -1161,7 +1343,18 @@ def workbench_summary(
             f"boundary={proved_boundary_size}, target={target_words * 4}"
         )
 
-    return {
+    relocation_comparison = _authenticated_summary_relocation_comparison(
+        manifest,
+        requested_symbol=requested_symbol,
+        target_symbol=target_symbol,
+        candidate_symbol=candidate_symbol,
+        comparison_mode=comparison_mode,
+    )
+    relocations = None
+    if relocation_comparison is not None:
+        relocations = _summary_relocations(relocation_comparison)
+
+    result = {
         "schema": "mickey-wb-summary-v1",
         "symbol": {
             "requested": requested_symbol,
@@ -1240,6 +1433,9 @@ def workbench_summary(
             "raw_report_sha256": hashlib.sha256(raw_bytes).hexdigest(),
         },
     }
+    if relocations is not None:
+        result["relocations"] = relocations
+    return result
 
 
 def _workbench(resolution: Resolution) -> dict[str, object]:

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import contextlib
 import dataclasses
+import hashlib
 import io
 import json
 import os
@@ -529,6 +530,81 @@ class GeometryAndWorkbenchSummaryTests(unittest.TestCase):
         self.assertEqual(16, report["comparison"]["target_frame_bytes"])
         self.assertFalse(report["evidence"]["admissible_exact_comparison"])
         self.assertNotIn("diff_sites", json.dumps(report))
+        self.assertNotIn("relocations", report)
+
+    def test_summary_includes_only_authenticated_relocation_scalars(self) -> None:
+        comparison = {
+            "candidate_record_count": 21,
+            "target_record_count": 21,
+            "offset_type_alignment_count": 21,
+            "stable_identity_alignment_count": 11,
+            "candidate_identity_resolved_count": 21,
+            "candidate_identity_unresolved_records": [],
+            "offset_type_exact": True,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            with mock.patch.object(
+                fp,
+                "_authenticated_summary_relocation_comparison",
+                return_value=comparison,
+            ):
+                report = self.summarize(Path(directory))
+
+        self.assertEqual(
+            {
+                "candidate_relocations": 21,
+                "target_relocations": 21,
+                "exact_relocation_identities": 11,
+            },
+            report["relocations"],
+        )
+
+    def test_summary_rejects_inconsistent_relocation_counts(self) -> None:
+        comparison = {
+            "candidate_record_count": 1,
+            "target_record_count": 1,
+            "offset_type_alignment_count": 1,
+            "stable_identity_alignment_count": 2,
+            "candidate_identity_resolved_count": 1,
+            "candidate_identity_unresolved_records": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            with mock.patch.object(
+                fp,
+                "_authenticated_summary_relocation_comparison",
+                return_value=comparison,
+            ):
+                with self.assertRaisesRegex(
+                    fp.PreflightError, "exact relocation identities exceed"
+                ):
+                    self.summarize(Path(directory))
+
+    def test_declared_relocation_artifact_digest_conflict_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifact = root / "candidate.o"
+            artifact.write_bytes(b"current object")
+            manifest = {
+                "candidate_object": {
+                    "path": "candidate.o",
+                    "sha256": hashlib.sha256(b"stale object").hexdigest(),
+                    "size": artifact.stat().st_size,
+                }
+            }
+
+            with self.assertRaisesRegex(fp.PreflightError, "digest no longer agrees"):
+                fp._verified_summary_artifact(
+                    manifest, "candidate_object", root=root
+                )
+
+    def test_incomplete_relocation_artifact_record_is_unavailable(self) -> None:
+        manifest = {"candidate_object": {"sha256": "a" * 64}}
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertIsNone(
+                fp._verified_summary_artifact(
+                    manifest, "candidate_object", root=Path(directory)
+                )
+            )
 
     def test_exact_summary_accepts_null_optional_metrics(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

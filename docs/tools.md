@@ -301,6 +301,19 @@ automatic two-phase refresh as ordinary preflight. Use wrapper-level
 `--no-build` only when a diagnostic or test must prove existing evidence is
 already fresh without compiling.
 
+`--summary-json` emits the concise `mickey-wb-summary-v1` checkpoint input.
+For assembly comparisons, it also emits an optional top-level `relocations`
+object when the proof manifest's source, full-TU candidate object, and isolated
+target object still match their recorded hashes and the canonical relocation
+surface can authenticate them. Its scalar fields are `candidate_relocations`,
+`target_relocations`, and `exact_relocation_identities`; the last counts exact
+candidate-to-target runtime identity alignments, not merely candidate records
+whose identities were resolved. Missing static proof inputs (including the
+current ROM-dump mode) omit the entire object. Malformed, stale, conflicting,
+or ownership-inconsistent declared evidence fails closed instead of supplying
+or inferring counts. These summary scalars are checkpoint evidence only and do
+not relax relocation-exact promotion requirements.
+
 ## tools/check_tools.sh
 
 Runs each tool's `--version`/`--help` and prints one line per tool:

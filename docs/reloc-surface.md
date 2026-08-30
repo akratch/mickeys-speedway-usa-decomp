@@ -62,6 +62,48 @@ report remain unchanged; `stable_identity_*` continues to describe identities
 proved statically, while `effective_identity_*` may additionally include an
 exact linked-ROM/runtime-table proof after canonical promotion.
 
+### Canonical same-overlay generated-call boundaries
+
+A guarded candidate can call another function in its own overlay by that
+function's generated name even when no linker-alias row exists for the name.
+The shared synthetic VMA still does not authenticate that call. The comparison
+layer resolves this narrower case only for `R_MIPS_26`, and only when all of
+the following canonical evidence agrees:
+
+- the caller and encoded generated identity name the same overlay;
+- one atlas module and one non-overlapping C `text_ownership` row exist, and
+  the generated offset is exactly the row's start rather than merely somewhere
+  inside a section or broad translation unit;
+- the row's offsets and size agree with the module's exact text/ROM ownership;
+- the tracked source has a fresh canonical object whose physical `.text`
+  extent equals that owner and contains exactly one function symbol at object
+  offset zero; and
+- the linked ELF has one function symbol with the same generated name, encoded
+  overlay offset, overlay section, and canonical-object symbol metadata.
+
+Physical `.text` extent is the boundary authority. Metadata-only trimming may
+leave the function symbol's pre-trim `st_size` larger than that extent; this is
+accepted only when the canonical object and linked symbol retain the same size
+and the physical section still equals the atlas owner. A smaller symbol,
+another function in the object, or disagreement in value/section/size is a
+conflict and is refused.
+
+Cross-overlay names, non-call relocations, duplicate owners, missing or broad
+boundaries, stale/missing source objects, unsafe source paths, and conflicting
+object/linked symbols receive no inferred identity (or stop on contradiction).
+Objcopy rename provenance is still propagated through the shared identity
+layer, so a many-source destination remains ambiguous.
+
+This closes evidence collection, not matching policy. It does not use runtime
+row position to guess a callee, does not turn an unresolved identity into an
+exact one, and does not relax promotion's independent offset/type, identity,
+linked-range, overlay, and full-ROM requirements. On the current Overlay 22
+initializer, it authenticates the generated call at function `+0x274` as the
+uniquely owned Overlay 22 `+0xD30` boundary. Candidate identity resolution
+therefore moves from 20/21 to 21/21 without changing the object or code bytes;
+only 11/21 identities currently align with the target, so the function remains
+non-exact.
+
 Sections 1-4 describe the model and feasibility evidence; section 5 records
 the requirements and measurements from the complete implementation.
 
