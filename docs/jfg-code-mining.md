@@ -115,14 +115,14 @@ in [`sched.c`](../src/main/sched.c),
 [`runlink.c`](../src/main/runlink.c), and [`menu.c`](../src/main/menu.c).
 Treat these as source references, not matching implementations.
 
-Ten more Mickey functions have become exact C since this guide was first
+Eleven more Mickey functions have become exact C since this guide was first
 published, while their JFG counterparts still use `GLOBAL_ASM` at `fd910f6b`.
 They implement the same broad jobs, but their sizes or instruction streams
 differ, so they do not change the 33-function / 9,648-byte exact-cross-title
 tally.
 
 The “JFG insertion point” links go directly to the unresolved pragma that the
-Mickey source can help replace. These ten are source references rather than
+Mickey source can help replace. These eleven are source references rather than
 drop-in matches: copy the algorithm into that JFG location, translate the
 listed engine types and globals, and prove it against JFG's own function bytes
 and relocations.
@@ -135,6 +135,7 @@ and relocations.
 | [`src/fx.c`: `func_8006DF90_6EB90`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/fx.c#L126) | [`func_8004A380`](../src/main/fx.c#L1965) | Use the integer-to-digits conversion, minimum-width handling, and digital-glyph render loop. Replace Mickey's screen, texture, and display-list globals with JFG's equivalents. |
 | [`src/hit.c`: `hitInitObjectHit`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/hit.c#L13) | [`func_80053550`](../src/main/anim.c#L1001) | Use the object-hit allocation and complete field-initialization order. Reconcile JFG's hit-owner, rotation, radius/height, collision-type, and flag fields. |
 | [`src/charControl.c`: `func_8002ED94_2F994`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/charControl.c#L45) | [`func_8001BE0C`](../src/main/charControl.c#L190) | Use the character/player and camera-state initialization block. Confirm every JFG actor, player, and camera offset before adopting the stores. |
+| [`src/charControl.c`: `func_8002F0E8`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/charControl.c#L47) | [`func_8001C114`](../src/main/charControl.c#L260) | Use this at JFG's unresolved camera-control pragma for camera override maintenance: reject the current tracked object when it leaves the horizontal radius or optional vertical bounds, then scan for an eligible replacement. Map JFG's override slot, tracked-object and bounds records, object array, and count globals before compiling. **Limits:** Mickey's 432-byte body is exact C, but this is a clean-room algorithm and control-flow donor rather than a cross-title byte match; prove JFG's own signature, field offsets, relocations, and ROM. |
 | [`src/runLink.c`: `runlinkEnsureJumpIsValid`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/runLink.c#L545) | [`func_800320F0`](../src/main/runlink.c#L565) | Use the relocation scan, jump validation, and lazy-overlay-load flow. Map JFG's overlay table, module identifiers, relocation records, and jump-address type; this is the most directly relevant overlay-system reference. |
 | [`src/objects.c`: `objAnimSetMove`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/objects.c#L266) | [`func_8005AD64`](../src/main/models_5B300.c#L373) | Use this at JFG's unresolved `objAnimSetMove` pragma for the animation-selection core: clamp the requested frame, select `frameData + 0x14`, adjust non-looping frame counts, initialize blend state, and round the fractional frame index. **Limits:** JFG's function has additional event/state behavior and different layouts, so this is a phase-level scaffold, not a direct donor. |
 | [`src/overlays/o10/overlay_10.c`: `sparkUpdate`](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/overlays/o10/overlay_10.c#L11) | [`overlay34UpdateRecords`](../src/overlays/o034/overlay34UpdateRecords.c#L30) | Use this directly at JFG overlay 10's unresolved `sparkUpdate` pragma as the update/remove scaffold: advance timers, preserve prior XYZ, integrate velocity and gravity for each update tick, and remove expired records without skipping the compacted entry. **Limits:** JFG has extra fade/lifetime behavior and a different record layout; translate those fields and verify JFG's own relocations and ROM. |

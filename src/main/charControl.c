@@ -257,13 +257,6 @@ void func_8001C088(CameraTrackedObject *value) {
         D_80079BCC--;
     }
 }
-/* Workbench plateau (2026-08-28): the separate search-local candidate is
- * size-exact at 108/108 instructions and matches 100/108 words; its frame is
- * -24 and the first residual is the register-only pool swap at +0xF4.
- * Target and candidate relocation identities remain exact. Cursor/end,
- * index-only, cached-count, and positive-count lifetime probes either caused
- * structural regressions or returned to the 99/108 baseline. */
-#ifdef NON_MATCHING
 void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
     CameraOverrideSlot *slot;
     CameraTrackedObject *object;
@@ -300,8 +293,7 @@ void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
                 CameraTrackedObject **current;
                 s32 index;
 
-                current = D_800CB308;
-                index = 0;
+                index = 0, current = D_800CB308;
                 do {
                     searchObject = *current;
                     bounds = searchObject->bounds;
@@ -324,9 +316,6 @@ void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C114.s")
-#endif
 void func_8001C2C4(void) {
 }
 void func_8001C2CC(void) {
