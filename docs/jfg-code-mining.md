@@ -143,6 +143,22 @@ and relocations.
 
 ### Qualified guarded scaffold
 
+[`func_80050E9C`](../src/main/anim.c#L594) is useful specifically at JFG's
+unresolved [`animseqFreeGroup` pragma](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/anim.c#L108).
+Use it for the animation-group teardown sequence: release group storage,
+invalidate the active group, reset all path entries, clear the scroll,
+lock-on, and light pools, stop active animation sounds, and refresh dependent
+animation state.
+
+**Evidence:** Mickey's guarded reconstruction is exact-sized at 90 words,
+matches 84/90 words, keeps the exact `0x20` frame, and aligns all 41 relocation
+identities. JFG's assembly-only `animseqFreeGroup` is its unique closest
+four-instruction skeleton at 0.7701 similarity. **Limits:** the remaining six
+Mickey words are an IDO temporary-allocation plateau, so this is a strong
+phase-by-phase implementation guide rather than release-grade or drop-in C.
+Translate JFG's group, path, scroll, lock-on, light, and sound storage first,
+then prove the JFG function against its own bytes and relocations.
+
 [`func_80051364`](../src/main/anim.c#L835) is useful specifically at JFG's
 unresolved [`animseqUpdate` pragma](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/anim.c#L118).
 Use its animation-stream command handling, television-rate scaling, camera-slot
