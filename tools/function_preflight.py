@@ -10,6 +10,7 @@ Usage:
     tools/function_preflight.py overlay16ApplyGradient
     tools/function_preflight.py func_overlay_016_F00001E0_1873678 --json
     tools/function_preflight.py overlay16ApplyGradient --no-build
+    tools/function_preflight.py overlay16ApplyGradient --analysis-only --json
 """
 
 from __future__ import annotations
@@ -34,6 +35,7 @@ TARGET_ELF = REPO / "build" / "mickey.us.elf"
 VENV_PYTHON_TARGET = ".venv/bin/python"
 WB_COMPARE = TOOLS / "wb_compare.sh"
 TYPE_NAMES = {2: "R_MIPS_32", 4: "R_MIPS_26", 5: "R_MIPS_HI16", 6: "R_MIPS_LO16"}
+PARTIAL_EVIDENCE_EXIT = 1
 
 sys.path.insert(0, str(TOOLS))
 import overlay_tables as ot  # noqa: E402
@@ -929,6 +931,116 @@ def _require_static_relocation_evidence(
         )
 
 
+def _preflight_evidence_status(
+    resolution: Resolution, comparison: dict[str, object]
+) -> dict[str, object]:
+    """Summarize complete or partial evidence without inventing identities."""
+
+    candidate_count = int(comparison["candidate_record_count"])
+    resolved_count = int(comparison["candidate_identity_resolved_count"])
+    target_count = int(comparison["target_record_count"])
+    if not 0 <= resolved_count <= candidate_count:
+        raise PreflightError(
+            "candidate static relocation identity counts are inconsistent: "
+            f"resolved={resolved_count}, candidate={candidate_count}"
+        )
+    unresolved_count = candidate_count - resolved_count
+    raw_sites = comparison.get("candidate_identity_unresolved_records")
+    if not isinstance(raw_sites, list):
+        raise PreflightError(
+            "relocation comparison lacks candidate unresolved-identity diagnostics"
+        )
+    sites: list[dict[str, object]] = []
+    for row in raw_sites:
+        if not isinstance(row, dict):
+            raise PreflightError("candidate unresolved-identity diagnostic is malformed")
+        offset = row.get("offset")
+        rtype = row.get("rtype")
+        if (
+            not isinstance(offset, int)
+            or isinstance(offset, bool)
+            or offset < 0
+            or not isinstance(rtype, int)
+            or isinstance(rtype, bool)
+        ):
+            raise PreflightError("candidate unresolved-identity diagnostic is malformed")
+        sites.append(
+            {
+                "offset": f"+0x{offset:X}",
+                "type": TYPE_NAMES.get(rtype, str(rtype)),
+            }
+        )
+    if len(sites) != unresolved_count:
+        raise PreflightError(
+            "candidate unresolved-identity diagnostics disagree with the count: "
+            f"diagnostics={len(sites)}, unresolved={unresolved_count}"
+        )
+
+    # Post-promotion candidates retain the existing stronger shape gate. Their
+    # unresolved static names are complete only when the linked ROM and retail
+    # runtime table have already supplied exact effective identities.
+    if resolution.resolution_mode == "post_promotion" or unresolved_count == 0:
+        _require_static_relocation_evidence(resolution, comparison)
+    effective_complete = (
+        resolution.resolution_mode == "post_promotion"
+        and comparison.get("effective_identity_exact") is True
+    )
+    partial = unresolved_count > 0 and not effective_complete
+    counts = {
+        "target_relocations": target_count,
+        "candidate_static_relocations": candidate_count,
+        "offset_type_aligned": int(comparison["offset_type_alignment_count"]),
+        "stable_identities_aligned": int(
+            comparison["stable_identity_alignment_count"]
+        ),
+        "effective_identities_aligned": int(
+            comparison.get(
+                "effective_identity_alignment_count",
+                comparison["stable_identity_alignment_count"],
+            )
+        ),
+        "candidate_identities_resolved": resolved_count,
+        "candidate_identities_unresolved": unresolved_count,
+    }
+    diagnostics: list[dict[str, object]] = []
+    if unresolved_count:
+        diagnostics.append(
+            {
+                "code": "candidate_static_relocation_identity_unresolved",
+                "severity": "error" if partial else "warning",
+                "count": unresolved_count,
+                "sites": sites,
+                "message": (
+                    "candidate static relocation runtime identity is incomplete; "
+                    "no identity was inferred"
+                    if partial
+                    else "static names remain unresolved; exact post-promotion "
+                    "linked/runtime evidence supplies the effective identities"
+                ),
+            }
+        )
+    if partial:
+        action = (
+            "restore_linked_runtime_identity_proof"
+            if resolution.resolution_mode == "post_promotion"
+            else "resolve_candidate_static_relocation_identities"
+        )
+        status = "partial"
+    else:
+        action = (
+            "run_promotion_proof"
+            if resolution.resolution_mode == "post_promotion"
+            else "continue_matching"
+        )
+        status = "complete"
+    return {
+        "status": status,
+        "action": action,
+        "counts": counts,
+        "diagnostics": diagnostics,
+    }
+
+
 def _augment_runtime_identity_evidence(
     resolution: Resolution,
     comparison: dict[str, object],
@@ -1162,12 +1274,12 @@ def collect(resolution: Resolution) -> dict[str, object]:
         target_size,
         section,
     )
-    _require_static_relocation_evidence(resolution, comparison)
     inbound = _inbound_references(context, rom)
     workbench = _workbench(resolution)
     comparison = _augment_runtime_identity_evidence(
         resolution, comparison, workbench
     )
+    preflight = _preflight_evidence_status(resolution, comparison)
     try:
         source_history = [
             dataclasses.asdict(row)
@@ -1210,8 +1322,32 @@ def collect(resolution: Resolution) -> dict[str, object]:
         **relocation_evidence,
         "relocation_comparison": comparison,
         "workbench": workbench,
+        "preflight": preflight,
     }
     return result
+
+
+def _render_preflight_status(preflight: dict[str, object]) -> None:
+    status = preflight["status"]
+    suffix = " (non-exact)" if status == "partial" else ""
+    print(f"status: {status}{suffix}")
+    print(f"action: {preflight['action']}")
+    counts = preflight["counts"]
+    print(
+        "preflight relocation counts: "
+        f"target={counts['target_relocations']} "
+        f"candidate={counts['candidate_static_relocations']} "
+        f"offset/type={counts['offset_type_aligned']} "
+        f"resolved={counts['candidate_identities_resolved']} "
+        f"unresolved={counts['candidate_identities_unresolved']}"
+    )
+    for diagnostic in preflight["diagnostics"]:
+        print(
+            f"diagnostic [{diagnostic['severity']}] {diagnostic['code']}: "
+            f"{diagnostic['message']}"
+        )
+        for site in diagnostic["sites"]:
+            print(f"  {site['offset']} {site['type']} identity=unresolved")
 
 
 def _render_human(report: dict[str, object]) -> None:
@@ -1229,6 +1365,7 @@ def _render_human(report: dict[str, object]) -> None:
         f"resolution: {report['resolution_mode']} "
         f"({report['identity_evidence']})"
     )
+    _render_preflight_status(report["preflight"])
     print(
         f"candidate: {report['source']} [{report['candidate_build_dir']}] "
         f"{report['candidate_signature']}"
@@ -1335,12 +1472,22 @@ def main(argv: list[str]) -> int:
         help="require existing canonical and candidate artifacts instead of updating them",
     )
     parser.add_argument(
+        "--analysis-only",
+        action="store_true",
+        help=(
+            "return success for structured partial evidence; status remains "
+            "partial and non-exact"
+        ),
+    )
+    parser.add_argument(
         "--resolve-wb",
         action="store_true",
         help=argparse.SUPPRESS,
     )
     args = parser.parse_args(argv)
     try:
+        if args.resolve_wb and args.analysis_only:
+            raise PreflightError("--analysis-only is not valid with --resolve-wb")
         resolution = resolve(args.symbol)
         if args.resolve_wb:
             if resolution.target_asm is None:
@@ -1374,6 +1521,8 @@ def main(argv: list[str]) -> int:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:
         _render_human(report)
+    if report["preflight"]["status"] == "partial" and not args.analysis_only:
+        return PARTIAL_EVIDENCE_EXIT
     return 0
 
 

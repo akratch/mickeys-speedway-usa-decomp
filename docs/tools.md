@@ -225,6 +225,20 @@ identities and their delta rather than only saying that the relocation symbol
 is ambiguous. `wb_compare.sh` remains available for scalar source-shape
 diagnostics; neither message authorizes relocation or ownership inference.
 
+When a candidate relocation surface is measurable but one or more static
+relocation names have no provable runtime identity, the report includes an
+additive `preflight` object. Its `status` is `complete` or `partial`, with a
+next `action`, named relocation `counts`, and bounded diagnostics containing
+only candidate-relative offsets and relocation types. It never supplies or
+guesses an identity. The existing `workbench` object still carries word
+counts, frames, verdict, and first mismatch.
+
+Partial status is explicitly non-exact. Normal mode prints the full report and
+exits 1; hard preflight errors still exit 2 without a report.
+`--analysis-only` changes a partial report's exit to 0 for experiment-ledger
+ingestion while preserving its partial status and unresolved diagnostics.
+Promotion proof independently rejects any status other than `complete`.
+
 Promotion does not make the preflight unusable when splat removes the
 function's `asm/nonmatchings` fallback. With no fallback present, the resolver
 enters `post_promotion` mode only for one unconditional requested C definition
@@ -428,10 +442,11 @@ this file is a map, not a manual, for the rest.
 | `tools/overlay_atlas.py --delta` | Audits exact-C overlay promotions, retractions, and net byte changes between refs, manifests, or checkouts using fail-closed `(overlay, offset)` identities; `--format json` is machine-readable. | [Overlay atlas release deltas](#overlay-atlas-release-deltas) above |
 | `tools/permute.sh` | One bounded decomp-permuter run for one function: locates its C file and target `.s` (regenerating the target from the baserom via a temporary `GLOBAL_ASM` swap if the function already has a C body), imports both, and runs `permuter.py` under a wall-clock cap. Batch-only per ADR 0007 — never run inside an agent's own turn-by-turn reasoning loop. | this file, `## decomp-permuter` above |
 | `tools/finalize_plateau.py` | Validates and preserves one guarded candidate, appends symbol-keyed EOF metadata without moving measured source lines, and writes a conflict-free `docs/matching-triage-handoffs/<symbol>.md` shard by default; explicit custom ledgers must already be tracked. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Safe plateau finalization` |
+| `tools/plateau_handoff_audit.py` | Audits structured source plateau markers against exact-symbol shards; `--check` reports drift and `--write` atomically reconciles only valid missing/stale shards without deriving metrics from prose or ROM data. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Safe plateau finalization` |
 | `tools/new_lane.sh`, `tools/merge_lane.sh`, `tools/codex_lane.sh` | Create, integrate, and (for Codex) launch a deadline-aware worker in an isolated lane worktree. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Lane helpers` |
 | `tools/fix_stale_externs.py`, `tools/refresh_atlas_digest.py`, `tools/resolve_modules_split.py` | Post-merge/integration housekeeping: stale `func_<VRAM>` externs, a stale atlas digest, and the `docs/modules.md`/`docs/overlays.md` split conflict. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Integration housekeeping` and `## docs/modules.md / docs/overlays.md split` |
 | `tools/postprocess_audit.py` | Classifies every object's `POSTPROCESS` build step as `altered` (forbidden, ADR 0002) or `metadata` (permitted); the mechanical check behind the scoreboard's decompiled line. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Auditing post-compile steps` |
 | `tools/public_release.py` | Regenerates/checks public-safe derived artifacts, reports exact release deltas, scans every outgoing tree/message, and composes all release gates. It never publishes. | this file, `## Deterministic public-release reconciliation` |
 | `tools/run_logged.py` | Runs one build command with complete output under `build/`, prints one compact PASS/FAIL receipt, and shows only a bounded tail on failure. Verification and progress/scoreboard targets use it for their noisy build prerequisites. | `gmake verify`, `gmake progress`, `gmake scoreboard` |
 | `tools/reloc_identity.py` | Gives preflight and relocation-surface proof one fail-closed parser and canonical identity model for linker aliases, objcopy rename chains, addends, and ambiguity. | [`docs/reloc-surface.md`](reloc-surface.md) |
-| `tools/experiment_ledger.py` | Appends compact, non-ROM-derived attempt metrics to an immutable local JSONL journal under ignored `build/`, then lists, ranks, or summarizes them without replacing canonical proof. | [`docs/experiment-ledger.md`](experiment-ledger.md) |
+| `tools/experiment_ledger.py` | Ingests preflight metrics and candidate-object hashes into an immutable local JSONL journal under ignored `build/`, rejecting duplicate compiler artifacts before append; it also supports explicit records, listing, ranking, and summaries. | [`docs/experiment-ledger.md`](experiment-ledger.md) |

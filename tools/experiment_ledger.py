@@ -18,7 +18,7 @@ from pathlib import Path, PurePosixPath
 import re
 import stat
 import sys
-from typing import Any, Iterable, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 
 
 SCHEMA_VERSION = 1
@@ -26,6 +26,11 @@ DEFAULT_LEDGER = Path("build/experiment-ledger.jsonl")
 MAX_LEDGER_BYTES = 64 * 1024 * 1024
 MAX_RECORD_BYTES = 4096
 MAX_RECORDS = 250_000
+MAX_PREFLIGHT_BYTES = 4 * 1024 * 1024
+MAX_ARTIFACT_BYTES = 256 * 1024 * 1024
+PREFLIGHT_SCHEMA = "mickey-function-evidence-preflight-v1"
+GENERATED_BUILD_ROOTS = frozenset({"build", "build_non_matching"})
+UNSET = object()
 
 SYMBOL_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,127}$", re.ASCII)
 C_KEYWORDS = frozenset(
@@ -225,7 +230,7 @@ def validate_artifacts(value: Any) -> list[dict[str, str]]:
     for index, artifact in enumerate(value):
         if not isinstance(artifact, dict) or set(artifact) != ARTIFACT_KEYS:
             raise LedgerError(f"artifacts[{index}] must contain only path and sha256")
-        path = _relative_posix_path(artifact["path"], f"artifacts[{index}].path", prefix="build")
+        path = _relative_generated_path(artifact["path"], f"artifacts[{index}].path")
         digest = artifact["sha256"]
         if not isinstance(digest, str) or not SHA256_RE.fullmatch(digest):
             raise LedgerError(f"artifacts[{index}].sha256 must be 64 lowercase hexadecimal digits")
@@ -234,6 +239,29 @@ def validate_artifacts(value: Any) -> list[dict[str, str]]:
         seen.add(path)
         checked.append({"path": path, "sha256": digest})
     return checked
+
+
+def _relative_generated_path(value: Any, field: str, *, suffix: str | None = None) -> str:
+    if not isinstance(value, str) or not value or len(value) > 240:
+        raise LedgerError(f"{field} must be a concise relative path")
+    if "\\" in value or any(ord(character) < 32 for character in value):
+        raise LedgerError(f"{field} must use printable POSIX path syntax")
+    path = PurePosixPath(value)
+    if (
+        path.is_absolute()
+        or value.startswith("~")
+        or path.as_posix() != value
+        or any(part in ("", ".", "..") for part in path.parts)
+    ):
+        raise LedgerError(
+            f"{field} must be normalized and relative; absolute/traversal paths are prohibited"
+        )
+    if not path.parts or path.parts[0] not in GENERATED_BUILD_ROOTS:
+        allowed = " or ".join(f"{name}/" for name in sorted(GENERATED_BUILD_ROOTS))
+        raise LedgerError(f"{field} must be below {allowed}")
+    if suffix is not None and path.suffix != suffix:
+        raise LedgerError(f"{field} must name a {suffix} file")
+    return path.as_posix()
 
 
 def _validate_mismatch(value: Any, field: str, differences: int, maximum_words: int) -> int | None:
@@ -395,6 +423,80 @@ def _json_object_without_duplicates(text: str) -> Any:
         raise LedgerError(f"invalid JSON: {error.msg}") from error
 
 
+def _safe_regular_fd(root: Path, relative: str, label: str) -> int:
+    root = root.resolve(strict=True)
+    path = root / relative
+    cursor = root
+    for part in PurePosixPath(relative).parts:
+        cursor = cursor / part
+        if cursor.is_symlink():
+            raise LedgerError(f"symlinks are prohibited in the {label} path")
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags)
+    except OSError as error:
+        raise LedgerError(f"cannot open {label} safely: {error}") from error
+    metadata = os.fstat(fd)
+    if not stat.S_ISREG(metadata.st_mode):
+        os.close(fd)
+        raise LedgerError(f"{label} must be a regular file")
+    return fd
+
+
+def load_preflight_report(root: Path, supplied: str | Path) -> dict[str, Any]:
+    relative = _relative_posix_path(
+        str(supplied), "preflight JSON", prefix="build", suffix=".json"
+    )
+    fd = _safe_regular_fd(root, relative, "preflight JSON")
+    try:
+        size = os.fstat(fd).st_size
+        if size <= 0 or size > MAX_PREFLIGHT_BYTES:
+            raise LedgerError("preflight JSON must be a non-empty file no larger than 4 MiB")
+        payload = _read_fd(fd)
+    finally:
+        os.close(fd)
+    try:
+        text = payload.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise LedgerError("preflight JSON is not UTF-8") from error
+    report = _json_object_without_duplicates(text)
+    if not isinstance(report, dict) or report.get("schema") != PREFLIGHT_SCHEMA:
+        schema = report.get("schema") if isinstance(report, dict) else None
+        raise LedgerError(f"unexpected preflight report schema: {schema!r}")
+    return report
+
+
+def _hash_candidate_object(root: Path, value: Any) -> dict[str, str]:
+    relative = _relative_generated_path(value, "candidate_object", suffix=".o")
+    fd = _safe_regular_fd(root, relative, "candidate object")
+    try:
+        before = os.fstat(fd)
+        if before.st_size <= 0 or before.st_size > MAX_ARTIFACT_BYTES:
+            raise LedgerError(
+                "candidate object must be a non-empty regular file no larger than 256 MiB"
+            )
+        digest = hashlib.sha256()
+        remaining = before.st_size
+        while remaining:
+            chunk = os.read(fd, min(remaining, 1024 * 1024))
+            if not chunk:
+                raise LedgerError("candidate object changed while it was being hashed")
+            digest.update(chunk)
+            remaining -= len(chunk)
+        after = os.fstat(fd)
+        if (before.st_size, before.st_mtime_ns, before.st_ino) != (
+            after.st_size,
+            after.st_mtime_ns,
+            after.st_ino,
+        ):
+            raise LedgerError("candidate object changed while it was being hashed")
+    finally:
+        os.close(fd)
+    return {"path": relative, "sha256": digest.hexdigest()}
+
+
 def _decode_records(payload: bytes) -> list[dict[str, Any]]:
     if not payload:
         return []
@@ -456,8 +558,33 @@ def load_records(path: Path) -> list[dict[str, Any]]:
         os.close(fd)
 
 
-def append_record(path: Path, record: dict[str, Any]) -> dict[str, Any]:
+def _candidate_digest_from_record(record: Mapping[str, Any]) -> str | None:
+    object_digests = {
+        artifact["sha256"]
+        for artifact in record.get("artifacts", [])
+        if PurePosixPath(artifact["path"]).suffix == ".o"
+    }
+    return next(iter(object_digests)) if len(object_digests) == 1 else None
+
+
+def _record_has_object_digest(record: Mapping[str, Any], digest: str) -> bool:
+    return any(
+        artifact["sha256"] == digest
+        and PurePosixPath(artifact["path"]).suffix == ".o"
+        for artifact in record.get("artifacts", [])
+    )
+
+
+def append_record(
+    path: Path,
+    record: dict[str, Any],
+    *,
+    candidate_sha256: str | None = None,
+) -> dict[str, Any]:
     checked = validate_record(record)
+    digest = candidate_sha256 or _candidate_digest_from_record(checked)
+    if digest is not None and not SHA256_RE.fullmatch(digest):
+        raise LedgerError("candidate-object SHA-256 must be 64 lowercase hexadecimal digits")
     encoded = (json.dumps(checked, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
     if len(encoded) > MAX_RECORD_BYTES:
         raise LedgerError("record exceeds the 4096-byte compact-record limit")
@@ -479,7 +606,18 @@ def append_record(path: Path, record: dict[str, Any]) -> dict[str, Any]:
         if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
             raise LedgerError("journal must be one regular file with no hard links")
         payload = _read_fd(fd)
-        _decode_records(payload)  # Refuse to extend a malformed or truncated journal.
+        records = _decode_records(payload)  # Refuse to extend a malformed journal.
+        if digest is not None:
+            for line_number, existing in enumerate(records, 1):
+                if (
+                    existing["symbol"] == checked["symbol"]
+                    and _record_has_object_digest(existing, digest)
+                ):
+                    raise LedgerError(
+                        "duplicate candidate artifact for "
+                        f"{checked['symbol']}: matches line {line_number} "
+                        f"({existing['timestamp']}, hypothesis={existing['hypothesis']!r})"
+                    )
         if len(payload) + len(encoded) > MAX_LEDGER_BYTES:
             raise LedgerError("append would exceed the bounded 64 MiB journal limit")
         written = os.write(fd, encoded)  # O_APPEND + one bounded write preserves prior bytes.
@@ -584,9 +722,292 @@ def _parse_artifact(value: str) -> dict[str, str]:
     return {"path": path, "sha256": digest.lower()}
 
 
-def _record_from_args(args: argparse.Namespace, root: Path) -> dict[str, Any]:
-    source = validate_source(args.source)
-    symbol = validate_symbol(args.symbol)
+def _mapping(value: Any) -> Mapping[str, Any]:
+    return value if isinstance(value, Mapping) else {}
+
+
+def _first_report_value(*values: Any) -> Any:
+    return next((value for value in values if value is not UNSET and value is not None), UNSET)
+
+
+def _first_report_offset_value(*values: Any) -> Any:
+    return next((value for value in values if value is not UNSET), UNSET)
+
+
+def _report_int(value: Any, field: str) -> int | object:
+    if value is UNSET or value is None:
+        return UNSET
+    return _plain_int(value, f"preflight {field}")
+
+
+def _report_offset(value: Any, field: str) -> int | None | object:
+    if value is UNSET:
+        return UNSET
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        raise LedgerError(f"preflight {field} must be an aligned byte offset or null")
+    if isinstance(value, int):
+        return _plain_int(value, f"preflight {field}")
+    if isinstance(value, str):
+        try:
+            return _parse_optional_offset(value)
+        except argparse.ArgumentTypeError as error:
+            raise LedgerError(
+                f"preflight {field} must be an aligned byte offset or null"
+            ) from error
+    raise LedgerError(f"preflight {field} must be an aligned byte offset or null")
+
+
+def _evidence_or_override(field: str, reported: Any, explicit: Any) -> Any:
+    if reported is not UNSET:
+        if explicit is not UNSET and explicit != reported:
+            raise LedgerError(
+                f"--{field.replace('_', '-')} disagrees with preflight evidence; "
+                "explicit values may fill only absent report evidence"
+            )
+        return reported
+    if explicit is not UNSET:
+        return explicit
+    raise LedgerError(
+        f"preflight report lacks {field}; supply --{field.replace('_', '-')} explicitly"
+    )
+
+
+def _preflight_metrics(report: Mapping[str, Any], args: argparse.Namespace) -> dict[str, Any]:
+    workbench = _mapping(report.get("workbench"))
+    relocation = _mapping(report.get("relocation_comparison"))
+    future_relocation = _mapping(report.get("relocation_report"))
+
+    candidate_words = _evidence_or_override(
+        "candidate_words",
+        _report_int(
+            _first_report_value(workbench.get("candidate_words", UNSET),
+                                report.get("candidate_words", UNSET)),
+            "candidate_words",
+        ),
+        args.candidate_words,
+    )
+    target_words = _evidence_or_override(
+        "target_words",
+        _report_int(
+            _first_report_value(workbench.get("target_words", UNSET),
+                                report.get("target_words", UNSET)),
+            "target_words",
+        ),
+        args.target_words,
+    )
+    raw = _evidence_or_override(
+        "raw_differences",
+        _report_int(
+            _first_report_value(
+                workbench.get("raw_differences", UNSET),
+                workbench.get("differing_words", UNSET),
+                report.get("raw_differences", UNSET),
+            ),
+            "raw_differences",
+        ),
+        args.raw_differences,
+    )
+    reported_masked = _report_int(
+        _first_report_value(
+            workbench.get("relocation_masked_differences", UNSET),
+            workbench.get("relocation_masked_differing_words", UNSET),
+            report.get("relocation_masked_differences", UNSET),
+        ),
+        "relocation_masked_differences",
+    )
+    masked = (
+        _evidence_or_override(
+            "masked_differences", reported_masked, args.masked_differences
+        )
+        if reported_masked is not UNSET or args.masked_differences is not UNSET
+        else raw
+    )
+    frame = _evidence_or_override(
+        "frame",
+        _report_int(
+            _first_report_value(
+                workbench.get("candidate_frame", UNSET),
+                workbench.get("candidate_frame_size", UNSET),
+                report.get("candidate_frame", UNSET),
+            ),
+            "frame",
+        ),
+        args.frame,
+    )
+
+    candidate_relocations = _evidence_or_override(
+        "candidate_relocations",
+        _report_int(
+            _first_report_value(
+                relocation.get("candidate_record_count", UNSET),
+                future_relocation.get("candidate_record_count", UNSET),
+                report.get("candidate_relocations", UNSET),
+            ),
+            "candidate_relocations",
+        ),
+        args.candidate_relocations,
+    )
+    target_relocations = _evidence_or_override(
+        "target_relocations",
+        _report_int(
+            _first_report_value(
+                relocation.get("target_record_count", UNSET),
+                future_relocation.get("target_record_count", UNSET),
+                report.get("target_relocations", UNSET),
+            ),
+            "target_relocations",
+        ),
+        args.target_relocations,
+    )
+    reported_identities = _report_int(
+        _first_report_value(
+            relocation.get("effective_identity_alignment_count", UNSET),
+            future_relocation.get("effective_identity_alignment_count", UNSET),
+            relocation.get("stable_identity_alignment_count", UNSET),
+            future_relocation.get("stable_identity_alignment_count", UNSET),
+            report.get("relocation_identities", UNSET),
+        ),
+        "relocation_identities",
+    )
+    if reported_identities is UNSET and candidate_relocations == target_relocations == 0:
+        reported_identities = 0
+    relocation_identities = _evidence_or_override(
+        "relocation_identities", reported_identities, args.relocation_identities
+    )
+
+    first_raw = _evidence_or_override(
+        "first_raw_mismatch",
+        _report_offset(
+            _first_report_offset_value(
+                workbench.get("first_raw_mismatch", UNSET),
+                workbench.get("first_mismatch", UNSET),
+                report.get("first_raw_mismatch", UNSET),
+            ),
+            "first_raw_mismatch",
+        ),
+        args.first_raw_mismatch,
+    )
+    reported_first_masked = _report_offset(
+        _first_report_offset_value(
+            workbench.get("first_masked_mismatch", UNSET),
+            workbench.get("relocation_masked_first_mismatch", UNSET),
+            report.get("first_masked_mismatch", UNSET),
+        ),
+        "first_masked_mismatch",
+    )
+    if reported_first_masked is not UNSET or args.first_masked_mismatch is not UNSET:
+        first_masked = _evidence_or_override(
+            "first_masked_mismatch", reported_first_masked, args.first_masked_mismatch
+        )
+    elif masked == 0:
+        first_masked = None
+    elif masked == raw:
+        first_masked = first_raw
+    else:
+        raise LedgerError(
+            "preflight report lacks first_masked_mismatch for the distinct masked score; "
+            "supply --first-masked-mismatch explicitly"
+        )
+
+    return {
+        "candidate_words": candidate_words,
+        "target_words": target_words,
+        "raw_differences": raw,
+        "relocation_masked_differences": masked,
+        "frame": frame,
+        "candidate_relocations": candidate_relocations,
+        "target_relocations": target_relocations,
+        "relocation_identities": relocation_identities,
+        "first_raw_mismatch": first_raw,
+        "first_masked_mismatch": first_masked,
+    }
+
+
+def _merge_artifacts(
+    explicit: Sequence[dict[str, str]], candidate: dict[str, str] | None
+) -> list[dict[str, str]]:
+    artifacts = list(explicit)
+    if candidate is None:
+        return artifacts
+    matching = [row for row in artifacts if row["path"] == candidate["path"]]
+    if matching:
+        if any(row["sha256"] != candidate["sha256"] for row in matching):
+            raise LedgerError("explicit artifact hash disagrees with the candidate object")
+        return artifacts
+    return [candidate, *artifacts]
+
+
+def _record_from_args(
+    args: argparse.Namespace, root: Path
+) -> tuple[dict[str, Any], str | None]:
+    report = load_preflight_report(root, args.preflight_json) if args.preflight_json else None
+    if report is None:
+        symbol = validate_symbol(args.symbol)
+        if args.source is None:
+            raise LedgerError("--source is required without --preflight-json")
+        source = validate_source(args.source)
+        metrics = {
+            "candidate_words": _evidence_or_override(
+                "candidate_words", UNSET, args.candidate_words
+            ),
+            "target_words": _evidence_or_override("target_words", UNSET, args.target_words),
+            "raw_differences": _evidence_or_override(
+                "raw_differences", UNSET, args.raw_differences
+            ),
+            "relocation_masked_differences": _evidence_or_override(
+                "masked_differences", UNSET, args.masked_differences
+            ),
+            "frame": _evidence_or_override("frame", UNSET, args.frame),
+            "candidate_relocations": _evidence_or_override(
+                "candidate_relocations", UNSET, args.candidate_relocations
+            ),
+            "target_relocations": _evidence_or_override(
+                "target_relocations", UNSET, args.target_relocations
+            ),
+            "relocation_identities": _evidence_or_override(
+                "relocation_identities", UNSET, args.relocation_identities
+            ),
+            "first_raw_mismatch": _evidence_or_override(
+                "first_raw_mismatch", UNSET, args.first_raw_mismatch
+            ),
+            "first_masked_mismatch": _evidence_or_override(
+                "first_masked_mismatch", UNSET, args.first_masked_mismatch
+            ),
+        }
+        candidate_artifact = None
+    else:
+        aliases = {
+            value
+            for key in ("requested_symbol", "target_symbol", "candidate_symbol")
+            if isinstance((value := report.get(key)), str)
+        }
+        if args.symbol not in aliases:
+            raise LedgerError(
+                f"requested symbol {args.symbol!r} is not named by the preflight report"
+            )
+        symbol = validate_symbol(report.get("candidate_symbol"))
+        reported_source = report.get("source", UNSET)
+        if reported_source is UNSET or reported_source is None:
+            if args.source is None:
+                raise LedgerError("preflight report lacks source; supply --source explicitly")
+            source = validate_source(args.source)
+        else:
+            source = validate_source(reported_source)
+            if args.source is not None and validate_source(args.source) != source:
+                raise LedgerError(
+                    "--source disagrees with preflight evidence; explicit values may fill "
+                    "only absent report evidence"
+                )
+        metrics = _preflight_metrics(report, args)
+        candidate_value = report.get("candidate_object", UNSET)
+        candidate_artifact = (
+            None
+            if candidate_value is UNSET or candidate_value is None
+            else _hash_candidate_object(root, candidate_value)
+        )
+
     require_source_ownership(root, source, symbol)
     record: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
@@ -594,21 +1015,15 @@ def _record_from_args(args: argparse.Namespace, root: Path) -> dict[str, Any]:
         "symbol": symbol,
         "source": source,
         "hypothesis": args.hypothesis,
-        "candidate_words": args.candidate_words,
-        "target_words": args.target_words,
-        "raw_differences": args.raw_differences,
-        "relocation_masked_differences": args.masked_differences,
-        "frame": args.frame,
-        "candidate_relocations": args.candidate_relocations,
-        "target_relocations": args.target_relocations,
-        "relocation_identities": args.relocation_identities,
-        "first_raw_mismatch": args.first_raw_mismatch,
-        "first_masked_mismatch": args.first_masked_mismatch,
+        **metrics,
         "verdict": args.verdict,
     }
-    if args.artifact:
-        record["artifacts"] = args.artifact
-    return validate_record(record)
+    artifacts = _merge_artifacts(args.artifact, candidate_artifact)
+    if artifacts:
+        record["artifacts"] = artifacts
+    checked = validate_record(record)
+    digest = candidate_artifact["sha256"] if candidate_artifact is not None else None
+    return checked, digest
 
 
 def _print_records(records: Sequence[dict[str, Any]], as_json: bool) -> None:
@@ -639,18 +1054,23 @@ def build_parser() -> argparse.ArgumentParser:
 
     append = commands.add_parser("append", help="validate and atomically append one record")
     append.add_argument("symbol")
-    append.add_argument("--source", required=True)
+    append.add_argument("--source")
+    append.add_argument(
+        "--preflight-json",
+        metavar="build/REPORT.json",
+        help="ingest scalar evidence and the candidate object from function_preflight JSON",
+    )
     append.add_argument("--hypothesis", required=True)
-    append.add_argument("--candidate-words", required=True, type=_parse_nonnegative)
-    append.add_argument("--target-words", required=True, type=_parse_nonnegative)
-    append.add_argument("--raw-differences", required=True, type=_parse_nonnegative)
-    append.add_argument("--masked-differences", required=True, type=_parse_nonnegative)
-    append.add_argument("--frame", required=True, type=_parse_frame)
-    append.add_argument("--candidate-relocations", required=True, type=_parse_nonnegative)
-    append.add_argument("--target-relocations", required=True, type=_parse_nonnegative)
-    append.add_argument("--relocation-identities", required=True, type=_parse_nonnegative)
-    append.add_argument("--first-raw-mismatch", required=True, type=_parse_optional_offset)
-    append.add_argument("--first-masked-mismatch", required=True, type=_parse_optional_offset)
+    append.add_argument("--candidate-words", type=_parse_nonnegative, default=UNSET)
+    append.add_argument("--target-words", type=_parse_nonnegative, default=UNSET)
+    append.add_argument("--raw-differences", type=_parse_nonnegative, default=UNSET)
+    append.add_argument("--masked-differences", type=_parse_nonnegative, default=UNSET)
+    append.add_argument("--frame", type=_parse_frame, default=UNSET)
+    append.add_argument("--candidate-relocations", type=_parse_nonnegative, default=UNSET)
+    append.add_argument("--target-relocations", type=_parse_nonnegative, default=UNSET)
+    append.add_argument("--relocation-identities", type=_parse_nonnegative, default=UNSET)
+    append.add_argument("--first-raw-mismatch", type=_parse_optional_offset, default=UNSET)
+    append.add_argument("--first-masked-mismatch", type=_parse_optional_offset, default=UNSET)
     append.add_argument("--verdict", required=True, choices=sorted(VERDICTS))
     append.add_argument(
         "--artifact", action="append", type=_parse_artifact, default=[], metavar="PATH=SHA256"
@@ -679,7 +1099,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         ledger = resolve_ledger_path(root, args.ledger)
         if args.command == "append":
-            record = append_record(ledger, _record_from_args(args, root))
+            pending, candidate_digest = _record_from_args(args, root)
+            record = append_record(
+                ledger, pending, candidate_sha256=candidate_digest
+            )
             _print_records([record], args.json)
             return 0
 

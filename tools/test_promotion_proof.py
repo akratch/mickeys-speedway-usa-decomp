@@ -25,6 +25,7 @@ def exact_report() -> dict[str, object]:
         "candidate_symbol": "friendly",
         "linked_symbol": "friendly",
         "resolution_mode": "post_promotion",
+        "preflight": {"status": "complete"},
         "workbench": {
             "comparison_mode": "rom",
             "differing_words": 0,
@@ -83,6 +84,12 @@ class ReportPolicyTests(unittest.TestCase):
         report = exact_report()
         report["resolution_mode"] = "fallback"
         with self.assertRaisesRegex(proof.ProofError, "not post-promotion"):
+            proof.validate_report("friendly", report)
+
+    def test_partial_preflight_is_not_a_promotion_proof(self) -> None:
+        report = exact_report()
+        report["preflight"]["status"] = "partial"
+        with self.assertRaisesRegex(proof.ProofError, "not complete"):
             proof.validate_report("friendly", report)
 
     def test_every_exactness_surface_fails_closed(self) -> None:

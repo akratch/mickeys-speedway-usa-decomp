@@ -672,6 +672,89 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         with self.assertRaisesRegex(fp.PreflightError, "unresolved at 1"):
             fp._require_static_relocation_evidence(resolution, comparison)
 
+    def test_unresolved_fallback_identity_becomes_structured_partial_evidence(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build_non_matching",
+            Path("build_non_matching/src/example.c.o"), Path("target.s"),
+            "guarded fallback",
+        )
+        comparison = {
+            "candidate_record_count": 3,
+            "candidate_identity_resolved_count": 2,
+            "candidate_identity_unresolved_records": [
+                {"offset": 0x18, "rtype": fp.rs.R_MIPS_26}
+            ],
+            "target_record_count": 3,
+            "offset_type_alignment_count": 3,
+            "stable_identity_alignment_count": 2,
+            "effective_identity_alignment_count": 2,
+            "offset_type_exact": True,
+            "effective_identity_exact": False,
+        }
+
+        status = fp._preflight_evidence_status(resolution, comparison)
+
+        self.assertEqual("partial", status["status"])
+        self.assertEqual(
+            "resolve_candidate_static_relocation_identities", status["action"]
+        )
+        self.assertEqual(1, status["counts"]["candidate_identities_unresolved"])
+        diagnostic = status["diagnostics"][0]
+        self.assertEqual(
+            "candidate_static_relocation_identity_unresolved", diagnostic["code"]
+        )
+        self.assertEqual(
+            [{"offset": "+0x18", "type": "R_MIPS_26"}],
+            diagnostic["sites"],
+        )
+        self.assertNotIn("identity", diagnostic["sites"][0])
+
+    def test_post_promotion_runtime_proof_keeps_static_gap_visible(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build", Path("build/src/example.c.o"), None,
+            "promoted", resolution_mode="post_promotion",
+        )
+        comparison = {
+            "candidate_record_count": 3,
+            "candidate_identity_resolved_count": 2,
+            "candidate_identity_unresolved_records": [
+                {"offset": 0x18, "rtype": fp.rs.R_MIPS_26}
+            ],
+            "target_record_count": 3,
+            "offset_type_alignment_count": 3,
+            "stable_identity_alignment_count": 2,
+            "effective_identity_alignment_count": 3,
+            "offset_type_exact": True,
+            "effective_identity_exact": True,
+        }
+
+        status = fp._preflight_evidence_status(resolution, comparison)
+
+        self.assertEqual("complete", status["status"])
+        self.assertEqual("run_promotion_proof", status["action"])
+        self.assertEqual("warning", status["diagnostics"][0]["severity"])
+
+    def test_unresolved_diagnostic_count_mismatch_fails_closed(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build_non_matching",
+            Path("build_non_matching/src/example.c.o"), Path("target.s"),
+            "guarded fallback",
+        )
+        comparison = {
+            "candidate_record_count": 2,
+            "candidate_identity_resolved_count": 1,
+            "candidate_identity_unresolved_records": [],
+            "target_record_count": 2,
+            "offset_type_alignment_count": 2,
+            "stable_identity_alignment_count": 1,
+        }
+
+        with self.assertRaisesRegex(fp.PreflightError, "disagree with the count"):
+            fp._preflight_evidence_status(resolution, comparison)
+
     def test_promoted_mode_rejects_relocation_shape_drift(self) -> None:
         resolution = fp.Resolution(
             "friendly", "generated", "friendly", Path("src/example.c"),
@@ -947,6 +1030,83 @@ class FreshnessTests(unittest.TestCase):
             )
 
 
+class PartialEvidenceCliTests(unittest.TestCase):
+    def report(self) -> dict[str, object]:
+        return {
+            "schema": "mickey-function-evidence-preflight-v1",
+            "preflight": {
+                "status": "partial",
+                "action": "resolve_candidate_static_relocation_identities",
+                "counts": {
+                    "target_relocations": 3,
+                    "candidate_static_relocations": 3,
+                    "offset_type_aligned": 3,
+                    "stable_identities_aligned": 2,
+                    "effective_identities_aligned": 2,
+                    "candidate_identities_resolved": 2,
+                    "candidate_identities_unresolved": 1,
+                },
+                "diagnostics": [
+                    {
+                        "code": "candidate_static_relocation_identity_unresolved",
+                        "severity": "error",
+                        "count": 1,
+                        "sites": [{"offset": "+0x18", "type": "R_MIPS_26"}],
+                        "message": "no identity was inferred",
+                    }
+                ],
+            },
+            "workbench": {
+                "target_words": 20,
+                "candidate_words": 20,
+                "matched_words": 19,
+                "differing_words": 1,
+                "target_frame": 32,
+                "candidate_frame": 32,
+                "first_mismatch": "+0x8",
+                "verdict": "register-mismatch",
+            },
+        }
+
+    def invoke(self, *extra: str) -> tuple[int, dict[str, object]]:
+        output = io.StringIO()
+        with (
+            mock.patch.object(fp, "resolve", return_value=mock.sentinel.resolution),
+            mock.patch.object(fp, "require_fresh_evidence"),
+            mock.patch.object(fp, "collect", return_value=self.report()),
+            contextlib.redirect_stdout(output),
+        ):
+            result = fp.main(["friendly", "--no-build", "--json", *extra])
+        return result, json.loads(output.getvalue())
+
+    def test_proof_mode_emits_partial_json_and_distinct_nonzero_exit(self) -> None:
+        result, payload = self.invoke()
+
+        self.assertEqual(fp.PARTIAL_EVIDENCE_EXIT, result)
+        self.assertEqual("partial", payload["preflight"]["status"])
+        self.assertEqual(20, payload["workbench"]["target_words"])
+        self.assertEqual(32, payload["workbench"]["candidate_frame"])
+        self.assertEqual("+0x8", payload["workbench"]["first_mismatch"])
+
+    def test_analysis_only_keeps_partial_status_and_returns_success(self) -> None:
+        result, payload = self.invoke("--analysis-only")
+
+        self.assertEqual(0, result)
+        self.assertEqual("partial", payload["preflight"]["status"])
+        self.assertEqual("error", payload["preflight"]["diagnostics"][0]["severity"])
+
+    def test_human_partial_status_includes_counts_and_unresolved_site(self) -> None:
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            fp._render_preflight_status(self.report()["preflight"])
+
+        rendered = output.getvalue()
+        self.assertIn("status: partial (non-exact)", rendered)
+        self.assertIn("action: resolve_candidate_static_relocation_identities", rendered)
+        self.assertIn("resolved=2 unresolved=1", rendered)
+        self.assertIn("+0x18 R_MIPS_26 identity=unresolved", rendered)
+
+
 class RelocationEvidenceTests(unittest.TestCase):
     def test_resident_reports_eight_static_tuples_and_zero_runtime_records(self) -> None:
         resolution = fp.Resolution(
@@ -1009,6 +1169,20 @@ class RelocationEvidenceTests(unittest.TestCase):
             "candidate_symbol": "func_8002BB40",
             "resolution_mode": "post_promotion",
             "identity_evidence": "symbol_addrs matched-C function row",
+            "preflight": {
+                "status": "complete",
+                "action": "run_promotion_proof",
+                "counts": {
+                    "target_relocations": 8,
+                    "candidate_static_relocations": 8,
+                    "offset_type_aligned": 8,
+                    "stable_identities_aligned": 8,
+                    "effective_identities_aligned": 8,
+                    "candidate_identities_resolved": 8,
+                    "candidate_identities_unresolved": 0,
+                },
+                "diagnostics": [],
+            },
             "source": "src/main/memory.c",
             "candidate_build_dir": "build",
             "candidate_signature": "s32 func_8002BB40(void)",
@@ -1051,6 +1225,7 @@ class RelocationEvidenceTests(unittest.TestCase):
         self.assertIn("resident runtime records: 0", rendered)
         self.assertIn("runtime overlay records: not applicable", rendered)
         self.assertIn("offset/type=8/8 identity=8/8", rendered)
+        self.assertIn("workbench [rom]: matched=72/72", rendered)
 
     def test_overlay_runtime_records_are_not_called_static_target_records(self) -> None:
         resolution = fp.Resolution(

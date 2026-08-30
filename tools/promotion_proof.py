@@ -81,6 +81,12 @@ def validate_report(symbol: str, report: dict[str, object]) -> dict[str, object]
         raise ProofError(
             f"{symbol} is not post-promotion (mode={report.get('resolution_mode')!r})"
         )
+    preflight = report.get("preflight")
+    if not isinstance(preflight, dict) or preflight.get("status") != "complete":
+        raise ProofError(
+            "preflight evidence is not complete: "
+            f"status={preflight.get('status') if isinstance(preflight, dict) else None!r}"
+        )
 
     workbench = report.get("workbench")
     if not isinstance(workbench, dict):

@@ -502,6 +502,7 @@ check-docs:
 	$(PYTHON) $(TOOLS_DIR)/check_derived_numbers.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/overlay_donor_scan.py --check
 	$(HOST_PYTHON) $(TOOLS_DIR)/nm_ranking.py --check-doc
+	$(HOST_PYTHON) $(TOOLS_DIR)/plateau_handoff_audit.py --check
 
 # Keep the shared linked-ELF prerequisite quiet for progress consumers while
 # retaining complete compiler/linker diagnostics on disk.

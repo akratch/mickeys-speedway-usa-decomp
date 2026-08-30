@@ -395,6 +395,14 @@ def compare_records(target, candidate) -> dict[str, object]:
         for row in candidate
         if row.identity is not None
     )
+    unresolved_candidate_records = sorted(
+        (
+            {"offset": row.offset, "rtype": row.rtype}
+            for row in candidate
+            if row.identity is None
+        ),
+        key=lambda row: (row["offset"], row["rtype"]),
+    )
     return {
         "target_record_count": len(target),
         "target_runtime_record_count": len(target),
@@ -408,6 +416,7 @@ def compare_records(target, candidate) -> dict[str, object]:
         "candidate_identity_resolved_count": sum(
             row.identity is not None for row in candidate
         ),
+        "candidate_identity_unresolved_records": unresolved_candidate_records,
         "offset_type_exact": target_shape == candidate_shape,
         "stable_identity_exact": (
             target_shape == candidate_shape

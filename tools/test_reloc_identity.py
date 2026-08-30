@@ -125,6 +125,32 @@ class EffectiveIdentityTests(unittest.TestCase):
         self.assertEqual(1, result["effective_identity_alignment_count"])
         self.assertTrue(result["effective_identity_exact"])
 
+    def test_comparison_reports_unresolved_candidate_sites_without_identity(self) -> None:
+        target = [
+            ri.RelocationRecord(0x10, 4, (7, 0x100)),
+            ri.RelocationRecord(0x08, 5, (0, 0x200)),
+        ]
+        candidate = [
+            ri.RelocationRecord(0x10, 4, None),
+            ri.RelocationRecord(0x08, 5, None),
+        ]
+
+        comparison = ri.compare_records(target, candidate)
+
+        self.assertEqual(
+            [
+                {"offset": 0x08, "rtype": 5},
+                {"offset": 0x10, "rtype": 4},
+            ],
+            comparison["candidate_identity_unresolved_records"],
+        )
+        self.assertTrue(
+            all(
+                "identity" not in row
+                for row in comparison["candidate_identity_unresolved_records"]
+            )
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

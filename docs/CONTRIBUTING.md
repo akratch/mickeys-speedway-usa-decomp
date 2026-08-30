@@ -26,7 +26,9 @@ tools/new_lane.sh <name>
 ```
 
 The command creates a `lane/<name>` branch with its own `build/` and `asm/`
-directories. Do not edit another contributor's worktree. Commit small,
+directories. The default and any explicit relative base are resolved in the
+calling worktree, so invoking the helper from an existing lane correctly uses
+that lane's `HEAD`. Do not edit another contributor's worktree. Commit small,
 coherent changes as they are completed. `tools/merge_lane.sh` checks and merges
 a completed branch. On macOS, the helper also adds a git-ignored
 `.metadata_never_index` marker before extraction so several new lanes do not
@@ -108,10 +110,12 @@ guards elsewhere in the same translation unit are ignored; validation is tied
 to the requested symbol's own top-level guard and fallback. The command refuses
 an unguarded, nested, unterminated, or ambiguous target body, any other
 mismatched fallback, an untracked source, or
-worktree/index dirt outside that source and an optional `--handoff-doc
-docs/<file>.md`. It records only the supplied score, frame, relocation count,
-first mismatch, and one-line summary in a symbol-keyed metadata comment at
-the end of the source file (and, when requested, a bounded Markdown block).
+worktree/index dirt outside that source and its handoff document. By default it
+creates or updates only
+`docs/matching-triage-handoffs/<symbol>.md`; two symbols therefore never edit a
+shared generated ledger. It records only the supplied score, frame, relocation
+count, first mismatch, and one-line summary in a symbol-keyed metadata comment
+at the end of the source file and the exact-symbol Markdown shard.
 Appending the source metadata preserves every pre-existing byte and physical
 source line, including the measured guarded function. Re-running the command
 updates only that symbol's EOF block, and multiple symbols may share a source
@@ -120,8 +124,22 @@ would itself require a fresh compile and byte-comparison proof. It never
 records instruction rows or claims exactness.
 
 The result remains uncommitted by default. After reviewing the diff, pass
-`--commit` to stage and commit only the named source and optional tracked
-`--handoff-doc docs/<file>.md`.
+`--commit` to stage and commit only the named source and handoff document.
+
+Audit all structured source markers against their fixed per-symbol shards with:
+
+```sh
+tools/plateau_handoff_audit.py --check
+tools/plateau_handoff_audit.py --check --json
+tools/plateau_handoff_audit.py --write
+```
+
+`--check` fails on missing or stale shards and on malformed, duplicate, or
+source-mismatched structured evidence. `--write` preflights the complete audit,
+then atomically creates or refreshes only valid missing/stale exact-symbol
+shards while preserving valid detail lines. Metrics come only from tracked
+structured source markers—never prose, assembly, build output, or ROM data.
+Review and commit generated shards separately from tooling changes.
 
 ### Report-only m2c sweep
 

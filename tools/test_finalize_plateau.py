@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -15,6 +16,7 @@ TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 
 import finalize_plateau as plateau  # noqa: E402
+import plateau_handoff_audit as handoff_audit  # noqa: E402
 
 
 VALID_SOURCE = """#include \"common.h\"
@@ -478,6 +480,170 @@ class FinalizeCommandTests(unittest.TestCase):
         self.assertIn("move measured source lines", result.stderr)
         self.assertEqual((self.repo / "src" / "demo.c").read_text(), legacy)
         self.assertFalse(self.gate_log.exists())
+
+
+class PlateauHandoffAuditTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.repo = Path(self.temporary.name) / "repo"
+        self.repo.mkdir()
+        self.run_command("git", "init", "-q")
+        self.run_command("git", "config", "user.email", "audit@example.invalid")
+        self.run_command("git", "config", "user.name", "Audit Test")
+        (self.repo / "src").mkdir()
+        (self.repo / "docs" / "matching-triage-handoffs").mkdir(parents=True)
+        (self.repo / "docs" / "matching-triage-handoffs" / "README.md").write_text(
+            "# Handoffs\n", encoding="utf-8"
+        )
+        self.write_source("98/101 words")
+        self.run_command("git", "add", ".")
+        self.run_command("git", "commit", "-q", "-m", "initial")
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def run_command(self, *command: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            command, cwd=self.repo, text=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=check,
+        )
+
+    def audit(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return self.run_command(
+            sys.executable, str(TOOLS / "plateau_handoff_audit.py"),
+            *args, check=False,
+        )
+
+    def write_source(self, score: str) -> None:
+        marker = plateau.source_handoff(
+            "demo_symbol", plateau.Metrics(score, "0x8", 10, "+0xC", "allocator mismatch")
+        )
+        (self.repo / "src" / "demo.c").write_text(
+            VALID_SOURCE + "\n" + marker, encoding="utf-8"
+        )
+
+    def test_check_reports_missing_then_write_projects_only_the_shard(self) -> None:
+        source_before = (self.repo / "src" / "demo.c").read_text(encoding="utf-8")
+        checked = self.audit("--check", "--json")
+        report = json.loads(checked.stdout)
+        self.assertEqual(checked.returncode, 1)
+        self.assertEqual(report["shards"]["missing"], 1)
+        self.assertEqual(report["shards"]["reconcilable"], 1)
+
+        written = self.audit("--write", "--json")
+        write_report = json.loads(written.stdout)
+        self.assertEqual(written.returncode, 0, written.stderr)
+        self.assertEqual(write_report["written_paths"], [
+            "docs/matching-triage-handoffs/demo_symbol.md"
+        ])
+        self.assertEqual((self.repo / "src" / "demo.c").read_text(), source_before)
+        self.assertFalse(list(
+            (self.repo / "docs" / "matching-triage-handoffs").glob("*.tmp")
+        ))
+        self.assertEqual(self.audit("--check").returncode, 0)
+
+    def test_stale_write_preserves_valid_symbol_owned_details(self) -> None:
+        self.assertEqual(self.audit("--write").returncode, 0)
+        shard = self.repo / "docs" / "matching-triage-handoffs" / "demo_symbol.md"
+        shard.write_text(
+            shard.read_text(encoding="utf-8").replace(
+                "<!-- plateau-handoff:demo_symbol:end -->",
+                "- next action: retry with allocator evidence\n"
+                "<!-- plateau-handoff:demo_symbol:end -->",
+            ),
+            encoding="utf-8",
+        )
+        self.run_command("git", "add", ".")
+        self.run_command("git", "commit", "-q", "-m", "add shard details")
+        self.write_source("99/101 words")
+
+        checked = json.loads(self.audit("--check", "--json").stdout)
+        self.assertEqual(checked["shards"]["stale"], 1)
+        written = self.audit("--write")
+        self.assertEqual(written.returncode, 0, written.stderr)
+        revised = shard.read_text(encoding="utf-8")
+        self.assertIn("- score: 99/101 words\n", revised)
+        self.assertIn("- next action: retry with allocator evidence\n", revised)
+
+    def test_duplicate_shard_blocks_are_malformed_and_not_overwritten(self) -> None:
+        self.assertEqual(self.audit("--write").returncode, 0)
+        shard = self.repo / "docs" / "matching-triage-handoffs" / "demo_symbol.md"
+        duplicated = shard.read_text(encoding="utf-8") * 2
+        shard.write_text(duplicated, encoding="utf-8")
+        self.run_command("git", "add", str(shard.relative_to(self.repo)))
+        self.run_command("git", "commit", "-q", "-m", "duplicate shard block")
+
+        result = self.audit("--write", "--json")
+        report = json.loads(result.stdout)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("validation errors", report["error"])
+        self.assertEqual(shard.read_text(encoding="utf-8"), duplicated)
+
+    def test_malformed_marker_blocks_all_writes(self) -> None:
+        malformed = VALID_SOURCE.replace("demo_symbol", "other_symbol") + """
+
+/* PLATEAU-HANDOFF:other_symbol:start
+ * symbol: other_symbol
+ * score: 7/8 words
+ * frame: frameless
+ * relocations: 0
+ * PLATEAU-HANDOFF:other_symbol:end
+ */
+"""
+        (self.repo / "src" / "other.c").write_text(malformed, encoding="utf-8")
+        self.run_command("git", "add", "src/other.c")
+        self.run_command("git", "commit", "-q", "-m", "add malformed marker")
+
+        result = self.audit("--write", "--json")
+        report = json.loads(result.stdout)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("validation errors", report["error"])
+        self.assertFalse(
+            (self.repo / "docs" / "matching-triage-handoffs" / "demo_symbol.md").exists()
+        )
+
+    def test_duplicate_structured_markers_are_rejected(self) -> None:
+        source = (self.repo / "src" / "demo.c").read_text(encoding="utf-8")
+        (self.repo / "src" / "demo.c").write_text(source + source[source.index("/* PLATEAU"):])
+        report = handoff_audit.audit_tree(self.repo)
+        self.assertTrue(any(row.code == "duplicate-marker" for row in report.issues))
+
+    def test_definition_ownership_ignores_externs_and_calls(self) -> None:
+        other = """extern void demo_symbol(int value);
+void caller(void) {
+    if (demo_symbol(1)) {
+    }
+}
+"""
+        (self.repo / "src" / "caller.c").write_text(other, encoding="utf-8")
+        self.run_command("git", "add", "src/caller.c")
+        paths = handoff_audit.definition_paths(
+            handoff_audit.tracked_sources(self.repo, handoff_audit.tracked_paths(self.repo)),
+            "demo_symbol",
+        )
+        self.assertEqual(paths, ["src/demo.c"])
+
+    def test_marker_source_must_be_the_only_exact_definition(self) -> None:
+        duplicate = VALID_SOURCE.replace(
+            "demo_symbol", "other_symbol"
+        ).replace("other_symbol", "demo_symbol")
+        (self.repo / "src" / "duplicate.c").write_text(duplicate, encoding="utf-8")
+        self.run_command("git", "add", "src/duplicate.c")
+        report = handoff_audit.audit_tree(self.repo)
+        self.assertTrue(any(row.code == "source-ownership" for row in report.issues))
+
+    def test_prose_marker_is_reported_but_never_used_as_metrics(self) -> None:
+        prose = VALID_SOURCE.replace("demo_symbol", "other_symbol") + """
+/* PLATEAU-HANDOFF
+ * Exact-sized candidate remains close; retry with allocator evidence.
+ */
+"""
+        (self.repo / "src" / "other.c").write_text(prose, encoding="utf-8")
+        self.run_command("git", "add", "src/other.c")
+        report = handoff_audit.audit_tree(self.repo)
+        self.assertEqual(len(report.markers), 1)
+        self.assertEqual(len(report.unstructured), 1)
+        self.assertEqual(report.unstructured[0].code, "unstructured-marker")
 
 
 if __name__ == "__main__":

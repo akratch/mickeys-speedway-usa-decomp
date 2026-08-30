@@ -12,6 +12,46 @@ promotion proof, a plateau handoff, or the source itself.
 
 ## Append one experiment
 
+Prefer ingesting the machine-readable evidence preflight so scalar metrics are
+not transposed by hand:
+
+```sh
+tools/function_preflight.py func_80001234 --analysis-only --json \
+  > build/func_80001234.preflight.json
+tools/experiment_ledger.py append func_80001234 \
+  --preflight-json build/func_80001234.preflight.json \
+  --hypothesis "Narrow local lifetime around the conditional" \
+  --verdict improved
+```
+
+The report must be a schema `mickey-function-evidence-preflight-v1` JSON file
+below `build/`. The ledger records the report's canonical candidate symbol and
+source, candidate/target word counts, raw difference count, candidate frame,
+relocation counts and identity alignment, and first mismatch. It ignores
+additive status and diagnostic content rather than copying it into the journal.
+The current preflight exposes one word-difference view; until a report supplies
+distinct relocation-masked fields, ingestion conservatively records that raw
+count and first mismatch for both views.
+
+A partially populated report remains usable. Existing scalar flags may fill
+only evidence the report omits; a conflicting flag is refused. For example, a
+report with candidate and target relocation counts but no authenticated
+identity count can be completed with `--relocation-identities`. A distinct
+masked count without its first mismatch similarly requires
+`--first-masked-mismatch`. `--source` is needed only if a future partial report
+omits the source.
+
+When `candidate_object` names an existing regular `.o` in the repository's
+ignored `build/` or `build_non_matching/` tree, ingestion streams its SHA-256
+and adds the path/hash artifact automatically. Absolute paths, traversal,
+symlinks, missing files, other build roots, and oversized objects fail closed.
+For one symbol, an object digest already present on an earlier journal line is
+a duplicate compiler result: the append is refused and identifies the prior
+line without rewriting or extending the journal. The same digest may be
+recorded for a different symbol.
+
+The fully explicit interface remains available when no preflight report exists:
+
 ```sh
 tools/experiment_ledger.py append func_80001234 \
   --source src/main/example.c \
@@ -27,7 +67,7 @@ tools/experiment_ledger.py append func_80001234 \
 
 Use `frameless` for a zero-byte frame and `none` for a mismatch offset whose
 difference count is zero. Optional artifacts use a repository-relative path
-below `build/` and a SHA-256 digest:
+below `build/` or `build_non_matching/` and a SHA-256 digest:
 
 ```sh
 tools/experiment_ledger.py append func_80001234 ... \
@@ -76,14 +116,15 @@ make both reading and further appends fail. A record contains only:
 - frame byte count, candidate/target relocation counts, and exact relocation
   identity count;
 - first raw/masked mismatch byte offsets and `verdict`;
-- optionally, up to eight `artifacts`, each containing only a relative
-  `build/` path and lowercase SHA-256.
+- optionally, up to eight `artifacts`, each containing only a relative ignored
+  build-tree path and lowercase SHA-256.
 
 Appending takes an exclusive file lock, validates the complete existing
-journal, and performs one bounded `O_APPEND` write. It then calls `fsync` on
-the file and, when creating the journal, on its containing directory. Readers
-take a shared lock. Existing bytes are never rewritten; a truncated or corrupt
-journal must be preserved for inspection rather than extended.
+journal, checks candidate-object duplicates, and performs one bounded
+`O_APPEND` write. It then calls `fsync` on the file and, when creating the
+journal, on its containing directory. Readers take a shared lock. Existing
+bytes are never rewritten; a duplicate, truncated, or corrupt journal must be
+preserved for inspection rather than extended.
 
 This protects cooperating local processes and ordinary interruption. It is
 not a tamper-evident database and cannot prevent a separate program from
