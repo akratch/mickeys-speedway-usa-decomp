@@ -242,6 +242,9 @@ gOverlay8Primary = 0x00000000;
 gOverlay8ScaleLowerReloc = 0x000001d0;
 gOverlay8ScaleUpperReloc = 0x000001d4;
 gOverlay8Secondary = 0x00000000;
+gOverlay8PhaseScales = 0x00000560;
+gOverlay8SelectorScales = 0x00000520;
+gOverlay8UpdateChannelConstants = 0x000001bc;
 gOverlay8UpdateDecayReloc = 0x000001b8;
 gOverlay8UpdateLowerReloc = 0x000001b0;
 gOverlay8UpdateUpperReloc = 0x000001b4;
@@ -253,6 +256,8 @@ overlay8FinalizeActivationReloc = 0xf0000000;
 overlay8FinishUpdateReloc = 0xf0000000;
 overlay8MeasureDirectionReloc = 0xf0000000;
 overlay8ReleaseResourceReloc = 0xf0000000;
+func_8001F320 = 0xf0000000;
+func_8002A878 = 0xf0000000;
 
 /* overlay 9: overlay_009.c.o */
 .rodata = 0x00000000;

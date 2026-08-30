@@ -1097,11 +1097,13 @@ loop, six LOCAL data relocations (all resolving to module-local `+0x73B0`),
 and a terminal resident-call identity.
 
 Overlay 8's channel updater beginning at `+0x3018` — 608 bytes / 152 words.
-NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
-fail-loud data-literal externalization moving paired MIPS LO16 addends to an
-existing anchor to avoid a duplicate 32-byte literal pool at overlay-local
-`+0x1BC`); source kept as decomp-permuter input. All 16 retail relocation
-identities were otherwise preserved through the exact linked image.
+The stock C emits all 152 instruction words exactly. Ten compiler-private
+literal relocations are rebound, without changing their instruction fields, to
+one absolute symbol naming the retained pool at overlay-local `+0x1BC`; the
+discarded duplicate payload is guarded by its SHA-256 digest. All 16 runtime
+relocation offset/type/identity tuples, the linked range, and the full US ROM
+are exact. This replaces the retired wrapper that reached the same bytes by
+editing five LO16 addends after compilation.
 
 Overlay 8's scale-output body at `+0x3368..+0x34A0` contributes **312 exact C
 bytes / 78 words**. Loading the lower threshold through the upper local before

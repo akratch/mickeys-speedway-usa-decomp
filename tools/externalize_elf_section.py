@@ -3,10 +3,11 @@
 
 This is for overlay constants whose bytes already live in a retained binary
 data segment. The expected section payload is mandatory, so compiler drift
-fails instead of silently discarding new data. The optional anchor defaults to
-zero for existing callers.
+fails instead of silently discarding new data. It may be supplied directly or
+as ``sha256:DIGEST``. The optional anchor defaults to zero for existing callers.
 """
 
+import hashlib
 import pathlib
 import struct
 import sys
@@ -14,13 +15,14 @@ import sys
 
 if len(sys.argv) not in (4, 5):
     raise SystemExit(
-        "usage: externalize_elf_section.py OBJECT SECTION EXPECTED_HEX "
+        "usage: externalize_elf_section.py OBJECT SECTION "
+        "EXPECTED_HEX_OR_SHA256 "
         "[ABSOLUTE_ANCHOR]"
     )
 
 path = pathlib.Path(sys.argv[1])
 section_name = sys.argv[2]
-expected = bytes.fromhex(sys.argv[3])
+expected_spec = sys.argv[3]
 anchor = int(sys.argv[4], 0) if len(sys.argv) == 5 else 0
 if not 0 <= anchor < 0x8000:
     raise SystemExit(
@@ -65,13 +67,21 @@ if target_index is None or target_header is None:
 if symtab_header is None:
     raise SystemExit(f"{path}: symbol table not found")
 
-payload = bytes(
-    data[target_header[4] : target_header[4] + target_header[5]]
-)
-if payload != expected:
+payload = bytes(data[target_header[4] : target_header[4] + target_header[5]])
+if expected_spec.startswith("sha256:"):
+    expected_digest = expected_spec.removeprefix("sha256:").lower()
+    if len(expected_digest) != 64 or any(
+        character not in "0123456789abcdef" for character in expected_digest
+    ):
+        raise SystemExit("expected sha256: followed by 64 hexadecimal digits")
+    payload_matches = hashlib.sha256(payload).hexdigest() == expected_digest
+else:
+    expected = bytes.fromhex(expected_spec)
+    payload_matches = payload == expected
+if not payload_matches:
     raise SystemExit(
         f"{path}: {section_name} payload changed: "
-        f"expected {expected.hex()}, got {payload.hex()}"
+        f"expected {expected_spec}, got sha256:{hashlib.sha256(payload).hexdigest()}"
     )
 
 symbol_offset = symtab_header[4]

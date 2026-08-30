@@ -37,6 +37,10 @@ class WrapperFixture:
         shutil.copy2(ROOT / "tools/wb_compare.sh", tools / "wb_compare.sh")
         os.symlink(sys.executable, root / ".venv/bin/python")
         (tools / "function_preflight.py").write_text(
+            "import os, pathlib, sys\n"
+            "if os.environ.get('PREFLIGHT_ARGS_OUT'):\n"
+            "    pathlib.Path(os.environ['PREFLIGHT_ARGS_OUT']).write_text("
+            "'\\n'.join(sys.argv[1:]))\n"
             "print('func_overlay_016_F0000000_1\\tfriendly\\t'"
             "+'src/overlays/o016/example.c\\toverlays/o016/example\\t'"
             "+'build_non_matching\\tasm/nonmatchings/overlays/o016/example/'"
@@ -75,6 +79,8 @@ class WrapperRoutingTests(unittest.TestCase):
             args_out = fixture / "args.txt"
             env = os.environ.copy()
             env["WB_ARGS_OUT"] = str(args_out)
+            preflight_args = fixture / "preflight-args.txt"
+            env["PREFLIGHT_ARGS_OUT"] = str(preflight_args)
 
             result = subprocess.run(
                 [str(fixture / "tools/wb_compare.sh"), "friendly", "--json"],
@@ -95,6 +101,44 @@ class WrapperRoutingTests(unittest.TestCase):
             self.assertIn("--function", arguments)
             self.assertIn("friendly", arguments)
             self.assertEqual(arguments[-1], "--json")
+            self.assertEqual(
+                ["friendly", "--resolve-wb"],
+                preflight_args.read_text(encoding="utf-8").splitlines(),
+            )
+
+    def test_no_build_is_forwarded_to_preflight_not_workbench(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = pathlib.Path(directory)
+            WrapperFixture(fixture)
+            args_out = fixture / "args.txt"
+            preflight_args = fixture / "preflight-args.txt"
+            env = os.environ.copy()
+            env["WB_ARGS_OUT"] = str(args_out)
+            env["PREFLIGHT_ARGS_OUT"] = str(preflight_args)
+
+            result = subprocess.run(
+                [
+                    str(fixture / "tools/wb_compare.sh"),
+                    "--no-build",
+                    "friendly",
+                    "--json",
+                ],
+                cwd=fixture,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(
+                ["friendly", "--resolve-wb", "--no-build"],
+                preflight_args.read_text(encoding="utf-8").splitlines(),
+            )
+            self.assertNotIn(
+                "--no-build", args_out.read_text(encoding="utf-8").splitlines()
+            )
 
     def test_diagnose_mode_forwards_diagnostic_options_after_symbol(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -157,6 +201,40 @@ class WrapperRoutingTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 2)
             self.assertIn("stale candidate object", result.stderr)
+            self.assertFalse(args_out.exists())
+
+    def test_rom_no_build_rejects_same_tick_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = pathlib.Path(directory)
+            WrapperFixture(fixture)
+            candidate_rom = fixture / "build/mickey.us.z64"
+            candidate_rom.write_bytes(b"rom")
+            elf = fixture / "build/mickey.us.elf"
+            timestamp_ns = max(elf.stat().st_mtime_ns, candidate_rom.stat().st_mtime_ns)
+            os.utime(elf, ns=(timestamp_ns, timestamp_ns))
+            os.utime(candidate_rom, ns=(timestamp_ns, timestamp_ns))
+            args_out = fixture / "args.txt"
+            env = os.environ.copy()
+            env["WB_ARGS_OUT"] = str(args_out)
+
+            result = subprocess.run(
+                [
+                    str(fixture / "tools/wb_compare.sh"),
+                    "--rom",
+                    "--no-build",
+                    "friendly",
+                ],
+                cwd=fixture,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("is not strictly newer", result.stderr)
+            self.assertIn("omit --no-build", result.stderr)
             self.assertFalse(args_out.exists())
 
 

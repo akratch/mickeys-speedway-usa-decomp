@@ -775,10 +775,9 @@ void func_overlay_008_F0002EC0_1860C18(register Overlay8UpdateOwner *owner,
     overlay8FinishUpdateReloc(owner, updateRate);
 }
 
-/* The earlier public exact claim depended on rewriting five LO16 instruction
- * fields. Keep the useful C as NON_MATCHING and the assembly fallback as the
- * canonical build until untouched compiler output proves this range. */
-#ifdef NON_MATCHING
+/* Mickey-local reconstruction. The compiler-generated constants are linked
+ * against the overlay's retained literal pool through an ABS section symbol;
+ * no instruction word is changed after compilation. */
 void overlay8UpdateChannels(void *unused, Overlay8ChannelState *state,
                             f32 gate, void *sampleState) {
     f32 factor;
@@ -835,9 +834,6 @@ void overlay8UpdateChannels(void *unused, Overlay8ChannelState *state,
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0003018_1860D70.s")
-#endif
 
 void func_overlay_008_F0003278_1860FD0(void *unused0,
                                        Overlay8ColorState *state,

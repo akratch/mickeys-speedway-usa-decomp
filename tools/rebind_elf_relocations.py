@@ -7,6 +7,10 @@ link result requires different bindings at specific sites.  It changes only
 the symbol index in an existing relocation; the relocation type, instruction,
 symbol table, and string table are left untouched.
 
+Unrelated duplicate names are tolerated because ``objcopy --redefine-sym`` can
+legitimately create them in a mixed translation unit. A requested replacement
+name remains fail-closed: it must resolve to exactly one symbol-table entry.
+
 Usage:
 
     rebind_elf_relocations.py OBJECT SECTION \
@@ -105,9 +109,7 @@ def symbol_names(data, sections, symbol_table_index):
         name = c_string(string_data, name_offset, f"symbol {index}")
         names.append(name)
         if name:
-            if name in by_name:
-                fail(f"duplicate symbol name {name!r} in {table_name!r}")
-            by_name[name] = index
+            by_name.setdefault(name, []).append(index)
     return names, by_name
 
 
@@ -199,9 +201,14 @@ for offset, (expected, replacement) in requests.items():
             f"{section_name}+{offset:#x}: expected relocation symbol "
             f"{expected!r}, found {actual!r}"
         )
-    if replacement not in by_name:
+    replacement_indices = by_name.get(replacement, [])
+    if not replacement_indices:
         fail(f"replacement symbol {replacement!r} is absent from the symbol table")
-    replacement_info = (by_name[replacement] << 8) | (info & 0xFF)
+    if len(replacement_indices) != 1:
+        fail(
+            f"replacement symbol {replacement!r} is ambiguous in the symbol table"
+        )
+    replacement_info = (replacement_indices[0] << 8) | (info & 0xFF)
     struct.pack_into(">I", data, entry_offset + 4, replacement_info)
 
 path.write_bytes(data)

@@ -245,6 +245,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_004_F0000138_185A7B0=overlay4UpdateObjectMotion $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xCAC
 O8_OBJ := $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay_008.c.o
+$(O8_OBJ): config/normalizations/overlay8UpdateChannels.rebind.spec
 $(O8_OBJ): CFLAGS += -Wab,-r4300_mul
 $(O8_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
@@ -336,8 +337,20 @@ $(O8_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		o8Surface291CReloc=func_overlay_008_F0004CF0_1862A48 $@ && \
 	$(OBJCOPY) --redefine-sym \
+		gOverlay8SelectorScales=D_520 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		overlay8SampleChannel=func_8002A878 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		overlay8EmitChannel=func_8001F320 $@ && \
+	$(OBJCOPY) --redefine-sym \
 		func_overlay_008_F0003018_1860D70=overlay8UpdateChannels $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5128
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5128 && \
+	$(OBJCOPY) --add-symbol \
+		gOverlay8UpdateChannelConstants=0x1BC,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/overlay8UpdateChannels.rebind.spec && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		sha256:47d844f716456f64428bd9db585865758b727df87be434cc7be7f0d28f28a9a8
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: \

@@ -576,9 +576,11 @@ targets: within eight words is the range where the permuter closes candidates.
 
 ## 7. What is still hand-written
 
-- **Section externalization.** `externalize_elf_section.py` takes the expected
-  payload as a hex literal in the Makefile, which is the one part of the
-  machinery not derivable from addresses alone. Five rules use it.
+- **Section externalization.** `externalize_elf_section.py` takes either the
+  expected payload as a hex literal or its SHA-256 digest in the Makefile,
+  which is the one part of the machinery not derivable from addresses alone.
+  The digest form keeps larger private literal pools fail-closed without
+  embedding their bytes in tracked text.
 - **The `POSTPROCESS` trim sizes themselves.** They are the ownership row's
   extent and could be emitted from the atlas rather than written out per file;
   this lane made the *failure* derivable, not yet the rule.

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One decomp-workbench comparison for one function.
 #
-#   ./tools/wb_compare.sh [--diagnose] <symbol> [extra workbench args...]
+#   ./tools/wb_compare.sh [--diagnose] [--no-build] <symbol> [extra workbench args...]
 #
 # Friendly/generated aliases, the owning TU, and the canonical versus
 # NON_MATCHING candidate tree are resolved automatically by
@@ -26,7 +26,10 @@
 # compares the baserom's bytes against the built ROM's bytes over the symbol's
 # address range instead. Fully relocated on both sides, so it can only ever
 # report instruction-words-identical or a real difference -- useful as a final
-# oracle, useless for diagnosing relocation questions.
+# oracle, useless for diagnosing relocation questions. By default this forces
+# only the cheap ELF -> BIN -> ROM derivation so a same-timestamp stale ROM
+# cannot masquerade as current. --no-build instead requires the ROM to be
+# strictly newer than its linked ELF.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -43,16 +46,18 @@ PREFLIGHT_TOOL=tools/function_preflight.py
 
 mode=asm
 wb_command=compare
+no_build=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --rom) mode=rom; shift ;;
         --diagnose) wb_command=diagnose; shift ;;
+        --no-build) no_build=1; shift ;;
         --) shift; break ;;
         *) break ;;
     esac
 done
 if [ $# -lt 1 ]; then
-    echo "usage: $0 [--rom] [--diagnose] <symbol> [workbench args...]" >&2
+    echo "usage: $0 [--rom] [--diagnose] [--no-build] <symbol> [workbench args...]" >&2
     exit 2
 fi
 sym=$1; shift
@@ -64,7 +69,9 @@ cand_build_dir=${WB_CANDIDATE_BUILD_DIR:-build}
 asmfile=
 
 if [ "$mode" = asm ]; then
-    resolution=$($PROVENANCE "$PREFLIGHT_TOOL" "$sym" --resolve-wb) || exit $?
+    preflight_args=("$sym" --resolve-wb)
+    if [ "$no_build" -eq 1 ]; then preflight_args+=(--no-build); fi
+    resolution=$($PROVENANCE "$PREFLIGHT_TOOL" "${preflight_args[@]}") || exit $?
     IFS=$'\t' read -r resolved_target resolved_candidate resolved_source \
         resolved_tu resolved_build_dir resolved_asm <<< "$resolution"
     target_sym=$resolved_target
@@ -120,9 +127,21 @@ if [ "$mode" = rom ]; then
     rom_build_dir=${WB_ROM_BUILD_DIR:-build}
     candidate_elf=$rom_build_dir/mickey.us.elf
     candidate_rom=$rom_build_dir/mickey.us.z64
-    if [ ! -f "$candidate_elf" ] || [ ! -f "$candidate_rom" ]; then
-        echo "$0: no ROM build under '$rom_build_dir' -- run gmake first." >&2
+    if [ ! -f "$candidate_elf" ]; then
+        echo "$0: no linked ELF under '$rom_build_dir' -- run gmake first." >&2
         exit 1
+    fi
+    if [ "$no_build" -eq 0 ]; then
+        # GNU Make can miss this edge when the link and prior ROM happen in the
+        # same filesystem timestamp tick.  --what-if marks only the linked ELF
+        # as newly changed, forcing the cheap ELF -> BIN -> ROM derivation
+        # without recompiling or relinking the project.
+        nice -n 10 gmake -j2 --no-print-directory \
+            -W "$candidate_elf" "$candidate_rom"
+    elif [ ! -f "$candidate_rom" ] || [ ! "$candidate_rom" -nt "$candidate_elf" ]; then
+        echo "$0: '$candidate_rom' is not strictly newer than '$candidate_elf';" >&2
+        echo "  omit --no-build to refresh the ROM proof artifact." >&2
+        exit 2
     fi
 
     read -r candidate_vram_hex candidate_size_hex candidate_section < <(
