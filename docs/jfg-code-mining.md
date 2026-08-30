@@ -143,6 +143,37 @@ and relocations.
 
 ### Qualified guarded scaffold
 
+[`func_80050BF4`](../src/main/anim.c#L476) is useful specifically at JFG's
+unresolved [`animseqInit` pragma](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/anim.c#L100).
+Use it for the ordered initialization phases: load the animation resource,
+allocate and clear the `0x400` path pool, clear camera and sound slots, reset
+scroll records, reset lock-on and light records, and finally reset scalar
+animation state before the dependent-state refresh.
+
+**Evidence:** Mickey's guarded reconstruction is exact-sized at 87 words,
+matches 72/87 words, and has the same `0x18` frame as JFG's 89-word
+`animseqInit`. The two targets preserve the same eight phase boundaries even
+though their instruction schedules differ. **Limits:** Mickey still has a
+15-word induction/address-scheduling plateau. Resource IDs, allocator
+arguments, pool endpoints, global layouts, and the final callee differ, so use
+this as an ordered implementation scaffold rather than a drop-in body and
+prove JFG's own bytes and relocations.
+
+[`overlay15DrawScreenStars`](../src/overlays/o015/overlay_015.c#L213) is useful
+at JFG overlay 5's unresolved
+[`starfieldDrawSP` pragma](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/overlays/o5/overlay_5.c#L11).
+Use its star loop for depth clipping, perspective projection about screen
+center, viewport rejection, depth-based grayscale fade, paired fill-rectangle
+command emission, display-list cursor update, and final list handoff.
+
+**Evidence:** the Overlay 15 ↔ JFG module 5 correspondence is already
+corroborated by five Tier-B function pairs. Mickey's guarded star renderer is
+exact-sized at 105 words with an exact `0x58` frame and matches 92/105 words;
+JFG's 127-word `starfieldDrawSP` has the same frame. **Limits:** JFG is 88 bytes
+longer and has title-specific setup, data layout, relocations, and extra
+behavior. Mickey's remaining 13 words and LOCAL/data identities are not exact,
+so port the phases into JFG's existing function and verify them independently.
+
 [`func_80050E9C`](../src/main/anim.c#L594) is useful specifically at JFG's
 unresolved [`animseqFreeGroup` pragma](https://github.com/Ryan-Myers/Jet-Force-Gemini/blob/fd910f6bd61e4033e0d0208d763addd32fbb6118/src/anim.c#L108).
 Use it for the animation-group teardown sequence: release group storage,
