@@ -104,6 +104,58 @@ therefore moves from 20/21 to 21/21 without changing the object or code bytes;
 only 11/21 identities currently align with the target, so the function remains
 non-exact.
 
+### Canonical same-overlay LOCAL/data identities
+
+Overlay data placeholders are not identities merely because a linker-script
+assignment gives them a small numeric value. The comparison tool now admits a
+same-overlay LOCAL/data base only from candidate-side canonical evidence; it
+never borrows the target relocation at the same row or uses the target identity
+to decide what the candidate meant.
+
+The ordinary canonical link can retain two symbols with the same name: one ABS
+symbol for the generated numeric assignment and one overlay-specific data or
+BSS definition. That pair authenticates a candidate name only when the caller's
+overlay is known, the assignment is unique, one current canonical object has a
+compatible data/rodata/BSS definition at exactly that object offset, and one
+linked definition agrees in name, size, section, and synthetic address. When a
+friendly candidate name deliberately has no linked hand alias, a narrower
+fallback is allowed only if one fresh canonical object owns the linked
+overlay's entire BSS section; the assignment is then an exact byte offset in
+that sole object. A partial or shared section does not qualify.
+
+Linked BSS follows the shipped relocation blobs, while runtime BSS follows only
+text plus data/rodata. The tool therefore proves the linked definition first,
+then translates its BSS offset from `ROM-size + object offset` to
+`text-size + data/rodata-size + object offset`. Initialized data keeps its
+linked module offset. Atlas `data_rodata_ownership` must agree when present.
+
+Every HI16 must have its same-symbol LO16 under MIPS REL pairing semantics;
+multiple references are allowed, but an unpaired member supplies no identity.
+Conflicting assignments, duplicate definitions or ownership, stale source,
+object, or linked ELF, cross-overlay definitions, unsafe source paths, and a
+shared synthetic VMA all fail closed. Generated-call authentication remains a
+separate `R_MIPS_26` route.
+
+The first five-target remeasurement deliberately reports the previous
+target-assisted counts beside the new canonical-only counts:
+
+| target | before resolved / exact-aligned | canonical-only resolved / exact-aligned |
+|---|---:|---:|
+| `overlay15DrawScreenStars` | 0 / 0 | 0 / 0 |
+| `overlay33InitializeBuffers` | 0 / 0 | 0 / 0 |
+| `overlay1AllocateRecord` | 0 / 0 | 0 / 0 |
+| `overlay7AcquireEntry` | 9 / 9 | 11 / 9 |
+| `overlay57HandleModeInput` | 17 / 17 | 7 / 7 |
+
+Overlay 7 gains proof for both schedule-displaced `gOverlay7ActiveTail`
+records without using target position. Overlay 57's old 17 were not all
+canonical evidence: ten depended on the removed target-row shortcut. Its seven
+surviving identities comprise six whole-BSS records plus one independently
+authenticated call. The other names are assignments without a unique canonical
+linked data owner, reserved runtime identities, or unresolved calls and remain
+unknown. All five reports therefore remain partial; this route makes their
+evidence honest but does not by itself make the stale plateaus finalizable.
+
 Sections 1-4 describe the model and feasibility evidence; section 5 records
 the requirements and measurements from the complete implementation.
 
