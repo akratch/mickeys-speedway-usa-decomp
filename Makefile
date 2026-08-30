@@ -294,10 +294,16 @@ endif
 	if [ -n "$$stale" ]; then \
 		count=$$(printf '%s\n' $$stale | wc -w | tr -d ' '); \
 		echo "canonical candidate guard: rebuilding $$count changed/unproven object(s)"; \
-		$(MAKE) --no-print-directory --always-make \
-			--assume-old=$(PYTHON) --assume-old=$(SPLAT_STAMP) $$stale; \
+		$(HOST_PYTHON) $(TOOLS_DIR)/run_logged.py \
+			--repo . --log build/verify/canonical-candidates.log \
+			--label "canonical candidate rebuild ($$count objects)" -- \
+			$(MAKE) --no-print-directory --always-make \
+				--assume-old=$(PYTHON) --assume-old=$(SPLAT_STAMP) $$stale || exit $$?; \
 	fi
-	@$(MAKE) --no-print-directory $(TARGET).z64
+	@$(HOST_PYTHON) $(TOOLS_DIR)/run_logged.py \
+		--repo . --log build/verify/rom-build.log \
+		--label "canonical ROM build" -- \
+		$(MAKE) --no-print-directory $(TARGET).z64
 	@got=$$($(SHA1) $(TARGET).z64 | cut -d' ' -f1); \
 	echo "expected $(EXPECTED_SHA1)"; \
 	echo "built    $$got"; \
@@ -347,6 +353,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_batch_deadline.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_finalize_plateau.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_run_logged.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_skeleton_scan.py
 
