@@ -467,10 +467,10 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Type pass: shared aggregate boundaries are neutral; structure-mismatch,
- * 87/87 instructions, 15 normalized words; first +0x34.
- * s16, for-loop, while/bound, and pointer-order forms were neutral or worse.
- * The target clear-loop branch shape and repeated global-address schedules remain.
+ * Fresh bounded loop/type/lifetime pass: structure-mismatch, 87/87 words,
+ * 15 differing words, first +0x34. Direct comparisons retain IDO's bound
+ * register; a remaining-byte comparison removes it but selects a subtraction
+ * branch and regresses. Five later endpoint/base address schedules remain.
  */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
@@ -2115,4 +2115,14 @@ void fmvInit(void) {
  * first-mismatch: +0x64
  * summary: Fidelity-clean UGEN trace locates one extra temp pop at the path-loop increment and comparison, while direct-control forms regress to 92 words and frame 0x28.
  * PLATEAU-HANDOFF:func_80050E9C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80050BF4:start
+ * symbol: func_80050BF4
+ * score: 72/87 words
+ * frame: 0x18
+ * relocations: 41
+ * first-mismatch: +0x34
+ * summary: Ten natural forms leave the clear-loop bound web; fallback-static resolves 41/41 identities with 31 exact, and five endpoint/base LO16 pairs remain reversed.
+ * PLATEAU-HANDOFF:func_80050BF4:end
  */
