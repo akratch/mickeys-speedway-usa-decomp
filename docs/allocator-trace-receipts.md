@@ -9,7 +9,10 @@ problems in the trace workflow:
 2. it refuses allocator evidence until the traced compiler output passes the
    section, relocation, and symbol fidelity gate against stock output; and
 3. it records immutable baseline hashes and attempt accounting without copying
-   instruction listings or raw compiler traces into documentation.
+   instruction listings or raw compiler traces into documentation; and
+4. it joins hash-bound workbench frame evidence, producer-emitted stack homes,
+   and procedure-scoped ugen temp events into a deterministic first-mechanism
+   comparison.
 
 Raw traces and objects remain untracked workbench evidence. The receipt is a
 diagnostic handoff, not a match claim.
@@ -65,6 +68,7 @@ tools/allocator_trace_receipt.py func_80041CE4 \
   --index-trace build/trace/particles.index.log \
   --ucode-stream build/trace/particles.candidate.B \
   --uopt-trace build/trace/particles.detail.log \
+  --workbench-summary build/wb/func_80041CE4.summary.json \
   --attempts 1 --budget 4
 ```
 
@@ -75,6 +79,20 @@ When the all-procedure index capture has enough detail, omit `--uopt-trace` and
 the command reuses `--index-trace`, avoiding a second compiler run.
 Successful text output is intentionally short. `--json` emits the complete
 receipt schema for another tool.
+
+Generate the hash-bound frame input from the same candidate object before the
+trace capture:
+
+```sh
+tools/wb_compare.sh --summary-json func_80041CE4 \
+  > build/wb/func_80041CE4.summary.json
+```
+
+The receipt accepts only `mickey-wb-summary-v1`, requires its requested and
+candidate symbols to equal the receipt symbol, and requires its candidate
+object SHA-256 to equal `--candidate-object`. A stale summary is an error. The
+candidate and target frame sizes are otherwise `unavailable`; the tool does
+not rediscover them from an instruction listing.
 
 The allocator section summarizes:
 
@@ -88,6 +106,65 @@ The allocator section summarizes:
 The digests make two receipts cheaply comparable while keeping web rows and
 raw trace detail out of tracked files.
 
+## Structured allocator summary
+
+The additive `trace_summary` section keeps the original v1 receipt fields and
+CLI behavior intact. Its three evidence lanes are:
+
+- `frame`: candidate and target byte sizes from the hash-bound workbench
+  summary;
+- `stack_homes`: only homes for which the producer emitted a virtual or final
+  offset. An explicit `width`, `bytes`, or `size` becomes `width_bytes`; an
+  explicit `access` or `access_class` becomes `access_class`. Missing fields
+  are `null` or `unavailable`, never inferred from a data type, opcode, or
+  opaque compiler word; and
+- `temp_events`: procedure-attributed ugen result rows as deterministic
+  birth/pop and death/push events. Each event retains the conventional register
+  name and producer source line, but omits the raw row, trace line, emitted
+  ordinal, compiler addresses, and host path.
+
+Source files are reduced to a safe basename. Procedure attribution comes from
+the same one-procedure Ucode proof that already gates `--ugen-trace`; a
+multi-procedure ugen capture remains inadmissible.
+
+The optional `--target-evidence` document permits field-by-field comparison
+when compact target-side evidence has already been measured:
+
+```json
+{
+  "schema": "mickey-allocator-target-evidence-v1",
+  "symbol": "func_80041CE4",
+  "frame_size_bytes": 32,
+  "stack_homes": {
+    "status": "available",
+    "homes": [
+      {"offset": 24, "width_bytes": 4, "access_class": "load-store"}
+    ]
+  },
+  "temp_events": {"status": "unavailable"}
+}
+```
+
+The schema is deliberately closed: extra fields, raw traces, malformed widths
+or access classes, and a different symbol are rejected. Use `null` or
+`{"status":"unavailable"}` when target evidence cannot establish a field.
+In particular, target machine code does not itself prove a ugen temp birth;
+do not transcribe a plausible event sequence from the candidate trace.
+
+`comparison.fields` reports each lane as `equal`, `divergent`, `partial`, or
+`unavailable`. `comparison.first_divergence` then names the first proved
+mechanism and one bounded source lever. Its current mechanisms distinguish a
+frame-size difference, stack-home count/displacement/width/access, an extra or
+missing temp birth/death, and event order/source attribution. It reports
+`no-divergence` only when all three lanes are available and equal. Equal known
+fields plus one unavailable field remain `unavailable`, not a guessed match.
+
+For a `func_80050E9C`-style trace, one additional integer pop/birth on the
+path-loop line is reported as `extra-temp-birth`; the next lever is to inspect
+that attributed expression for a redundant conversion, comparison carrier, or
+grouping. The tool does not prescribe a source edit and the receipt remains
+diagnostic evidence rather than match proof.
+
 ## Ugen limit
 
 The current ugen producer emits integer- and FP-temporary result rows but no
@@ -95,11 +172,14 @@ compiled-procedure identity. A mixed-TU trace therefore cannot be attributed
 to one symbol safely. The command reports ugen evidence as `not-provided` by
 default and accepts `--ugen-trace` only when the retained Ucode contains one
 compiled procedure. In that proven scope it summarizes `ALLOC_GP_RESULT` and
-`ALLOC_FP_RESULT` counts, register histograms, and sequence digests.
+`ALLOC_FP_RESULT` counts, register histograms, sequence digests, and lifecycle
+events. `ALLOC_GP_RESULT`/`ALLOC_FP_RESULT` are births and free-list pops;
+`FREE`/`FORCE_FREE` are deaths and pushes. Request rows are validated but are
+not misreported as allocated registers.
 
 This is deliberately narrower than the manual workflow used on
 `func_80041CE4`: its uopt procedure can now be mapped and receipted
-automatically, but its mixed-TU ugen temp/FP path still needs either a
+automatically, but its mixed-TU ugen temp/FP lane still needs either a
 one-function faithful scratch or a future producer-side procedure marker.
 
 ## Failure meanings
@@ -112,6 +192,29 @@ one-function faithful scratch or a future producer-side procedure marker.
   stock compiler on that candidate.
 - A budget failure means the handoff omitted or exceeded its bounded-attempt
   accounting.
+- A target-evidence failure means the compact JSON was malformed, stale,
+  symbol-conflicting, or tried to carry an unsupported field.
+- An `unavailable` comparison is a request for narrower evidence, not evidence
+  that candidate and target agree.
+
+## Attempt-zero worker recipe
+
+Before the first source edit, a worker should:
+
+1. run `wb_compare.sh --summary-json` and retain its ignored JSON beside the
+   workbench target object;
+2. map the fresh Ucode procedure with `--map-only`;
+3. capture one fidelity-clean detail trace and, only for a one-procedure input,
+   one ugen trace;
+4. run the full receipt with `--workbench-summary`, `--attempts 1`, and the
+   assigned budget; and
+5. read `comparison.first_divergence` before selecting the first source lever.
+
+Add `--target-evidence` only for target fields already measured independently.
+After every TU or flag change, remap the procedure, recapture, and regenerate
+the receipt; procedure ordinals and allocator-local identities are run-local.
+Preserve the JSON under ignored `build/` evidence and quote only its compact
+mechanism, metrics, and next lever in a handoff.
 
 The workbench's `docs/compiler-instrumentation.md` describes the trace setup
 and the distinction between uopt globalcolor and ugen temporary allocation.
