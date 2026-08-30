@@ -57,16 +57,17 @@ typedef struct Overlay29Init {
 } Overlay29Init;
 
 extern u8 D_EE0[];
-extern void func_80029A24(void *, Vec3f *);
-extern void func_800150F0(s32, Vec3f *, Vec3f *, f32 *, void *, s32);
-extern s32 func_800104B0(Vec3f *, Vec3f *, f32, void *, void *);
+extern void mathOneFloatRPY(void *, Vec3f *);
+extern void trackMakePolylist(s32, Vec3f *, Vec3f *, f32 *, void *, s32);
+extern s32 func_80010900(Vec3f *, Vec3f *, f32, void *, void *);
 extern void func_overlay_029_F00010C4_187E374(void *, s32);
 extern void func_overlay_029_F00001C4_187D474(void *);
 extern void func_overlay_029_F000023C_187D4EC(void *, void *);
 
 /* Workbench: mixed structure/schedule/register; exact 102 words/-0x58 frame, 15 words, first +0x14.
- * Levers 1/4/5/6 plus typed/volatile/load/declaration/vector probes and 40-minute permutation found no improvement.
- * Remaining: target early init/source-contact load ordering; assembly fallback stays canonical. */
+ * All eight relocation offset/type/identity tuples now agree after correcting three resident callee names.
+ * Typed/volatile/load/declaration/vector probes and a bounded permutation found no codegen improvement;
+ * the target's early init/source-contact load ordering remains, so the assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_029_F000042C_187D6DC(Overlay29Object *object,
                                        Overlay29Init *init) {
@@ -85,14 +86,14 @@ void func_overlay_029_F000042C_187D6DC(Overlay29Object *object,
     offset.z = -60.0f;
     source = (Overlay29SourceState *)init->object->contact;
 
-    func_80029A24(init->object, &offset);
+    mathOneFloatRPY(init->object, &offset);
     object->position.x += offset.x;
     object->position.y += offset.y;
     object->position.z += offset.z;
 
     distance = 8.0f;
-    func_800150F0(1, &position, &object->position, &distance, NULL, 0);
-    if (func_800104B0(&position, &object->position, distance, object, D_EE0) != 0) {
+    trackMakePolylist(1, &position, &object->position, &distance, NULL, 0);
+    if (func_80010900(&position, &object->position, distance, object, D_EE0) != 0) {
         func_overlay_029_F00010C4_187E374(object, 5);
         return;
     }
@@ -115,3 +116,13 @@ void func_overlay_029_F000042C_187D6DC(Overlay29Object *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/overlay29InitializeObject/func_overlay_029_F000042C_187D6DC.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_029_F000042C_187D6DC:start
+ * symbol: func_overlay_029_F000042C_187D6DC
+ * score: 87/102 words
+ * frame: 0x58
+ * relocations: 8
+ * first-mismatch: +0x14
+ * summary: All eight identities align; early volatile init/source-contact load ordering remains after bounded producer, vector, and volatility probes.
+ * PLATEAU-HANDOFF:func_overlay_029_F000042C_187D6DC:end
+ */
