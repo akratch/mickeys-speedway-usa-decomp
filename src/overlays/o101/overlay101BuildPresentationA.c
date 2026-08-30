@@ -104,16 +104,15 @@ extern void overlay101BuilderCreateFinalReloc(void *text, s32 index,
                                                s32 color, s32 *count);
 extern s32 overlay101ByteLength(u8 *text);
 
-/* Workbench: structure-mismatch; 169 raw/168 aligned words differ, with 208
+/* Workbench: structure-mismatch; 167 raw/166 aligned words differ, with 208
  * target versus 209 candidate instructions and first structural divergence at
- * +0x20. The exact frame/CFG body still has one late dim-color materialization. */
+ * +0x10. The exact frame/CFG body still has one late dim-color materialization. */
 #ifdef NON_MATCHING
 void overlay101BuildPresentationA(void) {
     s32 orderIndex;
     s32 node32IndexA;
     s32 node32IndexB;
-    s32 node20IndexA;
-    s32 node20IndexB;
+    s32 node20Index;
     s32 node24IndexA;
     s32 node24IndexB;
     s32 previousType;
@@ -185,19 +184,19 @@ void overlay101BuildPresentationA(void) {
         &gOverlay101BuilderRoot.childType;
     gOverlay101BuilderOrderCountB = orderIndex + 1;
 
-    node20IndexA = gOverlay101BuilderNode20CountA;
-    node20A = &gOverlay101BuilderNodes20A[node20IndexA];
+    node20Index = gOverlay101BuilderNode20CountA;
+    node20A = &gOverlay101BuilderNodes20A[node20Index];
     node20A->x = 0x10;
     node20A->y = 0x16;
     node20A->scale = 1.0f;
     handle = overlay101BuilderCreateReloc(0x15, node20A, orderIndex,
                                           node32IndexB);
 
-    node20IndexB = gOverlay101BuilderNode20CountB;
-    node20B = &gOverlay101BuilderNodes20B[node20IndexB];
+    node20Index = gOverlay101BuilderNode20CountB;
+    node20B = &gOverlay101BuilderNodes20B[node20Index];
     previousType = gOverlay101BuilderRoot.childType;
     previous = gOverlay101BuilderRoot.child;
-    gOverlay101BuilderNode20CountB = node20IndexB + 1;
+    gOverlay101BuilderNode20CountB = node20Index + 1;
     gOverlay101BuilderRoot.childType = 1;
     gOverlay101BuilderRoot.child = node20B;
     node20B->handle = handle;
@@ -239,3 +238,13 @@ void overlay101BuildPresentationA(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101BuildPresentationA/func_overlay_101_F00099C4_18E51E4.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay101BuildPresentationA:start
+ * symbol: overlay101BuildPresentationA
+ * score: 166 differing words
+ * frame: 0x20
+ * relocations: 52
+ * first-mismatch: +0x10
+ * summary: 209/208 words and 167 raw differences; 28/34 target relocation offsets and types align, no identities resolve; next lever is the early order-count allocator web
+ * PLATEAU-HANDOFF:overlay101BuildPresentationA:end
+ */
