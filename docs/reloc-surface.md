@@ -574,6 +574,13 @@ only.
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
+Overlay 34 `+0x40C` (`overlay34UpdateRecords`) owns seven exact runtime
+records. Three LOCAL HI16/LO16 pairs resolve to the active count, pointer array,
+and float parameter; the LOCAL JUMP resolves to `overlay34RemoveRecord` at
+module `+0x2C8`. Configured C is exact at 77 words with a `0x30` frame, all
+seven records agree by offset/type/effective identity, and the linked owner,
+complete overlay, and full ROM are exact.
+
 ## 7. What is still hand-written
 
 - **Section externalization.** `externalize_elf_section.py` takes either the

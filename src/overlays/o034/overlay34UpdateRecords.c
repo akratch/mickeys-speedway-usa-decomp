@@ -23,17 +23,14 @@ extern s32 gOverlay34ActiveCount;
 extern f32 gOverlay34Value10;
 extern void overlay34RemoveRecord(Overlay34Record *record);
 
-/* Public-claim reproof: untouched IDO emits 80 instructions / 0x140 bytes
- * with a 0x38 frame versus the retail owner's 77 / 0x134 and 0x30 frame.
- * All 119 flag configurations are nonexact. The retired wrapper reached
- * equality only by deleting three instructions, reordering instructions,
- * and editing register/immediate fields, so the fallback remains canonical. */
-#ifdef NON_MATCHING
+/* PROVENANCE: JFG's public assembly-only
+ * src/overlays/o10/overlay_10.c:sparkUpdate supplied structural context for
+ * the shared update/remove scaffold. This body and its field layout were
+ * reconstructed and matched against Mickey's own bytes. */
 void overlay34UpdateRecords(s32 updateRate) {
     Overlay34Record *record;
     s32 index;
     s32 offset;
-    s32 remaining;
     u8 timer;
     f32 velocityY;
 
@@ -43,12 +40,13 @@ void overlay34UpdateRecords(s32 updateRate) {
         if (gOverlay34ActiveCount > 0) {
             do {
                 index++;
-                remaining = updateRate - 1;
                 record = *(Overlay34Record **)((u8 *)gOverlay34Pointers + offset);
                 offset += 4;
                 timer = record->timer + updateRate;
                 record->timer = timer;
                 if ((timer & 0xFF) < record->lifetime) {
+                    s32 remaining = updateRate - 1;
+
                     record->previousX = record->x;
                     record->previousY = record->y;
                     record->previousZ = record->z;
@@ -70,6 +68,3 @@ void overlay34UpdateRecords(s32 updateRate) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o034/overlay34UpdateRecords/func_overlay_034_F000040C_18815B4.s")
-#endif
