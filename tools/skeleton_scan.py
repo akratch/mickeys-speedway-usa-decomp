@@ -39,6 +39,8 @@ ROOT = Path(__file__).resolve().parent.parent
 BASEROM = ROOT / "baseroms" / "mickey.us.z64"
 ATLAS = ROOT / "config" / "overlays.us.json"
 SYMBOL_ADDRS = ROOT / "symbol_addrs.us.txt"
+ASM_NONMATCHINGS = ROOT / "asm" / "nonmatchings"
+SYNTHETIC_VMA = 0xF0000000
 
 # Resident static segment, ROM offsets. Ground truth: mickey.us.yaml's `main`
 # segment starts at 0x1050 (the `entry` segment supplies 0x1000-0x1050), and
@@ -232,10 +234,7 @@ def skel_index(refs):
 
 def load_rom():
     if not BASEROM.is_file():
-        sys.exit(
-            f"error: baserom not found at {BASEROM} "
-            "(see docs/CONTRIBUTING.md setup)"
-        )
+        sys.exit(f"error: baserom not found at {BASEROM} (see README.md setup)")
     return BASEROM.read_bytes()
 
 
@@ -516,7 +515,131 @@ def _function_sized_mixed_range(row, *, overlay, text_size):
     return start, end
 
 
-def resolve_target_bytes(target, atlas_cache):
+def _text_ownership_extent(row, *, overlay, text_size):
+    """Validate one text owner before it can authorize a raw-ROM slice."""
+
+    if not isinstance(row, dict):
+        sys.exit(f"error: overlay {overlay} has a malformed text_ownership row")
+    start = _atlas_range_int(
+        row, "offset", overlay=overlay, kind="text_ownership row"
+    )
+    end = _atlas_range_int(
+        row, "end_offset", overlay=overlay, kind="text_ownership row"
+    )
+    size = _atlas_range_int(
+        row, "size", overlay=overlay, kind="text_ownership row"
+    )
+    if (
+        start < 0
+        or start >= end
+        or size != end - start
+        or start % 4
+        or end % 4
+        or end > text_size
+        or row.get("type") not in ("c", "asm")
+        or not isinstance(row.get("source"), str)
+        or not row["source"]
+    ):
+        sys.exit(
+            f"error: overlay {overlay} text_ownership row at +0x{start:X} "
+            "is not one valid aligned owner range"
+        )
+    return start, end
+
+
+def _display_path(path):
+    try:
+        return path.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def _fallback_asm_extent(path, *, symbol, expected_vma, text_size):
+    """Return one generated fallback's function extent, excluding padding.
+
+    This is boundary evidence for a diagnostic raw-ROM skeleton only. Require
+    the generated file's own labels and monotonically increasing instruction
+    addresses to agree; never infer an end from the next atlas row or from a
+    candidate object whose preceding functions may have shifted.
+    """
+
+    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    starts = [i for i, line in enumerate(lines) if line.strip() == f"glabel {symbol}"]
+    ends = [i for i, line in enumerate(lines) if line.strip() == f"endlabel {symbol}"]
+    if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
+        sys.exit(
+            f"error: {_display_path(path)} does not have one ordered glabel/endlabel "
+            f"pair for {symbol}"
+        )
+
+    row_re = re.compile(
+        r"^\s*/\*\s+[0-9A-Fa-f]+\s+([0-9A-Fa-f]{8})\s+"
+        r"[0-9A-Fa-f]{8}\s+\*/"
+    )
+    addresses = []
+    for line in lines[starts[0] + 1:ends[0]]:
+        stripped = line.strip()
+        if not stripped or (stripped.startswith(".L") and stripped.endswith(":")):
+            continue
+        match = row_re.match(line)
+        if not match:
+            sys.exit(
+                f"error: {_display_path(path)} has an unrecognized row inside {symbol}; "
+                "raw fallback boundary is not safe"
+            )
+        addresses.append(int(match.group(1), 16))
+
+    if not addresses:
+        sys.exit(f"error: {_display_path(path)} has no bounded instruction rows")
+    expected = [expected_vma + 4 * index for index in range(len(addresses))]
+    if addresses != expected:
+        sys.exit(
+            f"error: {_display_path(path)} instruction addresses are not one contiguous "
+            f"range beginning at 0x{expected_vma:X}"
+        )
+    size = 4 * len(addresses)
+    offset = expected_vma - SYNTHETIC_VMA
+    if offset < 0 or offset + size > text_size:
+        sys.exit(
+            f"error: {_display_path(path)} raw fallback extent +0x{offset:X}.."
+            f"+0x{offset + size:X} escapes overlay text size 0x{text_size:X}"
+        )
+    return size
+
+
+def _raw_overlay_target(overlay, offset, body, *, asm_root):
+    """Resolve one atlas-absent function from a unique generated fallback."""
+
+    expected_vma = SYNTHETIC_VMA + offset
+    overlay_root = asm_root / "overlays" / f"o{overlay:03d}"
+    prefix = f"func_overlay_{overlay:03d}_{expected_vma:08X}_"
+    name_re = re.compile(re.escape(prefix) + r"[0-9A-Fa-f]+\.s")
+    candidates = []
+    if overlay_root.is_dir():
+        candidates = sorted(
+            path for path in overlay_root.rglob(f"{prefix}*.s")
+            if name_re.fullmatch(path.name)
+        )
+    if not candidates:
+        return None
+    if len(candidates) != 1:
+        rendered = ", ".join(_display_path(path) for path in candidates)
+        sys.exit(
+            f"error: o{overlay:03d}+0x{offset:X} has {len(candidates)} generated "
+            f"fallback assembly boundaries ({rendered}); raw skeleton ownership is ambiguous"
+        )
+    path = candidates[0]
+    symbol = path.stem
+    size = _fallback_asm_extent(
+        path,
+        symbol=symbol,
+        expected_vma=expected_vma,
+        text_size=len(body),
+    )
+    return body[offset:offset + size], path
+
+
+def resolve_target_bytes(target, atlas_cache, *, asm_root=ASM_NONMATCHINGS):
     """target: 'vram:0x8000abcd' style resident vram, or 'N:+0xOFF' overlay
     spec. -> (label, bytes) or None if boundaries can't be determined."""
     m = re.match(r"^(\d+):\+?0x([0-9A-Fa-f]+)$", target)
@@ -535,6 +658,20 @@ def resolve_target_bytes(target, atlas_cache):
         module = modules[0]
         body = regions[0]["body"]
 
+        owners = []
+        for row in module.get("text_ownership", []):
+            start, end = _text_ownership_extent(
+                row, overlay=ov_num, text_size=len(body)
+            )
+            if start <= off < end:
+                owners.append((start, end, row))
+        if len(owners) != 1:
+            sys.exit(
+                f"error: o{ov_num:03d}+0x{off:X} has {len(owners)} containing "
+                "text_ownership rows; raw skeleton ownership is ambiguous"
+            )
+        owner_start, owner_end, owner = owners[0]
+
         mixed = []
         for row in module.get("mixed_tu_exact_c_ranges", []):
             start, end = _function_sized_mixed_range(
@@ -548,20 +685,38 @@ def resolve_target_bytes(target, atlas_cache):
             )
         if mixed:
             start, end = mixed[0]
+            if not (owner_start <= start and end <= owner_end):
+                sys.exit(
+                    f"error: o{ov_num:03d}+0x{off:X} mixed-TU exact range escapes "
+                    "its unique text_ownership container"
+                )
             return f"o{ov_num:03d}+0x{off:X}", body[start:end]
 
-        ownership = [(a, b) for a, b in regions[0]["matched"] if a == off]
-        if len(ownership) > 1:
+        raw = _raw_overlay_target(ov_num, off, body, asm_root=asm_root)
+        if (
+            owner_start == off
+            and owner.get("matched") is True
+            and (raw is None or len(raw[0]) == owner_end - owner_start)
+        ):
+            return f"o{ov_num:03d}+0x{off:X}", body[owner_start:owner_end]
+        if raw is not None:
+            resolved, path = raw
+            atlas_cache["target_boundary"] = {
+                "kind": "raw-rom/fallback-asm-boundary",
+                "path": _display_path(path),
+                "size": len(resolved),
+            }
+            return f"o{ov_num:03d}+0x{off:X}", resolved
+        if owner_start == off:
             sys.exit(
-                f"error: o{ov_num:03d}+0x{off:X} has ambiguous text_ownership identity"
+                f"error: o{ov_num:03d}+0x{off:X} starts a text_ownership container, "
+                "but it is not an exact matched function and has no unique generated "
+                "fallback boundary"
             )
-        if ownership:
-            start, end = ownership[0]
-            return f"o{ov_num:03d}+0x{off:X}", body[start:end]
         sys.exit(
-            f"error: o{ov_num:03d}+0x{off:X} is not a known function start in "
-            "mixed_tu_exact_c_ranges or text_ownership; pass a resident vram instead, "
-            "or extend the overlay atlas"
+            f"error: o{ov_num:03d}+0x{off:X} has neither a unique function-sized atlas "
+            "identity nor a unique generated fallback assembly boundary; raw skeleton "
+            "ownership cannot be proved"
         )
     m = re.match(r"^(?:vram:)?0x([0-9A-Fa-f]+)$", target)
     if m:
@@ -588,7 +743,8 @@ def cmd_similar(args):
         sys.exit("error: no reference directories found/resolved; pass --refs")
     refs = load_refs(ref_dirs, min_words=args.min_words, verbose=False)
 
-    label, body = resolve_target_bytes(args.target, {})
+    target_cache = {}
+    label, body = resolve_target_bytes(args.target, target_cache)
     if len(body) // 4 < args.min_words:
         print(f"warning: target is only {len(body) // 4} words, below --min-words {args.min_words}",
               file=sys.stderr)
@@ -620,6 +776,12 @@ def cmd_similar(args):
 
     print(f"target {label}: {target_size} bytes ({target_size // 4} words), "
           f"size window [{int(lo)}, {int(hi)}]")
+    boundary = target_cache.get("target_boundary")
+    if boundary:
+        print(
+            f"boundary: {boundary['kind']} from {boundary['path']} "
+            "(diagnostic only; no atlas ownership inferred)"
+        )
     print(f"top {len(top)} by masked {args.ngram}-gram Jaccard, size within +/-30%:")
     for j, p, n, sz in top:
         print(f"  {j:5.3f}  {p}:{n:40s} {sz:5d}B")
@@ -661,9 +823,9 @@ def build_parser():
     p_sim = sub.add_parser("similar", help="nearest reference functions to one target function")
     add_common(p_sim)
     p_sim.add_argument("--target", required=True,
-                        help="'N:+0xOFF' for overlay N at text offset OFF (must be a known "
-                             "exact mixed-TU or text_ownership function start), or '0xVRAM' "
-                             "for a resident "
+                        help="'N:+0xOFF' for overlay N at text offset OFF (an exact atlas "
+                             "function start, or a unique generated fallback boundary), "
+                             "or '0xVRAM' for a resident "
                              "function (must have a size:0x.. entry in symbol_addrs.us.txt)")
     p_sim.add_argument("--top", type=int, default=10)
     p_sim.add_argument("--ngram", type=int, default=4, help="n-gram length in words (default 4)")

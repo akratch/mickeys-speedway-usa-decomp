@@ -37,7 +37,9 @@ TYPE_NAMES = {2: "R_MIPS_32", 4: "R_MIPS_26", 5: "R_MIPS_HI16", 6: "R_MIPS_LO16"
 
 sys.path.insert(0, str(TOOLS))
 import overlay_tables as ot  # noqa: E402
+import function_history as fh  # noqa: E402
 import proof_provenance as pp  # noqa: E402
+import postprocess_audit as pa  # noqa: E402
 import reloc_surface as rs  # noqa: E402
 
 
@@ -477,15 +479,24 @@ def _build_target(target: Path, *, non_matching: bool, label: str) -> None:
     if non_matching:
         command.append("NON_MATCHING=1")
     build_dir = "build_non_matching" if non_matching else "build"
+    # GNU Make does not consider changed recipe text when deciding whether a
+    # target is current.  Detect that surface before phase one and force the
+    # phase-two dependency graph only when a checked-in recipe/policy file is
+    # newer than the artifact.  For the linked ELF this rebuilds every object;
+    # for a NON_MATCHING candidate it rebuilds that complete translation unit.
     force = bool(_newer_inputs(target, _build_logic_inputs()))
     split = _run([*command, f"{build_dir}/.splat-stamp"], capture=True)
     if split.returncode:
         raise PreflightError(f"{label} split phase failed with exit {split.returncode}")
     target_command = [*command]
     if force:
-        # Linked worktrees may share the primary checkout's virtualenv through
-        # a symlink. Force the evidence graph after recipe edits while keeping
-        # that immutable host-tool prerequisite out of the rebuild.
+        # Lanes intentionally share the primary checkout's virtualenv through
+        # a symlink.  `--always-make` must rebuild the evidence graph after a
+        # recipe edit, but it must not rerun the venv bootstrap recipe against
+        # that symlink (GNU Make would try to replace its parent directory).
+        # `--assume-old` exempts only this immutable host-tool prerequisite;
+        # C/asm/data objects, the link, and all evidence-producing recipes are
+        # still forced.
         target_command.extend(
             ["--always-make", f"--assume-old={VENV_PYTHON_TARGET}"]
         )
@@ -497,12 +508,17 @@ def _build_target(target: Path, *, non_matching: bool, label: str) -> None:
 def _build(resolution: Resolution) -> None:
     candidate_is_nonmatching = resolution.candidate_build_dir == "build_non_matching"
     if candidate_is_nonmatching:
+        # Both build trees consume the same extracted asm/.  A NON_MATCHING
+        # split therefore has to happen first: running it after the canonical
+        # link would rewrite shared assembly and immediately stale that ELF.
         _build_target(
             resolution.candidate_object,
             non_matching=True,
             label="candidate",
         )
-    # The canonical link is built last because both trees share extracted asm.
+    # The canonical link depends on every ordinary-tree C object, including an
+    # ordinary candidate.  Building it last both supplies that object and
+    # leaves canonical evidence newer than the final shared split output.
     _build_target(TARGET_ELF, non_matching=False, label="canonical")
 
 
@@ -803,6 +819,7 @@ def _workbench(resolution: Resolution) -> dict[str, object]:
     else:
         command = [
             str(WB_COMPARE),
+            "--no-build",
             resolution.requested_symbol,
             "--json",
             "--color",
@@ -905,7 +922,16 @@ def _augment_runtime_identity_evidence(
     comparison: dict[str, object],
     workbench: dict[str, object],
 ) -> dict[str, object]:
-    """Keep static names distinct from identities proved after promotion."""
+    """Separate compile-time names from identities proved after promotion.
+
+    Overlay proxy names can intentionally collapse several runtime identities
+    onto one link value.  Once a promoted function is instruction-exact in the
+    linked ROM and its relocation offsets/types are exact, the unchanged retail
+    runtime table proves those remaining identities even though the ordinary
+    object cannot spell them.  Keep that evidence distinct from static symbol
+    resolution instead of either under-counting the proof or pretending the
+    object names were more informative than they are.
+    """
     result = dict(comparison)
     target_count = int(result["target_record_count"])
     static_count = int(result["stable_identity_alignment_count"])
@@ -935,6 +961,151 @@ def _augment_runtime_identity_evidence(
     return result
 
 
+def _candidate_redefine_aliases(candidate_object: Path) -> dict[str, str]:
+    """Map postprocessed object names back to their compile-time identities."""
+    target = _relative(candidate_object)
+    command = pa.postprocess_commands(pa.run_make_database()).get(target)
+    if command is None:
+        return {}
+    proposed: dict[str, set[str]] = {}
+    for source, destination in pa.objcopy_redefine_pairs(command):
+        proposed.setdefault(destination, set()).add(source)
+    # A destination reused by separate metadata passes does not identify one
+    # compile-time source. Leave it unresolved rather than guessing; unique
+    # destinations retain exact provenance.
+    return {
+        destination: next(iter(sources))
+        for destination, sources in proposed.items() if len(sources) == 1
+    }
+
+
+def _signed_hex(value: int) -> str:
+    sign = "+" if value >= 0 else "-"
+    return f"{sign}0x{abs(value):X}"
+
+
+def _tracked_overlay_alias_identities(
+    symbol: str, alias_path: Path = ALIASES
+) -> list[tuple[int, int]]:
+    """Return every generated overlay identity assigned to one friendly name."""
+
+    forward, _reverse = _aliases(alias_path)
+    identities: set[tuple[int, int]] = set()
+    for generated, friendly in forward.items():
+        if symbol not in (generated, friendly):
+            continue
+        match = rs.GEN_NAME_RE.match(generated)
+        if match:
+            identities.add((int(match.group(1)), int(match.group(2), 16)))
+    return sorted(identities)
+
+
+def _surface_error_diagnostic(
+    error: rs.SurfaceComparisonError,
+    resolution: Resolution,
+    atlas: dict[str, object],
+    target_value: int,
+    target_size: int,
+    *,
+    alias_path: Path = ALIASES,
+) -> str:
+    """Explain consolidated-TU failures without weakening the closed gate.
+
+    ``reloc_surface`` deliberately stops at the first ownership or identity
+    contradiction.  Its terse errors are appropriate for a library, but they
+    hide the common cause in a consolidated candidate object: earlier guarded
+    functions changed size, shifting every later definition.  Add the two
+    geometries here while preserving the original failure and verdict.
+    """
+
+    original = str(error)
+    generated = rs.GEN_NAME_RE.match(resolution.target_symbol)
+    if not generated:
+        return original
+
+    try:
+        owner = rs.resolve_overlay_ownership(
+            resolution.candidate_object,
+            atlas,
+            overlay_hint=int(generated.group(1)),
+            source=resolution.translation_unit,
+        )
+        if owner is None:
+            return original
+        module, row = owner
+        overlay = int(module["overlay"])
+        row_start = int(row["offset"], 16)
+        row_end = int(row["end_offset"], 16)
+        candidate_elf = rs.Elf(resolution.candidate_object)
+        candidate_start, candidate_size, _section = rs._unique_symbol(
+            candidate_elf, resolution.candidate_symbol, require_text=True
+        )
+        target_start = target_value - rs.SYNTHETIC_VMA
+        target_local_start = target_start - row_start
+        candidate_end = candidate_start + candidate_size
+    except (OSError, KeyError, TypeError, ValueError, rs.SurfaceComparisonError):
+        return original
+
+    owner_size = row_end - row_start
+    prefix_drift = candidate_start - target_local_start
+    owner_text = (
+        f"overlay:{overlay}:+0x{row_start:X}..+0x{row_end:X} "
+        f"({_relative(resolution.source)})"
+    )
+
+    if original == "candidate function escapes TU ownership":
+        overrun = max(0, candidate_end - owner_size)
+        return (
+            f"{original}: consolidated candidate {resolution.candidate_symbol} occupies "
+            f"TU .text+0x{candidate_start:X}..+0x{candidate_end:X}, while the linked "
+            f"target belongs at TU+0x{target_local_start:X}.."
+            f"+0x{target_local_start + target_size:X} inside {owner_text}; "
+            f"preceding candidate code shifted this function by {_signed_hex(prefix_drift)}"
+            f" and the candidate exceeds the owner by 0x{overrun:X}. Repair or isolate "
+            "the earlier size drift before relocation comparison; preflight will not "
+            "reinterpret bytes outside the atlas owner"
+        )
+
+    ambiguous = re.fullmatch(
+        r"candidate relocation symbol ([A-Za-z_]\w*) has ambiguous runtime identity",
+        original,
+    )
+    if ambiguous:
+        symbol = ambiguous.group(1)
+        try:
+            aliases = _tracked_overlay_alias_identities(symbol, alias_path)
+            text_index, _text = candidate_elf.section(".text")
+            definitions = {
+                (overlay, row_start + value, value)
+                for name, value, _size, _info, shndx in candidate_elf.symbols()
+                if name == symbol and shndx == text_index
+            }
+        except (OSError, ValueError, rs.SurfaceComparisonError):
+            aliases = []
+            definitions = set()
+        if len(aliases) == 1 and len(definitions) == 1:
+            alias_overlay, alias_offset = aliases[0]
+            compiled_overlay, compiled_offset, object_offset = next(iter(definitions))
+            disagreement = compiled_offset - alias_offset
+            return (
+                f"{original}: tracked alias identity is overlay:{alias_overlay}:"
+                f"+0x{alias_offset:X}, but the same definition in consolidated candidate "
+                f"{resolution.translation_unit} lands at overlay:{compiled_overlay}:"
+                f"+0x{compiled_offset:X} (TU .text+0x{object_offset:X}, disagreement "
+                f"{_signed_hex(disagreement)}). This is candidate prefix-layout drift, "
+                "not a second target identity; repair earlier shared-TU sizes before "
+                "preflight can authenticate relocations"
+            )
+        return (
+            f"{original} in consolidated candidate {resolution.translation_unit}; "
+            f"the target range remains uniquely bounded by {owner_text}, but candidate "
+            "symbol provenance does not select one runtime identity. Preflight remains "
+            "closed; use wb_compare.sh only for scalar source-shape diagnostics"
+        )
+
+    return original
+
+
 def collect(resolution: Resolution) -> dict[str, object]:
     for path, label in (
         (TARGET_ELF, "canonical linked ELF"),
@@ -959,17 +1130,28 @@ def collect(resolution: Resolution) -> dict[str, object]:
         context.update(
             _resident_boundary(target_elf, target_value, target_size, section)
         )
-    comparison = rs.function_surface_comparison(
-        resolution.requested_symbol,
-        resolution.candidate_object,
-        TARGET_ELF,
-        rom_path=ROM,
-        atlas_path=ATLAS,
-        values_path=ALIASES,
-        candidate_symbol=resolution.candidate_symbol,
-        target_symbol=linked_name,
-        source=resolution.translation_unit,
+    candidate_redefine_aliases = _candidate_redefine_aliases(
+        resolution.candidate_object
     )
+    try:
+        comparison = rs.function_surface_comparison(
+            resolution.requested_symbol,
+            resolution.candidate_object,
+            TARGET_ELF,
+            rom_path=ROM,
+            atlas_path=ATLAS,
+            values_path=ALIASES,
+            candidate_symbol=resolution.candidate_symbol,
+            target_symbol=linked_name,
+            source=resolution.translation_unit,
+            candidate_redefine_aliases=candidate_redefine_aliases,
+        )
+    except rs.SurfaceComparisonError as error:
+        raise PreflightError(
+            _surface_error_diagnostic(
+                error, resolution, atlas, target_value, target_size
+            )
+        ) from error
     relocation_evidence = _relocation_evidence(
         resolution,
         context,
@@ -986,6 +1168,18 @@ def collect(resolution: Resolution) -> dict[str, object]:
     comparison = _augment_runtime_identity_evidence(
         resolution, comparison, workbench
     )
+    try:
+        source_history = [
+            dataclasses.asdict(row)
+            for row in fh.guarded_body_history(
+                resolution.source, resolution.candidate_symbol, root=REPO
+            )
+        ]
+        source_history_status = "ok"
+    except fh.HistoryError as error:
+        source_history = []
+        source_history_status = f"unavailable: {error}"
+
     result: dict[str, object] = {
         "schema": "mickey-function-evidence-preflight-v1",
         "requested_symbol": resolution.requested_symbol,
@@ -1001,6 +1195,8 @@ def collect(resolution: Resolution) -> dict[str, object]:
         "candidate_signature": _source_signature(
             resolution.source, resolution.candidate_symbol
         ),
+        "source_history": source_history,
+        "source_history_status": source_history_status,
         "linked_symbol": linked_name,
         "linked_section": section,
         "owned_size": target_size,
@@ -1037,6 +1233,14 @@ def _render_human(report: dict[str, object]) -> None:
         f"candidate: {report['source']} [{report['candidate_build_dir']}] "
         f"{report['candidate_signature']}"
     )
+    history = report.get("source_history", [])
+    history_status = report.get("source_history_status", "not collected")
+    print(f"source history (guarded-body changes): {history_status}")
+    if history:
+        for row in history:
+            print(f"  {str(row['commit'])[:10]} {row['subject']}")
+    else:
+        print("  none")
     if context["kind"] == "overlay":
         print(
             f"owned range: overlay:{context['overlay']}:+0x{context['offset']:X}.."
@@ -1100,7 +1304,11 @@ def _render_human(report: dict[str, object]) -> None:
         f"offset/type={reloc['offset_type_alignment_count']}/"
         f"{reloc['target_record_count']} identity="
         f"{reloc['stable_identity_alignment_count']}/"
-        f"{reloc['target_record_count']}"
+        f"{reloc['target_record_count']} static + "
+        f"{reloc.get('linked_runtime_identity_alignment_count', 0)} "
+        "linked-runtime = "
+        f"{reloc.get('effective_identity_alignment_count', reloc['stable_identity_alignment_count'])}/"
+        f"{reloc['target_record_count']} effective"
     )
     wb = report["workbench"]
     matched = "n/a" if wb["matched_words"] is None else f"{wb['matched_words']}/{wb['target_words']}"
@@ -1141,6 +1349,8 @@ def main(argv: list[str]) -> int:
                     "GLOBAL_ASM target; use `tools/wb_compare.sh --rom "
                     f"{resolution.candidate_symbol}`"
                 )
+            if not args.no_build:
+                _build(resolution)
             require_fresh_evidence(resolution)
             fields = (
                 resolution.target_symbol,

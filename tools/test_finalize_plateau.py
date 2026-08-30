@@ -197,6 +197,73 @@ void demo_symbol(void) {}
         self.assertIn("99/101 words", text)
         self.assertNotIn("98/101 words", text)
 
+    def test_symbol_shard_is_strict_and_source_identified(self) -> None:
+        metrics = plateau.Metrics("98/101 words", "0x8", 10, "+0xC")
+        block = plateau.markdown_handoff(
+            "demo_symbol", "src/demo.c", metrics,
+        )
+        self.assertEqual(
+            plateau.handoff_shard_source(block, "demo_symbol"),
+            "src/demo.c",
+        )
+        self.assertEqual(
+            plateau.update_handoff_shard(block, "demo_symbol", block), block,
+        )
+        with self.assertRaisesRegex(plateau.PlateauError, "foreign symbol"):
+            plateau.update_handoff_shard(
+                block.replace("demo_symbol", "other_symbol"),
+                "demo_symbol",
+                block,
+            )
+        with self.assertRaisesRegex(plateau.PlateauError, "non-canonical"):
+            plateau.handoff_shard_source(
+                block.replace("src/demo.c", "src/other/../demo.c"),
+                "demo_symbol",
+            )
+
+    def test_symbol_shard_accepts_details_after_canonical_header(self) -> None:
+        block = plateau.markdown_handoff(
+            "demo_symbol",
+            "src/demo.c",
+            plateau.Metrics("98/101 words", "0x8", 10, "+0xC"),
+        )
+        enriched = block.replace(
+            "<!-- plateau-handoff:demo_symbol:end -->",
+            "- attempts: ten bounded source forms\n"
+            "- next action: reopen only with new allocator evidence\n"
+            "<!-- plateau-handoff:demo_symbol:end -->",
+        )
+        self.assertEqual(
+            plateau.handoff_shard_source(enriched, "demo_symbol"),
+            "src/demo.c",
+        )
+
+    def test_symbol_shard_rejects_nested_detail_marker(self) -> None:
+        block = plateau.markdown_handoff(
+            "demo_symbol",
+            "src/demo.c",
+            plateau.Metrics("98/101 words", "0x8", 10, "+0xC"),
+        )
+        malformed = block.replace(
+            "<!-- plateau-handoff:demo_symbol:end -->",
+            "<!-- plateau-handoff:other_symbol:start -->\n"
+            "<!-- plateau-handoff:demo_symbol:end -->",
+        )
+        with self.assertRaisesRegex(plateau.PlateauError, "malformed or foreign"):
+            plateau.handoff_shard_source(malformed, "demo_symbol")
+
+    def test_shard_paths_are_fixed_per_symbol(self) -> None:
+        self.assertEqual(
+            plateau.handoff_shard_path("demo_symbol"),
+            "docs/matching-triage-handoffs/demo_symbol.md",
+        )
+        self.assertNotEqual(
+            plateau.handoff_shard_path("demo_symbol"),
+            plateau.handoff_shard_path("other_symbol"),
+        )
+        with self.assertRaisesRegex(plateau.PlateauError, "invalid exact symbol"):
+            plateau.handoff_shard_path("../escape")
+
 
 class FinalizeCommandTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -209,8 +276,12 @@ class FinalizeCommandTests(unittest.TestCase):
         self.run_command("git", "config", "user.name", "Plateau Test")
         (self.repo / "src").mkdir()
         (self.repo / "docs").mkdir()
+        (self.repo / "docs" / "matching-triage-handoffs").mkdir()
         (self.repo / "src" / "demo.c").write_text(VALID_SOURCE, encoding="utf-8")
         (self.repo / "docs" / "handoff.md").write_text("# Handoffs\n", encoding="utf-8")
+        (self.repo / "docs" / "matching-triage.md").write_text(
+            "# Matching triage\n", encoding="utf-8"
+        )
         (self.repo / "other.txt").write_text("clean\n", encoding="utf-8")
         self.run_command("git", "add", ".")
         self.run_command("git", "commit", "-q", "-m", "initial")
@@ -259,6 +330,20 @@ class FinalizeCommandTests(unittest.TestCase):
         self.assertEqual(before, after)
         self.assertIn("commit: not requested", result.stdout)
         self.assertIn("PLATEAU-HANDOFF", (self.repo / "src" / "demo.c").read_text())
+        self.assertIn(
+            "plateau-handoff:demo_symbol:start",
+            (
+                self.repo / "docs" / "matching-triage-handoffs" / "demo_symbol.md"
+            ).read_text(),
+        )
+        self.assertEqual(
+            (self.repo / "docs" / "matching-triage.md").read_text(),
+            "# Matching triage\n",
+        )
+        self.assertIn(
+            "handoff-doc: docs/matching-triage-handoffs/demo_symbol.md",
+            result.stdout,
+        )
         self.assertTrue((self.repo / "src" / "demo.c").read_text().startswith(VALID_SOURCE))
         self.assertEqual(self.gate_log.read_text().splitlines(), ["cleanroom", "check-docs"])
 
@@ -283,6 +368,86 @@ class FinalizeCommandTests(unittest.TestCase):
         ).stdout.splitlines()
         self.assertEqual(set(changed), {"src/demo.c", "docs/handoff.md"})
         self.assertIn("plateau-handoff:demo_symbol:start", (self.repo / "docs/handoff.md").read_text())
+
+    def test_default_commit_contains_only_source_and_symbol_shard(self) -> None:
+        result = self.finalize("--commit")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        changed = self.run_command(
+            "git", "show", "--pretty=format:", "--name-only", "HEAD"
+        ).stdout.splitlines()
+        self.assertEqual(set(changed), {
+            "src/demo.c",
+            "docs/matching-triage-handoffs/demo_symbol.md",
+        })
+
+    def test_two_symbols_never_edit_a_shared_ledger(self) -> None:
+        other_source = VALID_SOURCE.replace("demo_symbol", "other_symbol")
+        (self.repo / "src" / "other.c").write_text(other_source, encoding="utf-8")
+        self.run_command("git", "add", "src/other.c")
+        self.run_command("git", "commit", "-q", "-m", "add second candidate")
+
+        first = self.finalize("--commit")
+        self.assertEqual(first.returncode, 0, first.stderr)
+        first_paths = set(self.run_command(
+            "git", "show", "--pretty=format:", "--name-only", "HEAD"
+        ).stdout.splitlines())
+
+        second = self.run_command(
+            sys.executable,
+            str(TOOLS / "finalize_plateau.py"),
+            "other_symbol",
+            "src/other.c",
+            "--score", "7/8 words",
+            "--frame", "frameless",
+            "--relocations", "0",
+            "--first-mismatch", "+0x4",
+            "--commit",
+            check=False,
+        )
+        self.assertEqual(second.returncode, 0, second.stderr)
+        second_paths = set(self.run_command(
+            "git", "show", "--pretty=format:", "--name-only", "HEAD"
+        ).stdout.splitlines())
+        self.assertEqual(first_paths, {
+            "src/demo.c", "docs/matching-triage-handoffs/demo_symbol.md",
+        })
+        self.assertEqual(second_paths, {
+            "src/other.c", "docs/matching-triage-handoffs/other_symbol.md",
+        })
+        self.assertTrue(first_paths.isdisjoint(second_paths))
+
+    def test_malformed_existing_default_shard_refuses_before_source_write(self) -> None:
+        shard = self.repo / "docs" / "matching-triage-handoffs" / "demo_symbol.md"
+        shard.write_text("# foreign content\n", encoding="utf-8")
+        self.run_command("git", "add", "docs/matching-triage-handoffs/demo_symbol.md")
+        self.run_command("git", "commit", "-q", "-m", "add malformed shard")
+        before = (self.repo / "src" / "demo.c").read_text(encoding="utf-8")
+        result = self.finalize()
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("malformed or foreign", result.stderr)
+        self.assertEqual((self.repo / "src" / "demo.c").read_text(), before)
+        self.assertFalse(self.gate_log.exists())
+
+    def test_explicit_option_cannot_bypass_reserved_shard_schema(self) -> None:
+        shard = self.repo / "docs" / "matching-triage-handoffs" / "demo_symbol.md"
+        shard.write_text(
+            plateau.markdown_handoff(
+                "demo_symbol",
+                "src/demo.c",
+                plateau.Metrics("98/101 words", "0x8", 10, "+0xC"),
+            ),
+            encoding="utf-8",
+        )
+        self.run_command("git", "add", "docs/matching-triage-handoffs/demo_symbol.md")
+        self.run_command("git", "commit", "-q", "-m", "add canonical shard")
+        before = (self.repo / "src" / "demo.c").read_text(encoding="utf-8")
+        result = self.finalize(
+            "--handoff-doc", "docs/matching-triage-handoffs/demo_symbol.md",
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("directory is reserved", result.stderr)
+        self.assertEqual((self.repo / "src" / "demo.c").read_text(), before)
+        self.assertFalse(self.gate_log.exists())
 
     def test_refuses_unrelated_dirt_before_writing(self) -> None:
         (self.repo / "other.txt").write_text("dirty\n", encoding="utf-8")

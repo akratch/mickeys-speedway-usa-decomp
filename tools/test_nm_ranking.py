@@ -20,8 +20,9 @@ def function_row(
     *,
     category: str = "other",
     differing_words: int = 2,
+    relocation_masked_differing_words: int | None = None,
 ) -> dict[str, object]:
-    return {
+    row: dict[str, object] = {
         "file": file_name,
         "name": symbol,
         "overlay": None,
@@ -33,6 +34,14 @@ def function_row(
         "size_delta": 0,
         "category": category,
     }
+    if relocation_masked_differing_words is not None:
+        row["relocation_masked_differing_words"] = (
+            relocation_masked_differing_words
+        )
+        row["relocation_masked_first_mismatch_offset"] = (
+            4 if relocation_masked_differing_words else None
+        )
+    return row
 
 
 def ranking_document(
@@ -206,19 +215,104 @@ class ValidationTests(unittest.TestCase):
         ):
             ranking.validate_ranking_document(document)
 
-    def test_schema_two_context_coverage_is_derived_and_validated(self) -> None:
+    def test_schema_three_coverages_are_derived_and_validated(self) -> None:
         row = function_row("src/main/file.c", "symbol")
         row[ranking.SOURCE_CONTEXT_FIELD] = ranking.group_source_context("A" * 43)
         document = ranking.make_ranking_document(
             [row], [], objdiff_report_used=False
         )
-        self.assertEqual(document["schema_version"], 2)
+        self.assertEqual(document["schema_version"], 3)
         self.assertEqual(document["source_context_coverage"], 1)
+        self.assertEqual(document["relocation_masked_coverage"], 0)
         document["source_context_coverage"] = 0
         with self.assertRaisesRegex(
             ranking.RankingDocumentError, "source_context_coverage"
         ):
             ranking.validate_ranking_document(document)
+
+    def test_schema_two_rows_migrate_without_inventing_masked_evidence(self) -> None:
+        legacy = ranking_document([
+            function_row("src/main/file.c", "symbol")
+        ])
+        legacy["schema_version"] = 2
+        legacy["source_context_version"] = ranking.SOURCE_CONTEXT_VERSION
+        legacy["source_context_coverage"] = 0
+        ranking.validate_ranking_document(legacy)
+
+        migrated = ranking.make_ranking_document(
+            list(legacy["functions"]), [], objdiff_report_used=False
+        )
+
+        self.assertEqual(migrated["schema_version"], 3)
+        self.assertEqual(migrated["relocation_masked_coverage"], 0)
+        row = migrated["functions"][0]
+        self.assertIsNone(row["relocation_masked_differing_words"])
+        self.assertIsNone(row["relocation_masked_first_mismatch_offset"])
+
+    def test_masked_coverage_is_derived_and_validated(self) -> None:
+        row = function_row(
+            "src/main/file.c",
+            "symbol",
+            relocation_masked_differing_words=1,
+        )
+        document = ranking.make_ranking_document(
+            [row], [], objdiff_report_used=False
+        )
+        self.assertEqual(document["relocation_masked_coverage"], 1)
+        document["relocation_masked_coverage"] = 0
+
+        with self.assertRaisesRegex(
+            ranking.RankingDocumentError, "relocation_masked_coverage"
+        ):
+            ranking.validate_ranking_document(document)
+
+    def test_masked_count_cannot_exceed_raw_count(self) -> None:
+        row = function_row(
+            "src/main/file.c",
+            "symbol",
+            differing_words=1,
+            relocation_masked_differing_words=2,
+        )
+        with self.assertRaisesRegex(
+            ranking.RankingDocumentError, "exceeds differing_words"
+        ):
+            ranking.make_ranking_document([row], [], objdiff_report_used=False)
+
+    def test_masked_first_offset_requires_matching_count(self) -> None:
+        row = function_row(
+            "src/main/file.c",
+            "symbol",
+            relocation_masked_differing_words=0,
+        )
+        row["relocation_masked_first_mismatch_offset"] = 4
+        with self.assertRaisesRegex(
+            ranking.RankingDocumentError,
+            "disagrees with relocation_masked_differing_words",
+        ):
+            ranking.make_ranking_document([row], [], objdiff_report_used=False)
+
+    def test_schema_three_sorts_by_masked_then_raw_mismatches(self) -> None:
+        masked_closer = function_row(
+            "src/main/masked.c",
+            "masked_closer",
+            differing_words=8,
+            relocation_masked_differing_words=1,
+        )
+        raw_closer = function_row(
+            "src/main/raw.c",
+            "raw_closer",
+            differing_words=2,
+            relocation_masked_differing_words=2,
+        )
+
+        document = ranking.make_ranking_document(
+            [raw_closer, masked_closer], [], objdiff_report_used=False
+        )
+
+        self.assertEqual(
+            [row["name"] for row in document["functions"]],
+            ["masked_closer", "raw_closer"],
+        )
 
     def test_malformed_context_digest_fails_closed(self) -> None:
         row = function_row("src/main/file.c", "symbol")
@@ -311,6 +405,7 @@ class RetainedDisplayTests(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0].name, "func")
         self.assertEqual(results[0].differing_words, 2)
+        self.assertIsNone(results[0].relocation_masked_differing_words)
         self.assertEqual(results[0].objdiff_match_pct, 98.5)
 
     def test_rejects_an_invalid_snapshot(self) -> None:
@@ -337,16 +432,26 @@ class IncrementalRefreshTests(unittest.TestCase):
         self.pending = ("src/main/pending.c", "pending")
         self.new = ("src/main/new.c", "new")
         self.removed = ("src/main/removed.c", "removed")
-        keep_row = function_row(*self.keep, differing_words=1)
+        keep_row = function_row(
+            *self.keep,
+            differing_words=1,
+            relocation_masked_differing_words=1,
+        )
         keep_row[ranking.SOURCE_CONTEXT_FIELD] = ranking.group_source_context("A" * 43)
-        self.document = ranking_document(
+        legacy_row = function_row(
+            *self.legacy,
+            differing_words=2,
+            relocation_masked_differing_words=1,
+        )
+        self.document = ranking.make_ranking_document(
             [
                 keep_row,
-                function_row(*self.legacy, differing_words=2),
+                legacy_row,
                 function_row(*self.stale, differing_words=3),
                 function_row(*self.removed, differing_words=4),
             ],
             [[[*self.pending], "old compile failure"]],
+            objdiff_report_used=False,
         )
         self.items = [
             queue_item(*key)
@@ -398,6 +503,8 @@ class IncrementalRefreshTests(unittest.TestCase):
             size_bytes=16,
             differing_words=1,
             first_mismatch_offset=4,
+            relocation_masked_differing_words=1,
+            relocation_masked_first_mismatch_offset=4,
             size_delta=0,
             category="register-only",
         )
@@ -420,6 +527,27 @@ class IncrementalRefreshTests(unittest.TestCase):
         self.assertEqual(
             stale_row[ranking.SOURCE_CONTEXT_FIELD],
             ranking.group_source_context("C" * 43),
+        )
+
+    def test_missing_masked_evidence_is_backfilled_without_losing_raw_proof(self) -> None:
+        row = function_row(*self.keep, differing_words=1)
+        row[ranking.SOURCE_CONTEXT_FIELD] = self.contexts[self.keep]
+        document = ranking_document([row])
+
+        plan = ranking.plan_incremental_refresh(
+            document,
+            [queue_item(*self.keep)],
+            {self.keep: self.contexts[self.keep]},
+            {},
+            limit=0,
+        )
+
+        self.assertEqual(plan.fresh_rows, {})
+        self.assertEqual(plan.selected, [])
+        self.assertEqual(plan.stale_count, 1)
+        self.assertEqual(
+            plan.deferred_rows[self.keep][ranking.SOURCE_CONTEXT_FIELD],
+            self.contexts[self.keep],
         )
 
     def test_cli_item_error_leaves_input_byte_identical(self) -> None:
@@ -454,6 +582,66 @@ class IncrementalRefreshTests(unittest.TestCase):
             self.assertEqual(path.read_text(encoding="utf-8"), original)
 
 
+class MismatchEvidenceTests(unittest.TestCase):
+    def test_reports_raw_and_relocation_masked_evidence(self) -> None:
+        base = [0x0C000001, 0x3C021234, 0x24420001, 0x24030001]
+        target = [0x0C333333, 0x3C02ABCD, 0x24420001, 0x24030002]
+        base_relocs = {0: ("R_MIPS_26", "callee")}
+        target_relocs = {4: ("R_MIPS_HI16", "global")}
+
+        evidence = ranking.classify(
+            16, 16, base, target, base_relocs, target_relocs
+        )
+
+        self.assertEqual(evidence, ("other", 3, 0, 1, 12))
+
+    def test_pure_linker_payload_difference_is_reloc_mismatch(self) -> None:
+        base = [0x0C000001, 0x3C021234]
+        target = [0x0C333333, 0x3C02ABCD]
+        relocs = {
+            0: ("R_MIPS_26", "candidate_callee"),
+            4: ("R_MIPS_HI16", "candidate_global"),
+        }
+
+        evidence = ranking.classify(
+            8, 8, base, target, relocs, relocs
+        )
+
+        self.assertEqual(evidence, ("reloc-mismatch", 2, 0, 0, None))
+
+    def test_relocation_mask_preserves_opcode_differences(self) -> None:
+        base = [0x0C000001]  # jal
+        target = [0x08000001]  # j
+        relocs = {0: ("R_MIPS_26", "destination")}
+
+        evidence = ranking.classify(
+            4, 4, base, target, relocs, relocs
+        )
+
+        self.assertEqual(evidence, ("other", 1, 0, 1, 0))
+
+    def test_unknown_relocation_kind_does_not_hide_a_difference(self) -> None:
+        relocs = {0: ("R_MIPS_UNKNOWN", "destination")}
+
+        evidence = ranking.classify(
+            4, 4, [0x0C000001], [0x0C333333], relocs, relocs
+        )
+
+        self.assertEqual(evidence, ("other", 1, 0, 1, 0))
+
+    def test_missing_words_remain_mismatches_in_both_views(self) -> None:
+        evidence = ranking.classify(
+            8,
+            4,
+            [0x0C000001, 0x00000000],
+            [0x0C333333],
+            {0: ("R_MIPS_26", "callee")},
+            {0: ("R_MIPS_26", "callee")},
+        )
+
+        self.assertEqual(evidence, ("size-mismatch", 2, 0, 1, 4))
+
+
 class DocumentationTests(unittest.TestCase):
     def setUp(self) -> None:
         self.document = ranking_document(
@@ -485,6 +673,23 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("`src/main/a.c` | `same`", first)
         self.assertIn("`src/main/b.c` | `same`", first)
         self.assertIn("`src/main/pending.c` | `pending` | compile failed", first)
+
+    def test_schema_three_render_exposes_both_mismatch_views(self) -> None:
+        row = function_row(
+            "src/main/a.c",
+            "symbol",
+            differing_words=3,
+            relocation_masked_differing_words=1,
+        )
+        document = ranking.make_ranking_document(
+            [row], [], objdiff_report_used=False
+        )
+
+        rendered = ranking.render_ranking_markdown(document)
+
+        self.assertIn("**1 / 1** resolved rows", rendered)
+        self.assertIn("| Raw diff | Masked diff | Raw first | Masked first |", rendered)
+        self.assertIn("| 3 | 1 | 4 | 4 |", rendered)
 
     def test_generated_markers_preserve_authored_prose_byte_for_byte(self) -> None:
         original = (

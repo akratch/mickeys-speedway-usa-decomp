@@ -1,40 +1,182 @@
-# Matching tools
+# Tooling: decomp-permuter, objdiff, and the smoke test
 
-This page is an index. [ADR 0007](adr/0007-matching-tools.md) defines how the
-tools are used in the matching process.
+This is reference documentation for the tools added in the `lane/tooling`
+work (see `docs/acceleration-survey.md` sections 3-4 and 10 for the survey
+that motivated them). For how to *use* each tool day-to-day, see
+`skills/tools/permuter.md` and `skills/tools/objdiff.md` -- this file covers
+setup, what's committed vs. gitignored, and why each piece is shaped the way
+it is.
 
-## Required build tools
+## decomp-permuter
 
-| Tool | Purpose |
-|---|---|
-| splat | Split the ROM and generate the linker script |
-| asm-processor | Compile C files that still contain `GLOBAL_ASM` includes |
-| IDO 5.3 | Reproduce the original compiler output |
-| GNU binutils | Assemble, link, inspect ELF files, and extract sections |
-| `n64crc` | Write the Nintendo 64 header checksum |
+Not a pip package: `~/Desktop/dev/decomp-permuter` (or wherever it's
+checked out) has a `pyproject.toml` with no `[build-system]` table, only
+`[tool.pyright]`/`[tool.black]` config, so `pip install -e` has nothing to
+build. Instead:
 
-`gmake setup` initializes the Python environment, required submodules,
-toolchain, extraction, and hooks.
+```sh
+ln -sfn /path/to/decomp-permuter tools/permuter   # gitignored, machine-specific
+.venv/bin/pip install toml pynacl                 # its only real deps beyond stdlib
+```
 
-## Daily comparison tools
+`toml` reads `tools/permuter_settings.toml`; `pynacl` is only used by
+permuter@home (the distributed-compute mode, unused here) but `import.py`
+imports it unconditionally at startup regardless. Both are pinned in
+`requirements.txt`, along with the exact decomp-permuter commit this was
+proven against (`requirements.txt`'s comment, since the checkout itself
+isn't a package with its own version string).
 
-| Tool | Purpose | Documentation |
-|---|---|---|
-| `diff.sh` / asm-differ | Compare target and current functions | Upstream asm-differ help |
-| `mips_to_c.sh` | Produce an initial C translation | Upstream m2c help |
-| `tools/wb_compare.sh` | Build a target object and diagnose the current candidate | Script help and workbench guide |
-| `tools/function_preflight.py` | Prove one function's ownership and evidence surface | Function evidence preflight below |
-| `tools/allocator_trace_receipt.py` | Map and summarize faithful IDO allocator traces | [Allocator trace receipts](allocator-trace-receipts.md) |
-| `tools/flag_sweep.py` | Rank known compiler flag groups | [Flag sweep](flag-sweep.md) |
-| `tools/skeleton_scan.py` | Find structural reference candidates | [Skeleton search](skeleton-scan.md) |
-| `tools/nm_ranking.py` | Rank guarded non-matching functions | [Non-matching ranking](nm-ranking.md) |
-| `tools/permute_batch.py` | Run bounded source permutation | [Bounded permutation](permute-batch.md) |
+### permuter_settings.toml: why the compiler command is hardcoded
 
-Use the standard order: find a plausible reference, compile a natural C
-candidate, test known flags, diagnose the mismatch, and use bounded permutation
-only for a narrow remaining compiler difference.
+`import.py`'s default `build_system = "make"` mode runs `gmake
+--always-make --dry-run --debug=j PERMUTER=1 <target>` and parses the one
+debug-trace line containing the source file to recover the compiler
+invocation (`fixup_build_command()` in decomp-permuter's `import.py`). That
+assumes the recipe is one line. This project's C rule is a shell line
+*continuation*:
 
-## Function evidence preflight
+```make
+$(BUILD_DIR)/%.c.o: %.c ... | $(ALL_DIRS) $(SPLAT_STAMP)
+	$(ASM_PROCESSOR) $(CC) -- $(AS) $(ASM_PROC_ASFLAGS) -- \
+		-c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
+```
+
+`make --debug=j` echoes this as two physical lines (the trailing `\`
+survives, and the tab-indented continuation prints separately). Only the
+second line contains the `.c` path, so `import.py`'s line-scan finds a
+"compiler" of just `-c ...` with `tools/ido/cc` missing, and fails with
+`-c: command not found`. Verified by hand:
+
+```sh
+gmake --always-make --dry-run --debug=j PERMUTER=1 build/src/libultra/<f>.c.o
+```
+
+The fix, matching what `tools/permuter_settings.toml`'s own comment
+documents in full: set `compiler_command`/`assembler_command` directly,
+bypassing `find_build_command_line` entirely. Candidates the permuter
+mutates are plain C with no `#pragma GLOBAL_ASM`, so asm-processor's
+split-and-recombine step is a no-op for them -- calling `tools/ido/cc`
+directly, with the same flags asm-processor would have passed through, is
+equivalent. The `assembler_command` also deliberately omits
+`include/asm_processor_prelude.inc`: that file and decomp-permuter's own
+`prelude.inc` (always prepended to `target.s` by `import.py`) both define
+`glabel`/`endlabel`/etc. as `.macro`, and assembling both together is a
+"Macro already defined" error.
+
+The hardcoded flags are the libultra-default group (`-O2 -mips1 -32`); the
+toml's header comment lists the other three groups this Makefile defines
+(overlay/`src/main` game code at `-O2 -mips2 -32`; two other libultra
+sub-groups) and how to retarget for them.
+
+### Proof: `__osContRamRead`
+
+Ran end-to-end against `src/libultra/contramread.c` /
+`asm/nonmatchings/libultra/contramread/__osContRamRead.s` (still
+`#pragma GLOBAL_ASM`; a from-scratch candidate C body was written for the
+test, adapted from Jet Force Gemini's published `libultra/src/io/contramread.c`
+with a `PROVENANCE` note, per `docs/CLEANROOM.md` -- the same pattern
+`src/libultra/pfsgetstatus.c` already uses for a sibling function -- then
+reverted afterward; this was a tooling proof, not a matching attempt):
+
+```
+base score = 1330
+best score (3-minute cap, -j 12, --stop-on-zero): 1055
+```
+
+No exact match (not required -- the point was a working loop). The winning
+mutation joined a `for` loop's body onto one line, which is exactly the
+kind of `perm_sameline`-shaped move IDO's scheduler is sensitive to and a
+human would otherwise have to guess at.
+
+## objdiff
+
+`tools/setup_objdiff.sh` fetches the `objdiff-cli` binary from
+[encounter/objdiff releases](https://github.com/encounter/objdiff/releases)
+(macOS arm64 asset `objdiff-cli-macos-arm64`) into `tools/objdiff/`
+(gitignored, like `tools/ido/`/`tools/binutils/`) and records the resolved
+version in `tools/objdiff/VERSION`. Proven against v3.8.0.
+
+objdiff diffs *object files*, base vs. target. The target ("expected") side
+here is a snapshot of a previously `gmake verify`-clean `build/` --
+following DKR's/dp64's `expected/build/...` convention (dp64's own
+`objdiff.json`, read for schema reference, uses exactly this shape:
+`target_path`/`base_path` pairs per unit) -- not the baserom directly, since
+objdiff needs linked, sectioned object files, not a ROM binary blob.
+`tools/make_expected.sh` runs `gmake verify` and then `cp -R build
+expected/build`; re-run it whenever `build/` changes, or the report compares
+against a stale target.
+
+`objdiff.json` (committed) lists one `unit` per built object:
+`tools/gen_objdiff_config.py` regenerates it from whatever's currently under
+`build/` (`*.o`, excluding `build/permuter/` and `build/wb/` scratch), and
+`tools/objdiff_report.sh` calls it automatically when `build/` looks newer
+than the existing config.
+
+### The trimmed-object exclusion list
+
+686 of this project's ~832 C objects carry a Makefile `POSTPROCESS`
+override -- overwhelmingly `trim_elf_section.py` (IDO aligns standalone
+`.text` to 16 bytes; many of these reviewed overlay functions continue at a
+4-byte boundary inside a larger module, so the trimmer shortens the section
+header after the fact) or `normalize_elf_instructions.py` (patches
+individual instruction words post-compile; see the Makefile's own comments
+on both). objdiff-cli's `report generate` aborts its *entire* batch on the
+first object it can't parse as a result -- `Section symbol without section`,
+or for some objects, an unattributed `Symbol data out of bounds` with no
+file name in the error at all, `-L debug` included.
+
+Given that, per-object bisection to find every offender isn't worth it:
+`tools/objdiff_report.sh` regenerates `tools/objdiff_exclude.txt` fresh on
+every run with the full `POSTPROCESS`-override list:
+
+```sh
+grep -oE '^\$\(BUILD_DIR\)/\$\(SRC_DIR\)/[A-Za-z0-9_/]+\.c\.o: POSTPROCESS' \
+    Makefile | sed -E 's#\$\(BUILD_DIR\)/\$\(SRC_DIR\)/#src/#; s/: POSTPROCESS$//' \
+    | sort -u > tools/objdiff_exclude.txt
+```
+
+Deliberately gitignored rather than committed, unlike `objdiff.json`: it is
+~700 lines of nothing but object-file basenames, no punctuation, no other
+structure -- which `tools/cleanroom_detectors.py`'s base64-volume heuristic
+reads as high-entropy text (834.5 base64-shaped chars/KiB against its
+400/KiB threshold) even though every byte in it is a filename copied from
+the Makefile, not ROM content. A real false positive on this specific file
+shape, not a loophole worth routing around with a `CONTENT_EXEMPTIONS`
+entry when "don't track the derived file, regenerate it" is simpler and
+correct on its own merits regardless of the detector.
+
+`tools/objdiff_report.sh` also retries with a newly-discovered offender
+excluded on any *attributable* failure (`Failed to open ... .o`), as a
+defensive fallback -- but the unattributed failure mode means this can't be
+fully automatic. **This is a known scope limit**: objdiff currently reports
+on the un-postprocessed objects only (719 of 1405 units as of this writing),
+which is still most non-overlay code plus the overlay functions that don't
+need trimming/normalization. Extending coverage to the rest would mean
+teaching objdiff-cli's ELF reader about this project's post-linked object
+shapes, which is out of scope for this lane.
+
+### Proof: current build
+
+```sh
+gmake -j8 && gmake verify && ./tools/make_expected.sh && ./tools/objdiff_report.sh
+```
+
+719 units, 414 with nonzero code size, 711156/711156 bytes matched (100%) --
+expected, since `expected/build/` was snapshotted from the same `build/`
+being diffed. The report becomes informative once `expected/build/` is
+refreshed from an *older* verified build (regressions), or a future
+alternate target (a donor object, a different flag group) is compared
+against the current one via a second `-2 <base>` pointed elsewhere with
+`objdiff-cli diff` directly.
+
+## mapfile_parser
+
+`pip install mapfile_parser` (pinned `2.13.2` in `requirements.txt`).
+Underlies decomp.dev-style progress reporting elsewhere in the splat/objdiff
+ecosystem; not itself wired into a script here, but smoke-tested by
+`tools/check_tools.sh` since it's a `gmake setup` dependency going forward.
+
+## Function evidence preflight and workbench comparison
 
 Run the evidence preflight before a flag sweep or allocator experiment:
 
@@ -46,75 +188,133 @@ tools/function_preflight.py func_overlay_016_F00001E0_1873678 --json
 Either the friendly C name or splat's generated overlay name resolves to the
 same identity. The command incrementally builds the canonical linked ELF and
 the correct full-TU candidate object, automatically selecting
-`build_non_matching/` for a guarded candidate. Split and target builds run as
-separate phases. Before comparison, both the full-TU object and canonical ELF
-must be current according to Make's dependency graph; the Makefile and checked
-normalization fragments receive an explicit timestamp check because recipe
-changes do not automatically age outputs. `--no-build` and `wb_compare.sh`
-fail closed with a rebuild diagnosis when evidence is stale. The report covers
-the owned range, next ownership or padding boundary, exports, inbound call
-sites, and candidate ABI and frame. For overlays it reports shipped runtime
-relocation records. For resident functions it reports authenticated static
-relocation tuples separately from sparse startup-table records, where zero
-runtime records can be valid. It then reports candidate static-surface
-agreement plus the current word score and first mismatch. Ambiguous aliases,
-sources, ranges, or relocation identities are errors. Output excludes
-instruction listings, words, and hexdumps.
+`build_non_matching/` for a guarded candidate. Each build uses the Makefile's
+separate split and target phases, so regenerated assembly cannot be hidden by
+Make's same-invocation timestamp scan. It then reports the exact
+owned range and next ownership/padding boundary, ROM-table exports, inbound
+call sites, and the candidate declaration and frame. For overlays it reports
+every shipped runtime relocation record; for resident functions it reports
+the authenticated canonical object's static relocation tuples separately from
+the sparse resident startup-table records, where zero records is valid. It
+then reports candidate static-relocation agreement and the current workbench
+word score and first mismatch. Before those measurements it prints a concise
+Git history of commits that materially changed this exact guarded function.
+The history compares function token streams with each commit's parent, so
+other-function edits in the same TU and comment/whitespace-only churn are not
+reported. JSON consumers receive the same hash/subject rows in
+`source_history`; no historical source or generated instruction text is
+emitted.
+
+`--no-build` makes existing artifacts a hard requirement. Before any
+comparison, both the full-TU object and canonical linked ELF must be current
+according to Make's real dependency graph. Preflight also checks the root
+Makefile and checked-in policy/normalization fragments explicitly, because
+Make does not age an output merely because its recipe changed. Ordinary
+preflight refreshes missing or stale artifacts with separate low-priority,
+two-job split and target invocations. When recipe/policy timestamp drift is
+detected, the target phase uses Make's always-build mode so old objects cannot
+survive the changed recipe. `--no-build` instead fails closed with an
+actionable diagnosis. The command also fails when an alias, source, range, or
+relocation identity is not unique; its output deliberately excludes
+instruction listings, words, and hexdumps. For consolidated overlay TUs, a
+candidate that has been shifted by earlier guarded bodies still fails closed,
+but the error reports the candidate object extent, linked target extent,
+prefix-size drift, and owner overrun. If a shared-TU definition's compiled
+location disagrees with its generated alias identity, the error reports both
+identities and their delta rather than only saying that the relocation symbol
+is ambiguous. `wb_compare.sh` remains available for scalar source-shape
+diagnostics; neither message authorizes relocation or ownership inference.
 
 Promotion does not make the preflight unusable when splat removes the
-function's extracted fallback. With no fallback present, the resolver enters
-`post_promotion` mode only for one unconditional requested C definition with
-no matching `GLOBAL_ASM`. It requires tracked exact ownership in the overlay
-atlas or resident symbol table, and that evidence must agree with the unique
-definition plus the linked ELF's value and size. A missing fallback cannot
-promote a guarded `NON_MATCHING` body. Post-promotion uses the ordinary
-`build/` object and the fully relocated ROM as its byte oracle; it also
-requires the candidate and target relocation counts, offsets, and types to
-agree. JSON reports distinguish this route with `resolution_mode` and
-`workbench.comparison_mode`.
+function's `asm/nonmatchings` fallback. With no fallback present, the resolver
+enters `post_promotion` mode only for one unconditional requested C definition
+with no matching `GLOBAL_ASM`. It then requires one agreeing tracked exact
+identity: an overlay's friendly/generated alias plus either an exact
+`text_ownership` row or function-sized `mixed_tu_exact_c_ranges` row in the
+overlay atlas, or a resident symbol's single `type:func`, size-bearing
+`matched C` row in `symbol_addrs.us.txt`. The tracked source and range must
+agree with the unique definition and the linked ELF's value and size. Missing,
+stale, conflicting, or merely C-looking evidence fails closed; in particular,
+a guarded `NON_MATCHING` body cannot enter this path just because its extracted
+fallback is absent. Post-promotion reports use the ordinary `build/` object and
+automatically obtain their scalar score from the fully relocated ROM oracle.
+This can reconfirm exactness but does not provide the relocation diagnostics of
+the pre-promotion assembly comparison. JSON reports expose the distinction as
+`resolution_mode` and `workbench.comparison_mode`.
 
-`tools/wb_compare.sh` uses the same resolver, so manual candidate-symbol and
-build-directory settings are unnecessary for normal guarded functions:
+After promotion, reduce that detailed report to one strict proof receipt with:
+
+```sh
+tools/promotion_proof.py overlay41SpawnItems
+gmake promotion-proof SYMBOL=overlay41SpawnItems
+```
+
+`promotion_proof.py` runs and consumes the existing preflight JSON; it does not
+reimplement symbol, ROM, or relocation analysis. It passes only when the
+requested function resolves through `post_promotion`, uses the linked-ROM
+oracle, has identical nonempty word counts with zero differing words, has an
+identical frame (including the valid no-frame leaf case), and has exact
+relocation counts, offsets/types, and effective runtime identities. The output
+is a compact receipt containing only those proof totals and modes. Use
+`--no-build` to require already-fresh preflight artifacts.
+
+For a canonical integration proof, append `--canonical` (or set
+`PROMOTION_PROOF_ARGS=--canonical` on the Make target). After the function
+receipt passes, this runs `gmake verify` and `gmake check-overlay-syms` as two
+explicit, sequential `nice -n 10`, `-j2` commands. This proves the full ROM and
+the tracked overlay relocation surface without writing shared generated
+artifacts. `--json` keeps the final receipt machine-readable and sends the
+canonical commands' progress to standard error.
+
+`tools/wb_compare.sh` uses the same resolver, so manual
+`WB_CANDIDATE_SYMBOL`/`WB_CANDIDATE_BUILD_DIR` settings are no longer needed
+for normal guarded functions:
 
 ```sh
 tools/wb_compare.sh overlay16ApplyGradient --json
 tools/wb_compare.sh --diagnose overlay16ApplyGradient --trace trace.log --trace-proc 0
+tools/wb_compare.sh --no-build overlay16ApplyGradient --json
 ```
 
-Wrapper options precede the symbol. Arguments after the symbol pass unchanged
-to `decomp-workbench compare` or, with `--diagnose`, to
-`decomp-workbench diagnose`. `--rom` retains the linked-ROM final oracle.
-Invoke `wb_compare.sh --rom <linked-C-name>` directly after promotion;
-`function_preflight.py` selects it automatically after its tracked
-post-promotion checks pass.
+Wrapper options precede the symbol; all arguments after the symbol are passed
+unchanged to `decomp-workbench compare` or, with `--diagnose`, to
+`decomp-workbench diagnose`. `--rom` retains the linked-ROM final-oracle mode,
+and can be combined with `--diagnose` to select `diagnose-dumps`. Invoke
+`wb_compare.sh --rom <linked-C-name>` directly after promotion; ordinary
+`function_preflight.py` chooses that mode automatically once its tracked
+post-promotion checks pass. In assembly mode the wrapper performs the same
+automatic two-phase refresh as ordinary preflight. Use wrapper-level
+`--no-build` only when a diagnostic or test must prove existing evidence is
+already fresh without compiling.
 
-For a compact post-promotion receipt, run:
+## tools/check_tools.sh
+
+Runs each tool's `--version`/`--help` and prints one line per tool:
 
 ```sh
-gmake promotion-proof SYMBOL=overlay41SpawnItems
+./tools/check_tools.sh
 ```
 
-`tools/promotion_proof.py` consumes the preflight JSON rather than duplicating
-its resolver. It requires post-promotion mode, linked-ROM comparison, exact
-words and frame, and exact relocation shape and effective identities. Add
-`PROMOTION_PROOF_ARGS=--canonical` to also run the bounded full-ROM and overlay
-relocation-surface proofs. `--no-build` is available when the evidence graph is
-already fresh.
+Covers splat, spimdisasm, asm-differ, m2c, mapfile_parser, toml,
+decomp-permuter (skipped with a note if `tools/permuter` isn't linked),
+objdiff-cli (skipped if not fetched), and the gitignored IDO/binutils
+binaries (skipped if `gmake setup` hasn't run). Exits nonzero if anything
+that *is* present fails to start.
 
-## Overlay tools
+When the workbench, baserom, and an existing build are present, the smoke test
+also runs `tools/wb_compare.sh --rom` on a matched overlay function; the
+wrapper maps resident and overlay symbols to ROM offsets from their ELF
+section VMA/LMA pairs and writes its retained dumps only under ignored
+`build/wb/`. The default candidate is `build/`; set `WB_ROM_BUILD_DIR` to an
+alternate build directory to compare a linked `NON_MATCHING=1` diagnostic ROM
+without replacing the verified build tree.
 
-| Tool | Purpose | Documentation |
-|---|---|---|
-| `tools/overlay_tables.py` | Decode runtime table structure | [Overlays](overlays.md) |
-| `tools/overlay_atlas.py` | Generate the canonical overlay map and YAML projection | [Overlays](overlays.md) |
-| `tools/overlay_donor_scan.py` | Compare all overlays with locked reference objects | [Reference builds](references.md) |
-| `tools/overlay_graph_match.py` | Rank structural JFG module correspondences | [Overlay graph](overlay-graph.md) |
-| consolidation helpers | Maintain grouped overlay source ownership | [Overlay consolidation](overlay-consolidation.md) |
+## Overlay atlas release deltas
 
-### Overlay atlas release deltas
-
-`python3 tools/overlay_atlas.py --delta` compares exact-C overlay ownership
-without rebuilding or checking out an old tree:
+`python3 tools/overlay_atlas.py --delta` makes an overlay scoreboard
+reconciliation reviewable without rebuilding or checking out the old tree.
+With one state it compares that base with the current worktree atlas; with two
+states it compares them directly:
 
 ```sh
 python3 tools/overlay_atlas.py --delta HEAD^
@@ -123,72 +323,112 @@ python3 tools/overlay_atlas.py --delta old-atlas.json ../candidate-checkout
 python3 tools/overlay_atlas.py --delta release-base release-candidate --format json
 ```
 
-A state may be a Git tree-ish, atlas JSON file, or checkout containing
-`config/overlays.us.json`. The report lists promotions and retractions,
-individual ranges, gross byte totals, and net exact-C change. Identity is
-always `(overlay, text, offset)`, never a shared synthetic VMA or filename.
-Duplicate or overlapping identities, inconsistent extents/totals, and
-same-key extent changes fail closed.
+A state may be a Git tree-ish, an atlas JSON file, or a checkout containing
+`config/overlays.us.json`; an existing filesystem path takes precedence over a
+same-named ref. The report lists exact-C promotions and retractions, their
+individual byte ranges, gross byte totals, and the net exact-C change. JSON
+output is schema-versioned and keeps overlay numbers, offsets, extents, and
+sizes numeric for release automation.
+
+Identity is always `(overlay, text, offset)`, never a shared synthetic VMA or
+a source filename. The command refuses duplicate overlay rows, duplicate or
+overlapping exact-C identities, inconsistent row sizes or atlas totals, and a
+same-key extent that changed between states. This is deliberately fail-closed:
+fix or explain the atlas boundary instead of allowing a release report to
+guess whether one range was promoted, retracted, split, or renamed. The delta
+audits atlas state transitions; the ordinary exact-object, linked-ROM, and
+scoreboard gates remain the proof that a promotion is valid.
 
 ## Deterministic public-release reconciliation
 
-`tools/public_release.py` is a push-incapable final preflight for a checked-out
-publication branch. The branch and remote are explicit:
+`tools/public_release.py` is the final, push-incapable release preflight for a
+checked-out publication branch. Both the branch and remote must be named on
+the command line; the tool confirms the current branch, both remote URLs, the
+local remote-tracking ref, and that the release is a fast-forward from that
+ref. It deliberately does not fetch, merge, copy from another checkout, or
+push. Fetching the comparison ref and publishing a proven commit remain
+separate human actions.
+
+The default is a read-only dry run:
 
 ```sh
 gmake public-release \
   PUBLIC_RELEASE_ARGS="--remote public --branch master"
 ```
 
-It confirms fast-forward ancestry, checks derived artifacts, computes exact
-scoreboard and overlay-atlas deltas, runs the serial release gates, and scans
-the resulting tree plus every outgoing commit tree and message. This catches
-operator-only paths or private text even if a later outgoing commit deletes
-them. It never fetches, merges, copies between checkouts, or pushes.
+It regenerates the overlay atlas and post-process report in memory and checks
+the donor digest, then composes the serial health-gated `verify`, tooling,
+clean-room, documentation, scoreboard, and overlay-symbol checks. It scans
+the complete resulting tree, every tree in the outgoing commit range, and
+every outgoing commit message. Scanning every intermediate tree matters: text
+introduced by one outgoing commit and deleted by a later one would still be
+transferred. Operator-only paths, local absolute paths, release credentials,
+and automated generator/co-author trailers fail closed. Untracked local setup
+is ignored; tracked worktree or index changes are rejected.
 
-When generated files need refreshing, add `--write-derived`. Write mode calls
-only the documented overlay-atlas, atlas-digest, post-process, overlay-symbol,
-and scoreboard generators and leaves their output unstaged. Review and commit
-those changes, then rerun the clean default dry run.
+Campaign maintainers with the out-of-tree donor farm can opt into an earlier
+farm check:
 
-Maintainers with the out-of-tree reference farm can add
-`--check-reference-builds`. This opt-in check runs the lock-pinned reference
-verifier before reconciliation generators, failing early on a missing, stale,
-or divergent DKR/JFG farm. It is off by default because ordinary contributors
-do not need the external farm, and it honors the verifier's `REFS_ROOT`
-override.
+```sh
+gmake public-release \
+  PUBLIC_RELEASE_ARGS="--remote public --branch master --check-reference-builds"
+```
 
-## objdiff
+This runs `tools/verify_reference_builds.sh` before any reconciliation
+generator, so a missing, stale, or locally divergent lock-pinned reference
+build fails before donor-derived artifacts are considered. It checks every
+title in `tools/reference-builds.lock`, including the canonical DKR and JFG
+farms, and honors the verifier's existing `REFS_ROOT` environment override.
+The option is deliberately off by default because ordinary public
+contributors do not have the external farm. It can be combined with
+`--write-derived` when a maintainer is intentionally refreshing generated
+release artifacts.
 
-`tools/setup_objdiff.sh` downloads `objdiff-cli` into the ignored
-`tools/objdiff/` directory. `tools/gen_objdiff_config.py` generates
-`objdiff.json` from the current build. `tools/objdiff_report.sh` produces a
-report against an expected object tree.
+The report compares the freshly generated scoreboard with the named
+remote-tracking branch and prints exact numeric deltas. Overlay promotions and
+retractions are additionally derived by interval-diffing the two canonical
+atlases and are reconciled against `matched_overlay_c_bytes`; each changed
+range is reported by overlay, offset, byte count, and owning source. Resident
+changes are available as exact scoreboard metric deltas because the overlay
+atlas does not own resident function boundaries.
 
-Some metadata-trimmed objects are not accepted by objdiff's ELF reader. The
-report script regenerates an ignored exclusion list from Makefile
-`POSTPROCESS` rules. Use `tools/wb_compare.sh` for a function that is absent
-from the batch report.
+If generated files actually need refreshing, opt in explicitly:
 
-## decomp-permuter
+```sh
+gmake public-release \
+  PUBLIC_RELEASE_ARGS="--remote public --branch master --write-derived"
+```
 
-Place a local decomp-permuter checkout at `tools/permuter` or link that path to
-the checkout. The directory is ignored. `tools/permuter_settings.toml` contains
-the compiler and assembler commands used by the wrapper scripts.
+Write mode invokes only these existing public-safe generators, in order:
 
-Do not commit imported candidates, permuter work directories, or target
-assembly. Review every selected mutation as C source before promotion.
+1. `overlay-atlas-write`;
+2. the atlas digest refresh for the donor ledger;
+3. `postprocess_audit.py --write`;
+4. `overlay-syms`;
+5. `scoreboard`.
 
-## Local outputs
+It runs the same gates and scans against the generated worktree, but leaves
+all changes unstaged for review. Commit only reviewed generated changes, then
+rerun the default clean dry run. Neither mode contains a publication command;
+the final success line always says `push=disabled`.
 
-The following stay untracked:
+## Map: the rest of the toolbox
 
-- ROMs, extracted assembly, and assets;
-- compiler and binutils installations;
-- expected object snapshots;
-- objdiff reports and exclusions;
-- flag-sweep, workbench, ranking, and permuter directories; and
-- all raw comparison or attempt logs.
+The tools above (decomp-permuter, objdiff, mapfile_parser, check_tools.sh)
+have their own detailed sections because this file started as their setup
+doc. Everything below just points at where its own documentation lives —
+this file is a map, not a manual, for the rest.
 
-Run `gmake cleanroom` before committing. A generated report may contain target
-data even when its summary looks harmless.
+| Tool | What it does | Documented in |
+|---|---|---|
+| `tools/skeleton_scan.py` | Masked-instruction-shape ("skeleton") matching against the reference farm: finds a donor whose bytes changed but whose structure didn't, which the exact-match `find_known_objects.py` cannot do (ADR 0007). Prints candidates only; never writes ROM bytes to a file. | [`docs/skeleton-scan.md`](skeleton-scan.md) |
+| `tools/flag_sweep.py` | Compiles one candidate under the full known compiler-flag lattice and ranks by objdiff score, before any hand permutation is attempted (ADR 0007). | [`docs/flag-sweep.md`](flag-sweep.md) |
+| `tools/function_history.py` | Lists only commits that materially changed one exact guarded C function, excluding unrelated same-TU commits and comment/whitespace churn; preflight embeds the same hash/subject rows. | [Function evidence preflight](#function-evidence-preflight-and-workbench-comparison) above |
+| `tools/overlay_graph_match.py` | Structural overlay-to-module matching against Jet Force Gemini by size, function count, and call graph, since byte identity mostly returns nothing against a differently-revised source tree. Writes `config/overlay-graph.us.json`. | [`docs/overlay-graph.md`](overlay-graph.md) |
+| `tools/overlay_atlas.py --delta` | Audits exact-C overlay promotions, retractions, and net byte changes between refs, manifests, or checkouts using fail-closed `(overlay, offset)` identities; `--format json` is machine-readable. | [Overlay atlas release deltas](#overlay-atlas-release-deltas) above |
+| `tools/permute.sh` | One bounded decomp-permuter run for one function: locates its C file and target `.s` (regenerating the target from the baserom via a temporary `GLOBAL_ASM` swap if the function already has a C body), imports both, and runs `permuter.py` under a wall-clock cap. Batch-only per ADR 0007 — never run inside an agent's own turn-by-turn reasoning loop. | this file, `## decomp-permuter` above |
+| `tools/finalize_plateau.py` | Validates and preserves one guarded candidate, appends symbol-keyed EOF metadata without moving measured source lines, and writes a conflict-free `docs/matching-triage-handoffs/<symbol>.md` shard by default; explicit custom ledgers must already be tracked. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Safe plateau finalization` |
+| `tools/new_lane.sh`, `tools/merge_lane.sh`, `tools/codex_lane.sh` | Create, integrate, and (for Codex) launch a deadline-aware worker in an isolated lane worktree. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Lane helpers` |
+| `tools/fix_stale_externs.py`, `tools/refresh_atlas_digest.py`, `tools/resolve_modules_split.py` | Post-merge/integration housekeeping: stale `func_<VRAM>` externs, a stale atlas digest, and the `docs/modules.md`/`docs/overlays.md` split conflict. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Integration housekeeping` and `## docs/modules.md / docs/overlays.md split` |
+| `tools/postprocess_audit.py` | Classifies every object's `POSTPROCESS` build step as `altered` (forbidden, ADR 0002) or `metadata` (permitted); the mechanical check behind the scoreboard's decompiled line. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Auditing post-compile steps` |
+| `tools/public_release.py` | Regenerates/checks public-safe derived artifacts, reports exact release deltas, scans every outgoing tree/message, and composes all release gates. It never publishes. | this file, `## Deterministic public-release reconciliation` |

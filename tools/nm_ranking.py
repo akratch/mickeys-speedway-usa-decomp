@@ -34,9 +34,8 @@ Two independent sources feed the ranking:
 
 No instruction words, mnemonics, or hex ever leave this tool: every
 decoded instruction word lives only in memory for one comparison and is
-reduced to a count (differing_words) or an offset (first_mismatch_offset)
-before anything is written to config/nonmatching-ranking.us.json or
-printed.
+reduced to raw and relocation-masked counts/first-mismatch offsets before
+anything is written to config/nonmatching-ranking.us.json or printed.
 
 Usage:
 
@@ -86,7 +85,7 @@ DEFAULT_OUT = ROOT / "config" / "nonmatching-ranking.us.json"
 DEFAULT_DOC = ROOT / "docs" / "nm-ranking.md"
 DOC_BEGIN = "<!-- NM_RANKING_GENERATED_BEGIN -->"
 DOC_END = "<!-- NM_RANKING_GENERATED_END -->"
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 SOURCE_CONTEXT_VERSION = 3
 SOURCE_CONTEXT_FIELD = "source_context_sha256"
 HEX_SHA256_RE = re.compile(r"[0-9a-f]{64}")
@@ -111,6 +110,24 @@ SYM_RE = re.compile(
 RELOC_RE = re.compile(
     r"^([0-9a-f]{8})\s+(\S+)\s+(\S+)\s*$"
 )
+
+# Bits whose final value is supplied or adjusted by the linker. A positional
+# comparison masks the union of the candidate and target relocation fields at
+# each word. Unknown relocation kinds fail closed by masking nothing: without
+# a defined bit field, the tool must not erase a possible code-generation
+# mismatch.
+RELOC_VALUE_MASKS = {
+    "R_MIPS_16": 0x0000FFFF,
+    "R_MIPS_26": 0x03FFFFFF,
+    "R_MIPS_32": 0xFFFFFFFF,
+    "R_MIPS_HI16": 0x0000FFFF,
+    "R_MIPS_LO16": 0x0000FFFF,
+    "R_MIPS_GPREL16": 0x0000FFFF,
+    "R_MIPS_LITERAL": 0x0000FFFF,
+    "R_MIPS_GOT16": 0x0000FFFF,
+    "R_MIPS_CALL16": 0x0000FFFF,
+}
+UNKNOWN_RELOC_VALUE_MASK = 0
 
 
 def objdump_text(objfile: pathlib.Path) -> str:
@@ -402,6 +419,8 @@ class FuncResult:
     size_bytes: int
     differing_words: int
     first_mismatch_offset: Optional[int]
+    relocation_masked_differing_words: Optional[int]
+    relocation_masked_first_mismatch_offset: Optional[int]
     size_delta: int
     category: str
     objdiff_match_pct: Optional[float] = None
@@ -746,7 +765,7 @@ def validate_ranking_document(
 
     schema_version = document.get("schema_version", 1)
     schema_version = _plain_int(schema_version, "schema_version", minimum=1)
-    if schema_version not in (1, SCHEMA_VERSION):
+    if schema_version not in (1, 2, SCHEMA_VERSION):
         raise RankingDocumentError(
             f"schema_version {schema_version} is unsupported"
         )
@@ -767,6 +786,14 @@ def validate_ranking_document(
         )
     else:
         context_coverage = 0
+    if schema_version >= 3:
+        relocation_masked_coverage = _plain_int(
+            document.get("relocation_masked_coverage"),
+            "relocation_masked_coverage",
+            minimum=0,
+        )
+    else:
+        relocation_masked_coverage = 0
 
     queue_size = _plain_int(document.get("queue_size"), "queue_size", minimum=0)
     resolved = _plain_int(document.get("resolved"), "resolved", minimum=0)
@@ -791,6 +818,7 @@ def validate_ranking_document(
     function_keys: list[tuple[str, str]] = []
     measured_coverage = 0
     measured_context_coverage = 0
+    measured_relocation_masked_coverage = 0
     for index, row in enumerate(functions):
         key = _function_row_key(row)
         assert isinstance(row, dict)
@@ -815,7 +843,7 @@ def validate_ranking_document(
         size = _plain_int(row.get("size_bytes"), f"{prefix}.size_bytes", minimum=0)
         if size % 4:
             raise RankingDocumentError(f"{prefix}.size_bytes must be word-aligned")
-        _plain_int(
+        raw_differing = _plain_int(
             row.get("differing_words"), f"{prefix}.differing_words", minimum=0
         )
         first = row.get("first_mismatch_offset")
@@ -830,11 +858,60 @@ def validate_ranking_document(
             raise RankingDocumentError(f"{prefix}.size_delta must be word-aligned")
         if size + delta < 0:
             raise RankingDocumentError(f"{prefix}.size_delta makes base size negative")
-        differing = int(row["differing_words"])
-        if (differing == 0) != (first is None):
+        if (raw_differing == 0) != (first is None):
             raise RankingDocumentError(
                 f"{prefix}.first_mismatch_offset disagrees with differing_words"
             )
+        masked_differing = row.get("relocation_masked_differing_words")
+        masked_first = row.get("relocation_masked_first_mismatch_offset")
+        if schema_version >= 3:
+            if "relocation_masked_differing_words" not in row:
+                raise RankingDocumentError(
+                    f"{prefix}.relocation_masked_differing_words is required"
+                )
+            if "relocation_masked_first_mismatch_offset" not in row:
+                raise RankingDocumentError(
+                    f"{prefix}.relocation_masked_first_mismatch_offset is required"
+                )
+            if masked_differing is None:
+                if masked_first is not None:
+                    raise RankingDocumentError(
+                        f"{prefix}.relocation_masked_first_mismatch_offset needs "
+                        "relocation-masked evidence"
+                    )
+            else:
+                masked_differing = _plain_int(
+                    masked_differing,
+                    f"{prefix}.relocation_masked_differing_words",
+                    minimum=0,
+                )
+                if masked_differing > raw_differing:
+                    raise RankingDocumentError(
+                        f"{prefix}.relocation_masked_differing_words exceeds "
+                        "differing_words"
+                    )
+                if masked_first is not None:
+                    masked_first = _plain_int(
+                        masked_first,
+                        f"{prefix}.relocation_masked_first_mismatch_offset",
+                        minimum=0,
+                    )
+                    if masked_first % 4:
+                        raise RankingDocumentError(
+                            f"{prefix}.relocation_masked_first_mismatch_offset "
+                            "must be word-aligned"
+                        )
+                if (masked_differing == 0) != (masked_first is None):
+                    raise RankingDocumentError(
+                        f"{prefix}.relocation_masked_first_mismatch_offset "
+                        "disagrees with relocation_masked_differing_words"
+                    )
+                if first is not None and masked_first is not None and masked_first < first:
+                    raise RankingDocumentError(
+                        f"{prefix}.relocation_masked_first_mismatch_offset "
+                        "precedes the raw first mismatch"
+                    )
+                measured_relocation_masked_coverage += 1
         _plain_string(row.get("category"), f"{prefix}.category")
         pct = row.get("objdiff_match_pct")
         if pct is not None:
@@ -893,6 +970,14 @@ def validate_ranking_document(
                 f"source_context_coverage is {context_coverage}, expected "
                 f"{measured_context_coverage} from rows"
             )
+        if (
+            schema_version >= 3
+            and relocation_masked_coverage != measured_relocation_masked_coverage
+        ):
+            raise RankingDocumentError(
+                f"relocation_masked_coverage is {relocation_masked_coverage}, "
+                f"expected {measured_relocation_masked_coverage} from rows"
+            )
     return document
 
 
@@ -906,15 +991,23 @@ def row_from_result(result: FuncResult, context_digest: str) -> dict[str, object
         "objdiff_match_pct": result.objdiff_match_pct,
         "differing_words": result.differing_words,
         "first_mismatch_offset": result.first_mismatch_offset,
+        "relocation_masked_differing_words": (
+            result.relocation_masked_differing_words
+        ),
+        "relocation_masked_first_mismatch_offset": (
+            result.relocation_masked_first_mismatch_offset
+        ),
         "size_delta": result.size_delta,
         "category": result.category,
         SOURCE_CONTEXT_FIELD: context_digest,
     }
 
 
-def row_sort_key(row: dict[str, object]) -> tuple[int, int, str, str]:
+def row_sort_key(row: dict[str, object]) -> tuple[int, int, int, str, str]:
+    masked = row.get("relocation_masked_differing_words")
     return (
         CATEGORY_RANK.get(str(row["category"]), 99),
+        int(masked) if masked is not None else int(row["differing_words"]),
         int(row["differing_words"]),
         str(row["file"]),
         str(row["name"]),
@@ -927,6 +1020,10 @@ def make_ranking_document(
     *,
     objdiff_report_used: bool,
 ) -> dict[str, object]:
+    functions = [dict(row) for row in functions]
+    for row in functions:
+        row.setdefault("relocation_masked_differing_words", None)
+        row.setdefault("relocation_masked_first_mismatch_offset", None)
     functions = sorted(functions, key=row_sort_key)
     unresolved = sorted(
         unresolved,
@@ -944,6 +1041,10 @@ def make_ranking_document(
         ),
         "source_context_coverage": sum(
             row.get(SOURCE_CONTEXT_FIELD) is not None for row in functions
+        ),
+        "relocation_masked_coverage": sum(
+            row.get("relocation_masked_differing_words") is not None
+            for row in functions
         ),
         "functions": functions,
         "unresolved_functions": unresolved,
@@ -966,6 +1067,7 @@ def plan_incremental_refresh(
     unresolved = validated["unresolved_functions"]
     assert isinstance(functions, list)
     assert isinstance(unresolved, list)
+    schema_version = int(validated.get("schema_version", 1))
 
     live_by_key: dict[tuple[str, str], pb.QueueItem] = {}
     for item in live_items:
@@ -995,7 +1097,18 @@ def plan_incremental_refresh(
         if measured == current_contexts[key]:
             migrated = dict(raw)
             migrated[SOURCE_CONTEXT_FIELD] = current_contexts[key]
-            fresh_rows[key] = migrated
+            if (
+                schema_version >= 3
+                and migrated.get("relocation_masked_differing_words") is not None
+            ):
+                fresh_rows[key] = migrated
+            else:
+                # The raw measurement is still source-proven, but schema v3
+                # needs one compile to derive relocation-masked evidence.
+                # Preserve its context if --limit defers that backfill so the
+                # retained raw metric does not become falsely stale.
+                stale_function_rows[key] = migrated
+                stale_order.append(key)
         else:
             stale = dict(raw)
             stale.pop(SOURCE_CONTEXT_FIELD, None)
@@ -1141,6 +1254,13 @@ def prune_stale_document(
             1
             for row in retained_functions
             if isinstance(row, dict) and row.get(SOURCE_CONTEXT_FIELD) is not None
+        )
+    if int(pruned.get("schema_version", 1)) >= 3:
+        pruned["relocation_masked_coverage"] = sum(
+            1
+            for row in retained_functions
+            if isinstance(row, dict)
+            and row.get("relocation_masked_differing_words") is not None
         )
     validate_ranking_document(pruned)
     return pruned, removed, unranked
@@ -1305,11 +1425,17 @@ def render_ranking_markdown(document: object) -> str:
     assert isinstance(unresolved, list)
 
     queue_size = int(document["queue_size"])
+    schema_version = int(document.get("schema_version", 1))
     resolved = int(document["resolved"])
     unresolved_count = int(document["unresolved"])
     coverage = int(document["objdiff_match_pct_coverage"])
     context_coverage = sum(
         isinstance(row, dict) and row.get(SOURCE_CONTEXT_FIELD) is not None
+        for row in functions
+    )
+    relocation_masked_coverage = sum(
+        isinstance(row, dict)
+        and row.get("relocation_masked_differing_words") is not None
         for row in functions
     )
     total_size = sum(int(row["size_bytes"]) for row in functions)
@@ -1346,11 +1472,22 @@ def render_ranking_markdown(document: object) -> str:
         f"{resolved:,}** resolved rows. Rows without it are retained legacy or "
         "bounded-refresh measurements and must be treated as requiring reproof.",
         "",
+    ]
+    if schema_version >= 3:
+        lines.extend([
+            f"Relocation-masked mismatch evidence covers **{relocation_masked_coverage:,} "
+            f"/ {resolved:,}** resolved rows. The raw count preserves literal object "
+            "differences; the masked count removes only known linker-owned fields to "
+            "expose the remaining code-generation mismatch. Neither replaces linked "
+            "byte-identity proof.",
+            "",
+        ])
+    lines.extend([
         "### Category distribution",
         "",
         "| Category | Count | Share of resolved |",
         "|---|---:|---:|",
-    ]
+    ])
 
     category_counts = Counter(str(row["category"]) for row in functions)
     category_order: list[str] = []
@@ -1372,7 +1509,20 @@ def render_ranking_markdown(document: object) -> str:
     ])
     for threshold in (5, 10, 20):
         count = sum(int(row["differing_words"]) <= threshold for row in functions)
-        lines.append(f"| `differing_words <= {threshold}` | {count:,} |")
+        label = "raw " if schema_version >= 3 else ""
+        lines.append(
+            f"| {label}`differing_words <= {threshold}` | {count:,} |"
+        )
+        if schema_version >= 3:
+            masked_count = sum(
+                row.get("relocation_masked_differing_words") is not None
+                and int(row["relocation_masked_differing_words"]) <= threshold
+                for row in functions
+            )
+            lines.append(
+                "| relocation-masked "
+                f"`differing_words <= {threshold}` | {masked_count:,} |"
+            )
 
     lines.extend([
         "",
@@ -1382,9 +1532,17 @@ def render_ranking_markdown(document: object) -> str:
         "(`file`, `symbol`), so repeated symbol spellings in different translation",
         "units remain distinct.",
         "",
-        "| Rank | File | Symbol | Overlay/TU | Category | Target bytes | Diff words | First mismatch | Size delta | Objdiff% |",
-        "|---:|---|---|---|---|---:|---:|---:|---:|---:|",
     ])
+    if schema_version >= 3:
+        lines.extend([
+            "| Rank | File | Symbol | Overlay/TU | Category | Target bytes | Raw diff | Masked diff | Raw first | Masked first | Size delta | Objdiff% |",
+            "|---:|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|",
+        ])
+    else:
+        lines.extend([
+            "| Rank | File | Symbol | Overlay/TU | Category | Target bytes | Diff words | First mismatch | Size delta | Objdiff% |",
+            "|---:|---|---|---|---|---:|---:|---:|---:|---:|",
+        ])
     for rank, row in enumerate(functions, 1):
         location = (
             f"o{int(row['overlay']):03d}"
@@ -1393,22 +1551,30 @@ def render_ranking_markdown(document: object) -> str:
         )
         first = row["first_mismatch_offset"]
         pct = row["objdiff_match_pct"]
-        lines.append(
-            "| "
-            + " | ".join([
-                str(rank),
-                _markdown_code(row["file"]),
-                _markdown_code(row["name"]),
-                _markdown_code(location),
-                _markdown_code(row["category"]),
-                f"{int(row['size_bytes']):,}",
-                f"{int(row['differing_words']):,}",
+        cells = [
+            str(rank),
+            _markdown_code(row["file"]),
+            _markdown_code(row["name"]),
+            _markdown_code(location),
+            _markdown_code(row["category"]),
+            f"{int(row['size_bytes']):,}",
+            f"{int(row['differing_words']):,}",
+        ]
+        if schema_version >= 3:
+            masked = row.get("relocation_masked_differing_words")
+            masked_first = row.get("relocation_masked_first_mismatch_offset")
+            cells.extend([
+                "—" if masked is None else f"{int(masked):,}",
                 "—" if first is None else f"{int(first):,}",
-                f"{int(row['size_delta']):,}",
-                "—" if pct is None else json.dumps(pct, allow_nan=False),
+                "—" if masked_first is None else f"{int(masked_first):,}",
             ])
-            + " |"
-        )
+        else:
+            cells.append("—" if first is None else f"{int(first):,}")
+        cells.extend([
+            f"{int(row['size_delta']):,}",
+            "—" if pct is None else json.dumps(pct, allow_nan=False),
+        ])
+        lines.append("| " + " | ".join(cells) + " |")
 
     lines.extend([
         "",
@@ -1472,6 +1638,53 @@ def tu_category(rel_c_file: str) -> str:
     return "?"
 
 
+def mismatch_evidence(
+    base_words: list[int],
+    target_words: list[int],
+    base_reloc: dict[int, tuple[str, str]],
+    target_reloc: dict[int, tuple[str, str]],
+) -> tuple[int, Optional[int], int, Optional[int]]:
+    """Return raw and linker-field-masked mismatch counts/first offsets.
+
+    Relocation payload bits are masked at a positional union of both objects'
+    relocation surfaces. Words beyond the shared length remain mismatches in
+    both views because no relocation can explain a missing instruction.
+    """
+    n = min(len(base_words), len(target_words))
+    raw_positions: list[int] = []
+    masked_positions: list[int] = []
+    for index in range(n):
+        base_word = base_words[index]
+        target_word = target_words[index]
+        if base_word == target_word:
+            continue
+        raw_positions.append(index)
+        offset = index * 4
+        value_mask = 0
+        for relocation in (base_reloc.get(offset), target_reloc.get(offset)):
+            if relocation is not None:
+                value_mask |= RELOC_VALUE_MASKS.get(
+                    relocation[0], UNKNOWN_RELOC_VALUE_MASK
+                )
+        compare_mask = (~value_mask) & 0xFFFFFFFF
+        if (base_word & compare_mask) != (target_word & compare_mask):
+            masked_positions.append(index)
+
+    extra = abs(len(base_words) - len(target_words))
+
+    def summarize(positions: list[int]) -> tuple[int, Optional[int]]:
+        count = len(positions) + extra
+        if positions:
+            return count, positions[0] * 4
+        if extra:
+            return count, n * 4
+        return 0, None
+
+    raw_count, raw_first = summarize(raw_positions)
+    masked_count, masked_first = summarize(masked_positions)
+    return raw_count, raw_first, masked_count, masked_first
+
+
 def classify(
     base_size: int,
     target_size: int,
@@ -1479,46 +1692,44 @@ def classify(
     target_words: list[int],
     base_reloc: dict[int, tuple[str, str]],
     target_reloc: dict[int, tuple[str, str]],
-) -> tuple[str, int, Optional[int]]:
-    """Returns (category, differing_words, first_mismatch_offset)."""
+) -> tuple[str, int, Optional[int], int, Optional[int]]:
+    """Return category plus raw and relocation-masked mismatch evidence."""
     size_delta = base_size - target_size
     n = min(len(base_words), len(target_words))
     diff_positions = [i for i in range(n) if base_words[i] != target_words[i]]
-    # Words beyond the shorter side's length are unmatched by construction.
-    extra = abs(len(base_words) - len(target_words))
-    differing_words = len(diff_positions) + extra
-    first_mismatch_offset: Optional[int]
-    if diff_positions:
-        first_mismatch_offset = diff_positions[0] * 4
-    elif extra:
-        first_mismatch_offset = n * 4
-    else:
-        first_mismatch_offset = None
+    (
+        differing_words,
+        first_mismatch_offset,
+        relocation_masked_differing_words,
+        relocation_masked_first_mismatch_offset,
+    ) = mismatch_evidence(base_words, target_words, base_reloc, target_reloc)
+
+    evidence = (
+        differing_words,
+        first_mismatch_offset,
+        relocation_masked_differing_words,
+        relocation_masked_first_mismatch_offset,
+    )
 
     if size_delta != 0:
-        return "size-mismatch", differing_words, first_mismatch_offset
+        return ("size-mismatch", *evidence)
 
     if not diff_positions:
-        return "other", 0, None
+        return ("other", *evidence)
 
     if Counter(base_words) == Counter(target_words):
-        return "schedule-only", differing_words, first_mismatch_offset
+        return ("schedule-only", *evidence)
 
     if all(
         instr_reg_mask(base_words[i]) == instr_reg_mask(target_words[i])
         for i in diff_positions
     ):
-        return "register-only", differing_words, first_mismatch_offset
+        return ("register-only", *evidence)
 
-    def explained_by_reloc(i: int) -> bool:
-        off = i * 4
-        b, t = base_reloc.get(off), target_reloc.get(off)
-        return b is not None or t is not None
+    if relocation_masked_differing_words == 0:
+        return ("reloc-mismatch", *evidence)
 
-    if all(explained_by_reloc(i) for i in diff_positions):
-        return "reloc-mismatch", differing_words, first_mismatch_offset
-
-    return "other", differing_words, first_mismatch_offset
+    return ("other", *evidence)
 
 
 def process_item(item: "pb.QueueItem") -> tuple[Optional[FuncResult], Optional[str]]:
@@ -1569,7 +1780,13 @@ def process_item(item: "pb.QueueItem") -> tuple[Optional[FuncResult], Optional[s
     base_reloc = relocations(base_o, base_start, base_size)
     target_reloc = relocations(target_o, target_start, target_size)
 
-    category, differing_words, first_mismatch_offset = classify(
+    (
+        category,
+        differing_words,
+        first_mismatch_offset,
+        relocation_masked_differing_words,
+        relocation_masked_first_mismatch_offset,
+    ) = classify(
         base_size, target_size, base_words, target_words, base_reloc, target_reloc
     )
 
@@ -1581,6 +1798,10 @@ def process_item(item: "pb.QueueItem") -> tuple[Optional[FuncResult], Optional[s
         size_bytes=target_size,
         differing_words=differing_words,
         first_mismatch_offset=first_mismatch_offset,
+        relocation_masked_differing_words=relocation_masked_differing_words,
+        relocation_masked_first_mismatch_offset=(
+            relocation_masked_first_mismatch_offset
+        ),
         size_delta=base_size - target_size,
         category=category,
     )
@@ -1606,7 +1827,17 @@ def load_objdiff_pct(report_path: Optional[pathlib.Path]) -> dict[str, float]:
 
 
 def sort_key(r: FuncResult):
-    return (CATEGORY_RANK.get(r.category, 99), r.differing_words)
+    return (
+        CATEGORY_RANK.get(r.category, 99),
+        (
+            r.relocation_masked_differing_words
+            if r.relocation_masked_differing_words is not None
+            else r.differing_words
+        ),
+        r.differing_words,
+        r.file,
+        r.name,
+    )
 
 
 def print_table(results: list[FuncResult], top: Optional[int], markdown: bool) -> None:
@@ -1614,17 +1845,32 @@ def print_table(results: list[FuncResult], top: Optional[int], markdown: bool) -
     if top is not None:
         rows = rows[:top]
     headers = [
-        "name", "overlay/TU", "size", "objdiff%", "diff_words",
-        "first_mismatch", "size_delta", "category",
+        "name", "overlay/TU", "size", "objdiff%", "raw_diff",
+        "masked_diff", "raw_first", "masked_first", "size_delta", "category",
     ]
 
     def fmt_row(r: FuncResult) -> list[str]:
         loc = f"o{r.overlay:03d}" if r.overlay is not None else r.tu
         pct = f"{r.objdiff_match_pct:.1f}" if r.objdiff_match_pct is not None else "-"
-        fmo = str(r.first_mismatch_offset) if r.first_mismatch_offset is not None else "-"
+        raw_first = (
+            str(r.first_mismatch_offset)
+            if r.first_mismatch_offset is not None
+            else "-"
+        )
+        masked_first = (
+            str(r.relocation_masked_first_mismatch_offset)
+            if r.relocation_masked_first_mismatch_offset is not None
+            else "-"
+        )
         return [
             r.name, loc, str(r.size_bytes), pct, str(r.differing_words),
-            fmo, str(r.size_delta), r.category,
+            (
+                str(r.relocation_masked_differing_words)
+                if r.relocation_masked_differing_words is not None
+                else "-"
+            ),
+            raw_first, masked_first,
+            str(r.size_delta), r.category,
         ]
 
     data_rows = [fmt_row(r) for r in rows]
@@ -1664,6 +1910,20 @@ def retained_results(document: object) -> list[FuncResult]:
             first_mismatch_offset=(
                 int(row["first_mismatch_offset"])
                 if isinstance(row["first_mismatch_offset"], int)
+                else None
+            ),
+            relocation_masked_differing_words=(
+                int(row["relocation_masked_differing_words"])
+                if isinstance(
+                    row.get("relocation_masked_differing_words"), int
+                )
+                else None
+            ),
+            relocation_masked_first_mismatch_offset=(
+                int(row["relocation_masked_first_mismatch_offset"])
+                if isinstance(
+                    row.get("relocation_masked_first_mismatch_offset"), int
+                )
                 else None
             ),
             size_delta=int(row["size_delta"]),

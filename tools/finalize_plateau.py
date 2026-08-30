@@ -17,6 +17,7 @@ import sys
 
 
 SYMBOL_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+HANDOFF_SHARD_DIR = "docs/matching-triage-handoffs"
 SCORE_RE = re.compile(r"^(?:\d+/\d+ (?:words|instructions|bytes)|\d+ differing words)$")
 FRAME_RE = re.compile(r"^(?:-?0x[0-9A-Fa-f]+|frameless|unknown)$")
 MISMATCH_RE = re.compile(r"^(?:\+?0x[0-9A-Fa-f]+|none|unknown)$")
@@ -265,6 +266,59 @@ def markdown_handoff(symbol: str, source: str, metrics: Metrics) -> str:
     return "\n".join(rows)
 
 
+def handoff_shard_path(symbol: str) -> str:
+    """Return the fixed, traversal-safe ledger path for one exact symbol."""
+    if not SYMBOL_RE.fullmatch(symbol):
+        raise PlateauError(f"invalid exact symbol {symbol!r}")
+    return f"{HANDOFF_SHARD_DIR}/{symbol}.md"
+
+
+def handoff_shard_source(text: str, symbol: str) -> str:
+    """Validate one symbol-owned shard and return its exact source identity.
+
+    The generated metric header stays deliberately rigid so scheduling can
+    trust the source identity and bounded-result fields.  A worker may append
+    richer, symbol-specific evidence before the closing marker; forcing that
+    useful evidence into a separate document made otherwise valid handoffs
+    look malformed to downstream status readers.
+    """
+    marker = re.escape(f"plateau-handoff:{symbol}")
+    pattern = re.compile(
+        rf"\A<!-- {marker}:start -->\n"
+        rf"### `{re.escape(symbol)}` plateau handoff\n\n"
+        r"- source: `(?P<source>src/[A-Za-z0-9_./-]+\.c)`\n"
+        r"- score: [^\n|]+\n"
+        r"- frame: [^\n|]+\n"
+        r"- relocations: [0-9]+\n"
+        r"- first mismatch: [^\n|]+\n"
+        r"(?:- summary: [^\n|]+\n)?"
+        r"(?P<details>(?:[^\r\n|]*\n)*)"
+        rf"<!-- {marker}:end -->\n?\Z"
+    )
+    match = pattern.fullmatch(text)
+    if match is None:
+        raise PlateauError(
+            f"malformed or foreign symbol handoff shard for {symbol}"
+        )
+    details = match.group("details")
+    if "plateau-handoff:" in details:
+        raise PlateauError(
+            f"malformed or foreign symbol handoff shard for {symbol}"
+        )
+    source = match.group("source")
+    if any(part in {".", ".."} for part in Path(source).parts):
+        raise PlateauError(f"non-canonical source path in handoff shard for {symbol}")
+    return source
+
+
+def update_handoff_shard(text: str, symbol: str, block: str) -> str:
+    """Replace only a valid symbol-owned shard, or create a new one."""
+    if text:
+        handoff_shard_source(text, symbol)
+    handoff_shard_source(block, symbol)
+    return block
+
+
 def update_markdown(text: str, symbol: str, block: str) -> str:
     marker = re.escape(f"plateau-handoff:{symbol}")
     pattern = re.compile(
@@ -307,6 +361,26 @@ def tracked_relative_path(root: Path, value: str, kind: str, suffix: str) -> tup
     return path, relative
 
 
+def default_handoff_path(root: Path, symbol: str) -> tuple[Path, str]:
+    """Resolve the one creatable default shard without widening write scope."""
+    relative = handoff_shard_path(symbol)
+    shard_dir = (root / HANDOFF_SHARD_DIR).resolve()
+    expected_dir = root / HANDOFF_SHARD_DIR
+    if shard_dir != expected_dir or not shard_dir.is_dir():
+        raise PlateauError(
+            f"default handoff shard directory is missing or unsafe: {HANDOFF_SHARD_DIR}"
+        )
+    unresolved = root / relative
+    if unresolved.is_symlink():
+        raise PlateauError(f"handoff shard must not be a symlink: {relative}")
+    path = unresolved.resolve()
+    if path.parent != shard_dir:
+        raise PlateauError("default handoff shard escaped its fixed directory")
+    if path.exists() and not path.is_file():
+        raise PlateauError(f"handoff shard must be a regular Markdown file: {relative}")
+    return path, relative
+
+
 def run_source_gates(root: Path) -> None:
     for target in ("cleanroom", "check-docs"):
         result = subprocess.run(["gmake", target], cwd=root)
@@ -323,7 +397,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--relocations", required=True, type=int, help="Measured relocation count")
     parser.add_argument("--first-mismatch", required=True, help="Measured offset, e.g. +0xC")
     parser.add_argument("--summary", default="", help="One-line blocker or next lever")
-    parser.add_argument("--handoff-doc", help="Optional tracked Markdown handoff document")
+    parser.add_argument(
+        "--handoff-doc",
+        default=None,
+        help=(
+            "existing tracked Markdown handoff ledger; by default write the "
+            f"symbol-owned {HANDOFF_SHARD_DIR}/<symbol>.md shard"
+        ),
+    )
     parser.add_argument("--commit", action="store_true", help="Commit only the source and handoff doc")
     parser.add_argument("--message", help="Commit subject; requires --commit")
     return parser
@@ -342,29 +423,37 @@ def main() -> int:
         source_path, source_rel = tracked_relative_path(root, args.source, "source", ".c")
         if not source_rel.startswith("src/"):
             raise PlateauError("source must be under src/")
-        doc_path: Path | None = None
-        doc_rel: str | None = None
-        if args.handoff_doc:
+        custom_handoff = args.handoff_doc is not None
+        if custom_handoff:
             doc_path, doc_rel = tracked_relative_path(
                 root, args.handoff_doc, "handoff document", ".md"
             )
             if not doc_rel.startswith("docs/"):
                 raise PlateauError("handoff document must be under docs/")
+            if doc_rel.startswith(f"{HANDOFF_SHARD_DIR}/"):
+                raise PlateauError(
+                    "the symbol handoff shard directory is reserved; omit "
+                    "--handoff-doc to use the safe default"
+                )
+        else:
+            doc_path, doc_rel = default_handoff_path(root, args.symbol)
         allowed = {source_rel, *([doc_rel] if doc_rel else [])}
         require_only_allowed_dirt(root, allowed)
 
         source_text = source_path.read_text(encoding="utf-8")
         candidate = require_guarded_candidate(source_text, args.symbol)
+        doc_text = doc_path.read_text(encoding="utf-8") if doc_path.exists() else ""
+        block = markdown_handoff(args.symbol, source_rel, metrics)
+        updated_doc = (
+            update_markdown(doc_text, args.symbol, block)
+            if custom_handoff
+            else update_handoff_shard(doc_text, args.symbol, block)
+        )
         source_path.write_text(
             update_source(source_text, args.symbol, source_handoff(args.symbol, metrics)),
             encoding="utf-8", newline="\n",
         )
-        if doc_path is not None and doc_rel is not None:
-            doc_text = doc_path.read_text(encoding="utf-8")
-            block = markdown_handoff(args.symbol, source_rel, metrics)
-            doc_path.write_text(
-                update_markdown(doc_text, args.symbol, block), encoding="utf-8", newline="\n"
-            )
+        doc_path.write_text(updated_doc, encoding="utf-8", newline="\n")
 
         require_guarded_candidate(source_path.read_text(encoding="utf-8"), args.symbol)
         require_only_allowed_dirt(root, allowed)
@@ -391,6 +480,7 @@ def main() -> int:
         print(f"frame: {metrics.frame}")
         print(f"relocations: {metrics.relocations}")
         print(f"first-mismatch: {metrics.first_mismatch}")
+        print(f"handoff-doc: {doc_rel}")
         print("source-only-gates: cleanroom, check-docs")
         print(f"commit: {commit}")
     except (OSError, PlateauError) as error:

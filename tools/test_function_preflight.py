@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import contextlib
+import dataclasses
 import io
 import json
 import os
@@ -72,6 +73,32 @@ class SymbolResolutionTests(unittest.TestCase):
     def test_unresolved_runtime_identity_fails_closed(self) -> None:
         with self.assertRaisesRegex(fp.PreflightError, "ambiguous"):
             fp._identity_text(None)
+
+    def test_candidate_redefine_aliases_preserve_sources(self) -> None:
+        command = (
+            "tools/binutils/mips64-elf-objcopy "
+            "--redefine-sym func_80005750=func_80005750_o001Reloc "
+            "--redefine-sym=mathRnd=mathRnd_o001Reloc "
+            "--redefine-sym first=sharedProxy && "
+            "tools/binutils/mips64-elf-objcopy --redefine-sym second=sharedProxy "
+            "build/src/example.c.o"
+        )
+        with mock.patch.object(
+            fp.pa, "run_make_database", return_value="database"
+        ), mock.patch.object(
+            fp.pa, "postprocess_commands",
+            return_value={"build/src/example.c.o": command},
+        ):
+            aliases = fp._candidate_redefine_aliases(
+                fp.REPO / "build/src/example.c.o"
+            )
+        self.assertEqual(
+            aliases,
+            {
+                "func_80005750_o001Reloc": "func_80005750",
+                "mathRnd_o001Reloc": "mathRnd",
+            },
+        )
 
     def test_promoted_overlay_resolves_from_exact_atlas_owner_without_asm(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -295,6 +322,135 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         )
         self.assertEqual((name, value, size, section), ("friendly", 0xF0000010, 0x20, ".text"))
 
+    def test_consolidated_tu_escape_reports_target_and_candidate_drift(self) -> None:
+        class FakeElf:
+            names = ["", ".text"]
+
+            @staticmethod
+            def symbols():
+                return [
+                    (
+                        "func_overlay_009_F00010B4_186772C",
+                        0x10DC,
+                        0x468,
+                        2,
+                        1,
+                    )
+                ]
+
+        resolution = fp.Resolution(
+            "func_overlay_009_F00010B4_186772C",
+            "func_overlay_009_F00010B4_186772C",
+            "func_overlay_009_F00010B4_186772C",
+            fp.REPO / "src/overlays/o009/overlay_009.c",
+            "overlays/o009/overlay_009",
+            "build_non_matching",
+            fp.REPO / "build_non_matching/src/overlays/o009/overlay_009.c.o",
+            fp.REPO / "asm/target.s",
+            "guarded",
+        )
+        atlas = {
+            "modules": [
+                {
+                    "overlay": 9,
+                    "text_ownership": [
+                        {
+                            "offset": "0x0",
+                            "end_offset": "0x1520",
+                            "size": "0x1520",
+                            "type": "c",
+                            "source": "overlays/o009/overlay_009",
+                        }
+                    ],
+                }
+            ]
+        }
+
+        with mock.patch.object(fp.rs, "Elf", return_value=FakeElf()):
+            message = fp._surface_error_diagnostic(
+                fp.rs.SurfaceComparisonError("candidate function escapes TU ownership"),
+                resolution,
+                atlas,
+                0xF00010B4,
+                0x468,
+            )
+
+        self.assertIn("TU .text+0x10DC..+0x1544", message)
+        self.assertIn("target belongs at TU+0x10B4..+0x151C", message)
+        self.assertIn("shifted this function by +0x28", message)
+        self.assertIn("exceeds the owner by 0x24", message)
+        self.assertIn("will not reinterpret bytes outside the atlas owner", message)
+
+    def test_consolidated_alias_error_reports_compiled_identity_drift(self) -> None:
+        class FakeElf:
+            names = ["", ".text"]
+
+            @staticmethod
+            def section(name):
+                if name != ".text":
+                    raise ValueError(name)
+                return 1, {"size": 0x4664}
+
+            @staticmethod
+            def symbols():
+                return [
+                    ("aimed", 0x37D4, 0x3E4, 2, 1),
+                    ("overlay1ReadSelection", 0x2ECC, 0xD4, 2, 1),
+                ]
+
+        resolution = fp.Resolution(
+            "aimed",
+            "func_overlay_001_F0006D4C_185312C",
+            "aimed",
+            fp.REPO / "src/overlays/o001/overlay_001_tail.c",
+            "overlays/o001/overlay_001_tail",
+            "build_non_matching",
+            fp.REPO / "build_non_matching/src/overlays/o001/overlay_001_tail.c.o",
+            fp.REPO / "asm/target.s",
+            "guarded",
+        )
+        atlas = {
+            "modules": [
+                {
+                    "overlay": 1,
+                    "text_ownership": [
+                        {
+                            "offset": "0x3578",
+                            "end_offset": "0x7BDC",
+                            "size": "0x4664",
+                            "type": "c",
+                            "source": "overlays/o001/overlay_001_tail",
+                        }
+                    ],
+                }
+            ]
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            aliases = Path(directory) / "aliases.txt"
+            aliases.write_text(
+                "func_overlay_001_F0006424_1852804 = overlay1ReadSelection;\n",
+                encoding="utf-8",
+            )
+            error = fp.rs.SurfaceComparisonError(
+                "candidate relocation symbol overlay1ReadSelection "
+                "has ambiguous runtime identity"
+            )
+            with mock.patch.object(fp.rs, "Elf", return_value=FakeElf()):
+                message = fp._surface_error_diagnostic(
+                    error,
+                    resolution,
+                    atlas,
+                    0xF0006D4C,
+                    0x3E4,
+                    alias_path=aliases,
+                )
+
+        self.assertIn("tracked alias identity is overlay:1:+0x6424", message)
+        self.assertIn("lands at overlay:1:+0x6444", message)
+        self.assertIn("TU .text+0x2ECC", message)
+        self.assertIn("disagreement +0x20", message)
+        self.assertIn("candidate prefix-layout drift", message)
+
     def test_resident_boundary_reports_exact_gap_to_next_function(self) -> None:
         class FakeElf:
             names = ["", ".text"]
@@ -336,9 +492,13 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         completed = subprocess.CompletedProcess(
             [], 0, stdout=json.dumps(payload), stderr=""
         )
-        with mock.patch.object(fp, "_run", return_value=completed):
+        with mock.patch.object(fp, "_run", return_value=completed) as run:
             report = fp._workbench(resolution)
 
+        self.assertEqual(
+            [str(fp.WB_COMPARE), "--no-build", "friendly"],
+            run.call_args.args[0][:3],
+        )
         self.assertEqual(report["matched_words"], 7)
         self.assertEqual(report["first_mismatch"], "+0x8")
         self.assertNotIn("diff_sites", report)
@@ -438,6 +598,62 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(fp.PreflightError, "shape disagrees"):
             fp._require_static_relocation_evidence(resolution, comparison)
+
+    def test_promoted_linked_exact_completes_runtime_identity_proof(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build", Path("build/src/example.c.o"), None,
+            "promoted", resolution_mode="post_promotion",
+        )
+        comparison = {
+            "candidate_record_count": 13,
+            "target_record_count": 13,
+            "offset_type_exact": True,
+            "stable_identity_alignment_count": 8,
+            "stable_identity_exact": False,
+        }
+        workbench = {
+            "differing_words": 0,
+            "target_words": 133,
+            "candidate_words": 133,
+        }
+        result = fp._augment_runtime_identity_evidence(
+            resolution, comparison, workbench
+        )
+        self.assertEqual(5, result["linked_runtime_identity_alignment_count"])
+        self.assertEqual(13, result["effective_identity_alignment_count"])
+        self.assertTrue(result["effective_identity_exact"])
+        self.assertEqual(
+            "static-plus-runtime-table-and-linked-rom",
+            result["identity_proof_mode"],
+        )
+
+    def test_unpromoted_exact_words_do_not_replace_static_identity(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build_non_matching",
+            Path("build_non_matching/src/example.c.o"), Path("target.s"),
+            "guarded",
+        )
+        comparison = {
+            "candidate_record_count": 3,
+            "target_record_count": 3,
+            "offset_type_exact": True,
+            "stable_identity_alignment_count": 2,
+            "stable_identity_exact": False,
+        }
+        workbench = {
+            "differing_words": 0,
+            "target_words": 20,
+            "candidate_words": 20,
+        }
+        result = fp._augment_runtime_identity_evidence(
+            resolution, comparison, workbench
+        )
+        self.assertEqual(0, result["linked_runtime_identity_alignment_count"])
+        self.assertEqual(2, result["effective_identity_alignment_count"])
+        self.assertFalse(result["effective_identity_exact"])
+        self.assertEqual("partial-static", result["identity_proof_mode"])
 
 
 class FreshnessTests(unittest.TestCase):
@@ -559,7 +775,7 @@ class FreshnessTests(unittest.TestCase):
             self.assertIn("NON_MATCHING=1", commands[0])
             self.assertIn("NON_MATCHING=1", commands[1])
 
-    def test_newer_build_policy_forces_graph_without_recreating_venv(self) -> None:
+    def test_newer_build_policy_forces_complete_target_dependency_graph(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             resolution = self.resolution(root)
@@ -582,39 +798,68 @@ class FreshnessTests(unittest.TestCase):
             self.assertNotIn("--always-make", commands[0])
             self.assertIn("--always-make", commands[1])
             self.assertIn("--assume-old=.venv/bin/python", commands[1])
+            self.assertEqual(commands[1][-1], fp._relative(resolution.candidate_object))
+
+    def test_resolve_wb_refreshes_by_default_and_no_build_is_explicit(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            resolution.target_asm.parent.mkdir(parents=True)
+            resolution.target_asm.write_text("glabel generated\n", encoding="utf-8")
+            with mock.patch.object(
+                fp, "resolve", return_value=resolution
+            ), mock.patch.object(fp, "_build") as build, mock.patch.object(
+                fp, "require_fresh_evidence"
+            ) as freshness:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(0, fp.main(["friendly", "--resolve-wb"]))
+            build.assert_called_once_with(resolution)
+            freshness.assert_called_once_with(resolution)
+
+            with mock.patch.object(
+                fp, "resolve", return_value=resolution
+            ), mock.patch.object(fp, "_build") as build, mock.patch.object(
+                fp, "require_fresh_evidence"
+            ) as freshness:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(
+                        0,
+                        fp.main(["friendly", "--resolve-wb", "--no-build"]),
+                    )
+            build.assert_not_called()
+            freshness.assert_called_once_with(resolution)
+
+    def test_nonmatching_candidate_build_precedes_final_canonical_build(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            with mock.patch.object(fp, "_build_target") as build_target:
+                fp._build(resolution)
+
+            self.assertEqual(
+                [
+                    mock.call(
+                        resolution.candidate_object,
+                        non_matching=True,
+                        label="candidate",
+                    ),
+                    mock.call(fp.TARGET_ELF, non_matching=False, label="canonical"),
+                ],
+                build_target.call_args_list,
+            )
+
+    def test_ordinary_candidate_is_supplied_by_canonical_link_build(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = dataclasses.replace(
+                self.resolution(Path(directory)), candidate_build_dir="build"
+            )
+            with mock.patch.object(fp, "_build_target") as build_target:
+                fp._build(resolution)
+
+            build_target.assert_called_once_with(
+                fp.TARGET_ELF, non_matching=False, label="canonical"
+            )
 
 
 class RelocationEvidenceTests(unittest.TestCase):
-    def test_post_promotion_exact_rom_completes_runtime_identity_proof(self) -> None:
-        resolution = fp.Resolution(
-            "friendly", "generated", "friendly", Path("src/example.c"),
-            "example", "build", Path("build/src/example.c.o"), None,
-            "promoted", resolution_mode="post_promotion",
-        )
-        comparison = {
-            "target_record_count": 3,
-            "candidate_record_count": 3,
-            "stable_identity_alignment_count": 2,
-            "stable_identity_exact": False,
-            "offset_type_exact": True,
-        }
-        workbench = {
-            "differing_words": 0,
-            "target_words": 10,
-            "candidate_words": 10,
-        }
-
-        result = fp._augment_runtime_identity_evidence(
-            resolution, comparison, workbench
-        )
-        self.assertEqual(1, result["linked_runtime_identity_alignment_count"])
-        self.assertEqual(3, result["effective_identity_alignment_count"])
-        self.assertTrue(result["effective_identity_exact"])
-        self.assertEqual(
-            "static-plus-runtime-table-and-linked-rom",
-            result["identity_proof_mode"],
-        )
-
     def test_resident_reports_eight_static_tuples_and_zero_runtime_records(self) -> None:
         resolution = fp.Resolution(
             "func_8002BB40",

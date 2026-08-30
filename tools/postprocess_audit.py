@@ -13,17 +13,15 @@ actually run, expanded.
 
 For each such object it:
 
-  * classifies the command as ``altered`` (touches instruction words:
-    normalize_elf_instructions.py, normalize_o63_*.py, resize_elf_function.py,
-    extend_elf_function_to_text.py, patch_elf_words.py), ``metadata``
-    (trim_elf_section.py, filter/rebind/add_elf_relocations.py, objcopy
-    --redefine-sym, externalize/set_elf_symbol_size/set_elf_flags.py,
-    order_o*.py, or anything else that isn't in the altered set), or ``none``
-    (no POSTPROCESS override -- not expected to appear here, since this
-    audit only visits objects Make reports an override for);
+  * classifies the command as ``altered`` (touches instruction words),
+    ``metadata`` (reviewed symbol/section/relocation metadata only), or
+    ``review-required``. Unknown helpers fail closed instead of silently
+    receiving metadata status. Anchored section externalization is altered
+    because it rewrites relocated instruction immediates;
   * records which tool(s) the command invokes;
   * joins the object to its ownership range in config/overlays.us.json's
-    per-overlay ``text_ownership`` list (offset, size, matched-C-or-not),
+    per-overlay ``text_ownership`` list (offset, size, C ownership and
+    NON_MATCHING state),
     keyed by the object's path under src/ with the .c/.o stripped -- the
     same string overlay_atlas.py stores as ``source``.
 
@@ -37,6 +35,7 @@ import argparse
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 
@@ -54,10 +53,115 @@ ALTERED_TOOLS = {
 # normalize_o63_* is a family (normalize_o63_foo.py, ...), matched by prefix.
 ALTERED_PREFIXES = ("normalize_o63_",)
 
+METADATA_TOOLS = {
+    "add_elf_relocations.py",
+    "filter_elf_relocations.py",
+    "overlay52CopyOffsetEntries.sort.py",
+    "rebind_elf_relocations.py",
+    "set_elf_flags.py",
+    "trim_elf_section.py",
+}
+
+EXTERNALIZE_RE = re.compile(
+    r"externalize_elf_section\.py\s+\S+\s+\S+\s+\S+(?:\s+(\S+))?"
+)
+DANGEROUS_OBJCOPY_RE = re.compile(
+    r"--(?:update|add)-section|--change-section|"
+    r"--set-section-flags(?:=|\s+)\.text|--remove-section(?:=|\s+)\.text"
+)
+
 TOOL_RE = re.compile(r"([A-Za-z0-9_./-]+\.py)")
 OBJCOPY_RE = re.compile(r"\bobjcopy\b", re.IGNORECASE)
 
 TARGET_LINE_RE = re.compile(r"^(\S+): POSTPROCESS = (.*)$")
+
+
+def postprocess_commands(dump):
+    """Return the effective non-empty POSTPROCESS command for each object."""
+    seen = {}
+    for line in dump.splitlines():
+        m = TARGET_LINE_RE.match(line)
+        if not m:
+            continue
+        target, command = m.group(1), m.group(2)
+        if not target.startswith("build/") or not target.endswith(".o"):
+            continue
+        if command.strip() == "@:":
+            continue
+        seen[target] = command  # dedupe: -p repeats a rule per prerequisite
+    return seen
+
+
+def _objcopy_redefine_groups(command):
+    """Return rename pairs grouped by individual objcopy invocation."""
+    lexer = shlex.shlex(command, posix=True, punctuation_chars=";&|")
+    lexer.whitespace_split = True
+    lexer.commenters = ""
+    segments = []
+    segment = []
+    for token in lexer:
+        if token in {"&&", "||", ";", "&", "|"}:
+            if segment:
+                segments.append(segment)
+                segment = []
+        else:
+            segment.append(token)
+    if segment:
+        segments.append(segment)
+
+    groups = []
+    for tokens in segments:
+        if not any(OBJCOPY_RE.search(token) for token in tokens):
+            continue
+        pairs = []
+        index = 0
+        while index < len(tokens):
+            token = tokens[index]
+            spec = None
+            if token == "--redefine-sym" and index + 1 < len(tokens):
+                index += 1
+                spec = tokens[index]
+            elif token.startswith("--redefine-sym="):
+                spec = token[len("--redefine-sym=") :]
+            if spec and "=" in spec:
+                source, destination = spec.split("=", 1)
+                pairs.append((source, destination))
+            index += 1
+        groups.append(pairs)
+    return groups
+
+
+def objcopy_redefine_pairs(command):
+    """Return ordered ``(source, destination)`` objcopy rename pairs."""
+    return [
+        pair for group in _objcopy_redefine_groups(command) for pair in group
+    ]
+
+
+def duplicate_redefine_targets(command):
+    """Find destination symbols repeated in one objcopy invocation.
+
+    GNU objcopy rejects two ``--redefine-sym`` options with the same target.
+    More importantly for overlays, distinct relocation identities must not be
+    collapsed merely because their encoded addends happen to agree.
+    """
+    conflicts = []
+    for group in _objcopy_redefine_groups(command):
+        destinations = {}
+        for source, destination in group:
+            destinations.setdefault(destination, []).append(source)
+        for destination, sources in destinations.items():
+            if len(sources) > 1:
+                conflicts.append((destination, sources))
+    return conflicts
+
+
+def redefine_conflicts(commands):
+    problems = []
+    for target, command in sorted(commands.items()):
+        for destination, sources in duplicate_redefine_targets(command):
+            problems.append((target, destination, sources))
+    return problems
 
 
 def run_make_database():
@@ -90,11 +194,25 @@ def classify(command):
     is_altered = any(t in ALTERED_TOOLS for t in tools) or any(
         t.startswith(p) for t in tools for p in ALTERED_PREFIXES
     )
-    return ("altered" if is_altered else "metadata"), tools
+    externalize = EXTERNALIZE_RE.search(command)
+    if externalize and externalize.group(1) not in (None, "&&", ";"):
+        try:
+            is_altered = is_altered or int(externalize.group(1), 0) != 0
+        except ValueError:
+            return "review-required", tools
+    if OBJCOPY_RE.search(command) and DANGEROUS_OBJCOPY_RE.search(command):
+        is_altered = True
+    if is_altered:
+        return "altered", tools
+
+    reviewed = METADATA_TOOLS | {"externalize_elf_section.py", "objcopy"}
+    if any(tool not in reviewed for tool in tools):
+        return "review-required", tools
+    return "metadata", tools
 
 
 def load_atlas_index(atlas_path):
-    """{('overlays/oNNN/name'): (overlay, offset, size, matched)} from the
+    """{('overlays/oNNN/name'): ownership metadata} from the
     committed overlay atlas, plus the atlas's own totals for cross-checking.
     """
     with open(atlas_path, encoding="utf-8") as fh:
@@ -108,6 +226,7 @@ def load_atlas_index(atlas_path):
                 "offset": int(part["offset"], 16),
                 "size": int(part["size"], 16),
                 "matched": part["matched"],
+                "nonmatching": part.get("nonmatching", False),
             }
     return index, atlas["totals"]
 
@@ -119,21 +238,11 @@ def object_to_src(target):
     return target[len("build/") :][: -len(".o")]
 
 
-def audit(root_dir=ROOT_DIR):
+def audit(root_dir=ROOT_DIR, atlas_path=ATLAS_PATH):
     dump = run_make_database()
-    seen = {}
-    for line in dump.splitlines():
-        m = TARGET_LINE_RE.match(line)
-        if not m:
-            continue
-        target, command = m.group(1), m.group(2)
-        if not target.startswith("build/") or not target.endswith(".o"):
-            continue
-        if command.strip() == "@:":
-            continue
-        seen[target] = command  # dedupe: -p repeats a rule per prerequisite
+    seen = postprocess_commands(dump)
 
-    atlas_index, atlas_totals = load_atlas_index(ATLAS_PATH)
+    atlas_index, atlas_totals = load_atlas_index(atlas_path)
 
     rows = []
     for target in sorted(seen):
@@ -157,7 +266,13 @@ def audit(root_dir=ROOT_DIR):
                 "tools": tools,
                 "offset": atlas_hit["offset"] if atlas_hit else None,
                 "size": atlas_hit["size"] if atlas_hit else None,
-                "matched_c": atlas_hit["matched"] if atlas_hit else None,
+                "c_owned": atlas_hit["matched"] if atlas_hit else None,
+                "nonmatching": atlas_hit["nonmatching"] if atlas_hit else None,
+                "matched_c": (
+                    atlas_hit["matched"] and not atlas_hit["nonmatching"]
+                    if atlas_hit
+                    else None
+                ),
             }
         )
     return rows, atlas_totals
@@ -202,11 +317,12 @@ def render_table(rows, summary, atlas_totals):
         )
     lines.append("")
     lines.append(
-        "objects with POSTPROCESS: %d (altered=%d metadata=%d)"
+        "objects with POSTPROCESS: %d (altered=%d metadata=%d review-required=%d)"
         % (
             summary["objects_with_postprocess"],
             summary["by_class"].get("altered", 0),
             summary["by_class"].get("metadata", 0),
+            summary["by_class"].get("review-required", 0),
         )
     )
     lines.append(
@@ -227,13 +343,36 @@ def main():
     ap.add_argument(
         "--check", action="store_true", help="fail if " + DEFAULT_OUT + " is stale"
     )
+    ap.add_argument(
+        "--check-redefines",
+        action="store_true",
+        help="fail on duplicate objcopy --redefine-sym destinations",
+    )
     ap.add_argument("--out", default=DEFAULT_OUT)
+    ap.add_argument(
+        "--atlas",
+        default=ATLAS_PATH,
+        help="overlay atlas to join (default: " + ATLAS_PATH + ")",
+    )
     args = ap.parse_args()
 
-    rows, atlas_totals = audit()
+    if args.check_redefines:
+        problems = redefine_conflicts(postprocess_commands(run_make_database()))
+        if problems:
+            for target, destination, sources in problems:
+                print(
+                    "%s: objcopy destination %s has multiple sources: %s"
+                    % (target, destination, ", ".join(sources)),
+                    file=sys.stderr,
+                )
+            return 1
+        print("OK: objcopy --redefine-sym destinations are unique per invocation")
+        return 0
+
+    rows, atlas_totals = audit(atlas_path=args.atlas)
     summary = summarize(rows)
     doc = {
-        "schema_version": 1,
+        "schema_version": 3,
         "generated_by": "tools/postprocess_audit.py",
         "summary": summary,
         "objects": rows,
@@ -248,6 +387,9 @@ def main():
             current = fh.read()
         if current != payload:
             print(args.out + " is stale; run with --write", file=sys.stderr)
+            return 1
+        if summary["by_class"].get("review-required", 0):
+            print(args.out + " contains review-required helpers", file=sys.stderr)
             return 1
         print("OK: " + args.out + " matches the current tree")
         return 0
