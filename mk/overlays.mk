@@ -559,6 +559,18 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o036/overlay36InitObject.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o027/overlay_027.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_027_F0000A1C_187C3F4=overlay27UpdateCoordinates $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xBC0
+O41_SAMPLE_CURVE_OBJ := $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41SampleCurve.c.o
+$(O41_SAMPLE_CURVE_OBJ): config/normalizations/overlay41SampleCurve.rebind.spec
+# The compiler reproduces the retained jump table and literal pool exactly.
+# Keep their canonical raw owner and bind the C text to its module-local base;
+# these steps change relocation metadata and section ownership, not instructions.
+$(O41_SAMPLE_CURVE_OBJ): POSTPROCESS = \
+	$(OBJCOPY) --add-symbol gOverlay41SampleCurveData=0,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/overlay41SampleCurve.rebind.spec && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		sha256:0fc98a51a677ca2117008120dcc4e3985a3fe23612117a351d398c3f94f3bd00 && \
+	$(OBJCOPY) --remove-section .rel.rodata $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41InterpolateAngle.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
 # NON_MATCHING/GLOBAL_ASM: retain only friendly-name restoration where needed

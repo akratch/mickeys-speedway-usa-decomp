@@ -16,13 +16,11 @@ typedef struct Overlay41CurveNode {
 } Overlay41CurveNode;
 
 /* PROVENANCE: Diddy Kong Racing, src/objects.c
- * (cubic_spline_interpolation), and Jet Force Gemini,
- * src/hasm/ido/math_util.s (splinePos); declaration and constant-family
- * source-shape analogues only. Mickey's ROM decides every detail. */
-/* Plateau (near-miss p6): workbench mixed(structural:4, commutative:2, register:10),
- * 17 words at 340 instructions; first +0x49C in the late cubic FP block.
- * Lever: structure-bucket/context audit left the prior operand-order/flag levers closed; FP temp allocation remains. */
-#ifdef NON_MATCHING
+ * (cubic_spline_interpolation), adapted coefficient source shape; Jet Force
+ * Gemini's animseqSampleCurve is a structural/name analogue only. Mickey's
+ * ROM decides every detail. */
+/* Keeping each leading coefficient term last reproduces the retail
+ * floating-point evaluation order and temporary schedule. */
 void func_overlay_041_F00002AC_18875E4(Overlay41CurveNode *node, f32 t,
                                         f32 *valueOut, f32 *tangentOut,
                                         s32 component) {
@@ -118,21 +116,17 @@ void func_overlay_041_F00002AC_18875E4(Overlay41CurveNode *node, f32 t,
     } else {
         ret = values[1];
         coefficient0 = (-0.56f * values[0]) + (0.56f * values[2]);
-        coefficient1 = (values[3] * -0.56f) +
-                       (1.12f * values[0]) + (-2.44f * values[1]) +
-                       (1.88f * values[2]);
-        coefficient2 = (values[3] * 0.56f) + (-0.56f * values[0]) +
-                       (1.44f * values[1]) + (-1.44f * values[2]);
+        coefficient1 = (1.12f * values[0]) + (-2.44f * values[1]) +
+                       (1.88f * values[2]) + (values[3] * -0.56f);
+        coefficient2 = (-0.56f * values[0]) + (1.44f * values[1]) +
+                       (-1.44f * values[2]) + (values[3] * 0.56f);
         if (valueOut != 0) {
             *valueOut = (((coefficient2 * t) + coefficient1) * t +
                          coefficient0) * t + ret;
         }
         if (tangentOut != 0) {
-            *tangentOut = ((((3.0f * coefficient2) * t) +
+            *tangentOut = ((((coefficient2 * 3.0f) * t) +
                             (2.0f * coefficient1)) * t) + coefficient0;
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41SampleCurve/func_overlay_041_F00002AC_18875E4.s")
-#endif
