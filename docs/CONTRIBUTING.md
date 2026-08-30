@@ -30,9 +30,11 @@ directories. The default and any explicit relative base are resolved in the
 calling worktree, so invoking the helper from an existing lane correctly uses
 that lane's `HEAD`. Do not edit another contributor's worktree. Commit small,
 coherent changes as they are completed. `tools/merge_lane.sh` checks and merges
-a completed branch. On macOS, the helper also adds a git-ignored
-`.metadata_never_index` marker before extraction so several new lanes do not
-trigger simultaneous Spotlight indexing of duplicate build trees.
+a completed branch. On macOS, the registered worktree uses a `.noindex`
+directory and the established `../mickey-lane-<name>` path is a compatibility
+symlink to it. The helper also adds `.metadata_never_index` before the tracked
+checkout and extraction. This keeps duplicate source/build trees out of
+Spotlight without changing callers' lane paths.
 
 ## Matching a function
 
