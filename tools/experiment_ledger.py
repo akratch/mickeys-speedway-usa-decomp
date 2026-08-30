@@ -17,11 +17,14 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import stat
+import struct
 import sys
 from typing import Any, Iterable, Mapping, Sequence
 
 
-SCHEMA_VERSION = 1
+LEGACY_SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+SUPPORTED_SCHEMA_VERSIONS = frozenset({LEGACY_SCHEMA_VERSION, SCHEMA_VERSION})
 DEFAULT_LEDGER = Path("build/experiment-ledger.jsonl")
 MAX_LEDGER_BYTES = 64 * 1024 * 1024
 MAX_RECORD_BYTES = 4096
@@ -29,8 +32,30 @@ MAX_RECORDS = 250_000
 MAX_PREFLIGHT_BYTES = 4 * 1024 * 1024
 MAX_ARTIFACT_BYTES = 256 * 1024 * 1024
 PREFLIGHT_SCHEMA = "mickey-function-evidence-preflight-v1"
+FINGERPRINT_ALGORITHM = "mips-elf-function-v1"
 GENERATED_BUILD_ROOTS = frozenset({"build", "build_non_matching"})
 UNSET = object()
+
+ELF_MAGIC = b"\x7fELF"
+ELFCLASS32 = 1
+ELFDATA2MSB = 2
+ET_REL = 1
+EM_MIPS = 8
+SHT_PROGBITS = 1
+SHT_STRTAB = 3
+SHT_RELA = 4
+SHT_REL = 9
+SHT_SYMTAB = 2
+SHN_UNDEF = 0
+STT_FUNC = 2
+STT_SECTION = 3
+R_MIPS_32 = 2
+R_MIPS_26 = 4
+R_MIPS_HI16 = 5
+R_MIPS_LO16 = 6
+SUPPORTED_FINGERPRINT_RELOCATIONS = frozenset(
+    {R_MIPS_32, R_MIPS_26, R_MIPS_HI16, R_MIPS_LO16}
+)
 
 SYMBOL_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,127}$", re.ASCII)
 C_KEYWORDS = frozenset(
@@ -92,7 +117,7 @@ VERDICT_TIEBREAK = {
     "non_equivalent": 5,
 }
 
-RECORD_KEYS = frozenset(
+LEGACY_RECORD_KEYS = frozenset(
     {
         "schema_version",
         "timestamp",
@@ -113,8 +138,11 @@ RECORD_KEYS = frozenset(
         "artifacts",
     }
 )
+RECORD_KEYS = LEGACY_RECORD_KEYS | {"candidate_fingerprint"}
+LEGACY_REQUIRED_RECORD_KEYS = LEGACY_RECORD_KEYS - {"artifacts"}
 REQUIRED_RECORD_KEYS = RECORD_KEYS - {"artifacts"}
 ARTIFACT_KEYS = frozenset({"path", "sha256"})
+FINGERPRINT_KEYS = frozenset({"algorithm", "sha256", "size", "relocations"})
 
 
 class LedgerError(RuntimeError):
@@ -241,6 +269,34 @@ def validate_artifacts(value: Any) -> list[dict[str, str]]:
     return checked
 
 
+def validate_candidate_fingerprint(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) != FINGERPRINT_KEYS:
+        raise LedgerError(
+            "candidate_fingerprint must contain only algorithm, sha256, size, and relocations"
+        )
+    if value.get("algorithm") != FINGERPRINT_ALGORITHM:
+        raise LedgerError(
+            f"candidate_fingerprint.algorithm must be {FINGERPRINT_ALGORITHM!r}"
+        )
+    digest = value.get("sha256")
+    if not isinstance(digest, str) or not SHA256_RE.fullmatch(digest):
+        raise LedgerError(
+            "candidate_fingerprint.sha256 must be 64 lowercase hexadecimal digits"
+        )
+    size = _plain_int(value.get("size"), "candidate_fingerprint.size", positive=True)
+    if size % 4:
+        raise LedgerError("candidate_fingerprint.size must be aligned to four bytes")
+    relocations = _plain_int(
+        value.get("relocations"), "candidate_fingerprint.relocations"
+    )
+    return {
+        "algorithm": FINGERPRINT_ALGORITHM,
+        "sha256": digest,
+        "size": size,
+        "relocations": relocations,
+    }
+
+
 def _relative_generated_path(value: Any, field: str, *, suffix: str | None = None) -> str:
     if not isinstance(value, str) or not value or len(value) > 240:
         raise LedgerError(f"{field} must be a concise relative path")
@@ -280,9 +336,19 @@ def _validate_mismatch(value: Any, field: str, differences: int, maximum_words: 
 def validate_record(record: Any) -> dict[str, Any]:
     if not isinstance(record, dict):
         raise LedgerError("each journal line must be one JSON object")
+    version = record.get("schema_version")
+    if type(version) is not int or version not in SUPPORTED_SCHEMA_VERSIONS:
+        supported = ", ".join(str(item) for item in sorted(SUPPORTED_SCHEMA_VERSIONS))
+        raise LedgerError(f"schema_version must be one of: {supported}")
+    expected_keys = RECORD_KEYS if version == SCHEMA_VERSION else LEGACY_RECORD_KEYS
+    required_keys = (
+        REQUIRED_RECORD_KEYS
+        if version == SCHEMA_VERSION
+        else LEGACY_REQUIRED_RECORD_KEYS
+    )
     keys = set(record)
-    missing = REQUIRED_RECORD_KEYS - keys
-    unknown = keys - RECORD_KEYS
+    missing = required_keys - keys
+    unknown = keys - expected_keys
     if missing or unknown:
         detail = []
         if missing:
@@ -290,9 +356,6 @@ def validate_record(record: Any) -> dict[str, Any]:
         if unknown:
             detail.append("unknown " + ", ".join(sorted(unknown)))
         raise LedgerError("record schema mismatch: " + "; ".join(detail))
-    if type(record["schema_version"]) is not int or record["schema_version"] != SCHEMA_VERSION:
-        raise LedgerError(f"schema_version must be {SCHEMA_VERSION}")
-
     timestamp = validate_timestamp(record["timestamp"])
     symbol = validate_symbol(record["symbol"])
     source = validate_source(record["source"])
@@ -341,7 +404,7 @@ def validate_record(record: Any) -> dict[str, Any]:
         )
 
     checked: dict[str, Any] = {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": version,
         "timestamp": timestamp,
         "symbol": symbol,
         "source": source,
@@ -360,6 +423,17 @@ def validate_record(record: Any) -> dict[str, Any]:
     }
     if "artifacts" in record:
         checked["artifacts"] = validate_artifacts(record["artifacts"])
+    if version == SCHEMA_VERSION:
+        fingerprint = validate_candidate_fingerprint(record["candidate_fingerprint"])
+        if fingerprint["size"] != candidate_words * 4:
+            raise LedgerError(
+                "candidate_fingerprint.size must equal candidate_words multiplied by four"
+            )
+        if fingerprint["relocations"] != candidate_relocations:
+            raise LedgerError(
+                "candidate_fingerprint.relocations must equal candidate_relocations"
+            )
+        checked["candidate_fingerprint"] = fingerprint
     return checked
 
 
@@ -445,16 +519,25 @@ def _safe_regular_fd(root: Path, relative: str, label: str) -> int:
     return fd
 
 
-def load_preflight_report(root: Path, supplied: str | Path) -> dict[str, Any]:
+def _load_preflight_report_with_mtime(
+    root: Path, supplied: str | Path
+) -> tuple[dict[str, Any], int]:
     relative = _relative_posix_path(
         str(supplied), "preflight JSON", prefix="build", suffix=".json"
     )
     fd = _safe_regular_fd(root, relative, "preflight JSON")
     try:
-        size = os.fstat(fd).st_size
-        if size <= 0 or size > MAX_PREFLIGHT_BYTES:
+        before = os.fstat(fd)
+        if before.st_size <= 0 or before.st_size > MAX_PREFLIGHT_BYTES:
             raise LedgerError("preflight JSON must be a non-empty file no larger than 4 MiB")
         payload = _read_fd(fd)
+        after = os.fstat(fd)
+        if (before.st_size, before.st_mtime_ns, before.st_ino) != (
+            after.st_size,
+            after.st_mtime_ns,
+            after.st_ino,
+        ):
+            raise LedgerError("preflight JSON changed while it was being read")
     finally:
         os.close(fd)
     try:
@@ -465,10 +548,414 @@ def load_preflight_report(root: Path, supplied: str | Path) -> dict[str, Any]:
     if not isinstance(report, dict) or report.get("schema") != PREFLIGHT_SCHEMA:
         schema = report.get("schema") if isinstance(report, dict) else None
         raise LedgerError(f"unexpected preflight report schema: {schema!r}")
+    return report, before.st_mtime_ns
+
+
+def load_preflight_report(root: Path, supplied: str | Path) -> dict[str, Any]:
+    report, _mtime_ns = _load_preflight_report_with_mtime(root, supplied)
     return report
 
 
-def _hash_candidate_object(root: Path, value: Any) -> dict[str, str]:
+def _bounded_slice(data: bytes, offset: int, size: int, label: str) -> bytes:
+    if offset < 0 or size < 0 or offset > len(data) or size > len(data) - offset:
+        raise LedgerError(f"candidate object has an out-of-bounds {label}")
+    return data[offset : offset + size]
+
+
+def _elf_string(blob: bytes, offset: int, label: str) -> str:
+    if offset < 0 or offset >= len(blob):
+        raise LedgerError(f"candidate object has an invalid {label} string offset")
+    end = blob.find(b"\0", offset)
+    if end < 0:
+        raise LedgerError(f"candidate object has an unterminated {label} string")
+    try:
+        value = blob[offset:end].decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise LedgerError(f"candidate object has a non-UTF-8 {label} string") from error
+    if any(ord(character) < 32 or ord(character) == 127 for character in value):
+        raise LedgerError(f"candidate object has a non-printable {label} string")
+    return value
+
+
+def _candidate_relocation_evidence(report: Mapping[str, Any]) -> int:
+    comparison = _mapping(report.get("relocation_comparison"))
+    candidate_count = _report_int(
+        comparison.get("candidate_record_count", UNSET),
+        "relocation_comparison.candidate_record_count",
+    )
+    resolved_count = _report_int(
+        comparison.get("candidate_identity_resolved_count", UNSET),
+        "relocation_comparison.candidate_identity_resolved_count",
+    )
+    unresolved = comparison.get("candidate_identity_unresolved_records", UNSET)
+    if candidate_count is UNSET or resolved_count is UNSET or unresolved is UNSET:
+        raise LedgerError(
+            "preflight relocation comparison lacks candidate count/identity evidence"
+        )
+    if not isinstance(unresolved, list):
+        raise LedgerError(
+            "preflight candidate unresolved-relocation evidence must be a list"
+        )
+    if resolved_count > candidate_count:
+        raise LedgerError("preflight candidate relocation identity counts are inconsistent")
+    if resolved_count != candidate_count or unresolved:
+        raise LedgerError(
+            "candidate function fingerprint requires every static relocation identity "
+            "to be resolved"
+        )
+
+    preflight = _mapping(report.get("preflight"))
+    if preflight.get("status") != "complete":
+        raise LedgerError(
+            "candidate function fingerprint requires complete function_preflight evidence"
+        )
+    counts = _mapping(preflight.get("counts"))
+    counted = _report_int(
+        counts.get("candidate_static_relocations", UNSET),
+        "preflight.counts.candidate_static_relocations",
+    )
+    resolved = _report_int(
+        counts.get("candidate_identities_resolved", UNSET),
+        "preflight.counts.candidate_identities_resolved",
+    )
+    unresolved_count = _report_int(
+        counts.get("candidate_identities_unresolved", UNSET),
+        "preflight.counts.candidate_identities_unresolved",
+    )
+    if any(value is UNSET for value in (counted, resolved, unresolved_count)):
+        raise LedgerError("preflight summary lacks candidate relocation identity counts")
+    if not (counted == resolved == candidate_count and unresolved_count == 0):
+        raise LedgerError(
+            "preflight summary disagrees with candidate relocation identity evidence"
+        )
+    return candidate_count
+
+
+def _symbol_identity(
+    symbol: tuple[str, int, int, int, int],
+    symbols: Sequence[tuple[str, int, int, int, int]],
+    section_names: Sequence[str],
+    function_section: int,
+    function_start: int,
+    function_end: int,
+) -> str:
+    name, value, _size, info, section_index = symbol
+    symbol_type = info & 0xF
+    if symbol_type == STT_SECTION or not name:
+        raise LedgerError(
+            "candidate function relocation has an unnamed or section-only target identity"
+        )
+    same_name = {
+        (candidate[1], candidate[2], candidate[3], candidate[4])
+        for candidate in symbols
+        if candidate[0] == name
+    }
+    if len(same_name) != 1:
+        raise LedgerError(
+            f"candidate function relocation target {name!r} has ambiguous symbol definitions"
+        )
+    if section_index == SHN_UNDEF:
+        return f"undefined:{name}"
+    if section_index >= len(section_names):
+        raise LedgerError(
+            f"candidate function relocation target {name!r} has unsupported section identity"
+        )
+    if section_index == function_section and function_start <= value < function_end:
+        return f"self:+{value - function_start}:{name}"
+    section = section_names[section_index]
+    if not section:
+        raise LedgerError(
+            f"candidate function relocation target {name!r} has an unnamed section"
+        )
+    return f"symbol:{name}:{section}"
+
+
+def _relocation_addends(
+    rows: list[dict[str, Any]], function_bytes: bytearray
+) -> dict[int, int]:
+    addends: dict[int, int] = {}
+    pending_high: dict[int, list[dict[str, Any]]] = {}
+    for row in rows:
+        relative = row["relative_offset"]
+        word = struct.unpack_from(">I", function_bytes, relative)[0]
+        relocation_type = row["type"]
+        symbol_index = row["symbol_index"]
+        if relocation_type == R_MIPS_HI16:
+            pending_high.setdefault(symbol_index, []).append(row)
+            continue
+        if relocation_type == R_MIPS_LO16:
+            low = word & 0xFFFF
+            low_signed = low - 0x10000 if low & 0x8000 else low
+            highs = pending_high.pop(symbol_index, [])
+            if highs:
+                paired = {
+                    (
+                        (
+                            struct.unpack_from(
+                                ">I", function_bytes, high["relative_offset"]
+                            )[0]
+                            & 0xFFFF
+                        )
+                        << 16
+                    )
+                    + low_signed
+                    for high in highs
+                }
+                if len(paired) != 1:
+                    raise LedgerError(
+                        "candidate function has an ambiguous MIPS HI16/LO16 addend group"
+                    )
+                full_addend = next(iter(paired))
+                for high in highs:
+                    addends[high["relative_offset"]] = full_addend
+                addends[relative] = full_addend
+            else:
+                addends[relative] = low_signed
+            continue
+        if relocation_type == R_MIPS_26:
+            addends[relative] = (word & 0x03FFFFFF) << 2
+        elif relocation_type == R_MIPS_32:
+            addends[relative] = word
+    if pending_high:
+        raise LedgerError("candidate function has an unpaired MIPS HI16 relocation")
+    return addends
+
+
+def _fingerprint_candidate_function(
+    payload: bytes,
+    symbol_name: str,
+    candidate_words: int,
+    expected_relocations: int,
+) -> dict[str, Any]:
+    if len(payload) < 52 or payload[:4] != ELF_MAGIC:
+        raise LedgerError("candidate object is not an ELF file")
+    if payload[4] != ELFCLASS32 or payload[5] != ELFDATA2MSB or payload[6] != 1:
+        raise LedgerError("candidate object must be a version-1 big-endian ELF32 file")
+    try:
+        header = struct.unpack_from(">16sHHIIIIIHHHHHH", payload, 0)
+    except struct.error as error:
+        raise LedgerError("candidate object has a truncated ELF header") from error
+    (
+        _ident,
+        elf_type,
+        machine,
+        version,
+        _entry,
+        _program_offset,
+        section_offset,
+        _flags,
+        header_size,
+        _program_entry_size,
+        program_count,
+        section_entry_size,
+        section_count,
+        names_index,
+    ) = header
+    if elf_type != ET_REL:
+        raise LedgerError("candidate object must be a relocatable ELF object")
+    if machine != EM_MIPS or version != 1 or program_count != 0:
+        raise LedgerError("candidate object must use unambiguous MIPS ELF geometry")
+    if header_size != 52 or section_entry_size != 40:
+        raise LedgerError("candidate object has unsupported ELF header geometry")
+    if not 1 <= section_count <= 4096 or not 0 < names_index < section_count:
+        raise LedgerError("candidate object has ambiguous ELF section geometry")
+    _bounded_slice(
+        payload, section_offset, section_count * section_entry_size, "section table"
+    )
+    sections = [
+        struct.unpack_from(">10I", payload, section_offset + index * section_entry_size)
+        for index in range(section_count)
+    ]
+    names_header = sections[names_index]
+    names_blob = _bounded_slice(
+        payload, names_header[4], names_header[5], "section-name table"
+    )
+    section_names = [
+        _elf_string(names_blob, section[0], "section name") for section in sections
+    ]
+    text_indexes = [index for index, name in enumerate(section_names) if name == ".text"]
+    if len(text_indexes) != 1:
+        raise LedgerError(
+            f"candidate object must contain exactly one .text section, found {len(text_indexes)}"
+        )
+    text_index = text_indexes[0]
+    text_header = sections[text_index]
+    if text_header[1] != SHT_PROGBITS:
+        raise LedgerError("candidate object .text section must contain program bytes")
+    text = _bounded_slice(payload, text_header[4], text_header[5], ".text section")
+
+    symtab_indexes = [
+        index for index, section in enumerate(sections) if section[1] == SHT_SYMTAB
+    ]
+    if len(symtab_indexes) != 1:
+        raise LedgerError(
+            f"candidate object must contain exactly one symbol table, found {len(symtab_indexes)}"
+        )
+    symtab_index = symtab_indexes[0]
+    symtab = sections[symtab_index]
+    if symtab[9] != 16 or symtab[5] % 16 or symtab[6] >= section_count:
+        raise LedgerError("candidate object has unsupported symbol-table geometry")
+    string_header = sections[symtab[6]]
+    if string_header[1] != SHT_STRTAB:
+        raise LedgerError("candidate object symbol table does not link a string table")
+    strings = _bounded_slice(
+        payload, string_header[4], string_header[5], "symbol string table"
+    )
+    symbol_blob = _bounded_slice(payload, symtab[4], symtab[5], "symbol table")
+    symbols: list[tuple[str, int, int, int, int]] = []
+    for offset in range(0, len(symbol_blob), 16):
+        name_offset, value, size, info, _other, section_index = struct.unpack_from(
+            ">IIIBBH", symbol_blob, offset
+        )
+        name = _elf_string(strings, name_offset, "symbol")
+        symbols.append((name, value, size, info, section_index))
+
+    definitions = [
+        row
+        for row in symbols
+        if row[0] == symbol_name
+        and row[4] != SHN_UNDEF
+        and row[2] > 0
+        and (row[3] & 0xF) == STT_FUNC
+        and row[4] == text_index
+    ]
+    if len(definitions) != 1:
+        raise LedgerError(
+            f"candidate object must contain one nonzero .text function {symbol_name}, "
+            f"found {len(definitions)}"
+        )
+    _name, function_start, function_size, _info, _section = definitions[0]
+    function_end = function_start + function_size
+    if function_size % 4 or function_end > len(text):
+        raise LedgerError("candidate function has invalid or out-of-bounds ELF geometry")
+    if function_size != candidate_words * 4:
+        raise LedgerError(
+            "candidate function ELF size disagrees with function_preflight candidate_words"
+        )
+    overlapping_functions = [
+        row[0]
+        for row in symbols
+        if row[0] != symbol_name
+        and row[4] == text_index
+        and row[2] > 0
+        and (row[3] & 0xF) == STT_FUNC
+        and max(function_start, row[1]) < min(function_end, row[1] + row[2])
+    ]
+    if overlapping_functions:
+        raise LedgerError(
+            "candidate function boundary overlaps another ELF function definition: "
+            + ", ".join(sorted(set(overlapping_functions)))
+        )
+
+    if any(
+        section[1] == SHT_RELA and section[7] == text_index for section in sections
+    ):
+        raise LedgerError("candidate object uses unsupported RELA relocations for .text")
+    relocation_sections = [
+        section
+        for section in sections
+        if section[1] == SHT_REL and section[7] == text_index
+    ]
+    if len(relocation_sections) > 1:
+        raise LedgerError("candidate object has multiple relocation sections for .text")
+    rows: list[dict[str, Any]] = []
+    if relocation_sections:
+        relocation_section = relocation_sections[0]
+        if (
+            relocation_section[9] != 8
+            or relocation_section[5] % 8
+            or relocation_section[6] != symtab_index
+        ):
+            raise LedgerError("candidate object has unsupported .text relocation geometry")
+        relocation_blob = _bounded_slice(
+            payload,
+            relocation_section[4],
+            relocation_section[5],
+            ".text relocation table",
+        )
+        seen_offsets: set[int] = set()
+        for offset in range(0, len(relocation_blob), 8):
+            site, info = struct.unpack_from(">II", relocation_blob, offset)
+            if not function_start <= site < function_end:
+                continue
+            relative = site - function_start
+            relocation_type = info & 0xFF
+            symbol_index = info >> 8
+            if relative % 4 or relative + 4 > function_size:
+                raise LedgerError("candidate function has an unaligned relocation site")
+            if relative in seen_offsets:
+                raise LedgerError("candidate function has duplicate relocation sites")
+            if relocation_type not in SUPPORTED_FINGERPRINT_RELOCATIONS:
+                raise LedgerError(
+                    f"candidate function uses unsupported relocation type {relocation_type}"
+                )
+            if symbol_index >= len(symbols):
+                raise LedgerError("candidate function relocation has an invalid symbol index")
+            seen_offsets.add(relative)
+            rows.append(
+                {
+                    "relative_offset": relative,
+                    "type": relocation_type,
+                    "symbol_index": symbol_index,
+                    "identity": _symbol_identity(
+                        symbols[symbol_index],
+                        symbols,
+                        section_names,
+                        text_index,
+                        function_start,
+                        function_end,
+                    ),
+                }
+            )
+    rows.sort(key=lambda row: row["relative_offset"])
+    if len(rows) != expected_relocations:
+        raise LedgerError(
+            "candidate function ELF relocation count disagrees with function_preflight "
+            f"evidence: object={len(rows)}, preflight={expected_relocations}"
+        )
+
+    function_bytes = bytearray(text[function_start:function_end])
+    addends = _relocation_addends(rows, function_bytes)
+    relocation_payload: list[list[Any]] = []
+    for row in rows:
+        relative = row["relative_offset"]
+        word = struct.unpack_from(">I", function_bytes, relative)[0]
+        if row["type"] == R_MIPS_32:
+            masked = 0
+        elif row["type"] == R_MIPS_26:
+            masked = word & 0xFC000000
+        else:
+            masked = word & 0xFFFF0000
+        struct.pack_into(">I", function_bytes, relative, masked)
+        relocation_payload.append(
+            [relative, row["type"], row["identity"], addends[relative]]
+        )
+    fingerprint_input = {
+        "algorithm": FINGERPRINT_ALGORITHM,
+        "size": function_size,
+        "masked_text_sha256": hashlib.sha256(function_bytes).hexdigest(),
+        "relocations": relocation_payload,
+    }
+    encoded = json.dumps(
+        fingerprint_input, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("ascii")
+    return {
+        "algorithm": FINGERPRINT_ALGORITHM,
+        "sha256": hashlib.sha256(encoded).hexdigest(),
+        "size": function_size,
+        "relocations": len(rows),
+    }
+
+
+def _candidate_artifact_and_fingerprint(
+    root: Path,
+    value: Any,
+    symbol: str,
+    candidate_words: int,
+    report: Mapping[str, Any],
+    preflight_mtime_ns: int,
+) -> tuple[dict[str, str], dict[str, Any]]:
+    expected_relocations = _candidate_relocation_evidence(report)
     relative = _relative_generated_path(value, "candidate_object", suffix=".o")
     fd = _safe_regular_fd(root, relative, "candidate object")
     try:
@@ -477,13 +964,17 @@ def _hash_candidate_object(root: Path, value: Any) -> dict[str, str]:
             raise LedgerError(
                 "candidate object must be a non-empty regular file no larger than 256 MiB"
             )
-        digest = hashlib.sha256()
+        if before.st_mtime_ns > preflight_mtime_ns:
+            raise LedgerError(
+                "candidate object is newer than the function_preflight report; rerun preflight"
+            )
+        chunks: list[bytes] = []
         remaining = before.st_size
         while remaining:
             chunk = os.read(fd, min(remaining, 1024 * 1024))
             if not chunk:
-                raise LedgerError("candidate object changed while it was being hashed")
-            digest.update(chunk)
+                raise LedgerError("candidate object changed while it was being read")
+            chunks.append(chunk)
             remaining -= len(chunk)
         after = os.fstat(fd)
         if (before.st_size, before.st_mtime_ns, before.st_ino) != (
@@ -491,10 +982,15 @@ def _hash_candidate_object(root: Path, value: Any) -> dict[str, str]:
             after.st_mtime_ns,
             after.st_ino,
         ):
-            raise LedgerError("candidate object changed while it was being hashed")
+            raise LedgerError("candidate object changed while it was being read")
     finally:
         os.close(fd)
-    return {"path": relative, "sha256": digest.hexdigest()}
+    payload = b"".join(chunks)
+    artifact = {"path": relative, "sha256": hashlib.sha256(payload).hexdigest()}
+    fingerprint = _fingerprint_candidate_function(
+        payload, symbol, candidate_words, expected_relocations
+    )
+    return artifact, fingerprint
 
 
 def _decode_records(payload: bytes) -> list[dict[str, Any]]:
@@ -575,16 +1071,30 @@ def _record_has_object_digest(record: Mapping[str, Any], digest: str) -> bool:
     )
 
 
+def _candidate_fingerprint_from_record(record: Mapping[str, Any]) -> str | None:
+    fingerprint = record.get("candidate_fingerprint")
+    if not isinstance(fingerprint, Mapping):
+        return None
+    digest = fingerprint.get("sha256")
+    return digest if isinstance(digest, str) and SHA256_RE.fullmatch(digest) else None
+
+
 def append_record(
     path: Path,
     record: dict[str, Any],
     *,
     candidate_sha256: str | None = None,
+    candidate_fingerprint: str | None = None,
 ) -> dict[str, Any]:
     checked = validate_record(record)
     digest = candidate_sha256 or _candidate_digest_from_record(checked)
     if digest is not None and not SHA256_RE.fullmatch(digest):
         raise LedgerError("candidate-object SHA-256 must be 64 lowercase hexadecimal digits")
+    fingerprint = candidate_fingerprint or _candidate_fingerprint_from_record(checked)
+    if fingerprint is not None and not SHA256_RE.fullmatch(fingerprint):
+        raise LedgerError(
+            "candidate-function fingerprint must be 64 lowercase hexadecimal digits"
+        )
     encoded = (json.dumps(checked, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
     if len(encoded) > MAX_RECORD_BYTES:
         raise LedgerError("record exceeds the 4096-byte compact-record limit")
@@ -607,17 +1117,29 @@ def append_record(
             raise LedgerError("journal must be one regular file with no hard links")
         payload = _read_fd(fd)
         records = _decode_records(payload)  # Refuse to extend a malformed journal.
-        if digest is not None:
-            for line_number, existing in enumerate(records, 1):
-                if (
-                    existing["symbol"] == checked["symbol"]
-                    and _record_has_object_digest(existing, digest)
-                ):
-                    raise LedgerError(
-                        "duplicate candidate artifact for "
-                        f"{checked['symbol']}: matches line {line_number} "
-                        f"({existing['timestamp']}, hypothesis={existing['hypothesis']!r})"
-                    )
+        for line_number, existing in enumerate(records, 1):
+            if existing["symbol"] != checked["symbol"]:
+                continue
+            existing_fingerprint = _candidate_fingerprint_from_record(existing)
+            if fingerprint is not None and existing_fingerprint == fingerprint:
+                raise LedgerError(
+                    "duplicate candidate function fingerprint for "
+                    f"{checked['symbol']}: matches line {line_number} "
+                    f"({existing['timestamp']}, hypothesis={existing['hypothesis']!r})"
+                )
+            # Schema-v1 rows have no isolated fingerprint. Preserve their
+            # exact-object duplicate protection without letting whole-TU
+            # identity override a schema-v2 function fingerprint.
+            if (
+                digest is not None
+                and existing_fingerprint is None
+                and _record_has_object_digest(existing, digest)
+            ):
+                raise LedgerError(
+                    "duplicate legacy candidate artifact for "
+                    f"{checked['symbol']}: matches line {line_number} "
+                    f"({existing['timestamp']}, hypothesis={existing['hypothesis']!r})"
+                )
         if len(payload) + len(encoded) > MAX_LEDGER_BYTES:
             raise LedgerError("append would exceed the bounded 64 MiB journal limit")
         written = os.write(fd, encoded)  # O_APPEND + one bounded write preserves prior bytes.
@@ -941,8 +1463,14 @@ def _merge_artifacts(
 
 def _record_from_args(
     args: argparse.Namespace, root: Path
-) -> tuple[dict[str, Any], str | None]:
-    report = load_preflight_report(root, args.preflight_json) if args.preflight_json else None
+) -> tuple[dict[str, Any], str | None, str | None]:
+    if args.preflight_json:
+        report, preflight_mtime_ns = _load_preflight_report_with_mtime(
+            root, args.preflight_json
+        )
+    else:
+        report = None
+        preflight_mtime_ns = None
     if report is None:
         symbol = validate_symbol(args.symbol)
         if args.source is None:
@@ -977,6 +1505,8 @@ def _record_from_args(
             ),
         }
         candidate_artifact = None
+        candidate_fingerprint = None
+        schema_version = LEGACY_SCHEMA_VERSION
     else:
         aliases = {
             value
@@ -1002,15 +1532,24 @@ def _record_from_args(
                 )
         metrics = _preflight_metrics(report, args)
         candidate_value = report.get("candidate_object", UNSET)
-        candidate_artifact = (
-            None
-            if candidate_value is UNSET or candidate_value is None
-            else _hash_candidate_object(root, candidate_value)
+        if candidate_value is UNSET or candidate_value is None:
+            raise LedgerError(
+                "preflight report lacks candidate_object required for isolated fingerprinting"
+            )
+        assert preflight_mtime_ns is not None
+        candidate_artifact, candidate_fingerprint = _candidate_artifact_and_fingerprint(
+            root,
+            candidate_value,
+            symbol,
+            metrics["candidate_words"],
+            report,
+            preflight_mtime_ns,
         )
+        schema_version = SCHEMA_VERSION
 
     require_source_ownership(root, source, symbol)
     record: dict[str, Any] = {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": schema_version,
         "timestamp": utc_timestamp(),
         "symbol": symbol,
         "source": source,
@@ -1018,12 +1557,17 @@ def _record_from_args(
         **metrics,
         "verdict": args.verdict,
     }
+    if candidate_fingerprint is not None:
+        record["candidate_fingerprint"] = candidate_fingerprint
     artifacts = _merge_artifacts(args.artifact, candidate_artifact)
     if artifacts:
         record["artifacts"] = artifacts
     checked = validate_record(record)
     digest = candidate_artifact["sha256"] if candidate_artifact is not None else None
-    return checked, digest
+    fingerprint_digest = (
+        candidate_fingerprint["sha256"] if candidate_fingerprint is not None else None
+    )
+    return checked, digest, fingerprint_digest
 
 
 def _print_records(records: Sequence[dict[str, Any]], as_json: bool) -> None:
@@ -1099,9 +1643,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         ledger = resolve_ledger_path(root, args.ledger)
         if args.command == "append":
-            pending, candidate_digest = _record_from_args(args, root)
+            pending, candidate_digest, candidate_fingerprint = _record_from_args(
+                args, root
+            )
             record = append_record(
-                ledger, pending, candidate_sha256=candidate_digest
+                ledger,
+                pending,
+                candidate_sha256=candidate_digest,
+                candidate_fingerprint=candidate_fingerprint,
             )
             _print_records([record], args.json)
             return 0

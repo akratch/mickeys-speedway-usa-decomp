@@ -6,6 +6,11 @@ proof and not a tracked campaign ledger. The default file is
 `build/experiment-ledger.jsonl`; the CLI refuses every destination outside
 `build/`, which is gitignored.
 
+New preflight-backed records use schema version 2 and identify duplicate
+compiler output with an isolated function fingerprint. See
+`docs/experiment-ledger-fingerprints.md` for the exact evidence requirements,
+relocation masking, and compatibility rules.
+
 The journal never accepts instruction text, machine words, ROM bytes, target
 rows, disassembly, or absolute paths. Do not use it to replace the canonical
 promotion proof, a plateau handoff, or the source itself.
@@ -42,13 +47,16 @@ masked count without its first mismatch similarly requires
 omits the source.
 
 When `candidate_object` names an existing regular `.o` in the repository's
-ignored `build/` or `build_non_matching/` tree, ingestion streams its SHA-256
-and adds the path/hash artifact automatically. Absolute paths, traversal,
-symlinks, missing files, other build roots, and oversized objects fail closed.
-For one symbol, an object digest already present on an earlier journal line is
-a duplicate compiler result: the append is refused and identifies the prior
-line without rewriting or extending the journal. The same digest may be
-recorded for a different symbol.
+ignored `build/` or `build_non_matching/` tree, ingestion retains its SHA-256
+as artifact provenance. Absolute paths, traversal, symlinks, missing files,
+other build roots, and oversized objects fail closed. For a schema-version-2
+append, duplicate detection uses a digest of only the owned function bytes and
+their relocation semantics. Changes elsewhere in the translation unit cannot
+make the same function appear new. A matching isolated digest for the same
+symbol is refused and identifies the prior line without rewriting or extending
+the journal. Legacy schema-version-1 records retain their whole-object
+duplicate check because an isolated key cannot be reconstructed from an
+immutable old row.
 
 The fully explicit interface remains available when no preflight report exists:
 
@@ -107,7 +115,9 @@ record, symbol, exact-symbol, verdict, and per-symbol best-masked counts.
 
 ## Schema and durability
 
-Each physical line is one strict schema-version-1 JSON object. Unknown,
+Each physical line is one strict schema-version-1 or schema-version-2 JSON
+object. New preflight-backed appends use version 2; the fully explicit CLI,
+which has no authenticated candidate object, remains version 1. Unknown,
 missing, duplicate, malformed, oversized, or internally inconsistent fields
 make both reading and further appends fail. A record contains only:
 
@@ -119,9 +129,17 @@ make both reading and further appends fail. A record contains only:
 - optionally, up to eight `artifacts`, each containing only a relative ignored
   build-tree path and lowercase SHA-256.
 
+A version-2 record additionally contains `candidate_fingerprint`: the
+algorithm name, lowercase SHA-256, owned byte size, and relocation count. It
+does not contain function bytes, disassembly, instruction text, or relocation
+rows. The fingerprint is accepted only when ELF ownership, function geometry,
+relocation sites/types/identities/addends, and preflight counts are all
+unambiguous and mutually consistent.
+
 Appending takes an exclusive file lock, validates the complete existing
-journal, checks candidate-object duplicates, and performs one bounded
-`O_APPEND` write. It then calls `fsync` on the file and, when creating the
+journal, checks the applicable function or legacy object duplicate key, and
+performs one bounded `O_APPEND` write. It then calls `fsync` on the file and,
+when creating the
 journal, on its containing directory. Readers take a shared lock. Existing
 bytes are never rewritten; a duplicate, truncated, or corrupt journal must be
 preserved for inspection rather than extended.

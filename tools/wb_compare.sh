@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One decomp-workbench comparison for one function.
 #
-#   ./tools/wb_compare.sh [--diagnose] [--no-build] <symbol> [extra workbench args...]
+#   ./tools/wb_compare.sh [--diagnose] [--summary-json] [--no-build] <symbol> [extra workbench args...]
 #
 # Friendly/generated aliases, the owning TU, and the canonical versus
 # NON_MATCHING candidate tree are resolved automatically by
@@ -47,17 +47,23 @@ PREFLIGHT_TOOL=tools/function_preflight.py
 mode=asm
 wb_command=compare
 no_build=0
+summary_json=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --rom) mode=rom; shift ;;
         --diagnose) wb_command=diagnose; shift ;;
+        --summary-json) summary_json=1; shift ;;
         --no-build) no_build=1; shift ;;
         --) shift; break ;;
         *) break ;;
     esac
 done
 if [ $# -lt 1 ]; then
-    echo "usage: $0 [--rom] [--diagnose] [--no-build] <symbol> [workbench args...]" >&2
+    echo "usage: $0 [--rom] [--diagnose] [--summary-json] [--no-build] <symbol> [workbench args...]" >&2
+    exit 2
+fi
+if [ "$summary_json" -eq 1 ] && [ "$wb_command" = diagnose ]; then
+    echo "$0: --summary-json summarizes comparison evidence, not diagnosis reports." >&2
     exit 2
 fi
 sym=$1; shift
@@ -67,6 +73,8 @@ source_path=
 tu=
 cand_build_dir=${WB_CANDIDATE_BUILD_DIR:-build}
 asmfile=
+boundary_evidence=extracted-fallback-symbol
+target_boundary_size=
 
 if [ "$mode" = asm ]; then
     preflight_args=("$sym" --resolve-wb)
@@ -82,12 +90,9 @@ if [ "$mode" = asm ]; then
     asmfile=$resolved_asm
 fi
 
-# In asm mode, splat's extracted fallback can retain an auto-name while the
-# linked TU exports the friendly C name.  The auto-name may survive only as a
-# zero-size alias, so use the actual candidate symbol for linked ELF geometry.
-# The target assembly lookup below must continue to use the requested auto-name.
+# ROM mode replaces this with the uniquely resolved linked symbol returned by
+# the boundary preflight. Assembly mode compares the extracted target directly.
 linked_sym=$sym
-if [ "$mode" = asm ]; then linked_sym=$candidate_sym; fi
 
 proof_manifest="$OUT/$sym.provenance.json"
 
@@ -114,19 +119,60 @@ run_provenance() {
 
 wb_extra_args=("$@")
 
-# Where the symbol ended up, straight from the linked ELF.
-# (BSD awk has no strtonum, so the hex-to-decimal step is the shell's.)
-read -r vram_hex size_hex section < <(
-    "$OBJDUMP" -t build/mickey.us.elf \
-    | awk -v s="$linked_sym" '$NF == s && NF >= 5 { print $1, $(NF-1), $(NF-2) }' \
-    | head -1
-)
-vram=$(( 0x${vram_hex:-0} ))
-size=$(( 0x${size_hex:-0} ))
-if [ "$size" -eq 0 ]; then vram=""; fi
-if [ -z "${vram:-}" ]; then echo "$0: '$linked_sym' not found in build/mickey.us.elf" >&2; exit 1; fi
+run_workbench() {
+    local command=$1 raw_report result=0
+    shift
+    if [ "$summary_json" -eq 0 ]; then
+        exec "$WB" "$command" "$@"
+    fi
+
+    raw_report="$OUT/$sym.workbench.json"
+    "$WB" "$command" "$@" --json --color never > "$raw_report" || result=$?
+    summary_size=${target_boundary_size:--1}
+    if ! "$PROVENANCE" -c '
+import json
+import pathlib
+import sys
+sys.path.insert(0, "tools")
+import function_preflight as fp
+try:
+    report = fp.workbench_summary(
+        pathlib.Path(sys.argv[1]),
+        pathlib.Path(sys.argv[2]),
+        requested_symbol=sys.argv[3],
+        target_symbol=sys.argv[4],
+        candidate_symbol=sys.argv[5],
+        comparison_mode=sys.argv[6],
+        boundary_evidence=sys.argv[7],
+        boundary_size=None if sys.argv[8] == "-1" else int(sys.argv[8]),
+    )
+except (ValueError, fp.PreflightError) as error:
+    print(f"wb_compare.sh: cannot summarize workbench evidence: {error}", file=sys.stderr)
+    raise SystemExit(2)
+print(json.dumps(report, sort_keys=True, separators=(",", ":")))
+' "$raw_report" "$proof_manifest" "$sym" "$target_sym" "$candidate_sym" \
+        "$mode" "$boundary_evidence" "$summary_size"
+    then
+        echo "$0: full report retained at $raw_report" >&2
+        return 2
+    fi
+    return "$result"
+}
 
 if [ "$mode" = rom ]; then
+    preflight_args=("$sym" --resolve-rom)
+    if [ "$no_build" -eq 1 ]; then preflight_args+=(--no-build); fi
+    resolution=$($PROVENANCE "$PREFLIGHT_TOOL" "${preflight_args[@]}") || exit $?
+    IFS=$'\t' read -r linked_sym vram_hex size_hex section boundary_evidence \
+        <<< "$resolution"
+    if [ -z "$linked_sym" ] || [ -z "$vram_hex" ] || [ -z "$size_hex" ] \
+        || [ -z "$section" ] || [ -z "$boundary_evidence" ]; then
+        echo "$0: preflight returned an incomplete linked boundary for '$sym'." >&2
+        exit 2
+    fi
+    vram=$(( 0x$vram_hex ))
+    size=$(( 0x$size_hex ))
+    target_boundary_size=$size
     rom_build_dir=${WB_ROM_BUILD_DIR:-build}
     candidate_elf=$rom_build_dir/mickey.us.elf
     candidate_rom=$rom_build_dir/mickey.us.z64
@@ -182,14 +228,11 @@ if [ "$mode" = rom ]; then
     target_rom=$(symbol_rom build/mickey.us.elf "$vram" "$section")
     candidate_rom_offset=$(symbol_rom "$candidate_elf" "$candidate_vram" "$candidate_section")
 
-    # The candidate's size comes from the ELF, but the *target's* must not:
-    # if the candidate is the wrong length, using its size for both sides
-    # truncates or overruns the target and the comparison silently answers a
-    # different question. symbol_addrs.us.txt carries the ROM's real size, so
-    # prefer it and fall back to the ELF only for symbols that lack one.
-    tsize=$(sed -n "s/^$sym *= *0x[0-9A-Fa-f]* *;.*size:0x\([0-9A-Fa-f]*\).*/\1/p" \
-            symbol_addrs.us.txt | head -1)
-    if [ -n "$tsize" ]; then tsize=$(( 0x$tsize )); else tsize=$size; fi
+    # The target size is the ownership-checked preflight boundary.  An
+    # optional symbol-table size was already required to agree with it; a
+    # missing annotation is therefore safe and no candidate length is ever
+    # substituted for the target's.
+    tsize=$size
     # `set --` here would eat the caller's extra workbench arguments, so the
     # two dumps are written by name rather than by looping over pairs.
     dump() {
@@ -217,8 +260,9 @@ if [ "$mode" = rom ]; then
         --objdump "$OBJDUMP"
     rom_command=compare-dumps
     if [ "$wb_command" = diagnose ]; then rom_command=diagnose-dumps; fi
-    exec "$WB" "$rom_command" "$OUT/$sym.target.objdump" \
+    run_workbench "$rom_command" "$OUT/$sym.target.objdump" \
         "$OUT/$sym.candidate.objdump" "${wb_extra_args[@]}"
+    exit $?
 fi
 
 if [ -z "$asmfile" ] || [ ! -f "$asmfile" ]; then
@@ -247,5 +291,5 @@ run_provenance \
     --candidate-artifact "$cand" \
     --target-artifact "$OUT/$sym.target.o" \
     --objdump "$OBJDUMP"
-exec "$WB" "$wb_command" "$OUT/$sym.target.o" "$cand" \
+run_workbench "$wb_command" "$OUT/$sym.target.o" "$cand" \
     --function "$candidate_sym" --objdump "$OBJDUMP" "${wb_extra_args[@]}"

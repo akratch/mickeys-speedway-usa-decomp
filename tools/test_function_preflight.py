@@ -410,6 +410,140 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         )
         self.assertEqual((name, value, size, section), ("friendly", 0xF0000010, 0x20, ".text"))
 
+    def test_preflight_boundary_serves_when_size_annotation_is_absent(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            symbols = Path(directory) / "symbols.txt"
+            symbols.write_text(
+                "friendly = 0x80001000; // type:func tier-D\n",
+                encoding="utf-8",
+            )
+
+            evidence = fp._optional_size_annotation("friendly", 0x20, symbols)
+
+        self.assertEqual("preflight-owned-boundary", evidence)
+
+    def test_size_annotation_must_agree_with_preflight_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            symbols = Path(directory) / "symbols.txt"
+            symbols.write_text(
+                "friendly = 0x80001000; // type:func size:0x24 tier-D\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(fp.PreflightError, "disagrees"):
+                fp._optional_size_annotation("friendly", 0x20, symbols)
+
+    def test_duplicate_size_rows_fail_closed_even_when_values_agree(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            symbols = Path(directory) / "symbols.txt"
+            symbols.write_text(
+                "friendly = 0x80001000; // type:func size:0x20 tier-D\n"
+                "friendly = 0x80001000; // type:func size:0x20 tier-D\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(fp.PreflightError, "ambiguous"):
+                fp._optional_size_annotation("friendly", 0x20, symbols)
+
+
+class GeometryAndWorkbenchSummaryTests(unittest.TestCase):
+    def inputs(self, root: Path, *, exact: bool = False) -> tuple[Path, Path]:
+        payload = {
+            "schema": "decomp-workbench-comparison-v1",
+            "exact": exact,
+            "accepted": exact,
+            "acceptance_basis": "function-exact" if exact else "mismatch",
+            "verdict": "exact" if exact else "register-mismatch",
+            "target_instructions": 8,
+            "target_insns": 8,
+            "candidate_instructions": 8,
+            "insns": 8,
+            "instruction_delta": 0,
+            "insn_delta": 0,
+            "word_mismatches": 0 if exact else 2,
+            "words": 0 if exact else 2,
+            "raw_word_mismatches": 0 if exact else 3,
+            "raw": 0 if exact else 3,
+            "normalized_distance": 0 if exact else 2,
+            "norm": 0 if exact else 2,
+            "opcode_mismatches": 0,
+            "opcodes": 0,
+            "register_mismatches": 0 if exact else 2,
+            "regs": 0 if exact else 2,
+            "fp_register_mismatches": 0,
+            "fp": 0,
+            "aligned_total": 0 if exact else 2,
+            "aligned_structural": 0,
+            "aligned_schedule": 0,
+            "aligned_register": 0 if exact else 2,
+            "aligned_constant": 0,
+            "first_divergent_row": None if exact else 1,
+            "target_frame_size": None if exact else -16,
+            "target_frame": None if exact else -16,
+            "candidate_frame_size": None if exact else -16,
+            "frame": None if exact else -16,
+            "relocation_metadata_mismatches": 0,
+            "relocation_target_mismatches": 0,
+            "diff_sites": [{"instruction": "must not escape"}],
+        }
+        raw = root / "raw.json"
+        raw.write_text(json.dumps(payload), encoding="utf-8")
+        digest = {"sha256": "a" * 64}
+        manifest = root / "manifest.json"
+        manifest.write_text(
+            json.dumps(
+                {
+                    "schema": "mickey-wb-proof-provenance-v1",
+                    "selection": {"classification": "non_matching_candidate"},
+                    "exact_claim_allowed": True,
+                    "verdict": "c_evidence",
+                    "source": digest,
+                    "candidate_object": digest,
+                    "target_object": digest,
+                }
+            ),
+            encoding="utf-8",
+        )
+        return raw, manifest
+
+    def summarize(self, root: Path, *, exact: bool = False, size: int = 32):
+        raw, manifest = self.inputs(root, exact=exact)
+        return fp.workbench_summary(
+            raw,
+            manifest,
+            requested_symbol="friendly",
+            target_symbol="generated",
+            candidate_symbol="friendly",
+            comparison_mode="asm",
+            boundary_evidence="extracted-fallback-symbol",
+            boundary_size=size,
+        )
+
+    def test_summary_is_code_free_and_keeps_decision_metrics(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            report = self.summarize(Path(directory))
+
+        self.assertEqual("mickey-wb-summary-v1", report["schema"])
+        self.assertEqual(6, report["comparison"]["matched_words"])
+        self.assertEqual(4, report["comparison"]["first_mismatch_offset"])
+        self.assertEqual(16, report["comparison"]["target_frame_bytes"])
+        self.assertFalse(report["evidence"]["admissible_exact_comparison"])
+        self.assertNotIn("diff_sites", json.dumps(report))
+
+    def test_exact_summary_accepts_null_optional_metrics(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            report = self.summarize(Path(directory), exact=True)
+
+        self.assertIsNone(report["comparison"]["first_mismatch_offset"])
+        self.assertIsNone(report["comparison"]["target_frame_bytes"])
+        self.assertTrue(report["evidence"]["admissible_exact_comparison"])
+        self.assertFalse(report["evidence"]["promotion_proof_included"])
+
+    def test_summary_rejects_boundary_disagreement(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(fp.PreflightError, "boundary size disagrees"):
+                self.summarize(Path(directory), size=36)
+
     def test_consolidated_tu_escape_reports_target_and_candidate_drift(self) -> None:
         class FakeElf:
             names = ["", ".text"]
@@ -927,6 +1061,44 @@ class FreshnessTests(unittest.TestCase):
                         build_logic_inputs=(),
                     )
 
+    def test_workbench_boundary_fails_closed_on_a_modified_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            resolution.target_asm.parent.mkdir(parents=True)
+            resolution.target_asm.write_text("glabel generated\n", encoding="utf-8")
+            stamp = root / "build_non_matching/.splat-stamp"
+            stamp.parent.mkdir(parents=True, exist_ok=True)
+            stamp.write_text("split\n", encoding="utf-8")
+            stamp_time = stamp.stat().st_mtime_ns
+            os.utime(
+                resolution.target_asm,
+                ns=(stamp_time + 1_000_000, stamp_time + 1_000_000),
+            )
+
+            with mock.patch.object(
+                fp, "_wb_split_receipts", return_value=((stamp, True),)
+            ), mock.patch.object(fp, "_require_fresh_target"):
+                with self.assertRaisesRegex(fp.PreflightError, "newer than"):
+                    fp._require_fresh_wb_evidence(resolution)
+
+    def test_canonical_split_receipt_can_prove_shared_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            resolution.target_asm.parent.mkdir(parents=True)
+            resolution.target_asm.write_text("glabel generated\n", encoding="utf-8")
+            stamp = root / "build/.splat-stamp"
+            stamp.parent.mkdir(parents=True, exist_ok=True)
+            stamp.write_text("split\n", encoding="utf-8")
+            asm_time = resolution.target_asm.stat().st_mtime_ns
+            os.utime(stamp, ns=(asm_time + 1_000_000, asm_time + 1_000_000))
+
+            with mock.patch.object(
+                fp, "_wb_split_receipts", return_value=((stamp, False),)
+            ), mock.patch.object(fp, "_require_fresh_target"):
+                fp._require_fresh_wb_boundary(resolution)
+
     def test_build_runs_split_and_target_as_separate_make_invocations(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -978,8 +1150,8 @@ class FreshnessTests(unittest.TestCase):
             resolution.target_asm.write_text("glabel generated\n", encoding="utf-8")
             with mock.patch.object(
                 fp, "resolve", return_value=resolution
-            ), mock.patch.object(fp, "_build") as build, mock.patch.object(
-                fp, "require_fresh_evidence"
+            ), mock.patch.object(fp, "_build_wb_evidence") as build, mock.patch.object(
+                fp, "_require_fresh_wb_evidence"
             ) as freshness:
                 with contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(0, fp.main(["friendly", "--resolve-wb"]))
@@ -988,8 +1160,8 @@ class FreshnessTests(unittest.TestCase):
 
             with mock.patch.object(
                 fp, "resolve", return_value=resolution
-            ), mock.patch.object(fp, "_build") as build, mock.patch.object(
-                fp, "require_fresh_evidence"
+            ), mock.patch.object(fp, "_build_wb_evidence") as build, mock.patch.object(
+                fp, "_require_fresh_wb_evidence"
             ) as freshness:
                 with contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(
@@ -1002,7 +1174,11 @@ class FreshnessTests(unittest.TestCase):
     def test_nonmatching_candidate_build_precedes_final_canonical_build(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             resolution = self.resolution(Path(directory))
-            with mock.patch.object(fp, "_build_target") as build_target:
+            with mock.patch.object(
+                fp,
+                "_require_fresh_target",
+                side_effect=fp.StaleEvidenceError("stale"),
+            ), mock.patch.object(fp, "_build_target") as build_target:
                 fp._build(resolution)
 
             self.assertEqual(
@@ -1022,11 +1198,110 @@ class FreshnessTests(unittest.TestCase):
             resolution = dataclasses.replace(
                 self.resolution(Path(directory)), candidate_build_dir="build"
             )
-            with mock.patch.object(fp, "_build_target") as build_target:
+            with mock.patch.object(
+                fp,
+                "_require_fresh_target",
+                side_effect=fp.StaleEvidenceError("stale"),
+            ), mock.patch.object(fp, "_build_target") as build_target:
                 fp._build(resolution)
 
             build_target.assert_called_once_with(
                 fp.TARGET_ELF, non_matching=False, label="canonical"
+            )
+
+    def test_current_full_evidence_skips_every_build(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            with mock.patch.object(
+                fp, "_require_fresh_target"
+            ), mock.patch.object(fp, "_build_target") as build_target:
+                fp._build(resolution)
+
+            build_target.assert_not_called()
+
+    def test_workbench_refresh_builds_candidate_without_linking_canonical_elf(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            with mock.patch.object(
+                fp, "_require_fresh_wb_boundary"
+            ), mock.patch.object(
+                fp,
+                "_require_fresh_target",
+                side_effect=fp.StaleEvidenceError("stale candidate"),
+            ), mock.patch.object(fp, "_build_target") as build_target:
+                fp._build_wb_evidence(resolution)
+
+            build_target.assert_called_once_with(
+                resolution.candidate_object,
+                non_matching=True,
+                label="candidate",
+            )
+            self.assertNotIn(fp.TARGET_ELF, [call.args[0] for call in build_target.call_args_list])
+
+    def test_current_workbench_evidence_skips_candidate_build(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            with mock.patch.object(
+                fp, "_require_fresh_wb_boundary"
+            ), mock.patch.object(
+                fp, "_require_fresh_target"
+            ), mock.patch.object(fp, "_build_target") as build_target:
+                fp._build_wb_evidence(resolution)
+
+            build_target.assert_not_called()
+
+    def test_stale_workbench_boundary_refreshes_split_before_candidate(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            stamp = Path(directory) / "build_non_matching/.splat-stamp"
+            with mock.patch.object(
+                fp,
+                "_require_fresh_wb_boundary",
+                side_effect=fp.StaleEvidenceError("stale split"),
+            ), mock.patch.object(
+                fp, "_require_fresh_target"
+            ), mock.patch.object(
+                fp, "_candidate_split_stamp", return_value=stamp
+            ), mock.patch.object(fp, "_build_target") as build_target:
+                fp._build_wb_evidence(resolution)
+
+            self.assertEqual(
+                [
+                    mock.call(stamp, non_matching=True, label="target boundary"),
+                    mock.call(
+                        resolution.candidate_object,
+                        non_matching=True,
+                        label="candidate",
+                    ),
+                ],
+                build_target.call_args_list,
+            )
+
+    def test_resolve_rom_emits_one_preflight_proved_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            boundary = {
+                "linked_symbol": "friendly",
+                "value": 0x80001000,
+                "size": 0x20,
+                "section": ".text",
+                "evidence": "preflight-owned-boundary",
+            }
+            output = io.StringIO()
+            with mock.patch.object(
+                fp, "resolve", return_value=resolution
+            ), mock.patch.object(fp, "_build_linked_boundary") as build, mock.patch.object(
+                fp, "_require_fresh_linked_boundary"
+            ) as freshness, mock.patch.object(
+                fp, "_linked_boundary", return_value=boundary
+            ), contextlib.redirect_stdout(output):
+                self.assertEqual(0, fp.main(["friendly", "--resolve-rom"]))
+
+            build.assert_called_once_with()
+            freshness.assert_called_once_with()
+            self.assertEqual(
+                "friendly\t80001000\t20\t.text\tpreflight-owned-boundary\n",
+                output.getvalue(),
             )
 
 

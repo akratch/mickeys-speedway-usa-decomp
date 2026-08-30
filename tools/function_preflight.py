@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import hashlib
 import json
 import re
 import subprocess
@@ -48,6 +49,10 @@ import reloc_surface as rs  # noqa: E402
 
 class PreflightError(RuntimeError):
     """The requested identity or evidence surface is not uniquely provable."""
+
+
+class StaleEvidenceError(PreflightError):
+    """An otherwise valid evidence artifact is missing or needs rebuilding."""
 
 
 @dataclasses.dataclass(frozen=True)
@@ -441,13 +446,13 @@ def _require_fresh_target(
     build_logic_inputs: Iterable[Path],
 ) -> None:
     if not target.is_file():
-        raise PreflightError(f"missing {label}: {_relative(target)}")
+        raise StaleEvidenceError(f"missing {label}: {_relative(target)}")
 
     newer = _newer_inputs(target, build_logic_inputs)
     if newer:
         rendered = ", ".join(_relative(path) for path in newer[:3])
         suffix = "" if len(newer) <= 3 else f" (+{len(newer) - 3} more)"
-        raise PreflightError(
+        raise StaleEvidenceError(
             f"stale {label} {_relative(target)}: newer build recipe/config input "
             f"{rendered}{suffix}"
         )
@@ -457,7 +462,7 @@ def _require_fresh_target(
         return
     if query.returncode == 1:
         mode = " NON_MATCHING=1" if non_matching else ""
-        raise PreflightError(
+        raise StaleEvidenceError(
             f"stale {label} {_relative(target)} according to the Make dependency graph; "
             f"run `nice -n 10 gmake -j2{mode} {_relative(target)}`"
         )
@@ -484,6 +489,77 @@ def require_fresh_evidence(resolution: Resolution) -> None:
         non_matching=resolution.candidate_build_dir == "build_non_matching",
         build_logic_inputs=build_logic,
     )
+
+
+def _candidate_split_stamp(resolution: Resolution) -> Path:
+    return REPO / resolution.candidate_build_dir / ".splat-stamp"
+
+
+def _wb_split_receipts(resolution: Resolution) -> tuple[tuple[Path, bool], ...]:
+    receipts = {
+        (REPO / "build" / ".splat-stamp", False),
+        (
+            _candidate_split_stamp(resolution),
+            resolution.candidate_build_dir == "build_non_matching",
+        ),
+    }
+    return tuple(sorted(receipts, key=lambda row: row[0].as_posix()))
+
+
+def _require_fresh_wb_evidence(resolution: Resolution) -> None:
+    """Prove the two inputs an assembly-mode workbench comparison consumes.
+
+    The extracted fallback object is the target and the selected full-TU C
+    object is the candidate.  The canonical linked ELF is not an input to that
+    comparison.  Requiring it here made every guarded-body edit relink the ROM
+    even though the ordinary branch still selected the unchanged fallback.
+    """
+
+    _require_fresh_wb_boundary(resolution)
+    _require_fresh_target(
+        resolution.candidate_object,
+        label="candidate object",
+        non_matching=resolution.candidate_build_dir == "build_non_matching",
+        build_logic_inputs=_build_logic_inputs(),
+    )
+
+
+def _require_fresh_wb_boundary(resolution: Resolution) -> None:
+    """Prove the extracted fallback came from the current split graph."""
+
+    if resolution.target_asm is None:
+        raise PreflightError(
+            f"{resolution.candidate_symbol} has no extracted fallback target"
+        )
+    build_logic = _build_logic_inputs()
+    current_receipts: list[Path] = []
+    for split_stamp, non_matching in _wb_split_receipts(resolution):
+        try:
+            _require_fresh_target(
+                split_stamp,
+                label="split receipt",
+                non_matching=non_matching,
+                build_logic_inputs=build_logic,
+            )
+        except StaleEvidenceError:
+            continue
+        current_receipts.append(split_stamp)
+    if not current_receipts:
+        raise StaleEvidenceError("no current split receipt proves the extracted fallback")
+    if not resolution.target_asm.is_file():
+        raise StaleEvidenceError(
+            f"missing extracted fallback: {_relative(resolution.target_asm)}"
+        )
+    asm_mtime = resolution.target_asm.stat().st_mtime_ns
+    if all(asm_mtime > stamp.stat().st_mtime_ns for stamp in current_receipts):
+        # A generated fallback newer than the completed split is not ordinary
+        # staleness: it may be a deliberate local edit. Never overwrite it as
+        # an automatic refresh.
+        receipts = ", ".join(_relative(path) for path in current_receipts)
+        raise PreflightError(
+            f"extracted fallback {_relative(resolution.target_asm)} is newer than "
+            f"every current split receipt ({receipts})"
+        )
 
 
 def _build_target(target: Path, *, non_matching: bool, label: str) -> None:
@@ -520,8 +596,32 @@ def _build_target(target: Path, *, non_matching: bool, label: str) -> None:
 
 
 def _build(resolution: Resolution) -> None:
+    """Refresh complete preflight evidence, but only when it is stale."""
+
     candidate_is_nonmatching = resolution.candidate_build_dir == "build_non_matching"
-    if candidate_is_nonmatching:
+    build_logic = _build_logic_inputs()
+    try:
+        _require_fresh_target(
+            resolution.candidate_object,
+            label="candidate object",
+            non_matching=candidate_is_nonmatching,
+            build_logic_inputs=build_logic,
+        )
+        candidate_stale = False
+    except StaleEvidenceError:
+        candidate_stale = True
+    try:
+        _require_fresh_target(
+            TARGET_ELF,
+            label="canonical linked ELF",
+            non_matching=False,
+            build_logic_inputs=build_logic,
+        )
+        canonical_stale = False
+    except StaleEvidenceError:
+        canonical_stale = True
+
+    if candidate_is_nonmatching and candidate_stale:
         # Both build trees consume the same extracted asm/.  A NON_MATCHING
         # split therefore has to happen first: running it after the canonical
         # link would rewrite shared assembly and immediately stale that ELF.
@@ -530,10 +630,45 @@ def _build(resolution: Resolution) -> None:
             non_matching=True,
             label="candidate",
         )
-    # The canonical link depends on every ordinary-tree C object, including an
-    # ordinary candidate.  Building it last both supplies that object and
-    # leaves canonical evidence newer than the final shared split output.
-    _build_target(TARGET_ELF, non_matching=False, label="canonical")
+    if canonical_stale or candidate_stale:
+        # The canonical link depends on every ordinary-tree C object, including
+        # an ordinary candidate. Building it last both supplies that object and
+        # leaves canonical evidence newer than a NON_MATCHING split.
+        _build_target(TARGET_ELF, non_matching=False, label="canonical")
+
+
+def _build_wb_evidence(resolution: Resolution) -> None:
+    """Refresh only the artifacts consumed by an assembly-mode comparison."""
+
+    try:
+        _require_fresh_wb_boundary(resolution)
+        boundary_stale = False
+    except StaleEvidenceError:
+        boundary_stale = True
+    candidate_nonmatching = resolution.candidate_build_dir == "build_non_matching"
+    try:
+        _require_fresh_target(
+            resolution.candidate_object,
+            label="candidate object",
+            non_matching=candidate_nonmatching,
+            build_logic_inputs=_build_logic_inputs(),
+        )
+        candidate_stale = False
+    except StaleEvidenceError:
+        candidate_stale = True
+
+    if boundary_stale:
+        _build_target(
+            _candidate_split_stamp(resolution),
+            non_matching=candidate_nonmatching,
+            label="target boundary",
+        )
+    if boundary_stale or candidate_stale:
+        _build_target(
+            resolution.candidate_object,
+            non_matching=candidate_nonmatching,
+            label="candidate",
+        )
 
 
 def _symbol_geometry(elf: rs.Elf, names: tuple[str, ...]) -> tuple[str, int, int, str]:
@@ -559,6 +694,103 @@ def _symbol_geometry(elf: rs.Elf, names: tuple[str, ...]) -> tuple[str, int, int
     (value, size, section), symbols = next(iter(geometries.items()))
     selected = next((name for name in names if name in symbols), symbols[0])
     return selected, value, size, section
+
+
+def _optional_size_annotation(
+    symbol: str,
+    proved_size: int,
+    symbol_path: Path = SYMBOLS,
+) -> str:
+    """Validate a size annotation when present without making it mandatory.
+
+    A current, uniquely owned preflight boundary is stronger than the optional
+    comment field in ``symbol_addrs.us.txt``.  The comment remains an
+    independent contradiction check: duplicates, malformed values, or a size
+    disagreement fail rather than being silently ignored.
+    """
+
+    if not symbol_path.is_file():
+        raise PreflightError(f"missing tracked symbol table: {_relative(symbol_path)}")
+    pattern = re.compile(
+        rf"^\s*{re.escape(symbol)}\s*=\s*0x[0-9A-Fa-f]+\s*;(?P<comment>.*)$"
+    )
+    rows = [
+        match.group("comment")
+        for line in symbol_path.read_text(
+            encoding="utf-8", errors="replace"
+        ).splitlines()
+        if (match := pattern.match(line))
+    ]
+    if len(rows) > 1:
+        raise PreflightError(
+            f"tracked symbol table has {len(rows)} rows for {symbol}; boundary is ambiguous"
+        )
+    if not rows:
+        return "preflight-owned-boundary"
+    comment = rows[0]
+    sizes = re.findall(r"\bsize:0x([0-9A-Fa-f]+)\b", comment)
+    if "size:" in comment and len(sizes) != 1:
+        raise PreflightError(f"tracked size annotation for {symbol} is malformed")
+    if not sizes:
+        return "preflight-owned-boundary"
+    annotated = int(sizes[0], 16)
+    if annotated != proved_size:
+        raise PreflightError(
+            f"tracked size annotation for {symbol} disagrees with preflight boundary: "
+            f"annotation={annotated:#x}, preflight={proved_size:#x}"
+        )
+    return "symbol-size-annotation+preflight-owned-boundary"
+
+
+def _linked_boundary(resolution: Resolution) -> dict[str, object]:
+    """Return one ownership-checked linked target range for ROM comparison."""
+
+    for path, label in (
+        (TARGET_ELF, "canonical linked ELF"),
+        (ROM, "baserom"),
+        (ATLAS, "overlay atlas"),
+    ):
+        if not path.is_file():
+            raise PreflightError(f"missing {label}: {_relative(path)}")
+    target_elf = rs.Elf(TARGET_ELF)
+    linked_name, value, size, section = _symbol_geometry(
+        target_elf, (resolution.candidate_symbol, resolution.target_symbol)
+    )
+    _require_tracked_geometry(resolution, value, size)
+    try:
+        atlas = json.loads(ATLAS.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as error:
+        raise PreflightError(f"cannot read overlay atlas: {error}") from error
+    rom = ROM.read_bytes()
+    context, _records = _target_context(resolution, value, size, atlas, rom)
+    if context["kind"] == "resident":
+        context.update(_resident_boundary(target_elf, value, size, section))
+    annotation = _optional_size_annotation(resolution.requested_symbol, size)
+    return {
+        "linked_symbol": linked_name,
+        "value": value,
+        "size": size,
+        "section": section,
+        "evidence": annotation,
+        "context": context,
+    }
+
+
+def _require_fresh_linked_boundary() -> None:
+    _require_fresh_target(
+        TARGET_ELF,
+        label="canonical linked ELF",
+        non_matching=False,
+        build_logic_inputs=_build_logic_inputs(),
+    )
+
+
+def _build_linked_boundary() -> None:
+    try:
+        _require_fresh_linked_boundary()
+        return
+    except StaleEvidenceError:
+        _build_target(TARGET_ELF, non_matching=False, label="canonical")
 
 
 def _source_signature(source: Path, symbol: str) -> str:
@@ -817,6 +1049,197 @@ def _inbound_references(
                     }
                 )
     return refs
+
+
+def _summary_integer(
+    payload: dict[str, object], *names: str, optional: bool = False
+) -> int | None:
+    values: list[tuple[str, int | None]] = []
+    for name in names:
+        if name not in payload:
+            continue
+        value = payload[name]
+        if value is None and optional:
+            values.append((name, None))
+        elif isinstance(value, int) and not isinstance(value, bool):
+            values.append((name, value))
+        else:
+            raise PreflightError(f"workbench summary metric {name} is not an integer")
+    if not values:
+        if optional:
+            return None
+        raise PreflightError(
+            "workbench summary lacks metric " + "/".join(names)
+        )
+    if len({value for _name, value in values}) != 1:
+        raise PreflightError(
+            "workbench summary metric aliases disagree: "
+            + ", ".join(name for name, _value in values)
+        )
+    return values[0][1]
+
+
+def _summary_boolean(payload: dict[str, object], name: str) -> bool:
+    value = payload.get(name)
+    if not isinstance(value, bool):
+        raise PreflightError(f"workbench summary field {name} is not a boolean")
+    return value
+
+
+def _summary_digest(payload: dict[str, object], name: str) -> str | None:
+    record = payload.get(name)
+    if record is None:
+        return None
+    if not isinstance(record, dict):
+        raise PreflightError(f"workbench provenance {name} record is malformed")
+    value = record.get("sha256")
+    if value is not None and (
+        not isinstance(value, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", value)
+    ):
+        raise PreflightError(f"workbench provenance {name} digest is malformed")
+    return value
+
+
+def workbench_summary(
+    raw_path: Path,
+    manifest_path: Path,
+    *,
+    requested_symbol: str,
+    target_symbol: str,
+    candidate_symbol: str,
+    comparison_mode: str,
+    boundary_evidence: str,
+    boundary_size: int | None,
+) -> dict[str, object]:
+    """Reduce a full comparison to stable, code-free automation evidence."""
+
+    try:
+        raw_bytes = raw_path.read_bytes()
+        payload = json.loads(raw_bytes)
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise PreflightError(f"cannot read workbench summary inputs: {error}") from error
+    if not isinstance(payload, dict) or payload.get("schema") != "decomp-workbench-comparison-v1":
+        schema = payload.get("schema") if isinstance(payload, dict) else None
+        raise PreflightError(f"unexpected workbench schema {schema!r}")
+    if not isinstance(manifest, dict) or manifest.get("schema") != "mickey-wb-proof-provenance-v1":
+        schema = manifest.get("schema") if isinstance(manifest, dict) else None
+        raise PreflightError(f"unexpected provenance schema {schema!r}")
+    selection = manifest.get("selection")
+    if not isinstance(selection, dict) or not isinstance(
+        selection.get("classification"), str
+    ):
+        raise PreflightError("workbench provenance selection is malformed")
+
+    provenance_allowed = _summary_boolean(manifest, "exact_claim_allowed")
+    comparison_exact = _summary_boolean(payload, "exact")
+    comparison_accepted = _summary_boolean(payload, "accepted")
+    target_words = _summary_integer(payload, "target_instructions", "target_insns")
+    candidate_words = _summary_integer(
+        payload, "candidate_instructions", "insns"
+    )
+    differing_words = _summary_integer(payload, "word_mismatches", "words")
+    first_row = _summary_integer(payload, "first_divergent_row", optional=True)
+    target_frame = _summary_integer(
+        payload, "target_frame_size", "target_frame", optional=True
+    )
+    candidate_frame = _summary_integer(
+        payload, "candidate_frame_size", "frame", optional=True
+    )
+    assert target_words is not None
+    assert candidate_words is not None
+    assert differing_words is not None
+    if first_row is not None and first_row < 0:
+        raise PreflightError("workbench first divergent row is negative")
+    if min(target_words, candidate_words, differing_words) < 0:
+        raise PreflightError("workbench instruction metrics cannot be negative")
+    proved_boundary_size = target_words * 4 if boundary_size is None else boundary_size
+    if proved_boundary_size != target_words * 4:
+        raise PreflightError(
+            "preflight boundary size disagrees with compared target: "
+            f"boundary={proved_boundary_size}, target={target_words * 4}"
+        )
+
+    return {
+        "schema": "mickey-wb-summary-v1",
+        "symbol": {
+            "requested": requested_symbol,
+            "target": target_symbol,
+            "candidate": candidate_symbol,
+        },
+        "mode": comparison_mode,
+        "boundary": {
+            "bytes": proved_boundary_size,
+            "evidence": boundary_evidence,
+        },
+        "comparison": {
+            "exact": comparison_exact,
+            "accepted": comparison_accepted,
+            "acceptance_basis": payload.get("acceptance_basis"),
+            "verdict": payload.get("verdict"),
+            "target_words": target_words,
+            "candidate_words": candidate_words,
+            "instruction_delta": _summary_integer(
+                payload, "instruction_delta", "insn_delta"
+            ),
+            "matched_words": (
+                target_words - differing_words
+                if target_words == candidate_words
+                else None
+            ),
+            "differing_words": differing_words,
+            "raw_differing_words": _summary_integer(
+                payload, "raw_word_mismatches", "raw"
+            ),
+            "normalized_distance": _summary_integer(
+                payload, "normalized_distance", "norm"
+            ),
+            "opcode_mismatches": _summary_integer(
+                payload, "opcode_mismatches", "opcodes"
+            ),
+            "register_mismatches": _summary_integer(
+                payload, "register_mismatches", "regs"
+            ),
+            "fp_register_mismatches": _summary_integer(
+                payload, "fp_register_mismatches", "fp"
+            ),
+            "aligned_differences": _summary_integer(payload, "aligned_total"),
+            "aligned_structural": _summary_integer(payload, "aligned_structural"),
+            "aligned_schedule": _summary_integer(payload, "aligned_schedule"),
+            "aligned_register": _summary_integer(payload, "aligned_register"),
+            "aligned_constant": _summary_integer(payload, "aligned_constant"),
+            "first_mismatch_offset": None if first_row is None else first_row * 4,
+            "target_frame_bytes": None if target_frame is None else abs(target_frame),
+            "candidate_frame_bytes": (
+                None if candidate_frame is None else abs(candidate_frame)
+            ),
+            "relocation_metadata_mismatches": _summary_integer(
+                payload, "relocation_metadata_mismatches"
+            ),
+            "relocation_target_mismatches": _summary_integer(
+                payload, "relocation_target_mismatches"
+            ),
+        },
+        "provenance": {
+            "classification": selection["classification"],
+            "exact_claim_allowed": provenance_allowed,
+            "verdict": manifest.get("verdict"),
+            "source_sha256": _summary_digest(manifest, "source"),
+            "candidate_object_sha256": _summary_digest(
+                manifest, "candidate_object"
+            ),
+            "target_object_sha256": _summary_digest(manifest, "target_object"),
+        },
+        "evidence": {
+            "admissible_exact_comparison": (
+                comparison_accepted and provenance_allowed
+            ),
+            "promotion_proof_included": False,
+            "scope": "workbench-comparison-not-canonical-promotion-proof",
+            "raw_report_sha256": hashlib.sha256(raw_bytes).hexdigest(),
+        },
+    }
 
 
 def _workbench(resolution: Resolution) -> dict[str, object]:
@@ -1479,15 +1902,23 @@ def main(argv: list[str]) -> int:
             "partial and non-exact"
         ),
     )
-    parser.add_argument(
+    resolution_mode = parser.add_mutually_exclusive_group()
+    resolution_mode.add_argument(
         "--resolve-wb",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
+    resolution_mode.add_argument(
+        "--resolve-rom",
         action="store_true",
         help=argparse.SUPPRESS,
     )
     args = parser.parse_args(argv)
     try:
-        if args.resolve_wb and args.analysis_only:
-            raise PreflightError("--analysis-only is not valid with --resolve-wb")
+        if (args.resolve_wb or args.resolve_rom) and args.analysis_only:
+            raise PreflightError(
+                "--analysis-only is not valid with an internal resolution mode"
+            )
         resolution = resolve(args.symbol)
         if args.resolve_wb:
             if resolution.target_asm is None:
@@ -1497,8 +1928,8 @@ def main(argv: list[str]) -> int:
                     f"{resolution.candidate_symbol}`"
                 )
             if not args.no_build:
-                _build(resolution)
-            require_fresh_evidence(resolution)
+                _build_wb_evidence(resolution)
+            _require_fresh_wb_evidence(resolution)
             fields = (
                 resolution.target_symbol,
                 resolution.candidate_symbol,
@@ -1509,6 +1940,22 @@ def main(argv: list[str]) -> int:
             )
             if any("\t" in field or "\n" in field for field in fields):
                 raise PreflightError("resolved paths cannot be represented safely")
+            print("\t".join(fields))
+            return 0
+        if args.resolve_rom:
+            if not args.no_build:
+                _build_linked_boundary()
+            _require_fresh_linked_boundary()
+            boundary = _linked_boundary(resolution)
+            fields = (
+                str(boundary["linked_symbol"]),
+                f"{int(boundary['value']):X}",
+                f"{int(boundary['size']):X}",
+                str(boundary["section"]),
+                str(boundary["evidence"]),
+            )
+            if any("\t" in field or "\n" in field for field in fields):
+                raise PreflightError("resolved boundary cannot be represented safely")
             print("\t".join(fields))
             return 0
         if not args.no_build:
