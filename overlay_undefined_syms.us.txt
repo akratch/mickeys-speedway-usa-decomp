@@ -2199,6 +2199,14 @@ overlay99SpawnEntryReloc = 0xf0000000;
 /* overlay 99: overlay99ProjectVector.c.o */
 overlay99SqrtReloc = 0xf0000000;
 
+/* overlay 100: overlay100InitializeMotion.c.o */
+gOverlay100CountReloc = 0x00000000;
+gOverlay100EntriesReloc = 0x00000000;
+gOverlay100VelocityScaleReloc = 0x00000000;
+overlay100AllocReloc = 0xf0000000;
+overlay100InitVelocityReloc = 0xf0000000;
+overlay100RandomReloc = 0xf0000000;
+
 /* overlay 100: overlay100ReleaseAll.c.o */
 gOverlay100Count = 0x00000000;
 gOverlay100Entries = 0x00000000;

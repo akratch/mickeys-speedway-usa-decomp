@@ -7,17 +7,15 @@ extern void *overlay100AllocReloc(s32 size, s32 tag);
 extern s32 overlay100RandomReloc(s32 minimum, s32 maximum);
 extern void overlay100InitVelocityReloc(s16 *angles, Overlay100Vec3 *velocity);
 
-#ifdef NON_MATCHING
 Overlay100Motion *overlay100InitializeMotion(
     f32 x, f32 y, f32 z, s32 count, s32 colorB0, s32 colorB1, s32 colorB2,
     s32 colorA0, s32 colorA1, s32 colorA2, f32 durationSeconds) {
     Overlay100Motion *motion;
     Overlay100Vec3 *velocity;
-    Overlay100Vec3 *frame;
     s32 remaining;
     s32 frameIndex;
-    s32 velocityBytes;
     s16 angles[2];
+    s32 velocityBytes;
     f32 velocityScale;
 
     if (gOverlay100CountReloc >= 16) {
@@ -39,8 +37,8 @@ Overlay100Motion *overlay100InitializeMotion(
         motion->colorB2 = colorB2;
         motion->colorA0 = colorA0;
         motion->colorA1 = colorA1;
-        motion->velocity = velocity = (Overlay100Vec3 *)(motion + 1);
         motion->colorA2 = colorA2;
+        motion->velocity = velocity = (Overlay100Vec3 *)(motion + 1);
 
         remaining = motion->count;
         if (remaining--) {
@@ -55,18 +53,18 @@ Overlay100Motion *overlay100InitializeMotion(
             } while (remaining--);
         }
 
-        frame = (Overlay100Vec3 *)((u8 *)motion->velocity + velocityBytes);
+        velocity = (Overlay100Vec3 *)((u8 *)motion->velocity + velocityBytes);
         frameIndex = 0;
         do {
-            motion->frames[frameIndex] = frame;
-            frameIndex++;
             remaining = motion->count;
+            motion->frames[frameIndex] = velocity;
+            frameIndex++;
             if (remaining--) {
                 do {
-                    frame->x = x;
-                    frame->y = y;
-                    frame->z = z;
-                    frame++;
+                    velocity->x = x;
+                    velocity->y = y;
+                    velocity->z = z;
+                    velocity++;
                 } while (remaining--);
             }
         } while (frameIndex != 3);
@@ -76,6 +74,3 @@ Overlay100Motion *overlay100InitializeMotion(
     }
     return motion;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o100/overlay100InitializeMotion/func_overlay_100_F0000000_18DAD28.s")
-#endif
