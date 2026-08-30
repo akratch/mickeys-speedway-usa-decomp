@@ -4395,8 +4395,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o049/overlay_049.c.o",
       "offset": 0,
       "overlay": 49,
@@ -8915,7 +8915,7 @@
     "by_class": {
       "metadata": 621
     },
-    "matched_c_bytes_with_postprocess": 108852,
+    "matched_c_bytes_with_postprocess": 109736,
     "objects_with_postprocess": 621
   }
 }

@@ -1,9 +1,8 @@
 #include "overlays/overlay_049.h"
 
 /* Donor scan: DKR v77/v80 and JFG contain no exact initializer donor. */
-#ifdef NON_MATCHING
 void overlay49Initialize(void) {
-    s32 unused0;
+    s32 rank;
     s32 unused1;
     s32 shift;
     s32 mask;
@@ -17,16 +16,16 @@ void overlay49Initialize(void) {
 
     status = func_80028F54();
     overlay65Initialize();
-    if (D_8007BF08 != 0) {
+    packed = gOverlay49PackedStatusReloc;
+    if (gOverlay49ExtendedModeReloc != 0) {
         mask = 0xE00;
         shift = 9;
     } else {
-        mask = gOverlay49Masks[D_8007BF04];
-        shift = gOverlay49Shifts[D_8007BF04];
+        mask = gOverlay49Masks[gOverlay49MenuModeReloc];
+        shift = gOverlay49Shifts[gOverlay49MenuModeReloc];
     }
-    packed = &D_800D3128[status->player];
+    current = (packed[status->player + 4] & mask) >> shift;
     gOverlay49Result = NULL;
-    current = (packed[4] & mask) >> shift;
     if (status[0].value == 0x24) {
         lookup = func_800508B4(0x1E);
         if (lookup != NULL) {
@@ -34,34 +33,31 @@ void overlay49Initialize(void) {
         }
         desired = 4;
     } else {
-        desired = 0;
+        rank = 0;
         modes = gOverlay49Modes;
         for (i = 1; i < 6; i++) {
             if (status[0].value < status[i].value) {
-                desired++;
+                rank++;
             }
         }
-        desired = modes[desired];
+        desired = modes[rank];
     }
     if (current < desired) {
-        D_800D3128[status->player + 4] &= ~mask;
-        D_800D3128[status->player + 4] |= desired << shift;
+        gOverlay49PackedStatusReloc[status->player + 4] &= ~mask;
+        gOverlay49PackedStatusReloc[status->player + 4] |= desired << shift;
         func_8002917C(desired);
     }
     if (current < 3 && current < desired) {
         goto slow;
     }
-    gOverlay49FastFinishEnabled = 1;
+    gOverlay49InputEnabled = 1;
     goto finish;
 slow:
-    gOverlay49FastFinishEnabled = 0;
+    gOverlay49InputEnabled = 0;
 finish:
     gOverlay49Timer = 0xA50;
     gOverlay49Finished = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o049/overlay_049/func_overlay_049_F0000000_1896410.s")
-#endif
 
 /* No exact updater donor exists in DKR v77/v80 or JFG. */
 void overlay49Update(s32 updateRate) {

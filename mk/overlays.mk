@@ -2439,7 +2439,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay_049.c.o: \
 	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o049/overlay_049.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
-		func_overlay_049_F0000000_1896410=overlay49Initialize $@ && \
+		func_overlay_049_F0000000_1896410=overlay49Initialize \
+		--redefine-sym func_80028F54=func_80028F54_o049Reloc \
+		--redefine-sym func_800508B4=func_800508B4_o049Reloc \
+		--redefine-sym func_8002917C=func_8002917C_o049Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
 		0x218:func_800254FC:overlay65UpdateReloc \
 		0x224:func_8002554C:overlay65UpdateReloc \

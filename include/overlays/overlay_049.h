@@ -26,8 +26,11 @@ extern s8 gOverlay49Modes[];
 extern s32 gOverlay49Masks[];
 extern s32 gOverlay49Shifts[];
 extern Overlay49Object *gOverlay49Result;
-extern s32 gOverlay49FastFinishEnabled;
 extern s32 gOverlay49InputEnabled;
+/* Overlay-runtime proxies for resident menu state used by the initializer. */
+extern u8 gOverlay49MenuModeReloc;
+extern u8 gOverlay49ExtendedModeReloc;
+extern u16 gOverlay49PackedStatusReloc[];
 extern u8 D_8007BF04;
 extern u8 D_8007BF08;
 extern u16 D_800D3128[];

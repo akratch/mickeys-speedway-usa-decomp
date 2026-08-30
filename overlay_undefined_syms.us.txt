@@ -1190,11 +1190,21 @@ overlay48SelectMode = 0xf0000000;
 overlay48ReleaseReloc = 0xf0000000;
 
 /* overlay 49: overlay_049.c.o */
+func_80028F54_o049Reloc = 0xf0000000;
+func_8002917C_o049Reloc = 0xf0000000;
+func_800508B4_o049Reloc = 0xf0000000;
+gOverlay49ExtendedModeReloc = 0x00000000;
 gOverlay49Finished = 0x00000004;
 gOverlay49InputEnabled = 0x0000002c;
+gOverlay49Masks = 0x00000008;
+gOverlay49MenuModeReloc = 0x00000000;
+gOverlay49Modes = 0x00000000;
+gOverlay49PackedStatusReloc = 0x00000000;
 gOverlay49Result = 0x00000028;
+gOverlay49Shifts = 0x00000018;
 gOverlay49Timer = 0x00000000;
 overlay49RefractOutputReloc = 0xf0000000;
+overlay65Initialize = 0xf0000000;
 overlay65UpdateReloc = 0xf0000000;
 
 /* overlay 50: overlay50Initialize.c.o */
@@ -3296,9 +3306,9 @@ func_overlay_048_F0000144_189554C = overlay48UpdateState;
 func_overlay_048_F000040C_1895814 = overlay48ReleaseAll;
 
 /* overlay 49: overlay_049.c.o */
+func_overlay_049_F0000000_1896410 = overlay49Initialize;
 func_overlay_049_F00001F4_1896604 = overlay49Update;
 func_overlay_049_F0000354_1896764 = refractOutput;
-func_overlay_049_F0000000_1896410 = overlay49Initialize;
 
 /* overlay 50: overlay50PatchIndices.c.o */
 func_overlay_050_F00002E4_1896C54 = overlay50PatchIndices;
