@@ -231,3 +231,13 @@ void func_overlay_047_F00009D0_18917E8(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o047/overlay47ReleaseResources/func_overlay_047_F00009D0_18917E8.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_047_F00009D0_18917E8:start
+ * symbol: func_overlay_047_F00009D0_18917E8
+ * score: 78/88 words
+ * frame: 0x20
+ * relocations: 46
+ * first-mismatch: +0x54
+ * summary: Fallback proof: 20 identities resolved and 9 aligned; linked promotion aligned 34. Two diagnostic aliases fixed collisions but did not raise 34.
+ * PLATEAU-HANDOFF:func_overlay_047_F00009D0_18917E8:end
+ */
