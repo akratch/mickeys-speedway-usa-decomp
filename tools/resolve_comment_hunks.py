@@ -92,7 +92,11 @@ def merge_plateau_sequences(ours, theirs):
     merged = [block for block in ours_blocks if block[0] not in incoming]
     merged.extend(theirs_blocks)
     rendered = "\n */\n\n".join(body for _name, body in merged)
-    if not ours_open:
+    if ours_open:
+        # The shared closing delimiter remains immediately after the conflict
+        # hunk.  Keep it on its own line instead of producing ``:end */``.
+        rendered += "\n"
+    else:
         rendered += "\n */\n"
     return rendered
 

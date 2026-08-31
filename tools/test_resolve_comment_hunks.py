@@ -38,6 +38,8 @@ class ResolveCommentHunksTests(unittest.TestCase):
         self.assertNotIn("<" * 7, resolved)
         self.assertEqual(resolved.count("/* PLATEAU-HANDOFF:"), 2)
         self.assertEqual(resolved.count(" */"), 2)
+        self.assertNotIn(":end */", resolved)
+        self.assertIn("second:end\n */", resolved)
         self.assertLess(resolved.index("first:start"), resolved.index("second:start"))
 
     def test_replaces_same_symbol_plateau_with_incoming_revision(self) -> None:
