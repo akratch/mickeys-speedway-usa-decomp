@@ -20,6 +20,7 @@
 #define OS_GBPAK_POWER_ON  0x01
 
 s32 osGbpakGetStatus(OSPfs *pfs, u8 *status);
+s32 osGbpakCheckConnector(OSPfs *pfs, u8 *status);
 s32 __osGbpakSelectBank(OSPfs *pfs, u8 bank);
 
 #endif /* _OS_GBPAK_H_ */
