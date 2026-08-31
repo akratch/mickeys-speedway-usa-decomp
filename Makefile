@@ -353,6 +353,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_nm_ranking.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_batch_deadline.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_finalize_plateau.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_resolve_comment_hunks.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_run_logged.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_experiment_ledger.py
