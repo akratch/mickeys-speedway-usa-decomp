@@ -32,11 +32,9 @@ typedef struct Overlay22Owner {
 extern f32 D_0[];
 extern f32 sqrtf(f32);
 
-/* Workbench plateau: allocation mismatch. Reusing crossZ across exclusive
- * branches fixed both call-stack homes while preserving the 0x88-byte frame.
- * Three commutative multiply operand-order encodings remain; compound forms
- * escape function ownership, so GLOBAL_ASM remains canonical. */
-#ifdef NON_MATCHING
+/* Reusing crossZ across exclusive branches fixes both call-stack homes.
+ * Rotating the two independent cross-product terms reproduces retail FP
+ * scheduling; the explicit dereference preserves the remaining operand order. */
 void func_overlay_022_F0000A7C_1878B84(
     void *unused, Vec3f *out, Vec3f *direction, f32 distance,
     Overlay22Plane *plane, Overlay22Owner *owner) {
@@ -58,9 +56,9 @@ void func_overlay_022_F0000A7C_1878B84(
     nz = plane->normal.z;
 
     if ((D_0[4] <= ny) || (((s32)plane->flags << 3) < 0)) {
-        crossX = (ny * direction->z) - (direction->y * nz);
-        crossY = (nz * direction->x) - (direction->z * nx);
-        crossZ = (nx * direction->y) - (direction->x * ny);
+        crossX = (ny * direction->z) - ((*direction).y * nz);
+        crossY = -(direction->z * nx) + (nz * direction->x);
+        crossZ = -(direction->x * ny) + (nx * direction->y);
 
         projectedX = (crossY * nz) - (crossZ * ny);
         projectedY = (crossZ * nx) - (crossX * nz);
@@ -118,16 +116,3 @@ void func_overlay_022_F0000A7C_1878B84(
         result->flags01 |= 4;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o022/overlay22ResolvePlane/func_overlay_022_F0000A7C_1878B84.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_022_F0000A7C_1878B84:start
- * symbol: func_overlay_022_F0000A7C_1878B84
- * score: 170/173 words
- * frame: 0x88
- * relocations: 3
- * first-mismatch: +0x74
- * summary: Three commutative operand-order encodings remain; lifetime reuse fixed both call-stack homes; all 3/3 relocation identities authenticate.
- * PLATEAU-HANDOFF:func_overlay_022_F0000A7C_1878B84:end
- */

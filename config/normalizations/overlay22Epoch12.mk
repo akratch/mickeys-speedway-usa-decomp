@@ -26,9 +26,11 @@ $(O22_REMOVE_OBJECT_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_022_F0000D30_1878E38=func_overlay_022_F0000D30_1878E38 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x16C
 
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
+# The compiler reproduces the retail body. Overlay 22's runtime relocation
+# binds the resident sqrtf call through the module base entry; restore that
+# identity, then retain the exact owned text extent. No instruction changes.
 $(O22_RESOLVE_PLANE_OBJ): CFLAGS += -Wab,-r4300_mul
 $(O22_RESOLVE_PLANE_OBJ): POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym sqrtf=func_overlay_022_F0000000_1878108 $@ && \
 	$(OBJCOPY) --redefine-sym func_overlay_022_F0000A7C_1878B84=func_overlay_022_F0000A7C_1878B84 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2B4
