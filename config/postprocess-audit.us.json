@@ -2426,8 +2426,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o022/overlay22ResolvePlane.c.o",
       "offset": 2684,
       "overlay": 22,
@@ -7637,8 +7637,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o098/overlay98CollectAccepted.c.o",
       "offset": 324,
       "overlay": 98,
@@ -8931,7 +8931,7 @@
     "by_class": {
       "metadata": 622
     },
-    "matched_c_bytes_with_postprocess": 111664,
+    "matched_c_bytes_with_postprocess": 112596,
     "objects_with_postprocess": 622
   }
 }
