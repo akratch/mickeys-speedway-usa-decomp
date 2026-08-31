@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 127596,
-  "nonmatching_overlay_c_bytes": 296268,
+  "matched_overlay_c_bytes": 123344,
+  "nonmatching_overlay_c_bytes": 300520,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -10723,7 +10723,7 @@
      "type": "c",
      "source": "overlays/o051/overlay_051",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0x8AC",
@@ -10815,7 +10815,33 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 61
-   }
+   },
+   "mixed_tu_exact_c_ranges": [
+    {
+     "offset": "0x0",
+     "end_offset": "0x80",
+     "size": "0x80",
+     "label": "overlay51Initialize",
+     "source": "overlays/o051/overlay_051",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0x80",
+     "end_offset": "0xD0",
+     "size": "0x50",
+     "label": "overlay51PatchIndices",
+     "source": "overlays/o051/overlay_051",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0x858",
+     "end_offset": "0x8AC",
+     "size": "0x54",
+     "label": "overlay51ReleaseState",
+     "source": "overlays/o051/overlay_051",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    }
+   ]
   },
   {
    "overlay": 52,
@@ -11547,7 +11573,7 @@
      "type": "c",
      "source": "overlays/o056/overlay_056",
      "matched": true,
-     "nonmatching": false
+     "nonmatching": true
     },
     {
      "offset": "0xAF4",
@@ -11651,7 +11677,65 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 22
-   }
+   },
+   "mixed_tu_exact_c_ranges": [
+    {
+     "offset": "0x0",
+     "end_offset": "0x5C",
+     "size": "0x5C",
+     "label": "overlay56OffsetCoordinates",
+     "source": "overlays/o056/overlay_056",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0x5C",
+     "end_offset": "0xB8",
+     "size": "0x5C",
+     "label": "overlay56CenterCoordinates",
+     "source": "overlays/o056/overlay_056",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0xB8",
+     "end_offset": "0x10C",
+     "size": "0x54",
+     "label": "overlay56SplitTime",
+     "source": "overlays/o056/overlay_056",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0x10C",
+     "end_offset": "0x118",
+     "size": "0xC",
+     "label": "overlay56SetMode",
+     "source": "overlays/o056/overlay_056",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0x118",
+     "end_offset": "0x168",
+     "size": "0x50",
+     "label": "overlay56LoadResource",
+     "source": "overlays/o056/overlay_056",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0x168",
+     "end_offset": "0x1A0",
+     "size": "0x38",
+     "label": "overlay56ReleaseResource",
+     "source": "overlays/o056/overlay_056",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0xAB4",
+     "end_offset": "0xAF4",
+     "size": "0x40",
+     "label": "overlay56UnpackColor",
+     "source": "overlays/o056/overlay_056",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    }
+   ]
   },
   {
    "overlay": 57,
