@@ -103,6 +103,8 @@ __osSpSetStatus = 0x8006FED0; // type:func size:0xC
 osDpSetStatus = 0x8006FEE0; // type:func size:0xC
 // libultra/eeplongwrite  ROM 0x70af0  (official Banjo-Kazooie source reconstruction; not a cross-title mining adoption)
 func_8006FEF0 = 0x8006FEF0; // type:func size:0x13C tier-A, ROM 0x70AF0, matched C src/libultra/eeplongwrite.c.o -O1 -mips2 -32 -Wab,-r4300_mul, official Banjo-Kazooie source-first matrix, linked exact=79/79
+// libultra/eeplongread  ROM 0x70c30  (official Banjo-Kazooie source reconstruction; not a cross-title mining adoption)
+func_80070030 = 0x80070030; // type:func size:0x13C tier-A, ROM 0x70C30, matched C src/libultra/eeplongread.c.o -O1 -mips2 -32 -Wab,-r4300_mul, official Banjo-Kazooie source-first matrix, linked exact=79/79
 // libultra/pfsdeletefile  ROM 0x70e20  (src/io/pfsdeletefile.c.o)
 osPfsDeleteFile = 0x80070220; // type:func size:0x2E0
 __osPfsReleasePages = 0x80070500; // type:func size:0x238

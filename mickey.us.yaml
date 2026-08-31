@@ -470,7 +470,7 @@ segments:
       - [0x70AD0, c, libultra/spsetstat]
       - [0x70AE0, c, libultra/dpsetstat]
       - [0x70AF0, c, libultra/eeplongwrite]
-      - [0x70C30, asm]
+      - [0x70C30, c, libultra/eeplongread]
       - [0x70D70, asm]
       - [0x70E20, c, libultra/pfsdeletefile]
       - [0x71430, asm, libultra/invaldcache]

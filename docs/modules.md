@@ -210,9 +210,9 @@ there continues as 3.x.
 
 ### 4.1 The corridor: ROM `0x6F420`–`0x76D10`
 
-VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **97 named subsegments,
-including 96 measured whole-`.text` file boundaries plus one exact
-function-tail carve, and 124 named functions**, all tier A. The yaml carries
+VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **98 named subsegments,
+including 97 measured whole-`.text` file boundaries plus one exact
+function-tail carve, and 125 named functions**, all tier A. The yaml carries
 the boundary argument at both ends and
 `symbol_addrs.us.txt` carries the per-function names.
 
@@ -224,12 +224,12 @@ candidates. Those runs are not drifted copies of DKR's libultra; they are a
 *different build*. Run the finder over Jet Force Gemini's libultra and **eight
 of the ten runs fall**, in fifteen whole-`.text` matches.
 
-The remaining unnamed code is `0x7E0`, **6.5% of the corridor**, in two
+The remaining unnamed code is `0x6A0`, **5.5% of the corridor**, in two
 contiguous runs:
 
 | ROM | Size | Note |
 |---|---|---|
-| `0x70C30`–`0x70E20` | `0x1F0` | Between `eeplongwrite` and `pfsdeletefile` |
+| `0x70D70`–`0x70E20` | `0xB0` | Between `eeplongread` and `pfsdeletefile` |
 | `0x74090`–`0x74680` | `0x5F0` | Between `timerintr` and the exact `__osEepStatus` tail |
 
 Neither matches any object in any of the five reference builds, whole or
@@ -237,17 +237,17 @@ per-function: five negatives, two of them from byte-perfect builds.
 
 **Read these two runs rather than mining them further.** "Unnamed code inside
 the corridor is libultra-shaped" was a fair assumption at 78% identified
-against a single build; at 93.5% against five it is carrying more weight than
-it has earned, and the plainest reading of `0x7E0` that five libultra builds do
+against a single build; at 94.5% against five it is carrying more weight than
+it has earned, and the plainest reading of `0x6A0` that five libultra builds do
 not contain is that some of it **is not libultra**. Two more reference builds
 would be a sixth and seventh negative; a disassembly would be an answer.
-Disassemble `0x70C30`–`0x70E20` and `0x74090`–`0x74680` before running the
+Disassemble `0x70D70`–`0x70E20` and `0x74090`–`0x74680` before running the
 finder over anything else.
 
 `__osPiGetAccess` ("the same 17 instructions as DKR's, scheduled differently")
 is named from JFG's whole `io/piacs.c` TU at `0x80071B80`. `libultra/piacs`
 was the one corridor subsegment named without a measured boundary; JFG measures
-it, which is why all 96 whole-TU subsegments now carry measured boundaries.
+it, which is why all 97 whole-TU subsegments now carry measured boundaries.
 The exact function-tail carve is explicitly narrower:
 `__osEepStatus` is byte-exact to DKR's `io/conteepwrite.c`, while the preceding
 functions in that donor TU are not, so no larger file-boundary claim is made.
