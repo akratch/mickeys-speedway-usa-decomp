@@ -1659,6 +1659,8 @@ n_alResampleParam = 0x8006A334; // type:func size:0x5C
 // standalone collision at 0x8006F8E8. Its real home is here, inside the
 // whole-TU match on `io/pfsisplug.c`.
 // ---------------------------------------------------------------------------
+// libultra/gbpakinit  ROM 0x6b1a0  (official Perfect Dark source reconstruction; not a cross-title mining adoption)
+func_8006A5A0 = 0x8006A5A0; // type:func size:0x230 tier-A, ROM 0x6B1A0, matched C src/libultra/gbpakinit.c.o -O2 -mips2 -32 -Wab,-r4300_mul, official Perfect Dark source-first matrix, linked exact=140/140
 // libultra/gbpakcheckconnector  ROM 0x6b3d0  (perfect_dark/libultra: lib/ultra/io/gbpakcheckconnector.o)  whole .text 0x490, masked=15, romocc=1
 osGbpakCheckConnector = 0x8006A7D0; // type:func size:0x488 tier-A, ROM 0x6B3D0, matched C src/libultra/gbpakcheckconnector.c.o -O2 -mips2 -32 -Wab,-r4300_mul -Wo,-loopunroll,0, Perfect Dark donor, linked exact=290/290
 // libultra/gbpakpower  ROM 0x6b860  (official Perfect Dark source reconstruction; not a cross-title mining adoption)
