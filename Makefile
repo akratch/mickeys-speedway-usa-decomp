@@ -740,6 +740,11 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakselectbank.c.o: CFLAGS += -Wo,-loopunroll,
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakreadwrite.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakreadwrite.c.o: CFLAGS += -Wab,-r4300_mul
 
+# Mickey's Transfer Pak power TU uses the O2/MIPS II group with R4300 hazard
+# scheduling and IDO's default loop-unroll mode.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakpower.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakpower.c.o: CFLAGS += -Wab,-r4300_mul
+
 # Perfect Dark's matching Transfer Pak status object uses the default O2
 # loop-unroll mode, unlike the rolled bank-selector TU immediately below.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakgetstatus.c.o: MIPSISET := -mips2 -32

@@ -83,7 +83,7 @@ An earlier version of this page ran them together and produced a headline
 |---|---|---|---|---|---|---|---|---|---|
 | Diddy Kong Racing | `38d7f9ba` | yes | **full match** (US v77) | 243 | 223 | (Phase 1: 80) | (Phase 1: 107 + 32 game) | — | — |
 | Jet Force Gemini | `c82affff` | yes | **full match** | 772 | 391 | **84** | **192** | 84 | — |
-| Perfect Dark | `169ed48b` | MD5 (no SHA1 published) | near-full: code links clean with authentic IDO, asset-compression bytes differ | 2546 | 467 | **3** | **4** | 52 | 25 |
+| Perfect Dark | `169ed48b` | MD5 (no SHA1 published) | near-full: code links clean with authentic IDO, asset-compression bytes differ | 2546 | 467 | **3** | **3** | 52 | 25 |
 | Banjo-Kazooie | `6eaae281` | yes | **full match** | 1232 | 1105 | **0** | **0** | 73 | 2 |
 | Conker's Bad Fur Day | `3adf2291` | yes | partial: every source file compiles, final link blocked | 1446 | 705 | **0** | **0** | 65 | 8 |
 | **Totals for this pass** | | | | | **2891** | **87** | **190** | *(not recomputable)* | **26 TUs** |
@@ -211,11 +211,10 @@ pieces of evidence.
   mining depends on.
 - Objects: 2546 total (157 libultra, 100 engine lib, 232 game, 2044 assets,
   13 misc). 467 mined.
-- **Yield: 3 adopted translation units, 4 names**. `osGbpakCheckConnector`,
-  `osGbpakReadId`, `osGbpakGetStatus`, and `__osGbpakSelectBank` at ROM
-  0x6B3D0-0x6C040. Small, and
-  not replaceable: PD is the only one of the five references whose libultra
-  contains the Transfer Pak driver at all. PD also **corroborates 25** of the
+- **Yield: 3 adopted translation units, 3 names**. `osGbpakCheckConnector`,
+  `osGbpakGetStatus`, and `__osGbpakSelectBank` at ROM 0x6B3D0-0x6C040.
+  Small, and not replaceable: PD is the reference whose mined objects adopted
+  these three Transfer Pak translation units. PD also **corroborates 25** of the
   87 adopted TUs and **re-confirms 52** subsegments Phase 1 had already named.
 
 ## Banjo-Kazooie

@@ -1661,6 +1661,8 @@ n_alResampleParam = 0x8006A334; // type:func size:0x5C
 // ---------------------------------------------------------------------------
 // libultra/gbpakcheckconnector  ROM 0x6b3d0  (perfect_dark/libultra: lib/ultra/io/gbpakcheckconnector.o)  whole .text 0x490, masked=15, romocc=1
 osGbpakCheckConnector = 0x8006A7D0; // type:func size:0x488 tier-A, ROM 0x6B3D0, matched C src/libultra/gbpakcheckconnector.c.o -O2 -mips2 -32 -Wab,-r4300_mul -Wo,-loopunroll,0, Perfect Dark donor, linked exact=290/290
+// libultra/gbpakpower  ROM 0x6b860  (official Perfect Dark source reconstruction; not a cross-title mining adoption)
+func_8006AC60 = 0x8006AC60; // type:func size:0x110 tier-D, ROM 0x6B860, matched C src/libultra/gbpakpower.c.o -O2 -mips2 -32 -Wab,-r4300_mul, official Perfect Dark source, linked exact=68/68
 osGbpakReadId = 0x8006AD70; // type:func size:0x2A4 tier-A, ROM 0x6B970, matched C src/libultra/gbpakreadid.c.o -O2 -mips2 -32 -Wab,-r4300_mul, Banjo-Kazooie VERSION_K+ source, linked exact=169/169
 // libultra/gbpakreadwrite  ROM 0x6bc20  (official Banjo-Kazooie VERSION_K+ source reconstruction; not a cross-title mining adoption)
 func_8006B020 = 0x8006B020; // type:func size:0x1CC tier-A, ROM 0x6BC20, matched C src/libultra/gbpakreadwrite.c.o -O2 -mips2 -32 -Wab,-r4300_mul, Banjo-Kazooie VERSION_K+ source, linked exact=115/115
