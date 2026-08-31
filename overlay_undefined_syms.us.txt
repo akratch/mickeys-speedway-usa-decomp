@@ -1936,6 +1936,12 @@ overlay68ConfigureReloc = 0xf0000000;
 gOverlay71Scale0 = 0x00000000;
 gOverlay71Scale1 = 0x00000004;
 
+/* overlay 71: func_overlay_071_F0000278_18C9D98.c.o */
+func_80032BF0_o071Reloc = 0xf0000000;
+gOverlay71GlobalFlagReloc = 0x00000000;
+gOverlay71InitialResourceReloc = 0x00000000;
+sqrtf_o071Reloc = 0xf0000000;
+
 /* overlay 71: overlay71UpdateCoordinates.c.o */
 gOverlay71Offset = 0x00000004;
 gOverlay71PrimaryCoordinates = 0x000000a8;

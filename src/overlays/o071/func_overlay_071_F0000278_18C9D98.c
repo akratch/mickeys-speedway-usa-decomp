@@ -49,24 +49,21 @@ extern u8 gOverlay71GlobalFlagReloc;
 extern void func_80032BF0(void *resource, s32 mode, s32 flags);
 extern f32 sqrtf(f32 value);
 
-/* P5 plateau: workbench operand-mismatch, 28 positional words; normalized instructions, frame, registers, and schedule exact, first +0xA8.
- * Levers: while-loop control plus output pointer-increment order reached the stable shape; scalar/volatile types, scopes, and separate counters regressed.
- * Remains: 26 stack-offset operands and six relocation identities; no exact C path found within the attempt cap. */
-#ifdef NON_MATCHING
+/* Declaration order preserves the retail automatic stack homes. */
 void func_overlay_071_F0000278_18C9D98(O71Object *object) {
-    O71Vec3 points[8];
-    O71State *state;
+    s32 i;
     f32 halfX;
     f32 halfY;
     f32 factor;
+    f32 distanceSquared;
     f32 radius;
     f32 dx;
     f32 dy;
     f32 dz;
-    f32 distanceSquared;
     s32 count;
-    s32 i;
     O71Vec3 *point;
+    O71Vec3 points[8];
+    O71State *state;
     O71Vertex *vertex;
 
     func_80032BF0(gOverlay71InitialResourceReloc, 2, 2);
@@ -149,6 +146,3 @@ void func_overlay_071_F0000278_18C9D98(O71Object *object) {
     }
     object->active = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o071/func_overlay_071_F0000278_18C9D98/func_overlay_071_F0000278_18C9D98.s")
-#endif
