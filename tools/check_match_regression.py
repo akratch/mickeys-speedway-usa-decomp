@@ -7,10 +7,11 @@ working tree.  Any name that had no GLOBAL_ASM at the base but has one now
 was matched before the merge and is not matched after it: a lane's older
 base won a whole-file conflict resolution, or a rebase dropped a body.
 
-The one exception is a pragma in a brand-new C file that replaces a raw
-`asm`/`hasm` subsegment at the same configured ROM start.  Those functions
-were already unresolved assembly; moving the range into a mixed C translation
-unit merely makes their fallback representation explicit.
+The exceptions are a pragma in a brand-new C file that replaces a raw
+`asm`/`hasm` subsegment at the same configured ROM start, and an overlay TU
+whose surviving exact functions are explicitly accounted for by reviewed
+`mixed_tu_exact_c_ranges`.  The former was already unresolved assembly; the
+latter uses the repository's corrected mixed-TU accounting recipe.
 
     tools/check_match_regression.py [base-commit]
 
@@ -19,6 +20,7 @@ Exit 1 with the offending names on stderr; exit 0 (quietly) otherwise.
 import re
 import subprocess
 import sys
+import json
 
 PAT = re.compile(r'#pragma GLOBAL_ASM\("asm/[^"]*/([^/"]+)\.s"\)')
 SUBSEGMENT_PAT = re.compile(
@@ -107,7 +109,6 @@ NM_BLOCK = re.compile(r"^\s*#\s*ifdef\s+NON_MATCHING\b", re.MULTILINE)
 def credited_overlay_sources(base):
     """Overlay source files whose ownership row was credited at `base`
     (matched and not nonmatching in config/overlays.us.json)."""
-    import json
     try:
         blob = subprocess.run(["git", "show", f"{base}:config/overlays.us.json"],
                               capture_output=True, text=True, check=True).stdout
@@ -122,12 +123,32 @@ def credited_overlay_sources(base):
     return out
 
 
+def mixed_overlay_sources(atlas):
+    """Return source paths protected by explicit mixed-TU exact ranges."""
+    out = set()
+    for module in atlas.get("modules", []):
+        for row in module.get("mixed_tu_exact_c_ranges", []):
+            source = row.get("source")
+            if source:
+                out.add(f"src/{source}.c")
+    return out
+
+
+def reviewed_mixed_overlay_sources():
+    try:
+        with open("config/overlays.us.json", encoding="utf-8") as fh:
+            return mixed_overlay_sources(json.load(fh))
+    except (FileNotFoundError, ValueError):
+        return set()
+
+
 def overlay_credit_regressions(base):
     """Credited overlay TUs that now carry a NON_MATCHING block they did not
     have at `base`. The atlas credits ownership per source file, so one
     candidate inside a matched TU silently un-credits every function in it
     (overlays 51 and 56 lost 5,024 bytes this way on 2026-08-28)."""
     bad = []
+    reviewed_mixed = reviewed_mixed_overlay_sources()
     for f in sorted(credited_overlay_sources(base)):
         try:
             now = open(f, encoding="utf-8", errors="ignore").read()
@@ -136,7 +157,7 @@ def overlay_credit_regressions(base):
         if not NM_BLOCK.search(now):
             continue
         then = subprocess.run(["git", "show", f"{base}:{f}"], capture_output=True, text=True).stdout
-        if not NM_BLOCK.search(then):
+        if not NM_BLOCK.search(then) and f not in reviewed_mixed:
             bad.append(f)
     return bad
 
