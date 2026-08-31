@@ -378,7 +378,7 @@ segments:
       - [0x6B3D0, asm, libultra/gbpakcheckconnector]
       - [0x6B860, asm]
       - [0x6BC20, asm]
-      - [0x6BDF0, asm, libultra/gbpakgetstatus]
+      - [0x6BDF0, c, libultra/gbpakgetstatus]
       - [0x6BF70, c, libultra/gbpakselectbank]
       - [0x6C040, c, libultra/motor]
       - [0x6C450, c, libultra/pfsisplug]

@@ -1662,7 +1662,7 @@ n_alResampleParam = 0x8006A334; // type:func size:0x5C
 // libultra/gbpakcheckconnector  ROM 0x6b3d0  (perfect_dark/libultra: lib/ultra/io/gbpakcheckconnector.o)  whole .text 0x490, masked=15, romocc=1
 osGbpakCheckConnector = 0x8006A7D0; // type:func size:0x488
 // libultra/gbpakgetstatus  ROM 0x6bdf0  (perfect_dark/libultra: lib/ultra/io/gbpakgetstatus.o)  whole .text 0x180, masked=4, romocc=1
-osGbpakGetStatus = 0x8006B1F0; // type:func size:0x17C
+osGbpakGetStatus = 0x8006B1F0; // type:func size:0x17C tier-A, ROM 0x6BDF0, matched C src/libultra/gbpakgetstatus.c.o -O2 -mips2 -32 -Wab,-r4300_mul, Perfect Dark donor, linked exact=95/95
 // libultra/gbpakselectbank  ROM 0x6bf70  (perfect_dark/libultra: lib/ultra/io/gbpakselectbank.o)  whole .text 0xd0, masked=3, romocc=1
 __osGbpakSelectBank = 0x8006B370; // type:func size:0xD0
 // libultra/motor  ROM 0x6c040  (jfg/libultra: libultra/src/io/motor.c.o)  whole .text 0x410, masked=25, romocc=1
