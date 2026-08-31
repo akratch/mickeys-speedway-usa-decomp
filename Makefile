@@ -745,6 +745,11 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakgetstatus.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakcheckconnector.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakcheckconnector.c.o: CFLAGS += -Wab,-r4300_mul -Wo,-loopunroll,0
 
+# Mickey's Transfer Pak ID reader contains the VERSION_K+ reset/retry path and
+# uses the ordinary O2 MIPS II loop-unroll group with R4300 hazard scheduling.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakreadid.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakreadid.c.o: CFLAGS += -Wab,-r4300_mul
+
 # -Xphase,uopt,+ -Xphase,uopt,-O1: a FOURTH libultra flag group, and the only
 # one that does not go through the `cc` driver.
 #
