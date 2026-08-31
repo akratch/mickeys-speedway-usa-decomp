@@ -2251,8 +2251,11 @@ _depth2Cents = 0x800042E4; // type:func size:0x50 ROM 0x4ee4 src/audio_manager_4
 // jfg:src/objects.c.o
 GetRomlistInfo = 0x8000BC88; // type:func size:0x28   ROM 0xc888  src/objects.c.o  masked=4/10
 // donor-jfg-src/track.c.o
+func_80010654 = 0x80010654; // type:func size:0x2AC tier-D ROM 0x11254 src/main/track.c.o NON_MATCHING bounded plateau, resident fallback and adjacent-boundary owner
+func_800115E4 = 0x800115E4; // type:func size:0x39C tier-D ROM 0x121E4 src/main/track.c.o NON_MATCHING resident fallback and adjacent func_80011980 boundary owner, no match credit
 trackSetFogOff = 0x800145A0; // type:func size:0x74   ROM 0x151a0  src/track.c.o  masked=2/29
 // donor-jfg-src/shadows_214A0.c.o
+func_80017660 = 0x80017660; // type:func size:0x56C tier-D ROM 0x18260 src/main/shadows.c.o NON_MATCHING resident fallback and adjacent func_80017BCC boundary owner, no match credit
 shadowBoxPolyOverlap = 0x800183F0; // type:func size:0xC4   ROM 0x18ff0  src/shadows_214A0.c.o  masked=0/49
 shadowBoundingBox = 0x800184B4; // type:func size:0x90   ROM 0x190b4  src/shadows_214A0.c.o  masked=0/36
 // jfg:src/lights.c.o -- tier A, ROM-wide unique; body adapted in src/main/lights.c
@@ -2304,6 +2307,7 @@ func_8001D690 = 0x8001D690; // type:func size:0x194   ROM 0x1e290
 dAngle = 0x8001D824; // type:func size:0x5C   ROM 0x1e424
 // tier B + exact C -- JFG name/body; Mickey's output field is player+0x14.
 controlFSUvels = 0x8001D910; // type:func size:0x50   ROM 0x1e510
+func_8001E5C4 = 0x8001E5C4; // type:func size:0x680 tier-D ROM 0x1F1C4 src/main/charControl.c.o NON_MATCHING resident fallback and adjacent func_8001EC44 boundary owner, no match credit
 // exact-C (ADR 0001), no external name adopted: func_8001EFFC, ROM 0x1fbfc, size 0xa0
 // exact-C (ADR 0001), tier-D JFG placeholder not adopted: func_8001F09C, ROM 0x1fc9c, size 0xb0
 // exact-C (ADR 0001), tier-D name not adopted: func_8001F14C, ROM 0x1fd4c, size 0x110
@@ -2321,6 +2325,7 @@ controlClearPlayerSetup = 0x8001F408; // type:func size:0xC   ROM 0x20008
 func_8001F420 = 0x8001F420; // type:func size:0x3C   ROM 0x20020  src/models.c.o  masked=0/15  C-match -O2 -mips2
 func_8001FBCC = 0x8001FBCC; // type:func size:0x84   ROM 0x207CC  src/models.c.o  tier-D JFG allocation/copy structure only  C-match -O2 -mips2
 modInitModels = 0x8001F45C; // type:func size:0xC4   ROM 0x2005C  src/models.c.o  tier-B JFG body prefix and model-table call graph  C-match -O2 -mips2
+func_8001F520 = 0x8001F520; // type:func size:0x644 tier-B ROM 0x20120 src/main/models.c.o NON_MATCHING bounded plateau, JFG cache/asset-loader call-graph correspondence
 func_8001FB64 = 0x8001FB64; // type:func size:0x68   ROM 0x20764  src/models.c.o  masked=0/26  C-match -O2 -mips2
 modFreeModel = 0x80020184; // type:func size:0xF4   ROM 0x20D84  src/models.c.o  tier-B JFG cache-release body and TU position  C-match -O2 -mips2
 func_80020278 = 0x80020278; // type:func size:0x168   ROM 0x20E78  src/models.c.o  tier-B JFG model-resource destructor  C-match -O2 -mips2
