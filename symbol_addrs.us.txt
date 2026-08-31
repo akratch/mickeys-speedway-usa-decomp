@@ -293,6 +293,10 @@ __osTimerServicesInit = 0x80073090; // type:func size:0x8C
 __osTimerInterrupt = 0x8007311C; // type:func size:0x178
 __osSetTimerIntr = 0x80073294; // type:func size:0x74
 __osInsertTimer = 0x80073308; // type:func size:0x188
+// Mickey's extended EEPROM read and packet helper are compiler-exact from
+// the SDK source shape, retaining placeholder names for relocation identity.
+func_80073490 = 0x80073490; // type:func size:0x25C tier-A, ROM 0x74090, matched C src/libultra/eepread.c.o -O1 -mips2 -32 -Wab,-r4300_mul, official Banjo-Kazooie source plus Mickey-authenticated extended EEPROM cases, linked exact=151/151
+func_800736EC = 0x800736EC; // type:func size:0xB0 tier-A, ROM 0x742EC, matched C src/libultra/eepread.c.o -O1 -mips2 -32 -Wab,-r4300_mul, official Banjo-Kazooie packet helper, linked exact=44/44
 // Mickey's extended EEPROM write and packet helper are compiler-exact from
 // the SDK source shape, retaining placeholder names for relocation identity.
 func_800737A0 = 0x800737A0; // type:func size:0x204 tier-A, ROM 0x743A0, matched C src/libultra/eepwrite.c.o -O1 -mips2 -32 -Wab,-r4300_mul, official Banjo-Kazooie source plus Mickey-authenticated extended EEPROM cases, linked exact=129/129

@@ -440,10 +440,10 @@ segments:
       # matches NO object in ANY of the five reference builds, whole or
       # per-function. The DKR-only sweep left 0x1AE0 of the corridor (22.2%,
       # ten runs) unnamed; eight of those ten runs are named above from JFG's
-      # build, and what remains is 0x310 in one run, 0x74090-0x743A0.
-      # docs/modules.md section 4.1 keeps
-      # the current list, and tools/check_derived_numbers.py recomputes the
-      # figure from this file so the two cannot drift apart.
+      # build. Mickey-specific EEPROM read/write reconstructions have now
+      # closed the final run; docs/modules.md section 4.1 records the zero
+      # remainder, and tools/check_derived_numbers.py recomputes it from this
+      # file so the two cannot drift apart.
       # -----------------------------------------------------------------
       - [0x6F420, c, libultra/recvmesg]
       - [0x6F560, c, libultra/aisetfreq]
@@ -530,7 +530,7 @@ segments:
       - [0x73C20, asm, libultra/maptlbrdb]
       - [0x73C80, asm, libultra/getcause]
       - [0x73C90, c, libultra/timerintr]
-      - [0x74090, asm]
+      - [0x74090, c, libultra/eepread]
       - [0x743A0, c, libultra/eepwrite]
       # Exact __osEepStatus tail is compiled separately because Mickey's
       # EEPROM write path has a distinct authenticated TU boundary at 0x74680.
