@@ -55,6 +55,23 @@ class GuardValidationTests(unittest.TestCase):
         )
         self.assertEqual(candidate.fallback, "asm/nonmatchings/main/demo/demo_symbol.s")
 
+    def test_ignores_multiline_call_followed_by_block_in_other_guard(self) -> None:
+        source = """#ifdef NON_MATCHING
+int other_symbol(int value) {
+    if ((demo_symbol(
+             value)) != 0) {
+        return 1;
+    }
+    return 0;
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/demo/other_symbol.s")
+#endif
+
+""" + VALID_SOURCE
+        candidate = plateau.require_guarded_candidate(source, "demo_symbol")
+        self.assertEqual(candidate.fallback, "asm/nonmatchings/main/demo/demo_symbol.s")
+
     def test_rejects_target_guard_without_else(self) -> None:
         source = """#ifdef NON_MATCHING
 void demo_symbol(void) {}

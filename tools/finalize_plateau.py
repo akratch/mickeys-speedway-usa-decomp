@@ -36,6 +36,10 @@ KEYED_HANDOFF_RE = re.compile(
 GENERATED_OVERLAY_FALLBACK_RE = re.compile(
     r"^func_overlay_[0-9]{3}_F[0-9A-Fa-f]{7}_[0-9A-Fa-f]+\.s$"
 )
+DEFINITION_TEMPLATE = (
+    r"^[ \t]*(?:[A-Za-z_][A-Za-z0-9_]*[ \t*]+)+"
+    r"{symbol}\s*\([^;{{}}]*\)\s*\{{"
+)
 
 
 class PlateauError(RuntimeError):
@@ -112,7 +116,10 @@ def directive(line: str) -> tuple[str, str] | None:
 def guarded_candidates(text: str, symbol: str) -> list[GuardedCandidate]:
     lines = text.splitlines(keepends=True)
     found: list[GuardedCandidate] = []
-    definition = re.compile(rf"\b{re.escape(symbol)}\s*\([^;{{}}]*\)\s*\{{", re.DOTALL)
+    definition = re.compile(
+        DEFINITION_TEMPLATE.format(symbol=re.escape(symbol)),
+        re.DOTALL | re.MULTILINE,
+    )
     fallback_re = re.compile(r'#\s*pragma\s+GLOBAL_ASM\s*\(\s*"([^"]+)"\s*\)')
 
     depth_before: list[int] = []
