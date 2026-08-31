@@ -440,8 +440,8 @@ segments:
       # matches NO object in ANY of the five reference builds, whole or
       # per-function. The DKR-only sweep left 0x1AE0 of the corridor (22.2%,
       # ten runs) unnamed; eight of those ten runs are named above from JFG's
-      # build, and what remains is 0xB50 in two runs --
-      # 0x70AF0-0x70E20 and 0x74090-0x748B0. docs/modules.md section 4.1 keeps
+      # build, and what remains is 0x310 in one run, 0x74090-0x743A0.
+      # docs/modules.md section 4.1 keeps
       # the current list, and tools/check_derived_numbers.py recomputes the
       # figure from this file so the two cannot drift apart.
       # -----------------------------------------------------------------
@@ -531,9 +531,9 @@ segments:
       - [0x73C80, asm, libultra/getcause]
       - [0x73C90, c, libultra/timerintr]
       - [0x74090, asm]
-      - [0x743A0, asm]
-      # Exact __osEepStatus tail carved from the larger SDK conteepwrite TU;
-      # the preceding non-identical functions do not gain a boundary claim.
+      - [0x743A0, c, libultra/eepwrite]
+      # Exact __osEepStatus tail is compiled separately because Mickey's
+      # EEPROM write path has a distinct authenticated TU boundary at 0x74680.
       - [0x74680, c, libultra/eepstatus]
       - [0x748B0, c, libultra/vigetcurrcontext]
       - [0x748C0, c, libultra/viswapcontext]

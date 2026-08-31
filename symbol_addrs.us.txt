@@ -293,8 +293,11 @@ __osTimerServicesInit = 0x80073090; // type:func size:0x8C
 __osTimerInterrupt = 0x8007311C; // type:func size:0x178
 __osSetTimerIntr = 0x80073294; // type:func size:0x74
 __osInsertTimer = 0x80073308; // type:func size:0x188
-// io/conteepwrite.c: only __osEepStatus is byte-identical, the rest of the
-// TU is not, so the file boundary is not claimed and no other name is taken.
+// Mickey's extended EEPROM write and packet helper are compiler-exact from
+// the SDK source shape, retaining placeholder names for relocation identity.
+func_800737A0 = 0x800737A0; // type:func size:0x204 tier-A, ROM 0x743A0, matched C src/libultra/eepwrite.c.o -O1 -mips2 -32 -Wab,-r4300_mul, official Banjo-Kazooie source plus Mickey-authenticated extended EEPROM cases, linked exact=129/129
+func_800739A4 = 0x800739A4; // type:func size:0xDC tier-A, ROM 0x745A4, matched C src/libultra/eepwrite.c.o -O1 -mips2 -32 -Wab,-r4300_mul, official Banjo-Kazooie packet helper, linked exact=55/55
+// __osEepStatus begins at a distinct authenticated TU boundary.
 __osEepStatus = 0x80073A80; // type:func size:0x224 tier-A IDO C exact, DKR src/io/conteepwrite.c donor, exact function-tail carve
 // libultra/vigetcurrcontext  ROM 0x748b0  (src/io/vigetcurrcontext.c.o)
 __osViGetCurrentContext = 0x80073CB0; // type:func size:0xC

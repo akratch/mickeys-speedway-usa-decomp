@@ -768,6 +768,12 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/eepprobe.c.o: OPT_FLAGS := -O1
 $(BUILD_DIR)/$(SRC_DIR)/libultra/eepprobe.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/eepprobe.c.o: CFLAGS += -Wab,-r4300_mul -DBUILD_VERSION=6
 
+# Mickey's EEPROM write object uses the SDK O1/MIPS II group with R4300
+# multiply-hazard scheduling.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepwrite.c.o: OPT_FLAGS := -O1
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepwrite.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepwrite.c.o: CFLAGS += -Wab,-r4300_mul
+
 # Perfect Dark's matching Transfer Pak status object uses the default O2
 # loop-unroll mode, unlike the rolled bank-selector TU immediately below.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakgetstatus.c.o: MIPSISET := -mips2 -32
