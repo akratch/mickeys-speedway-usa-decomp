@@ -159,7 +159,7 @@ class AllocatorTraceReceiptTests(unittest.TestCase):
         self.assertNotIn("web=", rendered)
         self.assertLessEqual(len(rendered.splitlines()), 9)
 
-    def test_multifunction_object_refuses_unscoped_ugen_trace(self) -> None:
+    def test_multifunction_object_refuses_ugen_without_procedure_markers(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             paths = {
@@ -212,8 +212,51 @@ class AllocatorTraceReceiptTests(unittest.TestCase):
                 "read_ucode_procedure_names",
                 return_value=["helper_a", "target", "helper_b"],
             ), mock.patch.object(receipt, "run_fidelity_gate", return_value=fidelity):
-                with self.assertRaisesRegex(receipt.ReceiptError, "no compiled-procedure identity"):
+                with self.assertRaisesRegex(receipt.ReceiptError, "procedure markers"):
                     receipt.build_receipt(args)
+
+    def test_multifunction_ugen_marker_join_selects_named_procedure(self) -> None:
+        text = (
+            "DKWB-PROC BEGIN proc=0\n"
+            "DKWB-FREELIST ALLOC_GP_RESULT proc=0 reg=12 emitted=1 line=3\n"
+            "DKWB-PROC BEGIN proc=1\n"
+            "DKWB-FREELIST ALLOC_GP_RESULT proc=1 reg=14 emitted=2 line=7\n"
+            "DKWB-FREELIST FREE proc=1 reg=14 emitted=3 line=8\n"
+            "DKWB-PROC BEGIN proc=2\n"
+            "DKWB-FREELIST ALLOC_FP_RESULT proc=2 reg=36 emitted=4 line=9\n"
+        )
+        self.assertEqual(
+            [0, 1, 2],
+            receipt.parse_ugen_procedure_index(text, expected_count=3),
+        )
+        summary = receipt.summarize_ugen_results(
+            text,
+            procedure="target",
+            procedure_ordinal=1,
+            procedure_count=3,
+        )
+        self.assertEqual(1, summary["integer_temps"]["allocations"])
+        self.assertEqual(0, summary["fp_temps"]["allocations"])
+        self.assertEqual(["t6", "t6"], [row["register"] for row in summary["events"]])
+        self.assertTrue(
+            all(row["source"]["procedure"] == "target" for row in summary["events"])
+        )
+
+    def test_multifunction_ugen_rows_require_valid_procedure_field(self) -> None:
+        with self.assertRaisesRegex(receipt.ReceiptError, "required proc"):
+            receipt.summarize_ugen_results(
+                "DKWB-FREELIST ALLOC_GP_RESULT reg=14 emitted=1 line=2\n",
+                procedure="target",
+                procedure_ordinal=1,
+                procedure_count=3,
+            )
+        with self.assertRaisesRegex(receipt.ReceiptError, "outside retained Ucode"):
+            receipt.summarize_ugen_results(
+                "DKWB-FREELIST ALLOC_GP_RESULT proc=3 reg=14 emitted=1 line=2\n",
+                procedure="target",
+                procedure_ordinal=1,
+                procedure_count=3,
+            )
 
     def test_stack_home_summary_preserves_explicit_width_access_and_source(self) -> None:
         detail = (
@@ -242,6 +285,27 @@ class AllocatorTraceReceiptTests(unittest.TestCase):
             },
             summary["homes"][0],
         )
+
+    def test_uopt_capability_audit_never_infers_from_line_sym_or_raw_words(self) -> None:
+        trace = (
+            "[CDX] webdetail phase=p2 proc=23 role=target web=15 sym=42 "
+            "line=617 raw10=0xffffffe0 raw14=0x00070102\n"
+        )
+        audit = receipt.summarize_uopt_producer_capability(trace, procedure=23)
+        self.assertEqual("unavailable", audit["source_semantic"]["status"])
+        self.assertEqual("unavailable", audit["virtual_stack_home"]["status"])
+        self.assertEqual("unavailable", audit["final_stack_home"]["status"])
+        self.assertIn("not attribution", audit["source_semantic"]["reason"])
+
+    def test_uopt_capability_audit_accepts_only_explicit_fields(self) -> None:
+        trace = (
+            "[CDX] webdetail phase=p2 proc=23 role=target web=15 "
+            "source_semantic=local:arg2 virtual_offset=-32 final_offset=184\n"
+        )
+        audit = receipt.summarize_uopt_producer_capability(trace, procedure=23)
+        self.assertEqual("available", audit["source_semantic"]["status"])
+        self.assertEqual("available", audit["virtual_stack_home"]["status"])
+        self.assertEqual("available", audit["final_stack_home"]["status"])
 
     def test_func_80050e9c_style_extra_temp_birth_names_next_lever(self) -> None:
         candidate = receipt.summarize_ugen_results(

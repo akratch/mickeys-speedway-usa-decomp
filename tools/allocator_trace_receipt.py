@@ -42,6 +42,7 @@ FIELD_RE = re.compile(r"([A-Za-z0-9_]+)=([^\s]+)")
 UGEN_ROW_RE = re.compile(
     r"^DKWB-FREELIST\s+(?P<event>[A-Z][A-Z0-9_]*)\s+(?P<fields>.*)$"
 )
+UGEN_PROC_RE = re.compile(r"^DKWB-PROC\s+BEGIN\s+proc=(?P<proc>\d+)\s*$")
 UGEN_RESULT_EVENTS = {"ALLOC_GP_RESULT", "ALLOC_FP_RESULT"}
 UGEN_LIFECYCLE_EVENTS = UGEN_RESULT_EVENTS | {"FREE", "FORCE_FREE"}
 UGEN_KNOWN_EVENTS = UGEN_LIFECYCLE_EVENTS | {
@@ -442,8 +443,35 @@ def _structured_fields(text: str, label: str) -> dict[str, str]:
     return fields
 
 
-def parse_ugen_events(text: str, *, procedure: str) -> list[dict[str, Any]]:
-    """Parse public-safe temp lifecycle events from one complete ugen trace."""
+def parse_ugen_procedure_index(text: str, *, expected_count: int) -> list[int]:
+    """Authenticate ugen's procedure ordinal stream against retained Ucode."""
+
+    ordinals: list[int] = []
+    for raw in text.splitlines():
+        stripped = raw.strip()
+        if not stripped.startswith("DKWB-PROC"):
+            continue
+        match = UGEN_PROC_RE.fullmatch(stripped)
+        if match is None:
+            raise ReceiptError("ugen trace contains a malformed DKWB-PROC row")
+        ordinals.append(int(match.group("proc"), 10))
+    expected = list(range(expected_count))
+    if ordinals != expected:
+        raise ReceiptError(
+            "ugen procedure markers cannot be joined to retained Ucode: "
+            f"expected contiguous ordinals 0..{expected_count - 1}, got {ordinals}"
+        )
+    return ordinals
+
+
+def parse_ugen_events(
+    text: str,
+    *,
+    procedure: str,
+    procedure_ordinal: int | None = None,
+    procedure_count: int | None = None,
+) -> list[dict[str, Any]]:
+    """Parse public-safe temp events, optionally scoped by producer ordinal."""
 
     rows: list[dict[str, Any]] = []
     result_count = 0
@@ -458,6 +486,17 @@ def parse_ugen_events(text: str, *, procedure: str) -> list[dict[str, Any]]:
         if event not in UGEN_KNOWN_EVENTS:
             raise ReceiptError(f"ugen trace contains unsupported event {event!r}")
         fields = _structured_fields(match.group("fields"), "ugen trace row")
+        row_proc = _trace_integer(
+            fields, "proc", required=procedure_ordinal is not None
+        )
+        if row_proc is not None and row_proc < 0:
+            raise ReceiptError("ugen trace procedure ordinal is outside the producer range")
+        if (
+            row_proc is not None
+            and procedure_count is not None
+            and row_proc >= procedure_count
+        ):
+            raise ReceiptError("ugen trace procedure ordinal is outside retained Ucode")
         register = _trace_integer(fields, "reg", required=True)
         emitted = _trace_integer(fields, "emitted")
         source_line = _trace_integer(fields, "line")
@@ -468,6 +507,8 @@ def parse_ugen_events(text: str, *, procedure: str) -> list[dict[str, Any]]:
             raise ReceiptError("ugen trace emitted ordinal is outside the producer range")
         if source_line is not None and source_line < -1:
             raise ReceiptError("ugen trace source line is outside the producer range")
+        if procedure_ordinal is not None and row_proc != procedure_ordinal:
+            continue
         if event not in UGEN_LIFECYCLE_EVENTS:
             continue
         if event in UGEN_RESULT_EVENTS:
@@ -511,8 +552,19 @@ def _public_temp_event(row: dict[str, Any]) -> dict[str, Any]:
     return {key: value for key, value in row.items() if not key.startswith("_")}
 
 
-def summarize_ugen_results(text: str, *, procedure: str = "unavailable") -> dict[str, Any]:
-    events = parse_ugen_events(text, procedure=procedure)
+def summarize_ugen_results(
+    text: str,
+    *,
+    procedure: str = "unavailable",
+    procedure_ordinal: int | None = None,
+    procedure_count: int | None = None,
+) -> dict[str, Any]:
+    events = parse_ugen_events(
+        text,
+        procedure=procedure,
+        procedure_ordinal=procedure_ordinal,
+        procedure_count=procedure_count,
+    )
     result: dict[str, Any] = {}
     for key, temp_class in (
         ("integer_temps", "integer"),
@@ -732,6 +784,79 @@ def _detail_rows(text: str, proc: int) -> dict[tuple[str, int], dict[str, str]]:
             raise ReceiptError("uopt detail trace has conflicting webdetail rows")
         rows[key] = fields
     return rows
+
+
+def summarize_uopt_producer_capability(
+    text: str, *, procedure: int
+) -> dict[str, Any]:
+    """Report only attribution/home fields the selected producer emitted.
+
+    Logical source lines, itable symbol numbers, and opaque raw words are not
+    substitutes for these fields.  Keeping this audit beside the receipt makes
+    a missing producer surface explicit before a worker chooses a source edit.
+    """
+
+    direct_semantics: set[tuple[str, int]] = set()
+    virtual_homes: set[tuple[str, int]] = set()
+    final_homes: set[tuple[str, int]] = set()
+    detail_rows = _detail_rows(text, procedure)
+    for identity, fields in detail_rows.items():
+        for key, destination in (
+            ("virtual_offset", virtual_homes),
+            ("final_offset", final_homes),
+        ):
+            if key not in fields:
+                continue
+            try:
+                int(fields[key], 0)
+            except ValueError as error:
+                raise ReceiptError(f"uopt {key} is malformed") from error
+            destination.add(identity)
+
+    for raw in text.splitlines():
+        stripped = raw.strip()
+        if not stripped.startswith("[CDX]"):
+            continue
+        match = CDX_RE.fullmatch(stripped)
+        if match is None:
+            raise ReceiptError("uopt detail trace contains a malformed CDX row")
+        if match.group("event") not in {"webdetail", "provenance_web"}:
+            continue
+        fields = _structured_fields(match.group("fields"), "uopt CDX row")
+        try:
+            row_proc = int(fields.get("proc", ""), 0)
+            web = int(fields.get("web", ""), 0)
+        except ValueError as error:
+            raise ReceiptError(
+                "uopt attribution row has malformed procedure or web"
+            ) from error
+        if row_proc != procedure:
+            continue
+        semantic = fields.get("source_semantic")
+        if semantic and semantic.casefold() != "unavailable":
+            direct_semantics.add((fields.get("phase", "*"), web))
+
+    def capability(count: int, missing: str) -> dict[str, Any]:
+        return {
+            "status": "available" if count else "unavailable",
+            "webs": count,
+            "reason": None if count else missing,
+        }
+
+    return {
+        "source_semantic": capability(
+            len(direct_semantics),
+            "producer emitted no direct source_semantic; line/sym/raw fields are not attribution",
+        ),
+        "virtual_stack_home": capability(
+            len(virtual_homes),
+            "producer emitted no virtual_offset fields",
+        ),
+        "final_stack_home": capability(
+            len(final_homes),
+            "producer emitted no final_offset fields",
+        ),
+    }
 
 
 def _detail_width(fields: dict[str, str]) -> int | None:
@@ -1204,30 +1329,47 @@ def build_receipt(args: argparse.Namespace) -> dict[str, Any]:
     stack_homes = summarize_stack_homes(
         uopt_text, procedure=procedure, symbol=args.symbol
     )
+    producer_capability = summarize_uopt_producer_capability(
+        uopt_text, procedure=procedure
+    )
 
     if args.ugen_trace:
-        if procedure_count != 1:
-            raise ReceiptError(
-                "current ugen result traces carry no compiled-procedure identity; "
-                "a ugen receipt is accepted only when retained Ucode has one procedure"
-            )
         ugen_path = Path(args.ugen_trace)
         if not ugen_path.is_file():
             raise ReceiptError(f"ugen trace does not exist: {ugen_path}")
         ugen_text = ugen_path.read_text(encoding="utf-8")
+        procedure_ordinal: int | None = None
+        if procedure_count > 1:
+            parse_ugen_procedure_index(
+                ugen_text, expected_count=procedure_count
+            )
+            procedure_ordinal = procedure
         ugen = {
-            "status": "scoped-single-procedure",
+            "status": (
+                "scoped-procedure-marker"
+                if procedure_ordinal is not None
+                else "scoped-single-procedure"
+            ),
             "trace_sha256": sha256_text(ugen_text),
-            **summarize_ugen_results(ugen_text, procedure=args.symbol),
+            **summarize_ugen_results(
+                ugen_text,
+                procedure=args.symbol,
+                procedure_ordinal=procedure_ordinal,
+                procedure_count=procedure_count,
+            ),
         }
         temp_events = {"status": "available", "events": ugen["events"]}
-        ugen_limit = "none: retained Ucode contains one compiled procedure"
+        ugen_limit = (
+            "none: producer procedure markers match retained Ucode"
+            if procedure_ordinal is not None
+            else "none: retained Ucode contains one compiled procedure"
+        )
     else:
         ugen = {"status": "not-provided"}
         temp_events = unavailable("a procedure-scoped ugen trace was not provided")
         ugen_limit = (
-            "ugen temp/FP result rows are not attributed because the current "
-            "producer has no compiled-procedure marker"
+            "ugen temp/FP result rows are unavailable until a trace with a "
+            "complete producer procedure-marker stream is provided"
         )
 
     target_path = getattr(args, "target_evidence", None)
@@ -1272,6 +1414,7 @@ def build_receipt(args: argparse.Namespace) -> dict[str, Any]:
         "ugen": ugen,
         "trace_summary": {
             "frame": frame,
+            "producer_capability": producer_capability,
             "stack_homes": stack_homes,
             "temp_events": temp_events,
         },
@@ -1334,7 +1477,7 @@ def render_text(receipt: dict[str, Any]) -> str:
             f"outcomes={row['outcomes']} digest={short_digest(row['decision_digest'])}"
         )
     ugen = receipt["ugen"]
-    if ugen["status"] == "scoped-single-procedure":
+    if ugen["status"] in {"scoped-single-procedure", "scoped-procedure-marker"}:
         lines.append(
             f"ugen-temp gp={ugen['integer_temps']['allocations']} "
             f"fp={ugen['fp_temps']['allocations']} status={ugen['status']}"

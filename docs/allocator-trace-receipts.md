@@ -123,9 +123,19 @@ CLI behavior intact. Its three evidence lanes are:
   name and producer source line, but omits the raw row, trace line, emitted
   ordinal, compiler addresses, and host path.
 
-Source files are reduced to a safe basename. Procedure attribution comes from
-the same one-procedure Ucode proof that already gates `--ugen-trace`; a
-multi-procedure ugen capture remains inadmissible.
+`producer_capability` audits the selected UOPT procedure independently of the
+stack-home classifier. It counts only explicit `source_semantic`,
+`virtual_offset`, and `final_offset` fields. A logical line, itable `sym`, or
+opaque `raw10`/`raw14` word does not satisfy the audit. This makes a missing
+producer surface a structured result rather than an invitation to infer a
+source variable or frame slot.
+
+Source files are reduced to a safe basename. For a multi-procedure capture,
+procedure attribution is admitted only when the UGEN log contains exactly one
+contiguous `DKWB-PROC BEGIN proc=N` stream whose count matches the retained
+Ucode procedure list, and every free-list row carries an in-range `proc=N`.
+The receipt then selects the same ordinal established by the named Ucode map.
+A one-procedure input remains admissible without markers for compatibility.
 
 The optional `--target-evidence` document permits field-by-field comparison
 when compact target-side evidence has already been measured:
@@ -165,22 +175,28 @@ that attributed expression for a redundant conversion, comparison carrier, or
 grouping. The tool does not prescribe a source edit and the receipt remains
 diagnostic evidence rather than match proof.
 
-## Ugen limit
+## Producer limits
 
-The current ugen producer emits integer- and FP-temporary result rows but no
-compiled-procedure identity. A mixed-TU trace therefore cannot be attributed
-to one symbol safely. The command reports ugen evidence as `not-provided` by
-default and accepts `--ugen-trace` only when the retained Ucode contains one
-compiled procedure. In that proven scope it summarizes `ALLOC_GP_RESULT` and
+The instrumented UGEN producer emits `DKWB-PROC BEGIN proc=N` at `f_init_regs`
+and stamps integer- and FP-temporary rows with that ordinal. The receipt now
+authenticates the complete marker stream against retained Ucode before using a
+mixed-TU trace. In proven scope it summarizes `ALLOC_GP_RESULT` and
 `ALLOC_FP_RESULT` counts, register histograms, sequence digests, and lifecycle
 events. `ALLOC_GP_RESULT`/`ALLOC_FP_RESULT` are births and free-list pops;
 `FREE`/`FORCE_FREE` are deaths and pushes. Request rows are validated but are
 not misreported as allocated registers.
 
-This is deliberately narrower than the manual workflow used on
-`func_80041CE4`: its uopt procedure can now be mapped and receipted
-automatically, but its mixed-TU ugen temp/FP lane still needs either a
-one-function faithful scratch or a future producer-side procedure marker.
+That procedure join does not create source semantics. The pinned UOPT input
+contains storage classes, frame-relative offsets, itable identities, and
+logical lines, but no local or parameter names. UGEN sees final code emission
+and logical lines, not a surviving C identifier. Therefore the current
+instrumented compiler cannot truthfully emit `source_semantic=local:NAME` for
+an allocator web, and the receipt leaves it unavailable. Likewise, the stock
+globalcolor profile does not emit calibrated `virtual_offset` or
+`final_offset` fields. A future producer must add those fields from an
+authenticated compiler structure and repeat disabled/enabled fidelity proof;
+the capture tool will consume them without a schema change. Do not promote an
+itable index, source line, or opaque raw word to any of these fields.
 
 ## Failure meanings
 
