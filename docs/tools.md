@@ -264,6 +264,17 @@ shipped runtime tuple; the proof subtracts the object's REL addend and records
 only the resulting base identity. It does not rewrite the candidate call site,
 infer through a missing tuple, or choose between conflicting sibling targets.
 
+For an undefined same-overlay `R_MIPS_26` proxy with no sibling witness,
+preflight also accepts a repeated-use proof. At least two distinct candidate
+sites must name the same undefined call-only proxy, every site must align with
+one unique shipped tuple for the authenticated owner overlay, and removing each
+candidate REL addend must independently produce the same base. Single-site,
+missing, mixed-type, resident, reserved-selector, and cross-overlay evidence
+stays unresolved; duplicate or conflicting same-overlay evidence is ambiguous.
+This route does not infer from the shared synthetic
+VMA and does not weaken the independent relocation-shape, linked-overlay, or
+full-ROM promotion gates.
+
 Promotion does not make the preflight unusable when splat removes the
 function's `asm/nonmatchings` fallback. With no fallback present, the resolver
 enters `post_promotion` mode only for one unconditional requested C definition

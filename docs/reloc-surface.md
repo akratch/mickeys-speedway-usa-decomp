@@ -104,6 +104,37 @@ therefore moves from 20/21 to 21/21 without changing the object or code bytes;
 only 11/21 identities currently align with the target, so the function remains
 non-exact.
 
+### Repeated same-overlay call proxies
+
+An undefined overlay-local `R_MIPS_26` proxy may lack both a generated callee
+name and an exact matched-sibling witness. One target-aligned runtime tuple is
+not evidence for its identity: copying that tuple would be circular. The
+comparison layer admits the narrower repeated-use case only when all of these
+independent candidate and shipped facts agree:
+
+- the target function and candidate TU already have one authenticated overlay
+  owner and canonical synthetic-VMA policy;
+- one undefined candidate symbol is referenced exclusively by `R_MIPS_26` at
+  two or more distinct function-relative sites;
+- every candidate site aligns by offset and type with exactly one shipped
+  runtime tuple owned by the same overlay; and
+- subtracting each candidate instruction's REL addend independently derives
+  one identical nonnegative same-overlay base.
+
+A single use, a missing target tuple, a repeated offset, a defined or
+mixed-relocation symbol, or any resident, reserved, or cross-overlay selector
+remains unresolved. A duplicate target tuple, out-of-range instruction, or
+conflicting derived same-overlay bases is ambiguous and fails closed. The proxy name and the
+overlays' shared synthetic VMA are never identity evidence. Existing generated
+boundary and exact-sibling routes remain unchanged, and disagreement between
+an existing route and the repeated-use proof is ambiguous rather than ranked.
+
+The proof binds only the candidate proxy's base. It never moves a call site or
+normalizes an offset/type mismatch, and it does not replace exact relocation,
+linked-overlay, or full-ROM gates. Overlay 101's border builder is the proving
+case: two calls at function `+0x3C` and `+0x6C` independently derive the same
+Overlay 101 `+0x2CE4` base, while either call alone remains unresolved.
+
 ### Canonical same-overlay LOCAL/data identities
 
 Overlay data placeholders are not identities merely because a linker-script

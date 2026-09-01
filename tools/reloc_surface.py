@@ -1406,7 +1406,7 @@ def _stable_overlay_call_identities(path, candidate_elf, source_overlay,
                                     target_elf, atlas, start, size,
                                     redefine_aliases=None, root=None,
                                     elf_loader=None, module=None, rom=None,
-                                    runtime_module=None):
+                                    runtime_module=None, target_records=None):
     """Resolve uniquely boundary- or sibling-authenticated ``R_MIPS_26`` names."""
     symbols = candidate_elf.symbols()
     proposed = collections.defaultdict(set)
@@ -1432,6 +1432,18 @@ def _stable_overlay_call_identities(path, candidate_elf, source_overlay,
         for name, identities in witnessed.items():
             proposed[name].update(identities)
 
+    runtime_ambiguous = set()
+    if module is not None and target_records is not None:
+        if source_overlay != module.get("overlay"):
+            raise SurfaceComparisonError(
+                "overlay call owner conflicts with its atlas module")
+        correlated, runtime_ambiguous = (
+            _runtime_correlated_overlay_r26_identities(
+                candidate_elf, module, start, size, target_records,
+                redefine_aliases))
+        for name, identity in correlated.items():
+            proposed[name].add(identity)
+
     equality_aliases = []
     if path.is_file():
         equality_aliases = ri.parse_linker_aliases(path.read_text())
@@ -1447,7 +1459,12 @@ def _stable_overlay_call_identities(path, candidate_elf, source_overlay,
         )
     except ri.RelocationIdentityError as error:
         raise SurfaceComparisonError(str(error)) from error
-    return resolution.resolved, set(resolution.ambiguous)
+    ambiguous = set(resolution.ambiguous) | runtime_ambiguous
+    resolved = {
+        name: identity for name, identity in resolution.resolved.items()
+        if name not in ambiguous
+    }
+    return resolved, ambiguous
 
 
 def _overlay_module_extent(module, field, description):
@@ -1816,6 +1833,109 @@ def _runtime_correlated_overlay_hilo_identities(candidate_elf, module, start,
         if (len(identities) == 1 and name not in ambiguous
                 and name not in disqualified)
     }
+    return resolved, ambiguous
+
+
+def _runtime_correlated_overlay_r26_identities(candidate_elf, module, start,
+                                               size, target_records,
+                                               redefine_aliases=None):
+    """Bind a repeated undefined same-overlay call proxy fail closed.
+
+    One aligned call site would merely copy its target tuple and is therefore
+    circular. This route requires at least two distinct candidate
+    ``R_MIPS_26`` uses of the same undefined proxy. Every use must align with
+    exactly one shipped runtime tuple and independently derive the same
+    same-overlay base after removing the candidate REL addend. Missing,
+    duplicate, mixed-type, defined-symbol, or conflicting evidence is never
+    resolved.
+    """
+    overlay = module.get("overlay")
+    if not isinstance(overlay, int):
+        raise SurfaceComparisonError("overlay module has no numeric identity")
+    if module.get("identity") != "overlay:%d" % overlay:
+        raise SurfaceComparisonError(
+            "overlay %d atlas identity conflicts with its module row" % overlay)
+    if _atlas_hex(module, "synthetic_vma", "overlay module") != SYNTHETIC_VMA:
+        raise SurfaceComparisonError(
+            "overlay %d atlas synthetic VMA conflicts with canonical policy"
+            % overlay)
+
+    by_shape = collections.defaultdict(list)
+    for record in target_records or ():
+        by_shape[(record.offset, record.rtype)].append(record)
+
+    symbols = candidate_elf.symbols()
+    reverse = redefine_aliases or {}
+    sites = collections.defaultdict(list)
+    referenced_sections = collections.defaultdict(set)
+    referenced_types = collections.defaultdict(set)
+    for _section, offset, rtype, symbol_index in candidate_elf.relocations():
+        if not start <= offset < start + size or symbol_index >= len(symbols):
+            continue
+        current, _value, _symbol_size, _info, shndx = symbols[symbol_index]
+        if not current:
+            continue
+        name = reverse.get(current, current)
+        referenced_sections[name].add(shndx)
+        referenced_types[name].add(rtype)
+        if rtype == R_MIPS_26:
+            sites[name].append((offset, offset - start))
+
+    object_text = candidate_elf.section_bytes(".text")
+    resolved = {}
+    ambiguous = set()
+    for name, name_sites in sites.items():
+        # The independent witness is reuse of one source-level undefined call
+        # proxy. A definition or any mixed relocation class needs canonical
+        # symbol/section evidence instead.
+        if (referenced_sections[name] != {SHN_UNDEF}
+                or referenced_types[name] != {R_MIPS_26}):
+            continue
+        unique_sites = sorted(set(name_sites))
+        if len(unique_sites) < 2 or len(unique_sites) != len(name_sites):
+            continue
+
+        proposed = set()
+        incomplete = False
+        conflicting = False
+        outside_owned_overlay = False
+        for absolute_offset, relative_offset in unique_sites:
+            targets = by_shape[(relative_offset, R_MIPS_26)]
+            if len(targets) != 1:
+                incomplete = True
+                if targets:
+                    conflicting = True
+                continue
+            target = targets[0]
+            identity = target.identity
+            if (not isinstance(identity, tuple) or len(identity) != 2
+                    or not all(isinstance(value, int) for value in identity)
+                    or not 0 <= identity[0] <= 0xFFF
+                    or identity[1] < 0 or target.link_addend != 0
+                    or absolute_offset + 4 > len(object_text)):
+                conflicting = True
+                continue
+            if identity[0] != overlay:
+                # A consistent resident, reserved-selector, or other-overlay
+                # target is valid runtime evidence, but outside this narrowly
+                # owned same-overlay proof. Keep the proxy unresolved rather
+                # than poisoning unrelated admissible names in the function.
+                outside_owned_overlay = True
+                continue
+            addend = stored_field(
+                object_text, absolute_offset, R_MIPS_26) << 2
+            base_offset = identity[1] - addend
+            if base_offset < 0:
+                conflicting = True
+                continue
+            proposed.add((overlay, base_offset))
+
+        if outside_owned_overlay:
+            continue
+        if conflicting or len(proposed) > 1:
+            ambiguous.add(name)
+        elif not incomplete and len(proposed) == 1:
+            resolved[name] = next(iter(proposed))
     return resolved, ambiguous
 
 
@@ -2473,7 +2593,8 @@ def function_surface_comparison(symbol, candidate_object, target_elf_path,
         _stable_overlay_call_identities(
             values_path, candidate_elf, overlay, target_elf, atlas,
             candidate_start, candidate_size, candidate_redefine_aliases,
-            module=module_row, rom=rom, runtime_module=context["module"])
+            module=module_row, rom=rom, runtime_module=context["module"],
+            target_records=target_records)
         if overlay is not None else ({}, set())
     )
     if overlay is not None:
