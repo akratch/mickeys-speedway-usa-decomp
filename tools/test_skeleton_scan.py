@@ -191,5 +191,82 @@ class OverlayTargetResolutionTests(unittest.TestCase):
                 )
 
 
+class ResidentOwnerMetadataTests(unittest.TestCase):
+    def test_func_80010b4c_metadata_supplies_exact_resident_extent(self):
+        vram = 0x80010B4C
+        size = 0xA98
+        rom_offset = skeleton_scan.resident_vram_to_rom(vram)
+        synthetic = bytes(rom_offset) + bytes([0xB4]) * size
+
+        with mock.patch.object(skeleton_scan, "load_rom", return_value=synthetic):
+            label, resolved = skeleton_scan.resolve_target_bytes(
+                "0x80010B4C", {}
+            )
+
+        self.assertEqual("vram:0x80010B4C", label)
+        self.assertEqual(size, len(resolved))
+        self.assertEqual(bytes([0xB4]) * size, resolved)
+
+    def test_func_80011cdc_metadata_supplies_exact_resident_extent(self):
+        vram = 0x80011CDC
+        size = 0x558
+        rom_offset = skeleton_scan.resident_vram_to_rom(vram)
+        synthetic = bytes(rom_offset) + bytes([0xA5]) * size
+
+        with mock.patch.object(skeleton_scan, "load_rom", return_value=synthetic):
+            label, resolved = skeleton_scan.resolve_target_bytes(
+                "0x80011CDC", {}
+            )
+
+        self.assertEqual("vram:0x80011CDC", label)
+        self.assertEqual(size, len(resolved))
+        self.assertEqual(bytes([0xA5]) * size, resolved)
+
+    def test_func_8001398c_metadata_supplies_exact_resident_extent(self):
+        vram = 0x8001398C
+        size = 0x528
+        rom_offset = skeleton_scan.resident_vram_to_rom(vram)
+        synthetic = bytes(rom_offset) + bytes([0x5A]) * size
+
+        with mock.patch.object(skeleton_scan, "load_rom", return_value=synthetic):
+            label, resolved = skeleton_scan.resolve_target_bytes(
+                "0x8001398C", {}
+            )
+
+        self.assertEqual("vram:0x8001398C", label)
+        self.assertEqual(size, len(resolved))
+        self.assertEqual(bytes([0x5A]) * size, resolved)
+
+    def test_func_8001291c_metadata_supplies_exact_resident_extent(self):
+        vram = 0x8001291C
+        size = 0x890
+        rom_offset = skeleton_scan.resident_vram_to_rom(vram)
+        synthetic = bytes(rom_offset) + bytes([0x3C]) * size
+
+        with mock.patch.object(skeleton_scan, "load_rom", return_value=synthetic):
+            label, resolved = skeleton_scan.resolve_target_bytes(
+                "0x8001291C", {}
+            )
+
+        self.assertEqual("vram:0x8001291C", label)
+        self.assertEqual(size, len(resolved))
+        self.assertEqual(bytes([0x3C]) * size, resolved)
+
+    def test_func_8000e920_metadata_supplies_exact_resident_extent(self):
+        vram = 0x8000E920
+        size = 0x878
+        rom_offset = skeleton_scan.resident_vram_to_rom(vram)
+        synthetic = bytes(rom_offset) + bytes([0x3C]) * size
+
+        with mock.patch.object(skeleton_scan, "load_rom", return_value=synthetic):
+            label, resolved = skeleton_scan.resolve_target_bytes(
+                "0x8000E920", {}
+            )
+
+        self.assertEqual("vram:0x8000E920", label)
+        self.assertEqual(size, len(resolved))
+        self.assertEqual(bytes([0x3C]) * size, resolved)
+
+
 if __name__ == "__main__":
     unittest.main()
