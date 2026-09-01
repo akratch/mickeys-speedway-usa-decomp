@@ -665,6 +665,186 @@ class OverlayDataIdentityTests(unittest.TestCase):
                          [record.identity for record in records])
 
 
+class MatchedOverlayRelocationWitnessTests(unittest.TestCase):
+    class FakeElf:
+        def __init__(self, path, names, symbols=(), relocations=(), sections=None):
+            self.path = Path(path)
+            self.names = list(names)
+            self._symbols = list(symbols)
+            self._relocations = list(relocations)
+            self._sections = dict(sections or {})
+
+        def section(self, name):
+            if name not in self.names:
+                return None, None
+            data = self._sections.get(name, b"")
+            return self.names.index(name), (0, 0, 0, 0, 0, len(data), 0, 0, 0, 0)
+
+        def section_bytes(self, name):
+            return self._sections.get(name, b"")
+
+        def symbols(self):
+            return list(self._symbols)
+
+        def relocations(self, target=r"\.text"):
+            return list(self._relocations)
+
+    def fixture(self, root, *, matched=True, owners=1):
+        overlay = 7
+        rom_start = 0x100
+        row_size = 0x20
+        linked_bytes = b"\0" * (row_size * owners)
+        rom = bytearray(rom_start + len(linked_bytes))
+        rom[rom_start:] = linked_bytes
+        rows = []
+        canonicals = {}
+        linked_symbols = []
+        for index in range(owners):
+            source = "overlays/o007/witness%d" % index
+            source_path = root / "src" / (source + ".c")
+            object_path = root / "build" / "src" / (source + ".c.o")
+            source_path.parent.mkdir(parents=True, exist_ok=True)
+            object_path.parent.mkdir(parents=True, exist_ok=True)
+            source_path.write_text("void witness%d(void) {}\n" % index)
+            object_path.write_bytes(b"ELF fixture")
+            now = max(source_path.stat().st_mtime_ns,
+                      object_path.stat().st_mtime_ns)
+            os.utime(source_path, ns=(now, now))
+            os.utime(object_path, ns=(now + 1, now + 1))
+            function = "witness%d" % index
+            canonical = self.FakeElf(
+                object_path, ["", ".text"],
+                symbols=[
+                    ("gSharedProxy", 0, 0, 0, rs.SHN_UNDEF),
+                    (function, 0, row_size, rs.STT_FUNC, 1),
+                ],
+                relocations=[
+                    (".text", 0x8, rs.R_MIPS_HI16, 0),
+                    (".text", 0xC, rs.R_MIPS_LO16, 0),
+                ],
+                sections={".text": b"\0" * row_size},
+            )
+            canonicals[object_path] = canonical
+            start = index * row_size
+            rows.append({
+                "offset": "0x%X" % start,
+                "end_offset": "0x%X" % (start + row_size),
+                "size": "0x%X" % row_size,
+                "type": "c",
+                "source": source,
+                "matched": matched,
+                "nonmatching": False,
+            })
+            linked_symbols.append((
+                function, rs.SYNTHETIC_VMA + start, row_size,
+                rs.STT_FUNC, 1,
+            ))
+        target_path = root / "build/mickey.us.elf"
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        target_path.write_bytes(b"ELF fixture")
+        newest = max(path.stat().st_mtime_ns for path in canonicals)
+        os.utime(target_path, ns=(newest + 1, newest + 1))
+        target = self.FakeElf(
+            target_path, ["", ".overlay_007"],
+            symbols=linked_symbols,
+            sections={".overlay_007": linked_bytes},
+        )
+        module = {
+            "overlay": overlay,
+            "identity": "overlay:7",
+            "synthetic_vma": "0xF0000000",
+            "rom": {"start": "0x100", "size": "0x%X" % len(linked_bytes)},
+            "sections": {"text": {"size": "0x%X" % len(linked_bytes)}},
+            "text_ownership": rows,
+        }
+        runtime_module = {"overlay": overlay, "rom_start": rom_start}
+        return bytes(rom), module, runtime_module, target, canonicals
+
+    def test_exact_function_sized_sibling_authenticates_proxy_name(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            rom, module, runtime_module, target, canonicals = self.fixture(root)
+            records = [
+                rs.SurfaceRecord(0x8, rs.R_MIPS_HI16, (7, 0xFC0)),
+                rs.SurfaceRecord(0xC, rs.R_MIPS_LO16, (7, 0xFC0)),
+            ]
+            with mock.patch.object(rs, "_target_runtime_records",
+                                   return_value=records):
+                witnessed = rs._matched_overlay_relocation_witnesses(
+                    module, target, rom, runtime_module, {"gSharedProxy"},
+                    root=root, elf_loader=lambda path: canonicals[path])
+        self.assertEqual({(7, 0xFC0)}, witnessed["gSharedProxy"])
+
+    def test_nonmatched_owner_is_not_a_witness(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            rom, module, runtime_module, target, canonicals = self.fixture(
+                root, matched=False)
+            with mock.patch.object(rs, "_target_runtime_records") as runtime:
+                witnessed = rs._matched_overlay_relocation_witnesses(
+                    module, target, rom, runtime_module, {"gSharedProxy"},
+                    root=root, elf_loader=lambda path: canonicals[path])
+        self.assertEqual({}, witnessed)
+        runtime.assert_not_called()
+
+    def test_linked_rom_mismatch_is_not_a_witness(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            rom, module, runtime_module, target, canonicals = self.fixture(root)
+            mismatched_rom = bytearray(rom)
+            mismatched_rom[0x100] = 1
+            with mock.patch.object(rs, "_target_runtime_records") as runtime:
+                witnessed = rs._matched_overlay_relocation_witnesses(
+                    module, target, bytes(mismatched_rom), runtime_module,
+                    {"gSharedProxy"}, root=root,
+                    elf_loader=lambda path: canonicals[path])
+        self.assertEqual({}, witnessed)
+        runtime.assert_not_called()
+
+    def test_conflicting_exact_witnesses_remain_ambiguous(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            rom, module, runtime_module, target, canonicals = self.fixture(
+                root, owners=2)
+            values = root / "values.txt"
+            values.write_text("gSharedProxy = 0x0;\n")
+            candidate = self.FakeElf(
+                root / "build_non_matching/src/overlays/o007/caller.c.o",
+                ["", ".text"],
+                symbols=[("gSharedProxy", 0, 0, 0, rs.SHN_UNDEF)],
+                relocations=[
+                    (".text", 0, rs.R_MIPS_HI16, 0),
+                    (".text", 4, rs.R_MIPS_LO16, 0),
+                ],
+                sections={".text": b"\0" * 8},
+            )
+
+            def runtime_records(_rom, _context, start, _size):
+                identity = (7, 0xFC0 if start == 0 else 0x1FC0)
+                return [
+                    rs.SurfaceRecord(0x8, rs.R_MIPS_HI16, identity),
+                    rs.SurfaceRecord(0xC, rs.R_MIPS_LO16, identity),
+                ]
+
+            with mock.patch.object(rs, "_target_runtime_records",
+                                   side_effect=runtime_records):
+                resolved, ambiguous = rs._stable_overlay_data_identities(
+                    values, candidate, module, target, 0, 8,
+                    root=root, elf_loader=lambda path: canonicals[path],
+                    rom=rom, runtime_module=runtime_module)
+        self.assertNotIn("gSharedProxy", resolved)
+        self.assertIn("gSharedProxy", ambiguous)
+
+    def test_witness_identity_does_not_align_shifted_offset(self):
+        identity = (7, 0xFC0)
+        result = rs.compare_record_sets(
+            [rs.SurfaceRecord(0x8, rs.R_MIPS_HI16, identity)],
+            [rs.SurfaceRecord(0xC, rs.R_MIPS_HI16, identity)],
+        )
+        self.assertEqual(0, result["offset_type_alignment_count"])
+        self.assertEqual(0, result["stable_identity_alignment_count"])
+
+
 class ResidentTargetRangeTests(unittest.TestCase):
     class FakeElf:
         def __init__(self, path, section_name, section_address, section_data,

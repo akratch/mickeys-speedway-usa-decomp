@@ -123,6 +123,23 @@ fallback is allowed only if one fresh canonical object owns the linked
 overlay's entire BSS section; the assignment is then an exact byte offset in
 that sole object. A partial or shared section does not qualify.
 
+An already matched, function-sized function in the same overlay may also act
+as a relocation-name witness. This route requires an atlas row explicitly
+marked matched and not `NON_MATCHING`, a fresh canonical object whose physical
+text is exactly that row, one agreeing linked function symbol, and byte
+identity between the linked row and the retail ROM. Only then may an exact
+static relocation offset/type pair in that sibling be associated with the
+shipped runtime tuple at the same sibling-relative site. Conflicting witnesses
+make the name ambiguous; stale, broad-TU, nonmatched, unpaired, or linked-ROM
+disagreements supply no identity.
+
+The witness proves a symbol name, not a candidate offset. The candidate's own
+relocation offsets remain unchanged and are still compared independently. For
+example, Overlay 71's matched `func_overlay_071_F0000278_18C9D98` now proves
+the shared initial-resource proxy used by the guarded `+0x870` renderer, while
+the renderer's displaced `D_80000008` HI16 remains a real offset/type mismatch
+and receives no normalization or inferred pairing.
+
 Linked BSS follows the shipped relocation blobs, while runtime BSS follows only
 text plus data/rodata. The tool therefore proves the linked definition first,
 then translates its BSS offset from `ROM-size + object offset` to
