@@ -2315,12 +2315,13 @@ def _candidate_surface_records(elf, start, size, target, identities,
     for i, record in enumerate(raw):
         rtype = record["type"]
         name = record["symbol"]
-        if (name in ambiguous_identities
-                or (rtype == R_MIPS_26
-                    and name in (ambiguous_overlay_calls or set()))):
-            raise SurfaceComparisonError(
-                "candidate relocation symbol %s has ambiguous runtime identity"
-                % name)
+        identity_is_ambiguous = (
+            name in ambiguous_identities
+            or (
+                rtype == R_MIPS_26
+                and name in (ambiguous_overlay_calls or set())
+            )
+        )
         target_record = target_by_shape.get((record["relative_offset"], rtype))
         identity = None
         if rtype == R_MIPS_HI16:
@@ -2330,9 +2331,10 @@ def _candidate_surface_records(elf, start, size, target, identities,
                 high_value = stored_field(obj_text, record["offset"], rtype)
                 low_value = stored_field(obj_text, low["offset"], R_MIPS_LO16)
                 addend = (high_value << 16) + sext16(low_value)
-                if name in identities:
+                if not identity_is_ambiguous and name in identities:
                     identity = _identity_add(identities[name], addend)
-                elif (overlay is None and name in numeric_values
+                elif (not identity_is_ambiguous
+                      and overlay is None and name in numeric_values
                       and target_record is not None):
                     target_identity = target_record.identity
                     if target_identity is not None:
@@ -2365,8 +2367,10 @@ def _candidate_surface_records(elf, start, size, target, identities,
             addend = sext16(addend)
         elif rtype == R_MIPS_26:
             addend <<= 2
-        base_identity = identities.get(name)
-        if rtype == R_MIPS_26 and name in (overlay_call_identities or {}):
+        base_identity = None if identity_is_ambiguous else identities.get(name)
+        if (not identity_is_ambiguous
+                and rtype == R_MIPS_26
+                and name in (overlay_call_identities or {})):
             call_identity = overlay_call_identities[name]
             if base_identity is not None and base_identity != call_identity:
                 raise SurfaceComparisonError(
@@ -2375,7 +2379,8 @@ def _candidate_surface_records(elf, start, size, target, identities,
             base_identity = call_identity
         if base_identity is not None:
             identity = _identity_add(base_identity, addend)
-        elif (overlay is None and rtype != R_MIPS_26 and name in numeric_values
+        elif (not identity_is_ambiguous
+              and overlay is None and rtype != R_MIPS_26 and name in numeric_values
               and target_record is not None and target_record.identity is not None):
             candidate_addend = numeric_values[name] + addend
             identity = _identity_add(

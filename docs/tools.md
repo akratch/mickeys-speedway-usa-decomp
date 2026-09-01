@@ -226,11 +226,13 @@ is ambiguous. `wb_compare.sh` remains available for scalar source-shape
 diagnostics; neither message authorizes relocation or ownership inference.
 
 When a candidate relocation surface is measurable but one or more static
-relocation names have no provable runtime identity, the report includes an
+relocation names have no provable runtime identity, including a name with
+multiple possible identities, the report includes an
 additive `preflight` object. Its `status` is `complete` or `partial`, with a
 next `action`, named relocation `counts`, and bounded diagnostics containing
 only candidate-relative offsets and relocation types. It never supplies or
-guesses an identity. The existing `workbench` object still carries word
+guesses an identity. An ambiguous name remains unresolved at every affected
+site; the tool never chooses among its candidates. The existing `workbench` object still carries word
 counts, frames, verdict, and first mismatch.
 
 Partial status is explicitly non-exact. Normal mode prints the full report and

@@ -720,6 +720,27 @@ class OverlayDataIdentityTests(unittest.TestCase):
             resolved)
         self.assertEqual(set(), ambiguous)
 
+    def test_ambiguous_hilo_identity_remains_structurally_visible(self):
+        candidate = self.FakeElf(
+            Path("missing"), ["", ".text"],
+            [("D_base", 0, 0, 0, rs.SHN_UNDEF)],
+            [(".text", 0, rs.R_MIPS_HI16, 0),
+             (".text", 4, rs.R_MIPS_LO16, 0)], b"\0" * 8)
+        records = rs._candidate_surface_records(
+            candidate, 0, 8, [], {"D_base": (7, 0x1000)}, {},
+            {"D_base"}, 7)
+        self.assertEqual([None, None], [record.identity for record in records])
+
+    def test_ambiguous_overlay_call_remains_structurally_visible(self):
+        candidate = self.FakeElf(
+            Path("missing"), ["", ".text"],
+            [("overlayCall", 0, 0, 0, rs.SHN_UNDEF)],
+            [(".text", 0, rs.R_MIPS_26, 0)], b"\0" * 4)
+        records = rs._candidate_surface_records(
+            candidate, 0, 4, [], {}, {}, set(), 7,
+            {"overlayCall": (7, 0x200)}, {"overlayCall"})
+        self.assertEqual([None], [record.identity for record in records])
+
     def test_shared_vma_overlay_identities_remain_distinct(self):
         candidate = self.FakeElf(
             Path("missing"), ["", ".text"],
