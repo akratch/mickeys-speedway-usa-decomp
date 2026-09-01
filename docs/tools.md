@@ -247,6 +247,12 @@ identity to the candidate record but never moves its offset: a schedule-shifted
 HI16/LO16 pair still fails the independent offset/type comparison. Conflicting
 or merely nonmatching sibling evidence remains unresolved.
 
+The exact-sibling route also applies to an anonymous `R_MIPS_26` call proxy.
+The sibling must supply one static call relocation at the same site as one
+shipped runtime tuple; the proof subtracts the object's REL addend and records
+only the resulting base identity. It does not rewrite the candidate call site,
+infer through a missing tuple, or choose between conflicting sibling targets.
+
 Promotion does not make the preflight unusable when splat removes the
 function's `asm/nonmatchings` fallback. With no fallback present, the resolver
 enters `post_promotion` mode only for one unconditional requested C definition

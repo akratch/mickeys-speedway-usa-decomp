@@ -129,9 +129,12 @@ marked matched and not `NON_MATCHING`, a fresh canonical object whose physical
 text is exactly that row, one agreeing linked function symbol, and byte
 identity between the linked row and the retail ROM. Only then may an exact
 static relocation offset/type pair in that sibling be associated with the
-shipped runtime tuple at the same sibling-relative site. Conflicting witnesses
-make the name ambiguous; stale, broad-TU, nonmatched, unpaired, or linked-ROM
-disagreements supply no identity.
+shipped runtime tuple at the same sibling-relative site. This includes an
+anonymous `R_MIPS_26` call proxy when the exact sibling's call record uniquely
+names its shipped runtime target; the object-side REL addend is removed before
+the base identity is reused. Conflicting witnesses make the name ambiguous;
+stale, broad-TU, nonmatched, unpaired, or linked-ROM disagreements supply no
+identity.
 
 The witness proves a symbol name, not a candidate offset. The candidate's own
 relocation offsets remain unchanged and are still compared independently. For
@@ -139,6 +142,13 @@ example, Overlay 71's matched `func_overlay_071_F0000278_18C9D98` now proves
 the shared initial-resource proxy used by the guarded `+0x870` renderer, while
 the renderer's displaced `D_80000008` HI16 remains a real offset/type mismatch
 and receives no normalization or inferred pairing.
+
+Overlay 31 demonstrates the ambiguity gate. Its exact siblings use the static
+name `overlay31AllocateReloc` for three distinct shipped resident destinations,
+so `overlay31CreatePool` receives no call identity from them. One individually
+matching sibling tuple is insufficient when another admissible sibling
+conflicts; the tool rejects the name instead of choosing the closest target or
+the tuple at the candidate's offset.
 
 Linked BSS follows the shipped relocation blobs, while runtime BSS follows only
 text plus data/rodata. The tool therefore proves the linked definition first,

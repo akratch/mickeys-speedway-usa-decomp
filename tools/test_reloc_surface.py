@@ -760,6 +760,14 @@ class MatchedOverlayRelocationWitnessTests(unittest.TestCase):
         runtime_module = {"overlay": overlay, "rom_start": rom_start}
         return bytes(rom), module, runtime_module, target, canonicals
 
+    def call_fixture(self, root, *, matched=True, owners=1):
+        fixture = self.fixture(root, matched=matched, owners=owners)
+        for canonical in fixture[-1].values():
+            canonical._relocations = [
+                (".text", 0x8, rs.R_MIPS_26, 0),
+            ]
+        return fixture
+
     def test_exact_function_sized_sibling_authenticates_proxy_name(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -840,6 +848,75 @@ class MatchedOverlayRelocationWitnessTests(unittest.TestCase):
         result = rs.compare_record_sets(
             [rs.SurfaceRecord(0x8, rs.R_MIPS_HI16, identity)],
             [rs.SurfaceRecord(0xC, rs.R_MIPS_HI16, identity)],
+        )
+        self.assertEqual(0, result["offset_type_alignment_count"])
+        self.assertEqual(0, result["stable_identity_alignment_count"])
+
+    def test_exact_sibling_authenticates_call_proxy_name(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            rom, module, runtime_module, target, canonicals = (
+                self.call_fixture(root)
+            )
+            object_text = bytearray(0x20)
+            struct.pack_into(">I", object_text, 0x8, 1)
+            next(iter(canonicals.values()))._sections[".text"] = bytes(object_text)
+            records = [
+                rs.SurfaceRecord(0x8, rs.R_MIPS_26, (0, 0x1234)),
+            ]
+            with mock.patch.object(rs, "_target_runtime_records",
+                                   return_value=records):
+                witnessed = rs._matched_overlay_relocation_witnesses(
+                    module, target, rom, runtime_module, {"gSharedProxy"},
+                    root=root, elf_loader=lambda path: canonicals[path])
+        self.assertEqual({(0, 0x1230)}, witnessed["gSharedProxy"])
+
+    def test_nonmatched_sibling_does_not_authenticate_call_proxy(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            rom, module, runtime_module, target, canonicals = (
+                self.call_fixture(root, matched=False)
+            )
+            with mock.patch.object(rs, "_target_runtime_records") as runtime:
+                witnessed = rs._matched_overlay_relocation_witnesses(
+                    module, target, rom, runtime_module, {"gSharedProxy"},
+                    root=root, elf_loader=lambda path: canonicals[path])
+        self.assertEqual({}, witnessed)
+        runtime.assert_not_called()
+
+    def test_conflicting_call_proxy_witnesses_remain_ambiguous(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            rom, module, runtime_module, target, canonicals = (
+                self.call_fixture(root, owners=2)
+            )
+            candidate = self.FakeElf(
+                root / "build_non_matching/src/overlays/o007/caller.c.o",
+                ["", ".text"],
+                symbols=[("gSharedProxy", 0, 0, 0, rs.SHN_UNDEF)],
+                relocations=[(".text", 0, rs.R_MIPS_26, 0)],
+                sections={".text": b"\0" * 8},
+            )
+
+            def runtime_records(_rom, _context, start, _size):
+                identity = (0, 0x1234 if start == 0 else 0x5678)
+                return [rs.SurfaceRecord(0x8, rs.R_MIPS_26, identity)]
+
+            with mock.patch.object(rs, "_target_runtime_records",
+                                   side_effect=runtime_records):
+                resolved, ambiguous = rs._stable_overlay_call_identities(
+                    root / "missing-aliases.txt", candidate, 7, target,
+                    {"modules": []}, 0, 8, root=root,
+                    elf_loader=lambda path: canonicals[path], module=module,
+                    rom=rom, runtime_module=runtime_module)
+        self.assertNotIn("gSharedProxy", resolved)
+        self.assertIn("gSharedProxy", ambiguous)
+
+    def test_call_proxy_witness_does_not_align_shifted_offset(self):
+        identity = (0, 0x1234)
+        result = rs.compare_record_sets(
+            [rs.SurfaceRecord(0x8, rs.R_MIPS_26, identity)],
+            [rs.SurfaceRecord(0xC, rs.R_MIPS_26, identity)],
         )
         self.assertEqual(0, result["offset_type_alignment_count"])
         self.assertEqual(0, result["stable_identity_alignment_count"])

@@ -1405,21 +1405,32 @@ def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
 def _stable_overlay_call_identities(path, candidate_elf, source_overlay,
                                     target_elf, atlas, start, size,
                                     redefine_aliases=None, root=None,
-                                    elf_loader=None):
-    """Resolve only boundary-authenticated same-overlay ``R_MIPS_26`` names."""
+                                    elf_loader=None, module=None, rom=None,
+                                    runtime_module=None):
+    """Resolve uniquely boundary- or sibling-authenticated ``R_MIPS_26`` names."""
     symbols = candidate_elf.symbols()
     proposed = collections.defaultdict(set)
     reverse = redefine_aliases or {}
+    valid = set()
     for _section, offset, rtype, symbol_index in candidate_elf.relocations():
         if rtype != R_MIPS_26 or not start <= offset < start + size:
             continue
         current = symbols[symbol_index][0] if symbol_index < len(symbols) else ""
         original = reverse.get(current, current)
+        if original:
+            valid.add(original)
         identity = _canonical_overlay_call_boundary(
             atlas, source_overlay, original, target_elf,
             root=root, elf_loader=elf_loader)
         if identity is not None:
             proposed[original].add(identity)
+
+    if module is not None and rom is not None and runtime_module is not None:
+        witnessed = _matched_overlay_relocation_witnesses(
+            module, target_elf, rom, runtime_module, valid,
+            root=root, elf_loader=elf_loader)
+        for name, identities in witnessed.items():
+            proposed[name].update(identities)
 
     equality_aliases = []
     if path.is_file():
@@ -1872,7 +1883,7 @@ def _matched_overlay_relocation_witnesses(module, target_elf, rom,
         symbols = canonical.symbols()
         sites = []
         for _section, offset, rtype, symbol_index in canonical.relocations():
-            if rtype == R_MIPS_26 or not 0 <= offset < row_size:
+            if not 0 <= offset < row_size:
                 continue
             name = symbols[symbol_index][0] if symbol_index < len(symbols) else ""
             if name in wanted:
@@ -1901,6 +1912,13 @@ def _matched_overlay_relocation_witnesses(module, target_elf, rom,
                 if target is None or target.identity is None:
                     continue
                 addend = stored_field(object_text, anchor["offset"], R_MIPS_32)
+                identity = target.identity
+            elif anchor["type"] == R_MIPS_26:
+                target = by_shape.get((anchor["offset"], R_MIPS_26))
+                if target is None or target.identity is None:
+                    continue
+                addend = stored_field(
+                    object_text, anchor["offset"], R_MIPS_26) << 2
                 identity = target.identity
             else:
                 continue
@@ -2314,7 +2332,8 @@ def function_surface_comparison(symbol, candidate_object, target_elf_path,
     overlay_call_identities, ambiguous_overlay_calls = (
         _stable_overlay_call_identities(
             values_path, candidate_elf, overlay, target_elf, atlas,
-            candidate_start, candidate_size, candidate_redefine_aliases)
+            candidate_start, candidate_size, candidate_redefine_aliases,
+            module=module_row, rom=rom, runtime_module=context["module"])
         if overlay is not None else ({}, set())
     )
     if overlay is not None:
