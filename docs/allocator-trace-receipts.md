@@ -198,6 +198,37 @@ authenticated compiler structure and repeat disabled/enabled fidelity proof;
 the capture tool will consume them without a schema change. Do not promote an
 itable index, source line, or opaque raw word to any of these fields.
 
+A bounded audit of the procedure-scoped producer and receipt pipeline found no
+additional authentic field that can close this gap. UGEN free-list rows contain
+only the procedure ordinal, physical register, emission ordinal, and logical
+line. They contain no operand identity or edge endpoint, so birth/death order
+cannot be promoted to a temp dependency graph. Focused UOPT captures can emit
+`intf` rows between allocator-web numbers, but those are allocator
+interference constraints, not UGEN data-dependency edges. Web numbers are
+run-local and the producer emits no cross-stage identity joining them to UGEN
+temporaries. The receipt therefore must not join either record by line,
+symbol-table number, raw word, register, or relative position.
+
+Calibration on `func_800498FC` and the independent `func_80050E9C` control
+reached the same boundary: procedure mapping and trace-off object fidelity
+passed, and procedure-scoped temp births were available, while direct source
+semantics, virtual/final homes, and temp dependency edges remained unavailable.
+The first function had no trace-supported source experiment; the control could
+localize one extra birth to a logical line but could not authenticate the C
+value that owned it. This is a producer plateau, not evidence that the missing
+fields agree with the target.
+
+The next implementable lever is a producer hook at the compiler structure that
+actually owns each fact. A source-semantic or dependency record must be emitted
+while a stable source/expression identity and both edge endpoints coexist, then
+carry an explicit identity into the selected UOPT web or UGEN temporary. A
+virtual-home hook must observe the optimizer's home assignment; a final-home
+hook must observe frame-layout or spill finalization. Each record needs the
+authenticated procedure ordinal and an explicit field tag, followed by
+trace-disabled fidelity proof and calibration on both functions above. Until
+such a record exists, extending the receipt would only re-label inference as
+producer evidence and remains prohibited.
+
 ## Failure meanings
 
 - A count/order failure means the symbol-to-procedure join is unproved. Do not
