@@ -107,10 +107,15 @@ non-exact.
 ### Canonical same-overlay LOCAL/data identities
 
 Overlay data placeholders are not identities merely because a linker-script
-assignment gives them a small numeric value. The comparison tool now admits a
-same-overlay LOCAL/data base only from candidate-side canonical evidence; it
-never borrows the target relocation at the same row or uses the target identity
-to decide what the candidate meant.
+assignment gives them a small numeric value. The comparison tool first admits
+a same-overlay LOCAL/data base from candidate-side canonical evidence. It also
+has one narrower runtime-correlated route for undefined proxy externs: a
+complete candidate HI16/LO16 pair may use the owned target runtime tuple at the
+same function-relative offset/type only when that tuple is unique and every use
+of the proxy derives one consistent stable base after removing the candidate's
+REL addend. Missing or conflicting pairs remain unresolved. This route never
+uses or equates the overlays' shared synthetic VMA; the runtime table's overlay
+number or reserved selector is part of the identity.
 
 The ordinary canonical link can retain two symbols with the same name: one ABS
 symbol for the generated numeric assignment and one overlay-specific data or
@@ -142,6 +147,12 @@ example, Overlay 71's matched `func_overlay_071_F0000278_18C9D98` now proves
 the shared initial-resource proxy used by the guarded `+0x870` renderer, while
 the renderer's displaced `D_80000008` HI16 remains a real offset/type mismatch
 and receives no normalization or inferred pairing.
+
+The runtime-correlated route likewise binds a proxy name without changing any
+site. It does not repair a shifted relocation, accept a defined candidate data
+symbol without canonical section ownership, or choose between two runtime
+identities. Promotion retains the separate linked-module and full-ROM byte
+proof, so resolving a proxy cannot by itself turn a candidate into a match.
 
 Overlay 31 demonstrates the ambiguity gate. Its exact siblings use the static
 name `overlay31AllocateReloc` for three distinct shipped resident destinations,

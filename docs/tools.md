@@ -247,6 +247,17 @@ identity to the candidate record but never moves its offset: a schedule-shifted
 HI16/LO16 pair still fails the independent offset/type comparison. Conflicting
 or merely nonmatching sibling evidence remains unresolved.
 
+An undefined overlay proxy can also be bound directly from its owned shipped
+runtime surface, but only for complete HI16/LO16 pairs. The candidate TU and
+target range must already resolve to one atlas overlay owner; each pair must
+align by function-relative offset and relocation type with one unique runtime
+tuple; and every use of the proxy must derive the same stable overlay-selector
+and base offset after removing the candidate REL addend. This is not a shared
+synthetic-VMA inference: real overlays and reserved selectors remain distinct,
+and duplicate, unpaired, missing, or conflicting tuples fail closed. Exact
+promotion still independently requires exact code bytes, relocation shape and
+identity, the linked owner/module range, and the full ROM.
+
 The exact-sibling route also applies to an anonymous `R_MIPS_26` call proxy.
 The sibling must supply one static call relocation at the same site as one
 shipped runtime tuple; the proof subtracts the object's REL addend and records

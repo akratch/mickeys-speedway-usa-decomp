@@ -664,6 +664,145 @@ class OverlayDataIdentityTests(unittest.TestCase):
         self.assertEqual([(7, 0xFFC), (7, 0xFFC)],
                          [record.identity for record in records])
 
+    @staticmethod
+    def runtime_module(overlay):
+        return {
+            "overlay": overlay,
+            "identity": "overlay:%d" % overlay,
+            "synthetic_vma": "0xF0000000",
+        }
+
+    def test_runtime_correlated_local_pair_resolves_o29_proxy(self):
+        candidate = self.FakeElf(
+            Path("missing"), ["", ".text"],
+            [("gOverlay29MinimumYReloc", 0, 0, 0, rs.SHN_UNDEF)],
+            [(".text", 0x20, rs.R_MIPS_HI16, 0),
+             (".text", 0x24, rs.R_MIPS_LO16, 0)],
+            b"\0" * 0x28)
+        target = [
+            rs.SurfaceRecord(0x20, rs.R_MIPS_HI16, (29, 0x16E4), 20),
+            rs.SurfaceRecord(0x24, rs.R_MIPS_LO16, (29, 0x16E4), 20),
+        ]
+
+        resolved, ambiguous = rs._runtime_correlated_overlay_hilo_identities(
+            candidate, self.runtime_module(29), 0, 0x28, target)
+
+        self.assertEqual({"gOverlay29MinimumYReloc": (29, 0x16E4)}, resolved)
+        self.assertEqual(set(), ambiguous)
+
+    def test_runtime_correlated_pairs_resolve_o41_proxy_addends(self):
+        symbols = [
+            ("gQueueActive", 0, 0, 0, rs.SHN_UNDEF),
+            ("gQueueEntries", 0, 0, 0, rs.SHN_UNDEF),
+        ]
+        text = bytearray(0x10)
+        struct.pack_into(">I", text, 0x4, 11)
+        candidate = self.FakeElf(
+            Path("missing"), ["", ".text"], symbols,
+            [(".text", 0, rs.R_MIPS_HI16, 0),
+             (".text", 4, rs.R_MIPS_LO16, 0),
+             (".text", 8, rs.R_MIPS_HI16, 1),
+             (".text", 12, rs.R_MIPS_LO16, 1)],
+            bytes(text))
+        target = [
+            rs.SurfaceRecord(0, rs.R_MIPS_HI16, (0xFFF, 0x512E3), 11),
+            rs.SurfaceRecord(4, rs.R_MIPS_LO16, (0xFFF, 0x512E3), 11),
+            rs.SurfaceRecord(8, rs.R_MIPS_HI16, (0xFFF, 0x512E4), 12),
+            rs.SurfaceRecord(12, rs.R_MIPS_LO16, (0xFFF, 0x512E4), 12),
+        ]
+
+        resolved, ambiguous = rs._runtime_correlated_overlay_hilo_identities(
+            candidate, self.runtime_module(41), 0, 0x10, target)
+
+        self.assertEqual(
+            {"gQueueActive": (0xFFF, 0x512D8),
+             "gQueueEntries": (0xFFF, 0x512E4)},
+            resolved)
+        self.assertEqual(set(), ambiguous)
+
+    def test_shared_vma_overlay_identities_remain_distinct(self):
+        candidate = self.FakeElf(
+            Path("missing"), ["", ".text"],
+            [("gOverlay7", 0, 0, 0, rs.SHN_UNDEF),
+             ("gOverlay8", 0, 0, 0, rs.SHN_UNDEF)],
+            [(".text", 0, rs.R_MIPS_HI16, 0),
+             (".text", 4, rs.R_MIPS_LO16, 0),
+             (".text", 8, rs.R_MIPS_HI16, 1),
+             (".text", 12, rs.R_MIPS_LO16, 1)],
+            b"\0" * 0x10)
+        target = [
+            rs.SurfaceRecord(0, rs.R_MIPS_HI16, (7, 0xFC0), 0),
+            rs.SurfaceRecord(4, rs.R_MIPS_LO16, (7, 0xFC0), 0),
+            rs.SurfaceRecord(8, rs.R_MIPS_HI16, (8, 0xFC0), 0),
+            rs.SurfaceRecord(12, rs.R_MIPS_LO16, (8, 0xFC0), 0),
+        ]
+
+        resolved, ambiguous = rs._runtime_correlated_overlay_hilo_identities(
+            candidate, self.runtime_module(7), 0, 0x10, target)
+
+        self.assertEqual((7, 0xFC0), resolved["gOverlay7"])
+        self.assertEqual((8, 0xFC0), resolved["gOverlay8"])
+        self.assertEqual(set(), ambiguous)
+
+    def test_conflicting_overlay_identities_for_one_proxy_fail_closed(self):
+        candidate = self.FakeElf(
+            Path("missing"), ["", ".text"],
+            [("gAmbiguous", 0, 0, 0, rs.SHN_UNDEF)],
+            [(".text", 0, rs.R_MIPS_HI16, 0),
+             (".text", 4, rs.R_MIPS_LO16, 0),
+             (".text", 8, rs.R_MIPS_HI16, 0),
+             (".text", 12, rs.R_MIPS_LO16, 0)],
+            b"\0" * 0x10)
+        target = [
+            rs.SurfaceRecord(0, rs.R_MIPS_HI16, (7, 0xFC0), 0),
+            rs.SurfaceRecord(4, rs.R_MIPS_LO16, (7, 0xFC0), 0),
+            rs.SurfaceRecord(8, rs.R_MIPS_HI16, (8, 0xFC0), 0),
+            rs.SurfaceRecord(12, rs.R_MIPS_LO16, (8, 0xFC0), 0),
+        ]
+
+        resolved, ambiguous = rs._runtime_correlated_overlay_hilo_identities(
+            candidate, self.runtime_module(7), 0, 0x10, target)
+
+        self.assertNotIn("gAmbiguous", resolved)
+        self.assertIn("gAmbiguous", ambiguous)
+
+    def test_defined_candidate_symbol_requires_canonical_section_owner(self):
+        candidate = self.FakeElf(
+            Path("missing"), ["", ".text", ".data"],
+            [("gCandidateData", 0, 4, rs.STT_OBJECT, 2)],
+            [(".text", 0, rs.R_MIPS_HI16, 0),
+             (".text", 4, rs.R_MIPS_LO16, 0)],
+            b"\0" * 8)
+        target = [
+            rs.SurfaceRecord(0, rs.R_MIPS_HI16, (7, 0xFC0), 0),
+            rs.SurfaceRecord(4, rs.R_MIPS_LO16, (7, 0xFC0), 0),
+        ]
+
+        resolved, ambiguous = rs._runtime_correlated_overlay_hilo_identities(
+            candidate, self.runtime_module(7), 0, 8, target)
+
+        self.assertEqual({}, resolved)
+        self.assertEqual(set(), ambiguous)
+
+    def test_runtime_correlated_proxy_keeps_pre_objcopy_name(self):
+        candidate = self.FakeElf(
+            Path("missing"), ["", ".text"],
+            [("D_current", 0, 0, 0, rs.SHN_UNDEF)],
+            [(".text", 0, rs.R_MIPS_HI16, 0),
+             (".text", 4, rs.R_MIPS_LO16, 0)],
+            b"\0" * 8)
+        target = [
+            rs.SurfaceRecord(0, rs.R_MIPS_HI16, (7, 0xFC0), 0),
+            rs.SurfaceRecord(4, rs.R_MIPS_LO16, (7, 0xFC0), 0),
+        ]
+
+        resolved, ambiguous = rs._runtime_correlated_overlay_hilo_identities(
+            candidate, self.runtime_module(7), 0, 8, target,
+            {"D_current": "gOriginalProxy"})
+
+        self.assertEqual({"gOriginalProxy": (7, 0xFC0)}, resolved)
+        self.assertEqual(set(), ambiguous)
+
 
 class MatchedOverlayRelocationWitnessTests(unittest.TestCase):
     class FakeElf:

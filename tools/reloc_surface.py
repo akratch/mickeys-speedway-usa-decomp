@@ -1693,10 +1693,136 @@ def _canonical_overlay_data_identity(module, candidate_elf, name,
     return overlay, runtime_offset
 
 
+def _runtime_correlated_overlay_hilo_identities(candidate_elf, module, start,
+                                                size, target_records,
+                                                redefine_aliases=None):
+    """Bind undefined HI16/LO16 proxies to uniquely owned runtime tuples.
+
+    This is intentionally narrower than matching a synthetic address.  The
+    caller has already authenticated the candidate TU and target function to
+    one atlas overlay owner, and ``target_records`` came from that overlay's
+    shipped relocation table.  A proxy is admitted only when every complete
+    pair that names it aligns by function-relative offset/type and derives the
+    same stable ``(overlay selector, offset)`` base after removing the
+    candidate object's REL addend.  Missing, duplicate, unpaired, or
+    conflicting evidence leaves the name unresolved/ambiguous.
+
+    Reserved runtime selectors (0xFFD..0xFFF) remain distinct identities.
+    Nothing here compares or normalizes the overlays' shared synthetic VMA.
+    """
+    overlay = module.get("overlay")
+    if not isinstance(overlay, int):
+        raise SurfaceComparisonError("overlay module has no numeric identity")
+    if module.get("identity") != "overlay:%d" % overlay:
+        raise SurfaceComparisonError(
+            "overlay %d atlas identity conflicts with its module row" % overlay)
+    if _atlas_hex(module, "synthetic_vma", "overlay module") != SYNTHETIC_VMA:
+        raise SurfaceComparisonError(
+            "overlay %d atlas synthetic VMA conflicts with canonical policy"
+            % overlay)
+
+    by_shape = collections.defaultdict(list)
+    for record in target_records or ():
+        by_shape[(record.offset, record.rtype)].append(record)
+
+    symbols = candidate_elf.symbols()
+    reverse = redefine_aliases or {}
+    sites = []
+    referenced_sections = collections.defaultdict(set)
+    referenced_types = collections.defaultdict(set)
+    for _section, offset, rtype, symbol_index in candidate_elf.relocations():
+        if not start <= offset < start + size:
+            continue
+        if symbol_index >= len(symbols):
+            continue
+        current, _value, _symbol_size, _info, shndx = symbols[symbol_index]
+        if not current:
+            continue
+        name = reverse.get(current, current)
+        referenced_sections[name].add(shndx)
+        referenced_types[name].add(rtype)
+        if rtype not in (R_MIPS_HI16, R_MIPS_LO16):
+            continue
+        sites.append({
+            "offset": offset,
+            "relative_offset": offset - start,
+            "type": rtype,
+            "symbol": name,
+        })
+
+    object_text = candidate_elf.section_bytes(".text")
+    proposed = collections.defaultdict(set)
+    ambiguous = set()
+    disqualified = {
+        name for name, types in referenced_types.items()
+        if not types <= {R_MIPS_HI16, R_MIPS_LO16}
+    }
+    for high, low in _pairs(sites):
+        anchor = high or low
+        if anchor is None or anchor["type"] not in (R_MIPS_HI16, R_MIPS_LO16):
+            continue
+        name = anchor["symbol"]
+        # This route binds source-level proxy externs only.  A definition in
+        # any candidate section needs independent canonical owner evidence.
+        if referenced_sections[name] != {SHN_UNDEF}:
+            disqualified.add(name)
+            continue
+        if high is None or low is None:
+            disqualified.add(name)
+            continue
+        high_targets = by_shape[(high["relative_offset"], R_MIPS_HI16)]
+        low_targets = by_shape[(low["relative_offset"], R_MIPS_LO16)]
+        if len(high_targets) != 1 or len(low_targets) != 1:
+            if high_targets or low_targets:
+                ambiguous.add(name)
+            else:
+                disqualified.add(name)
+            continue
+        high_target, low_target = high_targets[0], low_targets[0]
+        identity = high_target.identity
+        if (identity is None or identity != low_target.identity
+                or high_target.link_addend is None
+                or high_target.link_addend != low_target.link_addend):
+            ambiguous.add(name)
+            continue
+        if (not isinstance(identity, tuple) or len(identity) != 2
+                or not all(isinstance(value, int) for value in identity)
+                or not 0 <= identity[0] <= 0xFFF or identity[1] < 0):
+            ambiguous.add(name)
+            continue
+        if identity[1] - high_target.link_addend < 0:
+            ambiguous.add(name)
+            continue
+        if high["offset"] + 4 > len(object_text) \
+                or low["offset"] + 4 > len(object_text):
+            ambiguous.add(name)
+            continue
+        addend = (
+            stored_field(object_text, high["offset"], R_MIPS_HI16) << 16
+        ) + sext16(stored_field(
+            object_text, low["offset"], R_MIPS_LO16))
+        base_offset = identity[1] - addend
+        if base_offset < 0:
+            ambiguous.add(name)
+            continue
+        proposed[name].add((identity[0], base_offset))
+
+    for name, identities in proposed.items():
+        if len(identities) > 1:
+            ambiguous.add(name)
+    resolved = {
+        name: next(iter(identities))
+        for name, identities in proposed.items()
+        if (len(identities) == 1 and name not in ambiguous
+                and name not in disqualified)
+    }
+    return resolved, ambiguous
+
+
 def _stable_overlay_data_identities(path, candidate_elf, module, target_elf,
                                     start, size, redefine_aliases=None,
                                     root=None, elf_loader=None, rom=None,
-                                    runtime_module=None):
+                                    runtime_module=None, target_records=None):
     """Resolve candidate-side same-overlay LOCAL/data identities fail closed."""
     symbols = candidate_elf.symbols()
     sites = []
@@ -1738,6 +1864,15 @@ def _stable_overlay_data_identities(path, candidate_elf, module, target_elf,
         for name, identities in witnessed.items():
             proposed[name].update(identities)
 
+    runtime_ambiguous = set()
+    if target_records is not None:
+        correlated, runtime_ambiguous = (
+            _runtime_correlated_overlay_hilo_identities(
+                candidate_elf, module, start, size, target_records,
+                redefine_aliases))
+        for name, identity in correlated.items():
+            proposed[name].add(identity)
+
     equality_aliases = ri.parse_linker_aliases(path.read_text()) \
         if path.is_file() else []
     redefine_pairs = [
@@ -1750,7 +1885,12 @@ def _stable_overlay_data_identities(path, candidate_elf, module, target_elf,
             redefine_aliases=redefine_pairs)
     except ri.RelocationIdentityError as error:
         raise SurfaceComparisonError(str(error)) from error
-    return resolution.resolved, set(resolution.ambiguous)
+    ambiguous = set(resolution.ambiguous) | runtime_ambiguous
+    resolved = {
+        name: identity for name, identity in resolution.resolved.items()
+        if name not in ambiguous
+    }
+    return resolved, ambiguous
 
 
 def _matched_overlay_relocation_witnesses(module, target_elf, rom,
@@ -2341,7 +2481,8 @@ def function_surface_comparison(symbol, candidate_object, target_elf_path,
             _stable_overlay_data_identities(
                 values_path, candidate_elf, module_row, target_elf,
                 candidate_start, candidate_size, candidate_redefine_aliases,
-                rom=rom, runtime_module=context["module"])
+                rom=rom, runtime_module=context["module"],
+                target_records=target_records)
         )
         for name, identity in overlay_data_identities.items():
             existing = identities.get(name)
