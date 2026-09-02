@@ -639,6 +639,11 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: $(SRC_DIR)/libultra/xldtob.c $(H_FI
 # file's header comment, never guessed at.
 # ---------------------------------------------------------------------------
 
+# Mickey's object-system TU uses the R4300 multiply-hazard scheduler; the
+# rolled byte-copy loop in func_80005548 also requires the measured unroll
+# setting alongside func_8000A62C's three delay nops.
+$(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: CFLAGS += -Wab,-r4300_mul -Wo,-loopunroll,0
+
 # libultra's libc string TU needs branch-likely instructions (bnel/beql), which
 # IDO only emits at -mips2; -mips1 produces a 0x90-byte .text instead of the
 # ROM's 0xA0. Consistent with how the DKR decomp builds its libultra tree.
@@ -673,6 +678,11 @@ $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: OPT_FLAGS := -O1))
 $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
+
+# osCreateThread is an SDK C TU whose target schedule is MIPS-II-specific:
+# -mips1 leaves the cleanup-thread address materialization and epilogue in the
+# wrong order, while -mips2 reproduces all 58 target instruction words.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/createthread.c.o: MIPSISET := -mips2 -32
 
 # This old SDK source uses `__GNUC__` as a version-path selector even when IDO
 # compiles it. JFG's matching object defines it for this TU only.
@@ -897,6 +907,15 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/vimgr.c.o: OPT_FLAGS := -O2
 # one zero instruction solely to align its standalone .text section to 0x10.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/osFlashClearStatus.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C
+# The five-function flash block ends at the measured 0x3B4-byte boundary;
+# discard IDO's trailing section-alignment words before the next subsegment.
+$(BUILD_DIR)/$(SRC_DIR)/main/flash_5885C.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B4
+# The compiled five-function body plus IDO's natural trailing alignment ends
+# at 0x3B0; the final four target bytes are linker padding before the next
+# subsegment.
+$(BUILD_DIR)/$(SRC_DIR)/main/flash_5885C.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B0
 $(BUILD_DIR)/$(SRC_DIR)/libultra/aisetnextbuf.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/sptask.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/vi.c.o: CFLAGS += -DRAREDIFFS
@@ -971,6 +990,19 @@ $(BUILD_DIR)/$(SRC_DIR)/main/texEnableModes.c.o: POSTPROCESS = \
 # IDO's two trailing section-alignment words.
 $(BUILD_DIR)/$(SRC_DIR)/main/texLoadTextureAddr.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x28
+# These three C subsegments are 4-byte-aligned resident slices inside the
+# original textures translation unit. IDO rounds each standalone .text
+# section to 0x10, so discard only the section padding after the exact slice.
+$(BUILD_DIR)/$(SRC_DIR)/main/textures_34E60.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1A8
+$(BUILD_DIR)/$(SRC_DIR)/main/textures_35024.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x47C
+$(BUILD_DIR)/$(SRC_DIR)/main/textures_354C8.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2188
+# The audiomgr block ends at the measured 0xD7C boundary; discard only IDO's
+# trailing section-alignment word before the following 0x30BC TU.
+$(BUILD_DIR)/$(SRC_DIR)/main/audiomgr.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD7C
 # Mickey's three maths objects are byte-identical to JFG's matching objects,
 # whose per-directory rule uses bare `-g` (no optimisation flag). The -O2
 # game default changes atan2f from 0x1F4 to 0x134 bytes, so keep this override
@@ -1030,6 +1062,12 @@ $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # IDO's trailing four zero bytes follow the combined 0x38-byte input section.
 $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x38
+# objects owns func_80008A8C's 56-entry table, three literal-pool floats and
+# func_8000A6E8's 88-entry table: 0x24C bytes, which IDO rounds up to 0x250
+# because the section carries switch tables. Discard only that trailing zero
+# word, so jtbl_800810E8 still starts at the address it has in the ROM.
+$(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x24C
 # JFG's source-level string migration reproduces diRcp's complete diagnostic
 # string block followed by the 0x100-byte switch-table span. The following
 # four zero bytes are output-section padding.
@@ -1091,6 +1129,8 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
 # The menu initialization loops are scalar in the target; the flag lattice
 # selects the non-unrolled 85-instruction form for func_80038878.
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: CFLAGS += -Wo,-loopunroll,0
+# The adjacent menu tail also retains its scalar record-reset loop.
+$(BUILD_DIR)/$(SRC_DIR)/main/menu_3B1A0.c.o: CFLAGS += -Wo,-loopunroll,0
 # func_80038750's five-entry language jump table (0x14) precedes the two
 # consecutive 0x4C-byte switch tables; IDO rounds the 0xAC input section up,
 # so discard only the trailing input-section padding before linking the next

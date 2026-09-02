@@ -145,12 +145,12 @@ segments:
     bss_size: 0x52D10
     subsegments:
       - [0x1050, c, main/audio_manager_1050]
-      - [0x2340, asm]
+      - [0x2340, c, main/audiomgr]
       - [0x30BC, c, main/amAudioMgrSetScheduleMode]
-      - [0x30E0, asm]
+      - [0x30E0, c, main/audiomgr_30E0]
       - [0x3100, c, main/audio_manager_36D0]
       - [0x45F0, c, main/audio_manager_4C50]
-      - [0x4F40, asm]
+      - [0x4F40, c, main/objects]
       # `track/track.c`: the first and last routines align with JFG's track TU,
       # 40 of 62 similarity-eligible functions place that TU in their top five,
       # two large routines reference all 14 resident `track/track.c` assert
@@ -244,21 +244,21 @@ segments:
       # measured trapDanglingJump TU and the texInitTextures-shaped function
       # that starts JFG's following textures.c TU at 0x34E60.
       - [0x34180, c, main/gameVi]
-      - [0x34E60, asm]
+      - [0x34E60, c, main/textures_34E60]
       - [0x35008, c, main/texEnableModes]
-      - [0x35024, asm]
+      - [0x35024, c, main/textures_35024]
       - [0x354A0, c, main/texLoadTextureAddr]
-      - [0x354C8, asm]
+      - [0x354C8, c, main/textures_354C8]
       - [0x37650, c, main/initColourCycle]
-      - [0x37680, asm]
-      - [0x37D50, asm]
+      - [0x37680, c, main/frontend_37680]
+      - [0x37D50, c, main/frontend_37D50]
       # JFG's menu.c / Mickey's resident front-end menu code. The start is
       # setLanguage followed by initFront; the end is the function after
       # frontCharSelectSetQuitMode, where the code switches to the unrelated
       # "UNKNOWN TRACK" table. Both boundaries are function starts and are
       # 16-byte aligned. See docs/modules.md section 3.4.
       - [0x39350, c, main/menu]
-      - [0x3B1A0, asm]
+      - [0x3B1A0, c, main/menu_3B1A0]
       # JFG/DKR weather lineage: initWeather leads this run, the second
       # routine weather_clip_planes is already tier A, and the tier-A
       # particles reset at 0x3D5F0 independently fixes the upper boundary.
@@ -305,9 +305,9 @@ segments:
       # functions; the byte-identity claim covers 0x4EA60-0x4F4D4 and the
       # remaining 0xC bytes to the next split are padding.
       - [0x4EA60, asm, main/gzip_asm]
-      - [0x4F4E0, asm]
+      - [0x4F4E0, c, main/block_4F4E0]
       - [0x4FC30, asm, libultra/exceptasm]
-      - [0x505E0, asm]
+      - [0x505E0, c, libultra/createthread]
       - [0x506D0, asm]
       - [0x50820, asm, main/refractOutputAssembler]
       # Resident animation/collision sequence. Individual-function skeleton
@@ -316,10 +316,11 @@ segments:
       # internal object boundary is proven, so the existing whole block is one
       # source subsegment until stronger section evidence appears.
       - [0x50C00, c, main/anim]
-      - [0x58570, asm]
+      - [0x58570, c, main/flash_58570]
       - [0x58810, c, libultra/osFlashClearStatus]
-      - [0x5885C, asm]
-      - [0x58C10, asm]
+      - [0x5885C, c, main/flash_5885C]
+      - [0x58C0C, asm]
+      - [0x58C10, c, main/flash_58C10]
       - [0x58E50, c, main/vehicle_sounds]
       - [0x59B90, c, main/osBootRamTest]
       - [0x59BF0, asm]
@@ -632,7 +633,7 @@ segments:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
       #      covered 35 functions and forty-four tables. After devmgr's table
-      #      moved into C objects, the 17 jump tables still emitted in asm/
+      #      moved into C objects, the 15 jump tables still emitted in asm/
       #      remain monotonically increasing in text and table address -- ZERO
       #      INVERSIONS. They run from jtbl_80080D2C through jtbl_800841F4, so
       #      .rodata can continue to be carved TU by TU in text order.
@@ -656,6 +657,14 @@ segments:
       # `enddlabel` as a zero-size label directive, preserving the symbol-size
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
+      # objects' second-pass rodata, in source order: func_80008A8C's 56-entry
+      # object-type switch table, the literal pool of func_80008B94,
+      # func_80009220 and func_80009F08, then func_8000A6E8's 88-entry table.
+      # IDO rounds a switch-table-bearing .rodata input section up to 16 bytes,
+      # so objects.c.o is trimmed back to this 0x24C before the link (see the
+      # trim_elf_section.py rule in the Makefile); jtbl_800810E8 follows here.
+      - [0x81A9C, .rodata, main/objects]
+      - [0x81CE8, rodata]
       # func_80019934's five-entry distance-mode switch table.
       - [0x823B4, .rodata, main/lights]
       - [0x823C8, rodata]

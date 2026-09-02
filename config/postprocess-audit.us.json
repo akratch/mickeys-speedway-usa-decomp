@@ -63,11 +63,39 @@
       "class": "metadata",
       "matched_c": null,
       "nonmatching": null,
+      "object": "build/src/main/audiomgr.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/audiomgr.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "c_owned": null,
+      "class": "metadata",
+      "matched_c": null,
+      "nonmatching": null,
       "object": "build/src/main/diRcp.c.o",
       "offset": null,
       "overlay": null,
       "size": null,
       "source": "src/main/diRcp.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "c_owned": null,
+      "class": "metadata",
+      "matched_c": null,
+      "nonmatching": null,
+      "object": "build/src/main/flash_5885C.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/flash_5885C.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -136,6 +164,20 @@
       "class": "metadata",
       "matched_c": null,
       "nonmatching": null,
+      "object": "build/src/main/objects.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/objects.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "c_owned": null,
+      "class": "metadata",
+      "matched_c": null,
+      "nonmatching": null,
       "object": "build/src/main/particles.c.o",
       "offset": null,
       "overlay": null,
@@ -197,6 +239,48 @@
       "overlay": null,
       "size": null,
       "source": "src/main/texLoadTextureAddr.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "c_owned": null,
+      "class": "metadata",
+      "matched_c": null,
+      "nonmatching": null,
+      "object": "build/src/main/textures_34E60.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/textures_34E60.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "c_owned": null,
+      "class": "metadata",
+      "matched_c": null,
+      "nonmatching": null,
+      "object": "build/src/main/textures_35024.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/textures_35024.c",
+      "tools": [
+        "trim_elf_section.py"
+      ]
+    },
+    {
+      "c_owned": null,
+      "class": "metadata",
+      "matched_c": null,
+      "nonmatching": null,
+      "object": "build/src/main/textures_354C8.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/textures_354C8.c",
       "tools": [
         "trim_elf_section.py"
       ]
@@ -5650,8 +5734,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o063/overlay63Initialize.c.o",
       "offset": 0,
       "overlay": 63,
@@ -6441,8 +6525,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o079/func_overlay_079_F0001290_18CE230.c.o",
       "offset": 4752,
       "overlay": 79,
@@ -8943,9 +9027,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 623
+      "metadata": 629
     },
-    "matched_c_bytes_with_postprocess": 108900,
-    "objects_with_postprocess": 623
+    "matched_c_bytes_with_postprocess": 109860,
+    "objects_with_postprocess": 629
   }
 }

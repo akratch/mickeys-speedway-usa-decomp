@@ -324,10 +324,6 @@ typedef struct TrackSkyObject {
     TrackSkyMaterial *material;
 } TrackSkyObject;
 
-typedef struct TrackVec3f {
-    f32 f[3];
-} TrackVec3f;
-
 #define TRACK_SP_VERTEX(packet, vertex, count, first)                      \
     gDma1p(packet, G_VTX, vertex,                                         \
            (((count) << 3) + ((count) << 1)) + 8,                         \
@@ -460,12 +456,12 @@ u8 *func_80028F54(void);
 f32 camDistance(f32 x, f32 y, f32 z);
 u8 *levelGetLevel(void);
 void partDraw(Gfx **displayList, s32 arg1, s32 mode);
-void func_8000DFBC(u8 segment, s32 arg1, s32 arg2, s32 arg3);
+void func_8000DFBC(s32 segment, s32 arg1, s32 arg2, s32 arg3);
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records, TrackKeyRecord **matches);
 void func_8000F57C(s32 *resultCount, u8 *resultSegments);
 void func_8000FA2C(s32 *result, s32 arg1);
 void shadowGetBuffers(s32 mode, s32 *a, s32 *b, s32 *c);
-void func_800343F0(s32 mode, s32 segmentIndex);
+void func_800343F0();
 void texEnableModes(s32 mode);
 s32 getXZCompareMask(TrackBoundingBox *bounds, s32 x0, s32 z0, s32 x1,
                      s32 z1);
@@ -473,9 +469,6 @@ void func_800133FC(TrackVertex *v0, TrackVertex *v1, TrackVertex *v2,
                    f32 *a, f32 *b, f32 *c, f32 *d);
 s32 mathXZInTri(s32 x, s32 z, TrackVertex *v0, TrackVertex *v1,
                 TrackVertex *v2);
-s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
-                  TrackVec3f *center, f32 radius, f32 *minimum,
-                  f32 *maximum);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
 void *func_8002B280(s32 size, s32 tag);
@@ -1599,6 +1592,7 @@ void func_8000D978(s32 copySegmentData, s32 updateRate) {
         if (runlinkIsModuleLoaded(16) != 0) {
             TrapDanglingJump(&D_800C95B4, D_800792E8, updateRate);
         } else if ((D_800D6C54 != 0xFF) || (D_800D6C4C != 0)) {
+            /* Runtime relocation: overlay 40 +0x690 (overlay40FadeRecords). */
             TrapDanglingJump(&D_800C95B4, D_800792E8, updateRate);
         } else {
             func_8000D820();
@@ -2938,9 +2932,6 @@ next_plane:
     } while (planeCount--);
     return TRUE;
 }
-/* Workbench verdict: structure-mismatch, 175 differing words, first mismatch +0x0. */
-/* Candidate: 177/160 instructions with a -0x58 frame versus target -0x38; switch and FP saved-register shape remain unresolved. */
-/* Shape status: visibility branches and plane loop are reconstructed, but the candidate is not shape-exact. */
 /* PROVENANCE: JFG's assembly-only object-alpha routine supplies the role and switch family;
  * Mickey's jump tables, fields, globals, and arithmetic are authoritative here. */
 #ifdef NON_MATCHING
@@ -4097,62 +4088,39 @@ s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012234.s")
 #endif
-#ifdef NON_MATCHING
-/*
- * PROVENANCE: Jet Force Gemini's public `src/track.c` retains
- * `trackSphereIntersect` as assembly; its signature and collision role
- * supply structural context only. Mickey's vector layout, arithmetic, and
- * output pointers are reconstructed from the resident call sites and bytes.
- */
-/* Workbench plateau: allocation-mismatch, 57 instructions, first +0x50.
- * The exact 0x48 frame, opcode schedule, and sqrtf relocation remain; IDO
- * exchanges the projection and projection-square FP webs. A bounded lifetime
- * revisit found that negative-projection and named-discriminant forms are
- * byte-identical, while fresh or reused named dot terms grow the body to 63
- * words (the fresh-local form also grows the frame to 0x58).
- */
-s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
-                  TrackVec3f *center, f32 radius, f32 *minimum,
-                  f32 *maximum) {
-    f32 sp38;
-    s32 sp1C;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f12;
-    f32 temp_f14;
-    f32 temp_f16;
-    f32 temp_f18;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    s32 var_v1;
-
-    temp_f0 = origin->f[0] - center->f[0];
-    temp_f2 = origin->f[1] - center->f[1];
-    var_v1 = FALSE;
-    temp_f12 = origin->f[2] - center->f[2];
-    temp_f14 = ((temp_f0 * direction->f[0]) +
-                (temp_f2 * direction->f[1])) +
-               (temp_f12 * direction->f[2]);
-    temp_f18 = temp_f14 * temp_f14;
-    temp_f16 = (((temp_f0 * temp_f0) + (temp_f2 * temp_f2)) +
-                (temp_f12 * temp_f12)) -
-               (radius * radius);
-    if (temp_f16 <= temp_f18) {
-        var_v1 = TRUE;
-    }
-    if (var_v1 != FALSE) {
-        sp1C = var_v1;
-        sp38 = temp_f14;
-        temp_f0_2 = sqrtf(temp_f18 - temp_f16);
-        temp_f2_2 = -temp_f14;
-        *minimum = temp_f2_2 - temp_f0_2;
-        *maximum = temp_f2_2 + temp_f0_2;
-    }
-    return var_v1;
+s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction, TrackVec3f *center, f32 radius, f32 *minimum, f32 *maximum)
+{
+  f32 temp_f0;
+  f32 temp_f0_2;
+  f32 temp_f12;
+  f32 temp_f14;
+  float new_var2;
+  f32 temp_f16;
+  f32 temp_f18;
+  f32 temp_f2;
+  f32 temp_f2_2;
+  f32 new_var;
+  s32 var_v1;
+  temp_f0 = origin->f[0] - center->f[0];
+  temp_f2 = origin->f[1] - center->f[1];
+  var_v1 = 0;
+  temp_f12 = origin->f[2] - center->f[2];
+  temp_f14 = ((temp_f0 * direction->f[0]) + (temp_f2 * direction->f[1])) + (temp_f12 * direction->f[2]);
+  new_var = temp_f14;
+  new_var2 = (((temp_f0 * temp_f0) + (temp_f2 * temp_f2)) + (temp_f12 * temp_f12)) - (radius * radius);
+  temp_f18 = new_var * new_var;
+  temp_f16 = new_var2;
+  if (temp_f16 <= temp_f18)
+  {
+    var_v1 = 1;
+  }
+  if (var_v1 != 0)
+  {
+    temp_f0_2 = sqrtf(temp_f18 - temp_f16);
+ do { temp_f2_2 = -new_var; *minimum = temp_f2_2 - temp_f0_2; *maximum = temp_f2_2 + temp_f0_2; } while (0);
+  }
+  return var_v1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012574.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: Mickey's m2c draft, collision-node offsets, and output-record
@@ -5517,6 +5485,8 @@ void func_800148E0(TrackFogChanger *changer) {
             if (index != -1) {
                 x -= changer->x;
                 z -= changer->z;
+                /* Inert allocation aid retained by exact C; tracked in
+                 * docs/cleanup-queue.md. */
                 if (1) {
                 }
                 if (((x * x) + (z * z)) <
@@ -5735,6 +5705,9 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
     intensity = (frame >> 8) & 0xFF;
     gDPSetEnvColor(D_800C9520++, intensity, intensity, intensity, intensity);
 }
+
+
+
 
 /* PLATEAU-HANDOFF:func_800140CC:start
  * symbol: func_800140CC

@@ -1225,6 +1225,12 @@ def _stable_symbol_identities(path, candidate_elf, overlay, tu_base_offset,
                 continue
             if 0x80000000 <= value < 0x90000000:
                 propose(name, (0, value - ot.RESIDENT_VRAM_BASE))
+            elif overlay is None and shndx == SHN_ABS:
+                # Resident assembly sometimes names a physical/RSP address
+                # through an ELF absolute assignment. It is not a resident
+                # pointer, so keep it in a distinct identity namespace rather
+                # than adding the resident VRAM base to the link value.
+                propose(name, (ri.ABSOLUTE_IDENTITY, value))
     for elf in (candidate_elf, target_elf):
         for name, _value, _size, _info, _shndx in elf.symbols():
             m = RESIDENT_NAME_RE.match(name)
@@ -2482,11 +2488,13 @@ def _resident_target_records(candidate_object, source, target_elf,
     # These are the ordinary static-link values from the canonical object;
     # sparse runtime-table identities are merged only after this proof.
     for record in records:
-        if record.identity[0] != 0:
+        if record.identity[0] not in (0, ri.ABSOLUTE_IDENTITY):
             raise SurfaceComparisonError(
                 "resident static relocation resolves outside the resident "
                 "address space")
-        address = ot.RESIDENT_VRAM_BASE + record.identity[1]
+        address = (record.identity[1]
+                   if record.identity[0] == ri.ABSOLUTE_IDENTITY
+                   else ot.RESIDENT_VRAM_BASE + record.identity[1])
         actual = stored_field(linked_bytes, record.offset, record.rtype)
         if record.rtype == R_MIPS_26:
             expected = (address >> 2) & 0x03FFFFFF

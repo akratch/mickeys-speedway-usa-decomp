@@ -88,6 +88,11 @@ class ObjcopyAliasTests(unittest.TestCase):
 
 
 class EffectiveIdentityTests(unittest.TestCase):
+    def test_absolute_identity_has_separate_namespace(self) -> None:
+        identity = (ri.ABSOLUTE_IDENTITY, 0x7BE08)
+        self.assertEqual("absolute:0x7BE08", ri.format_identity(identity))
+        self.assertEqual(identity, ri.effective_identity(identity, 0))
+
     def test_linker_and_transitive_objcopy_aliases_share_one_identity(self) -> None:
         resolution = ri.resolve_identities(
             {"generated": {(16, 0x1E0)}},

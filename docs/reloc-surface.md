@@ -52,7 +52,10 @@ rows into `(section, offset, type, symbol, addend)` tuples, parses successive
 `objcopy --redefine-sym` operations, collapses transitive rename chains, and
 applies relocation addends to stable `(overlay, byte offset)` identities.
 Linker-script identifier aliases and postprocessed object names therefore use
-one canonicalization path in both reports.
+one canonicalization path in both reports. Resident static relocations that
+name an ELF absolute assignment use the separate `absolute:0x...` namespace;
+their complete link value is preserved instead of being mistaken for a
+resident-VRAM offset.
 
 The layer fails closed: a rename cycle, conflicting original sources for one
 destination, conflicting linker identities, malformed relocation rows, or

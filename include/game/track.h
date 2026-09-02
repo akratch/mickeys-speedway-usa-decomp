@@ -36,6 +36,11 @@ typedef struct TrackFog {
     void *fogChanger;
 } TrackFog;
 
+/* Mickey-derived from the three contiguous float accesses at collision calls. */
+typedef struct TrackVec3f {
+    f32 f[3];
+} TrackVec3f;
+
 extern TrackFog D_800C99C0[4];
 extern s32 D_800C9558;
 extern void *D_800C9550;
@@ -46,5 +51,8 @@ void trackSetFog(s32 fogIndex, s16 near, s16 far, s16 targetNear,
                  u8 red, u8 green, u8 blue, s8 state);
 void trackGetFog(s32 playerID, s16 *near, s16 *far, s16 *targetNear,
                  u8 *red, u8 *green, u8 *blue, s8 *state);
+s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
+                  TrackVec3f *center, f32 radius, f32 *minimum,
+                  f32 *maximum);
 
 #endif

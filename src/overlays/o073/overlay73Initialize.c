@@ -61,60 +61,54 @@ extern f32 D_4;
 extern f32 D_8;
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
-/* Workbench (2026-08-28): 400 B/100 words, exact 0x8 frame; 8 register words remain, first +0x40.
- * Candidate has 8 relocation roles; D_0/D_4/D_8 have six unresolved local binding sites, not masked match credit.
- * Index declaration, state initializer, and reset-block vertex/source scope are baseline-equivalent; split indices regress to 11.
- * Remains: target a3 versus candidate a2 pool coloring and the local constant surface; canonical assembly stays. */
-#ifdef NON_MATCHING
-void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object,
-                                       Overlay73Header *header,
-                                       s32 preserveState) {
-    s32 i;
-    Overlay73State *state;
-    Overlay73Vertex *vertex;
-    s16 (*source)[3];
-
-    state = object->state;
-    if (preserveState == 0) {
-        object->value = 0.0f;
-        state->phase = 0;
-        state->counter = 0;
-        state->status = 0;
-        state->active = 0;
-        state->phaseLimit = 0x180;
-        state->timer = 0.0f;
-        vertex = state->vertices;
-        source = D_80;
-        i = 11;
-        do {
-            vertex->x = (*source)[0];
-            vertex->y = (*source)[1];
-            vertex->z = (*source)[2];
-            vertex->r = 0xFF;
-            vertex->g = 0xFF;
-            vertex->b = 0xFF;
-            vertex->a = 0xFF;
-            vertex++;
-            source++;
-        } while (i--);
-        state->vertexBank = 1;
+void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object, Overlay73Header *header, s32 preserveState)
+{
+  s32 i;
+  Overlay73State *state;
+  Overlay73Vertex *vertex;
+  s16 (*source)[3];
+  state = object->state;
+  if (preserveState == 0)
+  {
+    object->value = 0.0f;
+    state->phase = 0;
+    state->counter = 0;
+    state->status = 0;
+    state->active = preserveState * 0;
+    state->phaseLimit = 0x180;
+    state->timer = 0.0f;
+    vertex = state->vertices;
+    source = D_80;
+    i = 11;
+    do
+    {
+      vertex->x = (*source)[0];
+      vertex->y = (*source)[1];
+      vertex->z = (*source)[2];
+      vertex->r = 0xFF;
+      vertex->g = 0xFF;
+      vertex->b = 0xFF;
+      vertex->a = 0xFF;
+      vertex++;
+      source++;
     }
-
-    i = header->resourceIndex;
-    if (i >= object->config->resourceCount) {
-        i = 0;
-    }
-    state->resource = object->resources[i];
-    state->x = header->x;
-    state->y = header->y;
-    state->z = header->z;
-    state->scale = header->scale;
-    object->outputScale = (f32)header->outputScale * D_0;
-    if (object->output != NULL) {
-        object->output[0] = object->outputScale * D_4;
-        object->output[1] = object->outputScale * D_8;
-    }
+    while (i--);
+    state->vertexBank = 1;
+  }
+  i = header->resourceIndex;
+  if (i >= object->config->resourceCount)
+  {
+    i = 0;
+  }
+  state->resource = object->resources[i];
+  state->x = header->x;
+  state->y = header->y;
+  state->z = header->z;
+  state->scale = header->scale;
+  object->outputScale = ((f32) header->outputScale) * D_0;
+  if (object->output != ((void *) 0))
+  {
+    object->output[0] = object->outputScale * D_4;
+    object->output[1] = object->outputScale * D_8;
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o073/overlay73Initialize/func_overlay_073_F0000000_18CAAC0.s")
-#endif

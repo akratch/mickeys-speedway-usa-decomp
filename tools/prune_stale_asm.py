@@ -25,10 +25,14 @@ configuration cannot produce is stale.
      heuristic: a nonmatchings .s is only ever consumed through a pragma, and
      a pragma naming a missing file fails the build immediately.
 
-Anything else under asm/ is left alone. In particular this does not try to
-decide whether an unnamed asm/<ADDR>.s still corresponds to a subsegment;
-splat rewrites those every split and a wrong guess there would delete real
-input.
+  3. An unnamed `asm/<ADDR>.s` whose address is the start of a `c`
+     subsegment. splat names an unnamed `asm` subsegment after its ROM
+     offset; once that row is carved into a `c` subsegment the file can no
+     longer be produced, but its glabels still hide every function in the
+     new translation unit from the scoreboard (the Epoch 15 carves hit this).
+Anything else under asm/ is left alone: an unnamed asm/<ADDR>.s whose address
+is not a `c` subsegment start may still be a live `asm` row that splat
+rewrites every split, and a wrong guess there would delete real input.
 
 Usage:
     tools/prune_stale_asm.py [mickey.us.yaml ...]     (default: mickey.us.yaml)
@@ -44,22 +48,47 @@ ASM_DIR = os.path.join(ROOT, "asm")
 SRC_DIR = os.path.join(ROOT, "src")
 
 # - [0xADDR, c, some/name]
-C_SUBSEG = re.compile(r"^\s*- \[\s*0x[0-9A-Fa-f]+\s*,\s*c\s*,\s*(\S+?)\s*\]\s*$")
+C_SUBSEG = re.compile(r"^\s*- \[\s*0x([0-9A-Fa-f]+)\s*,\s*c\s*,\s*(\S+?)\s*\]\s*$")
 PRAGMA = re.compile(r'#pragma\s+GLOBAL_ASM\("([^"]+)"\)')
 
 
-def c_subsegment_names(yaml_paths):
+def c_subsegments(yaml_paths):
+    """Return ({name}, {start address}) of every `c` subsegment row."""
     names = set()
+    starts = set()
     for path in yaml_paths:
         try:
             with open(path, encoding="utf-8") as fh:
                 for line in fh:
                     m = C_SUBSEG.match(line)
                     if m:
-                        names.add(m.group(1))
+                        starts.add(int(m.group(1), 16))
+                        names.add(m.group(2))
         except OSError:
             continue
-    return names
+    return names, starts
+
+
+def c_subsegment_names(yaml_paths):
+    return c_subsegments(yaml_paths)[0]
+
+
+UNNAMED_ASM = re.compile(r"^([0-9A-Fa-f]+)\.s$")
+
+
+def stale_unnamed_asm(asm_dir, c_starts):
+    """Rule 3: asm/<ADDR>.s where 0xADDR now starts a `c` subsegment."""
+    out = []
+    try:
+        entries = sorted(os.listdir(asm_dir))
+    except OSError:
+        return out
+    for f in entries:
+        m = UNNAMED_ASM.match(f)
+        if m and int(m.group(1), 16) in c_starts:
+            out.append((os.path.join(asm_dir, f),
+                        f"0x{m.group(1).upper()} is now a `c` subsegment start"))
+    return out
 
 
 def referenced_asm_files():
@@ -86,10 +115,12 @@ def main():
 
     stale = []
 
-    for name in sorted(c_subsegment_names(yaml_paths)):
+    c_names, c_starts = c_subsegments(yaml_paths)
+    for name in sorted(c_names):
         path = os.path.join(ASM_DIR, name + ".s")
         if os.path.isfile(path):
             stale.append((path, f"subsegment `{name}` is `c`"))
+    stale.extend(stale_unnamed_asm(ASM_DIR, c_starts))
 
     nonmatchings = os.path.join(ASM_DIR, "nonmatchings")
     if os.path.isdir(nonmatchings):

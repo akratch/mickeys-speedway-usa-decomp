@@ -354,6 +354,28 @@ class FunctionSurfaceComparisonTests(unittest.TestCase):
         )
         self.assertNotIn("func_80005750_o001Reloc", ambiguous)
 
+    def test_resident_absolute_symbol_uses_absolute_identity_namespace(self):
+        class FakeElf:
+            def __init__(self, target=False):
+                self.target = target
+
+            def symbols(self):
+                return [
+                    ("D_7BE08", 0x7BE08 if self.target else 0,
+                     0, 0, rs.SHN_ABS if self.target else rs.SHN_UNDEF),
+                ]
+
+            def section(self, _name):
+                return None, None
+
+        resolved, ambiguous = rs._stable_symbol_identities(
+            Path("missing"), FakeElf(), None, 0, FakeElf(target=True)
+        )
+        self.assertEqual(
+            (rs.ri.ABSOLUTE_IDENTITY, 0x7BE08), resolved["D_7BE08"]
+        )
+        self.assertNotIn("D_7BE08", ambiguous)
+
     def test_transitive_redefine_alias_propagates_stable_identity(self):
         class FakeElf:
             def __init__(self, target=False):

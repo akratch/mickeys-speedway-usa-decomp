@@ -11,6 +11,7 @@
  */
 
 #include "game/fx.h"
+#include "n_audio/mbi.h"
 
 typedef struct FxConePoint {
     f32 x;
@@ -30,13 +31,18 @@ typedef struct FxWakeRippleData {
     s16 angleStep;
     f32 value7C;
     f32 value80;
-    void *update;
+    Wake *update;
 } FxWakeRippleData;
 
 typedef struct FxWakeTexture {
     u8 pad0[0x10];
     u16 length;
 } FxWakeTexture;
+
+typedef struct FxWakeLinked {
+    u8 pad0[4];
+    s16 flags;
+} FxWakeLinked;
 
 typedef struct FxWakeUpdateOwner {
     u8 pad0[0x0C];
@@ -60,17 +66,19 @@ typedef struct FxWakeSegment {
 } FxWakeSegment;
 
 extern void func_80048080(s32 count, s16 arg1, s16 arg2, s16 arg3,
-                          s32 arg4, s32 arg5, FxConePoint *points,
-                          void *vertices, s32 alpha);
+                          s16 arg4, s16 arg5, FxConePoint * volatile points,
+                          u8 * volatile vertices, s32 alpha);
 extern void viGetCurrentSize(s32 *width, s32 *height);
 extern s16 Arctanf(f32 x, f32 y);
-extern void wakeUpdate(s32 update, f32 x, f32 height, f32 z, s32 angle,
+extern s32 viGetVideoMode(void);
+extern void wakeUpdate(Wake *wake, f32 x, f32 height, f32 z, s16 angle,
                        s32 delta);
 extern f32 D_80083DE4;
 extern void mathOneFloatPY(void *source, f32 *result, s16 angle);
-extern void camSetScissor(FxGfx **dlist);
-extern void func_80034920(FxGfx **dlist, void *table, FxGfx **arg2);
+extern void camSetScissor(Gfx **dlist);
+extern void func_80034920();
 extern void *func_8002B314(s32 size, s32 tag);
+extern u8 D_7D310[];
 
 void func_80046E70(FxCone *cone) {
     FxConeTextureInfo *texture;
@@ -86,9 +94,7 @@ void func_80046E70(FxCone *cone) {
     }
     mmFree(cone);
 }
-/* Workbench: structure-mismatch, 61 differing words, first mismatch +0x2c. */
-/* Candidate shape: 111/110 instructions, frame -0x48/-0x48; one address-base instruction remains. */
-/* Remaining gap: target preserves the stored cone-end base for address construction; registers remain. */
+/* The retained flag's stack home is exact; one address-base instruction and register coloring remain. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_80034448(s32 resourceId);
@@ -173,9 +179,6 @@ void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
         cone->envBlue = value32;
     }
 }
-/* Workbench verdict: structure-mismatch, 121 differing words, first mismatch +0x44. */
-/* Candidate: 150/149 instructions with the target -0x168 frame; relocation and CFG residuals remain, so it is not shape-exact. */
-/* Shape status: one-word length delta; the helper loop and signed angle path are preserved for the permuter-ready pass. */
 /* PROVENANCE: JFG's public src/fx.c establishes the corresponding cone routine and call roles; this body is reconstructed from Mickey's own m2c draft and typed layouts. */
 #ifdef NON_MATCHING
 void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
@@ -496,9 +499,7 @@ void func_800475E8(FxCone *cone, s16 angle) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800475E8.s")
 #endif
-/* Workbench verdict: structure-mismatch, 176 differing words, first mismatch +0x40. */
-/* Candidate: 179/193 instructions with the target -0x150 frame; 80 structural words remain, so it is a structural plateau. */
-/* Shape status: branch split and point/call surface are preserved; setup and loop schedule remain short. */
+/* Signed-step and factor webs are repaired; point-array placement remains. */
 /* PROVENANCE: JFG's fxMakeConeLength role identifies the routine; this body is reconstructed from Mickey's target offsets and m2c control flow. */
 #ifdef NON_MATCHING
 void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
@@ -677,9 +678,7 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047CD8.s")
 #endif
-/* Workbench: structure-mismatch, 87 differing words, first mismatch +0x0. */
-/* Candidate shape: 82 instructions/frame -0x40 vs target 89/-0x48; not permuter-ready. */
-/* Remaining structural gap: IDO's count/pointer loop and stack-home shape. */
+/* R4300 hazard mode reaches 89 words with 12 differences; load/register order remains. */
 #ifdef NON_MATCHING
 typedef struct FxTransformInput {
     f32 x;
@@ -1281,9 +1280,7 @@ void wakeUpdate(s32 update, f32 arg1, f32 arg2, f32 arg3, s32 angle, s32 arg5) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
 #endif
-/* Workbench verdict: structure-mismatch, 125 differing words, first mismatch +0x0. */
-/* Candidate: 150/149 instructions with a -0x30 frame versus target -0x38; 88 structural words remain, so it is not shape-exact. */
-/* Shape status: ripple fade/angle/vertex updates and both calls are present; frame and pointer-layout gap remains. */
+/* Next lever: recover the declaration/home that expands the frame and changes the mode/height lifetime schedule. */
 /* PROVENANCE: JFG names the corresponding routine wakeUpdateRipple; this Mickey body uses only Mickey target offsets and calls. */
 #ifdef NON_MATCHING
 void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
@@ -1345,9 +1342,6 @@ void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049000.s")
 #endif
-/* Workbench verdict: structure-mismatch, 177 differing words, first mismatch +0x0. */
-/* Candidate: 163/177 instructions with a -0x38 frame versus target -0x88; command-loop structural gap remains, so it is not shape-exact. */
-/* Shape status: display-list commands and chunk emission are reconstructed; target's live-variable/stack shape is unresolved. */
 /* PROVENANCE: JFG's wakeDraw role supplies the display-list idiom; this body is reconstructed from Mickey's target offsets and FxGfx type. */
 #ifdef NON_MATCHING
 void wakeDraw(Wake *wake, FxGfx **dlist) {
@@ -1458,7 +1452,18 @@ void wakeDraw(Wake *wake, FxGfx **dlist) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeDraw.s")
 #endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049518.s")
+/* Exact 138-word geometry/frame -0x20; one D_7D310 LO16 schedule slot remains. */
+/* All five relocation identities agree; the LO16 offset is nonexact. */
+void func_80049518(WakeRipple *ripple, FxGfx **dlist)
+{
+  s32 alpha;
+  void *linked;
+  FxGfx *cmd;
+  if (ripple != ((void *) 0))
+  {
+ do { if ((linked = ripple->linked) != ((void *) 0)) { if (ripple->value76 != 0) { func_800349A4(dlist, (s32) linked, 0xF, ((s32) ripple->value78) << 8); { FxGfx *textureCmd = (*dlist)++; textureCmd->w0 = 0x07020010; textureCmd->w1 = (u32) D_7D310; } if (ripple->wake != ((void *) 0)) { alpha = 0xFF - (((s32) ripple->wake->value3C) >> 1); } else { alpha = 0xFF; } cmd = *dlist; *dlist = cmd + 1; cmd->w0 = 0xFA000000; cmd->w1 = (((alpha * ((s32) ripple->value76)) >> 8) & 0xFF) | (~0xFF); if ((((FxWakeLinked *) ripple->linked)->flags & 0x40) != 0) { alpha = ripple->value78 & 0xFF; } else { alpha = 0xFF; } { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (u32) ((((u32) 0xFB) & ((1U << 8) - 1U)) << 24); _g->w1 = ((((u32) ((((u32) alpha) & ((1U << 8) - 1U)) << 24)) | ((u32) ((((u32) alpha) & ((1U << 8) - 1U)) << 16))) | ((u32) ((((u32) alpha) & ((1U << 8) - 1U)) << 8))) | ((u32) ((((u32) alpha) & ((1U << 8) - 1U)) << 0)); } ; { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (((u32) ((((u32) 4) & ((1U << 8) - 1U)) << 24)) | ((u32) ((((u32) (((4 << 3) | (((u32) ((((u8 *) ripple) + (ripple->value74 * 0x28)) + 0x80000020)) & 6)) | 0)) & ((1U << 8) - 1U)) << 16))) | ((u32) ((((u32) (((4 << 3) + (4 << 1)) + 8)) & ((1U << 16) - 1U)) << 0)); _g->w1 = (u32) ((((u8 *) ripple) + (ripple->value74 * 0x28)) + 0x80000020); } ; { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (((u32) ((((u32) (((2 - 1) << 4) | 1)) & ((1U << 8) - 1U)) << 16)) | ((u32) ((((u32) 5) & ((1U << 8) - 1U)) << 24))) | ((u32) ((((u32) (2 * 16)) & ((1U << 16) - 1U)) << 0)); _g->w1 = (u32) (((u8 *) ripple) + 0x80000000); } ; func_80034920(dlist); } if (ripple->wake != ((void *) 0)) { wakeDraw(ripple->wake, dlist); } { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (u32) ((((u32) 0xE7) & ((1U << 8) - 1U)) << 24); _g->w1 = 0; } ; { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (u32) ((((u32) 0xFA) & ((1U << 8) - 1U)) << 24); _g->w1 = ((((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 24)) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 16))) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 8))) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 0)); } ; { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (u32) ((((u32) 0xFB) & ((1U << 8) - 1U)) << 24); _g->w1 = ((((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 24)) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 16))) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 8))) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 0)); } ; } } while (0);
+  }
+}
 void fxInit(void) {
     FxRecord *record;
     s32 i;
@@ -1529,9 +1534,6 @@ s32 func_8004989C(s32 index) {
     color |= color << 16;
     return color;
 }
-/* Workbench: structure-mismatch, 33 differing words, first mismatch +0xD0. */
-/* Candidate shape: 98/100 instructions/frame -0x30; camera join and field stores are aligned. */
-/* Remaining gap: flag/state tail has four structural words; register residuals remain. */
 #ifdef NON_MATCHING
 extern s32 camGetMode(void);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
@@ -1599,9 +1601,6 @@ void func_80049A8C(s32 index) {
         record++;
     }
 }
-/* Workbench verdict: structure-mismatch, 216 differing words, first mismatch +0x8. */
-/* Candidate: 219/206 instructions with the target -0x18 frame; switch-state structural gap remains, so it is not shape-exact. */
-/* Shape status: four-record state machine and signed timing fields are reconstructed; branch/constant schedule remains. */
 /* PROVENANCE: Mickey's own FxRecord layout and m2c draft supply the state transitions; no external body is adapted here. */
 #ifdef NON_MATCHING
 s32 func_80049B14(s16 delta) {
@@ -1728,10 +1727,7 @@ s32 func_80049B14(s16 delta) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049B14.s")
 #endif
-/* Workbench verdict: structure-mismatch, 159 differing words, first mismatch +0x8. */
-/* Candidate: 167/169 instructions with a -0x50 frame versus target -0x60; display-list structural gap remains, so it is not shape-exact. */
-/* Shape status: VI setup, table selection, per-record commands, and scissor calls are reconstructed. */
-/* PROVENANCE: Mickey's own target command words, globals, and m2c CFG supply this reconstruction. */
+/* PROVENANCE: Mickey's target commands, globals, and CFG supply this reconstruction; the GBI macros are project SDK headers. */
 #ifdef NON_MATCHING
 void func_80049E4C(FxGfx **dlist, s32 arg1) {
     s32 width;
@@ -1833,9 +1829,6 @@ void func_8004A0F0(void) {
     D_800D6038[1] = 0;
     D_800D6040 = 0;
 }
-/* Workbench verdict: structure-mismatch, 155 differing words, first mismatch +0x0. */
-/* Candidate: 156/157 instructions with a -0x60 frame versus target -0x58; 29 structural words remain, so it is not shape-exact. */
-/* Shape status: nine-pixel glyph loop and VI/table relocation surface are preserved; stack/register gap remains. */
 /* PROVENANCE: JFG's corresponding routine is assembly-only; this body is reconstructed from Mickey's own m2c draft and headers. */
 #ifdef NON_MATCHING
 void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
@@ -2186,6 +2179,7 @@ void func_8004A9CC(FxGfx **dList) {
     }
     D_8007D478 = 0;
 }
+/* The command loop is represented; ABI/register allocation and seven words remain unresolved. */
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
 #ifdef NON_MATCHING
 /*
@@ -2241,9 +2235,6 @@ s32 func_8004AD34(void) {
     }
     D_800D60A8 = 0;
 }
-/* Workbench verdict: structure-mismatch, 19 differing words, first mismatch +0x60. */
-/* Candidate shape: 96 instructions/frame -0x40; three store/branch structural words remain, not shape-exact. */
-/* Remaining gap: second-allocation store scheduling and stack homes; five register residuals remain. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 
@@ -2284,8 +2275,6 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
 #endif
 /* Workbench: structure-mismatch, 26 differing words, first mismatch +0x10. */
-/* Candidate shape: 52 instructions/frame -0x38; D_800D60C0 is per-iteration, not exact. */
-/* Remaining gap: saved-register order and loop-delay schedule; 18 structural words remain. */
 #ifdef NON_MATCHING
 /* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
 void func_8004AF68(void) {

@@ -17,6 +17,7 @@ latter uses the repository's corrected mixed-TU accounting recipe.
 
 Exit 1 with the offending names on stderr; exit 0 (quietly) otherwise.
 """
+import glob
 import re
 import subprocess
 import sys
@@ -81,25 +82,39 @@ def raw_asm_promotions(base):
     before = subsegments(base_yaml)
     after = subsegments(worktree_yaml)
     names = set()
+    base_starts = sorted(before)
     for start, (kind, source_name) in after.items():
-        old_kind, _ = before.get(start, (None, None))
+        # The base row that covered this start: an exact row, or the nearest
+        # earlier row when a lane split one raw asm range into several C
+        # rows (the functions were unresolved assembly either way).
+        covering = None
+        for base_start in base_starts:
+            if base_start <= start:
+                covering = base_start
+            else:
+                break
+        old_kind, _ = before.get(covering, (None, None))
         if kind != "c" or not source_name or old_kind not in {"asm", "hasm"}:
             continue
 
-        source = f"src/{source_name}.c"
-        existed = subprocess.run(
-            ["git", "cat-file", "-e", f"{base}:{source}"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        ).returncode == 0
-        if existed:
-            continue
-
-        try:
-            with open(source, encoding="utf-8", errors="ignore") as fh:
-                names.update(PAT.findall(fh.read()))
-        except FileNotFoundError:
-            pass
+        # Resident rows name the source relative to src/; overlay rows name
+        # only the basename (the overlay segment supplies its directory), so
+        # resolve either form against the tracked tree.
+        candidates = [f"src/{source_name}.c"] + sorted(
+            glob.glob(f"src/**/{source_name}.c", recursive=True))
+        for source in candidates:
+            existed = subprocess.run(
+                ["git", "cat-file", "-e", f"{base}:{source}"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            ).returncode == 0
+            if existed:
+                continue
+            try:
+                with open(source, encoding="utf-8", errors="ignore") as fh:
+                    names.update(PAT.findall(fh.read()))
+            except FileNotFoundError:
+                pass
     return names
 
 

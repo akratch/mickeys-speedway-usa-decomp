@@ -17,6 +17,12 @@ import shlex
 from collections.abc import Iterable, Mapping
 
 
+# ``overlay`` is normally zero for resident code or a positive overlay number.
+# A resident TU can also retain an ELF absolute symbol for a physical/RSP
+# address (for example a display-list DMA address).  ``-1`` is the separate
+# absolute-address namespace; its second element is the complete link value,
+# rather than a resident-segment offset.
+ABSOLUTE_IDENTITY = -1
 Identity = tuple[int, int]
 _SYMBOL_RE = re.compile(r"^[A-Za-z_.$][A-Za-z0-9_.$]*$")
 _SECTION_RE = re.compile(r"^RELOCATION RECORDS FOR \[(.+)\]:?$")
@@ -376,6 +382,8 @@ def format_identity(identity: Identity | None) -> str:
             f"runtime relocation identity is ambiguous: {identity!r}"
         )
     overlay, offset = identity
+    if overlay == ABSOLUTE_IDENTITY:
+        return f"absolute:0x{offset:X}"
     return f"resident:+0x{offset:X}" if overlay == 0 else f"overlay:{overlay}:+0x{offset:X}"
 
 

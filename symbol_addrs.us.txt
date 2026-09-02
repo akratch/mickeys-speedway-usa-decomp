@@ -2208,6 +2208,10 @@ func_80001668 = 0x80001668; // type:func size:0x30 ROM 0x2268 tier D (sound-volu
 scalevol = 0x800016C8; // type:func size:0x24 ROM 0x22c8 tier B (JFG body/order role)
 func_800016EC = 0x800016EC; // type:func size:0x1C ROM 0x22ec tier B (overlay caller and mode writes, name unproved)
 func_80001708 = 0x80001708; // type:func size:0x38 ROM 0x2308 tier B (resident caller and master-volume reset, name unproved)
+func_80001A84 = 0x80001A84; // type:func size:0x11C ROM 0x2684 tier-A matched C, C-object+linked-ROM-exact donor-dkr-src/audiomgr.c
+func_80001BA0 = 0x80001BA0; // type:func size:0x24 ROM 0x27a0 tier-A C-object+linked-ROM-exact name-unresolved
+func_80001BC4 = 0x80001BC4; // type:func size:0x24 ROM 0x27c4 tier-A C-object+linked-ROM-exact name-unresolved
+func_80001BE8 = 0x80001BE8; // type:func size:0xC ROM 0x27e8 tier-A C-object+linked-ROM-exact name-unresolved
 func_80002500 = 0x80002500; // type:func size:0xC4 ROM 0x3100 tier-B matched C (JFG initializer role/order, Mickey-only body)
 amAmbientRestart = 0x800025EC; // type:func size:0xC ROM 0x31ec tier-B (JFG body/order role)
 amResetAudioMap = 0x800025F8; // type:func size:0x170 ROM 0x31f8 tier-B matched C (JFG name/reset role/order, Mickey pool body)
@@ -2260,8 +2264,10 @@ func_800038EC = 0x800038EC; // type:func size:0xF8 ROM 0x44ec tier-B matched C (
 amTuneSetFadeScaled = 0x800006BC; // type:func size:0x74 tier-B role-order, ROM 0x12bc, matched C src/main/audio_manager_1050.c.o -O2 -mips2 -32, JFG src/audio_manager_1050.c name/order, linked exact=29/29
 amSndSetPan = 0x80001204; // type:func size:0x28   ROM 0x1e04  src/audio_manager_1050.c.o  masked=1/10
 forcelink = 0x80001698; // type:func size:0x30   ROM 0x2298  src/audio_manager_1050.c.o  masked=2/12
-// bk:us.v10/src/core1/code_1D00.c.o
-audioManager_DMAInitProc = 0x80002354; // type:func size:0x38   ROM 0x2f54  us.v10/src/core1/code_1D00.c.o  masked=6/14
+// donor-bk-src/core1/code_1D00.c
+audioManager_DMAInitProc = 0x80002354; // type:func size:0x38 ROM 0x2f54 tier-A C-object+linked-ROM-exact donor-bk-src/core1/code_1D00.c
+func_800024E0 = 0x800024E0; // type:func size:0x0C ROM 0x30e0 tier-A matched C, C-object+linked-ROM-exact name-unresolved
+func_800024EC = 0x800024EC; // type:func size:0x14 ROM 0x30ec tier-A matched C, C-object+linked-ROM-exact name-unresolved
 // donor-jfg-src/audio_manager_4C50.c.o
 amVibratoInit = 0x800039F0; // type:func size:0x90 ROM 0x45f0 tier-A src/audio_manager_4C50.c.o masked=22/36
 amInitOsc = 0x80003A80; // type:func size:0x2D8 ROM 0x4680 tier-B (JFG name/order, PD oscillator-init body)
@@ -2269,7 +2275,7 @@ amUpdateOsc = 0x80003D58; // type:func size:0x574 ROM 0x4958 tier-B (JFG name/or
 amStopOsc = 0x800042CC; // type:func size:0x18 ROM 0x4ecc tier-B (JFG name/order, Mickey-only body)
 _depth2Cents = 0x800042E4; // type:func size:0x50 ROM 0x4ee4 src/audio_manager_4C50.c.o masked=2/20, followed by 0xC target padding
 // jfg:src/objects.c.o
-GetRomlistInfo = 0x8000BC88; // type:func size:0x28   ROM 0xc888  src/objects.c.o  masked=4/10
+GetRomlistInfo = 0x8000BC88; // type:func size:0x28 tier-A JFG byte identity, ROM 0xc888, matched C src/main/objects.c.o -O2 -mips2 -32, linked exact=10/10
 // donor-jfg-src/track.c.o
 func_8000E920 = 0x8000E920; // type:func size:0x878 tier-D ROM 0xF520 src/main/track.c.o -O2 -mips2 -32 -Wab,-r4300_mul NON_MATCHING resident fallback, linked ELF size, and adjacent func_8000F198 boundary owner, metadata-only postprocess, no match credit
 func_80010654 = 0x80010654; // type:func size:0x2AC tier-D ROM 0x11254 src/main/track.c.o NON_MATCHING bounded plateau, resident fallback and adjacent-boundary owner
@@ -2460,8 +2466,29 @@ jtbl_8008249C = 0x8008249C; // type:jtbl size:0x30 tier-A compiler-owned gameVi 
 // the mode changer calls the same routine to establish new buffer state.
 fb_swap = 0x80034150; // type:func size:0xE0 ROM 0x34D50 canonical C, linked byte-identical
 fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12, canonical C is linked byte-identical
+func_800343F0 = 0x800343F0; // type:func size:0x18 ROM 0x34FF0 canonical C, linked byte-identical, JFG-src/textures.c-texDisableModes body, Mickey address label retained
+func_80034424 = 0x80034424; // type:func size:0x10 ROM 0x35024 canonical C, linked byte-identical, JFG-src/textures.c-texModelTextureLoad body, Mickey address label retained
+func_800348C8 = 0x800348C8; // type:func size:0xC ROM 0x354C8 canonical C, linked byte-identical, JFG-src/textures.c-setTexMemColour body, Mickey address label retained
+func_800348D4 = 0x800348D4; // type:func size:0x3C ROM 0x354D4 canonical C, linked byte-identical, JFG-src/textures.c-texFrame body adapted to Mickey fields, address label retained
+func_80034910 = 0x80034910; // type:func size:0x10 ROM 0x35510 canonical C, linked byte-identical, Mickey texture-state setter, address label retained
+func_80034DE4 = 0x80034DE4; // type:func size:0xC ROM 0x359E4 canonical C, linked byte-identical, JFG-src/textures.c-sprSetTextureFilter body, Mickey address label retained
+func_80034DF0 = 0x80034DF0; // type:func size:0x58 ROM 0x359F0 canonical C, linked byte-identical, JFG-src/textures.c-sprSetIA2ColOverride body, Mickey address label retained
+func_80034E48 = 0x80034E48; // type:func size:0xC ROM 0x35A48 canonical C, linked byte-identical, JFG-src/textures.c-sprClearIA2ColOverride body, Mickey address label retained
+func_800367E8 = 0x800367E8; // type:func size:0x268 ROM 0x373E8 canonical C, linked byte-identical, JFG-src/textures.c-texAnimateTexture body adapted to Mickey flags
 // jfg:src/textures.c.o
 initColourCycle = 0x80036A50; // type:func size:0x30 tier-A exact C, JFG src/textures.c body
+func_80036A80 = 0x80036A80; // type:func size:0x30 ROM 0x37680 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c resetColourCycle body, linked exact=12/12
+func_80036C60 = 0x80036C60; // type:func size:0x4C ROM 0x37860 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c resetMixCycle body, linked exact=19/19
+func_80036CAC = 0x80036CAC; // type:func size:0x124 ROM 0x378AC tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c updateMixCycle body, linked exact=73/73
+func_80036DD0 = 0x80036DD0; // type:func size:0x138 ROM 0x379D0 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/screen.c screenLoad body, linked exact=78/78
+func_80036F08 = 0x80036F08; // type:func size:0x240 ROM 0x37B08 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/screen.c screenDraw body, linked exact=144/144, target boundary includes 0x8 bytes padding
+func_80037150 = 0x80037150; // type:func size:0x6C ROM 0x37D50 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, buffer release body, linked exact=27/27
+func_80037658 = 0x80037658; // type:func size:0xC ROM 0x38258 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, direct D_8007BEA8 clear, linked exact=3/3
+func_80037664 = 0x80037664; // type:func size:0x68 ROM 0x38264 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, state predicate, linked exact=26/26
+func_80037A78 = 0x80037A78; // type:func size:0x74 ROM 0x38678 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, frontend transition body, linked exact=29/29
+func_8003A680 = 0x8003A680; // type:func size:0x30 ROM 0x3B280 tier-A, matched C src/main/menu_3B1A0.c -O2 -mips2 -32, bounded character-buffer append body, linked exact=12/12
+func_8003A6B0 = 0x8003A6B0; // type:func size:0x50 ROM 0x3B2B0 tier-A, matched C src/main/menu_3B1A0.c -O2 -mips2 -32, character-code mapping body, linked exact=20/20
+func_8003A700 = 0x8003A700; // type:func size:0x54 ROM 0x3B300 tier-A, matched C src/main/menu_3B1A0.c -O2 -mips2 -32, inverse character-code mapping body, linked exact=21/21
 // donor-jfg-src/menu.c.o
 func_80038750 = 0x80038750; // type:func size:0x128 tier-A ROM 0x39350 IDO C exact, JFG src/menu.c structural oracle, allocator-trace-guided, owns jtbl at 0x83334
 func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING plateau 66/85 words differ, first +0x14
@@ -2632,8 +2659,26 @@ func_80056274 = 0x80056274; // type:func size:0x140  ROM 0x56e74  tier-D collisi
 func_800572AC = 0x800572AC; // type:func size:0xA4   ROM 0x57eac  tier-D collision state-delta helper, matched C
 func_80057350 = 0x80057350; // type:func size:0x78   ROM 0x57f50  tier-D collision state-copy helper, matched C
 fmvInit = 0x80057910; // type:func size:0x5C   ROM 0x58510  src/fmvInit.c.o exact masked tier-A, matched C
+// jfg:libultra/src/flash/flashreinit.c.o
+osFlashReInit = 0x80057970; // type:func size:0x50 tier-A matched C, JFG libultra/src/flash/flashreinit.c body
+// jfg:libultra/src/flash/flashinit.c.o
+osFlashInit = 0x800579C0; // type:func size:0xF4 tier-B matched C, JFG libultra/src/flash/flashinit.c body, JFG object differs in TU scheduling and is 0xF0 bytes
+// jfg:libultra/src/flash/flashreadstatus.c.o
+osFlashReadStatus = 0x80057AB4; // type:func size:0x90 tier-A matched C, JFG libultra/src/flash/flashreadstatus.c body
+// jfg:libultra/src/flash/flashreadid.c.o
+osFlashReadId = 0x80057B44; // type:func size:0xCC tier-B matched C, JFG libultra/src/flash/flashreadid.c body, JFG object differs in TU scheduling and is 0xD4 bytes
 // jfg:libultra/src/flash/flashreadid.c.o
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C tier-A exact C, JFG libultra/src/flash/flashreadid.c body
+// jfg:libultra/src/flash/flashsectorerase.c.o
+osFlashWriteBuffer = 0x80057DFC; // type:func size:0x88 tier-B matched C, JFG libultra/src/flash/flashsectorerase.c body, JFG object is 0x84 bytes
+// jfg:libultra/src/flash/flashallerase.c.o
+osFlashAllErase = 0x80057C5C; // type:func size:0xCC tier-B matched C, JFG libultra/src/flash/flashallerase.c body, JFG object is 0xD0 bytes with different TU scheduling
+// jfg:libultra/src/flash/flashsectorerase.c.o
+osFlashSectorErase = 0x80057D28; // type:func size:0xD4 tier-B matched C, JFG libultra/src/flash/flashsectorerase.c body, JFG object is 0xD8 bytes with different TU scheduling
+// jfg:libultra/src/flash/flashsectorerase.c.o
+osFlashWriteArray = 0x80057E84; // type:func size:0xD0 tier-B matched C, JFG libultra/src/flash/flashsectorerase.c body, JFG object is 0xD4 bytes with different TU scheduling
+// jfg:libultra/src/flash/flashreadarray.c.o
+osFlashReadArray = 0x80057F54; // type:func size:0xB4 tier-B matched C, JFG libultra/src/flash/flashreadarray.c body, JFG object is 0xB4 bytes, followed by 8 bytes of target padding
 func_80058EF4 = 0x80058EF4; // type:func size:0x90   ROM 0x59af4  tier-D logarithm-series helper, matched C
 // donor-jfg-src/camera.c.o
 camConvertMatrixList = 0x8005AB78; // type:func size:0x30   ROM 0x5b778  src/camera.c.o  masked=4/12
