@@ -391,7 +391,9 @@ addend model.
    placeholder's own sites, so no consistent addend exists and the tool refuses
    rather than inventing one. It reports the conflicting values per symbol,
    which localizes the divergence. This is the model's stated precondition: the
-   addend is only readable where the schedule agrees.
+   addend is only readable where the schedule agrees. §4.1 narrows that
+   precondition from "the same offset" to "the same position in the shipped
+   order", which is what the table actually asserts.
 2. **Alias-block coupling** (`overlay1InterpolatePath`, `overlay1MeasureCurves`).
    `overlay_undefined_syms.us.txt` also carries 624 hand-written *alias* lines
    of the form `func_overlay_001_F0000CA8_184D088 = overlay1InterpolatePath;`
@@ -407,6 +409,47 @@ addend model.
    class the trial reports for `overlay27UpdateCoordinates` is now
    `schedule-divergence-at-site` -- but the generator still scans `.rel.text`
    only, so the limit stands.
+
+### 4.1 Order, not offset: aligning a shifted site
+
+The refusal above was stricter than the evidence requires. A site was
+corroborated only when the module's relocation table named its exact
+function-relative offset, so a candidate that is a handful of words off, but
+moves one `lui`/`addiu` pair by a slot, had no readable addend *anywhere* --
+even at the sites it did not move. The trial then reported `build-error`, and
+the routing read an unmeasurable row as structural.
+
+What the table asserts is stronger than a set of offsets. `runlinkDownloadCode`
+walks `reloc1`/`reloc2` in offset order and patches each site in turn (§1), so
+the table records which relocations a function performs *and in what order*.
+Instruction scheduling moves the sites; it cannot reorder the references
+themselves, because each one belongs to the expression that produced it.
+
+`align_sites` therefore matches an object's relocation sites onto the module's
+records over the same text range by relocation type, both sequences in offset
+order, and accepts the result only when it is the **only** order-preserving
+match -- decided by computing the leftmost and the rightmost embedding and
+requiring them to agree. Three things are refusals, not fallbacks:
+
+- a candidate type the retail order cannot supply, in that order;
+- more candidate sites than the range has records (a differing multiset);
+- two or more placements that both preserve order, where choosing one would be
+  inventing an addend.
+
+Two properties keep this from weakening any proof. An object whose sites all
+corroborate where they stand is not realigned at all, so the tracked surface is
+untouched: `gmake check-overlay-syms` reports it up to date, and `gmake verify`
+still prints `507341c0a40ca3e9a7cee969b396ee53facfb548`. And an accepted
+alignment is *reported*, never absorbed: the generator prints
+`/* ALIGNED <object>: <aligned>/<sites> site(s), <n> shifted */` and the trial
+row carries `aligned_sites`/`shifted_sites`, while `in_range_words` counts the
+words a shifted site moved exactly as the differences they are. The linked-ROM
+byte comparison remains the only proof that a candidate is right; the alignment
+only decides whether that comparison can be run at all.
+
+The acceptance test in the trial's docstring still holds under the aligner: a
+matched function re-wrapped as a candidate (`overlay63Initialize`) reports
+`exact in=0 out=0`, and its object needs no alignment.
 
 Two further limits are worth recording because they are invisible until they
 bite:

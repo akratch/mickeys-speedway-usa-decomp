@@ -33,6 +33,22 @@ equivalent objcopy spec).  It also cross-checks each site against the decoded
 module relocation table, which is what distinguishes a genuine relocation
 site from a literal the compiler must not relocate.
 
+A candidate whose schedule differs anywhere before a site moves that site, and
+then no offset in the table names it.  The table still records *which*
+relocations the function performs and in *what order* -- the runtime walks
+reloc1/reloc2 in offset order, and reordering instructions cannot reorder the
+references -- so `align_sites` matches the object's sites onto the module's
+records over the same text range by relocation type, in offset order.  The
+placement is accepted only when it is the *only* order-preserving one
+(`unique_order_preserving_embedding`); a differing multiset, a type the retail
+order cannot supply, or two ways to lay the sequence down is a refusal, because
+choosing between them would be inventing an addend.  An object whose sites all
+corroborate where they stand is not realigned at all.  Every alignment is
+reported (`/* ALIGNED obj: aligned/total site(s), N shifted */`) and the
+promotion trial records the counts per row, so a shifted site is never read as
+an exact one: the words it moved still count as differences, and the linked-ROM
+byte comparison remains the only proof that a candidate is right.
+
 Nothing ROM-derived is written: the baserom and the atlas are read at run
 time and only *addresses and symbol values already required by the link* are
 emitted.
@@ -238,9 +254,101 @@ def module_text_defs(objects, overlay, atlas_rows):
     return out
 
 
+# ------------------------------------------------------- site alignment
+#
+# A site is normally corroborated at its own module offset: the object's
+# relocation lands on the byte the module's table names, and the addend is
+# read there.  A candidate whose instruction schedule differs anywhere before
+# a site moves that site, and then no offset in the table names it -- which is
+# what `schedule-divergence-at-site` reports.  The table is still authoritative
+# for *which* relocations the function performs and in *what order*: the
+# runtime walks reloc1/reloc2 in offset order, and a compiler reordering
+# instructions cannot reorder the references themselves.  So a shifted site can
+# still be identified by its position in that order.
+
+RELOCATABLE_MODES = frozenset((R_MIPS_32, R_MIPS_26, R_MIPS_HI16, R_MIPS_LO16))
+
+
+def unique_order_preserving_embedding(candidate, retail):
+    """Index in `retail` for each entry of `candidate`, or None.
+
+    `candidate` and `retail` are relocation-type sequences in offset order.
+    The embedding must preserve order and match type exactly; it is accepted
+    only when it is the *only* such embedding, which is decided by computing
+    the leftmost and the rightmost one and requiring them to agree.  Anything
+    else -- a candidate type the retail order cannot supply, a differing
+    multiset, or two ways to lay the sequence down -- is a refusal, because
+    picking one of several would be inventing an addend.
+    """
+    n, m = len(candidate), len(retail)
+    if n > m:
+        return None
+    left, j = [], 0
+    for t in candidate:
+        while j < m and retail[j] != t:
+            j += 1
+        if j == m:
+            return None
+        left.append(j)
+        j += 1
+    right, j = [], m - 1
+    for t in reversed(candidate):
+        while j >= 0 and retail[j] != t:
+            j -= 1
+        if j < 0:
+            return None
+        right.append(j)
+        j -= 1
+    right.reverse()
+    return left if left == right else None
+
+
+def align_sites(sites, records, base, end):
+    """Give every mapped site the table offset whose addend it must carry.
+
+    Returns a summary dict.  A site already corroborated at its own offset
+    keeps that offset, and when *every* mapped site is corroborated the
+    alignment does not run at all -- so an object whose schedule agrees with
+    the shipped module is valued exactly as before.  Otherwise the object's
+    sites and the module's records over the same text range are matched by
+    `unique_order_preserving_embedding`, and each site records the offset it
+    was aligned to and whether that offset moved.  A shifted site is never
+    silently treated as exact: `shifted` counts it here and the trial row
+    reports it, while the ROM byte comparison remains the only proof that the
+    candidate is right.
+    """
+    mapped = sorted([s for s in sites if s["module_off"] is not None],
+                    key=lambda s: (s["module_off"], s["type"]))
+    summary = {"sites": len(mapped), "aligned": 0, "shifted": 0,
+               "attempted": False, "refused": None}
+    if not mapped or all(s["in_table"] for s in mapped):
+        summary["aligned"] = sum(1 for s in mapped if s["in_table"])
+        return summary
+    summary["attempted"] = True
+    pool = sorted([r for r in records
+                   if base <= r["target_offset"] < end
+                   and r["mode"] in RELOCATABLE_MODES],
+                  key=lambda r: (r["target_offset"], r["mode"]))
+    embedding = unique_order_preserving_embedding(
+        [s["type"] for s in mapped], [r["mode"] for r in pool])
+    if embedding is None:
+        summary["refused"] = ("no unique order-preserving alignment of %d "
+                              "site(s) onto %d shipped record(s)"
+                              % (len(mapped), len(pool)))
+        return summary
+    for site, index in zip(mapped, embedding):
+        record = pool[index]
+        site["table_off"] = record["target_offset"]
+        site["in_table"] = True
+        site["op"] = record["op_name"]
+        site["shifted"] = record["target_offset"] != site["module_off"]
+        summary["aligned"] += 1
+        summary["shifted"] += 1 if site["shifted"] else 0
+    return summary
+
 def synthesize(obj_path: Path, overlay: int, rom: bytes, atlas_rows, records,
                local_text=frozenset()):
-    """Return (sites, {symbol: required link value}, conflicts).
+    """Return (sites, {symbol: required link value}, conflicts, alignment).
 
     The required value is always `shipped_target - addend_already_in_the_object`.
     Subtracting the object's own addend is what lets one base symbol serve many
@@ -274,18 +382,36 @@ def synthesize(obj_path: Path, overlay: int, rom: bytes, atlas_rows, records,
             continue
         mod = None if base is None else base + off
         entry = {"symbol": name, "obj_off": off, "type": rtype,
-                 "module_off": mod, "stored": None, "obj": None,
+                 "module_off": mod, "table_off": None, "shifted": False,
+                 "stored": None, "obj": None,
                  "in_table": None, "op": None, "note": ""}
         if mod is None or mod >= text_size or off + 4 > len(obj_text):
             entry["note"] = "unmapped"
         else:
-            entry["stored"] = stored_field(rom, text_start + mod, rtype)
             entry["obj"] = stored_field(obj_text, off, rtype)
             rec = [r for r in table.get(mod, []) if r["mode"] == rtype]
             entry["in_table"] = bool(rec)
             entry["op"] = rec[0]["op_name"] if rec else None
+            if rec:
+                entry["table_off"] = mod
         sites.append(entry)
 
+    # Give a site the table offset it belongs to before any addend is read.
+    # Nothing changes for an object every one of whose sites is corroborated
+    # where it stands; a schedule that moved a site is matched by order.
+    alignment = align_sites(sites, records, base or 0,
+                            (base or 0) + max(extent or 0, len(obj_text)))
+    for entry in sites:
+        if entry["module_off"] is None or entry["note"] == "unmapped":
+            continue
+        # An uncorroborated, unaligned site still reads its addend where it
+        # stands: the corroboration filter below decides whether that reading
+        # is used, exactly as before the aligner existed.
+        site_off = entry["table_off"]
+        if site_off is None:
+            site_off = entry["module_off"]
+        entry["stored"] = stored_field(rom, text_start + site_off,
+                                       entry["type"])
     # A site the module's own relocation table does not name is not a
     # relocation site in the shipped image: reading an addend there reads an
     # instruction word.  When any site for a symbol is corroborated by the
@@ -340,7 +466,7 @@ def synthesize(obj_path: Path, overlay: int, rom: bytes, atlas_rows, records,
                                     f"{sorted(hex(v) for v in wanted[name])}"))
     for name in sorted(unmapped - set(wanted)):
         conflicts.append((name, "unmapped site"))
-    return sites, values, conflicts
+    return sites, values, conflicts, alignment
 
 
 # ---------------------------------------------------------------- generate
@@ -634,6 +760,7 @@ def generate(rom, atlas, objects=None, quiet=False, rebind_resident=True,
     alias_order = []
     local = {}
     records = {}
+    alignment = {}      # object name -> site-alignment summary
     # A resident call has to stop spelling itself with the resident function's
     # global name *before* anything is valued; see `rebind_resident_calls`.
     # In the matching tree this renames nothing (no overlay object carries an
@@ -655,9 +782,11 @@ def generate(rom, atlas, objects=None, quiet=False, rebind_resident=True,
         if ov not in records:
             records[ov] = ot.read_module_relocations(rom, mods[ov - 1], rom_table)
         recs = records[ov]
-        _sites, vals, unresolved = synthesize(obj, ov, rom, rows.get(ov, []),
-                                              recs, local[ov])
+        _sites, vals, unresolved, aligned = synthesize(
+            obj, ov, rom, rows.get(ov, []), recs, local[ov])
         conflicts += [(obj.name, n, why) for n, why in unresolved]
+        if aligned["attempted"]:
+            alignment[obj.name] = aligned
         # A refused resident call must not fall back to a value line under its
         # *global* name.  `synthesize()` still reads an addend for it from the
         # corroborated sites, but assigning `func_8002A8C0` in the linker
@@ -725,6 +854,7 @@ def generate(rom, atlas, objects=None, quiet=False, rebind_resident=True,
 
     diag = {"values": len(values), "aliases": len(alias_pairs),
             "objects": len(objects), "conflicts": conflicts,
+            "alignment": alignment,
             "resident_notes": resident_notes, "shadowed": sorted(shadowed)}
     diag["pending_rebinds"] = pending_rebinds
     return text, diag
@@ -819,6 +949,15 @@ def cmd_generate(argv):
     # class a measurable candidate as a failure.
     for obj, name, why in diag.get("resident_notes", []):
         print("/* NOTE %s %s: %s */" % (obj, name, why), file=sys.stderr)
+    # An object whose sites did not all corroborate where they stand is
+    # reported whether or not the alignment succeeded, so a shifted site is
+    # never mistaken for an exact one and a refusal carries its reason.
+    for obj, summary in sorted(diag.get("alignment", {}).items()):
+        print("/* ALIGNED %s: %d/%d site(s), %d shifted%s */"
+              % (obj, summary["aligned"], summary["sites"],
+                 summary["shifted"],
+                 "" if not summary["refused"] else
+                 "; refused: " + summary["refused"]), file=sys.stderr)
     return 0
 
 
@@ -2754,9 +2893,15 @@ def main(argv):
         if ov not in local_defs:
             local_defs[ov] = module_text_defs(linked, ov, rows.get(ov, []))
         recs = ot.read_module_relocations(rom, mods[ov - 1], rom_table)
-        sites, values, conflicts = synthesize(obj, ov, rom, rows.get(ov, []),
-                                              recs, local_defs[ov])
+        sites, values, conflicts, aligned = synthesize(
+            obj, ov, rom, rows.get(ov, []), recs, local_defs[ov])
         all_conflicts += [(obj.name, n, why) for n, why in conflicts]
+        if aligned["attempted"]:
+            print("/* ALIGNED %s: %d/%d site(s), %d shifted%s */"
+                  % (obj.name, aligned["aligned"], aligned["sites"],
+                     aligned["shifted"],
+                     "" if not aligned["refused"] else
+                     "; refused: " + aligned["refused"]), file=sys.stderr)
         if args.audit:
             for name, v in values.items():
                 if name in known:

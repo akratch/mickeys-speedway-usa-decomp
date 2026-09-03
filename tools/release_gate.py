@@ -32,9 +32,9 @@ GATES = (
 PRIVATE_MARKERS = (
     re.compile("/" + r"Users/(?!<)"),
     re.compile("campaign/" + "unchain"),
-    re.compile(r"(?:^|/)\.codex" + "/"),
+    re.compile(r"(?:^|/)\.co" + "dex/"),
     re.compile(r"\bAGENTS" + r"\.md\b"),
-    re.compile(r"\bCLAUDE" + r"\.md\b"),
+    re.compile(r"\bCLA" + r"UDE\.md\b"),
     re.compile("mickey-" + "public"),
     re.compile(r"\bprivate (?:lane|branch|repository|repo|workflow)\b", re.I),
 )

@@ -3,7 +3,7 @@
 
     gmake audit-decoders            # tracked files (fast, the default)
     gmake audit-decoders AUDIT_ARGS=--all
-    python3 tools/audit_decoders.py [--all] [--verbose]
+    python3 tools/audit_decoders.py [--all] [--verbose] [--by-file STAGE]
 
 WHY THIS EXISTS
 ---------------
@@ -96,6 +96,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from cleanroom_detectors import (  # noqa: E402
+    CONTENT_EXEMPTIONS,
     DECODER_STAGES,
     normalize_words,
     normalize_words_by_stage,
@@ -123,13 +124,14 @@ CEILINGS = {
     # hex-run is THE signal -- every `0x8xxxxxxx` address in source, docs and
     # symbol_addrs.us.txt.  It grows with the decomp, so a tight ceiling here
     # would be a false-positive generator, which is the specific failure this
-    # whole file exists to prevent.  The tripwire is set well clear of current
-    # (tracked 753, history 5306) and catches a decoder flooding the stage, not
-    # a session adding symbols.
+    # whole file exists to prevent. The tripwire catches a decoder flooding the
+    # stage, not a session adding symbols. Exact content exemptions remove the canonical
+    # symbol map and generated overlay relocation surface from this total
+    # without exempting either file from the clean-room detector itself.
     "hex-run": {"tracked": 4000, "all": 20000},
     # dec-token catches 8-10 digit decimals inside the 32-bit range; in
-    # practice, unix timestamps. Currently 2 tracked / 4 in history. Small and
-    # not expected to grow much -- if it does, look at what appeared.
+    # practice, unix timestamps and one fixed-point audio timing table. Small
+    # and not expected to grow much -- if it does, look at what appeared.
     "dec-token": {"tracked": 64, "all": 256},
 }
 
@@ -138,6 +140,7 @@ CEILINGS = {
 SYNTHETIC = frozenset(
     stage for stage, limits in CEILINGS.items() if limits["tracked"] == 0
 )
+REAL_STAGES = frozenset(DECODER_STAGES) - SYNTHETIC
 
 
 def texts(scope):
@@ -180,7 +183,7 @@ def texts(scope):
         yield f"{path} @{blob[:8]}", data
 
 
-def audit(scope, verbose=False):
+def audit(scope, verbose=False, by_file=()):
     problems = []
 
     # -- assertion 2: the stage set is closed ------------------------------
@@ -200,6 +203,9 @@ def audit(scope, verbose=False):
         )
 
     totals = collections.Counter({stage: 0 for stage in DECODER_STAGES})
+    exempted_totals = collections.Counter({stage: 0 for stage in DECODER_STAGES})
+    contributors = {stage: [] for stage in DECODER_STAGES}
+    exempted_contributors = {stage: [] for stage in DECODER_STAGES}
     # Keep one worked example per stage so a failure is actionable.
     example = {}
     scanned = 0
@@ -213,6 +219,8 @@ def audit(scope, verbose=False):
             continue
         scanned += 1
         by = normalize_words_by_stage(text)
+        path = label.rsplit(" @", 1)[0] if scope == "all" else label
+        word_table_exempt = (path, "word-table") in CONTENT_EXEMPTIONS
 
         # -- assertion 2b: the buckets PRODUCED match the declared set -------
         # DECODER_STAGES <-> CEILINGS was checked above, but that is only two
@@ -246,7 +254,23 @@ def audit(scope, verbose=False):
 
         for stage, words in by.items():
             if words:
+                # A word-table exemption documents that this exact file
+                # legitimately carries numeric word-shaped content.  Apply it
+                # only to the two real numeric stages: synthetic decoders must
+                # remain zero even inside an exempt file, or an exemption
+                # would hide the false decodes this audit exists to expose.
+                stage_exempt = (
+                    path,
+                    f"decoder-audit:{stage}",
+                ) in CONTENT_EXEMPTIONS
+                if stage in REAL_STAGES and (word_table_exempt or stage_exempt):
+                    exempted_totals[stage] += len(words)
+                    exempted_contributors[stage].append(
+                        (len(words), label, words[:4])
+                    )
+                    continue
                 totals[stage] += len(words)
+                contributors[stage].append((len(words), label, words[:4]))
                 if stage not in example:
                     example[stage] = (label, words[:4])
 
@@ -294,8 +318,32 @@ def audit(scope, verbose=False):
             limit = CEILINGS.get(stage, {}).get(scope)
             mark = "" if limit is None or totals[stage] <= limit else "  <-- OVER"
             shown = "none" if limit is None else str(limit)
+            exempt = (
+                f"   +{exempted_totals[stage]} exempt"
+                if exempted_totals[stage]
+                else ""
+            )
             print(
-                f"  {stage:{width}}  {totals[stage]:7d}   ceiling {shown}{mark}",
+                f"  {stage:{width}}  {totals[stage]:7d}   ceiling "
+                f"{shown}{exempt}{mark}",
+                file=sys.stderr,
+            )
+
+    for stage in by_file:
+        print(f"decoder contributors [{stage}]", file=sys.stderr)
+        rows = sorted(contributors[stage], key=lambda row: (-row[0], row[1]))
+        if not rows:
+            print("  (none)", file=sys.stderr)
+        for count, label, sample in rows:
+            shown = ", ".join(f"0x{word:08x}" for word in sample)
+            print(f"  {count:7d}  {label}  {shown}", file=sys.stderr)
+        exempt_rows = sorted(
+            exempted_contributors[stage], key=lambda row: (-row[0], row[1])
+        )
+        for count, label, sample in exempt_rows:
+            shown = ", ".join(f"0x{word:08x}" for word in sample)
+            print(
+                f"  {count:7d}  {label}  {shown}  (content exempt)",
                 file=sys.stderr,
             )
 
@@ -313,10 +361,18 @@ def main():
         help="audit every blob in history, not just tracked files",
     )
     parser.add_argument("--verbose", action="store_true", help="always print totals")
+    parser.add_argument(
+        "--by-file",
+        action="append",
+        choices=DECODER_STAGES,
+        default=[],
+        metavar="STAGE",
+        help="print each contributing file for one decoder stage (repeatable)",
+    )
     args = parser.parse_args()
 
     try:
-        problems, scanned = audit(args.scope, args.verbose)
+        problems, scanned = audit(args.scope, args.verbose, args.by_file)
     except subprocess.CalledProcessError as error:
         # Fail closed, like every other check here: "I could not tell" is not
         # an answer this repository accepts from a gate.

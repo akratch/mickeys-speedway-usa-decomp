@@ -2,11 +2,14 @@
 """Synthetic tests for overlay-atlas exact-C release deltas."""
 
 import json
+import os
+import re
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
@@ -299,6 +302,142 @@ class AtlasStateLoadingTests(unittest.TestCase):
         self.assertEqual(loaded, state)
         self.assertEqual(info["kind"], "git")
         self.assertRegex(info["resolved"], r"^[0-9a-f]{40}$")
+
+
+def trial_module(overlay=1):
+    """One module with a mid-region fixed data/rodata carve.
+
+    The carve ends before the data section does, so the raw remainder behind it
+    needs its own `bin` row -- the case that regressed: both rows were named
+    `overlay_001_data_rodata`, splat wrote both to that one asset path, and the
+    shorter one won. The module then lost 0x274 bytes and every module behind
+    it slid, which the promotion trial reported as ~528,000 out-of-range bytes
+    on every candidate it tried.
+    """
+    return {
+        "overlay": overlay,
+        "rom": {"start": "0x184C3E0", "end": "0x1856DF8", "size": "0xAA18"},
+        "bss_size": "0x1DE0",
+        "sections": {
+            "text": {"start": "0x184C3E0", "end": "0x1854500", "size": "0x8120"},
+            "data_rodata": {
+                "start": "0x1854500",
+                "end": "0x18547C0",
+                "size": "0x2C0",
+            },
+            "reloc1": {"start": "0x18547C0", "end": "0x1855020", "size": "0x860"},
+            "reloc2": {"start": "0x1855020", "end": "0x1856DF8", "size": "0x1DD8"},
+        },
+        "text_ownership": [
+            {
+                "offset": "0x0",
+                "end_offset": "0x8120",
+                "size": "0x8120",
+                "type": "c",
+                "source": "overlays/o001/example_tail",
+                "matched": True,
+                "nonmatching": True,
+            }
+        ],
+        "data_rodata_ownership": [
+            {
+                "offset": "0x274",
+                "end_offset": "0x294",
+                "size": "0x20",
+                "section": ".rodata",
+                "source": "overlays/o001/example_tail",
+                "trial_function": "example_owner",
+            }
+        ],
+    }
+
+
+class TrialProjectionTests(unittest.TestCase):
+    """The promotion trial's temporary ownership projection."""
+
+    def render(self, **kwargs):
+        return overlay_atlas.render_yaml_block(
+            {"modules": [trial_module()]}, **kwargs
+        )
+
+    def test_projection_without_a_trial_source_is_the_canonical_yaml(self):
+        # A carve is only correct while the owning TU emits those bytes, which
+        # only its own promotion does. Naming no source must leave the module
+        # exactly as the tracked yaml spells it, or every trial of every other
+        # candidate silently loses the carved range.
+        canonical = self.render()
+        self.assertEqual(canonical, self.render(trial_ownership=True))
+        self.assertIn("- [0x1854500, bin, overlay_001_data_rodata]", canonical)
+        self.assertNotIn(".rodata", canonical)
+        self.assertIn("subalign: 0x1", canonical)
+
+    def test_a_named_trial_source_carves_only_its_own_range(self):
+        carved = self.render(
+            trial_ownership=True, trial_sources=frozenset({"example_tail"})
+        )
+        self.assertIn("- [0x1854774, .rodata, example_tail]", carved)
+        self.assertIn("subalign: 0x4", carved)
+
+    def test_a_named_trial_function_carves_only_its_owned_range(self):
+        carved = self.render(
+            trial_ownership=True,
+            trial_sources=frozenset({"example_tail"}),
+            trial_functions=frozenset({"example_owner"}),
+        )
+        self.assertIn("- [0x1854774, .rodata, example_tail]", carved)
+
+    def test_another_function_in_the_same_tu_carves_nothing(self):
+        uncarved = self.render(
+            trial_ownership=True,
+            trial_sources=frozenset({"example_tail"}),
+            trial_functions=frozenset({"other_function"}),
+        )
+        self.assertEqual(self.render(), uncarved)
+
+    def test_each_raw_slice_gets_its_own_asset_name(self):
+        carved = self.render(
+            trial_ownership=True, trial_sources=frozenset({"example_tail"})
+        )
+        names = re.findall(r"- \[0x[0-9A-F]+, bin, (\S+?)\]", carved)
+        self.assertEqual(len(names), len(set(names)), names)
+        self.assertIn("overlay_001_data_rodata", names)
+        self.assertIn("overlay_001_data_rodata_294", names)
+
+    def test_an_unrelated_trial_source_carves_nothing(self):
+        self.assertEqual(
+            self.render(),
+            self.render(
+                trial_ownership=True,
+                trial_sources=frozenset({"some_other_tu"}),
+            ),
+        )
+
+    def test_trial_sources_reads_the_environment_and_takes_basenames(self):
+        with mock.patch.dict(
+            os.environ,
+            {overlay_atlas.TRIAL_SOURCE_ENV: "overlays/o001/example_tail"},
+        ):
+            self.assertEqual(
+                overlay_atlas.trial_sources(), frozenset({"example_tail"})
+            )
+            self.assertEqual(
+                overlay_atlas.trial_sources(["overlays/o002/other"]),
+                frozenset({"other"}),
+            )
+        with mock.patch.dict(os.environ, {overlay_atlas.TRIAL_SOURCE_ENV: ""}):
+            self.assertEqual(overlay_atlas.trial_sources(), frozenset())
+
+    def test_trial_functions_reads_the_environment(self):
+        with mock.patch.dict(
+            os.environ,
+            {overlay_atlas.TRIAL_FUNCTION_ENV: "example_owner other_function"},
+        ):
+            self.assertEqual(
+                overlay_atlas.trial_functions(),
+                frozenset({"example_owner", "other_function"}),
+            )
+        with mock.patch.dict(os.environ, {overlay_atlas.TRIAL_FUNCTION_ENV: ""}):
+            self.assertEqual(overlay_atlas.trial_functions(), frozenset())
 
 
 if __name__ == "__main__":

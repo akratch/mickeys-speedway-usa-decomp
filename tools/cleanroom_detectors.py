@@ -166,34 +166,23 @@ WORD_ARRAY_LIMIT = 16  # tokens appearing inside such runs
 #        accounted for 7 of the 13 distinct high bytes in docs/modules.md and
 #        9 of symbol_addrs.us.txt's 13 (see HALF_PAIR_GAP).
 #
-#    Measured after all of them, over every blob in this repository's
-#    history.  The protecting gate is named, because for every file in this
-#    tree it is `spread` -- addresses cluster, and volume alone was never the
-#    signal:
-#      docs/modules.md        95 words, spread  5 -- 6.40x under spread
-#      symbol_addrs.us.txt   436 words, spread  2 -- 16.0x under spread, and
-#                            note it is already 2.3x OVER the count limit;
-#                            almost all of those words share the high byte
-#                            0x80, which is the whole reason the rule is a pair
-#      src/main/runlink.c     43 words, spread  4 -- 8.00x under spread
-#      this file             no figure quoted: it is the one file whose own
-#                            metrics move every time this file is edited, and a
-#                            self-measurement in a comment is stale by
-#                            construction.  It is protected by COUNT, not
-#                            spread -- at round 5 its spread was 32, exactly ON
-#                            the limit, and only its count saved it.
-#      the two manifests       8 words each after their schema-validated
-#                            digests are accounted for
-#    Tightest margin anywhere in history: 6.40x, up from 2.46x before the
-#    halves fix and 1.19x before any of this.  Nothing in history fires.
+#    Current tracked-tree measurements after the identifier, decimal and
+#    base-N discriminator fixes:
+#      docs/modules.md        41 words, spread  4
+#      symbol_addrs.us.txt  1466 words, spread  4 -- count is intentionally
+#                            high; the 8.00x spread margin is why the rule is a
+#                            pair
+#      src/main/runlink.c     10 words, spread  4
+#    Tightest non-exempt margin: 2.82x (src/main/frontend_37D50.c, 68 words /
+#    spread 29, protected by count).
 #
-#    A full attribution audit (every word in every historical blob traced to
-#    the mechanism that produced it) now shows EVERY synthetic decoder
+#    A full attribution audit of the current tracked tree now shows EVERY
+#    synthetic decoder
 #    contributing zero: hexline-block, base-block, base-run, a85-run,
 #    halves-pair, oct-token, dotted-quad and escaped-bytes are all 0.  The only
-#    contributors left are hex-run (5279 words -- real addresses) and dec-token
-#    (3).  Anything else appearing there is a false decode; re-run the audit
-#    when a decoder changes.
+#    contributors left are hex-run and dec-token, both genuine numeric text.
+#    Anything else appearing there is a false decode; re-run the audit when a
+#    decoder changes.
 #    The fixture families (400 real ROM words each) land at 342-1146 words and
 #    spread 40-167.
 #
@@ -306,13 +295,15 @@ BINARY_ALLOWLIST: "set[str]" = set()
 # `git commit --no-verify` and after that nothing is checked at all.  This is
 # the narrower escape hatch -- one file, one detector, a reason recorded in the
 # source, and a diff someone has to review -- so the answer to a false positive
-# is never "turn the hooks off".
+# is never "turn the hooks off".  The decoder audit also excludes the real
+# numeric stages (hex-run and dec-token) for word-table-exempt files and for
+# exact `decoder-audit:<stage>` entries.  The latter records intentional numeric
+# surfaces without exempting them from the clean-room detector itself.
 #
 # Rules for using it: name the exact path and the exact detector, never a
 # pattern; write the reason as the value; and prefer fixing the detector, since
-# every entry here is a permanent hole.  Empty today, and that is the goal --
-# the tightest margin in this repository's whole history is 6.40x, so nothing
-# needs one.  If this set is not empty, the count belongs in the report.
+# every entry here is a permanent hole. If this set is not empty, the count and
+# each reason belong in the report.
 CONTENT_EXEMPTIONS: "dict[tuple[str, str], str]" = {
     (
         "Makefile",
@@ -334,6 +325,18 @@ CONTENT_EXEMPTIONS: "dict[tuple[str, str], str]" = {
         "docs/resident.md",
         "oversize",
     ): "prose ledger of the resident segment (per-function census, evidence, plateaus); grows with every matched TU and carries no extracted data; the word-table rule above still applies to its content",
+    (
+        "overlay_undefined_syms.us.txt",
+        "decoder-audit:hex-run",
+    ): "generated overlay relocation surface: thousands of reviewed symbol addresses and addends required by the linker, never an instruction-word dump",
+    (
+        "symbol_addrs.us.txt",
+        "decoder-audit:hex-run",
+    ): "canonical symbol map: thousands of explicit ROM/VRAM addresses by design; it remains fully subject to the clean-room word-table detector",
+    (
+        "src/libultra/n_csplayer.c",
+        "decoder-audit:dec-token",
+    ): "permitted libultra source carries a fixed-point timing lookup table with 43 eight/nine-digit decimal constants; the clean-room word-table detector remains active",
 }
 
 # 8. (The aggregate budget now lives with rule 4 -- it is measured on the
@@ -413,7 +416,18 @@ def check_path(path):
 # Encodings the normalizer decodes.  Work is bounded: at most DECODE_BUDGET
 # bytes of decoded output per blob, so a pathological input cannot turn the
 # gate into a denial of service.
-HEX_RUN_ANY = re.compile(r"(?:0[xX])?[0-9a-fA-F][0-9a-fA-F_]*")
+# A candidate must be a complete numeric token, not a hex-looking slice of an
+# identifier.  The old unbounded pattern started at the `c` in `func_80012340`
+# or the `D` in `D_80012340`; _words_from_hex then recovered the address-shaped
+# suffix and reported a word that was never written as a number.  It also made
+# large types such as O101TailAB4CRoot cross the halves volume gate merely by
+# repeating their own name.  C integer suffixes remain outside the match, and
+# the explicit lookbehind keeps `\u27bd` halves covered.
+HEX_RUN_ANY = re.compile(
+    r"(?:(?<![0-9A-Za-z_])(?:0[xX])?[0-9a-fA-F][0-9a-fA-F_]*"
+    r"|(?<=\\u)[0-9a-fA-F]{4})"
+    r"(?=[uUlL]*(?![0-9A-Za-z_]))"
+)
 DEC_TOKEN = re.compile(r"(?<![0-9A-Za-z_.$-])([0-9]{8,10})(?![0-9A-Za-z_.$-])")
 OCT_TOKEN = re.compile(r"(?<![0-9A-Za-z_.$-])0[oO]?([0-7]{9,12})(?![0-9A-Za-z_.$-])")
 ESCAPED_BYTES = re.compile(r"(?:\\x[0-9a-fA-F]{2}){4,}")
@@ -435,9 +449,8 @@ PURE_B64_LINE = re.compile(r"^[A-Za-z0-9+/=_-]+$")
 # Measured: at 16 this joined nothing narrower, so wraps of 4-15 columns were
 # not caught at all while 16+ were -- a capability the docs described without
 # the qualifier.  Lowering it to 4 catches every wrap width from 4 to 32 and
-# costs nothing measurable: over all tracked files and every blob in
-# history the tightest margin is identical at either setting and nothing new
-# fires.  The alphabet-share gate in _decode_base_n is what keeps a joined
+# costs nothing measurable: no tracked synthetic stage begins emitting and no
+# file fires. The alphabet-share gate in _decode_base_n is what keeps a joined
 # block of ordinary short lines from decoding, so the per-line floor never had
 # to carry that load.
 PURE_B64_LINE_MIN = 4
@@ -492,9 +505,9 @@ HALF_PAIR_MIN_PER_KIB = 4
 PURE_BASE_LINE = re.compile(r"^[!-uz]+$")
 # Measured exactly as the base64 floor was, with a faithful hard column wrap:
 # at 32 every ascii85 wrap from 4 to 31 columns was missed; at 16, widths 4-15;
-# at 8, widths 4-7; at 4, none.  The tightest margin over all tracked files is
-# identical (6.40x) at every one of those settings and no file fires at any of
-# them, so the floor was buying nothing and costing the whole narrow-wrap
+# at 8, widths 4-7; at 4, none. No tracked synthetic stage emits at any of
+# those settings and no file fires, so the floor was buying nothing and
+# costing the whole narrow-wrap
 # range.  The alphabet-share and out-of-alphabet gates in _decode_base_n are
 # what stop a joined block of ordinary short lines decoding; the per-line floor
 # never carried that load.
@@ -543,10 +556,14 @@ B32_MIN_DIGIT = 0.04
 A85_MIN_UPPER = 0.10
 A85_MIN_LOWER = 0.10
 A85_MIN_DIGIT = 0.03
-#: Share of an ascii85 run that must lie outside the base64 alphabet.
-#: Expected for a real payload: 21/85 = 24.7%.  The floor is an order of
-#: magnitude below that.
-A85_MIN_OUTSIDE = 0.02
+#: Share of an ascii85 run that must lie outside the extended base64 alphabet
+#: above. The measured ROM fixture is 32.6%; the floor remains below it.
+# Real ascii85 from the fixture region spends 32.6% of its characters outside
+# the base64 alphabet.  The source blocks that exposed this false decode top
+# out at 21.7%: calls such as `mmFree(D_800C95A8);` happen to use only ascii85
+# characters once indentation is stripped.  This floor remains below encoded
+# data while rejecting source syntax before a decoder turns it into noise.
+A85_MIN_OUTSIDE = 0.24
 _B64_ALPHABET = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=_-"
 )
@@ -571,7 +588,7 @@ def _words_from_bytes(raw, out):
         out.append(int.from_bytes(raw[i : i + 4], "big"))
 
 
-def _words_from_hex(run, out, halves):
+def _words_from_hex(run, out, halves, explicit=False):
     """Words from one hex run.
 
     Type suffixes, adjacent punctuation and underscore separators are all
@@ -602,20 +619,26 @@ def _words_from_hex(run, out, halves):
         # names, so this was a steady drip of uniformly-distributed noise into
         # `spread`, which is the metric protecting every file in this tree.
         #
-        # Digit grouping is written in even, regular chunks.  Accept the join
-        # only when every group is 2, 4 or 8 digits; otherwise take each group
-        # on its own merits, which still yields the real address.
+        # Digit grouping is written in even, regular chunks. Accept the join
+        # only when every group is 2, 4 or 8 digits; an irregular grouping is
+        # an identifier and is excluded as a unit.
         groups = run.split("_")
         if prefixed or all(len(g) in (2, 4, 8) for g in groups if g):
             run = "".join(groups)
         else:
-            for group in groups:
-                if group:
-                    _words_from_hex(group, out, halves)
-            return
+            # This is an identifier, not a digit-grouped literal.  Recursing
+            # into its underscore-separated pieces used to turn `D_80081898`
+            # and `func_10003920` back into the very address suffix this branch
+            # exists to exclude.
+            return False
     if not run or not any(c.isdigit() for c in run):
         # All-letter runs are English words ("decade", "faced"), not data.
         return
+    if not prefixed and not explicit and not any(c.lower() in "abcdef" for c in run):
+        # An unprefixed digit-only token is decimal text, not hex. DEC_TOKEN
+        # owns the 8-10 digit form; decoding it here as base 16 as well invented
+        # a second value for every large decimal constant in timing tables.
+        return False
     if len(run) >= 8:
         for i in range(0, len(run) - 7, 8):
             out.append(int(run[i : i + 8], 16))
@@ -671,8 +694,13 @@ def _decode_base_n(run, out):
     # past the character-share floors (17% upper from `OBJDUMP`, 5% digits from
     # `mips64`) and decoded to 8 phantom words across 8 distinct high bytes.
     # Two such lines in a row also joined into a block and decoded again.
-    b64_shape = "=" not in stripped and not (
-        any(c in stripped for c in "+/") and any(c in stripped for c in "-_")
+    b64_shape = (
+        all(c in _B64_ALPHABET for c in run)
+        and "=" not in stripped
+        and not (
+            any(c in stripped for c in "+/")
+            and any(c in stripped for c in "-_")
+        )
     )
     # ascii85 needs its own shape rule for the same reason.  Its alphabet is 85
     # symbols; 21 of them lie OUTSIDE the base64 alphabet, so over random input
@@ -825,7 +853,11 @@ def normalize_words_by_stage(text):
             index = end
 
     join_blocks(
-        PURE_HEX_LINE, 16, lambda joined: _words_from_hex(joined, by["hexline-block"], [])
+        PURE_HEX_LINE,
+        16,
+        lambda joined: _words_from_hex(
+            joined, by["hexline-block"], [], explicit=True
+        ),
     )
     join_blocks(
         PURE_B64_LINE, PURE_B64_LINE_MIN, lambda joined: _decode_base_n(joined, by["base-block"])
@@ -844,7 +876,10 @@ def normalize_words_by_stage(text):
     runs = []
     for match in HEX_RUN_ANY.finditer(text):
         pending = []
-        if _words_from_hex(match.group(0), by["hex-run"], pending):
+        unicode_escape = match.start() >= 2 and text[match.start() - 2 : match.start()] == "\\u"
+        if _words_from_hex(
+            match.group(0), by["hex-run"], pending, explicit=unicode_escape
+        ):
             runs.append((match.start(), match.end(), pending[0]))
 
     # Pair greedily: walk the halves in order and take each with its successor
@@ -905,10 +940,12 @@ def normalize_words_by_stage(text):
             if not delimited and run != stripped:
                 continue
             upper, lower, digit = _shares(run)
+            outside = sum(1 for c in run if c not in _B64_ALPHABET)
             if not (
                 upper >= A85_MIN_UPPER
                 and lower >= A85_MIN_LOWER
                 and digit >= A85_MIN_DIGIT
+                and outside >= A85_MIN_OUTSIDE * len(run)
             ):
                 continue
             try:

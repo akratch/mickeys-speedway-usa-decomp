@@ -386,7 +386,7 @@ public-release:
 # tools/audit_decoders.py before changing a threshold it complains about.
 #
 #   gmake audit-decoders                       tracked files (~0.2s)
-#   gmake audit-decoders AUDIT_ARGS=--all      every blob in history (~4s)
+#   gmake audit-decoders AUDIT_ARGS=--all      every blob reachable from all refs
 #   gmake audit-decoders AUDIT_ARGS=--verbose  print the per-stage totals
 #
 # Deliberately NOT folded into `cleanroom`. The hooks run `cleanroom` on every

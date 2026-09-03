@@ -241,27 +241,26 @@ off *everything*. This policy positively encourages adapting function bodies
 from the published decomps named above, so source files are expected to carry
 hex constants, struct offsets and small instruction citations.
 
-The margins are therefore watched. The tightest margin over **every** blob in
-this repository's history is **6.40×** (`docs/modules.md`, 95 words / spread 5
-against limits of 192 / 32; 6.40× under spread, the gate protecting
-it), up from 2.46× before the halves fix and 1.19× before the decoder work
-began. `symbol_addrs.us.txt` sits at 16.0×, protected by spread rather than
-count: it carries 436 words against a 192 limit, nearly all sharing the high
-byte `0x80`, which is why the rule is a pair. **Watch this number as the tree
-grows**: it says whether the gate is still a safety net or is about to become
-an obstacle.
+The margins are therefore watched. In the current tracked tree the tightest
+non-exempt margin is **2.82×** (`src/main/frontend_37D50.c`, 68 words / spread
+29 against limits of 192 / 32, protected by count). `symbol_addrs.us.txt` is
+protected by spread rather than count: it carries 1466 words but only four
+distinct high bytes, an 8.00× spread margin, which is why the rule is a pair.
+**Watch these numbers as the tree grows**: they say whether the gate is still a
+safety net or is about to become an obstacle.
 
 Every margin recovered so far came from asking where a file's words actually
-came from, not from adjusting a limit. `src/main/runlink.c`, this
-repository's own worked example of sanctioned adaptation, once scored 162
-words / spread 28 against limits of 192 / 32, about thirty words from firing,
-and 116 of those words were base64 false decodes of `#pragma GLOBAL_ASM(...)`
-paths. Fixing the decoders took it to 47 words / spread 4.
+came from, not from adjusting a limit. `src/main/runlink.c`, this repository's
+own worked example of sanctioned adaptation, once scored 162 words / spread 28
+against limits of 192 / 32, about thirty words from firing, and 116 of those
+words were base64 false decodes of `#pragma GLOBAL_ASM(...)` paths. The current
+discriminators take it to 10 words / spread 4.
 
 If a gate does fire on work you believe is legitimate, the answer is
 `CONTENT_EXEMPTIONS` in `tools/cleanroom_detectors.py` (one path, one
 detector, a written reason, and a diff someone reviews), **not** `--no-verify`.
-It is empty today.
+The current entries are narrow exceptions for reviewed build/ledger metadata;
+each reason is recorded beside the exact path and detector in that table.
 
 No blob count is quoted here on purpose. It changes with every text commit, so
 any number written down is stale the moment the next one lands.
@@ -342,8 +341,9 @@ report `b32_len_mod8_is_1` and `b64_wrap27` silently producing nothing. Run
 both. Neither replaces the other, and a clean audit is not evidence that
 anything still works.
 
-`audit-decoders` runs over tracked files by default (about 0.2 s) and over
-every blob in history with `AUDIT_ARGS=--all` (about 4 s). It is deliberately
+`audit-decoders` runs over tracked files by default (a few seconds) and can
+also inspect every blob reachable from every ref with `AUDIT_ARGS=--all`; that
+scope grows with campaign history and may take several minutes. It is deliberately
 **not** wired into `gmake cleanroom` or the git hooks: those run on every
 commit, must stay fast, and must fail only for clean-room reasons. This check
 answers a different question (*is the detector still measuring reality?*) and

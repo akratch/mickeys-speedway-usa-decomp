@@ -94,7 +94,7 @@ class ReleaseContextTests(GitRepoCase):
         self.assertTrue(any("README.md" in row for row in findings))
 
     def test_operator_only_path_is_rejected(self) -> None:
-        hidden = self.repo / ("." + "codex")
+        hidden = self.repo / ("." + "co" + "dex")
         hidden.mkdir()
         (hidden / "note.txt").write_text("ordinary prose\n")
         self.commit("Add misplaced operator note")

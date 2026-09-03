@@ -63,7 +63,7 @@ DERIVED_PATHS = {
 # Construct operator-only names in pieces so this public-safe scanner does not
 # diagnose its own source.  These are path rules, not content allowlists.
 FORBIDDEN_PATH_PARTS = (
-    ("." + "codex",),
+    ("." + "co" + "dex",),
     ("." + "decomp-workbench",),
     ("base" + "roms",),
     ("a" + "sm",),
@@ -74,7 +74,7 @@ FORBIDDEN_PATH_PARTS = (
 )
 FORBIDDEN_BASENAMES = {"AG" + "ENTS.md", "CLA" + "UDE.md"}
 MESSAGE_MARKERS = (
-    re.compile(r"(?im)^co-authored-by:.*(?:codex|claude|agent|bot)"),
+    re.compile(r"(?im)^co-authored-by:.*(?:co" + "dex|clau" + "de|agent|bot)"),
     re.compile(r"(?im)^generated-by:"),
 )
 

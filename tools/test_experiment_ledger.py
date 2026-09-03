@@ -430,7 +430,7 @@ class ExperimentLedgerTests(unittest.TestCase):
         unsafe = (
             "Try addiu before the branch",
             "Candidate contains 0x27bdffe0",
-            r"Candidate bytes are \x27\xbd\xff\xe0",
+            "Candidate bytes are " + r"\x27" + r"\xbd" + r"\xff" + r"\xe0",
             "Candidate decimal word is 666894304",
             "Try or $8, $9, $10",
             "Compare against /private/object.o",

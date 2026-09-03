@@ -1486,5 +1486,137 @@ class ResidentTargetRangeTests(unittest.TestCase):
                         value, size, ".main", repo / "missing-values.txt")
 
 
+def _site(module_off, rtype, symbol="s", in_table=False):
+    return {"symbol": symbol, "obj_off": module_off, "type": rtype,
+            "module_off": module_off, "table_off": module_off if in_table
+            else None, "shifted": False, "stored": None, "obj": None,
+            "in_table": in_table, "op": None, "note": ""}
+
+
+def _record(target_offset, mode, op_name="LOCAL"):
+    return {"target_offset": target_offset, "mode": mode, "op_name": op_name}
+
+
+class OrderPreservingEmbeddingTests(unittest.TestCase):
+    """The alignment rule itself, on synthetic sequences: no ROM data."""
+
+    def embed(self, candidate, retail):
+        return rs.unique_order_preserving_embedding(candidate, retail)
+
+    def test_identical_sequence_is_the_identity(self):
+        seq = [rs.R_MIPS_HI16, rs.R_MIPS_LO16, rs.R_MIPS_26]
+        self.assertEqual([0, 1, 2], self.embed(seq, list(seq)))
+
+    def test_extra_retail_record_of_an_unused_type_is_skipped(self):
+        # An intra-module JUMP the object resolves itself leaves an R_MIPS_26
+        # record with no candidate site; the rest still embeds uniquely.
+        candidate = [rs.R_MIPS_HI16, rs.R_MIPS_LO16]
+        retail = [rs.R_MIPS_26, rs.R_MIPS_HI16, rs.R_MIPS_LO16]
+        self.assertEqual([1, 2], self.embed(candidate, retail))
+
+    def test_ambiguous_placement_is_refused(self):
+        # Two ways to lay one HI16 down over two HI16 records: choosing either
+        # would be inventing an addend.
+        self.assertIsNone(self.embed([rs.R_MIPS_HI16],
+                                     [rs.R_MIPS_HI16, rs.R_MIPS_HI16]))
+
+    def test_a_type_the_retail_order_cannot_supply_is_refused(self):
+        self.assertIsNone(self.embed([rs.R_MIPS_HI16, rs.R_MIPS_26],
+                                     [rs.R_MIPS_26, rs.R_MIPS_HI16]))
+
+    def test_more_candidate_sites_than_records_is_refused(self):
+        self.assertIsNone(self.embed([rs.R_MIPS_HI16, rs.R_MIPS_HI16],
+                                     [rs.R_MIPS_HI16]))
+
+    def test_empty_candidate_embeds_trivially(self):
+        self.assertEqual([], self.embed([], [rs.R_MIPS_HI16]))
+
+
+class SiteAlignmentTests(unittest.TestCase):
+    """`align_sites` over synthetic site and record lists: no ROM data."""
+
+    def test_fully_corroborated_object_is_not_realigned(self):
+        sites = [_site(0x10, rs.R_MIPS_HI16, in_table=True),
+                 _site(0x14, rs.R_MIPS_LO16, in_table=True)]
+        records = [_record(0x10, rs.R_MIPS_HI16),
+                   _record(0x14, rs.R_MIPS_LO16)]
+        summary = rs.align_sites(sites, records, 0, 0x100)
+        self.assertFalse(summary["attempted"])
+        self.assertEqual(2, summary["aligned"])
+        self.assertEqual(0, summary["shifted"])
+        self.assertEqual([0x10, 0x14], [s["table_off"] for s in sites])
+
+    def test_a_shifted_site_is_aligned_and_counted_as_shifted(self):
+        # The candidate moved its LO16 two words later; the HI16 still lands
+        # where the table names it.
+        sites = [_site(0x10, rs.R_MIPS_HI16, in_table=True),
+                 _site(0x1C, rs.R_MIPS_LO16)]
+        records = [_record(0x10, rs.R_MIPS_HI16),
+                   _record(0x14, rs.R_MIPS_LO16)]
+        summary = rs.align_sites(sites, records, 0, 0x100)
+        self.assertTrue(summary["attempted"])
+        self.assertIsNone(summary["refused"])
+        self.assertEqual(2, summary["aligned"])
+        self.assertEqual(1, summary["shifted"])
+        self.assertEqual([False, True], [s["shifted"] for s in sites])
+        self.assertEqual([0x10, 0x14], [s["table_off"] for s in sites])
+        self.assertTrue(all(s["in_table"] for s in sites))
+
+    def test_an_exact_offset_that_belongs_to_another_record_is_moved(self):
+        # A site can sit exactly on a record and still belong to the previous
+        # one: the order is authoritative, so the alignment overrides the
+        # offset coincidence and reports the move.
+        sites = [_site(0x14, rs.R_MIPS_HI16, in_table=True),
+                 _site(0x18, rs.R_MIPS_HI16),
+                 _site(0x1C, rs.R_MIPS_LO16),
+                 _site(0x20, rs.R_MIPS_LO16)]
+        records = [_record(0x10, rs.R_MIPS_HI16),
+                   _record(0x14, rs.R_MIPS_HI16),
+                   _record(0x18, rs.R_MIPS_LO16),
+                   _record(0x1C, rs.R_MIPS_LO16)]
+        summary = rs.align_sites(sites, records, 0, 0x100)
+        self.assertEqual(4, summary["aligned"])
+        self.assertEqual(4, summary["shifted"])
+        self.assertEqual([0x10, 0x14, 0x18, 0x1C],
+                         [s["table_off"] for s in sites])
+
+    def test_ambiguous_alignment_refuses_and_leaves_every_site_unvalued(self):
+        sites = [_site(0x10, rs.R_MIPS_HI16),
+                 _site(0x20, rs.R_MIPS_LO16)]
+        records = [_record(0x10, rs.R_MIPS_HI16),
+                   _record(0x14, rs.R_MIPS_HI16),
+                   _record(0x18, rs.R_MIPS_LO16),
+                   _record(0x1C, rs.R_MIPS_LO16)]
+        summary = rs.align_sites(sites, records, 0, 0x100)
+        self.assertTrue(summary["attempted"])
+        self.assertIn("no unique order-preserving alignment",
+                      summary["refused"])
+        self.assertEqual(0, summary["aligned"])
+        self.assertEqual([None, None], [s["table_off"] for s in sites])
+        self.assertEqual([False, False], [s["in_table"] for s in sites])
+
+    def test_records_outside_the_translation_unit_are_not_candidates(self):
+        # The pool is bounded by the object's own text range, so the next
+        # module function's records cannot absorb a shifted site.
+        sites = [_site(0x10, rs.R_MIPS_HI16), _site(0x14, rs.R_MIPS_LO16)]
+        records = [_record(0x10, rs.R_MIPS_HI16),
+                   _record(0x14, rs.R_MIPS_LO16),
+                   _record(0x40, rs.R_MIPS_HI16),
+                   _record(0x44, rs.R_MIPS_LO16)]
+        summary = rs.align_sites(sites, records, 0, 0x20)
+        self.assertEqual(2, summary["aligned"])
+        self.assertEqual(0, summary["shifted"])
+
+    def test_unmapped_sites_are_ignored_by_the_alignment(self):
+        unmapped = _site(0x10, rs.R_MIPS_HI16)
+        unmapped["module_off"] = None
+        sites = [unmapped, _site(0x18, rs.R_MIPS_LO16)]
+        records = [_record(0x14, rs.R_MIPS_LO16)]
+        summary = rs.align_sites(sites, records, 0, 0x100)
+        self.assertEqual(1, summary["sites"])
+        self.assertEqual(1, summary["aligned"])
+        self.assertEqual(0x14, sites[1]["table_off"])
+
+
 if __name__ == "__main__":
     unittest.main()
