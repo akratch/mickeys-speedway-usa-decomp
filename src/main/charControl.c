@@ -412,46 +412,47 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
  * Levers tried: commutative base add (best), volatile/old-style/comma/result forms, and flags/context.
  * Remains: candidate CSE hoists the global base address before the camera-count call; target keeps it split.
  */
-#ifdef NON_MATCHING
-void func_8001D2A0(ControlActor *actor, s32 arg1) {
-    ControlPlayer *player;
-    s32 cameraIndex;
-
-    player = actor->player;
-    player->unk43C = actor->rotationX;
-    player->unk43E = actor->rotationY;
-    player->unk440 = actor->rotationZ;
-    player->unk444 = actor->unk8;
-    player->unk448 = actor->x;
-    player->unk44C = actor->y;
-    player->unk450 = actor->z;
-    if (player->unk158 != 0) {
-        player->unk43C += player->unk160;
-        player->unk43E += player->unk164;
-        player->unk440 += player->unk162;
-        player->unk44C += player->unk154 + player->unk14C;
-    }
-    if (!(player->flags1A8 & 1)) {
-        TrapDanglingJump(actor, player, arg1);
-    }
-    if (player->unkD4 != 0) {
-        TrapDanglingJump(player->unkD4, arg1);
-    }
-    D_800CB300 = camGetListPtr();
-    cameraIndex = mainGetNumberOfCameras() - 1;
-    if (player->playerIndex < cameraIndex) {
-        cameraIndex = player->playerIndex;
-    }
-    D_800CB300 = (ControlCameraState *)
-        ((u8 *) D_800CB300 + (cameraIndex * sizeof(ControlCameraState)));
-    camSetNo(player->playerIndex, cameraIndex, &D_800CB300);
-    if ((player->unk190 != 0) || (player->unk3FA == 0)) {
-        func_8001BBB4(actor, player, (f32) arg1);
-    }
+void func_8001D2A0(ControlActor *actor, s32 arg1)
+{
+  s32 cameraIndex;
+  ControlPlayer *player;
+  player = actor->player;
+  player->unk43C = actor->rotationX;
+  player->unk43E = actor->rotationY;
+  player->unk440 = actor->rotationZ;
+  player->unk444 = actor->unk8;
+  player->unk448 = actor->x;
+  player->unk44C = actor->y;
+  player->unk450 = actor->z;
+  if (player->unk158 != 0)
+  {
+    player->unk43C += player->unk160;
+    player->unk43E += player->unk164;
+    player->unk440 += player->unk162;
+    player->unk44C += player->unk154 + player->unk14C;
+  }
+  if (!(player->flags1A8 & 1))
+  {
+    TrapDanglingJump(actor, player, arg1);
+    D_800CB300 = D_800CB300;
+  }
+  if (player->unkD4 != 0)
+  {
+    TrapDanglingJump(player->unkD4, arg1);
+  }
+  D_800CB300 = camGetListPtr();
+  cameraIndex = mainGetNumberOfCameras() - 1;
+  if (player->playerIndex < cameraIndex)
+  {
+    cameraIndex = player->playerIndex;
+  }
+  D_800CB300 = (ControlCameraState *) ((cameraIndex * (sizeof(ControlCameraState))) + ((u8 *) D_800CB300));
+  camSetNo(player->playerIndex, cameraIndex, &D_800CB300);
+  if ((player->unk190 != 0) || (player->unk3FA == 0))
+  {
+    func_8001BBB4(actor, player, (f32) arg1);
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D2A0.s")
-#endif
 void func_8001D41C(ControlActor *actor, ControlPlayer *player, s32 updateRate) {
     ControlPlayerActions *actions;
     ControlPlayerAction action;

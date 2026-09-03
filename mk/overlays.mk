@@ -676,8 +676,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34SetValue10.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
+# The resident call cannot be valued under its own global name in
+# overlay_undefined_syms.us.txt without moving the resident function for
+# every resident caller; tools/reloc_surface.py derives a per-module
+# placeholder for the R_MIPS_26 site and the rebind is declared here.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34InitStorage.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_034_F0000000_18811A8=overlay34InitStorage $@ && \
+	$(OBJCOPY) --redefine-sym func_overlay_034_F0000000_18811A8=overlay34InitStorage \
+		--redefine-sym func_8002B280=func_8002B280_o034Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o034/overlay34InterpolateColor.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC8
@@ -2473,7 +2478,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F00001A0_187A598.c.o: POS
 endif
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F0000B18_187AF10.c.o: CFLAGS += -Wab,-r4300_mul
+# The resident call cannot be valued under its own global name in
+# overlay_undefined_syms.us.txt without moving the resident function for
+# every resident caller; tools/reloc_surface.py derives a per-module
+# placeholder for the R_MIPS_26 site and the rebind is declared here.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F0000B18_187AF10.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym sqrtf=sqrtf_o026Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20C
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26DrawGroups.c.o: POSTPROCESS = \

@@ -43,7 +43,7 @@ typedef struct O70Pair {
     s16 z;
 } O70Pair;
 
-extern O70Pair gOverlay70PairTableReloc[];
+extern s16 gOverlay70PairTableReloc[];
 extern s16 gOverlay70HeightTableReloc[];
 extern void overlay70Reset(O70Object *object);
 extern s32 overlay70RandomRange(s32 lower, s32 upper);
@@ -52,10 +52,6 @@ extern f32 overlay70Cos(s32 angle);
 extern void overlay70Apply(void *target, s32 *flags, s32 mode,
                            f32 *coordinates, s32 ticks);
 
-/* Plateau (near-miss p6): workbench allocation-mismatch, 15 register-only words at 171 instructions/frame -0x48; first +0xC4.
- * Levers: target-local call/table relocation normalization and an intermediate-value read; only the former reduced residuals.
- * Remains: pool/temp class crossing with four ring-only target substitutions; assembly fallback stays canonical. */
-#ifdef NON_MATCHING
 void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
     O70State *state;
     O70Object *related;
@@ -87,7 +83,8 @@ void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
                 state->countdown = 0;
             }
         } else {
-            angle = state->angle + (state->angleStep * ticks);
+            angle = state->angle;
+            angle += state->angleStep * ticks;
             if (angle >= 0x8000) {
                 state->angle = 0x7FFF;
                 state->angleStep = overlay70RandomRange(-0x200, -0x100);
@@ -103,11 +100,11 @@ void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
 
         sine = overlay70Sin(-related->angle);
         cosine = overlay70Cos(-related->angle);
-        pair = &gOverlay70PairTableReloc[state->type];
+        pair = (O70Pair *)&gOverlay70PairTableReloc[state->type * 2];
         pairX = (f32)pair->x;
         pairZ = (f32)pair->z;
         object->x = (related->x + (pairX * sine)) - (pairZ * cosine);
-        object->y = (f32)gOverlay70HeightTableReloc[state->type] +
+        object->y = (f32)gOverlay70HeightTableReloc[state->type + 12] +
                     (related->y + 20.0f) + relatedState->verticalOffset;
         object->z = related->z + (pairZ * sine) + (pairX * cosine);
         object->facing = related->facing;
@@ -125,6 +122,3 @@ void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
     overlay70Apply(*object->targetList, &state->flags, 2, &object->value28,
                    ticks);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o070/func_overlay_070_F00000D8_18C92A0/func_overlay_070_F00000D8_18C92A0.s")
-#endif

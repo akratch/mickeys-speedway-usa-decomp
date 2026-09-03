@@ -1573,39 +1573,46 @@ extern f32 gOverlay1CallbackStepFloat;
 extern Overlay1CallbackEntry gOverlay1CallbackDescriptor[];
 extern Overlay1CallbackEntry gOverlay1ModeCallbacks[];
 
-#ifdef NON_MATCHING
-void overlay1StartTimerCallbacks(Overlay1CallbackObject *object, s32 amount) {
-    Overlay1CallbackEntry *entry;
-    Overlay1Callback callback;
-    s32 index;
-    u8 mode;
-
-    if (overlay1IsObjectActive(object) != 0) {
-        gOverlay1TimerStep = amount;
-        gOverlay1CallbackStepFloat = amount;
-        entry = gOverlay1CallbackDescriptor;
-        for (index = 5; index != 6; index++, entry++) {
-            mode = ((Overlay1CallbackState *)gOverlay1TimerState)->mode;
-            if (index != mode) {
-                callback = entry->callback;
-                if (callback != NULL) {
-                    if ((entry->modeMask & (1 << mode)) != 0) {
-                        callback();
-                    }
-                }
-            }
-        }
-        mode = ((Overlay1CallbackState *)gOverlay1TimerState)->mode;
-        callback = gOverlay1ModeCallbacks[mode].callback;
-        if (callback != NULL) {
+void overlay1StartTimerCallbacks(Overlay1CallbackObject *object, s32 amount)
+{
+  Overlay1CallbackEntry *entry;
+  Overlay1Callback callback;
+  Overlay1Callback loadedCallback;
+  s32 index;
+  u8 mode;
+  if (overlay1IsObjectActive(object) != 0)
+  {
+    gOverlay1TimerStep = amount;
+    gOverlay1CallbackStepFloat = amount;
+    entry = gOverlay1CallbackDescriptor;
+    for (index = 5; index != 6; index++, entry++)
+    {
+      mode = ((Overlay1CallbackState *) gOverlay1TimerState)->mode;
+      if (index != mode)
+      {
+        loadedCallback = entry->callback;
+        callback = loadedCallback;
+        if (callback != 0)
+        {
+          if ((entry->modeMask & (1 << mode)) != 0)
+          {
             callback();
+            if (entry->modeMask)
+            {
+            }
+          }
         }
+      }
     }
-}
 
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0005BF4_1851FD4.s")
-#endif
+    mode = ((Overlay1CallbackState *) gOverlay1TimerState)->mode;
+    callback = gOverlay1ModeCallbacks[mode].callback;
+    if (callback != 0)
+    {
+      callback();
+    }
+  }
+}
 
 /* ---- overlay1FindDirectionalObject ---- */
 

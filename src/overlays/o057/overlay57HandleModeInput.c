@@ -56,22 +56,37 @@ extern void o57ModeSubmitFinalReloc(void *object, void *state, f32 position,
                                    s32 index, s32 mode);
 
 /* Overlay 57 text +0x4064..+0x43C8. */
-/* Plateau: canonical -O2 -mips2 is exact-size at 0x364 and differs in 13
- * words, first at +0xE0.  Reusing inputFlags as the compacted output index
- * fixes the output-table carrier; the remaining initializer schedule and
- * private a1/a2 loop web resisted the bounded source variants. */
-#ifdef NON_MATCHING
+/* THE JOINED LINE IS LOAD-BEARING. `outputIndex = 0; do {` shares one physical
+ * line deliberately; splitting it costs the three-word schedule residual back.
+ *
+ * IDO hoists both loop base addresses into the loop preheader and stamps the
+ * hoisted records with the *loop header's* source line, not their use sites'.
+ * The index initializer and those two addresses are independent -- no
+ * dependence edge orders them -- so as1's reorganizer separates them on its
+ * minimized `lineno` key, and an initializer written on an earlier line wins.
+ * Sharing the loop header's line removes the separation. This is why the
+ * 119-entry flag lattice and ten source variants could not move it: the
+ * deciding key was never a flag or a statement order, it was the line number.
+ *
+ * Measured with `decomp-workbench trace-emit` on an emit-provenance
+ * instrumented ugen (workbench improvement-backlog item #3(b)): block 0 emits
+ * the initializers at lines 90 and 91 and both hoisted addresses at line 92.
+ * Canonical -O2 -mips2 stays exact-size at 0x364 with the exact 0x58 frame;
+ * the three relocation-masked differences at +0xE0..+0xE8 are gone. What
+ * remains is the pre-existing relocation-surface difference (four words where
+ * the target resolves a shared base plus offset and the C object emits
+ * per-symbol LO16 records), which is a symbol-layout question, not a
+ * schedule one. */
 void overlay57HandleModeInput(s32 updateRate) {
-    u32 inputFlags;
     s32 i;
+    s32 outputIndex;
     s32 *idPtr;
     s8 enabled[4];
 
     gOverlay57ModeFlag = 0;
     gOverlay57State = 3;
-    inputFlags = gO57ModeInputFlags;
 
-    if (((inputFlags & 0x9000) != 0) &&
+    if (((gO57ModeInputFlags & 0x9000) != 0) &&
         (gOverlay57DistanceState == 0)) {
         o57ModeBegin12Reloc(12, 0);
 
@@ -85,18 +100,17 @@ void overlay57HandleModeInput(s32 updateRate) {
         gO57ModeShortValue = 0x3FC;
         gO57ModeSixthByte = 0;
 
-        inputFlags = 0;
         i = 0;
-        do {
+        outputIndex = 0; do {
             enabled[i] = gO57ModeChoices[i].enabled;
             if (gO57ModeChoices[i].enabled != 0) {
-                gO57ModeOutputs[inputFlags].value =
+                gO57ModeOutputs[outputIndex].value =
                     (s8) gO57ModeValueTable[
                         gO57ModeChoices[i].tableIndex];
-                inputFlags++;
+                outputIndex++;
             }
             i++;
-        } while (&gO57ModeChoices[i] != gO57ModeChoicesEnd);
+        } while (gO57ModeChoicesEnd != &gO57ModeChoices[i]);
 
         o57ModeSubmitEnabledReloc(enabled);
         o57ModeSelectChoiceReloc(0);
@@ -106,7 +120,7 @@ void overlay57HandleModeInput(s32 updateRate) {
                                0, 5, 1, 0);
         gOverlay57DistanceState = 1;
         o57ModeApplyTableReloc();
-    } else if (((inputFlags & 0x4000) != 0) &&
+    } else if (((gO57ModeInputFlags & 0x4000) != 0) &&
                (gOverlay57DistanceState == 0)) {
         o57ModeBegin13Reloc(13, 0);
         o57ModePrepareAlternateReloc();
@@ -139,6 +153,3 @@ void overlay57HandleModeInput(s32 updateRate) {
                             (f32) ((gOverlay57Delay >> 5) + 0x104), 184.0f,
                             1.0f, 1.0f, -2, 3);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57HandleModeInput/func_overlay_057_F0004064_18A7C5C.s")
-#endif

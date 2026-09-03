@@ -22,28 +22,38 @@ typedef struct Overlay40Object {
 extern Overlay40Entry gOverlay40Entries[8];
 extern Overlay40Object **gOverlay40Objects;
 
-/* Workbench: structure-mismatch, 43 differing words, first mismatch +0x08.
- * Size is target-sized; the remaining gap is an early amount copy and register web.
- * This is not shape-exact: four alignment gaps remain before allocation cleanup. */
-#ifdef NON_MATCHING
+/* THE JOINED LINE IS LOAD-BEARING. `remaining = 7; do {` shares one physical
+ * line deliberately; splitting it costs the match.
+ *
+ * IDO hoists the loop-invariant `gOverlay40Objects` address into the loop
+ * preheader and stamps the hoisted record with the *loop header's* source
+ * line, not the line of the statement that uses it. The count initializer and
+ * that address are independent -- no dependence edge orders them -- so as1's
+ * reorganizer separates them on its minimized `lineno` key, and any
+ * initializer written on an earlier line wins. Sharing the loop header's line
+ * removes the separation, and the later key then reproduces the target order.
+ *
+ * Measured with `decomp-workbench trace-emit` on an emit-provenance
+ * instrumented ugen (workbench improvement-backlog item #3(b)): block 0 emits
+ * the count at line 45 and the hoisted address at line 46, one line apart and
+ * adjacent in emission order. Before the join, 44/46 words with the swap at
+ * +0xC/+0x10; after it, all 46 words and all four relocation records compare
+ * exact. Promotion out of NON_MATCHING is the remaining step. */
 void overlay40UpdateEntries(s32 amount, s32 remaining) {
     Overlay40Entry *entry;
-    Overlay40Object *object;
     s8 previous;
-    s8 older;
+    Overlay40Object *object;
 
     entry = gOverlay40Entries;
-    remaining = 7;
-    do {
+    remaining = 7; do {
         if (entry->state != -1) {
             if (entry->state < 8) {
                 entry->state++;
             }
             previous = entry->scales[0];
-            older = entry->scales[1];
+            entry->scales[2] = entry->scales[1];
             entry->scales[0] = previous - amount;
             entry->scales[1] = previous;
-            entry->scales[2] = older;
             if (entry->scales[0] < 0) {
                 entry->scales[0] = 0;
             }
@@ -59,6 +69,3 @@ void overlay40UpdateEntries(s32 amount, s32 remaining) {
         entry++;
     } while (remaining--);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40UpdateEntries/func_overlay_040_F00000E8_1886998.s")
-#endif
