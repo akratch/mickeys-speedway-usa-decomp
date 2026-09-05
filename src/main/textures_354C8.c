@@ -112,7 +112,40 @@ void func_80034E48(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80034E54.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800355A0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800359D4.s")
+typedef struct Sprite {
+    s16 baseTextureId;
+    s16 numberOfFrames;
+    s16 numberOfInstances;
+    s16 unk6;
+    u8 pad08[8];
+    TextureFrameHeader **frames;
+} Sprite;
+
+extern s32 D_800D3008;
+extern s32 *D_800D2FFC;
+extern void func_800347A0(TextureFrameHeader *texture);
+
+void func_800359D4(Sprite *sprite) {
+    s32 i;
+    s32 frame;
+
+    if (sprite != NULL) {
+        sprite->numberOfInstances--;
+        if (sprite->numberOfInstances <= 0) {
+            for (i = 0; i < D_800D3008; i++) {
+                if (sprite == (Sprite *)D_800D2FFC[(i << 1) + 1]) {
+                    for (frame = 0; frame < sprite->numberOfFrames; frame++) {
+                        func_800347A0(sprite->frames[frame]);
+                    }
+                    mmFree(sprite);
+                    D_800D2FFC[i << 1] = -1;
+                    D_800D2FFC[(i << 1) + 1] = -1;
+                    break;
+                }
+            }
+        }
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80035ADC.s")
 /* PROVENANCE: body adapted from Jet Force Gemini's public
  * src/textures.c::func_80057B8C; Mickey's fields, calls, and compiled bytes
