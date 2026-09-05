@@ -31,7 +31,7 @@ typedef struct TextureFrameHeader {
     u8 pad00[2];
     u8 format;
     u8 pad03;
-    u16 flags;
+    s16 flags;
     u16 width;
     u16 height;
     u8 pad0A[4];
@@ -101,7 +101,27 @@ void func_80034E48(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800355A0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800359D4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80035ADC.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80035E88.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public
+ * src/textures.c::func_80057B8C; Mickey's fields, calls, and compiled bytes
+ * remain authoritative. The donor's empty condition is retained because it
+ * advances IDO's temporary FIFO without emitting an instruction. */
+void func_80035E88(TextureFrameHeader *tex, Gfx *displayList) {
+    Gfx *dlist = displayList;
+
+    if (tex) {
+    }
+    tex->cmd = dlist;
+    func_80035F48((u8 **)&dlist, (u8 *)tex, 0, 0);
+    if (tex->unk1B < 2 && (tex->flags & 0x40)) {
+        if (!(tex->format & 0xF)) {
+            func_80035F48((u8 **)&dlist, (u8 *)tex, 1,
+                          (0x1000 - tex->textureSize) >> 3);
+        } else {
+            func_80035F48((u8 **)&dlist, (u8 *)tex, 1, 0x100);
+        }
+    }
+    tex->numberOfCommands = dlist - tex->cmd;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80035F48.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80036544.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800367A4.s")
